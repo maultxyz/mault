@@ -67,6 +67,7 @@ export interface LeaderboardRow {
   name: string | null;
   scanCount: number;
   isOwnOrg: boolean;
+  isAnonymous: boolean;
 }
 
 export interface LeaderboardResult {

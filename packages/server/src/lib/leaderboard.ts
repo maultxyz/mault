@@ -4,7 +4,7 @@ import {
   type Leaderboard,
   type LeaderboardEntry,
 } from "@magic-vault/shared";
-import { count, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { authProvider } from "../auth";
 import { db } from "../db";
 import { orgSettings, scanStats } from "../db/schema";
@@ -14,28 +14,25 @@ import type { OrgScanCount } from "./interfaces/leaderboard";
 let cached: { value: OrgScanCount[]; expiresAt: number } | null = null;
 let inFlight: Promise<OrgScanCount[]> | null = null;
 
-async function loadOptedInScanCounts(): Promise<OrgScanCount[]> {
-  const rows = await db
+async function loadRankedScanCounts(): Promise<OrgScanCount[]> {
+  return db
     .select({
       orgId: sql<string>`${scanStats.orgId}`,
       scanCount: sql<number>`count(*)::int`,
+      optedIn: sql<boolean>`coalesce(bool_or(${orgSettings.leaderboardOptIn}), false)`,
     })
     .from(scanStats)
-    .innerJoin(
-      orgSettings,
-      sql`${orgSettings.orgId} = ${scanStats.orgId} AND ${orgSettings.leaderboardOptIn}`,
-    )
+    .leftJoin(orgSettings, eq(orgSettings.orgId, scanStats.orgId))
     .groupBy(scanStats.orgId)
     .orderBy(sql`count(*) DESC`, scanStats.orgId);
-  return rows;
 }
 
-function getOptedInScanCounts(): Promise<OrgScanCount[]> {
+function getRankedScanCounts(): Promise<OrgScanCount[]> {
   if (cached && cached.expiresAt > Date.now()) {
     return Promise.resolve(cached.value);
   }
   if (inFlight) return inFlight;
-  inFlight = loadOptedInScanCounts()
+  inFlight = loadRankedScanCounts()
     .then((value) => {
       cached = { value, expiresAt: Date.now() + LEADERBOARD_CACHE_TTL_MS };
       return value;
@@ -50,49 +47,54 @@ export function invalidateLeaderboardCache(): void {
   cached = null;
 }
 
-async function countOrgScans(orgId: string): Promise<number> {
-  const [row] = await db
-    .select({ count: count() })
-    .from(scanStats)
-    .where(eq(scanStats.orgId, orgId));
-  return row?.count ?? 0;
-}
-
 function rankOf(scanCount: number, ranked: OrgScanCount[]): number {
   return 1 + ranked.filter((row) => row.scanCount > scanCount).length;
 }
 
-export async function loadTopLeaderboardEntries(): Promise<LeaderboardEntry[]> {
-  const ranked = await getOptedInScanCounts();
-  const top = ranked.slice(0, LEADERBOARD_SIZE);
-  const names = await authProvider.getOrganisationNames(
-    top.map((row) => row.orgId),
-  );
-  return top.map((row) => ({
+function toEntry(
+  row: OrgScanCount,
+  ranked: OrgScanCount[],
+  names: Map<string, string>,
+  viewerOrgId: string | null,
+): LeaderboardEntry {
+  const isOwnOrg = row.orgId === viewerOrgId;
+  return {
     rank: rankOf(row.scanCount, ranked),
-    name: names.get(row.orgId) ?? null,
+    name: row.optedIn || isOwnOrg ? (names.get(row.orgId) ?? null) : null,
     scanCount: row.scanCount,
-    isOwnOrg: false,
-  }));
+    isOwnOrg,
+    isAnonymous: !row.optedIn,
+  };
+}
+
+function namedOrgIds(rows: OrgScanCount[]): string[] {
+  return rows.filter((row) => row.optedIn).map((row) => row.orgId);
+}
+
+export async function loadTopLeaderboardEntries(): Promise<LeaderboardEntry[]> {
+  const ranked = await getRankedScanCounts();
+  const top = ranked.slice(0, LEADERBOARD_SIZE);
+  const names = await authProvider.getOrganisationNames(namedOrgIds(top));
+  return top.map((row) => toEntry(row, ranked, names, null));
 }
 
 export function publicLeaderboardRows(
   leaderboard: Leaderboard,
 ): LeaderboardEntry[] {
-  if (!leaderboard.optedIn) return leaderboard.entries;
-  if (leaderboard.entries.some((entry) => entry.isOwnOrg)) {
-    return leaderboard.entries;
-  }
+  const anonymise = (entry: LeaderboardEntry): LeaderboardEntry =>
+    entry.isAnonymous ? { ...entry, name: null } : entry;
+  const entries = leaderboard.entries.map(anonymise);
+  if (entries.some((entry) => entry.isOwnOrg)) return entries;
   return [
-    ...leaderboard.entries.slice(0, LEADERBOARD_OWN_ORG_AFTER),
-    leaderboard.ownEntry,
-    ...leaderboard.entries.slice(LEADERBOARD_OWN_ORG_AFTER),
+    ...entries.slice(0, LEADERBOARD_OWN_ORG_AFTER),
+    anonymise(leaderboard.ownEntry),
+    ...entries.slice(LEADERBOARD_OWN_ORG_AFTER),
   ];
 }
 
 export async function loadLeaderboard(orgId: string): Promise<Leaderboard> {
   const [ranked, settings] = await Promise.all([
-    getOptedInScanCounts(),
+    getRankedScanCounts(),
     db
       .select({ optedIn: orgSettings.leaderboardOptIn })
       .from(orgSettings)
@@ -100,30 +102,19 @@ export async function loadLeaderboard(orgId: string): Promise<Leaderboard> {
       .limit(1),
   ]);
   const optedIn = settings[0]?.optedIn ?? false;
-  const others = ranked.filter((row) => row.orgId !== orgId);
-  const ownScanCount =
-    ranked.find((row) => row.orgId === orgId)?.scanCount ??
-    (await countOrgScans(orgId));
-  const top = (optedIn ? ranked : others).slice(0, LEADERBOARD_SIZE);
+  const top = ranked.slice(0, LEADERBOARD_SIZE);
   const names = await authProvider.getOrganisationNames([
-    ...new Set([...top.map((row) => row.orgId), orgId]),
+    ...new Set([...namedOrgIds(top), orgId]),
   ]);
-
-  const entries: LeaderboardEntry[] = top.map((row) => ({
-    rank: rankOf(row.scanCount, ranked),
-    name: names.get(row.orgId) ?? null,
-    scanCount: row.scanCount,
-    isOwnOrg: row.orgId === orgId,
-  }));
+  const own = ranked.find((row) => row.orgId === orgId) ?? {
+    orgId,
+    scanCount: 0,
+    optedIn,
+  };
 
   return {
-    entries,
-    ownEntry: {
-      rank: rankOf(ownScanCount, others),
-      name: names.get(orgId) ?? null,
-      scanCount: ownScanCount,
-      isOwnOrg: true,
-    },
+    entries: top.map((row) => toEntry(row, ranked, names, orgId)),
+    ownEntry: toEntry({ ...own, optedIn }, ranked, names, orgId),
     optedIn,
   };
 }

@@ -75,11 +75,11 @@
   },
   "leaderboard": {
     "heading": "Bestenliste",
-    "description": "Zeigt den Namen deiner Organisation und die Anzahl gescannter Karten in der Bestenliste unter Statistiken. Jede Organisation kann die Bestenliste sehen.",
-    "toggleLabel": "Meine Organisation in der Bestenliste zeigen"
+    "description": "Jede Organisation wird in der Bestenliste unter Statistiken und im Discord-Bot nach der Anzahl gescannter Karten gereiht. Organisationen ohne Zustimmung erscheinen anonym.",
+    "toggleLabel": "Den Namen meiner Organisation in der Bestenliste zeigen"
   },
   "sectionIntros": {
-    "general": "Deine Sprache, Akzentfarbe und Scanner-Anordnung und ob deine Organisation in der Bestenliste erscheint.",
+    "general": "Deine Sprache, Akzentfarbe und Scanner-Anordnung und ob der Name deiner Organisation in der Bestenliste erscheint.",
     "organization": "Benenne deine Organisation um, lade Leute ein und lege fest, was jedes Mitglied darf.",
     "billing": "Sieh dir deinen Tarif und deine Nutzung an und verwalte oder upgrade dein Abo.",
     "scanning": "Lege fest, wie Karten erkannt werden und was passiert, wenn ein Scan korrigiert werden muss.",

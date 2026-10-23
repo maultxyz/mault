@@ -107,17 +107,18 @@
     "error": "Impossible de charger le classement. Réessayez dans un instant.",
     "rank": "#{{rank}}",
     "you": "Vous",
-    "hidden": "Non classée",
+    "hidden": "Nom masqué",
     "unknownOrg": "Organisation inconnue",
+    "anonymousOrg": "Organisation anonyme",
     "columns": {
       "rank": "Rang",
       "organization": "Organisation",
       "scans": "Cartes scannées"
     },
     "optIn": {
-      "title": "Votre organisation n'apparaît pas dans le classement",
-      "description": "Les autres organisations ne vous voient pas. Votre ligne indique le rang que vous auriez. Rejoignez-le depuis les paramètres pour apparaître dans la liste.",
-      "action": "Rejoindre le classement"
+      "title": "Votre organisation est classée anonymement",
+      "description": "Les autres organisations voient votre nombre de scans et votre rang, mais pas votre nom. Affichez votre nom depuis les paramètres.",
+      "action": "Afficher mon nom"
     }
   }
 }

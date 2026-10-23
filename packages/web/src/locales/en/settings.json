@@ -81,11 +81,11 @@
   },
   "leaderboard": {
     "heading": "Leaderboard",
-    "description": "Show your organization's name and how many cards it has scanned on the leaderboard in Stats. Every organization can see the leaderboard.",
-    "toggleLabel": "Show my organization on the leaderboard"
+    "description": "Every organization is ranked by how many cards it has scanned on the leaderboard in Stats and in the Discord bot. Organizations that don't opt in show as anonymous.",
+    "toggleLabel": "Show my organization's name on the leaderboard"
   },
   "sectionIntros": {
-    "general": "Your language, accent color and scanner layout, and whether your organization shows on the leaderboard.",
+    "general": "Your language, accent color and scanner layout, and whether your organization's name shows on the leaderboard.",
     "organization": "Rename your organization, invite people and choose what each member can do.",
     "billing": "See your plan and usage, and upgrade or manage your subscription.",
     "scanning": "Choose how cards are identified and what happens when a scan needs a correction.",

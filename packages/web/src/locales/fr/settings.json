@@ -75,11 +75,11 @@
   },
   "leaderboard": {
     "heading": "Classement",
-    "description": "Affiche le nom de votre organisation et le nombre de cartes scannées dans le classement des statistiques. Toutes les organisations peuvent voir le classement.",
-    "toggleLabel": "Afficher mon organisation dans le classement"
+    "description": "Chaque organisation est classée selon le nombre de cartes scannées dans le classement des statistiques et dans le bot Discord. Les organisations qui ne l'activent pas apparaissent anonymement.",
+    "toggleLabel": "Afficher le nom de mon organisation dans le classement"
   },
   "sectionIntros": {
-    "general": "Ta langue, ta couleur d'accent et la disposition du scanner, et si ton organisation apparaît dans le classement.",
+    "general": "Ta langue, ta couleur d'accent et la disposition du scanner, et si le nom de ton organisation apparaît dans le classement.",
     "organization": "Renomme ton organisation, invite des personnes et choisis ce que chaque membre peut faire.",
     "billing": "Consulte ton forfait et ton utilisation, et gère ou améliore ton abonnement.",
     "scanning": "Choisis comment les cartes sont identifiées et ce qui se passe quand un scan doit être corrigé.",
