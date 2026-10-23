@@ -502,7 +502,6 @@ export interface MonitorCardsState {
   stats: ScanStats | null;
   cardCount: number;
   matchingCount: number;
-  filteredCount: number;
   needsReviewCount: number;
   openScanId: string | undefined;
   setOpenScanId: (scanId: string | null) => void;
