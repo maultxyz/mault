@@ -85,8 +85,17 @@ struct CloudSettings {
 };
 uint8_t cloudConnect(const CloudSettings& s);
 void cloudApplyWifi(const CloudSettings& s);
+void publishCloudSettings(const CloudSettings& next);
 void storeCloudSettings(const CloudSettings& next);
 CloudSettings currentCloudSettings();
+
+struct CloudUrl {
+  bool secure;
+  uint16_t port;
+  char host[CLOUD_HOST_MAX + 1];
+  char path[CLOUD_PATH_MAX + 1];
+};
+bool parseCloudUrl(const char* url, CloudUrl& out);
 
 struct CloudTxLine {
   uint16_t len;
@@ -109,10 +118,7 @@ volatile uint8_t cloudLinkState = CLOUD_LINK_UNCONFIGURED;
 char wifiIp[16] = "";
 int wifiRssi = 0;
 
-char cloudRxRing[CLOUD_RX_RING_SIZE];
-volatile size_t cloudRxHead = 0;
-volatile size_t cloudRxTail = 0;
-portMUX_TYPE cloudRxMux = portMUX_INITIALIZER_UNLOCKED;
+ByteRing<CLOUD_RX_RING_SIZE> cloudRx;
 
 QueueHandle_t cloudTxQueue = nullptr;
 
@@ -151,56 +157,24 @@ bool cloudIsConnected() {
 void cloudSendLine(const char* s) {
   if (!cloudIsConnected()) return;
   CloudTxLine line;
-  size_t len = strnlen(s, MAX_REPLY_LEN);
-  memcpy(line.data, s, len);
-  line.data[len++] = '\n';
-  line.len = len;
+  line.len = copyLine(line.data, s);
   xQueueSend(cloudTxQueue, &line, 0);
 }
 
-bool cloudRxPop(char& c) {
-  bool available = false;
-  portENTER_CRITICAL(&cloudRxMux);
-  if (cloudRxTail != cloudRxHead) {
-    c = cloudRxRing[cloudRxTail];
-    cloudRxTail = (cloudRxTail + 1) % CLOUD_RX_RING_SIZE;
-    available = true;
-  }
-  portEXIT_CRITICAL(&cloudRxMux);
-  return available;
-}
-
-void cloudRxPush(const uint8_t* data, size_t len) {
-  portENTER_CRITICAL(&cloudRxMux);
-  for (size_t i = 0; i < len; i++) {
-    size_t next = (cloudRxHead + 1) % CLOUD_RX_RING_SIZE;
-    if (next == cloudRxTail) break;
-    cloudRxRing[cloudRxHead] = (char)data[i];
-    cloudRxHead = next;
-  }
-  portEXIT_CRITICAL(&cloudRxMux);
-}
-
-void cloudPoll() {
-  char c;
-  while (cloudRxPop(c)) {
-    feedByte(cloudInput, c, cloudReply);
-  }
-}
+void cloudPoll() { cloudRx.drainTo(cloudInput, cloudReply); }
 
 // Splits ws[s]://host[:port][/path] into its parts. Returns false for
 // anything else, so a malformed setCloud is refused up front instead of
 // failing silently on every reconnect.
-bool parseCloudUrl(const char* url, bool& secure, char* host, uint16_t& port,
-                   char* path) {
+bool parseCloudUrl(const char* url, CloudUrl& out) {
   const char* rest;
   if (strncmp(url, "wss://", 6) == 0) {
-    secure = true;
-    port = 443;
+    out.secure = true;
+    out.port = 443;
     rest = url + 6;
   } else if (strncmp(url, "ws://", 5) == 0) {
-    secure = false;
-    port = 80;
+    out.secure = false;
+    out.port = 80;
     rest = url + 5;
   } else {
     return false;
@@ -209,18 +183,18 @@ bool parseCloudUrl(const char* url, bool& secure, char* host, uint16_t& port,
   while (*hostEnd && *hostEnd != ':' && *hostEnd != '/') hostEnd++;
   size_t hostLen = hostEnd - rest;
   if (hostLen == 0 || hostLen > CLOUD_HOST_MAX) return false;
-  memcpy(host, rest, hostLen);
-  host[hostLen] = '\0';
+  memcpy(out.host, rest, hostLen);
+  out.host[hostLen] = '\0';
   const char* pathStart = hostEnd;
   if (*hostEnd == ':') {
     long parsed = strtol(hostEnd + 1, (char**)&pathStart, 10);
     if (parsed < 1 || parsed > 65535) return false;
-    port = (uint16_t)parsed;
+    out.port = (uint16_t)parsed;
   }
   if (*pathStart == '\0') {
-    strcpy(path, "/");
+    strcpy(out.path, "/");
   } else if (*pathStart == '/' && strlen(pathStart) <= CLOUD_PATH_MAX) {
-    strcpy(path, pathStart);
+    strcpy(out.path, pathStart);
   } else {
     return false;
   }
@@ -234,10 +208,7 @@ void loadCloudSettings() {
   cloudPrefs.getString("pass", loaded.password, sizeof(loaded.password));
   cloudPrefs.getString("url", loaded.url, sizeof(loaded.url));
   cloudPrefs.getString("token", loaded.token, sizeof(loaded.token));
-  portENTER_CRITICAL(&cloudMux);
-  cloudSettings = loaded;
-  cloudSettingsVersion++;
-  portEXIT_CRITICAL(&cloudMux);
+  publishCloudSettings(loaded);
 }
 
 void cloudTask(void*);
@@ -320,11 +291,11 @@ void cloudCloseSocket() {
 // Returns CLOUD_LINK_CONNECTED, CLOUD_LINK_REJECTED (the server refused the
 // token) or CLOUD_LINK_OFFLINE (anything network-shaped, worth retrying).
 uint8_t cloudConnect(const CloudSettings& s) {
-  bool secure;
-  char host[CLOUD_HOST_MAX + 1];
-  char path[CLOUD_PATH_MAX + 1];
-  uint16_t port;
-  if (!parseCloudUrl(s.url, secure, host, port, path)) return CLOUD_LINK_REJECTED;
+  CloudUrl url;
+  if (!parseCloudUrl(s.url, url)) return CLOUD_LINK_REJECTED;
+  bool secure = url.secure;
+  uint16_t port = url.port;
+  const char* host = url.host;
 
   if (secure) {
     cloudTlsClient.setCACertBundle(x509_crt_bundle_start,
@@ -367,7 +338,7 @@ uint8_t cloudConnect(const CloudSettings& s) {
            "X-Sorter-Id: %s\r\n"
            "X-Sorter-Firmware: %s\r\n"
            "\r\n",
-           path, hostHeader, (const char*)key, s.token, deviceId, FIRMWARE_VERSION);
+           url.path, hostHeader, (const char*)key, s.token, deviceId, FIRMWARE_VERSION);
   size_t requestLen = strlen(request);
   if (cloudClient->write((const uint8_t*)request, requestLen) != requestLen) {
     cloudCloseSocket();
@@ -399,9 +370,7 @@ uint8_t cloudConnect(const CloudSettings& s) {
   cloudSocketOpen = true;
   cloudLastRxAt = millis();
   xQueueReset(cloudTxQueue);
-  portENTER_CRITICAL(&cloudRxMux);
-  cloudRxHead = cloudRxTail = 0;
-  portEXIT_CRITICAL(&cloudRxMux);
+  cloudRx.clear();
   return CLOUD_LINK_CONNECTED;
 }
 
@@ -435,7 +404,7 @@ bool cloudServiceSocket() {
       case WS_OP_TEXT:
       case WS_OP_BINARY:
       case WS_OP_CONTINUATION:
-        cloudRxPush(cloudFrame, len);
+        cloudRx.push(cloudFrame, len);
         break;
       case WS_OP_PING:
         if (len <= 125) cloudSendFrame(WS_OP_PONG, cloudFrame, len);
@@ -607,15 +576,19 @@ void cloudTask(void*) {
 
 // ---- Commands ----
 
+void publishCloudSettings(const CloudSettings& next) {
+  portENTER_CRITICAL(&cloudMux);
+  cloudSettings = next;
+  cloudSettingsVersion++;
+  portEXIT_CRITICAL(&cloudMux);
+}
+
 void storeCloudSettings(const CloudSettings& next) {
   cloudPrefs.putString("ssid", next.ssid);
   cloudPrefs.putString("pass", next.password);
   cloudPrefs.putString("url", next.url);
   cloudPrefs.putString("token", next.token);
-  portENTER_CRITICAL(&cloudMux);
-  cloudSettings = next;
-  cloudSettingsVersion++;
-  portEXIT_CRITICAL(&cloudMux);
+  publishCloudSettings(next);
 }
 
 CloudSettings currentCloudSettings() {
@@ -634,22 +607,30 @@ void printWifiStatus(Print& reply) {
   rssi = wifiRssi;
   portEXIT_CRITICAL(&cloudMux);
 
-  JsonDocument out;
-  out["status"] = "ok";
-  out["wifi"] = wifiStateName();
-  if (s.ssid[0]) out["ssid"] = s.ssid;
-  if (wifiLinkState == WIFI_LINK_CONNECTED) {
-    out["ip"] = ip;
-    out["rssi"] = rssi;
+  reply.print(F("{\"status\":\"ok\",\"wifi\":\""));
+  reply.print(wifiStateName());
+  reply.write('"');
+  if (s.ssid[0]) {
+    reply.print(F(",\"ssid\":\""));
+    printJsonEscaped(s.ssid, reply);
+    reply.write('"');
   }
-  out["cloud"] = cloudStateName();
-  bool secure;
-  char host[CLOUD_HOST_MAX + 1];
-  char path[CLOUD_PATH_MAX + 1];
-  uint16_t port;
-  if (s.url[0] && parseCloudUrl(s.url, secure, host, port, path)) out["host"] = host;
-  serializeJson(out, reply);
-  reply.println();
+  if (wifiLinkState == WIFI_LINK_CONNECTED) {
+    reply.print(F(",\"ip\":\""));
+    reply.print(ip);
+    reply.print(F("\",\"rssi\":"));
+    reply.print(rssi);
+  }
+  reply.print(F(",\"cloud\":\""));
+  reply.print(cloudStateName());
+  reply.write('"');
+  CloudUrl url;
+  if (s.url[0] && parseCloudUrl(s.url, url)) {
+    reply.print(F(",\"host\":\""));
+    printJsonEscaped(url.host, reply);
+    reply.write('"');
+  }
+  reply.println(F("}"));
 }
 
 // {"setWifi": {...}}, {"setCloud": {...}}, {"clearWifi": true} and
@@ -657,7 +638,7 @@ void printWifiStatus(Print& reply) {
 // runCommand() keeps looking.
 bool handleCloudCommand(JsonDocument& doc, Print& reply) {
   if (!doc["setWifi"].isNull()) {
-    JsonObject cfg = doc["setWifi"];
+    JsonObjectConst cfg = doc["setWifi"];
     const char* ssid = cfg["ssid"] | "";
     const char* password = cfg["password"] | "";
     size_t ssidLen = strlen(ssid);
@@ -680,14 +661,11 @@ bool handleCloudCommand(JsonDocument& doc, Print& reply) {
   }
 
   if (!doc["setCloud"].isNull()) {
-    JsonObject cfg = doc["setCloud"];
+    JsonObjectConst cfg = doc["setCloud"];
     const char* url = cfg["url"] | "";
     const char* token = cfg["token"] | "";
-    bool secure;
-    char host[CLOUD_HOST_MAX + 1];
-    char path[CLOUD_PATH_MAX + 1];
-    uint16_t port;
-    if (strlen(url) > CLOUD_URL_MAX || !parseCloudUrl(url, secure, host, port, path)) {
+    CloudUrl parsed;
+    if (strlen(url) > CLOUD_URL_MAX || !parseCloudUrl(url, parsed)) {
       reply.println(F("{\"error\":\"url must be a ws:// or wss:// address up to 150 characters\"}"));
       return true;
     }
@@ -704,19 +682,16 @@ bool handleCloudCommand(JsonDocument& doc, Print& reply) {
     return true;
   }
 
-  if (doc["clearWifi"].is<bool>() && doc["clearWifi"].as<bool>()) {
+  if (isTrue(doc["clearWifi"])) {
     CloudSettings next;
     memset(&next, 0, sizeof(next));
     cloudPrefs.clear();
-    portENTER_CRITICAL(&cloudMux);
-    cloudSettings = next;
-    cloudSettingsVersion++;
-    portEXIT_CRITICAL(&cloudMux);
+    publishCloudSettings(next);
     reply.println(F("{\"status\":\"ok\"}"));
     return true;
   }
 
-  if (doc["getWifi"].is<bool>() && doc["getWifi"].as<bool>()) {
+  if (isTrue(doc["getWifi"])) {
     printWifiStatus(reply);
     return true;
   }
