@@ -3,7 +3,7 @@
     "scanner": "Sort",
     "collections": "Collections",
     "scan": "Link camera",
-    "storage": "Storage boxes",
+    "storage": "Locations",
     "calibrate": "Sorter setup",
     "settings": "Settings",
     "organization": "Org",
@@ -24,7 +24,8 @@
     "integrations": "API & webhooks",
     "more": "More",
     "stats": "Stats",
-    "sortingRules": "Sorting rules"
+    "sortingRules": "Sorting rules",
+    "intake": "Intake"
   },
   "alerts": {
     "dismiss": "Dismiss",
@@ -177,7 +178,8 @@
       "general": "General",
       "navigation": "Navigation",
       "scanner": "Scanner",
-      "cardDetail": "Card details"
+      "cardDetail": "Card details",
+      "intake": "Intake"
     },
     "actions": {
       "showShortcuts": "Show keyboard shortcuts",
@@ -210,7 +212,8 @@
       "cardRemove": "Remove the card (from its box when opened from Storage)",
       "reviewStart": "Start reviewing cards one by one",
       "reviewAccept": "While reviewing: card looks right, go to next",
-      "goSortingRules": "Go to sorting rules"
+      "goSortingRules": "Go to sorting rules",
+      "intakeOpenScanner": "Open the scanner for this intake"
     }
   },
   "mobileMenu": {

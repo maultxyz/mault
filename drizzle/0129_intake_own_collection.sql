@@ -1,0 +1,1 @@
+ALTER TABLE "intake_lots" ADD COLUMN "owns_collection" boolean DEFAULT false NOT NULL;

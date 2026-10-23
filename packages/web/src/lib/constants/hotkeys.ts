@@ -32,6 +32,7 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "navigation",
   "scanner",
   "cardDetail",
+  "intake",
 ];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
@@ -69,6 +70,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardRemove: { group: "cardDetail", keys: [{ key: "delete" }] },
   reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
   reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
+  intakeOpenScanner: { group: "intake", keys: [{ key: "o" }] },
 };
 
 export const HOTKEY_ROUTES = {

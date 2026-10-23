@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { logActivity } from "../../lib/activity-log";
 import { collectionCards } from "../../db/schema";
 import { deleteScanImages } from "../../lib/scan-images";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
@@ -28,6 +29,15 @@ export const removeBulkCollectionCardsRoute = new Hono<AppEnv>().post(
             )
             .returning({ imageKey: collectionCards.capturedImageKey });
           imageKeys.push(...deleted.map((row) => row.imageKey));
+        }
+        if (imageKeys.length > 0) {
+          await logActivity(tx, {
+            orgId,
+            userId: c.get("userId"),
+            action: "cards.deleted",
+            summary: null,
+            details: { count: imageKeys.length, collectionGuid: guid },
+          });
         }
         return { success: true, data: null, imageKeys };
       });

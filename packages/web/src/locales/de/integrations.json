@@ -157,6 +157,9 @@
       },
       "cards": {
         "stored": "Ein Fach wurde in einen Lagerort einsortiert. Enthält Box und Position jeder Karte."
+      },
+      "sorter": {
+        "alert": "Ein Sortierer hatte einen Stau oder Fehler, wurde neu gestartet, hat die Verbindung verloren oder braucht eine Wartung."
       }
     },
     "empty": "Noch keine Webhooks.",

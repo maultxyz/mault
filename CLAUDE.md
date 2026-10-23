@@ -112,6 +112,15 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - QR pairing: vision-camera's `ScannedCode` is iOS-only, so Android decodes captured frames with `jsqr` (`use-qr-scanner.ts` picks per platform at module level).
 - CSV export adapters live in `shared/src/card-export`; web downloads the CSV, mobile hands it to `expo-sharing`.
 
+### Business tools (intake, orders, reports, fleet)
+
+- Routes live under `/business` (`routes/business/*`), all through `businessQuery`, which loads `BusinessAccess` (plan feature `businessTools` plus `org_settings.business_permissions`; owners/admins always pass). Permission failures return 200 with `success: false`, never 403.
+- A collection has at most one open `intake_lots` row; every save path that inserts `collection_cards` (scan, manual add, unmatched identify) stamps `intake_lot_id` via `findOpenIntakeLotId`. A lot can create its own (inactive) collection (`owns_collection`); cancelling it with card removal soft-deletes that collection once empty. Moving an accepted lot's cards to another collection (`/intake/:guid/transfer`) clears their `bin_number`; their scan images keep the source collection's storage prefix, so clearing that source collection later deletes them. Cards in open or cancelled lots are not inventory: inventory totals and order allocation only count `intake_lot_id IS NULL OR status = 'accepted'`.
+- Cost basis is `collection_cards.acquisition_cost` with `acquisition_currency`; sums only include costs in the org's current price-source currency. Write costs through `updateAcquisitionCosts` (chunked).
+- Fulfilling an order hard-deletes its allocated `collection_cards` and writes `card_sales` rows (permanent, never soft-deleted). Allocations live in `fulfilment_orders.lines` jsonb and exclude cards allocated to other open orders.
+- Sorter alerts go through `raiseDeviceAlert` (stores `device_alerts`, posts to the Discord error channel, emits the `sorter.alert` webhook). Offline alerts fire only when a lease expires within `DEVICE_OFFLINE_ALERT_WINDOW_MS` of a scan. `device_alerts` and `org_inventory_snapshots` are server-written via `db` and purged in `purgeOrgServerData`.
+- Audit-worthy mutations call `logActivity(tx, ...)` inside the same transaction; a new action needs `ACTIVITY_ACTIONS`, `ACTIVITY_ACTION_KEYS` and `activity.labels`/`activity.messages` translations.
+
 ### Discord bot
 
 - One global bot; commands registered globally only (`/link`, `/link-account`, `/leaderboard`, `/showoff`, `/stats`). Each guild maps to one org via `org_settings.discord_guild_id`. Every channel and rule target is validated against the linked guild, so posts can never land in another server. Mentions are limited to the exact roles requested.
