@@ -56,5 +56,56 @@ class CameraDiscoveryTests(unittest.TestCase):
             self.assertEqual(CAMERA_HELPER.find_webcam(), "/dev/video4")
 
 
+class CameraFrameTimingTests(unittest.TestCase):
+    def test_pump_consumes_available_bytes_without_waiting_for_64k(self):
+        import io
+
+        class Stream(io.BytesIO):
+            def read(self, *args):
+                raise AssertionError('read can wait to fill the requested size')
+
+        class Process:
+            stdout = Stream(b'\xff\xd8tiny jpeg\xff\xd9')
+
+            def poll(self):
+                return 0
+
+        camera = CAMERA_HELPER.Camera()
+        camera.proc = Process()
+        camera._pump(camera.proc)
+        self.assertEqual(camera.buffer.frame, b'\xff\xd8tiny jpeg\xff\xd9')
+        self.assertEqual(camera.buffer.sequence, 1)
+
+    def test_fresh_request_waits_for_next_publication(self):
+        import threading
+        camera = CAMERA_HELPER.Camera()
+        camera.buffer.publish(b'old')
+        handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
+        handler.path = '/frame?fresh=1'
+        replies = []
+        handler._send = lambda *reply: replies.append(reply)
+        timer = threading.Timer(0.05, lambda: camera.buffer.publish(b'new'))
+        with patch.object(CAMERA_HELPER, 'CAMERA', camera), patch.object(camera, 'healthy', return_value=True):
+            timer.start()
+            try:
+                handler.do_GET()
+            finally:
+                timer.join()
+        self.assertEqual(replies, [(200, b'new', 'image/jpeg')])
+
+    def test_fresh_request_does_not_return_old_frame_on_timeout(self):
+        camera = CAMERA_HELPER.Camera()
+        camera.buffer.publish(b'old')
+        handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
+        handler.path = '/frame?fresh=1'
+        replies = []
+        handler._send = lambda *reply: replies.append(reply)
+        with patch.object(CAMERA_HELPER, 'CAMERA', camera), patch.object(
+            camera.buffer.condition, 'wait_for', return_value=False
+        ):
+            handler.do_GET()
+        self.assertEqual(replies[0][0], 503)
+
+
 if __name__ == "__main__":
     unittest.main()
