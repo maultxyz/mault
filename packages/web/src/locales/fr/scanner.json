@@ -53,6 +53,11 @@
     "commLogCopied": "Journal de communication copié dans le presse-papiers",
     "commLogCopyFailed": "Échec de la copie du journal de communication",
     "commLogEmpty": "Aucune communication enregistrée pour le moment",
+    "commLogMarker": {
+      "connected": "Nouvelle connexion ({{transport}})",
+      "disconnected": "Déconnecté ({{transport}})",
+      "restarted": "Trieuse redémarrée ({{reason}})"
+    },
     "firmwareOutdatedBanner": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Réimporte firmware/main/main.ino pour la mettre à jour.",
     "firmwareOutdatedBannerBluetooth": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Pour la mettre à jour depuis le navigateur, branche l'ESP32-S3 en USB (port de gauche, marqué USB) et connecte-toi en USB plutôt qu'en Bluetooth.",
     "firmwareVersionMissingBanner": "Le firmware de ta trieuse ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan.",
@@ -103,7 +108,7 @@
     "deviceReadyNoTest": "Appareil prêt (autotest ignoré)",
     "unexpectedReset": {
       "title": "Trieuse redémarrée",
-      "description": "La trieuse a redémarré d'elle-même : {{reason}} Une carte en mouvement n'a pas été triée, vérifiez donc les modules avant de reprendre. La trieuse est en cours de revérification."
+      "description": "La trieuse a redémarré d'elle-même : {{reason}} Une carte en mouvement n'a pas été triée, vérifiez donc les modules avant de reprendre. L'autotest est ignoré pour ne pas déplacer les cartes encore à l'intérieur."
     },
     "abnormalBoot": {
       "title": "Trieuse redémarrée avant la connexion",

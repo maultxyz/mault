@@ -53,6 +53,11 @@
     "commLogCopied": "Kommunikationsprotokoll in die Zwischenablage kopiert",
     "commLogCopyFailed": "Kopieren des Kommunikationsprotokolls fehlgeschlagen",
     "commLogEmpty": "Noch keine Kommunikation aufgezeichnet",
+    "commLogMarker": {
+      "connected": "Neue Verbindung ({{transport}})",
+      "disconnected": "Getrennt ({{transport}})",
+      "restarted": "Sortierer neu gestartet ({{reason}})"
+    },
     "firmwareOutdatedBanner": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Lade firmware/main/main.ino erneut hoch, um zu aktualisieren.",
     "firmwareOutdatedBannerBluetooth": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Um ihn im Browser zu aktualisieren, schließe den ESP32-S3 per USB an (linker Anschluss, mit USB beschriftet) und verbinde dich über USB statt Bluetooth.",
     "firmwareVersionMissingBanner": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
@@ -103,7 +108,7 @@
     "deviceReadyNoTest": "Gerät bereit (Selbsttest übersprungen)",
     "unexpectedReset": {
       "title": "Sortierer neu gestartet",
-      "description": "Der Sortierer hat sich selbst neu gestartet: {{reason}} Eine Karte in Bewegung wurde nicht einsortiert, prüfe also die Module, bevor du fortfährst. Der Sortierer wird jetzt erneut geprüft."
+      "description": "Der Sortierer hat sich selbst neu gestartet: {{reason}} Eine Karte in Bewegung wurde nicht einsortiert, prüfe also die Module, bevor du fortfährst. Der Selbsttest wird übersprungen, damit noch enthaltene Karten nicht bewegt werden."
     },
     "abnormalBoot": {
       "title": "Sortierer vor dem Verbinden neu gestartet",

@@ -410,6 +410,11 @@ export interface SerialRequestResult {
   line: string;
 }
 
+export interface SerialRecoveryMark {
+  hardwareId: string;
+  until: number;
+}
+
 export interface PendingSerialReply {
   seq: number | null;
   resolve: (line: string) => void;
@@ -421,7 +426,7 @@ export interface RawCommandResult {
 }
 
 export interface CommLogEntry {
-  direction: "sent" | "received";
+  direction: "sent" | "received" | "connected" | "disconnected" | "restarted";
   text: string;
   timestamp: number;
 }
