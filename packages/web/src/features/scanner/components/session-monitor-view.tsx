@@ -57,7 +57,7 @@ export function SessionMonitorView({
     <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
       <aside className="col-span-5 md:col-span-5 lg:col-span-4 xl:col-span-3 2xl:col-span-2 overflow-hidden flex flex-col h-full p-2 border-r gap-2 bg-sidebar/70">
         {header}
-        <SessionStatsPanel stats={stats} totalCards={cards.filteredCount} />
+        <SessionStatsPanel stats={stats} totalCards={cardCount} />
         {canEditCards ? (
           <UnmatchedCardsPanel
             canIdentify
