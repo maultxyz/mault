@@ -1,4 +1,5 @@
 import {
+  PRICE_SOURCE_FIELDS,
   STATS_PRICE_BUCKETS,
   STATS_RANGE_DAYS,
   STATS_TOP_CARDS_LIMIT,
@@ -8,7 +9,12 @@ import {
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../db";
-import { collectionCards, collections, games } from "../db/schema";
+import {
+  collectionCards,
+  collections,
+  games,
+  intakeLots,
+} from "../db/schema";
 import {
   findCardsCollection,
   loadAllCardStats,
@@ -43,6 +49,7 @@ export async function loadStatsReport(
   if (collectionGuid && !collection) return null;
 
   const pricing = await loadOrgPricing(tx, orgId);
+  const currency = PRICE_SOURCE_FIELDS[pricing.source].currency;
   const cardPrice = joinedScannedCardPriceSql(
     pricing,
     COLLECTION_CARD_SQL_COLUMNS,
@@ -78,14 +85,17 @@ export async function loadStatsReport(
         ${collections.name} AS collection_name,
         ${games.key} AS game_key,
         ${games.name} AS game_name,
-        (${cardPrice})::float8 AS price
+        (${cardPrice})::float8 AS price,
+        (CASE WHEN ${collectionCards.acquisitionCurrency} = ${currency} THEN ${collectionCards.acquisitionCost} END)::float8 AS cost
       FROM ${collectionCards}
       JOIN ${collections} ON ${collections.id} = ${collectionCards.collectionId}
+      LEFT JOIN ${intakeLots} ON ${intakeLots.id} = ${collectionCards.intakeLotId}
       LEFT JOIN ${games} ON ${games.id} = ${collections.gameId}
       LEFT JOIN card_prices cp ON cp.game_key = ${games.key}
         AND cp.lang = COALESCE(${collectionCards.card} ->> 'lang', ${collections.lang})
         AND cp.card_id = ${collectionCards.cardId}
       WHERE ${scope}
+        AND (${intakeLots.id} IS NULL OR ${intakeLots.status} = 'accepted')
     )
     SELECT
       (
@@ -99,7 +109,10 @@ export async function loadStatsReport(
           'needsReviewCount', (count(*) FILTER (WHERE NOT is_corrected AND needs_review))::int,
           'correctedCount', (count(*) FILTER (WHERE is_corrected))::int,
           'scansInRange', (count(*) FILTER (WHERE ${inRange}))::int,
-          'valueAddedInRange', COALESCE(sum(price) FILTER (WHERE price > 0 AND ${inRange}), 0)::float8
+          'valueAddedInRange', COALESCE(sum(price) FILTER (WHERE price > 0 AND ${inRange}), 0)::float8,
+          'costBasis', COALESCE(sum(cost), 0)::float8,
+          'costedCount', count(cost)::int,
+          'costedValue', COALESCE(sum(price) FILTER (WHERE price > 0 AND cost IS NOT NULL), 0)::float8
         ) FROM base
       ) AS totals,
       (
@@ -149,7 +162,10 @@ export async function loadStatsReport(
             COALESCE(avg(b.price) FILTER (WHERE b.price > 0), 0)::float8 AS "avgValue",
             (count(b.scan_id) FILTER (WHERE b.created_at >= ${sinceIso}::timestamp))::int AS "scansInRange",
             COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.created_at >= ${sinceIso}::timestamp), 0)::float8 AS "valueAddedInRange",
-            to_char(max(b.created_at), ${isoTimestamp}) AS "lastScanAt"
+            to_char(max(b.created_at), ${isoTimestamp}) AS "lastScanAt",
+            COALESCE(sum(b.cost), 0)::float8 AS "costBasis",
+            count(b.cost)::int AS "costedCount",
+            COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.cost IS NOT NULL), 0)::float8 AS "costedValue"
           FROM ${collections}
           LEFT JOIN ${games} ON ${games.id} = ${collections.gameId}
           LEFT JOIN base b ON b.collection_id = ${collections.id}
@@ -189,5 +205,7 @@ export async function loadStatsReport(
     collections: row.collections,
     games: row.games,
     breakdown,
+    costsVisible: true,
+    valueHistory: null,
   };
 }

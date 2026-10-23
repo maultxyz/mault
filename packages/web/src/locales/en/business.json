@@ -292,19 +292,10 @@
   },
   "reports": {
     "noCostAccess": "Your role can't see costs and margins. Ask an owner or admin to allow it in Settings > Business.",
-    "tabs": {
-      "collections": "Collections",
-      "inventory": "Inventory",
-      "staff": "Staff",
-      "accuracy": "Accuracy"
-    },
     "inventory": {
-      "heading": "Inventory",
-      "marketValue": "Market value",
       "costBasis": "Cost basis",
       "costedCards": "{{percent}} of cards costed",
       "unrealized": "Unrealized margin",
-      "costedValue": "Value of costed cards",
       "uncostedNote_one": "{{count}} card has no cost basis, so margins only count costed cards. Use Set cost on a collection to fill it in.",
       "uncostedNote_other": "{{count}} cards have no cost basis, so margins only count costed cards. Use Set cost on a collection to fill it in.",
       "history": "Value over time",

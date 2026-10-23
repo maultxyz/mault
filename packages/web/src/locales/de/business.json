@@ -292,19 +292,10 @@
   },
   "reports": {
     "noCostAccess": "Deine Rolle darf keine Kosten und Margen sehen. Bitte einen Inhaber oder Admin, das unter Einstellungen > Business zu erlauben.",
-    "tabs": {
-      "collections": "Sammlungen",
-      "inventory": "Bestand",
-      "staff": "Team",
-      "accuracy": "Genauigkeit"
-    },
     "inventory": {
-      "heading": "Bestand",
-      "marketValue": "Marktwert",
       "costBasis": "Einkaufswert",
       "costedCards": "{{percent}} der Karten mit Einkaufspreis",
       "unrealized": "Nicht realisierte Marge",
-      "costedValue": "Wert der Karten mit Einkaufspreis",
       "uncostedNote_one": "{{count}} Karte hat keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Nutze Einkaufspreis festlegen bei einer Sammlung, um ihn nachzutragen.",
       "uncostedNote_other": "{{count}} Karten haben keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Nutze Einkaufspreis festlegen bei einer Sammlung, um ihn nachzutragen.",
       "history": "Wert im Zeitverlauf",

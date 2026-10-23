@@ -292,19 +292,10 @@
   },
   "reports": {
     "noCostAccess": "Votre rôle ne permet pas de voir les coûts et les marges. Demandez à un propriétaire ou un admin de l'autoriser dans Réglages > Business.",
-    "tabs": {
-      "collections": "Collections",
-      "inventory": "Stock",
-      "staff": "Équipe",
-      "accuracy": "Précision"
-    },
     "inventory": {
-      "heading": "Stock",
-      "marketValue": "Valeur marché",
       "costBasis": "Coût d'achat",
       "costedCards": "{{percent}} des cartes avec un coût",
       "unrealized": "Marge latente",
-      "costedValue": "Valeur des cartes avec un coût",
       "uncostedNote_one": "{{count}} carte n'a pas de coût d'achat, donc les marges ne comptent que les cartes qui en ont un. Utilisez Fixer le coût sur une collection pour le compléter.",
       "uncostedNote_other": "{{count}} cartes n'ont pas de coût d'achat, donc les marges ne comptent que les cartes qui en ont un. Utilisez Fixer le coût sur une collection pour le compléter.",
       "history": "Valeur dans le temps",

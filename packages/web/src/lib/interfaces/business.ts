@@ -1,7 +1,3 @@
-import type {
-  COLLECTIONS_PAGE_TABS,
-  REPORT_TABS,
-} from "@/lib/constants/business";
 import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { BusinessSettingsDraftValues } from "@/schemas/business.schema";
 import type {
@@ -11,19 +7,10 @@ import type {
   FulfilmentOrderStatus,
   IntakeLot,
   IntakeLotStatus,
-  InventoryCollectionRow,
   StatsRange,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
 import type { Control } from "react-hook-form";
-
-export type ReportTab = (typeof REPORT_TABS)[number];
-
-export type CollectionsPageTab = (typeof COLLECTIONS_PAGE_TABS)[number];
-
-export interface CollectionReportsProps {
-  tab: ReportTab;
-}
 
 export type BusinessStatus =
   | IntakeLotStatus
@@ -36,8 +23,10 @@ export type BusinessBadgeVariant =
   | "outline"
   | "destructive";
 
-export interface NumberInputProps
-  extends Omit<ComponentProps<"input">, "value" | "onChange" | "type"> {
+export interface NumberInputProps extends Omit<
+  ComponentProps<"input">,
+  "value" | "onChange" | "type"
+> {
   value: number | null | undefined;
   onChange: (value: number) => void;
 }
@@ -127,7 +116,7 @@ export interface OrderDetailProps {
 }
 
 export interface CollectionCostDialogProps {
-  collection: InventoryCollectionRow | null;
+  collection: CollectionCostTarget | null;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -171,4 +160,9 @@ export interface IntakeCardDetailProps {
   reviewMode: boolean;
   onNavigate: (scanId: string) => void;
   onClose: () => void;
+}
+
+export interface CollectionCostTarget {
+  guid: string;
+  name: string;
 }
