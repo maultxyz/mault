@@ -85,7 +85,7 @@ import {
 import { loadBinContents } from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadSets } from "../../routes/bins/shared";
-import { grabCameraFrame } from "./camera";
+import { grabSettledCameraFrame } from "./camera";
 import {
   betterSearch,
   chooseScanBin,
@@ -652,7 +652,7 @@ async function matchUntilConsensus(
   card: PlayingCardWithDistance | null;
 }> {
   const take = async () =>
-    matchFrame(session, context, await grabCameraFrame());
+    matchFrame(session, context, await grabSettledCameraFrame());
   if (context.matchesNeeded <= 1) {
     const matched = await take();
     const leader = matched.result.data?.[0];

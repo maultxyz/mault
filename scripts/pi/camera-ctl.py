@@ -16,6 +16,7 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 HOST = "127.0.0.1"
 PORT = 8765
@@ -26,11 +27,13 @@ FRAME_INTERVAL_S = 0.1
 class JpegBuffer:
     def __init__(self) -> None:
         self.frame: bytes | None = None
+        self.sequence = 0
         self.condition = threading.Condition()
 
     def publish(self, frame: bytes) -> None:
         with self.condition:
             self.frame = frame
+            self.sequence += 1
             self.condition.notify_all()
 
 
@@ -168,7 +171,9 @@ class Camera:
         data = bytearray()
         try:
             while True:
-                chunk = stream.read(65536)
+                # BufferedReader.read may wait to fill 64 KiB, delaying a
+                # small JPEG until later frames arrive. Consume available bytes.
+                chunk = stream.read1(65536)
                 if not chunk:
                     break
                 data.extend(chunk)
@@ -278,7 +283,16 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, payload, "application/json")
             return
         if path == "/frame":
-            frame = CAMERA.buffer.frame
+            with CAMERA.buffer.condition:
+                if parse_qs(urlsplit(self.path).query).get("fresh") == ["1"]:
+                    sequence = CAMERA.buffer.sequence
+                    arrived = CAMERA.buffer.condition.wait_for(
+                        lambda: CAMERA.buffer.sequence > sequence, timeout=3
+                    )
+                    if not arrived:
+                        self._send(503, b"camera produced no fresh frame", "text/plain")
+                        return
+                frame = CAMERA.buffer.frame
             if not CAMERA.healthy() or frame is None:
                 self._send(
                     503,
