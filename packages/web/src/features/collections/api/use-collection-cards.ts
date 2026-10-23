@@ -8,6 +8,7 @@ import {
   toScanStats,
 } from "@/features/scanner/lib/compute-stats";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import type { BinCardCounts } from "@/lib/interfaces/scanner";
 import type { BinWindow, CollectionCardsQuery } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -39,13 +40,14 @@ export function useCollectionCardsSummary(
   };
 }
 
-export function useBinCardCounts(bins: BinWindow[]): Map<number, number> {
+export function useBinCardCounts(bins: BinWindow[]): BinCardCounts {
   const { collection: activeCollection } = useViewedCollection();
-  const { data } = useQuery(
+  const { data, dataUpdatedAt } = useQuery(
     binCardCountsQueryOptions(activeCollection?.guid, bins),
   );
-  return useMemo(
+  const counts = useMemo(
     () => new Map((data ?? []).map((row) => [row.binNumber, row.count])),
     [data],
   );
+  return { counts, updatedAt: dataUpdatedAt };
 }

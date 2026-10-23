@@ -6,7 +6,7 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import type { AddManualCardRequest, CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, SortOnlyScanRequest, UnmatchedCard } from "@magic-vault/shared";
+import type { AddManualCardRequest, CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, SortOnlyScanRequest, UnmatchedCard, UnmatchedCardsPage } from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import type {
   CardSaveResult,
@@ -233,8 +233,18 @@ export async function releaseScanLock(guid: string): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/scan-lock`);
 }
 
-export async function loadUnmatchedCards(guid: string): Promise<Result<UnmatchedCard[]>> {
-  return apiGet<Result<UnmatchedCard[]>>(`/api/collections/${guid}/unmatched`);
+export async function loadUnmatchedCards(
+  guid: string,
+  limit: number,
+  offset = 0,
+): Promise<Result<UnmatchedCardsPage>> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  return apiGet<Result<UnmatchedCardsPage>>(
+    `/api/collections/${guid}/unmatched?${params}`,
+  );
 }
 
 export async function addUnmatchedCard(
@@ -257,6 +267,15 @@ export async function removeUnmatchedCard(
   scanId: string,
 ): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched/${scanId}`);
+}
+
+export function removeUnmatchedScan(
+  guid: string,
+  scanId: string,
+): Promise<boolean> {
+  return removeUnmatchedCard(guid, scanId)
+    .then((result) => result.success)
+    .catch(() => false);
 }
 
 export async function identifyUnmatchedCard(

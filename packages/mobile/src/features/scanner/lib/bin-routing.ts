@@ -2,7 +2,6 @@ import * as Crypto from "expo-crypto";
 import {
   areAllChaosBinsFull,
   countCopiesInBin,
-  DEFAULT_BIN_CAPACITY,
   evaluateAlphabetBin,
   evaluateCardBin,
   evaluateChaosBin,
@@ -29,7 +28,6 @@ export function configsFromSet(set: BinSet | undefined, binCount: number): BinCo
         guid: Crypto.randomUUID(),
         binNumber: i,
         rules: { id: Crypto.randomUUID(), combinator: "and", conditions: [] },
-        cardLimit: DEFAULT_BIN_CAPACITY,
       },
     );
   }

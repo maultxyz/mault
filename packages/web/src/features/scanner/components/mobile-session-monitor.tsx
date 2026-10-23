@@ -42,9 +42,9 @@ export function MobileSessionMonitor({
   const [reviewing, setReviewing] = useState(false);
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
   const heroCollapsed = useScrollCollapse(scrollRoot);
-  const { collection, status, unmatchedCards, errors } = session;
+  const { collection, status, unmatchedCount, errors } = session;
   const { stats, cardCount, openScanId, setOpenScanId } = cards;
-  const alertCount = unmatchedCards.length + errors.length;
+  const alertCount = unmatchedCount + errors.length;
   const hasPricing = !!stats?.hasPricing;
 
   const handleOpenCard = useCallback(

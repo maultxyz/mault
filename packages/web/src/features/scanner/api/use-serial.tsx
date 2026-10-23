@@ -39,6 +39,7 @@ import {
   SERIAL_HEARTBEAT_TIMEOUT_MS,
   SERIAL_IDENTIFY_ATTEMPT_TIMEOUT_MS,
   SERIAL_IDENTIFY_TIMEOUT_MS,
+  SERIAL_RECOVERY_SKIP_TEST_MS,
 } from "@/lib/constants/timing";
 import type {
   ConnectTestRunner,
@@ -51,6 +52,7 @@ import type {
   SerialBoardType,
   SerialContextValue,
   SerialMessageListener,
+  SerialRecoveryMark,
   SerialRequestResult,
   SkippedRouteResponse,
   TestResult,
@@ -123,6 +125,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const taggedRepliesRef = useRef(false);
   const resetWatchArmedRef = useRef(false);
   const lastUptimeMsRef = useRef<number | null>(null);
+  const recoveryMarkRef = useRef<SerialRecoveryMark | null>(null);
   const handleUnexpectedResetRef = useRef<(status: unknown) => void>(
     () => {},
   );
@@ -156,12 +159,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     },
     [],
   );
-
-  const clearCommLog = useCallback(() => {
-    commLogRef.current = [];
-    commLogSnapshotRef.current = [];
-    for (const listener of commLogListenersRef.current) listener();
-  }, []);
 
   const getCommLog = useCallback(() => commLogSnapshotRef.current, []);
 
@@ -449,6 +446,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const disconnect = useCallback(() => {
     const activeTransport = transportRef.current;
+    if (activeTransport) pushCommLog("disconnected", activeTransport.kind);
 
     const leased = leasedDeviceGuidRef.current;
     leasedDeviceGuidRef.current = null;
@@ -488,7 +486,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     });
 
     return cleanup;
-  }, [station.id, clearSensorBlocked]);
+  }, [station.id, clearSensorBlocked, pushCommLog]);
 
   const runPreTestHooks = useCallback(async (forDevice: Device | undefined) => {
     for (const hook of [...preTestHooksRef.current]) {
@@ -501,7 +499,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const syncWithoutTest = useCallback(
-    async (forTransport: ByteTransport, forDevice: Device) => {
+    async (forTransport: ByteTransport, forDevice: Device | undefined) => {
       await runPreTestHooks(forDevice);
       if (transportRef.current !== forTransport) return;
       const { line } = await sendRequest({ getStatus: true });
@@ -708,10 +706,28 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [toast, activeOrg?.id, queryClient, t],
   );
 
+  const markRecovery = useCallback(() => {
+    const hardwareId = deviceRef.current?.hardwareId;
+    recoveryMarkRef.current = hardwareId
+      ? { hardwareId, until: Date.now() + SERIAL_RECOVERY_SKIP_TEST_MS }
+      : null;
+  }, []);
+
+  const consumeRecovery = useCallback((hardwareId: string | null) => {
+    const mark = recoveryMarkRef.current;
+    recoveryMarkRef.current = null;
+    return (
+      !!mark &&
+      mark.hardwareId === hardwareId &&
+      mark.until > Date.now()
+    );
+  }, []);
+
   const handleConnectionLost = useCallback(
     (lostTransport: ByteTransport) => {
       if (transportRef.current !== lostTransport) return;
       console.warn("[Device] Connection lost, disconnecting");
+      markRecovery();
       const lostGuid = leasedDeviceGuidRef.current;
       const reconnectTo =
         lostTransport.kind === "bluetooth" &&
@@ -724,7 +740,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         startBluetoothReconnectRef.current(reconnectTo, lostGuid);
       }
     },
-    [disconnect],
+    [disconnect, markRecovery],
   );
 
   const resetReasonText = useCallback(
@@ -764,6 +780,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       const activeTransport = transportRef.current;
       if (!activeTransport) return;
       console.warn("[Device] Sorter restarted unexpectedly", status);
+      pushCommLog("restarted", statusResetReason(status) ?? "unknown");
+      markRecovery();
       resetWatchArmedRef.current = false;
       lastUptimeMsRef.current = statusUptimeMs(status);
       for (const pending of pendingRef.current) pending.resolve("");
@@ -787,18 +805,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       const forDevice = deviceRef.current;
       void (async () => {
         if (!forDevice || forDevice.setupCompletedAt) {
-          if (forDevice && !forDevice.testOnConnect) {
-            await syncWithoutTest(activeTransport, forDevice);
-          } else {
-            await runConnectTest(activeTransport, forDevice);
-          }
+          await syncWithoutTest(activeTransport, forDevice);
         }
         if (transportRef.current === activeTransport) {
           resetWatchArmedRef.current = true;
         }
       })();
     },
-    [toast, t, resetReasonText, syncWithoutTest, runConnectTest],
+    [toast, t, resetReasonText, syncWithoutTest, markRecovery, pushCommLog],
   );
 
   useEffect(() => {
@@ -810,7 +824,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       newTransport: ByteTransport,
       options?: { skipAutoTest?: boolean; autoConnect?: boolean },
     ): Promise<{ identified: Promise<unknown> }> => {
-      clearCommLog();
+      pushCommLog("connected", newTransport.kind);
       taggedRepliesRef.current = false;
       resetWatchArmedRef.current = false;
       lastUptimeMsRef.current = null;
@@ -835,7 +849,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       };
       if (!options?.autoConnect) markConnected();
 
-      const identify = async (): Promise<{ device?: Device } | null> => {
+      const identify = async (): Promise<{
+        device?: Device;
+        hardwareId: string | null;
+      } | null> => {
         const deadline = Date.now() + SERIAL_IDENTIFY_TIMEOUT_MS;
         let status: Record<string, unknown> | null = null;
         for (
@@ -922,7 +939,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           disconnect();
           return null;
         }
-        return { device: boundDevice };
+        return { device: boundDevice, hardwareId };
       };
 
       const identified = identify();
@@ -937,7 +954,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         if (!result || options?.skipAutoTest) return;
         const boundDevice = result.device;
         if (boundDevice && !boundDevice.setupCompletedAt) return;
-        if (boundDevice && !boundDevice.testOnConnect) {
+        if (
+          (boundDevice && !boundDevice.testOnConnect) ||
+          consumeRecovery(result.hardwareId)
+        ) {
           await syncWithoutTest(newTransport, boundDevice);
           return;
         }
@@ -948,7 +968,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     },
     [
       toast,
-      clearCommLog,
+      pushCommLog,
       handleIncomingChunk,
       sendRequest,
       exceedsSorterLimit,
@@ -963,6 +983,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       disconnect,
       handleConnectionLost,
       noticeAbnormalBoot,
+      consumeRecovery,
       t,
     ],
   );
