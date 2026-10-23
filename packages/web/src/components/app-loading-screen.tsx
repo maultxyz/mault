@@ -1,4 +1,5 @@
 import { BrandIcon } from "@/components/brand-icon";
+import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
@@ -13,7 +14,9 @@ function ScanningCard() {
       <div className="absolute inset-x-3 top-1/2 h-px -translate-y-1/2 bg-border" />
       <div className="absolute inset-x-3 top-1/2 h-0.75 -translate-y-1/2 rounded-full bg-foreground/60 animate-[card-scan-flash_2.4s_ease-in-out_infinite]" />
       <div className="absolute flex flex-col gap-0.5 p-1 h-20 w-14 rounded-md border border-foreground/25 bg-card shadow-sm animate-[card-scan-pass_2.4s_ease-in-out_infinite]">
-        <div className="w-full bg-foreground/10 h-1/2 rounded-sm top-1.5" />
+        <div className="w-full bg-foreground/10 h-1/2 rounded-sm top-1.5 flex items-center justify-center">
+          <SeasonalPumpkin className="size-5" />
+        </div>
         <div className="w-full h-1.5 rounded-sm bg-foreground/10" />
         <div className="w-1/3 h-1.5 rounded-sm bg-foreground/10" />
         <div className="w-2/3 h-1.5 rounded-sm bg-foreground/10" />
@@ -38,6 +41,7 @@ export function AppLoadingScreen({
       )}
       onTransitionEnd={onTransitionEnd}
     >
+      <SpiderWeb corner="top-left" withSpider className="size-28" />
       <div className="flex flex-col items-center gap-2 relative">
         <span className="mb-1 grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-foreground/4 text-foreground">
           <BrandIcon className="size-7" />
