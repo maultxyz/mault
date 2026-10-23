@@ -10,6 +10,8 @@ import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
+import { usePiScanSession } from "@/features/scanner/api/use-pi-scan-session";
+import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
@@ -19,9 +21,13 @@ import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-ca
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
+import { PiCameraPreview } from "@/features/scanner/components/pi-camera-preview";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { isRemoteBrowser } from "@/lib/host";
 import { useRole } from "@/hooks/use-role";
 import {
   PAUSE_WHEN_HIDDEN_STATUSES,
@@ -29,6 +35,7 @@ import {
 } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
+import type { ScannerStatus } from "@magic-vault/shared";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
@@ -56,6 +63,10 @@ export function CardScanner({
   const navigate = useNavigate();
   const { isAdmin } = useRole();
   const isMobile = useIsMobile();
+  const piHost = usePiHost();
+  const piRemote = piHost && isRemoteBrowser();
+  const device = useDevice();
+  const previewRotated = !isMobile || (piHost && isRemoteBrowser());
   const {
     addCard,
     addUnmatchedCard,
@@ -123,6 +134,19 @@ export function CardScanner({
   const handScanActive = handScan && !isConnected;
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
+  const piScan = usePiScanSession();
+  const setPiAutoFeed = piScan.setAutoFeed;
+  const changeAutoFeed = useCallback(
+    (enabled: boolean) => {
+      setAutoFeed(enabled);
+      setPiAutoFeed(enabled);
+    },
+    [setPiAutoFeed, setAutoFeed],
+  );
+  const piWaitingForFeed =
+    piScan.state.phase === "running" &&
+    !piScan.state.autoFeed &&
+    piScan.state.activity == null;
   const { recordScanOutcome } = useUnmatchedRateToast();
   useOnnxRuntimeFailureToast();
   const {
@@ -168,9 +192,18 @@ export function CardScanner({
       recordScanOutcome(false);
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
-    rotated: !isMobile,
+    rotated: previewRotated,
     autoCapture: handScanActive,
   });
+  const piScanLive =
+    piScan.state.phase === "running" || piScan.state.phase === "paused";
+  const displayStatus: ScannerStatus = piScanLive
+    ? piScan.state.phase === "running"
+      ? "scanning"
+      : "paused"
+    : piRemote && piScan.cameraReady
+      ? "paused"
+      : status;
   const isSideControls = controlsPosition === "side";
 
   const handleOpenPhonePairing = () => {
@@ -251,6 +284,7 @@ export function CardScanner({
 
   useEffect(() => {
     const onVisibilityChange = () => {
+      if (piScan.cameraReady) return;
       if (!document.hidden) return;
       if (!PAUSE_WHEN_HIDDEN_STATUSES.includes(statusRef.current)) return;
       pause();
@@ -262,7 +296,7 @@ export function CardScanner({
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [toast, pause, t]);
+  }, [toast, pause, piScan.cameraReady, t]);
 
   const deviceNeutralRef = useRef(false);
 
@@ -371,7 +405,6 @@ export function CardScanner({
     prepareDevice,
     sendRequest,
     handleCardArrived,
-    handlePause,
     pause,
     t,
     activeCollection?.guid,
@@ -478,6 +511,10 @@ export function CardScanner({
   const canScan = isCameraActive;
   const wasReadyRef = useRef(canScan);
   useEffect(() => {
+    if (piScan.cameraReady) {
+      wasReadyRef.current = canScan;
+      return;
+    }
     if (!canScan && wasReadyRef.current) {
       handlePause();
     }
@@ -485,23 +522,48 @@ export function CardScanner({
       handleResume();
     }
     wasReadyRef.current = canScan;
-  }, [canScan, handlePause, handleResume, status]);
+  }, [canScan, handlePause, handleResume, piScan.cameraReady, status]);
 
   const scannerControls = (
     <ScannerControls
       orientation={isSideControls ? "vertical" : "horizontal"}
-      status={status}
+      status={displayStatus}
       isConnected={isConnected}
       isReady={isReady}
-      isFeeding={isFeeding}
+      isFeeding={
+        isFeeding ||
+        piScan.starting ||
+        (piScan.state.phase === "running" && !piWaitingForFeed)
+      }
       isClearingDevice={isClearingDevice}
       onForceScan={handleForceScanClick}
-      onPause={pause}
-      onResume={handleResumeScanning}
-      onFeed={handleFeed}
+      onPause={piScan.cameraReady ? () => void piScan.pause() : pause}
+      onResume={
+        piScan.cameraReady
+          ? () => void piScan.startOrResume()
+          : handleResumeScanning
+      }
+      onFeed={
+        piScan.cameraReady
+          ? () => {
+              if (
+                piScan.state.phase === "running" ||
+                piScan.state.phase === "paused"
+              ) {
+                piScan.feed();
+                return;
+              }
+              void piScan.startOrResume();
+            }
+          : handleFeed
+      }
       onClearDevice={handleClearDevice}
       isResettingDevice={isResettingDevice}
-      onResetDevice={handleResetToNeutral}
+      onResetDevice={() => void handleResetToNeutral()}
+      sessionFeed={piScan.cameraReady}
+      sessionLive={piScanLive}
+      onStop={() => void piScan.stop()}
+      onAutoFeedChange={changeAutoFeed}
     />
   );
 
@@ -634,18 +696,28 @@ export function CardScanner({
         )}
       >
         <video ref={videoRef} className="hidden" playsInline muted />
+        {piRemote && isCameraActive && (
+          <PiCameraPreview
+            alt={t("piScan.preview")}
+            rotated
+            flipped={device?.flipCamera}
+            className="absolute max-w-none"
+          />
+        )}
         <canvas
           ref={displayCanvasRef}
           className={cn(
             "absolute",
-            !isMobile && cameraSource === "local" && "rotate-90",
+            piRemote && "hidden",
+            previewRotated && cameraSource === "local" && "rotate-90",
           )}
         />
         <canvas
           ref={overlayCanvasRef}
           className={cn(
             "absolute z-20 pointer-events-none",
-            !isMobile && cameraSource === "local" && "rotate-90",
+            piRemote && "hidden",
+            previewRotated && cameraSource === "local" && "rotate-90",
           )}
         />
         {isAdmin && debugImageUrl && (
@@ -666,7 +738,7 @@ export function CardScanner({
           </Tooltip>
         )}
         <ScannerOverlay
-          status={status}
+          status={displayStatus}
           errorMessage={errorMessage}
           isCameraActive={isCameraActive}
           isConnected={isConnected}
@@ -690,6 +762,13 @@ export function CardScanner({
           handScanActive={handScanActive}
           lastRoutedBin={lastRoutedBin}
           onEnableHandScan={() => setHandScan(true)}
+          sessionLive={piScanLive || piScan.starting}
+          piReady={piScan.cameraReady}
+          sessionDetail={
+            piScan.starting && !piScanLive
+              ? t("piScan.starting")
+              : piScanStatusText(t, piScan.state)
+          }
         />
         <ScannerMenu
           isCameraActive={isCameraActive}
@@ -720,7 +799,7 @@ export function CardScanner({
           canConnectAnotherSorter={canConnectAnotherSorter}
           sorterLimitIsHardCap={sorterLimitIsHardCap}
           onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
-          onAutoFeedChange={setAutoFeed}
+          onAutoFeedChange={changeAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}
           handScan={handScan}
           onHandScanChange={setHandScan}

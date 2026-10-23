@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
+import { isRemoteBrowser } from "@/lib/host";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconAdjustments,
@@ -59,8 +61,11 @@ export function ScannerMenu({
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
+  const piHost = usePiHost();
   const webSerialSupported =
-    typeof navigator !== "undefined" && !!navigator.serial;
+    typeof navigator !== "undefined" &&
+    !!navigator.serial &&
+    !(piHost && isRemoteBrowser());
 
 
   return (

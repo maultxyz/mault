@@ -3,7 +3,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
-import { DEFAULT_SYNC_STATE } from "@/lib/constants/admin";
+import { DEFAULT_SYNC_STATE, isBrowserSaveLog } from "@/lib/constants/admin";
 import type {
   ScanLockInfo,
   SessionViewer,
@@ -169,7 +169,13 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
         });
 
         es.addEventListener("status", (e) => {
-          setSyncState(JSON.parse((e as MessageEvent).data) as SyncState);
+          const next = JSON.parse((e as MessageEvent).data) as SyncState;
+          setSyncState({
+            ...next,
+            logs: next.vectorizeOn === "browser"
+              ? next.logs.filter((line) => !isBrowserSaveLog(line))
+              : next.logs,
+          });
         });
         es.addEventListener("progress", (e) => {
           const update = JSON.parse(
@@ -187,10 +193,11 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           const { line } = JSON.parse((e as MessageEvent).data) as {
             line: string;
           };
-          setSyncState((prev) => ({
-            ...prev,
-            logs: [...prev.logs.slice(-199), line],
-          }));
+          setSyncState((prev) =>
+            prev.vectorizeOn === "browser" && isBrowserSaveLog(line)
+              ? prev
+              : { ...prev, logs: [...prev.logs.slice(-199), line] },
+          );
         });
 
         es.addEventListener(DEPLOY_STATUS_EVENT, (e) => {

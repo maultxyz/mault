@@ -1,3 +1,8 @@
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { isRemoteBrowser } from "@/lib/host";
+import { cn } from "@/lib/utils";
 import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
 import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import { SectionNav } from "@/components/section-nav";
@@ -40,6 +45,7 @@ import {
   useOutletContext,
 } from "react-router-dom";
 import {
+  CALIBRATE_PATH,
   CALIBRATION_PATH_SECTIONS,
   CALIBRATION_SECTION_PATHS,
   CALIBRATION_SECTIONS,
@@ -55,13 +61,15 @@ export default function CalibrateLayout() {
   const { t } = useTranslation("calibration");
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const piRemote = usePiHost() && isRemoteBrowser();
 
   const activePathSegment = location.pathname.split("/").pop() ?? "";
   const section =
     CALIBRATION_PATH_SECTIONS[activePathSegment] ??
     DEFAULT_CALIBRATION_SECTION;
   const setSection = (next: CalibrationSection) =>
-    navigate(`/app/calibrate/${CALIBRATION_SECTION_PATHS[next]}`);
+    navigate(`${CALIBRATE_PATH}/${CALIBRATION_SECTION_PATHS[next]}`);
 
   const sectionNavItems: SectionNavItem[] = CALIBRATION_SECTIONS.map(
     ({ section: key, icon: Icon }) => ({
@@ -112,7 +120,12 @@ export default function CalibrateLayout() {
         data-tour="calibration-sections"
       />
 
-      <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4">
+      <div
+        className={cn(
+          "flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4",
+          isMobile && MOBILE_NAV_SCROLL_PADDING_CLASS,
+        )}
+      >
         <div className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md">
           <div
             className="flex flex-wrap items-center gap-2"
@@ -131,7 +144,9 @@ export default function CalibrateLayout() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
                   <DropdownMenuItem onClick={connect}>
-                    {t("calibratePage.connectUsb")}
+                    {piRemote
+                      ? t("calibratePage.connectPi")
+                      : t("calibratePage.connectUsb")}
                   </DropdownMenuItem>
                   {bluetoothSupported && (
                     <DropdownMenuItem onClick={connectBluetooth}>

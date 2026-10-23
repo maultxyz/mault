@@ -269,6 +269,8 @@ export const DEFAULT_DEVICE: Device = {
   updatedAt: "",
 };
 
+export const CALIBRATE_PATH = "/app/calibrate";
+
 export const CALIBRATION_SECTION_PATHS: Record<CalibrationSection, string> = {
   connection: "connection",
   layout: "layout",

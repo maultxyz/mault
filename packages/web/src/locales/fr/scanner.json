@@ -1,7 +1,8 @@
 {
   "camera": {
     "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
-    "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse."
+    "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse.",
+    "piUnavailable": "La webcam du Raspberry Pi n'est pas disponible."
   },
   "scanEngine": {
     "searchFailed": "Échec de la recherche de la carte",
@@ -21,11 +22,32 @@
     "minimize": "Réduire sur le côté",
     "expand": "Afficher l'aperçu du scanner"
   },
+  "piScan": {
+    "preview": "Vue en direct de la trieuse",
+    "starting": "Démarrage du scan sur le Pi",
+    "feeding": "Alimentation d'une carte",
+    "matching": "Identification d'une carte",
+    "routing": "Envoi de {{name}} vers le bac {{bin}}",
+    "routingUnmatched": "Envoi d'une carte non reconnue vers le bac {{bin}}",
+    "scanning": "Scan en cours",
+    "paused": "En pause",
+    "stopping": "Arrêt après cette carte",
+    "lastCard": "{{name}} vers le bac {{bin}}",
+    "lastUnmatched": "Carte non reconnue vers le bac {{bin}}",
+    "count": "{{count}} cartes pour cette session",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "stop": "Arrêter",
+    "openScanner": "Ouvrir le scanner"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Échec de la connexion",
       "description": "Impossible de se connecter. Vérifie qu'aucune autre application n'utilise l'appareil."
     },
+    "piMissing": "Aucun trieur n'est branché sur le Raspberry Pi.",
+    "piBusy": "Le port USB du Pi est déjà utilisé. Déconnecte-le dans l'autre navigateur, ou arrête le scan sur le Pi, puis réessaie.",
+    "piScanBusy": "Un scan tourne sur le Pi, donc ce navigateur ne peut pas prendre le trieur. Arrête d'abord le scan.",
     "bluetoothPermissionBlocked": "L'autorisation Bluetooth est bloquée pour ce navigateur. Vérifie les paramètres du site dans ton navigateur (ou chrome://settings/content/bluetoothDevices) pour autoriser le Bluetooth, puis réessaie.",
     "connectionLost": {
       "title": "Connexion perdue",
@@ -261,6 +283,7 @@
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "stopPiScan": "Arrêter le tri et libérer le trieur",
     "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
     "foilTooltip": "Type de foil des cartes scannées : {{type}}",
     "setTooltip": "Extension des cartes scannées : {{set}}",
@@ -767,17 +790,21 @@
     "transport": {
       "serial": "USB",
       "bluetooth": "Bluetooth",
-      "cloud": "Wi-Fi"
+      "cloud": "Wi-Fi",
+      "pi": "Ce Pi"
     },
     "connectHint": "Allumez votre trieuse, puis connectez-vous.",
     "connectBluetooth": "Connecter en Bluetooth",
     "connectUsb": "Connecter en USB",
+    "connectPi": "Connecter la trieuse de ce Pi",
     "unsupported": "Ce navigateur ne peut pas se connecter directement à une trieuse. Connecte-toi en Wi-Fi ci-dessous, ou utilise Chrome sur Android.",
     "actions": "Actions",
     "selfTest": "Lancer l'autotest",
     "selfTestDescription": "Vérifie les capteurs et déplace chaque servo",
     "disconnect": "Déconnecter",
     "calibrateOnDesktop": "Le calibrage et les règles de tri se configurent sur un ordinateur.",
+    "calibrate": "Calibrer",
+    "calibrateOnPi": "Réglez la trieuse branchée sur ce Pi.",
     "remote": {
       "title": "En Wi-Fi",
       "unnamed": "Trieuse de cartes",

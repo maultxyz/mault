@@ -1,4 +1,4 @@
-import { SORTER_LINK_DEVICE_PATH } from "@magic-vault/shared";
+import { BROWSER_SYNC_IMAGE_PROXY_HOSTS, SORTER_LINK_DEVICE_PATH } from "@magic-vault/shared";
 
 // The public web app's own URL - used to build links back into it (email
 // verification, Discord embeds, Stripe redirect URLs, invite links).
@@ -52,6 +52,7 @@ export const YUGIOH_DEFAULT_URL =
 // fetch from - an allowlist, not just a default, since that route accepts
 // an arbitrary url query param.
 export const ALLOWED_IMAGE_HOSTS = new Set([
+  ...BROWSER_SYNC_IMAGE_PROXY_HOSTS,
   "cards.scryfall.io",
   "gundam-gcg.com",
   "www.gundam-gcg.com",

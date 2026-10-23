@@ -332,6 +332,7 @@
     "disconnect": "Trennen",
     "connectDevice": "Gerät verbinden",
     "connectUsb": "Über USB verbinden",
+    "connectPi": "Sortierer an diesem Pi verbinden",
     "connectBluetooth": "Über Bluetooth verbinden",
     "testing": "Wird getestet…",
     "runTest": "Test ausführen",

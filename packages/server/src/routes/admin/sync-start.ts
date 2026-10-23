@@ -1,5 +1,10 @@
-import { SYNC_VECTORIZE_CONCURRENCY_MAX } from "@magic-vault/shared";
+import {
+  SYNC_VECTORIZE_CONCURRENCY_MAX,
+  type SyncVectorizeOn,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
+import { isPiHost } from "../../lib/pi-host";
+import { piUpdateRunning } from "../../lib/pi-update";
 import { getStatus, startSync, SYNC_SOURCES } from "../../lib/sync-job";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 
@@ -15,21 +20,39 @@ export const syncStartRoute = new Hono<AppEnv>().post(
   requireRole("admin"),
   async (c) => {
     let gameKey: string | undefined;
+    if (isPiHost() && (await piUpdateRunning()))
+      return c.json(
+        { success: false, message: "A system update is running." },
+        409,
+      );
     let lang = "en";
     let forceResync = false;
     let concurrency: number | undefined;
+    let vectorizeOn: SyncVectorizeOn = "server";
     try {
       const body = await c.req.json<{
         gameKey?: string;
         lang?: string;
         forceResync?: boolean;
         concurrency?: number;
+        vectorizeOn?: SyncVectorizeOn;
       }>();
       gameKey = body.gameKey;
       if (body.lang) lang = body.lang;
       if (body.forceResync) forceResync = true;
       concurrency = parseConcurrency(body.concurrency);
+      if (body.vectorizeOn === "browser") vectorizeOn = "browser";
     } catch {}
+
+    if (vectorizeOn === "browser" && !isPiHost()) {
+      return c.json(
+        {
+          success: false,
+          message: "Browser vectorizing is only available on a Raspberry Pi host.",
+        },
+        400,
+      );
+    }
 
     if (!gameKey) {
       return c.json({ success: false, message: "gameKey is required." }, 400);
@@ -58,6 +81,7 @@ export const syncStartRoute = new Hono<AppEnv>().post(
       forceResync,
       undefined,
       concurrency,
+      vectorizeOn,
     );
     return c.json({ success: true, data: getStatus() });
   },

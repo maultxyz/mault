@@ -60,6 +60,16 @@ export interface CameraRange {
   step: number;
 }
 
+export interface PiCameraReady {
+  status: "ready";
+  label: string;
+  width: number;
+  height: number;
+  focus: CameraRange | null;
+}
+
+export type PiCameraHealth = PiCameraReady | { status: "down" | "absent" };
+
 export interface CameraFocusControlProps {
   className?: string;
 }
@@ -164,7 +174,7 @@ export type SerialMessageListener = (message: unknown) => void;
 
 export type SerialBoardType = "esp32" | "uno_r4";
 
-export type SerialTransportType = "serial" | "bluetooth" | "cloud";
+export type SerialTransportType = "serial" | "bluetooth" | "cloud" | "pi";
 
 export type FlashFailureReason =
   | "wrong-chip"
@@ -285,6 +295,10 @@ export interface ScannerControlsProps {
   onFeed: () => void;
   onClearDevice: () => void;
   onResetDevice: () => void;
+  sessionFeed?: boolean;
+  sessionLive?: boolean;
+  onStop?: () => void;
+  onAutoFeedChange?: (enabled: boolean) => void;
 }
 
 export interface ScannerControlButtonProps {
@@ -321,6 +335,9 @@ export interface ScannerOverlayProps {
   handScanActive: boolean;
   lastRoutedBin: LastRoutedBin | null;
   onEnableHandScan: () => void;
+  sessionLive?: boolean;
+  sessionDetail?: string | null;
+  piReady?: boolean;
 }
 
 export interface SetStats {
@@ -1010,3 +1027,17 @@ export interface OutlineAnimator {
   setTarget: (contour: CardContour | null) => void;
   cancel: () => void;
 }
+
+export type PiScanListener = () => void;
+
+export interface PiCameraPreviewProps {
+  alt: string;
+  className?: string;
+  rotated?: boolean;
+  flipped?: boolean;
+}
+
+export type PiScanTranslate = (
+  key: string,
+  options?: Record<string, unknown>,
+) => string;

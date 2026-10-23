@@ -1,0 +1,132 @@
+import type {
+  PickList,
+  BinConfig,
+  BinRoute,
+  BinSet,
+  FieldMeta,
+  OcrDiagnostics,
+  PiScanSessionActivity,
+  PiScanSessionPhase,
+  PiScanSessionSight,
+  PiScanSessionStartBody,
+  PiScanSessionStartCode,
+  PiScanSessionState,
+  ScanDetectionDiagnostics,
+  ScanMatchSource,
+  ScanRegion,
+} from "@magic-vault/shared";
+import type { CardMatchSearchResult } from "./card-search";
+import type { SorterLink } from "../pi-scan/sorter-link";
+
+export interface PiScanBinCard {
+  binNumber?: number | null;
+  scannedAt: number;
+  unsaved?: boolean;
+  card: object;
+}
+
+export interface PiScanRunContext {
+  hardwareId: string;
+  collectionId: number;
+  collectionName: string;
+  gameId: number;
+  gameKey: string;
+  gameName: string | undefined;
+  lang: string;
+  deviceGuid: string;
+  moduleCount: number;
+  region: ScanRegion;
+  settleMs: number;
+  checkBothOrientations: boolean;
+  flipCamera: boolean;
+  matchesNeeded: number;
+  matchAllLanguages: boolean;
+  ocrEnabled: boolean;
+  cardThickness: number | null;
+  fieldDefinitions: FieldMeta[];
+  gameGuid: string;
+  set: BinSet;
+  configs: BinConfig[];
+  pickConfigs: BinConfig[];
+  routes: BinRoute[];
+  heights: Map<number, number>;
+  counts: Map<number, number>;
+  contents: PiScanBinCard[];
+}
+
+export interface PiScanLive {
+  phase: PiScanSessionPhase;
+  orgId: string;
+  userId: string;
+  jwtClaims: string;
+  accessToken: string;
+  collectionGuid: string;
+  message: string | null;
+  cardsScanned: number;
+  activity: PiScanSessionActivity | null;
+  current: PiScanSessionSight | null;
+  lastCard: PiScanSessionSight | null;
+  foilType: string | null;
+  preferredSetCode: string | null;
+  autoFeed: boolean;
+  feedRequested: boolean;
+  cardInFlight: boolean;
+  startedAt: number;
+  pausedMs: number;
+  pauseStartedAt: number | null;
+  pauseRequested: boolean;
+  refreshRequested: boolean;
+  stopRequested: boolean;
+  handedOff: boolean;
+  locked: boolean;
+  portHeld: boolean;
+  context: PiScanRunContext | null;
+  link: SorterLink | null;
+  done: Promise<void>;
+  resolveDone: () => void;
+}
+
+export interface PiScanFrameMatch {
+  image: Buffer;
+  orientation: "upright" | "rotated";
+  result: CardMatchSearchResult;
+  embedding: number[] | null;
+  ocr: OcrDiagnostics | null;
+  matchedBy: ScanMatchSource;
+  lowConfidenceFromOcr: boolean;
+  detection: ScanDetectionDiagnostics;
+  detectedColor: string | null;
+}
+
+export interface PiScanStartInput {
+  orgId: string;
+  userId: string;
+  jwtClaims: string;
+  accessToken: string;
+  body: PiScanSessionStartBody;
+}
+
+export type PiScanStartResult =
+  | { ok: true; state: PiScanSessionState }
+  | {
+      ok: false;
+      status: 400 | 409;
+      code: PiScanSessionStartCode;
+      message: string;
+    };
+
+export interface PiScanRouteJson {
+  success?: boolean;
+  message?: string;
+  data?: { pickList?: PickList | null };
+}
+
+export type PiScanRecoveryState = Pick<
+  PiScanLive,
+  | "phase"
+  | "pauseRequested"
+  | "stopRequested"
+  | "refreshRequested"
+  | "context"
+  | "message"
+>;

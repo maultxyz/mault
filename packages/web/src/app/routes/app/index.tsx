@@ -13,7 +13,10 @@ import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { StationPanels } from "@/features/scanner/components/station-panels";
 import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { useResizablePanel } from "@/hooks/use-resizable-panel";
 import { IconCards } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -23,9 +26,15 @@ function MobileScanner() {
   const { t } = useTranslation("scanner");
   const { unmatchedCards, removeUnmatchedCard } = useScannedCards();
   const { totalCount } = useCollectionCardsSummary();
+  const piHost = usePiHost();
 
   return (
-    <div className="flex-1 min-h-0 relative overflow-hidden">
+    <div
+      className={cn(
+        "relative min-h-0 flex-1 overflow-hidden",
+        piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
+      )}
+    >
       <div className="p-2 size-full bg-sidebar flex flex-col gap-2">
         <CardScanner className="flex-1 min-h-0" />
         <IdentifiableUnmatchedCardsPanel

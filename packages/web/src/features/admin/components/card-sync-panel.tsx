@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useCardSync } from "@/features/admin/api/use-card-sync";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { formatDuration } from "@/features/admin/lib/format-duration";
+import { browserSyncParallel } from "@/lib/constants/admin";
 import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import {
@@ -21,6 +23,7 @@ import { useTranslation } from "react-i18next";
 
 export function CardSyncPanel() {
   const { t } = useTranslation("admin");
+  const piHost = usePiHost();
   const {
     syncState,
     sources,
@@ -29,6 +32,8 @@ export function CardSyncPanel() {
     done,
     progress,
     etaMs,
+    cardsPerMinute,
+    embeddingCount,
     start,
     isStarting,
     cancel,
@@ -130,9 +135,31 @@ export function CardSyncPanel() {
                   ? t("cardImageVectors.cancellingButton")
                   : t("cancel")}
               </Button>
+            ) : piHost ? (
+              <>
+                <Button
+                  disabled={isStarting || !syncGameKey}
+                  onClick={() =>
+                    start(syncGameKey!, syncLang, false, concurrency, "browser")
+                  }
+                >
+                  {isStarting
+                    ? t("starting")
+                    : t("cardImageVectors.startOnComputerButton")}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={isStarting || !syncGameKey}
+                  onClick={() =>
+                    start(syncGameKey!, syncLang, forceResync, concurrency)
+                  }
+                >
+                  {t("cardImageVectors.startSyncButton")}
+                </Button>
+              </>
             ) : (
               <Button
-                disabled={isRunning || isStarting || !syncGameKey}
+                disabled={isStarting || !syncGameKey}
                 onClick={() =>
                   start(syncGameKey!, syncLang, forceResync, concurrency)
                 }
@@ -144,6 +171,14 @@ export function CardSyncPanel() {
             )}
           </div>
         </div>
+
+        {isRunning && syncState.vectorizeOn === "browser" && (
+          <p className="text-sm text-foreground/70">
+            {t("cardImageVectors.browserWorking", {
+              count: browserSyncParallel(syncState.concurrency),
+            })}
+          </p>
+        )}
 
         {!isRunning && (
           <div className="flex flex-col gap-3">
@@ -201,10 +236,27 @@ export function CardSyncPanel() {
                 {t("cardImageVectors.progressCount", { done, total })}
               </span>
               <span>
-                {t("cardImageVectors.vectorizedCount", {
-                  count: syncState.processed,
+                {t(syncState.vectorizeOn === "browser" ? "cardImageVectors.savedCount" : "cardImageVectors.vectorizedCount", {
+                  count:
+                    syncState.vectorizeOn === "browser"
+                      ? done - syncState.errors
+                      : syncState.processed,
                 })}
               </span>
+              {embeddingCount > 0 && (
+                <span>
+                  {t("cardImageVectors.activeCount", {
+                    count: embeddingCount,
+                  })}
+                </span>
+              )}
+              {cardsPerMinute !== null && (
+                <span>
+                  {t("cardImageVectors.ratePerMinute", {
+                    count: cardsPerMinute,
+                  })}
+                </span>
+              )}
               {syncState.queued > 0 && (
                 <span>
                   {t("cardImageVectors.queuedCount", {

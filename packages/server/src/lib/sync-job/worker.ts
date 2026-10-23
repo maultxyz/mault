@@ -1,4 +1,4 @@
-import type { SyncState, SyncStatus } from "@magic-vault/shared";
+import type { SyncState, SyncStatus, SyncVectorizeOn } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
@@ -10,6 +10,13 @@ import {
 import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
 import type { ParentToWorkerMessage, WorkerToParentMessage } from "../interfaces/sync-job";
+import {
+  cancelBrowserQueue,
+  claimBrowserWork,
+  finishBrowserQueue,
+  serveBrowserQueue,
+  submitBrowserWork,
+} from "./browser-queue";
 import { SYNC_SOURCES } from "./sources";
 import { storedCollectorNumber } from "../card-search/collector-number";
 import { rebuildGameVectorIndex } from "../game-vector-index";
@@ -20,8 +27,16 @@ function errorMessage(err: unknown): string {
   return cause ? `${err.message} — ${cause}` : err.message;
 }
 
-function send(msg: WorkerToParentMessage): void {
-  process.send?.(msg);
+function send(msg: WorkerToParentMessage, then?: () => void): void {
+  if (!process.send) {
+    then?.();
+    return;
+  }
+  if (!then) {
+    process.send(msg);
+    return;
+  }
+  process.send(msg, undefined, undefined, () => then());
 }
 
 function exitAfterFlush(code: number): void {
@@ -218,10 +233,17 @@ async function runSync(
   source: SyncSource,
   lang: string,
   forceResync: boolean,
-  skipUpdatedWithinMs?: number,
+  skipUpdatedWithinMs: number | undefined,
+  vectorizeOn: SyncVectorizeOn,
 ): Promise<void> {
   const baseUrl = source.defaultUrl;
   addLog(`Using data source: ${baseUrl}`);
+  if (vectorizeOn === "browser" && forceResync) {
+    addLog(
+      "Force resync is ignored so this computer only vectorizes cards missing front or back image vectors.",
+    );
+    forceResync = false;
+  }
 
   let cards: Awaited<ReturnType<SyncSource["fetchCards"]>>;
   try {
@@ -296,6 +318,55 @@ async function runSync(
       existingSet.has(card.id) &&
       (!card.backImageUrl || vectorizedBacks.has(card.id))) ||
     recentlyUpdated.has(card.id);
+
+  if (vectorizeOn === "browser") {
+    await refreshStoredData(
+      source,
+      lang,
+      cards.filter(isAlreadyVectorized),
+    );
+    if (isCancelled()) {
+      emitCancelledDone();
+      return;
+    }
+    const needed: SyncSourceCard[] = [];
+    let alreadyDone = 0;
+    for (const card of cards) {
+      if (!card.imageUrl || isAlreadyVectorized(card)) alreadyDone++;
+      else needed.push(card);
+    }
+    cards = [];
+    const outcome = await serveBrowserQueue({
+      source,
+      lang,
+      cards: needed,
+      skipped: alreadyDone,
+      addLog,
+      patchState,
+      incrementCounters,
+      emitEvent,
+      getState,
+      isCancelled,
+    });
+    if (outcome === "cancelled" || isCancelled()) {
+      emitCancelledDone();
+      return;
+    }
+    patchState({ status: "completed", acceptingWork: false, queued: 0 });
+    const finished = getState();
+    addLog(
+      `Done. Processed: ${finished.processed}, Skipped: ${finished.skipped}, Errors: ${finished.errors}`,
+    );
+    emitEvent("done", {
+      status: "completed" as SyncStatus,
+      acceptingWork: false,
+      processed: finished.processed,
+      skipped: finished.skipped,
+      errors: finished.errors,
+      queued: 0,
+    });
+    return;
+  }
 
   const refreshed = await refreshStoredData(
     source,
@@ -484,6 +555,39 @@ process.on("message", (msg: ParentToWorkerMessage) => {
   if (msg.type === "cancel") {
     cancelFlag = true;
     abortController?.abort();
+    cancelBrowserQueue();
+    return;
+  }
+
+  if (msg.type === "claim") {
+    send({
+      type: "workResponse",
+      requestId: msg.requestId,
+      ok: true,
+      cards: claimBrowserWork(msg.limit),
+    });
+    return;
+  }
+
+  if (msg.type === "submit") {
+    void submitBrowserWork(msg.results, msg.failures)
+      .then((state) => {
+        send(
+          { type: "workResponse", requestId: msg.requestId, ok: true },
+          () => {
+            if (state === "cancelled") finishBrowserQueue("cancelled");
+            else if (state === "idle") finishBrowserQueue("done");
+          },
+        );
+      })
+      .catch((err) => {
+        send({
+          type: "workResponse",
+          requestId: msg.requestId,
+          ok: false,
+          message: errorMessage(err),
+        });
+      });
     return;
   }
 
@@ -495,7 +599,13 @@ process.on("message", (msg: ParentToWorkerMessage) => {
     }
 
     beginRun();
-    runSync(source, msg.lang, msg.forceResync, msg.skipUpdatedWithinMs)
+    runSync(
+      source,
+      msg.lang,
+      msg.forceResync,
+      msg.skipUpdatedWithinMs,
+      msg.vectorizeOn,
+    )
       .then(() => exitAfterFlush(0))
       .catch((err) => {
         patchState({ status: "failed" });
