@@ -15,6 +15,7 @@ import subprocess
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 HOST = "127.0.0.1"
 PORT = 8765
@@ -50,11 +51,13 @@ def find_webcam() -> str:
     matches: list[str] = []
     for node in sorted(glob.glob("/sys/class/video4linux/video*")):
         try:
-            name = open(os.path.join(node, "name"), encoding="utf-8").read()
-            index = open(os.path.join(node, "index"), encoding="utf-8").read().strip()
+            index = (Path(node) / "index").read_text(encoding="utf-8").strip()
         except OSError:
             continue
-        if "usb" not in name.lower() or index != "0":
+        if index != "0" or not any(
+            (parent / "subsystem").resolve() == Path("/sys/bus/usb")
+            for parent in Path(node).resolve().parents
+        ):
             continue
         matches.append("/dev/" + os.path.basename(node))
     if not matches:
