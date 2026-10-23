@@ -39,7 +39,6 @@ export const editBinRoute = new Hono<AppEnv>().put(
       isOverride,
       overridePriority,
       lowMatchPercent,
-      cardLimit,
       maxCopies,
       maxCopiesBy,
       overflowBin,
@@ -52,7 +51,6 @@ export const editBinRoute = new Hono<AppEnv>().put(
       isOverride?: boolean;
       overridePriority?: number | null;
       lowMatchPercent?: number | null;
-      cardLimit?: number | null;
       maxCopies?: number | null;
       maxCopiesBy?: string | null;
       overflowBin?: number | null;
@@ -113,7 +111,6 @@ export const editBinRoute = new Hono<AppEnv>().put(
             ? null
             : toOverridePriority(overridePriority, isCatchAll, isOverride),
           lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
-          cardLimit: cardLimit ?? null,
           maxCopies: nextMaxCopies,
           maxCopiesBy: toMaxCopiesBy(maxCopiesBy, isCatchAll, nextMaxCopies),
           pickList: nextPickList,
@@ -168,7 +165,6 @@ export const editBinRoute = new Hono<AppEnv>().put(
             isOverride: true,
             overridePriority: true,
             lowMatchPercent: true,
-            cardLimit: true,
             maxCopies: true,
             maxCopiesBy: true,
             overflowBin: true,
@@ -191,7 +187,6 @@ export const editBinRoute = new Hono<AppEnv>().put(
               isOverride: b.isOverride,
               overridePriority: b.overridePriority,
               lowMatchPercent: b.lowMatchPercent,
-              cardLimit: b.cardLimit,
               maxCopies: b.maxCopies,
               maxCopiesBy: b.maxCopiesBy,
               overflowBin: b.overflowBin,

@@ -1,3 +1,4 @@
+import { COMM_LOG_MARKER_LABELS } from "@/lib/constants/scanner";
 import type { CommLogEntry } from "@/lib/interfaces/scanner";
 
 
@@ -8,6 +9,13 @@ export function formatCommLog(entries: CommLogEntry[]): string {
     "",
   ];
   for (const entry of entries) {
+    if (COMM_LOG_MARKER_LABELS[entry.direction]) {
+      lines.push(
+        "",
+        `===== [${new Date(entry.timestamp).toISOString()}] ${COMM_LOG_MARKER_LABELS[entry.direction]} (${entry.text}) =====`,
+      );
+      continue;
+    }
     const arrow = entry.direction === "sent" ? "→" : "←";
     lines.push(
       `[${new Date(entry.timestamp).toISOString()}] ${arrow} ${entry.text}`,

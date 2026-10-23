@@ -102,6 +102,7 @@ export interface MatchScope {
 
 export interface ScannedCardsContextValue {
   unmatchedCards: UnmatchedCard[];
+  unmatchedCount: number;
   isLoading: boolean;
   autoFeed: boolean;
   forceFoilType: string | null;
@@ -127,7 +128,7 @@ export interface ScannedCardsContextValue {
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
   ) => void;
-  removeUnmatchedCard: (scanId: string) => void;
+  removeUnmatchedCard: (scanId: string) => Promise<boolean>;
   identifyUnmatchedCard: (
     scanId: string,
     card: PlayingCard,
@@ -362,6 +363,21 @@ export interface BinFillLevel {
   percent: number;
 }
 
+export interface BinCardCounts {
+  counts: Map<number, number>;
+  updatedAt: number;
+}
+
+export interface ComputedBinFillLevels {
+  levels: BinFillLevel[];
+  countsUpdatedAt: number;
+}
+
+export interface PendingBinCard {
+  binNumber: number;
+  savedAt: number | null;
+}
+
 export type BinLevelStatus = "normal" | "warning" | "full";
 
 export interface LastRoutedBin {
@@ -394,6 +410,11 @@ export interface SerialRequestResult {
   line: string;
 }
 
+export interface SerialRecoveryMark {
+  hardwareId: string;
+  until: number;
+}
+
 export interface PendingSerialReply {
   seq: number | null;
   resolve: (line: string) => void;
@@ -405,7 +426,7 @@ export interface RawCommandResult {
 }
 
 export interface CommLogEntry {
-  direction: "sent" | "received";
+  direction: "sent" | "received" | "connected" | "disconnected" | "restarted";
   text: string;
   timestamp: number;
 }
@@ -427,6 +448,7 @@ export interface SessionMonitorState {
   recentCards: ScannedCard[];
   cardsVersion: number;
   unmatchedCards: UnmatchedCard[];
+  unmatchedCount: number;
   viewers: SessionViewer[];
   errors: SessionError[];
   status: ConnectionStatus;
@@ -485,7 +507,6 @@ export interface MonitorCardsState {
   stats: ScanStats | null;
   cardCount: number;
   matchingCount: number;
-  filteredCount: number;
   needsReviewCount: number;
   openScanId: string | undefined;
   setOpenScanId: (scanId: string | null) => void;
@@ -716,35 +737,57 @@ export interface UnmatchedRateToastProps {
 
 export interface UnmatchedCardsPanelProps {
   cards: UnmatchedCard[];
-  onRemove?: (scanId: string) => void;
-  onIdentify?: (card: UnmatchedCard) => void;
-  onOpen?: (card: UnmatchedCard) => void;
+  total: number;
+  collectionGuid?: string;
+  canIdentify?: boolean;
+  onRemove?: (scanId: string) => Promise<boolean>;
 }
 
 export interface UnmatchedCardsGridDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  cards: UnmatchedCard[];
-  onRemove?: (scanId: string) => void;
-  onIdentify?: (card: UnmatchedCard) => void;
-}
-
-export interface MobileUnmatchedCardDrawerProps {
-  entry: UnmatchedCard | null;
+  openIndex: number | null;
+  onOpenIndexChange: (index: number | null) => void;
   collectionGuid: string;
-  onIdentify: (card: UnmatchedCard) => void;
-  onClose: () => void;
+  canIdentify: boolean;
+  onRemove?: (scanId: string) => Promise<boolean>;
 }
 
-export interface IdentifiableUnmatchedCardsPanelProps {
-  cards: UnmatchedCard[];
-  onRemove?: (scanId: string) => void;
+export interface UnmatchedCardsBrowserProps {
+  collectionGuid: string;
+  openIndex: number | null;
+  onOpenIndexChange: (index: number | null) => void;
+  canIdentify: boolean;
+  onRemove?: (scanId: string) => Promise<boolean>;
+  onClose?: () => void;
+  className?: string;
 }
 
-export interface IdentifyUnmatchedDialogProps {
-  entry: UnmatchedCard | null;
-  collectionGuid: string | undefined;
+export interface UnmatchedViewState {
+  isOpen: boolean;
+  openIndex: number | null;
+  open: (index?: number | null) => void;
+  setOpenIndex: (index: number | null) => void;
+  close: () => void;
+}
+
+export interface UnmatchedCardDetailProps {
+  collectionGuid: string;
+  index: number;
+  onIndexChange: (index: number) => void;
   onClose: () => void;
+  canIdentify: boolean;
+  onRemove?: (scanId: string) => Promise<boolean>;
+}
+
+export interface UnmatchedCardTileProps {
+  entry: UnmatchedCard;
+  onOpen: () => void;
+}
+
+export interface UnmatchedCardImageProps {
+  entry: UnmatchedCard;
+  className?: string;
 }
 
 export interface ForcedSetPickerProps {

@@ -17,7 +17,7 @@ export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
   const chips = bin.pickList ? [] : ruleChips(bin.rules, fieldDefinitions, t);
   const shownChips = chips.slice(0, BIN_ROW_MAX_CHIPS);
   const hiddenCount = chips.length - shownChips.length;
-  const hasTags = bin.isCatchAll || bin.isDisabled || !!bin.pickList || sources.length > 0 || bin.cardLimit != null || bin.overflowBin != null;
+  const hasTags = bin.isCatchAll || bin.isDisabled || !!bin.pickList || sources.length > 0 || bin.overflowBin != null;
   const empty = chips.length === 0 && !hasTags;
 
   return (
@@ -81,7 +81,6 @@ export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
               </View>
             ))}
             {hiddenCount > 0 ? <Pill label={t("rules.moreChips", { count: hiddenCount })} /> : null}
-            {bin.cardLimit != null ? <Pill label={t("rules.limitChip", { count: bin.cardLimit })} /> : null}
             {bin.overflowBin != null ? (
               <Pill label={t("rules.overflowsTo", { bin: t("rules.bin", { number: bin.overflowBin }) })} />
             ) : null}

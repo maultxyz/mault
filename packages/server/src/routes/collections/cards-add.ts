@@ -192,7 +192,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             return {
               result: {
                 success: false,
-                message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.cardLimit} cards). Empty it to continue scanning.`,
+                message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.capacity} cards). Empty it to continue scanning.`,
                 binLimitReached: true,
                 binNumber: fullBin.binNumber,
               },

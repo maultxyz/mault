@@ -1,17 +1,29 @@
 import { PresetSelector } from "@/features/bins/components/preset-selector";
+import { useCollections } from "@/features/collections/api/use-collections";
 import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
-import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
+import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { useElementHeight } from "@/hooks/use-element-height";
 import type { StationPanelLayout } from "@/lib/interfaces/stations";
 import { useState } from "react";
 
 export function StationPanel({ layout }: { layout: StationPanelLayout }) {
-  const { unmatchedCards, removeUnmatchedCard } = useScannedCards();
+  const { unmatchedCards, unmatchedCount, removeUnmatchedCard } =
+    useScannedCards();
+  const { activeCollection } = useCollections();
+  const unmatchedPanel = (
+    <UnmatchedCardsPanel
+      canIdentify
+      cards={unmatchedCards}
+      total={unmatchedCount}
+      collectionGuid={activeCollection?.guid}
+      onRemove={removeUnmatchedCard}
+    />
+  );
   const [controlsContainer, setControlsContainer] =
     useState<HTMLDivElement | null>(null);
   const [stickyHeader, setStickyHeader] = useState<HTMLDivElement | null>(null);
@@ -24,10 +36,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         <div className="flex flex-col gap-4 shrink-0 overflow-y-auto">
           <CollectionSwitcher />
           <PresetSelector readOnly />
-          <IdentifiableUnmatchedCardsPanel
-            cards={unmatchedCards}
-            onRemove={removeUnmatchedCard}
-          />
+          {unmatchedPanel}
           <BinStatusMeter />
           <AlphabetPassControl />
         </div>
@@ -56,10 +65,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         style={{ top: stickyHeaderHeight }}
         className="sticky z-40 -mx-2 -my-1 flex-none bg-sidebar/95 px-2 py-1 backdrop-blur-sm empty:hidden"
       />
-      <IdentifiableUnmatchedCardsPanel
-        cards={unmatchedCards}
-        onRemove={removeUnmatchedCard}
-      />
+      {unmatchedPanel}
       <BinStatusMeter />
       <AlphabetPassControl />
       <ScanStats scrollable={false} />

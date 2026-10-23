@@ -36,6 +36,7 @@ import {
   getRepackPackBins,
   hasMaxCopiesBins,
   toRuleCard,
+  UNMATCHED_PREVIEW_COUNT,
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
@@ -64,7 +65,9 @@ import {
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   findInCardPages,
+  invalidateBinCounts,
   invalidateCollectionCards,
+  invalidateUnmatchedCards,
   removeFromCardPages,
   updateInCardPages,
 } from "@/features/collections/lib/card-page-cache";
@@ -86,6 +89,7 @@ import type {
   BinCorrection,
   CorrectedBinTarget,
   LastRoutedBin,
+  PendingBinCard,
   ScannedCardsContextValue,
 } from "@/lib/interfaces/scanner";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -115,6 +119,8 @@ export function ScannedCardsProvider({
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
+  const [unmatchedCount, setUnmatchedCount] = useState(0);
+  const unmatchedRequestRef = useRef(0);
   const [isLoading, setIsLoading] = useState(true);
   const {
     configs: binConfigs,
@@ -180,26 +186,46 @@ export function ScannedCardsProvider({
     activeOrgIdRef.current = activeOrg?.id;
   }, [activeOrg?.id]);
 
-  const binFillLevels = useComputedBinFillLevels(unmatchedCards);
+  const { levels: binFillLevels, countsUpdatedAt } =
+    useComputedBinFillLevels();
   const binFillLevelsRef = useRef(binFillLevels);
   binFillLevelsRef.current = binFillLevels;
-  const pendingBinCardsRef = useRef(new Map<number, number>());
-  const isBinFullLocally = useCallback((binNumber: number) => {
-    const level = binFillLevelsRef.current.find(
-      (l) => l.binNumber === binNumber,
-    );
-    if (!level?.capacity) return false;
-    const pending = pendingBinCardsRef.current.get(binNumber) ?? 0;
-    return level.count + pending >= level.capacity;
+  const countsUpdatedAtRef = useRef(countsUpdatedAt);
+  countsUpdatedAtRef.current = countsUpdatedAt;
+  const pendingBinCardsRef = useRef(new Map<string, PendingBinCard>());
+  const countPendingCards = useCallback((binNumber: number) => {
+    let count = 0;
+    for (const [scanId, pending] of pendingBinCardsRef.current) {
+      if (
+        pending.savedAt != null &&
+        pending.savedAt < countsUpdatedAtRef.current
+      ) {
+        pendingBinCardsRef.current.delete(scanId);
+      } else if (pending.binNumber === binNumber) {
+        count++;
+      }
+    }
+    return count;
   }, []);
-  const countCardsLocally = useCallback((binNumber: number) => {
-    const level = binFillLevelsRef.current.find(
-      (l) => l.binNumber === binNumber,
-    );
-    return (
-      (level?.count ?? 0) + (pendingBinCardsRef.current.get(binNumber) ?? 0)
-    );
-  }, []);
+  const isBinFullLocally = useCallback(
+    (binNumber: number) => {
+      const level = binFillLevelsRef.current.find(
+        (l) => l.binNumber === binNumber,
+      );
+      if (!level?.capacity) return false;
+      return level.count + countPendingCards(binNumber) >= level.capacity;
+    },
+    [countPendingCards],
+  );
+  const countCardsLocally = useCallback(
+    (binNumber: number) => {
+      const level = binFillLevelsRef.current.find(
+        (l) => l.binNumber === binNumber,
+      );
+      return (level?.count ?? 0) + countPendingCards(binNumber);
+    },
+    [countPendingCards],
+  );
   const binRoomLocally = useCallback(
     (binNumber: number) => {
       const level = binFillLevelsRef.current.find(
@@ -211,14 +237,15 @@ export function ScannedCardsProvider({
     [countCardsLocally],
   );
   const trackPendingBinCard = useCallback(
-    (binNumber: number, delta: number) => {
-      const pending = pendingBinCardsRef.current;
-      const next = (pending.get(binNumber) ?? 0) + delta;
-      if (next > 0) pending.set(binNumber, next);
-      else pending.delete(binNumber);
+    (scanId: string, binNumber: number) => {
+      pendingBinCardsRef.current.set(scanId, { binNumber, savedAt: null });
     },
     [],
   );
+  const settlePendingBinCard = useCallback((scanId: string) => {
+    const pending = pendingBinCardsRef.current.get(scanId);
+    if (pending) pending.savedAt = Date.now();
+  }, []);
 
   const rawBinConfigsRef = useRef(binConfigs);
   const binConfigsRef = useRef(
@@ -552,23 +579,43 @@ export function ScannedCardsProvider({
     };
   }, []);
 
+  const refreshUnmatched = useCallback(async (guid: string) => {
+    const request = ++unmatchedRequestRef.current;
+    const result = await loadUnmatchedCards(guid, UNMATCHED_PREVIEW_COUNT);
+    if (request !== unmatchedRequestRef.current || !result.data) return;
+    setUnmatchedCards(result.data.cards);
+    setUnmatchedCount(result.data.total);
+  }, []);
+
+  const dropUnmatched = useCallback((scanId: string) => {
+    setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+    setUnmatchedCount((count) => Math.max(0, count - 1));
+  }, []);
+
+  const syncUnmatched = useCallback(
+    (guid: string) => {
+      refreshUnmatched(guid).catch((err) =>
+        console.error("Failed to load unmatched cards:", err),
+      );
+      void invalidateUnmatchedCards(queryClient, guid);
+    },
+    [refreshUnmatched, queryClient],
+  );
+
   const activeCollectionGuid = activeCollection?.guid;
   useEffect(() => {
+    unmatchedRequestRef.current++;
+    setUnmatchedCards([]);
+    setUnmatchedCount(0);
     if (!activeCollectionGuid) {
-      setUnmatchedCards([]);
       setIsLoading(false);
       return;
     }
 
     let cancelled = false;
-    setUnmatchedCards([]);
     setIsLoading(true);
 
-    loadUnmatchedCards(activeCollectionGuid)
-      .then((unmatchedResult) => {
-        if (cancelled) return;
-        setUnmatchedCards(unmatchedResult.data ?? []);
-      })
+    refreshUnmatched(activeCollectionGuid)
       .catch((err) => {
         if (!cancelled) console.error("Failed to load unmatched cards:", err);
       })
@@ -579,7 +626,7 @@ export function ScannedCardsProvider({
     return () => {
       cancelled = true;
     };
-  }, [activeCollectionGuid]);
+  }, [activeCollectionGuid, refreshUnmatched]);
 
   const needsBinContents =
     !!selectedSet?.isRepackMode || hasMaxCopiesBins(binConfigs);
@@ -817,7 +864,7 @@ export function ScannedCardsProvider({
       }
 
       const pendingBin = record.binNumber;
-      if (pendingBin != null) trackPendingBinCard(pendingBin, 1);
+      if (pendingBin != null) trackPendingBinCard(record.scanId, pendingBin);
 
       saveCard({
         orgId: orgId ?? null,
@@ -867,12 +914,9 @@ export function ScannedCardsProvider({
             dismissible: true,
           });
         })
-        .finally(async () => {
-          try {
-            await invalidateCollectionCards(queryClient, collection.guid);
-          } finally {
-            if (pendingBin != null) trackPendingBinCard(pendingBin, -1);
-          }
+        .finally(() => {
+          settlePendingBinCard(record.scanId);
+          void invalidateCollectionCards(queryClient, collection.guid);
           if (billingQueryKey) {
             void queryClient.invalidateQueries({ queryKey: billingQueryKey });
           }
@@ -897,6 +941,7 @@ export function ScannedCardsProvider({
       showJamToast,
       isBinFullLocally,
       trackPendingBinCard,
+      settlePendingBinCard,
       playSoundForCard,
       setFullBins,
       areAllPacksComplete,
@@ -1003,12 +1048,18 @@ export function ScannedCardsProvider({
         sendCatchAllBin();
         return;
       }
-      const dropRecord = () =>
-        setUnmatchedCards((prev) =>
-          prev.filter((c) => c.scanId !== record.scanId),
-        );
+      const dropRecord = () => {
+        dropUnmatched(record.scanId);
+        syncUnmatched(collection.guid);
+      };
 
-      setUnmatchedCards((prev) => [record, ...prev]);
+      setUnmatchedCards((prev) =>
+        [record, ...prev].slice(0, UNMATCHED_PREVIEW_COUNT),
+      );
+      setUnmatchedCount((count) => count + 1);
+      if (record.binNumber != null) {
+        trackPendingBinCard(record.scanId, record.binNumber);
+      }
       sendCatchAllBin();
 
       saveUnmatched({
@@ -1032,20 +1083,46 @@ export function ScannedCardsProvider({
             duration: Infinity,
             dismissible: true,
           });
+        })
+        .finally(() => {
+          settlePendingBinCard(record.scanId);
+          void invalidateBinCounts(queryClient, collection.guid);
+          void invalidateUnmatchedCards(queryClient, collection.guid);
         });
     },
-    [toast, sendCatchAllBin, pause, isBinFullLocally, t, saveUnmatched],
+    [
+      toast,
+      sendCatchAllBin,
+      pause,
+      isBinFullLocally,
+      t,
+      saveUnmatched,
+      dropUnmatched,
+      syncUnmatched,
+      trackPendingBinCard,
+      settlePendingBinCard,
+      queryClient,
+    ],
   );
 
-  const removeUnmatchedCard = useCallback((scanId: string) => {
-    const collection = activeCollectionRef.current;
-    setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
-    if (collection) {
-      removeUnmatchedCardApi(collection.guid, scanId).catch((err) =>
-        console.error("Failed to remove unmatched card:", err),
-      );
-    }
-  }, []);
+  const removeUnmatchedCard = useCallback(
+    async (scanId: string) => {
+      const collection = activeCollectionRef.current;
+      dropUnmatched(scanId);
+      if (!collection) return false;
+      try {
+        const result = await removeUnmatchedCardApi(collection.guid, scanId);
+        return result.success;
+      } catch (err) {
+        console.error("Failed to remove unmatched card:", err);
+        return false;
+      } finally {
+        syncUnmatched(collection.guid);
+        void invalidateBinCounts(queryClient, collection.guid);
+      }
+    },
+    [dropUnmatched, syncUnmatched, queryClient],
+  );
 
   const identifyUnmatchedCard = useCallback(
     async (scanId: string, card: PlayingCard) => {
@@ -1057,7 +1134,8 @@ export function ScannedCardsProvider({
         });
         if (!result.success || !result.data) return false;
         const added = result.data;
-        setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+        dropUnmatched(scanId);
+        syncUnmatched(collection.guid);
         if (added.binNumber != null) {
           binContentsRef.current = [
             ...binContentsRef.current,
@@ -1094,7 +1172,7 @@ export function ScannedCardsProvider({
         return false;
       }
     },
-    [resolveCorrectedBin, queryClient],
+    [resolveCorrectedBin, queryClient, dropUnmatched, syncUnmatched],
   );
 
   const promptAddedCardBin = useCallback(
@@ -1382,16 +1460,18 @@ export function ScannedCardsProvider({
       emptyCollectionRef
         .current(collection.guid)
         .catch((err) => console.error("Failed to clear cards:", err))
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
+        .finally(() => {
+          void invalidateCollectionCards(queryClient, collection.guid);
+          syncUnmatched(collection.guid);
+        });
     }
-  }, [queryClient]);
+  }, [queryClient, syncUnmatched]);
 
   return (
     <ScannedCardsContext
       value={{
         unmatchedCards,
+        unmatchedCount,
         isLoading,
         autoFeed,
         forceFoilType,

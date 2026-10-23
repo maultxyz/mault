@@ -4,7 +4,8 @@ import {
   monitorCardsPageQueryOptions,
   monitorCardsSummaryQueryOptions,
 } from "@/features/scanner/api/monitor-cards";
-import { toDisplayStats } from "@/features/scanner/lib/compute-stats";
+import { toScanStats } from "@/features/scanner/lib/compute-stats";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   MONITOR_NEEDS_REVIEW_CARDS_QUERY,
@@ -100,7 +101,7 @@ export function useMonitorCards(
     monitorCardsPageQueryOptions(cardsSource, cardsQuery, page),
   );
   const { data: summary } = useQuery(
-    monitorCardsSummaryQueryOptions(cardsSource, cardsQuery),
+    monitorCardsSummaryQueryOptions(cardsSource, ALL_CARDS_QUERY),
   );
 
   const { data: reviewSummary } = useQuery({
@@ -135,7 +136,7 @@ export function useMonitorCards(
   }, [page, clampedPage]);
 
   const stats = useMemo(
-    () => (summary ? toDisplayStats(summary.all, summary.filtered) : null),
+    () => (summary ? toScanStats(summary.all) : null),
     [summary],
   );
 
@@ -174,7 +175,6 @@ export function useMonitorCards(
     stats,
     cardCount: summary?.all.totalCount ?? collection?.cardCount ?? 0,
     matchingCount: pageData?.totalEntries ?? 0,
-    filteredCount: summary?.filtered.totalCount ?? 0,
     needsReviewCount: reviewSummary?.filtered.totalCount ?? 0,
     openScanId,
     setOpenScanId,

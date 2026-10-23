@@ -21,7 +21,6 @@ export interface BinConfigSaveInput {
   binNumber: number;
   rules: BinRuleGroup;
   isCatchAll?: boolean;
-  cardLimit?: number | null;
   isOverride?: boolean;
   overridePriority?: number | null;
   lowMatchPercent?: number | null;

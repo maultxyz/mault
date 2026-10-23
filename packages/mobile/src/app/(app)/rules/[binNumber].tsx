@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, Switch, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
-import { Input } from "@/components/ui/input";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -42,7 +41,6 @@ export default function BinEditorScreen() {
             rules: bin.rules ?? emptyRules(),
             isCatchAll: !!bin.isCatchAll,
             isDisabled: !!bin.isDisabled,
-            cardLimit: bin.cardLimit != null ? String(bin.cardLimit) : "",
             overflowBin: bin.overflowBin ?? null,
           }
         : undefined,
@@ -73,7 +71,6 @@ export default function BinEditorScreen() {
         rules: values.rules,
         isCatchAll: values.isCatchAll,
         isDisabled: values.isCatchAll ? false : values.isDisabled,
-        cardLimit: values.cardLimit === "" ? null : Number(values.cardLimit),
         overflowBin: values.isCatchAll ? null : values.overflowBin,
         isOverride: bin?.isOverride,
         overridePriority: bin?.overridePriority,
@@ -205,27 +202,6 @@ export default function BinEditorScreen() {
                 )}
               />
             ) : null}
-            <Controller
-              control={form.control}
-              name="cardLimit"
-              render={({ field, fieldState }) => (
-                <ListRow
-                  title={t("rules.cardLimitLabel")}
-                  subtitle={fieldState.error?.message ?? t("rules.cardLimitDescription")}
-                  right={
-                    <Input
-                      compact
-                      accessibilityLabel={t("rules.cardLimitLabel")}
-                      keyboardType="number-pad"
-                      placeholder={t("rules.noLimit")}
-                      editable={!readOnly}
-                      value={field.value}
-                      onChangeText={(text) => field.onChange(text.replace(/\D/g, ""))}
-                    />
-                  }
-                />
-              )}
-            />
             {!isCatchAll ? (
               <ListRow
                 title={t("rules.overflowLabel")}
