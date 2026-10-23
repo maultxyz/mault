@@ -29,10 +29,7 @@ import {
   INTAKE_PATH,
   LEGACY_REPORTS_PATH,
   LEGACY_ORDERS_PATH,
-  REPORT_TAB_PARAM,
-  REPORT_TABS,
 } from "@/lib/constants/business";
-import { COLLECTIONS_PATH } from "@/lib/constants/collections";
 
 const LandingPage = lazy(
   withNamespaces(
@@ -44,7 +41,10 @@ const BuildGuidePage = lazy(
   withNamespaces(() => import("@/app/routes/build"), ["common", "build"]),
 );
 const SelfHostPage = lazy(
-  withNamespaces(() => import("@/app/routes/self-host"), ["common", "selfhost"]),
+  withNamespaces(
+    () => import("@/app/routes/self-host"),
+    ["common", "selfhost"],
+  ),
 );
 const DiscordBotPage = lazy(
   withNamespaces(
@@ -112,9 +112,7 @@ const CalibrateConnectionPage = lazy(
 const CalibrateSorterLayoutPage = lazy(
   () => import("@/app/routes/app/calibrate/sorter-layout"),
 );
-const CalibrateTestPage = lazy(
-  () => import("@/app/routes/app/calibrate/test"),
-);
+const CalibrateTestPage = lazy(() => import("@/app/routes/app/calibrate/test"));
 const CalibrateScanRegionPage = lazy(
   () => import("@/app/routes/app/calibrate/scan-region"),
 );
@@ -130,9 +128,7 @@ const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
-const AdminHardwarePage = lazy(
-  () => import("@/app/routes/app/admin/hardware"),
-);
+const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
@@ -391,12 +387,7 @@ export const router = createBrowserRouter([
                   },
                   {
                     path: LEGACY_REPORTS_PATH,
-                    element: (
-                      <Navigate
-                        to={`${COLLECTIONS_PATH}?${REPORT_TAB_PARAM}=${REPORT_TABS[0]}`}
-                        replace
-                      />
-                    ),
+                    element: <Navigate to={STATS_PATH} replace />,
                   },
                   {
                     element: <AdminGuard />,

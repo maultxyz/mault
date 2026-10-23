@@ -69,7 +69,9 @@
       "totalValue": "Valeur",
       "avgValue": "Carte moy.",
       "scansInRange": "Scannées",
-      "lastScanAt": "Dernier scan"
+      "lastScanAt": "Dernier scan",
+      "costBasis": "Coût",
+      "margin": "Marge"
     }
   },
   "prices": {
@@ -120,5 +122,13 @@
       "description": "Les autres organisations voient votre nombre de scans et votre rang, mais pas votre nom. Affichez votre nom depuis les paramètres.",
       "action": "Afficher mon nom"
     }
+  },
+  "views": {
+    "overview": "Vue d'ensemble",
+    "staff": "Équipe",
+    "accuracy": "Précision"
+  },
+  "value": {
+    "description": "Valeur marché quotidienne de tout ce que vous possédez, sans les cartes des rachats en cours."
   }
 }

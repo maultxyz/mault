@@ -13,14 +13,9 @@ export const intakeReceiptPath = (guid: string, autoPrint = false) =>
 
 export const INTAKE_LOT_PARAM = "lot";
 export const ORDER_PARAM = "order";
-export const REPORT_TAB_PARAM = "tab";
 export const REPORT_CHECK_PARAM = "check";
 export const REPORT_COLLECTION_PARAM = "collection";
 export const REPORT_RANGE_PARAM = "range";
-
-export const REPORT_TABS = ["inventory", "staff", "accuracy"] as const;
-export const COLLECTIONS_PAGE_TABS = ["collections", ...REPORT_TABS] as const;
-export const DEFAULT_COLLECTIONS_PAGE_TAB = "collections";
 
 export const INTAKE_LIVE_REFETCH_MS = 4000;
 export const FLEET_REFETCH_MS = 15_000;

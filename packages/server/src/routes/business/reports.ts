@@ -1,8 +1,6 @@
 import {
-  INVENTORY_HISTORY_DAYS,
   spreadTotal,
   type CollectionCostInput,
-  type InventoryReport,
 } from "@magic-vault/shared";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
@@ -10,12 +8,6 @@ import { collectionCards, collections, intakeLots } from "../../db/schema";
 import { logActivity } from "../../lib/activity-log";
 import { scannedCardPriceSql } from "../../lib/card-price-sql";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import {
-  loadInventoryByCollection,
-  loadInventoryHistory,
-  sumInventory,
-  writeInventorySnapshot,
-} from "../../lib/inventory";
 import { loadOrgPricing } from "../../lib/price-source";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
@@ -36,33 +28,6 @@ function isoDay(date: Date): string {
 }
 
 export const reportsRoute = new Hono<AppEnv>()
-  .get("/reports/inventory", requireAuth, requireOrg, (c) =>
-    businessQuery(c, async (tx, access) => {
-      if (!access.canViewCosts) return forbidden;
-      const orgId = c.get("orgId");
-      const pricing = await loadOrgPricing(tx, orgId);
-      const currency = pricingCurrency(pricing);
-      const collectionsRows = await loadInventoryByCollection(
-        tx,
-        orgId,
-        pricing,
-      );
-      const totals = sumInventory(collectionsRows);
-      await writeInventorySnapshot(orgId, totals, currency);
-      const history = await loadInventoryHistory(
-        tx,
-        orgId,
-        currency,
-        isoDay(new Date(Date.now() - INVENTORY_HISTORY_DAYS * DAY_MS)),
-      );
-      const data: InventoryReport = {
-        totals,
-        collections: collectionsRows,
-        history,
-      };
-      return { success: true, data };
-    }),
-  )
   .post("/cost/:collectionGuid", requireAuth, requireOrg, async (c) => {
     const collectionGuid = c.req.param("collectionGuid");
     const body = await readJson<CollectionCostInput>(c);

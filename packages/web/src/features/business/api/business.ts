@@ -1,6 +1,9 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import { pageRequestParams } from "@/lib/api/page-request";
-import { FLEET_REFETCH_MS, INTAKE_LIVE_REFETCH_MS } from "@/lib/constants/business";
+import {
+  FLEET_REFETCH_MS,
+  INTAKE_LIVE_REFETCH_MS,
+} from "@/lib/constants/business";
 import type { PageRequest } from "@/lib/interfaces/pagination";
 import type {
   AccuracyCheckDetail,
@@ -26,7 +29,6 @@ import type {
   IntakeLotInput,
   IntakeTransferInput,
   IntakeTransferResult,
-  InventoryReport,
   OrderFulfilInput,
   PagedList,
   Result,
@@ -51,15 +53,19 @@ export const businessKeys = {
     scanId: string | undefined,
     reviewOnly: boolean,
   ) =>
-    [...businessKeys.intakeRoot(), "card", lotGuid, scanId, reviewOnly] as const,
+    [
+      ...businessKeys.intakeRoot(),
+      "card",
+      lotGuid,
+      scanId,
+      reviewOnly,
+    ] as const,
   ordersRoot: () => [...businessKeys.root(), "orders"] as const,
   orderList: (orgId: string | undefined, page: PageRequest) =>
     [...businessKeys.ordersRoot(), "list", orgId, page] as const,
   order: (guid: string | undefined) =>
     [...businessKeys.ordersRoot(), "order", guid] as const,
   reportsRoot: () => [...businessKeys.root(), "reports"] as const,
-  inventory: (orgId: string | undefined) =>
-    [...businessKeys.reportsRoot(), "inventory", orgId] as const,
   staff: (orgId: string | undefined, range: StatsRange) =>
     [...businessKeys.reportsRoot(), "staff", orgId, range] as const,
   activity: (
@@ -68,10 +74,22 @@ export const businessKeys = {
     user: string | null,
     action: ActivityAction | null,
   ) =>
-    [...businessKeys.reportsRoot(), "activity", orgId, page, user, action] as const,
+    [
+      ...businessKeys.reportsRoot(),
+      "activity",
+      orgId,
+      page,
+      user,
+      action,
+    ] as const,
   accuracyRoot: () => [...businessKeys.root(), "accuracy"] as const,
   accuracy: (collectionGuid: string | null, lotGuid: string | null) =>
-    [...businessKeys.accuracyRoot(), "report", collectionGuid, lotGuid] as const,
+    [
+      ...businessKeys.accuracyRoot(),
+      "report",
+      collectionGuid,
+      lotGuid,
+    ] as const,
   accuracyCheck: (guid: string | null) =>
     [...businessKeys.accuracyRoot(), "check", guid] as const,
   fleet: (orgId: string | undefined) =>
@@ -193,9 +211,9 @@ export const orderQueryOptions = (guid: string | undefined) =>
   queryOptions({
     queryKey: businessKeys.order(guid),
     queryFn: () =>
-      apiGet<Result<FulfilmentOrderDetail>>(`/api/business/orders/${guid}`).then(
-        unwrap,
-      ),
+      apiGet<Result<FulfilmentOrderDetail>>(
+        `/api/business/orders/${guid}`,
+      ).then(unwrap),
     enabled: !!guid,
   });
 
@@ -221,16 +239,6 @@ export function cancelOrder(guid: string) {
 export function deleteOrder(guid: string) {
   return apiDelete<Result<null>>(`/api/business/orders/${guid}`);
 }
-
-export const inventoryReportQueryOptions = (orgId: string | undefined) =>
-  queryOptions({
-    queryKey: businessKeys.inventory(orgId),
-    queryFn: () =>
-      apiGet<Result<InventoryReport>>("/api/business/reports/inventory").then(
-        unwrap,
-      ),
-    enabled: !!orgId,
-  });
 
 export function setCollectionCost(
   collectionGuid: string,
@@ -317,7 +325,9 @@ export function recordAccuracySample(guid: string, input: AccuracySampleInput) {
 }
 
 export function completeAccuracyCheck(guid: string) {
-  return apiPost<Result<null>>(`/api/business/accuracy/checks/${guid}/complete`);
+  return apiPost<Result<null>>(
+    `/api/business/accuracy/checks/${guid}/complete`,
+  );
 }
 
 export function deleteAccuracyCheck(guid: string) {
