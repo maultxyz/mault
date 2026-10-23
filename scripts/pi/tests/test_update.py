@@ -41,10 +41,20 @@ class UpdateTests(unittest.TestCase):
         self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}",
                         XDG_CONFIG_HOME=str(self.root / "config"), UPDATE_TEST_LOG=str(self.log),
                         UPDATE_TEST_NODE=shutil.which("node"))
-        for name in ["pnpm", "systemctl", "curl", "node"]:
+        for name in ["pnpm", "systemctl", "curl", "node", "sleep"]:
             script = self.bin / name
             script.write_text(
                 '#!/bin/bash\nprintf "%s %s\\n" "${0##*/}" "$*" >> "$UPDATE_TEST_LOG"\n'
+                'if [[ "${0##*/}" == curl && "${UPDATE_TEST_CURL_FAILURE:-}" != "" ]]; then\n'
+                '  if [[ "$*" == *S* ]]; then echo "curl: (7) Failed to connect" >&2; fi\n'
+                '  if [[ "$UPDATE_TEST_CURL_FAILURE" == always || ! -f "$UPDATE_TEST_LOG.retry" ]]; then\n'
+                '    touch "$UPDATE_TEST_LOG.retry"; exit 7\n'
+                '  fi\n'
+                'fi\n'
+                'if [[ "${0##*/}" == systemctl && "${UPDATE_TEST_UNLOADED:-}" == 1 ]]; then\n'
+                '  if [[ "$*" == *is-failed* ]]; then exit 3; fi\n'
+                '  if [[ "$*" == *reset-failed* ]]; then echo "Unit not loaded" >&2; exit 1; fi\n'
+                'fi\n'
                 'if [[ "${0##*/}" == node && "$1" == */install-services.mjs ]]; then exec "$UPDATE_TEST_NODE" "$@"; fi\n'
                 'if [[ "${0##*/}" == pnpm && "${FAIL_BUILD:-}" == 1 && "$*" == *build* ]]; then exit 1; fi\n'
                 'if [[ "${0##*/}" == node ]]; then echo 1.0.1; fi\n'
@@ -84,6 +94,34 @@ class UpdateTests(unittest.TestCase):
         self.assertIn(f'WorkingDirectory={self.repo}/packages/web/.', web)
         self.assertIn(f'ExecStart=/usr/bin/python3 "{self.repo}/scripts/pi/camera-ctl.py"', camera)
         self.assertNotIn("%h/mault", api + web + camera)
+        for unit in ["mault-web.service", "mault-api.service", "mault-camera.service"]:
+            self.assertIn(f"systemctl --user reset-failed {unit}", calls)
+
+    def test_unloaded_units_do_not_prevent_service_start(self):
+        self.publish()
+        self.env["UPDATE_TEST_UNLOADED"] = "1"
+        result = self.update()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        calls = self.log.read_text()
+        self.assertNotIn("reset-failed", calls)
+        self.assertIn("systemctl --user start --no-block", calls)
+
+    def test_startup_connection_failure_is_quiet_and_retried(self):
+        self.env["UPDATE_TEST_CURL_FAILURE"] = "once"
+        result = self.update()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertNotIn("curl: (7)", result.stdout)
+        self.assertIn("is running. Reload your browsers.", result.stdout)
+        self.assertEqual(self.log.read_text().count("http://127.0.0.1:3001/public/version"), 2)
+
+    def test_startup_timeout_still_reports_failure_and_service_status(self):
+        self.env["UPDATE_TEST_CURL_FAILURE"] = "always"
+        result = self.update()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn("curl: (7)", result.stdout)
+        self.assertIn("Services did not become ready", result.stdout)
+        self.assertNotIn("is running. Reload your browsers.", result.stdout)
+        self.assertIn("systemctl --user --no-pager --full status", self.log.read_text())
 
     def test_service_paths_escape_spaces_and_systemd_expansions(self):
         destination = self.root / 'Mault beta % $HOME "test"'
