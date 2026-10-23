@@ -55,15 +55,19 @@ main() {
 
   node "$ROOT/scripts/pi/install-services.mjs" "$ROOT"
   systemctl --user daemon-reload
-  systemctl --user reset-failed "${services[@]}"
+  for unit in "${services[@]}"; do
+    if systemctl --user is-failed --quiet "$unit"; then
+      systemctl --user reset-failed "$unit"
+    fi
+  done
   systemctl --user start --no-block mault-camera.service mault-api.service mault-web.service
 
   for _ in $(seq 1 60); do
     if systemctl --user is-active --quiet mault-api.service &&
       systemctl --user is-active --quiet mault-web.service &&
       systemctl --user is-active --quiet mault-camera.service &&
-      curl -fsS --max-time 5 http://127.0.0.1:3001/public/version >/dev/null &&
-      curl -fsS --max-time 5 http://127.0.0.1:8080/ >/dev/null; then
+      curl -fs --max-time 5 http://127.0.0.1:3001/public/version >/dev/null &&
+      curl -fs --max-time 5 http://127.0.0.1:8080/ >/dev/null; then
       trap - ERR
       echo "[update] Mault $(node -p 'require("./package.json").version') is running. Reload your browsers."
       exit 0
