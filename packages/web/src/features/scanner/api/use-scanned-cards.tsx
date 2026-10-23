@@ -294,7 +294,11 @@ export function ScannedCardsProvider({
     registerPauseHook,
     resume,
     registerResumeHook,
-  } = useAutoFeed({ serialRef, activeCollectionRef });
+  } = useAutoFeed({
+    serialRef,
+    activeCollectionRef,
+    deviceGuidRef,
+  });
   const showJamToast = useJamToast(resume);
   useDeployScanPause(
     scannerRunning && (orgSettings?.pauseScanningOnDeploy ?? true),
@@ -821,6 +825,7 @@ export function ScannedCardsProvider({
           failedKey: "scannedCards.routingFailed",
           cardName: card.name,
           collectionGuid: collection.guid,
+          deviceGuid: deviceGuidRef.current,
           isAutoFeedEnabled,
           isPipelinedFeedEnabled,
           pause,
@@ -997,6 +1002,7 @@ export function ScannedCardsProvider({
         t,
         failedKey: "scannedCards.routingFailedCatchAll",
         collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
         isAutoFeedEnabled,
         isPipelinedFeedEnabled,
         pause,

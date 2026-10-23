@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { touchDeviceLastSeen } from "../../lib/device-alerts";
 import { acquireDeviceLease, releaseDeviceLease } from "../../lib/device-leases";
 import { getDeviceByGuid } from "../../lib/devices";
 import {
@@ -38,6 +39,7 @@ export const acquireDeviceLeaseRoute = new Hono<AppEnv>().post(
           402,
         );
       }
+      touchDeviceLastSeen(orgId, guid);
       return c.json({ success: true, message: "Lease held." });
     } catch (err) {
       console.error(err);

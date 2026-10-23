@@ -1269,7 +1269,8 @@
         "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
         "collections": "Unlimited collections",
         "games": "Every supported card game",
-        "notifications": "Discord scan notifications"
+        "notifications": "Discord scan notifications",
+        "businessTools": "Shop tools: intake offers, order pull sheets and margin reports"
       }
     },
     "apiKeys": {
@@ -1324,6 +1325,9 @@
         },
         "cards": {
           "stored": "A bin was put away into a storage location. Includes each card's box and position."
+        },
+        "sorter": {
+          "alert": "A sorter jammed, errored, restarted, lost its connection or is due for service."
         }
       },
       "empty": "No webhooks yet.",

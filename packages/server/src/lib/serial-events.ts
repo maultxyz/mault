@@ -1,4 +1,8 @@
-import type { SerialCommand, SerialEventReport } from "@magic-vault/shared";
+import type {
+  DeviceAlertType,
+  SerialCommand,
+  SerialEventReport,
+} from "@magic-vault/shared";
 
 const COMMAND_LABELS: Record<SerialCommand, string> = {
   connect: "Connection",
@@ -30,7 +34,7 @@ function contextLines(event: SerialEventReport): string[] {
 
 export function classifySerialEvent(
   event: SerialEventReport,
-): { title: string; description: string } | null {
+): { type: DeviceAlertType; title: string; description: string } | null {
   const label = COMMAND_LABELS[event.command];
   const lines = contextLines(event);
 
@@ -40,6 +44,7 @@ export function classifySerialEvent(
         ? (event.response as Record<string, unknown>).resetReason
         : undefined;
     return {
+      type: "restart",
       title: "Sorter Restarted",
       description: [
         ...lines,
@@ -53,6 +58,7 @@ export function classifySerialEvent(
 
   if (!event.sent) {
     return {
+      type: "error",
       title: `${label} Failed`,
       description: [
         ...lines,
@@ -63,6 +69,7 @@ export function classifySerialEvent(
 
   if (!event.response) {
     return {
+      type: "timeout",
       title: `${label} Timeout`,
       description: [
         ...lines,
@@ -73,6 +80,7 @@ export function classifySerialEvent(
 
   if (typeof event.response !== "object") {
     return {
+      type: "error",
       title: `${label} Error`,
       description: [
         ...lines,
@@ -85,6 +93,7 @@ export function classifySerialEvent(
 
   if (res.error === "jam") {
     return {
+      type: "jam",
       title: "Card Jam Detected",
       description: `Card stuck at module ${res.module}${res.bin ? ` (heading to bin ${res.bin})` : ""}. Check the sorter and resume.`,
     };
@@ -92,6 +101,7 @@ export function classifySerialEvent(
 
   if (res.empty) {
     return {
+      type: "feeder_empty",
       title: "Feeder Empty",
       description: [
         ...lines,
@@ -102,6 +112,7 @@ export function classifySerialEvent(
 
   if (res.error) {
     return {
+      type: "error",
       title: `${label} Error`,
       description: [...lines, `**Error:** ${String(res.error)}`].join("\n"),
     };

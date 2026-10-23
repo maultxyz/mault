@@ -1,3 +1,4 @@
+import { FleetHealthPanel } from "@/features/business/components/fleet-health-panel";
 import { StationOverviewGrid } from "@/features/scanner/components/station-overview-grid";
 import { useTranslation } from "react-i18next";
 
@@ -16,6 +17,7 @@ export default function SortersPage() {
           </p>
         </div>
         <StationOverviewGrid />
+        <FleetHealthPanel />
       </div>
     </div>
   );

@@ -215,7 +215,8 @@
       "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
       "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
-      "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes"
+      "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
+      "businessTools": "Outils pour boutiques : racheter des collections avec des offres en direct, expédier les commandes en ligne grâce à une liste de préparation et suivre vos marges"
     }
   },
   "cta": {

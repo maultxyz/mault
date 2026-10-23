@@ -159,10 +159,26 @@ export async function findStoredCardNeighbor(
     : null;
 }
 
+export async function orderedLocationGuids(
+  tx: Transaction,
+  orgId: string,
+): Promise<(string | null)[]> {
+  const rows = await tx
+    .select({ guid: storageLocations.guid })
+    .from(storageLocations)
+    .where(
+      and(eq(storageLocations.orgId, orgId), eq(storageLocations.isDeleted, false)),
+    )
+    .orderBy(asc(storageLocations.name), asc(storageLocations.id));
+  return rows.map((row) => row.guid);
+}
+
 export async function loadLocations(
   tx: Transaction,
   orgId: string,
+  guids?: string[],
 ): Promise<StorageLocation[]> {
+  if (guids && guids.length === 0) return [];
   const pricing = await loadOrgPricing(tx, orgId);
   const result = await tx.execute(sql`
     SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at,
@@ -179,8 +195,9 @@ export async function loadLocations(
     ) ON cc.location_id = sl.id
     WHERE sl.org_id = ${orgId}
       AND sl.is_deleted = false
+      ${guids ? sql`AND sl.guid::text = ANY(string_to_array(${guids.join(",")}, ','))` : sql``}
     GROUP BY sl.id
-    ORDER BY sl.name
+    ORDER BY sl.name, sl.id
   `);
   return (result.rows as unknown as StorageLocationRow[]).map((r) => ({
     guid: r.guid,

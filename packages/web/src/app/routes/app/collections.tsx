@@ -44,6 +44,15 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { CollectionReports } from "@/features/business/components/collection-reports";
+import {
+  COLLECTIONS_PAGE_TABS,
+  DEFAULT_COLLECTIONS_PAGE_TAB,
+  REPORT_TAB_PARAM,
+} from "@/lib/constants/business";
+import type { CollectionsPageTab } from "@/lib/interfaces/business";
 
 export default function CollectionsPage() {
   const { t } = useTranslation("collections");
@@ -65,6 +74,14 @@ export default function CollectionsPage() {
 
   const { locks, currentUserId } = useCollectionLocks();
   const viewersByGuid = useSessionViewersByGuid();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab =
+    COLLECTIONS_PAGE_TABS.find(
+      (value) => value === searchParams.get(REPORT_TAB_PARAM),
+    ) ?? DEFAULT_COLLECTIONS_PAGE_TAB;
+  const isCollectionsTab = tab === DEFAULT_COLLECTIONS_PAGE_TAB;
+  const { t: tBusiness } = useTranslation("business");
 
   const [searchQuery, setSearchQuery] = useState("");
   const filteredCollections = collections.filter((collection) =>
@@ -245,16 +262,36 @@ export default function CollectionsPage() {
               </h1>
               <p className="text-xs text-foreground/70">{t("page.subtitle")}</p>
             </div>
-            <CreateCollectionDialog
-              trigger={({ disabled }) => (
-                <Button disabled={disabled} data-tour="create-collection">
-                  <IconPlus />
-                  {t("newCollection")}
-                </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <ResponsiveSegmented<CollectionsPageTab>
+                label={t("page.title")}
+                items={COLLECTIONS_PAGE_TABS.map((value) => ({
+                  key: value,
+                  label: tBusiness(`reports.tabs.${value}`),
+                }))}
+                value={tab}
+                onChange={(value) =>
+                  setSearchParams(
+                    value === DEFAULT_COLLECTIONS_PAGE_TAB
+                      ? {}
+                      : { [REPORT_TAB_PARAM]: value },
+                    { replace: true },
+                  )
+                }
+              />
+              {isCollectionsTab && (
+                <CreateCollectionDialog
+                  trigger={({ disabled }) => (
+                    <Button disabled={disabled} data-tour="create-collection">
+                      <IconPlus />
+                      {t("newCollection")}
+                    </Button>
+                  )}
+                />
               )}
-            />
+            </div>
           </div>
-          {!isLoading && collections.length > 0 && (
+          {isCollectionsTab && !isLoading && collections.length > 0 && (
             <>
               <StatGroup
                 heading={t("page.stats.heading")}
@@ -281,10 +318,14 @@ export default function CollectionsPage() {
       <div
         className={cn(
           "mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:p-6",
-          liveSelectedGuids.length > 0 && "pb-24 md:pb-24",
+          isCollectionsTab &&
+            liveSelectedGuids.length > 0 &&
+            "pb-24 md:pb-24",
         )}
       >
-        {isLoading && (
+        {!isCollectionsTab && <CollectionReports tab={tab} />}
+
+        {isCollectionsTab && isLoading && (
           <div className={COLLECTIONS_GRID_CLASS}>
             {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
               <div key={i} className="overflow-hidden rounded-lg border">
@@ -298,7 +339,7 @@ export default function CollectionsPage() {
           </div>
         )}
 
-        {!isLoading && collections.length === 0 && (
+        {isCollectionsTab && !isLoading && collections.length === 0 && (
           <EmptyState
             icon={IconAlbum}
             title={t("noCollectionsYet")}
@@ -306,7 +347,8 @@ export default function CollectionsPage() {
           />
         )}
 
-        {!isLoading &&
+        {isCollectionsTab &&
+          !isLoading &&
           collections.length > 0 &&
           filteredCollections.length === 0 && (
             <EmptyState
@@ -316,7 +358,7 @@ export default function CollectionsPage() {
             />
           )}
 
-        {sortedCollections.length > 0 && (
+        {isCollectionsTab && sortedCollections.length > 0 && (
           <div className={COLLECTIONS_GRID_CLASS}>
             {sortedCollections.map((collection) => {
               const target = { guid: collection.guid, name: collection.name };
@@ -371,7 +413,8 @@ export default function CollectionsPage() {
             )}
           </div>
         )}
-        {liveSelectedGuids.length > 0 &&
+        {isCollectionsTab &&
+          liveSelectedGuids.length > 0 &&
           createPortal(
             <div role="status" className={COLLECTION_SELECTION_ISLAND_CLASS}>
               <span className="font-medium">

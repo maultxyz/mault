@@ -11,6 +11,7 @@ import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
 import { apiKeysRouter } from "./routes/api-keys";
 import { billingRouter } from "./routes/billing";
+import { businessRouter } from "./routes/business";
 import { sortBinsRouter } from "./routes/bins";
 import { botRouter } from "./routes/bot";
 import { cardRouter } from "./routes/card";
@@ -40,6 +41,8 @@ import {
 } from "./lib/constants/api-keys";
 import { loadPlanConfig } from "./lib/plan-config";
 import { startWebhookDeliveryWorker } from "./lib/webhooks/queue";
+import { startDeviceOfflineAlerts } from "./lib/device-alerts";
+import { startInventorySnapshots } from "./lib/inventory";
 
 const app = new Hono<AppEnv>();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -86,6 +89,7 @@ app.route("/integrations", integrationsRouter);
 app.route("/api-keys", apiKeysRouter);
 app.route("/webhooks", webhooksRouter);
 app.route("/billing", billingRouter);
+app.route("/business", businessRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
@@ -101,6 +105,8 @@ app.onError((err, c) => {
 
 loadPlanConfig();
 startWebhookDeliveryWorker();
+startDeviceOfflineAlerts();
+startInventorySnapshots();
 
 const server = serve(
   { fetch: app.fetch, port: PORT, hostname: "0.0.0.0" },

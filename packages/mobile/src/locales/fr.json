@@ -1269,7 +1269,8 @@
         "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
         "collections": "Collections illimitées",
         "games": "Tous les jeux de cartes pris en charge",
-        "notifications": "Notifications Discord de scan"
+        "notifications": "Notifications Discord de scan",
+        "businessTools": "Outils pour boutiques : offres de rachat, listes de préparation et rapports de marges"
       }
     },
     "apiKeys": {
@@ -1324,6 +1325,9 @@
         },
         "cards": {
           "stored": "Un bac a été rangé dans un emplacement. Inclut la boîte et la position de chaque carte."
+        },
+        "sorter": {
+          "alert": "Une trieuse a eu un bourrage ou une erreur, a redémarré, a perdu sa connexion ou doit être entretenue."
         }
       },
       "empty": "Aucun webhook pour l'instant.",

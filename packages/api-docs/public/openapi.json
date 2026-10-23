@@ -1269,6 +1269,57 @@
         }
       }
     },
+    "sorter.alert": {
+      "post": {
+        "summary": "Sorter alert",
+        "description": "A sorter jammed, errored, restarted, ran out of cards, lost its connection or reached its service interval.",
+        "parameters": [
+          {
+            "name": "X-Mault-Event",
+            "in": "header",
+            "required": true,
+            "description": "The event type.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Mault-Delivery",
+            "in": "header",
+            "required": true,
+            "description": "The event id. Retries reuse it.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Mault-Signature",
+            "in": "header",
+            "required": true,
+            "description": "t=<unix seconds>,v1=<hex HMAC-SHA256 of '<t>.<raw body>' keyed with the webhook's signing secret>.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The event.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SorterAlertEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Any 2xx within 10 seconds counts as delivered. Anything else is retried."
+          }
+        }
+      }
+    },
     "webhook.test": {
       "post": {
         "summary": "Test event",
@@ -1942,6 +1993,73 @@
         ],
         "additionalProperties": false
       },
+      "SorterAlert": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "const": "sorter_alert"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "jam",
+              "error",
+              "timeout",
+              "restart",
+              "feeder_empty",
+              "offline",
+              "maintenance"
+            ],
+            "description": "jam, error, timeout, restart, feeder_empty, offline (lost its connection without disconnecting) or maintenance (service interval reached)."
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "sorter": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "object": {
+                    "type": "string",
+                    "const": "sorter"
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "object",
+                  "id",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null when the app couldn't tell which sorter it was."
+          }
+        },
+        "required": [
+          "object",
+          "type",
+          "title",
+          "description",
+          "sorter"
+        ],
+        "additionalProperties": false
+      },
       "CardScannedEvent": {
         "type": "object",
         "properties": {
@@ -2003,6 +2121,42 @@
           },
           "data": {
             "$ref": "#/components/schemas/StoredCards"
+          }
+        },
+        "required": [
+          "object",
+          "id",
+          "type",
+          "created_at",
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "SorterAlertEvent": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "const": "event"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+            "description": "Also sent as X-Mault-Delivery. Retries reuse it."
+          },
+          "type": {
+            "type": "string",
+            "const": "sorter.alert"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "description": "UTC ISO 8601 timestamp."
+          },
+          "data": {
+            "$ref": "#/components/schemas/SorterAlert"
           }
         },
         "required": [

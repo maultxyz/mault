@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { logActivity } from "../../lib/activity-log";
 import { collectionCards } from "../../db/schema";
 import {
   collectionScanImagePrefix,
@@ -21,14 +22,22 @@ export const clearCollectionCardsRoute = new Hono<AppEnv>().delete(
         const collection = await tx.query.collections.findFirst({
           where: (t, { eq, and }) =>
             and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { id: true },
+          columns: { id: true, name: true },
         });
         if (!collection)
           return { success: false, message: "Collection not found." };
 
-        await tx
+        const cleared = await tx
           .delete(collectionCards)
-          .where(eq(collectionCards.collectionId, collection.id));
+          .where(eq(collectionCards.collectionId, collection.id))
+          .returning({ id: collectionCards.id });
+        await logActivity(tx, {
+          orgId,
+          userId: c.get("userId"),
+          action: "cards.cleared",
+          summary: collection.name,
+          details: { count: cleared.length, collectionGuid: guid },
+        });
 
         return { success: true, data: null };
       });

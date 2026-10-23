@@ -157,6 +157,9 @@
       },
       "cards": {
         "stored": "Un bac a été rangé dans un emplacement. Inclut la boîte et la position de chaque carte."
+      },
+      "sorter": {
+        "alert": "Une trieuse a eu un bourrage ou une erreur, a redémarré, a perdu sa connexion ou doit être entretenue."
       }
     },
     "empty": "Aucun webhook pour l'instant.",

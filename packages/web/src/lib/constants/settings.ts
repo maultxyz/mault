@@ -2,6 +2,7 @@ import {
   IconAdjustments,
   IconBrandDiscord,
   IconBuilding,
+  IconBuildingStore,
   IconCreditCard,
   IconCurrencyDollar,
   IconPlug,
@@ -16,6 +17,7 @@ export const SETTINGS_PATHS = {
   billing: "/app/settings/billing",
   scanning: "/app/settings/scanning",
   pricing: "/app/settings/pricing",
+  business: "/app/settings/business",
   sounds: "/app/settings/sounds",
   notifications: "/app/settings/notifications",
   integrations: "/app/settings/integrations",
@@ -36,6 +38,7 @@ export const SETTINGS_SECTIONS = [
   },
   { path: "scanning", icon: IconScan, labelKey: "sections.scanning" },
   { path: "pricing", icon: IconCurrencyDollar, labelKey: "sections.pricing" },
+  { path: "business", icon: IconBuildingStore, labelKey: "sections.business" },
   { path: "sounds", icon: IconVolume, labelKey: "sections.sounds" },
   {
     path: "notifications",

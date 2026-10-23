@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgBilling } from "../../db/schema";
 import { apiAccessAllowedForPlan } from "../../lib/api-access";
+import { businessToolsAllowedForPlan } from "../../lib/business-access";
 import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
 import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
 import {
@@ -51,6 +52,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
             chaosSort: chaosSortAllowedForPlan(plan),
             storage: storageAllowedForPlan(plan),
             apiAccess: apiAccessAllowedForPlan(plan),
+            businessTools: businessToolsAllowedForPlan(plan),
           },
         };
       });

@@ -1,6 +1,7 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type {
   CardStorageLocation,
+  PagedList,
   Result,
   StorageLocation,
   StorageLocationCardContext,
@@ -8,12 +9,18 @@ import type {
   StorageLocationExportCard,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
-import { queryOptions } from "@tanstack/react-query";
+import { pageRequestParams } from "@/lib/api/page-request";
+import type { PageRequest } from "@/lib/interfaces/pagination";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
 export const storageLocationKeys = {
   root: () => ["storage-locations"] as const,
   list: (orgId: string | undefined) =>
     [...storageLocationKeys.root(), orgId] as const,
+  page: (orgId: string | undefined, request: PageRequest) =>
+    [...storageLocationKeys.root(), "page", orgId, request] as const,
+  location: (guid: string | undefined) =>
+    [...storageLocationKeys.root(), "location", guid] as const,
   cards: (guid: string | undefined) =>
     [...storageLocationKeys.root(), "cards", guid] as const,
   cardPages: (guid: string | undefined) =>
@@ -54,6 +61,30 @@ export const storageLocationsQueryOptions = (orgId: string | undefined) =>
         (r) => r.data ?? [],
       ),
     enabled: !!orgId,
+  });
+
+export const storageLocationPageQueryOptions = (
+  orgId: string | undefined,
+  request: PageRequest,
+) =>
+  queryOptions({
+    queryKey: storageLocationKeys.page(orgId, request),
+    queryFn: () =>
+      apiGet<Result<PagedList<StorageLocation>>>(
+        `/api/storage-locations/page?${pageRequestParams(request)}`,
+      ).then((r) => r.data ?? null),
+    enabled: !!orgId,
+    placeholderData: keepPreviousData,
+  });
+
+export const storageLocationQueryOptions = (guid: string | undefined) =>
+  queryOptions({
+    queryKey: storageLocationKeys.location(guid),
+    queryFn: () =>
+      apiGet<Result<StorageLocation>>(`/api/storage-locations/${guid}`).then(
+        (r) => r.data ?? null,
+      ),
+    enabled: !!guid,
   });
 
 export const storageLocationCardPageQueryOptions = (

@@ -14,4 +14,5 @@ export interface SerialEventReport {
   cardName?: string;
   binNumber?: number;
   collectionGuid?: string;
+  deviceGuid?: string;
 }

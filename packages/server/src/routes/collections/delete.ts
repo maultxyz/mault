@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { logActivity } from "../../lib/activity-log";
 import { collections } from "../../db/schema";
 import { emitToOrg } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -18,7 +19,7 @@ export const deleteCollectionRoute = new Hono<AppEnv>().delete(
         const target = await tx.query.collections.findFirst({
           where: (t, { eq, and }) =>
             and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { id: true, isActive: true },
+          columns: { id: true, isActive: true, name: true },
         });
         if (!target) return { success: false, message: "Collection not found." };
 
@@ -26,6 +27,13 @@ export const deleteCollectionRoute = new Hono<AppEnv>().delete(
           .update(collections)
           .set({ isDeleted: true, isActive: false })
           .where(eq(collections.id, target.id));
+        await logActivity(tx, {
+          orgId,
+          userId: c.get("userId"),
+          action: "collection.deleted",
+          summary: target.name,
+          details: { collectionGuid: guid },
+        });
 
         if (target.isActive) {
           const next = await tx.query.collections.findFirst({

@@ -9,7 +9,8 @@
     "sounds": "Scan sounds",
     "notifications": "Discord",
     "integrations": "API & webhooks",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "business": "Business"
   },
   "organizations": {
     "heading": "Organizations"
@@ -92,6 +93,7 @@
     "pricing": "Choose where card prices come from and how much each condition is worth.",
     "sounds": "Play a sound when a scanned card matches a rule, like a chime for valuable cards.",
     "notifications": "Link your Discord server and choose which scans and alerts get posted where.",
-    "integrations": "Create API keys and webhooks so your shop or other tools can see where your cards are stored."
+    "integrations": "Create API keys and webhooks so your shop or other tools can see where your cards are stored.",
+    "business": "Set your buylist offers for buying collections and choose what members can see and do."
   }
 }

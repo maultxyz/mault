@@ -5,6 +5,7 @@ import {
   acquireDeviceLease,
   UNIDENTIFIED_SORTER_LEASE_KEY,
 } from "../../lib/device-leases";
+import { recordDeviceSorted } from "../../lib/device-alerts";
 import { recordMatchedScan } from "../../lib/scan-stats";
 import {
   consumeDailyScan,
@@ -73,7 +74,9 @@ export const sortOnlyScanRoute = new Hono<AppEnv>().post(
         hasAlternatives,
         scannedAt,
         vectorizedOn,
+        c.get("userId"),
       );
+      void recordDeviceSorted(orgId, deviceGuid);
       return c.json(result);
     } catch (err) {
       console.error(err);

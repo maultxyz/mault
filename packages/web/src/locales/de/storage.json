@@ -117,5 +117,10 @@
     "next": "Weiter",
     "page": "Seite {{page}} von {{count}}",
     "range": "{{from}}-{{to}} von {{total}} Karten"
+  },
+  "views": {
+    "label": "Lageransicht",
+    "boxes": "Lagerorte",
+    "picks": "Picks"
   }
 }
