@@ -53,6 +53,11 @@
     "commLogCopied": "Communication log copied to clipboard",
     "commLogCopyFailed": "Failed to copy communication log",
     "commLogEmpty": "No communication recorded yet",
+    "commLogMarker": {
+      "connected": "New connection ({{transport}})",
+      "disconnected": "Disconnected ({{transport}})",
+      "restarted": "Sorter restarted ({{reason}})"
+    },
     "firmwareOutdatedBanner": "Your sorter is running firmware v{{version}}, older than the latest v{{latest}}. Re-upload firmware/main/main.ino to update it.",
     "firmwareOutdatedBannerBluetooth": "Your sorter is running firmware v{{version}}, older than the latest v{{latest}}. To update it from the browser, plug the ESP32-S3 in with USB (left port, labeled USB) and connect over USB instead of Bluetooth.",
     "firmwareVersionMissingBanner": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning.",
@@ -103,7 +108,7 @@
     "deviceReadyNoTest": "Device ready (self-test skipped)",
     "unexpectedReset": {
       "title": "Sorter restarted",
-      "description": "The sorter restarted on its own: {{reason}} A card that was moving wasn't routed, so check the modules before resuming. The sorter is being checked again now."
+      "description": "The sorter restarted on its own: {{reason}} A card that was moving wasn't routed, so check the modules before resuming. The self-test is skipped so cards still inside aren't swept around."
     },
     "abnormalBoot": {
       "title": "Sorter restarted before connecting",

@@ -5,6 +5,7 @@ import {
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
+import type { CommLogEntry } from "@/lib/interfaces/scanner";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",
@@ -138,3 +139,11 @@ export const MOBILE_SCAN_CHIP_CLASS =
   "pointer-events-auto inline-flex h-9 min-w-0 items-center gap-1.5 rounded-full bg-black/55 px-3 text-sm font-medium text-white backdrop-blur-md active:bg-black/70";
 export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
+
+export const COMM_LOG_MARKER_LABELS: Partial<
+  Record<CommLogEntry["direction"], string>
+> = {
+  connected: "New connection",
+  disconnected: "Disconnected",
+  restarted: "Sorter restarted",
+};
