@@ -87,6 +87,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 - Protocol: `firmware/PROTOCOL.md`. The firmware has no concept of bins; the web app resolves bin -> (module, direction).
 - Firmware runs one command at a time; every blocking wait goes through `waitMs()`. Pusher moves always go through `setServoPosition()`, never `pwm.setPWM`.
+- `handleCommand` parses its line as `const char*` so ArduinoJson copies strings: the transport's line buffer is overwritten by input read during `waitMs()` while the command runs. Replies are printed directly, never built as a `JsonDocument`. `ModuleConfig`/`FeederConfig` are all-`int` structs walked through `MODULE_FIELDS`/`FEEDER_FIELDS`, so a new field goes in both (a `static_assert` catches a mismatch).
 - Replies are matched by `seq` (firmware 2.7.0+). Use `sendRequest`/`sendRawCommand`; there's no "read next line" API.
 - Minimum-firmware features go in `FIRMWARE_FEATURE_MIN_VERSIONS` and are gated with `FirmwareFeatureGate`/`useFirmwareFeature`. Runtime paths still need fallbacks for older boards.
 - Changing the firmware's `ModuleConfig` requires an EEPROM layout migration (see `loadStoredConfigV1()`).

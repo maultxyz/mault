@@ -106,9 +106,7 @@ uint16_t bleMtu() { return 0; }
 void bleSendLine(const char* s) {
   if (!bleIsConnected()) return;
   static char line[MAX_REPLY_LEN + 2];
-  size_t len = strnlen(s, MAX_REPLY_LEN);
-  memcpy(line, s, len);
-  line[len++] = '\n';
+  size_t len = copyLine(line, s);
   for (size_t offset = 0; offset < len; offset += BLE_CHUNK_SIZE) {
     if (offset > 0) delay(10);
     size_t chunkLen = len - offset < BLE_CHUNK_SIZE ? len - offset : BLE_CHUNK_SIZE;
