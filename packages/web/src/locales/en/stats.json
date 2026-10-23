@@ -107,17 +107,18 @@
     "error": "Couldn't load the leaderboard. Try again in a moment.",
     "rank": "#{{rank}}",
     "you": "You",
-    "hidden": "Not listed",
+    "hidden": "Name hidden",
     "unknownOrg": "Unknown organization",
+    "anonymousOrg": "Anonymous organization",
     "columns": {
       "rank": "Rank",
       "organization": "Organization",
       "scans": "Cards scanned"
     },
     "optIn": {
-      "title": "Your organization isn't on the leaderboard",
-      "description": "Other organizations can't see you. Your row shows where you would rank. Join from Settings to appear in the list.",
-      "action": "Join leaderboard"
+      "title": "Your organization is ranked anonymously",
+      "description": "Other organizations see your scan count and rank, but not your name. Show your name from Settings.",
+      "action": "Show my name"
     }
   }
 }

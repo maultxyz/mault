@@ -10,7 +10,11 @@ import { DISCORD_BLURPLE } from "../lib/constants";
 import type { LeaderboardRow } from "../lib/interfaces";
 
 function formatRow(row: LeaderboardRow): string {
-  const name = escapeMarkdown(row.name ?? "Unknown organization");
+  const name = row.name
+    ? escapeMarkdown(row.name)
+    : row.isAnonymous
+      ? "*Anonymous organization*"
+      : "Unknown organization";
   const cards = `${row.scanCount.toLocaleString("en-US")} cards`;
   return row.isOwnOrg
     ? `**#${row.rank}  ${name}** (this server) · ${cards}`
@@ -42,13 +46,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         "",
         rows.length
           ? rows.map(formatRow).join("\n")
-          : "No organizations have joined the leaderboard yet.",
+          : "No organizations have scanned any cards yet.",
       ].join("\n"),
     );
 
   if (linkedOrgOptedIn === false) {
     embed.setFooter({
-      text: "This server's organization isn't on the leaderboard. Join from Settings > General in Mault.",
+      text: "This server's organization is shown anonymously. Show its name from Settings > General in Mault.",
     });
   }
 
