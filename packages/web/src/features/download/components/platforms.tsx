@@ -24,7 +24,7 @@ export function DownloadPlatforms({ step }: MarketingStepProps) {
           subtitle={t("platforms.description")}
         />
 
-        <div className="mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border sm:grid-cols-3">
+        <div className="mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border sm:grid-cols-2">
           {DESKTOP_DOWNLOADS.map((download) => {
             const isDetected = download.platform === detected;
             return (
@@ -69,15 +69,18 @@ export function DownloadPlatforms({ step }: MarketingStepProps) {
           })}
         </div>
 
-        <a
-          href={DESKTOP_RELEASE_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-6 inline-flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground"
-        >
-          <IconExternalLink className="size-4" />
-          {t("platforms.allReleases")}
-        </a>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-foreground/70">
+          <p>{t("platforms.macosSoon")}</p>
+          <a
+            href={DESKTOP_RELEASE_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 hover:text-foreground"
+          >
+            <IconExternalLink className="size-4" />
+            {t("platforms.allReleases")}
+          </a>
+        </div>
       </div>
     </section>
   );

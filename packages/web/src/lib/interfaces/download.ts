@@ -1,6 +1,6 @@
 import type { Icon } from "@tabler/icons-react";
 
-export type DesktopPlatform = "windows" | "macos" | "linux";
+export type DesktopPlatform = "windows" | "linux";
 
 export interface DesktopDownload {
   platform: DesktopPlatform;
