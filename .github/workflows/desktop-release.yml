@@ -1,0 +1,153 @@
+name: Desktop Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Check branch
+        run: |
+          if [ "${{ github.ref_name }}" != "master" ]; then
+            echo "::error::Desktop releases run from master, not ${{ github.ref_name }}."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute app version
+        id: version
+        working-directory: packages/desktop
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          VERSION=$(node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            const bump = process.argv[2];
+            console.log(bump === "major" ? `${major + 1}.0.0` : bump === "minor" ? `${major}.${minor + 1}.0` : `${major}.${minor}.${patch + 1}`);
+          ' "$CURRENT" "${{ inputs.bump }}")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: version
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --filter @magic-vault/desktop...
+
+      - name: Set app version
+        working-directory: packages/desktop
+        shell: bash
+        run: npm pkg set version="${{ needs.version.outputs.version }}"
+
+      # Signing and notarization run only when these secrets exist; without
+      # them the builds are unsigned (SmartScreen / Gatekeeper warnings, and
+      # macOS auto-update needs a signed app).
+      - name: Build
+        working-directory: packages/desktop
+        shell: bash
+        env:
+          CSC_LINK: ${{ secrets.DESKTOP_MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.DESKTOP_MAC_CSC_KEY_PASSWORD }}
+          WIN_CSC_LINK: ${{ secrets.DESKTOP_WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.DESKTOP_WIN_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.DESKTOP_APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.DESKTOP_APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.DESKTOP_APPLE_TEAM_ID }}
+        run: |
+          if [ -z "$CSC_LINK" ]; then export CSC_IDENTITY_AUTO_DISCOVERY=false; fi
+          pnpm dist --publish never
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            packages/desktop/release/*.exe
+            packages/desktop/release/*.dmg
+            packages/desktop/release/*.zip
+            packages/desktop/release/*.AppImage
+            packages/desktop/release/*.blockmap
+            packages/desktop/release/latest*.yml
+
+  publish:
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+
+      # desktop-latest is the fixed URL electron-updater reads (the generic
+      # provider in electron-builder.yml), so it is replaced on every release.
+      - name: Publish desktop-latest release
+        run: |
+          gh release delete desktop-latest --cleanup-tag --yes || true
+          gh release create desktop-latest installers/* \
+            --title "MAULT Desktop v$VERSION" \
+            --notes "MAULT desktop app v$VERSION." \
+            --latest=false
+
+      - name: Commit and tag desktop version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          npm pkg set version="$VERSION" --prefix packages/desktop
+          git add packages/desktop/package.json
+          git commit -m "chore(release): desktop v$VERSION [skip ci]"
+          git tag "desktop-v$VERSION"
+          git pull --rebase origin "${{ github.ref_name }}"
+          git push origin "HEAD:${{ github.ref_name }}"
+          git push origin "desktop-v$VERSION"
+
+      - name: Summary
+        run: |
+          {
+            echo "## Desktop release v$VERSION"
+            echo ""
+            echo "- Downloads: https://github.com/${{ github.repository }}/releases/tag/desktop-latest"
+          } >> "$GITHUB_STEP_SUMMARY"

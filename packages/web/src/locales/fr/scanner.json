@@ -19,7 +19,8 @@
     "paused": "En pause",
     "noCollection": "Aucune collection",
     "minimize": "Réduire sur le côté",
-    "expand": "Afficher l'aperçu du scanner"
+    "expand": "Afficher l'aperçu du scanner",
+    "hide": "Masquer jusqu'à votre retour dans MAULT"
   },
   "serial": {
     "connectionFailed": {

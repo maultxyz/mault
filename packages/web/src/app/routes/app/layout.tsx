@@ -10,6 +10,7 @@ import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog"
 import { MobileNav } from "@/components/mobile-nav";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
+import { DesktopScannerPip } from "@/features/scanner/components/desktop-scanner-pip";
 import { ScannerPip } from "@/features/scanner/components/scanner-pip";
 import { StationTabs } from "@/features/scanner/components/station-tabs";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
@@ -85,6 +86,7 @@ export default function AppLayout() {
             </div>
           </div>
           <ScannerPip />
+          <DesktopScannerPip />
           <AppHotkeys />
           <div className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
             <StatusFooter />

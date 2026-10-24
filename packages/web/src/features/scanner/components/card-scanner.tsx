@@ -11,6 +11,7 @@ import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
+import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
@@ -83,7 +84,7 @@ export function CardScanner({
   const binLimitCapacity =
     binFillLevels.find((level) => level.binNumber === binLimitReached?.binNumber)
       ?.capacity ?? null;
-  const { station } = useStation();
+  const { station, isActive } = useStation();
   const {
     setActiveStation,
     connectAnotherSorter,
@@ -466,6 +467,19 @@ export function CardScanner({
     handleFeed,
     autoFeed,
   ]);
+
+  useDesktopScannerControls({
+    status,
+    enabled: isActive,
+    isConnected,
+    isReady,
+    autoFeed,
+    isClearingDevice,
+    onPause: pause,
+    onResume: () => void handleResumeScanning(),
+    onToggleAutoFeed: () => setAutoFeed(!autoFeed),
+    onClearDevice: () => void handleClearDevice(),
+  });
 
   useEffect(() => {
     return registerResumeHook(handleResumeScanning);
