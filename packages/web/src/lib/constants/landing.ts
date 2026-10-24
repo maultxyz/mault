@@ -4,13 +4,19 @@ import {
   IconArrowsShuffle,
   IconArrowsSplit2,
   IconBrandDiscord,
+  IconBellRinging,
   IconBroadcast,
   IconLanguage,
   IconLayoutGrid,
+  IconListSearch,
+  IconLock,
   IconTextRecognition,
+  IconUsers,
 } from "@tabler/icons-react";
 import type {
+  DemoIntakeRow,
   DemoPickListEntry,
+  DemoPickRow,
   DemoStorageBox,
   LandingFeatureExtra,
 } from "@/lib/interfaces/landing";
@@ -136,6 +142,10 @@ export const LANDING_FEATURE_EXTRAS: LandingFeatureExtra[] = [
   { key: "ocr", icon: IconTextRecognition },
   { key: "languages", icon: IconLanguage },
   { key: "api", icon: IconApi },
+  { key: "accuracy", icon: IconListSearch },
+  { key: "staff", icon: IconUsers },
+  { key: "fleet", icon: IconBellRinging },
+  { key: "permissions", icon: IconLock },
 ];
 
 export const LANDING_FEATURE_GRID_CLASS =
@@ -146,3 +156,23 @@ export const LANDING_FEATURE_TILE_CLASS =
 
 export const LANDING_FEATURE_DEMO_CLASS =
   "flex flex-1 items-center justify-center rounded-md border bg-background bg-blueprint p-4";
+
+export const DEMO_INTAKE_CUSTOMER = "Ann";
+
+export const DEMO_INTAKE_CREDIT_BONUS = 25;
+
+export const DEMO_INTAKE_ROWS: DemoIntakeRow[] = [
+  { cardIndex: 5, market: 42.16, offer: 29.51 },
+  { cardIndex: 1, market: 1.85, offer: 0.93 },
+  { cardIndex: 0, market: 1.12, offer: 0.56 },
+  { cardIndex: 3, market: 0.14, offer: 0, declined: true },
+];
+
+export const DEMO_PICKS_NAME = "Monday's orders";
+
+export const DEMO_PICKS_ROWS: DemoPickRow[] = [
+  { cardIndex: 5, box: "Box 1", position: 118, picked: true },
+  { cardIndex: 1, box: "Box 1", position: 204, picked: true },
+  { cardIndex: 2, box: "Box 3", position: 12, picked: false },
+  { cardIndex: 4, box: "Box 3", position: 57, picked: false },
+];

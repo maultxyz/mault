@@ -85,7 +85,7 @@
       },
       "insights": {
         "title": "Know what you own",
-        "description": "See counts, rarities, and sets across your whole library, so you never have to guess what's in the box."
+        "description": "See counts, value, cost basis and margins across your whole library, with daily value history, so you never have to guess what the box is worth."
       },
       "hardware": {
         "title": "Built for the table",
@@ -94,6 +94,14 @@
       "storage": {
         "title": "Know which box every card is in",
         "description": "When a bin is full, empty it into a storage box and Mault records each card's exact position in the stack. Search every box by name, see what each one is worth, and export a box as CSV."
+      },
+      "intake": {
+        "title": "Buy collections over the counter",
+        "description": "Scan a customer's cards into their own intake and watch a cash and store credit offer build from your buylist tiers. Cards below your minimum are struck out, and accepting records what you paid and prints a receipt."
+      },
+      "picks": {
+        "title": "Pick online orders from your boxes",
+        "description": "Paste a TCGplayer pull sheet, a Shopify export or a plain list. Mault finds each card and tells you which box and position it is in, then takes the picked cards out of your inventory."
       },
       "pickList": {
         "title": "Pull cards from a decklist",
@@ -114,7 +122,12 @@
       "cardCount_one": "{{count}} card",
       "cardCount_other": "{{count}} cards",
       "pickListBin": "Bin {{number}} pick list",
-      "found": "{{found}}/{{wanted}} found"
+      "found": "{{found}}/{{wanted}} found",
+      "intakeLot": "{{name}}'s cards",
+      "liveOffer": "Live offer",
+      "cash": "Cash",
+      "credit": "Store credit",
+      "picked": "{{picked}}/{{total}} picked"
     },
     "more": {
       "heading": "And a whole lot more",
@@ -150,6 +163,22 @@
         "api": {
           "title": "API and webhooks",
           "description": "Connect your shop: look up where any card is stored and get notified as cards are scanned."
+        },
+        "accuracy": {
+          "title": "Spot checks",
+          "description": "Check a random sample of a batch and get an accuracy estimate with a 95% range before you list it."
+        },
+        "staff": {
+          "title": "Staff activity",
+          "description": "See scans and corrections per person, and a log of who changed what."
+        },
+        "fleet": {
+          "title": "Sorter alerts",
+          "description": "Get told on Discord or by webhook when a sorter jams, goes offline or is due for service."
+        },
+        "permissions": {
+          "title": "Buy prices stay private",
+          "description": "Let staff scan intakes without seeing offers, costs or margins."
         }
       }
     }
@@ -216,7 +245,7 @@
       "chaosSort": "Chaos sort, the fastest way to put away a big pile",
       "storage": "Storage locations: record which box every card is in and where, then search across them",
       "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
-      "businessTools": "Shop tools: buy collections with live buylist offers, fulfil online orders from a pull sheet and track your margins"
+      "businessTools": "Shop tools: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins"
     }
   },
   "cta": {

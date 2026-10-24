@@ -2,6 +2,8 @@ import { DemoAlphabetSort } from "@/features/landing/components/demo-alphabet-so
 import { DemoAutoAssign } from "@/features/landing/components/demo-auto-assign";
 import { DemoBinDiagram } from "@/features/landing/components/demo-bin-diagram";
 import { DemoCustomSounds } from "@/features/landing/components/demo-custom-sounds";
+import { DemoIntake } from "@/features/landing/components/demo-intake";
+import { DemoPicks } from "@/features/landing/components/demo-picks";
 import { DemoPickList } from "@/features/landing/components/demo-pick-list";
 import { DemoPricing } from "@/features/landing/components/demo-pricing";
 import { DemoRecognitionPreview } from "@/features/landing/components/demo-recognition-preview";
@@ -12,6 +14,7 @@ import { DemoStorage } from "@/features/landing/components/demo-storage";
 import type { LandingFeatureHighlight } from "@/lib/interfaces/landing";
 import {
   IconArchive,
+  IconCash,
   IconChartBar,
   IconCoin,
   IconCpu,
@@ -20,6 +23,7 @@ import {
   IconPackages,
   IconScan,
   IconSortAZ,
+  IconTruckDelivery,
   IconVolume,
   IconWand,
 } from "@tabler/icons-react";
@@ -37,6 +41,20 @@ export const LANDING_FEATURE_HIGHLIGHTS: LandingFeatureHighlight[] = [
     icon: IconScan,
     demo: DemoRecognitionPreview,
     className: "lg:col-span-2",
+  },
+  {
+    key: "intake",
+    icon: IconCash,
+    demo: DemoIntake,
+    className: "lg:col-span-3",
+    isNew: true,
+  },
+  {
+    key: "picks",
+    icon: IconTruckDelivery,
+    demo: DemoPicks,
+    className: "lg:col-span-3",
+    isNew: true,
   },
   {
     key: "pickList",
