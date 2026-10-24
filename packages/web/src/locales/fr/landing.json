@@ -85,7 +85,7 @@
       },
       "insights": {
         "title": "Sache ce que tu possèdes",
-        "description": "Consulte les quantités, raretés et sets de toute ta collection, pour ne plus jamais avoir à deviner ce qu'il y a dans la boîte."
+        "description": "Voyez quantités, valeur, coûts d'achat et marges de toute votre collection, avec l'historique quotidien de la valeur, pour ne plus jamais deviner ce que vaut la boîte."
       },
       "hardware": {
         "title": "Conçu pour la table",
@@ -94,6 +94,14 @@
       "storage": {
         "title": "Sache dans quelle boîte est chaque carte",
         "description": "Quand un bac est plein, vide-le dans une boîte de rangement et Mault note la position exacte de chaque carte dans la pile. Cherche dans toutes tes boîtes par nom, vois ce que chacune vaut et exporte une boîte en CSV."
+      },
+      "intake": {
+        "title": "Racheter des collections au comptoir",
+        "description": "Scannez les cartes d'un client dans son propre rachat et voyez une offre en espèces et en avoir se construire à partir de vos paliers. Les cartes sous votre minimum sont barrées, et l'acceptation enregistre ce que vous avez payé et imprime un reçu."
+      },
+      "picks": {
+        "title": "Préparer les commandes depuis vos boîtes",
+        "description": "Collez une liste de préparation TCGplayer, un export Shopify ou une simple liste. Mault trouve chaque carte, vous indique sa boîte et sa position, puis retire les cartes prélevées de votre stock."
       },
       "pickList": {
         "title": "Sors les cartes d'une decklist",
@@ -114,7 +122,12 @@
       "cardCount_one": "{{count}} carte",
       "cardCount_other": "{{count}} cartes",
       "pickListBin": "Liste du bac {{number}}",
-      "found": "{{found}}/{{wanted}} trouvées"
+      "found": "{{found}}/{{wanted}} trouvées",
+      "intakeLot": "Cartes de {{name}}",
+      "liveOffer": "Offre en direct",
+      "cash": "Espèces",
+      "credit": "Avoir",
+      "picked": "{{picked}}/{{total}} prélevées"
     },
     "more": {
       "heading": "Et bien plus encore",
@@ -150,6 +163,22 @@
         "api": {
           "title": "API et webhooks",
           "description": "Connecte ta boutique : retrouve où est rangée une carte et sois notifié à chaque scan."
+        },
+        "accuracy": {
+          "title": "Contrôles par échantillon",
+          "description": "Contrôlez un échantillon aléatoire d'un lot et obtenez une estimation de précision avec un intervalle à 95 % avant de le mettre en vente."
+        },
+        "staff": {
+          "title": "Activité de l'équipe",
+          "description": "Voyez les scans et corrections par personne, et un journal de qui a modifié quoi."
+        },
+        "fleet": {
+          "title": "Alertes des trieuses",
+          "description": "Soyez prévenu sur Discord ou par webhook quand une trieuse se bloque, passe hors ligne ou doit être entretenue."
+        },
+        "permissions": {
+          "title": "Prix de rachat privés",
+          "description": "Laissez l'équipe scanner les rachats sans voir les offres, coûts ou marges."
         }
       }
     }
@@ -216,7 +245,7 @@
       "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
       "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
-      "businessTools": "Outils pour boutiques : racheter des collections avec des offres en direct, expédier les commandes en ligne grâce à une liste de préparation et suivre vos marges"
+      "businessTools": "Outils pour boutiques : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges"
     }
   },
   "cta": {

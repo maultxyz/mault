@@ -60,3 +60,17 @@ export interface DemoPickListEntry {
   quantity: number;
   found: number;
 }
+
+export interface DemoIntakeRow {
+  cardIndex: number;
+  market: number;
+  offer: number;
+  declined?: boolean;
+}
+
+export interface DemoPickRow {
+  cardIndex: number;
+  box: string;
+  position: number;
+  picked: boolean;
+}
