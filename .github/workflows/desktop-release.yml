@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     environment: production
     steps:
@@ -73,23 +73,15 @@ jobs:
         shell: bash
         run: npm pkg set version="${{ needs.version.outputs.version }}"
 
-      # Signing and notarization run only when these secrets exist; without
-      # them the builds are unsigned (SmartScreen / Gatekeeper warnings, and
-      # macOS auto-update needs a signed app).
+      # Windows signing runs only when these secrets exist; without them the
+      # installer is unsigned and SmartScreen warns on first run.
       - name: Build
         working-directory: packages/desktop
         shell: bash
         env:
-          CSC_LINK: ${{ secrets.DESKTOP_MAC_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.DESKTOP_MAC_CSC_KEY_PASSWORD }}
           WIN_CSC_LINK: ${{ secrets.DESKTOP_WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.DESKTOP_WIN_CSC_KEY_PASSWORD }}
-          APPLE_ID: ${{ secrets.DESKTOP_APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.DESKTOP_APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.DESKTOP_APPLE_TEAM_ID }}
-        run: |
-          if [ -z "$CSC_LINK" ]; then export CSC_IDENTITY_AUTO_DISCOVERY=false; fi
-          pnpm dist --publish never
+        run: pnpm dist --publish never
 
       - name: Upload installers
         uses: actions/upload-artifact@v4
@@ -98,8 +90,6 @@ jobs:
           if-no-files-found: error
           path: |
             packages/desktop/release/*.exe
-            packages/desktop/release/*.dmg
-            packages/desktop/release/*.zip
             packages/desktop/release/*.AppImage
             packages/desktop/release/*.blockmap
             packages/desktop/release/latest*.yml
@@ -127,7 +117,6 @@ jobs:
       - name: Publish desktop-latest release
         run: |
           cp installers/MAULT-*-win-*.exe installers/MAULT-windows.exe
-          cp installers/MAULT-*-mac-*.dmg installers/MAULT-macos.dmg
           cp installers/MAULT-*-linux-*.AppImage installers/MAULT-linux.AppImage
           gh release delete desktop-latest --cleanup-tag --yes || true
           gh release create desktop-latest installers/* \
