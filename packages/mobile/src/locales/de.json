@@ -1269,7 +1269,8 @@
         "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
         "collections": "Unbegrenzte Sammlungen",
         "games": "Jedes unterstützte Sammelkartenspiel",
-        "notifications": "Discord-Scan-Benachrichtigungen"
+        "notifications": "Discord-Scan-Benachrichtigungen",
+        "businessTools": "Werkzeuge für Läden: Ankaufsangebote, Picklisten und Margenberichte"
       }
     },
     "apiKeys": {
@@ -1324,6 +1325,9 @@
         },
         "cards": {
           "stored": "Ein Fach wurde in einen Lagerort einsortiert. Enthält Box und Position jeder Karte."
+        },
+        "sorter": {
+          "alert": "Ein Sortierer hatte einen Stau oder Fehler, wurde neu gestartet, hat die Verbindung verloren oder braucht eine Wartung."
         }
       },
       "empty": "Noch keine Webhooks.",

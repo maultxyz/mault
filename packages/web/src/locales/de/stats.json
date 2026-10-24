@@ -69,7 +69,9 @@
       "totalValue": "Wert",
       "avgValue": "Ø Karte",
       "scansInRange": "Gescannt",
-      "lastScanAt": "Letzter Scan"
+      "lastScanAt": "Letzter Scan",
+      "costBasis": "Einkauf",
+      "margin": "Marge"
     }
   },
   "prices": {
@@ -120,5 +122,13 @@
       "description": "Andere Organisationen sehen deine Scan-Anzahl und deinen Rang, aber nicht deinen Namen. Zeige deinen Namen in den Einstellungen.",
       "action": "Meinen Namen zeigen"
     }
+  },
+  "views": {
+    "overview": "Übersicht",
+    "staff": "Team",
+    "accuracy": "Genauigkeit"
+  },
+  "value": {
+    "description": "Täglicher Marktwert von allem, was dir gehört, ohne Karten aus offenen Ankäufen."
   }
 }

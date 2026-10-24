@@ -1,6 +1,5 @@
 import { HeroSortingLine } from "@/features/landing/components/hero-sorting-line";
 import { MarketingRule } from "@/components/marketing-rule";
-import { SpiderWeb } from "@/components/halloween-decor";
 import { LandingStats } from "@/features/landing/components/stats";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,7 +12,6 @@ export function LandingHero() {
 
   return (
     <section className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 pt-14 pb-16 md:gap-14 md:pt-20 md:pb-20">
-      <SpiderWeb corner="top-left" withSpider className="size-28 max-md:size-16" />
       <div className="flex flex-col items-start gap-8">
         <MarketingRule
           lead="Mault"

@@ -568,6 +568,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           command: "test",
           sent: true,
           response: null,
+          deviceGuid: deviceRef.current?.guid,
         });
         disconnect();
       }
@@ -770,6 +771,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         command: "reset",
         sent: true,
         response: status,
+        deviceGuid: deviceRef.current?.guid,
       });
     },
     [toast, t, resetReasonText],
@@ -801,6 +803,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         command: "reset",
         sent: true,
         response: status,
+        deviceGuid: deviceRef.current?.guid,
       });
       const forDevice = deviceRef.current;
       void (async () => {
@@ -838,6 +841,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           command: "connect",
           sent: false,
           response: null,
+          deviceGuid: deviceRef.current?.guid,
         });
       });
       newTransport.onDisconnect(() => handleConnectionLost(newTransport));
@@ -1012,6 +1016,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           command: "connect",
           sent: false,
           response: null,
+          deviceGuid: deviceRef.current?.guid,
         });
         return;
       }
@@ -1125,6 +1130,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
             command: "connect",
             sent: false,
             response: null,
+            deviceGuid: deviceRef.current?.guid,
           });
           return;
         }
@@ -1136,6 +1142,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           command: "connect",
           sent: false,
           response: null,
+          deviceGuid: deviceRef.current?.guid,
         });
         return;
       }
@@ -1346,6 +1353,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
             command: "connect",
             sent,
             response: null,
+            deviceGuid: deviceRef.current?.guid,
           });
           handleConnectionLost(activeTransport);
           return;

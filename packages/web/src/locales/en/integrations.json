@@ -157,6 +157,9 @@
       },
       "cards": {
         "stored": "A bin was put away into a storage location. Includes each card's box and position."
+      },
+      "sorter": {
+        "alert": "A sorter jammed, errored, restarted, lost its connection or is due for service."
       }
     },
     "empty": "No webhooks yet.",

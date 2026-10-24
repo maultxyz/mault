@@ -9,7 +9,8 @@
     "sounds": "Sons de scan",
     "notifications": "Discord",
     "integrations": "API et webhooks",
-    "pricing": "Prix"
+    "pricing": "Prix",
+    "business": "Business"
   },
   "organizations": {
     "heading": "Organisations"
@@ -86,6 +87,7 @@
     "pricing": "Choisis d'où viennent les prix des cartes et combien vaut chaque état.",
     "sounds": "Joue un son quand une carte scannée correspond à une règle, par exemple pour les cartes de valeur.",
     "notifications": "Relie ton serveur Discord et choisis quels scans et alertes sont publiés et où.",
-    "integrations": "Crée des clés API et des webhooks pour que ta boutique ou d'autres outils sachent où tes cartes sont rangées."
+    "integrations": "Crée des clés API et des webhooks pour que ta boutique ou d'autres outils sachent où tes cartes sont rangées.",
+    "business": "Définissez vos offres de rachat et choisissez ce que les membres peuvent voir et faire."
   }
 }

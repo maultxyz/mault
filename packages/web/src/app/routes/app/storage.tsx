@@ -8,7 +8,14 @@ import { Input } from "@/components/ui/input";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
-import { fetchNextUnreviewedStorageCard } from "@/features/storage/api/storage-locations";
+import {
+  fetchNextUnreviewedStorageCard,
+  storageLocationPageQueryOptions,
+  storageLocationQueryOptions,
+} from "@/features/storage/api/storage-locations";
+import { useOrg } from "@/features/companies/api/use-organization";
+import { useServerPagedList } from "@/hooks/use-server-paged-list";
+import { useQuery } from "@tanstack/react-query";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
@@ -26,7 +33,10 @@ import {
   STORAGE_CARD_SEARCH_PARAM,
   STORAGE_LOCATION_SEARCH_PARAM,
   STORAGE_PAGE_SEARCH_PARAM,
+  STORAGE_BOXES_VIEW,
+  STORAGE_ORDERS_VIEW,
   STORAGE_REVIEW_SEARCH_PARAM,
+  STORAGE_VIEW_PARAM,
 } from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { toast } from "@/lib/toast";
@@ -40,11 +50,15 @@ import {
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { OrdersWorkspace } from "@/features/business/components/orders-workspace";
+import { StorageViewSwitch } from "@/features/storage/components/storage-view-switch";
 
 function DesktopStoragePage() {
   const { t } = useTranslation("storage");
-  const { locations, isLoading, isMutating, create, rename, remove } =
-    useStorageLocations();
+  const { isMutating, create, rename, remove } = useStorageLocations({
+    withList: false,
+  });
+  const { activeOrg } = useOrg();
   const { format } = usePriceSource();
   const { isLocked } = useStorageAccess();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -60,9 +74,23 @@ function DesktopStoragePage() {
   );
   const isSearching = searchQuery.trim().length > 0;
 
-  const selectedGuid =
-    searchParams.get(STORAGE_LOCATION_SEARCH_PARAM) ?? locations[0]?.guid;
-  const selected = locations.find((l) => l.guid === selectedGuid);
+  const selectedParam = searchParams.get(STORAGE_LOCATION_SEARCH_PARAM);
+  const {
+    items: locations,
+    pagination,
+    isLoading,
+  } = useServerPagedList(
+    (request) => storageLocationPageQueryOptions(activeOrg?.id, request),
+    selectedParam,
+  );
+  const hasLocations = pagination.total > 0;
+  const selectedGuid = selectedParam ?? locations[0]?.guid;
+  const { data: selectedLocation } = useQuery(
+    storageLocationQueryOptions(selectedGuid),
+  );
+  const selected =
+    locations.find((l) => l.guid === selectedGuid) ??
+    (selectedLocation?.guid === selectedGuid ? selectedLocation : undefined);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
   const isReviewing = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM) === "1";
   const pageParam = searchParams.get(STORAGE_PAGE_SEARCH_PARAM);
@@ -129,6 +157,7 @@ function DesktopStoragePage() {
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
+          <StorageViewSwitch value={STORAGE_BOXES_VIEW} />
           {!isLocked && (
             <Button
               variant="outline"
@@ -140,7 +169,7 @@ function DesktopStoragePage() {
               {t("page.newLocation")}
             </Button>
           )}
-          {!isLoading && locations.length > 0 && (
+          {!isLoading && hasLocations && (
             <Input
               type="search"
               placeholder={t("search.placeholder")}
@@ -153,6 +182,7 @@ function DesktopStoragePage() {
           )}
           <StorageLocationList
             locations={locations}
+            pagination={pagination}
             selectedGuid={isSearching ? undefined : selected?.guid}
             isLoading={isLoading}
             onSelect={openLocation}
@@ -234,7 +264,7 @@ function DesktopStoragePage() {
             {isLocked && (
               <Callout variant="info" className="shrink-0">
                 {t(
-                  locations.length > 0
+                  hasLocations
                     ? "upgrade.lockedWithLocations"
                     : "upgrade.locked",
                 )}{" "}
@@ -244,7 +274,7 @@ function DesktopStoragePage() {
 
             {isLoading ? (
               <ListSkeleton />
-            ) : locations.length === 0 ? (
+            ) : !hasLocations ? (
               <EmptyState
                 icon={IconBox}
                 title={t("page.emptyTitle")}
@@ -323,5 +353,14 @@ function DesktopStoragePage() {
 
 export default function StoragePage() {
   const isMobile = useIsMobile();
-  return isMobile ? <MobileStorage /> : <DesktopStoragePage />;
+  const [searchParams] = useSearchParams();
+  if (isMobile) return <MobileStorage />;
+  if (searchParams.get(STORAGE_VIEW_PARAM) === STORAGE_ORDERS_VIEW) {
+    return (
+      <OrdersWorkspace
+        switcher={<StorageViewSwitch value={STORAGE_ORDERS_VIEW} />}
+      />
+    );
+  }
+  return <DesktopStoragePage />;
 }

@@ -11,4 +11,5 @@ export interface BillingStatus {
   chaosSort?: boolean;
   storage?: boolean;
   apiAccess?: boolean;
+  businessTools?: boolean;
 }

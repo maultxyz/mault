@@ -117,5 +117,10 @@
     "next": "Suivant",
     "page": "Page {{page}} sur {{count}}",
     "range": "{{from}}-{{to}} sur {{total}} cartes"
+  },
+  "views": {
+    "label": "Vue du rangement",
+    "boxes": "Emplacements",
+    "picks": "Préparations"
   }
 }

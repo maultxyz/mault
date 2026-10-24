@@ -69,7 +69,9 @@
       "totalValue": "Value",
       "avgValue": "Avg card",
       "scansInRange": "Scanned",
-      "lastScanAt": "Last scan"
+      "lastScanAt": "Last scan",
+      "costBasis": "Cost",
+      "margin": "Margin"
     }
   },
   "prices": {
@@ -120,5 +122,13 @@
       "description": "Other organizations see your scan count and rank, but not your name. Show your name from Settings.",
       "action": "Show my name"
     }
+  },
+  "views": {
+    "overview": "Overview",
+    "staff": "Staff",
+    "accuracy": "Accuracy"
+  },
+  "value": {
+    "description": "Daily market value of everything you own, with cards in open intakes left out."
   }
 }

@@ -13,7 +13,11 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
-import { STORAGE_PATH } from "@/lib/constants/storage";
+import {
+  STORAGE_ORDERS_VIEW,
+  STORAGE_PATH,
+  STORAGE_VIEW_PARAM,
+} from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
@@ -21,6 +25,11 @@ import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { SELF_HOST_PATH } from "@/lib/constants/self-host";
+import {
+  INTAKE_PATH,
+  LEGACY_REPORTS_PATH,
+  LEGACY_ORDERS_PATH,
+} from "@/lib/constants/business";
 
 const LandingPage = lazy(
   withNamespaces(
@@ -32,7 +41,10 @@ const BuildGuidePage = lazy(
   withNamespaces(() => import("@/app/routes/build"), ["common", "build"]),
 );
 const SelfHostPage = lazy(
-  withNamespaces(() => import("@/app/routes/self-host"), ["common", "selfhost"]),
+  withNamespaces(
+    () => import("@/app/routes/self-host"),
+    ["common", "selfhost"],
+  ),
 );
 const DiscordBotPage = lazy(
   withNamespaces(
@@ -100,9 +112,7 @@ const CalibrateConnectionPage = lazy(
 const CalibrateSorterLayoutPage = lazy(
   () => import("@/app/routes/app/calibrate/sorter-layout"),
 );
-const CalibrateTestPage = lazy(
-  () => import("@/app/routes/app/calibrate/test"),
-);
+const CalibrateTestPage = lazy(() => import("@/app/routes/app/calibrate/test"));
 const CalibrateScanRegionPage = lazy(
   () => import("@/app/routes/app/calibrate/scan-region"),
 );
@@ -118,9 +128,7 @@ const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
-const AdminHardwarePage = lazy(
-  () => import("@/app/routes/app/admin/hardware"),
-);
+const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
@@ -150,6 +158,9 @@ const SettingsScanningPage = lazy(
 const SettingsPricingPage = lazy(
   () => import("@/app/routes/app/settings/pricing"),
 );
+const SettingsBusinessPage = lazy(
+  () => import("@/app/routes/app/settings/business"),
+);
 const SettingsSoundsPage = lazy(
   () => import("@/app/routes/app/settings/sounds"),
 );
@@ -164,6 +175,13 @@ const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
+const IntakePage = lazy(() => import("@/app/routes/app/intake"));
+const IntakeReceiptPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/app/intake-receipt"),
+    ["common", "business"],
+  ),
+);
 
 // Otherwise the app shell's chunks only start downloading once the auth
 // session resolves, then the landing route's once the loading gate lifts.
@@ -269,6 +287,10 @@ export const router = createBrowserRouter([
         ),
         children: [
           {
+            path: `${INTAKE_PATH}/:guid/receipt`,
+            element: <IntakeReceiptPage />,
+          },
+          {
             path: "/app/verify-email",
             element:
               AUTH_PROVIDER === "local" ? (
@@ -349,6 +371,23 @@ export const router = createBrowserRouter([
                   {
                     path: SORTERS_OVERVIEW_PATH,
                     element: <SortersPage />,
+                  },
+                  {
+                    path: INTAKE_PATH,
+                    element: <IntakePage />,
+                  },
+                  {
+                    path: LEGACY_ORDERS_PATH,
+                    element: (
+                      <Navigate
+                        to={`${STORAGE_PATH}?${STORAGE_VIEW_PARAM}=${STORAGE_ORDERS_VIEW}`}
+                        replace
+                      />
+                    ),
+                  },
+                  {
+                    path: LEGACY_REPORTS_PATH,
+                    element: <Navigate to={STATS_PATH} replace />,
                   },
                   {
                     element: <AdminGuard />,
@@ -481,6 +520,7 @@ export const router = createBrowserRouter([
                   { path: "billing", element: <SettingsBillingPage /> },
                   { path: "scanning", element: <SettingsScanningPage /> },
                   { path: "pricing", element: <SettingsPricingPage /> },
+                  { path: "business", element: <SettingsBusinessPage /> },
                   { path: "sounds", element: <SettingsSoundsPage /> },
                   {
                     path: "notifications",

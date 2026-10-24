@@ -31,6 +31,7 @@ export function recordMatchedScan(
   hasAlternatives: boolean,
   scannedAt: number,
   vectorizedOn: unknown,
+  scannedByUserId: string | null,
 ): Promise<void> {
   return record(() =>
     db
@@ -38,6 +39,7 @@ export function recordMatchedScan(
       .values({
         scanId,
         orgId,
+        scannedByUserId,
         outcome: SCAN_OUTCOME_MATCHED,
         matchPercent: cardMatchPercent(card),
         hasAlternatives,
@@ -53,6 +55,7 @@ export function recordUnmatchedScan(
   scanId: string,
   scannedAt: number,
   vectorizedOn: unknown,
+  scannedByUserId: string | null,
 ): Promise<void> {
   return record(() =>
     db
@@ -60,6 +63,7 @@ export function recordUnmatchedScan(
       .values({
         scanId,
         orgId,
+        scannedByUserId,
         outcome: SCAN_OUTCOME_UNMATCHED,
         vectorizedOn: toVectorizeSource(vectorizedOn),
         scannedAt: new Date(scannedAt),

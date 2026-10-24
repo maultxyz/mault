@@ -1,3 +1,4 @@
+import { useDevice } from "@/features/calibration/api/use-device";
 import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import {
   Tooltip,
@@ -100,6 +101,7 @@ export function CardScanner({
     sendTest,
     sendRequest,
   } = useSerial();
+  const device = useDevice();
   const {
     connect,
     connectBluetooth,
@@ -213,6 +215,7 @@ export function CardScanner({
           sent: true,
           response: raw,
           collectionGuid: activeCollection?.guid,
+          deviceGuid: device?.guid,
         });
       });
     }
@@ -294,6 +297,7 @@ export function CardScanner({
           sent: false,
           response: null,
           collectionGuid: activeCollection?.guid,
+          deviceGuid: device?.guid,
         });
         return;
       }
@@ -306,6 +310,7 @@ export function CardScanner({
           sent: true,
           response: null,
           collectionGuid: activeCollection?.guid,
+          deviceGuid: device?.guid,
         });
         return;
       }
@@ -323,6 +328,7 @@ export function CardScanner({
             sent: true,
             response: parsed,
             collectionGuid: activeCollection?.guid,
+            deviceGuid: device?.guid,
           });
         } else if (parsed.error) {
           toast.error(t("feederError.title"), {
@@ -335,6 +341,7 @@ export function CardScanner({
             sent: true,
             response: parsed,
             collectionGuid: activeCollection?.guid,
+            deviceGuid: device?.guid,
           });
         } else if (parsed.detected === false && !ignoreIrSensors) {
           pause();
@@ -346,6 +353,7 @@ export function CardScanner({
             sent: true,
             response: parsed,
             collectionGuid: activeCollection?.guid,
+            deviceGuid: device?.guid,
           });
         } else {
           handleCardArrived();
@@ -359,6 +367,7 @@ export function CardScanner({
           sent: true,
           response,
           collectionGuid: activeCollection?.guid,
+          deviceGuid: device?.guid,
         });
       }
     } finally {
@@ -375,6 +384,7 @@ export function CardScanner({
     pause,
     t,
     activeCollection?.guid,
+    device?.guid,
   ]);
 
   const handleClearDevice = useCallback(async () => {

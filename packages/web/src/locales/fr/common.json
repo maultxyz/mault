@@ -3,7 +3,7 @@
     "scanner": "Trier",
     "collections": "Collections",
     "scan": "Lier la caméra",
-    "storage": "Boîtes de rangement",
+    "storage": "Emplacements",
     "calibrate": "Réglage du trieur",
     "settings": "Paramètres",
     "organization": "Org",
@@ -24,7 +24,8 @@
     "integrations": "API et webhooks",
     "more": "Plus",
     "stats": "Statistiques",
-    "sortingRules": "Règles de tri"
+    "sortingRules": "Règles de tri",
+    "intake": "Rachat"
   },
   "alerts": {
     "dismiss": "Ignorer",
@@ -177,7 +178,8 @@
       "general": "Général",
       "navigation": "Navigation",
       "scanner": "Scanner",
-      "cardDetail": "Détails de la carte"
+      "cardDetail": "Détails de la carte",
+      "intake": "Rachat"
     },
     "actions": {
       "showShortcuts": "Afficher les raccourcis clavier",
@@ -210,7 +212,8 @@
       "cardRemove": "Retirer la carte (de sa boîte si ouverte depuis le Rangement)",
       "reviewStart": "Vérifier les cartes une par une",
       "reviewAccept": "Pendant la vérification : la carte est bonne, suivante",
-      "goSortingRules": "Aller aux règles de tri"
+      "goSortingRules": "Aller aux règles de tri",
+      "intakeOpenScanner": "Ouvrir le scanner pour ce rachat"
     }
   },
   "mobileMenu": {
