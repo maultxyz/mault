@@ -126,6 +126,9 @@ jobs:
       # provider in electron-builder.yml), so it is replaced on every release.
       - name: Publish desktop-latest release
         run: |
+          cp installers/MAULT-*-win-*.exe installers/MAULT-windows.exe
+          cp installers/MAULT-*-mac-*.dmg installers/MAULT-macos.dmg
+          cp installers/MAULT-*-linux-*.AppImage installers/MAULT-linux.AppImage
           gh release delete desktop-latest --cleanup-tag --yes || true
           gh release create desktop-latest installers/* \
             --title "MAULT Desktop v$VERSION" \
