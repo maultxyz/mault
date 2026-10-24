@@ -2,6 +2,7 @@ import { isCardCondition, type CardCondition } from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { logActivity } from "../../lib/activity-log";
 import { collectionCards } from "../../db/schema";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -32,6 +33,13 @@ export const setCollectionCardsConditionRoute = new Hono<AppEnv>().post(
               eq(collectionCards.orgId, orgId),
             ),
           );
+        await logActivity(tx, {
+          orgId,
+          userId: c.get("userId"),
+          action: "cards.condition",
+          summary: condition,
+          details: { count: scanIds.length, collectionGuid: guid, condition },
+        });
         return { success: true, data: null };
       });
       if (result.success) {

@@ -1,3 +1,5 @@
+import type { STORAGE_VIEWS } from "@/lib/constants/storage";
+import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type {
   EmptyAllBinsOptions,
   EmptyBinOptions,
@@ -62,6 +64,7 @@ export interface StorageLocationRowProps {
 
 export interface StorageLocationListProps {
   locations: StorageLocation[];
+  pagination: ClientPagination<StorageLocation>;
   selectedGuid: string | undefined;
   isLoading: boolean;
   onSelect: (guid: string) => void;
@@ -105,4 +108,10 @@ export interface StorageCardDetailProps {
   reviewMode: boolean;
   onNavigate: (scanId: string) => void;
   onClose: () => void;
+}
+
+export type StorageView = (typeof STORAGE_VIEWS)[number];
+
+export interface StorageViewSwitchProps {
+  value: StorageView;
 }

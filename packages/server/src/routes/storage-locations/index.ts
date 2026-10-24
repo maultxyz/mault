@@ -6,7 +6,9 @@ import {
   STORAGE_SEARCH_QUERY_MAX_LENGTH,
   STORAGE_SEARCH_RESULT_LIMIT,
   toCardCondition,
+  type PagedList,
   type PlayingCardWithDistance,
+  type StorageLocation,
   type StorageLocationCard,
   type StorageLocationCardContext,
   type StorageLocationCardPage,
@@ -27,6 +29,7 @@ import {
   STORAGE_UPGRADE_MESSAGE,
 } from "../../lib/storage-access";
 import { UUID_PATTERN } from "../../lib/constants/validation";
+import { parsePageParams, resolvePageWindow } from "../../lib/paging";
 import {
   moveCardsToLocation,
   moveCollectionToLocation,
@@ -39,6 +42,7 @@ import {
   findStoredCardNeighbor,
   loadLocations,
   locationNameTaken,
+  orderedLocationGuids,
   parseLocationName,
   selectStoredCards,
   storedCardOrderKey,
@@ -53,6 +57,31 @@ const router = new Hono<AppEnv>()
     try {
       const data = await authQuery(c.get("jwtClaims"), (tx) =>
         loadLocations(tx, orgId),
+      );
+      return c.json({ success: true, data });
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .get("/page", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const params = parsePageParams(c);
+    try {
+      const data = await authQuery(
+        c.get("jwtClaims"),
+        async (tx): Promise<PagedList<StorageLocation>> => {
+          const window = resolvePageWindow(
+            params,
+            await orderedLocationGuids(tx, orgId),
+          );
+          return {
+            items: await loadLocations(tx, orgId, window.guids),
+            total: window.total,
+            page: window.page,
+            pageSize: window.pageSize,
+          };
+        },
       );
       return c.json({ success: true, data });
     } catch (err) {
@@ -126,6 +155,25 @@ const router = new Hono<AppEnv>()
         locationGuid: r.locationGuid!,
         locationName: r.locationName,
       }));
+      return c.json({ success: true, data });
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .get("/:guid", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    if (!UUID_PATTERN.test(guid)) {
+      return c.json({ success: false, message: "Invalid location." }, 400);
+    }
+    try {
+      const [data] = await authQuery(c.get("jwtClaims"), (tx) =>
+        loadLocations(tx, orgId, [guid]),
+      );
+      if (!data) {
+        return c.json({ success: false, message: "Storage location not found." });
+      }
       return c.json({ success: true, data });
     } catch (err) {
       console.error(err);

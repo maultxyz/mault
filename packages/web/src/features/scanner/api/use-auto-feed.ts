@@ -12,9 +12,11 @@ import type { AutoFeedSerial } from "@/lib/interfaces/scanner";
 export function useAutoFeed({
   serialRef,
   activeCollectionRef,
+  deviceGuidRef,
 }: {
   serialRef: RefObject<AutoFeedSerial>;
   activeCollectionRef: RefObject<Collection | null | undefined>;
+  deviceGuidRef: RefObject<string | undefined>;
 }) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
@@ -85,6 +87,7 @@ export function useAutoFeed({
           sent: true,
           response: parsed,
           collectionGuid: activeCollectionRef.current?.guid,
+          deviceGuid: deviceGuidRef.current,
         });
       } else if (parsed.error) {
         pause();
@@ -98,6 +101,7 @@ export function useAutoFeed({
           sent: true,
           response: parsed,
           collectionGuid: activeCollectionRef.current?.guid,
+          deviceGuid: deviceGuidRef.current,
         });
       } else if (
         parsed.detected === false &&
@@ -112,12 +116,13 @@ export function useAutoFeed({
           sent: true,
           response: parsed,
           collectionGuid: activeCollectionRef.current?.guid,
+          deviceGuid: deviceGuidRef.current,
         });
       } else {
         cardArrivedHookRef.current?.();
       }
     },
-    [toast, t, serialRef, activeCollectionRef, pause],
+    [toast, t, serialRef, activeCollectionRef, deviceGuidRef, pause],
   );
 
   useSerialMessage((message) => {
@@ -140,6 +145,7 @@ export function useAutoFeed({
         sent: false,
         response: null,
         collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
       });
       return;
     }
@@ -153,6 +159,7 @@ export function useAutoFeed({
         sent: true,
         response: null,
         collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
       });
       return;
     }
@@ -168,9 +175,18 @@ export function useAutoFeed({
         sent: true,
         response,
         collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
       });
     }
-  }, [toast, t, serialRef, activeCollectionRef, pause, handleFeedResult]);
+  }, [
+    toast,
+    t,
+    serialRef,
+    activeCollectionRef,
+    deviceGuidRef,
+    pause,
+    handleFeedResult,
+  ]);
 
   return {
     autoFeed,

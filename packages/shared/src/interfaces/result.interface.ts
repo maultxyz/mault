@@ -10,3 +10,10 @@ export interface Result<T> extends Response {
 export interface AuthResponse extends Response {
   redirect?: string;
 }
+
+export interface PagedList<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}

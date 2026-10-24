@@ -13,6 +13,8 @@ import {
 } from "../../lib/device-leases";
 import { acquireLock } from "../../lib/scan-lock";
 import { deleteScanImages, storeScanImage } from "../../lib/scan-images";
+import { recordDeviceSorted } from "../../lib/device-alerts";
+import { findOpenIntakeLotId } from "../../lib/intake";
 import { recordMatchedScan } from "../../lib/scan-stats";
 import {
   sorterLimitForPlan,
@@ -217,6 +219,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           orgId,
           deviceGuid,
         );
+        const intakeLotId = await findOpenIntakeLotId(tx, collection.id);
         await tx
           .insert(collectionCards)
           .values({
@@ -237,6 +240,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             diagnostics: diagnostics ?? null,
             scannedByUserId: userId,
             scannedByDeviceId,
+            intakeLotId,
             orgId,
           })
           .onConflictDoNothing();
@@ -276,7 +280,9 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           !!alternativeMatches?.length,
           scannedAt,
           vectorizedOn,
+          userId,
         );
+        void recordDeviceSorted(orgId, deviceGuid);
         emitToSession(guid, "card_added", result.data);
         emitToOrg(orgId, "collections_changed", { guid });
 

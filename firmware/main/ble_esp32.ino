@@ -31,22 +31,7 @@
 #define BLE_CONN_SUPERVISION_TIMEOUT 400
 #define BLE_RX_RING_SIZE 512
 
-char bleRxRing[BLE_RX_RING_SIZE];
-volatile size_t bleRxHead = 0;
-volatile size_t bleRxTail = 0;
-portMUX_TYPE bleRxMux = portMUX_INITIALIZER_UNLOCKED;
-
-bool bleRxPop(char& c) {
-  bool available = false;
-  portENTER_CRITICAL(&bleRxMux);
-  if (bleRxTail != bleRxHead) {
-    c = bleRxRing[bleRxTail];
-    bleRxTail = (bleRxTail + 1) % BLE_RX_RING_SIZE;
-    available = true;
-  }
-  portEXIT_CRITICAL(&bleRxMux);
-  return available;
-}
+ByteRing<BLE_RX_RING_SIZE> bleRx;
 
 BLEServer* bleServer = nullptr;
 BLECharacteristic* bleTxChar = nullptr;
@@ -77,14 +62,7 @@ class SorterServerCallbacks : public BLEServerCallbacks {
 class SorterRxCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic* characteristic) override {
     String value = characteristic->getValue();
-    portENTER_CRITICAL(&bleRxMux);
-    for (size_t i = 0; i < value.length(); i++) {
-      size_t next = (bleRxHead + 1) % BLE_RX_RING_SIZE;
-      if (next == bleRxTail) break;
-      bleRxRing[bleRxHead] = value[i];
-      bleRxHead = next;
-    }
-    portEXIT_CRITICAL(&bleRxMux);
+    bleRx.push((const uint8_t*)value.c_str(), value.length());
   }
 };
 
@@ -122,12 +100,7 @@ void bleInit() {
   bleServer->getAdvertising()->start();
 }
 
-void blePoll() {
-  char c;
-  while (bleRxPop(c)) {
-    feedByte(bleInput, c, bleReply);
-  }
-}
+void blePoll() { bleRx.drainTo(bleInput, bleReply); }
 
 bool bleIsConnected() { return bleConnected; }
 
@@ -141,9 +114,7 @@ uint16_t bleMtu() {
 void bleSendLine(const char* s) {
   if (!bleConnected || bleTxChar == nullptr) return;
   static char line[MAX_REPLY_LEN + 2];
-  size_t len = strnlen(s, MAX_REPLY_LEN);
-  memcpy(line, s, len);
-  line[len++] = '\n';
+  size_t len = copyLine(line, s);
   uint16_t mtu = bleMtu();
   size_t chunkSize = (mtu > BLE_DEFAULT_MTU ? mtu : BLE_DEFAULT_MTU) - BLE_ATT_HEADER_SIZE;
   for (size_t offset = 0; offset < len; offset += chunkSize) {

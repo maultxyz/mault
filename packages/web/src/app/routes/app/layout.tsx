@@ -5,6 +5,7 @@ import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
 import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { IntakeBanner } from "@/features/business/components/intake-banner";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
 import { PageTransition } from "@/components/page-transition";
@@ -76,6 +77,7 @@ export default function AppLayout() {
               <AppNav />
               <main className="flex-1 min-w-0 overflow-hidden flex flex-col bg-background/70 dark:bg-background/60">
                 <StationTabs />
+                <IntakeBanner />
                 <PageTransition>
                   <Outlet />
                 </PageTransition>

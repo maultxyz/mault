@@ -34,6 +34,7 @@ import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { INTAKE_PATH } from "@/lib/constants/business";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
@@ -44,6 +45,7 @@ import {
   IconBrandDiscord,
   IconBrandGithub,
   IconCameraSpark,
+  IconCash,
   IconDatabaseCog,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
@@ -368,15 +370,16 @@ export function AppNav() {
       label: t("nav.storage"),
     },
     {
+      to: INTAKE_PATH,
+      icon: <IconCash size={20} />,
+      label: t("nav.intake"),
+    },
+
+
+    {
       to: "/app/calibrate",
       icon: <IconAdjustments size={20} />,
       label: t("nav.calibrate"),
-    },
-    {
-      to: SHOP_URL,
-      icon: <IconShoppingCart size={20} />,
-      label: t("nav.cart"),
-      external: true,
     },
     ...(isAdmin
       ? [
@@ -463,6 +466,25 @@ export function AppNav() {
           );
         })}
       </nav>
+      <a
+        href={SHOP_URL}
+        target="_blank"
+        rel="noreferrer"
+        title={t("nav.cart")}
+        aria-label={t("nav.cart")}
+        className={cn(
+          buttonVariants({
+            variant: "ghost",
+            size: `${expanded ? "default" : "icon-lg"}`,
+          }),
+          expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
+        )}
+      >
+        <IconShoppingCart size={16} />
+        {expanded && (
+          <span className="truncate text-sm">{t("nav.cart")}</span>
+        )}
+      </a>
       <a
         href={REPO_URL}
         target="_blank"

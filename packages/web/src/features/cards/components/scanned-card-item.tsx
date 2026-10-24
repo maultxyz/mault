@@ -1,6 +1,6 @@
 import { NEW_CARD_ANIMATION_WINDOW_MS } from "@/lib/constants/card-grid";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
   TooltipContent,
@@ -13,7 +13,7 @@ import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
-import { IconCheck, IconDownload, IconSparkles } from "@tabler/icons-react";
+import { IconDownload, IconSparkles } from "@tabler/icons-react";
 import { DEFAULT_CARD_CONDITION } from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -153,20 +153,29 @@ export const ScannedCardItem = memo(function ScannedCardItem({
         </div>
       </button>
       {onToggleSelect && (
-        <Button
-          size="icon"
+        <span
+          className="absolute top-2 right-2 z-30 flex size-6 items-center justify-center rounded-md bg-background/80 shadow-sm backdrop-blur-sm"
           onMouseDown={(e) => {
             if (e.shiftKey) e.preventDefault();
           }}
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             onToggleSelect({ shiftKey: e.shiftKey });
           }}
-          variant={isSelected ? "default" : "secondary"}
-          className="absolute top-2 right-2 z-30"
         >
-          <IconCheck />
-        </Button>
+          <Checkbox
+            checked={isSelected}
+            aria-label={t("scannedCardTable.selectRow", { name: card.name })}
+            onClick={(e) => e.stopPropagation()}
+            onCheckedChange={(_, details) =>
+              onToggleSelect({
+                shiftKey:
+                  details.event instanceof MouseEvent && details.event.shiftKey,
+              })
+            }
+          />
+        </span>
       )}
       <div className="flex flex-row justify-between items-center gap-2 px-1 pb-1">
         <div className="flex min-w-0 flex-row items-center gap-2">

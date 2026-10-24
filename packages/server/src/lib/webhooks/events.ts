@@ -1,6 +1,7 @@
 import type {
   CardScannedWebhookData,
   CardsStoredWebhookData,
+  SorterAlertWebhookData,
   WebhookEvent,
   WebhookEventType,
   WebhookPayload,
@@ -107,5 +108,16 @@ export function emitCardsStoredWebhook(
         cards: cards.slice(start, start + WEBHOOK_STORED_CARDS_PER_EVENT),
       });
     }
+  });
+}
+
+export function emitSorterAlertWebhook(
+  orgId: string,
+  data: SorterAlertWebhookData,
+): void {
+  enqueueWebhookJob(async () => {
+    const endpointIds = await loadSubscribedEndpointIds(orgId, "sorter.alert");
+    if (endpointIds.length === 0) return;
+    await dispatch<SorterAlertWebhookData>(endpointIds, "sorter.alert", data);
   });
 }

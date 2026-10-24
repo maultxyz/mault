@@ -6,6 +6,7 @@ import {
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { logActivity } from "../../lib/activity-log";
 import { collectionCards } from "../../db/schema";
 import { markScanCorrected } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
@@ -75,6 +76,20 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
           .update(collectionCards)
           .set(updates)
           .where(eq(collectionCards.id, existing.id));
+        if (card !== undefined) {
+          await logActivity(tx, {
+            orgId,
+            userId: c.get("userId"),
+            action: "card.corrected",
+            summary: card.name,
+            details: {
+              scanId,
+              collectionGuid: guid,
+              from: (existing.card as PlayingCardWithDistance).name,
+              to: card.name,
+            },
+          });
+        }
 
         return {
           success: true,

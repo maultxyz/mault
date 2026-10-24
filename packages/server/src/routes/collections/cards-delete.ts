@@ -1,6 +1,7 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { logActivity } from "../../lib/activity-log";
 import { collectionCards } from "../../db/schema";
 import { deleteScanImages } from "../../lib/scan-images";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
@@ -23,7 +24,19 @@ export const deleteCollectionCardRoute = new Hono<AppEnv>().delete(
               eq(collectionCards.orgId, orgId),
             ),
           )
-          .returning({ imageKey: collectionCards.capturedImageKey });
+          .returning({
+            imageKey: collectionCards.capturedImageKey,
+            name: sql<string>`${collectionCards.card} ->> 'name'`,
+          });
+        if (deleted.length > 0) {
+          await logActivity(tx, {
+            orgId,
+            userId: c.get("userId"),
+            action: "card.deleted",
+            summary: deleted[0].name,
+            details: { scanId, collectionGuid: guid },
+          });
+        }
         return {
           success: true,
           data: null,

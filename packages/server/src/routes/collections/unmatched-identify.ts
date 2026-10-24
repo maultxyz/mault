@@ -5,6 +5,7 @@ import type {
 } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { findOpenIntakeLotId } from "../../lib/intake";
 import { authQuery } from "../../db";
 import {
   collectionCards,
@@ -109,6 +110,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           isReviewed: true,
           scannedByUserId: unmatched.scannedByUserId,
           scannedByDeviceId: unmatched.scannedByDeviceId,
+          intakeLotId: await findOpenIntakeLotId(tx, collection.id),
           orgId,
         });
 

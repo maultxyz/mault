@@ -6,6 +6,7 @@ import type {
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { findOpenIntakeLotId } from "../../lib/intake";
 import { authQuery } from "../../db";
 import {
   collectionCards,
@@ -93,6 +94,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
           isFoil: false,
           isReviewed: true,
           scannedByUserId: userId,
+          intakeLotId: await findOpenIntakeLotId(tx, collection.id),
           orgId,
         });
 

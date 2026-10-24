@@ -3,7 +3,7 @@
     "scanner": "Sortieren",
     "collections": "Sammlungen",
     "scan": "Kamera koppeln",
-    "storage": "Lagerboxen",
+    "storage": "Lagerorte",
     "calibrate": "Sortierer einrichten",
     "settings": "Einstellungen",
     "organization": "Org",
@@ -24,7 +24,8 @@
     "integrations": "API & Webhooks",
     "more": "Mehr",
     "stats": "Statistiken",
-    "sortingRules": "Sortierregeln"
+    "sortingRules": "Sortierregeln",
+    "intake": "Ankauf"
   },
   "alerts": {
     "dismiss": "Verwerfen",
@@ -177,7 +178,8 @@
       "general": "Allgemein",
       "navigation": "Navigation",
       "scanner": "Scanner",
-      "cardDetail": "Kartendetails"
+      "cardDetail": "Kartendetails",
+      "intake": "Ankauf"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
@@ -210,7 +212,8 @@
       "cardRemove": "Karte entfernen (aus ihrer Box, wenn aus dem Lager geöffnet)",
       "reviewStart": "Karten einzeln prüfen",
       "reviewAccept": "Beim Prüfen: Karte stimmt, weiter",
-      "goSortingRules": "Zu den Sortierregeln"
+      "goSortingRules": "Zu den Sortierregeln",
+      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen"
     }
   },
   "mobileMenu": {

@@ -10,4 +10,16 @@ export interface ClientPagination<T> {
 
 export interface ListPaginationProps {
   pagination: ClientPagination<unknown>;
+  compact?: boolean;
+}
+
+export interface PageRequest {
+  page: number | null;
+  selected: string | null;
+}
+
+export interface ServerPagedList<T> {
+  items: T[];
+  pagination: ClientPagination<T>;
+  isLoading: boolean;
 }

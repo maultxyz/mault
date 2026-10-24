@@ -863,6 +863,7 @@ export interface RouteCardToBinParams {
   failedKey: string;
   cardName?: string;
   collectionGuid: string | undefined;
+  deviceGuid?: string;
   isAutoFeedEnabled: () => boolean;
   isPipelinedFeedEnabled: () => boolean;
   pause: () => void;
