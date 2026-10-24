@@ -6,6 +6,8 @@ import type { ScannedCard } from "./scanner.interface";
 export interface ExportContext {
   isMtg: boolean;
   fieldDefinitions: FieldMeta[];
+  gameKey?: string;
+  gameName?: string;
 }
 
 export interface GroupedEntry {

@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Download the Desktop App | MAULT",
-    "description": "Download the MAULT desktop app for Windows, macOS and Linux. Scanning keeps running in the background, with a floating preview, taskbar controls and desktop notifications."
+    "description": "Download the MAULT desktop app for Windows and Linux. Scanning keeps running in the background, with a floating preview, taskbar controls and desktop notifications."
   },
   "hero": {
     "eyebrow": "Desktop app",
@@ -20,16 +20,12 @@
     "download": "Download",
     "yourSystem": "Your system",
     "allReleases": "All release files on GitHub",
+    "macosSoon": "A macOS version is coming later.",
     "items": {
       "windows": {
         "name": "Windows",
         "requirements": "Windows 10 or later, 64-bit",
         "file": "Installer (.exe)"
-      },
-      "macos": {
-        "name": "macOS",
-        "requirements": "macOS 12 or later, Apple silicon",
-        "file": "Disk image (.dmg)"
       },
       "linux": {
         "name": "Linux",
@@ -73,10 +69,6 @@
       "windows": {
         "title": "Windows",
         "body": "Run MAULT-windows.exe. If Windows SmartScreen says it protected your PC, choose More info, then Run anyway. MAULT opens when it finishes and adds a Start menu shortcut."
-      },
-      "macos": {
-        "title": "macOS",
-        "body": "Open MAULT-macos.dmg and drag MAULT into Applications. If macOS says it can't check the app, right-click MAULT in Applications and choose Open."
       },
       "linux": {
         "title": "Linux",

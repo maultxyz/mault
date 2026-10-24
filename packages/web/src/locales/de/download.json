@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Desktop-App herunterladen | MAULT",
-    "description": "Lade die MAULT-Desktop-App für Windows, macOS und Linux herunter. Das Scannen läuft im Hintergrund weiter, mit schwebender Vorschau, Taskleisten-Steuerung und Desktop-Benachrichtigungen."
+    "description": "Lade die MAULT-Desktop-App für Windows und Linux herunter. Das Scannen läuft im Hintergrund weiter, mit schwebender Vorschau, Taskleisten-Steuerung und Desktop-Benachrichtigungen."
   },
   "hero": {
     "eyebrow": "Desktop-App",
@@ -20,16 +20,12 @@
     "download": "Herunterladen",
     "yourSystem": "Dein System",
     "allReleases": "Alle Release-Dateien auf GitHub",
+    "macosSoon": "Eine macOS-Version folgt später.",
     "items": {
       "windows": {
         "name": "Windows",
         "requirements": "Windows 10 oder neuer, 64-Bit",
         "file": "Installationsprogramm (.exe)"
-      },
-      "macos": {
-        "name": "macOS",
-        "requirements": "macOS 12 oder neuer, Apple Silicon",
-        "file": "Disk-Image (.dmg)"
       },
       "linux": {
         "name": "Linux",
@@ -73,10 +69,6 @@
       "windows": {
         "title": "Windows",
         "body": "Starte MAULT-windows.exe. Wenn Windows SmartScreen meldet, dass dein PC geschützt wurde, wähle Weitere Informationen und dann Trotzdem ausführen. MAULT öffnet sich danach und legt eine Verknüpfung im Startmenü an."
-      },
-      "macos": {
-        "title": "macOS",
-        "body": "Öffne MAULT-macos.dmg und zieh MAULT in den Ordner Programme. Wenn macOS die App nicht überprüfen kann, klick in Programme mit der rechten Maustaste auf MAULT und wähle Öffnen."
       },
       "linux": {
         "title": "Linux",

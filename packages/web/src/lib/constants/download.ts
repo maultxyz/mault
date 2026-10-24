@@ -2,7 +2,6 @@ import { REPO_URL } from "@/lib/constants/links";
 import type { DesktopDownload } from "@/lib/interfaces/download";
 import {
   IconBell,
-  IconBrandApple,
   IconBrandUbuntu,
   IconBrandWindows,
   IconLayoutBottombar,
@@ -20,11 +19,6 @@ export const DESKTOP_DOWNLOADS: DesktopDownload[] = [
     platform: "windows",
     icon: IconBrandWindows,
     href: `${DESKTOP_DOWNLOAD_BASE_URL}/MAULT-windows.exe`,
-  },
-  {
-    platform: "macos",
-    icon: IconBrandApple,
-    href: `${DESKTOP_DOWNLOAD_BASE_URL}/MAULT-macos.dmg`,
   },
   {
     platform: "linux",
