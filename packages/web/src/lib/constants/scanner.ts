@@ -5,6 +5,14 @@ import {
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
+import type { DesktopScannerIcon } from "@magic-vault/shared";
+import {
+  IconArrowBarToDown,
+  IconBolt,
+  IconPlayerPause,
+  IconPlayerPlay,
+  type Icon,
+} from "@tabler/icons-react";
 import type { CommLogEntry } from "@/lib/interfaces/scanner";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
@@ -146,4 +154,14 @@ export const COMM_LOG_MARKER_LABELS: Partial<
   connected: "New connection",
   disconnected: "Disconnected",
   restarted: "Sorter restarted",
+};
+
+export const DESKTOP_PIP_OPEN_DELAY_MS = 400;
+export const DESKTOP_PIP_DRAG_THRESHOLD_PX = 4;
+export const DESKTOP_PIP_CONTROL_ICONS: Record<DesktopScannerIcon, Icon> = {
+  play: IconPlayerPlay,
+  pause: IconPlayerPause,
+  "auto-feed-on": IconBolt,
+  "auto-feed-off": IconBolt,
+  "clear-device": IconArrowBarToDown,
 };

@@ -20,6 +20,7 @@ export * from "./interfaces/notification-settings.interface";
 export * from "./interfaces/ocr-region.interface";
 export * from "./interfaces/result.interface";
 export * from "./interfaces/scanner.interface";
+export * from "./interfaces/desktop.interface";
 export * from "./interfaces/phone-camera.interface";
 export * from "./interfaces/price-source.interface";
 export * from "./interfaces/card-condition.interface";
@@ -38,6 +39,7 @@ export * from "./interfaces/org-settings.interface";
 export * from "./interfaces/sorter-link.interface";
 
 export * from "./constants/bin-correction.constant";
+export * from "./constants/desktop.constant";
 export * from "./constants/collection-cards.constant";
 export * from "./constants/firmware.constant";
 export * from "./constants/module-configs.constant";

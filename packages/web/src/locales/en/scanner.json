@@ -19,7 +19,8 @@
     "paused": "Paused",
     "noCollection": "No collection",
     "minimize": "Minimize to the side",
-    "expand": "Show scanner preview"
+    "expand": "Show scanner preview",
+    "hide": "Hide until you return to MAULT"
   },
   "serial": {
     "connectionFailed": {

@@ -1054,3 +1054,39 @@ export interface OutlineAnimator {
   setTarget: (contour: CardContour | null) => void;
   cancel: () => void;
 }
+
+export interface DesktopScannerControlsOptions {
+  status: ScannerStatus;
+  enabled: boolean;
+  isConnected: boolean;
+  isReady: boolean;
+  autoFeed: boolean;
+  isClearingDevice: boolean;
+  onPause: () => void;
+  onResume: () => void;
+  onToggleAutoFeed: () => void;
+  onClearDevice: () => void;
+}
+
+export interface ScannerPipPreviewAction {
+  label: string;
+  icon: ReactNode;
+  onClick: () => void;
+}
+
+export interface ScannerPipPreviewProps {
+  variant: "overlay" | "window";
+  className?: string;
+  onOpen: () => void;
+  action: ScannerPipPreviewAction;
+  controls?: ReactNode;
+}
+
+export interface DesktopPipDragState {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  lastX: number;
+  lastY: number;
+  moved: boolean;
+}
