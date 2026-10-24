@@ -24,6 +24,7 @@ import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { DOWNLOAD_PATH } from "@/lib/constants/download";
 import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 import {
   INTAKE_PATH,
@@ -50,6 +51,12 @@ const DiscordBotPage = lazy(
   withNamespaces(
     () => import("@/app/routes/discord-bot"),
     ["common", "discordBot"],
+  ),
+);
+const DownloadPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/download"),
+    ["common", "download"],
   ),
 );
 const WatchPage = lazy(
@@ -240,6 +247,10 @@ export const router = createBrowserRouter([
       {
         path: "/discord-bot",
         element: <DiscordBotPage />,
+      },
+      {
+        path: DOWNLOAD_PATH,
+        element: <DownloadPage />,
       },
       {
         path: "/watch/:collectionGuid",

@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "title": "Download the Desktop App | MAULT",
+    "description": "Download the MAULT desktop app for Windows, macOS and Linux. Scanning keeps running in the background, with a floating preview, taskbar controls and desktop notifications."
+  },
+  "hero": {
+    "eyebrow": "Desktop app",
+    "title": "Keep sorting while you do something else",
+    "description": "The MAULT desktop app is the full web app in its own window. Scanning keeps running when it is minimized or behind other apps, and a floating preview keeps the sorter in view.",
+    "downloadFor": "Download for {{platform}}",
+    "otherPlatforms": "Other platforms",
+    "choosePlatform": "Choose your platform",
+    "alreadyInstalled": "You are already using the desktop app. It keeps itself up to date, so there is nothing to download.",
+    "note": "Free, signs in with your existing MAULT account, and installs updates on its own."
+  },
+  "platforms": {
+    "eyebrow": "Download",
+    "title": "Pick your platform",
+    "description": "Every link is the latest version. Once installed, the app updates itself.",
+    "download": "Download",
+    "yourSystem": "Your system",
+    "allReleases": "All release files on GitHub",
+    "items": {
+      "windows": {
+        "name": "Windows",
+        "requirements": "Windows 10 or later, 64-bit",
+        "file": "Installer (.exe)"
+      },
+      "macos": {
+        "name": "macOS",
+        "requirements": "macOS 12 or later, Apple silicon",
+        "file": "Disk image (.dmg)"
+      },
+      "linux": {
+        "name": "Linux",
+        "requirements": "64-bit x86",
+        "file": "AppImage"
+      }
+    }
+  },
+  "features": {
+    "eyebrow": "Why the app",
+    "title": "Built for long sorting sessions",
+    "description": "A browser pauses tabs it can't see. The desktop app keeps the sorter running and lets you watch it from anywhere on your screen.",
+    "items": [
+      {
+        "title": "Scans in the background",
+        "description": "Minimize the window or cover it with other apps and the sorter keeps scanning and routing cards."
+      },
+      {
+        "title": "Floating preview",
+        "description": "When MAULT goes into the background, a small always-on-top window shows the camera, status, card count and timer, with play, pause, auto-feed and drop all controls."
+      },
+      {
+        "title": "Taskbar controls",
+        "description": "On Windows, hover the taskbar icon to pause, resume, toggle auto-feed or drop all without opening the app."
+      },
+      {
+        "title": "Desktop notifications",
+        "description": "Errors and warnings show up as system notifications while you are working in another app."
+      },
+      {
+        "title": "Always up to date",
+        "description": "The app always loads the latest MAULT and installs desktop updates in the background."
+      }
+    ]
+  },
+  "install": {
+    "eyebrow": "Install",
+    "title": "Installing the app",
+    "description": "Some platforms ask for an extra click the first time you open it.",
+    "items": {
+      "windows": {
+        "title": "Windows",
+        "body": "Run MAULT-windows.exe. If Windows SmartScreen says it protected your PC, choose More info, then Run anyway. MAULT opens when it finishes and adds a Start menu shortcut."
+      },
+      "macos": {
+        "title": "macOS",
+        "body": "Open MAULT-macos.dmg and drag MAULT into Applications. If macOS says it can't check the app, right-click MAULT in Applications and choose Open."
+      },
+      "linux": {
+        "title": "Linux",
+        "body": "Make the file executable with chmod +x MAULT-linux.AppImage, then run it. To connect a sorter over USB, your user may need to be in the dialout group."
+      }
+    }
+  },
+  "footer": {
+    "reportIssue": "Report an issue",
+    "signIn": "Sign in",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "© {{year}} Mault LLC"
+  }
+}

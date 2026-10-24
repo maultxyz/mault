@@ -1,3 +1,4 @@
+import { DOWNLOAD_PATH } from "@/lib/constants/download";
 import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
@@ -76,5 +77,6 @@ export const PUBLIC_NAV_PAGES = [
   { key: "build", to: "/build" },
   { key: "selfHost", to: SELF_HOST_PATH },
   { key: "discordBot", to: "/discord-bot" },
+  { key: "download", to: DOWNLOAD_PATH },
   { key: "shop", to: SHOP_URL, external: true },
 ] as const;
