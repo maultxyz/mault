@@ -19,13 +19,15 @@ pnpm --filter @magic-vault/server db:studio
 pnpm --filter @magic-vault/api-docs openapi    # regenerate packages/api-docs/public/openapi.json
 pnpm --filter @magic-vault/web model           # STEP -> public/models/card-sorter.glb
 pnpm --filter @magic-vault/mobile start        # Expo dev server for the iOS/Android dev build (see packages/mobile/README.md)
+pnpm --filter @magic-vault/desktop start       # Electron shell against MAULT_URL (default localhost:5173 unpackaged)
+pnpm --filter @magic-vault/desktop dist        # installers into packages/desktop/release
 ```
 
 No automated tests. Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Architecture
 
-pnpm workspace + Turborepo: `shared` (types, constants, zod schemas, rule engine; no build, resolves to `src/index.ts`), `server` (Hono 4 + Drizzle + Postgres), `web` (React 19 SPA, React Router v7), `mobile` (Expo iOS/Android app; no `dev`/`build` script so turbo skips it), `bot` (Discord), `api-docs` (Scalar API reference). One root `.env` is read by server and Vite. `docker-compose.yml` is the fully self-hosted stack (`AUTH_PROVIDER=local`, pgvector Postgres).
+pnpm workspace + Turborepo: `shared` (types, constants, zod schemas, rule engine; no build, resolves to `src/index.ts`), `server` (Hono 4 + Drizzle + Postgres), `web` (React 19 SPA, React Router v7), `mobile` (Expo iOS/Android app; no `dev`/`build` script so turbo skips it), `bot` (Discord), `api-docs` (Scalar API reference), `desktop` (Electron shell; no `dev` script). One root `.env` is read by server and Vite. `docker-compose.yml` is the fully self-hosted stack (`AUTH_PROVIDER=local`, pgvector Postgres).
 
 The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server routes have no `/api` prefix.
 
@@ -111,6 +113,15 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - `locales/en.json`, `de.json` and `fr.json` must keep identical keys; add every new string to all three.
 - QR pairing: vision-camera's `ScannedCode` is iOS-only, so Android decodes captured frames with `jsqr` (`use-qr-scanner.ts` picks per platform at module level).
 - CSV export adapters live in `shared/src/card-export`; web downloads the CSV, mobile hands it to `expo-sharing`.
+
+### Desktop (Electron)
+
+- `packages/desktop` is a shell that loads the hosted web app (`MAULT_URL`, default `https://mault.xyz` packaged), never a bundled copy, so web deploys need no desktop release and the API and web versions can't drift. Desktop-specific behaviour lives in the main process; the web app only talks to it through the optional `window.maultDesktop` bridge (`DesktopBridge` in `shared`, exposed by `main-preload.ts`), always feature-detected. The active station's scanner publishes its Windows taskbar thumbnail buttons through it (`DesktopScannerButton`: command, icon, tooltip from the web app's own translations), and `thumbar.ts` validates and draws them. IPC from other origins is ignored. Windows drops thumbnail buttons added before the taskbar icon exists, and Electron only adds them once, so `thumbar.ts` makes no call until shortly after the main window is first shown. Never pass `flags: ["enabled"]` (despite the docs, Electron 44 then rejects the whole list); omit `flags` for enabled buttons.
+- `lib/toast.ts` also sends every `toast.error`/`toast.warning` (as plain text) through `maultDesktop.notify`; `notifications.ts` shows a native notification only when the window isn't focused, drops repeats within 10 s, and focuses the window on click. Windows only shows them for the `APP_USER_MODEL_ID` that the installer's Start menu shortcut carries.
+- Electron has no Chromium device choosers: `select-serial-port` and `select-bluetooth-device` go through `device-picker.ts`. Serial ports picked once are persisted (`granted-ports.ts`) and `setDevicePermissionHandler` only allows those, because `getPorts()` auto-connects to every port it returns. That handler also gates `port.open()` and receives Chromium's stored object (snake_case, `device_instance_id` on Windows), not the picker's `SerialPort`, so a key mismatch shows up as "Failed to open serial port". BLE `getDevices()` returns nothing, so BLE auto-reconnect doesn't run on desktop.
+- The main window sets `backgroundThrottling: false`, so `document.hidden` stays false when minimized or covered and the scanner keeps running instead of hitting its hidden-tab pause. That also hides occlusion from the page, so `window-state.ts` detects "covered or minimized" (which opens the scanner PiP window) through a 1x1 `WebContentsView` probe that keeps default throttling and reports its own `visibilityState`. Chromium only reports full occlusion, so on Windows `window-coverage.ts` also polls the z-order through koffi (user32/dwmapi) while unfocused and treats at least half covered as background. koffi's JS is bundled but its `.node` can't be: `dist` stages the Windows binary (`scripts/stage-koffi.mjs`) as an `extraResources` folder koffi finds through `process.resourcesPath`, so coverage is off under `pnpm start`. The PiP is an `about:blank` popup the web app portals into; it is dragged from anywhere through `movePipWindowBy` offsets, not `app-region` (which would swallow its click-to-return).
+- Permissions are granted only to the app origin. `app.userAgentFallback` drops the `Electron/` token, since Google OAuth rejects embedded browsers it recognises (untested).
+- Main and preload are bundled by tsup with every dependency inlined, so electron-builder ships no `node_modules`. Desktop Release (`desktop-release.yml`, manual, master only) replaces the `desktop-latest` GitHub release that electron-updater's generic provider reads, then commits and tags `desktop-vX.Y.Z` (its own version).
 
 ### Business tools (intake, orders, reports, fleet)
 
