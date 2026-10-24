@@ -19,7 +19,8 @@
     "paused": "Pausiert",
     "noCollection": "Keine Sammlung",
     "minimize": "An den Rand minimieren",
-    "expand": "Scanner-Vorschau anzeigen"
+    "expand": "Scanner-Vorschau anzeigen",
+    "hide": "Bis zur Rückkehr zu MAULT ausblenden"
   },
   "serial": {
     "connectionFailed": {

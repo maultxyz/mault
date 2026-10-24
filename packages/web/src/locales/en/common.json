@@ -151,6 +151,7 @@
       "build": "Build",
       "selfHost": "Self-host",
       "discordBot": "Discord Bot",
+      "download": "Download",
       "shop": "Shop"
     },
     "discordAriaLabel": "Join the Discord",
