@@ -1,4 +1,4 @@
-import type { PlanConfig } from "@magic-vault/shared";
+import type { PlanConfig, PlanFeatureKey } from "@magic-vault/shared";
 
 export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
   free: {
@@ -36,3 +36,9 @@ export const PRICING_SHARED_FEATURE_KEYS = [
   "games",
   "notifications",
 ] as const;
+
+export const PRICING_FEATURE_EXTRA_KEYS: Partial<
+  Record<PlanFeatureKey, readonly string[]>
+> = {
+  businessTools: ["businessOps"],
+};
