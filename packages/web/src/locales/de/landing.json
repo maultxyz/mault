@@ -85,7 +85,7 @@
       },
       "insights": {
         "title": "Wisse, was du besitzt",
-        "description": "Sieh Anzahlen, Seltenheiten und Sets über deine gesamte Sammlung hinweg, damit du nie wieder raten musst, was in der Kiste steckt."
+        "description": "Sieh Anzahl, Wert, Einkaufspreise und Margen deiner ganzen Sammlung, mit täglichem Wertverlauf, damit du nie raten musst, was die Box wert ist."
       },
       "hardware": {
         "title": "Gebaut für den Tisch",
@@ -94,6 +94,14 @@
       "storage": {
         "title": "Wisse, in welcher Box jede Karte liegt",
         "description": "Ist ein Fach voll, leerst du es in eine Aufbewahrungsbox, und Mault merkt sich die genaue Position jeder Karte im Stapel. Durchsuche alle Boxen nach Namen, sieh ihren Wert und exportiere eine Box als CSV."
+      },
+      "intake": {
+        "title": "Sammlungen an der Theke ankaufen",
+        "description": "Scanne die Karten eines Kunden in einen eigenen Ankauf und sieh zu, wie aus deinen Preisstufen ein Bar- und Guthabenangebot entsteht. Karten unter deinem Mindestwert werden durchgestrichen, und beim Annehmen werden die Einkaufspreise erfasst und ein Beleg gedruckt."
+      },
+      "picks": {
+        "title": "Online-Bestellungen aus deinen Boxen picken",
+        "description": "Füge eine TCGplayer-Pickliste, einen Shopify-Export oder eine einfache Liste ein. Mault findet jede Karte, zeigt dir Box und Position und nimmt die gepickten Karten aus deinem Bestand."
       },
       "pickList": {
         "title": "Karten aus einer Deckliste ziehen",
@@ -114,7 +122,12 @@
       "cardCount_one": "{{count}} Karte",
       "cardCount_other": "{{count}} Karten",
       "pickListBin": "Pickliste Fach {{number}}",
-      "found": "{{found}}/{{wanted}} gefunden"
+      "found": "{{found}}/{{wanted}} gefunden",
+      "intakeLot": "Karten von {{name}}",
+      "liveOffer": "Aktuelles Angebot",
+      "cash": "Bar",
+      "credit": "Guthaben",
+      "picked": "{{picked}}/{{total}} gepickt"
     },
     "more": {
       "heading": "Und noch viel mehr",
@@ -150,6 +163,22 @@
         "api": {
           "title": "API und Webhooks",
           "description": "Verbinde deinen Shop: Finde heraus, wo eine Karte liegt, und werde benachrichtigt, wenn Karten gescannt werden."
+        },
+        "accuracy": {
+          "title": "Stichproben",
+          "description": "Prüfe eine zufällige Stichprobe einer Charge und erhalte eine Genauigkeitsschätzung mit 95%-Bereich, bevor du sie einstellst."
+        },
+        "staff": {
+          "title": "Team-Aktivität",
+          "description": "Sieh Scans und Korrekturen pro Person und ein Protokoll, wer was geändert hat."
+        },
+        "fleet": {
+          "title": "Sortierer-Warnungen",
+          "description": "Erfahre per Discord oder Webhook, wenn ein Sortierer klemmt, offline geht oder eine Wartung braucht."
+        },
+        "permissions": {
+          "title": "Ankaufspreise bleiben privat",
+          "description": "Lass dein Team Ankäufe scannen, ohne Angebote, Kosten oder Margen zu sehen."
         }
       }
     }
@@ -178,7 +207,7 @@
   "pricing": {
     "eyebrow": "Preise",
     "heading": "Einfache, transparente Preise",
-    "subtitle": "Dieselbe App in beiden Fällen. Free reicht für gelegentliches Sortieren. Business hebt das tägliche Scanlimit auf, betreibt mehrere Sortierer gleichzeitig und schaltet unbegrenzte eigene Sounds und Discord-Benachrichtigungsregeln frei.",
+    "subtitle": "Dieselbe App in beiden Fällen. Free reicht für gelegentliches Sortieren. Business hebt das tägliche Scanlimit auf, betreibt mehrere Sortierer gleichzeitig, schaltet unbegrenzte eigene Sounds und Discord-Benachrichtigungsregeln frei und bringt Lagerorte, API-Zugriff und Werkzeuge für deinen Laden mit.",
     "intervals": {
       "label": "Abrechnungszeitraum",
       "month": "Monatlich",
@@ -216,7 +245,8 @@
       "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
       "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
       "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
-      "businessTools": "Werkzeuge für Läden: Sammlungen mit Live-Ankaufsangeboten kaufen, Online-Bestellungen per Pickliste erledigen und Margen verfolgen"
+      "businessTools": "Werkzeuge für Läden: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen",
+      "businessOps": "Ladenverwaltung: die Genauigkeit einer Charge per Stichprobe prüfen, die Aktivität deines Teams sehen, Warnungen bei Stau und fälliger Wartung der Sortierer erhalten und Ankaufspreise vor deinem Team verbergen"
     }
   },
   "cta": {

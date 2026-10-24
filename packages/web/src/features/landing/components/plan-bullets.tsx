@@ -1,4 +1,7 @@
-import { PRICING_SHARED_FEATURE_KEYS } from "@/lib/constants/pricing";
+import {
+  PRICING_FEATURE_EXTRA_KEYS,
+  PRICING_SHARED_FEATURE_KEYS,
+} from "@/lib/constants/pricing";
 import type { PlanBulletsProps } from "@/lib/interfaces/landing";
 import { cn } from "@/lib/utils";
 import { PLAN_FEATURE_KEYS } from "@magic-vault/shared";
@@ -32,9 +35,9 @@ export function PlanBullets({
       : t("pricing.free.notificationRules", {
           count: limits.notificationRules,
         }),
-    ...PLAN_FEATURE_KEYS.filter((key) => features[key]).map((key) =>
-      t(`pricing.business.${key}`),
-    ),
+    ...PLAN_FEATURE_KEYS.filter((key) => features[key])
+      .flatMap((key) => [key, ...(PRICING_FEATURE_EXTRA_KEYS[key] ?? [])])
+      .map((key) => t(`pricing.business.${key}`)),
   ];
   const sharedBullets = PRICING_SHARED_FEATURE_KEYS.map((key) =>
     t(`pricing.shared.${key}`),
