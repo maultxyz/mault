@@ -207,7 +207,7 @@
   "pricing": {
     "eyebrow": "Tarifs",
     "heading": "Des tarifs simples et transparents",
-    "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois et débloque les sons personnalisés et les règles de notification Discord illimités.",
+    "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois, débloque les sons personnalisés et les règles de notification Discord illimités, et ajoute le rangement, l'accès API et des outils pour gérer une boutique.",
     "intervals": {
       "label": "Période de facturation",
       "month": "Mensuel",
@@ -245,7 +245,8 @@
       "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
       "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
-      "businessTools": "Outils pour boutiques : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges"
+      "businessTools": "Outils pour boutiques : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges",
+      "businessOps": "Gestion de boutique : contrôler la précision d'un lot par échantillon, suivre l'activité du personnel, recevoir les alertes de bourrage et d'entretien des trieurs, et masquer les prix de rachat au personnel"
     }
   },
   "cta": {
