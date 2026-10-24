@@ -5,9 +5,7 @@ export function detectDesktopPlatform(): DesktopPlatform | null {
   const agent = navigator.userAgent.toLowerCase();
   if (/android|iphone|ipad|ipod/.test(agent)) return null;
   if (agent.includes("windows")) return "windows";
-  if (agent.includes("mac os") || agent.includes("macintosh")) {
-    return navigator.maxTouchPoints > 1 ? null : "macos";
-  }
+  if (agent.includes("mac os") || agent.includes("macintosh")) return null;
   if (agent.includes("linux") || agent.includes("x11")) return "linux";
   return null;
 }

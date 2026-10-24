@@ -477,7 +477,12 @@ export function SessionSummaryDialog({
 
   const gameKey = activeCollection?.game?.key;
   const isMtg = gameKey === "mtg";
-  const exportContext = { isMtg, fieldDefinitions };
+  const exportContext = {
+    isMtg,
+    fieldDefinitions,
+    gameKey,
+    gameName: activeCollection?.game?.name,
+  };
   const exportAdapters: ExportAdapter[] = allExportAdapters.filter((adapter) =>
     supportsGame(adapter, gameKey),
   );

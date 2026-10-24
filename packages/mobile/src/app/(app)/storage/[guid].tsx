@@ -68,7 +68,12 @@ export default function StorageLocationScreen() {
           foilType: entry.foilType ?? undefined,
           condition: entry.condition,
         })),
-        { isMtg: singleGameKey === "mtg", fieldDefinitions },
+        {
+          isMtg: singleGameKey === "mtg",
+          fieldDefinitions,
+          gameKey: singleGameKey,
+          gameName: games.find((game) => game.key === singleGameKey)?.name,
+        },
         combineDuplicates,
       );
       const slug = (location?.name ?? "storage").replace(/\s+/g, "-").toLowerCase();

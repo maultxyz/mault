@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Télécharger l'application de bureau | MAULT",
-    "description": "Télécharge l'application de bureau MAULT pour Windows, macOS et Linux. Le scan continue en arrière-plan, avec un aperçu flottant, des contrôles dans la barre des tâches et des notifications de bureau."
+    "description": "Télécharge l'application de bureau MAULT pour Windows et Linux. Le scan continue en arrière-plan, avec un aperçu flottant, des contrôles dans la barre des tâches et des notifications de bureau."
   },
   "hero": {
     "eyebrow": "Application de bureau",
@@ -20,16 +20,12 @@
     "download": "Télécharger",
     "yourSystem": "Ton système",
     "allReleases": "Tous les fichiers de version sur GitHub",
+    "macosSoon": "Une version macOS arrivera plus tard.",
     "items": {
       "windows": {
         "name": "Windows",
         "requirements": "Windows 10 ou plus récent, 64 bits",
         "file": "Programme d'installation (.exe)"
-      },
-      "macos": {
-        "name": "macOS",
-        "requirements": "macOS 12 ou plus récent, Apple Silicon",
-        "file": "Image disque (.dmg)"
       },
       "linux": {
         "name": "Linux",
@@ -73,10 +69,6 @@
       "windows": {
         "title": "Windows",
         "body": "Lance MAULT-windows.exe. Si Windows SmartScreen indique qu'il a protégé ton PC, choisis Informations complémentaires, puis Exécuter quand même. MAULT s'ouvre une fois l'installation terminée et ajoute un raccourci au menu Démarrer."
-      },
-      "macos": {
-        "title": "macOS",
-        "body": "Ouvre MAULT-macos.dmg et fais glisser MAULT dans Applications. Si macOS ne peut pas vérifier l'application, fais un clic droit sur MAULT dans Applications et choisis Ouvrir."
       },
       "linux": {
         "title": "Linux",

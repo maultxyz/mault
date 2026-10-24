@@ -62,7 +62,12 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
         condition: entry.condition,
       })),
       slug,
-      { isMtg: singleGameKey === "mtg", fieldDefinitions },
+      {
+        isMtg: singleGameKey === "mtg",
+        fieldDefinitions,
+        gameKey: singleGameKey,
+        gameName: games.find((game) => game.key === singleGameKey)?.name,
+      },
       combineDuplicates,
     );
   };

@@ -11,3 +11,15 @@ export const CONDITION_EXPORT_LABELS: Record<CardCondition, string> = {
 export const NONFOIL_FINISH_LABEL = "Normal";
 
 export const FOIL_FINISH_LABEL = "Foil";
+
+export const TCGPLAYER_PRODUCT_LINES: Record<string, string> = {
+  mtg: "Magic",
+  pokemon: "Pokemon",
+  yugioh: "YuGiOh",
+  lorcana: "Lorcana TCG",
+  onepiece: "One Piece Card Game",
+  fab: "Flesh and Blood TCG",
+  swu: "Star Wars: Unlimited",
+  gundam: "Gundam Card Game",
+  grandarchive: "Grand Archive TCG",
+};
