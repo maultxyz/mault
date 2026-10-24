@@ -454,7 +454,12 @@ export function CardGrid() {
           adapter,
           selectedCards,
           slug,
-          { isMtg: gameKey === "mtg", fieldDefinitions },
+          {
+            isMtg: gameKey === "mtg",
+            fieldDefinitions,
+            gameKey,
+            gameName: viewedCollection?.game?.name,
+          },
           true,
         );
         if (!readOnly) {
@@ -472,6 +477,7 @@ export function CardGrid() {
       queryClient,
       selectedIds,
       viewedCollection?.name,
+      viewedCollection?.game?.name,
       readOnly,
       gameKey,
       fieldDefinitions,
