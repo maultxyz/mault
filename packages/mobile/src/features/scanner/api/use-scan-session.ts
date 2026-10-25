@@ -45,6 +45,7 @@ import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
+  BIN_DATA_RETRY_MS,
   LIVE_CORNERS_SUPPORTED,
   SESSION_FEED_IMAGE_LIMIT,
   SESSION_FEED_LIMIT,
@@ -75,7 +76,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const { data: binRoutes } = useQuery(binRoutesQueryOptions(sorter.device?.guid ?? null));
-  const { data: binHeights } = useQuery(binHeightsQueryOptions(sorter.device?.guid ?? null));
+  const { data: binHeights, isError: binHeightsFailed } = useQuery(
+    binHeightsQueryOptions(sorter.device?.guid ?? null),
+  );
 
   const [phase, setPhaseState] = useState<ScannerPhase>("idle");
   const [pauseReason, setPauseReason] = useState<ScannerPauseReason | null>(null);
@@ -113,6 +116,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const runningRef = useRef(false);
   const heldArrivalRef = useRef(false);
   const binCountsRef = useRef(new Map<number, number>());
+  const binCountsLoadedRef = useRef(false);
+  const binContentsLoadedRef = useRef(false);
+  const [binDataReloadAttempt, setBinDataReloadAttempt] = useState(0);
   const lastCardIdRef = useRef<string | null>(null);
   const pendingDuplicateRef = useRef<IdentifyOutcome | null>(null);
   const binContentsRef = useRef<BinContentCard[]>([]);
@@ -128,6 +134,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     billing,
     binRoutes,
     binHeights,
+    binHeightsFailed,
     orgId,
     capture,
     saveCard,
@@ -174,17 +181,29 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [sorter.isReady, handScanActive, pause]);
 
   useEffect(() => {
+    binCountsLoadedRef.current = configs.length === 0;
     if (!collection || configs.length === 0) return;
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
     const windows = configs.map((bin) => ({
       binNumber: bin.binNumber,
       lastEmptiedAt: bin.lastEmptiedAt ?? null,
     }));
     void fetchBinCounts(collection.guid, windows)
       .then((counts) => {
+        if (cancelled) return;
         binCountsRef.current = new Map(counts.map((c) => [c.binNumber, c.count]));
+        binCountsLoadedRef.current = true;
       })
-      .catch(() => {});
-  }, [collection, configs]);
+      .catch((error: unknown) => {
+        console.warn("Loading bin counts failed, retrying", error);
+        if (!cancelled) retryTimer = setTimeout(() => setBinDataReloadAttempt((n) => n + 1), BIN_DATA_RETRY_MS);
+      });
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [collection, configs, binDataReloadAttempt]);
 
   useEffect(() => {
     locallyUpdatedConfigsRef.current = null;
@@ -192,8 +211,10 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
 
   useEffect(() => {
     binContentsRef.current = [];
+    binContentsLoadedRef.current = !needsBinContents;
     if (!collection || !needsBinContents) return;
     let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
     const windows = configs
       .filter((bin) => !bin.isCatchAll)
       .map((bin) => ({ binNumber: bin.binNumber, lastEmptiedAt: bin.lastEmptiedAt ?? null }));
@@ -201,12 +222,17 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       .then((contents) => {
         if (cancelled) return;
         binContentsRef.current = contents.map((entry) => ({ ...entry, card: toRuleCard(entry.card, entry) }));
+        binContentsLoadedRef.current = true;
       })
-      .catch(() => {});
+      .catch((error: unknown) => {
+        console.warn("Loading bin contents failed, retrying", error);
+        if (!cancelled) retryTimer = setTimeout(() => setBinDataReloadAttempt((n) => n + 1), BIN_DATA_RETRY_MS);
+      });
     return () => {
       cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
     };
-  }, [collection, configs, needsBinContents]);
+  }, [collection, configs, needsBinContents, binDataReloadAttempt]);
 
   const routeFor = useCallback((binNumber: number): BinRoute => {
     const { binRoutes: routes, sorter: s } = latestRef.current;
@@ -262,7 +288,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         overflowBin: assigned?.overflowBin ?? null,
       })
         .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(ctx.orgId).queryKey }))
-        .catch(() => {});
+        .catch((error: unknown) => console.warn("Saving the learned auto-assign rule failed", error));
     },
     [queryClient],
   );
@@ -368,6 +394,10 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         return;
       }
       lastCardIdRef.current = card.id;
+      if (!binCountsLoadedRef.current || !binContentsLoadedRef.current || ctx.binHeightsFailed) {
+        pause("bin-data-unavailable");
+        return;
+      }
       const ruleCard = toRuleCard(card, { isFoil: false, foilType: null });
       const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;
       const routingContext: ScanRoutingContext = {

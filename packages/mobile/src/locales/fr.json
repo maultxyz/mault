@@ -508,6 +508,10 @@
       "repack-complete": {
         "title": "Paquets terminés",
         "description": "Tous les bacs de paquets sont pleins. Vide-les, puis touche Reprendre pour lancer le tour suivant."
+      },
+      "bin-data-unavailable": {
+        "title": "Niveaux des bacs indisponibles",
+        "description": "L'app n'a pas pu charger le remplissage des bacs, elle s'est donc mise en pause au lieu de deviner. Vérifie ta connexion, puis touche Reprendre."
       }
     },
     "scanOnce": "Scanner une",
