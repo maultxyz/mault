@@ -85,7 +85,8 @@ export type ScannerPauseReason =
   | "no-match"
   | "duplicate"
   | "repack-complete"
-  | "bin-data-unavailable";
+  | "bin-data-unavailable"
+  | "deploy";
 
 export interface ScanFeedEntry {
   scanId: string;

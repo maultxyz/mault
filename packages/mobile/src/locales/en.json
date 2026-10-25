@@ -504,6 +504,10 @@
       "bin-data-unavailable": {
         "title": "Bin levels unavailable",
         "description": "The app couldn't load how full each bin is, so it paused instead of guessing. Check your connection, then tap Resume."
+      },
+      "deploy": {
+        "title": "Update in progress",
+        "description": "Mault is being updated, so scanning was paused to make sure no cards are lost. You can resume now, but scans may fail until the update finishes."
       }
     },
     "scanOnce": "Scan one",
