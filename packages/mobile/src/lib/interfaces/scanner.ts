@@ -2,16 +2,12 @@ import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
 import type {
   CardContour,
   CardSearchResult,
-  MatchCandidateDiagnostic,
   MatchedScanDetails,
-  OcrDiagnostics,
   PlayingCardWithDistance,
   RgbaImage,
-  ScanDetectionDiagnostics,
-  ScanMatchSource,
+  ScanAttemptResult,
   ScanRegion,
   ScannedCard,
-  SearchNoMatchReason,
   UnmatchedCard,
   UnmatchedScanDetails,
 } from "@magic-vault/shared";
@@ -38,23 +34,9 @@ export interface OrientedPick {
   alternate: OrientedPick | null;
 }
 
-export interface ScanAttempt {
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  noMatchReason: SearchNoMatchReason | "lookup_failed" | null;
-  lookupFailedCardIds?: string[];
-  candidates: MatchCandidateDiagnostic[];
-  detection: ScanDetectionDiagnostics;
+export interface ScanAttempt extends ScanAttemptResult {
   contour: CardContour | null;
-  orientation: Orientation;
-  embedding: number[] | null;
   pixels: RgbaImage | null;
-  search: CardSearchResult["diagnostics"] | null;
-  topDistance: number | null;
-  ocr: OcrDiagnostics | null;
-  matchedBy: ScanMatchSource;
-  lowConfidenceMatch: boolean;
-  detectedColor: string | null;
 }
 
 export interface IdentifyOptions {
