@@ -1,9 +1,20 @@
-import type { BinConfig, BinSet, Result, ScanOnlyConfig } from "@magic-vault/shared";
+import type {
+  BinConfig,
+  BinSet,
+  PickListFoundInput,
+  PickListFoundResult,
+  Result,
+  ScanOnlyConfig,
+} from "@magic-vault/shared";
 import { apiPost, apiPut, unwrap } from "@/lib/api/client";
 import type { AlphabetConfigInput, BinSaveInput, ChaosConfigInput, RepackConfigInput } from "@/lib/interfaces/rules";
 
 export function activateBinSet(guid: string): Promise<BinSet[]> {
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/active`));
+}
+
+export function markPickListFound(binGuid: string, input: PickListFoundInput): Promise<PickListFoundResult> {
+  return unwrap(apiPost<Result<PickListFoundResult>>(`/api/bins/bins/${binGuid}/pick-list/found`, input));
 }
 
 export function saveBinConfig({ binNumber, gameGuid, ...body }: BinSaveInput): Promise<BinConfig[]> {
