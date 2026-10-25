@@ -587,7 +587,12 @@
       "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur",
       "collection": "Collection",
       "preset": "Préréglage de règles",
-      "chooseCamera": "Choisir une caméra"
+      "chooseCamera": "Choisir une caméra",
+      "foilType": "Type de foil",
+      "notFoil": "Non foil",
+      "set": "Extension",
+      "anySet": "N'importe quelle extension",
+      "searchSets": "Rechercher une extension"
     }
   },
   "home": {

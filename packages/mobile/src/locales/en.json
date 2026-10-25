@@ -587,7 +587,12 @@
       "pairDesktopDescription": "Scan the QR code shown on your computer",
       "collection": "Collection",
       "preset": "Rule preset",
-      "chooseCamera": "Choose a camera"
+      "chooseCamera": "Choose a camera",
+      "foilType": "Foil type",
+      "notFoil": "Not foil",
+      "set": "Set",
+      "anySet": "Any set",
+      "searchSets": "Search sets"
     }
   },
   "home": {

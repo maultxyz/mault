@@ -169,13 +169,30 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     [setPhase],
   );
 
+  const [forcedFoilType, setForcedFoilTypeState] = useState<string | null>(null);
+  const [forcedSetCode, setForcedSetCodeState] = useState<string | null>(null);
+  const forcedFoilTypeRef = useRef<string | null>(null);
+  const forcedSetCodeRef = useRef<string | null>(null);
+  const setForcedFoilType = useCallback((foilType: string | null) => {
+    forcedFoilTypeRef.current = foilType;
+    setForcedFoilTypeState(foilType);
+  }, []);
+  const setForcedSetCode = useCallback((setCode: string | null) => {
+    forcedSetCodeRef.current = setCode;
+    setForcedSetCodeState(setCode);
+  }, []);
+
   const lockedCollectionGuidRef = useRef<string | null>(null);
   useEffect(() => {
     const previous = lockedCollectionGuidRef.current;
     const next = collection?.guid ?? null;
-    if (previous && previous !== next) releaseScanLock(previous).catch(() => {});
+    if (previous && previous !== next) {
+      releaseScanLock(previous).catch(() => {});
+      setForcedSetCode(null);
+      setForcedFoilType(null);
+    }
     lockedCollectionGuidRef.current = next;
-  }, [collection?.guid]);
+  }, [collection?.guid, setForcedSetCode, setForcedFoilType]);
   useEffect(
     () => () => {
       const guid = lockedCollectionGuidRef.current;
@@ -441,7 +458,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         pause("bin-data-unavailable");
         return;
       }
-      const ruleCard = toRuleCard(card, { isFoil: false, foilType: null });
+      const forcedFoil = forcedFoilTypeRef.current;
+      const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil });
       const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;
       const routingContext: ScanRoutingContext = {
         binSet: ctx.set,
@@ -469,6 +487,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         alternativeMatches: outcome.alternativeMatches.length ? outcome.alternativeMatches : undefined,
         lowConfidenceMatch: outcome.matched?.lowConfidenceMatch || decision.isLowMatch || undefined,
         vectorizedOn: "web",
+        isFoil: forcedFoil != null || undefined,
+        foilType: forcedFoil ?? undefined,
       };
       if (record.binNumber != null) {
         binCountsRef.current.set(record.binNumber, countInBin(record.binNumber) + 1);
@@ -591,7 +611,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const outcome = await identifyCard(
         ctx.capture,
         {
-          scope: { collectionGuid: ctx.collection.guid },
+          scope: { collectionGuid: ctx.collection.guid, preferredSetCode: forcedSetCodeRef.current },
           matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
           ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
@@ -763,5 +783,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     setHandScan,
     handScanActive,
     trackLiveCorners,
+    forcedFoilType,
+    setForcedFoilType,
+    forcedSetCode,
+    setForcedSetCode,
   };
 }
