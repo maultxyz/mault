@@ -1,5 +1,5 @@
 import { COMM_LOG_MARKER_LABELS } from "@/lib/constants/scanner";
-import type { CommLogEntry } from "@/lib/interfaces/scanner";
+import { type CommLogEntry } from "@magic-vault/shared";
 
 
 export function formatCommLog(entries: CommLogEntry[]): string {

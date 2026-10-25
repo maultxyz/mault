@@ -7,6 +7,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useSorterSelection } from "@/features/scanner/api/use-sorter-selection";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { OfflineDeviceTile } from "@/features/scanner/components/offline-device-tile";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import {
   IconCheckbox,
   IconDevices,
@@ -54,6 +55,9 @@ export function StationOverviewGrid() {
 
   useLayoutEffect(() => attachOverview(), [attachOverview]);
   useEffect(() => clearSelected, [clearSelected]);
+  useHotkeys({
+    clearSelection: selected.length > 0 ? clearSelected : undefined,
+  });
 
   if (connected.length === 0 && offlineDevices.length === 0) {
     return (

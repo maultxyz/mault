@@ -6,10 +6,7 @@ import {
 import { detectCardCorners } from "./cornelius";
 import { dewarpCard } from "./perspective-warp";
 import type { ClientDewarpResult } from "@/lib/interfaces/scanner";
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { delay } from "@/lib/delay";
 
 let snapshot: HTMLCanvasElement | null = null;
 
@@ -44,8 +41,6 @@ async function detectCardCornersWithRetry(
   return { detection, frame };
 }
 
-// The preview's requestAnimationFrame loop stops while the tab is hidden, so
-// refreshFrame pulls a fresh camera frame instead of reusing the last one drawn.
 export async function detectAndDewarpCard(
   canvas: HTMLCanvasElement,
   refreshFrame: () => void,

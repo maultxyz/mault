@@ -2,7 +2,7 @@ import {
   spreadTotal,
   type CollectionCostInput,
 } from "@magic-vault/shared";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { collectionCards, collections, intakeLots } from "../../db/schema";
 import { logActivity } from "../../lib/activity-log";
@@ -12,16 +12,16 @@ import { loadOrgPricing } from "../../lib/price-source";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   businessQuery,
-  forbidden,
   notFound,
   pricingCurrency,
   readJson,
   toMoney,
   updateAcquisitionCosts,
-  upgradeRequired,
 } from "./shared";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
+import {
+  BUSINESS_FORBIDDEN_RESULT,
+  BUSINESS_UPGRADE_REQUIRED_RESULT,
+} from "../../lib/constants/business";
 
 function isoDay(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -40,8 +40,8 @@ export const reportsRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid cost." }, 400);
     }
     return businessQuery(c, async (tx, access) => {
-      if (access.isLocked) return upgradeRequired;
-      if (!access.canViewCosts) return forbidden;
+      if (access.isLocked) return BUSINESS_UPGRADE_REQUIRED_RESULT;
+      if (!access.canViewCosts) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const collection = await tx.query.collections.findFirst({
         where: and(

@@ -5,7 +5,7 @@ import {
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
-import type { DesktopScannerIcon } from "@magic-vault/shared";
+import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
 import {
   IconArrowBarToDown,
   IconBolt,
@@ -13,7 +13,6 @@ import {
   IconPlayerPlay,
   type Icon,
 } from "@tabler/icons-react";
-import type { CommLogEntry } from "@/lib/interfaces/scanner";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",
@@ -52,8 +51,6 @@ export const CAMERA_IDEAL_HEIGHT = 1080;
 export const PHONE_CAMERA_DEVICE_STORAGE_KEY = "mault:phone-camera-device-id";
 
 export const JAM_TOAST_ID_PREFIX = "jam-module-";
-export const JAM_COMMAND_TIMEOUT_MS = 3000;
-export const JAM_CLEAR_DEVICE_TIMEOUT_MS = 10000;
 export const JAM_VERIFY_SAMPLES = 3;
 export const JAM_VERIFY_INTERVAL_MS = 750;
 export const SCAN_POSITION_MODULE = 1;
@@ -134,10 +131,6 @@ export const QR_SCAN_MAX_DIMENSION = 640;
 export const PENDING_SCAN_SAVES_DB_NAME = "magic-vault-pending-scan-saves";
 export const PENDING_SCAN_SAVES_STORE_NAME = "saves";
 export const PENDING_SCAN_SAVES_DB_VERSION = 1;
-export const PENDING_SCAN_SAVE_RETRY_DELAYS_MS = [
-  2000, 5000, 10_000, 30_000, 60_000,
-];
-export const PENDING_SCAN_SAVE_RETRYABLE_STATUSES = [401, 408, 429];
 export const PENDING_SCAN_SAVES_TOAST_ID = "pending-scan-saves";
 
 export const SCAN_REGION_MASK_FILL = "rgb(0 0 0 / 0.4)";

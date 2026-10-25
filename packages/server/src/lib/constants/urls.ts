@@ -1,8 +1,5 @@
 import { SORTER_LINK_DEVICE_PATH } from "@magic-vault/shared";
 
-// The public web app's own URL - used to build links back into it (email
-// verification, Discord embeds, Stripe redirect URLs, invite links).
-// Combined here so the same fallback isn't retyped at every call site.
 export function getWebUrl(): string {
   return process.env.WEB_URL ?? "http://localhost:5173";
 }
@@ -20,8 +17,6 @@ export function getSorterLinkUrl(): string | null {
 
 export const BMC_URL = "https://buymeacoffee.com/mault";
 
-// Default upstream API base URL for each supported TCG's card-search
-// adapter (see lib/adapters/<game>/search.ts and sync.ts).
 export const FAB_DEFAULT_URL = "https://api.fleshcube.com/card";
 export const GRAND_ARCHIVE_API_ROOT = "https://api.gatcg.com";
 export const GRAND_ARCHIVE_DEFAULT_URL = `${GRAND_ARCHIVE_API_ROOT}/cards`;
@@ -48,9 +43,6 @@ export const CARDKINGDOM_SITE_URL = "https://www.cardkingdom.com/";
 export const YUGIOH_DEFAULT_URL =
   "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 
-// Hosts the card-image proxy (routes/card/image-proxy.ts) is willing to
-// fetch from - an allowlist, not just a default, since that route accepts
-// an arbitrary url query param.
 export const ALLOWED_IMAGE_HOSTS = new Set([
   "cards.scryfall.io",
   "gundam-gcg.com",

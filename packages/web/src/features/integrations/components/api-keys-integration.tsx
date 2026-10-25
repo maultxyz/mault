@@ -22,12 +22,11 @@ import { useOrgApiKeys } from "@/features/integrations/api/use-org-api-keys";
 import { WebhooksSection } from "@/features/integrations/components/webhooks-section";
 import { API_REFERENCE_URL, PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
-import { toast } from "@/lib/toast";
 import {
-  orgApiKeySchema,
+  type OrgApiKey,
+  orgApiKeyFormSchema,
   type OrgApiKeyFormValues,
-} from "@/schemas/org-api-key.schema";
-import type { OrgApiKey } from "@magic-vault/shared";
+} from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconApi,
@@ -42,14 +41,8 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { copyWithToast } from "@/lib/clipboard";
+import { formatShortDate } from "@/lib/format";
 
 export function ApiKeysIntegration() {
   const { t } = useTranslation("integrations");
@@ -60,7 +53,7 @@ export function ApiKeysIntegration() {
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
 
   const form = useForm<OrgApiKeyFormValues>({
-    resolver: zodResolver(orgApiKeySchema),
+    resolver: zodResolver(orgApiKeyFormSchema),
     defaultValues: { name: "", allowWrite: false },
   });
 
@@ -79,10 +72,7 @@ export function ApiKeysIntegration() {
 
   function copyNewKey() {
     if (!newRawKey) return;
-    navigator.clipboard
-      .writeText(newRawKey)
-      .then(() => toast.success(t("apiKeys.copied")))
-      .catch(() => toast.error(t("apiKeys.copyFailed")));
+    void copyWithToast(newRawKey, t("apiKeys.copied"), t("apiKeys.copyFailed"));
   }
 
   return (
@@ -202,12 +192,12 @@ export function ApiKeysIntegration() {
                       {" · "}
                       {t("apiKeys.createdBy", {
                         name: key.createdBy,
-                        date: formatDate(key.createdAt),
+                        date: formatShortDate(key.createdAt),
                       })}
                       {" · "}
                       {key.lastUsedAt
                         ? t("apiKeys.lastUsed", {
-                            date: formatDate(key.lastUsedAt),
+                            date: formatShortDate(key.lastUsedAt),
                           })
                         : t("apiKeys.neverUsed")}
                     </p>

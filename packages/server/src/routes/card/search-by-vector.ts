@@ -9,6 +9,7 @@ import {
   parseEmbeddingField,
   parsePreferredSetCode,
 } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const searchByVectorRoute = new Hono<AppEnv>().post(
   "/by-vector",
@@ -47,13 +48,12 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
       });
       return c.json(await attachMatchedCards(result, gameKey, lang));
     } catch (err) {
-      console.error(err);
       const orgId = c.req.header("X-Org-Id");
       if (orgId) {
         void sendDiscordNotification(
           orgId,
           {
-            title: "Mault — Card Search Error",
+            title: "Mault: Card Search Error",
             description:
               "A database error occurred while searching for a card.",
             color: 0xed4245,
@@ -62,7 +62,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
           "error",
         );
       }
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -26,6 +26,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { BinRulesMenuProps } from "@/lib/interfaces/bins";
 import { toast } from "@/lib/toast";
+import { copyWithToast } from "@/lib/clipboard";
 
 export function BinRulesMenu({ className }: BinRulesMenuProps) {
   const { t } = useTranslation("bins");
@@ -49,12 +50,11 @@ export function BinRulesMenu({ className }: BinRulesMenuProps) {
   const handleCopy = async () => {
     const data = currentExport();
     if (!data) return;
-    try {
-      await navigator.clipboard.writeText(serializeBinRulesExport(data));
-      toast.success(t("binRulesMenu.toasts.copied"));
-    } catch {
-      toast.error(t("binRulesMenu.toasts.copyFailed"));
-    }
+    await copyWithToast(
+      serializeBinRulesExport(data),
+      t("binRulesMenu.toasts.copied"),
+      t("binRulesMenu.toasts.copyFailed"),
+    );
   };
 
   const handleExport = () => {

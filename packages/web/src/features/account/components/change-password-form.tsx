@@ -4,21 +4,20 @@ import { SaveBar } from "@/components/save-bar";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { neon } from "@/lib/auth/client";
-import {
-  createChangePasswordSchema,
-  type ChangePasswordFormValues,
-} from "@/schemas/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import {
+  changePasswordFormSchema,
+  type ChangePasswordFormValues,
+} from "@magic-vault/shared";
 
 export function ChangePasswordForm() {
   const { t } = useTranslation("account");
-  const passwordSchema = createChangePasswordSchema(t);
 
   const form = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(passwordSchema),
+    resolver: zodResolver(changePasswordFormSchema),
     defaultValues: {
       currentPassword: "",
       newPassword: "",

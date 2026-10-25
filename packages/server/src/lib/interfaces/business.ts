@@ -1,4 +1,8 @@
-import type { ActivityAction, DeviceAlertType } from "@magic-vault/shared";
+import type {
+  AccuracySampleResult,
+  ActivityAction,
+  DeviceAlertType,
+} from "@magic-vault/shared";
 
 export interface ActivityLogInput {
   orgId: string;
@@ -85,4 +89,13 @@ export interface AcquisitionCostUpdate {
   currency: string;
   acquiredAt: Date;
   rows: { scanId: string; cost: number }[];
+}
+
+export type BusinessResult =
+  | { success: true; data: unknown; message?: string }
+  | { success: false; message: string; upgradeRequired?: boolean };
+
+export interface StoredAccuracySample {
+  scanId: string;
+  result: AccuracySampleResult | null;
 }

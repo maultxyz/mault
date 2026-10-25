@@ -23,32 +23,27 @@ export const discordLinkCodeRoute = new Hono<AppEnv>().post(
       .slice(0, DISCORD_LINK_CODE_LENGTH)
       .toUpperCase();
     const expiresAt = new Date(Date.now() + DISCORD_LINK_CODE_TTL_MS);
-    try {
-      await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .insert(orgSettings)
-          .values({
-            orgId,
+    await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .insert(orgSettings)
+        .values({
+          orgId,
+          discordLinkCode: code,
+          discordLinkCodeExpiresAt: expiresAt,
+        })
+        .onConflictDoUpdate({
+          target: [orgSettings.orgId],
+          set: {
             discordLinkCode: code,
             discordLinkCodeExpiresAt: expiresAt,
-          })
-          .onConflictDoUpdate({
-            target: [orgSettings.orgId],
-            set: {
-              discordLinkCode: code,
-              discordLinkCodeExpiresAt: expiresAt,
-              updatedAt: new Date(),
-            },
-          }),
-      );
-      return c.json({
-        success: true,
-        message: "Code generated.",
-        data: { code, expiresAt },
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+            updatedAt: new Date(),
+          },
+        }),
+    );
+    return c.json({
+      success: true,
+      message: "Code generated.",
+      data: { code, expiresAt },
+    });
   },
 );

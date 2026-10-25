@@ -12,6 +12,8 @@ export type HotkeyId =
   | "toggleSidebar"
   | "focusSearch"
   | "dismissToasts"
+  | "clearSelection"
+  | "save"
   | "goScanner"
   | "goCollections"
   | "goSortingRules"
@@ -44,6 +46,7 @@ export type HotkeyId =
 export interface HotkeyCombo {
   key: string;
   shift?: boolean;
+  mod?: boolean;
 }
 
 export interface HotkeyDefinition {

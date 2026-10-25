@@ -17,12 +17,12 @@ import {
   listPendingSaves,
   putPendingSave,
 } from "@/features/scanner/lib/pending-store";
-import { PENDING_SCAN_SAVE_RETRY_DELAYS_MS } from "@/lib/constants/scanner";
 import type {
   CardSaveResult,
   PendingSavesContextValue,
   PendingScanSave,
 } from "@/lib/interfaces/scanner";
+import { pendingScanSaveRetryDelayMs } from "@magic-vault/shared";
 
 const PendingSavesContext = createContext<PendingSavesContextValue | null>(null);
 
@@ -41,12 +41,7 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
           wakers.current.delete(wake);
           resolve();
         };
-        const timer = setTimeout(
-          wake,
-          PENDING_SCAN_SAVE_RETRY_DELAYS_MS[
-            Math.min(attempt, PENDING_SCAN_SAVE_RETRY_DELAYS_MS.length - 1)
-          ],
-        );
+        const timer = setTimeout(wake, pendingScanSaveRetryDelayMs(attempt));
         wakers.current.add(wake);
       }),
     [],

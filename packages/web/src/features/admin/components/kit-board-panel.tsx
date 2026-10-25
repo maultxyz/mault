@@ -20,6 +20,7 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function KitBoardPanel({ session }: KitPanelProps) {
   const { t } = useTranslation("admin");
@@ -37,8 +38,7 @@ export function KitBoardPanel({ session }: KitPanelProps) {
   const { isSupported: flashSupported } = useNewBoardFlash();
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-  const bluetoothSupported =
-    typeof navigator !== "undefined" && !!navigator.bluetooth;
+  const bluetoothSupported = isWebBluetoothSupported();
   const { selfTest } = session;
 
   const handleSelfTest = async () => {

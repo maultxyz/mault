@@ -7,7 +7,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, Switch, View } from "react-native";
-import { SOUND_CLIP_MAX_BYTES, SOUND_CLIP_NAME_MAX_LENGTH, type SoundClip } from "@magic-vault/shared";
+import {
+  SOUND_CLIP_MAX_BYTES,
+  SOUND_CLIP_NAME_MAX_LENGTH,
+  type SoundClip,
+  soundClipNameFormSchema,
+  type SoundClipNameFormValues,
+  soundRulesDraftFormSchema,
+  type SoundRulesDraftFormValues,
+} from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -34,12 +42,11 @@ import {
 } from "@/features/sounds/api/sounds";
 import { createClipPlayer, isPlayerActive, playSoundExclusively, stopSound } from "@/features/sounds/lib/sound-playback";
 import { orderSoundRules, toSoundRulesDraft } from "@/features/sounds/lib/sound-rules-draft";
-import { soundClipNameSchema, soundRulesDraftSchema } from "@/features/sounds/lib/sound-schema";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SOUND_CLIP_MIME_TYPES } from "@/lib/constants/sounds";
 import { SPACING } from "@/lib/constants/theme";
-import type { SoundClipNameValues, SoundRulesDraftValues } from "@/lib/interfaces/forms";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function SoundsSettingsScreen() {
   const { t } = useTranslation();
@@ -63,16 +70,16 @@ export default function SoundsSettingsScreen() {
   const previewRef = useRef<{ guid: string; player: AudioPlayer } | null>(null);
 
   const values = useMemo(() => toSoundRulesDraft(rules), [rules]);
-  const form = useForm<SoundRulesDraftValues>({
-    resolver: zodResolver(soundRulesDraftSchema),
+  const form = useForm<SoundRulesDraftFormValues>({
+    resolver: zodResolver(soundRulesDraftFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
   const order = useWatch({ control: form.control, name: "order" });
   const enabled = useWatch({ control: form.control, name: "enabled" });
   const orderedRules = useMemo(() => orderSoundRules(rules, order ?? []), [rules, order]);
-  const renameForm = useForm<SoundClipNameValues>({
-    resolver: zodResolver(soundClipNameSchema),
+  const renameForm = useForm<SoundClipNameFormValues>({
+    resolver: zodResolver(soundClipNameFormSchema),
     defaultValues: { name: "" },
   });
 
@@ -174,7 +181,7 @@ export default function SoundsSettingsScreen() {
     form.setValue("order", next, { shouldDirty: true });
   };
 
-  const submit = async (draft: SoundRulesDraftValues) => {
+  const submit = async (draft: SoundRulesDraftFormValues) => {
     if (!gameGuid) return;
     setSaveError(false);
     try {
@@ -237,13 +244,7 @@ export default function SoundsSettingsScreen() {
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
-                error={
-                  fieldState.error
-                    ? field.value.trim()
-                      ? t("settings.sounds.library.nameTooLong")
-                      : t("settings.sounds.library.nameRequired")
-                    : undefined
-                }
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />

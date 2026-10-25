@@ -5,7 +5,6 @@ import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
 import type {
-  YgoCardSet,
   YgoCardImage,
   YgoCardPrice,
   YgoCard,
@@ -64,7 +63,7 @@ export function normalizeYugiohCard(raw: YgoCard): PlayingCard[] {
   return images.map((image) => normalizeOne(raw, image));
 }
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = YUGIOH_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -105,7 +104,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = YUGIOH_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -137,8 +136,8 @@ export async function SearchById(
 
 export const yugiohAdapter: CardSearchAdapter = {
   defaultUrl: YUGIOH_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw, id) =>
     normalizeYugiohCard(raw as YgoCard).find((card) => card.id === id) ?? null,
   tcgplayer: {

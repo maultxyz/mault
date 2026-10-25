@@ -1,6 +1,9 @@
+import { HotkeyHint } from "@/components/hotkey-hint";
 import { Button } from "@/components/ui/button";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import { cn } from "@/lib/utils";
 import { IconLoader2 } from "@tabler/icons-react";
+import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import type { SaveBarProps } from "@/lib/interfaces/save-bar";
@@ -10,12 +13,18 @@ export function SaveBar({
   formId,
   onSave,
   isSaving = false,
-  saveDisabled = false,
   onDiscard,
   className,
   saveButtonDataTour,
 }: SaveBarProps) {
   const { t } = useTranslation("common");
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
+  useHotkeys({
+    save:
+      show && !isSaving
+        ? () => saveButtonRef.current?.click()
+        : undefined,
+  });
 
   if (!show) return null;
 
@@ -40,14 +49,16 @@ export function SaveBar({
           {t("unsavedChanges.discard")}
         </Button>
         <Button
+          ref={saveButtonRef}
           type={formId ? "submit" : "button"}
           form={formId}
           onClick={formId ? undefined : onSave}
-          disabled={isSaving || saveDisabled}
+          disabled={isSaving}
           data-tour={saveButtonDataTour}
         >
           {isSaving && <IconLoader2 className="size-3.5 animate-spin" />}
           {isSaving ? t("unsavedChanges.saving") : t("unsavedChanges.save")}
+          {!isSaving && <HotkeyHint id="save" className="max-md:hidden" />}
         </Button>
       </div>
     </div>,

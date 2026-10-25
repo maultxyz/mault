@@ -26,9 +26,8 @@ import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { toScannedCard } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// POST /collections/:guid/unmatched/:scanId/identify — turn an unmatched scan
-// into a collection card, keeping its scan id, photo, bin and scan time
 export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched/:scanId/identify",
   requireAuth,
@@ -184,12 +183,11 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
 
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
       emitToSession(guid, "scan_error", {
         message: "Failed to add the identified card.",
         timestamp: Date.now(),
       });
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

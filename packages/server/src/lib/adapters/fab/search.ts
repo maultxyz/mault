@@ -141,7 +141,7 @@ export async function fetchCardByPrintingId(
   return { card: (await res.json()) as FleshcubeCard, url, status: res.status };
 }
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = FAB_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -190,7 +190,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = FAB_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -209,8 +209,8 @@ export async function SearchById(
 
 export const fabAdapter: CardSearchAdapter = {
   defaultUrl: FAB_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw, id) => {
     const card = raw as FleshcubeCard;
     const printing = card.cardPrintings.find((p) => p.uniqueId === id);

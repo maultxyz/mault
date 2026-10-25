@@ -12,6 +12,8 @@ import {
   DEFAULT_CARD_CONDITION,
   type CardCondition,
   type PlayingCard,
+  scanDraftFormSchema,
+  type ScanDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -32,7 +34,6 @@ import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
-import { cardScanSchema } from "@/features/cards/lib/card-scan-schema";
 import {
   cardScanOriginQueryOptions,
   collectionCardQueryOptions,
@@ -48,7 +49,6 @@ import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CardScanDraftValues } from "@/lib/interfaces/forms";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CardDetailScreen() {
@@ -96,7 +96,7 @@ export default function CardDetailScreen() {
     });
   }, [entry]);
 
-  const serverValues = useMemo<CardScanDraftValues | undefined>(
+  const serverValues = useMemo<ScanDraftFormValues | undefined>(
     () =>
       entry
         ? {
@@ -106,8 +106,8 @@ export default function CardDetailScreen() {
         : undefined,
     [entry, foilOptions],
   );
-  const form = useForm<CardScanDraftValues>({
-    resolver: zodResolver(cardScanSchema),
+  const form = useForm<ScanDraftFormValues>({
+    resolver: zodResolver(scanDraftFormSchema),
     values: serverValues,
     resetOptions: { keepDirtyValues: true },
   });
@@ -117,7 +117,7 @@ export default function CardDetailScreen() {
   const price = card ? pricing.priceOf(card, draftFoil != null, draftCondition) : null;
 
   const saveDraft = useMutation({
-    mutationFn: (values: CardScanDraftValues) =>
+    mutationFn: (values: ScanDraftFormValues) =>
       updateCollectionCard(guid, scanId, {
         isFoil: values.foilType != null,
         foilType: values.foilType,

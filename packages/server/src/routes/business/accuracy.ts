@@ -9,7 +9,6 @@ import {
   type AccuracyCheckInput,
   type AccuracyReport,
   type AccuracySampleInput,
-  type AccuracySampleResult,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
 import { and, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
@@ -35,17 +34,14 @@ import {
   businessQuery,
   notFound,
   readJson,
-  upgradeRequired,
 } from "./shared";
+import type { StoredAccuracySample } from "../../lib/interfaces/business";
+import {
+  BUSINESS_UPGRADE_REQUIRED_RESULT,
+  SPOT_CHECK_NOT_FOUND_MESSAGE,
+} from "../../lib/constants/business";
 
-const CHECK_NOT_FOUND = "Spot check not found.";
-
-interface StoredSample {
-  scanId: string;
-  result: AccuracySampleResult | null;
-}
-
-function toSamples(value: unknown): StoredSample[] {
+function toSamples(value: unknown): StoredAccuracySample[] {
   return Array.isArray(value)
     ? value
         .map((raw) => (raw ?? {}) as Record<string, unknown>)
@@ -228,7 +224,7 @@ export const accuracyRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid spot check." }, 400);
     }
     return businessQuery(c, async (tx, access) => {
-      if (access.isLocked) return upgradeRequired;
+      if (access.isLocked) return BUSINESS_UPGRADE_REQUIRED_RESULT;
       const orgId = c.get("orgId");
       const batch = await findBatch(
         tx,
@@ -271,7 +267,7 @@ export const accuracyRoute = new Hono<AppEnv>()
     businessQuery(c, async (tx) => {
       const orgId = c.get("orgId");
       const found = await findCheck(tx, orgId, c.req.param("guid"));
-      if (!found) return notFound(CHECK_NOT_FOUND);
+      if (!found) return notFound(SPOT_CHECK_NOT_FOUND_MESSAGE);
       const samples = toSamples(found.check.samples);
       const ids = samples.map((s) => s.scanId);
       const cards = ids.length
@@ -328,7 +324,7 @@ export const accuracyRoute = new Hono<AppEnv>()
     return businessQuery(c, async (tx) => {
       const orgId = c.get("orgId");
       const found = await findCheck(tx, orgId, c.req.param("guid"));
-      if (!found) return notFound(CHECK_NOT_FOUND);
+      if (!found) return notFound(SPOT_CHECK_NOT_FOUND_MESSAGE);
       if (found.check.status !== "open") {
         return { success: false, message: "This spot check is finished." };
       }
@@ -358,7 +354,7 @@ export const accuracyRoute = new Hono<AppEnv>()
     businessQuery(c, async (tx) => {
       const orgId = c.get("orgId");
       const found = await findCheck(tx, orgId, c.req.param("guid"));
-      if (!found) return notFound(CHECK_NOT_FOUND);
+      if (!found) return notFound(SPOT_CHECK_NOT_FOUND_MESSAGE);
       const now = new Date();
       await tx
         .update(accuracyChecks)
@@ -387,7 +383,7 @@ export const accuracyRoute = new Hono<AppEnv>()
   .delete("/accuracy/checks/:guid", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx) => {
       const found = await findCheck(tx, c.get("orgId"), c.req.param("guid"));
-      if (!found) return notFound(CHECK_NOT_FOUND);
+      if (!found) return notFound(SPOT_CHECK_NOT_FOUND_MESSAGE);
       await tx
         .update(accuracyChecks)
         .set({ isDeleted: true, updatedAt: new Date() })

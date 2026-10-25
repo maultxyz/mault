@@ -22,8 +22,6 @@
     "saveName": "Enregistrer le nom",
     "cancelRename": "Annuler",
     "renameFailed": "Impossible de renommer le clip sonore.",
-    "nameRequired": "Donne un nom au clip.",
-    "nameTooLong": "Le nom ne peut pas dépasser 60 caractères.",
     "stop": "Arrêter {{name}}"
   },
   "rules": {
@@ -56,11 +54,6 @@
     "conditions": "Conditions",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "saveFailed": "Impossible d'enregistrer la règle sonore.",
-    "validation": {
-      "nameRequired": "Donne un nom à la règle.",
-      "clipRequired": "Choisis un clip sonore.",
-      "conditionsRequired": "Ajoute au moins une condition."
-    }
+    "saveFailed": "Impossible d'enregistrer la règle sonore."
   }
 }

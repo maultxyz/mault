@@ -301,21 +301,6 @@ export function dewarpRgba(
   );
 }
 
-export function resizeRgba(
-  source: RgbaImage,
-  outputWidth: number,
-  outputHeight: number,
-): RgbaImage {
-  const scaleX = source.width / outputWidth;
-  const scaleY = source.height / outputHeight;
-  return warpRgba(
-    source,
-    [source.width, 0, -0.5 + scaleX / 2, 0, source.height, -0.5 + scaleY / 2, 0, 0, 1],
-    outputWidth,
-    outputHeight,
-  );
-}
-
 export function rotateRgba180(source: RgbaImage): RgbaImage {
   const { width, height, data } = source;
   const out = new Uint8ClampedArray(width * height * 4);

@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNotificationSettings } from "../api/use-notification-settings";
 import { NOTIFICATION_TEST_TYPES } from "@/lib/constants/notifications";
+import { type DiscordSettingsDraftFormValues } from "@magic-vault/shared";
 
 export function DiscordNotificationSettings() {
   const { t } = useTranslation("notifications");
   const { isLoading, isLinked, sendTest, isTesting, testingType } =
     useNotificationSettings();
-  const { control, formState } = useFormContext<DiscordSettingsDraftValues>();
+  const { control, formState } = useFormContext<DiscordSettingsDraftFormValues>();
   const notifyOnScan = useWatch({ control, name: "discordNotifyOnScan" });
   const disabled = isLoading || formState.isSubmitting;
 

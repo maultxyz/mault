@@ -44,13 +44,6 @@ export function imageStem(url: string | null | undefined): string {
   return file.replace(/\.[a-z]+$/i, "");
 }
 
-// Some printings share a card_image_id with a different image (mostly promo
-// re-prints the API didn't suffix), and one corrupted record's card_set_id
-// names a different card than its image id. Both sides of the app must agree
-// on how those rows are re-keyed, so Search and sync share this: colliding
-// rows are re-keyed by their image filename stem, prefixed with the printed id
-// when the stem alone doesn't carry one — which is exactly the form
-// findVersion resolves back to the row.
 export function dedupeOnePieceRows(rows: OptcgCard[]): {
   rows: { raw: OptcgCard; id: string }[];
   dropped: OptcgCard[];
@@ -72,8 +65,6 @@ export function dedupeOnePieceRows(rows: OptcgCard[]): {
       fromSetId !== onePiecePrintedId(id) &&
       raw.card_image_id
     ) {
-      // Corrupted merged record: key it under the card_set_id the per-card
-      // endpoints actually group it by, keeping the image id for uniqueness.
       id = `${fromSetId}_${raw.card_image_id}`;
     }
 
@@ -83,13 +74,11 @@ export function dedupeOnePieceRows(rows: OptcgCard[]): {
       continue;
     }
     if (!raw.card_image || kept.raw.card_image === raw.card_image) {
-      continue; // true re-listing across catalogs
+      continue;
     }
 
     const stem = imageStem(raw.card_image);
     if (stem === id) {
-      // This row's image filename IS the contested id — it is the rightful
-      // owner. Move the previously kept row to its own image stem.
       const keptStem = stemKey(id, imageStem(kept.raw.card_image));
       if (keptStem && keptStem !== id && !seen.has(keptStem)) {
         seen.set(keptStem, { raw: kept.raw, id: keptStem });
@@ -143,10 +132,6 @@ export function normalizeOnePieceCard(
   };
 }
 
-// Booster set (OPxx/EBxx/PRBxx), starter deck (STxx), and promo (P-xxx) cards
-// live under different API resources, and a promo printing of a set-numbered
-// card only appears under promos — so lookups try the likeliest endpoint
-// first, then the others.
 const CARD_ENDPOINTS = ["sets/card", "decks/card", "promos/card"] as const;
 
 function primaryEndpoint(printedId: string): (typeof CARD_ENDPOINTS)[number] {
@@ -178,9 +163,6 @@ export async function findCardVersion(
   const primary = primaryEndpoint(printedId);
   const endpoints = [primary, ...CARD_ENDPOINTS.filter((e) => e !== primary)];
 
-  // The per-card endpoints group rows by card_set_id, which for a few starter
-  // reprints keeps the version suffix ("P-030_r1") — so when the printed id
-  // misses, retry with the raw id as the path key.
   const keys = id === printedId ? [printedId] : [printedId, id];
 
   const urls: string[] = [];
@@ -213,7 +195,7 @@ const FILTERED_ENDPOINTS = [
   "promos/filtered",
 ];
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = ONE_PIECE_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -234,7 +216,7 @@ export async function Search(
   let errorStatus: number | undefined;
   for (const response of responses) {
     if (response.status === 404) {
-      anyOk = true; // the filtered endpoints 404 on no matches
+      anyOk = true;
       continue;
     }
     if (!response.ok) {
@@ -254,7 +236,6 @@ export async function Search(
     };
   }
 
-  // A partial fan-out must not be served (and cached) as a success.
   if (errorStatus !== undefined) {
     return {
       message: `OPTCG API error: ${errorStatus}`,
@@ -278,7 +259,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = ONE_PIECE_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -293,8 +274,6 @@ export async function SearchById(
       : { success: false, message: `Card ${id} not found.` };
   }
 
-  // Keep the requested id: for re-keyed printings the row's own card_image_id
-  // is the collided one, but the requested id is the identity in the app.
   return {
     success: true,
     message: "Successfully fetched card by id.",
@@ -304,8 +283,8 @@ export async function SearchById(
 
 export const onePieceAdapter: CardSearchAdapter = {
   defaultUrl: ONE_PIECE_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw, id) => normalizeOnePieceCard(raw as OptcgCard, id),
   tcgplayer: {
     categoryId: 68,

@@ -39,7 +39,8 @@
     "errors": {
       "network": "Couldn't reach the server. Check your connection and try again.",
       "profile": "Signed in, but your account details couldn't be loaded. Try again.",
-      "verify-email": "Verify your email address, then sign in."
+      "verify-email": "Verify your email address, then sign in.",
+      "storage": "Signed in, but the session couldn't be saved on this device. Try again."
     },
     "createAccountOnWeb": "New to Mault? Create an account on the web"
   },
@@ -86,11 +87,6 @@
     "deleteFailed": "Couldn't delete the collection",
     "actions": "Collection actions",
     "cancel": "Cancel",
-    "validation": {
-      "name": "Enter a name of up to 50 characters.",
-      "game": "Choose a game.",
-      "lang": "Choose a language."
-    },
     "shareLink": "Share live view link",
     "revokeLinks": "Revoke shared links",
     "revokeLinksTitle": "Revoke shared links?",
@@ -273,8 +269,7 @@
         "nameLabel": "Display name",
         "save": "Save",
         "updated": "Name updated",
-        "updateFailed": "Couldn't update your name",
-        "nameRequired": "Enter your name."
+        "updateFailed": "Couldn't update your name"
       },
       "email": {
         "heading": "Email",
@@ -291,15 +286,12 @@
       "password": {
         "heading": "Password",
         "currentLabel": "Current password",
-        "currentRequired": "Enter your current password",
         "newLabel": "New password",
         "confirmLabel": "Confirm new password",
         "revokeOtherSessions": "Sign out of all other devices",
         "submit": "Update password",
         "updated": "Password updated",
-        "updateFailed": "Couldn't update your password",
-        "mismatch": "Passwords don't match",
-        "tooShort": "Must be at least 8 characters"
+        "updateFailed": "Couldn't update your password"
       },
       "sessions": {
         "heading": "Sessions",
@@ -479,7 +471,7 @@
       },
       "bin-full": {
         "title": "Bin full",
-        "description": "Empty the bin on the web app, then tap Resume."
+        "description": "Take the cards out of bin {{detail}}, mark it empty, then scanning carries on."
       },
       "scan-limit": {
         "title": "Daily scan limit reached",
@@ -508,6 +500,14 @@
       "repack-complete": {
         "title": "Packs complete",
         "description": "Every pack bin is full. Empty them, then tap Resume to start the next round."
+      },
+      "bin-data-unavailable": {
+        "title": "Bin levels unavailable",
+        "description": "The app couldn't load how full each bin is, so it paused instead of guessing. Check your connection, then tap Resume."
+      },
+      "deploy": {
+        "title": "Update in progress",
+        "description": "Mault is being updated, so scanning was paused to make sure no cards are lost. You can resume now, but scans may fail until the update finishes."
       }
     },
     "scanOnce": "Scan one",
@@ -587,7 +587,19 @@
       "pairDesktopDescription": "Scan the QR code shown on your computer",
       "collection": "Collection",
       "preset": "Rule preset",
-      "chooseCamera": "Choose a camera"
+      "chooseCamera": "Choose a camera",
+      "foilType": "Foil type",
+      "notFoil": "Not foil",
+      "set": "Set",
+      "anySet": "Any set",
+      "searchSets": "Search sets"
+    },
+    "emptyBin": {
+      "action": "Mark empty",
+      "confirmTitle": "Mark bin {{bins}} empty?",
+      "confirmDescription": "Only do this after taking the cards out. The bin's count starts again from zero.",
+      "confirm": "Mark empty",
+      "failed": "Couldn't mark the bin empty. Check your connection and try again."
     }
   },
   "home": {
@@ -850,7 +862,9 @@
       "slotsLabel": "Slots",
       "slotCountLabel": "Count",
       "removeSlot": "Remove slot",
-      "addSlot": "Add slot"
+      "addSlot": "Add slot",
+      "multiplePacksLabel": "Multiple packs per bin",
+      "multiplePacksDescription": "When a bin finishes a pack, it starts a new one on top of it and keeps going until the bin is full. A bin only starts a new pack if it has room for the whole pack, so packs are never cut short."
     },
     "alphabet": {
       "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
@@ -1236,7 +1250,6 @@
       },
       "you": "You",
       "failed": "Couldn't update the organization",
-      "invalidEmail": "Enter a valid email address.",
       "cancel": "Cancel",
       "membersUnavailable": "Members are managed by your self-hosted server's admin tools.",
       "noInvites": "No pending invites"
@@ -1314,11 +1327,9 @@
       "saved": "Webhook saved.",
       "saveFailed": "Couldn't save the webhook.",
       "urlLabel": "URL",
-      "invalidUrl": "Enter a public https:// URL.",
       "descriptionLabel": "Name (optional)",
       "descriptionPlaceholder": "Online shop",
       "eventsLabel": "Events",
-      "eventsRequired": "Pick at least one event.",
       "events": {
         "card": {
           "scanned": "A card was scanned and saved to a collection."
@@ -1423,12 +1434,7 @@
         "conditions": "Conditions",
         "cancel": "Cancel",
         "save": "Save",
-        "saveFailed": "Couldn't save the notification rule.",
-        "validation": {
-          "nameRequired": "Give the rule a name.",
-          "channelRequired": "Choose a channel.",
-          "conditionsRequired": "Add at least one condition."
-        }
+        "saveFailed": "Couldn't save the notification rule."
       },
       "draft": {
         "saved": "Discord settings saved.",
@@ -1510,8 +1516,6 @@
         "saveName": "Save name",
         "cancelRename": "Cancel",
         "renameFailed": "Couldn't rename the sound clip.",
-        "nameRequired": "Give the clip a name.",
-        "nameTooLong": "Keep the name to 60 characters or fewer.",
         "stop": "Stop {{name}}",
         "pickFailed": "Couldn't open that file.",
         "renamed": "Sound clip renamed.",
@@ -1548,12 +1552,7 @@
         "conditions": "Conditions",
         "cancel": "Cancel",
         "save": "Save",
-        "saveFailed": "Couldn't save the sound rule.",
-        "validation": {
-          "nameRequired": "Give the rule a name.",
-          "clipRequired": "Choose a sound clip.",
-          "conditionsRequired": "Add at least one condition."
-        }
+        "saveFailed": "Couldn't save the sound rule."
       }
     }
   },
@@ -1682,5 +1681,41 @@
     "captured_one": "{{count}} photo sent",
     "captured_other": "{{count}} photos sent",
     "keepOpen": "Keep this screen open while the computer scans."
+  },
+  "validation": {
+    "nameRequired": "Enter a name.",
+    "nameTooLong": "Keep it to {{max}} characters or fewer.",
+    "ruleNameRequired": "Give the rule a name.",
+    "clipNameRequired": "Give the clip a name.",
+    "gameRequired": "Choose a game.",
+    "languageRequired": "Choose a language.",
+    "collectionRequired": "Choose a collection.",
+    "channelRequired": "Choose a channel.",
+    "clipRequired": "Choose a sound clip.",
+    "conditionsRequired": "Add at least one condition.",
+    "emailInvalid": "Enter a valid email address.",
+    "currentPasswordRequired": "Enter your current password.",
+    "passwordTooShort": "Must be at least {{min}} characters.",
+    "passwordMismatch": "Passwords don't match.",
+    "webhookUrlInvalid": "Enter a public https:// URL.",
+    "eventsRequired": "Pick at least one event.",
+    "conditionMultipliersInvalid": "Each condition needs a percentage from 0 to 100.",
+    "valueRequired": "Enter a value.",
+    "wholeNumber": "Must be a whole number.",
+    "atLeast": "Must be at least {{min}}.",
+    "atMost": "Must be at most {{max}}.",
+    "percentAtLeast": "Must be at least {{min}}%.",
+    "percentAtMost": "Must be at most {{max}}%.",
+    "amountRequired": "Enter an amount.",
+    "percentageRequired": "Enter a percentage.",
+    "tiersRequired": "Add at least one tier.",
+    "tooManyTiers": "Add no more than {{max}} tiers.",
+    "customerNameRequired": "Enter the customer's name.",
+    "orderTextRequired": "Paste an order or choose a file.",
+    "cardCountRequired": "Enter a number of cards.",
+    "storageLocationRequired": "Choose where the cards went.",
+    "commandRequired": "Enter a command.",
+    "verificationCodeLength": "Enter the {{length}}-digit code.",
+    "verificationCodeNumeric": "The code can only contain numbers."
   }
 }

@@ -1,4 +1,5 @@
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
+import { useCardViewPreferences } from "@/features/cards/api/use-card-view-preferences";
 import {
   monitorCardsKey,
   monitorCardsPageQueryOptions,
@@ -12,14 +13,9 @@ import {
   MONITOR_OPEN_CARD_PARAM,
 } from "@/lib/constants/scanner";
 import {
-  CARD_GROUP_DUPLICATES_STORAGE_KEY,
-  CARD_VIEW_MODE_STORAGE_KEY,
-} from "@/lib/constants/storage-keys";
-import {
   MONITOR_REFRESH_THROTTLE_MS,
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/timing";
-import type { CardViewMode } from "@/lib/interfaces/cards";
 import type {
   MonitorCardsSource,
   MonitorCardsState,
@@ -43,40 +39,12 @@ export function useMonitorCards(
   );
   const queryState = useCardQueryState(fieldDefinitions);
 
-  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
-    try {
-      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
-        ? "list"
-        : "grid";
-    } catch {
-      return "grid";
-    }
-  });
-
-  const handleViewModeChange = useCallback((mode: CardViewMode) => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
-    } catch {}
-  }, []);
-
-  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-
-  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
-    setGroupDuplicates(grouped);
-    try {
-      localStorage.setItem(
-        CARD_GROUP_DUPLICATES_STORAGE_KEY,
-        grouped ? "1" : "0",
-      );
-    } catch {}
-  }, []);
+  const {
+    viewMode,
+    handleViewModeChange,
+    groupDuplicates,
+    handleGroupDuplicatesChange,
+  } = useCardViewPreferences();
 
   const debouncedSearch = useDebouncedValue(
     queryState.searchQuery,

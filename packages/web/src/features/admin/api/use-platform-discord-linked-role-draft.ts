@@ -3,7 +3,7 @@ import {
   savePlatformDiscordLinkedRole,
 } from "@/features/admin/api/platform-discord-linked-role";
 import { EMPTY_PLATFORM_DISCORD_LINKED_ROLE_FORM } from "@/lib/constants/admin";
-import { toast } from "@/lib/toast";
+import { requestWithToasts } from "@/lib/request-with-toasts";
 import {
   platformDiscordLinkedRoleSchema,
   type PlatformDiscordLinkedRoleFormValues,
@@ -25,25 +25,18 @@ export function usePlatformDiscordLinkedRoleDraft() {
     resetOptions: { keepDirtyValues: true },
   });
 
-  const save = async (values: PlatformDiscordLinkedRoleFormValues) => {
-    try {
-      const result = await savePlatformDiscordLinkedRole(values);
-      if (!result.success || !result.data) {
-        toast.error(
-          result.message ?? t("discordChannels.linkedRole.saveFailed"),
+  const save = (values: PlatformDiscordLinkedRoleFormValues) =>
+    requestWithToasts(() => savePlatformDiscordLinkedRole(values), {
+      successMessage: t("discordChannels.linkedRole.saved"),
+      failureMessage: t("discordChannels.linkedRole.saveFailed"),
+      onSuccess: (saved) => {
+        queryClient.setQueryData(
+          platformDiscordLinkedRoleQueryOptions.queryKey,
+          saved,
         );
-        return;
-      }
-      queryClient.setQueryData(
-        platformDiscordLinkedRoleQueryOptions.queryKey,
-        result.data,
-      );
-      form.reset(result.data);
-      toast.success(t("discordChannels.linkedRole.saved"));
-    } catch {
-      toast.error(t("discordChannels.linkedRole.saveFailed"));
-    }
-  };
+        form.reset(saved);
+      },
+    });
 
   return {
     form,

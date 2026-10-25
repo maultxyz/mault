@@ -17,11 +17,7 @@ import { apiDelete } from "@/lib/api/client";
 import { neon } from "@/lib/auth/client";
 import {
   memberRolesSchema,
-  orgInviteSchema,
-  organizationNameSchema,
   type MemberRolesFormValues,
-  type OrgInviteFormValues,
-  type OrganizationNameFormValues,
 } from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconTrash } from "@tabler/icons-react";
@@ -29,7 +25,13 @@ import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-import type { OrgRole } from "@magic-vault/shared";
+import {
+  organizationInviteFormSchema,
+  type OrganizationInviteFormValues,
+  organizationNameFormSchema,
+  type OrganizationNameFormValues,
+  type OrgRole,
+} from "@magic-vault/shared";
 
 
 export function OrgSettings() {
@@ -58,7 +60,7 @@ export function OrgSettings() {
   } | null>(null);
 
   const renameForm = useForm<OrganizationNameFormValues>({
-    resolver: zodResolver(organizationNameSchema),
+    resolver: zodResolver(organizationNameFormSchema),
     defaultValues: { name: "" },
   });
 
@@ -80,8 +82,8 @@ export function OrgSettings() {
   const isSaving =
     renameForm.formState.isSubmitting || rolesForm.formState.isSubmitting;
 
-  const inviteForm = useForm<OrgInviteFormValues>({
-    resolver: zodResolver(orgInviteSchema),
+  const inviteForm = useForm<OrganizationInviteFormValues>({
+    resolver: zodResolver(organizationInviteFormSchema),
     defaultValues: { email: "", role: "member" },
   });
 
@@ -103,7 +105,7 @@ export function OrgSettings() {
     }
   }
 
-  async function handleInvite({ email, role }: OrgInviteFormValues) {
+  async function handleInvite({ email, role }: OrganizationInviteFormValues) {
     if (!activeOrg) return;
     try {
       const { error } = await neon.auth.organization.inviteMember({

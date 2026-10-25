@@ -14,8 +14,8 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { isScanSaved } from "./scan-saved";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// POST /collections/:guid/unmatched — record a scan that found no card match
 export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched",
   requireAuth,
@@ -127,8 +127,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       return c.json(result);
     } catch (err) {
       deleteScanImages([storedImage.key]);
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

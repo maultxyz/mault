@@ -2,14 +2,11 @@ import {
   ACTIVITY_ACTIONS,
   ACTIVITY_PAGE_SIZE,
   ACTIVITY_PAGE_SIZE_MAX,
-  STATS_DEFAULT_RANGE,
   STATS_RANGE_DAYS,
-  STATS_RANGES,
   type ActivityAction,
   type ActivityPage,
   type StaffReport,
   type StaffThroughputRow,
-  type StatsRange,
 } from "@magic-vault/shared";
 import { and, desc, eq, gte, isNotNull, sql } from "drizzle-orm";
 import { Hono } from "hono";
@@ -22,13 +19,10 @@ import {
   requireOrg,
   type AppEnv,
 } from "../../middleware/auth";
-import { businessQuery, forbidden } from "./shared";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function parseRange(value: string | undefined): StatsRange {
-  return STATS_RANGES.find((range) => range === value) ?? STATS_DEFAULT_RANGE;
-}
+import { businessQuery } from "./shared";
+import { ONE_DAY_MS } from "../../lib/constants/timing";
+import { parseStatsRange } from "../../lib/stats-range";
+import { BUSINESS_FORBIDDEN_RESULT } from "../../lib/constants/business";
 
 export const activityRoute = new Hono<AppEnv>()
   .get("/activity", requireAuth, requireOrg, (c) => {
@@ -46,7 +40,7 @@ export const activityRoute = new Hono<AppEnv>()
       ? (actionParam as ActivityAction)
       : null;
     return businessQuery(c, async (tx, access) => {
-      if (!access.canViewActivity) return forbidden;
+      if (!access.canViewActivity) return BUSINESS_FORBIDDEN_RESULT;
       const where = and(
         eq(orgActivityLog.orgId, c.get("orgId")),
         userId ? eq(orgActivityLog.userId, userId) : undefined,
@@ -85,10 +79,10 @@ export const activityRoute = new Hono<AppEnv>()
     });
   })
   .get("/staff", requireAuth, requireOrg, (c) => {
-    const range = parseRange(c.req.query("range"));
-    const since = new Date(Date.now() - STATS_RANGE_DAYS[range] * DAY_MS);
+    const range = parseStatsRange(c.req.query("range"));
+    const since = new Date(Date.now() - STATS_RANGE_DAYS[range] * ONE_DAY_MS);
     return businessQuery(c, async (tx, access) => {
-      if (!access.canViewActivity) return forbidden;
+      if (!access.canViewActivity) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const scans = await db
         .select({

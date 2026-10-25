@@ -4,9 +4,6 @@ import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { useQuery } from "@tanstack/react-query";
 import type { Device } from "@/lib/interfaces/calibration";
 
-// A station shows its bound board's device. Before any board has connected,
-// it falls back to a device no other station is bound to, so a fresh single-
-// sorter setup still sees its calibration without connecting first.
 export function useDevice(): Device | undefined {
   const { activeOrg } = useOrg();
   const { data } = useQuery(devicesQueryOptions(activeOrg?.id));

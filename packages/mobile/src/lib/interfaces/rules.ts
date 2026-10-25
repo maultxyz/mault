@@ -32,6 +32,7 @@ export interface RepackConfigInput {
   repackSlots: RepackSlot[];
   repackUniqueBy: string | null;
   repackSiftRules: BinRuleGroup | null;
+  repackMultiplePacks?: boolean;
 }
 
 export interface AlphabetConfigInput extends AlphabetStep {

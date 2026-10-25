@@ -1,9 +1,4 @@
 import { colorSwatch, raritySwatch } from "@/lib/card-swatches";
-import {
-  RARITY_LABELS,
-  RARITY_ORDER,
-  RARITY_TIER_ORDER,
-} from "@/lib/constants/rarity";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 import {
   cardPriceFor,
@@ -11,31 +6,10 @@ import {
   DEFAULT_PRICE_SOURCE,
   type CardStatsAggregate,
   type PriceSource,
+  rarityLabel,
   type ScannedCard,
+  sortRarities,
 } from "@magic-vault/shared";
-
-
-function capitalize(value: string): string {
-  return value.length > 0
-    ? value.charAt(0).toUpperCase() + value.slice(1)
-    : value;
-}
-
-function rarityRank(key: string): number {
-  const tier = raritySwatch(key).tier;
-  return tier ? RARITY_TIER_ORDER.indexOf(tier) : RARITY_TIER_ORDER.length;
-}
-
-function sortRarities<T extends { key: string; count: number }>(
-  entries: T[],
-): T[] {
-  return [...entries].sort((a, b) => {
-    const orderA = RARITY_ORDER.indexOf(a.key);
-    const orderB = RARITY_ORDER.indexOf(b.key);
-    if (orderA !== -1 && orderB !== -1) return orderA - orderB;
-    return rarityRank(a.key) - rarityRank(b.key) || b.count - a.count;
-  });
-}
 
 export function aggregateCards(
   cards: ScannedCard[],
@@ -137,7 +111,7 @@ export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
         const { bg, textClass } = raritySwatch(key);
         return {
           key,
-          label: RARITY_LABELS[key] ?? capitalize(key),
+          label: rarityLabel(key),
           bg,
           textClass,
           count,

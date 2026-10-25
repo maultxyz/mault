@@ -5,6 +5,7 @@ import {
 import type { QrScannerStatus } from "@/lib/interfaces/scanner";
 import jsQR from "jsqr";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { stopMediaStream } from "@/features/scanner/lib/camera-stream";
 
 export function useQrScanner(onResult: (text: string) => void) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -56,7 +57,7 @@ export function useQrScanner(onResult: (text: string) => void) {
       )
       .then(async (media) => {
         if (cancelled) {
-          media.getTracks().forEach((track) => track.stop());
+          stopMediaStream(media);
           return;
         }
         stream = media;
@@ -76,7 +77,7 @@ export function useQrScanner(onResult: (text: string) => void) {
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
-      stream?.getTracks().forEach((track) => track.stop());
+      stopMediaStream(stream);
     };
   }, [attempt]);
 

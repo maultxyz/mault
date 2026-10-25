@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { buildKitReport } from "@/features/admin/lib/kit-test";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import type { KitTestReportProps } from "@/lib/interfaces/kit-test";
-import { toast } from "@/lib/toast";
 import { IconCopy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { copyWithToast } from "@/lib/clipboard";
 
 export function KitTestReport({ session }: KitTestReportProps) {
   const { t } = useTranslation("admin");
@@ -17,12 +17,11 @@ export function KitTestReport({ session }: KitTestReportProps) {
   });
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(report);
-      toast.success(t("kitTest.report.copied"));
-    } catch {
-      toast.error(t("kitTest.report.copyFailed"));
-    }
+    await copyWithToast(
+      report,
+      t("kitTest.report.copied"),
+      t("kitTest.report.copyFailed"),
+    );
   };
 
   return (

@@ -20,12 +20,7 @@ function parseLinkedRole(body: unknown): PlatformDiscordLinkedRole | null {
 
 export const discordLinkedRoleRoute = new Hono<AppEnv>()
   .get("/discord-linked-role", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
-    try {
-      return c.json({ success: true, data: await loadLinkedAccountRole() });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    return c.json({ success: true, data: await loadLinkedAccountRole() });
   })
   .put("/discord-linked-role", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const next = parseLinkedRole(await c.req.json().catch(() => null));
@@ -60,15 +55,10 @@ export const discordLinkedRoleRoute = new Hono<AppEnv>()
       }
     }
 
-    try {
-      const previous = await loadLinkedAccountRole();
-      const saved = await saveLinkedAccountRole(next);
-      void syncLinkedAccountRoleChange(previous, saved).catch((err) =>
-        console.error("[discord] Failed to sync the linked role:", err),
-      );
-      return c.json({ success: true, data: saved });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const previous = await loadLinkedAccountRole();
+    const saved = await saveLinkedAccountRole(next);
+    void syncLinkedAccountRoleChange(previous, saved).catch((err) =>
+      console.error("[discord] Failed to sync the linked role:", err),
+    );
+    return c.json({ success: true, data: saved });
   });

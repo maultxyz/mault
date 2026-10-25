@@ -9,6 +9,7 @@ import { ensureGameVectorIndex } from "../../lib/game-vector-index";
 import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken, toGame } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editGameRoute = new Hono<AppEnv>().put(
   "/:guid",
@@ -81,20 +82,17 @@ export const editGameRoute = new Hono<AppEnv>().put(
       });
       publicGamesCache.invalidate();
       if (newKey !== undefined && newKey !== target.key) {
-        // Fire-and-forget - see add.ts for why this isn't awaited.
         void ensureGameVectorIndex(newKey);
       }
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {
-      // Backstop for a race between the check above and this update.
       if (err instanceof Error && /unique/i.test(err.message)) {
         return c.json(
           { success: false, message: `A game with key "${key}" already exists.` },
           409,
         );
       }
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

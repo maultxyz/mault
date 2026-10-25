@@ -44,12 +44,7 @@ function getInitialLanguage(): SupportedLanguage {
     if ((SUPPORTED_LANGUAGES as readonly string[]).includes(stored ?? "")) {
       return stored as SupportedLanguage;
     }
-  } catch {
-    // Safari can throw on localStorage access (private browsing, storage
-    // restrictions) - this runs at module load, before React ever mounts,
-    // so an uncaught throw here takes down the whole app with nothing to
-    // show for it. Fall through to browser-language detection instead.
-  }
+  } catch {}
   const browserLang = navigator.language.toLowerCase();
   if (browserLang.startsWith("de")) return "de";
   if (browserLang.startsWith("fr")) return "fr";
@@ -65,10 +60,6 @@ void i18n
   .init({
     lng: initialLanguage,
     fallbackLng: "en",
-    // Only "common" up front: loading all ~21 namespaces (42 for a non-English
-    // browser, counting the English fallback) at startup competed with the
-    // landing page's own chunks. Routes preload what they need via
-    // withNamespaces(), and anything missed still loads on demand.
     ns: ["common"],
     defaultNS: "common",
     interpolation: { escapeValue: false },
@@ -79,15 +70,9 @@ i18n.on("languageChanged", (lng) => {
   document.documentElement.lang = lng;
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
-  } catch {
-    // Same storage-restricted environments as above - persistence is a
-    // nice-to-have, not required for the language switch itself to work.
-  }
+  } catch {}
 });
 
-// Wraps a React.lazy importer so the route's translations load in parallel
-// with its code and are ready by first render, rather than flashing raw keys
-// while useTranslation() fetches them on demand.
 export function withNamespaces<T>(
   load: () => Promise<T>,
   namespaces: readonly string[],

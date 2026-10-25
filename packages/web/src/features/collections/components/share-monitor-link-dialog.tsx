@@ -35,6 +35,7 @@ import { toast } from "@/lib/toast";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
+import { copyWithToast } from "@/lib/clipboard";
 
 export function ShareMonitorLinkDialog({
   collectionGuid,
@@ -85,12 +86,11 @@ export function ShareMonitorLinkDialog({
 
   const handleCopy = useCallback(async () => {
     if (!link) return;
-    try {
-      await navigator.clipboard.writeText(link.url);
-      toast.success(t("shareMonitorLink.copied"));
-    } catch {
-      toast.error(t("shareMonitorLink.copyFailed"));
-    }
+    await copyWithToast(
+      link.url,
+      t("shareMonitorLink.copied"),
+      t("shareMonitorLink.copyFailed"),
+    );
   }, [link, t]);
 
   const handleRevoke = useCallback(async () => {

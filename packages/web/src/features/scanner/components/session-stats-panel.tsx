@@ -1,25 +1,7 @@
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useTranslation } from "react-i18next";
 import type { SessionStatsPanelProps } from "@/lib/interfaces/scanner";
-
-function StatCell({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
-  return (
-    <div className={`p-3 ${className ?? ""}`}>
-      <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-0.5">
-        {label}
-      </p>
-      <p className="text-sm font-semibold">{value}</p>
-    </div>
-  );
-}
+import { StatCell } from "@/components/stat-cell";
 
 export function SessionStatsPanel({
   stats,

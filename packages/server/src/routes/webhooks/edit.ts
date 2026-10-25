@@ -26,32 +26,27 @@ export const editWebhookRoute = new Hono<AppEnv>()
         400,
       );
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const [row] = await tx
-          .update(webhookEndpoints)
-          .set({
-            url: input.data.url,
-            description: input.data.description,
-            events: input.data.events,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(webhookEndpoints.guid, c.req.param("guid")),
-              eq(webhookEndpoints.orgId, orgId),
-            ),
-          )
-          .returning(WEBHOOK_ENDPOINT_COLUMNS);
-        return row
-          ? { success: true, data: await toWebhookEndpoint(row) }
-          : { success: false, message: "Webhook not found." };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const [row] = await tx
+        .update(webhookEndpoints)
+        .set({
+          url: input.data.url,
+          description: input.data.description,
+          events: input.data.events,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(webhookEndpoints.guid, c.req.param("guid")),
+            eq(webhookEndpoints.orgId, orgId),
+          ),
+        )
+        .returning(WEBHOOK_ENDPOINT_COLUMNS);
+      return row
+        ? { success: true, data: await toWebhookEndpoint(row) }
+        : { success: false, message: "Webhook not found." };
+    });
+    return c.json(result);
   })
   .post("/:guid/enable", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
@@ -61,30 +56,25 @@ export const editWebhookRoute = new Hono<AppEnv>()
         message: "Only organization owners and admins can enable webhooks.",
       });
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const [row] = await tx
-          .update(webhookEndpoints)
-          .set({
-            disabledAt: null,
-            disabledReason: null,
-            consecutiveFailures: 0,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(webhookEndpoints.guid, c.req.param("guid")),
-              eq(webhookEndpoints.orgId, orgId),
-            ),
-          )
-          .returning(WEBHOOK_ENDPOINT_COLUMNS);
-        return row
-          ? { success: true, data: await toWebhookEndpoint(row) }
-          : { success: false, message: "Webhook not found." };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const [row] = await tx
+        .update(webhookEndpoints)
+        .set({
+          disabledAt: null,
+          disabledReason: null,
+          consecutiveFailures: 0,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(webhookEndpoints.guid, c.req.param("guid")),
+            eq(webhookEndpoints.orgId, orgId),
+          ),
+        )
+        .returning(WEBHOOK_ENDPOINT_COLUMNS);
+      return row
+        ? { success: true, data: await toWebhookEndpoint(row) }
+        : { success: false, message: "Webhook not found." };
+    });
+    return c.json(result);
   });

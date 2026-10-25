@@ -110,7 +110,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "save": "Save",
-    "create": "Create"
+    "create": "Create",
+    "search": "Search"
   },
   "unsavedChanges": {
     "message": "You have unsaved changes",
@@ -142,7 +143,13 @@
   },
   "footer": {
     "donate": "Donate",
-    "donateAriaLabel": "Support Mault on Buy Me a Coffee"
+    "donateAriaLabel": "Support Mault on Buy Me a Coffee",
+    "openSource": "Open source",
+    "reportIssue": "Report an issue",
+    "signIn": "Sign in",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "© {{year}} Mault LLC"
   },
   "publicNav": {
     "pagesAria": "Site pages",
@@ -169,6 +176,7 @@
     "keys": {
       "space": "Space",
       "shift": "Shift",
+      "ctrl": "Ctrl",
       "left": "←",
       "right": "→",
       "escape": "Esc",
@@ -187,6 +195,8 @@
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
       "dismissToasts": "Clear all notifications",
+      "save": "Save changes",
+      "clearSelection": "Clear the selection",
       "goScanner": "Go to sorting",
       "goCollections": "Go to collections",
       "goStorage": "Go to storage boxes",
@@ -249,5 +259,41 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Couldn't copy to the clipboard"
     }
+  },
+  "validation": {
+    "nameRequired": "Enter a name.",
+    "nameTooLong": "Keep it to {{max}} characters or fewer.",
+    "ruleNameRequired": "Give the rule a name.",
+    "clipNameRequired": "Give the clip a name.",
+    "gameRequired": "Choose a game.",
+    "languageRequired": "Choose a language.",
+    "collectionRequired": "Choose a collection.",
+    "channelRequired": "Choose a channel.",
+    "clipRequired": "Choose a sound clip.",
+    "conditionsRequired": "Add at least one condition.",
+    "emailInvalid": "Enter a valid email address.",
+    "currentPasswordRequired": "Enter your current password.",
+    "passwordTooShort": "Must be at least {{min}} characters.",
+    "passwordMismatch": "Passwords don't match.",
+    "webhookUrlInvalid": "Enter a public https:// URL.",
+    "eventsRequired": "Pick at least one event.",
+    "conditionMultipliersInvalid": "Each condition needs a percentage from 0 to 100.",
+    "valueRequired": "Enter a value.",
+    "wholeNumber": "Must be a whole number.",
+    "atLeast": "Must be at least {{min}}.",
+    "atMost": "Must be at most {{max}}.",
+    "percentAtLeast": "Must be at least {{min}}%.",
+    "percentAtMost": "Must be at most {{max}}%.",
+    "amountRequired": "Enter an amount.",
+    "percentageRequired": "Enter a percentage.",
+    "tiersRequired": "Add at least one tier.",
+    "tooManyTiers": "Add no more than {{max}} tiers.",
+    "customerNameRequired": "Enter the customer's name.",
+    "orderTextRequired": "Paste an order or choose a file.",
+    "cardCountRequired": "Enter a number of cards.",
+    "storageLocationRequired": "Choose where the cards went.",
+    "commandRequired": "Enter a command.",
+    "verificationCodeLength": "Enter the {{length}}-digit code.",
+    "verificationCodeNumeric": "The code can only contain numbers."
   }
 }

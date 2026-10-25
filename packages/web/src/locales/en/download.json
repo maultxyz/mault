@@ -75,12 +75,5 @@
         "body": "Make the file executable with chmod +x MAULT-linux.AppImage, then run it. To connect a sorter over USB, your user may need to be in the dialout group."
       }
     }
-  },
-  "footer": {
-    "reportIssue": "Report an issue",
-    "signIn": "Sign in",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "copyright": "© {{year}} Mault LLC"
   }
 }

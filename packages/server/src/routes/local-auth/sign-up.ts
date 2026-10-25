@@ -26,13 +26,6 @@ export const signUpRoute = new Hono<AppEnv>().post("/sign-up", async (c) => {
       name,
     });
 
-    // The first account ever created on a fresh local instance becomes
-    // platform admin automatically - otherwise nothing could reach
-    // admin-gated routes (Games Manager, sync job, impersonation) without
-    // hand-editing platform_user_roles via SQL, and a fresh instance
-    // couldn't even add its first game. A second admin still has to be
-    // granted manually (see README) - this only ever fires once, for
-    // whoever happens to sign up while the table is still empty.
     const [{ count }] = await db
       .select({ count: sql<number>`count(*)` })
       .from(platformUserRoles);

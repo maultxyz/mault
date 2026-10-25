@@ -5,6 +5,11 @@ import {
 import type { CameraTrackCapabilities } from "@/lib/interfaces/scanner";
 import type { StationState } from "@/lib/interfaces/stations";
 
+export function stopMediaStream(stream: MediaStream | null | undefined) {
+  if (!stream) return;
+  for (const track of stream.getTracks()) track.stop();
+}
+
 export async function acquireStream(
   deviceId?: string,
   preferRear = false,

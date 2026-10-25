@@ -18,19 +18,14 @@ export const resolveDeviceRoute = new Hono<AppEnv>().post(
     if (!hardwareId || !HARDWARE_ID_PATTERN.test(hardwareId)) {
       return c.json({ success: false, message: "Invalid hardware id." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await resolveDeviceByHardwareId(tx, orgId, hardwareId);
-        return {
-          success: true,
-          message: "Resolved device.",
-          data: toDevice(device),
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await resolveDeviceByHardwareId(tx, orgId, hardwareId);
+      return {
+        success: true,
+        message: "Resolved device.",
+        data: toDevice(device),
+      };
+    });
+    return c.json(result);
   },
 );

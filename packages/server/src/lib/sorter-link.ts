@@ -106,7 +106,7 @@ export function attachClient(
 
 export function detachClient(deviceGuid: string, socket: SorterLinkSocket) {
   const link = links.get(deviceGuid);
-  if (link?.client?.raw === socket.raw) link.client = null;
+  if (link && link.client?.raw === socket.raw) link.client = null;
 }
 
 export function relayToDevice(

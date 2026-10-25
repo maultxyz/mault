@@ -13,7 +13,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
+import {
+  useCardGridDensity,
+  useCardViewPreferences,
+} from "@/features/cards/api/use-card-view-preferences";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
+import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
@@ -50,18 +55,11 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   CARD_GRID_CLASS,
-  CARD_GRID_DENSITIES,
   CARD_GRID_DENSITY_CLASS,
 } from "@/lib/constants/card-grid";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
-import {
-  CARD_GROUP_DUPLICATES_STORAGE_KEY,
-  CARD_GRID_DENSITY_STORAGE_KEY,
-  CARD_VIEW_MODE_STORAGE_KEY,
-} from "@/lib/constants/storage-keys";
 import type {
-  CardGridDensity,
-  CardViewMode,
+  OpenScanOptions,
   SelectToggleOptions,
 } from "@/lib/interfaces/cards";
 import {
@@ -72,6 +70,7 @@ import {
   IconDownload,
   IconPlus,
   IconRosette,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { CARD_CONDITIONS, computeBinCount } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -102,6 +101,7 @@ export function CardGrid() {
     removeCards,
     clearCards,
     setCardsCondition,
+    setCardsFoilType,
     elapsedMs,
     sessionScanCount,
   } = useScannedCards();
@@ -125,6 +125,7 @@ export function CardGrid() {
     [viewedCollection?.game?.fieldDefinitions],
   );
   const moduleCount = useModuleCount();
+  const foilOptions = useFoilOptions();
   const {
     searchQuery,
     setSearchQuery,
@@ -146,13 +147,11 @@ export function CardGrid() {
   const isReviewing = searchParams.get(CARD_REVIEW_SEARCH_PARAM) === "1";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  // Keeps the open card in the URL (/app/cards/:scanId) so it's shareable
-  // and survives a refresh, rather than living only in component state.
-  // Replaces history instead of pushing, so browser back always returns to
-  // the grid rather than stepping back through every previously viewed card.
   const setOpenScanId = useCallback(
-    (scanId: string | null, review = false) => {
-      const reviewSuffix = review ? `?${CARD_REVIEW_SEARCH_PARAM}=1` : "";
+    (scanId: string | null, { inReviewMode = false }: OpenScanOptions = {}) => {
+      const reviewSuffix = inReviewMode
+        ? `?${CARD_REVIEW_SEARCH_PARAM}=1`
+        : "";
       const basePath =
         readOnly && viewedCollection
           ? collectionViewPath(viewedCollection.guid)
@@ -165,58 +164,13 @@ export function CardGrid() {
     [navigate, readOnly, viewedCollection],
   );
   const [page, setPage] = useState(0);
-  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
-    try {
-      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
-        ? "list"
-        : "grid";
-    } catch {
-      return "grid";
-    }
-  });
-
-  const [density, setDensity] = useState<CardGridDensity>(() => {
-    try {
-      const stored = localStorage.getItem(CARD_GRID_DENSITY_STORAGE_KEY);
-      return CARD_GRID_DENSITIES.includes(stored as CardGridDensity)
-        ? (stored as CardGridDensity)
-        : "comfortable";
-    } catch {
-      return "comfortable";
-    }
-  });
-
-  const handleDensityChange = useCallback((next: CardGridDensity) => {
-    setDensity(next);
-    try {
-      localStorage.setItem(CARD_GRID_DENSITY_STORAGE_KEY, next);
-    } catch {}
-  }, []);
-
-  const handleViewModeChange = useCallback((mode: CardViewMode) => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
-    } catch {}
-  }, []);
-
-  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-
-  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
-    setGroupDuplicates(grouped);
-    try {
-      localStorage.setItem(
-        CARD_GROUP_DUPLICATES_STORAGE_KEY,
-        grouped ? "1" : "0",
-      );
-    } catch {}
-  }, []);
+  const {
+    viewMode,
+    handleViewModeChange,
+    groupDuplicates,
+    handleGroupDuplicatesChange,
+  } = useCardViewPreferences();
+  const [density, handleDensityChange] = useCardGridDensity();
 
   const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
   const cardsQuery = useMemo(
@@ -300,7 +254,7 @@ export function CardGrid() {
         return;
       }
       setReviewTotal(firstPage.totalCards);
-      setOpenScanId(first.scanId, true);
+      setOpenScanId(first.scanId, { inReviewMode: true });
     } catch (err) {
       console.error("Failed to start card review:", err);
     }
@@ -320,6 +274,8 @@ export function CardGrid() {
       !readOnly && !openScanId && totalCards > 0
         ? () => void startReview()
         : undefined,
+    clearSelection:
+      selectedIds.size > 0 ? () => setSelectedIds(new Set()) : undefined,
   });
 
   const toggleSelect = useCallback((scanIds: string[]) => {
@@ -631,11 +587,17 @@ export function CardGrid() {
             : () => {
                 removeCard(openEntry.scanId);
                 if (isReviewing) reviewSession.forget(openEntry.scanId);
-                setOpenScanId(isReviewing ? nextScanId : null, isReviewing);
+                setOpenScanId(isReviewing ? nextScanId : null, {
+                  inReviewMode: isReviewing,
+                });
               }
         }
-        onPrev={() => setOpenScanId(prevScanId, isReviewing)}
-        onNext={() => setOpenScanId(nextScanId, isReviewing)}
+        onPrev={() =>
+          setOpenScanId(prevScanId, { inReviewMode: isReviewing })
+        }
+        onNext={() =>
+          setOpenScanId(nextScanId, { inReviewMode: isReviewing })
+        }
         hasPrev={!!prevScanId}
         hasNext={!!nextScanId}
         currentIndex={
@@ -868,6 +830,39 @@ export function CardGrid() {
             </DropdownMenu>
             {!readOnly && (
               <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                      />
+                    }
+                  >
+                    <IconSparkles />
+                    {t("cardContextMenu.foil")}
+                    <IconChevronDown />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" side="top">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        setCardsFoilType(Array.from(selectedIds), null)
+                      }
+                    >
+                      {t("cardContextMenu.nonFoil")}
+                    </DropdownMenuItem>
+                    {foilOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option}
+                        onClick={() =>
+                          setCardsFoilType(Array.from(selectedIds), option)
+                        }
+                      >
+                        {option}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={

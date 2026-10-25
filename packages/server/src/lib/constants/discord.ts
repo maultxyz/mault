@@ -11,26 +11,26 @@ export const SCAN_NOTIFICATION_QUEUE_LIMIT = 200;
 
 export const DISCORD_TEST_EMBEDS: Record<string, { title: string; description: string }> = {
   "sorter-error": {
-    title: "Mault — Sorter Error [TEST]",
+    title: "Mault: Sorter Error [TEST]",
     description:
       "**Card:** Lightning Bolt\n**Bin:** 3\n**Error:** No response from the device in time.",
   },
   "feeder-empty": {
-    title: "Mault — Feeder Empty [TEST]",
+    title: "Mault: Feeder Empty [TEST]",
     description:
       "No cards remaining in the hopper. Add more cards to continue.",
   },
   "card-jam": {
-    title: "Mault — Card Jam Detected [TEST]",
+    title: "Mault: Card Jam Detected [TEST]",
     description:
       "Card stuck at module 2 (heading to bin 5). Check the sorter and resume.",
   },
   "card-search-error": {
-    title: "Mault — Card Search Error [TEST]",
+    title: "Mault: Card Search Error [TEST]",
     description: "A database error occurred while searching for a card.",
   },
   "sync-failure": {
-    title: "Mault — Sync Failed [TEST]",
+    title: "Mault: Sync Failed [TEST]",
     description:
       "The card database sync job encountered a fatal error.\n\n**Error:** Scryfall catalog fetch failed: 503",
   },

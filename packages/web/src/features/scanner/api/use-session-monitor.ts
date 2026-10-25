@@ -160,6 +160,21 @@ export function useSessionEvents(
       cardsChanged();
     });
 
+    on(scoped("cards_foil_changed"), (e) => {
+      const { scanIds, isFoil, foilType } = JSON.parse(
+        (e as MessageEvent).data,
+      ) as { scanIds: string[]; isFoil: boolean; foilType: string | null };
+      const ids = new Set(scanIds);
+      setRecentCards((prev) =>
+        prev.map((c) =>
+          ids.has(c.scanId)
+            ? { ...c, isFoil, foilType: foilType ?? undefined }
+            : c,
+        ),
+      );
+      cardsChanged();
+    });
+
     on(scoped("cards_cleared"), () => {
       setRecentCards([]);
       cardsChanged();
@@ -193,9 +208,6 @@ export function useSessionEvents(
       pushError(message);
     });
 
-    // Connection-level, not guid-scoped - the EventSource is shared, so use
-    // addEventListener rather than onerror/onopen (which would clobber every
-    // other consumer's handler on this same connection).
     on("error", () => {
       setStatus("error");
       pushError(t("sessionMonitor.connectionLost"));
@@ -204,8 +216,6 @@ export function useSessionEvents(
     on("open", () => {
       setStatus("connected");
     });
-    // readyState is already OPEN when a second consumer attaches to the
-    // already-connected shared EventSource - "open" won't fire again for it.
     if (es.readyState === EventSource.OPEN) setStatus("connected");
     const missedInit = latestSessionInit(es, guid);
     if (missedInit) applySessionInit(missedInit);

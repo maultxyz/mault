@@ -23,6 +23,7 @@ import {
   IconPlugX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function DevicePlayground() {
   const { t } = useTranslation("admin");
@@ -36,8 +37,7 @@ export function DevicePlayground() {
     connectBluetooth,
     disconnect,
   } = useSerial();
-  const bluetoothSupported =
-    typeof navigator !== "undefined" && !!navigator.bluetooth;
+  const bluetoothSupported = isWebBluetoothSupported();
   const disabled = !isConnected;
 
   return (

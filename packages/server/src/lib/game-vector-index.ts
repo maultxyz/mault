@@ -56,17 +56,6 @@ export async function ensureGameVectorIndex(
     };
   }
 
-  // Scoping by lang too (when given) matches findCardMatches' actual WHERE
-  // clause (game_key AND lang) exactly, instead of relying on iterative_scan
-  // to filter lang out of a game_key-only partial index post-hoc.
-  //
-  // CREATE INDEX CONCURRENTLY on a large catalog (MTG/Pokemon are 50k-150k+
-  // rows) can take minutes, so this needs a dedicated client rather than
-  // whatever connection the shared pool hands out - both so a bumped
-  // maintenance_work_mem (default 64MB is a big slowdown for HNSW graph
-  // construction at this size) doesn't leak onto other pooled connections'
-  // later queries, and so this can safely be called fire-and-forget by a
-  // caller that isn't going to await it for minutes inside an HTTP request.
   const client = await pool.connect();
   try {
     await client.query(`SET maintenance_work_mem = '512MB'`);

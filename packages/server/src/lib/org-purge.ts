@@ -45,9 +45,6 @@ export class ActiveSubscriptionError extends Error {
   }
 }
 
-// A subscription already set to cancel at period end is let through: Stripe
-// won't charge it again, and its final cancellation webhook is ignored for an
-// org whose billing row is gone (routes/public/webhook-stripe.ts).
 async function assertNoActiveSubscription(
   tx: Transaction,
   orgId: string,

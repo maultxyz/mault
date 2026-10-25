@@ -22,8 +22,6 @@
     "saveName": "Namen speichern",
     "cancelRename": "Abbrechen",
     "renameFailed": "Der Soundclip konnte nicht umbenannt werden.",
-    "nameRequired": "Gib dem Clip einen Namen.",
-    "nameTooLong": "Der Name darf höchstens 60 Zeichen lang sein.",
     "stop": "{{name}} stoppen"
   },
   "rules": {
@@ -56,11 +54,6 @@
     "conditions": "Bedingungen",
     "cancel": "Abbrechen",
     "save": "Speichern",
-    "saveFailed": "Die Soundregel konnte nicht gespeichert werden.",
-    "validation": {
-      "nameRequired": "Gib der Regel einen Namen.",
-      "clipRequired": "Wähle einen Soundclip.",
-      "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
-    }
+    "saveFailed": "Die Soundregel konnte nicht gespeichert werden."
   }
 }

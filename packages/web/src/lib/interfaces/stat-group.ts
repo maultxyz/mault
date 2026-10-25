@@ -12,3 +12,9 @@ export interface StatGroupProps {
   live?: boolean;
   gridClassName?: string;
 }
+
+export interface StatCellProps {
+  label: string;
+  value: string;
+  className?: string;
+}

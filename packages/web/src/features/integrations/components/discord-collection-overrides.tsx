@@ -5,7 +5,6 @@ import { CollectionOverrideDialog } from "@/features/integrations/components/col
 import { DiscordChannelSelect } from "@/features/integrations/components/discord-channel-select";
 import { isOverrideRemoved } from "@/features/integrations/lib/discord-settings-draft";
 import type { DiscordCollectionOverridesProps } from "@/lib/interfaces/integrations";
-import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import {
   IconFolders,
   IconPlus,
@@ -14,13 +13,14 @@ import {
 import { useState } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { type DiscordSettingsDraftFormValues } from "@magic-vault/shared";
 
 export function DiscordCollectionOverrides({
   integration,
 }: DiscordCollectionOverridesProps) {
   const { t } = useTranslation("integrations");
   const { control, formState, setValue } =
-    useFormContext<DiscordSettingsDraftValues>();
+    useFormContext<DiscordSettingsDraftFormValues>();
   const draftOverrides = useWatch({ control, name: "overrides" });
   const [dialogOpen, setDialogOpen] = useState(false);
   const channels = integration.guild?.channels ?? [];

@@ -24,7 +24,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { APP_STREAM_GUID_DEBOUNCE_MS } from "@/lib/constants/timing";
+import {
+  APP_STREAM_GUID_DEBOUNCE_MS,
+  APP_STREAM_SETUP_RETRY_MS,
+} from "@/lib/constants/timing";
 
 
 const AppStreamContext = createContext<AppStreamContextValue>({
@@ -47,6 +50,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
   const orgId = activeOrg?.id ?? null;
 
   const [eventSource, setEventSource] = useState<EventSource | null>(null);
+  const [streamSetupAttempt, setStreamSetupAttempt] = useState(0);
   const [locks, setLocks] = useState<Record<string, ScanLockInfo>>({});
   const [liveCounts, setLiveCounts] = useState<Record<string, number>>({});
   const [viewersByGuid, setViewersByGuid] = useState<
@@ -86,6 +90,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
     if (!orgId) return;
 
     let cancelled = false;
+    let setupRetryTimer: ReturnType<typeof setTimeout> | null = null;
     const watchGuids = guidsKey ? guidsKey.split(",") : [];
 
     createAppStreamSource(orgId, watchGuids)
@@ -212,16 +217,24 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
 
         setEventSource(es);
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error("Opening the live stream failed, retrying", error);
+        if (cancelled) return;
+        setupRetryTimer = setTimeout(
+          () => setStreamSetupAttempt((attempt) => attempt + 1),
+          APP_STREAM_SETUP_RETRY_MS,
+        );
+      });
 
     return () => {
       cancelled = true;
+      if (setupRetryTimer) clearTimeout(setupRetryTimer);
       setEventSource((prev) => {
         prev?.close();
         return null;
       });
     };
-  }, [orgId, guidsKey, queryClient]);
+  }, [orgId, guidsKey, queryClient, streamSetupAttempt]);
 
   const value = useMemo<AppStreamContextValue>(
     () => ({

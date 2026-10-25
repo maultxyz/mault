@@ -90,7 +90,7 @@ function SelectContent({
         align={align}
         alignOffset={alignOffset}
         alignItemWithTrigger={alignItemWithTrigger}
-        className={cn("isolate z-50", MOBILE_SHEET_POSITIONER_CLASS)}
+        className={cn("pointer-events-auto isolate z-50", MOBILE_SHEET_POSITIONER_CLASS)}
       >
         <SelectPrimitive.Popup
           data-slot="select-content"

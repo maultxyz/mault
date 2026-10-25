@@ -171,9 +171,9 @@ protocol standpoint.
   so multiple physical units show up as distinct entries in a phone/OS
   Bluetooth picker before a client ever connects to one.
 
-## Wi-Fi transport (firmware 2.10.0+, ESP32 only)
+## Wi-Fi transport (ESP32 firmware 2.10.0+, Uno R4 WiFi from the first firmware release after 2.10.1)
 
-Every ESP32 build can also join the user's Wi-Fi network and hold an
+ESP32 and Uno R4 WiFi builds can also join the user's Wi-Fi network and hold an
 outbound WebSocket to the app's server, which relays it to a browser
 anywhere. The sorter never accepts inbound connections, so it works behind
 any home router without port forwarding. It carries the **exact same**
@@ -183,15 +183,16 @@ command arrived on.
 
 - **Setup:** over Serial or BLE, send `setWifi` (network) and `setCloud`
   (server URL plus a per-device token issued by the server), see Commands
-  below. Both persist in NVS and survive reboots and reflashes;
-  `clearWifi` forgets them.
+  below. Both persist (NVS on ESP32, EEPROM on the Uno R4 WiFi) and survive
+  reboots and reflashes; `clearWifi` forgets them.
 - **Handshake:** the sorter opens `ws://` or `wss://` to the `setCloud` URL
   (`/sorter-link/device` on the API) with these headers:
   - `Authorization: Bearer <token>`
   - `X-Sorter-Id: <id>` (the same `id` as `getStatus`)
   - `X-Sorter-Firmware: <version>`
 
-  `wss://` verifies the server against the ESP-IDF root CA bundle. A `401`,
+  `wss://` verifies the server against the ESP-IDF root CA bundle (on the
+  Uno R4 WiFi, its co-processor's built-in root bundle). A `401`,
   `403` or `404` reply marks the link `rejected` and the sorter retries only
   every 5 minutes; any other failure retries with backoff from 1 s up to
   30 s.
@@ -206,15 +207,25 @@ command arrived on.
   socket with code `4404` when the sorter is offline or drops, and `4409`
   when another browser already holds the sorter. Rotating or revoking the
   token closes the sorter's socket with `4401`.
-- **Concurrency:** all networking runs in its own FreeRTOS task on the core
-  the Arduino loop doesn't use, so TLS handshakes never stretch servo
-  timings.
+- **Concurrency:** on ESP32 all networking runs in its own FreeRTOS task on
+  the core the Arduino loop doesn't use, so TLS handshakes never stretch
+  servo timings. The Uno R4 WiFi has one core, so networking runs from the
+  loop: while a command runs it only services an already-open socket, and
+  joins and TLS handshakes wait until the sorter is idle.
+- **Uno R4 WiFi radio sharing:** Wi-Fi and BLE share the board's ESP32-S3
+  co-processor, so each boot uses one of them: a board with a saved network
+  joins Wi-Fi and reports `"ble":"off"`, any other board advertises over
+  BLE. A `setWifi` on a board without a saved network, and a `clearWifi` on
+  one with a network, reply `{"status":"ok","restarting":true}` and restart
+  the board about 300 ms later to switch modes. Over BLE that ends the
+  connection.
 - **Power safety:** joining Wi-Fi draws 300 to 500 mA spikes. The radio
   waits 2 s after boot so it doesn't start alongside the boot-time servo
   moves and BLE, transmits at 15 dBm, and after 2 brownout resets in a row
   stays off (`"wifi":"paused"`) so Serial and BLE remain usable. It resumes
   after a power cycle or the next `setWifi`/`setCloud`/`clearWifi`. 60 s of
-  uptime clears the brownout count.
+  uptime clears the brownout count. The Uno R4 WiFi also waits 2 s after boot
+  but has no brownout pause.
 
 ## Hardware model
 
@@ -276,7 +287,8 @@ connected, so the device isn't advertising, since ArduinoBLE and this
 firmware's Bluedroid backend accept one connection at a time),
 `"unavailable"` (the BLE stack failed to start, e.g. the Uno R4 WiFi's
 co-processor didn't answer `BLE.begin()` after 5 attempts; the device keeps
-working over Serial), or `"none"` (a board with no BLE hardware, such as the
+working over Serial), `"off"` (an Uno R4 WiFi whose radio is on Wi-Fi this
+boot, see the Wi-Fi transport), or `"none"` (a board with no BLE hardware, such as the
 Uno R4 Minima).
 
 Firmware 2.7.0+ on the ESP32-S3 also adds `"bleMtu": N` to the `getStatus`
@@ -300,10 +312,11 @@ Firmware 2.9.0+ adds `"servoDriver"` to both the boot banner and the
 unpowered logic side, or miswired SDA/SCL). It only checks the logic side: a
 driver whose V+ servo supply is missing still reports `"ok"`.
 
-Firmware 2.10.0+ on ESP32 adds `"wifi"` (`"unconfigured"`, `"connecting"`,
+Firmware 2.10.0+ on ESP32 (and the first firmware release after 2.10.1 on the Uno R4 WiFi) adds `"wifi"` (`"unconfigured"`, `"connecting"`,
 `"connected"` or `"paused"`) and `"cloud"` (`"unconfigured"`, `"offline"`,
 `"connecting"`, `"connected"` or `"rejected"`) to the `getStatus` reply. See
-`getWifi` for details.
+`getWifi` for details. The app treats the presence of `"wifi"` as the board
+supporting Wi-Fi remote access.
 
 ### `setChannelOffset`
 ```json
@@ -542,9 +555,13 @@ as `setConfig`.
 Both section forms answer `{"error":"no stored config"}` before the first
 `storeConfig`. Older firmware answers `{"error":"unknown command"}`.
 
-### Wi-Fi commands (firmware 2.10.0+, ESP32 only)
+### Wi-Fi commands (ESP32 firmware 2.10.0+, Uno R4 WiFi from the first firmware release after 2.10.1)
 
-Older firmware and non-ESP32 boards answer `{"error":"unknown command"}`.
+Older firmware and boards without Wi-Fi (the Uno R4 Minima) answer
+`{"error":"unknown command"}`. On the Uno R4 WiFi, a `setWifi` or
+`clearWifi` that switches the radio between BLE and Wi-Fi answers
+`{"status":"ok","restarting":true}` and restarts the board (see Uno R4
+WiFi radio sharing above).
 
 ```json
 {"setWifi": {"ssid": "Home", "password": "hunter22"}}

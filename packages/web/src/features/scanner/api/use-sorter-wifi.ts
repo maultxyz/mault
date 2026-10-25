@@ -31,6 +31,7 @@ export function useSorterWifi(): SorterWifiControls {
   const {
     isReady,
     board,
+    hasWifi,
     firmwareVersion,
     transport,
     sendRequest,
@@ -41,12 +42,14 @@ export function useSorterWifi(): SorterWifiControls {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<SorterWifiStatus | null>(null);
 
-  const needsEsp32 = isReady && board !== "esp32";
   const needsFirmware =
     isReady &&
+    !hasWifi &&
     board === "esp32" &&
     !isFirmwareFeatureSupported(firmwareVersion, "wifiRemote");
-  const isSupported = isReady && !needsEsp32 && !needsFirmware;
+  const needsWifiBoard = isReady && !hasWifi && !needsFirmware;
+  const isSupported = isReady && hasWifi;
+  const sharesRadioWithBluetooth = isSupported && board === "uno_r4";
   const canConfigure = isSupported && transport !== "cloud" && !!device;
 
   const request = useCallback(
@@ -58,7 +61,13 @@ export function useSorterWifi(): SorterWifiControls {
       if (!line) return { ok: false, error: null };
       try {
         const parsed = JSON.parse(line) as Record<string, unknown>;
-        if (parsed.status === "ok") return { ok: true };
+        if (parsed.status === "ok") {
+          return {
+            ok: true,
+            restarting: parsed.restarting === true,
+            serverLinkRemovalFailed: false,
+          };
+        }
         return {
           ok: false,
           error: typeof parsed.error === "string" ? parsed.error : null,
@@ -116,7 +125,7 @@ export function useSorterWifi(): SorterWifiControls {
       if (!cloud.ok) return cloud;
       const wifi = await request({ setWifi: { ssid, password } });
       void invalidateLinks();
-      if (wifi.ok) await refresh();
+      if (wifi.ok && !wifi.restarting) await refresh();
       return wifi;
     },
     [device, request, refresh, invalidateLinks],
@@ -126,16 +135,22 @@ export function useSorterWifi(): SorterWifiControls {
     if (!device) return { ok: false, error: null };
     const cleared = await request({ clearWifi: true });
     if (!cleared.ok) return cleared;
-    await deleteSorterLink(device.guid).catch(() => null);
+    const serverLinkRemovalFailed = await deleteSorterLink(device.guid)
+      .then((result) => !result.success)
+      .catch((error) => {
+        console.error("Removing the sorter's server link failed", error);
+        return true;
+      });
     void invalidateLinks();
-    await refresh();
-    return cleared;
+    if (!cleared.restarting) await refresh();
+    return { ...cleared, serverLinkRemovalFailed };
   }, [device, request, refresh, invalidateLinks]);
 
   return {
     isSupported,
-    needsEsp32,
+    needsWifiBoard,
     needsFirmware,
+    sharesRadioWithBluetooth,
     canConfigure,
     status,
     configure,

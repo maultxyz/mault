@@ -15,9 +15,8 @@ export function useAppAlerts(): AppAlert[] {
   const { data: announcements } = useQuery(activeAnnouncementsQueryOptions(orgId));
   const firmwareMissing = sorter.isConnected && sorter.isReady && !sorter.firmwareVersion;
 
-  return useMemo(
-    () =>
-      [
+  return useMemo(() => {
+    const alerts: (AppAlert | null)[] = [
         deployNotice ? { id: `deploy-${deployNotice.guid}`, severity: "info" as const, message: deployNotice.message } : null,
         firmwareMissing ? { id: "firmware-version-missing", severity: "danger" as const, message: t("alerts.firmwareMissing") } : null,
         ...(announcements ?? []).map((announcement) => ({
@@ -26,7 +25,7 @@ export function useAppAlerts(): AppAlert[] {
           message: announcement.message,
           link: announcement.link,
         })),
-      ].filter((alert): alert is AppAlert => alert !== null),
-    [announcements, deployNotice, firmwareMissing, t],
-  );
+    ];
+    return alerts.filter((alert): alert is AppAlert => alert !== null);
+  }, [announcements, deployNotice, firmwareMissing, t]);
 }

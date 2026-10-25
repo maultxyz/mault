@@ -39,9 +39,6 @@ async function load() {
 
 if (getLocalToken()) load();
 
-// Called after sign-in/sign-up stores a new token, and after sign-out clears
-// one - re-fetches /local-auth/session so every useLocalAuthSession()
-// subscriber (see below) re-renders with the new state.
 export function notifyLocalSessionChanged(): void {
   set({ data: null, isPending: !!getLocalToken() });
   load();
