@@ -92,7 +92,7 @@ export function buildScanSessionStartEmbed(
   sortingLogicSummary: string,
 ): DiscordEmbed {
   return {
-    title: `New scan session — ${collectionName}`,
+    title: `New scan session: ${collectionName}`,
     description: sortingLogicSummary,
     color: CARD_SCANNED_COLOR,
     timestamp: new Date().toISOString(),

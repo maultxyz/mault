@@ -60,7 +60,7 @@ export function CardSyncPanel() {
         >
           {t(`cardImageVectors.syncStatus.${syncState.status}`)}
           {isRunning &&
-            ` — ${
+            `: ${
               sources.find((s) => s.gameKey === syncState.gameKey)?.label ??
               syncState.gameKey
             }${
