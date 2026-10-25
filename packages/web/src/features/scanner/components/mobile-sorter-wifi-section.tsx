@@ -36,8 +36,15 @@ export function MobileSorterWifiSection() {
     setIsForgetting(true);
     try {
       const result = await wifi.forget();
-      if (result.ok) toast.success(t("sorterWifi.forgotten"));
-      else toast.error(result.error ?? t("sorterWifi.forgetFailed"));
+      if (result.ok) {
+        toast.success(
+          result.restarting
+            ? t("sorterWifi.forgottenRestarting")
+            : t("sorterWifi.forgotten"),
+        );
+      } else {
+        toast.error(result.error ?? t("sorterWifi.forgetFailed"));
+      }
     } finally {
       setIsForgetting(false);
     }
@@ -47,6 +54,9 @@ export function MobileSorterWifiSection() {
     <MobileSection title={t("sorterWifi.title")}>
       {status?.wifi === "paused" && (
         <Callout variant="warning">{t("sorterWifi.pausedForPower")}</Callout>
+      )}
+      {wifi.sharesRadioWithBluetooth && (
+        <Callout variant="info">{t("sorterWifi.sharesRadio")}</Callout>
       )}
       <div className={MOBILE_LIST_CLASS}>
         <MobileListRow

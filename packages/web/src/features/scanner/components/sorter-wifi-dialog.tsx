@@ -34,7 +34,11 @@ export function SorterWifiDialog({
   async function submit(values: SorterWifiFormValues) {
     const result = await onSubmit(values);
     if (result.ok) {
-      toast.success(t("sorterWifi.saved"));
+      toast.success(
+        result.restarting
+          ? t("sorterWifi.savedRestarting")
+          : t("sorterWifi.saved"),
+      );
       onOpenChange(false);
       return;
     }

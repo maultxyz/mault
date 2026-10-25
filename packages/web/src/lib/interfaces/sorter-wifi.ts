@@ -2,13 +2,14 @@ import type { SorterWifiFormValues } from "@/schemas/sorter-wifi.schema";
 import type { SorterWifiStatus } from "@magic-vault/shared";
 
 export type SorterWifiResult =
-  | { ok: true }
+  | { ok: true; restarting: boolean }
   | { ok: false; error: string | null };
 
 export interface SorterWifiControls {
   isSupported: boolean;
-  needsEsp32: boolean;
+  needsWifiBoard: boolean;
   needsFirmware: boolean;
+  sharesRadioWithBluetooth: boolean;
   canConfigure: boolean;
   status: SorterWifiStatus | null;
   configure: (values: SorterWifiFormValues) => Promise<SorterWifiResult>;

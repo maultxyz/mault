@@ -233,6 +233,7 @@ export interface SerialContextValue {
   reopenSensorBlockedToast: () => void;
   firmwareVersion: string | null;
   board: SerialBoardType | null;
+  hasWifi: boolean;
   deviceId: string | null;
   transport: SerialTransportType | null;
   connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
