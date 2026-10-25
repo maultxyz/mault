@@ -2,7 +2,7 @@ import type { SorterWifiFormValues } from "@/schemas/sorter-wifi.schema";
 import type { SorterWifiStatus } from "@magic-vault/shared";
 
 export type SorterWifiResult =
-  | { ok: true; restarting: boolean }
+  | { ok: true; restarting: boolean; serverLinkRemovalFailed: boolean }
   | { ok: false; error: string | null };
 
 export interface SorterWifiControls {
