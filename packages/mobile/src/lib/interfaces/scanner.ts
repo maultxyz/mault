@@ -1,10 +1,6 @@
 import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
 import type {
-  BinConfig,
-  BinContentCard,
-  BinSet,
   CardContour,
-  FieldMeta,
   CardSearchResult,
   MatchCandidateDiagnostic,
   MatchedScanDetails,
@@ -158,23 +154,6 @@ export interface PendingSavesContextValue {
   pendingCount: number;
   saveCard: (save: Omit<PendingCardSave, "kind" | "key" | "attempts">) => Promise<CardSaveResult>;
   saveUnmatched: (save: Omit<PendingUnmatchedSave, "kind" | "key" | "attempts">) => Promise<CardSaveResult>;
-}
-
-export interface RoutingContext {
-  set: BinSet | undefined;
-  configs: BinConfig[];
-  fieldDefinitions: FieldMeta[];
-  countInBin: (binNumber: number) => number;
-  isBinFull: (binNumber: number) => boolean;
-  binContents: BinContentCard[];
-  autoAssignActive: boolean;
-}
-
-export interface RoutingDecision {
-  bin: BinConfig | undefined;
-  isLowMatch: boolean;
-  pickListName: string | null;
-  allChaosBinsFull: boolean;
 }
 
 export interface ScanSessionInputs {

@@ -1,11 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
-import { toRuleCard, type PlayingCard, type ScannedCard } from "@magic-vault/shared";
+import {
+  matchScanBin,
+  resolveScanBin,
+  toRuleCard,
+  type PlayingCard,
+  type ScanRoutingContext,
+  type ScannedCard,
+} from "@magic-vault/shared";
 import { invalidateCollectionCards, updateCollectionCard } from "@/features/collections/api/collection-cards";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
-import { resolveBin } from "@/features/scanner/lib/bin-routing";
 import { useActiveOrgId } from "@/hooks/use-org";
 import type { CardCorrection } from "@/lib/interfaces/cards";
 
@@ -37,20 +43,24 @@ export function useCardCorrection(guid: string): CardCorrection {
     const stays =
       !!rules.activeSet?.isChaosMode &&
       rules.bins.some((bin) => bin.binNumber === currentBin && !bin.isCatchAll && !bin.isDisabled);
+    const ruleCard = toRuleCard(
+      { ...card, distance: 0, confidence: 1 },
+      { isFoil: !!entry.isFoil, foilType: entry.foilType ?? null },
+    );
+    const routingContext: ScanRoutingContext = {
+      binSet: rules.activeSet,
+      configs: rules.bins,
+      fieldDefinitions: rules.fieldDefinitions,
+      binContents: [],
+      countCardsInBin: () => 0,
+      isBinFull: () => false,
+      binRoom: () => Number.POSITIVE_INFINITY,
+      createRuleId: () => "",
+    };
     const target = stays
       ? currentBin
-      : resolveBin(
-          toRuleCard({ ...card, distance: 0, confidence: 1 }, { isFoil: !!entry.isFoil, foilType: entry.foilType ?? null }),
-          {
-            set: rules.activeSet,
-            configs: rules.bins,
-            fieldDefinitions: rules.fieldDefinitions,
-            countInBin: () => 0,
-            isBinFull: () => false,
-            binContents: [],
-            autoAssignActive: !!rules.activeSet?.autoAssignField,
-          },
-        ).bin?.binNumber;
+      : (resolveScanBin(ruleCard, routingContext).pickListMatch?.bin ?? matchScanBin(ruleCard, routingContext))
+          ?.binNumber;
 
     if (target == null) {
       Alert.alert(t("binCorrection.noBin.title", { name: card.name }), t("binCorrection.noBin.description"), [
