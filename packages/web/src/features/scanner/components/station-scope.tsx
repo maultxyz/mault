@@ -12,6 +12,7 @@ import { CardFiltersProvider } from "@/features/cards/api/use-card-filters";
 import { CollectionsProvider } from "@/features/collections/api/use-collections";
 import { CameraProvider } from "@/features/scanner/api/use-camera";
 import { ScannedCardsProvider } from "@/features/scanner/api/use-scanned-cards";
+import { ScanRemovalProvider } from "@/features/scanner/api/use-scan-removal";
 import { SerialProvider } from "@/features/scanner/api/use-serial";
 import {
   StationContext,
@@ -67,23 +68,25 @@ export function StationScope({
                         <FeederConfigProvider>
                           <ScannedCardsProvider>
                             <CardFiltersProvider>
-                              <OfflineCalibrationProvider>
-                                <SetupWizardProvider>
-                                  {isActive && children}
-                                  {isActive && <DeviceSetupWizard />}
-                                  {panelLayout &&
-                                    showsPanel &&
-                                    createPortal(
-                                      <StationPanel layout={panelLayout} />,
-                                      getPanelElement(station.id),
-                                    )}
-                                  {showsOverviewTile &&
-                                    createPortal(
-                                      <StationOverviewTile />,
-                                      getOverviewTileElement(station.id),
-                                    )}
-                                </SetupWizardProvider>
-                              </OfflineCalibrationProvider>
+                              <ScanRemovalProvider>
+                                <OfflineCalibrationProvider>
+                                  <SetupWizardProvider>
+                                    {isActive && children}
+                                    {isActive && <DeviceSetupWizard />}
+                                    {panelLayout &&
+                                      showsPanel &&
+                                      createPortal(
+                                        <StationPanel layout={panelLayout} />,
+                                        getPanelElement(station.id),
+                                      )}
+                                    {showsOverviewTile &&
+                                      createPortal(
+                                        <StationOverviewTile />,
+                                        getOverviewTileElement(station.id),
+                                      )}
+                                  </SetupWizardProvider>
+                                </OfflineCalibrationProvider>
+                              </ScanRemovalProvider>
                             </CardFiltersProvider>
                           </ScannedCardsProvider>
                         </FeederConfigProvider>

@@ -7,6 +7,7 @@ import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
+import { ScanModeSwitch } from "@/features/scanner/components/scan-mode-switch";
 import { useElementHeight } from "@/hooks/use-element-height";
 import type { StationPanelLayout } from "@/lib/interfaces/stations";
 import { useState } from "react";
@@ -35,6 +36,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         <CardScanner className="h-full shrink-0" controlsPosition="side" />
         <div className="flex flex-col gap-4 shrink-0 overflow-y-auto">
           <CollectionSwitcher />
+          <ScanModeSwitch />
           <PresetSelector readOnly />
           {unmatchedPanel}
           <BinStatusMeter />
@@ -54,6 +56,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         className="sticky top-0 z-40 -mx-2 flex flex-none flex-col gap-2 bg-sidebar/95 p-2 backdrop-blur-sm"
       >
         <CollectionSwitcher />
+        <ScanModeSwitch />
         <PresetSelector readOnly />
       </div>
       <CardScanner

@@ -1,0 +1,2 @@
+export const SCAN_REMOVAL_MAX_CANDIDATES = 10;
+export const SCAN_REMOVAL_COPIES_LIMIT = 100;

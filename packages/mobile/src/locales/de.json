@@ -600,6 +600,36 @@
       "confirmDescription": "Mach das erst, nachdem du die Karten herausgenommen hast. Die Zählung des Fachs beginnt wieder bei null.",
       "confirm": "Als leer markieren",
       "failed": "Das Fach konnte nicht als leer markiert werden. Prüfe deine Verbindung und versuch es erneut."
+    },
+    "removal": {
+      "title": "Entfernen aus {{collection}}",
+      "queued_one": "{{count}} vorgemerkt",
+      "queued_other": "{{count}} vorgemerkt",
+      "chip_one": "Entfernen aus {{collection}}: {{count}} vorgemerkt",
+      "chip_other": "Entfernen aus {{collection}}: {{count}} vorgemerkt",
+      "noCopyLeft": "Kein Exemplar mehr in dieser Sammlung",
+      "removeAction_one": "1 Karte entfernen",
+      "removeAction_other": "{{count}} Karten entfernen",
+      "confirmDescription": "Diese Karten aus {{collection}} entfernen? Das lässt sich nicht rückgängig machen.",
+      "removeFailed": "Die Karten konnten nicht entfernt werden. Prüfe deine Verbindung und versuche es erneut.",
+      "drop": "Verwerfen",
+      "changeCopy": "Exemplar ändern",
+      "empty": "Die Entfernen-Liste ist leer. Scanne eine Karte, um sie vorzumerken.",
+      "unsorted": "Nicht einsortiert",
+      "notice": {
+        "no-match": "Kein Treffer, versuche es erneut",
+        "lookup-failed": "Exemplare von {{name}} konnten nicht abgerufen werden. Prüfe deine Verbindung und scanne die Karte erneut.",
+        "removed_one": "1 Karte entfernt",
+        "removed_other": "{{count}} Karten entfernt"
+      },
+      "modes": {
+        "add": "Karten hinzufügen",
+        "remove": "Karten entfernen"
+      },
+      "binChip": "Entfernte Karten kommen in {{bin}}",
+      "binPickerTitle": "Entfernte Karten kommen in",
+      "binOption": "Fach {{number}}",
+      "catchAllBinOption": "Fach {{number}} (Auffangfach)"
     }
   },
   "home": {

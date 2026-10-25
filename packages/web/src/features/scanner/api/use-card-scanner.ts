@@ -477,10 +477,12 @@ export function useCardScanner({
   rotated = true,
   scanRegion: scanRegionProp,
   autoCapture = false,
+  skipDuplicateCheck = false,
 }: Omit<CardScannerProps, "className"> & {
   rotated?: boolean;
   scanRegion?: ScanRegion;
   autoCapture?: boolean;
+  skipDuplicateCheck?: boolean;
 } = {}) {
   const { t } = useTranslation("scanner");
   const {
@@ -517,6 +519,8 @@ export function useCardScanner({
 
   const autoCaptureRef = useRef(autoCapture);
   autoCaptureRef.current = autoCapture;
+  const skipDuplicateCheckRef = useRef(skipDuplicateCheck);
+  skipDuplicateCheckRef.current = skipDuplicateCheck;
   const handScanArmedRef = useRef(true);
   const handScanStableTicksRef = useRef(0);
   const handScanAbsentTicksRef = useRef(0);
@@ -709,6 +713,7 @@ export function useCardScanner({
           if (
             checkDuplicate &&
             !allowDuplicates &&
+            !skipDuplicateCheckRef.current &&
             lastScannedCardIdRef.current === card.id
           ) {
             setDuplicateCard(card);

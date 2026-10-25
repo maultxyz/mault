@@ -135,6 +135,7 @@ export interface ScannedCardsContextValue {
   ) => Promise<boolean>;
   promptAddedCardBin: (collectionGuid: string, added: ScannedCard) => boolean;
   sendCatchAllBin: () => void;
+  sendCardToBin: (binNumber: number, cardName: string) => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
   dismissBinLimit: () => void;
@@ -150,7 +151,7 @@ export interface ScannedCardsContextValue {
   clearFeedHalt: () => void;
   showJamToast: (options: JamToastOptions) => void;
   removeCard: (scanId: string) => void;
-  removeCards: (scanIds: string[]) => void;
+  removeCards: (scanIds: string[]) => Promise<boolean>;
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;

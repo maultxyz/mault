@@ -8,6 +8,7 @@ import {
   type CollectionCardsPage,
   type CollectionCardsSummary,
   type Result,
+  type ScannedCard,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import { SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
@@ -122,6 +123,11 @@ export function removeCollectionCard(guid: string, scanId: string): Promise<unkn
 
 export function removeCollectionCards(guid: string, scanIds: string[]): Promise<unknown> {
   return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds }));
+}
+
+export function fetchCollectionCardCopies(guid: string, cardIds: string[]): Promise<ScannedCard[]> {
+  const params = new URLSearchParams({ cardIds: cardIds.join(",") });
+  return unwrap(apiGet<Result<ScannedCard[]>>(`/api/collections/${guid}/cards/copies?${params.toString()}`));
 }
 
 export function createMonitorLink(guid: string, expiresInDays: number): Promise<MonitorLink> {
