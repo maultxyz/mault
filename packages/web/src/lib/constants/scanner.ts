@@ -5,7 +5,7 @@ import {
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
-import type { DesktopScannerIcon } from "@magic-vault/shared";
+import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
 import {
   IconArrowBarToDown,
   IconBolt,
@@ -13,7 +13,6 @@ import {
   IconPlayerPlay,
   type Icon,
 } from "@tabler/icons-react";
-import type { CommLogEntry } from "@/lib/interfaces/scanner";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",

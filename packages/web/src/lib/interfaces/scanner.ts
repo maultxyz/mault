@@ -6,13 +6,17 @@ import type {
   BinConfig,
   CardCondition,
   CardFilters,
+  CommLogEntry,
   EmptyBinOptions,
   CardContour,
   CornerDetection,
   CardScannerProps,
   CardSearchResult,
   OcrDiagnostics,
+  RouteOptions,
   ScanAttemptResult,
+  SerialMessageListener,
+  SerialRequestResult,
   UnmatchedScanDetails,
   UnmatchedScanDiagnostics,
   BinRoute,
@@ -157,8 +161,6 @@ export interface ScannedCardsContextValue {
   clearCards: () => void;
 }
 
-export type SerialMessageListener = (message: unknown) => void;
-
 export type SerialBoardType = "esp32" | "uno_r4";
 
 export type SerialTransportType = "serial" | "bluetooth" | "cloud";
@@ -205,14 +207,6 @@ export interface TestResult {
 export type FirmwareCheckResult =
   | { status: "ok"; version: string }
   | { status: "noVersion" | "noResponse" | "busy" | "disconnected" };
-
-export interface RouteOptions {
-  feedNext?: boolean;
-}
-
-export interface SkippedRouteResponse {
-  skipped: true;
-}
 
 export interface PushTest {
   module: number;
@@ -402,30 +396,14 @@ export interface BinLevelSummary {
   needsEmptying: number;
 }
 
-export interface SerialRequestResult {
-  sent: boolean;
-  line: string;
-}
-
 export interface SerialRecoveryMark {
   hardwareId: string;
   until: number;
 }
 
-export interface PendingSerialReply {
-  seq: number | null;
-  resolve: (line: string) => void;
-}
-
 export interface RawCommandResult {
   status: "ok" | "disconnected" | "busy" | "noResponse";
   line: string | null;
-}
-
-export interface CommLogEntry {
-  direction: "sent" | "received" | "connected" | "disconnected" | "restarted";
-  text: string;
-  timestamp: number;
 }
 
 export interface CommLogEntriesProps {
