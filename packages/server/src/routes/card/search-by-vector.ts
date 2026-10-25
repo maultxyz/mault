@@ -53,7 +53,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
         void sendDiscordNotification(
           orgId,
           {
-            title: "Mault — Card Search Error",
+            title: "Mault: Card Search Error",
             description:
               "A database error occurred while searching for a card.",
             color: 0xed4245,

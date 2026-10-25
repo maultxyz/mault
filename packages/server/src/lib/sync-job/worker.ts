@@ -17,7 +17,7 @@ import { rebuildGameVectorIndex } from "../game-vector-index";
 function errorMessage(err: unknown): string {
   if (!(err instanceof Error)) return String(err);
   const cause = err.cause instanceof Error ? err.cause.message : null;
-  return cause ? `${err.message} — ${cause}` : err.message;
+  return cause ? `${err.message}: ${cause}` : err.message;
 }
 
 function send(msg: WorkerToParentMessage): void {
