@@ -31,14 +31,15 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   businessQuery,
   cleanText,
-  forbidden,
   notFound,
   pricingCurrency,
   readJson,
-  upgradeRequired,
 } from "./shared";
-
-const ORDER_NOT_FOUND = "Pick not found.";
+import {
+  BUSINESS_FORBIDDEN_RESULT,
+  BUSINESS_UPGRADE_REQUIRED_RESULT,
+  PICK_NOT_FOUND_MESSAGE,
+} from "../../lib/constants/business";
 
 async function findOrder(tx: Transaction, orgId: string, guid: string) {
   if (!UUID_PATTERN.test(guid)) return null;
@@ -111,8 +112,8 @@ export const ordersRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid pick." }, 400);
     }
     return businessQuery(c, async (tx, access) => {
-      if (access.isLocked) return upgradeRequired;
-      if (!access.canFulfilOrders) return forbidden;
+      if (access.isLocked) return BUSINESS_UPGRADE_REQUIRED_RESULT;
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const allocated = await allocateOrderLines(tx, orgId, null, lines);
       const [created] = await tx
@@ -143,7 +144,7 @@ export const ordersRoute = new Hono<AppEnv>()
     businessQuery(c, async (tx, access) => {
       const orgId = c.get("orgId");
       const row = await findOrder(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(ORDER_NOT_FOUND);
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
       const lines = toOrderLines(row.lines);
       const pullSheet =
         row.status === "open" ? await loadPullSheet(tx, orgId, lines) : [];
@@ -173,10 +174,10 @@ export const ordersRoute = new Hono<AppEnv>()
   )
   .post("/orders/:guid/allocate", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx, access) => {
-      if (!access.canFulfilOrders) return forbidden;
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const row = await findOrder(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(ORDER_NOT_FOUND);
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
       if (row.status !== "open") {
         return { success: false, message: "This pick is closed." };
       }
@@ -211,9 +212,9 @@ export const ordersRoute = new Hono<AppEnv>()
     const imageKeys: (string | null)[] = [];
     let committed = false;
     const response = await businessQuery(c, async (tx, access) => {
-      if (!access.canFulfilOrders) return forbidden;
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
       const row = await findOrder(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(ORDER_NOT_FOUND);
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
       if (row.status !== "open") {
         return { success: false, message: "This pick is closed." };
       }
@@ -312,10 +313,10 @@ export const ordersRoute = new Hono<AppEnv>()
   })
   .post("/orders/:guid/cancel", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx, access) => {
-      if (!access.canFulfilOrders) return forbidden;
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const row = await findOrder(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(ORDER_NOT_FOUND);
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
       if (row.status !== "open") {
         return { success: false, message: "This pick is closed." };
       }
@@ -341,9 +342,9 @@ export const ordersRoute = new Hono<AppEnv>()
   )
   .delete("/orders/:guid", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx, access) => {
-      if (!access.canFulfilOrders) return forbidden;
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
       const row = await findOrder(tx, c.get("orgId"), c.req.param("guid"));
-      if (!row) return notFound(ORDER_NOT_FOUND);
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
       if (row.status === "open") {
         return {
           success: false,
