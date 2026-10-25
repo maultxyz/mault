@@ -167,7 +167,10 @@ export function fetchNextUnreviewedIntakeCard(
 ): Promise<string | null> {
   return apiGet<Result<string | null>>(
     `/api/business/intake/${lotGuid}/cards/next-unreviewed`,
-  ).then((r) => r.data ?? null);
+  ).then((result) => {
+    if (!result.success) throw new Error(result.message);
+    return result.data ?? null;
+  });
 }
 
 export function createIntakeLot(input: IntakeLotInput) {
