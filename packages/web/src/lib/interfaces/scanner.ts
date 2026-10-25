@@ -10,11 +10,9 @@ import type {
   CardContour,
   CornerDetection,
   CardScannerProps,
-  CardSearchDiagnostics,
   CardSearchResult,
   OcrDiagnostics,
-  ScanDetectionDiagnostics,
-  UnmatchedReason,
+  ScanAttemptResult,
   UnmatchedScanDetails,
   UnmatchedScanDiagnostics,
   BinRoute,
@@ -25,9 +23,7 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   ScanRegion,
-  MatchCandidateDiagnostic,
   MatchedScanDetails,
-  ScanMatchSource,
   ScannedCard,
   ScannerStatus,
   ScanVectorizeSource,
@@ -695,27 +691,10 @@ export interface TextSearchOutcome {
   ocr: OcrDiagnostics | null;
 }
 
-export interface ResolvedSearchMatches {
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  noMatchReason: UnmatchedReason | null;
-  lookupFailedCardIds?: string[];
-  candidates: MatchCandidateDiagnostic[];
-}
-
-export interface ScanAttemptOutcome extends ResolvedSearchMatches {
+export interface ScanAttemptOutcome extends ScanAttemptResult {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
-  detection: ScanDetectionDiagnostics;
-  search: CardSearchDiagnostics | null;
-  orientation: "upright" | "rotated";
-  embedding: number[] | null;
-  topDistance: number | null;
-  ocr: OcrDiagnostics | null;
-  lowConfidenceMatch: boolean;
-  matchedBy: ScanMatchSource;
-  detectedColor: string | null;
 }
 
 export interface ScanOutcome {
