@@ -170,6 +170,7 @@
     "keys": {
       "space": "Espace",
       "shift": "Maj",
+      "ctrl": "Ctrl",
       "left": "←",
       "right": "→",
       "escape": "Échap",
@@ -188,6 +189,7 @@
       "toggleSidebar": "Déplier ou replier la barre latérale",
       "focusSearch": "Aller à la recherche",
       "dismissToasts": "Fermer toutes les notifications",
+      "save": "Enregistrer les modifications",
       "clearSelection": "Effacer la sélection",
       "goScanner": "Aller au tri",
       "goCollections": "Aller aux collections",
