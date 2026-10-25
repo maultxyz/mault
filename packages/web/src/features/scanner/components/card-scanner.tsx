@@ -39,6 +39,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useOnnxRuntimeFailureToast } from "@/features/scanner/api/use-onnx-runtime-failure-toast";
 import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate-toast";
+import { useApplyScannerControlCode } from "@/features/scanner/api/use-apply-scanner-control-code";
 import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -133,6 +134,16 @@ export function CardScanner({
   const { activeCollection } = useCollections();
   const { recordScanOutcome } = useUnmatchedRateToast();
   useOnnxRuntimeFailureToast();
+  const setAllowDuplicatesRef = useRef<(allowDuplicates: boolean) => void>(
+    () => {},
+  );
+  const applyControlCode = useApplyScannerControlCode(
+    useCallback(
+      (allowDuplicates: boolean) =>
+        setAllowDuplicatesRef.current(allowDuplicates),
+      [],
+    ),
+  );
   const {
     status,
     errorMessage,
@@ -185,10 +196,12 @@ export function CardScanner({
       recordScanOutcome(false);
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
+    onControlCode: (command) => void applyControlCode(command),
     rotated: !isMobile,
     autoCapture: handScanActive,
     skipDuplicateCheck: isRemoveModeActive,
   });
+  setAllowDuplicatesRef.current = setAllowDuplicates;
   const isSideControls = controlsPosition === "side";
 
   const handleOpenPhonePairing = () => {

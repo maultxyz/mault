@@ -83,7 +83,7 @@
     "general": "Deine Sprache, Akzentfarbe und Scanner-Anordnung und ob der Name deiner Organisation in der Bestenliste erscheint.",
     "organization": "Benenne deine Organisation um, lade Leute ein und lege fest, was jedes Mitglied darf.",
     "billing": "Sieh dir deinen Tarif und deine Nutzung an und verwalte oder upgrade dein Abo.",
-    "scanning": "Lege fest, wie Karten erkannt werden und was passiert, wenn ein Scan korrigiert werden muss.",
+    "scanning": "Lege fest, wie Karten erkannt werden, drucke Steuerkarten und bestimme, was passiert, wenn ein Scan korrigiert werden muss.",
     "pricing": "Lege fest, woher Kartenpreise kommen und wie viel jeder Zustand wert ist.",
     "sounds": "Spiele einen Sound ab, wenn eine gescannte Karte eine Regel erfüllt, zum Beispiel bei wertvollen Karten.",
     "notifications": "Verknüpfe deinen Discord-Server und lege fest, welche Scans und Warnungen wo gepostet werden.",
@@ -95,5 +95,10 @@
   },
   "auditLog": {
     "heading": "Aktivitätsprotokoll"
+  },
+  "controlCards": {
+    "heading": "Steuerkarten",
+    "description": "Drucke QR-Karten, die Sammlung, Regelvorlage, Foil-Art, Set, Zustand oder Scan-Optionen wechseln, sobald der Sortierer sie liest. Lass eine Karte während des Laufs durchlaufen, und sie landet dort, wo nicht erkannte Karten landen.",
+    "action": "Steuerkarten erstellen"
   }
 }

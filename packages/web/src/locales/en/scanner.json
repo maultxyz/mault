@@ -273,7 +273,8 @@
     "anySet": "Any set",
     "setSearchPlaceholder": "Search sets",
     "noSets": "No sets found",
-    "setHint": "Scanned cards use their printing from this set when one exists."
+    "setHint": "Scanned cards use their printing from this set when one exists.",
+    "conditionTooltip": "Condition for scanned cards: {{condition}}"
   },
   "scannerDebug": {
     "heading": "Debug",
@@ -780,7 +781,8 @@
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
       "sorterDescription": "Connection, self-test and status"
-    }
+    },
+    "condition": "Condition"
   },
   "mobileSorter": {
     "title": "Sorter",
@@ -896,5 +898,71 @@
     "binLabel": "Removed cards go to",
     "binPlaceholder": "Choose a bin",
     "catchAllBinOption": "Bin {{number}} (catch-all)"
+  },
+  "controlCards": {
+    "openPage": "Print control cards",
+    "openPageDescription": "QR cards that change scan settings when the sorter reads them",
+    "applied": "Control card applied",
+    "rejected": {
+      "title": "Control card not applied"
+    },
+    "problems": {
+      "unreadable": "This QR code isn't a control card this version of Mault understands. Scanning is paused.",
+      "collection-not-found": "The collection on this card no longer exists. Scanning is paused.",
+      "preset-not-found": "The rule preset on this card no longer exists. Scanning is paused.",
+      "preset-wrong-game": "The rule preset on this card is for a different game than the collection. Scanning is paused.",
+      "no-collection": "Choose a collection before using a rule preset card. Scanning is paused."
+    },
+    "actions": {
+      "collection": "Collection: {{name}}",
+      "preset": "Rule preset: {{name}}",
+      "foil": "Foil: {{type}}",
+      "notFoil": "Not foil",
+      "set": "Set: {{name}}",
+      "anySet": "Any set",
+      "condition": "Condition: {{condition}}",
+      "autoFeedOn": "Auto-feed on",
+      "autoFeedOff": "Auto-feed off",
+      "duplicatesOn": "Allow duplicates",
+      "duplicatesOff": "Skip duplicates",
+      "pause": "Pause scanning"
+    },
+    "form": {
+      "title": "New control card",
+      "description": "Pick what the card changes. Anything left on No change stays as it is.",
+      "cardTitle": "Label",
+      "cardTitlePlaceholder": "For example: Trade binder, LP",
+      "collection": "Collection",
+      "preset": "Rule preset",
+      "foil": "Foil type",
+      "set": "Set",
+      "condition": "Condition",
+      "autoFeed": "Auto-feed",
+      "allowDuplicates": "Allow duplicates",
+      "pauseScanner": "Pause scanning after this card",
+      "add": "Add to sheet",
+      "unchanged": "No change",
+      "toggle": {
+        "unchanged": "No change",
+        "on": "On",
+        "off": "Off"
+      }
+    },
+    "sheet": {
+      "emptyTitle": "No control cards yet",
+      "emptyDescription": "Cards you add show up here at real card size, ready to print."
+    },
+    "tile": {
+      "defaultTitle": "Control card",
+      "qrAlt": "Control card QR code",
+      "remove": "Remove card"
+    },
+    "page": {
+      "back": "Back to scanner",
+      "title": "Control cards",
+      "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
+      "print": "Print",
+      "printTip": "Print at 100% scale with margins on Default. Each page holds 9 cards. Cut along the borders, then glue or sleeve each one in front of a spare card so it feeds like a normal card. Keep the QR code flat and free of glare."
+    }
   }
 }

@@ -90,6 +90,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Bin routing runs client-side only. Both apps route a scan through `shared`'s `resolveScanBin` (`scan-routing.ts`: pick list, then auto-assign, then mode dispatch and the full/complete pauses); never re-implement that order per app. Mode helpers live in `evaluate-bin.ts`.
 - Never put a collection's full card list in a stream payload; unmatched scans are paged and bin fill comes from `/cards/bin-counts`.
 - Stats that must survive deletes read `scan_stats`/`org_daily_scan_usage`. Scan images are read through `resolveScanImageUrl`.
+- Control cards: `shared`'s `scanner-control-code.ts` owns the versioned `mault-control:` QR payload (unknown keys reject the card, so bump the version for new fields). Web checks for a QR before identifying; mobile only after a no-match (jsQR is slow on Hermes). A control card is never saved: it routes like an unmatched card, and a bad card pauses.
 - Any correct, confirm or review accept sets `is_reviewed` and clears `low_confidence_match`; `is_corrected` stays separate.
 - Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only.
 - In-process server state (locks, leases, sorter links, rate limits) is per process.

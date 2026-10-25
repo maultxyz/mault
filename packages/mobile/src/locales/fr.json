@@ -508,6 +508,34 @@
       "deploy": {
         "title": "Mise à jour en cours",
         "description": "Mault est en cours de mise à jour, le scan a donc été mis en pause pour qu'aucune carte ne soit perdue. Tu peux reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour."
+      },
+      "control-card": {
+        "title": "En pause par une carte de contrôle",
+        "description": "Appuie sur Reprendre quand tu veux continuer le scan."
+      },
+      "control-card-unreadable": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Ce QR code n'est pas une carte de contrôle que cette version de Mault comprend. Mets l'app à jour ou imprime une nouvelle carte."
+      },
+      "control-card-collection-not-found": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "La collection de cette carte n'existe plus."
+      },
+      "control-card-preset-not-found": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Le préréglage de règles de cette carte n'existe plus."
+      },
+      "control-card-preset-wrong-game": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Le préréglage de règles de cette carte concerne un autre jeu que la collection."
+      },
+      "control-card-no-collection": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Choisis une collection avant d'utiliser une carte de préréglage."
+      },
+      "control-card-switch-failed": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Impossible de changer de collection ou de préréglage. Vérifie ta connexion et réessaie."
       }
     },
     "scanOnce": "Scanner une",
@@ -592,7 +620,8 @@
       "notFoil": "Non foil",
       "set": "Extension",
       "anySet": "N'importe quelle extension",
-      "searchSets": "Rechercher une extension"
+      "searchSets": "Rechercher une extension",
+      "condition": "État"
     },
     "emptyBin": {
       "action": "Marquer comme vide",
@@ -630,6 +659,23 @@
       "binPickerTitle": "Les cartes retirées vont dans",
       "binOption": "Bac {{number}}",
       "catchAllBinOption": "Bac {{number}} (bac fourre-tout)"
+    },
+    "controlCards": {
+      "applied": "Carte de contrôle appliquée",
+      "actions": {
+        "collection": "Collection : {{name}}",
+        "preset": "Préréglage de règles : {{name}}",
+        "foil": "Foil : {{type}}",
+        "notFoil": "Non foil",
+        "set": "Extension : {{name}}",
+        "anySet": "N'importe quelle extension",
+        "condition": "État : {{condition}}",
+        "autoFeedOn": "Alimentation auto activée",
+        "autoFeedOff": "Alimentation auto désactivée",
+        "duplicatesOn": "Autoriser les doublons",
+        "duplicatesOff": "Ignorer les doublons",
+        "pause": "Mettre le scan en pause"
+      }
     }
   },
   "home": {
@@ -1746,6 +1792,7 @@
     "storageLocationRequired": "Choisis où sont allées les cartes.",
     "commandRequired": "Saisis une commande.",
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
-    "verificationCodeNumeric": "Le code ne peut contenir que des chiffres."
+    "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
+    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
   }
 }

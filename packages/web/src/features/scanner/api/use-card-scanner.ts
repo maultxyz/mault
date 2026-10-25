@@ -27,6 +27,7 @@ import {
 } from "@/features/scanner/lib/hand-scan";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
+import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-code";
 import {
   embedCanvas,
   rotateCanvas180,
@@ -76,6 +77,7 @@ import {
   HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
   isStrongerTextMatch,
+  parseScannerControlCode,
   pickBetterOrientation,
   pickConsensus,
   type PlayingCardWithDistance,
@@ -473,6 +475,7 @@ async function searchCardImageWithConsensus(
 export function useCardScanner({
   onSearchResults,
   onNoMatch,
+  onControlCode,
   onError,
   rotated = true,
   scanRegion: scanRegionProp,
@@ -574,6 +577,7 @@ export function useCardScanner({
   const settleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSearchResultsRef = useRef(onSearchResults);
   const onNoMatchRef = useRef(onNoMatch);
+  const onControlCodeRef = useRef(onControlCode);
   const handleErrorRef = useRef<(msg: string) => void>(() => {});
 
   const [status, setStatus] = useState<ScannerStatus>("initializing");
@@ -624,6 +628,10 @@ export function useCardScanner({
   }, [onNoMatch]);
 
   useEffect(() => {
+    onControlCodeRef.current = onControlCode;
+  }, [onControlCode]);
+
+  useEffect(() => {
     handleErrorRef.current = handleError;
   }, [handleError]);
 
@@ -670,6 +678,14 @@ export function useCardScanner({
       }
 
       try {
+        const controlCode = readScannerControlCode(canvas);
+        if (controlCode) {
+          lastScannedCardIdRef.current = null;
+          scanLog(`[scanner] control card read: ${controlCode}`);
+          onControlCodeRef.current?.(parseScannerControlCode(controlCode));
+          if (statusRef.current !== "paused") updateStatus("scanning");
+          return;
+        }
         const {
           card,
           alternativeMatches,

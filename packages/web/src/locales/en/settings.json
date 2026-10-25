@@ -89,11 +89,16 @@
     "general": "Your language, accent color and scanner layout, and whether your organization's name shows on the leaderboard.",
     "organization": "Rename your organization, invite people and choose what each member can do.",
     "billing": "See your plan and usage, and upgrade or manage your subscription.",
-    "scanning": "Choose how cards are identified and what happens when a scan needs a correction.",
+    "scanning": "Choose how cards are identified, print control cards, and decide what happens when a scan needs a correction.",
     "pricing": "Choose where card prices come from and how much each condition is worth.",
     "sounds": "Play a sound when a scanned card matches a rule, like a chime for valuable cards.",
     "notifications": "Link your Discord server and choose which scans and alerts get posted where.",
     "integrations": "Create API keys and webhooks so your shop or other tools can see where your cards are stored.",
     "business": "Set your buylist offers for buying collections and choose what members can see and do."
+  },
+  "controlCards": {
+    "heading": "Control cards",
+    "description": "Print QR cards that switch the collection, rule preset, foil type, set, condition or scan options when the sorter reads one. Feed a card through mid-run and it goes where unmatched cards go.",
+    "action": "Create control cards"
   }
 }

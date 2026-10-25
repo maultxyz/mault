@@ -97,7 +97,7 @@ export interface BinConfigsContextValue {
     binNumbers: number[],
     options?: EmptyAllBinsOptions,
   ) => Promise<boolean>;
-  activateSet: (guid: string) => Promise<void>;
+  activateSet: (guid: string) => Promise<boolean>;
   createSet: (name: string) => Promise<void>;
   importSet: (name: string, bins: DefaultBinInit[]) => Promise<boolean>;
   saveSet: (name: string) => Promise<void>;

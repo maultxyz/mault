@@ -131,7 +131,8 @@
     "newSetDescription": "Crée un nouveau préréglage avec 7 bacs vides.",
     "create": "Créer",
     "viewHistory": "Voir l'historique",
-    "historyTitle": "Historique du préréglage"
+    "historyTitle": "Historique du préréglage",
+    "printControlCard": "Imprimer une carte de contrôle"
   },
   "useBinConfigs": {
     "toasts": {

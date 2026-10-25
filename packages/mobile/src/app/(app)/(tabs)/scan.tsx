@@ -6,7 +6,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
+import {
+  CARD_CONDITIONS,
+  DEFAULT_SCAN_REGION,
+  isCardCondition,
+  listScannerControlActions,
+} from "@magic-vault/shared";
 import {
   Camera,
   type CameraRef,
@@ -87,7 +92,9 @@ export default function ScanScreen() {
   const [cameraPickerOpen, setCameraPickerOpen] = useState(false);
   const [foilTypePickerOpen, setFoilTypePickerOpen] = useState(false);
   const [setPickerOpen, setSetPickerOpen] = useState(false);
+  const [conditionPickerOpen, setConditionPickerOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const { data: binSets } = useQuery(binSetsQueryOptions(orgId));
   const permission = useCameraPermission();
   const camera = useCameraChoice();
   const device = camera.device;
@@ -126,6 +133,16 @@ export default function ScanScreen() {
   const forcedSetName = session.forcedSetCode
     ? (cardSets?.find((cardSet) => cardSet.code === session.forcedSetCode)?.name ?? session.forcedSetCode.toUpperCase())
     : t("scan.options.anySet");
+  const controlCardDescription = session.controlCardNotice
+    ? listScannerControlActions(session.controlCardNotice.command, {
+        collectionName: (guid) => collections?.find((c) => c.guid === guid)?.name ?? guid,
+        presetName: (guid) => binSets?.find((binSet) => binSet.guid === guid)?.name ?? guid,
+        setName: (code) => cardSets?.find((cardSet) => cardSet.code === code)?.name ?? code.toUpperCase(),
+        conditionName: (condition) => t(`cardDetail.conditions.${condition}`),
+      })
+        .map((action) => t(`scan.controlCards.actions.${action.key}`, action.values))
+        .join(", ")
+    : "";
   const working = RUNNING_PHASES.includes(session.phase);
   const cameraRef = useRef<CameraRef>(null);
   const liveCorners = useLiveCorners(
@@ -220,6 +237,13 @@ export default function ScanScreen() {
       description={t(`sorter.resetReasons.${sorter.notice.reason}`)}
       actionLabel={t("common.dismiss")}
       onAction={sorter.dismissNotice}
+    />
+  ) : session.controlCardNotice ? (
+    <CameraNotice
+      key={session.controlCardNotice.noticeId}
+      tone="success"
+      title={t("scan.controlCards.applied")}
+      description={controlCardDescription}
     />
   ) : pauseNotice && session.pauseReason ? (
     <CameraNotice
@@ -386,6 +410,11 @@ export default function ScanScreen() {
         foilTypeName={session.forcedFoilType ?? t("scan.options.notFoil")}
         showFoilType={foilTypes.length > 0}
         setName={forcedSetName}
+        conditionName={t(`cardDetail.conditions.${session.scanCondition}`)}
+        onChooseCondition={() => {
+          setOptionsOpen(false);
+          setConditionPickerOpen(true);
+        }}
         onChooseFoilType={() => {
           setOptionsOpen(false);
           setFoilTypePickerOpen(true);
@@ -490,6 +519,20 @@ export default function ScanScreen() {
           session.setForcedSetCode(value === ANY_SET_OPTION ? null : value);
         }}
         onClose={() => setSetPickerOpen(false)}
+      />
+      <OptionSheet
+        visible={conditionPickerOpen}
+        title={t("scan.options.condition")}
+        options={CARD_CONDITIONS.map((condition) => ({
+          value: condition,
+          label: t(`cardDetail.conditions.${condition}`),
+        }))}
+        selected={[session.scanCondition]}
+        onSelect={(value) => {
+          setConditionPickerOpen(false);
+          if (isCardCondition(value)) session.setScanCondition(value);
+        }}
+        onClose={() => setConditionPickerOpen(false)}
       />
       <ScanRemovalQueueSheet
         visible={removalQueueOpen}

@@ -3,6 +3,7 @@ import {
   type BinConfig,
   type BinContentCard,
   type CardCondition,
+  DEFAULT_CARD_CONDITION,
   type BinRoute,
   type EmptyBinOptions,
   type MatchedScanDetails,
@@ -305,6 +306,11 @@ export function ScannedCardsProvider({
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);
   const [forceSetCode, setForceSetCode] = useState<string | null>(null);
+  const forceSetCodeAfterCollectionSwitchRef = useRef<string | null>(null);
+  const [scanCondition, setScanConditionState] = useState<CardCondition>(
+    DEFAULT_CARD_CONDITION,
+  );
+  const scanConditionRef = useRef<CardCondition>(DEFAULT_CARD_CONDITION);
 
   const pickListsActive = isRulesMode(selectedSet);
   useEffect(() => {
@@ -500,12 +506,25 @@ export function ScannedCardsProvider({
     setForceFoilTypeState(foilType);
   }, []);
 
+  const setForceSetCodeAfterCollectionSwitch = useCallback(
+    (setCode: string | null) => {
+      forceSetCodeAfterCollectionSwitchRef.current = setCode;
+    },
+    [],
+  );
+
+  const setScanCondition = useCallback((condition: CardCondition) => {
+    scanConditionRef.current = condition;
+    setScanConditionState(condition);
+  }, []);
+
   useEffect(() => {
     const prev = prevCollectionGuidRef.current;
     const next = activeCollection?.guid;
     if (prev && prev !== next) {
       releaseScanLock(prev).catch(() => {});
-      setForceSetCode(null);
+      setForceSetCode(forceSetCodeAfterCollectionSwitchRef.current);
+      forceSetCodeAfterCollectionSwitchRef.current = null;
     }
     prevCollectionGuidRef.current = next;
     activeCollectionRef.current = activeCollection;
@@ -664,6 +683,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forcedFoilType != null || undefined,
         foilType: forcedFoilType ?? undefined,
+        condition: scanConditionRef.current,
         lowConfidenceMatch: details?.lowConfidenceMatch || isLowMatch || undefined,
         vectorizedOn,
       };
@@ -1403,6 +1423,7 @@ export function ScannedCardsProvider({
         autoFeed,
         forceFoilType,
         forceSetCode,
+        scanCondition,
         elapsedMs,
         isTimerActive,
         recentScanTimes,
@@ -1412,6 +1433,8 @@ export function ScannedCardsProvider({
         setAutoFeed,
         setForceFoilType,
         setForceSetCode,
+        setForceSetCodeAfterCollectionSwitch,
+        setScanCondition,
         registerCardArrivedHook,
         registerPauseHook,
         registerResumeHook,

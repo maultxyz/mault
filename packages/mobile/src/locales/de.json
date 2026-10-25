@@ -508,6 +508,34 @@
       "deploy": {
         "title": "Update läuft",
         "description": "Mault wird gerade aktualisiert, deshalb wurde das Scannen pausiert, damit keine Karten verloren gehen. Du kannst jetzt fortfahren, aber Scans können fehlschlagen, bis das Update abgeschlossen ist."
+      },
+      "control-card": {
+        "title": "Von einer Steuerkarte pausiert",
+        "description": "Tippe auf Fortsetzen, wenn du weiterscannen möchtest."
+      },
+      "control-card-unreadable": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Dieser QR-Code ist keine Steuerkarte, die diese Mault-Version versteht. Aktualisiere die App oder drucke eine neue Karte."
+      },
+      "control-card-collection-not-found": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Die Sammlung auf dieser Karte existiert nicht mehr."
+      },
+      "control-card-preset-not-found": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Die Regelvorlage auf dieser Karte existiert nicht mehr."
+      },
+      "control-card-preset-wrong-game": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Die Regelvorlage auf dieser Karte gehört zu einem anderen Spiel als die Sammlung."
+      },
+      "control-card-no-collection": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Wähle eine Sammlung, bevor du eine Karte mit Regelvorlage verwendest."
+      },
+      "control-card-switch-failed": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Sammlung oder Regelvorlage konnte nicht gewechselt werden. Prüfe deine Verbindung und versuche es erneut."
       }
     },
     "scanOnce": "Eine scannen",
@@ -592,7 +620,8 @@
       "notFoil": "Kein Foil",
       "set": "Set",
       "anySet": "Beliebiges Set",
-      "searchSets": "Sets suchen"
+      "searchSets": "Sets suchen",
+      "condition": "Zustand"
     },
     "emptyBin": {
       "action": "Als leer markieren",
@@ -630,6 +659,23 @@
       "binPickerTitle": "Entfernte Karten kommen in",
       "binOption": "Fach {{number}}",
       "catchAllBinOption": "Fach {{number}} (Auffangfach)"
+    },
+    "controlCards": {
+      "applied": "Steuerkarte angewendet",
+      "actions": {
+        "collection": "Sammlung: {{name}}",
+        "preset": "Regelvorlage: {{name}}",
+        "foil": "Foil: {{type}}",
+        "notFoil": "Kein Foil",
+        "set": "Set: {{name}}",
+        "anySet": "Beliebiges Set",
+        "condition": "Zustand: {{condition}}",
+        "autoFeedOn": "Automatischer Einzug an",
+        "autoFeedOff": "Automatischer Einzug aus",
+        "duplicatesOn": "Duplikate erlauben",
+        "duplicatesOff": "Duplikate überspringen",
+        "pause": "Scan pausieren"
+      }
     }
   },
   "home": {
@@ -1746,6 +1792,7 @@
     "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
     "commandRequired": "Gib einen Befehl ein.",
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
-    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten."
+    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
+    "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
   }
 }

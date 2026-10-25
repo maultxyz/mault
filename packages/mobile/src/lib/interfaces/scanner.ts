@@ -1,6 +1,7 @@
 import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
 import type {
   BinConfig,
+  CardCondition,
   CardContour,
   CardSearchResult,
   MatchedScanDetails,
@@ -9,6 +10,8 @@ import type {
   ScanAttemptResult,
   ScanRegion,
   ScannedCard,
+  ScannerControlCommand,
+  ScannerControlCommandProblem,
   ScanRemovalEntry,
   SerialCommand,
   SerialEventReport,
@@ -88,7 +91,15 @@ export type ScannerPauseReason =
   | "duplicate"
   | "repack-complete"
   | "bin-data-unavailable"
-  | "deploy";
+  | "deploy"
+  | "control-card"
+  | "control-card-switch-failed"
+  | `control-card-${ScannerControlCommandProblem | "unreadable"}`;
+
+export interface ControlCardNotice {
+  noticeId: string;
+  command: ScannerControlCommand;
+}
 
 export interface ScanFeedEntry {
   scanId: string;
@@ -168,6 +179,9 @@ export interface ScanSessionValue extends ScanSessionState {
   setForcedFoilType: (foilType: string | null) => void;
   forcedSetCode: string | null;
   setForcedSetCode: (setCode: string | null) => void;
+  scanCondition: CardCondition;
+  setScanCondition: (condition: CardCondition) => void;
+  controlCardNotice: ControlCardNotice | null;
   fullBinNumbers: number[];
   markFullBinsEmpty: () => Promise<boolean>;
   binConfigs: BinConfig[];
@@ -275,11 +289,13 @@ export interface ScanOptionsSheetProps {
   foilTypeName: string;
   showFoilType: boolean;
   setName: string;
+  conditionName: string;
   onChooseCollection: () => void;
   onChoosePreset: () => void;
   onChooseCamera: () => void;
   onChooseFoilType: () => void;
   onChooseSet: () => void;
+  onChooseCondition: () => void;
   onClose: () => void;
 }
 

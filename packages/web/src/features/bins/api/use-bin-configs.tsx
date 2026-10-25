@@ -535,7 +535,8 @@ export function BinConfigsProvider({
 
   const activateSetFn = useCallback(
     async (guid: string) => {
-      await activateSetMutation.mutateAsync(guid);
+      const result = await activateSetMutation.mutateAsync(guid);
+      return result.success;
     },
     [activateSetMutation],
   );

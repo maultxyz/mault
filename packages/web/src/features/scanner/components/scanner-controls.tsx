@@ -33,11 +33,17 @@ import {
   IconLoader2,
   IconPlayerPause,
   IconPlayerPlay,
+  IconRosette,
   IconRotate2,
   IconSparkles,
   IconStackPop,
 } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
+import {
+  CARD_CONDITIONS,
+  DEFAULT_CARD_CONDITION,
+  isCardCondition,
+} from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function ScannerControlButton({
@@ -88,8 +94,14 @@ export function ScannerControls({
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
-  const { autoFeed, setAutoFeed, forceFoilType, setForceFoilType } =
-    useScannedCards();
+  const {
+    autoFeed,
+    setAutoFeed,
+    forceFoilType,
+    setForceFoilType,
+    scanCondition,
+    setScanCondition,
+  } = useScannedCards();
   const { totalCount } = useCollectionCardsSummary();
   const foilOptions = useFoilOptions();
   const canForceScan =
@@ -97,6 +109,9 @@ export function ScannerControls({
   const isFirstFeed = totalCount === 0;
   const foilTooltip = t("scannerControls.foilTooltip", {
     type: forceFoilType ?? tCards("foilNone"),
+  });
+  const conditionTooltip = t("scannerControls.conditionTooltip", {
+    condition: tCards(`condition.names.${scanCondition}`),
   });
   const { isActive } = useStation();
   const { panelsDocked } = useStations();
@@ -256,6 +271,44 @@ export function ScannerControls({
               {foilOptions.map((type) => (
                 <DropdownMenuRadioItem key={type} value={type}>
                   {type}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant={
+                        scanCondition === DEFAULT_CARD_CONDITION
+                          ? "outline"
+                          : "outline-selected"
+                      }
+                      size="icon"
+                      aria-label={conditionTooltip}
+                    >
+                      <IconRosette />
+                    </Button>
+                  }
+                />
+              }
+            />
+            <TooltipContent>{conditionTooltip}</TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent align="start">
+            <DropdownMenuRadioGroup
+              value={scanCondition}
+              onValueChange={(value: string) => {
+                if (isCardCondition(value)) setScanCondition(value);
+              }}
+            >
+              {CARD_CONDITIONS.map((condition) => (
+                <DropdownMenuRadioItem key={condition} value={condition}>
+                  {tCards(`condition.names.${condition}`)}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>

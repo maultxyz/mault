@@ -4,13 +4,17 @@ import {
   SettingsSections,
 } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
 import { CorrectionAutoCloseSetting } from "@/features/scanner/components/correction-auto-close-setting";
 import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
+import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
+import { IconQrcode } from "@tabler/icons-react";
 import { Controller, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export default function SettingsScanningPage() {
   const { t } = useTranslation("settings");
@@ -102,6 +106,20 @@ export default function SettingsScanningPage() {
             />
           )}
         </div>
+      </SettingsSection>
+      <SettingsSection
+        heading={t("controlCards.heading")}
+        description={t("controlCards.description")}
+      >
+        <Button
+          variant="outline"
+          className="self-start"
+          nativeButton={false}
+          render={<Link to={CONTROL_CARDS_PATH} />}
+        >
+          <IconQrcode />
+          {t("controlCards.action")}
+        </Button>
       </SettingsSection>
       <SettingsSection
         heading={t("deployPause.heading")}

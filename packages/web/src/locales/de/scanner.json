@@ -273,7 +273,8 @@
     "anySet": "Beliebiges Set",
     "setSearchPlaceholder": "Sets suchen",
     "noSets": "Keine Sets gefunden",
-    "setHint": "Gescannte Karten verwenden ihren Druck aus diesem Set, wenn es einen gibt."
+    "setHint": "Gescannte Karten verwenden ihren Druck aus diesem Set, wenn es einen gibt.",
+    "conditionTooltip": "Zustand für gescannte Karten: {{condition}}"
   },
   "scannerDebug": {
     "heading": "Debug",
@@ -780,7 +781,8 @@
       "neutral": "Auf neutral zurücksetzen",
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
       "sorterDescription": "Verbindung, Selbsttest und Status"
-    }
+    },
+    "condition": "Zustand"
   },
   "mobileSorter": {
     "title": "Sortierer",
@@ -896,5 +898,71 @@
     "binLabel": "Entfernte Karten kommen in",
     "binPlaceholder": "Fach wählen",
     "catchAllBinOption": "Fach {{number}} (Auffangfach)"
+  },
+  "controlCards": {
+    "openPage": "Steuerkarten drucken",
+    "openPageDescription": "QR-Karten, die Scan-Einstellungen ändern, wenn der Sortierer sie liest",
+    "applied": "Steuerkarte angewendet",
+    "rejected": {
+      "title": "Steuerkarte nicht angewendet"
+    },
+    "problems": {
+      "unreadable": "Dieser QR-Code ist keine Steuerkarte, die diese Mault-Version versteht. Der Scan ist pausiert.",
+      "collection-not-found": "Die Sammlung auf dieser Karte existiert nicht mehr. Der Scan ist pausiert.",
+      "preset-not-found": "Die Regelvorlage auf dieser Karte existiert nicht mehr. Der Scan ist pausiert.",
+      "preset-wrong-game": "Die Regelvorlage auf dieser Karte gehört zu einem anderen Spiel als die Sammlung. Der Scan ist pausiert.",
+      "no-collection": "Wähle eine Sammlung, bevor du eine Karte mit Regelvorlage verwendest. Der Scan ist pausiert."
+    },
+    "actions": {
+      "collection": "Sammlung: {{name}}",
+      "preset": "Regelvorlage: {{name}}",
+      "foil": "Foil: {{type}}",
+      "notFoil": "Kein Foil",
+      "set": "Set: {{name}}",
+      "anySet": "Beliebiges Set",
+      "condition": "Zustand: {{condition}}",
+      "autoFeedOn": "Automatischer Einzug an",
+      "autoFeedOff": "Automatischer Einzug aus",
+      "duplicatesOn": "Duplikate erlauben",
+      "duplicatesOff": "Duplikate überspringen",
+      "pause": "Scan pausieren"
+    },
+    "form": {
+      "title": "Neue Steuerkarte",
+      "description": "Wähle, was die Karte ändert. Alles auf Keine Änderung bleibt, wie es ist.",
+      "cardTitle": "Beschriftung",
+      "cardTitlePlaceholder": "Zum Beispiel: Tauschordner, LP",
+      "collection": "Sammlung",
+      "preset": "Regelvorlage",
+      "foil": "Foil-Art",
+      "set": "Set",
+      "condition": "Zustand",
+      "autoFeed": "Automatischer Einzug",
+      "allowDuplicates": "Duplikate erlauben",
+      "pauseScanner": "Scan nach dieser Karte pausieren",
+      "add": "Zum Bogen hinzufügen",
+      "unchanged": "Keine Änderung",
+      "toggle": {
+        "unchanged": "Keine Änderung",
+        "on": "An",
+        "off": "Aus"
+      }
+    },
+    "sheet": {
+      "emptyTitle": "Noch keine Steuerkarten",
+      "emptyDescription": "Hinzugefügte Karten erscheinen hier in echter Kartengröße und sind bereit zum Drucken."
+    },
+    "tile": {
+      "defaultTitle": "Steuerkarte",
+      "qrAlt": "QR-Code der Steuerkarte",
+      "remove": "Karte entfernen"
+    },
+    "page": {
+      "back": "Zurück zum Scanner",
+      "title": "Steuerkarten",
+      "description": "Lass eine dieser Karten durch den Sortierer laufen, um Einstellungen während des Laufs zu ändern. Sie landet dort, wo nicht erkannte Karten landen, und wird nie in einer Sammlung gespeichert.",
+      "print": "Drucken",
+      "printTip": "Drucke mit 100 % Skalierung und Rändern auf Standard. Auf jede Seite passen 9 Karten. Schneide entlang der Ränder und klebe oder stecke jede Karte vor eine Ersatzkarte, damit sie wie eine normale Karte eingezogen wird. Halte den QR-Code flach und frei von Spiegelungen."
+    }
   }
 }
