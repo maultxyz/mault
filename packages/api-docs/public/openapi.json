@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Mault API",
-    "version": "1.0.172",
+    "version": "1.0.173",
     "description": "Look up where an organization's scanned cards are stored, and take them out of their box, move or delete them with a read and write key. Lists are paged with has_more and next_page (at most 500 per page), and every object carries an object field naming its type, like Scryfall's API."
   },
   "servers": [
