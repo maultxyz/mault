@@ -70,14 +70,6 @@
       "modules_other": "{{count}} modules"
     }
   },
-  "footer": {
-    "openSource": "Open source",
-    "reportIssue": "Signaler un problème",
-    "signIn": "Se connecter",
-    "privacy": "Confidentialité",
-    "terms": "Conditions",
-    "copyright": "© {{year}} Mault LLC"
-  },
   "bom": {
     "heading": "Nomenclature",
     "description": "Les quantités évoluent avec le nombre de modules que tu construis - {{modules}} modules × 3 servos, 1 chargeur, {{irSensors}} capteurs IR, {{channelsUsed}} des 16 canaux du PCA9685 utilisés. Les canaux restants sont libres pour des modules de tri supplémentaires (jusqu'à 5 modules sur un seul PCA9685). Coche chaque pièce au fur et à mesure que tu la récupères - les coches sont enregistrées dans ce navigateur.",
@@ -371,8 +363,7 @@
         "title": "Imprimer les pièces structurelles",
         "steps": {
           "printSortingModule": {
-            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir du <mesh>modèle MakerWorld</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>).",
-            "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
+            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir du <mesh>modèle MakerWorld</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>)."
           },
           "printFeederModule": {
             "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie.",

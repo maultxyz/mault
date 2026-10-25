@@ -1,16 +1,16 @@
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { toast } from "@/lib/toast";
 import {
   toCardCondition,
   type CardCondition,
   type GroupedScannedCard,
 } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
+import { copyWithToast } from "@/lib/clipboard";
 
 export function useCardActions(entry: GroupedScannedCard) {
   const { t } = useTranslation("cards");
-  const { confirmCard, setCardFoilType, setCardsCondition, removeCards } =
+  const { confirmCard, setCardsFoilType, setCardsCondition, removeCards } =
     useScannedCards();
   const foilOptions = useFoilOptions();
 
@@ -24,18 +24,16 @@ export function useCardActions(entry: GroupedScannedCard) {
     confirm: () => {
       for (const scanId of entry.scanIds) confirmCard(scanId);
     },
-    setFoil: (foilType: string | null) => {
-      for (const scanId of entry.scanIds) setCardFoilType(scanId, foilType);
-    },
+    setFoil: (foilType: string | null) =>
+      setCardsFoilType(entry.scanIds, foilType),
     setCondition: (condition: CardCondition) =>
       setCardsCondition(entry.scanIds, condition),
     copyName: async () => {
-      try {
-        await navigator.clipboard.writeText(entry.card.name);
-        toast.success(t("cardContextMenu.copied"));
-      } catch {
-        toast.error(t("cardContextMenu.copyFailed"));
-      }
+      await copyWithToast(
+        entry.card.name,
+        t("cardContextMenu.copied"),
+        t("cardContextMenu.copyFailed"),
+      );
     },
     remove: () => removeCards(entry.scanIds),
   };

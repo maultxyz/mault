@@ -12,15 +12,7 @@ import { IconClockHour3, IconX } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import type { ImpersonationAuditDrawerProps } from "@/lib/interfaces/admin";
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import { formatShortDateTime } from "@/lib/format";
 
 export function ImpersonationAuditDrawer({
   open,
@@ -32,10 +24,6 @@ export function ImpersonationAuditDrawer({
     queryKey: ["admin", "impersonation-audit"],
     queryFn: () => listImpersonationAudit().then((r) => r.data ?? []),
     enabled: open,
-    // Always refetch on open rather than trusting a cached fetch - this
-    // list is what confirms a session actually ended, so a stale "Active"
-    // row here (e.g. reopening shortly after exiting) is actively
-    // misleading, not just a mildly outdated count.
     staleTime: 0,
   });
 
@@ -93,11 +81,11 @@ export function ImpersonationAuditDrawer({
                   <p className="text-xs text-foreground/70">
                     {entry.endedAt
                       ? t("impersonationAuditDrawer.startedAndEnded", {
-                          started: formatDate(entry.startedAt),
-                          ended: formatDate(entry.endedAt),
+                          started: formatShortDateTime(entry.startedAt),
+                          ended: formatShortDateTime(entry.endedAt),
                         })
                       : t("impersonationAuditDrawer.startedOnly", {
-                          started: formatDate(entry.startedAt),
+                          started: formatShortDateTime(entry.startedAt),
                         })}
                   </p>
                 </div>

@@ -50,11 +50,6 @@ export interface DemoStorageBox {
   value: number;
 }
 
-export interface DemoStoredCard {
-  position: number;
-  card: DemoScannedCard["card"];
-}
-
 export interface DemoPickListEntry {
   name: string;
   quantity: number;

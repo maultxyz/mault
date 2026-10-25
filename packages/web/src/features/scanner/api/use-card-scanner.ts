@@ -43,7 +43,6 @@ import type {
   OrientedCandidate,
   OrientedSearch,
   OrientedSearchPick,
-  ResolvedSearchMatches,
   ScanAttemptOutcome,
   ScanOutcome,
   TextSearchOutcome,
@@ -55,9 +54,10 @@ import {
 } from "@/features/scanner/lib/canvas-fit";
 import { scanLog } from "@/lib/scan-log";
 import {
-  CLOSE_MATCH_DELTA,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   CONSENSUS_RETRY_BUDGET,
+  hasCardMatch,
+  needsTextSearch,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   type ColorBarRegion,
@@ -75,23 +75,22 @@ import {
   HAND_SCAN_REMOVAL_TICKS,
   HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
-  type CardSearchResult,
   isStrongerTextMatch,
+  pickBetterOrientation,
   pickConsensus,
   type PlayingCardWithDistance,
-  type ScanAttemptDiagnostic,
+  preferDetectedColor,
+  resolveCardSearchMatches,
   type ScanDetectionDiagnostics,
   type ScanRegion,
   type ScannerStatus,
   type ScanVectorizeSource,
-  type UnmatchedScanDiagnostics,
+  toScanMatchDetails,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-// Singleton AudioContext - browsers cap concurrent contexts (~6).
-// Creating one per scan exhausts the limit quickly.
 let sharedAudioCtx: AudioContext | null = null;
 function getAudioContext(): AudioContext {
   if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
@@ -121,53 +120,6 @@ function playDingSound() {
   oscillator.stop(ctx.currentTime + 0.3);
 }
 
-async function resolveSearchMatches(
-  result: CardSearchResult,
-  collectionGuid: string | undefined,
-): Promise<ResolvedSearchMatches> {
-  const data = result.data;
-  if (!data || data.length === 0)
-    return {
-      card: null,
-      alternativeMatches: [],
-      noMatchReason: result.diagnostics?.reason ?? "too_far",
-      candidates: [],
-    };
-
-  const candidates = data.map((m) => ({
-    cardId: m.cardId,
-    name: m.card?.name ?? null,
-    distance: m.distance,
-    confidence: m.confidence,
-  }));
-
-  const closeMatches = data.filter(
-    (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
-  );
-  const resolved = await Promise.all(
-    closeMatches.map(async (m) => {
-      const card =
-        m.card ?? (await getCardById(m.cardId, collectionGuid, m.lang)).data;
-      return card
-        ? { ...card, distance: m.distance, confidence: m.confidence }
-        : null;
-    }),
-  );
-
-  const cards = resolved.filter(Boolean) as PlayingCardWithDistance[];
-  if (cards.length === 0)
-    return {
-      card: null,
-      alternativeMatches: [],
-      noMatchReason: "lookup_failed",
-      lookupFailedCardIds: closeMatches.map((m) => m.cardId),
-      candidates,
-    };
-
-  const [card, ...alternativeMatches] = cards;
-  return { card, alternativeMatches, noMatchReason: null, candidates };
-}
-
 function appendMatchScope(formData: FormData, scope: MatchScope): void {
   if (scope.collectionGuid)
     formData.append("collectionGuid", scope.collectionGuid);
@@ -185,10 +137,6 @@ function buildSearchFormData(
   appendMatchScope(formData, scope);
   formData.append("embedding", JSON.stringify(embedding));
   return formData;
-}
-
-function hasMatch(result: CardSearchResult): boolean {
-  return (result.data?.length ?? 0) > 0;
 }
 
 async function searchBothOrientations(
@@ -222,25 +170,7 @@ async function searchBothOrientations(
     ),
   ]);
 
-  const rotatedWins =
-    hasMatch(upright.result) !== hasMatch(rotated.result)
-      ? hasMatch(rotated.result)
-      : (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
-        (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
-  return rotatedWins
-    ? { ...rotated, alternate: upright }
-    : { ...upright, alternate: rotated };
-}
-
-function needsTextSearch(result: CardSearchResult): boolean {
-  const reason = result.diagnostics?.reason;
-  if (reason === "too_far" || reason === "ambiguous") return true;
-  const [leader, runnerUp] = result.data ?? [];
-  return (
-    leader != null &&
-    runnerUp != null &&
-    runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
-  );
+  return pickBetterOrientation(upright, rotated);
 }
 
 async function searchByCardText(
@@ -277,7 +207,7 @@ async function searchByCardText(
             ),
           );
           scanLog(
-            `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
+            `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasCardMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
           );
           return result;
         } catch (err) {
@@ -292,7 +222,7 @@ async function searchByCardText(
     });
     const result = results[bestIndex];
     const ocr = result?.ocr ?? results.find((r) => r?.ocr)?.ocr ?? null;
-    if (!result || !hasMatch(result)) return { pick: null, ocr };
+    if (!result || !hasCardMatch(result)) return { pick: null, ocr };
     return {
       pick: { ...options[bestIndex], result, alternate: null },
       ocr,
@@ -307,21 +237,6 @@ function buildImageSearchFormData(blob: Blob, scope: MatchScope): FormData {
   formData.append("image", blob, "card.jpg");
   appendMatchScope(formData, scope);
   return formData;
-}
-
-function preferDetectedColor(
-  resolved: ResolvedSearchMatches,
-  color: string | null,
-): ResolvedSearchMatches {
-  if (!color || !resolved.card) return resolved;
-  const all = [resolved.card, ...resolved.alternativeMatches];
-  const preferred = all.find((c) => c.colorIdentity?.includes(color));
-  if (!preferred || preferred === resolved.card) return resolved;
-  return {
-    ...resolved,
-    card: preferred,
-    alternativeMatches: all.filter((c) => c !== preferred),
-  };
 }
 
 async function toAttemptOutcome(
@@ -343,7 +258,11 @@ async function toAttemptOutcome(
     : null;
   return {
     ...preferDetectedColor(
-      await resolveSearchMatches(best.result, collectionGuid),
+      await resolveCardSearchMatches(
+        best.result,
+        async (match) =>
+          (await getCardById(match.cardId, collectionGuid, match.lang)).data,
+      ),
       detectedColor,
     ),
     ...context,
@@ -454,7 +373,7 @@ async function runCardImageSearch(
           vectorizedOn: "web",
           detection,
           ocr: text?.ocr ?? null,
-          lowConfidenceMatch: !!text?.pick && !hasMatch(best.result),
+          lowConfidenceMatch: !!text?.pick && !hasCardMatch(best.result),
           matchedBy: text?.pick ? "ocr" : "embedding",
         },
       );
@@ -494,79 +413,19 @@ async function runCardImageSearch(
   });
 }
 
-function toAttemptDiagnostics(
-  attempts: ScanAttemptOutcome[],
-): ScanAttemptDiagnostic[] {
-  return attempts.map((a) => ({
-    reason: a.noMatchReason,
-    cardId: a.card?.id ?? null,
-    cardName: a.card?.name ?? null,
-    distance: a.topDistance,
-  }));
-}
-
 function toScanOutcome(
   outcome: ScanAttemptOutcome,
   attempts: ScanAttemptOutcome[],
   matchesNeeded: number,
 ): ScanOutcome {
-  const {
-    card,
-    alternativeMatches,
-    debugImageUrl,
-    detectedContour,
-    vectorizedOn,
-    lowConfidenceMatch,
-  } = outcome;
-  if (card) {
-    return {
-      card,
-      alternativeMatches,
-      debugImageUrl,
-      detectedContour,
-      vectorizedOn,
-      matched: {
-        lowConfidenceMatch,
-        diagnostics: {
-          matchedBy: outcome.matchedBy,
-          vectorizedOn,
-          detection: outcome.detection,
-          orientation: outcome.orientation,
-          matchesNeeded,
-          attempts: toAttemptDiagnostics(attempts),
-          candidates: outcome.candidates,
-          ocr: outcome.ocr,
-          detectedColor: outcome.detectedColor,
-        },
-      },
-      noMatch: null,
-    };
-  }
-
-  const searchWithoutEmbedding = outcome.search
-    ? (({ embedding: _embedding, ...rest }) => rest)(outcome.search)
-    : null;
-  const diagnostics: UnmatchedScanDiagnostics = {
-    reason: attempts.some((a) => a.card)
-      ? "no_consensus"
-      : (outcome.noMatchReason ?? "too_far"),
-    search: searchWithoutEmbedding,
-    detection: outcome.detection,
-    orientation: outcome.orientation,
-    matchesNeeded,
-    attempts: toAttemptDiagnostics(attempts),
-    lookupFailedCardIds: outcome.lookupFailedCardIds,
-    ocr: outcome.ocr,
-  };
-
+  const { card, debugImageUrl, detectedContour, vectorizedOn } = outcome;
   return {
-    card: null,
-    alternativeMatches: [],
+    card,
+    alternativeMatches: card ? outcome.alternativeMatches : [],
     debugImageUrl,
     detectedContour,
     vectorizedOn,
-    matched: null,
-    noMatch: { diagnostics, embedding: outcome.embedding },
+    ...toScanMatchDetails(outcome, attempts, matchesNeeded, vectorizedOn),
   };
 }
 
@@ -765,7 +624,7 @@ export function useCardScanner({
   }, [handleError]);
 
   useEffect(() => {
-    if (cameraSource === "phone") return; // handled by the phone-status effect below
+    if (cameraSource === "phone") return;
     if (cameraStatus === "requesting") {
       updateStatus("requesting-camera");
     } else if (cameraStatus === "error") {
@@ -913,10 +772,6 @@ export function useCardScanner({
     rafRef.current = requestAnimationFrame(detectionLoop);
   }, []);
 
-  // Attach stream to video/canvases and start the detection loop.
-  // Re-runs if the stream is replaced (e.g. after retryCamera).
-  // On unmount: cancels the RAF loop but does NOT stop the stream tracks -
-  // the CameraProvider owns the stream lifetime.
   useEffect(() => {
     if (!stream) return;
 
@@ -982,9 +837,6 @@ export function useCardScanner({
     };
   }, [stream, updateStatus, detectionLoop, outlineAnimator]);
 
-  // Continuous live-preview overlay showing what would be captured - purely
-  // visual feedback, decoupled from when an actual capture/match fires
-  // (that stays gated on the settle-delayed captureCard flow).
   const liveDetectingRef = useRef(false);
   useEffect(() => {
     if (!stream) return;
@@ -1273,8 +1125,6 @@ export function useCardScanner({
   const handleRetryError = useCallback(async () => {
     setErrorMessage("");
     if (cameraSource === "phone") {
-      // Don't fall back to the local webcam here - just clear the error and
-      // let the phone-status effect above re-evaluate current presence.
       updateStatus(
         phonePairingStatus === "connected" ? "paused" : "initializing",
       );

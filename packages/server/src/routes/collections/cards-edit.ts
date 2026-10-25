@@ -12,8 +12,8 @@ import { markScanCorrected } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toScannedCard } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// PUT /collections/:guid/cards/:scanId — update card (correction, bin and/or foil status)
 export const editCollectionCardRoute = new Hono<AppEnv>().put(
   "/:guid/cards/:scanId",
   requireAuth,
@@ -114,12 +114,11 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
       emitToSession(guid, "scan_error", {
         message: "Failed to update card.",
         timestamp: Date.now(),
       });
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

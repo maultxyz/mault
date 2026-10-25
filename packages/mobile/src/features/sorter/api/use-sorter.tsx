@@ -11,15 +11,26 @@ import {
 } from "react";
 import {
   CHANNEL_OFFSET,
+  type CommLogEntry,
   DEFAULT_CHANNEL_LAYOUT,
+  DEVICE_LEASE_HEARTBEAT_MS,
+  JAM_CLEAR_DEVICE_TIMEOUT_MS,
+  JAM_COMMAND_TIMEOUT_MS,
   NUS_SERVICE_UUID,
   isFirmwareFeatureSupported,
   isServoDriverMissing,
+  SELF_TEST_RESPONSE_TIMEOUT_MS,
+  SERIAL_HEARTBEAT_INTERVAL_MS,
+  SERIAL_HEARTBEAT_TIMEOUT_MS,
+  SERIAL_IDENTIFY_ATTEMPT_TIMEOUT_MS,
+  SERIAL_IDENTIFY_TIMEOUT_MS,
+  type SerialReply,
   statusResetReason,
   statusUptimeMs,
   SERIAL_HEARTBEAT_MAX_MISSES,
   SERIAL_IDENTIFY_ATTEMPTS,
   type BinRoute,
+  STORE_CONFIG_TIMEOUT_MS,
 } from "@magic-vault/shared";
 import {
   acquireDeviceLease,
@@ -40,27 +51,16 @@ import {
   AUTO_RECONNECT_ATTEMPTS,
   AUTO_RECONNECT_INTERVAL_MS,
   CLOUD_SORTER_ID_PREFIX,
-  DEVICE_LEASE_HEARTBEAT_MS,
-  JAM_CLEAR_DEVICE_TIMEOUT_MS,
-  JAM_COMMAND_TIMEOUT_MS,
-  SELF_TEST_RESPONSE_TIMEOUT_MS,
-  SERIAL_HEARTBEAT_INTERVAL_MS,
-  SERIAL_HEARTBEAT_TIMEOUT_MS,
-  SERIAL_IDENTIFY_ATTEMPT_TIMEOUT_MS,
-  SERIAL_IDENTIFY_TIMEOUT_MS,
-  STORE_CONFIG_TIMEOUT_MS,
 } from "@/lib/constants/sorter";
 import { LAST_SORTER_ID_KEY, SORTER_AUTO_CONNECT_KEY } from "@/lib/constants/storage-keys";
 import type { Device } from "@/lib/interfaces/devices";
 import type {
   ByteTransport,
   CloudOpenResult,
-  CommLogEntry,
   DiscoveredSorter,
   SorterContextValue,
   SorterError,
   SensorNote,
-  SorterMessage,
   SorterNotice,
   SorterPhase,
   SorterStatusReply,
@@ -80,7 +80,7 @@ async function openTransport(id: string): Promise<CloudOpenResult> {
   return { ok: true, transport: await BleTransport.connect(id) };
 }
 
-function parseTest(reply: SorterMessage | null): TestOutcome {
+function parseTest(reply: SerialReply | null): TestOutcome {
   if (!reply) return { ok: false, error: null, blockedModule: null, servoDriverMissing: false };
   const ok = reply.status === "test_complete";
   return {
@@ -117,7 +117,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const launchedRef = useRef(false);
   const { status: sessionStatus } = useSession();
 
-  useEffect(() => link.subscribeLog(setCommLog), []);
+  useEffect(() => link.subscribeCommLog(() => setCommLog(link.getCommLog())), []);
 
   const stopDiscovery = useCallback(() => {
     if (discoveryTimerRef.current) clearTimeout(discoveryTimerRef.current);
@@ -134,7 +134,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
 
   const teardown = useCallback(async () => {
     attemptRef.current += 1;
-    link.bootListener = null;
+    link.onBootBanner = null;
     const transport = link.detach();
     const leased = deviceRef.current;
     deviceRef.current = null;
@@ -283,6 +283,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
         await transport.close();
         return;
       }
+      link.clearCommLog();
       link.attach(transport);
       transport.onDisconnect(() => {
         console.warn("[Sorter] transport disconnected", JSON.stringify({ stale: stale() }));
@@ -292,73 +293,81 @@ export function SorterProvider({ children }: { children: ReactNode }) {
         fail({ code: "connection-lost" });
         if (autoConnect) scheduleReconnect(id, 1);
       });
-      await transport.start();
-      writeKv(LAST_SORTER_ID_KEY, id);
-
-      setPhase("identifying");
-      const status = await identify();
-      if (stale()) return;
-      if (!status?.id) {
-        await teardown();
-        fail({ code: "identify-failed" });
-        return;
-      }
-      if (typeof status.bleMtu === "number") transport.setMtu(status.bleMtu);
-      setFirmwareVersion(status.version ?? null);
-      versionRef.current = status.version ?? null;
-      setBoard(status.board ?? null);
-      uptimeRef.current = statusUptimeMs(status);
-
-      let bound: Device;
       try {
-        bound = await resolveDevice(status.id);
-      } catch {
+        await transport.start();
+        writeKv(LAST_SORTER_ID_KEY, id);
+
+        setPhase("identifying");
+        const status = await identify();
         if (stale()) return;
-        await teardown();
-        fail({ code: "identify-failed" });
-        return;
-      }
-      if (stale()) return;
-      if (!(await acquireDeviceLease(bound.guid))) {
-        await teardown();
-        fail({ code: "sorter-limit" });
-        return;
-      }
-      if (stale()) {
-        void releaseDeviceLease(bound.guid);
-        return;
-      }
-      deviceRef.current = bound;
-      setDevice(bound);
-      writeKv(SORTER_AUTO_CONNECT_KEY, bound.autoConnect ? "1" : null);
-      void queryClient.invalidateQueries({ queryKey: ["devices"] });
+        if (!status?.id) {
+          await teardown();
+          fail({ code: "identify-failed" });
+          return;
+        }
+        if (typeof status.bleMtu === "number") transport.setMtu(status.bleMtu);
+        setFirmwareVersion(status.version ?? null);
+        versionRef.current = status.version ?? null;
+        setBoard(status.board ?? null);
+        uptimeRef.current = statusUptimeMs(status);
 
-      link.bootListener = (banner) => {
+        let bound: Device;
+        try {
+          bound = await resolveDevice(status.id);
+        } catch {
+          if (stale()) return;
+          await teardown();
+          fail({ code: "identify-failed" });
+          return;
+        }
         if (stale()) return;
-        recoverRef.current(banner);
-      };
+        if (!(await acquireDeviceLease(bound.guid))) {
+          await teardown();
+          fail({ code: "sorter-limit" });
+          return;
+        }
+        if (stale()) {
+          void releaseDeviceLease(bound.guid);
+          return;
+        }
+        deviceRef.current = bound;
+        setDevice(bound);
+        writeKv(SORTER_AUTO_CONNECT_KEY, bound.autoConnect ? "1" : null);
+        void queryClient.invalidateQueries({ queryKey: ["devices"] });
 
-      setPhase("syncing");
-      await syncCalibration(bound, status.version ?? null);
-      if (stale()) return;
-      if (!bound.setupCompletedAt) {
-        fail({ code: "setup-incomplete" });
-        return;
-      }
+        link.onBootBanner = (banner) => {
+          if (!link.hasTaggedReplies) return false;
+          if (!stale()) recoverRef.current(banner);
+          return true;
+        };
 
-      if (bound.testOnConnect) {
-        await runSelfTest();
-        return;
+        setPhase("syncing");
+        await syncCalibration(bound, status.version ?? null);
+        if (stale()) return;
+        if (!bound.setupCompletedAt) {
+          fail({ code: "setup-incomplete" });
+          return;
+        }
+
+        if (bound.testOnConnect) {
+          await runSelfTest();
+          return;
+        }
+        const check = await link.sendParsed({ getStatus: true });
+        if (stale()) return;
+        if (isServoDriverMissing(check)) {
+          fail({ code: "servo-driver-missing" });
+          return;
+        }
+        await link.sendNeutral();
+        if (stale()) return;
+        setPhase("ready");
+      } catch (err) {
+        if (stale()) return;
+        console.warn("[Sorter] bring-up failed", err);
+        await teardown();
+        fail({ code: "connect-failed", detail: err instanceof Error ? err.message : undefined });
       }
-      const check = await link.sendParsed({ getStatus: true });
-      if (stale()) return;
-      if (isServoDriverMissing(check)) {
-        fail({ code: "servo-driver-missing" });
-        return;
-      }
-      await link.sendNeutral();
-      if (stale()) return;
-      setPhase("ready");
     },
     [fail, identify, queryClient, runSelfTest, scheduleReconnect, stopDiscovery, syncCalibration, teardown],
   );
@@ -395,7 +404,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     let misses = 0;
     let checking = false;
     const interval = setInterval(async () => {
-      if (checking || link.isBusy() || !link.activeTransport) return;
+      if (checking || link.isBusy() || !link.transport) return;
       checking = true;
       try {
         const sentAt = Date.now();
@@ -427,11 +436,11 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     async (status: unknown) => {
       const bound = deviceRef.current;
       console.warn("[Sorter] restart detected", JSON.stringify(status));
-      if (!bound || !link.activeTransport || resyncingRef.current) return;
+      if (!bound || !link.transport || resyncingRef.current) return;
       resyncingRef.current = true;
       const attempt = attemptRef.current;
       const stale = () => attemptRef.current !== attempt;
-      link.failPending();
+      link.failPendingReplies();
       uptimeRef.current = statusUptimeMs(status);
       const bannerVersion = (status as SorterStatusReply | null)?.version;
       if (typeof bannerVersion === "string") versionRef.current = bannerVersion;
@@ -512,7 +521,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   }, []);
   const applySavedCalibration = useCallback(async () => {
     const bound = deviceRef.current;
-    if (!bound || !link.activeTransport) return;
+    if (!bound || !link.transport) return;
     await syncCalibration(bound, versionRef.current);
   }, [syncCalibration]);
   const subscribe = useCallback<SorterContextValue["subscribe"]>(

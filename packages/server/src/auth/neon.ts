@@ -27,14 +27,10 @@ export const neonAuthProvider: AuthProvider = {
   },
 
   async getUserRole(userId) {
-    try {
-      const result = await db.execute(
-        sql`SELECT role FROM neon_auth.user WHERE id = ${userId} LIMIT 1`,
-      );
-      return (result.rows[0]?.role as string) ?? "user";
-    } catch {
-      return "user";
-    }
+    const result = await db.execute(
+      sql`SELECT role FROM neon_auth.user WHERE id = ${userId} LIMIT 1`,
+    );
+    return (result.rows[0]?.role as string) ?? "user";
   },
 
   async resolveOrgMembership(userId, orgId) {

@@ -35,7 +35,7 @@ export interface CornerDetection {
 }
 
 export interface ScanRegion {
-  coverage: number; // 0-1
+  coverage: number;
   offsetX: number; // -0.5 to 0.5
   offsetY: number; // -0.5 to 0.5
 }
@@ -76,12 +76,6 @@ export interface CardScannerProps {
   className?: string;
   compact?: boolean;
   controlsPosition?: "bottom" | "side";
-}
-
-export interface CardMatch {
-  id: number;
-  cardId: string;
-  distance: number;
 }
 
 export type ScanVectorizeSource = "server" | "web";

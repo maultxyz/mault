@@ -59,12 +59,17 @@
 #define BLE_SUPPORTED 0
 #endif
 
-// Every ESP32 has a Wi-Fi radio, so every ESP32 build can join the user's
-// network and hold a WebSocket to the server (cloud_esp32.ino), letting the
-// app drive the sorter from anywhere. The Uno R4 WiFi's radio is the same
-// co-processor ArduinoBLE already owns, so it stays BLE-only.
+// Boards with a Wi-Fi radio can join the user's network and hold a WebSocket
+// to the server (cloud_common.ino), letting the app drive the sorter from
+// anywhere. Every ESP32 runs it alongside BLE (cloud_esp32.ino). The Uno R4
+// WiFi's radio is the ESP32-S3 co-processor ArduinoBLE also uses, so there
+// Wi-Fi and BLE take turns, one per boot (cloud_wifis3.ino).
 #if defined(ARDUINO_ARCH_ESP32)
 #define WIFI_SUPPORTED 1
+#define WIFI_BACKEND_ESP32 1
+#elif defined(ARDUINO_UNOWIFIR4)
+#define WIFI_SUPPORTED 1
+#define WIFI_BACKEND_WIFIS3 1
 #else
 #define WIFI_SUPPORTED 0
 #endif
@@ -85,11 +90,13 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #endif
-#if WIFI_SUPPORTED
+#if WIFI_BACKEND_ESP32
 #include <NetworkClient.h>
 #include <NetworkClientSecure.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#elif WIFI_BACKEND_WIFIS3
+#include <WiFiS3.h>
 #endif
 
 #define SERVO_DRIVER_I2C_ADDR 0x40
@@ -108,7 +115,9 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(SERVO_DRIVER_I2C_ADDR);
 //     whether this build even compiles in a BLE backend (see BLE_SUPPORTED).
 //   - Uno R4 WiFi: also MAC-derived, but only readable after BLE.begin()
 //     talks to the onboard co-processor, so it's set from inside bleInit()
-//     (see ble_arduinoble.ino) instead of here.
+//     (see ble_arduinoble.ino) instead of here. A boot where Wi-Fi owns the
+//     radio never starts BLE, so it reuses the ID cached by the last BLE boot
+//     (see cacheRadioDeviceId() below).
 //   - Uno R4 Minima (no radio of any kind): falls back to
 //     loadOrCreateDeviceId() below, which persists a random one-time-
 //     generated ID to EEPROM/data flash - the only board with nothing
@@ -182,6 +191,33 @@ void loadOrCreateDeviceId() {
   EEPROM.commit();
 #endif
 }
+
+#if defined(ARDUINO_UNOWIFIR4)
+#define RADIO_ID_EEPROM_ADDR 8
+#define RADIO_ID_EEPROM_MAGIC 0xB7
+
+void cacheRadioDeviceId() {
+  if (deviceId[0] == '\0') return;
+  bool cached = EEPROM.read(RADIO_ID_EEPROM_ADDR) == RADIO_ID_EEPROM_MAGIC;
+  for (int i = 0; cached && i < 6; i++) {
+    cached = EEPROM.read(RADIO_ID_EEPROM_ADDR + 1 + i) == (uint8_t)deviceId[i];
+  }
+  if (cached) return;
+  EEPROM.write(RADIO_ID_EEPROM_ADDR, 0);
+  for (int i = 0; i < 6; i++) {
+    EEPROM.write(RADIO_ID_EEPROM_ADDR + 1 + i, deviceId[i]);
+  }
+  EEPROM.write(RADIO_ID_EEPROM_ADDR, RADIO_ID_EEPROM_MAGIC);
+}
+
+void loadCachedRadioDeviceId() {
+  if (EEPROM.read(RADIO_ID_EEPROM_ADDR) != RADIO_ID_EEPROM_MAGIC) return;
+  for (int i = 0; i < 6; i++) {
+    deviceId[i] = (char)EEPROM.read(RADIO_ID_EEPROM_ADDR + 1 + i);
+  }
+  deviceId[6] = '\0';
+}
+#endif
 
 // PCA9685 channels: each module uses 3 consecutive channels (bottom, paddle,
 // pusher) starting at moduleChannelOffset; the feeder gets the next channel
@@ -1678,8 +1714,19 @@ void setup() {
   initDeviceIdFromEspMac();
 #endif
 
-#if BLE_SUPPORTED
-  bleInit();  // Uno R4 WiFi sets deviceId here, from BLE.address()
+#if BLE_SUPPORTED && WIFI_SUPPORTED
+  if (!cloudOwnsRadio()) bleInit();
+#elif BLE_SUPPORTED
+  bleInit();
+#endif
+#if defined(ARDUINO_UNOWIFIR4)
+  // Uno R4 WiFi: bleInit() set deviceId from BLE.address(), unless Wi-Fi
+  // owns the radio this boot.
+  if (deviceId[0] == '\0') {
+    loadCachedRadioDeviceId();
+  } else {
+    cacheRadioDeviceId();
+  }
 #endif
 #if WIFI_SUPPORTED
   cloudInit();

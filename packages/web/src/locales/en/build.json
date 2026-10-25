@@ -70,14 +70,6 @@
       "modules_other": "{{count}} modules"
     }
   },
-  "footer": {
-    "openSource": "Open source",
-    "reportIssue": "Report an issue",
-    "signIn": "Sign in",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "copyright": "© {{year}} Mault LLC"
-  },
   "bom": {
     "heading": "Bill of materials",
     "description": "Quantities scale with the number of modules you're building: {{modules}} modules × 3 servos, 1 feeder, {{irSensors}} IR sensors, {{channelsUsed}} of the PCA9685's 16 channels in use. The remaining channels are free for additional sorting modules (up to 5 modules on a single PCA9685). Check off each part as you gather it. Checkmarks are saved in this browser.",

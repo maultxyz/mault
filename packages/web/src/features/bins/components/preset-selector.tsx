@@ -124,7 +124,7 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
     mutationFn: revertBinSet,
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.setQueryData<BinSet[]>(["bins"], result.data);
+        queryClient.setQueryData(binsQueryOptions.queryKey, result.data);
         queryClient.invalidateQueries({
           queryKey: ["bins", "history", selectedSet?.guid],
         });

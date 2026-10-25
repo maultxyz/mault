@@ -12,24 +12,19 @@ export const deleteGameRoute = new Hono<AppEnv>().delete(
   requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const guid = c.req.param("guid");
-    try {
-      const target = await db.query.games.findFirst({
-        where: (t, { eq, and }) =>
-          and(eq(t.guid, guid), eq(t.isDeleted, false)),
-        columns: { id: true },
-      });
-      if (!target)
-        return c.json({ success: false, message: "Game not found." }, 404);
+    const target = await db.query.games.findFirst({
+      where: (t, { eq, and }) =>
+        and(eq(t.guid, guid), eq(t.isDeleted, false)),
+      columns: { id: true },
+    });
+    if (!target)
+      return c.json({ success: false, message: "Game not found." }, 404);
 
-      await db
-        .update(games)
-        .set({ isDeleted: true })
-        .where(eq(games.id, target.id));
-      publicGamesCache.invalidate();
-      return c.json({ success: true, data: null });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    await db
+      .update(games)
+      .set({ isDeleted: true })
+      .where(eq(games.id, target.id));
+    publicGamesCache.invalidate();
+    return c.json({ success: true, data: null });
   },
 );

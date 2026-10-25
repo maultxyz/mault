@@ -17,7 +17,6 @@ export const addApiKeyRoute = new Hono<AppEnv>().post("/api-keys", requireAuth, 
       actorUserId: c.get("userId"),
       expiresAt: expiresAt ? new Date(expiresAt) : undefined,
     });
-    // rawKey is only ever returned here - own-auth stores just its hash.
     return c.json({ success: true, data: { apiKey, rawKey } });
   } catch (err) {
     const { message, status } = authErrorResponse(err);

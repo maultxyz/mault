@@ -26,12 +26,17 @@ import {
   renameOrganization,
   updateMemberRole,
 } from "@/features/org/api/organization";
-import { inviteMemberSchema, renameOrgSchema } from "@/features/org/lib/org-schemas";
 import { useActiveOrg } from "@/hooks/use-org";
 import { refreshOrganizations, useSession } from "@/lib/auth/session";
 import { SPACING } from "@/lib/constants/theme";
-import type { InviteMemberValues, RenameOrgValues } from "@/lib/interfaces/forms";
 import type { OrgMember, OrgRole } from "@/lib/interfaces/settings";
+import {
+  organizationInviteFormSchema,
+  type OrganizationInviteFormValues,
+  organizationNameFormSchema,
+  type OrganizationNameFormValues,
+} from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function OrganizationSettingsScreen() {
   const { t } = useTranslation();
@@ -48,13 +53,13 @@ export default function OrganizationSettingsScreen() {
   const [error, setError] = useState(false);
   const subscriptionBlocksDelete = billing?.plan === "business" && !billing.cancelAtPeriodEnd;
 
-  const renameForm = useForm<RenameOrgValues>({
-    resolver: zodResolver(renameOrgSchema),
+  const renameForm = useForm<OrganizationNameFormValues>({
+    resolver: zodResolver(organizationNameFormSchema),
     values: { name: details.data?.name ?? org?.name ?? "" },
     resetOptions: { keepDirtyValues: true },
   });
-  const inviteForm = useForm<InviteMemberValues>({
-    resolver: zodResolver(inviteMemberSchema),
+  const inviteForm = useForm<OrganizationInviteFormValues>({
+    resolver: zodResolver(organizationInviteFormSchema),
     defaultValues: { email: "", role: "member" },
   });
   const inviteRole = inviteForm.watch("role");
@@ -115,7 +120,7 @@ export default function OrganizationSettingsScreen() {
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
-                error={fieldState.error ? t("collections.validation.name") : undefined}
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />
@@ -180,7 +185,7 @@ export default function OrganizationSettingsScreen() {
                 autoCapitalize="none"
                 keyboardType="email-address"
                 autoComplete="email"
-                error={fieldState.error ? t("settings.org.invalidEmail") : undefined}
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />
@@ -280,7 +285,7 @@ export default function OrganizationSettingsScreen() {
         selected={[inviteRole]}
         onSelect={(value) => {
           setInviteRoleOpen(false);
-          inviteForm.setValue("role", value as InviteMemberValues["role"]);
+          inviteForm.setValue("role", value as OrganizationInviteFormValues["role"]);
         }}
         onClose={() => setInviteRoleOpen(false)}
       />

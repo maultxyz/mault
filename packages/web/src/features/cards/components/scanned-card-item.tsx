@@ -161,8 +161,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            consumeShift();
-            onToggleSelect({ shiftKey: e.shiftKey });
+            onToggleSelect({ shiftKey: consumeShift() || e.shiftKey });
           }}
         >
           <Checkbox

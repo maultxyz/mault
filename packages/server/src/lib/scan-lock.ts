@@ -19,9 +19,7 @@ function emitToOrg(orgId: string, event: string, data: unknown) {
   for (const writer of writers) {
     try {
       writer(event, data);
-    } catch {
-      /* writer disconnected */
-    }
+    } catch {}
   }
 }
 
@@ -81,16 +79,6 @@ export function releaseLock(guid: string, userId: string): boolean {
   locks.delete(guid);
   void clearScanThread(existing.orgId);
   return true;
-}
-
-export function getLock(guid: string): ScanLock | null {
-  const entry = locks.get(guid);
-  if (!entry) return null;
-  return {
-    userId: entry.userId,
-    displayName: entry.displayName,
-    expiresAt: entry.expiresAt,
-  };
 }
 
 export function getLocksForGuids(guids: string[]): Record<string, ScanLock> {

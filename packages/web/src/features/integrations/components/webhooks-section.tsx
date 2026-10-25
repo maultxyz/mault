@@ -15,7 +15,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWebhooks } from "@/features/integrations/api/use-webhooks";
 import { WebhookDialog } from "@/features/integrations/components/webhook-dialog";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
-import { toast } from "@/lib/toast";
 import type { WebhookEndpoint } from "@magic-vault/shared";
 import {
   IconCopy,
@@ -26,6 +25,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { copyWithToast } from "@/lib/clipboard";
 
 function formatDateTime(value: string): string {
   return new Date(value).toLocaleString(undefined, {
@@ -70,10 +70,11 @@ export function WebhooksSection() {
 
   function copySecret() {
     if (!newSecret) return;
-    navigator.clipboard
-      .writeText(newSecret)
-      .then(() => toast.success(t("webhooks.secretCopied")))
-      .catch(() => toast.error(t("webhooks.copyFailed")));
+    void copyWithToast(
+      newSecret,
+      t("webhooks.secretCopied"),
+      t("webhooks.copyFailed"),
+    );
   }
 
   return (

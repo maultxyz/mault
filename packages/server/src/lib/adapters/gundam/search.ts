@@ -69,7 +69,7 @@ function extractOne(json: unknown): GundamCard | null {
   return (json as GundamCard) ?? null;
 }
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = GUNDAM_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -102,7 +102,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = GUNDAM_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -131,8 +131,8 @@ export async function SearchById(
 
 export const gundamAdapter: CardSearchAdapter = {
   defaultUrl: GUNDAM_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw) => normalizeGundamCard(raw as GundamCard),
   tcgplayer: {
     categoryId: 86,

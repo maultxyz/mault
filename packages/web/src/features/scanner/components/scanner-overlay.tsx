@@ -2,11 +2,9 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useWifiSorters } from "@/features/scanner/api/use-wifi-sorters";
-import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import type { ScannerOverlayProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import {
@@ -24,6 +22,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 
 const statusPill = cva(
   "absolute bottom-1 left-1 right-1 z-30 rounded-lg backdrop-blur-3xl border text-xs px-2 py-1 flex flex-row gap-1.5 items-center text-foreground",
@@ -184,15 +183,11 @@ export function ScannerOverlay({
                 {t("connect")}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onConnectScanner}>
-                  {t("scannerMenu.connectUsb")}
-                </DropdownMenuItem>
-                {bluetoothSupported && (
-                  <DropdownMenuItem onClick={onConnectScannerBluetooth}>
-                    {t("scannerMenu.connectBluetooth")}
-                  </DropdownMenuItem>
-                )}
-                <WifiSorterMenuItems onSelect={onConnectScannerCloud} />
+                <ConnectSorterMenuItems
+                  onConnectUsb={onConnectScanner}
+                  onConnectBluetooth={onConnectScannerBluetooth}
+                  onConnectCloud={onConnectScannerCloud}
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

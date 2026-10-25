@@ -45,6 +45,8 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 import { useHandScan } from "@/features/scanner/lib/hand-scan";
+import { parseSerialReply } from "@magic-vault/shared";
+import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function CardScanner({
   className,
@@ -112,8 +114,7 @@ export function CardScanner({
     onRunTest,
     onCalibrateFirst,
   } = useConnectWithStaleCheck();
-  const bluetoothSupported =
-    typeof navigator !== "undefined" && !!navigator.bluetooth;
+  const bluetoothSupported = isWebBluetoothSupported();
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
   const {
@@ -222,7 +223,6 @@ export function CardScanner({
     }
   });
 
-  // A card fed just before the tab was hidden still arrives; hold it until resume.
   const heldCardArrivalRef = useRef(false);
 
   const handleCardArrived = useCallback(() => {
@@ -420,9 +420,8 @@ export function CardScanner({
     if (!isReady || ignoreIrSensors) return false;
     try {
       const { line: response } = await sendRequest({ readIR: true }, 2000);
-      if (!response) return false;
-      const parsed = JSON.parse(response) as Record<string, unknown>;
-      return Array.isArray(parsed.ir) && !parsed.ir[0];
+      const parsed = parseSerialReply(response);
+      return Array.isArray(parsed?.ir) && !parsed.ir[0];
     } catch {
       return false;
     }

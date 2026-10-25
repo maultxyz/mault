@@ -16,13 +16,13 @@ import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { apiKeysQueryOptions, createApiKey, revokeApiKey } from "@/features/integrations/api/api-keys";
-import { apiKeySchema } from "@/features/integrations/lib/api-key-schema";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
-import type { ApiKeyValues } from "@/lib/interfaces/forms";
+import { orgApiKeyFormSchema, type OrgApiKeyFormValues } from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function ApiKeysSettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -36,10 +36,10 @@ export default function ApiKeysSettingsScreen() {
   const canManage = keys.data?.canManage ?? false;
   const [creating, setCreating] = useState(false);
   const [rawKey, setRawKey] = useState<string | null>(null);
-  const form = useForm<ApiKeyValues>({ resolver: zodResolver(apiKeySchema), defaultValues: { name: "", allowWrite: false } });
+  const form = useForm<OrgApiKeyFormValues>({ resolver: zodResolver(orgApiKeyFormSchema), defaultValues: { name: "", allowWrite: false } });
 
   const create = useMutation({
-    mutationFn: (values: ApiKeyValues) =>
+    mutationFn: (values: OrgApiKeyFormValues) =>
       createApiKey({ name: values.name.trim(), scope: values.allowWrite ? "read_write" : "read" }),
     onSuccess: (created) => {
       setRawKey(created.rawKey);
@@ -108,7 +108,7 @@ export default function ApiKeysSettingsScreen() {
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
-                error={fieldState.error ? t("collections.validation.name") : undefined}
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />

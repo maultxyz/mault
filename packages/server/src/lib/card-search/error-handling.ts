@@ -1,7 +1,20 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../interfaces/card-search";
+import { rollbar } from "../rollbar";
 
-function toFailure<T>(err: unknown): Result<T> {
+function isUpstreamUnavailable(err: unknown): boolean {
+  return (
+    err instanceof Error &&
+    (err.name === "TimeoutError" ||
+      (err.name === "TypeError" && err.message === "fetch failed"))
+  );
+}
+
+function toFailure<T>(err: unknown, adapterUrl: string): Result<T> {
+  console.error(`[card-search] ${adapterUrl} failed:`, err);
+  if (!isUpstreamUnavailable(err)) {
+    rollbar.error(err instanceof Error ? err : String(err), { adapterUrl });
+  }
   const message =
     err instanceof Error && err.name === "TimeoutError"
       ? "The card database took too long to respond. Please try again."
@@ -18,14 +31,14 @@ export function withErrorHandling(
       try {
         return await adapter.search(query, baseUrl, lang);
       } catch (err) {
-        return toFailure<PlayingCard[]>(err);
+        return toFailure<PlayingCard[]>(err, adapter.defaultUrl);
       }
     },
     async searchById(id, baseUrl) {
       try {
         return await adapter.searchById(id, baseUrl);
       } catch (err) {
-        return toFailure<PlayingCard>(err);
+        return toFailure<PlayingCard>(err, adapter.defaultUrl);
       }
     },
   };

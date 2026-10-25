@@ -40,7 +40,5 @@ export const billingQueryOptions = (orgId: string | undefined) =>
     queryFn: () => getBillingStatus().then((r) => r.data ?? null),
     enabled: !!orgId,
     staleTime: BILLING_STALE_MS,
-    // A 404 here just means billing isn't configured (self-hosted/no Stripe
-    // keys) - not worth retrying.
     retry: false,
   });

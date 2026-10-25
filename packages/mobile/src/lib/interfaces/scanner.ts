@@ -1,21 +1,15 @@
 import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
 import type {
-  BinConfig,
-  BinContentCard,
-  BinSet,
   CardContour,
-  FieldMeta,
   CardSearchResult,
-  MatchCandidateDiagnostic,
   MatchedScanDetails,
-  OcrDiagnostics,
   PlayingCardWithDistance,
   RgbaImage,
-  ScanDetectionDiagnostics,
-  ScanMatchSource,
+  ScanAttemptResult,
   ScanRegion,
   ScannedCard,
-  SearchNoMatchReason,
+  SerialCommand,
+  SerialEventReport,
   UnmatchedCard,
   UnmatchedScanDetails,
 } from "@magic-vault/shared";
@@ -42,23 +36,9 @@ export interface OrientedPick {
   alternate: OrientedPick | null;
 }
 
-export interface ScanAttempt {
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  noMatchReason: SearchNoMatchReason | "lookup_failed" | null;
-  lookupFailedCardIds?: string[];
-  candidates: MatchCandidateDiagnostic[];
-  detection: ScanDetectionDiagnostics;
+export interface ScanAttempt extends ScanAttemptResult {
   contour: CardContour | null;
-  orientation: Orientation;
-  embedding: number[] | null;
   pixels: RgbaImage | null;
-  search: CardSearchResult["diagnostics"] | null;
-  topDistance: number | null;
-  ocr: OcrDiagnostics | null;
-  matchedBy: ScanMatchSource;
-  lowConfidenceMatch: boolean;
-  detectedColor: string | null;
 }
 
 export interface IdentifyOptions {
@@ -104,7 +84,9 @@ export type ScannerPauseReason =
   | "sorter-disconnected"
   | "no-match"
   | "duplicate"
-  | "repack-complete";
+  | "repack-complete"
+  | "bin-data-unavailable"
+  | "deploy";
 
 export interface ScanFeedEntry {
   scanId: string;
@@ -160,23 +142,6 @@ export interface PendingSavesContextValue {
   saveUnmatched: (save: Omit<PendingUnmatchedSave, "kind" | "key" | "attempts">) => Promise<CardSaveResult>;
 }
 
-export interface RoutingContext {
-  set: BinSet | undefined;
-  configs: BinConfig[];
-  fieldDefinitions: FieldMeta[];
-  countInBin: (binNumber: number) => number;
-  isBinFull: (binNumber: number) => boolean;
-  binContents: BinContentCard[];
-  autoAssignActive: boolean;
-}
-
-export interface RoutingDecision {
-  bin: BinConfig | undefined;
-  isLowMatch: boolean;
-  pickListName: string | null;
-  allChaosBinsFull: boolean;
-}
-
 export interface ScanSessionInputs {
   capture: () => Promise<CapturedFrame>;
 }
@@ -197,6 +162,12 @@ export interface ScanSessionValue extends ScanSessionState {
   setHandScan: (value: boolean) => void;
   handScanActive: boolean;
   trackLiveCorners: (corners: LiveCorners | null) => void;
+  forcedFoilType: string | null;
+  setForcedFoilType: (foilType: string | null) => void;
+  forcedSetCode: string | null;
+  setForcedSetCode: (setCode: string | null) => void;
+  fullBinNumbers: number[];
+  markFullBinsEmpty: () => Promise<boolean>;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -255,9 +226,14 @@ export interface ScanOptionsSheetProps {
   showPreset: boolean;
   cameraName: string | null;
   showCamera: boolean;
+  foilTypeName: string;
+  showFoilType: boolean;
+  setName: string;
   onChooseCollection: () => void;
   onChoosePreset: () => void;
   onChooseCamera: () => void;
+  onChooseFoilType: () => void;
+  onChooseSet: () => void;
   onClose: () => void;
 }
 
@@ -285,3 +261,12 @@ export interface PhoneCameraResponder {
 export interface QrScanner {
   outputs: CameraOutput[];
 }
+
+export interface RoutedCardTarget {
+  binNumber: number;
+  cardName?: string;
+}
+
+export type FeedCommand = Extract<SerialCommand, "feeder" | "auto-feed">;
+
+export type SorterEventDetails = Omit<SerialEventReport, "collectionGuid" | "deviceGuid">;

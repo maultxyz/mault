@@ -25,6 +25,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ScannerMenuProps } from "@/lib/interfaces/scanner";
+import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 
 export function ScannerMenu({
   isCameraActive,
@@ -189,23 +190,11 @@ export function ScannerMenu({
                 </>
               ) : (
                 <>
-                  <DropdownMenuItem
+                  <ConnectSorterMenuItems
                     disabled={scanningBlocked}
-                    onClick={onScannerConnect}
-                  >
-                    {t("scannerMenu.connectUsb")}
-                  </DropdownMenuItem>
-                  {bluetoothSupported && (
-                    <DropdownMenuItem
-                      disabled={scanningBlocked}
-                      onClick={onScannerConnectBluetooth}
-                    >
-                      {t("scannerMenu.connectBluetooth")}
-                    </DropdownMenuItem>
-                  )}
-                  <WifiSorterMenuItems
-                    disabled={scanningBlocked}
-                    onSelect={onScannerConnectCloud}
+                    onConnectUsb={onScannerConnect}
+                    onConnectBluetooth={onScannerConnectBluetooth}
+                    onConnectCloud={onScannerConnectCloud}
                   />
                   <DropdownMenuSeparator />
                   <DropdownMenuCheckboxItem

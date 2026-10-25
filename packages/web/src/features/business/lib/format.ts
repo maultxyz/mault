@@ -23,10 +23,6 @@ export function formatPercent(value: number | null | undefined): string {
   }).format(value);
 }
 
-export function isoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
 export function downloadTextFile(
   filename: string,
   contents: string,

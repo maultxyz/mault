@@ -104,13 +104,9 @@ export async function fetchDetail(
   return (await response.json()) as PokemonCardDetail;
 }
 
-// Cap on how many brief search hits get enriched with a full detail fetch.
-// TCGdex's list endpoint only returns {id, localId, name, image} - the picker
-// UI needs set/rarity/collector number too, so each result needs its own
-// /cards/:id call. Keeping this modest bounds the fan-out on every keystroke.
 const MAX_ENRICHED_RESULTS = 30;
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = POKEMON_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -148,7 +144,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = POKEMON_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -170,8 +166,8 @@ export async function SearchById(
 export const pokemonAdapter: CardSearchAdapter = {
   defaultUrl: POKEMON_DEFAULT_URL,
   urlForLang,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw) => normalizePokemonCard(raw as PokemonCardDetail),
   tcgplayer: {
     categoryId: 3,

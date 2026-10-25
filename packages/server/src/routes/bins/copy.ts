@@ -20,77 +20,72 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
       name: string;
       gameGuid?: string;
     }>();
-    try {
-      const nameTaken = await authQuery(c.get("jwtClaims"), async (tx) =>
-        binSetNameTaken(tx, orgId, await resolveGameId(tx, gameGuid), name),
+    const nameTaken = await authQuery(c.get("jwtClaims"), async (tx) =>
+      binSetNameTaken(tx, orgId, await resolveGameId(tx, gameGuid), name),
+    );
+    if (nameTaken) {
+      return c.json(
+        {
+          success: false,
+          message: `A set named "${name.trim()}" already exists.`,
+        },
+        409,
       );
-      if (nameTaken) {
-        return c.json(
-          {
-            success: false,
-            message: `A set named "${name.trim()}" already exists.`,
-          },
-          409,
-        );
-      }
+    }
 
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const gameId = await resolveGameId(tx, gameGuid);
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await resolveGameId(tx, gameGuid);
 
-        const active = await tx.query.binSets.findFirst({
-          where: (t) => activeBinSetWhere(t, orgId, gameId),
-          columns: { id: true },
-          with: {
-            bins: {
-              where: (bin, { eq }) => eq(bin.isDeleted, false),
-              columns: {
-                binNumber: true,
-                rules: true,
-                isCatchAll: true,
-                isOverride: true,
-                overridePriority: true,
-                lowMatchPercent: true,
-                maxCopies: true,
-                maxCopiesBy: true,
-                overflowBin: true,
-                isDisabled: true,
-                pickList: true,
-                repackPriority: true,
-              },
+      const active = await tx.query.binSets.findFirst({
+        where: (t) => activeBinSetWhere(t, orgId, gameId),
+        columns: { id: true },
+        with: {
+          bins: {
+            where: (bin, { eq }) => eq(bin.isDeleted, false),
+            columns: {
+              binNumber: true,
+              rules: true,
+              isCatchAll: true,
+              isOverride: true,
+              overridePriority: true,
+              lowMatchPercent: true,
+              maxCopies: true,
+              maxCopiesBy: true,
+              overflowBin: true,
+              isDisabled: true,
+              pickList: true,
+              repackPriority: true,
             },
           },
-        });
-        const activeBins = active?.bins ?? [];
-        const [newBinSet] = await tx
-          .insert(binSets)
-          .values({ name, isActive: false, gameId, orgId })
-          .returning({ id: binSets.id });
-        if (activeBins.length > 0) {
-          await tx.insert(bins).values(
-            activeBins.map((bin) => ({
-              binNumber: bin.binNumber,
-              rules: bin.rules,
-              isCatchAll: bin.isCatchAll,
-              isOverride: bin.isOverride,
-              overridePriority: bin.overridePriority,
-              lowMatchPercent: bin.lowMatchPercent,
-              maxCopies: bin.maxCopies,
-              maxCopiesBy: bin.maxCopiesBy,
-              overflowBin: bin.overflowBin,
-              isDisabled: bin.isDisabled,
-              pickList: resetPickList(bin.pickList),
-              repackPriority: bin.repackPriority,
-              binSet: newBinSet.id,
-              orgId,
-            })),
-          );
-        }
-        return loadSets(tx, orgId);
+        },
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      const activeBins = active?.bins ?? [];
+      const [newBinSet] = await tx
+        .insert(binSets)
+        .values({ name, isActive: false, gameId, orgId })
+        .returning({ id: binSets.id });
+      if (activeBins.length > 0) {
+        await tx.insert(bins).values(
+          activeBins.map((bin) => ({
+            binNumber: bin.binNumber,
+            rules: bin.rules,
+            isCatchAll: bin.isCatchAll,
+            isOverride: bin.isOverride,
+            overridePriority: bin.overridePriority,
+            lowMatchPercent: bin.lowMatchPercent,
+            maxCopies: bin.maxCopies,
+            maxCopiesBy: bin.maxCopiesBy,
+            overflowBin: bin.overflowBin,
+            isDisabled: bin.isDisabled,
+            pickList: resetPickList(bin.pickList),
+            repackPriority: bin.repackPriority,
+            binSet: newBinSet.id,
+            orgId,
+          })),
+        );
+      }
+      return loadSets(tx, orgId);
+    });
+    return c.json(result);
   },
 );

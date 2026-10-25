@@ -86,12 +86,5 @@
       }
     ],
     "eyebrow": "Funktionen"
-  },
-  "footer": {
-    "reportIssue": "Problem melden",
-    "signIn": "Anmelden",
-    "privacy": "Datenschutz",
-    "terms": "AGB",
-    "copyright": "© {{year}} Mault LLC"
   }
 }

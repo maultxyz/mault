@@ -15,10 +15,10 @@ import {
 } from "@/features/integrations/lib/discord-settings-draft";
 import { toast } from "@/lib/toast";
 import {
-  discordSettingsDraftSchema,
-  type DiscordSettingsDraftValues,
-} from "@/schemas/discord-settings-draft.schema";
-import type { DiscordIntegration } from "@magic-vault/shared";
+  type DiscordIntegration,
+  discordSettingsDraftFormSchema,
+  type DiscordSettingsDraftFormValues,
+} from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -41,13 +41,13 @@ export function useDiscordSettingsDraft(
     [integration, rules, settings],
   );
 
-  const form = useForm<DiscordSettingsDraftValues>({
-    resolver: zodResolver(discordSettingsDraftSchema),
+  const form = useForm<DiscordSettingsDraftFormValues>({
+    resolver: zodResolver(discordSettingsDraftFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
 
-  const save = async (draft: DiscordSettingsDraftValues) => {
+  const save = async (draft: DiscordSettingsDraftFormValues) => {
     if (!integration) return;
     const requests: Promise<{ success: boolean }>[] = [];
 

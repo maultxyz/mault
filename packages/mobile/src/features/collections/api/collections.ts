@@ -1,8 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { Collection, Result } from "@magic-vault/shared";
+import type { Collection, CreateCollectionFormValues, Result } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap } from "@/lib/api/client";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
-import type { CreateCollectionValues } from "@/lib/interfaces/forms";
 
 export const collectionsQueryOptions = (orgId: string | null) =>
   queryOptions({
@@ -16,7 +15,7 @@ export function setActiveCollection(guid: string): Promise<Collection[]> {
   return unwrap(apiPut<Result<Collection[]>>(`/api/collections/${guid}/active`));
 }
 
-export function createCollection(values: CreateCollectionValues): Promise<Collection[]> {
+export function createCollection(values: CreateCollectionFormValues): Promise<Collection[]> {
   return unwrap(apiPost<Result<Collection[]>>("/api/collections", values));
 }
 
@@ -33,6 +32,10 @@ export function emptyCollection(guid: string): Promise<unknown> {
     if (!result.success) throw new Error(result.message ?? "Request failed.");
     return null;
   });
+}
+
+export function releaseScanLock(guid: string): Promise<unknown> {
+  return apiDelete<Result<null>>(`/api/collections/${guid}/scan-lock`);
 }
 
 export function checkCollectionName(name: string, excludeGuid?: string): Promise<boolean> {

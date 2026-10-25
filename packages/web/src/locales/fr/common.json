@@ -110,7 +110,8 @@
     "cancel": "Annuler",
     "delete": "Supprimer",
     "save": "Enregistrer",
-    "create": "Créer"
+    "create": "Créer",
+    "search": "Rechercher"
   },
   "unsavedChanges": {
     "message": "Vous avez des modifications non enregistrées",
@@ -142,7 +143,13 @@
   },
   "footer": {
     "donate": "Faire un don",
-    "donateAriaLabel": "Soutenir Mault sur Buy Me a Coffee"
+    "donateAriaLabel": "Soutenir Mault sur Buy Me a Coffee",
+    "openSource": "Open source",
+    "reportIssue": "Signaler un problème",
+    "signIn": "Se connecter",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "copyright": "© {{year}} Mault LLC"
   },
   "publicNav": {
     "pagesAria": "Pages du site",
@@ -169,6 +176,7 @@
     "keys": {
       "space": "Espace",
       "shift": "Maj",
+      "ctrl": "Ctrl",
       "left": "←",
       "right": "→",
       "escape": "Échap",
@@ -187,6 +195,8 @@
       "toggleSidebar": "Déplier ou replier la barre latérale",
       "focusSearch": "Aller à la recherche",
       "dismissToasts": "Fermer toutes les notifications",
+      "save": "Enregistrer les modifications",
+      "clearSelection": "Effacer la sélection",
       "goScanner": "Aller au tri",
       "goCollections": "Aller aux collections",
       "goStorage": "Aller aux boîtes de rangement",
@@ -249,5 +259,41 @@
       "copied": "Copié dans le presse-papiers",
       "copyFailed": "Impossible de copier dans le presse-papiers"
     }
+  },
+  "validation": {
+    "nameRequired": "Saisis un nom.",
+    "nameTooLong": "{{max}} caractères au maximum.",
+    "ruleNameRequired": "Donne un nom à la règle.",
+    "clipNameRequired": "Donne un nom au clip.",
+    "gameRequired": "Choisis un jeu.",
+    "languageRequired": "Choisis une langue.",
+    "collectionRequired": "Choisis une collection.",
+    "channelRequired": "Choisis un salon.",
+    "clipRequired": "Choisis un clip sonore.",
+    "conditionsRequired": "Ajoute au moins une condition.",
+    "emailInvalid": "Saisis une adresse e-mail valide.",
+    "currentPasswordRequired": "Saisis ton mot de passe actuel.",
+    "passwordTooShort": "Doit contenir au moins {{min}} caractères.",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "webhookUrlInvalid": "Saisis une URL https:// publique.",
+    "eventsRequired": "Choisis au moins un événement.",
+    "conditionMultipliersInvalid": "Chaque état doit avoir un pourcentage de 0 à 100.",
+    "valueRequired": "Saisis une valeur.",
+    "wholeNumber": "Doit être un nombre entier.",
+    "atLeast": "Doit être au moins {{min}}.",
+    "atMost": "Doit être au plus {{max}}.",
+    "percentAtLeast": "Doit être au moins {{min}} %.",
+    "percentAtMost": "Doit être au plus {{max}} %.",
+    "amountRequired": "Saisis un montant.",
+    "percentageRequired": "Saisis un pourcentage.",
+    "tiersRequired": "Ajoute au moins un palier.",
+    "tooManyTiers": "{{max}} paliers au maximum.",
+    "customerNameRequired": "Saisis le nom du client.",
+    "orderTextRequired": "Colle une commande ou choisis un fichier.",
+    "cardCountRequired": "Saisis un nombre de cartes.",
+    "storageLocationRequired": "Choisis où sont allées les cartes.",
+    "commandRequired": "Saisis une commande.",
+    "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
+    "verificationCodeNumeric": "Le code ne peut contenir que des chiffres."
   }
 }

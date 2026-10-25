@@ -9,20 +9,12 @@ import {
 import { getRequestAuth } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/config";
 import {
+  INITIAL_MONITOR_STATE,
   MONITOR_EVENTS,
   MONITOR_MAX_ERRORS,
   STREAM_RECONNECT_DELAY_MS,
 } from "@/lib/constants/monitor";
 import type { MonitorState } from "@/lib/interfaces/scanner";
-
-const INITIAL_STATE: MonitorState = {
-  status: "connecting",
-  collectionName: null,
-  recentCards: [],
-  unmatchedCount: 0,
-  viewerCount: 0,
-  errors: [],
-};
 
 function parse<T>(data: string | null): T | null {
   if (!data) return null;
@@ -34,13 +26,13 @@ function parse<T>(data: string | null): T | null {
 }
 
 export function useSessionStream(collectionGuid: string): MonitorState {
-  const [state, setState] = useState<MonitorState>(INITIAL_STATE);
+  const [state, setState] = useState<MonitorState>(INITIAL_MONITOR_STATE);
 
   useEffect(() => {
     let source: EventSource<string> | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
-    setState(INITIAL_STATE);
+    setState(INITIAL_MONITOR_STATE);
 
     const handle = (name: (typeof MONITOR_EVENTS)[number], data: string | null) => {
       setState((prev) => {

@@ -6,11 +6,11 @@ import type {
   CardTechnicalDetailsProps,
   TechnicalDetailRowProps,
 } from "@/lib/interfaces/cards";
-import { toast } from "@/lib/toast";
 import { matchPercent } from "@/lib/utils";
 import { IconCopy } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { copyWithToast } from "@/lib/clipboard";
 
 function formatNumber(value: number | null | undefined, digits = 3): string {
   return value == null ? "n/a" : value.toFixed(digits);
@@ -49,12 +49,11 @@ export function CardTechnicalDetails({
     value ? t("technicalDetails.yes") : t("technicalDetails.no");
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(cardJson);
-      toast.success(t("technicalDetails.copied"));
-    } catch {
-      toast.error(t("technicalDetails.copyFailed"));
-    }
+    await copyWithToast(
+      cardJson,
+      t("technicalDetails.copied"),
+      t("technicalDetails.copyFailed"),
+    );
   };
 
   return (

@@ -5,12 +5,12 @@ import { useCommLog } from "@/features/scanner/api/use-serial";
 import { CommLogEntries } from "@/features/scanner/components/comm-log-entries";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { DEVICE_PLAYGROUND_LOG_LIMIT } from "@/lib/constants/device-playground";
-import { toast } from "@/lib/toast";
 import {
   IconCopy,
   IconTerminal2,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { copyWithToast } from "@/lib/clipboard";
 
 export function DeviceCommLog() {
   const { t } = useTranslation("admin");
@@ -18,12 +18,11 @@ export function DeviceCommLog() {
   const recent = entries.slice(-DEVICE_PLAYGROUND_LOG_LIMIT).reverse();
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(formatCommLog(entries));
-      toast.success(t("devicePlayground.log.copied"));
-    } catch {
-      toast.error(t("devicePlayground.log.copyFailed"));
-    }
+    await copyWithToast(
+      formatCommLog(entries),
+      t("devicePlayground.log.copied"),
+      t("devicePlayground.log.copyFailed"),
+    );
   };
 
   return (

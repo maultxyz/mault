@@ -23,15 +23,10 @@ export const setPrintingsRoute = new Hono<AppEnv>().get(
         400,
       );
     }
-    try {
-      return c.json({
-        success: true,
-        message: "Cards retrieved.",
-        data: await listSetPrintings(resolved, setCode),
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    return c.json({
+      success: true,
+      message: "Cards retrieved.",
+      data: await listSetPrintings(resolved, setCode),
+    });
   },
 );

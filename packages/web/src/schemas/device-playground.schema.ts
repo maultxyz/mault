@@ -1,10 +1,11 @@
 import type { DeviceCommandField } from "@/lib/interfaces/device-playground";
 import { z } from "zod";
+import { formValidationMessage } from "@magic-vault/shared";
 
 function fieldSchema(field: DeviceCommandField): z.ZodType {
   switch (field.type) {
     case "number": {
-      let schema = z.number({ error: "Required" }).int();
+      let schema = z.number({ error: formValidationMessage("valueRequired") }).int();
       if (field.min != null) schema = schema.min(field.min);
       if (field.max != null) schema = schema.max(field.max);
       return schema;
@@ -29,7 +30,7 @@ export function createDeviceCommandSchema(fields: DeviceCommandField[]) {
 }
 
 export const deviceRawCommandSchema = z.object({
-  line: z.string().trim().min(1, "Enter a command"),
+  line: z.string().trim().min(1, formValidationMessage("commandRequired")),
   timeoutMs: z.number().int().min(100).max(60_000),
 });
 

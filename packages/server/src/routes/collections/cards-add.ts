@@ -39,6 +39,7 @@ import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -158,9 +159,6 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           return scanLimitReachedResult;
         }
 
-        // Backstop for the connect-time lease (routes/devices/lease.ts): a
-        // client that never leased still can't scan past the plan's cap, and
-        // every scan renews the scanning sorter's lease.
         const sorterLimit = sorterLimitForPlan(plan);
         if (
           !acquireDeviceLease(
@@ -312,12 +310,11 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       return c.json(result);
     } catch (err) {
       deleteScanImages([storedImage.key]);
-      console.error(err);
       emitToSession(guid, "scan_error", {
         message: "Failed to save card to collection.",
         timestamp: Date.now(),
       });
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

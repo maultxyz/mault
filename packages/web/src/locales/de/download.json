@@ -75,12 +75,5 @@
         "body": "Mach die Datei mit chmod +x MAULT-linux.AppImage ausführbar und starte sie. Für einen Sortierer per USB muss dein Benutzer eventuell in der Gruppe dialout sein."
       }
     }
-  },
-  "footer": {
-    "reportIssue": "Problem melden",
-    "signIn": "Anmelden",
-    "privacy": "Datenschutz",
-    "terms": "AGB",
-    "copyright": "© {{year}} Mault LLC"
   }
 }

@@ -34,7 +34,12 @@ import {
 } from "@/components/ui/select";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { MULTI_VALUE_OPERATORS } from "@/lib/constants/bins";
+import {
+  CONDITION_FIELD_CLASS,
+  CONDITION_INPUT_CLASS,
+  CONDITION_SELECT_TRIGGER_CLASS,
+  MULTI_VALUE_OPERATORS,
+} from "@/lib/constants/bins";
 import { cn, sortByLabel } from "@/lib/utils";
 import { IconChevronDown, IconX } from "@tabler/icons-react";
 import { useCallback, useMemo, useState } from "react";
@@ -55,7 +60,7 @@ function FreeformMultiInput({
     <Input
       type="text"
       placeholder={placeholder}
-      className="min-w-24 flex-1"
+      className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
       value={text}
       onChange={(e) => {
         const next = e.target.value;
@@ -201,7 +206,7 @@ export function ConditionRow({
           min={0}
           step={1}
           placeholder="0"
-          className="min-w-24 flex-1"
+          className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
           value={condition.value === "" ? "" : String(condition.value)}
           onChange={(e) => {
             const raw = e.target.value;
@@ -249,7 +254,9 @@ export function ConditionRow({
           value={String(condition.value)}
           onValueChange={(val) => handleValueChange(val as string)}
         >
-          <SelectTrigger className="min-w-24 flex-1">
+          <SelectTrigger
+            className={cn("min-w-24 flex-1", CONDITION_SELECT_TRIGGER_CLASS)}
+          >
             <SelectValue placeholder={t("conditionRow.selectPlaceholder")}>
               {
                 fieldMeta.options!.find(
@@ -276,7 +283,7 @@ export function ConditionRow({
           step="any"
           placeholder="0"
           max={CONDITION_NUMERIC_MAX}
-          className="min-w-24 flex-1"
+          className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
           value={condition.value === "" ? "" : String(condition.value)}
           onChange={(e) => {
             const raw = e.target.value;
@@ -291,7 +298,7 @@ export function ConditionRow({
         type="text"
         placeholder={t("conditionRow.valuePlaceholder")}
         maxLength={CONDITION_STRING_MAX_LENGTH}
-        className="min-w-24 flex-1"
+        className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
         value={String(condition.value)}
         onChange={(e) => handleValueChange(e.target.value)}
       />
@@ -312,7 +319,7 @@ export function ConditionRow({
         }
       >
         <ComboboxInput
-          className="min-w-28"
+          className={cn("min-w-28", CONDITION_FIELD_CLASS)}
           placeholder={t("conditionRow.selectPlaceholder")}
         />
         <ComboboxContent>
@@ -334,7 +341,9 @@ export function ConditionRow({
             handleOperatorChange(val as ConditionOperator)
           }
         >
-          <SelectTrigger className="min-w-28">
+          <SelectTrigger
+            className={cn("min-w-28", CONDITION_SELECT_TRIGGER_CLASS)}
+          >
             <SelectValue>
               {
                 fieldMeta.operators.find(

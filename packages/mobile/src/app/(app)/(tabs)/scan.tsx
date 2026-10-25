@@ -4,7 +4,7 @@ import { router, useIsFocused } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
 import {
@@ -20,6 +20,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
+import { cardSetsQueryOptions } from "@/features/cards/api/card-sets";
 import { collectionsQueryOptions, setActiveCollection } from "@/features/collections/api/collections";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { activateBinSet } from "@/features/rules/api/bin-sets";
@@ -42,9 +43,12 @@ import { useAppState } from "@/hooks/use-app-state";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import {
+  ANY_SET_OPTION,
   CAMERA_ASPECT_RATIO,
   CAPTURE_TARGET_RESOLUTION,
+  CARD_SET_PICKER_LIMIT,
   LIVE_DETECTION_PAUSED_PHASES,
+  NOT_FOIL_OPTION,
   PAUSE_TONES,
   RUNNING_PHASES,
 } from "@/lib/constants/scanner";
@@ -62,6 +66,7 @@ export default function ScanScreen() {
   const orgId = useActiveOrgId();
   const { data: collections } = useQuery(collectionsQueryOptions(orgId));
   const collection = collections?.find((c) => c.isActive) ?? null;
+  const foilTypes = collection?.game?.foilTypes ?? [];
   const { sets: presets, activeSet } = useRulesData();
   const activePreset = activeSet?.isActive ? activeSet : null;
   const switchCollection = useMutation({
@@ -75,6 +80,8 @@ export default function ScanScreen() {
   const [collectionPickerOpen, setCollectionPickerOpen] = useState(false);
   const [presetPickerOpen, setPresetPickerOpen] = useState(false);
   const [cameraPickerOpen, setCameraPickerOpen] = useState(false);
+  const [foilTypePickerOpen, setFoilTypePickerOpen] = useState(false);
+  const [setPickerOpen, setSetPickerOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const permission = useCameraPermission();
   const camera = useCameraChoice();
@@ -91,6 +98,29 @@ export default function ScanScreen() {
     return frame;
   }, [photoOutput]);
   const session = useScanSession({ capture });
+  const { data: cardSets } = useQuery({
+    ...cardSetsQueryOptions(collection?.guid ?? null),
+    enabled: !!collection?.guid && (setPickerOpen || !!session.forcedSetCode),
+  });
+  const confirmMarkFullBinsEmpty = () =>
+    Alert.alert(
+      t("scan.emptyBin.confirmTitle", { bins: session.fullBinNumbers.join(", ") }),
+      t("scan.emptyBin.confirmDescription"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("scan.emptyBin.confirm"),
+          onPress: () => {
+            void session.markFullBinsEmpty().then((marked) => {
+              if (!marked) Alert.alert(t("scan.emptyBin.failed"));
+            });
+          },
+        },
+      ],
+    );
+  const forcedSetName = session.forcedSetCode
+    ? (cardSets?.find((cardSet) => cardSet.code === session.forcedSetCode)?.name ?? session.forcedSetCode.toUpperCase())
+    : t("scan.options.anySet");
   const working = RUNNING_PHASES.includes(session.phase);
   const cameraRef = useRef<CameraRef>(null);
   const liveCorners = useLiveCorners(
@@ -120,7 +150,9 @@ export default function ScanScreen() {
   useEffect(() => {
     if (!session.isRunning) return;
     void activateKeepAwakeAsync();
-    return () => deactivateKeepAwake();
+    return () => {
+      void deactivateKeepAwake();
+    };
   }, [session.isRunning]);
 
   if (!permission.hasPermission) {
@@ -169,6 +201,9 @@ export default function ScanScreen() {
       tone={PAUSE_TONES[session.pauseReason]}
       title={t(`scan.pause.${session.pauseReason}.title`)}
       description={t(`scan.pause.${session.pauseReason}.description`, { detail: session.pauseDetail ?? "" })}
+      {...(session.pauseReason === "bin-full" && session.fullBinNumbers.length > 0
+        ? { actionLabel: t("scan.emptyBin.action"), onAction: confirmMarkFullBinsEmpty }
+        : {})}
     />
   ) : !sorter.isConnected && !session.handScan && session.sessionCount === 0 ? (
     <CameraNotice
@@ -288,6 +323,17 @@ export default function ScanScreen() {
         showPreset={!!collection?.game && presets.length > 0}
         cameraName={selectedCameraIndex >= 0 ? cameraLabel(selectedCameraIndex) : null}
         showCamera={camera.devices.length > 1}
+        foilTypeName={session.forcedFoilType ?? t("scan.options.notFoil")}
+        showFoilType={foilTypes.length > 0}
+        setName={forcedSetName}
+        onChooseFoilType={() => {
+          setOptionsOpen(false);
+          setFoilTypePickerOpen(true);
+        }}
+        onChooseSet={() => {
+          setOptionsOpen(false);
+          setSetPickerOpen(true);
+        }}
         onChooseCollection={() => {
           setOptionsOpen(false);
           setCollectionPickerOpen(true);
@@ -343,6 +389,36 @@ export default function ScanScreen() {
           camera.select(id);
         }}
         onClose={() => setCameraPickerOpen(false)}
+      />
+      <OptionSheet
+        visible={foilTypePickerOpen}
+        title={t("scan.options.foilType")}
+        options={[
+          { value: NOT_FOIL_OPTION, label: t("scan.options.notFoil") },
+          ...foilTypes.map((foilType) => ({ value: foilType, label: foilType })),
+        ]}
+        selected={[session.forcedFoilType ?? NOT_FOIL_OPTION]}
+        onSelect={(value) => {
+          setFoilTypePickerOpen(false);
+          session.setForcedFoilType(value === NOT_FOIL_OPTION ? null : value);
+        }}
+        onClose={() => setFoilTypePickerOpen(false)}
+      />
+      <OptionSheet
+        visible={setPickerOpen}
+        title={t("scan.options.set")}
+        searchPlaceholder={t("scan.options.searchSets")}
+        maxVisibleOptions={CARD_SET_PICKER_LIMIT}
+        options={[
+          { value: ANY_SET_OPTION, label: t("scan.options.anySet") },
+          ...(cardSets ?? []).map((cardSet) => ({ value: cardSet.code, label: cardSet.name })),
+        ]}
+        selected={[session.forcedSetCode ?? ANY_SET_OPTION]}
+        onSelect={(value) => {
+          setSetPickerOpen(false);
+          session.setForcedSetCode(value === ANY_SET_OPTION ? null : value);
+        }}
+        onClose={() => setSetPickerOpen(false)}
       />
       <SessionScansSheet
         visible={sessionOpen}

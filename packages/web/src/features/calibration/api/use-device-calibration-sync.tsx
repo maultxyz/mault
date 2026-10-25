@@ -15,7 +15,6 @@ import {
   parseStoredModule,
 } from "@/features/calibration/lib/stored-calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { STORE_CONFIG_TIMEOUT_MS } from "@/lib/constants/timing";
 import type {
   CalibrationConflict,
   CalibrationDifference,
@@ -33,6 +32,8 @@ import {
   DEFAULT_CHANNEL_LAYOUT,
   isFirmwareFeatureSupported,
   type ModuleConfig,
+  parseSerialReply,
+  STORE_CONFIG_TIMEOUT_MS,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -44,6 +45,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import type { FetchSavedCalibrationOptions } from "@/lib/interfaces/calibration";
 
 const DeviceCalibrationSyncContext =
   createContext<DeviceCalibrationSyncContextValue | null>(null);
@@ -72,14 +74,7 @@ export function DeviceCalibrationSyncProvider({
   const request = useCallback(
     async (command: object, timeoutMs?: number) => {
       const { line } = await sendRequest(command, timeoutMs);
-      let parsed: Record<string, unknown> | null = null;
-      try {
-        const value: unknown = line ? JSON.parse(line) : null;
-        if (value && typeof value === "object") {
-          parsed = value as Record<string, unknown>;
-        }
-      } catch {}
-      return { line, parsed };
+      return { line, parsed: parseSerialReply(line) };
     },
     [sendRequest],
   );
@@ -188,8 +183,11 @@ export function DeviceCalibrationSyncProvider({
   }, [isConnected]);
 
   const fetchSavedCalibration = useCallback(
-    async (deviceGuid: string, fresh = false): Promise<DeviceCalibration> => {
-      const overrides = fresh ? { staleTime: 0 } : {};
+    async (
+      deviceGuid: string,
+      { bypassCache = false }: FetchSavedCalibrationOptions = {},
+    ): Promise<DeviceCalibration> => {
+      const overrides = bypassCache ? { staleTime: 0 } : {};
       const [modules, feeder] = await Promise.all([
         queryClient.fetchQuery({
           ...modulesQueryOptions(deviceGuid),
@@ -240,7 +238,7 @@ export function DeviceCalibrationSyncProvider({
         }
       } catch {
         toast.error(t("storedCalibration.toasts.adoptFailed"));
-        return fetchSavedCalibration(target.guid, true);
+        return fetchSavedCalibration(target.guid, { bypassCache: true });
       }
       queryClient.setQueryData(
         modulesQueryOptions(target.guid).queryKey,

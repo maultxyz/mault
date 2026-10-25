@@ -10,8 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  devicesQueryOptions,
   saveDevice,
+  writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -19,7 +19,6 @@ import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { Device } from "@/lib/interfaces/calibration";
 
 export function ChannelLayoutUpgradeButton() {
   const { t } = useTranslation("calibration");
@@ -38,11 +37,7 @@ export function ChannelLayoutUpgradeButton() {
         return;
       }
       const saved = result.data;
-      queryClient.setQueryData(
-        devicesQueryOptions(activeOrg?.id).queryKey,
-        (old: Device[] | undefined) =>
-          old?.map((d) => (d.guid === saved.guid ? saved : d)),
-      );
+      writeDeviceToCache(queryClient, activeOrg?.id, saved);
       setOpen(false);
       toast.success(t("channelLayoutUpgrade.done"));
     },

@@ -8,28 +8,13 @@ import type { Context } from "hono";
 import { authQuery, type Transaction } from "../../db";
 import { loadBusinessAccess } from "../../lib/business-access";
 import { collectionCards } from "../../db/schema";
-import {
-  BUSINESS_FORBIDDEN_MESSAGE,
-  BUSINESS_UPGRADE_MESSAGE,
-  COST_UPDATE_CHUNK_SIZE,
-} from "../../lib/constants/business";
-import type { AcquisitionCostUpdate } from "../../lib/interfaces/business";
+import { COST_UPDATE_CHUNK_SIZE } from "../../lib/constants/business";
+import type {
+  AcquisitionCostUpdate,
+  BusinessResult,
+} from "../../lib/interfaces/business";
 import type { AppEnv } from "../../middleware/auth";
-
-export type BusinessResult =
-  | { success: true; data: unknown; message?: string }
-  | { success: false; message: string; upgradeRequired?: boolean };
-
-export const upgradeRequired: BusinessResult = {
-  success: false,
-  message: BUSINESS_UPGRADE_MESSAGE,
-  upgradeRequired: true,
-};
-
-export const forbidden: BusinessResult = {
-  success: false,
-  message: BUSINESS_FORBIDDEN_MESSAGE,
-};
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export function notFound(message: string): BusinessResult {
   return { success: false, message };
@@ -45,8 +30,7 @@ export async function businessQuery(
     );
     return c.json(result);
   } catch (err) {
-    console.error(err);
-    return c.json({ success: false, message: "Database error." }, 500);
+    return databaseErrorResponse(c, err);
   }
 }
 

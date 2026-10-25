@@ -14,12 +14,7 @@ export const checkKeyRoute = new Hono<AppEnv>().get(
       return c.json({ success: false, message: "key is required." }, 400);
     }
 
-    try {
-      const taken = await keyIsTaken(key, excludeGuid);
-      return c.json({ success: true, data: { available: !taken } });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const taken = await keyIsTaken(key, excludeGuid);
+    return c.json({ success: true, data: { available: !taken } });
   },
 );

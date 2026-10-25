@@ -193,3 +193,8 @@ export interface BinSettingRowProps {
   control?: ReactNode;
   children?: ReactNode;
 }
+
+export interface PresetsMutationOptions {
+  showServerMessage?: boolean;
+  onApplied?: () => void;
+}

@@ -1,11 +1,11 @@
 import { apiDelete, apiGet, apiPost } from "@/lib/api/client";
-import { SORTER_LINKS_REFETCH_MS } from "@/lib/constants/timing";
 import type {
   Result,
   SorterLinkCredentials,
   SorterLinkStatus,
 } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
+import { SORTER_LINKS_REFETCH_MS } from "@magic-vault/shared";
 
 export const sorterLinksQueryOptions = (orgId: string | undefined) =>
   queryOptions({

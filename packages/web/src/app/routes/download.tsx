@@ -1,5 +1,5 @@
 import { DownloadFeatures } from "@/features/download/components/features";
-import { DownloadFooter } from "@/features/download/components/footer";
+import { GuideFooter } from "@/components/guide-footer";
 import { DownloadHero } from "@/features/download/components/hero";
 import { DownloadInstall } from "@/features/download/components/install";
 import { DownloadPlatforms } from "@/features/download/components/platforms";
@@ -27,7 +27,7 @@ export default function DownloadPage() {
         <DownloadFeatures step="02" />
         <DownloadInstall step="03" />
       </main>
-      <DownloadFooter />
+      <GuideFooter showSignInLink />
     </div>
   );
 }

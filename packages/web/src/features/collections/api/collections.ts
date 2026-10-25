@@ -6,7 +6,21 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import type { AddManualCardRequest, CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, SortOnlyScanRequest, UnmatchedCard, UnmatchedCardsPage } from "@magic-vault/shared";
+import {
+  type AddManualCardRequest,
+  type CardCondition,
+  type CardScanOrigin,
+  type Collection,
+  type CreateCollectionFormValues,
+  type IdentifyUnmatchedCardRequest,
+  type MatchedScanDiagnostics,
+  type Result,
+  SCAN_SAVE_ACCEPTED_STATUSES,
+  type ScannedCard,
+  type SortOnlyScanRequest,
+  type UnmatchedCard,
+  type UnmatchedCardsPage,
+} from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import type {
   CardSaveResult,
@@ -15,7 +29,6 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { queryOptions } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
-import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
   return apiGet<Result<Collection[]>>("/api/collections");
@@ -110,8 +123,7 @@ export async function addCollectionCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
-  // Return body for success, 423 (locked), 402 (free-plan scan or connected-sorter limit reached), and 409 (bin full)
-  if (res.ok || res.status === 423 || res.status === 402 || res.status === 409)
+  if (res.ok || SCAN_SAVE_ACCEPTED_STATUSES.includes(res.status))
     return res.json();
   throw new ApiStatusError(res.status);
 }
@@ -225,6 +237,17 @@ export async function setCollectionCardsCondition(
   });
 }
 
+export async function setCollectionCardsFoilType(
+  guid: string,
+  scanIds: string[],
+  foilType: string | null,
+): Promise<Result<null>> {
+  return apiPost<Result<null>>(`/api/collections/${guid}/cards/foil`, {
+    scanIds,
+    foilType,
+  });
+}
+
 export async function clearCollectionCards(guid: string): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/cards`);
 }
@@ -297,8 +320,4 @@ export async function addManualCollectionCard(
     `/api/collections/${guid}/cards/manual`,
     request,
   );
-}
-
-export async function clearUnmatchedCards(guid: string): Promise<Result<null>> {
-  return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched`);
 }

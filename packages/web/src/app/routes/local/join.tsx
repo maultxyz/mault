@@ -14,19 +14,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-// Local-mode-only "accept an org invite" landing page - the link generated
-// by features/companies/components/local-org-invites.tsx points here. If
-// the visitor isn't signed in yet, saves the token (see lib/auth's
-// savePendingInviteToken/acceptPendingInviteIfAny) and sends them through
-// sign-in/sign-up first, which picks the invite back up automatically once
-// they're authenticated.
 export default function AuthJoinPage() {
   const { t } = useTranslation("auth");
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  // Display-only, not trusted for anything security-relevant - see
-  // routes/local-auth.ts's /invites for why accepting always re-validates
-  // against the real token regardless of what's in this URL.
   const orgName = searchParams.get("org");
   const { data, isPending } = useAuthSession();
   const navigate = useNavigate();

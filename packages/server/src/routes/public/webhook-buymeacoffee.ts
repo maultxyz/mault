@@ -7,10 +7,6 @@ import {
 import { sendPlatformDiscordNotification } from "../../lib/discord";
 import type { AppEnv } from "../../middleware/auth";
 
-// POST /public/webhooks/buymeacoffee — unauthenticated (no session exists to
-// check; the HMAC signature below is what proves the request came from BMC).
-// Set this route's full URL as the webhook endpoint in the Buy Me a Coffee
-// dashboard so donations post into the donations channel (Admin > Discord channels).
 export const webhookBuyMeACoffeeRoute = new Hono<AppEnv>().post(
   "/webhooks/buymeacoffee",
   async (c) => {

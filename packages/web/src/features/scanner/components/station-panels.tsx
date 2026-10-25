@@ -3,13 +3,6 @@ import type { StationPanelLayout } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
 import { useLayoutEffect } from "react";
 
-// Hosts each station's scanner column. The column itself is portaled from the
-// station's own StationScope into a DOM node the stations store owns, and
-// this only moves that node into place, so switching tabs (which remounts
-// this page under another station) never remounts a running scanner.
-// Background stations stay laid out at full size but invisible, rather than
-// display:none, since the scanner sizes its preview from its container and
-// keeps sorting while its tab isn't selected.
 export function StationPanels({
   layout,
   size,

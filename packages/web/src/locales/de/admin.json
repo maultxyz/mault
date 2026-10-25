@@ -545,5 +545,16 @@
       "saved": "Rolle für verknüpfte Konten gespeichert.",
       "saveFailed": "Die Rolle für verknüpfte Konten konnte nicht gespeichert werden."
     }
+  },
+  "rollbarTest": {
+    "heading": "Rollbar testen",
+    "description": "Sende einen Testfehler vom Client und/oder vom Server an Rollbar, um zu prüfen, ob die Fehlermeldung funktioniert",
+    "testClientButton": "Client testen",
+    "testServerButton": "Server testen",
+    "testingButton": "Wird gesendet...",
+    "toasts": {
+      "clientSent": "Testfehler an Rollbar gesendet (Client).",
+      "serverError": "Testfehler konnte nicht an Rollbar gesendet werden (Server)"
+    }
   }
 }

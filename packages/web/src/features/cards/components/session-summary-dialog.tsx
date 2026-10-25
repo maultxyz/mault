@@ -66,6 +66,7 @@ import {
   WRAPPED_SLIDE_DURATION_MS,
   WRAPPED_SLIDE_MESH,
 } from "@/lib/constants/cards";
+import { StatCell } from "@/components/stat-cell";
 
 function meshBackground(colors: string[]): string {
   return colors
@@ -77,8 +78,6 @@ function meshBackground(colors: string[]): string {
 }
 
 function MeshBackground({ base, colors }: { base: string; colors: string[] }) {
-  // Random each mount (a fresh mount per slide, via `key`) so the spin
-  // never feels mechanically identical slide to slide, dialog to dialog.
   const { durationS, direction } = useMemo(
     () => ({
       durationS: 16 + Math.random() * 18, // ~16-34s per rotation - slow
@@ -196,8 +195,6 @@ function WrappedSlideContent({
   const { t } = useTranslation("cards");
   const { format } = usePriceSource();
   const iconClass = "size-7 text-white";
-  // Hoisted above the switch: hooks can't be called conditionally, so this
-  // single call covers every slide type that needs a count-up number.
   const countUpValue = useCountUp(countUpTarget(slide), active);
 
   switch (slide.type) {
@@ -408,25 +405,6 @@ function WrappedSlideContent({
   }
 }
 
-function StatCell({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
-  return (
-    <div className={cn("p-2.5", className)}>
-      <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-0.5">
-        {label}
-      </p>
-      <p className="text-sm font-semibold">{value}</p>
-    </div>
-  );
-}
-
 export function SessionSummaryDialog({
   open,
   onOpenChange,
@@ -458,9 +436,6 @@ export function SessionSummaryDialog({
     const byDownloaded = includeDownloaded
       ? cards
       : cards.filter((c) => !c.isDownloaded);
-    // showDownloaded is already handled above by its own dedicated toggle,
-    // so it's forced true here to avoid the grid filter re-excluding cards
-    // this dialog just chose to include.
     return applyGridFilters
       ? applyCardFilters(byDownloaded, { ...gridFilters, showDownloaded: true })
       : byDownloaded;
@@ -573,8 +548,6 @@ export function SessionSummaryDialog({
       value: cardsPerHour != null ? String(cardsPerHour) : "-",
     },
   );
-  // summaryCells is always 4 (no pricing) or 6 (with pricing) items - pick
-  // whichever column count fills every row completely.
   const summaryCellCols = summaryCells.length % 3 === 0 ? 3 : 2;
 
   const statsRecap = (
@@ -591,10 +564,8 @@ export function SessionSummaryDialog({
               key={cell.label}
               label={cell.label}
               value={cell.value}
-              // divide-x/divide-y add borders by sibling order, not actual
-              // grid position, so they misplace borders around wrapped
-              // rows - position math avoids that.
               className={cn(
+                "p-2.5",
                 i % summaryCellCols !== 0 && "border-l",
                 i >= summaryCellCols && "border-t",
               )}

@@ -40,42 +40,8 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid duration." }, 400);
     }
 
-    try {
-      const row = await db.transaction(async (tx) => {
-        await tx
-          .update(announcements)
-          .set({ isDeleted: true })
-          .where(
-            and(
-              eq(announcements.isDeploy, true),
-              eq(announcements.isDeleted, false),
-            ),
-          );
-        const [inserted] = await tx
-          .insert(announcements)
-          .values({
-            severity,
-            message: body.message?.trim() || DEPLOY_ANNOUNCEMENT_DEFAULT_MESSAGE,
-            isActive: true,
-            isDeploy: true,
-            showOnLanding: body.showOnLanding ?? false,
-            link: parsedLink.value,
-            endsAt: new Date(Date.now() + minutes * 60_000),
-          })
-          .returning();
-        return inserted;
-      });
-      invalidatePublicAnnouncements();
-      emitDeployNotice({ guid: row.guid!, message: row.message });
-      return c.json({ success: true, data: toAnnouncement(row) });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
-  })
-  .delete("/deploy", requireDeployKey, async (c) => {
-    try {
-      const removed = await db
+    const row = await db.transaction(async (tx) => {
+      await tx
         .update(announcements)
         .set({ isDeleted: true })
         .where(
@@ -83,13 +49,37 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
             eq(announcements.isDeploy, true),
             eq(announcements.isDeleted, false),
           ),
-        )
-        .returning({ id: announcements.id });
-      invalidatePublicAnnouncements();
-      emitDeployNotice(null);
-      return c.json({ success: true, data: { removed: removed.length } });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+        );
+      const [inserted] = await tx
+        .insert(announcements)
+        .values({
+          severity,
+          message: body.message?.trim() || DEPLOY_ANNOUNCEMENT_DEFAULT_MESSAGE,
+          isActive: true,
+          isDeploy: true,
+          showOnLanding: body.showOnLanding ?? false,
+          link: parsedLink.value,
+          endsAt: new Date(Date.now() + minutes * 60_000),
+        })
+        .returning();
+      return inserted;
+    });
+    invalidatePublicAnnouncements();
+    emitDeployNotice({ guid: row.guid!, message: row.message });
+    return c.json({ success: true, data: toAnnouncement(row) });
+  })
+  .delete("/deploy", requireDeployKey, async (c) => {
+    const removed = await db
+      .update(announcements)
+      .set({ isDeleted: true })
+      .where(
+        and(
+          eq(announcements.isDeploy, true),
+          eq(announcements.isDeleted, false),
+        ),
+      )
+      .returning({ id: announcements.id });
+    invalidatePublicAnnouncements();
+    emitDeployNotice(null);
+    return c.json({ success: true, data: { removed: removed.length } });
   });

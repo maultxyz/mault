@@ -14,35 +14,30 @@ export const editFeederRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
     const calibration = await c.req.json<FeederCalibration>();
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
-        if (!device) return { success: false, message: "Device not found." };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+      if (!device) return { success: false, message: "Device not found." };
 
-        await tx
-          .insert(feederConfigs)
-          .values({ ...calibration, orgId, deviceId: device.id })
-          .onConflictDoUpdate({
-            target: [feederConfigs.deviceId],
-            set: { ...calibration, updatedAt: new Date() },
-          });
-
-        await tx
-          .insert(feederConfigAudit)
-          .values({ ...calibration, orgId, deviceId: device.id });
-
-        const row = await tx.query.feederConfigs.findFirst({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
+      await tx
+        .insert(feederConfigs)
+        .values({ ...calibration, orgId, deviceId: device.id })
+        .onConflictDoUpdate({
+          target: [feederConfigs.deviceId],
+          set: { ...calibration, updatedAt: new Date() },
         });
-        const saved: FeederCalibration = row
-          ? rowToCalibration(row)
-          : calibration;
-        return { success: true, message: "Saved feeder config.", data: saved };
+
+      await tx
+        .insert(feederConfigAudit)
+        .values({ ...calibration, orgId, deviceId: device.id });
+
+      const row = await tx.query.feederConfigs.findFirst({
+        where: (t, { eq }) => eq(t.deviceId, device.id),
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      const saved: FeederCalibration = row
+        ? rowToCalibration(row)
+        : calibration;
+      return { success: true, message: "Saved feeder config.", data: saved };
+    });
+    return c.json(result);
   },
 );

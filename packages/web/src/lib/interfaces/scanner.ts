@@ -6,15 +6,17 @@ import type {
   BinConfig,
   CardCondition,
   CardFilters,
+  CommLogEntry,
   EmptyBinOptions,
   CardContour,
   CornerDetection,
   CardScannerProps,
-  CardSearchDiagnostics,
   CardSearchResult,
   OcrDiagnostics,
-  ScanDetectionDiagnostics,
-  UnmatchedReason,
+  RouteOptions,
+  ScanAttemptResult,
+  SerialMessageListener,
+  SerialRequestResult,
   UnmatchedScanDetails,
   UnmatchedScanDiagnostics,
   BinRoute,
@@ -25,9 +27,7 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   ScanRegion,
-  MatchCandidateDiagnostic,
   MatchedScanDetails,
-  ScanMatchSource,
   ScannedCard,
   ScannerStatus,
   ScanVectorizeSource,
@@ -155,13 +155,12 @@ export interface ScannedCardsContextValue {
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
+  setCardsFoilType: (scanIds: string[], foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
   markDownloaded: (scanIds: string[]) => void;
   clearCards: () => void;
 }
-
-export type SerialMessageListener = (message: unknown) => void;
 
 export type SerialBoardType = "esp32" | "uno_r4";
 
@@ -210,14 +209,6 @@ export type FirmwareCheckResult =
   | { status: "ok"; version: string }
   | { status: "noVersion" | "noResponse" | "busy" | "disconnected" };
 
-export interface RouteOptions {
-  feedNext?: boolean;
-}
-
-export interface SkippedRouteResponse {
-  skipped: true;
-}
-
 export interface PushTest {
   module: number;
   direction: "left" | "right";
@@ -233,6 +224,7 @@ export interface SerialContextValue {
   reopenSensorBlockedToast: () => void;
   firmwareVersion: string | null;
   board: SerialBoardType | null;
+  hasWifi: boolean;
   deviceId: string | null;
   transport: SerialTransportType | null;
   connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
@@ -405,30 +397,14 @@ export interface BinLevelSummary {
   needsEmptying: number;
 }
 
-export interface SerialRequestResult {
-  sent: boolean;
-  line: string;
-}
-
 export interface SerialRecoveryMark {
   hardwareId: string;
   until: number;
 }
 
-export interface PendingSerialReply {
-  seq: number | null;
-  resolve: (line: string) => void;
-}
-
 export interface RawCommandResult {
   status: "ok" | "disconnected" | "busy" | "noResponse";
   line: string | null;
-}
-
-export interface CommLogEntry {
-  direction: "sent" | "received" | "connected" | "disconnected" | "restarted";
-  text: string;
-  timestamp: number;
 }
 
 export interface CommLogEntriesProps {
@@ -592,6 +568,10 @@ export interface MonitorCardDetailProps {
   onClose: () => void;
 }
 
+export interface SessionLockBannerProps {
+  className?: string;
+}
+
 export interface SessionLockProps {
   className?: string;
   bannerClassName?: string;
@@ -694,27 +674,10 @@ export interface TextSearchOutcome {
   ocr: OcrDiagnostics | null;
 }
 
-export interface ResolvedSearchMatches {
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  noMatchReason: UnmatchedReason | null;
-  lookupFailedCardIds?: string[];
-  candidates: MatchCandidateDiagnostic[];
-}
-
-export interface ScanAttemptOutcome extends ResolvedSearchMatches {
+export interface ScanAttemptOutcome extends ScanAttemptResult {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
-  detection: ScanDetectionDiagnostics;
-  search: CardSearchDiagnostics | null;
-  orientation: "upright" | "rotated";
-  embedding: number[] | null;
-  topDistance: number | null;
-  ocr: OcrDiagnostics | null;
-  lowConfidenceMatch: boolean;
-  matchedBy: ScanMatchSource;
-  detectedColor: string | null;
 }
 
 export interface ScanOutcome {
@@ -1047,8 +1010,6 @@ export interface MobilePresetSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-export type CloudTransportFailure = "offline" | "inUse" | "failed";
 
 export interface OutlineAnimator {
   setTarget: (contour: CardContour | null) => void;

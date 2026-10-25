@@ -43,24 +43,19 @@ export const addAnnouncementRoute = new Hono<AppEnv>().post(
       );
     }
 
-    try {
-      const [row] = await db
-        .insert(announcements)
-        .values({
-          severity,
-          message: message.trim(),
-          isActive: isActive ?? true,
-          showOnLanding: showOnLanding ?? false,
-          link: parsedLink.value,
-          startsAt: startsAtDate,
-          endsAt: endsAtDate,
-        })
-        .returning();
-      invalidatePublicAnnouncements();
-      return c.json({ success: true, data: toAnnouncement(row) });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const [row] = await db
+      .insert(announcements)
+      .values({
+        severity,
+        message: message.trim(),
+        isActive: isActive ?? true,
+        showOnLanding: showOnLanding ?? false,
+        link: parsedLink.value,
+        startsAt: startsAtDate,
+        endsAt: endsAtDate,
+      })
+      .returning();
+    invalidatePublicAnnouncements();
+    return c.json({ success: true, data: toAnnouncement(row) });
   },
 );

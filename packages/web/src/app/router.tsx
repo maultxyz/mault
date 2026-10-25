@@ -190,9 +190,6 @@ const IntakeReceiptPage = lazy(
   ),
 );
 
-// Otherwise the app shell's chunks only start downloading once the auth
-// session resolves, then the landing route's once the loading gate lifts.
-// A failed preload is ignored here, the lazy() route surfaces it instead.
 function AppChunkPreloader() {
   const isMobile = useIsMobile();
   useEffect(() => {
@@ -275,10 +272,6 @@ export const router = createBrowserRouter([
         path: "/auth/:path",
         element: AUTH_PROVIDER === "local" ? <AuthLocalPage /> : <AuthPage />,
       },
-      // Local-mode only - Neon's prebuilt <AuthView> already covers
-      // invites/password reset. React Router ranks static segments above
-      // dynamic ones regardless of array order, so these still take
-      // priority over /auth/:path above.
       ...(AUTH_PROVIDER === "local"
         ? [
             { path: "/auth/join", element: <AuthJoinPage /> },
@@ -293,10 +286,6 @@ export const router = createBrowserRouter([
           ]
         : []),
       {
-        // Scopes the branded "Loading your vault" screen to the /app/*
-        // portion only - the outer Suspense in main.tsx has no fallback so
-        // the public marketing pages don't flash it while their own chunk
-        // loads.
         element: (
           <Suspense fallback={<RouteLoadingFallback />}>
             <AppChunkPreloader />

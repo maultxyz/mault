@@ -49,13 +49,6 @@ export async function cancelSync(): Promise<{
   return apiDelete<{ success: boolean; data: SyncState }>("/api/admin/sync");
 }
 
-export async function getSyncStatus(): Promise<{
-  success: boolean;
-  data: SyncState;
-}> {
-  return apiGet<{ success: boolean; data: SyncState }>("/api/admin/sync");
-}
-
 export async function listCardGameKeys(): Promise<{
   success: boolean;
   data: CardGameCount[];

@@ -51,16 +51,17 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   businessQuery,
   cleanText,
-  forbidden,
   notFound,
   pricingCurrency,
   readJson,
   toMoney,
   updateAcquisitionCosts,
-  upgradeRequired,
 } from "./shared";
-
-const LOT_NOT_FOUND = "Intake lot not found.";
+import {
+  BUSINESS_FORBIDDEN_RESULT,
+  BUSINESS_UPGRADE_REQUIRED_RESULT,
+  INTAKE_LOT_NOT_FOUND_MESSAGE,
+} from "../../lib/constants/business";
 
 async function toLiveIntakeLots(
   tx: Transaction,
@@ -158,7 +159,7 @@ export const intakeRoute = new Hono<AppEnv>()
     }
     let createdCollection = false;
     const response = await businessQuery(c, async (tx, access) => {
-      if (access.isLocked) return upgradeRequired;
+      if (access.isLocked) return BUSINESS_UPGRADE_REQUIRED_RESULT;
       const orgId = c.get("orgId");
       const collection = validNew
         ? await createIntakeCollection(tx, orgId, customerName, newCollection!)
@@ -223,7 +224,7 @@ export const intakeRoute = new Hono<AppEnv>()
     businessQuery(c, async (tx, access) => {
       const orgId = c.get("orgId");
       const row = await findIntakeLot(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(LOT_NOT_FOUND);
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
       const settings = await loadBusinessSettings(tx, orgId);
       const pricing = await loadOrgPricing(tx, orgId);
       const cards = await loadIntakeLotCards(
@@ -267,7 +268,7 @@ export const intakeRoute = new Hono<AppEnv>()
   .get("/intake/:guid/cards/next-unreviewed", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx) => {
       const row = await findIntakeLot(tx, c.get("orgId"), c.req.param("guid"));
-      if (!row) return notFound(LOT_NOT_FOUND);
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
       return { success: true, data: await findNextUnreviewedLotCard(tx, row.id) };
     }),
   )
@@ -278,14 +279,14 @@ export const intakeRoute = new Hono<AppEnv>()
     }
     return businessQuery(c, async (tx) => {
       const row = await findIntakeLot(tx, c.get("orgId"), c.req.param("guid"));
-      if (!row) return notFound(LOT_NOT_FOUND);
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
       return {
         success: true,
         data: await loadIntakeCardContext(
           tx,
           row.id,
           scanId,
-          c.req.query("review") === "1",
+          c.req.query("unreviewedOnly") === "true",
         ),
       };
     });
@@ -302,10 +303,10 @@ export const intakeRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid total." }, 400);
     }
     return businessQuery(c, async (tx, access) => {
-      if (!access.canAcceptIntake) return forbidden;
+      if (!access.canAcceptIntake) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const row = await findIntakeLot(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(LOT_NOT_FOUND);
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
       if (row.status !== "open") {
         return { success: false, message: "This lot is already closed." };
       }
@@ -386,10 +387,10 @@ export const intakeRoute = new Hono<AppEnv>()
     let sourceGuid: string | null = null;
     let movedScanIds: string[] = [];
     const response = await businessQuery(c, async (tx, access) => {
-      if (!access.canAcceptIntake) return forbidden;
+      if (!access.canAcceptIntake) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const row = await findIntakeLot(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(LOT_NOT_FOUND);
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
       if (row.status !== "accepted") {
         return { success: false, message: "Accept the lot before moving its cards." };
       }
@@ -504,10 +505,10 @@ export const intakeRoute = new Hono<AppEnv>()
     let imageKeys: (string | null)[] = [];
     let committed = false;
     const response = await businessQuery(c, async (tx, access) => {
-      if (!access.canAcceptIntake) return forbidden;
+      if (!access.canAcceptIntake) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const row = await findIntakeLot(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(LOT_NOT_FOUND);
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
       if (row.status !== "open") {
         return { success: false, message: "This lot is already closed." };
       }
@@ -572,10 +573,10 @@ export const intakeRoute = new Hono<AppEnv>()
   })
   .delete("/intake/:guid", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx, access) => {
-      if (!access.canAcceptIntake) return forbidden;
+      if (!access.canAcceptIntake) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const row = await findIntakeLot(tx, orgId, c.req.param("guid"));
-      if (!row) return notFound(LOT_NOT_FOUND);
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
       if (row.status === "open") {
         return {
           success: false,

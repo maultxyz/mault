@@ -2,9 +2,9 @@ import { devicesQueryOptions } from "@/features/calibration/api/devices";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { sorterLinksQueryOptions } from "@/features/scanner/api/sorter-link";
 import { useStations } from "@/features/scanner/api/use-stations";
-import { SORTER_LINKS_REFETCH_MS } from "@/lib/constants/timing";
 import type { WifiSorterOption } from "@/lib/interfaces/sorter-wifi";
 import { useQuery } from "@tanstack/react-query";
+import { SORTER_LINKS_REFETCH_MS } from "@magic-vault/shared";
 
 export function useWifiSorters(poll: boolean): WifiSorterOption[] {
   const { activeOrg } = useOrg();

@@ -12,7 +12,7 @@ import type {
   PriceSource,
   ScannedCard,
 } from "@magic-vault/shared";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 
 export interface CardSearchPickerProps {
@@ -99,23 +99,6 @@ export interface PriceSourceSection {
   source: PriceSource;
   headline: Omit<PriceHeadlineProps, "isFoil">;
   table: PriceTableProps;
-}
-
-export interface CardSelectDialogProps {
-  trigger?: ReactElement;
-  title?: string;
-  description?: string;
-  scanId?: string;
-  onRemove?: () => void;
-  currentCard?: PlayingCardWithDistance;
-  alternativeMatches?: PlayingCardWithDistance[];
-  capturedImageUrl?: string;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  onPrev?: () => void;
-  onNext?: () => void;
-  hasPrev?: boolean;
-  hasNext?: boolean;
 }
 
 export type CardViewMode = "grid" | "list";
@@ -446,4 +429,8 @@ export interface ReviewSession {
   previousScanId: string | null;
   resolveNext: (upcomingScanId: string | null | undefined) => string | null;
   forget: (scanId: string) => void;
+}
+
+export interface OpenScanOptions {
+  inReviewMode?: boolean;
 }

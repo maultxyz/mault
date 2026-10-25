@@ -1,4 +1,4 @@
-import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@/lib/constants/calibration";
+import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@magic-vault/shared";
 
 export const KIT_CHANNEL_COUNT = 16;
 export const KIT_CHANNELS = Array.from(
