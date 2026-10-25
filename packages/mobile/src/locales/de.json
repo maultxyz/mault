@@ -862,7 +862,9 @@
       "slotsLabel": "Plätze",
       "slotCountLabel": "Anzahl",
       "removeSlot": "Platz entfernen",
-      "addSlot": "Platz hinzufügen"
+      "addSlot": "Platz hinzufügen",
+      "multiplePacksLabel": "Mehrere Pakete pro Fach",
+      "multiplePacksDescription": "Wenn ein Fach ein Paket fertig hat, beginnt es darauf ein neues und macht weiter, bis das Fach voll ist. Ein Fach beginnt ein neues Paket nur, wenn das ganze Paket noch hineinpasst, damit kein Paket unvollständig bleibt."
     },
     "alphabet": {
       "needBins": "Die alphabetische Sortierung braucht mindestens einen Behälter neben dem Sammelbehälter.",
