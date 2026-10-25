@@ -66,6 +66,7 @@ import {
   WRAPPED_SLIDE_DURATION_MS,
   WRAPPED_SLIDE_MESH,
 } from "@/lib/constants/cards";
+import { StatCell } from "@/components/stat-cell";
 
 function meshBackground(colors: string[]): string {
   return colors
@@ -404,25 +405,6 @@ function WrappedSlideContent({
   }
 }
 
-function StatCell({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
-  return (
-    <div className={cn("p-2.5", className)}>
-      <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-0.5">
-        {label}
-      </p>
-      <p className="text-sm font-semibold">{value}</p>
-    </div>
-  );
-}
-
 export function SessionSummaryDialog({
   open,
   onOpenChange,
@@ -583,6 +565,7 @@ export function SessionSummaryDialog({
               label={cell.label}
               value={cell.value}
               className={cn(
+                "p-2.5",
                 i % summaryCellCols !== 0 && "border-l",
                 i >= summaryCellCols && "border-t",
               )}
