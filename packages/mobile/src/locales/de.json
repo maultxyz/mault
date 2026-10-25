@@ -39,7 +39,8 @@
     "errors": {
       "network": "Der Server ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.",
       "profile": "Angemeldet, aber deine Kontodaten konnten nicht geladen werden. Versuche es erneut.",
-      "verify-email": "Bestätige deine E-Mail-Adresse und melde dich dann an."
+      "verify-email": "Bestätige deine E-Mail-Adresse und melde dich dann an.",
+      "storage": "Angemeldet, aber die Sitzung konnte auf diesem Gerät nicht gespeichert werden. Versuche es erneut."
     },
     "createAccountOnWeb": "Neu bei Mault? Erstelle ein Konto im Web"
   },
