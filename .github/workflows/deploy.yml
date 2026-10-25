@@ -184,7 +184,7 @@ jobs:
         if: steps.deploy.outputs.should_deploy == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 26
           cache: pnpm
 
       # The API reference site serves this file as-is, so the spec is
