@@ -10,7 +10,15 @@ import { useRole } from "@/hooks/use-role";
 export default function AdminCardsPage() {
   const { isAdmin } = useRole();
 
-  if (!isAdmin) return <GamesManager />;
+  if (!isAdmin) {
+    return (
+      <>
+        <ScanStatsOverviewPanel />
+
+        <GamesManager />
+      </>
+    );
+  }
 
   return (
     <CardSyncProvider>

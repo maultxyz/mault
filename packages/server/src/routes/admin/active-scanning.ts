@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import type { ActiveScanSession, ActiveScanningStats } from "@magic-vault/shared";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { Hono } from "hono";
@@ -17,7 +18,7 @@ export const activeScanningRoute = new Hono<AppEnv>()
   .get(
     "/active-scanning",
     requireAuth,
-    requireRole("admin"),
+    requireRole(...PLATFORM_STAFF_ROLES),
     async (c) => {
       const data: ActiveScanningStats = {
         ...getActiveScanLockStats(),
@@ -31,7 +32,7 @@ export const activeScanningRoute = new Hono<AppEnv>()
   .get(
     "/active-scanning/sessions",
     requireAuth,
-    requireRole("admin"),
+    requireRole(...PLATFORM_STAFF_ROLES),
     async (c) => {
       const locks = listActiveScanLocks();
       if (locks.length === 0) return c.json({ success: true, data: [] });
