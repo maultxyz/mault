@@ -3,7 +3,6 @@ import { authQuery } from "../../db";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { buildRoutes } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const getBinRoutesRoute = new Hono<AppEnv>().get(
   "/",
@@ -12,23 +11,19 @@ export const getBinRoutesRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
-        if (!device) return { success: false, message: "Device not found." };
-        const rows = await tx.query.binRoutes.findMany({
-          where: (t, { eq, and }) =>
-            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
-        });
-        return {
-          success: true,
-          message: "Loaded bin routes.",
-          data: buildRoutes(device.moduleCount, rows),
-        };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+      if (!device) return { success: false, message: "Device not found." };
+      const rows = await tx.query.binRoutes.findMany({
+        where: (t, { eq, and }) =>
+          and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
       });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      return {
+        success: true,
+        message: "Loaded bin routes.",
+        data: buildRoutes(device.moduleCount, rows),
+      };
+    });
+    return c.json(result);
   },
 );

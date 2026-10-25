@@ -13,7 +13,6 @@ import {
   loadSoundRules,
   soundRuleInputSchema,
 } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addSoundRuleRoute = new Hono<AppEnv>().post(
   "/rules",
@@ -27,59 +26,55 @@ export const addSoundRuleRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: "Invalid sound rule." }, 400);
     }
     const gameGuid = body.gameGuid;
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const gameId = await findGameId(tx, gameGuid);
-        if (gameId === null)
-          return { success: false as const, message: "Game not found." };
-        const clipId = await findClipId(tx, orgId, input.data.clipGuid);
-        if (clipId === undefined)
-          return { success: false as const, message: "Clip not found." };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await findGameId(tx, gameGuid);
+      if (gameId === null)
+        return { success: false as const, message: "Game not found." };
+      const clipId = await findClipId(tx, orgId, input.data.clipGuid);
+      if (clipId === undefined)
+        return { success: false as const, message: "Clip not found." };
 
-        const limit = await getSoundRuleLimit(tx, orgId);
-        if (limit !== null) {
-          const [{ total }] = await tx
-            .select({ total: count() })
-            .from(soundRules)
-            .where(
-              and(eq(soundRules.orgId, orgId), eq(soundRules.isDeleted, false)),
-            );
-          if (total >= limit) {
-            return {
-              success: false as const,
-              message: soundRuleLimitMessage(limit),
-              soundRuleLimitReached: true,
-            };
-          }
-        }
-
-        const [{ last }] = await tx
-          .select({ last: max(soundRules.position) })
+      const limit = await getSoundRuleLimit(tx, orgId);
+      if (limit !== null) {
+        const [{ total }] = await tx
+          .select({ total: count() })
           .from(soundRules)
           .where(
-            and(
-              eq(soundRules.orgId, orgId),
-              eq(soundRules.gameId, gameId),
-              eq(soundRules.isDeleted, false),
-            ),
+            and(eq(soundRules.orgId, orgId), eq(soundRules.isDeleted, false)),
           );
-        await tx.insert(soundRules).values({
-          name: input.data.name,
-          isEnabled: input.data.isEnabled,
-          rules: input.data.rules,
-          clipId,
-          gameId,
-          position: (last ?? -1) + 1,
-          orgId,
-        });
-        return {
-          success: true as const,
-          data: await loadSoundRules(tx, orgId, gameId),
-        };
+        if (total >= limit) {
+          return {
+            success: false as const,
+            message: soundRuleLimitMessage(limit),
+            soundRuleLimitReached: true,
+          };
+        }
+      }
+
+      const [{ last }] = await tx
+        .select({ last: max(soundRules.position) })
+        .from(soundRules)
+        .where(
+          and(
+            eq(soundRules.orgId, orgId),
+            eq(soundRules.gameId, gameId),
+            eq(soundRules.isDeleted, false),
+          ),
+        );
+      await tx.insert(soundRules).values({
+        name: input.data.name,
+        isEnabled: input.data.isEnabled,
+        rules: input.data.rules,
+        clipId,
+        gameId,
+        position: (last ?? -1) + 1,
+        orgId,
       });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      return {
+        success: true as const,
+        data: await loadSoundRules(tx, orgId, gameId),
+      };
+    });
+    return c.json(result);
   },
 );

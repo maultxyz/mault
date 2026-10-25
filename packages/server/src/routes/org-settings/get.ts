@@ -9,7 +9,6 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const getOrgSettingsRoute = new Hono<AppEnv>().get(
   "/",
@@ -17,40 +16,36 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const row = await tx.query.orgSettings.findFirst({
-          where: eq(orgSettings.orgId, orgId),
-        });
-
-        return {
-          success: true,
-          message: "Loaded.",
-          data: {
-            primaryColor: row?.primaryColor ?? null,
-            scannerLayout:
-              (row?.scannerLayout as OrgSettings["scannerLayout"]) ?? "horizontal",
-            discordNotifyOnScan: row?.discordNotifyOnScan ?? false,
-            discordScanUseThreads: row?.discordScanUseThreads ?? true,
-            sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
-            ocrEnabled: row?.ocrEnabled ?? false,
-            correctionBinPrompt: row?.correctionBinPrompt ?? true,
-            pauseScanningOnDeploy: row?.pauseScanningOnDeploy ?? true,
-            leaderboardOptIn: row?.leaderboardOptIn ?? false,
-            correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
-              row?.correctionAutoCloseSeconds,
-            ),
-            priceSource: toPriceSource(row?.priceSource),
-            conditionMultipliers: toConditionMultipliers(
-              row?.conditionMultipliers,
-            ),
-            discordGuildId: row?.discordGuildId ?? null,
-          } satisfies OrgSettings,
-        };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const row = await tx.query.orgSettings.findFirst({
+        where: eq(orgSettings.orgId, orgId),
       });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+
+      return {
+        success: true,
+        message: "Loaded.",
+        data: {
+          primaryColor: row?.primaryColor ?? null,
+          scannerLayout:
+            (row?.scannerLayout as OrgSettings["scannerLayout"]) ?? "horizontal",
+          discordNotifyOnScan: row?.discordNotifyOnScan ?? false,
+          discordScanUseThreads: row?.discordScanUseThreads ?? true,
+          sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
+          ocrEnabled: row?.ocrEnabled ?? false,
+          correctionBinPrompt: row?.correctionBinPrompt ?? true,
+          pauseScanningOnDeploy: row?.pauseScanningOnDeploy ?? true,
+          leaderboardOptIn: row?.leaderboardOptIn ?? false,
+          correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
+            row?.correctionAutoCloseSeconds,
+          ),
+          priceSource: toPriceSource(row?.priceSource),
+          conditionMultipliers: toConditionMultipliers(
+            row?.conditionMultipliers,
+          ),
+          discordGuildId: row?.discordGuildId ?? null,
+        } satisfies OrgSettings,
+      };
+    });
+    return c.json(result);
   },
 );

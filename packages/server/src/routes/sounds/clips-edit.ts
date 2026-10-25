@@ -4,7 +4,6 @@ import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { soundClipNameSchema, toSoundClip } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editSoundClipRoute = new Hono<AppEnv>().put(
   "/clips/:guid",
@@ -19,26 +18,22 @@ export const editSoundClipRoute = new Hono<AppEnv>().put(
     if (!name.success) {
       return c.json({ success: false, message: "Give the clip a name." });
     }
-    try {
-      const [row] = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .update(soundClips)
-          .set({ name: name.data, updatedAt: new Date() })
-          .where(
-            and(
-              eq(soundClips.guid, guid),
-              eq(soundClips.orgId, orgId),
-              eq(soundClips.isDeleted, false),
-            ),
-          )
-          .returning(),
-      );
-      if (!row) {
-        return c.json({ success: false, message: "Clip not found." }, 404);
-      }
-      return c.json({ success: true, data: await toSoundClip(row) });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
+    const [row] = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .update(soundClips)
+        .set({ name: name.data, updatedAt: new Date() })
+        .where(
+          and(
+            eq(soundClips.guid, guid),
+            eq(soundClips.orgId, orgId),
+            eq(soundClips.isDeleted, false),
+          ),
+        )
+        .returning(),
+    );
+    if (!row) {
+      return c.json({ success: false, message: "Clip not found." }, 404);
     }
+    return c.json({ success: true, data: await toSoundClip(row) });
   },
 );

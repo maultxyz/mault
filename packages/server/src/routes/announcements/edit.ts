@@ -8,7 +8,6 @@ import { invalidatePublicAnnouncements } from "../../lib/public-announcements";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { parseAnnouncementLink, toAnnouncement } from "./shared";
 import type { AnnouncementInput } from "@magic-vault/shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editAnnouncementRoute = new Hono<AppEnv>().put(
   "/:guid",
@@ -45,35 +44,31 @@ export const editAnnouncementRoute = new Hono<AppEnv>().put(
       );
     }
 
-    try {
-      const target = await db.query.announcements.findFirst({
-        where: (t, { eq, and }) =>
-          and(eq(t.guid, guid), eq(t.isDeleted, false)),
-        columns: { id: true },
-      });
-      if (!target)
-        return c.json({ success: false, message: "Announcement not found." }, 404);
+    const target = await db.query.announcements.findFirst({
+      where: (t, { eq, and }) =>
+        and(eq(t.guid, guid), eq(t.isDeleted, false)),
+      columns: { id: true },
+    });
+    if (!target)
+      return c.json({ success: false, message: "Announcement not found." }, 404);
 
-      const updates: Partial<typeof announcements.$inferInsert> = {
-        updatedAt: new Date(),
-      };
-      if (severity !== undefined) updates.severity = severity;
-      if (message !== undefined) updates.message = message.trim();
-      if (isActive !== undefined) updates.isActive = isActive;
-      if (showOnLanding !== undefined) updates.showOnLanding = showOnLanding;
-      if (parsedLink) updates.link = parsedLink.value;
-      if (startsAtDate !== undefined) updates.startsAt = startsAtDate;
-      if (endsAtDate !== undefined) updates.endsAt = endsAtDate;
+    const updates: Partial<typeof announcements.$inferInsert> = {
+      updatedAt: new Date(),
+    };
+    if (severity !== undefined) updates.severity = severity;
+    if (message !== undefined) updates.message = message.trim();
+    if (isActive !== undefined) updates.isActive = isActive;
+    if (showOnLanding !== undefined) updates.showOnLanding = showOnLanding;
+    if (parsedLink) updates.link = parsedLink.value;
+    if (startsAtDate !== undefined) updates.startsAt = startsAtDate;
+    if (endsAtDate !== undefined) updates.endsAt = endsAtDate;
 
-      const [row] = await db
-        .update(announcements)
-        .set(updates)
-        .where(eq(announcements.id, target.id))
-        .returning();
-      invalidatePublicAnnouncements();
-      return c.json({ success: true, data: toAnnouncement(row) });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const [row] = await db
+      .update(announcements)
+      .set(updates)
+      .where(eq(announcements.id, target.id))
+      .returning();
+    invalidatePublicAnnouncements();
+    return c.json({ success: true, data: toAnnouncement(row) });
   },
 );

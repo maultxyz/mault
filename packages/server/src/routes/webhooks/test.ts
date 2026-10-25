@@ -5,7 +5,6 @@ import { webhookEndpoints } from "../../db/schema";
 import { WEBHOOK_MANAGER_ROLES } from "../../lib/constants/webhooks";
 import { sendTestWebhook } from "../../lib/webhooks/endpoints";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const testWebhookRoute = new Hono<AppEnv>().post(
   "/:guid/test",
@@ -19,23 +18,19 @@ export const testWebhookRoute = new Hono<AppEnv>().post(
         message: "Only organization owners and admins can test webhooks.",
       });
     }
-    try {
-      const target = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx.query.webhookEndpoints.findFirst({
-          where: and(
-            eq(webhookEndpoints.guid, c.req.param("guid")),
-            eq(webhookEndpoints.orgId, orgId),
-          ),
-          columns: { id: true, url: true, secret: true },
-        }),
-      );
-      if (!target) {
-        return c.json({ success: false, message: "Webhook not found." });
-      }
-      const data = await sendTestWebhook(target);
-      return c.json({ success: true, data });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
+    const target = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx.query.webhookEndpoints.findFirst({
+        where: and(
+          eq(webhookEndpoints.guid, c.req.param("guid")),
+          eq(webhookEndpoints.orgId, orgId),
+        ),
+        columns: { id: true, url: true, secret: true },
+      }),
+    );
+    if (!target) {
+      return c.json({ success: false, message: "Webhook not found." });
     }
+    const data = await sendTestWebhook(target);
+    return c.json({ success: true, data });
   },
 );

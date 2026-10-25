@@ -4,7 +4,6 @@ import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { binSetNameTaken, loadSets } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editBinSetRoute = new Hono<AppEnv>().put(
   "/:guid",
@@ -14,37 +13,33 @@ export const editBinSetRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const { name } = await c.req.json<{ name: string }>();
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const target = await tx.query.binSets.findFirst({
-          where: (binSets, { eq, and }) =>
-            and(
-              eq(binSets.guid, guid),
-              eq(binSets.orgId, orgId),
-              eq(binSets.isDeleted, false),
-            ),
-          columns: { id: true, gameId: true },
-        });
-        if (!target) return { message: "Set not found.", success: false };
-        if (await binSetNameTaken(tx, orgId, target.gameId, name, guid)) {
-          return {
-            success: false,
-            message: `A set named "${name.trim()}" already exists.`,
-            nameTaken: true,
-          };
-        }
-        await tx
-          .update(binSets)
-          .set({ name, updatedAt: new Date() })
-          .where(eq(binSets.id, target.id));
-        return loadSets(tx, orgId);
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const target = await tx.query.binSets.findFirst({
+        where: (binSets, { eq, and }) =>
+          and(
+            eq(binSets.guid, guid),
+            eq(binSets.orgId, orgId),
+            eq(binSets.isDeleted, false),
+          ),
+        columns: { id: true, gameId: true },
       });
-      return c.json(
-        result,
-        "nameTaken" in result && result.nameTaken ? 409 : 200,
-      );
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      if (!target) return { message: "Set not found.", success: false };
+      if (await binSetNameTaken(tx, orgId, target.gameId, name, guid)) {
+        return {
+          success: false,
+          message: `A set named "${name.trim()}" already exists.`,
+          nameTaken: true,
+        };
+      }
+      await tx
+        .update(binSets)
+        .set({ name, updatedAt: new Date() })
+        .where(eq(binSets.id, target.id));
+      return loadSets(tx, orgId);
+    });
+    return c.json(
+      result,
+      "nameTaken" in result && result.nameTaken ? 409 : 200,
+    );
   },
 );

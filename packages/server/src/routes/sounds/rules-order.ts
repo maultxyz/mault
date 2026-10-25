@@ -4,7 +4,6 @@ import { authQuery } from "../../db";
 import { soundRules } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findGameId, loadSoundRules } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const orderSoundRulesRoute = new Hono<AppEnv>().put(
   "/rules/order",
@@ -23,31 +22,27 @@ export const orderSoundRulesRoute = new Hono<AppEnv>().put(
     ) {
       return c.json({ success: false, message: "Invalid order." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const gameId = await findGameId(tx, gameGuid);
-        if (gameId === null)
-          return { success: false as const, message: "Game not found." };
-        for (const [position, guid] of (guids as string[]).entries()) {
-          await tx
-            .update(soundRules)
-            .set({ position })
-            .where(
-              and(
-                eq(soundRules.guid, guid),
-                eq(soundRules.orgId, orgId),
-                eq(soundRules.gameId, gameId),
-              ),
-            );
-        }
-        return {
-          success: true as const,
-          data: await loadSoundRules(tx, orgId, gameId),
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await findGameId(tx, gameGuid);
+      if (gameId === null)
+        return { success: false as const, message: "Game not found." };
+      for (const [position, guid] of (guids as string[]).entries()) {
+        await tx
+          .update(soundRules)
+          .set({ position })
+          .where(
+            and(
+              eq(soundRules.guid, guid),
+              eq(soundRules.orgId, orgId),
+              eq(soundRules.gameId, gameId),
+            ),
+          );
+      }
+      return {
+        success: true as const,
+        data: await loadSoundRules(tx, orgId, gameId),
+      };
+    });
+    return c.json(result);
   },
 );

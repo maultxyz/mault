@@ -4,7 +4,6 @@ import { authQuery } from "../../db";
 import { webhookEndpoints } from "../../db/schema";
 import { WEBHOOK_MANAGER_ROLES } from "../../lib/constants/webhooks";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteWebhookRoute = new Hono<AppEnv>().delete(
   "/:guid",
@@ -18,25 +17,21 @@ export const deleteWebhookRoute = new Hono<AppEnv>().delete(
         message: "Only organization owners and admins can delete webhooks.",
       });
     }
-    try {
-      const deleted = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .delete(webhookEndpoints)
-          .where(
-            and(
-              eq(webhookEndpoints.guid, c.req.param("guid")),
-              eq(webhookEndpoints.orgId, orgId),
-            ),
-          )
-          .returning({ id: webhookEndpoints.id }),
-      );
-      return c.json(
-        deleted.length === 0
-          ? { success: false, message: "Webhook not found." }
-          : { success: true, message: "Webhook deleted." },
-      );
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const deleted = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .delete(webhookEndpoints)
+        .where(
+          and(
+            eq(webhookEndpoints.guid, c.req.param("guid")),
+            eq(webhookEndpoints.orgId, orgId),
+          ),
+        )
+        .returning({ id: webhookEndpoints.id }),
+    );
+    return c.json(
+      deleted.length === 0
+        ? { success: false, message: "Webhook not found." }
+        : { success: true, message: "Webhook deleted." },
+    );
   },
 );

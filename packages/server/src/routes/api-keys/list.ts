@@ -4,7 +4,6 @@ import { authQuery } from "../../db";
 import { loadOrgApiKeys } from "../../lib/api-keys";
 import { API_KEY_MANAGER_ROLES } from "../../lib/constants/api-keys";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const listApiKeysRoute = new Hono<AppEnv>().get(
   "/",
@@ -12,17 +11,13 @@ export const listApiKeysRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const keys = await authQuery(c.get("jwtClaims"), (tx) =>
-        loadOrgApiKeys(tx, orgId),
-      );
-      const data: OrgApiKeyList = {
-        keys,
-        canManage: API_KEY_MANAGER_ROLES.includes(c.get("orgRole")),
-      };
-      return c.json({ success: true, data });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const keys = await authQuery(c.get("jwtClaims"), (tx) =>
+      loadOrgApiKeys(tx, orgId),
+    );
+    const data: OrgApiKeyList = {
+      keys,
+      canManage: API_KEY_MANAGER_ROLES.includes(c.get("orgRole")),
+    };
+    return c.json({ success: true, data });
   },
 );

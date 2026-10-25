@@ -36,7 +36,6 @@ import {
   findCardMatches,
   findCardMatchesByOcr,
 } from "../card/shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 const liveScans = and(
   eq(unmatchedCards.isDeleted, false),
@@ -192,69 +191,65 @@ async function retryScan(
 
 export const unmatchedRetryRoute = new Hono<AppEnv>()
   .get("/unmatched", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
-    try {
-      const rows = await db
-        .select({
-          scanId: unmatchedCards.guid,
-          orgId: unmatchedCards.orgId,
-          collectionName: collections.name,
-          gameKey: games.key,
-          lang: collections.lang,
-          scannedAt: unmatchedCards.scannedAt,
-          capturedImageKey: unmatchedCards.capturedImageKey,
-          capturedImageDataUrl: sql<
-            string | null
-          >`CASE WHEN ${unmatchedCards.capturedImageKey} IS NULL THEN ${unmatchedCards.capturedImageDataUrl} END`,
-          hasEmbedding: sql<boolean>`${unmatchedCards.embedding} IS NOT NULL`,
-          originalReason: sql<
-            string | null
-          >`${unmatchedCards.diagnostics}->>'reason'`,
-          originalNearestName: sql<
-            string | null
-          >`${unmatchedCards.diagnostics}->'search'->'candidates'->0->>'name'`,
-          originalNearestDistance: sql<
-            number | null
-          >`(${unmatchedCards.diagnostics}->'search'->>'nearestDistance')::float`,
-          diagnostics: unmatchedCards.diagnostics,
-        })
-        .from(unmatchedCards)
-        .innerJoin(collections, eq(collections.id, unmatchedCards.collectionId))
-        .leftJoin(games, eq(games.id, collections.gameId))
-        .where(liveScans)
-        .orderBy(desc(unmatchedCards.scannedAt))
-        .limit(ADMIN_UNMATCHED_LIST_LIMIT);
+    const rows = await db
+      .select({
+        scanId: unmatchedCards.guid,
+        orgId: unmatchedCards.orgId,
+        collectionName: collections.name,
+        gameKey: games.key,
+        lang: collections.lang,
+        scannedAt: unmatchedCards.scannedAt,
+        capturedImageKey: unmatchedCards.capturedImageKey,
+        capturedImageDataUrl: sql<
+          string | null
+        >`CASE WHEN ${unmatchedCards.capturedImageKey} IS NULL THEN ${unmatchedCards.capturedImageDataUrl} END`,
+        hasEmbedding: sql<boolean>`${unmatchedCards.embedding} IS NOT NULL`,
+        originalReason: sql<
+          string | null
+        >`${unmatchedCards.diagnostics}->>'reason'`,
+        originalNearestName: sql<
+          string | null
+        >`${unmatchedCards.diagnostics}->'search'->'candidates'->0->>'name'`,
+        originalNearestDistance: sql<
+          number | null
+        >`(${unmatchedCards.diagnostics}->'search'->>'nearestDistance')::float`,
+        diagnostics: unmatchedCards.diagnostics,
+      })
+      .from(unmatchedCards)
+      .innerJoin(collections, eq(collections.id, unmatchedCards.collectionId))
+      .leftJoin(games, eq(games.id, collections.gameId))
+      .where(liveScans)
+      .orderBy(desc(unmatchedCards.scannedAt))
+      .limit(ADMIN_UNMATCHED_LIST_LIMIT);
 
-      const orgNames = await authProvider.getOrganisationNames([
-        ...new Set(rows.map((row) => row.orgId)),
-      ]);
-      const data: AdminUnmatchedScan[] = await Promise.all(
-        rows.flatMap((row) =>
-          row.scanId
-            ? [
-                (async () => ({
-                  scanId: row.scanId!,
-                  orgId: row.orgId,
-                  orgName: orgNames.get(row.orgId) ?? null,
-                  collectionName: row.collectionName,
-                  gameKey: row.gameKey,
-                  lang: row.lang,
-                  scannedAt: row.scannedAt.toISOString(),
-                  capturedImageUrl: (await resolveScanImageUrl(row)) ?? null,
-                  hasEmbedding: row.hasEmbedding,
-                  originalReason: row.originalReason as UnmatchedReason | null,
-                  originalNearestName: row.originalNearestName,
-                  originalNearestDistance: row.originalNearestDistance,
-                  diagnostics:
-                    row.diagnostics as UnmatchedScanDiagnostics | null,
-                }))(),
-              ]
-            : [],
-        ),
-      );
-      return c.json({ success: true, data });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const orgNames = await authProvider.getOrganisationNames([
+      ...new Set(rows.map((row) => row.orgId)),
+    ]);
+    const data: AdminUnmatchedScan[] = await Promise.all(
+      rows.flatMap((row) =>
+        row.scanId
+          ? [
+              (async () => ({
+                scanId: row.scanId!,
+                orgId: row.orgId,
+                orgName: orgNames.get(row.orgId) ?? null,
+                collectionName: row.collectionName,
+                gameKey: row.gameKey,
+                lang: row.lang,
+                scannedAt: row.scannedAt.toISOString(),
+                capturedImageUrl: (await resolveScanImageUrl(row)) ?? null,
+                hasEmbedding: row.hasEmbedding,
+                originalReason: row.originalReason as UnmatchedReason | null,
+                originalNearestName: row.originalNearestName,
+                originalNearestDistance: row.originalNearestDistance,
+                diagnostics:
+                  row.diagnostics as UnmatchedScanDiagnostics | null,
+              }))(),
+            ]
+          : [],
+      ),
+    );
+    return c.json({ success: true, data });
   })
   .post("/unmatched/retry", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const { scanIds, withOcr = false } =
@@ -272,38 +267,34 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
       );
     }
 
-    try {
-      const rows = await db
-        .select(scanRowColumns(withOcr))
-        .from(unmatchedCards)
-        .innerJoin(collections, eq(collections.id, unmatchedCards.collectionId))
-        .leftJoin(games, eq(games.id, collections.gameId))
-        .where(and(liveScans, inArray(unmatchedCards.guid, scanIds)));
+    const rows = await db
+      .select(scanRowColumns(withOcr))
+      .from(unmatchedCards)
+      .innerJoin(collections, eq(collections.id, unmatchedCards.collectionId))
+      .leftJoin(games, eq(games.id, collections.gameId))
+      .where(and(liveScans, inArray(unmatchedCards.guid, scanIds)));
 
-      const jwtClaims = c.get("jwtClaims");
-      const data: AdminUnmatchedRetryResult[] = [];
-      for (let i = 0; i < rows.length; i += ADMIN_UNMATCHED_RETRY_CONCURRENCY) {
-        const batch = rows.slice(i, i + ADMIN_UNMATCHED_RETRY_CONCURRENCY);
-        data.push(
-          ...(await Promise.all(
-            batch.flatMap((row) =>
-              row.scanId
-                ? [
-                    retryScan(
-                      jwtClaims,
-                      { ...row, scanId: row.scanId },
-                      withOcr,
-                    ),
-                  ]
-                : [],
-            ),
-          )),
-        );
-      }
-      return c.json({ success: true, data });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
+    const jwtClaims = c.get("jwtClaims");
+    const data: AdminUnmatchedRetryResult[] = [];
+    for (let i = 0; i < rows.length; i += ADMIN_UNMATCHED_RETRY_CONCURRENCY) {
+      const batch = rows.slice(i, i + ADMIN_UNMATCHED_RETRY_CONCURRENCY);
+      data.push(
+        ...(await Promise.all(
+          batch.flatMap((row) =>
+            row.scanId
+              ? [
+                  retryScan(
+                    jwtClaims,
+                    { ...row, scanId: row.scanId },
+                    withOcr,
+                  ),
+                ]
+              : [],
+          ),
+        )),
+      );
     }
+    return c.json({ success: true, data });
   })
   .post(
     "/unmatched/:scanId/ocr",

@@ -6,7 +6,6 @@ import { collectionCards } from "../../db/schema";
 import { deleteScanImages } from "../../lib/scan-images";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteCollectionCardRoute = new Hono<AppEnv>().delete(
   "/:guid/cards/:scanId",
@@ -15,43 +14,39 @@ export const deleteCollectionCardRoute = new Hono<AppEnv>().delete(
   async (c) => {
     const orgId = c.get("orgId");
     const { guid, scanId } = c.req.param();
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const deleted = await tx
-          .delete(collectionCards)
-          .where(
-            and(
-              eq(collectionCards.guid, scanId),
-              eq(collectionCards.orgId, orgId),
-            ),
-          )
-          .returning({
-            imageKey: collectionCards.capturedImageKey,
-            name: sql<string>`${collectionCards.card} ->> 'name'`,
-          });
-        if (deleted.length > 0) {
-          await logActivity(tx, {
-            orgId,
-            userId: c.get("userId"),
-            action: "card.deleted",
-            summary: deleted[0].name,
-            details: { scanId, collectionGuid: guid },
-          });
-        }
-        return {
-          success: true,
-          data: null,
-          imageKeys: deleted.map((row) => row.imageKey),
-        };
-      });
-      if (result.success) {
-        deleteScanImages(result.imageKeys);
-        emitToSession(guid, "card_removed", { scanId });
-        emitToOrg(orgId, "collections_changed", { guid });
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const deleted = await tx
+        .delete(collectionCards)
+        .where(
+          and(
+            eq(collectionCards.guid, scanId),
+            eq(collectionCards.orgId, orgId),
+          ),
+        )
+        .returning({
+          imageKey: collectionCards.capturedImageKey,
+          name: sql<string>`${collectionCards.card} ->> 'name'`,
+        });
+      if (deleted.length > 0) {
+        await logActivity(tx, {
+          orgId,
+          userId: c.get("userId"),
+          action: "card.deleted",
+          summary: deleted[0].name,
+          details: { scanId, collectionGuid: guid },
+        });
       }
-      return c.json({ success: result.success, data: result.data });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
+      return {
+        success: true,
+        data: null,
+        imageKeys: deleted.map((row) => row.imageKey),
+      };
+    });
+    if (result.success) {
+      deleteScanImages(result.imageKeys);
+      emitToSession(guid, "card_removed", { scanId });
+      emitToOrg(orgId, "collections_changed", { guid });
     }
+    return c.json({ success: result.success, data: result.data });
   },
 );

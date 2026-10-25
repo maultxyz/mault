@@ -3,7 +3,6 @@ import { authQuery } from "../../db";
 import { devices } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toDevice } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const createDeviceRoute = new Hono<AppEnv>().post(
   "/",
@@ -14,21 +13,17 @@ export const createDeviceRoute = new Hono<AppEnv>().post(
     const body = await c.req
       .json<{ name?: string }>()
       .catch(() => ({ name: undefined }));
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const [inserted] = await tx
-          .insert(devices)
-          .values({ orgId, ...(body.name ? { name: body.name } : {}) })
-          .returning();
-        return {
-          success: true,
-          message: "Created device.",
-          data: toDevice(inserted),
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const [inserted] = await tx
+        .insert(devices)
+        .values({ orgId, ...(body.name ? { name: body.name } : {}) })
+        .returning();
+      return {
+        success: true,
+        message: "Created device.",
+        data: toDevice(inserted),
+      };
+    });
+    return c.json(result);
   },
 );

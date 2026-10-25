@@ -19,7 +19,6 @@ import {
 } from "../../lib/sorter-limit";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadOrgPlan } from "./scan-limit";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const sortOnlyScanRoute = new Hono<AppEnv>().post(
   "/:guid/cards/sorted",
@@ -35,52 +34,48 @@ export const sortOnlyScanRoute = new Hono<AppEnv>().post(
       vectorizedOn,
       deviceGuid,
     } = await c.req.json<SortOnlyScanRequest>();
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const plan = await loadOrgPlan(tx, orgId);
-        const dailyLimit = dailyScanLimitForPlan(plan);
-        const scanLimitReached = {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const plan = await loadOrgPlan(tx, orgId);
+      const dailyLimit = dailyScanLimitForPlan(plan);
+      const scanLimitReached = {
+        success: false as const,
+        message: dailyScanLimitMessage(dailyLimit),
+        scanLimitReached: true,
+      };
+      if (
+        dailyLimit != null &&
+        (await getScansToday(tx, orgId)) >= dailyLimit
+      ) {
+        return scanLimitReached;
+      }
+      const sorterLimit = sorterLimitForPlan(plan);
+      if (
+        !acquireDeviceLease(
+          orgId,
+          deviceGuid ?? UNIDENTIFIED_SORTER_LEASE_KEY,
+          sorterLimit,
+        )
+      ) {
+        return {
           success: false as const,
-          message: dailyScanLimitMessage(dailyLimit),
-          scanLimitReached: true,
+          message: sorterLimitMessage(sorterLimit),
+          sorterLimitReached: true,
         };
-        if (
-          dailyLimit != null &&
-          (await getScansToday(tx, orgId)) >= dailyLimit
-        ) {
-          return scanLimitReached;
-        }
-        const sorterLimit = sorterLimitForPlan(plan);
-        if (
-          !acquireDeviceLease(
-            orgId,
-            deviceGuid ?? UNIDENTIFIED_SORTER_LEASE_KEY,
-            sorterLimit,
-          )
-        ) {
-          return {
-            success: false as const,
-            message: sorterLimitMessage(sorterLimit),
-            sorterLimitReached: true,
-          };
-        }
-        if (!(await consumeDailyScan(orgId, plan))) return scanLimitReached;
-        return { success: true as const };
-      });
-      if (!result.success) return c.json(result, 402);
-      void recordMatchedScan(
-        orgId,
-        scanId,
-        card,
-        hasAlternatives,
-        scannedAt,
-        vectorizedOn,
-        c.get("userId"),
-      );
-      void recordDeviceSorted(orgId, deviceGuid);
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      }
+      if (!(await consumeDailyScan(orgId, plan))) return scanLimitReached;
+      return { success: true as const };
+    });
+    if (!result.success) return c.json(result, 402);
+    void recordMatchedScan(
+      orgId,
+      scanId,
+      card,
+      hasAlternatives,
+      scannedAt,
+      vectorizedOn,
+      c.get("userId"),
+    );
+    void recordDeviceSorted(orgId, deviceGuid);
+    return c.json(result);
   },
 );

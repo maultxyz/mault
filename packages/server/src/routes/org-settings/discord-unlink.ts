@@ -7,7 +7,6 @@ import {
   requireOrgRole,
   type AppEnv,
 } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const discordUnlinkRoute = new Hono<AppEnv>().post(
   "/discord-unlink",
@@ -16,13 +15,9 @@ export const discordUnlinkRoute = new Hono<AppEnv>().post(
   requireOrgRole("owner", "admin"),
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      await authQuery(c.get("jwtClaims"), (tx) =>
-        clearOrgDiscordReferences(tx, orgId),
-      );
-      return c.json({ success: true, message: "Unlinked." });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    await authQuery(c.get("jwtClaims"), (tx) =>
+      clearOrgDiscordReferences(tx, orgId),
+    );
+    return c.json({ success: true, message: "Unlinked." });
   },
 );

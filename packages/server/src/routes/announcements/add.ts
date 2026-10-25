@@ -7,7 +7,6 @@ import { invalidatePublicAnnouncements } from "../../lib/public-announcements";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { parseAnnouncementLink, toAnnouncement } from "./shared";
 import type { AnnouncementInput } from "@magic-vault/shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addAnnouncementRoute = new Hono<AppEnv>().post(
   "/",
@@ -44,23 +43,19 @@ export const addAnnouncementRoute = new Hono<AppEnv>().post(
       );
     }
 
-    try {
-      const [row] = await db
-        .insert(announcements)
-        .values({
-          severity,
-          message: message.trim(),
-          isActive: isActive ?? true,
-          showOnLanding: showOnLanding ?? false,
-          link: parsedLink.value,
-          startsAt: startsAtDate,
-          endsAt: endsAtDate,
-        })
-        .returning();
-      invalidatePublicAnnouncements();
-      return c.json({ success: true, data: toAnnouncement(row) });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const [row] = await db
+      .insert(announcements)
+      .values({
+        severity,
+        message: message.trim(),
+        isActive: isActive ?? true,
+        showOnLanding: showOnLanding ?? false,
+        link: parsedLink.value,
+        startsAt: startsAtDate,
+        endsAt: endsAtDate,
+      })
+      .returning();
+    invalidatePublicAnnouncements();
+    return c.json({ success: true, data: toAnnouncement(row) });
   },
 );

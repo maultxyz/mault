@@ -3,7 +3,6 @@ import { Hono } from "hono";
 import { listSetPrintings } from "../../lib/card-search/card-sets";
 import { resolveCardSearch } from "../../lib/card-search/resolve";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const setPrintingsRoute = new Hono<AppEnv>().get(
   "/set-printings",
@@ -24,14 +23,10 @@ export const setPrintingsRoute = new Hono<AppEnv>().get(
         400,
       );
     }
-    try {
-      return c.json({
-        success: true,
-        message: "Cards retrieved.",
-        data: await listSetPrintings(resolved, setCode),
-      });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    return c.json({
+      success: true,
+      message: "Cards retrieved.",
+      data: await listSetPrintings(resolved, setCode),
+    });
   },
 );

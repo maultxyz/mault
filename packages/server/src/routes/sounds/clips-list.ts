@@ -4,7 +4,6 @@ import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toSoundClip } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const listSoundClipsRoute = new Hono<AppEnv>().get(
   "/clips",
@@ -12,22 +11,18 @@ export const listSoundClipsRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const rows = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .select()
-          .from(soundClips)
-          .where(
-            and(eq(soundClips.orgId, orgId), eq(soundClips.isDeleted, false)),
-          )
-          .orderBy(asc(soundClips.name)),
-      );
-      return c.json({
-        success: true,
-        data: await Promise.all(rows.map(toSoundClip)),
-      });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const rows = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .select()
+        .from(soundClips)
+        .where(
+          and(eq(soundClips.orgId, orgId), eq(soundClips.isDeleted, false)),
+        )
+        .orderBy(asc(soundClips.name)),
+    );
+    return c.json({
+      success: true,
+      data: await Promise.all(rows.map(toSoundClip)),
+    });
   },
 );

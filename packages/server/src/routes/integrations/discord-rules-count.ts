@@ -3,7 +3,6 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const countNotificationRulesRoute = new Hono<AppEnv>().get(
   "/discord/rules/count",
@@ -11,21 +10,17 @@ export const countNotificationRulesRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const [{ total }] = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .select({ total: count() })
-          .from(notificationRules)
-          .where(
-            and(
-              eq(notificationRules.orgId, orgId),
-              eq(notificationRules.isDeleted, false),
-            ),
+    const [{ total }] = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .select({ total: count() })
+        .from(notificationRules)
+        .where(
+          and(
+            eq(notificationRules.orgId, orgId),
+            eq(notificationRules.isDeleted, false),
           ),
-      );
-      return c.json({ success: true, data: total });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+        ),
+    );
+    return c.json({ success: true, data: total });
   },
 );
