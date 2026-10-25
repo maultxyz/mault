@@ -84,12 +84,7 @@
     "conditions": "Bedingungen",
     "cancel": "Abbrechen",
     "save": "Speichern",
-    "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden.",
-    "validation": {
-      "nameRequired": "Gib der Regel einen Namen.",
-      "channelRequired": "Wähle einen Kanal.",
-      "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
-    }
+    "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden."
   },
   "draft": {
     "saved": "Discord-Einstellungen gespeichert.",
@@ -146,11 +141,9 @@
     "saved": "Webhook gespeichert.",
     "saveFailed": "Der Webhook konnte nicht gespeichert werden.",
     "urlLabel": "URL",
-    "invalidUrl": "Gib eine öffentliche https://-URL ein.",
     "descriptionLabel": "Name (optional)",
     "descriptionPlaceholder": "Onlineshop",
     "eventsLabel": "Ereignisse",
-    "eventsRequired": "Wähle mindestens ein Ereignis.",
     "events": {
       "card": {
         "scanned": "Eine Karte wurde gescannt und in einer Sammlung gespeichert."

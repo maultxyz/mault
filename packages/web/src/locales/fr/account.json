@@ -23,15 +23,12 @@
   "password": {
     "heading": "Mot de passe",
     "currentLabel": "Mot de passe actuel",
-    "currentRequired": "Saisis ton mot de passe actuel",
     "newLabel": "Nouveau mot de passe",
     "confirmLabel": "Confirmer le nouveau mot de passe",
     "revokeOtherSessions": "Déconnecter tous les autres appareils",
     "submit": "Mettre à jour le mot de passe",
     "updated": "Mot de passe mis à jour",
-    "updateFailed": "Impossible de mettre à jour le mot de passe",
-    "mismatch": "Les mots de passe ne correspondent pas",
-    "tooShort": "Doit contenir au moins 8 caractères"
+    "updateFailed": "Impossible de mettre à jour le mot de passe"
   },
   "sessions": {
     "heading": "Sessions",

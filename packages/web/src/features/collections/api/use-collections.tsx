@@ -16,11 +16,11 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
   computeBinCount,
+  type CreateCollectionFormValues,
   createDefaultCatchAllOnlyBins,
   type BinSet,
   type Collection,
 } from "@magic-vault/shared";
-import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,

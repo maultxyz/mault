@@ -14,12 +14,12 @@ import type {
   SoundClipRowProps,
 } from "@/lib/interfaces/sounds";
 import { toast } from "@/lib/toast";
-import {
-  createSoundClipNameSchema,
-  type SoundClipNameFormValues,
-} from "@/schemas/sound-clip.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { SoundClip } from "@magic-vault/shared";
+import {
+  type SoundClip,
+  soundClipNameFormSchema,
+  type SoundClipNameFormValues,
+} from "@magic-vault/shared";
 import {
   IconCheck,
   IconPencil,
@@ -29,7 +29,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect,  useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -45,7 +45,6 @@ export function SoundClipRow({ clip }: SoundClipRowProps) {
   }));
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const schema = useMemo(() => createSoundClipNameSchema(t), [t]);
   const {
     register,
     handleSubmit,
@@ -53,7 +52,7 @@ export function SoundClipRow({ clip }: SoundClipRowProps) {
     setFocus,
     formState: { errors },
   } = useForm<SoundClipNameFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(soundClipNameFormSchema),
     defaultValues: { name: clip.name },
   });
 

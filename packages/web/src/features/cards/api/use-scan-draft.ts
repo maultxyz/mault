@@ -1,12 +1,12 @@
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import type { ScanDraftOptions } from "@/lib/interfaces/cards";
-import {
-  scanDraftSchema,
-  type ScanDraftValues,
-} from "@/schemas/scan-draft.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import {
+  scanDraftFormSchema,
+  type ScanDraftFormValues,
+} from "@magic-vault/shared";
 
 export function useScanDraft({
   scanId,
@@ -15,12 +15,12 @@ export function useScanDraft({
   setCardFoilType,
   setCardCondition,
 }: ScanDraftOptions) {
-  const values = useMemo<ScanDraftValues>(
+  const values = useMemo<ScanDraftFormValues>(
     () => ({ foilType: savedFoilType, condition: savedCondition }),
     [savedFoilType, savedCondition],
   );
-  const form = useForm<ScanDraftValues>({
-    resolver: zodResolver(scanDraftSchema),
+  const form = useForm<ScanDraftFormValues>({
+    resolver: zodResolver(scanDraftFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
@@ -66,7 +66,7 @@ export function useScanDraft({
     isSaving: form.formState.isSubmitting,
     setFoilType: (foilType: string | null) =>
       form.setValue("foilType", foilType, { shouldDirty: true }),
-    setCondition: (condition: ScanDraftValues["condition"]) =>
+    setCondition: (condition: ScanDraftFormValues["condition"]) =>
       form.setValue("condition", condition, { shouldDirty: true }),
     save: () => void commit(),
     discard: () => form.reset(values, DISCARD_RESET_OPTIONS),

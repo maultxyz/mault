@@ -23,15 +23,12 @@
   "password": {
     "heading": "Passwort",
     "currentLabel": "Aktuelles Passwort",
-    "currentRequired": "Gib dein aktuelles Passwort ein",
     "newLabel": "Neues Passwort",
     "confirmLabel": "Neues Passwort bestätigen",
     "revokeOtherSessions": "Auf allen anderen Geräten abmelden",
     "submit": "Passwort aktualisieren",
     "updated": "Passwort aktualisiert",
-    "updateFailed": "Passwort konnte nicht aktualisiert werden",
-    "mismatch": "Passwörter stimmen nicht überein",
-    "tooShort": "Muss mindestens 8 Zeichen lang sein"
+    "updateFailed": "Passwort konnte nicht aktualisiert werden"
   },
   "sessions": {
     "heading": "Sitzungen",

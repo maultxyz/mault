@@ -7,18 +7,19 @@ import {
 import { useOrg } from "@/features/companies/api/use-organization";
 import { leaderboardKeys } from "@/features/stats/api/leaderboard";
 import { toast } from "@/lib/toast";
-import {
-  orgSettingsDraftSchema,
-  type OrgSettingsDraftValues,
-} from "@/schemas/org-settings-draft.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { type OrgSettings, DEFAULT_ORG_SETTINGS } from "@magic-vault/shared";
+import {
+  type OrgSettings,
+  DEFAULT_ORG_SETTINGS,
+  orgSettingsDraftFormSchema,
+  type OrgSettingsDraftFormValues,
+} from "@magic-vault/shared";
 
-function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftValues {
+function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftFormValues {
   return {
     primaryColor: settings.primaryColor,
     scannerLayout: settings.scannerLayout,
@@ -44,20 +45,20 @@ export function useOrgSettingsDraft() {
     [data],
   );
 
-  const form = useForm<OrgSettingsDraftValues>({
-    resolver: zodResolver(orgSettingsDraftSchema),
+  const form = useForm<OrgSettingsDraftFormValues>({
+    resolver: zodResolver(orgSettingsDraftFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
 
-  const save = async (draft: OrgSettingsDraftValues) => {
+  const save = async (draft: OrgSettingsDraftFormValues) => {
     const patch = Object.fromEntries(
       Object.entries(draft).filter(
         ([key, value]) =>
-          JSON.stringify(values[key as keyof OrgSettingsDraftValues]) !==
+          JSON.stringify(values[key as keyof OrgSettingsDraftFormValues]) !==
           JSON.stringify(value),
       ),
-    ) as Partial<OrgSettingsDraftValues>;
+    ) as Partial<OrgSettingsDraftFormValues>;
     if (!Object.keys(patch).length) {
       form.reset(values);
       return;

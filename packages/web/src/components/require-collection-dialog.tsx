@@ -16,16 +16,16 @@ import {
   gamesQueryOptions,
 } from "@/features/games/api/games";
 import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
-import {
-  createCollectionSchema,
-  type CreateCollectionFormValues,
-} from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconFolderPlus, IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import {
+  createCollectionFormSchema,
+  type CreateCollectionFormValues,
+} from "@magic-vault/shared";
 
 export function RequireCollectionDialog() {
   const { t } = useTranslation("collections");
@@ -36,7 +36,7 @@ export function RequireCollectionDialog() {
   const activeGames = games.filter((g) => g.isActive);
 
   const form = useForm({
-    resolver: zodResolver(createCollectionSchema),
+    resolver: zodResolver(createCollectionFormSchema),
     defaultValues: {
       name: "",
       gameGuid: "",

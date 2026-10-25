@@ -12,10 +12,6 @@ import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { createOrganization } from "@/lib/auth";
-import {
-  organizationNameSchema,
-  type OrganizationNameFormValues,
-} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconBuilding,
@@ -30,6 +26,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import { useOrg } from "../api/use-organization";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import {
+  organizationNameFormSchema,
+  type OrganizationNameFormValues,
+} from "@magic-vault/shared";
 
 function OrgBadge({
   initial,
@@ -49,7 +49,7 @@ export function OrgSwitcher({ side = "right" }: { side?: "right" }) {
   const [createOpen, setCreateOpen] = useState(false);
 
   const form = useForm<OrganizationNameFormValues>({
-    resolver: zodResolver(organizationNameSchema),
+    resolver: zodResolver(organizationNameFormSchema),
     defaultValues: { name: "" },
   });
 
