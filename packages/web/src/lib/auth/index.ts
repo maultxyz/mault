@@ -110,7 +110,7 @@ export async function signOut(): Promise<void> {
 // first visit to a device-dependent page if this fails.
 async function ensureDeviceForOrg(orgId: string): Promise<void> {
   try {
-    await fetch(`${API_BASE}/devices`, {
+    const response = await fetch(`${API_BASE}/api/devices`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -118,7 +118,12 @@ async function ensureDeviceForOrg(orgId: string): Promise<void> {
         "X-Org-Id": orgId,
       },
     });
-  } catch {}
+    if (!response.ok) {
+      console.error(`Creating the new org's device failed (${response.status})`);
+    }
+  } catch (error) {
+    console.error("Creating the new org's device failed", error);
+  }
 }
 
 export async function createOrganization(
