@@ -110,7 +110,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "save": "Save",
-    "create": "Create"
+    "create": "Create",
+    "search": "Search"
   },
   "unsavedChanges": {
     "message": "You have unsaved changes",

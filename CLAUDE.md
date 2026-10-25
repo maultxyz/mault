@@ -156,7 +156,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Toasts only through the root `Toaster` in `main.tsx`.
 - The Rules page (`SORTING_RULES_PATH`) is outside `DesktopOnlyGuard` and renders `MobileBins` on phones (Rules tab in `MobileNav`).
 - Settings sub-pages use `SETTINGS_PATHS`, each panel is a `SettingsSection`, and each sub-page needs a `settings:sectionIntros` entry. Calibration tour steps name their section, so moving a panel means updating `CALIBRATION_TOUR_STEPS`.
-- Mobile screens use `MobilePageHeader` and the `MOBILE_*` classes in `lib/constants/nav.ts`; every mobile scroll area adds `MOBILE_NAV_SCROLL_PADDING_CLASS`. Keep `Select`s and popovers out of vaul drawers.
+- Mobile screens use `MobilePageHeader` and the `MOBILE_*` classes in `lib/constants/nav.ts`; every mobile scroll area adds `MOBILE_NAV_SCROLL_PADDING_CLASS`. Modal vaul drawers set `pointer-events: none` on the body, so a `Select` inside one only works because its positioner and backdrop carry `pointer-events-auto`; keep other popovers out of vaul drawers.
 - Card actions belong in `useCardActions` (shared by context menu and mobile drawer).
 - The UI calls a `bin_sets` row a "preset", never a "set".
 
@@ -165,7 +165,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Status colors only from theme tokens (`success`, `warning`, `info`, `destructive` and their `-strong`/`-foreground`/`-muted`/`-border` shades), never raw `green-*`/`red-*` etc. Raw palette colors are for data only.
 - `text-primary` resolves to `--primary-text`; fix tokens, don't hand-patch dark-mode text.
 - In-page notes use `Callout`; full-width bars use `AlertBanner`. Empty lists use `EmptyState`. Labelled sliders use `SliderField`. Loading content uses skeletons; spinners only for in-progress actions.
-- Text: `text-sm` body, `text-xs` secondary, `text-2xs` dense captions. No arbitrary `text-[Npx]`. Inputs stay `text-base` below `md` (iOS zoom). Secondary text is `text-foreground/70`; nothing below 70% opacity except disabled controls. `text-muted-foreground` only inside `components/ui` primitives and placeholders.
+- Text: `text-sm` body, `text-xs` secondary, `text-2xs` dense captions. No arbitrary `text-[Npx]`. Below `md`, `index.css` enlarges the `--text-2xs`/`--text-xs`/`--text-sm` tokens (12/14/15px), so don't add per-component `max-md:text-*` bumps for readability. Inputs stay `text-base` below `md` (iOS zoom). Secondary text is `text-foreground/70`; nothing below 70% opacity except disabled controls. `text-muted-foreground` only inside `components/ui` primitives and placeholders.
 - Radius scale: `rounded-xl` overlays, `rounded-lg` containers, `rounded-md` controls and nested items, `rounded-sm` tiny inline bits, `rounded-full` pills. Never plain `rounded`.
 - Icons inside shadcn primitives: no `size-*` class (use the `size` prop or none). Standalone icons: `size-3`/`3.5`/`4`/`5`.
 - Motion: short `animate-in` for newly appeared content only, always with `motion-reduce:animate-none`. No route transitions.

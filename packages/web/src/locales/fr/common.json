@@ -110,7 +110,8 @@
     "cancel": "Annuler",
     "delete": "Supprimer",
     "save": "Enregistrer",
-    "create": "Créer"
+    "create": "Créer",
+    "search": "Rechercher"
   },
   "unsavedChanges": {
     "message": "Vous avez des modifications non enregistrées",
