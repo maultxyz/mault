@@ -2,12 +2,12 @@ import {
   SORTER_LINK_CLIENT_PATH,
   SORTER_LINK_CLOSE_IN_USE,
   SORTER_LINK_CLOSE_OFFLINE,
+  SORTER_LINK_OPEN_TIMEOUT_MS,
   SORTER_LINK_READY_KEY,
   SORTER_LINK_READY_VALUE,
 } from "@magic-vault/shared";
 import { getRequestAuth } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/config";
-import { SORTER_LINK_OPEN_TIMEOUT_MS } from "@/lib/constants/sorter";
 import type { ByteTransport, CloudOpenResult, SorterErrorCode } from "@/lib/interfaces/sorter";
 import { encodeUtf8, Utf8StreamDecoder } from "./bytes";
 

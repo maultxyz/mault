@@ -95,7 +95,6 @@ export const CALIBRATION_PREVIEW_DEBOUNCE_MS = 150;
 export const SERVO_TEST_GATE_HOLD_MS = 600;
 export const SERVO_TEST_PUSHER_HOLD_MS = 1000;
 export const FEEDER_PREVIEW_STOP_MS = 3000;
-export const PUSH_TEST_RESPONSE_TIMEOUT_MS = 12_000;
 
 export const CALIBRATION_SECTION_LINKS: CalibrationSectionLink[] = [
   { path: "/calibrate/servos", titleKey: "calibration.sections.servos.title", descriptionKey: "calibration.sections.servos.description", icon: "adjust" },

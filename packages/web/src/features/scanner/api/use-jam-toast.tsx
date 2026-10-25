@@ -1,14 +1,13 @@
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
 import {
-  JAM_CLEAR_DEVICE_TIMEOUT_MS,
   JAM_TOAST_ID_PREFIX,
 } from "@/lib/constants/scanner";
 import type { JamToastOptions } from "@/lib/interfaces/scanner";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { parseSerialReply } from "@magic-vault/shared";
+import { JAM_CLEAR_DEVICE_TIMEOUT_MS, parseSerialReply } from "@magic-vault/shared";
 
 export function useJamToast(onResume: () => void) {
   const { t } = useTranslation("scanner");

@@ -15,7 +15,6 @@ import {
   parseStoredModule,
 } from "@/features/calibration/lib/stored-calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { STORE_CONFIG_TIMEOUT_MS } from "@/lib/constants/timing";
 import type {
   CalibrationConflict,
   CalibrationDifference,
@@ -34,6 +33,7 @@ import {
   isFirmwareFeatureSupported,
   type ModuleConfig,
   parseSerialReply,
+  STORE_CONFIG_TIMEOUT_MS,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import {
