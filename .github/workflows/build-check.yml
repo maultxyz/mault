@@ -29,3 +29,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Test (server)
+        run: pnpm --filter @magic-vault/server test
