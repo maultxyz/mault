@@ -46,6 +46,8 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - User-scoped DB access goes through `authQuery(jwtClaims, tx => ...)`. Plain `db` only for intentional RLS bypass (sync, webhooks, bootstrap, stats). New user/org tables use `.enableRLS()` + `crudPolicy` and need grants in `db/bootstrap-local.sql`.
 - Platform staff routes use `requireRole(...PLATFORM_STAFF_ROLES)`; card sync, card database tools, plans, hardware and developer stay `requireRole("admin")`. Web gates with `useRole().isStaff`, `AdminGuard` and `adminOnly`.
 - A 403 signs the web client out, so owner/admin checks on pages members can reach are done inline.
+- Local auth (own-auth): `getOwnAuth()` stays lazy because `auth/local.ts` is imported in Neon mode too and `createOwnAuth()` throws in production without `OWN_AUTH_TOKEN_PEPPER`. `LocalEmailProvider.send()` must never throw (own-auth calls it for every invite and reset); invite links are captured per request through AsyncLocalStorage because own-auth only returns raw tokens when `exposeRawTokens` is set. Local API keys are personal (no `organisationId`), so they map onto a normal `{ sub }` session. The first account on a fresh local instance becomes platform admin. Password-reset responses stay generic (no account enumeration).
+- The active org lives in localStorage for both providers: own-auth has no active org, and Neon's cached session lags `organization.setActive`.
 
 ### Public API & webhooks
 
@@ -71,12 +73,13 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 ### Soft deletes
 
 - Hard-deleted only: `collection_cards`, unmatched scan photos, `cards`, `webhook_endpoints`, whole-org purges. Everything else sets `is_deleted`.
+- Audit tables have no foreign keys: their rows are permanent.
 - Every read, count, limit check and lookup filters `is_deleted = false` (including `with:` blocks and raw SQL); fix-up writes don't. Uniqueness uses partial indexes on live rows; upserts set `isDeleted: false`.
 - A new soft-deletable table needs the column, filtered reads, `DELETED_ITEM_TYPES` and `routes/admin/deleted-items-sources.ts`.
 
 ### Scanning
 
-- Swapping the embedding model is a breaking migration. Filtered embedding queries need `hnsw.iterative_scan`. Rebuild vector indexes through `rebuildGameVectorIndex` (plain `REINDEX` keeps old params); sync skips `volatileDataKeys` diffs to avoid HNSW churn.
+- Swapping the embedding model is a breaking migration. There is no table-wide HNSW index: each `game_key` (and lang) gets a partial index built by `ensureGameVectorIndex` (`CREATE INDEX CONCURRENTLY` on a dedicated client, fire-and-forget from the Games routes). Filtered embedding queries need `hnsw.iterative_scan`. Rebuild vector indexes through `rebuildGameVectorIndex` (plain `REINDEX` keeps old params); sync skips `volatileDataKeys` diffs to avoid HNSW churn.
 - `findCardMatches` prefers a regular printing over a same-art promo or list reprint (`rarePrintingSql`); an explicit preferred set wins.
 - An onnxruntime-web WASM `RuntimeError` is permanent for the page; don't retry.
 - Mobile Safari reloads tabs that pile up canvas memory: reuse scratch canvases, free per-scan ones with `releaseCanvases`, warp on the CPU (`warpRgba`), never WebGL.
@@ -87,6 +90,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Any correct, confirm or review accept sets `is_reviewed` and clears `low_confidence_match`; `is_corrected` stays separate.
 - Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only.
 - In-process server state (locks, leases, sorter links, rate limits) is per process.
+- Every connected sorter is a station (a tab) plus one idle standby. Background stations stay laid out (never `display: none`) so their scanners keep sorting.
 
 ### Firmware & serial
 
@@ -98,6 +102,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - ESP32-S3 builds pin `FlashMode=dio` and `PartitionScheme=min_spiffs`; `esp32-flasher.ts` writes the merged bin around NVS, never whole at 0.
 - Pusher directions are mirrored (`"left"` lands right); render through `BIN_SLOTS_PHYSICAL_ORDER`, never change routes to fix the display.
 - Serial controls require `useSerial().isReady`; hardware-editing pages use `SessionLock`; new commands go in `DEVICE_COMMANDS`.
+- `requestPort`/`requestDevice` must be the first await in the click handler: browsers only show the picker from the originating gesture.
 - Wi-Fi remote (`cloud_common.ino` plus `cloud_esp32.ino`/`cloud_wifis3.ino`): the relay is in process, so board and browser must reach the same server process; Wi-Fi is configured only over USB/BLE; never flash over `cloud`; never start Wi-Fi from `setup()`. The app gates setup on `useSerial().hasWifi`, not the board type.
 - Uno R4 WiFi: Wi-Fi and BLE share the co-processor, one per boot, and switching restarts the board. Its networking runs from `cloudPoll()`, with the modem timeout under the watchdog and no joins or TLS handshakes while a command runs.
 - Changing `BIN_HEIGHT_PRESETS` needs a data migration. The 3D model maps raw pulses (never percentages) to degrees; rerun the model script after changing the STEP file.
@@ -143,6 +148,10 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Settings sub-pages use `SETTINGS_PATHS`, `SettingsSection` panels and a `settings:sectionIntros` entry; moving a panel means updating `CALIBRATION_TOUR_STEPS`.
 - Mobile web screens use `MobilePageHeader`, the `MOBILE_*` classes and `MOBILE_NAV_SCROLL_PADDING_CLASS` on scroll areas. Keep popovers other than `Select` out of vaul drawers.
 - Card actions belong in `useCardActions`. The UI calls a `bin_sets` row a "preset", never a "set".
+- The app stream (`lib/app-stream.tsx`) is one shared EventSource: subscribe with `addEventListener`, never `onerror`/`onopen`, which would replace other consumers' handlers.
+- localStorage access can throw (Safari private mode, blocked storage), so always guard it.
+- Only the `common` i18n namespace loads at startup; routes load theirs through `withNamespaces()`.
+- Public marketing pages render outside the app's `QueryClientProvider`, so components there use their own client or read-only stand-ins (`demo-*`).
 
 ### UI style
 
