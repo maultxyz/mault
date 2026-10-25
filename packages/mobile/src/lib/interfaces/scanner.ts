@@ -166,6 +166,8 @@ export interface ScanSessionValue extends ScanSessionState {
   setForcedFoilType: (foilType: string | null) => void;
   forcedSetCode: string | null;
   setForcedSetCode: (setCode: string | null) => void;
+  fullBinNumbers: number[];
+  markFullBinsEmpty: () => Promise<boolean>;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";

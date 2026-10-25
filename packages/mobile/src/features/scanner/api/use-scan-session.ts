@@ -12,6 +12,7 @@ import {
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   getCatchAllBin,
+  getChaosBins,
   hasMaxCopiesBins,
   isFedEvent,
   isScanFillingLastRepackPack,
@@ -36,7 +37,7 @@ import { binRoutesQueryOptions, binSetsQueryOptions } from "@/features/devices/a
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { fetchBinContents, fetchBinCounts } from "@/features/scanner/api/bin-counts";
-import { markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
+import { emptyBins, markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
@@ -167,6 +168,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       if (reason !== "user") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
     },
     [setPhase],
+  );
+
+  const [fullBinNumbers, setFullBinNumbers] = useState<number[]>([]);
+  const pauseForFullBins = useCallback(
+    (binNumbers: number[]) => {
+      setFullBinNumbers(binNumbers);
+      pause("bin-full", binNumbers.join(", "));
+    },
+    [pause],
   );
 
   const [forcedFoilType, setForcedFoilTypeState] = useState<string | null>(null);
@@ -433,14 +443,14 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   );
 
   const handleSaveResult = useCallback(
-    (result: CardSaveResult) => {
+    (result: CardSaveResult, binNumber: number | undefined) => {
       if (result.success) return;
-      if (result.binLimitReached) pause("bin-full");
+      if (result.binLimitReached) pauseForFullBins(binNumber != null ? [binNumber] : []);
       else if (result.sorterLimitReached) pause("sorter-limit");
       else if (result.scanLimitReached) pause("scan-limit");
       else pause("collection-locked", result.message);
     },
-    [pause],
+    [pause, pauseForFullBins],
   );
 
   const handleMatched = useCallback(
@@ -473,7 +483,10 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       };
       const decision = resolveScanBin(ruleCard, routingContext);
       if (decision.action === "pause") {
-        pause(decision.reason === "all-packs-complete" ? "repack-complete" : "bin-full");
+        if (decision.reason === "all-packs-complete") pause("repack-complete");
+        else if (decision.reason === "all-chaos-bins-full") {
+          pauseForFullBins(getChaosBins(configs).map((bin) => bin.binNumber));
+        } else pauseForFullBins(decision.bin ? [decision.bin.binNumber] : []);
         return;
       }
       if (decision.autoAssignTarget) applyAutoAssign(configs, decision.autoAssignTarget);
@@ -527,7 +540,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
           deviceGuid: ctx.sorter.device?.guid,
           record: { ...record, diagnostics: outcome.matched?.diagnostics },
         })
-        .then(handleSaveResult)
+        .then((result) => handleSaveResult(result, record.binNumber))
         .catch(() => pause("save-failed"));
     },
     [
@@ -551,7 +564,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       if (!ctx.collection) return;
       const catchAll = getCatchAllBin(ctx.configs);
       if (catchAll && isBinFull(catchAll.binNumber)) {
-        pause("bin-full");
+        pauseForFullBins([catchAll.binNumber]);
         return;
       }
       if (catchAll) binCountsRef.current.set(catchAll.binNumber, countInBin(catchAll.binNumber) + 1);
@@ -585,10 +598,10 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
             embedding: outcome.noMatch?.embedding ?? undefined,
           },
         })
-        .then(handleSaveResult)
+        .then((result) => handleSaveResult(result, catchAll?.binNumber))
         .catch(() => pause("save-failed"));
     },
-    [continueAfterCard, countInBin, handleSaveResult, isBinFull, pause, pushFeed, sendToBin],
+    [continueAfterCard, countInBin, handleSaveResult, isBinFull, pause, pauseForFullBins, pushFeed, sendToBin],
   );
 
   const runCapture = useCallback(async () => {
@@ -717,6 +730,21 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
 
   const pauseByUser = useCallback(() => pause("user"), [pause]);
 
+  const markFullBinsEmpty = useCallback(async (): Promise<boolean> => {
+    const ctx = latestRef.current;
+    if (fullBinNumbers.length === 0) return false;
+    try {
+      await emptyBins(fullBinNumbers, ctx.collection?.game?.guid);
+    } catch {
+      return false;
+    }
+    for (const binNumber of fullBinNumbers) binCountsRef.current.set(binNumber, 0);
+    setFullBinNumbers([]);
+    await queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(ctx.orgId).queryKey });
+    start();
+    return true;
+  }, [fullBinNumbers, queryClient, start]);
+
   const scanOnce = useCallback(() => {
     if (runningRef.current) return;
     void runCapture();
@@ -787,5 +815,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     setForcedFoilType,
     forcedSetCode,
     setForcedSetCode,
+    fullBinNumbers,
+    markFullBinsEmpty,
   };
 }

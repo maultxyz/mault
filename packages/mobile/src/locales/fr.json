@@ -471,7 +471,7 @@
       },
       "bin-full": {
         "title": "Bac plein",
-        "description": "Vide le bac dans l'application web, puis touche Reprendre."
+        "description": "Retire les cartes du bac {{detail}}, marque-le comme vide, puis le scan reprend."
       },
       "scan-limit": {
         "title": "Limite de scans quotidienne atteinte",
@@ -593,6 +593,13 @@
       "set": "Extension",
       "anySet": "N'importe quelle extension",
       "searchSets": "Rechercher une extension"
+    },
+    "emptyBin": {
+      "action": "Marquer comme vide",
+      "confirmTitle": "Marquer le bac {{bins}} comme vide ?",
+      "confirmDescription": "Fais-le seulement après avoir retiré les cartes. Le compteur du bac repart de zéro.",
+      "confirm": "Marquer comme vide",
+      "failed": "Impossible de marquer le bac comme vide. Vérifie ta connexion et réessaie."
     }
   },
   "home": {
