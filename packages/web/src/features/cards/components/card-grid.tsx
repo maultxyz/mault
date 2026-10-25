@@ -13,6 +13,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
+import {
+  useCardGridDensity,
+  useCardViewPreferences,
+} from "@/features/cards/api/use-card-view-preferences";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
@@ -50,18 +54,10 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   CARD_GRID_CLASS,
-  CARD_GRID_DENSITIES,
   CARD_GRID_DENSITY_CLASS,
 } from "@/lib/constants/card-grid";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
-import {
-  CARD_GROUP_DUPLICATES_STORAGE_KEY,
-  CARD_GRID_DENSITY_STORAGE_KEY,
-  CARD_VIEW_MODE_STORAGE_KEY,
-} from "@/lib/constants/storage-keys";
 import type {
-  CardGridDensity,
-  CardViewMode,
   OpenScanOptions,
   SelectToggleOptions,
 } from "@/lib/interfaces/cards";
@@ -164,58 +160,13 @@ export function CardGrid() {
     [navigate, readOnly, viewedCollection],
   );
   const [page, setPage] = useState(0);
-  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
-    try {
-      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
-        ? "list"
-        : "grid";
-    } catch {
-      return "grid";
-    }
-  });
-
-  const [density, setDensity] = useState<CardGridDensity>(() => {
-    try {
-      const stored = localStorage.getItem(CARD_GRID_DENSITY_STORAGE_KEY);
-      return CARD_GRID_DENSITIES.includes(stored as CardGridDensity)
-        ? (stored as CardGridDensity)
-        : "comfortable";
-    } catch {
-      return "comfortable";
-    }
-  });
-
-  const handleDensityChange = useCallback((next: CardGridDensity) => {
-    setDensity(next);
-    try {
-      localStorage.setItem(CARD_GRID_DENSITY_STORAGE_KEY, next);
-    } catch {}
-  }, []);
-
-  const handleViewModeChange = useCallback((mode: CardViewMode) => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
-    } catch {}
-  }, []);
-
-  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-
-  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
-    setGroupDuplicates(grouped);
-    try {
-      localStorage.setItem(
-        CARD_GROUP_DUPLICATES_STORAGE_KEY,
-        grouped ? "1" : "0",
-      );
-    } catch {}
-  }, []);
+  const {
+    viewMode,
+    handleViewModeChange,
+    groupDuplicates,
+    handleGroupDuplicatesChange,
+  } = useCardViewPreferences();
+  const [density, handleDensityChange] = useCardGridDensity();
 
   const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
   const cardsQuery = useMemo(

@@ -13,6 +13,7 @@ import {
   buildBinLevelLayout,
   summarizeBinLevels,
 } from "@/features/scanner/lib/bin-levels";
+import { usePersistedFlag } from "@/hooks/use-persisted-state";
 import { BIN_LEVELS_COLLAPSED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
@@ -23,14 +24,6 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function readCollapsed(): boolean {
-  try {
-    return localStorage.getItem(BIN_LEVELS_COLLAPSED_STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export function BinStatusMeter() {
   const { t } = useTranslation("scanner");
   const levels = useBinFillLevels();
@@ -40,7 +33,9 @@ export function BinStatusMeter() {
   const { lastRoutedBin } = useScannedCards();
   const [confirmBin, setConfirmBin] = useState<number | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
-  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [collapsed, setCollapsed] = usePersistedFlag(
+    BIN_LEVELS_COLLAPSED_STORAGE_KEY,
+  );
   const { isLocked: storageLocked } = useStorageAccess();
   const catchAllBin = configs.find((c) => c.isCatchAll)?.binNumber;
   const disabledBins = new Set(
@@ -65,13 +60,7 @@ export function BinStatusMeter() {
 
   if (levels.length === 0) return null;
 
-  const toggleCollapsed = () => {
-    const next = !collapsed;
-    setCollapsed(next);
-    try {
-      localStorage.setItem(BIN_LEVELS_COLLAPSED_STORAGE_KEY, next ? "1" : "0");
-    } catch {}
-  };
+  const toggleCollapsed = () => setCollapsed(!collapsed);
 
   const renderCell = (
     binNumber: number | undefined,

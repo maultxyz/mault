@@ -52,6 +52,7 @@ import {
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { usePersistedFlag } from "@/hooks/use-persisted-state";
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useScanDraft } from "@/features/cards/api/use-scan-draft";
@@ -100,34 +101,11 @@ export function CardDetailPanel({
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
-  const [showOcrRegions, setShowOcrRegionsState] = useState(() => {
-    try {
-      return localStorage.getItem(CARD_OCR_REGIONS_STORAGE_KEY) === "true";
-    } catch {
-      return false;
-    }
-  });
-  const setShowOcrRegions = (checked: boolean) => {
-    setShowOcrRegionsState(checked);
-    try {
-      localStorage.setItem(CARD_OCR_REGIONS_STORAGE_KEY, String(checked));
-    } catch {}
-  };
-  const [showTechnicalDetails, setShowTechnicalDetails] = useState(() => {
-    try {
-      return (
-        localStorage.getItem(CARD_TECHNICAL_DETAILS_STORAGE_KEY) === "true"
-      );
-    } catch {
-      return false;
-    }
-  });
-  const handleTechnicalDetailsChange = (checked: boolean) => {
-    setShowTechnicalDetails(checked);
-    try {
-      localStorage.setItem(CARD_TECHNICAL_DETAILS_STORAGE_KEY, String(checked));
-    } catch {}
-  };
+  const [showOcrRegions, setShowOcrRegions] = usePersistedFlag(
+    CARD_OCR_REGIONS_STORAGE_KEY,
+  );
+  const [showTechnicalDetails, handleTechnicalDetailsChange] =
+    usePersistedFlag(CARD_TECHNICAL_DETAILS_STORAGE_KEY);
   const [viewerOpen, setViewerOpen] = useState(false);
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
