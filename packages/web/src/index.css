@@ -186,6 +186,20 @@ code {
   --toast-error-text: oklch(0.808 0.114 19.571);
 }
 
+@theme {
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 0.875rem;
+}
+
+@media (width < 48rem) {
+  :root {
+    --text-2xs: 0.75rem;
+    --text-2xs--line-height: 1rem;
+    --text-xs: 0.875rem;
+    --text-sm: 0.9375rem;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -239,8 +253,6 @@ code {
   --color-rare: var(--r);
   --color-lr: var(--lr);
   --color-p: var(--p);
-  --text-2xs: 0.625rem;
-  --text-2xs--line-height: 0.875rem;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

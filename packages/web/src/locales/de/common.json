@@ -110,7 +110,8 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "save": "Speichern",
-    "create": "Erstellen"
+    "create": "Erstellen",
+    "search": "Suchen"
   },
   "unsavedChanges": {
     "message": "Du hast ungespeicherte Änderungen",
