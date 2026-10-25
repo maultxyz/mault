@@ -50,7 +50,7 @@ function incrementCounters(delta: {
 }): void {
   const syncState = getState();
   state = {
-    ...s,
+    ...syncState,
     processed: syncState.processed + (delta.processed ?? 0),
     skipped: syncState.skipped + (delta.skipped ?? 0),
     errors: syncState.errors + (delta.errors ?? 0),
