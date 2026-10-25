@@ -1,9 +1,6 @@
 import {
   INVENTORY_HISTORY_DAYS,
   PRICE_SOURCE_FIELDS,
-  STATS_DEFAULT_RANGE,
-  STATS_RANGES,
-  type StatsRange,
   type StatsReport,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
@@ -18,10 +15,7 @@ import { loadOrgPricing } from "../../lib/price-source";
 import { loadStatsReport } from "../../lib/stats-report";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { databaseErrorResponse } from "../../lib/database-error-response";
-
-function parseRange(value: string | undefined): StatsRange {
-  return STATS_RANGES.find((range) => range === value) ?? STATS_DEFAULT_RANGE;
-}
+import { parseStatsRange } from "../../lib/stats-range";
 
 function hideCosts(report: StatsReport): StatsReport {
   const hidden = { costBasis: null, costedCount: null, costedValue: null };
@@ -45,7 +39,7 @@ const router = new Hono<AppEnv>().get(
         const report = await loadStatsReport(
           tx,
           orgId,
-          parseRange(c.req.query("range")),
+          parseStatsRange(c.req.query("range")),
           c.req.query("collection") || null,
         );
         if (!report) return null;
