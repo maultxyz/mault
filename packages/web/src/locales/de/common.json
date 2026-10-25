@@ -170,6 +170,7 @@
     "keys": {
       "space": "Leertaste",
       "shift": "Umschalt",
+      "ctrl": "Strg",
       "left": "←",
       "right": "→",
       "escape": "Esc",
@@ -188,6 +189,7 @@
       "toggleSidebar": "Seitenleiste ein- oder ausklappen",
       "focusSearch": "Suche fokussieren",
       "dismissToasts": "Alle Benachrichtigungen schließen",
+      "save": "Änderungen speichern",
       "clearSelection": "Auswahl aufheben",
       "goScanner": "Zum Sortieren",
       "goCollections": "Zu den Sammlungen",

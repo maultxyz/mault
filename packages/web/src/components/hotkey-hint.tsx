@@ -1,5 +1,10 @@
 import { Kbd } from "@/components/ui/kbd";
-import { HOTKEY_KEY_LABEL_KEYS, HOTKEYS } from "@/lib/constants/hotkeys";
+import {
+  HOTKEY_APPLE_MOD_LABEL,
+  HOTKEY_KEY_LABEL_KEYS,
+  HOTKEYS,
+} from "@/lib/constants/hotkeys";
+import { isApplePlatform } from "@/lib/hotkeys";
 import type { HotkeyCombo, HotkeyHintProps } from "@/lib/interfaces/hotkeys";
 import { cn } from "@/lib/utils";
 import { Fragment } from "react";
@@ -10,7 +15,12 @@ function useComboLabel() {
   return (combo: HotkeyCombo) => {
     const labelKey = HOTKEY_KEY_LABEL_KEYS[combo.key];
     const key = labelKey ? t(labelKey) : combo.key.toUpperCase();
-    return combo.shift ? `${t("hotkeys.keys.shift")} ${key}` : key;
+    const withShift = combo.shift ? `${t("hotkeys.keys.shift")} ${key}` : key;
+    if (!combo.mod) return withShift;
+    const mod = isApplePlatform()
+      ? HOTKEY_APPLE_MOD_LABEL
+      : t("hotkeys.keys.ctrl");
+    return `${mod} ${withShift}`;
   };
 }
 
