@@ -14,6 +14,7 @@ import {
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 
 const ModuleCountConfigContext =
   createContext<ModuleCountConfigContextValue | null>(null);
@@ -61,7 +62,7 @@ export function ModuleCountConfigProvider({
       queryClient.invalidateQueries({ queryKey: ["modules"] });
       queryClient.invalidateQueries({ queryKey: ["bin-routes"] });
       queryClient.invalidateQueries({ queryKey: ["bin-heights"] });
-      queryClient.invalidateQueries({ queryKey: ["bins"] });
+      queryClient.invalidateQueries({ queryKey: binsQueryOptions.queryKey });
       setPending(null);
     } finally {
       setIsSaving(false);

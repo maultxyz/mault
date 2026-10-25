@@ -125,12 +125,12 @@ export function CollectionsProvider({
             gameGuid,
           );
           if (binsResult.success && binsResult.data) {
-            queryClient.setQueryData(["bins"], binsResult.data);
+            queryClient.setQueryData(binsQueryOptions.queryKey, binsResult.data);
           }
         } else {
           const activateResult = await activateSetFn(sameGameSet.guid);
           if (activateResult.success && activateResult.data) {
-            queryClient.setQueryData(["bins"], activateResult.data);
+            queryClient.setQueryData(binsQueryOptions.queryKey, activateResult.data);
           }
         }
       }
