@@ -86,7 +86,14 @@ export function IntakeLotDetail({
   const [removeTarget, setRemoveTarget] = useState<string[] | null>(null);
 
   const startReview = async () => {
-    const first = await fetchNextUnreviewedIntakeCard(guid).catch(() => null);
+    let first: string | null;
+    try {
+      first = await fetchNextUnreviewedIntakeCard(guid);
+    } catch (error) {
+      console.error("Couldn't load the next card to review", error);
+      toast.error(t("errors.generic"));
+      return;
+    }
     if (first) onOpenCard(first, true);
     else toast.info(t("intake.review.nothingLeft"));
   };
