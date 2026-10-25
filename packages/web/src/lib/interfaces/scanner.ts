@@ -1006,8 +1006,6 @@ export interface MobilePresetSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export type CloudTransportFailure = "offline" | "inUse" | "failed";
-
 export interface OutlineAnimator {
   setTarget: (contour: CardContour | null) => void;
   cancel: () => void;
