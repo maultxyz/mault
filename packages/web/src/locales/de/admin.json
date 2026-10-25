@@ -168,6 +168,8 @@
     "noOrgs": "Keine Organisationen",
     "adminBadge": "Admin",
     "cannotImpersonateAdmin": "Ein anderer Admin kann nicht imitiert werden",
+    "moderatorBadge": "Moderator",
+    "cannotImpersonateModerator": "Ein anderer Moderator kann nicht imitiert werden",
     "impersonateButton": "Anmelden als",
     "viewAuditLog": "Imitations-Protokoll anzeigen",
     "confirmDialog": {

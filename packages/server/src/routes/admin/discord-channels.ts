@@ -1,4 +1,5 @@
 import {
+  PLATFORM_STAFF_ROLES,
   PLATFORM_DISCORD_CHANNEL_KEYS,
   type AdminPlatformDiscordChannelsResponse,
   type PlatformDiscordChannelsSettings,
@@ -40,7 +41,7 @@ function parseSettings(body: unknown): PlatformDiscordChannelsSettings | null {
 }
 
 export const discordChannelsRoute = new Hono<AppEnv>()
-  .get("/discord-channels", requireAuth, requireRole("admin"), async (c) => {
+  .get("/discord-channels", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     try {
       return c.json({
         success: true,
@@ -54,7 +55,7 @@ export const discordChannelsRoute = new Hono<AppEnv>()
   .get(
     "/discord-channels/guilds/:guildId",
     requireAuth,
-    requireRole("admin"),
+    requireRole(...PLATFORM_STAFF_ROLES),
     async (c) => {
       const { reachable, guild } = await fetchDiscordGuild(
         c.req.param("guildId"),
@@ -74,7 +75,7 @@ export const discordChannelsRoute = new Hono<AppEnv>()
       return c.json({ success: true, data: guild });
     },
   )
-  .put("/discord-channels", requireAuth, requireRole("admin"), async (c) => {
+  .put("/discord-channels", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const settings = parseSettings(await c.req.json().catch(() => null));
     if (!settings) {
       return c.json(

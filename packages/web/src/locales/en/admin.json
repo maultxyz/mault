@@ -168,6 +168,8 @@
     "noOrgs": "No organizations",
     "adminBadge": "Admin",
     "cannotImpersonateAdmin": "Can't impersonate another admin",
+    "moderatorBadge": "Moderator",
+    "cannotImpersonateModerator": "Can't impersonate another moderator",
     "impersonateButton": "Impersonate",
     "viewAuditLog": "View impersonation audit log",
     "confirmDialog": {
