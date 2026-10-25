@@ -1,5 +1,6 @@
 import type { AdminUserSummary, OrgRole } from "@magic-vault/shared";
 import { eq, sql } from "drizzle-orm";
+import { isAuthError } from "own-auth";
 import { db } from "../db";
 import { platformUserRoles } from "../db/schema";
 import { getOwnAuth } from "./own-auth-instance";
@@ -42,8 +43,9 @@ export const localAuthProvider: AuthProvider = {
       });
       if (member.status !== "active") return null;
       return { role: member.role as OrgRole };
-    } catch {
-      return null;
+    } catch (error) {
+      if (isAuthError(error)) return null;
+      throw error;
     }
   },
 
