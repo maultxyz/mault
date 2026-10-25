@@ -57,10 +57,9 @@ export function useCardCorrection(guid: string): CardCorrection {
       binRoom: () => Number.POSITIVE_INFINITY,
       createRuleId: () => "",
     };
-    const target = stays
-      ? currentBin
-      : (resolveScanBin(ruleCard, routingContext).pickListMatch?.bin ?? matchScanBin(ruleCard, routingContext))
-          ?.binNumber;
+    const decision = resolveScanBin(ruleCard, routingContext);
+    const pickListBin = decision.action === "route" ? decision.pickListMatch?.bin : undefined;
+    const target = stays ? currentBin : (pickListBin ?? matchScanBin(ruleCard, routingContext))?.binNumber;
 
     if (target == null) {
       Alert.alert(t("binCorrection.noBin.title", { name: card.name }), t("binCorrection.noBin.description"), [
