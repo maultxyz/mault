@@ -55,7 +55,7 @@ import {
   removeUnmatchedCard as removeUnmatchedCardApi,
   setCollectionCardBin,
   setCollectionCardsCondition,
-  setCollectionCardFoilType,
+  setCollectionCardsFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -1281,12 +1281,14 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
-  const setCardFoilType = useCallback(
-    (scanId: string, foilType: string | null) => {
+  const setCardsFoilType = useCallback(
+    (scanIds: string[], foilType: string | null) => {
+      if (scanIds.length === 0) return;
       const collection = activeCollectionRef.current;
       const isFoil = foilType != null;
+      const scanIdSet = new Set(scanIds);
       binContentsRef.current = binContentsRef.current.map((entry) =>
-        entry.scanId === scanId
+        scanIdSet.has(entry.scanId)
           ? {
               ...entry,
               isFoil,
@@ -1299,16 +1301,22 @@ export function ScannedCardsProvider({
       updateInCardPages(
         queryClient,
         collection.guid,
-        new Set([scanId]),
+        scanIdSet,
         (entry) => ({ ...entry, isFoil, foilType: foilType ?? undefined }),
       );
-      setCollectionCardFoilType(collection.guid, scanId, isFoil, foilType)
+      setCollectionCardsFoilType(collection.guid, scanIds, foilType)
         .catch((err) => console.error("Failed to update foil status:", err))
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
     [queryClient],
+  );
+
+  const setCardFoilType = useCallback(
+    (scanId: string, foilType: string | null) =>
+      setCardsFoilType([scanId], foilType),
+    [setCardsFoilType],
   );
 
   const setCardsCondition = useCallback(
@@ -1410,6 +1418,7 @@ export function ScannedCardsProvider({
         confirmCard,
         markCardReviewed,
         setCardFoilType,
+        setCardsFoilType,
         setCardCondition,
         setCardsCondition,
         markDownloaded,

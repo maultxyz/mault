@@ -10,7 +10,7 @@ import { copyWithToast } from "@/lib/clipboard";
 
 export function useCardActions(entry: GroupedScannedCard) {
   const { t } = useTranslation("cards");
-  const { confirmCard, setCardFoilType, setCardsCondition, removeCards } =
+  const { confirmCard, setCardsFoilType, setCardsCondition, removeCards } =
     useScannedCards();
   const foilOptions = useFoilOptions();
 
@@ -24,9 +24,8 @@ export function useCardActions(entry: GroupedScannedCard) {
     confirm: () => {
       for (const scanId of entry.scanIds) confirmCard(scanId);
     },
-    setFoil: (foilType: string | null) => {
-      for (const scanId of entry.scanIds) setCardFoilType(scanId, foilType);
-    },
+    setFoil: (foilType: string | null) =>
+      setCardsFoilType(entry.scanIds, foilType),
     setCondition: (condition: CardCondition) =>
       setCardsCondition(entry.scanIds, condition),
     copyName: async () => {

@@ -237,6 +237,17 @@ export async function setCollectionCardsCondition(
   });
 }
 
+export async function setCollectionCardsFoilType(
+  guid: string,
+  scanIds: string[],
+  foilType: string | null,
+): Promise<Result<null>> {
+  return apiPost<Result<null>>(`/api/collections/${guid}/cards/foil`, {
+    scanIds,
+    foilType,
+  });
+}
+
 export async function clearCollectionCards(guid: string): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/cards`);
 }

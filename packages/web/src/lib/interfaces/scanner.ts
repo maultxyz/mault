@@ -155,6 +155,7 @@ export interface ScannedCardsContextValue {
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
+  setCardsFoilType: (scanIds: string[], foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
   markDownloaded: (scanIds: string[]) => void;

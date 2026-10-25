@@ -18,6 +18,7 @@ import {
   useCardViewPreferences,
 } from "@/features/cards/api/use-card-view-preferences";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
+import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
@@ -69,6 +70,7 @@ import {
   IconDownload,
   IconPlus,
   IconRosette,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { CARD_CONDITIONS, computeBinCount } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -99,6 +101,7 @@ export function CardGrid() {
     removeCards,
     clearCards,
     setCardsCondition,
+    setCardsFoilType,
     elapsedMs,
     sessionScanCount,
   } = useScannedCards();
@@ -122,6 +125,7 @@ export function CardGrid() {
     [viewedCollection?.game?.fieldDefinitions],
   );
   const moduleCount = useModuleCount();
+  const foilOptions = useFoilOptions();
   const {
     searchQuery,
     setSearchQuery,
@@ -826,6 +830,39 @@ export function CardGrid() {
             </DropdownMenu>
             {!readOnly && (
               <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                      />
+                    }
+                  >
+                    <IconSparkles />
+                    {t("cardContextMenu.foil")}
+                    <IconChevronDown />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" side="top">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        setCardsFoilType(Array.from(selectedIds), null)
+                      }
+                    >
+                      {t("cardContextMenu.nonFoil")}
+                    </DropdownMenuItem>
+                    {foilOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option}
+                        onClick={() =>
+                          setCardsFoilType(Array.from(selectedIds), option)
+                        }
+                      >
+                        {option}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
