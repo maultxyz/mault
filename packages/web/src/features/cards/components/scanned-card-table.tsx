@@ -18,7 +18,6 @@ import { BinLocationDiagram } from "@/features/bins/components/bin-location-diag
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
 import { useShiftClick } from "@/hooks/use-shift-click";
-import { RARITY_LABELS } from "@/lib/constants/rarity";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { ScannedCardTableProps } from "@/lib/interfaces/cards";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
@@ -28,6 +27,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { raritySwatch } from "@/lib/card-swatches";
+import { rarityLabel } from "@magic-vault/shared";
 
 export function ScannedCardTable({
   rows,
@@ -91,9 +91,7 @@ export function ScannedCardTable({
           const matchPercent =
             card.distance != null ? getMatchPercent(card) : 0;
           const displayPrice = priceOf(card, row.isFoil, row.condition);
-          const rarityLabel =
-            RARITY_LABELS[card.rarity] ??
-            card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1);
+          const rarityText = rarityLabel(card.rarity);
 
           return (
             <TableRow
@@ -179,7 +177,7 @@ export function ScannedCardTable({
                     className="size-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: raritySwatch(card.rarity).bg }}
                   />
-                  <span className="text-foreground/70">{rarityLabel}</span>
+                  <span className="text-foreground/70">{rarityText}</span>
                 </div>
               </TableCell>
               {showQuantity && (
