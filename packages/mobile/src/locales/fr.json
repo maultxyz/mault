@@ -862,7 +862,9 @@
       "slotsLabel": "Emplacements",
       "slotCountLabel": "Nombre",
       "removeSlot": "Supprimer l'emplacement",
-      "addSlot": "Ajouter un emplacement"
+      "addSlot": "Ajouter un emplacement",
+      "multiplePacksLabel": "Plusieurs paquets par bac",
+      "multiplePacksDescription": "Quand un bac termine un paquet, il en commence un nouveau par-dessus et continue jusqu'à ce que le bac soit plein. Un bac ne commence un nouveau paquet que s'il a la place pour le paquet entier, donc aucun paquet n'est coupé."
     },
     "alphabet": {
       "needBins": "Le tri alphabétique nécessite au moins un bac en plus du bac fourre-tout.",

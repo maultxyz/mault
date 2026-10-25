@@ -862,7 +862,9 @@
       "slotsLabel": "Slots",
       "slotCountLabel": "Count",
       "removeSlot": "Remove slot",
-      "addSlot": "Add slot"
+      "addSlot": "Add slot",
+      "multiplePacksLabel": "Multiple packs per bin",
+      "multiplePacksDescription": "When a bin finishes a pack, it starts a new one on top of it and keeps going until the bin is full. A bin only starts a new pack if it has room for the whole pack, so packs are never cut short."
     },
     "alphabet": {
       "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
