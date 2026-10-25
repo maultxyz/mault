@@ -13,6 +13,7 @@ import {
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { useVerifyJam } from "@/features/scanner/api/use-verify-jam";
@@ -125,6 +126,9 @@ export function CardScanner({
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [handScan, setHandScan] = useHandScan();
   const handScanActive = handScan && !isConnected;
+  const { isRemoveModeActive, queueScannedCard, handleRemovalNoMatch } =
+    useScanRemoval();
+  const visibleLastRoutedBin = isRemoveModeActive ? null : lastRoutedBin;
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const { recordScanOutcome } = useUnmatchedRateToast();
@@ -157,6 +161,11 @@ export function CardScanner({
     isAtScanLimit,
   } = useCardScanner({
     onSearchResults: (cards, capturedImageUrl, vectorizedOn, details) => {
+      if (isRemoveModeActive) {
+        if (cards.length > 0) queueScannedCard(cards[0], cards.slice(1));
+        else handleRemovalNoMatch();
+        return;
+      }
       if (cards.length > 0) {
         recordScanOutcome(true);
         addCard(
@@ -169,11 +178,16 @@ export function CardScanner({
       }
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
+      if (isRemoveModeActive) {
+        handleRemovalNoMatch();
+        return;
+      }
       recordScanOutcome(false);
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
     rotated: !isMobile,
     autoCapture: handScanActive,
+    skipDuplicateCheck: isRemoveModeActive,
   });
   const isSideControls = controlsPosition === "side";
 
@@ -631,7 +645,7 @@ export function CardScanner({
           onResetDevice: () => void handleResetToNeutral(),
           handScan,
           handScanActive,
-          lastRoutedBin,
+          lastRoutedBin: visibleLastRoutedBin,
           onHandScanChange: setHandScan,
         })}
         {dialogs}
@@ -711,7 +725,7 @@ export function CardScanner({
           onConnectScannerCloud={connectCloud}
           bluetoothSupported={bluetoothSupported}
           handScanActive={handScanActive}
-          lastRoutedBin={lastRoutedBin}
+          lastRoutedBin={visibleLastRoutedBin}
           onEnableHandScan={() => setHandScan(true)}
         />
         <ScannerMenu

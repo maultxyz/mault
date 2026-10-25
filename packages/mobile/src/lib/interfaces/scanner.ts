@@ -1,5 +1,6 @@
 import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
 import type {
+  BinConfig,
   CardContour,
   CardSearchResult,
   MatchedScanDetails,
@@ -8,6 +9,7 @@ import type {
   ScanAttemptResult,
   ScanRegion,
   ScannedCard,
+  ScanRemovalEntry,
   SerialCommand,
   SerialEventReport,
   UnmatchedCard,
@@ -168,6 +170,50 @@ export interface ScanSessionValue extends ScanSessionState {
   setForcedSetCode: (setCode: string | null) => void;
   fullBinNumbers: number[];
   markFullBinsEmpty: () => Promise<boolean>;
+  binConfigs: BinConfig[];
+  removal: ScanRemovalValue;
+}
+
+export type ScanRemovalNoticeKind = "no-match" | "lookup-failed" | "removed";
+
+export type ScanMode = "add" | "remove";
+
+export interface ScanRemovalNotice {
+  noticeId: string;
+  kind: ScanRemovalNoticeKind;
+  cardName?: string;
+  removedCount?: number;
+}
+
+export interface ScanRemovalInputs {
+  collectionGuid: string | null;
+  binConfigs: BinConfig[];
+}
+
+export interface ScanRemovalValue {
+  isEnabled: boolean;
+  setIsEnabled: (value: boolean) => void;
+  isActive: boolean;
+  removalBinNumber: number | null;
+  setRemovalBinNumber: (binNumber: number) => void;
+  entries: ScanRemovalEntry[];
+  queueMatchedCardForRemoval: (
+    matchedCard: PlayingCardWithDistance,
+    alternativeMatches: PlayingCardWithDistance[],
+  ) => Promise<boolean>;
+  showNoMatchNotice: () => void;
+  notice: ScanRemovalNotice | null;
+  selectCopyForEntry: (entryId: string, scanId: string) => void;
+  dropEntry: (entryId: string) => void;
+  isRemovingQueuedCopies: boolean;
+  removeQueuedCopies: () => Promise<void>;
+}
+
+export interface ScanRemovalQueueSheetProps {
+  visible: boolean;
+  removal: ScanRemovalValue;
+  collectionName: string;
+  onClose: () => void;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";

@@ -39,6 +39,7 @@ import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { fetchBinContents, fetchBinCounts } from "@/features/scanner/api/bin-counts";
 import { emptyBins, markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
 import { identifyCard } from "@/features/scanner/lib/identify";
@@ -110,6 +111,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     ? computeBinCount(moduleCount)
     : Math.max(0, ...(set?.bins ?? []).map((bin) => bin.binNumber));
   const configs = useMemo(() => (binCount ? configsFromSet(set, binCount) : []), [set, binCount]);
+  const removal = useScanRemoval({ collectionGuid: collection?.guid ?? null, binConfigs: configs });
   const fieldDefinitions = useMemo(
     () =>
       withScanRuleFields(collection?.game?.fieldDefinitions ?? [], collection?.game?.foilTypes ?? []),
@@ -149,6 +151,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     autoFeed,
     allowDuplicates,
     handScanActive,
+    removal,
   };
   const latestRef = useRef(latest);
   latestRef.current = latest;
@@ -632,13 +635,30 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         },
         device?.scanRegion ?? DEFAULT_SCAN_REGION,
       );
-      if (outcome.card) handleMatched(outcome);
+      if (latestRef.current.removal.isActive) {
+        const catchAllBinNumber = getCatchAllBin(ctx.configs)?.binNumber ?? null;
+        let removalTargetBin = catchAllBinNumber;
+        if (outcome.card) {
+          const wasQueued = await latestRef.current.removal.queueMatchedCardForRemoval(
+            outcome.card,
+            outcome.alternativeMatches,
+          );
+          if (wasQueued) removalTargetBin = latestRef.current.removal.removalBinNumber;
+        } else {
+          latestRef.current.removal.showNoMatchNotice();
+        }
+        if (latestRef.current.sorter.isReady && removalTargetBin != null) {
+          sendToBin(removalTargetBin, outcome.card?.name);
+        } else {
+          continueAfterCard();
+        }
+      } else if (outcome.card) handleMatched(outcome);
       else handleUnmatched(outcome);
       if (!runningRef.current && phaseRef.current !== "paused") setPhase("ready");
     } catch (err) {
       pause("route-failed", err instanceof Error ? err.message : String(err));
     }
-  }, [handleMatched, handleUnmatched, pause, setPhase]);
+  }, [continueAfterCard, handleMatched, handleUnmatched, pause, sendToBin, setPhase]);
 
   const handleFeedResult = useCallback(
     (reply: SerialReply | null, command: FeedCommand = "auto-feed") => {
@@ -817,5 +837,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     setForcedSetCode,
     fullBinNumbers,
     markFullBinsEmpty,
+    binConfigs: configs,
+    removal,
   };
 }

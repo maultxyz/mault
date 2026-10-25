@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import type { ScannerPauseReason, ScannerPhase } from "@/lib/interfaces/scanner";
+import type { ScanMode, ScannerPauseReason, ScannerPhase, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
 
 export const BIN_DATA_RETRY_MS = 5000;
 export const CAPTURE_TARGET_RESOLUTION = { width: 1080, height: 1920 } as const;
@@ -43,3 +43,12 @@ export const LIVE_DETECTION_PAUSED_PHASES: ScannerPhase[] = ["loading-models", "
 export const NOT_FOIL_OPTION = "none";
 export const ANY_SET_OPTION = "any";
 export const CARD_SET_PICKER_LIMIT = 100;
+
+export const SCAN_REMOVAL_NOTICE_DURATION_MS = 3000;
+export const SCAN_MODES: readonly ScanMode[] = ["add", "remove"];
+
+export const SCAN_REMOVAL_NOTICE_TONES = {
+  "no-match": "info",
+  "lookup-failed": "destructive",
+  removed: "success",
+} as const satisfies Record<ScanRemovalNoticeKind, string>;

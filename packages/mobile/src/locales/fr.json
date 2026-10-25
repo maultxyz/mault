@@ -600,6 +600,36 @@
       "confirmDescription": "Fais-le seulement après avoir retiré les cartes. Le compteur du bac repart de zéro.",
       "confirm": "Marquer comme vide",
       "failed": "Impossible de marquer le bac comme vide. Vérifie ta connexion et réessaie."
+    },
+    "removal": {
+      "title": "Retrait de {{collection}}",
+      "queued_one": "{{count}} en file",
+      "queued_other": "{{count}} en file",
+      "chip_one": "Retrait de {{collection}} : {{count}} en file",
+      "chip_other": "Retrait de {{collection}} : {{count}} en file",
+      "noCopyLeft": "Plus aucun exemplaire dans cette collection",
+      "removeAction_one": "Retirer 1 carte",
+      "removeAction_other": "Retirer {{count}} cartes",
+      "confirmDescription": "Retirer ces cartes de {{collection}} ? Cette action est irréversible.",
+      "removeFailed": "Impossible de retirer les cartes. Vérifie ta connexion et réessaie.",
+      "drop": "Enlever",
+      "changeCopy": "Changer d'exemplaire",
+      "empty": "La file de retrait est vide. Scanne une carte pour l'ajouter.",
+      "unsorted": "Non rangée",
+      "notice": {
+        "no-match": "Aucune correspondance, réessaie",
+        "lookup-failed": "Impossible de trouver les exemplaires de {{name}}. Vérifie ta connexion et scanne-la à nouveau.",
+        "removed_one": "1 carte retirée",
+        "removed_other": "{{count}} cartes retirées"
+      },
+      "modes": {
+        "add": "Ajouter des cartes",
+        "remove": "Retirer des cartes"
+      },
+      "binChip": "Les cartes retirées vont dans {{bin}}",
+      "binPickerTitle": "Les cartes retirées vont dans",
+      "binOption": "Bac {{number}}",
+      "catchAllBinOption": "Bac {{number}} (bac fourre-tout)"
     }
   },
   "home": {

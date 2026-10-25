@@ -14,6 +14,7 @@ import { collectionCardImageRoute } from "./cards-image";
 import { editCollectionCardRoute } from "./cards-edit";
 import { exportCollectionCardsRoute } from "./cards-export";
 import { collectionCardIdsRoute } from "./cards-ids";
+import { collectionCardCopiesRoute } from "./cards-copies";
 import { listCollectionCardsRoute } from "./cards-list";
 import { markCollectionCardsDownloadedRoute } from "./cards-mark-downloaded";
 import { setCollectionCardsConditionRoute } from "./cards-set-condition";
@@ -48,6 +49,7 @@ const router = new Hono<AppEnv>()
   .route("/", listCollectionCardsRoute)
   .route("/", collectionCardsSummaryRoute)
   .route("/", collectionCardIdsRoute)
+  .route("/", collectionCardCopiesRoute)
   .route("/", exportCollectionCardsRoute)
   .route("/", collectionCardBinsRoute)
   .route("/", collectionCardPositionRoute)

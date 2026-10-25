@@ -600,6 +600,36 @@
       "confirmDescription": "Only do this after taking the cards out. The bin's count starts again from zero.",
       "confirm": "Mark empty",
       "failed": "Couldn't mark the bin empty. Check your connection and try again."
+    },
+    "removal": {
+      "title": "Removing from {{collection}}",
+      "queued_one": "{{count}} queued",
+      "queued_other": "{{count}} queued",
+      "chip_one": "Removing from {{collection}}: {{count}} queued",
+      "chip_other": "Removing from {{collection}}: {{count}} queued",
+      "noCopyLeft": "No copy left in this collection",
+      "removeAction_one": "Remove 1 card",
+      "removeAction_other": "Remove {{count}} cards",
+      "confirmDescription": "Remove these cards from {{collection}}? This can't be undone.",
+      "removeFailed": "Couldn't remove the cards. Check your connection and try again.",
+      "drop": "Drop",
+      "changeCopy": "Change copy",
+      "empty": "Removal queue is empty. Scan a card to queue it.",
+      "unsorted": "Unsorted",
+      "notice": {
+        "no-match": "No match, try again",
+        "lookup-failed": "Couldn't look up copies of {{name}}. Check your connection and scan it again.",
+        "removed_one": "Removed 1 card",
+        "removed_other": "Removed {{count}} cards"
+      },
+      "modes": {
+        "add": "Add cards",
+        "remove": "Remove cards"
+      },
+      "binChip": "Removed cards go to {{bin}}",
+      "binPickerTitle": "Removed cards go to",
+      "binOption": "Bin {{number}}",
+      "catchAllBinOption": "Bin {{number}} (catch-all)"
     }
   },
   "home": {
