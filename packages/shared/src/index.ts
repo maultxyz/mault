@@ -54,6 +54,7 @@ export * from "./constants/sort-bins.constant";
 export * from "./constants/scan-rule-fields.constant";
 export * from "./constants/sorters.constant";
 export * from "./constants/sorter-link.constant";
+export * from "./constants/serial-timing.constant";
 export * from "./constants/deleted-items.constant";
 export * from "./constants/platform-stats.constant";
 export * from "./constants/platform-discord-channels.constant";

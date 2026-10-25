@@ -9,10 +9,10 @@ import {
   NUS_TX_CHARACTERISTIC_UUID,
   SORTER_LINK_CLOSE_IN_USE,
   SORTER_LINK_CLOSE_OFFLINE,
+  SORTER_LINK_OPEN_TIMEOUT_MS,
   SORTER_LINK_READY_KEY,
   SORTER_LINK_READY_VALUE,
 } from "@magic-vault/shared";
-import { SORTER_LINK_OPEN_TIMEOUT_MS } from "@/lib/constants/timing";
 import type {
   CloudTransportFailure,
   SerialTransportType,

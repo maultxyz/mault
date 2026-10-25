@@ -52,8 +52,6 @@ export const CAMERA_IDEAL_HEIGHT = 1080;
 export const PHONE_CAMERA_DEVICE_STORAGE_KEY = "mault:phone-camera-device-id";
 
 export const JAM_TOAST_ID_PREFIX = "jam-module-";
-export const JAM_COMMAND_TIMEOUT_MS = 3000;
-export const JAM_CLEAR_DEVICE_TIMEOUT_MS = 10000;
 export const JAM_VERIFY_SAMPLES = 3;
 export const JAM_VERIFY_INTERVAL_MS = 750;
 export const SCAN_POSITION_MODULE = 1;
