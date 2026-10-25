@@ -22,11 +22,10 @@ export interface CardSearchPickerProps {
   onSelect: (card: PlayingCard) => void;
 }
 
-export interface CardSortButtonProps {
+export interface CardSortOptionsProps {
   sortKey: string | null;
   onSortChange: (key: string | null) => void;
   sortableFields: FieldMeta[];
-  className?: string;
 }
 
 export interface CardDetailsListProps {
@@ -377,7 +376,7 @@ export interface CardDetailPanelProps {
   onRemoveShortcut?: () => void;
 }
 
-export interface CardFilterPopoverProps {
+export interface CardFilterFieldsProps {
   activeFilters: CardFilters;
   onFiltersChange: (filters: CardFilters) => void;
   activeFilterCount: number;
@@ -385,6 +384,11 @@ export interface CardFilterPopoverProps {
   availableColors: ScanStats["colors"];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
+}
+
+export interface CardSortFilterDrawerProps
+  extends CardSortOptionsProps,
+    CardFilterFieldsProps {
   triggerClassName?: string;
 }
 

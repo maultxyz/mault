@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import { WatcherStack } from "@/components/ui/watcher-stack";
-import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
+import { CardSortFilterDrawer } from "@/features/cards/components/card-sort-filter-drawer";
 import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
-import { CardSortButton } from "@/features/cards/components/card-sort-button";
 import type { CardToolbarProps } from "@/lib/interfaces/cards";
 import {
   IconCheckbox,
@@ -90,12 +89,10 @@ export function CardToolbar({
               onFiltersChange(EMPTY_CARD_FILTERS);
             }}
           />
-          <CardSortButton
+          <CardSortFilterDrawer
             sortKey={sortKey}
             onSortChange={onSortChange}
             sortableFields={sortableFields}
-          />
-          <CardFilterPopover
             activeFilters={activeFilters}
             onFiltersChange={onFiltersChange}
             activeFilterCount={activeFilterCount}

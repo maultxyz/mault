@@ -962,7 +962,7 @@
       "title": "Steuerkarten",
       "description": "Lass eine dieser Karten durch den Sortierer laufen, um Einstellungen während des Laufs zu ändern. Sie landet dort, wo nicht erkannte Karten landen, und wird nie in einer Sammlung gespeichert.",
       "print": "Drucken",
-      "printTip": "Drucke mit 100 % Skalierung und Rändern auf Standard. Auf jede Seite passen 9 Karten. Schneide entlang der Ränder und klebe oder stecke jede Karte vor eine Ersatzkarte, damit sie wie eine normale Karte eingezogen wird. Halte den QR-Code flach und frei von Spiegelungen."
+      "printTip": "Drucke auf Karton mit 100 % Skalierung und Rändern auf Standard. Auf jede Seite passen 9 Karten. Schneide entlang der Ränder und halte den QR-Code flach und frei von Spiegelungen."
     }
   }
 }

@@ -16,8 +16,7 @@ import {
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
-import { CardSortButton } from "@/features/cards/components/card-sort-button";
+import { CardSortFilterDrawer } from "@/features/cards/components/card-sort-filter-drawer";
 import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
 import { MobileCardTile } from "@/features/scanner/components/mobile-card-tile";
 import type { MobileMonitorCardsProps } from "@/lib/interfaces/scanner";
@@ -97,13 +96,10 @@ export function MobileMonitorCards({
               }}
             />
           )}
-          <CardSortButton
+          <CardSortFilterDrawer
             sortKey={sortKey}
             onSortChange={setSortKey}
             sortableFields={sortableFields}
-            className={MOBILE_ICON_BUTTON_CLASS}
-          />
-          <CardFilterPopover
             activeFilters={filters}
             onFiltersChange={setFilters}
             activeFilterCount={activeFilterCount}

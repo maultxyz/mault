@@ -9,12 +9,10 @@ import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardToolbarProps } from "@/lib/interfaces/collections";
 
 export function CardToolbar({
-  sortLabel,
-  activeFilterCount,
+  activeSortAndFilterCount,
   grouped,
   needsReview,
-  onOpenSort,
-  onOpenFilters,
+  onOpenSortAndFilters,
   onToggleGrouped,
   onToggleNeedsReview,
 }: CardToolbarProps) {
@@ -28,10 +26,14 @@ export function CardToolbar({
       style={{ marginHorizontal: -CARD_GRID_GUTTER }}
       contentContainerStyle={{ paddingHorizontal: CARD_GRID_GUTTER, gap: SPACING.sm, alignItems: "center" }}
     >
-      <IconButton icon="sort" size={36} accessibilityLabel={sortLabel} onPress={onOpenSort} />
       <View>
-        <IconButton icon="filter" size={36} accessibilityLabel={t("collection.filters.title")} onPress={onOpenFilters} />
-        {activeFilterCount > 0 ? (
+        <IconButton
+          icon="filter"
+          size={36}
+          accessibilityLabel={t("collection.sortAndFilter")}
+          onPress={onOpenSortAndFilters}
+        />
+        {activeSortAndFilterCount > 0 ? (
           <View
             pointerEvents="none"
             style={{
@@ -48,7 +50,7 @@ export function CardToolbar({
             }}
           >
             <AppText size="2xs" weight="bold" style={{ color: colors.primaryForeground, lineHeight: 14 }}>
-              {String(activeFilterCount)}
+              {String(activeSortAndFilterCount)}
             </AppText>
           </View>
         ) : null}

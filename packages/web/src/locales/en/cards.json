@@ -151,7 +151,11 @@
     },
     "review": "Review",
     "export": "Export",
-    "reviewCards": "Review cards one by one (R)"
+    "reviewCards": "Review cards one by one (R)",
+    "sortAndFilter": "Sort and filter",
+    "sortHeading": "Sort",
+    "filterHeading": "Filter",
+    "done": "Done"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",

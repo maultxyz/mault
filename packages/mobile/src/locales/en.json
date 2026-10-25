@@ -724,7 +724,6 @@
     "review": "Review {{count}}",
     "groupDuplicates": "Group duplicates",
     "filters": {
-      "title": "Filters",
       "colors": "Colors",
       "rarity": "Rarity",
       "foil": "Foil",
@@ -746,7 +745,8 @@
       "copies_other": "{{count}} copies",
       "removeTitle_one": "Remove this card?",
       "removeTitle_other": "Remove {{count}} copies?"
-    }
+    },
+    "sortAndFilter": "Sort and filter"
   },
   "cardDetail": {
     "fallbackTitle": "Card details",
