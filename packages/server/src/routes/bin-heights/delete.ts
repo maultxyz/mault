@@ -5,7 +5,6 @@ import { binHeights } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toBinHeight } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteBinHeightRoute = new Hono<AppEnv>().delete(
   "/:binNumber",
@@ -15,33 +14,29 @@ export const deleteBinHeightRoute = new Hono<AppEnv>().delete(
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
     const binNumber = parseInt(c.req.param("binNumber"));
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
-        if (!device) return { success: false, message: "Device not found." };
-        await tx
-          .update(binHeights)
-          .set({ isDeleted: true })
-          .where(
-            and(
-              eq(binHeights.deviceId, device.id),
-              eq(binHeights.binNumber, binNumber),
-            ),
-          );
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+      if (!device) return { success: false, message: "Device not found." };
+      await tx
+        .update(binHeights)
+        .set({ isDeleted: true })
+        .where(
+          and(
+            eq(binHeights.deviceId, device.id),
+            eq(binHeights.binNumber, binNumber),
+          ),
+        );
 
-        const rows = await tx.query.binHeights.findMany({
-          where: (t, { eq, and }) =>
-            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
-        });
-        return {
-          success: true,
-          message: "Cleared bin height.",
-          data: rows.map(toBinHeight),
-        };
+      const rows = await tx.query.binHeights.findMany({
+        where: (t, { eq, and }) =>
+          and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
       });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      return {
+        success: true,
+        message: "Cleared bin height.",
+        data: rows.map(toBinHeight),
+      };
+    });
+    return c.json(result);
   },
 );

@@ -5,7 +5,6 @@ import { authQuery } from "../../db";
 import { bins, binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadSets } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const setAlphabetRoute = new Hono<AppEnv>().put(
   "/:guid/alphabet",
@@ -29,51 +28,47 @@ export const setAlphabetRoute = new Hono<AppEnv>().put(
     ) {
       return c.json({ success: false, message: "Invalid prefix." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const target = await tx.query.binSets.findFirst({
-          where: (t, { eq, and }) =>
-            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: {
-            id: true,
-            isAlphabetMode: true,
-            alphabetPass: true,
-            alphabetPrefix: true,
-          },
-        });
-        if (!target) return { message: "Set not found.", success: false };
-
-        const alphabetPrefix =
-          body.alphabetPrefix === undefined
-            ? target.alphabetPrefix
-            : normalizeAlphabetPrefix(body.alphabetPrefix);
-        const startsPass =
-          isAlphabetMode &&
-          (!target.isAlphabetMode ||
-            alphabetPass !== target.alphabetPass ||
-            alphabetPrefix !== target.alphabetPrefix);
-        const now = new Date();
-        if (startsPass) {
-          await tx
-            .update(bins)
-            .set({ lastEmptiedAt: now, updatedAt: now })
-            .where(and(eq(bins.binSet, target.id), eq(bins.isDeleted, false)));
-        }
-
-        await tx
-          .update(binSets)
-          .set({
-            isAlphabetMode,
-            alphabetPass,
-            alphabetPrefix,
-            updatedAt: now,
-          })
-          .where(eq(binSets.id, target.id));
-        return loadSets(tx, orgId);
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const target = await tx.query.binSets.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+        columns: {
+          id: true,
+          isAlphabetMode: true,
+          alphabetPass: true,
+          alphabetPrefix: true,
+        },
       });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      if (!target) return { message: "Set not found.", success: false };
+
+      const alphabetPrefix =
+        body.alphabetPrefix === undefined
+          ? target.alphabetPrefix
+          : normalizeAlphabetPrefix(body.alphabetPrefix);
+      const startsPass =
+        isAlphabetMode &&
+        (!target.isAlphabetMode ||
+          alphabetPass !== target.alphabetPass ||
+          alphabetPrefix !== target.alphabetPrefix);
+      const now = new Date();
+      if (startsPass) {
+        await tx
+          .update(bins)
+          .set({ lastEmptiedAt: now, updatedAt: now })
+          .where(and(eq(bins.binSet, target.id), eq(bins.isDeleted, false)));
+      }
+
+      await tx
+        .update(binSets)
+        .set({
+          isAlphabetMode,
+          alphabetPass,
+          alphabetPrefix,
+          updatedAt: now,
+        })
+        .where(eq(binSets.id, target.id));
+      return loadSets(tx, orgId);
+    });
+    return c.json(result);
   },
 );

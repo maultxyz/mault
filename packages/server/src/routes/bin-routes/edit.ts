@@ -5,7 +5,6 @@ import { binRouteAudit, binRoutes } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { buildRoutes } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editBinRouteRoute = new Hono<AppEnv>().put(
   "/:binNumber",
@@ -16,41 +15,37 @@ export const editBinRouteRoute = new Hono<AppEnv>().put(
     const deviceGuid = c.req.param("guid") as string;
     const binNumber = parseInt(c.req.param("binNumber"));
     const route = await c.req.json<BinRoute>();
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
-        if (!device) return { success: false, message: "Device not found." };
-        const values = {
-          binNumber,
-          module: route.module,
-          direction: route.direction,
-          orgId,
-          deviceId: device.id,
-        };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+      if (!device) return { success: false, message: "Device not found." };
+      const values = {
+        binNumber,
+        module: route.module,
+        direction: route.direction,
+        orgId,
+        deviceId: device.id,
+      };
 
-        await tx
-          .insert(binRoutes)
-          .values(values)
-          .onConflictDoUpdate({
-            target: [binRoutes.deviceId, binRoutes.binNumber],
-            set: { ...values, isDeleted: false, updatedAt: new Date() },
-          });
-
-        await tx.insert(binRouteAudit).values(values);
-
-        const rows = await tx.query.binRoutes.findMany({
-          where: (t, { eq, and }) =>
-            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
+      await tx
+        .insert(binRoutes)
+        .values(values)
+        .onConflictDoUpdate({
+          target: [binRoutes.deviceId, binRoutes.binNumber],
+          set: { ...values, isDeleted: false, updatedAt: new Date() },
         });
-        return {
-          success: true,
-          message: "Saved bin route.",
-          data: buildRoutes(device.moduleCount, rows),
-        };
+
+      await tx.insert(binRouteAudit).values(values);
+
+      const rows = await tx.query.binRoutes.findMany({
+        where: (t, { eq, and }) =>
+          and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
       });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      return {
+        success: true,
+        message: "Saved bin route.",
+        data: buildRoutes(device.moduleCount, rows),
+      };
+    });
+    return c.json(result);
   },
 );

@@ -12,7 +12,6 @@ import { binRoutes, bins, devices, moduleConfigs } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toDevice } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editDeviceRoute = new Hono<AppEnv>().put(
   "/:guid",
@@ -66,140 +65,136 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
     if (body.setupCompleted === false && c.get("userRole") !== "admin") {
       return c.json({ success: false, message: "Forbidden." }, 403);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, guid);
-        if (!device) return { success: false, message: "Device not found." };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, guid);
+      if (!device) return { success: false, message: "Device not found." };
 
-        const channelLayout: ChannelLayout =
-          "channelLayout" in body && body.channelLayout
-            ? body.channelLayout
-            : ((device.channelLayout as ChannelLayout | null) ??
-              DEFAULT_CHANNEL_LAYOUT);
+      const channelLayout: ChannelLayout =
+        "channelLayout" in body && body.channelLayout
+          ? body.channelLayout
+          : ((device.channelLayout as ChannelLayout | null) ??
+            DEFAULT_CHANNEL_LAYOUT);
 
-        const merged = {
-          name: "name" in body && body.name ? body.name : device.name,
-          hardwareId:
-            "hardwareId" in body
-              ? (body.hardwareId ?? null)
-              : device.hardwareId,
-          scanCoverage:
-            "scanRegion" in body
-              ? body.scanRegion
-                ? Math.round(body.scanRegion.coverage * 100)
-                : null
-              : device.scanCoverage,
-          scanOffsetX:
-            "scanRegion" in body
-              ? body.scanRegion
-                ? Math.round(body.scanRegion.offsetX * 100)
-                : null
-              : device.scanOffsetX,
-          scanOffsetY:
-            "scanRegion" in body
-              ? body.scanRegion
-                ? Math.round(body.scanRegion.offsetY * 100)
-                : null
-              : device.scanOffsetY,
-          captureSettleDelayMs:
-            "captureSettleDelayMs" in body
-              ? (body.captureSettleDelayMs ?? null)
-              : device.captureSettleDelayMs,
-          matchesNeeded:
-            "matchesNeeded" in body
-              ? (body.matchesNeeded ?? null)
-              : device.matchesNeeded,
-          feederStopPulse:
-            "feederStopPulse" in body
-              ? (body.feederStopPulse ?? null)
-              : device.feederStopPulse,
-          checkBothOrientations:
-            "checkBothOrientations" in body
-              ? (body.checkBothOrientations ?? null)
-              : device.checkBothOrientations,
-          flipCamera:
-            typeof body.flipCamera === "boolean"
-              ? body.flipCamera
-              : device.flipCamera,
-          channelLayout,
-          setupCompletedAt:
-            "setupCompleted" in body
-              ? body.setupCompleted
-                ? (device.setupCompletedAt ?? new Date())
-                : null
-              : device.setupCompletedAt,
-          pipelinedFeed:
-            typeof body.pipelinedFeed === "boolean"
-              ? body.pipelinedFeed
-              : device.pipelinedFeed,
-          autoConnect:
-            typeof body.autoConnect === "boolean"
-              ? body.autoConnect
-              : device.autoConnect,
-          testOnConnect:
-            typeof body.testOnConnect === "boolean"
-              ? body.testOnConnect
-              : device.testOnConnect,
-          moduleCount:
-            "moduleCount" in body && body.moduleCount != null
-              ? Math.min(
-                  Math.max(Math.round(body.moduleCount), 1),
-                  maxModulesForLayout(channelLayout),
-                )
-              : Math.min(
-                  device.moduleCount,
-                  maxModulesForLayout(channelLayout),
-                ),
-        };
+      const merged = {
+        name: "name" in body && body.name ? body.name : device.name,
+        hardwareId:
+          "hardwareId" in body
+            ? (body.hardwareId ?? null)
+            : device.hardwareId,
+        scanCoverage:
+          "scanRegion" in body
+            ? body.scanRegion
+              ? Math.round(body.scanRegion.coverage * 100)
+              : null
+            : device.scanCoverage,
+        scanOffsetX:
+          "scanRegion" in body
+            ? body.scanRegion
+              ? Math.round(body.scanRegion.offsetX * 100)
+              : null
+            : device.scanOffsetX,
+        scanOffsetY:
+          "scanRegion" in body
+            ? body.scanRegion
+              ? Math.round(body.scanRegion.offsetY * 100)
+              : null
+            : device.scanOffsetY,
+        captureSettleDelayMs:
+          "captureSettleDelayMs" in body
+            ? (body.captureSettleDelayMs ?? null)
+            : device.captureSettleDelayMs,
+        matchesNeeded:
+          "matchesNeeded" in body
+            ? (body.matchesNeeded ?? null)
+            : device.matchesNeeded,
+        feederStopPulse:
+          "feederStopPulse" in body
+            ? (body.feederStopPulse ?? null)
+            : device.feederStopPulse,
+        checkBothOrientations:
+          "checkBothOrientations" in body
+            ? (body.checkBothOrientations ?? null)
+            : device.checkBothOrientations,
+        flipCamera:
+          typeof body.flipCamera === "boolean"
+            ? body.flipCamera
+            : device.flipCamera,
+        channelLayout,
+        setupCompletedAt:
+          "setupCompleted" in body
+            ? body.setupCompleted
+              ? (device.setupCompletedAt ?? new Date())
+              : null
+            : device.setupCompletedAt,
+        pipelinedFeed:
+          typeof body.pipelinedFeed === "boolean"
+            ? body.pipelinedFeed
+            : device.pipelinedFeed,
+        autoConnect:
+          typeof body.autoConnect === "boolean"
+            ? body.autoConnect
+            : device.autoConnect,
+        testOnConnect:
+          typeof body.testOnConnect === "boolean"
+            ? body.testOnConnect
+            : device.testOnConnect,
+        moduleCount:
+          "moduleCount" in body && body.moduleCount != null
+            ? Math.min(
+                Math.max(Math.round(body.moduleCount), 1),
+                maxModulesForLayout(channelLayout),
+              )
+            : Math.min(
+                device.moduleCount,
+                maxModulesForLayout(channelLayout),
+              ),
+      };
 
-        const updatedAt = new Date();
+      const updatedAt = new Date();
+      await tx
+        .update(devices)
+        .set({ ...merged, updatedAt })
+        .where(eq(devices.id, device.id));
+
+      const previousModuleCount = device.moduleCount;
+      if (merged.moduleCount < previousModuleCount) {
+        const newBinCount = computeBinCount(merged.moduleCount);
         await tx
-          .update(devices)
-          .set({ ...merged, updatedAt })
-          .where(eq(devices.id, device.id));
+          .update(bins)
+          .set({ isDeleted: true })
+          .where(
+            and(
+              eq(bins.orgId, orgId),
+              gt(bins.binNumber, newBinCount),
+              eq(bins.isDeleted, false),
+            ),
+          );
+        await tx
+          .update(binRoutes)
+          .set({ isDeleted: true })
+          .where(
+            and(
+              eq(binRoutes.deviceId, device.id),
+              gt(binRoutes.binNumber, newBinCount),
+            ),
+          );
+        await tx
+          .update(moduleConfigs)
+          .set({ isDeleted: true })
+          .where(
+            and(
+              eq(moduleConfigs.deviceId, device.id),
+              gt(moduleConfigs.moduleNumber, merged.moduleCount),
+            ),
+          );
+      }
 
-        const previousModuleCount = device.moduleCount;
-        if (merged.moduleCount < previousModuleCount) {
-          const newBinCount = computeBinCount(merged.moduleCount);
-          await tx
-            .update(bins)
-            .set({ isDeleted: true })
-            .where(
-              and(
-                eq(bins.orgId, orgId),
-                gt(bins.binNumber, newBinCount),
-                eq(bins.isDeleted, false),
-              ),
-            );
-          await tx
-            .update(binRoutes)
-            .set({ isDeleted: true })
-            .where(
-              and(
-                eq(binRoutes.deviceId, device.id),
-                gt(binRoutes.binNumber, newBinCount),
-              ),
-            );
-          await tx
-            .update(moduleConfigs)
-            .set({ isDeleted: true })
-            .where(
-              and(
-                eq(moduleConfigs.deviceId, device.id),
-                gt(moduleConfigs.moduleNumber, merged.moduleCount),
-              ),
-            );
-        }
-
-        return {
-          success: true,
-          message: "Saved device.",
-          data: toDevice({ ...device, ...merged, updatedAt }),
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      return {
+        success: true,
+        message: "Saved device.",
+        data: toDevice({ ...device, ...merged, updatedAt }),
+      };
+    });
+    return c.json(result);
   },
 );

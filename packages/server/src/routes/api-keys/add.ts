@@ -15,7 +15,6 @@ import {
 } from "../../lib/constants/api-keys";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { apiKeyInputSchema } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addApiKeyRoute = new Hono<AppEnv>().post(
   "/",
@@ -33,44 +32,40 @@ export const addApiKeyRoute = new Hono<AppEnv>().post(
     if (!input.success) {
       return c.json({ success: false, message: "Invalid API key." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        if (!(await isApiAccessAllowed(tx, orgId))) {
-          return { success: false, message: API_ACCESS_UPGRADE_MESSAGE };
-        }
-        const [{ value: liveKeys }] = await tx
-          .select({ value: count() })
-          .from(orgApiKeys)
-          .where(
-            and(eq(orgApiKeys.orgId, orgId), isNull(orgApiKeys.revokedAt)),
-          );
-        if (liveKeys >= API_KEYS_PER_ORG_LIMIT) {
-          return {
-            success: false,
-            message: `An organization can have at most ${API_KEYS_PER_ORG_LIMIT} API keys. Revoke one first.`,
-          };
-        }
-        const { rawKey, keyPrefix, keyHash } = generateApiKey();
-        const [row] = await tx
-          .insert(orgApiKeys)
-          .values({
-            orgId,
-            name: input.data.name,
-            scope: input.data.scope,
-            keyPrefix,
-            keyHash,
-            createdBy: c.get("userId"),
-          })
-          .returning(ORG_API_KEY_COLUMNS);
-        const data: CreatedOrgApiKey = {
-          apiKey: await toOrgApiKey(row),
-          rawKey,
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isApiAccessAllowed(tx, orgId))) {
+        return { success: false, message: API_ACCESS_UPGRADE_MESSAGE };
+      }
+      const [{ value: liveKeys }] = await tx
+        .select({ value: count() })
+        .from(orgApiKeys)
+        .where(
+          and(eq(orgApiKeys.orgId, orgId), isNull(orgApiKeys.revokedAt)),
+        );
+      if (liveKeys >= API_KEYS_PER_ORG_LIMIT) {
+        return {
+          success: false,
+          message: `An organization can have at most ${API_KEYS_PER_ORG_LIMIT} API keys. Revoke one first.`,
         };
-        return { success: true, data };
-      });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      }
+      const { rawKey, keyPrefix, keyHash } = generateApiKey();
+      const [row] = await tx
+        .insert(orgApiKeys)
+        .values({
+          orgId,
+          name: input.data.name,
+          scope: input.data.scope,
+          keyPrefix,
+          keyHash,
+          createdBy: c.get("userId"),
+        })
+        .returning(ORG_API_KEY_COLUMNS);
+      const data: CreatedOrgApiKey = {
+        apiKey: await toOrgApiKey(row),
+        rawKey,
+      };
+      return { success: true, data };
+    });
+    return c.json(result);
   },
 );

@@ -9,7 +9,6 @@ import {
   channelUpdate,
   checkDiscordChannel,
 } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const setDiscordChannelRoute = new Hono<AppEnv>().put(
   "/discord/channels",
@@ -28,43 +27,39 @@ export const setDiscordChannelRoute = new Hono<AppEnv>().put(
       return c.json({ success: false, message: "Invalid channel." }, 400);
     }
     const { scanChannelId, errorChannelId, collectionGuid } = input.data;
-    try {
-      for (const channelId of new Set([scanChannelId, errorChannelId])) {
-        if (!channelId) continue;
-        const channelError = await checkDiscordChannel(orgId, channelId);
-        if (channelError) {
-          return c.json({ success: false, message: channelError });
-        }
+    for (const channelId of new Set([scanChannelId, errorChannelId])) {
+      if (!channelId) continue;
+      const channelError = await checkDiscordChannel(orgId, channelId);
+      if (channelError) {
+        return c.json({ success: false, message: channelError });
+      }
+    }
+
+    const update = channelUpdate(input.data, new Date());
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (collectionGuid) {
+        const [updated] = await tx
+          .update(collections)
+          .set(update)
+          .where(
+            and(
+              eq(collections.guid, collectionGuid),
+              eq(collections.orgId, orgId),
+              eq(collections.isDeleted, false),
+            ),
+          )
+          .returning({ id: collections.id });
+        return updated
+          ? { success: true as const }
+          : { success: false as const, message: "Collection not found." };
       }
 
-      const update = channelUpdate(input.data, new Date());
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        if (collectionGuid) {
-          const [updated] = await tx
-            .update(collections)
-            .set(update)
-            .where(
-              and(
-                eq(collections.guid, collectionGuid),
-                eq(collections.orgId, orgId),
-                eq(collections.isDeleted, false),
-              ),
-            )
-            .returning({ id: collections.id });
-          return updated
-            ? { success: true as const }
-            : { success: false as const, message: "Collection not found." };
-        }
-
-        await tx
-          .update(orgSettings)
-          .set(update)
-          .where(eq(orgSettings.orgId, orgId));
-        return { success: true as const };
-      });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      await tx
+        .update(orgSettings)
+        .set(update)
+        .where(eq(orgSettings.orgId, orgId));
+      return { success: true as const };
+    });
+    return c.json(result);
   },
 );

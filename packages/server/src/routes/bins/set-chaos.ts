@@ -9,7 +9,6 @@ import {
 } from "../../lib/chaos-sort-access";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadSets } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const setChaosRoute = new Hono<AppEnv>().put(
   "/:guid/chaos",
@@ -33,38 +32,34 @@ export const setChaosRoute = new Hono<AppEnv>().put(
     ) {
       return c.json({ success: false, message: "Invalid bin size." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const target = await tx.query.binSets.findFirst({
-          where: (t, { eq, and }) =>
-            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { id: true, isChaosMode: true },
-        });
-        if (!target) return { message: "Set not found.", success: false };
-        if (
-          isChaosMode &&
-          !target.isChaosMode &&
-          !(await isChaosSortAllowed(tx, orgId))
-        ) {
-          return {
-            success: false,
-            message: CHAOS_SORT_UPGRADE_MESSAGE,
-            upgradeRequired: true,
-          };
-        }
-        await tx
-          .update(binSets)
-          .set({
-            isChaosMode,
-            ...(chaosBinSize !== undefined ? { chaosBinSize } : {}),
-            updatedAt: new Date(),
-          })
-          .where(eq(binSets.id, target.id));
-        return loadSets(tx, orgId);
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const target = await tx.query.binSets.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+        columns: { id: true, isChaosMode: true },
       });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      if (!target) return { message: "Set not found.", success: false };
+      if (
+        isChaosMode &&
+        !target.isChaosMode &&
+        !(await isChaosSortAllowed(tx, orgId))
+      ) {
+        return {
+          success: false,
+          message: CHAOS_SORT_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
+      await tx
+        .update(binSets)
+        .set({
+          isChaosMode,
+          ...(chaosBinSize !== undefined ? { chaosBinSize } : {}),
+          updatedAt: new Date(),
+        })
+        .where(eq(binSets.id, target.id));
+      return loadSets(tx, orgId);
+    });
+    return c.json(result);
   },
 );

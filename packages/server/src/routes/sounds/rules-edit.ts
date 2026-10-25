@@ -4,7 +4,6 @@ import { authQuery } from "../../db";
 import { soundRules } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findClipId, loadSoundRules, soundRuleInputSchema } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editSoundRuleRoute = new Hono<AppEnv>().put(
   "/rules/:guid",
@@ -17,38 +16,34 @@ export const editSoundRuleRoute = new Hono<AppEnv>().put(
     if (!input.success) {
       return c.json({ success: false, message: "Invalid sound rule." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const clipId = await findClipId(tx, orgId, input.data.clipGuid);
-        if (clipId === undefined)
-          return { success: false as const, message: "Clip not found." };
-        const [updated] = await tx
-          .update(soundRules)
-          .set({
-            name: input.data.name,
-            isEnabled: input.data.isEnabled,
-            rules: input.data.rules,
-            clipId,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(soundRules.guid, guid),
-              eq(soundRules.orgId, orgId),
-              eq(soundRules.isDeleted, false),
-            ),
-          )
-          .returning({ gameId: soundRules.gameId });
-        if (!updated)
-          return { success: false as const, message: "Rule not found." };
-        return {
-          success: true as const,
-          data: await loadSoundRules(tx, orgId, updated.gameId),
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const clipId = await findClipId(tx, orgId, input.data.clipGuid);
+      if (clipId === undefined)
+        return { success: false as const, message: "Clip not found." };
+      const [updated] = await tx
+        .update(soundRules)
+        .set({
+          name: input.data.name,
+          isEnabled: input.data.isEnabled,
+          rules: input.data.rules,
+          clipId,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(soundRules.guid, guid),
+            eq(soundRules.orgId, orgId),
+            eq(soundRules.isDeleted, false),
+          ),
+        )
+        .returning({ gameId: soundRules.gameId });
+      if (!updated)
+        return { success: false as const, message: "Rule not found." };
+      return {
+        success: true as const,
+        data: await loadSoundRules(tx, orgId, updated.gameId),
+      };
+    });
+    return c.json(result);
   },
 );

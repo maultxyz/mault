@@ -10,7 +10,6 @@ import { unmatchedCards } from "../../db/schema";
 import { resolveScanImageUrl } from "../../lib/scan-images";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toUnmatchedCard } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function parseCount(value: string | undefined, fallback: number, max: number) {
   const parsed = Number.parseInt(value ?? "", 10);
@@ -34,55 +33,51 @@ export const listUnmatchedCardsRoute = new Hono<AppEnv>().get(
       0,
       Number.MAX_SAFE_INTEGER,
     );
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const collection = await tx.query.collections.findFirst({
-          where: (t, { eq, and }) =>
-            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { id: true },
-        });
-        if (!collection)
-          return { success: false, message: "Collection not found." };
-
-        const liveRows = and(
-          eq(unmatchedCards.collectionId, collection.id),
-          eq(unmatchedCards.isDeleted, false),
-        );
-        const [{ total }] = await tx
-          .select({ total: count(unmatchedCards.id) })
-          .from(unmatchedCards)
-          .where(liveRows);
-        const rows = await tx
-          .select({
-            guid: unmatchedCards.guid,
-            capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
-            capturedImageKey: unmatchedCards.capturedImageKey,
-            scannedAt: unmatchedCards.scannedAt,
-            binNumber: unmatchedCards.binNumber,
-            diagnostics: unmatchedCards.diagnostics,
-          })
-          .from(unmatchedCards)
-          .where(liveRows)
-          .orderBy(desc(unmatchedCards.scannedAt), desc(unmatchedCards.id))
-          .limit(limit)
-          .offset(offset);
-
-        const data: UnmatchedCardsPage = {
-          total,
-          cards: await Promise.all(
-            rows.map(async (row) =>
-              toUnmatchedCard({
-                ...row,
-                capturedImageUrl: await resolveScanImageUrl(row),
-              }),
-            ),
-          ),
-        };
-        return { success: true, data };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const collection = await tx.query.collections.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+        columns: { id: true },
       });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+      if (!collection)
+        return { success: false, message: "Collection not found." };
+
+      const liveRows = and(
+        eq(unmatchedCards.collectionId, collection.id),
+        eq(unmatchedCards.isDeleted, false),
+      );
+      const [{ total }] = await tx
+        .select({ total: count(unmatchedCards.id) })
+        .from(unmatchedCards)
+        .where(liveRows);
+      const rows = await tx
+        .select({
+          guid: unmatchedCards.guid,
+          capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
+          capturedImageKey: unmatchedCards.capturedImageKey,
+          scannedAt: unmatchedCards.scannedAt,
+          binNumber: unmatchedCards.binNumber,
+          diagnostics: unmatchedCards.diagnostics,
+        })
+        .from(unmatchedCards)
+        .where(liveRows)
+        .orderBy(desc(unmatchedCards.scannedAt), desc(unmatchedCards.id))
+        .limit(limit)
+        .offset(offset);
+
+      const data: UnmatchedCardsPage = {
+        total,
+        cards: await Promise.all(
+          rows.map(async (row) =>
+            toUnmatchedCard({
+              ...row,
+              capturedImageUrl: await resolveScanImageUrl(row),
+            }),
+          ),
+        ),
+      };
+      return { success: true, data };
+    });
+    return c.json(result);
   },
 );

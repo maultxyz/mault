@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { binSetNameTaken, resolveGameId } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const checkBinSetNameRoute = new Hono<AppEnv>().get(
   "/check-name",
@@ -16,25 +15,21 @@ export const checkBinSetNameRoute = new Hono<AppEnv>().get(
     if (!name) {
       return c.json({ success: false, message: "name is required." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const gameId = await resolveGameId(tx, gameGuid);
-        const taken = await binSetNameTaken(
-          tx,
-          orgId,
-          gameId,
-          name,
-          excludeGuid,
-        );
-        return {
-          success: true,
-          message: "Checked.",
-          data: { available: !taken },
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await resolveGameId(tx, gameGuid);
+      const taken = await binSetNameTaken(
+        tx,
+        orgId,
+        gameId,
+        name,
+        excludeGuid,
+      );
+      return {
+        success: true,
+        message: "Checked.",
+        data: { available: !taken },
+      };
+    });
+    return c.json(result);
   },
 );

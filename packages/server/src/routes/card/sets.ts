@@ -3,7 +3,6 @@ import { listCardSets } from "../../lib/card-search/card-sets";
 import { resolveCardSearch } from "../../lib/card-search/resolve";
 import { searchCardSets } from "../../lib/card-search/stored-cards";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const cardSetsRoute = new Hono<AppEnv>().get(
   "/sets",
@@ -21,16 +20,12 @@ export const cardSetsRoute = new Hono<AppEnv>().get(
       );
     }
     const query = c.req.query("q");
-    try {
-      return c.json({
-        success: true,
-        message: "Sets retrieved.",
-        data: query
-          ? await searchCardSets(resolved, query)
-          : await listCardSets(resolved),
-      });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    return c.json({
+      success: true,
+      message: "Sets retrieved.",
+      data: query
+        ? await searchCardSets(resolved, query)
+        : await listCardSets(resolved),
+    });
   },
 );

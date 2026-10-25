@@ -15,7 +15,6 @@ import {
   savePlatformDiscordChannels,
 } from "../../lib/platform-discord-channels";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 async function toResponse(
   settings: PlatformDiscordChannelsSettings,
@@ -43,14 +42,10 @@ function parseSettings(body: unknown): PlatformDiscordChannelsSettings | null {
 
 export const discordChannelsRoute = new Hono<AppEnv>()
   .get("/discord-channels", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
-    try {
-      return c.json({
-        success: true,
-        data: await toResponse(await loadPlatformDiscordChannels()),
-      });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    return c.json({
+      success: true,
+      data: await toResponse(await loadPlatformDiscordChannels()),
+    });
   })
   .get(
     "/discord-channels/guilds/:guildId",
@@ -94,12 +89,8 @@ export const discordChannelsRoute = new Hono<AppEnv>()
         );
       }
     }
-    try {
-      return c.json({
-        success: true,
-        data: await toResponse(await savePlatformDiscordChannels(settings)),
-      });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    return c.json({
+      success: true,
+      data: await toResponse(await savePlatformDiscordChannels(settings)),
+    });
   });

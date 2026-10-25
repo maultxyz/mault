@@ -11,7 +11,6 @@ import { authQuery, type Transaction } from "../../db";
 import { bins } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resetPickList } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 async function updateBinPickList(
   tx: Transaction,
@@ -50,19 +49,15 @@ export const pickListFoundRoute = new Hono<AppEnv>()
       if (typeof name !== "string" || (delta !== 1 && delta !== -1)) {
         return c.json({ success: false, message: "Invalid request." }, 400);
       }
-      try {
-        const data = await authQuery(c.get("jwtClaims"), (tx) =>
-          updateBinPickList(tx, orgId, binGuid, (current) =>
-            applyPickListFound(current, name, delta),
-          ),
-        );
-        if (!data) {
-          return c.json({ success: false, message: "Bin not found." }, 404);
-        }
-        return c.json({ success: true, data });
-      } catch (err) {
-        return databaseErrorResponse(c, err);
+      const data = await authQuery(c.get("jwtClaims"), (tx) =>
+        updateBinPickList(tx, orgId, binGuid, (current) =>
+          applyPickListFound(current, name, delta),
+        ),
+      );
+      if (!data) {
+        return c.json({ success: false, message: "Bin not found." }, 404);
       }
+      return c.json({ success: true, data });
     },
   )
   .post(
@@ -72,16 +67,12 @@ export const pickListFoundRoute = new Hono<AppEnv>()
     async (c) => {
       const orgId = c.get("orgId");
       const binGuid = c.req.param("binGuid");
-      try {
-        const data = await authQuery(c.get("jwtClaims"), (tx) =>
-          updateBinPickList(tx, orgId, binGuid, resetPickList),
-        );
-        if (!data) {
-          return c.json({ success: false, message: "Bin not found." }, 404);
-        }
-        return c.json({ success: true, data });
-      } catch (err) {
-        return databaseErrorResponse(c, err);
+      const data = await authQuery(c.get("jwtClaims"), (tx) =>
+        updateBinPickList(tx, orgId, binGuid, resetPickList),
+      );
+      if (!data) {
+        return c.json({ success: false, message: "Bin not found." }, 404);
       }
+      return c.json({ success: true, data });
     },
   );

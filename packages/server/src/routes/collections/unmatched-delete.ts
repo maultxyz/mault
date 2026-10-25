@@ -5,7 +5,6 @@ import { unmatchedCards } from "../../db/schema";
 import { deleteScanImages } from "../../lib/scan-images";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteUnmatchedCardRoute = new Hono<AppEnv>().delete(
   "/:guid/unmatched/:scanId",
@@ -14,31 +13,27 @@ export const deleteUnmatchedCardRoute = new Hono<AppEnv>().delete(
   async (c) => {
     const orgId = c.get("orgId");
     const { guid, scanId } = c.req.param();
-    try {
-      const match = and(
-        eq(unmatchedCards.guid, scanId),
-        eq(unmatchedCards.orgId, orgId),
-      );
-      const imageKey = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const [existing] = await tx
-          .select({ imageKey: unmatchedCards.capturedImageKey })
-          .from(unmatchedCards)
-          .where(match);
-        await tx
-          .update(unmatchedCards)
-          .set({
-            isDeleted: true,
-            capturedImageKey: null,
-            capturedImageDataUrl: null,
-          })
-          .where(match);
-        return existing?.imageKey ?? null;
-      });
-      deleteScanImages([imageKey]);
-      emitToSession(guid, "unmatched_removed", { scanId });
-      return c.json({ success: true, data: null });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const match = and(
+      eq(unmatchedCards.guid, scanId),
+      eq(unmatchedCards.orgId, orgId),
+    );
+    const imageKey = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const [existing] = await tx
+        .select({ imageKey: unmatchedCards.capturedImageKey })
+        .from(unmatchedCards)
+        .where(match);
+      await tx
+        .update(unmatchedCards)
+        .set({
+          isDeleted: true,
+          capturedImageKey: null,
+          capturedImageDataUrl: null,
+        })
+        .where(match);
+      return existing?.imageKey ?? null;
+    });
+    deleteScanImages([imageKey]);
+    emitToSession(guid, "unmatched_removed", { scanId });
+    return c.json({ success: true, data: null });
   },
 );

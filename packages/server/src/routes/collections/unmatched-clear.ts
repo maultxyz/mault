@@ -8,7 +8,6 @@ import {
 } from "../../lib/scan-images";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const clearUnmatchedCardsRoute = new Hono<AppEnv>().delete(
   "/:guid/unmatched",
@@ -17,36 +16,32 @@ export const clearUnmatchedCardsRoute = new Hono<AppEnv>().delete(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const collection = await tx.query.collections.findFirst({
-          where: (t, { eq, and }) =>
-            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { id: true },
-        });
-        if (!collection)
-          return { success: false, message: "Collection not found." };
-
-        await tx
-          .update(unmatchedCards)
-          .set({
-            isDeleted: true,
-            capturedImageKey: null,
-            capturedImageDataUrl: null,
-          })
-          .where(eq(unmatchedCards.collectionId, collection.id));
-
-        return { success: true, data: null };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const collection = await tx.query.collections.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+        columns: { id: true },
       });
-      if (result.success) {
-        deleteScanImagePrefix(
-          collectionScanImagePrefix(orgId, guid, "unmatched"),
-        );
-        emitToSession(guid, "unmatched_cleared", {});
-      }
-      return c.json(result);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
+      if (!collection)
+        return { success: false, message: "Collection not found." };
+
+      await tx
+        .update(unmatchedCards)
+        .set({
+          isDeleted: true,
+          capturedImageKey: null,
+          capturedImageDataUrl: null,
+        })
+        .where(eq(unmatchedCards.collectionId, collection.id));
+
+      return { success: true, data: null };
+    });
+    if (result.success) {
+      deleteScanImagePrefix(
+        collectionScanImagePrefix(orgId, guid, "unmatched"),
+      );
+      emitToSession(guid, "unmatched_cleared", {});
     }
+    return c.json(result);
   },
 );

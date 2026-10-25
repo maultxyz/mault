@@ -28,7 +28,6 @@ import {
   parseEmbeddingField,
   vectorLiteral,
 } from "./shared";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function validEmbedding(value: number[] | null): number[] | null {
   if (!value || value.length !== MILO_EMBEDDING_DIM) return null;
@@ -195,37 +194,33 @@ export const printingScoreRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: "No embedding provided." }, 400);
     }
 
-    try {
-      const matches: OrientedCardMatch[] = [];
-      for (const embedding of embeddings) {
-        matches.push({
-          embedding,
-          result: await findCardMatches(c.get("jwtClaims"), {
-            ...resolved,
-            embeddings: { embedding },
-          }),
-        });
-      }
-      const picked = pickOrientation(matches);
-      const nearestId = nearestCardId(picked.result);
-      const hits = await loadHits(
-        c.get("jwtClaims"),
-        resolved,
-        picked.embedding,
-        nearestId && nearestId !== cardId ? [cardId, nearestId] : [cardId],
-      );
-      const card = hits.get(cardId) ?? null;
-      const response: PrintingScoreResult = {
-        success: true,
-        found: card != null,
-        distanceThreshold: DISTANCE_THRESHOLD,
-        verdict: verdictFor(picked.result, cardId),
-        card,
-        nearest: nearestId ? (hits.get(nearestId) ?? null) : null,
-      };
-      return c.json(response);
-    } catch (err) {
-      return databaseErrorResponse(c, err);
+    const matches: OrientedCardMatch[] = [];
+    for (const embedding of embeddings) {
+      matches.push({
+        embedding,
+        result: await findCardMatches(c.get("jwtClaims"), {
+          ...resolved,
+          embeddings: { embedding },
+        }),
+      });
     }
+    const picked = pickOrientation(matches);
+    const nearestId = nearestCardId(picked.result);
+    const hits = await loadHits(
+      c.get("jwtClaims"),
+      resolved,
+      picked.embedding,
+      nearestId && nearestId !== cardId ? [cardId, nearestId] : [cardId],
+    );
+    const card = hits.get(cardId) ?? null;
+    const response: PrintingScoreResult = {
+      success: true,
+      found: card != null,
+      distanceThreshold: DISTANCE_THRESHOLD,
+      verdict: verdictFor(picked.result, cardId),
+      card,
+      nearest: nearestId ? (hits.get(nearestId) ?? null) : null,
+    };
+    return c.json(response);
   },
 );

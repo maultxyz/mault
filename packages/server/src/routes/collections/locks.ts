@@ -4,7 +4,6 @@ import { authQuery } from "../../db";
 import { collections } from "../../db/schema";
 import { getLocksForGuids } from "../../lib/scan-lock";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const locksRoute = new Hono<AppEnv>().get(
   "/locks",
@@ -12,19 +11,15 @@ export const locksRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const guids = await authQuery(c.get("jwtClaims"), async (tx) =>
-        tx
-          .select({ guid: collections.guid })
-          .from(collections)
-          .where(
-            and(eq(collections.orgId, orgId), eq(collections.isDeleted, false)),
-          ),
-      );
-      const data = getLocksForGuids(guids.map((r) => r.guid!).filter(Boolean));
-      return c.json({ success: true, data });
-    } catch (err) {
-      return databaseErrorResponse(c, err);
-    }
+    const guids = await authQuery(c.get("jwtClaims"), async (tx) =>
+      tx
+        .select({ guid: collections.guid })
+        .from(collections)
+        .where(
+          and(eq(collections.orgId, orgId), eq(collections.isDeleted, false)),
+        ),
+    );
+    const data = getLocksForGuids(guids.map((r) => r.guid!).filter(Boolean));
+    return c.json({ success: true, data });
   },
 );
