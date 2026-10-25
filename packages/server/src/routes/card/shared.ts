@@ -117,6 +117,9 @@ export async function findCardMatches(
 ): Promise<CardMatchSearchResult> {
   const { gameKey, lang } = scope;
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
+  const rarePrintingSql =
+    resolveCardSearchForGame(gameKey, lang)?.adapter.rarePrintingSql ??
+    sql`false`;
 
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(sql`
@@ -134,6 +137,7 @@ export async function findCardMatches(
           name,
           set_code,
           embedding AS face_embedding,
+          (${rarePrintingSql}) AS rare_printing,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
         WHERE game_key = ${gameKey} ${langFilter(scope)}
@@ -147,6 +151,7 @@ export async function findCardMatches(
           name,
           set_code,
           back_embedding AS face_embedding,
+          (${rarePrintingSql}) AS rare_printing,
           back_embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
         WHERE back_embedding IS NOT NULL
@@ -168,6 +173,7 @@ export async function findCardMatches(
         lang,
         name,
         set_code,
+        rare_printing,
         distance,
         face_embedding <=> first_value(face_embedding) OVER (ORDER BY distance) AS leader_distance
       FROM nearest
@@ -244,7 +250,32 @@ export async function findCardMatches(
       };
     }
 
-    const [leader] = rows;
+    const topRow = matches.rows[0];
+    const regularRow =
+      topRow?.rare_printing === true
+        ? matches.rows.find(
+            (row) =>
+              row.rare_printing !== true &&
+              row.name === topRow.name &&
+              (row.leader_distance as number) <=
+                DUPLICATE_PRINTING_MAX_DISTANCE,
+          )
+        : undefined;
+    const ranked = regularRow
+      ? [
+          {
+            ...rows[0],
+            id: regularRow.card_id as string,
+            cardId: regularRow.card_id as string,
+            lang: regularRow.lang as string,
+            setCode: regularRow.set_code as string,
+            distance: regularRow.distance as number,
+          },
+          ...rows.filter((row) => row.cardId !== regularRow.card_id),
+        ]
+      : rows;
+
+    const [leader] = ranked;
     const preferred = preferredSetCode
       ? await tx.execute(sql`
           SELECT card_id, ${cardDistanceSql(embeddingStr)} AS distance
@@ -266,9 +297,9 @@ export async function findCardMatches(
             cardId: preferredRow.card_id as string,
             distance: preferredRow.distance as number,
           },
-          ...rows.filter((row) => row.name !== leader.name),
+          ...ranked.filter((row) => row.name !== leader.name),
         ]
-      : rows;
+      : ranked;
 
     const matchList: SearchCardMatch[] = accepted.map(
       ({ id, cardId, lang: matchLang, distance, confidence }) => ({
