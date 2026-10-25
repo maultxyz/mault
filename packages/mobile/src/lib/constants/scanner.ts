@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import type { ScannerPhase } from "@/lib/interfaces/scanner";
+import type { ScannerPauseReason, ScannerPhase } from "@/lib/interfaces/scanner";
 
 export const BIN_DATA_RETRY_MS = 5000;
 export const CAPTURE_TARGET_RESOLUTION = { width: 1080, height: 1920 } as const;
@@ -28,7 +28,8 @@ export const PAUSE_TONES = {
   jam: "destructive",
   "save-failed": "destructive",
   "sorter-disconnected": "destructive",
-} as const;
+  "bin-data-unavailable": "warning",
+} as const satisfies Record<ScannerPauseReason, string>;
 export const SCAN_REGION_MASK_OPACITY = 0.4;
 export const SCAN_REGION_STROKE_OPACITY = 0.9;
 export const SCAN_REGION_VIRTUAL_HEIGHT = 1000;
