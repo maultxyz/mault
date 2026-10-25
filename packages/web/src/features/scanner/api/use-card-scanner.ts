@@ -624,7 +624,7 @@ export function useCardScanner({
   }, [handleError]);
 
   useEffect(() => {
-    if (cameraSource === "phone") return; // handled by the phone-status effect below
+    if (cameraSource === "phone") return;
     if (cameraStatus === "requesting") {
       updateStatus("requesting-camera");
     } else if (cameraStatus === "error") {

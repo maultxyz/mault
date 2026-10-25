@@ -35,7 +35,7 @@ export interface CornerDetection {
 }
 
 export interface ScanRegion {
-  coverage: number; // 0-1
+  coverage: number;
   offsetX: number; // -0.5 to 0.5
   offsetY: number; // -0.5 to 0.5
 }

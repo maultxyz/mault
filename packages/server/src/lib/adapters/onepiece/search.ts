@@ -74,7 +74,7 @@ export function dedupeOnePieceRows(rows: OptcgCard[]): {
       continue;
     }
     if (!raw.card_image || kept.raw.card_image === raw.card_image) {
-      continue; // true re-listing across catalogs
+      continue;
     }
 
     const stem = imageStem(raw.card_image);
@@ -216,7 +216,7 @@ export async function searchCards(
   let errorStatus: number | undefined;
   for (const response of responses) {
     if (response.status === 404) {
-      anyOk = true; // the filtered endpoints 404 on no matches
+      anyOk = true;
       continue;
     }
     if (!response.ok) {
