@@ -137,25 +137,25 @@
     "gridView": "Grid view",
     "listView": "List view",
     "groupDuplicates": "Group duplicates",
-    "sessionSummaryExport": "Session summary & export",
     "deleteScannedCardsTitle": "Delete Scanned Cards",
     "deleteScannedCardsDescription": "This will permanently delete all cards from your collection. This action cannot be undone.",
     "clearing": "Clearing...",
     "clearAll": "Clear All",
-    "clearAllCardsTitle": "Clear all cards",
-    "density": "Card size: {{density}}",
     "densities": {
       "compact": "compact",
       "comfortable": "comfortable",
       "large": "large"
     },
-    "review": "Review",
     "export": "Export",
     "reviewCards": "Review cards one by one (R)",
-    "sortAndFilter": "Sort and filter",
     "sortHeading": "Sort",
     "filterHeading": "Filter",
-    "done": "Done"
+    "done": "Done",
+    "viewOptions": "View options",
+    "displayHeading": "Display",
+    "cardSize": "Card size",
+    "moreActions": "More actions",
+    "reviewCount": "Review {{count}}"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",

@@ -16,7 +16,7 @@ import {
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CardSortFilterDrawer } from "@/features/cards/components/card-sort-filter-drawer";
+import { CardViewOptionsDrawer } from "@/features/cards/components/card-view-options-drawer";
 import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
 import { MobileCardTile } from "@/features/scanner/components/mobile-card-tile";
 import type { MobileMonitorCardsProps } from "@/lib/interfaces/scanner";
@@ -27,7 +27,6 @@ import {
   IconHelpCircle,
   IconListCheck,
   IconSearch,
-  IconStack2,
   IconWifiOff,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -96,7 +95,7 @@ export function MobileMonitorCards({
               }}
             />
           )}
-          <CardSortFilterDrawer
+          <CardViewOptionsDrawer
             sortKey={sortKey}
             onSortChange={setSortKey}
             sortableFields={sortableFields}
@@ -107,20 +106,22 @@ export function MobileMonitorCards({
             availableColors={stats?.colors ?? []}
             availableFoilTypes={stats?.foilTypes ?? []}
             binCount={binCount}
+            groupDuplicates={groupDuplicates}
+            onGroupDuplicatesChange={setGroupDuplicates}
             triggerClassName={MOBILE_ICON_BUTTON_CLASS}
           />
         </div>
-        <div className="-mx-5 flex gap-2 overflow-x-auto px-5">
-          {canEditCards && needsReviewCount > 0 && onStartReview && (
-            <Button
-              className={cn(MOBILE_FILTER_CHIP_CLASS, "rounded-full")}
-              onClick={onStartReview}
-            >
-              <IconListCheck />
-              {t("mobileMonitor.review", { count: needsReviewCount })}
-            </Button>
-          )}
-          {showReviewChip && (
+        {showReviewChip && (
+          <div className="-mx-5 flex gap-2 overflow-x-auto px-5">
+            {canEditCards && needsReviewCount > 0 && onStartReview && (
+              <Button
+                className={cn(MOBILE_FILTER_CHIP_CLASS, "rounded-full")}
+                onClick={onStartReview}
+              >
+                <IconListCheck />
+                {t("mobileMonitor.review", { count: needsReviewCount })}
+              </Button>
+            )}
             <Button
               variant="ghost"
               className={cn(
@@ -142,21 +143,8 @@ export function MobileMonitorCards({
                 {needsReviewCount}
               </span>
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            className={cn(
-              MOBILE_FILTER_CHIP_CLASS,
-              groupDuplicates
-                ? MOBILE_FILTER_CHIP_ACTIVE_CLASS
-                : MOBILE_FILTER_CHIP_IDLE_CLASS,
-            )}
-            onClick={() => setGroupDuplicates(!groupDuplicates)}
-          >
-            <IconStack2 />
-            {t("mobileMonitor.groupDuplicates")}
-          </Button>
-        </div>
+          </div>
+        )}
       </div>
 
       {status === "error" && (

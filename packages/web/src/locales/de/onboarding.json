@@ -25,7 +25,7 @@
     },
     "exportCollection": {
       "title": "Eine Sammlung exportieren",
-      "content": "Exportiere deine gescannten Karten von hier aus als CSV, Manabox, Moxfield, TCGplayer oder Card Kingdom."
+      "content": "Öffne dieses Menü und wähle Exportieren, um deine gescannten Karten als CSV, Manabox, Moxfield, TCGplayer oder Card Kingdom zu speichern."
     },
     "manageCollections": {
       "title": "Sammlungen verwalten",

@@ -9,14 +9,16 @@ import { IconButton } from "@/components/ui/icon-button";
 import { FilterChip } from "@/features/collections/components/filter-chip";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CardSortFilterSheetProps } from "@/lib/interfaces/collections";
+import type { CardViewOptionsSheetProps } from "@/lib/interfaces/collections";
 
 function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
 }
 
-export function CardSortFilterSheet({
+export function CardViewOptionsSheet({
   visible,
+  grouped,
+  onGroupedChange,
   sortOptions,
   selectedSort,
   onSortChange,
@@ -25,7 +27,7 @@ export function CardSortFilterSheet({
   binCount,
   onChange,
   onClose,
-}: CardSortFilterSheetProps) {
+}: CardViewOptionsSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
@@ -57,11 +59,19 @@ export function CardSortFilterSheet({
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
           <AppText size="lg" heading weight="bold" style={{ flex: 1 }}>
-            {t("collection.sortAndFilter")}
+            {t("collection.viewOptions")}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.xl, paddingBottom: SPACING.lg }}>
+          {section(t("collection.display"), [
+            <FilterChip
+              key="grouped"
+              label={t("collection.groupDuplicates")}
+              selected={grouped}
+              onPress={() => onGroupedChange(!grouped)}
+            />,
+          ])}
           {section(
             t("collection.sort.title"),
             sortOptions.map((option) => (

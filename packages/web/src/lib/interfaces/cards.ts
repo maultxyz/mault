@@ -127,6 +127,7 @@ export interface CardToolbarProps {
   sortableFields: FieldMeta[];
   onExport?: () => void;
   onStartReview?: () => void;
+  needsReviewCount?: number;
   collectionName?: string;
   onClearAll?: () => void;
   hasCards: boolean;
@@ -386,9 +387,19 @@ export interface CardFilterFieldsProps {
   binCount?: number;
 }
 
-export interface CardSortFilterDrawerProps
+export interface CardDisplayOptionsProps {
+  viewMode?: CardViewMode;
+  onViewModeChange?: (mode: CardViewMode) => void;
+  density?: CardGridDensity;
+  onDensityChange?: (density: CardGridDensity) => void;
+  groupDuplicates?: boolean;
+  onGroupDuplicatesChange?: (grouped: boolean) => void;
+}
+
+export interface CardViewOptionsDrawerProps
   extends CardSortOptionsProps,
-    CardFilterFieldsProps {
+    CardFilterFieldsProps,
+    CardDisplayOptionsProps {
   triggerClassName?: string;
 }
 

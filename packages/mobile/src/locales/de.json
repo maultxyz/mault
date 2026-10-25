@@ -746,7 +746,8 @@
       "removeTitle_one": "Diese Karte entfernen?",
       "removeTitle_other": "{{count}} Exemplare entfernen?"
     },
-    "sortAndFilter": "Sortieren und filtern"
+    "viewOptions": "Ansichtsoptionen",
+    "display": "Anzeige"
   },
   "cardDetail": {
     "fallbackTitle": "Kartendetails",

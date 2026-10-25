@@ -137,25 +137,25 @@
     "gridView": "Vue grille",
     "listView": "Vue liste",
     "groupDuplicates": "Grouper les doublons",
-    "sessionSummaryExport": "Résumé de session et export",
     "deleteScannedCardsTitle": "Supprimer les cartes scannées",
     "deleteScannedCardsDescription": "Cela supprimera définitivement toutes les cartes de ta collection. Cette action est irréversible.",
     "clearing": "Suppression...",
     "clearAll": "Tout effacer",
-    "clearAllCardsTitle": "Effacer toutes les cartes",
-    "density": "Taille des cartes : {{density}}",
     "densities": {
       "compact": "compacte",
       "comfortable": "normale",
       "large": "grande"
     },
-    "review": "Vérifier",
     "export": "Exporter",
     "reviewCards": "Vérifier les cartes une par une (R)",
-    "sortAndFilter": "Trier et filtrer",
     "sortHeading": "Trier",
     "filterHeading": "Filtrer",
-    "done": "Terminé"
+    "done": "Terminé",
+    "viewOptions": "Options d'affichage",
+    "displayHeading": "Affichage",
+    "cardSize": "Taille des cartes",
+    "moreActions": "Plus d'actions",
+    "reviewCount": "Vérifier ({{count}})"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
