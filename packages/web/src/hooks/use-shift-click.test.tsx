@@ -4,9 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useShiftClick } from "@/hooks/use-shift-click";
 
-// Mirrors how ScannedCardItem / ScannedCardTable / CollectionTile wire the
-// hook: Base UI fires onCheckedChange from the hidden input's change event,
-// which has no shiftKey, so shift has to be captured on mousedown.
 function SelectBox({ onToggle }: { onToggle: (shiftKey: boolean) => void }) {
   const { onMouseDown, consumeShift } = useShiftClick();
   return (
