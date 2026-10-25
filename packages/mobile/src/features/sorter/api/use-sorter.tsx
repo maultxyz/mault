@@ -11,6 +11,7 @@ import {
 } from "react";
 import {
   CHANNEL_OFFSET,
+  type CommLogEntry,
   DEFAULT_CHANNEL_LAYOUT,
   DEVICE_LEASE_HEARTBEAT_MS,
   JAM_CLEAR_DEVICE_TIMEOUT_MS,
@@ -23,6 +24,7 @@ import {
   SERIAL_HEARTBEAT_TIMEOUT_MS,
   SERIAL_IDENTIFY_ATTEMPT_TIMEOUT_MS,
   SERIAL_IDENTIFY_TIMEOUT_MS,
+  type SerialReply,
   statusResetReason,
   statusUptimeMs,
   SERIAL_HEARTBEAT_MAX_MISSES,
@@ -55,12 +57,10 @@ import type { Device } from "@/lib/interfaces/devices";
 import type {
   ByteTransport,
   CloudOpenResult,
-  CommLogEntry,
   DiscoveredSorter,
   SorterContextValue,
   SorterError,
   SensorNote,
-  SorterMessage,
   SorterNotice,
   SorterPhase,
   SorterStatusReply,
@@ -80,7 +80,7 @@ async function openTransport(id: string): Promise<CloudOpenResult> {
   return { ok: true, transport: await BleTransport.connect(id) };
 }
 
-function parseTest(reply: SorterMessage | null): TestOutcome {
+function parseTest(reply: SerialReply | null): TestOutcome {
   if (!reply) return { ok: false, error: null, blockedModule: null, servoDriverMissing: false };
   const ok = reply.status === "test_complete";
   return {
@@ -117,7 +117,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const launchedRef = useRef(false);
   const { status: sessionStatus } = useSession();
 
-  useEffect(() => link.subscribeLog(setCommLog), []);
+  useEffect(() => link.subscribeCommLog(() => setCommLog(link.getCommLog())), []);
 
   const stopDiscovery = useCallback(() => {
     if (discoveryTimerRef.current) clearTimeout(discoveryTimerRef.current);
@@ -134,7 +134,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
 
   const teardown = useCallback(async () => {
     attemptRef.current += 1;
-    link.bootListener = null;
+    link.onBootBanner = null;
     const transport = link.detach();
     const leased = deviceRef.current;
     deviceRef.current = null;
@@ -283,6 +283,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
         await transport.close();
         return;
       }
+      link.clearCommLog();
       link.attach(transport);
       transport.onDisconnect(() => {
         console.warn("[Sorter] transport disconnected", JSON.stringify({ stale: stale() }));
@@ -334,9 +335,10 @@ export function SorterProvider({ children }: { children: ReactNode }) {
         writeKv(SORTER_AUTO_CONNECT_KEY, bound.autoConnect ? "1" : null);
         void queryClient.invalidateQueries({ queryKey: ["devices"] });
 
-        link.bootListener = (banner) => {
-          if (stale()) return;
-          recoverRef.current(banner);
+        link.onBootBanner = (banner) => {
+          if (!link.hasTaggedReplies) return false;
+          if (!stale()) recoverRef.current(banner);
+          return true;
         };
 
         setPhase("syncing");
@@ -402,7 +404,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     let misses = 0;
     let checking = false;
     const interval = setInterval(async () => {
-      if (checking || link.isBusy() || !link.activeTransport) return;
+      if (checking || link.isBusy() || !link.transport) return;
       checking = true;
       try {
         const sentAt = Date.now();
@@ -434,11 +436,11 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     async (status: unknown) => {
       const bound = deviceRef.current;
       console.warn("[Sorter] restart detected", JSON.stringify(status));
-      if (!bound || !link.activeTransport || resyncingRef.current) return;
+      if (!bound || !link.transport || resyncingRef.current) return;
       resyncingRef.current = true;
       const attempt = attemptRef.current;
       const stale = () => attemptRef.current !== attempt;
-      link.failPending();
+      link.failPendingReplies();
       uptimeRef.current = statusUptimeMs(status);
       const bannerVersion = (status as SorterStatusReply | null)?.version;
       if (typeof bannerVersion === "string") versionRef.current = bannerVersion;
@@ -519,7 +521,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   }, []);
   const applySavedCalibration = useCallback(async () => {
     const bound = deviceRef.current;
-    if (!bound || !link.activeTransport) return;
+    if (!bound || !link.transport) return;
     await syncCalibration(bound, versionRef.current);
   }, [syncCalibration]);
   const subscribe = useCallback<SorterContextValue["subscribe"]>(
