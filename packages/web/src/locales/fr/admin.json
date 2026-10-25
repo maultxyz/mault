@@ -545,5 +545,16 @@
       "saved": "Rôle des comptes liés enregistré.",
       "saveFailed": "Impossible d'enregistrer le rôle des comptes liés."
     }
+  },
+  "rollbarTest": {
+    "heading": "Tester Rollbar",
+    "description": "Envoie une erreur de test à Rollbar depuis le client et/ou le serveur pour vérifier que le signalement des erreurs fonctionne",
+    "testClientButton": "Tester le client",
+    "testServerButton": "Tester le serveur",
+    "testingButton": "Envoi...",
+    "toasts": {
+      "clientSent": "Erreur de test envoyée à Rollbar (client).",
+      "serverError": "Impossible d'envoyer l'erreur de test à Rollbar (serveur)"
+    }
   }
 }

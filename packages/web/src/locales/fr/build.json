@@ -371,8 +371,7 @@
         "title": "Imprimer les pièces structurelles",
         "steps": {
           "printSortingModule": {
-            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir du <mesh>modèle MakerWorld</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>).",
-            "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
+            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir du <mesh>modèle MakerWorld</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>)."
           },
           "printFeederModule": {
             "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie.",
