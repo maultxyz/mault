@@ -9,7 +9,7 @@ function toHex(buffer: ArrayBuffer): string {
     .join("");
 }
 
-async function sha256Hex(bytes: Uint8Array): Promise<string> {
+async function sha256Hex(bytes: Uint8Array<ArrayBuffer>): Promise<string> {
   return toHex(await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, bytes));
 }
 
