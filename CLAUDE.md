@@ -11,6 +11,8 @@ pnpm --filter @magic-vault/server dev
 pnpm --filter @magic-vault/web dev
 pnpm build                                    # tsup (server), tsc -b + vite build (web)
 pnpm --filter @magic-vault/web lint            # only package with a lint script
+pnpm --filter @magic-vault/server test         # node:test via tsx, tests/*.test.ts
+pnpm --filter @magic-vault/web test            # Vitest + jsdom + Testing Library
 
 pnpm --filter @magic-vault/server db:generate  # migration from schema.ts changes
 pnpm --filter @magic-vault/server db:migrate
@@ -23,7 +25,7 @@ pnpm --filter @magic-vault/desktop start       # Electron shell against MAULT_UR
 pnpm --filter @magic-vault/desktop dist        # installers into packages/desktop/release
 ```
 
-No automated tests. Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
+Tests run in Build Check (`build-check.yml`): server `tests/*.test.ts` (node:test) and web `src/**/*.test.{ts,tsx}` (Vitest, own `vitest.config.ts` so tests skip the PWA/Tailwind plugins; CI is Node 20, so test deps must support it). Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Architecture
 
@@ -152,6 +154,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - API calls go through `lib/api/client.ts` or `features/*/api/` wrappers.
 - Forms: React Hook Form + Zod resolver, never `useState` per field.
 - Nothing auto-saves: settings edit a draft saved through the page's single `SaveBar` with `UnsavedChangesGuard`. Draft forms take server data via `values` with `resetOptions: { keepDirtyValues: true }`; Discard must pass `DISCARD_RESET_OPTIONS`. Discrete actions (dialog submits, deletes, uploads, tests) stay immediate.
+- Base UI `Checkbox` fires `onCheckedChange` from its hidden input's change event, which has no `shiftKey`; capture shift on mousedown with `useShiftClick` (covered by `use-shift-click.test.tsx`).
 - Hotkeys only through `useHotkeys`, declared in `HOTKEYS` (`lib/constants/hotkeys.ts`).
 - Toasts only through the root `Toaster` in `main.tsx`.
 - The Rules page (`SORTING_RULES_PATH`) is outside `DesktopOnlyGuard` and renders `MobileBins` on phones (Rules tab in `MobileNav`).
