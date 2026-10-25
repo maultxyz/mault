@@ -11,7 +11,7 @@ import type {
   CardScannedEmbedResult,
 } from "../interfaces/discord";
 
-const CARD_SCANNED_COLOR = 0x5865f2; // Discord blurple
+const CARD_SCANNED_COLOR = 0x5865f2;
 export const SCAN_ATTACHMENT_NAME = "scan.jpg";
 
 export function resolveImageUrl(url: string): string {

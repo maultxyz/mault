@@ -11,7 +11,7 @@ export function getOwnAuth() {
       storage: createPostgresAuthStorage(pool),
       tokenPepper: process.env.OWN_AUTH_TOKEN_PEPPER,
       session: {
-        ttlMs: 30 * 24 * 60 * 60 * 1000, // 30 days
+        ttlMs: 30 * 24 * 60 * 60 * 1000,
       },
       emailProvider: new LocalEmailProvider(),
     });

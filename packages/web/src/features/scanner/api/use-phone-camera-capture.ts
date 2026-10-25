@@ -81,7 +81,7 @@ export function usePhoneCameraCapture(collectionGuid: string | undefined) {
   const requestCapture = useCallback((): Promise<string | null> => {
     if (status !== "connected") return Promise.resolve(null);
     return new Promise((resolve) => {
-      resolvePending(null); // cancel any stale in-flight request first
+      resolvePending(null);
       const requestId = crypto.randomUUID();
       const timeout = setTimeout(() => {
         pendingCaptureRef.current = null;
