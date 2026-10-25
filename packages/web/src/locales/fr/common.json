@@ -143,7 +143,13 @@
   },
   "footer": {
     "donate": "Faire un don",
-    "donateAriaLabel": "Soutenir Mault sur Buy Me a Coffee"
+    "donateAriaLabel": "Soutenir Mault sur Buy Me a Coffee",
+    "openSource": "Open source",
+    "reportIssue": "Signaler un problème",
+    "signIn": "Se connecter",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "copyright": "© {{year}} Mault LLC"
   },
   "publicNav": {
     "pagesAria": "Pages du site",

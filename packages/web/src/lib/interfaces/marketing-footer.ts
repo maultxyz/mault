@@ -12,3 +12,8 @@ export interface MarketingFooterProps {
   end: ReactNode;
   wide?: boolean;
 }
+
+export interface GuideFooterProps {
+  showOpenSourceLink?: boolean;
+  showSignInLink?: boolean;
+}

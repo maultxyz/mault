@@ -70,14 +70,6 @@
       "modules_other": "{{count}} Module"
     }
   },
-  "footer": {
-    "openSource": "Open Source",
-    "reportIssue": "Problem melden",
-    "signIn": "Anmelden",
-    "privacy": "Datenschutz",
-    "terms": "AGB",
-    "copyright": "© {{year}} Mault LLC"
-  },
   "bom": {
     "heading": "Stückliste",
     "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",

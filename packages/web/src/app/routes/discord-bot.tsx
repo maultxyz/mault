@@ -1,6 +1,6 @@
 import { DiscordBotCommands } from "@/features/discord-bot/components/commands";
 import { DiscordBotFeatures } from "@/features/discord-bot/components/features";
-import { DiscordBotFooter } from "@/features/discord-bot/components/footer";
+import { GuideFooter } from "@/components/guide-footer";
 import { DiscordBotHero } from "@/features/discord-bot/components/hero";
 import { DiscordBotSetup } from "@/features/discord-bot/components/setup";
 import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
@@ -26,7 +26,7 @@ export default function DiscordBotPage() {
         <DiscordBotCommands step="02" />
         <DiscordBotFeatures step="03" />
       </main>
-      <DiscordBotFooter />
+      <GuideFooter showSignInLink />
     </div>
   );
 }
