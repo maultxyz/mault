@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 export function AppHotkeys() {
   const navigate = useNavigate();
-  const { isAdmin } = useRole();
+  const { isStaff } = useRole();
   const go = (route: string) => () => navigate(route);
 
   useHotkeys({
@@ -22,7 +22,7 @@ export function AppHotkeys() {
     goStorage: go(HOTKEY_ROUTES.goStorage),
     goCalibrate: go(HOTKEY_ROUTES.goCalibrate),
     goSettings: go(HOTKEY_ROUTES.goSettings),
-    goAdmin: isAdmin ? go(HOTKEY_ROUTES.goAdmin) : undefined,
+    goAdmin: isStaff ? go(HOTKEY_ROUTES.goAdmin) : undefined,
   });
 
   return null;

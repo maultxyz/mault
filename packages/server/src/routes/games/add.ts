@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { games } from "../../db/schema";
@@ -10,7 +11,7 @@ import type { GameInput } from "@magic-vault/shared";
 export const addGameRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const {
       key,

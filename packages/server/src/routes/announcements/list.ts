@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
@@ -9,7 +10,7 @@ import { toAnnouncement } from "./shared";
 export const listAnnouncementsRoute = new Hono<AppEnv>().get(
   "/",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     try {
       const rows = await db

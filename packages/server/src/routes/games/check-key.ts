@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken } from "./shared";
@@ -5,7 +6,7 @@ import { keyIsTaken } from "./shared";
 export const checkKeyRoute = new Hono<AppEnv>().get(
   "/check-key",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const key = c.req.query("key")?.trim();
     const excludeGuid = c.req.query("excludeGuid") || undefined;

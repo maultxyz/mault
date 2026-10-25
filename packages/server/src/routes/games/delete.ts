@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
@@ -8,7 +9,7 @@ import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 export const deleteGameRoute = new Hono<AppEnv>().delete(
   "/:guid",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const guid = c.req.param("guid");
     try {

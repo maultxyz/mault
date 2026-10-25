@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { desc } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
@@ -9,7 +10,7 @@ import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 export const impersonationAuditRoute = new Hono<AppEnv>().get(
   "/impersonation-audit",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const rows = await db
       .select({
