@@ -118,7 +118,9 @@ async function loadProfile(): Promise<boolean> {
 function clearLocalSession(): void {
   sessionToken = null;
   cachedJwt = null;
-  void writeSecure(SESSION_TOKEN_KEY, null);
+  void writeSecure(SESSION_TOKEN_KEY, null).catch((error: unknown) =>
+    console.warn("Clearing the stored session failed", error),
+  );
   setSnapshot({ status: "signed-out", user: null, organizations: [] });
 }
 
@@ -150,7 +152,13 @@ async function startSession(
   if ("error" in result) return { error: result.error };
   sessionToken = result.sessionToken;
   cachedJwt = null;
-  await writeSecure(SESSION_TOKEN_KEY, sessionToken);
+  try {
+    await writeSecure(SESSION_TOKEN_KEY, sessionToken);
+  } catch (error) {
+    console.warn("Saving the session failed", error);
+    clearLocalSession();
+    return { error: "storage" };
+  }
   try {
     if (await loadProfile()) return {};
   } catch {
