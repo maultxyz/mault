@@ -32,7 +32,21 @@ async function acceptPendingInviteIfAny(): Promise<void> {
   const token = localStorage.getItem(PENDING_INVITE_KEY);
   if (!token) return;
   localStorage.removeItem(PENDING_INVITE_KEY);
-  await localPost("/api/local-auth/invites/accept", { token }).catch(() => {});
+  const result = await localPost<{ success: boolean; message?: string }>(
+    "/api/local-auth/invites/accept",
+    { token },
+  );
+  if (!result.success) {
+    throw new Error(result.message ?? "The invite couldn't be accepted.");
+  }
+}
+
+function pendingInviteError(error: unknown): { error: string } {
+  console.error("Accepting the pending invite failed", error);
+  return {
+    error:
+      "You're signed in, but the invite couldn't be accepted. Open the invite link again.",
+  };
 }
 
 // Local-mode only (see app/routes/local/auth.tsx) - own-auth's sign-up/
@@ -54,7 +68,11 @@ export async function signInLocal(
     }
     setLocalToken(res.data.token);
     notifyLocalSessionChanged();
-    await acceptPendingInviteIfAny();
+    try {
+      await acceptPendingInviteIfAny();
+    } catch (error) {
+      return pendingInviteError(error);
+    }
     return {};
   } catch {
     return { error: "Couldn't reach the server. Please try again." };
@@ -81,8 +99,14 @@ export async function signUpLocal(
     // invite link joins that org - bootstrap below is a no-op once the
     // account already has at least one org, so it won't also create a
     // redundant "Home" org on top of it.
-    await acceptPendingInviteIfAny();
-    await apiPost("/api/local-auth/bootstrap").catch(() => {});
+    try {
+      await acceptPendingInviteIfAny();
+    } catch (error) {
+      return pendingInviteError(error);
+    }
+    await apiPost("/api/local-auth/bootstrap").catch((error) =>
+      console.error("Creating the first organization failed", error),
+    );
     return {};
   } catch {
     return { error: "Couldn't reach the server. Please try again." };
