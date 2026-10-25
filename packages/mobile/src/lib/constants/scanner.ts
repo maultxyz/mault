@@ -39,3 +39,7 @@ export const SVG_MASK_HIDE = "#000000";
 export const LIVE_DETECTION_INTERVAL_MS = 300;
 export const LIVE_CORNERS_SUPPORTED = Platform.OS === "android";
 export const LIVE_DETECTION_PAUSED_PHASES: ScannerPhase[] = ["loading-models", "capturing", "identifying", "error"];
+
+export const NOT_FOIL_OPTION = "none";
+export const ANY_SET_OPTION = "any";
+export const CARD_SET_PICKER_LIMIT = 100;

@@ -587,7 +587,12 @@
       "pairDesktopDescription": "QR-Code auf deinem Computer scannen",
       "collection": "Sammlung",
       "preset": "Regel-Preset",
-      "chooseCamera": "Kamera auswählen"
+      "chooseCamera": "Kamera auswählen",
+      "foilType": "Foil-Typ",
+      "notFoil": "Kein Foil",
+      "set": "Set",
+      "anySet": "Beliebiges Set",
+      "searchSets": "Sets suchen"
     }
   },
   "home": {

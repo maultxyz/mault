@@ -1,19 +1,48 @@
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { ListRow } from "@/components/ui/list-row";
+import { SearchInput } from "@/components/ui/search-input";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { OptionSheetProps } from "@/lib/interfaces/ui";
 
-export function OptionSheet({ visible, title, options, selected, onSelect, onClose }: OptionSheetProps) {
+export function OptionSheet({
+  visible,
+  title,
+  options,
+  selected,
+  onSelect,
+  onClose,
+  searchPlaceholder,
+  maxVisibleOptions,
+}: OptionSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
+  const [query, setQuery] = useState("");
+  const visibleOptions = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    const matches = needle
+      ? options.filter(
+          (option) => option.label.toLowerCase().includes(needle) || option.value.toLowerCase().includes(needle),
+        )
+      : options;
+    return maxVisibleOptions ? matches.slice(0, maxVisibleOptions) : matches;
+  }, [options, query, maxVisibleOptions]);
+  const close = () => {
+    setQuery("");
+    onClose();
+  };
+  const select = (value: string) => {
+    setQuery("");
+    onSelect(value);
+  };
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={close} statusBarTranslucent>
+      <Pressable accessibilityLabel={t("common.dismiss")} onPress={close} style={{ flex: 1, backgroundColor: colors.overlay }} />
       <View
         style={{
           maxHeight: "75%",
@@ -39,13 +68,26 @@ export function OptionSheet({ visible, title, options, selected, onSelect, onClo
             {title}
           </AppText>
         </View>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER - SPACING.sm }}>
-          {options.map((option) => (
+        {searchPlaceholder ? (
+          <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.sm }}>
+            <SearchInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder={searchPlaceholder}
+              accessibilityLabel={searchPlaceholder}
+            />
+          </View>
+        ) : null}
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER - SPACING.sm }}
+        >
+          {visibleOptions.map((option) => (
             <ListRow
               key={option.value}
               title={option.label}
               selected={selected.includes(option.value)}
-              onPress={() => onSelect(option.value)}
+              onPress={() => select(option.value)}
             />
           ))}
         </ScrollView>

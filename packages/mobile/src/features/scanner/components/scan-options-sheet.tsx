@@ -27,9 +27,14 @@ export function ScanOptionsSheet({
   showPreset,
   cameraName,
   showCamera,
+  foilTypeName,
+  showFoilType,
+  setName,
   onChooseCollection,
   onChoosePreset,
   onChooseCamera,
+  onChooseFoilType,
+  onChooseSet,
   onClose,
 }: ScanOptionsSheetProps) {
   const { t } = useTranslation();
@@ -115,6 +120,12 @@ export function ScanOptionsSheet({
                 onPress={onChooseCamera}
               />
             ) : null}
+          </ListGroup>
+          <ListGroup>
+            {showFoilType ? (
+              <ListRow icon="sparkles" title={t("scan.options.foilType")} value={foilTypeName} onPress={onChooseFoilType} />
+            ) : null}
+            <ListRow icon="filter" title={t("scan.options.set")} value={setName} onPress={onChooseSet} />
           </ListGroup>
           <ListGroup>
             <ListRow

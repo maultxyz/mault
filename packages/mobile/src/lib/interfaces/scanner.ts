@@ -162,6 +162,10 @@ export interface ScanSessionValue extends ScanSessionState {
   setHandScan: (value: boolean) => void;
   handScanActive: boolean;
   trackLiveCorners: (corners: LiveCorners | null) => void;
+  forcedFoilType: string | null;
+  setForcedFoilType: (foilType: string | null) => void;
+  forcedSetCode: string | null;
+  setForcedSetCode: (setCode: string | null) => void;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -220,9 +224,14 @@ export interface ScanOptionsSheetProps {
   showPreset: boolean;
   cameraName: string | null;
   showCamera: boolean;
+  foilTypeName: string;
+  showFoilType: boolean;
+  setName: string;
   onChooseCollection: () => void;
   onChoosePreset: () => void;
   onChooseCamera: () => void;
+  onChooseFoilType: () => void;
+  onChooseSet: () => void;
   onClose: () => void;
 }
 
