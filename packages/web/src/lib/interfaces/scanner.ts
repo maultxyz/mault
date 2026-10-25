@@ -568,6 +568,10 @@ export interface MonitorCardDetailProps {
   onClose: () => void;
 }
 
+export interface SessionLockBannerProps {
+  className?: string;
+}
+
 export interface SessionLockProps {
   className?: string;
   bannerClassName?: string;
