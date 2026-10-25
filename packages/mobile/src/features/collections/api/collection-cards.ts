@@ -9,7 +9,7 @@ import {
   type CollectionCardsSummary,
   type Result,
 } from "@magic-vault/shared";
-import { apiDelete, apiGet, apiPost, apiPut, unwrap } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import { SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
@@ -102,9 +102,7 @@ export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>
   queryOptions({
     queryKey: ["card-scan-origin", scanId] as const,
     queryFn: () =>
-      apiGet<Result<CardScanOrigin | null>>(`/api/collections/${guid}/cards/${scanId}/origin`).then(
-        (r) => r.data ?? null,
-      ),
+      unwrapOr(apiGet<Result<CardScanOrigin | null>>(`/api/collections/${guid}/cards/${scanId}/origin`), null),
     staleTime: Infinity,
   });
 

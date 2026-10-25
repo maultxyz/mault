@@ -69,3 +69,12 @@ export async function unwrap<T>(
   }
   return result.data;
 }
+
+export async function unwrapOr<T>(
+  request: Promise<{ success: boolean; data?: T | null; message?: string }>,
+  fallbackWhenEmpty: T,
+): Promise<T> {
+  const result = await request;
+  if (!result.success) throw new Error(result.message ?? "Request failed.");
+  return result.data ?? fallbackWhenEmpty;
+}
