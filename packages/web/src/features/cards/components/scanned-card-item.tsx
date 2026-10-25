@@ -11,6 +11,7 @@ import { BinLocationDiagram } from "@/features/bins/components/bin-location-diag
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
+import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconDownload, IconSparkles } from "@tabler/icons-react";
@@ -46,6 +47,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   );
   const matchPercent = card.distance != null ? getMatchPercent(card) : 0;
   const { priceOf, format } = usePriceSource();
+  const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
   const displayPrice = priceOf(card, isFoil, condition);
   const showReviewStatus = hasAlternatives || lowConfidenceMatch || isReviewed;
   return (
@@ -155,12 +157,11 @@ export const ScannedCardItem = memo(function ScannedCardItem({
       {onToggleSelect && (
         <span
           className="absolute top-2 right-2 z-30 flex size-6 items-center justify-center rounded-md bg-background/80 shadow-sm backdrop-blur-sm"
-          onMouseDown={(e) => {
-            if (e.shiftKey) e.preventDefault();
-          }}
+          onMouseDown={onSelectMouseDown}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            consumeShift();
             onToggleSelect({ shiftKey: e.shiftKey });
           }}
         >
@@ -168,11 +169,8 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             checked={isSelected}
             aria-label={t("scannedCardTable.selectRow", { name: card.name })}
             onClick={(e) => e.stopPropagation()}
-            onCheckedChange={(_, details) =>
-              onToggleSelect({
-                shiftKey:
-                  details.event instanceof MouseEvent && details.event.shiftKey,
-              })
+            onCheckedChange={() =>
+              onToggleSelect({ shiftKey: consumeShift() })
             }
           />
         </span>
