@@ -46,6 +46,7 @@ import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 import { useHandScan } from "@/features/scanner/lib/hand-scan";
 import { parseSerialReply } from "@magic-vault/shared";
+import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function CardScanner({
   className,
@@ -113,8 +114,7 @@ export function CardScanner({
     onRunTest,
     onCalibrateFirst,
   } = useConnectWithStaleCheck();
-  const bluetoothSupported =
-    typeof navigator !== "undefined" && !!navigator.bluetooth;
+  const bluetoothSupported = isWebBluetoothSupported();
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
   const {
