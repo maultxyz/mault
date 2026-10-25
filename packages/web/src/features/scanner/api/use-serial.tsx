@@ -198,7 +198,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         const trimmed =
           jsonStart > 0 ? rawTrimmed.slice(jsonStart) : rawTrimmed;
 
-        console.log("[Device] ←", trimmed); // eslint-disable-line no-console -- hardware debug trace
         pushCommLog("received", trimmed);
 
         let parsed: unknown;
@@ -255,7 +254,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
             return;
           }
           try {
-            console.log("[Device] →", text.trim()); // eslint-disable-line no-console -- hardware debug trace
             pushCommLog("sent", text.trim());
             await activeTransport.write(new TextEncoder().encode(text));
             resolve(true);
