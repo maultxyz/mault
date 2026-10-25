@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import {
-  devicesQueryOptions,
   saveDevice,
+  writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
@@ -58,7 +58,6 @@ import type {
   SetupStepHeadingProps,
   SetupTestState,
   SetupWizardStep,
-  Device,
   ModuleDelayField,
 } from "@/lib/interfaces/calibration";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -335,11 +334,7 @@ export function DeviceSetupWizard() {
       return;
     }
     const saved = result.data;
-    queryClient.setQueryData(
-      devicesQueryOptions(activeOrg?.id).queryKey,
-      (old: Device[] | undefined) =>
-        old?.map((d) => (d.guid === saved.guid ? saved : d)),
-    );
+    writeDeviceToCache(queryClient, activeOrg?.id, saved);
   };
 
   const handleFeederChange = (signedPercent: number) => {
@@ -410,11 +405,7 @@ export function DeviceSetupWizard() {
       return false;
     }
     const saved = result.data;
-    queryClient.setQueryData(
-      devicesQueryOptions(activeOrg?.id).queryKey,
-      (old: Device[] | undefined) =>
-        old?.map((d) => (d.guid === saved.guid ? saved : d)),
-    );
+    writeDeviceToCache(queryClient, activeOrg?.id, saved);
     return true;
   };
 

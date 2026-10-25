@@ -1,12 +1,11 @@
 import {
-  devicesQueryOptions,
   saveDevice,
+  writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
 import type {
   ModuleCountConfigContextValue,
-  Device,
 } from "@/lib/interfaces/calibration";
 import {
   DEFAULT_CHANNEL_LAYOUT,
@@ -27,7 +26,6 @@ export function ModuleCountConfigProvider({
   const { activeOrg } = useOrg();
   const device = useDevice();
   const queryClient = useQueryClient();
-  const devicesOpts = devicesQueryOptions(activeOrg?.id);
   const [isSaving, setIsSaving] = useState(false);
   const [pending, setPending] = useState<number | null>(null);
 
@@ -58,11 +56,7 @@ export function ModuleCountConfigProvider({
       if (!result.success) throw new Error(result.message);
       if (result.data) {
         const saved = result.data;
-        queryClient.setQueryData(
-          devicesOpts.queryKey,
-          (old: Device[] | undefined) =>
-            old ? old.map((d) => (d.guid === saved.guid ? saved : d)) : [saved],
-        );
+        writeDeviceToCache(queryClient, activeOrg?.id, saved);
       }
       queryClient.invalidateQueries({ queryKey: ["modules"] });
       queryClient.invalidateQueries({ queryKey: ["bin-routes"] });
@@ -72,7 +66,7 @@ export function ModuleCountConfigProvider({
     } finally {
       setIsSaving(false);
     }
-  }, [device, pending, queryClient, devicesOpts.queryKey]);
+  }, [device, pending, queryClient, activeOrg?.id]);
 
   return (
     <ModuleCountConfigContext
