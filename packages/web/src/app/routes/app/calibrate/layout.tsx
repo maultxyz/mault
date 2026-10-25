@@ -13,7 +13,8 @@ import { useCalibrationPage } from "@/features/calibration/api/use-calibration-p
 import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
 import { useRole } from "@/hooks/use-role";
 import { CalibrationTour } from "@/features/calibration/components/calibration-tour";
-import { SessionLock } from "@/features/scanner/components/session-lock";
+import { useIsSessionActive } from "@/features/scanner/api/use-is-session-active";
+import { SessionLockBanner } from "@/features/scanner/components/session-lock";
 import type {
   CalibrationSection,
   CalibrationPageState,
@@ -58,8 +59,7 @@ export default function CalibrateLayout() {
 
   const activePathSegment = location.pathname.split("/").pop() ?? "";
   const section =
-    CALIBRATION_PATH_SECTIONS[activePathSegment] ??
-    DEFAULT_CALIBRATION_SECTION;
+    CALIBRATION_PATH_SECTIONS[activePathSegment] ?? DEFAULT_CALIBRATION_SECTION;
   const setSection = (next: CalibrationSection) =>
     navigate(`/app/calibrate/${CALIBRATION_SECTION_PATHS[next]}`);
 
@@ -99,155 +99,167 @@ export default function CalibrateLayout() {
   const importInputRef = useRef<HTMLInputElement>(null);
   const setupWizard = useSetupWizard();
   const { isAdmin } = useRole();
+  const isSessionActive = useIsSessionActive();
 
   return (
-    <SessionLock className="flex flex-col flex-1 min-h-0 overflow-hidden lg:grid lg:grid-cols-12">
-      <SectionNav
-        title={t("page.title")}
-        subtitle={t("page.subtitle")}
-        items={sectionNavItems}
-        className="lg:col-span-2"
-        data-tour="calibration-sections"
-      />
+    <div className="flex flex-col flex-1 min-h-0">
+      <SessionLockBanner />
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden lg:grid lg:grid-cols-12">
+        <SectionNav
+          title={t("page.title")}
+          subtitle={t("page.subtitle")}
+          items={sectionNavItems}
+          className="lg:col-span-2"
+          data-tour="calibration-sections"
+        />
 
-      <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4">
-        <div className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md">
+        <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4">
           <div
-            className="flex flex-wrap items-center gap-2"
-            data-tour="calibration-connect"
+            inert={isSessionActive}
+            aria-disabled={isSessionActive}
+            className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md"
           >
-            {isConnected ? (
-              <Button variant="outline" onClick={disconnect}>
-                <IconDeviceUsbFilled />
-                {t("calibratePage.disconnect")}
+            <div
+              className="flex flex-wrap items-center gap-2"
+              data-tour="calibration-connect"
+            >
+              {isConnected ? (
+                <Button variant="outline" onClick={disconnect}>
+                  <IconDeviceUsbFilled />
+                  {t("calibratePage.disconnect")}
+                </Button>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger render={<Button />}>
+                    <IconDeviceUsb />
+                    {t("calibratePage.connectDevice")}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <ConnectSorterMenuItems
+                      onConnectUsb={connect}
+                      onConnectBluetooth={connectBluetooth}
+                      onConnectCloud={connectCloud}
+                    />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              <Button
+                variant="outline"
+                disabled={!isConnected || isTesting || isUnconfigured}
+                onClick={handleTest}
+              >
+                {isTesting
+                  ? t("calibratePage.testing")
+                  : t("calibratePage.runTest")}
               </Button>
-            ) : (
+              <Button
+                variant="outline"
+                disabled={!isReady || activeBin !== null || isSampleRunning}
+                onClick={handleFeed}
+              >
+                {t("binRoutingControls.feed")}
+              </Button>
+              <Button
+                variant="outline"
+                disabled={!isReady || activeBin !== null || isSampleRunning}
+                onClick={handleDropCard}
+              >
+                {t("binRoutingControls.dropCard")}
+              </Button>
+              {isUnconfigured ? (
+                <span className="text-sm text-foreground/70">
+                  {t("calibratePage.calibrateBeforeTest")}
+                </span>
+              ) : (
+                isConnected &&
+                !isReady && (
+                  <span className="text-xs text-foreground/70">
+                    {t("calibratePage.testBeforeControls")}
+                  </span>
+                )
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
               <DropdownMenu>
-                <DropdownMenuTrigger render={<Button />}>
-                  <IconDeviceUsb />
-                  {t("calibratePage.connectDevice")}
+                <DropdownMenuTrigger render={<Button variant="outline" />}>
+                  {isImporting ? (
+                    <IconLoader2 className="animate-spin" />
+                  ) : (
+                    <IconFileSettings />
+                  )}
+                  {isImporting
+                    ? t("calibratePage.importing")
+                    : t("calibratePage.configMenu")}
+                  <IconChevronDown />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <ConnectSorterMenuItems
-                    onConnectUsb={connect}
-                    onConnectBluetooth={connectBluetooth}
-                    onConnectCloud={connectCloud}
-                  />
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleCopyCalibration}>
+                    <IconClipboard />
+                    {t("calibratePage.copyCalibration")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportConfig}>
+                    <IconDownload />
+                    {t("calibratePage.exportConfig")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    disabled={isImporting}
+                    onClick={() => importInputRef.current?.click()}
+                  >
+                    <IconUpload />
+                    {t("calibratePage.importConfig")}
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => void setupWizard.forceSetup()}
+                      >
+                        <IconRotateClockwise />
+                        {t("calibratePage.forceSetupWizard")}
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
-            <Button
-              variant="outline"
-              disabled={!isConnected || isTesting || isUnconfigured}
-              onClick={handleTest}
-            >
-              {isTesting
-                ? t("calibratePage.testing")
-                : t("calibratePage.runTest")}
-            </Button>
-            <Button
-              variant="outline"
-              disabled={!isReady || activeBin !== null || isSampleRunning}
-              onClick={handleFeed}
-            >
-              {t("binRoutingControls.feed")}
-            </Button>
-            <Button
-              variant="outline"
-              disabled={!isReady || activeBin !== null || isSampleRunning}
-              onClick={handleDropCard}
-            >
-              {t("binRoutingControls.dropCard")}
-            </Button>
-            {isUnconfigured ? (
-              <span className="text-sm text-foreground/70">
-                {t("calibratePage.calibrateBeforeTest")}
-              </span>
-            ) : (
-              isConnected &&
-              !isReady && (
-                <span className="text-xs text-foreground/70">
-                  {t("calibratePage.testBeforeControls")}
-                </span>
-              )
-            )}
+              <input
+                ref={importInputRef}
+                type="file"
+                accept="application/json"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file) void handleImportConfig(file);
+                }}
+              />
+              <CalibrationTour section={section} setSection={setSection} />
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="outline" />}>
-                {isImporting ? (
-                  <IconLoader2 className="animate-spin" />
-                ) : (
-                  <IconFileSettings />
-                )}
-                {isImporting
-                  ? t("calibratePage.importing")
-                  : t("calibratePage.configMenu")}
-                <IconChevronDown />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleCopyCalibration}>
-                  <IconClipboard />
-                  {t("calibratePage.copyCalibration")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExportConfig}>
-                  <IconDownload />
-                  {t("calibratePage.exportConfig")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  disabled={isImporting}
-                  onClick={() => importInputRef.current?.click()}
-                >
-                  <IconUpload />
-                  {t("calibratePage.importConfig")}
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => void setupWizard.forceSetup()}
-                    >
-                      <IconRotateClockwise />
-                      {t("calibratePage.forceSetupWizard")}
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <input
-              ref={importInputRef}
-              type="file"
-              accept="application/json"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                e.target.value = "";
-                if (file) void handleImportConfig(file);
-              }}
-            />
-            <CalibrationTour section={section} setSection={setSection} />
-          </div>
+
+          <SettingsSectionLayoutContext value="flat">
+            <div
+              inert={isSessionActive}
+              aria-disabled={isSessionActive}
+              className="flex flex-1 flex-col gap-6 pb-4"
+            >
+              <PageIntro
+                title={t(`sections.${section}`)}
+                description={t(`sectionIntros.${section}`)}
+              />
+              <Outlet context={calibrationPage} />
+            </div>
+          </SettingsSectionLayoutContext>
         </div>
 
-        <SettingsSectionLayoutContext value="flat">
-          <div className="flex flex-1 flex-col gap-6 pb-4">
-            <PageIntro
-              title={t(`sections.${section}`)}
-              description={t(`sectionIntros.${section}`)}
-            />
-            <Outlet context={calibrationPage} />
-          </div>
-        </SettingsSectionLayoutContext>
+        <StaleDeviceDialog
+          open={staleDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) onDismissStaleDialog();
+          }}
+          onRunTest={onRunTest}
+          onCalibrateFirst={onCalibrateFirst}
+        />
       </div>
-
-      <StaleDeviceDialog
-        open={staleDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) onDismissStaleDialog();
-        }}
-        onRunTest={onRunTest}
-        onCalibrateFirst={onCalibrateFirst}
-      />
-    </SessionLock>
+    </div>
   );
 }
