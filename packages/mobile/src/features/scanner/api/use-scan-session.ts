@@ -44,6 +44,7 @@ import { identifyCard } from "@/features/scanner/lib/identify";
 import { warmScanModels } from "@/features/scanner/lib/inference";
 import { reportSerialEvent } from "@/features/sorter/api/serial-events";
 import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
+import { useAppStream } from "@/features/stream/api/use-app-stream";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
@@ -167,6 +168,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     },
     [setPhase],
   );
+
+  const { deployNotice } = useAppStream();
+  const handledDeployNoticeRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!deployNotice || handledDeployNoticeRef.current === deployNotice.guid) return;
+    handledDeployNoticeRef.current = deployNotice.guid;
+    const pauseOnDeploy = latestRef.current.orgSettings?.pauseScanningOnDeploy ?? true;
+    if (runningRef.current && pauseOnDeploy) pause("deploy");
+  }, [deployNotice, pause]);
 
   const reportSorterEvent = useCallback((event: SorterEventDetails) => {
     const ctx = latestRef.current;

@@ -504,6 +504,10 @@
       "bin-data-unavailable": {
         "title": "Füllstände nicht verfügbar",
         "description": "Die App konnte nicht laden, wie voll die Fächer sind, und hat deshalb pausiert, statt zu raten. Prüfe deine Verbindung und tippe dann auf Fortsetzen."
+      },
+      "deploy": {
+        "title": "Update läuft",
+        "description": "Mault wird gerade aktualisiert, deshalb wurde das Scannen pausiert, damit keine Karten verloren gehen. Du kannst jetzt fortfahren, aber Scans können fehlschlagen, bis das Update abgeschlossen ist."
       }
     },
     "scanOnce": "Eine scannen",

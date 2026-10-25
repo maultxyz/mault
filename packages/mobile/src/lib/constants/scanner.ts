@@ -29,6 +29,7 @@ export const PAUSE_TONES = {
   "save-failed": "destructive",
   "sorter-disconnected": "destructive",
   "bin-data-unavailable": "warning",
+  deploy: "info",
 } as const satisfies Record<ScannerPauseReason, string>;
 export const SCAN_REGION_MASK_OPACITY = 0.4;
 export const SCAN_REGION_STROKE_OPACITY = 0.9;

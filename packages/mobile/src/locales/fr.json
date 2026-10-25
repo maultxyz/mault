@@ -504,6 +504,10 @@
       "bin-data-unavailable": {
         "title": "Niveaux des bacs indisponibles",
         "description": "L'app n'a pas pu charger le remplissage des bacs, elle s'est donc mise en pause au lieu de deviner. Vérifie ta connexion, puis touche Reprendre."
+      },
+      "deploy": {
+        "title": "Mise à jour en cours",
+        "description": "Mault est en cours de mise à jour, le scan a donc été mis en pause pour qu'aucune carte ne soit perdue. Tu peux reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour."
       }
     },
     "scanOnce": "Scanner une",
