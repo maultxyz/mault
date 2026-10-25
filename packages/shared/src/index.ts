@@ -96,6 +96,7 @@ export * from "./scan-save";
 export * from "./form-validation";
 export * from "./scan-identify";
 export * from "./serial-session";
+export * from "./sorter-link-connection";
 export * from "./image-proxy";
 export * from "./interfaces/sounds.interface";
 export * from "./constants/sounds.constant";

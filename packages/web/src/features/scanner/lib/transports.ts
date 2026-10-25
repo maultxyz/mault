@@ -7,14 +7,11 @@ import {
   NUS_RX_CHARACTERISTIC_UUID,
   NUS_SERVICE_UUID,
   NUS_TX_CHARACTERISTIC_UUID,
-  SORTER_LINK_CLOSE_IN_USE,
-  SORTER_LINK_CLOSE_OFFLINE,
-  SORTER_LINK_OPEN_TIMEOUT_MS,
-  SORTER_LINK_READY_KEY,
-  SORTER_LINK_READY_VALUE,
+  openSorterLinkSocket,
+  SorterLinkConnection,
+  type SorterLinkOpenFailure,
 } from "@magic-vault/shared";
 import type {
-  CloudTransportFailure,
   SerialTransportType,
   ByteTransport,
 } from "@/lib/interfaces/scanner";
@@ -314,114 +311,31 @@ export class BluetoothTransport implements ByteTransport {
   }
 }
 
-function isSorterLinkReady(data: unknown): boolean {
-  if (typeof data !== "string") return false;
-  try {
-    const parsed = JSON.parse(data) as Record<string, unknown>;
-    return parsed[SORTER_LINK_READY_KEY] === SORTER_LINK_READY_VALUE;
-  } catch {
-    return false;
-  }
-}
+const WEB_TEXT_ENCODER = new TextEncoder();
+const WEB_TEXT_DECODER = new TextDecoder();
 
-function cloudCloseReason(code: number): CloudTransportFailure {
-  if (code === SORTER_LINK_CLOSE_OFFLINE) return "offline";
-  if (code === SORTER_LINK_CLOSE_IN_USE) return "inUse";
-  return "failed";
-}
-
-export class CloudTransport implements ByteTransport {
+export class CloudTransport
+  extends SorterLinkConnection
+  implements ByteTransport
+{
   readonly kind: SerialTransportType = "cloud";
-  private readonly socket: WebSocket;
-  private readonly encoder = new TextEncoder();
-  private readonly decoder = new TextDecoder();
-  private started = false;
-  private closed = false;
-  private backlog: Uint8Array[] = [];
-  private dataCb: ((chunk: Uint8Array) => void) | null = null;
-  private disconnectCb: (() => void) | null = null;
-  private errorCb: ((error: unknown) => void) | null = null;
 
   private constructor(socket: WebSocket) {
-    this.socket = socket;
-    socket.onmessage = (event) => {
-      if (typeof event.data !== "string") return;
-      const chunk = this.encoder.encode(event.data);
-      if (this.started) this.dataCb?.(chunk);
-      else this.backlog.push(chunk);
-    };
-    socket.onerror = (event) => {
-      if (this.started) this.errorCb?.(event);
-    };
-    socket.onclose = () => {
-      this.closed = true;
-      if (this.started) this.disconnectCb?.();
-    };
-  }
-
-  static open(
-    url: string,
-  ): Promise<
-    | { ok: true; transport: CloudTransport }
-    | { ok: false; reason: CloudTransportFailure }
-  > {
-    return new Promise((resolve) => {
-      let socket: WebSocket;
-      try {
-        socket = new WebSocket(url);
-      } catch {
-        resolve({ ok: false, reason: "failed" });
-        return;
-      }
-      const timeout = setTimeout(() => {
-        socket.close();
-        resolve({ ok: false, reason: "failed" });
-      }, SORTER_LINK_OPEN_TIMEOUT_MS);
-      socket.onmessage = (event) => {
-        clearTimeout(timeout);
-        if (!isSorterLinkReady(event.data)) {
-          socket.close();
-          resolve({ ok: false, reason: "failed" });
-          return;
-        }
-        resolve({ ok: true, transport: new CloudTransport(socket) });
-      };
-      socket.onclose = (event) => {
-        clearTimeout(timeout);
-        resolve({ ok: false, reason: cloudCloseReason(event.code) });
-      };
+    super(socket, {
+      encodeText: (text) => WEB_TEXT_ENCODER.encode(text),
+      decodeBytes: (bytes) => WEB_TEXT_DECODER.decode(bytes),
     });
   }
 
-  start() {
-    this.started = true;
-    const pending = this.backlog;
-    this.backlog = [];
-    for (const chunk of pending) this.dataCb?.(chunk);
-    if (this.closed) this.disconnectCb?.();
-  }
-
-  onData(cb: (chunk: Uint8Array) => void) {
-    this.dataCb = cb;
-  }
-
-  onDisconnect(cb: () => void) {
-    this.disconnectCb = cb;
-  }
-
-  onError(cb: (error: unknown) => void) {
-    this.errorCb = cb;
-  }
-
-  async write(data: Uint8Array<ArrayBuffer>): Promise<void> {
-    if (this.socket.readyState !== WebSocket.OPEN) {
-      throw new Error("Sorter link is closed.");
-    }
-    this.socket.send(this.decoder.decode(data));
-  }
-
-  async close(): Promise<void> {
-    this.started = false;
-    this.socket.close(1000);
+  static async open(
+    url: string,
+  ): Promise<
+    | { ok: true; transport: CloudTransport }
+    | { ok: false; reason: SorterLinkOpenFailure }
+  > {
+    const opened = await openSorterLinkSocket(url);
+    return opened.ok
+      ? { ok: true, transport: new CloudTransport(opened.socket) }
+      : opened;
   }
 }

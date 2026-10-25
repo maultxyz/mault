@@ -30,7 +30,7 @@ For every change (feature, fix, copy, setting, API):
 
 1. Work out how it affects each surface, including the mobile app when the request names only one.
 2. Make it on every surface it applies to in the same task, or say which surface was left out and why.
-3. Put logic both apps need in `shared` instead of duplicating it. Serial reply matching, the busy guard and the route queue live in `shared`'s `SerialSession` (web `use-serial` and mobile `SorterLink` wrap it). Where code is still mirrored (the two `CloudTransport`s), change both copies.
+3. Put logic both apps need in `shared` instead of duplicating it. Serial reply matching, the busy guard and the route queue live in `shared`'s `SerialSession` (web `use-serial` and mobile `SorterLink` wrap it); both `CloudTransport`s extend `SorterLinkConnection`.
 4. Add every new string to all locales on every surface: web `locales/{en,de,fr}/*.json` and mobile `locales/{en,de,fr}.json`, with identical keys.
 5. Keep server and API changes compatible with mobile app versions already in the stores (store releases lag web deploys).
 6. End with a per-surface summary: changed, unaffected, or not done.
