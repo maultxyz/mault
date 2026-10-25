@@ -361,6 +361,7 @@
     "forced": "Assistant de configuration requis pour ce trieur",
     "forcedNextConnect": "Il s'ouvrira à la prochaine connexion de {{name}}.",
     "forceFailed": "Impossible d'imposer l'assistant de configuration",
+    "completeFailed": "Impossible d'enregistrer la fin de la configuration. Réessayez.",
     "title": "Configurer ton trieur",
     "stepCounter": "Étape {{current}} sur {{total}}",
     "skip": "Passer la configuration",

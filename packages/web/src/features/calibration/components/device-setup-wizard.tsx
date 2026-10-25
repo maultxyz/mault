@@ -400,29 +400,31 @@ export function DeviceSetupWizard() {
     setTestError(ok ? null : error);
   };
 
-  const markSetupComplete = async () => {
-    if (!device?.guid) return;
+  const markSetupComplete = async (): Promise<boolean> => {
+    if (!device?.guid) return true;
     const result = await saveDevice(device.guid, {
       setupCompleted: true,
     }).catch(() => null);
-    if (!result?.success || !result.data) return;
+    if (!result?.success || !result.data) {
+      toast.error(t("setupWizard.completeFailed"));
+      return false;
+    }
     const saved = result.data;
     queryClient.setQueryData(
       devicesQueryOptions(activeOrg?.id).queryKey,
       (old: Device[] | undefined) =>
         old?.map((d) => (d.guid === saved.guid ? saved : d)),
     );
+    return true;
   };
 
   const handleFinish = async () => {
-    await markSetupComplete();
-    close();
+    if (await markSetupComplete()) close();
   };
 
   const handleSkip = async () => {
     void sendCommand(JSON.stringify({ feederStop: true }));
-    await markSetupComplete();
-    close();
+    if (await markSetupComplete()) close();
     if (!isReady && !isOffline) void runTest();
   };
 
