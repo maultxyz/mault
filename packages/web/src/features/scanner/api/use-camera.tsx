@@ -12,6 +12,7 @@ import {
 import {
   acquireFreeStream,
   camerasHeldByOtherStations,
+  stopMediaStream,
 } from "@/features/scanner/lib/camera-stream";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type {
@@ -129,19 +130,21 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     ? `${window.location.origin}/app/monitor/${activeCollection.guid}/camera`
     : null;
 
+  const releaseLocalStream = useCallback(() => {
+    stopMediaStream(streamRef.current);
+    streamRef.current = null;
+    setStream(null);
+  }, []);
+
   const stopCamera = useCallback(() => {
     if (cameraSource === "phone") {
       stopPhonePairingInternal();
     }
-    if (streamRef.current) {
-      for (const track of streamRef.current.getTracks()) track.stop();
-      streamRef.current = null;
-      setStream(null);
-    }
+    releaseLocalStream();
     setCameraSource("local");
     setStatus("idle");
     setErrorMessage("");
-  }, [cameraSource, stopPhonePairingInternal]);
+  }, [cameraSource, stopPhonePairingInternal, releaseLocalStream]);
 
   const retryCamera = useCallback(async () => {
     stopCamera();
@@ -149,15 +152,11 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   }, [startCamera, stopCamera, selectedCameraId]);
 
   const startPhonePairing = useCallback(() => {
-    if (streamRef.current) {
-      for (const track of streamRef.current.getTracks()) track.stop();
-      streamRef.current = null;
-      setStream(null);
-    }
+    releaseLocalStream();
     setErrorMessage("");
     setCameraSource("phone");
     startPhonePairingInternal();
-  }, [startPhonePairingInternal]);
+  }, [startPhonePairingInternal, releaseLocalStream]);
 
   const stopPhonePairing = useCallback(() => {
     stopPhonePairingInternal();
@@ -179,14 +178,10 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     void startCamera(stationCameraIdRef.current ?? undefined);
 
     return () => {
-      if (streamRef.current) {
-        for (const track of streamRef.current.getTracks()) track.stop();
-        streamRef.current = null;
-      }
-      setStream(null);
+      releaseLocalStream();
       setStatus("idle");
     };
-  }, [startCamera, isMobile, isLive]);
+  }, [startCamera, isMobile, isLive, releaseLocalStream]);
 
   useEffect(() => {
     if (
