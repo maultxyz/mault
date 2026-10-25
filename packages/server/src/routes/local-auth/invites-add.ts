@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { authProvider } from "../../auth";
-import { inviteCaptureStorage, type InviteCapture } from "../../auth/invite-capture";
+import { inviteCaptureStorage } from "../../auth/invite-capture";
 import { getOwnAuth } from "../../auth/own-auth-instance";
 import { getWebUrl } from "../../lib/constants/urls";
+import type { InviteCapture } from "../../lib/interfaces/auth";
 import {
   requireAuth,
   requireOrg,
