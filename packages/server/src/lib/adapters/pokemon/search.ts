@@ -110,7 +110,7 @@ export async function fetchDetail(
 // /cards/:id call. Keeping this modest bounds the fan-out on every keystroke.
 const MAX_ENRICHED_RESULTS = 30;
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = POKEMON_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -148,7 +148,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = POKEMON_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -170,8 +170,8 @@ export async function SearchById(
 export const pokemonAdapter: CardSearchAdapter = {
   defaultUrl: POKEMON_DEFAULT_URL,
   urlForLang,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw) => normalizePokemonCard(raw as PokemonCardDetail),
   tcgplayer: {
     categoryId: 3,

@@ -368,7 +368,7 @@ const router = new Hono<AppEnv>()
     const guid = c.req.param("guid");
     const scanId = c.req.param("scanId");
     const reviewFilter =
-      c.req.query("review") === "1"
+      c.req.query("unreviewedOnly") === "true"
         ? eq(collectionCards.isReviewed, false)
         : undefined;
     if (!UUID_PATTERN.test(scanId)) {

@@ -3,7 +3,6 @@ import {
   formatPrice,
   PRICE_SOURCE_FIELDS,
   type PlayingCard,
-  type PriceSource,
 } from "@magic-vault/shared";
 import { getWebUrl } from "../constants/urls";
 import type {

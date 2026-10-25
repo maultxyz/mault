@@ -47,7 +47,7 @@ export function imageStem(url: string | null | undefined): string {
 // Some printings share a card_image_id with a different image (mostly promo
 // re-prints the API didn't suffix), and one corrupted record's card_set_id
 // names a different card than its image id. Both sides of the app must agree
-// on how those rows are re-keyed, so Search and sync share this: colliding
+// on how those rows are re-keyed, so searchCards and sync share this: colliding
 // rows are re-keyed by their image filename stem, prefixed with the printed id
 // when the stem alone doesn't carry one — which is exactly the form
 // findVersion resolves back to the row.
@@ -213,7 +213,7 @@ const FILTERED_ENDPOINTS = [
   "promos/filtered",
 ];
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = ONE_PIECE_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -278,7 +278,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = ONE_PIECE_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -304,8 +304,8 @@ export async function SearchById(
 
 export const onePieceAdapter: CardSearchAdapter = {
   defaultUrl: ONE_PIECE_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw, id) => normalizeOnePieceCard(raw as OptcgCard, id),
   tcgplayer: {
     categoryId: 68,

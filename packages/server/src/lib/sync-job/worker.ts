@@ -48,12 +48,12 @@ function incrementCounters(delta: {
   skipped?: number;
   errors?: number;
 }): void {
-  const s = getState();
+  const syncState = getState();
   state = {
     ...s,
-    processed: s.processed + (delta.processed ?? 0),
-    skipped: s.skipped + (delta.skipped ?? 0),
-    errors: s.errors + (delta.errors ?? 0),
+    processed: syncState.processed + (delta.processed ?? 0),
+    skipped: syncState.skipped + (delta.skipped ?? 0),
+    errors: syncState.errors + (delta.errors ?? 0),
   };
   send({ type: "incrementCounters", delta });
 }
@@ -205,12 +205,12 @@ async function rebuildVectorIndexIfChurned(
 function emitCancelledDone(): void {
   patchState({ status: "cancelled" });
   addLog("Sync cancelled by user.");
-  const s = getState();
+  const syncState = getState();
   emitEvent("done", {
     status: "cancelled" as SyncStatus,
-    processed: s.processed,
-    skipped: s.skipped,
-    errors: s.errors,
+    processed: syncState.processed,
+    skipped: syncState.skipped,
+    errors: syncState.errors,
   });
 }
 
@@ -352,9 +352,9 @@ async function runSync(
         if (c.backImageUrl) vectorizedBacks.add(c.id);
       }
       incrementCounters({ processed: batchCards.length });
-      const s = getState();
+      const syncState = getState();
       addLog(
-        `[${s.processed + s.skipped}/${s.total}] inserted batch of ${batchCards.length} cards`,
+        `[${syncState.processed + syncState.skipped}/${syncState.total}] inserted batch of ${batchCards.length} cards`,
       );
     } catch (err) {
       incrementCounters({ errors: batchCards.length });
@@ -362,23 +362,23 @@ async function runSync(
       addLog(`Error inserting batch of ${batchCards.length} cards: ${msg}`);
     }
 
-    const s = getState();
+    const syncState = getState();
     emitEvent("progress", {
-      processed: s.processed,
-      skipped: s.skipped,
-      errors: s.errors,
-      queued: s.queued,
+      processed: syncState.processed,
+      skipped: syncState.skipped,
+      errors: syncState.errors,
+      queued: syncState.queued,
     });
   }
 
   async function processCard(card: SyncSourceCard): Promise<void> {
     if (!card.imageUrl || isAlreadyVectorized(card)) {
       incrementCounters({ skipped: 1 });
-      const s = getState();
+      const syncState = getState();
       emitEvent("progress", {
-        processed: s.processed,
-        skipped: s.skipped,
-        errors: s.errors,
+        processed: syncState.processed,
+        skipped: syncState.skipped,
+        errors: syncState.errors,
         currentCard: card.name,
       });
       return;
@@ -409,23 +409,23 @@ async function runSync(
       patchState({ queued: pendingCards.length });
       await flushInserts();
 
-      const s = getState();
+      const syncState = getState();
       emitEvent("progress", {
-        processed: s.processed,
-        skipped: s.skipped,
-        errors: s.errors,
-        queued: s.queued,
+        processed: syncState.processed,
+        skipped: syncState.skipped,
+        errors: syncState.errors,
+        queued: syncState.queued,
         currentCard: card.name,
       });
     } catch (err) {
       incrementCounters({ errors: 1 });
       const msg = errorMessage(err);
       addLog(`Error: ${card.name}: ${msg}`);
-      const s = getState();
+      const syncState = getState();
       emitEvent("progress", {
-        processed: s.processed,
-        skipped: s.skipped,
-        errors: s.errors,
+        processed: syncState.processed,
+        skipped: syncState.skipped,
+        errors: syncState.errors,
         currentCard: card.name,
       });
     }
@@ -468,15 +468,15 @@ async function runSync(
   );
 
   patchState({ status: "completed" });
-  const s = getState();
+  const syncState = getState();
   addLog(
-    `Done. Processed: ${s.processed}, Skipped: ${s.skipped}, Errors: ${s.errors}`,
+    `Done. Processed: ${syncState.processed}, Skipped: ${syncState.skipped}, Errors: ${syncState.errors}`,
   );
   emitEvent("done", {
     status: "completed" as SyncStatus,
-    processed: s.processed,
-    skipped: s.skipped,
-    errors: s.errors,
+    processed: syncState.processed,
+    skipped: syncState.skipped,
+    errors: syncState.errors,
   });
 }
 

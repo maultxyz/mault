@@ -51,14 +51,14 @@ export const businessKeys = {
   intakeCard: (
     lotGuid: string | undefined,
     scanId: string | undefined,
-    reviewOnly: boolean,
+    unreviewedOnly: boolean,
   ) =>
     [
       ...businessKeys.intakeRoot(),
       "card",
       lotGuid,
       scanId,
-      reviewOnly,
+      unreviewedOnly,
     ] as const,
   ordersRoot: () => [...businessKeys.root(), "orders"] as const,
   orderList: (orgId: string | undefined, page: PageRequest) =>
@@ -151,13 +151,13 @@ export const intakeLotQueryOptions = (guid: string | undefined) =>
 export const intakeCardContextQueryOptions = (
   lotGuid: string | undefined,
   scanId: string | undefined,
-  reviewOnly: boolean,
+  unreviewedOnly: boolean,
 ) =>
   queryOptions({
-    queryKey: businessKeys.intakeCard(lotGuid, scanId, reviewOnly),
+    queryKey: businessKeys.intakeCard(lotGuid, scanId, unreviewedOnly),
     queryFn: () =>
       apiGet<Result<IntakeCardContext | null>>(
-        `/api/business/intake/${lotGuid}/cards/${scanId}/context${reviewOnly ? "?review=1" : ""}`,
+        `/api/business/intake/${lotGuid}/cards/${scanId}/context${unreviewedOnly ? "?unreviewedOnly=true" : ""}`,
       ).then((r) => r.data ?? null),
     enabled: !!lotGuid && !!scanId,
   });

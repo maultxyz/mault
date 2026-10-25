@@ -285,7 +285,7 @@ export const intakeRoute = new Hono<AppEnv>()
           tx,
           row.id,
           scanId,
-          c.req.query("review") === "1",
+          c.req.query("unreviewedOnly") === "true",
         ),
       };
     });

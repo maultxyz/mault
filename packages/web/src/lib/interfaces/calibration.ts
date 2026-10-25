@@ -486,3 +486,7 @@ export interface ScorePrintingFrameInput {
 }
 
 export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
+
+export interface FetchSavedCalibrationOptions {
+  bypassCache?: boolean;
+}

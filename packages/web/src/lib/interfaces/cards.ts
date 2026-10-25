@@ -430,3 +430,7 @@ export interface ReviewSession {
   resolveNext: (upcomingScanId: string | null | undefined) => string | null;
   forget: (scanId: string) => void;
 }
+
+export interface OpenScanOptions {
+  inReviewMode?: boolean;
+}

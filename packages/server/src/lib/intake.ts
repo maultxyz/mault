@@ -328,7 +328,7 @@ async function findLotNeighbor(
   lotId: number,
   scanId: string,
   direction: "previous" | "next",
-  reviewOnly: boolean,
+  unreviewedOnly: boolean,
 ): Promise<IntakeCardNeighbor | null> {
   const isPrevious = direction === "previous";
   const [row] = await tx
@@ -341,7 +341,7 @@ async function findLotNeighbor(
         isPrevious
           ? sql`${lotCardKey} > ${lotCardKeyOf(scanId)}`
           : sql`${lotCardKey} < ${lotCardKeyOf(scanId)}`,
-        reviewOnly ? eq(collectionCards.isReviewed, false) : undefined,
+        unreviewedOnly ? eq(collectionCards.isReviewed, false) : undefined,
       ),
     )
     .orderBy(
@@ -359,7 +359,7 @@ export async function loadIntakeCardContext(
   tx: Transaction,
   lotId: number,
   scanId: string,
-  reviewOnly: boolean,
+  unreviewedOnly: boolean,
 ): Promise<IntakeCardContext | null> {
   const [current] = await selectLotReviewCards(tx)
     .where(lotReviewScope(lotId, eq(collectionCards.guid, scanId)))
@@ -378,8 +378,8 @@ export async function loadIntakeCardContext(
       sql`${lotCardKey} > ${lotCardKeyOf(scanId)}`,
     ),
     total: await countLotCards(tx, lotId),
-    previous: await findLotNeighbor(tx, lotId, scanId, "previous", reviewOnly),
-    next: await findLotNeighbor(tx, lotId, scanId, "next", reviewOnly),
+    previous: await findLotNeighbor(tx, lotId, scanId, "previous", unreviewedOnly),
+    next: await findLotNeighbor(tx, lotId, scanId, "next", unreviewedOnly),
   };
 }
 
