@@ -3,28 +3,31 @@ import * as Crypto from "expo-crypto";
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  areAllRepackPacksComplete,
+  applyAutoAssignTarget,
+  applyPickListFound,
   computeBinCapacity,
   computeBinCount,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
-  findAutoAssignTarget,
-  getRepackBinCards,
   getCatchAllBin,
-  getRepackPackBins,
   hasMaxCopiesBins,
   isFedEvent,
+  isScanFillingLastRepackPack,
   OCR_REGIONS_BY_GAME_KEY,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
+  resolveScanBin,
   SERIAL_JAM_ERROR,
   toRuleCard,
   withScanRuleFields,
+  type AutoAssignTarget,
   type BinConfig,
   type BinContentCard,
   type BinRoute,
+  type PickListMatch,
   type ScannedCard,
+  type ScanRoutingContext,
 } from "@magic-vault/shared";
 import { binHeightsQueryOptions } from "@/features/calibration/api/calibration-configs";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
@@ -32,9 +35,9 @@ import { binRoutesQueryOptions, binSetsQueryOptions } from "@/features/devices/a
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { fetchBinContents, fetchBinCounts } from "@/features/scanner/api/bin-counts";
-import { saveBinConfig } from "@/features/rules/api/bin-sets";
+import { markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
-import { configsFromSet, resolveBin } from "@/features/scanner/lib/bin-routing";
+import { configsFromSet } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
 import { identifyCard } from "@/features/scanner/lib/identify";
 import { warmScanModels } from "@/features/scanner/lib/inference";
@@ -113,7 +116,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const lastCardIdRef = useRef<string | null>(null);
   const pendingDuplicateRef = useRef<IdentifyOutcome | null>(null);
   const binContentsRef = useRef<BinContentCard[]>([]);
-  const assignedConfigsRef = useRef<BinConfig[] | null>(null);
+  const locallyUpdatedConfigsRef = useRef<BinConfig[] | null>(null);
 
   const latest = {
     sorter,
@@ -184,7 +187,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [collection, configs]);
 
   useEffect(() => {
-    assignedConfigsRef.current = null;
+    locallyUpdatedConfigsRef.current = null;
   }, [configs]);
 
   useEffect(() => {
@@ -218,19 +221,68 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
 
   const countInBin = useCallback((binNumber: number) => binCountsRef.current.get(binNumber) ?? 0, []);
 
+  const binCapacity = useCallback((binNumber: number): number | null => {
+    const { set: binSet, configs: binConfigs, binHeights: heights, collection: activeCollection } = latestRef.current;
+    const bin = binConfigs.find((c) => c.binNumber === binNumber);
+    if (!bin) return null;
+    const height = heights?.find((h) => h.binNumber === binNumber)?.height;
+    const physicalCapacity = computeBinCapacity(height, activeCollection?.game?.cardThickness);
+    const chaosBinSize = binSet?.isChaosMode && !bin.isCatchAll ? (binSet.chaosBinSize ?? null) : null;
+    return chaosBinSize != null ? Math.min(physicalCapacity ?? chaosBinSize, chaosBinSize) : physicalCapacity;
+  }, []);
+
   const isBinFull = useCallback(
     (binNumber: number) => {
-      const { set: s, configs: cfg, binHeights: heights, collection: col } = latestRef.current;
-      const bin = cfg.find((c) => c.binNumber === binNumber);
-      if (!bin) return false;
-      const height = heights?.find((h) => h.binNumber === binNumber)?.height;
-      const physicalCapacity = computeBinCapacity(height, col?.game?.cardThickness);
-      const chaosBinSize = s?.isChaosMode && !bin.isCatchAll ? (s.chaosBinSize ?? null) : null;
-      const capacity =
-        chaosBinSize != null ? Math.min(physicalCapacity ?? chaosBinSize, chaosBinSize) : physicalCapacity;
+      const capacity = binCapacity(binNumber);
       return capacity != null && countInBin(binNumber) >= capacity;
     },
-    [countInBin],
+    [binCapacity, countInBin],
+  );
+
+  const binRoom = useCallback(
+    (binNumber: number) => {
+      const capacity = binCapacity(binNumber);
+      return capacity == null ? Number.POSITIVE_INFINITY : capacity - countInBin(binNumber);
+    },
+    [binCapacity, countInBin],
+  );
+
+  const applyAutoAssign = useCallback(
+    (configs: BinConfig[], target: AutoAssignTarget) => {
+      const ctx = latestRef.current;
+      const updatedConfigs = applyAutoAssignTarget(configs, target);
+      locallyUpdatedConfigsRef.current = updatedConfigs;
+      const assigned = updatedConfigs.find((c) => c.binNumber === target.binNumber);
+      void saveBinConfig({
+        binNumber: target.binNumber,
+        gameGuid: ctx.collection?.game?.guid,
+        rules: target.rules,
+        isCatchAll: !!assigned?.isCatchAll,
+        isDisabled: !!assigned?.isDisabled,
+        overflowBin: assigned?.overflowBin ?? null,
+      })
+        .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(ctx.orgId).queryKey }))
+        .catch(() => {});
+    },
+    [queryClient],
+  );
+
+  const recordPickListFound = useCallback(
+    (configs: BinConfig[], match: PickListMatch) => {
+      const { orgId: activeOrgId } = latestRef.current;
+      const updatedPickList = match.bin.pickList
+        ? applyPickListFound(match.bin.pickList, match.entry.name, 1)
+        : null;
+      if (updatedPickList) {
+        locallyUpdatedConfigsRef.current = configs.map((c) =>
+          c.binNumber === match.bin.binNumber ? { ...c, pickList: updatedPickList } : c,
+        );
+      }
+      void markPickListFound(match.bin.guid, { name: match.entry.name, delta: 1 })
+        .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(activeOrgId).queryKey }))
+        .catch((error: unknown) => console.warn("Failed to record pick list find", error));
+    },
+    [queryClient],
   );
 
   const pushFeed = useCallback((entry: ScanFeedEntry) => {
@@ -317,51 +369,24 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       }
       lastCardIdRef.current = card.id;
       const ruleCard = toRuleCard(card, { isFoil: false, foilType: null });
-      let configs = assignedConfigsRef.current ?? ctx.configs;
-      const autoTarget = ctx.set?.isRepackMode
-        ? null
-        : findAutoAssignTarget(ruleCard, configs, ctx.fieldDefinitions, ctx.set?.autoAssignField ?? null, () =>
-            Crypto.randomUUID(),
-          );
-      if (autoTarget) {
-        configs = configs.map((c) => (c.binNumber === autoTarget.binNumber ? { ...c, rules: autoTarget.rules } : c));
-        assignedConfigsRef.current = configs;
-        const assigned = configs.find((c) => c.binNumber === autoTarget.binNumber);
-        void saveBinConfig({
-          binNumber: autoTarget.binNumber,
-          gameGuid: ctx.collection.game?.guid,
-          rules: autoTarget.rules,
-          isCatchAll: !!assigned?.isCatchAll,
-          isDisabled: !!assigned?.isDisabled,
-          overflowBin: assigned?.overflowBin ?? null,
-        })
-          .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(ctx.orgId).queryKey }))
-          .catch(() => {});
-      }
-      const binContents = binContentsRef.current;
-      const decision = resolveBin(ruleCard, {
-        set: ctx.set,
+      const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;
+      const routingContext: ScanRoutingContext = {
+        binSet: ctx.set,
         configs,
         fieldDefinitions: ctx.fieldDefinitions,
-        countInBin,
+        binContents: binContentsRef.current,
+        countCardsInBin: countInBin,
         isBinFull,
-        binContents,
-        autoAssignActive: !!ctx.set?.autoAssignField,
-      });
-      const repackSet = ctx.set?.isRepackMode ? ctx.set : null;
-      const packsComplete = () =>
-        !!repackSet &&
-        areAllRepackPacksComplete(configs, ctx.fieldDefinitions, repackSet, (bin) =>
-          getRepackBinCards(binContentsRef.current, bin, repackSet, ctx.fieldDefinitions),
-        );
-      if (decision.bin?.isCatchAll && !decision.isLowMatch && packsComplete()) {
-        pause("repack-complete");
+        binRoom,
+        createRuleId: () => Crypto.randomUUID(),
+      };
+      const decision = resolveScanBin(ruleCard, routingContext);
+      if (decision.action === "pause") {
+        pause(decision.reason === "all-packs-complete" ? "repack-complete" : "bin-full");
         return;
       }
-      if (decision.allChaosBinsFull || (decision.bin && isBinFull(decision.bin.binNumber))) {
-        pause("bin-full");
-        return;
-      }
+      if (decision.autoAssignTarget) applyAutoAssign(configs, decision.autoAssignTarget);
+      if (decision.pickListMatch) recordPickListFound(configs, decision.pickListMatch);
       const record: ScannedCard = {
         scanId: Crypto.randomUUID(),
         card,
@@ -374,7 +399,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       };
       if (record.binNumber != null) {
         binCountsRef.current.set(record.binNumber, countInBin(record.binNumber) + 1);
-        if (repackSet || hasMaxCopiesBins(configs)) {
+        if (ctx.set?.isRepackMode || hasMaxCopiesBins(configs)) {
           binContentsRef.current = [
             { scanId: record.scanId, binNumber: record.binNumber, scannedAt: record.scannedAt, card: ruleCard },
             ...binContentsRef.current,
@@ -382,9 +407,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         }
       }
       const filledPack =
-        !!repackSet &&
-        getRepackPackBins(configs, repackSet).some((bin) => bin.binNumber === record.binNumber) &&
-        packsComplete();
+        record.binNumber != null &&
+        isScanFillingLastRepackPack(record.binNumber, { ...routingContext, binContents: binContentsRef.current });
       pushFeed({
         scanId: record.scanId,
         scannedAt: record.scannedAt,
@@ -413,7 +437,19 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         .then(handleSaveResult)
         .catch(() => pause("save-failed"));
     },
-    [continueAfterCard, countInBin, handleSaveResult, isBinFull, pause, pushFeed, queryClient, sendToBin],
+    [
+      applyAutoAssign,
+      binRoom,
+      continueAfterCard,
+      countInBin,
+      handleSaveResult,
+      isBinFull,
+      pause,
+      pushFeed,
+      queryClient,
+      recordPickListFound,
+      sendToBin,
+    ],
   );
 
   const handleUnmatched = useCallback(
