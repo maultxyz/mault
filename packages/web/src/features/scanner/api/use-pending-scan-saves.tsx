@@ -10,7 +10,6 @@ import {
 } from "@/features/scanner/lib/pending-scan-store";
 import { isRetryableScanSaveError } from "@/features/scanner/lib/scan-save-errors";
 import {
-  PENDING_SCAN_SAVE_RETRY_DELAYS_MS,
   PENDING_SCAN_SAVES_TOAST_ID,
 } from "@/lib/constants/scanner";
 import { TOAST_DURATION_MS } from "@/lib/constants/toast";
@@ -35,6 +34,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { pendingScanSaveRetryDelayMs } from "@magic-vault/shared";
 
 const PendingScanSavesContext =
   createContext<PendingScanSavesContextValue | null>(null);
@@ -71,12 +71,7 @@ export function PendingScanSavesProvider({
           wakersRef.current.delete(wake);
           resolve();
         };
-        const timer = setTimeout(
-          wake,
-          PENDING_SCAN_SAVE_RETRY_DELAYS_MS[
-            Math.min(attempt, PENDING_SCAN_SAVE_RETRY_DELAYS_MS.length - 1)
-          ],
-        );
+        const timer = setTimeout(wake, pendingScanSaveRetryDelayMs(attempt));
         wakersRef.current.add(wake);
       }),
     [],

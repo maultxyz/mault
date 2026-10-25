@@ -1,10 +1,7 @@
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import { getAuthHeaders, handleForbidden } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/config";
-import {
-  PENDING_SCAN_SAVE_RETRYABLE_STATUSES,
-  SCAN_SAVE_ACCEPTED_STATUSES,
-} from "@/lib/constants/scanner";
+import { isRetryableScanSaveStatus, SCAN_SAVE_ACCEPTED_STATUSES } from "@magic-vault/shared";
 import type { CardSaveResult, PendingScanSave } from "@/lib/interfaces/scanner";
 
 export async function sendScanSave(save: PendingScanSave, isRetry: boolean): Promise<CardSaveResult> {
@@ -23,7 +20,7 @@ export async function sendScanSave(save: PendingScanSave, isRetry: boolean): Pro
 
 export function isRetryableSaveError(err: unknown): boolean {
   if (err instanceof ApiStatusError) {
-    return err.status >= 500 || PENDING_SCAN_SAVE_RETRYABLE_STATUSES.includes(err.status);
+    return isRetryableScanSaveStatus(err.status);
   }
   return true;
 }

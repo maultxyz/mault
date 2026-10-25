@@ -16,6 +16,7 @@ import type {
 import { queryOptions } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
 import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
+import { SCAN_SAVE_ACCEPTED_STATUSES } from "@magic-vault/shared";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
   return apiGet<Result<Collection[]>>("/api/collections");
@@ -110,7 +111,7 @@ export async function addCollectionCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
-  if (res.ok || res.status === 423 || res.status === 402 || res.status === 409)
+  if (res.ok || SCAN_SAVE_ACCEPTED_STATUSES.includes(res.status))
     return res.json();
   throw new ApiStatusError(res.status);
 }
