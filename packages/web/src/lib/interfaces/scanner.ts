@@ -107,6 +107,7 @@ export interface ScannedCardsContextValue {
   autoFeed: boolean;
   forceFoilType: string | null;
   forceSetCode: string | null;
+  scanCondition: CardCondition;
   elapsedMs: number;
   isTimerActive: boolean;
   recentScanTimes: number[];
@@ -116,6 +117,8 @@ export interface ScannedCardsContextValue {
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
   setForceSetCode: (setCode: string | null) => void;
+  setForceSetCodeAfterCollectionSwitch: (setCode: string | null) => void;
+  setScanCondition: (condition: CardCondition) => void;
   addCard: (
     card: PlayingCardWithDistance,
     capturedImageUrl?: string,

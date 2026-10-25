@@ -273,7 +273,8 @@
     "anySet": "N'importe quelle extension",
     "setSearchPlaceholder": "Rechercher une extension",
     "noSets": "Aucune extension trouvée",
-    "setHint": "Les cartes scannées utilisent leur impression de cette extension lorsqu'elle existe."
+    "setHint": "Les cartes scannées utilisent leur impression de cette extension lorsqu'elle existe.",
+    "conditionTooltip": "État des cartes scannées : {{condition}}"
   },
   "scannerDebug": {
     "heading": "Débogage",
@@ -780,7 +781,8 @@
       "neutral": "Remettre au neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
       "sorterDescription": "Connexion, autotest et état"
-    }
+    },
+    "condition": "État"
   },
   "mobileSorter": {
     "title": "Trieuse",
@@ -896,5 +898,71 @@
     "binLabel": "Les cartes retirées vont dans",
     "binPlaceholder": "Choisir un bac",
     "catchAllBinOption": "Bac {{number}} (bac fourre-tout)"
+  },
+  "controlCards": {
+    "openPage": "Imprimer des cartes de contrôle",
+    "openPageDescription": "Cartes QR qui modifient les réglages de scan quand le trieur les lit",
+    "applied": "Carte de contrôle appliquée",
+    "rejected": {
+      "title": "Carte de contrôle non appliquée"
+    },
+    "problems": {
+      "unreadable": "Ce QR code n'est pas une carte de contrôle que cette version de Mault comprend. Le scan est en pause.",
+      "collection-not-found": "La collection de cette carte n'existe plus. Le scan est en pause.",
+      "preset-not-found": "Le préréglage de règles de cette carte n'existe plus. Le scan est en pause.",
+      "preset-wrong-game": "Le préréglage de règles de cette carte concerne un autre jeu que la collection. Le scan est en pause.",
+      "no-collection": "Choisis une collection avant d'utiliser une carte de préréglage. Le scan est en pause."
+    },
+    "actions": {
+      "collection": "Collection : {{name}}",
+      "preset": "Préréglage de règles : {{name}}",
+      "foil": "Foil : {{type}}",
+      "notFoil": "Non foil",
+      "set": "Extension : {{name}}",
+      "anySet": "N'importe quelle extension",
+      "condition": "État : {{condition}}",
+      "autoFeedOn": "Alimentation auto activée",
+      "autoFeedOff": "Alimentation auto désactivée",
+      "duplicatesOn": "Autoriser les doublons",
+      "duplicatesOff": "Ignorer les doublons",
+      "pause": "Mettre le scan en pause"
+    },
+    "form": {
+      "title": "Nouvelle carte de contrôle",
+      "description": "Choisis ce que la carte modifie. Tout ce qui reste sur Aucun changement ne bouge pas.",
+      "cardTitle": "Libellé",
+      "cardTitlePlaceholder": "Par exemple : Classeur d'échange, LP",
+      "collection": "Collection",
+      "preset": "Préréglage de règles",
+      "foil": "Type de foil",
+      "set": "Extension",
+      "condition": "État",
+      "autoFeed": "Alimentation auto",
+      "allowDuplicates": "Autoriser les doublons",
+      "pauseScanner": "Mettre le scan en pause après cette carte",
+      "add": "Ajouter à la planche",
+      "unchanged": "Aucun changement",
+      "toggle": {
+        "unchanged": "Aucun changement",
+        "on": "Activé",
+        "off": "Désactivé"
+      }
+    },
+    "sheet": {
+      "emptyTitle": "Aucune carte de contrôle",
+      "emptyDescription": "Les cartes ajoutées apparaissent ici à taille réelle, prêtes à imprimer."
+    },
+    "tile": {
+      "defaultTitle": "Carte de contrôle",
+      "qrAlt": "QR code de la carte de contrôle",
+      "remove": "Retirer la carte"
+    },
+    "page": {
+      "back": "Retour au scanner",
+      "title": "Cartes de contrôle",
+      "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
+      "print": "Imprimer",
+      "printTip": "Imprime à l'échelle 100 % avec les marges sur Par défaut. Chaque page contient 9 cartes. Découpe le long des bordures, puis colle ou glisse chaque carte devant une carte de rechange pour qu'elle passe comme une carte normale. Garde le QR code bien à plat et sans reflets."
+    }
   }
 }

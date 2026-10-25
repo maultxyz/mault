@@ -294,6 +294,7 @@
     "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
     "commandRequired": "Gib einen Befehl ein.",
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
-    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten."
+    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
+    "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
   }
 }

@@ -21,9 +21,12 @@ import {
   IconDeviceUsbFilled,
   IconDownload,
   IconPlus,
+  IconQrcode,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import type { ScannerMenuProps } from "@/lib/interfaces/scanner";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 
@@ -59,6 +62,7 @@ export function ScannerMenu({
   onHandScanChange,
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
+  const navigate = useNavigate();
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
   const webSerialSupported =
     typeof navigator !== "undefined" && !!navigator.serial;
@@ -224,6 +228,11 @@ export function ScannerMenu({
               )}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => navigate(CONTROL_CARDS_PATH)}>
+            <IconQrcode />
+            {t("controlCards.openPage")}
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <NewBoardFlashDialog

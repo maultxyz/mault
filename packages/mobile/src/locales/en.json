@@ -508,6 +508,34 @@
       "deploy": {
         "title": "Update in progress",
         "description": "Mault is being updated, so scanning was paused to make sure no cards are lost. You can resume now, but scans may fail until the update finishes."
+      },
+      "control-card": {
+        "title": "Paused by a control card",
+        "description": "Press Resume when you're ready to keep scanning."
+      },
+      "control-card-unreadable": {
+        "title": "Control card not applied",
+        "description": "This QR code isn't a control card this version of Mault understands. Update the app or print a new card."
+      },
+      "control-card-collection-not-found": {
+        "title": "Control card not applied",
+        "description": "The collection on this card no longer exists."
+      },
+      "control-card-preset-not-found": {
+        "title": "Control card not applied",
+        "description": "The rule preset on this card no longer exists."
+      },
+      "control-card-preset-wrong-game": {
+        "title": "Control card not applied",
+        "description": "The rule preset on this card is for a different game than the collection."
+      },
+      "control-card-no-collection": {
+        "title": "Control card not applied",
+        "description": "Choose a collection before using a rule preset card."
+      },
+      "control-card-switch-failed": {
+        "title": "Control card not applied",
+        "description": "Couldn't switch the collection or rule preset. Check your connection and try again."
       }
     },
     "scanOnce": "Scan one",
@@ -592,7 +620,8 @@
       "notFoil": "Not foil",
       "set": "Set",
       "anySet": "Any set",
-      "searchSets": "Search sets"
+      "searchSets": "Search sets",
+      "condition": "Condition"
     },
     "emptyBin": {
       "action": "Mark empty",
@@ -630,6 +659,23 @@
       "binPickerTitle": "Removed cards go to",
       "binOption": "Bin {{number}}",
       "catchAllBinOption": "Bin {{number}} (catch-all)"
+    },
+    "controlCards": {
+      "applied": "Control card applied",
+      "actions": {
+        "collection": "Collection: {{name}}",
+        "preset": "Rule preset: {{name}}",
+        "foil": "Foil: {{type}}",
+        "notFoil": "Not foil",
+        "set": "Set: {{name}}",
+        "anySet": "Any set",
+        "condition": "Condition: {{condition}}",
+        "autoFeedOn": "Auto-feed on",
+        "autoFeedOff": "Auto-feed off",
+        "duplicatesOn": "Allow duplicates",
+        "duplicatesOff": "Skip duplicates",
+        "pause": "Pause scanning"
+      }
     }
   },
   "home": {
@@ -1746,6 +1792,7 @@
     "storageLocationRequired": "Choose where the cards went.",
     "commandRequired": "Enter a command.",
     "verificationCodeLength": "Enter the {{length}}-digit code.",
-    "verificationCodeNumeric": "The code can only contain numbers."
+    "verificationCodeNumeric": "The code can only contain numbers.",
+    "controlCardActionRequired": "Pick at least one thing for the card to change."
   }
 }

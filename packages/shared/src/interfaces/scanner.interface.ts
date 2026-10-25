@@ -5,6 +5,7 @@ import type {
 import type { PlayingCardWithDistance } from "./card.interface";
 import type { CardCondition } from "./card-condition.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
+import type { ScannerControlCommand } from "./scanner-control-code.interface";
 import type { CardStorageLocation } from "./storage-locations.interface";
 
 export interface Point {
@@ -71,6 +72,7 @@ export interface CardScannerProps {
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
   ) => void;
+  onControlCode?: (command: ScannerControlCommand | null) => void;
   onManualAdd?: () => void;
   onError?: (error: string) => void;
   className?: string;
