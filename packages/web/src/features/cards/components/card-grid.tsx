@@ -320,6 +320,8 @@ export function CardGrid() {
       !readOnly && !openScanId && totalCards > 0
         ? () => void startReview()
         : undefined,
+    clearSelection:
+      selectedIds.size > 0 ? () => setSelectedIds(new Set()) : undefined,
   });
 
   const toggleSelect = useCallback((scanIds: string[]) => {

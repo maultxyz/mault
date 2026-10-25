@@ -12,6 +12,7 @@ export type HotkeyId =
   | "toggleSidebar"
   | "focusSearch"
   | "dismissToasts"
+  | "clearSelection"
   | "goScanner"
   | "goCollections"
   | "goSortingRules"
