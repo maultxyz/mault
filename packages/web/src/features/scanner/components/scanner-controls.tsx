@@ -21,6 +21,7 @@ import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { ForcedSetPicker } from "@/features/scanner/components/forced-set-picker";
 import { ScanModeSwitch } from "@/features/scanner/components/scan-mode-switch";
+import { ScanRemovalBinSelect } from "@/features/scanner/components/scan-removal-bin-select";
 import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -104,7 +105,8 @@ export function ScannerControls({
     elapsedMs,
   } = useScannedCards();
   const { totalCount } = useCollectionCardsSummary();
-  const { isRemoveModeActive } = useScanRemoval();
+  const { isRemoveModeActive, isRemoveModeEnabled, isSorterConnected } =
+    useScanRemoval();
   const foilOptions = useFoilOptions();
   const canForceScan =
     status === "no-match" || status === "scanning" || status === "captured";
@@ -163,8 +165,8 @@ export function ScannerControls({
 
   return (
     <div className={cn("flex flex-col gap-2", isVertical ? "w-44" : "w-full")}>
-      <ScanModeSwitch />
       <div className={cn("flex gap-2", isVertical ? "flex-col" : "flex-row")}>
+        <ScanModeSwitch className="shrink-0" />
         <Tooltip>
           <TooltipTrigger
             render={
@@ -235,6 +237,7 @@ export function ScannerControls({
           <ScannerDebug />
         </div>
       </div>
+      {isRemoveModeEnabled && isSorterConnected && <ScanRemovalBinSelect />}
       <div
         className={cn("flex gap-1.5", isVertical ? "flex-col" : "flex-wrap")}
       >
