@@ -15,6 +15,10 @@ export const MATCH_CONFIDENCE_TEMPERATURE = 0.05;
 // count as the same art (reprints), pooling their match confidence.
 export const DUPLICATE_PRINTING_MAX_DISTANCE = 0.02;
 
+// The List reprints carry the original art, so a scan of the far more
+// common original lands on them about as often as on the real printing.
+export const SCRYFALL_LIST_SET_CODES = ["plst", "ulst"];
+
 export const STORED_SEARCH_LIMIT = 60;
 
 export const COLLECTOR_NUMBER_BACKFILL_BATCH_SIZE = 1000;

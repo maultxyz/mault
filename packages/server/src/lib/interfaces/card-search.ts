@@ -7,6 +7,7 @@ import type {
   Result,
   SearchCardMatch,
 } from "@magic-vault/shared";
+import type { SQL } from "drizzle-orm";
 
 export interface PrintingQuery {
   setCode: string | null;
@@ -56,6 +57,7 @@ export interface CardSearchAdapter {
   ): Promise<Result<PlayingCard[]>>;
   searchById(id: string, baseUrl: string): Promise<Result<PlayingCard>>;
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
+  rarePrintingSql?: SQL;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;
   cardkingdom?: CardKingdomPricing;

@@ -2,7 +2,11 @@ import type { PlayingCard, Result } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { validateQuery } from "../../card-search/validate";
-import { CARD_API_HEADERS } from "../../constants/card-search";
+import {
+  CARD_API_HEADERS,
+  SCRYFALL_LIST_SET_CODES,
+} from "../../constants/card-search";
+import { sql } from "drizzle-orm";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
 import type {
   ScryfallImageUris,
@@ -126,6 +130,10 @@ export const scryfallAdapter: CardSearchAdapter = {
   search: Search,
   searchById: SearchById,
   normalizeStored: (raw) => normalizeScryfallCard(raw as ScryfallApiCard),
+  rarePrintingSql: sql`((data->>'promo') = 'true' OR lower(set_code) IN (${sql.join(
+    SCRYFALL_LIST_SET_CODES.map((code) => sql`${code}`),
+    sql`, `,
+  )}))`,
   tcgplayer: {
     categoryId: 1,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
