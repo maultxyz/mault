@@ -8,7 +8,7 @@ import {
 } from "@/lib/api/client";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { DevicePatch, Result } from "@magic-vault/shared";
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
 
 export const devicesQueryOptions = (orgId: string | undefined) =>
@@ -18,6 +18,18 @@ export const devicesQueryOptions = (orgId: string | undefined) =>
     staleTime: Infinity,
     enabled: !!orgId,
   });
+
+export function writeDeviceToCache(
+  queryClient: QueryClient,
+  orgId: string | undefined,
+  device: Device,
+): void {
+  queryClient.setQueryData(devicesQueryOptions(orgId).queryKey, (cached) =>
+    cached?.some((d) => d.guid === device.guid)
+      ? cached.map((d) => (d.guid === device.guid ? device : d))
+      : cached && [...cached, device],
+  );
+}
 
 export async function getDevices(): Promise<Result<Device[]>> {
   return apiGet<Result<Device[]>>("/api/devices");

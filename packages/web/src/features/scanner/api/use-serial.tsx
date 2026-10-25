@@ -3,6 +3,7 @@ import {
   devicesQueryOptions,
   releaseDeviceLease,
   resolveDevice,
+  writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -632,15 +633,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         return deviceRef.current;
       }
       const resolved = result.data;
-      if (activeOrg?.id) {
-        queryClient.setQueryData(
-          devicesQueryOptions(activeOrg.id).queryKey,
-          (old) =>
-            old?.some((d) => d.guid === resolved.guid)
-              ? old.map((d) => (d.guid === resolved.guid ? resolved : d))
-              : [...(old ?? []), resolved],
-        );
-      }
+      writeDeviceToCache(queryClient, activeOrg?.id, resolved);
       return claimForStation(resolved);
     },
     [toast, activeOrg?.id, queryClient, claimForStation, t],
