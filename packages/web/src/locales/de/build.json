@@ -371,8 +371,7 @@
         "title": "Die Strukturteile drucken",
         "steps": {
           "printSortingModule": {
-            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>).",
-            "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
+            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>)."
           },
           "printFeederModule": {
             "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals.",

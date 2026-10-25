@@ -72,5 +72,29 @@
     "heading": "Visite guidée",
     "description": "Reprends la visite guidée du scanner, des collections et des règles de tri.",
     "restartButton": "Recommencer le tutoriel"
+  },
+  "apiKeys": {
+    "heading": "Clés API",
+    "description": "Des clés personnelles pour accéder à l'API de Mault depuis un script ou une automatisation.",
+    "create": "Nouvelle clé",
+    "createTitle": "Créer une clé API",
+    "createDescription": "Donne-lui un nom pour la reconnaître plus tard.",
+    "createFailed": "Impossible de créer la clé",
+    "nameLabel": "Nom",
+    "namePlaceholder": "ex. script d'import",
+    "revealTitle": "Copie ta nouvelle clé",
+    "revealDescription": "C'est la seule fois où tu verras la clé complète. Garde-la en lieu sûr.",
+    "revealDone": "Terminé",
+    "copied": "Copié dans le presse-papiers",
+    "copyFailed": "Impossible de copier dans le presse-papiers",
+    "revoke": "Révoquer",
+    "revokeConfirmTitle": "Révoquer cette clé ?",
+    "revokeConfirmDescription": "Tout ce qui utilise cette clé perdra immédiatement l'accès.",
+    "revoked": "Clé révoquée",
+    "revokeFailed": "Impossible de révoquer la clé",
+    "loadFailed": "Impossible de charger les clés API",
+    "empty": "Aucune clé API pour l'instant",
+    "expires": "expire le {{date}}",
+    "noExpiry": "sans expiration"
   }
 }

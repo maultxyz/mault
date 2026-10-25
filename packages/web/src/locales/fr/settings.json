@@ -89,5 +89,11 @@
     "notifications": "Relie ton serveur Discord et choisis quels scans et alertes sont publiés et où.",
     "integrations": "Crée des clés API et des webhooks pour que ta boutique ou d'autres outils sachent où tes cartes sont rangées.",
     "business": "Définissez vos offres de rachat et choisissez ce que les membres peuvent voir et faire."
+  },
+  "invites": {
+    "heading": "Invitations"
+  },
+  "auditLog": {
+    "heading": "Journal d'activité"
   }
 }

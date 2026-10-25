@@ -89,5 +89,11 @@
     "notifications": "Verknüpfe deinen Discord-Server und lege fest, welche Scans und Warnungen wo gepostet werden.",
     "integrations": "Erstelle API-Schlüssel und Webhooks, damit dein Shop oder andere Tools sehen, wo deine Karten lagern.",
     "business": "Lege deine Ankaufsangebote fest und bestimme, was Mitglieder sehen und tun dürfen."
+  },
+  "invites": {
+    "heading": "Einladungen"
+  },
+  "auditLog": {
+    "heading": "Aktivitätsprotokoll"
   }
 }

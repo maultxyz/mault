@@ -63,5 +63,34 @@
   "failedToCreateOrganization": "Organisation konnte nicht erstellt werden.",
   "invite": "Einladen",
   "roleAdmin": "Admin",
-  "roleMember": "Mitglied"
+  "roleMember": "Mitglied",
+  "auditLog": {
+    "description": "Letzte Aktivitäten in dieser Organisation: Anmeldungen, Mitgliederänderungen, Nutzung von API-Schlüsseln.",
+    "membersOnly": "Nur Inhaber und Admins der Organisation können die Aktivitäten sehen.",
+    "empty": "Noch keine Aktivität."
+  },
+  "invites": {
+    "description": "Lade Leute per Link in diese Organisation ein. Keine E-Mail-Einrichtung nötig.",
+    "membersOnly": "Nur Inhaber und Admins der Organisation können Einladungen verwalten.",
+    "inviteTitle": "Jemanden einladen",
+    "inviteDescription": "Du bekommst einen Link, den du selbst weitergibst.",
+    "createFailed": "Einladung konnte nicht erstellt werden",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "jemand@beispiel.de",
+    "roleLabel": "Rolle",
+    "revealTitle": "Teile diesen Einladungslink",
+    "revealDescription": "Er wurde nicht automatisch per E-Mail verschickt. Schick ihn selbst weiter. Nach dem Schließen siehst du ihn nicht mehr.",
+    "revealDescriptionEmailed": "Wir haben ihn auch per E-Mail verschickt, aber hier ist der Link zur Sicherheit. Nach dem Schließen siehst du ihn nicht mehr.",
+    "revealDone": "Fertig",
+    "copied": "In die Zwischenablage kopiert",
+    "copyFailed": "Konnte nicht in die Zwischenablage kopiert werden",
+    "revoke": "Widerrufen",
+    "revokeConfirmTitle": "Diese Einladung widerrufen?",
+    "revokeConfirmDescription": "Der Link funktioniert sofort nicht mehr.",
+    "revoked": "Einladung widerrufen",
+    "revokeFailed": "Einladung konnte nicht widerrufen werden",
+    "loadFailed": "Einladungen konnten nicht geladen werden",
+    "empty": "Keine offenen Einladungen",
+    "expires": "läuft am {{date}} ab"
+  }
 }
