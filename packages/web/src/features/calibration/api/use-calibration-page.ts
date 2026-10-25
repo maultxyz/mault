@@ -55,6 +55,7 @@ import {
   DEFAULT_SCAN_REGION,
   type BinRoute,
   type FeederCalibration,
+  parseSerialReply,
   type ScanRegion,
   type ServoCalibration,
 } from "@magic-vault/shared";
@@ -901,8 +902,8 @@ export function useCalibrationPage() {
     irBusyRef.current = true;
     try {
       const { line: response } = await sendRequest({ readIR: true }, 2000);
-      if (!response) return;
-      const parsed = JSON.parse(response);
+      const parsed = parseSerialReply(response);
+      if (!parsed) return;
       if (Array.isArray(parsed.ir)) setIrStates(parsed.ir as boolean[]);
       if (typeof parsed.hopper === "boolean") setHopperHasCards(parsed.hopper);
     } catch {} finally {

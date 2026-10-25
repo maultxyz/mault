@@ -63,6 +63,7 @@ import type { BleReconnectState, PreTestHook } from "@/lib/interfaces/stations";
 import {
   BLE_RECONNECT_BASE_DELAY_MS,
   BLE_RECONNECT_MAX_DELAY_MS,
+  parseSerialReply,
   SERIAL_ABNORMAL_RESET_REASONS,
   SERIAL_HEARTBEAT_MAX_MISSES,
   SERIAL_IDENTIFY_ATTEMPTS,
@@ -364,12 +365,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       const runCommand = async (command: object, timeoutMs: number) => {
         if (transportRef.current !== forTransport) return null;
         const { line } = await sendRequest(command, timeoutMs);
-        if (!line) return null;
-        try {
-          return JSON.parse(line) as Record<string, unknown>;
-        } catch {
-          return null;
-        }
+        return parseSerialReply(line);
       };
 
       const runExclusive = async (task: () => Promise<void>) => {
