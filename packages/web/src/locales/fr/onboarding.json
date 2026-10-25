@@ -14,10 +14,10 @@
     },
     "connectCamera": {
       "title": "Connecter une caméra",
-      "content": "Ouvre ce menu et choisis Caméra pour connecter une webcam (ou coupler ton téléphone comme caméra). C'est elle qui capture chaque carte pendant le scan."
+      "content": "Clique sur Caméra pour connecter la webcam au-dessus de ton trieur, ou coupler ton téléphone comme caméra. Le point passe au vert une fois connecté."
     },
     "connectDevice": {
-      "content": "Dans le même menu, choisis Scanner pour coupler ton trieur de cartes physique en USB. Une fois connecté, tu peux aussi le calibrer ou relancer la connexion ici."
+      "content": "Clique sur Trieur pour connecter ton trieur de cartes en USB, Bluetooth ou Wi-Fi. Une fois connecté, tu peux le calibrer ou relancer la connexion depuis le même menu."
     },
     "filterStats": {
       "title": "Filtrer en cliquant sur les stats",

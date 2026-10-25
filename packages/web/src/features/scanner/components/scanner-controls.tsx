@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { ForcedSetPicker } from "@/features/scanner/components/forced-set-picker";
 import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
@@ -27,17 +28,16 @@ import type {
   ScannerControlsProps,
 } from "@/lib/interfaces/scanner";
 import {
-  IconArrowBarToDown,
   IconBolt,
   IconFocus2,
   IconLoader2,
   IconPlayerPause,
   IconPlayerPlay,
   IconRosette,
-  IconRotate2,
   IconSparkles,
   IconStackPop,
 } from "@tabler/icons-react";
+import { formatElapsed } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   CARD_CONDITIONS,
@@ -84,13 +84,11 @@ export function ScannerControls({
   isReady,
   isFeeding,
   isClearingDevice,
-  isResettingDevice,
   onForceScan,
   onPause,
   onResume,
   onFeed,
   onClearDevice,
-  onResetDevice,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -101,12 +99,16 @@ export function ScannerControls({
     setForceFoilType,
     scanCondition,
     setScanCondition,
+    sessionScanCount,
+    elapsedMs,
   } = useScannedCards();
   const { totalCount } = useCollectionCardsSummary();
+  const { isRemoveModeActive } = useScanRemoval();
   const foilOptions = useFoilOptions();
   const canForceScan =
     status === "no-match" || status === "scanning" || status === "captured";
   const isFirstFeed = totalCount === 0;
+  const isPaused = status === "paused";
   const foilTooltip = t("scannerControls.foilTooltip", {
     type: forceFoilType ?? tCards("foilNone"),
   });
@@ -118,6 +120,7 @@ export function ScannerControls({
   const isMobile = useIsMobile();
   const canFeed = isConnected && isReady && !isFeeding;
   const canClearDevice = isConnected && isReady && !isClearingDevice;
+  const isVertical = orientation === "vertical";
 
   const [setPickerOpen, setSetPickerOpen] = useState(false);
 
@@ -129,7 +132,7 @@ export function ScannerControls({
 
   useHotkeys(
     {
-      scanPauseResume: status === "paused" ? onResume : onPause,
+      scanPauseResume: isPaused ? onResume : onPause,
       scanNow: canForceScan ? onForceScan : undefined,
       scanFeed: canFeed ? onFeed : undefined,
       scanToggleAutoFeed: isConnected
@@ -142,100 +145,97 @@ export function ScannerControls({
     isActive && panelsDocked && !isMobile,
   );
 
+  const primaryLabel = !isPaused
+    ? t("scannerControls.pause")
+    : isRemoveModeActive
+      ? t("scannerControls.startRemoving")
+      : sessionScanCount === 0
+        ? t("scannerControls.start")
+        : t("scannerControls.resume");
+  const primaryVariant = !isPaused
+    ? isRemoveModeActive
+      ? "outline-destructive"
+      : "outline"
+    : isRemoveModeActive
+      ? "destructive"
+      : "default";
+
   return (
-    <div
-      className={cn(
-        "flex flex-wrap gap-2",
-        orientation === "vertical"
-          ? "flex-col content-start"
-          : "flex-row items-center",
-      )}
-    >
-      <ButtonGroup orientation={orientation}>
-        {status === "paused" ? (
-          <ScannerControlButton
-            tooltip={t("scannerControls.resume")}
-            hotkey="scanPauseResume"
-            onClick={onResume}
-          >
-            <IconPlayerPlay />
-          </ScannerControlButton>
-        ) : (
-          <ScannerControlButton
-            tooltip={t("scannerControls.pause")}
-            hotkey="scanPauseResume"
-            onClick={onPause}
-          >
-            <IconPlayerPause />
-          </ScannerControlButton>
-        )}
-        <ScannerControlButton
-          tooltip={
-            status === "no-match"
-              ? t("scannerControls.scanAgain")
-              : t("scannerControls.scanNow")
-          }
-          hotkey="scanNow"
-          onClick={onForceScan}
-          disabled={!canForceScan}
-        >
-          <IconFocus2 />
-        </ScannerControlButton>
-      </ButtonGroup>
-      {isConnected && (
-        <ButtonGroup orientation={orientation}>
-          <ScannerControlButton
-            tooltip={
-              isFeeding
-                ? t("scannerControls.feeding")
-                : isFirstFeed
-                  ? t("scannerControls.startTooltip")
-                  : t("scannerControls.feedTooltip")
+    <div className={cn("flex flex-col gap-2", isVertical ? "w-44" : "w-full")}>
+      <div className={cn("flex gap-2", isVertical ? "flex-col" : "flex-row")}>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                variant={primaryVariant}
+                className={cn(!isVertical && "flex-1")}
+                onClick={isPaused ? onResume : onPause}
+              >
+                {isPaused ? <IconPlayerPlay /> : <IconPlayerPause />}
+                {primaryLabel}
+              </Button>
             }
-            hotkey="scanFeed"
-            onClick={onFeed}
-            disabled={!isReady || isFeeding}
-          >
-            {isFeeding ? (
-              <IconLoader2 className="animate-spin" />
-            ) : (
-              <IconStackPop />
+          />
+          <TooltipContent>
+            {primaryLabel}
+            <HotkeyHint id="scanPauseResume" />
+          </TooltipContent>
+        </Tooltip>
+        <div className="flex gap-2">
+          <ButtonGroup>
+            <ScannerControlButton
+              tooltip={
+                status === "no-match"
+                  ? t("scannerControls.scanAgain")
+                  : t("scannerControls.scanNow")
+              }
+              hotkey="scanNow"
+              onClick={onForceScan}
+              disabled={!canForceScan}
+            >
+              <IconFocus2 />
+            </ScannerControlButton>
+            {isConnected && (
+              <>
+                <ScannerControlButton
+                  tooltip={
+                    isFeeding
+                      ? t("scannerControls.feeding")
+                      : isFirstFeed
+                        ? t("scannerControls.startTooltip")
+                        : t("scannerControls.feedTooltip")
+                  }
+                  hotkey="scanFeed"
+                  onClick={onFeed}
+                  disabled={!isReady || isFeeding}
+                >
+                  {isFeeding ? (
+                    <IconLoader2 className="animate-spin" />
+                  ) : (
+                    <IconStackPop />
+                  )}
+                </ScannerControlButton>
+                <ScannerControlButton
+                  tooltip={
+                    autoFeed
+                      ? t("scannerControls.autoFeedOnTooltip")
+                      : t("scannerControls.autoFeedOffTooltip")
+                  }
+                  hotkey="scanToggleAutoFeed"
+                  onClick={() => setAutoFeed(!autoFeed)}
+                  selected={autoFeed}
+                >
+                  <IconBolt />
+                </ScannerControlButton>
+              </>
             )}
-          </ScannerControlButton>
-          <ScannerControlButton
-            tooltip={
-              autoFeed
-                ? t("scannerControls.autoFeedOnTooltip")
-                : t("scannerControls.autoFeedOffTooltip")
-            }
-            hotkey="scanToggleAutoFeed"
-            onClick={() => setAutoFeed(!autoFeed)}
-            selected={autoFeed}
-          >
-            <IconBolt />
-          </ScannerControlButton>
-          <ScannerControlButton
-            tooltip={t("scannerControls.clearDeviceTooltip")}
-            hotkey="scanClearDevice"
-            onClick={onClearDevice}
-            disabled={!isReady || isClearingDevice}
-          >
-            <IconArrowBarToDown />
-          </ScannerControlButton>
-          <ScannerControlButton
-            tooltip={t("scannerControls.resetToNeutralTooltip")}
-            onClick={onResetDevice}
-            disabled={!isReady || isResettingDevice}
-          >
-            {isResettingDevice ? (
-              <IconLoader2 className="animate-spin" />
-            ) : (
-              <IconRotate2 />
-            )}
-          </ScannerControlButton>
-        </ButtonGroup>
-      )}
-      <ButtonGroup orientation={orientation}>
+          </ButtonGroup>
+          <ScannerDebug />
+        </div>
+      </div>
+      <div
+        className={cn("flex gap-1.5", isVertical ? "flex-col" : "flex-wrap")}
+      >
         <DropdownMenu>
           <Tooltip>
             <TooltipTrigger
@@ -244,10 +244,11 @@ export function ScannerControls({
                   render={
                     <Button
                       variant={forceFoilType ? "outline-selected" : "outline"}
-                      size="icon"
+                      size="sm"
                       aria-label={foilTooltip}
                     >
                       <IconSparkles />
+                      {forceFoilType ?? tCards("foilNone")}
                     </Button>
                   }
                 />
@@ -288,10 +289,11 @@ export function ScannerControls({
                           ? "outline"
                           : "outline-selected"
                       }
-                      size="icon"
+                      size="sm"
                       aria-label={conditionTooltip}
                     >
                       <IconRosette />
+                      {scanCondition}
                     </Button>
                   }
                 />
@@ -315,8 +317,15 @@ export function ScannerControls({
           </DropdownMenuContent>
         </DropdownMenu>
         <ForcedSetPicker open={setPickerOpen} onOpenChange={setSetPickerOpen} />
-      </ButtonGroup>
-      <ScannerDebug />
+      </div>
+      {(sessionScanCount > 0 || elapsedMs > 0) && (
+        <p className="text-xs tabular-nums text-foreground/70">
+          {t("scannerControls.sessionSummary", {
+            count: sessionScanCount,
+            time: formatElapsed(elapsedMs),
+          })}
+        </p>
+      )}
     </div>
   );
 }

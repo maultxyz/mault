@@ -266,15 +266,18 @@
     "startTooltip": "Alimenter la première carte et démarrer le scan",
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
-    "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
-    "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
     "foilTooltip": "Type de foil des cartes scannées : {{type}}",
     "setTooltip": "Extension des cartes scannées : {{set}}",
     "anySet": "N'importe quelle extension",
     "setSearchPlaceholder": "Rechercher une extension",
     "noSets": "Aucune extension trouvée",
     "setHint": "Les cartes scannées utilisent leur impression de cette extension lorsqu'elle existe.",
-    "conditionTooltip": "État des cartes scannées : {{condition}}"
+    "conditionTooltip": "État des cartes scannées : {{condition}}",
+    "start": "Démarrer le scan",
+    "sessionSummary_one": "{{count}} carte scannée · {{time}}",
+    "sessionSummary_other": "{{count}} cartes scannées · {{time}}",
+    "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "startRemoving": "Démarrer le retrait"
   },
   "scannerDebug": {
     "heading": "Débogage",
@@ -291,7 +294,6 @@
     "cameraFallbackLabel": "Caméra {{index}}",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
-    "scanner": "Scanner",
     "autoFeed": "Alimentation auto",
     "allowDuplicates": "Autoriser les doublons",
     "scanWithoutSorter": "Scanner sans trieuse",
@@ -301,7 +303,15 @@
     "connectAnotherUsb": "Connecter une autre trieuse (USB)",
     "connectAnotherBluetooth": "Connecter une autre trieuse (Bluetooth)",
     "flashNewBoard": "Flasher une nouvelle carte",
-    "connectAnotherUpgrade": "Connecter plus de trieuses avec Business"
+    "connectAnotherUpgrade": "Connecter plus de trieuses avec Business",
+    "clearDevice": "Vider l'appareil",
+    "resetToNeutral": "Remettre au neutre",
+    "sorter": "Trieur",
+    "connectionStates": {
+      "connected": "Connecté",
+      "connecting": "Connexion",
+      "disconnected": "Non connecté"
+    }
   },
   "ocrBetaDialog": {
     "title": "Correspondance de texte OCR (bêta)",
@@ -345,7 +355,7 @@
     "initializing": "Initialisation du scanner…",
     "identifyingCard": "Identification de la carte…",
     "settling": "En attente que la carte se stabilise…",
-    "paused": "Scanner en pause - appuie sur Reprendre pour continuer.",
+    "paused": "Scanner en pause.",
     "duplicate": "Même carte scannée - utilise Ajouter à nouveau pour l'ajouter quand même.",
     "noMatch": "Carte non reconnue - essaie Scanner à nouveau ou ajuste l'éclairage.",
     "faceUpHint": "Les cartes doivent être posées face visible",
@@ -420,7 +430,10 @@
     "pageOf": "Page {{page}} sur {{total}}",
     "previousPage": "Page précédente",
     "nextPage": "Page suivante",
-    "openCard": "Ouvrir la carte non reconnue"
+    "openCard": "Ouvrir la carte non reconnue",
+    "expand": "Afficher les cartes non reconnues",
+    "collapse": "Masquer les cartes non reconnues",
+    "viewAllShort": "Tout voir"
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",

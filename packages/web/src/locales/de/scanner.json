@@ -266,15 +266,18 @@
     "startTooltip": "Die erste Karte zuführen und den Scan starten",
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
-    "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
-    "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
     "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}",
     "setTooltip": "Set für gescannte Karten: {{set}}",
     "anySet": "Beliebiges Set",
     "setSearchPlaceholder": "Sets suchen",
     "noSets": "Keine Sets gefunden",
     "setHint": "Gescannte Karten verwenden ihren Druck aus diesem Set, wenn es einen gibt.",
-    "conditionTooltip": "Zustand für gescannte Karten: {{condition}}"
+    "conditionTooltip": "Zustand für gescannte Karten: {{condition}}",
+    "start": "Scan starten",
+    "sessionSummary_one": "{{count}} Karte gescannt · {{time}}",
+    "sessionSummary_other": "{{count}} Karten gescannt · {{time}}",
+    "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
+    "startRemoving": "Entfernen starten"
   },
   "scannerDebug": {
     "heading": "Debug",
@@ -291,7 +294,6 @@
     "cameraFallbackLabel": "Kamera {{index}}",
     "connectUsb": "Über USB verbinden",
     "connectBluetooth": "Über Bluetooth verbinden",
-    "scanner": "Scanner",
     "autoFeed": "Automatische Zufuhr",
     "allowDuplicates": "Duplikate zulassen",
     "scanWithoutSorter": "Ohne Sortierer scannen",
@@ -301,7 +303,15 @@
     "connectAnotherUsb": "Weiteren Sortierer verbinden (USB)",
     "connectAnotherBluetooth": "Weiteren Sortierer verbinden (Bluetooth)",
     "flashNewBoard": "Neue Platine flashen",
-    "connectAnotherUpgrade": "Mehr Sortierer mit Business verbinden"
+    "connectAnotherUpgrade": "Mehr Sortierer mit Business verbinden",
+    "clearDevice": "Gerät leeren",
+    "resetToNeutral": "In Neutralstellung bringen",
+    "sorter": "Sortierer",
+    "connectionStates": {
+      "connected": "Verbunden",
+      "connecting": "Verbindet",
+      "disconnected": "Nicht verbunden"
+    }
   },
   "ocrBetaDialog": {
     "title": "OCR-Texterkennung (Beta)",
@@ -345,7 +355,7 @@
     "initializing": "Scanner wird initialisiert…",
     "identifyingCard": "Karte wird identifiziert…",
     "settling": "Warten, bis die Karte zur Ruhe kommt…",
-    "paused": "Scanner pausiert - drücke Fortsetzen, um weiterzumachen.",
+    "paused": "Scanner pausiert.",
     "duplicate": "Gleiche Karte erneut gescannt - verwende Erneut hinzufügen, um sie trotzdem hinzuzufügen.",
     "noMatch": "Karte nicht erkannt - versuche Erneut scannen oder passe die Beleuchtung an.",
     "faceUpHint": "Karten sollten mit der Vorderseite nach oben liegen",
@@ -420,7 +430,10 @@
     "pageOf": "Seite {{page}} von {{total}}",
     "previousPage": "Vorherige Seite",
     "nextPage": "Nächste Seite",
-    "openCard": "Nicht erkannte Karte öffnen"
+    "openCard": "Nicht erkannte Karte öffnen",
+    "expand": "Nicht erkannte Karten anzeigen",
+    "collapse": "Nicht erkannte Karten ausblenden",
+    "viewAllShort": "Alle ansehen"
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",

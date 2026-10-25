@@ -266,15 +266,18 @@
     "startTooltip": "Feed the first card and start scanning",
     "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
-    "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
-    "resetToNeutralTooltip": "Reset to neutral (closes every bottom and paddle, centers the pushers)",
     "foilTooltip": "Foil type for scanned cards: {{type}}",
     "setTooltip": "Set for scanned cards: {{set}}",
     "anySet": "Any set",
     "setSearchPlaceholder": "Search sets",
     "noSets": "No sets found",
     "setHint": "Scanned cards use their printing from this set when one exists.",
-    "conditionTooltip": "Condition for scanned cards: {{condition}}"
+    "conditionTooltip": "Condition for scanned cards: {{condition}}",
+    "start": "Start scanning",
+    "sessionSummary_one": "{{count}} card scanned · {{time}}",
+    "sessionSummary_other": "{{count}} cards scanned · {{time}}",
+    "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "startRemoving": "Start removing"
   },
   "scannerDebug": {
     "heading": "Debug",
@@ -291,7 +294,6 @@
     "cameraFallbackLabel": "Camera {{index}}",
     "connectUsb": "Connect via USB",
     "connectBluetooth": "Connect via Bluetooth",
-    "scanner": "Scanner",
     "autoFeed": "Auto-feed",
     "allowDuplicates": "Allow duplicates",
     "scanWithoutSorter": "Scan without sorter",
@@ -301,7 +303,15 @@
     "connectAnotherUsb": "Connect another sorter (USB)",
     "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
     "flashNewBoard": "Flash a new board",
-    "connectAnotherUpgrade": "Connect more sorters with Business"
+    "connectAnotherUpgrade": "Connect more sorters with Business",
+    "clearDevice": "Clear device",
+    "resetToNeutral": "Reset to neutral",
+    "sorter": "Sorter",
+    "connectionStates": {
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "disconnected": "Not connected"
+    }
   },
   "ocrBetaDialog": {
     "title": "OCR text matching (beta)",
@@ -345,7 +355,7 @@
     "noCatchAllBin": "No catch-all bin configured, so unmatched cards won't be sorted.",
     "initializing": "Initializing scanner…",
     "identifyingCard": "Identifying card…",
-    "paused": "Scanner paused. Press Resume to continue.",
+    "paused": "Scanner paused.",
     "duplicate": "Same card scanned. Use Add Again to add it anyway.",
     "noMatch": "Card not recognized. Try Scan Again or adjust lighting.",
     "faceUpHint": "Cards should face right-side up",
@@ -420,7 +430,10 @@
     "pageOf": "Page {{page}} of {{total}}",
     "previousPage": "Previous page",
     "nextPage": "Next page",
-    "openCard": "Open unmatched card"
+    "openCard": "Open unmatched card",
+    "expand": "Show unmatched cards",
+    "collapse": "Hide unmatched cards",
+    "viewAllShort": "View all"
   },
   "binStatusMeter": {
     "heading": "Bin Levels",

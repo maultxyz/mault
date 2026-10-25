@@ -14,10 +14,10 @@
     },
     "connectCamera": {
       "title": "Connect a camera",
-      "content": "Open this menu and choose Camera to connect a webcam (or pair your phone as a camera). It's what captures each card as you scan."
+      "content": "Click Camera to connect the webcam over your sorter, or pair your phone as a camera. The dot turns green once it's connected."
     },
     "connectDevice": {
-      "content": "In the same menu, choose Scanner to pair your physical card sorter over USB. Once connected, you can calibrate it or retry the connection here too."
+      "content": "Click Sorter to connect your card sorter over USB, Bluetooth or Wi-Fi. Once it's connected, you can calibrate it or retry the connection from the same menu."
     },
     "filterStats": {
       "title": "Filter by clicking stats",

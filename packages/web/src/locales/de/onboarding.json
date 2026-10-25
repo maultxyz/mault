@@ -14,10 +14,10 @@
     },
     "connectCamera": {
       "title": "Kamera verbinden",
-      "content": "Öffne dieses Menü und wähle Kamera, um eine Webcam zu verbinden (oder dein Handy als Kamera zu koppeln). Sie erfasst jede Karte beim Scannen."
+      "content": "Klicke auf Kamera, um die Webcam über deinem Sortierer zu verbinden oder dein Handy als Kamera zu koppeln. Der Punkt wird grün, sobald sie verbunden ist."
     },
     "connectDevice": {
-      "content": "Wähle im selben Menü Scanner, um deinen physischen Kartensortierer per USB zu koppeln. Danach kannst du ihn hier auch kalibrieren oder die Verbindung erneut versuchen."
+      "content": "Klicke auf Sortierer, um deinen Kartensortierer per USB, Bluetooth oder WLAN zu verbinden. Danach kannst du ihn im selben Menü kalibrieren oder die Verbindung erneut versuchen."
     },
     "filterStats": {
       "title": "Über Statistiken filtern",

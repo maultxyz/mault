@@ -34,7 +34,7 @@ import type {
   Result,
   UnmatchedCard,
 } from "@magic-vault/shared";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
@@ -275,13 +275,11 @@ export interface ScannerControlsProps {
   isReady: boolean;
   isFeeding: boolean;
   isClearingDevice: boolean;
-  isResettingDevice: boolean;
   onForceScan: () => void;
   onPause: () => void;
   onResume: () => void;
   onFeed: () => void;
   onClearDevice: () => void;
-  onResetDevice: () => void;
 }
 
 export interface ScannerControlButtonProps {
@@ -869,7 +867,18 @@ export interface PhoneCameraPairingDialogProps {
   onDisconnect: () => void;
 }
 
-export interface ScannerMenuProps {
+export type ScannerConnectionState = "connected" | "connecting" | "disconnected";
+
+export interface ConnectionStatusPillProps
+  extends ComponentProps<"button"> {
+  label: string;
+  stateLabel: string;
+  state: ScannerConnectionState;
+  icon: ReactNode;
+  "data-tour"?: string;
+}
+
+export interface ScannerStatusBarProps {
   isCameraActive: boolean;
   isConnected: boolean;
   autoFeed: boolean;
@@ -889,6 +898,11 @@ export interface ScannerMenuProps {
   onScannerDisconnect: () => void;
   onScannerRetry: () => void;
   onCalibrate: () => void;
+  isReady: boolean;
+  isClearingDevice: boolean;
+  isResettingDevice: boolean;
+  onClearDevice: () => void;
+  onResetDevice: () => void;
   onAutoFeedChange: (enabled: boolean) => void;
   onAllowDuplicatesChange: (enabled: boolean) => void;
   onConnectAnotherUsb: () => void;
