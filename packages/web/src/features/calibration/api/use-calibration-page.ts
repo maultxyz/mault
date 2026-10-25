@@ -36,8 +36,6 @@ import type {
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
-  recenterSpeedPulse,
-  SERVO_PULSE_CENTER,
   SETUP_SERVO_POSITIONS,
 } from "@/lib/constants/calibration";
 import {
@@ -56,7 +54,9 @@ import {
   type BinRoute,
   type FeederCalibration,
   parseSerialReply,
+  recenterSpeedPulse,
   type ScanRegion,
+  SERVO_PULSE_CENTER,
   type ServoCalibration,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";

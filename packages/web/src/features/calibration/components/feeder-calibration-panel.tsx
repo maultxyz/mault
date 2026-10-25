@@ -9,12 +9,6 @@ import {
   FEEDER_REVERSE_DURATION_SLIDER_MAX,
   FEEDER_SETTLE_DURATION_SLIDER_MAX,
   FEEDER_STOP_PULSE_SLIDER_RANGE,
-  pulseToDirectionalSpeed,
-  pulseToSignedPercent,
-  SERVO_PULSE_CENTER,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
-  signedPercentToPulse,
   sliderMax,
 } from "@/lib/constants/calibration";
 import type { FeederCalibrationPanelProps } from "@/lib/interfaces/calibration";
@@ -22,6 +16,14 @@ import { cn } from "@/lib/utils";
 import { IconChevronDown, IconRestore } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  pulseToDirectionalSpeed,
+  pulseToSignedPercent,
+  SERVO_PULSE_CENTER,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+  signedPercentToPulse,
+} from "@magic-vault/shared";
 
 export function FeederCalibrationPanel({
   speedValue,
