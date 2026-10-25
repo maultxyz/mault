@@ -70,14 +70,6 @@
       "modules_other": "{{count}} modules"
     }
   },
-  "footer": {
-    "openSource": "Open source",
-    "reportIssue": "Signaler un problème",
-    "signIn": "Se connecter",
-    "privacy": "Confidentialité",
-    "terms": "Conditions",
-    "copyright": "© {{year}} Mault LLC"
-  },
   "bom": {
     "heading": "Nomenclature",
     "description": "Les quantités évoluent avec le nombre de modules que tu construis - {{modules}} modules × 3 servos, 1 chargeur, {{irSensors}} capteurs IR, {{channelsUsed}} des 16 canaux du PCA9685 utilisés. Les canaux restants sont libres pour des modules de tri supplémentaires (jusqu'à 5 modules sur un seul PCA9685). Coche chaque pièce au fur et à mesure que tu la récupères - les coches sont enregistrées dans ce navigateur.",

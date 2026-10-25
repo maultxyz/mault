@@ -75,12 +75,5 @@
         "body": "Rends le fichier exécutable avec chmod +x MAULT-linux.AppImage, puis lance-le. Pour connecter une trieuse en USB, ton utilisateur doit peut-être faire partie du groupe dialout."
       }
     }
-  },
-  "footer": {
-    "reportIssue": "Signaler un problème",
-    "signIn": "Se connecter",
-    "privacy": "Confidentialité",
-    "terms": "Conditions",
-    "copyright": "© {{year}} Mault LLC"
   }
 }
