@@ -34,6 +34,10 @@ export function emptyCollection(guid: string): Promise<unknown> {
   });
 }
 
+export function releaseScanLock(guid: string): Promise<unknown> {
+  return apiDelete<Result<null>>(`/api/collections/${guid}/scan-lock`);
+}
+
 export function checkCollectionName(name: string, excludeGuid?: string): Promise<boolean> {
   const params = new URLSearchParams({ name });
   if (excludeGuid) params.set("excludeGuid", excludeGuid);

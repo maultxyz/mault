@@ -31,7 +31,7 @@ import {
   type ScanRoutingContext,
 } from "@magic-vault/shared";
 import { binHeightsQueryOptions } from "@/features/calibration/api/calibration-configs";
-import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { collectionsQueryOptions, releaseScanLock } from "@/features/collections/api/collections";
 import { binRoutesQueryOptions, binSetsQueryOptions } from "@/features/devices/api/devices";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
@@ -167,6 +167,21 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       if (reason !== "user") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
     },
     [setPhase],
+  );
+
+  const lockedCollectionGuidRef = useRef<string | null>(null);
+  useEffect(() => {
+    const previous = lockedCollectionGuidRef.current;
+    const next = collection?.guid ?? null;
+    if (previous && previous !== next) releaseScanLock(previous).catch(() => {});
+    lockedCollectionGuidRef.current = next;
+  }, [collection?.guid]);
+  useEffect(
+    () => () => {
+      const guid = lockedCollectionGuidRef.current;
+      if (guid) releaseScanLock(guid).catch(() => {});
+    },
+    [],
   );
 
   const { deployNotice } = useAppStream();
