@@ -23,15 +23,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-
-function formatDate(value: string | null): string | null {
-  if (!value) return null;
-  return new Date(value).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { copyWithToast } from "@/lib/clipboard";
+import { formatShortDate } from "@/lib/format";
 
 // Local mode only - see routes/local-auth.ts. Personal API keys (like a
 // GitHub personal access token), scriptable access to Mault's own API using
@@ -108,10 +101,7 @@ export function ApiKeysManager() {
 
   function copyNewKey() {
     if (!newRawKey) return;
-    navigator.clipboard
-      .writeText(newRawKey)
-      .then(() => toast.success(t("apiKeys.copied")))
-      .catch(() => toast.error(t("apiKeys.copyFailed")));
+    void copyWithToast(newRawKey, t("apiKeys.copied"), t("apiKeys.copyFailed"));
   }
 
   const activeKeys = (keys ?? []).filter((k) => k.status === "active");
@@ -147,7 +137,7 @@ export function ApiKeysManager() {
         <div className="flex flex-col divide-y divide-border rounded-lg border">
           {activeKeys.map((key) => {
             const isRevoking = revokingPrefix === key.keyPrefix;
-            const expires = formatDate(key.expiresAt);
+            const expires = key.expiresAt ? formatShortDate(key.expiresAt) : null;
             return (
               <div
                 key={key.id}

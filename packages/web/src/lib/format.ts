@@ -17,3 +17,20 @@ export function formatElapsed(ms: number): string {
     return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   return `${m}:${String(sec).padStart(2, "0")}`;
 }
+
+export function formatShortDateTime(value: Date | string): string {
+  return new Date(value).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+export function formatShortDate(value: Date | string): string {
+  return new Date(value).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
