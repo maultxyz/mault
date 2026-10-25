@@ -161,7 +161,12 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           ),
         };
       });
-      if (result.success && "storedScanIds" in result && locationGuid) {
+      if (
+        result.success &&
+        "storedScanIds" in result &&
+        result.storedScanIds &&
+        locationGuid
+      ) {
         emitCardsStoredWebhook(orgId, locationGuid, result.storedScanIds);
       }
       return c.json(result);

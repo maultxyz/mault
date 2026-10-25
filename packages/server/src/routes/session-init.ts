@@ -10,7 +10,7 @@ import { and, count, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import { collectionCards, unmatchedCards } from "../db/schema";
 import { cardWithStoredPricesSql } from "../lib/card-price-sql";
-import type { ViewerInfo } from "../lib/session-stream";
+import type { ViewerInfo } from "../lib/interfaces/session-stream";
 import { resolveScanImageUrl } from "../lib/scan-images";
 import { toScannedCard, toUnmatchedCard } from "./collections/shared";
 
