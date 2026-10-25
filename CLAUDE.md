@@ -142,7 +142,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 ## Web conventions
 
 - Feature-first: `features/<name>/{api,components,lib}`; cross-feature code in top-level `components/`, `hooks/`, `lib/`. API calls through `lib/api/client.ts` or `features/*/api/`.
-- Forms: React Hook Form + Zod resolver, never `useState` per field.
+- Forms: React Hook Form + Zod resolver, never `useState` per field. Schemas for forms both apps have live in `shared` (`schemas/forms.schema.ts`); schema messages are `formValidationMessage(...)` keys (`validation.*` strings), translated by web `FieldError` and mobile `translateFormErrorMessage`, never literal English.
 - Nothing auto-saves: settings edit a draft saved through the page's single `SaveBar` with `UnsavedChangesGuard`. Draft forms take server data via `values` with `resetOptions: { keepDirtyValues: true }`; Discard passes `DISCARD_RESET_OPTIONS`. Discrete actions stay immediate.
 - Hotkeys only through `useHotkeys`, declared in `HOTKEYS`. Toasts only through the root `Toaster`.
 - Settings sub-pages use `SETTINGS_PATHS`, `SettingsSection` panels and a `settings:sectionIntros` entry; moving a panel means updating `CALIBRATION_TOUR_STEPS`.
