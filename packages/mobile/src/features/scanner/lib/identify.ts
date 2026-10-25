@@ -36,10 +36,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { encodeJpegDataUrl, writeJpegTempFile } from "./frame";
 import { detectCorners, embedCard } from "./inference";
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { delay } from "@/lib/delay";
 
 function hasMatch(result: CardSearchResult): boolean {
   return (result.data?.length ?? 0) > 0;
