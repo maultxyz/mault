@@ -17,9 +17,11 @@ import { logActivity } from "../../lib/activity-log";
 import { isDeviceLeased } from "../../lib/device-leases";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { businessQuery, forbidden, notFound, readJson } from "./shared";
-
-const DEVICE_NOT_FOUND = "Sorter not found.";
+import { businessQuery, notFound, readJson } from "./shared";
+import {
+  BUSINESS_FORBIDDEN_RESULT,
+  SORTER_NOT_FOUND_MESSAGE,
+} from "../../lib/constants/business";
 
 async function findDevice(tx: Transaction, orgId: string, guid: string) {
   if (!UUID_PATTERN.test(guid)) return null;
@@ -105,9 +107,9 @@ export const fleetRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid interval." }, 400);
     }
     return businessQuery(c, async (tx, access) => {
-      if (!access.canManageSettings) return forbidden;
+      if (!access.canManageSettings) return BUSINESS_FORBIDDEN_RESULT;
       const device = await findDevice(tx, c.get("orgId"), c.req.param("guid"));
-      if (!device) return notFound(DEVICE_NOT_FOUND);
+      if (!device) return notFound(SORTER_NOT_FOUND_MESSAGE);
       await tx
         .update(devices)
         .set({
@@ -122,7 +124,7 @@ export const fleetRoute = new Hono<AppEnv>()
     businessQuery(c, async (tx) => {
       const orgId = c.get("orgId");
       const device = await findDevice(tx, orgId, c.req.param("guid"));
-      if (!device) return notFound(DEVICE_NOT_FOUND);
+      if (!device) return notFound(SORTER_NOT_FOUND_MESSAGE);
       await tx
         .update(devices)
         .set({

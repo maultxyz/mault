@@ -8,7 +8,8 @@ import { orgSettings } from "../../db/schema";
 import { logActivity } from "../../lib/activity-log";
 import { loadBusinessSettings } from "../../lib/business-access";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { businessQuery, forbidden, readJson } from "./shared";
+import { businessQuery, readJson } from "./shared";
+import { BUSINESS_FORBIDDEN_RESULT } from "../../lib/constants/business";
 
 export const businessSettingsRoute = new Hono<AppEnv>()
   .get("/settings", requireAuth, requireOrg, (c) =>
@@ -25,7 +26,7 @@ export const businessSettingsRoute = new Hono<AppEnv>()
     const buylist = toBuylistConfig(body.buylist);
     const permissions = toBusinessPermissions(body.permissions);
     return businessQuery(c, async (tx, access) => {
-      if (!access.canManageSettings) return forbidden;
+      if (!access.canManageSettings) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
       const values = {
         buylistConfig: buylist,
