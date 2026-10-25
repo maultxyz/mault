@@ -323,11 +323,6 @@ export interface StaleDeviceDialogProps {
   onCalibrateFirst: () => void;
 }
 
-export interface DirectionalSpeed {
-  direction: "forward" | "reverse";
-  magnitude: number;
-}
-
 export interface CalibrationTourProps {
   section: CalibrationSection;
   setSection: (section: CalibrationSection) => void;

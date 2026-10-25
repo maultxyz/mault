@@ -31,15 +31,8 @@ import {
   FEEDER_STOP_PULSE_SLIDER_RANGE,
   MODULE_DELAY_FIELDS,
   PUSHER_SUGGESTED_OFFSET_PERCENT,
-  pulseToPercent,
-  pulseToSignedPercent,
-  recenterSpeedPulse,
-  SERVO_PULSE_CENTER,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
   SETUP_INTRO_PARTS,
   SETUP_SERVO_POSITIONS,
-  signedPercentToPulse,
 } from "@/lib/constants/calibration";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
@@ -66,7 +59,14 @@ import {
   CHANNEL_OFFSET,
   DEFAULT_CALIBRATION,
   DEFAULT_CHANNEL_LAYOUT,
+  pulseToPercent,
+  pulseToSignedPercent,
+  recenterSpeedPulse,
+  SERVO_PULSE_CENTER,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
   type ServoCalibration,
+  signedPercentToPulse,
 } from "@magic-vault/shared";
 import {
   IconAlertTriangle,

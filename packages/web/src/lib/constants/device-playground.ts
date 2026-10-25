@@ -1,11 +1,14 @@
-import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@/lib/constants/calibration";
 import type {
   DeviceCommand,
   DeviceCommandField,
   DeviceCommandGroup,
   DeviceCommandValues,
 } from "@/lib/interfaces/device-playground";
-import { maxModulesForLayout } from "@magic-vault/shared";
+import {
+  maxModulesForLayout,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+} from "@magic-vault/shared";
 
 export const DEVICE_PLAYGROUND_DEFAULT_TIMEOUT_MS = 5_000;
 export const DEVICE_PLAYGROUND_STOP_TIMEOUT_MS = 3_000;

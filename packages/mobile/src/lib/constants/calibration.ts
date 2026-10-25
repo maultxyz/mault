@@ -1,50 +1,13 @@
-import type { FirmwareFeature } from "@magic-vault/shared";
+import { type FirmwareFeature, SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@magic-vault/shared";
 import type {
   CalibrationSectionLink,
   DeviceToggleKey,
-  DirectionalSpeed,
   ModuleDelayField,
   ServoConfig,
   SetupServoPosition,
 } from "@/lib/interfaces/calibration";
 
-export const SERVO_PULSE_MIN = 120;
-export const SERVO_PULSE_MAX = 490;
-export const SERVO_PULSE_CENTER = (SERVO_PULSE_MIN + SERVO_PULSE_MAX) / 2;
 export const DEFAULT_SLIDER_PULSE = 307;
-
-export function pulseToPercent(pulse: number): number {
-  return Math.round(((pulse - SERVO_PULSE_MIN) / (SERVO_PULSE_MAX - SERVO_PULSE_MIN)) * 100);
-}
-
-export function percentToPulse(percent: number): number {
-  return Math.round(SERVO_PULSE_MIN + (percent / 100) * (SERVO_PULSE_MAX - SERVO_PULSE_MIN));
-}
-
-export function pulseToDirectionalSpeed(pulse: number): DirectionalSpeed {
-  if (pulse <= SERVO_PULSE_CENTER) {
-    return {
-      direction: "forward",
-      magnitude: Math.round(((SERVO_PULSE_CENTER - pulse) / (SERVO_PULSE_CENTER - SERVO_PULSE_MIN)) * 100),
-    };
-  }
-  return {
-    direction: "reverse",
-    magnitude: Math.round(((pulse - SERVO_PULSE_CENTER) / (SERVO_PULSE_MAX - SERVO_PULSE_CENTER)) * 100),
-  };
-}
-
-export function pulseToSignedPercent(pulse: number): number {
-  const { direction, magnitude } = pulseToDirectionalSpeed(pulse);
-  return direction === "forward" ? magnitude : -magnitude;
-}
-
-export function signedPercentToPulse(signedPercent: number): number {
-  if (signedPercent >= 0) {
-    return Math.round(SERVO_PULSE_CENTER - (signedPercent / 100) * (SERVO_PULSE_CENTER - SERVO_PULSE_MIN));
-  }
-  return Math.round(SERVO_PULSE_CENTER + (-signedPercent / 100) * (SERVO_PULSE_MAX - SERVO_PULSE_CENTER));
-}
 
 export function sliderMax(value: number, defaultMax: number): number {
   return Math.max(defaultMax, value);
