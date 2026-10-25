@@ -1,7 +1,7 @@
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import type { ScanDraftOptions } from "@/lib/interfaces/cards";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   scanDraftFormSchema,
@@ -24,22 +24,29 @@ export function useScanDraft({
     values,
     resetOptions: { keepDirtyValues: true },
   });
-  const isDirty = form.formState.isDirty;
+  const { isDirty, dirtyFields } = form.formState;
   const [afterCommit, setAfterCommit] = useState<(() => void) | null>(null);
+  const draftScanIdRef = useRef(scanId);
+
+  useEffect(() => {
+    if (draftScanIdRef.current === scanId) return;
+    draftScanIdRef.current = scanId;
+    form.reset(values, DISCARD_RESET_OPTIONS);
+  }, [form, scanId, values]);
 
   const commit = useCallback(
     () =>
       form.handleSubmit((draft) => {
         if (!scanId) return;
-        if (draft.foilType !== values.foilType) {
+        if (dirtyFields.foilType) {
           setCardFoilType(scanId, draft.foilType);
         }
-        if (draft.condition !== values.condition) {
+        if (dirtyFields.condition) {
           setCardCondition(scanId, draft.condition);
         }
         form.reset(draft);
       })(),
-    [form, scanId, values, setCardFoilType, setCardCondition],
+    [form, scanId, dirtyFields, setCardFoilType, setCardCondition],
   );
 
   const runAfterCommit = useCallback(
