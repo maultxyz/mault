@@ -16,6 +16,7 @@ import { EmptyCollectionDialog } from "@/features/collections/components/empty-c
 import type { CollectionTarget } from "@/lib/interfaces/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { StatGroup } from "@/components/stat-group";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -88,6 +89,10 @@ export default function CollectionsPage() {
   const [selectedGuids, setSelectedGuids] = useState<Set<string>>(new Set());
   const [lastToggledGuid, setLastToggledGuid] = useState<string | null>(null);
   const [bulkAction, setBulkAction] = useState<"empty" | "delete" | null>(null);
+  useHotkeys({
+    clearSelection:
+      selectedGuids.size > 0 ? () => setSelectedGuids(new Set()) : undefined,
+  });
   const liveSelectedGuids = collections
     .filter((c) => selectedGuids.has(c.guid))
     .map((c) => c.guid);

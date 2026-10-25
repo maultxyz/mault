@@ -81,8 +81,7 @@ export function CollectionTile({
             onMouseDown={onSelectMouseDown}
             onClick={(e) => {
               e.preventDefault();
-              consumeShift();
-              onToggleSelect(e.shiftKey);
+              onToggleSelect(consumeShift() || e.shiftKey);
             }}
           >
             <Checkbox

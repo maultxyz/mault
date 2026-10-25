@@ -80,6 +80,9 @@ export function IntakeLotDetail({
   const [inAcceptFlow, setInAcceptFlow] = useState(false);
   const [receiptPromptOpen, setReceiptPromptOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  useHotkeys({
+    clearSelection: selected.size > 0 ? () => setSelected(new Set()) : undefined,
+  });
   const [removeTarget, setRemoveTarget] = useState<string[] | null>(null);
 
   const startReview = async () => {

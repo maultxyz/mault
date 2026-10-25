@@ -188,6 +188,7 @@
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
       "dismissToasts": "Clear all notifications",
+      "clearSelection": "Clear the selection",
       "goScanner": "Go to sorting",
       "goCollections": "Go to collections",
       "goStorage": "Go to storage boxes",
