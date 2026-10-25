@@ -160,6 +160,21 @@ export function useSessionEvents(
       cardsChanged();
     });
 
+    on(scoped("cards_foil_changed"), (e) => {
+      const { scanIds, isFoil, foilType } = JSON.parse(
+        (e as MessageEvent).data,
+      ) as { scanIds: string[]; isFoil: boolean; foilType: string | null };
+      const ids = new Set(scanIds);
+      setRecentCards((prev) =>
+        prev.map((c) =>
+          ids.has(c.scanId)
+            ? { ...c, isFoil, foilType: foilType ?? undefined }
+            : c,
+        ),
+      );
+      cardsChanged();
+    });
+
     on(scoped("cards_cleared"), () => {
       setRecentCards([]);
       cardsChanged();
