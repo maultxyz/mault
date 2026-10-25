@@ -9,8 +9,6 @@ import {
 import { sql } from "drizzle-orm";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
 import type {
-  ScryfallImageUris,
-  ScryfallCardFace,
   ScryfallApiCard,
 } from "../../interfaces/scryfall";
 
@@ -63,7 +61,7 @@ function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
   };
 }
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = SCRYFALL_DEFAULT_URL,
   lang?: string,
@@ -101,7 +99,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = SCRYFALL_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -127,8 +125,8 @@ export async function SearchById(
 
 export const scryfallAdapter: CardSearchAdapter = {
   defaultUrl: SCRYFALL_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw) => normalizeScryfallCard(raw as ScryfallApiCard),
   rarePrintingSql: sql`((data->>'promo') = 'true' OR lower(set_code) IN (${sql.join(
     SCRYFALL_LIST_SET_CODES.map((code) => sql`${code}`),

@@ -50,7 +50,7 @@ export function normalizeCyberpunkCard(raw: NetdeckCard): PlayingCard {
   };
 }
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = CYBERPUNK_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -90,7 +90,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = CYBERPUNK_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -113,8 +113,8 @@ export async function SearchById(
 export const cyberpunkAdapter: CardSearchAdapter = {
   defaultUrl: CYBERPUNK_DEFAULT_URL,
   urlForLang: (lang) => netdeckUrlForLang(CYBERPUNK_DEFAULT_URL, lang),
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw, id) => {
     const card = selectNetdeckPrinting(raw as NetdeckCard, id);
     return card ? normalizeCyberpunkCard(card) : null;

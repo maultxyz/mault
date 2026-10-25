@@ -32,8 +32,8 @@ export const storageLocationKeys = {
   cardContext: (
     guid: string | undefined,
     scanId: string | undefined,
-    reviewOnly: boolean,
-  ) => [...storageLocationKeys.cardContexts(guid), scanId, reviewOnly] as const,
+    unreviewedOnly: boolean,
+  ) => [...storageLocationKeys.cardContexts(guid), scanId, unreviewedOnly] as const,
   export: (guid: string | undefined) =>
     [...storageLocationKeys.root(), "export", guid] as const,
   card: (scanId: string | undefined) =>
@@ -104,13 +104,13 @@ export const storageLocationCardPageQueryOptions = (
 export const storageLocationCardContextQueryOptions = (
   guid: string | undefined,
   scanId: string | undefined,
-  reviewOnly: boolean,
+  unreviewedOnly: boolean,
 ) =>
   queryOptions({
-    queryKey: storageLocationKeys.cardContext(guid, scanId, reviewOnly),
+    queryKey: storageLocationKeys.cardContext(guid, scanId, unreviewedOnly),
     queryFn: () =>
       apiGet<Result<StorageLocationCardContext | null>>(
-        `/api/storage-locations/${guid}/cards/${scanId}/context${reviewOnly ? "?review=1" : ""}`,
+        `/api/storage-locations/${guid}/cards/${scanId}/context${unreviewedOnly ? "?unreviewedOnly=true" : ""}`,
       ).then((r) => r.data ?? null),
     enabled: !!guid && !!scanId,
   });

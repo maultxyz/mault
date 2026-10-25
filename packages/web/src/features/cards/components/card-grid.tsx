@@ -62,6 +62,7 @@ import {
 import type {
   CardGridDensity,
   CardViewMode,
+  OpenScanOptions,
   SelectToggleOptions,
 } from "@/lib/interfaces/cards";
 import {
@@ -151,8 +152,10 @@ export function CardGrid() {
   // Replaces history instead of pushing, so browser back always returns to
   // the grid rather than stepping back through every previously viewed card.
   const setOpenScanId = useCallback(
-    (scanId: string | null, review = false) => {
-      const reviewSuffix = review ? `?${CARD_REVIEW_SEARCH_PARAM}=1` : "";
+    (scanId: string | null, { inReviewMode = false }: OpenScanOptions = {}) => {
+      const reviewSuffix = inReviewMode
+        ? `?${CARD_REVIEW_SEARCH_PARAM}=1`
+        : "";
       const basePath =
         readOnly && viewedCollection
           ? collectionViewPath(viewedCollection.guid)
@@ -300,7 +303,7 @@ export function CardGrid() {
         return;
       }
       setReviewTotal(firstPage.totalCards);
-      setOpenScanId(first.scanId, true);
+      setOpenScanId(first.scanId, { inReviewMode: true });
     } catch (err) {
       console.error("Failed to start card review:", err);
     }
@@ -633,11 +636,17 @@ export function CardGrid() {
             : () => {
                 removeCard(openEntry.scanId);
                 if (isReviewing) reviewSession.forget(openEntry.scanId);
-                setOpenScanId(isReviewing ? nextScanId : null, isReviewing);
+                setOpenScanId(isReviewing ? nextScanId : null, {
+                  inReviewMode: isReviewing,
+                });
               }
         }
-        onPrev={() => setOpenScanId(prevScanId, isReviewing)}
-        onNext={() => setOpenScanId(nextScanId, isReviewing)}
+        onPrev={() =>
+          setOpenScanId(prevScanId, { inReviewMode: isReviewing })
+        }
+        onNext={() =>
+          setOpenScanId(nextScanId, { inReviewMode: isReviewing })
+        }
         hasPrev={!!prevScanId}
         hasNext={!!nextScanId}
         currentIndex={
