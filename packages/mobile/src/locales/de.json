@@ -471,7 +471,7 @@
       },
       "bin-full": {
         "title": "Fach voll",
-        "description": "Leere das Fach in der Web-App und tippe dann auf Fortsetzen."
+        "description": "Nimm die Karten aus Fach {{detail}}, markiere es als leer, dann geht das Scannen weiter."
       },
       "scan-limit": {
         "title": "Tägliches Scan-Limit erreicht",
@@ -593,6 +593,13 @@
       "set": "Set",
       "anySet": "Beliebiges Set",
       "searchSets": "Sets suchen"
+    },
+    "emptyBin": {
+      "action": "Als leer markieren",
+      "confirmTitle": "Fach {{bins}} als leer markieren?",
+      "confirmDescription": "Mach das erst, nachdem du die Karten herausgenommen hast. Die Zählung des Fachs beginnt wieder bei null.",
+      "confirm": "Als leer markieren",
+      "failed": "Das Fach konnte nicht als leer markiert werden. Prüfe deine Verbindung und versuch es erneut."
     }
   },
   "home": {

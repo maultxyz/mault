@@ -4,7 +4,7 @@ import { router, useIsFocused } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
 import {
@@ -102,6 +102,22 @@ export default function ScanScreen() {
     ...cardSetsQueryOptions(collection?.guid ?? null),
     enabled: !!collection?.guid && (setPickerOpen || !!session.forcedSetCode),
   });
+  const confirmMarkFullBinsEmpty = () =>
+    Alert.alert(
+      t("scan.emptyBin.confirmTitle", { bins: session.fullBinNumbers.join(", ") }),
+      t("scan.emptyBin.confirmDescription"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("scan.emptyBin.confirm"),
+          onPress: () => {
+            void session.markFullBinsEmpty().then((marked) => {
+              if (!marked) Alert.alert(t("scan.emptyBin.failed"));
+            });
+          },
+        },
+      ],
+    );
   const forcedSetName = session.forcedSetCode
     ? (cardSets?.find((cardSet) => cardSet.code === session.forcedSetCode)?.name ?? session.forcedSetCode.toUpperCase())
     : t("scan.options.anySet");
@@ -185,6 +201,9 @@ export default function ScanScreen() {
       tone={PAUSE_TONES[session.pauseReason]}
       title={t(`scan.pause.${session.pauseReason}.title`)}
       description={t(`scan.pause.${session.pauseReason}.description`, { detail: session.pauseDetail ?? "" })}
+      {...(session.pauseReason === "bin-full" && session.fullBinNumbers.length > 0
+        ? { actionLabel: t("scan.emptyBin.action"), onAction: confirmMarkFullBinsEmpty }
+        : {})}
     />
   ) : !sorter.isConnected && !session.handScan && session.sessionCount === 0 ? (
     <CameraNotice

@@ -1,6 +1,7 @@
 import type {
   BinConfig,
   BinSet,
+  EmptyAllBinsInput,
   PickListFoundInput,
   PickListFoundResult,
   Result,
@@ -15,6 +16,12 @@ export function activateBinSet(guid: string): Promise<BinSet[]> {
 
 export function markPickListFound(binGuid: string, input: PickListFoundInput): Promise<PickListFoundResult> {
   return unwrap(apiPost<Result<PickListFoundResult>>(`/api/bins/bins/${binGuid}/pick-list/found`, input));
+}
+
+export function emptyBins(binNumbers: number[], gameGuid: string | undefined): Promise<BinSet[]> {
+  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
+  const input: EmptyAllBinsInput = { binNumbers };
+  return unwrap(apiPost<Result<BinSet[]>>(`/api/bins/bins/empty-all${params}`, input));
 }
 
 export function saveBinConfig({ binNumber, gameGuid, ...body }: BinSaveInput): Promise<BinConfig[]> {

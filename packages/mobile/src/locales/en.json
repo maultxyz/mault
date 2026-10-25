@@ -471,7 +471,7 @@
       },
       "bin-full": {
         "title": "Bin full",
-        "description": "Empty the bin on the web app, then tap Resume."
+        "description": "Take the cards out of bin {{detail}}, mark it empty, then scanning carries on."
       },
       "scan-limit": {
         "title": "Daily scan limit reached",
@@ -593,6 +593,13 @@
       "set": "Set",
       "anySet": "Any set",
       "searchSets": "Search sets"
+    },
+    "emptyBin": {
+      "action": "Mark empty",
+      "confirmTitle": "Mark bin {{bins}} empty?",
+      "confirmDescription": "Only do this after taking the cards out. The bin's count starts again from zero.",
+      "confirm": "Mark empty",
+      "failed": "Couldn't mark the bin empty. Check your connection and try again."
     }
   },
   "home": {
