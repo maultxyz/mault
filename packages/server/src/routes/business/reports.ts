@@ -2,7 +2,7 @@ import {
   spreadTotal,
   type CollectionCostInput,
 } from "@magic-vault/shared";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { collectionCards, collections, intakeLots } from "../../db/schema";
 import { logActivity } from "../../lib/activity-log";
@@ -20,8 +20,6 @@ import {
   updateAcquisitionCosts,
   upgradeRequired,
 } from "./shared";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 function isoDay(date: Date): string {
   return date.toISOString().slice(0, 10);

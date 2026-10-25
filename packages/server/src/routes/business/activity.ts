@@ -2,14 +2,11 @@ import {
   ACTIVITY_ACTIONS,
   ACTIVITY_PAGE_SIZE,
   ACTIVITY_PAGE_SIZE_MAX,
-  STATS_DEFAULT_RANGE,
   STATS_RANGE_DAYS,
-  STATS_RANGES,
   type ActivityAction,
   type ActivityPage,
   type StaffReport,
   type StaffThroughputRow,
-  type StatsRange,
 } from "@magic-vault/shared";
 import { and, desc, eq, gte, isNotNull, sql } from "drizzle-orm";
 import { Hono } from "hono";
@@ -23,12 +20,8 @@ import {
   type AppEnv,
 } from "../../middleware/auth";
 import { businessQuery, forbidden } from "./shared";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function parseRange(value: string | undefined): StatsRange {
-  return STATS_RANGES.find((range) => range === value) ?? STATS_DEFAULT_RANGE;
-}
+import { ONE_DAY_MS } from "../../lib/constants/timing";
+import { parseStatsRange } from "../../lib/stats-range";
 
 export const activityRoute = new Hono<AppEnv>()
   .get("/activity", requireAuth, requireOrg, (c) => {
@@ -85,8 +78,8 @@ export const activityRoute = new Hono<AppEnv>()
     });
   })
   .get("/staff", requireAuth, requireOrg, (c) => {
-    const range = parseRange(c.req.query("range"));
-    const since = new Date(Date.now() - STATS_RANGE_DAYS[range] * DAY_MS);
+    const range = parseStatsRange(c.req.query("range"));
+    const since = new Date(Date.now() - STATS_RANGE_DAYS[range] * ONE_DAY_MS);
     return businessQuery(c, async (tx, access) => {
       if (!access.canViewActivity) return forbidden;
       const orgId = c.get("orgId");

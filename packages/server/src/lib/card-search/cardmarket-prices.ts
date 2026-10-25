@@ -6,6 +6,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { cardmarketPrices, cardmarketProducts } from "../../db/schema";
 import type { CardSearchAdapter, CardmarketPricing } from "../interfaces/card-search";
+import { median } from "../statistics";
 
 export function cardmarketMatchName(name: string): string {
   return name
@@ -63,15 +64,6 @@ async function resolveProductIds(
     if (id !== null) return [id];
     return namesByCard[i].map((name) => byName.get(name)).find(Boolean) ?? [];
   });
-}
-
-function median(values: number[]): number | null {
-  if (values.length === 0) return null;
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2
-    ? sorted[middle]
-    : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
 function combinePrices(

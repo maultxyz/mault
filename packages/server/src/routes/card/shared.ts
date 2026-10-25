@@ -1,5 +1,4 @@
 import type {
-  CardSearchDiagnostics,
   CardSearchEmbeddings,
   OcrDiagnostics,
   OcrField,
@@ -37,6 +36,7 @@ import type {
   CollectionMatchScope,
 } from "../../lib/interfaces/card-search";
 import { ocrRegions } from "../../lib/ocr";
+import { stripLeadingZeros } from "../../lib/ocr-calibration/match";
 
 export function normalizeForMatch(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -344,10 +344,6 @@ function matchesSetLine(setCode: string, setLineTokens: string[]): boolean {
   return (
     code.length >= 2 && setLineTokens.some((token) => token.includes(code))
   );
-}
-
-function stripLeadingZeros(digits: string): string {
-  return digits.replace(/^0+(?=\d)/, "");
 }
 
 function ocrNumberCandidates(text: string): string[] {
