@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import type {
   AdminPlatformStatsResponse,
   PlatformStatsSettings,
@@ -32,7 +33,7 @@ function parseSettings(body: unknown): PlatformStatsSettings | null {
 }
 
 export const platformStatsRoute = new Hono<AppEnv>()
-  .get("/platform-stats", requireAuth, requireRole("admin"), async (c) => {
+  .get("/platform-stats", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     try {
       return c.json({
         success: true,
@@ -43,7 +44,7 @@ export const platformStatsRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Database error." }, 500);
     }
   })
-  .put("/platform-stats", requireAuth, requireRole("admin"), async (c) => {
+  .put("/platform-stats", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const settings = parseSettings(await c.req.json().catch(() => null));
     if (!settings) {
       return c.json(
@@ -61,7 +62,7 @@ export const platformStatsRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Database error." }, 500);
     }
   })
-  .post("/platform-stats/post", requireAuth, requireRole("admin"), async (c) => {
+  .post("/platform-stats/post", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     try {
       const outcome = await postPlatformStats();
       if (outcome === "not_configured") {

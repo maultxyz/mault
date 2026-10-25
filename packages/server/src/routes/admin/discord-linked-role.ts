@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import type { PlatformDiscordLinkedRole } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { fetchDiscordGuild } from "../../lib/discord";
@@ -18,7 +19,7 @@ function parseLinkedRole(body: unknown): PlatformDiscordLinkedRole | null {
 }
 
 export const discordLinkedRoleRoute = new Hono<AppEnv>()
-  .get("/discord-linked-role", requireAuth, requireRole("admin"), async (c) => {
+  .get("/discord-linked-role", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     try {
       return c.json({ success: true, data: await loadLinkedAccountRole() });
     } catch (err) {
@@ -26,7 +27,7 @@ export const discordLinkedRoleRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Database error." }, 500);
     }
   })
-  .put("/discord-linked-role", requireAuth, requireRole("admin"), async (c) => {
+  .put("/discord-linked-role", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const next = parseLinkedRole(await c.req.json().catch(() => null));
     if (!next) {
       return c.json({ success: false, message: "Invalid settings." }, 400);

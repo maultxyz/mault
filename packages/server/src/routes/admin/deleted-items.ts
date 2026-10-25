@@ -1,4 +1,5 @@
 import {
+  PLATFORM_STAFF_ROLES,
   DELETED_ITEM_TYPES,
   type DeletedItem,
   type DeletedItemType,
@@ -17,7 +18,7 @@ function isDeletedItemType(value: string): value is DeletedItemType {
 }
 
 export const deletedItemsRoute = new Hono<AppEnv>()
-  .get("/deleted", requireAuth, requireRole("admin"), async (c) => {
+  .get("/deleted", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     try {
       const rows = (
         await Promise.all(
@@ -51,7 +52,7 @@ export const deletedItemsRoute = new Hono<AppEnv>()
   .post(
     "/deleted/:type/:guid/restore",
     requireAuth,
-    requireRole("admin"),
+    requireRole(...PLATFORM_STAFF_ROLES),
     async (c) => {
       const type = c.req.param("type");
       if (!isDeletedItemType(type)) {

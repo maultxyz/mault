@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { ADAPTERS_BY_GAME_KEY } from "../../lib/card-search/resolve";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
@@ -9,7 +10,7 @@ import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 export const sampleCardRoute = new Hono<AppEnv>().get(
   "/sample-card",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const key = c.req.query("key");
     const query = c.req.query("query");

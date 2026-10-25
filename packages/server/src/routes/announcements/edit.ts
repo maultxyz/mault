@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
@@ -11,7 +12,7 @@ import type { AnnouncementInput } from "@magic-vault/shared";
 export const editAnnouncementRoute = new Hono<AppEnv>().put(
   "/:guid",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const guid = c.req.param("guid");
     const { severity, message, isActive, showOnLanding, link, startsAt, endsAt } =

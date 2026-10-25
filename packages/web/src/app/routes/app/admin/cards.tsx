@@ -5,8 +5,13 @@ import { DumpCardDatabasePanel } from "@/features/admin/components/dump-card-dat
 import { ScanStatsOverviewPanel } from "@/features/admin/components/scan-stats-overview-panel";
 import { SyncCardByIdPanel } from "@/features/admin/components/sync-card-by-id-panel";
 import { GamesManager } from "@/features/games/components/games-manager";
+import { useRole } from "@/hooks/use-role";
 
 export default function AdminCardsPage() {
+  const { isAdmin } = useRole();
+
+  if (!isAdmin) return <GamesManager />;
+
   return (
     <CardSyncProvider>
       <ScanStatsOverviewPanel />
