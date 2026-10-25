@@ -19,6 +19,7 @@ import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   resolveScanBin,
   SERIAL_JAM_ERROR,
+  type SerialReply,
   toRuleCard,
   withScanRuleFields,
   type AutoAssignTarget,
@@ -63,7 +64,6 @@ import type {
   ScanSessionInputs,
   ScanSessionValue,
 } from "@/lib/interfaces/scanner";
-import type { SorterMessage } from "@/lib/interfaces/sorter";
 import { delay } from "@/lib/delay";
 
 export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue {
@@ -337,7 +337,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
 
   const handleRouteResponse = useCallback(
     (response: unknown) => {
-      const res = response as SorterMessage | null;
+      const res = response as SerialReply | null;
       if (!res) {
         pause("route-failed");
         return;
@@ -565,7 +565,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [handleMatched, handleUnmatched, pause, setPhase]);
 
   const handleFeedResult = useCallback(
-    (reply: SorterMessage | null) => {
+    (reply: SerialReply | null) => {
       if (!reply) {
         pause("feed-failed");
         return;
@@ -603,7 +603,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   onCardArrivedRef.current = onCardArrived;
 
   useSorterMessage((message) => {
-    const fields = message as SorterMessage | null;
+    const fields = message as SerialReply | null;
     if (fields?.error === SERIAL_JAM_ERROR && runningRef.current) {
       pause("jam", fields.module != null ? String(fields.module) : undefined);
       return;

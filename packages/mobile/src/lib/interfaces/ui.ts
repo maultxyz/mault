@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { StyleProp, TextProps, ViewStyle } from "react-native";
-import type { OrgOverviewCard, OrgOverviewDay, PlayingCard, ScanRegion } from "@magic-vault/shared";
+import type { CommLogEntry, OrgOverviewCard, OrgOverviewDay, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners, MonitorState } from "@/lib/interfaces/scanner";
 import type { FontSize, StatusTone } from "@/lib/interfaces/theme";
@@ -158,7 +158,7 @@ export interface CardRowProps {
 }
 
 export interface CommLogProps {
-  entries: { direction: "sent" | "received"; text: string; timestamp: number }[];
+  entries: CommLogEntry[];
 }
 
 
