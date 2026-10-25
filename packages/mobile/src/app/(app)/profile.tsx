@@ -27,14 +27,21 @@ import {
   revokeOtherAuthSessions,
   updateName,
 } from "@/features/account/api/account";
-import { changeEmailSchema, changePasswordSchema, updateNameSchema } from "@/features/account/lib/auth-schemas";
 import { describeUserAgent } from "@/features/account/lib/user-agent";
 import { getSessionToken, refreshOrganizations, signOut, useSession } from "@/lib/auth/session";
 import { AUTH_PROVIDER } from "@/lib/constants/config";
 import { SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
-import type { ChangeEmailValues, ChangePasswordValues, UpdateNameValues } from "@/lib/interfaces/forms";
 import type { AuthSessionRow } from "@/lib/interfaces/auth";
+import {
+  changeEmailFormSchema,
+  type ChangeEmailFormValues,
+  changePasswordFormSchema,
+  type ChangePasswordFormValues,
+  updateNameFormSchema,
+  type UpdateNameFormValues,
+} from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
@@ -47,14 +54,14 @@ export default function ProfileScreen() {
   const currentToken = getSessionToken();
 
   const nameValues = useMemo(() => ({ name: user?.name ?? "" }), [user?.name]);
-  const nameForm = useForm<UpdateNameValues>({
-    resolver: zodResolver(updateNameSchema),
+  const nameForm = useForm<UpdateNameFormValues>({
+    resolver: zodResolver(updateNameFormSchema),
     values: nameValues,
     resetOptions: { keepDirtyValues: true },
   });
-  const emailForm = useForm<ChangeEmailValues>({ resolver: zodResolver(changeEmailSchema), defaultValues: { newEmail: "" } });
-  const passwordForm = useForm<ChangePasswordValues>({
-    resolver: zodResolver(changePasswordSchema),
+  const emailForm = useForm<ChangeEmailFormValues>({ resolver: zodResolver(changeEmailFormSchema), defaultValues: { newEmail: "" } });
+  const passwordForm = useForm<ChangePasswordFormValues>({
+    resolver: zodResolver(changePasswordFormSchema),
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "", revokeOtherSessions: false },
   });
   const nameDirty = nameForm.formState.isDirty;
@@ -75,7 +82,7 @@ export default function ProfileScreen() {
 
   const refreshSessions = () => void queryClient.invalidateQueries({ queryKey: ["auth-sessions"] });
 
-  const saveName = async ({ name }: UpdateNameValues) => {
+  const saveName = async ({ name }: UpdateNameFormValues) => {
     try {
       await updateName(name.trim());
       await refreshOrganizations();
@@ -87,7 +94,7 @@ export default function ProfileScreen() {
   };
 
   const emailChange = useMutation({
-    mutationFn: ({ newEmail }: ChangeEmailValues) => changeEmail(newEmail.trim()),
+    mutationFn: ({ newEmail }: ChangeEmailFormValues) => changeEmail(newEmail.trim()),
     onSuccess: (_, { newEmail }) => {
       emailForm.reset({ newEmail: "" });
       setMessage({
@@ -99,7 +106,7 @@ export default function ProfileScreen() {
     onError: (err: Error) => setMessage({ tone: "destructive", text: err.message || t("account.profile.email.updateFailed") }),
   });
   const passwordChange = useMutation({
-    mutationFn: (values: ChangePasswordValues) =>
+    mutationFn: (values: ChangePasswordFormValues) =>
       changePassword(values.currentPassword, values.newPassword, values.revokeOtherSessions),
     onSuccess: () => {
       passwordForm.reset();
@@ -190,7 +197,7 @@ export default function ProfileScreen() {
                   onChangeText={field.onChange}
                   autoComplete="name"
                   autoCapitalize="words"
-                  error={fieldState.error ? t("account.profile.profile.nameRequired") : undefined}
+                  error={translateFormErrorMessage(t, fieldState.error?.message)}
                 />
               )}
             />
@@ -213,7 +220,7 @@ export default function ProfileScreen() {
                     autoComplete="email"
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    error={fieldState.error ? fieldState.error.message || t("account.profile.email.updateFailed") : undefined}
+                    error={fieldState.error ? (translateFormErrorMessage(t, fieldState.error.message) ?? t("account.profile.email.updateFailed")) : undefined}
                   />
                 )}
               />
@@ -239,7 +246,7 @@ export default function ProfileScreen() {
                     secureTextEntry
                     autoComplete="password"
                     autoCapitalize="none"
-                    error={fieldState.error ? t("account.profile.password.currentRequired") : undefined}
+                    error={translateFormErrorMessage(t, fieldState.error?.message)}
                   />
                 )}
               />
@@ -255,7 +262,7 @@ export default function ProfileScreen() {
                     secureTextEntry
                     autoComplete="new-password"
                     autoCapitalize="none"
-                    error={fieldState.error ? t("account.profile.password.tooShort") : undefined}
+                    error={translateFormErrorMessage(t, fieldState.error?.message)}
                   />
                 )}
               />
@@ -271,7 +278,7 @@ export default function ProfileScreen() {
                     secureTextEntry
                     autoComplete="new-password"
                     autoCapitalize="none"
-                    error={fieldState.error ? t("account.profile.password.mismatch") : undefined}
+                    error={translateFormErrorMessage(t, fieldState.error?.message)}
                   />
                 )}
               />
