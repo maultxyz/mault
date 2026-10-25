@@ -2,14 +2,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { DEFAULT_ORG_SETTINGS, type OrgSettings } from "@magic-vault/shared";
+import {
+  DEFAULT_ORG_SETTINGS,
+  type OrgSettings,
+  orgSettingsDraftFormSchema,
+  type OrgSettingsDraftFormValues,
+} from "@magic-vault/shared";
 import { orgSettingsQueryOptions, saveOrgSettings } from "@/features/org/api/org-settings";
-import { orgSettingsDraftSchema } from "@/features/settings/lib/org-settings-schema";
 import { useActiveOrgId } from "@/hooks/use-org";
-import type { OrgSettingsDraftValues } from "@/lib/interfaces/forms";
 import type { OrgSettingsDraft } from "@/lib/interfaces/settings";
 
-function toDraft(settings: OrgSettings): OrgSettingsDraftValues {
+function toDraft(settings: OrgSettings): OrgSettingsDraftFormValues {
   return {
     primaryColor: settings.primaryColor,
     scannerLayout: settings.scannerLayout,
@@ -30,18 +33,18 @@ export function useOrgSettingsDraft(): OrgSettingsDraft {
   const { data, isLoading } = useQuery(options);
   const values = useMemo(() => toDraft(data ?? DEFAULT_ORG_SETTINGS), [data]);
   const [saveError, setSaveError] = useState(false);
-  const form = useForm<OrgSettingsDraftValues>({
-    resolver: zodResolver(orgSettingsDraftSchema),
+  const form = useForm<OrgSettingsDraftFormValues>({
+    resolver: zodResolver(orgSettingsDraftFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
 
-  const submit = async (draft: OrgSettingsDraftValues) => {
+  const submit = async (draft: OrgSettingsDraftFormValues) => {
     const patch = Object.fromEntries(
       Object.entries(draft).filter(
-        ([key, value]) => JSON.stringify(values[key as keyof OrgSettingsDraftValues]) !== JSON.stringify(value),
+        ([key, value]) => JSON.stringify(values[key as keyof OrgSettingsDraftFormValues]) !== JSON.stringify(value),
       ),
-    ) as Partial<OrgSettingsDraftValues>;
+    ) as Partial<OrgSettingsDraftFormValues>;
     if (Object.keys(patch).length === 0) {
       form.reset(values);
       return;

@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import type { IconName } from "@/lib/interfaces/ui";
 import type { Control } from "react-hook-form";
-import type { OrgSettingsDraftValues } from "@/lib/interfaces/forms";
+import { type OrgSettingsDraftFormValues } from "@magic-vault/shared";
 
 export interface OrgSettingsDraft {
-  control: Control<OrgSettingsDraftValues>;
+  control: Control<OrgSettingsDraftFormValues>;
   savedPrimaryColor: string | null;
   isLoading: boolean;
   isDirty: boolean;

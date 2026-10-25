@@ -1,13 +1,18 @@
-import type { DiscordChannel, DiscordIntegration, NotificationRule, OrgSettings } from "@magic-vault/shared";
+import type {
+  DiscordChannel,
+  DiscordIntegration,
+  DiscordSettingsDraftFormValues,
+  NotificationRule,
+  OrgSettings,
+} from "@magic-vault/shared";
 import type { TFunction } from "i18next";
-import type { DiscordSettingsValues } from "@/lib/interfaces/forms";
 import type { DiscordChannelsDraft } from "@/lib/interfaces/integrations";
 
 export function toDiscordSettingsDraft(
   integration: DiscordIntegration | null | undefined,
   rules: NotificationRule[],
   settings: OrgSettings | undefined,
-): DiscordSettingsValues {
+): DiscordSettingsDraftFormValues {
   return {
     scanChannelId: integration?.scanChannelId ?? null,
     errorChannelId: integration?.errorChannelId ?? null,

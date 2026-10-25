@@ -87,11 +87,6 @@
     "deleteFailed": "Die Sammlung konnte nicht gelöscht werden",
     "actions": "Sammlungsaktionen",
     "cancel": "Abbrechen",
-    "validation": {
-      "name": "Gib einen Namen mit bis zu 50 Zeichen ein.",
-      "game": "Wähle ein Spiel.",
-      "lang": "Wähle eine Sprache."
-    },
     "shareLink": "Link zur Live-Ansicht teilen",
     "revokeLinks": "Geteilte Links widerrufen",
     "revokeLinksTitle": "Geteilte Links widerrufen?",
@@ -274,8 +269,7 @@
         "nameLabel": "Anzeigename",
         "save": "Speichern",
         "updated": "Name aktualisiert",
-        "updateFailed": "Name konnte nicht aktualisiert werden",
-        "nameRequired": "Gib deinen Namen ein."
+        "updateFailed": "Name konnte nicht aktualisiert werden"
       },
       "email": {
         "heading": "E-Mail",
@@ -292,15 +286,12 @@
       "password": {
         "heading": "Passwort",
         "currentLabel": "Aktuelles Passwort",
-        "currentRequired": "Gib dein aktuelles Passwort ein",
         "newLabel": "Neues Passwort",
         "confirmLabel": "Neues Passwort bestätigen",
         "revokeOtherSessions": "Auf allen anderen Geräten abmelden",
         "submit": "Passwort aktualisieren",
         "updated": "Passwort aktualisiert",
-        "updateFailed": "Passwort konnte nicht aktualisiert werden",
-        "mismatch": "Passwörter stimmen nicht überein",
-        "tooShort": "Muss mindestens 8 Zeichen lang sein"
+        "updateFailed": "Passwort konnte nicht aktualisiert werden"
       },
       "sessions": {
         "heading": "Sitzungen",
@@ -1241,7 +1232,6 @@
       },
       "you": "Du",
       "failed": "Die Organisation konnte nicht aktualisiert werden",
-      "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
       "cancel": "Abbrechen",
       "membersUnavailable": "Mitglieder werden über die Admin-Werkzeuge deines selbst gehosteten Servers verwaltet.",
       "noInvites": "Keine offenen Einladungen"
@@ -1319,11 +1309,9 @@
       "saved": "Webhook gespeichert.",
       "saveFailed": "Der Webhook konnte nicht gespeichert werden.",
       "urlLabel": "URL",
-      "invalidUrl": "Gib eine öffentliche https://-URL ein.",
       "descriptionLabel": "Name (optional)",
       "descriptionPlaceholder": "Onlineshop",
       "eventsLabel": "Ereignisse",
-      "eventsRequired": "Wähle mindestens ein Ereignis.",
       "events": {
         "card": {
           "scanned": "Eine Karte wurde gescannt und in einer Sammlung gespeichert."
@@ -1428,12 +1416,7 @@
         "conditions": "Bedingungen",
         "cancel": "Abbrechen",
         "save": "Speichern",
-        "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden.",
-        "validation": {
-          "nameRequired": "Gib der Regel einen Namen.",
-          "channelRequired": "Wähle einen Kanal.",
-          "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
-        }
+        "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden."
       },
       "draft": {
         "saved": "Discord-Einstellungen gespeichert.",
@@ -1515,8 +1498,6 @@
         "saveName": "Namen speichern",
         "cancelRename": "Abbrechen",
         "renameFailed": "Der Soundclip konnte nicht umbenannt werden.",
-        "nameRequired": "Gib dem Clip einen Namen.",
-        "nameTooLong": "Der Name darf höchstens 60 Zeichen lang sein.",
         "stop": "{{name}} stoppen",
         "pickFailed": "Diese Datei konnte nicht geöffnet werden.",
         "renamed": "Soundclip umbenannt.",
@@ -1553,12 +1534,7 @@
         "conditions": "Bedingungen",
         "cancel": "Abbrechen",
         "save": "Speichern",
-        "saveFailed": "Die Soundregel konnte nicht gespeichert werden.",
-        "validation": {
-          "nameRequired": "Gib der Regel einen Namen.",
-          "clipRequired": "Wähle einen Soundclip.",
-          "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
-        }
+        "saveFailed": "Die Soundregel konnte nicht gespeichert werden."
       }
     }
   },
@@ -1687,5 +1663,41 @@
     "captured_one": "{{count}} Foto gesendet",
     "captured_other": "{{count}} Fotos gesendet",
     "keepOpen": "Lass diesen Bildschirm geöffnet, während der Computer scannt."
+  },
+  "validation": {
+    "nameRequired": "Gib einen Namen ein.",
+    "nameTooLong": "Höchstens {{max}} Zeichen.",
+    "ruleNameRequired": "Gib der Regel einen Namen.",
+    "clipNameRequired": "Gib dem Clip einen Namen.",
+    "gameRequired": "Wähle ein Spiel.",
+    "languageRequired": "Wähle eine Sprache.",
+    "collectionRequired": "Wähle eine Sammlung.",
+    "channelRequired": "Wähle einen Kanal.",
+    "clipRequired": "Wähle einen Soundclip.",
+    "conditionsRequired": "Füge mindestens eine Bedingung hinzu.",
+    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein.",
+    "currentPasswordRequired": "Gib dein aktuelles Passwort ein.",
+    "passwordTooShort": "Muss mindestens {{min}} Zeichen lang sein.",
+    "passwordMismatch": "Passwörter stimmen nicht überein.",
+    "webhookUrlInvalid": "Gib eine öffentliche https://-URL ein.",
+    "eventsRequired": "Wähle mindestens ein Ereignis.",
+    "conditionMultipliersInvalid": "Jeder Zustand braucht einen Prozentwert von 0 bis 100.",
+    "valueRequired": "Gib einen Wert ein.",
+    "wholeNumber": "Muss eine ganze Zahl sein.",
+    "atLeast": "Muss mindestens {{min}} sein.",
+    "atMost": "Darf höchstens {{max}} sein.",
+    "percentAtLeast": "Muss mindestens {{min}} % sein.",
+    "percentAtMost": "Darf höchstens {{max}} % sein.",
+    "amountRequired": "Gib einen Betrag ein.",
+    "percentageRequired": "Gib einen Prozentwert ein.",
+    "tiersRequired": "Füge mindestens eine Stufe hinzu.",
+    "tooManyTiers": "Höchstens {{max}} Stufen.",
+    "customerNameRequired": "Gib den Namen der Kundin oder des Kunden ein.",
+    "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
+    "cardCountRequired": "Gib eine Kartenanzahl ein.",
+    "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
+    "commandRequired": "Gib einen Befehl ein.",
+    "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
+    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten."
   }
 }

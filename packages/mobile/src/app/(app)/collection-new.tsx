@@ -15,7 +15,6 @@ import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { checkCollectionName, collectionsQueryOptions, createCollection } from "@/features/collections/api/collections";
-import { createCollectionSchema } from "@/features/collections/lib/collection-schemas";
 import { gameLanguagesQueryOptions, gamesQueryOptions } from "@/features/games/api/games";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -23,7 +22,8 @@ import { useTheme } from "@/hooks/use-theme";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CreateCollectionValues } from "@/lib/interfaces/forms";
+import { createCollectionFormSchema, type CreateCollectionFormValues } from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function NewCollectionScreen() {
   const { t } = useTranslation();
@@ -34,8 +34,8 @@ export default function NewCollectionScreen() {
   const [nameEdited, setNameEdited] = useState(false);
   const { data: games = [] } = useQuery(gamesQueryOptions);
   const activeGames = useMemo(() => games.filter((g) => g.isActive), [games]);
-  const form = useForm<CreateCollectionValues>({
-    resolver: zodResolver(createCollectionSchema),
+  const form = useForm<CreateCollectionFormValues>({
+    resolver: zodResolver(createCollectionFormSchema),
     defaultValues: { name: "", gameGuid: "", lang: "", matchAllLanguages: false },
   });
   const gameGuid = form.watch("gameGuid");
@@ -89,7 +89,7 @@ export default function NewCollectionScreen() {
           />
           {errors.gameGuid ? (
             <AppText size="xs" style={{ color: colors.destructive }}>
-              {t("collections.validation.game")}
+              {translateFormErrorMessage(t, errors.gameGuid.message)}
             </AppText>
           ) : null}
         </View>
@@ -108,7 +108,7 @@ export default function NewCollectionScreen() {
               }}
               error={
                 fieldState.error
-                  ? t("collections.validation.name")
+                  ? translateFormErrorMessage(t, fieldState.error.message)
                   : !nameAvailable && debouncedName === name.trim()
                     ? t("collections.duplicateName")
                     : undefined
@@ -126,7 +126,7 @@ export default function NewCollectionScreen() {
           />
           {errors.lang ? (
             <AppText size="xs" style={{ color: colors.destructive }}>
-              {t("collections.validation.lang")}
+              {translateFormErrorMessage(t, errors.lang.message)}
             </AppText>
           ) : null}
         </View>
