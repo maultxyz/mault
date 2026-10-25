@@ -5,7 +5,9 @@ import { useMemo } from "react";
 
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
@@ -181,6 +183,7 @@ function FieldError({
 }: React.ComponentProps<"div"> & {
   errors?: Array<{ message?: string } | undefined>;
 }) {
+  const { t } = useTranslation("common");
   const content = useMemo(() => {
     if (children) {
       return children;
@@ -190,23 +193,27 @@ function FieldError({
       return null;
     }
 
-    const uniqueErrors = [
-      ...new Map(errors.map((error) => [error?.message, error])).values(),
+    const uniqueMessages = [
+      ...new Set(
+        errors
+          .map((error) => error?.message)
+          .filter((message): message is string => !!message)
+          .map((message) => translateFormErrorMessage(t, message)),
+      ),
     ];
 
-    if (uniqueErrors?.length == 1) {
-      return uniqueErrors[0]?.message;
+    if (uniqueMessages.length <= 1) {
+      return uniqueMessages[0];
     }
 
     return (
       <ul className="ml-4 flex list-disc flex-col gap-1">
-        {uniqueErrors.map(
-          (error, index) =>
-            error?.message && <li key={index}>{error.message}</li>,
-        )}
+        {uniqueMessages.map((message) => (
+          <li key={message}>{message}</li>
+        ))}
       </ul>
     );
-  }, [children, errors]);
+  }, [children, errors, t]);
 
   if (!content) {
     return null;
