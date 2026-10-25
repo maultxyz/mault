@@ -13,7 +13,6 @@ export function SaveBar({
   formId,
   onSave,
   isSaving = false,
-  saveDisabled = false,
   onDiscard,
   className,
   saveButtonDataTour,
@@ -22,7 +21,7 @@ export function SaveBar({
   const saveButtonRef = useRef<HTMLButtonElement>(null);
   useHotkeys({
     save:
-      show && !isSaving && !saveDisabled
+      show && !isSaving
         ? () => saveButtonRef.current?.click()
         : undefined,
   });
@@ -54,7 +53,7 @@ export function SaveBar({
           type={formId ? "submit" : "button"}
           form={formId}
           onClick={formId ? undefined : onSave}
-          disabled={isSaving || saveDisabled}
+          disabled={isSaving}
           data-tour={saveButtonDataTour}
         >
           {isSaving && <IconLoader2 className="size-3.5 animate-spin" />}

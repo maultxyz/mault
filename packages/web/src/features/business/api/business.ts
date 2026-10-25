@@ -330,10 +330,6 @@ export function completeAccuracyCheck(guid: string) {
   );
 }
 
-export function deleteAccuracyCheck(guid: string) {
-  return apiDelete<Result<null>>(`/api/business/accuracy/checks/${guid}`);
-}
-
 export const fleetQueryOptions = (orgId: string | undefined) =>
   queryOptions({
     queryKey: businessKeys.fleet(orgId),

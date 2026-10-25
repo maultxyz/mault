@@ -298,7 +298,3 @@ export async function addManualCollectionCard(
     request,
   );
 }
-
-export async function clearUnmatchedCards(guid: string): Promise<Result<null>> {
-  return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched`);
-}

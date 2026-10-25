@@ -44,5 +44,4 @@ export interface WifiSorterOption {
 export interface WifiSorterMenuItemsProps {
   onSelect: (deviceGuid: string) => void;
   disabled?: boolean;
-  showSeparator?: boolean;
 }

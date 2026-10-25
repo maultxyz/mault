@@ -110,8 +110,6 @@ export const repackSlotSchema = z.object({
     .max(CONDITION_NUMERIC_MAX),
 });
 
-export type RepackSlotFormValues = z.infer<typeof repackSlotSchema>;
-
 export const repackConfigSchema = z.object({
   repackUniqueBy: z.string().min(1),
   repackSiftRules: binRuleGroupSchema.nullable(),
