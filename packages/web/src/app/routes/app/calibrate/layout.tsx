@@ -1,5 +1,4 @@
 import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
-import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import { SectionNav } from "@/components/section-nav";
 import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import { Button } from "@/components/ui/button";
@@ -46,6 +45,7 @@ import {
   DEFAULT_CALIBRATION_SECTION,
 } from "@/lib/constants/calibration";
 import { PageIntro } from "@/components/page-intro";
+import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 
 export function useCalibrationOutletContext() {
   return useOutletContext<CalibrationPageState>();
@@ -99,8 +99,6 @@ export default function CalibrateLayout() {
   const importInputRef = useRef<HTMLInputElement>(null);
   const setupWizard = useSetupWizard();
   const { isAdmin } = useRole();
-  const bluetoothSupported =
-    typeof navigator !== "undefined" && !!navigator.bluetooth;
 
   return (
     <SessionLock className="flex flex-col flex-1 min-h-0 overflow-hidden lg:grid lg:grid-cols-12">
@@ -130,15 +128,11 @@ export default function CalibrateLayout() {
                   {t("calibratePage.connectDevice")}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  <DropdownMenuItem onClick={connect}>
-                    {t("calibratePage.connectUsb")}
-                  </DropdownMenuItem>
-                  {bluetoothSupported && (
-                    <DropdownMenuItem onClick={connectBluetooth}>
-                      {t("calibratePage.connectBluetooth")}
-                    </DropdownMenuItem>
-                  )}
-                  <WifiSorterMenuItems onSelect={connectCloud} />
+                  <ConnectSorterMenuItems
+                    onConnectUsb={connect}
+                    onConnectBluetooth={connectBluetooth}
+                    onConnectCloud={connectCloud}
+                  />
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
