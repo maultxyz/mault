@@ -9,6 +9,7 @@ import {
   requireOrgRole,
   type AppEnv,
 } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const discordLinkCodeRoute = new Hono<AppEnv>().post(
   "/discord-link-code",
@@ -47,8 +48,7 @@ export const discordLinkCodeRoute = new Hono<AppEnv>().post(
         data: { code, expiresAt },
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

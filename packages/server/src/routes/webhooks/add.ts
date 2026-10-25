@@ -16,6 +16,7 @@ import { generateWebhookSecret } from "../../lib/webhooks/delivery";
 import { toWebhookEndpoint } from "../../lib/webhooks/endpoints";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { webhookInputError, webhookInputSchema } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addWebhookRoute = new Hono<AppEnv>().post(
   "/",
@@ -71,8 +72,7 @@ export const addWebhookRoute = new Hono<AppEnv>().post(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

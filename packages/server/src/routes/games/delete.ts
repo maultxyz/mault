@@ -5,6 +5,7 @@ import { db } from "../../db";
 import { games } from "../../db/schema";
 import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteGameRoute = new Hono<AppEnv>().delete(
   "/:guid",
@@ -28,8 +29,7 @@ export const deleteGameRoute = new Hono<AppEnv>().delete(
       publicGamesCache.invalidate();
       return c.json({ success: true, data: null });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

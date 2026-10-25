@@ -12,6 +12,7 @@ import { publicGamesCache } from "../../lib/public-games";
 import { emitToOrg } from "../../lib/session-stream";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { DELETED_ITEM_SOURCES } from "./deleted-items-sources";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function isDeletedItemType(value: string): value is DeletedItemType {
   return (DELETED_ITEM_TYPES as readonly string[]).includes(value);
@@ -45,8 +46,7 @@ export const deletedItemsRoute = new Hono<AppEnv>()
         }));
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post(
@@ -72,8 +72,7 @@ export const deletedItemsRoute = new Hono<AppEnv>()
         }
         return c.json({ success: true, data: null });
       } catch (err) {
-        console.error(err);
-        return c.json({ success: false, message: "Database error." }, 500);
+        return databaseErrorResponse(c, err);
       }
     },
   );

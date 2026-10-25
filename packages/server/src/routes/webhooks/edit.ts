@@ -9,6 +9,7 @@ import {
 import { toWebhookEndpoint } from "../../lib/webhooks/endpoints";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { webhookInputError, webhookInputSchema } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editWebhookRoute = new Hono<AppEnv>()
   .put("/:guid", requireAuth, requireOrg, async (c) => {
@@ -49,8 +50,7 @@ export const editWebhookRoute = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post("/:guid/enable", requireAuth, requireOrg, async (c) => {
@@ -84,7 +84,6 @@ export const editWebhookRoute = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   });

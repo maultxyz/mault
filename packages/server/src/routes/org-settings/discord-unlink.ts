@@ -7,6 +7,7 @@ import {
   requireOrgRole,
   type AppEnv,
 } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const discordUnlinkRoute = new Hono<AppEnv>().post(
   "/discord-unlink",
@@ -21,8 +22,7 @@ export const discordUnlinkRoute = new Hono<AppEnv>().post(
       );
       return c.json({ success: true, message: "Unlinked." });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

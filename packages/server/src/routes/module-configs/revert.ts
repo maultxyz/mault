@@ -5,6 +5,7 @@ import { moduleConfigAudit, moduleConfigs } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { buildConfigs } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const revertModuleConfigRoute = new Hono<AppEnv>().post(
   "/history/:entryGuid/revert",
@@ -70,8 +71,7 @@ export const revertModuleConfigRoute = new Hono<AppEnv>().post(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

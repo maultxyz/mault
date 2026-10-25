@@ -2,6 +2,7 @@ import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const checkKeyRoute = new Hono<AppEnv>().get(
   "/check-key",
@@ -18,8 +19,7 @@ export const checkKeyRoute = new Hono<AppEnv>().get(
       const taken = await keyIsTaken(key, excludeGuid);
       return c.json({ success: true, data: { available: !taken } });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

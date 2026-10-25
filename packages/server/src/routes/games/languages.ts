@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const gameLanguagesRoute = new Hono<AppEnv>().get(
   "/:guid/languages",
@@ -27,8 +28,7 @@ export const gameLanguagesRoute = new Hono<AppEnv>().get(
 
       return c.json({ success: true, data: rows?.map((r) => r.lang) ?? [] });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

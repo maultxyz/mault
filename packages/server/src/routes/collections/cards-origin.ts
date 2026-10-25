@@ -10,6 +10,7 @@ import {
   type AppEnv,
 } from "../../middleware/auth";
 import { isUuid } from "./cards-query";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const collectionCardOriginRoute = new Hono<AppEnv>().get(
   "/:guid/cards/:scanId/origin",
@@ -67,8 +68,7 @@ export const collectionCardOriginRoute = new Hono<AppEnv>().get(
       };
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

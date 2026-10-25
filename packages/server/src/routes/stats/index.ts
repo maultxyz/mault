@@ -17,6 +17,7 @@ import {
 import { loadOrgPricing } from "../../lib/price-source";
 import { loadStatsReport } from "../../lib/stats-report";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function parseRange(value: string | undefined): StatsRange {
   return STATS_RANGES.find((range) => range === value) ?? STATS_DEFAULT_RANGE;
@@ -86,8 +87,7 @@ const router = new Hono<AppEnv>().get(
       }
       return c.json({ success: true, data: result.report });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadSets } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const setSkipSavingRoute = new Hono<AppEnv>().put(
   "/:guid/skip-saving",
@@ -32,8 +33,7 @@ export const setSkipSavingRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

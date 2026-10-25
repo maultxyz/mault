@@ -15,6 +15,7 @@ import {
   savePlatformDiscordChannels,
 } from "../../lib/platform-discord-channels";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 async function toResponse(
   settings: PlatformDiscordChannelsSettings,
@@ -48,8 +49,7 @@ export const discordChannelsRoute = new Hono<AppEnv>()
         data: await toResponse(await loadPlatformDiscordChannels()),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get(
@@ -100,7 +100,6 @@ export const discordChannelsRoute = new Hono<AppEnv>()
         data: await toResponse(await savePlatformDiscordChannels(settings)),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   });

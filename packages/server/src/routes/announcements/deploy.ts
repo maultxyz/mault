@@ -14,6 +14,7 @@ import { emitDeployNotice } from "../../lib/deploy-notice";
 import { invalidatePublicAnnouncements } from "../../lib/public-announcements";
 import { requireDeployKey, type AppEnv } from "../../middleware/auth";
 import { parseAnnouncementLink, toAnnouncement } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deployAnnouncementRoute = new Hono<AppEnv>()
   .post("/deploy", requireDeployKey, async (c) => {
@@ -69,8 +70,7 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
       emitDeployNotice({ guid: row.guid!, message: row.message });
       return c.json({ success: true, data: toAnnouncement(row) });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .delete("/deploy", requireDeployKey, async (c) => {
@@ -89,7 +89,6 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
       emitDeployNotice(null);
       return c.json({ success: true, data: { removed: removed.length } });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   });

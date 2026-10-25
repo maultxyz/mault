@@ -9,6 +9,7 @@ import {
 } from "../../lib/chaos-sort-access";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadSets } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const setChaosRoute = new Hono<AppEnv>().put(
   "/:guid/chaos",
@@ -63,8 +64,7 @@ export const setChaosRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -24,6 +24,7 @@ import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findLocationId } from "../storage-locations/shared";
 import { toScannedCard } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards/manual",
@@ -148,8 +149,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
       if (locationGuid) emitCardsStoredWebhook(orgId, locationGuid, [scanId]);
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

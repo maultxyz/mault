@@ -13,6 +13,7 @@ import {
   signMonitorLink,
 } from "../../lib/monitor-links";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const monitorLinkRoute = new Hono<AppEnv>()
   .post("/:guid/monitor-link", requireAuth, requireOrg, async (c) => {
@@ -57,8 +58,7 @@ export const monitorLinkRoute = new Hono<AppEnv>()
         data: { token, expiresAt: expiresAt.toISOString() } satisfies MonitorLink,
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post("/:guid/monitor-link/revoke", requireAuth, requireOrg, async (c) => {
@@ -86,7 +86,6 @@ export const monitorLinkRoute = new Hono<AppEnv>()
       closeMonitorLinkStreams(guid);
       return c.json({ success: true, message: "Revoked monitor links." });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   });

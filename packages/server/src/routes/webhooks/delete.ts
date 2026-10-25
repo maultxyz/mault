@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { webhookEndpoints } from "../../db/schema";
 import { WEBHOOK_MANAGER_ROLES } from "../../lib/constants/webhooks";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteWebhookRoute = new Hono<AppEnv>().delete(
   "/:guid",
@@ -35,8 +36,7 @@ export const deleteWebhookRoute = new Hono<AppEnv>().delete(
           : { success: true, message: "Webhook deleted." },
       );
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

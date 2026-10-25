@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteSoundClipRoute = new Hono<AppEnv>().delete(
   "/clips/:guid",
@@ -26,8 +27,7 @@ export const deleteSoundClipRoute = new Hono<AppEnv>().delete(
       );
       return c.json({ success: true, data: null });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

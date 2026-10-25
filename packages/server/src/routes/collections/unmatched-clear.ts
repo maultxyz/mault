@@ -8,6 +8,7 @@ import {
 } from "../../lib/scan-images";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // DELETE /collections/:guid/unmatched — soft-delete all unmatched cards for a collection
 export const clearUnmatchedCardsRoute = new Hono<AppEnv>().delete(
@@ -46,8 +47,7 @@ export const clearUnmatchedCardsRoute = new Hono<AppEnv>().delete(
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

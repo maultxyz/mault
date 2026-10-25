@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { rowToCalibration } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const feederHistoryRoute = new Hono<AppEnv>().get(
   "/history",
@@ -33,8 +34,7 @@ export const feederHistoryRoute = new Hono<AppEnv>().get(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -5,6 +5,7 @@ import { collections } from "../../db/schema";
 import { emitToOrg } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadCollections } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const setCollectionActiveRoute = new Hono<AppEnv>().put(
   "/:guid/active",
@@ -38,8 +39,7 @@ export const setCollectionActiveRoute = new Hono<AppEnv>().put(
       if (result.success) emitToOrg(orgId, "collections_changed", { guid });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

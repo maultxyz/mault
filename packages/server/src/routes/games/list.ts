@@ -4,6 +4,7 @@ import { db } from "../../db";
 import { games } from "../../db/schema";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
 import { toGame } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // GET /games — any authenticated user (needed to pick a game per collection)
 export const listGamesRoute = new Hono<AppEnv>().get("/", requireAuth, async (c) => {
@@ -15,7 +16,6 @@ export const listGamesRoute = new Hono<AppEnv>().get("/", requireAuth, async (c)
       .orderBy(games.name);
     return c.json({ success: true, data: rows.map(toGame) });
   } catch (err) {
-    console.error(err);
-    return c.json({ success: false, message: "Database error." }, 500);
+    return databaseErrorResponse(c, err);
   }
 });

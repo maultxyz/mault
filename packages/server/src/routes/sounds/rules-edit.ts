@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { soundRules } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findClipId, loadSoundRules, soundRuleInputSchema } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editSoundRuleRoute = new Hono<AppEnv>().put(
   "/rules/:guid",
@@ -47,8 +48,7 @@ export const editSoundRuleRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

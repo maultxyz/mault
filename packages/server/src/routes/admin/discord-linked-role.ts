@@ -8,6 +8,7 @@ import {
   saveLinkedAccountRole,
 } from "../../lib/platform-discord-roles";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function parseLinkedRole(body: unknown): PlatformDiscordLinkedRole | null {
   if (!body || typeof body !== "object") return null;
@@ -23,8 +24,7 @@ export const discordLinkedRoleRoute = new Hono<AppEnv>()
     try {
       return c.json({ success: true, data: await loadLinkedAccountRole() });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .put("/discord-linked-role", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
@@ -68,7 +68,6 @@ export const discordLinkedRoleRoute = new Hono<AppEnv>()
       );
       return c.json({ success: true, data: saved });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   });

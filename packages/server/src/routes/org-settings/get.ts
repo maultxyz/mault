@@ -9,6 +9,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const getOrgSettingsRoute = new Hono<AppEnv>().get(
   "/",
@@ -49,8 +50,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -7,6 +7,7 @@ import { invalidatePublicAnnouncements } from "../../lib/public-announcements";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { parseAnnouncementLink, toAnnouncement } from "./shared";
 import type { AnnouncementInput } from "@magic-vault/shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addAnnouncementRoute = new Hono<AppEnv>().post(
   "/",
@@ -59,8 +60,7 @@ export const addAnnouncementRoute = new Hono<AppEnv>().post(
       invalidatePublicAnnouncements();
       return c.json({ success: true, data: toAnnouncement(row) });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

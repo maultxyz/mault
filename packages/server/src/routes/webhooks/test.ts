@@ -5,6 +5,7 @@ import { webhookEndpoints } from "../../db/schema";
 import { WEBHOOK_MANAGER_ROLES } from "../../lib/constants/webhooks";
 import { sendTestWebhook } from "../../lib/webhooks/endpoints";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const testWebhookRoute = new Hono<AppEnv>().post(
   "/:guid/test",
@@ -34,8 +35,7 @@ export const testWebhookRoute = new Hono<AppEnv>().post(
       const data = await sendTestWebhook(target);
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

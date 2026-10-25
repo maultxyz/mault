@@ -9,6 +9,7 @@ import {
 } from "../../lib/scan-images";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const clearCollectionCardsRoute = new Hono<AppEnv>().delete(
   "/:guid/cards",
@@ -48,8 +49,7 @@ export const clearCollectionCardsRoute = new Hono<AppEnv>().delete(
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

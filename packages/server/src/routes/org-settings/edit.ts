@@ -13,6 +13,7 @@ import { invalidateLeaderboardCache } from "../../lib/leaderboard";
 import { orgSettings } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editOrgSettingsRoute = new Hono<AppEnv>().put(
   "/",
@@ -152,8 +153,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       if ("leaderboardOptIn" in body) invalidateLeaderboardCache();
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

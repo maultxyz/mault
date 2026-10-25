@@ -11,6 +11,7 @@ import { authQuery, type Transaction } from "../../db";
 import { bins } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resetPickList } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 async function updateBinPickList(
   tx: Transaction,
@@ -60,8 +61,7 @@ export const pickListFoundRoute = new Hono<AppEnv>()
         }
         return c.json({ success: true, data });
       } catch (err) {
-        console.error(err);
-        return c.json({ success: false, message: "Database error." }, 500);
+        return databaseErrorResponse(c, err);
       }
     },
   )
@@ -81,8 +81,7 @@ export const pickListFoundRoute = new Hono<AppEnv>()
         }
         return c.json({ success: true, data });
       } catch (err) {
-        console.error(err);
-        return c.json({ success: false, message: "Database error." }, 500);
+        return databaseErrorResponse(c, err);
       }
     },
   );

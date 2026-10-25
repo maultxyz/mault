@@ -8,6 +8,7 @@ import {
   findCardMatches,
   parsePreferredSetCode,
 } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const searchByImageRoute = new Hono<AppEnv>().post(
   "/",
@@ -74,7 +75,6 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         : result;
       return c.json(await attachMatchedCards(withEmbedding, gameKey, lang));
     } catch (err) {
-      console.error(err);
       const orgId = c.req.header("X-Org-Id");
       if (orgId) {
         void sendDiscordNotification(
@@ -89,7 +89,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
           "error",
         );
       }
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

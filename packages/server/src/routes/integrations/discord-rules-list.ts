@@ -3,6 +3,7 @@ import { authQuery } from "../../db";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { findGameId } from "../../lib/rule-groups";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const listNotificationRulesRoute = new Hono<AppEnv>().get(
   "/discord/rules",
@@ -21,8 +22,7 @@ export const listNotificationRulesRoute = new Hono<AppEnv>().get(
       });
       return c.json({ success: true, data: rules });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

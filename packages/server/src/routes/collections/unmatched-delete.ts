@@ -5,6 +5,7 @@ import { unmatchedCards } from "../../db/schema";
 import { deleteScanImages } from "../../lib/scan-images";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // DELETE /collections/:guid/unmatched/:scanId — soft-delete one unmatched card
 export const deleteUnmatchedCardRoute = new Hono<AppEnv>().delete(
@@ -38,8 +39,7 @@ export const deleteUnmatchedCardRoute = new Hono<AppEnv>().delete(
       emitToSession(guid, "unmatched_removed", { scanId });
       return c.json({ success: true, data: null });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

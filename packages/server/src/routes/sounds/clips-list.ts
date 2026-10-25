@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toSoundClip } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const listSoundClipsRoute = new Hono<AppEnv>().get(
   "/clips",
@@ -26,8 +27,7 @@ export const listSoundClipsRoute = new Hono<AppEnv>().get(
         data: await Promise.all(rows.map(toSoundClip)),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

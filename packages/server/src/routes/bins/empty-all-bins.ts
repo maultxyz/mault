@@ -17,6 +17,7 @@ import {
   loadSets,
   resolveGameId,
 } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const emptyAllBinsRoute = new Hono<AppEnv>().post(
   "/bins/empty-all",
@@ -182,8 +183,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );
