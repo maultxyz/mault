@@ -100,7 +100,8 @@ export type ScannerPauseReason =
   | "sorter-disconnected"
   | "no-match"
   | "duplicate"
-  | "repack-complete";
+  | "repack-complete"
+  | "bin-data-unavailable";
 
 export interface ScanFeedEntry {
   scanId: string;

@@ -508,6 +508,10 @@
       "repack-complete": {
         "title": "Packs vollständig",
         "description": "Alle Pack-Behälter sind voll. Leere sie und tippe dann auf Fortsetzen, um die nächste Runde zu starten."
+      },
+      "bin-data-unavailable": {
+        "title": "Füllstände nicht verfügbar",
+        "description": "Die App konnte nicht laden, wie voll die Fächer sind, und hat deshalb pausiert, statt zu raten. Prüfe deine Verbindung und tippe dann auf Fortsetzen."
       }
     },
     "scanOnce": "Eine scannen",

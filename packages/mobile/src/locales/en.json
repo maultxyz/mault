@@ -508,6 +508,10 @@
       "repack-complete": {
         "title": "Packs complete",
         "description": "Every pack bin is full. Empty them, then tap Resume to start the next round."
+      },
+      "bin-data-unavailable": {
+        "title": "Bin levels unavailable",
+        "description": "The app couldn't load how full each bin is, so it paused instead of guessing. Check your connection, then tap Resume."
       }
     },
     "scanOnce": "Scan one",
