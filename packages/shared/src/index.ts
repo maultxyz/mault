@@ -71,6 +71,8 @@ export * from "./text-match";
 export * from "./consensus";
 export * from "./serial-protocol";
 export * from "./pick-list";
+export * from "./scan-routing";
+export * from "./interfaces/scan-routing.interface";
 export * from "./interfaces/pick-list.interface";
 export * from "./constants/pick-list.constant";
 export * from "./rule-fields";

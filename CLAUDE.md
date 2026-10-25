@@ -81,7 +81,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - An onnxruntime-web WASM `RuntimeError` is permanent for the page; don't retry.
 - Mobile Safari reloads tabs that pile up canvas memory: reuse scratch canvases, free per-scan ones with `releaseCanvases`, warp on the CPU (`warpRgba`), never WebGL.
 - Saves go through `PendingScanSavesProvider`, never directly. Bin capacity is checked client-side before routing; a routed card stays pending until bin counts with a later `dataUpdatedAt` land.
-- Bin routing modes live in `shared`'s `evaluate-bin.ts` and run client-side only.
+- Bin routing runs client-side only. Both apps route a scan through `shared`'s `resolveScanBin` (`scan-routing.ts`: pick list, then auto-assign, then mode dispatch and the full/complete pauses); never re-implement that order per app. Mode helpers live in `evaluate-bin.ts`.
 - Never put a collection's full card list in a stream payload; unmatched scans are paged and bin fill comes from `/cards/bin-counts`.
 - Stats that must survive deletes read `scan_stats`/`org_daily_scan_usage`. Scan images are read through `resolveScanImageUrl`.
 - Any correct, confirm or review accept sets `is_reviewed` and clears `low_confidence_match`; `is_corrected` stays separate.
