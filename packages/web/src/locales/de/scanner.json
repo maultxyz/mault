@@ -822,6 +822,7 @@
     "notSetUp": "Nicht eingerichtet",
     "unknown": "Wird geprüft…",
     "forgotten": "WLAN ausgeschaltet.",
+    "forgottenLinkKept": "WLAN ausgeschaltet. Der Server konnte die alte Verbindung nicht entfernen, sie wird beim nächsten Einrichten des WLANs ersetzt.",
     "forgottenRestarting": "WLAN ausgeschaltet. Der Sortierer startet neu und Bluetooth ist wieder an.",
     "forgetFailed": "WLAN konnte nicht ausgeschaltet werden.",
     "saved": "WLAN gespeichert. Der Sortierer verbindet sich mit dem Netz.",

@@ -822,6 +822,7 @@
     "notSetUp": "Non configuré",
     "unknown": "Vérification…",
     "forgotten": "Wi-Fi désactivé.",
+    "forgottenLinkKept": "Wi-Fi désactivé. Le serveur n'a pas pu supprimer l'ancien lien : il sera remplacé la prochaine fois que vous configurerez le Wi-Fi.",
     "forgottenRestarting": "Wi-Fi désactivé. La trieuse redémarre avec le Bluetooth réactivé.",
     "forgetFailed": "Impossible de désactiver le Wi-Fi.",
     "saved": "Wi-Fi enregistré. La trieuse rejoint le réseau.",

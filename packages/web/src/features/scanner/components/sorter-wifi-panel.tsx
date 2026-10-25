@@ -25,14 +25,17 @@ export function SorterWifiPanel() {
     setIsForgetting(true);
     try {
       const result = await wifi.forget();
-      if (result.ok) {
+      if (result.ok && result.serverLinkRemovalFailed) {
+        toast.warning(t("sorterWifi.forgottenLinkKept"));
+      } else if (result.ok) {
         toast.success(
           result.restarting
             ? t("sorterWifi.forgottenRestarting")
             : t("sorterWifi.forgotten"),
         );
+      } else {
+        toast.error(result.error ?? t("sorterWifi.forgetFailed"));
       }
-      else toast.error(result.error ?? t("sorterWifi.forgetFailed"));
     } finally {
       setIsForgetting(false);
     }

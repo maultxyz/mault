@@ -822,6 +822,7 @@
     "notSetUp": "Not set up",
     "unknown": "Checking…",
     "forgotten": "Wi-Fi turned off.",
+    "forgottenLinkKept": "Wi-Fi turned off. The server couldn't remove the old link, so it will be replaced the next time you set up Wi-Fi.",
     "forgottenRestarting": "Wi-Fi turned off. The sorter is restarting with Bluetooth back on.",
     "forgetFailed": "Couldn't turn off Wi-Fi.",
     "saved": "Wi-Fi saved. The sorter is joining the network.",

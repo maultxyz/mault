@@ -36,7 +36,9 @@ export function MobileSorterWifiSection() {
     setIsForgetting(true);
     try {
       const result = await wifi.forget();
-      if (result.ok) {
+      if (result.ok && result.serverLinkRemovalFailed) {
+        toast.warning(t("sorterWifi.forgottenLinkKept"));
+      } else if (result.ok) {
         toast.success(
           result.restarting
             ? t("sorterWifi.forgottenRestarting")

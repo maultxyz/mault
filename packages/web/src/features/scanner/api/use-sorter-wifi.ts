@@ -62,7 +62,11 @@ export function useSorterWifi(): SorterWifiControls {
       try {
         const parsed = JSON.parse(line) as Record<string, unknown>;
         if (parsed.status === "ok") {
-          return { ok: true, restarting: parsed.restarting === true };
+          return {
+            ok: true,
+            restarting: parsed.restarting === true,
+            serverLinkRemovalFailed: false,
+          };
         }
         return {
           ok: false,
@@ -131,10 +135,15 @@ export function useSorterWifi(): SorterWifiControls {
     if (!device) return { ok: false, error: null };
     const cleared = await request({ clearWifi: true });
     if (!cleared.ok) return cleared;
-    await deleteSorterLink(device.guid).catch(() => null);
+    const serverLinkRemovalFailed = await deleteSorterLink(device.guid)
+      .then((result) => !result.success)
+      .catch((error) => {
+        console.error("Removing the sorter's server link failed", error);
+        return true;
+      });
     void invalidateLinks();
     if (!cleared.restarting) await refresh();
-    return cleared;
+    return { ...cleared, serverLinkRemovalFailed };
   }, [device, request, refresh, invalidateLinks]);
 
   return {
