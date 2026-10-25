@@ -1,6 +1,7 @@
 import {
   CONDITION_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
+  formValidationMessage,
   LOW_MATCH_PERCENT_MAX,
   OVERRIDE_PRIORITY_MAX,
   SET_NAME_MAX_LENGTH,
@@ -13,10 +14,10 @@ export const createSetSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Name is required")
+    .min(1, formValidationMessage("nameRequired"))
     .max(
       SET_NAME_MAX_LENGTH,
-      `Name must be ${SET_NAME_MAX_LENGTH} characters or less`,
+      formValidationMessage("nameTooLong", { max: SET_NAME_MAX_LENGTH }),
     ),
 });
 
@@ -70,9 +71,9 @@ export const binConfigSchema = z.object({
   isOverride: z.boolean(),
   overridePriority: z
     .number()
-    .int("Must be a whole number")
-    .min(1, "Must be at least 1")
-    .max(OVERRIDE_PRIORITY_MAX, `Must be at most ${OVERRIDE_PRIORITY_MAX}`)
+    .int(formValidationMessage("wholeNumber"))
+    .min(1, formValidationMessage("atLeast", { min: 1 }))
+    .max(OVERRIDE_PRIORITY_MAX, formValidationMessage("atMost", { max: OVERRIDE_PRIORITY_MAX }))
     .nullable(),
   repackPriority: z.number().int().min(1).nullable(),
   isDisabled: z.boolean(),
@@ -80,15 +81,15 @@ export const binConfigSchema = z.object({
   maxCopies: z
     .number()
     .int()
-    .min(1, "Must allow at least 1 copy")
+    .min(1, formValidationMessage("atLeast", { min: 1 }))
     .max(CONDITION_NUMERIC_MAX)
     .nullable(),
   maxCopiesBy: z.string(),
   overflowBin: z.number().int().positive().nullable(),
   lowMatchPercent: z
     .number()
-    .min(1, "Must be at least 1%")
-    .max(LOW_MATCH_PERCENT_MAX, `Must be at most ${LOW_MATCH_PERCENT_MAX}%`)
+    .min(1, formValidationMessage("percentAtLeast", { min: 1 }))
+    .max(LOW_MATCH_PERCENT_MAX, formValidationMessage("percentAtMost", { max: LOW_MATCH_PERCENT_MAX }))
     .nullable(),
   pickList: z
     .object({
@@ -106,7 +107,7 @@ export const repackSlotSchema = z.object({
   targetCount: z
     .number()
     .int()
-    .min(1, "Must be at least 1 card")
+    .min(1, formValidationMessage("atLeast", { min: 1 }))
     .max(CONDITION_NUMERIC_MAX),
 });
 
