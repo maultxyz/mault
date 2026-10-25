@@ -1,178 +1,166 @@
 # CLAUDE.md
 
-Guidance for Claude Code in this repository. It records conventions and non-obvious invariants only; feature details belong in the code. Keep additions short.
+Conventions and non-obvious invariants only. Feature details belong in the code. Keep additions to one line where possible.
 
 ## Commands
 
 ```bash
 pnpm install
-pnpm dev                                      # Vite :5173 + Hono :3001 (+ api-docs :5174)
-pnpm --filter @magic-vault/server dev
-pnpm --filter @magic-vault/web dev
-pnpm build                                    # tsup (server), tsc -b + vite build (web)
+pnpm dev                                       # Vite :5173 + Hono :3001 (+ api-docs :5174)
+pnpm build                                     # tsup (server), tsc -b + vite build (web)
 pnpm --filter @magic-vault/web lint            # only package with a lint script
-
-pnpm --filter @magic-vault/server db:generate  # migration from schema.ts changes
-pnpm --filter @magic-vault/server db:migrate
-pnpm --filter @magic-vault/server db:push      # local iteration only
-pnpm --filter @magic-vault/server db:studio
+pnpm --filter @magic-vault/server db:generate  # migration from schema.ts changes (db:migrate, db:push for local iteration)
 pnpm --filter @magic-vault/api-docs openapi    # regenerate packages/api-docs/public/openapi.json
 pnpm --filter @magic-vault/web model           # STEP -> public/models/card-sorter.glb
-pnpm --filter @magic-vault/mobile start        # Expo dev server for the iOS/Android dev build (see packages/mobile/README.md)
-pnpm --filter @magic-vault/desktop start       # Electron shell against MAULT_URL (default localhost:5173 unpackaged)
-pnpm --filter @magic-vault/desktop dist        # installers into packages/desktop/release
+pnpm --filter @magic-vault/mobile start        # Expo dev server (see packages/mobile/README.md)
+pnpm --filter @magic-vault/desktop start       # Electron shell against MAULT_URL
 ```
 
-No automated tests. Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
+No automated tests. Type-check through the web build (`tsc -b`) and editor diagnostics. Migrations: `CONTRIBUTING.md`. Env and self-hosting: `README.md`.
+
+## Every change: keep all surfaces in sync
+
+The product ships on three surfaces that must behave the same:
+
+- **Desktop:** the web app at `md` and up, also loaded unchanged by the Electron shell (`packages/desktop`).
+- **Mobile web:** the same web app below `md` (`useIsMobile`, `max-md:` styles, `Mobile*` components).
+- **Mobile app:** the Expo app in `packages/mobile`, a separate React Native codebase.
+
+For every change (feature, fix, copy, setting, API):
+
+1. Work out how it affects each surface, including the mobile app when the request names only one.
+2. Make it on every surface it applies to in the same task, or say which surface was left out and why.
+3. Put logic both apps need in `shared` instead of duplicating it. Where code is mirrored (`SorterLink` and `use-serial`, the two `CloudTransport`s), change both copies.
+4. Add every new string to all locales on every surface: web `locales/{en,de,fr}/*.json` and mobile `locales/{en,de,fr}.json`, with identical keys.
+5. Keep server and API changes compatible with mobile app versions already in the stores (store releases lag web deploys).
+6. End with a per-surface summary: changed, unaffected, or not done.
 
 ## Architecture
 
-pnpm workspace + Turborepo: `shared` (types, constants, zod schemas, rule engine; no build, resolves to `src/index.ts`), `server` (Hono 4 + Drizzle + Postgres), `web` (React 19 SPA, React Router v7), `mobile` (Expo iOS/Android app; no `dev`/`build` script so turbo skips it), `bot` (Discord), `api-docs` (Scalar API reference), `desktop` (Electron shell; no `dev` script). One root `.env` is read by server and Vite. `docker-compose.yml` is the fully self-hosted stack (`AUTH_PROVIDER=local`, pgvector Postgres).
-
-The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server routes have no `/api` prefix.
+pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.ts`, `serial-protocol.ts`; no build), `server` (Hono 4, Drizzle, Postgres), `web` (React 19 SPA), `mobile` (Expo), `desktop` (Electron shell), `bot` (Discord), `api-docs` (Scalar). One root `.env`. The Vite proxy strips `/api`, so server routes have no `/api` prefix. `docker-compose.yml` is the self-hosted stack.
 
 ### Auth & RLS
 
-- `AUTH_PROVIDER` picks `neon` (default, Neon Auth JWTs via JWKS, membership from `neon_auth.*` tables) or `local` (own-auth bearer sessions, `own_auth_*` tables; platform role in `platformUserRoles`). `auth/index.ts` selects the `AuthProvider`; route code never branches on provider. Bearer tokens everywhere, never cookies.
-- Org routes: `requireAuth` -> `requireOrg` (`X-Org-Id`, rebuilds `jwtClaims` with `org_id`) -> `requireRole`/`requireOrgRole`. `routes/stream.ts` (SSE, `?token=`/`?orgId=`) rebuilds the same claims itself; without `org_id` every `orgRls` table reads empty.
-- DB access: `authQuery(jwtClaims, tx => ...)` for anything user-scoped (sets `request.jwt.claims`, plus `SET LOCAL ROLE authenticated` in local mode). Plain `db` only for intentional RLS bypass (sync job, webhooks, bootstrap, stats). New user/org tables use `.enableRLS()` + `crudPolicy` like `db/schema.ts`, and need grants in `db/bootstrap-local.sql` for local mode.
-- Web: `VITE_AUTH_PROVIDER` selects the client via module-level ternaries, not runtime branching in shared hooks. Email verification, profile/password, multi-session and social sign-in are Neon-only.
-- Platform roles (`neon_auth.user.role` / `platform_user_roles.role`): `admin`, `moderator`, else user. Moderator routes use `requireRole(...PLATFORM_STAFF_ROLES)` (games, announcements, Discord, deleted/unmatched, impersonation, scan stats); card sync, card database tools, plans, hardware and developer stay `requireRole("admin")`. Web: `useRole().isStaff` gates `/app/admin`, `AdminGuard` plus `adminOnly` in `ADMIN_SECTIONS` gate admin-only pages. Moderators can't impersonate admins or moderators.
-- A 403 signs the web client out, so owner/admin checks on pages members can reach are done inline rather than with `requireOrgRole`.
+- `AUTH_PROVIDER` is `neon` (default) or `local`; `auth/index.ts` picks the provider and route code never branches on it. Bearer tokens everywhere, never cookies. The web client is chosen at module level from `VITE_AUTH_PROVIDER`.
+- Org routes: `requireAuth` -> `requireOrg` (`X-Org-Id` adds `org_id` to the claims) -> `requireRole`/`requireOrgRole`. SSE (`routes/stream.ts`) rebuilds the same claims; without `org_id` every `orgRls` table reads empty.
+- User-scoped DB access goes through `authQuery(jwtClaims, tx => ...)`. Plain `db` only for intentional RLS bypass (sync, webhooks, bootstrap, stats). New user/org tables use `.enableRLS()` + `crudPolicy` and need grants in `db/bootstrap-local.sql`.
+- Platform staff routes use `requireRole(...PLATFORM_STAFF_ROLES)`; card sync, card database tools, plans, hardware and developer stay `requireRole("admin")`. Web gates with `useRole().isStaff`, `AdminGuard` and `adminOnly`.
+- A 403 signs the web client out, so owner/admin checks on pages members can reach are done inline.
 
-### Public API, webhooks
+### Public API & webhooks
 
-- Defined once in `shared`: zod schemas (`schemas/public-api.schema.ts`, ids via `.meta({ id })`; nothing else registers ids) and `PUBLIC_API_ENDPOINTS`. `routes/v1/index.ts` maps every entry to a handler (type-checked both ways). A new endpoint needs a registry entry, schemas and a handler; the OpenAPI doc and reference follow.
-- Org API keys (`X-API-Key`, SHA-256 hashed, scopes `read`/`read_write`, `apiAccess` plan feature). Queries go through `apiKeyQuery(orgId, ...)` as the `api_service` role. A `/v1` query touching a new table needs a grant in a migration and an `api-service-policy-*` policy.
-- Responses follow Scryfall conventions (`object` field, snake_case, `{ object: "list", has_more, next_page, data }`, errors as `{ object: "error", ... }`), not the app's `{ success, data }` envelope.
-- `openapi.json` is committed and regenerated by the deploy workflow; regenerate it locally after changing an endpoint. `/v1/*` has its own any-origin CORS (no cookies involved).
-- Webhooks: `emit*Webhook` only enqueues; deliveries live in `webhook_deliveries` (written only through `db`), claimed with `FOR UPDATE SKIP LOCKED` plus a lease. Delivery uses `safeLookup` for SSRF protection, no redirects. A new event needs `WEBHOOK_EVENTS`, an `emit*` in `lib/webhooks/events.ts` and translations.
+- Defined once in `shared` (`schemas/public-api.schema.ts`, `PUBLIC_API_ENDPOINTS`); a new endpoint needs a registry entry, schemas and a handler in `routes/v1/index.ts`, then regenerate `openapi.json`.
+- API-key queries run through `apiKeyQuery(orgId, ...)`; a `/v1` query on a new table needs a migration grant and an `api-service-policy-*` policy.
+- `/v1` responses follow Scryfall conventions (`object`, snake_case, list envelope), not the app's `{ success, data }`.
+- `emit*Webhook` only enqueues; deliveries use `safeLookup` and no redirects. A new event needs `WEBHOOK_EVENTS`, an `emit*` in `lib/webhooks/events.ts` and translations.
 
-### Multi-TCG cards
+### Cards (multi-TCG)
 
-- One adapter per game in `server/src/lib/adapters/<game>/` (`search.ts` -> `CardSearchAdapter`, `sync.ts` -> `SyncSource`), registered in `card-search/resolve.ts` and `lib/sync-job.ts`; then add a `Game` row in the Games Manager.
-- Sync sources store the API's own complete card object in `cards.data` (never normalized; `normalizeStored` turns it into a `PlayingCard` on read) and return one entry per distinct artwork (foil is a scan property). Card art passes through `toPortraitCardImage()`. Every write of `cards.data` must also set `cards.collector_number`.
-- netdeck (Cyberpunk) image URLs are signed and expire within hours: stored data drops every `image_url` and cards render through `/cards/netdeck-image/:game/:slug/:printingId`, which re-signs them (`lib/netdeck.ts`).
-- `PlayingCard` is the canonical shape; `id` is per printing/art. Never hardcode source-specific fields: read through the game's `fieldDefinitions` and `getByPath`/`getCardValue` (which falls back raw -> `card_faces[0]` -> `PlayingCard`).
-- Rules store field keys only. Anything new that stores a field key must be added to `lib/field-renames.ts` (`applyFieldRenames`).
-- Rule evaluation always runs on a `toRuleCard(card, { isFoil, foilType })` card with the rule field list (`withScanRuleFields`, `$scan.*` paths). Never save a `$scan` card. Text comparisons are trimmed and lowercased.
-- Scanning never depends on upstream card APIs: reads go through `card-search/stored-cards.ts`; `/public/health` checks only the database.
+- One adapter per game in `server/src/lib/adapters/<game>/`, registered in `card-search/resolve.ts` and `lib/sync-job.ts`, plus a `Game` row.
+- `cards.data` stores the API's raw card object (read through `normalizeStored`); one entry per artwork; art through `toPortraitCardImage()`; every `cards.data` write also sets `collector_number`.
+- Never hardcode source-specific fields: read through the game's `fieldDefinitions` and `getByPath`/`getCardValue`. Game-specific behaviour goes on the adapter (e.g. `rarePrintingSql`).
+- Rules store field keys only; anything new that stores a field key goes in `lib/field-renames.ts`.
+- Rule evaluation runs on `toRuleCard(...)` with `withScanRuleFields`; never save a `$scan` card. Text comparisons are trimmed and lowercased.
+- Scanning never calls upstream card APIs (reads go through `card-search/stored-cards.ts`). netdeck images render through `/cards/netdeck-image/...` because their URLs expire.
 
 ### Prices
 
-- `scripts/sync-prices.ts` (external scheduler) pulls TCGplayer (tcgcsv), Cardmarket and Card Kingdom, then resolves `card_prices` (keyed `(game_key, lang, card_id)`). Reads overlay `card_prices` via `applyCardPrices` (JS) or `lib/card-price-sql.ts` (SQL). tcgcsv blocks overuse (it blocked the shared `MagicVault/1.0` agent in 2026-10): at most one pull per 20 h per install, `last-updated.txt` checked first, 1 request/s, one `CARD_API_USER_AGENT` (env) for every outgoing card/price request. Never call tcgcsv from request paths.
-- Never read `card.price` directly for display or totals: use `shared`'s `cardPriceFor`/`formatPrice` (web `usePriceSource().priceOf`), server `loadOrgPricing`. Any new SQL total must pass the org's `OrgPricing` (price source plus condition multipliers). Currencies never mix.
+- `scripts/sync-prices.ts` runs on an external schedule only. tcgcsv: at most one pull per 20 h, check `last-updated.txt` first, 1 request/s, `CARD_API_USER_AGENT` on every outgoing request, never from request paths.
+- Never read `card.price` for display or totals: use `cardPriceFor`/`formatPrice` (web `usePriceSource().priceOf`) or server `loadOrgPricing`. SQL totals take the org's `OrgPricing`. Currencies never mix.
 
 ### Soft deletes
 
-- Hard-deleted only: `collection_cards`, unmatched scan photos, `cards`, `webhook_endpoints`, and whole-org purges (`purgeOrgData`). Everything else sets `is_deleted` and leaves children alone.
-- Every read, count, limit check and attach-lookup on soft-deletable tables filters `is_deleted = false` (including `with:` blocks and raw SQL). Fix-up writes (`applyFieldRenames`, `purgeOrgData`, ...) don't. User-facing uniqueness uses partial unique indexes on live rows; per-device upserts set `isDeleted: false` on conflict.
-- A new soft-deletable table needs the column, filtered reads, and an entry in `DELETED_ITEM_TYPES` plus `routes/admin/deleted-items-sources.ts`.
+- Hard-deleted only: `collection_cards`, unmatched scan photos, `cards`, `webhook_endpoints`, whole-org purges. Everything else sets `is_deleted`.
+- Every read, count, limit check and lookup filters `is_deleted = false` (including `with:` blocks and raw SQL); fix-up writes don't. Uniqueness uses partial indexes on live rows; upserts set `isDeleted: false`.
+- A new soft-deletable table needs the column, filtered reads, `DELETED_ITEM_TYPES` and `routes/admin/deleted-items-sources.ts`.
 
 ### Scanning
 
-- Pipeline: corner detector + Milo embedder (ONNX, client via `onnxruntime-web`, server via `onnxruntime-node`), `cards.embedding vector(128)`, top-K cosine search. Weights are pinned by HF revision + SHA-256 and downloaded at runtime. Swapping the model is a breaking migration (see `drizzle/0037_little_marvel_apes.sql`). Filtered embedding queries need `hnsw.iterative_scan`.
-- Every non-HOT update of a `cards` row adds a duplicate HNSW entry and mass churn wrecks recall, so sync ignores `SyncSource.volatileDataKeys` diffs (stored `prices` in `cards.data` may be stale) and rebuilds the game's index after heavy churn. Vector indexes use `CARD_VECTOR_INDEX_M`/`EF_CONSTRUCTION`; a plain `REINDEX` keeps an index's old build params, so rebuild through `rebuildGameVectorIndex`.
-- Promos and reprint lists share art with a far more common printing, so when the nearest match is one (`CardSearchAdapter.rarePrintingSql`; MTG: `promo` or The List) and a regular printing of the same card is within `DUPLICATE_PRINTING_MAX_DISTANCE`, `findCardMatches` returns the regular one first and keeps the rare one as an alternative. An explicit preferred set still wins.
-- An onnxruntime-web WASM `RuntimeError` is permanent for the page (`markRuntimeFailed`); don't retry or "fall back".
-- Mobile Safari kills, and reloads, a tab that piles up canvas memory or GPU contexts. Reuse scratch canvases on hot paths (live detection runs every 300 ms); free per-scan canvases with `releaseCanvases` (Safari only reclaims canvas memory on GC). The card warp runs on the CPU (`warpRgba`) over the contour's bounding box, never WebGL.
-- Cards are routed as soon as they match, in parallel with the save. Saves go through `PendingScanSavesProvider` (IndexedDB retry queue, `isRetry` idempotency on `scanId`), never directly.
-- Bin capacity is checked client-side before routing (the server's `findFullBin` only catches it after the card is already in the bin). Web counts a routed card as pending until bin counts with a `dataUpdatedAt` later than its save land, never when the refetch promise settles (a newer invalidate cancels it).
-- Server-side in-process state (scan locks, device leases, sorter links, rate limits, leaderboard cache, deploy notice) is per process and resets on restart.
-- Stats that must not drop on deletes read `scan_stats`/`org_daily_scan_usage`, never `collection_cards`.
-- `collection_cards.is_reviewed` drives review mode (reviewed cards are skipped) and is set by any correct, confirm or review accept, which also clear `low_confidence_match` (set at scan time when the match came from OCR only or fell below the low-match threshold; the public API still exposes it, combined with alternatives, as `needs_review`). It is separate from `is_corrected` so accepting a confident match doesn't count as a correction.
-- Plan features/limits live in `plan_settings` (Admin > Plans), cached by `lib/plan-config.ts`. A new gated feature needs a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check. Limits are enforced only on create/enable, so downgraded orgs keep what they have.
-- Never put a collection's full card list in a stream payload (`session_init` once hit ~180 MB). Stream creators call `recordSessionInits` immediately.
-- Unmatched scans are paged too (`GET /collections/:guid/unmatched?limit&offset` returns `{ cards, total }`): clients and `session_init` hold only the newest `UNMATCHED_PREVIEW_COUNT` plus the total, so bin fill (catch-all included) comes from `/cards/bin-counts`, which counts unmatched rows.
-- Scan images: object storage when `SCAN_IMAGE_BUCKET` is set, else inline data URL; always read via `resolveScanImageUrl`. The captured 448x448 image is displayed in an `aspect-[2.5/3.5]` frame with `object-fill`.
-- Bin routing modes (rules, auto-assign, scan-only, chaos, repack, alphabetical, pick lists, overflow, copy limits) live in `shared`'s `evaluate-bin.ts` and are evaluated client-side only; the server never routes.
+- Swapping the embedding model is a breaking migration. Filtered embedding queries need `hnsw.iterative_scan`. Rebuild vector indexes through `rebuildGameVectorIndex` (plain `REINDEX` keeps old params); sync skips `volatileDataKeys` diffs to avoid HNSW churn.
+- `findCardMatches` prefers a regular printing over a same-art promo or list reprint (`rarePrintingSql`); an explicit preferred set wins.
+- An onnxruntime-web WASM `RuntimeError` is permanent for the page; don't retry.
+- Mobile Safari reloads tabs that pile up canvas memory: reuse scratch canvases, free per-scan ones with `releaseCanvases`, warp on the CPU (`warpRgba`), never WebGL.
+- Saves go through `PendingScanSavesProvider`, never directly. Bin capacity is checked client-side before routing; a routed card stays pending until bin counts with a later `dataUpdatedAt` land.
+- Bin routing modes live in `shared`'s `evaluate-bin.ts` and run client-side only.
+- Never put a collection's full card list in a stream payload; unmatched scans are paged and bin fill comes from `/cards/bin-counts`.
+- Stats that must survive deletes read `scan_stats`/`org_daily_scan_usage`. Scan images are read through `resolveScanImageUrl`.
+- Any correct, confirm or review accept sets `is_reviewed` and clears `low_confidence_match`; `is_corrected` stays separate.
+- Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only.
+- In-process server state (locks, leases, sorter links, rate limits) is per process.
 
 ### Firmware & serial
 
-- Protocol: `firmware/PROTOCOL.md`. The firmware has no concept of bins; the web app resolves bin -> (module, direction).
-- Firmware runs one command at a time; every blocking wait goes through `waitMs()`. Pusher moves always go through `setServoPosition()`, never `pwm.setPWM`.
-- `handleCommand` parses its line as `const char*` so ArduinoJson copies strings: the transport's line buffer is overwritten by input read during `waitMs()` while the command runs. Replies are printed directly, never built as a `JsonDocument`. `ModuleConfig`/`FeederConfig` are all-`int` structs walked through `MODULE_FIELDS`/`FEEDER_FIELDS`, so a new field goes in both (a `static_assert` catches a mismatch).
-- Replies are matched by `seq` (firmware 2.7.0+). Use `sendRequest`/`sendRawCommand`; there's no "read next line" API.
-- Minimum-firmware features go in `FIRMWARE_FEATURE_MIN_VERSIONS` and are gated with `FirmwareFeatureGate`/`useFirmwareFeature`. Runtime paths still need fallbacks for older boards.
-- Changing the firmware's `ModuleConfig` requires an EEPROM layout migration (see `loadStoredConfigV1()`).
-- A function whose signature uses a sketch-defined struct needs its own prototype right after the struct (Arduino preprocessor).
-- ESP32-S3 release builds pin `FlashMode=dio` and `PartitionScheme=min_spiffs` (BLE + Wi-Fi + TLS overflow the default 1.25 MB app slot; min_spiffs keeps NVS at 0x9000 so stored settings survive); keep the Hardware CDC TX timeout at 0. The released image is the full 4 MB merged bin, so `esp32-flasher.ts` writes it around NVS (0x9000-0xE000) and drops the erased tail; never write it whole at 0.
-- Pusher directions are mirrored: `"left"` lands on the physical right. Render bin layouts through `BIN_SLOTS_PHYSICAL_ORDER`; never change default routes to fix the display.
-- Controls that send serial commands require `useSerial().isReady` (passed self-test). Hardware-editing pages are wrapped in `SessionLock`. A new firmware command gets an entry in `DEVICE_COMMANDS`.
-- Wi-Fi remote (ESP32 2.10.0+, Uno R4 WiFi; shared code in `cloud_common.ino`, backends `cloud_esp32.ino`/`cloud_wifis3.ino`): the board holds an outbound WebSocket to `/sorter-link/device` (bearer token, SHA-256 in `devices.sorter_link_token_hash`, looked up through plain `db`), and `lib/sorter-link.ts` relays raw lines to one browser on `/sorter-link/client`. The web side is just another `ByteTransport` (`CloudTransport`, kind `cloud`), so seq matching, self-test and leases are unchanged. The relay is in process, so a board and its browser must reach the same server process. Board URL: `SORTER_LINK_URL`, else `API_URL`, else the web origin (unreachable from a board in local dev). Wi-Fi is configured only over USB/BLE; firmware never flashes over `cloud`. Wi-Fi start-up spikes brown out weak supplies, so the radio starts 2 s after boot at reduced TX power and pauses after 2 consecutive brownout resets (RTC-memory counter); never start Wi-Fi from `setup()` directly. The Uno R4 WiFi's Wi-Fi and BLE share its ESP32-S3 co-processor, so each boot uses one (Wi-Fi when a network is saved), and switching restarts the board (`"restarting":true`). It has one core, so its networking runs from `cloudPoll()`: WiFiS3 calls block on AT exchanges, so the modem timeout stays under the watchdog, and joins/TLS handshakes never run while a command is in progress. The app gates Wi-Fi setup on the firmware reporting `"wifi"` in `getStatus` (`useSerial().hasWifi`), not on the board type.
-- Changing `BIN_HEIGHT_PRESETS` needs a data migration (see `drizzle/0080_small_bin_height.sql`).
-- The 3D model maps raw pulses (never percentages) to horn degrees, anchored at the CAD closed pose (gates) or neutral (pusher). `SORTER_BOTTOM_DEGREES_PER_TICK` is fit to a real gate: closed 453 to flat with the card bed at 231 (the CAD paddle pose sits ~13 degrees below the bed, not flat).
-- The 3D sorter model is built from `3d model/Card Sorter.step` by `pnpm --filter @magic-vault/web model`; rerun after changing the STEP file and update `MODULE_ROLES`/mechanism points if parts move.
+- Protocol: `firmware/PROTOCOL.md`. Firmware has no bins; the app maps bin -> (module, direction).
+- One command at a time; every blocking wait goes through `waitMs()`; pusher moves through `setServoPosition()`.
+- `handleCommand` parses its line as `const char*` and prints replies directly. New `ModuleConfig`/`FeederConfig` fields go in `MODULE_FIELDS`/`FEEDER_FIELDS` too; changing `ModuleConfig` needs an EEPROM layout migration.
+- A function whose signature uses a sketch-defined struct needs a manual prototype right after the struct.
+- Replies match by `seq`: use `sendRequest`/`sendRawCommand`. Minimum-firmware features go in `FIRMWARE_FEATURE_MIN_VERSIONS` with a gate and a fallback.
+- ESP32-S3 builds pin `FlashMode=dio` and `PartitionScheme=min_spiffs`; `esp32-flasher.ts` writes the merged bin around NVS, never whole at 0.
+- Pusher directions are mirrored (`"left"` lands right); render through `BIN_SLOTS_PHYSICAL_ORDER`, never change routes to fix the display.
+- Serial controls require `useSerial().isReady`; hardware-editing pages use `SessionLock`; new commands go in `DEVICE_COMMANDS`.
+- Wi-Fi remote (`cloud_common.ino` plus `cloud_esp32.ino`/`cloud_wifis3.ino`): the relay is in process, so board and browser must reach the same server process; Wi-Fi is configured only over USB/BLE; never flash over `cloud`; never start Wi-Fi from `setup()`. The app gates setup on `useSerial().hasWifi`, not the board type.
+- Uno R4 WiFi: Wi-Fi and BLE share the co-processor, one per boot, and switching restarts the board. Its networking runs from `cloudPoll()`, with the modem timeout under the watchdog and no joins or TLS handshakes while a command runs.
+- Changing `BIN_HEIGHT_PRESETS` needs a data migration. The 3D model maps raw pulses (never percentages) to degrees; rerun the model script after changing the STEP file.
 
-### Mobile (iOS/Android)
+### Mobile app (`packages/mobile`)
 
-- `shared/src/vision.ts` (corner parsing, homography/warp, tensor prep, color bar) and `shared/src/serial-protocol.ts` are the single implementation for web and mobile; platform code only converts pixels (canvas `ImageData` / nitro-image raw buffers) into `RgbaImage`.
-- Captured photos always go through `resizeAsync` before reading pixels: on iOS nitro-image's `toRawPixelData` reads the unrotated `cgImage`, while `width`/`height` and resize honour the photo's orientation.
-- Mobile runs ONNX on the CPU provider only: CoreML can drop to fp16, and embeddings must stay comparable to the fp32 vectors the server and web produce. It reports `vectorizedOn: "web"` (client-side).
-- Sorters connect over BLE or the Wi-Fi relay, never USB (iOS has no USB serial). Wi-Fi uses `CloudTransport` (mirror of web's); its ids are `cloud:<deviceGuid>` so `connect`, auto-reconnect and the last-sorter key work unchanged. Android needs runtime BLE permissions (`ensureBlePermissions`) before any scan. `SorterLink` mirrors `use-serial`'s seq matching, busy guard and route queue; change both together.
-- No in-app account creation: App Store rules would then require in-app account deletion. Org listing goes through the provider-agnostic `/me/organizations`.
-- Mobile runs every routing mode: repack and max-copies load `/cards/bin-contents`, auto-assign writes learned rules through `saveBinConfig`. Modes are edited on Rules > Sorting mode; `apply-mode.ts` turns the old mode off before enabling the new one.
-- `locales/en.json`, `de.json` and `fr.json` must keep identical keys; add every new string to all three.
-- QR pairing: vision-camera's `ScannedCode` is iOS-only, so Android decodes captured frames with `jsqr` (`use-qr-scanner.ts` picks per platform at module level).
-- CSV export adapters live in `shared/src/card-export`; web downloads the CSV, mobile hands it to `expo-sharing`.
+- Captured photos go through `resizeAsync` before reading pixels (iOS orientation).
+- ONNX runs on the CPU provider only so embeddings match the fp32 vectors from web and server.
+- Sorters connect over BLE or the Wi-Fi relay, never USB. Android needs `ensureBlePermissions` first.
+- No in-app account creation (App Store would then require in-app deletion).
 
-### Desktop (Electron)
+### Desktop (`packages/desktop`)
 
-- `packages/desktop` is a shell that loads the hosted web app (`MAULT_URL`, default `https://mault.xyz` packaged), never a bundled copy, so web deploys need no desktop release and the API and web versions can't drift. Desktop-specific behaviour lives in the main process; the web app only talks to it through the optional `window.maultDesktop` bridge (`DesktopBridge` in `shared`, exposed by `main-preload.ts`), always feature-detected. The active station's scanner publishes its Windows taskbar thumbnail buttons through it (`DesktopScannerButton`: command, icon, tooltip from the web app's own translations), and `thumbar.ts` validates and draws them. IPC from other origins is ignored. Windows drops thumbnail buttons added before the taskbar icon exists, and Electron only adds them once, so `thumbar.ts` makes no call until shortly after the main window is first shown. Never pass `flags: ["enabled"]` (despite the docs, Electron 44 then rejects the whole list); omit `flags` for enabled buttons.
-- `lib/toast.ts` also sends every `toast.error`/`toast.warning` (as plain text) through `maultDesktop.notify`; `notifications.ts` shows a native notification only when the window isn't focused, drops repeats within 10 s, and focuses the window on click. Windows only shows them for the `APP_USER_MODEL_ID` that the installer's Start menu shortcut carries.
-- Electron has no Chromium device choosers: `select-serial-port` and `select-bluetooth-device` go through `device-picker.ts`. Serial ports picked once are persisted (`granted-ports.ts`) and `setDevicePermissionHandler` only allows those, because `getPorts()` auto-connects to every port it returns. That handler also gates `port.open()` and receives Chromium's stored object (snake_case, `device_instance_id` on Windows), not the picker's `SerialPort`, so a key mismatch shows up as "Failed to open serial port". BLE `getDevices()` returns nothing, so BLE auto-reconnect doesn't run on desktop.
-- The main window sets `backgroundThrottling: false`, so `document.hidden` stays false when minimized or covered and the scanner keeps running instead of hitting its hidden-tab pause. That also hides occlusion from the page, so `window-state.ts` detects "covered or minimized" (which opens the scanner PiP window) through a 1x1 `WebContentsView` probe that keeps default throttling and reports its own `visibilityState`. Chromium only reports full occlusion, so on Windows `window-coverage.ts` also polls the z-order through koffi (user32/dwmapi) while unfocused and treats at least half covered as background. koffi's JS is bundled but its `.node` can't be: `dist` stages the Windows binary (`scripts/stage-koffi.mjs`) as an `extraResources` folder koffi finds through `process.resourcesPath`, so coverage is off under `pnpm start`. The PiP is an `about:blank` popup the web app portals into; it is dragged from anywhere through `movePipWindowBy` offsets, not `app-region` (which would swallow its click-to-return).
-- Permissions are granted only to the app origin. `app.userAgentFallback` drops the `Electron/` token, since Google OAuth rejects embedded browsers it recognises (untested).
-- Main and preload are bundled by tsup with every dependency inlined, so electron-builder ships no `node_modules`. Desktop Release (`desktop-release.yml`, manual, master only) replaces the `desktop-latest` GitHub release that electron-updater's generic provider reads, then commits and tags `desktop-vX.Y.Z` (its own version).
+- Loads the hosted web app, never a bundled copy. The web app talks to it only through the feature-detected `window.maultDesktop` bridge (`DesktopBridge` in `shared`).
+- Thumbnail buttons: no calls until shortly after the main window is first shown, and never pass `flags: ["enabled"]`.
+- Serial permissions only allow ports picked through `device-picker.ts`; the permission handler receives Chromium's snake_case object, not the picker's.
+- `backgroundThrottling: false` hides occlusion from the page, so "covered or minimized" comes from `window-state.ts`/`window-coverage.ts`.
 
-### Business tools (intake, orders, reports, fleet)
+### Business tools
 
-- Routes live under `/business` (`routes/business/*`), all through `businessQuery`, which loads `BusinessAccess` (plan feature `businessTools` plus `org_settings.business_permissions`; owners/admins always pass). Permission failures return 200 with `success: false`, never 403.
-- A collection has at most one open `intake_lots` row; every save path that inserts `collection_cards` (scan, manual add, unmatched identify) stamps `intake_lot_id` via `findOpenIntakeLotId`. A lot can create its own (inactive) collection (`owns_collection`); cancelling it with card removal soft-deletes that collection once empty. Moving an accepted lot's cards to another collection (`/intake/:guid/transfer`) clears their `bin_number`; their scan images keep the source collection's storage prefix, so clearing that source collection later deletes them. Cards in open or cancelled lots are not inventory: the stats report, inventory snapshots and pick allocation only count `intake_lot_id IS NULL OR status = 'accepted'`.
-- Cost basis is `collection_cards.acquisition_cost` with `acquisition_currency`; sums only include costs in the org's current price-source currency. Write costs through `updateAcquisitionCosts` (chunked).
-- Fulfilling an order hard-deletes its allocated `collection_cards` and writes `card_sales` rows (permanent, never soft-deleted). Allocations live in `fulfilment_orders.lines` jsonb and exclude cards allocated to other open orders.
-- Sorter alerts go through `raiseDeviceAlert` (stores `device_alerts`, posts to the Discord error channel, emits the `sorter.alert` webhook). Offline alerts fire only when a lease expires within `DEVICE_OFFLINE_ALERT_WINDOW_MS` of a scan. `device_alerts` and `org_inventory_snapshots` are server-written via `db` and purged in `purgeOrgServerData`.
-- Audit-worthy mutations call `logActivity(tx, ...)` inside the same transaction; a new action needs `ACTIVITY_ACTIONS`, `ACTIVITY_ACTION_KEYS` and `activity.labels`/`activity.messages` translations.
+- `/business` routes go through `businessQuery`; permission failures return 200 with `success: false`, never 403.
+- Every path that inserts `collection_cards` stamps `intake_lot_id` via `findOpenIntakeLotId`. Cards in open or cancelled lots aren't inventory (count only `intake_lot_id IS NULL OR status = 'accepted'`).
+- Write costs through `updateAcquisitionCosts`; sums only include the org's current currency. Fulfilling an order hard-deletes its cards and writes permanent `card_sales`.
+- Sorter alerts go through `raiseDeviceAlert`. Audit-worthy mutations call `logActivity(tx, ...)` in the same transaction; a new action needs `ACTIVITY_ACTIONS`, `ACTIVITY_ACTION_KEYS` and translations.
 
 ### Discord bot
 
-- One global bot; commands registered globally only (`/link`, `/link-account`, `/leaderboard`, `/showoff`, `/stats`). Each guild maps to one org via `org_settings.discord_guild_id`. Every channel and rule target is validated against the linked guild, so posts can never land in another server. Mentions are limited to the exact roles requested.
-- Users link their own Discord account with a code from Account > Discord account redeemed by `/link-account` (`discord_user_links`, one Discord id per user). The table is server-only (RLS on, no policies, plain `db` in `lib/discord/user-links.ts`); user routes filter by the verified `userId`. Neon Auth has no Discord sign-in. The linked account role (Admin > Discord channels, `platform_discord_roles`) is added and removed server-side through the bot's `/members/role` on link, unlink and Discord-account switch, and for every linked user when the role changes. The bot has no GuildMembers intent, so people who join the server after linking get the role only by relinking.
-- Scan notifications run off the request path through `lib/scan-notification-queue.ts`.
+- Each guild maps to one org; every channel and rule target is validated against the linked guild, and mentions are limited to the requested roles.
+- `discord_user_links` is server-only (plain `db`, filtered by the verified `userId`). Scan notifications go through `lib/scan-notification-queue.ts`.
 
 ### Deploys
 
-- Release (`.github/workflows/deploy.yml`; dispatch picks a patch/minor/major bump, nightly runs bump the patch) posts and clears a deploy banner (`X-Deploy-Key`), pauses scanning via `DEPLOY_STATUS_EVENT`, and regenerates `openapi.json`. Every banner step is `continue-on-error`.
-- Images are built in CI and pushed to GHCR (`mault-web`/`-server`/`-api-docs`/`-bot`, tagged `vX.Y.Z` and `sha-*`); Coolify pulls `:latest` (production, from master) or `:dev` (manual dispatch on `dev` only, `development` GitHub environment, version `X.Y.Z-dev.<sha>`, never committed or tagged); the channel tag moves only after the release commit (and, for the server, migrations). Secrets and variables use the same names in both GitHub environments. Images are public, so web `VITE_*` config is runtime: `docker/web-env.sh` writes `env.js` (`window.__ENV__`) from the container env at start-up, and code reads it through `runtimeEnv()`, never `import.meta.env.VITE_*`. Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg (it describes the baked-in binary). Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`, not hit a Coolify webhook.
-- Mobile Release (`mobile-release.yml`, manual): from `master` it bumps `packages/mobile`'s own version (the store version, independent of the web/server version), runs EAS `production` builds with `--auto-submit` (TestFlight, Play internal track), then commits and tags `mobile-vX.Y.Z`; from `dev` it runs `preview` internal builds and commits nothing. EAS build workers don't see GitHub env: the `MOBILE_*` values `app.config.ts` reads must be set as EAS environment variables (`development`/`preview`/`production`). `EAS_PROJECT_ID` has no committed default and is read where `eas build` runs (root `.env` locally, the `EAS_PROJECT_ID` GitHub environment variable in CI), since EAS CLI needs it before it can fetch EAS variables.
-- Firmware Release dispatched from `dev` commits nothing: it publishes the moving `firmware-dev` pre-release (version `X.Y.Z-dev.<run>`), and only dev deploys swap that binary and version into the web image. A production firmware release deletes `firmware-dev`.
+- `deploy.yml` builds GHCR images; Coolify pulls `:latest` (master) or `:dev`. Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`.
+- Web `VITE_*` config is runtime: read it through `runtimeEnv()`, never `import.meta.env.VITE_*` (only `VITE_LATEST_FIRMWARE_VERSION` is a build arg).
+- Mobile, desktop and firmware have their own release workflows and versions. Mobile `MOBILE_*` values must be set as EAS environment variables. Firmware versions are bumped by the release workflow.
 
 ## Web conventions
 
-- Bulletproof React, feature-first: `features/<name>/{api,components,lib}`. Cross-feature code goes in top-level `components/`, `hooks/`, `lib/`. `@/*` is `packages/web/src/*`.
-- API calls go through `lib/api/client.ts` or `features/*/api/` wrappers.
+- Feature-first: `features/<name>/{api,components,lib}`; cross-feature code in top-level `components/`, `hooks/`, `lib/`. API calls through `lib/api/client.ts` or `features/*/api/`.
 - Forms: React Hook Form + Zod resolver, never `useState` per field.
-- Nothing auto-saves: settings edit a draft saved through the page's single `SaveBar` with `UnsavedChangesGuard`. Draft forms take server data via `values` with `resetOptions: { keepDirtyValues: true }`; Discard must pass `DISCARD_RESET_OPTIONS`. Discrete actions (dialog submits, deletes, uploads, tests) stay immediate.
-- Hotkeys only through `useHotkeys`, declared in `HOTKEYS` (`lib/constants/hotkeys.ts`).
-- Toasts only through the root `Toaster` in `main.tsx`.
-- The Rules page (`SORTING_RULES_PATH`) is outside `DesktopOnlyGuard` and renders `MobileBins` on phones (Rules tab in `MobileNav`).
-- Settings sub-pages use `SETTINGS_PATHS`, each panel is a `SettingsSection`, and each sub-page needs a `settings:sectionIntros` entry. Calibration tour steps name their section, so moving a panel means updating `CALIBRATION_TOUR_STEPS`.
-- Mobile screens use `MobilePageHeader` and the `MOBILE_*` classes in `lib/constants/nav.ts`; every mobile scroll area adds `MOBILE_NAV_SCROLL_PADDING_CLASS`. Modal vaul drawers set `pointer-events: none` on the body, so a `Select` inside one only works because its positioner and backdrop carry `pointer-events-auto`; keep other popovers out of vaul drawers.
-- Card actions belong in `useCardActions` (shared by context menu and mobile drawer).
-- The UI calls a `bin_sets` row a "preset", never a "set".
+- Nothing auto-saves: settings edit a draft saved through the page's single `SaveBar` with `UnsavedChangesGuard`. Draft forms take server data via `values` with `resetOptions: { keepDirtyValues: true }`; Discard passes `DISCARD_RESET_OPTIONS`. Discrete actions stay immediate.
+- Hotkeys only through `useHotkeys`, declared in `HOTKEYS`. Toasts only through the root `Toaster`.
+- Settings sub-pages use `SETTINGS_PATHS`, `SettingsSection` panels and a `settings:sectionIntros` entry; moving a panel means updating `CALIBRATION_TOUR_STEPS`.
+- Mobile web screens use `MobilePageHeader`, the `MOBILE_*` classes and `MOBILE_NAV_SCROLL_PADDING_CLASS` on scroll areas. Keep popovers other than `Select` out of vaul drawers.
+- Card actions belong in `useCardActions`. The UI calls a `bin_sets` row a "preset", never a "set".
 
 ### UI style
 
-- Status colors only from theme tokens (`success`, `warning`, `info`, `destructive` and their `-strong`/`-foreground`/`-muted`/`-border` shades), never raw `green-*`/`red-*` etc. Raw palette colors are for data only.
-- `text-primary` resolves to `--primary-text`; fix tokens, don't hand-patch dark-mode text.
-- In-page notes use `Callout`; full-width bars use `AlertBanner`. Empty lists use `EmptyState`. Labelled sliders use `SliderField`. Loading content uses skeletons; spinners only for in-progress actions.
-- Text: `text-sm` body, `text-xs` secondary, `text-2xs` dense captions. No arbitrary `text-[Npx]`. Below `md`, `index.css` enlarges the `--text-2xs`/`--text-xs`/`--text-sm` tokens (12/14/15px), so don't add per-component `max-md:text-*` bumps for readability. Inputs stay `text-base` below `md` (iOS zoom). Secondary text is `text-foreground/70`; nothing below 70% opacity except disabled controls. `text-muted-foreground` only inside `components/ui` primitives and placeholders.
-- Radius scale: `rounded-xl` overlays, `rounded-lg` containers, `rounded-md` controls and nested items, `rounded-sm` tiny inline bits, `rounded-full` pills. Never plain `rounded`.
-- Icons inside shadcn primitives: no `size-*` class (use the `size` prop or none). Standalone icons: `size-3`/`3.5`/`4`/`5`.
-- Motion: short `animate-in` for newly appeared content only, always with `motion-reduce:animate-none`. No route transitions.
+- Status colors only from theme tokens (`success`, `warning`, `info`, `destructive` and their shades); raw palette colors are for data only. Fix tokens rather than hand-patching dark-mode text.
+- In-page notes use `Callout`, full-width bars `AlertBanner`, empty lists `EmptyState`, labelled sliders `SliderField`. Loading uses skeletons; spinners only for in-progress actions.
+- Text: `text-sm` body, `text-xs` secondary, `text-2xs` captions, no `text-[Npx]`. The text tokens already grow below `md`, so no per-component `max-md:text-*` bumps. Inputs stay `text-base` below `md`. Secondary text is `text-foreground/70`; `text-muted-foreground` only in `components/ui` primitives and placeholders.
+- Radius: `rounded-xl` overlays, `rounded-lg` containers, `rounded-md` controls, `rounded-sm` tiny bits, `rounded-full` pills; never plain `rounded`.
+- Icons in shadcn primitives take no `size-*` class; standalone icons use `size-3`/`3.5`/`4`/`5`.
+- Motion: short `animate-in` for new content only, with `motion-reduce:animate-none`. No route transitions.
 
 ## Code style
 
-- No code comments; record genuinely non-obvious things here instead. No `eslint-disable`; restructure instead.
-- Types, interfaces and constants never live in component, hook or route files: web `lib/interfaces/*`, `lib/constants/*` (prop types included); server `src/lib/interfaces/*`, `src/lib/constants/*`; shared ones in `shared`.
+- **YAGNI:** don't build it until you need it.
+- **DRY:** extract a pattern after the second duplication, not before.
+- **Fail fast:** explicit errors beat silent failures.
+- **Simple first:** write the obvious solution; optimize only when needed.
+- **Delete aggressively:** less code means fewer bugs.
+- **Semantic naming:** name variables, parameters and API endpoints with verbose, self-documenting names that optimize for comprehension by humans and LLMs, not brevity (`waitUntilScanIsSaved: true`, not `wait: true`), in the language's own casing.
+- No code comments in app code (firmware sketches keep theirs); record non-obvious things here instead. No `eslint-disable`.
+- Types, interfaces and constants never live in component, hook or route files: `lib/interfaces/*` and `lib/constants/*` per package, shared ones in `shared`.
 - Never use em dashes anywhere (code, copy in every locale, commits, chat).
