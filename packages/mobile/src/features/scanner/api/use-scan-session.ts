@@ -42,6 +42,7 @@ import { configsFromSet } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
 import { identifyCard } from "@/features/scanner/lib/identify";
 import { warmScanModels } from "@/features/scanner/lib/inference";
+import { reportSerialEvent } from "@/features/sorter/api/serial-events";
 import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -56,13 +57,16 @@ import { readKv, writeKv } from "@/lib/storage/kv";
 import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/sorter";
 import type {
   CardSaveResult,
+  FeedCommand,
   IdentifyOutcome,
   LiveCorners,
+  RoutedCardTarget,
   ScanFeedEntry,
   ScannerPauseReason,
   ScannerPhase,
   ScanSessionInputs,
   ScanSessionValue,
+  SorterEventDetails,
 } from "@/lib/interfaces/scanner";
 import { delay } from "@/lib/delay";
 
@@ -163,6 +167,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     },
     [setPhase],
   );
+
+  const reportSorterEvent = useCallback((event: SorterEventDetails) => {
+    const ctx = latestRef.current;
+    reportSerialEvent({
+      ...event,
+      collectionGuid: ctx.collection?.guid,
+      deviceGuid: ctx.sorter.device?.guid,
+    });
+  }, []);
 
   useEffect(() => {
     setPhase("loading-models");
@@ -336,9 +349,10 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [setPhase]);
 
   const handleRouteResponse = useCallback(
-    (response: unknown) => {
+    (response: unknown, target: RoutedCardTarget) => {
       const res = response as SerialReply | null;
       if (!res) {
+        reportSorterEvent({ command: "bin", sent: true, response: null, ...target });
         pause("route-failed");
         return;
       }
@@ -347,10 +361,12 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         return;
       }
       if (res.empty) {
+        reportSorterEvent({ command: "bin", sent: true, response: res, ...target });
         pause("feeder-empty");
         return;
       }
       if (res.error) {
+        reportSorterEvent({ command: "bin", sent: true, response: res, ...target });
         const jam = String(res.error).match(ROUTE_TIMEOUT_MODULE_PATTERN);
         pause(jam ? "jam" : "route-failed", jam ? jam[1] : String(res.error));
         return;
@@ -359,15 +375,17 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       if (runningRef.current && latestRef.current.autoFeed) triggerFeedRef.current();
       else if (phaseRef.current === "routing") setPhase("ready");
     },
-    [pause, setPhase],
+    [pause, setPhase, reportSorterEvent],
   );
 
   const sendToBin = useCallback(
-    (binNumber: number) => {
+    (binNumber: number, cardName?: string) => {
       const { sorter: s } = latestRef.current;
       if (phaseRef.current !== "paused") setPhase("routing");
       const feedNext = runningRef.current && latestRef.current.autoFeed && !!s.device?.pipelinedFeed;
-      void s.sendRoute(routeFor(binNumber), { feedNext }).then(handleRouteResponse);
+      void s
+        .sendRoute(routeFor(binNumber), { feedNext })
+        .then((response) => handleRouteResponse(response, { binNumber, cardName }));
     },
     [handleRouteResponse, routeFor, setPhase],
   );
@@ -454,7 +472,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       );
 
       if (filledPack) pause("repack-complete");
-      if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber);
+      if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber, card.name);
       else if (!filledPack) continueAfterCard();
 
       void ctx
@@ -565,7 +583,10 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [handleMatched, handleUnmatched, pause, setPhase]);
 
   const handleFeedResult = useCallback(
-    (reply: SerialReply | null) => {
+    (reply: SerialReply | null, command: FeedCommand = "auto-feed") => {
+      if (!reply || reply.empty || reply.error || reply.detected === false) {
+        reportSorterEvent({ command, sent: true, response: reply });
+      }
       if (!reply) {
         pause("feed-failed");
         return;
@@ -584,7 +605,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       }
       onCardArrivedRef.current();
     },
-    [pause],
+    [pause, reportSorterEvent],
   );
 
   const triggerFeed = useCallback(() => {
@@ -605,6 +626,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   useSorterMessage((message) => {
     const fields = message as SerialReply | null;
     if (fields?.error === SERIAL_JAM_ERROR && runningRef.current) {
+      reportSorterEvent({ command: "jam", sent: true, response: fields });
       pause("jam", fields.module != null ? String(fields.module) : undefined);
       return;
     }
@@ -664,7 +686,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     setPhase("feeding");
     const reply = await latestRef.current.sorter.feed();
     if (!reply || reply.empty || reply.error || reply.detected === false) {
-      handleFeedResult(reply);
+      handleFeedResult(reply, "feeder");
       return;
     }
     await runCapture();

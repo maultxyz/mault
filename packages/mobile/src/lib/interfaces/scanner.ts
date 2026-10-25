@@ -8,6 +8,8 @@ import type {
   ScanAttemptResult,
   ScanRegion,
   ScannedCard,
+  SerialCommand,
+  SerialEventReport,
   UnmatchedCard,
   UnmatchedScanDetails,
 } from "@magic-vault/shared";
@@ -247,3 +249,12 @@ export interface PhoneCameraResponder {
 export interface QrScanner {
   outputs: CameraOutput[];
 }
+
+export interface RoutedCardTarget {
+  binNumber: number;
+  cardName?: string;
+}
+
+export type FeedCommand = Extract<SerialCommand, "feeder" | "auto-feed">;
+
+export type SorterEventDetails = Omit<SerialEventReport, "collectionGuid" | "deviceGuid">;
