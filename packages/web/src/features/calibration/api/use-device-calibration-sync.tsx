@@ -33,6 +33,7 @@ import {
   DEFAULT_CHANNEL_LAYOUT,
   isFirmwareFeatureSupported,
   type ModuleConfig,
+  parseSerialReply,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -73,14 +74,7 @@ export function DeviceCalibrationSyncProvider({
   const request = useCallback(
     async (command: object, timeoutMs?: number) => {
       const { line } = await sendRequest(command, timeoutMs);
-      let parsed: Record<string, unknown> | null = null;
-      try {
-        const value: unknown = line ? JSON.parse(line) : null;
-        if (value && typeof value === "object") {
-          parsed = value as Record<string, unknown>;
-        }
-      } catch {}
-      return { line, parsed };
+      return { line, parsed: parseSerialReply(line) };
     },
     [sendRequest],
   );

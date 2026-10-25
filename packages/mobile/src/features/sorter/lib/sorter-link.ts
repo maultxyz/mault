@@ -1,4 +1,5 @@
 import {
+  parseSerialReply,
   SERIAL_SEQ_MAX,
   isBootBanner,
   isBusyResponse,
@@ -27,17 +28,6 @@ import type {
   SorterMessageListener,
 } from "@/lib/interfaces/sorter";
 import { encodeUtf8, Utf8StreamDecoder } from "./bytes";
-
-function parseObject(line: string): SorterMessage | null {
-  try {
-    const value: unknown = JSON.parse(line);
-    return value && typeof value === "object" && !Array.isArray(value)
-      ? (value as SorterMessage)
-      : null;
-  } catch {
-    return null;
-  }
-}
 
 export class SorterLink {
   private transport: ByteTransport | null = null;
@@ -221,7 +211,7 @@ export class SorterLink {
 
   async sendParsed(command: object, timeoutMs?: number): Promise<SorterMessage | null> {
     const { line } = await this.sendRequest(command, timeoutMs);
-    return line ? parseObject(line) : null;
+    return parseSerialReply(line) as SorterMessage | null;
   }
 
   async sendAwaited(payload: object, timeoutMs: number): Promise<SorterMessage | null> {

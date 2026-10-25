@@ -1,6 +1,7 @@
 import { getRequestAuth } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/api";
 import {
+  parseSerialReply,
   SORTER_LINK_CLIENT_PATH,
   SORTER_LINK_DEVICE_PATH,
   type CloudLinkState,
@@ -31,20 +32,16 @@ export async function sorterLinkClientUrl(
 }
 
 export function parseWifiStatus(line: string): SorterWifiStatus | null {
-  try {
-    const parsed = JSON.parse(line) as Record<string, unknown>;
-    if (typeof parsed.wifi !== "string" || typeof parsed.cloud !== "string") {
-      return null;
-    }
-    return {
-      wifi: parsed.wifi as WifiLinkState,
-      ssid: typeof parsed.ssid === "string" ? parsed.ssid : null,
-      ip: typeof parsed.ip === "string" ? parsed.ip : null,
-      rssi: typeof parsed.rssi === "number" ? parsed.rssi : null,
-      cloud: parsed.cloud as CloudLinkState,
-      host: typeof parsed.host === "string" ? parsed.host : null,
-    };
-  } catch {
+  const parsed = parseSerialReply(line);
+  if (typeof parsed?.wifi !== "string" || typeof parsed.cloud !== "string") {
     return null;
   }
+  return {
+    wifi: parsed.wifi as WifiLinkState,
+    ssid: typeof parsed.ssid === "string" ? parsed.ssid : null,
+    ip: typeof parsed.ip === "string" ? parsed.ip : null,
+    rssi: typeof parsed.rssi === "number" ? parsed.rssi : null,
+    cloud: parsed.cloud as CloudLinkState,
+    host: typeof parsed.host === "string" ? parsed.host : null,
+  };
 }
