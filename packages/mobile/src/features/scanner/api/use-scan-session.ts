@@ -60,10 +60,7 @@ import type {
   ScanSessionValue,
 } from "@/lib/interfaces/scanner";
 import type { SorterMessage } from "@/lib/interfaces/sorter";
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { delay } from "@/lib/delay";
 
 export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue {
   const queryClient = useQueryClient();
