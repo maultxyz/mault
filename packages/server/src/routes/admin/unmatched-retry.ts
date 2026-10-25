@@ -1,4 +1,5 @@
 import {
+  PLATFORM_STAFF_ROLES,
   CLOSE_MATCH_DELTA,
   OCR_REGIONS_BY_GAME_KEY,
   type AdminUnmatchedOcrResult,
@@ -189,7 +190,7 @@ async function retryScan(
 }
 
 export const unmatchedRetryRoute = new Hono<AppEnv>()
-  .get("/unmatched", requireAuth, requireRole("admin"), async (c) => {
+  .get("/unmatched", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     try {
       const rows = await db
         .select({
@@ -255,7 +256,7 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Database error." }, 500);
     }
   })
-  .post("/unmatched/retry", requireAuth, requireRole("admin"), async (c) => {
+  .post("/unmatched/retry", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const { scanIds, withOcr = false } =
       await c.req.json<AdminUnmatchedRetryRequest>();
     if (!Array.isArray(scanIds) || scanIds.length === 0) {
@@ -308,7 +309,7 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
   .post(
     "/unmatched/:scanId/ocr",
     requireAuth,
-    requireRole("admin"),
+    requireRole(...PLATFORM_STAFF_ROLES),
     async (c) => {
       const scanId = c.req.param("scanId");
       try {

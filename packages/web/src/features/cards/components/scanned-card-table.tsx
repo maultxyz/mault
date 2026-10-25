@@ -17,6 +17,7 @@ import {
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
+import { useShiftClick } from "@/hooks/use-shift-click";
 import { RARITY_LABELS } from "@/lib/constants/rarity";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { ScannedCardTableProps } from "@/lib/interfaces/cards";
@@ -38,6 +39,7 @@ export function ScannedCardTable({
 }: ScannedCardTableProps) {
   const { t } = useTranslation("cards");
   const { priceOf, format } = usePriceSource();
+  const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
   const selectable = !!onToggleSelect;
   const selectedCount = rows.filter((row) => row.isSelected).length;
   const allSelected = rows.length > 0 && selectedCount === rows.length;
@@ -103,21 +105,15 @@ export function ScannedCardTable({
               {onToggleSelect && (
                 <TableCell
                   onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => {
-                    if (e.shiftKey) e.preventDefault();
-                  }}
+                  onMouseDown={onSelectMouseDown}
                 >
                   <Checkbox
                     aria-label={t("scannedCardTable.selectRow", {
                       name: card.name,
                     })}
                     checked={!!row.isSelected}
-                    onCheckedChange={(_, details) =>
-                      onToggleSelect(row, {
-                        shiftKey:
-                          "shiftKey" in details.event &&
-                          details.event.shiftKey === true,
-                      })
+                    onCheckedChange={() =>
+                      onToggleSelect(row, { shiftKey: consumeShift() })
                     }
                   />
                 </TableCell>

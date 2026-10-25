@@ -297,7 +297,7 @@ export function AppNav() {
     githubStars != null
       ? `${t("nav.githubAriaLabel")} (${t("nav.githubStars", { count: githubStars })})`
       : t("nav.githubAriaLabel");
-  const { isAdmin } = useRole();
+  const { isStaff } = useRole();
   const { collections, activeCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
 
@@ -381,7 +381,7 @@ export function AppNav() {
       icon: <IconAdjustments size={20} />,
       label: t("nav.calibrate"),
     },
-    ...(isAdmin
+    ...(isStaff
       ? [
           {
             to: "/app/admin",

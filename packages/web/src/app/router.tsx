@@ -205,10 +205,17 @@ function AppChunkPreloader() {
   return null;
 }
 
+function StaffGuard() {
+  const { isStaff, isPending } = useRole();
+  if (isPending) return null;
+  if (!isStaff) return <Navigate to="/app" replace />;
+  return <Outlet />;
+}
+
 function AdminGuard() {
   const { isAdmin, isPending } = useRole();
   if (isPending) return null;
-  if (!isAdmin) return <Navigate to="/app" replace />;
+  if (!isAdmin) return <Navigate to="/app/admin" replace />;
   return <Outlet />;
 }
 
@@ -401,7 +408,7 @@ export const router = createBrowserRouter([
                     element: <Navigate to={STATS_PATH} replace />,
                   },
                   {
-                    element: <AdminGuard />,
+                    element: <StaffGuard />,
                     children: [
                       {
                         path: "/app/admin",
@@ -432,8 +439,13 @@ export const router = createBrowserRouter([
                             element: <AdminUsersPage />,
                           },
                           {
-                            path: "plans",
-                            element: <AdminPlansPage />,
+                            element: <AdminGuard />,
+                            children: [
+                              {
+                                path: "plans",
+                                element: <AdminPlansPage />,
+                              },
+                            ],
                           },
                           {
                             path: "discord",
@@ -456,8 +468,13 @@ export const router = createBrowserRouter([
                             element: <Navigate to="../deleted" replace />,
                           },
                           {
-                            path: "hardware",
-                            element: <AdminHardwarePage />,
+                            element: <AdminGuard />,
+                            children: [
+                              {
+                                path: "hardware",
+                                element: <AdminHardwarePage />,
+                              },
+                            ],
                           },
                           {
                             path: "servos",
@@ -468,8 +485,13 @@ export const router = createBrowserRouter([
                             element: <Navigate to="../hardware" replace />,
                           },
                           {
-                            path: "developer",
-                            element: <AdminDeveloperPage />,
+                            element: <AdminGuard />,
+                            children: [
+                              {
+                                path: "developer",
+                                element: <AdminDeveloperPage />,
+                              },
+                            ],
                           },
                         ],
                       },

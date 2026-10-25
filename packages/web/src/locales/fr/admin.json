@@ -168,6 +168,8 @@
     "noOrgs": "Aucune organisation",
     "adminBadge": "Admin",
     "cannotImpersonateAdmin": "Impossible d'emprunter l'identité d'un autre admin",
+    "moderatorBadge": "Modérateur",
+    "cannotImpersonateModerator": "Impossible d'emprunter l'identité d'un autre modérateur",
     "impersonateButton": "Emprunter l'identité",
     "viewAuditLog": "Voir le journal d'audit des emprunts d'identité",
     "confirmDialog": {

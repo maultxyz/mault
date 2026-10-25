@@ -16,13 +16,13 @@ import { useTranslation } from "react-i18next";
 
 export function KeyboardShortcutsButton() {
   const { t } = useTranslation("common");
-  const { isAdmin } = useRole();
+  const { isStaff } = useRole();
   const [open, setOpen] = useState(false);
 
   useHotkeys({ showShortcuts: () => setOpen(true) });
 
   const ids = (Object.keys(HOTKEYS) as HotkeyId[]).filter(
-    (id) => isAdmin || id !== "goAdmin",
+    (id) => isStaff || id !== "goAdmin",
   );
 
   return (

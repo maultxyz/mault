@@ -37,6 +37,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Org routes: `requireAuth` -> `requireOrg` (`X-Org-Id`, rebuilds `jwtClaims` with `org_id`) -> `requireRole`/`requireOrgRole`. `routes/stream.ts` (SSE, `?token=`/`?orgId=`) rebuilds the same claims itself; without `org_id` every `orgRls` table reads empty.
 - DB access: `authQuery(jwtClaims, tx => ...)` for anything user-scoped (sets `request.jwt.claims`, plus `SET LOCAL ROLE authenticated` in local mode). Plain `db` only for intentional RLS bypass (sync job, webhooks, bootstrap, stats). New user/org tables use `.enableRLS()` + `crudPolicy` like `db/schema.ts`, and need grants in `db/bootstrap-local.sql` for local mode.
 - Web: `VITE_AUTH_PROVIDER` selects the client via module-level ternaries, not runtime branching in shared hooks. Email verification, profile/password, multi-session and social sign-in are Neon-only.
+- Platform roles (`neon_auth.user.role` / `platform_user_roles.role`): `admin`, `moderator`, else user. Moderator routes use `requireRole(...PLATFORM_STAFF_ROLES)` (games, announcements, Discord, deleted/unmatched, impersonation); card sync, plans, hardware, developer and scan stats stay `requireRole("admin")`. Web: `useRole().isStaff` gates `/app/admin`, `AdminGuard` plus `adminOnly` in `ADMIN_SECTIONS` gate admin-only pages. Moderators can't impersonate admins or moderators.
 - A 403 signs the web client out, so owner/admin checks on pages members can reach are done inline rather than with `requireOrgRole`.
 
 ### Public API, webhooks
