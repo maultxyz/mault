@@ -9,14 +9,21 @@ pnpm install
 pnpm dev                                       # Vite :5173 + Hono :3001 (+ api-docs :5174)
 pnpm build                                     # tsup (server), tsc -b + vite build (web)
 pnpm --filter @magic-vault/web lint            # only package with a lint script
-pnpm --filter @magic-vault/server db:generate  # migration from schema.ts changes (db:migrate, db:push for local iteration)
+
+pnpm --filter @magic-vault/server test         # node:test via tsx, tests/*.test.ts
+pnpm --filter @magic-vault/web test            # Vitest + jsdom + Testing Library
+
+pnpm --filter @magic-vault/server db:generate  # migration from schema.ts changes
+pnpm --filter @magic-vault/server db:migrate
+pnpm --filter @magic-vault/server db:push      # local iteration only
+pnpm --filter @magic-vault/server db:studio
 pnpm --filter @magic-vault/api-docs openapi    # regenerate packages/api-docs/public/openapi.json
 pnpm --filter @magic-vault/web model           # STEP -> public/models/card-sorter.glb
 pnpm --filter @magic-vault/mobile start        # Expo dev server (see packages/mobile/README.md)
 pnpm --filter @magic-vault/desktop start       # Electron shell against MAULT_URL
 ```
 
-No automated tests. Type-check through the web build (`tsc -b`) and editor diagnostics. Migrations: `CONTRIBUTING.md`. Env and self-hosting: `README.md`.
+Tests run in Build Check (`build-check.yml`): server `tests/*.test.ts` (node:test) and web `src/**/*.test.{ts,tsx}` (Vitest, own `vitest.config.ts` so tests skip the PWA/Tailwind plugins; CI is Node 20, so test deps must support it). Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Every change: keep all surfaces in sync
 

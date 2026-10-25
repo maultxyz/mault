@@ -19,7 +19,7 @@ services:
       retries: 20
     restart: unless-stopped
   server:
-    image: ghcr.io/dishwasher-detergent/mault-server:${MAULT_IMAGE_TAG:-latest}
+    image: ghcr.io/maultxyz/mault-server:${MAULT_IMAGE_TAG:-latest}
     depends_on:
       postgres:
         condition: service_healthy
@@ -82,7 +82,7 @@ services:
       retries: 5
       start_period: 120s
   web:
-    image: ghcr.io/dishwasher-detergent/mault-web:${MAULT_IMAGE_TAG:-latest}
+    image: ghcr.io/maultxyz/mault-web:${MAULT_IMAGE_TAG:-latest}
     environment:
       VITE_API_URL: ${VITE_API_URL:-}
       VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-local}
@@ -109,7 +109,7 @@ services:
       timeout: 5s
       retries: 3
   bot:
-    image: ghcr.io/dishwasher-detergent/mault-bot:${MAULT_IMAGE_TAG:-latest}
+    image: ghcr.io/maultxyz/mault-bot:${MAULT_IMAGE_TAG:-latest}
     environment:
       SERVER_URL: ${DOCKER_SERVER_URL:-http://server:3001}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
