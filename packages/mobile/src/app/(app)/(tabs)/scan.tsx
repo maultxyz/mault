@@ -120,7 +120,9 @@ export default function ScanScreen() {
   useEffect(() => {
     if (!session.isRunning) return;
     void activateKeepAwakeAsync();
-    return () => deactivateKeepAwake();
+    return () => {
+      void deactivateKeepAwake();
+    };
   }, [session.isRunning]);
 
   if (!permission.hasPermission) {

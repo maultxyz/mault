@@ -27,6 +27,9 @@ export interface SettingsSectionLink {
     | "/settings/pricing"
     | "/settings/organization"
     | "/settings/billing"
+    | "/settings/sounds"
+    | "/settings/notifications"
+    | "/settings/webhooks"
     | "/settings/integrations";
   key: string;
   icon: IconName;
