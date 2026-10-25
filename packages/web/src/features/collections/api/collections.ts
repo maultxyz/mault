@@ -6,7 +6,21 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import type { AddManualCardRequest, CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, SortOnlyScanRequest, UnmatchedCard, UnmatchedCardsPage } from "@magic-vault/shared";
+import {
+  type AddManualCardRequest,
+  type CardCondition,
+  type CardScanOrigin,
+  type Collection,
+  type CreateCollectionFormValues,
+  type IdentifyUnmatchedCardRequest,
+  type MatchedScanDiagnostics,
+  type Result,
+  SCAN_SAVE_ACCEPTED_STATUSES,
+  type ScannedCard,
+  type SortOnlyScanRequest,
+  type UnmatchedCard,
+  type UnmatchedCardsPage,
+} from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import type {
   CardSaveResult,
@@ -15,8 +29,6 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { queryOptions } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
-import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
-import { SCAN_SAVE_ACCEPTED_STATUSES } from "@magic-vault/shared";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
   return apiGet<Result<Collection[]>>("/api/collections");

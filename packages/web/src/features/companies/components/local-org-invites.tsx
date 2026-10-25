@@ -15,10 +15,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useOrgLocal } from "@/features/companies/api/use-organization.local";
 import { apiGet } from "@/lib/api/client";
 import { localDelete, localPost } from "@/lib/auth/local-api";
-import {
-  orgInviteSchema,
-  type OrgInviteFormValues,
-} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconCopy,
@@ -32,6 +28,10 @@ import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 import type { LocalOrgInvitation } from "@/lib/interfaces/auth";
 import { copyWithToast } from "@/lib/clipboard";
+import {
+  organizationInviteFormSchema,
+  type OrganizationInviteFormValues,
+} from "@magic-vault/shared";
 
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(undefined, {
@@ -52,8 +52,8 @@ export function LocalOrgInvites() {
 
   const canManage = activeOrg?.role === "owner" || activeOrg?.role === "admin";
 
-  const form = useForm<OrgInviteFormValues>({
-    resolver: zodResolver(orgInviteSchema),
+  const form = useForm<OrganizationInviteFormValues>({
+    resolver: zodResolver(organizationInviteFormSchema),
     defaultValues: { email: "", role: "member" },
   });
 
@@ -79,7 +79,7 @@ export function LocalOrgInvites() {
     load();
   }, [load]);
 
-  async function handleInvite({ email, role }: OrgInviteFormValues) {
+  async function handleInvite({ email, role }: OrganizationInviteFormValues) {
     try {
       const res = await localPost<{
         success: boolean;

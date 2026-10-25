@@ -23,15 +23,12 @@
   "password": {
     "heading": "Password",
     "currentLabel": "Current password",
-    "currentRequired": "Enter your current password",
     "newLabel": "New password",
     "confirmLabel": "Confirm new password",
     "revokeOtherSessions": "Sign out of all other devices",
     "submit": "Update password",
     "updated": "Password updated",
-    "updateFailed": "Couldn't update your password",
-    "mismatch": "Passwords don't match",
-    "tooShort": "Must be at least 8 characters"
+    "updateFailed": "Couldn't update your password"
   },
   "sessions": {
     "heading": "Sessions",

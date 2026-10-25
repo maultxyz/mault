@@ -27,10 +27,6 @@ import {
 } from "@/lib/constants/collections";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import {
-  editCollectionSchema,
-  type EditCollectionFormValues,
-} from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconAlbum,
@@ -45,6 +41,10 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import {
+  renameCollectionFormSchema,
+  type RenameCollectionFormValues,
+} from "@magic-vault/shared";
 
 export default function CollectionsPage() {
   const { t } = useTranslation("collections");
@@ -176,7 +176,7 @@ export default function CollectionsPage() {
   } | null>(null);
 
   const editForm = useForm({
-    resolver: zodResolver(editCollectionSchema),
+    resolver: zodResolver(renameCollectionFormSchema),
     defaultValues: { name: editTarget?.name ?? "" },
     mode: "onChange",
   });
@@ -206,7 +206,7 @@ export default function CollectionsPage() {
   }, [editTarget, editNameValue, editNameCheck, editForm, t]);
 
   const handleEditSubmit = useCallback(
-    async (values: EditCollectionFormValues) => {
+    async (values: RenameCollectionFormValues) => {
       if (!editTarget) return;
       await updateCollection(editTarget.guid, values.name);
       setEditTarget(null);

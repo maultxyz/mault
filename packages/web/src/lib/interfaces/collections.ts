@@ -1,11 +1,11 @@
 import type {
+  CreateCollectionFormValues,
   MonitorLinkInfo,
   Collection,
   DeployNotice,
   SyncState,
 } from "@magic-vault/shared";
 import type { ReactElement } from "react";
-import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 
 export interface ScanLockInfo {
   userId: string;

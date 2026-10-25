@@ -22,8 +22,6 @@
     "saveName": "Save name",
     "cancelRename": "Cancel",
     "renameFailed": "Couldn't rename the sound clip.",
-    "nameRequired": "Give the clip a name.",
-    "nameTooLong": "Keep the name to 60 characters or fewer.",
     "stop": "Stop {{name}}"
   },
   "rules": {
@@ -56,11 +54,6 @@
     "conditions": "Conditions",
     "cancel": "Cancel",
     "save": "Save",
-    "saveFailed": "Couldn't save the sound rule.",
-    "validation": {
-      "nameRequired": "Give the rule a name.",
-      "clipRequired": "Choose a sound clip.",
-      "conditionsRequired": "Add at least one condition."
-    }
+    "saveFailed": "Couldn't save the sound rule."
   }
 }

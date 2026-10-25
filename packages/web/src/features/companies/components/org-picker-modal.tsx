@@ -2,10 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { createOrganization } from "@/lib/auth";
-import {
-  organizationNameSchema,
-  type OrganizationNameFormValues,
-} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconBuilding, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
@@ -13,6 +9,10 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 import { useOrg } from "../api/use-organization";
+import {
+  organizationNameFormSchema,
+  type OrganizationNameFormValues,
+} from "@magic-vault/shared";
 
 export function OrgPickerModal() {
   const { t } = useTranslation("companies");
@@ -20,7 +20,7 @@ export function OrgPickerModal() {
   const { orgs, activeOrg, isLoading, setActiveOrg } = useOrg();
 
   const form = useForm<OrganizationNameFormValues>({
-    resolver: zodResolver(organizationNameSchema),
+    resolver: zodResolver(organizationNameFormSchema),
     defaultValues: { name: "" },
   });
 

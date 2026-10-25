@@ -84,12 +84,7 @@
     "conditions": "Conditions",
     "cancel": "Cancel",
     "save": "Save",
-    "saveFailed": "Couldn't save the notification rule.",
-    "validation": {
-      "nameRequired": "Give the rule a name.",
-      "channelRequired": "Choose a channel.",
-      "conditionsRequired": "Add at least one condition."
-    }
+    "saveFailed": "Couldn't save the notification rule."
   },
   "draft": {
     "saved": "Discord settings saved.",
@@ -146,11 +141,9 @@
     "saved": "Webhook saved.",
     "saveFailed": "Couldn't save the webhook.",
     "urlLabel": "URL",
-    "invalidUrl": "Enter a public https:// URL.",
     "descriptionLabel": "Name (optional)",
     "descriptionPlaceholder": "Online shop",
     "eventsLabel": "Events",
-    "eventsRequired": "Pick at least one event.",
     "events": {
       "card": {
         "scanned": "A card was scanned and saved to a collection."

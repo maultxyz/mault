@@ -23,10 +23,10 @@ import { WebhooksSection } from "@/features/integrations/components/webhooks-sec
 import { API_REFERENCE_URL, PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import {
-  orgApiKeySchema,
+  type OrgApiKey,
+  orgApiKeyFormSchema,
   type OrgApiKeyFormValues,
-} from "@/schemas/org-api-key.schema";
-import type { OrgApiKey } from "@magic-vault/shared";
+} from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconApi,
@@ -53,7 +53,7 @@ export function ApiKeysIntegration() {
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
 
   const form = useForm<OrgApiKeyFormValues>({
-    resolver: zodResolver(orgApiKeySchema),
+    resolver: zodResolver(orgApiKeyFormSchema),
     defaultValues: { name: "", allowWrite: false },
   });
 
