@@ -40,13 +40,6 @@ export function storedCardPriceSql(
   >`${storedCardPriceSelect(cols, sql.raw(`cp.${CARD_PRICE_COLUMNS[key]}`))}`;
 }
 
-export function storedCardPriceDetailSql(
-  path: SQL,
-  cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
-): SQL {
-  return storedCardPriceSelect(cols, sql`cp.details #> ${path}`);
-}
-
 function savedCardPriceSql(
   key: CardPriceKey,
   cols: ScannedCardSqlColumns,

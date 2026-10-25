@@ -67,7 +67,3 @@ export async function renameStorageLocation(guid: string, name: string): Promise
 export async function deleteStorageLocation(guid: string): Promise<void> {
   check(await apiDelete<Result<unknown>>(`/api/storage-locations/${guid}`));
 }
-
-export async function removeCardFromStorageLocation(guid: string, scanId: string): Promise<void> {
-  check(await apiDelete<Result<unknown>>(`/api/storage-locations/${guid}/cards/${scanId}`));
-}

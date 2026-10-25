@@ -267,7 +267,6 @@ export interface OptionSheetProps {
   title: string;
   options: OptionItem[];
   selected: string[];
-  multiple?: boolean;
   onSelect: (value: string) => void;
   onClose: () => void;
 }

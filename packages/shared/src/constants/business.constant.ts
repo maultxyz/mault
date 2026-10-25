@@ -1,11 +1,8 @@
 import type {
-  AccuracyCheckStatus,
   ActivityAction,
   BuylistConfig,
   BusinessPermissions,
-  FulfilmentOrderStatus,
   IntakeCollectionMode,
-  IntakeLotStatus,
   IntakePayoutMethod,
   OrderSource,
 } from "../interfaces/business.interface";
@@ -41,11 +38,6 @@ export const DEFAULT_BUSINESS_PERMISSIONS: BusinessPermissions = {
   viewActivity: false,
 };
 
-export const INTAKE_LOT_STATUSES: readonly IntakeLotStatus[] = [
-  "open",
-  "accepted",
-  "cancelled",
-];
 export const INTAKE_PAYOUT_METHODS: readonly IntakePayoutMethod[] = [
   "cash",
   "credit",
@@ -65,11 +57,6 @@ export const ORDER_SOURCES: readonly OrderSource[] = [
   "tcgplayer",
   "shopify",
   "generic",
-];
-export const FULFILMENT_ORDER_STATUSES: readonly FulfilmentOrderStatus[] = [
-  "open",
-  "fulfilled",
-  "cancelled",
 ];
 export const ORDER_NAME_MAX_LENGTH = 120;
 export const ORDER_LINES_MAX = 2000;
@@ -160,10 +147,6 @@ export const DEVICE_MAINTENANCE_INTERVAL_MIN = 100;
 export const DEVICE_MAINTENANCE_INTERVAL_MAX = 10_000_000;
 export const DEVICE_MAINTENANCE_DUE_RATIO = 0.9;
 
-export const ACCURACY_CHECK_STATUSES: readonly AccuracyCheckStatus[] = [
-  "open",
-  "completed",
-];
 export const ACCURACY_SAMPLE_SIZES = [20, 50, 100] as const;
 export const ACCURACY_DEFAULT_SAMPLE_SIZE = 50;
 export const ACCURACY_CHECKS_LIST_LIMIT = 50;

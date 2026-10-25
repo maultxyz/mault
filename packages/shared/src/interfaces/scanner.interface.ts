@@ -78,12 +78,6 @@ export interface CardScannerProps {
   controlsPosition?: "bottom" | "side";
 }
 
-export interface CardMatch {
-  id: number;
-  cardId: string;
-  distance: number;
-}
-
 export type ScanVectorizeSource = "server" | "web";
 
 export interface ScannedCard {
