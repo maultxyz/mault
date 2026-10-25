@@ -23,10 +23,6 @@ export async function getDevices(): Promise<Result<Device[]>> {
   return apiGet<Result<Device[]>>("/api/devices");
 }
 
-export async function createDevice(name?: string): Promise<Result<Device>> {
-  return apiPost<Result<Device>>("/api/devices", name ? { name } : undefined);
-}
-
 export async function resolveDevice(
   hardwareId: string,
 ): Promise<Result<Device>> {

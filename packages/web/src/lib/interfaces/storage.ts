@@ -17,7 +17,6 @@ export interface StorageLocationSelectProps {
   onChange: (value: string) => void;
   id?: string;
   invalid?: boolean;
-  includeNone?: boolean;
 }
 
 export interface EmptyAllBinsDialogProps {

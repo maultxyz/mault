@@ -54,8 +54,6 @@ export const MOBILE_CARD_CLASS = "overflow-hidden rounded-lg bg-muted";
 export const MOBILE_HERO_LABEL_CLASS = "text-sm font-medium text-foreground/70";
 export const MOBILE_HERO_VALUE_CLASS =
   "truncate font-heading text-4xl leading-tight font-bold tracking-tight tabular-nums text-foreground";
-export const MOBILE_CHIP_CLASS =
-  "inline-flex max-w-full items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-foreground";
 export const THEME_OPTIONS = ["light", "dark", "system"] as const;
 export const MOBILE_HOME_PATH = "/app/monitor";
 export const MOBILE_SCAN_PATH = "/app/scan";

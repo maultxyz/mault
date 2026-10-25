@@ -5,7 +5,6 @@ import type {
   SetupIntroPart,
   SetupIrSeen,
   SetupServoPosition,
-  Device,
   CalibrationSection,
   DirectionalSpeed,
 } from "@/lib/interfaces/calibration";
@@ -26,12 +25,6 @@ import {
   type FeederCalibration,
   type FirmwareFeature,
   type ServoCalibration,
-  DEFAULT_CAPTURE_SETTLE_DELAY_MS,
-  DEFAULT_CHANNEL_LAYOUT,
-  DEFAULT_CHECK_BOTH_ORIENTATIONS,
-  DEFAULT_MATCHES_NEEDED,
-  DEFAULT_MODULE_COUNT,
-  DEFAULT_SCAN_REGION,
 } from "@magic-vault/shared";
 
 export const SERVO_CALIBRATION_FIELDS: (keyof ServoCalibration)[] = [
@@ -248,26 +241,6 @@ export const DEVICE_TOGGLE_KEYS: DeviceToggleKey[] = [
   "testOnConnect",
   "pipelinedFeed",
 ];
-
-export const DEFAULT_DEVICE: Device = {
-  guid: "",
-  name: "Card Sorter",
-  hardwareId: null,
-  scanRegion: DEFAULT_SCAN_REGION,
-  captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
-  matchesNeeded: DEFAULT_MATCHES_NEEDED,
-  feederStopPulse: null,
-  checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
-  flipCamera: false,
-  moduleCount: DEFAULT_MODULE_COUNT,
-  channelLayout: DEFAULT_CHANNEL_LAYOUT,
-  setupCompletedAt: null,
-  pipelinedFeed: false,
-  autoConnect: false,
-  testOnConnect: true,
-  createdAt: "",
-  updatedAt: "",
-};
 
 export const CALIBRATION_SECTION_PATHS: Record<CalibrationSection, string> = {
   connection: "connection",
