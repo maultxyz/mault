@@ -24,6 +24,7 @@ import {
   normalizeOverflowBins,
   toBinPickList,
 } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editBinRoute = new Hono<AppEnv>().put(
   "/bins/:binNumber",
@@ -200,8 +201,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

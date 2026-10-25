@@ -15,6 +15,7 @@ import {
   hashSorterLinkToken,
 } from "../../lib/sorter-link";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const listSorterLinksRoute = new Hono<AppEnv>().get(
   "/sorter-links",
@@ -38,8 +39,7 @@ export const listSorterLinksRoute = new Hono<AppEnv>().get(
         ),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );
@@ -72,8 +72,7 @@ export const createSorterLinkRoute = new Hono<AppEnv>().post(
       const data: SorterLinkCredentials = { token, url: getSorterLinkUrl() };
       return c.json({ success: true, message: "Created sorter link.", data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );
@@ -101,8 +100,7 @@ export const deleteSorterLinkRoute = new Hono<AppEnv>().delete(
       closeDeviceLink(guid, SORTER_LINK_CLOSE_REVOKED);
       return c.json({ success: true, message: "Removed sorter link." });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

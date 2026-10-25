@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { collections } from "../../db/schema";
 import { getLocksForGuids } from "../../lib/scan-lock";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // GET /collections/locks — returns { [guid]: ScanLock } for collections currently locked by a scanner
 export const locksRoute = new Hono<AppEnv>().get(
@@ -24,8 +25,7 @@ export const locksRoute = new Hono<AppEnv>().get(
       const data = getLocksForGuids(guids.map((r) => r.guid!).filter(Boolean));
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

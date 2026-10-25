@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { db } from "../../db";
 import { cardImageVectors, games } from "../../db/schema";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const gameCoverageRoute = new Hono<AppEnv>().get("/coverage", requireAuth, async (c) => {
   try {
@@ -52,7 +53,6 @@ export const gameCoverageRoute = new Hono<AppEnv>().get("/coverage", requireAuth
 
     return c.json({ success: true, data });
   } catch (err) {
-    console.error(err);
-    return c.json({ success: false, message: "Database error." }, 500);
+    return databaseErrorResponse(c, err);
   }
 });

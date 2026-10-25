@@ -5,6 +5,7 @@ import { binHeightAudit, binHeights } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toBinHeight } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editBinHeightRoute = new Hono<AppEnv>().put(
   "/:binNumber",
@@ -51,8 +52,7 @@ export const editBinHeightRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

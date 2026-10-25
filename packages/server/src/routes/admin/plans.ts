@@ -9,6 +9,7 @@ import {
 } from "../../lib/plan-config";
 import { isBillingEnabled } from "../../lib/stripe";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function toResponse(config = getPlanConfig()): AdminPlanConfigResponse {
   return {
@@ -26,8 +27,7 @@ export const plansRoute = new Hono<AppEnv>()
         data: toResponse(await refreshPlanConfig()),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .put("/plans", requireAuth, requireRole("admin"), async (c) => {
@@ -41,7 +41,6 @@ export const plansRoute = new Hono<AppEnv>()
         data: toResponse(await savePlanConfig(config)),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   });

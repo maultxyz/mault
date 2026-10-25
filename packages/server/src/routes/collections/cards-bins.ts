@@ -8,6 +8,7 @@ import {
   loadBinCounts,
   parseBinWindows,
 } from "./cards-query";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function binsHandler<T>(
   load: (
@@ -31,8 +32,7 @@ function binsHandler<T>(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   };
 }

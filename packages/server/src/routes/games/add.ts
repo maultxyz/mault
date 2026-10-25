@@ -7,6 +7,7 @@ import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken, toGame } from "./shared";
 import type { GameInput } from "@magic-vault/shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addGameRoute = new Hono<AppEnv>().post(
   "/",
@@ -74,8 +75,7 @@ export const addGameRoute = new Hono<AppEnv>().post(
           409,
         );
       }
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

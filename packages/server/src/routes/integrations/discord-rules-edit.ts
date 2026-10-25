@@ -5,6 +5,7 @@ import { notificationRules } from "../../db/schema";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { checkRuleTargets, notificationRuleInputSchema } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editNotificationRuleRoute = new Hono<AppEnv>().put(
   "/discord/rules/:guid",
@@ -76,8 +77,7 @@ export const editNotificationRuleRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

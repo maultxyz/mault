@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { resolveScanImageUrl } from "../../lib/scan-images";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // GET /collections/:guid/cards/:scanId/image — the scanned photo, fetched on
 // demand for the card detail view only; the bulk card list/session_init
@@ -29,8 +30,7 @@ export const collectionCardImageRoute = new Hono<AppEnv>().get(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

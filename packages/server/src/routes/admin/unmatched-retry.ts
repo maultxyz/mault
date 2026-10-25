@@ -36,6 +36,7 @@ import {
   findCardMatches,
   findCardMatchesByOcr,
 } from "../card/shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 const liveScans = and(
   eq(unmatchedCards.isDeleted, false),
@@ -252,8 +253,7 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
       );
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post("/unmatched/retry", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
@@ -302,8 +302,7 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
       }
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post(

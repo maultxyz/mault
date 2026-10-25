@@ -50,6 +50,7 @@ import {
   storedCardsWhere,
   toStoredCard,
 } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 const router = new Hono<AppEnv>()
   .get("/", requireAuth, requireOrg, async (c) => {
@@ -60,8 +61,7 @@ const router = new Hono<AppEnv>()
       );
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get("/page", requireAuth, requireOrg, async (c) => {
@@ -85,8 +85,7 @@ const router = new Hono<AppEnv>()
       );
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get("/search", requireAuth, requireOrg, async (c) => {
@@ -157,8 +156,7 @@ const router = new Hono<AppEnv>()
       }));
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get("/:guid", requireAuth, requireOrg, async (c) => {
@@ -176,8 +174,7 @@ const router = new Hono<AppEnv>()
       }
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post("/", requireAuth, requireOrg, async (c) => {
@@ -213,8 +210,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .put("/:guid", requireAuth, requireOrg, async (c) => {
@@ -248,8 +244,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .delete("/:guid", requireAuth, requireOrg, async (c) => {
@@ -273,8 +268,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get("/:guid/cards", requireAuth, requireOrg, async (c) => {
@@ -294,8 +288,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get("/:guid/cards/page", requireAuth, requireOrg, async (c) => {
@@ -339,8 +332,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get("/:guid/cards/next-unreviewed", requireAuth, requireOrg, async (c) => {
@@ -368,8 +360,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get("/:guid/cards/:scanId/context", requireAuth, requireOrg, async (c) => {
@@ -421,8 +412,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .get("/:guid/cards/export", requireAuth, requireOrg, async (c) => {
@@ -476,8 +466,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post("/:guid/cards/from-collection", requireAuth, requireOrg, async (c) => {
@@ -543,8 +532,7 @@ const router = new Hono<AppEnv>()
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post("/:guid/cards", requireAuth, requireOrg, async (c) => {
@@ -607,8 +595,7 @@ const router = new Hono<AppEnv>()
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .delete("/:guid/cards/:scanId", requireAuth, requireOrg, async (c) => {
@@ -646,8 +633,7 @@ const router = new Hono<AppEnv>()
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   });
 

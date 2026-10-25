@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { orgApiKeys } from "../../db/schema";
 import { API_KEY_MANAGER_ROLES } from "../../lib/constants/api-keys";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const revokeApiKeyRoute = new Hono<AppEnv>().delete(
   "/:guid",
@@ -37,8 +38,7 @@ export const revokeApiKeyRoute = new Hono<AppEnv>().delete(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

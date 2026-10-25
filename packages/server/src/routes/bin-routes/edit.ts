@@ -5,6 +5,7 @@ import { binRouteAudit, binRoutes } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { buildRoutes } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editBinRouteRoute = new Hono<AppEnv>().put(
   "/:binNumber",
@@ -49,8 +50,7 @@ export const editBinRouteRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

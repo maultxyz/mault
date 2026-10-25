@@ -5,6 +5,7 @@ import { collections } from "../../db/schema";
 import { emitToOrg } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { collectionNameTaken, loadCollections } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // POST /collections — create and activate
 export const addCollectionRoute = new Hono<AppEnv>().post(
@@ -65,8 +66,7 @@ export const addCollectionRoute = new Hono<AppEnv>().post(
       if (result.success) emitToOrg(orgId, "collections_changed", {});
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

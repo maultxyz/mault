@@ -19,6 +19,7 @@ import {
 } from "../../lib/sorter-limit";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadOrgPlan } from "./scan-limit";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const sortOnlyScanRoute = new Hono<AppEnv>().post(
   "/:guid/cards/sorted",
@@ -79,8 +80,7 @@ export const sortOnlyScanRoute = new Hono<AppEnv>().post(
       void recordDeviceSorted(orgId, deviceGuid);
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { loadOrgApiKeys } from "../../lib/api-keys";
 import { API_KEY_MANAGER_ROLES } from "../../lib/constants/api-keys";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const listApiKeysRoute = new Hono<AppEnv>().get(
   "/",
@@ -21,8 +22,7 @@ export const listApiKeysRoute = new Hono<AppEnv>().get(
       };
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

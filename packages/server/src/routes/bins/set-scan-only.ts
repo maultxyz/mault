@@ -8,6 +8,7 @@ import { authQuery } from "../../db";
 import { binSets, bins } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { applyScanOnlyBins, loadSets, snapshotBinSet } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function isBinNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= 1;
@@ -86,8 +87,7 @@ export const setScanOnlyRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

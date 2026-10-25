@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteNotificationRuleRoute = new Hono<AppEnv>().delete(
   "/discord/rules/:guid",
@@ -29,8 +30,7 @@ export const deleteNotificationRuleRoute = new Hono<AppEnv>().delete(
       });
       return c.json({ success: true, data: rules });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

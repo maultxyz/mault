@@ -15,6 +15,7 @@ import { assignBinToLocation } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { emptyRules, resolveGameId, activeBinSetWhere } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // Marks a physical bin as emptied - cards scanned before now stop counting
 // toward its capacity, without touching the collection's card history.
@@ -167,8 +168,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

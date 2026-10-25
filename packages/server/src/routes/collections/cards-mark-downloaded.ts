@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { collectionCards } from "../../db/schema";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const markCollectionCardsDownloadedRoute = new Hono<AppEnv>().post(
   "/:guid/cards/mark-downloaded",
@@ -31,8 +32,7 @@ export const markCollectionCardsDownloadedRoute = new Hono<AppEnv>().post(
       if (result.success) emitToSession(guid, "cards_downloaded", { scanIds });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

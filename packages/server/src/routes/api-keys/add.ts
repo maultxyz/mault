@@ -15,6 +15,7 @@ import {
 } from "../../lib/constants/api-keys";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { apiKeyInputSchema } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addApiKeyRoute = new Hono<AppEnv>().post(
   "/",
@@ -69,8 +70,7 @@ export const addApiKeyRoute = new Hono<AppEnv>().post(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

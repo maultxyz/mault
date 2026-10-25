@@ -7,6 +7,7 @@ import { isDeviceLeased, releaseDeviceLease } from "../../lib/device-leases";
 import { getDeviceByGuid } from "../../lib/devices";
 import { closeDeviceLink } from "../../lib/sorter-link";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const deleteDeviceRoute = new Hono<AppEnv>().delete(
   "/:guid",
@@ -37,8 +38,7 @@ export const deleteDeviceRoute = new Hono<AppEnv>().delete(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -5,6 +5,7 @@ import { moduleConfigAudit, moduleConfigs } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { buildConfigs } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editModuleConfigRoute = new Hono<AppEnv>().put(
   "/:moduleNumber",
@@ -44,8 +45,7 @@ export const editModuleConfigRoute = new Hono<AppEnv>().put(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

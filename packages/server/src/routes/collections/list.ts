@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadCollections } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const listCollectionsRoute = new Hono<AppEnv>().get(
   "/",
@@ -15,8 +16,7 @@ export const listCollectionsRoute = new Hono<AppEnv>().get(
       );
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

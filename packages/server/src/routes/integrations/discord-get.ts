@@ -5,6 +5,7 @@ import { authQuery } from "../../db";
 import { collections, orgSettings } from "../../db/schema";
 import { fetchDiscordGuild } from "../../lib/discord";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
   "/discord",
@@ -69,8 +70,7 @@ export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
       };
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -4,6 +4,7 @@ import { db } from "../../db";
 import { announcements } from "../../db/schema";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
 import { toAnnouncement } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // GET /announcements/active — any authenticated user, powers the alert tray
 export const activeAnnouncementsRoute = new Hono<AppEnv>().get(
@@ -26,8 +27,7 @@ export const activeAnnouncementsRoute = new Hono<AppEnv>().get(
         .orderBy(announcements.createdAt);
       return c.json({ success: true, data: rows.map(toAnnouncement) });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

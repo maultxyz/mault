@@ -13,6 +13,7 @@ import {
   savePlatformStatsSettings,
 } from "../../lib/platform-stats";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 async function toResponse(
   stored: StoredPlatformStatsSettings,
@@ -40,8 +41,7 @@ export const platformStatsRoute = new Hono<AppEnv>()
         data: await toResponse(await loadPlatformStatsSettings()),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .put("/platform-stats", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
@@ -58,8 +58,7 @@ export const platformStatsRoute = new Hono<AppEnv>()
         data: await toResponse(await savePlatformStatsSettings(settings)),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   })
   .post("/platform-stats/post", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
@@ -86,7 +85,6 @@ export const platformStatsRoute = new Hono<AppEnv>()
         data: await toResponse(await loadPlatformStatsSettings()),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   });

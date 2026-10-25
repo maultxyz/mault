@@ -28,6 +28,7 @@ import {
   parseEmbeddingField,
   vectorLiteral,
 } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function validEmbedding(value: number[] | null): number[] | null {
   if (!value || value.length !== MILO_EMBEDDING_DIM) return null;
@@ -224,8 +225,7 @@ export const printingScoreRoute = new Hono<AppEnv>().post(
       };
       return c.json(response);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

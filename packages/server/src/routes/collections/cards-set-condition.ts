@@ -6,6 +6,7 @@ import { logActivity } from "../../lib/activity-log";
 import { collectionCards } from "../../db/schema";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const setCollectionCardsConditionRoute = new Hono<AppEnv>().post(
   "/:guid/cards/condition",
@@ -47,8 +48,7 @@ export const setCollectionCardsConditionRoute = new Hono<AppEnv>().post(
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -5,6 +5,7 @@ import { db } from "../../db";
 import { announcements } from "../../db/schema";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { toAnnouncement } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 // GET /announcements — admin only, includes inactive ones for management
 export const listAnnouncementsRoute = new Hono<AppEnv>().get(
@@ -20,8 +21,7 @@ export const listAnnouncementsRoute = new Hono<AppEnv>().get(
         .orderBy(announcements.createdAt);
       return c.json({ success: true, data: rows.map(toAnnouncement) });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -15,6 +15,7 @@ import {
 } from "../../lib/constants/business";
 import type { AcquisitionCostUpdate } from "../../lib/interfaces/business";
 import type { AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export type BusinessResult =
   | { success: true; data: unknown; message?: string }
@@ -45,8 +46,7 @@ export async function businessQuery(
     );
     return c.json(result);
   } catch (err) {
-    console.error(err);
-    return c.json({ success: false, message: "Database error." }, 500);
+    return databaseErrorResponse(c, err);
   }
 }
 

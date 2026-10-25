@@ -10,6 +10,7 @@ import { unmatchedCards } from "../../db/schema";
 import { resolveScanImageUrl } from "../../lib/scan-images";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toUnmatchedCard } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 function parseCount(value: string | undefined, fallback: number, max: number) {
   const parsed = Number.parseInt(value ?? "", 10);
@@ -82,8 +83,7 @@ export const listUnmatchedCardsRoute = new Hono<AppEnv>().get(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

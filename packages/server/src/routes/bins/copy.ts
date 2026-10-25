@@ -9,6 +9,7 @@ import {
   activeBinSetWhere,
   resetPickList,
 } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const copyBinSetRoute = new Hono<AppEnv>().post(
   "/copies",
@@ -89,8 +90,7 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
       });
       return c.json(result);
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

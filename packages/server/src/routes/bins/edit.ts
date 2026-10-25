@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { binSetNameTaken, loadSets } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const editBinSetRoute = new Hono<AppEnv>().put(
   "/:guid",
@@ -43,8 +44,7 @@ export const editBinSetRoute = new Hono<AppEnv>().put(
         "nameTaken" in result && result.nameTaken ? 409 : 200,
       );
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

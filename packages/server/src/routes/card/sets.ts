@@ -3,6 +3,7 @@ import { listCardSets } from "../../lib/card-search/card-sets";
 import { resolveCardSearch } from "../../lib/card-search/resolve";
 import { searchCardSets } from "../../lib/card-search/stored-cards";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const cardSetsRoute = new Hono<AppEnv>().get(
   "/sets",
@@ -29,8 +30,7 @@ export const cardSetsRoute = new Hono<AppEnv>().get(
           : await listCardSets(resolved),
       });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -6,6 +6,7 @@ import { collectionCards } from "../../db/schema";
 import { deleteScanImages } from "../../lib/scan-images";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const removeBulkCollectionCardsRoute = new Hono<AppEnv>().post(
   "/:guid/cards/remove-bulk",
@@ -48,8 +49,7 @@ export const removeBulkCollectionCardsRoute = new Hono<AppEnv>().post(
       }
       return c.json({ success: result.success, data: result.data });
     } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );
