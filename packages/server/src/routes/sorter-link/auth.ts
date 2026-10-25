@@ -56,7 +56,7 @@ export const requireSorterClient = createMiddleware<SorterLinkEnv>(
     });
     const device = await authQuery(jwtClaims, (tx) =>
       getDeviceByGuid(tx, orgId, deviceGuid),
-    ).catch(() => null);
+    );
     if (!device) return c.body(null, 404);
     c.set("sorterLink", { orgId, deviceGuid, firmwareVersion: null });
     await next();
