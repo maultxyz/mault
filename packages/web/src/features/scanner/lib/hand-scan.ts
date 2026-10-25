@@ -1,37 +1,9 @@
 import { HAND_SCAN_FINGERPRINT_SIZE } from "@/lib/constants/scanner";
 import { HAND_SCAN_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { contourToPoints, type CardContour } from "@magic-vault/shared";
-import { useSyncExternalStore } from "react";
+import { createStoredFlag } from "@/lib/stored-flag";
 
-const listeners = new Set<() => void>();
-
-function getHandScan(): boolean {
-  try {
-    return localStorage.getItem(HAND_SCAN_STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-function setHandScan(value: boolean): void {
-  try {
-    if (value) localStorage.setItem(HAND_SCAN_STORAGE_KEY, "true");
-    else localStorage.removeItem(HAND_SCAN_STORAGE_KEY);
-  } catch {}
-  listeners.forEach((listener) => listener());
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-export function useHandScan() {
-  const stored = useSyncExternalStore(subscribe, getHandScan);
-  return [stored, setHandScan] as const;
-}
+export const useHandScan = createStoredFlag(HAND_SCAN_STORAGE_KEY);
 
 let fingerprintCanvas: HTMLCanvasElement | null = null;
 
