@@ -151,7 +151,11 @@
     },
     "review": "Prüfen",
     "export": "Exportieren",
-    "reviewCards": "Karten einzeln prüfen (R)"
+    "reviewCards": "Karten einzeln prüfen (R)",
+    "sortAndFilter": "Sortieren und filtern",
+    "sortHeading": "Sortieren",
+    "filterHeading": "Filtern",
+    "done": "Fertig"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",

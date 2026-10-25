@@ -151,7 +151,11 @@
     },
     "review": "Vérifier",
     "export": "Exporter",
-    "reviewCards": "Vérifier les cartes une par une (R)"
+    "reviewCards": "Vérifier les cartes une par une (R)",
+    "sortAndFilter": "Trier et filtrer",
+    "sortHeading": "Trier",
+    "filterHeading": "Filtrer",
+    "done": "Terminé"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",

@@ -724,7 +724,6 @@
     "review": "Vérifier {{count}}",
     "groupDuplicates": "Grouper les doublons",
     "filters": {
-      "title": "Filtres",
       "colors": "Couleurs",
       "rarity": "Rareté",
       "foil": "Foil",
@@ -746,7 +745,8 @@
       "copies_other": "{{count}} exemplaires",
       "removeTitle_one": "Retirer cette carte ?",
       "removeTitle_other": "Retirer {{count}} exemplaires ?"
-    }
+    },
+    "sortAndFilter": "Trier et filtrer"
   },
   "cardDetail": {
     "fallbackTitle": "Détails de la carte",

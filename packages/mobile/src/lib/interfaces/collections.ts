@@ -8,18 +8,24 @@ export interface ScanImageResponse {
 export type CollectionTab = "cards" | "activity";
 
 export interface CardToolbarProps {
-  sortLabel: string;
-  activeFilterCount: number;
+  activeSortAndFilterCount: number;
   grouped: boolean;
   needsReview: boolean;
-  onOpenSort: () => void;
-  onOpenFilters: () => void;
+  onOpenSortAndFilters: () => void;
   onToggleGrouped: () => void;
   onToggleNeedsReview: () => void;
 }
 
-export interface CardFilterSheetProps {
+export interface CardSortOption {
+  value: string;
+  label: string;
+}
+
+export interface CardSortFilterSheetProps {
   visible: boolean;
+  sortOptions: CardSortOption[];
+  selectedSort: string;
+  onSortChange: (sort: string) => void;
   filters: CardFilters;
   breakdown: StatsBreakdown | null;
   binCount: number;

@@ -962,7 +962,7 @@
       "title": "Control cards",
       "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
       "print": "Print",
-      "printTip": "Print at 100% scale with margins on Default. Each page holds 9 cards. Cut along the borders, then glue or sleeve each one in front of a spare card so it feeds like a normal card. Keep the QR code flat and free of glare."
+      "printTip": "Print on cardstock at 100% scale with margins on Default. Each page holds 9 cards. Cut along the borders and keep the QR code flat and free of glare."
     }
   }
 }

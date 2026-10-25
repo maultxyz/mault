@@ -962,7 +962,7 @@
       "title": "Cartes de contrôle",
       "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
       "print": "Imprimer",
-      "printTip": "Imprime à l'échelle 100 % avec les marges sur Par défaut. Chaque page contient 9 cartes. Découpe le long des bordures, puis colle ou glisse chaque carte devant une carte de rechange pour qu'elle passe comme une carte normale. Garde le QR code bien à plat et sans reflets."
+      "printTip": "Imprime sur du papier cartonné à l'échelle 100 % avec les marges sur Par défaut. Chaque page contient 9 cartes. Découpe le long des bordures et garde le QR code bien à plat et sans reflets."
     }
   }
 }
