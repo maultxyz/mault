@@ -292,73 +292,80 @@ export function SorterProvider({ children }: { children: ReactNode }) {
         fail({ code: "connection-lost" });
         if (autoConnect) scheduleReconnect(id, 1);
       });
-      await transport.start();
-      writeKv(LAST_SORTER_ID_KEY, id);
-
-      setPhase("identifying");
-      const status = await identify();
-      if (stale()) return;
-      if (!status?.id) {
-        await teardown();
-        fail({ code: "identify-failed" });
-        return;
-      }
-      if (typeof status.bleMtu === "number") transport.setMtu(status.bleMtu);
-      setFirmwareVersion(status.version ?? null);
-      versionRef.current = status.version ?? null;
-      setBoard(status.board ?? null);
-      uptimeRef.current = statusUptimeMs(status);
-
-      let bound: Device;
       try {
-        bound = await resolveDevice(status.id);
-      } catch {
+        await transport.start();
+        writeKv(LAST_SORTER_ID_KEY, id);
+
+        setPhase("identifying");
+        const status = await identify();
         if (stale()) return;
-        await teardown();
-        fail({ code: "identify-failed" });
-        return;
-      }
-      if (stale()) return;
-      if (!(await acquireDeviceLease(bound.guid))) {
-        await teardown();
-        fail({ code: "sorter-limit" });
-        return;
-      }
-      if (stale()) {
-        void releaseDeviceLease(bound.guid);
-        return;
-      }
-      deviceRef.current = bound;
-      setDevice(bound);
-      writeKv(SORTER_AUTO_CONNECT_KEY, bound.autoConnect ? "1" : null);
-      void queryClient.invalidateQueries({ queryKey: ["devices"] });
+        if (!status?.id) {
+          await teardown();
+          fail({ code: "identify-failed" });
+          return;
+        }
+        if (typeof status.bleMtu === "number") transport.setMtu(status.bleMtu);
+        setFirmwareVersion(status.version ?? null);
+        versionRef.current = status.version ?? null;
+        setBoard(status.board ?? null);
+        uptimeRef.current = statusUptimeMs(status);
 
-      link.bootListener = (banner) => {
+        let bound: Device;
+        try {
+          bound = await resolveDevice(status.id);
+        } catch {
+          if (stale()) return;
+          await teardown();
+          fail({ code: "identify-failed" });
+          return;
+        }
         if (stale()) return;
-        recoverRef.current(banner);
-      };
+        if (!(await acquireDeviceLease(bound.guid))) {
+          await teardown();
+          fail({ code: "sorter-limit" });
+          return;
+        }
+        if (stale()) {
+          void releaseDeviceLease(bound.guid);
+          return;
+        }
+        deviceRef.current = bound;
+        setDevice(bound);
+        writeKv(SORTER_AUTO_CONNECT_KEY, bound.autoConnect ? "1" : null);
+        void queryClient.invalidateQueries({ queryKey: ["devices"] });
 
-      setPhase("syncing");
-      await syncCalibration(bound, status.version ?? null);
-      if (stale()) return;
-      if (!bound.setupCompletedAt) {
-        fail({ code: "setup-incomplete" });
-        return;
-      }
+        link.bootListener = (banner) => {
+          if (stale()) return;
+          recoverRef.current(banner);
+        };
 
-      if (bound.testOnConnect) {
-        await runSelfTest();
-        return;
+        setPhase("syncing");
+        await syncCalibration(bound, status.version ?? null);
+        if (stale()) return;
+        if (!bound.setupCompletedAt) {
+          fail({ code: "setup-incomplete" });
+          return;
+        }
+
+        if (bound.testOnConnect) {
+          await runSelfTest();
+          return;
+        }
+        const check = await link.sendParsed({ getStatus: true });
+        if (stale()) return;
+        if (isServoDriverMissing(check)) {
+          fail({ code: "servo-driver-missing" });
+          return;
+        }
+        await link.sendNeutral();
+        if (stale()) return;
+        setPhase("ready");
+      } catch (err) {
+        if (stale()) return;
+        console.warn("[Sorter] bring-up failed", err);
+        await teardown();
+        fail({ code: "connect-failed", detail: err instanceof Error ? err.message : undefined });
       }
-      const check = await link.sendParsed({ getStatus: true });
-      if (stale()) return;
-      if (isServoDriverMissing(check)) {
-        fail({ code: "servo-driver-missing" });
-        return;
-      }
-      await link.sendNeutral();
-      if (stale()) return;
-      setPhase("ready");
     },
     [fail, identify, queryClient, runSelfTest, scheduleReconnect, stopDiscovery, syncCalibration, teardown],
   );
