@@ -132,10 +132,6 @@ export const QR_SCAN_MAX_DIMENSION = 640;
 export const PENDING_SCAN_SAVES_DB_NAME = "magic-vault-pending-scan-saves";
 export const PENDING_SCAN_SAVES_STORE_NAME = "saves";
 export const PENDING_SCAN_SAVES_DB_VERSION = 1;
-export const PENDING_SCAN_SAVE_RETRY_DELAYS_MS = [
-  2000, 5000, 10_000, 30_000, 60_000,
-];
-export const PENDING_SCAN_SAVE_RETRYABLE_STATUSES = [401, 408, 429];
 export const PENDING_SCAN_SAVES_TOAST_ID = "pending-scan-saves";
 
 export const SCAN_REGION_MASK_FILL = "rgb(0 0 0 / 0.4)";
