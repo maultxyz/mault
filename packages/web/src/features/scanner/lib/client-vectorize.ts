@@ -6,10 +6,7 @@ import {
 import { detectCardCorners } from "./cornelius";
 import { dewarpCard } from "./perspective-warp";
 import type { ClientDewarpResult } from "@/lib/interfaces/scanner";
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { delay } from "@/lib/delay";
 
 let snapshot: HTMLCanvasElement | null = null;
 

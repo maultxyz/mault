@@ -6,15 +6,7 @@ import { apiGet } from "@/lib/api/client";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { LocalAuditEventRow } from "@/lib/interfaces/auth";
-
-function formatDate(value: string): string {
-  return new Date(value).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import { formatShortDateTime } from "@/lib/format";
 
 // Local mode only, org owner/admin only (server-enforced via requireOrgRole
 // - see routes/local-auth.ts's /audit-events, and own-auth's own
@@ -92,7 +84,7 @@ export function LocalAuditLog() {
                 </span>
               )}
               <span className="shrink-0 text-foreground/70">
-                {formatDate(event.createdAt)}
+                {formatShortDateTime(event.createdAt)}
               </span>
             </div>
           ))}

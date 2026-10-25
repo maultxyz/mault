@@ -9,10 +9,7 @@ import {
 } from "@/lib/constants/scanner";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { delay } from "@/lib/delay";
 
 export function useSerialAutoConnect() {
   const { activeOrg } = useOrg();

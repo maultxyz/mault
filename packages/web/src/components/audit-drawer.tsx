@@ -11,16 +11,8 @@ import type { AuditDrawerProps } from "@/lib/interfaces/audit";
 import { IconClockHour3, IconRotateClockwise2, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { formatShortDateTime } from "@/lib/format";
 
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export function AuditDrawer({
   open,
@@ -82,7 +74,7 @@ export function AuditDrawer({
                         <p className="text-xs font-medium">{entry.label}</p>
                       )}
                       <p className="text-xs text-foreground/70">
-                        {formatDate(entry.createdAt)}
+                        {formatShortDateTime(entry.createdAt)}
                       </p>
                       {i === 0 && (
                         <span className="text-xs text-foreground/70 italic">

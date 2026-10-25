@@ -31,6 +31,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 import type { LocalOrgInvitation } from "@/lib/interfaces/auth";
+import { copyWithToast } from "@/lib/clipboard";
 
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(undefined, {
@@ -121,10 +122,11 @@ export function LocalOrgInvites() {
 
   function copyInviteUrl() {
     if (!newInviteUrl) return;
-    navigator.clipboard
-      .writeText(newInviteUrl)
-      .then(() => toast.success(t("invites.copied")))
-      .catch(() => toast.error(t("invites.copyFailed")));
+    void copyWithToast(
+      newInviteUrl,
+      t("invites.copied"),
+      t("invites.copyFailed"),
+    );
   }
 
   if (!canManage) {
