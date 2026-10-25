@@ -18,7 +18,7 @@ pnpm --filter @magic-vault/mobile start        # Expo dev server (see packages/m
 pnpm --filter @magic-vault/desktop start       # Electron shell against MAULT_URL
 ```
 
-Tests run in Build Check (`build-check.yml`): server `tests/*.test.ts` (node:test) and web `src/**/*.test.{ts,tsx}` (Vitest, own `vitest.config.ts` so tests skip the PWA/Tailwind plugins; CI is Node 20, so test deps must support it). Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
+Tests run in Build Check (`build-check.yml`): server `tests/*.test.ts` (node:test) and web `src/**/*.test.{ts,tsx}` (Vitest, own `vitest.config.ts` so tests skip the PWA/Tailwind plugins; CI is Node 26, so test deps must support it). Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Every change: keep all surfaces in sync
 

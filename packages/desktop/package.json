@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@magic-vault/shared": "workspace:*",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "electron": "^44.0.0",
     "electron-builder": "^26.0.12",
     "electron-updater": "^6.6.2",
