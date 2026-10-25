@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { getOwnAuth } from "../../auth/own-auth-instance";
+import { rollbar } from "../../lib/rollbar";
 import type { AppEnv } from "../../middleware/auth";
 
 // Deliberately unauthenticated (this is how you recover access when you
@@ -13,7 +14,10 @@ export const forgotPasswordRoute = new Hono<AppEnv>().post("/forgot-password", a
   if (email) {
     await getOwnAuth()
       .requestPasswordReset({ email })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("[local-auth] password reset request failed:", err);
+        rollbar.error(err instanceof Error ? err : String(err));
+      });
   }
   return c.json({
     success: true,
