@@ -109,6 +109,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const reopenSensorBlockedToastRef = useRef<(() => void) | null>(null);
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [board, setBoard] = useState<SerialBoardType | null>(null);
+  const [hasWifi, setHasWifi] = useState(false);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [transport, setTransport] =
     useState<SerialContextValue["transport"]>(null);
@@ -461,6 +462,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     clearSensorBlocked();
     setFirmwareVersion(null);
     setBoard(null);
+    setHasWifi(false);
     setDeviceId(null);
     setTransport(null);
 
@@ -907,6 +909,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         if (status?.board === "esp32" || status?.board === "uno_r4") {
           setBoard(status.board);
         }
+        setHasWifi(typeof status?.wifi === "string");
         if (hardwareId) setDeviceId(hardwareId);
         lastUptimeMsRef.current = statusUptimeMs(status);
         if (hardwareId) noticeAbnormalBoot(hardwareId, status);
@@ -1394,6 +1397,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (parsed?.board === "esp32" || parsed?.board === "uno_r4") {
             setBoard(parsed.board);
           }
+          if (typeof parsed?.wifi === "string") setHasWifi(true);
           if (typeof parsed?.version !== "string")
             return { status: "noVersion" };
           setFirmwareVersion(parsed.version);
@@ -1538,6 +1542,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         reopenSensorBlockedToast,
         firmwareVersion,
         board,
+        hasWifi,
         deviceId,
         transport,
         connect,

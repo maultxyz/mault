@@ -25,7 +25,13 @@ export function SorterWifiPanel() {
     setIsForgetting(true);
     try {
       const result = await wifi.forget();
-      if (result.ok) toast.success(t("sorterWifi.forgotten"));
+      if (result.ok) {
+        toast.success(
+          result.restarting
+            ? t("sorterWifi.forgottenRestarting")
+            : t("sorterWifi.forgotten"),
+        );
+      }
       else toast.error(result.error ?? t("sorterWifi.forgetFailed"));
     } finally {
       setIsForgetting(false);
@@ -61,8 +67,8 @@ export function SorterWifiPanel() {
       {!isReady && (
         <Callout variant="info">{t("sorterWifi.connectFirst")}</Callout>
       )}
-      {wifi.needsEsp32 && (
-        <Callout variant="info">{t("sorterWifi.needsEsp32")}</Callout>
+      {wifi.needsWifiBoard && (
+        <Callout variant="info">{t("sorterWifi.needsWifiBoard")}</Callout>
       )}
       {wifi.needsFirmware && (
         <Callout variant="warning">
@@ -72,6 +78,9 @@ export function SorterWifiPanel() {
         </Callout>
       )}
       {wifi.isSupported && <SorterWifiStatusList status={wifi.status} />}
+      {wifi.sharesRadioWithBluetooth && (
+        <Callout variant="info">{t("sorterWifi.sharesRadio")}</Callout>
+      )}
       {wifi.status?.wifi === "paused" && (
         <Callout variant="warning">{t("sorterWifi.pausedForPower")}</Callout>
       )}
