@@ -2,7 +2,11 @@ import { useSyncExternalStore } from "react";
 import { localBackend } from "@/lib/auth/local-backend";
 import { neonBackend } from "@/lib/auth/neon-backend";
 import { jwtExpiresAt } from "@/lib/auth/jwt";
-import { JWT_REFRESH_MARGIN_MS } from "@/lib/constants/auth";
+import {
+  JWT_REFRESH_MARGIN_MS,
+  SESSION_RESTORE_RETRY_MAX_MS,
+  SESSION_RESTORE_RETRY_MIN_MS,
+} from "@/lib/constants/auth";
 import { API_BASE, AUTH_PROVIDER } from "@/lib/constants/config";
 import { ACTIVE_ORG_KEY, SESSION_TOKEN_KEY } from "@/lib/constants/storage-keys";
 import type {
@@ -14,6 +18,7 @@ import type {
 } from "@/lib/interfaces/auth";
 import type { Result } from "@magic-vault/shared";
 import { readKv, writeKv } from "@/lib/storage/kv";
+import { delay } from "@/lib/delay";
 import { readSecure, writeSecure } from "@/lib/storage/secure";
 
 const backend = AUTH_PROVIDER === "local" ? localBackend : neonBackend;
@@ -80,16 +85,13 @@ export function getActiveOrgId(): string | null {
 }
 
 async function fetchMe<T>(path: string, token: string): Promise<T | null> {
-  try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) return null;
-    const body = (await res.json()) as Result<T>;
-    return body.success ? (body.data ?? null) : null;
-  } catch {
-    return null;
-  }
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (response.status === 401) return null;
+  if (!response.ok) throw new Error(`${path} failed (${response.status})`);
+  const body = (await response.json()) as Result<T>;
+  return body.success ? (body.data ?? null) : null;
 }
 
 function pickActiveOrg(orgs: UserOrganization[]): string | null {
@@ -126,7 +128,20 @@ export async function restoreSession(): Promise<void> {
     setSnapshot({ status: "signed-out" });
     return;
   }
-  if (!(await loadProfile())) clearLocalSession();
+  for (let attempt = 0; ; attempt++) {
+    try {
+      if (!(await loadProfile())) clearLocalSession();
+      return;
+    } catch (error) {
+      console.warn("Session restore failed, retrying", error);
+      await delay(
+        Math.min(
+          SESSION_RESTORE_RETRY_MIN_MS * 2 ** attempt,
+          SESSION_RESTORE_RETRY_MAX_MS,
+        ),
+      );
+    }
+  }
 }
 
 async function startSession(
@@ -136,7 +151,12 @@ async function startSession(
   sessionToken = result.sessionToken;
   cachedJwt = null;
   await writeSecure(SESSION_TOKEN_KEY, sessionToken);
-  if (await loadProfile()) return {};
+  try {
+    if (await loadProfile()) return {};
+  } catch {
+    clearLocalSession();
+    return { error: "network" };
+  }
   clearLocalSession();
   return { error: "profile" };
 }
