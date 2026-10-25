@@ -31,7 +31,7 @@ import {
   revokeMonitorLinks,
 } from "@/features/collections/api/collection-cards";
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
-import { CardSortFilterSheet } from "@/features/collections/components/card-sort-filter-sheet";
+import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
 import {
   collectionsQueryOptions,
@@ -77,7 +77,7 @@ export default function CollectionScreen() {
   const [grouped, setGrouped] = useState(true);
   const [sort, setSort] = useState<string | null>(null);
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
-  const [sortAndFiltersOpen, setSortAndFiltersOpen] = useState(false);
+  const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
   const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(null);
   const sorter = useSorter();
   const cardsQuery = useMemo(
@@ -299,10 +299,8 @@ export default function CollectionScreen() {
               />
               <CardToolbar
                 activeSortAndFilterCount={activeSortAndFilterCount}
-                grouped={grouped}
                 needsReview={filters.needsAttention}
-                onOpenSortAndFilters={() => setSortAndFiltersOpen(true)}
-                onToggleGrouped={() => setGrouped((value) => !value)}
+                onOpenViewOptions={() => setViewOptionsOpen(true)}
                 onToggleNeedsReview={() => setFilters((value) => ({ ...value, needsAttention: !value.needsAttention }))}
               />
               {cards.isError ? <Callout tone="destructive" title={t("collections.cardsLoadFailed")} /> : null}
@@ -352,8 +350,10 @@ export default function CollectionScreen() {
           }}
         />
       )}
-      <CardSortFilterSheet
-        visible={sortAndFiltersOpen}
+      <CardViewOptionsSheet
+        visible={viewOptionsOpen}
+        grouped={grouped}
+        onGroupedChange={setGrouped}
         sortOptions={sortOptions}
         selectedSort={sort ?? "scan-desc"}
         onSortChange={(value) => setSort(value === "scan-desc" ? null : value)}
@@ -361,7 +361,7 @@ export default function CollectionScreen() {
         breakdown={breakdown}
         binCount={binCount}
         onChange={setFilters}
-        onClose={() => setSortAndFiltersOpen(false)}
+        onClose={() => setViewOptionsOpen(false)}
       />
       <CardActionsSheet
         entry={actionsEntry}

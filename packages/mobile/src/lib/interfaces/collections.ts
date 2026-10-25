@@ -9,10 +9,8 @@ export type CollectionTab = "cards" | "activity";
 
 export interface CardToolbarProps {
   activeSortAndFilterCount: number;
-  grouped: boolean;
   needsReview: boolean;
-  onOpenSortAndFilters: () => void;
-  onToggleGrouped: () => void;
+  onOpenViewOptions: () => void;
   onToggleNeedsReview: () => void;
 }
 
@@ -21,8 +19,10 @@ export interface CardSortOption {
   label: string;
 }
 
-export interface CardSortFilterSheetProps {
+export interface CardViewOptionsSheetProps {
   visible: boolean;
+  grouped: boolean;
+  onGroupedChange: (grouped: boolean) => void;
   sortOptions: CardSortOption[];
   selectedSort: string;
   onSortChange: (sort: string) => void;

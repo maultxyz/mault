@@ -25,7 +25,7 @@
     },
     "exportCollection": {
       "title": "Exporter une collection",
-      "content": "Exporte tes cartes scannées aux formats CSV, Manabox, Moxfield, TCGplayer ou Card Kingdom depuis ici."
+      "content": "Ouvre ce menu et choisis Exporter pour enregistrer tes cartes scannées aux formats CSV, Manabox, Moxfield, TCGplayer ou Card Kingdom."
     },
     "manageCollections": {
       "title": "Gérer tes collections",

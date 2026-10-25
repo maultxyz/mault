@@ -40,6 +40,7 @@ import {
   collectionCardPositionQueryOptions,
   collectionCardsExportQueryOptions,
   collectionCardsPageQueryOptions,
+  collectionCardsSummaryQueryOptions,
   loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
@@ -187,6 +188,10 @@ export function CardGrid() {
     [cardsQuery],
   );
   const [reviewTotal, setReviewTotal] = useState<number | null>(null);
+  const { data: reviewSummary } = useQuery({
+    ...collectionCardsSummaryQueryOptions(collectionGuid, reviewQuery),
+    enabled: !readOnly && !!collectionGuid,
+  });
   const reviewSession = useReviewSession(openScanId, isReviewing);
 
   useEffect(() => {
@@ -639,6 +644,7 @@ export function CardGrid() {
           sortableFields={sortableFields}
           onExport={() => setSummaryOpen(true)}
           onStartReview={readOnly ? undefined : () => void startReview()}
+          needsReviewCount={reviewSummary?.filtered.totalCount ?? 0}
           onAddCard={() => setAddCardOpen(true)}
           collectionName={viewedCollection?.name}
           onClearAll={readOnly ? undefined : handleClearSession}

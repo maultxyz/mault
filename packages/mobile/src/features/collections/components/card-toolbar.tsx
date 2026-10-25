@@ -10,10 +10,8 @@ import type { CardToolbarProps } from "@/lib/interfaces/collections";
 
 export function CardToolbar({
   activeSortAndFilterCount,
-  grouped,
   needsReview,
-  onOpenSortAndFilters,
-  onToggleGrouped,
+  onOpenViewOptions,
   onToggleNeedsReview,
 }: CardToolbarProps) {
   const { t } = useTranslation();
@@ -30,8 +28,8 @@ export function CardToolbar({
         <IconButton
           icon="filter"
           size={36}
-          accessibilityLabel={t("collection.sortAndFilter")}
-          onPress={onOpenSortAndFilters}
+          accessibilityLabel={t("collection.viewOptions")}
+          onPress={onOpenViewOptions}
         />
         {activeSortAndFilterCount > 0 ? (
           <View
@@ -55,7 +53,6 @@ export function CardToolbar({
           </View>
         ) : null}
       </View>
-      <FilterChip label={t("collection.groupDuplicates")} selected={grouped} onPress={onToggleGrouped} />
       <FilterChip label={t("collection.filters.needsReview")} selected={needsReview} onPress={onToggleNeedsReview} />
     </ScrollView>
   );

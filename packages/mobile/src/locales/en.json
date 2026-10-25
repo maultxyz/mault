@@ -746,7 +746,8 @@
       "removeTitle_one": "Remove this card?",
       "removeTitle_other": "Remove {{count}} copies?"
     },
-    "sortAndFilter": "Sort and filter"
+    "viewOptions": "View options",
+    "display": "Display"
   },
   "cardDetail": {
     "fallbackTitle": "Card details",

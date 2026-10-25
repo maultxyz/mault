@@ -137,25 +137,25 @@
     "gridView": "Rasteransicht",
     "listView": "Listenansicht",
     "groupDuplicates": "Duplikate gruppieren",
-    "sessionSummaryExport": "Sitzungsübersicht & Export",
     "deleteScannedCardsTitle": "Gescannte Karten löschen",
     "deleteScannedCardsDescription": "Dadurch werden alle Karten dauerhaft aus deiner Sammlung gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
     "clearing": "Wird geleert...",
     "clearAll": "Alle löschen",
-    "clearAllCardsTitle": "Alle Karten leeren",
-    "density": "Kartengröße: {{density}}",
     "densities": {
       "compact": "kompakt",
       "comfortable": "normal",
       "large": "groß"
     },
-    "review": "Prüfen",
     "export": "Exportieren",
     "reviewCards": "Karten einzeln prüfen (R)",
-    "sortAndFilter": "Sortieren und filtern",
     "sortHeading": "Sortieren",
     "filterHeading": "Filtern",
-    "done": "Fertig"
+    "done": "Fertig",
+    "viewOptions": "Ansichtsoptionen",
+    "displayHeading": "Anzeige",
+    "cardSize": "Kartengröße",
+    "moreActions": "Weitere Aktionen",
+    "reviewCount": "Prüfen ({{count}})"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
