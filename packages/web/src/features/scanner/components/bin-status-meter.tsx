@@ -14,7 +14,7 @@ import {
   summarizeBinLevels,
 } from "@/features/scanner/lib/bin-levels";
 import { usePersistedFlag } from "@/hooks/use-persisted-state";
-import { BIN_LEVELS_COLLAPSED_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import { BIN_LEVELS_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
   IconAlertTriangle,
@@ -33,9 +33,10 @@ export function BinStatusMeter() {
   const { lastRoutedBin } = useScannedCards();
   const [confirmBin, setConfirmBin] = useState<number | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
-  const [collapsed, setCollapsed] = usePersistedFlag(
-    BIN_LEVELS_COLLAPSED_STORAGE_KEY,
+  const [expanded, setExpanded] = usePersistedFlag(
+    BIN_LEVELS_EXPANDED_STORAGE_KEY,
   );
+  const collapsed = !expanded;
   const { isLocked: storageLocked } = useStorageAccess();
   const catchAllBin = configs.find((c) => c.isCatchAll)?.binNumber;
   const disabledBins = new Set(
@@ -60,7 +61,7 @@ export function BinStatusMeter() {
 
   if (levels.length === 0) return null;
 
-  const toggleCollapsed = () => setCollapsed(!collapsed);
+  const toggleCollapsed = () => setExpanded(!expanded);
 
   const renderCell = (
     binNumber: number | undefined,
