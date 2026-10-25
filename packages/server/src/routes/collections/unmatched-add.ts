@@ -16,7 +16,6 @@ import { isScanSaved } from "./scan-saved";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// POST /collections/:guid/unmatched — record a scan that found no card match
 export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched",
   requireAuth,

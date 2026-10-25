@@ -87,11 +87,6 @@ export interface SyncSourceCard {
 
 export type SyncSourceCardDetail = Omit<SyncSourceCard, "id">;
 
-// `urls` is every request fetchOne actually made while looking for the card
-// - one entry for a direct by-id lookup, several for an adapter (onepiece)
-// that has to page through a listing since the source has no direct
-// by-id endpoint at this granularity. Populated whether or not `card` was
-// found, so a caller can report exactly what was queried on a miss.
 export interface FetchOneResult {
   card: SyncSourceCardDetail | null;
   urls: string[];

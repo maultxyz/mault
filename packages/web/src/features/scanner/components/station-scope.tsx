@@ -23,11 +23,6 @@ import type { StationState } from "@/lib/interfaces/stations";
 import { useMemo } from "react";
 import { createPortal } from "react-dom";
 
-// One physical sorter's full state: its own serial link, camera, collection,
-// calibration and scan session. Only the active station renders the routed
-// app; every live station (connected, or the one being viewed) renders its
-// scanner column into the scanner page's panel slot, so background tabs keep
-// scanning. The idle standby renders no scanner, so it holds no camera.
 export function StationScope({
   station,
   index,

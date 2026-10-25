@@ -8,11 +8,6 @@ import type { AuthProvider } from "../lib/interfaces/auth";
 
 export const localAuthProvider: AuthProvider = {
   async verifyToken(token) {
-    // API keys are personal-only here (see routes/local-auth.ts) - always
-    // created without an organisationId, so VerifiedApiKey.user is always
-    // populated and this maps onto the same {sub} shape a session does, no
-    // special-casing needed downstream (requireOrg's normal membership
-    // check still applies for whatever X-Org-Id the request sends).
     if (token.startsWith("oa_")) {
       try {
         const verified = await getOwnAuth().verifyApiKey(token);

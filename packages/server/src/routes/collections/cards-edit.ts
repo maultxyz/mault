@@ -14,7 +14,6 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toScannedCard } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// PUT /collections/:guid/cards/:scanId — update card (correction, bin and/or foil status)
 export const editCollectionCardRoute = new Hono<AppEnv>().put(
   "/:guid/cards/:scanId",
   requireAuth,

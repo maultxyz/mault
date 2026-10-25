@@ -589,9 +589,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     runConnectTestRef.current = runConnectTest;
   }, [runConnectTest]);
 
-  // Binds a device record to this station so every calibration read from
-  // here on is that physical board's. Returns null when another station in
-  // this tab already has the same board open.
   const claimForStation = useCallback(
     (target: Device): Device | null => {
       const { stations, connectedStationIds, bindStationDevice } =
@@ -620,9 +617,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     showSorterLimitToast(toast, t, stationsRef.current.sorterLimitIsHardCap);
   }, [toast, t]);
 
-  // Fast in-tab check before claiming a device record. The server's lease
-  // (acquired after binding, below) is the real enforcement, across every
-  // browser and computer in the org.
   const exceedsSorterLimit = useCallback(() => {
     const { stations, connectedStationIds, maxConnectedSorters } =
       stationsRef.current;
@@ -634,8 +628,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return true;
   }, [station.id, notifySorterLimit]);
 
-  // Maps the board's firmware id to the org's device record for it, claiming
-  // or creating one server-side.
   const bindBoard = useCallback(
     async (hardwareId: string): Promise<Device | undefined | null> => {
       const result = await resolveDevice(hardwareId).catch(() => null);
@@ -658,10 +650,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [toast, activeOrg?.id, queryClient, claimForStation, t],
   );
 
-  // Firmware older than the boot-banner `id` can't say which board it is.
-  // With only one device on the org there's no ambiguity, so bind to it;
-  // otherwise keep whatever this station already shows, bound so no other
-  // station falls back to the same device record.
   const bindUnidentifiedBoard = useCallback(async (): Promise<
     Device | undefined | null
   > => {
@@ -1183,9 +1171,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [toast, openTransport, t],
   );
 
-  // Keeps this sorter's slot against the plan's connected-sorter cap. If the
-  // lease was lost (e.g. the server restarted) and another sorter took the
-  // slot meanwhile, this one yields.
   useEffect(() => {
     if (!leasedDeviceGuid) return;
     const id = setInterval(() => {

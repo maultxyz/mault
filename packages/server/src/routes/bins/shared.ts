@@ -344,8 +344,6 @@ export async function snapshotBinSet(
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
 }
 
-// Resolves a game guid (from the client) to its internal id, or null if
-// omitted - bin sets with no game are legacy/game-agnostic sets.
 export async function resolveGameId(
   tx: Transaction,
   gameGuid: string | undefined,

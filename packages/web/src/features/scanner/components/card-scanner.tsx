@@ -222,7 +222,6 @@ export function CardScanner({
     }
   });
 
-  // A card fed just before the tab was hidden still arrives; hold it until resume.
   const heldCardArrivalRef = useRef(false);
 
   const handleCardArrived = useCallback(() => {

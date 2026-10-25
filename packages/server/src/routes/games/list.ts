@@ -6,7 +6,6 @@ import { requireAuth, type AppEnv } from "../../middleware/auth";
 import { toGame } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// GET /games — any authenticated user (needed to pick a game per collection)
 export const listGamesRoute = new Hono<AppEnv>().get("/", requireAuth, async (c) => {
   try {
     const rows = await db

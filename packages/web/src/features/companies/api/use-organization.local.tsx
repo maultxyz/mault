@@ -19,10 +19,6 @@ async function fetchLocalOrgs(): Promise<LocalOrg[]> {
   return res.data ?? [];
 }
 
-// own-auth has no server-side "active organization" concept - unlike Neon
-// mode, which round-trips organization.setActive() to the identity provider
-// before invalidating queries, localStorage is the only source of truth
-// here, so switching orgs is a synchronous local write.
 export function useOrgLocal() {
   const queryClient = useQueryClient();
   const session = useLocalAuthSession();
@@ -53,8 +49,6 @@ export function useOrgLocal() {
         await invalidateAppQueries(queryClient);
         return;
       }
-      // A just-created org isn't in the cached list yet; refetch first so the
-      // stale-org cleanup above doesn't immediately clear the new selection.
       const cached = queryClient.getQueryData<LocalOrg[]>([
         LOCAL_ORGS_QUERY_KEY,
         userId,

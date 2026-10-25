@@ -159,9 +159,6 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           return scanLimitReachedResult;
         }
 
-        // Backstop for the connect-time lease (routes/devices/lease.ts): a
-        // client that never leased still can't scan past the plan's cap, and
-        // every scan renews the scanning sorter's lease.
         const sorterLimit = sorterLimitForPlan(plan);
         if (
           !acquireDeviceLease(

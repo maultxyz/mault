@@ -71,9 +71,6 @@ function catchAllSummary(bin: {
   return `**Bin ${bin.binNumber}:** ${parts.join(", ")}`;
 }
 
-// A human-readable summary of the collection's active sorting rules, posted
-// to Discord at the start of a scan session so viewers can see what's
-// configured without opening the app.
 function copiesByLabel(copiesBy: string | null): string {
   if (!copiesBy || copiesBy === REPACK_UNIQUE_BY_PRINTING) return "printing";
   if (copiesBy === REPACK_UNIQUE_BY_NAME) return "name";

@@ -23,12 +23,6 @@ function hardReset(transport: EspLoaderTransport) {
   return new CustomReset(transport, ESP32_HARD_RESET_SEQUENCE).reset();
 }
 
-// Talks to the chip's ROM bootloader directly, so this works the same on a
-// board running this project's firmware, some other sketch, or nothing at
-// all. The released image is a merged bootloader + partitions + app binary
-// laid out from offset 0. It is written around the NVS partition so stored
-// calibration and Wi-Fi settings survive, and its trailing erased padding is
-// skipped.
 let activeFlashes = 0;
 
 function trimErasedTail(data: Uint8Array): Uint8Array {

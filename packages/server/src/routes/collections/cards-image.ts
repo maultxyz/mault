@@ -4,11 +4,6 @@ import { resolveScanImageUrl } from "../../lib/scan-images";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// GET /collections/:guid/cards/:scanId/image — the scanned photo, fetched on
-// demand for the card detail view only; the bulk card list/session_init
-// payloads omit it since it's stored inline as a base64 data URL and
-// including it for every card in a collection's history blows up the
-// response size.
 export const collectionCardImageRoute = new Hono<AppEnv>().get(
   "/:guid/cards/:scanId/image",
   requireAuth,

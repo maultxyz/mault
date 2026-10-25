@@ -7,7 +7,6 @@ import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// DELETE /collections/:guid/unmatched/:scanId — soft-delete one unmatched card
 export const deleteUnmatchedCardRoute = new Hono<AppEnv>().delete(
   "/:guid/unmatched/:scanId",
   requireAuth,

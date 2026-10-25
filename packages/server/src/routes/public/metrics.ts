@@ -4,7 +4,6 @@ import { scanMetricsCache } from "../../lib/public-metrics-cache";
 import type { AppEnv } from "../../middleware/auth";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// GET /public/metrics — unauthenticated, app-wide totals across every org.
 export const publicMetricsRoute = new Hono<AppEnv>().get(
   "/metrics",
   async (c) => {

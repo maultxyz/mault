@@ -104,10 +104,6 @@ export async function fetchDetail(
   return (await response.json()) as PokemonCardDetail;
 }
 
-// Cap on how many brief search hits get enriched with a full detail fetch.
-// TCGdex's list endpoint only returns {id, localId, name, image} - the picker
-// UI needs set/rarity/collector number too, so each result needs its own
-// /cards/:id call. Keeping this modest bounds the fan-out on every keystroke.
 const MAX_ENRICHED_RESULTS = 30;
 
 export async function searchCards(

@@ -57,15 +57,10 @@ export const addGameRoute = new Hono<AppEnv>().post(
         })
         .returning();
 
-      // Fire-and-forget: a build against an already-populated table can take
-      // minutes, well past any HTTP request timeout in front of this route.
       void ensureGameVectorIndex(row.key);
       publicGamesCache.invalidate();
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {
-      // Backstop for a race between the check above and this insert (two
-      // concurrent creates with the same key) - the DB's unique constraint is
-      // still the actual guarantee, this is just a friendlier message for it.
       if (err instanceof Error && /unique/i.test(err.message)) {
         return c.json(
           {

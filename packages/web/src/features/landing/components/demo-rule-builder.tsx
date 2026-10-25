@@ -15,11 +15,6 @@ import {
   DEMO_RULE_OPERATOR_OPTIONS,
 } from "@/lib/constants/landing";
 
-// A read-only stand-in for features/bins/components/condition-row.tsx,
-// reusing the same Select/Button primitives - the real row pulls its field
-// definitions from useBinConfigs/useCollections, which need the
-// QueryClientProvider tree that only wraps the authenticated /app/* routes,
-// not this public marketing page.
 function DemoConditionRow({
   field,
   operator,

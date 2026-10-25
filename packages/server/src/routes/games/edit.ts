@@ -82,12 +82,10 @@ export const editGameRoute = new Hono<AppEnv>().put(
       });
       publicGamesCache.invalidate();
       if (newKey !== undefined && newKey !== target.key) {
-        // Fire-and-forget - see add.ts for why this isn't awaited.
         void ensureGameVectorIndex(newKey);
       }
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {
-      // Backstop for a race between the check above and this update.
       if (err instanceof Error && /unique/i.test(err.message)) {
         return c.json(
           { success: false, message: `A game with key "${key}" already exists.` },

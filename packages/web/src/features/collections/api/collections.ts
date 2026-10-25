@@ -110,7 +110,6 @@ export async function addCollectionCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
-  // Return body for success, 423 (locked), 402 (free-plan scan or connected-sorter limit reached), and 409 (bin full)
   if (res.ok || res.status === 423 || res.status === 402 || res.status === 409)
     return res.json();
   throw new ApiStatusError(res.status);

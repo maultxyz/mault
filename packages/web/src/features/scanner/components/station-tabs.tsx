@@ -48,8 +48,6 @@ function StationTab({ station, index, isActive }: StationTabProps) {
   );
 }
 
-// One tab per connected sorter: a tab appears when a board connects and
-// disappears when it disconnects, including via the tab's own disconnect.
 export function StationTabs() {
   const { t } = useTranslation("scanner");
   const navigate = useNavigate();

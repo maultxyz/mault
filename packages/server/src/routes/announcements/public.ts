@@ -4,7 +4,6 @@ import type { AppEnv } from "../../middleware/auth";
 import { toAnnouncement } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// GET /announcements/public — no auth, powers the landing/build page banner
 export const publicAnnouncementsRoute = new Hono<AppEnv>().get(
   "/public",
   async (c) => {

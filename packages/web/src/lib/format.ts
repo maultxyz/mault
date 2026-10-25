@@ -1,6 +1,4 @@
 export function formatUsd(value: number): string {
-  // Non-breaking space keeps "USD" from wrapping onto its own line in
-  // tight layouts (card grid badges, stat tiles).
   return `$${value.toFixed(2)} USD`;
 }
 
