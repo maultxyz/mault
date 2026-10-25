@@ -18,7 +18,6 @@ function parseCount(value: string | undefined, fallback: number, max: number) {
   return Math.min(parsed, max);
 }
 
-// GET /collections/:guid/unmatched?limit=&offset= — newest unmatched scans first
 export const listUnmatchedCardsRoute = new Hono<AppEnv>().get(
   "/:guid/unmatched",
   requireAuth,

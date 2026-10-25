@@ -19,9 +19,7 @@ function emitToOrg(orgId: string, event: string, data: unknown) {
   for (const writer of writers) {
     try {
       writer(event, data);
-    } catch {
-      /* writer disconnected */
-    }
+    } catch {}
   }
 }
 

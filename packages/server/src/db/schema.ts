@@ -72,8 +72,6 @@ const apiServiceOrgWrite = (orgId: any) => {
   ];
 };
 
-// ─── Global card vectors (no org scope) ──────────────────────────────────────
-
 export const cardImageVectors = pgTable(
   "cards",
   {
@@ -97,12 +95,6 @@ export const cardImageVectors = pgTable(
       table.lang,
       table.cardId,
     ),
-    // No table-wide HNSW index here on purpose: every real query filters by
-    // game_key first, and one global ANN index makes that filter lossy (see
-    // ensureGameVectorIndex in lib/game-vector-index.ts). Per-game_key
-    // partial HNSW indexes are created dynamically instead, since game keys
-    // are admin-defined data (Games Manager), not something this static
-    // schema can enumerate.
     index("cards_back_embedding_hnsw")
       .using("hnsw", table.backEmbedding.op("vector_cosine_ops"))
       .where(sql`${table.backEmbedding} IS NOT NULL`),
@@ -1073,8 +1065,6 @@ export const orgDailyScanUsage = pgTable(
   ],
 ).enableRLS();
 
-// ─── Audit tables (org-scoped, no FK — audit records are permanent) ───────────
-
 export const binSetAudit = pgTable(
   "bin_set_audit",
   {
@@ -1104,7 +1094,6 @@ export const binRouteAudit = pgTable(
     module: integer("module").notNull(),
     direction: text("direction").notNull(),
     orgId: text("org_id").notNull(),
-    // No FK, matching the rest of this table (audit records are permanent).
     deviceId: integer("device_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -1126,7 +1115,6 @@ export const binHeightAudit = pgTable(
     binNumber: integer("bin_number").notNull(),
     height: doublePrecision("height").notNull(),
     orgId: text("org_id").notNull(),
-    // No FK, matching the rest of this table (audit records are permanent).
     deviceId: integer("device_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -1147,7 +1135,6 @@ export const moduleConfigAudit = pgTable(
     guid: uuid("guid").defaultRandom(),
     moduleNumber: integer("module_number").notNull(),
     orgId: text("org_id").notNull(),
-    // No FK, matching the rest of this table (audit records are permanent).
     deviceId: integer("device_id").notNull(),
     bottomClosed: integer("bottom_closed").notNull(),
     bottomOpen: integer("bottom_open").notNull(),
@@ -1157,9 +1144,6 @@ export const moduleConfigAudit = pgTable(
     pusherNeutral: integer("pusher_neutral").notNull(),
     pusherRight: integer("pusher_right").notNull(),
     pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
-    // Has a default (unlike this table's other columns) purely so the
-    // migration adding it can backfill existing audit rows - every new row
-    // always supplies it explicitly, same as the rest.
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
     paddleOpenDelay: integer("paddle_open_delay").notNull().default(300),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -1180,7 +1164,6 @@ export const feederConfigAudit = pgTable(
     id: serial().primaryKey(),
     guid: uuid("guid").defaultRandom(),
     orgId: text("org_id").notNull(),
-    // No FK, matching the rest of this table (audit records are permanent).
     deviceId: integer("device_id").notNull(),
     speed: integer("speed").notNull(),
     duration: integer("duration").notNull(),
@@ -1223,12 +1206,6 @@ export const impersonationAudit = pgTable(
   ],
 ).enableRLS();
 
-// ─── Local auth only (AUTH_PROVIDER=local) ───────────────────────────────────
-// own-auth's own tables (own_auth_*, see auth/local.ts) have no concept of a
-// global per-user platform role - that's an app-level concern in Neon mode
-// too (neon_auth.user.role), so local mode gets its own small table for it
-// rather than teaching own-auth about it. Not RLS-protected: only ever
-// read/written by the server via `db`, never by end users directly.
 export const platformUserRoles = pgTable("platform_user_roles", {
   userId: text("user_id").primaryKey(),
   role: text("role").notNull().default("user"),

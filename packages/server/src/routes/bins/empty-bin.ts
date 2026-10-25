@@ -17,8 +17,6 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { emptyRules, resolveGameId, activeBinSetWhere } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// Marks a physical bin as emptied - cards scanned before now stop counting
-// toward its capacity, without touching the collection's card history.
 export const emptyBinRoute = new Hono<AppEnv>().post(
   "/bins/:binNumber/empty",
   requireAuth,

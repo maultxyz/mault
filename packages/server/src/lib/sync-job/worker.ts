@@ -312,11 +312,6 @@ async function runSync(
   let pendingInserts: (typeof cardImageVectors.$inferInsert)[] = [];
   let pendingCards: SyncSourceCard[] = [];
 
-  // `processed`/`errors` must only advance once a batch's INSERT has been
-  // confirmed - incrementing them as soon as a card was *queued* let a
-  // failed batch INSERT silently lose every other card queued alongside the
-  // one worker that happened to await it, while the UI still reported them
-  // all as processed.
   async function flushInserts(force = false): Promise<void> {
     if (pendingInserts.length === 0) return;
     if (!force && pendingInserts.length < INSERT_BATCH_SIZE) return;

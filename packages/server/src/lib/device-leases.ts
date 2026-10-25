@@ -4,12 +4,8 @@ import type {
   DeviceLeaseExpiredListener,
 } from "./interfaces/device-leases";
 
-// DeviceLease key for a scan whose client couldn't say which device it came from.
 export const UNIDENTIFIED_SORTER_LEASE_KEY = "unidentified";
 
-// orgId -> deviceGuid -> lease. In process memory like scan-lock.ts, so it
-// resets on a server restart; clients renew on a heartbeat and simply
-// re-acquire.
 const leases = new Map<string, Map<string, DeviceLease>>();
 
 let expiredListener: DeviceLeaseExpiredListener | null = null;
@@ -35,10 +31,6 @@ function scheduleExpiry(orgId: string, deviceKey: string) {
   }, DEVICE_LEASE_TTL_MS);
 }
 
-// Acquires or renews the lease for one connected sorter. `limit` is the
-// org's cap on simultaneously connected sorters (null = unlimited); renewing
-// an already-held lease always succeeds so a downgrade never kicks off a
-// sorter that's mid-session.
 export function acquireDeviceLease(
   orgId: string,
   deviceKey: string,

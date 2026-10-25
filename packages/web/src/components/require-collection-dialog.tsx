@@ -75,13 +75,9 @@ export function RequireCollectionDialog() {
     [createCollection, form],
   );
 
-  // Dismissible only when there are no active games - otherwise its own game
-  // picker is empty and submit is disabled, leaving no way out.
   const dismissible = activeGames.length === 0;
   const [dismissed, setDismissed] = useState(false);
 
-  // Re-arm once a game becomes available mid-session, so the dialog goes
-  // back to nagging (now-completable) rather than staying dismissed forever.
   useEffect(() => {
     if (activeGames.length > 0) setDismissed(false);
   }, [activeGames.length]);
@@ -93,9 +89,6 @@ export function RequireCollectionDialog() {
     <DynamicDialog
       open={open}
       onOpenChange={(next) => {
-        // The underlying Dialog only uses `dismissible` to hide the close
-        // button - outside-click/Escape still fire onOpenChange(false)
-        // regardless, so re-check it here to actually block dismissal.
         if (!next && dismissible) setDismissed(true);
       }}
       dismissible={dismissible}

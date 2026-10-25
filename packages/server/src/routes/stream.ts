@@ -89,11 +89,6 @@ async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
   });
 }
 
-// GET /stream — single SSE connection multiplexing everything the app used to
-// open separate connections for: org-wide scan locks, org-wide live viewer
-// counts, the global admin sync job, and (via ?guids=) per-collection scan
-// session events. Session-scoped events are namespaced "session:<guid>:<event>"
-// so one connection can safely watch several collections at once.
 export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
   const shareToken = c.req.query("share");
   if (shareToken) return streamMonitorLink(c, shareToken);
@@ -159,9 +154,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
           counts: getLiveCountsForGuids(orgGuids),
           viewers: getSessionViewersForGuids(orgGuids),
         });
-      } catch {
-        // non-fatal — subscribers still receive live lock/count events
-      }
+      } catch {}
 
       for (const guid of watchGuids) {
         const sessionWrite = (event: string, data: unknown) =>

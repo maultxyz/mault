@@ -34,9 +34,6 @@ export function SyncCardByIdPanel() {
     onSuccess: (result) => {
       toast.success(result.message);
       setSyncCardIdInput("");
-      // Refreshes the card database list/counts (features/admin/components/
-      // card-database-manager.tsx + dump-card-database-panel.tsx) - they own
-      // the same query key, so this just needs to invalidate it.
       queryClient.invalidateQueries({ queryKey: ["admin", "cards"] });
     },
     onError: () => {

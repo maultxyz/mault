@@ -39,7 +39,6 @@ export function FirmwareFlashDialog({
   isFlashing: boolean;
   flashProgress: number | null;
   flashLog: string[];
-  // Resolves null when the user backed out (e.g. dismissed the port picker).
   onStart: () => Promise<FlashEsp32Result | null>;
 }) {
   const { t } = useTranslation("scanner");

@@ -90,8 +90,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-// Singleton AudioContext - browsers cap concurrent contexts (~6).
-// Creating one per scan exhausts the limit quickly.
 let sharedAudioCtx: AudioContext | null = null;
 function getAudioContext(): AudioContext {
   if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
@@ -913,10 +911,6 @@ export function useCardScanner({
     rafRef.current = requestAnimationFrame(detectionLoop);
   }, []);
 
-  // Attach stream to video/canvases and start the detection loop.
-  // Re-runs if the stream is replaced (e.g. after retryCamera).
-  // On unmount: cancels the RAF loop but does NOT stop the stream tracks -
-  // the CameraProvider owns the stream lifetime.
   useEffect(() => {
     if (!stream) return;
 
@@ -982,9 +976,6 @@ export function useCardScanner({
     };
   }, [stream, updateStatus, detectionLoop, outlineAnimator]);
 
-  // Continuous live-preview overlay showing what would be captured - purely
-  // visual feedback, decoupled from when an actual capture/match fires
-  // (that stays gated on the settle-delayed captureCard flow).
   const liveDetectingRef = useRef(false);
   useEffect(() => {
     if (!stream) return;
@@ -1273,8 +1264,6 @@ export function useCardScanner({
   const handleRetryError = useCallback(async () => {
     setErrorMessage("");
     if (cameraSource === "phone") {
-      // Don't fall back to the local webcam here - just clear the error and
-      // let the phone-status effect above re-evaluate current presence.
       updateStatus(
         phonePairingStatus === "connected" ? "paused" : "initializing",
       );

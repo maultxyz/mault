@@ -7,7 +7,6 @@ import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { toAnnouncement } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// GET /announcements — admin only, includes inactive ones for management
 export const listAnnouncementsRoute = new Hono<AppEnv>().get(
   "/",
   requireAuth,

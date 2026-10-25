@@ -26,9 +26,6 @@ import { toast } from "@/lib/toast";
 import { copyWithToast } from "@/lib/clipboard";
 import { formatShortDate } from "@/lib/format";
 
-// Local mode only - see routes/local-auth.ts. Personal API keys (like a
-// GitHub personal access token), scriptable access to Mault's own API using
-// the same Authorization: Bearer transport a browser session uses.
 export function ApiKeysManager() {
   const { t } = useTranslation("account");
   const [keys, setKeys] = useState<ApiKey[] | null>(null);

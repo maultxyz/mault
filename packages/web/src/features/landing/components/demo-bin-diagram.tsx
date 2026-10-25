@@ -3,13 +3,6 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { DEMO_BIN_DIAGRAM_MODULES } from "@/lib/constants/landing";
 
-// A read-only stand-in for features/bins/components/bin-location-diagram.tsx,
-// reusing its cell layout and translations - the real diagram pulls its
-// routing from useBinConfigs/useBinRoutes, which need the QueryClientProvider
-// tree that only wraps the authenticated /app/* routes, not this public page.
-// It's also only ever used against a dark tooltip surface (inverted styling);
-// here it sits directly on a card background, so the active/inactive
-// contrast is adapted accordingly.
 function BinCell({
   binNumber,
   active,

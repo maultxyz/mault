@@ -29,10 +29,6 @@ export async function resolveDevice(
   return apiPost<Result<Device>>("/api/devices/resolve", { hardwareId });
 }
 
-// Resolves false only when the server refused because the org is already at
-// its plan's connected-sorter cap. Any other failure resolves true: the
-// server re-checks on every scanned card, so a flaky lease call shouldn't
-// block a sorter the plan allows.
 export async function acquireDeviceLease(guid: string): Promise<boolean> {
   try {
     const res = await fetch(`${API_BASE}/api/devices/${guid}/lease`, {

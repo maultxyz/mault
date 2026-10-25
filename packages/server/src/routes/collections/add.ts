@@ -7,7 +7,6 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { collectionNameTaken, loadCollections } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// POST /collections — create and activate
 export const addCollectionRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,

@@ -11,10 +11,6 @@ import type { PhoneCameraMessage, ScanRegion } from "@magic-vault/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 
-// The phone heartbeats "camera_ready" roughly this often while its camera
-// is live (see use-phone-camera-responder.ts) - if we haven't heard one in
-// a while, treat it as gone rather than waiting forever.
-
 export function usePhoneCameraCapture(collectionGuid: string | undefined) {
   const [status, setStatus] = useState<PhoneCameraCaptureStatus>("idle");
   const activeRef = useRef(false);

@@ -51,11 +51,6 @@ function loadDevicePrefs(orgId: string): Record<string, DevicePrefs> {
   return {};
 }
 
-// Stations track physical connections rather than anything the user manages:
-// every connected sorter is a station (shown as a tab), plus exactly one idle
-// standby station that the next "connect" goes through. Connecting the
-// standby promotes it and spawns a new standby; a sorter disconnecting becomes
-// the standby and any other idle station is dropped.
 export function StationsProvider({ children }: { children: React.ReactNode }) {
   const { activeOrg } = useOrg();
   const orgId = activeOrg?.id;
@@ -78,8 +73,6 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
   const [panelLayout, setPanelLayout] = useState<StationPanelLayout | null>(
     null,
   );
-  // Mutators read and write these synchronously so two stations acting within
-  // one commit (e.g. both claiming a collection) always see each other.
   const stationsRef = useRef(stations);
   const activeStationIdRef = useRef(activeStationId);
   const connectedRef = useRef(connectedStationIds);
@@ -271,8 +264,6 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
 
       if (connected) {
         setActive(id);
-        // A sorter that was already scanning keeps its collection; the one
-        // just connecting falls back to a free one instead.
         const self = stationsRef.current.find((s) => s.id === id);
         if (
           self?.collectionGuid &&
@@ -319,8 +310,6 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  // Must stay synchronous up to the connector call: the browser only shows
-  // the port/device picker from within the originating user gesture.
   const connectAnotherSorter = useCallback((kind: StationConnectKind) => {
     if (connectedRef.current.size >= maxConnectedSortersRef.current) return;
     const standby = stationsRef.current.find(

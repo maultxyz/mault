@@ -28,8 +28,6 @@ import { loadOrgPlan } from "./scan-limit";
 import { toScannedCard } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// POST /collections/:guid/unmatched/:scanId/identify — turn an unmatched scan
-// into a collection card, keeping its scan id, photo, bin and scan time
 export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched/:scanId/identify",
   requireAuth,

@@ -40,10 +40,6 @@ function formatDate(value: string): string {
   });
 }
 
-// Local mode only, org owner/admin only (server-enforced). No SMTP is
-// configured for local mode (see the self-hosted-email discussion), so this
-// generates a shareable link instead of emailing one - see
-// routes/local-auth.ts's /invites and LocalEmailProvider for how.
 export function LocalOrgInvites() {
   const { t } = useTranslation("companies");
   const { activeOrg } = useOrgLocal();

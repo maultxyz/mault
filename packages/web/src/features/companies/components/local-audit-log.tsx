@@ -8,9 +8,6 @@ import { useTranslation } from "react-i18next";
 import type { LocalAuditEventRow } from "@/lib/interfaces/auth";
 import { formatShortDateTime } from "@/lib/format";
 
-// Local mode only, org owner/admin only (server-enforced via requireOrgRole
-// - see routes/local-auth.ts's /audit-events, and own-auth's own
-// view_audit_events permission check underneath it as defense in depth).
 export function LocalAuditLog() {
   const { t } = useTranslation("companies");
   const { activeOrg } = useOrgLocal();

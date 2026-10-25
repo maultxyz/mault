@@ -6,7 +6,6 @@ import { getLocksForGuids } from "../../lib/scan-lock";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// GET /collections/locks — returns { [guid]: ScanLock } for collections currently locked by a scanner
 export const locksRoute = new Hono<AppEnv>().get(
   "/locks",
   requireAuth,

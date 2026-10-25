@@ -1,5 +1,4 @@
 export const APP_LOADING_TRANSITION_MS = 500;
-// Well inside the server's DEVICE_LEASE_TTL_MS (60s).
 export const DEVICE_LEASE_HEARTBEAT_MS = 20_000;
 export const LIVE_CLOCK_TICK_MS = 1000;
 export const DISCORD_ACCOUNT_LINK_POLL_MS = 3000;

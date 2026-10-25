@@ -41,8 +41,6 @@ async function detectCardCornersWithRetry(
   return { detection, frame };
 }
 
-// The preview's requestAnimationFrame loop stops while the tab is hidden, so
-// refreshFrame pulls a fresh camera frame instead of reusing the last one drawn.
 export async function detectAndDewarpCard(
   canvas: HTMLCanvasElement,
   refreshFrame: () => void,

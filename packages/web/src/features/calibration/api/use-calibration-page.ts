@@ -545,7 +545,6 @@ export function useCalibrationPage() {
           });
           return;
         }
-        // Brief pause between cards so the mechanism fully resets
         await new Promise<void>((r) => setTimeout(r, CALIBRATION_STEP_SETTLE_MS));
       }
       toast.success(t("useCalibrationPage.toasts.sampleRunComplete"));
@@ -775,8 +774,7 @@ export function useCalibrationPage() {
         });
       }
       toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
-    } catch {
-    } finally {
+    } catch {} finally {
       setIsSavingFeederModule(false);
     }
   }, [
@@ -907,8 +905,7 @@ export function useCalibrationPage() {
       const parsed = JSON.parse(response);
       if (Array.isArray(parsed.ir)) setIrStates(parsed.ir as boolean[]);
       if (typeof parsed.hopper === "boolean") setHopperHasCards(parsed.hopper);
-    } catch {
-    } finally {
+    } catch {} finally {
       irBusyRef.current = false;
     }
   }, [isReady, sendRequest]);

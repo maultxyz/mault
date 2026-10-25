@@ -9,9 +9,6 @@ import {
 } from "../../middleware/auth";
 import { authErrorResponse } from "./shared";
 
-// Org activity log - owner/admin only (own-auth grants both roles
-// view_audit_events by default, checked internally by listAuditEvents
-// itself as defense in depth on top of requireOrgRole here).
 export const auditEventsRoute = new Hono<AppEnv>().get(
   "/audit-events",
   requireAuth,

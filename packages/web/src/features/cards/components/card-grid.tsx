@@ -147,10 +147,6 @@ export function CardGrid() {
   const isReviewing = searchParams.get(CARD_REVIEW_SEARCH_PARAM) === "1";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  // Keeps the open card in the URL (/app/cards/:scanId) so it's shareable
-  // and survives a refresh, rather than living only in component state.
-  // Replaces history instead of pushing, so browser back always returns to
-  // the grid rather than stepping back through every previously viewed card.
   const setOpenScanId = useCallback(
     (scanId: string | null, { inReviewMode = false }: OpenScanOptions = {}) => {
       const reviewSuffix = inReviewMode

@@ -19,9 +19,7 @@ export function resolveImageUrl(url: string): string {
   if (proxied) {
     try {
       return decodeURIComponent(proxied[1]);
-    } catch {
-      // malformed encoding - fall through to the raw url below
-    }
+    } catch {}
   }
   if (/^https?:\/\//i.test(url)) return url;
   const base = getWebUrl();

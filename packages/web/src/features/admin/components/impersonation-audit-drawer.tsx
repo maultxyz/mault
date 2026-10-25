@@ -24,10 +24,6 @@ export function ImpersonationAuditDrawer({
     queryKey: ["admin", "impersonation-audit"],
     queryFn: () => listImpersonationAudit().then((r) => r.data ?? []),
     enabled: open,
-    // Always refetch on open rather than trusting a cached fetch - this
-    // list is what confirms a session actually ended, so a stale "Active"
-    // row here (e.g. reopening shortly after exiting) is actively
-    // misleading, not just a mildly outdated count.
     staleTime: 0,
   });
 

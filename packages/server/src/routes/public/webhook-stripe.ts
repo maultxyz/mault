@@ -45,9 +45,6 @@ async function upsertOrgBillingFromSubscription(
     });
 }
 
-// POST /public/webhooks/stripe — unauthenticated (Stripe has no session to
-// present; the signature below is what proves the request came from Stripe).
-// Set this route's full URL as the endpoint in the Stripe dashboard.
 export const webhookStripeRoute = new Hono<AppEnv>().post(
   "/webhooks/stripe",
   async (c) => {
