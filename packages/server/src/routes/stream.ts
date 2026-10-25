@@ -20,9 +20,9 @@ import {
 } from "../lib/deploy-notice";
 import { getLocksForGuids, subscribeOrgLocks } from "../lib/scan-lock";
 import {
-  getAllSessionViewers,
   getLiveCountsForGuids,
   getSessionViewers,
+  getSessionViewersForGuids,
   subscribeOrgLiveCounts,
   subscribeSession,
 } from "../lib/session-stream";
@@ -157,7 +157,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
         write("lock_init", { locks: getLocksForGuids(orgGuids) });
         write("live_init", {
           counts: getLiveCountsForGuids(orgGuids),
-          viewers: getAllSessionViewers(),
+          viewers: getSessionViewersForGuids(orgGuids),
         });
       } catch {
         // non-fatal — subscribers still receive live lock/count events
