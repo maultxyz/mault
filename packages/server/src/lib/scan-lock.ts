@@ -83,16 +83,6 @@ export function releaseLock(guid: string, userId: string): boolean {
   return true;
 }
 
-export function getLock(guid: string): ScanLock | null {
-  const entry = locks.get(guid);
-  if (!entry) return null;
-  return {
-    userId: entry.userId,
-    displayName: entry.displayName,
-    expiresAt: entry.expiresAt,
-  };
-}
-
 export function getLocksForGuids(guids: string[]): Record<string, ScanLock> {
   const result: Record<string, ScanLock> = {};
   for (const guid of guids) {

@@ -280,12 +280,6 @@ export interface InventorySnapshotPoint {
   costBasis: number;
 }
 
-export interface InventoryReport {
-  totals: InventoryTotals;
-  collections: InventoryCollectionRow[];
-  history: InventorySnapshotPoint[];
-}
-
 export interface CollectionCostInput {
   total: number;
   mode: "spread" | "each";

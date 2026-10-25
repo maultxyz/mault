@@ -2,13 +2,12 @@ import { useTranslation } from "react-i18next";
 import { Modal, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
 import { ListRow } from "@/components/ui/list-row";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { OptionSheetProps } from "@/lib/interfaces/ui";
 
-export function OptionSheet({ visible, title, options, selected, multiple = false, onSelect, onClose }: OptionSheetProps) {
+export function OptionSheet({ visible, title, options, selected, onSelect, onClose }: OptionSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
@@ -39,7 +38,6 @@ export function OptionSheet({ visible, title, options, selected, multiple = fals
           <AppText size="base" weight="semibold" style={{ flexShrink: 1 }}>
             {title}
           </AppText>
-          {multiple ? <Button size="sm" variant="ghost" label={t("common.done")} onPress={onClose} /> : null}
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER - SPACING.sm }}>
           {options.map((option) => (

@@ -4,7 +4,6 @@ import type {
   LeaderboardEntry,
   OrgOverviewCard,
   StatsCollectionRow,
-  StatsRange,
   StatsReport,
 } from "@magic-vault/shared";
 import type { STATS_ACTIVITY_METRICS, STATS_COLLECTION_METRICS } from "@/lib/constants/stats";
@@ -86,11 +85,4 @@ export interface StatsLeaderboardSheetProps {
 export interface LeaderboardRow {
   key: string;
   entry: LeaderboardEntry;
-}
-
-export interface StatsControlsProps {
-  range: StatsRange;
-  onRangeChange: (range: StatsRange) => void;
-  collectionGuid: string | null;
-  onCollectionChange: (guid: string | null) => void;
 }
