@@ -12,6 +12,39 @@ export const DUPLICATE_PRINTING_MAX_DISTANCE = 0.02;
 
 export const SCRYFALL_LIST_SET_CODES = ["plst", "ulst"];
 
+export const SCRYFALL_ETCHED_FINISH = "etched";
+
+export const SCRYFALL_FOIL_PROMO_TYPES = [
+  "surgefoil",
+  "galaxyfoil",
+  "silverfoil",
+  "ripplefoil",
+  "rainbowfoil",
+  "doublerainbow",
+  "halofoil",
+  "textured",
+  "stepandcompleat",
+  "fracturefoil",
+  "raisedfoil",
+  "manafoil",
+  "gilded",
+  "confettifoil",
+  "neonink",
+  "oilslick",
+  "invisibleink",
+  "chocobotrackfoil",
+  "facetfoil",
+  "dazzlefoil",
+  "dragonscalefoil",
+  "cosmicfoil",
+  "singularityfoil",
+  "firstplacefoil",
+];
+
+export const SCRYFALL_FOIL_TYPE_ALIASES: Record<string, string> = {
+  silverscreen: "silverfoil",
+};
+
 export const STORED_SEARCH_LIMIT = 60;
 
 export const COLLECTOR_NUMBER_BACKFILL_BATCH_SIZE = 1000;

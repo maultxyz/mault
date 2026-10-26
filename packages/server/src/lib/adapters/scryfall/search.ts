@@ -8,6 +8,7 @@ import {
 } from "../../constants/card-search";
 import { sql } from "drizzle-orm";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
+import { scryfallFoilPrintingVariants } from "./foil-printings";
 import type {
   ScryfallApiCard,
 } from "../../interfaces/scryfall";
@@ -24,6 +25,10 @@ function withPrintedFields(raw: ScryfallApiCard): ScryfallApiCard {
       raw.oracle_text ??
       face?.oracle_text,
   };
+}
+
+function parsePrice(value: string | null | undefined): number | null {
+  return value != null ? Number.parseFloat(value) : null;
 }
 
 function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
@@ -48,11 +53,8 @@ function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
     toughness: raw.toughness ?? face?.toughness,
     colorIdentity: raw.color_identity,
     artist: raw.artist ?? face?.artist,
-    price: raw.prices.usd != null ? Number.parseFloat(raw.prices.usd) : null,
-    priceFoil:
-      raw.prices.usd_foil != null
-        ? Number.parseFloat(raw.prices.usd_foil)
-        : null,
+    price: parsePrice(raw.prices.usd),
+    priceFoil: parsePrice(raw.prices.usd_foil ?? raw.prices.usd_etched),
     sourceUrl: raw.scryfall_uri,
     tcgplayerId:
       raw.tcgplayer_id != null ? String(raw.tcgplayer_id) : undefined,
@@ -133,6 +135,7 @@ export const scryfallAdapter: CardSearchAdapter = {
     sql`, `,
   )}))`,
   excludedFromMatchingSql: sql`(data->>'digital') = 'true'`,
+  foilPrintingVariants: scryfallFoilPrintingVariants,
   tcgplayer: {
     categoryId: 1,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),

@@ -20,6 +20,7 @@ function cardsParams(search: string, page?: number, review = false): string {
     grouped: review ? "0" : "1",
     filters: JSON.stringify(review ? { ...EMPTY_CARD_FILTERS, needsAttention: true } : EMPTY_CARD_FILTERS),
   });
+  if (review) params.set("unreviewed", "1");
   if (page != null) params.set("page", String(page));
   if (search) params.set("search", search);
   return params.toString();
