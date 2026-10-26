@@ -106,6 +106,7 @@ export interface IntakeReviewCard {
   isFoil: boolean;
   foilType: string | null;
   condition: CardCondition;
+  language: string | null;
   lowConfidenceMatch: boolean;
   hasAlternatives: boolean;
   corrected: boolean;

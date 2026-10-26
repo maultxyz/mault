@@ -9,7 +9,10 @@ import { Alert, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CARD_CONDITIONS,
+  CARD_LANGUAGES,
   DEFAULT_CARD_CONDITION,
+  isCardLanguage,
+  scanLanguage,
   type CardCondition,
   type PlayingCard,
   scanDraftFormSchema,
@@ -48,6 +51,7 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
@@ -76,7 +80,7 @@ export default function CardDetailScreen() {
   const collections = useQuery(collectionsQueryOptions(useActiveOrgId()));
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
-  const [sheet, setSheet] = useState<"foil" | "condition" | null>(null);
+  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | null>(null);
 
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
   const nextScanId = position.data?.nextScanId ?? null;
@@ -104,6 +108,7 @@ export default function CardDetailScreen() {
         ? {
             foilType: entry.foilType ?? (entry.isFoil ? foilOptions[0] : null),
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
+            language: scanLanguage(entry),
           }
         : undefined,
     [entry, foilOptions],
@@ -116,6 +121,9 @@ export default function CardDetailScreen() {
   const { isDirty } = form.formState;
   const draftFoil = form.watch("foilType");
   const draftCondition = form.watch("condition") as CardCondition;
+  const draftLanguage = form.watch("language");
+  const languageOptions: string[] =
+    !draftLanguage || isCardLanguage(draftLanguage) ? [...CARD_LANGUAGES] : [draftLanguage, ...CARD_LANGUAGES];
   const price = card ? pricing.priceOf(card, draftFoil != null, draftCondition) : null;
 
   const saveDraft = useMutation({
@@ -124,6 +132,7 @@ export default function CardDetailScreen() {
         isFoil: values.foilType != null,
         foilType: values.foilType,
         condition: values.condition as CardCondition,
+        ...(form.formState.dirtyFields.language ? { language: values.language } : {}),
       }),
     onSuccess: (_, values) => form.reset(values),
     onSettled: () => invalidateCollectionCards(queryClient, guid),
@@ -349,6 +358,12 @@ export default function CardDetailScreen() {
                       value={t(`cardDetail.conditions.${draftCondition}`)}
                       onPress={() => setSheet("condition")}
                     />
+                    <ListRow
+                      icon="language"
+                      title={t("cardDetail.language")}
+                      value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
+                      onPress={() => setSheet("language")}
+                    />
                   </ListGroup>
                 ) : null}
                 {storage.data ? (
@@ -487,6 +502,17 @@ export default function CardDetailScreen() {
         selected={[draftCondition]}
         onSelect={(value) => {
           form.setValue("condition", value as CardCondition, { shouldDirty: true });
+          setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "language"}
+        title={t("cardDetail.language")}
+        options={languageOptions.map((value) => ({ value, label: LANGUAGE_LABELS[value] ?? value }))}
+        selected={[draftLanguage]}
+        onSelect={(value) => {
+          form.setValue("language", value, { shouldDirty: true });
           setSheet(null);
         }}
         onClose={() => setSheet(null)}

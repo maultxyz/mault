@@ -109,6 +109,7 @@ export const storageLocationNameFormSchema = z.object({
 export const scanDraftFormSchema = z.object({
   foilType: z.string().nullable(),
   condition: z.enum(CARD_CONDITIONS as [CardCondition, ...CardCondition[]]),
+  language: z.string().min(1),
 });
 
 const discordChannelIdSchema = z.string().nullable();

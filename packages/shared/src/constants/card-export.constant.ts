@@ -8,6 +8,25 @@ export const CONDITION_EXPORT_LABELS: Record<CardCondition, string> = {
   DMG: "Damaged",
 };
 
+export const MANABOX_LANGUAGE_CODES: Record<string, string> = {
+  zhs: "zh_CN",
+  zht: "zh_TW",
+};
+
+export const MOXFIELD_LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  de: "German",
+  fr: "French",
+  it: "Italian",
+  es: "Spanish",
+  pt: "Portuguese",
+  ja: "Japanese",
+  ko: "Korean",
+  ru: "Russian",
+  zhs: "Chinese Simplified",
+  zht: "Chinese Traditional",
+};
+
 export const NONFOIL_FINISH_LABEL = "Normal";
 
 export const FOIL_FINISH_LABEL = "Foil";

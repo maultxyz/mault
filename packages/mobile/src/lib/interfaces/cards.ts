@@ -30,6 +30,7 @@ export interface CardUpdateBody {
   isFoil?: boolean;
   foilType?: string | null;
   condition?: CardCondition;
+  language?: string;
 }
 
 export interface CardCorrectionSearchProps {

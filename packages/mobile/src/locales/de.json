@@ -779,6 +779,7 @@
     "thisScan": "Dieser Scan",
     "foilNone": "Kein Foil",
     "condition": "Bedingung",
+    "language": "Sprache",
     "conditions": {
       "NM": "Near Mint (NM)",
       "LP": "Lightly Played (LP)",

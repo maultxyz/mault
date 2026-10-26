@@ -2,6 +2,7 @@ import {
   confirmCollectionCard,
   markCollectionCardReviewed,
   setCollectionCardCondition,
+  setCollectionCardLanguage,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -421,6 +422,35 @@ export function useSetStoredCardCondition() {
   };
 }
 
+export function useSetStoredCardLanguage() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({
+      entry,
+      language,
+    }: {
+      entry: StorageLocationSearchResult;
+      language: string;
+    }) =>
+      setCollectionCardLanguage(entry.collectionGuid, entry.scanId, language),
+    onMutate: ({ entry, language }) =>
+      patchStoredCard(queryClient, entry, { language }),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, { entry }) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return {
+    setLanguage: (entry: StorageLocationSearchResult, language: string) =>
+      mutation.mutate({ entry, language }),
+  };
+}
+
 export function useStoredCardActions(
   entry: StorageLocationSearchResult | null,
 ): CardDetailActions {
@@ -429,6 +459,7 @@ export function useStoredCardActions(
   const { markReviewed } = useMarkStoredCardReviewed();
   const { setFoilType } = useSetStoredCardFoilType();
   const { setCondition } = useSetStoredCardCondition();
+  const { setLanguage } = useSetStoredCardLanguage();
 
   return {
     correctCard: (_scanId, card) => {
@@ -445,6 +476,9 @@ export function useStoredCardActions(
     },
     setCardCondition: (_scanId, condition) => {
       if (entry) setCondition(entry, condition);
+    },
+    setCardLanguage: (_scanId, language) => {
+      if (entry) setLanguage(entry, language);
     },
   };
 }
