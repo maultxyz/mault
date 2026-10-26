@@ -1,5 +1,6 @@
 import type {
   PickList,
+  ResolvedCardSearchMatches,
   BinConfig,
   BinRoute,
   BinSet,
@@ -90,6 +91,7 @@ export interface PiScanFrameMatch {
   image: Buffer;
   orientation: "upright" | "rotated";
   result: CardMatchSearchResult;
+  resolved: ResolvedCardSearchMatches;
   embedding: number[] | null;
   ocr: OcrDiagnostics | null;
   matchedBy: ScanMatchSource;

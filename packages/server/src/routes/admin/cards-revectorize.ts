@@ -10,8 +10,6 @@ export const cardsRevectorizeRoute = new Hono<AppEnv>().post(
   async (c) => {
     const cardId = c.req.param("cardId");
 
-    // The same card id can exist in multiple games and languages, so
-    // re-vectorize every copy.
     const existing = await db.query.cardImageVectors.findMany({
       where: (t, { eq }) => eq(t.cardId, cardId),
       columns: { gameKey: true, lang: true },

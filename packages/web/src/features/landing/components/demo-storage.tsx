@@ -1,86 +1,227 @@
-import { DEMO_SCANNED_CARDS } from "@/features/landing/lib/demo-cards";
+import { FoilOverlay } from "@/components/foil-overlay";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
-  DEMO_STORAGE_ACTIVE_BOX,
-  DEMO_STORAGE_BOXES,
-  DEMO_STORAGE_CARD_INDEXES,
-  DEMO_STORAGE_FIRST_POSITION,
-  DEMO_STORAGE_HIGHLIGHT_INDEX,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DEMO_STORAGE_ENTRIES,
+  searchDemoStorage,
+} from "@/features/landing/lib/demo-storage-entries";
+import { useTypewriter } from "@/hooks/use-typewriter";
+import {
+  DEMO_STORAGE_LOCATIONS,
   DEMO_STORAGE_SEARCH,
+  DEMO_STORAGE_TYPING_DELAY_MS,
 } from "@/lib/constants/landing";
-import { cn } from "@/lib/utils";
+import type {
+  DemoStorageTableProps,
+  FeatureSpotlightDemoProps,
+} from "@/lib/interfaces/landing";
 import { formatPrice } from "@magic-vault/shared";
-import { IconArchive, IconSearch } from "@tabler/icons-react";
+import { IconBox } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function DemoStorage() {
-  const { t } = useTranslation("landing");
-  const cards = DEMO_STORAGE_CARD_INDEXES.map((i) => DEMO_SCANNED_CARDS[i]);
+function DemoStorageTable({
+  entries,
+  showsLocation,
+  onOpenLocation,
+}: DemoStorageTableProps) {
+  const { t } = useTranslation("storage");
 
   return (
-    <div className="grid w-full gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-      <div className="flex flex-col gap-1.5">
-        {DEMO_STORAGE_BOXES.map((box, i) => {
-          const active = i === DEMO_STORAGE_ACTIVE_BOX;
-          return (
-            <div
-              key={box.name}
-              className={cn(
-                "flex items-center gap-2.5 rounded-lg border bg-background px-3 py-2 text-sm",
-                active ? "border-primary/50 ring-1 ring-primary/30" : "border-input",
-              )}
-            >
-              <IconArchive
-                size={18}
-                className={cn(
-                  "shrink-0",
-                  active ? "text-primary" : "text-foreground/70",
+    <div className="rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            {showsLocation ? (
+              <TableHead className="w-px">{t("cards.columns.location")}</TableHead>
+            ) : (
+              <TableHead className="w-12 text-right">
+                {t("cards.columns.position")}
+              </TableHead>
+            )}
+            <TableHead className="w-10">
+              <span className="sr-only">{t("cards.columns.image")}</span>
+            </TableHead>
+            <TableHead>{t("cards.columns.name")}</TableHead>
+            <TableHead className="text-right">
+              {t("cards.columns.price")}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {entries.map((entry) => {
+            const price =
+              (entry.isFoil ? entry.card.priceFoil : entry.card.price) ??
+              entry.card.price;
+            return (
+              <TableRow
+                key={`${entry.locationGuid}-${entry.position}`}
+                className="animate-in fade-in duration-300 motion-reduce:animate-none"
+              >
+                {showsLocation ? (
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="max-w-40"
+                      title={t("search.openLocation")}
+                      onClick={() => onOpenLocation(entry.locationGuid)}
+                    >
+                      <IconBox />
+                      <span className="truncate">
+                        {t("cardLocation.value", {
+                          name: entry.locationName,
+                          position: entry.position,
+                        })}
+                      </span>
+                    </Button>
+                  </TableCell>
+                ) : (
+                  <TableCell className="text-right text-xs font-semibold tabular-nums text-foreground/70">
+                    {t("cards.position", { position: entry.position })}
+                  </TableCell>
                 )}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{box.name}</p>
-                <p className="text-foreground/70 tabular-nums">
-                  {t("features.demo.cardCount", { count: box.cardCount })}
-                </p>
+                <TableCell>
+                  <div className="relative aspect-[2.5/3.5] w-8 overflow-hidden rounded-md bg-muted">
+                    <img
+                      src={entry.card.image?.small ?? ""}
+                      alt=""
+                      className="absolute inset-0 size-full object-cover"
+                    />
+                    {entry.isFoil && <FoilOverlay />}
+                  </div>
+                </TableCell>
+                <TableCell className="max-w-40 truncate font-medium">
+                  {entry.card.name}
+                </TableCell>
+                <TableCell className="text-right text-xs tabular-nums">
+                  {price != null ? formatPrice(price, "tcgplayer") : "-"}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+export function DemoStorage({ isRevealed }: FeatureSpotlightDemoProps) {
+  const { t } = useTranslation("storage");
+  const [selectedGuid, setSelectedGuid] = useState(
+    DEMO_STORAGE_LOCATIONS[0].guid,
+  );
+  const [userQuery, setUserQuery] = useState<string | null>(null);
+  const [hasTypingDelayPassed, setHasTypingDelayPassed] = useState(false);
+  const autoTypedQuery = useTypewriter(
+    DEMO_STORAGE_SEARCH,
+    isRevealed && hasTypingDelayPassed && userQuery === null,
+  );
+
+  useEffect(() => {
+    if (!isRevealed) return;
+    const timeoutId = window.setTimeout(
+      () => setHasTypingDelayPassed(true),
+      DEMO_STORAGE_TYPING_DELAY_MS,
+    );
+    return () => window.clearTimeout(timeoutId);
+  }, [isRevealed]);
+
+  const searchQuery = userQuery ?? autoTypedQuery;
+  const isSearching = searchQuery.trim().length > 0;
+  const searchResults = isSearching ? searchDemoStorage(searchQuery) : [];
+  const selectedLocation =
+    DEMO_STORAGE_LOCATIONS.find((location) => location.guid === selectedGuid) ??
+    DEMO_STORAGE_LOCATIONS[0];
+  const selectedEntries = DEMO_STORAGE_ENTRIES.filter(
+    (entry) => entry.locationGuid === selectedLocation.guid,
+  );
+
+  const openLocation = (locationGuid: string) => {
+    setUserQuery("");
+    setSelectedGuid(locationGuid);
+  };
+
+  return (
+    <div className="grid w-full overflow-hidden rounded-lg border bg-background text-left md:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]">
+      <div className="flex flex-col gap-2 border-b bg-sidebar/70 p-2 md:border-r md:border-b-0">
+        <Input
+          type="search"
+          placeholder={t("search.placeholder")}
+          aria-label={t("search.placeholder")}
+          value={searchQuery}
+          onChange={(event) => setUserQuery(event.target.value)}
+        />
+        <div className="flex flex-col gap-2">
+          {DEMO_STORAGE_LOCATIONS.map((location) => (
+            <Button
+              key={location.guid}
+              variant={
+                !isSearching && location.guid === selectedLocation.guid
+                  ? "secondary"
+                  : "ghost"
+              }
+              className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start"
+              onClick={() => openLocation(location.guid)}
+            >
+              <p className="w-full truncate font-heading text-sm font-medium">
+                {location.name}
+              </p>
+              <div className="flex w-full items-center justify-between gap-2 text-xs tabular-nums text-foreground/70">
+                <span>
+                  {t("page.cardCount", { count: location.cardCount })}
+                </span>
+                <span>{formatPrice(location.totalValue, "tcgplayer")}</span>
               </div>
-              <span className="shrink-0 font-medium tabular-nums">
-                {formatPrice(box.value, "tcgplayer")}
-              </span>
-            </div>
-          );
-        })}
+            </Button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm">
-          <IconSearch size={16} className="shrink-0 text-foreground/70" />
-          <span>{DEMO_STORAGE_SEARCH}</span>
-        </div>
-        {cards.map((d, i) => (
-          <div
-            key={d.card.id}
-            className={cn(
-              "flex items-center gap-2.5 rounded-lg border p-1.5 pr-3 text-sm",
-              i === DEMO_STORAGE_HIGHLIGHT_INDEX
-                ? "border-primary/50 bg-primary/10"
-                : "border-input bg-background",
+      <div className="flex min-h-72 min-w-0 flex-col gap-3 p-3">
+        {isSearching ? (
+          <>
+            <p className="text-xs text-foreground/70">
+              {searchResults.length > 0
+                ? t("search.count", { count: searchResults.length })
+                : t("search.emptyDescription", { query: searchQuery.trim() })}
+            </p>
+            {searchResults.length > 0 && (
+              <DemoStorageTable
+                entries={searchResults}
+                showsLocation
+                onOpenLocation={openLocation}
+              />
             )}
-          >
-            <span className="w-11 shrink-0 text-center font-heading font-semibold text-primary tabular-nums">
-              #{DEMO_STORAGE_FIRST_POSITION + i}
-            </span>
-            <img
-              src={d.card.image?.small ?? ""}
-              alt=""
-              className="aspect-5/7 w-8 shrink-0 rounded-sm object-cover"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{d.card.name}</p>
-              <p className="truncate text-foreground/70 uppercase">
-                {d.card.set} {d.card.collectorNumber}
+          </>
+        ) : (
+          <>
+            <div className="min-w-0 border-b pb-2">
+              <p className="truncate font-heading text-lg font-semibold">
+                {selectedLocation.name}
+              </p>
+              <p className="text-xs tabular-nums text-foreground/70">
+                {t("page.summary", {
+                  count: selectedLocation.cardCount,
+                  value: formatPrice(selectedLocation.totalValue, "tcgplayer"),
+                })}
               </p>
             </div>
-          </div>
-        ))}
+            <DemoStorageTable
+              entries={selectedEntries}
+              showsLocation={false}
+              onOpenLocation={openLocation}
+            />
+          </>
+        )}
       </div>
     </div>
   );

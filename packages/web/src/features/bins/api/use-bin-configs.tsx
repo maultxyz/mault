@@ -13,19 +13,20 @@ import type {
   BinConfigsContextValue,
   BinModeDraft,
   ChaosConfig,
+  PresetsMutationOptions,
 } from "@/lib/interfaces/bins";
 import {
   type AlphabetStep,
   BinConfig,
   BinSet,
   computeBinCount,
-  DEFAULT_BIN_CAPACITY,
   mergePickListEntries,
   type DefaultBinInit,
   type EmptyAllBinsOptions,
   type EmptyBinOptions,
   type RepackConfigPatch,
   SCAN_ONLY_DEFAULT_BIN,
+  type Result,
   type ScanOnlyConfig,
   withScanRuleFields,
 } from "@magic-vault/shared";
@@ -71,7 +72,6 @@ function createEmptyConfig(binNumber: number): BinConfig {
     guid: crypto.randomUUID(),
     binNumber,
     rules: emptyRuleGroup(),
-    cardLimit: DEFAULT_BIN_CAPACITY,
   };
 }
 
@@ -108,6 +108,28 @@ export function BinConfigsProvider({
   const [selectedBin, setSelectedBinState] = useState(1);
   const [isBinFormDirty, setBinFormDirty] = useState(false);
   const [pendingBinNumber, setPendingBinNumber] = useState<number | null>(null);
+
+  const presetsMutationHandlers = (
+    failedKey: string,
+    { showServerMessage = false, onApplied }: PresetsMutationOptions = {},
+  ) => ({
+    onSuccess: (result: Result<BinSet[]>) => {
+      if (result.success && result.data) {
+        onApplied?.();
+        queryClient.setQueryData(binsQueryOptions.queryKey, result.data);
+        return;
+      }
+      toast.error(
+        showServerMessage && result.message ? result.message : t(failedKey),
+      );
+    },
+    onError: () => toast.error(t(failedKey)),
+  });
+
+  const resetSelectedBin = () => {
+    setSelectedBinState(1);
+    setPendingBinNumber(null);
+  };
 
   const { data: allSets = [] } = useQuery({
     ...binsQueryOptions,
@@ -210,7 +232,6 @@ export function BinConfigsProvider({
       isOverride,
       overridePriority,
       lowMatchPercent,
-      cardLimit,
       maxCopies,
       maxCopiesBy,
       overflowBin,
@@ -218,9 +239,9 @@ export function BinConfigsProvider({
       pickList,
       repackPriority,
     }) => {
-      await queryClient.cancelQueries({ queryKey: ["bins"] });
-      const previous = queryClient.getQueryData<BinSet[]>(["bins"]);
-      queryClient.setQueryData<BinSet[]>(["bins"], (old = []) =>
+      await queryClient.cancelQueries({ queryKey: binsQueryOptions.queryKey });
+      const previous = queryClient.getQueryData<BinSet[]>(binsQueryOptions.queryKey);
+      queryClient.setQueryData<BinSet[]>(binsQueryOptions.queryKey, (old = []) =>
         old.map((set) => {
           if (!set.isActive || !matchesGame(set, activeGameGuid)) return set;
           const idx = set.bins.findIndex((b) => b.binNumber === binNumber);
@@ -245,7 +266,6 @@ export function BinConfigsProvider({
             overridePriority:
               isCatchAll || isOverride ? (overridePriority ?? null) : null,
             lowMatchPercent: isCatchAll ? (lowMatchPercent ?? null) : null,
-            cardLimit: cardLimit ?? null,
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
             maxCopiesBy:
               isCatchAll || maxCopies == null ? null : (maxCopiesBy ?? null),
@@ -289,17 +309,17 @@ export function BinConfigsProvider({
     },
     onError: (_err, _vars, context) => {
       if (context?.previous)
-        queryClient.setQueryData(["bins"], context.previous);
+        queryClient.setQueryData(binsQueryOptions.queryKey, context.previous);
       toast.error(t("useBinConfigs.toasts.saveBinFailed"));
     },
     onSuccess: (result) => {
       if (!result.success) {
-        queryClient.invalidateQueries({ queryKey: ["bins"] });
+        queryClient.invalidateQueries({ queryKey: binsQueryOptions.queryKey });
         return;
       }
       if (result.data) {
         const confirmedBins = result.data;
-        queryClient.setQueryData<BinSet[]>(["bins"], (old = []) =>
+        queryClient.setQueryData<BinSet[]>(binsQueryOptions.queryKey, (old = []) =>
           old.map((set) =>
             set.isActive && matchesGame(set, activeGameGuid)
               ? { ...set, bins: confirmedBins }
@@ -312,14 +332,9 @@ export function BinConfigsProvider({
 
   const activateSetMutation = useMutation({
     mutationFn: activateSetAction,
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        setSelectedBinState(1);
-        setPendingBinNumber(null);
-        queryClient.setQueryData(["bins"], result.data);
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.activateSetFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.activateSetFailed", {
+      onApplied: resetSelectedBin,
+    }),
   });
 
   const createSetMutation = useMutation({
@@ -330,72 +345,38 @@ export function BinConfigsProvider({
       name: string;
       initialBins?: DefaultBinInit[];
     }) => createSetAction(name, initialBins, activeGameGuid),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        setSelectedBinState(1);
-        setPendingBinNumber(null);
-        queryClient.setQueryData(["bins"], result.data);
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.createSetFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.createSetFailed", {
+      onApplied: resetSelectedBin,
+    }),
   });
 
   const saveSetMutation = useMutation({
     mutationFn: (name: string) => saveSetAction(name, activeGameGuid),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.saveSetFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.saveSetFailed"),
   });
 
   const renameSetMutation = useMutation({
     mutationFn: ({ guid, name }: { guid: string; name: string }) =>
       renameSetAction(guid, name),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.renameSetFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.renameSetFailed"),
   });
 
   const deleteSetMutation = useMutation({
     mutationFn: deleteSetAction,
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        setSelectedBinState(1);
-        setPendingBinNumber(null);
-        queryClient.setQueryData(["bins"], result.data);
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.deleteSetFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.deleteSetFailed", {
+      onApplied: resetSelectedBin,
+    }),
   });
 
   const setAutoAssignFieldMutation = useMutation({
     mutationFn: ({ guid, field }: { guid: string; field: string | null }) =>
       setAutoAssignFieldAction(guid, field),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      } else {
-        toast.error(t("useBinConfigs.toasts.autoAssignFailed"));
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.autoAssignFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.autoAssignFailed"),
   });
 
   const resetAutoAssignMutation = useMutation({
     mutationFn: resetAutoAssignAction,
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      } else {
-        toast.error(t("useBinConfigs.toasts.autoAssignResetFailed"));
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.autoAssignResetFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.autoAssignResetFailed"),
   });
 
   const emptyBinMutation = useMutation({
@@ -426,7 +407,7 @@ export function BinConfigsProvider({
       }
       if (result.data) {
         const confirmedBins = result.data;
-        queryClient.setQueryData<BinSet[]>(["bins"], (old = []) =>
+        queryClient.setQueryData<BinSet[]>(binsQueryOptions.queryKey, (old = []) =>
           old.map((set) =>
             set.isActive && matchesGame(set, activeGameGuid)
               ? { ...set, bins: confirmedBins }
@@ -448,7 +429,7 @@ export function BinConfigsProvider({
     }) => emptyAllBinsAction(binNumbers, activeGameGuid, options),
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
+        queryClient.setQueryData(binsQueryOptions.queryKey, result.data);
         if (result.assignedCount) {
           toast.success(
             t("useBinConfigs.toasts.cardsStored", {
@@ -474,14 +455,7 @@ export function BinConfigsProvider({
   const setScanOnlyMutation = useMutation({
     mutationFn: ({ guid, config }: { guid: string; config: ScanOnlyConfig }) =>
       setScanOnlyAction(guid, config),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      } else {
-        toast.error(t("useBinConfigs.toasts.scanOnlyFailed"));
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.scanOnlyFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.scanOnlyFailed"),
   });
 
   const setRepackConfigMutation = useMutation({
@@ -492,55 +466,29 @@ export function BinConfigsProvider({
       guid: string;
       config: RepackConfigPatch;
     }) => setRepackConfigAction(guid, config),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      } else {
-        toast.error(t("useBinConfigs.toasts.repackFailed"));
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.repackFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.repackFailed"),
   });
 
   const setChaosModeMutation = useMutation({
     mutationFn: ({ guid, config }: { guid: string; config: ChaosConfig }) =>
       setChaosModeAction(guid, config),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      } else {
-        toast.error(result.message ?? t("useBinConfigs.toasts.chaosFailed"));
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.chaosFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.chaosFailed", {
+      showServerMessage: true,
+    }),
   });
 
   const setSkipSavingMutation = useMutation({
     mutationFn: ({ guid, skipSaving }: { guid: string; skipSaving: boolean }) =>
       setSkipSavingAction(guid, skipSaving),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      } else {
-        toast.error(
-          result.message ?? t("useBinConfigs.toasts.skipSavingFailed"),
-        );
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.skipSavingFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.skipSavingFailed", {
+      showServerMessage: true,
+    }),
   });
 
   const setAlphabetConfigMutation = useMutation({
     mutationFn: ({ guid, config }: { guid: string; config: AlphabetConfig }) =>
       setAlphabetConfigAction(guid, config),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(["bins"], result.data);
-      } else {
-        toast.error(t("useBinConfigs.toasts.alphabetFailed"));
-      }
-    },
-    onError: () => toast.error(t("useBinConfigs.toasts.alphabetFailed")),
+    ...presetsMutationHandlers("useBinConfigs.toasts.alphabetFailed"),
   });
 
   const isPending = saveBinMutation.isPending;
@@ -587,7 +535,8 @@ export function BinConfigsProvider({
 
   const activateSetFn = useCallback(
     async (guid: string) => {
-      await activateSetMutation.mutateAsync(guid);
+      const result = await activateSetMutation.mutateAsync(guid);
+      return result.success;
     },
     [activateSetMutation],
   );
@@ -702,7 +651,6 @@ export function BinConfigsProvider({
         binNumber: lastBin.binNumber,
         rules: emptyRuleGroup(),
         isCatchAll: true,
-        cardLimit: lastBin.cardLimit,
       });
   };
 
@@ -744,7 +692,6 @@ export function BinConfigsProvider({
               binNumber: lastBin.binNumber,
               rules: emptyRuleGroup(),
               isCatchAll: true,
-              cardLimit: lastBin.cardLimit,
             });
           }
         }

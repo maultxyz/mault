@@ -8,7 +8,6 @@ import {
 import { useStationName } from "@/features/scanner/api/use-station-name";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { useWifiSorters } from "@/features/scanner/api/use-wifi-sorters";
-import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import type { StationTabProps } from "@/lib/interfaces/stations";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import { IconLayoutGrid, IconPlus, IconX } from "@tabler/icons-react";
@@ -16,6 +15,8 @@ import { useTranslation } from "react-i18next";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
+import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 
 function StationTab({ station, index, isActive }: StationTabProps) {
   const { t } = useTranslation("scanner");
@@ -48,8 +49,6 @@ function StationTab({ station, index, isActive }: StationTabProps) {
   );
 }
 
-// One tab per connected sorter: a tab appears when a board connects and
-// disappears when it disconnects, including via the tab's own disconnect.
 export function StationTabs() {
   const { t } = useTranslation("scanner");
   const navigate = useNavigate();
@@ -67,8 +66,7 @@ export function StationTabs() {
   const connected = stations.filter((s) => connectedStationIds.has(s.id));
   if (connected.length === 0) return null;
 
-  const bluetoothSupported =
-    typeof navigator !== "undefined" && !!navigator.bluetooth;
+  const bluetoothSupported = isWebBluetoothSupported();
 
   return (
     <div className="flex items-center gap-1 px-2 py-1.5 shrink-0 overflow-x-auto border-b">
@@ -115,19 +113,11 @@ export function StationTabs() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             {canConnectAnotherSorter ? (
-              <>
-                <DropdownMenuItem onClick={() => connectAnotherSorter("usb")}>
-                  {t("scannerMenu.connectUsb")}
-                </DropdownMenuItem>
-                {bluetoothSupported && (
-                  <DropdownMenuItem
-                    onClick={() => connectAnotherSorter("bluetooth")}
-                  >
-                    {t("scannerMenu.connectBluetooth")}
-                  </DropdownMenuItem>
-                )}
-                <WifiSorterMenuItems onSelect={connectAnotherSorterCloud} />
-              </>
+              <ConnectSorterMenuItems
+                onConnectUsb={() => connectAnotherSorter("usb")}
+                onConnectBluetooth={() => connectAnotherSorter("bluetooth")}
+                onConnectCloud={connectAnotherSorterCloud}
+              />
             ) : sorterLimitIsHardCap ? (
               <DropdownMenuItem disabled>
                 {t("stations.hardCapReached.title", {

@@ -1,4 +1,5 @@
 import {
+  HOTKEY_APPLE_PLATFORM_PATTERN,
   HOTKEY_BLOCKING_OVERLAY_SELECTOR,
   HOTKEY_IGNORED_TARGET_SELECTOR,
   HOTKEY_SEQUENCE_TIMEOUT_MS,
@@ -14,11 +15,22 @@ const registrations = new Set<HotkeyRegistration>();
 let pendingCombo: { combo: HotkeyCombo; at: number } | null = null;
 
 function toCombo(event: KeyboardEvent): HotkeyCombo {
-  return { key: event.key.toLowerCase(), shift: event.shiftKey };
+  return {
+    key: event.key.toLowerCase(),
+    shift: event.shiftKey,
+    mod: event.ctrlKey || event.metaKey,
+  };
+}
+
+export function isApplePlatform() {
+  return HOTKEY_APPLE_PLATFORM_PATTERN.test(
+    navigator.platform || navigator.userAgent,
+  );
 }
 
 function comboMatches(expected: HotkeyCombo, actual: HotkeyCombo) {
   if (expected.key.toLowerCase() !== actual.key) return false;
+  if (!!expected.mod !== !!actual.mod) return false;
   const isLetter = /^[a-z]$/.test(actual.key);
   return !isLetter || !!expected.shift === !!actual.shift;
 }
@@ -76,11 +88,11 @@ function isIgnoredTarget(target: EventTarget | null) {
 
 function handleKeyDown(event: KeyboardEvent) {
   if (event.defaultPrevented || event.repeat || event.isComposing) return;
-  if (event.ctrlKey || event.metaKey || event.altKey) return;
-  if (isIgnoredTarget(event.target)) return;
+  if (event.altKey) return;
+  const combo = toCombo(event);
+  if (!combo.mod && isIgnoredTarget(event.target)) return;
   if (document.querySelector(HOTKEY_BLOCKING_OVERLAY_SELECTOR)) return;
 
-  const combo = toCombo(event);
   const previous =
     pendingCombo && Date.now() - pendingCombo.at < HOTKEY_SEQUENCE_TIMEOUT_MS
       ? pendingCombo.combo

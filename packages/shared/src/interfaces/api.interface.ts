@@ -42,12 +42,6 @@ export interface CardTextSearchResult extends CardSearchResult {
   ocr?: OcrDiagnostics;
 }
 
-export interface ScryfallListResponse {
-  data: PlayingCard[];
-  has_more: boolean;
-  next_page?: string;
-}
-
 export type SyncStatus =
   | "idle"
   | "running"

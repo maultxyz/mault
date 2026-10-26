@@ -2,8 +2,7 @@ import * as jose from "jose";
 import { db } from "../db";
 import { MONITOR_LINK_ISSUER } from "./constants/auth";
 import type { MonitorLinkClaims } from "./interfaces/monitor-links";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
+import { ONE_DAY_MS } from "./constants/timing";
 
 const openStreams = new Map<string, Set<() => void>>();
 
@@ -24,7 +23,7 @@ export async function signMonitorLink(
 ): Promise<{ token: string; expiresAt: Date }> {
   const secret = monitorLinkSecret();
   if (!secret) throw new Error("MONITOR_LINK_SECRET is not configured.");
-  const expiresAt = new Date(Date.now() + expiresInDays * DAY_MS);
+  const expiresAt = new Date(Date.now() + expiresInDays * ONE_DAY_MS);
   const token = await new jose.SignJWT({ org: orgId, ver: version })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(MONITOR_LINK_ISSUER)

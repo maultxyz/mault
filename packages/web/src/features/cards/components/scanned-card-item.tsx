@@ -1,6 +1,6 @@
 import { NEW_CARD_ANIMATION_WINDOW_MS } from "@/lib/constants/card-grid";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
   TooltipContent,
@@ -11,9 +11,10 @@ import { BinLocationDiagram } from "@/features/bins/components/bin-location-diag
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
+import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
-import { IconCheck, IconDownload, IconSparkles } from "@tabler/icons-react";
+import { IconDownload, IconSparkles } from "@tabler/icons-react";
 import { DEFAULT_CARD_CONDITION } from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -46,6 +47,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   );
   const matchPercent = card.distance != null ? getMatchPercent(card) : 0;
   const { priceOf, format } = usePriceSource();
+  const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
   const displayPrice = priceOf(card, isFoil, condition);
   const showReviewStatus = hasAlternatives || lowConfidenceMatch || isReviewed;
   return (
@@ -153,20 +155,24 @@ export const ScannedCardItem = memo(function ScannedCardItem({
         </div>
       </button>
       {onToggleSelect && (
-        <Button
-          size="icon"
-          onMouseDown={(e) => {
-            if (e.shiftKey) e.preventDefault();
-          }}
+        <span
+          className="absolute top-2 right-2 z-30 flex size-6 items-center justify-center rounded-md bg-background/80 shadow-sm backdrop-blur-sm"
+          onMouseDown={onSelectMouseDown}
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
-            onToggleSelect({ shiftKey: e.shiftKey });
+            onToggleSelect({ shiftKey: consumeShift() || e.shiftKey });
           }}
-          variant={isSelected ? "default" : "secondary"}
-          className="absolute top-2 right-2 z-30"
         >
-          <IconCheck />
-        </Button>
+          <Checkbox
+            checked={isSelected}
+            aria-label={t("scannedCardTable.selectRow", { name: card.name })}
+            onClick={(e) => e.stopPropagation()}
+            onCheckedChange={() =>
+              onToggleSelect({ shiftKey: consumeShift() })
+            }
+          />
+        </span>
       )}
       <div className="flex flex-row justify-between items-center gap-2 px-1 pb-1">
         <div className="flex min-w-0 flex-row items-center gap-2">

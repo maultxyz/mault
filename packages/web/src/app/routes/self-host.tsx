@@ -4,7 +4,7 @@ import { GuideTableOfContents } from "@/components/guide/guide-table-of-contents
 import { useSelfHostChecklist } from "@/features/self-host/api/use-self-host-checklist";
 import { useSelfHostSetup } from "@/features/self-host/api/use-self-host-setup";
 import { useSelfHostToc } from "@/features/self-host/api/use-self-host-toc";
-import { SelfHostFooter } from "@/features/self-host/components/footer";
+import { GuideFooter } from "@/components/guide-footer";
 import { SelfHostGuideSection } from "@/features/self-host/components/guide-section";
 import { SelfHostSetup } from "@/features/self-host/components/setup";
 import { visibleSelfHostSections } from "@/features/self-host/lib/sections";
@@ -29,7 +29,7 @@ export default function SelfHostPage() {
   });
 
   return (
-    <GuidePage footer={<SelfHostFooter />}>
+    <GuidePage footer={<GuideFooter showOpenSourceLink />}>
       <GuideHero
         eyebrow={t("hero.eyebrow")}
         title={t("hero.title")}

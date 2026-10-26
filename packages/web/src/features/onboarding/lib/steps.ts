@@ -16,7 +16,7 @@ export const ONBOARDING_TOUR_STEPS: OnboardingTourStepConfig[] = [
   {
     id: "connect-camera",
     page: "scanner",
-    target: '[data-tour="scanner-menu"]',
+    target: '[data-tour="camera-status"]',
     placement: "auto",
     titleKey: "steps.connectCamera.title",
     contentKey: "steps.connectCamera.content",
@@ -24,7 +24,7 @@ export const ONBOARDING_TOUR_STEPS: OnboardingTourStepConfig[] = [
   {
     id: "connect-device",
     page: "scanner",
-    target: '[data-tour="scanner-menu"]',
+    target: '[data-tour="sorter-status"]',
     placement: "auto",
     titleKey: "connectYourSorterTitle",
     contentKey: "steps.connectDevice.content",

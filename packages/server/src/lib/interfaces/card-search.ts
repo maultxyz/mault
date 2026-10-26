@@ -7,6 +7,7 @@ import type {
   Result,
   SearchCardMatch,
 } from "@magic-vault/shared";
+import type { SQL } from "drizzle-orm";
 
 export interface PrintingQuery {
   setCode: string | null;
@@ -46,6 +47,11 @@ export interface CardKingdomPricing {
   scryfallIdFromRaw(card: PlayingCard): string | null | undefined;
 }
 
+export interface FoilPrintingVariants {
+  isSameArtwork(card: PlayingCard, other: PlayingCard): boolean;
+  matchesFoilType(card: PlayingCard, foilType: string | null): boolean;
+}
+
 export interface CardSearchAdapter {
   defaultUrl: string;
   urlForLang?(lang: string): string;
@@ -56,6 +62,9 @@ export interface CardSearchAdapter {
   ): Promise<Result<PlayingCard[]>>;
   searchById(id: string, baseUrl: string): Promise<Result<PlayingCard>>;
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
+  rarePrintingSql?: SQL;
+  excludedFromMatchingSql?: SQL;
+  foilPrintingVariants?: FoilPrintingVariants;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;
   cardkingdom?: CardKingdomPricing;
@@ -66,6 +75,8 @@ export interface ResolvedCardSearch {
   gameKey: string;
   baseUrl: string;
   lang: string;
+  searchAllLanguages?: boolean;
+  onlyLanguage?: string;
 }
 
 export interface CollectionMatchScope {
@@ -85,11 +96,6 @@ export interface SyncSourceCard {
 
 export type SyncSourceCardDetail = Omit<SyncSourceCard, "id">;
 
-// `urls` is every request fetchOne actually made while looking for the card
-// - one entry for a direct by-id lookup, several for an adapter (onepiece)
-// that has to page through a listing since the source has no direct
-// by-id endpoint at this granularity. Populated whether or not `card` was
-// found, so a caller can report exactly what was queried on a miss.
 export interface FetchOneResult {
   card: SyncSourceCardDetail | null;
   urls: string[];

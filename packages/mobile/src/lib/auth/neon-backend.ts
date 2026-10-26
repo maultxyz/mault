@@ -44,22 +44,22 @@ export const neonBackend: AuthBackend = {
   },
 
   async accessToken(sessionToken) {
-    try {
-      const res = await fetch(`${NEON_AUTH_URL}/token`, {
-        headers: neonHeaders(sessionToken),
-      });
-      if (res.ok) {
-        const body = (await res.json()) as { token?: string };
-        if (body.token) return body.token;
-      }
-      if (res.status === 401) return null;
-      const session = await fetch(`${NEON_AUTH_URL}/get-session`, {
-        headers: neonHeaders(sessionToken),
-      });
-      return session.headers.get("set-auth-jwt");
-    } catch {
-      return null;
+    const tokenResponse = await fetch(`${NEON_AUTH_URL}/token`, {
+      headers: neonHeaders(sessionToken),
+    });
+    if (tokenResponse.ok) {
+      const body = (await tokenResponse.json()) as { token?: string };
+      if (body.token) return body.token;
     }
+    if (tokenResponse.status === 401) return null;
+    const sessionResponse = await fetch(`${NEON_AUTH_URL}/get-session`, {
+      headers: neonHeaders(sessionToken),
+    });
+    if (sessionResponse.status === 401) return null;
+    if (!sessionResponse.ok) {
+      throw new Error(`Session refresh failed (${sessionResponse.status})`);
+    }
+    return sessionResponse.headers.get("set-auth-jwt");
   },
 
   async signOut(sessionToken) {

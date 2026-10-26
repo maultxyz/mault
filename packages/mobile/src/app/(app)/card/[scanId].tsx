@@ -9,9 +9,14 @@ import { Alert, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CARD_CONDITIONS,
+  CARD_LANGUAGES,
   DEFAULT_CARD_CONDITION,
+  isCardLanguage,
+  scanLanguage,
   type CardCondition,
   type PlayingCard,
+  scanDraftFormSchema,
+  type ScanDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -32,7 +37,6 @@ import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
-import { cardScanSchema } from "@/features/cards/lib/card-scan-schema";
 import {
   cardScanOriginQueryOptions,
   collectionCardQueryOptions,
@@ -47,8 +51,9 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CardScanDraftValues } from "@/lib/interfaces/forms";
+import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CardDetailScreen() {
@@ -70,11 +75,12 @@ export default function CardDetailScreen() {
   const storageCards = useQuery({ ...storageLocationCardsQueryOptions(storageGuid ?? ""), enabled: storageReview });
   const image = useQuery(scanImageQueryOptions(guid, scanId));
   const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
+  const hasScanOrigin = !!origin.data && (!!origin.data.scannedBy || !!origin.data.device);
   const storage = useQuery(cardStorageLocationQueryOptions(guid, scanId));
   const collections = useQuery(collectionsQueryOptions(useActiveOrgId()));
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
-  const [sheet, setSheet] = useState<"foil" | "condition" | null>(null);
+  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | null>(null);
 
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
   const nextScanId = position.data?.nextScanId ?? null;
@@ -96,32 +102,37 @@ export default function CardDetailScreen() {
     });
   }, [entry]);
 
-  const serverValues = useMemo<CardScanDraftValues | undefined>(
+  const serverValues = useMemo<ScanDraftFormValues | undefined>(
     () =>
       entry
         ? {
             foilType: entry.foilType ?? (entry.isFoil ? foilOptions[0] : null),
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
+            language: scanLanguage(entry),
           }
         : undefined,
     [entry, foilOptions],
   );
-  const form = useForm<CardScanDraftValues>({
-    resolver: zodResolver(cardScanSchema),
+  const form = useForm<ScanDraftFormValues>({
+    resolver: zodResolver(scanDraftFormSchema),
     values: serverValues,
     resetOptions: { keepDirtyValues: true },
   });
   const { isDirty } = form.formState;
   const draftFoil = form.watch("foilType");
   const draftCondition = form.watch("condition") as CardCondition;
+  const draftLanguage = form.watch("language");
+  const languageOptions: string[] =
+    !draftLanguage || isCardLanguage(draftLanguage) ? [...CARD_LANGUAGES] : [draftLanguage, ...CARD_LANGUAGES];
   const price = card ? pricing.priceOf(card, draftFoil != null, draftCondition) : null;
 
   const saveDraft = useMutation({
-    mutationFn: (values: CardScanDraftValues) =>
+    mutationFn: (values: ScanDraftFormValues) =>
       updateCollectionCard(guid, scanId, {
         isFoil: values.foilType != null,
         foilType: values.foilType,
         condition: values.condition as CardCondition,
+        ...(form.formState.dirtyFields.language ? { language: values.language } : {}),
       }),
     onSuccess: (_, values) => form.reset(values),
     onSettled: () => invalidateCollectionCards(queryClient, guid),
@@ -188,6 +199,11 @@ export default function CardDetailScreen() {
     await goToNextInReview();
   };
 
+  const showReviewGrid = () => {
+    saveReviewLayout("grid");
+    router.replace({ pathname: "/review-grid", params: storageReview ? { storage: storageGuid } : { guid } });
+  };
+
   const confirmRemove = () =>
     Alert.alert(t("cardDetail.removeConfirmTitle"), t("cardDetail.removeConfirmDescription"), [
       { text: t("cardDetail.cancel"), style: "cancel" },
@@ -222,7 +238,12 @@ export default function CardDetailScreen() {
         onBack={editing ? () => setEditing(false) : () => router.back()}
         actions={
           !editing && entry ? (
-            <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              {reviewMode ? (
+                <IconButton icon="layout" accessibilityLabel={t("reviewGrid.layoutGrid")} onPress={showReviewGrid} />
+              ) : null}
+              <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+            </View>
           ) : null
         }
       />
@@ -319,60 +340,32 @@ export default function CardDetailScreen() {
               </View>
             ) : null}
 
-            {entry ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.thisScan")} />
-                <ListGroup>
-                  <ListRow
-                    icon="sparkles"
-                    title={t("cardDetail.foil")}
-                    value={draftFoil ?? t("cardDetail.foilNone")}
-                    onPress={() => setSheet("foil")}
-                  />
-                  <ListRow
-                    icon="condition"
-                    title={t("cardDetail.condition")}
-                    value={t(`cardDetail.conditions.${draftCondition}`)}
-                    onPress={() => setSheet("condition")}
-                  />
-                </ListGroup>
-                {entry.binNumber != null ? (
-                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
-                    <AppText size="sm" weight="medium" tone="secondary">
-                      {t("cardDetail.binLocation")}
-                    </AppText>
-                    <BinLocationDiagram binNumber={entry.binNumber} />
-                  </View>
-                ) : null}
-              </View>
-            ) : null}
-
-            {origin.data && (origin.data.scannedBy || origin.data.device) ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.scanOrigin.heading")} />
-                <ListGroup>
-                  {origin.data.scannedBy ? (
-                    <ListRow icon="account" title={t("cardDetail.scanOrigin.scannedBy")} value={origin.data.scannedBy.name} />
-                  ) : null}
-                  {origin.data.device ? (
-                    <ListRow
-                      icon="sorter"
-                      title={t("cardDetail.scanOrigin.sorter")}
-                      value={
-                        origin.data.device.isDeleted
-                          ? t("cardDetail.scanOrigin.deletedSorter", { name: origin.data.device.name })
-                          : origin.data.device.name
-                      }
-                    />
-                  ) : null}
-                </ListGroup>
-              </View>
-            ) : null}
-
             {card ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.details")} />
                 <CardDetailsList card={card} binNumber={entry?.binNumber} />
+                {entry ? (
+                  <ListGroup>
+                    <ListRow
+                      icon="sparkles"
+                      title={t("cardDetail.foil")}
+                      value={draftFoil ?? t("cardDetail.foilNone")}
+                      onPress={() => setSheet("foil")}
+                    />
+                    <ListRow
+                      icon="condition"
+                      title={t("cardDetail.condition")}
+                      value={t(`cardDetail.conditions.${draftCondition}`)}
+                      onPress={() => setSheet("condition")}
+                    />
+                    <ListRow
+                      icon="language"
+                      title={t("cardDetail.language")}
+                      value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
+                      onPress={() => setSheet("language")}
+                    />
+                  </ListGroup>
+                ) : null}
                 {storage.data ? (
                   <Pressable
                     accessibilityRole="link"
@@ -391,6 +384,38 @@ export default function CardDetailScreen() {
                 <Skeleton height={16} width="60%" />
                 <Skeleton height={16} width="45%" />
                 <Skeleton height={16} width="55%" />
+              </View>
+            ) : null}
+
+            {hasScanOrigin || entry?.binNumber != null ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("cardDetail.thisScan")} />
+                {origin.data && hasScanOrigin ? (
+                  <ListGroup>
+                    {origin.data.scannedBy ? (
+                      <ListRow icon="account" title={t("cardDetail.scanOrigin.scannedBy")} value={origin.data.scannedBy.name} />
+                    ) : null}
+                    {origin.data.device ? (
+                      <ListRow
+                        icon="sorter"
+                        title={t("cardDetail.scanOrigin.sorter")}
+                        value={
+                          origin.data.device.isDeleted
+                            ? t("cardDetail.scanOrigin.deletedSorter", { name: origin.data.device.name })
+                            : origin.data.device.name
+                        }
+                      />
+                    ) : null}
+                  </ListGroup>
+                ) : null}
+                {entry?.binNumber != null ? (
+                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
+                    <AppText size="sm" weight="medium" tone="secondary">
+                      {t("cardDetail.binLocation")}
+                    </AppText>
+                    <BinLocationDiagram binNumber={entry.binNumber} />
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </>
@@ -477,6 +502,17 @@ export default function CardDetailScreen() {
         selected={[draftCondition]}
         onSelect={(value) => {
           form.setValue("condition", value as CardCondition, { shouldDirty: true });
+          setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "language"}
+        title={t("cardDetail.language")}
+        options={languageOptions.map((value) => ({ value, label: LANGUAGE_LABELS[value] ?? value }))}
+        selected={[draftLanguage]}
+        onSelect={(value) => {
+          form.setValue("language", value, { shouldDirty: true });
           setSheet(null);
         }}
         onClose={() => setSheet(null)}

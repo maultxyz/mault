@@ -9,8 +9,8 @@ import {
   dewarpRgba,
   getDefaultCardContour,
   parseCornerDetection,
-  resizeRgba,
   rgbaToChw,
+  warpRgba,
   type CornerDetection,
   type RgbaImage,
   type ScanRegion,
@@ -44,8 +44,11 @@ export async function readScanImage(buffer: Buffer): Promise<RgbaImage> {
 }
 
 export async function detectScanCorners(image: RgbaImage): Promise<CornerDetection> {
-  const resized = resizeRgba(
+  const scaleX = image.width / CORNER_DETECTOR_INPUT_SIZE;
+  const scaleY = image.height / CORNER_DETECTOR_INPUT_SIZE;
+  const resized = warpRgba(
     image,
+    [image.width, 0, -0.5 + scaleX / 2, 0, image.height, -0.5 + scaleY / 2, 0, 0, 1],
     CORNER_DETECTOR_INPUT_SIZE,
     CORNER_DETECTOR_INPUT_SIZE,
   );

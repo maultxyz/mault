@@ -1,5 +1,4 @@
 import { usePriceSource } from "@/hooks/use-price-source";
-import { CARD_PRICE_TABLES_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { formatEur, formatUsd } from "@/lib/format";
 import type {
   CardPriceDetailsProps,
@@ -8,25 +7,10 @@ import type {
   PriceTableProps,
 } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
+import { priceChangeSinceScan } from "@magic-vault/shared";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-function readTablesOpen(): boolean {
-  try {
-    return localStorage.getItem(CARD_PRICE_TABLES_STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-function writeTablesOpen(open: boolean): void {
-  try {
-    localStorage.setItem(CARD_PRICE_TABLES_STORAGE_KEY, String(open));
-  } catch {
-    return;
-  }
-}
 
 function PriceTable({
   heading,
@@ -97,6 +81,8 @@ function PriceHeadline({
   label,
   price,
   foilPrice,
+  priceAtScan,
+  foilPriceAtScan,
   isFoil,
   format,
 }: PriceHeadlineProps) {
@@ -109,6 +95,8 @@ function PriceHeadline({
   const secondaryKey = showFoil
     ? "priceTable.nonFoilPrice"
     : "priceTable.foilPrice";
+  const headlineAtScan = showFoil ? foilPriceAtScan : priceAtScan;
+  const changeSinceScan = priceChangeSinceScan(headlineAtScan, headline);
 
   return (
     <div className="flex min-w-36 flex-col gap-0.5 rounded-md bg-muted px-3 py-2">
@@ -123,6 +111,21 @@ function PriceHeadline({
           {t(secondaryKey, { price: format(secondary) })}
         </span>
       )}
+      {headlineAtScan != null && changeSinceScan && (
+        <span className="text-2xs tabular-nums text-foreground/70">
+          {t("priceTable.priceAtScan", { price: format(headlineAtScan) })}{" "}
+          <span
+            className={cn(
+              "font-medium",
+              changeSinceScan.direction === "up"
+                ? "text-success-foreground"
+                : "text-destructive",
+            )}
+          >
+            {changeSinceScan.percentLabel}
+          </span>
+        </span>
+      )}
     </div>
   );
 }
@@ -134,14 +137,9 @@ export function CardPriceDetails({
 }: CardPriceDetailsProps) {
   const { t } = useTranslation("cards");
   const { source } = usePriceSource();
-  const [tablesOpen, setTablesOpen] = useState(readTablesOpen);
+  const [tablesOpen, setTablesOpen] = useState(false);
 
-  const toggleTables = () => {
-    setTablesOpen((open) => {
-      writeTablesOpen(!open);
-      return !open;
-    });
-  };
+  const toggleTables = () => setTablesOpen((open) => !open);
 
   const sections: PriceSourceSection[] = [
     {
@@ -150,6 +148,8 @@ export function CardPriceDetails({
         label: t("priceTable.tcgplayerMarket"),
         price: card.price,
         foilPrice: card.priceFoil,
+        priceAtScan: card.pricesAtScan?.price,
+        foilPriceAtScan: card.pricesAtScan?.priceFoil,
         format: formatUsd,
       },
       table: {
@@ -194,6 +194,8 @@ export function CardPriceDetails({
         label: t("priceTable.cardmarketAvg"),
         price: card.priceEur ?? null,
         foilPrice: card.priceEurFoil ?? null,
+        priceAtScan: card.pricesAtScan?.priceEur,
+        foilPriceAtScan: card.pricesAtScan?.priceEurFoil,
         format: formatEur,
       },
       table: {
@@ -241,6 +243,8 @@ export function CardPriceDetails({
         label: t("priceTable.cardKingdomRetail"),
         price: card.priceCardKingdom ?? null,
         foilPrice: card.priceCardKingdomFoil ?? null,
+        priceAtScan: card.pricesAtScan?.priceCardKingdom,
+        foilPriceAtScan: card.pricesAtScan?.priceCardKingdomFoil,
         format: formatUsd,
       },
       table: {

@@ -2,6 +2,7 @@ import type { DeletedItemType } from "@magic-vault/shared";
 import { and, eq, ne } from "drizzle-orm";
 import { db, type Transaction } from "../../db";
 import {
+  accuracyChecks,
   announcements,
   binHeights,
   binRoutes,
@@ -9,7 +10,9 @@ import {
   bins,
   collections,
   devices,
+  fulfilmentOrders,
   games,
+  intakeLots,
   moduleConfigs,
   notificationRules,
   soundClips,
@@ -510,6 +513,115 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           )
           .returning({ id: announcements.id });
         return row ? restored(null) : NOT_FOUND;
+      },
+    },
+    intakeLot: {
+      async list() {
+        const rows = await db
+          .select()
+          .from(intakeLots)
+          .where(eq(intakeLots.isDeleted, true));
+        return rows.map((r) => ({
+          type: "intakeLot",
+          guid: r.guid!,
+          name: r.customerName,
+          detail: r.status,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const row = await tx.query.intakeLots.findFirst({
+          where: and(eq(intakeLots.guid, guid), eq(intakeLots.isDeleted, true)),
+        });
+        if (!row) return NOT_FOUND;
+        if (row.status === "open") {
+          const openLot = await tx.query.intakeLots.findFirst({
+            where: and(
+              eq(intakeLots.collectionId, row.collectionId),
+              eq(intakeLots.status, "open"),
+              eq(intakeLots.isDeleted, false),
+            ),
+            columns: { id: true },
+          });
+          if (openLot) {
+            return {
+              success: false,
+              message: "That collection already has an open intake lot.",
+            };
+          }
+        }
+        await tx
+          .update(intakeLots)
+          .set({ isDeleted: false })
+          .where(eq(intakeLots.id, row.id));
+        return restored(row.orgId);
+      },
+    },
+    fulfilmentOrder: {
+      async list() {
+        const rows = await db
+          .select()
+          .from(fulfilmentOrders)
+          .where(eq(fulfilmentOrders.isDeleted, true));
+        return rows.map((r) => ({
+          type: "fulfilmentOrder",
+          guid: r.guid!,
+          name: r.name,
+          detail: r.status,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const [row] = await tx
+          .update(fulfilmentOrders)
+          .set({ isDeleted: false })
+          .where(
+            and(
+              eq(fulfilmentOrders.guid, guid),
+              eq(fulfilmentOrders.isDeleted, true),
+            ),
+          )
+          .returning({ orgId: fulfilmentOrders.orgId });
+        return row ? restored(row.orgId) : NOT_FOUND;
+      },
+    },
+    accuracyCheck: {
+      async list() {
+        const rows = await db
+          .select({
+            guid: accuracyChecks.guid,
+            orgId: accuracyChecks.orgId,
+            sampleSize: accuracyChecks.sampleSize,
+            status: accuracyChecks.status,
+            updatedAt: accuracyChecks.updatedAt,
+            collectionName: collections.name,
+          })
+          .from(accuracyChecks)
+          .innerJoin(collections, eq(collections.id, accuracyChecks.collectionId))
+          .where(eq(accuracyChecks.isDeleted, true));
+        return rows.map((r) => ({
+          type: "accuracyCheck",
+          guid: r.guid!,
+          name: r.collectionName,
+          detail: `${r.sampleSize} cards, ${r.status}`,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const [row] = await tx
+          .update(accuracyChecks)
+          .set({ isDeleted: false })
+          .where(
+            and(
+              eq(accuracyChecks.guid, guid),
+              eq(accuracyChecks.isDeleted, true),
+            ),
+          )
+          .returning({ orgId: accuracyChecks.orgId });
+        return row ? restored(row.orgId) : NOT_FOUND;
       },
     },
   };

@@ -8,10 +8,6 @@ import { ONE_PIECE_DEFAULT_URL } from "../../constants/urls";
 import { dedupeOnePieceRows, findCardVersion, onePieceSetCode } from "./search";
 import type { OptcgCard } from "../../interfaces/onepiece";
 
-// Booster sets, starter decks, and promos are separate catalogs. DON!! cards
-// (/allDonCards/) are deliberately not enrolled: they have no printed card id
-// and no per-card endpoint, so a scan match could never resolve back to a
-// card — an unrecognized DON!! simply routes to the catch-all bin.
 const CATALOGS = [
   { path: "allSetCards", label: "booster sets" },
   { path: "allSTCards", label: "starter decks" },

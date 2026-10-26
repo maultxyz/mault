@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import type {
   AdminPlatformStatsResponse,
   PlatformStatsSettings,
@@ -32,18 +33,13 @@ function parseSettings(body: unknown): PlatformStatsSettings | null {
 }
 
 export const platformStatsRoute = new Hono<AppEnv>()
-  .get("/platform-stats", requireAuth, requireRole("admin"), async (c) => {
-    try {
-      return c.json({
-        success: true,
-        data: await toResponse(await loadPlatformStatsSettings()),
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+  .get("/platform-stats", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
+    return c.json({
+      success: true,
+      data: await toResponse(await loadPlatformStatsSettings()),
+    });
   })
-  .put("/platform-stats", requireAuth, requireRole("admin"), async (c) => {
+  .put("/platform-stats", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const settings = parseSettings(await c.req.json().catch(() => null));
     if (!settings) {
       return c.json(
@@ -51,41 +47,31 @@ export const platformStatsRoute = new Hono<AppEnv>()
         400,
       );
     }
-    try {
-      return c.json({
-        success: true,
-        data: await toResponse(await savePlatformStatsSettings(settings)),
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    return c.json({
+      success: true,
+      data: await toResponse(await savePlatformStatsSettings(settings)),
+    });
   })
-  .post("/platform-stats/post", requireAuth, requireRole("admin"), async (c) => {
-    try {
-      const outcome = await postPlatformStats();
-      if (outcome === "not_configured") {
-        return c.json(
-          {
-            success: false,
-            message:
-              "Pick a stats channel in Discord channels and at least one stat first.",
-          },
-          400,
-        );
-      }
-      if (outcome === "failed") {
-        return c.json(
-          { success: false, message: "The bot couldn't post the stats." },
-          502,
-        );
-      }
-      return c.json({
-        success: true,
-        data: await toResponse(await loadPlatformStatsSettings()),
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+  .post("/platform-stats/post", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
+    const outcome = await postPlatformStats();
+    if (outcome === "not_configured") {
+      return c.json(
+        {
+          success: false,
+          message:
+            "Pick a stats channel in Discord channels and at least one stat first.",
+        },
+        400,
+      );
     }
+    if (outcome === "failed") {
+      return c.json(
+        { success: false, message: "The bot couldn't post the stats." },
+        502,
+      );
+    }
+    return c.json({
+      success: true,
+      data: await toResponse(await loadPlatformStatsSettings()),
+    });
   });

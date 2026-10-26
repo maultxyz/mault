@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { games } from "../../db/schema";
@@ -6,11 +7,12 @@ import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken, toGame } from "./shared";
 import type { GameInput } from "@magic-vault/shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addGameRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const {
       key,
@@ -55,15 +57,10 @@ export const addGameRoute = new Hono<AppEnv>().post(
         })
         .returning();
 
-      // Fire-and-forget: a build against an already-populated table can take
-      // minutes, well past any HTTP request timeout in front of this route.
       void ensureGameVectorIndex(row.key);
       publicGamesCache.invalidate();
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {
-      // Backstop for a race between the check above and this insert (two
-      // concurrent creates with the same key) - the DB's unique constraint is
-      // still the actual guarantee, this is just a friendlier message for it.
       if (err instanceof Error && /unique/i.test(err.message)) {
         return c.json(
           {
@@ -73,8 +70,7 @@ export const addGameRoute = new Hono<AppEnv>().post(
           409,
         );
       }
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -16,6 +16,7 @@ import { EmptyCollectionDialog } from "@/features/collections/components/empty-c
 import type { CollectionTarget } from "@/lib/interfaces/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { StatGroup } from "@/components/stat-group";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -26,10 +27,6 @@ import {
 } from "@/lib/constants/collections";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import {
-  editCollectionSchema,
-  type EditCollectionFormValues,
-} from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconAlbum,
@@ -44,6 +41,10 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import {
+  renameCollectionFormSchema,
+  type RenameCollectionFormValues,
+} from "@magic-vault/shared";
 
 export default function CollectionsPage() {
   const { t } = useTranslation("collections");
@@ -88,6 +89,10 @@ export default function CollectionsPage() {
   const [selectedGuids, setSelectedGuids] = useState<Set<string>>(new Set());
   const [lastToggledGuid, setLastToggledGuid] = useState<string | null>(null);
   const [bulkAction, setBulkAction] = useState<"empty" | "delete" | null>(null);
+  useHotkeys({
+    clearSelection:
+      selectedGuids.size > 0 ? () => setSelectedGuids(new Set()) : undefined,
+  });
   const liveSelectedGuids = collections
     .filter((c) => selectedGuids.has(c.guid))
     .map((c) => c.guid);
@@ -171,7 +176,7 @@ export default function CollectionsPage() {
   } | null>(null);
 
   const editForm = useForm({
-    resolver: zodResolver(editCollectionSchema),
+    resolver: zodResolver(renameCollectionFormSchema),
     defaultValues: { name: editTarget?.name ?? "" },
     mode: "onChange",
   });
@@ -201,7 +206,7 @@ export default function CollectionsPage() {
   }, [editTarget, editNameValue, editNameCheck, editForm, t]);
 
   const handleEditSubmit = useCallback(
-    async (values: EditCollectionFormValues) => {
+    async (values: RenameCollectionFormValues) => {
       if (!editTarget) return;
       await updateCollection(editTarget.guid, values.name);
       setEditTarget(null);

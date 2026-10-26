@@ -58,34 +58,40 @@ function StationScopes({ children }: { children: React.ReactNode }) {
   ));
 }
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+export function BaseProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <OrgThemeApplier />
-      <OrgPriceSourceProvider>
-        <AppStreamProvider>
-          <StationsProvider>
-            <InitialLoadProvider>
-              <PendingScanSavesProvider>
-                <DeployPauseProvider>
-                  <SorterSelectionProvider>
-                    <StationScopes>
-                      <OnboardingProvider>
-                        <AppAlertsProvider>
-                          <AppLoadingGate>{children}</AppLoadingGate>
-                        </AppAlertsProvider>
-                        <OrgPickerModal />
-                        <DocumentTitleUpdater />
-                      </OnboardingProvider>
-                    </StationScopes>
-                  </SorterSelectionProvider>
-                </DeployPauseProvider>
-              </PendingScanSavesProvider>
-              <SerialAutoConnect />
-            </InitialLoadProvider>
-          </StationsProvider>
-        </AppStreamProvider>
-      </OrgPriceSourceProvider>
+      <OrgPriceSourceProvider>{children}</OrgPriceSourceProvider>
     </QueryClientProvider>
+  );
+}
+
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <BaseProviders>
+      <AppStreamProvider>
+        <StationsProvider>
+          <InitialLoadProvider>
+            <PendingScanSavesProvider>
+              <DeployPauseProvider>
+                <SorterSelectionProvider>
+                  <StationScopes>
+                    <OnboardingProvider>
+                      <AppAlertsProvider>
+                        <AppLoadingGate>{children}</AppLoadingGate>
+                      </AppAlertsProvider>
+                      <OrgPickerModal />
+                      <DocumentTitleUpdater />
+                    </OnboardingProvider>
+                  </StationScopes>
+                </SorterSelectionProvider>
+              </DeployPauseProvider>
+            </PendingScanSavesProvider>
+            <SerialAutoConnect />
+          </InitialLoadProvider>
+        </StationsProvider>
+      </AppStreamProvider>
+    </BaseProviders>
   );
 }

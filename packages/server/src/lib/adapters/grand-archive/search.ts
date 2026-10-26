@@ -109,7 +109,7 @@ export async function fetchCardByEditionSlug(
   return { card, url, status: res.status };
 }
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = GRAND_ARCHIVE_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -150,7 +150,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = GRAND_ARCHIVE_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -172,8 +172,8 @@ export async function SearchById(
 
 export const grandArchiveAdapter: CardSearchAdapter = {
   defaultUrl: GRAND_ARCHIVE_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw, id) => {
     const card = raw as GrandArchiveCard;
     const edition = findGrandArchiveEdition(card, id);

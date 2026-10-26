@@ -63,5 +63,34 @@
   "failedToCreateOrganization": "Échec de la création de l'organisation.",
   "invite": "Inviter",
   "roleAdmin": "Admin",
-  "roleMember": "Membre"
+  "roleMember": "Membre",
+  "auditLog": {
+    "description": "Activité récente de cette organisation : connexions, changements de membres, utilisation des clés API.",
+    "membersOnly": "Seuls les propriétaires et admins de l'organisation peuvent voir l'activité.",
+    "empty": "Aucune activité pour l'instant."
+  },
+  "invites": {
+    "description": "Invite des personnes dans cette organisation en partageant un lien. Aucune configuration d'e-mail nécessaire.",
+    "membersOnly": "Seuls les propriétaires et admins de l'organisation peuvent gérer les invitations.",
+    "inviteTitle": "Inviter quelqu'un",
+    "inviteDescription": "Tu obtiendras un lien à lui partager toi-même.",
+    "createFailed": "Impossible de créer l'invitation",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "quelquun@exemple.fr",
+    "roleLabel": "Rôle",
+    "revealTitle": "Partage ce lien d'invitation",
+    "revealDescription": "Il n'a pas été envoyé automatiquement par e-mail. Envoie-le toi-même. Tu ne le verras plus après avoir fermé cette fenêtre.",
+    "revealDescriptionEmailed": "Nous le lui avons aussi envoyé par e-mail, mais voici le lien au cas où. Tu ne le verras plus après avoir fermé cette fenêtre.",
+    "revealDone": "Terminé",
+    "copied": "Copié dans le presse-papiers",
+    "copyFailed": "Impossible de copier dans le presse-papiers",
+    "revoke": "Révoquer",
+    "revokeConfirmTitle": "Révoquer cette invitation ?",
+    "revokeConfirmDescription": "Le lien cessera immédiatement de fonctionner.",
+    "revoked": "Invitation révoquée",
+    "revokeFailed": "Impossible de révoquer l'invitation",
+    "loadFailed": "Impossible de charger les invitations",
+    "empty": "Aucune invitation en attente",
+    "expires": "expire le {{date}}"
+  }
 }

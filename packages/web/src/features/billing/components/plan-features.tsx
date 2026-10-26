@@ -28,6 +28,8 @@ export function PlanFeatures({ billing }: PlanFeaturesProps) {
     billing.chaosSort && tLanding("pricing.business.chaosSort"),
     billing.storage && tLanding("pricing.business.storage"),
     billing.apiAccess && tLanding("pricing.business.apiAccess"),
+    billing.businessTools && tLanding("pricing.business.businessTools"),
+    billing.businessTools && tLanding("pricing.business.businessOps"),
     ...PRICING_SHARED_FEATURE_KEYS.map((key) =>
       tLanding(`pricing.shared.${key}`),
     ),

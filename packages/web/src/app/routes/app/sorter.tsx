@@ -33,6 +33,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
+import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export default function SorterPage() {
   const { t } = useTranslation("scanner");
@@ -47,8 +48,7 @@ export default function SorterPage() {
     "pi" | "bluetooth" | "usb" | null
   >(null);
   const [connectingGuid, setConnectingGuid] = useState<string | null>(null);
-  const bluetoothSupported =
-    typeof navigator !== "undefined" && !!navigator.bluetooth;
+  const bluetoothSupported = isWebBluetoothSupported();
   const usbSupported = typeof navigator !== "undefined" && !!navigator.serial;
 
   if (!isMobile) return <Navigate to={SORTERS_OVERVIEW_PATH} replace />;

@@ -33,8 +33,6 @@ export function DumpCardDatabasePanel() {
     onSuccess: (result) => {
       setDumpOpen(false);
       toast.success(result.message);
-      // Refreshes the card database list too (features/admin/components/
-      // card-database-manager.tsx owns that query key).
       queryClient.invalidateQueries({ queryKey: ["admin", "cards"] });
     },
     onError: (err) => {

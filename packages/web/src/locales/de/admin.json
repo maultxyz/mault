@@ -176,6 +176,8 @@
     "noOrgs": "Keine Organisationen",
     "adminBadge": "Admin",
     "cannotImpersonateAdmin": "Ein anderer Admin kann nicht imitiert werden",
+    "moderatorBadge": "Moderator",
+    "cannotImpersonateModerator": "Ein anderer Moderator kann nicht imitiert werden",
     "impersonateButton": "Anmelden als",
     "viewAuditLog": "Imitations-Protokoll anzeigen",
     "confirmDialog": {
@@ -340,6 +342,10 @@
       "apiAccess": {
         "label": "API-Zugriff",
         "description": "Organisations-API-Schlüssel anlegen und Karten und Lagerorte über die öffentliche API lesen. Bestehende Schlüssel lassen sich immer widerrufen."
+      },
+      "businessTools": {
+        "label": "Business-Werkzeuge",
+        "description": "Ankäufe mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
       }
     },
     "limits": {
@@ -383,7 +389,10 @@
       "soundRule": "Sound-Regel",
       "notificationRule": "Benachrichtigungsregel",
       "game": "Spiel",
-      "announcement": "Ankündigung"
+      "announcement": "Ankündigung",
+      "intakeLot": "Ankauf",
+      "fulfilmentOrder": "Bestellung",
+      "accuracyCheck": "Stichprobe"
     },
     "toasts": {
       "restored": "{{name}} wiederhergestellt",
@@ -543,6 +552,17 @@
       "role": "Rolle",
       "saved": "Rolle für verknüpfte Konten gespeichert.",
       "saveFailed": "Die Rolle für verknüpfte Konten konnte nicht gespeichert werden."
+    }
+  },
+  "rollbarTest": {
+    "heading": "Rollbar testen",
+    "description": "Sende einen Testfehler vom Client und/oder vom Server an Rollbar, um zu prüfen, ob die Fehlermeldung funktioniert",
+    "testClientButton": "Client testen",
+    "testServerButton": "Server testen",
+    "testingButton": "Wird gesendet...",
+    "toasts": {
+      "clientSent": "Testfehler an Rollbar gesendet (Client).",
+      "serverError": "Testfehler konnte nicht an Rollbar gesendet werden (Server)"
     }
   }
 }

@@ -1,4 +1,7 @@
-import { collectionCardsKeys } from "@/features/collections/api/collection-cards";
+import {
+  collectionCardsKeys,
+  unmatchedCardsKeys,
+} from "@/features/collections/api/collection-cards";
 import type {
   CollectionCardsPage,
   GroupedScannedCard,
@@ -73,6 +76,21 @@ function scheduleSummaryRefresh(queryClient: QueryClient, guid: string) {
       });
     }, wait),
   );
+}
+
+export function invalidateBinCounts(queryClient: QueryClient, guid: string) {
+  return queryClient.invalidateQueries({
+    queryKey: [...collectionCardsKeys.all(guid), "bin-counts"],
+  });
+}
+
+export function invalidateUnmatchedCards(
+  queryClient: QueryClient,
+  guid: string,
+) {
+  return queryClient.invalidateQueries({
+    queryKey: unmatchedCardsKeys.all(guid),
+  });
 }
 
 export function invalidateCollectionCards(

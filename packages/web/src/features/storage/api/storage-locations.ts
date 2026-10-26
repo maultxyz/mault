@@ -1,6 +1,7 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type {
   CardStorageLocation,
+  PagedList,
   Result,
   StorageLocation,
   StorageLocationCardContext,
@@ -8,25 +9,33 @@ import type {
   StorageLocationExportCard,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
-import { queryOptions } from "@tanstack/react-query";
+import { pageRequestParams } from "@/lib/api/page-request";
+import type { PageRequest } from "@/lib/interfaces/pagination";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
 export const storageLocationKeys = {
   root: () => ["storage-locations"] as const,
   list: (orgId: string | undefined) =>
     [...storageLocationKeys.root(), orgId] as const,
+  page: (orgId: string | undefined, request: PageRequest) =>
+    [...storageLocationKeys.root(), "page", orgId, request] as const,
+  location: (guid: string | undefined) =>
+    [...storageLocationKeys.root(), "location", guid] as const,
   cards: (guid: string | undefined) =>
     [...storageLocationKeys.root(), "cards", guid] as const,
   cardPages: (guid: string | undefined) =>
     [...storageLocationKeys.cards(guid), "page"] as const,
   cardPage: (guid: string | undefined, page: number) =>
     [...storageLocationKeys.cardPages(guid), page] as const,
+  unreviewedCards: (guid: string | undefined) =>
+    [...storageLocationKeys.cards(guid), "unreviewed"] as const,
   cardContexts: (guid: string | undefined) =>
     [...storageLocationKeys.cards(guid), "context"] as const,
   cardContext: (
     guid: string | undefined,
     scanId: string | undefined,
-    reviewOnly: boolean,
-  ) => [...storageLocationKeys.cardContexts(guid), scanId, reviewOnly] as const,
+    unreviewedOnly: boolean,
+  ) => [...storageLocationKeys.cardContexts(guid), scanId, unreviewedOnly] as const,
   export: (guid: string | undefined) =>
     [...storageLocationKeys.root(), "export", guid] as const,
   card: (scanId: string | undefined) =>
@@ -56,6 +65,30 @@ export const storageLocationsQueryOptions = (orgId: string | undefined) =>
     enabled: !!orgId,
   });
 
+export const storageLocationPageQueryOptions = (
+  orgId: string | undefined,
+  request: PageRequest,
+) =>
+  queryOptions({
+    queryKey: storageLocationKeys.page(orgId, request),
+    queryFn: () =>
+      apiGet<Result<PagedList<StorageLocation>>>(
+        `/api/storage-locations/page?${pageRequestParams(request)}`,
+      ).then((r) => r.data ?? null),
+    enabled: !!orgId,
+    placeholderData: keepPreviousData,
+  });
+
+export const storageLocationQueryOptions = (guid: string | undefined) =>
+  queryOptions({
+    queryKey: storageLocationKeys.location(guid),
+    queryFn: () =>
+      apiGet<Result<StorageLocation>>(`/api/storage-locations/${guid}`).then(
+        (r) => r.data ?? null,
+      ),
+    enabled: !!guid,
+  });
+
 export const storageLocationCardPageQueryOptions = (
   guid: string | undefined,
   page: number,
@@ -70,16 +103,29 @@ export const storageLocationCardPageQueryOptions = (
     placeholderData: (previous) => previous,
   });
 
+export const storageLocationUnreviewedCardsQueryOptions = (
+  guid: string | undefined,
+  enabled: boolean,
+) =>
+  queryOptions({
+    queryKey: storageLocationKeys.unreviewedCards(guid),
+    queryFn: () =>
+      apiGet<Result<StorageLocationCardPage>>(
+        `/api/storage-locations/${guid}/cards/page?page=1&unreviewedOnly=true`,
+      ).then((r) => r.data ?? null),
+    enabled: !!guid && enabled,
+  });
+
 export const storageLocationCardContextQueryOptions = (
   guid: string | undefined,
   scanId: string | undefined,
-  reviewOnly: boolean,
+  unreviewedOnly: boolean,
 ) =>
   queryOptions({
-    queryKey: storageLocationKeys.cardContext(guid, scanId, reviewOnly),
+    queryKey: storageLocationKeys.cardContext(guid, scanId, unreviewedOnly),
     queryFn: () =>
       apiGet<Result<StorageLocationCardContext | null>>(
-        `/api/storage-locations/${guid}/cards/${scanId}/context${reviewOnly ? "?review=1" : ""}`,
+        `/api/storage-locations/${guid}/cards/${scanId}/context${unreviewedOnly ? "?unreviewedOnly=true" : ""}`,
       ).then((r) => r.data ?? null),
     enabled: !!guid && !!scanId,
   });

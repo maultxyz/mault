@@ -11,20 +11,15 @@ export const getDeviceRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, guid);
-        if (!device) return { success: false, message: "Device not found." };
-        return {
-          success: true,
-          message: "Loaded device.",
-          data: toDevice(device),
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, guid);
+      if (!device) return { success: false, message: "Device not found." };
+      return {
+        success: true,
+        message: "Loaded device.",
+        data: toDevice(device),
+      };
+    });
+    return c.json(result);
   },
 );

@@ -7,3 +7,7 @@ export const STORAGE_REVIEW_SEARCH_PARAM = "review";
 export const STORAGE_PAGE_SEARCH_PARAM = "page";
 
 export const STORAGE_LIST_SKELETON_COUNT = 6;
+export const STORAGE_VIEW_PARAM = "view";
+export const STORAGE_BOXES_VIEW = "boxes";
+export const STORAGE_ORDERS_VIEW = "picks";
+export const STORAGE_VIEWS = [STORAGE_BOXES_VIEW, STORAGE_ORDERS_VIEW] as const;

@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import type { PlatformDiscordLinkedRole } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { fetchDiscordGuild } from "../../lib/discord";
@@ -18,15 +19,10 @@ function parseLinkedRole(body: unknown): PlatformDiscordLinkedRole | null {
 }
 
 export const discordLinkedRoleRoute = new Hono<AppEnv>()
-  .get("/discord-linked-role", requireAuth, requireRole("admin"), async (c) => {
-    try {
-      return c.json({ success: true, data: await loadLinkedAccountRole() });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+  .get("/discord-linked-role", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
+    return c.json({ success: true, data: await loadLinkedAccountRole() });
   })
-  .put("/discord-linked-role", requireAuth, requireRole("admin"), async (c) => {
+  .put("/discord-linked-role", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const next = parseLinkedRole(await c.req.json().catch(() => null));
     if (!next) {
       return c.json({ success: false, message: "Invalid settings." }, 400);
@@ -59,15 +55,10 @@ export const discordLinkedRoleRoute = new Hono<AppEnv>()
       }
     }
 
-    try {
-      const previous = await loadLinkedAccountRole();
-      const saved = await saveLinkedAccountRole(next);
-      void syncLinkedAccountRoleChange(previous, saved).catch((err) =>
-        console.error("[discord] Failed to sync the linked role:", err),
-      );
-      return c.json({ success: true, data: saved });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const previous = await loadLinkedAccountRole();
+    const saved = await saveLinkedAccountRole(next);
+    void syncLinkedAccountRoleChange(previous, saved).catch((err) =>
+      console.error("[discord] Failed to sync the linked role:", err),
+    );
+    return c.json({ success: true, data: saved });
   });

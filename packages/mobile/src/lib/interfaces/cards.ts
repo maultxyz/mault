@@ -4,8 +4,23 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
+
+export type ReviewLayout = "grid" | "single";
+
+export interface ReviewGridData {
+  cards: ReviewGridCard[];
+  total: number;
+}
+
+export interface ReviewGridTileProps {
+  card: ReviewGridCard;
+  accepting: boolean;
+  onAccept: () => void;
+  onCorrect: () => void;
+}
 
 export interface CardUpdateBody {
   card?: PlayingCardWithDistance;
@@ -15,6 +30,7 @@ export interface CardUpdateBody {
   isFoil?: boolean;
   foilType?: string | null;
   condition?: CardCondition;
+  language?: string;
 }
 
 export interface CardCorrectionSearchProps {
@@ -49,6 +65,8 @@ export interface PriceHeadline {
   label: string;
   price: number | null;
   foilPrice: number | null;
+  priceAtScan?: number | null;
+  foilPriceAtScan?: number | null;
   format: (value: number) => string;
 }
 

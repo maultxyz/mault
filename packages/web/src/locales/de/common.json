@@ -3,7 +3,7 @@
     "scanner": "Sortieren",
     "collections": "Sammlungen",
     "scan": "Kamera koppeln",
-    "storage": "Lagerboxen",
+    "storage": "Lagerorte",
     "calibrate": "Sortierer einrichten",
     "settings": "Einstellungen",
     "organization": "Org",
@@ -24,7 +24,8 @@
     "integrations": "API & Webhooks",
     "more": "Mehr",
     "stats": "Statistiken",
-    "sortingRules": "Sortierregeln"
+    "sortingRules": "Sortierregeln",
+    "intake": "Ankauf"
   },
   "alerts": {
     "dismiss": "Verwerfen",
@@ -114,7 +115,8 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "save": "Speichern",
-    "create": "Erstellen"
+    "create": "Erstellen",
+    "search": "Suchen"
   },
   "unsavedChanges": {
     "message": "Du hast ungespeicherte Änderungen",
@@ -146,7 +148,13 @@
   },
   "footer": {
     "donate": "Spenden",
-    "donateAriaLabel": "Mault auf Buy Me a Coffee unterstützen"
+    "donateAriaLabel": "Mault auf Buy Me a Coffee unterstützen",
+    "openSource": "Open Source",
+    "reportIssue": "Problem melden",
+    "signIn": "Anmelden",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "copyright": "© {{year}} Mault LLC"
   },
   "publicNav": {
     "pagesAria": "Seiten der Website",
@@ -155,6 +163,7 @@
       "build": "Bauanleitung",
       "selfHost": "Selbst hosten",
       "discordBot": "Discord-Bot",
+      "download": "Download",
       "shop": "Shop"
     },
     "discordAriaLabel": "Discord beitreten",
@@ -172,6 +181,7 @@
     "keys": {
       "space": "Leertaste",
       "shift": "Umschalt",
+      "ctrl": "Strg",
       "left": "←",
       "right": "→",
       "escape": "Esc",
@@ -182,13 +192,16 @@
       "general": "Allgemein",
       "navigation": "Navigation",
       "scanner": "Scanner",
-      "cardDetail": "Kartendetails"
+      "cardDetail": "Kartendetails",
+      "intake": "Ankauf"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
       "toggleSidebar": "Seitenleiste ein- oder ausklappen",
       "focusSearch": "Suche fokussieren",
       "dismissToasts": "Alle Benachrichtigungen schließen",
+      "save": "Änderungen speichern",
+      "clearSelection": "Auswahl aufheben",
       "goScanner": "Zum Sortieren",
       "goCollections": "Zu den Sammlungen",
       "goStorage": "Zu den Lagerboxen",
@@ -215,7 +228,8 @@
       "cardRemove": "Karte entfernen (aus ihrer Box, wenn aus dem Lager geöffnet)",
       "reviewStart": "Karten einzeln prüfen",
       "reviewAccept": "Beim Prüfen: Karte stimmt, weiter",
-      "goSortingRules": "Zu den Sortierregeln"
+      "goSortingRules": "Zu den Sortierregeln",
+      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen"
     }
   },
   "mobileMenu": {
@@ -250,5 +264,42 @@
       "copied": "In die Zwischenablage kopiert",
       "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
     }
+  },
+  "validation": {
+    "nameRequired": "Gib einen Namen ein.",
+    "nameTooLong": "Höchstens {{max}} Zeichen.",
+    "ruleNameRequired": "Gib der Regel einen Namen.",
+    "clipNameRequired": "Gib dem Clip einen Namen.",
+    "gameRequired": "Wähle ein Spiel.",
+    "languageRequired": "Wähle eine Sprache.",
+    "collectionRequired": "Wähle eine Sammlung.",
+    "channelRequired": "Wähle einen Kanal.",
+    "clipRequired": "Wähle einen Soundclip.",
+    "conditionsRequired": "Füge mindestens eine Bedingung hinzu.",
+    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein.",
+    "currentPasswordRequired": "Gib dein aktuelles Passwort ein.",
+    "passwordTooShort": "Muss mindestens {{min}} Zeichen lang sein.",
+    "passwordMismatch": "Passwörter stimmen nicht überein.",
+    "webhookUrlInvalid": "Gib eine öffentliche https://-URL ein.",
+    "eventsRequired": "Wähle mindestens ein Ereignis.",
+    "conditionMultipliersInvalid": "Jeder Zustand braucht einen Prozentwert von 0 bis 100.",
+    "valueRequired": "Gib einen Wert ein.",
+    "wholeNumber": "Muss eine ganze Zahl sein.",
+    "atLeast": "Muss mindestens {{min}} sein.",
+    "atMost": "Darf höchstens {{max}} sein.",
+    "percentAtLeast": "Muss mindestens {{min}} % sein.",
+    "percentAtMost": "Darf höchstens {{max}} % sein.",
+    "amountRequired": "Gib einen Betrag ein.",
+    "percentageRequired": "Gib einen Prozentwert ein.",
+    "tiersRequired": "Füge mindestens eine Stufe hinzu.",
+    "tooManyTiers": "Höchstens {{max}} Stufen.",
+    "customerNameRequired": "Gib den Namen der Kundin oder des Kunden ein.",
+    "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
+    "cardCountRequired": "Gib eine Kartenanzahl ein.",
+    "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
+    "commandRequired": "Gib einen Befehl ein.",
+    "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
+    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
+    "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
   }
 }

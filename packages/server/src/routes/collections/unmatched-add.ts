@@ -7,14 +7,15 @@ import { authQuery } from "../../db";
 import { unmatchedCards } from "../../db/schema";
 import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
 import { deleteScanImages, storeScanImage } from "../../lib/scan-images";
+import { recordDeviceSorted } from "../../lib/device-alerts";
 import { recordUnmatchedScan } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { isScanSaved } from "./scan-saved";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// POST /collections/:guid/unmatched — record a scan that found no card match
 export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched",
   requireAuth,
@@ -68,7 +69,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
           if (fullBin) {
             return {
               success: false,
-              message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.cardLimit} cards). Empty it to continue scanning.`,
+              message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.capacity} cards). Empty it to continue scanning.`,
               binLimitReached: true,
               binNumber: fullBin.binNumber,
             };
@@ -110,7 +111,14 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       });
       if (!result.success) deleteScanImages([storedImage.key]);
       if (result.success) {
-        void recordUnmatchedScan(orgId, scanId, scannedAt, vectorizedOn);
+        void recordUnmatchedScan(
+          orgId,
+          scanId,
+          scannedAt,
+          vectorizedOn,
+          c.get("userId"),
+        );
+        void recordDeviceSorted(orgId, deviceGuid);
         emitToSession(guid, "unmatched_added", result.data);
       }
       if (!result.success && "binLimitReached" in result) {
@@ -119,8 +127,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       return c.json(result);
     } catch (err) {
       deleteScanImages([storedImage.key]);
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -37,40 +37,30 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
     if (!claims) {
       return c.json({ success: false, message: MONITOR_LINK_INVALID_MESSAGE }, 401);
     }
-    try {
-      const data = await readCardsPage(
-        (fn) => db.transaction(fn),
-        claims.collectionGuid,
-        claims.orgId,
-        c.req.query(),
-      );
-      if (!data) {
-        return c.json({ success: false, message: "Collection not found." });
-      }
-      return c.json({ success: true, data });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+    const data = await readCardsPage(
+      (fn) => db.transaction(fn),
+      claims.collectionGuid,
+      claims.orgId,
+      c.req.query(),
+    );
+    if (!data) {
+      return c.json({ success: false, message: "Collection not found." });
     }
+    return c.json({ success: true, data });
   })
   .get("/monitor-link/cards/summary", async (c) => {
     const claims = await claimsFor(c);
     if (!claims) {
       return c.json({ success: false, message: MONITOR_LINK_INVALID_MESSAGE }, 401);
     }
-    try {
-      const data = await readCardsSummary(
-        (fn) => db.transaction(fn),
-        claims.collectionGuid,
-        claims.orgId,
-        c.req.query(),
-      );
-      if (!data) {
-        return c.json({ success: false, message: "Collection not found." });
-      }
-      return c.json({ success: true, data });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+    const data = await readCardsSummary(
+      (fn) => db.transaction(fn),
+      claims.collectionGuid,
+      claims.orgId,
+      c.req.query(),
+    );
+    if (!data) {
+      return c.json({ success: false, message: "Collection not found." });
     }
+    return c.json({ success: true, data });
   });

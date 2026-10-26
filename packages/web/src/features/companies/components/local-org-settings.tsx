@@ -38,8 +38,6 @@ export function LocalOrgSettings() {
     }
   }
 
-  // Deleting is the only org-level setting local mode has, and own-auth
-  // restricts it to the owner, so the whole section is owner-only.
   if (activeOrg?.role !== "owner") return null;
 
   return (

@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "title": "Desktop-App herunterladen | MAULT",
+    "description": "Lade die MAULT-Desktop-App für Windows und Linux herunter. Das Scannen läuft im Hintergrund weiter, mit schwebender Vorschau, Taskleisten-Steuerung und Desktop-Benachrichtigungen."
+  },
+  "hero": {
+    "eyebrow": "Desktop-App",
+    "title": "Sortier weiter, während du etwas anderes machst",
+    "description": "Die MAULT-Desktop-App ist die vollständige Web-App in einem eigenen Fenster. Das Scannen läuft weiter, wenn sie minimiert oder von anderen Apps verdeckt ist, und eine schwebende Vorschau behält den Sortierer im Blick.",
+    "downloadFor": "Für {{platform}} herunterladen",
+    "otherPlatforms": "Andere Plattformen",
+    "choosePlatform": "Plattform wählen",
+    "alreadyInstalled": "Du nutzt bereits die Desktop-App. Sie hält sich selbst aktuell, du musst also nichts herunterladen.",
+    "note": "Kostenlos, meldet sich mit deinem bestehenden MAULT-Konto an und installiert Updates selbst."
+  },
+  "platforms": {
+    "eyebrow": "Download",
+    "title": "Wähle deine Plattform",
+    "description": "Jeder Link führt zur neuesten Version. Nach der Installation aktualisiert sich die App selbst.",
+    "download": "Herunterladen",
+    "yourSystem": "Dein System",
+    "allReleases": "Alle Release-Dateien auf GitHub",
+    "macosSoon": "Eine macOS-Version folgt später.",
+    "items": {
+      "windows": {
+        "name": "Windows",
+        "requirements": "Windows 10 oder neuer, 64-Bit",
+        "file": "Installationsprogramm (.exe)"
+      },
+      "linux": {
+        "name": "Linux",
+        "requirements": "64-Bit x86",
+        "file": "AppImage"
+      }
+    }
+  },
+  "features": {
+    "eyebrow": "Warum die App",
+    "title": "Gemacht für lange Sortier-Sessions",
+    "description": "Ein Browser pausiert Tabs, die er nicht sieht. Die Desktop-App hält den Sortierer am Laufen und lässt dich ihn von überall auf deinem Bildschirm beobachten.",
+    "items": [
+      {
+        "title": "Scannt im Hintergrund",
+        "description": "Minimier das Fenster oder verdeck es mit anderen Apps, und der Sortierer scannt und sortiert weiter."
+      },
+      {
+        "title": "Schwebende Vorschau",
+        "description": "Wenn MAULT in den Hintergrund rückt, zeigt ein kleines Fenster im Vordergrund Kamera, Status, Kartenzahl und Timer, mit Start, Pause, Auto-Einzug und Alle abwerfen."
+      },
+      {
+        "title": "Taskleisten-Steuerung",
+        "description": "Unter Windows kannst du über das Taskleisten-Symbol pausieren, fortsetzen, den Auto-Einzug umschalten oder alle abwerfen, ohne die App zu öffnen."
+      },
+      {
+        "title": "Desktop-Benachrichtigungen",
+        "description": "Fehler und Warnungen erscheinen als Systembenachrichtigungen, während du in einer anderen App arbeitest."
+      },
+      {
+        "title": "Immer aktuell",
+        "description": "Die App lädt immer die neueste MAULT-Version und installiert Desktop-Updates im Hintergrund."
+      }
+    ]
+  },
+  "install": {
+    "eyebrow": "Installation",
+    "title": "Die App installieren",
+    "description": "Manche Plattformen verlangen beim ersten Öffnen einen zusätzlichen Klick.",
+    "items": {
+      "windows": {
+        "title": "Windows",
+        "body": "Starte MAULT-windows.exe. Wenn Windows SmartScreen meldet, dass dein PC geschützt wurde, wähle Weitere Informationen und dann Trotzdem ausführen. MAULT öffnet sich danach und legt eine Verknüpfung im Startmenü an."
+      },
+      "linux": {
+        "title": "Linux",
+        "body": "Mach die Datei mit chmod +x MAULT-linux.AppImage ausführbar und starte sie. Für einen Sortierer per USB muss dein Benutzer eventuell in der Gruppe dialout sein."
+      }
+    }
+  }
+}

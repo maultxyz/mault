@@ -26,9 +26,9 @@ import {
   soundRulesQueryOptions,
   updateSoundRule,
 } from "@/features/sounds/api/sounds";
-import { soundRuleSchema } from "@/features/sounds/lib/sound-schema";
 import { useActiveOrg } from "@/hooks/use-org";
-import type { SoundRuleValues } from "@/lib/interfaces/forms";
+import { soundRuleFormSchema, type SoundRuleFormValues } from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function SoundRuleScreen() {
   const { t } = useTranslation();
@@ -44,15 +44,15 @@ export default function SoundRuleScreen() {
   const [clipOpen, setClipOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const values = useMemo<SoundRuleValues>(
+  const values = useMemo<SoundRuleFormValues>(
     () =>
       existing
         ? { name: existing.name, clipGuid: existing.clipGuid ?? "", isEnabled: existing.isEnabled, rules: existing.rules }
         : { name: "", clipGuid: clips.data?.[0]?.guid ?? "", isEnabled: true, rules: createGroup(fieldDefinitions) },
     [existing, clips.data, fieldDefinitions],
   );
-  const form = useForm<SoundRuleValues>({
-    resolver: zodResolver(soundRuleSchema),
+  const form = useForm<SoundRuleFormValues>({
+    resolver: zodResolver(soundRuleFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
@@ -66,7 +66,7 @@ export default function SoundRuleScreen() {
   };
 
   const save = useMutation({
-    mutationFn: (draft: SoundRuleValues) => {
+    mutationFn: (draft: SoundRuleFormValues) => {
       const input = { ...draft, name: draft.name.trim() };
       return existing ? updateSoundRule(existing.guid, input) : addSoundRule(gameGuid ?? "", input);
     },
@@ -101,20 +101,13 @@ export default function SoundRuleScreen() {
 
   const submit = form.handleSubmit(
     (draft) => {
-      if (draft.rules.conditions.length === 0) {
-        setError(t("settings.sounds.ruleDialog.validation.conditionsRequired"));
-        return;
-      }
       setError(null);
       save.mutate(draft);
     },
     (errors) =>
       setError(
-        errors.name
-          ? t("settings.sounds.ruleDialog.validation.nameRequired")
-          : errors.clipGuid
-            ? t("settings.sounds.ruleDialog.validation.clipRequired")
-            : t("settings.sounds.ruleDialog.saveFailed"),
+        translateFormErrorMessage(t, (errors.name ?? errors.clipGuid ?? errors.rules)?.message) ??
+          t("settings.sounds.ruleDialog.saveFailed"),
       ),
   );
 

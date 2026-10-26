@@ -24,14 +24,14 @@ import {
   notificationRulesQueryOptions,
   updateNotificationRule,
 } from "@/features/integrations/api/discord";
-import { notificationRuleSchema } from "@/features/integrations/lib/discord-settings-schema";
 import { channelLabel } from "@/features/integrations/lib/discord-settings";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { createGroup } from "@/features/rules/lib/rules";
 import { useActiveOrg } from "@/hooks/use-org";
 import { SPACING } from "@/lib/constants/theme";
-import type { NotificationRuleValues } from "@/lib/interfaces/forms";
+import { notificationRuleFormSchema, type NotificationRuleFormValues } from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function NotificationRuleScreen() {
   const { t } = useTranslation();
@@ -49,7 +49,7 @@ export default function NotificationRuleScreen() {
   const [picker, setPicker] = useState<"channel" | "role" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const values = useMemo<NotificationRuleValues>(
+  const values = useMemo<NotificationRuleFormValues>(
     () =>
       existing
         ? {
@@ -62,8 +62,8 @@ export default function NotificationRuleScreen() {
         : { name: "", channelId: "", roleId: null, isEnabled: true, rules: createGroup(fieldDefinitions) },
     [existing, fieldDefinitions],
   );
-  const form = useForm<NotificationRuleValues>({
-    resolver: zodResolver(notificationRuleSchema),
+  const form = useForm<NotificationRuleFormValues>({
+    resolver: zodResolver(notificationRuleFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
@@ -72,7 +72,7 @@ export default function NotificationRuleScreen() {
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["notification-rules", orgId] });
 
   const save = useMutation({
-    mutationFn: (draft: NotificationRuleValues) => {
+    mutationFn: (draft: NotificationRuleFormValues) => {
       const input: NotificationRuleInput = { ...draft, name: draft.name.trim() };
       return existing ? updateNotificationRule(existing.guid, input) : addNotificationRule(gameGuid ?? "", input);
     },
@@ -109,20 +109,13 @@ export default function NotificationRuleScreen() {
 
   const submit = form.handleSubmit(
     (draft) => {
-      if (draft.rules.conditions.length === 0) {
-        setError(t("settings.discord.ruleDialog.validation.conditionsRequired"));
-        return;
-      }
       setError(null);
       save.mutate(draft);
     },
     (errors) =>
       setError(
-        errors.name
-          ? t("settings.discord.ruleDialog.validation.nameRequired")
-          : errors.channelId
-            ? t("settings.discord.ruleDialog.validation.channelRequired")
-            : t("settings.discord.ruleDialog.saveFailed"),
+        translateFormErrorMessage(t, (errors.name ?? errors.channelId ?? errors.rules)?.message) ??
+          t("settings.discord.ruleDialog.saveFailed"),
       ),
   );
 

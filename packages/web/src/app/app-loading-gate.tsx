@@ -16,9 +16,6 @@ import {
 
 const InitialLoadContext = createContext<RefObject<boolean> | null>(null);
 
-// Lives above the sorter stations: switching tabs remounts the routed app
-// (and this gate with it) under another station, and that must not replay
-// the initial loading screen.
 export function InitialLoadProvider({ children }: { children: ReactNode }) {
   const completedRef = useRef(false);
   return <InitialLoadContext value={completedRef}>{children}</InitialLoadContext>;

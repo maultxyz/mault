@@ -1,7 +1,9 @@
-import type {
-  PlayingCardWithDistance,
-  ScanSaveRequestFields,
-  ScannedCard,
+import {
+  DEFAULT_CARD_CONDITION,
+  toCardCondition,
+  type PlayingCardWithDistance,
+  type ScanSaveRequestFields,
+  type ScannedCard,
 } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -13,6 +15,8 @@ import {
 } from "../../lib/device-leases";
 import { acquireLock } from "../../lib/scan-lock";
 import { deleteScanImages, storeScanImage } from "../../lib/scan-images";
+import { recordDeviceSorted } from "../../lib/device-alerts";
+import { findOpenIntakeLotId } from "../../lib/intake";
 import { recordMatchedScan } from "../../lib/scan-stats";
 import {
   sorterLimitForPlan,
@@ -37,6 +41,7 @@ import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -54,6 +59,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       capturedImageUrl,
       isFoil,
       foilType,
+      condition: requestedCondition,
       alternativeMatches,
       lowConfidenceMatch,
       diagnostics,
@@ -61,6 +67,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       deviceGuid,
       isRetry,
     } = await c.req.json<ScannedCard & ScanSaveRequestFields>();
+    const condition = toCardCondition(requestedCondition ?? DEFAULT_CARD_CONDITION);
 
     if (
       isRetry &&
@@ -156,9 +163,6 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           return scanLimitReachedResult;
         }
 
-        // Backstop for the connect-time lease (routes/devices/lease.ts): a
-        // client that never leased still can't scan past the plan's cap, and
-        // every scan renews the scanning sorter's lease.
         const sorterLimit = sorterLimitForPlan(plan);
         if (
           !acquireDeviceLease(
@@ -192,7 +196,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             return {
               result: {
                 success: false,
-                message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.cardLimit} cards). Empty it to continue scanning.`,
+                message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.capacity} cards). Empty it to continue scanning.`,
                 binLimitReached: true,
                 binNumber: fullBin.binNumber,
               },
@@ -217,6 +221,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           orgId,
           deviceGuid,
         );
+        const intakeLotId = await findOpenIntakeLotId(tx, collection.id);
         await tx
           .insert(collectionCards)
           .values({
@@ -230,6 +235,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             capturedImageKey: storedImage.key,
             isFoil: isFoil ?? false,
             foilType: foilType ?? null,
+            condition,
             alternativeMatches: alternativeMatches?.length
               ? alternativeMatches
               : null,
@@ -237,6 +243,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             diagnostics: diagnostics ?? null,
             scannedByUserId: userId,
             scannedByDeviceId,
+            intakeLotId,
             orgId,
           })
           .onConflictDoNothing();
@@ -258,6 +265,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               capturedImageUrl,
               isFoil,
               foilType,
+              condition,
               alternativeMatches,
               lowConfidenceMatch,
             } as ScannedCard,
@@ -276,7 +284,9 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           !!alternativeMatches?.length,
           scannedAt,
           vectorizedOn,
+          userId,
         );
+        void recordDeviceSorted(orgId, deviceGuid);
         emitToSession(guid, "card_added", result.data);
         emitToOrg(orgId, "collections_changed", { guid });
 
@@ -306,12 +316,11 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       return c.json(result);
     } catch (err) {
       deleteScanImages([storedImage.key]);
-      console.error(err);
       emitToSession(guid, "scan_error", {
         message: "Failed to save card to collection.",
         timestamp: Date.now(),
       });
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

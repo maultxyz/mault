@@ -5,6 +5,7 @@ import {
   DEFAULT_FEEDER_CALIBRATION,
   DEFAULT_MODULE_COUNT,
   type FeederCalibration,
+  PUSH_TEST_RESPONSE_TIMEOUT_MS,
   type ServoCalibration,
 } from "@magic-vault/shared";
 import {
@@ -18,7 +19,6 @@ import { useSorter } from "@/features/sorter/api/use-sorter";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
   FEEDER_PREVIEW_STOP_MS,
-  PUSH_TEST_RESPONSE_TIMEOUT_MS,
   SERVO_TEST_GATE_HOLD_MS,
   SERVO_TEST_PUSHER_HOLD_MS,
   SETUP_SERVO_POSITIONS,

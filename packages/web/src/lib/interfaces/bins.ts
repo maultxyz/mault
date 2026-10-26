@@ -21,7 +21,6 @@ export interface BinConfigSaveInput {
   binNumber: number;
   rules: BinRuleGroup;
   isCatchAll?: boolean;
-  cardLimit?: number | null;
   isOverride?: boolean;
   overridePriority?: number | null;
   lowMatchPercent?: number | null;
@@ -98,7 +97,7 @@ export interface BinConfigsContextValue {
     binNumbers: number[],
     options?: EmptyAllBinsOptions,
   ) => Promise<boolean>;
-  activateSet: (guid: string) => Promise<void>;
+  activateSet: (guid: string) => Promise<boolean>;
   createSet: (name: string) => Promise<void>;
   importSet: (name: string, bins: DefaultBinInit[]) => Promise<boolean>;
   saveSet: (name: string) => Promise<void>;
@@ -193,4 +192,9 @@ export interface BinSettingRowProps {
   description?: string;
   control?: ReactNode;
   children?: ReactNode;
+}
+
+export interface PresetsMutationOptions {
+  showServerMessage?: boolean;
+  onApplied?: () => void;
 }

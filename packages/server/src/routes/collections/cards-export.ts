@@ -8,22 +8,17 @@ export const exportCollectionCardsRoute = new Hono<AppEnv>().get(
   requireAuth,
   requireOrg,
   async (c) => {
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const collection = await findCardsCollection(
-          tx,
-          c.req.param("guid"),
-          c.get("orgId"),
-        );
-        if (!collection)
-          return { success: false, message: "Collection not found." };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const collection = await findCardsCollection(
+        tx,
+        c.req.param("guid"),
+        c.get("orgId"),
+      );
+      if (!collection)
+        return { success: false, message: "Collection not found." };
 
-        return { success: true, data: await loadAllCards(tx, collection) };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      return { success: true, data: await loadAllCards(tx, collection) };
+    });
+    return c.json(result);
   },
 );

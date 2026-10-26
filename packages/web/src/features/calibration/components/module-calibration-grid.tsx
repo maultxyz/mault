@@ -18,12 +18,8 @@ import {
   MODULE_DELAY_FIRMWARE_FEATURES,
   MODULE_DELAY_SLIDER_MAX,
   PUSH_TEST_DIRECTIONS,
-  percentToPulse,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
-  pulseToPercent,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
   SERVOS,
   sliderMax,
 } from "@/lib/constants/calibration";
@@ -34,7 +30,13 @@ import type {
   PushTestControlProps,
   ModuleCalibrationGridProps,
 } from "@/lib/interfaces/calibration";
-import { DEFAULT_CALIBRATION } from "@magic-vault/shared";
+import {
+  DEFAULT_CALIBRATION,
+  percentToPulse,
+  pulseToPercent,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+} from "@magic-vault/shared";
 import {
   IconAlertTriangle,
   IconInfoCircle,

@@ -10,7 +10,9 @@ import type {
   Result,
   ScannedCard,
 } from "@magic-vault/shared";
+import { UNMATCHED_PAGE_SIZE } from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { loadUnmatchedCards } from "@/features/collections/api/collections";
 
 export function cardsQueryParams(
   query: CollectionCardsQuery,
@@ -20,6 +22,7 @@ export function cardsQueryParams(
   if (query.search) params.set("search", query.search);
   if (query.sort) params.set("sort", query.sort);
   if (query.grouped) params.set("grouped", "1");
+  if (query.unreviewed) params.set("unreviewed", "1");
   params.set("filters", JSON.stringify(query.filters));
   return params.toString();
 }
@@ -50,6 +53,30 @@ export const collectionCardsKeys = {
   binCounts: (guid: string | undefined, bins: BinWindow[]) =>
     [...collectionCardsKeys.all(guid), "bin-counts", bins] as const,
 };
+
+export const unmatchedCardsKeys = {
+  all: (guid: string | undefined) => ["unmatched-cards", guid] as const,
+  page: (guid: string | undefined, page: number) =>
+    [...unmatchedCardsKeys.all(guid), "page", page] as const,
+};
+
+export const unmatchedCardsPageQueryOptions = (
+  guid: string | undefined,
+  page: number,
+) =>
+  queryOptions({
+    queryKey: unmatchedCardsKeys.page(guid, page),
+    queryFn: () =>
+      unwrap(
+        loadUnmatchedCards(
+          guid!,
+          UNMATCHED_PAGE_SIZE,
+          (page - 1) * UNMATCHED_PAGE_SIZE,
+        ),
+      ),
+    enabled: !!guid,
+    placeholderData: keepPreviousData,
+  });
 
 export function loadCollectionCardIds(
   guid: string,

@@ -1,3 +1,4 @@
 export const CARD_SEARCH_MIN_LENGTH = 2;
 export const CANDIDATE_THUMB_WIDTH = 88;
 export const PRICE_TABLE_COLUMN_WIDTH = 84;
+export const REVIEW_GRID_WIDE_MIN_WIDTH = 600;

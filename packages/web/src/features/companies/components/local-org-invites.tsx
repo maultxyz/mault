@@ -15,10 +15,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useOrgLocal } from "@/features/companies/api/use-organization.local";
 import { apiGet } from "@/lib/api/client";
 import { localDelete, localPost } from "@/lib/auth/local-api";
-import {
-  orgInviteSchema,
-  type OrgInviteFormValues,
-} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconCopy,
@@ -31,6 +27,11 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 import type { LocalOrgInvitation } from "@/lib/interfaces/auth";
+import { copyWithToast } from "@/lib/clipboard";
+import {
+  organizationInviteFormSchema,
+  type OrganizationInviteFormValues,
+} from "@magic-vault/shared";
 
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(undefined, {
@@ -39,10 +40,6 @@ function formatDate(value: string): string {
   });
 }
 
-// Local mode only, org owner/admin only (server-enforced). No SMTP is
-// configured for local mode (see the self-hosted-email discussion), so this
-// generates a shareable link instead of emailing one - see
-// routes/local-auth.ts's /invites and LocalEmailProvider for how.
 export function LocalOrgInvites() {
   const { t } = useTranslation("companies");
   const { activeOrg } = useOrgLocal();
@@ -55,8 +52,8 @@ export function LocalOrgInvites() {
 
   const canManage = activeOrg?.role === "owner" || activeOrg?.role === "admin";
 
-  const form = useForm<OrgInviteFormValues>({
-    resolver: zodResolver(orgInviteSchema),
+  const form = useForm<OrganizationInviteFormValues>({
+    resolver: zodResolver(organizationInviteFormSchema),
     defaultValues: { email: "", role: "member" },
   });
 
@@ -82,7 +79,7 @@ export function LocalOrgInvites() {
     load();
   }, [load]);
 
-  async function handleInvite({ email, role }: OrgInviteFormValues) {
+  async function handleInvite({ email, role }: OrganizationInviteFormValues) {
     try {
       const res = await localPost<{
         success: boolean;
@@ -121,10 +118,11 @@ export function LocalOrgInvites() {
 
   function copyInviteUrl() {
     if (!newInviteUrl) return;
-    navigator.clipboard
-      .writeText(newInviteUrl)
-      .then(() => toast.success(t("invites.copied")))
-      .catch(() => toast.error(t("invites.copyFailed")));
+    void copyWithToast(
+      newInviteUrl,
+      t("invites.copied"),
+      t("invites.copyFailed"),
+    );
   }
 
   if (!canManage) {

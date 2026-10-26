@@ -60,7 +60,8 @@
       "live": "Live now",
       "heading": "Overview"
     },
-    "liveView": "Live view"
+    "liveView": "Live view",
+    "printControlCard": "Print control card"
   },
   "editDialog": {
     "title": "Edit Collection",

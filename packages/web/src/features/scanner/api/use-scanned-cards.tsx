@@ -3,6 +3,7 @@ import {
   type BinConfig,
   type BinContentCard,
   type CardCondition,
+  DEFAULT_CARD_CONDITION,
   type BinRoute,
   type EmptyBinOptions,
   type MatchedScanDetails,
@@ -12,13 +13,9 @@ import {
   type ScannedCard,
   type UnmatchedCard,
   type UnmatchedScanDetails,
-  areAllRepackPacksComplete,
-  countCopiesInBin,
-  chooseScanBin,
-  routeForBin,
-  scanHoldReason,
-  selectScanBin,
-  type ScanBinDeps,
+  type AutoAssignTarget,
+  type ScanRoutingContext,
+  applyAutoAssignTarget,
   findAutoAssignTarget,
   evaluatePickListBin,
   applyPickListFound,
@@ -28,11 +25,15 @@ import {
   reservePickListBins,
   findLowMatchCatchAll,
   isRulesMode,
-  getRepackBinCards,
+  isScanFillingLastRepackPack,
+  matchScanBin,
+  resolveScanBin,
   getCatchAllBin,
+  getChaosBins,
   getRepackPackBins,
   hasMaxCopiesBins,
   toRuleCard,
+  UNMATCHED_PREVIEW_COUNT,
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
@@ -55,13 +56,16 @@ import {
   removeUnmatchedCard as removeUnmatchedCardApi,
   setCollectionCardBin,
   setCollectionCardsCondition,
-  setCollectionCardFoilType,
+  setCollectionCardLanguage,
+  setCollectionCardsFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   findInCardPages,
+  invalidateBinCounts,
   invalidateCollectionCards,
+  invalidateUnmatchedCards,
   removeFromCardPages,
   updateInCardPages,
 } from "@/features/collections/lib/card-page-cache";
@@ -72,9 +76,9 @@ import { useDeployScanPause } from "@/features/scanner/api/use-deploy-pause";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
 import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
-import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
-import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { usePiHost } from "@/hooks/use-pi-host";
+import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
+import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { BinCorrectionDialog } from "@/features/scanner/components/bin-correction-dialog";
@@ -85,6 +89,7 @@ import type {
   BinCorrection,
   CorrectedBinTarget,
   LastRoutedBin,
+  PendingBinCard,
   ScannedCardsContextValue,
 } from "@/lib/interfaces/scanner";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -114,6 +119,8 @@ export function ScannedCardsProvider({
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
+  const [unmatchedCount, setUnmatchedCount] = useState(0);
+  const unmatchedRequestRef = useRef(0);
   const [isLoading, setIsLoading] = useState(true);
   const {
     configs: binConfigs,
@@ -179,26 +186,46 @@ export function ScannedCardsProvider({
     activeOrgIdRef.current = activeOrg?.id;
   }, [activeOrg?.id]);
 
-  const binFillLevels = useComputedBinFillLevels(unmatchedCards);
+  const { levels: binFillLevels, countsUpdatedAt } =
+    useComputedBinFillLevels();
   const binFillLevelsRef = useRef(binFillLevels);
   binFillLevelsRef.current = binFillLevels;
-  const pendingBinCardsRef = useRef(new Map<number, number>());
-  const isBinFullLocally = useCallback((binNumber: number) => {
-    const level = binFillLevelsRef.current.find(
-      (l) => l.binNumber === binNumber,
-    );
-    if (!level?.capacity) return false;
-    const pending = pendingBinCardsRef.current.get(binNumber) ?? 0;
-    return level.count + pending >= level.capacity;
+  const countsUpdatedAtRef = useRef(countsUpdatedAt);
+  countsUpdatedAtRef.current = countsUpdatedAt;
+  const pendingBinCardsRef = useRef(new Map<string, PendingBinCard>());
+  const countPendingCards = useCallback((binNumber: number) => {
+    let count = 0;
+    for (const [scanId, pending] of pendingBinCardsRef.current) {
+      if (
+        pending.savedAt != null &&
+        pending.savedAt < countsUpdatedAtRef.current
+      ) {
+        pendingBinCardsRef.current.delete(scanId);
+      } else if (pending.binNumber === binNumber) {
+        count++;
+      }
+    }
+    return count;
   }, []);
-  const countCardsLocally = useCallback((binNumber: number) => {
-    const level = binFillLevelsRef.current.find(
-      (l) => l.binNumber === binNumber,
-    );
-    return (
-      (level?.count ?? 0) + (pendingBinCardsRef.current.get(binNumber) ?? 0)
-    );
-  }, []);
+  const isBinFullLocally = useCallback(
+    (binNumber: number) => {
+      const level = binFillLevelsRef.current.find(
+        (l) => l.binNumber === binNumber,
+      );
+      if (!level?.capacity) return false;
+      return level.count + countPendingCards(binNumber) >= level.capacity;
+    },
+    [countPendingCards],
+  );
+  const countCardsLocally = useCallback(
+    (binNumber: number) => {
+      const level = binFillLevelsRef.current.find(
+        (l) => l.binNumber === binNumber,
+      );
+      return (level?.count ?? 0) + countPendingCards(binNumber);
+    },
+    [countPendingCards],
+  );
   const binRoomLocally = useCallback(
     (binNumber: number) => {
       const level = binFillLevelsRef.current.find(
@@ -210,14 +237,15 @@ export function ScannedCardsProvider({
     [countCardsLocally],
   );
   const trackPendingBinCard = useCallback(
-    (binNumber: number, delta: number) => {
-      const pending = pendingBinCardsRef.current;
-      const next = (pending.get(binNumber) ?? 0) + delta;
-      if (next > 0) pending.set(binNumber, next);
-      else pending.delete(binNumber);
+    (scanId: string, binNumber: number) => {
+      pendingBinCardsRef.current.set(scanId, { binNumber, savedAt: null });
     },
     [],
   );
+  const settlePendingBinCard = useCallback((scanId: string) => {
+    const pending = pendingBinCardsRef.current.get(scanId);
+    if (pending) pending.savedAt = Date.now();
+  }, []);
 
   const rawBinConfigsRef = useRef(binConfigs);
   const binConfigsRef = useRef(
@@ -266,7 +294,11 @@ export function ScannedCardsProvider({
     registerPauseHook,
     resume,
     registerResumeHook,
-  } = useAutoFeed({ serialRef, activeCollectionRef });
+  } = useAutoFeed({
+    serialRef,
+    activeCollectionRef,
+    deviceGuidRef,
+  });
   const showJamToast = useJamToast(resume);
   useDeployScanPause(
     scannerRunning && (orgSettings?.pauseScanningOnDeploy ?? true),
@@ -277,6 +309,11 @@ export function ScannedCardsProvider({
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);
   const [forceSetCode, setForceSetCode] = useState<string | null>(null);
+  const forceSetCodeAfterCollectionSwitchRef = useRef<string | null>(null);
+  const [scanCondition, setScanConditionState] = useState<CardCondition>(
+    DEFAULT_CARD_CONDITION,
+  );
+  const scanConditionRef = useRef<CardCondition>(DEFAULT_CARD_CONDITION);
 
   const pickListsActive = isRulesMode(selectedSet);
   useEffect(() => {
@@ -316,40 +353,36 @@ export function ScannedCardsProvider({
     };
   }, [sendRoute, sendRequest, isConnected, isReady, ignoreIrSensors]);
 
-  const scanBinDeps = useCallback(
-    (card: PlayingCardWithDistance): ScanBinDeps => ({
-      countCopies: (bin) =>
-        countCopiesInBin(
-          binContentsRef.current,
-          bin,
-          card,
-          fieldDefinitionsRef.current,
-        ),
-      countInBin: (bin) => countCardsLocally(bin.binNumber),
-      isBinFull: (bin) => isBinFullLocally(bin.binNumber),
-      binRoom: (bin) => binRoomLocally(bin.binNumber),
-      cardsInBin: (bin) =>
-        getRepackBinCards(
-          binContentsRef.current,
-          bin,
-          selectedSetRef.current!,
-          fieldDefinitionsRef.current,
-        ),
-      newId: () => crypto.randomUUID(),
+  const scanRoutingContext = useCallback(
+    (): ScanRoutingContext => ({
+      binSet: selectedSetRef.current,
+      configs: rawBinConfigsRef.current,
+      fieldDefinitions: fieldDefinitionsRef.current,
+      binContents: binContentsRef.current,
+      countCardsInBin: countCardsLocally,
+      isBinFull: isBinFullLocally,
+      binRoom: binRoomLocally,
+      createRuleId: () => crypto.randomUUID(),
     }),
     [countCardsLocally, isBinFullLocally, binRoomLocally],
   );
 
-  const resolveMatchedBin = useCallback(
-    (card: PlayingCardWithDistance): BinConfig | undefined =>
-      selectScanBin(
-        card,
-        selectedSetRef.current,
+  const applyAutoAssign = useCallback(
+    (target: AutoAssignTarget) => {
+      rawBinConfigsRef.current = applyAutoAssignTarget(
+        rawBinConfigsRef.current,
+        target,
+      );
+      binConfigsRef.current = applyAutoAssignTarget(
         binConfigsRef.current,
-        fieldDefinitionsRef.current,
-        scanBinDeps(card),
-      ),
-    [scanBinDeps],
+        target,
+      );
+      saveBinConfig({ binNumber: target.binNumber, rules: target.rules });
+      return binConfigsRef.current.find(
+        (c) => c.binNumber === target.binNumber,
+      );
+    },
+    [saveBinConfig],
   );
 
   const resolvePickListMatch = useCallback(
@@ -420,21 +453,10 @@ export function ScannedCardsProvider({
             autoAssignFieldRef.current,
             () => crypto.randomUUID(),
           );
-      if (!autoTarget) return resolveMatchedBin(ruleCard);
-      binConfigsRef.current = configs.map((c) =>
-        c.binNumber === autoTarget.binNumber
-          ? { ...c, rules: autoTarget.rules }
-          : c,
-      );
-      saveBinConfig({
-        binNumber: autoTarget.binNumber,
-        rules: autoTarget.rules,
-      });
-      return binConfigsRef.current.find(
-        (c) => c.binNumber === autoTarget.binNumber,
-      );
+      if (!autoTarget) return matchScanBin(ruleCard, scanRoutingContext());
+      return applyAutoAssign(autoTarget);
     },
-    [resolveMatchedBin, saveBinConfig],
+    [scanRoutingContext, applyAutoAssign],
   );
 
   const resolveCorrectedBin = useCallback(
@@ -453,25 +475,6 @@ export function ScannedCardsProvider({
     [resolvePickListMatch, resolveCorrectedRuleBin],
   );
 
-  const areAllPacksComplete = useCallback(() => {
-    const set = selectedSetRef.current;
-    return (
-      !!set?.isRepackMode &&
-      areAllRepackPacksComplete(
-        binConfigsRef.current,
-        fieldDefinitionsRef.current,
-        set,
-        (bin) =>
-          getRepackBinCards(
-            binContentsRef.current,
-            bin,
-            set,
-            fieldDefinitionsRef.current,
-          ),
-        (bin) => binRoomLocally(bin.binNumber),
-      )
-    );
-  }, [binRoomLocally]);
 
   const pauseForCompletePacks = useCallback(() => {
     const set = selectedSetRef.current;
@@ -491,15 +494,31 @@ export function ScannedCardsProvider({
     [],
   );
 
-  const resolveRoute = useCallback(
-    (binNumber: number): BinRoute =>
-      routeForBin(binNumber, binRoutesRef.current),
-    [],
-  );
+  const resolveRoute = useCallback((binNumber: number): BinRoute => {
+    const found = binRoutesRef.current.find((r) => r.binNumber === binNumber);
+    if (found) return found;
+    const lastModule = Math.max(
+      1,
+      ...binRoutesRef.current.map((r) => r.module),
+    );
+    return { binNumber, module: lastModule, direction: "bottom" };
+  }, []);
 
   const setForceFoilType = useCallback((foilType: string | null) => {
     forceFoilTypeRef.current = foilType;
     setForceFoilTypeState(foilType);
+  }, []);
+
+  const setForceSetCodeAfterCollectionSwitch = useCallback(
+    (setCode: string | null) => {
+      forceSetCodeAfterCollectionSwitchRef.current = setCode;
+    },
+    [],
+  );
+
+  const setScanCondition = useCallback((condition: CardCondition) => {
+    scanConditionRef.current = condition;
+    setScanConditionState(condition);
   }, []);
 
   useEffect(() => {
@@ -507,7 +526,8 @@ export function ScannedCardsProvider({
     const next = activeCollection?.guid;
     if (prev && prev !== next) {
       releaseScanLock(prev).catch(() => {});
-      setForceSetCode(null);
+      setForceSetCode(forceSetCodeAfterCollectionSwitchRef.current);
+      forceSetCodeAfterCollectionSwitchRef.current = null;
     }
     prevCollectionGuidRef.current = next;
     activeCollectionRef.current = activeCollection;
@@ -520,34 +540,53 @@ export function ScannedCardsProvider({
     };
   }, []);
 
+  const refreshUnmatched = useCallback(async (guid: string) => {
+    const request = ++unmatchedRequestRef.current;
+    const result = await loadUnmatchedCards(guid, UNMATCHED_PREVIEW_COUNT);
+    if (request !== unmatchedRequestRef.current || !result.data) return;
+    setUnmatchedCards(result.data.cards);
+    setUnmatchedCount(result.data.total);
+  }, []);
+
+  const dropUnmatched = useCallback((scanId: string) => {
+    setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+    setUnmatchedCount((count) => Math.max(0, count - 1));
+  }, []);
+
+  const syncUnmatched = useCallback(
+    (guid: string) => {
+      refreshUnmatched(guid).catch((err) =>
+        console.error("Failed to load unmatched cards:", err),
+      );
+      void invalidateUnmatchedCards(queryClient, guid);
+    },
+    [refreshUnmatched, queryClient],
+  );
+
   const activeCollectionGuid = activeCollection?.guid;
   const piHost = usePiHost();
-  const piSession = useSessionMonitor(
-    piHost ? activeCollectionGuid : undefined,
-  );
+  const piSession = useSessionMonitor(piHost ? activeCollectionGuid : undefined);
   useEffect(() => {
     if (!piHost) return;
     setUnmatchedCards(piSession.unmatchedCards);
+    setUnmatchedCount(piSession.unmatchedCount);
     setIsLoading(piSession.status === "connecting");
-  }, [piHost, piSession.unmatchedCards, piSession.status]);
+  }, [piHost, piSession.unmatchedCards, piSession.unmatchedCount, piSession.status]);
 
   useEffect(() => {
     if (piHost) return;
+    unmatchedRequestRef.current++;
+    setUnmatchedCards([]);
+    setUnmatchedCount(0);
     if (!activeCollectionGuid) {
-      setUnmatchedCards([]);
       setIsLoading(false);
       return;
     }
 
     let cancelled = false;
-    setUnmatchedCards([]);
     setIsLoading(true);
 
-    loadUnmatchedCards(activeCollectionGuid)
-      .then((unmatchedResult) => {
-        if (cancelled) return;
-        setUnmatchedCards(unmatchedResult.data ?? []);
-      })
+    refreshUnmatched(activeCollectionGuid)
       .catch((err) => {
         if (!cancelled) console.error("Failed to load unmatched cards:", err);
       })
@@ -558,7 +597,7 @@ export function ScannedCardsProvider({
     return () => {
       cancelled = true;
     };
-  }, [activeCollectionGuid, piHost]);
+  }, [activeCollectionGuid, refreshUnmatched, piHost]);
 
   const needsBinContents =
     !!selectedSet?.isRepackMode || hasMaxCopiesBins(binConfigs);
@@ -622,59 +661,30 @@ export function ScannedCardsProvider({
         isFoil: forcedFoilType != null,
         foilType: forcedFoilType,
       });
-      const choice = chooseScanBin(
-        ruleCard,
-        selectedSetRef.current,
-        binConfigsRef.current,
-        rawBinConfigsRef.current,
-        fieldDefinitionsRef.current,
-        scanBinDeps(ruleCard),
-      );
-      let matchedBin = choice.bin;
-      const autoTarget = choice.autoAssign;
-      if (autoTarget) {
-        binConfigsRef.current = binConfigsRef.current.map((c) =>
-          c.binNumber === autoTarget.binNumber
-            ? { ...c, rules: autoTarget.rules }
-            : c,
-        );
-        matchedBin = binConfigsRef.current.find(
-          (c) => c.binNumber === autoTarget.binNumber,
-        );
-        saveBinConfig({
-          binNumber: autoTarget.binNumber,
-          rules: autoTarget.rules,
-        });
-      }
-      const hold = scanHoldReason(
-        ruleCard,
-        selectedSetRef.current,
-        binConfigsRef.current,
-        fieldDefinitionsRef.current,
-        matchedBin,
-        scanBinDeps(ruleCard),
-      );
-      if (hold?.reason === "chaos-full") {
+      const decision = resolveScanBin(ruleCard, scanRoutingContext());
+      if (decision.action === "pause") {
+        if (decision.reason === "all-packs-complete") {
+          pauseForCompletePacks();
+          return;
+        }
         pause();
-        setFullBins(hold.binNumbers);
+        if (decision.reason === "all-chaos-bins-full") {
+          setFullBins(
+            getChaosBins(binConfigsRef.current).map((bin) => bin.binNumber),
+          );
+        } else {
+          setBinLimitBin(decision.bin ?? null);
+        }
         return;
       }
-      if (hold?.reason === "repack-complete") {
-        pauseForCompletePacks();
-        return;
+      const matchedBin = decision.autoAssignTarget
+        ? applyAutoAssign(decision.autoAssignTarget)
+        : decision.bin;
+      const pickMatch = decision.pickListMatch;
+      if (pickMatch) {
+        markPickListFound(pickMatch.bin.binNumber, pickMatch.entry.name, 1);
       }
-      if (hold?.reason === "bin-full") {
-        pause();
-        setBinLimitBin(hold.bin);
-        return;
-      }
-      if (choice.pickListName && matchedBin) {
-        markPickListFound(matchedBin.binNumber, choice.pickListName, 1);
-      }
-      const isLowMatch =
-        !!matchedBin &&
-        findLowMatchCatchAll(ruleCard, binConfigsRef.current)?.binNumber ===
-          matchedBin.binNumber;
+      const isLowMatch = decision.isLowMatch;
       const record: ScannedCard = {
         scanId: generateScanId(),
         card,
@@ -686,6 +696,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forcedFoilType != null || undefined,
         foilType: forcedFoilType ?? undefined,
+        condition: scanConditionRef.current,
         lowConfidenceMatch: details?.lowConfidenceMatch || isLowMatch || undefined,
         vectorizedOn,
       };
@@ -712,12 +723,9 @@ export function ScannedCardsProvider({
           },
           ...binContentsRef.current,
         ];
-        const filledPackBin =
-          !!selectedSetRef.current?.isRepackMode &&
-          getRepackPackBins(binConfigsRef.current, selectedSetRef.current).some(
-            (bin) => bin.binNumber === record.binNumber,
-          );
-        if (filledPackBin && areAllPacksComplete()) {
+        if (
+          isScanFillingLastRepackPack(record.binNumber, scanRoutingContext())
+        ) {
           pauseForCompletePacks();
         }
       }
@@ -746,6 +754,7 @@ export function ScannedCardsProvider({
           failedKey: "scannedCards.routingFailed",
           cardName: card.name,
           collectionGuid: collection.guid,
+          deviceGuid: deviceGuidRef.current,
           isAutoFeedEnabled,
           isPipelinedFeedEnabled,
           pause,
@@ -789,7 +798,7 @@ export function ScannedCardsProvider({
       }
 
       const pendingBin = record.binNumber;
-      if (pendingBin != null) trackPendingBinCard(pendingBin, 1);
+      if (pendingBin != null) trackPendingBinCard(record.scanId, pendingBin);
 
       saveCard({
         orgId: orgId ?? null,
@@ -839,12 +848,9 @@ export function ScannedCardsProvider({
             dismissible: true,
           });
         })
-        .finally(async () => {
-          try {
-            await invalidateCollectionCards(queryClient, collection.guid);
-          } finally {
-            if (pendingBin != null) trackPendingBinCard(pendingBin, -1);
-          }
+        .finally(() => {
+          settlePendingBinCard(record.scanId);
+          void invalidateCollectionCards(queryClient, collection.guid);
           if (billingQueryKey) {
             void queryClient.invalidateQueries({ queryKey: billingQueryKey });
           }
@@ -855,8 +861,9 @@ export function ScannedCardsProvider({
     [
       toast,
       t,
+      scanRoutingContext,
+      applyAutoAssign,
       markPickListFound,
-      saveBinConfig,
       queryClient,
       resolveRoute,
       tracksBinContents,
@@ -866,12 +873,11 @@ export function ScannedCardsProvider({
       triggerAutoFeed,
       showJamToast,
       trackPendingBinCard,
+      settlePendingBinCard,
       playSoundForCard,
       setFullBins,
-      areAllPacksComplete,
       pauseForCompletePacks,
       saveCard,
-      scanBinDeps,
     ],
   );
 
@@ -907,38 +913,55 @@ export function ScannedCardsProvider({
     [setFullBins],
   );
 
-  const sendCatchAllBin = useCallback(() => {
-    const catchAll = getCatchAllBin(binConfigsRef.current);
-    if (
-      catchAll &&
-      serialRef.current.isConnected &&
-      serialRef.current.isReady &&
-      !serialRef.current.ignoreIrSensors
-    ) {
+  const routeToBin = useCallback(
+    (binNumber: number, failedKey: string, cardName?: string) => {
+      if (
+        !serialRef.current.isConnected ||
+        !serialRef.current.isReady ||
+        serialRef.current.ignoreIrSensors
+      ) {
+        return;
+      }
       void routeCardToBin({
-        route: resolveRoute(catchAll.binNumber),
+        route: resolveRoute(binNumber),
         sendRoute: serialRef.current.sendRoute,
         toast,
         t,
-        failedKey: "scannedCards.routingFailedCatchAll",
+        failedKey,
+        cardName,
         collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
         isAutoFeedEnabled,
         isPipelinedFeedEnabled,
         pause,
         triggerAutoFeed,
         onJam: showJamToast,
       });
+    },
+    [
+      toast,
+      t,
+      resolveRoute,
+      isAutoFeedEnabled,
+      isPipelinedFeedEnabled,
+      pause,
+      triggerAutoFeed,
+      showJamToast,
+    ],
+  );
+
+  const sendCatchAllBin = useCallback(() => {
+    const catchAll = getCatchAllBin(binConfigsRef.current);
+    if (catchAll) {
+      routeToBin(catchAll.binNumber, "scannedCards.routingFailedCatchAll");
     }
-  }, [
-    toast,
-    t,
-    resolveRoute,
-    isAutoFeedEnabled,
-    isPipelinedFeedEnabled,
-    pause,
-    triggerAutoFeed,
-    showJamToast,
-  ]);
+  }, [routeToBin]);
+
+  const sendCardToBin = useCallback(
+    (binNumber: number, cardName: string) =>
+      routeToBin(binNumber, "scannedCards.routingFailed", cardName),
+    [routeToBin],
+  );
 
   const addUnmatchedCard = useCallback(
     (
@@ -973,12 +996,18 @@ export function ScannedCardsProvider({
         sendCatchAllBin();
         return;
       }
-      const dropRecord = () =>
-        setUnmatchedCards((prev) =>
-          prev.filter((c) => c.scanId !== record.scanId),
-        );
+      const dropRecord = () => {
+        dropUnmatched(record.scanId);
+        syncUnmatched(collection.guid);
+      };
 
-      setUnmatchedCards((prev) => [record, ...prev]);
+      setUnmatchedCards((prev) =>
+        [record, ...prev].slice(0, UNMATCHED_PREVIEW_COUNT),
+      );
+      setUnmatchedCount((count) => count + 1);
+      if (record.binNumber != null) {
+        trackPendingBinCard(record.scanId, record.binNumber);
+      }
       sendCatchAllBin();
 
       saveUnmatched({
@@ -1002,20 +1031,46 @@ export function ScannedCardsProvider({
             duration: Infinity,
             dismissible: true,
           });
+        })
+        .finally(() => {
+          settlePendingBinCard(record.scanId);
+          void invalidateBinCounts(queryClient, collection.guid);
+          void invalidateUnmatchedCards(queryClient, collection.guid);
         });
     },
-    [toast, sendCatchAllBin, pause, isBinFullLocally, t, saveUnmatched],
+    [
+      toast,
+      sendCatchAllBin,
+      pause,
+      isBinFullLocally,
+      t,
+      saveUnmatched,
+      dropUnmatched,
+      syncUnmatched,
+      trackPendingBinCard,
+      settlePendingBinCard,
+      queryClient,
+    ],
   );
 
-  const removeUnmatchedCard = useCallback((scanId: string) => {
-    const collection = activeCollectionRef.current;
-    setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
-    if (collection) {
-      removeUnmatchedCardApi(collection.guid, scanId).catch((err) =>
-        console.error("Failed to remove unmatched card:", err),
-      );
-    }
-  }, []);
+  const removeUnmatchedCard = useCallback(
+    async (scanId: string) => {
+      const collection = activeCollectionRef.current;
+      dropUnmatched(scanId);
+      if (!collection) return false;
+      try {
+        const result = await removeUnmatchedCardApi(collection.guid, scanId);
+        return result.success;
+      } catch (err) {
+        console.error("Failed to remove unmatched card:", err);
+        return false;
+      } finally {
+        syncUnmatched(collection.guid);
+        void invalidateBinCounts(queryClient, collection.guid);
+      }
+    },
+    [dropUnmatched, syncUnmatched, queryClient],
+  );
 
   const identifyUnmatchedCard = useCallback(
     async (scanId: string, card: PlayingCard) => {
@@ -1027,7 +1082,8 @@ export function ScannedCardsProvider({
         });
         if (!result.success || !result.data) return false;
         const added = result.data;
-        setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+        dropUnmatched(scanId);
+        syncUnmatched(collection.guid);
         if (added.binNumber != null) {
           binContentsRef.current = [
             ...binContentsRef.current,
@@ -1064,7 +1120,7 @@ export function ScannedCardsProvider({
         return false;
       }
     },
-    [resolveCorrectedBin, queryClient],
+    [resolveCorrectedBin, queryClient, dropUnmatched, syncUnmatched],
   );
 
   const promptAddedCardBin = useCallback(
@@ -1093,7 +1149,7 @@ export function ScannedCardsProvider({
   const removeCards = useCallback(
     (scanIds: string[]) => {
       const collection = activeCollectionRef.current;
-      if (!collection) return;
+      if (!collection) return Promise.resolve(false);
       const idSet = new Set(scanIds);
       binContentsRef.current = binContentsRef.current.filter(
         (c) => !idSet.has(c.scanId),
@@ -1103,8 +1159,12 @@ export function ScannedCardsProvider({
         scanIds.length === 1
           ? removeCollectionCard(collection.guid, scanIds[0])
           : removeCollectionCards(collection.guid, scanIds);
-      request
-        .catch((err) => console.error("Failed to remove cards:", err))
+      return request
+        .then((result) => result.success)
+        .catch((err) => {
+          console.error("Failed to remove cards:", err);
+          return false;
+        })
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
@@ -1274,12 +1334,14 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
-  const setCardFoilType = useCallback(
-    (scanId: string, foilType: string | null) => {
+  const setCardsFoilType = useCallback(
+    (scanIds: string[], foilType: string | null) => {
+      if (scanIds.length === 0) return;
       const collection = activeCollectionRef.current;
       const isFoil = foilType != null;
+      const scanIdSet = new Set(scanIds);
       binContentsRef.current = binContentsRef.current.map((entry) =>
-        entry.scanId === scanId
+        scanIdSet.has(entry.scanId)
           ? {
               ...entry,
               isFoil,
@@ -1292,16 +1354,22 @@ export function ScannedCardsProvider({
       updateInCardPages(
         queryClient,
         collection.guid,
-        new Set([scanId]),
+        scanIdSet,
         (entry) => ({ ...entry, isFoil, foilType: foilType ?? undefined }),
       );
-      setCollectionCardFoilType(collection.guid, scanId, isFoil, foilType)
+      setCollectionCardsFoilType(collection.guid, scanIds, foilType)
         .catch((err) => console.error("Failed to update foil status:", err))
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
     [queryClient],
+  );
+
+  const setCardFoilType = useCallback(
+    (scanId: string, foilType: string | null) =>
+      setCardsFoilType([scanId], foilType),
+    [setCardsFoilType],
   );
 
   const setCardsCondition = useCallback(
@@ -1329,6 +1397,25 @@ export function ScannedCardsProvider({
     [setCardsCondition],
   );
 
+  const setCardLanguage = useCallback(
+    (scanId: string, language: string) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({ ...entry, language }),
+      );
+      setCollectionCardLanguage(collection.guid, scanId, language)
+        .catch((err) => console.error("Failed to update language:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
   const markDownloaded = useCallback(
     (scanIds: string[]) => {
       const collection = activeCollectionRef.current;
@@ -1352,20 +1439,23 @@ export function ScannedCardsProvider({
       emptyCollectionRef
         .current(collection.guid)
         .catch((err) => console.error("Failed to clear cards:", err))
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
+        .finally(() => {
+          void invalidateCollectionCards(queryClient, collection.guid);
+          syncUnmatched(collection.guid);
+        });
     }
-  }, [queryClient]);
+  }, [queryClient, syncUnmatched]);
 
   return (
     <ScannedCardsContext
       value={{
         unmatchedCards,
+        unmatchedCount,
         isLoading,
         autoFeed,
         forceFoilType,
         forceSetCode,
+        scanCondition,
         elapsedMs,
         isTimerActive,
         recentScanTimes,
@@ -1375,6 +1465,8 @@ export function ScannedCardsProvider({
         setAutoFeed,
         setForceFoilType,
         setForceSetCode,
+        setForceSetCodeAfterCollectionSwitch,
+        setScanCondition,
         registerCardArrivedHook,
         registerPauseHook,
         registerResumeHook,
@@ -1388,6 +1480,7 @@ export function ScannedCardsProvider({
         identifyUnmatchedCard,
         promptAddedCardBin,
         sendCatchAllBin,
+        sendCardToBin,
         binLimitReached: binLimitBin,
         resolveBinLimit,
         dismissBinLimit,
@@ -1401,8 +1494,10 @@ export function ScannedCardsProvider({
         confirmCard,
         markCardReviewed,
         setCardFoilType,
+        setCardsFoilType,
         setCardCondition,
         setCardsCondition,
+        setCardLanguage,
         markDownloaded,
         clearCards,
       }}

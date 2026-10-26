@@ -54,6 +54,40 @@ async function findStoredCards(
   return new Map(cards.map(({ cardId }, i) => [cardId, priced[i]]));
 }
 
+function storedLanguageMatch({
+  lang,
+  searchAllLanguages,
+  onlyLanguage,
+}: ResolvedCardSearch) {
+  if (onlyLanguage) return eq(cardImageVectors.lang, onlyLanguage);
+  return searchAllLanguages ? undefined : eq(cardImageVectors.lang, lang);
+}
+
+async function priceCardsByLanguage(
+  adapter: ResolvedCardSearch["adapter"],
+  gameKey: string,
+  cards: PlayingCard[],
+  fallbackLang: string,
+): Promise<PlayingCard[]> {
+  const indexesByLang = new Map<string, number[]>();
+  cards.forEach((card, index) => {
+    const lang = card.lang ?? fallbackLang;
+    indexesByLang.set(lang, [...(indexesByLang.get(lang) ?? []), index]);
+  });
+  const priced = [...cards];
+  for (const [lang, indexes] of indexesByLang) {
+    const pricedGroup = await applyCardPrices(
+      adapter,
+      { gameKey, lang },
+      indexes.map((index) => cards[index]),
+    );
+    indexes.forEach((index, i) => {
+      priced[index] = pricedGroup[i];
+    });
+  }
+  return priced;
+}
+
 function numberMatches(number: string): SQL {
   const collectorNumber = sql`lower(${cardImageVectors.collectorNumber})`;
   const wanted = number.toLowerCase();
@@ -91,20 +125,25 @@ function storedSearchMatch(trimmed: string) {
 }
 
 async function searchStoredCards(
-  { adapter, gameKey, lang }: ResolvedCardSearch,
+  resolved: ResolvedCardSearch,
   query: string,
   offset: number,
   setCode?: string,
 ): Promise<CardSearchPage> {
+  const { adapter, gameKey, lang } = resolved;
   const trimmed = query.trim();
   const { match, printingMatch } = storedSearchMatch(trimmed);
   const rows = await db
-    .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
+    .select({
+      cardId: cardImageVectors.cardId,
+      lang: cardImageVectors.lang,
+      data: cardImageVectors.data,
+    })
     .from(cardImageVectors)
     .where(
       and(
         eq(cardImageVectors.gameKey, gameKey),
-        eq(cardImageVectors.lang, lang),
+        storedLanguageMatch(resolved),
         match,
         setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
         isNotNull(cardImageVectors.data),
@@ -115,32 +154,36 @@ async function searchStoredCards(
       desc(sql`lower(${cardImageVectors.name}) = lower(${trimmed})`),
       cardImageVectors.name,
       cardImageVectors.setCode,
+      cardImageVectors.collectorNumber,
+      desc(sql`${cardImageVectors.lang} = ${lang}`),
+      cardImageVectors.lang,
       cardImageVectors.cardId,
     )
     .offset(offset)
     .limit(STORED_SEARCH_LIMIT + 1);
   const hasMore = rows.length > STORED_SEARCH_LIMIT;
   const cards = rows.slice(0, STORED_SEARCH_LIMIT).flatMap((row) => {
-    const card = adapter.normalizeStored(row.data, row.cardId, lang);
-    return card ? [card] : [];
+    const card = adapter.normalizeStored(row.data, row.cardId, row.lang);
+    return card ? [{ ...card, lang: row.lang }] : [];
   });
   return {
-    cards: await applyCardPrices(adapter, { gameKey, lang }, cards),
+    cards: await priceCardsByLanguage(adapter, gameKey, cards, lang),
     nextOffset: hasMore ? offset + STORED_SEARCH_LIMIT : null,
   };
 }
 
-async function hasStoredCards({
-  gameKey,
-  lang,
-}: ResolvedCardSearch): Promise<boolean> {
+async function hasStoredCards(
+  resolved: ResolvedCardSearch,
+): Promise<boolean> {
   const [row] = await db
     .select({ id: cardImageVectors.id })
     .from(cardImageVectors)
     .where(
       and(
-        eq(cardImageVectors.gameKey, gameKey),
-        eq(cardImageVectors.lang, lang),
+        eq(cardImageVectors.gameKey, resolved.gameKey),
+        resolved.searchAllLanguages
+          ? undefined
+          : eq(cardImageVectors.lang, resolved.lang),
         isNotNull(cardImageVectors.data),
       ),
     )
@@ -275,7 +318,7 @@ export async function searchCardSets(
     .where(
       and(
         eq(cardImageVectors.gameKey, resolved.gameKey),
-        eq(cardImageVectors.lang, resolved.lang),
+        storedLanguageMatch(resolved),
         match,
         isNotNull(cardImageVectors.data),
       ),

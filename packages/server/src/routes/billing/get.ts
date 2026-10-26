@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgBilling } from "../../db/schema";
 import { apiAccessAllowedForPlan } from "../../lib/api-access";
+import { businessToolsAllowedForPlan } from "../../lib/business-access";
 import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
 import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
 import {
@@ -21,43 +22,39 @@ export const getBillingRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const prices = await getBusinessPrices();
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const billing = await tx.query.orgBilling.findFirst({
-          where: eq(orgBilling.orgId, orgId),
-        });
-        const count = await getScansToday(tx, orgId);
-
-        const plan = (billing?.plan as "free" | "business") ?? "free";
-        return {
-          success: true,
-          message: "Loaded.",
-          data: {
-            plan,
-            status: billing?.status ?? null,
-            cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,
-            currentPeriodEnd: billing?.currentPeriodEnd ?? null,
-            interval:
-              plan === "business"
-                ? businessIntervalForPriceId(billing?.stripePriceId)
-                : null,
-            prices,
-            cardsScannedToday: count,
-            dailyLimit: dailyScanLimitForPlan(plan),
-            maxConnectedSorters: sorterLimitForPlan(plan),
-            maxSoundRules: soundRuleLimitForPlan(plan),
-            maxNotificationRules: notificationRuleLimitForPlan(plan),
-            chaosSort: chaosSortAllowedForPlan(plan),
-            storage: storageAllowedForPlan(plan),
-            apiAccess: apiAccessAllowedForPlan(plan),
-          },
-        };
+    const prices = await getBusinessPrices();
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const billing = await tx.query.orgBilling.findFirst({
+        where: eq(orgBilling.orgId, orgId),
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      const count = await getScansToday(tx, orgId);
+
+      const plan = (billing?.plan as "free" | "business") ?? "free";
+      return {
+        success: true,
+        message: "Loaded.",
+        data: {
+          plan,
+          status: billing?.status ?? null,
+          cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,
+          currentPeriodEnd: billing?.currentPeriodEnd ?? null,
+          interval:
+            plan === "business"
+              ? businessIntervalForPriceId(billing?.stripePriceId)
+              : null,
+          prices,
+          cardsScannedToday: count,
+          dailyLimit: dailyScanLimitForPlan(plan),
+          maxConnectedSorters: sorterLimitForPlan(plan),
+          maxSoundRules: soundRuleLimitForPlan(plan),
+          maxNotificationRules: notificationRuleLimitForPlan(plan),
+          chaosSort: chaosSortAllowedForPlan(plan),
+          storage: storageAllowedForPlan(plan),
+          apiAccess: apiAccessAllowedForPlan(plan),
+          businessTools: businessToolsAllowedForPlan(plan),
+        },
+      };
+    });
+    return c.json(result);
   },
 );

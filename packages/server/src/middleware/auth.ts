@@ -21,11 +21,6 @@ export type AppVariables = {
 };
 export type AppEnv = { Variables: AppVariables };
 
-// Delegates to whichever AuthProvider is active (see ../auth/index.ts) - the
-// active provider owns verifying a raw bearer token into a user id, but the
-// jwtClaims shape Postgres RLS policies read via request.jwt.claims is the
-// same regardless of provider, so it's synthesized here rather than by each
-// provider.
 export async function verifyToken(
   token: string,
 ): Promise<{ sub: string } | null> {
@@ -40,8 +35,6 @@ function impersonationSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-// Impersonation is the app's own HS256 token scheme, independent of
-// AUTH_PROVIDER - it works identically against either identity backend.
 export async function signImpersonationToken(
   adminUserId: string,
   targetUserId: string,

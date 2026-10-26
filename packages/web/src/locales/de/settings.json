@@ -9,7 +9,8 @@
     "sounds": "Scan-Sounds",
     "notifications": "Discord",
     "integrations": "API & Webhooks",
-    "pricing": "Preise"
+    "pricing": "Preise",
+    "business": "Business"
   },
   "organizations": {
     "heading": "Organisationen"
@@ -75,17 +76,29 @@
   },
   "leaderboard": {
     "heading": "Bestenliste",
-    "description": "Zeigt den Namen deiner Organisation und die Anzahl gescannter Karten in der Bestenliste unter Statistiken. Jede Organisation kann die Bestenliste sehen.",
-    "toggleLabel": "Meine Organisation in der Bestenliste zeigen"
+    "description": "Jede Organisation wird in der Bestenliste unter Statistiken und im Discord-Bot nach der Anzahl gescannter Karten gereiht. Organisationen ohne Zustimmung erscheinen anonym.",
+    "toggleLabel": "Den Namen meiner Organisation in der Bestenliste zeigen"
   },
   "sectionIntros": {
-    "general": "Deine Sprache, Akzentfarbe und Scanner-Anordnung und ob deine Organisation in der Bestenliste erscheint.",
+    "general": "Deine Sprache, Akzentfarbe und Scanner-Anordnung und ob der Name deiner Organisation in der Bestenliste erscheint.",
     "organization": "Benenne deine Organisation um, lade Leute ein und lege fest, was jedes Mitglied darf.",
     "billing": "Sieh dir deinen Tarif und deine Nutzung an und verwalte oder upgrade dein Abo.",
-    "scanning": "Lege fest, wie Karten erkannt werden und was passiert, wenn ein Scan korrigiert werden muss.",
+    "scanning": "Lege fest, wie Karten erkannt werden, drucke Steuerkarten und bestimme, was passiert, wenn ein Scan korrigiert werden muss.",
     "pricing": "Lege fest, woher Kartenpreise kommen und wie viel jeder Zustand wert ist.",
     "sounds": "Spiele einen Sound ab, wenn eine gescannte Karte eine Regel erfüllt, zum Beispiel bei wertvollen Karten.",
     "notifications": "Verknüpfe deinen Discord-Server und lege fest, welche Scans und Warnungen wo gepostet werden.",
-    "integrations": "Erstelle API-Schlüssel und Webhooks, damit dein Shop oder andere Tools sehen, wo deine Karten lagern."
+    "integrations": "Erstelle API-Schlüssel und Webhooks, damit dein Shop oder andere Tools sehen, wo deine Karten lagern.",
+    "business": "Lege deine Ankaufsangebote fest und bestimme, was Mitglieder sehen und tun dürfen."
+  },
+  "invites": {
+    "heading": "Einladungen"
+  },
+  "auditLog": {
+    "heading": "Aktivitätsprotokoll"
+  },
+  "controlCards": {
+    "heading": "Steuerkarten",
+    "description": "Drucke QR-Karten, die Sammlung, Regelvorlage, Foil-Art, Set, Zustand oder Scan-Optionen wechseln, sobald der Sortierer sie liest. Lass eine Karte während des Laufs durchlaufen, und sie landet dort, wo nicht erkannte Karten landen.",
+    "action": "Steuerkarten erstellen"
   }
 }

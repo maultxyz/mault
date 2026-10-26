@@ -23,7 +23,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "default",
   userInterfaceStyle: "automatic",
   icon: "./assets/icon.png",
-  newArchEnabled: true,
   ios: {
     bundleIdentifier: env("MOBILE_IOS_BUNDLE_ID", "xyz.mault.app"),
     supportsTablet: true,

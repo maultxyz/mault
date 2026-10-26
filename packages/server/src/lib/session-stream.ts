@@ -92,14 +92,13 @@ export function getLiveCountsForGuids(guids: string[]): Record<string, number> {
   return result;
 }
 
-export function getAllSessionViewers(): Record<string, ViewerInfo[]> {
+export function getSessionViewersForGuids(
+  guids: string[],
+): Record<string, ViewerInfo[]> {
   const result: Record<string, ViewerInfo[]> = {};
-  for (const [guid, session] of sessions) {
-    if (session.viewers.size > 0) {
-      result[guid] = Array.from(session.viewers).map(
-        ({ userId, displayName }) => ({ userId, displayName }),
-      );
-    }
+  for (const guid of guids) {
+    const viewers = getSessionViewers(guid);
+    if (viewers.length > 0) result[guid] = viewers;
   }
   return result;
 }

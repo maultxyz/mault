@@ -6,6 +6,8 @@ import type { ScannedCard } from "./scanner.interface";
 export interface ExportContext {
   isMtg: boolean;
   fieldDefinitions: FieldMeta[];
+  gameKey?: string;
+  gameName?: string;
 }
 
 export interface GroupedEntry {
@@ -14,11 +16,12 @@ export interface GroupedEntry {
   isFoil: boolean;
   foilType?: string;
   condition: CardCondition;
+  language: string;
 }
 
 export type GroupBy = "card" | "card-foil";
 
-export type ExportableCard = Pick<ScannedCard, "card" | "isFoil" | "foilType" | "condition">;
+export type ExportableCard = Pick<ScannedCard, "card" | "isFoil" | "foilType" | "condition" | "language">;
 
 export interface ExportAdapter {
   key: string;

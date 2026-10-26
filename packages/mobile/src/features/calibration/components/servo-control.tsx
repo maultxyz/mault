@@ -8,16 +8,18 @@ import { StepperRow } from "@/components/ui/stepper-row";
 import { getCalibrationKey } from "@/features/calibration/lib/calibration-keys";
 import { useTheme } from "@/hooks/use-theme";
 import {
-  percentToPulse,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
-  pulseToPercent,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
 } from "@/lib/constants/calibration";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY } from "@/lib/constants/ui";
 import type { ServoControlProps } from "@/lib/interfaces/calibration";
+import {
+  percentToPulse,
+  pulseToPercent,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+} from "@magic-vault/shared";
 
 export function ServoControl({
   module,

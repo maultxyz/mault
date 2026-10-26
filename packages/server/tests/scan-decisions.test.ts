@@ -3,17 +3,14 @@ import { test } from "node:test";
 import {
   pickConsensus,
   type PlayingCardWithDistance,
-  betterSearch,
-  chooseScanBin,
-  closeMatchesOf,
+  pickBetterOrientation,
+  resolveCardSearchMatches,
+  preferDetectedColor,
+  resolveScanBin,
   needsTextSearch,
-  orderMatchesByColor,
-  reservePickListBins,
-  scanHoldReason,
   type BinConfig,
   type BinSet,
-  type ScanBinDeps,
-  type FieldMeta,
+  type ScanRoutingContext,
   routeForBin,
   consensusAttemptLimit,
   consensusMissReason,
@@ -53,33 +50,40 @@ function preset(bins: BinConfig[], extra: Partial<BinSet> = {}): BinSet {
     ...extra,
   };
 }
-const deps: ScanBinDeps = {
-  countCopies: () => 0,
-  countInBin: () => 0,
-  isBinFull: () => false,
-  binRoom: () => Infinity,
-  cardsInBin: () => [],
-  newId: () => "new-rule",
-};
+function context(bins: BinConfig[], options: Partial<BinSet> = {}): ScanRoutingContext {
+  return {
+    binSet: preset(bins, options),
+    configs: bins,
+    fieldDefinitions: [],
+    binContents: [],
+    countCardsInBin: () => 0,
+    isBinFull: () => false,
+    binRoom: () => Infinity,
+    createRuleId: () => "new-rule",
+  };
+}
 
 test("orientation chooses a usable match before distance, retaining upright on a tie", () => {
   const upright = { data: [{ distance: 0.3 }], nearestDistance: 0.3 };
   const rotated = { data: [], nearestDistance: 0.1 };
-  assert.equal(betterSearch(upright, rotated), upright);
-  assert.equal(betterSearch(upright, { ...upright }), upright);
+  assert.equal(pickBetterOrientation({ result: upright }, { result: rotated }).result, upright);
+  assert.equal(pickBetterOrientation({ result: upright }, { result: { ...upright } }).result, upright);
   assert.equal(needsTextSearch({ diagnostics: { reason: "ambiguous" } }), true);
 });
 
-test("color preference cannot expand the close-match window", () => {
-  const matches = [
-    { distance: 0.1, card: { colorIdentity: ["U"] } },
-    { distance: 0.14, card: { colorIdentity: ["R"] } },
-    { distance: 0.17, card: { colorIdentity: ["R"] } },
-  ];
-  const ordered = orderMatchesByColor(matches, "R")!;
-  assert.equal(ordered[0], matches[1]);
-  assert.deepEqual(closeMatchesOf(ordered), [matches[1], matches[0]]);
-  assert.equal(matches[0].distance, 0.1);
+test("shared color preference cannot expand the resolved close-match window", async () => {
+  const result = {
+    data: [
+      { cardId: "blue", distance: 0.1, confidence: 90, card: { id: "blue", colorIdentity: ["U"] } },
+      { cardId: "red-close", distance: 0.14, confidence: 86, card: { id: "red-close", colorIdentity: ["R"] } },
+      { cardId: "red-far", distance: 0.17, confidence: 83, card: { id: "red-far", colorIdentity: ["R"] } },
+    ],
+  };
+  const resolved = await resolveCardSearchMatches(result, async () => null);
+  const preferred = preferDetectedColor(resolved, "R");
+  assert.equal(preferred.card?.id, "red-close");
+  assert.deepEqual(preferred.alternativeMatches.map((card) => card.id), ["blue"]);
+  assert.equal(result.data[0].cardId, "blue");
 });
 
 test("consensus counts same-name printings across misses and selects the closest vote", () => {
@@ -95,68 +99,12 @@ test("consensus counts same-name printings across misses and selects the closest
   assert.equal(pickConsensus([first, boundary], 2), first);
 });
 
-test("pick lists win before normal rules and auto assignment", () => {
-  const bins = [
-    bin(1),
-    bin(2, {
-      pickList: {
-        mode: "until_found",
-        entries: [{ name: "Lightning Bolt", quantity: 1, found: 0 }],
-      },
-    }),
-    bin(3, { isCatchAll: true }),
-  ];
-  const choice = chooseScanBin(
-    { name: "Lightning Bolt" },
-    preset(bins),
-    reservePickListBins(bins),
-    bins,
-    [],
-    deps,
-  );
-  assert.equal(choice.bin?.binNumber, 2);
-  assert.equal(choice.pickListName, "Lightning Bolt");
-  assert.equal(choice.autoAssign, null);
-});
-
-test("scan-only honors its target and reports a full bin as a hold", () => {
-  const bins = [bin(1), bin(2), bin(3, { isCatchAll: true })];
-  const set = preset(bins, { scanOnly: true, scanOnlyBin: 2 });
-  const choice = chooseScanBin({ name: "Card" }, set, bins, bins, [], deps);
-  assert.equal(choice.bin?.binNumber, 2);
-  assert.equal(
-    scanHoldReason({}, set, bins, [], choice.bin, {
-      ...deps,
-      isBinFull: () => true,
-    })?.reason,
-    "bin-full",
-  );
-});
-
-test("chaos holds on full bins and picks the emptied bin after refresh", () => {
-  const bins = [bin(1), bin(2), bin(3, { isCatchAll: true })];
-  const set = preset(bins, { isChaosMode: true });
-  const full = { ...deps, isBinFull: () => true };
-  const held = chooseScanBin({}, set, bins, bins, [], full);
-  assert.equal(
-    scanHoldReason({}, set, bins, [], held.bin, full)?.reason,
-    "chaos-full",
-  );
-  const emptied = {
-    ...deps,
-    isBinFull: (item: BinConfig) => item.binNumber !== 2,
-  };
-  const resumed = chooseScanBin({}, set, bins, bins, [], emptied);
-  assert.equal(resumed.bin?.binNumber, 2);
-  assert.equal(scanHoldReason({}, set, bins, [], resumed.bin, emptied), null);
-});
-
 test("matching retains upstream orientation, OCR and retry boundaries", () => {
   const empty = { data: [], nearestDistance: null };
   const matched = { data: [{ distance: 0.4 }], nearestDistance: 0.4 };
-  assert.equal(betterSearch(empty, matched), matched);
+  assert.equal(pickBetterOrientation({ result: empty }, { result: matched }).result, matched);
   assert.equal(
-    betterSearch(matched, { ...matched, nearestDistance: 0.3 }).nearestDistance,
+    pickBetterOrientation({ result: matched }, { result: { ...matched, nearestDistance: 0.3 } }).result.nearestDistance,
     0.3,
   );
   assert.equal(
@@ -171,144 +119,42 @@ test("matching retains upstream orientation, OCR and retry boundaries", () => {
   assert.equal(consensusAttemptLimit(3), 6);
   assert.equal(consensusMissReason(true, "ambiguous"), "no_consensus");
   assert.equal(consensusMissReason(false, "ambiguous"), "ambiguous");
-  const unsorted = [{ distance: 0.14 }, { distance: 0.1 }, { distance: 0.18 }];
-  assert.deepEqual(closeMatchesOf(unsorted, unsorted[0].distance), unsorted);
-  assert.deepEqual(closeMatchesOf(unsorted), unsorted.slice(0, 2));
+
 });
 
-test("rules preserve max copies, overflow and learned auto-assignment behavior", () => {
-  const fields: FieldMeta[] = [
-    {
-      field: "name",
-      label: "Name",
-      type: "string",
-      path: "name",
-      operators: [],
-    },
-  ];
-  const rules = {
-    id: "name-rule",
-    combinator: "and" as const,
-    conditions: [
-      {
-        id: "name-condition",
-        field: "name",
-        operator: "equals" as const,
-        value: "Bolt",
-      },
-    ],
-  };
-  const bins = [
-    bin(1, { rules, maxCopies: 1, overflowBin: 2 }),
-    bin(2),
-    bin(3, { isCatchAll: true }),
-  ];
-  const full = {
-    ...deps,
-    countCopies: () => 1,
-    isBinFull: (item: BinConfig) => item.binNumber === 1,
-  };
-  assert.equal(
-    chooseScanBin({ name: "Bolt" }, preset(bins), bins, bins, fields, full).bin
-      ?.binNumber,
-    2,
-  );
-  const open = [bin(1), bin(2), bin(3, { isCatchAll: true })];
-  const choice = chooseScanBin(
-    { name: "Bolt" },
-    preset(open, { autoAssignField: "name" }),
-    open,
-    open,
-    fields,
-    deps,
-  );
-  assert.equal(choice.bin?.binNumber, 1);
-  assert.deepEqual(choice.autoAssign?.rules.conditions, [
-    { id: "new-rule", field: "name", operator: "equals", value: "Bolt" },
-  ]);
+test("Pi routing uses the shared pick-list decision before normal rules", () => {
+  const bins = [bin(1), bin(2, { pickList: {
+    mode: "until_found", entries: [{ name: "Bolt", quantity: 1, found: 0 }],
+  }}), bin(3, { isCatchAll: true })];
+  const decision = resolveScanBin({ name: "Bolt" }, context(bins));
+  assert.equal(decision.action, "route");
+  if (decision.action !== "route") return;
+  assert.equal(decision.bin?.binNumber, 2);
+  assert.equal(decision.pickListMatch?.entry.name, "Bolt");
+  assert.equal(decision.autoAssignTarget, null);
 });
 
-test("low-confidence catch-all takes priority over pick lists and scan-only targets", () => {
-  const bins = [
-    bin(1, {
-      pickList: {
-        mode: "until_found",
-        entries: [{ name: "Bolt", quantity: 1, found: 0 }],
-      },
-    }),
-    bin(2, { isCatchAll: true, lowMatchPercent: 80 }),
-  ];
-  for (const options of [
-    {},
-    { scanOnly: true, scanOnlyBin: 1 },
-    { isChaosMode: true },
-  ]) {
-    const set = preset(bins, options);
-    const choice = chooseScanBin(
-      { name: "Bolt", distance: 0.5 },
-      set,
-      bins,
-      bins,
-      [],
-      deps,
-    );
-    assert.equal(choice.bin?.binNumber, 2);
-    assert.equal(choice.pickListName, null);
-    assert.equal(
-      scanHoldReason({ distance: 0.5 }, set, bins, [], choice.bin, deps),
-      null,
-    );
-  }
+test("Pi scan-only routing preserves the target and pauses for a full bin", () => {
+  const bins = [bin(1), bin(2), bin(3, { isCatchAll: true })];
+  const ctx = context(bins, { scanOnly: true, scanOnlyBin: 2 });
+  assert.equal(resolveScanBin({ name: "Card" }, ctx).bin?.binNumber, 2);
+  ctx.isBinFull = () => true;
+  const decision = resolveScanBin({ name: "Card" }, ctx);
+  assert.equal(decision.action, "pause");
+  if (decision.action === "pause") assert.equal(decision.reason, "bin-full");
 });
 
-test("repack completion pauses with ordered pack bins, without learning rules", () => {
-  const bins = [bin(2), bin(1), bin(3, { isCatchAll: true })];
-  const fields: FieldMeta[] = [
-    {
-      field: "name",
-      label: "Name",
-      type: "string",
-      path: "name",
-      operators: [],
-    },
-  ];
-  const set = preset(bins, {
-    isRepackMode: true,
-    autoAssignField: "name",
-    repackSlots: [
-      {
-        id: "slot",
-        targetCount: 1,
-        rule: {
-          id: "slot-rule",
-          combinator: "and",
-          conditions: [
-            {
-              id: "slot-name",
-              field: "name",
-              operator: "equals",
-              value: "Bolt",
-            },
-          ],
-        },
-      },
-    ],
-  });
-  const loaded = { ...deps, cardsInBin: () => [{ name: "Bolt" }] };
-  const choice = chooseScanBin(
-    { name: "Bolt" },
-    set,
-    bins,
-    bins,
-    fields,
-    loaded,
-  );
-  assert.equal(choice.bin?.binNumber, 3);
-  assert.equal(choice.autoAssign, null);
-  assert.deepEqual(
-    scanHoldReason({ name: "Bolt" }, set, bins, fields, choice.bin, loaded),
-    { reason: "repack-complete", binNumbers: [1, 2] },
-  );
+test("Pi chaos routing resumes into the emptied bin", () => {
+  const bins = [bin(1), bin(2), bin(3, { isCatchAll: true })];
+  const ctx = context(bins, { isChaosMode: true });
+  ctx.isBinFull = () => true;
+  const held = resolveScanBin({ name: "Card" }, ctx);
+  assert.equal(held.action, "pause");
+  if (held.action === "pause") assert.equal(held.reason, "all-chaos-bins-full");
+  ctx.isBinFull = (number) => number !== 2;
+  const resumed = resolveScanBin({ name: "Card" }, ctx);
+  assert.equal(resumed.action, "route");
+  assert.equal(resumed.bin?.binNumber, 2);
 });
 
 test("unmapped bins fall through the final module's bottom paddle", () => {

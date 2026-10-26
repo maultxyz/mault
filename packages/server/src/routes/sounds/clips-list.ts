@@ -11,23 +11,18 @@ export const listSoundClipsRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const rows = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .select()
-          .from(soundClips)
-          .where(
-            and(eq(soundClips.orgId, orgId), eq(soundClips.isDeleted, false)),
-          )
-          .orderBy(asc(soundClips.name)),
-      );
-      return c.json({
-        success: true,
-        data: await Promise.all(rows.map(toSoundClip)),
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const rows = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .select()
+        .from(soundClips)
+        .where(
+          and(eq(soundClips.orgId, orgId), eq(soundClips.isDeleted, false)),
+        )
+        .orderBy(asc(soundClips.name)),
+    );
+    return c.json({
+      success: true,
+      data: await Promise.all(rows.map(toSoundClip)),
+    });
   },
 );

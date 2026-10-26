@@ -39,7 +39,8 @@
     "errors": {
       "network": "Impossible de joindre le serveur. Vérifie ta connexion et réessaie.",
       "profile": "Connecté, mais les détails de ton compte n'ont pas pu être chargés. Réessaie.",
-      "verify-email": "Vérifie ton adresse e-mail, puis connecte-toi."
+      "verify-email": "Vérifie ton adresse e-mail, puis connecte-toi.",
+      "storage": "Connecté, mais la session n'a pas pu être enregistrée sur cet appareil. Réessaie."
     },
     "createAccountOnWeb": "Nouveau sur Mault ? Crée un compte sur le web"
   },
@@ -86,11 +87,6 @@
     "deleteFailed": "Impossible de supprimer la collection",
     "actions": "Actions de la collection",
     "cancel": "Annuler",
-    "validation": {
-      "name": "Saisis un nom de 50 caractères maximum.",
-      "game": "Choisis un jeu.",
-      "lang": "Choisis une langue."
-    },
     "shareLink": "Partager le lien de la vue en direct",
     "revokeLinks": "Révoquer les liens partagés",
     "revokeLinksTitle": "Révoquer les liens partagés ?",
@@ -273,8 +269,7 @@
         "nameLabel": "Nom affiché",
         "save": "Enregistrer",
         "updated": "Nom mis à jour",
-        "updateFailed": "Impossible de mettre à jour le nom",
-        "nameRequired": "Saisis ton nom."
+        "updateFailed": "Impossible de mettre à jour le nom"
       },
       "email": {
         "heading": "E-mail",
@@ -291,15 +286,12 @@
       "password": {
         "heading": "Mot de passe",
         "currentLabel": "Mot de passe actuel",
-        "currentRequired": "Saisis ton mot de passe actuel",
         "newLabel": "Nouveau mot de passe",
         "confirmLabel": "Confirmer le nouveau mot de passe",
         "revokeOtherSessions": "Déconnecter tous les autres appareils",
         "submit": "Mettre à jour le mot de passe",
         "updated": "Mot de passe mis à jour",
-        "updateFailed": "Impossible de mettre à jour le mot de passe",
-        "mismatch": "Les mots de passe ne correspondent pas",
-        "tooShort": "Doit contenir au moins 8 caractères"
+        "updateFailed": "Impossible de mettre à jour le mot de passe"
       },
       "sessions": {
         "heading": "Sessions",
@@ -479,7 +471,7 @@
       },
       "bin-full": {
         "title": "Bac plein",
-        "description": "Vide le bac dans l'application web, puis touche Reprendre."
+        "description": "Retire les cartes du bac {{detail}}, marque-le comme vide, puis le scan reprend."
       },
       "scan-limit": {
         "title": "Limite de scans quotidienne atteinte",
@@ -508,6 +500,42 @@
       "repack-complete": {
         "title": "Paquets terminés",
         "description": "Tous les bacs de paquets sont pleins. Vide-les, puis touche Reprendre pour lancer le tour suivant."
+      },
+      "bin-data-unavailable": {
+        "title": "Niveaux des bacs indisponibles",
+        "description": "L'app n'a pas pu charger le remplissage des bacs, elle s'est donc mise en pause au lieu de deviner. Vérifie ta connexion, puis touche Reprendre."
+      },
+      "deploy": {
+        "title": "Mise à jour en cours",
+        "description": "Mault est en cours de mise à jour, le scan a donc été mis en pause pour qu'aucune carte ne soit perdue. Tu peux reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour."
+      },
+      "control-card": {
+        "title": "En pause par une carte de contrôle",
+        "description": "Appuie sur Reprendre quand tu veux continuer le scan."
+      },
+      "control-card-unreadable": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Ce QR code n'est pas une carte de contrôle que cette version de Mault comprend. Mets l'app à jour ou imprime une nouvelle carte."
+      },
+      "control-card-collection-not-found": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "La collection de cette carte n'existe plus."
+      },
+      "control-card-preset-not-found": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Le préréglage de règles de cette carte n'existe plus."
+      },
+      "control-card-preset-wrong-game": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Le préréglage de règles de cette carte concerne un autre jeu que la collection."
+      },
+      "control-card-no-collection": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Choisis une collection avant d'utiliser une carte de préréglage."
+      },
+      "control-card-switch-failed": {
+        "title": "Carte de contrôle non appliquée",
+        "description": "Impossible de changer de collection ou de préréglage. Vérifie ta connexion et réessaie."
       }
     },
     "scanOnce": "Scanner une",
@@ -587,7 +615,67 @@
       "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur",
       "collection": "Collection",
       "preset": "Préréglage de règles",
-      "chooseCamera": "Choisir une caméra"
+      "chooseCamera": "Choisir une caméra",
+      "foilType": "Type de foil",
+      "notFoil": "Non foil",
+      "set": "Extension",
+      "anySet": "N'importe quelle extension",
+      "searchSets": "Rechercher une extension",
+      "condition": "État"
+    },
+    "emptyBin": {
+      "action": "Marquer comme vide",
+      "confirmTitle": "Marquer le bac {{bins}} comme vide ?",
+      "confirmDescription": "Fais-le seulement après avoir retiré les cartes. Le compteur du bac repart de zéro.",
+      "confirm": "Marquer comme vide",
+      "failed": "Impossible de marquer le bac comme vide. Vérifie ta connexion et réessaie."
+    },
+    "removal": {
+      "title": "Retrait de {{collection}}",
+      "queued_one": "{{count}} en file",
+      "queued_other": "{{count}} en file",
+      "chip_one": "Retrait de {{collection}} : {{count}} en file",
+      "chip_other": "Retrait de {{collection}} : {{count}} en file",
+      "noCopyLeft": "Plus aucun exemplaire dans cette collection",
+      "removeAction_one": "Retirer 1 carte",
+      "removeAction_other": "Retirer {{count}} cartes",
+      "confirmDescription": "Retirer ces cartes de {{collection}} ? Cette action est irréversible.",
+      "removeFailed": "Impossible de retirer les cartes. Vérifie ta connexion et réessaie.",
+      "drop": "Enlever",
+      "changeCopy": "Changer d'exemplaire",
+      "empty": "La file de retrait est vide. Scanne une carte pour l'ajouter.",
+      "unsorted": "Non rangée",
+      "notice": {
+        "no-match": "Aucune correspondance, réessaie",
+        "lookup-failed": "Impossible de trouver les exemplaires de {{name}}. Vérifie ta connexion et scanne-la à nouveau.",
+        "removed_one": "1 carte retirée",
+        "removed_other": "{{count}} cartes retirées"
+      },
+      "modes": {
+        "add": "Ajouter des cartes",
+        "remove": "Retirer des cartes"
+      },
+      "binChip": "Les cartes retirées vont dans {{bin}}",
+      "binPickerTitle": "Les cartes retirées vont dans",
+      "binOption": "Bac {{number}}",
+      "catchAllBinOption": "Bac {{number}} (bac fourre-tout)"
+    },
+    "controlCards": {
+      "applied": "Carte de contrôle appliquée",
+      "actions": {
+        "collection": "Collection : {{name}}",
+        "preset": "Préréglage de règles : {{name}}",
+        "foil": "Foil : {{type}}",
+        "notFoil": "Non foil",
+        "set": "Extension : {{name}}",
+        "anySet": "N'importe quelle extension",
+        "condition": "État : {{condition}}",
+        "autoFeedOn": "Alimentation auto activée",
+        "autoFeedOff": "Alimentation auto désactivée",
+        "duplicatesOn": "Autoriser les doublons",
+        "duplicatesOff": "Ignorer les doublons",
+        "pause": "Mettre le scan en pause"
+      }
     }
   },
   "home": {
@@ -636,7 +724,6 @@
     "review": "Vérifier {{count}}",
     "groupDuplicates": "Grouper les doublons",
     "filters": {
-      "title": "Filtres",
       "colors": "Couleurs",
       "rarity": "Rareté",
       "foil": "Foil",
@@ -658,7 +745,9 @@
       "copies_other": "{{count}} exemplaires",
       "removeTitle_one": "Retirer cette carte ?",
       "removeTitle_other": "Retirer {{count}} exemplaires ?"
-    }
+    },
+    "viewOptions": "Options d'affichage",
+    "display": "Affichage"
   },
   "cardDetail": {
     "fallbackTitle": "Détails de la carte",
@@ -690,6 +779,8 @@
     "thisScan": "Ce scan",
     "foilNone": "Non foil",
     "condition": "Condition",
+    "language": "Langue",
+    "allLanguages": "Toutes les langues",
     "conditions": {
       "NM": "Near Mint (NM)",
       "LP": "Lightly Played (LP)",
@@ -708,11 +799,28 @@
     "prices": "Prix",
     "binLocation": "Emplacement du bac",
     "scanOrigin": {
-      "heading": "Scanné",
       "scannedBy": "Par",
       "sorter": "Trieur",
       "deletedSorter": "{{name}} (supprimé)"
     }
+  },
+  "reviewGrid": {
+    "title": "Vérifier les cartes",
+    "remaining_one": "{{count}} carte à vérifier",
+    "remaining_other": "{{count}} cartes à vérifier",
+    "layoutGrid": "Grille",
+    "layoutOneByOne": "Une par une",
+    "acceptAll_one": "Valider {{count}} carte",
+    "acceptAll_other": "Tout valider ({{count}})",
+    "accept": "C'est bon",
+    "correct": "Corriger",
+    "noPhoto": "Pas de photo du scan",
+    "doneTitle": "Tout est vérifié",
+    "doneDescription": "Toutes les cartes ici ont été vérifiées.",
+    "done": "Terminé",
+    "loadFailed": "Impossible de charger les cartes à vérifier. Réessayez.",
+    "acceptFailed_one": "Impossible de valider {{count}} carte. Réessayez.",
+    "acceptFailed_other": "Impossible de valider {{count}} cartes. Réessayez."
   },
   "rules": {
     "title": "Règles de tri",
@@ -778,15 +886,11 @@
     "catchAllDescription": "Reçoit toutes les cartes qu'aucun autre bac ne prend",
     "disabledLabel": "Désactivé",
     "disabledDescription": "Les cartes ignorent ce bac",
-    "cardLimitLabel": "Limite de cartes",
-    "cardLimitDescription": "Met en pause ou déborde quand il est plein",
-    "noLimit": "Aucun",
     "overflowLabel": "Une fois plein, déborder dans",
     "noRulesTapToAdd": "Pas encore de règles, touche pour en ajouter",
     "groupChip_one": "Groupe de {{count}}",
     "groupChip_other": "Groupe de {{count}}",
     "moreChips": "+{{count}}",
-    "limitChip": "Plein à {{count}}",
     "overflowsTo": "Déborde vers {{bin}}",
     "mode": {
       "title": "Mode de tri",
@@ -854,7 +958,9 @@
       "slotsLabel": "Emplacements",
       "slotCountLabel": "Nombre",
       "removeSlot": "Supprimer l'emplacement",
-      "addSlot": "Ajouter un emplacement"
+      "addSlot": "Ajouter un emplacement",
+      "multiplePacksLabel": "Plusieurs paquets par bac",
+      "multiplePacksDescription": "Quand un bac termine un paquet, il en commence un nouveau par-dessus et continue jusqu'à ce que le bac soit plein. Un bac ne commence un nouveau paquet que s'il a la place pour le paquet entier, donc aucun paquet n'est coupé."
     },
     "alphabet": {
       "needBins": "Le tri alphabétique nécessite au moins un bac en plus du bac fourre-tout.",
@@ -1240,7 +1346,6 @@
       },
       "you": "Vous",
       "failed": "Impossible de mettre à jour l'organisation",
-      "invalidEmail": "Saisis une adresse e-mail valide.",
       "cancel": "Annuler",
       "membersUnavailable": "Les membres sont gérés avec les outils d'administration de ton serveur auto-hébergé.",
       "noInvites": "Aucune invitation en attente"
@@ -1273,7 +1378,8 @@
         "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
         "collections": "Collections illimitées",
         "games": "Tous les jeux de cartes pris en charge",
-        "notifications": "Notifications Discord de scan"
+        "notifications": "Notifications Discord de scan",
+        "businessTools": "Outils pour boutiques : offres de rachat, listes de préparation et rapports de marges"
       }
     },
     "apiKeys": {
@@ -1317,17 +1423,18 @@
       "saved": "Webhook enregistré.",
       "saveFailed": "Impossible d'enregistrer le webhook.",
       "urlLabel": "URL",
-      "invalidUrl": "Saisissez une URL https:// publique.",
       "descriptionLabel": "Nom (facultatif)",
       "descriptionPlaceholder": "Boutique en ligne",
       "eventsLabel": "Événements",
-      "eventsRequired": "Choisissez au moins un événement.",
       "events": {
         "card": {
           "scanned": "Une carte a été scannée et enregistrée dans une collection."
         },
         "cards": {
           "stored": "Un bac a été rangé dans un emplacement. Inclut la boîte et la position de chaque carte."
+        },
+        "sorter": {
+          "alert": "Une trieuse a eu un bourrage ou une erreur, a redémarré, a perdu sa connexion ou doit être entretenue."
         }
       },
       "empty": "Aucun webhook pour l'instant.",
@@ -1423,12 +1530,7 @@
         "conditions": "Conditions",
         "cancel": "Annuler",
         "save": "Enregistrer",
-        "saveFailed": "Impossible d'enregistrer la règle de notification.",
-        "validation": {
-          "nameRequired": "Donne un nom à la règle.",
-          "channelRequired": "Choisis un salon.",
-          "conditionsRequired": "Ajoute au moins une condition."
-        }
+        "saveFailed": "Impossible d'enregistrer la règle de notification."
       },
       "draft": {
         "saved": "Paramètres Discord enregistrés.",
@@ -1510,8 +1612,6 @@
         "saveName": "Enregistrer le nom",
         "cancelRename": "Annuler",
         "renameFailed": "Impossible de renommer le clip sonore.",
-        "nameRequired": "Donne un nom au clip.",
-        "nameTooLong": "Le nom ne peut pas dépasser 60 caractères.",
         "stop": "Arrêter {{name}}",
         "pickFailed": "Impossible d'ouvrir ce fichier.",
         "renamed": "Extrait sonore renommé.",
@@ -1548,12 +1648,7 @@
         "conditions": "Conditions",
         "cancel": "Annuler",
         "save": "Enregistrer",
-        "saveFailed": "Impossible d'enregistrer la règle sonore.",
-        "validation": {
-          "nameRequired": "Donne un nom à la règle.",
-          "clipRequired": "Choisis un clip sonore.",
-          "conditionsRequired": "Ajoute au moins une condition."
-        }
+        "saveFailed": "Impossible d'enregistrer la règle sonore."
       }
     }
   },
@@ -1590,6 +1685,7 @@
     "tcgplayerMarket": "Prix du marché TCGplayer",
     "cardmarketAvg": "Moyenne Cardmarket",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "Au scan {{price}}",
     "nonFoilPrice": "Non foil {{price}}",
     "avg30": "Moy. 30 jours",
     "market": "Marché",
@@ -1682,5 +1778,42 @@
     "captured_one": "{{count}} photo envoyée",
     "captured_other": "{{count}} photos envoyées",
     "keepOpen": "Garde cet écran ouvert pendant que l'ordinateur scanne."
+  },
+  "validation": {
+    "nameRequired": "Saisis un nom.",
+    "nameTooLong": "{{max}} caractères au maximum.",
+    "ruleNameRequired": "Donne un nom à la règle.",
+    "clipNameRequired": "Donne un nom au clip.",
+    "gameRequired": "Choisis un jeu.",
+    "languageRequired": "Choisis une langue.",
+    "collectionRequired": "Choisis une collection.",
+    "channelRequired": "Choisis un salon.",
+    "clipRequired": "Choisis un clip sonore.",
+    "conditionsRequired": "Ajoute au moins une condition.",
+    "emailInvalid": "Saisis une adresse e-mail valide.",
+    "currentPasswordRequired": "Saisis ton mot de passe actuel.",
+    "passwordTooShort": "Doit contenir au moins {{min}} caractères.",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "webhookUrlInvalid": "Saisis une URL https:// publique.",
+    "eventsRequired": "Choisis au moins un événement.",
+    "conditionMultipliersInvalid": "Chaque état doit avoir un pourcentage de 0 à 100.",
+    "valueRequired": "Saisis une valeur.",
+    "wholeNumber": "Doit être un nombre entier.",
+    "atLeast": "Doit être au moins {{min}}.",
+    "atMost": "Doit être au plus {{max}}.",
+    "percentAtLeast": "Doit être au moins {{min}} %.",
+    "percentAtMost": "Doit être au plus {{max}} %.",
+    "amountRequired": "Saisis un montant.",
+    "percentageRequired": "Saisis un pourcentage.",
+    "tiersRequired": "Ajoute au moins un palier.",
+    "tooManyTiers": "{{max}} paliers au maximum.",
+    "customerNameRequired": "Saisis le nom du client.",
+    "orderTextRequired": "Colle une commande ou choisis un fichier.",
+    "cardCountRequired": "Saisis un nombre de cartes.",
+    "storageLocationRequired": "Choisis où sont allées les cartes.",
+    "commandRequired": "Saisis une commande.",
+    "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
+    "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
+    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
   }
 }

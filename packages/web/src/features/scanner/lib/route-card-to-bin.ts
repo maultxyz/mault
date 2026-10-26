@@ -12,6 +12,7 @@ export async function routeCardToBin({
   failedKey,
   cardName,
   collectionGuid,
+  deviceGuid,
   isAutoFeedEnabled,
   isPipelinedFeedEnabled,
   pause,
@@ -34,6 +35,7 @@ export async function routeCardToBin({
       cardName,
       binNumber: route.binNumber,
       collectionGuid,
+      deviceGuid: deviceGuid,
     });
     pause();
     return;
@@ -59,6 +61,7 @@ export async function routeCardToBin({
       cardName,
       binNumber: route.binNumber,
       collectionGuid,
+      deviceGuid: deviceGuid,
     });
     pause();
     return;
@@ -82,6 +85,7 @@ export async function routeCardToBin({
       cardName,
       binNumber: route.binNumber,
       collectionGuid,
+      deviceGuid: deviceGuid,
     });
     pause();
     return;

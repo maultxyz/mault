@@ -23,15 +23,12 @@
   "password": {
     "heading": "Passwort",
     "currentLabel": "Aktuelles Passwort",
-    "currentRequired": "Gib dein aktuelles Passwort ein",
     "newLabel": "Neues Passwort",
     "confirmLabel": "Neues Passwort bestätigen",
     "revokeOtherSessions": "Auf allen anderen Geräten abmelden",
     "submit": "Passwort aktualisieren",
     "updated": "Passwort aktualisiert",
-    "updateFailed": "Passwort konnte nicht aktualisiert werden",
-    "mismatch": "Passwörter stimmen nicht überein",
-    "tooShort": "Muss mindestens 8 Zeichen lang sein"
+    "updateFailed": "Passwort konnte nicht aktualisiert werden"
   },
   "sessions": {
     "heading": "Sitzungen",
@@ -72,5 +69,29 @@
     "heading": "Geführte Tour",
     "description": "Wiederhole die Einführung in Scanner, Sammlungen und Sortierregeln.",
     "restartButton": "Tutorial neu starten"
+  },
+  "apiKeys": {
+    "heading": "API-Schlüssel",
+    "description": "Persönliche Schlüssel, um per Skript oder automatisiert auf die API von Mault zuzugreifen.",
+    "create": "Neuer Schlüssel",
+    "createTitle": "API-Schlüssel erstellen",
+    "createDescription": "Gib ihm einen Namen, damit du ihn später wiedererkennst.",
+    "createFailed": "Schlüssel konnte nicht erstellt werden",
+    "nameLabel": "Name",
+    "namePlaceholder": "z. B. Import-Skript",
+    "revealTitle": "Kopiere deinen neuen Schlüssel",
+    "revealDescription": "Nur jetzt siehst du den vollständigen Schlüssel. Bewahre ihn sicher auf.",
+    "revealDone": "Fertig",
+    "copied": "In die Zwischenablage kopiert",
+    "copyFailed": "Konnte nicht in die Zwischenablage kopiert werden",
+    "revoke": "Widerrufen",
+    "revokeConfirmTitle": "Diesen Schlüssel widerrufen?",
+    "revokeConfirmDescription": "Alles, was diesen Schlüssel nutzt, verliert sofort den Zugriff.",
+    "revoked": "Schlüssel widerrufen",
+    "revokeFailed": "Schlüssel konnte nicht widerrufen werden",
+    "loadFailed": "API-Schlüssel konnten nicht geladen werden",
+    "empty": "Noch keine API-Schlüssel",
+    "expires": "läuft am {{date}} ab",
+    "noExpiry": "läuft nicht ab"
   }
 }

@@ -79,7 +79,7 @@ function SyncStatusItem() {
   const syncState = useSyncState();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { isAdmin } = useRole();
+  const { isStaff } = useRole();
 
   const { status, total, processed, skipped, errors, vectorizeOn } = syncState;
   const done =
@@ -122,9 +122,9 @@ function SyncStatusItem() {
   return (
     <Tooltip>
       <TooltipTrigger
-        onClick={isAdmin ? () => navigate("/app/admin/cards") : undefined}
+        onClick={isStaff ? () => navigate("/app/admin/cards") : undefined}
         className={`flex items-center gap-1.5 transition-colors min-w-0 ${
-          isAdmin ? "cursor-pointer hover:text-foreground" : "cursor-default"
+          isStaff ? "cursor-pointer hover:text-foreground" : "cursor-default"
         }`}
       >
         <StatusDot variant={dot} />

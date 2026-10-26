@@ -84,12 +84,7 @@
     "conditions": "Conditions",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "saveFailed": "Impossible d'enregistrer la règle de notification.",
-    "validation": {
-      "nameRequired": "Donne un nom à la règle.",
-      "channelRequired": "Choisis un salon.",
-      "conditionsRequired": "Ajoute au moins une condition."
-    }
+    "saveFailed": "Impossible d'enregistrer la règle de notification."
   },
   "draft": {
     "saved": "Paramètres Discord enregistrés.",
@@ -146,17 +141,18 @@
     "saved": "Webhook enregistré.",
     "saveFailed": "Impossible d'enregistrer le webhook.",
     "urlLabel": "URL",
-    "invalidUrl": "Saisissez une URL https:// publique.",
     "descriptionLabel": "Nom (facultatif)",
     "descriptionPlaceholder": "Boutique en ligne",
     "eventsLabel": "Événements",
-    "eventsRequired": "Choisissez au moins un événement.",
     "events": {
       "card": {
         "scanned": "Une carte a été scannée et enregistrée dans une collection."
       },
       "cards": {
         "stored": "Un bac a été rangé dans un emplacement. Inclut la boîte et la position de chaque carte."
+      },
+      "sorter": {
+        "alert": "Une trieuse a eu un bourrage ou une erreur, a redémarré, a perdu sa connexion ou doit être entretenue."
       }
     },
     "empty": "Aucun webhook pour l'instant.",

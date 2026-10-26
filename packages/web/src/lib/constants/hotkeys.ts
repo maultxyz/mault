@@ -8,6 +8,10 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 
 export const HOTKEY_SEQUENCE_TIMEOUT_MS = 1000;
 
+export const HOTKEY_APPLE_PLATFORM_PATTERN = /Mac|iPhone|iPad|iPod/;
+
+export const HOTKEY_APPLE_MOD_LABEL = "⌘";
+
 export const HOTKEY_PRIORITY_OVERRIDE = 1;
 
 export const HOTKEY_SEARCH_ATTRIBUTE = "data-hotkey-search";
@@ -32,6 +36,7 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "navigation",
   "scanner",
   "cardDetail",
+  "intake",
 ];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
@@ -39,6 +44,8 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   toggleSidebar: { group: "general", keys: [{ key: "[" }] },
   focusSearch: { group: "general", keys: [{ key: "/" }] },
   dismissToasts: { group: "general", keys: [{ key: "x", shift: true }] },
+  clearSelection: { group: "general", keys: [{ key: "escape" }] },
+  save: { group: "general", keys: [{ key: "s", mod: true }] },
   goScanner: { group: "navigation", keys: [{ key: "g" }, { key: "s" }] },
   goCollections: { group: "navigation", keys: [{ key: "g" }, { key: "c" }] },
   goSortingRules: {
@@ -69,6 +76,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardRemove: { group: "cardDetail", keys: [{ key: "delete" }] },
   reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
   reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
+  intakeOpenScanner: { group: "intake", keys: [{ key: "o" }] },
 };
 
 export const HOTKEY_ROUTES = {

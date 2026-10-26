@@ -20,4 +20,5 @@ export const repackSchema = z.object({
   repackSlots: z.array(
     z.custom<RepackSlot>((value) => !!value && typeof value === "object" && "rule" in value && "targetCount" in value),
   ),
+  repackMultiplePacks: z.boolean(),
 });

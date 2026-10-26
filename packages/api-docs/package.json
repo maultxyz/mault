@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/api-docs",
-  "version": "1.0.170",
+  "version": "1.0.175",
   "private": true,
   "scripts": {
     "openapi": "tsx scripts/generate-openapi.ts",
@@ -15,7 +15,7 @@
     "@scalar/api-reference": "^1.73.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^26",
     "tsx": "^4.19.3",
     "typescript": "^5",
     "vite": "^6.3.5"

@@ -1,5 +1,4 @@
 import type {
-  CardSearchDiagnostics,
   CardSearchEmbeddings,
   OcrDiagnostics,
   OcrField,
@@ -37,6 +36,7 @@ import type {
   CollectionMatchScope,
 } from "../../lib/interfaces/card-search";
 import { ocrRegions } from "../../lib/ocr";
+import { stripLeadingZeros } from "../../lib/ocr-calibration/match";
 
 export function normalizeForMatch(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -98,6 +98,14 @@ export function langFilter({ lang, matchAllLanguages }: CollectionMatchScope): S
   return matchAllLanguages ? sql`` : sql`AND lang = ${lang}`;
 }
 
+export function matchingExclusionFilter({ gameKey, lang }: CollectionMatchScope): SQL {
+  const excludedFromMatchingSql =
+    resolveCardSearchForGame(gameKey, lang)?.adapter.excludedFromMatchingSql;
+  return excludedFromMatchingSql
+    ? sql`AND NOT coalesce(${excludedFromMatchingSql}, false)`
+    : sql``;
+}
+
 export function parsePreferredSetCode(value: unknown): string | undefined {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
@@ -117,6 +125,9 @@ export async function findCardMatches(
 ): Promise<CardMatchSearchResult> {
   const { gameKey, lang } = scope;
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
+  const rarePrintingSql =
+    resolveCardSearchForGame(gameKey, lang)?.adapter.rarePrintingSql ??
+    sql`false`;
 
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(sql`
@@ -134,9 +145,10 @@ export async function findCardMatches(
           name,
           set_code,
           embedding AS face_embedding,
+          (${rarePrintingSql}) AS rare_printing,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
-        WHERE game_key = ${gameKey} ${langFilter(scope)}
+        WHERE game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)}
         ORDER BY embedding <=> ${embeddingStr}::vector(128)
         LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
       ),
@@ -147,10 +159,11 @@ export async function findCardMatches(
           name,
           set_code,
           back_embedding AS face_embedding,
+          (${rarePrintingSql}) AS rare_printing,
           back_embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
         WHERE back_embedding IS NOT NULL
-          AND game_key = ${gameKey} ${langFilter(scope)}
+          AND game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)}
         ORDER BY back_embedding <=> ${embeddingStr}::vector(128)
         LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
       ),
@@ -168,6 +181,7 @@ export async function findCardMatches(
         lang,
         name,
         set_code,
+        rare_printing,
         distance,
         face_embedding <=> first_value(face_embedding) OVER (ORDER BY distance) AS leader_distance
       FROM nearest
@@ -244,7 +258,32 @@ export async function findCardMatches(
       };
     }
 
-    const [leader] = rows;
+    const topRow = matches.rows[0];
+    const regularRow =
+      topRow?.rare_printing === true
+        ? matches.rows.find(
+            (row) =>
+              row.rare_printing !== true &&
+              row.name === topRow.name &&
+              (row.leader_distance as number) <=
+                DUPLICATE_PRINTING_MAX_DISTANCE,
+          )
+        : undefined;
+    const ranked = regularRow
+      ? [
+          {
+            ...rows[0],
+            id: regularRow.card_id as string,
+            cardId: regularRow.card_id as string,
+            lang: regularRow.lang as string,
+            setCode: regularRow.set_code as string,
+            distance: regularRow.distance as number,
+          },
+          ...rows.filter((row) => row.cardId !== regularRow.card_id),
+        ]
+      : rows;
+
+    const [leader] = ranked;
     const preferred = preferredSetCode
       ? await tx.execute(sql`
           SELECT card_id, ${cardDistanceSql(embeddingStr)} AS distance
@@ -253,6 +292,7 @@ export async function findCardMatches(
             AND lang = ${leader.lang}
             AND name = ${leader.name}
             AND lower(set_code) = lower(${preferredSetCode})
+            ${matchingExclusionFilter(scope)}
           ORDER BY distance
           LIMIT 1
         `)
@@ -266,9 +306,9 @@ export async function findCardMatches(
             cardId: preferredRow.card_id as string,
             distance: preferredRow.distance as number,
           },
-          ...rows.filter((row) => row.name !== leader.name),
+          ...ranked.filter((row) => row.name !== leader.name),
         ]
-      : rows;
+      : ranked;
 
     const matchList: SearchCardMatch[] = accepted.map(
       ({ id, cardId, lang: matchLang, distance, confidence }) => ({
@@ -313,10 +353,6 @@ function matchesSetLine(setCode: string, setLineTokens: string[]): boolean {
   return (
     code.length >= 2 && setLineTokens.some((token) => token.includes(code))
   );
-}
-
-function stripLeadingZeros(digits: string): string {
-  return digits.replace(/^0+(?=\d)/, "");
 }
 
 function ocrNumberCandidates(text: string): string[] {
@@ -372,7 +408,7 @@ export async function findCardMatchesByText(
           similarity(name, ${nameQuery}) AS name_score,
           ${cardDistanceSql(embeddingStr)} AS distance
         FROM cards
-        WHERE game_key = ${gameKey} ${langFilter(scope)} AND name % ${nameQuery}
+        WHERE game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)} AND name % ${nameQuery}
         ORDER BY name_score DESC, distance ASC
         LIMIT ${OCR_NAME_CANDIDATE_LIMIT}
       `);

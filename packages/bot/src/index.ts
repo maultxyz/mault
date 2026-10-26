@@ -5,10 +5,7 @@ import {
   MessageFlags,
   REST,
   Routes,
-  type AutocompleteInteraction,
   type ChatInputCommandInteraction,
-  type SlashCommandOptionsOnlyBuilder,
-  type SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
 import { unlinkGuild } from "./api";
 import * as leaderboard from "./commands/leaderboard";
@@ -18,14 +15,17 @@ import * as showoff from "./commands/showoff";
 import * as stats from "./commands/stats";
 import { startNotifyServer } from "./notify-server";
 import { startPresenceCycle } from "./presence";
+import { BOT_API_SECRET } from "./lib/constants";
 import type { BotCommand } from "./lib/interfaces";
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_DEV_GUILD_ID = process.env.DISCORD_DEV_GUILD_ID;
 
-if (!DISCORD_BOT_TOKEN || !DISCORD_CLIENT_ID) {
-  throw new Error("DISCORD_BOT_TOKEN and DISCORD_CLIENT_ID must be set.");
+if (!DISCORD_BOT_TOKEN || !DISCORD_CLIENT_ID || !BOT_API_SECRET) {
+  throw new Error(
+    "DISCORD_BOT_TOKEN, DISCORD_CLIENT_ID and BOT_API_SECRET must be set.",
+  );
 }
 
 const commands: BotCommand[] = [
@@ -60,35 +60,11 @@ async function registerCommands() {
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-async function clearGuildScopedCommands(guildIds: string[]) {
-  for (const guildId of guildIds) {
-    if (guildId === DISCORD_DEV_GUILD_ID) continue;
-    try {
-      const existing = (await rest.get(
-        Routes.applicationGuildCommands(DISCORD_CLIENT_ID!, guildId),
-      )) as unknown[];
-      if (!existing.length) continue;
-      await rest.put(Routes.applicationGuildCommands(DISCORD_CLIENT_ID!, guildId), {
-        body: [],
-      });
-      console.log(`[bot] Cleared duplicate guild commands in ${guildId}.`);
-    } catch (err) {
-      console.error(
-        `[bot] Failed to clear guild commands in ${guildId}:`,
-        err,
-      );
-    }
-  }
-}
-
 client.once(Events.ClientReady, (readyClient) => {
   console.log(
     `[bot] Logged in as ${readyClient.user.tag} in ${readyClient.guilds.cache.size} servers`,
   );
   startPresenceCycle(readyClient);
-  if (!DISCORD_DEV_GUILD_ID) {
-    void clearGuildScopedCommands([...readyClient.guilds.cache.keys()]);
-  }
 });
 
 client.on(Events.GuildCreate, (guild) => {

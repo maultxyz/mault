@@ -3,7 +3,7 @@ import {
   savePlanConfig,
 } from "@/features/admin/api/plans";
 import { billingKeys } from "@/features/billing/api/billing";
-import { toast } from "@/lib/toast";
+import { requestWithToasts } from "@/lib/request-with-toasts";
 import {
   createPlanSettingsSchema,
   type PlanSettingsFormValues,
@@ -26,21 +26,16 @@ export function usePlanSettingsDraft() {
     resetOptions: { keepDirtyValues: true },
   });
 
-  const save = async (values: PlanSettingsFormValues) => {
-    try {
-      const result = await savePlanConfig(values);
-      if (!result.success || !result.data) {
-        toast.error(result.message ?? t("plans.saveFailed"));
-        return;
-      }
-      queryClient.setQueryData(planConfigQueryOptions.queryKey, result.data);
-      form.reset(result.data.config);
-      void queryClient.invalidateQueries({ queryKey: billingKeys.root() });
-      toast.success(t("plans.saved"));
-    } catch {
-      toast.error(t("plans.saveFailed"));
-    }
-  };
+  const save = (values: PlanSettingsFormValues) =>
+    requestWithToasts(() => savePlanConfig(values), {
+      successMessage: t("plans.saved"),
+      failureMessage: t("plans.saveFailed"),
+      onSuccess: (saved) => {
+        queryClient.setQueryData(planConfigQueryOptions.queryKey, saved);
+        form.reset(saved.config);
+        void queryClient.invalidateQueries({ queryKey: billingKeys.root() });
+      },
+    });
 
   const restoreDefaults = () => {
     if (!data) return;

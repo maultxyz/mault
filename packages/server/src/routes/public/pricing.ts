@@ -8,8 +8,6 @@ function planDetails() {
   return { plans: getPlanConfig(), maxConnectedSorters: MAX_CONNECTED_SORTERS };
 }
 
-// GET /public/pricing — unauthenticated, for the marketing/landing page.
-// Reads the live Stripe price rather than a hardcoded figure.
 export const pricingRoute = new Hono<AppEnv>().get("/pricing", async (c) => {
   try {
     const prices = isBillingEnabled() ? await getBusinessPrices() : null;

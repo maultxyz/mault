@@ -6,13 +6,13 @@ import type {
   NotificationRuleInput,
   Result,
 } from "@magic-vault/shared";
-import { apiDelete, apiGet, apiPost, apiPut, apiRequest, unwrap } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost, apiPut, apiRequest, unwrap, unwrapOr } from "@/lib/api/client";
 import type { DiscordLinkCode, NotificationTestOutcome, NotificationTestType } from "@/lib/interfaces/integrations";
 
 export const discordIntegrationQueryOptions = (orgId: string | null) =>
   queryOptions({
     queryKey: ["discord-integration", orgId] as const,
-    queryFn: () => apiGet<Result<DiscordIntegration>>("/api/integrations/discord").then((r) => r.data ?? null),
+    queryFn: () => unwrapOr(apiGet<Result<DiscordIntegration>>("/api/integrations/discord"), null),
     enabled: !!orgId,
   });
 
@@ -20,17 +20,13 @@ export const notificationRulesQueryOptions = (orgId: string | null, gameGuid: st
   queryOptions({
     queryKey: ["notification-rules", orgId, gameGuid] as const,
     queryFn: () =>
-      apiGet<Result<NotificationRule[]>>(
-        `/api/integrations/discord/rules?gameGuid=${encodeURIComponent(gameGuid ?? "")}`,
-      ).then((r) => r.data ?? []),
+      unwrapOr(
+        apiGet<Result<NotificationRule[]>>(
+          `/api/integrations/discord/rules?gameGuid=${encodeURIComponent(gameGuid ?? "")}`,
+        ),
+        [],
+      ),
     enabled: !!orgId && !!gameGuid,
-  });
-
-export const notificationRuleCountQueryOptions = (orgId: string | null) =>
-  queryOptions({
-    queryKey: ["notification-rules", orgId, "count"] as const,
-    queryFn: () => apiGet<Result<number>>("/api/integrations/discord/rules/count").then((r) => r.data ?? 0),
-    enabled: !!orgId,
   });
 
 export function addNotificationRule(gameGuid: string, input: NotificationRuleInput): Promise<NotificationRule[]> {

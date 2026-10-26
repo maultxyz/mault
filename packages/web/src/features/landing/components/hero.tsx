@@ -11,7 +11,7 @@ export function LandingHero() {
   const { t } = useTranslation("landing");
 
   return (
-    <section className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pt-14 pb-16 md:gap-14 md:pt-20 md:pb-20">
+    <section className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 pt-14 pb-16 md:gap-14 md:pt-20 md:pb-20">
       <div className="flex flex-col items-start gap-8">
         <MarketingRule
           lead="Mault"

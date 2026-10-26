@@ -1,8 +1,13 @@
-import type { PlanConfig } from "@magic-vault/shared";
+import type { PlanConfig, PlanFeatureKey } from "@magic-vault/shared";
 
 export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
   free: {
-    features: { chaosSort: false, storage: false, apiAccess: false },
+    features: {
+      chaosSort: false,
+      storage: false,
+      apiAccess: false,
+      businessTools: false,
+    },
     limits: {
       dailyScans: 50,
       connectedSorters: 1,
@@ -11,7 +16,12 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
     },
   },
   business: {
-    features: { chaosSort: true, storage: true, apiAccess: true },
+    features: {
+      chaosSort: true,
+      storage: true,
+      apiAccess: true,
+      businessTools: true,
+    },
     limits: {
       dailyScans: null,
       connectedSorters: null,
@@ -26,3 +36,9 @@ export const PRICING_SHARED_FEATURE_KEYS = [
   "games",
   "notifications",
 ] as const;
+
+export const PRICING_FEATURE_EXTRA_KEYS: Partial<
+  Record<PlanFeatureKey, readonly string[]>
+> = {
+  businessTools: ["businessOps"],
+};

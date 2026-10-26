@@ -3,7 +3,7 @@
     "scanner": "Sort",
     "collections": "Collections",
     "scan": "Link camera",
-    "storage": "Storage boxes",
+    "storage": "Locations",
     "calibrate": "Sorter setup",
     "settings": "Settings",
     "organization": "Org",
@@ -24,7 +24,8 @@
     "integrations": "API & webhooks",
     "more": "More",
     "stats": "Stats",
-    "sortingRules": "Sorting rules"
+    "sortingRules": "Sorting rules",
+    "intake": "Intake"
   },
   "alerts": {
     "dismiss": "Dismiss",
@@ -114,7 +115,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "save": "Save",
-    "create": "Create"
+    "create": "Create",
+    "search": "Search"
   },
   "unsavedChanges": {
     "message": "You have unsaved changes",
@@ -146,7 +148,13 @@
   },
   "footer": {
     "donate": "Donate",
-    "donateAriaLabel": "Support Mault on Buy Me a Coffee"
+    "donateAriaLabel": "Support Mault on Buy Me a Coffee",
+    "openSource": "Open source",
+    "reportIssue": "Report an issue",
+    "signIn": "Sign in",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "© {{year}} Mault LLC"
   },
   "publicNav": {
     "pagesAria": "Site pages",
@@ -155,6 +163,7 @@
       "build": "Build",
       "selfHost": "Self-host",
       "discordBot": "Discord Bot",
+      "download": "Download",
       "shop": "Shop"
     },
     "discordAriaLabel": "Join the Discord",
@@ -172,6 +181,7 @@
     "keys": {
       "space": "Space",
       "shift": "Shift",
+      "ctrl": "Ctrl",
       "left": "←",
       "right": "→",
       "escape": "Esc",
@@ -182,13 +192,16 @@
       "general": "General",
       "navigation": "Navigation",
       "scanner": "Scanner",
-      "cardDetail": "Card details"
+      "cardDetail": "Card details",
+      "intake": "Intake"
     },
     "actions": {
       "showShortcuts": "Show keyboard shortcuts",
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
       "dismissToasts": "Clear all notifications",
+      "save": "Save changes",
+      "clearSelection": "Clear the selection",
       "goScanner": "Go to sorting",
       "goCollections": "Go to collections",
       "goStorage": "Go to storage boxes",
@@ -215,7 +228,8 @@
       "cardRemove": "Remove the card (from its box when opened from Storage)",
       "reviewStart": "Start reviewing cards one by one",
       "reviewAccept": "While reviewing: card looks right, go to next",
-      "goSortingRules": "Go to sorting rules"
+      "goSortingRules": "Go to sorting rules",
+      "intakeOpenScanner": "Open the scanner for this intake"
     }
   },
   "mobileMenu": {
@@ -250,5 +264,42 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Couldn't copy to the clipboard"
     }
+  },
+  "validation": {
+    "nameRequired": "Enter a name.",
+    "nameTooLong": "Keep it to {{max}} characters or fewer.",
+    "ruleNameRequired": "Give the rule a name.",
+    "clipNameRequired": "Give the clip a name.",
+    "gameRequired": "Choose a game.",
+    "languageRequired": "Choose a language.",
+    "collectionRequired": "Choose a collection.",
+    "channelRequired": "Choose a channel.",
+    "clipRequired": "Choose a sound clip.",
+    "conditionsRequired": "Add at least one condition.",
+    "emailInvalid": "Enter a valid email address.",
+    "currentPasswordRequired": "Enter your current password.",
+    "passwordTooShort": "Must be at least {{min}} characters.",
+    "passwordMismatch": "Passwords don't match.",
+    "webhookUrlInvalid": "Enter a public https:// URL.",
+    "eventsRequired": "Pick at least one event.",
+    "conditionMultipliersInvalid": "Each condition needs a percentage from 0 to 100.",
+    "valueRequired": "Enter a value.",
+    "wholeNumber": "Must be a whole number.",
+    "atLeast": "Must be at least {{min}}.",
+    "atMost": "Must be at most {{max}}.",
+    "percentAtLeast": "Must be at least {{min}}%.",
+    "percentAtMost": "Must be at most {{max}}%.",
+    "amountRequired": "Enter an amount.",
+    "percentageRequired": "Enter a percentage.",
+    "tiersRequired": "Add at least one tier.",
+    "tooManyTiers": "Add no more than {{max}} tiers.",
+    "customerNameRequired": "Enter the customer's name.",
+    "orderTextRequired": "Paste an order or choose a file.",
+    "cardCountRequired": "Enter a number of cards.",
+    "storageLocationRequired": "Choose where the cards went.",
+    "commandRequired": "Enter a command.",
+    "verificationCodeLength": "Enter the {{length}}-digit code.",
+    "verificationCodeNumeric": "The code can only contain numbers.",
+    "controlCardActionRequired": "Pick at least one thing for the card to change."
   }
 }

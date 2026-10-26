@@ -1,7 +1,6 @@
-import type { SoundRule } from "@magic-vault/shared";
-import type { SoundRulesDraftValues } from "@/lib/interfaces/forms";
+import type { SoundRule, SoundRulesDraftFormValues } from "@magic-vault/shared";
 
-export function toSoundRulesDraft(rules: SoundRule[]): SoundRulesDraftValues {
+export function toSoundRulesDraft(rules: SoundRule[]): SoundRulesDraftFormValues {
   return {
     order: rules.map((rule) => rule.guid),
     enabled: Object.fromEntries(rules.map((rule) => [rule.guid, rule.isEnabled])),

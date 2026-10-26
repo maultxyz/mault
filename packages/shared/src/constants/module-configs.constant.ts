@@ -11,11 +11,8 @@ export const CHANNEL_OFFSET: Record<ChannelLayout, number> = {
   standard: 0,
 };
 
-// PCA9685 servo driver has 16 PWM outputs, channels 0-15.
 export const MAX_SERVO_CHANNEL_INDEX = 15;
 
-// Largest module count whose servo channels (3 each) plus one feeder channel
-// right after them still fit in channels [offset, MAX_SERVO_CHANNEL_INDEX].
 export function maxModulesForLayout(layout: ChannelLayout): number {
   return Math.floor((MAX_SERVO_CHANNEL_INDEX - CHANNEL_OFFSET[layout]) / 3);
 }

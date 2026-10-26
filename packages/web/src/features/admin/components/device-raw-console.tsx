@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2, IconSend } from "@tabler/icons-react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { FieldError } from "@/components/ui/field";
 
 export function DeviceRawConsole({ disabled }: DeviceRawConsoleProps) {
   const { t } = useTranslation("admin");
@@ -25,7 +26,6 @@ export function DeviceRawConsole({ disabled }: DeviceRawConsoleProps) {
       timeoutMs: DEVICE_PLAYGROUND_DEFAULT_TIMEOUT_MS,
     },
   });
-  const lineError = form.formState.errors.line?.message;
 
   return (
     <SettingsSection
@@ -86,7 +86,7 @@ export function DeviceRawConsole({ disabled }: DeviceRawConsoleProps) {
             {t("devicePlayground.send")}
           </Button>
         </div>
-        {lineError && <p className="text-xs text-destructive">{lineError}</p>}
+        <FieldError errors={[form.formState.errors.line]} />
         {outcome && <DeviceCommandOutcome outcome={outcome} />}
       </form>
     </SettingsSection>

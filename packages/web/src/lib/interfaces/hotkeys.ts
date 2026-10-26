@@ -1,12 +1,19 @@
 import type { ReactNode } from "react";
 
-export type HotkeyGroup = "general" | "navigation" | "scanner" | "cardDetail";
+export type HotkeyGroup =
+  | "general"
+  | "navigation"
+  | "scanner"
+  | "cardDetail"
+  | "intake";
 
 export type HotkeyId =
   | "showShortcuts"
   | "toggleSidebar"
   | "focusSearch"
   | "dismissToasts"
+  | "clearSelection"
+  | "save"
   | "goScanner"
   | "goCollections"
   | "goSortingRules"
@@ -33,11 +40,13 @@ export type HotkeyId =
   | "cardClose"
   | "cardRemove"
   | "reviewStart"
-  | "reviewAccept";
+  | "reviewAccept"
+  | "intakeOpenScanner";
 
 export interface HotkeyCombo {
   key: string;
   shift?: boolean;
+  mod?: boolean;
 }
 
 export interface HotkeyDefinition {

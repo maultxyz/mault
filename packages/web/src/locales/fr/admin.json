@@ -176,6 +176,8 @@
     "noOrgs": "Aucune organisation",
     "adminBadge": "Admin",
     "cannotImpersonateAdmin": "Impossible d'emprunter l'identité d'un autre admin",
+    "moderatorBadge": "Modérateur",
+    "cannotImpersonateModerator": "Impossible d'emprunter l'identité d'un autre modérateur",
     "impersonateButton": "Emprunter l'identité",
     "viewAuditLog": "Voir le journal d'audit des emprunts d'identité",
     "confirmDialog": {
@@ -340,6 +342,10 @@
       "apiAccess": {
         "label": "Accès API",
         "description": "Créer des clés API d'organisation et lire les cartes et les emplacements via l'API publique. Révoquer une clé existante reste toujours possible."
+      },
+      "businessTools": {
+        "label": "Outils Business",
+        "description": "Rachats avec offres de rachat, import et expédition des commandes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
       }
     },
     "limits": {
@@ -383,7 +389,10 @@
       "soundRule": "Règle sonore",
       "notificationRule": "Règle de notification",
       "game": "Jeu",
-      "announcement": "Annonce"
+      "announcement": "Annonce",
+      "intakeLot": "Rachat",
+      "fulfilmentOrder": "Commande",
+      "accuracyCheck": "Contrôle"
     },
     "toasts": {
       "restored": "{{name}} restauré",
@@ -543,6 +552,17 @@
       "role": "Rôle",
       "saved": "Rôle des comptes liés enregistré.",
       "saveFailed": "Impossible d'enregistrer le rôle des comptes liés."
+    }
+  },
+  "rollbarTest": {
+    "heading": "Tester Rollbar",
+    "description": "Envoie une erreur de test à Rollbar depuis le client et/ou le serveur pour vérifier que le signalement des erreurs fonctionne",
+    "testClientButton": "Tester le client",
+    "testServerButton": "Tester le serveur",
+    "testingButton": "Envoi...",
+    "toasts": {
+      "clientSent": "Erreur de test envoyée à Rollbar (client).",
+      "serverError": "Impossible d'envoyer l'erreur de test à Rollbar (serveur)"
     }
   }
 }

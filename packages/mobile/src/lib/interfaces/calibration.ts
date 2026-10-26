@@ -17,11 +17,6 @@ export type ActivePositions = Partial<Record<SliderKey, string | null>>;
 
 export type ModuleDelayField = "paddleOpenDelay" | "pusherHoldDuration" | "paddleCloseDelay";
 
-export interface DirectionalSpeed {
-  direction: "forward" | "reverse";
-  magnitude: number;
-}
-
 export interface ServoConfig {
   name: ServoName;
   positions: string[];

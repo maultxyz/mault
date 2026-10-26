@@ -17,7 +17,7 @@ import {
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
-import { RARITY_LABELS } from "@/lib/constants/rarity";
+import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { ScannedCardTableProps } from "@/lib/interfaces/cards";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
@@ -27,6 +27,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { raritySwatch } from "@/lib/card-swatches";
+import { rarityLabel } from "@magic-vault/shared";
 
 export function ScannedCardTable({
   rows,
@@ -38,6 +39,7 @@ export function ScannedCardTable({
 }: ScannedCardTableProps) {
   const { t } = useTranslation("cards");
   const { priceOf, format } = usePriceSource();
+  const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
   const selectable = !!onToggleSelect;
   const selectedCount = rows.filter((row) => row.isSelected).length;
   const allSelected = rows.length > 0 && selectedCount === rows.length;
@@ -89,9 +91,7 @@ export function ScannedCardTable({
           const matchPercent =
             card.distance != null ? getMatchPercent(card) : 0;
           const displayPrice = priceOf(card, row.isFoil, row.condition);
-          const rarityLabel =
-            RARITY_LABELS[card.rarity] ??
-            card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1);
+          const rarityText = rarityLabel(card.rarity);
 
           return (
             <TableRow
@@ -103,21 +103,15 @@ export function ScannedCardTable({
               {onToggleSelect && (
                 <TableCell
                   onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => {
-                    if (e.shiftKey) e.preventDefault();
-                  }}
+                  onMouseDown={onSelectMouseDown}
                 >
                   <Checkbox
                     aria-label={t("scannedCardTable.selectRow", {
                       name: card.name,
                     })}
                     checked={!!row.isSelected}
-                    onCheckedChange={(_, details) =>
-                      onToggleSelect(row, {
-                        shiftKey:
-                          "shiftKey" in details.event &&
-                          details.event.shiftKey === true,
-                      })
+                    onCheckedChange={() =>
+                      onToggleSelect(row, { shiftKey: consumeShift() })
                     }
                   />
                 </TableCell>
@@ -183,7 +177,7 @@ export function ScannedCardTable({
                     className="size-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: raritySwatch(card.rarity).bg }}
                   />
-                  <span className="text-foreground/70">{rarityLabel}</span>
+                  <span className="text-foreground/70">{rarityText}</span>
                 </div>
               </TableCell>
               {showQuantity && (

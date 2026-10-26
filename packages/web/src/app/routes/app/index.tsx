@@ -6,14 +6,16 @@ import { CollectionSwitcher } from "@/features/collections/components/collection
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
+import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
+import { ScannerMainContent } from "@/features/scanner/components/scanner-main-content";
 import { StationPanels } from "@/features/scanner/components/station-panels";
-import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
 import { usePiHost } from "@/hooks/use-pi-host";
+import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
@@ -24,7 +26,9 @@ import { useTranslation } from "react-i18next";
 
 function MobileScanner() {
   const { t } = useTranslation("scanner");
-  const { unmatchedCards, removeUnmatchedCard } = useScannedCards();
+  const { unmatchedCards, unmatchedCount, removeUnmatchedCard } =
+    useScannedCards();
+  const { activeCollection } = useCollections();
   const { totalCount } = useCollectionCardsSummary();
   const piHost = usePiHost();
 
@@ -37,8 +41,11 @@ function MobileScanner() {
     >
       <div className="p-2 size-full bg-sidebar flex flex-col gap-2">
         <CardScanner className="flex-1 min-h-0" />
-        <IdentifiableUnmatchedCardsPanel
+        <UnmatchedCardsPanel
+          canIdentify
           cards={unmatchedCards}
+          total={unmatchedCount}
+          collectionGuid={activeCollection?.guid}
           onRemove={removeUnmatchedCard}
         />
         <BinStatusMeter />
@@ -117,7 +124,7 @@ export default function App() {
           onPointerDown={onHeightPointerDown}
         />
         <section className="flex-1 min-h-0 overflow-y-auto @container flex flex-col">
-          <CardGrid />
+          <ScannerMainContent />
         </section>
       </div>
     );
@@ -132,7 +139,7 @@ export default function App() {
         onPointerDown={onWidthPointerDown}
       />
       <section className="flex-1 min-w-0 overflow-y-auto h-full @container flex flex-col">
-        <CardGrid />
+        <ScannerMainContent />
       </section>
     </div>
   );

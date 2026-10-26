@@ -1,22 +1,27 @@
 import { MarketingSectionHeader } from "@/components/marketing-section-header";
-import { LANDING_FEATURE_HIGHLIGHTS } from "@/features/landing/lib/feature-highlights";
+import { FeatureGroupPanel } from "@/features/landing/components/feature-group-panel";
+import { FeatureSpotlightRow } from "@/features/landing/components/feature-spotlight-row";
 import {
-  LANDING_FEATURE_DEMO_CLASS,
-  LANDING_FEATURE_EXTRAS,
-  LANDING_FEATURE_GRID_CLASS,
-  LANDING_FEATURE_TILE_CLASS,
-} from "@/lib/constants/landing";
-import { cn } from "@/lib/utils";
-import { useTranslation } from "react-i18next";
-import { MarketingRule } from "@/components/marketing-rule";
+  LANDING_FEATURE_GROUPS,
+  LANDING_FEATURE_SPOTLIGHTS,
+} from "@/features/landing/lib/feature-highlights";
+import { useInView } from "@/hooks/use-in-view";
+import { FEATURE_GROUPS_REVEAL_ROOT_MARGIN } from "@/lib/constants/landing";
 import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
+import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 export function LandingFeatures({ step }: MarketingStepProps) {
   const { t } = useTranslation("landing");
+  const groupsRef = useRef<HTMLDivElement>(null);
+  const hasRevealedGroups = useInView(groupsRef, {
+    observeOnlyUntilFirstVisible: true,
+    rootMargin: FEATURE_GROUPS_REVEAL_ROOT_MARGIN,
+  });
 
   return (
     <section id="features">
-      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+      <div className="mx-auto max-w-6xl px-4 pt-16 pb-16 md:pt-24 md:pb-24">
         <MarketingSectionHeader
           step={step}
           eyebrow={t("features.eyebrow")}
@@ -24,56 +29,32 @@ export function LandingFeatures({ step }: MarketingStepProps) {
           subtitle={t("features.subtitle")}
         />
 
-        <div className={LANDING_FEATURE_GRID_CLASS}>
-          {LANDING_FEATURE_HIGHLIGHTS.map(
-            ({ key, icon: Icon, demo: Demo, className, isNew }, index) => (
-              <div key={key} className={cn(LANDING_FEATURE_TILE_CLASS, className)}>
-                <MarketingRule
-                  lead={`${step}.${String(index + 1).padStart(2, "0")}`}
-                  aside={
-                    <>
-                      {isNew && (
-                        <span className="rounded-sm border border-primary px-1.5 py-0.5 text-primary">
-                          {t("features.new")}
-                        </span>
-                      )}
-                      <Icon className="size-4" />
-                    </>
-                  }
-                />
-                <div>
-                  <h3 className="font-heading text-base font-semibold">
-                    {t(`features.items.${key}.title`)}
-                  </h3>
-                  <p className="mt-1 text-sm/relaxed text-foreground/70">
-                    {t(`features.items.${key}.description`)}
-                  </p>
-                </div>
-                <div className={LANDING_FEATURE_DEMO_CLASS}>
-                  <Demo />
-                </div>
-              </div>
-            ),
-          )}
+        <div className="mt-6 divide-y md:mt-10">
+          {LANDING_FEATURE_SPOTLIGHTS.map((spotlight, index) => (
+            <FeatureSpotlightRow
+              key={spotlight.key}
+              spotlight={spotlight}
+              numberLabel={`${step}.${String(index + 1).padStart(2, "0")}`}
+              isMirrored={index % 2 === 1}
+            />
+          ))}
         </div>
 
-        <div className="mt-16">
-          <h3 className="font-heading text-xl font-semibold tracking-tight md:text-2xl">
+        <div className="mt-10 border-t pt-16 md:pt-24">
+          <h3 className="font-heading text-2xl font-semibold tracking-tight text-balance md:text-4xl">
             {t("features.more.heading")}
           </h3>
-          <div className="mt-6 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border sm:grid-cols-2 lg:grid-cols-4">
-            {LANDING_FEATURE_EXTRAS.map(({ key, icon: Icon }) => (
-              <div key={key} className="flex flex-col gap-3 bg-card p-5">
-                <Icon className="size-4 text-primary" />
-                <div>
-                  <p className="font-heading text-sm font-semibold">
-                    {t(`features.more.items.${key}.title`)}
-                  </p>
-                  <p className="mt-1 text-sm/relaxed text-foreground/70">
-                    {t(`features.more.items.${key}.description`)}
-                  </p>
-                </div>
-              </div>
+          <div
+            ref={groupsRef}
+            className="mt-8 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border lg:grid-cols-3"
+          >
+            {LANDING_FEATURE_GROUPS.map((group, index) => (
+              <FeatureGroupPanel
+                key={group.key}
+                group={group}
+                numberLabel={`${step}.${String(LANDING_FEATURE_SPOTLIGHTS.length + index + 1).padStart(2, "0")}`}
+                isRevealed={hasRevealedGroups}
+              />
             ))}
           </div>
         </div>
