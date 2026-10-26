@@ -23,7 +23,6 @@
     "sortedCount_one": "{{count}} card sorted",
     "sortedCount_other": "{{count}} cards sorted",
     "nextUp": "Next up",
-    "match": "match",
     "foil": "Foil",
     "stations": {
       "hopper": "Hopper",
@@ -39,7 +38,14 @@
       "6": "Over $20"
     },
     "eyebrow": "Open-source card sorter",
-    "tagline": "Scan / Sort / Track"
+    "tagline": "Scan / Sort / Track",
+    "recent": "Recent",
+    "readout": {
+      "match": "Match",
+      "set": "Set",
+      "price": "Price",
+      "route": "Route"
+    }
   },
   "stats": {
     "items": {
@@ -59,37 +65,13 @@
     "heading": "Everything you need to feel organized",
     "subtitle": "Let Mault handle the sorting, so you can spend more time playing and less time digging through boxes.",
     "items": {
-      "recognition": {
-        "title": "Instant recognition",
-        "description": "No typing card names, no barcodes. The feeder puts each card in front of the camera, and Mault knows exactly what it is."
-      },
       "rules": {
         "title": "Rules you control",
         "description": "Mix and match conditions, rarity, color, set, type, and more, to send every card exactly where you'd like."
       },
-      "autoAssign": {
-        "title": "Auto bin assignment",
-        "description": "Skip the rule-writing. Pick a field like rarity or set, and the first card with a new value claims the next open bin. Repeats route back automatically."
-      },
-      "repack": {
-        "title": "Build repacks",
-        "description": "Define pack slots per bin, like 3 commons and 1 rare, and every bin fills its own pack at the same time. Empty it to start the next one."
-      },
-      "alphabet": {
-        "title": "Alphabetical sorting",
-        "description": "Sort a pile A to Z, one letter per bin. Then drill into any pile, A into AA, AB, AC, until every card is in order."
-      },
-      "sounds": {
-        "title": "Custom sounds",
-        "description": "Upload your own clips and play them when a matching card is sorted, like a fanfare for every mythic or a cha-ching for anything over $20."
-      },
       "insights": {
         "title": "Know what you own",
         "description": "See counts, value, cost basis and margins across your whole library, with daily value history, so you never have to guess what the box is worth."
-      },
-      "hardware": {
-        "title": "Built for the table",
-        "description": "Pairs with a physical sorter, so your cards land in real bins, not just another spreadsheet. Add more sorting modules any time to grow up to 11 bins."
       },
       "storage": {
         "title": "Know which box every card is in",
@@ -98,36 +80,20 @@
       "intake": {
         "title": "Buy collections over the counter",
         "description": "Scan a customer's cards into their own intake and watch a cash and store credit offer build from your buylist tiers. Cards below your minimum are struck out, and accepting records what you paid and prints a receipt."
-      },
-      "picks": {
-        "title": "Pick online orders from your boxes",
-        "description": "Paste a TCGplayer pull sheet, a Shopify export or a plain list. Mault finds each card and tells you which box and position it is in, then takes the picked cards out of your inventory."
-      },
-      "pickList": {
-        "title": "Pull cards from a decklist",
-        "description": "Paste a decklist into any bin and Mault pulls those cards out of the pile as they're scanned, crossing each one off until the list is complete. Everything else sorts as usual."
-      },
-      "pricing": {
-        "title": "Prices from three markets",
-        "description": "Value your collection with TCGplayer, Cardmarket or Card Kingdom prices, refreshed daily. Set each card's condition and its price adjusts to match."
       }
     },
     "new": "New",
-    "priceSources": {
-      "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket",
-      "cardkingdom": "Card Kingdom"
-    },
+    "stageTryIt": "Try it",
+    "stageExample": "Example",
     "demo": {
-      "cardCount_one": "{{count}} card",
-      "cardCount_other": "{{count}} cards",
-      "pickListBin": "Bin {{number}} pick list",
-      "found": "{{found}}/{{wanted}} found",
       "intakeLot": "{{name}}'s cards",
       "liveOffer": "Live offer",
       "cash": "Cash",
       "credit": "Store credit",
-      "picked": "{{picked}}/{{total}} picked"
+      "ruleMatches_one": "{{count}} card goes to Bin {{bin}}",
+      "ruleMatches_other": "{{count}} cards go to Bin {{bin}}",
+      "collectionValue": "Collection value",
+      "valueHistory": "Value over the last 30 days"
     },
     "more": {
       "heading": "And a whole lot more",
@@ -179,8 +145,49 @@
         "permissions": {
           "title": "Buy prices stay private",
           "description": "Let staff scan intakes without seeing offers, costs or margins."
+        },
+        "recognition": {
+          "title": "Instant recognition",
+          "description": "No typing card names, no barcodes. The feeder puts each card in front of the camera, and Mault knows exactly what it is."
+        },
+        "autoAssign": {
+          "title": "Auto bin assignment",
+          "description": "Skip the rule-writing. Pick a field like rarity or set, and the first card with a new value claims the next open bin. Repeats route back automatically."
+        },
+        "repack": {
+          "title": "Build repacks",
+          "description": "Define pack slots per bin, like 3 commons and 1 rare, and every bin fills its own pack at the same time. Empty it to start the next one."
+        },
+        "alphabet": {
+          "title": "Alphabetical sorting",
+          "description": "Sort a pile A to Z, one letter per bin. Then drill into any pile, A into AA, AB, AC, until every card is in order."
+        },
+        "sounds": {
+          "title": "Custom sounds",
+          "description": "Upload your own clips and play them when a matching card is sorted, like a fanfare for every mythic or a cha-ching for anything over $20."
+        },
+        "hardware": {
+          "title": "Built for the table",
+          "description": "Pairs with a physical sorter, so your cards land in real bins, not just another spreadsheet. Add more sorting modules any time to grow up to 11 bins."
+        },
+        "picks": {
+          "title": "Pick online orders from your boxes",
+          "description": "Paste a TCGplayer pull sheet, a Shopify export or a plain list. Mault finds each card and tells you which box and position it is in, then takes the picked cards out of your inventory."
+        },
+        "pickList": {
+          "title": "Pull cards from a decklist",
+          "description": "Paste a decklist into any bin and Mault pulls those cards out of the pile as they're scanned, crossing each one off until the list is complete. Everything else sorts as usual."
+        },
+        "pricing": {
+          "title": "Prices from three markets",
+          "description": "Value your collection with TCGplayer, Cardmarket or Card Kingdom prices, refreshed daily. Set each card's condition and its price adjusts to match."
         }
       }
+    },
+    "groups": {
+      "sorting": "Sort any way you like",
+      "stores": "Built for card shops",
+      "setup": "Grows with your setup"
     }
   },
   "openSource": {
