@@ -1,5 +1,6 @@
 import type {
   CardCondition,
+  CardScanOrigin,
   CardFilters,
   CardStorageLocation,
   CardSetOption,
@@ -33,9 +34,8 @@ export interface CardDetailsListProps {
   card: PlayingCard;
 }
 
-export interface CardScanOriginSectionProps {
-  scanId: string;
-  collectionGuid: string | undefined;
+export interface CardScanOriginListProps {
+  origin: CardScanOrigin;
 }
 
 export interface DetailSectionProps {

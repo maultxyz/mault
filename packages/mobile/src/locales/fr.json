@@ -797,7 +797,6 @@
     "prices": "Prix",
     "binLocation": "Emplacement du bac",
     "scanOrigin": {
-      "heading": "Scanné",
       "scannedBy": "Par",
       "sorter": "Trieur",
       "deletedSorter": "{{name}} (supprimé)"

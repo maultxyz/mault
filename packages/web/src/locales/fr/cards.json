@@ -57,7 +57,6 @@
     "cancel": "Annuler",
     "prices": "Prix",
     "details": "Détails",
-    "cardText": "Texte de la carte",
     "thisScan": "Ce scan",
     "set": "Extension",
     "rarity": "Rareté",
@@ -364,7 +363,6 @@
     "setSelected": "État"
   },
   "scanOrigin": {
-    "heading": "Scanné",
     "scannedBy": "Par",
     "sorter": "Trieuse",
     "deletedSorter": "{{name}} (supprimée)"

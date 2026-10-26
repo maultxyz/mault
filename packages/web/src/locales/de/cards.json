@@ -57,7 +57,6 @@
     "cancel": "Abbrechen",
     "prices": "Preise",
     "details": "Details",
-    "cardText": "Kartentext",
     "thisScan": "Dieser Scan",
     "set": "Set",
     "rarity": "Seltenheit",
@@ -364,7 +363,6 @@
     "setSelected": "Zustand"
   },
   "scanOrigin": {
-    "heading": "Gescannt",
     "scannedBy": "Von",
     "sorter": "Sortierer",
     "deletedSorter": "{{name}} (gelöscht)"
