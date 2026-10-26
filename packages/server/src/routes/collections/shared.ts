@@ -71,6 +71,7 @@ export function toScannedCard(row: {
   isFoil?: boolean | null;
   foilType?: string | null;
   condition?: string | null;
+  language?: string | null;
   isDownloaded?: boolean | null;
   alternativeMatches?: unknown;
   isCorrected?: boolean | null;
@@ -87,6 +88,7 @@ export function toScannedCard(row: {
     isFoil: row.isFoil ?? undefined,
     foilType: row.foilType ?? undefined,
     condition: toCardCondition(row.condition),
+    language: row.language ?? undefined,
     isDownloaded: row.isDownloaded ?? undefined,
     alternativeMatches:
       (row.alternativeMatches as PlayingCardWithDistance[] | null) ?? undefined,

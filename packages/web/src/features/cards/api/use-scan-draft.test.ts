@@ -17,8 +17,10 @@ describe("useScanDraft", () => {
       scanId: "scan-a",
       savedFoilType: null,
       savedCondition: "NM",
+      savedLanguage: "en",
       setCardFoilType,
       setCardCondition,
+      setCardLanguage: vi.fn(),
     };
     const { result, rerender } = renderScanDraft(firstCard);
 
@@ -39,8 +41,10 @@ describe("useScanDraft", () => {
       scanId: "scan-a",
       savedFoilType: null,
       savedCondition: "NM",
+      savedLanguage: "en",
       setCardFoilType: vi.fn(),
       setCardCondition: vi.fn(),
+      setCardLanguage: vi.fn(),
     };
     const { result, rerender } = renderScanDraft(options);
 
@@ -57,8 +61,10 @@ describe("useScanDraft", () => {
       scanId: "scan-a",
       savedFoilType: null,
       savedCondition: "NM",
+      savedLanguage: "en",
       setCardFoilType,
       setCardCondition: vi.fn(),
+      setCardLanguage: vi.fn(),
     });
 
     act(() => result.current.setFoilType("Foil"));
@@ -67,5 +73,27 @@ describe("useScanDraft", () => {
     await act(async () => result.current.save());
 
     expect(setCardFoilType).toHaveBeenLastCalledWith("scan-a", null);
+  });
+
+  it("saves only the language when only the language changed", async () => {
+    const setCardFoilType = vi.fn();
+    const setCardCondition = vi.fn();
+    const setCardLanguage = vi.fn();
+    const { result } = renderScanDraft({
+      scanId: "scan-a",
+      savedFoilType: null,
+      savedCondition: "NM",
+      savedLanguage: "en",
+      setCardFoilType,
+      setCardCondition,
+      setCardLanguage,
+    });
+
+    act(() => result.current.setLanguage("ja"));
+    await act(async () => result.current.save());
+
+    expect(setCardLanguage).toHaveBeenCalledWith("scan-a", "ja");
+    expect(setCardFoilType).not.toHaveBeenCalled();
+    expect(setCardCondition).not.toHaveBeenCalled();
   });
 });

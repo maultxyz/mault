@@ -25,6 +25,7 @@ export interface StorageLocationCard {
   isFoil: boolean;
   foilType: string | null;
   condition: CardCondition;
+  language: string | null;
   lowConfidenceMatch: boolean;
   hasAlternatives: boolean;
   corrected: boolean;
@@ -60,6 +61,7 @@ export interface StorageLocationExportCard {
   isFoil: boolean;
   foilType: string | null;
   condition: CardCondition;
+  language: string | null;
 }
 
 export interface StorageLocationSearchResult extends StorageLocationCard {

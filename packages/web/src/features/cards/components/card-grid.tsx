@@ -648,6 +648,7 @@ export function CardGrid() {
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
         condition={openEntry.condition}
+        language={openEntry.language}
         binNumber={openEntry.binNumber}
         onClose={() => setOpenScanId(null)}
         onRemove={

@@ -3,6 +3,7 @@ import {
   csvEscape,
   purchasePrice,
 } from "./base";
+import { MANABOX_LANGUAGE_CODES } from "../constants/card-export.constant";
 import type { ExportAdapter } from "../interfaces/card-export.interface";
 
 export const manaboxAdapter: ExportAdapter = {
@@ -23,7 +24,7 @@ export const manaboxAdapter: ExportAdapter = {
     "Language",
     "Purchase price (USD)",
   ],
-  row: ({ card, quantity, isFoil, condition }) => [
+  row: ({ card, quantity, isFoil, condition, language }) => [
     csvEscape(card.name),
     card.set.toUpperCase(),
     csvEscape(card.setName),
@@ -32,7 +33,7 @@ export const manaboxAdapter: ExportAdapter = {
     String(quantity),
     card.id,
     conditionLabel(condition),
-    "en",
+    MANABOX_LANGUAGE_CODES[language] ?? language,
     purchasePrice(card, isFoil),
   ],
 };

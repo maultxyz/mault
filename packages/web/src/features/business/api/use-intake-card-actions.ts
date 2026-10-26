@@ -3,6 +3,7 @@ import {
   confirmCollectionCard,
   markCollectionCardReviewed,
   setCollectionCardCondition,
+  setCollectionCardLanguage,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -54,5 +55,7 @@ export function useIntakeCardActions(
       ),
     setCardCondition: (scanId, condition) =>
       run((guid) => setCollectionCardCondition(guid, scanId, condition)),
+    setCardLanguage: (scanId, language) =>
+      run((guid) => setCollectionCardLanguage(guid, scanId, language)),
   };
 }

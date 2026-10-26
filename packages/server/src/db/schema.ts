@@ -544,6 +544,7 @@ export const collectionCards = pgTable(
     isFoil: boolean("is_foil").notNull().default(false),
     foilType: text("foil_type"),
     condition: text("condition").notNull().default("NM"),
+    language: text("language"),
     isDownloaded: boolean("is_downloaded").notNull().default(false),
     alternativeMatches: jsonb("alternative_matches"),
     isCorrected: boolean("is_corrected").notNull().default(false),

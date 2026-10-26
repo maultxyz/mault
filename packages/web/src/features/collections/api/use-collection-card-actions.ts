@@ -2,6 +2,7 @@ import {
   confirmCollectionCard,
   markCollectionCardReviewed,
   setCollectionCardCondition,
+  setCollectionCardLanguage,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -86,6 +87,13 @@ export function useCollectionCardActions(
           (item) => ({ ...item, condition }),
           (guid) => setCollectionCardCondition(guid, scanId, condition),
           "update card condition",
+        ),
+      setCardLanguage: (scanId, language) =>
+        apply(
+          scanId,
+          (item) => ({ ...item, language }),
+          (guid) => setCollectionCardLanguage(guid, scanId, language),
+          "update card language",
         ),
     };
   }, [guid, queryClient]);

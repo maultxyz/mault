@@ -60,6 +60,7 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
         isFoil: entry.isFoil,
         foilType: entry.foilType ?? undefined,
         condition: entry.condition,
+        language: entry.language ?? undefined,
       })),
       slug,
       {

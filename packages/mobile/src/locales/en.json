@@ -779,6 +779,7 @@
     "thisScan": "This scan",
     "foilNone": "Not foil",
     "condition": "Condition",
+    "language": "Language",
     "conditions": {
       "NM": "Near Mint (NM)",
       "LP": "Lightly Played (LP)",

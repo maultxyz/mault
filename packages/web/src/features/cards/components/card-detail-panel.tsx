@@ -6,6 +6,7 @@ import {
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { HOTKEY_PRIORITY_OVERRIDE } from "@/lib/constants/hotkeys";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { FoilOverlay } from "@/components/foil-overlay";
@@ -44,7 +45,10 @@ import {
 import { cn } from "@/lib/utils";
 import {
   CARD_CONDITIONS,
+  CARD_LANGUAGES,
   DEFAULT_CARD_CONDITION,
+  isCardLanguage,
+  scanLanguage,
   isCardCondition,
   toCardCondition,
   type CardCondition,
@@ -87,6 +91,7 @@ export function CardDetailPanel({
   isFoil = false,
   foilType,
   condition,
+  language,
   binNumber,
   onPrev,
   onNext,
@@ -123,6 +128,7 @@ export function CardDetailPanel({
     markCardReviewed,
     setCardFoilType,
     setCardCondition,
+    setCardLanguage,
   } = useCardDetailActions();
   const { priceOf, format, conditionMultipliers } = usePriceSource();
   const canConfirm =
@@ -139,11 +145,17 @@ export function CardDetailPanel({
     scanId,
     savedFoilType: foilType ?? (isFoil ? t("foil") : null),
     savedCondition: toCardCondition(condition),
+    savedLanguage: scanLanguage({ language, card: currentCard ?? {} }),
     setCardFoilType,
     setCardCondition,
+    setCardLanguage,
   });
   const currentFoilType = scanDraft.foilType;
   const currentCondition = scanDraft.condition;
+  const currentLanguage = scanDraft.language;
+  const languageOptions: string[] = isCardLanguage(currentLanguage)
+    ? [...CARD_LANGUAGES]
+    : [currentLanguage, ...CARD_LANGUAGES];
   const draftIsFoil = currentFoilType != null;
   const { runAfterCommit } = scanDraft;
 
@@ -226,6 +238,7 @@ export function CardDetailPanel({
 
   const foilTriggerRef = useRef<HTMLButtonElement>(null);
   const conditionTriggerRef = useRef<HTMLButtonElement>(null);
+  const languageTriggerRef = useRef<HTMLButtonElement>(null);
   const conditionPrice = selectedCard
     ? priceOf(selectedCard, draftIsFoil, currentCondition)
     : null;
@@ -623,6 +636,36 @@ export function CardDetailPanel({
                                   })}
                                 </p>
                               )}
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <Label>{t("language")}</Label>
+                            <Select
+                              value={currentLanguage}
+                              onValueChange={(value) => {
+                                if (scanId) scanDraft.setLanguage(value);
+                              }}
+                              disabled={!scanId}
+                              onOpenChangeComplete={(open) => {
+                                if (!open) languageTriggerRef.current?.blur();
+                              }}
+                            >
+                              <SelectTrigger
+                                ref={languageTriggerRef}
+                                className="w-40"
+                              >
+                                <SelectValue>
+                                  {LANGUAGE_LABELS[currentLanguage] ??
+                                    currentLanguage}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {languageOptions.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {LANGUAGE_LABELS[option] ?? option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       </div>

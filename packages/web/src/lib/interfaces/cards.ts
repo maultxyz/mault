@@ -335,14 +335,17 @@ export interface CardDetailActions {
   markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
+  setCardLanguage: (scanId: string, language: string) => void;
 }
 
 export interface ScanDraftOptions {
   scanId?: string;
   savedFoilType: string | null;
   savedCondition: CardCondition;
+  savedLanguage: string;
   setCardFoilType: CardDetailActions["setCardFoilType"];
   setCardCondition: CardDetailActions["setCardCondition"];
+  setCardLanguage: CardDetailActions["setCardLanguage"];
 }
 
 export interface CardDetailScope {
@@ -362,6 +365,7 @@ export interface CardDetailPanelProps {
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;
+  language?: string;
   binNumber?: number;
   onPrev?: () => void;
   onNext?: () => void;

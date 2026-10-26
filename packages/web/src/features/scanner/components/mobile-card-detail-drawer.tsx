@@ -127,6 +127,7 @@ function MobileCardDetailBody({
         isFoil={entry.isFoil}
         foilType={entry.foilType}
         condition={entry.condition}
+        language={entry.language}
         binNumber={entry.binNumber}
         onClose={onClose}
         onRemove={() => {
