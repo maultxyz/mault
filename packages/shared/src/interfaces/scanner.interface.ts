@@ -92,6 +92,7 @@ export interface ScannedCard {
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;
+  language?: string;
   isDownloaded?: boolean;
   corrected?: boolean;
   lowConfidenceMatch?: boolean;

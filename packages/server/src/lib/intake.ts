@@ -303,6 +303,7 @@ function selectLotReviewCards(tx: Transaction) {
       isFoil: collectionCards.isFoil,
       foilType: collectionCards.foilType,
       condition: collectionCards.condition,
+      language: collectionCards.language,
       lowConfidenceMatch: collectionCards.lowConfidenceMatch,
       hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
       corrected: collectionCards.isCorrected,

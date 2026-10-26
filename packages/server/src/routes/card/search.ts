@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import {
-  resolveCardSearch,
   resolveCardSearchForGame,
+  resolveManualCardSearch,
 } from "../../lib/card-search/resolve";
 import { searchCards } from "../../lib/card-search/stored-cards";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -17,7 +17,11 @@ export const searchCardRoute = new Hono<AppEnv>().get(
     const resolved =
       !collectionGuid && gameKey
         ? resolveCardSearchForGame(gameKey, c.req.query("lang") || "en")
-        : await resolveCardSearch(c.get("jwtClaims"), collectionGuid);
+        : await resolveManualCardSearch(
+            c.get("jwtClaims"),
+            collectionGuid,
+            c.req.query("lang"),
+          );
     if (!resolved) {
       return c.json(
         { success: false, message: "No game configured for this collection." },

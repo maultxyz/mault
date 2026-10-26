@@ -911,6 +911,13 @@
       "when": 1792790788658,
       "tag": "0129_intake_own_collection",
       "breakpoints": true
+    },
+    {
+      "idx": 130,
+      "version": "7",
+      "when": 1793041184669,
+      "tag": "0130_collection_card_language",
+      "breakpoints": true
     }
   ]
 }

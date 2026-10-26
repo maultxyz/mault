@@ -47,6 +47,7 @@ export const setCollectionCardsFoilTypeRoute = new Hono<AppEnv>().post(
           isFoil: collectionCards.isFoil,
           foilType: collectionCards.foilType,
           condition: collectionCards.condition,
+          language: collectionCards.language,
           isCorrected: collectionCards.isCorrected,
           lowConfidenceMatch: collectionCards.lowConfidenceMatch,
           isReviewed: collectionCards.isReviewed,

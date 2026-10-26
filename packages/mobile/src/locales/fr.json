@@ -779,6 +779,8 @@
     "thisScan": "Ce scan",
     "foilNone": "Non foil",
     "condition": "Condition",
+    "language": "Langue",
+    "allLanguages": "Toutes les langues",
     "conditions": {
       "NM": "Near Mint (NM)",
       "LP": "Lightly Played (LP)",
@@ -797,7 +799,6 @@
     "prices": "Prix",
     "binLocation": "Emplacement du bac",
     "scanOrigin": {
-      "heading": "Scanné",
       "scannedBy": "Par",
       "sorter": "Trieur",
       "deletedSorter": "{{name}} (supprimé)"
@@ -1684,6 +1685,7 @@
     "tcgplayerMarket": "Prix du marché TCGplayer",
     "cardmarketAvg": "Moyenne Cardmarket",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "Au scan {{price}}",
     "nonFoilPrice": "Non foil {{price}}",
     "avg30": "Moy. 30 jours",
     "market": "Marché",

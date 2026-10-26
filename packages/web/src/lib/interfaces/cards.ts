@@ -1,5 +1,6 @@
 import type {
   CardCondition,
+  CardScanOrigin,
   CardFilters,
   CardStorageLocation,
   CardSetOption,
@@ -23,6 +24,11 @@ export interface CardSearchPickerProps {
   onSelect: (card: PlayingCard) => void;
 }
 
+export interface CardSearchLanguageSelectProps {
+  value: string;
+  onChange: (language: string) => void;
+}
+
 export interface CardSortOptionsProps {
   sortKey: string | null;
   onSortChange: (key: string | null) => void;
@@ -33,9 +39,8 @@ export interface CardDetailsListProps {
   card: PlayingCard;
 }
 
-export interface CardScanOriginSectionProps {
-  scanId: string;
-  collectionGuid: string | undefined;
+export interface CardScanOriginListProps {
+  origin: CardScanOrigin;
 }
 
 export interface DetailSectionProps {
@@ -91,6 +96,8 @@ export interface PriceHeadlineProps {
   label: string;
   price: number | null;
   foilPrice: number | null;
+  priceAtScan?: number | null;
+  foilPriceAtScan?: number | null;
   isFoil: boolean;
   format: (value: number) => string;
 }
@@ -335,14 +342,17 @@ export interface CardDetailActions {
   markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
+  setCardLanguage: (scanId: string, language: string) => void;
 }
 
 export interface ScanDraftOptions {
   scanId?: string;
   savedFoilType: string | null;
   savedCondition: CardCondition;
+  savedLanguage: string;
   setCardFoilType: CardDetailActions["setCardFoilType"];
   setCardCondition: CardDetailActions["setCardCondition"];
+  setCardLanguage: CardDetailActions["setCardLanguage"];
 }
 
 export interface CardDetailScope {
@@ -362,6 +372,7 @@ export interface CardDetailPanelProps {
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;
+  language?: string;
   binNumber?: number;
   onPrev?: () => void;
   onNext?: () => void;

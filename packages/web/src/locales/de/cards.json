@@ -11,6 +11,7 @@
     "artBy": "Illustration von {{artist}}",
     "viewSource": "Quelle ansehen",
     "searchPlaceholder": "Nach Name, Nummer oder Set suchen (z. B. MH3 123)...",
+    "allLanguages": "Alle Sprachen",
     "allSets": "Alle Editionen",
     "allSetsCount": "Alle Editionen ({{count}})",
     "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
@@ -31,6 +32,7 @@
     "tcgplayerMarket": "TCGplayer Marktpreis",
     "cardmarketAvg": "Cardmarket Durchschnitt",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "Beim Scan {{price}}",
     "nonFoilPrice": "Nicht-Foil {{price}}",
     "avg30": "30-Tage-Schnitt",
     "market": "Markt",
@@ -57,7 +59,6 @@
     "cancel": "Abbrechen",
     "prices": "Preise",
     "details": "Details",
-    "cardText": "Kartentext",
     "thisScan": "Dieser Scan",
     "set": "Set",
     "rarity": "Seltenheit",
@@ -246,6 +247,7 @@
   },
   "foil": "Foil",
   "foilNone": "Kein Foil",
+  "language": "Sprache",
   "downloaded": "Heruntergeladen",
   "technicalDetails": {
     "toggle": "Technische Details",
@@ -364,7 +366,6 @@
     "setSelected": "Zustand"
   },
   "scanOrigin": {
-    "heading": "Gescannt",
     "scannedBy": "Von",
     "sorter": "Sortierer",
     "deletedSorter": "{{name}} (gelöscht)"

@@ -70,7 +70,7 @@
       "dialogDescription": "Installe le dernier firmware sur ton ESP32 connecté via cet onglet. Ne déconnecte pas l'appareil et ne ferme pas cet onglet pendant l'opération.",
       "startButton": "Démarrer la mise à jour",
       "flashing": "Installation en cours, ne déconnecte pas l'appareil…",
-      "success": "Firmware installé. Débranche la trieuse de ton ordinateur, puis rebranche-la pour terminer.",
+      "success": "Firmware installé. Débranchez le câble USB de l'ESP32, puis rebranchez-le pour démarrer le nouveau firmware.",
       "errorTitle": "Échec de la mise à jour",
       "close": "Fermer",
       "tryAgain": "Réessayer"
@@ -89,7 +89,9 @@
       "errors": {
         "wrongChip": "Cette carte est un {{chip}}. Le firmware de la trieuse ne fonctionne que sur l'ESP32-S3, rien n'a donc été écrit.",
         "noBootloader": "Impossible d'atteindre le bootloader de la carte. Maintenez BOOT, appuyez sur RESET, relâchez BOOT, puis réessayez.",
+        "portUnavailable": "Impossible d'ouvrir le port de la carte. Fermez tout ce qui l'utilise (moniteur série de l'IDE Arduino, un autre onglet du navigateur), vérifiez le câble, puis réessayez.",
         "downloadFailed": "Impossible de télécharger le firmware. Vérifiez votre connexion et réessayez.",
+        "invalidImage": "Le fichier de firmware téléchargé n'est pas une image ESP32 valide, rien n'a donc été écrit. Rechargez la page et réessayez.",
         "verifyFailed": "Le firmware a été écrit, mais la mémoire flash de la carte ne correspond pas. Débranchez la carte, rebranchez-la et relancez le flash."
       },
       "newBoard": {
@@ -98,7 +100,7 @@
         "hintPort": "Branchez la carte par son port USB-C gauche (marqué USB, pas UART ou COM), puis sélectionnez-la dans la fenêtre de choix du port du navigateur.",
         "hintBootMode": "Si le flashage ne démarre pas, maintenez BOOT, appuyez sur RESET, relâchez BOOT et réessayez.",
         "startButton": "Choisir la carte et flasher",
-        "success": "Firmware installé. La carte a redémarré et est prête à être connectée.",
+        "success": "Firmware installé. Débranchez le câble USB de l'ESP32, puis rebranchez-le pour démarrer le nouveau firmware.",
         "connectButton": "Connecter la trieuse"
       }
     },

@@ -70,7 +70,7 @@
       "dialogDescription": "Flashes the latest firmware to your connected ESP32 over this browser tab. Don't disconnect the device or close this tab while it's in progress.",
       "startButton": "Start update",
       "flashing": "Flashing, do not disconnect the device…",
-      "success": "Firmware flashed. Disconnect the sorter from your computer, then plug it back in to finish.",
+      "success": "Firmware flashed. Unplug the ESP32's USB cable, then plug it back in to start the new firmware.",
       "errorTitle": "Update failed",
       "close": "Close",
       "tryAgain": "Try again"
@@ -89,7 +89,9 @@
       "errors": {
         "wrongChip": "This board is an {{chip}}. The sorter firmware only runs on the ESP32-S3, so nothing was written.",
         "noBootloader": "Couldn't reach the board's bootloader. Hold the BOOT button, tap RESET, release BOOT, then try again.",
+        "portUnavailable": "Couldn't open the board's port. Close anything else using it (Arduino IDE Serial Monitor, another browser tab), check the cable, then try again.",
         "downloadFailed": "Couldn't download the firmware. Check your connection and try again.",
+        "invalidImage": "The downloaded firmware file isn't a valid ESP32 image, so nothing was written. Reload the page and try again.",
         "verifyFailed": "The firmware was written, but the board's flash doesn't match it. Unplug the board, plug it back in and flash again."
       },
       "newBoard": {
@@ -98,7 +100,7 @@
         "hintPort": "Plug the board in using its left USB-C port (labeled USB, not UART or COM), then pick it in the browser's port prompt.",
         "hintBootMode": "If flashing can't start, hold BOOT, tap RESET, release BOOT, and try again.",
         "startButton": "Choose board and flash",
-        "success": "Firmware installed. The board has restarted and is ready to connect.",
+        "success": "Firmware installed. Unplug the ESP32's USB cable, then plug it back in to start the new firmware.",
         "connectButton": "Connect sorter"
       }
     },

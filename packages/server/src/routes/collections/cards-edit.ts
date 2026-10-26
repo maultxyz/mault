@@ -1,5 +1,7 @@
 import {
   isCardCondition,
+  isCardLanguage,
+  pickedCardLanguage,
   type CardCondition,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
@@ -23,18 +25,30 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const { guid, scanId } = c.req.param();
-    const { card, binNumber, isFoil, foilType, condition, confirmed, reviewed } =
-      await c.req.json<{
-        confirmed?: boolean;
-        reviewed?: boolean;
-        card?: PlayingCardWithDistance;
-        binNumber?: number;
-        isFoil?: boolean;
-        foilType?: string | null;
-        condition?: CardCondition;
-      }>();
+    const {
+      card,
+      binNumber,
+      isFoil,
+      foilType,
+      condition,
+      language,
+      confirmed,
+      reviewed,
+    } = await c.req.json<{
+      confirmed?: boolean;
+      reviewed?: boolean;
+      card?: PlayingCardWithDistance;
+      binNumber?: number;
+      isFoil?: boolean;
+      foilType?: string | null;
+      condition?: CardCondition;
+      language?: string;
+    }>();
     if (condition !== undefined && !isCardCondition(condition)) {
       return c.json({ success: false, message: "Invalid condition." }, 400);
+    }
+    if (language !== undefined && !isCardLanguage(language)) {
+      return c.json({ success: false, message: "Invalid language." }, 400);
     }
     const foilPrintingScope =
       card === undefined && foilType !== undefined
@@ -52,6 +66,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             isFoil: true,
             foilType: true,
             condition: true,
+            language: true,
             isCorrected: true,
             lowConfidenceMatch: true,
             isReviewed: true,
@@ -90,6 +105,8 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         if (isFoil !== undefined) updates.isFoil = isFoil;
         if (foilType !== undefined) updates.foilType = foilType;
         if (condition !== undefined) updates.condition = condition;
+        if (language !== undefined) updates.language = language;
+        else if (card !== undefined) updates.language = pickedCardLanguage(card);
 
         await tx
           .update(collectionCards)
@@ -122,6 +139,9 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
             foilType: foilType !== undefined ? foilType : existing.foilType,
             condition: condition ?? existing.condition,
+            language:
+              language ??
+              (card !== undefined ? pickedCardLanguage(card) : existing.language),
             isCorrected:
               card !== undefined || confirmed ? true : existing.isCorrected,
             lowConfidenceMatch: resolvesReview ? false : existing.lowConfidenceMatch,

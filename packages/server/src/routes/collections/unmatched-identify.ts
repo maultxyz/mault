@@ -1,7 +1,8 @@
-import type {
-  IdentifyUnmatchedCardRequest,
-  PlayingCardWithDistance,
-  ScannedCard,
+import {
+  pickedCardLanguage,
+  type IdentifyUnmatchedCardRequest,
+  type PlayingCardWithDistance,
+  type ScannedCard,
 } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -105,6 +106,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           capturedImageKey: unmatched.capturedImageKey,
           isFoil: isFoil ?? foilType != null,
           foilType: foilType ?? null,
+          language: pickedCardLanguage(identified),
           isCorrected: true,
           isReviewed: true,
           scannedByUserId: unmatched.scannedByUserId,
@@ -134,6 +136,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           binNumber: unmatched.binNumber,
           isFoil: isFoil ?? foilType != null,
           foilType: foilType ?? null,
+          language: pickedCardLanguage(identified),
           isCorrected: true,
           isReviewed: true,
         });

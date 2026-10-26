@@ -22,6 +22,7 @@ export interface CollectionCardRow {
   is_foil: boolean;
   foil_type: string | null;
   condition: string;
+  language: string | null;
   is_downloaded: boolean;
   alternative_matches: unknown;
   is_corrected: boolean;

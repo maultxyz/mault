@@ -30,6 +30,7 @@ export interface CardUpdateBody {
   isFoil?: boolean;
   foilType?: string | null;
   condition?: CardCondition;
+  language?: string;
 }
 
 export interface CardCorrectionSearchProps {
@@ -64,6 +65,8 @@ export interface PriceHeadline {
   label: string;
   price: number | null;
   foilPrice: number | null;
+  priceAtScan?: number | null;
+  foilPriceAtScan?: number | null;
   format: (value: number) => string;
 }
 

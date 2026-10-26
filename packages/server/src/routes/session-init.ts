@@ -52,6 +52,7 @@ async function querySessionInit(
       isFoil: collectionCards.isFoil,
       foilType: collectionCards.foilType,
       condition: collectionCards.condition,
+      language: collectionCards.language,
       isDownloaded: collectionCards.isDownloaded,
       alternativeMatches: collectionCards.alternativeMatches,
       lowConfidenceMatch: collectionCards.lowConfidenceMatch,

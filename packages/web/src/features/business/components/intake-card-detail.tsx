@@ -142,6 +142,7 @@ export function IntakeCardDetail({
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
         condition={stored.condition}
+        language={stored.language ?? undefined}
         binNumber={scanned.binNumber}
         onClose={onClose}
         onPrev={() => prevScanId && onNavigate(prevScanId)}

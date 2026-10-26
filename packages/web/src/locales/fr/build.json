@@ -242,8 +242,12 @@
         "title": "Optionnel",
         "items": {
           "webcam": {
-            "part": "Webcam USB",
+            "part": "Webcam Logitech C920",
             "notes": "C'est celle que j'utilise - n'importe quelle webcam fonctionne tant que tu peux régler manuellement la mise au point, la luminosité, etc. (le réglage automatique peut fausser les scans)"
+          },
+          "ankerC200": {
+            "part": "Webcam Anker PowerConf C200",
+            "notes": "Alternative recommandée à la C920. Elle permet aussi de régler manuellement la mise au point, la luminosité, etc."
           },
           "cameraMountScrew": {
             "part": "Vis de fixation caméra 1/4\"-20",
