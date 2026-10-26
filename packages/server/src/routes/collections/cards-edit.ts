@@ -1,6 +1,7 @@
 import {
   isCardCondition,
   isCardLanguage,
+  pickedCardLanguage,
   type CardCondition,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
@@ -105,6 +106,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         if (foilType !== undefined) updates.foilType = foilType;
         if (condition !== undefined) updates.condition = condition;
         if (language !== undefined) updates.language = language;
+        else if (card !== undefined) updates.language = pickedCardLanguage(card);
 
         await tx
           .update(collectionCards)
@@ -137,7 +139,9 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
             foilType: foilType !== undefined ? foilType : existing.foilType,
             condition: condition ?? existing.condition,
-            language: language ?? existing.language,
+            language:
+              language ??
+              (card !== undefined ? pickedCardLanguage(card) : existing.language),
             isCorrected:
               card !== undefined || confirmed ? true : existing.isCorrected,
             lowConfidenceMatch: resolvesReview ? false : existing.lowConfidenceMatch,

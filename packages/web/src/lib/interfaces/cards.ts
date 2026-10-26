@@ -24,6 +24,11 @@ export interface CardSearchPickerProps {
   onSelect: (card: PlayingCard) => void;
 }
 
+export interface CardSearchLanguageSelectProps {
+  value: string;
+  onChange: (language: string) => void;
+}
+
 export interface CardSortOptionsProps {
   sortKey: string | null;
   onSortChange: (key: string | null) => void;

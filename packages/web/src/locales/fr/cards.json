@@ -11,6 +11,7 @@
     "artBy": "Illustration par {{artist}}",
     "viewSource": "Voir la source",
     "searchPlaceholder": "Rechercher par nom, numéro ou extension (ex. MH3 123)...",
+    "allLanguages": "Toutes les langues",
     "allSets": "Tous les sets",
     "allSetsCount": "Tous les sets ({{count}})",
     "startTyping": "Commence à taper pour rechercher des cartes",

@@ -780,6 +780,7 @@
     "foilNone": "Not foil",
     "condition": "Condition",
     "language": "Language",
+    "allLanguages": "All languages",
     "conditions": {
       "NM": "Near Mint (NM)",
       "LP": "Lightly Played (LP)",

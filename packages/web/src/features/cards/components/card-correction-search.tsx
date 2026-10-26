@@ -12,12 +12,18 @@ import {
 } from "@/components/ui/select";
 import { useCardResultKeyboardNav } from "@/features/cards/api/use-card-result-keyboard-nav";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
+import { CardSearchLanguageSelect } from "@/features/cards/components/card-search-language-select";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import type { CardCorrectionSearchProps } from "@/lib/interfaces/cards";
 import { IconLoader2, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  CARD_SEARCH_ALL_LANGUAGES,
+  cardSearchResultKey,
+  cardSearchResultLabel,
+} from "@magic-vault/shared";
 
 export function CardCorrectionSearch({
   collectionGuid,
@@ -30,6 +36,9 @@ export function CardCorrectionSearch({
   const { t } = useTranslation("cards");
   const [query, setQuery] = useState(initialQuery);
   const [selectedSet, setSelectedSet] = useState<string | null>("all");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(
+    CARD_SEARCH_ALL_LANGUAGES,
+  );
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
 
   const {
@@ -44,6 +53,7 @@ export function CardCorrectionSearch({
     debouncedQuery,
     collectionGuid,
     selectedSet && selectedSet !== "all" ? selectedSet : undefined,
+    selectedLanguage,
   );
 
   const { inputRef, gridRef, onInputKeyDown, onResultKeyDown } =
@@ -85,6 +95,13 @@ export function CardCorrectionSearch({
             autoFocus
           />
         </div>
+        <CardSearchLanguageSelect
+          value={selectedLanguage}
+          onChange={(language) => {
+            setSelectedLanguage(language);
+            setSelectedSet("all");
+          }}
+        />
         {sets.length > 1 && (
           <Select
             value={selectedSet}
@@ -133,7 +150,7 @@ export function CardCorrectionSearch({
           >
             {results.map((card) => (
               <Button
-                key={card.id}
+                key={cardSearchResultKey(card)}
                 onKeyDown={onResultKeyDown}
                 variant="ghost"
                 disabled={disabled}
@@ -150,7 +167,7 @@ export function CardCorrectionSearch({
                   <div className="w-10 h-14 bg-muted rounded-md shrink-0" />
                 )}
                 <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-2xs leading-tight px-1 py-0.5 text-center truncate">
-                  {card.set.toUpperCase()} #{card.collectorNumber}
+                  {cardSearchResultLabel(card)}
                 </div>
               </Button>
             ))}
