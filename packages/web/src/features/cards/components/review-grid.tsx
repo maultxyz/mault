@@ -82,7 +82,7 @@ export function ReviewGrid({
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-full shrink-0 flex-col">
       <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b bg-background/80 p-2 backdrop-blur-2xl">
         <div className="mr-auto min-w-0">
           <h2 className="truncate text-base font-semibold">
