@@ -95,6 +95,7 @@ const router = new Hono<AppEnv>()
           isFoil: collectionCards.isFoil,
           foilType: collectionCards.foilType,
           condition: collectionCards.condition,
+          language: collectionCards.language,
           lowConfidenceMatch: collectionCards.lowConfidenceMatch,
           hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
           corrected: collectionCards.isCorrected,
@@ -135,6 +136,7 @@ const router = new Hono<AppEnv>()
       isFoil: r.isFoil,
       foilType: r.foilType,
       condition: toCardCondition(r.condition),
+      language: r.language,
       lowConfidenceMatch: r.lowConfidenceMatch,
       hasAlternatives: r.hasAlternatives,
       corrected: r.corrected,
@@ -394,6 +396,7 @@ const router = new Hono<AppEnv>()
           isFoil: collectionCards.isFoil,
           foilType: collectionCards.foilType,
           condition: collectionCards.condition,
+          language: collectionCards.language,
           collectionName: collections.name,
           gameKey: games.key,
         })
@@ -419,6 +422,7 @@ const router = new Hono<AppEnv>()
         isFoil: r.isFoil,
         foilType: r.foilType,
         condition: toCardCondition(r.condition),
+        language: r.language,
       }));
       return { success: true, data };
     });

@@ -242,8 +242,12 @@
         "title": "Optional",
         "items": {
           "webcam": {
-            "part": "USB-Webcam",
+            "part": "Logitech C920 Webcam",
             "notes": "Das ist die, die ich verwende - jede Webcam funktioniert, solange sich Fokus, Helligkeit usw. manuell einstellen lassen (automatische Anpassung kann Scans verfälschen)"
+          },
+          "ankerC200": {
+            "part": "Anker PowerConf C200 Webcam",
+            "notes": "Empfohlene Alternative zur C920. Fokus, Helligkeit usw. lassen sich ebenfalls manuell einstellen."
           },
           "cameraMountScrew": {
             "part": "1/4\"-20 Kamera-Befestigungsschraube",

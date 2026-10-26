@@ -75,6 +75,8 @@ export interface ResolvedCardSearch {
   gameKey: string;
   baseUrl: string;
   lang: string;
+  searchAllLanguages?: boolean;
+  onlyLanguage?: string;
 }
 
 export interface CollectionMatchScope {

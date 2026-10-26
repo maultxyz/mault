@@ -162,6 +162,7 @@ export interface ScannedCardsContextValue {
   setCardsFoilType: (scanIds: string[], foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
+  setCardLanguage: (scanId: string, language: string) => void;
   markDownloaded: (scanIds: string[]) => void;
   clearCards: () => void;
 }
@@ -173,7 +174,9 @@ export type SerialTransportType = "serial" | "bluetooth" | "cloud";
 export type FlashFailureReason =
   | "wrong-chip"
   | "no-bootloader"
+  | "port-unavailable"
   | "download-failed"
+  | "invalid-image"
   | "flash-failed"
   | "verify-failed";
 

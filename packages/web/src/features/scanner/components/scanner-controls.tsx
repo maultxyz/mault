@@ -30,6 +30,7 @@ import type {
   ScannerControlsProps,
 } from "@/lib/interfaces/scanner";
 import {
+  IconArrowBarToDown,
   IconBolt,
   IconFocus2,
   IconLoader2,
@@ -230,6 +231,18 @@ export function ScannerControls({
                   selected={autoFeed}
                 >
                   <IconBolt />
+                </ScannerControlButton>
+                <ScannerControlButton
+                  tooltip={t("scannerControls.clearDeviceTooltip")}
+                  hotkey="scanClearDevice"
+                  onClick={onClearDevice}
+                  disabled={!canClearDevice}
+                >
+                  {isClearingDevice ? (
+                    <IconLoader2 className="animate-spin" />
+                  ) : (
+                    <IconArrowBarToDown />
+                  )}
                 </ScannerControlButton>
               </>
             )}

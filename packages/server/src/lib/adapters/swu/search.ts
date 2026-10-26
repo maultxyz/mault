@@ -134,7 +134,7 @@ export const swuAdapter: CardSearchAdapter = {
   normalizeStored: (raw) => normalizeSwuCard(raw as SwuCard),
   tcgplayer: {
     categoryId: 79,
-    subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
+    subTypes: () => ({ price: ["Normal", "Foil"], priceFoil: ["Foil"] }),
   },
   cardmarket: {
     gameId: 21,

@@ -10,11 +10,13 @@ export async function searchCards(
   collectionGuid?: string,
   offset = 0,
   setCode?: string,
+  language?: string,
 ): Promise<Result<CardSearchPage>> {
   const params = new URLSearchParams({ q: query });
   if (collectionGuid) params.set("collectionGuid", collectionGuid);
   if (offset > 0) params.set("offset", String(offset));
   if (setCode) params.set("set", setCode);
+  if (language) params.set("lang", language);
   return apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`);
 }
 

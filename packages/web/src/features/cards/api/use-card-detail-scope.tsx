@@ -25,6 +25,7 @@ export function useCardDetailActions(): CardDetailActions {
     markCardReviewed,
     setCardFoilType,
     setCardCondition,
+    setCardLanguage,
   } = useScannedCards();
   return (
     scope?.actions ?? {
@@ -33,6 +34,7 @@ export function useCardDetailActions(): CardDetailActions {
       markCardReviewed,
       setCardFoilType,
       setCardCondition,
+      setCardLanguage,
     }
   );
 }

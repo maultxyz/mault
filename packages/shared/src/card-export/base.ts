@@ -1,4 +1,5 @@
 import { toCardCondition } from "../card-condition";
+import { scanLanguage } from "../card-language";
 import {
   CONDITION_EXPORT_LABELS,
   FOIL_FINISH_LABEL,
@@ -57,15 +58,17 @@ function groupCards(
       isFoil: !!entry.isFoil,
       foilType: entry.foilType,
       condition: toCardCondition(entry.condition),
+      language: scanLanguage(entry),
     }));
   const grouped = new Map<string, GroupedEntry>();
   for (const entry of cards) {
     const isFoil = !!entry.isFoil;
     const condition = toCardCondition(entry.condition);
+    const language = scanLanguage(entry);
     const key =
       groupBy === "card-foil"
-        ? `${entry.card.id}:${isFoil}:${entry.foilType ?? ""}:${condition}`
-        : `${entry.card.id}:${condition}`;
+        ? `${entry.card.id}:${isFoil}:${entry.foilType ?? ""}:${condition}:${language}`
+        : `${entry.card.id}:${condition}:${language}`;
     const existing = grouped.get(key);
     if (existing) existing.quantity++;
     else
@@ -75,6 +78,7 @@ function groupCards(
         isFoil,
         foilType: entry.foilType,
         condition,
+        language,
       });
   }
   return Array.from(grouped.values());

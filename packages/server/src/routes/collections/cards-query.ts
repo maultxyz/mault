@@ -145,7 +145,7 @@ const COLOR_IDENTITY = sql`(CASE WHEN jsonb_typeof(cc.card -> 'colorIdentity') =
 
 const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' END)`;
 
-const DUPLICATE_KEY = sql`(cc.card_id || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition)`;
+const DUPLICATE_KEY = sql`(cc.card_id || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition || ':' || COALESCE(cc.language, cc.card ->> 'lang', 'en'))`;
 
 function isCardPriceKey(path: string): path is CardPriceKey {
   return path in CARD_PRICE_COLUMNS;
@@ -345,7 +345,7 @@ function rankedCardsCte(
 
 const CARD_ROW_COLUMNS = sql`
   cc.guid, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
-  cc.is_foil, cc.foil_type, cc.condition, cc.is_downloaded,
+  cc.is_foil, cc.foil_type, cc.condition, cc.language, cc.is_downloaded,
   cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
   cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name`;
 
@@ -358,6 +358,7 @@ function toCard(row: CollectionCardRow) {
     isFoil: row.is_foil,
     foilType: row.foil_type,
     condition: row.condition,
+    language: row.language,
     isDownloaded: row.is_downloaded,
     alternativeMatches: row.alternative_matches,
     isCorrected: row.is_corrected,
@@ -532,7 +533,7 @@ export async function loadAllCards(
   const result = await tx.execute(sql`
     SELECT cc.guid, (cc.card || COALESCE(${joinedCardPricesJsonSql()}, '{}'::jsonb)) AS card,
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
-      cc.is_foil, cc.foil_type, cc.condition, cc.is_downloaded,
+      cc.is_foil, cc.foil_type, cc.condition, cc.language, cc.is_downloaded,
       cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
       cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name
     FROM collection_cards cc

@@ -56,6 +56,7 @@ import {
   removeUnmatchedCard as removeUnmatchedCardApi,
   setCollectionCardBin,
   setCollectionCardsCondition,
+  setCollectionCardLanguage,
   setCollectionCardsFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -1384,6 +1385,25 @@ export function ScannedCardsProvider({
     [setCardsCondition],
   );
 
+  const setCardLanguage = useCallback(
+    (scanId: string, language: string) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({ ...entry, language }),
+      );
+      setCollectionCardLanguage(collection.guid, scanId, language)
+        .catch((err) => console.error("Failed to update language:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
   const markDownloaded = useCallback(
     (scanIds: string[]) => {
       const collection = activeCollectionRef.current;
@@ -1465,6 +1485,7 @@ export function ScannedCardsProvider({
         setCardsFoilType,
         setCardCondition,
         setCardsCondition,
+        setCardLanguage,
         markDownloaded,
         clearCards,
       }}

@@ -12,12 +12,18 @@ export function useScanDraft({
   scanId,
   savedFoilType,
   savedCondition,
+  savedLanguage,
   setCardFoilType,
   setCardCondition,
+  setCardLanguage,
 }: ScanDraftOptions) {
   const values = useMemo<ScanDraftFormValues>(
-    () => ({ foilType: savedFoilType, condition: savedCondition }),
-    [savedFoilType, savedCondition],
+    () => ({
+      foilType: savedFoilType,
+      condition: savedCondition,
+      language: savedLanguage,
+    }),
+    [savedFoilType, savedCondition, savedLanguage],
   );
   const form = useForm<ScanDraftFormValues>({
     resolver: zodResolver(scanDraftFormSchema),
@@ -44,9 +50,19 @@ export function useScanDraft({
         if (dirtyFields.condition) {
           setCardCondition(scanId, draft.condition);
         }
+        if (dirtyFields.language) {
+          setCardLanguage(scanId, draft.language);
+        }
         form.reset(draft);
       })(),
-    [form, scanId, dirtyFields, setCardFoilType, setCardCondition],
+    [
+      form,
+      scanId,
+      dirtyFields,
+      setCardFoilType,
+      setCardCondition,
+      setCardLanguage,
+    ],
   );
 
   const runAfterCommit = useCallback(
@@ -69,12 +85,15 @@ export function useScanDraft({
   return {
     foilType: form.watch("foilType"),
     condition: form.watch("condition"),
+    language: form.watch("language"),
     isDirty,
     isSaving: form.formState.isSubmitting,
     setFoilType: (foilType: string | null) =>
       form.setValue("foilType", foilType, { shouldDirty: true }),
     setCondition: (condition: ScanDraftFormValues["condition"]) =>
       form.setValue("condition", condition, { shouldDirty: true }),
+    setLanguage: (language: string) =>
+      form.setValue("language", language, { shouldDirty: true }),
     save: () => void commit(),
     discard: () => form.reset(values, DISCARD_RESET_OPTIONS),
     runAfterCommit,

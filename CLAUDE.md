@@ -72,6 +72,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 
 - `scripts/sync-prices.ts` runs on an external schedule only. tcgcsv: at most one pull per 20 h, check `last-updated.txt` first, 1 request/s, `CARD_API_USER_AGENT` on every outgoing request, never from request paths.
 - Never read `card.price` for display or totals: use `cardPriceFor`/`formatPrice` (web `usePriceSource().priceOf`) or server `loadOrgPricing`. SQL totals take the org's `OrgPricing`. Currencies never mix.
+- `collection_cards.card` keeps the prices it was saved with: that is the scan-time price (`pricesAtScan`, added on read), so never refresh prices inside it.
 
 ### Soft deletes
 
