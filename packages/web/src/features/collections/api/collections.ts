@@ -213,7 +213,9 @@ export async function fetchCollectionCardCopies(
   const result = await apiGet<Result<ScannedCard[]>>(
     `/api/collections/${guid}/cards/copies?${params}`,
   );
-  if (!result.success) throw new Error(result.message);
+  if (!result.success || result.data === undefined) {
+    throw new Error(result.message ?? "Failed to load card copies.");
+  }
   return result.data;
 }
 
