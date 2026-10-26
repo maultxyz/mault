@@ -131,7 +131,8 @@
     "newSetDescription": "Create a new preset with 7 empty bins.",
     "create": "Create",
     "viewHistory": "View History",
-    "historyTitle": "Preset history"
+    "historyTitle": "Preset history",
+    "printControlCard": "Print control card"
   },
   "useBinConfigs": {
     "toasts": {

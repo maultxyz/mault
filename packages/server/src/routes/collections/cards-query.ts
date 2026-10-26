@@ -8,6 +8,7 @@ import {
   type FieldMeta,
   type GroupedScannedCard,
   type OrgPricing,
+  type ScannedCard,
   SORTABLE_FIELD_TYPES,
 } from "@magic-vault/shared";
 import { and, eq, sql, type SQL } from "drizzle-orm";
@@ -422,6 +423,28 @@ export async function loadCardsPage(
     totalEntries: totals?.total_entries ?? 0,
     totalCards: totals?.total_cards ?? 0,
   };
+}
+
+export async function loadCardCopies(
+  tx: Transaction,
+  collection: CardsCollection,
+  cardIds: string[],
+  limit: number,
+): Promise<ScannedCard[]> {
+  if (cardIds.length === 0) return [];
+  const result = await tx.execute(sql`
+    SELECT ${CARD_ROW_COLUMNS}
+    FROM collection_cards cc
+    ${STORAGE_LOCATION_JOIN}
+    LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id
+    WHERE cc.collection_id = ${collection.id}
+      AND cc.card_id = ${anyOf(cardIds)}
+      AND (il.id IS NULL OR il.status = 'accepted')
+    ORDER BY array_position(${pgTextArray(cardIds)}::text[], cc.card_id),
+      (sl.id IS NULL), sl.name, cc.location_position, cc.scanned_at DESC, cc.id DESC
+    LIMIT ${limit}::int
+  `);
+  return (result.rows as unknown as CollectionCardRow[]).map(toCard);
 }
 
 async function loadCardTotals(

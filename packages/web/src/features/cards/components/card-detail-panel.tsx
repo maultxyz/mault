@@ -60,6 +60,7 @@ import {
   IconCheck,
   IconChevronUp,
   IconChevronDown,
+  IconLayoutGrid,
   IconPencil,
   IconTrash,
   IconX,
@@ -95,6 +96,7 @@ export function CardDetailPanel({
   copyCount,
   reviewMode = false,
   onReviewComplete,
+  onShowReviewGrid,
   footerActions,
   onRemoveShortcut,
 }: CardDetailPanelProps) {
@@ -390,6 +392,16 @@ export function CardDetailPanel({
               </div>
             )}
           </div>
+          {reviewMode && onShowReviewGrid && (
+            <Button
+              variant="outline"
+              className="shrink-0"
+              onClick={onShowReviewGrid}
+            >
+              <IconLayoutGrid />
+              {t("reviewGrid.layoutGrid")}
+            </Button>
+          )}
           <Button
             size="icon"
             variant="ghost"

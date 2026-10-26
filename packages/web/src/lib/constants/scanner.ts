@@ -6,6 +6,7 @@ import {
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
 import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
+import type { ScannerConnectionState } from "@/lib/interfaces/scanner";
 import {
   IconArrowBarToDown,
   IconBolt,
@@ -127,6 +128,15 @@ export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
 export const PHONE_CAMERA_PATH_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 export const QR_SCAN_INTERVAL_MS = 250;
 export const QR_SCAN_MAX_DIMENSION = 640;
+export const SCANNER_CONTROL_QR_MAX_DIMENSION = 1024;
+export const SCANNER_CONNECTION_DOT_CLASS: Record<
+  ScannerConnectionState,
+  string
+> = {
+  connected: "bg-success",
+  connecting: "bg-warning",
+  disconnected: "bg-foreground/30",
+};
 
 export const PENDING_SCAN_SAVES_DB_NAME = "magic-vault-pending-scan-saves";
 export const PENDING_SCAN_SAVES_STORE_NAME = "saves";

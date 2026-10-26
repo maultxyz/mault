@@ -18,7 +18,7 @@ pnpm --filter @magic-vault/mobile start        # Expo dev server (see packages/m
 pnpm --filter @magic-vault/desktop start       # Electron shell against MAULT_URL
 ```
 
-Tests run in Build Check (`build-check.yml`): server `tests/*.test.ts` (node:test) and web `src/**/*.test.{ts,tsx}` (Vitest, own `vitest.config.ts` so tests skip the PWA/Tailwind plugins; CI is Node 20, so test deps must support it). Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
+Tests run in Build Check (`build-check.yml`): server `tests/*.test.ts` (node:test) and web `src/**/*.test.{ts,tsx}` (Vitest, own `vitest.config.ts` so tests skip the PWA/Tailwind plugins; CI is Node 26, so test deps must support it). Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Every change: keep all surfaces in sync
 
@@ -84,12 +84,14 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 
 - Swapping the embedding model is a breaking migration. There is no table-wide HNSW index: each `game_key` (and lang) gets a partial index built by `ensureGameVectorIndex` (`CREATE INDEX CONCURRENTLY` on a dedicated client, fire-and-forget from the Games routes). Filtered embedding queries need `hnsw.iterative_scan`. Rebuild vector indexes through `rebuildGameVectorIndex` (plain `REINDEX` keeps old params); sync skips `volatileDataKeys` diffs to avoid HNSW churn.
 - `findCardMatches` prefers a regular printing over a same-art promo or list reprint (`rarePrintingSql`); an explicit preferred set wins.
+- Every query that compares a scan against `cards` (embedding, OCR name, preferred set) adds `matchingExclusionFilter(scope)`, which skips the adapter's `excludedFromMatchingSql` rows (Scryfall `digital` printings). The rows stay synced.
 - An onnxruntime-web WASM `RuntimeError` is permanent for the page; don't retry.
 - Mobile Safari reloads tabs that pile up canvas memory: reuse scratch canvases, free per-scan ones with `releaseCanvases`, warp on the CPU (`warpRgba`), never WebGL.
 - Saves go through `PendingScanSavesProvider`, never directly. Bin capacity is checked client-side before routing; a routed card stays pending until bin counts with a later `dataUpdatedAt` land.
 - Bin routing runs client-side only. Both apps route a scan through `shared`'s `resolveScanBin` (`scan-routing.ts`: pick list, then auto-assign, then mode dispatch and the full/complete pauses); never re-implement that order per app. Mode helpers live in `evaluate-bin.ts`.
 - Never put a collection's full card list in a stream payload; unmatched scans are paged and bin fill comes from `/cards/bin-counts`.
 - Stats that must survive deletes read `scan_stats`/`org_daily_scan_usage`. Scan images are read through `resolveScanImageUrl`.
+- Control cards: `shared`'s `scanner-control-code.ts` owns the versioned `mault-control:` QR payload (unknown keys reject the card, so bump the version for new fields). Web checks for a QR before identifying; mobile only after a no-match (jsQR is slow on Hermes). A control card is never saved: it routes like an unmatched card, and a bad card pauses.
 - Any correct, confirm or review accept sets `is_reviewed` and clears `low_confidence_match`; `is_corrected` stays separate.
 - Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only.
 - In-process server state (locks, leases, sorter links, rate limits) is per process.

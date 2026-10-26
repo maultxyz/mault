@@ -9,13 +9,9 @@ import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardToolbarProps } from "@/lib/interfaces/collections";
 
 export function CardToolbar({
-  sortLabel,
-  activeFilterCount,
-  grouped,
+  activeSortAndFilterCount,
   needsReview,
-  onOpenSort,
-  onOpenFilters,
-  onToggleGrouped,
+  onOpenViewOptions,
   onToggleNeedsReview,
 }: CardToolbarProps) {
   const { t } = useTranslation();
@@ -28,10 +24,14 @@ export function CardToolbar({
       style={{ marginHorizontal: -CARD_GRID_GUTTER }}
       contentContainerStyle={{ paddingHorizontal: CARD_GRID_GUTTER, gap: SPACING.sm, alignItems: "center" }}
     >
-      <IconButton icon="sort" size={36} accessibilityLabel={sortLabel} onPress={onOpenSort} />
       <View>
-        <IconButton icon="filter" size={36} accessibilityLabel={t("collection.filters.title")} onPress={onOpenFilters} />
-        {activeFilterCount > 0 ? (
+        <IconButton
+          icon="filter"
+          size={36}
+          accessibilityLabel={t("collection.viewOptions")}
+          onPress={onOpenViewOptions}
+        />
+        {activeSortAndFilterCount > 0 ? (
           <View
             pointerEvents="none"
             style={{
@@ -48,12 +48,11 @@ export function CardToolbar({
             }}
           >
             <AppText size="2xs" weight="bold" style={{ color: colors.primaryForeground, lineHeight: 14 }}>
-              {String(activeFilterCount)}
+              {String(activeSortAndFilterCount)}
             </AppText>
           </View>
         ) : null}
       </View>
-      <FilterChip label={t("collection.groupDuplicates")} selected={grouped} onPress={onToggleGrouped} />
       <FilterChip label={t("collection.filters.needsReview")} selected={needsReview} onPress={onToggleNeedsReview} />
     </ScrollView>
   );

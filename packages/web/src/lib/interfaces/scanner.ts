@@ -34,7 +34,7 @@ import type {
   Result,
   UnmatchedCard,
 } from "@magic-vault/shared";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
@@ -107,6 +107,7 @@ export interface ScannedCardsContextValue {
   autoFeed: boolean;
   forceFoilType: string | null;
   forceSetCode: string | null;
+  scanCondition: CardCondition;
   elapsedMs: number;
   isTimerActive: boolean;
   recentScanTimes: number[];
@@ -116,6 +117,8 @@ export interface ScannedCardsContextValue {
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
   setForceSetCode: (setCode: string | null) => void;
+  setForceSetCodeAfterCollectionSwitch: (setCode: string | null) => void;
+  setScanCondition: (condition: CardCondition) => void;
   addCard: (
     card: PlayingCardWithDistance,
     capturedImageUrl?: string,
@@ -135,6 +138,7 @@ export interface ScannedCardsContextValue {
   ) => Promise<boolean>;
   promptAddedCardBin: (collectionGuid: string, added: ScannedCard) => boolean;
   sendCatchAllBin: () => void;
+  sendCardToBin: (binNumber: number, cardName: string) => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
   dismissBinLimit: () => void;
@@ -150,7 +154,7 @@ export interface ScannedCardsContextValue {
   clearFeedHalt: () => void;
   showJamToast: (options: JamToastOptions) => void;
   removeCard: (scanId: string) => void;
-  removeCards: (scanIds: string[]) => void;
+  removeCards: (scanIds: string[]) => Promise<boolean>;
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;
@@ -271,13 +275,11 @@ export interface ScannerControlsProps {
   isReady: boolean;
   isFeeding: boolean;
   isClearingDevice: boolean;
-  isResettingDevice: boolean;
   onForceScan: () => void;
   onPause: () => void;
   onResume: () => void;
   onFeed: () => void;
   onClearDevice: () => void;
-  onResetDevice: () => void;
 }
 
 export interface ScannerControlButtonProps {
@@ -547,6 +549,7 @@ export interface MobileCardDetailDrawerProps {
   reviewMode?: boolean;
   onNavigate: (scanId: string | null) => void;
   onReviewComplete: (count: number) => void;
+  onShowReviewGrid?: () => void;
   onClose: () => void;
 }
 
@@ -557,6 +560,7 @@ export interface MobileCardDetailBodyProps {
   reviewSession: ReviewSession;
   onNavigate: (scanId: string | null) => void;
   onReviewComplete: (count: number) => void;
+  onShowReviewGrid?: () => void;
   onClose: () => void;
 }
 
@@ -865,7 +869,18 @@ export interface PhoneCameraPairingDialogProps {
   onDisconnect: () => void;
 }
 
-export interface ScannerMenuProps {
+export type ScannerConnectionState = "connected" | "connecting" | "disconnected";
+
+export interface ConnectionStatusPillProps
+  extends ComponentProps<"button"> {
+  label: string;
+  stateLabel: string;
+  state: ScannerConnectionState;
+  icon: ReactNode;
+  "data-tour"?: string;
+}
+
+export interface ScannerStatusBarProps {
   isCameraActive: boolean;
   isConnected: boolean;
   autoFeed: boolean;
@@ -885,6 +900,11 @@ export interface ScannerMenuProps {
   onScannerDisconnect: () => void;
   onScannerRetry: () => void;
   onCalibrate: () => void;
+  isReady: boolean;
+  isClearingDevice: boolean;
+  isResettingDevice: boolean;
+  onClearDevice: () => void;
+  onResetDevice: () => void;
   onAutoFeedChange: (enabled: boolean) => void;
   onAllowDuplicatesChange: (enabled: boolean) => void;
   onConnectAnotherUsb: () => void;

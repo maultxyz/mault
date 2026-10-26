@@ -6,7 +6,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
+import {
+  CARD_CONDITIONS,
+  DEFAULT_SCAN_REGION,
+  isCardCondition,
+  listScannerControlActions,
+} from "@magic-vault/shared";
 import {
   Camera,
   type CameraRef,
@@ -20,6 +25,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { cardSetsQueryOptions } from "@/features/cards/api/card-sets";
 import { collectionsQueryOptions, setActiveCollection } from "@/features/collections/api/collections";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
@@ -34,6 +40,7 @@ import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
 import { ScanOptionsSheet } from "@/features/scanner/components/scan-options-sheet";
+import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ScannerControlsSheet } from "@/features/scanner/components/scanner-controls-sheet";
 import { SessionScansSheet } from "@/features/scanner/components/session-scans-sheet";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
@@ -51,9 +58,12 @@ import {
   NOT_FOIL_OPTION,
   PAUSE_TONES,
   RUNNING_PHASES,
+  SCAN_MODES,
+  SCAN_REMOVAL_NOTICE_TONES,
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { SHUTTER_SIZE } from "@/lib/constants/ui";
+import type { ScanMode } from "@/lib/interfaces/scanner";
 
 export default function ScanScreen() {
   const { t } = useTranslation();
@@ -82,7 +92,9 @@ export default function ScanScreen() {
   const [cameraPickerOpen, setCameraPickerOpen] = useState(false);
   const [foilTypePickerOpen, setFoilTypePickerOpen] = useState(false);
   const [setPickerOpen, setSetPickerOpen] = useState(false);
+  const [conditionPickerOpen, setConditionPickerOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const { data: binSets } = useQuery(binSetsQueryOptions(orgId));
   const permission = useCameraPermission();
   const camera = useCameraChoice();
   const device = camera.device;
@@ -121,6 +133,16 @@ export default function ScanScreen() {
   const forcedSetName = session.forcedSetCode
     ? (cardSets?.find((cardSet) => cardSet.code === session.forcedSetCode)?.name ?? session.forcedSetCode.toUpperCase())
     : t("scan.options.anySet");
+  const controlCardDescription = session.controlCardNotice
+    ? listScannerControlActions(session.controlCardNotice.command, {
+        collectionName: (guid) => collections?.find((c) => c.guid === guid)?.name ?? guid,
+        presetName: (guid) => binSets?.find((binSet) => binSet.guid === guid)?.name ?? guid,
+        setName: (code) => cardSets?.find((cardSet) => cardSet.code === code)?.name ?? code.toUpperCase(),
+        conditionName: (condition) => t(`cardDetail.conditions.${condition}`),
+      })
+        .map((action) => t(`scan.controlCards.actions.${action.key}`, action.values))
+        .join(", ")
+    : "";
   const working = RUNNING_PHASES.includes(session.phase);
   const cameraRef = useRef<CameraRef>(null);
   const liveCorners = useLiveCorners(
@@ -132,6 +154,26 @@ export default function ScanScreen() {
   const lastBin = sorter.isReady ? undefined : session.feed[0]?.binNumber;
   const [sessionOpen, setSessionOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [removalQueueOpen, setRemovalQueueOpen] = useState(false);
+  const [removalBinPickerOpen, setRemovalBinPickerOpen] = useState(false);
+  const removalBinOptions = session.binConfigs
+    .filter((bin) => !bin.isDisabled)
+    .sort((first, second) => first.binNumber - second.binNumber)
+    .map((bin) => ({
+      value: String(bin.binNumber),
+      label: bin.isCatchAll
+        ? t("scan.removal.catchAllBinOption", { number: bin.binNumber })
+        : t("scan.removal.binOption", { number: bin.binNumber }),
+    }));
+  const removalBinLabel = removalBinOptions.find(
+    (option) => option.value === String(session.removal.removalBinNumber),
+  )?.label;
+  const showRemovalChip = session.removal.isActive || session.removal.entries.length > 0;
+  const removalNotice = session.removal.notice;
+  const changeScanMode = (scanMode: ScanMode) => {
+    session.removal.setIsEnabled(scanMode === "remove");
+    if (scanMode === "remove") session.setHandScan(true);
+  };
   const sorterDriven = sorter.isReady || session.handScanActive;
   const canScanOnce = !!collection && !session.modelError && session.phase !== "loading-models";
   const phaseColor =
@@ -196,6 +238,13 @@ export default function ScanScreen() {
       actionLabel={t("common.dismiss")}
       onAction={sorter.dismissNotice}
     />
+  ) : session.controlCardNotice ? (
+    <CameraNotice
+      key={session.controlCardNotice.noticeId}
+      tone="success"
+      title={t("scan.controlCards.applied")}
+      description={controlCardDescription}
+    />
   ) : pauseNotice && session.pauseReason ? (
     <CameraNotice
       tone={PAUSE_TONES[session.pauseReason]}
@@ -205,7 +254,16 @@ export default function ScanScreen() {
         ? { actionLabel: t("scan.emptyBin.action"), onAction: confirmMarkFullBinsEmpty }
         : {})}
     />
-  ) : !sorter.isConnected && !session.handScan && session.sessionCount === 0 ? (
+  ) : removalNotice ? (
+    <CameraNotice
+      key={removalNotice.noticeId}
+      tone={SCAN_REMOVAL_NOTICE_TONES[removalNotice.kind]}
+      title={t(`scan.removal.notice.${removalNotice.kind}`, {
+        name: removalNotice.cardName ?? "",
+        count: removalNotice.removedCount ?? 0,
+      })}
+    />
+  ) : !sorter.isConnected && !session.handScan && !session.removal.isActive && session.sessionCount === 0 ? (
     <CameraNotice
       tone="info"
       title={t("scan.sorterNotReadyTitle")}
@@ -264,7 +322,26 @@ export default function ScanScreen() {
             onPress={() => setOptionsOpen(true)}
           />
         </View>
-        {lastBin != null ? (
+        {showRemovalChip && collection ? (
+          <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
+            <CameraChip
+              icon="trash"
+              dotColor={session.removal.isActive ? colors.destructive : undefined}
+              label={t("scan.removal.chip", { collection: collection.name, count: session.removal.entries.length })}
+              onPress={() => setRemovalQueueOpen(true)}
+            />
+          </View>
+        ) : null}
+        {session.removal.isEnabled && sorter.isConnected && removalBinLabel ? (
+          <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
+            <CameraChip
+              icon="sorter"
+              label={t("scan.removal.binChip", { bin: removalBinLabel })}
+              onPress={() => setRemovalBinPickerOpen(true)}
+            />
+          </View>
+        ) : null}
+        {lastBin != null && !session.removal.isActive ? (
           <View pointerEvents="none" style={{ alignItems: "center" }}>
             <BinBadge key={session.feed[0]?.scanId} binNumber={lastBin} />
           </View>
@@ -278,6 +355,13 @@ export default function ScanScreen() {
         >
           {notice}
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: SPACING.md }}>
+            <View style={{ flex: 1 }}>
+              <SegmentedControl<ScanMode>
+                value={session.removal.isEnabled ? "remove" : "add"}
+                onChange={changeScanMode}
+                options={SCAN_MODES.map((scanMode) => ({ value: scanMode, label: t(`scan.removal.modes.${scanMode}`) }))}
+              />
+            </View>
             <IconButton
               icon="adjust"
               variant="camera"
@@ -326,6 +410,11 @@ export default function ScanScreen() {
         foilTypeName={session.forcedFoilType ?? t("scan.options.notFoil")}
         showFoilType={foilTypes.length > 0}
         setName={forcedSetName}
+        conditionName={t(`cardDetail.conditions.${session.scanCondition}`)}
+        onChooseCondition={() => {
+          setOptionsOpen(false);
+          setConditionPickerOpen(true);
+        }}
         onChooseFoilType={() => {
           setOptionsOpen(false);
           setFoilTypePickerOpen(true);
@@ -356,6 +445,17 @@ export default function ScanScreen() {
         onFeedOne={session.feedOnce}
         autoFeed={session.autoFeed}
         onClose={() => setControlsOpen(false)}
+      />
+      <OptionSheet
+        visible={removalBinPickerOpen}
+        title={t("scan.removal.binPickerTitle")}
+        options={removalBinOptions}
+        selected={session.removal.removalBinNumber != null ? [String(session.removal.removalBinNumber)] : []}
+        onSelect={(binNumber) => {
+          setRemovalBinPickerOpen(false);
+          session.removal.setRemovalBinNumber(Number(binNumber));
+        }}
+        onClose={() => setRemovalBinPickerOpen(false)}
       />
       <OptionSheet
         visible={collectionPickerOpen}
@@ -419,6 +519,26 @@ export default function ScanScreen() {
           session.setForcedSetCode(value === ANY_SET_OPTION ? null : value);
         }}
         onClose={() => setSetPickerOpen(false)}
+      />
+      <OptionSheet
+        visible={conditionPickerOpen}
+        title={t("scan.options.condition")}
+        options={CARD_CONDITIONS.map((condition) => ({
+          value: condition,
+          label: t(`cardDetail.conditions.${condition}`),
+        }))}
+        selected={[session.scanCondition]}
+        onSelect={(value) => {
+          setConditionPickerOpen(false);
+          if (isCardCondition(value)) session.setScanCondition(value);
+        }}
+        onClose={() => setConditionPickerOpen(false)}
+      />
+      <ScanRemovalQueueSheet
+        visible={removalQueueOpen}
+        removal={session.removal}
+        collectionName={collection?.name ?? ""}
+        onClose={() => setRemovalQueueOpen(false)}
       />
       <SessionScansSheet
         visible={sessionOpen}

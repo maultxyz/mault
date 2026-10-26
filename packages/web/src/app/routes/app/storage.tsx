@@ -12,7 +12,11 @@ import {
   fetchNextUnreviewedStorageCard,
   storageLocationPageQueryOptions,
   storageLocationQueryOptions,
+  storageLocationUnreviewedCardsQueryOptions,
 } from "@/features/storage/api/storage-locations";
+import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
+import { ReviewGrid } from "@/features/cards/components/review-grid";
+import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import { useQuery } from "@tanstack/react-query";
@@ -92,9 +96,22 @@ function DesktopStoragePage() {
     locations.find((l) => l.guid === selectedGuid) ??
     (selectedLocation?.guid === selectedGuid ? selectedLocation : undefined);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
-  const isReviewing = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM) === "1";
+  const reviewParam = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM);
+  const isReviewing = reviewParam === "1";
   const pageParam = searchParams.get(STORAGE_PAGE_SEARCH_PARAM);
   const isCardOpen = !!selected && !isSearching && !!openScanId;
+  const isGridReviewing =
+    !!selected &&
+    !isSearching &&
+    !openScanId &&
+    reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const [reviewLayout, setReviewLayout] = useReviewLayout();
+  const reviewGridPage = useQuery(
+    storageLocationUnreviewedCardsQueryOptions(
+      selected?.guid,
+      isGridReviewing,
+    ),
+  );
 
   const select = useCallback(
     (guid: string) =>
@@ -127,8 +144,24 @@ function DesktopStoragePage() {
     );
   }, [selected, pageParam, setSearchParams]);
 
+  const openReviewGrid = () => {
+    if (!selected) return;
+    setReviewLayout("grid");
+    setSearchParams(
+      {
+        [STORAGE_LOCATION_SEARCH_PARAM]: selected.guid,
+        [STORAGE_REVIEW_SEARCH_PARAM]: CARD_REVIEW_GRID_PARAM_VALUE,
+      },
+      { replace: true },
+    );
+  };
+
   const startReview = async () => {
     if (!selected) return;
+    if (reviewLayout === "grid") {
+      openReviewGrid();
+      return;
+    }
     const first = await fetchNextUnreviewedStorageCard(selected.guid).catch(
       () => null,
     );
@@ -137,7 +170,11 @@ function DesktopStoragePage() {
   };
 
   const canStartReview =
-    !!selected && !isSearching && !isCardOpen && selected.cardCount > 0;
+    !!selected &&
+    !isSearching &&
+    !isCardOpen &&
+    !isGridReviewing &&
+    selected.cardCount > 0;
 
   useHotkeys({
     reviewStart: canStartReview ? () => void startReview() : undefined,
@@ -196,6 +233,21 @@ function DesktopStoragePage() {
               scanId={openScanId}
               reviewMode={isReviewing}
               onNavigate={(scanId) => openCard(selected.guid, scanId)}
+              onShowReviewGrid={openReviewGrid}
+              onClose={closeCard}
+            />
+          </section>
+        ) : isGridReviewing && selected ? (
+          <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
+            <ReviewGrid
+              cards={reviewGridPage.data?.cards ?? []}
+              total={reviewGridPage.data?.total ?? 0}
+              isLoading={reviewGridPage.isPending}
+              isError={reviewGridPage.isError}
+              onOpenOneByOne={(card) => {
+                setReviewLayout("single");
+                openCard(selected.guid, card.scanId, true);
+              }}
               onClose={closeCard}
             />
           </section>

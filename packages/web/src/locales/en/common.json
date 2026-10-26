@@ -294,6 +294,7 @@
     "storageLocationRequired": "Choose where the cards went.",
     "commandRequired": "Enter a command.",
     "verificationCodeLength": "Enter the {{length}}-digit code.",
-    "verificationCodeNumeric": "The code can only contain numbers."
+    "verificationCodeNumeric": "The code can only contain numbers.",
+    "controlCardActionRequired": "Pick at least one thing for the card to change."
   }
 }

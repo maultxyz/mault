@@ -3,6 +3,7 @@ import {
   type BinConfig,
   type BinContentCard,
   type CardCondition,
+  DEFAULT_CARD_CONDITION,
   type BinRoute,
   type EmptyBinOptions,
   type MatchedScanDetails,
@@ -305,6 +306,11 @@ export function ScannedCardsProvider({
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);
   const [forceSetCode, setForceSetCode] = useState<string | null>(null);
+  const forceSetCodeAfterCollectionSwitchRef = useRef<string | null>(null);
+  const [scanCondition, setScanConditionState] = useState<CardCondition>(
+    DEFAULT_CARD_CONDITION,
+  );
+  const scanConditionRef = useRef<CardCondition>(DEFAULT_CARD_CONDITION);
 
   const pickListsActive = isRulesMode(selectedSet);
   useEffect(() => {
@@ -500,12 +506,25 @@ export function ScannedCardsProvider({
     setForceFoilTypeState(foilType);
   }, []);
 
+  const setForceSetCodeAfterCollectionSwitch = useCallback(
+    (setCode: string | null) => {
+      forceSetCodeAfterCollectionSwitchRef.current = setCode;
+    },
+    [],
+  );
+
+  const setScanCondition = useCallback((condition: CardCondition) => {
+    scanConditionRef.current = condition;
+    setScanConditionState(condition);
+  }, []);
+
   useEffect(() => {
     const prev = prevCollectionGuidRef.current;
     const next = activeCollection?.guid;
     if (prev && prev !== next) {
       releaseScanLock(prev).catch(() => {});
-      setForceSetCode(null);
+      setForceSetCode(forceSetCodeAfterCollectionSwitchRef.current);
+      forceSetCodeAfterCollectionSwitchRef.current = null;
     }
     prevCollectionGuidRef.current = next;
     activeCollectionRef.current = activeCollection;
@@ -664,6 +683,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forcedFoilType != null || undefined,
         foilType: forcedFoilType ?? undefined,
+        condition: scanConditionRef.current,
         lowConfidenceMatch: details?.lowConfidenceMatch || isLowMatch || undefined,
         vectorizedOn,
       };
@@ -880,20 +900,22 @@ export function ScannedCardsProvider({
     [setFullBins],
   );
 
-  const sendCatchAllBin = useCallback(() => {
-    const catchAll = getCatchAllBin(binConfigsRef.current);
-    if (
-      catchAll &&
-      serialRef.current.isConnected &&
-      serialRef.current.isReady &&
-      !serialRef.current.ignoreIrSensors
-    ) {
+  const routeToBin = useCallback(
+    (binNumber: number, failedKey: string, cardName?: string) => {
+      if (
+        !serialRef.current.isConnected ||
+        !serialRef.current.isReady ||
+        serialRef.current.ignoreIrSensors
+      ) {
+        return;
+      }
       void routeCardToBin({
-        route: resolveRoute(catchAll.binNumber),
+        route: resolveRoute(binNumber),
         sendRoute: serialRef.current.sendRoute,
         toast,
         t,
-        failedKey: "scannedCards.routingFailedCatchAll",
+        failedKey,
+        cardName,
         collectionGuid: activeCollectionRef.current?.guid,
         deviceGuid: deviceGuidRef.current,
         isAutoFeedEnabled,
@@ -902,17 +924,31 @@ export function ScannedCardsProvider({
         triggerAutoFeed,
         onJam: showJamToast,
       });
+    },
+    [
+      toast,
+      t,
+      resolveRoute,
+      isAutoFeedEnabled,
+      isPipelinedFeedEnabled,
+      pause,
+      triggerAutoFeed,
+      showJamToast,
+    ],
+  );
+
+  const sendCatchAllBin = useCallback(() => {
+    const catchAll = getCatchAllBin(binConfigsRef.current);
+    if (catchAll) {
+      routeToBin(catchAll.binNumber, "scannedCards.routingFailedCatchAll");
     }
-  }, [
-    toast,
-    t,
-    resolveRoute,
-    isAutoFeedEnabled,
-    isPipelinedFeedEnabled,
-    pause,
-    triggerAutoFeed,
-    showJamToast,
-  ]);
+  }, [routeToBin]);
+
+  const sendCardToBin = useCallback(
+    (binNumber: number, cardName: string) =>
+      routeToBin(binNumber, "scannedCards.routingFailed", cardName),
+    [routeToBin],
+  );
 
   const addUnmatchedCard = useCallback(
     (
@@ -1100,7 +1136,7 @@ export function ScannedCardsProvider({
   const removeCards = useCallback(
     (scanIds: string[]) => {
       const collection = activeCollectionRef.current;
-      if (!collection) return;
+      if (!collection) return Promise.resolve(false);
       const idSet = new Set(scanIds);
       binContentsRef.current = binContentsRef.current.filter(
         (c) => !idSet.has(c.scanId),
@@ -1110,8 +1146,12 @@ export function ScannedCardsProvider({
         scanIds.length === 1
           ? removeCollectionCard(collection.guid, scanIds[0])
           : removeCollectionCards(collection.guid, scanIds);
-      request
-        .catch((err) => console.error("Failed to remove cards:", err))
+      return request
+        .then((result) => result.success)
+        .catch((err) => {
+          console.error("Failed to remove cards:", err);
+          return false;
+        })
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
@@ -1383,6 +1423,7 @@ export function ScannedCardsProvider({
         autoFeed,
         forceFoilType,
         forceSetCode,
+        scanCondition,
         elapsedMs,
         isTimerActive,
         recentScanTimes,
@@ -1392,6 +1433,8 @@ export function ScannedCardsProvider({
         setAutoFeed,
         setForceFoilType,
         setForceSetCode,
+        setForceSetCodeAfterCollectionSwitch,
+        setScanCondition,
         registerCardArrivedHook,
         registerPauseHook,
         registerResumeHook,
@@ -1405,6 +1448,7 @@ export function ScannedCardsProvider({
         identifyUnmatchedCard,
         promptAddedCardBin,
         sendCatchAllBin,
+        sendCardToBin,
         binLimitReached: binLimitBin,
         resolveBinLimit,
         dismissBinLimit,

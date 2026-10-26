@@ -19,6 +19,7 @@ import {
   STORAGE_VIEW_PARAM,
 } from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
@@ -183,6 +184,12 @@ const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
+const ControlCardsPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/app/control-cards"),
+    ["common", "scanner", "cards"],
+  ),
+);
 const IntakeReceiptPage = lazy(
   withNamespaces(
     () => import("@/app/routes/app/intake-receipt"),
@@ -296,6 +303,10 @@ export const router = createBrowserRouter([
           {
             path: `${INTAKE_PATH}/:guid/receipt`,
             element: <IntakeReceiptPage />,
+          },
+          {
+            path: CONTROL_CARDS_PATH,
+            element: <ControlCardsPage />,
           },
           {
             path: "/app/verify-email",

@@ -1,7 +1,9 @@
-import type {
-  PlayingCardWithDistance,
-  ScanSaveRequestFields,
-  ScannedCard,
+import {
+  DEFAULT_CARD_CONDITION,
+  toCardCondition,
+  type PlayingCardWithDistance,
+  type ScanSaveRequestFields,
+  type ScannedCard,
 } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -57,6 +59,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       capturedImageUrl,
       isFoil,
       foilType,
+      condition: requestedCondition,
       alternativeMatches,
       lowConfidenceMatch,
       diagnostics,
@@ -64,6 +67,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       deviceGuid,
       isRetry,
     } = await c.req.json<ScannedCard & ScanSaveRequestFields>();
+    const condition = toCardCondition(requestedCondition ?? DEFAULT_CARD_CONDITION);
 
     if (
       isRetry &&
@@ -231,6 +235,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             capturedImageKey: storedImage.key,
             isFoil: isFoil ?? false,
             foilType: foilType ?? null,
+            condition,
             alternativeMatches: alternativeMatches?.length
               ? alternativeMatches
               : null,
@@ -260,6 +265,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               capturedImageUrl,
               isFoil,
               foilType,
+              condition,
               alternativeMatches,
               lowConfidenceMatch,
             } as ScannedCard,

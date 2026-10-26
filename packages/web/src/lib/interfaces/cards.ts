@@ -10,6 +10,7 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
 import type { ReactNode } from "react";
@@ -22,11 +23,10 @@ export interface CardSearchPickerProps {
   onSelect: (card: PlayingCard) => void;
 }
 
-export interface CardSortButtonProps {
+export interface CardSortOptionsProps {
   sortKey: string | null;
   onSortChange: (key: string | null) => void;
   sortableFields: FieldMeta[];
-  className?: string;
 }
 
 export interface CardDetailsListProps {
@@ -128,6 +128,7 @@ export interface CardToolbarProps {
   sortableFields: FieldMeta[];
   onExport?: () => void;
   onStartReview?: () => void;
+  needsReviewCount?: number;
   collectionName?: string;
   onClearAll?: () => void;
   hasCards: boolean;
@@ -373,11 +374,36 @@ export interface CardDetailPanelProps {
   storageLocation?: CardStorageLocation;
   reviewMode?: boolean;
   onReviewComplete?: () => void;
+  onShowReviewGrid?: () => void;
   footerActions?: ReactNode;
   onRemoveShortcut?: () => void;
 }
 
-export interface CardFilterPopoverProps {
+export type ReviewLayout = "grid" | "single";
+
+export interface ReviewGridProps {
+  cards: ReviewGridCard[];
+  total: number;
+  isLoading: boolean;
+  isError: boolean;
+  onOpenOneByOne: (card: ReviewGridCard) => void;
+  onClose: () => void;
+  onCorrect?: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
+}
+
+export interface ReviewGridTileProps {
+  card: ReviewGridCard;
+  onAccept: () => void;
+  onCorrect: () => void;
+}
+
+export interface ReviewGridCorrectionDialogProps {
+  card: ReviewGridCard | null;
+  onSelect: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
+  onClose: () => void;
+}
+
+export interface CardFilterFieldsProps {
   activeFilters: CardFilters;
   onFiltersChange: (filters: CardFilters) => void;
   activeFilterCount: number;
@@ -385,6 +411,21 @@ export interface CardFilterPopoverProps {
   availableColors: ScanStats["colors"];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
+}
+
+export interface CardDisplayOptionsProps {
+  viewMode?: CardViewMode;
+  onViewModeChange?: (mode: CardViewMode) => void;
+  density?: CardGridDensity;
+  onDensityChange?: (density: CardGridDensity) => void;
+  groupDuplicates?: boolean;
+  onGroupDuplicatesChange?: (grouped: boolean) => void;
+}
+
+export interface CardViewOptionsDrawerProps
+  extends CardSortOptionsProps,
+    CardFilterFieldsProps,
+    CardDisplayOptionsProps {
   triggerClassName?: string;
 }
 

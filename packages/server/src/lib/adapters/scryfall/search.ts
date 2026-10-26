@@ -132,6 +132,7 @@ export const scryfallAdapter: CardSearchAdapter = {
     SCRYFALL_LIST_SET_CODES.map((code) => sql`${code}`),
     sql`, `,
   )}))`,
+  excludedFromMatchingSql: sql`(data->>'digital') = 'true'`,
   tcgplayer: {
     categoryId: 1,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),

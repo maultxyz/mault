@@ -1,26 +1,25 @@
-import { CARD_GRID_DENSITIES } from "@/lib/constants/card-grid";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { WatcherStack } from "@/components/ui/watcher-stack";
-import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
+import { CardViewOptionsDrawer } from "@/features/cards/components/card-view-options-drawer";
 import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
-import { CardSortButton } from "@/features/cards/components/card-sort-button";
 import type { CardToolbarProps } from "@/lib/interfaces/cards";
 import {
   IconCheckbox,
+  IconDots,
   IconDownload,
-  IconLayoutGrid,
-  IconLayoutList,
   IconListCheck,
   IconPlus,
   IconSearch,
-  IconStack2,
   IconTrash,
-  IconZoomIn,
-  IconZoomOut,
-  IconZoomReset,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,6 +33,7 @@ export function CardToolbar({
   sortableFields,
   onExport,
   onStartReview,
+  needsReviewCount,
   onClearAll,
   hasCards,
   activeFilters,
@@ -58,160 +58,120 @@ export function CardToolbar({
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
-
-  const handleClear = () => {
-    onClearAll?.();
-  };
+  const hasMoreActions = !!onToggleSelectAll || !!onExport || !!onClearAll;
+  const showReview = !!onStartReview && (needsReviewCount ?? 0) > 0;
 
   return (
     <div className="w-full">
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row gap-2 items-center min-w-0">
-          {leading}
-          {watchers && watchers.length > 0 && (
-            <WatcherStack watchers={watchers} />
-          )}
-          <div className="relative flex-1 min-w-0">
-            <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
-            <Input
-              type="search"
-              placeholder={t("cardToolbar.searchPlaceholder")}
-              data-hotkey-search
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-          <ClearCardQueryButton
-            searchQuery={searchQuery}
-            activeFilterCount={activeFilterCount}
-            onClear={() => {
-              onSearchChange("");
-              onFiltersChange(EMPTY_CARD_FILTERS);
-            }}
-          />
-          <CardSortButton
-            sortKey={sortKey}
-            onSortChange={onSortChange}
-            sortableFields={sortableFields}
-          />
-          <CardFilterPopover
-            activeFilters={activeFilters}
-            onFiltersChange={onFiltersChange}
-            activeFilterCount={activeFilterCount}
-            availableRarities={availableRarities ?? []}
-            availableColors={availableColors ?? []}
-            availableFoilTypes={availableFoilTypes ?? []}
-            binCount={binCount}
+      <div className="flex min-w-0 flex-row items-center gap-2">
+        {leading}
+        {watchers && watchers.length > 0 && (
+          <WatcherStack watchers={watchers} />
+        )}
+        <div className="relative min-w-0 flex-1">
+          <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
+          <Input
+            type="search"
+            placeholder={t("cardToolbar.searchPlaceholder")}
+            data-hotkey-search
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-8"
           />
         </div>
-        <div className="flex flex-row flex-wrap gap-2 items-center justify-end">
-          <ButtonGroup className="shrink-0">
-            <Button
-              variant={viewMode === "grid" ? "outline-selected" : "outline"}
-              onClick={() => onViewModeChange("grid")}
-            >
-              <IconLayoutGrid />
-              {t("cardToolbar.gridView")}
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "outline-selected" : "outline"}
-              onClick={() => onViewModeChange("list")}
-            >
-              <IconLayoutList />
-              {t("cardToolbar.listView")}
-            </Button>
-          </ButtonGroup>
-          {viewMode === "grid" && density && onDensityChange && (
-            <Button
-              variant="outline"
-              className="shrink-0"
-              onClick={() =>
-                onDensityChange(
-                  CARD_GRID_DENSITIES[
-                    (CARD_GRID_DENSITIES.indexOf(density) + 1) %
-                      CARD_GRID_DENSITIES.length
-                  ],
-                )
+        <ClearCardQueryButton
+          searchQuery={searchQuery}
+          activeFilterCount={activeFilterCount}
+          onClear={() => {
+            onSearchChange("");
+            onFiltersChange(EMPTY_CARD_FILTERS);
+          }}
+        />
+        <CardViewOptionsDrawer
+          sortKey={sortKey}
+          onSortChange={onSortChange}
+          sortableFields={sortableFields}
+          activeFilters={activeFilters}
+          onFiltersChange={onFiltersChange}
+          activeFilterCount={activeFilterCount}
+          availableRarities={availableRarities ?? []}
+          availableColors={availableColors ?? []}
+          availableFoilTypes={availableFoilTypes ?? []}
+          binCount={binCount}
+          viewMode={viewMode}
+          onViewModeChange={onViewModeChange}
+          density={density}
+          onDensityChange={onDensityChange}
+          groupDuplicates={groupDuplicates}
+          onGroupDuplicatesChange={onGroupDuplicatesChange}
+        />
+        {hasMoreActions && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0"
+                  aria-label={t("cardToolbar.moreActions")}
+                  title={t("cardToolbar.moreActions")}
+                  data-tour="export-collection"
+                />
               }
             >
-              {density === "compact" ? (
-                <IconZoomOut />
-              ) : density === "large" ? (
-                <IconZoomIn />
-              ) : (
-                <IconZoomReset />
+              <IconDots />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {onToggleSelectAll && (
+                <DropdownMenuItem
+                  disabled={!hasCards}
+                  onClick={onToggleSelectAll}
+                >
+                  <IconCheckbox />
+                  {allSelected
+                    ? t("cardToolbar.deselectAll")
+                    : t("cardToolbar.selectAll")}
+                </DropdownMenuItem>
               )}
-              {t("cardToolbar.density", {
-                density: t(`cardToolbar.densities.${density}`),
-              })}
-            </Button>
-          )}
+              {onExport && (
+                <DropdownMenuItem disabled={!hasCards} onClick={onExport}>
+                  <IconDownload />
+                  {t("cardToolbar.export")}
+                </DropdownMenuItem>
+              )}
+              {onClearAll && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    disabled={!hasCards}
+                    onClick={() => setClearAllDialogOpen(true)}
+                  >
+                    <IconTrash />
+                    {t("cardToolbar.clearAll")}
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+        {showReview && (
           <Button
-            variant={groupDuplicates ? "outline-selected" : "outline"}
+            variant="outline"
             className="shrink-0"
-            onClick={() => onGroupDuplicatesChange(!groupDuplicates)}
+            title={t("cardToolbar.reviewCards")}
+            onClick={onStartReview}
           >
-            <IconStack2 />
-            {t("cardToolbar.groupDuplicates")}
+            <IconListCheck />
+            {t("cardToolbar.reviewCount", { count: needsReviewCount })}
           </Button>
-          {onToggleSelectAll && (
-            <Button
-              variant="outline"
-              onClick={onToggleSelectAll}
-              disabled={!hasCards}
-              className="shrink-0"
-            >
-              <IconCheckbox />
-              {allSelected
-                ? t("cardToolbar.deselectAll")
-                : t("cardToolbar.selectAll")}
-            </Button>
-          )}
-          {onStartReview && (
-            <Button
-              variant="outline"
-              onClick={onStartReview}
-              disabled={!hasCards}
-              className="shrink-0"
-              title={t("cardToolbar.reviewCards")}
-            >
-              <IconListCheck />
-              {t("cardToolbar.review")}
-            </Button>
-          )}
-          {(onExport || onClearAll) && (
-            <ButtonGroup>
-              <Button
-                variant="outline"
-                onClick={onExport}
-                disabled={!hasCards}
-                className="shrink-0"
-                title={t("cardToolbar.sessionSummaryExport")}
-                data-tour="export-collection"
-              >
-                <IconDownload />
-                {t("cardToolbar.export")}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setClearAllDialogOpen(true)}
-                disabled={!hasCards}
-                className="shrink-0"
-                title={t("cardToolbar.clearAllCardsTitle")}
-              >
-                <IconTrash />
-                {t("cardToolbar.clearAll")}
-              </Button>
-            </ButtonGroup>
-          )}
-          {onAddCard && (
-            <Button variant="outline" onClick={onAddCard} className="shrink-0">
-              <IconPlus />
-              {t("addCard.button")}
-            </Button>
-          )}
-        </div>
+        )}
+        {onAddCard && (
+          <Button variant="outline" onClick={onAddCard} className="shrink-0">
+            <IconPlus />
+            {t("addCard.button")}
+          </Button>
+        )}
       </div>
       <DeleteDialog
         open={clearAllDialogOpen}
@@ -220,7 +180,7 @@ export function CardToolbar({
         description={t("cardToolbar.deleteScannedCardsDescription")}
         confirm={cardCount > 100 ? { type: "keyword" } : { type: "simple" }}
         confirmLabel={t("cardToolbar.clearAll")}
-        onConfirm={handleClear}
+        onConfirm={() => onClearAll?.()}
       />
     </div>
   );

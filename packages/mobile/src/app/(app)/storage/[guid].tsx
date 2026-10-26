@@ -27,6 +27,7 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { readReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
 export default function StorageLocationScreen() {
@@ -89,6 +90,10 @@ export default function StorageLocationScreen() {
       const first = list.find((card) => !card.reviewed);
       if (!first) {
         setNotice({ tone: "info", text: t("storage.review.nothingLeft") });
+        return;
+      }
+      if (readReviewLayout() === "grid") {
+        router.push({ pathname: "/review-grid", params: { storage: guid } });
         return;
       }
       router.push({

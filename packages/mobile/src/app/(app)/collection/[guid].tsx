@@ -31,7 +31,7 @@ import {
   revokeMonitorLinks,
 } from "@/features/collections/api/collection-cards";
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
-import { CardFilterSheet } from "@/features/collections/components/card-filter-sheet";
+import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
 import {
   collectionsQueryOptions,
@@ -59,6 +59,7 @@ import {
 import { WEB_URL } from "@/lib/constants/config";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CollectionTab } from "@/lib/interfaces/collections";
+import { readReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CollectionScreen() {
@@ -77,8 +78,7 @@ export default function CollectionScreen() {
   const [grouped, setGrouped] = useState(true);
   const [sort, setSort] = useState<string | null>(null);
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
-  const [sortOpen, setSortOpen] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
   const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(null);
   const sorter = useSorter();
   const cardsQuery = useMemo(
@@ -150,7 +150,6 @@ export default function CollectionScreen() {
         { value: `${field.field}-desc`, label: t("collection.sort.descending", { field: field.label }) },
       ]),
   ];
-  const sortLabel = sortOptions.find((option) => option.value === (sort ?? "scan-desc"))?.label ?? "";
   const activeFilterCount =
     filters.colors.length +
     filters.rarities.length +
@@ -158,6 +157,7 @@ export default function CollectionScreen() {
     filters.bins.length +
     filters.sets.length +
     (filters.showDownloaded ? 1 : 0);
+  const activeSortAndFilterCount = activeFilterCount + (sort ? 1 : 0);
 
   const shareLink = useMutation({
     mutationFn: () => createMonitorLink(guid, DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
@@ -220,10 +220,12 @@ export default function CollectionScreen() {
             icon="check"
             label={t("collection.review", { count: reviewQueue.data.total })}
             onPress={() =>
-              router.push({
-                pathname: "/card/[scanId]",
-                params: { scanId: reviewQueue.data?.firstScanId ?? "", guid, review: "1" },
-              })
+              readReviewLayout() === "grid"
+                ? router.push({ pathname: "/review-grid", params: { guid } })
+                : router.push({
+                    pathname: "/card/[scanId]",
+                    params: { scanId: reviewQueue.data?.firstScanId ?? "", guid, review: "1" },
+                  })
             }
           />
         ) : null}
@@ -299,13 +301,9 @@ export default function CollectionScreen() {
                 accessibilityLabel={t("collections.search")}
               />
               <CardToolbar
-                sortLabel={sortLabel}
-                activeFilterCount={activeFilterCount}
-                grouped={grouped}
+                activeSortAndFilterCount={activeSortAndFilterCount}
                 needsReview={filters.needsAttention}
-                onOpenSort={() => setSortOpen(true)}
-                onOpenFilters={() => setFiltersOpen(true)}
-                onToggleGrouped={() => setGrouped((value) => !value)}
+                onOpenViewOptions={() => setViewOptionsOpen(true)}
                 onToggleNeedsReview={() => setFilters((value) => ({ ...value, needsAttention: !value.needsAttention }))}
               />
               {cards.isError ? <Callout tone="destructive" title={t("collections.cardsLoadFailed")} /> : null}
@@ -355,24 +353,18 @@ export default function CollectionScreen() {
           }}
         />
       )}
-      <OptionSheet
-        visible={sortOpen}
-        title={t("collection.sort.title")}
-        options={sortOptions}
-        selected={[sort ?? "scan-desc"]}
-        onSelect={(value) => {
-          setSort(value === "scan-desc" ? null : value);
-          setSortOpen(false);
-        }}
-        onClose={() => setSortOpen(false)}
-      />
-      <CardFilterSheet
-        visible={filtersOpen}
+      <CardViewOptionsSheet
+        visible={viewOptionsOpen}
+        grouped={grouped}
+        onGroupedChange={setGrouped}
+        sortOptions={sortOptions}
+        selectedSort={sort ?? "scan-desc"}
+        onSortChange={(value) => setSort(value === "scan-desc" ? null : value)}
         filters={filters}
         breakdown={breakdown}
         binCount={binCount}
         onChange={setFilters}
-        onClose={() => setFiltersOpen(false)}
+        onClose={() => setViewOptionsOpen(false)}
       />
       <CardActionsSheet
         entry={actionsEntry}

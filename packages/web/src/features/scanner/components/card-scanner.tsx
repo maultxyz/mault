@@ -7,19 +7,18 @@ import {
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
-import {
-  reportSerialEvent,
-} from "@/features/notifications/api/notification-settings";
+import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { useVerifyJam } from "@/features/scanner/api/use-verify-jam";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
-import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
+import { ScannerStatusBar } from "@/features/scanner/components/scanner-status-bar";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
@@ -38,6 +37,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useOnnxRuntimeFailureToast } from "@/features/scanner/api/use-onnx-runtime-failure-toast";
 import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate-toast";
+import { useApplyScannerControlCode } from "@/features/scanner/api/use-apply-scanner-control-code";
 import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -84,8 +84,9 @@ export function CardScanner({
   } = useScannedCards();
   const binFillLevels = useBinFillLevels();
   const binLimitCapacity =
-    binFillLevels.find((level) => level.binNumber === binLimitReached?.binNumber)
-      ?.capacity ?? null;
+    binFillLevels.find(
+      (level) => level.binNumber === binLimitReached?.binNumber,
+    )?.capacity ?? null;
   const { station, isActive } = useStation();
   const {
     setActiveStation,
@@ -125,10 +126,23 @@ export function CardScanner({
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [handScan, setHandScan] = useHandScan();
   const handScanActive = handScan && !isConnected;
+  const { isRemoveModeActive, queueScannedCard, handleRemovalNoMatch } =
+    useScanRemoval();
+  const visibleLastRoutedBin = isRemoveModeActive ? null : lastRoutedBin;
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const { recordScanOutcome } = useUnmatchedRateToast();
   useOnnxRuntimeFailureToast();
+  const setAllowDuplicatesRef = useRef<(allowDuplicates: boolean) => void>(
+    () => {},
+  );
+  const applyControlCode = useApplyScannerControlCode(
+    useCallback(
+      (allowDuplicates: boolean) =>
+        setAllowDuplicatesRef.current(allowDuplicates),
+      [],
+    ),
+  );
   const {
     status,
     errorMessage,
@@ -157,6 +171,11 @@ export function CardScanner({
     isAtScanLimit,
   } = useCardScanner({
     onSearchResults: (cards, capturedImageUrl, vectorizedOn, details) => {
+      if (isRemoveModeActive) {
+        if (cards.length > 0) queueScannedCard(cards[0], cards.slice(1));
+        else handleRemovalNoMatch();
+        return;
+      }
       if (cards.length > 0) {
         recordScanOutcome(true);
         addCard(
@@ -169,12 +188,19 @@ export function CardScanner({
       }
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
+      if (isRemoveModeActive) {
+        handleRemovalNoMatch();
+        return;
+      }
       recordScanOutcome(false);
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
+    onControlCode: (command) => void applyControlCode(command),
     rotated: !isMobile,
     autoCapture: handScanActive,
+    skipDuplicateCheck: isRemoveModeActive,
   });
+  setAllowDuplicatesRef.current = setAllowDuplicates;
   const isSideControls = controlsPosition === "side";
 
   const handleOpenPhonePairing = () => {
@@ -523,8 +549,6 @@ export function CardScanner({
       onResume={handleResumeScanning}
       onFeed={handleFeed}
       onClearDevice={handleClearDevice}
-      isResettingDevice={isResettingDevice}
-      onResetDevice={handleResetToNeutral}
     />
   );
 
@@ -592,7 +616,9 @@ export function CardScanner({
 
   if (renderChrome) {
     return (
-      <div className={cn("relative isolate overflow-hidden bg-black", className)}>
+      <div
+        className={cn("relative isolate overflow-hidden bg-black", className)}
+      >
         <video ref={videoRef} className="hidden" playsInline muted />
         <canvas ref={displayCanvasRef} className="absolute" />
         <canvas
@@ -631,7 +657,7 @@ export function CardScanner({
           onResetDevice: () => void handleResetToNeutral(),
           handScan,
           handScanActive,
-          lastRoutedBin,
+          lastRoutedBin: visibleLastRoutedBin,
           onHandScanChange: setHandScan,
         })}
         {dialogs}
@@ -654,6 +680,7 @@ export function CardScanner({
             ? "h-full aspect-[2.5/3.5] shrink-0"
             : "w-full h-full max-w-full",
           !compact && !isSideControls && "md:aspect-[2.5/3.5]",
+          isRemoveModeActive && "border-destructive ring-2 ring-destructive/40",
         )}
       >
         <video ref={videoRef} className="hidden" playsInline muted />
@@ -673,7 +700,7 @@ export function CardScanner({
         />
         {isAdmin && debugImageUrl && (
           <Tooltip>
-            <TooltipTrigger className="absolute top-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
+            <TooltipTrigger className="absolute bottom-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
               <IconEye size={16} />
             </TooltipTrigger>
             <TooltipContent
@@ -711,10 +738,10 @@ export function CardScanner({
           onConnectScannerCloud={connectCloud}
           bluetoothSupported={bluetoothSupported}
           handScanActive={handScanActive}
-          lastRoutedBin={lastRoutedBin}
+          lastRoutedBin={visibleLastRoutedBin}
           onEnableHandScan={() => setHandScan(true)}
         />
-        <ScannerMenu
+        <ScannerStatusBar
           isCameraActive={isCameraActive}
           isConnected={isConnected}
           autoFeed={autoFeed}
@@ -743,6 +770,11 @@ export function CardScanner({
           canConnectAnotherSorter={canConnectAnotherSorter}
           sorterLimitIsHardCap={sorterLimitIsHardCap}
           onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
+          isReady={isReady}
+          isClearingDevice={isClearingDevice}
+          isResettingDevice={isResettingDevice}
+          onClearDevice={() => void handleClearDevice()}
+          onResetDevice={() => void handleResetToNeutral()}
           onAutoFeedChange={setAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}
           handScan={handScan}

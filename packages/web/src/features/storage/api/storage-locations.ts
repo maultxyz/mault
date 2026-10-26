@@ -27,6 +27,8 @@ export const storageLocationKeys = {
     [...storageLocationKeys.cards(guid), "page"] as const,
   cardPage: (guid: string | undefined, page: number) =>
     [...storageLocationKeys.cardPages(guid), page] as const,
+  unreviewedCards: (guid: string | undefined) =>
+    [...storageLocationKeys.cards(guid), "unreviewed"] as const,
   cardContexts: (guid: string | undefined) =>
     [...storageLocationKeys.cards(guid), "context"] as const,
   cardContext: (
@@ -99,6 +101,19 @@ export const storageLocationCardPageQueryOptions = (
       ).then((r) => r.data ?? null),
     enabled: !!guid,
     placeholderData: (previous) => previous,
+  });
+
+export const storageLocationUnreviewedCardsQueryOptions = (
+  guid: string | undefined,
+  enabled: boolean,
+) =>
+  queryOptions({
+    queryKey: storageLocationKeys.unreviewedCards(guid),
+    queryFn: () =>
+      apiGet<Result<StorageLocationCardPage>>(
+        `/api/storage-locations/${guid}/cards/page?page=1&unreviewedOnly=true`,
+      ).then((r) => r.data ?? null),
+    enabled: !!guid && enabled,
   });
 
 export const storageLocationCardContextQueryOptions = (

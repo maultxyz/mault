@@ -63,6 +63,7 @@ export interface IntakeLotDetailProps {
   guid: string;
   onDeleted: () => void;
   onOpenCard: (scanId: string, review: boolean) => void;
+  onOpenReviewGrid: () => void;
 }
 
 export interface IntakeAcceptDialogProps {
@@ -159,6 +160,7 @@ export interface IntakeCardDetailProps {
   scanId: string;
   reviewMode: boolean;
   onNavigate: (scanId: string) => void;
+  onShowReviewGrid: () => void;
   onClose: () => void;
 }
 

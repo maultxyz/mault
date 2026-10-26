@@ -508,6 +508,34 @@
       "deploy": {
         "title": "Update läuft",
         "description": "Mault wird gerade aktualisiert, deshalb wurde das Scannen pausiert, damit keine Karten verloren gehen. Du kannst jetzt fortfahren, aber Scans können fehlschlagen, bis das Update abgeschlossen ist."
+      },
+      "control-card": {
+        "title": "Von einer Steuerkarte pausiert",
+        "description": "Tippe auf Fortsetzen, wenn du weiterscannen möchtest."
+      },
+      "control-card-unreadable": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Dieser QR-Code ist keine Steuerkarte, die diese Mault-Version versteht. Aktualisiere die App oder drucke eine neue Karte."
+      },
+      "control-card-collection-not-found": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Die Sammlung auf dieser Karte existiert nicht mehr."
+      },
+      "control-card-preset-not-found": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Die Regelvorlage auf dieser Karte existiert nicht mehr."
+      },
+      "control-card-preset-wrong-game": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Die Regelvorlage auf dieser Karte gehört zu einem anderen Spiel als die Sammlung."
+      },
+      "control-card-no-collection": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Wähle eine Sammlung, bevor du eine Karte mit Regelvorlage verwendest."
+      },
+      "control-card-switch-failed": {
+        "title": "Steuerkarte nicht angewendet",
+        "description": "Sammlung oder Regelvorlage konnte nicht gewechselt werden. Prüfe deine Verbindung und versuche es erneut."
       }
     },
     "scanOnce": "Eine scannen",
@@ -592,7 +620,8 @@
       "notFoil": "Kein Foil",
       "set": "Set",
       "anySet": "Beliebiges Set",
-      "searchSets": "Sets suchen"
+      "searchSets": "Sets suchen",
+      "condition": "Zustand"
     },
     "emptyBin": {
       "action": "Als leer markieren",
@@ -600,6 +629,53 @@
       "confirmDescription": "Mach das erst, nachdem du die Karten herausgenommen hast. Die Zählung des Fachs beginnt wieder bei null.",
       "confirm": "Als leer markieren",
       "failed": "Das Fach konnte nicht als leer markiert werden. Prüfe deine Verbindung und versuch es erneut."
+    },
+    "removal": {
+      "title": "Entfernen aus {{collection}}",
+      "queued_one": "{{count}} vorgemerkt",
+      "queued_other": "{{count}} vorgemerkt",
+      "chip_one": "Entfernen aus {{collection}}: {{count}} vorgemerkt",
+      "chip_other": "Entfernen aus {{collection}}: {{count}} vorgemerkt",
+      "noCopyLeft": "Kein Exemplar mehr in dieser Sammlung",
+      "removeAction_one": "1 Karte entfernen",
+      "removeAction_other": "{{count}} Karten entfernen",
+      "confirmDescription": "Diese Karten aus {{collection}} entfernen? Das lässt sich nicht rückgängig machen.",
+      "removeFailed": "Die Karten konnten nicht entfernt werden. Prüfe deine Verbindung und versuche es erneut.",
+      "drop": "Verwerfen",
+      "changeCopy": "Exemplar ändern",
+      "empty": "Die Entfernen-Liste ist leer. Scanne eine Karte, um sie vorzumerken.",
+      "unsorted": "Nicht einsortiert",
+      "notice": {
+        "no-match": "Kein Treffer, versuche es erneut",
+        "lookup-failed": "Exemplare von {{name}} konnten nicht abgerufen werden. Prüfe deine Verbindung und scanne die Karte erneut.",
+        "removed_one": "1 Karte entfernt",
+        "removed_other": "{{count}} Karten entfernt"
+      },
+      "modes": {
+        "add": "Karten hinzufügen",
+        "remove": "Karten entfernen"
+      },
+      "binChip": "Entfernte Karten kommen in {{bin}}",
+      "binPickerTitle": "Entfernte Karten kommen in",
+      "binOption": "Fach {{number}}",
+      "catchAllBinOption": "Fach {{number}} (Auffangfach)"
+    },
+    "controlCards": {
+      "applied": "Steuerkarte angewendet",
+      "actions": {
+        "collection": "Sammlung: {{name}}",
+        "preset": "Regelvorlage: {{name}}",
+        "foil": "Foil: {{type}}",
+        "notFoil": "Kein Foil",
+        "set": "Set: {{name}}",
+        "anySet": "Beliebiges Set",
+        "condition": "Zustand: {{condition}}",
+        "autoFeedOn": "Automatischer Einzug an",
+        "autoFeedOff": "Automatischer Einzug aus",
+        "duplicatesOn": "Duplikate erlauben",
+        "duplicatesOff": "Duplikate überspringen",
+        "pause": "Scan pausieren"
+      }
     }
   },
   "home": {
@@ -648,7 +724,6 @@
     "review": "{{count}} prüfen",
     "groupDuplicates": "Duplikate gruppieren",
     "filters": {
-      "title": "Filter",
       "colors": "Farben",
       "rarity": "Seltenheit",
       "foil": "Foil",
@@ -670,7 +745,9 @@
       "copies_other": "{{count}} Exemplare",
       "removeTitle_one": "Diese Karte entfernen?",
       "removeTitle_other": "{{count}} Exemplare entfernen?"
-    }
+    },
+    "viewOptions": "Ansichtsoptionen",
+    "display": "Anzeige"
   },
   "cardDetail": {
     "fallbackTitle": "Kartendetails",
@@ -725,6 +802,24 @@
       "sorter": "Sortierer",
       "deletedSorter": "{{name}} (gelöscht)"
     }
+  },
+  "reviewGrid": {
+    "title": "Karten prüfen",
+    "remaining_one": "Noch {{count}} Karte zu prüfen",
+    "remaining_other": "Noch {{count}} Karten zu prüfen",
+    "layoutGrid": "Raster",
+    "layoutOneByOne": "Einzeln",
+    "acceptAll_one": "{{count}} Karte bestätigen",
+    "acceptAll_other": "Alle {{count}} bestätigen",
+    "accept": "Stimmt",
+    "correct": "Korrigieren",
+    "noPhoto": "Kein Scanfoto",
+    "doneTitle": "Alles geprüft",
+    "doneDescription": "Alle Karten hier wurden geprüft.",
+    "done": "Fertig",
+    "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden. Versuche es erneut.",
+    "acceptFailed_one": "{{count}} Karte konnte nicht bestätigt werden. Versuche es erneut.",
+    "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut."
   },
   "rules": {
     "title": "Sortierregeln",
@@ -1716,6 +1811,7 @@
     "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
     "commandRequired": "Gib einen Befehl ein.",
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
-    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten."
+    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
+    "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
   }
 }

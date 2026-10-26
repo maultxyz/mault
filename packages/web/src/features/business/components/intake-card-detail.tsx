@@ -32,6 +32,7 @@ export function IntakeCardDetail({
   scanId,
   reviewMode,
   onNavigate,
+  onShowReviewGrid,
   onClose,
 }: IntakeCardDetailProps) {
   const { t } = useTranslation("cards");
@@ -150,6 +151,7 @@ export function IntakeCardDetail({
         currentIndex={context.index}
         total={total}
         reviewMode={reviewMode}
+        onShowReviewGrid={onShowReviewGrid}
         onReviewComplete={() => {
           toast.success(t("review.complete", { count: total }));
           onClose();

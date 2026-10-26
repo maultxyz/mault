@@ -4,7 +4,15 @@ import type { UnmatchedCardsPanelProps } from "@/lib/interfaces/scanner";
 import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
 import { UnmatchedCardsGridDialog } from "@/features/scanner/components/unmatched-cards-grid-dialog";
 import type { UnmatchedCard } from "@magic-vault/shared";
-import { IconLayoutGrid, IconPhotoOff, IconX } from "@tabler/icons-react";
+import { usePersistedFlag } from "@/hooks/use-persisted-state";
+import { UNMATCHED_PANEL_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import { cn } from "@/lib/utils";
+import {
+  IconChevronDown,
+  IconLayoutGrid,
+  IconPhotoOff,
+  IconX,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -20,6 +28,11 @@ export function UnmatchedCardsPanel({
   const [gridOpen, setGridOpen] = useState(false);
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
   const unmatchedView = useUnmatchedView();
+  const [storedExpanded, setStoredExpanded] = usePersistedFlag(
+    UNMATCHED_PANEL_EXPANDED_STORAGE_KEY,
+  );
+  const isCollapsible = !isMobile;
+  const expanded = !isCollapsible || storedExpanded;
   if (total === 0 && cards.length === 0) {
     if (gridOpen) setGridOpen(false);
     return null;
@@ -59,59 +72,94 @@ export function UnmatchedCardsPanel({
 
   return (
     <div className="rounded-lg border border-warning-border bg-warning-muted overflow-hidden flex-none">
-      <div className="flex items-center justify-between gap-2 px-2 pt-2">
-        <p className="text-2xs font-medium text-warning-foreground uppercase tracking-wide">
-          {t("unmatchedCardsPanel.heading", {
-            count: Math.max(total, cards.length),
-          })}
-        </p>
-        {total > cards.length && (
-          <p className="text-2xs text-warning-foreground">
-            {t("unmatchedCardsPanel.showingRecent", { count: cards.length })}
-          </p>
+      <div
+        className={cn(
+          "flex items-center gap-2 px-2",
+          expanded ? "pt-2" : "py-1.5",
         )}
-      </div>
-      <div className="flex gap-1.5 p-1.5 overflow-x-auto">
-        {cards.map((entry, index) =>
-          collectionGuid ? (
-            <div key={entry.scanId} className={tileClass}>
-              <button
-                type="button"
-                className="absolute inset-0 cursor-pointer"
-                aria-label={t("unmatchedCardsPanel.openCard")}
-                onClick={() => openBrowser(index)}
-              >
-                {tileContent(entry)}
-              </button>
-              {onRemove && !isMobile && (
-                <Button
-                  size="icon-xs"
-                  variant="destructive"
-                  aria-label={t("unmatchedCardsPanel.remove")}
-                  className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
-                  onClick={() => void onRemove(entry.scanId)}
-                >
-                  <IconX />
-                </Button>
+      >
+        <button
+          type="button"
+          disabled={!isCollapsible}
+          aria-expanded={expanded}
+          onClick={() => setStoredExpanded(!storedExpanded)}
+          className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left disabled:cursor-default"
+        >
+          <span className="text-2xs font-medium text-warning-foreground uppercase tracking-wide">
+            {t("unmatchedCardsPanel.heading", {
+              count: Math.max(total, cards.length),
+            })}
+          </span>
+          {expanded && total > cards.length && (
+            <span className="text-2xs text-warning-foreground">
+              {t("unmatchedCardsPanel.showingRecent", { count: cards.length })}
+            </span>
+          )}
+          {isCollapsible && (
+            <IconChevronDown
+              className={cn(
+                "ml-auto size-4 shrink-0 text-warning-foreground transition-transform",
+                expanded && "rotate-180",
               )}
-            </div>
-          ) : (
-            <div key={entry.scanId} className={tileClass}>
-              {tileContent(entry)}
-            </div>
-          ),
+              aria-label={
+                expanded
+                  ? t("unmatchedCardsPanel.collapse")
+                  : t("unmatchedCardsPanel.expand")
+              }
+            />
+          )}
+        </button>
+        {!expanded && collectionGuid && (
+          <Button size="xs" onClick={() => openBrowser(null)}>
+            {t("unmatchedCardsPanel.viewAllShort")}
+          </Button>
         )}
       </div>
+      {expanded && (
+        <div className="flex gap-1.5 p-1.5 overflow-x-auto">
+          {cards.map((entry, index) =>
+            collectionGuid ? (
+              <div key={entry.scanId} className={tileClass}>
+                <button
+                  type="button"
+                  className="absolute inset-0 cursor-pointer"
+                  aria-label={t("unmatchedCardsPanel.openCard")}
+                  onClick={() => openBrowser(index)}
+                >
+                  {tileContent(entry)}
+                </button>
+                {onRemove && !isMobile && (
+                  <Button
+                    size="icon-xs"
+                    variant="destructive"
+                    aria-label={t("unmatchedCardsPanel.remove")}
+                    className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+                    onClick={() => void onRemove(entry.scanId)}
+                  >
+                    <IconX />
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div key={entry.scanId} className={tileClass}>
+                {tileContent(entry)}
+              </div>
+            ),
+          )}
+        </div>
+      )}
       {collectionGuid && (
         <>
-          <div className="px-1.5 pb-1.5">
-            <Button className="w-full" onClick={() => openBrowser(null)}>
-              <IconLayoutGrid />
-              {t("unmatchedCardsPanel.viewAll", {
-                count: Math.max(total, cards.length),
-              })}
-            </Button>
-          </div>
+          {expanded && (
+            <div className="px-1.5 pb-1.5">
+              <Button className="w-full" onClick={() => openBrowser(null)}>
+                <IconLayoutGrid />
+                {t("unmatchedCardsPanel.viewAll", {
+                  count: Math.max(total, cards.length),
+                })}
+              </Button>
+            </div>
+          )}
           <UnmatchedCardsGridDialog
             open={isMobile && gridOpen}
             onOpenChange={setGridOpen}

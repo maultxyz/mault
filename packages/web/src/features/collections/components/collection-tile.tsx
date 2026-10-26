@@ -27,6 +27,7 @@ import {
   COLLECTION_TILE_SELECTED_CLASS,
   monitorCollectionPath,
 } from "@/lib/constants/collections";
+import { controlCardsPath } from "@/lib/constants/control-cards";
 import type { CollectionTileProps } from "@/lib/interfaces/collections";
 import { cn } from "@/lib/utils";
 import {
@@ -34,6 +35,7 @@ import {
   IconEraser,
   IconHeartRateMonitor,
   IconPlayerPlay,
+  IconQrcode,
   IconTrash,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -173,6 +175,25 @@ export function CollectionTile({
               <TooltipContent>{t("page.setActiveCollection")}</TooltipContent>
             </Tooltip>
           )}
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("page.printControlCard")}
+                  render={
+                    <Link
+                      to={controlCardsPath({ collectionGuid: collection.guid })}
+                    >
+                      <IconQrcode />
+                    </Link>
+                  }
+                />
+              }
+            ></TooltipTrigger>
+            <TooltipContent>{t("page.printControlCard")}</TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger
               render={

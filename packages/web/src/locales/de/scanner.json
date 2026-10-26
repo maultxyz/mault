@@ -266,14 +266,18 @@
     "startTooltip": "Die erste Karte zuführen und den Scan starten",
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
-    "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
-    "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
     "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}",
     "setTooltip": "Set für gescannte Karten: {{set}}",
     "anySet": "Beliebiges Set",
     "setSearchPlaceholder": "Sets suchen",
     "noSets": "Keine Sets gefunden",
-    "setHint": "Gescannte Karten verwenden ihren Druck aus diesem Set, wenn es einen gibt."
+    "setHint": "Gescannte Karten verwenden ihren Druck aus diesem Set, wenn es einen gibt.",
+    "conditionTooltip": "Zustand für gescannte Karten: {{condition}}",
+    "start": "Scan starten",
+    "sessionSummary_one": "{{count}} Karte gescannt · {{time}}",
+    "sessionSummary_other": "{{count}} Karten gescannt · {{time}}",
+    "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
+    "startRemoving": "Entfernen starten"
   },
   "scannerDebug": {
     "heading": "Debug",
@@ -290,7 +294,6 @@
     "cameraFallbackLabel": "Kamera {{index}}",
     "connectUsb": "Über USB verbinden",
     "connectBluetooth": "Über Bluetooth verbinden",
-    "scanner": "Scanner",
     "autoFeed": "Automatische Zufuhr",
     "allowDuplicates": "Duplikate zulassen",
     "scanWithoutSorter": "Ohne Sortierer scannen",
@@ -300,7 +303,15 @@
     "connectAnotherUsb": "Weiteren Sortierer verbinden (USB)",
     "connectAnotherBluetooth": "Weiteren Sortierer verbinden (Bluetooth)",
     "flashNewBoard": "Neue Platine flashen",
-    "connectAnotherUpgrade": "Mehr Sortierer mit Business verbinden"
+    "connectAnotherUpgrade": "Mehr Sortierer mit Business verbinden",
+    "clearDevice": "Gerät leeren",
+    "resetToNeutral": "In Neutralstellung bringen",
+    "sorter": "Sortierer",
+    "connectionStates": {
+      "connected": "Verbunden",
+      "connecting": "Verbindet",
+      "disconnected": "Nicht verbunden"
+    }
   },
   "ocrBetaDialog": {
     "title": "OCR-Texterkennung (Beta)",
@@ -344,7 +355,7 @@
     "initializing": "Scanner wird initialisiert…",
     "identifyingCard": "Karte wird identifiziert…",
     "settling": "Warten, bis die Karte zur Ruhe kommt…",
-    "paused": "Scanner pausiert - drücke Fortsetzen, um weiterzumachen.",
+    "paused": "Scanner pausiert.",
     "duplicate": "Gleiche Karte erneut gescannt - verwende Erneut hinzufügen, um sie trotzdem hinzuzufügen.",
     "noMatch": "Karte nicht erkannt - versuche Erneut scannen oder passe die Beleuchtung an.",
     "faceUpHint": "Karten sollten mit der Vorderseite nach oben liegen",
@@ -419,7 +430,10 @@
     "pageOf": "Seite {{page}} von {{total}}",
     "previousPage": "Vorherige Seite",
     "nextPage": "Nächste Seite",
-    "openCard": "Nicht erkannte Karte öffnen"
+    "openCard": "Nicht erkannte Karte öffnen",
+    "expand": "Nicht erkannte Karten anzeigen",
+    "collapse": "Nicht erkannte Karten ausblenden",
+    "viewAllShort": "Alle ansehen"
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",
@@ -600,7 +614,6 @@
     "cards": "Karten",
     "searchPlaceholder": "Karten suchen",
     "needsReview": "Zu prüfen",
-    "groupDuplicates": "Kopien gruppieren",
     "back": "Zurück zu den Sitzungen",
     "previousPage": "Vorherige Seite",
     "nextPage": "Nächste Seite",
@@ -780,7 +793,8 @@
       "neutral": "Auf neutral zurücksetzen",
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
       "sorterDescription": "Verbindung, Selbsttest und Status"
-    }
+    },
+    "condition": "Zustand"
   },
   "mobileSorter": {
     "title": "Sortierer",
@@ -862,5 +876,105 @@
     "offline": "Offline",
     "inUse": "In Benutzung",
     "connectedHere": "Verbunden"
+  },
+  "scanRemoval": {
+    "title": "Zum Entfernen scannen",
+    "description": "Scanne Karten, um sie zum Entfernen aus {{collection}} vorzumerken. Erst nach deiner Bestätigung wird etwas entfernt.",
+    "exit": "Entfernen beenden",
+    "queuedCount_one": "{{count}} vorgemerkt",
+    "queuedCount_other": "{{count}} vorgemerkt",
+    "noCopyLeft": "Kein Exemplar mehr in dieser Sammlung",
+    "noMatch": "Kein Treffer, versuche es erneut",
+    "lookupFailed": "Exemplare von {{name}} konnten nicht gesucht werden. Scanne die Karte erneut.",
+    "emptyTitle": "Noch nichts vorgemerkt",
+    "emptyDescription": "Scanne eine Karte, um ein Exemplar zum Entfernen vorzumerken.",
+    "changeCopy": "Exemplar ändern",
+    "drop": "Verwerfen",
+    "clear": "Leeren",
+    "removeButton_one": "{{count}} Karte entfernen",
+    "removeButton_other": "{{count}} Karten entfernen",
+    "confirmTitle_one": "{{count}} Karte entfernen?",
+    "confirmTitle_other": "{{count}} Karten entfernen?",
+    "confirmDescription": "Diese Exemplare werden samt Fotos aus {{collection}} gelöscht. Das kann nicht rückgängig gemacht werden.",
+    "removed_one": "{{count}} Karte entfernt",
+    "removed_other": "{{count}} Karten entfernt",
+    "removeFailed": "Die Karten konnten nicht entfernt werden. Versuche es erneut.",
+    "foil": "Foil",
+    "nonFoil": "Nicht-Foil",
+    "storage": "{{name}} #{{position}}",
+    "bin": "Fach {{number}}",
+    "unsorted": "Nicht einsortiert",
+    "modeLabel": "Scanmodus",
+    "addMode": "Karten hinzufügen",
+    "removeMode": "Karten entfernen",
+    "binLabel": "Entfernte Karten kommen in",
+    "binPlaceholder": "Fach wählen",
+    "catchAllBinOption": "Fach {{number}} (Auffangfach)"
+  },
+  "controlCards": {
+    "openPage": "Steuerkarten drucken",
+    "openPageDescription": "QR-Karten, die Scan-Einstellungen ändern, wenn der Sortierer sie liest",
+    "applied": "Steuerkarte angewendet",
+    "rejected": {
+      "title": "Steuerkarte nicht angewendet"
+    },
+    "problems": {
+      "unreadable": "Dieser QR-Code ist keine Steuerkarte, die diese Mault-Version versteht. Der Scan ist pausiert.",
+      "collection-not-found": "Die Sammlung auf dieser Karte existiert nicht mehr. Der Scan ist pausiert.",
+      "preset-not-found": "Die Regelvorlage auf dieser Karte existiert nicht mehr. Der Scan ist pausiert.",
+      "preset-wrong-game": "Die Regelvorlage auf dieser Karte gehört zu einem anderen Spiel als die Sammlung. Der Scan ist pausiert.",
+      "no-collection": "Wähle eine Sammlung, bevor du eine Karte mit Regelvorlage verwendest. Der Scan ist pausiert."
+    },
+    "actions": {
+      "collection": "Sammlung: {{name}}",
+      "preset": "Regelvorlage: {{name}}",
+      "foil": "Foil: {{type}}",
+      "notFoil": "Kein Foil",
+      "set": "Set: {{name}}",
+      "anySet": "Beliebiges Set",
+      "condition": "Zustand: {{condition}}",
+      "autoFeedOn": "Automatischer Einzug an",
+      "autoFeedOff": "Automatischer Einzug aus",
+      "duplicatesOn": "Duplikate erlauben",
+      "duplicatesOff": "Duplikate überspringen",
+      "pause": "Scan pausieren"
+    },
+    "form": {
+      "title": "Neue Steuerkarte",
+      "description": "Wähle, was die Karte ändert. Alles auf Keine Änderung bleibt, wie es ist.",
+      "cardTitle": "Beschriftung",
+      "cardTitlePlaceholder": "Zum Beispiel: Tauschordner, LP",
+      "collection": "Sammlung",
+      "preset": "Regelvorlage",
+      "foil": "Foil-Art",
+      "set": "Set",
+      "condition": "Zustand",
+      "autoFeed": "Automatischer Einzug",
+      "allowDuplicates": "Duplikate erlauben",
+      "pauseScanner": "Scan nach dieser Karte pausieren",
+      "add": "Zum Bogen hinzufügen",
+      "unchanged": "Keine Änderung",
+      "toggle": {
+        "unchanged": "Keine Änderung",
+        "on": "An",
+        "off": "Aus"
+      }
+    },
+    "sheet": {
+      "emptyTitle": "Noch keine Steuerkarten",
+      "emptyDescription": "Hinzugefügte Karten erscheinen hier in echter Kartengröße und sind bereit zum Drucken."
+    },
+    "tile": {
+      "defaultTitle": "Steuerkarte",
+      "qrAlt": "QR-Code der Steuerkarte",
+      "remove": "Karte entfernen"
+    },
+    "page": {
+      "back": "Zurück zum Scanner",
+      "title": "Steuerkarten",
+      "description": "Lass eine dieser Karten durch den Sortierer laufen, um Einstellungen während des Laufs zu ändern. Sie landet dort, wo nicht erkannte Karten landen, und wird nie in einer Sammlung gespeichert.",
+      "print": "Drucken",
+      "printTip": "Drucke auf Karton mit 100 % Skalierung und Rändern auf Standard. Auf jede Seite passen 9 Karten. Schneide entlang der Ränder und halte den QR-Code flach und frei von Spiegelungen."
+    }
   }
 }

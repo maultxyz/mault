@@ -137,21 +137,25 @@
     "gridView": "Grid view",
     "listView": "List view",
     "groupDuplicates": "Group duplicates",
-    "sessionSummaryExport": "Session summary & export",
     "deleteScannedCardsTitle": "Delete Scanned Cards",
     "deleteScannedCardsDescription": "This will permanently delete all cards from your collection. This action cannot be undone.",
     "clearing": "Clearing...",
     "clearAll": "Clear All",
-    "clearAllCardsTitle": "Clear all cards",
-    "density": "Card size: {{density}}",
     "densities": {
       "compact": "compact",
       "comfortable": "comfortable",
       "large": "large"
     },
-    "review": "Review",
     "export": "Export",
-    "reviewCards": "Review cards one by one (R)"
+    "reviewCards": "Review cards one by one (R)",
+    "sortHeading": "Sort",
+    "filterHeading": "Filter",
+    "done": "Done",
+    "viewOptions": "View options",
+    "displayHeading": "Display",
+    "cardSize": "Card size",
+    "moreActions": "More actions",
+    "reviewCount": "Review {{count}}"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
@@ -321,6 +325,27 @@
     "complete_other": "Review complete: {{count}} cards checked",
     "nothingLeft": "Nothing left to review. Every card here has already been reviewed.",
     "startFailed": "Couldn't start the review. Try again."
+  },
+  "reviewGrid": {
+    "title": "Review cards",
+    "remaining_one": "{{count}} card left to review",
+    "remaining_other": "{{count}} cards left to review",
+    "layoutGrid": "Grid",
+    "layoutOneByOne": "One by one",
+    "acceptAll_one": "Accept {{count}} card",
+    "acceptAll_other": "Accept all {{count}}",
+    "accept": "Looks right",
+    "correct": "Correct",
+    "close": "Close review",
+    "noPhoto": "No scan photo",
+    "correctTitle": "Correct {{name}}",
+    "doneTitle": "All reviewed",
+    "doneDescription": "Every card here has been checked.",
+    "done": "Done",
+    "loadFailed": "Couldn't load the cards to review. Try again.",
+    "acceptFailed_one": "Couldn't accept {{count}} card. Try again.",
+    "acceptFailed_other": "Couldn't accept {{count}} cards. Try again.",
+    "correctFailed": "Couldn't save the correction. Try again."
   },
   "removeDialog": {
     "title": "Remove {{name}}?",

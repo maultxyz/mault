@@ -45,7 +45,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^26",
     "@types/pg": "^8.15.6",
     "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.31.9",
