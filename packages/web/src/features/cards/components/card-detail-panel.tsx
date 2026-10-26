@@ -642,7 +642,7 @@ export function CardDetailPanel({
                             <Select
                               value={currentLanguage}
                               onValueChange={(value) => {
-                                if (scanId) scanDraft.setLanguage(value);
+                                if (scanId && value) scanDraft.setLanguage(value);
                               }}
                               disabled={!scanId}
                               onOpenChangeComplete={(open) => {
