@@ -16,6 +16,7 @@ import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
 import {
   useCardGridDensity,
   useCardViewPreferences,
+  useReviewLayout,
 } from "@/features/cards/api/use-card-view-preferences";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
@@ -27,6 +28,7 @@ import { ExportedCardsDialog } from "@/features/cards/components/exported-cards-
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
+import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
@@ -73,7 +75,11 @@ import {
   IconRosette,
   IconSparkles,
 } from "@tabler/icons-react";
-import { CARD_CONDITIONS, computeBinCount } from "@magic-vault/shared";
+import {
+  CARD_CONDITIONS,
+  computeBinCount,
+  toReviewGridCard,
+} from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -86,7 +92,10 @@ import {
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { toast } from "@/lib/toast";
-import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
+import {
+  CARD_REVIEW_GRID_PARAM_VALUE,
+  CARD_REVIEW_SEARCH_PARAM,
+} from "@/lib/constants/cards";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 
 export function CardGrid() {
@@ -101,6 +110,7 @@ export function CardGrid() {
     removeCard,
     removeCards,
     clearCards,
+    correctCard,
     setCardsCondition,
     setCardsFoilType,
     elapsedMs,
@@ -145,25 +155,36 @@ export function CardGrid() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { scanId: openScanId } = useParams<{ scanId?: string }>();
   const [searchParams] = useSearchParams();
-  const isReviewing = searchParams.get(CARD_REVIEW_SEARCH_PARAM) === "1";
+  const reviewParam = searchParams.get(CARD_REVIEW_SEARCH_PARAM);
+  const isReviewing = reviewParam === "1";
+  const isGridReviewing =
+    !readOnly && !openScanId && reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const [reviewLayout, setReviewLayout] = useReviewLayout();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const basePath =
+    readOnly && viewedCollection
+      ? collectionViewPath(viewedCollection.guid)
+      : "/app";
   const setOpenScanId = useCallback(
     (scanId: string | null, { inReviewMode = false }: OpenScanOptions = {}) => {
       const reviewSuffix = inReviewMode
         ? `?${CARD_REVIEW_SEARCH_PARAM}=1`
         : "";
-      const basePath =
-        readOnly && viewedCollection
-          ? collectionViewPath(viewedCollection.guid)
-          : "/app";
       navigate(
         scanId ? `${basePath}/cards/${scanId}${reviewSuffix}` : basePath,
         { replace: true },
       );
     },
-    [navigate, readOnly, viewedCollection],
+    [navigate, basePath],
   );
+  const openReviewGrid = useCallback(() => {
+    setReviewLayout("grid");
+    navigate(
+      `${basePath}?${CARD_REVIEW_SEARCH_PARAM}=${CARD_REVIEW_GRID_PARAM_VALUE}`,
+      { replace: true },
+    );
+  }, [navigate, basePath, setReviewLayout]);
   const [page, setPage] = useState(0);
   const {
     viewMode,
@@ -193,6 +214,24 @@ export function CardGrid() {
     enabled: !readOnly && !!collectionGuid,
   });
   const reviewSession = useReviewSession(openScanId, isReviewing);
+  const reviewGridQuery = useMemo(
+    () => ({ ...reviewQuery, grouped: false }),
+    [reviewQuery],
+  );
+  const reviewGridPage = useQuery({
+    ...collectionCardsPageQueryOptions(collectionGuid, reviewGridQuery, 0),
+    enabled: isGridReviewing && !!collectionGuid,
+    placeholderData: undefined,
+  });
+  const reviewGridCards = useMemo(
+    () =>
+      collectionGuid
+        ? (reviewGridPage.data?.items ?? []).map((entry) =>
+            toReviewGridCard(collectionGuid, entry),
+          )
+        : [],
+    [collectionGuid, reviewGridPage.data],
+  );
 
   useEffect(() => {
     setPage(0);
@@ -247,7 +286,7 @@ export function CardGrid() {
     loadPrefetchStep,
   );
 
-  const startReview = useCallback(async () => {
+  const startOneByOneReview = useCallback(async () => {
     if (!collectionGuid) return;
     try {
       const firstPage = await queryClient.fetchQuery(
@@ -265,6 +304,11 @@ export function CardGrid() {
     }
   }, [collectionGuid, queryClient, reviewQuery, setOpenScanId, t]);
 
+  const startReview = useCallback(() => {
+    if (reviewLayout === "grid") openReviewGrid();
+    else void startOneByOneReview();
+  }, [reviewLayout, openReviewGrid, startOneByOneReview]);
+
   const finishReview = useCallback(
     (count: number) => {
       setOpenScanId(null);
@@ -276,8 +320,8 @@ export function CardGrid() {
 
   useHotkeys({
     reviewStart:
-      !readOnly && !openScanId && totalCards > 0
-        ? () => void startReview()
+      !readOnly && !openScanId && !isGridReviewing && totalCards > 0
+        ? startReview
         : undefined,
     clearSelection:
       selectedIds.size > 0 ? () => setSelectedIds(new Set()) : undefined,
@@ -561,6 +605,26 @@ export function CardGrid() {
     );
   }
 
+  if (isGridReviewing) {
+    return (
+      <ReviewGrid
+        cards={reviewGridCards}
+        total={reviewGridPage.data?.totalCards ?? 0}
+        isLoading={reviewGridPage.isPending}
+        isError={reviewGridPage.isError}
+        onOpenOneByOne={(card) => {
+          setReviewLayout("single");
+          setReviewTotal(reviewGridPage.data?.totalCards ?? null);
+          setOpenScanId(card.scanId, { inReviewMode: true });
+        }}
+        onClose={() => setOpenScanId(null)}
+        onCorrect={(card, correctedCard) =>
+          correctCard(card.scanId, correctedCard)
+        }
+      />
+    );
+  }
+
   if (openScanId && !openEntry && openPositionPending) {
     return <CardDetailPanelSkeleton />;
   }
@@ -620,6 +684,7 @@ export function CardGrid() {
         copyCount={openPosition?.copyCount ?? 1}
         reviewMode={isReviewing}
         onReviewComplete={() => finishReview(openPosition?.total ?? 0)}
+        onShowReviewGrid={openReviewGrid}
       />
     );
     if (!readOnly) return detailPanel;
@@ -643,7 +708,7 @@ export function CardGrid() {
           onSortChange={setSortKey}
           sortableFields={sortableFields}
           onExport={() => setSummaryOpen(true)}
-          onStartReview={readOnly ? undefined : () => void startReview()}
+          onStartReview={readOnly ? undefined : startReview}
           needsReviewCount={reviewSummary?.filtered.totalCount ?? 0}
           onAddCard={() => setAddCardOpen(true)}
           collectionName={viewedCollection?.name}

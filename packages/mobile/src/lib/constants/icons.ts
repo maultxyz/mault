@@ -1,4 +1,5 @@
 import IconAdjustments from "@tabler/icons-react-native/IconAdjustments";
+import IconPhotoOff from "@tabler/icons-react-native/IconPhotoOff";
 import IconAlbum from "@tabler/icons-react-native/IconAlbum";
 import IconAlertCircle from "@tabler/icons-react-native/IconAlertCircle";
 import IconAlertTriangle from "@tabler/icons-react-native/IconAlertTriangle";
@@ -83,6 +84,7 @@ export const ICONS = {
   discord: IconBrandDiscord,
   camera: IconCamera,
   check: IconCheck,
+  checkAll: IconChecks,
   chevron: IconChevronRight,
   close: IconCircleX,
   collections: IconAlbum,
@@ -100,6 +102,7 @@ export const ICONS = {
   more: IconDots,
   edit: IconPencil,
   pause: IconPlayerPause,
+  photoOff: IconPhotoOff,
   play: IconPlayerPlay,
   plus: IconPlus,
   refresh: IconRefresh,

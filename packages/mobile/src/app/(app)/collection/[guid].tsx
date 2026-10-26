@@ -59,6 +59,7 @@ import {
 import { WEB_URL } from "@/lib/constants/config";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CollectionTab } from "@/lib/interfaces/collections";
+import { readReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CollectionScreen() {
@@ -219,10 +220,12 @@ export default function CollectionScreen() {
             icon="check"
             label={t("collection.review", { count: reviewQueue.data.total })}
             onPress={() =>
-              router.push({
-                pathname: "/card/[scanId]",
-                params: { scanId: reviewQueue.data?.firstScanId ?? "", guid, review: "1" },
-              })
+              readReviewLayout() === "grid"
+                ? router.push({ pathname: "/review-grid", params: { guid } })
+                : router.push({
+                    pathname: "/card/[scanId]",
+                    params: { scanId: reviewQueue.data?.firstScanId ?? "", guid, review: "1" },
+                  })
             }
           />
         ) : null}

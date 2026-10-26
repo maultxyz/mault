@@ -38,6 +38,7 @@ import {
   findIntakeLot,
   findNextUnreviewedLotCard,
   loadIntakeCardContext,
+  loadUnreviewedLotCards,
   retireIntakeCollection,
   loadIntakeLotCards,
   selectIntakeLots,
@@ -270,6 +271,13 @@ export const intakeRoute = new Hono<AppEnv>()
       const row = await findIntakeLot(tx, c.get("orgId"), c.req.param("guid"));
       if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
       return { success: true, data: await findNextUnreviewedLotCard(tx, row.id) };
+    }),
+  )
+  .get("/intake/:guid/cards/unreviewed", requireAuth, requireOrg, (c) =>
+    businessQuery(c, async (tx) => {
+      const row = await findIntakeLot(tx, c.get("orgId"), c.req.param("guid"));
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
+      return { success: true, data: await loadUnreviewedLotCards(tx, row.id) };
     }),
   )
   .get("/intake/:guid/cards/:scanId/context", requireAuth, requireOrg, (c) => {

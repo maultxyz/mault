@@ -24,6 +24,7 @@ export function MobileCardDetailDrawer({
   reviewMode = false,
   onNavigate,
   onReviewComplete,
+  onShowReviewGrid,
   onClose,
 }: MobileCardDetailDrawerProps) {
   const [shownScanId, setShownScanId] = useState(scanId);
@@ -47,6 +48,7 @@ export function MobileCardDetailDrawer({
             reviewSession={reviewSession}
             onNavigate={onNavigate}
             onReviewComplete={onReviewComplete}
+            onShowReviewGrid={onShowReviewGrid}
             onClose={onClose}
           />
         )}
@@ -62,6 +64,7 @@ function MobileCardDetailBody({
   reviewSession,
   onNavigate,
   onReviewComplete,
+  onShowReviewGrid,
   onClose,
 }: MobileCardDetailBodyProps) {
   const { t } = useTranslation("cards");
@@ -142,6 +145,7 @@ function MobileCardDetailBody({
         copyCount={position?.copyCount ?? 1}
         reviewMode={reviewMode}
         onReviewComplete={() => onReviewComplete(position?.total ?? 0)}
+        onShowReviewGrid={onShowReviewGrid}
       />
     </div>
   );

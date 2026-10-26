@@ -549,6 +549,7 @@ export interface MobileCardDetailDrawerProps {
   reviewMode?: boolean;
   onNavigate: (scanId: string | null) => void;
   onReviewComplete: (count: number) => void;
+  onShowReviewGrid?: () => void;
   onClose: () => void;
 }
 
@@ -559,6 +560,7 @@ export interface MobileCardDetailBodyProps {
   reviewSession: ReviewSession;
   onNavigate: (scanId: string | null) => void;
   onReviewComplete: (count: number) => void;
+  onShowReviewGrid?: () => void;
   onClose: () => void;
 }
 

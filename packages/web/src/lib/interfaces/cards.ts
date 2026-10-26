@@ -10,6 +10,7 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
 import type { ReactNode } from "react";
@@ -373,8 +374,33 @@ export interface CardDetailPanelProps {
   storageLocation?: CardStorageLocation;
   reviewMode?: boolean;
   onReviewComplete?: () => void;
+  onShowReviewGrid?: () => void;
   footerActions?: ReactNode;
   onRemoveShortcut?: () => void;
+}
+
+export type ReviewLayout = "grid" | "single";
+
+export interface ReviewGridProps {
+  cards: ReviewGridCard[];
+  total: number;
+  isLoading: boolean;
+  isError: boolean;
+  onOpenOneByOne: (card: ReviewGridCard) => void;
+  onClose: () => void;
+  onCorrect?: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
+}
+
+export interface ReviewGridTileProps {
+  card: ReviewGridCard;
+  onAccept: () => void;
+  onCorrect: () => void;
+}
+
+export interface ReviewGridCorrectionDialogProps {
+  card: ReviewGridCard | null;
+  onSelect: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
+  onClose: () => void;
 }
 
 export interface CardFilterFieldsProps {

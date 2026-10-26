@@ -49,6 +49,7 @@ import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CardDetailScreen() {
@@ -188,6 +189,11 @@ export default function CardDetailScreen() {
     await goToNextInReview();
   };
 
+  const showReviewGrid = () => {
+    saveReviewLayout("grid");
+    router.replace({ pathname: "/review-grid", params: storageReview ? { storage: storageGuid } : { guid } });
+  };
+
   const confirmRemove = () =>
     Alert.alert(t("cardDetail.removeConfirmTitle"), t("cardDetail.removeConfirmDescription"), [
       { text: t("cardDetail.cancel"), style: "cancel" },
@@ -222,7 +228,12 @@ export default function CardDetailScreen() {
         onBack={editing ? () => setEditing(false) : () => router.back()}
         actions={
           !editing && entry ? (
-            <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              {reviewMode ? (
+                <IconButton icon="layout" accessibilityLabel={t("reviewGrid.layoutGrid")} onPress={showReviewGrid} />
+              ) : null}
+              <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+            </View>
           ) : null
         }
       />

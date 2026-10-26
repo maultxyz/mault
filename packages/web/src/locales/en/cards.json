@@ -326,6 +326,27 @@
     "nothingLeft": "Nothing left to review. Every card here has already been reviewed.",
     "startFailed": "Couldn't start the review. Try again."
   },
+  "reviewGrid": {
+    "title": "Review cards",
+    "remaining_one": "{{count}} card left to review",
+    "remaining_other": "{{count}} cards left to review",
+    "layoutGrid": "Grid",
+    "layoutOneByOne": "One by one",
+    "acceptAll_one": "Accept {{count}} card",
+    "acceptAll_other": "Accept all {{count}}",
+    "accept": "Looks right",
+    "correct": "Correct",
+    "close": "Close review",
+    "noPhoto": "No scan photo",
+    "correctTitle": "Correct {{name}}",
+    "doneTitle": "All reviewed",
+    "doneDescription": "Every card here has been checked.",
+    "done": "Done",
+    "loadFailed": "Couldn't load the cards to review. Try again.",
+    "acceptFailed_one": "Couldn't accept {{count}} card. Try again.",
+    "acceptFailed_other": "Couldn't accept {{count}} cards. Try again.",
+    "correctFailed": "Couldn't save the correction. Try again."
+  },
   "removeDialog": {
     "title": "Remove {{name}}?",
     "description": "This deletes the scan from the collection, including its photo. It can't be undone."

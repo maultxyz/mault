@@ -326,6 +326,27 @@
     "nothingLeft": "Nichts mehr zu prüfen. Alle Karten hier wurden bereits geprüft.",
     "startFailed": "Die Prüfung konnte nicht gestartet werden. Versuche es erneut."
   },
+  "reviewGrid": {
+    "title": "Karten prüfen",
+    "remaining_one": "Noch {{count}} Karte zu prüfen",
+    "remaining_other": "Noch {{count}} Karten zu prüfen",
+    "layoutGrid": "Raster",
+    "layoutOneByOne": "Einzeln",
+    "acceptAll_one": "{{count}} Karte bestätigen",
+    "acceptAll_other": "Alle {{count}} bestätigen",
+    "accept": "Stimmt",
+    "correct": "Korrigieren",
+    "close": "Prüfung schließen",
+    "noPhoto": "Kein Scanfoto",
+    "correctTitle": "{{name}} korrigieren",
+    "doneTitle": "Alles geprüft",
+    "doneDescription": "Alle Karten hier wurden geprüft.",
+    "done": "Fertig",
+    "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden. Versuche es erneut.",
+    "acceptFailed_one": "{{count}} Karte konnte nicht bestätigt werden. Versuche es erneut.",
+    "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut.",
+    "correctFailed": "Die Korrektur konnte nicht gespeichert werden. Versuche es erneut."
+  },
   "removeDialog": {
     "title": "{{name}} entfernen?",
     "description": "Der Scan wird samt Foto aus der Sammlung gelöscht. Das kann nicht rückgängig gemacht werden."
