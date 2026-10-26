@@ -65,6 +65,8 @@ export interface PriceHeadline {
   label: string;
   price: number | null;
   foilPrice: number | null;
+  priceAtScan?: number | null;
+  foilPriceAtScan?: number | null;
   format: (value: number) => string;
 }
 

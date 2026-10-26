@@ -32,6 +32,7 @@
     "tcgplayerMarket": "TCGplayer Marktpreis",
     "cardmarketAvg": "Cardmarket Durchschnitt",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "Beim Scan {{price}}",
     "nonFoilPrice": "Nicht-Foil {{price}}",
     "avg30": "30-Tage-Schnitt",
     "market": "Markt",

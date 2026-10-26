@@ -1685,6 +1685,7 @@
     "tcgplayerMarket": "Prix du marché TCGplayer",
     "cardmarketAvg": "Moyenne Cardmarket",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "Au scan {{price}}",
     "nonFoilPrice": "Non foil {{price}}",
     "avg30": "Moy. 30 jours",
     "market": "Marché",
