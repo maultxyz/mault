@@ -2,12 +2,18 @@ import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
+import { CardSearchLanguageSelect } from "@/features/cards/components/card-search-language-select";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import type { CardSearchPickerProps } from "@/lib/interfaces/cards";
 import { IconLoader2, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  CARD_SEARCH_ALL_LANGUAGES,
+  cardSearchResultKey,
+  cardSearchResultLabel,
+} from "@magic-vault/shared";
 
 export function CardSearchPicker({
   collectionGuid,
@@ -17,22 +23,33 @@ export function CardSearchPicker({
 }: CardSearchPickerProps) {
   const { t } = useTranslation("cards");
   const [query, setQuery] = useState(initialQuery);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(
+    CARD_SEARCH_ALL_LANGUAGES,
+  );
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const { results, loading, hasMore, isLoadingMore, loadMore } = useCardSearch(
     debouncedQuery,
     collectionGuid,
+    undefined,
+    selectedLanguage,
   );
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="relative">
-        <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
-        <Input
-          type="search"
-          placeholder={t("cardPicker.searchPlaceholder")}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-8"
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
+          <Input
+            type="search"
+            placeholder={t("cardPicker.searchPlaceholder")}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+        <CardSearchLanguageSelect
+          value={selectedLanguage}
+          onChange={setSelectedLanguage}
         />
       </div>
       <div
@@ -53,7 +70,7 @@ export function CardSearchPicker({
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {results.map((result) => (
               <button
-                key={result.id}
+                key={cardSearchResultKey(result)}
                 type="button"
                 disabled={disabled}
                 onClick={() => onSelect(result)}
@@ -70,7 +87,7 @@ export function CardSearchPicker({
                   <div className="h-full w-full bg-muted" />
                 )}
                 <span className="absolute inset-x-0 bottom-0 truncate bg-black/70 px-1 py-0.5 text-center text-2xs leading-tight text-white">
-                  {result.set.toUpperCase()} #{result.collectorNumber}
+                  {cardSearchResultLabel(result)}
                 </span>
               </button>
             ))}

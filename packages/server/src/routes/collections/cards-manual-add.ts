@@ -1,7 +1,8 @@
-import type {
-  AddManualCardRequest,
-  PlayingCardWithDistance,
-  ScannedCard,
+import {
+  pickedCardLanguage,
+  type AddManualCardRequest,
+  type PlayingCardWithDistance,
+  type ScannedCard,
 } from "@magic-vault/shared";
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
@@ -47,6 +48,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
       distance: 0,
       confidence: 1,
     };
+    const language = pickedCardLanguage(added);
     const scanId = randomUUID();
 
     const outcome = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -91,6 +93,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
         card: added,
         scannedAt,
         isFoil: false,
+        language,
         isReviewed: true,
         scannedByUserId: userId,
         intakeLotId: await findOpenIntakeLotId(tx, collection.id),
@@ -122,6 +125,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
           scannedAt,
           binNumber: null,
           isFoil: false,
+          language,
           isReviewed: true,
         }),
       };

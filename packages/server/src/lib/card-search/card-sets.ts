@@ -11,16 +11,24 @@ async function loadCardSets({
   adapter,
   gameKey,
   lang,
+  searchAllLanguages,
+  onlyLanguage,
 }: ResolvedCardSearch): Promise<CardSetOption[]> {
+  const languageMatch = onlyLanguage
+    ? sql`AND lang = ${onlyLanguage}`
+    : searchAllLanguages
+      ? sql``
+      : sql`AND lang = ${lang}`;
   const result = await db.execute(sql`
     SELECT DISTINCT ON (set_code)
       set_code,
       card_id,
+      lang,
       data,
       count(*) OVER (PARTITION BY set_code) AS card_count
     FROM cards
-    WHERE game_key = ${gameKey} AND lang = ${lang} AND data IS NOT NULL
-    ORDER BY set_code, card_id
+    WHERE game_key = ${gameKey} ${languageMatch} AND data IS NOT NULL
+    ORDER BY set_code, (lang = ${lang}) DESC, card_id
   `);
   return result.rows
     .map((row) => {
@@ -28,7 +36,7 @@ async function loadCardSets({
       const card = adapter.normalizeStored(
         row.data,
         row.card_id as string,
-        lang,
+        row.lang as string,
       );
       return {
         code,
@@ -67,7 +75,9 @@ export async function listSetPrintings(
 export async function listCardSets(
   resolved: ResolvedCardSearch,
 ): Promise<CardSetOption[]> {
-  const key = `${resolved.gameKey}:${resolved.lang}`;
+  const languageKey =
+    resolved.onlyLanguage ?? (resolved.searchAllLanguages ? "*" : resolved.lang);
+  const key = `${resolved.gameKey}:${languageKey}`;
   const cached = cache.get(key);
   if (cached && cached.expiresAt > Date.now()) return cached.sets;
 

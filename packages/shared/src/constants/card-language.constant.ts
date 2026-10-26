@@ -13,3 +13,5 @@ export const CARD_LANGUAGES = [
 ] as const;
 
 export const DEFAULT_CARD_LANGUAGE = "en";
+
+export const CARD_SEARCH_ALL_LANGUAGES = "all";
