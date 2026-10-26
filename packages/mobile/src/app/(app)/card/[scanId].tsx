@@ -71,6 +71,7 @@ export default function CardDetailScreen() {
   const storageCards = useQuery({ ...storageLocationCardsQueryOptions(storageGuid ?? ""), enabled: storageReview });
   const image = useQuery(scanImageQueryOptions(guid, scanId));
   const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
+  const hasScanOrigin = !!origin.data && (!!origin.data.scannedBy || !!origin.data.device);
   const storage = useQuery(cardStorageLocationQueryOptions(guid, scanId));
   const collections = useQuery(collectionsQueryOptions(useActiveOrgId()));
   const correction = useCardCorrection(guid);
@@ -330,60 +331,26 @@ export default function CardDetailScreen() {
               </View>
             ) : null}
 
-            {entry ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.thisScan")} />
-                <ListGroup>
-                  <ListRow
-                    icon="sparkles"
-                    title={t("cardDetail.foil")}
-                    value={draftFoil ?? t("cardDetail.foilNone")}
-                    onPress={() => setSheet("foil")}
-                  />
-                  <ListRow
-                    icon="condition"
-                    title={t("cardDetail.condition")}
-                    value={t(`cardDetail.conditions.${draftCondition}`)}
-                    onPress={() => setSheet("condition")}
-                  />
-                </ListGroup>
-                {entry.binNumber != null ? (
-                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
-                    <AppText size="sm" weight="medium" tone="secondary">
-                      {t("cardDetail.binLocation")}
-                    </AppText>
-                    <BinLocationDiagram binNumber={entry.binNumber} />
-                  </View>
-                ) : null}
-              </View>
-            ) : null}
-
-            {origin.data && (origin.data.scannedBy || origin.data.device) ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.scanOrigin.heading")} />
-                <ListGroup>
-                  {origin.data.scannedBy ? (
-                    <ListRow icon="account" title={t("cardDetail.scanOrigin.scannedBy")} value={origin.data.scannedBy.name} />
-                  ) : null}
-                  {origin.data.device ? (
-                    <ListRow
-                      icon="sorter"
-                      title={t("cardDetail.scanOrigin.sorter")}
-                      value={
-                        origin.data.device.isDeleted
-                          ? t("cardDetail.scanOrigin.deletedSorter", { name: origin.data.device.name })
-                          : origin.data.device.name
-                      }
-                    />
-                  ) : null}
-                </ListGroup>
-              </View>
-            ) : null}
-
             {card ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.details")} />
                 <CardDetailsList card={card} binNumber={entry?.binNumber} />
+                {entry ? (
+                  <ListGroup>
+                    <ListRow
+                      icon="sparkles"
+                      title={t("cardDetail.foil")}
+                      value={draftFoil ?? t("cardDetail.foilNone")}
+                      onPress={() => setSheet("foil")}
+                    />
+                    <ListRow
+                      icon="condition"
+                      title={t("cardDetail.condition")}
+                      value={t(`cardDetail.conditions.${draftCondition}`)}
+                      onPress={() => setSheet("condition")}
+                    />
+                  </ListGroup>
+                ) : null}
                 {storage.data ? (
                   <Pressable
                     accessibilityRole="link"
@@ -402,6 +369,38 @@ export default function CardDetailScreen() {
                 <Skeleton height={16} width="60%" />
                 <Skeleton height={16} width="45%" />
                 <Skeleton height={16} width="55%" />
+              </View>
+            ) : null}
+
+            {hasScanOrigin || entry?.binNumber != null ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("cardDetail.thisScan")} />
+                {origin.data && hasScanOrigin ? (
+                  <ListGroup>
+                    {origin.data.scannedBy ? (
+                      <ListRow icon="account" title={t("cardDetail.scanOrigin.scannedBy")} value={origin.data.scannedBy.name} />
+                    ) : null}
+                    {origin.data.device ? (
+                      <ListRow
+                        icon="sorter"
+                        title={t("cardDetail.scanOrigin.sorter")}
+                        value={
+                          origin.data.device.isDeleted
+                            ? t("cardDetail.scanOrigin.deletedSorter", { name: origin.data.device.name })
+                            : origin.data.device.name
+                        }
+                      />
+                    ) : null}
+                  </ListGroup>
+                ) : null}
+                {entry?.binNumber != null ? (
+                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
+                    <AppText size="sm" weight="medium" tone="secondary">
+                      {t("cardDetail.binLocation")}
+                    </AppText>
+                    <BinLocationDiagram binNumber={entry.binNumber} />
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </>

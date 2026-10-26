@@ -1,5 +1,4 @@
 import { usePriceSource } from "@/hooks/use-price-source";
-import { CARD_PRICE_TABLES_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { formatEur, formatUsd } from "@/lib/format";
 import type {
   CardPriceDetailsProps,
@@ -11,22 +10,6 @@ import { cn } from "@/lib/utils";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-function readTablesOpen(): boolean {
-  try {
-    return localStorage.getItem(CARD_PRICE_TABLES_STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-function writeTablesOpen(open: boolean): void {
-  try {
-    localStorage.setItem(CARD_PRICE_TABLES_STORAGE_KEY, String(open));
-  } catch {
-    return;
-  }
-}
 
 function PriceTable({
   heading,
@@ -134,14 +117,9 @@ export function CardPriceDetails({
 }: CardPriceDetailsProps) {
   const { t } = useTranslation("cards");
   const { source } = usePriceSource();
-  const [tablesOpen, setTablesOpen] = useState(readTablesOpen);
+  const [tablesOpen, setTablesOpen] = useState(false);
 
-  const toggleTables = () => {
-    setTablesOpen((open) => {
-      writeTablesOpen(!open);
-      return !open;
-    });
-  };
+  const toggleTables = () => setTablesOpen((open) => !open);
 
   const sections: PriceSourceSection[] = [
     {

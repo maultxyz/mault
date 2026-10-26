@@ -28,7 +28,7 @@ import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
-import { CardScanOriginSection } from "@/features/cards/components/card-scan-origin-section";
+import { CardScanOriginList } from "@/features/cards/components/card-scan-origin-list";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
@@ -65,6 +65,8 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
+import { cardScanOriginQueryOptions } from "@/features/collections/api/collections";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type {
@@ -127,6 +129,12 @@ export function CardDetailPanel({
     !!scanId && (lowConfidenceMatch || !!alternativeMatches?.length) && !wasCorrected;
   const collection = useCardDetailCollection();
   const foilOptions = useFoilOptions();
+  const { data: scanOrigin } = useQuery({
+    ...cardScanOriginQueryOptions(collection?.guid, scanId ?? ""),
+    enabled: !!collection?.guid && !!scanId,
+  });
+  const hasScanOrigin =
+    !!scanId && !!scanOrigin && (!!scanOrigin.scannedBy || !!scanOrigin.device);
   const scanDraft = useScanDraft({
     scanId,
     savedFoilType: foilType ?? (isFoil ? t("foil") : null),
@@ -533,7 +541,91 @@ export function CardDetailPanel({
                     </DetailSection>
 
                     <DetailSection title={t("cardDetailPanel.details")}>
-                      <CardDetailsList card={selectedCard} />
+                      <div className="flex flex-col gap-4">
+                        <CardDetailsList card={selectedCard} />
+                        {selectedCard.text && (
+                          <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
+                            {selectedCard.text}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-6 items-start">
+                          <div className="flex flex-col gap-1.5">
+                            <Label>{t("foil")}</Label>
+                            <Select
+                              value={currentFoilType ?? "none"}
+                              onValueChange={(value) => {
+                                if (scanId) {
+                                  scanDraft.setFoilType(
+                                    value === "none" ? null : value,
+                                  );
+                                }
+                              }}
+                              disabled={!scanId}
+                              onOpenChangeComplete={(open) => {
+                                if (!open) foilTriggerRef.current?.blur();
+                              }}
+                            >
+                              <SelectTrigger
+                                ref={foilTriggerRef}
+                                className="w-40"
+                              >
+                                <SelectValue placeholder={t("foilNone")} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">
+                                  {t("foilNone")}
+                                </SelectItem>
+                                {foilOptions.map((type) => (
+                                  <SelectItem key={type} value={type}>
+                                    {type}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <Label>{t("condition.label")}</Label>
+                            <Select
+                              value={currentCondition}
+                              onValueChange={(value) => {
+                                if (scanId && isCardCondition(value)) {
+                                  scanDraft.setCondition(value);
+                                }
+                              }}
+                              disabled={!scanId}
+                              onOpenChangeComplete={(open) => {
+                                if (!open) conditionTriggerRef.current?.blur();
+                              }}
+                            >
+                              <SelectTrigger
+                                ref={conditionTriggerRef}
+                                className="w-40"
+                              >
+                                <SelectValue>
+                                  {t(`condition.names.${currentCondition}`)}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {CARD_CONDITIONS.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {t(`condition.names.${option}`)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {conditionPrice != null &&
+                              currentCondition !== DEFAULT_CARD_CONDITION && (
+                                <p className="text-2xs text-foreground/70">
+                                  {t("condition.priceHint", {
+                                    price: format(conditionPrice),
+                                    percent:
+                                      conditionMultipliers[currentCondition],
+                                  })}
+                                </p>
+                              )}
+                          </div>
+                        </div>
+                      </div>
                     </DetailSection>
 
                     {scanId && (
@@ -544,111 +636,26 @@ export function CardDetailPanel({
                       />
                     )}
 
-                    {scanId && (
-                      <CardScanOriginSection
-                        scanId={scanId}
-                        collectionGuid={collection?.guid}
-                      />
-                    )}
-
-                    {selectedCard.text && (
-                      <DetailSection title={t("cardDetailPanel.cardText")}>
-                        <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
-                          {selectedCard.text}
-                        </p>
+                    {(hasScanOrigin || binNumber != null) && (
+                      <DetailSection title={t("cardDetailPanel.thisScan")}>
+                        <div className="flex flex-col gap-4">
+                          {scanOrigin && hasScanOrigin && (
+                            <CardScanOriginList origin={scanOrigin} />
+                          )}
+                          {binNumber != null && (
+                            <div className="flex flex-col gap-1.5">
+                              <Label>{t("cardDetailPanel.binLocation")}</Label>
+                              <div className="w-48 rounded-lg border">
+                                <BinLocationDiagram
+                                  binNumber={binNumber}
+                                  inverted={false}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </DetailSection>
                     )}
-
-                    <DetailSection title={t("cardDetailPanel.thisScan")}>
-                      <div className="flex flex-wrap gap-6 items-start">
-                        <div className="flex flex-col gap-1.5">
-                          <Label>{t("foil")}</Label>
-                          <Select
-                            value={currentFoilType ?? "none"}
-                            onValueChange={(value) => {
-                              if (scanId) {
-                                scanDraft.setFoilType(
-                                  value === "none" ? null : value,
-                                );
-                              }
-                            }}
-                            disabled={!scanId}
-                            onOpenChangeComplete={(open) => {
-                              if (!open) foilTriggerRef.current?.blur();
-                            }}
-                          >
-                            <SelectTrigger
-                              ref={foilTriggerRef}
-                              className="w-40"
-                            >
-                              <SelectValue placeholder={t("foilNone")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">
-                                {t("foilNone")}
-                              </SelectItem>
-                              {foilOptions.map((type) => (
-                                <SelectItem key={type} value={type}>
-                                  {type}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <Label>{t("condition.label")}</Label>
-                          <Select
-                            value={currentCondition}
-                            onValueChange={(value) => {
-                              if (scanId && isCardCondition(value)) {
-                                scanDraft.setCondition(value);
-                              }
-                            }}
-                            disabled={!scanId}
-                            onOpenChangeComplete={(open) => {
-                              if (!open) conditionTriggerRef.current?.blur();
-                            }}
-                          >
-                            <SelectTrigger
-                              ref={conditionTriggerRef}
-                              className="w-40"
-                            >
-                              <SelectValue>
-                                {t(`condition.names.${currentCondition}`)}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {CARD_CONDITIONS.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {t(`condition.names.${option}`)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {conditionPrice != null &&
-                            currentCondition !== DEFAULT_CARD_CONDITION && (
-                              <p className="text-2xs text-foreground/70">
-                                {t("condition.priceHint", {
-                                  price: format(conditionPrice),
-                                  percent:
-                                    conditionMultipliers[currentCondition],
-                                })}
-                              </p>
-                            )}
-                        </div>
-                        {binNumber != null && (
-                          <div className="flex flex-col gap-1.5">
-                            <Label>{t("cardDetailPanel.binLocation")}</Label>
-                            <div className="w-48 rounded-lg border">
-                              <BinLocationDiagram
-                                binNumber={binNumber}
-                                inverted={false}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </DetailSection>
                   </div>
                 )}
               </div>
