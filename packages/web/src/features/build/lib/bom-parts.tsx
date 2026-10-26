@@ -345,6 +345,14 @@ export const GROUPS: BomGroup[] = [
         buyUrl: "https://amzn.to/4h8B6Mp",
       },
       {
+        key: "anker-c200",
+        qty: () => "1",
+        name: "Anker PowerConf C200",
+        part: (t) => t("bom.groups.optional.items.ankerC200.part"),
+        notes: (t) => t("bom.groups.optional.items.ankerC200.notes"),
+        buyUrl: "https://link.amazon/B0fFpK2hb",
+      },
+      {
         key: "camera-mount-screw",
         qty: () => "1",
         name: '1/4"-20 camera mount screw',

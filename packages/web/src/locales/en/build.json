@@ -242,8 +242,12 @@
         "title": "Optional",
         "items": {
           "webcam": {
-            "part": "USB webcam",
+            "part": "Logitech C920 webcam",
             "notes": "This is the one I use. Any webcam works as long as you can manually adjust focus, brightness, etc. (auto-adjusting can throw off scans)"
+          },
+          "ankerC200": {
+            "part": "Anker PowerConf C200 webcam",
+            "notes": "Recommended alternative to the C920. Also lets you manually adjust focus, brightness, etc."
           },
           "cameraMountScrew": {
             "part": "1/4\"-20 camera mount screw",

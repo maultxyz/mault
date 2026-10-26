@@ -70,7 +70,7 @@
       "dialogDescription": "Spielt die neueste Firmware über diesen Browser-Tab auf deinen verbundenen ESP32. Trenne das Gerät nicht und schließe diesen Tab nicht, während der Vorgang läuft.",
       "startButton": "Update starten",
       "flashing": "Wird installiert, Gerät nicht trennen…",
-      "success": "Firmware wurde installiert. Trenne den Sortierer von deinem Computer und schließe ihn dann wieder an, um den Vorgang abzuschließen.",
+      "success": "Firmware wurde installiert. Zieh das USB-Kabel des ESP32 ab und steck es wieder ein, um die neue Firmware zu starten.",
       "errorTitle": "Update fehlgeschlagen",
       "close": "Schließen",
       "tryAgain": "Erneut versuchen"
@@ -89,7 +89,9 @@
       "errors": {
         "wrongChip": "Diese Platine ist ein {{chip}}. Die Sortierer-Firmware läuft nur auf dem ESP32-S3, daher wurde nichts geschrieben.",
         "noBootloader": "Der Bootloader der Platine war nicht erreichbar. Halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
+        "portUnavailable": "Der Anschluss der Platine konnte nicht geöffnet werden. Schließe alles, was ihn gerade nutzt (seriellen Monitor der Arduino IDE, einen anderen Browser-Tab), prüfe das Kabel und versuche es erneut.",
         "downloadFailed": "Die Firmware konnte nicht heruntergeladen werden. Prüfe deine Verbindung und versuche es erneut.",
+        "invalidImage": "Die heruntergeladene Firmware-Datei ist kein gültiges ESP32-Image, daher wurde nichts geschrieben. Lade die Seite neu und versuche es erneut.",
         "verifyFailed": "Die Firmware wurde geschrieben, aber der Flash-Speicher der Platine stimmt nicht damit überein. Zieh die Platine ab, steck sie wieder ein und flashe erneut."
       },
       "newBoard": {
@@ -98,7 +100,7 @@
         "hintPort": "Schließe die Platine über ihren linken USB-C-Anschluss an (mit USB beschriftet, nicht UART oder COM) und wähle sie in der Port-Abfrage des Browsers aus.",
         "hintBootMode": "Wenn das Flashen nicht startet, halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
         "startButton": "Platine wählen und flashen",
-        "success": "Firmware installiert. Die Platine wurde neu gestartet und kann verbunden werden.",
+        "success": "Firmware installiert. Zieh das USB-Kabel des ESP32 ab und steck es wieder ein, um die neue Firmware zu starten.",
         "connectButton": "Sortierer verbinden"
       }
     },
