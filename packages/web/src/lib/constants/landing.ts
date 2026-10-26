@@ -1,71 +1,14 @@
-import { SOUND_CLIP_WAVEFORM_BARS } from "@magic-vault/shared";
-import {
-  IconApi,
-  IconArrowsShuffle,
-  IconArrowsSplit2,
-  IconBrandDiscord,
-  IconBellRinging,
-  IconBroadcast,
-  IconLanguage,
-  IconLayoutGrid,
-  IconListSearch,
-  IconLock,
-  IconTextRecognition,
-  IconUsers,
-} from "@tabler/icons-react";
 import type {
   DemoIntakeRow,
-  DemoPickListEntry,
-  DemoPickRow,
-  DemoStorageBox,
-  LandingFeatureExtra,
+  DemoRuleCondition,
+  DemoRuleField,
+  DemoRuleFieldName,
+  DemoStorageLocation,
 } from "@/lib/interfaces/landing";
 
 export const GAMES_MARQUEE_MIN_ITEMS = 12;
 
 export const GAMES_MARQUEE_SECONDS_PER_ITEM = 4;
-
-export const DEMO_ALPHABET_BINS = [
-  { letter: "A", card: "Arcane Signet" },
-  { letter: "B", card: "Brainstorm" },
-  { letter: "C", card: "Counterspell" },
-  { letter: "D", card: "Dark Ritual" },
-  { letter: "E", card: "Evolving Wilds" },
-  { letter: "F", card: "Fatal Push" },
-];
-
-export const DEMO_ALPHABET_DEEPER = ["AA", "AB", "AC", "AD"];
-
-function demoPeaks(seed: number): number[] {
-  return Array.from({ length: SOUND_CLIP_WAVEFORM_BARS }, (_, i) => {
-    const t = i / SOUND_CLIP_WAVEFORM_BARS;
-    const envelope = Math.exp(-((t - 0.25 - seed * 0.2) ** 2) / 0.03);
-    const ripple = Math.abs(Math.sin((i + seed * 7) * 0.9));
-    return Math.min(1, 0.15 + envelope * 0.7 + ripple * 0.2);
-  });
-}
-
-export const DEMO_SOUND_RULES = [
-  {
-    rule: "Rarity is Mythic",
-    clip: "fanfare.mp3",
-    peaks: demoPeaks(0),
-    progress: 0.55,
-  },
-  {
-    rule: "Price over $20",
-    clip: "cha-ching.wav",
-    peaks: demoPeaks(1),
-    progress: 0,
-  },
-];
-
-export const DEMO_AUTO_ASSIGN_ROWS = [
-  { value: "Mythic", bin: 1 },
-  { value: "Rare", bin: 2 },
-  { value: "Uncommon", bin: 3 },
-  { value: "Common", bin: 4 },
-];
 
 export const DEMO_BIN_DIAGRAM_MODULES = [
   { module: 1, left: 1, right: 2 },
@@ -77,6 +20,20 @@ export const HERO_SORT_INTERVAL_MS = 2600;
 
 export const HERO_QUEUE_PREVIEW = 3;
 
+export const HERO_ARRIVAL_DELAY_MS = 1700;
+
+export const HERO_BIN_CAPACITY = 150;
+
+export const HERO_LOG_ENTRY_COUNT = 5;
+
+export const HERO_MATCH_COUNT_UP_MS = 900;
+
+export const HERO_READOUT_TYPING_MS_PER_CHARACTER = 35;
+
+export const HERO_READOUT_ROW_DELAY_MS = 700;
+
+export const HERO_READOUT_ROW_STAGGER_MS = 140;
+
 export const HERO_BIN_BASE_COUNTS: Record<number, number> = {
   1: 41,
   2: 57,
@@ -87,75 +44,115 @@ export const HERO_BIN_BASE_COUNTS: Record<number, number> = {
   7: 12,
 };
 
-export const DEMO_REPACK_SLOTS = [
-  { label: "Bin 1", note: "commons", done: 3, total: 3 },
-  { label: "Bin 2", note: "uncommons", done: 1, total: 2 },
-  { label: "Bin 3", note: "rare", done: 0, total: 1 },
-];
-
-export const DEMO_RULE_FIELD_OPTIONS = ["Rarity", "Color", "Set", "Type"];
-
-export const DEMO_RULE_OPERATOR_OPTIONS = ["is", "is not", "includes"];
-
 export const MARKETING_FOOTER_LINK_CLASS =
   "transition-colors hover:text-foreground";
 
-export const DEMO_STORAGE_BOXES: DemoStorageBox[] = [
-  { name: "Box 1 · Rares", cardCount: 248, value: 1284.5 },
-  { name: "Box 2 · Commons", cardCount: 812, value: 96.4 },
-  { name: "Box 3 · Trades", cardCount: 96, value: 412.75 },
+export const DEMO_STORAGE_LOCATIONS: DemoStorageLocation[] = [
+  {
+    guid: "demo-box-1",
+    name: "Box 1",
+    cardCount: 248,
+    totalValue: 1284.5,
+    storedCards: [
+      { cardIndex: 1 },
+      { cardIndex: 5 },
+      { cardIndex: 4 },
+      { cardIndex: 2 },
+    ],
+  },
+  {
+    guid: "demo-box-2",
+    name: "Box 2",
+    cardCount: 812,
+    totalValue: 96.4,
+    storedCards: [{ cardIndex: 0 }, { cardIndex: 3 }, { cardIndex: 2 }],
+  },
+  {
+    guid: "demo-trade-box",
+    name: "Trade box",
+    cardCount: 96,
+    totalValue: 412.75,
+    storedCards: [{ cardIndex: 5, isFoil: true }, { cardIndex: 0 }],
+  },
 ];
-
-export const DEMO_STORAGE_ACTIVE_BOX = 0;
 
 export const DEMO_STORAGE_SEARCH = "Ragavan";
 
-export const DEMO_STORAGE_FIRST_POSITION = 117;
+export const DEMO_STORAGE_TYPING_DELAY_MS = 1600;
 
-export const DEMO_STORAGE_HIGHLIGHT_INDEX = 1;
+export const FEATURE_GROUP_ITEM_REVEAL_STAGGER_MS = 70;
 
-export const DEMO_STORAGE_CARD_INDEXES = [1, 5, 4];
+export const FEATURE_REVEAL_HIDDEN_CLASS = "opacity-0 motion-reduce:opacity-100";
 
-export const DEMO_PICK_LIST_BIN = 3;
+export const FEATURE_SPOTLIGHT_REVEAL_ROOT_MARGIN = "0px 0px -20% 0px";
 
-export const DEMO_PICK_LIST_ENTRIES: DemoPickListEntry[] = [
-  { name: "Lightning Bolt", quantity: 4, found: 4 },
-  { name: "Sol Ring", quantity: 1, found: 1 },
-  { name: "Counterspell", quantity: 2, found: 1 },
-  { name: "Brainstorm", quantity: 4, found: 0 },
-];
+export const FEATURE_GROUPS_REVEAL_ROOT_MARGIN = "0px 0px -10% 0px";
 
-export const DEMO_PRICING_CARD_INDEX = 5;
+export const DEMO_COUNT_UP_DURATION_MS = 1400;
 
-export const DEMO_PRICING_PRICES = {
-  tcgplayer: 42.16,
-  cardmarket: 38.9,
-  cardkingdom: 49.99,
+export const DEMO_TYPEWRITER_MS_PER_CHARACTER = 110;
+
+export const DEMO_REVEAL_STAGGER_MS = 140;
+
+export const DEMO_RULE_MATCH_BIN = 1;
+
+export const DEMO_RULE_MAX_CONDITIONS = 3;
+
+export const DEMO_RULE_OPERATORS = ["is", "is not"] as const;
+
+export const DEMO_COLOR_NAMES_BY_LETTER: Record<string, string> = {
+  W: "White",
+  U: "Blue",
+  B: "Black",
+  R: "Red",
+  G: "Green",
 };
 
-export const LANDING_FEATURE_EXTRAS: LandingFeatureExtra[] = [
-  { key: "chaos", icon: IconArrowsShuffle },
-  { key: "overflow", icon: IconArrowsSplit2 },
-  { key: "monitor", icon: IconBroadcast },
-  { key: "discord", icon: IconBrandDiscord },
-  { key: "stations", icon: IconLayoutGrid },
-  { key: "ocr", icon: IconTextRecognition },
-  { key: "languages", icon: IconLanguage },
-  { key: "api", icon: IconApi },
-  { key: "accuracy", icon: IconListSearch },
-  { key: "staff", icon: IconUsers },
-  { key: "fleet", icon: IconBellRinging },
-  { key: "permissions", icon: IconLock },
+export const DEMO_RULE_FIELDS: Record<DemoRuleFieldName, DemoRuleField> = {
+  Rarity: {
+    values: ["Common", "Uncommon", "Rare", "Mythic"],
+    readCardValues: (card) => [card.rarity],
+  },
+  Color: {
+    values: ["White", "Blue", "Black", "Red", "Green", "Colorless"],
+    readCardValues: (card) =>
+      card.colorIdentity.length
+        ? card.colorIdentity.map((letter) => DEMO_COLOR_NAMES_BY_LETTER[letter])
+        : ["Colorless"],
+  },
+  Type: {
+    values: ["Instant", "Creature", "Artifact", "Legendary"],
+    readCardValues: (card) => card.typeLine.split(/\s+/),
+  },
+};
+
+export const DEMO_RULE_INITIAL_CONDITIONS: DemoRuleCondition[] = [
+  { field: "Rarity", operator: "is", value: "Mythic" },
+  { field: "Color", operator: "is", value: "Red" },
 ];
 
-export const LANDING_FEATURE_GRID_CLASS =
-  "mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border md:grid-cols-2 lg:grid-cols-6";
+export const DEMO_RULE_ADDED_CONDITION: DemoRuleCondition = {
+  field: "Type",
+  operator: "is",
+  value: "Instant",
+};
 
-export const LANDING_FEATURE_TILE_CLASS =
-  "flex flex-col gap-4 bg-card p-5 md:p-6";
+export const DEMO_COLLECTION_VALUE_HISTORY = [
+  1412, 1398, 1430, 1455, 1441, 1470, 1502, 1488, 1515, 1540, 1531, 1562,
+  1590, 1574, 1601, 1633, 1620, 1648, 1662, 1655, 1690, 1712, 1704, 1731,
+  1748, 1770, 1762, 1781, 1779, 1793.65,
+];
 
-export const LANDING_FEATURE_DEMO_CLASS =
-  "flex flex-1 items-center justify-center rounded-md border bg-background bg-blueprint p-4";
+export const DEMO_COLLECTION_RARITY_VALUES = [
+  { rarity: "mythic", value: 912.4 },
+  { rarity: "rare", value: 604.15 },
+  { rarity: "uncommon", value: 188.6 },
+  { rarity: "common", value: 88.5 },
+];
+
+export const DEMO_CHART_WIDTH = 320;
+
+export const DEMO_CHART_HEIGHT = 96;
 
 export const DEMO_INTAKE_CUSTOMER = "Ann";
 
@@ -168,11 +165,3 @@ export const DEMO_INTAKE_ROWS: DemoIntakeRow[] = [
   { cardIndex: 3, market: 0.14, offer: 0, declined: true },
 ];
 
-export const DEMO_PICKS_NAME = "Monday's orders";
-
-export const DEMO_PICKS_ROWS: DemoPickRow[] = [
-  { cardIndex: 5, box: "Box 1", position: 118, picked: true },
-  { cardIndex: 1, box: "Box 1", position: 204, picked: true },
-  { cardIndex: 2, box: "Box 3", position: 12, picked: false },
-  { cardIndex: 4, box: "Box 3", position: 57, picked: false },
-];

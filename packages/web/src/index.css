@@ -321,6 +321,20 @@ code {
   }
 }
 
+@keyframes hero-card-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) rotate(-6deg);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(18px) rotate(0deg);
+  }
+}
+
 @keyframes wrapped-progress {
   from {
     transform: scaleX(0);
@@ -424,5 +438,31 @@ code {
   }
   html {
     @apply font-sans;
+  }
+}
+
+.feature-spotlight-number {
+  -webkit-text-stroke: 1.5px color-mix(in oklab, var(--primary) 55%, transparent);
+}
+
+@keyframes feature-spotlight-number-drift {
+  from {
+    transform: translateY(24px);
+  }
+  to {
+    transform: translateY(-24px);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .feature-spotlight-number {
+    animation: feature-spotlight-number-drift linear both;
+    animation-timeline: view();
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-spotlight-number {
+    animation: none;
   }
 }

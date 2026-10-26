@@ -23,7 +23,6 @@
     "sortedCount_one": "{{count}} Karte sortiert",
     "sortedCount_other": "{{count}} Karten sortiert",
     "nextUp": "Als Nächstes",
-    "match": "Treffer",
     "foil": "Foil",
     "stations": {
       "hopper": "Trichter",
@@ -39,7 +38,14 @@
       "6": "Über 20 $"
     },
     "eyebrow": "Open-Source-Kartensortierer",
-    "tagline": "Scannen / Sortieren / Erfassen"
+    "tagline": "Scannen / Sortieren / Erfassen",
+    "recent": "Zuletzt",
+    "readout": {
+      "match": "Treffer",
+      "set": "Set",
+      "price": "Preis",
+      "route": "Ziel"
+    }
   },
   "stats": {
     "items": {
@@ -59,37 +65,13 @@
     "heading": "Alles, was du brauchst, um dich organisiert zu fühlen",
     "subtitle": "Lass Mault das Sortieren übernehmen, damit du mehr Zeit zum Spielen hast und weniger Zeit mit dem Durchsuchen von Kisten verbringst.",
     "items": {
-      "recognition": {
-        "title": "Sofortige Erkennung",
-        "description": "Kein Eintippen von Kartennamen, keine Barcodes - die Zuführung hält jede Karte vor die Kamera, und Mault weiß genau, welche es ist."
-      },
       "rules": {
         "title": "Regeln, die du kontrollierst",
         "description": "Kombiniere Bedingungen - Seltenheit, Farbe, Set, Typ und mehr -, um jede Karte genau dorthin zu schicken, wo du sie haben möchtest."
       },
-      "autoAssign": {
-        "title": "Automatische Fachzuweisung",
-        "description": "Kein Regeln-Schreiben nötig. Wähle ein Feld wie Seltenheit oder Set, und die erste Karte mit einem neuen Wert belegt das nächste freie Fach. Wiederholungen werden automatisch zurückgeleitet."
-      },
-      "repack": {
-        "title": "Repacks erstellen",
-        "description": "Lege pro Fach Pack-Slots fest, etwa 3 Commons und 1 Rare, und jedes Fach füllt gleichzeitig sein eigenes Pack. Leere es, um das nächste zu starten."
-      },
-      "alphabet": {
-        "title": "Alphabetische Sortierung",
-        "description": "Sortiere einen Stapel von A bis Z, ein Buchstabe pro Fach. Dann gehst du in jeden Stapel tiefer, A in AA, AB, AC, bis jede Karte in der richtigen Reihenfolge liegt."
-      },
-      "sounds": {
-        "title": "Eigene Sounds",
-        "description": "Lade deine eigenen Clips hoch und spiele sie ab, wenn eine passende Karte sortiert wird, etwa eine Fanfare für jede Mythic oder ein Kassenklingeln für alles über 20 $."
-      },
       "insights": {
         "title": "Wisse, was du besitzt",
         "description": "Sieh Anzahl, Wert, Einkaufspreise und Margen deiner ganzen Sammlung, mit täglichem Wertverlauf, damit du nie raten musst, was die Box wert ist."
-      },
-      "hardware": {
-        "title": "Gebaut für den Tisch",
-        "description": "Funktioniert mit einem physischen Sortierer, damit deine Karten in echten Fächern landen - nicht nur in einer weiteren Tabelle. Füg jederzeit weitere Sortiermodule hinzu und wachse auf bis zu 11 Fächer."
       },
       "storage": {
         "title": "Wisse, in welcher Box jede Karte liegt",
@@ -98,36 +80,20 @@
       "intake": {
         "title": "Sammlungen an der Theke ankaufen",
         "description": "Scanne die Karten eines Kunden in einen eigenen Ankauf und sieh zu, wie aus deinen Preisstufen ein Bar- und Guthabenangebot entsteht. Karten unter deinem Mindestwert werden durchgestrichen, und beim Annehmen werden die Einkaufspreise erfasst und ein Beleg gedruckt."
-      },
-      "picks": {
-        "title": "Online-Bestellungen aus deinen Boxen picken",
-        "description": "Füge eine TCGplayer-Pickliste, einen Shopify-Export oder eine einfache Liste ein. Mault findet jede Karte, zeigt dir Box und Position und nimmt die gepickten Karten aus deinem Bestand."
-      },
-      "pickList": {
-        "title": "Karten aus einer Deckliste ziehen",
-        "description": "Füge eine Deckliste in ein beliebiges Fach ein, und Mault zieht diese Karten beim Scannen aus dem Stapel und hakt jede ab, bis die Liste vollständig ist. Alles andere wird wie gewohnt sortiert."
-      },
-      "pricing": {
-        "title": "Preise von drei Märkten",
-        "description": "Bewerte deine Sammlung mit Preisen von TCGplayer, Cardmarket oder Card Kingdom, täglich aktualisiert. Lege den Zustand jeder Karte fest, und ihr Preis passt sich an."
       }
     },
     "new": "Neu",
-    "priceSources": {
-      "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket",
-      "cardkingdom": "Card Kingdom"
-    },
+    "stageTryIt": "Probier es aus",
+    "stageExample": "Beispiel",
     "demo": {
-      "cardCount_one": "{{count}} Karte",
-      "cardCount_other": "{{count}} Karten",
-      "pickListBin": "Pickliste Fach {{number}}",
-      "found": "{{found}}/{{wanted}} gefunden",
       "intakeLot": "Karten von {{name}}",
       "liveOffer": "Aktuelles Angebot",
       "cash": "Bar",
       "credit": "Guthaben",
-      "picked": "{{picked}}/{{total}} gepickt"
+      "ruleMatches_one": "{{count}} Karte kommt in Fach {{bin}}",
+      "ruleMatches_other": "{{count}} Karten kommen in Fach {{bin}}",
+      "collectionValue": "Sammlungswert",
+      "valueHistory": "Wert in den letzten 30 Tagen"
     },
     "more": {
       "heading": "Und noch viel mehr",
@@ -179,8 +145,49 @@
         "permissions": {
           "title": "Ankaufspreise bleiben privat",
           "description": "Lass dein Team Ankäufe scannen, ohne Angebote, Kosten oder Margen zu sehen."
+        },
+        "recognition": {
+          "title": "Sofortige Erkennung",
+          "description": "Kein Eintippen von Kartennamen, keine Barcodes - die Zuführung hält jede Karte vor die Kamera, und Mault weiß genau, welche es ist."
+        },
+        "autoAssign": {
+          "title": "Automatische Fachzuweisung",
+          "description": "Kein Regeln-Schreiben nötig. Wähle ein Feld wie Seltenheit oder Set, und die erste Karte mit einem neuen Wert belegt das nächste freie Fach. Wiederholungen werden automatisch zurückgeleitet."
+        },
+        "repack": {
+          "title": "Repacks erstellen",
+          "description": "Lege pro Fach Pack-Slots fest, etwa 3 Commons und 1 Rare, und jedes Fach füllt gleichzeitig sein eigenes Pack. Leere es, um das nächste zu starten."
+        },
+        "alphabet": {
+          "title": "Alphabetische Sortierung",
+          "description": "Sortiere einen Stapel von A bis Z, ein Buchstabe pro Fach. Dann gehst du in jeden Stapel tiefer, A in AA, AB, AC, bis jede Karte in der richtigen Reihenfolge liegt."
+        },
+        "sounds": {
+          "title": "Eigene Sounds",
+          "description": "Lade deine eigenen Clips hoch und spiele sie ab, wenn eine passende Karte sortiert wird, etwa eine Fanfare für jede Mythic oder ein Kassenklingeln für alles über 20 $."
+        },
+        "hardware": {
+          "title": "Gebaut für den Tisch",
+          "description": "Funktioniert mit einem physischen Sortierer, damit deine Karten in echten Fächern landen - nicht nur in einer weiteren Tabelle. Füg jederzeit weitere Sortiermodule hinzu und wachse auf bis zu 11 Fächer."
+        },
+        "picks": {
+          "title": "Online-Bestellungen aus deinen Boxen picken",
+          "description": "Füge eine TCGplayer-Pickliste, einen Shopify-Export oder eine einfache Liste ein. Mault findet jede Karte, zeigt dir Box und Position und nimmt die gepickten Karten aus deinem Bestand."
+        },
+        "pickList": {
+          "title": "Karten aus einer Deckliste ziehen",
+          "description": "Füge eine Deckliste in ein beliebiges Fach ein, und Mault zieht diese Karten beim Scannen aus dem Stapel und hakt jede ab, bis die Liste vollständig ist. Alles andere wird wie gewohnt sortiert."
+        },
+        "pricing": {
+          "title": "Preise von drei Märkten",
+          "description": "Bewerte deine Sammlung mit Preisen von TCGplayer, Cardmarket oder Card Kingdom, täglich aktualisiert. Lege den Zustand jeder Karte fest, und ihr Preis passt sich an."
         }
       }
+    },
+    "groups": {
+      "sorting": "Sortiere, wie du willst",
+      "stores": "Gemacht für Kartenläden",
+      "setup": "Wächst mit deinem Setup"
     }
   },
   "openSource": {
