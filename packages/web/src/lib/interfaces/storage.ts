@@ -106,6 +106,7 @@ export interface StorageCardDetailProps {
   scanId: string;
   reviewMode: boolean;
   onNavigate: (scanId: string) => void;
+  onShowReviewGrid: () => void;
   onClose: () => void;
 }
 

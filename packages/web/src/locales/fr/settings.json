@@ -83,7 +83,7 @@
     "general": "Ta langue, ta couleur d'accent et la disposition du scanner, et si le nom de ton organisation apparaît dans le classement.",
     "organization": "Renomme ton organisation, invite des personnes et choisis ce que chaque membre peut faire.",
     "billing": "Consulte ton forfait et ton utilisation, et gère ou améliore ton abonnement.",
-    "scanning": "Choisis comment les cartes sont identifiées et ce qui se passe quand un scan doit être corrigé.",
+    "scanning": "Choisis comment les cartes sont identifiées, imprime des cartes de contrôle et décide de ce qui se passe quand un scan doit être corrigé.",
     "pricing": "Choisis d'où viennent les prix des cartes et combien vaut chaque état.",
     "sounds": "Joue un son quand une carte scannée correspond à une règle, par exemple pour les cartes de valeur.",
     "notifications": "Relie ton serveur Discord et choisis quels scans et alertes sont publiés et où.",
@@ -95,5 +95,10 @@
   },
   "auditLog": {
     "heading": "Journal d'activité"
+  },
+  "controlCards": {
+    "heading": "Cartes de contrôle",
+    "description": "Imprime des cartes QR qui changent la collection, le préréglage de règles, le type de foil, l'extension, l'état ou les options de scan quand le trieur les lit. Fais passer une carte en cours de session et elle va là où vont les cartes non reconnues.",
+    "action": "Créer des cartes de contrôle"
   }
 }

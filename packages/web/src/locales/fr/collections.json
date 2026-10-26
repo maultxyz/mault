@@ -60,7 +60,8 @@
       "live": "En direct",
       "heading": "Aperçu"
     },
-    "liveView": "Vue en direct"
+    "liveView": "Vue en direct",
+    "printControlCard": "Imprimer une carte de contrôle"
   },
   "editDialog": {
     "title": "Modifier la collection",

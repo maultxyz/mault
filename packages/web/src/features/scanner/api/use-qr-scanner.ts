@@ -3,9 +3,9 @@ import {
   QR_SCAN_MAX_DIMENSION,
 } from "@/lib/constants/scanner";
 import type { QrScannerStatus } from "@/lib/interfaces/scanner";
-import jsQR from "jsqr";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { stopMediaStream } from "@/features/scanner/lib/camera-stream";
+import { decodeQrCode } from "@/features/scanner/lib/qr-code";
 
 export function useQrScanner(onResult: (text: string) => void) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -22,28 +22,18 @@ export function useQrScanner(onResult: (text: string) => void) {
     let stream: MediaStream | null = null;
     let timer: number | undefined;
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d", { willReadFrequently: true });
 
     const tick = () => {
       const video = videoRef.current;
-      if (
-        context &&
-        video &&
-        video.readyState >= video.HAVE_CURRENT_DATA &&
-        video.videoWidth > 0
-      ) {
-        const scale = Math.min(
-          1,
-          QR_SCAN_MAX_DIMENSION / Math.max(video.videoWidth, video.videoHeight),
+      if (video && video.readyState >= video.HAVE_CURRENT_DATA) {
+        const code = decodeQrCode(
+          video,
+          video.videoWidth,
+          video.videoHeight,
+          QR_SCAN_MAX_DIMENSION,
+          canvas,
         );
-        canvas.width = Math.round(video.videoWidth * scale);
-        canvas.height = Math.round(video.videoHeight * scale);
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const image = context.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(image.data, image.width, image.height, {
-          inversionAttempts: "dontInvert",
-        });
-        if (code?.data) onResultRef.current(code.data);
+        if (code) onResultRef.current(code);
       }
       if (!cancelled) timer = window.setTimeout(tick, QR_SCAN_INTERVAL_MS);
     };

@@ -98,6 +98,14 @@ export function langFilter({ lang, matchAllLanguages }: CollectionMatchScope): S
   return matchAllLanguages ? sql`` : sql`AND lang = ${lang}`;
 }
 
+export function matchingExclusionFilter({ gameKey, lang }: CollectionMatchScope): SQL {
+  const excludedFromMatchingSql =
+    resolveCardSearchForGame(gameKey, lang)?.adapter.excludedFromMatchingSql;
+  return excludedFromMatchingSql
+    ? sql`AND NOT coalesce(${excludedFromMatchingSql}, false)`
+    : sql``;
+}
+
 export function parsePreferredSetCode(value: unknown): string | undefined {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
@@ -140,7 +148,7 @@ export async function findCardMatches(
           (${rarePrintingSql}) AS rare_printing,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
-        WHERE game_key = ${gameKey} ${langFilter(scope)}
+        WHERE game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)}
         ORDER BY embedding <=> ${embeddingStr}::vector(128)
         LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
       ),
@@ -155,7 +163,7 @@ export async function findCardMatches(
           back_embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
         WHERE back_embedding IS NOT NULL
-          AND game_key = ${gameKey} ${langFilter(scope)}
+          AND game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)}
         ORDER BY back_embedding <=> ${embeddingStr}::vector(128)
         LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
       ),
@@ -284,6 +292,7 @@ export async function findCardMatches(
             AND lang = ${leader.lang}
             AND name = ${leader.name}
             AND lower(set_code) = lower(${preferredSetCode})
+            ${matchingExclusionFilter(scope)}
           ORDER BY distance
           LIMIT 1
         `)
@@ -399,7 +408,7 @@ export async function findCardMatchesByText(
           similarity(name, ${nameQuery}) AS name_score,
           ${cardDistanceSql(embeddingStr)} AS distance
         FROM cards
-        WHERE game_key = ${gameKey} ${langFilter(scope)} AND name % ${nameQuery}
+        WHERE game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)} AND name % ${nameQuery}
         ORDER BY name_score DESC, distance ASC
         LIMIT ${OCR_NAME_CANDIDATE_LIMIT}
       `);

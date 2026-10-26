@@ -1,4 +1,5 @@
 import IconAdjustments from "@tabler/icons-react-native/IconAdjustments";
+import IconPhotoOff from "@tabler/icons-react-native/IconPhotoOff";
 import IconAlbum from "@tabler/icons-react-native/IconAlbum";
 import IconAlertCircle from "@tabler/icons-react-native/IconAlertCircle";
 import IconAlertTriangle from "@tabler/icons-react-native/IconAlertTriangle";
@@ -48,7 +49,6 @@ import IconPlugConnected from "@tabler/icons-react-native/IconPlugConnected";
 import IconPlus from "@tabler/icons-react-native/IconPlus";
 import IconRefresh from "@tabler/icons-react-native/IconRefresh";
 import IconScan from "@tabler/icons-react-native/IconScan";
-import IconArrowsSort from "@tabler/icons-react-native/IconArrowsSort";
 import IconFilter from "@tabler/icons-react-native/IconFilter";
 import IconSearch from "@tabler/icons-react-native/IconSearch";
 import IconShieldCheck from "@tabler/icons-react-native/IconShieldCheck";
@@ -84,6 +84,7 @@ export const ICONS = {
   discord: IconBrandDiscord,
   camera: IconCamera,
   check: IconCheck,
+  checkAll: IconChecks,
   chevron: IconChevronRight,
   close: IconCircleX,
   collections: IconAlbum,
@@ -101,13 +102,13 @@ export const ICONS = {
   more: IconDots,
   edit: IconPencil,
   pause: IconPlayerPause,
+  photoOff: IconPhotoOff,
   play: IconPlayerPlay,
   plus: IconPlus,
   refresh: IconRefresh,
   rules: IconArrowsSplit2,
   scan: IconScan,
   search: IconSearch,
-  sort: IconArrowsSort,
   filter: IconFilter,
   condition: IconShieldCheck,
   sparkles: IconSparkles,

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import {
   intakeLotQueryOptions,
   intakeLotsQueryOptions,
+  intakeUnreviewedCardsQueryOptions,
 } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
@@ -16,6 +17,9 @@ import {
   INTAKE_LOT_PARAM,
   INTAKE_REVIEW_PARAM,
 } from "@/lib/constants/business";
+import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
+import { ReviewGrid } from "@/features/cards/components/review-grid";
+import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import { IconCash, IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -38,8 +42,17 @@ export default function IntakePage() {
   const [createOpen, setCreateOpen] = useState(false);
   const selectedGuid = selectedParam ?? lots[0]?.guid;
   const openScanId = searchParams.get(INTAKE_CARD_PARAM);
-  const isReviewing = searchParams.get(INTAKE_REVIEW_PARAM) === "1";
+  const reviewParam = searchParams.get(INTAKE_REVIEW_PARAM);
+  const isReviewing = reviewParam === "1";
+  const isGridReviewing =
+    !!selectedGuid &&
+    !openScanId &&
+    reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const [, setReviewLayout] = useReviewLayout();
   const { data: selectedLot } = useQuery(intakeLotQueryOptions(selectedGuid));
+  const reviewGridPage = useQuery(
+    intakeUnreviewedCardsQueryOptions(selectedGuid, isGridReviewing),
+  );
 
   const select = (guid: string | null) =>
     setSearchParams(guid ? { [INTAKE_LOT_PARAM]: guid } : {}, {
@@ -53,6 +66,18 @@ export default function IntakePage() {
         [INTAKE_LOT_PARAM]: selectedGuid,
         [INTAKE_CARD_PARAM]: scanId,
         ...(review ? { [INTAKE_REVIEW_PARAM]: "1" } : {}),
+      },
+      { replace: true },
+    );
+  };
+
+  const openReviewGrid = () => {
+    if (!selectedGuid) return;
+    setReviewLayout("grid");
+    setSearchParams(
+      {
+        [INTAKE_LOT_PARAM]: selectedGuid,
+        [INTAKE_REVIEW_PARAM]: CARD_REVIEW_GRID_PARAM_VALUE,
       },
       { replace: true },
     );
@@ -100,6 +125,21 @@ export default function IntakePage() {
               scanId={openScanId}
               reviewMode={isReviewing}
               onNavigate={(scanId) => openCard(scanId)}
+              onShowReviewGrid={openReviewGrid}
+              onClose={closeCard}
+            />
+          </section>
+        ) : isGridReviewing ? (
+          <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
+            <ReviewGrid
+              cards={reviewGridPage.data?.cards ?? []}
+              total={reviewGridPage.data?.total ?? 0}
+              isLoading={reviewGridPage.isPending}
+              isError={reviewGridPage.isError}
+              onOpenOneByOne={(card) => {
+                setReviewLayout("single");
+                openCard(card.scanId, true);
+              }}
               onClose={closeCard}
             />
           </section>
@@ -112,6 +152,7 @@ export default function IntakePage() {
                 guid={selectedGuid}
                 onDeleted={() => select(null)}
                 onOpenCard={openCard}
+                onOpenReviewGrid={openReviewGrid}
               />
             ) : (
               !isLoading && (

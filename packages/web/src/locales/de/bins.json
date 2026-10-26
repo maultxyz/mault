@@ -131,7 +131,8 @@
     "newSetDescription": "Erstelle eine neue Vorlage mit 7 leeren Fächern.",
     "create": "Erstellen",
     "viewHistory": "Verlauf anzeigen",
-    "historyTitle": "Verlauf der Vorlage"
+    "historyTitle": "Verlauf der Vorlage",
+    "printControlCard": "Steuerkarte drucken"
   },
   "useBinConfigs": {
     "toasts": {

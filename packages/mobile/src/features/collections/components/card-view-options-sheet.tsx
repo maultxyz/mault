@@ -9,13 +9,25 @@ import { IconButton } from "@/components/ui/icon-button";
 import { FilterChip } from "@/features/collections/components/filter-chip";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CardFilterSheetProps } from "@/lib/interfaces/collections";
+import type { CardViewOptionsSheetProps } from "@/lib/interfaces/collections";
 
 function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
 }
 
-export function CardFilterSheet({ visible, filters, breakdown, binCount, onChange, onClose }: CardFilterSheetProps) {
+export function CardViewOptionsSheet({
+  visible,
+  grouped,
+  onGroupedChange,
+  sortOptions,
+  selectedSort,
+  onSortChange,
+  filters,
+  breakdown,
+  binCount,
+  onChange,
+  onClose,
+}: CardViewOptionsSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
@@ -47,11 +59,30 @@ export function CardFilterSheet({ visible, filters, breakdown, binCount, onChang
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
           <AppText size="lg" heading weight="bold" style={{ flex: 1 }}>
-            {t("collection.filters.title")}
+            {t("collection.viewOptions")}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.xl, paddingBottom: SPACING.lg }}>
+          {section(t("collection.display"), [
+            <FilterChip
+              key="grouped"
+              label={t("collection.groupDuplicates")}
+              selected={grouped}
+              onPress={() => onGroupedChange(!grouped)}
+            />,
+          ])}
+          {section(
+            t("collection.sort.title"),
+            sortOptions.map((option) => (
+              <FilterChip
+                key={option.value}
+                label={option.label}
+                selected={option.value === selectedSort}
+                onPress={() => onSortChange(option.value)}
+              />
+            )),
+          )}
           {breakdown && breakdown.colors.length > 0
             ? section(
                 t("collection.filters.colors"),

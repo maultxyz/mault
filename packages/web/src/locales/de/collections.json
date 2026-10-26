@@ -60,7 +60,8 @@
       "live": "Gerade live",
       "heading": "Übersicht"
     },
-    "liveView": "Live-Ansicht"
+    "liveView": "Live-Ansicht",
+    "printControlCard": "Steuerkarte drucken"
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",

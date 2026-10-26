@@ -30,11 +30,13 @@ export function ScanOptionsSheet({
   foilTypeName,
   showFoilType,
   setName,
+  conditionName,
   onChooseCollection,
   onChoosePreset,
   onChooseCamera,
   onChooseFoilType,
   onChooseSet,
+  onChooseCondition,
   onClose,
 }: ScanOptionsSheetProps) {
   const { t } = useTranslation();
@@ -126,6 +128,12 @@ export function ScanOptionsSheet({
               <ListRow icon="sparkles" title={t("scan.options.foilType")} value={foilTypeName} onPress={onChooseFoilType} />
             ) : null}
             <ListRow icon="filter" title={t("scan.options.set")} value={setName} onPress={onChooseSet} />
+            <ListRow
+              icon="condition"
+              title={t("scan.options.condition")}
+              value={conditionName}
+              onPress={onChooseCondition}
+            />
           </ListGroup>
           <ListGroup>
             <ListRow

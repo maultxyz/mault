@@ -8,7 +8,7 @@ export default defineConfig({
   },
   format: ["cjs"],
   platform: "node",
-  target: "node22",
+  target: "node24",
   outDir: "dist",
   clean: true,
   publicDir: "static",

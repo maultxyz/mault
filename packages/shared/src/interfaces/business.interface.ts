@@ -112,6 +112,11 @@ export interface IntakeReviewCard {
   reviewed: boolean;
 }
 
+export interface IntakeReviewCardPage {
+  cards: IntakeReviewCard[];
+  total: number;
+}
+
 export interface IntakeCardNeighbor {
   scanId: string;
   collectionGuid: string;

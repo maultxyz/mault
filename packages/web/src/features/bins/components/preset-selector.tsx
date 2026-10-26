@@ -29,6 +29,7 @@ import {
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
+import { controlCardsPath } from "@/lib/constants/control-cards";
 import type { PresetSelectorProps } from "@/lib/interfaces/bins";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -40,6 +41,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { BinConfig, BinRuleGroup, BinSet } from "@magic-vault/shared";
 import {
   IconClockHour3,
+  IconQrcode,
   IconEdit,
   IconLoader2,
   IconPlus,
@@ -369,6 +371,28 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
                 }
               ></TooltipTrigger>
               <TooltipContent>{t("presetSelector.viewHistory")}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label={t("presetSelector.printControlCard")}
+                    disabled={!selectedSet}
+                    render={
+                      <Link
+                        to={controlCardsPath({ presetGuid: selectedSet?.guid })}
+                      >
+                        <IconQrcode />
+                      </Link>
+                    }
+                  />
+                }
+              ></TooltipTrigger>
+              <TooltipContent>
+                {t("presetSelector.printControlCard")}
+              </TooltipContent>
             </Tooltip>
             <DynamicDialog
               open={renameDialogOpen}

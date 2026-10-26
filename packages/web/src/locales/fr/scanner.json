@@ -266,14 +266,18 @@
     "startTooltip": "Alimenter la première carte et démarrer le scan",
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
-    "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
-    "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
     "foilTooltip": "Type de foil des cartes scannées : {{type}}",
     "setTooltip": "Extension des cartes scannées : {{set}}",
     "anySet": "N'importe quelle extension",
     "setSearchPlaceholder": "Rechercher une extension",
     "noSets": "Aucune extension trouvée",
-    "setHint": "Les cartes scannées utilisent leur impression de cette extension lorsqu'elle existe."
+    "setHint": "Les cartes scannées utilisent leur impression de cette extension lorsqu'elle existe.",
+    "conditionTooltip": "État des cartes scannées : {{condition}}",
+    "start": "Démarrer le scan",
+    "sessionSummary_one": "{{count}} carte scannée · {{time}}",
+    "sessionSummary_other": "{{count}} cartes scannées · {{time}}",
+    "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "startRemoving": "Démarrer le retrait"
   },
   "scannerDebug": {
     "heading": "Débogage",
@@ -290,7 +294,6 @@
     "cameraFallbackLabel": "Caméra {{index}}",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
-    "scanner": "Scanner",
     "autoFeed": "Alimentation auto",
     "allowDuplicates": "Autoriser les doublons",
     "scanWithoutSorter": "Scanner sans trieuse",
@@ -300,7 +303,15 @@
     "connectAnotherUsb": "Connecter une autre trieuse (USB)",
     "connectAnotherBluetooth": "Connecter une autre trieuse (Bluetooth)",
     "flashNewBoard": "Flasher une nouvelle carte",
-    "connectAnotherUpgrade": "Connecter plus de trieuses avec Business"
+    "connectAnotherUpgrade": "Connecter plus de trieuses avec Business",
+    "clearDevice": "Vider l'appareil",
+    "resetToNeutral": "Remettre au neutre",
+    "sorter": "Trieur",
+    "connectionStates": {
+      "connected": "Connecté",
+      "connecting": "Connexion",
+      "disconnected": "Non connecté"
+    }
   },
   "ocrBetaDialog": {
     "title": "Correspondance de texte OCR (bêta)",
@@ -344,7 +355,7 @@
     "initializing": "Initialisation du scanner…",
     "identifyingCard": "Identification de la carte…",
     "settling": "En attente que la carte se stabilise…",
-    "paused": "Scanner en pause - appuie sur Reprendre pour continuer.",
+    "paused": "Scanner en pause.",
     "duplicate": "Même carte scannée - utilise Ajouter à nouveau pour l'ajouter quand même.",
     "noMatch": "Carte non reconnue - essaie Scanner à nouveau ou ajuste l'éclairage.",
     "faceUpHint": "Les cartes doivent être posées face visible",
@@ -419,7 +430,10 @@
     "pageOf": "Page {{page}} sur {{total}}",
     "previousPage": "Page précédente",
     "nextPage": "Page suivante",
-    "openCard": "Ouvrir la carte non reconnue"
+    "openCard": "Ouvrir la carte non reconnue",
+    "expand": "Afficher les cartes non reconnues",
+    "collapse": "Masquer les cartes non reconnues",
+    "viewAllShort": "Tout voir"
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
@@ -600,7 +614,6 @@
     "cards": "Cartes",
     "searchPlaceholder": "Rechercher des cartes",
     "needsReview": "À vérifier",
-    "groupDuplicates": "Regrouper les copies",
     "back": "Retour aux sessions",
     "previousPage": "Page précédente",
     "nextPage": "Page suivante",
@@ -780,7 +793,8 @@
       "neutral": "Remettre au neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
       "sorterDescription": "Connexion, autotest et état"
-    }
+    },
+    "condition": "État"
   },
   "mobileSorter": {
     "title": "Trieuse",
@@ -862,5 +876,105 @@
     "offline": "Hors ligne",
     "inUse": "Utilisée",
     "connectedHere": "Connectée"
+  },
+  "scanRemoval": {
+    "title": "Scanner pour retirer",
+    "description": "Scannez des cartes pour les mettre en file de retrait de {{collection}}. Rien n'est retiré avant votre confirmation.",
+    "exit": "Arrêter le retrait",
+    "queuedCount_one": "{{count}} en file",
+    "queuedCount_other": "{{count}} en file",
+    "noCopyLeft": "Plus aucun exemplaire dans cette collection",
+    "noMatch": "Aucune correspondance, réessayez",
+    "lookupFailed": "Impossible de rechercher les exemplaires de {{name}}. Scannez-la à nouveau.",
+    "emptyTitle": "Rien en file pour l'instant",
+    "emptyDescription": "Scannez une carte pour mettre un exemplaire en file de retrait.",
+    "changeCopy": "Changer d'exemplaire",
+    "drop": "Écarter",
+    "clear": "Vider",
+    "removeButton_one": "Retirer {{count}} carte",
+    "removeButton_other": "Retirer {{count}} cartes",
+    "confirmTitle_one": "Retirer {{count}} carte ?",
+    "confirmTitle_other": "Retirer {{count}} cartes ?",
+    "confirmDescription": "Ces exemplaires sont supprimés de {{collection}}, photos comprises. Cette action est irréversible.",
+    "removed_one": "{{count}} carte retirée",
+    "removed_other": "{{count}} cartes retirées",
+    "removeFailed": "Impossible de retirer les cartes. Réessayez.",
+    "foil": "Foil",
+    "nonFoil": "Non foil",
+    "storage": "{{name}} n°{{position}}",
+    "bin": "Bac {{number}}",
+    "unsorted": "Non rangée",
+    "modeLabel": "Mode de scan",
+    "addMode": "Ajouter des cartes",
+    "removeMode": "Retirer des cartes",
+    "binLabel": "Les cartes retirées vont dans",
+    "binPlaceholder": "Choisir un bac",
+    "catchAllBinOption": "Bac {{number}} (bac fourre-tout)"
+  },
+  "controlCards": {
+    "openPage": "Imprimer des cartes de contrôle",
+    "openPageDescription": "Cartes QR qui modifient les réglages de scan quand le trieur les lit",
+    "applied": "Carte de contrôle appliquée",
+    "rejected": {
+      "title": "Carte de contrôle non appliquée"
+    },
+    "problems": {
+      "unreadable": "Ce QR code n'est pas une carte de contrôle que cette version de Mault comprend. Le scan est en pause.",
+      "collection-not-found": "La collection de cette carte n'existe plus. Le scan est en pause.",
+      "preset-not-found": "Le préréglage de règles de cette carte n'existe plus. Le scan est en pause.",
+      "preset-wrong-game": "Le préréglage de règles de cette carte concerne un autre jeu que la collection. Le scan est en pause.",
+      "no-collection": "Choisis une collection avant d'utiliser une carte de préréglage. Le scan est en pause."
+    },
+    "actions": {
+      "collection": "Collection : {{name}}",
+      "preset": "Préréglage de règles : {{name}}",
+      "foil": "Foil : {{type}}",
+      "notFoil": "Non foil",
+      "set": "Extension : {{name}}",
+      "anySet": "N'importe quelle extension",
+      "condition": "État : {{condition}}",
+      "autoFeedOn": "Alimentation auto activée",
+      "autoFeedOff": "Alimentation auto désactivée",
+      "duplicatesOn": "Autoriser les doublons",
+      "duplicatesOff": "Ignorer les doublons",
+      "pause": "Mettre le scan en pause"
+    },
+    "form": {
+      "title": "Nouvelle carte de contrôle",
+      "description": "Choisis ce que la carte modifie. Tout ce qui reste sur Aucun changement ne bouge pas.",
+      "cardTitle": "Libellé",
+      "cardTitlePlaceholder": "Par exemple : Classeur d'échange, LP",
+      "collection": "Collection",
+      "preset": "Préréglage de règles",
+      "foil": "Type de foil",
+      "set": "Extension",
+      "condition": "État",
+      "autoFeed": "Alimentation auto",
+      "allowDuplicates": "Autoriser les doublons",
+      "pauseScanner": "Mettre le scan en pause après cette carte",
+      "add": "Ajouter à la planche",
+      "unchanged": "Aucun changement",
+      "toggle": {
+        "unchanged": "Aucun changement",
+        "on": "Activé",
+        "off": "Désactivé"
+      }
+    },
+    "sheet": {
+      "emptyTitle": "Aucune carte de contrôle",
+      "emptyDescription": "Les cartes ajoutées apparaissent ici à taille réelle, prêtes à imprimer."
+    },
+    "tile": {
+      "defaultTitle": "Carte de contrôle",
+      "qrAlt": "QR code de la carte de contrôle",
+      "remove": "Retirer la carte"
+    },
+    "page": {
+      "back": "Retour au scanner",
+      "title": "Cartes de contrôle",
+      "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
+      "print": "Imprimer",
+      "printTip": "Imprime sur du papier cartonné à l'échelle 100 % avec les marges sur Par défaut. Chaque page contient 9 cartes. Découpe le long des bordures et garde le QR code bien à plat et sans reflets."
+    }
   }
 }
