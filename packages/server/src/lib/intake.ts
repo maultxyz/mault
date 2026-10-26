@@ -5,6 +5,7 @@ import {
   roundCurrency,
   INTAKE_COLLECTION_NAME_PREFIX,
   INTAKE_COLLECTION_NAME_SUFFIX_ROOM,
+  REVIEW_GRID_CARD_LIMIT,
   SET_NAME_MAX_LENGTH,
   toCardCondition,
   type BuylistConfig,
@@ -14,6 +15,7 @@ import {
   type IntakeCardContext,
   type IntakeCardNeighbor,
   type IntakeNewCollectionInput,
+  type IntakeReviewCardPage,
   type IntakePayoutMethod,
   type OrgPricing,
   type PlayingCardWithDistance,
@@ -380,6 +382,26 @@ export async function loadIntakeCardContext(
     total: await countLotCards(tx, lotId),
     previous: await findLotNeighbor(tx, lotId, scanId, "previous", unreviewedOnly),
     next: await findLotNeighbor(tx, lotId, scanId, "next", unreviewedOnly),
+  };
+}
+
+export async function loadUnreviewedLotCards(
+  tx: Transaction,
+  lotId: number,
+): Promise<IntakeReviewCardPage> {
+  const unreviewed = eq(collectionCards.isReviewed, false);
+  const rows = await selectLotReviewCards(tx)
+    .where(lotReviewScope(lotId, unreviewed))
+    .orderBy(desc(collectionCards.scannedAt), desc(collectionCards.id))
+    .limit(REVIEW_GRID_CARD_LIMIT);
+  return {
+    cards: rows.map((row) => ({
+      ...row,
+      scanId: row.scanId!,
+      collectionGuid: row.collectionGuid!,
+      condition: toCardCondition(row.condition),
+    })),
+    total: await countLotCards(tx, lotId, unreviewed),
   };
 }
 

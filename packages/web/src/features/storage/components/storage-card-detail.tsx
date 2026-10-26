@@ -30,6 +30,7 @@ export function StorageCardDetail({
   scanId,
   reviewMode,
   onNavigate,
+  onShowReviewGrid,
   onClose,
 }: StorageCardDetailProps) {
   const { t } = useTranslation("cards");
@@ -157,6 +158,7 @@ export function StorageCardDetail({
         currentIndex={context.index}
         total={total}
         reviewMode={reviewMode}
+        onShowReviewGrid={onShowReviewGrid}
         onReviewComplete={() => {
           toast.success(t("review.complete", { count: total }));
           onClose();

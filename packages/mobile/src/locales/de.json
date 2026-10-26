@@ -803,6 +803,24 @@
       "deletedSorter": "{{name}} (gelöscht)"
     }
   },
+  "reviewGrid": {
+    "title": "Karten prüfen",
+    "remaining_one": "Noch {{count}} Karte zu prüfen",
+    "remaining_other": "Noch {{count}} Karten zu prüfen",
+    "layoutGrid": "Raster",
+    "layoutOneByOne": "Einzeln",
+    "acceptAll_one": "{{count}} Karte bestätigen",
+    "acceptAll_other": "Alle {{count}} bestätigen",
+    "accept": "Stimmt",
+    "correct": "Korrigieren",
+    "noPhoto": "Kein Scanfoto",
+    "doneTitle": "Alles geprüft",
+    "doneDescription": "Alle Karten hier wurden geprüft.",
+    "done": "Fertig",
+    "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden. Versuche es erneut.",
+    "acceptFailed_one": "{{count}} Karte konnte nicht bestätigt werden. Versuche es erneut.",
+    "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut."
+  },
   "rules": {
     "title": "Sortierregeln",
     "noCollectionTitle": "Keine aktive Sammlung",

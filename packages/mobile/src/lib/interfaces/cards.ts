@@ -4,8 +4,23 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
+
+export type ReviewLayout = "grid" | "single";
+
+export interface ReviewGridData {
+  cards: ReviewGridCard[];
+  total: number;
+}
+
+export interface ReviewGridTileProps {
+  card: ReviewGridCard;
+  accepting: boolean;
+  onAccept: () => void;
+  onCorrect: () => void;
+}
 
 export interface CardUpdateBody {
   card?: PlayingCardWithDistance;

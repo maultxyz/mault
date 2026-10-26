@@ -42,6 +42,7 @@ import { StatusBadge } from "@/features/business/components/status-badge";
 import { formatDateTime } from "@/features/business/lib/format";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { intakeReceiptPath } from "@/lib/constants/business";
 import type { IntakeLotDetailProps } from "@/lib/interfaces/business";
 import {
@@ -65,6 +66,7 @@ export function IntakeLotDetail({
   guid,
   onDeleted,
   onOpenCard,
+  onOpenReviewGrid,
 }: IntakeLotDetailProps) {
   const { t } = useTranslation("business");
   const { format } = usePriceSource();
@@ -85,7 +87,13 @@ export function IntakeLotDetail({
   });
   const [removeTarget, setRemoveTarget] = useState<string[] | null>(null);
 
+  const [reviewLayout] = useReviewLayout();
+
   const startReview = async () => {
+    if (reviewLayout === "grid") {
+      onOpenReviewGrid();
+      return;
+    }
     let first: string | null;
     try {
       first = await fetchNextUnreviewedIntakeCard(guid);

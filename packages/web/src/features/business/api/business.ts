@@ -27,6 +27,7 @@ import type {
   IntakeLot,
   IntakeLotDetail,
   IntakeLotInput,
+  IntakeReviewCardPage,
   IntakeTransferInput,
   IntakeTransferResult,
   OrderFulfilInput,
@@ -60,6 +61,8 @@ export const businessKeys = {
       scanId,
       unreviewedOnly,
     ] as const,
+  intakeUnreviewedCards: (lotGuid: string | undefined) =>
+    [...businessKeys.intakeRoot(), "unreviewed", lotGuid] as const,
   ordersRoot: () => [...businessKeys.root(), "orders"] as const,
   orderList: (orgId: string | undefined, page: PageRequest) =>
     [...businessKeys.ordersRoot(), "list", orgId, page] as const,
@@ -160,6 +163,19 @@ export const intakeCardContextQueryOptions = (
         `/api/business/intake/${lotGuid}/cards/${scanId}/context${unreviewedOnly ? "?unreviewedOnly=true" : ""}`,
       ).then((r) => r.data ?? null),
     enabled: !!lotGuid && !!scanId,
+  });
+
+export const intakeUnreviewedCardsQueryOptions = (
+  lotGuid: string | undefined,
+  enabled: boolean,
+) =>
+  queryOptions({
+    queryKey: businessKeys.intakeUnreviewedCards(lotGuid),
+    queryFn: () =>
+      apiGet<Result<IntakeReviewCardPage>>(
+        `/api/business/intake/${lotGuid}/cards/unreviewed`,
+      ).then(unwrap),
+    enabled: !!lotGuid && enabled,
   });
 
 export function fetchNextUnreviewedIntakeCard(

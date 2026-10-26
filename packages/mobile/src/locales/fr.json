@@ -803,6 +803,24 @@
       "deletedSorter": "{{name}} (supprimé)"
     }
   },
+  "reviewGrid": {
+    "title": "Vérifier les cartes",
+    "remaining_one": "{{count}} carte à vérifier",
+    "remaining_other": "{{count}} cartes à vérifier",
+    "layoutGrid": "Grille",
+    "layoutOneByOne": "Une par une",
+    "acceptAll_one": "Valider {{count}} carte",
+    "acceptAll_other": "Tout valider ({{count}})",
+    "accept": "C'est bon",
+    "correct": "Corriger",
+    "noPhoto": "Pas de photo du scan",
+    "doneTitle": "Tout est vérifié",
+    "doneDescription": "Toutes les cartes ici ont été vérifiées.",
+    "done": "Terminé",
+    "loadFailed": "Impossible de charger les cartes à vérifier. Réessayez.",
+    "acceptFailed_one": "Impossible de valider {{count}} carte. Réessayez.",
+    "acceptFailed_other": "Impossible de valider {{count}} cartes. Réessayez."
+  },
   "rules": {
     "title": "Règles de tri",
     "noCollectionTitle": "Aucune collection active",

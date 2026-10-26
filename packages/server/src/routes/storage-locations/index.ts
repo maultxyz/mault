@@ -273,18 +273,22 @@ const router = new Hono<AppEnv>()
       Number.parseInt(c.req.query("page") ?? "", 10) || 1,
       1,
     );
+    const reviewFilter =
+      c.req.query("unreviewedOnly") === "true"
+        ? eq(collectionCards.isReviewed, false)
+        : undefined;
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
         return { success: false, message: "Storage location not found." };
       }
-      const total = await countStoredCards(tx, locationId);
+      const total = await countStoredCards(tx, locationId, reviewFilter);
       const page = Math.min(
         requestedPage,
         Math.max(Math.ceil(total / pageSize), 1),
       );
       const rows = await selectStoredCards(tx)
-        .where(storedCardsWhere(locationId))
+        .where(storedCardsWhere(locationId, reviewFilter))
         .orderBy(asc(storedCardPosition), asc(collectionCards.id))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
