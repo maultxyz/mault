@@ -21,7 +21,12 @@ export function CardSearchLanguageSelect({
       : (LANGUAGE_LABELS[language] ?? language);
 
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select
+      value={value}
+      onValueChange={(language) => {
+        if (language) onChange(language);
+      }}
+    >
       <SelectTrigger className="w-40 shrink-0" aria-label={t("language")}>
         <SelectValue>{labelFor(value)}</SelectValue>
       </SelectTrigger>
