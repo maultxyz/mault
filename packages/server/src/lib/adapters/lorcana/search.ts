@@ -233,7 +233,7 @@ export const lorcanaAdapter: CardSearchAdapter = {
   tcgplayer: {
     categoryId: 71,
     subTypes: () => ({
-      price: ["Normal"],
+      price: ["Normal", "Holofoil", "Cold Foil"],
       priceFoil: ["Holofoil", "Cold Foil"],
     }),
   },
