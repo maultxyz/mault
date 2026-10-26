@@ -36,7 +36,7 @@ import {
 const LandingPage = lazy(
   withNamespaces(
     () => import("@/app/routes/index"),
-    ["common", "landing", "scanner", "cards", "bins", "collections"],
+    ["common", "landing", "scanner", "cards", "bins", "collections", "storage"],
   ),
 );
 const BuildGuidePage = lazy(
