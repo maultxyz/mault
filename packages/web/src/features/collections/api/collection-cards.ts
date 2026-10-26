@@ -22,6 +22,7 @@ export function cardsQueryParams(
   if (query.search) params.set("search", query.search);
   if (query.sort) params.set("sort", query.sort);
   if (query.grouped) params.set("grouped", "1");
+  if (query.unreviewed) params.set("unreviewed", "1");
   params.set("filters", JSON.stringify(query.filters));
   return params.toString();
 }
