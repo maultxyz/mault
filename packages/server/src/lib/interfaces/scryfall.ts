@@ -39,7 +39,14 @@ export interface ScryfallApiCard {
   rarity: string;
   artist?: string;
   scryfall_uri: string;
-  prices: { usd: string | null; usd_foil: string | null };
+  prices: {
+    usd: string | null;
+    usd_foil: string | null;
+    usd_etched?: string | null;
+  };
+  illustration_id?: string;
+  finishes?: string[];
+  promo_types?: string[];
   tcgplayer_id?: number;
   cardmarket_id?: number;
 }
