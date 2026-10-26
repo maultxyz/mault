@@ -1,15 +1,4 @@
-import type { ScannedCard } from "@magic-vault/shared";
 import type { DemoScannedCard } from "@/lib/interfaces/landing";
-
-export function toScannedCards(entries: DemoScannedCard[]): ScannedCard[] {
-  return entries.map((d, i) => ({
-    scanId: d.card.id,
-    card: d.card,
-    scannedAt: Date.now() - i * 60_000,
-    binNumber: d.binNumber,
-    isFoil: d.isFoil,
-  }));
-}
 
 export const DEMO_SCANNED_CARDS: DemoScannedCard[] = [
   {
