@@ -56,8 +56,12 @@ export function FirmwareFlashDialog({
         return t("serial.flash.errors.wrongChip", { chip: result.chip });
       case "no-bootloader":
         return t("serial.flash.errors.noBootloader");
+      case "port-unavailable":
+        return t("serial.flash.errors.portUnavailable");
       case "download-failed":
         return t("serial.flash.errors.downloadFailed");
+      case "invalid-image":
+        return t("serial.flash.errors.invalidImage");
       case "verify-failed":
         return t("serial.flash.errors.verifyFailed");
       default:

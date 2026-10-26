@@ -173,7 +173,9 @@ export type SerialTransportType = "serial" | "bluetooth" | "cloud";
 export type FlashFailureReason =
   | "wrong-chip"
   | "no-bootloader"
+  | "port-unavailable"
   | "download-failed"
+  | "invalid-image"
   | "flash-failed"
   | "verify-failed";
 
