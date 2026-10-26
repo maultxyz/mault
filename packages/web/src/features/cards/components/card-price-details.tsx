@@ -7,6 +7,7 @@ import type {
   PriceTableProps,
 } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
+import { priceChangeSinceScan } from "@magic-vault/shared";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -80,6 +81,8 @@ function PriceHeadline({
   label,
   price,
   foilPrice,
+  priceAtScan,
+  foilPriceAtScan,
   isFoil,
   format,
 }: PriceHeadlineProps) {
@@ -92,6 +95,8 @@ function PriceHeadline({
   const secondaryKey = showFoil
     ? "priceTable.nonFoilPrice"
     : "priceTable.foilPrice";
+  const headlineAtScan = showFoil ? foilPriceAtScan : priceAtScan;
+  const changeSinceScan = priceChangeSinceScan(headlineAtScan, headline);
 
   return (
     <div className="flex min-w-36 flex-col gap-0.5 rounded-md bg-muted px-3 py-2">
@@ -104,6 +109,21 @@ function PriceHeadline({
       {secondary != null && (
         <span className="text-2xs tabular-nums text-foreground/70">
           {t(secondaryKey, { price: format(secondary) })}
+        </span>
+      )}
+      {headlineAtScan != null && changeSinceScan && (
+        <span className="text-2xs tabular-nums text-foreground/70">
+          {t("priceTable.priceAtScan", { price: format(headlineAtScan) })}{" "}
+          <span
+            className={cn(
+              "font-medium",
+              changeSinceScan.direction === "up"
+                ? "text-success-foreground"
+                : "text-destructive",
+            )}
+          >
+            {changeSinceScan.percentLabel}
+          </span>
         </span>
       )}
     </div>
@@ -128,6 +148,8 @@ export function CardPriceDetails({
         label: t("priceTable.tcgplayerMarket"),
         price: card.price,
         foilPrice: card.priceFoil,
+        priceAtScan: card.pricesAtScan?.price,
+        foilPriceAtScan: card.pricesAtScan?.priceFoil,
         format: formatUsd,
       },
       table: {
@@ -172,6 +194,8 @@ export function CardPriceDetails({
         label: t("priceTable.cardmarketAvg"),
         price: card.priceEur ?? null,
         foilPrice: card.priceEurFoil ?? null,
+        priceAtScan: card.pricesAtScan?.priceEur,
+        foilPriceAtScan: card.pricesAtScan?.priceEurFoil,
         format: formatEur,
       },
       table: {
@@ -219,6 +243,8 @@ export function CardPriceDetails({
         label: t("priceTable.cardKingdomRetail"),
         price: card.priceCardKingdom ?? null,
         foilPrice: card.priceCardKingdomFoil ?? null,
+        priceAtScan: card.pricesAtScan?.priceCardKingdom,
+        foilPriceAtScan: card.pricesAtScan?.priceCardKingdomFoil,
         format: formatUsd,
       },
       table: {

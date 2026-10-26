@@ -1,5 +1,6 @@
 import {
   CARD_CONDITIONS,
+  CARD_PRICE_AT_SCAN_KEYS,
   conditionFactor,
   PRICE_SOURCE_FIELDS,
   type ConditionMultipliers,
@@ -134,10 +135,18 @@ export function joinedCardPricesJsonSql(cardPricesAlias = "cp"): SQL {
     ) || COALESCE(${cp}.details, '{}'::jsonb))`;
 }
 
+function cardPricesAtScanJsonSql(savedCard: SQL): SQL {
+  const pairs = CARD_PRICE_AT_SCAN_KEYS.map(
+    (key) =>
+      sql`${key}::text, CASE WHEN jsonb_typeof(${savedCard} -> ${key}::text) = 'number' THEN ${savedCard} -> ${key}::text END`,
+  );
+  return sql`jsonb_build_object('pricesAtScan', jsonb_strip_nulls(jsonb_build_object(${sql.join(pairs, sql`, `)})))`;
+}
+
 export function cardWithStoredPricesSql(
   card: SQL,
   cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
 ): SQL {
   const prices = storedCardPriceSelect(cols, joinedCardPricesJsonSql());
-  return sql`(${card} || COALESCE(${prices}, '{}'::jsonb))`;
+  return sql`(${card} || ${cardPricesAtScanJsonSql(card)} || COALESCE(${prices}, '{}'::jsonb))`;
 }
