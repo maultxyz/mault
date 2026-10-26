@@ -174,8 +174,20 @@ export const pokemonAdapter: CardSearchAdapter = {
     productIdFromRaw: (card) =>
       resolveTcgplayerId((card.raw as PokemonCardDetail).pricing),
     subTypes: () => ({
-      price: ["Normal"],
-      priceFoil: ["Holofoil", "Reverse Holofoil"],
+      price: [
+        "Normal",
+        "Unlimited",
+        "Holofoil",
+        "Unlimited Holofoil",
+        "1st Edition",
+        "1st Edition Holofoil",
+      ],
+      priceFoil: [
+        "Holofoil",
+        "Reverse Holofoil",
+        "Unlimited Holofoil",
+        "1st Edition Holofoil",
+      ],
     }),
   },
   cardmarket: {
