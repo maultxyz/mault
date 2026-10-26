@@ -84,6 +84,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 
 - Swapping the embedding model is a breaking migration. There is no table-wide HNSW index: each `game_key` (and lang) gets a partial index built by `ensureGameVectorIndex` (`CREATE INDEX CONCURRENTLY` on a dedicated client, fire-and-forget from the Games routes). Filtered embedding queries need `hnsw.iterative_scan`. Rebuild vector indexes through `rebuildGameVectorIndex` (plain `REINDEX` keeps old params); sync skips `volatileDataKeys` diffs to avoid HNSW churn.
 - `findCardMatches` prefers a regular printing over a same-art promo or list reprint (`rarePrintingSql`); an explicit preferred set wins.
+- Every query that compares a scan against `cards` (embedding, OCR name, preferred set) adds `matchingExclusionFilter(scope)`, which skips the adapter's `excludedFromMatchingSql` rows (Scryfall `digital` printings). The rows stay synced.
 - An onnxruntime-web WASM `RuntimeError` is permanent for the page; don't retry.
 - Mobile Safari reloads tabs that pile up canvas memory: reuse scratch canvases, free per-scan ones with `releaseCanvases`, warp on the CPU (`warpRgba`), never WebGL.
 - Saves go through `PendingScanSavesProvider`, never directly. Bin capacity is checked client-side before routing; a routed card stays pending until bin counts with a later `dataUpdatedAt` land.
