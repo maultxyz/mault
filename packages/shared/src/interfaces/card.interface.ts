@@ -31,6 +31,18 @@ export interface PlayingCardCardKingdomPrice {
   url: string | null;
 }
 
+export type CardPricesAtScan = Partial<
+  Pick<
+    PlayingCard,
+    | "price"
+    | "priceFoil"
+    | "priceEur"
+    | "priceEurFoil"
+    | "priceCardKingdom"
+    | "priceCardKingdomFoil"
+  >
+>;
+
 export interface PlayingCard {
   id: string;
   name: string;
@@ -58,6 +70,7 @@ export interface PlayingCard {
   priceCardKingdomFoil?: number | null;
   cardKingdomPrice?: PlayingCardCardKingdomPrice;
   cardKingdomPriceFoil?: PlayingCardCardKingdomPrice;
+  pricesAtScan?: CardPricesAtScan;
   sourceUrl?: string;
   tcgplayerId?: string;
   cmc?: number;

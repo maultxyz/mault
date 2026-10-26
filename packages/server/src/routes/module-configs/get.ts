@@ -11,24 +11,19 @@ export const getModuleConfigsRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
-        if (!device) return { success: false, message: "Device not found." };
-        const rows = await tx.query.moduleConfigs.findMany({
-          where: (t, { eq, and }) =>
-            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
-        });
-        return {
-          success: true,
-          message: "Loaded module configs.",
-          data: buildConfigs(rows, device.moduleCount),
-        };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+      if (!device) return { success: false, message: "Device not found." };
+      const rows = await tx.query.moduleConfigs.findMany({
+        where: (t, { eq, and }) =>
+          and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      return {
+        success: true,
+        message: "Loaded module configs.",
+        data: buildConfigs(rows, device.moduleCount),
+      };
+    });
+    return c.json(result);
   },
 );

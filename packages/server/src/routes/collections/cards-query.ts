@@ -8,6 +8,7 @@ import {
   type FieldMeta,
   type GroupedScannedCard,
   type OrgPricing,
+  type ScannedCard,
   SORTABLE_FIELD_TYPES,
 } from "@magic-vault/shared";
 import { and, eq, sql, type SQL } from "drizzle-orm";
@@ -144,7 +145,7 @@ const COLOR_IDENTITY = sql`(CASE WHEN jsonb_typeof(cc.card -> 'colorIdentity') =
 
 const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' END)`;
 
-const DUPLICATE_KEY = sql`(cc.card_id || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition)`;
+const DUPLICATE_KEY = sql`(cc.card_id || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition || ':' || COALESCE(cc.language, cc.card ->> 'lang', 'en'))`;
 
 function isCardPriceKey(path: string): path is CardPriceKey {
   return path in CARD_PRICE_COLUMNS;
@@ -344,7 +345,7 @@ function rankedCardsCte(
 
 const CARD_ROW_COLUMNS = sql`
   cc.guid, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
-  cc.is_foil, cc.foil_type, cc.condition, cc.is_downloaded,
+  cc.is_foil, cc.foil_type, cc.condition, cc.language, cc.is_downloaded,
   cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
   cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name`;
 
@@ -357,6 +358,7 @@ function toCard(row: CollectionCardRow) {
     isFoil: row.is_foil,
     foilType: row.foil_type,
     condition: row.condition,
+    language: row.language,
     isDownloaded: row.is_downloaded,
     alternativeMatches: row.alternative_matches,
     isCorrected: row.is_corrected,
@@ -422,6 +424,28 @@ export async function loadCardsPage(
     totalEntries: totals?.total_entries ?? 0,
     totalCards: totals?.total_cards ?? 0,
   };
+}
+
+export async function loadCardCopies(
+  tx: Transaction,
+  collection: CardsCollection,
+  cardIds: string[],
+  limit: number,
+): Promise<ScannedCard[]> {
+  if (cardIds.length === 0) return [];
+  const result = await tx.execute(sql`
+    SELECT ${CARD_ROW_COLUMNS}
+    FROM collection_cards cc
+    ${STORAGE_LOCATION_JOIN}
+    LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id
+    WHERE cc.collection_id = ${collection.id}
+      AND cc.card_id = ${anyOf(cardIds)}
+      AND (il.id IS NULL OR il.status = 'accepted')
+    ORDER BY array_position(${pgTextArray(cardIds)}::text[], cc.card_id),
+      (sl.id IS NULL), sl.name, cc.location_position, cc.scanned_at DESC, cc.id DESC
+    LIMIT ${limit}::int
+  `);
+  return (result.rows as unknown as CollectionCardRow[]).map(toCard);
 }
 
 async function loadCardTotals(
@@ -509,7 +533,7 @@ export async function loadAllCards(
   const result = await tx.execute(sql`
     SELECT cc.guid, (cc.card || COALESCE(${joinedCardPricesJsonSql()}, '{}'::jsonb)) AS card,
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
-      cc.is_foil, cc.foil_type, cc.condition, cc.is_downloaded,
+      cc.is_foil, cc.foil_type, cc.condition, cc.language, cc.is_downloaded,
       cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
       cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name
     FROM collection_cards cc
@@ -654,9 +678,27 @@ export async function loadBinCounts(
 ) {
   if (bins.length === 0) return [];
   const result = await tx.execute(sql`
-    SELECT b."binNumber" AS bin_number, count(cc.id)::int AS count
-    ${binWindowsJoin(collectionId, bins)}
-    GROUP BY b."binNumber"
+    SELECT b."binNumber" AS bin_number,
+      (
+        SELECT count(*) FROM collection_cards cc
+        WHERE cc.collection_id = ${collectionId}
+          AND cc.bin_number = b."binNumber"
+          AND (
+            b."lastEmptiedAt" IS NULL
+            OR cc.scanned_at > to_timestamp(b."lastEmptiedAt" / 1000.0) AT TIME ZONE 'UTC'
+          )
+      )::int + (
+        SELECT count(*) FROM unmatched_cards u
+        WHERE u.collection_id = ${collectionId}
+          AND u.bin_number = b."binNumber"
+          AND u.is_deleted = false
+          AND (
+            b."lastEmptiedAt" IS NULL
+            OR u.scanned_at > to_timestamp(b."lastEmptiedAt" / 1000.0) AT TIME ZONE 'UTC'
+          )
+      )::int AS count
+    FROM jsonb_to_recordset(${JSON.stringify(bins)}::jsonb)
+      AS b("binNumber" int, "lastEmptiedAt" float8)
   `);
   return (
     result.rows as unknown as { bin_number: number; count: number }[]

@@ -1,24 +1,21 @@
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
+import { useCardViewPreferences } from "@/features/cards/api/use-card-view-preferences";
 import {
   monitorCardsKey,
   monitorCardsPageQueryOptions,
   monitorCardsSummaryQueryOptions,
 } from "@/features/scanner/api/monitor-cards";
-import { toDisplayStats } from "@/features/scanner/lib/compute-stats";
+import { toScanStats } from "@/features/scanner/lib/compute-stats";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   MONITOR_NEEDS_REVIEW_CARDS_QUERY,
   MONITOR_OPEN_CARD_PARAM,
 } from "@/lib/constants/scanner";
 import {
-  CARD_GROUP_DUPLICATES_STORAGE_KEY,
-  CARD_VIEW_MODE_STORAGE_KEY,
-} from "@/lib/constants/storage-keys";
-import {
   MONITOR_REFRESH_THROTTLE_MS,
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/timing";
-import type { CardViewMode } from "@/lib/interfaces/cards";
 import type {
   MonitorCardsSource,
   MonitorCardsState,
@@ -42,40 +39,12 @@ export function useMonitorCards(
   );
   const queryState = useCardQueryState(fieldDefinitions);
 
-  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
-    try {
-      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
-        ? "list"
-        : "grid";
-    } catch {
-      return "grid";
-    }
-  });
-
-  const handleViewModeChange = useCallback((mode: CardViewMode) => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
-    } catch {}
-  }, []);
-
-  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-
-  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
-    setGroupDuplicates(grouped);
-    try {
-      localStorage.setItem(
-        CARD_GROUP_DUPLICATES_STORAGE_KEY,
-        grouped ? "1" : "0",
-      );
-    } catch {}
-  }, []);
+  const {
+    viewMode,
+    handleViewModeChange,
+    groupDuplicates,
+    handleGroupDuplicatesChange,
+  } = useCardViewPreferences();
 
   const debouncedSearch = useDebouncedValue(
     queryState.searchQuery,
@@ -100,7 +69,7 @@ export function useMonitorCards(
     monitorCardsPageQueryOptions(cardsSource, cardsQuery, page),
   );
   const { data: summary } = useQuery(
-    monitorCardsSummaryQueryOptions(cardsSource, cardsQuery),
+    monitorCardsSummaryQueryOptions(cardsSource, ALL_CARDS_QUERY),
   );
 
   const { data: reviewSummary } = useQuery({
@@ -135,7 +104,7 @@ export function useMonitorCards(
   }, [page, clampedPage]);
 
   const stats = useMemo(
-    () => (summary ? toDisplayStats(summary.all, summary.filtered) : null),
+    () => (summary ? toScanStats(summary.all) : null),
     [summary],
   );
 
@@ -174,7 +143,6 @@ export function useMonitorCards(
     stats,
     cardCount: summary?.all.totalCount ?? collection?.cardCount ?? 0,
     matchingCount: pageData?.totalEntries ?? 0,
-    filteredCount: summary?.filtered.totalCount ?? 0,
     needsReviewCount: reviewSummary?.filtered.totalCount ?? 0,
     openScanId,
     setOpenScanId,

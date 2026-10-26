@@ -1,5 +1,6 @@
 import type {
   CardCondition,
+  CardScanOrigin,
   CardFilters,
   CardStorageLocation,
   CardSetOption,
@@ -10,9 +11,10 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 
 export interface CardSearchPickerProps {
@@ -22,20 +24,23 @@ export interface CardSearchPickerProps {
   onSelect: (card: PlayingCard) => void;
 }
 
-export interface CardSortButtonProps {
+export interface CardSearchLanguageSelectProps {
+  value: string;
+  onChange: (language: string) => void;
+}
+
+export interface CardSortOptionsProps {
   sortKey: string | null;
   onSortChange: (key: string | null) => void;
   sortableFields: FieldMeta[];
-  className?: string;
 }
 
 export interface CardDetailsListProps {
   card: PlayingCard;
 }
 
-export interface CardScanOriginSectionProps {
-  scanId: string;
-  collectionGuid: string | undefined;
+export interface CardScanOriginListProps {
+  origin: CardScanOrigin;
 }
 
 export interface DetailSectionProps {
@@ -91,6 +96,8 @@ export interface PriceHeadlineProps {
   label: string;
   price: number | null;
   foilPrice: number | null;
+  priceAtScan?: number | null;
+  foilPriceAtScan?: number | null;
   isFoil: boolean;
   format: (value: number) => string;
 }
@@ -99,23 +106,6 @@ export interface PriceSourceSection {
   source: PriceSource;
   headline: Omit<PriceHeadlineProps, "isFoil">;
   table: PriceTableProps;
-}
-
-export interface CardSelectDialogProps {
-  trigger?: ReactElement;
-  title?: string;
-  description?: string;
-  scanId?: string;
-  onRemove?: () => void;
-  currentCard?: PlayingCardWithDistance;
-  alternativeMatches?: PlayingCardWithDistance[];
-  capturedImageUrl?: string;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  onPrev?: () => void;
-  onNext?: () => void;
-  hasPrev?: boolean;
-  hasNext?: boolean;
 }
 
 export type CardViewMode = "grid" | "list";
@@ -145,6 +135,7 @@ export interface CardToolbarProps {
   sortableFields: FieldMeta[];
   onExport?: () => void;
   onStartReview?: () => void;
+  needsReviewCount?: number;
   collectionName?: string;
   onClearAll?: () => void;
   hasCards: boolean;
@@ -351,14 +342,17 @@ export interface CardDetailActions {
   markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
+  setCardLanguage: (scanId: string, language: string) => void;
 }
 
 export interface ScanDraftOptions {
   scanId?: string;
   savedFoilType: string | null;
   savedCondition: CardCondition;
+  savedLanguage: string;
   setCardFoilType: CardDetailActions["setCardFoilType"];
   setCardCondition: CardDetailActions["setCardCondition"];
+  setCardLanguage: CardDetailActions["setCardLanguage"];
 }
 
 export interface CardDetailScope {
@@ -378,6 +372,7 @@ export interface CardDetailPanelProps {
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;
+  language?: string;
   binNumber?: number;
   onPrev?: () => void;
   onNext?: () => void;
@@ -390,11 +385,36 @@ export interface CardDetailPanelProps {
   storageLocation?: CardStorageLocation;
   reviewMode?: boolean;
   onReviewComplete?: () => void;
+  onShowReviewGrid?: () => void;
   footerActions?: ReactNode;
   onRemoveShortcut?: () => void;
 }
 
-export interface CardFilterPopoverProps {
+export type ReviewLayout = "grid" | "single";
+
+export interface ReviewGridProps {
+  cards: ReviewGridCard[];
+  total: number;
+  isLoading: boolean;
+  isError: boolean;
+  onOpenOneByOne: (card: ReviewGridCard) => void;
+  onClose: () => void;
+  onCorrect?: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
+}
+
+export interface ReviewGridTileProps {
+  card: ReviewGridCard;
+  onAccept: () => void;
+  onCorrect: () => void;
+}
+
+export interface ReviewGridCorrectionDialogProps {
+  card: ReviewGridCard | null;
+  onSelect: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
+  onClose: () => void;
+}
+
+export interface CardFilterFieldsProps {
   activeFilters: CardFilters;
   onFiltersChange: (filters: CardFilters) => void;
   activeFilterCount: number;
@@ -402,6 +422,21 @@ export interface CardFilterPopoverProps {
   availableColors: ScanStats["colors"];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
+}
+
+export interface CardDisplayOptionsProps {
+  viewMode?: CardViewMode;
+  onViewModeChange?: (mode: CardViewMode) => void;
+  density?: CardGridDensity;
+  onDensityChange?: (density: CardGridDensity) => void;
+  groupDuplicates?: boolean;
+  onGroupDuplicatesChange?: (grouped: boolean) => void;
+}
+
+export interface CardViewOptionsDrawerProps
+  extends CardSortOptionsProps,
+    CardFilterFieldsProps,
+    CardDisplayOptionsProps {
   triggerClassName?: string;
 }
 
@@ -446,4 +481,8 @@ export interface ReviewSession {
   previousScanId: string | null;
   resolveNext: (upcomingScanId: string | null | undefined) => string | null;
   forget: (scanId: string) => void;
+}
+
+export interface OpenScanOptions {
+  inReviewMode?: boolean;
 }

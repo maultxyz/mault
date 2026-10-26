@@ -1,4 +1,4 @@
-name: Deploy
+name: Release
 
 on:
   # Nightly at 19:17 America/Chicago, off the top of the hour since GitHub
@@ -11,7 +11,13 @@ on:
   schedule:
     - cron: "17 0 * * *"
     - cron: "17 1 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump (master only; scheduled runs and dev deploys bump the patch)
+        type: choice
+        options: [patch, minor, major]
+        default: patch
 
 permissions:
   contents: write
@@ -149,12 +155,23 @@ jobs:
           if [ "$IS_DEV" = "true" ]; then
             VERSION="${CURRENT}-dev.${GITHUB_SHA::7}"
           else
-            MAJOR_MINOR=$(echo "$CURRENT" | grep -oP '^\d+\.\d+')
-            CURRENT_PATCH=$(echo "$CURRENT" | grep -oP '\d+$')
-            LAST=$(git tag -l "v${MAJOR_MINOR}.*" | grep -E "^v${MAJOR_MINOR}\.[0-9]+$" | sed -E "s/^v${MAJOR_MINOR}\.//" | sort -n | tail -1)
-            LAST="${LAST:-$CURRENT_PATCH}"
-            PATCH=$((LAST + 1))
-            VERSION="${MAJOR_MINOR}.${PATCH}"
+            MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+            MINOR=$(echo "$CURRENT" | cut -d. -f2)
+            case "${{ inputs.bump || 'patch' }}" in
+              major) VERSION="$((MAJOR + 1)).0.0" ;;
+              minor) VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
+              *)
+                MAJOR_MINOR="${MAJOR}.${MINOR}"
+                CURRENT_PATCH=$(echo "$CURRENT" | grep -oP '\d+$')
+                LAST=$(git tag -l "v${MAJOR_MINOR}.*" | grep -E "^v${MAJOR_MINOR}\.[0-9]+$" | sed -E "s/^v${MAJOR_MINOR}\.//" | sort -n | tail -1)
+                LAST="${LAST:-$CURRENT_PATCH}"
+                VERSION="${MAJOR_MINOR}.$((LAST + 1))"
+                ;;
+            esac
+            if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+              echo "::error::Tag v$VERSION already exists."
+              exit 1
+            fi
           fi
           node scripts/set-version.mjs "$VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
@@ -167,7 +184,7 @@ jobs:
         if: steps.deploy.outputs.should_deploy == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 26
           cache: pnpm
 
       # The API reference site serves this file as-is, so the spec is

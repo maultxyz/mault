@@ -2,6 +2,7 @@ import {
   confirmCollectionCard,
   markCollectionCardReviewed,
   setCollectionCardCondition,
+  setCollectionCardLanguage,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -42,12 +43,17 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
-export function useStorageLocations() {
+export function useStorageLocations({ withList = true } = {}) {
   const { t } = useTranslation("storage");
   const queryClient = useQueryClient();
   const { activeOrg } = useOrg();
   const listOptions = storageLocationsQueryOptions(activeOrg?.id);
-  const { data: locations = [], isPending } = useQuery(listOptions);
+  const { data: locations = [], isPending } = useQuery({
+    ...listOptions,
+    enabled: listOptions.enabled !== false && !!activeOrg?.id && withList,
+  });
+  const invalidateAll = () =>
+    void queryClient.invalidateQueries({ queryKey: storageLocationKeys.root() });
 
   const applyList = (result: Result<StorageLocation[]>) => {
     if (!result.success) {
@@ -56,6 +62,7 @@ export function useStorageLocations() {
     }
     if (result.data)
       queryClient.setQueryData(listOptions.queryKey, result.data);
+    invalidateAll();
     return true;
   };
 
@@ -67,6 +74,7 @@ export function useStorageLocations() {
         return;
       }
       queryClient.setQueryData(listOptions.queryKey, result.data.locations);
+      invalidateAll();
     },
     onError: () => toast.error(t("toasts.failed")),
   });
@@ -80,13 +88,7 @@ export function useStorageLocations() {
 
   const deleteMutation = useMutation({
     mutationFn: deleteStorageLocation,
-    onSuccess: (result) => {
-      if (applyList(result)) {
-        void queryClient.invalidateQueries({
-          queryKey: storageLocationKeys.root(),
-        });
-      }
-    },
+    onSuccess: applyList,
     onError: () => toast.error(t("toasts.failed")),
   });
 
@@ -109,7 +111,7 @@ export function useStorageLocations() {
 
   return {
     locations,
-    isLoading: !!activeOrg && isPending,
+    isLoading: withList && !!activeOrg && isPending,
     isMutating:
       createMutation.isPending ||
       renameMutation.isPending ||
@@ -420,6 +422,35 @@ export function useSetStoredCardCondition() {
   };
 }
 
+export function useSetStoredCardLanguage() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({
+      entry,
+      language,
+    }: {
+      entry: StorageLocationSearchResult;
+      language: string;
+    }) =>
+      setCollectionCardLanguage(entry.collectionGuid, entry.scanId, language),
+    onMutate: ({ entry, language }) =>
+      patchStoredCard(queryClient, entry, { language }),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, { entry }) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return {
+    setLanguage: (entry: StorageLocationSearchResult, language: string) =>
+      mutation.mutate({ entry, language }),
+  };
+}
+
 export function useStoredCardActions(
   entry: StorageLocationSearchResult | null,
 ): CardDetailActions {
@@ -428,6 +459,7 @@ export function useStoredCardActions(
   const { markReviewed } = useMarkStoredCardReviewed();
   const { setFoilType } = useSetStoredCardFoilType();
   const { setCondition } = useSetStoredCardCondition();
+  const { setLanguage } = useSetStoredCardLanguage();
 
   return {
     correctCard: (_scanId, card) => {
@@ -444,6 +476,9 @@ export function useStoredCardActions(
     },
     setCardCondition: (_scanId, condition) => {
       if (entry) setCondition(entry, condition);
+    },
+    setCardLanguage: (_scanId, language) => {
+      if (entry) setLanguage(entry, language);
     },
   };
 }

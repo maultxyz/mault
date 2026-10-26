@@ -1,13 +1,23 @@
 import { MobileListRow } from "@/components/mobile-list-row";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import {
   MOBILE_LIST_CLASS,
   MOBILE_SCAN_PAIR_PATH,
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
+import { CARD_CONDITIONS, isCardCondition } from "@magic-vault/shared";
 import type { MobileScanOptionsSheetProps } from "@/lib/interfaces/scanner";
 import {
   IconAlbum,
@@ -18,6 +28,8 @@ import {
   IconFocus2,
   IconListDetails,
   IconPlayerTrackNext,
+  IconQrcode,
+  IconRosette,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
@@ -30,7 +42,9 @@ export function MobileScanOptionsSheet({
   onChooseCamera,
 }: MobileScanOptionsSheetProps) {
   const { t } = useTranslation("scanner");
+  const { t: tCards } = useTranslation("cards");
   const { activeCollection } = useCollections();
+  const { scanCondition, setScanCondition } = useScannedCards();
   const { sets, selectedSet } = useBinConfigs();
   const selectedCameraIndex = chrome.cameras.findIndex(
     (camera) => camera.deviceId === chrome.selectedCameraId,
@@ -103,6 +117,29 @@ export function MobileScanOptionsSheet({
                 onClick={onChoosePreset}
               />
             )}
+            <MobileListRow
+              icon={<IconRosette />}
+              label={t("mobileScan.condition")}
+              trailing={
+                <Select
+                  value={scanCondition}
+                  onValueChange={(value) => {
+                    if (isCardCondition(value)) setScanCondition(value);
+                  }}
+                >
+                  <SelectTrigger size="sm" aria-label={t("mobileScan.condition")}>
+                    <SelectValue>{scanCondition}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CARD_CONDITIONS.map((condition) => (
+                      <SelectItem key={condition} value={condition}>
+                        {tCards(`condition.names.${condition}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              }
+            />
             {chrome.cameras.length > 1 && (
               <MobileListRow
                 icon={<IconCamera />}
@@ -131,6 +168,12 @@ export function MobileScanOptionsSheet({
               label={t("mobileScan.pairDesktop")}
               description={t("mobileScan.pairDesktopDescription")}
               to={MOBILE_SCAN_PAIR_PATH}
+            />
+            <MobileListRow
+              icon={<IconQrcode />}
+              label={t("controlCards.openPage")}
+              description={t("controlCards.openPageDescription")}
+              to={CONTROL_CARDS_PATH}
             />
           </div>
         </div>

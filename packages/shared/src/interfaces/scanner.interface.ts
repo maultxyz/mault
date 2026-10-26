@@ -5,6 +5,7 @@ import type {
 import type { PlayingCardWithDistance } from "./card.interface";
 import type { CardCondition } from "./card-condition.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
+import type { ScannerControlCommand } from "./scanner-control-code.interface";
 import type { CardStorageLocation } from "./storage-locations.interface";
 
 export interface Point {
@@ -35,7 +36,7 @@ export interface CornerDetection {
 }
 
 export interface ScanRegion {
-  coverage: number; // 0-1
+  coverage: number;
   offsetX: number; // -0.5 to 0.5
   offsetY: number; // -0.5 to 0.5
 }
@@ -71,17 +72,12 @@ export interface CardScannerProps {
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
   ) => void;
+  onControlCode?: (command: ScannerControlCommand | null) => void;
   onManualAdd?: () => void;
   onError?: (error: string) => void;
   className?: string;
   compact?: boolean;
   controlsPosition?: "bottom" | "side";
-}
-
-export interface CardMatch {
-  id: number;
-  cardId: string;
-  distance: number;
 }
 
 export type ScanVectorizeSource = "server" | "web";
@@ -96,6 +92,7 @@ export interface ScannedCard {
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;
+  language?: string;
   isDownloaded?: boolean;
   corrected?: boolean;
   lowConfidenceMatch?: boolean;
@@ -174,6 +171,11 @@ export interface UnmatchedCard {
   vectorizedOn?: ScanVectorizeSource;
   diagnostics?: UnmatchedScanDiagnostics;
   embedding?: number[];
+}
+
+export interface UnmatchedCardsPage {
+  cards: UnmatchedCard[];
+  total: number;
 }
 
 export interface ScanSaveRequestFields {

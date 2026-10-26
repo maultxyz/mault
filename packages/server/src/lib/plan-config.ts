@@ -25,7 +25,12 @@ import {
 export function defaultPlanConfig(): PlanConfig {
   return {
     free: {
-      features: { chaosSort: false, storage: false, apiAccess: false },
+      features: {
+        chaosSort: false,
+        storage: false,
+        apiAccess: false,
+        businessTools: false,
+      },
       limits: {
         dailyScans: FREE_PLAN_DAILY_SCAN_LIMIT,
         connectedSorters: FREE_PLAN_MAX_CONNECTED_SORTERS,
@@ -34,7 +39,12 @@ export function defaultPlanConfig(): PlanConfig {
       },
     },
     business: {
-      features: { chaosSort: true, storage: true, apiAccess: true },
+      features: {
+        chaosSort: true,
+        storage: true,
+        apiAccess: true,
+        businessTools: true,
+      },
       limits: {
         dailyScans: null,
         connectedSorters: null,

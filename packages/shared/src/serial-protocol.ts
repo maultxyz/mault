@@ -14,6 +14,18 @@ function asFields(message: unknown): Record<string, unknown> | null {
     : null;
 }
 
+export function parseSerialReply(
+  line: string | null | undefined,
+): Record<string, unknown> | null {
+  if (!line) return null;
+  try {
+    const value: unknown = JSON.parse(line);
+    return Array.isArray(value) ? null : asFields(value);
+  } catch {
+    return null;
+  }
+}
+
 export function isUnsolicitedSerialMessage(message: unknown): boolean {
   const fields = asFields(message);
   if (!fields) return false;

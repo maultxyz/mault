@@ -265,12 +265,5 @@
         }
       }
     }
-  },
-  "footer": {
-    "openSource": "Open source",
-    "reportIssue": "Report an issue",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "copyright": "© {{year}} Mault LLC"
   }
 }

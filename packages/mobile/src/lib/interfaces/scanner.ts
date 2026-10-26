@@ -1,21 +1,20 @@
 import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
 import type {
   BinConfig,
-  BinContentCard,
-  BinSet,
+  CardCondition,
   CardContour,
-  FieldMeta,
   CardSearchResult,
-  MatchCandidateDiagnostic,
   MatchedScanDetails,
-  OcrDiagnostics,
   PlayingCardWithDistance,
   RgbaImage,
-  ScanDetectionDiagnostics,
-  ScanMatchSource,
+  ScanAttemptResult,
   ScanRegion,
   ScannedCard,
-  SearchNoMatchReason,
+  ScannerControlCommand,
+  ScannerControlCommandProblem,
+  ScanRemovalEntry,
+  SerialCommand,
+  SerialEventReport,
   UnmatchedCard,
   UnmatchedScanDetails,
 } from "@magic-vault/shared";
@@ -42,23 +41,9 @@ export interface OrientedPick {
   alternate: OrientedPick | null;
 }
 
-export interface ScanAttempt {
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  noMatchReason: SearchNoMatchReason | "lookup_failed" | null;
-  lookupFailedCardIds?: string[];
-  candidates: MatchCandidateDiagnostic[];
-  detection: ScanDetectionDiagnostics;
+export interface ScanAttempt extends ScanAttemptResult {
   contour: CardContour | null;
-  orientation: Orientation;
-  embedding: number[] | null;
   pixels: RgbaImage | null;
-  search: CardSearchResult["diagnostics"] | null;
-  topDistance: number | null;
-  ocr: OcrDiagnostics | null;
-  matchedBy: ScanMatchSource;
-  lowConfidenceMatch: boolean;
-  detectedColor: string | null;
 }
 
 export interface IdentifyOptions {
@@ -104,7 +89,17 @@ export type ScannerPauseReason =
   | "sorter-disconnected"
   | "no-match"
   | "duplicate"
-  | "repack-complete";
+  | "repack-complete"
+  | "bin-data-unavailable"
+  | "deploy"
+  | "control-card"
+  | "control-card-switch-failed"
+  | `control-card-${ScannerControlCommandProblem | "unreadable"}`;
+
+export interface ControlCardNotice {
+  noticeId: string;
+  command: ScannerControlCommand;
+}
 
 export interface ScanFeedEntry {
   scanId: string;
@@ -160,23 +155,6 @@ export interface PendingSavesContextValue {
   saveUnmatched: (save: Omit<PendingUnmatchedSave, "kind" | "key" | "attempts">) => Promise<CardSaveResult>;
 }
 
-export interface RoutingContext {
-  set: BinSet | undefined;
-  configs: BinConfig[];
-  fieldDefinitions: FieldMeta[];
-  countInBin: (binNumber: number) => number;
-  isBinFull: (binNumber: number) => boolean;
-  binContents: BinContentCard[];
-  autoAssignActive: boolean;
-}
-
-export interface RoutingDecision {
-  bin: BinConfig | undefined;
-  isLowMatch: boolean;
-  pickListName: string | null;
-  allChaosBinsFull: boolean;
-}
-
 export interface ScanSessionInputs {
   capture: () => Promise<CapturedFrame>;
 }
@@ -197,6 +175,59 @@ export interface ScanSessionValue extends ScanSessionState {
   setHandScan: (value: boolean) => void;
   handScanActive: boolean;
   trackLiveCorners: (corners: LiveCorners | null) => void;
+  forcedFoilType: string | null;
+  setForcedFoilType: (foilType: string | null) => void;
+  forcedSetCode: string | null;
+  setForcedSetCode: (setCode: string | null) => void;
+  scanCondition: CardCondition;
+  setScanCondition: (condition: CardCondition) => void;
+  controlCardNotice: ControlCardNotice | null;
+  fullBinNumbers: number[];
+  markFullBinsEmpty: () => Promise<boolean>;
+  binConfigs: BinConfig[];
+  removal: ScanRemovalValue;
+}
+
+export type ScanRemovalNoticeKind = "no-match" | "lookup-failed" | "removed";
+
+export type ScanMode = "add" | "remove";
+
+export interface ScanRemovalNotice {
+  noticeId: string;
+  kind: ScanRemovalNoticeKind;
+  cardName?: string;
+  removedCount?: number;
+}
+
+export interface ScanRemovalInputs {
+  collectionGuid: string | null;
+  binConfigs: BinConfig[];
+}
+
+export interface ScanRemovalValue {
+  isEnabled: boolean;
+  setIsEnabled: (value: boolean) => void;
+  isActive: boolean;
+  removalBinNumber: number | null;
+  setRemovalBinNumber: (binNumber: number) => void;
+  entries: ScanRemovalEntry[];
+  queueMatchedCardForRemoval: (
+    matchedCard: PlayingCardWithDistance,
+    alternativeMatches: PlayingCardWithDistance[],
+  ) => Promise<boolean>;
+  showNoMatchNotice: () => void;
+  notice: ScanRemovalNotice | null;
+  selectCopyForEntry: (entryId: string, scanId: string) => void;
+  dropEntry: (entryId: string) => void;
+  isRemovingQueuedCopies: boolean;
+  removeQueuedCopies: () => Promise<void>;
+}
+
+export interface ScanRemovalQueueSheetProps {
+  visible: boolean;
+  removal: ScanRemovalValue;
+  collectionName: string;
+  onClose: () => void;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -255,9 +286,16 @@ export interface ScanOptionsSheetProps {
   showPreset: boolean;
   cameraName: string | null;
   showCamera: boolean;
+  foilTypeName: string;
+  showFoilType: boolean;
+  setName: string;
+  conditionName: string;
   onChooseCollection: () => void;
   onChoosePreset: () => void;
   onChooseCamera: () => void;
+  onChooseFoilType: () => void;
+  onChooseSet: () => void;
+  onChooseCondition: () => void;
   onClose: () => void;
 }
 
@@ -285,3 +323,12 @@ export interface PhoneCameraResponder {
 export interface QrScanner {
   outputs: CameraOutput[];
 }
+
+export interface RoutedCardTarget {
+  binNumber: number;
+  cardName?: string;
+}
+
+export type FeedCommand = Extract<SerialCommand, "feeder" | "auto-feed">;
+
+export type SorterEventDetails = Omit<SerialEventReport, "collectionGuid" | "deviceGuid">;

@@ -1,0 +1,1 @@
+ALTER TABLE "collection_cards" ADD COLUMN "language" text;

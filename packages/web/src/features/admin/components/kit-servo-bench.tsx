@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useKitChannel } from "@/features/admin/api/use-kit-channel";
-import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@/lib/constants/calibration";
 import { KIT_CENTER_PULSE, KIT_CHANNELS } from "@/lib/constants/kit-test";
 import type { KitPanelProps } from "@/lib/interfaces/kit-test";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@magic-vault/shared";
 
 export function KitServoBench({ session, disabled }: KitPanelProps) {
   const { t } = useTranslation("admin");

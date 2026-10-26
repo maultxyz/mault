@@ -20,7 +20,8 @@
     "paused": "Paused",
     "noCollection": "No collection",
     "minimize": "Minimize to the side",
-    "expand": "Show scanner preview"
+    "expand": "Show scanner preview",
+    "hide": "Hide until you return to MAULT"
   },
   "piScan": {
     "preview": "Live view of the sorter",
@@ -75,6 +76,11 @@
     "commLogCopied": "Communication log copied to clipboard",
     "commLogCopyFailed": "Failed to copy communication log",
     "commLogEmpty": "No communication recorded yet",
+    "commLogMarker": {
+      "connected": "New connection ({{transport}})",
+      "disconnected": "Disconnected ({{transport}})",
+      "restarted": "Sorter restarted ({{reason}})"
+    },
     "firmwareOutdatedBanner": "Your sorter is running firmware v{{version}}, older than the latest v{{latest}}. Re-upload firmware/main/main.ino to update it.",
     "firmwareOutdatedBannerBluetooth": "Your sorter is running firmware v{{version}}, older than the latest v{{latest}}. To update it from the browser, plug the ESP32-S3 in with USB (left port, labeled USB) and connect over USB instead of Bluetooth.",
     "firmwareVersionMissingBanner": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning.",
@@ -86,7 +92,7 @@
       "dialogDescription": "Flashes the latest firmware to your connected ESP32 over this browser tab. Don't disconnect the device or close this tab while it's in progress.",
       "startButton": "Start update",
       "flashing": "Flashing, do not disconnect the device…",
-      "success": "Firmware flashed. Disconnect the sorter from your computer, then plug it back in to finish.",
+      "success": "Firmware flashed. Unplug the ESP32's USB cable, then plug it back in to start the new firmware.",
       "errorTitle": "Update failed",
       "close": "Close",
       "tryAgain": "Try again"
@@ -105,7 +111,9 @@
       "errors": {
         "wrongChip": "This board is an {{chip}}. The sorter firmware only runs on the ESP32-S3, so nothing was written.",
         "noBootloader": "Couldn't reach the board's bootloader. Hold the BOOT button, tap RESET, release BOOT, then try again.",
+        "portUnavailable": "Couldn't open the board's port. Close anything else using it (Arduino IDE Serial Monitor, another browser tab), check the cable, then try again.",
         "downloadFailed": "Couldn't download the firmware. Check your connection and try again.",
+        "invalidImage": "The downloaded firmware file isn't a valid ESP32 image, so nothing was written. Reload the page and try again.",
         "verifyFailed": "The firmware was written, but the board's flash doesn't match it. Unplug the board, plug it back in and flash again."
       },
       "newBoard": {
@@ -114,7 +122,7 @@
         "hintPort": "Plug the board in using its left USB-C port (labeled USB, not UART or COM), then pick it in the browser's port prompt.",
         "hintBootMode": "If flashing can't start, hold BOOT, tap RESET, release BOOT, and try again.",
         "startButton": "Choose board and flash",
-        "success": "Firmware installed. The board has restarted and is ready to connect.",
+        "success": "Firmware installed. Unplug the ESP32's USB cable, then plug it back in to start the new firmware.",
         "connectButton": "Connect sorter"
       }
     },
@@ -125,7 +133,7 @@
     "deviceReadyNoTest": "Device ready (self-test skipped)",
     "unexpectedReset": {
       "title": "Sorter restarted",
-      "description": "The sorter restarted on its own: {{reason}} A card that was moving wasn't routed, so check the modules before resuming. The sorter is being checked again now."
+      "description": "The sorter restarted on its own: {{reason}} A card that was moving wasn't routed, so check the modules before resuming. The self-test is skipped so cards still inside aren't swept around."
     },
     "abnormalBoot": {
       "title": "Sorter restarted before connecting",
@@ -290,7 +298,13 @@
     "anySet": "Any set",
     "setSearchPlaceholder": "Search sets",
     "noSets": "No sets found",
-    "setHint": "Scanned cards use their printing from this set when one exists."
+    "setHint": "Scanned cards use their printing from this set when one exists.",
+    "conditionTooltip": "Condition for scanned cards: {{condition}}",
+    "start": "Start scanning",
+    "sessionSummary_one": "{{count}} card scanned · {{time}}",
+    "sessionSummary_other": "{{count}} cards scanned · {{time}}",
+    "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "startRemoving": "Start removing"
   },
   "scannerDebug": {
     "heading": "Debug",
@@ -307,7 +321,6 @@
     "cameraFallbackLabel": "Camera {{index}}",
     "connectUsb": "Connect via USB",
     "connectBluetooth": "Connect via Bluetooth",
-    "scanner": "Scanner",
     "autoFeed": "Auto-feed",
     "allowDuplicates": "Allow duplicates",
     "scanWithoutSorter": "Scan without sorter",
@@ -317,7 +330,15 @@
     "connectAnotherUsb": "Connect another sorter (USB)",
     "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
     "flashNewBoard": "Flash a new board",
-    "connectAnotherUpgrade": "Connect more sorters with Business"
+    "connectAnotherUpgrade": "Connect more sorters with Business",
+    "clearDevice": "Clear device",
+    "resetToNeutral": "Reset to neutral",
+    "sorter": "Sorter",
+    "connectionStates": {
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "disconnected": "Not connected"
+    }
   },
   "ocrBetaDialog": {
     "title": "OCR text matching (beta)",
@@ -361,7 +382,7 @@
     "noCatchAllBin": "No catch-all bin configured, so unmatched cards won't be sorted.",
     "initializing": "Initializing scanner…",
     "identifyingCard": "Identifying card…",
-    "paused": "Scanner paused. Press Resume to continue.",
+    "paused": "Scanner paused.",
     "duplicate": "Same card scanned. Use Add Again to add it anyway.",
     "noMatch": "Card not recognized. Try Scan Again or adjust lighting.",
     "faceUpHint": "Cards should face right-side up",
@@ -411,16 +432,35 @@
     "ocrMatchedName": "Closest card name: {{name}} (similarity {{score}}), but no printing was close enough.",
     "ocrNoName": "No card name was close enough to the text read.",
     "identify": "Identify card",
-    "identifyTitle": "Identify this card",
-    "identifyDescription": "Pick the card in this scan. It's added to the collection with this photo, in the bin it was sorted into.",
     "identified": "{{name}} added to the collection.",
     "identifyFailed": "Couldn't add the card. Try again.",
     "remove": "Remove card",
     "removeFailed": "Couldn't remove the card. Try again.",
-    "expand": "Expand",
     "gridTitle": "Unmatched cards",
-    "gridDescription": "Pick a card to see why it didn't match and identify it.",
-    "gridNearest": "Nearest: {{name}}"
+    "gridDescription": "Every unmatched scan, newest first. Open one to see why it didn't match and fix it.",
+    "gridNearest": "Nearest: {{name}}",
+    "showingRecent": "Latest {{count}}",
+    "viewAll_one": "View unmatched card",
+    "viewAll_other": "View all {{count}} unmatched cards",
+    "startReview": "Review one by one",
+    "previous": "Previous card",
+    "next": "Next card",
+    "skip": "Skip",
+    "reviewIdentifyHint": "Search for the card in this photo and pick it to add it to the collection.",
+    "reviewReadOnlyHint": "You can look through these cards, but not identify them.",
+    "reviewDone": "All caught up",
+    "reviewDoneDescription": "There are no more unmatched cards to review.",
+    "emptyTitle": "No unmatched cards",
+    "emptyDescription": "Every scan in this collection was matched.",
+    "backToCards": "Back to cards",
+    "backToGrid": "Back to unmatched cards",
+    "pageOf": "Page {{page}} of {{total}}",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "openCard": "Open unmatched card",
+    "expand": "Show unmatched cards",
+    "collapse": "Hide unmatched cards",
+    "viewAllShort": "View all"
   },
   "binStatusMeter": {
     "heading": "Bin Levels",
@@ -601,7 +641,6 @@
     "cards": "Cards",
     "searchPlaceholder": "Search cards",
     "needsReview": "Needs review",
-    "groupDuplicates": "Group copies",
     "back": "Back to sessions",
     "previousPage": "Previous page",
     "nextPage": "Next page",
@@ -781,7 +820,8 @@
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
       "sorterDescription": "Connection, self-test and status"
-    }
+    },
+    "condition": "Condition"
   },
   "mobileSorter": {
     "title": "Sorter",
@@ -817,7 +857,8 @@
     "title": "Wi-Fi remote access",
     "description": "Connect the sorter to your Wi-Fi so you can control it from anywhere, including a phone without Bluetooth.",
     "connectFirst": "Connect your sorter over USB or Bluetooth to set up Wi-Fi.",
-    "needsEsp32": "Wi-Fi remote access needs an ESP32 board.",
+    "needsWifiBoard": "Wi-Fi remote access needs an ESP32 or Arduino Uno R4 WiFi board. On an Uno R4 WiFi, update the sorter to the latest firmware.",
+    "sharesRadio": "On the Uno R4 WiFi, Wi-Fi and Bluetooth share one radio, so Bluetooth is off while Wi-Fi is set up. The sorter restarts when you set up or turn off Wi-Fi.",
     "needsFirmware": "Wi-Fi remote access needs firmware {{version}} or newer. Update your sorter's firmware to use it.",
     "changeOverLocal": "You're connected over Wi-Fi. To change the Wi-Fi network, connect over USB or Bluetooth.",
     "setUp": "Set up Wi-Fi",
@@ -826,8 +867,11 @@
     "notSetUp": "Not set up",
     "unknown": "Checking…",
     "forgotten": "Wi-Fi turned off.",
+    "forgottenLinkKept": "Wi-Fi turned off. The server couldn't remove the old link, so it will be replaced the next time you set up Wi-Fi.",
+    "forgottenRestarting": "Wi-Fi turned off. The sorter is restarting with Bluetooth back on.",
     "forgetFailed": "Couldn't turn off Wi-Fi.",
     "saved": "Wi-Fi saved. The sorter is joining the network.",
+    "savedRestarting": "Wi-Fi saved. The sorter is restarting to join the network, and Bluetooth turns off.",
     "saveFailed": "Couldn't save Wi-Fi",
     "saveFailedDescription": "The sorter didn't accept the settings. Check that it's still connected and try again.",
     "dialogTitle": "Connect sorter to Wi-Fi",
@@ -863,5 +907,105 @@
     "offline": "Offline",
     "inUse": "In use",
     "connectedHere": "Connected"
+  },
+  "scanRemoval": {
+    "title": "Scan to remove",
+    "description": "Scan cards to queue them for removal from {{collection}}. Nothing is removed until you confirm.",
+    "exit": "Stop removing",
+    "queuedCount_one": "{{count}} queued",
+    "queuedCount_other": "{{count}} queued",
+    "noCopyLeft": "No copy left in this collection",
+    "noMatch": "No match, try again",
+    "lookupFailed": "Couldn't look up copies of {{name}}. Scan it again.",
+    "emptyTitle": "Nothing queued yet",
+    "emptyDescription": "Scan a card to queue a copy of it for removal.",
+    "changeCopy": "Change copy",
+    "drop": "Drop",
+    "clear": "Clear",
+    "removeButton_one": "Remove {{count}} card",
+    "removeButton_other": "Remove {{count}} cards",
+    "confirmTitle_one": "Remove {{count}} card?",
+    "confirmTitle_other": "Remove {{count}} cards?",
+    "confirmDescription": "These copies are deleted from {{collection}}, including their photos. This can't be undone.",
+    "removed_one": "Removed {{count}} card",
+    "removed_other": "Removed {{count}} cards",
+    "removeFailed": "Couldn't remove the cards. Try again.",
+    "foil": "Foil",
+    "nonFoil": "Non-foil",
+    "storage": "{{name}} #{{position}}",
+    "bin": "Bin {{number}}",
+    "unsorted": "Unsorted",
+    "modeLabel": "Scan mode",
+    "addMode": "Add cards",
+    "removeMode": "Remove cards",
+    "binLabel": "Removed cards go to",
+    "binPlaceholder": "Choose a bin",
+    "catchAllBinOption": "Bin {{number}} (catch-all)"
+  },
+  "controlCards": {
+    "openPage": "Print control cards",
+    "openPageDescription": "QR cards that change scan settings when the sorter reads them",
+    "applied": "Control card applied",
+    "rejected": {
+      "title": "Control card not applied"
+    },
+    "problems": {
+      "unreadable": "This QR code isn't a control card this version of Mault understands. Scanning is paused.",
+      "collection-not-found": "The collection on this card no longer exists. Scanning is paused.",
+      "preset-not-found": "The rule preset on this card no longer exists. Scanning is paused.",
+      "preset-wrong-game": "The rule preset on this card is for a different game than the collection. Scanning is paused.",
+      "no-collection": "Choose a collection before using a rule preset card. Scanning is paused."
+    },
+    "actions": {
+      "collection": "Collection: {{name}}",
+      "preset": "Rule preset: {{name}}",
+      "foil": "Foil: {{type}}",
+      "notFoil": "Not foil",
+      "set": "Set: {{name}}",
+      "anySet": "Any set",
+      "condition": "Condition: {{condition}}",
+      "autoFeedOn": "Auto-feed on",
+      "autoFeedOff": "Auto-feed off",
+      "duplicatesOn": "Allow duplicates",
+      "duplicatesOff": "Skip duplicates",
+      "pause": "Pause scanning"
+    },
+    "form": {
+      "title": "New control card",
+      "description": "Pick what the card changes. Anything left on No change stays as it is.",
+      "cardTitle": "Label",
+      "cardTitlePlaceholder": "For example: Trade binder, LP",
+      "collection": "Collection",
+      "preset": "Rule preset",
+      "foil": "Foil type",
+      "set": "Set",
+      "condition": "Condition",
+      "autoFeed": "Auto-feed",
+      "allowDuplicates": "Allow duplicates",
+      "pauseScanner": "Pause scanning after this card",
+      "add": "Add to sheet",
+      "unchanged": "No change",
+      "toggle": {
+        "unchanged": "No change",
+        "on": "On",
+        "off": "Off"
+      }
+    },
+    "sheet": {
+      "emptyTitle": "No control cards yet",
+      "emptyDescription": "Cards you add show up here at real card size, ready to print."
+    },
+    "tile": {
+      "defaultTitle": "Control card",
+      "qrAlt": "Control card QR code",
+      "remove": "Remove card"
+    },
+    "page": {
+      "back": "Back to scanner",
+      "title": "Control cards",
+      "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
+      "print": "Print",
+      "printTip": "Print on cardstock at 100% scale with margins on Default. Each page holds 9 cards. Cut along the borders and keep the QR code flat and free of glare."
+    }
   }
 }

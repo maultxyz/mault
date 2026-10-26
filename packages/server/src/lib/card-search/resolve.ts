@@ -1,3 +1,4 @@
+import { isCardLanguage } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { authQuery } from "../../db";
 import { collections, games } from "../../db/schema";
@@ -68,6 +69,19 @@ export function resolveCardSearchForGame(
 
   const baseUrl = adapter.urlForLang?.(lang) ?? adapter.defaultUrl;
   return { adapter, gameKey, baseUrl, lang };
+}
+
+export async function resolveManualCardSearch(
+  jwtClaims: string,
+  collectionGuid: string | undefined,
+  requestedLanguage: string | undefined,
+): Promise<ResolvedCardSearch | null> {
+  const resolved = await resolveCardSearch(jwtClaims, collectionGuid);
+  if (!resolved) return null;
+  const onlyLanguage = isCardLanguage(requestedLanguage)
+    ? requestedLanguage
+    : undefined;
+  return { ...resolved, searchAllLanguages: true, onlyLanguage };
 }
 
 export async function resolveCardSearch(

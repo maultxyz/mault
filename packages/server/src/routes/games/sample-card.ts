@@ -1,15 +1,12 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { ADAPTERS_BY_GAME_KEY } from "../../lib/card-search/resolve";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 
-// GET /games/sample-card?key=pokemon&query=pikachu — searches the game's
-// adapter for a real card so the field-mapping UI can offer real paths
-// instead of asking admins to type them blind. Keyed by `key`, not `guid`,
-// so it works while creating a new game too (before it has a row/guid).
 export const sampleCardRoute = new Hono<AppEnv>().get(
   "/sample-card",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const key = c.req.query("key");
     const query = c.req.query("query");

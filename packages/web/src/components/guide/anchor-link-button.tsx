@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { anchorUrl } from "@/lib/anchors";
 import type { AnchorLinkButtonProps } from "@/lib/interfaces/guide";
-import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { IconLink } from "@tabler/icons-react";
 import type { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { copyWithToast } from "@/lib/clipboard";
 
 export function AnchorLinkButton({ id, className }: AnchorLinkButtonProps) {
   const { t } = useTranslation("common");
@@ -15,12 +15,11 @@ export function AnchorLinkButton({ id, className }: AnchorLinkButtonProps) {
     event.stopPropagation();
     const url = anchorUrl(id);
     window.history.replaceState(window.history.state, "", url);
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success(t("guide.anchorLink.copied"));
-    } catch {
-      toast.error(t("guide.anchorLink.copyFailed"));
-    }
+    await copyWithToast(
+      url,
+      t("guide.anchorLink.copied"),
+      t("guide.anchorLink.copyFailed"),
+    );
   };
 
   return (

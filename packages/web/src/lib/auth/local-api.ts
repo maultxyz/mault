@@ -1,12 +1,6 @@
 import { getAuthHeaders } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/api";
 
-// apiPost/apiDelete (lib/api/client.ts) throw a generic "API error: <status>"
-// without reading the body, losing real messages like "Invalid email or
-// password" - fine for most data calls, but not auth flows. Kept separate
-// rather than changing that shared behavior, which other call sites depend
-// on. Callers should check the parsed body's `success`/`message` fields;
-// these only throw on a genuine network/parse failure, never a non-2xx status.
 export async function localPost<T>(path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",

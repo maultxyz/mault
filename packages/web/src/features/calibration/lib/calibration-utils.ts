@@ -31,9 +31,6 @@ export function defaultSliderValues(modules: number[]): Record<SliderKey, number
   return vals;
 }
 
-// Plain-text dump of every calibration value, meant to be pasted into a
-// support/Discord message - not consumed programmatically, so formatting
-// favors readability over machine parsing.
 export function buildCalibrationDebugText({
   channelLayout,
   moduleCount,

@@ -30,7 +30,9 @@ export default function TabsLayout() {
           shadowOpacity: 0,
         },
         tabBarItemStyle: { height: TAB_BAR_HEIGHT, paddingVertical: 0, justifyContent: "center", gap: 2 },
-        tabBarIcon: ({ color }) => <Icon name={TAB_ICONS[route.name]} size={TAB_ICON_SIZE} color={color} />,
+        tabBarIcon: ({ color }) => (
+          <Icon name={TAB_ICONS[route.name]} size={TAB_ICON_SIZE} color={typeof color === "string" ? color : colors.foreground} />
+        ),
         tabBarLabel: ({ focused, color, children }) => (
           <AppText size="2xs" weight={focused ? "semibold" : "medium"} style={{ color, lineHeight: 14 }}>
             {children}

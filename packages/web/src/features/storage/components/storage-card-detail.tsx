@@ -30,6 +30,7 @@ export function StorageCardDetail({
   scanId,
   reviewMode,
   onNavigate,
+  onShowReviewGrid,
   onClose,
 }: StorageCardDetailProps) {
   const { t } = useTranslation("cards");
@@ -148,6 +149,7 @@ export function StorageCardDetail({
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
         condition={stored.condition}
+        language={stored.language ?? undefined}
         binNumber={scanned.binNumber}
         onClose={onClose}
         onPrev={() => prevScanId && onNavigate(prevScanId)}
@@ -157,6 +159,7 @@ export function StorageCardDetail({
         currentIndex={context.index}
         total={total}
         reviewMode={reviewMode}
+        onShowReviewGrid={onShowReviewGrid}
         onReviewComplete={() => {
           toast.success(t("review.complete", { count: total }));
           onClose();

@@ -187,3 +187,36 @@ test("a stale running result after a stopped updater becomes a persisted failure
     "failed",
   );
 });
+
+for (const [version, available] of [
+  ["1.0.170", false],
+  ["1.0.99", false],
+  [pkg.version, false],
+  [`${pkg.version}-dev.test`, false],
+  ["99.0.0-dev.test", true],
+  ["99.0.0", true],
+] as const) {
+  test(`tracking version ${version} ${available ? "offers" : "does not offer"} an update`, async (t) => {
+    await fixture(t);
+    t.mock.method(piUpdateRuntime, "run", async (_program: string, args: string[]) => ({
+      stdout: args[0] === "branch" ? "pi-host"
+        : args[0] === "config" ? "chase"
+        : args[0] === "show" ? JSON.stringify({ version }) : "",
+      stderr: "",
+    }));
+    const status = await checkPiUpdateVersion();
+    assert.equal(status.available, available);
+    assert.equal(status.latestVersion, version);
+  });
+}
+
+test("an invalid tracking version fails the update check", async (t) => {
+  await fixture(t);
+  t.mock.method(piUpdateRuntime, "run", async (_program: string, args: string[]) => ({
+    stdout: args[0] === "branch" ? "pi-host"
+      : args[0] === "config" ? "chase"
+      : args[0] === "show" ? JSON.stringify({ version: "unknown" }) : "",
+    stderr: "",
+  }));
+  await assert.rejects(checkPiUpdateVersion(), /no valid app version/);
+});

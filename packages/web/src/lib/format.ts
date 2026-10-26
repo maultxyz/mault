@@ -1,6 +1,4 @@
 export function formatUsd(value: number): string {
-  // Non-breaking space keeps "USD" from wrapping onto its own line in
-  // tight layouts (card grid badges, stat tiles).
   return `$${value.toFixed(2)} USD`;
 }
 
@@ -16,4 +14,21 @@ export function formatElapsed(ms: number): string {
   if (h > 0)
     return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   return `${m}:${String(sec).padStart(2, "0")}`;
+}
+
+export function formatShortDateTime(value: Date | string): string {
+  return new Date(value).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+export function formatShortDate(value: Date | string): string {
+  return new Date(value).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }

@@ -11,6 +11,7 @@
     "artBy": "Illustration von {{artist}}",
     "viewSource": "Quelle ansehen",
     "searchPlaceholder": "Nach Name, Nummer oder Set suchen (z. B. MH3 123)...",
+    "allLanguages": "Alle Sprachen",
     "allSets": "Alle Editionen",
     "allSetsCount": "Alle Editionen ({{count}})",
     "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
@@ -31,6 +32,7 @@
     "tcgplayerMarket": "TCGplayer Marktpreis",
     "cardmarketAvg": "Cardmarket Durchschnitt",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "Beim Scan {{price}}",
     "nonFoilPrice": "Nicht-Foil {{price}}",
     "avg30": "30-Tage-Schnitt",
     "market": "Markt",
@@ -57,7 +59,6 @@
     "cancel": "Abbrechen",
     "prices": "Preise",
     "details": "Details",
-    "cardText": "Kartentext",
     "thisScan": "Dieser Scan",
     "set": "Set",
     "rarity": "Seltenheit",
@@ -137,21 +138,25 @@
     "gridView": "Rasteransicht",
     "listView": "Listenansicht",
     "groupDuplicates": "Duplikate gruppieren",
-    "sessionSummaryExport": "Sitzungsübersicht & Export",
     "deleteScannedCardsTitle": "Gescannte Karten löschen",
     "deleteScannedCardsDescription": "Dadurch werden alle Karten dauerhaft aus deiner Sammlung gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
     "clearing": "Wird geleert...",
     "clearAll": "Alle löschen",
-    "clearAllCardsTitle": "Alle Karten leeren",
-    "density": "Kartengröße: {{density}}",
     "densities": {
       "compact": "kompakt",
       "comfortable": "normal",
       "large": "groß"
     },
-    "review": "Prüfen",
     "export": "Exportieren",
-    "reviewCards": "Karten einzeln prüfen (R)"
+    "reviewCards": "Karten einzeln prüfen (R)",
+    "sortHeading": "Sortieren",
+    "filterHeading": "Filtern",
+    "done": "Fertig",
+    "viewOptions": "Ansichtsoptionen",
+    "displayHeading": "Anzeige",
+    "cardSize": "Kartengröße",
+    "moreActions": "Weitere Aktionen",
+    "reviewCount": "Prüfen ({{count}})"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
@@ -242,6 +247,7 @@
   },
   "foil": "Foil",
   "foilNone": "Kein Foil",
+  "language": "Sprache",
   "downloaded": "Heruntergeladen",
   "technicalDetails": {
     "toggle": "Technische Details",
@@ -322,6 +328,27 @@
     "nothingLeft": "Nichts mehr zu prüfen. Alle Karten hier wurden bereits geprüft.",
     "startFailed": "Die Prüfung konnte nicht gestartet werden. Versuche es erneut."
   },
+  "reviewGrid": {
+    "title": "Karten prüfen",
+    "remaining_one": "Noch {{count}} Karte zu prüfen",
+    "remaining_other": "Noch {{count}} Karten zu prüfen",
+    "layoutGrid": "Raster",
+    "layoutOneByOne": "Einzeln",
+    "acceptAll_one": "{{count}} Karte bestätigen",
+    "acceptAll_other": "Alle {{count}} bestätigen",
+    "accept": "Stimmt",
+    "correct": "Korrigieren",
+    "close": "Prüfung schließen",
+    "noPhoto": "Kein Scanfoto",
+    "correctTitle": "{{name}} korrigieren",
+    "doneTitle": "Alles geprüft",
+    "doneDescription": "Alle Karten hier wurden geprüft.",
+    "done": "Fertig",
+    "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden. Versuche es erneut.",
+    "acceptFailed_one": "{{count}} Karte konnte nicht bestätigt werden. Versuche es erneut.",
+    "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut.",
+    "correctFailed": "Die Korrektur konnte nicht gespeichert werden. Versuche es erneut."
+  },
   "removeDialog": {
     "title": "{{name}} entfernen?",
     "description": "Der Scan wird samt Foto aus der Sammlung gelöscht. Das kann nicht rückgängig gemacht werden."
@@ -339,7 +366,6 @@
     "setSelected": "Zustand"
   },
   "scanOrigin": {
-    "heading": "Gescannt",
     "scannedBy": "Von",
     "sorter": "Sortierer",
     "deletedSorter": "{{name}} (gelöscht)"

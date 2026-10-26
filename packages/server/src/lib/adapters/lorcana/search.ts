@@ -4,15 +4,11 @@ import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import {
-  LORCANA_DE_API_ROOT,
   LORCANA_DE_DEFAULT_URL,
   LORCANA_DEFAULT_URL,
 } from "../../constants/urls";
 import type {
-  LorcastImageUris,
   LorcastCard,
-  LorcanaDeCardImages,
-  LorcanaDeAbility,
   LorcanaDeCard,
 } from "../../interfaces/lorcana";
 
@@ -112,7 +108,7 @@ function isGermanApi(baseUrl: string): boolean {
   return baseUrl.startsWith(LORCANA_DE_DEFAULT_URL);
 }
 
-export async function Search(
+export async function searchCards(
   query: string,
   baseUrl: string = LORCANA_DEFAULT_URL,
 ): Promise<Result<PlayingCard[]>> {
@@ -171,7 +167,7 @@ export async function Search(
   };
 }
 
-export async function SearchById(
+export async function searchCardById(
   id: string,
   baseUrl: string = LORCANA_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
@@ -228,8 +224,8 @@ export const lorcanaAdapter: CardSearchAdapter = {
   defaultUrl: LORCANA_DEFAULT_URL,
   urlForLang: (lang) =>
     lang === "de" ? LORCANA_DE_DEFAULT_URL : LORCANA_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
+  search: searchCards,
+  searchById: searchCardById,
   normalizeStored: (raw, _id, lang) =>
     lang === "de"
       ? normalizeLorcanaDeCard(raw as LorcanaDeCard)
@@ -237,7 +233,7 @@ export const lorcanaAdapter: CardSearchAdapter = {
   tcgplayer: {
     categoryId: 71,
     subTypes: () => ({
-      price: ["Normal"],
+      price: ["Normal", "Holofoil", "Cold Foil"],
       priceFoil: ["Holofoil", "Cold Foil"],
     }),
   },

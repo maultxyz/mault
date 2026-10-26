@@ -21,6 +21,7 @@ import { PI_CAMERA_DEVICE_ID } from "@/lib/constants/scanner";
 import {
   acquireFreeStream,
   camerasHeldByOtherStations,
+  stopMediaStream,
 } from "@/features/scanner/lib/camera-stream";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHost } from "@/hooks/use-pi-host";
@@ -194,40 +195,33 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     ? `${window.location.origin}/app/monitor/${activeCollection.guid}/camera`
     : null;
 
+  const releaseLocalStream = useCallback(() => {
+    stopMediaStream(streamRef.current);
+    streamRef.current = null;
+    setStream(null);
+  }, []);
+
   const stopCamera = useCallback(() => {
     if (cameraSource === "phone") {
       stopPhonePairingInternal();
     }
-    if (streamRef.current) {
-      for (const track of streamRef.current.getTracks()) track.stop();
-      streamRef.current = null;
-      setStream(null);
-    }
+    releaseLocalStream();
     setCameraSource("local");
     setStatus("idle");
     setErrorMessage("");
-  }, [cameraSource, stopPhonePairingInternal]);
+  }, [cameraSource, stopPhonePairingInternal, releaseLocalStream]);
 
   const retryCamera = useCallback(async () => {
     stopCamera();
     await startCamera(selectedCameraId ?? undefined);
   }, [startCamera, stopCamera, selectedCameraId]);
 
-  // There's no stream to hand off any more - the phone only ever sends one
-  // photo at a time, on request (see use-phone-camera-capture.ts). Flipping
-  // cameraSource here is purely a declaration of intent; useCardScanner
-  // reacts to phonePairingStatus separately to know when it's actually safe
-  // to scan.
   const startPhonePairing = useCallback(() => {
-    if (streamRef.current) {
-      for (const track of streamRef.current.getTracks()) track.stop();
-      streamRef.current = null;
-      setStream(null);
-    }
+    releaseLocalStream();
     setErrorMessage("");
     setCameraSource("phone");
     startPhonePairingInternal();
-  }, [startPhonePairingInternal]);
+  }, [startPhonePairingInternal, releaseLocalStream]);
 
   const stopPhonePairing = useCallback(() => {
     stopPhonePairingInternal();
@@ -244,21 +238,15 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    // The idle standby station holds no camera until it's connected or viewed.
-    // A phone on a Pi uses the Pi webcam, the same as a remote browser.
     if (!isLive || (isMobile && !piRemote)) return;
 
     void startCamera(stationCameraIdRef.current ?? undefined);
 
     return () => {
-      if (streamRef.current) {
-        for (const track of streamRef.current.getTracks()) track.stop();
-        streamRef.current = null;
-      }
-      setStream(null);
+      releaseLocalStream();
       setStatus("idle");
     };
-  }, [startCamera, isMobile, isLive, piRemote]);
+  }, [startCamera, isMobile, isLive, piRemote, releaseLocalStream]);
 
   useEffect(() => {
     if (selectedCameraId === PI_CAMERA_DEVICE_ID) return;

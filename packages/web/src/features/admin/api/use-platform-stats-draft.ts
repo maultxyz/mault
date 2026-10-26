@@ -4,7 +4,7 @@ import {
   savePlatformStatsSettings,
 } from "@/features/admin/api/platform-stats";
 import { EMPTY_PLATFORM_STATS_FORM } from "@/lib/constants/admin";
-import { toast } from "@/lib/toast";
+import { requestWithToasts } from "@/lib/request-with-toasts";
 import {
   platformStatsSchema,
   type PlatformStatsFormValues,
@@ -28,36 +28,25 @@ export function usePlatformStatsDraft() {
     resetOptions: { keepDirtyValues: true },
   });
 
-  const save = async (values: PlatformStatsFormValues) => {
-    try {
-      const result = await savePlatformStatsSettings(values);
-      if (!result.success || !result.data) {
-        toast.error(result.message ?? t("platformStats.saveFailed"));
-        return;
-      }
-      queryClient.setQueryData(platformStatsQueryOptions.queryKey, result.data);
-      form.reset(result.data.settings);
-      toast.success(t("platformStats.saved"));
-    } catch {
-      toast.error(t("platformStats.saveFailed"));
-    }
-  };
+  const save = (values: PlatformStatsFormValues) =>
+    requestWithToasts(() => savePlatformStatsSettings(values), {
+      successMessage: t("platformStats.saved"),
+      failureMessage: t("platformStats.saveFailed"),
+      onSuccess: (saved) => {
+        queryClient.setQueryData(platformStatsQueryOptions.queryKey, saved);
+        form.reset(saved.settings);
+      },
+    });
 
   const postNow = async () => {
     setIsPosting(true);
-    try {
-      const result = await postPlatformStatsNow();
-      if (!result.success || !result.data) {
-        toast.error(result.message ?? t("platformStats.postFailed"));
-        return;
-      }
-      queryClient.setQueryData(platformStatsQueryOptions.queryKey, result.data);
-      toast.success(t("platformStats.posted"));
-    } catch {
-      toast.error(t("platformStats.postFailed"));
-    } finally {
-      setIsPosting(false);
-    }
+    await requestWithToasts(postPlatformStatsNow, {
+      successMessage: t("platformStats.posted"),
+      failureMessage: t("platformStats.postFailed"),
+      onSuccess: (posted) =>
+        queryClient.setQueryData(platformStatsQueryOptions.queryKey, posted),
+    });
+    setIsPosting(false);
   };
 
   return {

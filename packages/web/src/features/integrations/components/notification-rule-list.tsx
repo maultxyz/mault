@@ -15,9 +15,12 @@ import { DiscordChannelLabel } from "@/features/integrations/components/discord-
 import { DiscordRoleLabel } from "@/features/integrations/components/discord-role-label";
 import { NotificationRuleDialog } from "@/features/integrations/components/notification-rule-dialog";
 import type { NotificationRuleListProps } from "@/lib/interfaces/integrations";
-import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import { toast } from "@/lib/toast";
-import type { NotificationRule, Result } from "@magic-vault/shared";
+import type {
+  DiscordSettingsDraftFormValues,
+  NotificationRule,
+  Result,
+} from "@magic-vault/shared";
 import {
   IconBell,
   IconPencil,
@@ -50,7 +53,7 @@ export function NotificationRuleList({
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<NotificationRule | null>(null);
-  const { control, formState } = useFormContext<DiscordSettingsDraftValues>();
+  const { control, formState } = useFormContext<DiscordSettingsDraftFormValues>();
 
   const change = useMutation({
     mutationFn: (request: () => Promise<Result<NotificationRule[]>>) =>

@@ -6,12 +6,14 @@ import { queryOptions } from "@tanstack/react-query";
 export const cardSetsQueryOptions = (
   collectionGuid: string | undefined,
   query?: string,
+  language?: string,
 ) =>
   queryOptions({
-    queryKey: ["card-sets", collectionGuid, query ?? null],
+    queryKey: ["card-sets", collectionGuid, query ?? null, language ?? null],
     queryFn: async () => {
       const params = new URLSearchParams({ collectionGuid: collectionGuid ?? "" });
       if (query) params.set("q", query);
+      if (language) params.set("lang", language);
       const result = await apiGet<Result<CardSetOption[]>>(
         `/api/cards/sets?${params}`,
       );

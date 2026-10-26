@@ -12,18 +12,12 @@ import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { API_BASE } from "@/lib/constants/api";
 
 
-// Same return shape as Neon's neon.auth.useSession() - data.user.{id,name,
-// email,role} - so call sites (use-role.ts, user-menu.tsx, nav components)
-// don't need provider-specific branching of their own.
 export const useAuthSession =
   AUTH_PROVIDER === "local"
     ? useLocalAuthSession
     : () => neon.auth.useSession();
 
 
-// Set by app/routes/local/join.tsx before it sends an unauthenticated visitor
-// off to sign in/up, since that navigation loses the invite token in the URL
-// otherwise. Consumed once, right after a successful sign-in/sign-up below.
 export function savePendingInviteToken(token: string): void {
   localStorage.setItem(PENDING_INVITE_KEY, token);
 }
@@ -32,13 +26,23 @@ async function acceptPendingInviteIfAny(): Promise<void> {
   const token = localStorage.getItem(PENDING_INVITE_KEY);
   if (!token) return;
   localStorage.removeItem(PENDING_INVITE_KEY);
-  await localPost("/api/local-auth/invites/accept", { token }).catch(() => {});
+  const result = await localPost<{ success: boolean; message?: string }>(
+    "/api/local-auth/invites/accept",
+    { token },
+  );
+  if (!result.success) {
+    throw new Error(result.message ?? "The invite couldn't be accepted.");
+  }
 }
 
-// Local-mode only (see app/routes/local/auth.tsx) - own-auth's sign-up/
-// sign-in isn't behind a AUTH_PROVIDER branch here because Neon mode's
-// equivalents go through NeonAuthUIProvider's own prebuilt <AuthView>
-// instead, which this app never calls directly.
+function pendingInviteError(error: unknown): { error: string } {
+  console.error("Accepting the pending invite failed", error);
+  return {
+    error:
+      "You're signed in, but the invite couldn't be accepted. Open the invite link again.",
+  };
+}
+
 export async function signInLocal(
   email: string,
   password: string,
@@ -54,7 +58,11 @@ export async function signInLocal(
     }
     setLocalToken(res.data.token);
     notifyLocalSessionChanged();
-    await acceptPendingInviteIfAny();
+    try {
+      await acceptPendingInviteIfAny();
+    } catch (error) {
+      return pendingInviteError(error);
+    }
     return {};
   } catch {
     return { error: "Couldn't reach the server. Please try again." };
@@ -77,12 +85,14 @@ export async function signUpLocal(
     }
     setLocalToken(res.data.token);
     notifyLocalSessionChanged();
-    // Accept a pending invite first if there is one, so signing up via an
-    // invite link joins that org - bootstrap below is a no-op once the
-    // account already has at least one org, so it won't also create a
-    // redundant "Home" org on top of it.
-    await acceptPendingInviteIfAny();
-    await apiPost("/api/local-auth/bootstrap").catch(() => {});
+    try {
+      await acceptPendingInviteIfAny();
+    } catch (error) {
+      return pendingInviteError(error);
+    }
+    await apiPost("/api/local-auth/bootstrap").catch((error) =>
+      console.error("Creating the first organization failed", error),
+    );
     return {};
   } catch {
     return { error: "Couldn't reach the server. Please try again." };
@@ -101,16 +111,9 @@ export async function signOut(): Promise<void> {
   await neon.auth.signOut();
 }
 
-// Neon-mode org creation happens directly against Neon Auth from the
-// browser, so the server never sees it and can't self-heal via
-// getOrCreateDevice until someone loads a device-dependent page. Local mode
-// doesn't need this - org creation there goes through our own server
-// (routes/local-auth/organizations-add.ts, bootstrap.ts), which creates the
-// device in the same request. Best-effort: GET /devices still self-heals on
-// first visit to a device-dependent page if this fails.
 async function ensureDeviceForOrg(orgId: string): Promise<void> {
   try {
-    await fetch(`${API_BASE}/devices`, {
+    const response = await fetch(`${API_BASE}/api/devices`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -118,7 +121,12 @@ async function ensureDeviceForOrg(orgId: string): Promise<void> {
         "X-Org-Id": orgId,
       },
     });
-  } catch {}
+    if (!response.ok) {
+      console.error(`Creating the new org's device failed (${response.status})`);
+    }
+  } catch (error) {
+    console.error("Creating the new org's device failed", error);
+  }
 }
 
 export async function createOrganization(

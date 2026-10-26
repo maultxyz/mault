@@ -31,12 +31,14 @@ for (const pi of [false, true]) {
       select: (fields: Record<string, unknown>) => {
         const rows = "cardCount" in fields
           ? [{ cardCount: 0 }]
+          : "unmatchedCount" in fields
+          ? [{ unmatchedCount: 1 }]
           : [Object.fromEntries(Object.keys(fields).map((key) => [key, row[key as keyof typeof row]]))];
         const query = {
           from: () => query,
           where: () => query,
           orderBy: () => query,
-          limit: async () => [],
+          limit: async () => "capturedImageDataUrl" in fields ? rows : [],
           then: (resolve: (value: unknown) => void) => Promise.resolve(rows).then(resolve),
         };
         return query;

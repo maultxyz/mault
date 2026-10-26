@@ -8,7 +8,6 @@ import {
   findLowMatchCatchAll,
   getRepackBinCards,
   getCardValue,
-  isBinFull,
   isOverflowTarget,
   matchesCatchAllRules,
   REPACK_UNIQUE_BY_NAME,
@@ -201,10 +200,8 @@ test("a copy-limited override at its limit no longer takes priority", () => {
 });
 
 test("a full override remains the destination so capacity checks can stop scanning", () => {
-  const full = { ...priceBin, cardLimit: 1 };
-  const matched = evaluateCardBin({ colors: ["W"], prices: { usd: 2 } }, [...colors, full, catchAll], fields);
-  assert.equal(matched, full);
-  assert.equal(isBinFull([{ binNumber: 6, scannedAt: 1 }], matched!), true);
+  const matched = evaluateCardBin({ colors: ["W"], prices: { usd: 2 } }, [...colors, priceBin, catchAll], fields);
+  assert.equal(matched, priceBin);
 });
 
 const repackBins = [1, 2, 3].map((n) => bin(n, []));

@@ -90,7 +90,10 @@ function StatsLeaderboardContent() {
               <TableCell className="max-w-56 text-sm">
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="truncate font-medium text-foreground">
-                    {entry.name ?? t("leaderboard.unknownOrg")}
+                    {entry.name ??
+                      (entry.isAnonymous
+                        ? t("leaderboard.anonymousOrg")
+                        : t("leaderboard.unknownOrg"))}
                   </span>
                   {entry.isOwnOrg && (
                     <Badge variant="outline">

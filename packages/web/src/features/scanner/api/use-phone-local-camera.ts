@@ -5,6 +5,7 @@ import {
 } from "@/lib/constants/scanner";
 import type { PhoneLocalCameraStatus } from "@/lib/interfaces/scanner";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { stopMediaStream } from "@/features/scanner/lib/camera-stream";
 
 function readStoredDeviceId(): string | null {
   try {
@@ -19,11 +20,6 @@ function writeStoredDeviceId(deviceId: string | null) {
     if (deviceId) localStorage.setItem(PHONE_CAMERA_DEVICE_STORAGE_KEY, deviceId);
     else localStorage.removeItem(PHONE_CAMERA_DEVICE_STORAGE_KEY);
   } catch {}
-}
-
-function stopStream(stream: MediaStream | null) {
-  if (!stream) return;
-  for (const track of stream.getTracks()) track.stop();
 }
 
 function openCamera(deviceId: string | null): Promise<MediaStream> {
@@ -59,7 +55,7 @@ export function usePhoneLocalCamera() {
 
   const requestCamera = useCallback(async (deviceId: string | null) => {
     const requestId = ++requestIdRef.current;
-    stopStream(localStreamRef.current);
+    stopMediaStream(localStreamRef.current);
     localStreamRef.current = null;
     setLocalStream(null);
     setErrorMessage("");
@@ -74,7 +70,7 @@ export function usePhoneLocalCamera() {
         stream = await openCamera(null);
       }
       if (cancelledRef.current || requestId !== requestIdRef.current) {
-        stopStream(stream);
+        stopMediaStream(stream);
         return;
       }
       localStreamRef.current = stream;
@@ -104,7 +100,7 @@ export function usePhoneLocalCamera() {
 
   const disconnect = useCallback(() => {
     requestIdRef.current++;
-    stopStream(localStreamRef.current);
+    stopMediaStream(localStreamRef.current);
     localStreamRef.current = null;
     setLocalStream(null);
     setStatus("disconnected");
@@ -120,7 +116,7 @@ export function usePhoneLocalCamera() {
 
     return () => {
       cancelledRef.current = true;
-      stopStream(localStreamRef.current);
+      stopMediaStream(localStreamRef.current);
       localStreamRef.current = null;
     };
   }, [requestCamera]);

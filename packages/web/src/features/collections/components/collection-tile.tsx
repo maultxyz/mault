@@ -18,6 +18,7 @@ import { WatcherStack } from "@/components/ui/watcher-stack";
 import { CollectionPreviewStack } from "@/features/collections/components/collection-preview-stack";
 import { ReleaseSessionButton } from "@/features/collections/components/release-session-button";
 import { ScanningPill } from "@/features/collections/components/scanning-pill";
+import { useShiftClick } from "@/hooks/use-shift-click";
 import {
   collectionViewPath,
   COLLECTION_TILE_ACTIVE_CLASS,
@@ -26,6 +27,7 @@ import {
   COLLECTION_TILE_SELECTED_CLASS,
   monitorCollectionPath,
 } from "@/lib/constants/collections";
+import { controlCardsPath } from "@/lib/constants/control-cards";
 import type { CollectionTileProps } from "@/lib/interfaces/collections";
 import { cn } from "@/lib/utils";
 import {
@@ -33,6 +35,7 @@ import {
   IconEraser,
   IconHeartRateMonitor,
   IconPlayerPlay,
+  IconQrcode,
   IconTrash,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -57,6 +60,7 @@ export function CollectionTile({
   const { t: tScanner } = useTranslation("scanner");
   const viewPath = isActive ? "/app" : collectionViewPath(collection.guid);
   const hasLiveInfo = (scannerLock && !isOwnSession) || watchers.length > 0;
+  const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
 
   return (
     <article
@@ -76,20 +80,17 @@ export function CollectionTile({
         <div className="flex flex-wrap items-center gap-1.5">
           <span
             className="pointer-events-auto flex size-6 items-center justify-center rounded-md bg-background/80 shadow-sm backdrop-blur-sm"
+            onMouseDown={onSelectMouseDown}
             onClick={(e) => {
               e.preventDefault();
-              onToggleSelect(e.shiftKey);
+              onToggleSelect(consumeShift() || e.shiftKey);
             }}
           >
             <Checkbox
               checked={isSelected}
               aria-label={t("selection.select", { name: collection.name })}
               onClick={(e) => e.stopPropagation()}
-              onCheckedChange={(_, details) =>
-                onToggleSelect(
-                  details.event instanceof MouseEvent && details.event.shiftKey,
-                )
-              }
+              onCheckedChange={() => onToggleSelect(consumeShift())}
             />
           </span>
           {isActive && (
@@ -174,6 +175,25 @@ export function CollectionTile({
               <TooltipContent>{t("page.setActiveCollection")}</TooltipContent>
             </Tooltip>
           )}
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("page.printControlCard")}
+                  render={
+                    <Link
+                      to={controlCardsPath({ collectionGuid: collection.guid })}
+                    >
+                      <IconQrcode />
+                    </Link>
+                  }
+                />
+              }
+            ></TooltipTrigger>
+            <TooltipContent>{t("page.printControlCard")}</TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger
               render={

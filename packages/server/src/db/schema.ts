@@ -72,8 +72,6 @@ const apiServiceOrgWrite = (orgId: any) => {
   ];
 };
 
-// ─── Global card vectors (no org scope) ──────────────────────────────────────
-
 export const cardImageVectors = pgTable(
   "cards",
   {
@@ -97,12 +95,6 @@ export const cardImageVectors = pgTable(
       table.lang,
       table.cardId,
     ),
-    // No table-wide HNSW index here on purpose: every real query filters by
-    // game_key first, and one global ANN index makes that filter lossy (see
-    // ensureGameVectorIndex in lib/game-vector-index.ts). Per-game_key
-    // partial HNSW indexes are created dynamically instead, since game keys
-    // are admin-defined data (Games Manager), not something this static
-    // schema can enumerate.
     index("cards_back_embedding_hnsw")
       .using("hnsw", table.backEmbedding.op("vector_cosine_ops"))
       .where(sql`${table.backEmbedding} IS NOT NULL`),
@@ -255,6 +247,12 @@ export const devices = pgTable(
     autoConnect: boolean("auto_connect").notNull().default(false),
     testOnConnect: boolean("test_on_connect").notNull().default(true),
     sorterLinkTokenHash: text("sorter_link_token_hash"),
+    cardsSorted: integer("cards_sorted").notNull().default(0),
+    cardsAtLastService: integer("cards_at_last_service").notNull().default(0),
+    maintenanceIntervalCards: integer("maintenance_interval_cards"),
+    lastServicedAt: timestamp("last_serviced_at"),
+    maintenanceAlertSentAt: timestamp("maintenance_alert_sent_at"),
+    lastSeenAt: timestamp("last_seen_at"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -288,7 +286,6 @@ export const bins = pgTable(
     binSet: integer("bin_set")
       .notNull()
       .references(() => binSets.id),
-    cardLimit: integer("card_limit").default(250),
     maxCopies: integer("max_copies"),
     maxCopiesBy: text("max_copies_by"),
     overflowBin: integer("overflow_bin"),
@@ -487,6 +484,49 @@ export const storageLocations = pgTable(
   ],
 ).enableRLS();
 
+export const intakeLots = pgTable(
+  "intake_lots",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    collectionId: integer("collection_id")
+      .notNull()
+      .references(() => collections.id),
+    ownsCollection: boolean("owns_collection").notNull().default(false),
+    customerName: text("customer_name").notNull(),
+    customerContact: text("customer_contact"),
+    notes: text("notes"),
+    status: text("status").notNull().default("open"),
+    payoutMethod: text("payout_method"),
+    marketTotal: doublePrecision("market_total"),
+    cashOffer: doublePrecision("cash_offer"),
+    creditOffer: doublePrecision("credit_offer"),
+    paidTotal: doublePrecision("paid_total"),
+    currency: text("currency"),
+    cardCount: integer("card_count"),
+    createdByUserId: text("created_by_user_id"),
+    closedByUserId: text("closed_by_user_id"),
+    acceptedAt: timestamp("accepted_at"),
+    closedAt: timestamp("closed_at"),
+    orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("intake_lots_guid_idx").on(table.guid),
+    index("intake_lots_org_idx").on(table.orgId, table.createdAt),
+    uniqueIndex("intake_lots_open_collection_idx")
+      .on(table.collectionId)
+      .where(sql`${table.status} = 'open' AND ${table.isDeleted} = false`),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const collectionCards = pgTable(
   "collection_cards",
   {
@@ -504,6 +544,7 @@ export const collectionCards = pgTable(
     isFoil: boolean("is_foil").notNull().default(false),
     foilType: text("foil_type"),
     condition: text("condition").notNull().default("NM"),
+    language: text("language"),
     isDownloaded: boolean("is_downloaded").notNull().default(false),
     alternativeMatches: jsonb("alternative_matches"),
     isCorrected: boolean("is_corrected").notNull().default(false),
@@ -519,12 +560,19 @@ export const collectionCards = pgTable(
       () => devices.id,
       { onDelete: "set null" },
     ),
+    intakeLotId: integer("intake_lot_id").references(() => intakeLots.id, {
+      onDelete: "set null",
+    }),
+    acquisitionCost: doublePrecision("acquisition_cost"),
+    acquisitionCurrency: text("acquisition_currency"),
+    acquiredAt: timestamp("acquired_at"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("collection_cards_guid_idx").on(table.guid),
+    index("collection_cards_intake_lot_idx").on(table.intakeLotId),
     index("collection_cards_org_updated_idx").on(
       table.orgId,
       table.updatedAt,
@@ -629,6 +677,173 @@ export const webhookDeliveries = pgTable(
   },
   (table) => [
     index("webhook_deliveries_next_attempt_idx").on(table.nextAttemptAt),
+  ],
+).enableRLS();
+
+export const fulfilmentOrders = pgTable(
+  "fulfilment_orders",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    name: text("name").notNull(),
+    source: text("source").notNull().default("generic"),
+    status: text("status").notNull().default("open"),
+    lines: jsonb("lines").notNull().default([]),
+    createdByUserId: text("created_by_user_id"),
+    closedByUserId: text("closed_by_user_id"),
+    closedAt: timestamp("closed_at"),
+    orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("fulfilment_orders_guid_idx").on(table.guid),
+    index("fulfilment_orders_org_idx").on(table.orgId, table.createdAt),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const cardSales = pgTable(
+  "card_sales",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    orderId: integer("order_id").references(() => fulfilmentOrders.id, {
+      onDelete: "set null",
+    }),
+    scanId: uuid("scan_id"),
+    cardId: text("card_id").notNull(),
+    cardName: text("card_name").notNull(),
+    setCode: text("set_code"),
+    collectorNumber: text("collector_number"),
+    isFoil: boolean("is_foil").notNull().default(false),
+    condition: text("condition").notNull().default("NM"),
+    salePrice: doublePrecision("sale_price"),
+    acquisitionCost: doublePrecision("acquisition_cost"),
+    currency: text("currency").notNull(),
+    collectionName: text("collection_name"),
+    soldByUserId: text("sold_by_user_id"),
+    soldAt: timestamp("sold_at").defaultNow().notNull(),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("card_sales_guid_idx").on(table.guid),
+    index("card_sales_org_sold_idx").on(table.orgId, table.soldAt),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const orgActivityLog = pgTable(
+  "org_activity_log",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    action: text("action").notNull(),
+    userId: text("user_id"),
+    summary: text("summary"),
+    details: jsonb("details"),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("org_activity_log_guid_idx").on(table.guid),
+    index("org_activity_log_org_created_idx").on(table.orgId, table.createdAt),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const deviceAlerts = pgTable(
+  "device_alerts",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    deviceId: integer("device_id").references(() => devices.id, {
+      onDelete: "set null",
+    }),
+    type: text("type").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("device_alerts_guid_idx").on(table.guid),
+    index("device_alerts_org_created_idx").on(table.orgId, table.createdAt),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const accuracyChecks = pgTable(
+  "accuracy_checks",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    collectionId: integer("collection_id")
+      .notNull()
+      .references(() => collections.id),
+    intakeLotId: integer("intake_lot_id").references(() => intakeLots.id, {
+      onDelete: "set null",
+    }),
+    sampleSize: integer("sample_size").notNull(),
+    samples: jsonb("samples").notNull().default([]),
+    status: text("status").notNull().default("open"),
+    createdByUserId: text("created_by_user_id"),
+    completedAt: timestamp("completed_at"),
+    orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("accuracy_checks_guid_idx").on(table.guid),
+    index("accuracy_checks_org_collection_idx").on(
+      table.orgId,
+      table.collectionId,
+    ),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const orgInventorySnapshots = pgTable(
+  "org_inventory_snapshots",
+  {
+    orgId: text("org_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    cardCount: integer("card_count").notNull().default(0),
+    marketValue: doublePrecision("market_value").notNull().default(0),
+    costBasis: doublePrecision("cost_basis").notNull().default(0),
+    currency: text("currency").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.day] }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: false,
+    }),
   ],
 ).enableRLS();
 
@@ -785,6 +1000,8 @@ export const orgSettings = pgTable(
     leaderboardOptIn: boolean("leaderboard_opt_in").notNull().default(false),
     priceSource: text("price_source").notNull().default("tcgplayer"),
     conditionMultipliers: jsonb("condition_multipliers"),
+    buylistConfig: jsonb("buylist_config"),
+    businessPermissions: jsonb("business_permissions"),
     discordGuildId: text("discord_guild_id"),
     discordLinkCode: text("discord_link_code"),
     discordLinkCodeExpiresAt: timestamp("discord_link_code_expires_at"),
@@ -849,8 +1066,6 @@ export const orgDailyScanUsage = pgTable(
   ],
 ).enableRLS();
 
-// ─── Audit tables (org-scoped, no FK — audit records are permanent) ───────────
-
 export const binSetAudit = pgTable(
   "bin_set_audit",
   {
@@ -880,7 +1095,6 @@ export const binRouteAudit = pgTable(
     module: integer("module").notNull(),
     direction: text("direction").notNull(),
     orgId: text("org_id").notNull(),
-    // No FK, matching the rest of this table (audit records are permanent).
     deviceId: integer("device_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -902,7 +1116,6 @@ export const binHeightAudit = pgTable(
     binNumber: integer("bin_number").notNull(),
     height: doublePrecision("height").notNull(),
     orgId: text("org_id").notNull(),
-    // No FK, matching the rest of this table (audit records are permanent).
     deviceId: integer("device_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -923,7 +1136,6 @@ export const moduleConfigAudit = pgTable(
     guid: uuid("guid").defaultRandom(),
     moduleNumber: integer("module_number").notNull(),
     orgId: text("org_id").notNull(),
-    // No FK, matching the rest of this table (audit records are permanent).
     deviceId: integer("device_id").notNull(),
     bottomClosed: integer("bottom_closed").notNull(),
     bottomOpen: integer("bottom_open").notNull(),
@@ -933,9 +1145,6 @@ export const moduleConfigAudit = pgTable(
     pusherNeutral: integer("pusher_neutral").notNull(),
     pusherRight: integer("pusher_right").notNull(),
     pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
-    // Has a default (unlike this table's other columns) purely so the
-    // migration adding it can backfill existing audit rows - every new row
-    // always supplies it explicitly, same as the rest.
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
     paddleOpenDelay: integer("paddle_open_delay").notNull().default(300),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -956,7 +1165,6 @@ export const feederConfigAudit = pgTable(
     id: serial().primaryKey(),
     guid: uuid("guid").defaultRandom(),
     orgId: text("org_id").notNull(),
-    // No FK, matching the rest of this table (audit records are permanent).
     deviceId: integer("device_id").notNull(),
     speed: integer("speed").notNull(),
     duration: integer("duration").notNull(),
@@ -999,12 +1207,6 @@ export const impersonationAudit = pgTable(
   ],
 ).enableRLS();
 
-// ─── Local auth only (AUTH_PROVIDER=local) ───────────────────────────────────
-// own-auth's own tables (own_auth_*, see auth/local.ts) have no concept of a
-// global per-user platform role - that's an app-level concern in Neon mode
-// too (neon_auth.user.role), so local mode gets its own small table for it
-// rather than teaching own-auth about it. Not RLS-protected: only ever
-// read/written by the server via `db`, never by end users directly.
 export const platformUserRoles = pgTable("platform_user_roles", {
   userId: text("user_id").primaryKey(),
   role: text("role").notNull().default("user"),
@@ -1022,10 +1224,18 @@ export const scanStats = pgTable(
     hasAlternatives: boolean("has_alternatives").notNull().default(false),
     isCorrected: boolean("is_corrected").notNull().default(false),
     vectorizedOn: text("vectorized_on"),
+    scannedByUserId: text("scanned_by_user_id"),
     scannedAt: timestamp("scanned_at").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (table) => [index("scan_stats_org_idx").on(table.orgId)],
+  (table) => [
+    index("scan_stats_org_idx").on(table.orgId),
+    index("scan_stats_org_user_scanned_idx").on(
+      table.orgId,
+      table.scannedByUserId,
+      table.scannedAt,
+    ),
+  ],
 );
 
 export const platformStatsSettings = pgTable("platform_stats_settings", {

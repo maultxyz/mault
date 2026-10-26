@@ -78,7 +78,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const embed = new EmbedBuilder()
     .setTitle(
       collectionName
-        ? `Collection stats — ${collectionName}`
+        ? `Collection stats: ${collectionName}`
         : "Collection stats",
     )
     .setColor(DISCORD_BLURPLE)

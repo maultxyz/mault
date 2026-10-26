@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { FIRMWARE_FEATURE_MIN_VERSIONS, isFirmwareFeatureSupported } from "@magic-vault/shared";
+import {
+  FIRMWARE_FEATURE_MIN_VERSIONS,
+  isFirmwareFeatureSupported,
+  pulseToDirectionalSpeed,
+  pulseToSignedPercent,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+  signedPercentToPulse,
+} from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { SliderField } from "@/components/ui/slider-field";
@@ -13,11 +21,6 @@ import {
   FEEDER_PULSE_DURATION_SLIDER_MAX,
   FEEDER_REVERSE_DURATION_SLIDER_MAX,
   FEEDER_SETTLE_DURATION_SLIDER_MAX,
-  pulseToDirectionalSpeed,
-  pulseToSignedPercent,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
-  signedPercentToPulse,
   sliderMax,
 } from "@/lib/constants/calibration";
 import { SPACING } from "@/lib/constants/theme";

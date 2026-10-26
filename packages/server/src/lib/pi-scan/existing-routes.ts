@@ -94,7 +94,6 @@ export async function saveBinThroughRoute(
       isOverride: bin.isOverride,
       overridePriority: bin.overridePriority,
       lowMatchPercent: bin.lowMatchPercent,
-      cardLimit: bin.cardLimit,
       maxCopies: bin.maxCopies,
       maxCopiesBy: bin.maxCopiesBy,
       overflowBin: bin.overflowBin,

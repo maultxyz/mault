@@ -1,4 +1,5 @@
 import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
+import { SpiderWeb } from "@/components/halloween-decor";
 import { LandingCta } from "@/features/landing/components/cta";
 import { LandingFeatures } from "@/features/landing/components/features";
 import { LandingFooter } from "@/features/landing/components/footer";
@@ -23,6 +24,7 @@ export default function LandingPage() {
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
       <BlueprintBackdrop />
+      <SpiderWeb corner="top-right" withSpider className="size-28 max-md:size-16" />
       <PublicAnnouncementBanner />
       <PublicNav />
       <main className="flex-1">

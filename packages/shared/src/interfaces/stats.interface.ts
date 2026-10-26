@@ -31,6 +31,9 @@ export interface StatsCollectionRow {
   scansInRange: number;
   valueAddedInRange: number;
   lastScanAt: string | null;
+  costBasis: number | null;
+  costedCount: number | null;
+  costedValue: number | null;
 }
 
 export interface StatsGameRow {
@@ -52,6 +55,16 @@ export interface StatsTotals {
   correctedCount: number;
   scansInRange: number;
   valueAddedInRange: number;
+  costBasis: number | null;
+  costedCount: number | null;
+  costedValue: number | null;
+}
+
+export interface StatsValuePoint {
+  day: string;
+  cardCount: number;
+  marketValue: number;
+  costBasis: number;
 }
 
 export interface StatsReport {
@@ -65,4 +78,6 @@ export interface StatsReport {
   collections: StatsCollectionRow[];
   games: StatsGameRow[];
   breakdown: CardStatsAggregate | null;
+  costsVisible: boolean;
+  valueHistory: StatsValuePoint[] | null;
 }

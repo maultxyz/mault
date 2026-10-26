@@ -17,11 +17,6 @@ import {
 
 const CardSyncContext = createContext<CardSyncContextValue | null>(null);
 
-// Sync status is one of several concerns multiplexed over the single
-// app-wide SSE connection (see lib/app-stream.tsx) so every admin section
-// that cares about it - the progress/log panel and the "dump database" guard
-// that disables dumping mid-sync - shares one source of truth instead of
-// each opening its own stream.
 export function CardSyncProvider({ children }: { children: ReactNode }) {
   const syncState = useSyncState();
   const [now, setNow] = useState(() => Date.now());

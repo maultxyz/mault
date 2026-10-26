@@ -7,6 +7,15 @@ import {
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
+import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
+import type { ScannerConnectionState } from "@/lib/interfaces/scanner";
+import {
+  IconArrowBarToDown,
+  IconBolt,
+  IconPlayerPause,
+  IconPlayerPlay,
+  type Icon,
+} from "@tabler/icons-react";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",
@@ -33,6 +42,8 @@ export const PAUSE_WHEN_HIDDEN_STATUSES: ScannerStatus[] = [
 ];
 
 export const MTG_ASPECT_RATIO = 2.5 / 3.5;
+export const UNMATCHED_VIEW_PARAM = "unmatched";
+export const UNMATCHED_CARD_PARAM = "unmatchedCard";
 export const PHONE_CAMERA_JPEG_QUALITY = 0.85;
 export const CATCH_ALL_BIN = 7;
 
@@ -72,8 +83,6 @@ export const IDLE_PI_SCAN_SESSION: PiScanSessionState = {
 export const PHONE_CAMERA_DEVICE_STORAGE_KEY = "mault:phone-camera-device-id";
 
 export const JAM_TOAST_ID_PREFIX = "jam-module-";
-export const JAM_COMMAND_TIMEOUT_MS = 3000;
-export const JAM_CLEAR_DEVICE_TIMEOUT_MS = 10000;
 export const JAM_VERIFY_SAMPLES = 3;
 export const JAM_VERIFY_INTERVAL_MS = 750;
 export const SCAN_POSITION_MODULE = 1;
@@ -150,14 +159,19 @@ export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
 export const PHONE_CAMERA_PATH_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 export const QR_SCAN_INTERVAL_MS = 250;
 export const QR_SCAN_MAX_DIMENSION = 640;
+export const SCANNER_CONTROL_QR_MAX_DIMENSION = 1024;
+export const SCANNER_CONNECTION_DOT_CLASS: Record<
+  ScannerConnectionState,
+  string
+> = {
+  connected: "bg-success",
+  connecting: "bg-warning",
+  disconnected: "bg-foreground/30",
+};
 
 export const PENDING_SCAN_SAVES_DB_NAME = "magic-vault-pending-scan-saves";
 export const PENDING_SCAN_SAVES_STORE_NAME = "saves";
 export const PENDING_SCAN_SAVES_DB_VERSION = 1;
-export const PENDING_SCAN_SAVE_RETRY_DELAYS_MS = [
-  2000, 5000, 10_000, 30_000, 60_000,
-];
-export const PENDING_SCAN_SAVE_RETRYABLE_STATUSES = [401, 408, 429];
 export const PENDING_SCAN_SAVES_TOAST_ID = "pending-scan-saves";
 
 export const SCAN_REGION_MASK_FILL = "rgb(0 0 0 / 0.4)";
@@ -171,3 +185,20 @@ export const MOBILE_SCAN_PANEL_CLASS =
 export const PI_CAMERA_PREVIEW_INTERVAL_MS = 250;
 
 export const PI_SCAN_SESSION_API = `/api${PI_SCAN_SESSION_PATH}`;
+export const COMM_LOG_MARKER_LABELS: Partial<
+  Record<CommLogEntry["direction"], string>
+> = {
+  connected: "New connection",
+  disconnected: "Disconnected",
+  restarted: "Sorter restarted",
+};
+
+export const DESKTOP_PIP_OPEN_DELAY_MS = 400;
+export const DESKTOP_PIP_DRAG_THRESHOLD_PX = 4;
+export const DESKTOP_PIP_CONTROL_ICONS: Record<DesktopScannerIcon, Icon> = {
+  play: IconPlayerPlay,
+  pause: IconPlayerPause,
+  "auto-feed-on": IconBolt,
+  "auto-feed-off": IconBolt,
+  "clear-device": IconArrowBarToDown,
+};

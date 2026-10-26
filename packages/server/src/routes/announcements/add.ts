@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { announcements } from "../../db/schema";
@@ -10,7 +11,7 @@ import type { AnnouncementInput } from "@magic-vault/shared";
 export const addAnnouncementRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const { severity, message, isActive, showOnLanding, link, startsAt, endsAt } =
       await c.req.json<AnnouncementInput>();
@@ -42,24 +43,19 @@ export const addAnnouncementRoute = new Hono<AppEnv>().post(
       );
     }
 
-    try {
-      const [row] = await db
-        .insert(announcements)
-        .values({
-          severity,
-          message: message.trim(),
-          isActive: isActive ?? true,
-          showOnLanding: showOnLanding ?? false,
-          link: parsedLink.value,
-          startsAt: startsAtDate,
-          endsAt: endsAtDate,
-        })
-        .returning();
-      invalidatePublicAnnouncements();
-      return c.json({ success: true, data: toAnnouncement(row) });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const [row] = await db
+      .insert(announcements)
+      .values({
+        severity,
+        message: message.trim(),
+        isActive: isActive ?? true,
+        showOnLanding: showOnLanding ?? false,
+        link: parsedLink.value,
+        startsAt: startsAtDate,
+        endsAt: endsAtDate,
+      })
+      .returning();
+    invalidatePublicAnnouncements();
+    return c.json({ success: true, data: toAnnouncement(row) });
   },
 );

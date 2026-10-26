@@ -5,7 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, Switch, View } from "react-native";
-import { DEFAULT_ORG_SETTINGS } from "@magic-vault/shared";
+import {
+  DEFAULT_ORG_SETTINGS,
+  discordSettingsDraftFormSchema,
+  type DiscordSettingsDraftFormValues,
+} from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -27,7 +31,6 @@ import {
   unlinkDiscord,
   updateNotificationRule,
 } from "@/features/integrations/api/discord";
-import { discordSettingsSchema } from "@/features/integrations/lib/discord-settings-schema";
 import {
   changedDiscordChannels,
   channelLabel,
@@ -40,7 +43,6 @@ import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { NOTIFICATION_TEST_TYPES } from "@/lib/constants/integrations";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
-import type { DiscordSettingsValues } from "@/lib/interfaces/forms";
 import type { DiscordChannelPicker, DiscordLinkCode, NotificationTestType } from "@/lib/interfaces/integrations";
 
 export default function NotificationsSettingsScreen() {
@@ -65,8 +67,8 @@ export default function NotificationsSettingsScreen() {
     () => toDiscordSettingsDraft(integration.data, rules.data ?? [], settings.data),
     [integration.data, rules.data, settings.data],
   );
-  const form = useForm<DiscordSettingsValues>({
-    resolver: zodResolver(discordSettingsSchema),
+  const form = useForm<DiscordSettingsDraftFormValues>({
+    resolver: zodResolver(discordSettingsDraftFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
@@ -125,7 +127,7 @@ export default function NotificationsSettingsScreen() {
     onError: () => setMessage({ tone: "destructive", text: t("settings.discord.toasts.testError") }),
   });
 
-  const submit = async (draft: DiscordSettingsValues) => {
+  const submit = async (draft: DiscordSettingsDraftFormValues) => {
     setSaveError(false);
     const jobs: Promise<unknown>[] = [];
     const defaults = changedDiscordChannels(values, draft);

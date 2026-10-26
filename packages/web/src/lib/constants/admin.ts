@@ -74,13 +74,48 @@ export const UNMATCHED_PHOTO_FILTERS: UnmatchedPhotoFilter[] = [
 export const BAD_PHOTO_MARKS_STORAGE_KEY = "admin-unmatched-bad-photos";
 
 export const ADMIN_SECTIONS = [
-  { path: "cards", icon: IconCards, labelKey: "sections.cards" },
-  { path: "users", icon: IconUserScan, labelKey: "sections.users" },
-  { path: "plans", icon: IconCreditCard, labelKey: "sections.plans" },
-  { path: "discord", icon: IconBrandDiscord, labelKey: "sections.discord" },
-  { path: "deleted", icon: IconRestore, labelKey: "sections.deleted" },
-  { path: "hardware", icon: IconRotate360, labelKey: "sections.hardware" },
-  { path: "developer", icon: IconBug, labelKey: "sections.developer" },
+  {
+    path: "cards",
+    icon: IconCards,
+    labelKey: "sections.cards",
+    adminOnly: false,
+  },
+  {
+    path: "users",
+    icon: IconUserScan,
+    labelKey: "sections.users",
+    adminOnly: false,
+  },
+  {
+    path: "plans",
+    icon: IconCreditCard,
+    labelKey: "sections.plans",
+    adminOnly: true,
+  },
+  {
+    path: "discord",
+    icon: IconBrandDiscord,
+    labelKey: "sections.discord",
+    adminOnly: false,
+  },
+  {
+    path: "deleted",
+    icon: IconRestore,
+    labelKey: "sections.deleted",
+    adminOnly: false,
+  },
+  {
+    path: "hardware",
+    icon: IconRotate360,
+    labelKey: "sections.hardware",
+    adminOnly: true,
+  },
+  {
+    path: "developer",
+    icon: IconBug,
+    labelKey: "sections.developer",
+    adminOnly: true,
+  },
 ] as const;
 
 export const NO_DISCORD_GUILD = "none";

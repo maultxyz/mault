@@ -1,0 +1,1 @@
+ALTER TABLE "bins" DROP COLUMN "card_limit";

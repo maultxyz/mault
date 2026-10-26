@@ -10,22 +10,17 @@ export const countNotificationRulesRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const [{ total }] = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .select({ total: count() })
-          .from(notificationRules)
-          .where(
-            and(
-              eq(notificationRules.orgId, orgId),
-              eq(notificationRules.isDeleted, false),
-            ),
+    const [{ total }] = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .select({ total: count() })
+        .from(notificationRules)
+        .where(
+          and(
+            eq(notificationRules.orgId, orgId),
+            eq(notificationRules.isDeleted, false),
           ),
-      );
-      return c.json({ success: true, data: total });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+        ),
+    );
+    return c.json({ success: true, data: total });
   },
 );

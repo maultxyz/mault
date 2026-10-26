@@ -362,6 +362,7 @@
     "forced": "Setup wizard required for this sorter",
     "forcedNextConnect": "It will open the next time {{name}} connects.",
     "forceFailed": "Couldn't require the setup wizard",
+    "completeFailed": "Couldn't save that setup is finished. Try again.",
     "title": "Set up your sorter",
     "stepCounter": "Step {{current}} of {{total}}",
     "skip": "Skip setup",

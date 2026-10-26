@@ -16,11 +16,11 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
   computeBinCount,
+  type CreateCollectionFormValues,
   createDefaultCatchAllOnlyBins,
   type BinSet,
   type Collection,
 } from "@magic-vault/shared";
-import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -64,7 +64,6 @@ export function CollectionsProvider({
     [claimStationCollection, station.id, stationToast, t],
   );
 
-  // If the stored guid no longer exists (e.g. collection deleted), clear it
   useEffect(() => {
     if (
       activeGuid &&
@@ -75,8 +74,6 @@ export function CollectionsProvider({
     }
   }, [collections, activeGuid, setActiveGuid]);
 
-  // Only live stations (connected, or being viewed) hold a collection; the
-  // idle standby's pick never blocks anyone.
   const activeCollection = useMemo(() => {
     const taken = new Set(
       stations
@@ -87,12 +84,9 @@ export function CollectionsProvider({
       const found = collections.find((c) => c.guid === activeGuid);
       if (found) return found;
     }
-    // No usable stored preference - fall back to the most recently updated
-    // collection no other sorter is already scanning into.
     return collections.find((c) => !taken.has(c.guid)) ?? null;
   }, [collections, activeGuid, stations, station.id, isStationLive]);
 
-  // Pins the fallback pick so a second station's fallback can't land on it too.
   useEffect(() => {
     if (isLive && activeCollection && activeGuid !== activeCollection.guid) {
       claimStationCollection(station.id, activeCollection.guid);
@@ -131,12 +125,12 @@ export function CollectionsProvider({
             gameGuid,
           );
           if (binsResult.success && binsResult.data) {
-            queryClient.setQueryData(["bins"], binsResult.data);
+            queryClient.setQueryData(binsQueryOptions.queryKey, binsResult.data);
           }
         } else {
           const activateResult = await activateSetFn(sameGameSet.guid);
           if (activateResult.success && activateResult.data) {
-            queryClient.setQueryData(["bins"], activateResult.data);
+            queryClient.setQueryData(binsQueryOptions.queryKey, activateResult.data);
           }
         }
       }
@@ -200,7 +194,6 @@ export function CollectionsProvider({
   const activate = useCallback(
     async (guid: string) => {
       if (!setActiveGuid(guid)) return;
-      // Fire-and-forget to server so the org has a "last used" hint for new devices
       activateCollectionFn(guid).catch(() => {});
     },
     [setActiveGuid],

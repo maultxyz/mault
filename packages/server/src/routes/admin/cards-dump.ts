@@ -22,9 +22,7 @@ export const cardsDumpRoute = new Hono<AppEnv>().post(
     try {
       const body = await c.req.json<{ gameKey?: string }>();
       if (body.gameKey) gameKey = body.gameKey;
-    } catch {
-      // no/invalid body - dump everything
-    }
+    } catch {}
 
     if (gameKey) {
       await db

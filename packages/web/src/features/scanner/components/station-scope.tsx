@@ -12,6 +12,7 @@ import { CardFiltersProvider } from "@/features/cards/api/use-card-filters";
 import { CollectionsProvider } from "@/features/collections/api/use-collections";
 import { CameraProvider } from "@/features/scanner/api/use-camera";
 import { ScannedCardsProvider } from "@/features/scanner/api/use-scanned-cards";
+import { ScanRemovalProvider } from "@/features/scanner/api/use-scan-removal";
 import { SerialProvider } from "@/features/scanner/api/use-serial";
 import {
   StationContext,
@@ -23,11 +24,6 @@ import type { StationState } from "@/lib/interfaces/stations";
 import { useMemo } from "react";
 import { createPortal } from "react-dom";
 
-// One physical sorter's full state: its own serial link, camera, collection,
-// calibration and scan session. Only the active station renders the routed
-// app; every live station (connected, or the one being viewed) renders its
-// scanner column into the scanner page's panel slot, so background tabs keep
-// scanning. The idle standby renders no scanner, so it holds no camera.
 export function StationScope({
   station,
   index,
@@ -72,23 +68,25 @@ export function StationScope({
                         <FeederConfigProvider>
                           <ScannedCardsProvider>
                             <CardFiltersProvider>
-                              <OfflineCalibrationProvider>
-                                <SetupWizardProvider>
-                                  {isActive && children}
-                                  {isActive && <DeviceSetupWizard />}
-                                  {panelLayout &&
-                                    showsPanel &&
-                                    createPortal(
-                                      <StationPanel layout={panelLayout} />,
-                                      getPanelElement(station.id),
-                                    )}
-                                  {showsOverviewTile &&
-                                    createPortal(
-                                      <StationOverviewTile />,
-                                      getOverviewTileElement(station.id),
-                                    )}
-                                </SetupWizardProvider>
-                              </OfflineCalibrationProvider>
+                              <ScanRemovalProvider>
+                                <OfflineCalibrationProvider>
+                                  <SetupWizardProvider>
+                                    {isActive && children}
+                                    {isActive && <DeviceSetupWizard />}
+                                    {panelLayout &&
+                                      showsPanel &&
+                                      createPortal(
+                                        <StationPanel layout={panelLayout} />,
+                                        getPanelElement(station.id),
+                                      )}
+                                    {showsOverviewTile &&
+                                      createPortal(
+                                        <StationOverviewTile />,
+                                        getOverviewTileElement(station.id),
+                                      )}
+                                  </SetupWizardProvider>
+                                </OfflineCalibrationProvider>
+                              </ScanRemovalProvider>
                             </CardFiltersProvider>
                           </ScannedCardsProvider>
                         </FeederConfigProvider>

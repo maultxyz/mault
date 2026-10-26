@@ -4,9 +4,13 @@ import {
   ESP32_FLASH_BAUD_RATE,
   ESP32_FLASH_SECTOR_SIZE,
   ESP32_HARD_RESET_SEQUENCE,
+  ESP32_IMAGE_MAGIC_BYTE,
   ESP32_NVS_END,
   ESP32_NVS_START,
+  ESP32_PORT_RELEASE_POLL_MS,
+  ESP32_PORT_RELEASE_TIMEOUT_MS,
 } from "@/lib/constants/firmware";
+import { delay } from "@/lib/delay";
 import type {
   FlashEsp32Result,
   FlashImagePart,
@@ -23,12 +27,6 @@ function hardReset(transport: EspLoaderTransport) {
   return new CustomReset(transport, ESP32_HARD_RESET_SEQUENCE).reset();
 }
 
-// Talks to the chip's ROM bootloader directly, so this works the same on a
-// board running this project's firmware, some other sketch, or nothing at
-// all. The released image is a merged bootloader + partitions + app binary
-// laid out from offset 0. It is written around the NVS partition so stored
-// calibration and Wi-Fi settings survive, and its trailing erased padding is
-// skipped.
 let activeFlashes = 0;
 
 function trimErasedTail(data: Uint8Array): Uint8Array {
@@ -49,6 +47,39 @@ function splitAroundNvs(image: Uint8Array): FlashImagePart[] {
   const rest = trimErasedTail(image.subarray(ESP32_NVS_END));
   if (rest.length > 0) parts.push({ data: rest, address: ESP32_NVS_END });
   return parts;
+}
+
+function isMergedFirmwareImage(image: Uint8Array): boolean {
+  return image.length > ESP32_NVS_END && image[0] === ESP32_IMAGE_MAGIC_BYTE;
+}
+
+function isPortOpen(port: SerialPort): boolean {
+  return port.readable !== null || port.writable !== null;
+}
+
+async function closePortIfOpen(port: SerialPort) {
+  const deadline = Date.now() + ESP32_PORT_RELEASE_TIMEOUT_MS;
+  while (isPortOpen(port) && Date.now() < deadline) {
+    try {
+      await port.close();
+    } catch {
+      await delay(ESP32_PORT_RELEASE_POLL_MS);
+    }
+  }
+}
+
+function isPortOpenError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === "InvalidStateError" || error.name === "NetworkError")
+  );
+}
+
+async function disconnectWithTimeout(transport: EspLoaderTransport) {
+  await Promise.race([
+    transport.disconnect().catch(() => {}),
+    delay(ESP32_PORT_RELEASE_TIMEOUT_MS),
+  ]);
 }
 
 export function isFlashInProgress(): boolean {
@@ -77,7 +108,7 @@ async function flashPort(
 
   let firmwareData: Uint8Array;
   try {
-    const response = await fetch(firmwareUrl);
+    const response = await fetch(firmwareUrl, { cache: "no-cache" });
     if (!response.ok) {
       throw new Error(`Failed to download firmware (${response.status})`);
     }
@@ -89,6 +120,12 @@ async function flashPort(
       error: e instanceof Error ? e.message : undefined,
     };
   }
+
+  if (!isMergedFirmwareImage(firmwareData)) {
+    return { success: false, reason: "invalid-image" };
+  }
+
+  await closePortIfOpen(port);
 
   const espTransport = new EspLoaderTransport(port);
   const loader = new ESPLoader({
@@ -107,7 +144,7 @@ async function flashPort(
     } catch (e) {
       return {
         success: false,
-        reason: "no-bootloader",
+        reason: isPortOpenError(e) ? "port-unavailable" : "no-bootloader",
         error: e instanceof Error ? e.message : undefined,
       };
     }
@@ -154,7 +191,7 @@ async function flashPort(
       }
     }
 
-    await hardReset(espTransport);
+    await hardReset(espTransport).catch(() => {});
     return { success: true, chip };
   } catch (e) {
     return {
@@ -163,6 +200,6 @@ async function flashPort(
       error: e instanceof Error ? e.message : undefined,
     };
   } finally {
-    await espTransport.disconnect().catch(() => {});
+    await disconnectWithTimeout(espTransport);
   }
 }

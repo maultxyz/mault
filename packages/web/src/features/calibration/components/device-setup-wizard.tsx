@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import {
-  devicesQueryOptions,
   saveDevice,
+  writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
@@ -31,15 +31,8 @@ import {
   FEEDER_STOP_PULSE_SLIDER_RANGE,
   MODULE_DELAY_FIELDS,
   PUSHER_SUGGESTED_OFFSET_PERCENT,
-  pulseToPercent,
-  pulseToSignedPercent,
-  recenterSpeedPulse,
-  SERVO_PULSE_CENTER,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
   SETUP_INTRO_PARTS,
   SETUP_SERVO_POSITIONS,
-  signedPercentToPulse,
 } from "@/lib/constants/calibration";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
@@ -58,7 +51,6 @@ import type {
   SetupStepHeadingProps,
   SetupTestState,
   SetupWizardStep,
-  Device,
   ModuleDelayField,
 } from "@/lib/interfaces/calibration";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -67,7 +59,14 @@ import {
   CHANNEL_OFFSET,
   DEFAULT_CALIBRATION,
   DEFAULT_CHANNEL_LAYOUT,
+  pulseToPercent,
+  pulseToSignedPercent,
+  recenterSpeedPulse,
+  SERVO_PULSE_CENTER,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
   type ServoCalibration,
+  signedPercentToPulse,
 } from "@magic-vault/shared";
 import {
   IconAlertTriangle,
@@ -335,11 +334,7 @@ export function DeviceSetupWizard() {
       return;
     }
     const saved = result.data;
-    queryClient.setQueryData(
-      devicesQueryOptions(activeOrg?.id).queryKey,
-      (old: Device[] | undefined) =>
-        old?.map((d) => (d.guid === saved.guid ? saved : d)),
-    );
+    writeDeviceToCache(queryClient, activeOrg?.id, saved);
   };
 
   const handleFeederChange = (signedPercent: number) => {
@@ -400,29 +395,27 @@ export function DeviceSetupWizard() {
     setTestError(ok ? null : error);
   };
 
-  const markSetupComplete = async () => {
-    if (!device?.guid) return;
+  const markSetupComplete = async (): Promise<boolean> => {
+    if (!device?.guid) return true;
     const result = await saveDevice(device.guid, {
       setupCompleted: true,
     }).catch(() => null);
-    if (!result?.success || !result.data) return;
+    if (!result?.success || !result.data) {
+      toast.error(t("setupWizard.completeFailed"));
+      return false;
+    }
     const saved = result.data;
-    queryClient.setQueryData(
-      devicesQueryOptions(activeOrg?.id).queryKey,
-      (old: Device[] | undefined) =>
-        old?.map((d) => (d.guid === saved.guid ? saved : d)),
-    );
+    writeDeviceToCache(queryClient, activeOrg?.id, saved);
+    return true;
   };
 
   const handleFinish = async () => {
-    await markSetupComplete();
-    close();
+    if (await markSetupComplete()) close();
   };
 
   const handleSkip = async () => {
     void sendCommand(JSON.stringify({ feederStop: true }));
-    await markSetupComplete();
-    close();
+    if (await markSetupComplete()) close();
     if (!isReady && !isOffline) void runTest();
   };
 

@@ -6,6 +6,7 @@ import {
   PUBLIC_API_CARD_ID_FILTER_MAX,
   PUBLIC_API_PAGE_SIZE_MAX,
 } from "../constants/api-keys.constant";
+import { DEVICE_ALERT_TYPES } from "../constants/business.constant";
 
 const timestamp = z.iso.datetime().describe("UTC ISO 8601 timestamp.");
 const price = z
@@ -191,6 +192,27 @@ export const apiWebhookTestSchema = z
   })
   .meta({ id: "WebhookTest" });
 
+export const apiSorterAlertSchema = z
+  .object({
+    object: z.literal("sorter_alert"),
+    type: z
+      .enum(DEVICE_ALERT_TYPES)
+      .describe(
+        "jam, error, timeout, restart, feeder_empty, offline (lost its connection without disconnecting) or maintenance (service interval reached).",
+      ),
+    title: z.string(),
+    description: z.string(),
+    sorter: z
+      .object({
+        object: z.literal("sorter"),
+        id: z.guid(),
+        name: z.string(),
+      })
+      .nullable()
+      .describe("Null when the app couldn't tell which sorter it was."),
+  })
+  .meta({ id: "SorterAlert" });
+
 function eventSchema<T extends z.ZodType>(type: string, data: T) {
   return z.object({
     object: z.literal("event"),
@@ -210,6 +232,11 @@ export const apiCardsStoredEventSchema = eventSchema(
   "cards.stored",
   apiStoredCardsSchema,
 ).meta({ id: "CardsStoredEvent" });
+
+export const apiSorterAlertEventSchema = eventSchema(
+  "sorter.alert",
+  apiSorterAlertSchema,
+).meta({ id: "SorterAlertEvent" });
 
 export const apiWebhookTestEventSchema = eventSchema(
   "webhook.test",

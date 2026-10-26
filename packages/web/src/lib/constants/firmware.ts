@@ -8,3 +8,6 @@ export const ESP32_NVS_START = 0x9000;
 export const ESP32_NVS_END = 0xe000;
 export const ESP32_FLASH_SECTOR_SIZE = 0x1000;
 export const ESP32_ERASED_BYTE = 0xff;
+export const ESP32_IMAGE_MAGIC_BYTE = 0xe9;
+export const ESP32_PORT_RELEASE_TIMEOUT_MS = 2000;
+export const ESP32_PORT_RELEASE_POLL_MS = 100;

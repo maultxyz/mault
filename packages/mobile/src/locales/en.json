@@ -39,7 +39,8 @@
     "errors": {
       "network": "Couldn't reach the server. Check your connection and try again.",
       "profile": "Signed in, but your account details couldn't be loaded. Try again.",
-      "verify-email": "Verify your email address, then sign in."
+      "verify-email": "Verify your email address, then sign in.",
+      "storage": "Signed in, but the session couldn't be saved on this device. Try again."
     },
     "createAccountOnWeb": "New to Mault? Create an account on the web"
   },
@@ -86,11 +87,6 @@
     "deleteFailed": "Couldn't delete the collection",
     "actions": "Collection actions",
     "cancel": "Cancel",
-    "validation": {
-      "name": "Enter a name of up to 50 characters.",
-      "game": "Choose a game.",
-      "lang": "Choose a language."
-    },
     "shareLink": "Share live view link",
     "revokeLinks": "Revoke shared links",
     "revokeLinksTitle": "Revoke shared links?",
@@ -273,8 +269,7 @@
         "nameLabel": "Display name",
         "save": "Save",
         "updated": "Name updated",
-        "updateFailed": "Couldn't update your name",
-        "nameRequired": "Enter your name."
+        "updateFailed": "Couldn't update your name"
       },
       "email": {
         "heading": "Email",
@@ -291,15 +286,12 @@
       "password": {
         "heading": "Password",
         "currentLabel": "Current password",
-        "currentRequired": "Enter your current password",
         "newLabel": "New password",
         "confirmLabel": "Confirm new password",
         "revokeOtherSessions": "Sign out of all other devices",
         "submit": "Update password",
         "updated": "Password updated",
-        "updateFailed": "Couldn't update your password",
-        "mismatch": "Passwords don't match",
-        "tooShort": "Must be at least 8 characters"
+        "updateFailed": "Couldn't update your password"
       },
       "sessions": {
         "heading": "Sessions",
@@ -479,7 +471,7 @@
       },
       "bin-full": {
         "title": "Bin full",
-        "description": "Empty the bin on the web app, then tap Resume."
+        "description": "Take the cards out of bin {{detail}}, mark it empty, then scanning carries on."
       },
       "scan-limit": {
         "title": "Daily scan limit reached",
@@ -508,6 +500,42 @@
       "repack-complete": {
         "title": "Packs complete",
         "description": "Every pack bin is full. Empty them, then tap Resume to start the next round."
+      },
+      "bin-data-unavailable": {
+        "title": "Bin levels unavailable",
+        "description": "The app couldn't load how full each bin is, so it paused instead of guessing. Check your connection, then tap Resume."
+      },
+      "deploy": {
+        "title": "Update in progress",
+        "description": "Mault is being updated, so scanning was paused to make sure no cards are lost. You can resume now, but scans may fail until the update finishes."
+      },
+      "control-card": {
+        "title": "Paused by a control card",
+        "description": "Press Resume when you're ready to keep scanning."
+      },
+      "control-card-unreadable": {
+        "title": "Control card not applied",
+        "description": "This QR code isn't a control card this version of Mault understands. Update the app or print a new card."
+      },
+      "control-card-collection-not-found": {
+        "title": "Control card not applied",
+        "description": "The collection on this card no longer exists."
+      },
+      "control-card-preset-not-found": {
+        "title": "Control card not applied",
+        "description": "The rule preset on this card no longer exists."
+      },
+      "control-card-preset-wrong-game": {
+        "title": "Control card not applied",
+        "description": "The rule preset on this card is for a different game than the collection."
+      },
+      "control-card-no-collection": {
+        "title": "Control card not applied",
+        "description": "Choose a collection before using a rule preset card."
+      },
+      "control-card-switch-failed": {
+        "title": "Control card not applied",
+        "description": "Couldn't switch the collection or rule preset. Check your connection and try again."
       }
     },
     "scanOnce": "Scan one",
@@ -587,7 +615,67 @@
       "pairDesktopDescription": "Scan the QR code shown on your computer",
       "collection": "Collection",
       "preset": "Rule preset",
-      "chooseCamera": "Choose a camera"
+      "chooseCamera": "Choose a camera",
+      "foilType": "Foil type",
+      "notFoil": "Not foil",
+      "set": "Set",
+      "anySet": "Any set",
+      "searchSets": "Search sets",
+      "condition": "Condition"
+    },
+    "emptyBin": {
+      "action": "Mark empty",
+      "confirmTitle": "Mark bin {{bins}} empty?",
+      "confirmDescription": "Only do this after taking the cards out. The bin's count starts again from zero.",
+      "confirm": "Mark empty",
+      "failed": "Couldn't mark the bin empty. Check your connection and try again."
+    },
+    "removal": {
+      "title": "Removing from {{collection}}",
+      "queued_one": "{{count}} queued",
+      "queued_other": "{{count}} queued",
+      "chip_one": "Removing from {{collection}}: {{count}} queued",
+      "chip_other": "Removing from {{collection}}: {{count}} queued",
+      "noCopyLeft": "No copy left in this collection",
+      "removeAction_one": "Remove 1 card",
+      "removeAction_other": "Remove {{count}} cards",
+      "confirmDescription": "Remove these cards from {{collection}}? This can't be undone.",
+      "removeFailed": "Couldn't remove the cards. Check your connection and try again.",
+      "drop": "Drop",
+      "changeCopy": "Change copy",
+      "empty": "Removal queue is empty. Scan a card to queue it.",
+      "unsorted": "Unsorted",
+      "notice": {
+        "no-match": "No match, try again",
+        "lookup-failed": "Couldn't look up copies of {{name}}. Check your connection and scan it again.",
+        "removed_one": "Removed 1 card",
+        "removed_other": "Removed {{count}} cards"
+      },
+      "modes": {
+        "add": "Add cards",
+        "remove": "Remove cards"
+      },
+      "binChip": "Removed cards go to {{bin}}",
+      "binPickerTitle": "Removed cards go to",
+      "binOption": "Bin {{number}}",
+      "catchAllBinOption": "Bin {{number}} (catch-all)"
+    },
+    "controlCards": {
+      "applied": "Control card applied",
+      "actions": {
+        "collection": "Collection: {{name}}",
+        "preset": "Rule preset: {{name}}",
+        "foil": "Foil: {{type}}",
+        "notFoil": "Not foil",
+        "set": "Set: {{name}}",
+        "anySet": "Any set",
+        "condition": "Condition: {{condition}}",
+        "autoFeedOn": "Auto-feed on",
+        "autoFeedOff": "Auto-feed off",
+        "duplicatesOn": "Allow duplicates",
+        "duplicatesOff": "Skip duplicates",
+        "pause": "Pause scanning"
+      }
     }
   },
   "home": {
@@ -636,7 +724,6 @@
     "review": "Review {{count}}",
     "groupDuplicates": "Group duplicates",
     "filters": {
-      "title": "Filters",
       "colors": "Colors",
       "rarity": "Rarity",
       "foil": "Foil",
@@ -658,7 +745,9 @@
       "copies_other": "{{count}} copies",
       "removeTitle_one": "Remove this card?",
       "removeTitle_other": "Remove {{count}} copies?"
-    }
+    },
+    "viewOptions": "View options",
+    "display": "Display"
   },
   "cardDetail": {
     "fallbackTitle": "Card details",
@@ -690,6 +779,8 @@
     "thisScan": "This scan",
     "foilNone": "Not foil",
     "condition": "Condition",
+    "language": "Language",
+    "allLanguages": "All languages",
     "conditions": {
       "NM": "Near Mint (NM)",
       "LP": "Lightly Played (LP)",
@@ -708,11 +799,28 @@
     "prices": "Prices",
     "binLocation": "Bin location",
     "scanOrigin": {
-      "heading": "Scanned",
       "scannedBy": "By",
       "sorter": "Sorter",
       "deletedSorter": "{{name}} (deleted)"
     }
+  },
+  "reviewGrid": {
+    "title": "Review cards",
+    "remaining_one": "{{count}} card left to review",
+    "remaining_other": "{{count}} cards left to review",
+    "layoutGrid": "Grid",
+    "layoutOneByOne": "One by one",
+    "acceptAll_one": "Accept {{count}} card",
+    "acceptAll_other": "Accept all {{count}}",
+    "accept": "Looks right",
+    "correct": "Correct",
+    "noPhoto": "No scan photo",
+    "doneTitle": "All reviewed",
+    "doneDescription": "Every card here has been checked.",
+    "done": "Done",
+    "loadFailed": "Couldn't load the cards to review. Try again.",
+    "acceptFailed_one": "Couldn't accept {{count}} card. Try again.",
+    "acceptFailed_other": "Couldn't accept {{count}} cards. Try again."
   },
   "rules": {
     "title": "Sorting rules",
@@ -778,15 +886,11 @@
     "catchAllDescription": "Gets every card no other bin takes",
     "disabledLabel": "Disabled",
     "disabledDescription": "Cards skip this bin",
-    "cardLimitLabel": "Card limit",
-    "cardLimitDescription": "Pauses or overflows when full",
-    "noLimit": "None",
     "overflowLabel": "When full, overflow to",
     "noRulesTapToAdd": "No rules yet, tap to add",
     "groupChip_one": "Group of {{count}}",
     "groupChip_other": "Group of {{count}}",
     "moreChips": "+{{count}}",
-    "limitChip": "Full at {{count}}",
     "overflowsTo": "Overflows to {{bin}}",
     "mode": {
       "title": "Sorting mode",
@@ -854,7 +958,9 @@
       "slotsLabel": "Slots",
       "slotCountLabel": "Count",
       "removeSlot": "Remove slot",
-      "addSlot": "Add slot"
+      "addSlot": "Add slot",
+      "multiplePacksLabel": "Multiple packs per bin",
+      "multiplePacksDescription": "When a bin finishes a pack, it starts a new one on top of it and keeps going until the bin is full. A bin only starts a new pack if it has room for the whole pack, so packs are never cut short."
     },
     "alphabet": {
       "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
@@ -1240,7 +1346,6 @@
       },
       "you": "You",
       "failed": "Couldn't update the organization",
-      "invalidEmail": "Enter a valid email address.",
       "cancel": "Cancel",
       "membersUnavailable": "Members are managed by your self-hosted server's admin tools.",
       "noInvites": "No pending invites"
@@ -1273,7 +1378,8 @@
         "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
         "collections": "Unlimited collections",
         "games": "Every supported card game",
-        "notifications": "Discord scan notifications"
+        "notifications": "Discord scan notifications",
+        "businessTools": "Shop tools: intake offers, order pull sheets and margin reports"
       }
     },
     "apiKeys": {
@@ -1317,17 +1423,18 @@
       "saved": "Webhook saved.",
       "saveFailed": "Couldn't save the webhook.",
       "urlLabel": "URL",
-      "invalidUrl": "Enter a public https:// URL.",
       "descriptionLabel": "Name (optional)",
       "descriptionPlaceholder": "Online shop",
       "eventsLabel": "Events",
-      "eventsRequired": "Pick at least one event.",
       "events": {
         "card": {
           "scanned": "A card was scanned and saved to a collection."
         },
         "cards": {
           "stored": "A bin was put away into a storage location. Includes each card's box and position."
+        },
+        "sorter": {
+          "alert": "A sorter jammed, errored, restarted, lost its connection or is due for service."
         }
       },
       "empty": "No webhooks yet.",
@@ -1423,12 +1530,7 @@
         "conditions": "Conditions",
         "cancel": "Cancel",
         "save": "Save",
-        "saveFailed": "Couldn't save the notification rule.",
-        "validation": {
-          "nameRequired": "Give the rule a name.",
-          "channelRequired": "Choose a channel.",
-          "conditionsRequired": "Add at least one condition."
-        }
+        "saveFailed": "Couldn't save the notification rule."
       },
       "draft": {
         "saved": "Discord settings saved.",
@@ -1510,8 +1612,6 @@
         "saveName": "Save name",
         "cancelRename": "Cancel",
         "renameFailed": "Couldn't rename the sound clip.",
-        "nameRequired": "Give the clip a name.",
-        "nameTooLong": "Keep the name to 60 characters or fewer.",
         "stop": "Stop {{name}}",
         "pickFailed": "Couldn't open that file.",
         "renamed": "Sound clip renamed.",
@@ -1548,12 +1648,7 @@
         "conditions": "Conditions",
         "cancel": "Cancel",
         "save": "Save",
-        "saveFailed": "Couldn't save the sound rule.",
-        "validation": {
-          "nameRequired": "Give the rule a name.",
-          "clipRequired": "Choose a sound clip.",
-          "conditionsRequired": "Add at least one condition."
-        }
+        "saveFailed": "Couldn't save the sound rule."
       }
     }
   },
@@ -1590,6 +1685,7 @@
     "tcgplayerMarket": "TCGplayer market",
     "cardmarketAvg": "Cardmarket average",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "At scan {{price}}",
     "nonFoilPrice": "Non-foil {{price}}",
     "avg30": "30-day avg",
     "market": "Market",
@@ -1682,5 +1778,42 @@
     "captured_one": "{{count}} photo sent",
     "captured_other": "{{count}} photos sent",
     "keepOpen": "Keep this screen open while the computer scans."
+  },
+  "validation": {
+    "nameRequired": "Enter a name.",
+    "nameTooLong": "Keep it to {{max}} characters or fewer.",
+    "ruleNameRequired": "Give the rule a name.",
+    "clipNameRequired": "Give the clip a name.",
+    "gameRequired": "Choose a game.",
+    "languageRequired": "Choose a language.",
+    "collectionRequired": "Choose a collection.",
+    "channelRequired": "Choose a channel.",
+    "clipRequired": "Choose a sound clip.",
+    "conditionsRequired": "Add at least one condition.",
+    "emailInvalid": "Enter a valid email address.",
+    "currentPasswordRequired": "Enter your current password.",
+    "passwordTooShort": "Must be at least {{min}} characters.",
+    "passwordMismatch": "Passwords don't match.",
+    "webhookUrlInvalid": "Enter a public https:// URL.",
+    "eventsRequired": "Pick at least one event.",
+    "conditionMultipliersInvalid": "Each condition needs a percentage from 0 to 100.",
+    "valueRequired": "Enter a value.",
+    "wholeNumber": "Must be a whole number.",
+    "atLeast": "Must be at least {{min}}.",
+    "atMost": "Must be at most {{max}}.",
+    "percentAtLeast": "Must be at least {{min}}%.",
+    "percentAtMost": "Must be at most {{max}}%.",
+    "amountRequired": "Enter an amount.",
+    "percentageRequired": "Enter a percentage.",
+    "tiersRequired": "Add at least one tier.",
+    "tooManyTiers": "Add no more than {{max}} tiers.",
+    "customerNameRequired": "Enter the customer's name.",
+    "orderTextRequired": "Paste an order or choose a file.",
+    "cardCountRequired": "Enter a number of cards.",
+    "storageLocationRequired": "Choose where the cards went.",
+    "commandRequired": "Enter a command.",
+    "verificationCodeLength": "Enter the {{length}}-digit code.",
+    "verificationCodeNumeric": "The code can only contain numbers.",
+    "controlCardActionRequired": "Pick at least one thing for the card to change."
   }
 }

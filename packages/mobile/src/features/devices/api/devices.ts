@@ -8,12 +8,12 @@ import {
   type FeederCalibration,
   type ModuleConfig,
   type Result,
+  SORTER_LINKS_REFETCH_MS,
   type SorterLinkStatus,
 } from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import { apiDelete, apiGet, apiPost, apiRequest, unwrap } from "@/lib/api/client";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
-import { SORTER_LINKS_REFETCH_MS } from "@/lib/constants/sorter";
 import type { Device } from "@/lib/interfaces/devices";
 
 export const devicesQueryOptions = (orgId: string | null) =>

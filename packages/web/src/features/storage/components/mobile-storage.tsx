@@ -6,7 +6,14 @@ import { MobileListRow } from "@/components/mobile-list-row";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import { Button } from "@/components/ui/button";
-import { fetchNextUnreviewedStorageCard } from "@/features/storage/api/storage-locations";
+import {
+  fetchNextUnreviewedStorageCard,
+  storageLocationUnreviewedCardsQueryOptions,
+} from "@/features/storage/api/storage-locations";
+import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
+import { ReviewGrid } from "@/features/cards/components/review-grid";
+import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
+import { useQuery } from "@tanstack/react-query";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
@@ -64,7 +71,17 @@ export function MobileStorage() {
   const selectedGuid = searchParams.get(STORAGE_LOCATION_SEARCH_PARAM);
   const selected = locations.find((l) => l.guid === selectedGuid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
-  const isReviewing = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM) === "1";
+  const reviewParam = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM);
+  const isReviewing = reviewParam === "1";
+  const isGridReviewing =
+    !!selected && !openScanId && reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const [reviewLayout, setReviewLayout] = useReviewLayout();
+  const reviewGridPage = useQuery(
+    storageLocationUnreviewedCardsQueryOptions(
+      selected?.guid,
+      isGridReviewing,
+    ),
+  );
 
   const select = useCallback(
     (guid: string | null) =>
@@ -88,8 +105,24 @@ export function MobileStorage() {
     if (selected) select(selected.guid);
   }, [selected, select]);
 
+  const openReviewGrid = () => {
+    if (!selected) return;
+    setReviewLayout("grid");
+    setSearchParams(
+      {
+        [STORAGE_LOCATION_SEARCH_PARAM]: selected.guid,
+        [STORAGE_REVIEW_SEARCH_PARAM]: CARD_REVIEW_GRID_PARAM_VALUE,
+      },
+      { replace: true },
+    );
+  };
+
   const startReview = async () => {
     if (!selected) return;
+    if (reviewLayout === "grid") {
+      openReviewGrid();
+      return;
+    }
     const first = await fetchNextUnreviewedStorageCard(selected.guid).catch(
       () => null,
     );
@@ -146,6 +179,31 @@ export function MobileStorage() {
           scanId={openScanId}
           reviewMode={isReviewing}
           onNavigate={(scanId) => openCard(selected.guid, scanId)}
+          onShowReviewGrid={openReviewGrid}
+          onClose={closeCard}
+        />
+      </div>
+    );
+  }
+
+  if (selected && isGridReviewing) {
+    return (
+      <div
+        data-scroll-root
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-y-auto",
+          MOBILE_NAV_SCROLL_PADDING_CLASS,
+        )}
+      >
+        <ReviewGrid
+          cards={reviewGridPage.data?.cards ?? []}
+          total={reviewGridPage.data?.total ?? 0}
+          isLoading={reviewGridPage.isPending}
+          isError={reviewGridPage.isError}
+          onOpenOneByOne={(card) => {
+            setReviewLayout("single");
+            openCard(selected.guid, card.scanId, true);
+          }}
           onClose={closeCard}
         />
       </div>

@@ -35,9 +35,6 @@ export function useOrgNeon() {
   );
 
   useEffect(() => {
-    // Only fires when activeOrg.id actually changes — not on every render — so it
-    // can't stomp the localStorage value setActiveOrg() just wrote with a stale
-    // activeOrg still catching up to an in-flight switch.
     if (activeOrg?.id) {
       localStorage.setItem(ORG_KEY, activeOrg.id);
     }

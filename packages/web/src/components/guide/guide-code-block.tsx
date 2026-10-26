@@ -1,19 +1,18 @@
 import { Button } from "@/components/ui/button";
 import type { GuideCodeBlockProps } from "@/lib/interfaces/guide";
-import { toast } from "@/lib/toast";
 import { IconCopy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { copyWithToast } from "@/lib/clipboard";
 
 export function GuideCodeBlock({ code }: GuideCodeBlockProps) {
   const { t } = useTranslation("common");
 
   const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      toast.success(t("guide.code.copied"));
-    } catch {
-      toast.error(t("guide.code.copyFailed"));
-    }
+    await copyWithToast(
+      code,
+      t("guide.code.copied"),
+      t("guide.code.copyFailed"),
+    );
   };
 
   return (

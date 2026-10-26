@@ -1,15 +1,19 @@
 import { FoilOverlay } from "@/components/foil-overlay";
+import { ViewfinderCorners } from "@/features/landing/components/viewfinder-corners";
 import { DEMO_SCANNED_CARDS } from "@/features/landing/lib/demo-cards";
+import { HeroScanReadout } from "@/features/landing/components/hero-scan-readout";
+import { HeroSortLog } from "@/features/landing/components/hero-sort-log";
 import {
   DEMO_BIN_DIAGRAM_MODULES,
+  HERO_ARRIVAL_DELAY_MS,
   HERO_BIN_BASE_COUNTS,
+  HERO_BIN_CAPACITY,
   HERO_QUEUE_PREVIEW,
   HERO_SORT_INTERVAL_MS,
 } from "@/lib/constants/landing";
 import { CATCH_ALL_BIN } from "@/lib/constants/scanner";
-import { formatUsd } from "@/lib/format";
-import { cn, matchPercent } from "@/lib/utils";
-import { IconChevronRight, IconSparkles } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
+import { IconChevronRight } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { HeroStationLabelProps } from "@/lib/interfaces/landing";
@@ -49,10 +53,6 @@ export function HeroSortingLine() {
     { length: HERO_QUEUE_PREVIEW },
     (_, i) => DEMO_SCANNED_CARDS[(tick + 1 + i) % total],
   );
-  const price =
-    (current.isFoil ? current.card.priceFoil : current.card.price) ??
-    current.card.price;
-
   const binCounts = useMemo(() => {
     const counts: Record<number, number> = { ...HERO_BIN_BASE_COUNTS };
     DEMO_SCANNED_CARDS.forEach((d, position) => {
@@ -68,11 +68,12 @@ export function HeroSortingLine() {
   const renderBin = (binNumber: number) => {
     const active = binNumber === current.binNumber;
     const isCatchAll = binNumber === CATCH_ALL_BIN;
+    const fillRatio = Math.min(1, binCounts[binNumber] / HERO_BIN_CAPACITY);
     return (
       <div
         key={binNumber}
         className={cn(
-          "flex items-center justify-between gap-2 rounded-md border px-2.5 py-2 transition-colors duration-300",
+          "relative flex items-center justify-between gap-2 overflow-hidden rounded-md border px-2.5 py-2 transition-colors duration-300",
           active ? "border-primary bg-primary/10" : "bg-background",
           isCatchAll && "col-span-2",
         )}
@@ -92,24 +93,40 @@ export function HeroSortingLine() {
               : t(`hero.binRules.${binNumber}`)}
           </p>
         </div>
+        {active && (
+          <img
+            key={tick}
+            src={current.card.image?.small || ""}
+            alt=""
+            style={{ animationDelay: `${HERO_ARRIVAL_DELAY_MS - 500}ms` }}
+            className="pointer-events-none absolute top-1 right-10 aspect-5/7 w-5 rounded-sm object-cover opacity-0 ring-1 ring-primary animate-[hero-card-drop_700ms_ease-in_both] motion-reduce:hidden"
+          />
+        )}
         <span
           key={active ? tick : undefined}
+          style={
+            active ? { animationDelay: `${HERO_ARRIVAL_DELAY_MS}ms` } : undefined
+          }
           className={cn(
             "font-heading text-sm font-semibold tabular-nums",
             active
-              ? "text-primary animate-in fade-in zoom-in-75 duration-300 motion-reduce:animate-none"
+              ? "text-primary animate-in fade-in zoom-in-75 duration-300 [animation-fill-mode:both] motion-reduce:animate-none"
               : "text-foreground/70",
           )}
         >
           {binCounts[binNumber]}
         </span>
+        <span
+          className="absolute bottom-0 left-0 h-0.5 bg-primary/50 transition-[width] duration-700"
+          style={{ width: `${fillRatio * 100}%` }}
+        />
       </div>
     );
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 border-b px-4 py-2.5">
+      <div className="relative flex items-center justify-between gap-3 border-b px-4 py-2.5">
         <p className="flex items-center gap-2 font-heading text-2xs font-medium tracking-widest uppercase">
           <span className="relative flex size-2">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/60 motion-reduce:animate-none" />
@@ -120,6 +137,11 @@ export function HeroSortingLine() {
         <p className="font-heading text-2xs tracking-wide text-foreground/70 tabular-nums">
           {t("hero.sortedCount", { count: sortedCount })}
         </p>
+        <span
+          key={tick}
+          style={{ animationDuration: `${HERO_SORT_INTERVAL_MS}ms` }}
+          className="absolute -bottom-px left-0 h-px w-full origin-left bg-primary animate-[wrapped-progress_linear_both] motion-reduce:hidden"
+        />
       </div>
 
       <div className="grid divide-y md:grid-cols-[minmax(0,0.75fr)_minmax(0,1.15fr)_minmax(0,1.1fr)] md:divide-x md:divide-y-0">
@@ -132,7 +154,11 @@ export function HeroSortingLine() {
                   key={`${tick}-${i}`}
                   src={d.card.image?.small || ""}
                   alt=""
-                  className="absolute inset-x-0 top-0 aspect-5/7 w-full rounded-md object-cover shadow-sm ring-1 ring-foreground/10"
+                  className={cn(
+                    "absolute inset-x-0 top-0 aspect-5/7 w-full rounded-md object-cover shadow-sm ring-1 ring-foreground/10",
+                    i === 0 &&
+                      "animate-in fade-in slide-in-from-bottom-3 duration-500 motion-reduce:animate-none",
+                  )}
                   style={{
                     transform: `translateY(${i * 14}px) scale(${1 - i * 0.06})`,
                     opacity: 1 - i * 0.25,
@@ -153,10 +179,10 @@ export function HeroSortingLine() {
           <StationLabel step="02" label={t("hero.stations.camera")} />
           <div className="flex items-center gap-5">
             <div className="relative w-32 shrink-0 p-2 sm:w-36">
-              <span className="absolute top-0 left-0 size-4 border-t-2 border-l-2 border-primary" />
-              <span className="absolute top-0 right-0 size-4 border-t-2 border-r-2 border-primary" />
-              <span className="absolute bottom-0 left-0 size-4 border-b-2 border-l-2 border-primary" />
-              <span className="absolute right-0 bottom-0 size-4 border-r-2 border-b-2 border-primary" />
+              <ViewfinderCorners
+                key={`corners-${tick}`}
+                className="animate-in zoom-in-110 fade-in duration-500 [animation-delay:250ms] [animation-fill-mode:both] motion-reduce:animate-none"
+              />
               <div
                 key={tick}
                 className="relative aspect-5/7 overflow-hidden rounded-md animate-in fade-in slide-in-from-left-4 duration-500 motion-reduce:animate-none"
@@ -170,34 +196,7 @@ export function HeroSortingLine() {
                 <div className="absolute inset-x-0 top-0 z-20 h-0.5 bg-primary shadow-[0_0_12px_2px] shadow-primary/70 animate-[hero-scan-sweep_1.1s_ease-in-out_both] motion-reduce:hidden" />
               </div>
             </div>
-            <div
-              key={tick}
-              className="flex min-w-0 flex-col gap-2.5 animate-in fade-in duration-500 [animation-delay:600ms] [animation-fill-mode:both] motion-reduce:animate-none"
-            >
-              <div>
-                <p className="text-sm font-semibold leading-tight text-balance">
-                  {current.card.name}
-                </p>
-                <p className="truncate text-2xs text-foreground/70">
-                  {current.card.setName} #{current.card.collectorNumber}
-                </p>
-              </div>
-              <div className="flex flex-col gap-1 font-heading text-xs tabular-nums">
-                <span>
-                  <span className="text-primary">
-                    {matchPercent(current.card).toFixed(1)}%
-                  </span>{" "}
-                  <span className="text-foreground/70">{t("hero.match")}</span>
-                </span>
-                {price != null && <span>{formatUsd(price)}</span>}
-                {current.isFoil && (
-                  <span className="flex items-center gap-1 text-foreground/70">
-                    <IconSparkles className="size-3" />
-                    {t("hero.foil")}
-                  </span>
-                )}
-              </div>
-            </div>
+            <HeroScanReadout key={tick} scannedCard={current} />
           </div>
         </div>
 
@@ -212,6 +211,8 @@ export function HeroSortingLine() {
           </div>
         </div>
       </div>
+
+      <HeroSortLog tick={tick} sortedCount={sortedCount} />
     </div>
   );
 }

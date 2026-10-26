@@ -1,4 +1,8 @@
-import type { PlayingCard, ScannedCard } from "@magic-vault/shared";
+import {
+  cardPricesAtScan,
+  type PlayingCard,
+  type ScannedCard,
+} from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { cardPrices } from "../../db/schema";
@@ -111,7 +115,10 @@ export async function applyCardPricesToScans<T extends ScannedCard>(
   const cards = await applyCardPrices(
     adapter,
     { gameKey, lang },
-    scans.map((scan) => scan.card),
+    scans.map((scan) => ({
+      ...scan.card,
+      pricesAtScan: cardPricesAtScan(scan.card),
+    })),
   );
   return scans.map((scan, i) => ({ ...scan, card: cards[i] }));
 }

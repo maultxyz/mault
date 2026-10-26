@@ -1,6 +1,11 @@
 export const PLAN_KEYS = ["free", "business"] as const;
 
-export const PLAN_FEATURE_KEYS = ["chaosSort", "storage", "apiAccess"] as const;
+export const PLAN_FEATURE_KEYS = [
+  "chaosSort",
+  "storage",
+  "apiAccess",
+  "businessTools",
+] as const;
 
 export const PLAN_LIMIT_KEYS = [
   "dailyScans",

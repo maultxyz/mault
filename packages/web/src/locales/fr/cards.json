@@ -11,6 +11,7 @@
     "artBy": "Illustration par {{artist}}",
     "viewSource": "Voir la source",
     "searchPlaceholder": "Rechercher par nom, numéro ou extension (ex. MH3 123)...",
+    "allLanguages": "Toutes les langues",
     "allSets": "Tous les sets",
     "allSetsCount": "Tous les sets ({{count}})",
     "startTyping": "Commence à taper pour rechercher des cartes",
@@ -31,6 +32,7 @@
     "tcgplayerMarket": "Prix du marché TCGplayer",
     "cardmarketAvg": "Moyenne Cardmarket",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "Au scan {{price}}",
     "nonFoilPrice": "Non foil {{price}}",
     "avg30": "Moy. 30 jours",
     "market": "Marché",
@@ -57,7 +59,6 @@
     "cancel": "Annuler",
     "prices": "Prix",
     "details": "Détails",
-    "cardText": "Texte de la carte",
     "thisScan": "Ce scan",
     "set": "Extension",
     "rarity": "Rareté",
@@ -137,21 +138,25 @@
     "gridView": "Vue grille",
     "listView": "Vue liste",
     "groupDuplicates": "Grouper les doublons",
-    "sessionSummaryExport": "Résumé de session et export",
     "deleteScannedCardsTitle": "Supprimer les cartes scannées",
     "deleteScannedCardsDescription": "Cela supprimera définitivement toutes les cartes de ta collection. Cette action est irréversible.",
     "clearing": "Suppression...",
     "clearAll": "Tout effacer",
-    "clearAllCardsTitle": "Effacer toutes les cartes",
-    "density": "Taille des cartes : {{density}}",
     "densities": {
       "compact": "compacte",
       "comfortable": "normale",
       "large": "grande"
     },
-    "review": "Vérifier",
     "export": "Exporter",
-    "reviewCards": "Vérifier les cartes une par une (R)"
+    "reviewCards": "Vérifier les cartes une par une (R)",
+    "sortHeading": "Trier",
+    "filterHeading": "Filtrer",
+    "done": "Terminé",
+    "viewOptions": "Options d'affichage",
+    "displayHeading": "Affichage",
+    "cardSize": "Taille des cartes",
+    "moreActions": "Plus d'actions",
+    "reviewCount": "Vérifier ({{count}})"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
@@ -242,6 +247,7 @@
   },
   "foil": "Foil",
   "foilNone": "Non foil",
+  "language": "Langue",
   "downloaded": "Téléchargée",
   "technicalDetails": {
     "toggle": "Détails techniques",
@@ -322,6 +328,27 @@
     "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées.",
     "startFailed": "Impossible de lancer la vérification. Réessayez."
   },
+  "reviewGrid": {
+    "title": "Vérifier les cartes",
+    "remaining_one": "{{count}} carte à vérifier",
+    "remaining_other": "{{count}} cartes à vérifier",
+    "layoutGrid": "Grille",
+    "layoutOneByOne": "Une par une",
+    "acceptAll_one": "Valider {{count}} carte",
+    "acceptAll_other": "Tout valider ({{count}})",
+    "accept": "C'est bon",
+    "correct": "Corriger",
+    "close": "Fermer la vérification",
+    "noPhoto": "Pas de photo du scan",
+    "correctTitle": "Corriger {{name}}",
+    "doneTitle": "Tout est vérifié",
+    "doneDescription": "Toutes les cartes ici ont été vérifiées.",
+    "done": "Terminé",
+    "loadFailed": "Impossible de charger les cartes à vérifier. Réessayez.",
+    "acceptFailed_one": "Impossible de valider {{count}} carte. Réessayez.",
+    "acceptFailed_other": "Impossible de valider {{count}} cartes. Réessayez.",
+    "correctFailed": "Impossible d'enregistrer la correction. Réessayez."
+  },
   "removeDialog": {
     "title": "Retirer {{name}} ?",
     "description": "Le scan est supprimé de la collection, photo comprise. Cette action est irréversible."
@@ -339,7 +366,6 @@
     "setSelected": "État"
   },
   "scanOrigin": {
-    "heading": "Scanné",
     "scannedBy": "Par",
     "sorter": "Trieuse",
     "deletedSorter": "{{name}} (supprimée)"

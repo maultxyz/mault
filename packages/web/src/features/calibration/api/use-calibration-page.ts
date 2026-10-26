@@ -36,8 +36,6 @@ import type {
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
-  recenterSpeedPulse,
-  SERVO_PULSE_CENTER,
   SETUP_SERVO_POSITIONS,
 } from "@/lib/constants/calibration";
 import {
@@ -55,7 +53,10 @@ import {
   DEFAULT_SCAN_REGION,
   type BinRoute,
   type FeederCalibration,
+  parseSerialReply,
+  recenterSpeedPulse,
   type ScanRegion,
+  SERVO_PULSE_CENTER,
   type ServoCalibration,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -545,7 +546,6 @@ export function useCalibrationPage() {
           });
           return;
         }
-        // Brief pause between cards so the mechanism fully resets
         await new Promise<void>((r) => setTimeout(r, CALIBRATION_STEP_SETTLE_MS));
       }
       toast.success(t("useCalibrationPage.toasts.sampleRunComplete"));
@@ -775,8 +775,7 @@ export function useCalibrationPage() {
         });
       }
       toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
-    } catch {
-    } finally {
+    } catch {} finally {
       setIsSavingFeederModule(false);
     }
   }, [
@@ -903,12 +902,11 @@ export function useCalibrationPage() {
     irBusyRef.current = true;
     try {
       const { line: response } = await sendRequest({ readIR: true }, 2000);
-      if (!response) return;
-      const parsed = JSON.parse(response);
+      const parsed = parseSerialReply(response);
+      if (!parsed) return;
       if (Array.isArray(parsed.ir)) setIrStates(parsed.ir as boolean[]);
       if (typeof parsed.hopper === "boolean") setHopperHasCards(parsed.hopper);
-    } catch {
-    } finally {
+    } catch {} finally {
       irBusyRef.current = false;
     }
   }, [isReady, sendRequest]);

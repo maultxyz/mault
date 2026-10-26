@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, Share, View } from "react-native";
-import { WEBHOOK_EVENTS, type WebhookEndpoint } from "@magic-vault/shared";
+import { WEBHOOK_EVENTS, type WebhookEndpoint, webhookFormSchema, type WebhookFormValues } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -26,13 +26,12 @@ import {
   updateWebhook,
   webhooksQueryOptions,
 } from "@/features/integrations/api/webhooks";
-import { webhookSchema } from "@/features/integrations/lib/webhook-schema";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
-import type { WebhookValues } from "@/lib/interfaces/forms";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function WebhooksSettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -48,15 +47,15 @@ export default function WebhooksSettingsScreen() {
   const [actionsFor, setActionsFor] = useState<WebhookEndpoint | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [message, setMessage] = useState<{ tone: "success" | "destructive"; text: string } | null>(null);
-  const form = useForm<WebhookValues>({
-    resolver: zodResolver(webhookSchema),
+  const form = useForm<WebhookFormValues>({
+    resolver: zodResolver(webhookFormSchema),
     defaultValues: { url: "", description: "", events: [...WEBHOOK_EVENTS] },
   });
   const invalidate = () => void queryClient.invalidateQueries({ queryKey: ["webhooks", orgId] });
   const fail = (err: Error) => setMessage({ tone: "destructive", text: err.message });
 
   const save = useMutation({
-    mutationFn: (values: WebhookValues) => {
+    mutationFn: (values: WebhookFormValues) => {
       const input = { url: values.url, description: values.description || null, events: values.events };
       return editing && editing !== "new"
         ? updateWebhook(editing.guid, input).then(() => null)
@@ -184,7 +183,7 @@ export default function WebhooksSettingsScreen() {
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
-                error={fieldState.error ? t("settings.webhooks.invalidUrl") : undefined}
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />
@@ -222,7 +221,7 @@ export default function WebhooksSettingsScreen() {
                 ))}
                 {fieldState.error ? (
                   <AppText size="xs" style={{ color: colors.destructive }}>
-                    {t("settings.webhooks.eventsRequired")}
+                    {translateFormErrorMessage(t, fieldState.error.message)}
                   </AppText>
                 ) : null}
               </View>

@@ -3,12 +3,15 @@ import { AppHotkeys } from "@/components/app-hotkeys";
 import { AppNav } from "@/components/app-nav";
 import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
+import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { IntakeBanner } from "@/features/business/components/intake-banner";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
 import { PiScanStatusBar } from "@/features/scanner/components/pi-scan-status-bar";
+import { DesktopScannerPip } from "@/features/scanner/components/desktop-scanner-pip";
 import { ScannerPip } from "@/features/scanner/components/scanner-pip";
 import { StationTabs } from "@/features/scanner/components/station-tabs";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
@@ -50,6 +53,12 @@ export default function AppLayout() {
           )}
         >
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
+          {!MOBILE_IMMERSIVE_PATTERN.test(pathname) && (
+            <SpiderWeb
+              corner="top-left"
+              className="top-[env(safe-area-inset-top)] size-14"
+            />
+          )}
           <ImpersonationBanner />
           <AlertStack />
           <PiScanStatusBar />
@@ -64,6 +73,7 @@ export default function AppLayout() {
         <div className="h-dvh w-dvw overflow-hidden p-2 pb-6 bg-muted dark:bg-black relative text-foreground/70">
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
           <div className="flex flex-col border rounded-lg size-full overflow-hidden relative">
+            <SpiderWeb corner="top-left" withSpider />
             <ImpersonationBanner />
             <AlertStack />
             <PiScanStatusBar />
@@ -71,6 +81,7 @@ export default function AppLayout() {
               <AppNav />
               <main className="flex-1 min-w-0 overflow-hidden flex flex-col bg-background/70 dark:bg-background/60">
                 <StationTabs />
+                <IntakeBanner />
                 <PageTransition>
                   <Outlet />
                 </PageTransition>
@@ -78,6 +89,7 @@ export default function AppLayout() {
             </div>
           </div>
           <ScannerPip />
+          <DesktopScannerPip />
           <AppHotkeys />
           <div className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
             <StatusFooter />
@@ -106,6 +118,7 @@ export default function AppLayout() {
               </Tooltip>
               <FooterDivider />
               <div className="flex items-center gap-2">
+                <SeasonalPumpkin className="size-3.5" />
                 <span className="text-foreground/70">v{__APP_VERSION__}</span>
                 <EnvBanner />
               </div>

@@ -9,13 +9,13 @@ import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { TextField } from "@/components/ui/text-field";
 import { checkCollectionName, collectionsQueryOptions, renameCollection } from "@/features/collections/api/collections";
-import { renameCollectionSchema } from "@/features/collections/lib/collection-schemas";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { RenameCollectionValues } from "@/lib/interfaces/forms";
+import { renameCollectionFormSchema, type RenameCollectionFormValues } from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function RenameCollectionScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
@@ -25,8 +25,8 @@ export default function RenameCollectionScreen() {
   const options = collectionsQueryOptions(useActiveOrgId());
   const { data: collections } = useQuery(options);
   const collection = collections?.find((c) => c.guid === guid);
-  const form = useForm<RenameCollectionValues>({
-    resolver: zodResolver(renameCollectionSchema),
+  const form = useForm<RenameCollectionFormValues>({
+    resolver: zodResolver(renameCollectionFormSchema),
     values: { name: collection?.name ?? "" },
     resetOptions: { keepDirtyValues: true },
   });
@@ -62,7 +62,7 @@ export default function RenameCollectionScreen() {
               returnKeyType="done"
               error={
                 fieldState.error
-                  ? t("collections.validation.name")
+                  ? translateFormErrorMessage(t, fieldState.error.message)
                   : !nameAvailable && debouncedName === name.trim()
                     ? t("collections.duplicateName")
                     : undefined

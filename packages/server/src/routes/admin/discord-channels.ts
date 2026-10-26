@@ -1,4 +1,5 @@
 import {
+  PLATFORM_STAFF_ROLES,
   PLATFORM_DISCORD_CHANNEL_KEYS,
   type AdminPlatformDiscordChannelsResponse,
   type PlatformDiscordChannelsSettings,
@@ -40,21 +41,16 @@ function parseSettings(body: unknown): PlatformDiscordChannelsSettings | null {
 }
 
 export const discordChannelsRoute = new Hono<AppEnv>()
-  .get("/discord-channels", requireAuth, requireRole("admin"), async (c) => {
-    try {
-      return c.json({
-        success: true,
-        data: await toResponse(await loadPlatformDiscordChannels()),
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+  .get("/discord-channels", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
+    return c.json({
+      success: true,
+      data: await toResponse(await loadPlatformDiscordChannels()),
+    });
   })
   .get(
     "/discord-channels/guilds/:guildId",
     requireAuth,
-    requireRole("admin"),
+    requireRole(...PLATFORM_STAFF_ROLES),
     async (c) => {
       const { reachable, guild } = await fetchDiscordGuild(
         c.req.param("guildId"),
@@ -74,7 +70,7 @@ export const discordChannelsRoute = new Hono<AppEnv>()
       return c.json({ success: true, data: guild });
     },
   )
-  .put("/discord-channels", requireAuth, requireRole("admin"), async (c) => {
+  .put("/discord-channels", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const settings = parseSettings(await c.req.json().catch(() => null));
     if (!settings) {
       return c.json(
@@ -93,13 +89,8 @@ export const discordChannelsRoute = new Hono<AppEnv>()
         );
       }
     }
-    try {
-      return c.json({
-        success: true,
-        data: await toResponse(await savePlatformDiscordChannels(settings)),
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    return c.json({
+      success: true,
+      data: await toResponse(await savePlatformDiscordChannels(settings)),
+    });
   });

@@ -2,10 +2,12 @@ import { serve } from "@hono/node-server";
 import {
   AttachmentBuilder,
   ChannelType,
+  DiscordAPIError,
   EmbedBuilder,
+  RESTJSONErrorCodes,
   ThreadAutoArchiveDuration,
-  type APIEmbed,
   type Client,
+  type GuildMember,
 } from "discord.js";
 import { Hono } from "hono";
 import sharp from "sharp";
@@ -244,8 +246,19 @@ export function startNotifyServer(client: Client) {
       return c.json({ success: false, message: "cant_assign_role" }, 400);
     }
 
-    const member = await guild.members.fetch(body.userId).catch(() => null);
-    if (!member) return c.json({ success: true, message: "not_member" });
+    let member: GuildMember;
+    try {
+      member = await guild.members.fetch(body.userId);
+    } catch (err) {
+      if (
+        err instanceof DiscordAPIError &&
+        err.code === RESTJSONErrorCodes.UnknownMember
+      ) {
+        return c.json({ success: true, message: "not_member" });
+      }
+      console.error("[bot] Failed to look up member:", err);
+      return c.json({ success: false, message: "Failed to look up member." }, 500);
+    }
 
     try {
       if (body.action === "add") {

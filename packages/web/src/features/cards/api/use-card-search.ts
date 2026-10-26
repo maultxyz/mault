@@ -9,12 +9,13 @@ export function useCardSearch(
   query: string,
   collectionGuid: string | undefined,
   setCode?: string,
+  language?: string,
 ): CardSearchState {
   const enabled = query.trim().length >= QUERY_MIN_LENGTH;
   const search = useInfiniteQuery({
-    queryKey: ["card-search", query, collectionGuid, setCode ?? null],
+    queryKey: ["card-search", query, collectionGuid, setCode ?? null, language ?? null],
     queryFn: ({ pageParam }) =>
-      searchCards(query, collectionGuid, pageParam, setCode).then(
+      searchCards(query, collectionGuid, pageParam, setCode, language).then(
         (r) => r.data ?? { cards: [], nextOffset: null },
       ),
     initialPageParam: 0,
@@ -23,7 +24,7 @@ export function useCardSearch(
     staleTime: 60_000,
   });
   const setsQuery = useQuery({
-    ...cardSetsQueryOptions(collectionGuid, query),
+    ...cardSetsQueryOptions(collectionGuid, query, language),
     enabled: enabled && !!collectionGuid,
   });
 

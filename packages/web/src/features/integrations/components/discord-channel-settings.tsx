@@ -2,16 +2,16 @@ import { SettingsSection } from "@/components/settings-section";
 import { Label } from "@/components/ui/label";
 import { DiscordChannelSelect } from "@/features/integrations/components/discord-channel-select";
 import type { DiscordChannelSettingsProps } from "@/lib/interfaces/integrations";
-import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import { Controller, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { type DiscordSettingsDraftFormValues } from "@magic-vault/shared";
 
 export function DiscordChannelSettings({
   integration,
 }: DiscordChannelSettingsProps) {
   const { t } = useTranslation("integrations");
   const { control, formState } =
-    useFormContext<DiscordSettingsDraftValues>();
+    useFormContext<DiscordSettingsDraftFormValues>();
   const channels = integration.guild?.channels ?? [];
   const disabled = !integration.guild || formState.isSubmitting;
 

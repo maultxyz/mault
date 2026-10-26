@@ -27,61 +27,56 @@ export const addNotificationRuleRoute = new Hono<AppEnv>().post(
       );
     }
     const gameGuid = body.gameGuid;
-    try {
-      const targetError = await checkRuleTargets(
-        orgId,
-        input.data.channelId,
-        input.data.roleId,
-      );
-      if (targetError) return c.json({ success: false, message: targetError });
+    const targetError = await checkRuleTargets(
+      orgId,
+      input.data.channelId,
+      input.data.roleId,
+    );
+    if (targetError) return c.json({ success: false, message: targetError });
 
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const gameId = await findGameId(tx, gameGuid);
-        if (gameId === null)
-          return { success: false as const, message: "Game not found." };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await findGameId(tx, gameGuid);
+      if (gameId === null)
+        return { success: false as const, message: "Game not found." };
 
-        const [{ total }] = await tx
-          .select({ total: count() })
-          .from(notificationRules)
-          .where(
-            and(
-              eq(notificationRules.orgId, orgId),
-              eq(notificationRules.isDeleted, false),
-            ),
-          );
-        const planLimit = await getNotificationRuleLimit(tx, orgId);
-        if (planLimit !== null && total >= planLimit) {
-          return {
-            success: false as const,
-            message: notificationRuleLimitMessage(planLimit),
-            notificationRuleLimitReached: true,
-          };
-        }
-        if (total >= NOTIFICATION_RULES_PER_ORG_LIMIT) {
-          return {
-            success: false as const,
-            message: `You can have up to ${NOTIFICATION_RULES_PER_ORG_LIMIT} notification rules.`,
-          };
-        }
-
-        await tx.insert(notificationRules).values({
-          name: input.data.name,
-          isEnabled: input.data.isEnabled,
-          rules: input.data.rules,
-          channelId: input.data.channelId,
-          roleId: input.data.roleId,
-          gameId,
-          orgId,
-        });
+      const [{ total }] = await tx
+        .select({ total: count() })
+        .from(notificationRules)
+        .where(
+          and(
+            eq(notificationRules.orgId, orgId),
+            eq(notificationRules.isDeleted, false),
+          ),
+        );
+      const planLimit = await getNotificationRuleLimit(tx, orgId);
+      if (planLimit !== null && total >= planLimit) {
         return {
-          success: true as const,
-          data: await loadNotificationRules(tx, orgId, gameId),
+          success: false as const,
+          message: notificationRuleLimitMessage(planLimit),
+          notificationRuleLimitReached: true,
         };
+      }
+      if (total >= NOTIFICATION_RULES_PER_ORG_LIMIT) {
+        return {
+          success: false as const,
+          message: `You can have up to ${NOTIFICATION_RULES_PER_ORG_LIMIT} notification rules.`,
+        };
+      }
+
+      await tx.insert(notificationRules).values({
+        name: input.data.name,
+        isEnabled: input.data.isEnabled,
+        rules: input.data.rules,
+        channelId: input.data.channelId,
+        roleId: input.data.roleId,
+        gameId,
+        orgId,
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      return {
+        success: true as const,
+        data: await loadNotificationRules(tx, orgId, gameId),
+      };
+    });
+    return c.json(result);
   },
 );

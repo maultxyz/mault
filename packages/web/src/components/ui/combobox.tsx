@@ -3,6 +3,18 @@
 import * as React from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
 
+import { useTranslation } from "react-i18next"
+
+import { useIsMobile } from "@/hooks/use-is-mobile"
+import { useKeyboardInset } from "@/hooks/use-keyboard-inset"
+import {
+  MOBILE_COMBOBOX_POPUP_CLASS,
+  MOBILE_COMBOBOX_POSITIONER_CLASS,
+  MOBILE_COMBOBOX_TRIGGER_CLASS,
+  MOBILE_SHEET_BACKDROP_CLASS,
+  MOBILE_SHEET_POPUP_CLASS,
+  MOBILE_SHEET_POSITIONER_CLASS,
+} from "@/lib/constants/ui"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,7 +23,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { IconChevronDown, IconX, IconCheck } from "@tabler/icons-react"
+import { IconChevronDown, IconX, IconCheck, IconSearch } from "@tabler/icons-react"
 
 const Combobox = ComboboxPrimitive.Root
 
@@ -55,15 +67,39 @@ function ComboboxInput({
   disabled = false,
   showTrigger = true,
   showClear = false,
+  placeholder,
   ...props
 }: ComboboxPrimitive.Input.Props & {
   showTrigger?: boolean
   showClear?: boolean
 }) {
+  const isMobile = useIsMobile()
+  if (isMobile) {
+    return (
+      <ComboboxPrimitive.Trigger
+        data-slot="combobox-trigger"
+        id={props.id}
+        aria-label={props["aria-label"]}
+        disabled={disabled}
+        className={cn(MOBILE_COMBOBOX_TRIGGER_CLASS, className)}
+      >
+        {children}
+        <span className="min-w-0 flex-1 truncate">
+          <ComboboxValue
+            placeholder={
+              <span className="text-muted-foreground">{placeholder}</span>
+            }
+          />
+        </span>
+        <IconChevronDown className="pointer-events-none size-4 shrink-0 text-muted-foreground" />
+      </ComboboxPrimitive.Trigger>
+    )
+  }
   return (
     <InputGroup className={cn("w-auto", className)}>
       <ComboboxPrimitive.Input
         render={<InputGroupInput disabled={disabled} />}
+        placeholder={placeholder}
         {...props}
       />
       <InputGroupAddon align="inline-end">
@@ -86,6 +122,7 @@ function ComboboxInput({
 
 function ComboboxContent({
   className,
+  children,
   side = "bottom",
   sideOffset = 6,
   align = "start",
@@ -97,22 +134,49 @@ function ComboboxContent({
     ComboboxPrimitive.Positioner.Props,
     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
   >) {
+  const { t } = useTranslation("common")
+  const isMobile = useIsMobile()
+  const keyboardInset = useKeyboardInset(isMobile)
   return (
     <ComboboxPrimitive.Portal>
+      {isMobile && (
+        <ComboboxPrimitive.Backdrop className={MOBILE_SHEET_BACKDROP_CLASS} />
+      )}
       <ComboboxPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}
         align={align}
         alignOffset={alignOffset}
         anchor={anchor}
-        className="isolate z-50"
+        className={cn(
+          "isolate z-50",
+          isMobile && [MOBILE_SHEET_POSITIONER_CLASS, MOBILE_COMBOBOX_POSITIONER_CLASS]
+        )}
+        style={
+          isMobile
+            ? ({ "--keyboard-inset": `${keyboardInset}px` } as React.CSSProperties)
+            : undefined
+        }
       >
         <ComboboxPrimitive.Popup
           data-slot="combobox-content"
           data-chips={!!anchor}
-          className={cn("group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-7 *:data-[slot=input-group]:border-none *:data-[slot=input-group]:bg-input/20 *:data-[slot=input-group]:shadow-none dark:bg-popover data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+          className={cn("group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-7 *:data-[slot=input-group]:border-none *:data-[slot=input-group]:bg-input/20 *:data-[slot=input-group]:shadow-none dark:bg-popover data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", isMobile && [MOBILE_SHEET_POPUP_CLASS, MOBILE_COMBOBOX_POPUP_CLASS], className )}
           {...props}
-        />
+        >
+          {isMobile && (
+            <InputGroup>
+              <InputGroupAddon>
+                <IconSearch />
+              </InputGroupAddon>
+              <ComboboxPrimitive.Input
+                render={<InputGroupInput />}
+                placeholder={t("actions.search")}
+              />
+            </InputGroup>
+          )}
+          {children}
+        </ComboboxPrimitive.Popup>
       </ComboboxPrimitive.Positioner>
     </ComboboxPrimitive.Portal>
   )

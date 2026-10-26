@@ -20,10 +20,6 @@ import { z } from "zod";
 
 const schema = z.object({ email: z.string().email() });
 
-// Local-mode only. Always shows the same "if that email exists..." success
-// message regardless of what actually happened server-side - matches
-// routes/local-auth.ts's /forgot-password, which is deliberately generic so
-// this page can't be used to check which emails have accounts.
 export default function AuthForgotPasswordPage() {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();

@@ -16,4 +16,10 @@ export const EMPTY_CARD_FILTERS: CardFilters = {
 };
 export const RECENT_SCANNED_CARDS_COUNT = 5;
 
+export const UNMATCHED_PREVIEW_COUNT = 5;
+
+export const UNMATCHED_PAGE_SIZE = 24;
+
+export const UNMATCHED_PAGE_MAX = 100;
+
 export const COLLECTION_PREVIEW_IMAGE_COUNT = 3;

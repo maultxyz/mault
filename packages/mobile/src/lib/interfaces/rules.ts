@@ -15,7 +15,6 @@ export interface BinSaveInput {
   rules: BinRuleGroup;
   isCatchAll: boolean;
   isDisabled: boolean;
-  cardLimit: number | null;
   overflowBin: number | null;
   isOverride?: boolean;
   overridePriority?: number | null;
@@ -33,6 +32,7 @@ export interface RepackConfigInput {
   repackSlots: RepackSlot[];
   repackUniqueBy: string | null;
   repackSiftRules: BinRuleGroup | null;
+  repackMultiplePacks?: boolean;
 }
 
 export interface AlphabetConfigInput extends AlphabetStep {

@@ -1,10 +1,12 @@
-import type {
-  IdentifyUnmatchedCardRequest,
-  PlayingCardWithDistance,
-  ScannedCard,
+import {
+  pickedCardLanguage,
+  type IdentifyUnmatchedCardRequest,
+  type PlayingCardWithDistance,
+  type ScannedCard,
 } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { findOpenIntakeLotId } from "../../lib/intake";
 import { authQuery } from "../../db";
 import {
   collectionCards,
@@ -25,9 +27,8 @@ import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { toScannedCard } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
-// POST /collections/:guid/unmatched/:scanId/identify — turn an unmatched scan
-// into a collection card, keeping its scan id, photo, bin and scan time
 export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched/:scanId/identify",
   requireAuth,
@@ -105,10 +106,12 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           capturedImageKey: unmatched.capturedImageKey,
           isFoil: isFoil ?? foilType != null,
           foilType: foilType ?? null,
+          language: pickedCardLanguage(identified),
           isCorrected: true,
           isReviewed: true,
           scannedByUserId: unmatched.scannedByUserId,
           scannedByDeviceId: unmatched.scannedByDeviceId,
+          intakeLotId: await findOpenIntakeLotId(tx, collection.id),
           orgId,
         });
 
@@ -133,6 +136,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           binNumber: unmatched.binNumber,
           isFoil: isFoil ?? foilType != null,
           foilType: foilType ?? null,
+          language: pickedCardLanguage(identified),
           isCorrected: true,
           isReviewed: true,
         });
@@ -182,12 +186,11 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
 
       return c.json({ success: true, data });
     } catch (err) {
-      console.error(err);
       emitToSession(guid, "scan_error", {
         message: "Failed to add the identified card.",
         timestamp: Date.now(),
       });
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

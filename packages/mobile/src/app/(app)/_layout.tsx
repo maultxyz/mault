@@ -6,6 +6,7 @@ export default function AppLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="collection/[guid]" />
       <Stack.Screen name="card/[scanId]" options={{ presentation: "modal" }} />
+      <Stack.Screen name="review-grid" />
       <Stack.Screen name="rules/[binNumber]" />
       <Stack.Screen name="rules/mode" />
       <Stack.Screen name="rules/repack" />

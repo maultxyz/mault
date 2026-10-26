@@ -362,6 +362,7 @@
     "forced": "Einrichtungsassistent für diesen Sortierer erforderlich",
     "forcedNextConnect": "Er öffnet sich, wenn {{name}} das nächste Mal verbunden wird.",
     "forceFailed": "Einrichtungsassistent konnte nicht erzwungen werden",
+    "completeFailed": "Der Abschluss der Einrichtung konnte nicht gespeichert werden. Versuche es noch einmal.",
     "title": "Sortierer einrichten",
     "stepCounter": "Schritt {{current}} von {{total}}",
     "skip": "Einrichtung überspringen",

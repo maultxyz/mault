@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
@@ -11,7 +12,7 @@ import type { AnnouncementInput } from "@magic-vault/shared";
 export const editAnnouncementRoute = new Hono<AppEnv>().put(
   "/:guid",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const guid = c.req.param("guid");
     const { severity, message, isActive, showOnLanding, link, startsAt, endsAt } =
@@ -43,36 +44,31 @@ export const editAnnouncementRoute = new Hono<AppEnv>().put(
       );
     }
 
-    try {
-      const target = await db.query.announcements.findFirst({
-        where: (t, { eq, and }) =>
-          and(eq(t.guid, guid), eq(t.isDeleted, false)),
-        columns: { id: true },
-      });
-      if (!target)
-        return c.json({ success: false, message: "Announcement not found." }, 404);
+    const target = await db.query.announcements.findFirst({
+      where: (t, { eq, and }) =>
+        and(eq(t.guid, guid), eq(t.isDeleted, false)),
+      columns: { id: true },
+    });
+    if (!target)
+      return c.json({ success: false, message: "Announcement not found." }, 404);
 
-      const updates: Partial<typeof announcements.$inferInsert> = {
-        updatedAt: new Date(),
-      };
-      if (severity !== undefined) updates.severity = severity;
-      if (message !== undefined) updates.message = message.trim();
-      if (isActive !== undefined) updates.isActive = isActive;
-      if (showOnLanding !== undefined) updates.showOnLanding = showOnLanding;
-      if (parsedLink) updates.link = parsedLink.value;
-      if (startsAtDate !== undefined) updates.startsAt = startsAtDate;
-      if (endsAtDate !== undefined) updates.endsAt = endsAtDate;
+    const updates: Partial<typeof announcements.$inferInsert> = {
+      updatedAt: new Date(),
+    };
+    if (severity !== undefined) updates.severity = severity;
+    if (message !== undefined) updates.message = message.trim();
+    if (isActive !== undefined) updates.isActive = isActive;
+    if (showOnLanding !== undefined) updates.showOnLanding = showOnLanding;
+    if (parsedLink) updates.link = parsedLink.value;
+    if (startsAtDate !== undefined) updates.startsAt = startsAtDate;
+    if (endsAtDate !== undefined) updates.endsAt = endsAtDate;
 
-      const [row] = await db
-        .update(announcements)
-        .set(updates)
-        .where(eq(announcements.id, target.id))
-        .returning();
-      invalidatePublicAnnouncements();
-      return c.json({ success: true, data: toAnnouncement(row) });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const [row] = await db
+      .update(announcements)
+      .set(updates)
+      .where(eq(announcements.id, target.id))
+      .returning();
+    invalidatePublicAnnouncements();
+    return c.json({ success: true, data: toAnnouncement(row) });
   },
 );

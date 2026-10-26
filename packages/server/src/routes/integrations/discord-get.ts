@@ -12,65 +12,60 @@ export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const { settings, collectionRows } = await authQuery(
-        c.get("jwtClaims"),
-        async (tx) => {
-          const [settings] = await tx
-            .select({
-              guildId: orgSettings.discordGuildId,
-              notifyOnScan: orgSettings.discordNotifyOnScan,
-              scanChannelId: orgSettings.discordScanChannelId,
-              errorChannelId: orgSettings.discordErrorChannelId,
-            })
-            .from(orgSettings)
-            .where(eq(orgSettings.orgId, orgId))
-            .limit(1);
-          const collectionRows = await tx
-            .select({
-              guid: collections.guid,
-              name: collections.name,
-              scanChannelId: collections.discordScanChannelId,
-              errorChannelId: collections.discordErrorChannelId,
-            })
-            .from(collections)
-            .where(
-              and(
-                eq(collections.orgId, orgId),
-                eq(collections.isDeleted, false),
-                or(
-                  isNotNull(collections.discordScanChannelId),
-                  isNotNull(collections.discordErrorChannelId),
-                ),
+    const { settings, collectionRows } = await authQuery(
+      c.get("jwtClaims"),
+      async (tx) => {
+        const [settings] = await tx
+          .select({
+            guildId: orgSettings.discordGuildId,
+            notifyOnScan: orgSettings.discordNotifyOnScan,
+            scanChannelId: orgSettings.discordScanChannelId,
+            errorChannelId: orgSettings.discordErrorChannelId,
+          })
+          .from(orgSettings)
+          .where(eq(orgSettings.orgId, orgId))
+          .limit(1);
+        const collectionRows = await tx
+          .select({
+            guid: collections.guid,
+            name: collections.name,
+            scanChannelId: collections.discordScanChannelId,
+            errorChannelId: collections.discordErrorChannelId,
+          })
+          .from(collections)
+          .where(
+            and(
+              eq(collections.orgId, orgId),
+              eq(collections.isDeleted, false),
+              or(
+                isNotNull(collections.discordScanChannelId),
+                isNotNull(collections.discordErrorChannelId),
               ),
-            );
-          return { settings, collectionRows };
-        },
-      );
+            ),
+          );
+        return { settings, collectionRows };
+      },
+    );
 
-      const guildId = settings?.guildId ?? null;
-      const { reachable, guild } = guildId
-        ? await fetchDiscordGuild(guildId)
-        : { reachable: true, guild: null };
+    const guildId = settings?.guildId ?? null;
+    const { reachable, guild } = guildId
+      ? await fetchDiscordGuild(guildId)
+      : { reachable: true, guild: null };
 
-      const data: DiscordIntegration = {
-        linked: !!guildId,
-        botReachable: reachable,
-        guild,
-        notifyOnScan: settings?.notifyOnScan ?? false,
-        scanChannelId: settings?.scanChannelId ?? null,
-        errorChannelId: settings?.errorChannelId ?? null,
-        collections: collectionRows.map((row) => ({
-          guid: row.guid!,
-          name: row.name,
-          scanChannelId: row.scanChannelId,
-          errorChannelId: row.errorChannelId,
-        })),
-      };
-      return c.json({ success: true, data });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const data: DiscordIntegration = {
+      linked: !!guildId,
+      botReachable: reachable,
+      guild,
+      notifyOnScan: settings?.notifyOnScan ?? false,
+      scanChannelId: settings?.scanChannelId ?? null,
+      errorChannelId: settings?.errorChannelId ?? null,
+      collections: collectionRows.map((row) => ({
+        guid: row.guid!,
+        name: row.name,
+        scanChannelId: row.scanChannelId,
+        errorChannelId: row.errorChannelId,
+      })),
+    };
+    return c.json({ success: true, data });
   },
 );

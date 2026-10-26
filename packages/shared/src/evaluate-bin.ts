@@ -1,5 +1,4 @@
 import type { SourceCard } from "./interfaces/card.interface";
-import type { ScannedCard } from "./interfaces/scanner.interface";
 import type {
   AlphabetStep,
   BinCondition,
@@ -399,25 +398,6 @@ export function evaluateCardBin(
   return catchAll && resolveOverflowBin(catchAll, configs, isBlocked);
 }
 
-export function countCardsInBin(
-  cards: Pick<ScannedCard, "binNumber" | "scannedAt">[],
-  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,
-): number {
-  return cards.filter(
-    (c) =>
-      c.binNumber === bin.binNumber &&
-      (bin.lastEmptiedAt == null || c.scannedAt > bin.lastEmptiedAt),
-  ).length;
-}
-
-export function isBinFull(
-  cards: Pick<ScannedCard, "binNumber" | "scannedAt">[],
-  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt" | "cardLimit">,
-): boolean {
-  if (bin.cardLimit == null) return false;
-  return countCardsInBin(cards, bin) >= bin.cardLimit;
-}
-
 export function isValidBinHeight(height: unknown): height is number {
   return (
     typeof height === "number" &&
@@ -559,7 +539,7 @@ export function repackDuplicateKey(
       : getCardValue(card, uniqueBy, fieldDefinitions);
   if (value == null) return null;
   const key = Array.isArray(value)
-    ? normalizeList(value).sort().join(" ")
+    ? normalizeList(value).sort().join("\u0000")
     : normalizeText(value);
   return key.length > 0 ? key : null;
 }

@@ -1,7 +1,13 @@
 name: Firmware Release
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump
+        type: choice
+        options: [patch, minor, major]
+        default: patch
 
 permissions:
   contents: write
@@ -47,16 +53,29 @@ jobs:
             echo "::error::Could not read FIRMWARE_VERSION from firmware/main/main.ino"
             exit 1
           fi
-          MAJOR_MINOR=$(echo "$CURRENT" | grep -oP '^\d+\.\d+')
-          CURRENT_PATCH=$(echo "$CURRENT" | grep -oP '\d+$')
-          LAST=$(git tag -l "firmware-v${MAJOR_MINOR}.*" | sed -E "s/^firmware-v${MAJOR_MINOR}\.//" | sort -n | tail -1)
-          if [ -z "$LAST" ]; then
-            PATCH="$CURRENT_PATCH"
-          else
-            PATCH=$((LAST + 1))
-          fi
-          VERSION="${MAJOR_MINOR}.${PATCH}"
+          CURRENT="${CURRENT%%-*}"
+          MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+          MINOR=$(echo "$CURRENT" | cut -d. -f2)
+          case "${{ inputs.bump }}" in
+            major) VERSION="$((MAJOR + 1)).0.0" ;;
+            minor) VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
+            *)
+              MAJOR_MINOR="${MAJOR}.${MINOR}"
+              CURRENT_PATCH=$(echo "$CURRENT" | cut -d. -f3)
+              LAST=$(git tag -l "firmware-v${MAJOR_MINOR}.*" | sed -E "s/^firmware-v${MAJOR_MINOR}\.//" | sort -n | tail -1)
+              if [ -z "$LAST" ]; then
+                PATCH="$CURRENT_PATCH"
+              else
+                PATCH=$((LAST + 1))
+              fi
+              VERSION="${MAJOR_MINOR}.${PATCH}"
+              ;;
+          esac
           TAG="firmware-v${VERSION}"
+          if [ "$IS_DEV" != "true" ] && git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "::error::Tag $TAG already exists."
+            exit 1
+          fi
           if [ "$IS_DEV" = "true" ]; then
             VERSION="${VERSION}-dev.${GITHUB_RUN_NUMBER}"
             TAG="$DEV_TAG"

@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
+import { gt, valid } from "semver";
 import type { PiUpdateState, PiUpdateStatus } from "@magic-vault/shared";
 import pkg from "../../package.json";
 import {
@@ -96,14 +97,14 @@ export async function checkPiUpdateVersion(
     await command("git", ["show", "@{upstream}:packages/server/package.json"]),
   );
   const latestVersion = latestPackage.version;
-  if (typeof latestVersion !== "string" || latestVersion.length === 0) {
-    throw new Error("The tracking branch has no app version.");
+  if (typeof latestVersion !== "string" || !valid(latestVersion)) {
+    throw new Error("The tracking branch has no valid app version.");
   }
   await command("git", ["merge-base", "--is-ancestor", "HEAD", "@{upstream}"]);
   return {
     installedVersion,
     latestVersion,
-    available: installedVersion !== latestVersion,
+    available: gt(latestVersion, installedVersion),
   };
 }
 

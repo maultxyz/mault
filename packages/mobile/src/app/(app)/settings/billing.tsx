@@ -34,6 +34,7 @@ export default function BillingSettingsScreen() {
         billing.chaosSort ? f("chaosSort") : null,
         billing.storage ? f("storage") : null,
         billing.apiAccess ? f("apiAccess") : null,
+        billing.businessTools ? f("businessTools") : null,
         f("collections"),
         f("games"),
         f("notifications"),
