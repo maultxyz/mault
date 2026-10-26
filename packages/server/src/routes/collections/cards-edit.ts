@@ -13,6 +13,8 @@ import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toScannedCard } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
+import { findFoilPrinting } from "../../lib/card-search/foil-printing";
+import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 
 export const editCollectionCardRoute = new Hono<AppEnv>().put(
   "/:guid/cards/:scanId",
@@ -34,6 +36,10 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
     if (condition !== undefined && !isCardCondition(condition)) {
       return c.json({ success: false, message: "Invalid condition." }, 400);
     }
+    const foilPrintingScope =
+      card === undefined && foilType !== undefined
+        ? await resolveGameKeyAndLang(c.get("jwtClaims"), guid)
+        : null;
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const existing = await tx.query.collectionCards.findFirst({
@@ -53,7 +59,20 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         });
         if (!existing) return { success: false, message: "Card not found." };
 
+        const foilPrinting =
+          foilPrintingScope && foilType !== undefined
+            ? await findFoilPrinting(
+                foilPrintingScope.gameKey,
+                existing.card as PlayingCardWithDistance,
+                foilType,
+              )
+            : null;
+
         const updates: Partial<typeof collectionCards.$inferInsert> = {};
+        if (foilPrinting) {
+          updates.card = foilPrinting;
+          updates.cardId = foilPrinting.id;
+        }
         if (card !== undefined) {
           updates.card = card;
           updates.cardId = card.id;
@@ -95,7 +114,9 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
           success: true,
           data: toScannedCard({
             guid: scanId,
-            card: (card ?? existing.card) as PlayingCardWithDistance,
+            card: (card ??
+              foilPrinting ??
+              existing.card) as PlayingCardWithDistance,
             scannedAt: existing.scannedAt,
             binNumber: binNumber !== undefined ? binNumber : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,

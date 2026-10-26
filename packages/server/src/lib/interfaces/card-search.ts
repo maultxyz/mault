@@ -47,6 +47,11 @@ export interface CardKingdomPricing {
   scryfallIdFromRaw(card: PlayingCard): string | null | undefined;
 }
 
+export interface FoilPrintingVariants {
+  isSameArtwork(card: PlayingCard, other: PlayingCard): boolean;
+  matchesFoilType(card: PlayingCard, foilType: string | null): boolean;
+}
+
 export interface CardSearchAdapter {
   defaultUrl: string;
   urlForLang?(lang: string): string;
@@ -59,6 +64,7 @@ export interface CardSearchAdapter {
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
   rarePrintingSql?: SQL;
   excludedFromMatchingSql?: SQL;
+  foilPrintingVariants?: FoilPrintingVariants;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;
   cardkingdom?: CardKingdomPricing;

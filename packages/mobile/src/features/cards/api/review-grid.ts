@@ -19,6 +19,7 @@ export const collectionReviewGridQueryOptions = (guid: string) =>
       const params = new URLSearchParams({
         grouped: "0",
         page: "0",
+        unreviewed: "1",
         filters: JSON.stringify({ ...EMPTY_CARD_FILTERS, needsAttention: true }),
       });
       const page = await unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${params.toString()}`));
