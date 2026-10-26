@@ -127,7 +127,7 @@ export function OrderImportDialog({
                   {...field}
                   id="order-text"
                   rows={10}
-                  className="font-mono"
+                  className="max-h-[40svh] overflow-y-auto font-mono"
                   placeholder={t("orders.contentsPlaceholder")}
                   aria-invalid={fieldState.invalid}
                 />
