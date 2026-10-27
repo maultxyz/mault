@@ -49,7 +49,11 @@ import {
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
-import { cardStorageLocationQueryOptions, storageLocationCardsQueryOptions } from "@/features/storage/api/storage";
+import {
+  cardStorageLocationQueryOptions,
+  fetchFirstUnreviewedStorageCard,
+  storageLocationCardContextQueryOptions,
+} from "@/features/storage/api/storage";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
@@ -76,7 +80,7 @@ export default function CardDetailScreen() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const position = useQuery(collectionCardQueryOptions(guid, scanId, reviewMode && !storageReview));
-  const storageCards = useQuery({ ...storageLocationCardsQueryOptions(storageGuid ?? ""), enabled: storageReview });
+  const storageContext = useQuery(storageLocationCardContextQueryOptions(storageGuid ?? "", scanId, storageReview));
   const image = useQuery(scanImageQueryOptions(guid, scanId));
   const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
   const hasScanOrigin = !!origin.data && (!!origin.data.scannedBy || !!origin.data.device);
@@ -179,13 +183,11 @@ export default function CardDetailScreen() {
 
   const goToNextInReview = async () => {
     if (storageReview && storageGuid) {
-      const list = await queryClient
-        .fetchQuery({ ...storageLocationCardsQueryOptions(storageGuid), staleTime: 0 })
-        .catch(() => storageCards.data ?? []);
-      const index = list.findIndex((c) => c.scanId === scanId);
-      const pending = (c: (typeof list)[number]) => !c.reviewed && c.scanId !== scanId;
-      const next = list.slice(index + 1).find(pending) ?? list.find(pending);
-      if (next) {
+      const context = await queryClient
+        .fetchQuery({ ...storageLocationCardContextQueryOptions(storageGuid, scanId, true), staleTime: 0 })
+        .catch(() => storageContext.data ?? null);
+      const next = context?.next ?? (await fetchFirstUnreviewedStorageCard(storageGuid).catch(() => null));
+      if (next && next.scanId !== scanId) {
         router.replace({
           pathname: "/card/[scanId]",
           params: { scanId: next.scanId, guid: next.collectionGuid, review: "1", storage: storageGuid },
@@ -243,10 +245,10 @@ export default function CardDetailScreen() {
         subtitle={
           editing
             ? card?.name
-            : storageReview && storageCards.data
+            : storageReview && storageContext.data
               ? t("cardDetail.reviewProgress", {
-                  index: storageCards.data.findIndex((c) => c.scanId === scanId) + 1,
-                  total: storageCards.data.length,
+                  index: storageContext.data.index + 1,
+                  total: storageContext.data.total,
                 })
               : reviewMode && position.data
               ? t("cardDetail.reviewProgress", { index: position.data.index + 1, total: position.data.total })

@@ -5,6 +5,7 @@ import type {
   AdminUnmatchedRetryResult,
   AdminUnmatchedScan,
   Result,
+  UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -15,6 +16,18 @@ export const adminUnmatchedQueryOptions = queryOptions({
       (r) => r.data ?? [],
     ),
 });
+
+export const adminUnmatchedDiagnosticsQueryOptions = (
+  scanId: string | undefined,
+) =>
+  queryOptions({
+    queryKey: ["admin", "unmatched", "diagnostics", scanId] as const,
+    queryFn: () =>
+      apiGet<Result<UnmatchedScanDiagnostics | null>>(
+        `/api/admin/unmatched/${scanId}/diagnostics`,
+      ).then((r) => r.data ?? null),
+    enabled: !!scanId,
+  });
 
 export function retryAdminUnmatched(
   request: AdminUnmatchedRetryRequest,

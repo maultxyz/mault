@@ -57,9 +57,8 @@ export const activityRoute = new Hono<AppEnv>()
         .orderBy(desc(orgActivityLog.createdAt), desc(orgActivityLog.id))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
-      const entries = [];
-      for (const row of rows) {
-        entries.push({
+      const entries = await Promise.all(
+        rows.map(async (row) => ({
           guid: row.guid!,
           action: row.action as ActivityAction,
           userId: row.userId,
@@ -67,8 +66,8 @@ export const activityRoute = new Hono<AppEnv>()
           summary: row.summary,
           details: (row.details as Record<string, unknown> | null) ?? null,
           createdAt: row.createdAt.toISOString(),
-        });
-      }
+        })),
+      );
       const data: ActivityPage = {
         entries,
         total: Number(count?.total ?? 0),

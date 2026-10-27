@@ -15,7 +15,7 @@ import {
 import { parsePublicApiInput } from "../../lib/public-api/pagination";
 import { apiError } from "../../lib/public-api/responses";
 import { deleteScanImages } from "../../lib/scan-images";
-import { emitToOrg, emitToSession } from "../../lib/session-stream";
+import { emitCollectionCardsChanged, emitToSession } from "../../lib/session-stream";
 
 function respondWithCard(
   c: Context<ApiKeyEnv>,
@@ -27,9 +27,7 @@ function respondWithCard(
   if (result.status === "location_not_found") {
     return apiError(c, 404, "not_found", PUBLIC_API_LOCATION_NOT_FOUND);
   }
-  emitToOrg(c.get("orgId"), "collections_changed", {
-    guid: result.card.collection.id,
-  });
+  emitCollectionCardsChanged(c.get("orgId"), result.card.collection.id);
   return c.json(result.card);
 }
 
@@ -73,6 +71,6 @@ export const deleteCardHandler: Handler<ApiKeyEnv> = async (c) => {
   emitToSession(deleted.collectionGuid, "card_removed", {
     scanId: params.data.id,
   });
-  emitToOrg(orgId, "collections_changed", { guid: deleted.collectionGuid });
+  emitCollectionCardsChanged(orgId, deleted.collectionGuid);
   return c.body(null, 204);
 };

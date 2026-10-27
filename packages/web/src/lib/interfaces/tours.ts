@@ -23,7 +23,13 @@ export interface UseTourOptions {
   steps: Step[];
   completedKey: string;
   autoStart?: boolean;
+  restartCompleted?: boolean;
   targetWaitTimeout?: number;
+}
+
+export interface OnboardingTourProps {
+  steps: Step[];
+  restartCompleted: boolean;
 }
 
 export interface TourHelpButtonProps {

@@ -2,7 +2,7 @@ import { devicesQueryOptions } from "@/features/calibration/api/devices";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { readBleDeviceMap } from "@/features/scanner/lib/ble-device-map";
-import { isFlashInProgress } from "@/features/scanner/lib/esp32-flasher";
+import { isFlashInProgress } from "@/features/scanner/lib/esp32-flash-state";
 import {
   AUTO_CONNECT_PLUG_DELAY_MS,
   AUTO_CONNECT_SETTLE_MS,

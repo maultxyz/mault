@@ -254,6 +254,7 @@ export function UnmatchedRetryManager() {
                     <div className="aspect-[2.5/3.5] w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
                       {scan.capturedImageUrl ? (
                         <img
+                          loading="lazy"
                           src={scan.capturedImageUrl}
                           alt={t("unmatchedRetry.imageAlt")}
                           className="h-full w-full object-fill"

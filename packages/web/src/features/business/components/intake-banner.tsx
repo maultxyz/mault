@@ -1,7 +1,4 @@
-import {
-  intakeLotQueryOptions,
-  openIntakeLotsQueryOptions,
-} from "@/features/business/api/business";
+import { openIntakeLotsQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -18,15 +15,14 @@ export function IntakeBanner() {
   const { orgId, access } = useBusinessAccess();
   const { activeCollection } = useCollections();
   const { data: lots = [] } = useQuery(openIntakeLotsQueryOptions(orgId));
-  const openLot = lots.find(
-    (lot) =>
-      lot.status === "open" && lot.collectionGuid === activeCollection?.guid,
+  const lot = lots.find(
+    (candidate) =>
+      candidate.status === "open" &&
+      candidate.collectionGuid === activeCollection?.guid,
   );
-  const { data: live } = useQuery(intakeLotQueryOptions(openLot?.guid));
 
-  if (!openLot || pathname.startsWith(INTAKE_PATH)) return null;
+  if (!lot || pathname.startsWith(INTAKE_PATH)) return null;
 
-  const lot = live ?? openLot;
   const showMoney = access?.canViewCosts && lot.cashOffer != null;
 
   return (

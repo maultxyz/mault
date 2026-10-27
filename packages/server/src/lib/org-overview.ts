@@ -83,7 +83,13 @@ export async function loadOrgOverview(
     .select({ day: dayKey, count: count(collectionCards.id) })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
-    .where(and(liveCollections, gte(collectionCards.createdAt, since)))
+    .where(
+      and(
+        eq(collectionCards.orgId, orgId),
+        liveCollections,
+        gte(collectionCards.createdAt, since),
+      ),
+    )
     .groupBy(dayKey);
 
   const loadCards = async (
@@ -96,7 +102,7 @@ export async function loadOrgOverview(
         scanId: collectionCards.guid,
         collectionGuid: collections.guid,
         collectionName: collections.name,
-        card: collectionCards.card,
+        card: sql<PlayingCard>`${collectionCards.card} - 'raw'`,
         isFoil: collectionCards.isFoil,
         scannedAt: collectionCards.scannedAt,
         price: cardPrice,
@@ -106,9 +112,11 @@ export async function loadOrgOverview(
       .leftJoin(games, eq(games.id, collections.gameId))
       .leftJoin(cardPrices, collectionCardPricesJoinOn())
       .where(
-        onlyPriced
-          ? and(liveCollections, isNotNull(cardPrice))
-          : liveCollections,
+        and(
+          eq(collectionCards.orgId, orgId),
+          liveCollections,
+          onlyPriced ? isNotNull(cardPrice) : undefined,
+        ),
       )
       .orderBy(orderBy)
       .limit(limit);
@@ -116,7 +124,7 @@ export async function loadOrgOverview(
       scanId: row.scanId!,
       collectionGuid: row.collectionGuid!,
       collectionName: row.collectionName,
-      card: row.card as PlayingCard,
+      card: row.card,
       isFoil: row.isFoil,
       price: row.price == null ? null : Number(row.price),
       scannedAt: row.scannedAt.toISOString(),

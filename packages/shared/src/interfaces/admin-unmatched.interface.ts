@@ -7,7 +7,6 @@ import type { OcrDiagnostics, OcrRegionTrace } from "./ocr-region.interface";
 import type {
   ScanMatchSource,
   UnmatchedReason,
-  UnmatchedScanDiagnostics,
 } from "./scanner.interface";
 
 export interface AdminUnmatchedScan {
@@ -23,7 +22,6 @@ export interface AdminUnmatchedScan {
   originalReason: UnmatchedReason | null;
   originalNearestName: string | null;
   originalNearestDistance: number | null;
-  diagnostics: UnmatchedScanDiagnostics | null;
 }
 
 export type AdminUnmatchedRetryStatus =

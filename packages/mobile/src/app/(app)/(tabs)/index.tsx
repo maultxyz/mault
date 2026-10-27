@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { router } from "expo-router";
+import { router, useIsFocused } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
@@ -44,7 +44,8 @@ export default function HomeScreen() {
   const alerts = useAppAlerts();
   const { locks } = useAppStream();
   const collections = useQuery(collectionsQueryOptions(orgId));
-  const overview = useQuery(orgOverviewQueryOptions(orgId));
+  const isScreenFocused = useIsFocused();
+  const overview = useQuery(orgOverviewQueryOptions(orgId, isScreenFocused));
   const firstName = user?.name?.trim().split(/\s+/)[0];
   const number = (value: number) => value.toLocaleString(i18n.language);
 

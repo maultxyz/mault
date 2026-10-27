@@ -20,9 +20,10 @@ import {
   type OrgPricing,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
-import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../db";
 import {
+  cardPrices,
   collectionCards,
   collections,
   games,
@@ -32,6 +33,8 @@ import { collectionNameTaken } from "../routes/collections/shared";
 import { getUserDisplayName } from "../middleware/auth";
 import {
   cardWithStoredPricesSql,
+  collectionCardPriceSql,
+  collectionCardPricesJoinOn,
   scannedCardPriceSql,
 } from "./card-price-sql";
 import type { IntakeLotRow } from "./interfaces/business";
@@ -191,8 +194,9 @@ export async function loadIntakeLotCards(
   lotId: number,
   pricing: OrgPricing,
   buylist: BuylistConfig,
+  pageWindow?: { limit: number; offset: number },
 ): Promise<IntakeLotCard[]> {
-  const rows = await tx
+  const query = tx
     .select({
       scanId: collectionCards.guid,
       card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
@@ -207,6 +211,9 @@ export async function loadIntakeLotCards(
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
     .where(intakeLotCardsWhere(lotId))
     .orderBy(desc(collectionCards.scannedAt), desc(collectionCards.id));
+  const rows = pageWindow
+    ? await query.limit(pageWindow.limit).offset(pageWindow.offset)
+    : await query;
   return rows.map((r) => {
     const marketPrice =
       r.price === null ? null : roundCurrency(Number(r.price));
@@ -241,6 +248,72 @@ export function summarizeIntakeCards(
     cashOffer,
     creditOffer: creditOfferFor(cashOffer, buylist),
   };
+}
+
+export async function loadIntakeLotCardPrices(
+  tx: Transaction,
+  lotIds: number[],
+  pricing: OrgPricing,
+): Promise<{ lotId: number; scanId: string; marketPrice: number | null }[]> {
+  if (lotIds.length === 0) return [];
+  const rows = await tx
+    .select({
+      lotId: collectionCards.intakeLotId,
+      scanId: collectionCards.guid,
+      price: collectionCardPriceSql(pricing),
+    })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(cardPrices, collectionCardPricesJoinOn())
+    .where(
+      and(
+        inArray(collectionCards.intakeLotId, lotIds),
+        eq(collections.isDeleted, false),
+      ),
+    );
+  return rows.map((row) => ({
+    lotId: row.lotId!,
+    scanId: row.scanId!,
+    marketPrice: row.price === null ? null : roundCurrency(Number(row.price)),
+  }));
+}
+
+export function summarizeIntakePrices(
+  marketPrices: (number | null)[],
+  buylist: BuylistConfig,
+) {
+  return summarizeIntakeCards(
+    marketPrices.map((marketPrice) => ({
+      marketPrice,
+      offer: buylistOfferFor(marketPrice, buylist),
+    })),
+    buylist,
+  );
+}
+
+export async function loadIntakeLotSummaries(
+  tx: Transaction,
+  lotIds: number[],
+  pricing: OrgPricing,
+  buylist: BuylistConfig,
+): Promise<Map<number, ReturnType<typeof summarizeIntakeCards>>> {
+  const pricesByLot = new Map<number, (number | null)[]>(
+    lotIds.map((lotId) => [lotId, []]),
+  );
+  for (const card of await loadIntakeLotCardPrices(tx, lotIds, pricing)) {
+    pricesByLot.get(card.lotId)?.push(card.marketPrice);
+  }
+  return new Map(
+    [...pricesByLot].map(([lotId, marketPrices]) => [
+      lotId,
+      summarizeIntakePrices(marketPrices, buylist),
+    ]),
+  );
+}
+
+export function hideIntakeCardCosts(card: IntakeLotCard): IntakeLotCard {
+  return { ...card, marketPrice: null, offer: null, acquisitionCost: null };
 }
 
 async function displayName(userId: string | null): Promise<string | null> {

@@ -7,7 +7,6 @@ import {
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
-import { searchCardImageWithConsensus } from "@/features/scanner/lib/card-image-search";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
   drawScanImageFile,
@@ -97,6 +96,9 @@ export function useScanImageImport(
           return true;
         }
         sourceCanvas = source.canvas;
+        const { searchCardImageWithConsensus } = await import(
+          "@/features/scanner/lib/card-image-search"
+        );
         const outcome = await searchCardImageWithConsensus(
           source.canvas,
           () => {},

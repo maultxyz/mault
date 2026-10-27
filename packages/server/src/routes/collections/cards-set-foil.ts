@@ -1,4 +1,7 @@
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
+import {
+  BULK_SCAN_IDS_MAX,
+  type PlayingCardWithDistance,
+} from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
@@ -22,7 +25,11 @@ export const setCollectionCardsFoilTypeRoute = new Hono<AppEnv>().post(
     }>();
     const isValidFoilType =
       foilType === null || (typeof foilType === "string" && foilType.trim() !== "");
-    if (!isValidFoilType || !Array.isArray(scanIds)) {
+    if (
+      !isValidFoilType ||
+      !Array.isArray(scanIds) ||
+      scanIds.length > BULK_SCAN_IDS_MAX
+    ) {
       return c.json({ success: false, message: "Invalid foil type." }, 400);
     }
     if (scanIds.length === 0) return c.json({ success: true, data: null });

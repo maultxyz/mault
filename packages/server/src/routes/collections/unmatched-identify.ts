@@ -21,7 +21,7 @@ import {
   dailyScanLimitForPlan,
   dailyScanLimitMessage,
 } from "../../lib/scan-usage";
-import { emitToOrg, emitToSession } from "../../lib/session-stream";
+import { emitCollectionCardsChanged, emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
@@ -169,7 +169,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
       void markScanCorrected(scanId);
       emitToSession(guid, "unmatched_removed", { scanId });
       emitToSession(guid, "card_added", data);
-      emitToOrg(orgId, "collections_changed", { guid });
+      emitCollectionCardsChanged(orgId, guid);
       notifyCardScanned({
         orgId,
         collectionGuid: guid,
