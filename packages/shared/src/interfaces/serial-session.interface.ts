@@ -31,10 +31,15 @@ export interface CommLogEntry {
 
 export interface RouteOptions {
   feedNext?: boolean;
+  requireLoadedCard?: boolean;
 }
 
 export interface SkippedRouteResponse {
   skipped: true;
+}
+
+export interface NoLoadedCardRouteResponse {
+  noLoadedCard: true;
 }
 
 export interface SerialRouteQueue {

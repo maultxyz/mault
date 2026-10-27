@@ -138,6 +138,7 @@ export const swuAdapter: CardSearchAdapter = {
   },
   cardmarket: {
     gameId: 21,
+    siteGamePath: "StarWarsUnlimited",
     productNames: (card) => [card.name],
   },
 };

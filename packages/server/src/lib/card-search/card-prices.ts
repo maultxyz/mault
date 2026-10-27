@@ -13,6 +13,7 @@ import type {
 import type { CardSearchAdapter } from "../interfaces/card-search";
 import { applyCardKingdomPrices } from "./cardkingdom-prices";
 import { applyCardmarketPrices } from "./cardmarket-prices";
+import { purchaseLinksFor } from "./purchase-links";
 import { ADAPTERS_BY_GAME_KEY } from "./resolve";
 import { applyTcgplayerPrices } from "./tcgplayer-prices";
 
@@ -100,8 +101,15 @@ export async function applyCardPrices<T extends PlayingCard>(
   let next = 0;
   return cards.map((card) => {
     const prices = stored.get(card.id);
-    if (prices) return withStoredPrices(card, prices);
-    return needsLive(card) ? priced[next++] : card;
+    const pricedCard = prices
+      ? withStoredPrices(card, prices)
+      : needsLive(card)
+        ? priced[next++]
+        : card;
+    return {
+      ...pricedCard,
+      purchaseLinks: purchaseLinksFor(adapter, pricedCard),
+    };
   });
 }
 

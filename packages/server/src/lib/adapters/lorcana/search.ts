@@ -239,6 +239,7 @@ export const lorcanaAdapter: CardSearchAdapter = {
   },
   cardmarket: {
     gameId: 19,
+    siteGamePath: "Lorcana",
     productIdFromRaw: (card) =>
       (card.raw as LorcanaDeCard).externalLinks?.cardmarketId,
     productNames: (card) => [card.name],

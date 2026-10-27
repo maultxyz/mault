@@ -357,6 +357,25 @@ export async function resolveGameId(
   return game?.id ?? null;
 }
 
+export async function markBinsEmptied(
+  tx: Transaction,
+  orgId: string,
+  binNumbers: number[],
+): Promise<void> {
+  if (binNumbers.length === 0) return;
+  const now = new Date();
+  await tx
+    .update(bins)
+    .set({ lastEmptiedAt: now, updatedAt: now })
+    .where(
+      and(
+        eq(bins.orgId, orgId),
+        inArray(bins.binNumber, binNumbers),
+        eq(bins.isDeleted, false),
+      ),
+    );
+}
+
 export function activeBinSetWhere(
   t: (typeof binSets)["_"]["columns"],
   orgId: string,

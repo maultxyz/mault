@@ -8,6 +8,7 @@ import {
 import type { BinRoute } from "./interfaces/bin-routes.interface";
 import type {
   CommLogEntry,
+  NoLoadedCardRouteResponse,
   PendingSerialReply,
   RouteOptions,
   SerialBootBannerHandler,
@@ -273,19 +274,28 @@ export class SerialSession<TTransport extends SerialSessionTransport> {
     );
   }
 
-  sendRoute(
+  private async isCardLoadedAtModuleOne(): Promise<boolean> {
+    const sensors = await this.sendParsed({ readIR: true });
+    return Array.isArray(sensors?.ir) && sensors.ir[0] === true;
+  }
+
+  private async sendRouteCommand(
     route: BinRoute,
-    options: RouteOptions = {},
-  ): Promise<SerialReply | SkippedRouteResponse | null> {
-    const queue = this.routeQueue;
-    const waitsOnPrevious = queue.pending > 0;
-    queue.pending += 1;
-    const next = queue.tail
-      .then((previous) => {
-        if (waitsOnPrevious && isFailedRouteResponse(previous)) {
-          return { skipped: true } satisfies SkippedRouteResponse;
+    options: RouteOptions,
+  ): Promise<SerialReply | NoLoadedCardRouteResponse | null> {
+    if (!this.activeTransport) return null;
+    return this.runExclusive<
+      SerialReply | NoLoadedCardRouteResponse | null,
+      null
+    >(
+      async () => {
+        if (
+          options.requireLoadedCard &&
+          !(await this.isCardLoadedAtModuleOne())
+        ) {
+          return { noLoadedCard: true } satisfies NoLoadedCardRouteResponse;
         }
-        return this.sendAwaited(
+        return this.sendParsed(
           {
             route: {
               module: route.module,
@@ -297,6 +307,26 @@ export class SerialSession<TTransport extends SerialSessionTransport> {
             ? ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS
             : ROUTE_RESPONSE_TIMEOUT_MS,
         );
+      },
+      () => null,
+    );
+  }
+
+  sendRoute(
+    route: BinRoute,
+    options: RouteOptions = {},
+  ): Promise<
+    SerialReply | SkippedRouteResponse | NoLoadedCardRouteResponse | null
+  > {
+    const queue = this.routeQueue;
+    const waitsOnPrevious = queue.pending > 0;
+    queue.pending += 1;
+    const next = queue.tail
+      .then((previous) => {
+        if (waitsOnPrevious && isFailedRouteResponse(previous)) {
+          return { skipped: true } satisfies SkippedRouteResponse;
+        }
+        return this.sendRouteCommand(route, options);
       })
       .finally(() => {
         queue.pending -= 1;

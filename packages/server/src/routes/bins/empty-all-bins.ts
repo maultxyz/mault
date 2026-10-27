@@ -1,5 +1,5 @@
 import type { EmptyAllBinsInput } from "@magic-vault/shared";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, storageLocations } from "../../db/schema";
@@ -15,6 +15,7 @@ import {
   activeBinSetWhere,
   emptyRules,
   loadSets,
+  markBinsEmptied,
   resolveGameId,
 } from "./shared";
 
@@ -154,13 +155,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
         }
       }
 
-      const now = new Date();
-      await tx
-        .update(bins)
-        .set({ lastEmptiedAt: now, updatedAt: now })
-        .where(
-          and(eq(bins.binSet, activeBinSet.id), eq(bins.isDeleted, false)),
-        );
+      await markBinsEmptied(tx, orgId, [...binIds.keys()]);
 
       const sets = await loadSets(tx, orgId);
       return {

@@ -457,6 +457,10 @@
         "title": "No card detected",
         "description": "The feeder ran but no card reached the camera. Check the stack, then tap Resume."
       },
+      "card-missing": {
+        "title": "Card missing before sorting",
+        "description": "Module 1 no longer detects the scanned card, so nothing was sorted. Check module 1, then tap Resume."
+      },
       "feed-failed": {
         "title": "Feeder problem",
         "description": "The feeder didn't respond as expected. {{detail}}"
@@ -1726,6 +1730,7 @@
       "game": "Game",
       "language": "Language",
       "noGames": "No synced games",
+      "allSets": "All sets",
       "searchPlaceholder": "Search cards...",
       "noResults": "No cards found. It may not be synced yet.",
       "loadMore": "Load more"

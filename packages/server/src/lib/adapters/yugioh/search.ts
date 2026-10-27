@@ -156,6 +156,7 @@ export const yugiohAdapter: CardSearchAdapter = {
   },
   cardmarket: {
     gameId: 3,
+    siteGamePath: "YuGiOh",
     productNames: (card) => [card.name],
   },
 };

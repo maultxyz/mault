@@ -190,6 +190,10 @@
       "title": "Routing failed",
       "description": "No response from sorter for bin {{binNumber}}."
     },
+    "cardMissingBeforeRoute": {
+      "title": "Card missing before sorting",
+      "description": "Module 1 no longer detects the scanned card, so nothing was sent to bin {{binNumber}}. Check module 1, then resume."
+    },
     "sorterError": {
       "title": "Sorter error"
     },

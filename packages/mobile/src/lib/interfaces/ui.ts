@@ -170,6 +170,8 @@ export interface CardTileProps {
   quantity?: number;
   flagged?: boolean;
   corrected?: boolean;
+  selected?: boolean;
+  disabled?: boolean;
   onPress?: () => void;
   onLongPress?: () => void;
 }

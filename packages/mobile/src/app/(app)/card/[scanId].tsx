@@ -35,6 +35,7 @@ import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
+import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { PricePaidField } from "@/features/cards/components/price-paid-field";
@@ -353,6 +354,7 @@ export default function CardDetailScreen() {
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.prices")} />
                 <CardPriceDetails card={card} isFoil={draftFoil != null} />
+                <CardPurchaseLinks card={card} />
                 {entry && acquisitionCost.data ? (
                   <PricePaidField
                     label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}

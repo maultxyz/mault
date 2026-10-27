@@ -7,6 +7,11 @@ import {
   MILO_MODEL,
   type PinnedModel,
 } from "@magic-vault/shared";
+import {
+  PADDLE_OCR_DETECTION_MODEL,
+  PADDLE_OCR_DICTIONARY,
+  PADDLE_OCR_RECOGNITION_MODEL,
+} from "../constants/ocr";
 
 function cacheRoot(): string {
   return (
@@ -28,7 +33,7 @@ async function resolvePinnedModel(model: PinnedModel): Promise<string> {
     return destination;
   }
 
-  await mkdir(dir, { recursive: true });
+  await mkdir(path.dirname(destination), { recursive: true });
   const url = `https://huggingface.co/${model.repo}/resolve/${model.revision}/${model.filename}`;
   console.log(`[model-registry] Downloading ${model.repo}@${model.revision}...`);
   const res = await fetch(url);
@@ -53,4 +58,20 @@ export function resolveMiloModelPath(): Promise<string> {
 
 export function resolveCardDetectorModelPath(): Promise<string> {
   return resolvePinnedModel(CORNER_DETECTOR_MODEL);
+}
+
+export function resolvePaddleOcrModelPaths(): Promise<{
+  detection: string;
+  recognition: string;
+  dictionary: string;
+}> {
+  return Promise.all([
+    resolvePinnedModel(PADDLE_OCR_DETECTION_MODEL),
+    resolvePinnedModel(PADDLE_OCR_RECOGNITION_MODEL),
+    resolvePinnedModel(PADDLE_OCR_DICTIONARY),
+  ]).then(([detection, recognition, dictionary]) => ({
+    detection,
+    recognition,
+    dictionary,
+  }));
 }

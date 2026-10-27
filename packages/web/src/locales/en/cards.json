@@ -14,6 +14,7 @@
     "allLanguages": "All languages",
     "allSets": "All sets",
     "allSetsCount": "All sets ({{count}})",
+    "noMatchingSets": "No matching sets",
     "startTyping": "Start typing to search for cards",
     "noCardsFound": "No cards found"
   },

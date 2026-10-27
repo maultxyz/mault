@@ -14,6 +14,7 @@
     "allLanguages": "Toutes les langues",
     "allSets": "Tous les sets",
     "allSetsCount": "Tous les sets ({{count}})",
+    "noMatchingSets": "Aucun set correspondant",
     "startTyping": "Commence à taper pour rechercher des cartes",
     "noCardsFound": "Aucune carte trouvée"
   },
