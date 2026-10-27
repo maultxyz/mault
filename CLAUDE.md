@@ -87,6 +87,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - `findCardMatches` prefers a regular printing over a same-art promo or list reprint (`rarePrintingSql`); an explicit preferred set wins.
 - Every query that compares a scan against `cards` (embedding, OCR name, preferred set) adds `matchingExclusionFilter(scope)`, which skips the adapter's `excludedFromMatchingSql` rows (Scryfall `digital` printings). The rows stay synced.
 - An onnxruntime-web WASM `RuntimeError` is permanent for the page; don't retry.
+- Server OCR is PaddleOCR on onnxruntime-node (`lib/paddle-ocr.ts`, pinned in `constants/ocr.ts`, pre-downloaded in `Dockerfile.server`): one detection pass over the whole card, then regions anchor to the detected lines and only unanchored regions are read from their fixed box. The v5 recognizer needs input height 48 and the small v3 detector is deliberate (the v5 server detector is about 9x slower on a Pi).
 - Mobile Safari reloads tabs that pile up canvas memory: reuse scratch canvases, free per-scan ones with `releaseCanvases`, warp on the CPU (`warpRgba`), never WebGL.
 - Saves go through `PendingScanSavesProvider`, never directly. Bin capacity is checked client-side before routing; a routed card stays pending until bin counts with a later `dataUpdatedAt` land.
 - Web, mobile and Pi scanners route a scan through `shared`'s `resolveScanBin` (`scan-routing.ts`: pick list, then auto-assign, then mode dispatch and the full/complete pauses); never re-implement that order per app. Mode helpers live in `evaluate-bin.ts`.
