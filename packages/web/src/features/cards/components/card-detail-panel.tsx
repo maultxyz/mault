@@ -124,6 +124,7 @@ export function CardDetailPanel({
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  const [areMatchesExpanded, setAreMatchesExpanded] = useState(false);
   const prevScanIdRef = useRef<string | undefined>(undefined);
 
   const { addCard } = useScannedCards();
@@ -182,6 +183,7 @@ export function CardDetailPanel({
       }
       setCandidates(all);
       setSelectedId(currentCard.id);
+      setAreMatchesExpanded(false);
       setEditing(false);
     }
   }, [scanId, currentCard, alternativeMatches]);
@@ -233,6 +235,7 @@ export function CardDetailPanel({
   const handleSelectCandidate = useCallback(
     (card: PlayingCardWithDistance) => {
       setSelectedId(card.id);
+      setAreMatchesExpanded(false);
       if (scanId) correctCard(scanId, card);
     },
     [scanId, correctCard],
@@ -241,6 +244,8 @@ export function CardDetailPanel({
   const selectedCard =
     candidates.find((c) => c.id === selectedId) ?? currentCard;
   const hasMultipleCandidates = candidates.length > 1;
+  const isMatchChosen = isReviewed || wasCorrected;
+  const showMatchTiles = !isMatchChosen || areMatchesExpanded;
   const isViewing = !!currentCard && !editing;
 
   const startEditing = () => setEditing(true);
@@ -492,20 +497,40 @@ export function CardDetailPanel({
 
               {hasMultipleCandidates && (
                 <DetailSection title={t("cardDetailPanel.similarMatches")}>
-                  <p className="text-sm text-foreground/70">
-                    {t("cardPicker.multipleMatches")}
-                  </p>
-                  <div className="flex gap-2 overflow-x-auto p-1">
-                    {candidates.map((c) => (
-                      <CardSearchResultTile
-                        key={c.id}
-                        card={c}
-                        isSelected={c.id === selectedId}
-                        onClick={() => handleSelectCandidate(c)}
-                        className="w-40 shrink-0"
-                      />
-                    ))}
-                  </div>
+                  {showMatchTiles && (
+                    <>
+                      <p className="text-sm text-foreground/70">
+                        {t("cardPicker.multipleMatches")}
+                      </p>
+                      <div className="flex gap-2 overflow-x-auto p-1">
+                        {candidates.map((c) => (
+                          <CardSearchResultTile
+                            key={c.id}
+                            card={c}
+                            isSelected={c.id === selectedId}
+                            onClick={() => handleSelectCandidate(c)}
+                            className="w-56 shrink-0"
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {isMatchChosen && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="self-start"
+                      aria-expanded={areMatchesExpanded}
+                      onClick={() => setAreMatchesExpanded((expanded) => !expanded)}
+                    >
+                      {areMatchesExpanded ? <IconChevronUp /> : <IconChevronDown />}
+                      {areMatchesExpanded
+                        ? t("cardDetailPanel.hideMatches")
+                        : t("cardDetailPanel.showMatches", {
+                            count: candidates.length,
+                          })}
+                    </Button>
+                  )}
                 </DetailSection>
               )}
 
@@ -746,7 +771,11 @@ export function CardDetailPanel({
               {canConfirm && !reviewMode && (
                 <Button
                   variant="outline"
-                  onClick={() => scanId && confirmCard(scanId)}
+                  onClick={() => {
+                    if (!scanId) return;
+                    setAreMatchesExpanded(false);
+                    confirmCard(scanId);
+                  }}
                   title={t("cardDetailPanel.markCorrectTitle")}
                 >
                   <IconCheck className="size-4" />
