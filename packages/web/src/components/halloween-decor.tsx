@@ -4,11 +4,13 @@ import type {
   SpiderWebProps,
 } from "@/lib/interfaces/seasonal";
 import { SPIDER_WEB_PATH, isHalloweenSeason } from "@/lib/seasonal";
+import { useClientValue } from "@/hooks/use-client-value";
 import { cn } from "@/lib/utils";
 import { IconPumpkinScary, IconSpider } from "@tabler/icons-react";
 
 export function SpiderWeb({ corner, className, withSpider }: SpiderWebProps) {
-  if (!isHalloweenSeason()) return null;
+  const isHalloween = useClientValue(isHalloweenSeason, false);
+  if (!isHalloween) return null;
   return (
     <div
       aria-hidden
@@ -39,7 +41,8 @@ export function SpiderWeb({ corner, className, withSpider }: SpiderWebProps) {
 }
 
 export function SeasonalPumpkin({ className }: SeasonalPumpkinProps) {
-  if (!isHalloweenSeason()) return null;
+  const isHalloween = useClientValue(isHalloweenSeason, false);
+  if (!isHalloween) return null;
   return (
     <IconPumpkinScary
       aria-hidden

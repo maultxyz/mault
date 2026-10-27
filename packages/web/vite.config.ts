@@ -60,6 +60,7 @@ export default defineConfig({
   ],
   define: {
     __APP_VERSION__: JSON.stringify(`${version}`),
+    __BUILD_YEAR__: JSON.stringify(new Date().getFullYear()),
   },
   envDir: path.resolve(__dirname, "../../"),
   resolve: {

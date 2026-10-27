@@ -1,6 +1,7 @@
 import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { buttonVariants } from "@/components/ui/button";
 import { detectDesktopPlatform } from "@/features/download/lib/detect-platform";
+import { useClientValue } from "@/hooks/use-client-value";
 import {
   DESKTOP_DOWNLOADS,
   DESKTOP_RELEASE_URL,
@@ -12,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 export function DownloadPlatforms({ step }: MarketingStepProps) {
   const { t } = useTranslation("download");
-  const detected = detectDesktopPlatform();
+  const detected = useClientValue(detectDesktopPlatform, null);
 
   return (
     <section id="platforms" className="border-t">
