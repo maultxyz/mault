@@ -46,7 +46,7 @@ export interface TextFieldProps {
   placeholder?: string;
   secureTextEntry?: boolean;
   autoComplete?: "email" | "password" | "name" | "off" | "new-password";
-  keyboardType?: "default" | "email-address";
+  keyboardType?: "default" | "email-address" | "decimal-pad";
   autoCapitalize?: "none" | "sentences" | "words";
   returnKeyType?: "next" | "done" | "go" | "search";
   onSubmitEditing?: () => void;

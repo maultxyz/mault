@@ -5,7 +5,12 @@ import type { Result } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { businessKeys, businessSettingsQueryOptions } from "@/features/business/api/business";
+import {
+  businessKeys,
+  businessSettingsQueryOptions,
+  cardAcquisitionCostQueryOptions,
+  setCardAcquisitionCost,
+} from "@/features/business/api/business";
 
 export function useBusinessAccess() {
   const { activeOrg } = useOrg();
@@ -48,4 +53,31 @@ export function useBusinessAction() {
     },
     [queryClient, t],
   );
+}
+
+export function useCardAcquisitionCost(scanId: string | undefined) {
+  const { t } = useTranslation("cards");
+  const { activeOrg } = useOrg();
+  const queryClient = useQueryClient();
+  const { data } = useQuery(
+    cardAcquisitionCostQueryOptions(activeOrg?.id, scanId),
+  );
+  const saveCardAcquisitionCost = useCallback(
+    async (targetScanId: string, cost: number | null) => {
+      try {
+        const result = await setCardAcquisitionCost(targetScanId, { cost });
+        if (!result.success) {
+          toast.error(result.message || t("cardDetailPanel.pricePaidSaveFailed"));
+        }
+      } catch {
+        toast.error(t("cardDetailPanel.pricePaidSaveFailed"));
+      } finally {
+        await queryClient.invalidateQueries({
+          queryKey: businessKeys.cardCost(activeOrg?.id, targetScanId),
+        });
+      }
+    },
+    [activeOrg?.id, queryClient, t],
+  );
+  return { acquisitionCost: data ?? null, saveCardAcquisitionCost };
 }

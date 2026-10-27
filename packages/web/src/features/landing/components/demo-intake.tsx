@@ -57,13 +57,16 @@ export function DemoIntake({ isRevealed }: FeatureSpotlightDemoProps) {
                 alt=""
                 className="aspect-5/7 w-8 shrink-0 rounded-sm object-cover"
               />
-              <span className="min-w-0 flex-1 truncate font-medium">
-                {card.name}
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate font-medium">{card.name}</span>
+                <span className="text-xs tabular-nums text-foreground/70 sm:hidden">
+                  {formatPrice(row.market, "tcgplayer")}
+                </span>
               </span>
-              <span className="shrink-0 tabular-nums text-foreground/70">
+              <span className="shrink-0 tabular-nums text-foreground/70 max-sm:hidden">
                 {formatPrice(row.market, "tcgplayer")}
               </span>
-              <span className="w-20 shrink-0 text-right font-semibold tabular-nums">
+              <span className="min-w-20 shrink-0 text-right font-semibold whitespace-nowrap tabular-nums">
                 {formatPrice(row.offer, "tcgplayer")}
               </span>
               {row.declined && isRevealed && (

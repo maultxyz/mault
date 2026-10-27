@@ -14,6 +14,8 @@ import type {
   ActivityPage,
   BusinessSettings,
   BusinessSettingsResponse,
+  CardAcquisitionCost,
+  CardAcquisitionCostInput,
   CollectionCostInput,
   CollectionCostResult,
   DeviceMaintenanceInput,
@@ -42,6 +44,8 @@ export const businessKeys = {
   root: () => ["business"] as const,
   settings: (orgId: string | undefined) =>
     [...businessKeys.root(), "settings", orgId] as const,
+  cardCost: (orgId: string | undefined, scanId: string | undefined) =>
+    [...businessKeys.root(), "card-cost", orgId, scanId] as const,
   intakeRoot: () => [...businessKeys.root(), "intake"] as const,
   intakeList: (orgId: string | undefined, page: PageRequest) =>
     [...businessKeys.intakeRoot(), "list", orgId, page] as const,
@@ -257,6 +261,29 @@ export function cancelOrder(guid: string) {
 
 export function deleteOrder(guid: string) {
   return apiDelete<Result<null>>(`/api/business/orders/${guid}`);
+}
+
+export const cardAcquisitionCostQueryOptions = (
+  orgId: string | undefined,
+  scanId: string | undefined,
+) =>
+  queryOptions({
+    queryKey: businessKeys.cardCost(orgId, scanId),
+    queryFn: () =>
+      apiGet<Result<CardAcquisitionCost>>(
+        `/api/business/cost/cards/${scanId}`,
+      ).then((result) => (result.success ? (result.data ?? null) : null)),
+    enabled: !!orgId && !!scanId,
+  });
+
+export function setCardAcquisitionCost(
+  scanId: string,
+  input: CardAcquisitionCostInput,
+) {
+  return apiPut<Result<CardAcquisitionCost>>(
+    `/api/business/cost/cards/${scanId}`,
+    input,
+  );
 }
 
 export function setCollectionCost(

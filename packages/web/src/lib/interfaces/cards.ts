@@ -350,9 +350,11 @@ export interface ScanDraftOptions {
   savedFoilType: string | null;
   savedCondition: CardCondition;
   savedLanguage: string;
+  savedAcquisitionCost: number | null;
   setCardFoilType: CardDetailActions["setCardFoilType"];
   setCardCondition: CardDetailActions["setCardCondition"];
   setCardLanguage: CardDetailActions["setCardLanguage"];
+  setCardAcquisitionCost: (scanId: string, cost: number | null) => void;
 }
 
 export interface CardDetailScope {
