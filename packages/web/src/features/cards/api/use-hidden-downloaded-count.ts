@@ -1,4 +1,4 @@
-import { collectionCardsSummaryQueryOptions } from "@/features/collections/api/collection-cards";
+import { collectionCardsCountQueryOptions } from "@/features/collections/api/collection-cards";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import type { CollectionCardsQuery } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -10,12 +10,12 @@ export function useHiddenDownloadedCount(
   const { collection: activeCollection } = useViewedCollection();
   const active = enabled && !query.filters.showDownloaded;
   const { data } = useQuery({
-    ...collectionCardsSummaryQueryOptions(activeCollection?.guid, {
+    ...collectionCardsCountQueryOptions(activeCollection?.guid, {
       ...query,
       filters: { ...query.filters, showDownloaded: true },
     }),
     enabled: active && !!activeCollection?.guid,
     placeholderData: undefined,
   });
-  return active ? (data?.filtered.totalCount ?? 0) : 0;
+  return active ? (data?.totalCount ?? 0) : 0;
 }

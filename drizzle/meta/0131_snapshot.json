@@ -1,5 +1,5 @@
 {
-  "id": "78993d74-ac74-4b9d-b8b7-75d228aabb16",
+  "id": "86eafe93-29ec-4989-9911-f87faa2f5181",
   "prevId": "e7c3e880-67b3-41d1-9e85-d4ef2d3ef842",
   "version": "7",
   "dialect": "postgresql",
@@ -2290,6 +2290,56 @@
           "notNull": false,
           "generated": {
             "as": "\"collection_cards\".\"card\" ->> 'lang'",
+            "type": "stored"
+          }
+        },
+        "card_name": {
+          "name": "card_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "\"collection_cards\".\"card\" ->> 'name'",
+            "type": "stored"
+          }
+        },
+        "card_set": {
+          "name": "card_set",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "\"collection_cards\".\"card\" ->> 'set'",
+            "type": "stored"
+          }
+        },
+        "card_set_name": {
+          "name": "card_set_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "\"collection_cards\".\"card\" ->> 'setName'",
+            "type": "stored"
+          }
+        },
+        "card_rarity": {
+          "name": "card_rarity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "\"collection_cards\".\"card\" ->> 'rarity'",
+            "type": "stored"
+          }
+        },
+        "card_color_identity": {
+          "name": "card_color_identity",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "CASE WHEN jsonb_typeof(\"collection_cards\".\"card\" -> 'colorIdentity') = 'array' THEN \"collection_cards\".\"card\" -> 'colorIdentity' ELSE '[]'::jsonb END",
             "type": "stored"
           }
         },

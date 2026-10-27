@@ -141,7 +141,7 @@ function jsonNumber(key: string): SQL {
   return sql`(CASE WHEN jsonb_typeof(cc.card -> ${key}::text) = 'number' THEN (cc.card ->> ${key}::text)::float8 END)`;
 }
 
-const COLOR_IDENTITY = sql`(CASE WHEN jsonb_typeof(cc.card -> 'colorIdentity') = 'array' THEN cc.card -> 'colorIdentity' ELSE '[]'::jsonb END)`;
+const COLOR_IDENTITY = sql`cc.card_color_identity`;
 
 const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' END)`;
 
@@ -204,7 +204,7 @@ export function cardFilterSql(
   }
 
   if (filters.rarities.length > 0) {
-    conditions.push(sql`cc.card ->> 'rarity' = ${anyOf(filters.rarities)}`);
+    conditions.push(sql`cc.card_rarity = ${anyOf(filters.rarities)}`);
   }
 
   if (filters.bins.length > 0) {
@@ -231,7 +231,7 @@ export function cardFilterSql(
   }
 
   if (filters.sets.length > 0) {
-    conditions.push(sql`cc.card ->> 'set' = ${anyOf(filters.sets)}`);
+    conditions.push(sql`cc.card_set = ${anyOf(filters.sets)}`);
   }
 
   if (filters.foilTypes.length > 0) {
@@ -598,31 +598,30 @@ function cardStatsBaseSql(
   filter: SQL,
   pricing: OrgPricing,
 ): SQL {
-  const priceKeys = Object.keys(CARD_PRICE_COLUMNS) as CardPriceKey[];
-  const priceKeyColumns = sql.raw(
-    priceKeys.map((key) => `, "${key}" jsonb`).join(""),
-  );
-  const priceCard = sql.raw(
-    `jsonb_build_object('lang', j.lang${priceKeys.map((key) => `, '${key}', j."${key}"`).join("")})`,
-  );
-  const cols = { ...CC_ALIAS_SQL_COLUMNS, card: sql`jp.card` };
-  const price = sql`COALESCE(${joinedScannedCardPriceSql(pricing, cols, "cp")}, 0)`;
+  const price = sql`COALESCE(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}, 0)`;
   return sql`
-    SELECT cc.card_id AS card_key, j.name, j."set" AS set_code, j."setName" AS set_name,
-      j.rarity,
-      CASE WHEN jsonb_typeof(j."colorIdentity") = 'array'
-        THEN j."colorIdentity" ELSE '[]'::jsonb END AS colors,
+    SELECT cc.card_id AS card_key, cc.card_name AS name, cc.card_set AS set_code,
+      cc.card_set_name AS set_name, cc.card_rarity AS rarity,
+      cc.card_color_identity AS colors,
       cc.is_foil, cc.foil_type, cc.scanned_at,
       ${price} AS price, (${filter}) AS in_filter
     FROM collection_cards cc
-    CROSS JOIN LATERAL jsonb_to_record(cc.card) AS j(
-      name text, "set" text, "setName" text, rarity text,
-      "colorIdentity" jsonb, lang text${priceKeyColumns}
-    )
-    CROSS JOIN LATERAL (SELECT ${priceCard} AS card) jp
-    ${cardPricesJoinSql("cp", collection, cols)}
+    ${cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS)}
     WHERE cc.collection_id = ${collection.id}
   `;
+}
+
+export async function loadCardsCount(
+  tx: Transaction,
+  collection: { id: number },
+  filter: SQL,
+): Promise<number> {
+  const result = await tx.execute(sql`
+    SELECT count(*)::int AS total_count
+    FROM collection_cards cc
+    WHERE cc.collection_id = ${collection.id} AND (${filter})
+  `);
+  return (result.rows[0] as unknown as { total_count: number }).total_count;
 }
 
 export async function loadCardStats(
