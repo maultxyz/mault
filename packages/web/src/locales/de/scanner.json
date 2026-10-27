@@ -190,6 +190,10 @@
       "title": "Weiterleitung fehlgeschlagen",
       "description": "Keine Antwort vom Sortierer für Fach {{binNumber}}."
     },
+    "cardMissingBeforeRoute": {
+      "title": "Karte fehlt vor dem Sortieren",
+      "description": "Modul 1 erkennt die gescannte Karte nicht mehr, daher wurde nichts an Fach {{binNumber}} gesendet. Prüfe Modul 1 und setze dann fort."
+    },
     "sorterError": {
       "title": "Sortiererfehler"
     },

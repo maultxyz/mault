@@ -42,7 +42,12 @@ export function isFedEvent(message: unknown): message is Record<string, unknown>
 
 export function isFailedRouteResponse(response: unknown): boolean {
   const fields = asFields(response);
-  return !fields || "error" in fields || fields.skipped === true;
+  return (
+    !fields ||
+    "error" in fields ||
+    fields.skipped === true ||
+    fields.noLoadedCard === true
+  );
 }
 
 export function withSeq(

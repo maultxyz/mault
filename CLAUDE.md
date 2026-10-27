@@ -104,6 +104,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - One command at a time; every blocking wait goes through `waitMs()`; pusher moves through `setServoPosition()`.
 - `handleCommand` parses its line as `const char*` and prints replies directly. New `ModuleConfig`/`FeederConfig` fields go in `MODULE_FIELDS`/`FEEDER_FIELDS` too; changing `ModuleConfig` needs an EEPROM layout migration.
 - A function whose signature uses a sketch-defined struct needs a manual prototype right after the struct.
+- Firmware `route` runs the feeder first when module 1 reads empty, so scan routes pass `requireLoadedCard` (`readIR` before routing) or they sort an unscanned card; only calibration routes rely on the implicit feed.
 - Replies match by `seq`: use `sendRequest`/`sendRawCommand`. Minimum-firmware features go in `FIRMWARE_FEATURE_MIN_VERSIONS` with a gate and a fallback.
 - ESP32-S3 builds pin `FlashMode=dio` and `PartitionScheme=min_spiffs`; `esp32-flasher.ts` writes the merged bin around NVS, never whole at 0.
 - Pusher directions are mirrored (`"left"` lands right); render through `BIN_SLOTS_PHYSICAL_ORDER`, never change routes to fix the display.

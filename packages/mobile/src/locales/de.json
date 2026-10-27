@@ -457,6 +457,10 @@
         "title": "Keine Karte erkannt",
         "description": "Der Einzug lief, aber keine Karte erreichte die Kamera. Prüfe den Stapel und tippe dann auf Fortsetzen."
       },
+      "card-missing": {
+        "title": "Karte fehlt vor dem Sortieren",
+        "description": "Modul 1 erkennt die gescannte Karte nicht mehr, daher wurde nichts sortiert. Prüfe Modul 1 und tippe dann auf Fortsetzen."
+      },
       "feed-failed": {
         "title": "Problem mit dem Einzug",
         "description": "Der Einzug hat nicht wie erwartet reagiert. {{detail}}"

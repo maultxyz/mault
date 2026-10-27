@@ -190,6 +190,10 @@
       "title": "Échec du routage",
       "description": "Aucune réponse de la trieuse pour le bac {{binNumber}}."
     },
+    "cardMissingBeforeRoute": {
+      "title": "Carte absente avant le tri",
+      "description": "Le module 1 ne détecte plus la carte scannée, donc rien n'a été envoyé au bac {{binNumber}}. Vérifie le module 1, puis reprends."
+    },
     "sorterError": {
       "title": "Erreur de la trieuse"
     },
