@@ -14,7 +14,7 @@ import type {
   ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
-import type { ReactNode } from "react";
+import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 
 export interface CardSearchPickerProps {
@@ -22,6 +22,22 @@ export interface CardSearchPickerProps {
   initialQuery?: string;
   disabled?: boolean;
   onSelect: (card: PlayingCard) => void;
+}
+
+export interface CardSearchResultTileProps {
+  card: PlayingCard | PlayingCardWithDistance;
+  disabled?: boolean;
+  isSelected?: boolean;
+  className?: string;
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
+  onKeyDown?: (event: KeyboardEvent<HTMLButtonElement>) => void;
+}
+
+export interface CardSearchSetSelectProps {
+  sets: CardSetOption[];
+  totalCount: number;
+  value: string;
+  onChange: (setCode: string) => void;
 }
 
 export interface CardSearchLanguageSelectProps {

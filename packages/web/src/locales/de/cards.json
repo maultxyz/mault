@@ -14,6 +14,7 @@
     "allLanguages": "Alle Sprachen",
     "allSets": "Alle Editionen",
     "allSetsCount": "Alle Editionen ({{count}})",
+    "noMatchingSets": "Keine passenden Editionen",
     "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
     "noCardsFound": "Keine Karten gefunden"
   },

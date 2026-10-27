@@ -15,6 +15,8 @@ export const CardTile = memo(function CardTile({
   quantity,
   flagged = false,
   corrected = false,
+  selected = false,
+  disabled = false,
   onPress,
   onLongPress,
 }: CardTileProps) {
@@ -24,7 +26,8 @@ export const CardTile = memo(function CardTile({
     <Pressable
       accessibilityRole={onPress ? "button" : undefined}
       accessibilityLabel={`${name}, ${caption}`}
-      disabled={!onPress}
+      accessibilityState={{ selected, disabled }}
+      disabled={disabled || !onPress}
       onPress={onPress}
       onLongPress={onLongPress}
       style={({ pressed }) => ({ flex: 1, minWidth: 0, gap: 6, transform: [{ scale: pressed ? 0.97 : 1 }] })}
@@ -36,8 +39,9 @@ export const CardTile = memo(function CardTile({
           borderRadius: RADIUS.lg,
           overflow: "hidden",
           backgroundColor: colors.muted,
-          borderWidth: awaitingReview ? 2 : 1,
-          borderColor: awaitingReview ? colors.warning : colors.cardRing,
+          borderWidth: selected || awaitingReview ? 2 : 1,
+          borderColor: selected ? colors.primary : awaitingReview ? colors.warning : colors.cardRing,
+          opacity: disabled ? 0.5 : 1,
         }}
       >
         {imageUrl ? (

@@ -32,6 +32,7 @@ import { BinLocationDiagram } from "@/features/bins/components/bin-location-diag
 import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
+import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
 import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
 import { CardScanOriginList } from "@/features/cards/components/card-scan-origin-list";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
@@ -494,48 +495,16 @@ export function CardDetailPanel({
                   <p className="text-sm text-foreground/70">
                     {t("cardPicker.multipleMatches")}
                   </p>
-                  <div className="flex gap-2 overflow-x-auto pb-1">
-                    {candidates.map((c) => {
-                      const isSelected = c.id === selectedId;
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => handleSelectCandidate(c)}
-                          className="shrink-0 flex flex-col gap-1 items-center cursor-pointer group"
-                        >
-                          <div
-                            className={cn(
-                              "w-24 aspect-[2.5/3.5] rounded-md overflow-hidden border-2 transition-all",
-                              isSelected
-                                ? "border-primary shadow-md"
-                                : "border-border group-hover:border-primary/60",
-                            )}
-                          >
-                            <img
-                              src={c.image?.small || c.image?.normal || ""}
-                              alt={c.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {isSelected && (
-                              <IconCheck className="size-3 text-primary shrink-0" />
-                            )}
-                            <p
-                              className={cn(
-                                "text-xs font-medium",
-                                isSelected
-                                  ? "text-primary"
-                                  : "text-foreground/70",
-                              )}
-                            >
-                              {c.set.toUpperCase()} #{c.collectorNumber}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
+                  <div className="flex gap-2 overflow-x-auto p-1">
+                    {candidates.map((c) => (
+                      <CardSearchResultTile
+                        key={c.id}
+                        card={c}
+                        isSelected={c.id === selectedId}
+                        onClick={() => handleSelectCandidate(c)}
+                        className="w-40 shrink-0"
+                      />
+                    ))}
                   </div>
                 </DetailSection>
               )}
