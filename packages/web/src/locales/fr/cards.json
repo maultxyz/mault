@@ -202,6 +202,7 @@
     "applyGridFilters": "Appliquer les filtres actifs ({{count}})",
     "close": "Fermer",
     "download": "Télécharger ({{count}})",
+    "downloadFailed": "Impossible de télécharger l'export.",
     "sessionWrappedToggle": "Wrapped",
     "combineDuplicates": "Regrouper les doublons"
   },

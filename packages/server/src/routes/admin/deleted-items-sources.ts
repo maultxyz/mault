@@ -42,7 +42,12 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     collection: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: collections.guid,
+            name: collections.name,
+            orgId: collections.orgId,
+            updatedAt: collections.updatedAt,
+          })
           .from(collections)
           .where(eq(collections.isDeleted, true));
         return rows.map((r) => ({
@@ -166,7 +171,13 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     device: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: devices.guid,
+            name: devices.name,
+            hardwareId: devices.hardwareId,
+            orgId: devices.orgId,
+            updatedAt: devices.updatedAt,
+          })
           .from(devices)
           .where(eq(devices.isDeleted, true));
         return rows.map((r) => ({
@@ -309,7 +320,12 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     storageLocation: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: storageLocations.guid,
+            name: storageLocations.name,
+            orgId: storageLocations.orgId,
+            updatedAt: storageLocations.updatedAt,
+          })
           .from(storageLocations)
           .where(eq(storageLocations.isDeleted, true));
         return rows.map((r) => ({
@@ -441,7 +457,12 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     game: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: games.guid,
+            name: games.name,
+            key: games.key,
+            updatedAt: games.updatedAt,
+          })
           .from(games)
           .where(eq(games.isDeleted, true));
         return rows.map((r) => ({
@@ -518,7 +539,13 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     intakeLot: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: intakeLots.guid,
+            customerName: intakeLots.customerName,
+            status: intakeLots.status,
+            orgId: intakeLots.orgId,
+            updatedAt: intakeLots.updatedAt,
+          })
           .from(intakeLots)
           .where(eq(intakeLots.isDeleted, true));
         return rows.map((r) => ({
@@ -561,7 +588,13 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     fulfilmentOrder: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: fulfilmentOrders.guid,
+            name: fulfilmentOrders.name,
+            status: fulfilmentOrders.status,
+            orgId: fulfilmentOrders.orgId,
+            updatedAt: fulfilmentOrders.updatedAt,
+          })
           .from(fulfilmentOrders)
           .where(eq(fulfilmentOrders.isDeleted, true));
         return rows.map((r) => ({

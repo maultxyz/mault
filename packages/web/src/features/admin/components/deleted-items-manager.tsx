@@ -16,27 +16,40 @@ import {
   deletedItemsQueryOptions,
   restoreDeletedItem,
 } from "@/features/admin/api/deleted-items";
-import { useClientPagination } from "@/hooks/use-client-pagination";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   ALL_DELETED_ITEM_TYPES,
   DELETED_ITEM_TYPE_FILTERS,
 } from "@/lib/constants/admin";
 import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
+import { toServerPagination } from "@/lib/pagination";
 import { toast } from "@/lib/toast";
 import type { DeletedItem } from "@magic-vault/shared";
 import { IconLoader2, IconRestore, IconTrashOff } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function DeletedItemsManager() {
   const { t, i18n } = useTranslation("admin");
   const queryClient = useQueryClient();
-  const itemsQuery = useQuery(deletedItemsQueryOptions);
   const [typeFilter, setTypeFilter] = useState<DeletedItemTypeFilter>(
     ALL_DELETED_ITEM_TYPES,
   );
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const debouncedSearch = useDebouncedValue(
+    search.trim().toLowerCase(),
+    SEARCH_DEBOUNCE_MS,
+  );
+  const itemsQuery = useQuery(
+    deletedItemsQueryOptions({
+      page,
+      search: debouncedSearch,
+      type: typeFilter === ALL_DELETED_ITEM_TYPES ? null : typeFilter,
+    }),
+  );
 
   const restoreMutation = useMutation({
     mutationFn: (item: DeletedItem) => restoreDeletedItem(item.type, item.guid),
@@ -51,18 +64,8 @@ export function DeletedItemsManager() {
     onError: () => toast.error(t("deletedItems.toasts.restoreError")),
   });
 
-  const items = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return (itemsQuery.data ?? []).filter(
-      (item) =>
-        (typeFilter === ALL_DELETED_ITEM_TYPES || item.type === typeFilter) &&
-        (!query ||
-          [item.name, item.detail, item.orgName]
-            .filter(Boolean)
-            .some((value) => value!.toLowerCase().includes(query))),
-    );
-  }, [itemsQuery.data, typeFilter, search]);
-  const pagination = useClientPagination(items);
+  const items = itemsQuery.data?.items ?? [];
+  const pagination = toServerPagination(itemsQuery.data, setPage);
 
   const typeLabel = (type: DeletedItemTypeFilter) =>
     type === ALL_DELETED_ITEM_TYPES

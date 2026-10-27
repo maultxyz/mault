@@ -2,6 +2,7 @@ import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { ConfirmDialog } from "@/features/business/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import {
 import {
   deleteIntakeLot,
   fetchNextUnreviewedIntakeCard,
+  intakeLotCardsQueryOptions,
   intakeLotQueryOptions,
 } from "@/features/business/api/business";
 import { HotkeyHint } from "@/components/hotkey-hint";
@@ -44,6 +46,7 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { intakeReceiptPath } from "@/lib/constants/business";
+import { toServerPagination } from "@/lib/pagination";
 import type { IntakeLotDetailProps } from "@/lib/interfaces/business";
 import {
   IconAlertTriangle,
@@ -75,6 +78,11 @@ export function IntakeLotDetail({
   const { activateCollection } = useCollections();
   const run = useBusinessAction();
   const { data: lot, isLoading } = useQuery(intakeLotQueryOptions(guid));
+  const [cardsPage, setCardsPage] = useState(1);
+  const { data: cardsPageData } = useQuery(
+    intakeLotCardsQueryOptions(guid, cardsPage, lot?.status === "open"),
+  );
+  const pageCards = cardsPageData?.items ?? [];
   const [acceptOpen, setAcceptOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -113,7 +121,7 @@ export function IntakeLotDetail({
 
   useHotkeys({
     reviewStart:
-      lot && lot.cards.length > 0 ? () => void startReview() : undefined,
+      lot && lot.cardCount > 0 ? () => void startReview() : undefined,
     intakeOpenScanner:
       lot?.status === "open"
         ? () => void openScanner(lot.collectionGuid)
@@ -124,11 +132,10 @@ export function IntakeLotDetail({
 
   const isOpen = lot.status === "open";
   const canRemove = isOpen;
-  const liveSelected = lot.cards
-    .map((entry) => entry.scanId)
-    .filter((scanId) => selected.has(scanId));
+  const liveSelected = [...selected];
   const allSelected =
-    lot.cards.length > 0 && liveSelected.length === lot.cards.length;
+    pageCards.length > 0 &&
+    pageCards.every((entry) => selected.has(entry.scanId));
   const toggleSelected = (scanId: string, checked: boolean) =>
     setSelected((previous) => {
       const next = new Set(previous);
@@ -136,9 +143,7 @@ export function IntakeLotDetail({
       else next.delete(scanId);
       return next;
     });
-  const belowMinimum = lot.cards
-    .filter((entry) => entry.belowMinimum)
-    .map((entry) => entry.scanId);
+  const belowMinimum = lot.belowMinimumScanIds;
   const minCardValue = settings?.buylist.minCardValue ?? 0;
   const removeCards = async (scanIds: string[]) => {
     setRemoveTarget(null);
@@ -175,7 +180,7 @@ export function IntakeLotDetail({
             })}
           </p>
         </div>
-        {lot.cards.length > 0 && (
+        {lot.cardCount > 0 && (
           <Button
             variant="outline"
             title={t("intake.review.startTitle")}
@@ -312,7 +317,7 @@ export function IntakeLotDetail({
         ]}
       />
 
-      {lot.cards.length === 0 ? (
+      {lot.cardCount === 0 ? (
         <EmptyState
           icon={IconScan}
           title={t("intake.noCardsTitle")}
@@ -382,11 +387,14 @@ export function IntakeLotDetail({
                         indeterminate={liveSelected.length > 0 && !allSelected}
                         aria-label={t("intake.remove.selectAll")}
                         onCheckedChange={(checked) =>
-                          setSelected(
-                            checked === true
-                              ? new Set(lot.cards.map((entry) => entry.scanId))
-                              : new Set(),
-                          )
+                          setSelected((previous) => {
+                            const next = new Set(previous);
+                            for (const entry of pageCards) {
+                              if (checked === true) next.add(entry.scanId);
+                              else next.delete(entry.scanId);
+                            }
+                            return next;
+                          })
                         }
                       />
                     </TableHead>
@@ -408,7 +416,7 @@ export function IntakeLotDetail({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {lot.cards.map((entry) => (
+                {pageCards.map((entry) => (
                   <TableRow
                     key={entry.scanId}
                     title={
@@ -484,6 +492,9 @@ export function IntakeLotDetail({
               </TableBody>
             </Table>
           </div>
+          <ListPagination
+            pagination={toServerPagination(cardsPageData, setCardsPage)}
+          />
         </div>
       )}
 

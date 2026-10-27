@@ -27,7 +27,7 @@ export interface CardPriceScope {
 }
 
 export interface ScannedCardSqlColumns {
-  card: SQL | AnyColumn;
+  savedPrices: Record<CardPriceKey, SQL | AnyColumn>;
   cardLang: SQL | AnyColumn;
   isFoil: SQL | AnyColumn;
   condition: SQL | AnyColumn;

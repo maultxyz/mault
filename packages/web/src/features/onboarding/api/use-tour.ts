@@ -16,6 +16,7 @@ export function useTour({
   steps,
   completedKey,
   autoStart = true,
+  restartCompleted = false,
   targetWaitTimeout = TOUR_TARGET_WAIT_TIMEOUT_MS,
 }: UseTourOptions) {
   const { t } = useTranslation("onboarding");
@@ -51,8 +52,8 @@ export function useTour({
   useEffect(() => {
     if (autoStartChecked.current || !autoStart) return;
     autoStartChecked.current = true;
-    if (!isTourCompleted(completedKey)) controls.start(0);
-  }, [autoStart, completedKey, controls]);
+    if (restartCompleted || !isTourCompleted(completedKey)) controls.start(0);
+  }, [autoStart, restartCompleted, completedKey, controls]);
 
   return { controls, Tour };
 }

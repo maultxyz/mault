@@ -42,12 +42,13 @@ import {
 } from "@/features/cards/lib/export";
 import {
   collectionCardPositionQueryOptions,
-  collectionCardsExportQueryOptions,
   collectionCardsPageQueryOptions,
   collectionCardsCountQueryOptions,
+  loadCardsForExport,
   loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
+import { useStoredCardCount } from "@/features/collections/api/use-stored-card-count";
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
@@ -414,10 +415,6 @@ export function CardGrid() {
     }
   }, [allSelected, collectionGuid, cardsQuery]);
 
-  const { data: exportCards } = useQuery(
-    collectionCardsExportQueryOptions(collectionGuid, summaryOpen),
-  );
-
   const gameKey = viewedCollection?.game?.key;
   const exportAdapters = useMemo(
     () =>
@@ -432,31 +429,25 @@ export function CardGrid() {
   const [confirmDeleteExported, setConfirmDeleteExported] = useState(false);
   const { isLocked: storageLocked } = useStorageAccess();
   const { moveCards, isMoving } = useMoveCardsToLocation();
-  const { data: allCardsForDelete } = useQuery(
-    collectionCardsExportQueryOptions(
-      collectionGuid,
-      confirmOpen || confirmDeleteExported || (storageLocked && !!exportedScanIds),
-    ),
+  const selectedStoredCount = useStoredCardCount(
+    collectionGuid,
+    selectedIds,
+    confirmOpen,
   );
-  const storedCountOf = (scanIds: Iterable<string>) => {
-    if (!allCardsForDelete) return 0;
-    const ids = new Set(scanIds);
-    return allCardsForDelete.filter(
-      (card) => ids.has(card.scanId) && card.storageLocation,
-    ).length;
-  };
+  const exportedStoredCount = useStoredCardCount(
+    collectionGuid,
+    exportedScanIds,
+    confirmDeleteExported || (storageLocked && !!exportedScanIds),
+  );
 
   const handleExportSelected = useCallback(
     async (adapter: ExportAdapter) => {
       if (!collectionGuid) return;
       setExportingSelected(true);
       try {
-        const allCards = await queryClient.fetchQuery(
-          collectionCardsExportQueryOptions(collectionGuid, true),
-        );
-        const selectedCards = allCards.filter((card) =>
-          selectedIds.has(card.scanId),
-        );
+        const selectedCards = await loadCardsForExport(collectionGuid, [
+          ...selectedIds,
+        ]);
         const slug = (viewedCollection?.name ?? "collection")
           .replace(/\s+/g, "-")
           .toLowerCase();
@@ -484,7 +475,6 @@ export function CardGrid() {
     },
     [
       collectionGuid,
-      queryClient,
       selectedIds,
       viewedCollection?.name,
       viewedCollection?.game?.name,
@@ -1000,9 +990,9 @@ export function CardGrid() {
       {addCardDialog}
 
       <SessionSummaryDialog
-        open={summaryOpen && !!exportCards}
+        open={summaryOpen}
         onOpenChange={setSummaryOpen}
-        cards={exportCards ?? []}
+        collectionGuid={collectionGuid}
         elapsedMs={elapsedMs}
         sessionScanCount={sessionScanCount}
         collectionName={viewedCollection?.name ?? "collection"}
@@ -1026,7 +1016,7 @@ export function CardGrid() {
         onConfirm={handleBulkDelete}
       >
         <StorageDeleteWarning
-          storedCount={storedCountOf(selectedIds)}
+          storedCount={selectedStoredCount}
           total={selectedIds.size}
           className="mt-4"
         />
@@ -1064,7 +1054,7 @@ export function CardGrid() {
         onConfirm={handleDeleteExported}
       >
         <StorageDeleteWarning
-          storedCount={storedCountOf(exportedScanIds ?? [])}
+          storedCount={exportedStoredCount}
           total={exportedCount}
           className="mt-4"
         />

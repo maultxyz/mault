@@ -158,7 +158,7 @@ export const accuracyRoute = new Hono<AppEnv>()
           cardCount: sql<number>`count(*)::int`,
           corrected: sql<number>`count(*) FILTER (WHERE ${collectionCards.isCorrected})::int`,
           lowConfidence: sql<number>`count(*) FILTER (WHERE ${collectionCards.lowConfidenceMatch})::int`,
-          withAlternatives: sql<number>`count(*) FILTER (WHERE ${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)::int`,
+          withAlternatives: sql<number>`count(*) FILTER (WHERE ${collectionCards.hasAlternativeMatches})::int`,
           reviewed: sql<number>`count(*) FILTER (WHERE ${collectionCards.isReviewed})::int`,
         })
         .from(collectionCards)

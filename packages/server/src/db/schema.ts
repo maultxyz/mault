@@ -1,3 +1,4 @@
+import { CARD_SEARCH_FIELDS } from "../lib/constants/collections";
 import type { CardPriceDetails } from "../lib/interfaces/card-prices";
 import { REPACK_UNIQUE_BY_PRINTING } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
@@ -556,6 +557,46 @@ export const collectionCards = pgTable(
       (): SQL =>
         sql`CASE WHEN jsonb_typeof(${collectionCards.card} -> 'colorIdentity') = 'array' THEN ${collectionCards.card} -> 'colorIdentity' ELSE '[]'::jsonb END`,
     ),
+    cardSearchText: text("card_search_text").generatedAlwaysAs(
+      (): SQL =>
+        sql`lower(${sql.join(
+          CARD_SEARCH_FIELDS.map(
+            (key) =>
+              sql`COALESCE(${collectionCards.card} ->> ${sql.raw(`'${key}'`)}, '')`,
+          ),
+          sql` || chr(10) || `,
+        )})`,
+    ),
+    cardImageSmall: text("card_image_small").generatedAlwaysAs(
+      (): SQL => sql`${collectionCards.card} -> 'image' ->> 'small'`,
+    ),
+    cardCollectorNumber: text("card_collector_number").generatedAlwaysAs(
+      (): SQL => sql`${collectionCards.card} ->> 'collectorNumber'`,
+    ),
+    cardSavedPrice: doublePrecision("card_saved_price").generatedAlwaysAs(
+      (): SQL =>
+        sql`CASE WHEN jsonb_typeof(${collectionCards.card} -> 'price') = 'number' THEN (${collectionCards.card} ->> 'price')::float8 END`,
+    ),
+    cardSavedPriceFoil: doublePrecision("card_saved_price_foil").generatedAlwaysAs(
+      (): SQL =>
+        sql`CASE WHEN jsonb_typeof(${collectionCards.card} -> 'priceFoil') = 'number' THEN (${collectionCards.card} ->> 'priceFoil')::float8 END`,
+    ),
+    cardSavedPriceEur: doublePrecision("card_saved_price_eur").generatedAlwaysAs(
+      (): SQL =>
+        sql`CASE WHEN jsonb_typeof(${collectionCards.card} -> 'priceEur') = 'number' THEN (${collectionCards.card} ->> 'priceEur')::float8 END`,
+    ),
+    cardSavedPriceEurFoil: doublePrecision("card_saved_price_eur_foil").generatedAlwaysAs(
+      (): SQL =>
+        sql`CASE WHEN jsonb_typeof(${collectionCards.card} -> 'priceEurFoil') = 'number' THEN (${collectionCards.card} ->> 'priceEurFoil')::float8 END`,
+    ),
+    cardSavedPriceCardKingdom: doublePrecision("card_saved_price_card_kingdom").generatedAlwaysAs(
+      (): SQL =>
+        sql`CASE WHEN jsonb_typeof(${collectionCards.card} -> 'priceCardKingdom') = 'number' THEN (${collectionCards.card} ->> 'priceCardKingdom')::float8 END`,
+    ),
+    cardSavedPriceCardKingdomFoil: doublePrecision("card_saved_price_card_kingdom_foil").generatedAlwaysAs(
+      (): SQL =>
+        sql`CASE WHEN jsonb_typeof(${collectionCards.card} -> 'priceCardKingdomFoil') = 'number' THEN (${collectionCards.card} ->> 'priceCardKingdomFoil')::float8 END`,
+    ),
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
     capturedImageDataUrl: text("captured_image_data_url"),
@@ -610,6 +651,19 @@ export const collectionCards = pgTable(
       table.scannedAt,
     ),
     index("collection_cards_card_id_idx").on(table.cardId),
+    index("collection_cards_org_created_idx").on(table.orgId, table.createdAt),
+    index("collection_cards_collection_card_idx").on(
+      table.collectionId,
+      table.cardId,
+    ),
+    index("collection_cards_org_card_name_idx").on(
+      table.orgId,
+      sql`lower(${table.cardName})`,
+    ),
+    index("collection_cards_org_card_front_name_idx").on(
+      table.orgId,
+      sql`lower(split_part(${table.cardName}, ' // ', 1))`,
+    ),
     index("collection_cards_collection_bin_scanned_idx").on(
       table.collectionId,
       table.binNumber,
@@ -1252,7 +1306,8 @@ export const scanStats = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
-    index("scan_stats_org_idx").on(table.orgId),
+    index("scan_stats_org_scanned_idx").on(table.orgId, table.scannedAt),
+    index("scan_stats_created_idx").on(table.createdAt),
     index("scan_stats_org_user_scanned_idx").on(
       table.orgId,
       table.scannedByUserId,

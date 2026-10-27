@@ -1,4 +1,4 @@
-import { apiGet } from "@/lib/api/client";
+import { apiGet, apiPost } from "@/lib/api/client";
 import type {
   BinCardCount,
   BinContentCard,
@@ -90,6 +90,29 @@ export function loadCollectionCardIds(
       `/api/collections/${guid}/cards/ids?${cardsQueryParams(query)}`,
     ),
   );
+}
+
+export function loadCardsForExport(
+  guid: string,
+  scanIds: string[],
+): Promise<ScannedCard[]> {
+  return unwrap(
+    apiPost<Result<ScannedCard[]>>(`/api/collections/${guid}/cards/export`, {
+      scanIds,
+    }),
+  );
+}
+
+export function loadStoredCardCount(
+  guid: string,
+  scanIds: string[],
+): Promise<number> {
+  return unwrap(
+    apiPost<Result<{ storedCount: number }>>(
+      `/api/collections/${guid}/cards/stored-count`,
+      { scanIds },
+    ),
+  ).then((data) => data.storedCount);
 }
 
 export function loadBinContents(

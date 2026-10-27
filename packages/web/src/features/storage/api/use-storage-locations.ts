@@ -29,7 +29,6 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   Result,
-  StorageLocation,
   StorageLocationCard,
   StorageLocationCardContext,
   StorageLocationCardPage,
@@ -55,13 +54,11 @@ export function useStorageLocations({ withList = true } = {}) {
   const invalidateAll = () =>
     void queryClient.invalidateQueries({ queryKey: storageLocationKeys.root() });
 
-  const applyList = (result: Result<StorageLocation[]>) => {
+  const applyResult = (result: Result<null>) => {
     if (!result.success) {
       toast.error(result.message ?? t("toasts.failed"));
       return false;
     }
-    if (result.data)
-      queryClient.setQueryData(listOptions.queryKey, result.data);
     invalidateAll();
     return true;
   };
@@ -73,7 +70,6 @@ export function useStorageLocations({ withList = true } = {}) {
         toast.error(result.message ?? t("toasts.failed"));
         return;
       }
-      queryClient.setQueryData(listOptions.queryKey, result.data.locations);
       invalidateAll();
     },
     onError: () => toast.error(t("toasts.failed")),
@@ -82,13 +78,13 @@ export function useStorageLocations({ withList = true } = {}) {
   const renameMutation = useMutation({
     mutationFn: ({ guid, name }: { guid: string; name: string }) =>
       renameStorageLocation(guid, name),
-    onSuccess: applyList,
+    onSuccess: applyResult,
     onError: () => toast.error(t("toasts.failed")),
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteStorageLocation,
-    onSuccess: applyList,
+    onSuccess: applyResult,
     onError: () => toast.error(t("toasts.failed")),
   });
 
@@ -125,8 +121,6 @@ export function useStorageLocations({ withList = true } = {}) {
 export function useMoveCardsToLocation() {
   const { t } = useTranslation("storage");
   const queryClient = useQueryClient();
-  const { activeOrg } = useOrg();
-  const listKey = storageLocationsQueryOptions(activeOrg?.id).queryKey;
 
   const mutation = useMutation({
     mutationFn: ({ guid, scanIds }: MoveCardsToLocationInput) =>
@@ -136,7 +130,6 @@ export function useMoveCardsToLocation() {
         toast.error(result.message ?? t("toasts.failed"));
         return;
       }
-      queryClient.setQueryData(listKey, result.data.locations);
       toast.success(t("toasts.cardsMoved", { count: result.data.moved }));
       void queryClient.invalidateQueries({
         queryKey: storageLocationKeys.root(),
@@ -159,8 +152,6 @@ export function useMoveCardsToLocation() {
 export function useMoveCollectionsToLocation() {
   const { t } = useTranslation("storage");
   const queryClient = useQueryClient();
-  const { activeOrg } = useOrg();
-  const listKey = storageLocationsQueryOptions(activeOrg?.id).queryKey;
 
   const mutation = useMutation({
     mutationFn: async ({
@@ -175,7 +166,6 @@ export function useMoveCollectionsToLocation() {
         );
         if (!result.success || !result.data) return { ...result, moved };
         moved += result.data.moved;
-        queryClient.setQueryData(listKey, result.data.locations);
       }
       return { success: true, moved };
     },

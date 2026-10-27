@@ -202,6 +202,7 @@
     "applyGridFilters": "Apply active filters ({{count}})",
     "close": "Close",
     "download": "Download ({{count}})",
+    "downloadFailed": "Couldn't download the export.",
     "sessionWrappedToggle": "Wrapped",
     "combineDuplicates": "Combine duplicates"
   },

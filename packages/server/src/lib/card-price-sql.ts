@@ -45,7 +45,7 @@ function savedCardPriceSql(
   key: CardPriceKey,
   cols: ScannedCardSqlColumns,
 ): SQL {
-  return sql`(CASE WHEN jsonb_typeof(${cols.card} -> ${key}::text) = 'number' THEN (${cols.card} ->> ${key}::text)::float8 END)`;
+  return sql`${cols.savedPrices[key]}`;
 }
 
 export function cardPriceValueSql(

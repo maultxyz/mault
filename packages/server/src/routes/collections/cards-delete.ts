@@ -4,7 +4,7 @@ import { authQuery } from "../../db";
 import { logActivity } from "../../lib/activity-log";
 import { collectionCards } from "../../db/schema";
 import { deleteScanImages } from "../../lib/scan-images";
-import { emitToOrg, emitToSession } from "../../lib/session-stream";
+import { emitCollectionCardsChanged, emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const deleteCollectionCardRoute = new Hono<AppEnv>().delete(
@@ -45,7 +45,7 @@ export const deleteCollectionCardRoute = new Hono<AppEnv>().delete(
     if (result.success) {
       deleteScanImages(result.imageKeys);
       emitToSession(guid, "card_removed", { scanId });
-      emitToOrg(orgId, "collections_changed", { guid });
+      emitCollectionCardsChanged(orgId, guid);
     }
     return c.json({ success: result.success, data: result.data });
   },

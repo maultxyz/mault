@@ -1,5 +1,5 @@
 {
-  "id": "86eafe93-29ec-4989-9911-f87faa2f5181",
+  "id": "9f2838f2-54d5-443d-9c6d-51d0bd33a07d",
   "prevId": "e7c3e880-67b3-41d1-9e85-d4ef2d3ef842",
   "version": "7",
   "dialect": "postgresql",
@@ -2343,6 +2343,96 @@
             "type": "stored"
           }
         },
+        "card_search_text": {
+          "name": "card_search_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "lower(COALESCE(\"collection_cards\".\"card\" ->> 'name', '') || chr(10) || COALESCE(\"collection_cards\".\"card\" ->> 'setName', '') || chr(10) || COALESCE(\"collection_cards\".\"card\" ->> 'set', '') || chr(10) || COALESCE(\"collection_cards\".\"card\" ->> 'typeLine', '') || chr(10) || COALESCE(\"collection_cards\".\"card\" ->> 'collectorNumber', '') || chr(10) || COALESCE(\"collection_cards\".\"card\" ->> 'text', ''))",
+            "type": "stored"
+          }
+        },
+        "card_image_small": {
+          "name": "card_image_small",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "\"collection_cards\".\"card\" -> 'image' ->> 'small'",
+            "type": "stored"
+          }
+        },
+        "card_collector_number": {
+          "name": "card_collector_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "\"collection_cards\".\"card\" ->> 'collectorNumber'",
+            "type": "stored"
+          }
+        },
+        "card_saved_price": {
+          "name": "card_saved_price",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "CASE WHEN jsonb_typeof(\"collection_cards\".\"card\" -> 'price') = 'number' THEN (\"collection_cards\".\"card\" ->> 'price')::float8 END",
+            "type": "stored"
+          }
+        },
+        "card_saved_price_foil": {
+          "name": "card_saved_price_foil",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "CASE WHEN jsonb_typeof(\"collection_cards\".\"card\" -> 'priceFoil') = 'number' THEN (\"collection_cards\".\"card\" ->> 'priceFoil')::float8 END",
+            "type": "stored"
+          }
+        },
+        "card_saved_price_eur": {
+          "name": "card_saved_price_eur",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "CASE WHEN jsonb_typeof(\"collection_cards\".\"card\" -> 'priceEur') = 'number' THEN (\"collection_cards\".\"card\" ->> 'priceEur')::float8 END",
+            "type": "stored"
+          }
+        },
+        "card_saved_price_eur_foil": {
+          "name": "card_saved_price_eur_foil",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "CASE WHEN jsonb_typeof(\"collection_cards\".\"card\" -> 'priceEurFoil') = 'number' THEN (\"collection_cards\".\"card\" ->> 'priceEurFoil')::float8 END",
+            "type": "stored"
+          }
+        },
+        "card_saved_price_card_kingdom": {
+          "name": "card_saved_price_card_kingdom",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "CASE WHEN jsonb_typeof(\"collection_cards\".\"card\" -> 'priceCardKingdom') = 'number' THEN (\"collection_cards\".\"card\" ->> 'priceCardKingdom')::float8 END",
+            "type": "stored"
+          }
+        },
+        "card_saved_price_card_kingdom_foil": {
+          "name": "card_saved_price_card_kingdom_foil",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "CASE WHEN jsonb_typeof(\"collection_cards\".\"card\" -> 'priceCardKingdomFoil') = 'number' THEN (\"collection_cards\".\"card\" ->> 'priceCardKingdomFoil')::float8 END",
+            "type": "stored"
+          }
+        },
         "scanned_at": {
           "name": "scanned_at",
           "type": "timestamp",
@@ -2604,6 +2694,90 @@
               "expression": "card_id",
               "isExpression": false,
               "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "collection_cards_org_created_idx": {
+          "name": "collection_cards_org_created_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "collection_cards_collection_card_idx": {
+          "name": "collection_cards_collection_card_idx",
+          "columns": [
+            {
+              "expression": "collection_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "card_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "collection_cards_org_card_name_idx": {
+          "name": "collection_cards_org_card_name_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"card_name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "collection_cards_org_card_front_name_idx": {
+          "name": "collection_cards_org_card_front_name_idx",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(split_part(\"card_name\", ' // ', 1))",
+              "asc": true,
+              "isExpression": true,
               "nulls": "last"
             }
           ],
@@ -6174,11 +6348,32 @@
         }
       },
       "indexes": {
-        "scan_stats_org_idx": {
-          "name": "scan_stats_org_idx",
+        "scan_stats_org_scanned_idx": {
+          "name": "scan_stats_org_scanned_idx",
           "columns": [
             {
               "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "scanned_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scan_stats_created_idx": {
+          "name": "scan_stats_created_idx",
+          "columns": [
+            {
+              "expression": "created_at",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

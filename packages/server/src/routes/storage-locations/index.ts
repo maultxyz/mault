@@ -119,11 +119,11 @@ const router = new Hono<AppEnv>()
             eq(storageLocations.orgId, orgId),
             eq(storageLocations.isDeleted, false),
             eq(collections.isDeleted, false),
-            sql`strpos(lower(${collectionCards.card} ->> 'name'), ${query}) > 0`,
+            sql`strpos(lower(${collectionCards.cardName}), ${query}) > 0`,
           ),
         )
         .orderBy(
-          sql`${collectionCards.card} ->> 'name'`,
+          asc(collectionCards.cardName),
           asc(storageLocations.name),
           asc(collectionCards.locationPosition),
         )
@@ -186,10 +186,7 @@ const router = new Hono<AppEnv>()
         .returning({ guid: storageLocations.guid });
       return {
         success: true,
-        data: {
-          guid: created.guid!,
-          locations: await loadLocations(tx, orgId),
-        },
+        data: { guid: created.guid! },
       };
     });
     return c.json(result);
@@ -220,7 +217,7 @@ const router = new Hono<AppEnv>()
       if (updated.length === 0) {
         return { success: false, message: "Storage location not found." };
       }
-      return { success: true, data: await loadLocations(tx, orgId) };
+      return { success: true, data: null };
     });
     return c.json(result);
   })
@@ -240,7 +237,7 @@ const router = new Hono<AppEnv>()
         .update(storageLocations)
         .set({ isDeleted: true })
         .where(eq(storageLocations.id, location.id));
-      return { success: true, data: await loadLocations(tx, orgId) };
+      return { success: true, data: null };
     });
     return c.json(result);
   })
@@ -477,10 +474,7 @@ const router = new Hono<AppEnv>()
       return {
         success: true,
         movedScanIds,
-        data: {
-          moved: movedScanIds.length,
-          locations: await loadLocations(tx, orgId),
-        },
+        data: { moved: movedScanIds.length },
       };
     });
     if (result.success && "movedScanIds" in result && result.movedScanIds) {
@@ -536,10 +530,7 @@ const router = new Hono<AppEnv>()
       return {
         success: true,
         movedScanIds,
-        data: {
-          moved: movedScanIds.length,
-          locations: await loadLocations(tx, orgId),
-        },
+        data: { moved: movedScanIds.length },
       };
     });
     if (result.success && "movedScanIds" in result && result.movedScanIds) {
@@ -579,7 +570,7 @@ const router = new Hono<AppEnv>()
           message: "Card not found in this location.",
         };
       }
-      return { success: true, data: await loadLocations(tx, orgId) };
+      return { success: true, data: null };
     });
     return c.json(result);
   });

@@ -1,4 +1,3 @@
-import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
 import { ESP32_FIRMWARE_URL } from "@/lib/constants/links";
 import type { FlashEsp32Result } from "@/lib/interfaces/scanner";
 import { useCallback, useState } from "react";
@@ -22,6 +21,9 @@ export function useNewBoardFlash() {
     setFlashProgress(0);
     setFlashLog([]);
     try {
+      const { flashEsp32Port } = await import(
+        "@/features/scanner/lib/esp32-flasher"
+      );
       return await flashEsp32Port(port, ESP32_FIRMWARE_URL, {
         onLog: (line) => setFlashLog((prev) => [...prev, line]),
         onClearLog: () => setFlashLog([]),

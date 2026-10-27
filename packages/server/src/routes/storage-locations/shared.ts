@@ -7,6 +7,7 @@ import {
   type StorageLocationCardNeighbor,
 } from "@magic-vault/shared";
 import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
+import { uuidArraySql } from "../../lib/sql-arrays";
 import type { Transaction } from "../../db";
 import {
   collectionCards,
@@ -197,7 +198,7 @@ export async function loadLocations(
     ) ON cc.location_id = sl.id
     WHERE sl.org_id = ${orgId}
       AND sl.is_deleted = false
-      ${guids ? sql`AND sl.guid::text = ANY(string_to_array(${guids.join(",")}, ','))` : sql``}
+      ${guids ? sql`AND sl.guid = ANY(${uuidArraySql(guids)})` : sql``}
     GROUP BY sl.id
     ORDER BY sl.name, sl.id
   `);

@@ -22,12 +22,12 @@ import {
   Transport as EspLoaderTransport,
 } from "esptool-js";
 import { md5 } from "js-md5";
+import { trackFlash } from "./esp32-flash-state";
 
 function hardReset(transport: EspLoaderTransport) {
   return new CustomReset(transport, ESP32_HARD_RESET_SEQUENCE).reset();
 }
 
-let activeFlashes = 0;
 
 function trimErasedTail(data: Uint8Array): Uint8Array {
   let end = data.length;
@@ -82,21 +82,12 @@ async function disconnectWithTimeout(transport: EspLoaderTransport) {
   ]);
 }
 
-export function isFlashInProgress(): boolean {
-  return activeFlashes > 0;
-}
-
 export async function flashEsp32Port(
   port: SerialPort,
   firmwareUrl: string,
   callbacks: FlashProgressCallbacks,
 ): Promise<FlashEsp32Result> {
-  activeFlashes++;
-  try {
-    return await flashPort(port, firmwareUrl, callbacks);
-  } finally {
-    activeFlashes--;
-  }
+  return trackFlash(() => flashPort(port, firmwareUrl, callbacks));
 }
 
 async function flashPort(
