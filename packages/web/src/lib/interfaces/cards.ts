@@ -49,6 +49,10 @@ export interface DetailSectionProps {
   className?: string;
 }
 
+export interface CardPurchaseLinksProps {
+  card: PlayingCard;
+}
+
 export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil?: boolean;

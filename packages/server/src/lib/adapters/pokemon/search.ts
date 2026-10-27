@@ -192,6 +192,7 @@ export const pokemonAdapter: CardSearchAdapter = {
   },
   cardmarket: {
     gameId: 6,
+    siteGamePath: "Pokemon",
     productIdFromRaw: (card) =>
       (card.raw as PokemonCardDetail).pricing?.cardmarket?.idProduct,
   },
