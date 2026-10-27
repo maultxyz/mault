@@ -4,6 +4,7 @@ import { cardImageVectors } from "../../db/schema";
 import { ADAPTERS_BY_GAME_KEY } from "../card-search/resolve";
 import {
   TCGTRACKING_FALLBACK_ID_PREFIX,
+  TCGTRACKING_NEW_SET_WINDOW_MS,
   TCGTRACKING_SET_ALIGNMENT_MIN_FRACTION,
   TCGTRACKING_SET_ALIGNMENT_MIN_SHARED,
 } from "../constants/tcgtracking";
@@ -63,6 +64,14 @@ function toPrimaryCard(
     nameKey: cardNameKey(card.name),
     baseNameKey: baseCardNameKey(card.name),
   };
+}
+
+function isRecentSet(entry: TcgtrackingCatalogEntry): boolean {
+  const publishedAt = Date.parse(entry.set.published_on ?? "");
+  return (
+    Number.isFinite(publishedAt) &&
+    Date.now() - publishedAt <= TCGTRACKING_NEW_SET_WINDOW_MS
+  );
 }
 
 function productNumberKey(product: TcgtrackingProduct): string | null {
@@ -321,17 +330,25 @@ export async function mergeTcgtrackingCatalog(
   });
 
   const isMissingFromPrimary = (entry: TcgtrackingCatalogEntry): boolean => {
-    if (cardIdByProductId.has(entry.product.id) || !entry.product.number) {
+    if (
+      config.fallbacks === false ||
+      cardIdByProductId.has(entry.product.id) ||
+      !entry.product.number
+    ) {
       return false;
     }
     const baseName = baseCardNameKey(entry.product.name);
-    if (config.numbering === "name-only") return !primaryBaseNames.has(baseName);
+    if (config.numbering === "name-only") {
+      return isRecentSet(entry) && !primaryBaseNames.has(baseName);
+    }
     const key = productKey(config, entry, alignedSets);
     if (config.numbering === "global") {
       return !!key && !primaryCountByKey.has(key);
     }
     const alignedSet = alignedSets.get(entry.set.id);
-    if (!alignedSet) return !primaryBaseNames.has(baseName);
+    if (!alignedSet) {
+      return isRecentSet(entry) && !primaryBaseNames.has(baseName);
+    }
     return (
       !!key &&
       !primaryCountByKey.has(key) &&

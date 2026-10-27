@@ -6,14 +6,18 @@ export function collectorNumberKey(number: string): string {
 export function cardNameKey(name: string): string {
   return name
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 }
 
 export function baseCardNameKey(name: string): string {
-  return cardNameKey(name.replace(/\([^)]*\)/g, " "));
+  return cardNameKey(
+    name
+      .replace(/\([^)]*\)/g, " ")
+      .replace(/\s+-\s+[A-Za-z]*\d+[A-Za-z]?\/\d+.*$/, ""),
+  );
 }
 
 export function setCodeKey(setCode: string): string {

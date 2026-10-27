@@ -51,7 +51,7 @@ test("fallback cards read the older capitalized ext_data shape", () => {
     "tcgp-712889",
     TCGTRACKING_GAMES.onepiece,
   );
-  assert.equal(card.typeLine, "Character — FILM");
+  assert.equal(card.typeLine, "Character \u2014 FILM");
   assert.deepEqual(card.colorIdentity, ["Purple"]);
   assert.equal(card.cmc, 8);
   assert.equal(card.text, "[On Play] DON!! -2");
@@ -71,7 +71,7 @@ test("fallback cards read the newer array ext_data shape", () => {
     "tcgp-712889",
     TCGTRACKING_GAMES.onepiece,
   );
-  assert.equal(card.typeLine, "Character — Giant Elbaph");
+  assert.equal(card.typeLine, "Character \u2014 Giant Elbaph");
   assert.deepEqual(card.colorIdentity, ["Black"]);
   assert.equal(card.cmc, 6);
 });
@@ -81,7 +81,7 @@ test("mtg fallback colors become color letters and keep the full type", () => {
     {
       ...fallback({
         color: ["White", "Blue"],
-        fullType: "Artifact Creature — Borg",
+        fullType: "Artifact Creature \u2014 Borg",
       }),
       primarySetCode: "trk",
     },
@@ -89,6 +89,6 @@ test("mtg fallback colors become color letters and keep the full type", () => {
     TCGTRACKING_GAMES.mtg,
   );
   assert.deepEqual(card.colorIdentity, ["W", "U"]);
-  assert.equal(card.typeLine, "Artifact Creature — Borg");
+  assert.equal(card.typeLine, "Artifact Creature \u2014 Borg");
   assert.equal(card.set, "trk");
 });

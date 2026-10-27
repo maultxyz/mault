@@ -5,6 +5,7 @@ export interface TcgtrackingSet {
   name: string;
   abbreviation: string | null;
   product_count: number;
+  published_on: string | null;
 }
 
 export interface TcgtrackingProduct {
@@ -21,6 +22,7 @@ export interface TcgtrackingCatalogSet {
   id: number;
   name: string;
   abbreviation: string | null;
+  published_on?: string | null;
 }
 
 export interface TcgtrackingCatalogEntry {
@@ -40,6 +42,7 @@ export type TcgtrackingNumbering = "global" | "per-set" | "name-only";
 
 export interface TcgtrackingGameConfig {
   numbering: TcgtrackingNumbering;
+  fallbacks?: boolean;
   numberKeyOf?(card: PlayingCard): string | null;
   isBasePrinting?(card: PlayingCard): boolean;
   primaryCardIdOf?(product: TcgtrackingProduct): string | null;
