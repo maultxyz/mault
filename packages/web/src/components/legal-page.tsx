@@ -24,6 +24,7 @@ export function LegalPage({ page }: { page: "privacy" | "terms" }) {
   }) as LegalSection[];
   const updatedDate = new Intl.DateTimeFormat(i18n.language, {
     dateStyle: "long",
+    timeZone: "UTC",
   }).format(new Date(EFFECTIVE_DATE));
 
   return (

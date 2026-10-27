@@ -6,6 +6,8 @@ import {
 } from "@/lib/constants/nav";
 import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
+import { MarketingRoute } from "@/app/marketing-route";
+import { MARKETING_PAGE_PATHS } from "@/lib/constants/marketing-pages";
 import NotFoundPage from "@/app/routes/not-found";
 import { RequireCollectionDialog } from "@/components/require-collection-dialog";
 import { RouteLoadingFallback } from "@/components/route-loading-fallback";
@@ -24,7 +26,7 @@ import { STATS_PATH } from "@/lib/constants/stats";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { lazy, Suspense, useEffect } from "react";
 import {
-  createBrowserRouter,
+  type RouteObject,
   Navigate,
   Outlet,
   useLocation,
@@ -32,52 +34,17 @@ import {
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
-import { DOWNLOAD_PATH } from "@/lib/constants/download";
-import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 import {
   INTAKE_PATH,
   LEGACY_REPORTS_PATH,
   LEGACY_ORDERS_PATH,
 } from "@/lib/constants/business";
 
-const LandingPage = lazy(
-  withNamespaces(
-    () => import("@/app/routes/index"),
-    ["common", "landing", "scanner", "cards", "bins", "collections", "storage"],
-  ),
-);
-const BuildGuidePage = lazy(
-  withNamespaces(() => import("@/app/routes/build"), ["common", "build"]),
-);
-const SelfHostPage = lazy(
-  withNamespaces(
-    () => import("@/app/routes/self-host"),
-    ["common", "selfhost"],
-  ),
-);
-const DiscordBotPage = lazy(
-  withNamespaces(
-    () => import("@/app/routes/discord-bot"),
-    ["common", "discordBot"],
-  ),
-);
-const DownloadPage = lazy(
-  withNamespaces(
-    () => import("@/app/routes/download"),
-    ["common", "download"],
-  ),
-);
 const WatchPage = lazy(
   withNamespaces(
     () => import("@/app/routes/watch"),
     ["common", "scanner", "cards", "collections"],
   ),
-);
-const PrivacyPolicyPage = lazy(
-  withNamespaces(() => import("@/app/routes/privacy"), ["common", "legal"]),
-);
-const TermsOfServicePage = lazy(
-  withNamespaces(() => import("@/app/routes/terms"), ["common", "legal"]),
 );
 const AuthPage = lazy(
   withNamespaces(() => import("@/app/routes/neon/auth"), ["common", "auth"]),
@@ -254,42 +221,42 @@ function RequireCollectionGuard() {
   );
 }
 
-export const router = createBrowserRouter([
+export const routes: RouteObject[] = [
   {
     element: <Outlet />,
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/",
-        element: <LandingPage />,
+        path: MARKETING_PAGE_PATHS.home,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.home} />,
       },
       {
-        path: "/build",
-        element: <BuildGuidePage />,
+        path: MARKETING_PAGE_PATHS.build,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.build} />,
       },
       {
-        path: SELF_HOST_PATH,
-        element: <SelfHostPage />,
+        path: MARKETING_PAGE_PATHS.selfHost,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.selfHost} />,
       },
       {
-        path: "/discord-bot",
-        element: <DiscordBotPage />,
+        path: MARKETING_PAGE_PATHS.discordBot,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.discordBot} />,
       },
       {
-        path: DOWNLOAD_PATH,
-        element: <DownloadPage />,
+        path: MARKETING_PAGE_PATHS.download,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.download} />,
       },
       {
         path: "/watch/:collectionGuid",
         element: <WatchPage />,
       },
       {
-        path: "/privacy",
-        element: <PrivacyPolicyPage />,
+        path: MARKETING_PAGE_PATHS.privacy,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.privacy} />,
       },
       {
-        path: "/terms",
-        element: <TermsOfServicePage />,
+        path: MARKETING_PAGE_PATHS.terms,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.terms} />,
       },
       {
         path: "/auth/:path",
@@ -611,4 +578,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+];

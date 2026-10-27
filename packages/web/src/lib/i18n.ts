@@ -38,7 +38,10 @@ const lazyJsonBackend: BackendModule = {
   },
 };
 
+const isBrowser = typeof window !== "undefined";
+
 function getInitialLanguage(): SupportedLanguage {
+  if (!isBrowser) return "en";
   try {
     const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
     if ((SUPPORTED_LANGUAGES as readonly string[]).includes(stored ?? "")) {
@@ -51,10 +54,10 @@ function getInitialLanguage(): SupportedLanguage {
   return "en";
 }
 
-const initialLanguage = getInitialLanguage();
-document.documentElement.lang = initialLanguage;
+export const initialLanguage = getInitialLanguage();
+if (isBrowser) document.documentElement.lang = initialLanguage;
 
-void i18n
+export const i18nReady = i18n
   .use(lazyJsonBackend)
   .use(initReactI18next)
   .init({
@@ -67,6 +70,7 @@ void i18n
   });
 
 i18n.on("languageChanged", (lng) => {
+  if (!isBrowser) return;
   document.documentElement.lang = lng;
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
