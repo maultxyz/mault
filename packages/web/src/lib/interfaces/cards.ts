@@ -143,6 +143,7 @@ export interface AddManualCardInput {
 export interface CardToolbarProps {
   leading?: ReactNode;
   onAddCard?: () => void;
+  onImportScans?: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   sortKey: string | null;

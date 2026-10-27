@@ -17,6 +17,7 @@ import {
   IconDots,
   IconDownload,
   IconListCheck,
+  IconPhotoUp,
   IconPlus,
   IconSearch,
   IconTrash,
@@ -55,10 +56,12 @@ export function CardToolbar({
   onGroupDuplicatesChange,
   leading,
   onAddCard,
+  onImportScans,
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
-  const hasMoreActions = !!onToggleSelectAll || !!onExport || !!onClearAll;
+  const hasMoreActions =
+    !!onToggleSelectAll || !!onExport || !!onImportScans || !!onClearAll;
   const showReview = !!onStartReview && (needsReviewCount ?? 0) > 0;
 
   return (
@@ -137,6 +140,12 @@ export function CardToolbar({
                 <DropdownMenuItem disabled={!hasCards} onClick={onExport}>
                   <IconDownload />
                   {t("cardToolbar.export")}
+                </DropdownMenuItem>
+              )}
+              {onImportScans && (
+                <DropdownMenuItem onClick={onImportScans}>
+                  <IconPhotoUp />
+                  {t("importScans.button")}
                 </DropdownMenuItem>
               )}
               {onClearAll && (

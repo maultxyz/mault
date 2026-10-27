@@ -398,5 +398,28 @@
     "collection": "Collection",
     "added": "Added {{name}}",
     "failed": "Couldn't add the card."
+  },
+  "importScans": {
+    "button": "Import scans",
+    "title": "Import scanned images",
+    "description": "Add cards from a document scanner or saved photos. Each image is identified and added to this collection.",
+    "tip": "Scan only the front of each card and save the images as JPEG or PNG. Files are imported in name order, so the collection keeps the order of your stack. Images that don't match go to unmatched scans for review.",
+    "dropZone": "Drop images here or choose files",
+    "dropZoneHint": "JPEG, PNG or WebP",
+    "progress": "{{done}} of {{total}} images processed",
+    "matchedCount": "{{count}} matched",
+    "unmatchedCount": "{{count}} need review",
+    "failedCount": "{{count}} failed",
+    "status": {
+      "queued": "Waiting",
+      "identifying": "Identifying",
+      "unmatched": "No match, saved for review",
+      "skipped": "Not imported"
+    },
+    "stop": "Stop",
+    "close": "Close",
+    "importMore": "Import more",
+    "unreadable": "Couldn't read this image.",
+    "identifyFailed": "Couldn't identify this image."
   }
 }
