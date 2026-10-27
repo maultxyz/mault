@@ -31,7 +31,7 @@ export function FeatureSpotlightRow({
     <article
       ref={rowRef}
       className={cn(
-        "grid items-center gap-8 py-14 md:py-20",
+        "grid grid-cols-1 items-center gap-8 py-14 md:py-20",
         !isFullWidth && "lg:gap-12",
         !isFullWidth &&
           (isMirrored
