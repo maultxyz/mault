@@ -23,6 +23,8 @@ import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { useScanImageImport } from "@/features/scanner/api/use-scan-image-import";
+import { ScanImageImportDialog } from "@/features/scanner/components/scan-image-import-dialog";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ExportedCardsDialog } from "@/features/cards/components/exported-cards-dialog";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
@@ -71,6 +73,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconDownload,
+  IconPhotoUp,
   IconPlus,
   IconRosette,
   IconSparkles,
@@ -119,6 +122,8 @@ export function CardGrid() {
   const collectionGuid = viewedCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [addCardOpen, setAddCardOpen] = useState(false);
+  const [importScansOpen, setImportScansOpen] = useState(false);
+  const scanImageImport = useScanImageImport(collectionGuid);
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
     viewedCollection && locks[viewedCollection.guid]?.userId === currentUserId
@@ -574,11 +579,18 @@ export function CardGrid() {
   }
 
   const addCardDialog = viewedCollection && (
-    <AddCardDialog
-      open={addCardOpen}
-      onOpenChange={setAddCardOpen}
-      collectionGuid={viewedCollection.guid}
-    />
+    <>
+      <AddCardDialog
+        open={addCardOpen}
+        onOpenChange={setAddCardOpen}
+        collectionGuid={viewedCollection.guid}
+      />
+      <ScanImageImportDialog
+        open={importScansOpen}
+        onOpenChange={setImportScansOpen}
+        scanImageImport={scanImageImport}
+      />
+    </>
   );
 
   if (totalCount === 0) {
@@ -590,14 +602,24 @@ export function CardGrid() {
           title={t("cardGrid.noCardsScanned")}
           description={t("cardGrid.scanToGetStarted")}
           action={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAddCardOpen(true)}
-            >
-              <IconPlus />
-              {t("addCard.button")}
-            </Button>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddCardOpen(true)}
+              >
+                <IconPlus />
+                {t("addCard.button")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setImportScansOpen(true)}
+              >
+                <IconPhotoUp />
+                {t("importScans.button")}
+              </Button>
+            </div>
           }
         />
         {addCardDialog}
@@ -712,6 +734,7 @@ export function CardGrid() {
           onStartReview={readOnly ? undefined : startReview}
           needsReviewCount={reviewSummary?.filtered.totalCount ?? 0}
           onAddCard={() => setAddCardOpen(true)}
+          onImportScans={() => setImportScansOpen(true)}
           collectionName={viewedCollection?.name}
           onClearAll={readOnly ? undefined : handleClearSession}
           hasCards={totalCards > 0}

@@ -398,5 +398,28 @@
     "collection": "Sammlung",
     "added": "{{name}} hinzugefügt",
     "failed": "Die Karte konnte nicht hinzugefügt werden."
+  },
+  "importScans": {
+    "button": "Scans importieren",
+    "title": "Gescannte Bilder importieren",
+    "description": "Füge Karten von einem Dokumentenscanner oder aus gespeicherten Fotos hinzu. Jedes Bild wird erkannt und dieser Sammlung hinzugefügt.",
+    "tip": "Scanne nur die Vorderseite jeder Karte und speichere die Bilder als JPEG oder PNG. Die Dateien werden nach Namen sortiert importiert, damit die Sammlung die Reihenfolge deines Stapels behält. Bilder ohne Treffer landen zur Prüfung bei den nicht erkannten Scans.",
+    "dropZone": "Bilder hier ablegen oder Dateien auswählen",
+    "dropZoneHint": "JPEG, PNG oder WebP",
+    "progress": "{{done}} von {{total}} Bildern verarbeitet",
+    "matchedCount": "{{count}} erkannt",
+    "unmatchedCount": "{{count}} zu prüfen",
+    "failedCount": "{{count}} fehlgeschlagen",
+    "status": {
+      "queued": "Wartet",
+      "identifying": "Wird erkannt",
+      "unmatched": "Kein Treffer, zur Prüfung gespeichert",
+      "skipped": "Nicht importiert"
+    },
+    "stop": "Stoppen",
+    "close": "Schließen",
+    "importMore": "Weitere importieren",
+    "unreadable": "Dieses Bild konnte nicht gelesen werden.",
+    "identifyFailed": "Dieses Bild konnte nicht erkannt werden."
   }
 }
