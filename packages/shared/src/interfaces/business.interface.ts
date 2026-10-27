@@ -297,6 +297,15 @@ export interface CollectionCostResult {
   skipped: number;
 }
 
+export interface CardAcquisitionCost {
+  cost: number | null;
+  currency: string;
+}
+
+export interface CardAcquisitionCostInput {
+  cost: number | null;
+}
+
 export type DeviceAlertType = (typeof DEVICE_ALERT_TYPES)[number];
 
 export interface DeviceAlert {

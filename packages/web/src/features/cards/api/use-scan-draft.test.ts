@@ -18,9 +18,11 @@ describe("useScanDraft", () => {
       savedFoilType: null,
       savedCondition: "NM",
       savedLanguage: "en",
+      savedAcquisitionCost: null,
       setCardFoilType,
       setCardCondition,
       setCardLanguage: vi.fn(),
+      setCardAcquisitionCost: vi.fn(),
     };
     const { result, rerender } = renderScanDraft(firstCard);
 
@@ -42,9 +44,11 @@ describe("useScanDraft", () => {
       savedFoilType: null,
       savedCondition: "NM",
       savedLanguage: "en",
+      savedAcquisitionCost: null,
       setCardFoilType: vi.fn(),
       setCardCondition: vi.fn(),
       setCardLanguage: vi.fn(),
+      setCardAcquisitionCost: vi.fn(),
     };
     const { result, rerender } = renderScanDraft(options);
 
@@ -62,9 +66,11 @@ describe("useScanDraft", () => {
       savedFoilType: null,
       savedCondition: "NM",
       savedLanguage: "en",
+      savedAcquisitionCost: null,
       setCardFoilType,
       setCardCondition: vi.fn(),
       setCardLanguage: vi.fn(),
+      setCardAcquisitionCost: vi.fn(),
     });
 
     act(() => result.current.setFoilType("Foil"));
@@ -84,9 +90,11 @@ describe("useScanDraft", () => {
       savedFoilType: null,
       savedCondition: "NM",
       savedLanguage: "en",
+      savedAcquisitionCost: null,
       setCardFoilType,
       setCardCondition,
       setCardLanguage,
+      setCardAcquisitionCost: vi.fn(),
     });
 
     act(() => result.current.setLanguage("ja"));
@@ -95,5 +103,30 @@ describe("useScanDraft", () => {
     expect(setCardLanguage).toHaveBeenCalledWith("scan-a", "ja");
     expect(setCardFoilType).not.toHaveBeenCalled();
     expect(setCardCondition).not.toHaveBeenCalled();
+  });
+
+  it("saves a new price paid and clears it when the field is emptied", async () => {
+    const setCardAcquisitionCost = vi.fn();
+    const setCardLanguage = vi.fn();
+    const { result } = renderScanDraft({
+      scanId: "scan-a",
+      savedFoilType: null,
+      savedCondition: "NM",
+      savedLanguage: "en",
+      savedAcquisitionCost: 2.5,
+      setCardFoilType: vi.fn(),
+      setCardCondition: vi.fn(),
+      setCardLanguage,
+      setCardAcquisitionCost,
+    });
+
+    act(() => result.current.setAcquisitionCost(4));
+    await act(async () => result.current.save());
+    expect(setCardAcquisitionCost).toHaveBeenCalledWith("scan-a", 4);
+    expect(setCardLanguage).not.toHaveBeenCalled();
+
+    act(() => result.current.setAcquisitionCost(Number.NaN));
+    await act(async () => result.current.save());
+    expect(setCardAcquisitionCost).toHaveBeenLastCalledWith("scan-a", null);
   });
 });

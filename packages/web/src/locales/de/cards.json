@@ -45,6 +45,9 @@
     "acrossPrintings": "Spanne über {{count}} Drucke"
   },
   "cardDetailPanel": {
+    "pricePaid": "Kaufpreis ({{currency}})",
+    "pricePaidEmpty": "Nicht festgelegt",
+    "pricePaidSaveFailed": "Der Kaufpreis konnte nicht gespeichert werden.",
     "markCorrect": "Als korrekt markieren",
     "markCorrectTitle": "Bestätige, dass dieser Treffer stimmt. Die Karte bleibt gleich und ist nicht mehr zur Prüfung markiert.",
     "backToList": "Zurück zur Kartenliste",

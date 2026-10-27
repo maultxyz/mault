@@ -13,17 +13,20 @@ export function useScanDraft({
   savedFoilType,
   savedCondition,
   savedLanguage,
+  savedAcquisitionCost,
   setCardFoilType,
   setCardCondition,
   setCardLanguage,
+  setCardAcquisitionCost,
 }: ScanDraftOptions) {
   const values = useMemo<ScanDraftFormValues>(
     () => ({
       foilType: savedFoilType,
       condition: savedCondition,
       language: savedLanguage,
+      acquisitionCost: savedAcquisitionCost,
     }),
-    [savedFoilType, savedCondition, savedLanguage],
+    [savedFoilType, savedCondition, savedLanguage, savedAcquisitionCost],
   );
   const form = useForm<ScanDraftFormValues>({
     resolver: zodResolver(scanDraftFormSchema),
@@ -53,6 +56,9 @@ export function useScanDraft({
         if (dirtyFields.language) {
           setCardLanguage(scanId, draft.language);
         }
+        if (dirtyFields.acquisitionCost) {
+          setCardAcquisitionCost(scanId, draft.acquisitionCost);
+        }
         form.reset(draft);
       })(),
     [
@@ -62,6 +68,7 @@ export function useScanDraft({
       setCardFoilType,
       setCardCondition,
       setCardLanguage,
+      setCardAcquisitionCost,
     ],
   );
 
@@ -86,6 +93,8 @@ export function useScanDraft({
     foilType: form.watch("foilType"),
     condition: form.watch("condition"),
     language: form.watch("language"),
+    acquisitionCost: form.watch("acquisitionCost"),
+    acquisitionCostError: form.formState.errors.acquisitionCost?.message,
     isDirty,
     isSaving: form.formState.isSubmitting,
     setFoilType: (foilType: string | null) =>
@@ -94,6 +103,10 @@ export function useScanDraft({
       form.setValue("condition", condition, { shouldDirty: true }),
     setLanguage: (language: string) =>
       form.setValue("language", language, { shouldDirty: true }),
+    setAcquisitionCost: (cost: number) =>
+      form.setValue("acquisitionCost", Number.isNaN(cost) ? null : cost, {
+        shouldDirty: true,
+      }),
     save: () => void commit(),
     discard: () => form.reset(values, DISCARD_RESET_OPTIONS),
     runAfterCommit,

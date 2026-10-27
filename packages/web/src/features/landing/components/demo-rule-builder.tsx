@@ -35,7 +35,7 @@ function DemoConditionRow({
   onRemove,
 }: DemoRuleConditionRowProps) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex items-center gap-1.5 sm:flex-wrap">
       <Select
         value={condition.field}
         onValueChange={(field) =>
@@ -47,7 +47,7 @@ function DemoConditionRow({
           })
         }
       >
-        <SelectTrigger className="min-w-24">
+        <SelectTrigger className="min-w-0 flex-1 max-sm:px-3 sm:min-w-24 sm:flex-none">
           <SelectValue>{condition.field}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -65,7 +65,7 @@ function DemoConditionRow({
           onChange({ ...condition, operator: operator as DemoRuleOperator })
         }
       >
-        <SelectTrigger className="min-w-20">
+        <SelectTrigger className="shrink-0 max-sm:px-3 sm:min-w-20">
           <SelectValue>{condition.operator}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -80,7 +80,7 @@ function DemoConditionRow({
         value={condition.value}
         onValueChange={(value) => value && onChange({ ...condition, value })}
       >
-        <SelectTrigger className="min-w-24 flex-1">
+        <SelectTrigger className="min-w-0 flex-1 max-sm:px-3 sm:min-w-24">
           <SelectValue>{condition.value}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -95,7 +95,7 @@ function DemoConditionRow({
         type="button"
         variant="ghost"
         size="icon"
-        className="shrink-0"
+        className="shrink-0 max-sm:size-8"
         disabled={!canRemove}
         onClick={onRemove}
       >

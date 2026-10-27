@@ -750,6 +750,8 @@
     "display": "Display"
   },
   "cardDetail": {
+    "pricePaid": "Price paid ({{currency}})",
+    "pricePaidEmpty": "Not set",
     "fallbackTitle": "Card details",
     "capturedScan": "Captured scan",
     "matchedCard": "Matched card",

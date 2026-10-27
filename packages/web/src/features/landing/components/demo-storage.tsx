@@ -71,7 +71,7 @@ function DemoStorageTable({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="max-w-40"
+                      className="max-w-28 sm:max-w-40"
                       title={t("search.openLocation")}
                       onClick={() => onOpenLocation(entry.locationGuid)}
                     >
@@ -99,7 +99,7 @@ function DemoStorageTable({
                     {entry.isFoil && <FoilOverlay />}
                   </div>
                 </TableCell>
-                <TableCell className="max-w-40 truncate font-medium">
+                <TableCell className="w-full max-w-0 truncate font-medium">
                   {entry.card.name}
                 </TableCell>
                 <TableCell className="text-right text-xs tabular-nums">
@@ -169,7 +169,7 @@ export function DemoStorage({ isRevealed }: FeatureSpotlightDemoProps) {
                   ? "secondary"
                   : "ghost"
               }
-              className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start"
+              className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start max-md:h-auto max-md:px-2"
               onClick={() => openLocation(location.guid)}
             >
               <p className="w-full truncate font-heading text-sm font-medium">

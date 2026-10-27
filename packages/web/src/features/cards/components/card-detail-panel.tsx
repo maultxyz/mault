@@ -15,6 +15,9 @@ import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Label } from "@/components/ui/label";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { useCardAcquisitionCost } from "@/features/business/api/use-business";
+import { NumberInput } from "@/features/business/components/number-input";
 import {
   Select,
   SelectContent,
@@ -141,14 +144,18 @@ export function CardDetailPanel({
   });
   const hasScanOrigin =
     !!scanId && !!scanOrigin && (!!scanOrigin.scannedBy || !!scanOrigin.device);
+  const { acquisitionCost, saveCardAcquisitionCost } =
+    useCardAcquisitionCost(scanId);
   const scanDraft = useScanDraft({
     scanId,
     savedFoilType: foilType ?? (isFoil ? t("foil") : null),
     savedCondition: toCardCondition(condition),
     savedLanguage: scanLanguage({ language, card: currentCard ?? {} }),
+    savedAcquisitionCost: acquisitionCost?.cost ?? null,
     setCardFoilType,
     setCardCondition,
     setCardLanguage,
+    setCardAcquisitionCost: saveCardAcquisitionCost,
   });
   const currentFoilType = scanDraft.foilType;
   const currentCondition = scanDraft.condition;
@@ -547,10 +554,42 @@ export function CardDetailPanel({
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
                     <DetailSection title={t("cardDetailPanel.prices")}>
-                      <CardPriceDetails
-                        card={selectedCard}
-                        isFoil={draftIsFoil}
-                      />
+                      <div className="flex flex-col gap-4">
+                        <CardPriceDetails
+                          card={selectedCard}
+                          isFoil={draftIsFoil}
+                        />
+                        {scanId && acquisitionCost && (
+                          <Field
+                            className="w-40"
+                            data-invalid={
+                              !!scanDraft.acquisitionCostError || undefined
+                            }
+                          >
+                            <FieldLabel htmlFor="card-price-paid">
+                              {t("cardDetailPanel.pricePaid", {
+                                currency: acquisitionCost.currency,
+                              })}
+                            </FieldLabel>
+                            <NumberInput
+                              id="card-price-paid"
+                              min={0}
+                              step={0.01}
+                              placeholder={t("cardDetailPanel.pricePaidEmpty")}
+                              value={scanDraft.acquisitionCost}
+                              onChange={scanDraft.setAcquisitionCost}
+                              aria-invalid={!!scanDraft.acquisitionCostError}
+                            />
+                            {scanDraft.acquisitionCostError && (
+                              <FieldError
+                                errors={[
+                                  { message: scanDraft.acquisitionCostError },
+                                ]}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      </div>
                     </DetailSection>
 
                     <DetailSection title={t("cardDetailPanel.details")}>
