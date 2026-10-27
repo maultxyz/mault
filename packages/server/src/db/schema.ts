@@ -540,6 +540,22 @@ export const collectionCards = pgTable(
     cardLang: text("card_lang").generatedAlwaysAs(
       (): SQL => sql`${collectionCards.card} ->> 'lang'`,
     ),
+    cardName: text("card_name").generatedAlwaysAs(
+      (): SQL => sql`${collectionCards.card} ->> 'name'`,
+    ),
+    cardSet: text("card_set").generatedAlwaysAs(
+      (): SQL => sql`${collectionCards.card} ->> 'set'`,
+    ),
+    cardSetName: text("card_set_name").generatedAlwaysAs(
+      (): SQL => sql`${collectionCards.card} ->> 'setName'`,
+    ),
+    cardRarity: text("card_rarity").generatedAlwaysAs(
+      (): SQL => sql`${collectionCards.card} ->> 'rarity'`,
+    ),
+    cardColorIdentity: jsonb("card_color_identity").generatedAlwaysAs(
+      (): SQL =>
+        sql`CASE WHEN jsonb_typeof(${collectionCards.card} -> 'colorIdentity') = 'array' THEN ${collectionCards.card} -> 'colorIdentity' ELSE '[]'::jsonb END`,
+    ),
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
     capturedImageDataUrl: text("captured_image_data_url"),

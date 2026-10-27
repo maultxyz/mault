@@ -4,6 +4,7 @@ import type {
   BinContentCard,
   BinWindow,
   CollectionCardPosition,
+  CollectionCardsCount,
   CollectionCardsPage,
   CollectionCardsQuery,
   CollectionCardsSummary,
@@ -43,6 +44,8 @@ export const collectionCardsKeys = {
     [...collectionCardsKeys.all(guid), "page", query, page] as const,
   summary: (guid: string | undefined, query: CollectionCardsQuery) =>
     [...collectionCardsKeys.all(guid), "summary", query] as const,
+  count: (guid: string | undefined, query: CollectionCardsQuery) =>
+    [...collectionCardsKeys.all(guid), "count", query] as const,
   position: (
     guid: string | undefined,
     scanId: string | undefined,
@@ -133,6 +136,28 @@ export const collectionCardsSummaryQueryOptions = (
     enabled: !!guid,
     placeholderData: keepPreviousData,
   });
+
+export const collectionCardsCountQueryOptions = (
+  guid: string | undefined,
+  query: CollectionCardsQuery,
+) => {
+  const countQuery: CollectionCardsQuery = {
+    ...query,
+    sort: null,
+    grouped: false,
+  };
+  return queryOptions({
+    queryKey: collectionCardsKeys.count(guid, countQuery),
+    queryFn: () =>
+      unwrap(
+        apiGet<Result<CollectionCardsCount>>(
+          `/api/collections/${guid}/cards/count?${cardsQueryParams(countQuery)}`,
+        ),
+      ),
+    enabled: !!guid,
+    placeholderData: keepPreviousData,
+  });
+};
 
 export const collectionCardPositionQueryOptions = (
   guid: string | undefined,
