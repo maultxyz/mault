@@ -2,6 +2,8 @@ import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import { pageRequestParams } from "@/lib/api/page-request";
 import {
   FLEET_REFETCH_MS,
+  INTAKE_BANNER_REFETCH_MS,
+  INTAKE_LOT_CARDS_PAGE_SIZE,
   INTAKE_LIVE_REFETCH_MS,
 } from "@/lib/constants/business";
 import type { PageRequest } from "@/lib/interfaces/pagination";
@@ -27,7 +29,9 @@ import type {
   IntakeCancelInput,
   IntakeCardContext,
   IntakeLot,
+  IntakeLotCard,
   IntakeLotDetail,
+  IntakeLotReceipt,
   IntakeLotInput,
   IntakeReviewCardPage,
   IntakeTransferInput,
@@ -53,6 +57,10 @@ export const businessKeys = {
     [...businessKeys.intakeRoot(), "open", orgId] as const,
   intakeLot: (guid: string | undefined) =>
     [...businessKeys.intakeRoot(), "lot", guid] as const,
+  intakeLotCards: (guid: string | undefined, page: number) =>
+    [...businessKeys.intakeRoot(), "lot-cards", guid, page] as const,
+  intakeLotReceipt: (guid: string | undefined) =>
+    [...businessKeys.intakeRoot(), "receipt", guid] as const,
   intakeCard: (
     lotGuid: string | undefined,
     scanId: string | undefined,
@@ -141,6 +149,10 @@ export const openIntakeLotsQueryOptions = (orgId: string | undefined) =>
         (r) => r.data ?? [],
       ),
     enabled: !!orgId,
+    refetchInterval: (query) =>
+      query.state.data?.some((lot) => lot.status === "open")
+        ? INTAKE_BANNER_REFETCH_MS
+        : false,
   });
 
 export const intakeLotQueryOptions = (guid: string | undefined) =>
@@ -153,6 +165,35 @@ export const intakeLotQueryOptions = (guid: string | undefined) =>
     enabled: !!guid,
     refetchInterval: (query) =>
       query.state.data?.status === "open" ? INTAKE_LIVE_REFETCH_MS : false,
+  });
+
+export const intakeLotCardsQueryOptions = (
+  guid: string | undefined,
+  page: number,
+  isOpen: boolean,
+) =>
+  queryOptions({
+    queryKey: businessKeys.intakeLotCards(guid, page),
+    queryFn: () =>
+      apiGet<Result<PagedList<IntakeLotCard>>>(
+        `/api/business/intake/${guid}/cards?${new URLSearchParams({
+          page: String(page),
+          limit: String(INTAKE_LOT_CARDS_PAGE_SIZE),
+        })}`,
+      ).then(unwrap),
+    enabled: !!guid,
+    placeholderData: keepPreviousData,
+    refetchInterval: isOpen ? INTAKE_LIVE_REFETCH_MS : false,
+  });
+
+export const intakeLotReceiptQueryOptions = (guid: string | undefined) =>
+  queryOptions({
+    queryKey: businessKeys.intakeLotReceipt(guid),
+    queryFn: () =>
+      apiGet<Result<IntakeLotReceipt>>(
+        `/api/business/intake/${guid}/receipt`,
+      ).then(unwrap),
+    enabled: !!guid,
   });
 
 export const intakeCardContextQueryOptions = (

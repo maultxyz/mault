@@ -9,6 +9,7 @@ import {
   type OrderSource,
 } from "@magic-vault/shared";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { uuidArraySql } from "../../lib/sql-arrays";
 import { Hono } from "hono";
 import type { Transaction } from "../../db";
 import { cardSales, fulfilmentOrders } from "../../db/schema";
@@ -79,17 +80,16 @@ export const ordersRoute = new Hono<AppEnv>()
       rows.sort(
         (a, b) => window.guids.indexOf(a.guid!) - window.guids.indexOf(b.guid!),
       );
-      const items = [];
-      for (const row of rows) {
-        items.push(
+      const items = await Promise.all(
+        rows.map(async (row) =>
           summarizeOrder(
             row,
             toOrderLines(row.lines),
             await orderCreatorName(row.createdByUserId),
             access.canViewCosts,
           ),
-        );
-      }
+        ),
+      );
       const data: PagedList<FulfilmentOrder> = {
         items,
         total: window.total,
@@ -241,11 +241,11 @@ export const ordersRoute = new Hono<AppEnv>()
               USING collections col
               WHERE col.id = cc.collection_id
                 AND cc.org_id = ${orgId}
-                AND cc.guid::text = ANY(string_to_array(${ids.join(",")}, ','))
+                AND cc.guid = ANY(${uuidArraySql(ids)})
               RETURNING cc.guid::text AS scan_id, cc.card_id,
-                cc.card ->> 'name' AS name,
-                cc.card ->> 'set' AS set_code,
-                cc.card ->> 'collectorNumber' AS collector_number,
+                cc.card_name AS name,
+                cc.card_set AS set_code,
+                cc.card_collector_number AS collector_number,
                 cc.is_foil, cc.condition, cc.acquisition_cost,
                 cc.acquisition_currency, cc.captured_image_key AS image_key,
                 col.guid::text AS collection_guid, col.name AS collection_name

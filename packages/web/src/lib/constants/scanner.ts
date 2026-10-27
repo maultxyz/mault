@@ -202,3 +202,10 @@ export const DESKTOP_PIP_CONTROL_ICONS: Record<DesktopScannerIcon, Icon> = {
   "auto-feed-off": IconBolt,
   "clear-device": IconArrowBarToDown,
 };
+
+export const SCAN_IMAGE_IMPORT_ACCEPT = "image/jpeg,image/png,image/webp";
+export const SCAN_IMAGE_IMPORT_MAX_DIMENSION_PX = 1600;
+export const SCAN_IMAGE_IMPORT_PADDING_RATIO = 0.08;
+export const SCAN_IMAGE_IMPORT_PADDING_COLOR = "#808080";
+export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
+export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;

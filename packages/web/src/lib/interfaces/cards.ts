@@ -12,7 +12,6 @@ import type {
   PlayingCardWithDistance,
   PriceSource,
   ReviewGridCard,
-  ScannedCard,
 } from "@magic-vault/shared";
 import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
@@ -143,6 +142,7 @@ export interface AddManualCardInput {
 export interface CardToolbarProps {
   leading?: ReactNode;
   onAddCard?: () => void;
+  onImportScans?: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   sortKey: string | null;
@@ -288,7 +288,7 @@ export interface ClearCardQueryButtonProps {
 export interface SessionSummaryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  cards: ScannedCard[];
+  collectionGuid: string | undefined;
   elapsedMs: number;
   sessionScanCount: number;
   collectionName: string;

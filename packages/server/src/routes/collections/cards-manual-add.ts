@@ -15,7 +15,7 @@ import {
   storageLocations,
 } from "../../db/schema";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import { emitToOrg, emitToSession } from "../../lib/session-stream";
+import { emitCollectionCardsChanged, emitToSession } from "../../lib/session-stream";
 import {
   isStorageAllowed,
   STORAGE_UPGRADE_MESSAGE,
@@ -147,7 +147,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
 
     const data: ScannedCard = outcome.card;
     emitToSession(guid, "card_added", data);
-    emitToOrg(orgId, "collections_changed", { guid });
+    emitCollectionCardsChanged(orgId, guid);
     if (locationGuid) emitCardsStoredWebhook(orgId, locationGuid, [scanId]);
     return c.json({ success: true, data });
   },

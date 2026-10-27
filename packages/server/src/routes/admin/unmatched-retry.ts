@@ -24,6 +24,7 @@ import {
   ADMIN_UNMATCHED_RETRY_CONCURRENCY,
   ADMIN_UNMATCHED_RETRY_MAX,
 } from "../../lib/constants/admin-unmatched";
+import { UUID_PATTERN } from "../../lib/constants/validation";
 import type { AdminScanRow } from "../../lib/interfaces/admin-unmatched";
 import type {
   CardMatchSearchResult,
@@ -213,7 +214,6 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
         originalNearestDistance: sql<
           number | null
         >`(${unmatchedCards.diagnostics}->'search'->>'nearestDistance')::float`,
-        diagnostics: unmatchedCards.diagnostics,
       })
       .from(unmatchedCards)
       .innerJoin(collections, eq(collections.id, unmatchedCards.collectionId))
@@ -242,14 +242,27 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
                 originalReason: row.originalReason as UnmatchedReason | null,
                 originalNearestName: row.originalNearestName,
                 originalNearestDistance: row.originalNearestDistance,
-                diagnostics:
-                  row.diagnostics as UnmatchedScanDiagnostics | null,
               }))(),
             ]
           : [],
       ),
     );
     return c.json({ success: true, data });
+  })
+  .get("/unmatched/:scanId/diagnostics", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
+    const scanId = c.req.param("scanId");
+    if (!UUID_PATTERN.test(scanId)) {
+      return c.json({ success: false, message: "Invalid scan id." }, 400);
+    }
+    const [row] = await db
+      .select({ diagnostics: unmatchedCards.diagnostics })
+      .from(unmatchedCards)
+      .where(eq(unmatchedCards.guid, scanId))
+      .limit(1);
+    return c.json({
+      success: true,
+      data: (row?.diagnostics ?? null) as UnmatchedScanDiagnostics | null,
+    });
   })
   .post("/unmatched/retry", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const { scanIds, withOcr = false } =

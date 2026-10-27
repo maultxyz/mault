@@ -1,0 +1,1 @@
+export const STORAGE_LOCATIONS_PAGE_SIZE = 50;

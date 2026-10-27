@@ -2,6 +2,7 @@ import type {
   PageRequest,
   ServerPagedList,
 } from "@/lib/interfaces/pagination";
+import { toServerPagination } from "@/lib/pagination";
 import type { PagedList } from "@magic-vault/shared";
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -31,23 +32,9 @@ export function useServerPagedList<
     }
   }, [selected, data]);
 
-  const items = data?.items ?? [];
-  const pageSize = data?.pageSize ?? 1;
-  const currentPage = data?.page ?? 1;
-  const total = data?.total ?? 0;
-  const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-
   return {
-    items,
+    items: data?.items ?? [],
     isLoading: isPending,
-    pagination: {
-      pageItems: items,
-      page: currentPage,
-      pageCount: Math.max(Math.ceil(total / pageSize), 1),
-      from,
-      to: from === 0 ? 0 : from + items.length - 1,
-      total,
-      setPage,
-    },
+    pagination: toServerPagination(data, setPage),
   };
 }

@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { adminUnmatchedDiagnosticsQueryOptions } from "@/features/admin/api/unmatched-retry";
 import { UnmatchedOcrOverlay } from "@/features/admin/components/unmatched-ocr-overlay";
 import { UnmatchedOcrPanel } from "@/features/admin/components/unmatched-ocr-panel";
 import { UnmatchedRetryResult } from "@/features/admin/components/unmatched-retry-result";
@@ -15,6 +17,7 @@ import {
   IconPhotoX,
   IconRefresh,
 } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 export function UnmatchedScanDetailDialog({
@@ -32,6 +35,9 @@ export function UnmatchedScanDetailDialog({
   onClose,
 }: UnmatchedScanDetailDialogProps) {
   const { t, i18n } = useTranslation("admin");
+  const diagnostics = useQuery(
+    adminUnmatchedDiagnosticsQueryOptions(scan?.scanId),
+  );
   const matchedCard = result?.status === "match" ? result.card : null;
   const matchedImage = matchedCard?.image?.normal ?? matchedCard?.image?.small;
 
@@ -150,9 +156,11 @@ export function UnmatchedScanDetailDialog({
               <h3 className="text-sm font-medium">
                 {t("unmatchedRetry.detail.atScanTime")}
               </h3>
-              {scan.diagnostics ? (
+              {diagnostics.isPending ? (
+                <Skeleton className="h-24 rounded-lg" />
+              ) : diagnostics.data ? (
                 <div className="rounded-lg border p-1">
-                  <UnmatchedDiagnosticsDetails diagnostics={scan.diagnostics} />
+                  <UnmatchedDiagnosticsDetails diagnostics={diagnostics.data} />
                 </div>
               ) : (
                 <p className="text-xs text-foreground/70">

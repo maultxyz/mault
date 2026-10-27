@@ -1,4 +1,5 @@
 import {
+  BULK_SCAN_IDS_MAX,
   DEFAULT_CARD_SORT,
   EMPTY_CARD_FILTERS,
   type BinWindow,
@@ -21,10 +22,8 @@ import type {
   CollectionCardRow,
 } from "../../lib/interfaces/collections";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import {
-  CARD_SEARCH_FIELDS,
-  NUMERIC_PREFIX_SQL_PATTERN,
-} from "../../lib/constants/collections";
+import { pgTextArray, uuidArraySql } from "../../lib/sql-arrays";
+import { NUMERIC_PREFIX_SQL_PATTERN } from "../../lib/constants/collections";
 import {
   CARD_PRICE_COLUMNS,
   CARD_PRICE_DETAIL_KEYS,
@@ -130,22 +129,27 @@ export async function findCardsCollection(
   };
 }
 
-function pgTextArray(values: string[]): string {
-  const quoted = values.map(
-    (v) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`,
-  );
-  return `{${quoted.join(",")}}`;
+export function parseScanIds(body: { scanIds?: unknown }): string[] | null {
+  const { scanIds } = body;
+  if (
+    !Array.isArray(scanIds) ||
+    scanIds.length > BULK_SCAN_IDS_MAX ||
+    !scanIds.every((id) => typeof id === "string")
+  ) {
+    return null;
+  }
+  return scanIds;
 }
 
 function jsonNumber(key: string): SQL {
   return sql`(CASE WHEN jsonb_typeof(cc.card -> ${key}::text) = 'number' THEN (cc.card ->> ${key}::text)::float8 END)`;
 }
 
-const COLOR_IDENTITY = sql`(CASE WHEN jsonb_typeof(cc.card -> 'colorIdentity') = 'array' THEN cc.card -> 'colorIdentity' ELSE '[]'::jsonb END)`;
+const COLOR_IDENTITY = sql`cc.card_color_identity`;
 
 const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' END)`;
 
-const DUPLICATE_KEY = sql`(cc.card_id || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition || ':' || COALESCE(cc.language, cc.card ->> 'lang', 'en'))`;
+const DUPLICATE_KEY = sql`(cc.card_id || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition || ':' || COALESCE(cc.language, cc.card_lang, 'en'))`;
 
 function isCardPriceKey(path: string): path is CardPriceKey {
   return path in CARD_PRICE_COLUMNS;
@@ -204,7 +208,7 @@ export function cardFilterSql(
   }
 
   if (filters.rarities.length > 0) {
-    conditions.push(sql`cc.card ->> 'rarity' = ${anyOf(filters.rarities)}`);
+    conditions.push(sql`cc.card_rarity = ${anyOf(filters.rarities)}`);
   }
 
   if (filters.bins.length > 0) {
@@ -218,7 +222,7 @@ export function cardFilterSql(
   }
 
   if (filters.needsAttention) {
-    const needsAttention = sql`((jsonb_typeof(cc.alternative_matches) = 'array' AND jsonb_array_length(cc.alternative_matches) > 0) OR cc.low_confidence_match) AND NOT cc.is_corrected`;
+    const needsAttention = sql`(cc.has_alternative_matches OR cc.low_confidence_match) AND NOT cc.is_corrected`;
     conditions.push(
       keepScanId
         ? sql`((${needsAttention}) OR cc.guid = ${keepScanId}::uuid)`
@@ -231,7 +235,7 @@ export function cardFilterSql(
   }
 
   if (filters.sets.length > 0) {
-    conditions.push(sql`cc.card ->> 'set' = ${anyOf(filters.sets)}`);
+    conditions.push(sql`cc.card_set = ${anyOf(filters.sets)}`);
   }
 
   if (filters.foilTypes.length > 0) {
@@ -245,11 +249,7 @@ export function cardFilterSql(
   }
 
   if (search) {
-    const matches = CARD_SEARCH_FIELDS.map(
-      (key) =>
-        sql`strpos(lower(COALESCE(cc.card ->> ${key}::text, '')), ${search}::text) > 0`,
-    );
-    conditions.push(sql`(${sql.join(matches, sql` OR `)})`);
+    conditions.push(sql`strpos(cc.card_search_text, ${search}::text) > 0`);
   }
 
   return conditions.length > 0 ? sql.join(conditions, sql` AND `) : sql`TRUE`;
@@ -529,6 +529,7 @@ export async function loadCardIds(
 export async function loadAllCards(
   tx: Transaction,
   collection: { id: number; gameKey: string | null; lang: string },
+  onlyScanIds?: string[],
 ) {
   const result = await tx.execute(sql`
     SELECT cc.guid, (cc.card || COALESCE(${joinedCardPricesJsonSql()}, '{}'::jsonb)) AS card,
@@ -540,9 +541,25 @@ export async function loadAllCards(
     ${cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS)}
     ${STORAGE_LOCATION_JOIN}
     WHERE cc.collection_id = ${collection.id}
+      ${onlyScanIds ? sql`AND cc.guid = ANY(${uuidArraySql(onlyScanIds)})` : sql``}
     ORDER BY cc.scanned_at DESC, cc.id DESC
   `);
   return (result.rows as unknown as CollectionCardRow[]).map(toCard);
+}
+
+export async function loadStoredCardCount(
+  tx: Transaction,
+  collectionId: number,
+  scanIds: string[],
+): Promise<number> {
+  const result = await tx.execute(sql`
+    SELECT count(*)::int AS stored_count
+    FROM collection_cards cc
+    JOIN storage_locations sl ON sl.id = cc.location_id AND NOT sl.is_deleted
+    WHERE cc.collection_id = ${collectionId}
+      AND cc.guid = ANY(${uuidArraySql(scanIds)})
+  `);
+  return (result.rows[0] as unknown as { stored_count: number }).stored_count;
 }
 
 function cardStatsJsonSql(source: SQL): SQL {
@@ -598,31 +615,30 @@ function cardStatsBaseSql(
   filter: SQL,
   pricing: OrgPricing,
 ): SQL {
-  const priceKeys = Object.keys(CARD_PRICE_COLUMNS) as CardPriceKey[];
-  const priceKeyColumns = sql.raw(
-    priceKeys.map((key) => `, "${key}" jsonb`).join(""),
-  );
-  const priceCard = sql.raw(
-    `jsonb_build_object('lang', j.lang${priceKeys.map((key) => `, '${key}', j."${key}"`).join("")})`,
-  );
-  const cols = { ...CC_ALIAS_SQL_COLUMNS, card: sql`jp.card` };
-  const price = sql`COALESCE(${joinedScannedCardPriceSql(pricing, cols, "cp")}, 0)`;
+  const price = sql`COALESCE(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}, 0)`;
   return sql`
-    SELECT cc.card_id AS card_key, j.name, j."set" AS set_code, j."setName" AS set_name,
-      j.rarity,
-      CASE WHEN jsonb_typeof(j."colorIdentity") = 'array'
-        THEN j."colorIdentity" ELSE '[]'::jsonb END AS colors,
+    SELECT cc.card_id AS card_key, cc.card_name AS name, cc.card_set AS set_code,
+      cc.card_set_name AS set_name, cc.card_rarity AS rarity,
+      cc.card_color_identity AS colors,
       cc.is_foil, cc.foil_type, cc.scanned_at,
       ${price} AS price, (${filter}) AS in_filter
     FROM collection_cards cc
-    CROSS JOIN LATERAL jsonb_to_record(cc.card) AS j(
-      name text, "set" text, "setName" text, rarity text,
-      "colorIdentity" jsonb, lang text${priceKeyColumns}
-    )
-    CROSS JOIN LATERAL (SELECT ${priceCard} AS card) jp
-    ${cardPricesJoinSql("cp", collection, cols)}
+    ${cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS)}
     WHERE cc.collection_id = ${collection.id}
   `;
+}
+
+export async function loadCardsCount(
+  tx: Transaction,
+  collection: { id: number },
+  filter: SQL,
+): Promise<number> {
+  const result = await tx.execute(sql`
+    SELECT count(*)::int AS total_count
+    FROM collection_cards cc
+    WHERE cc.collection_id = ${collection.id} AND (${filter})
+  `);
+  return (result.rows[0] as unknown as { total_count: number }).total_count;
 }
 
 export async function loadCardStats(

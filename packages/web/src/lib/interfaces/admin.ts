@@ -219,3 +219,9 @@ export interface SyncWorkerRequest {
   buffer?: ArrayBuffer;
   pixels?: ArrayBuffer;
 }
+
+export interface DeletedItemsRequest {
+  page: number;
+  search: string;
+  type: DeletedItemType | null;
+}

@@ -202,6 +202,7 @@
     "applyGridFilters": "Appliquer les filtres actifs ({{count}})",
     "close": "Fermer",
     "download": "Télécharger ({{count}})",
+    "downloadFailed": "Impossible de télécharger l'export.",
     "sessionWrappedToggle": "Wrapped",
     "combineDuplicates": "Regrouper les doublons"
   },
@@ -398,5 +399,28 @@
     "collection": "Collection",
     "added": "{{name}} ajoutée",
     "failed": "Impossible d'ajouter la carte."
+  },
+  "importScans": {
+    "button": "Importer des scans",
+    "title": "Importer des images scannées",
+    "description": "Ajoutez des cartes depuis un scanner de documents ou des photos enregistrées. Chaque image est identifiée puis ajoutée à cette collection.",
+    "tip": "Scannez uniquement le recto de chaque carte et enregistrez les images en JPEG ou PNG. Les fichiers sont importés par ordre de nom, la collection garde donc l'ordre de votre pile. Les images sans correspondance vont dans les scans non reconnus pour vérification.",
+    "dropZone": "Déposez des images ici ou choisissez des fichiers",
+    "dropZoneHint": "JPEG, PNG ou WebP",
+    "progress": "{{done}} images traitées sur {{total}}",
+    "matchedCount": "{{count}} reconnues",
+    "unmatchedCount": "{{count}} à vérifier",
+    "failedCount": "{{count}} en échec",
+    "status": {
+      "queued": "En attente",
+      "identifying": "Identification",
+      "unmatched": "Aucune correspondance, enregistrée pour vérification",
+      "skipped": "Non importée"
+    },
+    "stop": "Arrêter",
+    "close": "Fermer",
+    "importMore": "Importer d'autres images",
+    "unreadable": "Impossible de lire cette image.",
+    "identifyFailed": "Impossible d'identifier cette image."
   }
 }

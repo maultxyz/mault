@@ -14,6 +14,7 @@ export function UnmatchedCardImage({ entry, className }: UnmatchedCardImageProps
     >
       {entry.capturedImageUrl ? (
         <img
+          loading="lazy"
           src={entry.capturedImageUrl}
           alt={t("unmatchedCardsPanel.imageAlt")}
           className="h-full w-full object-fill"

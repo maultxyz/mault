@@ -14,7 +14,6 @@ import { refreshPiScanHold } from "@/features/scanner/api/pi-scan-session";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
-import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
 import { claimBootNotice } from "@/features/scanner/lib/sorter-boot-notice";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
@@ -1096,6 +1095,9 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       try {
         await disconnect();
+        const { flashEsp32Port } = await import(
+          "@/features/scanner/lib/esp32-flasher"
+        );
         return await flashEsp32Port(port, firmwareUrl, {
           onLog: (line) => setFlashLog((prev) => [...prev, line]),
           onClearLog: () => setFlashLog([]),

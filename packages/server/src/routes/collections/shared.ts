@@ -155,7 +155,7 @@ export async function loadCollections(
       FROM (
         SELECT latest.image, latest.scanned_at
         FROM (
-          SELECT cc.card->'image'->>'small' AS image, cc.scanned_at
+          SELECT cc.card_image_small AS image, cc.scanned_at
           FROM ${collectionCards} cc
           WHERE cc.collection_id = c.id
           ORDER BY cc.scanned_at DESC

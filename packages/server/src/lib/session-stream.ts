@@ -1,3 +1,4 @@
+import { COLLECTION_CARDS_CHANGED_THROTTLE_MS } from "./constants/timing";
 import type { SseWriter } from "./interfaces/sse";
 import type {
   SessionEntry,
@@ -7,6 +8,11 @@ import type {
 
 const sessions = new Map<string, SessionEntry>();
 const orgCountWriters = new Map<string, Set<SseWriter>>();
+const lastCollectionCardsChangedAt = new Map<string, number>();
+const pendingCollectionCardsChanged = new Map<
+  string,
+  ReturnType<typeof setTimeout>
+>();
 
 export function emitToOrg(orgId: string, event: string, data: unknown) {
   const writers = orgCountWriters.get(orgId);
@@ -16,6 +22,25 @@ export function emitToOrg(orgId: string, event: string, data: unknown) {
       writer(event, data);
     } catch {}
   }
+}
+
+export function emitCollectionCardsChanged(orgId: string, guid: string) {
+  if (pendingCollectionCardsChanged.has(orgId)) return;
+  const sinceLastEmit =
+    Date.now() - (lastCollectionCardsChangedAt.get(orgId) ?? 0);
+  const emit = () => {
+    pendingCollectionCardsChanged.delete(orgId);
+    lastCollectionCardsChangedAt.set(orgId, Date.now());
+    emitToOrg(orgId, "collections_changed", { guid });
+  };
+  if (sinceLastEmit >= COLLECTION_CARDS_CHANGED_THROTTLE_MS) {
+    emit();
+    return;
+  }
+  pendingCollectionCardsChanged.set(
+    orgId,
+    setTimeout(emit, COLLECTION_CARDS_CHANGED_THROTTLE_MS - sinceLastEmit),
+  );
 }
 
 function broadcastViewers(guid: string, session: SessionEntry) {

@@ -13,6 +13,7 @@ import {
   type PullSheetEntry,
 } from "@magic-vault/shared";
 import { and, eq, ne, sql } from "drizzle-orm";
+import { uuidArraySql } from "./sql-arrays";
 import type { Transaction } from "../db";
 import { fulfilmentOrders } from "../db/schema";
 import { getUserDisplayName } from "../middleware/auth";
@@ -79,10 +80,6 @@ export function toOrderLines(value: unknown): OrderLine[] {
   });
 }
 
-function idList(ids: string[]): string {
-  return ids.join(",");
-}
-
 function normalizeSetName(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
@@ -98,7 +95,7 @@ async function existingScanIds(
     FROM collection_cards cc
     JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
     WHERE cc.org_id = ${orgId}
-      AND cc.guid::text = ANY(string_to_array(${idList(ids)}, ','))
+      AND cc.guid = ANY(${uuidArraySql(ids)})
   `);
   return new Set(
     (result.rows as { scan_id: string }[]).map((row) => row.scan_id),
@@ -150,15 +147,15 @@ async function findCandidates(
     WHERE cc.org_id = ${orgId}
       AND (il.id IS NULL OR il.status = 'accepted')
       AND (
-        lower(cc.card ->> 'name') = ${name}
-        OR lower(split_part(cc.card ->> 'name', ' // ', 1)) = ${name}
+        lower(cc.card_name) = ${name}
+        OR lower(split_part(cc.card_name, ' // ', 1)) = ${name}
       )
-      ${setCode ? sql`AND lower(cc.card ->> 'set') = ${setCode}` : sql``}
-      ${!setCode && setName ? sql`AND regexp_replace(lower(cc.card ->> 'setName'), '[^a-z0-9]', '', 'g') = ${setName}` : sql``}
-      ${number ? sql`AND lower(cc.card ->> 'collectorNumber') = ${number}` : sql``}
+      ${setCode ? sql`AND lower(cc.card_set) = ${setCode}` : sql``}
+      ${!setCode && setName ? sql`AND regexp_replace(lower(cc.card_set_name), '[^a-z0-9]', '', 'g') = ${setName}` : sql``}
+      ${number ? sql`AND lower(cc.card_collector_number) = ${number}` : sql``}
       ${line.condition ? sql`AND cc.condition = ${line.condition}` : sql``}
       ${line.isFoil != null ? sql`AND cc.is_foil = ${line.isFoil}` : sql``}
-      ${excluded.size > 0 ? sql`AND NOT (cc.guid::text = ANY(string_to_array(${idList([...excluded])}, ',')))` : sql``}
+      ${excluded.size > 0 ? sql`AND NOT (cc.guid = ANY(${uuidArraySql([...excluded])}))` : sql``}
     ORDER BY (sl.id IS NULL), sl.name, cc.location_position, cc.id
     LIMIT ${limit}
   `);
@@ -223,8 +220,8 @@ export async function loadPullSheet(
     JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
     LEFT JOIN storage_locations sl ON sl.id = cc.location_id AND sl.is_deleted = false
     WHERE cc.org_id = ${orgId}
-      AND cc.guid::text = ANY(string_to_array(${idList([...lineOf.keys()])}, ','))
-    ORDER BY (sl.name IS NULL), sl.name, cc.location_position, col.name, cc.bin_number, cc.card ->> 'name'
+      AND cc.guid = ANY(${uuidArraySql([...lineOf.keys()])})
+    ORDER BY (sl.name IS NULL), sl.name, cc.location_position, col.name, cc.bin_number, cc.card_name
   `);
   return (result.rows as unknown as PullSheetRow[]).map((row) => ({
     scanId: row.scan_id,

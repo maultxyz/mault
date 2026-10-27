@@ -166,21 +166,21 @@ export const cardStorageLocationQueryOptions = (
 
 export function createStorageLocation(
   name: string,
-): Promise<Result<{ guid: string; locations: StorageLocation[] }>> {
+): Promise<Result<{ guid: string }>> {
   return apiPost("/api/storage-locations", { name });
 }
 
 export function moveCardsToStorageLocation(
   guid: string,
   scanIds: string[],
-): Promise<Result<{ moved: number; locations: StorageLocation[] }>> {
+): Promise<Result<{ moved: number }>> {
   return apiPost(`/api/storage-locations/${guid}/cards`, { scanIds });
 }
 
 export function moveCollectionToStorageLocation(
   guid: string,
   collectionGuid: string,
-): Promise<Result<{ moved: number; locations: StorageLocation[] }>> {
+): Promise<Result<{ moved: number }>> {
   return apiPost(`/api/storage-locations/${guid}/cards/from-collection`, {
     collectionGuid,
   });
@@ -189,19 +189,19 @@ export function moveCollectionToStorageLocation(
 export function renameStorageLocation(
   guid: string,
   name: string,
-): Promise<Result<StorageLocation[]>> {
+): Promise<Result<null>> {
   return apiPut(`/api/storage-locations/${guid}`, { name });
 }
 
 export function removeCardFromStorageLocation(
   guid: string,
   scanId: string,
-): Promise<Result<StorageLocation[]>> {
+): Promise<Result<null>> {
   return apiDelete(`/api/storage-locations/${guid}/cards/${scanId}`);
 }
 
 export function deleteStorageLocation(
   guid: string,
-): Promise<Result<StorageLocation[]>> {
+): Promise<Result<null>> {
   return apiDelete(`/api/storage-locations/${guid}`);
 }
