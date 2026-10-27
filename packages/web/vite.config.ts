@@ -4,6 +4,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { marketingPageHtml } from "./scripts/marketing-page-html";
 
 const { version } = JSON.parse(
   readFileSync(path.resolve(__dirname, "../../package.json"), "utf-8"),
@@ -15,6 +16,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    marketingPageHtml(),
     VitePWA({
       // "prompt" so nothing reloads on its own: a scan session can be running.
       // The existing outdated-version banner is what triggers the reload.
