@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { listCardSets } from "../../lib/card-search/card-sets";
 import {
   resolveCardSearch,
+  resolveCardSearchForGame,
   resolveManualCardSearch,
 } from "../../lib/card-search/resolve";
 import { searchCardSets } from "../../lib/card-search/stored-cards";
@@ -14,7 +15,10 @@ export const cardSetsRoute = new Hono<AppEnv>().get(
   async (c) => {
     const query = c.req.query("q");
     const collectionGuid = c.req.query("collectionGuid");
-    const resolved = query
+    const gameKey = c.req.query("gameKey");
+    const resolved = !collectionGuid && gameKey
+      ? resolveCardSearchForGame(gameKey, c.req.query("lang") || "en")
+      : query
       ? await resolveManualCardSearch(
           c.get("jwtClaims"),
           collectionGuid,

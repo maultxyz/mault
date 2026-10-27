@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
-import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
+import { OCR_REGIONS_BY_GAME_KEY, type PlayingCard } from "@magic-vault/shared";
 import { CardTile } from "@/components/cards/card-tile";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -19,14 +19,21 @@ import { SearchInput } from "@/components/ui/search-input";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SelectField } from "@/components/ui/select-field";
 import { Skeleton } from "@/components/ui/skeleton";
-import { gameCardSearchQueryOptions, gameCoverageQueryOptions, healthQueryOptions } from "@/features/health/api/health";
+import {
+  gameCardSearchQueryOptions,
+  gameCardSetsQueryOptions,
+  gameCoverageQueryOptions,
+  healthQueryOptions,
+} from "@/features/health/api/health";
 import { OcrRegionTile } from "@/features/health/components/ocr-region-tile";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_SEARCH_MIN_LENGTH } from "@/lib/constants/cards";
 import { CARD_GRID_COLUMNS, CARD_GRID_GAP_X, CARD_GRID_GAP_Y, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { OCR_TILE_COLUMNS } from "@/lib/constants/health";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
+import { ANY_SET_OPTION, CARD_SET_PICKER_LIMIT } from "@/lib/constants/scanner";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
 import { absoluteUrl } from "@/lib/url";
@@ -34,20 +41,25 @@ import { absoluteUrl } from "@/lib/url";
 export default function HealthScreen() {
   const { t, i18n } = useTranslation();
   const colors = useTheme();
+  const pricing = usePricing();
   const { width } = useWindowDimensions();
   const health = useQuery(healthQueryOptions);
   const coverage = useQuery(gameCoverageQueryOptions);
   const [gameKey, setGameKey] = useState<string | null>(null);
   const [lang, setLang] = useState<string | null>(null);
-  const [picker, setPicker] = useState<"game" | "lang" | null>(null);
+  const [picker, setPicker] = useState<"game" | "lang" | "set" | null>(null);
   const [query, setQuery] = useState("");
+  const [setCode, setSetCode] = useState<string | null>(null);
   const debounced = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
 
   const games = (coverage.data ?? []).filter((game) => game.cardCount > 0);
   const game = games.find((g) => g.key === gameKey) ?? games[0];
   const languages = game?.languages.length ? game.languages : ["en"];
   const activeLang = lang && languages.includes(lang) ? lang : languages[0];
-  const search = useInfiniteQuery(gameCardSearchQueryOptions(debounced, game?.key ?? null, activeLang));
+  const search = useInfiniteQuery(gameCardSearchQueryOptions(debounced, game?.key ?? null, activeLang, setCode));
+  const cardSets = useQuery(gameCardSetsQueryOptions(debounced, game?.key ?? null, activeLang));
+  const sets = cardSets.data ?? [];
+  const selectedSetName = setCode ? (sets.find((set) => set.code === setCode)?.name ?? setCode.toUpperCase()) : null;
   const results = search.data?.pages.flatMap((page) => page.cards) ?? [];
   const queryReady = debounced.trim().length >= CARD_SEARCH_MIN_LENGTH;
 
@@ -67,6 +79,11 @@ export default function HealthScreen() {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const data = health.data;
+  const cardLookupCaption = (card: PlayingCard) => {
+    const printing = `${card.set.toUpperCase()} #${card.collectorNumber}`;
+    const price = pricing.priceOf(card, false);
+    return price != null ? `${printing} · ${pricing.format(price)}` : printing;
+  };
 
   return (
     <Screen
@@ -181,10 +198,21 @@ export default function HealthScreen() {
       </View>
       <SearchInput
         value={query}
-        onChangeText={setQuery}
+        onChangeText={(text) => {
+          setQuery(text);
+          setSetCode(null);
+        }}
         placeholder={t("health.cardLookup.searchPlaceholder")}
         accessibilityLabel={t("health.cardLookup.searchPlaceholder")}
       />
+      {queryReady && sets.length > 1 ? (
+        <SelectField
+          label={t("cardDetail.set")}
+          value={selectedSetName ?? t("health.cardLookup.allSets")}
+          placeholder={t("health.cardLookup.allSets")}
+          onPress={() => setPicker("set")}
+        />
+      ) : null}
       {queryReady && search.isPending ? <Skeleton height={tileWidth * 1.4} /> : null}
       {queryReady && search.data && results.length === 0 ? (
         <AppText size="sm" tone="secondary">
@@ -197,8 +225,8 @@ export default function HealthScreen() {
             <View key={card.id} style={{ width: tileWidth }}>
               <CardTile
                 name={card.name}
-                caption={`${card.set.toUpperCase()} #${card.collectorNumber}`}
-                imageUrl={absoluteUrl(card.image?.small ?? card.image?.normal)}
+                caption={cardLookupCaption(card)}
+                imageUrl={absoluteUrl(card.image?.normal ?? card.image?.small)}
               />
             </View>
           ))}
@@ -238,6 +266,7 @@ export default function HealthScreen() {
         onSelect={(value) => {
           setPicker(null);
           setGameKey(value);
+          setSetCode(null);
         }}
         onClose={() => setPicker(null)}
       />
@@ -249,6 +278,23 @@ export default function HealthScreen() {
         onSelect={(value) => {
           setPicker(null);
           setLang(value);
+          setSetCode(null);
+        }}
+        onClose={() => setPicker(null)}
+      />
+      <OptionSheet
+        visible={picker === "set"}
+        title={t("cardDetail.set")}
+        searchPlaceholder={t("scan.options.searchSets")}
+        maxVisibleOptions={CARD_SET_PICKER_LIMIT}
+        options={[
+          { value: ANY_SET_OPTION, label: t("health.cardLookup.allSets") },
+          ...sets.map((set) => ({ value: set.code, label: set.name })),
+        ]}
+        selected={[setCode ?? ANY_SET_OPTION]}
+        onSelect={(value) => {
+          setPicker(null);
+          setSetCode(value === ANY_SET_OPTION ? null : value);
         }}
         onClose={() => setPicker(null)}
       />

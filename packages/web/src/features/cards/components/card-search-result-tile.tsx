@@ -16,19 +16,8 @@ export function CardSearchResultTile({
   const displayPrice = priceOf(card, false);
   const matchPercent =
     "distance" in card && card.distance != null ? getMatchPercent(card) : null;
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      onKeyDown={onKeyDown}
-      aria-pressed={isSelected}
-      className={cn(
-        "flex min-w-0 cursor-pointer flex-col rounded-lg border bg-muted p-1 text-left transition-[box-shadow,transform] outline-none hover:ring-2 hover:ring-primary/50 focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50",
-        isSelected && "ring-2 ring-primary ring-offset-1 hover:ring-primary",
-        className,
-      )}
-    >
+  const content = (
+    <>
       <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-md">
         {card.image?.small ? (
           <img
@@ -87,6 +76,27 @@ export function CardSearchResultTile({
           )}
         </div>
       </div>
+    </>
+  );
+  const tileClassName = "flex min-w-0 flex-col rounded-lg border bg-muted p-1 text-left";
+  if (!onClick) {
+    return <div className={cn(tileClassName, className)}>{content}</div>;
+  }
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      aria-pressed={isSelected}
+      className={cn(
+        tileClassName,
+        "cursor-pointer transition-[box-shadow,transform] outline-none hover:ring-2 hover:ring-primary/50 focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50",
+        isSelected && "ring-2 ring-primary ring-offset-1 hover:ring-primary",
+        className,
+      )}
+    >
+      {content}
     </button>
   );
 }

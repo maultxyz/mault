@@ -25,9 +25,11 @@ export async function searchGameCards(
   gameKey: string,
   lang: string,
   offset = 0,
+  setCode?: string,
 ): Promise<Result<CardSearchPage>> {
   const params = new URLSearchParams({ q: query, gameKey, lang });
   if (offset > 0) params.set("offset", String(offset));
+  if (setCode) params.set("set", setCode);
   return apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`);
 }
 
