@@ -30,9 +30,12 @@ import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import {
   CHANNEL_OFFSET,
   DEFAULT_CHANNEL_LAYOUT,
+  isBusyResponse,
   isFirmwareFeatureSupported,
   type ModuleConfig,
   parseSerialReply,
+  SERIAL_BUSY_RETRY_ATTEMPTS,
+  SERIAL_BUSY_RETRY_DELAY_MS,
   STORE_CONFIG_TIMEOUT_MS,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
@@ -73,8 +76,16 @@ export function DeviceCalibrationSyncProvider({
 
   const request = useCallback(
     async (command: object, timeoutMs?: number) => {
-      const { line } = await sendRequest(command, timeoutMs);
-      return { line, parsed: parseSerialReply(line) };
+      for (let attempt = 1; ; attempt++) {
+        const { line } = await sendRequest(command, timeoutMs);
+        const parsed = parseSerialReply(line);
+        if (!isBusyResponse(parsed) || attempt >= SERIAL_BUSY_RETRY_ATTEMPTS) {
+          return { line, parsed };
+        }
+        await new Promise((resolve) =>
+          setTimeout(resolve, SERIAL_BUSY_RETRY_DELAY_MS),
+        );
+      }
     },
     [sendRequest],
   );
