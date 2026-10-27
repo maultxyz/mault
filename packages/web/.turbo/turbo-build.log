@@ -1,6 +1,11 @@
 
-> @magic-vault/web@1.0.167 build C:\Users\User\Documents\Coding\magic-vault\packages\web
+> @magic-vault/web@1.0.173 build C:\Users\User\Documents\Coding\magic-vault\packages\web
 > tsc -b && vite build
 
-src/features/cards/api/use-prefetch-review-cards.ts(61,15): error TS7022: 'step' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
+src/features/cards/components/card-detail-panel.tsx(645,67): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/features/cards/components/card-search-language-select.tsx(24,27): error TS2322: Type '(language: string) => void' is not assignable to type '(value: string | null, eventDetails: SelectRootChangeEventDetails) => void'.
+  Types of parameters 'language' and 'value' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
  ELIFECYCLE  Command failed with exit code 2.

@@ -88,7 +88,7 @@ export interface AcquisitionCostUpdate {
   orgId: string;
   currency: string;
   acquiredAt: Date;
-  rows: { scanId: string; cost: number }[];
+  rows: { scanId: string; cost: number | null }[];
 }
 
 export type BusinessResult =

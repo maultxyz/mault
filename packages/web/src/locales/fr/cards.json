@@ -45,6 +45,9 @@
     "acrossPrintings": "Fourchette sur {{count}} impressions"
   },
   "cardDetailPanel": {
+    "pricePaid": "Prix payé ({{currency}})",
+    "pricePaidEmpty": "Non défini",
+    "pricePaidSaveFailed": "Impossible d'enregistrer le prix payé.",
     "markCorrect": "Marquer comme correcte",
     "markCorrectTitle": "Confirme que cette correspondance est juste. La carte reste la même et n'est plus signalée pour vérification.",
     "backToList": "Retour à la liste des cartes",

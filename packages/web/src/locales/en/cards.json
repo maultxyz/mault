@@ -45,6 +45,9 @@
     "acrossPrintings": "Range across {{count}} printings"
   },
   "cardDetailPanel": {
+    "pricePaid": "Price paid ({{currency}})",
+    "pricePaidEmpty": "Not set",
+    "pricePaidSaveFailed": "Couldn't save the price paid.",
     "markCorrect": "Mark as correct",
     "markCorrectTitle": "Confirm this match is right. The card stays the same and is no longer flagged for review.",
     "backToList": "Back to card list",

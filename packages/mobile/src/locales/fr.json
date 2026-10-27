@@ -750,6 +750,8 @@
     "display": "Affichage"
   },
   "cardDetail": {
+    "pricePaid": "Prix payé ({{currency}})",
+    "pricePaidEmpty": "Non défini",
     "fallbackTitle": "Détails de la carte",
     "capturedScan": "Scan capturé",
     "matchedCard": "Carte reconnue",

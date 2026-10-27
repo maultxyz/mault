@@ -37,6 +37,8 @@ import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
+import { PricePaidField } from "@/features/cards/components/price-paid-field";
+import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import {
   cardScanOriginQueryOptions,
   collectionCardQueryOptions,
@@ -55,6 +57,7 @@ import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function CardDetailScreen() {
   const { scanId, guid, review, storage: storageGuid } = useLocalSearchParams<{
@@ -77,7 +80,9 @@ export default function CardDetailScreen() {
   const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
   const hasScanOrigin = !!origin.data && (!!origin.data.scannedBy || !!origin.data.device);
   const storage = useQuery(cardStorageLocationQueryOptions(guid, scanId));
-  const collections = useQuery(collectionsQueryOptions(useActiveOrgId()));
+  const activeOrgId = useActiveOrgId();
+  const collections = useQuery(collectionsQueryOptions(activeOrgId));
+  const acquisitionCost = useQuery(cardAcquisitionCostQueryOptions(activeOrgId, scanId));
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
   const [sheet, setSheet] = useState<"foil" | "condition" | "language" | null>(null);
@@ -109,16 +114,17 @@ export default function CardDetailScreen() {
             foilType: entry.foilType ?? (entry.isFoil ? foilOptions[0] : null),
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
             language: scanLanguage(entry),
+            acquisitionCost: acquisitionCost.data?.cost ?? null,
           }
         : undefined,
-    [entry, foilOptions],
+    [entry, foilOptions, acquisitionCost.data],
   );
   const form = useForm<ScanDraftFormValues>({
     resolver: zodResolver(scanDraftFormSchema),
     values: serverValues,
     resetOptions: { keepDirtyValues: true },
   });
-  const { isDirty } = form.formState;
+  const { isDirty, errors } = form.formState;
   const draftFoil = form.watch("foilType");
   const draftCondition = form.watch("condition") as CardCondition;
   const draftLanguage = form.watch("language");
@@ -127,15 +133,25 @@ export default function CardDetailScreen() {
   const price = card ? pricing.priceOf(card, draftFoil != null, draftCondition) : null;
 
   const saveDraft = useMutation({
-    mutationFn: (values: ScanDraftFormValues) =>
-      updateCollectionCard(guid, scanId, {
-        isFoil: values.foilType != null,
-        foilType: values.foilType,
-        condition: values.condition as CardCondition,
-        ...(form.formState.dirtyFields.language ? { language: values.language } : {}),
-      }),
+    mutationFn: async (values: ScanDraftFormValues) => {
+      const { dirtyFields } = form.formState;
+      if (dirtyFields.foilType || dirtyFields.condition || dirtyFields.language) {
+        await updateCollectionCard(guid, scanId, {
+          isFoil: values.foilType != null,
+          foilType: values.foilType,
+          condition: values.condition as CardCondition,
+          ...(dirtyFields.language ? { language: values.language } : {}),
+        });
+      }
+      if (dirtyFields.acquisitionCost) {
+        await setCardAcquisitionCost(scanId, values.acquisitionCost);
+      }
+    },
     onSuccess: (_, values) => form.reset(values),
-    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onSettled: () => {
+      invalidateCollectionCards(queryClient, guid);
+      void queryClient.invalidateQueries({ queryKey: cardAcquisitionCostQueryOptions(activeOrgId, scanId).queryKey });
+    },
   });
 
   const markCorrect = useMutation({
@@ -337,6 +353,17 @@ export default function CardDetailScreen() {
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.prices")} />
                 <CardPriceDetails card={card} isFoil={draftFoil != null} />
+                {entry && acquisitionCost.data ? (
+                  <PricePaidField
+                    label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
+                    placeholder={t("cardDetail.pricePaidEmpty")}
+                    value={form.watch("acquisitionCost")}
+                    onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
+                    error={
+                      errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
+                    }
+                  />
+                ) : null}
               </View>
             ) : null}
 
