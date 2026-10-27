@@ -6,6 +6,7 @@ import { collectorNumberKey } from "./keys";
 export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
   mtg: {
     numbering: "per-set",
+    fallbacks: false,
     primaryCardIdOf: (product) => product.scryfall_id ?? null,
     colorIdentityOf: (colors) =>
       colors.flatMap((color) => {

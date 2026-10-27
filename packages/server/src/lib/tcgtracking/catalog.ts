@@ -70,7 +70,12 @@ async function fetchCatalog(
       for (const product of products) {
         entries.push({
           product: slimProduct(product),
-          set: { id: set.id, name: set.name, abbreviation: set.abbreviation },
+          set: {
+            id: set.id,
+            name: set.name,
+            abbreviation: set.abbreviation,
+            published_on: set.published_on ?? null,
+          },
         });
       }
     } catch (err) {
