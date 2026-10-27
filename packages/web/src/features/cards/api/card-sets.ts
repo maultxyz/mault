@@ -26,6 +26,31 @@ export const cardSetsQueryOptions = (
     staleTime: CARD_SETS_STALE_MS,
   });
 
+export const gameCardSetsQueryOptions = (
+  gameKey: string | null,
+  query: string,
+  language: string,
+) =>
+  queryOptions({
+    queryKey: ["game-card-sets", gameKey, query, language],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        gameKey: gameKey ?? "",
+        q: query,
+        lang: language,
+      });
+      const result = await apiGet<Result<CardSetOption[]>>(
+        `/api/cards/sets?${params}`,
+      );
+      if (!result.success || !result.data) {
+        throw new Error(result.message ?? "Failed to load sets.");
+      }
+      return result.data;
+    },
+    enabled: !!gameKey,
+    staleTime: CARD_SETS_STALE_MS,
+  });
+
 export const setPrintingsQueryOptions = (
   collectionGuid: string | undefined,
   setCode: string | undefined,

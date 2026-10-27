@@ -29,7 +29,7 @@ export interface CardSearchResultTileProps {
   disabled?: boolean;
   isSelected?: boolean;
   className?: string;
-  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   onKeyDown?: (event: KeyboardEvent<HTMLButtonElement>) => void;
 }
 
@@ -84,11 +84,6 @@ export interface CardSearchState {
   isLoadingMore: boolean;
   loadMore: () => void;
 }
-
-export type GameCardSearchState = Pick<
-  CardSearchState,
-  "results" | "loading" | "hasMore" | "isLoadingMore" | "loadMore"
->;
 
 export interface CardImageViewerProps {
   open: boolean;

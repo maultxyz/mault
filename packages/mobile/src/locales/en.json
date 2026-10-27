@@ -1730,6 +1730,7 @@
       "game": "Game",
       "language": "Language",
       "noGames": "No synced games",
+      "allSets": "All sets",
       "searchPlaceholder": "Search cards...",
       "noResults": "No cards found. It may not be synced yet.",
       "loadMore": "Load more"

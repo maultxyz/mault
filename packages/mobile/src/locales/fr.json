@@ -1730,6 +1730,7 @@
       "game": "Jeu",
       "language": "Langue",
       "noGames": "Aucun jeu synchronisé",
+      "allSets": "Tous les sets",
       "searchPlaceholder": "Rechercher des cartes...",
       "noResults": "Aucune carte trouvée. Elle n'est peut-être pas encore synchronisée.",
       "loadMore": "Charger plus"
