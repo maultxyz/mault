@@ -1104,3 +1104,41 @@ export interface DesktopPipDragState {
   lastY: number;
   moved: boolean;
 }
+
+export type ScanImageImportStatus =
+  | "queued"
+  | "identifying"
+  | "matched"
+  | "unmatched"
+  | "failed";
+
+export interface ScanImageImportItem {
+  id: string;
+  fileName: string;
+  status: ScanImageImportStatus;
+  matchedCardName?: string;
+  failureMessage?: string;
+}
+
+export interface ScanImageImport {
+  items: ScanImageImportItem[];
+  isRunning: boolean;
+  importFiles: (files: File[]) => void;
+  stop: () => void;
+}
+
+export interface ScanImageImportDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  scanImageImport: ScanImageImport;
+}
+
+export interface ScanImageImportRowProps {
+  item: ScanImageImportItem;
+  isRunning: boolean;
+}
+
+export interface ScanImageCanvas {
+  canvas: HTMLCanvasElement;
+  imageContour: CardContour;
+}

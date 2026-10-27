@@ -28,7 +28,7 @@ function storedCardPriceSelect(cols: ScannedCardSqlColumns, select: SQL): SQL {
     FROM card_prices cp
     JOIN collections pc ON pc.id = ${cols.collectionId}
     JOIN games pg ON pg.id = pc.game_id
-    WHERE cp.game_key = pg.key AND cp.lang = COALESCE(${cols.card} ->> 'lang', pc.lang) AND cp.card_id = ${cols.cardId}
+    WHERE cp.game_key = pg.key AND cp.lang = COALESCE(${cols.cardLang}, pc.lang) AND cp.card_id = ${cols.cardId}
   )`;
 }
 
@@ -45,7 +45,7 @@ function savedCardPriceSql(
   key: CardPriceKey,
   cols: ScannedCardSqlColumns,
 ): SQL {
-  return sql`(CASE WHEN jsonb_typeof(${cols.card} -> ${key}::text) = 'number' THEN (${cols.card} ->> ${key}::text)::float8 END)`;
+  return sql`${cols.savedPrices[key]}`;
 }
 
 export function cardPriceValueSql(
@@ -111,16 +111,16 @@ export function collectionCardPriceSql(
 }
 
 export function collectionCardPricesJoinOn(): SQL {
-  return sql`${cardPrices.gameKey} = ${games.key} AND ${cardPrices.lang} = COALESCE(${collectionCards.card} ->> 'lang', ${collections.lang}) AND ${cardPrices.cardId} = ${collectionCards.cardId}`;
+  return sql`${cardPrices.gameKey} = ${games.key} AND ${cardPrices.lang} = COALESCE(${collectionCards.cardLang}, ${collections.lang}) AND ${cardPrices.cardId} = ${collectionCards.cardId}`;
 }
 
 export function cardPricesJoinSql(
   cardPricesAlias: string,
   { gameKey, lang }: { gameKey: string | null; lang: string },
-  { cardId, card }: Pick<ScannedCardSqlColumns, "cardId" | "card">,
+  { cardId, cardLang }: Pick<ScannedCardSqlColumns, "cardId" | "cardLang">,
 ): SQL {
   const cp = sql.raw(cardPricesAlias);
-  return sql`LEFT JOIN card_prices ${cp} ON ${cp}.game_key = ${gameKey} AND ${cp}.lang = COALESCE(${card} ->> 'lang', ${lang}) AND ${cp}.card_id = ${cardId}`;
+  return sql`LEFT JOIN card_prices ${cp} ON ${cp}.game_key = ${gameKey} AND ${cp}.lang = COALESCE(${cardLang}, ${lang}) AND ${cp}.card_id = ${cardId}`;
 }
 
 export function joinedCardPricesJsonSql(cardPricesAlias = "cp"): SQL {

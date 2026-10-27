@@ -34,12 +34,12 @@ async function selectCards(
   const result = await tx.execute(sql`
     SELECT cc.id, cc.guid::text AS scan_id, cc.card_id, cc.is_foil, cc.foil_type,
       cc.condition,
-      ((cc.low_confidence_match OR (cc.alternative_matches IS NOT NULL AND cc.alternative_matches <> '[]'::jsonb)) AND NOT cc.is_corrected) AS needs_review,
+      ((cc.low_confidence_match OR cc.has_alternative_matches) AND NOT cc.is_corrected) AS needs_review,
       cc.is_reviewed,
-      cc.card ->> 'name' AS name, cc.card ->> 'set' AS set_code,
-      cc.card ->> 'setName' AS set_name,
-      cc.card ->> 'collectorNumber' AS collector_number,
-      cc.card ->> 'rarity' AS rarity,
+      cc.card_name AS name, cc.card_set AS set_code,
+      cc.card_set_name AS set_name,
+      cc.card_collector_number AS collector_number,
+      cc.card_rarity AS rarity,
       COALESCE(
         cc.card ->> 'tcgplayerId',
         cc.card -> 'raw' ->> 'tcgplayer_id',
@@ -50,7 +50,7 @@ async function selectCards(
       ${cardPriceValueSql("priceEur", CC_ALIAS_SQL_COLUMNS)} AS price_eur,
       ${cardPriceValueSql("priceEurFoil", CC_ALIAS_SQL_COLUMNS)} AS price_eur_foil,
       col.guid::text AS collection_guid, col.name AS collection_name,
-      COALESCE(cc.card ->> 'lang', col.lang) AS lang,
+      COALESCE(cc.card_lang, col.lang) AS lang,
       g.key AS game,
       sl.guid::text AS location_guid, sl.name AS location_name,
       CASE WHEN sl.id IS NOT NULL THEN cc.location_position END AS location_position,
@@ -152,15 +152,15 @@ function filterConditions(filters: PublicApiCardFilters): SQL[] {
   }
   if (filters.name) {
     conditions.push(
-      sql`(cc.card ->> 'name') ILIKE ${`%${escapeLike(filters.name)}%`}`,
+      sql`cc.card_name ILIKE ${`%${escapeLike(filters.name)}%`}`,
     );
   }
   if (filters.set) {
-    conditions.push(sql`lower(cc.card ->> 'set') = lower(${filters.set})`);
+    conditions.push(sql`lower(cc.card_set) = lower(${filters.set})`);
   }
   if (filters.collectorNumber) {
     conditions.push(
-      sql`ltrim(lower(cc.card ->> 'collectorNumber'), '0') = ltrim(lower(${filters.collectorNumber}), '0')`,
+      sql`ltrim(lower(cc.card_collector_number), '0') = ltrim(lower(${filters.collectorNumber}), '0')`,
     );
   }
   if (filters.foil !== null) {

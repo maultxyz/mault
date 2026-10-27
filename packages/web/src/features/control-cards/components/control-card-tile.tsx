@@ -11,6 +11,7 @@ export function ControlCardTile({ entry, onRemove }: ControlCardTileProps) {
         {entry.title || t("controlCards.tile.defaultTitle")}
       </p>
       <img
+        loading="lazy"
         src={entry.qrCodeDataUrl}
         alt={t("controlCards.tile.qrAlt")}
         className="size-[46mm]"

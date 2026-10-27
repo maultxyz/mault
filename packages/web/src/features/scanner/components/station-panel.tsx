@@ -4,7 +4,7 @@ import { CollectionSwitcher } from "@/features/collections/components/collection
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
-import { CardScanner } from "@/features/scanner/components/card-scanner";
+import { LazyCardScanner } from "@/features/scanner/components/lazy-card-scanner";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { useElementHeight } from "@/hooks/use-element-height";
@@ -32,7 +32,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
   if (layout === "vertical") {
     return (
       <>
-        <CardScanner className="h-full shrink-0" controlsPosition="side" />
+        <LazyCardScanner className="h-full shrink-0" controlsPosition="side" />
         <div className="flex flex-col gap-4 shrink-0 overflow-y-auto">
           <CollectionSwitcher />
           <PresetSelector readOnly />
@@ -56,7 +56,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         <CollectionSwitcher />
         <PresetSelector readOnly />
       </div>
-      <CardScanner
+      <LazyCardScanner
         className="flex-none"
         controlsContainer={controlsContainer}
       />

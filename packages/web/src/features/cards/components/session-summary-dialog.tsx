@@ -20,15 +20,22 @@ import {
   type ExportAdapter,
 } from "@/features/cards/lib/export";
 import { buildWrappedSlides } from "@/features/cards/lib/wrapped-slides";
+import {
+  collectionCardsCountQueryOptions,
+  collectionCardsExportQueryOptions,
+} from "@/features/collections/api/collection-cards";
+import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { computeStats } from "@/features/scanner/lib/compute-stats";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   IconChevronDown,
   IconChevronLeft,
@@ -408,7 +415,7 @@ function WrappedSlideContent({
 export function SessionSummaryDialog({
   open,
   onOpenChange,
-  cards,
+  collectionGuid,
   elapsedMs,
   sessionScanCount,
   collectionName,
@@ -417,8 +424,8 @@ export function SessionSummaryDialog({
   gridFilterCount,
 }: SessionSummaryDialogProps) {
   const { t } = useTranslation("cards");
-  const { source: priceSource, conditionMultipliers, format } =
-    usePriceSource();
+  const { format } = usePriceSource();
+  const queryClient = useQueryClient();
   const [includeDownloaded, setIncludeDownloaded] = useState(false);
   const [applyGridFilters, setApplyGridFilters] = useState(false);
   const [combineDuplicates, setCombineDuplicates] = useState(true);
@@ -428,22 +435,21 @@ export function SessionSummaryDialog({
 
   const { collection: activeCollection } = useViewedCollection();
 
-  const previouslyDownloadedCount = useMemo(
-    () => cards.filter((c) => c.isDownloaded).length,
-    [cards],
-  );
-  const exportCards = useMemo(() => {
-    const byDownloaded = includeDownloaded
-      ? cards
-      : cards.filter((c) => !c.isDownloaded);
-    return applyGridFilters
-      ? applyCardFilters(byDownloaded, { ...gridFilters, showDownloaded: true })
-      : byDownloaded;
-  }, [cards, includeDownloaded, applyGridFilters, gridFilters]);
-  const stats = useMemo(
-    () => computeStats(cards, priceSource, conditionMultipliers),
-    [cards, priceSource, conditionMultipliers],
-  );
+  const { summary, allStats: stats, totalCount } = useCollectionCardsSummary();
+  const previouslyDownloadedCount = summary
+    ? summary.all.totalCount - summary.filtered.totalCount
+    : 0;
+  const { data: exportCount } = useQuery({
+    ...collectionCardsCountQueryOptions(collectionGuid, {
+      ...ALL_CARDS_QUERY,
+      filters: {
+        ...(applyGridFilters ? gridFilters : EMPTY_CARD_FILTERS),
+        showDownloaded: includeDownloaded,
+      },
+    }),
+    enabled: open && !!collectionGuid,
+  });
+  const exportCardCount = exportCount?.totalCount ?? 0;
   const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
   const fieldDefinitions = activeCollection?.game?.fieldDefinitions ?? [];
   const { activeOrg } = useOrg();
@@ -498,7 +504,24 @@ export function SessionSummaryDialog({
     return () => document.removeEventListener("keydown", handler);
   }, [open, goPrev, goNext]);
 
-  function handleDownload(adapter: ExportAdapter) {
+  async function handleDownload(adapter: ExportAdapter) {
+    if (!collectionGuid) return;
+    let cards;
+    try {
+      cards = await queryClient.fetchQuery(
+        collectionCardsExportQueryOptions(collectionGuid, true),
+      );
+    } catch (err) {
+      console.error("Failed to load cards for export:", err);
+      toast.error(t("sessionSummaryDialog.downloadFailed"));
+      return;
+    }
+    const byDownloaded = includeDownloaded
+      ? cards
+      : cards.filter((c) => !c.isDownloaded);
+    const exportCards = applyGridFilters
+      ? applyCardFilters(byDownloaded, { ...gridFilters, showDownloaded: true })
+      : byDownloaded;
     runExport(adapter, exportCards, slug, exportContext, combineDuplicates);
     onOpenChange(false);
     onExported(exportCards.map((c) => c.scanId));
@@ -532,7 +555,7 @@ export function SessionSummaryDialog({
       : null;
 
   const summaryCells: { label: string; value: string }[] = [
-    { label: t("sessionSummaryDialog.totalCards"), value: String(cards.length) },
+    { label: t("sessionSummaryDialog.totalCards"), value: String(totalCount) },
     { label: t("sessionSummaryDialog.unique"), value: stats ? String(stats.uniqueCount) : "-" },
   ];
   if (stats?.hasPricing) {
@@ -679,17 +702,17 @@ export function SessionSummaryDialog({
       )}
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button disabled={exportCards.length === 0} className="w-full" />}
+          render={<Button disabled={exportCardCount === 0} className="w-full" />}
         >
           <IconDownload className="size-4" />
-          {t("sessionSummaryDialog.download", { count: exportCards.length })}
+          {t("sessionSummaryDialog.download", { count: exportCardCount })}
           <IconChevronDown className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">
           {exportAdapters.map((adapter) => (
             <DropdownMenuItem
               key={adapter.key}
-              onClick={() => handleDownload(adapter)}
+              onClick={() => void handleDownload(adapter)}
             >
               {adapter.label}
             </DropdownMenuItem>

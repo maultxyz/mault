@@ -61,6 +61,10 @@ export interface CollectionCardsSummary {
   filtered: CardStatsAggregate;
 }
 
+export interface CollectionCardsCount {
+  totalCount: number;
+}
+
 export interface BinWindow {
   binNumber: number;
   lastEmptiedAt: number | null;

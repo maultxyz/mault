@@ -79,8 +79,8 @@ export function updateCollectionCard(guid: string, scanId: string, body: CardUpd
 export function invalidateCollectionCards(queryClient: QueryClient, guid: string): void {
   void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
   void queryClient.invalidateQueries({ queryKey: ["collection-card", guid] });
-  void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
-  void queryClient.invalidateQueries({ queryKey: ["stats"] });
+  void queryClient.invalidateQueries({ queryKey: ["org-overview"], refetchType: "none" });
+  void queryClient.invalidateQueries({ queryKey: ["stats"], refetchType: "none" });
   void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
 }
 

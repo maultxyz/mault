@@ -28,7 +28,7 @@ import {
   dailyScanLimitMessage,
   getScansToday,
 } from "../../lib/scan-usage";
-import { emitToOrg, emitToSession } from "../../lib/session-stream";
+import { emitCollectionCardsChanged, emitToSession } from "../../lib/session-stream";
 import {
   getUserDisplayName,
   requireAuth,
@@ -288,7 +288,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         );
         void recordDeviceSorted(orgId, deviceGuid);
         emitToSession(guid, "card_added", result.data);
-        emitToOrg(orgId, "collections_changed", { guid });
+        emitCollectionCardsChanged(orgId, guid);
 
         notifyCardScanned({
           orgId,

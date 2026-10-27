@@ -76,7 +76,7 @@ export async function loadStatsReport(
         ${collectionCards.guid}::text AS scan_id,
         ${collectionCards.cardId} AS card_id,
         ${collectionCards.isFoil} AS is_foil,
-        (${collectionCards.lowConfidenceMatch} OR (jsonb_typeof(${collectionCards.alternativeMatches}) = 'array' AND jsonb_array_length(${collectionCards.alternativeMatches}) > 0)) AS needs_review,
+        (${collectionCards.lowConfidenceMatch} OR ${collectionCards.hasAlternativeMatches}) AS needs_review,
         ${collectionCards.isCorrected} AS is_corrected,
         ${collectionCards.createdAt} AS created_at,
         ${collectionCards.scannedAt} AS scanned_at,
@@ -92,7 +92,7 @@ export async function loadStatsReport(
       LEFT JOIN ${intakeLots} ON ${intakeLots.id} = ${collectionCards.intakeLotId}
       LEFT JOIN ${games} ON ${games.id} = ${collections.gameId}
       LEFT JOIN card_prices cp ON cp.game_key = ${games.key}
-        AND cp.lang = COALESCE(${collectionCards.card} ->> 'lang', ${collections.lang})
+        AND cp.lang = COALESCE(${collectionCards.cardLang}, ${collections.lang})
         AND cp.card_id = ${collectionCards.cardId}
       WHERE ${scope}
         AND (${intakeLots.id} IS NULL OR ${intakeLots.status} = 'accepted')

@@ -67,6 +67,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Rules store field keys only; anything new that stores a field key goes in `lib/field-renames.ts`.
 - Rule evaluation runs on `toRuleCard(...)` with `withScanRuleFields`; never save a `$scan` card. Text comparisons are trimmed and lowercased.
 - Scanning never calls upstream card APIs (reads go through `card-search/stored-cards.ts`). netdeck images render through `/cards/netdeck-image/...` because their URLs expire.
+- `collection_cards.card` is large and TOASTed: SQL that scans many rows reads the stored generated `card_*` columns (and `has_alternative_matches`, `card_saved_price*`), never `cc.card ->> ...`; a new hot field gets a generated column. Long lists page on the server.
 
 ### Prices
 
@@ -97,6 +98,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Any correct, confirm or review accept sets `is_reviewed` and clears `low_confidence_match`; `is_corrected` stays separate.
 - Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only.
 - In-process server state (locks, leases, sorter links, rate limits) is per process.
+- Single-card changes emit `collections_changed` through the throttled `emitCollectionCardsChanged`; web card queries refresh through the throttled `invalidateCollectionCards`.
 - Every connected sorter is a station (a tab) plus one idle standby. Background stations stay laid out (never `display: none`) so their scanners keep sorting.
 
 ### Firmware & serial

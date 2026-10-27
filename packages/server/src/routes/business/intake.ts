@@ -1,5 +1,6 @@
 import {
   creditOfferFor,
+  isBelowBuylistMinimum,
   INTAKE_LOTS_LIST_LIMIT,
   INTAKE_NOTES_MAX_LENGTH,
   INTAKE_LANG_MAX_LENGTH,
@@ -14,7 +15,9 @@ import {
   type IntakeTransferResult,
   type IntakeLot,
   type PagedList,
+  type IntakeLotCard,
   type IntakeLotDetail,
+  type IntakeLotReceipt,
   type IntakeLotInput,
   type IntakePayoutMethod,
 } from "@magic-vault/shared";
@@ -37,12 +40,17 @@ import {
   createIntakeCollection,
   findIntakeLot,
   findNextUnreviewedLotCard,
+  hideIntakeCardCosts,
+  intakeLotCardsWhere,
   loadIntakeCardContext,
+  loadIntakeLotCardPrices,
+  loadIntakeLotSummaries,
   loadUnreviewedLotCards,
   retireIntakeCollection,
   loadIntakeLotCards,
   selectIntakeLots,
   summarizeIntakeCards,
+  summarizeIntakePrices,
   toIntakeLot,
 } from "../../lib/intake";
 import { loadOrgPricing } from "../../lib/price-source";
@@ -64,6 +72,45 @@ import {
   INTAKE_LOT_NOT_FOUND_MESSAGE,
 } from "../../lib/constants/business";
 
+async function loadIntakeLotDetail(
+  tx: Transaction,
+  orgId: string,
+  row: IntakeLotRow,
+  canViewCosts: boolean,
+): Promise<IntakeLotDetail> {
+  const settings = await loadBusinessSettings(tx, orgId);
+  const pricedCards = await loadIntakeLotCardPrices(
+    tx,
+    [row.id],
+    await loadOrgPricing(tx, orgId),
+  );
+  const marketPrices = pricedCards.map((card) => card.marketPrice);
+  const lot = await toIntakeLot(
+    row,
+    row.status === "open"
+      ? summarizeIntakePrices(marketPrices, settings.buylist)
+      : null,
+    canViewCosts,
+  );
+  const [inSource] = await tx
+    .select({ count: sql<number>`count(*)::int` })
+    .from(collectionCards)
+    .where(
+      and(
+        eq(collectionCards.intakeLotId, row.id),
+        eq(collectionCards.collectionId, row.collectionId),
+      ),
+    );
+  return {
+    ...lot,
+    cardCount: pricedCards.length,
+    cardsInSource: Number(inSource?.count ?? 0),
+    belowMinimumScanIds: pricedCards
+      .filter((card) => isBelowBuylistMinimum(card.marketPrice, settings.buylist))
+      .map((card) => card.scanId),
+  };
+}
+
 async function toLiveIntakeLots(
   tx: Transaction,
   orgId: string,
@@ -72,18 +119,17 @@ async function toLiveIntakeLots(
 ): Promise<IntakeLot[]> {
   const settings = await loadBusinessSettings(tx, orgId);
   const pricing = await loadOrgPricing(tx, orgId);
-  const lots: IntakeLot[] = [];
-  for (const row of rows) {
-    const live =
-      row.status === "open"
-        ? summarizeIntakeCards(
-            await loadIntakeLotCards(tx, row.id, pricing, settings.buylist),
-            settings.buylist,
-          )
-        : null;
-    lots.push(await toIntakeLot(row, live, canViewCosts));
-  }
-  return lots;
+  const summaries = await loadIntakeLotSummaries(
+    tx,
+    rows.filter((row) => row.status === "open").map((row) => row.id),
+    pricing,
+    settings.buylist,
+  );
+  return Promise.all(
+    rows.map((row) =>
+      toIntakeLot(row, summaries.get(row.id) ?? null, canViewCosts),
+    ),
+  );
 }
 
 export const intakeRoute = new Hono<AppEnv>()
@@ -226,42 +272,60 @@ export const intakeRoute = new Hono<AppEnv>()
       const orgId = c.get("orgId");
       const row = await findIntakeLot(tx, orgId, c.req.param("guid"));
       if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
+      const data: IntakeLotDetail = await loadIntakeLotDetail(
+        tx,
+        orgId,
+        row,
+        access.canViewCosts,
+      );
+      return { success: true, data };
+    }),
+  )
+  .get("/intake/:guid/cards", requireAuth, requireOrg, (c) => {
+    const params = parsePageParams(c);
+    return businessQuery(c, async (tx, access) => {
+      const orgId = c.get("orgId");
+      const row = await findIntakeLot(tx, orgId, c.req.param("guid"));
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
+      const [{ total }] = await tx
+        .select({ total: sql<number>`count(*)::int` })
+        .from(collectionCards)
+        .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+        .where(intakeLotCardsWhere(row.id));
+      const pageCount = Math.max(Math.ceil(total / params.pageSize), 1);
+      const page = Math.min(params.page ?? 1, pageCount);
       const settings = await loadBusinessSettings(tx, orgId);
-      const pricing = await loadOrgPricing(tx, orgId);
       const cards = await loadIntakeLotCards(
         tx,
         row.id,
-        pricing,
+        await loadOrgPricing(tx, orgId),
+        settings.buylist,
+        { limit: params.pageSize, offset: (page - 1) * params.pageSize },
+      );
+      const data: PagedList<IntakeLotCard> = {
+        items: access.canViewCosts ? cards : cards.map(hideIntakeCardCosts),
+        total,
+        page,
+        pageSize: params.pageSize,
+      };
+      return { success: true, data };
+    });
+  })
+  .get("/intake/:guid/receipt", requireAuth, requireOrg, (c) =>
+    businessQuery(c, async (tx, access) => {
+      const orgId = c.get("orgId");
+      const row = await findIntakeLot(tx, orgId, c.req.param("guid"));
+      if (!row) return notFound(INTAKE_LOT_NOT_FOUND_MESSAGE);
+      const settings = await loadBusinessSettings(tx, orgId);
+      const cards = await loadIntakeLotCards(
+        tx,
+        row.id,
+        await loadOrgPricing(tx, orgId),
         settings.buylist,
       );
-      const lot = await toIntakeLot(
-        row,
-        row.status === "open"
-          ? summarizeIntakeCards(cards, settings.buylist)
-          : null,
-        access.canViewCosts,
-      );
-      const [inSource] = await tx
-        .select({ count: sql<number>`count(*)::int` })
-        .from(collectionCards)
-        .where(
-          and(
-            eq(collectionCards.intakeLotId, row.id),
-            eq(collectionCards.collectionId, row.collectionId),
-          ),
-        );
-      const data: IntakeLotDetail = {
-        ...lot,
-        cardCount: cards.length,
-        cardsInSource: Number(inSource?.count ?? 0),
-        cards: access.canViewCosts
-          ? cards
-          : cards.map((card) => ({
-              ...card,
-              marketPrice: null,
-              offer: null,
-              acquisitionCost: null,
-            })),
+      const data: IntakeLotReceipt = {
+        ...(await loadIntakeLotDetail(tx, orgId, row, access.canViewCosts)),
+        cards: access.canViewCosts ? cards : cards.map(hideIntakeCardCosts),
       };
       return { success: true, data };
     }),

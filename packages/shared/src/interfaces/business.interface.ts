@@ -87,8 +87,12 @@ export interface IntakeLotCard {
 }
 
 export interface IntakeLotDetail extends IntakeLot {
-  cards: IntakeLotCard[];
   cardsInSource: number;
+  belowMinimumScanIds: string[];
+}
+
+export interface IntakeLotReceipt extends IntakeLotDetail {
+  cards: IntakeLotCard[];
 }
 
 export type IntakeCollectionMode = "new" | "existing";

@@ -23,6 +23,8 @@ import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { useScanImageImport } from "@/features/scanner/api/use-scan-image-import";
+import { ScanImageImportDialog } from "@/features/scanner/components/scan-image-import-dialog";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ExportedCardsDialog } from "@/features/cards/components/exported-cards-dialog";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
@@ -40,12 +42,13 @@ import {
 } from "@/features/cards/lib/export";
 import {
   collectionCardPositionQueryOptions,
-  collectionCardsExportQueryOptions,
   collectionCardsPageQueryOptions,
-  collectionCardsSummaryQueryOptions,
+  collectionCardsCountQueryOptions,
+  loadCardsForExport,
   loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
+import { useStoredCardCount } from "@/features/collections/api/use-stored-card-count";
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
@@ -71,6 +74,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconDownload,
+  IconPhotoUp,
   IconPlus,
   IconRosette,
   IconSparkles,
@@ -119,6 +123,8 @@ export function CardGrid() {
   const collectionGuid = viewedCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [addCardOpen, setAddCardOpen] = useState(false);
+  const [importScansOpen, setImportScansOpen] = useState(false);
+  const scanImageImport = useScanImageImport(collectionGuid);
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
     viewedCollection && locks[viewedCollection.guid]?.userId === currentUserId
@@ -209,8 +215,8 @@ export function CardGrid() {
     [cardsQuery],
   );
   const [reviewTotal, setReviewTotal] = useState<number | null>(null);
-  const { data: reviewSummary } = useQuery({
-    ...collectionCardsSummaryQueryOptions(collectionGuid, reviewQuery),
+  const { data: reviewCount } = useQuery({
+    ...collectionCardsCountQueryOptions(collectionGuid, reviewQuery),
     enabled: !readOnly && !!collectionGuid,
   });
   const reviewSession = useReviewSession(openScanId, isReviewing);
@@ -409,10 +415,6 @@ export function CardGrid() {
     }
   }, [allSelected, collectionGuid, cardsQuery]);
 
-  const { data: exportCards } = useQuery(
-    collectionCardsExportQueryOptions(collectionGuid, summaryOpen),
-  );
-
   const gameKey = viewedCollection?.game?.key;
   const exportAdapters = useMemo(
     () =>
@@ -427,31 +429,25 @@ export function CardGrid() {
   const [confirmDeleteExported, setConfirmDeleteExported] = useState(false);
   const { isLocked: storageLocked } = useStorageAccess();
   const { moveCards, isMoving } = useMoveCardsToLocation();
-  const { data: allCardsForDelete } = useQuery(
-    collectionCardsExportQueryOptions(
-      collectionGuid,
-      confirmOpen || confirmDeleteExported || (storageLocked && !!exportedScanIds),
-    ),
+  const selectedStoredCount = useStoredCardCount(
+    collectionGuid,
+    selectedIds,
+    confirmOpen,
   );
-  const storedCountOf = (scanIds: Iterable<string>) => {
-    if (!allCardsForDelete) return 0;
-    const ids = new Set(scanIds);
-    return allCardsForDelete.filter(
-      (card) => ids.has(card.scanId) && card.storageLocation,
-    ).length;
-  };
+  const exportedStoredCount = useStoredCardCount(
+    collectionGuid,
+    exportedScanIds,
+    confirmDeleteExported || (storageLocked && !!exportedScanIds),
+  );
 
   const handleExportSelected = useCallback(
     async (adapter: ExportAdapter) => {
       if (!collectionGuid) return;
       setExportingSelected(true);
       try {
-        const allCards = await queryClient.fetchQuery(
-          collectionCardsExportQueryOptions(collectionGuid, true),
-        );
-        const selectedCards = allCards.filter((card) =>
-          selectedIds.has(card.scanId),
-        );
+        const selectedCards = await loadCardsForExport(collectionGuid, [
+          ...selectedIds,
+        ]);
         const slug = (viewedCollection?.name ?? "collection")
           .replace(/\s+/g, "-")
           .toLowerCase();
@@ -479,7 +475,6 @@ export function CardGrid() {
     },
     [
       collectionGuid,
-      queryClient,
       selectedIds,
       viewedCollection?.name,
       viewedCollection?.game?.name,
@@ -574,11 +569,18 @@ export function CardGrid() {
   }
 
   const addCardDialog = viewedCollection && (
-    <AddCardDialog
-      open={addCardOpen}
-      onOpenChange={setAddCardOpen}
-      collectionGuid={viewedCollection.guid}
-    />
+    <>
+      <AddCardDialog
+        open={addCardOpen}
+        onOpenChange={setAddCardOpen}
+        collectionGuid={viewedCollection.guid}
+      />
+      <ScanImageImportDialog
+        open={importScansOpen}
+        onOpenChange={setImportScansOpen}
+        scanImageImport={scanImageImport}
+      />
+    </>
   );
 
   if (totalCount === 0) {
@@ -590,14 +592,24 @@ export function CardGrid() {
           title={t("cardGrid.noCardsScanned")}
           description={t("cardGrid.scanToGetStarted")}
           action={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAddCardOpen(true)}
-            >
-              <IconPlus />
-              {t("addCard.button")}
-            </Button>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddCardOpen(true)}
+              >
+                <IconPlus />
+                {t("addCard.button")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setImportScansOpen(true)}
+              >
+                <IconPhotoUp />
+                {t("importScans.button")}
+              </Button>
+            </div>
           }
         />
         {addCardDialog}
@@ -710,8 +722,9 @@ export function CardGrid() {
           sortableFields={sortableFields}
           onExport={() => setSummaryOpen(true)}
           onStartReview={readOnly ? undefined : startReview}
-          needsReviewCount={reviewSummary?.filtered.totalCount ?? 0}
+          needsReviewCount={reviewCount?.totalCount ?? 0}
           onAddCard={() => setAddCardOpen(true)}
+          onImportScans={() => setImportScansOpen(true)}
           collectionName={viewedCollection?.name}
           onClearAll={readOnly ? undefined : handleClearSession}
           hasCards={totalCards > 0}
@@ -977,9 +990,9 @@ export function CardGrid() {
       {addCardDialog}
 
       <SessionSummaryDialog
-        open={summaryOpen && !!exportCards}
+        open={summaryOpen}
         onOpenChange={setSummaryOpen}
-        cards={exportCards ?? []}
+        collectionGuid={collectionGuid}
         elapsedMs={elapsedMs}
         sessionScanCount={sessionScanCount}
         collectionName={viewedCollection?.name ?? "collection"}
@@ -1003,7 +1016,7 @@ export function CardGrid() {
         onConfirm={handleBulkDelete}
       >
         <StorageDeleteWarning
-          storedCount={storedCountOf(selectedIds)}
+          storedCount={selectedStoredCount}
           total={selectedIds.size}
           className="mt-4"
         />
@@ -1041,7 +1054,7 @@ export function CardGrid() {
         onConfirm={handleDeleteExported}
       >
         <StorageDeleteWarning
-          storedCount={storedCountOf(exportedScanIds ?? [])}
+          storedCount={exportedStoredCount}
           total={exportedCount}
           className="mt-4"
         />

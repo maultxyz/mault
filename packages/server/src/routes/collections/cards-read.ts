@@ -1,5 +1,6 @@
 import {
   COLLECTION_CARDS_PAGE_SIZE,
+  type CollectionCardsCount,
   type CollectionCardsPage,
   type CollectionCardsSummary,
 } from "@magic-vault/shared";
@@ -9,6 +10,7 @@ import { loadOrgPricing } from "../../lib/price-source";
 import {
   cardFilterSql,
   findCardsCollection,
+  loadCardsCount,
   loadCardStats,
   loadCardsPage,
   parseCardsQuery,
@@ -62,5 +64,21 @@ export async function readCardsSummary(
     if (!collection) return null;
     const pricing = await loadOrgPricing(tx, orgId);
     return loadCardStats(tx, collection, cardFilterSql(query), pricing);
+  });
+}
+
+export async function readCardsCount(
+  run: TransactionRunner,
+  guid: string,
+  orgId: string,
+  params: Record<string, string>,
+): Promise<CollectionCardsCount | null> {
+  const query = parseCardsQuery(params);
+  return run(async (tx) => {
+    const collection = await findCardsCollection(tx, guid, orgId);
+    if (!collection) return null;
+    return {
+      totalCount: await loadCardsCount(tx, collection, cardFilterSql(query)),
+    };
   });
 }

@@ -42,7 +42,7 @@ export async function loadInventoryByCollection(
       LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id
     ) ON cc.collection_id = col.id AND (il.id IS NULL OR il.status = 'accepted')
     LEFT JOIN card_prices cp ON cp.game_key = g.key
-      AND cp.lang = COALESCE(cc.card ->> 'lang', col.lang)
+      AND cp.lang = COALESCE(cc.card_lang, col.lang)
       AND cp.card_id = cc.card_id
     WHERE col.org_id = ${orgId}
       AND col.is_deleted = false

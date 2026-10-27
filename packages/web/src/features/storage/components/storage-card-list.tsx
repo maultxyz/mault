@@ -118,6 +118,7 @@ export function StorageCardList({
                     <div className="relative aspect-[2.5/3.5] w-8 overflow-hidden rounded-md bg-muted">
                       {entry.card.image?.small && (
                         <img
+                          loading="lazy"
                           src={entry.card.image.small}
                           alt=""
                           className="absolute inset-0 size-full object-cover"

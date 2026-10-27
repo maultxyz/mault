@@ -1,6 +1,7 @@
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
 import { useCardViewPreferences } from "@/features/cards/api/use-card-view-preferences";
 import {
+  monitorCardsCountQueryOptions,
   monitorCardsKey,
   monitorCardsPageQueryOptions,
   monitorCardsSummaryQueryOptions,
@@ -13,6 +14,7 @@ import {
   MONITOR_OPEN_CARD_PARAM,
 } from "@/lib/constants/scanner";
 import {
+  CARDS_SUMMARY_REFRESH_THROTTLE_MS,
   MONITOR_REFRESH_THROTTLE_MS,
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/timing";
@@ -72,8 +74,8 @@ export function useMonitorCards(
     monitorCardsSummaryQueryOptions(cardsSource, ALL_CARDS_QUERY),
   );
 
-  const { data: reviewSummary } = useQuery({
-    ...monitorCardsSummaryQueryOptions(
+  const { data: reviewCount } = useQuery({
+    ...monitorCardsCountQueryOptions(
       cardsSource,
       MONITOR_NEEDS_REVIEW_CARDS_QUERY,
     ),
@@ -81,18 +83,35 @@ export function useMonitorCards(
   });
 
   const lastRefreshRef = useRef(0);
+  const lastSummaryRefreshRef = useRef(0);
   const cardsKey = useMemo(() => monitorCardsKey(cardsSource), [cardsSource]);
   useEffect(() => {
     if (cardsVersion === 0) return;
-    const wait = Math.max(
-      0,
-      MONITOR_REFRESH_THROTTLE_MS - (Date.now() - lastRefreshRef.current),
-    );
-    const id = setTimeout(() => {
-      lastRefreshRef.current = Date.now();
-      void queryClient.invalidateQueries({ queryKey: cardsKey });
-    }, wait);
-    return () => clearTimeout(id);
+    const scheduleRefresh = (
+      lastRefreshAt: { current: number },
+      throttleMs: number,
+      refreshSummary: boolean,
+    ) =>
+      setTimeout(
+        () => {
+          lastRefreshAt.current = Date.now();
+          void queryClient.invalidateQueries({
+            queryKey: cardsKey,
+            predicate: (query) =>
+              (query.queryKey[2] === "summary") === refreshSummary,
+          });
+        },
+        Math.max(0, throttleMs - (Date.now() - lastRefreshAt.current)),
+      );
+    const timers = [
+      scheduleRefresh(lastRefreshRef, MONITOR_REFRESH_THROTTLE_MS, false),
+      scheduleRefresh(
+        lastSummaryRefreshRef,
+        CARDS_SUMMARY_REFRESH_THROTTLE_MS,
+        true,
+      ),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [cardsVersion, cardsKey, queryClient]);
 
   const pageCount = pageData
@@ -143,7 +162,7 @@ export function useMonitorCards(
     stats,
     cardCount: summary?.all.totalCount ?? collection?.cardCount ?? 0,
     matchingCount: pageData?.totalEntries ?? 0,
-    needsReviewCount: reviewSummary?.filtered.totalCount ?? 0,
+    needsReviewCount: reviewCount?.totalCount ?? 0,
     openScanId,
     setOpenScanId,
   };

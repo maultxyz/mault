@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { intakeLotQueryOptions } from "@/features/business/api/business";
+import { intakeLotReceiptQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { formatDateTime } from "@/features/business/lib/format";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -27,7 +27,7 @@ function IntakeReceipt() {
   const { activeOrg } = useOrg();
   const { access } = useBusinessAccess();
   const { format } = usePriceSource();
-  const { data: lot, isLoading } = useQuery(intakeLotQueryOptions(guid));
+  const { data: lot, isLoading } = useQuery(intakeLotReceiptQueryOptions(guid));
   const [searchParams] = useSearchParams();
   const autoPrint = searchParams.get(RECEIPT_PRINT_PARAM) === "1";
   const printedRef = useRef(false);

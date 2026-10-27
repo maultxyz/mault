@@ -147,6 +147,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             )}
           </div>
           <img
+            loading="lazy"
             src={card.image?.normal || ""}
             alt={card.name}
             className="w-full h-full object-cover"
