@@ -192,7 +192,7 @@ export async function loadLocations(
       JOIN ${collections} col ON col.id = cc.collection_id AND col.is_deleted = false
       LEFT JOIN games g ON g.id = col.game_id
       LEFT JOIN card_prices cp ON cp.game_key = g.key
-        AND cp.lang = COALESCE(cc.card ->> 'lang', col.lang)
+        AND cp.lang = COALESCE(cc.card_lang, col.lang)
         AND cp.card_id = cc.card_id
     ) ON cc.location_id = sl.id
     WHERE sl.org_id = ${orgId}

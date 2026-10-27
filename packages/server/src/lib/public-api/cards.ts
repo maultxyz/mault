@@ -50,7 +50,7 @@ async function selectCards(
       ${cardPriceValueSql("priceEur", CC_ALIAS_SQL_COLUMNS)} AS price_eur,
       ${cardPriceValueSql("priceEurFoil", CC_ALIAS_SQL_COLUMNS)} AS price_eur_foil,
       col.guid::text AS collection_guid, col.name AS collection_name,
-      COALESCE(cc.card ->> 'lang', col.lang) AS lang,
+      COALESCE(cc.card_lang, col.lang) AS lang,
       g.key AS game,
       sl.guid::text AS location_guid, sl.name AS location_name,
       CASE WHEN sl.id IS NOT NULL THEN cc.location_position END AS location_position,

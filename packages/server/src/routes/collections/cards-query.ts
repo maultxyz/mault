@@ -145,7 +145,7 @@ const COLOR_IDENTITY = sql`(CASE WHEN jsonb_typeof(cc.card -> 'colorIdentity') =
 
 const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' END)`;
 
-const DUPLICATE_KEY = sql`(cc.card_id || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition || ':' || COALESCE(cc.language, cc.card ->> 'lang', 'en'))`;
+const DUPLICATE_KEY = sql`(cc.card_id || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition || ':' || COALESCE(cc.language, cc.card_lang, 'en'))`;
 
 function isCardPriceKey(path: string): path is CardPriceKey {
   return path in CARD_PRICE_COLUMNS;
@@ -218,7 +218,7 @@ export function cardFilterSql(
   }
 
   if (filters.needsAttention) {
-    const needsAttention = sql`((jsonb_typeof(cc.alternative_matches) = 'array' AND jsonb_array_length(cc.alternative_matches) > 0) OR cc.low_confidence_match) AND NOT cc.is_corrected`;
+    const needsAttention = sql`(cc.has_alternative_matches OR cc.low_confidence_match) AND NOT cc.is_corrected`;
     conditions.push(
       keepScanId
         ? sql`((${needsAttention}) OR cc.guid = ${keepScanId}::uuid)`

@@ -25,6 +25,7 @@ export const CARD_PRICE_REFRESH_PROGRESS_LOG_EVERY_BATCHES = 20;
 
 export const COLLECTION_CARD_SQL_COLUMNS: ScannedCardSqlColumns = {
   card: collectionCards.card,
+  cardLang: collectionCards.cardLang,
   isFoil: collectionCards.isFoil,
   condition: collectionCards.condition,
   cardId: collectionCards.cardId,
@@ -33,6 +34,7 @@ export const COLLECTION_CARD_SQL_COLUMNS: ScannedCardSqlColumns = {
 
 export const CC_ALIAS_SQL_COLUMNS: ScannedCardSqlColumns = {
   card: sql`cc.card`,
+  cardLang: sql`cc.card_lang`,
   isFoil: sql`cc.is_foil`,
   condition: sql`cc.condition`,
   cardId: sql`cc.card_id`,
