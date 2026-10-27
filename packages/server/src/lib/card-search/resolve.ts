@@ -15,6 +15,7 @@ import { scryfallAdapter } from "../adapters/scryfall/search";
 import { yugiohAdapter } from "../adapters/yugioh/search";
 import { withCache } from "./cache";
 import { withErrorHandling } from "./error-handling";
+import { withTcgtracking } from "../tcgtracking/adapter";
 import type {
   CardSearchAdapter,
   CollectionMatchScope,
@@ -22,17 +23,39 @@ import type {
 } from "../interfaces/card-search";
 
 export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
-  mtg: withCache(withErrorHandling(scryfallAdapter)),
-  gundam: withCache(withErrorHandling(gundamAdapter)),
-  pokemon: withCache(withErrorHandling(pokemonAdapter)),
-  lorcana: withCache(withErrorHandling(lorcanaAdapter)),
-  onepiece: withCache(withErrorHandling(onePieceAdapter)),
-  fab: withCache(withErrorHandling(fabAdapter)),
-  yugioh: withCache(withErrorHandling(yugiohAdapter)),
-  riftbound: withCache(withErrorHandling(riftboundAdapter)),
-  swu: withCache(withErrorHandling(swuAdapter)),
-  grandarchive: withCache(withErrorHandling(grandArchiveAdapter)),
-  cyberpunk: withCache(withErrorHandling(cyberpunkAdapter)),
+  mtg: withCache(
+    withErrorHandling(withTcgtracking("mtg", scryfallAdapter)),
+  ),
+  gundam: withCache(
+    withErrorHandling(withTcgtracking("gundam", gundamAdapter)),
+  ),
+  pokemon: withCache(
+    withErrorHandling(withTcgtracking("pokemon", pokemonAdapter)),
+  ),
+  lorcana: withCache(
+    withErrorHandling(withTcgtracking("lorcana", lorcanaAdapter)),
+  ),
+  onepiece: withCache(
+    withErrorHandling(withTcgtracking("onepiece", onePieceAdapter)),
+  ),
+  fab: withCache(
+    withErrorHandling(withTcgtracking("fab", fabAdapter)),
+  ),
+  yugioh: withCache(
+    withErrorHandling(withTcgtracking("yugioh", yugiohAdapter)),
+  ),
+  riftbound: withCache(
+    withErrorHandling(withTcgtracking("riftbound", riftboundAdapter)),
+  ),
+  swu: withCache(
+    withErrorHandling(withTcgtracking("swu", swuAdapter)),
+  ),
+  grandarchive: withCache(
+    withErrorHandling(withTcgtracking("grandarchive", grandArchiveAdapter)),
+  ),
+  cyberpunk: withCache(
+    withErrorHandling(withTcgtracking("cyberpunk", cyberpunkAdapter)),
+  ),
 };
 
 export async function resolveGameKeyAndLang(

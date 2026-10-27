@@ -1,0 +1,21 @@
+export function collectorNumberKey(number: string): string {
+  const head = number.split("/")[0].trim().toUpperCase();
+  return /^\d+$/.test(head) ? String(Number(head)) : head;
+}
+
+export function cardNameKey(name: string): string {
+  return name
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+export function baseCardNameKey(name: string): string {
+  return cardNameKey(name.replace(/\([^)]*\)/g, " "));
+}
+
+export function setCodeKey(setCode: string): string {
+  return setCode.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+}

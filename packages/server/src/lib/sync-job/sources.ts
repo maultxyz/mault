@@ -10,8 +10,9 @@ import { scryfallSyncSource } from "../adapters/scryfall/sync";
 import { swuSyncSource } from "../adapters/swu/sync";
 import { yugiohSyncSource } from "../adapters/yugioh/sync";
 import type { SyncSource } from "../interfaces/card-search";
+import { withTcgtrackingSync } from "../tcgtracking/sync-source";
 
-export const SYNC_SOURCES: Record<string, SyncSource> = {
+const BASE_SYNC_SOURCES: Record<string, SyncSource> = {
   mtg: scryfallSyncSource,
   gundam: gundamSyncSource,
   pokemon: pokemonSyncSource,
@@ -24,3 +25,10 @@ export const SYNC_SOURCES: Record<string, SyncSource> = {
   grandarchive: grandArchiveSyncSource,
   cyberpunk: cyberpunkSyncSource,
 };
+
+export const SYNC_SOURCES: Record<string, SyncSource> = Object.fromEntries(
+  Object.entries(BASE_SYNC_SOURCES).map(([gameKey, source]) => [
+    gameKey,
+    withTcgtrackingSync(source),
+  ]),
+);

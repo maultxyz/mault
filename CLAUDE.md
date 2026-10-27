@@ -64,6 +64,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - One adapter per game in `server/src/lib/adapters/<game>/`, registered in `card-search/resolve.ts` and `lib/sync-job.ts`, plus a `Game` row.
 - `cards.data` stores the API's raw card object (read through `normalizeStored`); one entry per artwork; art through `toPortraitCardImage()`; every `cards.data` write also sets `collector_number`.
 - Never hardcode source-specific fields: read through the game's `fieldDefinitions` and `getByPath`/`getCardValue`. Game-specific behaviour goes on the adapter (e.g. `rarePrintingSql`).
+- TCGTracking (`lib/tcgtracking/`) wraps every sync source and adapter whose game is in `TCGTRACKING_GAMES`: linked cards get `tcgtrackingProductId` (read as `tcgplayerId`), cards the primary lacks become `tcgp-<productId>` fallbacks normalized from TCGTracking data, and covered fallbacks get `supersededByCardId` and drop out of matching. English only.
 - Rules store field keys only; anything new that stores a field key goes in `lib/field-renames.ts`.
 - Rule evaluation runs on `toRuleCard(...)` with `withScanRuleFields`; never save a `$scan` card. Text comparisons are trimmed and lowercased.
 - Scanning never calls upstream card APIs (reads go through `card-search/stored-cards.ts`). netdeck images render through `/cards/netdeck-image/...` because their URLs expire.
