@@ -1,3 +1,5 @@
+import { getRequestAuth } from "@/lib/api/client";
+import { API_BASE } from "@/lib/constants/api";
 import {
   BLE_ATT_HEADER_SIZE,
   BLE_CONNECT_ATTEMPTS,
@@ -11,10 +13,15 @@ import {
   SorterLinkConnection,
   type SorterLinkOpenFailure,
 } from "@magic-vault/shared";
+import { PI_SERIAL_OPEN_TIMEOUT_MS } from "@/lib/constants/scanner";
 import type {
   SerialTransportType,
   ByteTransport,
 } from "@/lib/interfaces/scanner";
+import type {
+  PiSerialControlMessage,
+  PiSerialErrorReason,
+} from "@magic-vault/shared";
 
 export class SerialTransport implements ByteTransport {
   readonly kind: SerialTransportType = "serial";
@@ -337,5 +344,157 @@ export class CloudTransport
     return opened.ok
       ? { ok: true, transport: new CloudTransport(opened.socket) }
       : opened;
+  }
+}
+
+
+function copyBytes(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
+  const copy = new Uint8Array(new ArrayBuffer(bytes.byteLength));
+  copy.set(bytes);
+  return copy;
+}
+
+function piSerialUrl(token: string, orgId: string): string {
+  const params = new URLSearchParams({ token, orgId });
+  if (API_BASE.startsWith("http://") || API_BASE.startsWith("https://")) {
+    const url = new URL(API_BASE);
+    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+    url.pathname = `${url.pathname.replace(/\/$/, "")}/pi-serial`;
+    url.search = params.toString();
+    return url.toString();
+  }
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${protocol}//${window.location.host}${API_BASE}/api/pi-serial?${params}`;
+}
+
+function parseControl(text: string): PiSerialControlMessage | null {
+  try {
+    const parsed = JSON.parse(text) as PiSerialControlMessage;
+    if (parsed?.type === "ready") return parsed;
+    if (parsed?.type === "error") return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export class PiSerialTransport implements ByteTransport {
+  readonly kind: SerialTransportType = "pi";
+  private dataCb: ((chunk: Uint8Array) => void) | null = null;
+  private disconnectCb: (() => void) | null = null;
+  private errorCb: ((error: unknown) => void) | null = null;
+  private pending: Uint8Array<ArrayBuffer>[] = [];
+  private started = false;
+  private ready: PiSerialControlMessage | null = null;
+  private readyWaiters: Array<(message: PiSerialControlMessage | null) => void> =
+    [];
+  private readonly ws: WebSocket;
+
+  private constructor(ws: WebSocket) {
+    this.ws = ws;
+    ws.binaryType = "arraybuffer";
+    ws.onmessage = (event) => {
+      if (typeof event.data === "string") {
+        const message = parseControl(event.data);
+        if (!this.ready && message) {
+          this.ready = message;
+          const waiters = this.readyWaiters;
+          this.readyWaiters = [];
+          for (const waiter of waiters) waiter(message);
+        }
+        return;
+      }
+      const bytes = copyBytes(new Uint8Array(event.data as ArrayBuffer));
+      if (this.started && this.dataCb) this.dataCb(bytes);
+      else this.pending.push(bytes);
+    };
+    ws.onclose = () => this.disconnectCb?.();
+    ws.onerror = () => this.errorCb?.(new Error("pi serial socket error"));
+  }
+
+  static async open(): Promise<
+    | { ok: true; transport: PiSerialTransport }
+    | { ok: false; reason: PiSerialErrorReason }
+  > {
+    const { token, orgId } = await getRequestAuth();
+    if (!token || !orgId) return { ok: false, reason: "open-failed" };
+
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(piSerialUrl(token, orgId));
+    } catch {
+      return { ok: false, reason: "open-failed" };
+    }
+
+    const transport = new PiSerialTransport(ws);
+    const result = await transport.waitUntilReady();
+    if (!result.ok) {
+      transport.disconnectCb = null;
+      await transport.close();
+      return result;
+    }
+    return { ok: true, transport };
+  }
+
+  private waitUntilReady(): Promise<
+    { ok: true } | { ok: false; reason: PiSerialErrorReason }
+  > {
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (message: PiSerialControlMessage | null) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        if (message?.type === "ready") {
+          resolve({ ok: true });
+          return;
+        }
+        resolve({
+          ok: false,
+          reason: message?.type === "error" ? message.reason : "open-failed",
+        });
+      };
+      const timer = window.setTimeout(
+        () => finish(null),
+        PI_SERIAL_OPEN_TIMEOUT_MS,
+      );
+      if (this.ready) finish(this.ready);
+      else this.readyWaiters.push(finish);
+      this.ws.addEventListener("close", () => finish(this.ready), { once: true });
+      this.ws.addEventListener("error", () => finish(this.ready), { once: true });
+    });
+  }
+
+  start() {
+    this.started = true;
+    const queued = this.pending;
+    this.pending = [];
+    for (const chunk of queued) this.dataCb?.(chunk);
+  }
+
+  onData(cb: (chunk: Uint8Array) => void) {
+    this.dataCb = cb;
+  }
+
+  onDisconnect(cb: () => void) {
+    this.disconnectCb = cb;
+  }
+
+  onError(cb: (error: unknown) => void) {
+    this.errorCb = cb;
+  }
+
+  async write(data: Uint8Array<ArrayBuffer>): Promise<void> {
+    if (this.ws.readyState !== WebSocket.OPEN) return;
+    this.ws.send(data);
+  }
+
+  async close(): Promise<void> {
+    if (
+      this.ws.readyState === WebSocket.OPEN ||
+      this.ws.readyState === WebSocket.CONNECTING
+    ) {
+      this.ws.close();
+    }
   }
 }

@@ -67,7 +67,7 @@ firmware/      Sorter sketch (firmware/main/*.ino) and wire protocol (firmware/P
 drizzle/       Generated SQL migrations
 docs/          Public API guide
 docker/        Web container start-up script (runtime env.js)
-scripts/       Release and version helpers
+scripts/       Release and version helpers, plus scripts/pi for a Raspberry Pi host
 .github/       Build check, deploy, firmware PR check and firmware release workflows
 ```
 
@@ -89,7 +89,7 @@ For a production install, follow the step-by-step guide at [mault.xyz/self-host]
 Mault needs Postgres with pgvector and an identity provider, picked with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
 - **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough.
-- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs.
+- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs. A Raspberry Pi can host the same local-auth app with `scripts/pi/install.sh` ([Raspberry Pi](#raspberry-pi)).
 
 Both read one `.env` in the repo root:
 
@@ -126,6 +126,59 @@ To make another user platform admin (no UI yet):
 INSERT INTO platform_user_roles (user_id, role) VALUES ('<own_auth_users.id>', 'admin')
 ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
+
+### Raspberry Pi
+
+A Raspberry Pi can host the local-auth app and run the sorter. Postgres is the Pi's own server on port 5432, not Docker. The scanner camera is a USB webcam plugged into the Pi. Use Raspberry Pi OS with the desktop. The examples use `~/mault`, but you can install in another directory; the service paths are configured automatically.
+
+```bash
+git clone https://github.com/maultxyz/mault.git ~/mault
+cd ~/mault
+scripts/pi/install.sh
+```
+
+`install.sh` installs Node 22, pnpm, Postgres with pgvector, ffmpeg, and the webcam tools, then writes `.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, and a `mault` database on `127.0.0.1:5432`. Run it as the desktop user. It asks for your password when it needs root. If `git` is not installed yet, run `sudo apt install -y git` before the clone. If `.env` already exists and has no `PI_HOST` line, the script appends `PI_HOST=1`. It then creates the `mault` role and database, builds the server and the web app, runs migrations, and enables three user services. Linger is turned on so those services start at boot. It adds the desktop user to the `dialout` group so the API can open the sorter. When this login does not have that group yet, it restarts the user services so the new membership applies.
+
+| Service | Role |
+| --- | --- |
+| `mault-api` | API on `127.0.0.1:3001`, accessible through the web app's `/api` proxy |
+| `mault-web` | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
+| `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam |
+
+Remote browsers use port 8080. The Linux API service binds only to localhost; HTTP and WebSocket requests reach it through the web app's proxy. Other deployments keep the existing API bind address unless `API_HOST` is configured.
+
+Updates are installed manually. Finish any scan, then run these commands on the Pi:
+
+```bash
+cd ~/mault
+bash scripts/pi/update.sh
+```
+
+The updater downloads and builds the latest version of Mault, then restarts the app and camera services. Your settings, accounts, and saved cards stay in place. Any required database updates are applied automatically. When the update finishes, reload Mault in your browsers.
+
+Admins can also choose **Update Mault** in the update banner when a new version is available. Finish scanning, disconnect the sorter, and stop any database sync first. Keep the page open while the update runs, then choose **Refresh** when it reports success. If the app cannot reconnect, check `${XDG_STATE_HOME:-$HOME/.local/state}/mault/update.log` on the Pi.
+
+If you have changed or added files in the installation folder, the updater stops before updating so it does not overwrite your work. If an update fails after stopping the app, resolve the reported error and run the same command again. Check the release instructions for any additional system requirements.
+
+The API service keeps its output in `${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log`, including scan failures and feed commands. To inspect the latest entries even when the user journal is unavailable:
+
+```bash
+tail -n 100 "${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log"
+```
+
+```bash
+scripts/pi/start.sh            # start the services and open Chromium on the Pi desktop
+scripts/pi/start.sh --kiosk
+scripts/pi/stop.sh
+```
+
+Open `http://<the-pi>:8080` from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. `start.sh` also opens Chromium on the Pi at `http://127.0.0.1:8080`. The camera helper owns the webcam, and the API owns the sorter during a scan. Camera preview and focus control require signing in to an organization.
+
+The API reports a Pi host when `PI_HOST=1`, and also when `/proc/device-tree/model` contains `Raspberry Pi` and `PI_HOST` is unset. `PI_HOST=0` turns the remote-browser behavior off. `WEBCAM_DEVICE` selects a specific `/dev/video*` node when the helper should not pick one itself.
+
+Sign up on the Pi's page. The first account is the platform admin. Add a game in Admin and sync it before scanning. On a Pi host, **Start on this computer** uses the remote computer's browser to vectorize missing card images for the bulk database sync. Keep that admin page open while it works; the cards-at-a-time control sets its concurrency. Live scans still identify cards on the Pi.
+
+If a bin fills or all repack packs are complete, scanning pauses with the current card retained. Empty the relevant bins in the app, then resume. The API reloads rules, capacities, and bin contents before routing that card. Presets with **skip saving** use the existing sort-only path. Stopping a scan may leave a card in the sorter; remove it before starting another session.
 
 ### Running pieces individually
 
@@ -226,6 +279,10 @@ Full BOM, wiring and assembly steps are at `/build`. In short:
 The sketch is `firmware/main/` (`main.ino` plus the BLE and Wi-Fi tabs). The easiest path is flashing from the app, which uses the builds published by `.github/workflows/firmware-release.yml`. To build it yourself, install ArduinoJson, Adafruit PWM Servo Driver and (Uno R4 WiFi) ArduinoBLE, and use the FQBNs from that workflow; ESP32-S3 builds need `USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio,PartitionScheme=min_spiffs`.
 
 The firmware has no idea what a bin is: the app resolves each bin to a module and direction (`left`, `right` or `bottom`) and sends newline-delimited JSON at 9600 baud, such as `{"seq":42,"route":{"module":2,"direction":"left"}}`. Note that `"left"` lands on the physical right. `firmware/PROTOCOL.md` documents every command and the USB, BLE and Wi-Fi transports. The PCA9685 channel layout (Standard from channel 0, or Legacy from channel 4 for older wiring) is chosen in Calibration and sent at connect time.
+
+### Raspberry Pi
+
+See [Raspberry Pi](#raspberry-pi). The sorter stays plugged into the Pi, and a USB webcam on the Pi is the scanner camera.
 
 ### Wi-Fi remote
 

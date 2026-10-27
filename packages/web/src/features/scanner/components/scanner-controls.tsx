@@ -92,6 +92,10 @@ export function ScannerControls({
   onResume,
   onFeed,
   onClearDevice,
+  sessionFeed = false,
+  sessionLive = false,
+  onStop,
+  onAutoFeedChange,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -122,8 +126,10 @@ export function ScannerControls({
   const { isActive } = useStation();
   const { panelsDocked } = useStations();
   const isMobile = useIsMobile();
-  const canFeed = isConnected && isReady && !isFeeding;
-  const canClearDevice = isConnected && isReady && !isClearingDevice;
+  const canFeed = (sessionFeed || (isConnected && isReady)) && !isFeeding;
+  const canClearDevice =
+    !sessionLive && isConnected && isReady && !isClearingDevice;
+  const toggleAutoFeed = () => (onAutoFeedChange ?? setAutoFeed)(!autoFeed);
   const isVertical = orientation === "vertical";
 
   const [setPickerOpen, setSetPickerOpen] = useState(false);
@@ -137,14 +143,17 @@ export function ScannerControls({
   useHotkeys(
     {
       scanPauseResume: isPaused ? onResume : onPause,
-      scanNow: canForceScan ? onForceScan : undefined,
+      scanNow: canForceScan && !sessionFeed ? onForceScan : undefined,
       scanFeed: canFeed ? onFeed : undefined,
-      scanToggleAutoFeed: isConnected
-        ? () => setAutoFeed(!autoFeed)
-        : undefined,
+      scanToggleAutoFeed:
+        isConnected || sessionLive ? toggleAutoFeed : undefined,
       scanCycleFoil: cycleFoilType,
       scanPickSet: () => setSetPickerOpen(true),
-      scanClearDevice: canClearDevice ? onClearDevice : undefined,
+      scanClearDevice: sessionLive
+        ? onStop
+        : canClearDevice
+          ? onClearDevice
+          : undefined,
     },
     isActive && panelsDocked && !isMobile,
   );
@@ -167,7 +176,7 @@ export function ScannerControls({
   return (
     <div className={cn("flex flex-col gap-2", isVertical ? "w-44" : "w-full")}>
       <div className={cn("flex gap-2", isVertical ? "flex-col" : "flex-row")}>
-        <ScanModeSwitch className="shrink-0" />
+        {!sessionFeed && <ScanModeSwitch className="shrink-0" />}
         <Tooltip>
           <TooltipTrigger
             render={
@@ -196,11 +205,11 @@ export function ScannerControls({
               }
               hotkey="scanNow"
               onClick={onForceScan}
-              disabled={!canForceScan}
+              disabled={!canForceScan || sessionFeed}
             >
               <IconFocus2 />
             </ScannerControlButton>
-            {isConnected && (
+            {(isConnected || sessionFeed) && (
               <>
                 <ScannerControlButton
                   tooltip={
@@ -212,7 +221,7 @@ export function ScannerControls({
                   }
                   hotkey="scanFeed"
                   onClick={onFeed}
-                  disabled={!isReady || isFeeding}
+                  disabled={(!isReady && !sessionFeed) || isFeeding}
                 >
                   {isFeeding ? (
                     <IconLoader2 className="animate-spin" />
@@ -227,16 +236,20 @@ export function ScannerControls({
                       : t("scannerControls.autoFeedOffTooltip")
                   }
                   hotkey="scanToggleAutoFeed"
-                  onClick={() => setAutoFeed(!autoFeed)}
+                  onClick={toggleAutoFeed}
                   selected={autoFeed}
                 >
                   <IconBolt />
                 </ScannerControlButton>
                 <ScannerControlButton
-                  tooltip={t("scannerControls.clearDeviceTooltip")}
+                  tooltip={t(
+                    sessionLive
+                      ? "scannerControls.stopPiScan"
+                      : "scannerControls.clearDeviceTooltip",
+                  )}
                   hotkey="scanClearDevice"
-                  onClick={onClearDevice}
-                  disabled={!canClearDevice}
+                  onClick={sessionLive ? (onStop ?? onClearDevice) : onClearDevice}
+                  disabled={!sessionLive && !canClearDevice}
                 >
                   {isClearingDevice ? (
                     <IconLoader2 className="animate-spin" />

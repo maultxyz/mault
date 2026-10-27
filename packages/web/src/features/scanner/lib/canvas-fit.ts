@@ -1,5 +1,5 @@
 export function fitCanvasesToContainer(
-  canvases: (HTMLCanvasElement | null)[],
+  canvases: (HTMLCanvasElement | HTMLImageElement | null)[],
   videoWidth: number,
   videoHeight: number,
   rotated: boolean,
@@ -23,7 +23,7 @@ export function fitCanvasesToContainer(
 }
 
 export function observeContainerResize(
-  canvas: HTMLCanvasElement | null,
+  canvas: HTMLCanvasElement | HTMLImageElement | null,
   onResize: () => void,
 ): () => void {
   const container = canvas?.parentElement;

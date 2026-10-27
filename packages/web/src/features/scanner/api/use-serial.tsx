@@ -10,6 +10,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
+import { refreshPiScanHold } from "@/features/scanner/api/pi-scan-session";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
@@ -21,8 +22,11 @@ import { sorterLinkClientUrl } from "@/features/scanner/lib/sorter-link";
 import {
   BluetoothTransport,
   CloudTransport,
+  PiSerialTransport,
   SerialTransport,
 } from "@/features/scanner/lib/transports";
+import { isRemoteBrowser } from "@/lib/host";
+import { usePiHost } from "@/hooks/use-pi-host";
 import {
   SENSOR_BLOCKED_TOAST_ID,
 } from "@/lib/constants/scanner";
@@ -119,6 +123,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const disconnectingRef = useRef<Promise<void> | null>(null);
   const preTestHooksRef = useRef(new Set<PreTestHook>());
 
+  const piHost = usePiHost();
   const { activeOrg } = useOrg();
   const device = useDevice();
   const deviceRef = useRef(device);
@@ -829,12 +834,41 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     await runConnectTest(activeTransport, deviceRef.current);
   }, [runConnectTest, session]);
 
+  const refusePiScanPort = useCallback(async () => {
+    if (!(await refreshPiScanHold())) return false;
+    toast.error(t("serial.connectionFailed.title"), {
+      description: t("serial.piScanBusy"),
+    });
+    return true;
+  }, [toast, t]);
+
   const connect = useCallback(
     async (options?: { skipAutoTest?: boolean }) => {
+      if (piHost && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
       if (session.transport) return;
+      if (piHost && isRemoteBrowser()) {
+        const result = await PiSerialTransport.open();
+        if (!result.ok) {
+          const description =
+            result.reason === "missing"
+              ? t("serial.piMissing")
+              : result.reason === "busy"
+                ? t("serial.piBusy")
+                : t("serial.connectionFailed.description");
+          toast.error(t("serial.connectionFailed.title"), { description });
+          void reportSerialEvent({
+            command: "connect",
+            sent: false,
+            response: null,
+          });
+          return;
+        }
+        await openTransport(result.transport, options);
+        return;
+      }
       if (!navigator.serial) return;
 
       const result = await SerialTransport.requestAndOpen();
@@ -854,11 +888,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       await openTransport(result.transport, options);
     },
-    [toast, openTransport, t, session],
+    [toast, openTransport, refusePiScanPort, t, session, piHost],
   );
 
   const connectPort = useCallback(
     async (port: SerialPort) => {
+      if (piHost && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
@@ -870,11 +905,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       });
       await identified;
     },
-    [openTransport, session],
+    [openTransport, refusePiScanPort, session, piHost],
   );
 
   const connectBluetoothDevice = useCallback(
     async (device: BluetoothDevice) => {
+      if (piHost && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
@@ -887,7 +923,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
       await openTransport(transport, { autoConnect: true });
     },
-    [openTransport, session],
+    [openTransport, refusePiScanPort, session, piHost],
   );
 
   const isAutoConnectDeviceRef = useRef<(guid: string) => boolean>(() => false);

@@ -95,7 +95,7 @@ export interface MobileListRowProps {
 
 export interface AppVersionResponse {
   success: boolean;
-  data: { version: string };
+  data: { version: string; piHost?: boolean };
 }
 
 export interface MobileSegmentedControlItem<T extends string> {

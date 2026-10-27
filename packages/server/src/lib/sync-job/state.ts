@@ -12,6 +12,8 @@ const INITIAL_STATE: SyncState = {
   queued: 0,
   startedAt: null,
   logs: [],
+  vectorizeOn: "server",
+  acceptingWork: false,
 };
 
 let state: SyncState = INITIAL_STATE;
