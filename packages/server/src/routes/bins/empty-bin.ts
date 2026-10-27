@@ -14,7 +14,12 @@ import {
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { emptyRules, resolveGameId, activeBinSetWhere } from "./shared";
+import {
+  emptyRules,
+  resolveGameId,
+  activeBinSetWhere,
+  markBinsEmptied,
+} from "./shared";
 
 export const emptyBinRoute = new Hono<AppEnv>().post(
   "/bins/:binNumber/empty",
@@ -110,10 +115,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           .where(eq(storageLocations.id, location.id));
       }
 
-      await tx
-        .update(bins)
-        .set({ lastEmptiedAt: new Date(), updatedAt: new Date() })
-        .where(eq(bins.id, existing.id));
+      await markBinsEmptied(tx, orgId, [binNumber]);
 
       const updatedBins = await tx.query.bins.findMany({
         where: (t, { eq, and }) =>

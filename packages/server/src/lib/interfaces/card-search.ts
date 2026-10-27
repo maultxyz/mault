@@ -39,6 +39,7 @@ export interface TcgplayerPricing {
 
 export interface CardmarketPricing {
   gameId: number;
+  siteGamePath?: string;
   productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
   productNames?(card: PlayingCard): string[];
 }

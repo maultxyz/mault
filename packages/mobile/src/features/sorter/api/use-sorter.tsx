@@ -30,6 +30,7 @@ import {
   SERIAL_HEARTBEAT_MAX_MISSES,
   SERIAL_IDENTIFY_ATTEMPTS,
   type BinRoute,
+  type RouteOptions,
   STORE_CONFIG_TIMEOUT_MS,
 } from "@magic-vault/shared";
 import {
@@ -502,7 +503,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     [],
   );
   const sendRoute = useCallback(
-    (route: BinRoute, options?: { feedNext?: boolean }) => link.sendRoute(route, options),
+    (route: BinRoute, options?: RouteOptions) => link.sendRoute(route, options),
     [],
   );
   const feed = useCallback(() => link.feed(), []);

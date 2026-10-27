@@ -1,4 +1,5 @@
 import type { SearchNoMatchReason } from "./api.interface";
+import type { PriceSource } from "./price-source.interface";
 
 export type SourceCard = object;
 
@@ -30,6 +31,8 @@ export interface PlayingCardCardKingdomPrice {
   inStock: number | null;
   url: string | null;
 }
+
+export type CardPurchaseLinks = Partial<Record<PriceSource, string>>;
 
 export type CardPricesAtScan = Partial<
   Pick<
@@ -71,6 +74,7 @@ export interface PlayingCard {
   cardKingdomPrice?: PlayingCardCardKingdomPrice;
   cardKingdomPriceFoil?: PlayingCardCardKingdomPrice;
   pricesAtScan?: CardPricesAtScan;
+  purchaseLinks?: CardPurchaseLinks;
   sourceUrl?: string;
   tcgplayerId?: string;
   cmc?: number;

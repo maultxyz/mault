@@ -414,6 +414,9 @@ export function BinConfigsProvider({
               : set,
           ),
         );
+        void queryClient.invalidateQueries({
+          queryKey: binsQueryOptions.queryKey,
+        });
       }
     },
     onError: () => toast.error(t("useBinConfigs.toasts.emptyBinFailed")),

@@ -1,9 +1,12 @@
-import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
 import { CardSearchLanguageSelect } from "@/features/cards/components/card-search-language-select";
+import { CardSearchResultSkeletonGrid } from "@/features/cards/components/card-search-result-skeleton-grid";
+import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
+import { CardSearchSetSelect } from "@/features/cards/components/card-search-set-select";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { CARD_SEARCH_ALL_SETS } from "@/lib/constants/cards";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import type { CardSearchPickerProps } from "@/lib/interfaces/cards";
 import { IconLoader2, IconSearch } from "@tabler/icons-react";
@@ -12,7 +15,6 @@ import { useTranslation } from "react-i18next";
 import {
   CARD_SEARCH_ALL_LANGUAGES,
   cardSearchResultKey,
-  cardSearchResultLabel,
 } from "@magic-vault/shared";
 
 export function CardSearchPicker({
@@ -23,14 +25,23 @@ export function CardSearchPicker({
 }: CardSearchPickerProps) {
   const { t } = useTranslation("cards");
   const [query, setQuery] = useState(initialQuery);
+  const [selectedSet, setSelectedSet] = useState<string>(CARD_SEARCH_ALL_SETS);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(
     CARD_SEARCH_ALL_LANGUAGES,
   );
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
-  const { results, loading, hasMore, isLoadingMore, loadMore } = useCardSearch(
+  const {
+    results,
+    sets,
+    totalCount,
+    loading,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+  } = useCardSearch(
     debouncedQuery,
     collectionGuid,
-    undefined,
+    selectedSet !== CARD_SEARCH_ALL_SETS ? selectedSet : undefined,
     selectedLanguage,
   );
 
@@ -43,22 +54,32 @@ export function CardSearchPicker({
             type="search"
             placeholder={t("cardPicker.searchPlaceholder")}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setSelectedSet(CARD_SEARCH_ALL_SETS);
+            }}
             className="pl-8"
           />
         </div>
         <CardSearchLanguageSelect
           value={selectedLanguage}
-          onChange={setSelectedLanguage}
+          onChange={(language) => {
+            setSelectedLanguage(language);
+            setSelectedSet(CARD_SEARCH_ALL_SETS);
+          }}
+        />
+        <CardSearchSetSelect
+          sets={sets}
+          totalCount={totalCount}
+          value={selectedSet}
+          onChange={setSelectedSet}
         />
       </div>
       <div
         data-vaul-no-drag
         className="max-h-[50dvh] min-h-48 flex-1 overflow-y-auto rounded-lg border bg-muted/40 p-2"
       >
-        {loading && (
-          <CardTileSkeletonGrid />
-        )}
+        {loading && <CardSearchResultSkeletonGrid />}
         {!loading && results.length === 0 && (
           <p className="py-8 text-center text-sm text-foreground/70">
             {query.trim().length === 0
@@ -67,29 +88,14 @@ export function CardSearchPicker({
           </p>
         )}
         {!loading && results.length > 0 && (
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-3 gap-2">
             {results.map((result) => (
-              <button
+              <CardSearchResultTile
                 key={cardSearchResultKey(result)}
-                type="button"
+                card={result}
                 disabled={disabled}
                 onClick={() => onSelect(result)}
-                className="relative aspect-[2.5/3.5] overflow-hidden rounded-md border transition-transform active:scale-[0.97] disabled:opacity-50"
-              >
-                {result.image?.small ? (
-                  <img
-                    src={result.image.small}
-                    alt={result.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-muted" />
-                )}
-                <span className="absolute inset-x-0 bottom-0 truncate bg-black/70 px-1 py-0.5 text-center text-2xs leading-tight text-white">
-                  {cardSearchResultLabel(result)}
-                </span>
-              </button>
+              />
             ))}
           </div>
         )}

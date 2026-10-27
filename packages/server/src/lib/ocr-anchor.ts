@@ -50,7 +50,7 @@ function union(boxes: OcrBox[]): OcrBox {
   };
 }
 
-function lineText(line: OcrPageLine): string {
+export function lineText(line: OcrPageLine): string {
   return line.words.map((word) => word.text).join(" ");
 }
 

@@ -1,4 +1,3 @@
-import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,8 +8,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGameCardSearch } from "@/features/cards/api/use-game-card-search";
+import { CardSearchResultSkeletonGrid } from "@/features/cards/components/card-search-result-skeleton-grid";
+import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
+import { CardSearchSetSelect } from "@/features/cards/components/card-search-set-select";
 import { gameCoverageQueryOptions } from "@/features/games/api/games";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { CARD_SEARCH_ALL_SETS } from "@/lib/constants/cards";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { QUERY_MIN_LENGTH } from "@magic-vault/shared";
@@ -26,13 +29,26 @@ export function CardLookup() {
   const [gameKey, setGameKey] = useState<string | null>(null);
   const [lang, setLang] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [selectedSet, setSelectedSet] = useState<string>(CARD_SEARCH_ALL_SETS);
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
 
   const game = games.find((g) => g.key === gameKey) ?? games[0];
   const languages = game?.languages.length ? game.languages : ["en"];
   const activeLang = lang && languages.includes(lang) ? lang : languages[0];
-  const { results, loading, hasMore, isLoadingMore, loadMore } =
-    useGameCardSearch(debouncedQuery, game?.key ?? null, activeLang);
+  const {
+    results,
+    sets,
+    totalCount,
+    loading,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+  } = useGameCardSearch(
+    debouncedQuery,
+    game?.key ?? null,
+    activeLang,
+    selectedSet !== CARD_SEARCH_ALL_SETS ? selectedSet : undefined,
+  );
   const isQueryReady = debouncedQuery.trim().length >= QUERY_MIN_LENGTH;
 
   return (
@@ -40,7 +56,10 @@ export function CardLookup() {
       <div className="flex flex-wrap gap-2">
         <Select
           value={game?.key ?? null}
-          onValueChange={(value) => setGameKey(value)}
+          onValueChange={(value) => {
+            setGameKey(value);
+            setSelectedSet(CARD_SEARCH_ALL_SETS);
+          }}
         >
           <SelectTrigger className="w-44" aria-label={t("cardLookup.game")}>
             <SelectValue>{game?.name ?? t("cardLookup.noGames")}</SelectValue>
@@ -54,7 +73,13 @@ export function CardLookup() {
           </SelectContent>
         </Select>
         {languages.length > 1 && (
-          <Select value={activeLang} onValueChange={(value) => setLang(value)}>
+          <Select
+            value={activeLang}
+            onValueChange={(value) => {
+              setLang(value);
+              setSelectedSet(CARD_SEARCH_ALL_SETS);
+            }}
+          >
             <SelectTrigger
               className="w-36"
               aria-label={t("cardLookup.language")}
@@ -79,41 +104,33 @@ export function CardLookup() {
             placeholder={t("cardLookup.searchPlaceholder")}
             value={query}
             disabled={!game}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setSelectedSet(CARD_SEARCH_ALL_SETS);
+            }}
             className="pl-8"
           />
         </div>
+        <CardSearchSetSelect
+          sets={sets}
+          totalCount={totalCount}
+          value={selectedSet}
+          onChange={setSelectedSet}
+        />
       </div>
 
       {isQueryReady && (
         <div className="rounded-lg border bg-muted/40 p-2">
-          {loading && <CardTileSkeletonGrid />}
+          {loading && <CardSearchResultSkeletonGrid />}
           {!loading && results.length === 0 && (
             <p className="py-8 text-center text-sm text-foreground/70">
               {t("cardLookup.noResults")}
             </p>
           )}
           {!loading && results.length > 0 && (
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-3 gap-2">
               {results.map((card) => (
-                <div key={card.id} className="flex min-w-0 flex-col gap-1">
-                  <div className="aspect-[2.5/3.5] overflow-hidden rounded-md border">
-                    {card.image?.small ? (
-                      <img
-                        src={card.image.small}
-                        alt={card.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-muted" />
-                    )}
-                  </div>
-                  <p className="truncate text-xs font-medium">{card.name}</p>
-                  <p className="truncate text-2xs text-foreground/70">
-                    {card.set.toUpperCase()} #{card.collectorNumber}
-                  </p>
-                </div>
+                <CardSearchResultTile key={card.id} card={card} />
               ))}
             </div>
           )}

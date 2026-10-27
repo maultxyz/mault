@@ -457,6 +457,10 @@
         "title": "Aucune carte détectée",
         "description": "Le chargeur a tourné mais aucune carte n'a atteint la caméra. Vérifie la pile, puis touche Reprendre."
       },
+      "card-missing": {
+        "title": "Carte absente avant le tri",
+        "description": "Le module 1 ne détecte plus la carte scannée, donc rien n'a été trié. Vérifie le module 1, puis touche Reprendre."
+      },
       "feed-failed": {
         "title": "Problème de chargeur",
         "description": "Le chargeur n'a pas répondu comme prévu. {{detail}}"
@@ -1726,6 +1730,7 @@
       "game": "Jeu",
       "language": "Langue",
       "noGames": "Aucun jeu synchronisé",
+      "allSets": "Tous les sets",
       "searchPlaceholder": "Rechercher des cartes...",
       "noResults": "Aucune carte trouvée. Elle n'est peut-être pas encore synchronisée.",
       "loadMore": "Charger plus"
