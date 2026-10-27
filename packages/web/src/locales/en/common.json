@@ -88,7 +88,12 @@
   },
   "appVersion": {
     "outdatedBanner": "A new version of Mault is available.",
-    "refreshButton": "Refresh"
+    "refreshButton": "Refresh",
+    "updateButton": "Update Mault",
+    "updating": "Updating Mault. Keep this page open while services restart.",
+    "updateSucceeded": "Mault updated successfully. Refresh to use the new version.",
+    "updateFailed": "Mault could not be updated.",
+    "updateUnconfirmed": "Could not reconnect after updating. Check the Linux update log before trying again."
   },
   "impersonation": {
     "banner": "You're viewing the app as {{name}}.",

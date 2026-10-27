@@ -189,3 +189,5 @@ export const CALIBRATION_SECTIONS = [
 }[];
 
 export const CALIBRATION_LIVE_DETECTION_INTERVAL_MS = 200;
+
+export const CALIBRATE_PATH = "/app/calibrate";

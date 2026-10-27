@@ -2,8 +2,14 @@ import { Sparkline } from "@/components/sparkline";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
+import { piScanHoldsPort } from "@/features/scanner/api/pi-scan-session";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { bucketScanTimes } from "@/features/scanner/lib/scan-rate";
+import { piScanElapsedMs } from "@/features/scanner/lib/pi-scan-status";
+import {
+  getPiScanState,
+  subscribePiScan,
+} from "@/features/scanner/lib/pi-scan-store";
 import { useNow } from "@/hooks/use-now";
 import {
   SCAN_RATE_BUCKET_COUNT,
@@ -15,7 +21,7 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
 import type { ScanStatsProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 
 export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
@@ -24,7 +30,28 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   const [expandedSets, setExpandedSets] = useState(false);
   const { elapsedMs, isTimerActive, recentScanTimes, sessionScanCount } =
     useScannedCards();
+  const piScan = useSyncExternalStore(subscribePiScan, getPiScanState);
+  const piLive =
+    piScanHoldsPort(piScan) ||
+    (piScan.phase === "stopped" && !isTimerActive && piScan.startedAt != null);
+  const clock = useNow(1000);
   const now = useNow(SCAN_RATE_REFRESH_MS);
+  const piTimes = useRef<number[]>([]);
+  const piSeen = useRef(0);
+  if (!piLive) {
+    piTimes.current = [];
+    piSeen.current = 0;
+  } else if (piScan.cardsScanned !== piSeen.current) {
+    const added = piScan.cardsScanned - piSeen.current;
+    if (added > 0) {
+      for (let i = 0; i < added; i++) piTimes.current.push(clock);
+    }
+    piSeen.current = piScan.cardsScanned;
+  }
+  const shownElapsed = piLive ? piScanElapsedMs(piScan, clock) : elapsedMs;
+  const shownCount = piLive ? piScan.cardsScanned : sessionScanCount;
+  const shownRunning = piLive ? piScan.phase === "running" : isTimerActive;
+  const shownTimes = piLive ? piTimes.current : recentScanTimes;
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
   const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
   const { displayStats: stats } = useCollectionCardsSummary(query);
@@ -61,19 +88,19 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   statCards.push(
     {
       label: t("scanStats.sessionTime"),
-      value: formatElapsed(elapsedMs),
-      indicator: isTimerActive,
+      value: formatElapsed(shownElapsed),
+      indicator: shownRunning,
     },
     {
       label: t("scanStats.cardsPerHour"),
       value:
-        elapsedMs > 0
-          ? String(Math.round((sessionScanCount / elapsedMs) * 3_600_000))
+        shownElapsed > 0
+          ? String(Math.round((shownCount / shownElapsed) * 3_600_000))
           : "-",
       trend:
-        recentScanTimes.length > 0
+        shownTimes.length > 0
           ? bucketScanTimes(
-              recentScanTimes,
+              shownTimes,
               now,
               SCAN_RATE_BUCKET_MS,
               SCAN_RATE_BUCKET_COUNT,

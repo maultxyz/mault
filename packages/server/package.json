@@ -38,6 +38,8 @@
     "pg": "^8.16.3",
     "resend": "^6.24.0",
     "rollbar": "^3.1.0",
+    "semver": "^7.8.5",
+    "serialport": "12",
     "sharp": "^0.34.1",
     "stripe": "^22.6.1",
     "tesseract.js": "^7.0.0",
@@ -47,6 +49,7 @@
   "devDependencies": {
     "@types/node": "^26",
     "@types/pg": "^8.15.6",
+    "@types/semver": "^7.8.0",
     "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.31.9",
     "tsup": "^8.4.0",
