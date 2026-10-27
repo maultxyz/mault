@@ -56,6 +56,10 @@ export interface BinLocationDiagramProps {
   binNumber: number;
 }
 
+export interface CardPurchaseLinksProps {
+  card: PlayingCard;
+}
+
 export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil: boolean;

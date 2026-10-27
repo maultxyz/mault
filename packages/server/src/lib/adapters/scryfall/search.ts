@@ -143,6 +143,7 @@ export const scryfallAdapter: CardSearchAdapter = {
   },
   cardmarket: {
     gameId: 1,
+    siteGamePath: "Magic",
     productIdFromRaw: (card) => (card.raw as ScryfallApiCard).cardmarket_id,
   },
   cardkingdom: {
