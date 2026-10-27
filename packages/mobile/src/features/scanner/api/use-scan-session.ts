@@ -449,6 +449,11 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         pause("route-failed");
         return;
       }
+      if (res.noLoadedCard) {
+        reportSorterEvent({ command: "bin", sent: true, response: res, ...target });
+        pause("card-missing");
+        return;
+      }
       if (res.empty) {
         reportSorterEvent({ command: "bin", sent: true, response: res, ...target });
         pause("feeder-empty");
@@ -473,7 +478,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       if (phaseRef.current !== "paused") setPhase("routing");
       const feedNext = runningRef.current && latestRef.current.autoFeed && !!s.device?.pipelinedFeed;
       void s
-        .sendRoute(routeFor(binNumber), { feedNext })
+        .sendRoute(routeFor(binNumber), { feedNext, requireLoadedCard: true })
         .then((response) => handleRouteResponse(response, { binNumber, cardName }));
     },
     [handleRouteResponse, routeFor, setPhase],
