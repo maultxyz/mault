@@ -1,4 +1,9 @@
-import { DELETED_ITEM_TYPES, type SyncState } from "@magic-vault/shared";
+import {
+  BROWSER_SYNC_PARALLEL,
+  DELETED_ITEM_TYPES,
+  SYNC_VECTORIZE_CONCURRENCY_MAX,
+  type SyncState,
+} from "@magic-vault/shared";
 import type {
   DeletedItemTypeFilter,
   UnmatchedPhotoFilter,
@@ -27,7 +32,27 @@ export const DEFAULT_SYNC_STATE: SyncState = {
   queued: 0,
   startedAt: null,
   logs: [],
+  vectorizeOn: "server",
+  acceptingWork: false,
 };
+
+export const BROWSER_SYNC_POLL_MS = 400;
+
+export function isBrowserSaveLog(line: string): boolean {
+  return /\] saved \d+ cards from a browser$/.test(line);
+}
+
+export function browserSyncParallel(value: number | undefined): number {
+  if (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= 1 &&
+    value <= SYNC_VECTORIZE_CONCURRENCY_MAX
+  ) {
+    return value;
+  }
+  return BROWSER_SYNC_PARALLEL;
+}
 
 export const ACTIVE_SCANNING_REFRESH_MS = 15_000;
 export const SCAN_METRICS_REFRESH_MS = 60_000;
@@ -114,3 +139,6 @@ export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormVa
     donations: { guildId: null, channelId: null },
     pricing: { guildId: null, channelId: null },
   };
+
+export const BROWSER_EMBED_TIMEOUT_MS = 60_000;
+export const BROWSER_EMBED_WORKER_MAX = 2;

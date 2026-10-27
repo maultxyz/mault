@@ -12,6 +12,7 @@ import { collectionCards, unmatchedCards } from "../db/schema";
 import { cardWithStoredPricesSql } from "../lib/card-price-sql";
 import type { ViewerInfo } from "../lib/interfaces/session-stream";
 import { resolveScanImageUrl } from "../lib/scan-images";
+import { isPiHost } from "../lib/pi-host";
 import { toScannedCard, toUnmatchedCard } from "./collections/shared";
 
 async function querySessionInit(
@@ -80,6 +81,7 @@ async function querySessionInit(
       guid: unmatchedCards.guid,
       scannedAt: unmatchedCards.scannedAt,
       binNumber: unmatchedCards.binNumber,
+      ...(isPiHost() ? { diagnostics: unmatchedCards.diagnostics } : {}),
       capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
       capturedImageKey: unmatchedCards.capturedImageKey,
     })

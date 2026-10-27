@@ -1,4 +1,4 @@
-import { SORTER_LINK_DEVICE_PATH } from "@magic-vault/shared";
+import { BROWSER_SYNC_IMAGE_PROXY_HOSTS, SORTER_LINK_DEVICE_PATH } from "@magic-vault/shared";
 
 export function getWebUrl(): string {
   return process.env.WEB_URL ?? "http://localhost:5173";
@@ -44,6 +44,7 @@ export const YUGIOH_DEFAULT_URL =
   "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 
 export const ALLOWED_IMAGE_HOSTS = new Set([
+  ...BROWSER_SYNC_IMAGE_PROXY_HOSTS,
   "cards.scryfall.io",
   "gundam-gcg.com",
   "www.gundam-gcg.com",

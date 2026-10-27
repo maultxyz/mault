@@ -1,7 +1,8 @@
 {
   "camera": {
     "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut.",
-    "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an."
+    "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an.",
+    "piUnavailable": "Die Webcam am Raspberry Pi ist nicht verfügbar."
   },
   "scanEngine": {
     "searchFailed": "Kartensuche fehlgeschlagen",
@@ -22,11 +23,32 @@
     "expand": "Scanner-Vorschau anzeigen",
     "hide": "Bis zur Rückkehr zu MAULT ausblenden"
   },
+  "piScan": {
+    "preview": "Live-Bild des Sortierers",
+    "starting": "Scan wird auf dem Pi gestartet",
+    "feeding": "Karte wird eingezogen",
+    "matching": "Karte wird erkannt",
+    "routing": "{{name}} geht in Fach {{bin}}",
+    "routingUnmatched": "Nicht erkannte Karte geht in Fach {{bin}}",
+    "scanning": "Scannt",
+    "paused": "Pausiert",
+    "stopping": "Stoppt nach dieser Karte",
+    "lastCard": "{{name}} in Fach {{bin}}",
+    "lastUnmatched": "Nicht erkannte Karte in Fach {{bin}}",
+    "count": "{{count}} Karten in diesem Lauf",
+    "pause": "Pause",
+    "resume": "Weiter",
+    "stop": "Stopp",
+    "openScanner": "Scanner öffnen"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Verbindung fehlgeschlagen",
       "description": "Verbindung fehlgeschlagen. Stelle sicher, dass kein anderes Programm das Gerät verwendet."
     },
+    "piMissing": "Am Raspberry Pi ist kein Sortierer angeschlossen.",
+    "piBusy": "Der USB-Anschluss am Pi wird schon verwendet. Trenne ihn im anderen Browser oder stoppe den Scan auf dem Pi und versuche es erneut.",
+    "piScanBusy": "Auf dem Pi läuft ein Scan, deshalb kann dieser Browser den Sorter nicht übernehmen. Stoppe zuerst den Scan.",
     "bluetoothPermissionBlocked": "Die Bluetooth-Berechtigung ist für diesen Browser blockiert. Überprüfe die Website-Einstellungen deines Browsers (oder chrome://settings/content/bluetoothDevices), um Bluetooth zuzulassen, und versuche es erneut.",
     "connectionLost": {
       "title": "Verbindung getrennt",
@@ -268,6 +290,9 @@
     "startTooltip": "Die erste Karte zuführen und den Scan starten",
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
+    "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
+    "stopPiScan": "Sortierung stoppen und den Sorter freigeben",
+    "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
     "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}",
     "setTooltip": "Set für gescannte Karten: {{set}}",
     "anySet": "Beliebiges Set",
@@ -805,17 +830,21 @@
     "transport": {
       "serial": "USB",
       "bluetooth": "Bluetooth",
-      "cloud": "WLAN"
+      "cloud": "WLAN",
+      "pi": "Dieser Pi"
     },
     "connectHint": "Schalte den Sortierer ein und verbinde dich.",
     "connectBluetooth": "Über Bluetooth verbinden",
     "connectUsb": "Über USB verbinden",
+    "connectPi": "Sortierer an diesem Pi verbinden",
     "unsupported": "Dieser Browser kann sich nicht direkt mit einem Sortierer verbinden. Verbinde dich unten über WLAN oder nutze Chrome auf Android.",
     "actions": "Aktionen",
     "selfTest": "Selbsttest ausführen",
     "selfTestDescription": "Prüft die Sensoren und bewegt alle Servos",
     "disconnect": "Trennen",
     "calibrateOnDesktop": "Kalibrierung und Sortierregeln richtest du am Computer ein.",
+    "calibrate": "Kalibrieren",
+    "calibrateOnPi": "Stelle den Sortierer ein, der an diesem Pi steckt.",
     "remote": {
       "title": "Über WLAN",
       "unnamed": "Kartensortierer",

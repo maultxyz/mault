@@ -2,7 +2,11 @@ import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { MILO_MODEL, type PinnedModel } from "@magic-vault/shared";
+import {
+  CORNER_DETECTOR_MODEL,
+  MILO_MODEL,
+  type PinnedModel,
+} from "@magic-vault/shared";
 
 function cacheRoot(): string {
   return (
@@ -45,4 +49,8 @@ async function resolvePinnedModel(model: PinnedModel): Promise<string> {
 
 export function resolveMiloModelPath(): Promise<string> {
   return resolvePinnedModel(MILO_MODEL);
+}
+
+export function resolveCardDetectorModelPath(): Promise<string> {
+  return resolvePinnedModel(CORNER_DETECTOR_MODEL);
 }

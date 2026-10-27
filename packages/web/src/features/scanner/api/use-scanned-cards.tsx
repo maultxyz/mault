@@ -76,6 +76,8 @@ import { useDeployScanPause } from "@/features/scanner/api/use-deploy-pause";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
 import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
@@ -562,7 +564,17 @@ export function ScannedCardsProvider({
   );
 
   const activeCollectionGuid = activeCollection?.guid;
+  const piHost = usePiHost();
+  const piSession = useSessionMonitor(piHost ? activeCollectionGuid : undefined);
   useEffect(() => {
+    if (!piHost) return;
+    setUnmatchedCards(piSession.unmatchedCards);
+    setUnmatchedCount(piSession.unmatchedCount);
+    setIsLoading(piSession.status === "connecting");
+  }, [piHost, piSession.unmatchedCards, piSession.unmatchedCount, piSession.status]);
+
+  useEffect(() => {
+    if (piHost) return;
     unmatchedRequestRef.current++;
     setUnmatchedCards([]);
     setUnmatchedCount(0);
@@ -585,7 +597,7 @@ export function ScannedCardsProvider({
     return () => {
       cancelled = true;
     };
-  }, [activeCollectionGuid, refreshUnmatched]);
+  }, [activeCollectionGuid, refreshUnmatched, piHost]);
 
   const needsBinContents =
     !!selectedSet?.isRepackMode || hasMaxCopiesBins(binConfigs);

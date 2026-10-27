@@ -6,6 +6,7 @@ import type {
   PlatformDiscordChannelKey,
   PlatformDiscordGuildSummary,
   SyncState,
+  SyncVectorizeOn,
 } from "@magic-vault/shared";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
 import type { PlatformDiscordLinkedRoleFormValues } from "@/schemas/platform-discord-linked-role.schema";
@@ -53,6 +54,11 @@ export interface PlanLimitInputProps {
   onChange: (value: number | null) => void;
 }
 
+export interface BrowserSyncPace {
+  vectorized: number;
+  embeddingCount: number;
+}
+
 export interface CardSyncContextValue {
   syncState: SyncState;
   sources: SyncSourceInfo[];
@@ -62,11 +68,14 @@ export interface CardSyncContextValue {
   progress: number;
   elapsedMs: number;
   etaMs: number | null;
+  cardsPerMinute: number | null;
+  embeddingCount: number;
   start: (
     gameKey: string,
     lang: string,
     forceResync?: boolean,
     concurrency?: number,
+    vectorizeOn?: SyncVectorizeOn,
   ) => void;
   isStarting: boolean;
   cancel: () => void;
@@ -146,4 +155,67 @@ export interface UnmatchedOcrPanelProps {
 
 export interface UnmatchedOcrOverlayProps {
   result: AdminUnmatchedOcrResult | undefined;
+}
+
+export interface LoadedSyncCanvas {
+  cardId: string;
+  canvas: HTMLCanvasElement;
+}
+
+export interface FailedSyncImage {
+  cardId: string;
+  message: string;
+}
+
+export interface SyncWorkerScope {
+  onmessage: ((event: MessageEvent) => void) | null;
+  postMessage(message: unknown): void;
+}
+
+export interface ReadyMessage {
+  type: "ready";
+}
+
+export interface InitErrorMessage {
+  type: "init-error";
+  message: string;
+}
+
+export interface EmbeddingMessage {
+  type: "embedding";
+  id: number;
+  embedding: number[];
+}
+
+export interface ErrorMessage {
+  type: "error";
+  id: number;
+  message: string;
+}
+
+export type WorkerMessage =
+  | ReadyMessage
+  | InitErrorMessage
+  | EmbeddingMessage
+  | ErrorMessage;
+
+export interface PendingEmbed {
+  resolve: (embedding: number[]) => void;
+  reject: (err: Error) => void;
+}
+
+export interface PendingSyncWorker {
+  resolve: (worker: SyncEmbedWorker) => void;
+  reject: (error: Error) => void;
+}
+
+export interface SyncEmbedWorker {
+  embed: (pixels: ArrayBuffer) => Promise<number[]>;
+}
+
+export interface SyncWorkerRequest {
+  type?: string;
+  id?: number;
+  buffer?: ArrayBuffer;
+  pixels?: ArrayBuffer;
 }

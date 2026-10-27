@@ -18,12 +18,14 @@ import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
 import { syncStartRoute } from "./sync-start";
 import { syncStatusRoute } from "./sync-status";
+import { syncWorkRoute } from "./sync-work";
 import { unmatchedRetryRoute } from "./unmatched-retry";
 
 const router = new Hono<AppEnv>()
   .route("/", syncStatusRoute)
   .route("/", syncSourcesRoute)
   .route("/", syncStartRoute)
+  .route("/", syncWorkRoute)
   .route("/", syncCancelRoute)
   .route("/", cardsListRoute)
   .route("/", cardsSyncRoute)

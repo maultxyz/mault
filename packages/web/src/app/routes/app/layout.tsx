@@ -10,6 +10,7 @@ import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog"
 import { MobileNav } from "@/components/mobile-nav";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
+import { PiScanStatusBar } from "@/features/scanner/components/pi-scan-status-bar";
 import { DesktopScannerPip } from "@/features/scanner/components/desktop-scanner-pip";
 import { ScannerPip } from "@/features/scanner/components/scanner-pip";
 import { StationTabs } from "@/features/scanner/components/station-tabs";
@@ -60,6 +61,7 @@ export default function AppLayout() {
           )}
           <ImpersonationBanner />
           <AlertStack />
+          <PiScanStatusBar />
           <main className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
             <PageTransition>
               <Outlet />
@@ -74,6 +76,7 @@ export default function AppLayout() {
             <SpiderWeb corner="top-left" withSpider />
             <ImpersonationBanner />
             <AlertStack />
+            <PiScanStatusBar />
             <div className="flex flex-row flex-1 min-h-0 overflow-hidden">
               <AppNav />
               <main className="flex-1 min-w-0 overflow-hidden flex flex-col bg-background/70 dark:bg-background/60">

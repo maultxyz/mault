@@ -1,6 +1,8 @@
+import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
   type CollectionCardsQuery,
+  type PiScanSessionState,
   type ScannerStatus,
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
@@ -45,10 +47,39 @@ export const UNMATCHED_CARD_PARAM = "unmatchedCard";
 export const PHONE_CAMERA_JPEG_QUALITY = 0.85;
 export const CATCH_ALL_BIN = 7;
 
+export const PI_SCAN_CARD_EVENTS = [
+  "card_added",
+  "unmatched_added",
+  "card_removed",
+  "cards_removed",
+  "unmatched_removed",
+] as const;
+
 export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
+export const PI_CAMERA_BASE = "/api/pi-camera";
+export const PI_CAMERA_DEVICE_ID = "pi-webcam";
+export const PI_CAMERA_WIDTH = CAMERA_IDEAL_WIDTH;
+export const PI_CAMERA_HEIGHT = CAMERA_IDEAL_HEIGHT;
+export const PI_CAMERA_LABEL = "USB Live camera";
+export const PI_SERIAL_OPEN_TIMEOUT_MS = 8000;
+
+export const IDLE_PI_SCAN_SESSION: PiScanSessionState = {
+  phase: "idle",
+  collectionGuid: null,
+  message: null,
+  cardsScanned: 0,
+  stopping: false,
+  activity: null,
+  current: null,
+  lastCard: null,
+  startedAt: null,
+  pausedMs: 0,
+  pausedAt: null,
+  autoFeed: true,
+};
 export const PHONE_CAMERA_DEVICE_STORAGE_KEY = "mault:phone-camera-device-id";
 
 export const JAM_TOAST_ID_PREFIX = "jam-module-";
@@ -151,6 +182,9 @@ export const MOBILE_SCAN_CHIP_CLASS =
 export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
 
+export const PI_CAMERA_PREVIEW_INTERVAL_MS = 250;
+
+export const PI_SCAN_SESSION_API = `/api${PI_SCAN_SESSION_PATH}`;
 export const COMM_LOG_MARKER_LABELS: Partial<
   Record<CommLogEntry["direction"], string>
 > = {

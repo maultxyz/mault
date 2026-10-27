@@ -1,3 +1,4 @@
+import { isPiHost } from "@/lib/pi-host";
 import {
   binHeightsQueryOptions,
   saveBinHeight,
@@ -36,7 +37,10 @@ export function BinHeightsProvider({ children }: { children: React.ReactNode }) 
   const discard = useCallback(() => setPending({}), []);
 
   const commit = useCallback(async () => {
-    if (!device) return;
+    if (!device) {
+      if (isPiHost()) throw new Error("Sorter settings have not loaded.");
+      return;
+    }
     setIsSaving(true);
     try {
       let result;
