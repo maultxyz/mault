@@ -1,6 +1,6 @@
 import type { CardPriceDetails } from "../lib/interfaces/card-prices";
 import { REPACK_UNIQUE_BY_PRINTING } from "@magic-vault/shared";
-import { sql } from "drizzle-orm";
+import { sql, type SQL } from "drizzle-orm";
 import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
   boolean,
@@ -537,6 +537,9 @@ export const collectionCards = pgTable(
       .references(() => collections.id, { onDelete: "cascade" }),
     cardId: text("card_id").notNull(),
     card: jsonb("card").notNull(),
+    cardLang: text("card_lang").generatedAlwaysAs(
+      (): SQL => sql`${collectionCards.card} ->> 'lang'`,
+    ),
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
     capturedImageDataUrl: text("captured_image_data_url"),
@@ -547,6 +550,10 @@ export const collectionCards = pgTable(
     language: text("language"),
     isDownloaded: boolean("is_downloaded").notNull().default(false),
     alternativeMatches: jsonb("alternative_matches"),
+    hasAlternativeMatches: boolean("has_alternative_matches").generatedAlwaysAs(
+      (): SQL =>
+        sql`COALESCE(jsonb_typeof(${collectionCards.alternativeMatches}) = 'array' AND jsonb_array_length(${collectionCards.alternativeMatches}) > 0, false)`,
+    ),
     isCorrected: boolean("is_corrected").notNull().default(false),
     lowConfidenceMatch: boolean("low_confidence_match").notNull().default(false),
     isReviewed: boolean("is_reviewed").notNull().default(false),

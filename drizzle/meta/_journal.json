@@ -918,6 +918,13 @@
       "when": 1793041184669,
       "tag": "0130_collection_card_language",
       "breakpoints": true
+    },
+    {
+      "idx": 131,
+      "version": "7",
+      "when": 1793125394646,
+      "tag": "0131_collection_card_generated_columns",
+      "breakpoints": true
     }
   ]
 }
