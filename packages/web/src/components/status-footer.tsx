@@ -81,8 +81,11 @@ function SyncStatusItem() {
   const { pathname } = useLocation();
   const { isStaff } = useRole();
 
-  const { status, total, processed, skipped } = syncState;
-  const done = processed + skipped;
+  const { status, total, processed, skipped, errors, vectorizeOn } = syncState;
+  const done =
+    vectorizeOn === "browser" ? processed + errors : processed + skipped;
+  const progressTotal =
+    vectorizeOn === "browser" ? Math.max(0, total - skipped) : total;
 
   const visible =
     status !== "idle" &&
@@ -100,10 +103,10 @@ function SyncStatusItem() {
           : "muted";
 
   const countLabel =
-    status === "running" && total > 0
+    status === "running" && progressTotal > 0
       ? t("statusFooter.syncProgress", {
           done: done.toLocaleString(),
-          total: total.toLocaleString(),
+          total: progressTotal.toLocaleString(),
         })
       : t("statusFooter.syncStatus", { status });
 

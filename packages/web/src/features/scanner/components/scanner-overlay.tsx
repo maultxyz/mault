@@ -76,6 +76,9 @@ export function ScannerOverlay({
   handScanActive,
   lastRoutedBin,
   onEnableHandScan,
+  sessionLive = false,
+  sessionDetail = null,
+  piReady = false,
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
   const hasWifiSorters = useWifiSorters(false).length > 0;
@@ -95,7 +98,7 @@ export function ScannerOverlay({
     );
   }
 
-  if (!isCameraActive) {
+  if (!isCameraActive && !sessionLive) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
         <div className="flex flex-col items-center gap-3 text-center max-w-56">
@@ -170,7 +173,20 @@ export function ScannerOverlay({
   );
 
   function renderStatusPill() {
-    if (!isConnected && !handScanActive) {
+    if (sessionLive) {
+      return (
+        <StatusPill variant={status === "paused" ? "default" : "loading"}>
+          {status === "paused" ? (
+            <IconHandStop className="size-3.5 shrink-0" />
+          ) : (
+            <IconLoader2 className="size-3.5 animate-spin shrink-0" />
+          )}
+          <span className="flex-1 truncate">{sessionDetail}</span>
+        </StatusPill>
+      );
+    }
+
+    if (!isConnected && !handScanActive && !piReady) {
       return (
         <StatusPill variant="warning">
           <IconDeviceUsb className="size-3.5 shrink-0" />
@@ -204,7 +220,7 @@ export function ScannerOverlay({
 
     if (handScanActive) return renderScanStatus();
 
-    if (sensorBlockedModule !== null) {
+    if (isConnected && sensorBlockedModule !== null) {
       return (
         <StatusPill variant="error">
           <IconAlertTriangle className="size-3.5 shrink-0" />
@@ -218,7 +234,7 @@ export function ScannerOverlay({
       );
     }
 
-    if (!isReady) {
+    if (isConnected && !isReady) {
       return (
         <StatusPill variant="loading">
           <IconLoader2 className="size-3.5 animate-spin shrink-0" />
@@ -227,7 +243,7 @@ export function ScannerOverlay({
       );
     }
 
-    if (!firmwareVersion) {
+    if (isConnected && !firmwareVersion) {
       return (
         <StatusPill variant="error">
           <IconAlertTriangle className="size-3.5 shrink-0" />

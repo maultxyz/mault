@@ -42,6 +42,8 @@ import {
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { isRemoteBrowser } from "@/lib/host";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -61,6 +63,8 @@ export function MobileHome() {
   const { format } = usePriceSource();
   const { data: session } = useAuthSession();
   const [searchQuery, setSearchQuery] = useState("");
+  const scanPath =
+    usePiHost() && isRemoteBrowser() ? "/app" : MOBILE_SCAN_PATH;
   const firstName = session?.user?.name?.trim().split(/\s+/)[0];
   const query = searchQuery.trim().toLowerCase();
 
@@ -120,7 +124,7 @@ export function MobileHome() {
             <MobileQuickAction
               icon={<IconScan />}
               label={t("home.actions.scan")}
-              to={MOBILE_SCAN_PATH}
+              to={scanPath}
             />
             <CreateCollectionDialog
               trigger={({ disabled }) => (

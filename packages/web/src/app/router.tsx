@@ -9,7 +9,9 @@ import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
 import { RequireCollectionDialog } from "@/components/require-collection-dialog";
 import { RouteLoadingFallback } from "@/components/route-loading-fallback";
+import { CALIBRATE_PATH } from "@/lib/constants/calibration";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost, usePiHostState } from "@/hooks/use-pi-host";
 import { useRole } from "@/hooks/use-role";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
@@ -21,7 +23,12 @@ import {
 import { STATS_PATH } from "@/lib/constants/stats";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { lazy, Suspense, useEffect } from "react";
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  useLocation,
+} from "react-router-dom";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
@@ -199,13 +206,14 @@ const IntakeReceiptPage = lazy(
 
 function AppChunkPreloader() {
   const isMobile = useIsMobile();
+  const piHost = usePiHost();
   useEffect(() => {
     const ignoreFailure = () => {};
     loadAppLayout().catch(ignoreFailure);
-    (isMobile ? loadMonitorSessionsPage() : loadScannerPage()).catch(
+    (isMobile && !piHost ? loadMonitorSessionsPage() : loadScannerPage()).catch(
       ignoreFailure,
     );
-  }, [isMobile]);
+  }, [isMobile, piHost]);
   return null;
 }
 
@@ -225,8 +233,16 @@ function AdminGuard() {
 
 function DesktopOnlyGuard() {
   const isMobile = useIsMobile();
-  if (isMobile) return <Navigate to="/app/monitor" replace />;
-  return <Outlet />;
+  const { pathname } = useLocation();
+  const { piHost, settled } = usePiHostState();
+  const onCalibrate =
+    pathname === CALIBRATE_PATH || pathname.startsWith(`${CALIBRATE_PATH}/`);
+  const onScanner = pathname === "/app" || pathname.startsWith("/app/cards/");
+  const piPage = onCalibrate || onScanner;
+  if (!isMobile) return <Outlet />;
+  if (piPage && !settled) return null;
+  if (piPage && piHost) return <Outlet />;
+  return <Navigate to="/app/monitor" replace />;
 }
 
 function RequireCollectionGuard() {

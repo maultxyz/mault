@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "@/index.css";
 import "@/lib/i18n";
+import { loadPiHost } from "@/lib/pi-host";
 import { registerServiceWorker } from "@/lib/pwa";
 import "@/lib/rollbar";
 import { ThemeProvider } from "next-themes";
@@ -12,6 +13,7 @@ import { RouterProvider } from "react-router-dom";
 
 performance.mark("app:modules-evaluated");
 registerServiceWorker();
+void loadPiHost();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -20,9 +20,11 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Pool } from "pg";
+import { config } from "dotenv";
 
 async function main() {
   const root = join(__dirname, "..");
+  config({ path: join(root, "../../.env") });
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_SSL !== "false",

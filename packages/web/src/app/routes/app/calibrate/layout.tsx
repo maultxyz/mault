@@ -45,6 +45,10 @@ import {
   CALIBRATION_SECTIONS,
   DEFAULT_CALIBRATION_SECTION,
 } from "@/lib/constants/calibration";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { PageIntro } from "@/components/page-intro";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 
@@ -100,6 +104,8 @@ export default function CalibrateLayout() {
   const setupWizard = useSetupWizard();
   const { isAdmin } = useRole();
   const isSessionActive = useIsSessionActive();
+  const isMobile = useIsMobile();
+  const piHost = usePiHost();
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -113,7 +119,7 @@ export default function CalibrateLayout() {
           data-tour="calibration-sections"
         />
 
-        <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4">
+        <div className={cn("flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4", isMobile && piHost && MOBILE_NAV_SCROLL_PADDING_CLASS)}>
           <div
             inert={isSessionActive}
             aria-disabled={isSessionActive}
