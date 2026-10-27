@@ -102,3 +102,11 @@ export interface ExportSheetProps {
   onExport: (adapter: ExportAdapter) => void;
   onClose: () => void;
 }
+
+export interface PricePaidFieldProps {
+  label: string;
+  placeholder: string;
+  value: number | null;
+  onChange: (value: number | null) => void;
+  error?: string;
+}

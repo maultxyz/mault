@@ -110,6 +110,10 @@ export const scanDraftFormSchema = z.object({
   foilType: z.string().nullable(),
   condition: z.enum(CARD_CONDITIONS as [CardCondition, ...CardCondition[]]),
   language: z.string().min(1),
+  acquisitionCost: z
+    .number()
+    .min(0, formValidationMessage("atLeast", { min: 0 }))
+    .nullable(),
 });
 
 const discordChannelIdSchema = z.string().nullable();
