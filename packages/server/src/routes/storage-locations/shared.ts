@@ -12,6 +12,7 @@ import type { Transaction } from "../../db";
 import {
   collectionCards,
   collections,
+  games,
   storageLocations,
 } from "../../db/schema";
 import type { StorageLocationRow } from "../../lib/interfaces/storage-locations";
@@ -21,6 +22,7 @@ import {
 } from "../../lib/card-price-sql";
 import { CC_ALIAS_SQL_COLUMNS } from "../../lib/constants/card-prices";
 import { loadOrgPricing } from "../../lib/price-source";
+import { hydrateSavedCards } from "../../lib/saved-cards";
 
 export function parseLocationName(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -92,18 +94,32 @@ export function selectStoredCards(tx: Transaction) {
       reviewed: collectionCards.isReviewed,
       collectionGuid: collections.guid,
       collectionName: collections.name,
+      collectionLang: collections.lang,
+      gameKey: games.key,
     })
     .from(collectionCards)
-    .innerJoin(collections, eq(collections.id, collectionCards.collectionId));
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId));
 }
 
-export function toStoredCard(
+export async function toStoredCards(
+  rows: Awaited<ReturnType<typeof selectStoredCards>>,
+): Promise<StorageLocationCard[]> {
+  const cards = await hydrateSavedCards(
+    rows.map((r) => ({ gameKey: r.gameKey, lang: r.collectionLang, card: r.card })),
+    { includeRaw: false },
+  );
+  return rows.map((r, i) => toStoredCard(r, cards[i]));
+}
+
+function toStoredCard(
   r: Awaited<ReturnType<typeof selectStoredCards>>[number],
+  card: PlayingCardWithDistance,
 ): StorageLocationCard {
   return {
     scanId: r.scanId!,
     position: Number(r.position),
-    card: r.card,
+    card,
     isFoil: r.isFoil,
     foilType: r.foilType,
     condition: toCardCondition(r.condition),

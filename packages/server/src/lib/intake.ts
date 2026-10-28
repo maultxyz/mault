@@ -38,6 +38,7 @@ import {
   scannedCardPriceSql,
 } from "./card-price-sql";
 import type { IntakeLotRow } from "./interfaces/business";
+import { hydrateSavedCards } from "./saved-cards";
 
 export async function findOpenIntakeLotId(
   tx: Transaction,
@@ -206,20 +207,27 @@ export async function loadIntakeLotCards(
       scannedAt: collectionCards.scannedAt,
       price: scannedCardPriceSql(pricing),
       acquisitionCost: collectionCards.acquisitionCost,
+      collectionLang: collections.lang,
+      gameKey: games.key,
     })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId))
     .where(intakeLotCardsWhere(lotId))
     .orderBy(desc(collectionCards.scannedAt), desc(collectionCards.id));
   const rows = pageWindow
     ? await query.limit(pageWindow.limit).offset(pageWindow.offset)
     : await query;
-  return rows.map((r) => {
+  const cards = await hydrateSavedCards(
+    rows.map((r) => ({ gameKey: r.gameKey, lang: r.collectionLang, card: r.card })),
+    { includeRaw: false },
+  );
+  return rows.map((r, i) => {
     const marketPrice =
       r.price === null ? null : roundCurrency(Number(r.price));
     return {
       scanId: r.scanId!,
-      card: r.card,
+      card: cards[i],
       isFoil: r.isFoil,
       foilType: r.foilType,
       condition: toCardCondition(r.condition),
@@ -381,9 +389,28 @@ function selectLotReviewCards(tx: Transaction) {
       hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
       corrected: collectionCards.isCorrected,
       reviewed: collectionCards.isReviewed,
+      collectionLang: collections.lang,
+      gameKey: games.key,
     })
     .from(collectionCards)
-    .innerJoin(collections, eq(collections.id, collectionCards.collectionId));
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId));
+}
+
+async function toLotReviewCards(
+  rows: Awaited<ReturnType<typeof selectLotReviewCards>>,
+): Promise<IntakeReviewCardPage["cards"]> {
+  const cards = await hydrateSavedCards(
+    rows.map((r) => ({ gameKey: r.gameKey, lang: r.collectionLang, card: r.card })),
+    { includeRaw: false },
+  );
+  return rows.map(({ gameKey: _gameKey, collectionLang: _collectionLang, ...row }, i) => ({
+    ...row,
+    card: cards[i],
+    scanId: row.scanId!,
+    collectionGuid: row.collectionGuid!,
+    condition: toCardCondition(row.condition),
+  }));
 }
 
 async function countLotCards(
@@ -441,13 +468,9 @@ export async function loadIntakeCardContext(
     .where(lotReviewScope(lotId, eq(collectionCards.guid, scanId)))
     .limit(1);
   if (!current) return null;
+  const [card] = await toLotReviewCards([current]);
   return {
-    card: {
-      ...current,
-      scanId: current.scanId!,
-      collectionGuid: current.collectionGuid!,
-      condition: toCardCondition(current.condition),
-    },
+    card,
     index: await countLotCards(
       tx,
       lotId,
@@ -469,12 +492,7 @@ export async function loadUnreviewedLotCards(
     .orderBy(desc(collectionCards.scannedAt), desc(collectionCards.id))
     .limit(REVIEW_GRID_CARD_LIMIT);
   return {
-    cards: rows.map((row) => ({
-      ...row,
-      scanId: row.scanId!,
-      collectionGuid: row.collectionGuid!,
-      condition: toCardCondition(row.condition),
-    })),
+    cards: await toLotReviewCards(rows),
     total: await countLotCards(tx, lotId, unreviewed),
   };
 }

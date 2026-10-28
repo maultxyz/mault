@@ -24,6 +24,7 @@ import { COLLECTION_CARD_SQL_COLUMNS } from "./constants/card-prices";
 import { ONE_DAY_MS } from "./constants/timing";
 import type { StatsReportRow } from "./interfaces/stats";
 import { loadOrgPricing } from "./price-source";
+import { hydrateSavedCards } from "./saved-cards";
 
 function priceBucketsSql(): SQL {
   const buckets = STATS_PRICE_BUCKETS.map(({ key, min, max }) => {
@@ -85,6 +86,7 @@ export async function loadStatsReport(
         ${collections.name} AS collection_name,
         ${games.key} AS game_key,
         ${games.name} AS game_name,
+        COALESCE(${collectionCards.cardLang}, ${collections.lang}) AS card_lang,
         (${cardPrice})::float8 AS price,
         (CASE WHEN ${collectionCards.acquisitionCurrency} = ${currency} THEN ${collectionCards.acquisitionCost} END)::float8 AS cost
       FROM ${collectionCards}
@@ -140,7 +142,9 @@ export async function loadStatsReport(
           'scanId', top.scan_id,
           'collectionGuid', top.collection_guid,
           'collectionName', top.collection_name,
-          'card', cc.card,
+          'card', cc.card - 'raw',
+          'gameKey', top.game_key,
+          'cardLang', top.card_lang,
           'isFoil', top.is_foil,
           'price', top.price,
           'scannedAt', to_char(top.scanned_at, ${isoTimestamp})
@@ -187,6 +191,10 @@ export async function loadStatsReport(
   const breakdown = collection
     ? await loadAllCardStats(tx, collection, pricing)
     : null;
+  const topCards = await hydrateSavedCards(
+    row.top_cards.map((top) => ({ gameKey: top.gameKey, lang: top.cardLang, card: top.card })),
+    { includeRaw: false },
+  );
 
   return {
     scope: collection ? "collection" : "org",
@@ -201,7 +209,12 @@ export async function loadStatsReport(
       count: row.price_buckets[index]?.count ?? 0,
       value: row.price_buckets[index]?.value ?? 0,
     })),
-    topCards: row.top_cards,
+    topCards: row.top_cards.map(
+      ({ gameKey: _gameKey, cardLang: _cardLang, ...top }, i) => ({
+        ...top,
+        card: topCards[i],
+      }),
+    ),
     collections: row.collections,
     games: row.games,
     breakdown,

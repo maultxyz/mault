@@ -18,9 +18,11 @@ import {
   accuracyChecks,
   collectionCards,
   collections,
+  games,
   intakeLots,
   unmatchedCards,
 } from "../../db/schema";
+import { hydrateSavedCards } from "../../lib/saved-cards";
 import { logActivity } from "../../lib/activity-log";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { resolveScanImageUrl } from "../../lib/scan-images";
@@ -279,8 +281,12 @@ export const accuracyRoute = new Hono<AppEnv>()
               condition: collectionCards.condition,
               capturedImageKey: collectionCards.capturedImageKey,
               capturedImageDataUrl: collectionCards.capturedImageDataUrl,
+              collectionLang: collections.lang,
+              gameKey: games.key,
             })
             .from(collectionCards)
+            .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+            .leftJoin(games, eq(games.id, collections.gameId))
             .where(
               and(
                 eq(collectionCards.orgId, orgId),
@@ -288,7 +294,13 @@ export const accuracyRoute = new Hono<AppEnv>()
               ),
             )
         : [];
-      const byId = new Map(cards.map((card) => [card.scanId, card]));
+      const hydratedCards = await hydrateSavedCards(
+        cards.map((card) => ({ gameKey: card.gameKey, lang: card.collectionLang, card: card.card })),
+        { includeRaw: false },
+      );
+      const byId = new Map(
+        cards.map((card, i) => [card.scanId, { ...card, card: hydratedCards[i] }]),
+      );
       const check = await toCheck(
         found.check,
         { guid: found.collectionGuid, name: found.collectionName },

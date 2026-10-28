@@ -56,6 +56,8 @@ export interface PullSheetRow {
   location_position: number | null;
   collection_guid: string;
   collection_name: string;
+  collection_lang: string;
+  game_key: string | null;
   location_name: string | null;
 }
 

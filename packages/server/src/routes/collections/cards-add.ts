@@ -42,6 +42,7 @@ import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
 import { databaseErrorResponse } from "../../lib/database-error-response";
+import { toSavedCardSnapshots } from "../../lib/saved-cards";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -124,6 +125,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             id: collections.id,
             gameId: collections.gameId,
             name: collections.name,
+            lang: collections.lang,
+            gameKey: games.key,
             gameName: games.name,
           })
           .from(collections)
@@ -222,13 +225,18 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           deviceGuid,
         );
         const intakeLotId = await findOpenIntakeLotId(tx, collection.id);
+        const saved = await toSavedCardSnapshots(
+          { gameKey: collection.gameKey, lang: collection.lang },
+          card,
+          alternativeMatches,
+        );
         await tx
           .insert(collectionCards)
           .values({
             guid: scanId,
             collectionId: collection.id,
             cardId: (card as PlayingCardWithDistance).id,
-            card,
+            card: saved.card,
             scannedAt: new Date(scannedAt),
             binNumber: binNumber ?? null,
             capturedImageDataUrl: storedImage.dataUrl,
@@ -236,9 +244,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             isFoil: isFoil ?? false,
             foilType: foilType ?? null,
             condition,
-            alternativeMatches: alternativeMatches?.length
-              ? alternativeMatches
-              : null,
+            alternativeMatches: saved.alternativeMatches,
             lowConfidenceMatch: lowConfidenceMatch ?? false,
             diagnostics: diagnostics ?? null,
             scannedByUserId: userId,
