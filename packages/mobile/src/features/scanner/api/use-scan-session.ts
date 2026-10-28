@@ -24,6 +24,7 @@ import {
   resolveScanBin,
   SERIAL_JAM_ERROR,
   type SerialReply,
+  scanFoilType,
   toRuleCard,
   withScanRuleFields,
   type AutoAssignTarget,
@@ -510,7 +511,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         pause("bin-data-unavailable");
         return;
       }
-      const forcedFoil = forcedFoilTypeRef.current;
+      const forcedFoil = scanFoilType(card, forcedFoilTypeRef.current);
       const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil });
       const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;
       const routingContext: ScanRoutingContext = {

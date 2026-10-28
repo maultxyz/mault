@@ -25,6 +25,7 @@ import {
   hasMaxCopiesBins,
   isRulesMode,
   reservePickListBins,
+  scanFoilType,
   toRuleCard,
   withScanRuleFields,
   type CornerDetection,
@@ -463,6 +464,7 @@ async function searchOrientation(
     }),
     context.gameKey,
     context.lang,
+    embeddings,
   );
   return {
     image,
@@ -579,7 +581,9 @@ async function matchFrame(
     if (text && hasCardMatch(text)) {
       best = {
         ...options[bestIndex],
-        result: await attachMatchedCards(text, context.gameKey, context.lang),
+        result: await attachMatchedCards(text, context.gameKey, context.lang, {
+          embedding: options[bestIndex].embedding,
+        }),
       };
       matchedBy = "ocr";
       lowConfidenceFromOcr = !embeddingMatched;
@@ -866,10 +870,11 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         continue;
       }
 
+      const foilType = scanFoilType(card, session.foilType);
       while (!session.stopRequested) {
         const ruleCard = toRuleCard(card, {
-          isFoil: session.foilType != null,
-          foilType: session.foilType,
+          isFoil: foilType != null,
+          foilType,
         });
         const countInBin = (bin: BinConfig) =>
           context.counts.get(bin.binNumber) ?? 0;
@@ -970,8 +975,8 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             scannedAt,
             binNumber: chosen.binNumber,
             capturedImageUrl: imageUrl,
-            isFoil: session.foilType != null,
-            foilType: session.foilType ?? undefined,
+            isFoil: foilType != null,
+            foilType: foilType ?? undefined,
             alternativeMatches: alternatives,
             lowConfidenceMatch:
               matched.lowConfidenceFromOcr ||

@@ -51,6 +51,7 @@ export * from "./constants/module-configs.constant";
 export * from "./constants/monitor-links.constant";
 export * from "./constants/ocr-regions.constant";
 export * from "./constants/price-source.constant";
+export * from "./constants/card-finish.constant";
 export * from "./constants/card-condition.constant";
 export * from "./constants/card-language.constant";
 export * from "./constants/rarity.constant";
