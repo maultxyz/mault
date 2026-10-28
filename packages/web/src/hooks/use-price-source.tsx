@@ -46,8 +46,8 @@ export function usePriceSource(): PriceFormatter {
     () => ({
       source,
       conditionMultipliers,
-      priceOf: (card, isFoil, condition) =>
-        cardPriceFor(card, isFoil, source, condition, conditionMultipliers),
+      priceOf: (card, finish, condition) =>
+        cardPriceFor(card, finish, source, condition, conditionMultipliers),
       format: (value) => formatPrice(value, source),
     }),
     [source, conditionMultipliers],

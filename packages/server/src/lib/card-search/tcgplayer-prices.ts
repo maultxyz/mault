@@ -1,8 +1,16 @@
-import type { PlayingCard, PlayingCardPriceRange } from "@magic-vault/shared";
+import type {
+  CardFinishPrices,
+  PlayingCard,
+  PlayingCardPriceRange,
+} from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { tcgplayerPrices, tcgplayerProducts } from "../../db/schema";
-import type { CardSearchAdapter, TcgplayerPricing } from "../interfaces/card-search";
+import type {
+  CardSearchAdapter,
+  TcgplayerFinishProduct,
+  TcgplayerPricing,
+} from "../interfaces/card-search";
 import { median } from "../statistics";
 
 function productIdOf(
@@ -76,6 +84,29 @@ function combineRanges(
   };
 }
 
+function finishPricesFor(
+  finishes: TcgplayerFinishProduct[],
+  rangeOf: (productId: number, subTypes: string[]) => PlayingCardPriceRange | undefined,
+): Record<string, CardFinishPrices> | undefined {
+  const entries = finishes.flatMap((finish) => {
+    const range = rangeOf(finish.productId, finish.subTypes);
+    const priceFoil = range?.market ?? range?.mid ?? null;
+    return priceFoil == null ? [] : [[finish.foilType, { priceFoil }] as const];
+  });
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+function medianFinishPrice(
+  finishPrices: Record<string, CardFinishPrices> | undefined,
+): number | null {
+  if (!finishPrices) return null;
+  return median(
+    Object.values(finishPrices).flatMap((prices) =>
+      prices.priceFoil == null ? [] : [prices.priceFoil],
+    ),
+  );
+}
+
 export async function applyTcgplayerPrices<T extends PlayingCard>(
   adapter: CardSearchAdapter,
   cards: T[],
@@ -84,7 +115,15 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
   if (!pricing) return cards;
 
   const productIdsByCard = await resolveProductIds(pricing, cards);
-  const productIds = [...new Set(productIdsByCard.flat())];
+  const finishProductsByCard = cards.map(
+    (card) => pricing.finishProducts?.(card) ?? [],
+  );
+  const productIds = [
+    ...new Set([
+      ...productIdsByCard.flat(),
+      ...finishProductsByCard.flat().map((finish) => finish.productId),
+    ]),
+  ];
   if (productIds.length === 0) return cards;
 
   const rows = await db
@@ -110,16 +149,20 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
     ]),
   );
 
+  const rangeOf = (productId: number, subTypes: string[]) =>
+    subTypes
+      .map((subType) => ranges.get(`${productId}:${subType}`))
+      .find((r) => r?.market != null || r?.mid != null);
+
   return cards.map((card, i) => {
     const cardProductIds = productIdsByCard[i];
-    if (cardProductIds.length === 0) return card;
+    const finishPrices = finishPricesFor(finishProductsByCard[i], rangeOf);
+    if (cardProductIds.length === 0 && !finishPrices) return card;
 
     const rangeFor = (subTypes: string[]) =>
       combineRanges(
         cardProductIds.flatMap((productId) => {
-          const range = subTypes
-            .map((subType) => ranges.get(`${productId}:${subType}`))
-            .find((r) => r?.market != null || r?.mid != null);
+          const range = rangeOf(productId, subTypes);
           return range ? [range] : [];
         }),
       );
@@ -130,9 +173,14 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
     return {
       ...card,
       price: range?.market ?? range?.mid ?? card.price,
-      priceFoil: rangeFoil?.market ?? rangeFoil?.mid ?? card.priceFoil,
+      priceFoil:
+        rangeFoil?.market ??
+        rangeFoil?.mid ??
+        medianFinishPrice(finishPrices) ??
+        card.priceFoil,
       priceRange: range ?? card.priceRange,
       priceRangeFoil: rangeFoil ?? card.priceRangeFoil,
+      finishPrices: finishPrices ?? card.finishPrices,
     };
   });
 }

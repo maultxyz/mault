@@ -26,6 +26,7 @@ import {
 } from "./card-price-sql";
 import { ONE_DAY_MS } from "./constants/timing";
 import { loadOrgPricing } from "./price-source";
+import { hydrateSavedCards } from "./saved-cards";
 
 function utcDayKey(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -106,6 +107,8 @@ export async function loadOrgOverview(
         isFoil: collectionCards.isFoil,
         scannedAt: collectionCards.scannedAt,
         price: cardPrice,
+        collectionLang: collections.lang,
+        gameKey: games.key,
       })
       .from(collectionCards)
       .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
@@ -120,11 +123,15 @@ export async function loadOrgOverview(
       )
       .orderBy(orderBy)
       .limit(limit);
-    return rows.map((row) => ({
+    const cards = await hydrateSavedCards(
+      rows.map((row) => ({ gameKey: row.gameKey, lang: row.collectionLang, card: row.card })),
+      { includeRaw: false },
+    );
+    return rows.map((row, i) => ({
       scanId: row.scanId!,
       collectionGuid: row.collectionGuid!,
       collectionName: row.collectionName,
-      card: row.card,
+      card: cards[i],
       isFoil: row.isFoil,
       price: row.price == null ? null : Number(row.price),
       scannedAt: row.scannedAt.toISOString(),

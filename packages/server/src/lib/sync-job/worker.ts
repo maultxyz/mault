@@ -19,6 +19,8 @@ import {
 } from "./browser-queue";
 import { SYNC_SOURCES } from "./sources";
 import { storedCollectorNumber } from "../card-search/collector-number";
+import { catalogColumnsFor } from "../card-catalog";
+import { syncCardFinishVectors } from "../card-finish-vectors";
 import { rebuildGameVectorIndex } from "../game-vector-index";
 
 function errorMessage(err: unknown): string {
@@ -180,26 +182,33 @@ async function refreshStoredData(
     const batch = cards.slice(i, i + SYNC_DATA_REFRESH_BATCH_SIZE);
     const rows = `[${batch
       .map((c) => {
+        const data: unknown = JSON.parse(c.data);
         const collectorNumber = storedCollectorNumber(
           source.gameKey,
           lang,
           c.id,
-          JSON.parse(c.data),
+          data,
         );
-        return `{"card_id":${JSON.stringify(c.id)},"collector_number":${JSON.stringify(collectorNumber)},"data":${c.data}}`;
+        const catalog = catalogColumnsFor(source.gameKey, lang, c.id, data);
+        return `{"card_id":${JSON.stringify(c.id)},"collector_number":${JSON.stringify(collectorNumber)},"set_name":${JSON.stringify(catalog.setName)},"rarity":${JSON.stringify(catalog.rarity)},"color_identity":${JSON.stringify(catalog.colorIdentity)},"search_text":${JSON.stringify(catalog.searchText)},"image_small":${JSON.stringify(catalog.imageSmall)},"data":${c.data}}`;
       })
       .join(",")}]`;
     const result = await db.execute(sql`
       UPDATE cards AS c
-      SET data = x.data, collector_number = x.collector_number
+      SET data = x.data, collector_number = x.collector_number,
+        set_name = x.set_name, rarity = x.rarity, color_identity = x.color_identity,
+        search_text = x.search_text, image_small = x.image_small
       FROM jsonb_to_recordset(${rows}::jsonb)
-        AS x(card_id text, collector_number text, data jsonb)
+        AS x(card_id text, collector_number text, set_name text, rarity text,
+          color_identity jsonb, search_text text, image_small text, data jsonb)
       WHERE c.game_key = ${source.gameKey}
         AND c.lang = ${lang}
         AND c.card_id = x.card_id
         AND (
           (c.data - ${volatileKeys}::text[]) IS DISTINCT FROM (x.data - ${volatileKeys}::text[])
           OR c.collector_number IS DISTINCT FROM x.collector_number
+          OR (c.set_name, c.rarity, c.color_identity, c.search_text, c.image_small)
+            IS DISTINCT FROM (x.set_name, x.rarity, x.color_identity, x.search_text, x.image_small)
         )
     `);
     updated += result.rowCount ?? 0;
@@ -426,6 +435,11 @@ async function runSync(
             embedding: sql`excluded.embedding`,
             backEmbedding: sql`excluded.back_embedding`,
             data: sql`excluded.data`,
+            setName: sql`excluded.set_name`,
+            rarity: sql`excluded.rarity`,
+            colorIdentity: sql`excluded.color_identity`,
+            searchText: sql`excluded.search_text`,
+            imageSmall: sql`excluded.image_small`,
             updatedAt: sql`now()`,
           },
         });
@@ -486,6 +500,7 @@ async function runSync(
         embedding,
         backEmbedding,
         data,
+        ...catalogColumnsFor(source.gameKey, lang, card.id, data),
       });
       pendingCards.push(card);
       patchState({ queued: pendingCards.length });
@@ -548,6 +563,12 @@ async function runSync(
     refreshed + getState().processed,
     existingSet.size,
   );
+
+  try {
+    await syncCardFinishVectors(source.gameKey, lang, addLog, isCancelled);
+  } catch (err) {
+    addLog(`Card finish images skipped: ${errorMessage(err)}`);
+  }
 
   patchState({ status: "completed" });
   const syncState = getState();

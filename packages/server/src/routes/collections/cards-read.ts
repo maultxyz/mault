@@ -9,6 +9,7 @@ import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
 import { loadOrgPricing } from "../../lib/price-source";
 import {
   cardFilterSql,
+  cardQueryUsesCatalog,
   findCardsCollection,
   loadCardsCount,
   loadCardStats,
@@ -78,7 +79,12 @@ export async function readCardsCount(
     const collection = await findCardsCollection(tx, guid, orgId);
     if (!collection) return null;
     return {
-      totalCount: await loadCardsCount(tx, collection, cardFilterSql(query)),
+      totalCount: await loadCardsCount(
+        tx,
+        collection,
+        cardFilterSql(query),
+        cardQueryUsesCatalog(query, collection.fieldDefinitions),
+      ),
     };
   });
 }

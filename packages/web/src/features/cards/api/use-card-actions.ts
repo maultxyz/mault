@@ -1,6 +1,7 @@
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import {
+  cardFoilTypeOptions,
   toCardCondition,
   type CardCondition,
   type GroupedScannedCard,
@@ -12,10 +13,10 @@ export function useCardActions(entry: GroupedScannedCard) {
   const { t } = useTranslation("cards");
   const { confirmCard, setCardsFoilType, setCardsCondition, removeCards } =
     useScannedCards();
-  const foilOptions = useFoilOptions();
+  const gameFoilOptions = useFoilOptions();
 
   return {
-    foilOptions,
+    foilOptions: cardFoilTypeOptions(gameFoilOptions, entry.card, entry.foilType),
     canConfirm:
       (entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) &&
       !entry.corrected,

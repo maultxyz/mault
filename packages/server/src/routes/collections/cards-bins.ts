@@ -1,6 +1,7 @@
 import type { BinWindow } from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
 import { authQuery, type Transaction } from "../../db";
+import type { CardsCollection } from "../../lib/interfaces/collections";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   findCardsCollection,
@@ -12,7 +13,7 @@ import {
 function binsHandler<T>(
   load: (
     tx: Transaction,
-    collectionId: number,
+    collection: CardsCollection,
     bins: BinWindow[],
   ) => Promise<T>,
 ) {
@@ -26,7 +27,7 @@ function binsHandler<T>(
       );
       if (!collection)
         return { success: false, message: "Collection not found." };
-      return { success: true, data: await load(tx, collection.id, bins) };
+      return { success: true, data: await load(tx, collection, bins) };
     });
     return c.json(result);
   };
@@ -37,7 +38,9 @@ export const collectionCardBinsRoute = new Hono<AppEnv>()
     "/:guid/cards/bin-counts",
     requireAuth,
     requireOrg,
-    binsHandler(loadBinCounts),
+    binsHandler((tx, collection, bins) =>
+      loadBinCounts(tx, collection.id, bins),
+    ),
   )
   .get(
     "/:guid/cards/bin-contents",

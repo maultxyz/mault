@@ -16,7 +16,11 @@ export function MobileStorageCardList({
   return (
     <div className={MOBILE_LIST_CLASS}>
       {entries.map((entry) => {
-        const price = priceOf(entry.card, entry.isFoil, entry.condition);
+        const price = priceOf(
+          entry.card,
+          { isFoil: entry.isFoil, foilType: entry.foilType },
+          entry.condition,
+        );
         return (
           <button
             key={`${entry.locationGuid}-${entry.scanId}`}

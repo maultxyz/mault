@@ -63,6 +63,7 @@ export interface CardPurchaseLinksProps {
 export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil: boolean;
+  foilType?: string | null;
 }
 
 export interface PriceHeadline {

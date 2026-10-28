@@ -14,6 +14,7 @@ import {
 import { resolveImageUrl } from "./discord";
 import type { BotCollectionStats } from "./interfaces/bot";
 import { loadOrgPricing } from "./price-source";
+import { hydrateSavedCards } from "./saved-cards";
 
 export async function loadBotCollectionStats(
   orgId: string,
@@ -40,10 +41,12 @@ export async function loadBotCollectionStats(
 
   const [top] = await db
     .select({
-      card: collectionCards.card,
+      card: sql<PlayingCard>`${collectionCards.card} - 'raw'`,
       isFoil: collectionCards.isFoil,
       foilType: collectionCards.foilType,
       collectionName: collections.name,
+      collectionLang: collections.lang,
+      gameKey: games.key,
       price: cardPrice,
     })
     .from(collectionCards)
@@ -54,7 +57,12 @@ export async function loadBotCollectionStats(
     .orderBy(desc(cardPrice))
     .limit(1);
 
-  const topCard = top?.card as PlayingCard | undefined;
+  const [topCard] = top
+    ? await hydrateSavedCards(
+        [{ gameKey: top.gameKey, lang: top.collectionLang, card: top.card }],
+        { includeRaw: false },
+      )
+    : [];
   const totalValue = row?.totalValue ? Number(row.totalValue) : 0;
   return {
     collectionCount: Number(row?.collectionCount ?? 0),

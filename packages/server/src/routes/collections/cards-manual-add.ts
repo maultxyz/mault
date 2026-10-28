@@ -12,6 +12,7 @@ import { authQuery } from "../../db";
 import {
   collectionCards,
   collections,
+  games,
   storageLocations,
 } from "../../db/schema";
 import { UUID_PATTERN } from "../../lib/constants/validation";
@@ -25,6 +26,7 @@ import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findLocationId } from "../storage-locations/shared";
 import { toScannedCard } from "./shared";
+import { toSavedCardSnapshots } from "../../lib/saved-cards";
 
 export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards/manual",
@@ -53,8 +55,9 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
 
     const outcome = await authQuery(c.get("jwtClaims"), async (tx) => {
       const [collection] = await tx
-        .select({ id: collections.id })
+        .select({ id: collections.id, lang: collections.lang, gameKey: games.key })
         .from(collections)
+        .leftJoin(games, eq(games.id, collections.gameId))
         .where(
           and(
             eq(collections.guid, guid),
@@ -86,11 +89,16 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
       }
 
       const scannedAt = new Date();
+      const saved = await toSavedCardSnapshots(
+        { gameKey: collection.gameKey, lang: collection.lang },
+        added,
+        null,
+      );
       await tx.insert(collectionCards).values({
         guid: scanId,
         collectionId: collection.id,
         cardId: added.id,
-        card: added,
+        card: saved.card,
         scannedAt,
         isFoil: false,
         language,

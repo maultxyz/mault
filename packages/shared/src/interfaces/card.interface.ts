@@ -46,6 +46,20 @@ export type CardPricesAtScan = Partial<
   >
 >;
 
+export type CardFinishPrices = Partial<
+  Pick<PlayingCard, "priceFoil" | "priceEurFoil" | "priceCardKingdomFoil">
+>;
+
+export interface CardFinishMatch {
+  foilType: string;
+  distance: number;
+}
+
+export interface CardFinish {
+  isFoil?: boolean | null;
+  foilType?: string | null;
+}
+
 export interface PlayingCard {
   id: string;
   name: string;
@@ -74,6 +88,9 @@ export interface PlayingCard {
   cardKingdomPrice?: PlayingCardCardKingdomPrice;
   cardKingdomPriceFoil?: PlayingCardCardKingdomPrice;
   pricesAtScan?: CardPricesAtScan;
+  foilTypes?: string[];
+  finishPrices?: Record<string, CardFinishPrices>;
+  finishMatches?: CardFinishMatch[];
   purchaseLinks?: CardPurchaseLinks;
   sourceUrl?: string;
   tcgplayerId?: string;

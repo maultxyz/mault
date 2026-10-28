@@ -51,6 +51,7 @@ import { cn } from "@/lib/utils";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
+  cardFoilTypeOptions,
   DEFAULT_CARD_CONDITION,
   isCardLanguage,
   scanLanguage,
@@ -254,14 +255,23 @@ export function CardDetailPanel({
   const conditionTriggerRef = useRef<HTMLButtonElement>(null);
   const languageTriggerRef = useRef<HTMLButtonElement>(null);
   const conditionPrice = selectedCard
-    ? priceOf(selectedCard, draftIsFoil, currentCondition)
+    ? priceOf(
+        selectedCard,
+        { isFoil: draftIsFoil, foilType: currentFoilType },
+        currentCondition,
+      )
     : null;
+  const cardFoilOptions = cardFoilTypeOptions(
+    foilOptions,
+    selectedCard,
+    currentFoilType,
+  );
   const conditionHandler = (value: CardCondition) =>
     isViewing && scanId ? () => scanDraft.setCondition(value) : undefined;
 
   const toggleFoil = () => {
     if (!scanId) return;
-    scanDraft.setFoilType(currentFoilType ? null : foilOptions[0]);
+    scanDraft.setFoilType(currentFoilType ? null : cardFoilOptions[0]);
   };
 
   const acceptInReview = () => {
@@ -553,6 +563,7 @@ export function CardDetailPanel({
                         <CardPriceDetails
                           card={selectedCard}
                           isFoil={draftIsFoil}
+                          foilType={currentFoilType}
                         />
                         <CardPurchaseLinks card={selectedCard} />
                         {scanId && acquisitionCost && (
@@ -623,7 +634,7 @@ export function CardDetailPanel({
                                 <SelectItem value="none">
                                   {t("foilNone")}
                                 </SelectItem>
-                                {foilOptions.map((type) => (
+                                {cardFoilOptions.map((type) => (
                                   <SelectItem key={type} value={type}>
                                     {type}
                                   </SelectItem>
