@@ -2,8 +2,6 @@ import type { PlayingCard } from "@magic-vault/shared";
 import {
   TCGTRACKING_EXT_KEYS,
   TCGTRACKING_FALLBACK_SOURCE,
-  TCGTRACKING_IMAGE_WIDTH_NORMAL,
-  TCGTRACKING_IMAGE_WIDTH_SMALL,
   TCGTRACKING_TYPE_LINE_SEPARATOR,
 } from "../constants/tcgtracking";
 import type { SyncSourceCard } from "../interfaces/card-search";
@@ -12,7 +10,7 @@ import type {
   TcgtrackingFallbackData,
   TcgtrackingGameConfig,
 } from "../interfaces/tcgtracking";
-import { tcgtrackingFallbackId, tcgtrackingImageUrl } from "./catalog";
+import { tcgtrackingCardImage, tcgtrackingFallbackId } from "./catalog";
 
 export function isTcgtrackingFallbackData(
   data: unknown,
@@ -72,13 +70,7 @@ export function normalizeTcgtrackingFallback(
   return {
     id,
     name: data.product.name,
-    image: {
-      small: tcgtrackingImageUrl(data.product.id, TCGTRACKING_IMAGE_WIDTH_SMALL),
-      normal: tcgtrackingImageUrl(
-        data.product.id,
-        TCGTRACKING_IMAGE_WIDTH_NORMAL,
-      ),
-    },
+    image: tcgtrackingCardImage(data.product.id),
     set: fallbackSetCode(data),
     setName: data.set.name,
     collectorNumber: data.product.number ?? "",
@@ -115,10 +107,7 @@ export function toTcgtrackingFallbackSyncCard(
     id: tcgtrackingFallbackId(entry.product.id),
     name: entry.product.name,
     setCode: fallbackSetCode(data),
-    imageUrl: tcgtrackingImageUrl(
-      entry.product.id,
-      TCGTRACKING_IMAGE_WIDTH_NORMAL,
-    ),
+    imageUrl: tcgtrackingCardImage(entry.product.id).normal,
     data: JSON.stringify(data),
   };
 }

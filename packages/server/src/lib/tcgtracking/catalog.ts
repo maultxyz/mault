@@ -1,8 +1,11 @@
+import type { PlayingCardImage } from "@magic-vault/shared";
 import { fetchCardApi } from "../card-search/fetch";
 import { CARD_API_HEADERS } from "../constants/card-search";
 import {
   TCGTRACKING_CATALOG_TTL_MS,
   TCGTRACKING_FALLBACK_ID_PREFIX,
+  TCGTRACKING_IMAGE_WIDTH_NORMAL,
+  TCGTRACKING_IMAGE_WIDTH_SMALL,
   TCGTRACKING_REQUEST_DELAY_MS,
 } from "../constants/tcgtracking";
 import {
@@ -112,6 +115,13 @@ export function loadTcgtrackingCatalog(
 
 export function tcgtrackingImageUrl(productId: number, width: string): string {
   return `${TCGTRACKING_IMAGE_ROOT}/${productId}_${width}.jpg`;
+}
+
+export function tcgtrackingCardImage(productId: number): PlayingCardImage {
+  return {
+    small: tcgtrackingImageUrl(productId, TCGTRACKING_IMAGE_WIDTH_SMALL),
+    normal: tcgtrackingImageUrl(productId, TCGTRACKING_IMAGE_WIDTH_NORMAL),
+  };
 }
 
 export function tcgtrackingFallbackId(productId: number): string {

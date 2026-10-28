@@ -21,7 +21,11 @@ import type {
   TcgtrackingPrimaryCard,
   TcgtrackingProduct,
 } from "../interfaces/tcgtracking";
-import { loadTcgtrackingCatalog, tcgtrackingProductIdOf } from "./catalog";
+import {
+  loadTcgtrackingCatalog,
+  tcgtrackingCardImage,
+  tcgtrackingProductIdOf,
+} from "./catalog";
 import {
   isTcgtrackingFallbackData,
   toTcgtrackingFallbackSyncCard,
@@ -30,6 +34,7 @@ import { TCGTRACKING_GAMES } from "./games";
 import {
   baseCardNameKey,
   cardNameKey,
+  comparableProductName,
   collectorNumberKey,
   setCodeKey,
 } from "./keys";
@@ -89,6 +94,7 @@ function primaryKey(
 }
 
 function alignSets(
+  config: TcgtrackingGameConfig,
   catalog: TcgtrackingCatalogEntry[],
   primaries: TcgtrackingPrimaryCard[],
 ): Map<number, string> {
@@ -108,7 +114,7 @@ function alignSets(
     if (!number) continue;
     pairCountByGroup.set(set.id, (pairCountByGroup.get(set.id) ?? 0) + 1);
     const primarySets = setsByPair.get(
-      `${number}|${cardNameKey(product.name)}`,
+      `${number}|${cardNameKey(comparableProductName(config, product))}`,
     );
     if (!primarySets) continue;
     const shared = sharedByGroup.get(set.id) ?? new Map<string, number>();
@@ -163,7 +169,9 @@ function pickByKey(
   const isBase = config.isBasePrinting?.(primary.card) ?? false;
   if (primariesWithKey > 1 && !isBase) return null;
   const named = candidates.filter(
-    (entry) => cardNameKey(entry.product.name) === primary.nameKey,
+    (entry) =>
+      cardNameKey(comparableProductName(config, entry.product)) ===
+      primary.nameKey,
   );
   if (named.length === 1) return named[0].product;
   if (named.length > 1) {
@@ -179,8 +187,11 @@ function pickByKey(
 }
 
 function stampProductId(card: SyncSourceCard, productId: number): SyncSourceCard {
+  const fallbackImageUrl = tcgtrackingCardImage(productId).normal;
   return {
     ...card,
+    imageUrl: card.imageUrl ?? fallbackImageUrl,
+    fallbackImageUrl,
     data: JSON.stringify({
       ...JSON.parse(card.data),
       tcgtrackingProductId: productId,
@@ -279,7 +290,7 @@ export async function mergeTcgtrackingCatalog(
   );
   const alignedSets =
     config.numbering === "per-set"
-      ? alignSets(catalog, knownPrimaries)
+      ? alignSets(config, catalog, knownPrimaries)
       : new Map<number, string>();
 
   const productsByKey = new Map<string, TcgtrackingCatalogEntry[]>();
@@ -291,7 +302,15 @@ export async function mergeTcgtrackingCatalog(
   const primaryIdByKey = new Map<string, string>();
   const primaryBaseNames = new Set<string>();
   const primaryBaseNamesBySet = new Map<string, Set<string>>();
+  const primaryHighestNumberBySet = new Map<string, number>();
   for (const primary of knownPrimaries) {
+    const number = Number(primary.numberKey);
+    if (primary.numberKey && Number.isInteger(number)) {
+      primaryHighestNumberBySet.set(
+        primary.card.set,
+        Math.max(primaryHighestNumberBySet.get(primary.card.set) ?? 0, number),
+      );
+    }
     primaryBaseNames.add(primary.baseNameKey);
     primaryBaseNamesBySet.set(
       primary.card.set,
@@ -337,7 +356,9 @@ export async function mergeTcgtrackingCatalog(
     ) {
       return false;
     }
-    const baseName = baseCardNameKey(entry.product.name);
+    const baseName = baseCardNameKey(
+      comparableProductName(config, entry.product),
+    );
     if (config.numbering === "name-only") {
       return isRecentSet(entry) && !primaryBaseNames.has(baseName);
     }
@@ -349,10 +370,14 @@ export async function mergeTcgtrackingCatalog(
     if (!alignedSet) {
       return isRecentSet(entry) && !primaryBaseNames.has(baseName);
     }
+    const isPastPrimarySet =
+      Number(productNumberKey(entry.product)) >
+      (primaryHighestNumberBySet.get(alignedSet) ?? Infinity);
     return (
       !!key &&
       !primaryCountByKey.has(key) &&
-      !primaryBaseNamesBySet.get(alignedSet)?.has(baseName)
+      (isPastPrimarySet ||
+        !primaryBaseNamesBySet.get(alignedSet)?.has(baseName))
     );
   };
 

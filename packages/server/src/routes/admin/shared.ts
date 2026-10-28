@@ -55,7 +55,11 @@ export async function syncOneCard(
     };
   }
 
-  const embedding = await embedImageUrl(card.imageUrl, source.fetchHeaders);
+  const embedding =
+    (await embedImageUrl(card.imageUrl, source.fetchHeaders)) ??
+    (card.fallbackImageUrl && card.fallbackImageUrl !== card.imageUrl
+      ? await embedImageUrl(card.fallbackImageUrl, source.fetchHeaders)
+      : null);
   if (!embedding) {
     return {
       success: false,
