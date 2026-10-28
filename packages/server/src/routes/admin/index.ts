@@ -14,6 +14,7 @@ import { platformStatsRoute } from "./platform-stats";
 import { rollbarTestRoute } from "./rollbar-test";
 import { scanMetricsRoute } from "./scan-metrics";
 import { scanVectorizeStatsRoute } from "./scan-vectorize-stats";
+import { syncApiKeysRoute } from "./sync-api-keys";
 import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
 import { syncStartRoute } from "./sync-start";
@@ -27,6 +28,7 @@ const router = new Hono<AppEnv>()
   .route("/", syncStartRoute)
   .route("/", syncWorkRoute)
   .route("/", syncCancelRoute)
+  .route("/", syncApiKeysRoute)
   .route("/", cardsListRoute)
   .route("/", cardsSyncRoute)
   .route("/", cardsRevectorizeRoute)

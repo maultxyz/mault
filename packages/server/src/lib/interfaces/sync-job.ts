@@ -125,3 +125,29 @@ export interface AcceptedBrowserWork {
   embedding: number[];
   backEmbedding?: number[];
 }
+
+export interface SyncStartBody {
+  gameKey?: string;
+  lang?: string;
+  forceResync?: boolean;
+  concurrency?: number;
+  vectorizeOn?: SyncVectorizeOn;
+}
+
+export interface SyncStartRequest {
+  gameKey: string | undefined;
+  lang: string;
+  forceResync: boolean;
+  concurrency: number | undefined;
+  vectorizeOn: SyncVectorizeOn;
+}
+
+export type SyncStartOutcome =
+  | { success: true }
+  | { success: false; message: string; status: 400 | 409 };
+
+export interface SyncCardBody {
+  gameKey?: string;
+  cardId?: string;
+  lang?: string;
+}
