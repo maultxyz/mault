@@ -206,7 +206,11 @@ export default function StorageLocationScreen() {
           cards.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
         }
         renderItem={({ item: entry }) => {
-          const value = pricing.priceOf(entry.card, entry.isFoil, entry.condition);
+          const value = pricing.priceOf(
+            entry.card,
+            { isFoil: entry.isFoil, foilType: entry.foilType },
+            entry.condition,
+          );
           return (
             <CardRow
               name={entry.card.name}

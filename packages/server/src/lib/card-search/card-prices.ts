@@ -80,6 +80,7 @@ function withStoredPrices<T extends PlayingCard>(
     cardKingdomPrice: details.cardKingdomPrice ?? card.cardKingdomPrice,
     cardKingdomPriceFoil:
       details.cardKingdomPriceFoil ?? card.cardKingdomPriceFoil,
+    finishPrices: details.finishPrices ?? card.finishPrices,
   };
 }
 

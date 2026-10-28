@@ -932,6 +932,13 @@
       "when": 1793198266982,
       "tag": "0132_card_catalog_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "7",
+      "when": 1793202378137,
+      "tag": "0133_pokemon_finish_foil_types",
+      "breakpoints": true
     }
   ]
 }

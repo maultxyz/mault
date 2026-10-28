@@ -95,6 +95,7 @@ export * from "./constants/pick-list.constant";
 export * from "./rule-fields";
 export * from "./scan-rule-fields";
 export * from "./price-source";
+export * from "./card-finishes";
 export * from "./card-condition";
 export * from "./card-language";
 export * from "./card-swatches";

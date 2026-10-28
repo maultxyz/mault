@@ -48,7 +48,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   const matchPercent = card.distance != null ? getMatchPercent(card) : 0;
   const { priceOf, format } = usePriceSource();
   const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
-  const displayPrice = priceOf(card, isFoil, condition);
+  const displayPrice = priceOf(card, { isFoil, foilType }, condition);
   const showReviewStatus = hasAlternatives || lowConfidenceMatch || isReviewed;
   return (
     <div

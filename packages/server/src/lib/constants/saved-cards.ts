@@ -34,12 +34,14 @@ export const SAVED_CARD_SCAN_KEYS = [
   "cardKingdomPriceFoil",
   "pricesAtScan",
   "purchaseLinks",
+  "finishPrices",
 ] as const;
 
 export const SAVED_CARD_READ_TIME_KEYS = [
   "raw",
   "pricesAtScan",
   "purchaseLinks",
+  "finishPrices",
 ] as const;
 
 export const SAVED_ALTERNATIVE_KEYS = [

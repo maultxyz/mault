@@ -11,7 +11,7 @@ import { PRICE_TABLE_COLUMN_WIDTH } from "@/lib/constants/cards";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardPriceDetailsProps, PriceSourceSection } from "@/lib/interfaces/cards";
 
-export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
+export function CardPriceDetails({ card, isFoil, foilType }: CardPriceDetailsProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const { source } = usePricing();
@@ -23,7 +23,9 @@ export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
       headline: {
         label: t("priceTable.tcgplayerMarket"),
         price: card.price,
-        foilPrice: card.priceFoil,
+        foilPrice:
+          (foilType ? card.finishPrices?.[foilType]?.priceFoil : null) ??
+          card.priceFoil,
         priceAtScan: card.pricesAtScan?.price,
         foilPriceAtScan: card.pricesAtScan?.priceFoil,
         format: formatUsd,

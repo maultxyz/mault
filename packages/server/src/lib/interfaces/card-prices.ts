@@ -30,6 +30,7 @@ export interface ScannedCardSqlColumns {
   savedPrices: Record<CardPriceKey, SQL | AnyColumn>;
   cardLang: SQL | AnyColumn;
   isFoil: SQL | AnyColumn;
+  foilType: SQL | AnyColumn;
   condition: SQL | AnyColumn;
   cardId: SQL | AnyColumn;
   collectionId: SQL | AnyColumn;

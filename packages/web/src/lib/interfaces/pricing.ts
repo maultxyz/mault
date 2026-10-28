@@ -1,5 +1,6 @@
 import type {
   CardCondition,
+  CardFinish,
   ConditionMultipliers,
   OrgPricing,
   PlayingCard,
@@ -12,7 +13,7 @@ export interface PriceFormatter {
   conditionMultipliers: ConditionMultipliers;
   priceOf(
     card: PlayingCard,
-    isFoil?: boolean,
+    finish?: boolean | CardFinish,
     condition?: CardCondition,
   ): number | null;
   format(value: number): string;
