@@ -151,6 +151,52 @@
     "syncButton": "Synchronisieren",
     "syncingButton": "Wird synchronisiert..."
   },
+  "syncApiKeys": {
+    "heading": "Sync-API-Schlüssel",
+    "description": "Schlüssel, mit denen Skripte und Zeitpläne Kartendatenbank-Syncs ohne Anmeldung starten können. Jeder Schlüssel darf nur, was seine Berechtigungen erlauben.",
+    "create": "Schlüssel erstellen",
+    "createTitle": "Sync-API-Schlüssel erstellen",
+    "createDescription": "Wähle, was dieser Schlüssel darf. Berechtigungen lassen sich später nicht ändern, widerrufe den Schlüssel stattdessen und erstelle ihn neu.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Nächtlicher Sync",
+    "permissionsLabel": "Berechtigungen",
+    "permissions": {
+      "sync_start": {
+        "label": "Sync starten",
+        "description": "Startet einen normalen Sync eines Spiels. Unveränderte Karten werden übersprungen."
+      },
+      "sync_force": {
+        "label": "Erzwungener Neu-Sync",
+        "description": "Startet einen Sync, der jede Karte neu herunterlädt und vektorisiert, auch unveränderte."
+      },
+      "sync_card": {
+        "label": "Einzelne Karten synchronisieren",
+        "description": "Lädt und vektorisiert eine Karte anhand ihrer ID."
+      },
+      "sync_cancel": {
+        "label": "Sync abbrechen",
+        "description": "Stoppt den laufenden Sync."
+      }
+    },
+    "empty": "Noch keine Sync-API-Schlüssel",
+    "loadFailed": "Sync-API-Schlüssel konnten nicht geladen werden.",
+    "createFailed": "Der Sync-API-Schlüssel konnte nicht erstellt werden.",
+    "revoke": "Widerrufen",
+    "revoked": "Sync-API-Schlüssel widerrufen",
+    "revokeFailed": "Der Sync-API-Schlüssel konnte nicht widerrufen werden.",
+    "revokeConfirmTitle": "Diesen Sync-API-Schlüssel widerrufen?",
+    "revokeConfirmDescription": "Alles, was diesen Schlüssel nutzt, funktioniert sofort nicht mehr. Das lässt sich nicht rückgängig machen.",
+    "revealTitle": "Kopiere deinen Sync-API-Schlüssel",
+    "revealDescription": "Der Schlüssel wird nur dieses eine Mal angezeigt. Bewahre ihn sicher auf.",
+    "revealDone": "Fertig",
+    "copy": "Schlüssel kopieren",
+    "copied": "Schlüssel kopiert",
+    "copyFailed": "Schlüssel konnte nicht kopiert werden",
+    "exampleLabel": "Damit einen Sync starten:",
+    "createdBy": "Erstellt von {{name}} am {{date}}",
+    "lastUsed": "Zuletzt verwendet {{date}}",
+    "neverUsed": "Nie verwendet"
+  },
   "dumpDatabase": {
     "heading": "Kartendatenbank leeren",
     "description": "Löscht Kartenbild-Vektoren dauerhaft, für ein Spiel oder alle",

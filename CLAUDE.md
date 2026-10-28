@@ -57,6 +57,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Defined once in `shared` (`schemas/public-api.schema.ts`, `PUBLIC_API_ENDPOINTS`); a new endpoint needs a registry entry, schemas and a handler in `routes/v1/index.ts`, then regenerate `openapi.json`.
 - API-key queries run through `apiKeyQuery(orgId, ...)`; a `/v1` query on a new table needs a migration grant and an `api-service-policy-*` policy.
 - `/v1` responses follow Scryfall conventions (`object`, snake_case, list envelope), not the app's `{ success, data }`.
+- Sync API keys (`mvsync_`, `platform_sync_api_keys`) are platform-level, not org keys: admins manage them under `/admin/sync-api-keys`, `/sync-api` routes check `SYNC_API_KEY_PERMISSIONS` per action, and both they and `/admin/sync` start syncs through `lib/sync-job/start-request.ts`.
 - `emit*Webhook` only enqueues; deliveries use `safeLookup` and no redirects. A new event needs `WEBHOOK_EVENTS`, an `emit*` in `lib/webhooks/events.ts` and translations.
 
 ### Cards (multi-TCG)

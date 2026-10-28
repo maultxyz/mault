@@ -151,6 +151,52 @@
     "syncButton": "Synchroniser",
     "syncingButton": "Synchronisation..."
   },
+  "syncApiKeys": {
+    "heading": "Clés d'API de synchronisation",
+    "description": "Des clés qui permettent aux scripts et planificateurs de lancer des synchronisations de la base de cartes sans connexion. Chaque clé ne fait que ce que ses autorisations permettent.",
+    "create": "Créer une clé",
+    "createTitle": "Créer une clé d'API de synchronisation",
+    "createDescription": "Choisis ce que cette clé peut faire. Les autorisations ne peuvent pas être modifiées ensuite : révoque la clé et recrée-la.",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Synchro nocturne",
+    "permissionsLabel": "Autorisations",
+    "permissions": {
+      "sync_start": {
+        "label": "Lancer une synchro",
+        "description": "Lance une synchronisation normale d'un jeu. Les cartes inchangées sont ignorées."
+      },
+      "sync_force": {
+        "label": "Resynchro forcée",
+        "description": "Lance une synchronisation qui retélécharge et revectorise toutes les cartes, même inchangées."
+      },
+      "sync_card": {
+        "label": "Synchroniser une carte",
+        "description": "Récupère et vectorise une carte à partir de son ID."
+      },
+      "sync_cancel": {
+        "label": "Annuler la synchro",
+        "description": "Arrête la synchronisation en cours."
+      }
+    },
+    "empty": "Aucune clé d'API de synchronisation",
+    "loadFailed": "Impossible de charger les clés d'API de synchronisation.",
+    "createFailed": "Impossible de créer la clé d'API de synchronisation.",
+    "revoke": "Révoquer",
+    "revoked": "Clé d'API de synchronisation révoquée",
+    "revokeFailed": "Impossible de révoquer la clé d'API de synchronisation.",
+    "revokeConfirmTitle": "Révoquer cette clé d'API de synchronisation ?",
+    "revokeConfirmDescription": "Tout ce qui utilise cette clé cesse de fonctionner immédiatement. Cette action est irréversible.",
+    "revealTitle": "Copie ta clé d'API de synchronisation",
+    "revealDescription": "La clé n'est affichée qu'une seule fois. Conserve-la en lieu sûr.",
+    "revealDone": "Terminé",
+    "copy": "Copier la clé",
+    "copied": "Clé copiée",
+    "copyFailed": "Impossible de copier la clé",
+    "exampleLabel": "Lancer une synchro avec :",
+    "createdBy": "Créée par {{name}} le {{date}}",
+    "lastUsed": "Dernière utilisation {{date}}",
+    "neverUsed": "Jamais utilisée"
+  },
   "dumpDatabase": {
     "heading": "Vider la base de données de cartes",
     "description": "Supprime définitivement les vecteurs d'image des cartes, pour un jeu ou pour tous",

@@ -27,13 +27,15 @@ export function hashApiKey(rawKey: string): string {
   return createHash("sha256").update(rawKey).digest("hex");
 }
 
-export function generateApiKey(): GeneratedApiKey {
-  const rawKey = `${API_KEY_PREFIX}${randomBytes(API_KEY_RANDOM_BYTES).toString("base64url")}`;
+export function generateApiKey(
+  keyTypePrefix: string = API_KEY_PREFIX,
+): GeneratedApiKey {
+  const rawKey = `${keyTypePrefix}${randomBytes(API_KEY_RANDOM_BYTES).toString("base64url")}`;
   return {
     rawKey,
     keyPrefix: rawKey.slice(
       0,
-      API_KEY_PREFIX.length + API_KEY_VISIBLE_PREFIX_LENGTH,
+      keyTypePrefix.length + API_KEY_VISIBLE_PREFIX_LENGTH,
     ),
     keyHash: hashApiKey(rawKey),
   };

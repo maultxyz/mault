@@ -151,6 +151,52 @@
     "syncButton": "Sync",
     "syncingButton": "Syncing..."
   },
+  "syncApiKeys": {
+    "heading": "Sync API keys",
+    "description": "Keys that let scripts and schedulers start card database syncs without signing in. Each key only does what its permissions allow.",
+    "create": "Create key",
+    "createTitle": "Create sync API key",
+    "createDescription": "Pick what this key may do. You can't change permissions later, so revoke and recreate the key instead.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Nightly sync",
+    "permissionsLabel": "Permissions",
+    "permissions": {
+      "sync_start": {
+        "label": "Start sync",
+        "description": "Start a regular sync of a game. Unchanged cards are skipped."
+      },
+      "sync_force": {
+        "label": "Force resync",
+        "description": "Start a sync that downloads and re-vectorizes every card, even unchanged ones."
+      },
+      "sync_card": {
+        "label": "Sync single cards",
+        "description": "Fetch and vectorize one card by its ID."
+      },
+      "sync_cancel": {
+        "label": "Cancel sync",
+        "description": "Stop the sync that is running."
+      }
+    },
+    "empty": "No sync API keys yet",
+    "loadFailed": "Couldn't load sync API keys.",
+    "createFailed": "Couldn't create the sync API key.",
+    "revoke": "Revoke",
+    "revoked": "Sync API key revoked",
+    "revokeFailed": "Couldn't revoke the sync API key.",
+    "revokeConfirmTitle": "Revoke this sync API key?",
+    "revokeConfirmDescription": "Anything using this key stops working right away. This can't be undone.",
+    "revealTitle": "Copy your sync API key",
+    "revealDescription": "This is the only time the key is shown. Store it somewhere safe.",
+    "revealDone": "Done",
+    "copy": "Copy key",
+    "copied": "Key copied",
+    "copyFailed": "Couldn't copy the key",
+    "exampleLabel": "Start a sync with it:",
+    "createdBy": "Created by {{name}} on {{date}}",
+    "lastUsed": "Last used {{date}}",
+    "neverUsed": "Never used"
+  },
   "dumpDatabase": {
     "heading": "Dump Card Database",
     "description": "Permanently delete card image vectors, for one game or all of them",

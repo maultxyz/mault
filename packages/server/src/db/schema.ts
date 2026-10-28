@@ -1290,6 +1290,31 @@ export const impersonationAudit = pgTable(
   ],
 ).enableRLS();
 
+export const platformSyncApiKeys = pgTable(
+  "platform_sync_api_keys",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    name: text("name").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    keyHash: text("key_hash").notNull(),
+    permissions: text("permissions").array().notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at"),
+    revokedAt: timestamp("revoked_at"),
+  },
+  (table) => [
+    unique("platform_sync_api_keys_guid_idx").on(table.guid),
+    unique("platform_sync_api_keys_hash_idx").on(table.keyHash),
+    crudPolicy({
+      role: authenticatedRole,
+      read: false,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const platformUserRoles = pgTable("platform_user_roles", {
   userId: text("user_id").primaryKey(),
   role: text("role").notNull().default("user"),
