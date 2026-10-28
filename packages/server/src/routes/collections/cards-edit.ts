@@ -17,6 +17,7 @@ import { toScannedCard } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 import { findFoilPrinting } from "../../lib/card-search/foil-printing";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
+import { hydrateSavedCards, toSavedCardSnapshots } from "../../lib/saved-cards";
 
 export const editCollectionCardRoute = new Hono<AppEnv>().put(
   "/:guid/cards/:scanId",
@@ -50,10 +51,9 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
     if (language !== undefined && !isCardLanguage(language)) {
       return c.json({ success: false, message: "Invalid language." }, 400);
     }
+    const savedCardScope = await resolveGameKeyAndLang(c.get("jwtClaims"), guid);
     const foilPrintingScope =
-      card === undefined && foilType !== undefined
-        ? await resolveGameKeyAndLang(c.get("jwtClaims"), guid)
-        : null;
+      card === undefined && foilType !== undefined ? savedCardScope : null;
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const existing = await tx.query.collectionCards.findFirst({
@@ -74,22 +74,30 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         });
         if (!existing) return { success: false, message: "Card not found." };
 
+        const scope = {
+          gameKey: savedCardScope?.gameKey ?? null,
+          lang: savedCardScope?.lang ?? "en",
+        };
+        const [existingCard] = await hydrateSavedCards(
+          [{ ...scope, card: existing.card as PlayingCardWithDistance }],
+          { includeRaw: true },
+        );
         const foilPrinting =
           foilPrintingScope && foilType !== undefined
             ? await findFoilPrinting(
                 foilPrintingScope.gameKey,
-                existing.card as PlayingCardWithDistance,
+                existingCard,
                 foilType,
               )
             : null;
 
         const updates: Partial<typeof collectionCards.$inferInsert> = {};
         if (foilPrinting) {
-          updates.card = foilPrinting;
+          updates.card = (await toSavedCardSnapshots(scope, foilPrinting, null)).card;
           updates.cardId = foilPrinting.id;
         }
         if (card !== undefined) {
-          updates.card = card;
+          updates.card = (await toSavedCardSnapshots(scope, card, null)).card;
           updates.cardId = card.id;
           if (binNumber !== undefined) updates.binNumber = binNumber;
           updates.isCorrected = true;
@@ -131,9 +139,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
           success: true,
           data: toScannedCard({
             guid: scanId,
-            card: (card ??
-              foilPrinting ??
-              existing.card) as PlayingCardWithDistance,
+            card: card ?? foilPrinting ?? existingCard,
             scannedAt: existing.scannedAt,
             binNumber: binNumber !== undefined ? binNumber : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,

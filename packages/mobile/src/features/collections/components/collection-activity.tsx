@@ -36,7 +36,11 @@ export function CollectionActivity({ state, onOpen }: CollectionActivityProps) {
           </AppText>
           <ListGroup>
             {state.recentCards.map((entry) => {
-              const value = pricing.priceOf(entry.card, entry.isFoil, entry.condition);
+              const value = pricing.priceOf(
+                entry.card,
+                { isFoil: entry.isFoil, foilType: entry.foilType },
+                entry.condition,
+              );
               return (
                 <CardRow
                   key={entry.scanId}

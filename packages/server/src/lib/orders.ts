@@ -18,6 +18,7 @@ import type { Transaction } from "../db";
 import { fulfilmentOrders } from "../db/schema";
 import { getUserDisplayName } from "../middleware/auth";
 import type { PullSheetRow } from "./interfaces/business";
+import { hydrateSavedCards } from "./saved-cards";
 
 function text(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -215,18 +216,29 @@ export async function loadPullSheet(
       (cc.card - 'raw') AS card,
       cc.is_foil, cc.condition, cc.bin_number, cc.location_position,
       col.guid::text AS collection_guid, col.name AS collection_name,
+      col.lang AS collection_lang, g.key AS game_key,
       sl.name AS location_name
     FROM collection_cards cc
     JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
+    LEFT JOIN games g ON g.id = col.game_id
     LEFT JOIN storage_locations sl ON sl.id = cc.location_id AND sl.is_deleted = false
     WHERE cc.org_id = ${orgId}
       AND cc.guid = ANY(${uuidArraySql([...lineOf.keys()])})
     ORDER BY (sl.name IS NULL), sl.name, cc.location_position, col.name, cc.bin_number, cc.card_name
   `);
-  return (result.rows as unknown as PullSheetRow[]).map((row) => ({
+  const rows = result.rows as unknown as PullSheetRow[];
+  const cards = await hydrateSavedCards(
+    rows.map((row) => ({
+      gameKey: row.game_key,
+      lang: row.collection_lang,
+      card: row.card as PlayingCard,
+    })),
+    { includeRaw: false },
+  );
+  return rows.map((row, i) => ({
     scanId: row.scan_id,
     lineIndex: lineOf.get(row.scan_id) ?? 0,
-    card: row.card as PlayingCard,
+    card: cards[i],
     isFoil: row.is_foil,
     condition: toCardCondition(row.condition),
     collectionGuid: row.collection_guid,

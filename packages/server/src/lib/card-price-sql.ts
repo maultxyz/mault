@@ -68,25 +68,34 @@ export function conditionFactorSql(
   return sql<number>`(CASE ${condition} ${sql.join(cases, sql` `)} ELSE 1::float8 END)`;
 }
 
+function finishPriceSql(details: SQL, cols: ScannedCardSqlColumns, key: CardPriceKey): SQL {
+  return sql`(${details} -> 'finishPrices' -> ${cols.foilType} ->> ${key}::text)::float8`;
+}
+
 function scannedPriceFrom(
   pricing: OrgPricing,
   cols: ScannedCardSqlColumns,
   stored: (key: CardPriceKey) => SQL,
+  storedFinish: (key: CardPriceKey) => SQL,
 ): SQL<number | null> {
   const fields = PRICE_SOURCE_FIELDS[pricing.source];
   const value = (key: CardPriceKey) =>
     sql`COALESCE(${stored(key)}, ${savedCardPriceSql(key, cols)})`;
+  const foilValue = sql`COALESCE(${storedFinish(fields.priceFoil)}, ${value(fields.priceFoil)})`;
   return sql<
     number | null
-  >`(COALESCE(CASE WHEN ${cols.isFoil} THEN ${value(fields.priceFoil)} END, ${value(fields.price)}) * ${conditionFactorSql(cols.condition, pricing.conditionMultipliers)})`;
+  >`(COALESCE(CASE WHEN ${cols.isFoil} THEN ${foilValue} END, ${value(fields.price)}) * ${conditionFactorSql(cols.condition, pricing.conditionMultipliers)})`;
 }
 
 export function scannedCardPriceSql(
   pricing: OrgPricing,
   cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
 ): SQL<number | null> {
-  return scannedPriceFrom(pricing, cols, (key) =>
-    storedCardPriceSql(key, cols),
+  return scannedPriceFrom(
+    pricing,
+    cols,
+    (key) => storedCardPriceSql(key, cols),
+    (key) => storedCardPriceSelect(cols, finishPriceSql(sql`cp.details`, cols, key)),
   );
 }
 
@@ -95,8 +104,11 @@ export function joinedScannedCardPriceSql(
   cols: ScannedCardSqlColumns,
   cardPricesAlias: string,
 ): SQL<number | null> {
-  return scannedPriceFrom(pricing, cols, (key) =>
-    sql.raw(`${cardPricesAlias}.${CARD_PRICE_COLUMNS[key]}`),
+  return scannedPriceFrom(
+    pricing,
+    cols,
+    (key) => sql.raw(`${cardPricesAlias}.${CARD_PRICE_COLUMNS[key]}`),
+    (key) => finishPriceSql(sql.raw(`${cardPricesAlias}.details`), cols, key),
   );
 }
 

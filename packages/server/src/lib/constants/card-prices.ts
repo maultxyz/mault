@@ -18,6 +18,7 @@ export const CARD_PRICE_DETAIL_KEYS = [
   "cardmarketPriceFoil",
   "cardKingdomPrice",
   "cardKingdomPriceFoil",
+  "finishPrices",
 ] as const;
 
 export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;
@@ -34,6 +35,7 @@ export const COLLECTION_CARD_SQL_COLUMNS: ScannedCardSqlColumns = {
   },
   cardLang: collectionCards.cardLang,
   isFoil: collectionCards.isFoil,
+  foilType: collectionCards.foilType,
   condition: collectionCards.condition,
   cardId: collectionCards.cardId,
   collectionId: collectionCards.collectionId,
@@ -50,6 +52,7 @@ export const CC_ALIAS_SQL_COLUMNS: ScannedCardSqlColumns = {
   },
   cardLang: sql`cc.card_lang`,
   isFoil: sql`cc.is_foil`,
+  foilType: sql`cc.foil_type`,
   condition: sql`cc.condition`,
   cardId: sql`cc.card_id`,
   collectionId: sql`cc.collection_id`,

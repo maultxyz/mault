@@ -330,7 +330,11 @@ export default function CollectionScreen() {
             cards.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
           }
           renderItem={({ item }) => {
-            const price = pricing.priceOf(item.card, item.isFoil, item.condition);
+            const price = pricing.priceOf(
+              item.card,
+              { isFoil: item.isFoil, foilType: item.foilType },
+              item.condition,
+            );
             const flagged = !!item.lowConfidenceMatch || !!item.alternativeMatches?.length;
             return (
               <View style={{ width: tileWidth }}>

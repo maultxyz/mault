@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
+  cardFoilTypeOptions,
   DEFAULT_CARD_CONDITION,
   isCardLanguage,
   scanLanguage,
@@ -96,7 +97,7 @@ export default function CardDetailScreen() {
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
   const nextScanId = position.data?.nextScanId ?? null;
   const collection = collections.data?.find((c) => c.guid === guid);
-  const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
+  const gameFoilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
   const card = entry?.card;
   const capturedUrl = absoluteUrl(image.data);
   const showCaptured = image.isPending || !!capturedUrl;
@@ -119,13 +120,13 @@ export default function CardDetailScreen() {
     () =>
       entry
         ? {
-            foilType: entry.foilType ?? (entry.isFoil ? foilOptions[0] : null),
+            foilType: entry.foilType ?? (entry.isFoil ? gameFoilOptions[0] : null),
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
             language: scanLanguage(entry),
             acquisitionCost: acquisitionCost.data?.cost ?? null,
           }
         : undefined,
-    [entry, foilOptions, acquisitionCost.data],
+    [entry, gameFoilOptions, acquisitionCost.data],
   );
   const form = useForm<ScanDraftFormValues>({
     resolver: zodResolver(scanDraftFormSchema),
@@ -138,7 +139,10 @@ export default function CardDetailScreen() {
   const draftLanguage = form.watch("language");
   const languageOptions: string[] =
     !draftLanguage || isCardLanguage(draftLanguage) ? [...CARD_LANGUAGES] : [draftLanguage, ...CARD_LANGUAGES];
-  const price = card ? pricing.priceOf(card, draftFoil != null, draftCondition) : null;
+  const price = card
+    ? pricing.priceOf(card, { isFoil: draftFoil != null, foilType: draftFoil }, draftCondition)
+    : null;
+  const foilOptions = cardFoilTypeOptions(gameFoilOptions, card, draftFoil);
 
   const saveDraft = useMutation({
     mutationFn: async (values: ScanDraftFormValues) => {
@@ -377,7 +381,7 @@ export default function CardDetailScreen() {
             {card ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.prices")} />
-                <CardPriceDetails card={card} isFoil={draftFoil != null} />
+                <CardPriceDetails card={card} isFoil={draftFoil != null} foilType={draftFoil} />
                 <CardPurchaseLinks card={card} />
                 {entry && acquisitionCost.data ? (
                   <PricePaidField

@@ -32,6 +32,7 @@ import {
   getChaosBins,
   getRepackPackBins,
   hasMaxCopiesBins,
+  scanFoilType,
   toRuleCard,
   UNMATCHED_PREVIEW_COUNT,
 } from "@magic-vault/shared";
@@ -656,7 +657,7 @@ export function ScannedCardsProvider({
         return;
       }
 
-      const forcedFoilType = forceFoilTypeRef.current;
+      const forcedFoilType = scanFoilType(card, forceFoilTypeRef.current);
       const ruleCard = toRuleCard(card, {
         isFoil: forcedFoilType != null,
         foilType: forcedFoilType,

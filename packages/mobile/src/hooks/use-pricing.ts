@@ -6,6 +6,7 @@ import {
   formatPrice,
   toConditionMultipliers,
   type CardCondition,
+  type CardFinish,
   type PlayingCard,
 } from "@magic-vault/shared";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
@@ -19,8 +20,11 @@ export function usePricing(): PriceFormatter {
     const multipliers = toConditionMultipliers(data?.conditionMultipliers);
     return {
       source,
-      priceOf: (card: PlayingCard, isFoil?: boolean, condition?: CardCondition | null) =>
-        cardPriceFor(card, isFoil, source, condition, multipliers),
+      priceOf: (
+        card: PlayingCard,
+        finish?: boolean | CardFinish,
+        condition?: CardCondition | null,
+      ) => cardPriceFor(card, finish, source, condition, multipliers),
       format: (value: number) => formatPrice(value, source),
     };
   }, [data?.priceSource, data?.conditionMultipliers]);

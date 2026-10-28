@@ -30,9 +30,16 @@ export interface TcgplayerProductMatch {
   accepts(product: TcgplayerProductCandidate): boolean;
 }
 
+export interface TcgplayerFinishProduct {
+  foilType: string;
+  productId: number;
+  subTypes: string[];
+}
+
 export interface TcgplayerPricing {
   categoryId: number;
   subTypes(card: PlayingCard): TcgplayerSubTypes;
+  finishProducts?(card: PlayingCard): TcgplayerFinishProduct[];
   productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
   productMatch?(card: PlayingCard): TcgplayerProductMatch | null;
 }

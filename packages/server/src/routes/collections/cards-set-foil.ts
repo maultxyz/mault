@@ -8,6 +8,7 @@ import { authQuery } from "../../db";
 import { collectionCards } from "../../db/schema";
 import { findFoilPrinting } from "../../lib/card-search/foil-printing";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
+import { hydrateSavedCards, toSavedCardSnapshots } from "../../lib/saved-cards";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toScannedCard } from "./shared";
@@ -60,17 +61,22 @@ export const setCollectionCardsFoilTypeRoute = new Hono<AppEnv>().post(
           isReviewed: collectionCards.isReviewed,
         });
       if (!scope) return [];
+      const currentCards = await hydrateSavedCards(
+        rows.map((row) => ({ ...scope, card: row.card as PlayingCardWithDistance })),
+        { includeRaw: true },
+      );
       const swapped = [];
-      for (const row of rows) {
+      for (const [i, row] of rows.entries()) {
         const foilPrinting = await findFoilPrinting(
           scope.gameKey,
-          row.card as PlayingCardWithDistance,
+          currentCards[i],
           foilType,
         );
         if (!foilPrinting) continue;
+        const saved = await toSavedCardSnapshots(scope, foilPrinting, null);
         await tx
           .update(collectionCards)
-          .set({ card: foilPrinting, cardId: foilPrinting.id })
+          .set({ card: saved.card, cardId: foilPrinting.id })
           .where(eq(collectionCards.id, row.id));
         swapped.push(toScannedCard({ ...row, card: foilPrinting }));
       }

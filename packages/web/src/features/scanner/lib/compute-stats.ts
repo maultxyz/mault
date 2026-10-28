@@ -30,7 +30,7 @@ export function aggregateCards(
     const price =
       cardPriceFor(
         c,
-        entry.isFoil,
+        { isFoil: entry.isFoil, foilType: entry.foilType },
         priceSource,
         entry.condition,
         conditionMultipliers,

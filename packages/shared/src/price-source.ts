@@ -6,6 +6,7 @@ import {
 } from "./constants/price-source.constant";
 import { conditionFactor } from "./card-condition";
 import type {
+  CardFinish,
   CardPricesAtScan,
   PlayingCard,
 } from "./interfaces/card.interface";
@@ -26,16 +27,23 @@ export function toPriceSource(value: unknown): PriceSource {
   return isPriceSource(value) ? value : DEFAULT_PRICE_SOURCE;
 }
 
+export function toCardFinish(finish: boolean | CardFinish | null | undefined): CardFinish {
+  return typeof finish === "object" && finish !== null ? finish : { isFoil: !!finish };
+}
+
 export function cardPriceFor(
   card: PlayingCard,
-  isFoil: boolean | undefined,
+  finish: boolean | CardFinish | null | undefined,
   source: PriceSource,
   condition?: CardCondition | null,
   multipliers?: ConditionMultipliers,
 ): number | null {
+  const { isFoil, foilType } = toCardFinish(finish);
   const fields = PRICE_SOURCE_FIELDS[source];
   const regular = card[fields.price] ?? null;
-  const price = (isFoil ? card[fields.priceFoil] : regular) ?? regular;
+  const finishPrice =
+    isFoil && foilType ? card.finishPrices?.[foilType]?.[fields.priceFoil] : null;
+  const price = (isFoil ? (finishPrice ?? card[fields.priceFoil]) : regular) ?? regular;
   return price == null ? null : price * conditionFactor(condition, multipliers);
 }
 

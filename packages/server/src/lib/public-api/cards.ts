@@ -2,7 +2,9 @@ import { toCardCondition, type ApiScannedCard } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import { cardPriceValueSql } from "../card-price-sql";
+import { cardCatalogJoinSql } from "../card-catalog-sql";
 import { CC_ALIAS_SQL_COLUMNS } from "../constants/card-prices";
+import { CATALOG_CC_ALIAS_COLUMNS } from "../constants/saved-cards";
 import type {
   PublicApiCardCursor,
   PublicApiCardFilters,
@@ -37,11 +39,14 @@ async function selectCards(
       ((cc.low_confidence_match OR cc.has_alternative_matches) AND NOT cc.is_corrected) AS needs_review,
       cc.is_reviewed,
       cc.card_name AS name, cc.card_set AS set_code,
-      cc.card_set_name AS set_name,
+      ${CATALOG_CC_ALIAS_COLUMNS.setName} AS set_name,
       cc.card_collector_number AS collector_number,
-      cc.card_rarity AS rarity,
+      ${CATALOG_CC_ALIAS_COLUMNS.rarity} AS rarity,
       COALESCE(
+        ${CATALOG_CC_ALIAS_COLUMNS.data} ->> 'tcgtrackingProductId',
         cc.card ->> 'tcgplayerId',
+        ${CATALOG_CC_ALIAS_COLUMNS.data} ->> 'tcgplayer_id',
+        ${CATALOG_CC_ALIAS_COLUMNS.data} -> 'printing' ->> 'tcgplayer_product_id',
         cc.card -> 'raw' ->> 'tcgplayer_id',
         cc.card -> 'raw' -> 'printing' ->> 'tcgplayer_product_id'
       ) AS tcgplayer_product_id,
@@ -61,6 +66,7 @@ async function selectCards(
     FROM collection_cards cc
     JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
     LEFT JOIN games g ON g.id = col.game_id
+    ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`col.lang` }, CC_ALIAS_SQL_COLUMNS)}
     LEFT JOIN storage_locations sl ON sl.id = cc.location_id AND sl.is_deleted = false
     WHERE ${where}
     ORDER BY ${orderBy}

@@ -14,6 +14,7 @@ import { sql, type SQL } from "drizzle-orm";
 import { authQuery } from "../../db";
 import { resolveCardSearchForGame } from "../../lib/card-search/resolve";
 import { searchCardsByIds } from "../../lib/card-search/stored-cards";
+import { attachFinishMatches } from "../../lib/card-finish-vectors";
 import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
@@ -524,6 +525,7 @@ export async function attachMatchedCards<T extends CardMatchSearchResult>(
   result: T,
   gameKey: string,
   lang: string,
+  embeddings?: CardSearchEmbeddings,
 ): Promise<T> {
   const matches = result.data;
   if (!matches || matches.length === 0) return result;
@@ -560,5 +562,8 @@ export async function attachMatchedCards<T extends CardMatchSearchResult>(
       card: cardLang === lang ? card : { ...card, lang: cardLang },
     };
   });
-  return { ...result, data };
+  return {
+    ...result,
+    data: await attachFinishMatches(data, gameKey, embeddings),
+  };
 }

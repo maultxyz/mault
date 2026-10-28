@@ -133,6 +133,7 @@ function PriceHeadline({
 export function CardPriceDetails({
   card,
   isFoil = false,
+  foilType,
   className,
 }: CardPriceDetailsProps) {
   const { t } = useTranslation("cards");
@@ -147,7 +148,9 @@ export function CardPriceDetails({
       headline: {
         label: t("priceTable.tcgplayerMarket"),
         price: card.price,
-        foilPrice: card.priceFoil,
+        foilPrice:
+          (foilType ? card.finishPrices?.[foilType]?.priceFoil : null) ??
+          card.priceFoil,
         priceAtScan: card.pricesAtScan?.price,
         foilPriceAtScan: card.pricesAtScan?.priceFoil,
         format: formatUsd,
