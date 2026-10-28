@@ -6,6 +6,11 @@ import {
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { validateQuery } from "../../card-search/validate";
+import {
+  pokemonFinishes,
+  pokemonFinishProducts,
+  pokemonTcgplayerProductId,
+} from "./finishes";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { POKEMON_DEFAULT_URL } from "../../constants/urls";
 import type {
@@ -37,11 +42,7 @@ function resolveFoilPrice(pricing: PokemonPricing | undefined): number | null {
 function resolveTcgplayerId(
   pricing: PokemonPricing | undefined,
 ): string | undefined {
-  const tcgplayer = pricing?.tcgplayer;
-  const productId =
-    tcgplayer?.normal?.productId ??
-    tcgplayer?.holofoil?.productId ??
-    tcgplayer?.["reverse-holofoil"]?.productId;
+  const productId = pokemonTcgplayerProductId(pricing);
   return productId != null ? String(productId) : undefined;
 }
 
@@ -62,6 +63,7 @@ function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
     [raw.effect, raw.description, abilityText, attackText]
       .filter(Boolean)
       .join("\n\n") || undefined;
+  const foilTypes = pokemonFinishes(raw).map((finish) => finish.foilType);
   const typeLine =
     [raw.category, raw.stage ?? raw.trainerType ?? raw.energyType]
       .filter(Boolean)
@@ -86,6 +88,7 @@ function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
     priceFoil: resolveFoilPrice(raw.pricing),
     sourceUrl: `https://tcgdex.dev/cards/${raw.id}`,
     tcgplayerId: resolveTcgplayerId(raw.pricing),
+    foilTypes: foilTypes.length > 0 ? foilTypes : undefined,
     cmc: raw.retreat,
     raw,
   };
@@ -173,6 +176,7 @@ export const pokemonAdapter: CardSearchAdapter = {
     categoryId: 3,
     productIdFromRaw: (card) =>
       resolveTcgplayerId((card.raw as PokemonCardDetail).pricing),
+    finishProducts: pokemonFinishProducts,
     subTypes: () => ({
       price: [
         "Normal",

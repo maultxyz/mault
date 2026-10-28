@@ -34,8 +34,8 @@ function tcgplayerCondition(
   return isFoil ? `${label} ${finishLabel(true, ctx.isMtg ? null : foilType)}` : label;
 }
 
-function marketPrice({ card, isFoil }: GroupedEntry): string {
-  const price = cardPriceFor(card, isFoil, "tcgplayer");
+function marketPrice({ card, isFoil, foilType }: GroupedEntry): string {
+  const price = cardPriceFor(card, { isFoil, foilType }, "tcgplayer");
   return price != null ? price.toFixed(2) : "";
 }
 
