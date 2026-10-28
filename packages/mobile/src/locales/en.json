@@ -1805,6 +1805,7 @@
     "passwordMismatch": "Passwords don't match.",
     "webhookUrlInvalid": "Enter a public https:// URL.",
     "eventsRequired": "Pick at least one event.",
+    "permissionsRequired": "Pick at least one permission.",
     "conditionMultipliersInvalid": "Each condition needs a percentage from 0 to 100.",
     "valueRequired": "Enter a value.",
     "wholeNumber": "Must be a whole number.",

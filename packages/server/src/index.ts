@@ -9,13 +9,14 @@ import { PI_SERIAL_PATH } from "./lib/constants/pi-serial";
 import { API_PORT, getApiHost } from "./lib/constants/server";
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
-import { PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
+import { PUBLIC_API_KEY_HEADER, SYNC_API_PATH } from "@magic-vault/shared";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
 import { apiKeysRouter } from "./routes/api-keys";
+import { syncApiRouter } from "./routes/sync-api";
 import { billingRouter } from "./routes/billing";
 import { businessRouter } from "./routes/business";
 import { sortBinsRouter } from "./routes/bins";
@@ -105,6 +106,7 @@ app.route(PI_SERIAL_PATH, createPiSerialRouter(upgradeWebSocket));
 app.route("/stream", streamRoute);
 app.route("/sorter-link", createSorterLinkRouter(upgradeWebSocket));
 app.route("/v1", publicApiRouter);
+app.route(SYNC_API_PATH, syncApiRouter);
 
 app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);

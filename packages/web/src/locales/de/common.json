@@ -282,6 +282,7 @@
     "passwordMismatch": "Passwörter stimmen nicht überein.",
     "webhookUrlInvalid": "Gib eine öffentliche https://-URL ein.",
     "eventsRequired": "Wähle mindestens ein Ereignis.",
+    "permissionsRequired": "Wähle mindestens eine Berechtigung.",
     "conditionMultipliersInvalid": "Jeder Zustand braucht einen Prozentwert von 0 bis 100.",
     "valueRequired": "Gib einen Wert ein.",
     "wholeNumber": "Muss eine ganze Zahl sein.",

@@ -946,6 +946,20 @@
       "when": 1793203103965,
       "tag": "0134_card_finish_vectors",
       "breakpoints": true
+    },
+    {
+      "idx": 135,
+      "version": "7",
+      "when": 1793213797553,
+      "tag": "0135_drop_card_finish_vectors",
+      "breakpoints": true
+    },
+    {
+      "idx": 136,
+      "version": "7",
+      "when": 1793214433255,
+      "tag": "0136_platform_sync_api_keys",
+      "breakpoints": true
     }
   ]
 }

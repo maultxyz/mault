@@ -57,6 +57,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Defined once in `shared` (`schemas/public-api.schema.ts`, `PUBLIC_API_ENDPOINTS`); a new endpoint needs a registry entry, schemas and a handler in `routes/v1/index.ts`, then regenerate `openapi.json`.
 - API-key queries run through `apiKeyQuery(orgId, ...)`; a `/v1` query on a new table needs a migration grant and an `api-service-policy-*` policy.
 - `/v1` responses follow Scryfall conventions (`object`, snake_case, list envelope), not the app's `{ success, data }`.
+- Sync API keys (`mvsync_`, `platform_sync_api_keys`) are platform-level, not org keys: admins manage them under `/admin/sync-api-keys`, `/sync-api` routes check `SYNC_API_KEY_PERMISSIONS` per action, and both they and `/admin/sync` start syncs through `lib/sync-job/start-request.ts`.
 - `emit*Webhook` only enqueues; deliveries use `safeLookup` and no redirects. A new event needs `WEBHOOK_EVENTS`, an `emit*` in `lib/webhooks/events.ts` and translations.
 
 ### Cards (multi-TCG)
@@ -65,7 +66,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - `cards.data` stores the API's raw card object (read through `normalizeStored`); one entry per artwork; art through `toPortraitCardImage()`; every `cards.data` write also sets `collector_number`.
 - Never hardcode source-specific fields: read through the game's `fieldDefinitions` and `getByPath`/`getCardValue`. Game-specific behaviour goes on the adapter (e.g. `rarePrintingSql`).
 - TCGTracking (`lib/tcgtracking/`) wraps every sync source and adapter whose game is in `TCGTRACKING_GAMES`: linked cards get `tcgtrackingProductId` (read as `tcgplayerId`), cards the primary lacks become `tcgp-<productId>` fallbacks normalized from TCGTracking data, and covered fallbacks get `supersededByCardId` and drop out of matching. English only.
-- Finishes (foil patterns such as Pokémon "Reverse Holo (Poké Ball)") come from the adapter: `PlayingCard.foilTypes` lists them, `tcgplayer.finishProducts` prices each into `finishPrices`, and `cardPriceFor` takes `{ isFoil, foilType }`. Scanners pick the finish with shared `scanFoilType`, using `finishMatches` that `attachMatchedCards` adds from `card_finish_vectors` (built after each sync); below `FINISH_MATCH_MIN_MARGIN` the session's foil type stands.
+- Finishes (foil patterns such as Pokémon "Reverse Holo (Poké Ball)") come from the adapter: `PlayingCard.foilTypes` lists them, `tcgplayer.finishProducts` prices each into `finishPrices`, and `cardPriceFor` takes `{ isFoil, foilType }`. Scanners never detect the pattern from the photo (too unreliable): shared `scanFoilType` only narrows the session's foil type when the card has a single finish in that family.
 - Rules store field keys only; anything new that stores a field key goes in `lib/field-renames.ts`.
 - Rule evaluation runs on `toRuleCard(...)` with `withScanRuleFields`; never save a `$scan` card. Text comparisons are trimmed and lowercased.
 - Scanning never calls upstream card APIs (reads go through `card-search/stored-cards.ts`). netdeck images render through `/cards/netdeck-image/...` because their URLs expire.

@@ -119,6 +119,8 @@ export * from "./interfaces/integrations.interface";
 export * from "./constants/integrations.constant";
 export * from "./interfaces/api-keys.interface";
 export * from "./constants/api-keys.constant";
+export * from "./interfaces/sync-api-keys.interface";
+export * from "./constants/sync-api-keys.constant";
 export * from "./interfaces/webhooks.interface";
 export * from "./constants/webhooks.constant";
 export * from "./schemas/public-api.schema";
