@@ -4,6 +4,7 @@ import type {
   GuideFooterProps,
   MarketingFooterLink,
 } from "@/lib/interfaces/marketing-footer";
+import { useCurrentYear } from "@/hooks/use-current-year";
 import { useTranslation } from "react-i18next";
 
 export function GuideFooter({
@@ -11,6 +12,7 @@ export function GuideFooter({
   showSignInLink = false,
 }: GuideFooterProps) {
   const { t } = useTranslation("common");
+  const year = useCurrentYear();
 
   const links: MarketingFooterLink[] = [
     ...(showOpenSourceLink
@@ -29,7 +31,7 @@ export function GuideFooter({
       links={links}
       end={
         <p className="text-sm text-foreground/70">
-          {t("footer.copyright", { year: new Date().getFullYear() })}
+          {t("footer.copyright", { year })}
         </p>
       }
     />

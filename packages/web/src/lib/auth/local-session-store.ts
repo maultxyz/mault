@@ -6,6 +6,10 @@ import type {
 import { useSyncExternalStore } from "react";
 import { getLocalToken } from "./local-token";
 
+const SIGNED_OUT_SNAPSHOT: LocalSessionSnapshot = {
+  data: null,
+  isPending: false,
+};
 
 let snapshot: LocalSessionSnapshot = {
   data: null,
@@ -51,5 +55,6 @@ export function useLocalAuthSession(): LocalSessionSnapshot {
       return () => listeners.delete(listener);
     },
     () => snapshot,
+    () => SIGNED_OUT_SNAPSHOT,
   );
 }

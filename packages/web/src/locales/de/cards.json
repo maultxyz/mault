@@ -59,6 +59,8 @@
     "matchedCard": "Übereinstimmende Karte",
     "enlargeImage": "Zum Vergrößern klicken",
     "similarMatches": "Ähnliche Übereinstimmungen",
+    "showMatches": "{{count}} Treffer anzeigen",
+    "hideMatches": "Treffer ausblenden",
     "searchForCorrectVersion": "Deine gescannte Karte - suche unten nach der richtigen Version",
     "cancel": "Abbrechen",
     "prices": "Preise",

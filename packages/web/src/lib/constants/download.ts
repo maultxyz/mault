@@ -1,4 +1,5 @@
 import { REPO_URL } from "@/lib/constants/links";
+import { MARKETING_PAGE_PATHS } from "@/lib/constants/marketing-pages";
 import type { DesktopDownload } from "@/lib/interfaces/download";
 import {
   IconBell,
@@ -10,7 +11,7 @@ import {
   IconRefresh,
 } from "@tabler/icons-react";
 
-export const DOWNLOAD_PATH = "/download";
+export const DOWNLOAD_PATH = MARKETING_PAGE_PATHS.download;
 export const DESKTOP_RELEASE_URL = `${REPO_URL}/releases/tag/desktop-latest`;
 const DESKTOP_DOWNLOAD_BASE_URL = `${REPO_URL}/releases/download/desktop-latest`;
 

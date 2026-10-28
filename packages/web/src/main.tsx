@@ -1,27 +1,43 @@
-import { router } from "@/app/router";
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppShell } from "@/app/app-shell";
+import { loadMarketingPage } from "@/app/marketing-pages";
+import { routes } from "@/app/router";
 import "@/index.css";
-import "@/lib/i18n";
+import { i18nReady, initialLanguage } from "@/lib/i18n";
+import { trimTrailingSlashes } from "@/lib/pathname";
 import { loadPiHost } from "@/lib/pi-host";
+import { prerenderEnvSignature } from "@/lib/prerender-env";
 import { registerServiceWorker } from "@/lib/pwa";
 import "@/lib/rollbar";
-import { ThemeProvider } from "next-themes";
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
+import { createRoot, hydrateRoot } from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 performance.mark("app:modules-evaluated");
 registerServiceWorker();
 void loadPiHost();
 
-createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root")!;
+const router = createBrowserRouter(routes);
+const app = (
   <StrictMode>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <TooltipProvider>
-        <RouterProvider router={router} />
-        <Toaster />
-      </TooltipProvider>
-    </ThemeProvider>
-  </StrictMode>,
+    <AppShell>
+      <RouterProvider router={router} />
+    </AppShell>
+  </StrictMode>
 );
+
+const prerenderedPath = rootElement.dataset.prerenderedPath;
+const canHydrate =
+  !!prerenderedPath &&
+  rootElement.hasChildNodes() &&
+  prerenderedPath === trimTrailingSlashes(location.pathname) &&
+  initialLanguage === "en" &&
+  rootElement.dataset.prerenderedEnv === prerenderEnvSignature();
+
+if (canHydrate) {
+  void Promise.all([i18nReady, loadMarketingPage(prerenderedPath)]).then(() =>
+    hydrateRoot(rootElement, app),
+  );
+} else {
+  createRoot(rootElement).render(app);
+}

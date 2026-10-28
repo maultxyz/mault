@@ -782,6 +782,8 @@
     "reviewed": "Geprüft",
     "similarMatches": "Ähnliche Übereinstimmungen",
     "similarMatchesHint": "Mehrere ähnliche Treffer. Tippe auf die richtige Version.",
+    "showMatches": "{{count}} Treffer anzeigen",
+    "hideMatches": "Treffer ausblenden",
     "thisScan": "Dieser Scan",
     "foilNone": "Kein Foil",
     "condition": "Bedingung",
