@@ -25,3 +25,8 @@ export const TCGTRACKING_EXT_KEYS = {
   cost: ["convertedCost", "cost", "Cost", "Energy Cost"],
   color: ["color", "Color", "aspect", "Domain", "element"],
 } as const;
+
+export const TCGTRACKING_PRODUCT_NUMBER_SUFFIX_PATTERN =
+  /\s+-\s+[A-Za-z]*\d+[A-Za-z]?(?=\s*(?:\(|$))/;
+
+export const POKEMON_BASIC_ENERGY_PREFIX_PATTERN = /^Basic\s+(?=.*\bEnergy\b)/i;

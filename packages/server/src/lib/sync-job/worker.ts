@@ -136,6 +136,22 @@ async function embedCardImageUrl(
   return embedding;
 }
 
+async function embedFrontFace(
+  source: SyncSource,
+  card: SyncSourceCard,
+  imageUrl: string,
+): Promise<number[]> {
+  try {
+    return await embedCardImageUrl(source, imageUrl);
+  } catch (err) {
+    if (!card.fallbackImageUrl || card.fallbackImageUrl === imageUrl) throw err;
+    addLog(
+      `Image failed for ${card.name} (${errorMessage(err)}), using the TCGTracking image.`,
+    );
+    return embedCardImageUrl(source, card.fallbackImageUrl);
+  }
+}
+
 async function embedBackFace(
   source: SyncSource,
   card: SyncSourceCard,
@@ -451,7 +467,7 @@ async function runSync(
     }
 
     try {
-      const embedding = await embedCardImageUrl(source, card.imageUrl);
+      const embedding = await embedFrontFace(source, card, card.imageUrl);
       const backEmbedding = await embedBackFace(source, card);
       const data: unknown = JSON.parse(card.data);
 

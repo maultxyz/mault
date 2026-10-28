@@ -99,9 +99,9 @@
           "esp32": {
             "notes": "Exécute <code>{{path}}</code> ; connexion USB à l'ordinateur hôte pour le Web Serial - peut aussi être mis à jour directement depuis l'app ensuite, voir /app une fois configuré"
           },
-          "esp32Breakout": {
-            "part": "Carte d'extension ESP32-S3 (borniers à vis GPIO)",
-            "notes": "L'ESP32-S3 s'enfiche dessus pour un câblage par borniers à vis. Uniquement nécessaire avec l'option de montage sur carte d'extension."
+          "esp32WithBreakout": {
+            "part": "Carte ESP32-S3-WROOM-1 N16R8 avec adaptateur d'extension à borniers à vis GPIO",
+            "notes": "Exécute <code>{{path}}</code> ; connexion USB à l'ordinateur hôte pour le Web Serial. La carte s'enfiche sur l'adaptateur pour un câblage par borniers à vis. Vendue par lot de 2, tu as donc une carte de rechange."
           },
           "pca9685": {
             "part": "Adafruit PCA9685, driver PWM/servo 16 canaux 12 bits",

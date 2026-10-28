@@ -91,6 +91,7 @@ export interface SyncSourceCard {
   name: string;
   setCode: string;
   imageUrl: string | undefined;
+  fallbackImageUrl?: string;
   backImageUrl?: string;
   data: string;
 }

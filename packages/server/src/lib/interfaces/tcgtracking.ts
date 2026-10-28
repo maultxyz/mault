@@ -46,6 +46,7 @@ export interface TcgtrackingGameConfig {
   numberKeyOf?(card: PlayingCard): string | null;
   isBasePrinting?(card: PlayingCard): boolean;
   primaryCardIdOf?(product: TcgtrackingProduct): string | null;
+  comparableProductName?(name: string): string;
   colorIdentityOf?(colors: string[]): string[];
 }
 
