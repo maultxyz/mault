@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { API_KEY_NAME_MAX_LENGTH } from "../constants/api-keys.constant";
+import { SYNC_API_KEY_PERMISSIONS } from "../constants/sync-api-keys.constant";
 import { CARD_CONDITIONS } from "../constants/card-condition.constant";
 import {
   ORGANIZATION_NAME_MAX_LENGTH,
@@ -100,6 +101,13 @@ export const organizationInviteFormSchema = z.object({
 export const orgApiKeyFormSchema = z.object({
   name: nameSchema(API_KEY_NAME_MAX_LENGTH),
   allowWrite: z.boolean(),
+});
+
+export const syncApiKeyFormSchema = z.object({
+  name: nameSchema(API_KEY_NAME_MAX_LENGTH),
+  permissions: z
+    .array(z.enum(SYNC_API_KEY_PERMISSIONS))
+    .min(1, formValidationMessage("permissionsRequired")),
 });
 
 export const storageLocationNameFormSchema = z.object({

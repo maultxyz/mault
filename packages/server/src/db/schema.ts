@@ -119,34 +119,6 @@ export const cardImageVectors = pgTable(
   ],
 ).enableRLS();
 
-export const cardFinishVectors = pgTable(
-  "card_finish_vectors",
-  {
-    id: serial().primaryKey(),
-    gameKey: text("game_key").notNull(),
-    lang: text("lang").notNull(),
-    cardId: text("card_id").notNull(),
-    foilType: text("foil_type").notNull(),
-    productId: integer("product_id").notNull(),
-    embedding: vector("embedding").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
-  (table) => [
-    unique("card_finish_vectors_card_finish_idx").on(
-      table.gameKey,
-      table.lang,
-      table.cardId,
-      table.foilType,
-    ),
-    crudPolicy({
-      role: authenticatedRole,
-      read: true,
-      modify: false,
-    }),
-  ],
-).enableRLS();
-
 export const games = pgTable(
   "games",
   {
@@ -1310,6 +1282,31 @@ export const impersonationAudit = pgTable(
   },
   (table) => [
     unique("impersonation_audit_guid_idx").on(table.guid),
+    crudPolicy({
+      role: authenticatedRole,
+      read: false,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const platformSyncApiKeys = pgTable(
+  "platform_sync_api_keys",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    name: text("name").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    keyHash: text("key_hash").notNull(),
+    permissions: text("permissions").array().notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at"),
+    revokedAt: timestamp("revoked_at"),
+  },
+  (table) => [
+    unique("platform_sync_api_keys_guid_idx").on(table.guid),
+    unique("platform_sync_api_keys_hash_idx").on(table.keyHash),
     crudPolicy({
       role: authenticatedRole,
       read: false,

@@ -40,7 +40,7 @@ GRANT USAGE ON SCHEMA public TO authenticated;
 
 DO $$
 DECLARE
-  read_only_tables text[] := ARRAY['cards', 'card_finish_vectors', 'card_prices', 'games', 'announcements', 'org_daily_scan_usage', 'org_billing', 'plan_settings', 'device_alerts', 'org_inventory_snapshots'];
+  read_only_tables text[] := ARRAY['cards', 'card_prices', 'games', 'announcements', 'org_daily_scan_usage', 'org_billing', 'plan_settings', 'device_alerts', 'org_inventory_snapshots'];
   read_write_tables text[] := ARRAY[
     'bin_sets', 'bins', 'bin_routes', 'bin_heights', 'module_configs', 'feeder_configs',
     'collections', 'collection_cards', 'unmatched_cards', 'org_settings',
@@ -74,10 +74,11 @@ BEGIN
 END
 $$;
 
--- platform_user_roles, impersonation_audit, scan_stats,
+-- platform_user_roles, impersonation_audit, scan_stats, platform_sync_api_keys,
 -- platform_stats_settings, platform_discord_channels, platform_discord_roles,
 -- webhook_deliveries and discord_user_links are intentionally not granted here - the app only ever
 -- touches them via `db` directly (see auth/local.ts, routes/impersonation.ts,
+-- lib/sync-api-keys.ts,
 -- lib/scan-stats.ts, lib/platform-stats.ts,
 -- lib/platform-discord-channels.ts, lib/webhooks/queue.ts,
 -- lib/platform-discord-roles.ts, lib/discord/user-links.ts),

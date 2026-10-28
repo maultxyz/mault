@@ -18,6 +18,7 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "passwordMismatch",
   "webhookUrlInvalid",
   "eventsRequired",
+  "permissionsRequired",
   "conditionMultipliersInvalid",
   "valueRequired",
   "wholeNumber",

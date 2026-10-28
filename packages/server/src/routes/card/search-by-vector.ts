@@ -46,7 +46,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
         embeddings,
         preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
       });
-      return c.json(await attachMatchedCards(result, gameKey, lang, embeddings));
+      return c.json(await attachMatchedCards(result, gameKey, lang));
     } catch (err) {
       const orgId = c.req.header("X-Org-Id");
       if (orgId) {
