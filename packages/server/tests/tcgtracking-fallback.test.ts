@@ -68,6 +68,13 @@ test("product names drop the appended number and Pokémon's basic energy prefix"
   );
   assert.equal(
     comparableProductName(
+      TCGTRACKING_GAMES.pokemon,
+      product("Ledyba - 1/15", "001/015"),
+    ),
+    "Ledyba",
+  );
+  assert.equal(
+    comparableProductName(
       TCGTRACKING_GAMES.lorcana,
       product("Mickey Mouse - Brave Little Tailor", "115"),
     ),

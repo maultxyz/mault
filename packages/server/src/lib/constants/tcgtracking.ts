@@ -27,6 +27,6 @@ export const TCGTRACKING_EXT_KEYS = {
 } as const;
 
 export const TCGTRACKING_PRODUCT_NUMBER_SUFFIX_PATTERN =
-  /\s+-\s+[A-Za-z]*\d+[A-Za-z]?(?=\s*(?:\(|$))/;
+  /\s+-\s+[A-Za-z]*\d+[A-Za-z]?(?:\/\d+)?(?=\s*(?:\(|$))/;
 
 export const POKEMON_BASIC_ENERGY_PREFIX_PATTERN = /^Basic\s+(?=.*\bEnergy\b)/i;
