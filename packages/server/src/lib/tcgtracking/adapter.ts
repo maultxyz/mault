@@ -1,6 +1,10 @@
 import { sql } from "drizzle-orm";
 import type { CardSearchAdapter } from "../interfaces/card-search";
-import { loadTcgtrackingCatalog, tcgtrackingProductIdOf } from "./catalog";
+import {
+  loadTcgtrackingCatalog,
+  tcgtrackingCardImage,
+  tcgtrackingProductIdOf,
+} from "./catalog";
 import {
   isTcgtrackingFallbackData,
   normalizeTcgtrackingFallback,
@@ -26,7 +30,13 @@ export function withTcgtracking(
       const productId = (raw as { tcgtrackingProductId?: unknown } | null)
         ?.tcgtrackingProductId;
       return card && typeof productId === "number"
-        ? { ...card, tcgplayerId: String(productId) }
+        ? {
+            ...card,
+            image: card.image?.normal
+              ? card.image
+              : tcgtrackingCardImage(productId),
+            tcgplayerId: String(productId),
+          }
         : card;
     },
     async searchById(id, baseUrl) {
