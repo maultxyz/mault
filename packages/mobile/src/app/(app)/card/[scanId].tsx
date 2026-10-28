@@ -90,6 +90,7 @@ export default function CardDetailScreen() {
   const acquisitionCost = useQuery(cardAcquisitionCostQueryOptions(activeOrgId, scanId));
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
+  const [expandedMatchesScanId, setExpandedMatchesScanId] = useState<string | null>(null);
   const [sheet, setSheet] = useState<"foil" | "condition" | "language" | null>(null);
 
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
@@ -101,6 +102,8 @@ export default function CardDetailScreen() {
   const showCaptured = image.isPending || !!capturedUrl;
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
+  const areMatchesExpanded = expandedMatchesScanId === scanId;
+  const showMatchTiles = !isReviewed || areMatchesExpanded;
 
   const candidates = useMemo(() => {
     if (!entry) return [];
@@ -208,6 +211,7 @@ export default function CardDetailScreen() {
 
   const applyCorrection = async (selected: PlayingCard) => {
     if (!entry) return;
+    setExpandedMatchesScanId(null);
     await correction.correct(entry, selected);
     setEditing(false);
     if (reviewMode) await goToNextInReview();
@@ -304,17 +308,35 @@ export default function CardDetailScreen() {
             {candidates.length > 1 ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.similarMatches")} />
-                <AppText size="sm" tone="secondary">
-                  {t("cardDetail.similarMatchesHint")}
-                </AppText>
-                <CandidateStrip
-                  candidates={candidates}
-                  selectedId={card?.id}
-                  disabled={correction.isPending}
-                  onSelect={(selected) => {
-                    if (selected.id !== card?.id) void applyCorrection(selected);
-                  }}
-                />
+                {showMatchTiles ? (
+                  <>
+                    <AppText size="sm" tone="secondary">
+                      {t("cardDetail.similarMatchesHint")}
+                    </AppText>
+                    <CandidateStrip
+                      candidates={candidates}
+                      selectedId={card?.id}
+                      disabled={correction.isPending}
+                      onSelect={(selected) => {
+                        if (selected.id !== card?.id) void applyCorrection(selected);
+                      }}
+                    />
+                  </>
+                ) : null}
+                {isReviewed ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    style={{ alignSelf: "flex-start" }}
+                    icon={areMatchesExpanded ? "collapse" : "expand"}
+                    label={
+                      areMatchesExpanded
+                        ? t("cardDetail.hideMatches")
+                        : t("cardDetail.showMatches", { count: candidates.length })
+                    }
+                    onPress={() => setExpandedMatchesScanId(areMatchesExpanded ? null : scanId)}
+                  />
+                ) : null}
               </View>
             ) : null}
 
@@ -491,7 +513,10 @@ export default function CardDetailScreen() {
                   icon="check"
                   label={t("cardDetail.markCorrect")}
                   loading={markCorrect.isPending}
-                  onPress={() => markCorrect.mutate("confirm")}
+                  onPress={() => {
+                    setExpandedMatchesScanId(null);
+                    markCorrect.mutate("confirm");
+                  }}
                 />
               ) : null}
               <Button

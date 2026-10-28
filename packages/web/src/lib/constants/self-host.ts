@@ -1,4 +1,5 @@
 import { REPO_URL } from "@/lib/constants/links";
+import { MARKETING_PAGE_PATHS } from "@/lib/constants/marketing-pages";
 import type {
   SelfHostAuth,
   SelfHostHost,
@@ -13,7 +14,7 @@ import {
   IconDatabase,
 } from "@tabler/icons-react";
 
-export const SELF_HOST_PATH = "/self-host";
+export const SELF_HOST_PATH = MARKETING_PAGE_PATHS.selfHost;
 
 export const SELF_HOST_SETUP_ANCHOR = "setup";
 

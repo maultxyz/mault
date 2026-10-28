@@ -30,6 +30,7 @@ import IconChecks from "@tabler/icons-react-native/IconChecks";
 import IconChevronDown from "@tabler/icons-react-native/IconChevronDown";
 import IconChevronLeft from "@tabler/icons-react-native/IconChevronLeft";
 import IconChevronRight from "@tabler/icons-react-native/IconChevronRight";
+import IconChevronUp from "@tabler/icons-react-native/IconChevronUp";
 import IconCircleCheck from "@tabler/icons-react-native/IconCircleCheck";
 import IconCircleX from "@tabler/icons-react-native/IconCircleX";
 import IconCpu from "@tabler/icons-react-native/IconCpu";
@@ -91,6 +92,7 @@ export const ICONS = {
   dismiss: IconX,
   error: IconAlertCircle,
   expand: IconChevronDown,
+  collapse: IconChevronUp,
   external: IconExternalLink,
   group: IconBrackets,
   help: IconHelpCircle,

@@ -59,6 +59,8 @@
     "matchedCard": "Matched card",
     "enlargeImage": "Click to enlarge",
     "similarMatches": "Similar matches",
+    "showMatches": "Show {{count}} matches",
+    "hideMatches": "Hide matches",
     "searchForCorrectVersion": "Your scanned card, search for the correct version below",
     "cancel": "Cancel",
     "prices": "Prices",

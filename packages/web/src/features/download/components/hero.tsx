@@ -2,14 +2,15 @@ import { MarketingRule } from "@/components/marketing-rule";
 import { buttonVariants } from "@/components/ui/button";
 import { detectDesktopPlatform } from "@/features/download/lib/detect-platform";
 import { DESKTOP_DOWNLOADS } from "@/lib/constants/download";
+import { useClientValue } from "@/hooks/use-client-value";
 import { cn } from "@/lib/utils";
 import { IconDeviceDesktopCheck, IconDownload } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function DownloadHero() {
   const { t } = useTranslation("download");
-  const isDesktopApp = !!window.maultDesktop;
-  const platform = detectDesktopPlatform();
+  const isDesktopApp = useClientValue(() => !!window.maultDesktop, false);
+  const platform = useClientValue(detectDesktopPlatform, null);
   const download = DESKTOP_DOWNLOADS.find((item) => item.platform === platform);
 
   return (
