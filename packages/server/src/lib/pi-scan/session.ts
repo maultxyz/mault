@@ -464,7 +464,6 @@ async function searchOrientation(
     }),
     context.gameKey,
     context.lang,
-    embeddings,
   );
   return {
     image,
@@ -581,9 +580,7 @@ async function matchFrame(
     if (text && hasCardMatch(text)) {
       best = {
         ...options[bestIndex],
-        result: await attachMatchedCards(text, context.gameKey, context.lang, {
-          embedding: options[bestIndex].embedding,
-        }),
+        result: await attachMatchedCards(text, context.gameKey, context.lang),
       };
       matchedBy = "ocr";
       lowConfidenceFromOcr = !embeddingMatched;

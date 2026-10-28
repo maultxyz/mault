@@ -119,34 +119,6 @@ export const cardImageVectors = pgTable(
   ],
 ).enableRLS();
 
-export const cardFinishVectors = pgTable(
-  "card_finish_vectors",
-  {
-    id: serial().primaryKey(),
-    gameKey: text("game_key").notNull(),
-    lang: text("lang").notNull(),
-    cardId: text("card_id").notNull(),
-    foilType: text("foil_type").notNull(),
-    productId: integer("product_id").notNull(),
-    embedding: vector("embedding").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
-  (table) => [
-    unique("card_finish_vectors_card_finish_idx").on(
-      table.gameKey,
-      table.lang,
-      table.cardId,
-      table.foilType,
-    ),
-    crudPolicy({
-      role: authenticatedRole,
-      read: true,
-      modify: false,
-    }),
-  ],
-).enableRLS();
-
 export const games = pgTable(
   "games",
   {

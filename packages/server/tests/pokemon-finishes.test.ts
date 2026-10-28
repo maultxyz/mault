@@ -6,7 +6,6 @@ import {
   scanFoilType,
   type PlayingCard,
 } from "@magic-vault/shared";
-import { detectableFoilTypes } from "../src/lib/card-finish-vectors";
 import {
   pokemonFinishes,
   pokemonFinishProducts,
@@ -81,34 +80,12 @@ test("finish options come from the card and keep the current value", () => {
   assert.deepEqual(cardFoilTypeOptions(["Holo"], null, null), ["Holo"]);
 });
 
-test("a detected pattern replaces the generic session finish only with a clear margin", () => {
-  const card = {
-    foilTypes: ["Reverse Holo", "Reverse Holo (Poké Ball)", "Reverse Holo (Master Ball)", "Holo"],
-    finishMatches: [
-      { foilType: "Reverse Holo", distance: 0.2 },
-      { foilType: "Reverse Holo (Poké Ball)", distance: 0.12 },
-      { foilType: "Reverse Holo (Master Ball)", distance: 0.18 },
-    ],
-  } as PlayingCard;
-  assert.equal(scanFoilType(card, "Reverse Holo"), "Reverse Holo (Poké Ball)");
-  assert.equal(scanFoilType(card, "Reverse Holo (Master Ball)"), "Reverse Holo (Master Ball)");
+test("the session finish narrows to the card's only pattern in that family", () => {
+  const card = { foilTypes: ["Reverse Holo (Friend Ball)", "Holo"] } as PlayingCard;
+  assert.equal(scanFoilType(card, "Reverse Holo"), "Reverse Holo (Friend Ball)");
   assert.equal(scanFoilType(card, "Holo"), "Holo");
   assert.equal(scanFoilType(card, null), null);
-  const close = {
-    ...card,
-    finishMatches: [
-      { foilType: "Reverse Holo (Poké Ball)", distance: 0.12 },
-      { foilType: "Reverse Holo (Master Ball)", distance: 0.125 },
-    ],
-  } as PlayingCard;
-  assert.equal(scanFoilType(close, "Reverse Holo"), "Reverse Holo");
-});
-
-test("a single pattern in the session's family is picked without detection", () => {
-  const card = { foilTypes: ["Reverse Holo (Friend Ball)"] } as PlayingCard;
-  assert.equal(scanFoilType(card, "Reverse Holo"), "Reverse Holo (Friend Ball)");
-  assert.deepEqual(
-    [...detectableFoilTypes({ foilTypes: ["Reverse Holo (Friend Ball)", "Reverse Holo (Energy Symbol)", "Holo"] } as PlayingCard)],
-    ["Reverse Holo (Friend Ball)", "Reverse Holo (Energy Symbol)"],
-  );
+  const twoPatterns = { foilTypes: ["Reverse Holo (Poké Ball)", "Reverse Holo (Master Ball)"] } as PlayingCard;
+  assert.equal(scanFoilType(twoPatterns, "Reverse Holo"), "Reverse Holo");
+  assert.equal(scanFoilType(twoPatterns, "Reverse Holo (Master Ball)"), "Reverse Holo (Master Ball)");
 });

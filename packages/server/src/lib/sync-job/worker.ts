@@ -20,7 +20,6 @@ import {
 import { SYNC_SOURCES } from "./sources";
 import { storedCollectorNumber } from "../card-search/collector-number";
 import { catalogColumnsFor } from "../card-catalog";
-import { syncCardFinishVectors } from "../card-finish-vectors";
 import { rebuildGameVectorIndex } from "../game-vector-index";
 
 function errorMessage(err: unknown): string {
@@ -563,12 +562,6 @@ async function runSync(
     refreshed + getState().processed,
     existingSet.size,
   );
-
-  try {
-    await syncCardFinishVectors(source.gameKey, lang, addLog, isCancelled);
-  } catch (err) {
-    addLog(`Card finish images skipped: ${errorMessage(err)}`);
-  }
 
   patchState({ status: "completed" });
   const syncState = getState();
