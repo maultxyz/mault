@@ -12,7 +12,10 @@ import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
 import { CARD_API_HEADERS } from "./constants/card-search";
 import {
   CARD_FINISH_IMAGE_FETCH_DELAY_MS,
+  CARD_FINISH_IMAGE_TIMEOUT_MS,
+  CARD_FINISH_PROGRESS_LOG_EVERY,
   CARD_FINISH_VECTOR_BATCH_SIZE,
+  CARD_FINISH_VECTOR_LANG,
 } from "./constants/saved-cards";
 import { pgTextArray } from "./sql-arrays";
 import { tcgtrackingCardImage } from "./tcgtracking/catalog";
@@ -33,8 +36,9 @@ async function embedProductImage(productId: number): Promise<number[] | null> {
   await new Promise((resolve) => setTimeout(resolve, CARD_FINISH_IMAGE_FETCH_DELAY_MS));
   const response = await fetch(tcgtrackingCardImage(productId).normal, {
     headers: CARD_API_HEADERS,
-  });
-  if (!response.ok) return null;
+    signal: AbortSignal.timeout(CARD_FINISH_IMAGE_TIMEOUT_MS),
+  }).catch(() => null);
+  if (!response?.ok) return null;
   const buffer = await toPortraitCardImage(Buffer.from(await response.arrayBuffer()));
   return (await vectorizeCardImage(buffer)).embedding;
 }
@@ -47,7 +51,7 @@ export async function syncCardFinishVectors(
 ): Promise<number> {
   const adapter = ADAPTERS_BY_GAME_KEY[gameKey];
   const finishProducts = adapter?.tcgplayer?.finishProducts;
-  if (!adapter || !finishProducts) return 0;
+  if (!adapter || !finishProducts || lang !== CARD_FINISH_VECTOR_LANG) return 0;
 
   const stored = await db
     .select({
@@ -65,6 +69,7 @@ export async function syncCardFinishVectors(
   let lastId = 0;
   let written = 0;
   let failed = 0;
+  let checked = 0;
   while (!isCancelled()) {
     const rows = await db
       .select({ id: cardImageVectors.id, cardId: cardImageVectors.cardId, data: cardImageVectors.data })
@@ -81,6 +86,8 @@ export async function syncCardFinishVectors(
       .limit(CARD_FINISH_VECTOR_BATCH_SIZE);
     if (rows.length === 0) break;
     lastId = rows[rows.length - 1].id;
+    checked += rows.length;
+    log(`${gameKey}/${lang}: checked ${checked} card(s), ${written} finish image(s) vectorized so far.`);
 
     for (const row of rows) {
       if (isCancelled()) break;
@@ -96,6 +103,7 @@ export async function syncCardFinishVectors(
         const embedding = await embedProductImage(finish.productId);
         if (!embedding) {
           failed++;
+          log(`${gameKey}/${lang}: no image for ${row.cardId} ${finish.foilType} (product ${finish.productId}).`);
           continue;
         }
         await db
@@ -122,6 +130,9 @@ export async function syncCardFinishVectors(
             },
           });
         written++;
+        if (written % CARD_FINISH_PROGRESS_LOG_EVERY === 0) {
+          log(`${gameKey}/${lang}: ${written} finish image(s) vectorized (at ${row.cardId}).`);
+        }
       }
     }
   }
@@ -134,7 +145,6 @@ export async function syncCardFinishVectors(
 export async function attachFinishMatches<T extends { cardId: string; lang?: string; card?: PlayingCard }>(
   matches: T[],
   gameKey: string,
-  lang: string,
   embeddings: CardSearchEmbeddings | undefined,
 ): Promise<T[]> {
   if (!embeddings?.embedding?.length) return matches;
@@ -144,18 +154,21 @@ export async function attachFinishMatches<T extends { cardId: string; lang?: str
   if (candidates.length === 0) return matches;
   const query = `[${embeddings.embedding.join(",")}]`;
   const result = await db.execute(sql`
-    SELECT card_id, lang, foil_type, (embedding <=> ${query}::vector(128))::float8 AS distance
+    SELECT card_id, foil_type, (embedding <=> ${query}::vector(128))::float8 AS distance
     FROM card_finish_vectors
     WHERE game_key = ${gameKey}
+      AND lang = ${CARD_FINISH_VECTOR_LANG}
       AND card_id = ANY(${pgTextArray(candidates.map((match) => match.cardId))}::text[])
   `);
   const byCard = new Map<string, CardFinishMatch[]>();
-  for (const row of result.rows as { card_id: string; lang: string; foil_type: string; distance: number }[]) {
-    const key = `${row.lang}\u0000${row.card_id}`;
-    byCard.set(key, [...(byCard.get(key) ?? []), { foilType: row.foil_type, distance: row.distance }]);
+  for (const row of result.rows as { card_id: string; foil_type: string; distance: number }[]) {
+    byCard.set(row.card_id, [
+      ...(byCard.get(row.card_id) ?? []),
+      { foilType: row.foil_type, distance: row.distance },
+    ]);
   }
   return matches.map((match) => {
-    const finishMatches = byCard.get(`${match.lang ?? lang}\u0000${match.cardId}`);
+    const finishMatches = byCard.get(match.cardId);
     return finishMatches && match.card
       ? { ...match, card: { ...match.card, finishMatches } }
       : match;

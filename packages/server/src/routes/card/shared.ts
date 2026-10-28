@@ -564,6 +564,6 @@ export async function attachMatchedCards<T extends CardMatchSearchResult>(
   });
   return {
     ...result,
-    data: await attachFinishMatches(data, gameKey, lang, embeddings),
+    data: await attachFinishMatches(data, gameKey, embeddings),
   };
 }
