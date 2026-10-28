@@ -70,6 +70,13 @@ function take(cardId: string): QueuedCard | null {
 
 function failItem(item: QueuedCard, message: string): void {
   if (!queue) return;
+  const { fallbackImageUrl, imageUrl } = item.card;
+  if (fallbackImageUrl && fallbackImageUrl !== imageUrl) {
+    item.card = { ...item.card, imageUrl: fallbackImageUrl };
+    item.attempts = 0;
+    queue.pending.push(item);
+    return;
+  }
   item.attempts += 1;
   if (item.attempts >= BROWSER_SYNC_MAX_ATTEMPTS) {
     queue.host.incrementCounters({ errors: 1 });

@@ -6,6 +6,7 @@ import {
   baseCardNameKey,
   cardNameKey,
   collectorNumberKey,
+  comparableProductName,
 } from "../src/lib/tcgtracking/keys";
 import type { TcgtrackingFallbackData } from "../src/lib/interfaces/tcgtracking";
 
@@ -36,6 +37,49 @@ test("names compare without punctuation, case or variant suffixes", () => {
     cardNameKey("Hera Syndulla, Renegade General"),
   );
   assert.equal(baseCardNameKey("Nami (Parallel)"), "nami");
+});
+
+test("product names drop the appended number and Pokémon's basic energy prefix", () => {
+  const product = (name: string, number: string) => ({
+    id: 713248,
+    name,
+    number,
+    rarity: null,
+    ext_data: {},
+    image_url: null,
+  });
+  assert.equal(
+    cardNameKey(
+      comparableProductName(
+        TCGTRACKING_GAMES.pokemon,
+        product("Basic Grass Energy - 001", "1"),
+      ),
+    ),
+    cardNameKey("Grass Energy"),
+  );
+  assert.equal(
+    baseCardNameKey(
+      comparableProductName(
+        TCGTRACKING_GAMES.pokemon,
+        product("Basic Grass Energy - 009 (30th Celebration)", "009"),
+      ),
+    ),
+    "grass energy",
+  );
+  assert.equal(
+    comparableProductName(
+      TCGTRACKING_GAMES.lorcana,
+      product("Mickey Mouse - Brave Little Tailor", "115"),
+    ),
+    "Mickey Mouse - Brave Little Tailor",
+  );
+  assert.equal(
+    comparableProductName(
+      TCGTRACKING_GAMES.lorcana,
+      product("Basic Fire Energy", "2"),
+    ),
+    "Basic Fire Energy",
+  );
 });
 
 test("fallback cards read the older capitalized ext_data shape", () => {

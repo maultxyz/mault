@@ -1,4 +1,7 @@
-import { TCGTRACKING_MTG_COLOR_LETTERS } from "../constants/tcgtracking";
+import {
+  POKEMON_BASIC_ENERGY_PREFIX_PATTERN,
+  TCGTRACKING_MTG_COLOR_LETTERS,
+} from "../constants/tcgtracking";
 import type { GundamCard } from "../interfaces/gundam";
 import type { TcgtrackingGameConfig } from "../interfaces/tcgtracking";
 import { collectorNumberKey } from "./keys";
@@ -30,7 +33,11 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
     },
   },
   fab: { numbering: "global" },
-  pokemon: { numbering: "per-set" },
+  pokemon: {
+    numbering: "per-set",
+    comparableProductName: (name) =>
+      name.replace(POKEMON_BASIC_ENERGY_PREFIX_PATTERN, ""),
+  },
   lorcana: { numbering: "per-set" },
   riftbound: { numbering: "per-set" },
   swu: { numbering: "per-set" },
