@@ -67,3 +67,7 @@ export const EMPTY_CARD_CATALOG_COLUMNS: CardCatalogColumns = {
 export const CARD_CATALOG_BACKFILL_BATCH_SIZE = 500;
 
 export const SAVED_CARD_SLIM_BATCH_SIZE = 200;
+
+export const CARD_FINISH_VECTOR_BATCH_SIZE = 500;
+
+export const CARD_FINISH_IMAGE_FETCH_DELAY_MS = 200;

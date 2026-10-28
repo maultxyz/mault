@@ -83,7 +83,9 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
       scanLog(
         `[ocr] game=${gameKey} lang=${lang} name=${JSON.stringify(readout.name)} setLine=${JSON.stringify(readout.setLine)} number=${JSON.stringify(readout.number)} closestName=${result.ocr.matchedName ? `${JSON.stringify(result.ocr.matchedName)} (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} ${result.ocr.usedFallback ? " fallback" : ""} -> ${result.data ? `matched ${result.data[0].cardId} at ${result.data[0].distance.toFixed(3)}` : "no match"}`,
       );
-      return c.json(await attachMatchedCards(result, gameKey, lang));
+      return c.json(
+        await attachMatchedCards(result, gameKey, lang, { embedding }),
+      );
     } catch (err) {
       console.error(err);
       return c.json({ success: false, message: "Text search failed." }, 500);
