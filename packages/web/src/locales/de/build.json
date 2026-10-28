@@ -99,9 +99,9 @@
           "esp32": {
             "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial - kann später auch direkt aus der App aktualisiert werden, siehe /app nach der Einrichtung"
           },
-          "esp32Breakout": {
-            "part": "ESP32-S3-Breakout-Board (GPIO-Schraubklemmen-Erweiterung)",
-            "notes": "Das ESP32-S3 wird darauf gesteckt, für die Verdrahtung über Schraubklemmen. Nur bei der Montage auf einem Breakout-Board nötig."
+          "esp32WithBreakout": {
+            "part": "ESP32-S3-WROOM-1 N16R8 Board mit GPIO-Schraubklemmen-Erweiterungsadapter",
+            "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial. Das Board wird für die Verdrahtung über Schraubklemmen auf den Adapter gesteckt. Wird im 2er-Pack verkauft, du hast also ein Ersatzboard."
           },
           "pca9685": {
             "part": "Adafruit PCA9685 16-Kanal-12-Bit-PWM-/Servotreiber",

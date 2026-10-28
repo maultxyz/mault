@@ -99,9 +99,9 @@
           "esp32": {
             "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial. Also flashable straight from the app afterward, see /app once it's set up"
           },
-          "esp32Breakout": {
-            "part": "ESP32-S3 breakout board (GPIO screw-terminal expansion)",
-            "notes": "The ESP32-S3 plugs into this for screw-terminal wiring. Only needed with the breakout mounting option."
+          "esp32WithBreakout": {
+            "part": "ESP32-S3-WROOM-1 N16R8 board with GPIO screw-terminal expansion adapter",
+            "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial. The board plugs into the adapter for screw-terminal wiring. Sold as a 2-pack, so you get a spare."
           },
           "pca9685": {
             "part": "Adafruit PCA9685 16-channel 12-bit PWM/servo driver",
