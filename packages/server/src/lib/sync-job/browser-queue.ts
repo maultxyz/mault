@@ -8,6 +8,7 @@ import { sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { storedCollectorNumber } from "../card-search/collector-number";
+import { catalogColumnsFor } from "../card-catalog";
 import {
   BROWSER_SYNC_LEASE_MS,
   BROWSER_SYNC_MAX_ATTEMPTS,
@@ -185,6 +186,7 @@ export async function submitBrowserWork(
             embedding,
             backEmbedding,
             data,
+            ...catalogColumnsFor(source.gameKey, lang, item.card.id, data),
           },
         });
       }

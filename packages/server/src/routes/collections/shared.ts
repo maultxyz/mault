@@ -12,7 +12,10 @@ import {
 import { and, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import { collectionCards, collections, games } from "../../db/schema";
+import { cardCatalogJoinSql } from "../../lib/card-catalog-sql";
+import { CC_ALIAS_SQL_COLUMNS } from "../../lib/constants/card-prices";
 import { COLLECTION_PREVIEW_SCAN_WINDOW } from "../../lib/constants/collections";
+import { CATALOG_CC_ALIAS_COLUMNS } from "../../lib/constants/saved-cards";
 
 export function toCollection(row: {
   guid: string | null;
@@ -150,13 +153,15 @@ export async function loadCollections(
   const previews = await tx.execute(sql`
     SELECT c.guid, COALESCE(p.images, ARRAY[]::text[]) AS images
     FROM ${collections} c
+    LEFT JOIN ${games} g ON g.id = c.game_id
     LEFT JOIN LATERAL (
       SELECT array_agg(recent.image ORDER BY recent.scanned_at DESC) AS images
       FROM (
         SELECT latest.image, latest.scanned_at
         FROM (
-          SELECT cc.card_image_small AS image, cc.scanned_at
+          SELECT ${CATALOG_CC_ALIAS_COLUMNS.imageSmall} AS image, cc.scanned_at
           FROM ${collectionCards} cc
+          ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`c.lang` }, CC_ALIAS_SQL_COLUMNS)}
           WHERE cc.collection_id = c.id
           ORDER BY cc.scanned_at DESC
           LIMIT ${COLLECTION_PREVIEW_SCAN_WINDOW}

@@ -925,6 +925,13 @@
       "when": 1793128685345,
       "tag": "0131_collection_card_generated_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 132,
+      "version": "7",
+      "when": 1793198266982,
+      "tag": "0132_card_catalog_columns",
+      "breakpoints": true
     }
   ]
 }

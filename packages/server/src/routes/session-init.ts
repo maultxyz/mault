@@ -4,7 +4,6 @@ import {
   type Collection,
   type FieldMeta,
   type PlayingCardWithDistance,
-  type ScannedCard,
 } from "@magic-vault/shared";
 import { and, count, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
@@ -13,6 +12,7 @@ import { cardWithStoredPricesSql } from "../lib/card-price-sql";
 import type { ViewerInfo } from "../lib/interfaces/session-stream";
 import { resolveScanImageUrl } from "../lib/scan-images";
 import { isPiHost } from "../lib/pi-host";
+import { hydrateSavedScans } from "../lib/saved-cards";
 import { toScannedCard, toUnmatchedCard } from "./collections/shared";
 
 async function querySessionInit(
@@ -116,7 +116,11 @@ async function querySessionInit(
       createdAt: collection.createdAt,
       updatedAt: collection.updatedAt,
     } satisfies Collection,
-    recentCards: cardRows.map(toScannedCard).map(slimScan),
+    recentCards: await hydrateSavedScans(
+      { gameKey: game?.key ?? null, lang: collection.lang },
+      cardRows.map(toScannedCard),
+      { includeRaw: false },
+    ),
     unmatchedCards: await Promise.all(
       unmatchedRows.map(async (row) =>
         toUnmatchedCard({
@@ -127,19 +131,6 @@ async function querySessionInit(
     ),
     unmatchedCount,
     viewers,
-  };
-}
-
-function withoutRaw(card: PlayingCardWithDistance): PlayingCardWithDistance {
-  const { raw: _raw, ...rest } = card;
-  return rest;
-}
-
-function slimScan(scan: ScannedCard): ScannedCard {
-  return {
-    ...scan,
-    card: withoutRaw(scan.card),
-    alternativeMatches: scan.alternativeMatches?.map(withoutRaw),
   };
 }
 

@@ -35,6 +35,7 @@ import {
   moveCollectionToLocation,
 } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
+import { hydrateSavedCards } from "../../lib/saved-cards";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   countStoredCards,
@@ -48,7 +49,7 @@ import {
   storedCardOrderKey,
   storedCardPosition,
   storedCardsWhere,
-  toStoredCard,
+  toStoredCards,
 } from "./shared";
 
 const router = new Hono<AppEnv>()
@@ -102,6 +103,8 @@ const router = new Hono<AppEnv>()
           reviewed: collectionCards.isReviewed,
           collectionGuid: collections.guid,
           collectionName: collections.name,
+          collectionLang: collections.lang,
+          gameKey: games.key,
           locationGuid: storageLocations.guid,
           locationName: storageLocations.name,
         })
@@ -114,6 +117,7 @@ const router = new Hono<AppEnv>()
           collections,
           eq(collections.id, collectionCards.collectionId),
         )
+        .leftJoin(games, eq(games.id, collections.gameId))
         .where(
           and(
             eq(storageLocations.orgId, orgId),
@@ -129,10 +133,14 @@ const router = new Hono<AppEnv>()
         )
         .limit(STORAGE_SEARCH_RESULT_LIMIT),
     );
-    const data: StorageLocationSearchResult[] = rows.map((r) => ({
+    const cards = await hydrateSavedCards(
+      rows.map((r) => ({ gameKey: r.gameKey, lang: r.collectionLang, card: r.card })),
+      { includeRaw: false },
+    );
+    const data: StorageLocationSearchResult[] = rows.map((r, i) => ({
       scanId: r.scanId!,
       position: r.position ?? 0,
-      card: r.card,
+      card: cards[i],
       isFoil: r.isFoil,
       foilType: r.foilType,
       condition: toCardCondition(r.condition),
@@ -252,7 +260,7 @@ const router = new Hono<AppEnv>()
       const rows = await selectStoredCards(tx)
         .where(storedCardsWhere(locationId))
         .orderBy(asc(storedCardPosition), asc(collectionCards.id));
-      const data: StorageLocationCard[] = rows.map(toStoredCard);
+      const data: StorageLocationCard[] = await toStoredCards(rows);
       return { success: true, data };
     });
     return c.json(result);
@@ -292,7 +300,7 @@ const router = new Hono<AppEnv>()
         .limit(pageSize)
         .offset((page - 1) * pageSize);
       const data: StorageLocationCardPage = {
-        cards: rows.map(toStoredCard),
+        cards: await toStoredCards(rows),
         total,
         page,
         pageSize,
@@ -347,7 +355,7 @@ const router = new Hono<AppEnv>()
       if (!current) return { success: true, data: null };
       const currentKey = sql`(${Number(current.position)}::int, ${current.rowId}::int)`;
       const data: StorageLocationCardContext = {
-        card: toStoredCard(current),
+        card: (await toStoredCards([current]))[0],
         index: await countStoredCards(
           tx,
           locationId,
@@ -395,6 +403,7 @@ const router = new Hono<AppEnv>()
           condition: collectionCards.condition,
           language: collectionCards.language,
           collectionName: collections.name,
+          collectionLang: collections.lang,
           gameKey: games.key,
         })
         .from(collectionCards)
@@ -410,12 +419,16 @@ const router = new Hono<AppEnv>()
           ),
         )
         .orderBy(asc(collectionCards.locationPosition));
-      const data: StorageLocationExportCard[] = rows.map((r) => ({
+      const cards = await hydrateSavedCards(
+        rows.map((r) => ({ gameKey: r.gameKey, lang: r.collectionLang, card: r.card })),
+        { includeRaw: true },
+      );
+      const data: StorageLocationExportCard[] = rows.map((r, i) => ({
         scanId: r.scanId!,
         position: r.position ?? 0,
         collectionName: r.collectionName,
         gameKey: r.gameKey,
-        card: r.card,
+        card: cards[i],
         isFoil: r.isFoil,
         foilType: r.foilType,
         condition: toCardCondition(r.condition),

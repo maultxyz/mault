@@ -28,6 +28,7 @@ import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { toScannedCard } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
+import { toSavedCardSnapshots } from "../../lib/saved-cards";
 
 export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched/:scanId/identify",
@@ -54,6 +55,8 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
             id: collections.id,
             gameId: collections.gameId,
             name: collections.name,
+            lang: collections.lang,
+            gameKey: games.key,
             gameName: games.name,
           })
           .from(collections)
@@ -95,11 +98,16 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           };
         }
 
+        const saved = await toSavedCardSnapshots(
+          { gameKey: collection.gameKey, lang: collection.lang },
+          identified,
+          null,
+        );
         await tx.insert(collectionCards).values({
           guid: scanId,
           collectionId: collection.id,
           cardId: identified.id,
-          card: identified,
+          card: saved.card,
           scannedAt: unmatched.scannedAt,
           binNumber: unmatched.binNumber,
           capturedImageDataUrl: unmatched.capturedImageDataUrl,

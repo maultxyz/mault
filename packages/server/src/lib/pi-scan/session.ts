@@ -375,7 +375,11 @@ async function prepareContext(
       where: eq(orgSettings.orgId, session.orgId),
       columns: { ocrEnabled: true },
     });
-    const loaded = await loadBinContents(tx, collection.id, windows);
+    const loaded = await loadBinContents(
+      tx,
+      { id: collection.id, gameKey: collection.gameKey, lang: collection.lang },
+      windows,
+    );
     const contents: PiScanBinCard[] = loaded.map((row) => ({
       binNumber: row.binNumber,
       scannedAt: row.scannedAt,

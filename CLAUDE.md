@@ -68,7 +68,8 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Rules store field keys only; anything new that stores a field key goes in `lib/field-renames.ts`.
 - Rule evaluation runs on `toRuleCard(...)` with `withScanRuleFields`; never save a `$scan` card. Text comparisons are trimmed and lowercased.
 - Scanning never calls upstream card APIs (reads go through `card-search/stored-cards.ts`). netdeck images render through `/cards/netdeck-image/...` because their URLs expire.
-- `collection_cards.card` is large and TOASTed: SQL that scans many rows reads the stored generated `card_*` columns (and `has_alternative_matches`, `card_saved_price*`), never `cc.card ->> ...`; a new hot field gets a generated column. Long lists page on the server.
+- `collection_cards.card` is a slim scan-time copy referencing `cards` by `(game, lang, card_id)`, not a foreign key (cards get hard-deleted and fallback ids get superseded). Writes go through `toSavedCardSnapshots` (drops `raw` and turns alternatives into references only when the card is in `cards`); every read that returns cards goes through `hydrateSavedScans`/`hydrateSavedCards`, which overlays the current catalog card and keeps scan-time keys (`SAVED_CARD_SCAN_KEYS`).
+- SQL over many collection rows reads the generated `card_*` columns, never `cc.card ->> ...`; catalog fields (set name, rarity, colors, search text, image) come from `cards` columns via `cardCatalogJoinSql` with `CATALOG_CC_ALIAS_COLUMNS` falling back to the `card_*` columns. Sync fills those `cards` columns through `catalogColumnsFor`. Long lists page on the server.
 
 ### Prices
 

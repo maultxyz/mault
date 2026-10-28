@@ -87,6 +87,11 @@ export const cardImageVectors = pgTable(
     embedding: vector("embedding").notNull(),
     backEmbedding: vector("back_embedding"),
     data: jsonb("data"),
+    setName: text("set_name"),
+    rarity: text("rarity"),
+    colorIdentity: jsonb("color_identity").$type<string[]>(),
+    searchText: text("search_text"),
+    imageSmall: text("image_small"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -110,6 +115,7 @@ export const cardImageVectors = pgTable(
       read: true,
       modify: false,
     }),
+    apiServiceRead(sql`true`),
   ],
 ).enableRLS();
 
