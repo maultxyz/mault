@@ -73,9 +73,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
             },
           }
         : result;
-      return c.json(
-        await attachMatchedCards(withEmbedding, gameKey, lang, embeddings),
-      );
+      return c.json(await attachMatchedCards(withEmbedding, gameKey, lang));
     } catch (err) {
       const orgId = c.req.header("X-Org-Id");
       if (orgId) {

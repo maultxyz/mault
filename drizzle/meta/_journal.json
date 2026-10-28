@@ -946,6 +946,13 @@
       "when": 1793203103965,
       "tag": "0134_card_finish_vectors",
       "breakpoints": true
+    },
+    {
+      "idx": 135,
+      "version": "7",
+      "when": 1793213797553,
+      "tag": "0135_drop_card_finish_vectors",
+      "breakpoints": true
     }
   ]
 }
