@@ -5,6 +5,7 @@ import { authProvider } from "../auth";
 import {
   IMPERSONATION_ISSUER,
   IMPERSONATION_TTL_SECONDS,
+  SCANNING_BLOCKED_WHILE_IMPERSONATING_MESSAGE,
 } from "../lib/constants/auth";
 import { cachedDisplayName } from "../lib/display-name-cache";
 import type { OrgRole } from "@magic-vault/shared";
@@ -81,6 +82,28 @@ export async function verifyRequestToken(
   if (impersonation) return { sub: impersonation.sub };
   return verifyToken(token);
 }
+
+export async function verifyHardwareClientToken(
+  token: string,
+): Promise<{ sub: string } | null> {
+  if (await verifyImpersonationToken(token)) return null;
+  return verifyToken(token);
+}
+
+export const rejectWhileImpersonating = createMiddleware<AppEnv>(
+  async (c, next) => {
+    if (c.get("impersonatedBy") !== null) {
+      return c.json(
+        {
+          success: false,
+          message: SCANNING_BLOCKED_WHILE_IMPERSONATING_MESSAGE,
+        },
+        409,
+      );
+    }
+    await next();
+  },
+);
 
 export async function getUserDisplayName(userId: string): Promise<string> {
   return cachedDisplayName(userId, (id) => authProvider.getUserDisplayName(id));

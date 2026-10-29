@@ -1,3 +1,4 @@
+import { HARDWARE_BLOCKED_WHILE_IMPERSONATING_ERROR } from "@/lib/constants/auth";
 import { IMPERSONATION_STORAGE_KEY as STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type { ImpersonationState } from "@/lib/interfaces/auth";
 import type { ImpersonationSession } from "@magic-vault/shared";
@@ -28,6 +29,14 @@ function notify() {
 
 export function getImpersonationState(): ImpersonationState | null {
   return state;
+}
+
+export function isImpersonating(): boolean {
+  return state !== null;
+}
+
+export function assertHardwareAllowedWhileImpersonating() {
+  if (state) throw new Error(HARDWARE_BLOCKED_WHILE_IMPERSONATING_ERROR);
 }
 
 export function subscribeImpersonation(listener: () => void): () => void {

@@ -31,6 +31,7 @@ import {
 import { emitCollectionCardsChanged, emitToSession } from "../../lib/session-stream";
 import {
   getUserDisplayName,
+  rejectWhileImpersonating,
   requireAuth,
   requireOrg,
   type AppEnv,
@@ -48,6 +49,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
   requireAuth,
   requireOrg,
+  rejectWhileImpersonating,
   async (c) => {
     const guid = c.req.param("guid");
     const userId = c.get("userId");

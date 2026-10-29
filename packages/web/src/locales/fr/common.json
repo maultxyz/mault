@@ -97,7 +97,10 @@
   },
   "impersonation": {
     "banner": "Tu vois l'application comme {{name}}.",
-    "exitButton": "Quitter l'emprunt d'identité"
+    "exitButton": "Quitter l'emprunt d'identité",
+    "hardwareBlocked": "Impossible de connecter des trieurs ou des caméras pendant l'emprunt d'identité d'un utilisateur.",
+    "scanningBlockedTitle": "La numérisation est désactivée pendant l'emprunt d'identité",
+    "scanningBlockedDescription": "Quitte l'emprunt d'identité pour numériser des cartes, connecter un trieur ou utiliser une caméra."
   },
   "theme": {
     "toggle": "Changer de thème",

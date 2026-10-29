@@ -15,6 +15,8 @@ import { CALIBRATE_PATH } from "@/lib/constants/calibration";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHost, usePiHostState } from "@/hooks/use-pi-host";
 import { useRole } from "@/hooks/use-role";
+import { useImpersonation } from "@/hooks/use-impersonation";
+import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH } from "@/lib/constants/storage";
@@ -203,6 +205,12 @@ function AdminGuard() {
   return <Outlet />;
 }
 
+function BlockedWhileImpersonatingGuard() {
+  const { isImpersonating } = useImpersonation();
+  if (isImpersonating) return <ScanningBlockedWhileImpersonating />;
+  return <Outlet />;
+}
+
 function DesktopOnlyGuard() {
   const isMobile = useIsMobile();
   const { pathname } = useLocation();
@@ -334,12 +342,17 @@ export const routes: RouteObject[] = [
                     element: <RequireCollectionGuard />,
                     children: [
                       {
-                        path: "/app",
-                        element: <ScannerPage />,
-                      },
-                      {
-                        path: "/app/cards/:scanId",
-                        element: <ScannerPage />,
+                        element: <BlockedWhileImpersonatingGuard />,
+                        children: [
+                          {
+                            path: "/app",
+                            element: <ScannerPage />,
+                          },
+                          {
+                            path: "/app/cards/:scanId",
+                            element: <ScannerPage />,
+                          },
+                        ],
                       },
                       {
                         path: "/app/collections",
@@ -359,35 +372,40 @@ export const routes: RouteObject[] = [
                       },
                       {
                         path: "/app/calibrate",
-                        element: <CalibrateLayout />,
+                        element: <BlockedWhileImpersonatingGuard />,
                         children: [
                           {
-                            index: true,
-                            element: <Navigate to="connection" replace />,
-                          },
-                          {
-                            path: "modules",
-                            element: <Navigate to="../layout" replace />,
-                          },
-                          {
-                            path: "connection",
-                            element: <CalibrateConnectionPage />,
-                          },
-                          {
-                            path: "layout",
-                            element: <CalibrateSorterLayoutPage />,
-                          },
-                          {
-                            path: "scan-region",
-                            element: <CalibrateScanRegionPage />,
-                          },
-                          {
-                            path: "calibration",
-                            element: <CalibrateCalibrationPage />,
-                          },
-                          {
-                            path: "test",
-                            element: <CalibrateTestPage />,
+                            element: <CalibrateLayout />,
+                            children: [
+                              {
+                                index: true,
+                                element: <Navigate to="connection" replace />,
+                              },
+                              {
+                                path: "modules",
+                                element: <Navigate to="../layout" replace />,
+                              },
+                              {
+                                path: "connection",
+                                element: <CalibrateConnectionPage />,
+                              },
+                              {
+                                path: "layout",
+                                element: <CalibrateSorterLayoutPage />,
+                              },
+                              {
+                                path: "scan-region",
+                                element: <CalibrateScanRegionPage />,
+                              },
+                              {
+                                path: "calibration",
+                                element: <CalibrateCalibrationPage />,
+                              },
+                              {
+                                path: "test",
+                                element: <CalibrateTestPage />,
+                              },
+                            ],
                           },
                         ],
                       },
@@ -518,24 +536,29 @@ export const routes: RouteObject[] = [
                 element: <MonitorPage />,
               },
               {
-                path: "/app/monitor/:collectionGuid/camera",
-                element: <PhoneCameraPage />,
-              },
-              {
-                path: MOBILE_SCAN_PATH,
-                element: <ScanPage />,
+                element: <BlockedWhileImpersonatingGuard />,
+                children: [
+                  {
+                    path: "/app/monitor/:collectionGuid/camera",
+                    element: <PhoneCameraPage />,
+                  },
+                  {
+                    path: MOBILE_SCAN_PATH,
+                    element: <ScanPage />,
+                  },
+                  {
+                    path: MOBILE_SCAN_PAIR_PATH,
+                    element: <ScanPairPage />,
+                  },
+                  {
+                    path: MOBILE_SORTER_PATH,
+                    element: <SorterPage />,
+                  },
+                ],
               },
               {
                 path: STORAGE_PATH,
                 element: <StoragePage />,
-              },
-              {
-                path: MOBILE_SCAN_PAIR_PATH,
-                element: <ScanPairPage />,
-              },
-              {
-                path: MOBILE_SORTER_PATH,
-                element: <SorterPage />,
               },
               {
                 element: <RequireCollectionGuard />,
