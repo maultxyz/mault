@@ -177,6 +177,15 @@ export function moveCardsToStorageLocation(
   return apiPost(`/api/storage-locations/${guid}/cards`, { scanIds });
 }
 
+export function markStorageLocationCardsDownloaded(
+  guid: string,
+  scanIds: string[],
+): Promise<Result<null>> {
+  return apiPost(`/api/storage-locations/${guid}/cards/mark-downloaded`, {
+    scanIds,
+  });
+}
+
 export function moveCollectionToStorageLocation(
   guid: string,
   collectionGuid: string,

@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   deleteStorageLocation,
   fetchFirstUnreviewedStorageCard,
+  markStorageLocationCardsDownloaded,
   storageLocationCardsPageQueryOptions,
   storageLocationExportQueryOptions,
   storageLocationQueryOptions,
@@ -78,6 +79,12 @@ export default function StorageLocationScreen() {
       );
       const slug = (location?.name ?? "storage").replace(/\s+/g, "-").toLowerCase();
       await shareCsv(csv, exportFilename(adapter, slug));
+      markStorageLocationCardsDownloaded(
+        guid,
+        entries.map((entry) => entry.scanId),
+      )
+        .catch((err) => console.error("Failed to mark cards downloaded:", err))
+        .finally(() => void queryClient.invalidateQueries({ queryKey: ["collection-cards"] }));
     },
     onSuccess: () => setExportOpen(false),
   });

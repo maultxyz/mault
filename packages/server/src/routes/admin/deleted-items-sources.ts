@@ -1,4 +1,8 @@
-import type { DeletedItemType } from "@magic-vault/shared";
+import {
+  SET_NAME_MAX_LENGTH,
+  STORAGE_LOCATION_NAME_MAX_LENGTH,
+  type DeletedItemType,
+} from "@magic-vault/shared";
 import { and, eq, ne } from "drizzle-orm";
 import { db, type Transaction } from "../../db";
 import {
@@ -26,6 +30,7 @@ import type {
   DeletedItemRestoreResult,
   DeletedItemSource,
 } from "../../lib/interfaces/deleted-items";
+import { findRestorableName } from "../../lib/restored-name";
 
 const NOT_FOUND: DeletedItemRestoreResult = {
   success: false,
@@ -67,15 +72,14 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           ),
         });
         if (!row) return NOT_FOUND;
-        if (await collectionNameTaken(tx, row.orgId, row.name)) {
-          return {
-            success: false,
-            message: `The organization already has a collection named "${row.name}".`,
-          };
-        }
+        const name = await findRestorableName(
+          row.name,
+          SET_NAME_MAX_LENGTH,
+          (candidate) => collectionNameTaken(tx, row.orgId, candidate),
+        );
         await tx
           .update(collections)
-          .set({ isDeleted: false })
+          .set({ isDeleted: false, name })
           .where(eq(collections.id, row.id));
         return restored(row.orgId);
       },
@@ -107,15 +111,14 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           where: and(eq(binSets.guid, guid), eq(binSets.isDeleted, true)),
         });
         if (!row) return NOT_FOUND;
-        if (await binSetNameTaken(tx, row.orgId, row.gameId, row.name)) {
-          return {
-            success: false,
-            message: `The organization already has a bin preset named "${row.name}".`,
-          };
-        }
+        const name = await findRestorableName(
+          row.name,
+          SET_NAME_MAX_LENGTH,
+          (candidate) => binSetNameTaken(tx, row.orgId, row.gameId, candidate),
+        );
         await tx
           .update(binSets)
-          .set({ isDeleted: false })
+          .set({ isDeleted: false, name })
           .where(eq(binSets.id, row.id));
         return restored(row.orgId);
       },
@@ -345,15 +348,14 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           ),
         });
         if (!row) return NOT_FOUND;
-        if (await locationNameTaken(tx, row.orgId, row.name)) {
-          return {
-            success: false,
-            message: `The organization already has a storage location named "${row.name}".`,
-          };
-        }
+        const name = await findRestorableName(
+          row.name,
+          STORAGE_LOCATION_NAME_MAX_LENGTH,
+          (candidate) => locationNameTaken(tx, row.orgId, candidate),
+        );
         await tx
           .update(storageLocations)
-          .set({ isDeleted: false })
+          .set({ isDeleted: false, name })
           .where(eq(storageLocations.id, row.id));
         return restored(row.orgId);
       },
