@@ -37,11 +37,11 @@ import {
   STORAGE_CARD_SEARCH_PARAM,
   STORAGE_LOCATION_SEARCH_PARAM,
   STORAGE_PAGE_SEARCH_PARAM,
-  STORAGE_BOXES_VIEW,
-  STORAGE_ORDERS_VIEW,
+  LEGACY_STORAGE_PICKS_VIEW,
+  LEGACY_STORAGE_VIEW_PARAM,
   STORAGE_REVIEW_SEARCH_PARAM,
-  STORAGE_VIEW_PARAM,
 } from "@/lib/constants/storage";
+import { businessPicksPath, ORDER_PARAM } from "@/lib/constants/business";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { toast } from "@/lib/toast";
 import {
@@ -53,9 +53,7 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
-import { OrdersWorkspace } from "@/features/business/components/orders-workspace";
-import { StorageViewSwitch } from "@/features/storage/components/storage-view-switch";
+import { Navigate, useSearchParams } from "react-router-dom";
 
 function DesktopStoragePage() {
   const { t } = useTranslation("storage");
@@ -194,7 +192,6 @@ function DesktopStoragePage() {
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          <StorageViewSwitch value={STORAGE_BOXES_VIEW} />
           {!isLocked && (
             <Button
               variant="outline"
@@ -406,13 +403,13 @@ function DesktopStoragePage() {
 export default function StoragePage() {
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
-  if (isMobile) return <MobileStorage />;
-  if (searchParams.get(STORAGE_VIEW_PARAM) === STORAGE_ORDERS_VIEW) {
+  if (
+    searchParams.get(LEGACY_STORAGE_VIEW_PARAM) === LEGACY_STORAGE_PICKS_VIEW
+  ) {
     return (
-      <OrdersWorkspace
-        switcher={<StorageViewSwitch value={STORAGE_ORDERS_VIEW} />}
-      />
+      <Navigate to={businessPicksPath(searchParams.get(ORDER_PARAM))} replace />
     );
   }
+  if (isMobile) return <MobileStorage />;
   return <DesktopStoragePage />;
 }

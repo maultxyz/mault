@@ -25,6 +25,7 @@ import type {
   FulfilmentOrder,
   FulfilmentOrderDetail,
   FulfilmentOrderInput,
+  FulfilmentOrderUpdateInput,
   IntakeAcceptInput,
   IntakeCancelInput,
   IntakeCardContext,
@@ -283,6 +284,10 @@ export const orderQueryOptions = (guid: string | undefined) =>
 
 export function createOrder(input: FulfilmentOrderInput) {
   return apiPost<Result<{ guid: string }>>("/api/business/orders", input);
+}
+
+export function updateOrder(guid: string, input: FulfilmentOrderUpdateInput) {
+  return apiPut<Result<null>>(`/api/business/orders/${guid}`, input);
 }
 
 export function allocateOrder(guid: string) {

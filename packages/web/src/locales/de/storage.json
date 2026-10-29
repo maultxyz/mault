@@ -56,7 +56,9 @@
       "number": "Nummer",
       "finish": "Ausführung",
       "collection": "Sammlung",
-      "price": "Preis",
+      "priceAtScan": "Preis beim Scan",
+      "priceNow": "Aktueller Preis",
+      "purchasePrice": "Einkaufspreis",
       "actions": "Aktionen"
     }
   },
@@ -117,10 +119,5 @@
     "next": "Weiter",
     "page": "Seite {{page}} von {{count}}",
     "range": "{{from}}-{{to}} von {{total}} Karten"
-  },
-  "views": {
-    "label": "Lageransicht",
-    "boxes": "Lagerorte",
-    "picks": "Picks"
   }
 }

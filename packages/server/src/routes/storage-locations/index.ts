@@ -36,6 +36,7 @@ import {
 } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { hydrateSavedCards } from "../../lib/saved-cards";
+import { canViewCardCosts } from "../../lib/business-access";
 import { emitToSession } from "../../lib/session-stream";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -53,6 +54,7 @@ import {
   storedCardPosition,
   storedCardsWhere,
   toStoredCards,
+  visibleAcquisitionCost,
 } from "./shared";
 
 const router = new Hono<AppEnv>()
@@ -90,54 +92,64 @@ const router = new Hono<AppEnv>()
       .slice(0, STORAGE_SEARCH_QUERY_MAX_LENGTH)
       .toLowerCase();
     if (!query) return c.json({ success: true, data: [] });
-    const rows = await authQuery(c.get("jwtClaims"), (tx) =>
-      tx
-        .select({
-          scanId: collectionCards.guid,
-          position: collectionCards.locationPosition,
-          card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
-          isFoil: collectionCards.isFoil,
-          foilType: collectionCards.foilType,
-          condition: collectionCards.condition,
-          language: collectionCards.language,
-          lowConfidenceMatch: collectionCards.lowConfidenceMatch,
-          hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
-          corrected: collectionCards.isCorrected,
-          reviewed: collectionCards.isReviewed,
-          collectionGuid: collections.guid,
-          collectionName: collections.name,
-          collectionLang: collections.lang,
-          gameKey: games.key,
-          locationGuid: storageLocations.guid,
-          locationName: storageLocations.name,
-        })
-        .from(collectionCards)
-        .innerJoin(
-          storageLocations,
-          eq(storageLocations.id, collectionCards.locationId),
-        )
-        .innerJoin(
-          collections,
-          eq(collections.id, collectionCards.collectionId),
-        )
-        .leftJoin(games, eq(games.id, collections.gameId))
-        .where(
-          and(
-            eq(storageLocations.orgId, orgId),
-            eq(storageLocations.isDeleted, false),
-            eq(collections.isDeleted, false),
-            sql`strpos(lower(${collectionCards.cardName}), ${query}) > 0`,
-          ),
-        )
-        .orderBy(
-          asc(collectionCards.cardName),
-          asc(storageLocations.name),
-          asc(collectionCards.locationPosition),
-        )
-        .limit(STORAGE_SEARCH_RESULT_LIMIT),
+    const { rows, canViewCosts } = await authQuery(
+      c.get("jwtClaims"),
+      async (tx) => ({
+        canViewCosts: await canViewCardCosts(tx, orgId, c.get("orgRole")),
+        rows: await tx
+          .select({
+            scanId: collectionCards.guid,
+            position: collectionCards.locationPosition,
+            card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
+            isFoil: collectionCards.isFoil,
+            foilType: collectionCards.foilType,
+            condition: collectionCards.condition,
+            language: collectionCards.language,
+            lowConfidenceMatch: collectionCards.lowConfidenceMatch,
+            hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
+            corrected: collectionCards.isCorrected,
+            reviewed: collectionCards.isReviewed,
+            acquisitionCost: collectionCards.acquisitionCost,
+            acquisitionCurrency: collectionCards.acquisitionCurrency,
+            collectionGuid: collections.guid,
+            collectionName: collections.name,
+            collectionLang: collections.lang,
+            gameKey: games.key,
+            locationGuid: storageLocations.guid,
+            locationName: storageLocations.name,
+          })
+          .from(collectionCards)
+          .innerJoin(
+            storageLocations,
+            eq(storageLocations.id, collectionCards.locationId),
+          )
+          .innerJoin(
+            collections,
+            eq(collections.id, collectionCards.collectionId),
+          )
+          .leftJoin(games, eq(games.id, collections.gameId))
+          .where(
+            and(
+              eq(storageLocations.orgId, orgId),
+              eq(storageLocations.isDeleted, false),
+              eq(collections.isDeleted, false),
+              sql`strpos(lower(${collectionCards.cardName}), ${query}) > 0`,
+            ),
+          )
+          .orderBy(
+            asc(collectionCards.cardName),
+            asc(storageLocations.name),
+            asc(collectionCards.locationPosition),
+          )
+          .limit(STORAGE_SEARCH_RESULT_LIMIT),
+      }),
     );
     const cards = await hydrateSavedCards(
-      rows.map((r) => ({ gameKey: r.gameKey, lang: r.collectionLang, card: r.card })),
+      rows.map((r) => ({
+        gameKey: r.gameKey,
+        lang: r.collectionLang,
+        card: r.card,
+      })),
       { includeRaw: false },
     );
     const data: StorageLocationSearchResult[] = rows.map((r, i) => ({
@@ -152,6 +164,7 @@ const router = new Hono<AppEnv>()
       hasAlternatives: r.hasAlternatives,
       corrected: r.corrected,
       reviewed: r.reviewed,
+      ...visibleAcquisitionCost(r, canViewCosts),
       collectionGuid: r.collectionGuid!,
       collectionName: r.collectionName,
       locationGuid: r.locationGuid!,
@@ -263,7 +276,10 @@ const router = new Hono<AppEnv>()
       const rows = await selectStoredCards(tx)
         .where(storedCardsWhere(locationId))
         .orderBy(asc(storedCardPosition), asc(collectionCards.id));
-      const data: StorageLocationCard[] = await toStoredCards(rows);
+      const data: StorageLocationCard[] = await toStoredCards(
+        rows,
+        await canViewCardCosts(tx, orgId, c.get("orgRole")),
+      );
       return { success: true, data };
     });
     return c.json(result);
@@ -303,7 +319,10 @@ const router = new Hono<AppEnv>()
         .limit(pageSize)
         .offset((page - 1) * pageSize);
       const data: StorageLocationCardPage = {
-        cards: await toStoredCards(rows),
+        cards: await toStoredCards(
+          rows,
+          await canViewCardCosts(tx, orgId, c.get("orgRole")),
+        ),
         total,
         page,
         pageSize,
@@ -358,7 +377,12 @@ const router = new Hono<AppEnv>()
       if (!current) return { success: true, data: null };
       const currentKey = sql`(${Number(current.position)}::int, ${current.rowId}::int)`;
       const data: StorageLocationCardContext = {
-        card: (await toStoredCards([current]))[0],
+        card: (
+          await toStoredCards(
+            [current],
+            await canViewCardCosts(tx, orgId, c.get("orgRole")),
+          )
+        )[0],
         index: await countStoredCards(
           tx,
           locationId,
@@ -423,7 +447,11 @@ const router = new Hono<AppEnv>()
         )
         .orderBy(asc(collectionCards.locationPosition));
       const cards = await hydrateSavedCards(
-        rows.map((r) => ({ gameKey: r.gameKey, lang: r.collectionLang, card: r.card })),
+        rows.map((r) => ({
+          gameKey: r.gameKey,
+          lang: r.collectionLang,
+          card: r.card,
+        })),
         { includeRaw: true },
       );
       const data: StorageLocationExportCard[] = rows.map((r, i) => ({
@@ -448,37 +476,42 @@ const router = new Hono<AppEnv>()
     if (!UUID_PATTERN.test(guid) || !scanIds) {
       return c.json({ success: false, message: "Invalid card ids." }, 400);
     }
-    const markedByCollection = await authQuery(c.get("jwtClaims"), async (tx) => {
-      const locationId = await findLocationId(tx, orgId, guid);
-      if (locationId === null) return null;
-      const marked = await tx
-        .update(collectionCards)
-        .set({ isDownloaded: true })
-        .where(
-          and(
-            sql`${collectionCards.guid} = ANY(${uuidArraySql(scanIds)})`,
-            eq(collectionCards.orgId, orgId),
-            eq(collectionCards.locationId, locationId),
-          ),
-        )
-        .returning({
-          scanId: collectionCards.guid,
-          collectionId: collectionCards.collectionId,
-        });
-      const collectionIds = [...new Set(marked.map((row) => row.collectionId))];
-      const collectionRows = collectionIds.length
-        ? await tx
-            .select({ id: collections.id, guid: collections.guid })
-            .from(collections)
-            .where(inArray(collections.id, collectionIds))
-        : [];
-      return collectionRows.map((collection) => ({
-        collectionGuid: collection.guid!,
-        scanIds: marked
-          .filter((row) => row.collectionId === collection.id)
-          .map((row) => row.scanId!),
-      }));
-    });
+    const markedByCollection = await authQuery(
+      c.get("jwtClaims"),
+      async (tx) => {
+        const locationId = await findLocationId(tx, orgId, guid);
+        if (locationId === null) return null;
+        const marked = await tx
+          .update(collectionCards)
+          .set({ isDownloaded: true })
+          .where(
+            and(
+              sql`${collectionCards.guid} = ANY(${uuidArraySql(scanIds)})`,
+              eq(collectionCards.orgId, orgId),
+              eq(collectionCards.locationId, locationId),
+            ),
+          )
+          .returning({
+            scanId: collectionCards.guid,
+            collectionId: collectionCards.collectionId,
+          });
+        const collectionIds = [
+          ...new Set(marked.map((row) => row.collectionId)),
+        ];
+        const collectionRows = collectionIds.length
+          ? await tx
+              .select({ id: collections.id, guid: collections.guid })
+              .from(collections)
+              .where(inArray(collections.id, collectionIds))
+          : [];
+        return collectionRows.map((collection) => ({
+          collectionGuid: collection.guid!,
+          scanIds: marked
+            .filter((row) => row.collectionId === collection.id)
+            .map((row) => row.scanId!),
+        }));
+      },
+    );
     if (!markedByCollection) {
       return c.json({ success: false, message: "Storage location not found." });
     }

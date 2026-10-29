@@ -11,8 +11,13 @@ import { IntakeCardDetail } from "@/features/business/components/intake-card-det
 import { IntakeLotDetail } from "@/features/business/components/intake-lot-detail";
 import { IntakeLotDialog } from "@/features/business/components/intake-lot-dialog";
 import { IntakeLotList } from "@/features/business/components/intake-lot-list";
+import { BusinessViewSwitch } from "@/features/business/components/business-view-switch";
+import { OrdersWorkspace } from "@/features/business/components/orders-workspace";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import {
+  BUSINESS_INTAKE_VIEW,
+  BUSINESS_PICKS_VIEW,
+  BUSINESS_VIEW_PARAM,
   INTAKE_CARD_PARAM,
   INTAKE_LOT_PARAM,
   INTAKE_REVIEW_PARAM,
@@ -26,7 +31,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
-export default function IntakePage() {
+function IntakeWorkspace() {
   const { t } = useTranslation("business");
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -93,14 +98,7 @@ export default function IntakePage() {
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          <div className="px-1 pt-1">
-            <h1 className="font-heading text-lg font-semibold">
-              {t("intake.title")}
-            </h1>
-            <p className="text-xs text-foreground/70">
-              {t("intake.subtitleList")}
-            </p>
-          </div>
+          <BusinessViewSwitch value={BUSINESS_INTAKE_VIEW} />
           <Button
             variant="outline"
             className="w-full"
@@ -173,4 +171,16 @@ export default function IntakePage() {
       />
     </div>
   );
+}
+
+export default function IntakePage() {
+  const [searchParams] = useSearchParams();
+  if (searchParams.get(BUSINESS_VIEW_PARAM) === BUSINESS_PICKS_VIEW) {
+    return (
+      <OrdersWorkspace
+        switcher={<BusinessViewSwitch value={BUSINESS_PICKS_VIEW} />}
+      />
+    );
+  }
+  return <IntakeWorkspace />;
 }

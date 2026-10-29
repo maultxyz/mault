@@ -1,9 +1,11 @@
+import type { BUSINESS_VIEWS } from "@/lib/constants/business";
 import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { BusinessSettingsDraftValues } from "@/schemas/business.schema";
 import type {
   AccuracyCheckStatus,
   DeviceHealth,
   FulfilmentOrder,
+  FulfilmentOrderDetail,
   FulfilmentOrderStatus,
   IntakeLot,
   IntakeLotStatus,
@@ -111,6 +113,12 @@ export interface OrderImportDialogProps {
   onCreated: (guid: string) => void;
 }
 
+export interface OrderEditDialogProps {
+  order: FulfilmentOrderDetail;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 export interface OrderDetailProps {
   guid: string;
   onDeleted: () => void;
@@ -149,6 +157,12 @@ export interface SpotCheckRunnerProps {
 export interface ServiceIntervalDialogProps {
   device: DeviceHealth | null;
   onOpenChange: (open: boolean) => void;
+}
+
+export type BusinessView = (typeof BUSINESS_VIEWS)[number];
+
+export interface BusinessViewSwitchProps {
+  value: BusinessView;
 }
 
 export interface OrdersWorkspaceProps {

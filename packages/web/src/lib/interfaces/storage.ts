@@ -1,4 +1,3 @@
-import type { STORAGE_VIEWS } from "@/lib/constants/storage";
 import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type {
   EmptyAllBinsOptions,
@@ -108,10 +107,4 @@ export interface StorageCardDetailProps {
   onNavigate: (scanId: string) => void;
   onShowReviewGrid: () => void;
   onClose: () => void;
-}
-
-export type StorageView = (typeof STORAGE_VIEWS)[number];
-
-export interface StorageViewSwitchProps {
-  value: StorageView;
 }

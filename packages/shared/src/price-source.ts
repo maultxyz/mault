@@ -32,7 +32,7 @@ export function toCardFinish(finish: boolean | CardFinish | null | undefined): C
 }
 
 export function cardPriceFor(
-  card: PlayingCard,
+  card: CardPricesAtScan & Pick<PlayingCard, "finishPrices">,
   finish: boolean | CardFinish | null | undefined,
   source: PriceSource,
   condition?: CardCondition | null,
@@ -47,8 +47,26 @@ export function cardPriceFor(
   return price == null ? null : price * conditionFactor(condition, multipliers);
 }
 
+export function cardPriceAtScanFor(
+  card: PlayingCard,
+  finish: boolean | CardFinish | null | undefined,
+  source: PriceSource,
+  condition?: CardCondition | null,
+  multipliers?: ConditionMultipliers,
+): number | null {
+  return card.pricesAtScan
+    ? cardPriceFor(card.pricesAtScan, finish, source, condition, multipliers)
+    : null;
+}
+
 export function formatPrice(value: number, source: PriceSource): string {
-  const { symbol, currency } = PRICE_SOURCE_FIELDS[source];
+  return formatPriceInCurrency(value, PRICE_SOURCE_FIELDS[source].currency);
+}
+
+export function formatPriceInCurrency(value: number, currency: string): string {
+  const symbol =
+    Object.values(PRICE_SOURCE_FIELDS).find((fields) => fields.currency === currency)
+      ?.symbol ?? "";
   return `${symbol}${value.toFixed(2)} ${currency}`;
 }
 

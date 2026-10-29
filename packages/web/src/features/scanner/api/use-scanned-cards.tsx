@@ -54,6 +54,7 @@ import {
   removeCollectionCard,
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
+  clearUnmatchedCards as clearUnmatchedCardsApi,
   setCollectionCardBin,
   setCollectionCardsCondition,
   setCollectionCardLanguage,
@@ -1072,6 +1073,25 @@ export function ScannedCardsProvider({
     [dropUnmatched, syncUnmatched, queryClient],
   );
 
+  const removeAllUnmatchedCards = useCallback(async () => {
+    const collection = activeCollectionRef.current;
+    if (!collection) return false;
+    try {
+      const result = await clearUnmatchedCardsApi(collection.guid);
+      if (result.success) {
+        setUnmatchedCards([]);
+        setUnmatchedCount(0);
+      }
+      return result.success;
+    } catch (err) {
+      console.error("Failed to remove unmatched cards:", err);
+      return false;
+    } finally {
+      syncUnmatched(collection.guid);
+      void invalidateBinCounts(queryClient, collection.guid);
+    }
+  }, [syncUnmatched, queryClient]);
+
   const identifyUnmatchedCard = useCallback(
     async (scanId: string, card: PlayingCard) => {
       const collection = activeCollectionRef.current;
@@ -1464,6 +1484,7 @@ export function ScannedCardsProvider({
         addCard,
         addUnmatchedCard,
         removeUnmatchedCard,
+        removeAllUnmatchedCards,
         identifyUnmatchedCard,
         promptAddedCardBin,
         sendCatchAllBin,

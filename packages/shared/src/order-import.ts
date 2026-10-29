@@ -12,6 +12,7 @@ import {
 import { DECKLIST_PRINTING_SUFFIX_PATTERN } from "./constants/pick-list.constant";
 import type {
   OrderImport,
+  OrderLine,
   OrderLineInput,
   OrderSource,
 } from "./interfaces/business.interface";
@@ -237,4 +238,49 @@ export function orderLineLabel(line: OrderLineInput): string {
     .filter(Boolean)
     .join(" ");
   return printing ? `${line.name} (${printing})` : line.name;
+}
+
+export function toOrderLineInput(line: OrderLine): OrderLineInput {
+  return {
+    name: line.name,
+    setCode: line.setCode,
+    setName: line.setName,
+    collectorNumber: line.collectorNumber,
+    condition: line.condition,
+    isFoil: line.isFoil,
+    quantity: line.quantity,
+    unitPrice: line.unitPrice,
+    orderRef: line.orderRef,
+  };
+}
+
+export function orderLineIdentity(line: OrderLineInput): string {
+  return JSON.stringify([
+    line.name.toLowerCase(),
+    line.setCode?.toLowerCase() ?? null,
+    line.setName?.toLowerCase() ?? null,
+    line.collectorNumber?.toLowerCase() ?? null,
+    line.condition ?? null,
+    line.isFoil ?? null,
+  ]);
+}
+
+export function addOrderLines(
+  lines: OrderLineInput[],
+  addedLines: OrderLineInput[],
+): OrderLineInput[] {
+  const merged = lines.map((line) => ({ ...line }));
+  for (const added of addedLines) {
+    const identity = orderLineIdentity(added);
+    const existing = merged.find((line) => orderLineIdentity(line) === identity);
+    if (existing) {
+      existing.quantity = Math.min(
+        existing.quantity + added.quantity,
+        ORDER_LINE_QUANTITY_MAX,
+      );
+    } else {
+      merged.push({ ...added });
+    }
+  }
+  return merged.slice(0, ORDER_LINES_MAX);
 }

@@ -142,6 +142,7 @@ export interface ScannedCardsContextValue {
     details?: UnmatchedScanDetails,
   ) => void;
   removeUnmatchedCard: (scanId: string) => Promise<boolean>;
+  removeAllUnmatchedCards: () => Promise<boolean>;
   identifyUnmatchedCard: (
     scanId: string,
     card: PlayingCard,
@@ -727,6 +728,7 @@ export interface UnmatchedCardsPanelProps {
   collectionGuid?: string;
   canIdentify?: boolean;
   onRemove?: (scanId: string) => Promise<boolean>;
+  onRemoveAll?: () => Promise<boolean>;
 }
 
 export interface UnmatchedCardsGridDialogProps {
@@ -737,6 +739,7 @@ export interface UnmatchedCardsGridDialogProps {
   collectionGuid: string;
   canIdentify: boolean;
   onRemove?: (scanId: string) => Promise<boolean>;
+  onRemoveAll?: () => Promise<boolean>;
 }
 
 export interface UnmatchedCardsBrowserProps {
@@ -745,6 +748,7 @@ export interface UnmatchedCardsBrowserProps {
   onOpenIndexChange: (index: number | null) => void;
   canIdentify: boolean;
   onRemove?: (scanId: string) => Promise<boolean>;
+  onRemoveAll?: () => Promise<boolean>;
   onClose?: () => void;
   className?: string;
 }

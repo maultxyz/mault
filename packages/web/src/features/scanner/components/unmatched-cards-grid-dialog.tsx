@@ -11,6 +11,7 @@ export function UnmatchedCardsGridDialog({
   collectionGuid,
   canIdentify,
   onRemove,
+  onRemoveAll,
 }: UnmatchedCardsGridDialogProps) {
   const { t } = useTranslation("scanner");
   return (
@@ -27,6 +28,7 @@ export function UnmatchedCardsGridDialog({
         onOpenIndexChange={onOpenIndexChange}
         canIdentify={canIdentify}
         onRemove={onRemove}
+        onRemoveAll={onRemoveAll}
         className="min-h-0 overflow-y-auto border-t"
       />
     </DynamicDialog>
