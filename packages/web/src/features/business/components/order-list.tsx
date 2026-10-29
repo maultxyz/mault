@@ -48,7 +48,7 @@ export function OrderList({
         {orders.map((order) => (
           <Button
             key={order.guid}
-            variant={order.guid === selectedGuid ? "secondary" : "ghost"}
+            variant={order.guid === selectedGuid ? "selected" : "ghost"}
             className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start"
             onClick={() => onSelect(order.guid)}
           >

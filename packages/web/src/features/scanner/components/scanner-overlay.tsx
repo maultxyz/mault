@@ -90,7 +90,7 @@ export function ScannerOverlay({
         <div className="text-center text-sm text-foreground/70 max-w-56 flex flex-col items-center gap-2">
           <IconAlertTriangle className="mx-auto size-5 text-destructive" />
           <p>{t("scannerOverlay.dailyLimitReached")}</p>
-          <Button size="sm" nativeButton={false}>
+          <Button nativeButton={false}>
             <Link to={SETTINGS_PATHS.billing}>{t("scannerOverlay.upgradeButton")}</Link>
           </Button>
         </div>
@@ -195,7 +195,7 @@ export function ScannerOverlay({
           </span>
           {bluetoothSupported || hasWifiSorters ? (
             <DropdownMenu>
-              <DropdownMenuTrigger render={<Button size="sm" />}>
+              <DropdownMenuTrigger render={<Button />}>
                 {t("connect")}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -207,11 +207,11 @@ export function ScannerOverlay({
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button size="sm" onClick={onConnectScanner}>
+            <Button onClick={onConnectScanner}>
               {t("connect")}
             </Button>
           )}
-          <Button size="sm" variant="secondary" onClick={onEnableHandScan}>
+          <Button variant="secondary" onClick={onEnableHandScan}>
             {t("scannerOverlay.scanByHand")}
           </Button>
         </StatusPill>
@@ -227,7 +227,7 @@ export function ScannerOverlay({
           <span className="flex-1">
             {t("scannerOverlay.sensorBlocked", { module: sensorBlockedModule })}
           </span>
-          <Button size="sm" variant="secondary" onClick={onResolveSensorBlocked}>
+          <Button variant="secondary" onClick={onResolveSensorBlocked}>
             {t("scannerOverlay.resolveSensorBlocked")}
           </Button>
         </StatusPill>

@@ -112,7 +112,7 @@ export function MobileMonitorCards({
           />
         </div>
         {showReviewChip && (
-          <div className="-mx-5 flex gap-2 overflow-x-auto px-5">
+          <div className="-mx-5 flex gap-1.5 overflow-x-auto px-5">
             {canEditCards && needsReviewCount > 0 && onStartReview && (
               <Button
                 className={cn(MOBILE_FILTER_CHIP_CLASS, "rounded-full")}

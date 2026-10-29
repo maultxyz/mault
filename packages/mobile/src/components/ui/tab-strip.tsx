@@ -35,7 +35,7 @@ export function TabStrip<T extends string>({ items, value, onChange }: TabStripP
               borderBottomColor: active ? colors.primaryText : "transparent",
             }}
           >
-            <AppText weight="medium" tone={active ? "default" : "secondary"}>
+            <AppText weight={active ? "semibold" : "medium"} tone={active ? "primary" : "secondary"}>
               {item.label}
             </AppText>
             {item.badge ? (

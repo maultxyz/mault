@@ -6,11 +6,10 @@ import {
   type BinCondition,
   type BinConfig,
   type BinRuleGroup,
-  type BinSet,
   type FieldMeta,
 } from "@magic-vault/shared";
 import { MULTI_VALUE_OPERATORS, VALUELESS_OPERATORS } from "@/lib/constants/rules";
-import type { BinSetMode, ConditionDescription } from "@/lib/interfaces/rules";
+import type { ConditionDescription } from "@/lib/interfaces/rules";
 
 export function sortFields(fields: FieldMeta[]): FieldMeta[] {
   return [...fields].sort((a, b) => a.label.localeCompare(b.label));
@@ -81,16 +80,6 @@ export function ruleChips(group: BinRuleGroup, fields: FieldMeta[], t: TFunction
     const { field, predicate } = describeCondition(item, fields);
     return `${field} ${predicate}`;
   });
-}
-
-export function binSetMode(set: BinSet | undefined): BinSetMode {
-  if (!set) return "rules";
-  if (set.isRepackMode) return "repack";
-  if (set.autoAssignField) return "auto-assign";
-  if (set.isAlphabetMode) return "alphabet";
-  if (set.isChaosMode) return "chaos";
-  if (set.scanOnly) return "scan-only";
-  return "rules";
 }
 
 export function overflowSourcesFor(binNumber: number, bins: BinConfig[]): number[] {

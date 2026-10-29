@@ -56,7 +56,7 @@ export const STATUS_BADGE_VARIANTS: Record<
   BusinessStatus,
   BusinessBadgeVariant
 > = {
-  open: "outline",
+  open: "info",
   accepted: "success",
   fulfilled: "success",
   completed: "success",

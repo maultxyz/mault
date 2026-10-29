@@ -1,15 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/figtree";
 @import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/jetbrains-mono";
 
 @custom-variant dark (&:is(.dark *));
 
 body {
   @apply m-0;
   font-family:
-    "Plus Jakarta Sans Variable",
+    "Figtree Variable",
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
@@ -52,7 +53,11 @@ code {
   --popover-foreground: #292d34;
   --primary: #7b68ee;
   --primary-foreground: #ffffff;
+  --primary-hover: color-mix(in oklch, var(--primary), black 12%);
   --primary-text: var(--primary);
+  --tooltip: #2a2e34;
+  --tooltip-foreground: #ffffff;
+  --shadow-color: rgb(16 24 40 / 0.14);
   --secondary: #f0f1f3;
   --secondary-foreground: #292d34;
   --muted: #f7f8f9;
@@ -61,8 +66,8 @@ code {
   --accent-foreground: #292d34;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(100% 0.00011 271.152);
-  --border: #e9ebf0;
-  --input: #dfe1e6;
+  --border: #e3e5ea;
+  --input: var(--border);
   --ring: #7b68ee;
   --chart-1: oklch(0.871 0.006 286.286);
   --chart-2: oklch(0.552 0.016 285.938);
@@ -75,8 +80,9 @@ code {
   --sidebar-primary: #7b68ee;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #ecedf0;
+  --sidebar-selected: color-mix(in oklch, var(--primary) 12%, var(--sidebar));
   --sidebar-accent-foreground: #292d34;
-  --sidebar-border: #e9ebf0;
+  --sidebar-border: var(--border);
   --sidebar-ring: #7b68ee;
   --common: oklch(46.76% 0.00005 271.152);
   --uncommon: oklch(78.194% 0.09549 244.199);
@@ -128,7 +134,11 @@ code {
   --popover-foreground: #e3e4e8;
   --primary: #7b68ee;
   --primary-foreground: #ffffff;
+  --primary-hover: color-mix(in oklch, var(--primary), black 12%);
   --primary-text: oklch(from var(--primary) max(l, 0.72) c h);
+  --tooltip: #3a3d42;
+  --tooltip-foreground: #ffffff;
+  --shadow-color: rgb(0 0 0 / 0.5);
   --secondary: #2e3034;
   --secondary-foreground: #e3e4e8;
   --muted: #2a2c30;
@@ -137,8 +147,8 @@ code {
   --accent-foreground: #e3e4e8;
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: #1e1f21;
-  --border: rgb(255 255 255 / 8%);
-  --input: rgb(255 255 255 / 12%);
+  --border: rgb(255 255 255 / 10%);
+  --input: var(--border);
   --ring: #7b68ee;
   --chart-1: oklch(0.871 0.006 286.286);
   --chart-2: oklch(0.552 0.016 285.938);
@@ -150,8 +160,9 @@ code {
   --sidebar-primary: #7b68ee;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #2a2c30;
+  --sidebar-selected: color-mix(in oklch, var(--primary) 24%, var(--sidebar));
   --sidebar-accent-foreground: #e3e4e8;
-  --sidebar-border: rgb(255 255 255 / 6%);
+  --sidebar-border: var(--border);
   --sidebar-ring: #7b68ee;
   --success: oklch(0.723 0.219 149.579);
   --success-strong: oklch(0.527 0.154 150.069);
@@ -188,6 +199,8 @@ code {
 @theme {
   --text-2xs: 0.625rem;
   --text-2xs--line-height: 0.875rem;
+  --text-control: 0.75rem;
+  --text-control--line-height: 1rem;
 }
 
 @media (width < 48rem) {
@@ -208,6 +221,11 @@ code {
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
+  --shadow-popover: 0 8px 24px -4px var(--shadow-color), 0 2px 6px -2px var(--shadow-color);
+  --shadow-card-hover: 0 4px 12px -2px var(--shadow-color);
   --text-color-primary: var(--primary-text);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -261,14 +279,15 @@ code {
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-selected: var(--sidebar-selected);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  --font-sans: "Plus Jakarta Sans Variable", sans-serif;
-  --font-heading: "Plus Jakarta Sans Variable", sans-serif;
+  --font-sans: "Figtree Variable", sans-serif;
+  --font-heading: "JetBrains Mono Variable", monospace;
 }
 
 @keyframes card-scan-pass {

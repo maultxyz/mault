@@ -45,7 +45,7 @@ export function SaveBar({
       <span className="text-foreground/70">
         {t("unsavedChanges.message")}
       </span>
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <Button
           type="button"
           variant="ghost"

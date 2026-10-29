@@ -33,7 +33,7 @@ export function UnmatchedRateToast({
         </div>
       </div>
       <div className="flex flex-col gap-2 pl-6.5">
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-wrap justify-end gap-1.5">
           <Button
             variant="outline"
             onClick={() => {
@@ -58,7 +58,6 @@ export function UnmatchedRateToast({
         </div>
         <div className="flex justify-end">
           <Button
-            size="sm"
             variant="ghost"
             className="text-foreground/70"
             onClick={close}

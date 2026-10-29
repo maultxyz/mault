@@ -35,6 +35,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
+import type { MatchesOpenState } from "@/lib/interfaces/cards";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
@@ -91,7 +92,7 @@ export default function CardDetailScreen() {
   const acquisitionCost = useQuery(cardAcquisitionCostQueryOptions(activeOrgId, scanId));
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
-  const [expandedMatchesScanId, setExpandedMatchesScanId] = useState<string | null>(null);
+  const [matchesOpenState, setMatchesOpenState] = useState<MatchesOpenState | null>(null);
   const [sheet, setSheet] = useState<"foil" | "condition" | "language" | null>(null);
 
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
@@ -103,8 +104,7 @@ export default function CardDetailScreen() {
   const showCaptured = image.isPending || !!capturedUrl;
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
-  const areMatchesExpanded = expandedMatchesScanId === scanId;
-  const showMatchTiles = !isReviewed || areMatchesExpanded;
+  const areMatchesOpen = matchesOpenState?.scanId === scanId ? matchesOpenState.isOpen : !isReviewed;
 
   const candidates = useMemo(() => {
     if (!entry) return [];
@@ -215,7 +215,7 @@ export default function CardDetailScreen() {
 
   const applyCorrection = async (selected: PlayingCard) => {
     if (!entry) return;
-    setExpandedMatchesScanId(null);
+    setMatchesOpenState({ scanId, isOpen: false });
     await correction.correct(entry, selected);
     setEditing(false);
     if (reviewMode) await goToNextInReview();
@@ -311,12 +311,28 @@ export default function CardDetailScreen() {
 
             {candidates.length > 1 ? (
               <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.similarMatches")} />
-                {showMatchTiles ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: areMatchesOpen }}
+                  onPress={() => setMatchesOpenState({ scanId, isOpen: !areMatchesOpen })}
+                >
+                  <SectionHeader
+                    title={t("cardDetail.similarMatches")}
+                    action={
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
+                        <Pill label={String(candidates.length)} />
+                        <Icon name={areMatchesOpen ? "collapse" : "expand"} size={16} color={colors.foregroundSecondary} />
+                      </View>
+                    }
+                  />
+                </Pressable>
+                {areMatchesOpen ? (
                   <>
-                    <AppText size="sm" tone="secondary">
-                      {t("cardDetail.similarMatchesHint")}
-                    </AppText>
+                    {!isReviewed ? (
+                      <AppText size="sm" tone="secondary">
+                        {t("cardDetail.similarMatchesHint")}
+                      </AppText>
+                    ) : null}
                     <CandidateStrip
                       candidates={candidates}
                       selectedId={card?.id}
@@ -326,20 +342,6 @@ export default function CardDetailScreen() {
                       }}
                     />
                   </>
-                ) : null}
-                {isReviewed ? (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    style={{ alignSelf: "flex-start" }}
-                    icon={areMatchesExpanded ? "collapse" : "expand"}
-                    label={
-                      areMatchesExpanded
-                        ? t("cardDetail.hideMatches")
-                        : t("cardDetail.showMatches", { count: candidates.length })
-                    }
-                    onPress={() => setExpandedMatchesScanId(areMatchesExpanded ? null : scanId)}
-                  />
                 ) : null}
               </View>
             ) : null}
@@ -518,7 +520,7 @@ export default function CardDetailScreen() {
                   label={t("cardDetail.markCorrect")}
                   loading={markCorrect.isPending}
                   onPress={() => {
-                    setExpandedMatchesScanId(null);
+                    setMatchesOpenState({ scanId, isOpen: false });
                     markCorrect.mutate("confirm");
                   }}
                 />

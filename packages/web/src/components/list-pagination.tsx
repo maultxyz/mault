@@ -14,7 +14,7 @@ export function ListPagination({ pagination, compact }: ListPaginationProps) {
       <div className="flex shrink-0 items-center justify-between gap-2">
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           aria-label={t("pagination.previous")}
           title={t("pagination.previous")}
           disabled={page <= 1}
@@ -27,7 +27,7 @@ export function ListPagination({ pagination, compact }: ListPaginationProps) {
         </span>
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           aria-label={t("pagination.next")}
           title={t("pagination.next")}
           disabled={page >= pageCount}
@@ -44,7 +44,7 @@ export function ListPagination({ pagination, compact }: ListPaginationProps) {
       <p className="text-xs tabular-nums text-foreground/70">
         {t("pagination.range", { from, to, total })}
       </p>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <Button
           variant="outline"
           disabled={page <= 1}

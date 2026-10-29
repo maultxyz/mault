@@ -22,7 +22,7 @@ import { resetAutoAssign } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { applyMode } from "@/features/rules/lib/apply-mode";
 import { modeSchema } from "@/features/rules/lib/mode-schema";
-import { binSetMode } from "@/features/rules/lib/rules";
+import { binSetMode } from "@magic-vault/shared";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SORTING_MODES } from "@/lib/constants/rules";

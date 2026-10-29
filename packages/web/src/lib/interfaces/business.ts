@@ -24,6 +24,7 @@ export type BusinessBadgeVariant =
   | "success"
   | "secondary"
   | "outline"
+  | "info"
   | "destructive";
 
 export interface NumberInputProps extends Omit<

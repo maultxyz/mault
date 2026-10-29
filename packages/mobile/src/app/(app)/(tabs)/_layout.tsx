@@ -1,11 +1,13 @@
 import { Tabs } from "expo-router/tabs";
 import { useTranslation } from "react-i18next";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
+import { RADIUS } from "@/lib/constants/theme";
 import { TAB_ICONS } from "@/lib/constants/nav";
-import { TAB_BAR_HEIGHT, TAB_ICON_SIZE } from "@/lib/constants/ui";
+import { TAB_ACTIVE_INDICATOR_HEIGHT, TAB_ACTIVE_INDICATOR_WIDTH, TAB_BAR_HEIGHT, TAB_ICON_SIZE } from "@/lib/constants/ui";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -15,7 +17,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: colors.foreground,
+        tabBarActiveTintColor: colors.primaryText,
         tabBarInactiveTintColor: colors.foregroundSecondary,
         tabBarActiveBackgroundColor: colors.background,
         tabBarInactiveBackgroundColor: colors.background,
@@ -30,8 +32,19 @@ export default function TabsLayout() {
           shadowOpacity: 0,
         },
         tabBarItemStyle: { height: TAB_BAR_HEIGHT, paddingVertical: 0, justifyContent: "center", gap: 2 },
-        tabBarIcon: ({ color }) => (
-          <Icon name={TAB_ICONS[route.name]} size={TAB_ICON_SIZE} color={typeof color === "string" ? color : colors.foreground} />
+        tabBarIcon: ({ focused, color }) => (
+          <View
+            style={{
+              width: TAB_ACTIVE_INDICATOR_WIDTH,
+              height: TAB_ACTIVE_INDICATOR_HEIGHT,
+              borderRadius: RADIUS.md,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: focused ? colors.primaryMuted : "transparent",
+            }}
+          >
+            <Icon name={TAB_ICONS[route.name]} size={TAB_ICON_SIZE} color={typeof color === "string" ? color : colors.foreground} />
+          </View>
         ),
         tabBarLabel: ({ focused, color, children }) => (
           <AppText size="2xs" weight={focused ? "semibold" : "medium"} style={{ color, lineHeight: 14 }}>

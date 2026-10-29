@@ -45,7 +45,6 @@ export function PickListProgress({
           <Button
             type="button"
             variant="ghost"
-            size="sm"
             onClick={reset}
             disabled={isResetting || totalFound === 0}
           >
@@ -100,7 +99,7 @@ export function PickListProgress({
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     aria-label={t("pickList.progress.decrease", {
                       name: entry.name,
                     })}
@@ -112,7 +111,7 @@ export function PickListProgress({
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     aria-label={t("pickList.progress.increase", {
                       name: entry.name,
                     })}

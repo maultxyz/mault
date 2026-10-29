@@ -16,9 +16,5 @@ export const KIT_SWEEP_PULSES = [
 ];
 export const KIT_SWEEP_STEP_MS = 700;
 
-export const KIT_SPIN_FORWARD_PULSE = 250;
-export const KIT_SPIN_REVERSE_PULSE = 370;
-
 export const KIT_COMMAND_TIMEOUT_MS = 3_000;
-export const KIT_SENSOR_POLL_MS = 400;
 export const KIT_SERVO_HISTORY_LIMIT = 50;

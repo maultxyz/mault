@@ -7,8 +7,10 @@ import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
+  binSetMode,
   CARD_CONDITIONS,
   DEFAULT_SCAN_REGION,
+  gameAbbreviation,
   isCardCondition,
   listScannerControlActions,
 } from "@magic-vault/shared";
@@ -76,9 +78,20 @@ export default function ScanScreen() {
   const orgId = useActiveOrgId();
   const { data: collections } = useQuery(collectionsQueryOptions(orgId));
   const collection = collections?.find((c) => c.isActive) ?? null;
+  const collectionLabel = collection
+    ? [collection.name, collection.game ? gameAbbreviation(collection.game.key) : null, collection.lang.toUpperCase()]
+        .filter(Boolean)
+        .join(" · ")
+    : null;
   const foilTypes = collection?.game?.foilTypes ?? [];
   const { sets: presets, activeSet } = useRulesData();
   const activePreset = activeSet?.isActive ? activeSet : null;
+  const activePresetMode = binSetMode(activePreset);
+  const presetLabel = activePreset
+    ? activePresetMode === "rules"
+      ? activePreset.name
+      : `${activePreset.name} · ${t(`rules.modes.${activePresetMode}.title`)}`
+    : null;
   const switchCollection = useMutation({
     mutationFn: setActiveCollection,
     onSuccess: (next) => queryClient.setQueryData(collectionsQueryOptions(orgId).queryKey, next),
@@ -402,8 +415,8 @@ export default function ScanScreen() {
         onAllowDuplicatesChange={session.setAllowDuplicates}
         handScan={session.handScan}
         onHandScanChange={session.setHandScan}
-        collectionName={collection?.name ?? null}
-        presetName={activePreset?.name ?? null}
+        collectionName={collectionLabel}
+        presetName={presetLabel}
         showPreset={!!collection?.game && presets.length > 0}
         cameraName={selectedCameraIndex >= 0 ? cameraLabel(selectedCameraIndex) : null}
         showCamera={camera.devices.length > 1}

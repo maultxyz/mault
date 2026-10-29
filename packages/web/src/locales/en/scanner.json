@@ -572,6 +572,7 @@
   "stations": {
     "label": "Sorter {{number}}",
     "tabsLabel": "Sorters",
+    "noneConnected": "No sorter connected",
     "connect": "Connect sorter",
     "disconnect": "Disconnect {{name}}",
     "overview": {
@@ -583,7 +584,17 @@
       "noCamera": "No camera",
       "noCards": "No cards scanned yet",
       "emptyTitle": "No sorters yet",
-      "emptyDescription": "Connect a sorter from the scanner to see it here.",
+      "emptyDescription": "Connect a sorter to see it here.",
+      "stats": {
+        "heading": "Overview",
+        "sorters": "Sorters",
+        "connected": "Connected",
+        "sorting": "Sorting now",
+        "offline": "Offline"
+      },
+      "searchPlaceholder": "Search sorters...",
+      "noSearchResultsTitle": "No matching sorters",
+      "noSearchResultsDescription": "Try a different search term",
       "delete": "Delete {{name}}",
       "deleted": "Deleted {{name}}",
       "deleteFailed": "Couldn't delete {{name}}",

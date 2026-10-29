@@ -152,6 +152,18 @@ export interface PresetSelectorProps {
   readOnly?: boolean;
 }
 
+export type PresetDialog =
+  | "create"
+  | "rename"
+  | "delete"
+  | "history"
+  | "resetAutoAssign";
+
+export interface PresetActionDialogsProps {
+  openDialog: PresetDialog | null;
+  onOpenDialogChange: (dialog: PresetDialog | null) => void;
+}
+
 export interface RuleGroupEditorProps {
   group: BinRuleGroup;
   onChange: (updated: BinRuleGroup) => void;

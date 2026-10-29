@@ -782,8 +782,6 @@
     "reviewed": "Vérifiée",
     "similarMatches": "Correspondances similaires",
     "similarMatchesHint": "Plusieurs correspondances proches. Touche la bonne version.",
-    "showMatches": "Afficher {{count}} correspondances",
-    "hideMatches": "Masquer les correspondances",
     "thisScan": "Ce scan",
     "foilNone": "Non foil",
     "condition": "Condition",

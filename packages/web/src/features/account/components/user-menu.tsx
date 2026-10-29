@@ -15,7 +15,7 @@ import { IconLogout, IconUserCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-export function UserMenu({ side = "right" }: { side?: "right" }) {
+export function UserMenu() {
   const { t } = useTranslation("common");
   const { data } = useAuthSession();
   const navigate = useNavigate();
@@ -29,8 +29,12 @@ export function UserMenu({ side = "right" }: { side?: "right" }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="icon-lg">
-            <span className="text-2xs font-semibold">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent"
+          >
+            <span className="grid size-5.5 place-items-center rounded-full bg-primary text-2xs font-semibold text-primary-foreground">
               {getInitials(name)}
             </span>
             <span className="sr-only">{t("userMenu.trigger")}</span>
@@ -38,7 +42,7 @@ export function UserMenu({ side = "right" }: { side?: "right" }) {
         }
       />
       <DropdownMenuContent
-        side={side}
+        side="bottom"
         align="end"
         sideOffset={8}
         className="w-56"

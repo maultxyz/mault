@@ -10,19 +10,12 @@ import {
 import { useNewBoardFlash } from "@/features/scanner/api/use-new-board-flash";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
-import type { KitPanelProps } from "@/lib/interfaces/kit-test";
-import {
-  IconDeviceUsb,
-  IconDownload,
-  IconLoader2,
-  IconPlugX,
-  IconStethoscope,
-} from "@tabler/icons-react";
+import { IconDeviceUsb, IconDownload, IconPlugX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
-export function KitBoardPanel({ session }: KitPanelProps) {
+export function KitBoardPanel() {
   const { t } = useTranslation("admin");
   const {
     isConnected,
@@ -33,27 +26,10 @@ export function KitBoardPanel({ session }: KitPanelProps) {
     connect,
     connectBluetooth,
     disconnect,
-    sendTest,
   } = useSerial();
   const { isSupported: flashSupported } = useNewBoardFlash();
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
-  const [isTesting, setIsTesting] = useState(false);
   const bluetoothSupported = isWebBluetoothSupported();
-  const { selfTest } = session;
-
-  const handleSelfTest = async () => {
-    setIsTesting(true);
-    try {
-      const { ok, error } = await sendTest();
-      session.setSelfTest(
-        ok
-          ? { status: "passed", at: Date.now() }
-          : { status: "failed", at: Date.now(), error },
-      );
-    } finally {
-      setIsTesting(false);
-    }
-  };
 
   return (
     <SettingsSection
@@ -61,16 +37,15 @@ export function KitBoardPanel({ session }: KitPanelProps) {
       description={t("kitTest.board.description")}
       action={
         isConnected ? (
-          <Button variant="outline" size="sm" onClick={() => disconnect()}>
+          <Button variant="outline" onClick={() => disconnect()}>
             <IconPlugX />
             {t("kitTest.board.disconnect")}
           </Button>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             {flashSupported && (
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => setFlashDialogOpen(true)}
               >
                 <IconDownload />
@@ -78,7 +53,7 @@ export function KitBoardPanel({ session }: KitPanelProps) {
               </Button>
             )}
             <DropdownMenu>
-              <DropdownMenuTrigger render={<Button size="sm" />}>
+              <DropdownMenuTrigger render={<Button />}>
                 <IconDeviceUsb />
                 {t("kitTest.board.connect")}
               </DropdownMenuTrigger>
@@ -121,34 +96,6 @@ export function KitBoardPanel({ session }: KitPanelProps) {
           {t("kitTest.board.notConnected")}
         </p>
       )}
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          variant="outline"
-          disabled={!isConnected || isTesting}
-          onClick={handleSelfTest}
-        >
-          {isTesting ? (
-            <IconLoader2 className="animate-spin" />
-          ) : (
-            <IconStethoscope />
-          )}
-          {isTesting
-            ? t("kitTest.board.testing")
-            : t("kitTest.board.runSelfTest")}
-        </Button>
-        {selfTest.status === "passed" && (
-          <Badge variant="success">{t("kitTest.board.selfTestPassed")}</Badge>
-        )}
-        {selfTest.status === "failed" && (
-          <Badge variant="destructive">
-            {t("kitTest.board.selfTestFailed")}
-          </Badge>
-        )}
-        {selfTest.status === "failed" && selfTest.error && (
-          <span className="text-xs text-destructive">{selfTest.error}</span>
-        )}
-      </div>
 
       <NewBoardFlashDialog
         open={flashDialogOpen}

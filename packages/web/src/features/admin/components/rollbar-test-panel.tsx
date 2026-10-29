@@ -25,7 +25,7 @@ export function RollbarTestPanel() {
       heading={t("rollbarTest.heading")}
       description={t("rollbarTest.description")}
     >
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
         <Button variant="outline" onClick={handleTestClient}>
           {t("rollbarTest.testClientButton")}
         </Button>

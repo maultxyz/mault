@@ -46,13 +46,12 @@ export function FirmwarePanel() {
     : t("firmware.notConnected");
 
   const action = isEsp32OverUsb ? (
-    <Button size="sm" onClick={() => setConnectedFlashOpen(true)}>
+    <Button onClick={() => setConnectedFlashOpen(true)}>
       <IconDownload />
       {t("firmware.flashConnected")}
     </Button>
   ) : isUno ? (
     <Button
-      size="sm"
       variant="outline"
       render={
         <a href={FIRMWARE_RELEASES_URL} target="_blank" rel="noreferrer" />
@@ -63,7 +62,6 @@ export function FirmwarePanel() {
     </Button>
   ) : !isConnected && webSerialSupported ? (
     <Button
-      size="sm"
       variant="outline"
       onClick={() => setNewBoardFlashOpen(true)}
     >

@@ -53,3 +53,4 @@ export const DETAIL_PREFETCH_COUNT = 3;
 
 export const DETAIL_PREFETCH_STALE_MS = 30 * 1000;
 export const CARD_SEARCH_ALL_SETS = "all";
+export const SIMILAR_MATCHES_ACCORDION_VALUE = "similar-matches";

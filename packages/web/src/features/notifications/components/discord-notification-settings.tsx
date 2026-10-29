@@ -72,7 +72,6 @@ export function DiscordNotificationSettings() {
             <Button
               key={type}
               variant="outline"
-              size="sm"
               onClick={() => sendTest(type)}
               disabled={!canTest}
             >

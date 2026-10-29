@@ -150,7 +150,6 @@ export function ImpersonationUsersManager() {
                 </p>
               </div>
               <Button
-                size="sm"
                 variant="outline"
                 disabled={
                   blockedReason(user) !== null ||

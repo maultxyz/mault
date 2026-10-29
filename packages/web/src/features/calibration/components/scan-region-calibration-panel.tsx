@@ -278,7 +278,7 @@ export function ScanRegionCalibrationPanel({
             onDisconnect={handleDisconnectPhone}
           />
 
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <Button
               variant="outline"
               onClick={handleConnectCamera}

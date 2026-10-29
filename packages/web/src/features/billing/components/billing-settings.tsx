@@ -78,7 +78,6 @@ export function BillingSettings() {
           {isBusiness ? (
             <Button
               variant="outline"
-              size="sm"
               onClick={openPortal}
               disabled={isOpeningPortal}
             >
@@ -86,9 +85,8 @@ export function BillingSettings() {
             </Button>
           ) : yearlyPrice ? (
             <div className="flex flex-col gap-1.5">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 <Button
-                  size="sm"
                   variant="outline"
                   onClick={() => startCheckout("month")}
                   disabled={isStartingCheckout}
@@ -100,7 +98,6 @@ export function BillingSettings() {
                     : t("upgrade")}
                 </Button>
                 <Button
-                  size="sm"
                   onClick={() => startCheckout("year")}
                   disabled={isStartingCheckout}
                 >
@@ -117,7 +114,6 @@ export function BillingSettings() {
             </div>
           ) : (
             <Button
-              size="sm"
               onClick={() => startCheckout(DEFAULT_BILLING_INTERVAL)}
               disabled={isStartingCheckout}
             >

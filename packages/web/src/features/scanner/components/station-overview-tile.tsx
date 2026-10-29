@@ -64,8 +64,8 @@ export function StationOverviewTile() {
         <>
           {isTimerActive && (
             <Button
-              size="icon-sm"
-              variant="ghost"
+              size="icon"
+              variant="outline"
               aria-label={pauseLabel}
               title={pauseLabel}
               onClick={pause}

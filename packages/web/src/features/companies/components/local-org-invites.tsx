@@ -142,7 +142,6 @@ export function LocalOrgInvites() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
           onClick={() => setShowInvite(true)}
         >
           <IconPlus size={14} />
@@ -174,7 +173,6 @@ export function LocalOrgInvites() {
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
                 onClick={() => setRevokeTarget(invite)}
               >
                 {t("invites.revoke")}

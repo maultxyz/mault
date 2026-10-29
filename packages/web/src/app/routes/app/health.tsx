@@ -41,7 +41,6 @@ export default function HealthPage() {
     </Button>
   ) : (
     <Button
-      size="xs"
       variant="outline"
       onClick={() => refetch()}
       disabled={isFetching || isSyncing}

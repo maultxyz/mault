@@ -71,7 +71,7 @@ export function ReviewGridTile({
           wasCorrected={card.corrected}
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <Button className="flex-1" onClick={onAccept}>
           <IconCheck />
           {t("reviewGrid.accept")}

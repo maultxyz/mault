@@ -1,5 +1,6 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -241,47 +242,42 @@ export default function CollectionsPage() {
         MOBILE_NAV_SCROLL_PADDING_CLASS,
       )}
     >
-      <div className="sticky top-0 z-20 border-b bg-background/80 py-3 backdrop-blur-2xl md:py-4">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 md:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="font-heading text-lg font-semibold">
-                {t("page.title")}
-              </h1>
-              <p className="text-xs text-foreground/70">{t("page.subtitle")}</p>
-            </div>
-            <CreateCollectionDialog
-              trigger={({ disabled }) => (
-                <Button disabled={disabled} data-tour="create-collection">
-                  <IconPlus />
-                  {t("newCollection")}
-                </Button>
-              )}
+      <PageHeader
+        title={t("page.title")}
+        description={t("page.subtitle")}
+        actions={
+          <CreateCollectionDialog
+            trigger={({ disabled }) => (
+              <Button disabled={disabled} data-tour="create-collection">
+                <IconPlus />
+                {t("newCollection")}
+              </Button>
+            )}
+          />
+        }
+      >
+        {!isLoading && collections.length > 0 && (
+          <>
+            <StatGroup
+              heading={t("page.stats.heading")}
+              tiles={stats}
+              live={liveCount > 0}
+              gridClassName="grid-cols-2 sm:grid-cols-4"
             />
-          </div>
-          {!isLoading && collections.length > 0 && (
-            <>
-              <StatGroup
-                heading={t("page.stats.heading")}
-                tiles={stats}
-                live={liveCount > 0}
-                gridClassName="grid-cols-2 sm:grid-cols-4"
+            <div className="relative">
+              <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
+              <Input
+                type="search"
+                placeholder={t("page.searchPlaceholder")}
+                data-hotkey-search
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
               />
-              <div className="relative">
-                <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
-                <Input
-                  type="search"
-                  placeholder={t("page.searchPlaceholder")}
-                  data-hotkey-search
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+            </div>
+          </>
+        )}
+      </PageHeader>
 
       <div
         className={cn(
@@ -382,7 +378,7 @@ export default function CollectionsPage() {
               <span className="font-medium">
                 {t("selection.selected", { count: liveSelectedGuids.length })}
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <Button
                   variant="ghost"
                   className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}

@@ -29,7 +29,7 @@
     },
     "manageCollections": {
       "title": "Sammlungen verwalten",
-      "content": "Wechsle hier zwischen Sammlungen oder klicke jederzeit auf dieses Bearbeiten-Symbol, um die vollständige Sammlungsverwaltung zu öffnen."
+      "content": "Wechsle hier zwischen Sammlungen. Über dasselbe Menü kopierst du einen Freigabelink, öffnest die vollständige Sammlungsverwaltung oder legst eine neue Sammlung an."
     },
     "createCollection": {
       "title": "Eine Sammlung erstellen",
@@ -41,7 +41,7 @@
     },
     "createSortingRules": {
       "title": "Sortierregeln erstellen",
-      "content": "Sortierregeln liegen pro Spiel in benannten Vorlagen, damit du mehrere Sortierstrategien speichern und zwischen ihnen wechseln kannst. Klicke hier, um eine neue Vorlage zu erstellen."
+      "content": "Sortierregeln liegen pro Spiel in benannten Vorlagen, damit du mehrere Sortierstrategien speichern und zwischen ihnen wechseln kannst. Öffne dieses Menü, um eine neue Vorlage zu erstellen."
     },
     "editSortingRules": {
       "title": "Sortierregeln bearbeiten",
@@ -60,7 +60,7 @@
     },
     "sets": {
       "title": "Regel-Vorlagen",
-      "content": "Sortierregeln sind pro Spiel in benannten Vorlagen gruppiert, damit du mehrere Sortierstrategien speichern und zwischen ihnen wechseln kannst. Klicke hier, um eine neue Vorlage zu erstellen."
+      "content": "Sortierregeln sind pro Spiel in benannten Vorlagen gruppiert, damit du mehrere Sortierstrategien speichern und zwischen ihnen wechseln kannst. Öffne dieses Menü, um eine neue Vorlage zu erstellen."
     },
     "selectBin": {
       "title": "Ein Fach auswählen",

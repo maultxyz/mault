@@ -26,7 +26,7 @@ export function AnchorLinkButton({ id, className }: AnchorLinkButtonProps) {
     <Button
       type="button"
       variant="ghost"
-      size="icon-sm"
+      size="icon"
       onClick={(event) => void handleClick(event)}
       aria-label={t("guide.anchorLink.copy")}
       title={t("guide.anchorLink.copy")}

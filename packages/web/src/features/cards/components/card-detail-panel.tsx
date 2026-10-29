@@ -42,6 +42,13 @@ import { CardTechnicalDetails } from "@/features/cards/components/card-technical
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
 import { DetailSection } from "@/features/cards/components/detail-section";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { SIMILAR_MATCHES_ACCORDION_VALUE } from "@/lib/constants/cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import {
   CARD_OCR_REGIONS_STORAGE_KEY,
@@ -125,7 +132,7 @@ export function CardDetailPanel({
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
-  const [areMatchesExpanded, setAreMatchesExpanded] = useState(false);
+  const [areMatchesOpen, setAreMatchesOpen] = useState(false);
   const prevScanIdRef = useRef<string | undefined>(undefined);
 
   const { addCard } = useScannedCards();
@@ -184,10 +191,10 @@ export function CardDetailPanel({
       }
       setCandidates(all);
       setSelectedId(currentCard.id);
-      setAreMatchesExpanded(false);
+      setAreMatchesOpen(!isReviewed && !wasCorrected);
       setEditing(false);
     }
-  }, [scanId, currentCard, alternativeMatches]);
+  }, [scanId, currentCard, alternativeMatches, isReviewed, wasCorrected]);
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useScanImage(collection?.guid, scanId);
@@ -236,7 +243,7 @@ export function CardDetailPanel({
   const handleSelectCandidate = useCallback(
     (card: PlayingCardWithDistance) => {
       setSelectedId(card.id);
-      setAreMatchesExpanded(false);
+      setAreMatchesOpen(false);
       if (scanId) correctCard(scanId, card);
     },
     [scanId, correctCard],
@@ -246,7 +253,6 @@ export function CardDetailPanel({
     candidates.find((c) => c.id === selectedId) ?? currentCard;
   const hasMultipleCandidates = candidates.length > 1;
   const isMatchChosen = isReviewed || wasCorrected;
-  const showMatchTiles = !isMatchChosen || areMatchesExpanded;
   const isViewing = !!currentCard && !editing;
 
   const startEditing = () => setEditing(true);
@@ -506,12 +512,30 @@ export function CardDetailPanel({
               )}
 
               {hasMultipleCandidates && (
-                <DetailSection title={t("cardDetailPanel.similarMatches")}>
-                  {showMatchTiles && (
-                    <>
-                      <p className="text-sm text-foreground/70">
-                        {t("cardPicker.multipleMatches")}
-                      </p>
+                <Accordion
+                  value={areMatchesOpen ? [SIMILAR_MATCHES_ACCORDION_VALUE] : []}
+                  onValueChange={(value) =>
+                    setAreMatchesOpen(
+                      value.includes(SIMILAR_MATCHES_ACCORDION_VALUE),
+                    )
+                  }
+                >
+                  <AccordionItem
+                    value={SIMILAR_MATCHES_ACCORDION_VALUE}
+                    className="border-b-0"
+                  >
+                    <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
+                      <span className="flex items-center gap-1.5">
+                        {t("cardDetailPanel.similarMatches")}
+                        <Badge variant="outline">{candidates.length}</Badge>
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="gap-2 pb-0">
+                      {!isMatchChosen && (
+                        <p className="text-sm text-foreground/70">
+                          {t("cardPicker.multipleMatches")}
+                        </p>
+                      )}
                       <div className="flex gap-2 overflow-x-auto p-1">
                         {candidates.map((c) => (
                           <CardSearchResultTile
@@ -523,25 +547,9 @@ export function CardDetailPanel({
                           />
                         ))}
                       </div>
-                    </>
-                  )}
-                  {isMatchChosen && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="self-start"
-                      aria-expanded={areMatchesExpanded}
-                      onClick={() => setAreMatchesExpanded((expanded) => !expanded)}
-                    >
-                      {areMatchesExpanded ? <IconChevronUp /> : <IconChevronDown />}
-                      {areMatchesExpanded
-                        ? t("cardDetailPanel.hideMatches")
-                        : t("cardDetailPanel.showMatches", {
-                            count: candidates.length,
-                          })}
-                    </Button>
-                  )}
-                </DetailSection>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               )}
 
               <div
@@ -784,7 +792,7 @@ export function CardDetailPanel({
                   variant="outline"
                   onClick={() => {
                     if (!scanId) return;
-                    setAreMatchesExpanded(false);
+                    setAreMatchesOpen(false);
                     confirmCard(scanId);
                   }}
                   title={t("cardDetailPanel.markCorrectTitle")}

@@ -559,7 +559,6 @@ export function CardGrid() {
         action={
           <Button
             variant="outline"
-            size="sm"
             render={
               <Link to="/app/collections">
                 {t("cardGrid.manageCollections")}
@@ -595,10 +594,9 @@ export function CardGrid() {
           title={t("cardGrid.noCardsScanned")}
           description={t("cardGrid.scanToGetStarted")}
           action={
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-1.5">
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => setAddCardOpen(true)}
               >
                 <IconPlus />
@@ -606,7 +604,6 @@ export function CardGrid() {
               </Button>
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => setImportScansOpen(true)}
               >
                 <IconPhotoUp />
@@ -765,7 +762,6 @@ export function CardGrid() {
             hiddenDownloadedCount > 0 ? (
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => setFilters({ ...filters, showDownloaded: true })}
               >
                 <IconDownload />

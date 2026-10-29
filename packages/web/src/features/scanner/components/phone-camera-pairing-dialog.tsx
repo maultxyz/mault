@@ -89,7 +89,7 @@ export function PhoneCameraPairingDialog({
         </div>
 
         {status === "connected" && (
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <Button
               variant="outline-destructive"
               onClick={onDisconnect}

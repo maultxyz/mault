@@ -41,7 +41,7 @@ export function CardStrip({ title, cards, onOpen }: CardStripProps) {
                   overflow: "hidden",
                   backgroundColor: colors.muted,
                   borderWidth: 1,
-                  borderColor: colors.cardRing,
+                  borderColor: colors.border,
                 }}
               >
                 {imageUrl ? (

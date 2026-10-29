@@ -151,7 +151,7 @@ export function ReviewGrid({
             title={t("reviewGrid.doneTitle")}
             description={t("reviewGrid.doneDescription")}
             action={
-              <Button variant="outline" size="sm" onClick={onClose}>
+              <Button variant="outline" onClick={onClose}>
                 {t("reviewGrid.done")}
               </Button>
             }

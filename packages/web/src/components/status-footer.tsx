@@ -212,13 +212,13 @@ function SorterStatusItem() {
           <PopoverTitle className="truncate">{statusText}</PopoverTitle>
           <div className="flex items-center gap-1 shrink-0">
             {isConnected && (
-              <Button variant="outline" size="sm" onClick={handleCheckFirmware}>
+              <Button variant="outline" onClick={handleCheckFirmware}>
                 {t("statusFooter.checkFirmware")}
               </Button>
             )}
             <Button
               variant="outline"
-              size="icon-sm"
+              size="icon"
               onClick={handleCopy}
               title={tScanner("serial.copyCommunication")}
             >
