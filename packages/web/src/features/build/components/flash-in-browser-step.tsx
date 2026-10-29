@@ -16,7 +16,7 @@ export function FlashInBrowserStep() {
     <>
       {t("assembly.phases.firmware.steps.flashInBrowser.text")}{" "}
       {isSupported ? (
-        <Button size="sm" onClick={() => setOpen(true)}>
+        <Button onClick={() => setOpen(true)}>
           {t("assembly.phases.firmware.steps.flashInBrowser.button")}
         </Button>
       ) : (

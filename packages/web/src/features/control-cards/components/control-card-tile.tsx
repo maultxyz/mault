@@ -23,7 +23,7 @@ export function ControlCardTile({ entry, onRemove }: ControlCardTileProps) {
       </ul>
       <Button
         variant="ghost"
-        size="icon-xs"
+        size="icon"
         className="absolute top-1 right-1 text-black print:hidden"
         aria-label={t("controlCards.tile.remove")}
         onClick={() => onRemove(entry.id)}

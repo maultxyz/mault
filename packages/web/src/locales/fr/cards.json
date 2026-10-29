@@ -59,8 +59,6 @@
     "matchedCard": "Carte correspondante",
     "enlargeImage": "Cliquer pour agrandir",
     "similarMatches": "Correspondances similaires",
-    "showMatches": "Afficher {{count}} correspondances",
-    "hideMatches": "Masquer les correspondances",
     "searchForCorrectVersion": "Ta carte scannée - recherche la bonne version ci-dessous",
     "cancel": "Annuler",
     "prices": "Prix",

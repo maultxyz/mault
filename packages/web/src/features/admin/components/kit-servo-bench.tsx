@@ -38,7 +38,6 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
       action={
         <Button
           variant="outline"
-          size="sm"
           disabled={session.servoResults.length === 0}
           onClick={session.resetServos}
         >
@@ -63,7 +62,7 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         <Button disabled={locked} onClick={() => void sweep(channel)}>
           <IconArrowsHorizontal />
           {t("kitTest.servos.sweep")}

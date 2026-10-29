@@ -1,7 +1,6 @@
-import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { ViewTabs } from "@/components/view-tabs";
 import {
-  BUSINESS_INTAKE_VIEW,
-  BUSINESS_VIEW_PARAM,
+  BUSINESS_VIEW_PATHS,
   BUSINESS_VIEWS,
 } from "@/lib/constants/business";
 import type {
@@ -9,27 +8,22 @@ import type {
   BusinessViewSwitchProps,
 } from "@/lib/interfaces/business";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export function BusinessViewSwitch({ value }: BusinessViewSwitchProps) {
   const { t } = useTranslation("business");
-  const [, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   return (
-    <ResponsiveSegmented<BusinessView>
+    <ViewTabs<BusinessView>
       label={t("views.label")}
-      size="sm"
-      className="w-full *:flex-1"
+      fill
+      className="w-full"
       items={BUSINESS_VIEWS.map((view) => ({
         key: view,
         label: t(`views.${view}`),
       }))}
       value={value}
-      onChange={(view) =>
-        setSearchParams(
-          view === BUSINESS_INTAKE_VIEW ? {} : { [BUSINESS_VIEW_PARAM]: view },
-          { replace: true },
-        )
-      }
+      onChange={(view) => navigate(BUSINESS_VIEW_PATHS[view])}
     />
   );
 }

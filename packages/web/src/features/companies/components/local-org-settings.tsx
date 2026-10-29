@@ -51,7 +51,6 @@ export function LocalOrgSettings() {
         </p>
         <Button
           variant="secondary"
-          size="sm"
           onClick={() => setDeleteOrgOpen(true)}
         >
           {t("orgSettings.deleteOrganization")}

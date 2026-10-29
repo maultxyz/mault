@@ -20,7 +20,7 @@ export const COLLECTION_SELECTION_ISLAND_BUTTON_CLASS =
   "text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15";
 
 export const COLLECTION_PREVIEW_CARD_CLASS =
-  "absolute top-1/2 left-1/2 aspect-[2.5/3.5] w-20 rounded-md object-cover shadow-lg ring-1 ring-foreground/10 transition-[translate,rotate] duration-300 ease-out motion-reduce:transition-none";
+  "absolute top-1/2 left-1/2 aspect-[2.5/3.5] w-20 rounded-md object-cover shadow-lg ring-1 ring-border transition-[translate,rotate] duration-300 ease-out motion-reduce:transition-none";
 
 export const COLLECTION_PREVIEW_FAN_CLASSES = [
   "z-30 -translate-x-1/2 -translate-y-1/2 group-hover:-translate-y-[58%]",

@@ -7,11 +7,12 @@ export const LIGHT_COLORS: ThemeColors = {
   card: "#ffffff",
   muted: "#f7f8f9",
   mutedForeground: "#656f7d",
-  border: "#e9ebf0",
+  border: "#e3e5ea",
   primary: "#7b68ee",
   primaryForeground: "#ffffff",
   primaryText: "#7b68ee",
   primaryMuted: "rgba(123, 104, 238, 0.1)",
+  primaryPressed: "#6a57e3",
   destructive: "#e7000b",
   destructiveStrong: "#c10007",
   destructiveMuted: "#fef2f2",
@@ -33,7 +34,7 @@ export const LIGHT_COLORS: ThemeColors = {
   infoBorder: "#8ec5ff",
   infoForeground: "#1447e6",
   overlay: "rgba(0, 0, 0, 0.5)",
-  input: "#dfe1e6",
+  input: "#e3e5ea",
   inputBackground: "rgba(223, 225, 230, 0.2)",
   cardRing: "rgba(41, 45, 52, 0.1)",
   segmentActive: "#ffffff",
@@ -51,11 +52,12 @@ export const DARK_COLORS: ThemeColors = {
   card: "#25272a",
   muted: "#2a2c30",
   mutedForeground: "#9ea3ad",
-  border: "rgba(255, 255, 255, 0.08)",
+  border: "rgba(255, 255, 255, 0.1)",
   primary: "#7b68ee",
   primaryForeground: "#ffffff",
   primaryText: "#a99cf4",
   primaryMuted: "rgba(123, 104, 238, 0.2)",
+  primaryPressed: "#6a57e3",
   destructive: "#ff6467",
   destructiveStrong: "#c10007",
   destructiveMuted: "#460809",
@@ -77,7 +79,7 @@ export const DARK_COLORS: ThemeColors = {
   infoBorder: "#193cb8",
   infoForeground: "#8ec5ff",
   overlay: "rgba(0, 0, 0, 0.6)",
-  input: "rgba(255, 255, 255, 0.12)",
+  input: "rgba(255, 255, 255, 0.1)",
   inputBackground: "rgba(255, 255, 255, 0.045)",
   cardRing: "rgba(227, 228, 232, 0.1)",
   segmentActive: "rgba(227, 228, 232, 0.15)",
@@ -121,14 +123,15 @@ export const FONT_SIZE = {
 export const SCREEN_GUTTER = 20;
 
 export const FONT_FAMILY = {
-  regular: "PlusJakartaSans_400Regular",
-  medium: "PlusJakartaSans_500Medium",
-  semibold: "PlusJakartaSans_600SemiBold",
-  bold: "PlusJakartaSans_700Bold",
-  headingMedium: "PlusJakartaSans_600SemiBold",
-  headingSemibold: "PlusJakartaSans_700Bold",
+  regular: "Figtree_400Regular",
+  medium: "Figtree_500Medium",
+  semibold: "Figtree_600SemiBold",
+  bold: "Figtree_700Bold",
+  headingMedium: "Figtree_600SemiBold",
+  headingSemibold: "Figtree_700Bold",
   mono: "JetBrainsMono_400Regular",
 } as const;
 
 export const DARK_PRIMARY_TEXT_MIN_LIGHTNESS = 0.72;
 export const PRIMARY_MUTED_ALPHA = { light: 0.1, dark: 0.2 } as const;
+export const PRIMARY_PRESSED_LIGHTNESS_SCALE = 0.88;

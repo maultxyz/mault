@@ -3,6 +3,19 @@ import type {
   OcrRegion,
 } from "../interfaces/ocr-region.interface";
 
+const POKEMON_CARD_TYPE_HEADER_TEXTS = [
+  "Trainer",
+  "Item",
+  "Supporter",
+  "Stadium",
+  "Pokémon Tool",
+  "Pokémon Tool F",
+  "Technical Machine",
+  "Energy",
+  "Basic Energy",
+  "Special Energy",
+];
+
 export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
   mtg: [
     {
@@ -35,6 +48,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.027,
       width: 0.514,
       height: 0.07,
+      ignoredLineTexts: POKEMON_CARD_TYPE_HEADER_TEXTS,
     },
     {
       field: "name",
@@ -43,6 +57,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       width: 0.607,
       height: 0.082,
       fallback: true,
+      ignoredLineTexts: POKEMON_CARD_TYPE_HEADER_TEXTS,
     },
     {
       field: "number",

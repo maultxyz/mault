@@ -44,7 +44,6 @@ export function BinPickListFields({
                 <Button
                   key={item.key}
                   type="button"
-                  size="sm"
                   variant={
                     field.value === item.key ? "outline-selected" : "outline"
                   }

@@ -132,7 +132,16 @@
     "create": "Erstellen",
     "viewHistory": "Verlauf anzeigen",
     "historyTitle": "Verlauf der Vorlage",
-    "printControlCard": "Steuerkarte drucken"
+    "printControlCard": "Steuerkarte drucken",
+    "resetAutoAssign": "Automatisch erkannte Fächer zurücksetzen",
+    "searchPlaceholder": "Vorlagen durchsuchen...",
+    "modeBadges": {
+      "scan-only": "Nur scannen",
+      "auto-assign": "Automatisch",
+      "repack": "Repacks",
+      "alphabet": "Alphabetisch",
+      "chaos": "Chaos-Sortierung"
+    }
   },
   "useBinConfigs": {
     "toasts": {

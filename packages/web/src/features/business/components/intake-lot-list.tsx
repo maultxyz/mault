@@ -53,7 +53,7 @@ export function IntakeLotList({
           return (
             <Button
               key={lot.guid}
-              variant={lot.guid === selectedGuid ? "secondary" : "ghost"}
+              variant={lot.guid === selectedGuid ? "selected" : "ghost"}
               className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start"
               onClick={() => onSelect(lot.guid)}
             >
@@ -64,7 +64,8 @@ export function IntakeLotList({
                 <StatusBadge status={lot.status} />
               </span>
               <span className="flex w-full items-center justify-between gap-2 text-xs tabular-nums text-foreground/70">
-                <span>
+                <span className="min-w-0 truncate">
+                  {lot.collectionGameName && `${lot.collectionGameName} · `}
                   {t("intake.cardCount", { count: lot.cardCount })} ·{" "}
                   {formatDay(lot.createdAt)}
                 </span>

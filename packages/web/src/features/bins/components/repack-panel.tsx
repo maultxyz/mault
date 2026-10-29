@@ -325,7 +325,6 @@ export function RepackPanel() {
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   data-tour="repack-add-slot"
                   onClick={() => field.onChange([...field.value, createSlot()])}
                 >

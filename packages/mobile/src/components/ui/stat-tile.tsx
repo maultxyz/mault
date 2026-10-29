@@ -17,7 +17,9 @@ export function StatTile({ label, value, hint }: StatTileProps) {
         padding: SPACING.md,
         gap: 2,
         borderRadius: RADIUS.lg,
-        backgroundColor: colors.muted,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.card,
       }}
     >
       <AppText size="xs" tone="secondary">

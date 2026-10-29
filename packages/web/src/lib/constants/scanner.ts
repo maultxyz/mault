@@ -1,3 +1,4 @@
+import type { StationStatus } from "@/lib/interfaces/stations";
 import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
@@ -101,7 +102,6 @@ export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 export const PARKED_PANELS_ROOT_CLASS =
   "fixed top-0 left-0 -z-10 invisible pointer-events-none";
 
-
 export const UNMATCHED_RATE_WINDOW = 20;
 export const UNMATCHED_RATE_MIN_SCANS = 10;
 export const UNMATCHED_RATE_THRESHOLD = 0.3;
@@ -150,7 +150,6 @@ export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
   "paused",
   "settling",
 ];
-
 
 export const DOCUMENT_TITLE_BASE = "MAULT";
 
@@ -209,3 +208,15 @@ export const SCAN_IMAGE_IMPORT_PADDING_RATIO = 0.08;
 export const SCAN_IMAGE_IMPORT_PADDING_COLOR = "#808080";
 export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
 export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;
+
+export const STATION_STATUS_BADGE_VARIANTS: Record<
+  StationStatus,
+  "success" | "warning" | "outline"
+> = {
+  sorting: "success",
+  paused: "warning",
+  offline: "outline",
+};
+
+export const SORTERS_GRID_CLASS =
+  "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";

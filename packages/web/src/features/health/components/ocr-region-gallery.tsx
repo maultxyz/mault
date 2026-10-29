@@ -35,7 +35,7 @@ function OcrRegionTile({ gameKey, name, lang, regions }: OcrRegionTileProps) {
         {lang && (
           <Button
             variant="ghost"
-            size="icon-xs"
+            size="icon"
             aria-label={t("ocrRegions.anotherCard")}
             title={t("ocrRegions.anotherCard")}
             disabled={sample.isFetching}

@@ -105,7 +105,7 @@ function HomeCardStrip({ title, cards }: HomeCardStripProps) {
             to={`/app/monitor/${entry.collectionGuid}`}
             className="flex w-28 shrink-0 snap-start flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
           >
-            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-foreground/10">
+            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-border">
               <img
                 src={entry.card.image?.normal || entry.card.image?.small || ""}
                 alt={entry.card.name}

@@ -111,7 +111,7 @@ export function UnmatchedCardsPanel({
           )}
         </button>
         {!expanded && collectionGuid && (
-          <Button size="xs" onClick={() => openBrowser(null)}>
+          <Button onClick={() => openBrowser(null)}>
             {t("unmatchedCardsPanel.viewAllShort")}
           </Button>
         )}
@@ -131,7 +131,7 @@ export function UnmatchedCardsPanel({
                 </button>
                 {onRemove && !isMobile && (
                   <Button
-                    size="icon-xs"
+                    size="icon"
                     variant="destructive"
                     aria-label={t("unmatchedCardsPanel.remove")}
                     className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"

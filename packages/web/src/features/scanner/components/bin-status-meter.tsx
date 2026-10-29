@@ -134,7 +134,6 @@ export function BinStatusMeter() {
           <Button
             type="button"
             variant="ghost"
-            size="xs"
             className="mr-1.5"
             disabled={summary.totalCards === 0}
             onClick={() => setConfirmAll(true)}

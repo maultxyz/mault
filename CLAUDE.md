@@ -181,10 +181,15 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 
 ### UI style
 
+- One border color: `--input` and `--sidebar-border` alias `--border`; structural lines use plain `border`/`divide-border`/`ring-border`, never `border-foreground/N` tints (stronger lines are for selection or state only).
 - Status colors only from theme tokens (`success`, `warning`, `info`, `destructive` and their shades); raw palette colors are for data only. Fix tokens rather than hand-patching dark-mode text.
 - In-page notes use `Callout`, full-width bars `AlertBanner`, empty lists `EmptyState`, labelled sliders `SliderField`. Loading uses skeletons; spinners only for in-progress actions.
-- Text: `text-sm` body, `text-xs` secondary, `text-2xs` captions, no `text-[Npx]`. The text tokens already grow below `md`, so no per-component `max-md:text-*` bumps. Inputs stay `text-base` below `md`. Secondary text is `text-foreground/70`; `text-muted-foreground` only in `components/ui` primitives and placeholders.
-- Radius: `rounded-xl` overlays, `rounded-lg` containers, `rounded-md` controls, `rounded-sm` tiny bits, `rounded-full` pills; never plain `rounded`.
+- Text: `text-sm` body, `text-control` (12px) for every control and dialog body, `text-xs` secondary, `text-2xs` captions, no `text-[Npx]`. Control heights come from the primitives' sizes (default 24px, a dense data UI); never size a `Button` with `h-*`/`text-*` classes. The text tokens already grow below `md`, so no per-component `max-md:text-*` bumps. Inputs stay `text-base` below `md`. Secondary text is `text-foreground/70`; `text-muted-foreground` only in `components/ui` primitives and placeholders.
+- Radius: `rounded-xl` overlays, `rounded-lg` containers and controls (buttons, inputs, selects, nav items), `rounded-md` menu items and xs buttons, `rounded-sm` tiny bits and status badges, `rounded-full` avatars and count dots; never plain `rounded`.
+- ClickUp-style language: floating surfaces use `shadow-popover ring-1 ring-border`, cards `ring-1 ring-border` (no shadow), selected rows and nav items the `selected` button variant (`sidebarItemClassName` on `bg-sidebar`, where ghost hover is invisible), filled hovers `bg-primary-hover`. Colored `Badge` tones are uppercase status pills; neutral ones stay normal case.
+- Desktop page headers use `PageHeader`; view switches use `ViewTabs` (underline tabs, segmented below `md`), toggles inside forms stay `ResponsiveSegmented`.
+- Buttons use the default size (`icon` for icon-only); `sm`/`xs` sizes are only for buttons inside inputs (`InputGroupButton`, combobox chips).
+- Buttons side by side sit `gap-1.5` apart (rows, toolbars, footers, nested `ButtonGroup`s).
 - Icons in shadcn primitives take no `size-*` class; standalone icons use `size-3`/`3.5`/`4`/`5`.
 - Motion: short `animate-in` for new content only, with `motion-reduce:animate-none`. No route transitions.
 

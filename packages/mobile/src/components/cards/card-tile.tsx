@@ -40,7 +40,7 @@ export const CardTile = memo(function CardTile({
           overflow: "hidden",
           backgroundColor: colors.muted,
           borderWidth: selected || awaitingReview ? 2 : 1,
-          borderColor: selected ? colors.primary : awaitingReview ? colors.warning : colors.cardRing,
+          borderColor: selected ? colors.primary : awaitingReview ? colors.warning : colors.border,
           opacity: disabled ? 0.5 : 1,
         }}
       >

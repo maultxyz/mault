@@ -42,10 +42,9 @@ export function SorterWifiPanel() {
   }
 
   const action = wifi.canConfigure ? (
-    <div className="flex gap-2">
+    <div className="flex gap-1.5">
       {isConfigured && (
         <Button
-          size="sm"
           variant="outline"
           disabled={isForgetting}
           onClick={() => void handleForget()}
@@ -54,7 +53,7 @@ export function SorterWifiPanel() {
           {t("sorterWifi.forget")}
         </Button>
       )}
-      <Button size="sm" onClick={() => setDialogOpen(true)}>
+      <Button onClick={() => setDialogOpen(true)}>
         <IconWifi />
         {isConfigured ? t("sorterWifi.change") : t("sorterWifi.setUp")}
       </Button>

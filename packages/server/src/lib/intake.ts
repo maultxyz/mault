@@ -2,6 +2,7 @@ import {
   buylistOfferFor,
   isBelowBuylistMinimum,
   creditOfferFor,
+  PRICE_SOURCE_FIELDS,
   roundCurrency,
   INTAKE_COLLECTION_NAME_PREFIX,
   INTAKE_COLLECTION_NAME_SUFFIX_ROOM,
@@ -37,7 +38,10 @@ import {
   collectionCardPricesJoinOn,
   scannedCardPriceSql,
 } from "./card-price-sql";
-import type { IntakeLotRow } from "./interfaces/business";
+import type {
+  IntakeLotCardPrice,
+  IntakeLotRow,
+} from "./interfaces/business";
 import { hydrateSavedCards } from "./saved-cards";
 
 export async function findOpenIntakeLotId(
@@ -159,6 +163,7 @@ export function selectIntakeLots(tx: Transaction) {
       collectionName: collections.name,
       collectionDeleted: collections.isDeleted,
       collectionGameGuid: games.guid,
+      collectionGameName: games.name,
     })
     .from(intakeLots)
     .innerJoin(collections, eq(collections.id, intakeLots.collectionId))
@@ -180,6 +185,24 @@ export async function findIntakeLot(
     )
     .limit(1);
   return row ?? null;
+}
+
+export function manualIntakeOffer(
+  row: { acquisitionCost: number | null; acquisitionCurrency: string | null },
+  pricing: OrgPricing,
+): number | null {
+  return row.acquisitionCost !== null &&
+    row.acquisitionCurrency === PRICE_SOURCE_FIELDS[pricing.source].currency
+    ? row.acquisitionCost
+    : null;
+}
+
+export function intakeCardOffer(
+  marketPrice: number | null,
+  manualOffer: number | null,
+  buylist: BuylistConfig,
+): number | null {
+  return manualOffer ?? buylistOfferFor(marketPrice, buylist);
 }
 
 export function intakeLotCardsWhere(lotId: number, ...conditions: SQL[]) {
@@ -207,6 +230,7 @@ export async function loadIntakeLotCards(
       scannedAt: collectionCards.scannedAt,
       price: scannedCardPriceSql(pricing),
       acquisitionCost: collectionCards.acquisitionCost,
+      acquisitionCurrency: collectionCards.acquisitionCurrency,
       collectionLang: collections.lang,
       gameKey: games.key,
     })
@@ -225,6 +249,7 @@ export async function loadIntakeLotCards(
   return rows.map((r, i) => {
     const marketPrice =
       r.price === null ? null : roundCurrency(Number(r.price));
+    const manualOffer = manualIntakeOffer(r, pricing);
     return {
       scanId: r.scanId!,
       card: cards[i],
@@ -233,9 +258,11 @@ export async function loadIntakeLotCards(
       condition: toCardCondition(r.condition),
       scannedAt: r.scannedAt.toISOString(),
       marketPrice,
-      offer: buylistOfferFor(marketPrice, buylist),
+      offer: intakeCardOffer(marketPrice, manualOffer, buylist),
+      hasManualOffer: manualOffer !== null,
       acquisitionCost: r.acquisitionCost,
-      belowMinimum: isBelowBuylistMinimum(marketPrice, buylist),
+      belowMinimum:
+        manualOffer === null && isBelowBuylistMinimum(marketPrice, buylist),
     };
   });
 }
@@ -262,13 +289,15 @@ export async function loadIntakeLotCardPrices(
   tx: Transaction,
   lotIds: number[],
   pricing: OrgPricing,
-): Promise<{ lotId: number; scanId: string; marketPrice: number | null }[]> {
+): Promise<IntakeLotCardPrice[]> {
   if (lotIds.length === 0) return [];
   const rows = await tx
     .select({
       lotId: collectionCards.intakeLotId,
       scanId: collectionCards.guid,
       price: collectionCardPriceSql(pricing),
+      acquisitionCost: collectionCards.acquisitionCost,
+      acquisitionCurrency: collectionCards.acquisitionCurrency,
     })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
@@ -284,17 +313,18 @@ export async function loadIntakeLotCardPrices(
     lotId: row.lotId!,
     scanId: row.scanId!,
     marketPrice: row.price === null ? null : roundCurrency(Number(row.price)),
+    manualOffer: manualIntakeOffer(row, pricing),
   }));
 }
 
 export function summarizeIntakePrices(
-  marketPrices: (number | null)[],
+  cards: Pick<IntakeLotCardPrice, "marketPrice" | "manualOffer">[],
   buylist: BuylistConfig,
 ) {
   return summarizeIntakeCards(
-    marketPrices.map((marketPrice) => ({
-      marketPrice,
-      offer: buylistOfferFor(marketPrice, buylist),
+    cards.map((card) => ({
+      marketPrice: card.marketPrice,
+      offer: intakeCardOffer(card.marketPrice, card.manualOffer, buylist),
     })),
     buylist,
   );
@@ -306,22 +336,28 @@ export async function loadIntakeLotSummaries(
   pricing: OrgPricing,
   buylist: BuylistConfig,
 ): Promise<Map<number, ReturnType<typeof summarizeIntakeCards>>> {
-  const pricesByLot = new Map<number, (number | null)[]>(
+  const cardsByLot = new Map<number, IntakeLotCardPrice[]>(
     lotIds.map((lotId) => [lotId, []]),
   );
   for (const card of await loadIntakeLotCardPrices(tx, lotIds, pricing)) {
-    pricesByLot.get(card.lotId)?.push(card.marketPrice);
+    cardsByLot.get(card.lotId)?.push(card);
   }
   return new Map(
-    [...pricesByLot].map(([lotId, marketPrices]) => [
+    [...cardsByLot].map(([lotId, cards]) => [
       lotId,
-      summarizeIntakePrices(marketPrices, buylist),
+      summarizeIntakePrices(cards, buylist),
     ]),
   );
 }
 
 export function hideIntakeCardCosts(card: IntakeLotCard): IntakeLotCard {
-  return { ...card, marketPrice: null, offer: null, acquisitionCost: null };
+  return {
+    ...card,
+    marketPrice: null,
+    offer: null,
+    hasManualOffer: false,
+    acquisitionCost: null,
+  };
 }
 
 async function displayName(userId: string | null): Promise<string | null> {
@@ -345,6 +381,7 @@ export async function toIntakeLot(
     collectionGuid: row.collectionGuid!,
     collectionName: row.collectionName,
     collectionGameGuid: row.collectionGameGuid,
+    collectionGameName: row.collectionGameName,
     collectionDeleted: row.collectionDeleted,
     ownsCollection: row.ownsCollection,
     cardCount: live?.cardCount ?? row.cardCount ?? 0,

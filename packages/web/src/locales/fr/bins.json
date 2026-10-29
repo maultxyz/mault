@@ -132,7 +132,16 @@
     "create": "Créer",
     "viewHistory": "Voir l'historique",
     "historyTitle": "Historique du préréglage",
-    "printControlCard": "Imprimer une carte de contrôle"
+    "printControlCard": "Imprimer une carte de contrôle",
+    "resetAutoAssign": "Réinitialiser les bacs détectés automatiquement",
+    "searchPlaceholder": "Rechercher des préréglages...",
+    "modeBadges": {
+      "scan-only": "Scan uniquement",
+      "auto-assign": "Tri automatique",
+      "repack": "Repacks",
+      "alphabet": "Tri alphabétique",
+      "chaos": "Tri chaos"
+    }
   },
   "useBinConfigs": {
     "toasts": {

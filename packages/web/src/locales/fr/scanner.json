@@ -572,6 +572,7 @@
   "stations": {
     "label": "Trieuse {{number}}",
     "tabsLabel": "Trieuses",
+    "noneConnected": "Aucune trieuse connectée",
     "connect": "Connecter une trieuse",
     "disconnect": "Déconnecter {{name}}",
     "overview": {
@@ -583,7 +584,17 @@
       "noCamera": "Aucune caméra",
       "noCards": "Aucune carte scannée pour l'instant",
       "emptyTitle": "Aucun trieur pour l'instant",
-      "emptyDescription": "Connectez un trieur depuis le scanner pour le voir ici.",
+      "emptyDescription": "Connectez un trieur pour le voir ici.",
+      "stats": {
+        "heading": "Aperçu",
+        "sorters": "Trieuses",
+        "connected": "Connectées",
+        "sorting": "En tri",
+        "offline": "Hors ligne"
+      },
+      "searchPlaceholder": "Rechercher des trieuses...",
+      "noSearchResultsTitle": "Aucune trieuse correspondante",
+      "noSearchResultsDescription": "Essaie un autre terme de recherche",
       "delete": "Supprimer {{name}}",
       "deleted": "{{name}} supprimé",
       "deleteFailed": "Impossible de supprimer {{name}}",

@@ -116,7 +116,6 @@ export function OrderImportDialog({
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onClick={() => fileRef.current?.click()}
                   >
                     <IconFileUpload />

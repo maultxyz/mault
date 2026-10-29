@@ -160,7 +160,7 @@ export default function PhoneCameraPage() {
           )}
         </div>
         {status !== "disconnected" && (
-          <div className="flex items-stretch gap-2">
+          <div className="flex items-stretch gap-1.5">
             {cameras.length > 1 && (
               <Button
                 size="lg"

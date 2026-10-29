@@ -22,7 +22,7 @@ export function ScanRemovalActions({ className }: ScanRemovalActionsProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
-    <div className={cn("flex items-center justify-end gap-2", className)}>
+    <div className={cn("flex items-center justify-end gap-1.5", className)}>
       <Button
         variant="outline"
         disabled={entries.length === 0 || isRemoving}

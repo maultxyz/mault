@@ -50,7 +50,7 @@ export function OrgPickerModal() {
           : t("orgPickerModal.selectOrCreate")
       }
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         {orgs.map((org) => (
           <Button
             key={org.id}

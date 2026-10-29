@@ -16,7 +16,7 @@ export function IconButton({
   const colors = useTheme();
   const palette = {
     neutral: { bg: colors.muted, pressed: colors.border, fg: colors.foreground },
-    primary: { bg: colors.primary, pressed: colors.primary, fg: colors.primaryForeground },
+    primary: { bg: colors.primary, pressed: colors.primaryPressed, fg: colors.primaryForeground },
     plain: { bg: "transparent", pressed: colors.muted, fg: colors.foreground },
     camera: { bg: colors.cameraScrim, pressed: colors.cameraScrim, fg: colors.onCamera },
   }[variant];
@@ -35,7 +35,7 @@ export function IconButton({
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: pressed ? palette.pressed : palette.bg,
-        opacity: disabled ? DISABLED_OPACITY : pressed && variant === "primary" ? 0.85 : 1,
+        opacity: disabled ? DISABLED_OPACITY : 1,
       })}
     >
       <Icon name={icon} size={Math.round(size * 0.45)} color={palette.fg} />

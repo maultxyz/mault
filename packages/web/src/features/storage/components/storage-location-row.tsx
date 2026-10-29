@@ -13,7 +13,7 @@ export function StorageLocationRow({
 
   return (
     <Button
-      variant={isSelected ? "secondary" : "ghost"}
+      variant={isSelected ? "selected" : "ghost"}
       className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start"
       onClick={onSelect}
     >

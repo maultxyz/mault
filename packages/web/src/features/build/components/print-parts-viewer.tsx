@@ -112,10 +112,9 @@ export default function PrintPartsViewer({
           </div>
         )}
         {status === "ready" && (
-          <div className="absolute top-2 right-2 flex gap-2">
+          <div className="absolute top-2 right-2 flex gap-1.5">
             <Button
               variant={xray ? "default" : "outline"}
-              size="sm"
               aria-pressed={xray}
               onClick={() => setXray((value) => !value)}
               className={xray ? undefined : "bg-background/80"}
@@ -125,7 +124,6 @@ export default function PrintPartsViewer({
             </Button>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => sceneRef.current?.resetView()}
               className="bg-background/80"
             >

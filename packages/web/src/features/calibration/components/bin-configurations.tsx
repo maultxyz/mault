@@ -113,7 +113,6 @@ export function BinConfigurations() {
       action={
         <Button
           variant="outline"
-          size="sm"
           disabled={isSaving}
           onClick={resetToDefaults}
         >

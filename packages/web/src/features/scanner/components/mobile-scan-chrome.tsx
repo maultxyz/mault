@@ -87,7 +87,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           title={t("scannerOverlay.dailyLimitReached")}
           action={
             <Button
-              size="sm"
               variant="secondary"
               className="rounded-full"
               render={<Link to={SETTINGS_PATHS.billing} />}
@@ -106,7 +105,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             chrome.errorMessage || t("mobileScan.cameraOffDescription")
           }
           action={
-            <Button size="sm" className="rounded-full" onClick={chrome.onRetry}>
+            <Button className="rounded-full" onClick={chrome.onRetry}>
               {t("mobileScan.startCamera")}
             </Button>
           }
@@ -120,7 +119,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           title={chrome.errorMessage || t("mobileScan.phase.error")}
           action={
             <Button
-              size="sm"
               variant="secondary"
               className="rounded-full"
               onClick={chrome.onRetry}
@@ -140,7 +138,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           })}
           action={
             <Button
-              size="sm"
               variant="secondary"
               className="rounded-full"
               onClick={chrome.onResolveSensorBlocked}
@@ -167,7 +164,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           action={
             chrome.bluetoothSupported ? (
               <Button
-                size="sm"
                 className="rounded-full"
                 onClick={chrome.onConnectBluetooth}
               >

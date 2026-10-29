@@ -23,7 +23,7 @@ export function GuideCodeBlock({ code }: GuideCodeBlockProps) {
       <Button
         type="button"
         variant="ghost"
-        size="icon-sm"
+        size="icon"
         onClick={() => void copy()}
         aria-label={t("guide.code.copy")}
         title={t("guide.code.copy")}

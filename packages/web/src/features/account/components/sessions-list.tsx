@@ -130,7 +130,6 @@ export function SessionsList() {
           <Button
             type="button"
             variant="outline-destructive"
-            size="sm"
             disabled={isRevokingAll}
             onClick={() => setRevokeAllOpen(true)}
           >
@@ -183,7 +182,6 @@ export function SessionsList() {
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
                   disabled={isRevoking}
                   onClick={() => setRevokeTarget(session)}
                 >

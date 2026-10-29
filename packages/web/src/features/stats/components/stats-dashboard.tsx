@@ -85,7 +85,6 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
       description={t(`activity.description.${report.bucket}`)}
       action={
         <ResponsiveSegmented
-          size="sm"
           label={t("activity.title")}
           items={STATS_ACTIVITY_METRICS.map((option) => ({
             key: option,
@@ -282,7 +281,6 @@ function StatsCollectionsTable({
                 <TableCell className="py-0 text-right">
                   <Button
                     variant="ghost"
-                    size="sm"
                     disabled={access?.isLocked || row.cardCount === 0}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -322,7 +320,6 @@ function StatsCollectionsSection({
       description={t("compare.description")}
       action={
         <ResponsiveSegmented
-          size="sm"
           label={t("compare.title")}
           className="md:hidden"
           items={STATS_COLLECTION_METRICS.map((option) => ({
@@ -382,7 +379,7 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
             to={`/app/monitor/${entry.collectionGuid}`}
             className="flex min-w-0 flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
           >
-            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-foreground/10">
+            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-border">
               <img
                 src={entry.card.image?.normal || entry.card.image?.small || ""}
                 alt={entry.card.name}

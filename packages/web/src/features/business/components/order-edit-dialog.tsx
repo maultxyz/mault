@@ -156,7 +156,7 @@ export function OrderEditDialog({
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon-sm"
+                          size="icon"
                           aria-label={t("orders.removeLine", {
                             name: lineField.name,
                           })}
@@ -193,7 +193,6 @@ export function OrderEditDialog({
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     disabled={linesToAdd.length === 0}
                     onClick={addCards}
                   >

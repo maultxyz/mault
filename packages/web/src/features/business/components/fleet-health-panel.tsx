@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,8 @@ import {
 } from "@/features/business/api/use-business";
 import { ServiceIntervalDialog } from "@/features/business/components/service-interval-dialog";
 import { formatDateTime } from "@/features/business/lib/format";
+import { useClientPagination } from "@/hooks/use-client-pagination";
+import { FLEET_ALERTS_PAGE_SIZE } from "@/lib/constants/pagination";
 import { cn } from "@/lib/utils";
 import type { DeviceHealth } from "@magic-vault/shared";
 import { IconBellRinging, IconSettings, IconTool } from "@tabler/icons-react";
@@ -25,6 +28,10 @@ export function FleetHealthPanel() {
   const run = useBusinessAction();
   const { data: fleet, isLoading } = useQuery(fleetQueryOptions(orgId));
   const [intervalTarget, setIntervalTarget] = useState<DeviceHealth | null>(null);
+  const alertsPagination = useClientPagination(
+    fleet?.alerts ?? [],
+    FLEET_ALERTS_PAGE_SIZE,
+  );
 
   if (isLoading || !fleet) return <ListSkeleton rows={4} />;
 
@@ -105,10 +112,9 @@ export function FleetHealthPanel() {
                   ))}
                 </ul>
               )}
-              <div className="mt-auto flex gap-2">
+              <div className="mt-auto flex gap-1.5">
                 <Button
                   variant={device.serviceDue ? "default" : "outline"}
-                  size="sm"
                   className="flex-1"
                   onClick={() =>
                     void run(
@@ -123,7 +129,7 @@ export function FleetHealthPanel() {
                 {access?.canManageSettings && (
                   <Button
                     variant="outline"
-                    size="icon-sm"
+                    size="icon"
                     aria-label={t("fleet.intervalTitle")}
                     title={t("fleet.intervalTitle")}
                     onClick={() => setIntervalTarget(device)}
@@ -147,27 +153,30 @@ export function FleetHealthPanel() {
             description={t("fleet.noAlertsDescription")}
           />
         ) : (
-          <div className="flex flex-col divide-y rounded-lg border">
-            {fleet.alerts.map((alert) => (
-              <div key={alert.guid} className="flex flex-col gap-0.5 px-3 py-2">
-                <div className="flex items-center gap-2">
-                  <Badge variant={alert.type === "maintenance" ? "outline" : "destructive"}>
-                    {t(`fleet.types.${alert.type}`)}
-                  </Badge>
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium">
-                    {alert.title}
-                  </span>
-                  <span className="shrink-0 text-xs text-foreground/70">
-                    {formatDateTime(alert.createdAt)}
-                  </span>
+          <>
+            <div className="flex flex-col divide-y rounded-lg border">
+              {alertsPagination.pageItems.map((alert) => (
+                <div key={alert.guid} className="flex flex-col gap-0.5 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant={alert.type === "maintenance" ? "outline" : "destructive"}>
+                      {t(`fleet.types.${alert.type}`)}
+                    </Badge>
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                      {alert.title}
+                    </span>
+                    <span className="shrink-0 text-xs text-foreground/70">
+                      {formatDateTime(alert.createdAt)}
+                    </span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-xs text-foreground/70">
+                    {alert.deviceName ? `${alert.deviceName}: ` : ""}
+                    {alert.description.replace(/\*\*/g, "")}
+                  </p>
                 </div>
-                <p className="whitespace-pre-wrap text-xs text-foreground/70">
-                  {alert.deviceName ? `${alert.deviceName}: ` : ""}
-                  {alert.description.replace(/\*\*/g, "")}
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+            <ListPagination pagination={alertsPagination} />
+          </>
         )}
       </section>
 

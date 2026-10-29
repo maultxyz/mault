@@ -91,6 +91,15 @@
     "intake": "Intake",
     "picks": "Picks"
   },
+  "offerEditor": {
+    "title": "Offer for {{name}}",
+    "amount": "Offer",
+    "save": "Save",
+    "useBuylist": "Use buylist price",
+    "buylistPrice": "Buylist price: {{price}}",
+    "manual": "Set by hand",
+    "edit": "Change offer for {{name}}"
+  },
   "intake": {
     "subtitle": "Scanning into {{collection}} · started {{date}}",
     "new": "New intake",
@@ -111,6 +120,7 @@
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
     "openScanner": "Open scanner",
+    "addCard": "Add card",
     "printReceipt": "Receipt",
     "accept": "Accept",
     "cancelLot": "Cancel lot",
