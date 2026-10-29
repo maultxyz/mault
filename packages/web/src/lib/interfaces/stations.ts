@@ -62,9 +62,12 @@ export interface StationsContextValue {
   getOverviewTileElement: (id: string) => HTMLElement;
 }
 
-export interface StationMenuItemProps {
+export interface StationIdentityProps {
   station: StationState;
   index: number;
+}
+
+export interface StationMenuItemProps extends StationIdentityProps {
   isActive: boolean;
 }
 
