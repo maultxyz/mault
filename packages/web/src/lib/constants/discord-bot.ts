@@ -14,6 +14,8 @@ export const DISCORD_BOT_COMMANDS = [
   "stats",
   "linkAccount",
   "showoff",
+  "shareCalibration",
+  "sharePreset",
   "leaderboard",
 ] as const;
 
