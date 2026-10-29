@@ -23,33 +23,39 @@ Each game is a pluggable adapter (`packages/server/src/lib/adapters/<game>/`) pl
 ## Features
 
 **Scanning**
+
 - Webcam scanning in the browser, or a paired phone used as the camera (QR pairing)
 - Several sorters from one browser tab, each with its own camera and collection
 - Multi-language scanning, OCR tie-breaking, a review mode for low-confidence matches and one-click corrections
 - Offline-tolerant saves: scans queue in IndexedDB and retry until the server accepts them
 
 **Sorting**
+
 - Bin presets per collection with and/or rule trees over each game's own fields, plus override bins that win over ordinary ones
 - Auto bin assignment, repack building, alphabetical drill-down, chaos sort, overflow bins, copy limits and decklist pick lists
 - Custom sounds played when matching cards are sorted
 
 **Collections and value**
+
 - Multiple organizations and collections, with roles, invites and an audit log
 - Storage locations: empty a bin into a box and Mault records each card's position, searchable and exportable as CSV
 - Prices from TCGplayer, Cardmarket and Card Kingdom, with per-org price source and condition multipliers
 - Stats, a leaderboard and live remote monitoring (or a shareable read-only monitor link)
 
 **Integrations**
+
 - Discord bot: `/link` a server to an org, `/stats` for collection stats; scan, alert and rule-based channels are configured in Settings > Integrations
 - Public REST API with org API keys and signed webhooks, following Scryfall's conventions ([docs/public-api.md](docs/public-api.md), reference site in `packages/api-docs`)
 
 **Hardware**
+
 - Calibration for servos, feeder, bin heights, routes and the camera's scan region, with a guided tour
 - In-browser firmware flashing, firmware feature gating, device self-test and session locks
 - Wi-Fi remote control for ESP32 boards, relayed through the server
 - Native iOS/Android app ([packages/mobile](packages/mobile/README.md)) that scans with the phone camera and drives a sorter over Bluetooth
 
 **Plans**
+
 - Free and Business tiers (Stripe), with features and limits editable in Admin > Plans
 
 ## Repository layout
@@ -139,11 +145,11 @@ scripts/pi/install.sh
 
 `install.sh` installs Node 22, pnpm, Postgres with pgvector, ffmpeg, and the webcam tools, then writes `.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, and a `mault` database on `127.0.0.1:5432`. Run it as the desktop user. It asks for your password when it needs root. If `git` is not installed yet, run `sudo apt install -y git` before the clone. If `.env` already exists and has no `PI_HOST` line, the script appends `PI_HOST=1`. It then creates the `mault` role and database, builds the server and the web app, runs migrations, and enables three user services. Linger is turned on so those services start at boot. It adds the desktop user to the `dialout` group so the API can open the sorter. When this login does not have that group yet, it restarts the user services so the new membership applies.
 
-| Service | Role |
-| --- | --- |
-| `mault-api` | API on `127.0.0.1:3001`, accessible through the web app's `/api` proxy |
-| `mault-web` | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
-| `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam |
+| Service        | Role                                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------- |
+| `mault-api`    | API on `127.0.0.1:3001`, accessible through the web app's `/api` proxy                                     |
+| `mault-web`    | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
+| `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam                           |
 
 Remote browsers use port 8080. The Linux API service binds only to localhost; HTTP and WebSocket requests reach it through the web app's proxy. Other deployments keep the existing API bind address unless `API_HOST` is configured.
 
@@ -225,12 +231,12 @@ Coolify: see step 5 under [Coolify](#coolify). Outside Docker: `pnpm --filter @m
 
 Four images, built from the repo root and published by CI (`.github/workflows/deploy.yml`) to `ghcr.io/dishwasher-detergent/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`:
 
-| Dockerfile | Image | Notes |
-| --- | --- | --- |
-| `Dockerfile.server` | `mault-server` | Hono API; also contains the `sync-prices` script |
-| `Dockerfile.web` | `mault-web` | Vite SPA on nginx, proxies `/api` to the server |
-| `Dockerfile.api-docs` | `mault-api-docs` | Public API reference |
-| `Dockerfile.bot` | `mault-bot` | Optional Discord bot |
+| Dockerfile            | Image            | Notes                                            |
+| --------------------- | ---------------- | ------------------------------------------------ |
+| `Dockerfile.server`   | `mault-server`   | Hono API; also contains the `sync-prices` script |
+| `Dockerfile.web`      | `mault-web`      | Vite SPA on nginx, proxies `/api` to the server  |
+| `Dockerfile.api-docs` | `mault-api-docs` | Public API reference                             |
+| `Dockerfile.bot`      | `mault-bot`      | Optional Discord bot                             |
 
 The images are public, so the web image reads its `VITE_*` settings at container start (`docker/web-env.sh` writes `env.js`). Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg, since it describes the bundled firmware.
 
@@ -294,9 +300,9 @@ A Logitech C920 works well with: auto focus off, focus 50%, auto exposure on, lo
 
 ## Licensing
 
-| Component | License |
-| --- | --- |
-| Software source code | MIT |
+| Component               | License         |
+| ----------------------- | --------------- |
+| Software source code    | GPL-3.0         |
 | 3D models (`3d model/`) | CC BY-NC-SA 4.0 |
 
 See the `LICENSE` file in each directory for the full terms.
