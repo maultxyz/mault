@@ -97,6 +97,7 @@ export interface ListRowProps {
   onPress?: () => void;
   disabled?: boolean;
   selected?: boolean;
+  subtitleNumberOfLines?: number;
 }
 
 export interface ScreenProps {
@@ -124,7 +125,7 @@ export interface ListGroupProps {
 
 export interface PillProps {
   label: string;
-  tone?: StatusTone | "neutral";
+  tone?: StatusTone | "neutral" | "primary";
   icon?: IconName;
 }
 
@@ -369,6 +370,16 @@ export interface QuickActionProps {
   onPress: () => void;
   disabled?: boolean;
 }
+
+export interface TopBarSwitcherProps {
+  initial: string;
+  label: string;
+  badge?: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+}
+
+export type AppTopBarSheet = "alerts" | "organizations" | "collections";
 
 export interface PickerCardProps {
   icon: IconName;

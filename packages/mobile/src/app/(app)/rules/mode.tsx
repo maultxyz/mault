@@ -107,7 +107,7 @@ export default function SortingModeScreen() {
       <PageHeader title={t("rules.mode.title")} subtitle={activeSet?.name} onBack={() => router.back()} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xxl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
       >
         {!editable ? <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} /> : null}
         {save.isError ? <Callout tone="destructive" title={t("rules.mode.saveFailed")} /> : null}
@@ -126,6 +126,7 @@ export default function SortingModeScreen() {
                     title={t(`rules.modes.${option}.title`)}
                     subtitle={locked ? t("rules.mode.chaosLocked") : t(`rules.modes.${option}.description`)}
                     selected={field.value === option}
+                    subtitleNumberOfLines={0}
                     disabled={!editable || locked}
                     onPress={() => {
                       field.onChange(option);

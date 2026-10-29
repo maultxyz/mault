@@ -17,7 +17,7 @@ export function MobileCameraSheet({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[85dvh]">
         <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <DrawerTitle className="font-heading text-lg font-bold text-foreground">
+          <DrawerTitle className="font-heading text-base font-semibold text-foreground">
             {t("mobileScan.chooseCamera")}
           </DrawerTitle>
           <div className={MOBILE_LIST_CLASS}>

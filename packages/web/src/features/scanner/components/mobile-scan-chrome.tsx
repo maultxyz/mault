@@ -25,7 +25,6 @@ import {
   IconDots,
   IconPlayerPauseFilled,
   IconPlayerPlayFilled,
-  IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
 import { useState } from "react";
@@ -45,9 +44,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   const [removalQueueOpen, setRemovalQueueOpen] = useState(false);
   const {
     queuedCount: removalQueuedCount,
-    isRemoveModeEnabled,
     isRemoveModeActive,
-    setRemoveModeEnabled,
   } = useScanRemoval();
 
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
@@ -88,7 +85,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           action={
             <Button
               variant="secondary"
-              className="rounded-full"
               render={<Link to={SETTINGS_PATHS.billing} />}
             >
               {t("scannerOverlay.upgradeButton")}
@@ -105,7 +101,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             chrome.errorMessage || t("mobileScan.cameraOffDescription")
           }
           action={
-            <Button className="rounded-full" onClick={chrome.onRetry}>
+            <Button onClick={chrome.onRetry}>
               {t("mobileScan.startCamera")}
             </Button>
           }
@@ -120,7 +116,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           action={
             <Button
               variant="secondary"
-              className="rounded-full"
               onClick={chrome.onRetry}
             >
               {t("mobileScan.retry")}
@@ -139,7 +134,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           action={
             <Button
               variant="secondary"
-              className="rounded-full"
               onClick={chrome.onResolveSensorBlocked}
             >
               {t("scannerOverlay.resolveSensorBlocked")}
@@ -164,7 +158,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           action={
             chrome.bluetoothSupported ? (
               <Button
-                className="rounded-full"
                 onClick={chrome.onConnectBluetooth}
               >
                 {t("mobileScan.connect")}
@@ -227,7 +220,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           <div className="flex justify-center px-4 pt-3">
             <div
               key={chrome.lastRoutedBin.at}
-              className="flex flex-col items-center rounded-lg border border-primary bg-primary px-5 py-2 text-primary-foreground shadow-lg animate-in fade-in zoom-in-95 motion-reduce:animate-none"
+              className="flex flex-col items-center rounded-lg border border-primary bg-primary px-5 py-2 text-primary-foreground shadow-popover animate-in fade-in zoom-in-95 motion-reduce:animate-none"
             >
               <span className="text-xs font-medium">
                 {t("scannerOverlay.handScanBinLabel")}
@@ -244,36 +237,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         <div className="flex flex-col gap-3 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
           {notice}
           <div className="flex items-center justify-end gap-3">
-            <div
-              role="group"
-              aria-label={t("scanRemoval.modeLabel")}
-              className={cn(MOBILE_SCAN_CHIP_CLASS, "mr-auto gap-0.5 p-1")}
-            >
-              <button
-                type="button"
-                aria-pressed={!isRemoveModeEnabled}
-                onClick={() => setRemoveModeEnabled(false)}
-                className={cn(
-                  "flex h-7 items-center gap-1 rounded-full px-3",
-                  !isRemoveModeEnabled && "bg-white text-black",
-                )}
-              >
-                <IconPlus className="size-4 shrink-0" />
-                {t("scanRemoval.addMode")}
-              </button>
-              <button
-                type="button"
-                aria-pressed={isRemoveModeEnabled}
-                onClick={() => setRemoveModeEnabled(true)}
-                className={cn(
-                  "flex h-7 items-center gap-1 rounded-full px-3",
-                  isRemoveModeEnabled && "bg-destructive text-white",
-                )}
-              >
-                <IconTrash className="size-4 shrink-0" />
-                {t("scanRemoval.removeMode")}
-              </button>
-            </div>
             <button
               type="button"
               aria-label={t("mobileScan.controls.open")}

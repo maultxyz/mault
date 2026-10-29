@@ -276,7 +276,7 @@ export default function CardDetailScreen() {
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.xl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.xl }}
       >
         {position.isError ? <Callout tone="destructive" title={t("cardDetail.loadFailed")} /> : null}
         {remove.isError ? <Callout tone="destructive" title={t("cardDetail.removeFailed")} /> : null}

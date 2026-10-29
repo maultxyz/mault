@@ -37,7 +37,7 @@ export function SaveBar({
     <div
       role="status"
       className={cn(
-        "fixed inset-x-0 z-50 mx-auto flex w-fit items-center gap-3 rounded-lg border bg-popover px-1 pl-2 py-1 text-xs shadow-lg animate-in fade-in-0 slide-in-from-bottom-4 duration-150 motion-reduce:animate-none",
+        "fixed inset-x-0 z-50 mx-auto flex w-fit items-center gap-3 rounded-lg bg-popover px-1 pl-2 py-1 text-xs shadow-popover ring-1 ring-border animate-in fade-in-0 slide-in-from-bottom-4 duration-150 motion-reduce:animate-none",
         isMobile && piHost ? MOBILE_SAVE_BAR_CLASS : "bottom-8",
         className,
       )}

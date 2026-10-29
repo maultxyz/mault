@@ -11,7 +11,7 @@ export function MobileSegmentedControl<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className="flex w-full gap-1 rounded-full bg-muted p-1"
+      className="flex w-full gap-1 rounded-lg p-1 ring-1 ring-border"
     >
       {items.map((item) => {
         const active = item.key === value;
@@ -23,15 +23,15 @@ export function MobileSegmentedControl<T extends string>({
             aria-selected={active}
             onClick={() => onChange(item.key)}
             className={cn(
-              "flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 truncate rounded-full px-3 text-sm font-semibold transition-colors motion-reduce:transition-none",
+              "flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 truncate rounded-md px-3 text-sm font-medium transition-colors motion-reduce:transition-none",
               active
-                ? "bg-foreground text-background"
-                : "text-foreground/70 active:bg-background/60",
+                ? "bg-primary/10 font-semibold text-primary dark:bg-primary/20"
+                : "text-foreground/70 active:bg-muted",
             )}
           >
             {item.label}
             {!!item.badge && (
-              <span className="min-w-4 rounded-full bg-destructive-strong px-1 text-2xs leading-4 font-semibold text-white tabular-nums">
+              <span className="min-w-4 rounded-sm bg-destructive-strong px-1 text-2xs leading-4 font-semibold text-white tabular-nums">
                 {item.badge > 99 ? "99+" : item.badge}
               </span>
             )}

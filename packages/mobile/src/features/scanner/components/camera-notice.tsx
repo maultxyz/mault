@@ -23,7 +23,7 @@ export function CameraNotice({ tone, title, description, actionLabel, onAction }
         gap: SPACING.sm,
         paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.sm,
-        borderRadius: RADIUS.lg,
+        borderRadius: RADIUS.md,
         backgroundColor: colors.cameraScrim,
       }}
     >

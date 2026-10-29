@@ -27,7 +27,7 @@ export function SettingsSection({
 
   const title = (
     <div className="flex flex-wrap items-center gap-2">
-      <h2 className="font-heading text-sm font-semibold max-md:text-lg max-md:leading-tight max-md:font-bold">
+      <h2 className="font-heading text-sm font-semibold">
         {heading}
       </h2>
       {badge}

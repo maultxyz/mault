@@ -23,10 +23,7 @@ import { CardStrip } from "@/features/home/components/card-strip";
 import { HomeCollectionRow } from "@/features/home/components/home-collection-row";
 import { HomeHero } from "@/features/home/components/home-hero";
 import { HomeStatTile } from "@/features/home/components/home-stat-tile";
-import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
 import { useAppStream } from "@/features/stream/api/use-app-stream";
-import { AlertsBell } from "@/features/stream/components/alerts-bell";
-import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
 import { useActiveOrg } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useSession } from "@/lib/auth/session";
@@ -40,8 +37,6 @@ export default function HomeScreen() {
   const { user } = useSession();
   const orgId = org?.id ?? null;
   const [search, setSearch] = useState("");
-  const [alertsOpen, setAlertsOpen] = useState(false);
-  const alerts = useAppAlerts();
   const { locks } = useAppStream();
   const collections = useQuery(collectionsQueryOptions(orgId));
   const isScreenFocused = useIsFocused();
@@ -78,8 +73,6 @@ export default function HomeScreen() {
       header={
         <PageHeader
           title={firstName ? t("home.greeting", { name: firstName }) : t("home.greetingNoName")}
-          subtitle={org?.name}
-          actions={<AlertsBell count={alerts.length} onPress={() => setAlertsOpen(true)} />}
         />
       }
     >
@@ -92,7 +85,7 @@ export default function HomeScreen() {
         }
       />
 
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <View style={{ flexDirection: "row", gap: SPACING.sm }}>
         <QuickAction icon="scan" label={t("home.actions.scan")} onPress={() => router.navigate("/scan")} />
         <QuickAction icon="plus" label={t("home.actions.newCollection")} onPress={() => router.push("/collection-new")} />
         <QuickAction icon="sorter" label={t("home.actions.sorter")} onPress={() => router.push("/sorter")} />
@@ -200,7 +193,6 @@ export default function HomeScreen() {
           <CardStrip title={t("home.recentlyScanned")} cards={data.recentCards} onOpen={openCard} />
         </>
       ) : null}
-      <AlertsSheet visible={alertsOpen} alerts={alerts} onClose={() => setAlertsOpen(false)} />
     </Screen>
   );
 }

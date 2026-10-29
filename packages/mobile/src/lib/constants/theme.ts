@@ -2,6 +2,8 @@ import type { ThemeColors } from "@/lib/interfaces/theme";
 
 export const LIGHT_COLORS: ThemeColors = {
   background: "#ffffff",
+  shell: "#f7f8f9",
+  shellAccent: "#ecedf0",
   foreground: "#292d34",
   foregroundSecondary: "rgba(41, 45, 52, 0.7)",
   card: "#ffffff",
@@ -12,6 +14,7 @@ export const LIGHT_COLORS: ThemeColors = {
   primaryForeground: "#ffffff",
   primaryText: "#7b68ee",
   primaryMuted: "rgba(123, 104, 238, 0.1)",
+  primarySelected: "rgba(123, 104, 238, 0.12)",
   primaryPressed: "#6a57e3",
   destructive: "#e7000b",
   destructiveStrong: "#c10007",
@@ -37,16 +40,19 @@ export const LIGHT_COLORS: ThemeColors = {
   input: "#e3e5ea",
   inputBackground: "rgba(223, 225, 230, 0.2)",
   cardRing: "rgba(41, 45, 52, 0.1)",
-  segmentActive: "#ffffff",
   destructiveTint: "rgba(231, 0, 11, 0.1)",
   onBrandSurface: "rgba(255, 255, 255, 0.16)",
   onCamera: "#ffffff",
+  onStatusStrong: "#ffffff",
   camera: "#000000",
   cameraScrim: "rgba(0, 0, 0, 0.6)",
+  popoverShadow: "rgba(16, 24, 40, 0.14)",
 };
 
 export const DARK_COLORS: ThemeColors = {
   background: "#1e1f21",
+  shell: "#18191b",
+  shellAccent: "#2a2c30",
   foreground: "#e3e4e8",
   foregroundSecondary: "rgba(227, 228, 232, 0.7)",
   card: "#25272a",
@@ -57,6 +63,7 @@ export const DARK_COLORS: ThemeColors = {
   primaryForeground: "#ffffff",
   primaryText: "#a99cf4",
   primaryMuted: "rgba(123, 104, 238, 0.2)",
+  primarySelected: "rgba(123, 104, 238, 0.24)",
   primaryPressed: "#6a57e3",
   destructive: "#ff6467",
   destructiveStrong: "#c10007",
@@ -82,12 +89,13 @@ export const DARK_COLORS: ThemeColors = {
   input: "rgba(255, 255, 255, 0.1)",
   inputBackground: "rgba(255, 255, 255, 0.045)",
   cardRing: "rgba(227, 228, 232, 0.1)",
-  segmentActive: "rgba(227, 228, 232, 0.15)",
   destructiveTint: "rgba(255, 100, 103, 0.2)",
   onBrandSurface: "rgba(255, 255, 255, 0.16)",
   onCamera: "#ffffff",
+  onStatusStrong: "#ffffff",
   camera: "#000000",
   cameraScrim: "rgba(0, 0, 0, 0.6)",
+  popoverShadow: "rgba(0, 0, 0, 0.5)",
 };
 
 export const RADIUS = {
@@ -108,9 +116,9 @@ export const SPACING = {
 } as const;
 
 export const FONT_SIZE = {
-  "2xs": 11,
-  xs: 12,
-  sm: 14,
+  "2xs": 12,
+  xs: 14,
+  sm: 15,
   base: 16,
   lg: 18,
   xl: 20,
@@ -120,18 +128,26 @@ export const FONT_SIZE = {
   display: 42,
 } as const;
 
-export const SCREEN_GUTTER = 20;
+export const SCREEN_GUTTER = 16;
 
 export const FONT_FAMILY = {
   regular: "Figtree_400Regular",
   medium: "Figtree_500Medium",
   semibold: "Figtree_600SemiBold",
   bold: "Figtree_700Bold",
-  headingMedium: "Figtree_600SemiBold",
-  headingSemibold: "Figtree_700Bold",
+  headingMedium: "JetBrainsMono_500Medium",
+  headingSemibold: "JetBrainsMono_600SemiBold",
   mono: "JetBrainsMono_400Regular",
 } as const;
 
 export const DARK_PRIMARY_TEXT_MIN_LIGHTNESS = 0.72;
 export const PRIMARY_MUTED_ALPHA = { light: 0.1, dark: 0.2 } as const;
+export const PRIMARY_SELECTED_ALPHA = { light: 0.12, dark: 0.24 } as const;
 export const PRIMARY_PRESSED_LIGHTNESS_SCALE = 0.88;
+
+export const SHEET_SHADOW = {
+  shadowOffset: { width: 0, height: -4 },
+  shadowOpacity: 1,
+  shadowRadius: 12,
+  elevation: 16,
+} as const;

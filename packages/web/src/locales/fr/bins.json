@@ -307,5 +307,13 @@
     "title": "Règles de tri",
     "description": "Décide dans quel bac va chaque carte. Ces règles s'appliquent à chaque collection {{game}}.",
     "descriptionNoGame": "Décide dans quel bac va chaque carte. Choisis une collection pour sélectionner le jeu dont tu modifies les règles."
+  },
+  "sortingModePanel": {
+    "title": "Mode de tri",
+    "explain": "À quoi sert {{mode}} ?"
+  },
+  "mobileBinPicker": {
+    "caption": "En cours de modification",
+    "title": "Choisir un bac"
   }
 }

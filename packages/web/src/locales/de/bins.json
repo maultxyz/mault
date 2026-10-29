@@ -307,5 +307,13 @@
     "title": "Sortierregeln",
     "description": "Lege fest, in welches Fach jede Karte kommt. Diese Regeln gelten für jede {{game}}-Sammlung.",
     "descriptionNoGame": "Lege fest, in welches Fach jede Karte kommt. Wähle eine Sammlung, um festzulegen, für welches Spiel du die Regeln bearbeitest."
+  },
+  "sortingModePanel": {
+    "title": "Sortiermodus",
+    "explain": "Was macht {{mode}}?"
+  },
+  "mobileBinPicker": {
+    "caption": "Wird bearbeitet",
+    "title": "Fach auswählen"
   }
 }

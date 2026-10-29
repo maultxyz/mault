@@ -63,16 +63,16 @@ export default function MePage() {
         )}
       >
         <div className={MOBILE_PAGE_BODY_CLASS}>
-          <div className="flex items-center gap-4">
-            <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary font-heading text-lg font-bold text-primary-foreground">
+          <div className="flex items-center gap-3 rounded-lg bg-card p-3 ring-1 ring-border">
+            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
               {getInitials(name)}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-heading text-lg font-bold text-foreground">
+              <p className="truncate font-heading text-sm font-semibold text-foreground">
                 {name || email}
               </p>
               {name && email && (
-                <p className="truncate text-sm text-foreground/70">{email}</p>
+                <p className="truncate text-xs text-foreground/70">{email}</p>
               )}
             </div>
           </div>

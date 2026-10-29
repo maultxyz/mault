@@ -209,6 +209,8 @@ code {
     --text-2xs--line-height: 1rem;
     --text-xs: 0.875rem;
     --text-sm: 0.9375rem;
+    --text-control: 0.9375rem;
+    --text-control--line-height: 1.375rem;
   }
 }
 

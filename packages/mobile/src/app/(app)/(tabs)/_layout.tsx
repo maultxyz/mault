@@ -4,6 +4,7 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
+import { useShellPanelStyle } from "@/hooks/use-shell-panel-style";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS } from "@/lib/constants/theme";
 import { TAB_ICONS } from "@/lib/constants/nav";
@@ -13,21 +14,22 @@ export default function TabsLayout() {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
+  const panelStyle = useShellPanelStyle();
   return (
     <Tabs
       screenOptions={({ route }) => ({
         headerShown: false,
+        sceneStyle: route.name === "scan" ? { ...panelStyle, backgroundColor: colors.camera } : panelStyle,
         tabBarActiveTintColor: colors.primaryText,
         tabBarInactiveTintColor: colors.foregroundSecondary,
-        tabBarActiveBackgroundColor: colors.background,
-        tabBarInactiveBackgroundColor: colors.background,
+        tabBarActiveBackgroundColor: colors.shell,
+        tabBarInactiveBackgroundColor: colors.shell,
         tabBarStyle: {
           height: TAB_BAR_HEIGHT + insets.bottom,
           paddingBottom: insets.bottom,
           paddingTop: 0,
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
-          borderTopWidth: 1,
+          backgroundColor: colors.shell,
+          borderTopWidth: 0,
           elevation: 0,
           shadowOpacity: 0,
         },
@@ -40,7 +42,7 @@ export default function TabsLayout() {
               borderRadius: RADIUS.md,
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: focused ? colors.primaryMuted : "transparent",
+              backgroundColor: focused ? colors.primarySelected : "transparent",
             }}
           >
             <Icon name={TAB_ICONS[route.name]} size={TAB_ICON_SIZE} color={typeof color === "string" ? color : colors.foreground} />

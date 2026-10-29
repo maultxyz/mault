@@ -49,7 +49,7 @@ export function BinLocationDiagram({ binNumber }: BinLocationDiagramProps) {
   };
 
   return (
-    <View style={{ borderRadius: RADIUS.lg, overflow: "hidden", backgroundColor: colors.muted }}>
+    <View style={{ borderRadius: RADIUS.lg, overflow: "hidden", borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card }}>
       {modules.map((module) => (
         <View key={module} style={{ flexDirection: "row" }}>
           {BIN_SLOTS_PHYSICAL_ORDER.map(({ direction }) => {

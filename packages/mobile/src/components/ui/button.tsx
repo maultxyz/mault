@@ -20,7 +20,7 @@ export function Button({
   const colors = useTheme();
   const palette = {
     primary: { bg: colors.primary, pressed: colors.primaryPressed, fg: colors.primaryForeground, border: "transparent" },
-    secondary: { bg: colors.muted, pressed: colors.border, fg: colors.foreground, border: "transparent" },
+    secondary: { bg: colors.background, pressed: colors.muted, fg: colors.foreground, border: colors.border },
     destructive: { bg: colors.destructiveTint, pressed: colors.destructiveMuted, fg: colors.destructive, border: "transparent" },
     ghost: { bg: "transparent", pressed: colors.muted, fg: colors.foreground, border: "transparent" },
   }[variant];

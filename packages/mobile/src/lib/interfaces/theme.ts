@@ -5,6 +5,8 @@ import type { FONT_SIZE } from "@/lib/constants/theme";
 
 export interface ThemeColors {
   background: string;
+  shell: string;
+  shellAccent: string;
   foreground: string;
   foregroundSecondary: string;
   card: string;
@@ -15,6 +17,7 @@ export interface ThemeColors {
   primaryForeground: string;
   primaryText: string;
   primaryMuted: string;
+  primarySelected: string;
   primaryPressed: string;
   destructive: string;
   destructiveStrong: string;
@@ -40,12 +43,13 @@ export interface ThemeColors {
   input: string;
   inputBackground: string;
   cardRing: string;
-  segmentActive: string;
   destructiveTint: string;
   onBrandSurface: string;
   onCamera: string;
+  onStatusStrong: string;
   camera: string;
   cameraScrim: string;
+  popoverShadow: string;
 }
 
 export type FontSize = keyof typeof FONT_SIZE;

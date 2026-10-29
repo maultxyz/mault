@@ -25,7 +25,3 @@ export interface AlertsSheetProps {
   onClose: () => void;
 }
 
-export interface AlertsBellProps {
-  count: number;
-  onPress: () => void;
-}

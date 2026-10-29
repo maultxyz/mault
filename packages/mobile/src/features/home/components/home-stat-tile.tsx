@@ -13,8 +13,10 @@ export function HomeStatTile({ label, value }: HomeStatTileProps) {
       style={{
         flex: 1,
         minWidth: 0,
-        borderRadius: RADIUS.lg,
-        backgroundColor: colors.muted,
+        borderRadius: RADIUS.md,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.card,
         paddingHorizontal: SPACING.md,
         paddingVertical: 10,
       }}

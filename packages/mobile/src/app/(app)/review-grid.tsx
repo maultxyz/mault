@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, useWindowDimensions, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import type { ReviewGridCard } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -17,6 +17,7 @@ import {
 } from "@/features/cards/api/review-grid";
 import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
 import { useTheme } from "@/hooks/use-theme";
+import { usePanelWidth } from "@/hooks/use-panel-width";
 import { REVIEW_GRID_WIDE_MIN_WIDTH } from "@/lib/constants/cards";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { ReviewLayout } from "@/lib/interfaces/cards";
@@ -27,7 +28,7 @@ export default function ReviewGridScreen() {
   const { t } = useTranslation();
   const colors = useTheme();
   const queryClient = useQueryClient();
-  const { width } = useWindowDimensions();
+  const width = usePanelWidth();
   const columns = width >= REVIEW_GRID_WIDE_MIN_WIDTH ? 2 : 1;
   const review = useQuery(
     storageGuid ? storageReviewGridQueryOptions(storageGuid) : collectionReviewGridQueryOptions(guid ?? ""),
@@ -94,7 +95,7 @@ export default function ReviewGridScreen() {
         keyExtractor={(card) => card.scanId}
         numColumns={columns}
         columnWrapperStyle={columns > 1 ? { gap: SPACING.md } : undefined}
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.md }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.md }}
         refreshControl={
           <RefreshControl
             refreshing={review.isRefetching}

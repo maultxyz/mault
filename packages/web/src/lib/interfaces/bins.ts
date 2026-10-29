@@ -148,10 +148,6 @@ export interface ConditionRowProps {
   onRemove: () => void;
 }
 
-export interface PresetSelectorProps {
-  readOnly?: boolean;
-}
-
 export type PresetDialog =
   | "create"
   | "rename"
@@ -209,4 +205,15 @@ export interface BinSettingRowProps {
 export interface PresetsMutationOptions {
   showServerMessage?: boolean;
   onApplied?: () => void;
+}
+
+export interface SortingModeToggleRowProps {
+  label: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  badge?: ReactNode;
+  className?: string;
+  dataTour?: string;
 }
