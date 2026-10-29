@@ -86,9 +86,12 @@
       }
     }
   },
+  "views": {
+    "label": "Buy and sell view",
+    "intake": "Intake",
+    "picks": "Picks"
+  },
   "intake": {
-    "title": "Intake",
-    "subtitleList": "Buy collections over the counter",
     "subtitle": "Scanning into {{collection}} · started {{date}}",
     "new": "New intake",
     "newTitle": "Start an intake",

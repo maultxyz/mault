@@ -1,3 +1,4 @@
+import type { BUSINESS_VIEWS } from "@/lib/constants/business";
 import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { BusinessSettingsDraftValues } from "@/schemas/business.schema";
 import type {
@@ -156,6 +157,12 @@ export interface SpotCheckRunnerProps {
 export interface ServiceIntervalDialogProps {
   device: DeviceHealth | null;
   onOpenChange: (open: boolean) => void;
+}
+
+export type BusinessView = (typeof BUSINESS_VIEWS)[number];
+
+export interface BusinessViewSwitchProps {
+  value: BusinessView;
 }
 
 export interface OrdersWorkspaceProps {

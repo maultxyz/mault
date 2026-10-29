@@ -92,6 +92,8 @@ export function selectStoredCards(tx: Transaction) {
       hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
       corrected: collectionCards.isCorrected,
       reviewed: collectionCards.isReviewed,
+      acquisitionCost: collectionCards.acquisitionCost,
+      acquisitionCurrency: collectionCards.acquisitionCurrency,
       collectionGuid: collections.guid,
       collectionName: collections.name,
       collectionLang: collections.lang,
@@ -102,19 +104,37 @@ export function selectStoredCards(tx: Transaction) {
     .leftJoin(games, eq(games.id, collections.gameId));
 }
 
+export function visibleAcquisitionCost(
+  row: { acquisitionCost: number | null; acquisitionCurrency: string | null },
+  canViewCosts: boolean,
+): Pick<StorageLocationCard, "acquisitionCost" | "acquisitionCurrency"> {
+  return canViewCosts && row.acquisitionCost !== null
+    ? {
+        acquisitionCost: row.acquisitionCost,
+        acquisitionCurrency: row.acquisitionCurrency,
+      }
+    : { acquisitionCost: null, acquisitionCurrency: null };
+}
+
 export async function toStoredCards(
   rows: Awaited<ReturnType<typeof selectStoredCards>>,
+  canViewCosts: boolean,
 ): Promise<StorageLocationCard[]> {
   const cards = await hydrateSavedCards(
-    rows.map((r) => ({ gameKey: r.gameKey, lang: r.collectionLang, card: r.card })),
+    rows.map((r) => ({
+      gameKey: r.gameKey,
+      lang: r.collectionLang,
+      card: r.card,
+    })),
     { includeRaw: false },
   );
-  return rows.map((r, i) => toStoredCard(r, cards[i]));
+  return rows.map((r, i) => toStoredCard(r, cards[i], canViewCosts));
 }
 
 function toStoredCard(
   r: Awaited<ReturnType<typeof selectStoredCards>>[number],
   card: PlayingCardWithDistance,
+  canViewCosts: boolean,
 ): StorageLocationCard {
   return {
     scanId: r.scanId!,
@@ -128,6 +148,7 @@ function toStoredCard(
     hasAlternatives: r.hasAlternatives,
     corrected: r.corrected,
     reviewed: r.reviewed,
+    ...visibleAcquisitionCost(r, canViewCosts),
     collectionGuid: r.collectionGuid!,
     collectionName: r.collectionName,
   };
@@ -186,7 +207,10 @@ export async function orderedLocationGuids(
     .select({ guid: storageLocations.guid })
     .from(storageLocations)
     .where(
-      and(eq(storageLocations.orgId, orgId), eq(storageLocations.isDeleted, false)),
+      and(
+        eq(storageLocations.orgId, orgId),
+        eq(storageLocations.isDeleted, false),
+      ),
     )
     .orderBy(asc(storageLocations.name), asc(storageLocations.id));
   return rows.map((row) => row.guid);

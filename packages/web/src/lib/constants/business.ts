@@ -11,6 +11,13 @@ export const LEGACY_REPORTS_PATH = "/app/reports";
 export const intakeReceiptPath = (guid: string, autoPrint = false) =>
   `${INTAKE_PATH}/${guid}/receipt${autoPrint ? `?${RECEIPT_PRINT_PARAM}=1` : ""}`;
 
+export const BUSINESS_VIEW_PARAM = "view";
+export const BUSINESS_INTAKE_VIEW = "intake";
+export const BUSINESS_PICKS_VIEW = "picks";
+export const BUSINESS_VIEWS = [BUSINESS_INTAKE_VIEW, BUSINESS_PICKS_VIEW] as const;
+export const businessPicksPath = (orderGuid?: string | null) =>
+  `${INTAKE_PATH}?${BUSINESS_VIEW_PARAM}=${BUSINESS_PICKS_VIEW}${orderGuid ? `&${ORDER_PARAM}=${orderGuid}` : ""}`;
+
 export const INTAKE_LOT_PARAM = "lot";
 export const ORDER_PARAM = "order";
 

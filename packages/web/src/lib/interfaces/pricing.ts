@@ -16,6 +16,11 @@ export interface PriceFormatter {
     finish?: boolean | CardFinish,
     condition?: CardCondition,
   ): number | null;
+  priceAtScanOf(
+    card: PlayingCard,
+    finish?: boolean | CardFinish,
+    condition?: CardCondition,
+  ): number | null;
   format(value: number): string;
 }
 

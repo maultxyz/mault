@@ -86,9 +86,12 @@
       }
     }
   },
+  "views": {
+    "label": "Ankauf- und Verkaufsansicht",
+    "intake": "Ankauf",
+    "picks": "Picks"
+  },
   "intake": {
-    "title": "Ankauf",
-    "subtitleList": "Sammlungen an der Theke ankaufen",
     "subtitle": "Scannt in {{collection}} · gestartet {{date}}",
     "new": "Neuer Ankauf",
     "newTitle": "Ankauf starten",
