@@ -1,4 +1,7 @@
-import { removeUnmatchedScan } from "@/features/collections/api/collections";
+import {
+  clearUnmatchedScans,
+  removeUnmatchedScan,
+} from "@/features/collections/api/collections";
 import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -54,6 +57,9 @@ export function MobileMonitorActivity({
           canEditCards
             ? (scanId) => removeUnmatchedScan(collectionGuid, scanId)
             : undefined
+        }
+        onRemoveAll={
+          canEditCards ? () => clearUnmatchedScans(collectionGuid) : undefined
         }
       />
 

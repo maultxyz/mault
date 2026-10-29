@@ -1,11 +1,14 @@
+import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { unmatchedCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
+import { invalidateUnmatchedCards } from "@/features/collections/lib/card-page-cache";
 import { UnmatchedCardDetail } from "@/features/scanner/components/unmatched-card-detail";
 import { UnmatchedCardTile } from "@/features/scanner/components/unmatched-card-tile";
 import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
 import type { UnmatchedCardsBrowserProps } from "@/lib/interfaces/scanner";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { UNMATCHED_PAGE_SIZE } from "@magic-vault/shared";
 import {
@@ -14,8 +17,9 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconPlayerPlay,
+  IconTrash,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -25,11 +29,15 @@ export function UnmatchedCardsBrowser({
   onOpenIndexChange: setOpenIndex,
   canIdentify,
   onRemove,
+  onRemoveAll,
   onClose,
   className,
 }: UnmatchedCardsBrowserProps) {
   const { t } = useTranslation("scanner");
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [isRemoveAllDialogOpen, setIsRemoveAllDialogOpen] = useState(false);
+  const [isRemovingAll, setIsRemovingAll] = useState(false);
   const { data, isPending } = useQuery({
     ...unmatchedCardsPageQueryOptions(collectionGuid, page),
     enabled: openIndex == null,
@@ -46,6 +54,20 @@ export function UnmatchedCardsBrowser({
       setPage(Math.floor(openIndex / UNMATCHED_PAGE_SIZE) + 1);
     }
     setOpenIndex(null);
+  };
+
+  const removeAll = async () => {
+    if (!onRemoveAll || isRemovingAll) return;
+    setIsRemovingAll(true);
+    const removedAll = await onRemoveAll();
+    if (removedAll) {
+      toast.success(t("unmatchedCardsPanel.removedAll", { count: total }));
+      setPage(1);
+    } else {
+      toast.error(t("unmatchedCardsPanel.removeAllFailed"));
+    }
+    await invalidateUnmatchedCards(queryClient, collectionGuid);
+    setIsRemovingAll(false);
   };
 
   if (openIndex != null) {
@@ -77,15 +99,33 @@ export function UnmatchedCardsBrowser({
             {t("unmatchedCardsPanel.heading", { count: total })}
           </p>
         </div>
-        <Button
-          className="shrink-0"
-          disabled={total === 0}
-          onClick={() => setOpenIndex(0)}
-        >
-          <IconPlayerPlay />
-          {t("unmatchedCardsPanel.startReview")}
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          {onRemoveAll && (
+            <Button
+              variant="outline"
+              disabled={total === 0 || isRemovingAll}
+              onClick={() => setIsRemoveAllDialogOpen(true)}
+            >
+              <IconTrash />
+              {t("unmatchedCardsPanel.removeAll")}
+            </Button>
+          )}
+          <Button disabled={total === 0} onClick={() => setOpenIndex(0)}>
+            <IconPlayerPlay />
+            {t("unmatchedCardsPanel.startReview")}
+          </Button>
+        </div>
       </div>
+      {onRemoveAll && (
+        <DeleteDialog
+          open={isRemoveAllDialogOpen}
+          onOpenChange={setIsRemoveAllDialogOpen}
+          title={t("unmatchedCardsPanel.removeAllTitle", { count: total })}
+          description={t("unmatchedCardsPanel.removeAllDescription")}
+          confirmLabel={t("unmatchedCardsPanel.removeAll")}
+          onConfirm={() => void removeAll()}
+        />
+      )}
 
       {isPending ? (
         <div className={cn(CARD_GRID_CLASS, "p-2")}>

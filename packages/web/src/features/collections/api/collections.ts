@@ -325,6 +325,16 @@ export function removeUnmatchedScan(
     .catch(() => false);
 }
 
+export async function clearUnmatchedCards(guid: string): Promise<Result<null>> {
+  return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched`);
+}
+
+export function clearUnmatchedScans(guid: string): Promise<boolean> {
+  return clearUnmatchedCards(guid)
+    .then((result) => result.success)
+    .catch(() => false);
+}
+
 export async function identifyUnmatchedCard(
   guid: string,
   scanId: string,
