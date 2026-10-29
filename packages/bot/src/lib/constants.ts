@@ -17,6 +17,19 @@ export const NOTIFY_CHANNEL_PERMISSIONS = {
 
 export const SERVER_URL = process.env.SERVER_URL ?? "http://localhost:3001";
 
+export const WEB_URL = process.env.WEB_URL ?? "https://mault.xyz";
+
+export const ACCOUNT_SETTINGS_PATH = "/app/account/settings";
+
+export const WELCOME_GUILD_IDS = new Set(
+  (process.env.DISCORD_WELCOME_GUILD_IDS ?? "")
+    .split(",")
+    .map((guildId) => guildId.trim())
+    .filter(Boolean),
+);
+
+export const DISCORD_LINK_CODE_TTL_MINUTES = 10;
+
 export const BOT_API_SECRET = process.env.BOT_API_SECRET ?? "";
 
 export const NOTIFY_SERVER_PORT = parseInt(process.env.BOT_PORT ?? "3002");

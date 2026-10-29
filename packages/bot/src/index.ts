@@ -17,7 +17,8 @@ import * as showoff from "./commands/showoff";
 import * as stats from "./commands/stats";
 import { startNotifyServer } from "./notify-server";
 import { startPresenceCycle } from "./presence";
-import { BOT_API_SECRET } from "./lib/constants";
+import { sendWelcomeDm } from "./welcome-dm";
+import { BOT_API_SECRET, WELCOME_GUILD_IDS } from "./lib/constants";
 import type { BotCommand } from "./lib/interfaces";
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -62,7 +63,13 @@ async function registerCommands() {
   );
 }
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const sendsWelcomeDms = WELCOME_GUILD_IDS.size > 0;
+
+const client = new Client({
+  intents: sendsWelcomeDms
+    ? [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
+    : [GatewayIntentBits.Guilds],
+});
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(
@@ -73,6 +80,10 @@ client.once(Events.ClientReady, (readyClient) => {
 
 client.on(Events.GuildCreate, (guild) => {
   console.log(`[bot] Joined server ${guild.id}`);
+});
+
+client.on(Events.GuildMemberAdd, (member) => {
+  void sendWelcomeDm(member);
 });
 
 client.on(Events.GuildDelete, async (guild) => {
@@ -120,6 +131,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 async function main() {
   await registerCommands();
+  if (sendsWelcomeDms) {
+    console.log(
+      `[bot] Welcome DMs on for ${WELCOME_GUILD_IDS.size} server(s); requesting the Server Members intent (enable it under Bot > Privileged Gateway Intents in the Discord Developer Portal or login fails).`,
+    );
+  }
   await client.login(DISCORD_BOT_TOKEN);
   startNotifyServer(client);
 }
