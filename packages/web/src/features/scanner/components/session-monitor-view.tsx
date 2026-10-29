@@ -1,5 +1,8 @@
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
-import { removeUnmatchedScan } from "@/features/collections/api/collections";
+import {
+  clearUnmatchedScans,
+  removeUnmatchedScan,
+} from "@/features/collections/api/collections";
 import { useMonitorCards } from "@/features/scanner/api/use-monitor-cards";
 import { MobileSessionMonitor } from "@/features/scanner/components/mobile-session-monitor";
 import { MonitorCardDetail } from "@/features/scanner/components/monitor-card-detail";
@@ -67,6 +70,7 @@ export function SessionMonitorView({
             onRemove={(scanId) =>
               removeUnmatchedScan(cardsSource.collectionGuid, scanId)
             }
+            onRemoveAll={() => clearUnmatchedScans(cardsSource.collectionGuid)}
           />
         ) : (
           <UnmatchedCardsPanel cards={unmatchedCards} total={unmatchedCount} />
@@ -84,6 +88,7 @@ export function SessionMonitorView({
             onRemove={(scanId) =>
               removeUnmatchedScan(cardsSource.collectionGuid, scanId)
             }
+            onRemoveAll={() => clearUnmatchedScans(cardsSource.collectionGuid)}
             onClose={unmatchedView.close}
             className="min-h-full"
           />

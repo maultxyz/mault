@@ -22,6 +22,7 @@ export function UnmatchedCardsPanel({
   collectionGuid,
   canIdentify = false,
   onRemove,
+  onRemoveAll,
 }: UnmatchedCardsPanelProps) {
   const { t } = useTranslation("scanner");
   const isMobile = useIsMobile();
@@ -168,6 +169,7 @@ export function UnmatchedCardsPanel({
             collectionGuid={collectionGuid}
             canIdentify={canIdentify}
             onRemove={onRemove}
+            onRemoveAll={onRemoveAll}
           />
         </>
       )}

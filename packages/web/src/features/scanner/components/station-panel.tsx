@@ -12,8 +12,12 @@ import type { StationPanelLayout } from "@/lib/interfaces/stations";
 import { useState } from "react";
 
 export function StationPanel({ layout }: { layout: StationPanelLayout }) {
-  const { unmatchedCards, unmatchedCount, removeUnmatchedCard } =
-    useScannedCards();
+  const {
+    unmatchedCards,
+    unmatchedCount,
+    removeUnmatchedCard,
+    removeAllUnmatchedCards,
+  } = useScannedCards();
   const { activeCollection } = useCollections();
   const unmatchedPanel = (
     <UnmatchedCardsPanel
@@ -22,6 +26,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
       total={unmatchedCount}
       collectionGuid={activeCollection?.guid}
       onRemove={removeUnmatchedCard}
+      onRemoveAll={removeAllUnmatchedCards}
     />
   );
   const [controlsContainer, setControlsContainer] =

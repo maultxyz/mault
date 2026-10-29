@@ -9,7 +9,7 @@ import { UnmatchedCardsBrowser } from "@/features/scanner/components/unmatched-c
 export function ScannerMainContent() {
   const { isOpen, openIndex, setOpenIndex, close } = useUnmatchedView();
   const { activeCollection } = useCollections();
-  const { removeUnmatchedCard } = useScannedCards();
+  const { removeUnmatchedCard, removeAllUnmatchedCards } = useScannedCards();
   const { isRemoveModeEnabled } = useScanRemoval();
 
   if (isRemoveModeEnabled) return <ScanRemovalPanel />;
@@ -22,6 +22,7 @@ export function ScannerMainContent() {
         onOpenIndexChange={setOpenIndex}
         canIdentify
         onRemove={removeUnmatchedCard}
+        onRemoveAll={removeAllUnmatchedCards}
         onClose={close}
       />
     );
