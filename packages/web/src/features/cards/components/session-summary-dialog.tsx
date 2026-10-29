@@ -508,9 +508,10 @@ export function SessionSummaryDialog({
     if (!collectionGuid) return;
     let cards;
     try {
-      cards = await queryClient.fetchQuery(
-        collectionCardsExportQueryOptions(collectionGuid, true),
-      );
+      cards = await queryClient.fetchQuery({
+        ...collectionCardsExportQueryOptions(collectionGuid, true),
+        staleTime: 0,
+      });
     } catch (err) {
       console.error("Failed to load cards for export:", err);
       toast.error(t("sessionSummaryDialog.downloadFailed"));
