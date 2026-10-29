@@ -18,6 +18,11 @@ on:
         type: choice
         options: [patch, minor, major]
         default: patch
+      target:
+        description: What to deploy. Anything but everything skips the release commit and tag, so the nightly run still sees the rest as pending.
+        type: choice
+        options: [everything, web-and-server, bot, api-docs]
+        default: everything
 
 permissions:
   contents: write
@@ -118,6 +123,39 @@ jobs:
             echo "should_deploy=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # Web and server stay one target for the same reason they always deploy
+      # together. A partial deploy is not a release: the version gets a
+      # -<target>.<sha> suffix and nothing is committed or tagged, since a tag
+      # would mark the parts that were left out as deployed.
+      - name: Select deploy targets
+        id: targets
+        env:
+          TARGET: ${{ inputs.target || 'everything' }}
+        run: |
+          WEB_SERVER=false
+          DOCS=false
+          BOT=false
+          case "$TARGET" in
+            everything) WEB_SERVER=true; DOCS=true; BOT=true ;;
+            web-and-server) WEB_SERVER=true ;;
+            api-docs) DOCS=true ;;
+            bot) BOT=true ;;
+            *) echo "::error::Unknown deploy target $TARGET."; exit 1 ;;
+          esac
+          LABELS=()
+          if [ "$WEB_SERVER" = "true" ]; then LABELS+=("Web" "Server"); fi
+          if [ "$DOCS" = "true" ]; then LABELS+=("API docs"); fi
+          if [ "$BOT" = "true" ]; then LABELS+=("Bot"); fi
+          {
+            echo "target=$TARGET"
+            echo "partial=$([ "$TARGET" = "everything" ] && echo false || echo true)"
+            echo "web_server=$WEB_SERVER"
+            echo "docs=$DOCS"
+            echo "bot=$BOT"
+            echo "labels=$(IFS=,; echo "${LABELS[*]}" | sed 's/,/, /g')"
+          } >> "$GITHUB_OUTPUT"
+          echo "Deploy targets: $TARGET"
+
       - name: Describe release
         id: pr
         run: |
@@ -127,6 +165,9 @@ jobs:
             TITLE="Manual deploy"
           else
             TITLE="Nightly deploy (${{ steps.changes.outputs.count }} commits)"
+          fi
+          if [ "${{ steps.targets.outputs.partial }}" = "true" ]; then
+            TITLE="$TITLE (${{ steps.targets.outputs.labels }})"
           fi
           if [ -n "${{ steps.changes.outputs.last_tag }}" ]; then
             URL="https://github.com/${{ github.repository }}/compare/${{ steps.changes.outputs.last_tag }}...${{ github.sha }}"
@@ -154,6 +195,8 @@ jobs:
           CURRENT=$(node -p "require('./package.json').version")
           if [ "$IS_DEV" = "true" ]; then
             VERSION="${CURRENT}-dev.${GITHUB_SHA::7}"
+          elif [ "${{ steps.targets.outputs.partial }}" = "true" ]; then
+            VERSION="${CURRENT}-${{ steps.targets.outputs.target }}.${GITHUB_SHA::7}"
           else
             MAJOR=$(echo "$CURRENT" | cut -d. -f1)
             MINOR=$(echo "$CURRENT" | cut -d. -f2)
@@ -191,7 +234,7 @@ jobs:
       # regenerated here (with the new version), baked into the API docs image
       # and committed with the release rather than generated at build time.
       - name: Generate OpenAPI spec
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true'
         run: |
           pnpm install --frozen-lockfile --filter @magic-vault/api-docs...
           pnpm --filter @magic-vault/api-docs openapi
@@ -225,7 +268,7 @@ jobs:
       # and never committed.
       - name: Select firmware
         id: firmware
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -243,7 +286,7 @@ jobs:
       # which is moved onto these images further down, once the release commit
       # exists and (for the server) migrations have run.
       - name: Build and push web image
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -262,7 +305,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=web
 
       - name: Build and push server image
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -275,7 +318,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=server
 
       - name: Build and push API docs image
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -292,7 +335,7 @@ jobs:
       # Like the server, the bot reads all of its config (token, client id,
       # server URL, secrets) from the container's environment at start-up.
       - name: Build and push bot image
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.bot == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -306,7 +349,7 @@ jobs:
 
       - name: Commit and tag app version
         id: appcommit
-        if: steps.deploy.outputs.should_deploy == 'true' && env.IS_DEV != 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.partial != 'true' && env.IS_DEV != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -325,7 +368,7 @@ jobs:
       # here must never block the deploy itself. The announcement expires on
       # its own (durationMinutes) if the removal step below never runs.
       - name: Announce deploy
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         continue-on-error: true
         env:
           API_URL: ${{ secrets.MAULT_API_URL }}
@@ -339,24 +382,21 @@ jobs:
       - name: Promote web, API docs and bot images
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
-          docker buildx imagetools create \
-            -t "${{ steps.images.outputs.web }}:$CHANNEL" \
-            "${{ steps.images.outputs.web }}:v${{ steps.appversion.outputs.version }}"
-          docker buildx imagetools create \
-            -t "${{ steps.images.outputs.docs }}:$CHANNEL" \
-            "${{ steps.images.outputs.docs }}:v${{ steps.appversion.outputs.version }}"
-          docker buildx imagetools create \
-            -t "${{ steps.images.outputs.bot }}:$CHANNEL" \
-            "${{ steps.images.outputs.bot }}:v${{ steps.appversion.outputs.version }}"
+          promote() {
+            docker buildx imagetools create -t "$1:$CHANNEL" "$1:v${{ steps.appversion.outputs.version }}"
+          }
+          if [ "${{ steps.targets.outputs.web_server }}" = "true" ]; then promote "${{ steps.images.outputs.web }}"; fi
+          if [ "${{ steps.targets.outputs.docs }}" = "true" ]; then promote "${{ steps.images.outputs.docs }}"; fi
+          if [ "${{ steps.targets.outputs.bot }}" = "true" ]; then promote "${{ steps.images.outputs.bot }}"; fi
 
       - name: Trigger Coolify deployment (web)
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         run: |
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_WEB }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Trigger Coolify deployment (API docs)
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true'
         env:
           WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_API_DOCS }}
         run: |
@@ -368,7 +408,7 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Trigger Coolify deployment (bot)
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.bot == 'true'
         env:
           WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_BOT }}
         run: |
@@ -380,24 +420,24 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Install server dependencies
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         run: pnpm install --frozen-lockfile --filter @magic-vault/server...
 
       - name: Run database migrations
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm --filter @magic-vault/server db:migrate
 
       - name: Promote server image
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         run: |
           docker buildx imagetools create \
             -t "${{ steps.images.outputs.server }}:$CHANNEL" \
             "${{ steps.images.outputs.server }}:v${{ steps.appversion.outputs.version }}"
 
       - name: Trigger Coolify deployment (server)
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         run: |
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_SERVER }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
@@ -406,7 +446,7 @@ jobs:
       # deploy only counts as finished once the server reports the new
       # version.
       - name: Wait for new server version
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         continue-on-error: true
         timeout-minutes: 30
         env:
@@ -420,7 +460,7 @@ jobs:
           echo "Server is running v$EXPECTED"
 
       - name: Remove deploy announcement
-        if: always() && steps.deploy.outputs.should_deploy == 'true'
+        if: always() && steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         continue-on-error: true
         env:
           API_URL: ${{ secrets.MAULT_API_URL }}
@@ -445,10 +485,7 @@ jobs:
           COMMITS: ${{ steps.changes.outputs.commits }}
           AUTHORS: ${{ steps.changes.outputs.authors }}
         run: |
-          REDEPLOYED="None"
-          if [ "${{ steps.deploy.outputs.should_deploy }}" = "true" ]; then
-            REDEPLOYED="Web, Server"
-          fi
+          REDEPLOYED="${{ steps.targets.outputs.labels }}"
 
           CHANGED="None"
           if [ "${{ steps.changes.outputs.web }}" = "true" ] && [ "${{ steps.changes.outputs.server }}" = "true" ]; then
