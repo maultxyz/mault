@@ -21,7 +21,12 @@ import type {
   OcrRegionLocation,
   OcrTextBox,
 } from "./interfaces/ocr";
-import { anchorRegion, lineText, regionBox } from "./ocr-anchor";
+import {
+  anchorRegion,
+  isIgnoredLine,
+  lineText,
+  regionBox,
+} from "./ocr-anchor";
 import { readTextBoxes, recognizeRectangle } from "./paddle-ocr";
 
 let queue: Promise<unknown> = Promise.resolve();
@@ -97,11 +102,13 @@ export function toPageLines(textBoxes: OcrTextBox[]): OcrPageLine[] {
 async function readRectangleText(
   buffer: Buffer,
   rectangle: OcrRectangle,
-  multiline: boolean,
+  region: OcrRegion,
 ): Promise<string> {
-  const lines = toPageLines(await readTextBoxes(buffer, rectangle));
+  const lines = toPageLines(await readTextBoxes(buffer, rectangle)).filter(
+    (line) => !isIgnoredLine(region, lineText(line)),
+  );
   if (lines.length > 0) {
-    return multiline
+    return region.multiline
       ? lines.map(lineText).join("\n")
       : lineText(
           lines.reduce((widest, line) =>
@@ -111,9 +118,11 @@ async function readRectangleText(
           ),
         );
   }
-  if (multiline) return "";
+  if (region.multiline) return "";
   const single = await recognizeRectangle(buffer, rectangle);
-  return single && single.confidence >= OCR_MIN_LINE_CONFIDENCE
+  return single &&
+    single.confidence >= OCR_MIN_LINE_CONFIDENCE &&
+    !isIgnoredLine(region, single.text)
     ? single.text
     : "";
 }
@@ -152,7 +161,7 @@ async function readRegions(
     if (rectangle.width <= 0 || rectangle.height <= 0) continue;
     const text =
       anchorText ??
-      (await readRectangleText(buffer, rectangle, !!region.multiline));
+      (await readRectangleText(buffer, rectangle, region));
     if (trace) {
       const crop = await sharp(buffer).extract(rectangle).png().toBuffer();
       trace.push({

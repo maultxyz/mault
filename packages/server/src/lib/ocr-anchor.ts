@@ -54,6 +54,26 @@ export function lineText(line: OcrPageLine): string {
   return line.words.map((word) => word.text).join(" ");
 }
 
+function normalizeLineText(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+}
+
+export function isIgnoredLine(region: OcrRegion, text: string): boolean {
+  const ignoredTexts = (region.ignoredLineTexts ?? [])
+    .map(normalizeLineText)
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+  if (ignoredTexts.length === 0) return false;
+  return new RegExp(`^(?:(?:${ignoredTexts.join("|")})(?: |$))+$`).test(
+    normalizeLineText(text),
+  );
+}
+
 export function anchorRegion(
   region: OcrRegion,
   lines: OcrPageLine[],
@@ -63,10 +83,11 @@ export function anchorRegion(
   const minHeight =
     (expected.y1 - expected.y0) * OCR_ANCHOR_MIN_LINE_HEIGHT_RATIO;
   const candidates = lines.filter(
-    ({ box }) =>
-      box.y1 - box.y0 >= minHeight &&
-      overlaps(box.x0, box.x1, expected.x0, expected.x1) &&
-      overlaps(box.y0, box.y1, window.y0, window.y1),
+    (line) =>
+      !isIgnoredLine(region, lineText(line)) &&
+      line.box.y1 - line.box.y0 >= minHeight &&
+      overlaps(line.box.x0, line.box.x1, expected.x0, expected.x1) &&
+      overlaps(line.box.y0, line.box.y1, window.y0, window.y1),
   );
   if (candidates.length === 0) return null;
 
