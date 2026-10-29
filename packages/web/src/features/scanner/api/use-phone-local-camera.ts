@@ -1,3 +1,4 @@
+import { assertHardwareAllowedWhileImpersonating } from "@/lib/auth/impersonation";
 import {
   CAMERA_IDEAL_HEIGHT,
   CAMERA_IDEAL_WIDTH,
@@ -23,6 +24,7 @@ function writeStoredDeviceId(deviceId: string | null) {
 }
 
 function openCamera(deviceId: string | null): Promise<MediaStream> {
+  assertHardwareAllowedWhileImpersonating();
   return navigator.mediaDevices.getUserMedia({
     video: {
       ...(deviceId

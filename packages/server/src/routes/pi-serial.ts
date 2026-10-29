@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { authProvider } from "../auth";
 import { isPiHost } from "../lib/pi-host";
 import { openPiSerialSocket } from "../lib/pi-serial-bridge";
-import { verifyRequestToken } from "../middleware/auth";
+import { verifyHardwareClientToken } from "../middleware/auth";
 import { piUpdateRunning } from "../lib/pi-update";
 
 export function createPiSerialRouter(
@@ -16,7 +16,7 @@ export function createPiSerialRouter(
       const token = c.req.query("token");
       const orgId = c.req.query("orgId");
       if (!token || !orgId) return c.text("Unauthorized", 401);
-      const payload = await verifyRequestToken(token);
+      const payload = await verifyHardwareClientToken(token);
       if (!payload?.sub) return c.text("Unauthorized", 401);
       const member = await authProvider.resolveOrgMembership(
         payload.sub,

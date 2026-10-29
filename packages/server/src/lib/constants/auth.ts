@@ -6,3 +6,5 @@ export const DISPLAY_NAME_CACHE_TTL_MS = 5 * 60 * 1000;
 export const MAX_TIMER_DELAY_MS = 2_147_483_647;
 export const MONITOR_LINK_INVALID_MESSAGE = "This link is invalid or has expired.";
 export const LOCAL_AUDIT_EVENTS_LIMIT = 100;
+export const SCANNING_BLOCKED_WHILE_IMPERSONATING_MESSAGE =
+  "Scanning and sorter hardware are disabled while impersonating.";

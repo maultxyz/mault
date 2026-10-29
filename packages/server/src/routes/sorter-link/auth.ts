@@ -8,7 +8,7 @@ import {
 import { getDeviceByGuid } from "../../lib/devices";
 import type { SorterLinkEnv } from "../../lib/interfaces/sorter-link";
 import { hashSorterLinkToken } from "../../lib/sorter-link";
-import { verifyRequestToken } from "../../middleware/auth";
+import { verifyHardwareClientToken } from "../../middleware/auth";
 
 export const requireSorterToken = createMiddleware<SorterLinkEnv>(
   async (c, next) => {
@@ -45,7 +45,7 @@ export const requireSorterClient = createMiddleware<SorterLinkEnv>(
     const orgId = c.req.query("orgId");
     const deviceGuid = c.req.query("device");
     if (!token || !orgId || !deviceGuid) return c.body(null, 401);
-    const payload = await verifyRequestToken(token);
+    const payload = await verifyHardwareClientToken(token);
     if (!payload?.sub) return c.body(null, 401);
     const member = await authProvider.resolveOrgMembership(payload.sub, orgId);
     if (!member) return c.body(null, 403);

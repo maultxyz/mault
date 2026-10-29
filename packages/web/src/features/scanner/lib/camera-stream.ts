@@ -1,3 +1,4 @@
+import { assertHardwareAllowedWhileImpersonating } from "@/lib/auth/impersonation";
 import {
   CAMERA_IDEAL_HEIGHT,
   CAMERA_IDEAL_WIDTH,
@@ -14,6 +15,7 @@ export async function acquireStream(
   deviceId?: string,
   preferRear = false,
 ): Promise<MediaStream> {
+  assertHardwareAllowedWhileImpersonating();
   const source: MediaTrackConstraints = deviceId
     ? { deviceId: { exact: deviceId } }
     : preferRear
