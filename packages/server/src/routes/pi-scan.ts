@@ -13,7 +13,12 @@ import {
   requestPiScanFeed,
   updatePiScanSettings,
 } from "../lib/pi-scan/session";
-import { requireAuth, requireOrg, type AppEnv } from "../middleware/auth";
+import {
+  rejectWhileImpersonating,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../middleware/auth";
 import { piUpdateRunning } from "../lib/pi-update";
 
 export { PI_SCAN_SESSION_PATH };
@@ -25,7 +30,7 @@ export const piScanRouter = new Hono<AppEnv>()
   .get("/", requireAuth, requireOrg, (c) => {
     return c.json({ success: true, data: getPiScanSession(c.get("orgId")) });
   })
-  .post("/", requireAuth, requireOrg, async (c) => {
+  .post("/", requireAuth, requireOrg, rejectWhileImpersonating, async (c) => {
     if (await piUpdateRunning())
       return c.json(
         { success: false, message: "A system update is running." },
@@ -48,21 +53,21 @@ export const piScanRouter = new Hono<AppEnv>()
     }
     return c.json({ success: true, data: result.state });
   })
-  .post("/pause", requireAuth, requireOrg, (c) => {
+  .post("/pause", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
     const state = pausePiScanSession(c.get("orgId"));
     if (!state) {
       return c.json({ success: false, message: "No scan is running." }, 409);
     }
     return c.json({ success: true, data: state });
   })
-  .post("/resume", requireAuth, requireOrg, (c) => {
+  .post("/resume", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
     const state = resumePiScanSession(c.get("orgId"));
     if (!state) {
       return c.json({ success: false, message: "No scan is paused." }, 409);
     }
     return c.json({ success: true, data: state });
   })
-  .post("/settings", requireAuth, requireOrg, async (c) => {
+  .post("/settings", requireAuth, requireOrg, rejectWhileImpersonating, async (c) => {
     const body = await c.req.json<PiScanSessionSettingsBody>();
     const state = updatePiScanSettings(
       c.get("orgId"),
@@ -75,13 +80,13 @@ export const piScanRouter = new Hono<AppEnv>()
     }
     return c.json({ success: true, data: state });
   })
-  .post("/feed", requireAuth, requireOrg, (c) => {
+  .post("/feed", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
     const state = requestPiScanFeed(c.get("orgId"));
     if (!state) {
       return c.json({ success: false, message: "No scan is running." }, 409);
     }
     return c.json({ success: true, data: state });
   })
-  .delete("/", requireAuth, requireOrg, (c) => {
+  .delete("/", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
     return c.json({ success: true, data: stopPiScanSession(c.get("orgId")) });
   });

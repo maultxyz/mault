@@ -10,7 +10,12 @@ import { deleteScanImages, storeScanImage } from "../../lib/scan-images";
 import { recordDeviceSorted } from "../../lib/device-alerts";
 import { recordUnmatchedScan } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  rejectWhileImpersonating,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { isScanSaved } from "./scan-saved";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
@@ -20,6 +25,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched",
   requireAuth,
   requireOrg,
+  rejectWhileImpersonating,
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");

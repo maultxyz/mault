@@ -25,6 +25,8 @@ import {
   SerialTransport,
 } from "@/features/scanner/lib/transports";
 import { isRemoteBrowser } from "@/lib/host";
+import { isImpersonating } from "@/lib/auth/impersonation";
+import { useImpersonation } from "@/hooks/use-impersonation";
 import { usePiHost } from "@/hooks/use-pi-host";
 import {
   SENSOR_BLOCKED_TOAST_ID,
@@ -841,8 +843,23 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return true;
   }, [toast, t]);
 
+  const refuseWhileImpersonating = useCallback(
+    (notifyUser: boolean) => {
+      if (!isImpersonating()) return false;
+      if (notifyUser) toast.error(t("common:impersonation.hardwareBlocked"));
+      return true;
+    },
+    [toast, t],
+  );
+
+  const { isImpersonating: impersonationActive } = useImpersonation();
+  useEffect(() => {
+    if (impersonationActive && session.transport) disconnect();
+  }, [impersonationActive, session, disconnect]);
+
   const connect = useCallback(
     async (options?: { skipAutoTest?: boolean }) => {
+      if (refuseWhileImpersonating(true)) return;
       if (piHost && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
@@ -887,11 +904,20 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       await openTransport(result.transport, options);
     },
-    [toast, openTransport, refusePiScanPort, t, session, piHost],
+    [
+      toast,
+      openTransport,
+      refusePiScanPort,
+      refuseWhileImpersonating,
+      t,
+      session,
+      piHost,
+    ],
   );
 
   const connectPort = useCallback(
     async (port: SerialPort) => {
+      if (refuseWhileImpersonating(false)) return;
       if (piHost && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
@@ -904,11 +930,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       });
       await identified;
     },
-    [openTransport, refusePiScanPort, session, piHost],
+    [openTransport, refusePiScanPort, refuseWhileImpersonating, session, piHost],
   );
 
   const connectBluetoothDevice = useCallback(
     async (device: BluetoothDevice) => {
+      if (refuseWhileImpersonating(false)) return;
       if (piHost && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
@@ -922,7 +949,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
       await openTransport(transport, { autoConnect: true });
     },
-    [openTransport, refusePiScanPort, session, piHost],
+    [openTransport, refusePiScanPort, refuseWhileImpersonating, session, piHost],
   );
 
   const isAutoConnectDeviceRef = useRef<(guid: string) => boolean>(() => false);
@@ -979,6 +1006,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const connectBluetooth = useCallback(
     async (options?: { skipAutoTest?: boolean }) => {
+      if (refuseWhileImpersonating(true)) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
@@ -1015,7 +1043,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       await openTransport(result.transport, options);
     },
-    [toast, openTransport, t, session],
+    [toast, openTransport, refuseWhileImpersonating, t, session],
   );
 
   const connectCloud = useCallback(
@@ -1023,6 +1051,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       deviceGuid: string,
       options?: { skipAutoTest?: boolean },
     ): Promise<boolean> => {
+      if (refuseWhileImpersonating(true)) return false;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
@@ -1045,7 +1074,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       await openTransport(result.transport, options);
       return true;
     },
-    [toast, openTransport, t, session],
+    [toast, openTransport, refuseWhileImpersonating, t, session],
   );
 
   useEffect(() => {

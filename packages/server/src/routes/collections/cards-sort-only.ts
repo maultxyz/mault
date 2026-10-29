@@ -17,13 +17,19 @@ import {
   sorterLimitForPlan,
   sorterLimitMessage,
 } from "../../lib/sorter-limit";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  rejectWhileImpersonating,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import { loadOrgPlan } from "./scan-limit";
 
 export const sortOnlyScanRoute = new Hono<AppEnv>().post(
   "/:guid/cards/sorted",
   requireAuth,
   requireOrg,
+  rejectWhileImpersonating,
   async (c) => {
     const orgId = c.get("orgId");
     const {

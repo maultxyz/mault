@@ -4,11 +4,16 @@ import {
   PI_CAMERA_HELPER_URL,
 } from "../lib/constants/pi-camera";
 import { isPiHost } from "../lib/pi-host";
-import { requireAuth, requireOrg, type AppEnv } from "../middleware/auth";
+import {
+  rejectWhileImpersonating,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../middleware/auth";
 
 export const piCameraRouter = new Hono<AppEnv>()
   .use("*", async (c, next) => (isPiHost() ? next() : c.notFound()))
-  .use("*", requireAuth, requireOrg)
+  .use("*", requireAuth, requireOrg, rejectWhileImpersonating)
   .all("/:action", async (c) => {
     const action = c.req.param("action");
     if (!Object.prototype.hasOwnProperty.call(PI_CAMERA_ACTIONS, action))
