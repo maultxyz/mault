@@ -12,7 +12,7 @@ export function SectionHeader({ title, action }: SectionHeaderProps) {
         minHeight: 28,
       }}
     >
-      <AppText size="xs" weight="semibold" tone="secondary">
+      <AppText heading weight="semibold">
         {title}
       </AppText>
       {action}

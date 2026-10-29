@@ -1,11 +1,9 @@
-import { AlertTrayTrigger } from "@/components/alert-tray-trigger";
 import { EmptyState } from "@/components/empty-state";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileQuickAction } from "@/components/mobile-quick-action";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import { MobileSection } from "@/components/mobile-section";
-import { Button } from "@/components/ui/button";
 import { getInitials } from "@/components/ui/initials-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
@@ -21,7 +19,6 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import { useAuthSession } from "@/lib/auth";
 import { useCollectionLocks } from "@/lib/app-stream";
 import {
-  MOBILE_CIRCLE_BUTTON_CLASS,
   MOBILE_LIST_CLASS,
   MOBILE_LIST_ROW_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
@@ -34,7 +31,6 @@ import { STATS_PATH } from "@/lib/constants/stats";
 import { cn } from "@/lib/utils";
 import {
   IconAlbum,
-  IconBell,
   IconChartBar,
   IconCpu,
   IconPlus,
@@ -88,27 +84,6 @@ export function MobileHome() {
           firstName
             ? t("home.greeting", { name: firstName })
             : t("home.greetingNoName")
-        }
-        subtitle={activeOrg?.name}
-        actions={
-          <AlertTrayTrigger
-            side="bottom"
-            align="end"
-            trigger={(count) => (
-              <Button
-                variant="ghost"
-                className={cn(MOBILE_CIRCLE_BUTTON_CLASS, "relative")}
-                aria-label={t("home.alerts")}
-              >
-                <IconBell />
-                {count > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-4 rounded-full bg-destructive-strong px-1 text-2xs leading-4 font-semibold text-white ring-2 ring-background">
-                    {count > 9 ? "9+" : count}
-                  </span>
-                )}
-              </Button>
-            )}
-          />
         }
       />
       <div

@@ -661,6 +661,8 @@ export interface ScannerChromeContext {
   onHandScanChange: (value: boolean) => void;
 }
 
+export type MobileScanEntryMode = "add" | "remove";
+
 export interface MobileScanControlsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

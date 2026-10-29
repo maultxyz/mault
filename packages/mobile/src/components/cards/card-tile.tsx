@@ -58,7 +58,7 @@ export const CardTile = memo(function CardTile({
               backgroundColor: corrected ? colors.successStrong : colors.warningStrong,
             }}
           >
-            <Icon name={corrected ? "check" : "help"} size={12} color="#ffffff" />
+            <Icon name={corrected ? "check" : "help"} size={12} color={colors.onStatusStrong} />
           </View>
         ) : null}
         {quantity && quantity > 1 ? (

@@ -7,7 +7,7 @@ export const CONDITION_INPUT_CLASS = "max-md:h-10";
 export const CONDITION_FIELD_CLASS = "max-md:basis-full";
 
 export const CONDITION_SELECT_TRIGGER_CLASS =
-  "max-md:data-[size=default]:h-10 max-md:rounded-md max-md:border-input max-md:bg-input/20 max-md:px-3 max-md:font-normal max-md:dark:bg-input/30 max-md:dark:hover:bg-input/50";
+  "max-md:data-[size=default]:h-10 max-md:px-3 max-md:font-normal";
 
 export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
   "in",

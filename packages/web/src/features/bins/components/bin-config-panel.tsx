@@ -443,7 +443,7 @@ export function BinConfigPanel() {
       }
     >
       {priorityOrderText && (
-        <p className="text-2xs text-foreground/70">{priorityOrderText}</p>
+        <p className="text-xs text-foreground/70">{priorityOrderText}</p>
       )}
       <FieldError errors={[form.formState.errors.overridePriority]} />
     </BinSettingRow>
@@ -551,7 +551,7 @@ export function BinConfigPanel() {
       }
     >
       {repackFillOrder.length > 1 && (
-        <p className="text-2xs text-foreground/70">
+        <p className="text-xs text-foreground/70">
           {t("binConfigPanel.repackPriorityOrder", {
             order: repackFillOrder
               .map((c) => t("binLabel", { number: c.binNumber }))
@@ -782,38 +782,37 @@ export function BinConfigPanel() {
       name="isCatchAll"
       control={form.control}
       render={({ field }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant={field.value ? "outline-selected" : "outline"}
-            data-tour="catch-all-toggle"
-            onClick={() => {
-              form.setValue("rules", emptyRuleGroup(), {
-                shouldDirty: true,
-              });
-              form.setValue("lowMatchPercent", null, {
-                shouldDirty: true,
-              });
-              form.setValue("isOverride", false, { shouldDirty: true });
-              form.setValue("overridePriority", null, { shouldDirty: true });
-              form.setValue("repackPriority", null, { shouldDirty: true });
-              form.setValue("isDisabled", false, { shouldDirty: true });
-              form.setValue("pickList", null, { shouldDirty: true });
-              field.onChange(!field.value);
-            }}
-          >
-            {field.value
-              ? t("binConfigPanel.catchAllEnabled")
-              : t("binConfigPanel.setCatchAll")}
-          </Button>
-          {field.value && (
-            <p className="text-xs text-foreground/70">
-              {t("binConfigPanel.catchAllDescription")}
-            </p>
-          )}
-        </div>
+        <Button
+          type="button"
+          variant={field.value ? "outline-selected" : "outline"}
+          data-tour="catch-all-toggle"
+          onClick={() => {
+            form.setValue("rules", emptyRuleGroup(), {
+              shouldDirty: true,
+            });
+            form.setValue("lowMatchPercent", null, {
+              shouldDirty: true,
+            });
+            form.setValue("isOverride", false, { shouldDirty: true });
+            form.setValue("overridePriority", null, { shouldDirty: true });
+            form.setValue("repackPriority", null, { shouldDirty: true });
+            form.setValue("isDisabled", false, { shouldDirty: true });
+            form.setValue("pickList", null, { shouldDirty: true });
+            field.onChange(!field.value);
+          }}
+        >
+          {field.value
+            ? t("binConfigPanel.catchAllEnabled")
+            : t("binConfigPanel.setCatchAll")}
+        </Button>
       )}
     />
+  );
+
+  const catchAllNotice = isCatchAll && (
+    <p className="-mt-2 mb-4 text-xs text-foreground/70">
+      {t("binConfigPanel.catchAllDescription")}
+    </p>
   );
 
   const catchAllError = form.formState.errors.isCatchAll && (
@@ -845,12 +844,13 @@ export function BinConfigPanel() {
           onSubmit={form.handleSubmit(handleSave)}
           className="flex flex-col"
         >
-          <div className="mb-4 flex items-center gap-4">
+          <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
             <h2 className="text-sm font-semibold font-heading">
               {t("binLabel", { number: config.binNumber })}
             </h2>
             {catchAllToggle}
           </div>
+          {catchAllNotice}
           <div className={BIN_SETTINGS_LIST_CLASS}>
             {isCatchAll ? lowMatchRow : [disableRow, repackPriorityRow]}
           </div>
@@ -948,12 +948,13 @@ export function BinConfigPanel() {
         onSubmit={form.handleSubmit(handleSave)}
         className="flex flex-col"
       >
-        <div className="mb-4 flex items-center gap-4">
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
           <h2 className="font-heading text-sm font-semibold">
             {t("binLabel", { number: config.binNumber })}
           </h2>
           {catchAllToggle}
         </div>
+        {catchAllNotice}
         <ScrollArea>
           <div className="flex flex-col gap-6 pb-2">
             {isDisabled && (

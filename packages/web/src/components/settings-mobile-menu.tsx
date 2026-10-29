@@ -22,7 +22,7 @@ export function SettingsMobileMenu() {
           className={MOBILE_LIST_ROW_CLASS}
         >
           <span className={MOBILE_ICON_TILE_CLASS}>
-            <section.icon className="size-5" />
+            <section.icon className="size-4" />
           </span>
           <span className="min-w-0 flex-1 truncate">{t(section.labelKey)}</span>
           <IconChevronRight className="size-4 shrink-0 text-foreground/70" />

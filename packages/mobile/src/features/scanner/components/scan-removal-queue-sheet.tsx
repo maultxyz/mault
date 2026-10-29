@@ -10,7 +10,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { describeRemovalCopy } from "@/features/scanner/lib/scan-removal";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { ScanRemovalQueueSheetProps } from "@/lib/interfaces/scanner";
 import { absoluteUrl } from "@/lib/url";
 
@@ -60,6 +60,8 @@ export function ScanRemovalQueueSheet({ visible, removal, collectionName, onClos
             borderWidth: 1,
             borderBottomWidth: 0,
             borderColor: colors.border,
+            ...SHEET_SHADOW,
+            shadowColor: colors.popoverShadow,
             paddingBottom: insets.bottom + SPACING.md,
           }}
         >

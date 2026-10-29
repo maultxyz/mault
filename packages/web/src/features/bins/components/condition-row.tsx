@@ -306,7 +306,10 @@ export function ConditionRow({
   };
 
   return (
-    <div className="flex flex-wrap items-start gap-1.5" data-tour="condition-row">
+    <div
+      className="flex flex-wrap items-start gap-1.5 max-md:rounded-lg max-md:bg-card max-md:p-2 max-md:ring-1 max-md:ring-border"
+      data-tour="condition-row"
+    >
       <Combobox
         items={sortedFields}
         value={fieldMeta ?? null}

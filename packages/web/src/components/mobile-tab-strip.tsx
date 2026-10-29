@@ -11,7 +11,7 @@ export function MobileTabStrip<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className="flex shrink-0 gap-6 overflow-x-auto border-b px-5"
+      className="flex shrink-0 gap-6 overflow-x-auto border-b px-4"
     >
       {items.map((item) => {
         const active = item.key === value;
@@ -31,7 +31,7 @@ export function MobileTabStrip<T extends string>({
           >
             {item.label}
             {!!item.badge && (
-              <span className="min-w-4 rounded-full bg-destructive-strong px-1 text-2xs leading-4 font-semibold text-white tabular-nums">
+              <span className="min-w-4 rounded-sm bg-destructive-strong px-1 text-2xs leading-4 font-semibold text-white tabular-nums">
                 {item.badge > 99 ? "99+" : item.badge}
               </span>
             )}

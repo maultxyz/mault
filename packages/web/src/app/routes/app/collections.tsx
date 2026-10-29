@@ -362,7 +362,7 @@ export default function CollectionsPage() {
                     disabled={disabled}
                     className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none"
                   >
-                    <span className="rounded-full border border-dashed p-3">
+                    <span className="rounded-lg border border-dashed p-3">
                       <IconPlus className="size-5" />
                     </span>
                     {t("newCollection")}

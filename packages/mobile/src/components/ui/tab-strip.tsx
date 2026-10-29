@@ -48,7 +48,7 @@ export function TabStrip<T extends string>({ items, value, onChange }: TabStripP
                   alignItems: "center",
                 }}
               >
-                <AppText size="2xs" weight="semibold" style={{ color: "#ffffff", lineHeight: 16 }}>
+                <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, lineHeight: 16 }}>
                   {item.badge > 99 ? "99+" : String(item.badge)}
                 </AppText>
               </View>

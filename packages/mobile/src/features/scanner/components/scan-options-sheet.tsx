@@ -10,7 +10,7 @@ import { SwitchRow } from "@/components/ui/switch-row";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
 import { LIVE_CORNERS_SUPPORTED } from "@/lib/constants/scanner";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { ScanOptionsSheetProps } from "@/lib/interfaces/scanner";
 
 export function ScanOptionsSheet({
@@ -56,6 +56,8 @@ export function ScanOptionsSheet({
           borderWidth: 1,
           borderBottomWidth: 0,
           borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
         }}
       >

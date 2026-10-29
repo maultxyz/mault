@@ -20,7 +20,7 @@ export function CameraChip({ label, dotColor, icon, onPress }: CameraChipProps) 
         maxWidth: "100%",
         paddingHorizontal: SPACING.md,
         paddingVertical: 6,
-        borderRadius: RADIUS.full,
+        borderRadius: RADIUS.md,
         backgroundColor: colors.cameraScrim,
         opacity: pressed ? 0.8 : 1,
       })}

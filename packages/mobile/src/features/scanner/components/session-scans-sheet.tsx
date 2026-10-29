@@ -7,7 +7,7 @@ import { AppText } from "@/components/ui/app-text";
 import { IconButton } from "@/components/ui/icon-button";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { SessionScansSheetProps } from "@/lib/interfaces/scanner";
 import { absoluteUrl } from "@/lib/url";
 
@@ -29,6 +29,8 @@ export function SessionScansSheet({ visible, entries, collectionGuid, onClose }:
           borderWidth: 1,
           borderBottomWidth: 0,
           borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.sm,
         }}
       >

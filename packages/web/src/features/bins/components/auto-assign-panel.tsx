@@ -10,24 +10,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { Badge } from "@/components/ui/badge";
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
 import { ScanOnlyBinSelect } from "@/features/bins/components/scan-only-bin-select";
+import { SortingModeToggleRow } from "@/features/bins/components/sorting-mode-toggle-row";
 import { CHAOS_BIN_SIZE_MAX, SCAN_ONLY_DEFAULT_BIN } from "@magic-vault/shared";
-import { IconInfoCircle, IconRefresh } from "@tabler/icons-react";
+import { IconRefresh } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -47,6 +44,7 @@ export function AutoAssignPanel() {
     discardMode,
   } = useBinConfigs();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const isMobile = useIsMobile();
   const { activeOrg } = useOrg();
   const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
 
@@ -63,41 +61,35 @@ export function AutoAssignPanel() {
 
   return (
     <Field
-      className="rounded-lg border p-2 gap-2"
+      className={cn(
+        "rounded-lg border p-2 gap-2",
+        isMobile && "gap-3 border-0 bg-card p-3 ring-1 ring-border",
+      )}
       data-tour="auto-assign-panel"
     >
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-1.5">
-          <span className="text-xs font-medium">
-            {t("autoAssignPanel.heading")}
-          </span>
-          <Tooltip>
-            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-              <IconInfoCircle className="size-3.5" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              {t("autoAssignPanel.description")}
-            </TooltipContent>
-          </Tooltip>
-        </span>
-        <Switch
-          aria-label={t("autoAssignPanel.heading")}
-          checked={isEnabled}
-          disabled={
-            disableToggles ||
-            eligibleFields.length === 0 ||
-            isScanOnly ||
-            isRepackMode ||
-            isAlphabetMode ||
-            isChaosMode
-          }
-          onCheckedChange={(checked) => {
-            stageMode({
-              autoAssignField: checked ? eligibleFields[0].field : null,
-            });
-          }}
-        />
-      </div>
+      {isMobile && (
+        <h2 className="font-heading text-sm font-semibold text-foreground">
+          {t("sortingModePanel.title")}
+        </h2>
+      )}
+      <SortingModeToggleRow
+        label={t("autoAssignPanel.heading")}
+        description={t("autoAssignPanel.description")}
+        checked={isEnabled}
+        disabled={
+          disableToggles ||
+          eligibleFields.length === 0 ||
+          isScanOnly ||
+          isRepackMode ||
+          isAlphabetMode ||
+          isChaosMode
+        }
+        onCheckedChange={(checked) => {
+          stageMode({
+            autoAssignField: checked ? eligibleFields[0].field : null,
+          });
+        }}
+      />
 
       {isEnabled && (
         <div className="flex items-center gap-2">
@@ -148,33 +140,20 @@ export function AutoAssignPanel() {
         <AutoAssignSnapshot />
       </DeleteDialog>
 
-      <div className="flex items-center justify-between gap-3 border-t pt-2">
-        <span className="flex items-center gap-1.5">
-          <span className="text-xs font-medium">
-            {t("scanOnlyPanel.heading")}
-          </span>
-          <Tooltip>
-            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-              <IconInfoCircle className="size-3.5" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              {t("scanOnlyPanel.description")}
-            </TooltipContent>
-          </Tooltip>
-        </span>
-        <Switch
-          aria-label={t("scanOnlyPanel.heading")}
-          checked={isScanOnly}
-          disabled={
-            disableToggles ||
-            isEnabled ||
-            isRepackMode ||
-            isAlphabetMode ||
-            isChaosMode
-          }
-          onCheckedChange={(checked) => stageMode({ scanOnly: checked })}
-        />
-      </div>
+      <SortingModeToggleRow
+        className="border-t pt-2"
+        label={t("scanOnlyPanel.heading")}
+        description={t("scanOnlyPanel.description")}
+        checked={isScanOnly}
+        disabled={
+          disableToggles ||
+          isEnabled ||
+          isRepackMode ||
+          isAlphabetMode ||
+          isChaosMode
+        }
+        onCheckedChange={(checked) => stageMode({ scanOnly: checked })}
+      />
 
       {isScanOnly && (
         <div className="flex flex-col gap-2">
@@ -203,98 +182,59 @@ export function AutoAssignPanel() {
         </div>
       )}
 
-      <div
-        className="flex items-center justify-between gap-3 border-t pt-2"
-        data-tour="repack-toggle"
-      >
-        <span className="flex items-center gap-1.5">
-          <span className="text-xs font-medium">
-            {t("repackPanel.heading")}
-          </span>
-          <Tooltip>
-            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-              <IconInfoCircle className="size-3.5" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              {t("repackPanel.description")}
-            </TooltipContent>
-          </Tooltip>
-        </span>
-        <Switch
-          aria-label={t("repackPanel.heading")}
-          checked={isRepackMode}
-          disabled={
-            disableToggles ||
-            isEnabled ||
-            isScanOnly ||
-            isAlphabetMode ||
-            isChaosMode
-          }
-          onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
-        />
-      </div>
+      <SortingModeToggleRow
+        className="border-t pt-2"
+        dataTour="repack-toggle"
+        label={t("repackPanel.heading")}
+        description={t("repackPanel.description")}
+        checked={isRepackMode}
+        disabled={
+          disableToggles ||
+          isEnabled ||
+          isScanOnly ||
+          isAlphabetMode ||
+          isChaosMode
+        }
+        onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
+      />
 
-      <div className="flex items-center justify-between gap-3 border-t pt-2">
-        <span className="flex items-center gap-1.5">
-          <span className="text-xs font-medium">
-            {t("alphabetPanel.heading")}
-          </span>
-          <Tooltip>
-            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-              <IconInfoCircle className="size-3.5" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              {t("alphabetPanel.description")}
-            </TooltipContent>
-          </Tooltip>
-        </span>
-        <Switch
-          aria-label={t("alphabetPanel.heading")}
-          checked={isAlphabetMode}
-          disabled={
-            disableToggles ||
-            isEnabled ||
-            isScanOnly ||
-            isRepackMode ||
-            isChaosMode
-          }
-          onCheckedChange={(checked) => stageMode({ isAlphabetMode: checked })}
-        />
-      </div>
+      <SortingModeToggleRow
+        className="border-t pt-2"
+        label={t("alphabetPanel.heading")}
+        description={t("alphabetPanel.description")}
+        checked={isAlphabetMode}
+        disabled={
+          disableToggles ||
+          isEnabled ||
+          isScanOnly ||
+          isRepackMode ||
+          isChaosMode
+        }
+        onCheckedChange={(checked) => stageMode({ isAlphabetMode: checked })}
+      />
 
-      <div className="flex items-center justify-between gap-3 border-t pt-2">
-        <span className="flex items-center gap-1.5">
-          <span className="text-xs font-medium">
-            {t("chaosPanel.heading")}
-          </span>
-          {chaosLocked && (
+      <SortingModeToggleRow
+        className="border-t pt-2"
+        label={t("chaosPanel.heading")}
+        description={t("chaosPanel.description")}
+        badge={
+          chaosLocked && (
             <Badge variant="outline">{t("chaosPanel.businessBadge")}</Badge>
-          )}
-          <Tooltip>
-            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-              <IconInfoCircle className="size-3.5" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              {t("chaosPanel.description")}
-            </TooltipContent>
-          </Tooltip>
-        </span>
-        <Switch
-          aria-label={t("chaosPanel.heading")}
-          checked={isChaosMode}
-          disabled={
-            disableToggles ||
-            chaosLocked ||
-            isEnabled ||
-            isScanOnly ||
-            isRepackMode ||
-            isAlphabetMode
-          }
-          onCheckedChange={(checked) => stageMode({ isChaosMode: checked })}
-        />
-      </div>
+          )
+        }
+        checked={isChaosMode}
+        disabled={
+          disableToggles ||
+          chaosLocked ||
+          isEnabled ||
+          isScanOnly ||
+          isRepackMode ||
+          isAlphabetMode
+        }
+        onCheckedChange={(checked) => stageMode({ isChaosMode: checked })}
+      />
       {chaosLocked && (
-        <p className="pl-1 text-2xs text-foreground/70">
+        <p className="pl-1 text-xs text-foreground/70">
           {t("chaosPanel.businessOnly")}{" "}
           <Link
             to={SETTINGS_PATHS.billing}
@@ -306,10 +246,7 @@ export function AutoAssignPanel() {
       )}
       {isChaosMode && (
         <div className="flex flex-col gap-1 pl-1">
-          <label
-            htmlFor="chaos-bin-size"
-            className="text-xs font-medium"
-          >
+          <label htmlFor="chaos-bin-size" className="text-xs font-medium">
             {t("chaosPanel.binSizeLabel")}
           </label>
           <Input
@@ -331,33 +268,20 @@ export function AutoAssignPanel() {
               });
             }}
           />
-          <p className="text-2xs text-foreground/70">
+          <p className="text-xs text-foreground/70">
             {t("chaosPanel.binSizeDescription")}
           </p>
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-3 border-t pt-2">
-        <span className="flex items-center gap-1.5">
-          <span className="text-xs font-medium">
-            {t("skipSavingPanel.heading")}
-          </span>
-          <Tooltip>
-            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-              <IconInfoCircle className="size-3.5" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              {t("skipSavingPanel.description")}
-            </TooltipContent>
-          </Tooltip>
-        </span>
-        <Switch
-          aria-label={t("skipSavingPanel.heading")}
-          checked={effectiveMode.skipSaving}
-          disabled={disableToggles}
-          onCheckedChange={(checked) => stageMode({ skipSaving: checked })}
-        />
-      </div>
+      <SortingModeToggleRow
+        className="border-t pt-2"
+        label={t("skipSavingPanel.heading")}
+        description={t("skipSavingPanel.description")}
+        checked={effectiveMode.skipSaving}
+        disabled={disableToggles}
+        onCheckedChange={(checked) => stageMode({ skipSaving: checked })}
+      />
 
       <SaveBar
         show={isModeDirty}

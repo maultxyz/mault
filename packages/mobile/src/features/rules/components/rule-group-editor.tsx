@@ -29,7 +29,7 @@ export function RuleGroupEditor({
   const [combinatorOpen, setCombinatorOpen] = useState(false);
   const [editing, setEditing] = useState<{ target: ConditionEditTarget; condition: BinCondition } | null>(null);
   const nested = depth > 0;
-  const cardColor = nested ? colors.background : colors.muted;
+  const cardColor = nested ? colors.background : colors.card;
 
   const update = (index: number, next: BinCondition | BinRuleGroup) => {
     const conditions = [...group.conditions];
@@ -62,8 +62,10 @@ export function RuleGroupEditor({
             gap: SPACING.xs,
             height: 32,
             paddingHorizontal: SPACING.md,
-            borderRadius: RADIUS.full,
-            backgroundColor: pressed ? colors.border : nested ? colors.background : colors.muted,
+            borderRadius: RADIUS.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+            backgroundColor: pressed ? colors.muted : colors.background,
           })}
         >
           <AppText size="base" weight="bold">
@@ -79,7 +81,7 @@ export function RuleGroupEditor({
         ) : null}
       </View>
 
-      <View style={{ borderRadius: RADIUS.lg, backgroundColor: cardColor, overflow: "hidden" }}>
+      <View style={{ borderRadius: RADIUS.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: cardColor, overflow: "hidden" }}>
         {group.conditions.map((item, index) => (
           <View key={item.id} style={index > 0 ? { borderTopWidth: 1, borderTopColor: colors.border } : undefined}>
             {isRuleGroup(item) ? (

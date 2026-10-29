@@ -112,12 +112,12 @@ export default function SorterPage() {
         )}
       >
         <div className={MOBILE_PAGE_BODY_CLASS}>
-          <div className={cn(MOBILE_CARD_CLASS, "flex items-center gap-4 p-4")}>
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-background text-foreground [&_svg]:size-6">
+          <div className={cn(MOBILE_CARD_CLASS, "flex items-center gap-3 p-3")}>
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-foreground [&_svg]:size-5">
               <IconCpu />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-2 font-heading text-lg font-bold text-foreground">
+              <p className="flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
                 <span className={cn("size-2.5 shrink-0 rounded-full", stateDot)} />
                 <span className="truncate">{stateLabel}</span>
               </p>

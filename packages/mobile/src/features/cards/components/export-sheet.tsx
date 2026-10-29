@@ -8,7 +8,7 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { ExportSheetProps } from "@/lib/interfaces/cards";
 
 export function ExportSheet({
@@ -38,6 +38,8 @@ export function ExportSheet({
           borderWidth: 1,
           borderBottomWidth: 0,
           borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
           gap: SPACING.md,
         }}

@@ -6,7 +6,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { AlertsSheetProps } from "@/lib/interfaces/stream";
 
 export function AlertsSheet({ visible, alerts, onClose }: AlertsSheetProps) {
@@ -27,6 +27,8 @@ export function AlertsSheet({ visible, alerts, onClose }: AlertsSheetProps) {
           borderWidth: 1,
           borderBottomWidth: 0,
           borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
         }}
       >
@@ -60,8 +62,10 @@ export function AlertsSheet({ visible, alerts, onClose }: AlertsSheetProps) {
                   flexDirection: "row",
                   gap: SPACING.sm,
                   padding: SPACING.md,
-                  borderRadius: RADIUS.lg,
-                  backgroundColor: colors.muted,
+                  borderRadius: RADIUS.md,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
                 }}
               >
                 <Icon name={alert.severity === "info" ? "info" : "warning"} size={18} color={toneColor[alert.severity]} />

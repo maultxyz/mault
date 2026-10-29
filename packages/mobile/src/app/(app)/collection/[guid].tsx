@@ -2,7 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, Share, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, RefreshControl, Share, View } from "react-native";
 import {
   computeBinCount,
   DEFAULT_MODULE_COUNT,
@@ -47,6 +47,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
+import { usePanelWidth } from "@/hooks/use-panel-width";
 import {
   CARD_ASPECT_RATIO,
   CARD_GRID_COLUMNS,
@@ -68,7 +69,7 @@ export default function CollectionScreen() {
   const colors = useTheme();
   const pricing = usePricing();
   const queryClient = useQueryClient();
-  const { width } = useWindowDimensions();
+  const width = usePanelWidth();
   const [tab, setTab] = useState<CollectionTab>("cards");
   const [search, setSearch] = useState("");
   const debounced = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);

@@ -24,7 +24,7 @@ export function ScanOnlyBinSelect({
     <div className="flex items-center justify-between gap-3">
       <div className="flex min-w-0 flex-col">
         <FieldLabel htmlFor={id}>{label}</FieldLabel>
-        <p className="text-2xs text-foreground/70">{description}</p>
+        <p className="text-xs text-foreground/70">{description}</p>
       </div>
       <Select
         value={String(value)}

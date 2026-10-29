@@ -16,7 +16,7 @@ export function StatTile({ label, value, hint }: StatTileProps) {
         minWidth: 0,
         padding: SPACING.md,
         gap: 2,
-        borderRadius: RADIUS.lg,
+        borderRadius: RADIUS.md,
         borderWidth: 1,
         borderColor: colors.border,
         backgroundColor: colors.card,

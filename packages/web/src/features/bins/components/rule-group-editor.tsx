@@ -99,7 +99,7 @@ export function RuleGroupEditor({
         )}
       </div>
 
-      <div className="flex flex-col gap-2 pl-4">
+      <div className="flex flex-col gap-2 pl-4 max-md:pl-0">
         {group.conditions.map((item, index) =>
           isRuleGroup(item) ? (
             <RuleGroupEditor
@@ -125,7 +125,7 @@ export function RuleGroupEditor({
         )}
       </div>
 
-      <ButtonGroup className="ml-4">
+      <ButtonGroup className="ml-4 max-md:ml-0">
         <Button
           type="button"
           variant="outline"

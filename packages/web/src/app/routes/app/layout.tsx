@@ -9,6 +9,7 @@ import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { IntakeBanner } from "@/features/business/components/intake-banner";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
+import { MobileTopBar } from "@/components/mobile-top-bar";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
 import { PiScanStatusBar } from "@/features/scanner/components/pi-scan-status-bar";
@@ -23,6 +24,9 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { DONATE_URL } from "@/lib/constants/links";
 import {
+  MOBILE_FRAMED_PANEL_CLASS,
+  MOBILE_FRAMED_SHELL_CLASS,
+  MOBILE_IMMERSIVE_PANEL_CLASS,
   MOBILE_IMMERSIVE_PATTERN,
   MOBILE_NAV_HIDDEN_PATTERN,
   MOBILE_NAV_SPACE_CLASS,
@@ -39,6 +43,8 @@ export default function AppLayout() {
   const isMobile = useIsMobile();
   const { pathname } = useLocation();
   const hideMobileNav = MOBILE_NAV_HIDDEN_PATTERN.test(pathname);
+  const isImmersive = MOBILE_IMMERSIVE_PATTERN.test(pathname);
+  const isFramed = !hideMobileNav;
 
   return (
     <AppProviders>
@@ -46,23 +52,27 @@ export default function AppLayout() {
         <div
           className={cn(
             "relative h-dvh w-dvw overflow-hidden flex flex-col pt-[env(safe-area-inset-top)]",
-            MOBILE_IMMERSIVE_PATTERN.test(pathname)
-              ? "bg-black"
-              : "bg-background",
+            isFramed ? "bg-sidebar" : "bg-background",
             !hideMobileNav && MOBILE_NAV_SPACE_CLASS,
+            isFramed && MOBILE_FRAMED_SHELL_CLASS,
           )}
         >
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
-          {!MOBILE_IMMERSIVE_PATTERN.test(pathname) && (
-            <SpiderWeb
-              corner="top-left"
-              className="top-[env(safe-area-inset-top)] size-14"
-            />
-          )}
+          <SpiderWeb
+            corner="top-left"
+            className="top-[env(safe-area-inset-top)] size-14"
+          />
+          {isFramed && <MobileTopBar />}
           <ImpersonationBanner />
           <AlertStack />
           <PiScanStatusBar />
-          <main className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
+          <main
+            className={cn(
+              "relative flex-1 min-h-0 overflow-hidden flex flex-col",
+              isFramed && MOBILE_FRAMED_PANEL_CLASS,
+              isImmersive && MOBILE_IMMERSIVE_PANEL_CLASS,
+            )}
+          >
             <PageTransition>
               <Outlet />
             </PageTransition>

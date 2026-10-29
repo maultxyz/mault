@@ -14,6 +14,7 @@ export function Pill({ label, tone = "neutral", icon }: PillProps) {
     success: { bg: colors.successMuted, border: "transparent", fg: colors.successForeground },
     warning: { bg: colors.warningMuted, border: "transparent", fg: colors.warningForeground },
     destructive: { bg: colors.destructiveTint, border: "transparent", fg: colors.destructive },
+    primary: { bg: colors.primary, border: "transparent", fg: colors.primaryForeground },
   }[tone];
   const isStatusTone = tone !== "neutral";
   return (

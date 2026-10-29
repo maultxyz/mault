@@ -71,7 +71,7 @@ export function BinPickListFields({
               <FieldLabel htmlFor="bin-pick-list-decklist">
                 {t("pickList.decklistLabel")}
               </FieldLabel>
-              <span className="text-2xs text-foreground/70">
+              <span className="text-xs text-foreground/70">
                 {t("pickList.cardCount", {
                   count: parsedCount,
                   max: PICK_LIST_MAX_ENTRIES,

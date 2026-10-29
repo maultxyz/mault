@@ -3,10 +3,11 @@ import { useTranslation } from "react-i18next";
 import { Modal, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
+import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { SearchInput } from "@/components/ui/search-input";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { OptionSheetProps } from "@/lib/interfaces/ui";
 
 export function OptionSheet({
@@ -52,6 +53,8 @@ export function OptionSheet({
           borderWidth: 1,
           borderBottomWidth: 0,
           borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
         }}
       >
@@ -67,7 +70,7 @@ export function OptionSheet({
             paddingVertical: SPACING.md,
           }}
         >
-          <AppText size="base" weight="semibold" style={{ flexShrink: 1 }}>
+          <AppText size="base" heading weight="semibold" style={{ flexShrink: 1 }}>
             {title}
           </AppText>
         </View>
@@ -83,16 +86,18 @@ export function OptionSheet({
         ) : null}
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER - SPACING.sm }}
+          contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER }}
         >
-          {visibleOptions.map((option) => (
-            <ListRow
-              key={option.value}
-              title={option.label}
-              selected={selected.includes(option.value)}
-              onPress={() => select(option.value)}
-            />
-          ))}
+          <ListGroup>
+            {visibleOptions.map((option) => (
+              <ListRow
+                key={option.value}
+                title={option.label}
+                selected={selected.includes(option.value)}
+                onPress={() => select(option.value)}
+              />
+            ))}
+          </ListGroup>
         </ScrollView>
       </View>
     </Modal>

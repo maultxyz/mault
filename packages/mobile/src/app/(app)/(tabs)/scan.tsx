@@ -1,11 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { router, useIsFocused } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   binSetMode,
   CARD_CONDITIONS,
@@ -29,7 +27,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { cardSetsQueryOptions } from "@/features/cards/api/card-sets";
-import { collectionsQueryOptions, setActiveCollection } from "@/features/collections/api/collections";
+import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { useActivateCollection } from "@/features/collections/api/use-activate-collection";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { activateBinSet } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
@@ -70,7 +69,6 @@ import type { ScanMode } from "@/lib/interfaces/scanner";
 export default function ScanScreen() {
   const { t } = useTranslation();
   const colors = useTheme();
-  const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   const appState = useAppState();
   const sorter = useSorter();
@@ -92,10 +90,7 @@ export default function ScanScreen() {
       ? activePreset.name
       : `${activePreset.name} · ${t(`rules.modes.${activePresetMode}.title`)}`
     : null;
-  const switchCollection = useMutation({
-    mutationFn: setActiveCollection,
-    onSuccess: (next) => queryClient.setQueryData(collectionsQueryOptions(orgId).queryKey, next),
-  });
+  const switchCollection = useActivateCollection(orgId);
   const switchPreset = useMutation({
     mutationFn: activateBinSet,
     onSuccess: (next) => queryClient.setQueryData(binSetsQueryOptions(orgId).queryKey, next),
@@ -288,7 +283,6 @@ export default function ScanScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
-      {focused ? <StatusBar style="light" /> : null}
       {device ? (
         <Camera
           ref={cameraRef}
@@ -315,7 +309,7 @@ export default function ScanScreen() {
 
       <View
         pointerEvents="box-none"
-        style={{ paddingTop: insets.top + SPACING.md, paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}
+        style={{ paddingTop: SPACING.md, paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}
       >
         <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
           <View style={{ flexShrink: 1, minWidth: 0 }}>

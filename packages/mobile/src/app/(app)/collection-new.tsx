@@ -78,7 +78,7 @@ export default function NewCollectionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <PageHeader title={t("collections.new")} subtitle={t("collections.createDescription")} onBack={() => router.back()} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
         {create.isError ? <Callout tone="destructive" title={t("collections.createFailed")} /> : null}
         <View style={{ gap: SPACING.xs }}>
           <SelectField

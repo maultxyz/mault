@@ -108,10 +108,10 @@ export function ServoControl({
                 justifyContent: "center",
                 borderLeftWidth: index > 0 ? 1 : 0,
                 borderLeftColor: colors.border,
-                backgroundColor: selected ? colors.infoMuted : pressed ? colors.muted : "transparent",
+                backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : "transparent",
               })}
             >
-              <AppText size="xs" weight="semibold" style={{ color: selected ? colors.infoForeground : colors.foreground }}>
+              <AppText size="xs" weight="semibold" style={{ color: selected ? colors.primaryText : colors.foreground }}>
                 {positionLabel(position)}
               </AppText>
             </Pressable>

@@ -145,7 +145,7 @@ export default function PhoneCameraPage() {
                     {errorMessage}
                   </p>
                 )}
-                <div className="flex items-center gap-2 rounded-full bg-black/70 px-3.5 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
+                <div className="flex items-center gap-2 rounded-lg bg-black/70 px-3.5 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
                   {status === "ready" ? (
                     <IconCameraSpark className="size-4 shrink-0 text-success" />
                   ) : status === "camera-error" ? (
