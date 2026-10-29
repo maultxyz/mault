@@ -15,6 +15,7 @@ import {
 } from "@/features/cards/lib/export";
 import { gamesQueryOptions } from "@/features/games/api/games";
 import { storageLocationExportQueryOptions } from "@/features/storage/api/storage-locations";
+import { useMarkStorageCardsDownloaded } from "@/features/storage/api/use-mark-storage-cards-downloaded";
 import type { StorageExportMenuProps } from "@/lib/interfaces/storage";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_PILL_BUTTON_SM_CLASS } from "@/lib/constants/nav";
@@ -32,6 +33,7 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
     storageLocationExportQueryOptions(location.guid, open),
   );
   const { data: games = [] } = useQuery(gamesQueryOptions);
+  const markCardsDownloaded = useMarkStorageCardsDownloaded(location.guid);
 
   const gameKeys = useMemo(
     () => [...new Set((cards ?? []).map((entry) => entry.gameKey ?? undefined))],
@@ -71,6 +73,7 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
       },
       combineDuplicates,
     );
+    markCardsDownloaded(cards.map((entry) => entry.scanId));
   };
 
   return (

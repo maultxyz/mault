@@ -50,6 +50,7 @@ import {
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useStoredCardCount } from "@/features/collections/api/use-stored-card-count";
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
+import { useMarkCardsDownloaded } from "@/features/collections/api/use-mark-cards-downloaded";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import {
@@ -427,6 +428,7 @@ export function CardGrid() {
   );
   const exportedCount = exportedScanIds?.length ?? 0;
   const [confirmDeleteExported, setConfirmDeleteExported] = useState(false);
+  const markCardsDownloaded = useMarkCardsDownloaded(collectionGuid);
   const { isLocked: storageLocked } = useStorageAccess();
   const { moveCards, isMoving } = useMoveCardsToLocation();
   const selectedStoredCount = useStoredCardCount(
@@ -463,9 +465,9 @@ export function CardGrid() {
           },
           true,
         );
-        if (!readOnly) {
-          setExportedScanIds(selectedCards.map((card) => card.scanId));
-        }
+        const exportedIds = selectedCards.map((card) => card.scanId);
+        markCardsDownloaded(exportedIds);
+        if (!readOnly) setExportedScanIds(exportedIds);
       } catch (err) {
         console.error("Failed to export selected cards:", err);
         toast.error(t("cardGrid.exportSelectedFailed"));
@@ -481,6 +483,7 @@ export function CardGrid() {
       readOnly,
       gameKey,
       fieldDefinitions,
+      markCardsDownloaded,
       t,
     ],
   );
@@ -997,6 +1000,7 @@ export function CardGrid() {
         sessionScanCount={sessionScanCount}
         collectionName={viewedCollection?.name ?? "collection"}
         onExported={(scanIds) => {
+          markCardsDownloaded(scanIds);
           if (!readOnly && scanIds.length > 0) setExportedScanIds(scanIds);
         }}
         gridFilters={filters}
