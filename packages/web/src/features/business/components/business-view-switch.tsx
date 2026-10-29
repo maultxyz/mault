@@ -1,32 +1,32 @@
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import {
-  STORAGE_BOXES_VIEW,
-  STORAGE_VIEW_PARAM,
-  STORAGE_VIEWS,
-} from "@/lib/constants/storage";
+  BUSINESS_INTAKE_VIEW,
+  BUSINESS_VIEW_PARAM,
+  BUSINESS_VIEWS,
+} from "@/lib/constants/business";
 import type {
-  StorageView,
-  StorageViewSwitchProps,
-} from "@/lib/interfaces/storage";
+  BusinessView,
+  BusinessViewSwitchProps,
+} from "@/lib/interfaces/business";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
-export function StorageViewSwitch({ value }: StorageViewSwitchProps) {
-  const { t } = useTranslation("storage");
+export function BusinessViewSwitch({ value }: BusinessViewSwitchProps) {
+  const { t } = useTranslation("business");
   const [, setSearchParams] = useSearchParams();
   return (
-    <ResponsiveSegmented<StorageView>
+    <ResponsiveSegmented<BusinessView>
       label={t("views.label")}
       size="sm"
       className="w-full *:flex-1"
-      items={STORAGE_VIEWS.map((view) => ({
+      items={BUSINESS_VIEWS.map((view) => ({
         key: view,
         label: t(`views.${view}`),
       }))}
       value={value}
       onChange={(view) =>
         setSearchParams(
-          view === STORAGE_BOXES_VIEW ? {} : { [STORAGE_VIEW_PARAM]: view },
+          view === BUSINESS_INTAKE_VIEW ? {} : { [BUSINESS_VIEW_PARAM]: view },
           { replace: true },
         )
       }

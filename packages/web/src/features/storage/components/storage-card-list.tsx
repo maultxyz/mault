@@ -15,7 +15,10 @@ import { MobileStorageCardList } from "@/features/storage/components/mobile-stor
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { StorageCardListProps } from "@/lib/interfaces/storage";
-import type { StorageLocationSearchResult } from "@magic-vault/shared";
+import {
+  formatPriceInCurrency,
+  type StorageLocationSearchResult,
+} from "@magic-vault/shared";
 import { IconBox, IconBoxOff } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,7 +29,7 @@ export function StorageCardList({
   onOpenCard,
 }: StorageCardListProps) {
   const { t } = useTranslation("storage");
-  const { priceOf, format } = usePriceSource();
+  const { priceOf, priceAtScanOf, format } = usePriceSource();
   const { removeCard, isRemoving } = useRemoveCardFromLocation();
   const [pendingRemoval, setPendingRemoval] =
     useState<StorageLocationSearchResult | null>(null);
@@ -72,7 +75,13 @@ export function StorageCardList({
                 {t("cards.columns.collection")}
               </TableHead>
               <TableHead className="text-right">
-                {t("cards.columns.price")}
+                {t("cards.columns.priceAtScan")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("cards.columns.priceNow")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("cards.columns.purchasePrice")}
               </TableHead>
               <TableHead className="w-10">
                 <span className="sr-only">{t("cards.columns.actions")}</span>
@@ -81,9 +90,11 @@ export function StorageCardList({
           </TableHeader>
           <TableBody>
             {entries.map((entry) => {
-              const price = priceOf(
+              const finish = { isFoil: entry.isFoil, foilType: entry.foilType };
+              const price = priceOf(entry.card, finish, entry.condition);
+              const priceAtScan = priceAtScanOf(
                 entry.card,
-                { isFoil: entry.isFoil, foilType: entry.foilType },
+                finish,
                 entry.condition,
               );
               return (
@@ -119,7 +130,10 @@ export function StorageCardList({
                     </TableCell>
                   )}
                   <TableCell>
-                    <CardThumbnail image={entry.card.image} isFoil={entry.isFoil} />
+                    <CardThumbnail
+                      image={entry.card.image}
+                      isFoil={entry.isFoil}
+                    />
                   </TableCell>
                   <TableCell className="max-w-48 font-medium">
                     <div className="flex min-w-0 items-center gap-1.5">
@@ -155,8 +169,19 @@ export function StorageCardList({
                   <TableCell className="hidden max-w-36 truncate text-xs text-foreground/70 lg:table-cell">
                     {entry.collectionName}
                   </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums text-foreground/70">
+                    {priceAtScan != null ? format(priceAtScan) : "-"}
+                  </TableCell>
                   <TableCell className="text-right text-xs tabular-nums">
                     {price != null ? format(price) : "-"}
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums text-foreground/70">
+                    {entry.acquisitionCost != null && entry.acquisitionCurrency
+                      ? formatPriceInCurrency(
+                          entry.acquisitionCost,
+                          entry.acquisitionCurrency,
+                        )
+                      : "-"}
                   </TableCell>
                   <TableCell>
                     <Button

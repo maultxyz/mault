@@ -17,11 +17,7 @@ import { usePiHost, usePiHostState } from "@/hooks/use-pi-host";
 import { useRole } from "@/hooks/use-role";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
-import {
-  STORAGE_ORDERS_VIEW,
-  STORAGE_PATH,
-  STORAGE_VIEW_PARAM,
-} from "@/lib/constants/storage";
+import { STORAGE_PATH } from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { lazy, Suspense, useEffect } from "react";
@@ -35,6 +31,7 @@ import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import {
+  businessPicksPath,
   INTAKE_PATH,
   LEGACY_REPORTS_PATH,
   LEGACY_ORDERS_PATH,
@@ -379,12 +376,7 @@ export const routes: RouteObject[] = [
                   },
                   {
                     path: LEGACY_ORDERS_PATH,
-                    element: (
-                      <Navigate
-                        to={`${STORAGE_PATH}?${STORAGE_VIEW_PARAM}=${STORAGE_ORDERS_VIEW}`}
-                        replace
-                      />
-                    ),
+                    element: <Navigate to={businessPicksPath()} replace />,
                   },
                   {
                     path: LEGACY_REPORTS_PATH,

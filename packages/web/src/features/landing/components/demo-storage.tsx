@@ -52,7 +52,7 @@ function DemoStorageTable({
             </TableHead>
             <TableHead>{t("cards.columns.name")}</TableHead>
             <TableHead className="text-right">
-              {t("cards.columns.price")}
+              {t("cards.columns.priceNow")}
             </TableHead>
           </TableRow>
         </TableHeader>

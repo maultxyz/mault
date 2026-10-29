@@ -86,9 +86,12 @@
       }
     }
   },
+  "views": {
+    "label": "Vue achat et vente",
+    "intake": "Rachat",
+    "picks": "Préparations"
+  },
   "intake": {
-    "title": "Rachat",
-    "subtitleList": "Racheter des collections au comptoir",
     "subtitle": "Scan dans {{collection}} · commencé {{date}}",
     "new": "Nouveau rachat",
     "newTitle": "Commencer un rachat",
