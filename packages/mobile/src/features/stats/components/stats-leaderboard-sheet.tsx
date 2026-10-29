@@ -14,7 +14,7 @@ import { leaderboardQueryOptions } from "@/features/stats/api/stats";
 import { buildLeaderboardRows } from "@/features/stats/lib/stats-breakdown";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { StatsLeaderboardSheetProps } from "@/lib/interfaces/stats";
 
 export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardSheetProps) {
@@ -39,6 +39,8 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
           borderWidth: 1,
           borderBottomWidth: 0,
           borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
         }}
       >
@@ -97,7 +99,7 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
                       paddingHorizontal: SPACING.sm,
                       marginHorizontal: -SPACING.sm,
                       borderRadius: RADIUS.md,
-                      backgroundColor: entry.isOwnOrg ? colors.muted : "transparent",
+                      backgroundColor: entry.isOwnOrg ? colors.primarySelected : "transparent",
                     }}
                   >
                     <AppText weight="bold" style={{ width: 40, fontVariant: ["tabular-nums"] }}>

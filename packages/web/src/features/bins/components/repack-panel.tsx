@@ -244,7 +244,7 @@ export function RepackPanel() {
               </div>
               {field.value != null && (
                 <div className="rounded-lg border p-2.5 flex flex-col gap-2">
-                  <p className="text-2xs text-foreground/70">
+                  <p className="text-xs text-foreground/70">
                     {siftBin
                       ? t("repackPanel.siftHint", { bin: siftBin.binNumber })
                       : t("repackPanel.siftNoBin")}

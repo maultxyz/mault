@@ -9,7 +9,7 @@ export function MobileIconBadge({
   return (
     <span
       className={cn(
-        "flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold [&_svg]:size-5",
+        "flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-semibold [&_svg]:size-4",
         tone === "neutral" && "bg-muted text-foreground",
         tone === "primary" && "bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary",
         tone === "destructive" && "bg-destructive/10 text-destructive",

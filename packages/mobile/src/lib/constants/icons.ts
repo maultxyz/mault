@@ -30,6 +30,7 @@ import IconChecks from "@tabler/icons-react-native/IconChecks";
 import IconChevronDown from "@tabler/icons-react-native/IconChevronDown";
 import IconChevronLeft from "@tabler/icons-react-native/IconChevronLeft";
 import IconChevronRight from "@tabler/icons-react-native/IconChevronRight";
+import IconSelector from "@tabler/icons-react-native/IconSelector";
 import IconChevronUp from "@tabler/icons-react-native/IconChevronUp";
 import IconCircleCheck from "@tabler/icons-react-native/IconCircleCheck";
 import IconCircleX from "@tabler/icons-react-native/IconCircleX";
@@ -87,6 +88,7 @@ export const ICONS = {
   check: IconCheck,
   checkAll: IconChecks,
   chevron: IconChevronRight,
+  selector: IconSelector,
   close: IconCircleX,
   collections: IconAlbum,
   dismiss: IconX,

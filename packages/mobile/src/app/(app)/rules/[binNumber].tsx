@@ -105,7 +105,7 @@ export default function BinEditorScreen() {
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xxl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
       >
         {activeSet && !activeSet.isActive ? (
           <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />

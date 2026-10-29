@@ -17,7 +17,9 @@ export function SegmentedControl<T extends string>({
         flexDirection: "row",
         padding: 4,
         borderRadius: RADIUS.md,
-        backgroundColor: colors.muted,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.background,
         gap: SPACING.xs,
       }}
     >
@@ -36,7 +38,7 @@ export function SegmentedControl<T extends string>({
               justifyContent: "center",
               borderRadius: RADIUS.sm,
               paddingHorizontal: SPACING.sm,
-              backgroundColor: selected ? colors.primaryMuted : "transparent",
+              backgroundColor: selected ? colors.primarySelected : "transparent",
             }}
           >
             <AppText

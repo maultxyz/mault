@@ -61,7 +61,7 @@ export default function CalibrationLayoutScreen() {
       <PageHeader title={t("calibration.sections.layout.title")} subtitle={sorter.device?.name} onBack={() => router.back()} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}
       >
         {draft.saveError ? <Callout tone="destructive" title={t("calibration.layoutSaveFailed")} /> : null}
 

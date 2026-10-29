@@ -29,9 +29,8 @@ export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
         flexDirection: "row",
         alignItems: "flex-start",
         gap: SPACING.md,
-        paddingHorizontal: SPACING.sm,
+        paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.md,
-        borderRadius: RADIUS.md,
         backgroundColor: pressed ? colors.muted : "transparent",
       })}
     >
@@ -39,7 +38,7 @@ export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
         style={{
           width: ICON_BADGE_SIZE,
           height: ICON_BADGE_SIZE,
-          borderRadius: RADIUS.full,
+          borderRadius: RADIUS.md,
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: bin.isCatchAll ? colors.primaryMuted : colors.muted,
@@ -60,7 +59,7 @@ export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
           </AppText>
         ) : (
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.xs + 2 }}>
-            {bin.isCatchAll ? <Pill tone="info" label={t("rules.catchAll")} /> : null}
+            {bin.isCatchAll ? <Pill tone="primary" label={t("rules.catchAll")} /> : null}
             {bin.isDisabled ? <Pill tone="warning" label={t("rules.disabled")} /> : null}
             {bin.pickList ? <Pill tone="info" label={t("rules.pickList")} /> : null}
             {sources.length > 0 ? <Pill label={t("rules.overflowFor", { bins: sources.join(", ") })} /> : null}
@@ -71,8 +70,9 @@ export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
                   maxWidth: "100%",
                   paddingHorizontal: SPACING.sm + 2,
                   paddingVertical: 3,
-                  borderRadius: RADIUS.full,
-                  backgroundColor: colors.muted,
+                  borderRadius: RADIUS.md,
+                  borderWidth: 1,
+                  borderColor: colors.border,
                 }}
               >
                 <AppText size="xs" weight="medium" numberOfLines={1}>

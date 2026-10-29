@@ -307,5 +307,13 @@
     "title": "Sorting rules",
     "description": "Decide which bin each card goes to. These rules apply to every {{game}} collection.",
     "descriptionNoGame": "Decide which bin each card goes to. Pick a collection to choose which game's rules you're editing."
+  },
+  "sortingModePanel": {
+    "title": "Sorting mode",
+    "explain": "What does {{mode}} do?"
+  },
+  "mobileBinPicker": {
+    "caption": "Editing",
+    "title": "Choose a bin"
   }
 }

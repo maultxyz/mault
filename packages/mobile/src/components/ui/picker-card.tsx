@@ -21,7 +21,7 @@ export function PickerCard({ icon, label, value, placeholder, onPress, disabled 
         alignItems: "center",
         gap: SPACING.md,
         padding: SPACING.md,
-        borderRadius: RADIUS.lg,
+        borderRadius: RADIUS.md,
         borderWidth: 1,
         borderColor: colors.border,
         backgroundColor: pressed ? colors.muted : colors.card,

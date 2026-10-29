@@ -3,8 +3,8 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { IconBadge } from "@/components/ui/icon-badge";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
-import { DISABLED_OPACITY, LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
+import { SPACING } from "@/lib/constants/theme";
+import { DISABLED_OPACITY, LIST_ROW_ICON_SIZE, LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { ListRowProps } from "@/lib/interfaces/ui";
 
 export function ListRow({
@@ -18,6 +18,7 @@ export function ListRow({
   onPress,
   disabled = false,
   selected,
+  subtitleNumberOfLines = 2,
 }: ListRowProps) {
   const colors = useTheme();
   const destructive = tone === "destructive";
@@ -32,20 +33,19 @@ export function ListRow({
         alignItems: "center",
         gap: SPACING.md,
         minHeight: LIST_ROW_MIN_HEIGHT,
-        paddingHorizontal: SPACING.sm,
+        paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.sm,
-        borderRadius: RADIUS.md,
-        backgroundColor: selected ? colors.primaryMuted : pressed ? colors.muted : "transparent",
+        backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : "transparent",
         opacity: disabled ? DISABLED_OPACITY : 1,
       })}
     >
-      {leading ?? (icon ? <IconBadge name={icon} tone={destructive ? "destructive" : "neutral"} /> : null)}
+      {leading ?? (icon ? <IconBadge name={icon} tone={destructive ? "destructive" : "neutral"} size={LIST_ROW_ICON_SIZE} /> : null)}
       <View style={{ flex: 1, minWidth: 0 }}>
-        <AppText size="base" weight="medium" numberOfLines={1} style={destructive ? { color: colors.destructive } : selected ? { color: colors.primaryText } : undefined}>
+        <AppText weight="medium" numberOfLines={1} style={destructive ? { color: colors.destructive } : selected ? { color: colors.primaryText } : undefined}>
           {title}
         </AppText>
         {subtitle ? (
-          <AppText size="xs" tone="secondary" numberOfLines={2}>
+          <AppText size="xs" tone="secondary" numberOfLines={subtitleNumberOfLines}>
             {subtitle}
           </AppText>
         ) : null}

@@ -46,6 +46,7 @@ export interface MobileNavTabProps {
 export interface MobileNavTabIconProps {
   icon: ReactNode;
   dot?: boolean;
+  active?: boolean;
 }
 
 export interface MobilePageHeaderProps {

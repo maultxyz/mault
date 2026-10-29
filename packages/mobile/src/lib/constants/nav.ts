@@ -7,3 +7,5 @@ export const TAB_ICONS: Record<string, IconName> = {
   rules: "rules",
   account: "account",
 };
+
+export const FULL_BLEED_ROUTE_PATTERN = /^\/desktop-camera\//;

@@ -15,7 +15,7 @@ import {
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { CardActionsSheetProps } from "@/lib/interfaces/collections";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 
@@ -62,6 +62,8 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
             borderWidth: 1,
             borderBottomWidth: 0,
             borderColor: colors.border,
+            ...SHEET_SHADOW,
+            shadowColor: colors.popoverShadow,
             paddingBottom: insets.bottom + SPACING.md,
           }}
         >

@@ -42,13 +42,12 @@ export function MobilePageHeader({
           {actionGroup}
         </div>
       )}
-      <div className="flex min-h-11 items-center gap-3">
+      <div className="flex min-h-10 items-center gap-3">
         <div className="min-w-0 flex-1">
           <h1
             className={cn(
               MOBILE_PAGE_TITLE_CLASS,
               "line-clamp-2",
-              hasBack ? "text-2xl" : "text-3xl",
             )}
           >
             {title}
@@ -56,7 +55,7 @@ export function MobilePageHeader({
           {subtitle && (
             <div className="mt-0.5 flex items-center gap-1.5">
               {subtitleLeading}
-              <p className="truncate text-sm text-foreground/70">{subtitle}</p>
+              <p className="truncate text-xs text-foreground/70">{subtitle}</p>
             </div>
           )}
         </div>
@@ -67,7 +66,7 @@ export function MobilePageHeader({
           aria-hidden={collapsed || undefined}
           className={cn(
             "grid transition-[grid-template-rows,margin,opacity] duration-200 motion-reduce:transition-none",
-            collapsed ? "-mt-4 grid-rows-[0fr] opacity-0" : "grid-rows-[1fr]",
+            collapsed ? "-mt-2.5 grid-rows-[0fr] opacity-0" : "grid-rows-[1fr]",
           )}
         >
           <div className="min-h-0 overflow-hidden">{children}</div>

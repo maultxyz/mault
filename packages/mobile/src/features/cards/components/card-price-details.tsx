@@ -154,8 +154,10 @@ export function CardPriceDetails({ card, isFoil, foilType }: CardPriceDetailsPro
                 gap: 2,
                 paddingHorizontal: SPACING.md,
                 paddingVertical: SPACING.sm + 2,
-                borderRadius: RADIUS.lg,
-                backgroundColor: colors.muted,
+                borderRadius: RADIUS.md,
+                borderWidth: 1,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
               }}
             >
               <AppText size="xs" tone="secondary" numberOfLines={1}>
@@ -202,7 +204,7 @@ export function CardPriceDetails({ card, isFoil, foilType }: CardPriceDetailsPro
       </Pressable>
 
       {open ? (
-        <View style={{ gap: SPACING.md, padding: SPACING.md, borderRadius: RADIUS.lg, backgroundColor: colors.muted }}>
+        <View style={{ gap: SPACING.md, padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card }}>
           {ordered.map(({ source: key, table }) => {
             const rows = table.rows.filter((row) => row.values.some((value) => value != null));
             if (rows.length === 0) return null;

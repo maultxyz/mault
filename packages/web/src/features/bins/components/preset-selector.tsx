@@ -20,26 +20,21 @@ import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { PresetActionDialogs } from "@/features/bins/components/preset-action-dialogs";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
-import { controlCardsPath } from "@/lib/constants/control-cards";
-import type { PresetDialog, PresetSelectorProps } from "@/lib/interfaces/bins";
+import type { PresetDialog } from "@/lib/interfaces/bins";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import type { BinSet } from "@magic-vault/shared";
 import {
-  IconClockHour3,
-  IconQrcode,
   IconEdit,
   IconLoader2,
-  IconPlus,
   IconRefresh,
-  IconTrash,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-export function PresetSelector({ readOnly }: PresetSelectorProps) {
+export function PresetSelector() {
   const { t } = useTranslation("bins");
   const { sets, activateSet, selectedSet, isActivating, isPresetMutating } =
     useBinConfigs();
@@ -52,16 +47,7 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
     return (
       <ButtonGroup className="w-full">
         <Skeleton className="h-9 flex-1 rounded-lg" />
-        {readOnly ? (
-          <Skeleton className="size-9 shrink-0" />
-        ) : (
-          <>
-            <Skeleton className="size-9 shrink-0" />
-            <Skeleton className="size-9 shrink-0" />
-            <Skeleton className="size-9 shrink-0" />
-            <Skeleton className="size-9 shrink-0" />
-          </>
-        )}
+        <Skeleton className="size-9 shrink-0" />
       </ButtonGroup>
     );
   }
@@ -99,110 +85,41 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
             </ComboboxList>
           </ComboboxContent>
         </Combobox>
-        {readOnly ? (
-          <>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    nativeButton={false}
-                    variant="outline"
-                    size="icon"
-                    disabled={!activeCollection}
-                  >
-                    <Link to={SORTING_RULES_PATH}>
-                      <IconEdit />
-                    </Link>
-                  </Button>
-                }
-              ></TooltipTrigger>
-              <TooltipContent>
-                {t("presetSelector.editSortingLogic")}
-              </TooltipContent>
-            </Tooltip>
-            {!!selectedSet?.autoAssignField && (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      disabled={!selectedSet || isPresetMutating}
-                      onClick={() => setOpenDialog("resetAutoAssign")}
-                    >
-                      <IconRefresh />
-                    </Button>
-                  }
-                ></TooltipTrigger>
-                <TooltipContent>{t("autoAssignPanel.reset")}</TooltipContent>
-              </Tooltip>
-            )}
-          </>
-        ) : (
-          <>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={!selectedSet}
-                    onClick={() => setOpenDialog("history")}
-                  >
-                    <IconClockHour3 />
-                  </Button>
-                }
-              ></TooltipTrigger>
-              <TooltipContent>{t("presetSelector.viewHistory")}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label={t("presetSelector.printControlCard")}
-                    disabled={!selectedSet}
-                    render={
-                      <Link
-                        to={controlCardsPath({ presetGuid: selectedSet?.guid })}
-                      >
-                        <IconQrcode />
-                      </Link>
-                    }
-                  />
-                }
-              ></TooltipTrigger>
-              <TooltipContent>
-                {t("presetSelector.printControlCard")}
-              </TooltipContent>
-            </Tooltip>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={!selectedSet || isPresetMutating}
-              onClick={() => setOpenDialog("rename")}
-            >
-              <IconEdit />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={isPresetMutating}
-              data-tour="create-sorting-rule"
-              onClick={() => setOpenDialog("create")}
-            >
-              <IconPlus />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={!selectedSet || isPresetMutating || sets.length <= 1}
-              onClick={() => setOpenDialog("delete")}
-            >
-              <IconTrash />
-            </Button>
-          </>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                nativeButton={false}
+                variant="outline"
+                size="icon"
+                disabled={!activeCollection}
+              >
+                <Link to={SORTING_RULES_PATH}>
+                  <IconEdit />
+                </Link>
+              </Button>
+            }
+          ></TooltipTrigger>
+          <TooltipContent>
+            {t("presetSelector.editSortingLogic")}
+          </TooltipContent>
+        </Tooltip>
+        {!!selectedSet?.autoAssignField && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={!selectedSet || isPresetMutating}
+                  onClick={() => setOpenDialog("resetAutoAssign")}
+                >
+                  <IconRefresh />
+                </Button>
+              }
+            ></TooltipTrigger>
+            <TooltipContent>{t("autoAssignPanel.reset")}</TooltipContent>
+          </Tooltip>
         )}
       </ButtonGroup>
       <PresetActionDialogs

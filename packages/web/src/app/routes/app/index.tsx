@@ -59,7 +59,7 @@ function MobileScanner() {
         <DrawerTrigger asChild>
           <button
             type="button"
-            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 text-sm font-medium shadow-lg"
+            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-lg px-4 py-2 text-sm font-medium shadow-popover ring-1 ring-border"
           >
             <IconCards size={16} />
             {t("cardCount", { count: totalCount })}
@@ -68,7 +68,7 @@ function MobileScanner() {
         <DrawerContent>
           <div className="overflow-y-auto p-4 flex flex-col gap-4 max-h-[calc(80vh-2rem)]">
             <div className="flex flex-col gap-4">
-              <PresetSelector readOnly />
+              <PresetSelector />
             </div>
             <ScanStats />
             <div className="@container">

@@ -48,7 +48,7 @@ export default function RenameCollectionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <PageHeader title={t("collections.renameTitle")} subtitle={t("collections.renameDescription")} onBack={() => router.back()} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.xl }}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, gap: SPACING.xl }}>
         {rename.isError ? <Callout tone="destructive" title={t("collections.renameFailed")} /> : null}
         <Controller
           control={form.control}

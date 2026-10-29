@@ -36,7 +36,7 @@ export default function StorageNameScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <PageHeader title={editing ? t("storage.rename") : t("storage.newLocation")} onBack={() => router.back()} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.xl }}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, gap: SPACING.xl }}>
         {save.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
         <Controller
           control={form.control}

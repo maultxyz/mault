@@ -14,21 +14,31 @@ export function QuickAction({ icon, label, onPress, disabled = false }: QuickAct
       accessibilityLabel={label}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => ({ alignItems: "center", gap: SPACING.sm, flex: 1, opacity: disabled ? DISABLED_OPACITY : 1, transform: [{ scale: pressed ? 0.95 : 1 }] })}
+      style={({ pressed }) => ({
+        flex: 1,
+        alignItems: "center",
+        gap: SPACING.xs + 2,
+        paddingVertical: SPACING.md,
+        borderRadius: RADIUS.md,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: pressed ? colors.muted : colors.card,
+        opacity: disabled ? DISABLED_OPACITY : 1,
+      })}
     >
       <View
         style={{
           width: QUICK_ACTION_SIZE,
           height: QUICK_ACTION_SIZE,
-          borderRadius: RADIUS.full,
-          backgroundColor: colors.primary,
+          borderRadius: RADIUS.sm + 2,
+          backgroundColor: colors.primaryMuted,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <Icon name={icon} size={24} color={colors.primaryForeground} />
+        <Icon name={icon} size={16} color={colors.primaryText} />
       </View>
-      <AppText size="xs" weight="semibold" numberOfLines={1}>
+      <AppText size="xs" weight="medium" numberOfLines={1} style={{ paddingHorizontal: SPACING.xs }}>
         {label}
       </AppText>
     </Pressable>

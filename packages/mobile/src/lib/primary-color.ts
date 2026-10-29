@@ -2,6 +2,7 @@ import {
   DARK_PRIMARY_TEXT_MIN_LIGHTNESS,
   PRIMARY_MUTED_ALPHA,
   PRIMARY_PRESSED_LIGHTNESS_SCALE,
+  PRIMARY_SELECTED_ALPHA,
 } from "@/lib/constants/theme";
 import type { ThemeColors } from "@/lib/interfaces/theme";
 import type { ThemeColorOption } from "@/lib/interfaces/settings";
@@ -71,5 +72,6 @@ export function applyPrimaryColor(base: ThemeColors, color: ThemeColorOption | n
     primaryPressed: withScaledLightness(color.value, PRIMARY_PRESSED_LIGHTNESS_SCALE),
     primaryText: dark ? withMinLightness(color.value, DARK_PRIMARY_TEXT_MIN_LIGHTNESS) : color.value,
     primaryMuted: withAlpha(color.value, dark ? PRIMARY_MUTED_ALPHA.dark : PRIMARY_MUTED_ALPHA.light),
+    primarySelected: withAlpha(color.value, dark ? PRIMARY_SELECTED_ALPHA.dark : PRIMARY_SELECTED_ALPHA.light),
   };
 }

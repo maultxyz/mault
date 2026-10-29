@@ -31,8 +31,8 @@ function formatDay(date: string): string {
 
 function HomeStatTile({ label, value }: HomeStatTileProps) {
   return (
-    <div className="min-w-0 rounded-lg bg-muted px-3.5 py-3">
-      <p className="truncate font-heading text-xl leading-tight font-bold text-foreground tabular-nums">
+    <div className="min-w-0 rounded-lg bg-card px-3.5 py-3 ring-1 ring-border">
+      <p className="truncate font-heading text-lg leading-tight font-semibold text-foreground tabular-nums">
         {value}
       </p>
       <p className="truncate text-xs text-foreground/70">{label}</p>
@@ -98,14 +98,14 @@ function HomeCardStrip({ title, cards }: HomeCardStripProps) {
 
   return (
     <MobileSection title={title}>
-      <div className="-mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 pt-1 pb-1">
+      <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pt-1 pb-1">
         {cards.map((entry) => (
           <Link
             key={entry.scanId}
             to={`/app/monitor/${entry.collectionGuid}`}
             className="flex w-28 shrink-0 snap-start flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
           >
-            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-border">
+            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted ring-1 ring-border">
               <img
                 src={entry.card.image?.normal || entry.card.image?.small || ""}
                 alt={entry.card.name}

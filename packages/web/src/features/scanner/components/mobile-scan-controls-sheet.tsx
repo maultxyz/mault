@@ -1,9 +1,14 @@
 import { Callout } from "@/components/callout";
 import { MobileListRow } from "@/components/mobile-list-row";
+import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { MOBILE_LIST_CLASS, MOBILE_SORTER_PATH } from "@/lib/constants/nav";
 import { SESSION_TIMER_RUNNING_STATUSES } from "@/lib/constants/scanner";
-import type { MobileScanControlsSheetProps } from "@/lib/interfaces/scanner";
+import type {
+  MobileScanControlsSheetProps,
+  MobileScanEntryMode,
+} from "@/lib/interfaces/scanner";
 import {
   IconArrowDown,
   IconCpu,
@@ -20,6 +25,7 @@ export function MobileScanControlsSheet({
   chrome,
 }: MobileScanControlsSheetProps) {
   const { t } = useTranslation("scanner");
+  const { isRemoveModeEnabled, setRemoveModeEnabled } = useScanRemoval();
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
   const busy =
     chrome.isFeeding || chrome.isClearingDevice || chrome.isResettingDevice;
@@ -31,12 +37,21 @@ export function MobileScanControlsSheet({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
         <div className="flex flex-col gap-4 px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <DrawerTitle className="font-heading text-lg font-bold text-foreground">
+          <DrawerTitle className="font-heading text-base font-semibold text-foreground">
             {t("mobileScan.controls.title")}
           </DrawerTitle>
           {running && (
             <Callout variant="info">{t("mobileScan.controls.pausedHint")}</Callout>
           )}
+          <MobileSegmentedControl<MobileScanEntryMode>
+            label={t("scanRemoval.modeLabel")}
+            items={[
+              { key: "add", label: t("scanRemoval.addMode") },
+              { key: "remove", label: t("scanRemoval.removeMode") },
+            ]}
+            value={isRemoveModeEnabled ? "remove" : "add"}
+            onChange={(mode) => setRemoveModeEnabled(mode === "remove")}
+          />
           <div className={MOBILE_LIST_CLASS}>
             <MobileListRow
               icon={<IconScan />}

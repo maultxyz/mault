@@ -15,10 +15,10 @@ export function IconButton({
 }: IconButtonProps) {
   const colors = useTheme();
   const palette = {
-    neutral: { bg: colors.muted, pressed: colors.border, fg: colors.foreground },
-    primary: { bg: colors.primary, pressed: colors.primaryPressed, fg: colors.primaryForeground },
-    plain: { bg: "transparent", pressed: colors.muted, fg: colors.foreground },
-    camera: { bg: colors.cameraScrim, pressed: colors.cameraScrim, fg: colors.onCamera },
+    neutral: { bg: colors.background, pressed: colors.muted, fg: colors.foreground, border: colors.border },
+    primary: { bg: colors.primary, pressed: colors.primaryPressed, fg: colors.primaryForeground, border: "transparent" },
+    plain: { bg: "transparent", pressed: colors.muted, fg: colors.foreground, border: "transparent" },
+    camera: { bg: colors.cameraScrim, pressed: colors.cameraScrim, fg: colors.onCamera, border: "transparent" },
   }[variant];
   return (
     <Pressable
@@ -31,7 +31,9 @@ export function IconButton({
       style={({ pressed }) => ({
         width: size,
         height: size,
-        borderRadius: RADIUS.full,
+        borderRadius: RADIUS.md,
+        borderWidth: 1,
+        borderColor: palette.border,
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: pressed ? palette.pressed : palette.bg,
