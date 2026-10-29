@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import { useAppVersionCheck } from "@/hooks/use-app-version-check";
 import { usePiHost } from "@/hooks/use-pi-host";
 import { usePiUpdate } from "@/hooks/use-pi-update";
 import { useRole } from "@/hooks/use-role";
+import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import { PI_UPDATE_ACKNOWLEDGED_KEY } from "@/lib/constants/pi-update";
-import { useState } from "react";
 import type { AppAlert } from "@/lib/interfaces/alerts";
 import { hardReload } from "@/lib/pwa";
 import { IconAlertTriangle } from "@tabler/icons-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function useAppVersionAlert(): AppAlert | null {
@@ -39,27 +39,32 @@ export function useAppVersionAlert(): AppAlert | null {
     id: "app-version-outdated",
     severity: failed ? "danger" : succeeded ? "info" : "warning",
     icon: IconAlertTriangle,
-    message:
-      update.error ??
-      (update.busy
-        ? t("appVersion.updating")
-        : failed
-          ? (update.status?.state.message ?? t("appVersion.updateFailed"))
-          : succeeded
-            ? t("appVersion.updateSucceeded")
-            : t("appVersion.outdatedBanner")),
+    message: (
+      <>
+        {update.error ??
+          (update.busy
+            ? t("appVersion.updating")
+            : failed
+              ? (update.status?.state.message ?? t("appVersion.updateFailed"))
+              : succeeded
+                ? t("appVersion.updateSucceeded")
+                : t("appVersion.outdatedBanner"))}
+        {piHost &&
+          isAdmin &&
+          (available || failed) &&
+          !succeeded &&
+          !update.busy && (
+            <span className="block">
+              {t("appVersion.terminalUpdate")}{" "}
+              <code className="select-all">
+                cd ~/mault &amp;&amp; bash scripts/pi/update.sh
+              </code>
+            </span>
+          )}
+      </>
+    ),
     actions: (
       <>
-        {piHost && isAdmin && (available || failed) && !succeeded && (
-          <Button
-            variant="outline"
-            className={ALERT_BANNER_ACTION_CLASS}
-            disabled={update.busy}
-            onClick={() => void update.start()}
-          >
-            {t("appVersion.updateButton")}
-          </Button>
-        )}
         {!update.busy && (
           <Button
             variant="outline"

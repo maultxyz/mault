@@ -89,6 +89,7 @@
   "appVersion": {
     "outdatedBanner": "Une nouvelle version de Mault est disponible.",
     "refreshButton": "Actualiser",
+    "terminalUpdate": "Terminez les scans et les synchronisations, puis exécutez cette commande dans un terminal sur le Pi. Saisissez votre mot de passe sudo si demandé. Actualisez ensuite cette page :",
     "updateButton": "Mettre à jour Mault",
     "updating": "Mise à jour de Mault. Gardez cette page ouverte pendant le redémarrage des services.",
     "updateSucceeded": "Mault a été mis à jour. Actualisez la page pour utiliser la nouvelle version.",
