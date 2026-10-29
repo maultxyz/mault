@@ -1819,6 +1819,7 @@
     "tooManyTiers": "{{max}} paliers au maximum.",
     "customerNameRequired": "Saisis le nom du client.",
     "orderTextRequired": "Colle une commande ou choisis un fichier.",
+    "orderLinesRequired": "Garde au moins une carte dans la liste.",
     "cardCountRequired": "Saisis un nombre de cartes.",
     "storageLocationRequired": "Choisis où sont allées les cartes.",
     "commandRequired": "Saisis une commande.",

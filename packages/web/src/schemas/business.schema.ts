@@ -4,11 +4,14 @@ import {
   BUYLIST_PERCENT_MAX,
   BUYLIST_PRICE_MAX,
   BUYLIST_TIERS_MAX,
+  CARD_CONDITIONS,
   DEVICE_MAINTENANCE_INTERVAL_MAX,
   DEVICE_MAINTENANCE_INTERVAL_MIN,
   formValidationMessage,
   INTAKE_NOTES_MAX_LENGTH,
   INTAKE_TEXT_MAX_LENGTH,
+  ORDER_LINE_QUANTITY_MAX,
+  ORDER_LINES_MAX,
   ORDER_NAME_MAX_LENGTH,
   ACCURACY_SAMPLE_SIZES,
   SET_NAME_MAX_LENGTH,
@@ -120,6 +123,35 @@ export const orderImportSchema = z.object({
 });
 
 export type OrderImportFormValues = z.infer<typeof orderImportSchema>;
+
+const orderLineQuantity = z
+  .number(formValidationMessage("wholeNumber"))
+  .int(formValidationMessage("wholeNumber"))
+  .min(1, formValidationMessage("atLeast", { min: 1 }))
+  .max(ORDER_LINE_QUANTITY_MAX, formValidationMessage("atMost", { max: ORDER_LINE_QUANTITY_MAX }));
+
+export const orderEditSchema = z.object({
+  name: orderImportSchema.shape.name,
+  lines: z
+    .array(
+      z.object({
+        name: z.string(),
+        setCode: z.string().nullable().optional(),
+        setName: z.string().nullable().optional(),
+        collectorNumber: z.string().nullable().optional(),
+        condition: z.enum(CARD_CONDITIONS).nullable().optional(),
+        isFoil: z.boolean().nullable().optional(),
+        unitPrice: z.number().nullable().optional(),
+        orderRef: z.string().nullable().optional(),
+        quantity: orderLineQuantity,
+      }),
+    )
+    .min(1, formValidationMessage("orderLinesRequired"))
+    .max(ORDER_LINES_MAX, formValidationMessage("atMost", { max: ORDER_LINES_MAX })),
+  cardsToAdd: z.string(),
+});
+
+export type OrderEditFormValues = z.infer<typeof orderEditSchema>;
 
 export const collectionCostSchema = z.object({
   total: money,

@@ -197,6 +197,12 @@ export interface FulfilmentOrderInput {
   lines: OrderLineInput[];
 }
 
+export interface FulfilmentOrderUpdateInput {
+  name: string;
+  lines: OrderLineInput[];
+  releasedScanIds?: string[];
+}
+
 export interface FulfilmentOrder {
   guid: string;
   name: string;

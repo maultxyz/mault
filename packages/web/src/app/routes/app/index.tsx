@@ -26,8 +26,12 @@ import { useTranslation } from "react-i18next";
 
 function MobileScanner() {
   const { t } = useTranslation("scanner");
-  const { unmatchedCards, unmatchedCount, removeUnmatchedCard } =
-    useScannedCards();
+  const {
+    unmatchedCards,
+    unmatchedCount,
+    removeUnmatchedCard,
+    removeAllUnmatchedCards,
+  } = useScannedCards();
   const { activeCollection } = useCollections();
   const { totalCount } = useCollectionCardsSummary();
   const piHost = usePiHost();
@@ -47,6 +51,7 @@ function MobileScanner() {
           total={unmatchedCount}
           collectionGuid={activeCollection?.guid}
           onRemove={removeUnmatchedCard}
+          onRemoveAll={removeAllUnmatchedCards}
         />
         <BinStatusMeter />
         <AlphabetPassControl />

@@ -30,6 +30,8 @@ export interface StorageLocationCard {
   hasAlternatives: boolean;
   corrected: boolean;
   reviewed: boolean;
+  acquisitionCost: number | null;
+  acquisitionCurrency: string | null;
 }
 
 export interface StorageLocationCardPage {

@@ -63,3 +63,12 @@ export async function loadBusinessAccess(
     priceSource: pricing.source,
   };
 }
+
+export async function canViewCardCosts(
+  tx: Transaction,
+  orgId: string,
+  role: OrgRole,
+): Promise<boolean> {
+  const access = await loadBusinessAccess(tx, orgId, role);
+  return !access.isLocked && access.canViewCosts;
+}

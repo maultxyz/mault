@@ -1,4 +1,4 @@
-import { FoilOverlay } from "@/components/foil-overlay";
+import { CardThumbnail } from "@/components/card-thumbnail";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { MOBILE_LIST_CLASS, MOBILE_LIST_ROW_CLASS } from "@/lib/constants/nav";
@@ -28,17 +28,11 @@ export function MobileStorageCardList({
             onClick={() => onOpenCard(entry)}
             className={MOBILE_LIST_ROW_CLASS}
           >
-            <span className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-sm bg-muted">
-              {entry.card.image?.small && (
-                <img
-                  src={entry.card.image.small}
-                  alt=""
-                  loading="lazy"
-                  className="absolute inset-0 size-full object-cover"
-                />
-              )}
-              {entry.isFoil && <FoilOverlay />}
-            </span>
+            <CardThumbnail
+              image={entry.card.image}
+              isFoil={entry.isFoil}
+              className="w-10 rounded-sm"
+            />
             <span className="min-w-0 flex-1">
               <span className="flex min-w-0 items-center gap-1.5">
                 <span className="truncate font-semibold">{entry.card.name}</span>

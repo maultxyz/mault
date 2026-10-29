@@ -6,11 +6,11 @@ import { BusinessUpgradeCallout } from "@/features/business/components/business-
 import { OrderDetail } from "@/features/business/components/order-detail";
 import { OrderImportDialog } from "@/features/business/components/order-import-dialog";
 import { OrderList } from "@/features/business/components/order-list";
-import { ORDER_PARAM } from "@/lib/constants/business";
 import {
-  STORAGE_ORDERS_VIEW,
-  STORAGE_VIEW_PARAM,
-} from "@/lib/constants/storage";
+  BUSINESS_PICKS_VIEW,
+  BUSINESS_VIEW_PARAM,
+  ORDER_PARAM,
+} from "@/lib/constants/business";
 import type { OrdersWorkspaceProps } from "@/lib/interfaces/business";
 import { IconFileImport, IconTruckDelivery } from "@tabler/icons-react";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
@@ -37,7 +37,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const select = (guid: string | null) =>
     setSearchParams(
       {
-        [STORAGE_VIEW_PARAM]: STORAGE_ORDERS_VIEW,
+        [BUSINESS_VIEW_PARAM]: BUSINESS_PICKS_VIEW,
         ...(guid ? { [ORDER_PARAM]: guid } : {}),
       },
       { replace: true },
