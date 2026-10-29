@@ -475,7 +475,7 @@ jobs:
           exit 1
 
       - name: Notify Discord (success)
-        if: success() && steps.deploy.outputs.should_deploy == 'true' && env.IS_DEV != 'true'
+        if: success() && steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true' && env.IS_DEV != 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           DISCORD_ROLE_ID: ${{ secrets.DISCORD_DEPLOYMENTS_ROLE_ID }}
@@ -539,7 +539,7 @@ jobs:
             -d "$PAYLOAD"
 
       - name: Notify Discord (failure)
-        if: failure()
+        if: failure() && steps.targets.outputs.web_server != 'false'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           PR_TITLE: ${{ steps.pr.outputs.title }}
