@@ -105,7 +105,6 @@ export function ServiceIntervalDialog({
                         key={preset}
                         type="button"
                         variant="outline"
-                        size="xs"
                         onClick={() => field.onChange(preset)}
                       >
                         {preset.toLocaleString()}

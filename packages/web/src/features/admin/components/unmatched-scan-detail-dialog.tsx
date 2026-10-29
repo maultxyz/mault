@@ -175,7 +175,6 @@ export function UnmatchedScanDetailDialog({
                   {t("unmatchedRetry.detail.retryResult")}
                 </h3>
                 <Button
-                  size="sm"
                   variant="outline"
                   onClick={() => onRetry(scan.scanId)}
                   disabled={isRetrying || !scan.hasEmbedding}

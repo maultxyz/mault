@@ -63,7 +63,6 @@ export function PlanSettingsManager() {
           <Button
             type="button"
             variant="outline"
-            size="sm"
             onClick={restoreDefaults}
           >
             <IconRestore />

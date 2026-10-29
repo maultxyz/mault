@@ -6,11 +6,7 @@ import { BusinessUpgradeCallout } from "@/features/business/components/business-
 import { OrderDetail } from "@/features/business/components/order-detail";
 import { OrderImportDialog } from "@/features/business/components/order-import-dialog";
 import { OrderList } from "@/features/business/components/order-list";
-import {
-  BUSINESS_PICKS_VIEW,
-  BUSINESS_VIEW_PARAM,
-  ORDER_PARAM,
-} from "@/lib/constants/business";
+import { ORDER_PARAM } from "@/lib/constants/business";
 import type { OrdersWorkspaceProps } from "@/lib/interfaces/business";
 import { IconFileImport, IconTruckDelivery } from "@tabler/icons-react";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
@@ -35,13 +31,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const selectedGuid = selectedParam ?? orders[0]?.guid;
 
   const select = (guid: string | null) =>
-    setSearchParams(
-      {
-        [BUSINESS_VIEW_PARAM]: BUSINESS_PICKS_VIEW,
-        ...(guid ? { [ORDER_PARAM]: guid } : {}),
-      },
-      { replace: true },
-    );
+    setSearchParams(guid ? { [ORDER_PARAM]: guid } : {}, { replace: true });
 
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">

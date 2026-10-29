@@ -84,11 +84,10 @@ async function loadIntakeLotDetail(
     [row.id],
     await loadOrgPricing(tx, orgId),
   );
-  const marketPrices = pricedCards.map((card) => card.marketPrice);
   const lot = await toIntakeLot(
     row,
     row.status === "open"
-      ? summarizeIntakePrices(marketPrices, settings.buylist)
+      ? summarizeIntakePrices(pricedCards, settings.buylist)
       : null,
     canViewCosts,
   );
@@ -106,7 +105,11 @@ async function loadIntakeLotDetail(
     cardCount: pricedCards.length,
     cardsInSource: Number(inSource?.count ?? 0),
     belowMinimumScanIds: pricedCards
-      .filter((card) => isBelowBuylistMinimum(card.marketPrice, settings.buylist))
+      .filter(
+        (card) =>
+          card.manualOffer === null &&
+          isBelowBuylistMinimum(card.marketPrice, settings.buylist),
+      )
       .map((card) => card.scanId),
   };
 }

@@ -15,6 +15,7 @@ export interface ThemeColors {
   primaryForeground: string;
   primaryText: string;
   primaryMuted: string;
+  primaryPressed: string;
   destructive: string;
   destructiveStrong: string;
   destructiveMuted: string;

@@ -20,6 +20,7 @@ export function AddCardDialog({
   onOpenChange,
   collectionGuid,
   locationGuid,
+  addsToIntakeLot,
 }: AddCardDialogProps) {
   const { t } = useTranslation("cards");
   const { collections, activeCollection } = useCollections();
@@ -35,9 +36,13 @@ export function AddCardDialog({
 
   const handleSelect = async (card: PlayingCard) => {
     if (!targetGuid || isAdding) return;
-    if (await addCard({ collectionGuid: targetGuid, card, locationGuid })) {
-      onOpenChange(false);
-    }
+    const added = await addCard({
+      collectionGuid: targetGuid,
+      card,
+      locationGuid,
+      addsToIntakeLot,
+    });
+    if (added && !addsToIntakeLot) onOpenChange(false);
   };
 
   return (

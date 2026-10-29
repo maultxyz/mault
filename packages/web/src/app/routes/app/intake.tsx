@@ -12,12 +12,9 @@ import { IntakeLotDetail } from "@/features/business/components/intake-lot-detai
 import { IntakeLotDialog } from "@/features/business/components/intake-lot-dialog";
 import { IntakeLotList } from "@/features/business/components/intake-lot-list";
 import { BusinessViewSwitch } from "@/features/business/components/business-view-switch";
-import { OrdersWorkspace } from "@/features/business/components/orders-workspace";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import {
   BUSINESS_INTAKE_VIEW,
-  BUSINESS_PICKS_VIEW,
-  BUSINESS_VIEW_PARAM,
   INTAKE_CARD_PARAM,
   INTAKE_LOT_PARAM,
   INTAKE_REVIEW_PARAM,
@@ -31,7 +28,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
-function IntakeWorkspace() {
+export default function IntakePage() {
   const { t } = useTranslation("business");
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -173,14 +170,3 @@ function IntakeWorkspace() {
   );
 }
 
-export default function IntakePage() {
-  const [searchParams] = useSearchParams();
-  if (searchParams.get(BUSINESS_VIEW_PARAM) === BUSINESS_PICKS_VIEW) {
-    return (
-      <OrdersWorkspace
-        switcher={<BusinessViewSwitch value={BUSINESS_PICKS_VIEW} />}
-      />
-    );
-  }
-  return <IntakeWorkspace />;
-}

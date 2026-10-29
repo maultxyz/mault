@@ -42,7 +42,6 @@ export function CardStorageLocationSection({
         {canRemove && (
           <Button
             variant="outline-destructive"
-            size="sm"
             className="shrink-0"
             disabled={isRemoving}
             onClick={() => setConfirmOpen(true)}

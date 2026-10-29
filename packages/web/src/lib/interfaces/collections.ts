@@ -46,7 +46,17 @@ export interface CollectionsContextValue {
 }
 
 export interface CreateCollectionDialogProps {
-  trigger: (ctx: { disabled: boolean; noGames: boolean }) => ReactElement;
+  trigger?: (ctx: { disabled: boolean; noGames: boolean }) => ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export interface ActiveCollectionSessionActions {
+  isLockedByMe: boolean;
+  isSharing: boolean;
+  isReleasing: boolean;
+  copyMonitorLink: () => Promise<void>;
+  releaseScanSession: () => Promise<void>;
 }
 
 export interface AppStreamContextValue {

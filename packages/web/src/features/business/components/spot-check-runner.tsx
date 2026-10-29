@@ -63,7 +63,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={onClose}>
+        <Button variant="ghost" onClick={onClose}>
           <IconArrowLeft />
           {t("accuracy.back")}
         </Button>
@@ -175,7 +175,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
             <p className="text-sm text-foreground/70">{t("accuracy.cardGone")}</p>
           )}
           {isOpen && sample.card && (
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <Button
                 variant={sample.result === "incorrect" ? "destructive" : "outline-destructive"}
                 className="flex-1"
@@ -212,7 +212,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
                 </span>
                 <Link
                   to={`${collectionViewPath(check.collectionGuid)}/cards/${entry.scanId}`}
-                  className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                  className={cn(buttonVariants({ variant: "ghost", size: "default" }))}
                 >
                   <IconExternalLink />
                   {t("accuracy.fix")}

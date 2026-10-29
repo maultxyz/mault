@@ -729,7 +729,7 @@ export function SessionSummaryDialog({
         <DialogOverlay />
         <DialogPrimitive.Popup
           className={cn(
-            "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl shadow-2xl ring-1 ring-foreground/10 outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl shadow-2xl ring-1 ring-border outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             isOutro
               ? "bg-popover text-popover-foreground"
               : "text-white",
@@ -797,9 +797,8 @@ export function SessionSummaryDialog({
               {!isOutro && (
                 <Button
                   variant="ghost"
-                  size="sm"
                   onClick={skipAll}
-                  className="h-7 px-2 text-xs text-white/80 hover:bg-white/15 hover:text-white"
+                  className="text-white/80 hover:bg-white/15 hover:text-white"
                 >
                   {t("sessionWrapped.skipAll")}
                 </Button>
@@ -808,7 +807,7 @@ export function SessionSummaryDialog({
                 render={
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     className={
                       isOutro ? undefined : "text-white hover:bg-white/15 hover:text-white"
                     }

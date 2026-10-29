@@ -90,9 +90,9 @@ export function BuildAssembly() {
               )}
               <div
                 id={phaseAnchorId(phase.key)}
-                className="min-w-0 flex-1 scroll-mt-16 rounded-lg border bg-card dark:border-foreground/15"
+                className="min-w-0 flex-1 scroll-mt-16 rounded-lg border bg-card"
               >
-                <div className="group/anchor sticky top-14 z-10 flex items-center gap-3 rounded-t-lg border-b bg-card px-3 py-2 md:px-4 dark:border-foreground/15">
+                <div className="group/anchor sticky top-14 z-10 flex items-center gap-3 rounded-t-lg border-b bg-card px-3 py-2 md:px-4">
                   <div className="flex min-w-0 flex-col">
                     <span className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
                       {t("assembly.phaseLabel", {
@@ -114,7 +114,7 @@ export function BuildAssembly() {
                     <phase.icon className="size-4" />
                   </div>
                 </div>
-                <div className="flex flex-col divide-y divide-dashed divide-border px-3 py-3 md:px-4 dark:divide-foreground/15">
+                <div className="flex flex-col divide-y divide-dashed divide-border px-3 py-3 md:px-4">
                   {phase.intro}
                   {phase.steps.map((step) => (
                     <div

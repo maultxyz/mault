@@ -52,7 +52,7 @@ export function QrPairingScanner({ onResult }: QrPairingScannerProps) {
           icon={IconAlertTriangle}
           title={t("qrPairing.cameraErrorTitle")}
           action={
-            <Button variant="outline" size="sm" onClick={retry}>
+            <Button variant="outline" onClick={retry}>
               <IconRefresh />
               {t("qrPairing.retry")}
             </Button>

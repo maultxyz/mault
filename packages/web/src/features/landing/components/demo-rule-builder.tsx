@@ -132,7 +132,6 @@ export function DemoRuleBuilder() {
             <Button
               key={option}
               type="button"
-              size="sm"
               variant={combinator === option ? "outline-selected" : "outline"}
               onClick={() => setCombinator(option)}
             >
@@ -153,7 +152,6 @@ export function DemoRuleBuilder() {
         ))}
         <Button
           type="button"
-          size="sm"
           variant="outline"
           className="self-start"
           disabled={conditions.length >= DEMO_RULE_MAX_CONDITIONS}

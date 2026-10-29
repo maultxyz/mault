@@ -1,6 +1,7 @@
 import { AppProviders } from "@/app/providers";
 import { AppHotkeys } from "@/components/app-hotkeys";
 import { AppNav } from "@/components/app-nav";
+import { AppTopBar } from "@/components/app-top-bar";
 import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
 import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
@@ -13,7 +14,6 @@ import { PlanBadge } from "@/components/plan-badge";
 import { PiScanStatusBar } from "@/features/scanner/components/pi-scan-status-bar";
 import { DesktopScannerPip } from "@/features/scanner/components/desktop-scanner-pip";
 import { ScannerPip } from "@/features/scanner/components/scanner-pip";
-import { StationTabs } from "@/features/scanner/components/station-tabs";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
 import {
   Tooltip,
@@ -70,23 +70,21 @@ export default function AppLayout() {
           {!hideMobileNav && <MobileNav />}
         </div>
       ) : (
-        <div className="h-dvh w-dvw overflow-hidden p-2 pb-6 bg-muted dark:bg-black relative text-foreground/70">
+        <div className="h-dvh w-dvw overflow-hidden pb-6 flex flex-col bg-sidebar relative text-foreground/70">
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
-          <div className="flex flex-col border rounded-lg size-full overflow-hidden relative">
-            <SpiderWeb corner="top-left" withSpider />
-            <ImpersonationBanner />
-            <AlertStack />
-            <PiScanStatusBar />
-            <div className="flex flex-row flex-1 min-h-0 overflow-hidden">
-              <AppNav />
-              <main className="flex-1 min-w-0 overflow-hidden flex flex-col bg-background/70 dark:bg-background/60">
-                <StationTabs />
-                <IntakeBanner />
-                <PageTransition>
-                  <Outlet />
-                </PageTransition>
-              </main>
-            </div>
+          <SpiderWeb corner="top-left" withSpider className="z-0" />
+          <AppTopBar />
+          <div className="relative flex flex-row flex-1 min-h-0 overflow-hidden pr-1.5">
+            <AppNav />
+            <main className="relative flex-1 min-w-0 overflow-hidden flex flex-col rounded-lg border bg-background/70 shadow-xs dark:bg-background/60">
+              <ImpersonationBanner />
+              <AlertStack />
+              <PiScanStatusBar />
+              <IntakeBanner />
+              <PageTransition>
+                <Outlet />
+              </PageTransition>
+            </main>
           </div>
           <ScannerPip />
           <DesktopScannerPip />

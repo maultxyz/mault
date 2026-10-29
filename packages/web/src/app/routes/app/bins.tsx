@@ -16,7 +16,6 @@ import { RepackPanel } from "@/features/bins/components/repack-panel";
 import { RepackTour } from "@/features/bins/components/repack-tour";
 import { SortingRulesIntro } from "@/features/bins/components/sorting-rules-intro";
 import { SortingRulesTour } from "@/features/bins/components/sorting-rules-tour";
-import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   MOBILE_NAV_SCROLL_PADDING_CLASS,
@@ -52,7 +51,6 @@ function MobileBins() {
         )}
       >
         <div className={cn(MOBILE_PAGE_BODY_CLASS, "gap-4 pb-20")}>
-          <CollectionSwitcher />
           <PresetSelector />
           <AutoAssignPanel />
           <RepackPanel />
@@ -88,8 +86,6 @@ export default function BinsPage() {
   ) : (
     <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
       <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
-        <CollectionSwitcher />
-        <PresetSelector />
         <AutoAssignPanel />
         <BinList />
       </section>

@@ -112,7 +112,6 @@ export function ApiKeysManager() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
           onClick={() => setShowCreate(true)}
         >
           <IconPlus size={14} />
@@ -153,7 +152,6 @@ export function ApiKeysManager() {
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
                   disabled={isRevoking}
                   onClick={() => setRevokeTarget(key)}
                 >

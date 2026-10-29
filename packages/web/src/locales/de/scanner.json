@@ -572,6 +572,7 @@
   "stations": {
     "label": "Sortierer {{number}}",
     "tabsLabel": "Sortierer",
+    "noneConnected": "Kein Sortierer verbunden",
     "connect": "Sortierer verbinden",
     "disconnect": "{{name}} trennen",
     "overview": {
@@ -583,7 +584,17 @@
       "noCamera": "Keine Kamera",
       "noCards": "Noch keine Karten gescannt",
       "emptyTitle": "Noch keine Sortierer",
-      "emptyDescription": "Verbinde einen Sortierer im Scanner, um ihn hier zu sehen.",
+      "emptyDescription": "Verbinde einen Sortierer, um ihn hier zu sehen.",
+      "stats": {
+        "heading": "Übersicht",
+        "sorters": "Sortierer",
+        "connected": "Verbunden",
+        "sorting": "Sortiert gerade",
+        "offline": "Offline"
+      },
+      "searchPlaceholder": "Sortierer durchsuchen...",
+      "noSearchResultsTitle": "Keine passenden Sortierer",
+      "noSearchResultsDescription": "Versuche einen anderen Suchbegriff",
       "delete": "{{name}} löschen",
       "deleted": "{{name}} gelöscht",
       "deleteFailed": "{{name}} konnte nicht gelöscht werden",

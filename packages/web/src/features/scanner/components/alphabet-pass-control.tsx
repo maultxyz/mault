@@ -55,11 +55,10 @@ export function AlphabetPassControl() {
   const canSortDeeper = prefix.length < ALPHABET_PREFIX_MAX_LENGTH;
 
   const controls = (
-    <div className="flex flex-wrap items-center justify-end gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-1.5">
       {prefix && (
         <Button
           type="button"
-          size="sm"
           variant="outline"
           disabled={isDisabled}
           onClick={() => setPending({ pass: 0, prefix: prefix.slice(0, -1) })}
@@ -73,7 +72,6 @@ export function AlphabetPassControl() {
             render={
               <Button
                 type="button"
-                size="sm"
                 variant="outline"
                 disabled={isDisabled}
               />
@@ -97,7 +95,6 @@ export function AlphabetPassControl() {
       )}
       <Button
         type="button"
-        size="sm"
         variant="outline"
         disabled={
           isDisabled || (isLastPass && passCount === 1 && prefix === "")

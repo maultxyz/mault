@@ -93,7 +93,7 @@ export function UnmatchedCardDetail({
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-2xl">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-1.5 border-b bg-background/80 p-2 backdrop-blur-2xl">
         <ButtonGroup className="shrink-0">
           <Button
             size="icon"
@@ -216,7 +216,7 @@ export function UnmatchedCardDetail({
 
       {entry && (
         <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background/80 p-2 backdrop-blur-2xl">
-          <div className="flex w-full flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-1.5">
             <Button disabled={!hasNext || isBusy} onClick={goNext}>
               <IconPlayerSkipForward className="size-4" />
               {t("unmatchedCardsPanel.skip")}

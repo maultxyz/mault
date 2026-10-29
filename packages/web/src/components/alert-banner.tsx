@@ -42,7 +42,7 @@ export function AlertBanner({
       {onDismiss && (
         <Button
           variant="ghost"
-          size="icon-xs"
+          size="icon"
           onClick={onDismiss}
           aria-label={t("alerts.dismiss")}
           className="shrink-0 text-current hover:bg-black/10 dark:hover:bg-white/10"

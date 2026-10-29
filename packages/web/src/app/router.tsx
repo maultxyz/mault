@@ -26,15 +26,22 @@ import {
   Navigate,
   Outlet,
   useLocation,
+  useParams,
 } from "react-router-dom";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import {
-  businessPicksPath,
   INTAKE_PATH,
+  intakeReceiptPath,
+  LEGACY_INTAKE_PATH,
+  LEGACY_PICKS_VIEW,
+  LEGACY_PICKS_VIEW_PARAM,
+  ORDER_PARAM,
+  ORDERS_PATH,
+  PICKS_PATH,
+  picksPath,
   LEGACY_REPORTS_PATH,
-  LEGACY_ORDERS_PATH,
 } from "@/lib/constants/business";
 
 const WatchPage = lazy(
@@ -155,6 +162,7 @@ const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
+const PicksPage = lazy(() => import("@/app/routes/app/picks"));
 const ControlCardsPage = lazy(
   withNamespaces(
     () => import("@/app/routes/app/control-cards"),
@@ -207,6 +215,21 @@ function DesktopOnlyGuard() {
   if (piPage && !settled) return null;
   if (piPage && piHost) return <Outlet />;
   return <Navigate to="/app/monitor" replace />;
+}
+
+function LegacyIntakeRedirect() {
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  if (params.get(LEGACY_PICKS_VIEW_PARAM) === LEGACY_PICKS_VIEW) {
+    return <Navigate to={picksPath(params.get(ORDER_PARAM))} replace />;
+  }
+  return <Navigate to={`${INTAKE_PATH}${search}`} replace />;
+}
+
+function LegacyIntakeReceiptRedirect() {
+  const { guid } = useParams();
+  const { search } = useLocation();
+  return <Navigate to={`${intakeReceiptPath(guid ?? "")}${search}`} replace />;
 }
 
 function RequireCollectionGuard() {
@@ -283,6 +306,10 @@ export const routes: RouteObject[] = [
           {
             path: `${INTAKE_PATH}/:guid/receipt`,
             element: <IntakeReceiptPage />,
+          },
+          {
+            path: `${LEGACY_INTAKE_PATH}/:guid/receipt`,
+            element: <LegacyIntakeReceiptRedirect />,
           },
           {
             path: CONTROL_CARDS_PATH,
@@ -371,12 +398,20 @@ export const routes: RouteObject[] = [
                     element: <SortersPage />,
                   },
                   {
+                    path: ORDERS_PATH,
+                    element: <Navigate to={INTAKE_PATH} replace />,
+                  },
+                  {
                     path: INTAKE_PATH,
                     element: <IntakePage />,
                   },
                   {
-                    path: LEGACY_ORDERS_PATH,
-                    element: <Navigate to={businessPicksPath()} replace />,
+                    path: PICKS_PATH,
+                    element: <PicksPage />,
+                  },
+                  {
+                    path: LEGACY_INTAKE_PATH,
+                    element: <LegacyIntakeRedirect />,
                   },
                   {
                     path: LEGACY_REPORTS_PATH,

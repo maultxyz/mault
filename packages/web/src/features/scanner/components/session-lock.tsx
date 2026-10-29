@@ -28,7 +28,6 @@ export function SessionLockBanner({ className }: SessionLockBannerProps) {
         message: t("sessionLock.message"),
         actions: (
           <Button
-            size="xs"
             variant="outline"
             onClick={() => navigate("/app")}
             className={ALERT_BANNER_ACTION_CLASS}

@@ -1,7 +1,8 @@
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { MobilePageHeader } from "@/components/mobile-page-header";
-import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { PageHeader } from "@/components/page-header";
+import { ViewTabs } from "@/components/view-tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AccuracyReportView } from "@/features/business/components/accuracy-report";
 import { StaffReportView } from "@/features/business/components/staff-report";
@@ -77,8 +78,9 @@ export default function StatsPage() {
   };
 
   const viewSwitch = (
-    <ResponsiveSegmented<StatsView>
+    <ViewTabs<StatsView>
       label={t("title")}
+      className="border-b-0"
       items={STATS_VIEWS.map((value) => ({
         key: value,
         label: t(`views.${value}`),
@@ -167,21 +169,17 @@ export default function StatsPage() {
         )}
       >
         {!isMobile && (
-          <div className="sticky top-0 z-20 border-b bg-background/80 py-3 backdrop-blur-2xl md:py-4">
-            <div className="mx-auto flex w-full max-w-6xl flex-wrap items-end justify-between gap-4 px-4 md:px-6">
-              <div className="min-w-0">
-                <h1 className="font-heading text-lg font-semibold">
-                  {t("title")}
-                </h1>
-                <p className="text-xs text-foreground/70">{t("subtitle")}</p>
-              </div>
-              <div className="flex flex-wrap items-end gap-2">
-                {viewSwitch}
+          <PageHeader
+            title={t("title")}
+            description={t("subtitle")}
+            actions={
+              <>
                 {view === STATS_OVERVIEW_VIEW && controls}
                 <StatsLeaderboardButton />
-              </div>
-            </div>
-          </div>
+              </>
+            }
+            tabs={viewSwitch}
+          />
         )}
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:p-6">
           {isMobile && viewSwitch}

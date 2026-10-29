@@ -56,7 +56,6 @@ export default function CollectionViewPage() {
         action={
           <Button
             variant="outline"
-            size="sm"
             render={<Link to={COLLECTIONS_PATH}>{t("view.back")}</Link>}
           />
         }

@@ -244,7 +244,7 @@ export function MobileStorage() {
           }
         >
           {selected.cardCount > 0 && (
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <Button
                 className={MOBILE_PILL_BUTTON_SM_CLASS}
                 onClick={() => void startReview()}

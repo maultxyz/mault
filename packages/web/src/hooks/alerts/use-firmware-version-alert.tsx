@@ -55,7 +55,6 @@ export function useFirmwareVersionAlert(): {
       ),
       actions: isEsp32OverBluetooth || isEsp32OverCloud ? undefined : isEsp32 ? (
         <Button
-          size="xs"
           variant="outline"
           className={ALERT_BANNER_ACTION_CLASS}
           onClick={() => setFlashDialogOpen(true)}
@@ -64,7 +63,6 @@ export function useFirmwareVersionAlert(): {
         </Button>
       ) : (
         <Button
-          size="xs"
           variant="outline"
           className={ALERT_BANNER_ACTION_CLASS}
           render={

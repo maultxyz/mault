@@ -133,12 +133,14 @@ export interface AddCardDialogProps {
   onOpenChange: (open: boolean) => void;
   collectionGuid?: string;
   locationGuid?: string;
+  addsToIntakeLot?: boolean;
 }
 
 export interface AddManualCardInput {
   collectionGuid: string;
   card: PlayingCard;
   locationGuid?: string;
+  addsToIntakeLot?: boolean;
 }
 
 export interface CardToolbarProps {

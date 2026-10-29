@@ -107,7 +107,6 @@ export function StorageCardList({
                     <TableCell>
                       <Button
                         variant="outline"
-                        size="sm"
                         className="max-w-40"
                         title={t("search.openLocation")}
                         onClick={(e) => {
@@ -186,7 +185,7 @@ export function StorageCardList({
                   <TableCell>
                     <Button
                       variant="destructive"
-                      size="icon-sm"
+                      size="icon"
                       aria-label={t("cards.remove")}
                       title={t("cards.remove")}
                       disabled={isRemoving}

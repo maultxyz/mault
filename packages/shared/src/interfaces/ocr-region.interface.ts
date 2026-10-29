@@ -8,6 +8,7 @@ export interface OcrRegion {
   height: number;
   multiline?: boolean;
   fallback?: boolean;
+  ignoredLineTexts?: string[];
 }
 
 export type OcrReadout = Record<OcrField, string>;

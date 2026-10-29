@@ -64,7 +64,7 @@ export function CardFilterFields({
                   }
                 >
                   <span
-                    className="size-2 rounded-full shrink-0 border border-border/50"
+                    className="size-2 rounded-full shrink-0 border border-border"
                     style={{ backgroundColor: color.bg }}
                   />
                   {color.label}
@@ -304,7 +304,6 @@ export function CardFilterFields({
       {activeFilterCount > 0 && (
         <Button
           variant="ghost"
-          size="sm"
           className="w-full"
           onClick={() => onFiltersChange(EMPTY_CARD_FILTERS)}
         >

@@ -140,7 +140,6 @@ export function CardCorrectionSearch({
           <div className="flex justify-center py-2">
             <Button
               variant="outline"
-              size="sm"
               onClick={loadMore}
               disabled={isLoadingMore}
             >

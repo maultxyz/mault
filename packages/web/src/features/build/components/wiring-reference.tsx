@@ -54,14 +54,14 @@ export function WireSwatch({ wire }: WireSwatchProps) {
 
 export function WiringTable({ columns, rows }: WiringTableProps) {
   return (
-    <div className="overflow-x-auto rounded-md border bg-card dark:border-foreground/15">
+    <div className="overflow-x-auto rounded-md border bg-card">
       <table className="w-full min-w-72 border-collapse text-sm/relaxed">
         <thead>
           <tr className="bg-muted">
             {columns.map((col) => (
               <th
                 key={col}
-                className="border-b px-2.5 py-1.5 text-left text-sm font-semibold text-foreground dark:border-foreground/15"
+                className="border-b px-2.5 py-1.5 text-left text-sm font-semibold text-foreground"
               >
                 {col}
               </th>
@@ -74,7 +74,7 @@ export function WiringTable({ columns, rows }: WiringTableProps) {
               key={i}
               className={cn(
                 "hover:bg-muted/50",
-                i !== rows.length - 1 && "border-b dark:border-foreground/10",
+                i !== rows.length - 1 && "border-b",
               )}
             >
               {row.map((cell, j) => (
@@ -103,7 +103,7 @@ export function WiringDiagram() {
         <img
           src={src}
           alt={t("wiring.sections.diagram.alt")}
-          className="w-full rounded-md border bg-card dark:border-foreground/15"
+          className="w-full rounded-md border bg-card"
         />
       </a>
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm/relaxed text-foreground/70">

@@ -70,7 +70,6 @@ function DemoStorageTable({
                   <TableCell>
                     <Button
                       variant="outline"
-                      size="sm"
                       className="max-w-28 sm:max-w-40"
                       title={t("search.openLocation")}
                       onClick={() => onOpenLocation(entry.locationGuid)}

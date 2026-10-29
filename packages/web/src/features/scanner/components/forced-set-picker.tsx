@@ -69,7 +69,6 @@ export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
               render={
                 <Button
                   variant={forceSetCode ? "outline-selected" : "outline"}
-                  size="sm"
                   aria-label={tooltip}
                 >
                   <IconStack3 />

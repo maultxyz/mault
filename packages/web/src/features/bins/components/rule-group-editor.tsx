@@ -74,11 +74,10 @@ export function RuleGroupEditor({
     <div
       className={`flex flex-col gap-2 ${depth > 0 ? "rounded-lg border border-dashed p-2.5" : ""}`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <ButtonGroup data-tour={depth === 0 ? "rule-combinator" : undefined}>
           <Button
             type="button"
-            size="sm"
             variant={group.combinator === "and" ? "outline-selected" : "outline"}
             onClick={() => toggleCombinator("and")}
           >
@@ -86,7 +85,6 @@ export function RuleGroupEditor({
           </Button>
           <Button
             type="button"
-            size="sm"
             variant={group.combinator === "or" ? "outline-selected" : "outline"}
             onClick={() => toggleCombinator("or")}
           >
@@ -129,7 +127,6 @@ export function RuleGroupEditor({
 
       <ButtonGroup className="ml-4">
         <Button
-          size="sm"
           type="button"
           variant="outline"
           onClick={addCondition}
@@ -139,7 +136,6 @@ export function RuleGroupEditor({
         </Button>
         {depth < 2 && (
           <Button
-            size="sm"
             type="button"
             variant="outline"
             onClick={addGroup}

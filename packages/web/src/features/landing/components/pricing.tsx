@@ -53,7 +53,6 @@ export function LandingPricing({ step }: MarketingStepProps) {
               {BILLING_INTERVALS.map((value) => (
                 <Button
                   key={value}
-                  size="sm"
                   variant={interval === value ? "default" : "outline"}
                   aria-pressed={interval === value}
                   onClick={() => setBillingInterval(value)}

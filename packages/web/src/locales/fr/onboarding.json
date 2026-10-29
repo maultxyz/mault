@@ -29,7 +29,7 @@
     },
     "manageCollections": {
       "title": "Gérer tes collections",
-      "content": "Change de collection ici, ou clique sur cette icône à tout moment pour ouvrir le gestionnaire complet des collections."
+      "content": "Change de collection ici. Le même menu permet de copier un lien de partage, d'ouvrir le gestionnaire complet des collections ou de créer une nouvelle collection."
     },
     "createCollection": {
       "title": "Créer une collection",
@@ -41,7 +41,7 @@
     },
     "createSortingRules": {
       "title": "Créer des règles de tri",
-      "content": "Les règles de tri sont rangées dans des préréglages nommés pour chaque jeu, pour enregistrer plusieurs stratégies de tri et passer de l'une à l'autre. Clique ici pour créer un préréglage."
+      "content": "Les règles de tri sont rangées dans des préréglages nommés pour chaque jeu, pour enregistrer plusieurs stratégies de tri et passer de l'une à l'autre. Ouvre ce menu pour créer un préréglage."
     },
     "editSortingRules": {
       "title": "Modifier les règles de tri",
@@ -60,7 +60,7 @@
     },
     "sets": {
       "title": "Préréglages de règles",
-      "content": "Les règles de tri sont regroupées en préréglages nommés pour chaque jeu, pour enregistrer plusieurs stratégies de tri et passer de l'une à l'autre. Clique ici pour créer un préréglage."
+      "content": "Les règles de tri sont regroupées en préréglages nommés pour chaque jeu, pour enregistrer plusieurs stratégies de tri et passer de l'une à l'autre. Ouvre ce menu pour créer un préréglage."
     },
     "selectBin": {
       "title": "Sélectionner un bac",

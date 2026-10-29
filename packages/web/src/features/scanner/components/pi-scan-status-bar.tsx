@@ -122,15 +122,15 @@ export function PiScanStatusBar() {
         </p>
       </div>
       {!onScanner && (
-        <Button variant="ghost" size="sm" nativeButton={false} render={<Link to="/app" />}>
+        <Button variant="ghost" nativeButton={false} render={<Link to="/app" />}>
           {t("piScan.openScanner")}
         </Button>
       )}
-      <Button variant="outline" size="sm" onClick={onPause} disabled={state.stopping}>
+      <Button variant="outline" onClick={onPause} disabled={state.stopping}>
         {paused ? <IconPlayerPlay /> : <IconPlayerPause />}
         {paused ? t("piScan.resume") : t("piScan.pause")}
       </Button>
-      <Button variant="outline" size="sm" onClick={onStop} disabled={state.stopping}>
+      <Button variant="outline" onClick={onStop} disabled={state.stopping}>
         <IconPlayerStop />
         {t("piScan.stop")}
       </Button>

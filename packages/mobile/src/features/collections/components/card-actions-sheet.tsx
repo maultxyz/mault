@@ -59,6 +59,9 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
             backgroundColor: colors.background,
             borderTopLeftRadius: RADIUS.xl,
             borderTopRightRadius: RADIUS.xl,
+            borderWidth: 1,
+            borderBottomWidth: 0,
+            borderColor: colors.border,
             paddingBottom: insets.bottom + SPACING.md,
           }}
         >

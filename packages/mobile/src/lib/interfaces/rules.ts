@@ -23,7 +23,6 @@ export interface BinSaveInput {
   maxCopiesBy?: string | null;
 }
 
-export type BinSetMode = "rules" | "repack" | "auto-assign" | "alphabet" | "chaos" | "scan-only";
 
 export type ModePicker = "matched" | "unmatched" | "field";
 

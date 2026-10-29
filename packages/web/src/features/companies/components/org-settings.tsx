@@ -421,11 +421,10 @@ export function OrgSettings() {
                     {t("orgSettings.cancelSubscriptionFirst")}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {blockedBySubscription && (
                     <Button
                       variant="secondary"
-                      size="sm"
                       onClick={openPortal}
                       disabled={isOpeningPortal}
                     >
@@ -434,7 +433,6 @@ export function OrgSettings() {
                   )}
                   <Button
                     variant="secondary"
-                    size="sm"
                     onClick={() => setDeleteOrgOpen(true)}
                     disabled={blockedBySubscription}
                   >

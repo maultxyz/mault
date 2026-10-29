@@ -54,7 +54,7 @@ export function BinCard({
 
   return (
     <Button
-      variant={active ? "secondary" : "ghost"}
+      variant={active ? "selected" : "ghost"}
       className="h-auto p-2 flex flex-col justify-start text-start w-full whitespace-normal max-md:h-auto max-md:gap-1 max-md:p-3 max-md:[&_p]:text-sm"
       disabled={disabled}
       onClick={onClick}

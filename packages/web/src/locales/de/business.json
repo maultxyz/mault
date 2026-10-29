@@ -91,6 +91,15 @@
     "intake": "Ankauf",
     "picks": "Picks"
   },
+  "offerEditor": {
+    "title": "Angebot für {{name}}",
+    "amount": "Angebot",
+    "save": "Speichern",
+    "useBuylist": "Ankaufspreis verwenden",
+    "buylistPrice": "Ankaufspreis: {{price}}",
+    "manual": "Von Hand festgelegt",
+    "edit": "Angebot für {{name}} ändern"
+  },
   "intake": {
     "subtitle": "Scannt in {{collection}} · gestartet {{date}}",
     "new": "Neuer Ankauf",
@@ -111,6 +120,7 @@
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
     "openScanner": "Scanner öffnen",
+    "addCard": "Karte hinzufügen",
     "printReceipt": "Beleg",
     "accept": "Annehmen",
     "cancelLot": "Ankauf abbrechen",

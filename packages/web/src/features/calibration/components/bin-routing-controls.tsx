@@ -35,7 +35,6 @@ export function BinRoutingControls({
       action={
         <Button
           variant="outline"
-          size="sm"
           disabled={!isReady || busy}
           onClick={handleResetToNeutral}
         >

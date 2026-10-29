@@ -19,7 +19,7 @@ import { activateBinSet } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { AlphabetPassCard } from "@/features/rules/components/alphabet-pass-card";
 import { BinRow } from "@/features/rules/components/bin-row";
-import { binSetMode } from "@/features/rules/lib/rules";
+import { binSetMode } from "@magic-vault/shared";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { SPACING } from "@/lib/constants/theme";
 

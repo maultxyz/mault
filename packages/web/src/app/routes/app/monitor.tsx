@@ -65,7 +65,6 @@ export default function MonitorPage() {
           <>
             {isMobile && !isActive && (
               <Button
-                size="sm"
                 variant="outline"
                 disabled={isActivating}
                 onClick={() => activateCollection(collectionGuid)}

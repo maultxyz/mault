@@ -92,7 +92,6 @@ export function ApiKeysIntegration() {
         {API_REFERENCE_URL && (
           <Button
             variant="outline"
-            size="sm"
             nativeButton={false}
             render={
               <a
@@ -108,7 +107,6 @@ export function ApiKeysIntegration() {
         )}
         <Button
           variant="outline"
-          size="sm"
           nativeButton={false}
           render={
             <a
@@ -133,7 +131,6 @@ export function ApiKeysIntegration() {
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onClick={() => setShowCreate(true)}
               >
                 <IconPlus />
@@ -206,7 +203,6 @@ export function ApiKeysIntegration() {
                     <Button
                       type="button"
                       variant="ghost"
-                      size="sm"
                       disabled={
                         revoke.isPending && revoke.variables === key.guid
                       }
@@ -295,7 +291,7 @@ export function ApiKeysIntegration() {
         title={t("apiKeys.revealTitle")}
         description={t("apiKeys.revealDescription")}
         footer={
-          <div className="flex w-full flex-col gap-2">
+          <div className="flex w-full flex-col gap-1.5">
             {API_REFERENCE_URL && (
               <Button
                 variant="outline"

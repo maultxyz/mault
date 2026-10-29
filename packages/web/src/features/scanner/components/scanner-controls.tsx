@@ -275,7 +275,6 @@ export function ScannerControls({
                   render={
                     <Button
                       variant={forceFoilType ? "outline-selected" : "outline"}
-                      size="sm"
                       aria-label={foilTooltip}
                     >
                       <IconSparkles />
@@ -320,7 +319,6 @@ export function ScannerControls({
                           ? "outline"
                           : "outline-selected"
                       }
-                      size="sm"
                       aria-label={conditionTooltip}
                     >
                       <IconRosette />
