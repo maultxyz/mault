@@ -158,6 +158,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 
 - Each guild maps to one org; every channel and rule target is validated against the linked guild, and mentions are limited to the requested roles.
 - `discord_user_links` is server-only (plain `db`, filtered by the verified `userId`). Scan notifications go through `lib/scan-notification-queue.ts`.
+- Welcome DMs (`/link-account` instructions) go only to new members of `DISCORD_WELCOME_GUILD_IDS`, never customer servers; the privileged `GuildMembers` intent is requested only when that list is set, so leaving it empty never breaks login.
 
 ### Deploys
 
