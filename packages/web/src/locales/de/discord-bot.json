@@ -57,6 +57,14 @@
         "usage": "/showoff",
         "description": "Postet den Gesamtwert deiner Sammlung und deine wertvollste Karte. Erfordert ein verknüpftes Konto."
       },
+      "shareCalibration": {
+        "usage": "/share-calibration",
+        "description": "Wähle einen deiner Sortierer aus einer Liste und poste seine Modul- und Feeder-Kalibrierwerte. Erfordert ein verknüpftes Konto."
+      },
+      "sharePreset": {
+        "usage": "/share-preset",
+        "description": "Wähle eine deiner Regel-Vorlagen aus einer Liste und poste ihre Fächer und Regeln. Erfordert ein verknüpftes Konto."
+      },
       "leaderboard": {
         "usage": "/leaderboard",
         "description": "Zeigt die Organisationen, die mit Mault die meisten Karten gescannt haben, dieselbe Liste wie die Bestenliste unter Statistiken."

@@ -57,6 +57,14 @@
         "usage": "/showoff",
         "description": "Publie la valeur totale de ta collection et ta carte la plus chère. Nécessite un compte lié."
       },
+      "shareCalibration": {
+        "usage": "/share-calibration",
+        "description": "Choisis un de tes trieurs dans une liste et publie ses valeurs de calibrage des modules et du chargeur. Nécessite un compte lié."
+      },
+      "sharePreset": {
+        "usage": "/share-preset",
+        "description": "Choisis un de tes préréglages de règles dans une liste et publie ses bacs et ses règles. Nécessite un compte lié."
+      },
       "leaderboard": {
         "usage": "/leaderboard",
         "description": "Affiche les organisations qui ont scanné le plus de cartes avec Mault, la même liste que le classement dans Statistiques."

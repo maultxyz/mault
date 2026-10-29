@@ -1,10 +1,14 @@
 import type {
   ApiResult,
+  CalibrationDeviceSummary,
   CollectionSummary,
+  DeviceCalibrationResult,
   GameSummary,
   LeaderboardResult,
   LinkAccountResult,
   LinkResult,
+  RulePresetResult,
+  RulePresetSummary,
   ShowoffResult,
   StatsResult,
 } from "./lib/interfaces";
@@ -75,4 +79,33 @@ export function getCollections(guildId: string) {
 
 export function getGames() {
   return botFetch<GameSummary[]>("/public/games");
+}
+
+export function getCalibrationDevices(
+  discordUserId: string,
+  guildId: string | null,
+) {
+  const query = new URLSearchParams({ discordUserId });
+  if (guildId) query.set("guildId", guildId);
+  return botFetch<CalibrationDeviceSummary[]>(
+    `/bot/calibration-devices?${query.toString()}`,
+  );
+}
+
+export function getDeviceCalibration(discordUserId: string, deviceGuid: string) {
+  const query = new URLSearchParams({ discordUserId, deviceGuid });
+  return botFetch<DeviceCalibrationResult>(
+    `/bot/calibration?${query.toString()}`,
+  );
+}
+
+export function getRulePresets(discordUserId: string, guildId: string | null) {
+  const query = new URLSearchParams({ discordUserId });
+  if (guildId) query.set("guildId", guildId);
+  return botFetch<RulePresetSummary[]>(`/bot/rule-presets?${query.toString()}`);
+}
+
+export function getRulePreset(discordUserId: string, presetGuid: string) {
+  const query = new URLSearchParams({ discordUserId, presetGuid });
+  return botFetch<RulePresetResult>(`/bot/rule-preset?${query.toString()}`);
 }

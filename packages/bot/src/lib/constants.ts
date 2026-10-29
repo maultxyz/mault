@@ -44,3 +44,9 @@ export const PRESENCE_REFRESH_MS = 10 * 60 * 1000;
 export const PRESENCE_RETRY_MS = 15_000;
 
 export const PRESENCE_FALLBACK_STATUS = "for cards to sort";
+
+export const SHARE_PICK_TIMEOUT_MS = 60_000;
+
+export const DISCORD_SELECT_LABEL_MAX_LENGTH = 100;
+
+export const DISCORD_EMBED_DESCRIPTION_MAX_LENGTH = 4096;
