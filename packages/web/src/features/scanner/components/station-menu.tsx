@@ -12,7 +12,10 @@ import { useStationName } from "@/features/scanner/api/use-station-name";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { ConnectSorterMenuOptions } from "@/features/scanner/components/connect-sorter-menu-options";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
-import type { StationMenuItemProps } from "@/lib/interfaces/stations";
+import type {
+  StationIdentityProps,
+  StationMenuItemProps,
+} from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
 import {
   IconCheck,
@@ -39,11 +42,14 @@ function StationMenuItem({ station, index, isActive }: StationMenuItemProps) {
   );
 }
 
-function ActiveStationName({ station, index }: StationMenuItemProps) {
+function ActiveStationName({ station, index }: StationIdentityProps) {
   return <>{useStationName(station, index)}</>;
 }
 
-function DisconnectActiveStationItem({ station, index }: StationMenuItemProps) {
+function DisconnectActiveStationItem({
+  station,
+  index,
+}: StationIdentityProps) {
   const { t } = useTranslation("scanner");
   const { disconnectStation } = useStations();
   const name = useStationName(station, index);
@@ -145,7 +151,6 @@ export function StationMenu() {
             <DisconnectActiveStationItem
               station={activeStation}
               index={activeIndex}
-              isActive
             />
           </>
         )}
