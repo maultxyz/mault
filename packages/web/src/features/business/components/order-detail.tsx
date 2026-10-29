@@ -400,7 +400,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                               render={
                                 <Button
                                   variant="ghost"
-                                  size="icon-sm"
+                                  size="icon"
                                   aria-label={t("orders.lineActions", {
                                     name: line.name,
                                   })}
@@ -480,7 +480,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                                 render={
                                   <Button
                                     variant="ghost"
-                                    size="icon-sm"
+                                    size="icon"
                                     aria-label={t("orders.copyActions", {
                                       name: entry.card.name,
                                     })}

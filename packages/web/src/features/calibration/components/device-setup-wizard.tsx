@@ -665,7 +665,7 @@ export function DeviceSetupWizard() {
               <div className="flex items-center gap-3">
                 <Button
                   variant="outline"
-                  size="icon-sm"
+                  size="icon"
                   aria-label={t("setupWizard.nudgeDown")}
                   onClick={() => handleFeederStopChange(feederStopPulse - 1)}
                 >
@@ -680,7 +680,7 @@ export function DeviceSetupWizard() {
                 />
                 <Button
                   variant="outline"
-                  size="icon-sm"
+                  size="icon"
                   aria-label={t("setupWizard.nudgeUp")}
                   onClick={() => handleFeederStopChange(feederStopPulse + 1)}
                 >
@@ -886,7 +886,7 @@ function ServoStep({
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
-            size="icon-sm"
+            size="icon"
             aria-label={t("setupWizard.nudgeDown")}
             onClick={() => nudge(-1)}
           >
@@ -901,7 +901,7 @@ function ServoStep({
           />
           <Button
             variant="outline"
-            size="icon-sm"
+            size="icon"
             aria-label={t("setupWizard.nudgeUp")}
             onClick={() => nudge(1)}
           >

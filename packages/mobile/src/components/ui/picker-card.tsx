@@ -22,7 +22,9 @@ export function PickerCard({ icon, label, value, placeholder, onPress, disabled 
         gap: SPACING.md,
         padding: SPACING.md,
         borderRadius: RADIUS.lg,
-        backgroundColor: pressed ? colors.border : colors.muted,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: pressed ? colors.muted : colors.card,
         opacity: disabled ? DISABLED_OPACITY : 1,
       })}
     >

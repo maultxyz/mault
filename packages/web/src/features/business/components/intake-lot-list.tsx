@@ -53,7 +53,7 @@ export function IntakeLotList({
           return (
             <Button
               key={lot.guid}
-              variant={lot.guid === selectedGuid ? "secondary" : "ghost"}
+              variant={lot.guid === selectedGuid ? "selected" : "ghost"}
               className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start"
               onClick={() => onSelect(lot.guid)}
             >

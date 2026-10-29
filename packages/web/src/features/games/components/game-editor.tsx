@@ -111,7 +111,6 @@ export function GameEditor({ game }: GameEditorProps) {
       <div className="flex flex-col items-start gap-1">
         <Button
           variant="ghost"
-          size="sm"
           className="-ml-2"
           nativeButton={false}
           render={<Link to={GAMES_ADMIN_PATH} />}

@@ -56,7 +56,6 @@ export function IntakeOfferEditor({ card }: IntakeOfferEditorProps) {
         render={
           <Button
             variant="ghost"
-            size="sm"
             className="-mr-2 font-medium tabular-nums"
             aria-label={t("offerEditor.edit", { name })}
             title={card.hasManualOffer ? t("offerEditor.manual") : undefined}
@@ -102,12 +101,11 @@ export function IntakeOfferEditor({ card }: IntakeOfferEditorProps) {
               price: buylistOffer != null ? format(buylistOffer) : "-",
             })}
           </p>
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-1.5">
             {card.hasManualOffer && (
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 disabled={form.formState.isSubmitting}
                 onClick={() => void save(null)}
               >
@@ -116,7 +114,6 @@ export function IntakeOfferEditor({ card }: IntakeOfferEditorProps) {
             )}
             <Button
               type="submit"
-              size="sm"
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting && (

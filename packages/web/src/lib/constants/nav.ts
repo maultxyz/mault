@@ -6,6 +6,15 @@ import { SHOP_URL } from "@/lib/constants/links";
 
 export const NAV_SUBITEMS_LIMIT = 5;
 
+export const SIDEBAR_IDLE_ITEM_CLASS =
+  "text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent";
+export const PAGE_TITLE_CLASS =
+  "font-heading text-base font-semibold tracking-tight text-foreground";
+export const SIDEBAR_SELECTED_ITEM_CLASS =
+  "bg-sidebar-selected text-primary hover:bg-sidebar-selected hover:text-primary dark:hover:bg-sidebar-selected aria-expanded:bg-sidebar-selected aria-expanded:text-primary";
+export const SIDEBAR_EXPANDED_ITEM_CLASS =
+  "w-full justify-start gap-2 px-2 border-0";
+
 export const WATCH_ROUTE_PREFIX = "/watch";
 export const WATCH_TOKEN_PARAM = "t";
 

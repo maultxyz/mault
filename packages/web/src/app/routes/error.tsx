@@ -47,7 +47,7 @@ export default function ErrorPage() {
           {detail}
         </pre>
       )}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <Button variant="outline" onClick={() => window.location.reload()}>
           <IconRefresh size={14} />
           {t("errorPage.reload")}

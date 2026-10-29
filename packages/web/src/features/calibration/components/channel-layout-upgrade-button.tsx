@@ -48,7 +48,6 @@ export function ChannelLayoutUpgradeButton() {
     <>
       <Button
         variant="outline"
-        size="xs"
         onClick={() => setOpen(true)}
         className={ALERT_BANNER_ACTION_CLASS}
       >

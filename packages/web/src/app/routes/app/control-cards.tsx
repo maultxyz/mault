@@ -25,7 +25,6 @@ function ControlCards() {
           <div className="flex flex-col gap-1">
             <Button
               variant="ghost"
-              size="sm"
               className="-ml-2 self-start"
               nativeButton={false}
               render={<Link to={CONTROL_CARDS_BACK_PATH} />}

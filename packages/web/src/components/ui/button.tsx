@@ -7,19 +7,21 @@ import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-control font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "bg-primary font-semibold text-primary-foreground hover:bg-primary-hover",
         outline:
-          "border-border hover:bg-input/50 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-input/30",
+          "border-input bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-input/30 dark:hover:bg-input/50",
         "outline-selected":
-          "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 focus-visible:border-primary/40 focus-visible:ring-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30 dark:focus-visible:ring-primary/40",
+          "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 focus-visible:border-primary/40 focus-visible:ring-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30 dark:focus-visible:ring-primary/40",
         "outline-destructive":
           "border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+        selected:
+          "bg-primary/10 text-primary hover:bg-primary/15 dark:bg-primary/20 dark:hover:bg-primary/25",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
@@ -28,14 +30,14 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-7 gap-1.5 px-2 text-xs/relaxed data-icon-start:pl-1.5 data-icon-end:pr-1.5 data-kbd-end:pr-0.75 [&_svg:not([class*='size-'])]:size-3.5 max-md:h-10 max-md:gap-2 max-md:px-4 max-md:text-sm max-md:data-icon-start:pl-3 max-md:data-icon-end:pr-3 max-md:[&_svg:not([class*='size-'])]:size-4",
-        xs: "h-5 gap-1.25 rounded-sm px-2 text-2xs data-icon-start:pl-1 data-icon-end:pr-1 [&_svg:not([class*='size-'])]:size-2.5",
-        sm: "h-6 gap-1.5 px-2 text-xs/relaxed data-icon-start:pl-1.25 data-icon-end:pr-1.25 data-kbd-end:pr-0.25 [&_svg:not([class*='size-'])]:size-3 max-md:h-8 max-md:px-3 max-md:text-sm max-md:data-icon-start:pl-2.5 max-md:data-icon-end:pr-2.5 max-md:[&_svg:not([class*='size-'])]:size-4",
-        lg: "h-8 gap-2 px-2.5 text-xs/relaxed data-icon-start:pl-1.75 data-icon-end:pr-1.75 data-kbd-end:pr-1.25 [&_svg:not([class*='size-'])]:size-4 max-md:h-11 max-md:px-5 max-md:text-sm max-md:data-icon-start:pl-4 max-md:data-icon-end:pr-4",
-        icon: "size-7 [&_svg:not([class*='size-'])]:size-3.5 max-md:size-10 max-md:[&_svg:not([class*='size-'])]:size-5",
-        "icon-xs": "size-5 rounded-sm [&_svg:not([class*='size-'])]:size-2.5",
-        "icon-sm": "size-6 [&_svg:not([class*='size-'])]:size-3 max-md:size-8 max-md:[&_svg:not([class*='size-'])]:size-4",
-        "icon-lg": "size-8 [&_svg:not([class*='size-'])]:size-4 max-md:size-10 max-md:[&_svg:not([class*='size-'])]:size-5",
+          "h-6 gap-1 px-2 data-icon-start:pl-1.5 data-icon-end:pr-1.5 data-kbd-end:pr-0.75 [&_svg:not([class*='size-'])]:size-3.5 max-md:h-10 max-md:gap-2 max-md:px-4 max-md:text-sm max-md:data-icon-start:pl-3 max-md:data-icon-end:pr-3 max-md:[&_svg:not([class*='size-'])]:size-4",
+        xs: "h-4.5 gap-1 rounded-md px-1.5 text-2xs data-icon-start:pl-1 data-icon-end:pr-1 [&_svg:not([class*='size-'])]:size-2.5",
+        sm: "h-5 gap-1 px-1.5 text-xs data-icon-start:pl-1 data-icon-end:pr-1 data-kbd-end:pr-0.25 [&_svg:not([class*='size-'])]:size-3 max-md:h-8 max-md:px-3 max-md:text-sm max-md:data-icon-start:pl-2.5 max-md:data-icon-end:pr-2.5 max-md:[&_svg:not([class*='size-'])]:size-4",
+        lg: "h-7 gap-1.5 px-2.5 data-icon-start:pl-2 data-icon-end:pr-2 data-kbd-end:pr-1 [&_svg:not([class*='size-'])]:size-4 max-md:h-11 max-md:px-5 max-md:text-sm max-md:data-icon-start:pl-4 max-md:data-icon-end:pr-4",
+        icon: "size-6 [&_svg:not([class*='size-'])]:size-3.5 max-md:size-10 max-md:[&_svg:not([class*='size-'])]:size-5",
+        "icon-xs": "size-4.5 rounded-md [&_svg:not([class*='size-'])]:size-2.5",
+        "icon-sm": "size-5 [&_svg:not([class*='size-'])]:size-3 max-md:size-8 max-md:[&_svg:not([class*='size-'])]:size-4",
+        "icon-lg": "size-7 [&_svg:not([class*='size-'])]:size-4 max-md:size-10 max-md:[&_svg:not([class*='size-'])]:size-5",
       },
     },
     defaultVariants: {

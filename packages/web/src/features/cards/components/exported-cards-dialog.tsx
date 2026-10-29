@@ -159,7 +159,7 @@ export function ExportedCardsDialog({
             <IconTrash />
             {t("exportedDialog.delete", { count })}
           </Button>
-          <div className="flex flex-col-reverse gap-2 sm:flex-row">
+          <div className="flex flex-col-reverse gap-1.5 sm:flex-row">
             <Button
               variant="outline"
               disabled={isBusy}

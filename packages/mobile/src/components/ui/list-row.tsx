@@ -35,13 +35,13 @@ export function ListRow({
         paddingHorizontal: SPACING.sm,
         paddingVertical: SPACING.sm,
         borderRadius: RADIUS.md,
-        backgroundColor: pressed ? colors.muted : "transparent",
+        backgroundColor: selected ? colors.primaryMuted : pressed ? colors.muted : "transparent",
         opacity: disabled ? DISABLED_OPACITY : 1,
       })}
     >
       {leading ?? (icon ? <IconBadge name={icon} tone={destructive ? "destructive" : "neutral"} /> : null)}
       <View style={{ flex: 1, minWidth: 0 }}>
-        <AppText size="base" weight="medium" numberOfLines={1} style={destructive ? { color: colors.destructive } : undefined}>
+        <AppText size="base" weight="medium" numberOfLines={1} style={destructive ? { color: colors.destructive } : selected ? { color: colors.primaryText } : undefined}>
           {title}
         </AppText>
         {subtitle ? (

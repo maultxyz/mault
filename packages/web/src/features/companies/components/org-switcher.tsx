@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconBuilding,
   IconCheck,
+  IconSelector,
   IconPlus,
   IconSettings,
 } from "@tabler/icons-react";
@@ -41,7 +42,7 @@ function OrgBadge({
   return <span className={className}>{initial}</span>;
 }
 
-export function OrgSwitcher({ side = "right" }: { side?: "right" }) {
+export function OrgSwitcher() {
   const { t } = useTranslation("companies");
   const { orgs, activeOrg, setActiveOrg } = useOrg();
   const { isImpersonating } = useImpersonation();
@@ -68,24 +69,30 @@ export function OrgSwitcher({ side = "right" }: { side?: "right" }) {
   return (
     <>
       <DropdownMenu>
-        <div className="relative">
-          <DropdownMenuTrigger
-            render={
-              <Button size="icon-lg" variant="ghost">
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              className="max-w-56 min-w-0 shrink gap-1.5 px-1 hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent"
+            >
+              {activeOrg ? (
+                <OrgBadge
+                  initial={activeOrg.name[0].toUpperCase()}
+                  className="grid size-4.5 shrink-0 place-items-center rounded-sm bg-primary text-2xs font-bold text-primary-foreground"
+                />
+              ) : (
                 <IconBuilding />
-              </Button>
-            }
-          />
-          {activeOrg && (
-            <OrgBadge
-              initial={activeOrg.name[0].toUpperCase()}
-              className="pointer-events-none absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-primary text-2xs font-bold leading-none text-primary-foreground"
-            />
-          )}
-        </div>
+              )}
+              <span className="truncate font-semibold text-foreground">
+                {activeOrg?.name ?? t("orgSwitcher.organizations")}
+              </span>
+              <IconSelector className="size-3.5 text-foreground/70" />
+            </Button>
+          }
+        />
         <DropdownMenuContent
-          side={side}
-          align="end"
+          side="bottom"
+          align="start"
           sideOffset={8}
           className="w-64"
         >

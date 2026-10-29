@@ -56,7 +56,7 @@ export function GamesManager() {
       heading={t("gamesManager.heading")}
       description={t("gamesManager.description")}
       action={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <GamesTransferMenu games={gamesQuery.data ?? []} />
           <Button nativeButton={false} render={<Link to={NEW_GAME_PATH} />}>
             <IconPlus size={14} />

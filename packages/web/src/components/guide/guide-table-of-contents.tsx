@@ -88,7 +88,7 @@ export function GuideTableOfContents({ entries }: GuideTableOfContentsProps) {
       <nav
         ref={inlineRef}
         aria-label={t("guide.contents")}
-        className="mt-8 max-w-2xl rounded-lg border bg-card p-1.5 dark:border-foreground/15"
+        className="mt-8 max-w-2xl rounded-lg border bg-card p-1.5"
       >
         <p className="mb-1 border-b px-2 pt-1 pb-2 font-heading text-2xs font-medium tracking-widest text-foreground/70 uppercase">
           {t("guide.contents")}

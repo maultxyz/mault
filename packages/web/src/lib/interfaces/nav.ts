@@ -124,6 +124,23 @@ export interface MobileTabStripProps<T extends string> {
   label?: string;
 }
 
+export interface PageHeaderProps {
+  title: string;
+  description?: string;
+  actions?: ReactNode;
+  tabs?: ReactNode;
+  children?: ReactNode;
+}
+
+export interface ViewTabsProps<T extends string> {
+  items: MobileSegmentedControlItem<T>[];
+  value: T;
+  onChange: (value: T) => void;
+  label: string;
+  fill?: boolean;
+  className?: string;
+}
+
 export interface PageIntroProps {
   title: string;
   description: string;

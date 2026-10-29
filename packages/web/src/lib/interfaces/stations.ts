@@ -62,7 +62,7 @@ export interface StationsContextValue {
   getOverviewTileElement: (id: string) => HTMLElement;
 }
 
-export interface StationTabProps {
+export interface StationMenuItemProps {
   station: StationState;
   index: number;
   isActive: boolean;
@@ -72,6 +72,28 @@ export type StationStatus = "sorting" | "paused" | "offline";
 
 export interface StationStatusDotProps {
   status: StationStatus;
+}
+
+export interface ConnectedSorterSummary {
+  station: StationState;
+  index: number;
+  name: string;
+  selectionKey: string;
+}
+
+export interface SorterOverview {
+  isLoading: boolean;
+  connectedSorters: ConnectedSorterSummary[];
+  offlineDevices: Device[];
+  matchingConnectedSorters: ConnectedSorterSummary[];
+  matchingOfflineDevices: Device[];
+  sortingCount: number;
+  totalCount: number;
+}
+
+export interface StationOverviewGridProps {
+  overview: SorterOverview;
+  isSearching: boolean;
 }
 
 export interface StationOverviewCardProps {

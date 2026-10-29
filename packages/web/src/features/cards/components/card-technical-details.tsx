@@ -210,7 +210,7 @@ export function CardTechnicalDetails({
 
       <DetailSection title={t("technicalDetails.cardJson")}>
         <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={handleCopy}>
+          <Button variant="outline" onClick={handleCopy}>
             <IconCopy />
             {t("technicalDetails.copyJson")}
           </Button>

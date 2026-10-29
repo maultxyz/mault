@@ -155,7 +155,7 @@ export function HeroSortingLine() {
                   src={d.card.image?.small || ""}
                   alt=""
                   className={cn(
-                    "absolute inset-x-0 top-0 aspect-5/7 w-full rounded-md object-cover shadow-sm ring-1 ring-foreground/10",
+                    "absolute inset-x-0 top-0 aspect-5/7 w-full rounded-md object-cover shadow-sm ring-1 ring-border",
                     i === 0 &&
                       "animate-in fade-in slide-in-from-bottom-3 duration-500 motion-reduce:animate-none",
                   )}

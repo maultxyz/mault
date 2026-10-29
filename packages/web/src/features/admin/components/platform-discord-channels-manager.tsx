@@ -90,7 +90,6 @@ export function PlatformDiscordChannelsManager() {
           <Button
             type="button"
             variant="outline"
-            size="sm"
             disabled={!canPost || stats.isPosting}
             onClick={stats.postNow}
           >

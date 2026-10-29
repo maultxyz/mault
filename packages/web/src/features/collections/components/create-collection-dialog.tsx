@@ -21,7 +21,7 @@ import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { CreateCollectionDialogProps } from "@/lib/interfaces/collections";
@@ -30,12 +30,19 @@ import {
   type CreateCollectionFormValues,
 } from "@magic-vault/shared";
 
-export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps) {
+export function CreateCollectionDialog({
+  trigger,
+  open: controlledOpen,
+  onOpenChange,
+}: CreateCollectionDialogProps) {
   const { t } = useTranslation("collections");
   const { isMutating, createCollection } = useCollections();
   const { data: games = [] } = useQuery(gamesQueryOptions);
   const activeGames = games.filter((g) => g.isActive);
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
+  const wasOpenRef = useRef(open);
 
   const form = useForm({
     resolver: zodResolver(createCollectionFormSchema),
@@ -85,23 +92,28 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
     }
   }, [open, nameValue, nameCheck, form, t]);
 
+  const resetForNewCollection = useCallback(() => {
+    const firstGame = activeGames[0];
+    form.reset({
+      name: firstGame?.name ?? "",
+      gameGuid: firstGame?.guid ?? "",
+      lang: "",
+      matchAllLanguages: false,
+    });
+    setNameEdited(false);
+  }, [form, activeGames]);
+
+  useEffect(() => {
+    if (open && !wasOpenRef.current) resetForNewCollection();
+    wasOpenRef.current = open;
+  }, [open, resetForNewCollection]);
+
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
       setOpen(isOpen);
-      if (isOpen) {
-        const firstGame = activeGames[0];
-        form.reset({
-          name: firstGame?.name ?? "",
-          gameGuid: firstGame?.guid ?? "",
-          lang: "",
-          matchAllLanguages: false,
-        });
-        setNameEdited(false);
-      } else {
-        form.reset();
-      }
+      if (!isOpen) form.reset();
     },
-    [form, activeGames],
+    [form, setOpen],
   );
 
   const handleCreate = useCallback(
@@ -110,7 +122,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
       form.reset();
       setOpen(false);
     },
-    [createCollection, form],
+    [createCollection, form, setOpen],
   );
 
   return (
@@ -119,7 +131,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
       onOpenChange={handleOpenChange}
       title={t("newCollection")}
       description={t("createDialog.description")}
-      trigger={trigger({
+      trigger={trigger?.({
         disabled: isMutating || activeGames.length === 0,
         noGames: activeGames.length === 0,
       })}

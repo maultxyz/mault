@@ -782,8 +782,6 @@
     "reviewed": "Reviewed",
     "similarMatches": "Similar matches",
     "similarMatchesHint": "Several close matches. Tap the right version.",
-    "showMatches": "Show {{count}} matches",
-    "hideMatches": "Hide matches",
     "thisScan": "This scan",
     "foilNone": "Not foil",
     "condition": "Condition",

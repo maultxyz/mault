@@ -29,30 +29,24 @@ export function CardSearchResultTile({
         ) : (
           <div className="h-full w-full bg-background" />
         )}
-        {matchPercent != null && (
-          <Badge
-            variant={matchPercent >= 80 ? "default" : "destructive"}
-            className={cn(
-              "absolute bottom-1 left-1 shadow-md",
-              matchPercent < 80 && "bg-destructive text-white",
-            )}
-          >
-            {matchPercent.toFixed(2)}%
-          </Badge>
-        )}
-        {card.lang && (
-          <Badge
-            variant="secondary"
-            className="absolute right-1 bottom-1 uppercase shadow-md"
-          >
-            {card.lang}
-          </Badge>
-        )}
       </div>
       <div className="flex min-w-0 flex-col gap-0.5 px-1 pt-1 pb-0.5">
-        <p className="truncate text-xs font-semibold" title={card.name}>
-          {card.name}
-        </p>
+        <div className="flex min-w-0 flex-row items-center justify-between gap-2">
+          <p className="truncate text-xs font-semibold" title={card.name}>
+            {card.name}
+          </p>
+          {matchPercent != null && (
+            <Badge
+              variant={matchPercent >= 80 ? "default" : "destructive"}
+              className={cn(
+                "shrink-0 tabular-nums",
+                matchPercent < 80 && "bg-destructive text-white",
+              )}
+            >
+              {matchPercent.toFixed(2)}%
+            </Badge>
+          )}
+        </div>
         <div className="flex flex-row items-center justify-between gap-2">
           <div className="flex min-w-0 flex-row items-center gap-1.5">
             <div
@@ -69,11 +63,18 @@ export function CardSearchResultTile({
               #{card.collectorNumber}
             </p>
           </div>
-          {displayPrice != null && (
-            <p className="shrink-0 text-xs font-medium text-foreground/70">
-              {format(displayPrice)}
-            </p>
-          )}
+          <div className="flex shrink-0 flex-row items-center gap-1.5">
+            {card.lang && (
+              <Badge variant="outline" className="uppercase">
+                {card.lang}
+              </Badge>
+            )}
+            {displayPrice != null && (
+              <p className="text-xs font-medium text-foreground/70">
+                {format(displayPrice)}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </>

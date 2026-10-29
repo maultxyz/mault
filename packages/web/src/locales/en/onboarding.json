@@ -29,7 +29,7 @@
     },
     "manageCollections": {
       "title": "Manage your collections",
-      "content": "Switch between collections here, or click this edit icon anytime to open the full collections manager."
+      "content": "Switch between collections here. The same menu copies a share link, opens the full collections manager, or creates a new collection."
     },
     "createCollection": {
       "title": "Create a collection",
@@ -41,7 +41,7 @@
     },
     "createSortingRules": {
       "title": "Create sorting rules",
-      "content": "Sorting rules live in named presets for each game, so you can save several sorting strategies and switch between them. Click here to create a new preset."
+      "content": "Sorting rules live in named presets for each game, so you can save several sorting strategies and switch between them. Open this menu to create a new preset."
     },
     "editSortingRules": {
       "title": "Edit sorting rules",
@@ -60,7 +60,7 @@
     },
     "sets": {
       "title": "Rule presets",
-      "content": "Sorting rules are grouped into named presets for each game, so you can save several sorting strategies and switch between them. Click here to create a new preset."
+      "content": "Sorting rules are grouped into named presets for each game, so you can save several sorting strategies and switch between them. Open this menu to create a new preset."
     },
     "selectBin": {
       "title": "Select a bin",

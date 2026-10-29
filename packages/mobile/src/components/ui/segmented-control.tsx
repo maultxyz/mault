@@ -16,7 +16,7 @@ export function SegmentedControl<T extends string>({
       style={{
         flexDirection: "row",
         padding: 4,
-        borderRadius: RADIUS.full,
+        borderRadius: RADIUS.md,
         backgroundColor: colors.muted,
         gap: SPACING.xs,
       }}
@@ -34,15 +34,15 @@ export function SegmentedControl<T extends string>({
               height: 36,
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: RADIUS.full,
+              borderRadius: RADIUS.sm,
               paddingHorizontal: SPACING.sm,
-              backgroundColor: selected ? colors.foreground : "transparent",
+              backgroundColor: selected ? colors.primaryMuted : "transparent",
             }}
           >
             <AppText
               weight="semibold"
               numberOfLines={1}
-              style={{ color: selected ? colors.background : colors.foregroundSecondary }}
+              style={{ color: selected ? colors.primaryText : colors.foregroundSecondary }}
             >
               {option.label}
             </AppText>

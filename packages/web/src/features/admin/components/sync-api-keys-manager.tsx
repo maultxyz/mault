@@ -58,7 +58,6 @@ export function SyncApiKeysManager() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
           onClick={() => setShowCreate(true)}
         >
           <IconPlus />
@@ -106,7 +105,6 @@ export function SyncApiKeysManager() {
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
                 disabled={revoke.isPending && revoke.variables === key.guid}
                 onClick={() => setRevokeTarget(key)}
               >

@@ -2,7 +2,6 @@ import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { ResizeHandle } from "@/components/ui/resize-handle";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
 import { CardGrid } from "@/features/cards/components/card-grid";
-import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
@@ -69,7 +68,6 @@ function MobileScanner() {
         <DrawerContent>
           <div className="overflow-y-auto p-4 flex flex-col gap-4 max-h-[calc(80vh-2rem)]">
             <div className="flex flex-col gap-4">
-              <CollectionSwitcher />
               <PresetSelector readOnly />
             </div>
             <ScanStats />

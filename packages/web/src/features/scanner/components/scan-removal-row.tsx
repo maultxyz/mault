@@ -79,7 +79,7 @@ export function ScanRemovalRow({
       </div>
       <Button
         variant="ghost"
-        size="icon-sm"
+        size="icon"
         aria-label={t("scanRemoval.drop")}
         title={t("scanRemoval.drop")}
         onClick={onDrop}

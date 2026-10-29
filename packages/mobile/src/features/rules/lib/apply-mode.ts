@@ -10,7 +10,7 @@ import {
 } from "@/features/rules/api/bin-sets";
 import { emptyRules } from "@/features/rules/lib/rules";
 import type { ModeFormValues } from "@/lib/interfaces/forms";
-import type { BinSetMode } from "@/lib/interfaces/rules";
+import type { BinSetMode } from "@magic-vault/shared";
 
 function chaosSize(values: ModeFormValues): number | null {
   return values.chaosBinSize === "" ? null : Number(values.chaosBinSize);

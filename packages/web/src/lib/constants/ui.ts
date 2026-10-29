@@ -20,3 +20,6 @@ export const MOBILE_COMBOBOX_POPUP_CLASS =
 
 export const GRADIENT_BURST_CLASS =
   "pointer-events-none absolute top-8 left-8 size-60 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/50 blur-[60px]";
+
+export const MENU_SCROLL_LIST_CLASS =
+  "h-auto [&>[data-slot=scroll-area-viewport]]:max-h-64";

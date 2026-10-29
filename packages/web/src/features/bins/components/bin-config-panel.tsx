@@ -306,7 +306,6 @@ export function BinConfigPanel() {
             <Button
               key={item.key}
               type="button"
-              size="sm"
               variant={active ? "outline-selected" : "outline"}
               aria-pressed={active}
               onClick={() => {
@@ -787,7 +786,6 @@ export function BinConfigPanel() {
           <Button
             type="button"
             variant={field.value ? "outline-selected" : "outline"}
-            size="sm"
             data-tour="catch-all-toggle"
             onClick={() => {
               form.setValue("rules", emptyRuleGroup(), {
@@ -871,7 +869,7 @@ export function BinConfigPanel() {
             {t("binLabel", { number: config.binNumber })}
           </h2>
           {config.isCatchAll && (
-            <Button type="button" variant="outline-selected" size="sm" disabled>
+            <Button type="button" variant="outline-selected" disabled>
               {t("binConfigPanel.catchAllEnabled")}
             </Button>
           )}

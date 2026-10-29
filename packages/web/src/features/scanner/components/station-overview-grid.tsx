@@ -1,33 +1,41 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
-import { devicesQueryOptions } from "@/features/calibration/api/devices";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteDevices } from "@/features/calibration/api/use-delete-device";
-import { useOrg } from "@/features/companies/api/use-organization";
 import { useSorterSelection } from "@/features/scanner/api/use-sorter-selection";
 import { useStations } from "@/features/scanner/api/use-stations";
+import { ConnectSorterMenuOptions } from "@/features/scanner/components/connect-sorter-menu-options";
 import { OfflineDeviceTile } from "@/features/scanner/components/offline-device-tile";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import {
-  IconCheckbox,
+  COLLECTION_SELECTION_ISLAND_BUTTON_CLASS,
+  COLLECTION_SELECTION_ISLAND_CLASS,
+  COLLECTIONS_SKELETON_COUNT,
+} from "@/lib/constants/collections";
+import { SORTERS_GRID_CLASS } from "@/lib/constants/scanner";
+import type { StationOverviewGridProps } from "@/lib/interfaces/stations";
+import {
   IconDevices,
   IconPlayerPause,
+  IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useLayoutEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 
-export function StationOverviewGrid() {
+export function StationOverviewGrid({
+  overview,
+  isSearching,
+}: StationOverviewGridProps) {
   const { t } = useTranslation("scanner");
-  const { activeOrg } = useOrg();
-  const { data: devices = [] } = useQuery(devicesQueryOptions(activeOrg?.id));
-  const {
-    stations,
-    connectedStationIds,
-    attachOverview,
-    getOverviewTileElement,
-  } = useStations();
+  const { attachOverview, getOverviewTileElement } = useStations();
   const {
     selectedKeys,
     runningKeys,
@@ -37,20 +45,29 @@ export function StationOverviewGrid() {
   } = useSorterSelection();
   const deleteDevices = useDeleteDevices();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const connected = stations.filter((s) => connectedStationIds.has(s.id));
-  const connectedDeviceGuids = new Set(connected.map((s) => s.deviceGuid));
-  const offlineDevices = devices.filter(
-    (d) => !connectedDeviceGuids.has(d.guid),
-  );
+  const {
+    isLoading,
+    connectedSorters,
+    offlineDevices,
+    matchingConnectedSorters,
+    matchingOfflineDevices,
+    totalCount,
+  } = overview;
+
   const allKeys = [
-    ...connected.map((s) => s.deviceGuid ?? s.id),
-    ...offlineDevices.map((d) => d.guid),
+    ...connectedSorters.map((sorter) => sorter.selectionKey),
+    ...offlineDevices.map((device) => device.guid),
+  ];
+  const visibleKeys = [
+    ...matchingConnectedSorters.map((sorter) => sorter.selectionKey),
+    ...matchingOfflineDevices.map((device) => device.guid),
   ];
   const selected = allKeys.filter((key) => selectedKeys.has(key));
-  const allSelected = allKeys.length > 0 && selected.length === allKeys.length;
+  const allVisibleSelected =
+    visibleKeys.length > 0 && visibleKeys.every((key) => selectedKeys.has(key));
   const selectedRunning = selected.filter((key) => runningKeys.has(key));
-  const selectedOffline = offlineDevices.filter((d) =>
-    selectedKeys.has(d.guid),
+  const selectedOffline = offlineDevices.filter((device) =>
+    selectedKeys.has(device.guid),
   );
 
   useLayoutEffect(() => attachOverview(), [attachOverview]);
@@ -59,7 +76,23 @@ export function StationOverviewGrid() {
     clearSelection: selected.length > 0 ? clearSelected : undefined,
   });
 
-  if (connected.length === 0 && offlineDevices.length === 0) {
+  if (isLoading) {
+    return (
+      <div className={SORTERS_GRID_CLASS}>
+        {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
+          <div key={i} className="overflow-hidden rounded-lg border">
+            <Skeleton className="aspect-[3/4] rounded-none" />
+            <div className="space-y-1.5 border-t p-3">
+              <Skeleton className="h-3 w-32" />
+              <Skeleton className="h-2.5 w-20" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (totalCount === 0) {
     return (
       <EmptyState
         icon={IconDevices}
@@ -69,22 +102,20 @@ export function StationOverviewGrid() {
     );
   }
 
+  if (visibleKeys.length === 0) {
+    return (
+      <EmptyState
+        icon={IconDevices}
+        title={t("stations.overview.noSearchResultsTitle")}
+        description={t("stations.overview.noSearchResultsDescription")}
+      />
+    );
+  }
+
   return (
-    <div className="flex flex-1 flex-col gap-3">
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => (allSelected ? clearSelected() : setSelected(allKeys))}
-        >
-          <IconCheckbox />
-          {allSelected
-            ? t("stations.overview.deselectAll")
-            : t("stations.overview.selectAll")}
-        </Button>
-      </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,16rem),1fr))] gap-3">
-        {connected.map((station) => (
+    <>
+      <div className={SORTERS_GRID_CLASS}>
+        {matchingConnectedSorters.map(({ station }) => (
           <div
             key={station.id}
             className="flex flex-col"
@@ -94,56 +125,92 @@ export function StationOverviewGrid() {
             }}
           />
         ))}
-        {offlineDevices.map((device) => (
+        {matchingOfflineDevices.map((device) => (
           <OfflineDeviceTile key={device.guid} device={device} />
         ))}
-      </div>
-      {selected.length > 0 && (
-        <div
-          role="status"
-          className="sticky bottom-4 z-50 mx-auto mt-auto flex w-fit shrink-0 items-center gap-3 rounded-lg bg-foreground px-1.5 pl-3 py-1.5 text-xs text-background shadow-2xl ring-1 ring-foreground/20 animate-in fade-in-0 slide-in-from-bottom-4 duration-150 motion-reduce:animate-none"
-        >
-          <span className="font-medium">
-            {t("stations.overview.selected", { count: selected.length })}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-              onClick={clearSelected}
-            >
-              {t("stations.overview.clearSelection")}
-            </Button>
-            <Button
-              variant="ghost"
-              className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-              disabled={selectedRunning.length === 0}
-              onClick={() => pauseSorters(selectedRunning)}
-            >
-              <IconPlayerPause />
-              {t("stations.overview.pauseSelected", {
-                count: selectedRunning.length,
-              })}
-            </Button>
-            <Button
-              variant="destructive"
-              className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
-              disabled={selectedOffline.length === 0 || deleteDevices.isPending}
-              title={
-                selectedOffline.length < selected.length
-                  ? t("stations.overview.deleteSkipsConnected")
-                  : undefined
+        {!isSearching && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button
+                  type="button"
+                  className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground aria-expanded:border-primary/50 aria-expanded:bg-primary/5 motion-reduce:transition-none"
+                />
               }
-              onClick={() => setConfirmDeleteOpen(true)}
             >
-              <IconTrash />
-              {t("stations.overview.deleteSelected", {
-                count: selectedOffline.length,
-              })}
-            </Button>
-          </div>
-        </div>
-      )}
+              <span className="rounded-full border border-dashed p-3">
+                <IconPlus className="size-5" />
+              </span>
+              {t("stations.connect")}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
+              <ConnectSorterMenuOptions />
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+      {selected.length > 0 &&
+        createPortal(
+          <div role="status" className={COLLECTION_SELECTION_ISLAND_CLASS}>
+            <span className="font-medium">
+              {t("stations.overview.selected", { count: selected.length })}
+            </span>
+            <div className="flex gap-1.5">
+              <Button
+                variant="ghost"
+                className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                onClick={() =>
+                  setSelected(
+                    allVisibleSelected
+                      ? selected.filter((key) => !visibleKeys.includes(key))
+                      : [...new Set([...selected, ...visibleKeys])],
+                  )
+                }
+              >
+                {allVisibleSelected
+                  ? t("stations.overview.deselectAll")
+                  : t("stations.overview.selectAll")}
+              </Button>
+              <Button
+                variant="ghost"
+                className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                onClick={clearSelected}
+              >
+                {t("stations.overview.clearSelection")}
+              </Button>
+              <Button
+                variant="ghost"
+                className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                disabled={selectedRunning.length === 0}
+                onClick={() => pauseSorters(selectedRunning)}
+              >
+                <IconPlayerPause />
+                {t("stations.overview.pauseSelected", {
+                  count: selectedRunning.length,
+                })}
+              </Button>
+              <Button
+                variant="destructive"
+                className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
+                disabled={
+                  selectedOffline.length === 0 || deleteDevices.isPending
+                }
+                title={
+                  selectedOffline.length < selected.length
+                    ? t("stations.overview.deleteSkipsConnected")
+                    : undefined
+                }
+                onClick={() => setConfirmDeleteOpen(true)}
+              >
+                <IconTrash />
+                {t("stations.overview.deleteSelected", {
+                  count: selectedOffline.length,
+                })}
+              </Button>
+            </div>
+          </div>,
+          document.body,
+        )}
       <DeleteDialog
         open={confirmDeleteOpen}
         onOpenChange={setConfirmDeleteOpen}
@@ -157,11 +224,11 @@ export function StationOverviewGrid() {
           deleteDevices.mutate(selectedOffline);
           setSelected(
             selected.filter(
-              (key) => !selectedOffline.some((d) => d.guid === key),
+              (key) => !selectedOffline.some((device) => device.guid === key),
             ),
           );
         }}
       />
-    </div>
+    </>
   );
 }

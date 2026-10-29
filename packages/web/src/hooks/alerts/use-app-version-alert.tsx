@@ -52,7 +52,6 @@ export function useAppVersionAlert(): AppAlert | null {
       <>
         {piHost && isAdmin && (available || failed) && !succeeded && (
           <Button
-            size="xs"
             variant="outline"
             className={ALERT_BANNER_ACTION_CLASS}
             disabled={update.busy}
@@ -63,7 +62,6 @@ export function useAppVersionAlert(): AppAlert | null {
         )}
         {!update.busy && (
           <Button
-            size="xs"
             variant="outline"
             className={ALERT_BANNER_ACTION_CLASS}
             onClick={() => {

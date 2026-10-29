@@ -87,7 +87,6 @@ export function WebhooksSection() {
           <Button
             type="button"
             variant="outline"
-            size="sm"
             onClick={() => setDialogTarget("new")}
           >
             <IconPlus />
@@ -164,7 +163,7 @@ export function WebhooksSection() {
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         aria-label={t("webhooks.actions")}
                       >
                         <IconDots />

@@ -132,7 +132,16 @@
     "create": "Create",
     "viewHistory": "View History",
     "historyTitle": "Preset history",
-    "printControlCard": "Print control card"
+    "printControlCard": "Print control card",
+    "resetAutoAssign": "Reset auto-detected bins",
+    "searchPlaceholder": "Search presets...",
+    "modeBadges": {
+      "scan-only": "Scan only",
+      "auto-assign": "Auto-detect",
+      "repack": "Repacks",
+      "alphabet": "Alphabetical",
+      "chaos": "Chaos sort"
+    }
   },
   "useBinConfigs": {
     "toasts": {

@@ -1,4 +1,8 @@
-import { DARK_PRIMARY_TEXT_MIN_LIGHTNESS, PRIMARY_MUTED_ALPHA } from "@/lib/constants/theme";
+import {
+  DARK_PRIMARY_TEXT_MIN_LIGHTNESS,
+  PRIMARY_MUTED_ALPHA,
+  PRIMARY_PRESSED_LIGHTNESS_SCALE,
+} from "@/lib/constants/theme";
 import type { ThemeColors } from "@/lib/interfaces/theme";
 import type { ThemeColorOption } from "@/lib/interfaces/settings";
 
@@ -48,6 +52,11 @@ function withMinLightness(hex: string, minLightness: number): string {
   return L >= minLightness ? hex : linearToHex(fromOklab([minLightness, a, b]));
 }
 
+function withScaledLightness(hex: string, lightnessScale: number): string {
+  const [L, a, b] = toOklab(hexToLinear(hex));
+  return linearToHex(fromOklab([L * lightnessScale, a * lightnessScale, b * lightnessScale]));
+}
+
 function withAlpha(hex: string, alpha: number): string {
   const value = Number.parseInt(hex.slice(1), 16);
   return `rgba(${value >> 16}, ${(value >> 8) & 0xff}, ${value & 0xff}, ${alpha})`;
@@ -59,6 +68,7 @@ export function applyPrimaryColor(base: ThemeColors, color: ThemeColorOption | n
     ...base,
     primary: color.value,
     primaryForeground: color.fg,
+    primaryPressed: withScaledLightness(color.value, PRIMARY_PRESSED_LIGHTNESS_SCALE),
     primaryText: dark ? withMinLightness(color.value, DARK_PRIMARY_TEXT_MIN_LIGHTNESS) : color.value,
     primaryMuted: withAlpha(color.value, dark ? PRIMARY_MUTED_ALPHA.dark : PRIMARY_MUTED_ALPHA.light),
   };

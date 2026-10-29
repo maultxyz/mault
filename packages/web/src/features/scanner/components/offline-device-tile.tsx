@@ -38,8 +38,8 @@ export function OfflineDeviceTile({ device }: OfflineDeviceTileProps) {
           <>
             <RenameDeviceButton device={device} />
             <Button
-              size="icon-sm"
-              variant="ghost"
+              size="icon"
+              variant="outline-destructive"
               aria-label={deleteLabel}
               title={deleteLabel}
               disabled={deleteDevice.isPending}
@@ -59,7 +59,9 @@ export function OfflineDeviceTile({ device }: OfflineDeviceTileProps) {
       <DeleteDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
-        title={t("stations.overview.deleteConfirm.title", { name: device.name })}
+        title={t("stations.overview.deleteConfirm.title", {
+          name: device.name,
+        })}
         description={t("stations.overview.deleteConfirm.description")}
         confirm={{ type: "name", name: device.name }}
         onConfirm={() => {

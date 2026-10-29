@@ -353,7 +353,6 @@ export function IntakeLotDetail({
                 canRemove ? (
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => setRemoveTarget(belowMinimum)}
                   >
                     <IconX />
@@ -375,17 +374,15 @@ export function IntakeLotDetail({
               <span className="font-medium">
                 {t("intake.remove.selected", { count: liveSelected.length })}
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <Button
                   variant="ghost"
-                  size="sm"
                   onClick={() => setSelected(new Set())}
                 >
                   {t("intake.remove.clear")}
                 </Button>
                 <Button
                   variant="destructive"
-                  size="sm"
                   onClick={() => setRemoveTarget(liveSelected)}
                 >
                   <IconX />
@@ -498,7 +495,7 @@ export function IntakeLotDetail({
                       <TableCell className="py-0 text-right">
                         <Button
                           variant="ghost"
-                          size="icon-sm"
+                          size="icon"
                           aria-label={t("intake.remove.row", {
                             name: entry.card.name,
                           })}

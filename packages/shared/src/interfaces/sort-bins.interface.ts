@@ -97,6 +97,14 @@ export interface RepackConfigPatch {
   repackMultiplePacks?: boolean;
 }
 
+export type BinSetMode =
+  | "rules"
+  | "repack"
+  | "auto-assign"
+  | "alphabet"
+  | "chaos"
+  | "scan-only";
+
 export interface BinSet {
   guid: string;
   name: string;

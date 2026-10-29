@@ -82,7 +82,7 @@ export function ServoControl({
             render={
               <Button
                 variant="ghost"
-                size="icon-xs"
+                size="icon"
                 disabled={!canTest || !calibration}
                 onClick={() => onTest(module, servo.name)}
                 className={cn(isTesting && "text-primary")}

@@ -45,6 +45,11 @@ export interface CardCorrection {
   isPending: boolean;
 }
 
+export interface MatchesOpenState {
+  scanId: string;
+  isOpen: boolean;
+}
+
 export interface CandidateStripProps {
   candidates: PlayingCard[];
   selectedId: string | undefined;

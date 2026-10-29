@@ -3,7 +3,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
-import { BUTTON_HEIGHTS, DISABLED_OPACITY, PRESSED_OPACITY } from "@/lib/constants/ui";
+import { BUTTON_HEIGHTS, DISABLED_OPACITY } from "@/lib/constants/ui";
 import type { ButtonProps } from "@/lib/interfaces/ui";
 
 export function Button({
@@ -19,7 +19,7 @@ export function Button({
 }: ButtonProps) {
   const colors = useTheme();
   const palette = {
-    primary: { bg: colors.primary, pressed: colors.primary, fg: colors.primaryForeground, border: "transparent" },
+    primary: { bg: colors.primary, pressed: colors.primaryPressed, fg: colors.primaryForeground, border: "transparent" },
     secondary: { bg: colors.muted, pressed: colors.border, fg: colors.foreground, border: "transparent" },
     destructive: { bg: colors.destructiveTint, pressed: colors.destructiveMuted, fg: colors.destructive, border: "transparent" },
     ghost: { bg: "transparent", pressed: colors.muted, fg: colors.foreground, border: "transparent" },
@@ -38,13 +38,13 @@ export function Button({
         {
           minHeight: BUTTON_HEIGHTS[size],
           paddingHorizontal: size === "sm" ? SPACING.md + 2 : SPACING.xl,
-          borderRadius: RADIUS.full,
+          borderRadius: RADIUS.md,
           backgroundColor: pressed ? palette.pressed : palette.bg,
           borderWidth: 1,
           borderColor: palette.border,
           alignItems: "center",
           justifyContent: "center",
-          opacity: inactive ? DISABLED_OPACITY : pressed && palette.pressed === palette.bg ? PRESSED_OPACITY : 1,
+          opacity: inactive ? DISABLED_OPACITY : 1,
         },
         style,
       ]}

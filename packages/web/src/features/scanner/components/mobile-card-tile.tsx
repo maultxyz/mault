@@ -34,7 +34,7 @@ export const MobileCardTile = memo(function MobileCardTile({
     >
       <div
         className={cn(
-          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-foreground/10",
+          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-border",
           awaitingReview &&
             "ring-2 ring-warning ring-offset-2 ring-offset-background",
         )}

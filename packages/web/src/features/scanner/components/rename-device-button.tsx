@@ -37,8 +37,8 @@ export function RenameDeviceButton({ device }: RenameDeviceButtonProps) {
   return (
     <>
       <Button
-        size="icon-sm"
-        variant="ghost"
+        size="icon"
+        variant="outline"
         aria-label={label}
         title={label}
         onClick={() => {
@@ -53,7 +53,6 @@ export function RenameDeviceButton({ device }: RenameDeviceButtonProps) {
         onOpenChange={setOpen}
         title={t("stations.overview.renameDialog.title")}
         description={t("stations.overview.renameDialog.description")}
-        trigger={<span />}
         footer={
           <>
             <Button variant="outline" onClick={() => setOpen(false)}>
@@ -64,7 +63,9 @@ export function RenameDeviceButton({ device }: RenameDeviceButtonProps) {
               form={formId}
               disabled={!form.formState.isValid || renameDevice.isPending}
             >
-              {renameDevice.isPending && <IconLoader2 className="animate-spin" />}
+              {renameDevice.isPending && (
+                <IconLoader2 className="animate-spin" />
+              )}
               {t("stations.overview.renameDialog.submit")}
             </Button>
           </>

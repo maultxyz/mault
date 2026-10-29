@@ -1,4 +1,4 @@
-import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { ViewTabs } from "@/components/view-tabs";
 import {
   BUSINESS_VIEW_PATHS,
   BUSINESS_VIEWS,
@@ -14,10 +14,10 @@ export function BusinessViewSwitch({ value }: BusinessViewSwitchProps) {
   const { t } = useTranslation("business");
   const navigate = useNavigate();
   return (
-    <ResponsiveSegmented<BusinessView>
+    <ViewTabs<BusinessView>
       label={t("views.label")}
-      size="sm"
-      className="w-full *:flex-1"
+      fill
+      className="w-full"
       items={BUSINESS_VIEWS.map((view) => ({
         key: view,
         label: t(`views.${view}`),

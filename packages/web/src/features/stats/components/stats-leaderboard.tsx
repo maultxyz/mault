@@ -52,7 +52,6 @@ function StatsLeaderboardContent() {
           title={t("leaderboard.optIn.title")}
           action={
             <Button
-              size="sm"
               variant="outline"
               nativeButton={false}
               render={<Link to={SETTINGS_PATHS.general} />}
