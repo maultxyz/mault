@@ -14,22 +14,30 @@
     },
     "connectCamera": {
       "title": "Connecter une caméra",
-      "content": "Clique sur Caméra pour connecter la webcam au-dessus de ton trieur, ou coupler ton téléphone comme caméra. Le point passe au vert une fois connecté."
+      "content": "Clique sur Caméra dans le panneau du scanner pour connecter la webcam au-dessus de ton trieur, ou coupler ton téléphone comme caméra. Le point passe au vert une fois connecté."
     },
     "connectDevice": {
-      "content": "Clique sur Trieur pour connecter ton trieur de cartes en USB, Bluetooth ou Wi-Fi. Une fois connecté, tu peux le calibrer ou relancer la connexion depuis le même menu."
+      "content": "Clique sur Trieur pour connecter ton trieur de cartes en USB, Bluetooth ou Wi-Fi. Une fois connecté, le même menu active l'alimentation auto et les doublons, calibre ou vide le trieur, et relance la connexion."
     },
-    "filterStats": {
-      "title": "Filtrer en cliquant sur les stats",
-      "content": "Une fois des cartes scannées, ce panneau totalise la valeur, la rareté, la couleur et l'édition. Clique sur une entrée pour filtrer la grille sur ces cartes uniquement."
-    },
-    "exportCollection": {
-      "title": "Exporter une collection",
-      "content": "Ouvre ce menu et choisis Exporter pour enregistrer tes cartes scannées aux formats CSV, Manabox, Moxfield, TCGplayer ou Card Kingdom."
+    "switchSorters": {
+      "title": "Passer d'un trieur à l'autre",
+      "content": "Chaque trieur connecté a son propre scanner, et ceux que tu ne regardes pas continuent de trier. Choisis un trieur ici, ouvre Tous les trieurs pour une vue d'ensemble en direct, ou connectes-en un autre."
     },
     "manageCollections": {
       "title": "Gérer tes collections",
-      "content": "Change de collection ici. Le même menu permet de copier un lien de partage, d'ouvrir le gestionnaire complet des collections ou de créer une nouvelle collection."
+      "content": "Les scans sont enregistrés dans la collection affichée ici. Change de collection depuis ce menu, ou utilise-le pour copier un lien de partage, ouvrir le gestionnaire complet des collections ou créer une nouvelle collection."
+    },
+    "pickRulePreset": {
+      "title": "Choisir un préréglage de règles",
+      "content": "Le préréglage affiché ici décide dans quel bac atterrit chaque scan. Ouvre ce menu pour changer de préréglage, en créer ou en renommer un, accéder à ses règles de tri, ou imprimer une carte de contrôle qui change de préréglage directement depuis le trieur."
+    },
+    "filterStats": {
+      "title": "Filtrer en cliquant sur les stats",
+      "content": "Sous le scanner, ce panneau totalise la valeur, la rareté, la couleur et l'édition une fois des cartes scannées. Clique sur une entrée pour filtrer la grille sur ces cartes uniquement."
+    },
+    "exportCollection": {
+      "title": "Exporter une collection",
+      "content": "Ouvre ce menu et choisis Exporter pour enregistrer tes cartes scannées en CSV, Manabox, Moxfield, TCGplayer ou Card Kingdom. Il permet aussi de sélectionner ou de supprimer des cartes en masse."
     },
     "createCollection": {
       "title": "Créer une collection",
@@ -38,10 +46,6 @@
     "editCollection": {
       "title": "Modifier une collection",
       "content": "Renomme une collection ou ajuste son seuil de correspondance à tout moment depuis ici."
-    },
-    "createSortingRules": {
-      "title": "Créer des règles de tri",
-      "content": "Les règles de tri sont rangées dans des préréglages nommés pour chaque jeu, pour enregistrer plusieurs stratégies de tri et passer de l'une à l'autre. Ouvre ce menu pour créer un préréglage."
     },
     "editSortingRules": {
       "title": "Modifier les règles de tri",

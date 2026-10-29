@@ -14,22 +14,30 @@
     },
     "connectCamera": {
       "title": "Kamera verbinden",
-      "content": "Klicke auf Kamera, um die Webcam über deinem Sortierer zu verbinden oder dein Handy als Kamera zu koppeln. Der Punkt wird grün, sobald sie verbunden ist."
+      "content": "Klicke im Scanner-Bereich auf Kamera, um die Webcam über deinem Sortierer zu verbinden oder dein Handy als Kamera zu koppeln. Der Punkt wird grün, sobald sie verbunden ist."
     },
     "connectDevice": {
-      "content": "Klicke auf Sortierer, um deinen Kartensortierer per USB, Bluetooth oder WLAN zu verbinden. Danach kannst du ihn im selben Menü kalibrieren oder die Verbindung erneut versuchen."
+      "content": "Klicke auf Sortierer, um deinen Kartensortierer per USB, Bluetooth oder WLAN zu verbinden. Danach schaltest du im selben Menü die automatische Zufuhr und Duplikate um, kalibrierst oder leerst den Sortierer und versuchst die Verbindung erneut."
     },
-    "filterStats": {
-      "title": "Über Statistiken filtern",
-      "content": "Sobald du Karten gescannt hast, zeigt dieses Panel Gesamtwert, Seltenheit, Farbe und Set. Klicke auf einen Eintrag, um das Kartenraster auf genau diese Karten zu filtern."
-    },
-    "exportCollection": {
-      "title": "Eine Sammlung exportieren",
-      "content": "Öffne dieses Menü und wähle Exportieren, um deine gescannten Karten als CSV, Manabox, Moxfield, TCGplayer oder Card Kingdom zu speichern."
+    "switchSorters": {
+      "title": "Zwischen Sortierern wechseln",
+      "content": "Jeder verbundene Sortierer bekommt seinen eigenen Scanner, und die, die du gerade nicht ansiehst, sortieren weiter. Wähle hier einen Sortierer, öffne Alle Sortierer für eine Live-Übersicht oder verbinde einen weiteren."
     },
     "manageCollections": {
       "title": "Sammlungen verwalten",
-      "content": "Wechsle hier zwischen Sammlungen. Über dasselbe Menü kopierst du einen Freigabelink, öffnest die vollständige Sammlungsverwaltung oder legst eine neue Sammlung an."
+      "content": "Scans werden in der hier angezeigten Sammlung gespeichert. Wechsle über dieses Menü die Sammlung, kopiere einen Freigabelink, öffne die vollständige Sammlungsverwaltung oder lege eine neue Sammlung an."
+    },
+    "pickRulePreset": {
+      "title": "Regel-Vorlage wählen",
+      "content": "Die hier angezeigte Vorlage entscheidet, in welches Fach jeder Scan fällt. Öffne dieses Menü, um Vorlagen zu wechseln, eine zu erstellen oder umzubenennen, zu ihren Sortierregeln zu springen oder eine Steuerkarte zu drucken, die die Vorlage direkt am Sortierer wechselt."
+    },
+    "filterStats": {
+      "title": "Über Statistiken filtern",
+      "content": "Unter dem Scanner zeigt dieses Panel Gesamtwert, Seltenheit, Farbe und Set, sobald du Karten gescannt hast. Klicke auf einen Eintrag, um das Kartenraster auf genau diese Karten zu filtern."
+    },
+    "exportCollection": {
+      "title": "Eine Sammlung exportieren",
+      "content": "Öffne dieses Menü und wähle Exportieren, um deine gescannten Karten als CSV-, Manabox-, Moxfield-, TCGplayer- oder Card-Kingdom-Datei zu speichern. Hier wählst oder löschst du auch mehrere Karten auf einmal."
     },
     "createCollection": {
       "title": "Eine Sammlung erstellen",
@@ -38,10 +46,6 @@
     "editCollection": {
       "title": "Eine Sammlung bearbeiten",
       "content": "Benenne eine Sammlung um oder passe ihren Übereinstimmungsschwellenwert jederzeit von hier aus an."
-    },
-    "createSortingRules": {
-      "title": "Sortierregeln erstellen",
-      "content": "Sortierregeln liegen pro Spiel in benannten Vorlagen, damit du mehrere Sortierstrategien speichern und zwischen ihnen wechseln kannst. Öffne dieses Menü, um eine neue Vorlage zu erstellen."
     },
     "editSortingRules": {
       "title": "Sortierregeln bearbeiten",

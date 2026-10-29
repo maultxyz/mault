@@ -14,22 +14,30 @@
     },
     "connectCamera": {
       "title": "Connect a camera",
-      "content": "Click Camera to connect the webcam over your sorter, or pair your phone as a camera. The dot turns green once it's connected."
+      "content": "Click Camera on the scanner panel to connect the webcam over your sorter, or pair your phone as a camera. The dot turns green once it's connected."
     },
     "connectDevice": {
-      "content": "Click Sorter to connect your card sorter over USB, Bluetooth or Wi-Fi. Once it's connected, you can calibrate it or retry the connection from the same menu."
+      "content": "Click Sorter to connect your card sorter over USB, Bluetooth or Wi-Fi. Once it's connected, the same menu toggles auto-feed and duplicates, calibrates or clears the sorter, and retries the connection."
     },
-    "filterStats": {
-      "title": "Filter by clicking stats",
-      "content": "Once you've scanned some cards, this panel totals up value, rarity, color, and set. Click any rarity, color, or set entry to filter the card grid down to just those cards."
-    },
-    "exportCollection": {
-      "title": "Export a collection",
-      "content": "Open this menu and choose Export to save your scanned cards as CSV, Manabox, Moxfield, TCGplayer, or Card Kingdom files."
+    "switchSorters": {
+      "title": "Switch between sorters",
+      "content": "Every connected sorter gets its own scanner, and the ones you aren't looking at keep sorting. Pick a sorter here, open All sorters for a live overview, or connect another one."
     },
     "manageCollections": {
       "title": "Manage your collections",
-      "content": "Switch between collections here. The same menu copies a share link, opens the full collections manager, or creates a new collection."
+      "content": "Scans save to the collection shown here. Switch collections from this menu, or use it to copy a share link, open the full collections manager, or create a new collection."
+    },
+    "pickRulePreset": {
+      "title": "Pick a rule preset",
+      "content": "The preset shown here decides which bin each scan lands in. Open this menu to switch presets, create or rename one, jump to its sorting rules, or print a control card that switches presets right from the sorter."
+    },
+    "filterStats": {
+      "title": "Filter by clicking stats",
+      "content": "Below the scanner, this panel totals up value, rarity, color, and set once you've scanned some cards. Click any rarity, color, or set entry to filter the card grid down to just those cards."
+    },
+    "exportCollection": {
+      "title": "Export a collection",
+      "content": "Open this menu and choose Export to save your scanned cards as CSV, Manabox, Moxfield, TCGplayer, or Card Kingdom files. It also selects or clears cards in bulk."
     },
     "createCollection": {
       "title": "Create a collection",
@@ -38,10 +46,6 @@
     "editCollection": {
       "title": "Edit a collection",
       "content": "Rename a collection or adjust its match threshold at any time from here."
-    },
-    "createSortingRules": {
-      "title": "Create sorting rules",
-      "content": "Sorting rules live in named presets for each game, so you can save several sorting strategies and switch between them. Open this menu to create a new preset."
     },
     "editSortingRules": {
       "title": "Edit sorting rules",

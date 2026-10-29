@@ -1,4 +1,5 @@
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
+import { ACTIVE_STATION_SCOPE } from "@/lib/constants/tours";
 import type {
   OnboardingTourStepConfig,
   TourPage,
@@ -16,7 +17,7 @@ export const ONBOARDING_TOUR_STEPS: OnboardingTourStepConfig[] = [
   {
     id: "connect-camera",
     page: "scanner",
-    target: '[data-tour="camera-status"]',
+    target: `${ACTIVE_STATION_SCOPE} [data-tour="camera-status"]`,
     placement: "auto",
     titleKey: "steps.connectCamera.title",
     contentKey: "steps.connectCamera.content",
@@ -24,15 +25,39 @@ export const ONBOARDING_TOUR_STEPS: OnboardingTourStepConfig[] = [
   {
     id: "connect-device",
     page: "scanner",
-    target: '[data-tour="sorter-status"]',
+    target: `${ACTIVE_STATION_SCOPE} [data-tour="sorter-status"]`,
     placement: "auto",
     titleKey: "connectYourSorterTitle",
     contentKey: "steps.connectDevice.content",
   },
   {
+    id: "switch-sorters",
+    page: "scanner",
+    target: '[data-tour="station-menu"]',
+    placement: "bottom-start",
+    titleKey: "steps.switchSorters.title",
+    contentKey: "steps.switchSorters.content",
+  },
+  {
+    id: "manage-collections",
+    page: "scanner",
+    target: '[data-tour="collection-switcher"]',
+    placement: "bottom-start",
+    titleKey: "steps.manageCollections.title",
+    contentKey: "steps.manageCollections.content",
+  },
+  {
+    id: "pick-rule-preset",
+    page: "scanner",
+    target: '[data-tour="create-sorting-rule"]',
+    placement: "bottom-start",
+    titleKey: "steps.pickRulePreset.title",
+    contentKey: "steps.pickRulePreset.content",
+  },
+  {
     id: "filter-stats",
     page: "scanner",
-    target: '[data-tour="scan-stats"]',
+    target: `${ACTIVE_STATION_SCOPE} [data-tour="scan-stats"]`,
     placement: "auto",
     titleKey: "steps.filterStats.title",
     contentKey: "steps.filterStats.content",
@@ -44,14 +69,6 @@ export const ONBOARDING_TOUR_STEPS: OnboardingTourStepConfig[] = [
     placement: "auto",
     titleKey: "steps.exportCollection.title",
     contentKey: "steps.exportCollection.content",
-  },
-  {
-    id: "manage-collections",
-    page: "scanner",
-    target: '[data-tour="collection-switcher"]',
-    placement: "auto",
-    titleKey: "steps.manageCollections.title",
-    contentKey: "steps.manageCollections.content",
   },
   {
     id: "create-collection",
@@ -68,14 +85,6 @@ export const ONBOARDING_TOUR_STEPS: OnboardingTourStepConfig[] = [
     placement: "auto",
     titleKey: "steps.editCollection.title",
     contentKey: "steps.editCollection.content",
-  },
-  {
-    id: "create-sorting-rules",
-    page: "bins",
-    target: '[data-tour="create-sorting-rule"]',
-    placement: "auto",
-    titleKey: "steps.createSortingRules.title",
-    contentKey: "steps.createSortingRules.content",
   },
   {
     id: "edit-sorting-rules",

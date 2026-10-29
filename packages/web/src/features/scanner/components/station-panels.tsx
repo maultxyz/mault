@@ -33,6 +33,7 @@ export function StationPanels({
               if (node && el.parentNode !== node) node.appendChild(el);
             }}
             inert={!isActive}
+            data-active-station={isActive || undefined}
             aria-hidden={!isActive}
             className={cn(
               "absolute inset-0 p-2 gap-2 bg-sidebar/70",

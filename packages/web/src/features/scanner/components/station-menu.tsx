@@ -84,6 +84,7 @@ export function StationMenu() {
         render={
           <Button
             variant="ghost"
+            data-tour="station-menu"
             className="max-w-56 min-w-0 shrink gap-1.5 px-1 hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent"
           >
             <span className="relative grid size-4.5 shrink-0 place-items-center rounded-sm bg-foreground text-background">
