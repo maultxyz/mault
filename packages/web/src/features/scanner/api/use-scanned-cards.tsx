@@ -49,7 +49,6 @@ import {
   identifyUnmatchedCard as identifyUnmatchedCardApi,
   loadUnmatchedCards,
   markCollectionCardReviewed,
-  markCollectionCardsDownloaded,
   recordSortOnlyScan,
   releaseScanLock,
   removeCollectionCard,
@@ -1417,19 +1416,6 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
-  const markDownloaded = useCallback(
-    (scanIds: string[]) => {
-      const collection = activeCollectionRef.current;
-      if (scanIds.length === 0 || !collection) return;
-      markCollectionCardsDownloaded(collection.guid, scanIds)
-        .catch((err) => console.error("Failed to mark cards downloaded:", err))
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient],
-  );
-
   const clearCards = useCallback(() => {
     const collection = activeCollectionRef.current;
     binContentsRef.current = [];
@@ -1499,7 +1485,6 @@ export function ScannedCardsProvider({
         setCardCondition,
         setCardsCondition,
         setCardLanguage,
-        markDownloaded,
         clearCards,
       }}
     >
