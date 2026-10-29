@@ -111,3 +111,69 @@ export interface BotCommand {
   execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
   autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
 }
+
+export interface CalibrationDeviceSummary {
+  guid: string;
+  name: string;
+  orgName: string;
+  moduleCount: number;
+}
+
+export interface ServoCalibrationValues {
+  bottomClosed: number;
+  bottomOpen: number;
+  paddleClosed: number;
+  paddleOpen: number;
+  pusherLeft: number;
+  pusherNeutral: number;
+  pusherRight: number;
+  pusherHoldDuration: number;
+  paddleCloseDelay: number;
+  paddleOpenDelay: number;
+}
+
+export interface FeederCalibrationValues {
+  speed: number;
+  duration: number;
+  pulseDuration: number;
+  pauseDuration: number;
+  settleDuration: number;
+  reverseSpeed: number;
+  reverseDuration: number;
+}
+
+export interface DeviceCalibrationResult {
+  deviceName: string;
+  moduleCount: number;
+  modules: { moduleNumber: number; calibration: ServoCalibrationValues }[];
+  feeder: FeederCalibrationValues;
+}
+
+export interface RulePresetSummary {
+  guid: string;
+  name: string;
+  orgName: string;
+  gameName: string | null;
+  isActive: boolean;
+}
+
+export interface RulePresetResult {
+  presetName: string;
+  gameName: string | null;
+  modeLabel: string | null;
+  binLines: string[];
+}
+
+export interface SelectPromptOption {
+  label: string;
+  description: string;
+  value: string;
+}
+
+export interface SelectPromptRequest {
+  customId: string;
+  prompt: string;
+  placeholder: string;
+  options: SelectPromptOption[];
+  timeoutMessage: string;
+}

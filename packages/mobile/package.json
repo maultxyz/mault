@@ -12,15 +12,15 @@
     "build:ios:dev": "eas build --platform ios --profile development",
     "build:ios:preview": "eas build --platform ios --profile preview",
     "build:ios:sim": "eas build --platform ios --profile simulator",
-    "build:ios:prod":"eas build --platform ios --profile production",
+    "build:ios:prod": "eas build --platform ios --profile production",
     "build:android:dev": "eas build --platform android --profile development",
     "build:android:preview": "eas build --platform android --profile preview",
     "submit:ios": "eas submit --platform ios",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@expo-google-fonts/figtree": "^0.4.1",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
+    "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@expo/vector-icons": "^15.0.2",
     "@hookform/resolvers": "^5.2.2",
     "@magic-vault/shared": "workspace:*",

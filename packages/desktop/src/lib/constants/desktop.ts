@@ -11,7 +11,7 @@ export const START_PATH = "/app";
 export const MAIN_WINDOW_SIZE = { width: 1440, height: 900 };
 export const MAIN_WINDOW_MIN_SIZE = { width: 960, height: 640 };
 export const PICKER_WINDOW_SIZE = { width: 420, height: 380 };
-export const WINDOW_BACKGROUND = { light: "#ffffff", dark: "#09090b" };
+export const WINDOW_BACKGROUND = { light: "#ffffff", dark: "#1e1f21" };
 
 export const GRANTED_SERIAL_PORTS_FILE = "granted-serial-ports.json";
 
