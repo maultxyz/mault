@@ -4,6 +4,7 @@ import type {
   AccuracyCheckStatus,
   DeviceHealth,
   FulfilmentOrder,
+  FulfilmentOrderDetail,
   FulfilmentOrderStatus,
   IntakeLot,
   IntakeLotStatus,
@@ -109,6 +110,12 @@ export interface OrderImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreated: (guid: string) => void;
+}
+
+export interface OrderEditDialogProps {
+  order: FulfilmentOrderDetail;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export interface OrderDetailProps {

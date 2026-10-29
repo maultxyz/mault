@@ -9,6 +9,7 @@ import type {
   GroupedScannedCard,
   OcrRegion,
   PlayingCard,
+  PlayingCardImage,
   PlayingCardWithDistance,
   PriceSource,
   ReviewGridCard,
@@ -503,4 +504,10 @@ export interface ReviewSession {
 
 export interface OpenScanOptions {
   inReviewMode?: boolean;
+}
+
+export interface CardThumbnailProps {
+  image: PlayingCardImage | null | undefined;
+  isFoil?: boolean;
+  className?: string;
 }

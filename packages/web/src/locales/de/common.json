@@ -296,6 +296,7 @@
     "tooManyTiers": "Höchstens {{max}} Stufen.",
     "customerNameRequired": "Gib den Namen der Kundin oder des Kunden ein.",
     "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
+    "orderLinesRequired": "Lass mindestens eine Karte in der Pickliste.",
     "cardCountRequired": "Gib eine Kartenanzahl ein.",
     "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
     "commandRequired": "Gib einen Befehl ein.",

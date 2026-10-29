@@ -32,6 +32,7 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "tooManyTiers",
   "customerNameRequired",
   "orderTextRequired",
+  "orderLinesRequired",
   "cardCountRequired",
   "storageLocationRequired",
   "commandRequired",
