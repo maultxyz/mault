@@ -11,6 +11,8 @@ import { unlinkGuild } from "./api";
 import * as leaderboard from "./commands/leaderboard";
 import * as link from "./commands/link";
 import * as linkAccount from "./commands/link-account";
+import * as shareCalibration from "./commands/share-calibration";
+import * as sharePreset from "./commands/share-preset";
 import * as showoff from "./commands/showoff";
 import * as stats from "./commands/stats";
 import { startNotifyServer } from "./notify-server";
@@ -32,6 +34,8 @@ const commands: BotCommand[] = [
   link,
   linkAccount,
   leaderboard,
+  shareCalibration,
+  sharePreset,
   showoff,
   stats,
 ];

@@ -77,6 +77,44 @@ function copiesByLabel(copiesBy: string | null): string {
   return copiesBy;
 }
 
+export async function buildPresetBinLines(binSetId: number): Promise<string[]> {
+  const binRows = await db
+    .select({
+      binNumber: bins.binNumber,
+      rules: bins.rules,
+      isCatchAll: bins.isCatchAll,
+      isOverride: bins.isOverride,
+      overridePriority: bins.overridePriority,
+      lowMatchPercent: bins.lowMatchPercent,
+      maxCopies: bins.maxCopies,
+      maxCopiesBy: bins.maxCopiesBy,
+      overflowBin: bins.overflowBin,
+      isDisabled: bins.isDisabled,
+    })
+    .from(bins)
+    .where(and(eq(bins.binSet, binSetId), eq(bins.isDeleted, false)))
+    .orderBy(bins.binNumber);
+
+  const overflowSources = (binNumber: number) =>
+    binRows
+      .filter((s) => s.overflowBin === binNumber && s.binNumber !== binNumber)
+      .map((s) => s.binNumber);
+  const overflowLabel = (overflowBin: number | null) =>
+    overflowBin == null ? "" : ` (overflows to bin ${overflowBin})`;
+
+  return binRows.map((b) => {
+    if (b.isCatchAll) {
+      return catchAllSummary({ ...b, rules: b.rules as BinRuleGroup });
+    }
+    if (b.isDisabled) return `**Bin ${b.binNumber}:** disabled`;
+    const sources = overflowSources(b.binNumber);
+    if (sources.length > 0) {
+      return `**Bin ${b.binNumber}${overflowLabel(b.overflowBin)}:** overflow for bin ${sources.join(", ")}`;
+    }
+    return `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per ${copiesByLabel(b.maxCopiesBy)})` : ""}${overflowLabel(b.overflowBin)}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`;
+  });
+}
+
 export async function buildSortingLogicSummary(
   orgId: string,
   gameId: number | null,
@@ -102,44 +140,9 @@ export async function buildSortingLogicSummary(
   const set = setRows[0];
   if (!set) return "No active sorting rules configured.";
 
-  const binRows = await db
-    .select({
-      binNumber: bins.binNumber,
-      rules: bins.rules,
-      isCatchAll: bins.isCatchAll,
-      isOverride: bins.isOverride,
-      overridePriority: bins.overridePriority,
-      lowMatchPercent: bins.lowMatchPercent,
-      maxCopies: bins.maxCopies,
-      maxCopiesBy: bins.maxCopiesBy,
-      overflowBin: bins.overflowBin,
-      isDisabled: bins.isDisabled,
-    })
-    .from(bins)
-    .where(and(eq(bins.binSet, set.id), eq(bins.isDeleted, false)))
-    .orderBy(bins.binNumber);
-
-  if (binRows.length === 0)
+  const lines = await buildPresetBinLines(set.id);
+  if (lines.length === 0)
     return `**Sorting logic:** ${set.name} (no bins configured)`;
-
-  const overflowSources = (binNumber: number) =>
-    binRows
-      .filter((s) => s.overflowBin === binNumber && s.binNumber !== binNumber)
-      .map((s) => s.binNumber);
-  const overflowLabel = (overflowBin: number | null) =>
-    overflowBin == null ? "" : ` (overflows to bin ${overflowBin})`;
-
-  const lines = binRows.map((b) => {
-    if (b.isCatchAll) {
-      return catchAllSummary({ ...b, rules: b.rules as BinRuleGroup });
-    }
-    if (b.isDisabled) return `**Bin ${b.binNumber}:** disabled`;
-    const sources = overflowSources(b.binNumber);
-    if (sources.length > 0) {
-      return `**Bin ${b.binNumber}${overflowLabel(b.overflowBin)}:** overflow for bin ${sources.join(", ")}`;
-    }
-    return `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per ${copiesByLabel(b.maxCopiesBy)})` : ""}${overflowLabel(b.overflowBin)}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`;
-  });
 
   return `**Sorting logic:** ${set.name}\n${lines.join("\n")}`;
 }

@@ -41,3 +41,4 @@ export const PRICE_SYNC_EMBED_COLORS = {
   partial: 0xfee75c,
   failed: 0xed4245,
 } as const;
+export const DISCORD_SELECT_MENU_MAX_OPTIONS = 25;
