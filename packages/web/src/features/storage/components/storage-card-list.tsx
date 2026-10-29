@@ -1,5 +1,5 @@
 import { DeleteDialog } from "@/components/delete-dialog";
-import { FoilOverlay } from "@/components/foil-overlay";
+import { CardThumbnail } from "@/components/card-thumbnail";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -119,17 +119,7 @@ export function StorageCardList({
                     </TableCell>
                   )}
                   <TableCell>
-                    <div className="relative aspect-[2.5/3.5] w-8 overflow-hidden rounded-md bg-muted">
-                      {entry.card.image?.small && (
-                        <img
-                          loading="lazy"
-                          src={entry.card.image.small}
-                          alt=""
-                          className="absolute inset-0 size-full object-cover"
-                        />
-                      )}
-                      {entry.isFoil && <FoilOverlay />}
-                    </div>
+                    <CardThumbnail image={entry.card.image} isFoil={entry.isFoil} />
                   </TableCell>
                   <TableCell className="max-w-48 font-medium">
                     <div className="flex min-w-0 items-center gap-1.5">

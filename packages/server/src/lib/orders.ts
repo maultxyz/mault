@@ -1,5 +1,6 @@
 import {
   isCardCondition,
+  orderLineIdentity,
   ORDER_LINE_QUANTITY_MAX,
   ORDER_LINE_TEXT_MAX_LENGTH,
   ORDER_LINES_MAX,
@@ -77,6 +78,30 @@ export function toOrderLines(value: unknown): OrderLine[] {
       ...normalized,
       allocations,
       picked: stringList(line.picked).filter((id) => allocations.includes(id)),
+    };
+  });
+}
+
+export function carryOverOrderAllocations(
+  editedLines: OrderLineInput[],
+  previousLines: OrderLine[],
+  { keepPreviousUnitPrices }: { keepPreviousUnitPrices: boolean },
+): (OrderLineInput & Pick<OrderLine, "allocations" | "picked">)[] {
+  const unusedPreviousLines = [...previousLines];
+  return editedLines.map((line) => {
+    const identity = orderLineIdentity(line);
+    const matchIndex = unusedPreviousLines.findIndex(
+      (previous) => orderLineIdentity(previous) === identity,
+    );
+    const [match] =
+      matchIndex === -1 ? [] : unusedPreviousLines.splice(matchIndex, 1);
+    return {
+      ...line,
+      unitPrice: keepPreviousUnitPrices
+        ? (match?.unitPrice ?? null)
+        : line.unitPrice,
+      allocations: match?.allocations ?? [],
+      picked: match?.picked ?? [],
     };
   });
 }
@@ -168,8 +193,10 @@ export async function allocateOrderLines(
   orgId: string,
   orderId: number | null,
   lines: (OrderLineInput & Partial<Pick<OrderLine, "allocations" | "picked">>)[],
+  releasedScanIds: ReadonlySet<string> = new Set(),
 ): Promise<OrderLine[]> {
   const excluded = await allocatedElsewhere(tx, orgId, orderId);
+  for (const id of releasedScanIds) excluded.add(id);
   const existing = await existingScanIds(
     tx,
     orgId,

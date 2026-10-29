@@ -5,6 +5,7 @@ import {
   type FulfilmentOrderDetail,
   type PagedList,
   type FulfilmentOrderInput,
+  type FulfilmentOrderUpdateInput,
   type OrderFulfilInput,
   type OrderSource,
 } from "@magic-vault/shared";
@@ -18,6 +19,7 @@ import { UUID_PATTERN } from "../../lib/constants/validation";
 import type { SoldCardRow } from "../../lib/interfaces/business";
 import {
   allocateOrderLines,
+  carryOverOrderAllocations,
   loadPullSheet,
   normalizeOrderLines,
   orderCreatorName,
@@ -172,6 +174,54 @@ export const ordersRoute = new Hono<AppEnv>()
       return { success: true, data };
     }),
   )
+  .put("/orders/:guid", requireAuth, requireOrg, async (c) => {
+    const body = await readJson<FulfilmentOrderUpdateInput>(c);
+    const name = cleanText(body.name, ORDER_NAME_MAX_LENGTH);
+    const releasedScanIds = new Set(
+      (Array.isArray(body.releasedScanIds) ? body.releasedScanIds : []).filter(
+        (id): id is string => typeof id === "string" && UUID_PATTERN.test(id),
+      ),
+    );
+    const lines = normalizeOrderLines(body.lines);
+    if (!name || !lines) {
+      return c.json({ success: false, message: "Invalid pick." }, 400);
+    }
+    return businessQuery(c, async (tx, access) => {
+      if (access.isLocked) return BUSINESS_UPGRADE_REQUIRED_RESULT;
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const orgId = c.get("orgId");
+      const row = await findOrder(tx, orgId, c.req.param("guid"));
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
+      if (row.status !== "open") {
+        return { success: false, message: "This pick is closed." };
+      }
+      const allocated = await allocateOrderLines(
+        tx,
+        orgId,
+        row.id,
+        carryOverOrderAllocations(lines, toOrderLines(row.lines), {
+          keepPreviousUnitPrices: !access.canViewCosts,
+        }),
+        releasedScanIds,
+      );
+      await tx
+        .update(fulfilmentOrders)
+        .set({ name, lines: allocated, updatedAt: new Date() })
+        .where(eq(fulfilmentOrders.id, row.id));
+      await logActivity(tx, {
+        orgId,
+        userId: c.get("userId"),
+        action: "order.updated",
+        summary: name,
+        details: {
+          orderGuid: row.guid,
+          lines: lines.length,
+          quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
+        },
+      });
+      return { success: true, data: null };
+    });
+  })
   .post("/orders/:guid/allocate", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx, access) => {
       if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
