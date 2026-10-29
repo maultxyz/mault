@@ -41,7 +41,7 @@ import {
   LEGACY_STORAGE_VIEW_PARAM,
   STORAGE_REVIEW_SEARCH_PARAM,
 } from "@/lib/constants/storage";
-import { businessPicksPath, ORDER_PARAM } from "@/lib/constants/business";
+import { ORDER_PARAM, picksPath } from "@/lib/constants/business";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { toast } from "@/lib/toast";
 import {
@@ -407,7 +407,7 @@ export default function StoragePage() {
     searchParams.get(LEGACY_STORAGE_VIEW_PARAM) === LEGACY_STORAGE_PICKS_VIEW
   ) {
     return (
-      <Navigate to={businessPicksPath(searchParams.get(ORDER_PARAM))} replace />
+      <Navigate to={picksPath(searchParams.get(ORDER_PARAM))} replace />
     );
   }
   if (isMobile) return <MobileStorage />;

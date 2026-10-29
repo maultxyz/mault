@@ -34,7 +34,7 @@ import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
-import { INTAKE_PATH } from "@/lib/constants/business";
+import { ORDERS_PATH } from "@/lib/constants/business";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
@@ -370,7 +370,7 @@ export function AppNav() {
       label: t("nav.storage"),
     },
     {
-      to: INTAKE_PATH,
+      to: ORDERS_PATH,
       icon: <IconCash size={20} />,
       label: t("nav.intake"),
     },

@@ -8,6 +8,7 @@ import type {
   FulfilmentOrderDetail,
   FulfilmentOrderStatus,
   IntakeLot,
+  IntakeLotCard,
   IntakeLotStatus,
   StatsRange,
 } from "@magic-vault/shared";
@@ -66,6 +67,10 @@ export interface IntakeLotDetailProps {
   onDeleted: () => void;
   onOpenCard: (scanId: string, review: boolean) => void;
   onOpenReviewGrid: () => void;
+}
+
+export interface IntakeOfferEditorProps {
+  card: IntakeLotCard;
 }
 
 export interface IntakeAcceptDialogProps {

@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { StatGroup } from "@/components/stat-group";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { removeCollectionCards } from "@/features/collections/api/collections";
@@ -39,6 +40,8 @@ import {
 } from "@/features/business/api/use-business";
 import { IntakeAcceptDialog } from "@/features/business/components/intake-accept-dialog";
 import { IntakeCancelDialog } from "@/features/business/components/intake-cancel-dialog";
+import { IntakeOfferEditor } from "@/features/business/components/intake-offer-editor";
+import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
 import { IntakeTransferDialog } from "@/features/business/components/intake-transfer-dialog";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { formatDateTime } from "@/features/business/lib/format";
@@ -52,6 +55,7 @@ import {
   IconAlertTriangle,
   IconArrowsTransferUp,
   IconCameraSpark,
+  IconPlus,
   IconCheck,
   IconDots,
   IconListCheck,
@@ -87,6 +91,7 @@ export function IntakeLotDetail({
   const [cancelOpen, setCancelOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [addCardOpen, setAddCardOpen] = useState(false);
   const [inAcceptFlow, setInAcceptFlow] = useState(false);
   const [receiptPromptOpen, setReceiptPromptOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -172,6 +177,9 @@ export function IntakeLotDetail({
               {lot.customerName}
             </h1>
             <StatusBadge status={lot.status} />
+            {lot.collectionGameName && (
+              <Badge variant="outline">{lot.collectionGameName}</Badge>
+            )}
           </div>
           <p className="text-xs text-foreground/70">
             {t("intake.subtitle", {
@@ -189,6 +197,16 @@ export function IntakeLotDetail({
             <IconListCheck />
             {t("intake.review.start")}
             <HotkeyHint id="reviewStart" />
+          </Button>
+        )}
+        {isOpen && !lot.collectionDeleted && (
+          <Button
+            variant="outline"
+            disabled={access?.isLocked}
+            onClick={() => setAddCardOpen(true)}
+          >
+            <IconPlus />
+            {t("intake.addCard")}
           </Button>
         )}
         {isOpen && (
@@ -462,11 +480,18 @@ export function IntakeLotDetail({
                         <TableCell className="text-right tabular-nums">
                           {money(entry.marketPrice) ?? "-"}
                         </TableCell>
-                        <TableCell className="text-right font-medium tabular-nums">
-                          {money(
-                            isOpen ? entry.offer : entry.acquisitionCost,
-                          ) ?? "-"}
-                        </TableCell>
+                        {isOpen ? (
+                          <TableCell
+                            className="py-0 text-right"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <IntakeOfferEditor card={entry} />
+                          </TableCell>
+                        ) : (
+                          <TableCell className="text-right font-medium tabular-nums">
+                            {money(entry.acquisitionCost) ?? "-"}
+                          </TableCell>
+                        )}
                       </>
                     )}
                     {canRemove && (
@@ -508,6 +533,12 @@ export function IntakeLotDetail({
         confirmLabel={t("intake.remove.button")}
         focusConfirm
         onConfirm={() => removeTarget && void removeCards(removeTarget)}
+      />
+      <AddCardDialog
+        open={addCardOpen}
+        onOpenChange={setAddCardOpen}
+        collectionGuid={lot.collectionGuid}
+        addsToIntakeLot
       />
       <IntakeAcceptDialog
         lot={lot}

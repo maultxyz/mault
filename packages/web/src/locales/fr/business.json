@@ -91,6 +91,15 @@
     "intake": "Rachat",
     "picks": "Préparations"
   },
+  "offerEditor": {
+    "title": "Offre pour {{name}}",
+    "amount": "Offre",
+    "save": "Enregistrer",
+    "useBuylist": "Utiliser le prix de rachat",
+    "buylistPrice": "Prix de rachat : {{price}}",
+    "manual": "Fixé à la main",
+    "edit": "Modifier l'offre pour {{name}}"
+  },
   "intake": {
     "subtitle": "Scan dans {{collection}} · commencé {{date}}",
     "new": "Nouveau rachat",
@@ -111,6 +120,7 @@
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
     "openScanner": "Ouvrir le scanner",
+    "addCard": "Ajouter une carte",
     "printReceipt": "Reçu",
     "accept": "Accepter",
     "cancelLot": "Annuler le lot",
