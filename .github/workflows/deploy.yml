@@ -10,7 +10,6 @@ on:
   # no release commit or tag, and images move the :dev tag rather than :latest.
   schedule:
     - cron: "17 0 * * *"
-    - cron: "17 1 * * *"
   workflow_dispatch:
     inputs:
       bump:
