@@ -97,7 +97,10 @@
   },
   "impersonation": {
     "banner": "Du siehst die App aus der Sicht von {{name}}.",
-    "exitButton": "Imitation beenden"
+    "exitButton": "Imitation beenden",
+    "hardwareBlocked": "Sortierer und Kameras können nicht verbunden werden, während du einen Benutzer imitierst.",
+    "scanningBlockedTitle": "Scannen ist während der Benutzer-Imitation deaktiviert",
+    "scanningBlockedDescription": "Beende die Imitation, um Karten zu scannen, einen Sortierer zu verbinden oder eine Kamera zu verwenden."
   },
   "theme": {
     "toggle": "Design umschalten",

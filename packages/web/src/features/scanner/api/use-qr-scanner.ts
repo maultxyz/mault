@@ -1,3 +1,4 @@
+import { assertHardwareAllowedWhileImpersonating } from "@/lib/auth/impersonation";
 import {
   QR_SCAN_INTERVAL_MS,
   QR_SCAN_MAX_DIMENSION,
@@ -39,12 +40,13 @@ export function useQrScanner(onResult: (text: string) => void) {
     };
 
     Promise.resolve()
-      .then(() =>
-        navigator.mediaDevices.getUserMedia({
+      .then(() => {
+        assertHardwareAllowedWhileImpersonating();
+        return navigator.mediaDevices.getUserMedia({
           video: { facingMode: { ideal: "environment" } },
           audio: false,
-        }),
-      )
+        });
+      })
       .then(async (media) => {
         if (cancelled) {
           stopMediaStream(media);

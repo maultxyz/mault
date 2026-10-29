@@ -1,3 +1,4 @@
+import { isImpersonating } from "@/lib/auth/impersonation";
 import { ESP32_FIRMWARE_URL } from "@/lib/constants/links";
 import type { FlashEsp32Result } from "@/lib/interfaces/scanner";
 import { useCallback, useState } from "react";
@@ -9,7 +10,7 @@ export function useNewBoardFlash() {
   const isSupported = typeof navigator !== "undefined" && !!navigator.serial;
 
   const flashNewBoard = useCallback(async (): Promise<FlashEsp32Result | null> => {
-    if (!navigator.serial) return null;
+    if (!navigator.serial || isImpersonating()) return null;
     let port: SerialPort;
     try {
       port = await navigator.serial.requestPort();
