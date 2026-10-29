@@ -59,6 +59,7 @@ export interface IntakeLot {
   collectionGuid: string;
   collectionName: string;
   collectionGameGuid: string | null;
+  collectionGameName: string | null;
   collectionDeleted: boolean;
   ownsCollection: boolean;
   cardCount: number;
@@ -82,6 +83,7 @@ export interface IntakeLotCard {
   scannedAt: string;
   marketPrice: number | null;
   offer: number | null;
+  hasManualOffer: boolean;
   acquisitionCost: number | null;
   belowMinimum: boolean;
 }

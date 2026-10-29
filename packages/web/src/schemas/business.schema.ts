@@ -109,6 +109,10 @@ export const intakeAcceptSchema = z.object({
 
 export type IntakeAcceptFormValues = z.infer<typeof intakeAcceptSchema>;
 
+export const intakeOfferSchema = z.object({ offer: money });
+
+export type IntakeOfferFormValues = z.infer<typeof intakeOfferSchema>;
+
 export const intakeCancelSchema = z.object({ removeCards: z.boolean() });
 
 export type IntakeCancelFormValues = z.infer<typeof intakeCancelSchema>;

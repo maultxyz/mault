@@ -55,14 +55,11 @@ export function useBusinessAction() {
   );
 }
 
-export function useCardAcquisitionCost(scanId: string | undefined) {
+export function useSaveCardAcquisitionCost() {
   const { t } = useTranslation("cards");
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
-  const { data } = useQuery(
-    cardAcquisitionCostQueryOptions(activeOrg?.id, scanId),
-  );
-  const saveCardAcquisitionCost = useCallback(
+  return useCallback(
     async (targetScanId: string, cost: number | null) => {
       try {
         const result = await setCardAcquisitionCost(targetScanId, { cost });
@@ -72,12 +69,25 @@ export function useCardAcquisitionCost(scanId: string | undefined) {
       } catch {
         toast.error(t("cardDetailPanel.pricePaidSaveFailed"));
       } finally {
-        await queryClient.invalidateQueries({
-          queryKey: businessKeys.cardCost(activeOrg?.id, targetScanId),
-        });
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: businessKeys.cardCost(activeOrg?.id, targetScanId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: businessKeys.intakeRoot(),
+          }),
+        ]);
       }
     },
     [activeOrg?.id, queryClient, t],
   );
+}
+
+export function useCardAcquisitionCost(scanId: string | undefined) {
+  const { activeOrg } = useOrg();
+  const { data } = useQuery(
+    cardAcquisitionCostQueryOptions(activeOrg?.id, scanId),
+  );
+  const saveCardAcquisitionCost = useSaveCardAcquisitionCost();
   return { acquisitionCost: data ?? null, saveCardAcquisitionCost };
 }

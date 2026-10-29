@@ -45,6 +45,7 @@ export interface IntakeLotRow {
   collectionName: string;
   collectionDeleted: boolean;
   collectionGameGuid: string | null;
+  collectionGameName: string | null;
 }
 
 export interface PullSheetRow {
@@ -100,4 +101,11 @@ export type BusinessResult =
 export interface StoredAccuracySample {
   scanId: string;
   result: AccuracySampleResult | null;
+}
+
+export interface IntakeLotCardPrice {
+  lotId: number;
+  scanId: string;
+  marketPrice: number | null;
+  manualOffer: number | null;
 }
