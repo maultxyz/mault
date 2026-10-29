@@ -173,7 +173,6 @@ export interface ScannedCardsContextValue {
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
   setCardLanguage: (scanId: string, language: string) => void;
-  markDownloaded: (scanIds: string[]) => void;
   clearCards: () => void;
 }
 

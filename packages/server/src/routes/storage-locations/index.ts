@@ -15,7 +15,7 @@ import {
   type StorageLocationExportCard,
   type StorageLocationSearchResult,
 } from "@magic-vault/shared";
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import {
@@ -36,7 +36,10 @@ import {
 } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { hydrateSavedCards } from "../../lib/saved-cards";
+import { emitToSession } from "../../lib/session-stream";
+import { uuidArraySql } from "../../lib/sql-arrays";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { parseScanIds } from "../collections/cards-query";
 import {
   countStoredCards,
   findLocationId,
@@ -437,6 +440,52 @@ const router = new Hono<AppEnv>()
       return { success: true, data };
     });
     return c.json(result);
+  })
+  .post("/:guid/cards/mark-downloaded", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const scanIds = parseScanIds(await c.req.json().catch(() => ({})));
+    if (!UUID_PATTERN.test(guid) || !scanIds) {
+      return c.json({ success: false, message: "Invalid card ids." }, 400);
+    }
+    const markedByCollection = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const locationId = await findLocationId(tx, orgId, guid);
+      if (locationId === null) return null;
+      const marked = await tx
+        .update(collectionCards)
+        .set({ isDownloaded: true })
+        .where(
+          and(
+            sql`${collectionCards.guid} = ANY(${uuidArraySql(scanIds)})`,
+            eq(collectionCards.orgId, orgId),
+            eq(collectionCards.locationId, locationId),
+          ),
+        )
+        .returning({
+          scanId: collectionCards.guid,
+          collectionId: collectionCards.collectionId,
+        });
+      const collectionIds = [...new Set(marked.map((row) => row.collectionId))];
+      const collectionRows = collectionIds.length
+        ? await tx
+            .select({ id: collections.id, guid: collections.guid })
+            .from(collections)
+            .where(inArray(collections.id, collectionIds))
+        : [];
+      return collectionRows.map((collection) => ({
+        collectionGuid: collection.guid!,
+        scanIds: marked
+          .filter((row) => row.collectionId === collection.id)
+          .map((row) => row.scanId!),
+      }));
+    });
+    if (!markedByCollection) {
+      return c.json({ success: false, message: "Storage location not found." });
+    }
+    for (const { collectionGuid, scanIds: markedIds } of markedByCollection) {
+      emitToSession(collectionGuid, "cards_downloaded", { scanIds: markedIds });
+    }
+    return c.json({ success: true, data: null });
   })
   .post("/:guid/cards/from-collection", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
