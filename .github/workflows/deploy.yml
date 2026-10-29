@@ -56,8 +56,8 @@ jobs:
           fetch-depth: 0
 
       # Every deploy tags its release commit (vX.Y.Z), so everything after the
-      # latest tag is what's pending. A manually dispatched run always deploys
-      # below regardless of what this reports.
+      # latest tag is what's pending. Only a manually picked single target
+      # deploys regardless of what this reports.
       - name: Detect pending changes since the last release
         id: changes
         run: |
@@ -100,32 +100,13 @@ jobs:
       # Web and server are always deployed together: if only one of them
       # changed, deploying just that one would leave the other running an
       # older version, and the two are expected to stay on the same release.
-      # A manual (workflow_dispatch) run always deploys, since the whole
-      # point of triggering it by hand is to force a redeploy regardless of
-      # what changed, e.g. retrying after a failed Coolify webhook.
-      - name: Compute deploy flag
-        id: deploy
-        run: |
-          if [ "$(TZ=America/Chicago date +%Z)" = "CDT" ]; then
-            EXPECTED_CRON="17 0 * * *"
-          else
-            EXPECTED_CRON="17 1 * * *"
-          fi
-          if [ "$IS_DEV" = "true" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" != "$EXPECTED_CRON" ]; then
-            echo "Skipping: ${{ github.event.schedule }} is not 19:17 America/Chicago today"
-            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
-          elif [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ] || [ "${{ steps.changes.outputs.docs }}" = "true" ] || [ "${{ steps.changes.outputs.bot }}" = "true" ]; then
-            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      # Web and server stay one target for the same reason they always deploy
-      # together. A partial deploy is not a release: the version gets a
-      # -<target>.<sha> suffix and nothing is committed or tagged, since a tag
-      # would mark the parts that were left out as deployed.
+      # "everything" only deploys the containers with changes since the last
+      # release tag, which still counts as a full release because the others
+      # already run that code. Picking a single target always deploys it, e.g.
+      # to retry after a failed Coolify webhook. A partial deploy is not a
+      # release: the version gets a -<target>.<sha> suffix and nothing is
+      # committed or tagged, since a tag would mark the parts that were left
+      # out as deployed.
       - name: Select deploy targets
         id: targets
         env:
@@ -135,7 +116,11 @@ jobs:
           DOCS=false
           BOT=false
           case "$TARGET" in
-            everything) WEB_SERVER=true; DOCS=true; BOT=true ;;
+            everything)
+              if [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ]; then WEB_SERVER=true; fi
+              DOCS="${{ steps.changes.outputs.docs }}"
+              BOT="${{ steps.changes.outputs.bot }}"
+              ;;
             web-and-server) WEB_SERVER=true ;;
             api-docs) DOCS=true ;;
             bot) BOT=true ;;
@@ -152,8 +137,27 @@ jobs:
             echo "docs=$DOCS"
             echo "bot=$BOT"
             echo "labels=$(IFS=,; echo "${LABELS[*]}" | sed 's/,/, /g')"
+            echo "any=$([ ${#LABELS[@]} -gt 0 ] && echo true || echo false)"
           } >> "$GITHUB_OUTPUT"
-          echo "Deploy targets: $TARGET"
+          echo "Deploy targets: $TARGET (${LABELS[*]:-nothing changed})"
+
+      - name: Compute deploy flag
+        id: deploy
+        run: |
+          if [ "$(TZ=America/Chicago date +%Z)" = "CDT" ]; then
+            EXPECTED_CRON="17 0 * * *"
+          else
+            EXPECTED_CRON="17 1 * * *"
+          fi
+          if [ "${{ steps.targets.outputs.any }}" != "true" ]; then
+            echo "Skipping: nothing to deploy"
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "schedule" ] && [ "${{ github.event.schedule }}" != "$EXPECTED_CRON" ]; then
+            echo "Skipping: ${{ github.event.schedule }} is not 19:17 America/Chicago today"
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Describe release
         id: pr
