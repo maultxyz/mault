@@ -19,6 +19,7 @@ import type {
 import type {
   OcrRectangle,
   OcrRegionLocation,
+  OcrRegionReadouts,
   OcrTextBox,
 } from "./interfaces/ocr";
 import {
@@ -137,16 +138,23 @@ function locateRegion(
     : { box: regionBox(region), anchored: false, anchorText: null };
 }
 
+function emptyReadout(): OcrReadout {
+  return { name: "", setLine: "", number: "" };
+}
+
 async function readRegions(
   buffer: Buffer,
   regions: OcrRegion[],
   trace?: OcrRegionTrace[],
-): Promise<OcrReadout> {
-  const readout: OcrReadout = { name: "", setLine: "", number: "" };
-  if (regions.length === 0) return readout;
+): Promise<OcrRegionReadouts> {
+  const readouts: OcrRegionReadouts = {
+    primary: emptyReadout(),
+    fallback: emptyReadout(),
+  };
+  if (regions.length === 0) return readouts;
 
   const { width = 0, height = 0 } = await sharp(buffer).metadata();
-  if (width === 0 || height === 0) return readout;
+  if (width === 0 || height === 0) return readouts;
   const lines = toPageLines(await readTextBoxes(buffer));
 
   for (const region of regions) {
@@ -179,11 +187,12 @@ async function readRegions(
         text,
       });
     }
+    const readout = region.fallback ? readouts.fallback : readouts.primary;
     readout[region.field] = readout[region.field]
       ? `${readout[region.field]}\n${text}`
       : text;
   }
-  return readout;
+  return readouts;
 }
 
 async function readPageLines(buffer: Buffer): Promise<OcrPageLine[]> {
@@ -200,7 +209,7 @@ export function ocrRegions(
   buffer: Buffer,
   regions: OcrRegion[],
   trace?: OcrRegionTrace[],
-): Promise<OcrReadout> {
+): Promise<OcrRegionReadouts> {
   return enqueue(() => readRegions(buffer, regions, trace));
 }
 
