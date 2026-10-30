@@ -241,7 +241,8 @@
       "reviewStart": "Vérifier les cartes une par une",
       "reviewAccept": "Pendant la vérification : la carte est bonne, suivante",
       "goSortingRules": "Aller aux règles de tri",
-      "intakeOpenScanner": "Ouvrir le scanner pour ce rachat"
+      "intakeOpenScanner": "Ouvrir le scanner pour ce rachat",
+      "scanFlatbedCard": "Numériser la carte sur le scanner à plat"
     }
   },
   "mobileMenu": {

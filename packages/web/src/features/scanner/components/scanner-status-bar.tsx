@@ -3,7 +3,9 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -19,6 +21,7 @@ import {
   IconDownload,
   IconPlus,
   IconQrcode,
+  IconScan,
   IconRotate2,
 } from "@tabler/icons-react";
 import { useState } from "react";
@@ -67,6 +70,9 @@ export function ScannerStatusBar({
   autoFeed,
   allowDuplicates,
   cameras,
+  documentScannerOptions,
+  isFlatbedSelected,
+  onCalibrateFlatbed,
   selectedCameraId,
   phonePairingStatus,
   scanningBlocked,
@@ -162,6 +168,34 @@ export function ScannerStatusBar({
             >
               {t("connect")}
             </DropdownMenuItem>
+          )}
+          {documentScannerOptions.length > 0 && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  {t("scannerMenu.documentScanners")}
+                </DropdownMenuLabel>
+                {documentScannerOptions.map((option) => (
+                  <DropdownMenuCheckboxItem
+                    key={option.cameraId}
+                    disabled={scanningBlocked}
+                    checked={option.cameraId === selectedCameraId}
+                    onCheckedChange={() => onCameraSelect(option.cameraId)}
+                  >
+                    {t(`scannerMenu.documentScannerOption.${option.mode}`, {
+                      name: option.scanner.name,
+                    })}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuGroup>
+              {isFlatbedSelected && (
+                <DropdownMenuItem onClick={onCalibrateFlatbed}>
+                  <IconScan />
+                  {t("scannerMenu.setFlatbedCardPosition")}
+                </DropdownMenuItem>
+              )}
+            </>
           )}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onOpenPhonePairing}>

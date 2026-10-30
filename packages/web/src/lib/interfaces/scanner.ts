@@ -33,6 +33,12 @@ import type {
   ScanVectorizeSource,
   Result,
   UnmatchedCard,
+  DesktopBridge,
+  DesktopDocumentScanErrorReason,
+  DesktopDocumentScanner,
+  DesktopDocumentScannerFeedResult,
+  DesktopDocumentScanRequest,
+  SerialRequestResult,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
@@ -52,7 +58,7 @@ export type PhoneLocalCameraStatus =
   | "disconnected";
 
 export type CameraStatus = "idle" | "requesting" | "ready" | "error";
-export type CameraSource = "local" | "phone";
+export type CameraSource = "local" | "phone" | "document-scanner";
 
 export interface CameraRange {
   min: number;
@@ -103,6 +109,15 @@ export interface CameraContextValue {
   stopPhonePairing: () => void;
   requestPhoneCapture: () => Promise<string | null>;
   sendPhoneScanRegion: (region: ScanRegion) => void;
+  documentScannerOptions: DocumentScannerOption[];
+  documentScannerMode: DocumentScannerMode | null;
+  isSimulatedDocumentScanner: boolean;
+  feedDocumentScannerCard: () => Promise<DesktopDocumentScannerFeedResult>;
+  scanFlatbedCard: () => Promise<DesktopDocumentScannerFeedResult>;
+  previewFlatbedGlass: () => Promise<DesktopDocumentScannerFeedResult>;
+  flatbedPlacement: FlatbedPlacement | null;
+  saveFlatbedPlacement: (placement: FlatbedPlacement) => void;
+  takeDocumentScannerPage: () => File | null;
 }
 
 export interface MatchScope {
@@ -158,6 +173,8 @@ export interface ScannedCardsContextValue {
   emptyNextFullBin: (options: EmptyBinOptions) => Promise<boolean>;
   dismissFullBins: () => void;
   registerCardArrivedHook: (fn: () => void) => () => void;
+  registerFeedSource: (feedSource: FeedSource) => () => void;
+  feedOneCard: () => Promise<SerialRequestResult>;
   registerPauseHook: (fn: () => void) => () => void;
   registerResumeHook: (fn: () => void) => () => void;
   pause: () => void;
@@ -297,6 +314,7 @@ export interface ScannerControlsProps {
   sessionLive?: boolean;
   onStop?: () => void;
   onAutoFeedChange?: (enabled: boolean) => void;
+  flatbedScan?: FlatbedScanFlow;
 }
 
 export interface ScannerControlButtonProps {
@@ -321,7 +339,8 @@ export interface ScannerOverlayProps {
   autoFeed: boolean;
   cameraSource: CameraSource;
   phonePairingStatus: PhoneCameraCaptureStatus;
-  hasPhonePhoto: boolean;
+  hasStillPhoto: boolean;
+  isFlatbedMode?: boolean;
   dailyLimitReached: boolean;
   onRetryError: () => void;
   onConnectCamera: () => void;
@@ -915,6 +934,9 @@ export interface ScannerStatusBarProps {
   autoFeed: boolean;
   allowDuplicates: boolean;
   cameras: MediaDeviceInfo[];
+  documentScannerOptions: DocumentScannerOption[];
+  isFlatbedSelected: boolean;
+  onCalibrateFlatbed: () => void;
   selectedCameraId: string | null;
   phonePairingStatus: PhoneCameraCaptureStatus;
   scanningBlocked: boolean;
@@ -1089,6 +1111,7 @@ export interface DesktopScannerControlsOptions {
   onResume: () => void;
   onToggleAutoFeed: () => void;
   onClearDevice: () => void;
+  flatbedScan?: FlatbedScanFlow;
 }
 
 export interface ScannerPipPreviewAction {
@@ -1129,10 +1152,18 @@ export interface ScanImageImportItem {
   failureMessage?: string;
 }
 
+export interface QueuedScanImage {
+  file: File;
+  item: ScanImageImportItem;
+}
+
 export interface ScanImageImport {
   items: ScanImageImportItem[];
   isRunning: boolean;
+  hasHaltedOnFailure: boolean;
   importFiles: (files: File[]) => void;
+  enqueueFiles: (files: File[]) => void;
+  clear: () => void;
   stop: () => void;
 }
 
@@ -1140,6 +1171,159 @@ export interface ScanImageImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   scanImageImport: ScanImageImport;
+  documentScan: DocumentScan;
+}
+
+export type FeedSource = () => Promise<SerialRequestResult>;
+
+export type DocumentScannerSessionBridge = Required<
+  Pick<
+    DesktopBridge,
+    | "listDocumentScanners"
+    | "openDocumentScannerSession"
+    | "feedDocumentScannerCard"
+    | "closeDocumentScannerSession"
+  >
+>;
+
+export interface DocumentScannerSessionState {
+  sessionId: string;
+  cameraId: string;
+}
+
+export type DocumentScannerMode = "feeder" | "flatbed";
+
+export interface DocumentScannerOption {
+  cameraId: string;
+  scanner: DesktopDocumentScanner;
+  mode: DocumentScannerMode;
+  hasOtherMode: boolean;
+}
+
+export interface FlatbedPlacement {
+  leftMm: number;
+  topMm: number;
+  widthMm: number;
+  heightMm: number;
+}
+
+export type FlatbedScanStep =
+  | "place-card"
+  | "scanning"
+  | "move-card"
+  | "missed-card"
+  | "identifying"
+  | "done";
+
+export type FlatbedCardWaitOutcome = "arrived" | "timed-out" | "cancelled";
+
+export interface FlatbedScanFlow {
+  step: FlatbedScanStep;
+  secondsLeft: number | null;
+  hasSorter: boolean;
+  isScanning: boolean;
+  scanCard: () => void;
+  rescan: () => void;
+  cancelWait: () => void;
+  continueAfterMissedCard: () => void;
+}
+
+export interface FlatbedScanFlowOptions {
+  isEnabled: boolean;
+  hasSorter: boolean;
+  ignoreIrSensors: boolean;
+  scannerStatus: ScannerStatus;
+  readIR: () => Promise<boolean[] | null>;
+  scanFlatbedCard: () => Promise<DesktopDocumentScannerFeedResult>;
+  discardDocumentScannerPage: () => void;
+  onCardReady: () => void;
+  onScanFailed: (reason: DesktopDocumentScanErrorReason) => void;
+  onModuleOneNotEmpty: () => void;
+}
+
+export interface FlatbedScanControlsProps {
+  flow: FlatbedScanFlow;
+  orientation: "horizontal" | "vertical";
+}
+
+export interface FlatbedPlacementDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface FlatbedPlacementEditorProps {
+  imageUrl: string;
+  glassWidthMm: number;
+  glassHeightMm: number;
+  placement: FlatbedPlacement | null;
+  onPlacementChange: (placement: FlatbedPlacement) => void;
+}
+
+export interface FlatbedPreview {
+  imageUrl: string;
+  file: File;
+  glassWidthMm: number;
+  glassHeightMm: number;
+}
+
+export interface DocumentScannerFeedParams {
+  feedDocumentScannerCard: () => Promise<DesktopDocumentScannerFeedResult>;
+  readIR: () => Promise<boolean[] | null>;
+  ignoreIrSensors: boolean;
+  describeScannerError: (reason: DesktopDocumentScanErrorReason) => string;
+  deliverCardWithSorterFeeder?: () => Promise<SerialRequestResult>;
+  onFlatbedPageScanned: () => void;
+  cardDidNotArriveMessage: string;
+  moduleOneNotEmptyMessage: string;
+}
+
+export type DocumentScanBridge = Required<
+  Pick<
+    DesktopBridge,
+    | "listDocumentScanners"
+    | "getDocumentScanFolder"
+    | "chooseDocumentScanFolder"
+    | "startDocumentScan"
+    | "stopDocumentScan"
+    | "onDocumentScanEvent"
+  >
+>;
+
+export type DocumentScanErrorReason =
+  | DesktopDocumentScanErrorReason
+  | "start_failed";
+
+export interface DocumentScanError {
+  reason: DocumentScanErrorReason;
+  message?: string;
+}
+
+export interface ActiveDocumentScanState extends DesktopDocumentScanRequest {
+  sourceLabel: string;
+}
+
+export interface DocumentScan {
+  isSupported: boolean;
+  isLoadingScanners: boolean;
+  isRefreshingScanners: boolean;
+  isScannerHelperInstalled: boolean;
+  scanners: DesktopDocumentScanner[];
+  selectedScanner: DesktopDocumentScanner | null;
+  selectScanner: (scannerKey: string) => void;
+  refreshScanners: () => void;
+  folderPath: string | null;
+  chooseFolder: () => void;
+  startScannerScan: () => void;
+  startFolderWatch: () => void;
+  stopScan: () => void;
+  activeScan: ActiveDocumentScanState | null;
+  isStopping: boolean;
+  scanError: DocumentScanError | null;
+}
+
+export interface DocumentScanPanelProps {
+  documentScan: DocumentScan;
+  isImportRunning: boolean;
 }
 
 export interface ScanImageImportRowProps {

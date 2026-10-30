@@ -147,8 +147,9 @@ export function ScannedCardsProvider({
   deviceGuidRef.current = device?.guid;
   const pipelinedFeedRef = useRef(device?.pipelinedFeed ?? false);
   pipelinedFeedRef.current = device?.pipelinedFeed ?? false;
+  const hasCustomFeedSourceRef = useRef<() => boolean>(() => false);
   const isPipelinedFeedEnabled = useCallback(
-    () => pipelinedFeedRef.current,
+    () => pipelinedFeedRef.current && !hasCustomFeedSourceRef.current(),
     [],
   );
   const { sendRoute, sendRequest, isConnected, isReady } =
@@ -292,6 +293,9 @@ export function ScannedCardsProvider({
     pause,
     triggerAutoFeed,
     registerCardArrivedHook,
+    registerFeedSource,
+    hasCustomFeedSource,
+    feedOneCard,
     registerPauseHook,
     resume,
     registerResumeHook,
@@ -300,6 +304,7 @@ export function ScannedCardsProvider({
     activeCollectionRef,
     deviceGuidRef,
   });
+  hasCustomFeedSourceRef.current = hasCustomFeedSource;
   const showJamToast = useJamToast(resume);
   useDeployScanPause(
     scannerRunning && (orgSettings?.pauseScanningOnDeploy ?? true),
@@ -1475,6 +1480,8 @@ export function ScannedCardsProvider({
         setForceSetCodeAfterCollectionSwitch,
         setScanCondition,
         registerCardArrivedHook,
+        registerFeedSource,
+        feedOneCard,
         registerPauseHook,
         registerResumeHook,
         pause,

@@ -2,13 +2,16 @@
   "camera": {
     "permissionDenied": "Camera permission denied. Please allow camera access and try again.",
     "allInUse": "Every connected camera is already used by another sorter. Plug in another camera for this sorter.",
-    "piUnavailable": "The webcam on the Raspberry Pi is not available."
+    "piUnavailable": "The webcam on the Raspberry Pi is not available.",
+    "documentScannerUnavailable": "Couldn't open the document scanner. Check that it is on and not in use by another app."
   },
   "scanEngine": {
     "searchFailed": "Failed to search card",
     "videoStartFailed": "Failed to start video",
     "cameraReinitFailed": "Failed to reinitialize camera",
-    "phoneCaptureFailed": "Phone didn't respond with a photo in time."
+    "phoneCaptureFailed": "Phone didn't respond with a photo in time.",
+    "documentScannerNoPage": "No scanned card to identify. Feed a card from the document scanner first.",
+    "documentScannerPageUnreadable": "Couldn't read the image from the document scanner."
   },
   "sessionLock": {
     "message": "A sorting session is running on this sorter. Pause scanning to make changes here.",
@@ -341,7 +344,13 @@
       "connected": "Connected",
       "connecting": "Connecting",
       "disconnected": "Not connected"
-    }
+    },
+    "documentScanners": "Document scanners",
+    "documentScannerOption": {
+      "feeder": "{{name}} (feeder)",
+      "flatbed": "{{name}} (flatbed)"
+    },
+    "setFlatbedCardPosition": "Set card position on glass"
   },
   "ocrBetaDialog": {
     "title": "OCR text matching (beta)",
@@ -394,7 +403,9 @@
     "waitingForPhoneTitle": "Waiting for your phone",
     "showQrCode": "Show QR code",
     "sensorBlocked": "Module {{module}}'s sensor sees a card, so the self-test didn't run.",
-    "resolveSensorBlocked": "Resolve"
+    "resolveSensorBlocked": "Resolve",
+    "documentScannerReady": "Document scanner ready. Load cards into the scanner and start scanning.",
+    "flatbedScannerReady": "Flatbed ready. Place a card on the glass and press Scan card."
   },
   "sessionErrorsPanel": {
     "heading": "Errors"
@@ -1038,6 +1049,56 @@
       "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
       "print": "Print",
       "printTip": "Print on cardstock at 100% scale with margins on Default. Each page holds 9 cards. Cut along the borders and keep the QR code flat and free of glare."
+    }
+  },
+  "documentScannerFeed": {
+    "cardDidNotArrive": "The scanned card didn't reach the sorter. Clear the path between the scanner and module 1, then put the card back in the scanner.",
+    "moduleOneNotEmpty": "There is already a card in module 1. Remove it before feeding from the document scanner.",
+    "moveFlatbedCard": {
+      "title": "Move the card into the sorter",
+      "description": "Take the scanned card off the glass and put it in module 1, then place the next card on the glass."
+    }
+  },
+  "flatbed": {
+    "stepsLabel": "Flatbed scanning steps",
+    "steps": {
+      "scan": "Scan",
+      "move": "Move",
+      "sort": "Sort",
+      "identify": "Identify"
+    },
+    "instruction": {
+      "place-card": "Place a card face down in the marked spot on the glass, close the lid, then press Scan card.",
+      "scanning": "Scanning the glass...",
+      "moveCard": "Move the card from the glass into module 1 ({{seconds}} s left).",
+      "missed-card": "The card didn't reach module 1. Put it in module 1 and press Continue, or scan it again.",
+      "identifying": "Identifying the card...",
+      "done": "Card sorted. Place the next card on the glass.",
+      "doneWithoutSorter": "Put the card in the bin shown above, then place the next card on the glass."
+    },
+    "scanCard": "Scan card",
+    "scanCardTooltip": "Scan the card on the glass",
+    "scanning": "Scanning...",
+    "identifying": "Identifying...",
+    "continue": "Continue",
+    "continueTooltip": "Sort the scanned card once it is in module 1",
+    "rescan": "Rescan",
+    "cancel": "Cancel",
+    "scanFailed": "Couldn't scan the glass",
+    "calibration": {
+      "title": "Set the card position",
+      "description": "Show the app where you place each card on the flatbed glass.",
+      "instructions": "Put a card face down where you will place every card, for example pushed into the corner by the arrow. Close the lid, then scan the glass.",
+      "scanGlass": "Scan glass",
+      "scanning": "Scanning the glass...",
+      "scanAgain": "Scan again",
+      "dragHint": "Drag a box around the card if the detected box is off.",
+      "boxTooSmall": "The box is too small for a card. Drag a larger box around it.",
+      "save": "Save position",
+      "cancel": "Cancel",
+      "previewAlt": "Scan of the whole flatbed glass",
+      "editorLabel": "Flatbed glass. Drag to mark where the card sits.",
+      "previewFailed": "Couldn't scan the glass. Check that the scanner is on and try again."
     }
   }
 }

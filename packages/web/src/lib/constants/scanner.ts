@@ -9,7 +9,11 @@ import {
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
 import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
-import type { ScannerConnectionState } from "@/lib/interfaces/scanner";
+import type {
+  FlatbedPlacement,
+  FlatbedScanStep,
+  ScannerConnectionState,
+} from "@/lib/interfaces/scanner";
 import {
   IconArrowBarToDown,
   IconBolt,
@@ -208,6 +212,42 @@ export const SCAN_IMAGE_IMPORT_PADDING_RATIO = 0.08;
 export const SCAN_IMAGE_IMPORT_PADDING_COLOR = "#808080";
 export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
 export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;
+export const DOCUMENT_SCANNERS_QUERY_KEY = ["desktop", "document-scanners"] as const;
+export const DOCUMENT_SCAN_FOLDER_QUERY_KEY = ["desktop", "document-scan-folder"] as const;
+export const DOCUMENT_SCANNER_CAMERA_ID_PREFIX = "document-scanner:";
+export const DOCUMENT_SCANNER_CARD_ARRIVAL_TIMEOUT_MS = 4000;
+export const DOCUMENT_SCANNER_FLATBED_CARD_ARRIVAL_TIMEOUT_MS = 30000;
+export const DOCUMENT_SCANNER_CARD_ARRIVAL_POLL_MS = 150;
+export const DOCUMENT_SCANNER_IGNORED_IR_DROP_WAIT_MS = 1500;
+export const DOCUMENT_SCANNER_MODES = ["feeder", "flatbed"] as const;
+export const FLATBED_DEFAULT_PLACEMENT: FlatbedPlacement = {
+  leftMm: 0,
+  topMm: 0,
+  widthMm: 70,
+  heightMm: 95,
+};
+export const FLATBED_SCAN_MARGIN_MM = 4;
+export const FLATBED_DEFAULT_GLASS_WIDTH_MM = 216;
+export const FLATBED_MIN_PLACEMENT_MM = 40;
+export const FLATBED_DETECTION_MAX_DIMENSION_PX = 600;
+export const FLATBED_DETECTION_DARK_LUMINANCE = 200;
+export const FLATBED_DETECTION_MIN_DARK_PIXELS_PER_LINE = 3;
+export const FLATBED_DETECTION_PADDING_MM = 2;
+export const FLATBED_CROPPED_PAGE_QUALITY = 0.92;
+export const FLATBED_COUNTDOWN_TICK_MS = 250;
+export const FLATBED_STEP_LABELS_WITH_SORTER = [
+  "flatbed.steps.scan",
+  "flatbed.steps.move",
+  "flatbed.steps.sort",
+] as const;
+export const FLATBED_STEP_LABELS_WITHOUT_SORTER = [
+  "flatbed.steps.scan",
+  "flatbed.steps.identify",
+] as const;
+export const FLATBED_IDLE_STEPS: readonly FlatbedScanStep[] = [
+  "place-card",
+  "done",
+];
 
 export const STATION_STATUS_BADGE_VARIANTS: Record<
   StationStatus,

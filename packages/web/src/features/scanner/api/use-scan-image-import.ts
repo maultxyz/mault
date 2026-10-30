@@ -17,6 +17,7 @@ import {
   SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
 } from "@/lib/constants/scanner";
 import type {
+  QueuedScanImage,
   ScanImageImport,
   ScanImageImportItem,
 } from "@/lib/interfaces/scanner";
@@ -43,8 +44,11 @@ export function useScanImageImport(
   );
   const [items, setItems] = useState<ScanImageImportItem[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [hasHaltedOnFailure, setHasHaltedOnFailure] = useState(false);
+  const hasHaltedOnFailureRef = useRef(false);
   const isRunningRef = useRef(false);
   const stopRequestedRef = useRef(false);
+  const queueRef = useRef<QueuedScanImage[]>([]);
 
   const gameKey =
     collections.find((collection) => collection.guid === collectionGuid)?.game
@@ -64,6 +68,7 @@ export function useScanImageImport(
   useEffect(
     () => () => {
       stopRequestedRef.current = true;
+      queueRef.current = [];
     },
     [collectionGuid],
   );
@@ -184,52 +189,96 @@ export function useScanImageImport(
     [updateItem],
   );
 
-  const importFiles = useCallback(
-    (files: File[]) => {
-      if (!collectionGuid || isRunningRef.current) return;
-      const queue = sortFilesByName(
-        files.filter((file) => file.type.startsWith("image/")),
-      ).map((file): { file: File; item: ScanImageImportItem } => ({
-        file,
-        item: { id: generateScanId(), fileName: file.name, status: "queued" },
-      }));
-      setItems(queue.map(({ item }) => item));
-      if (queue.length === 0) return;
-
-      isRunningRef.current = true;
-      stopRequestedRef.current = false;
-      setIsRunning(true);
-      void (async () => {
-        try {
-          for (const { file, item } of queue) {
-            if (stopRequestedRef.current) break;
-            const canContinue = await identifyAndSaveImage(
-              collectionGuid,
-              item,
-              file,
-            );
-            if (!canContinue) break;
-          }
-        } finally {
-          isRunningRef.current = false;
-          setIsRunning(false);
-          void invalidateCollectionCards(queryClient, collectionGuid);
-          void invalidateUnmatchedCards(queryClient, collectionGuid);
-          const { orgId } = latestRef.current;
-          if (orgId) {
-            void queryClient.invalidateQueries({
-              queryKey: billingQueryOptions(orgId).queryKey,
-            });
+  const runQueue = useCallback(() => {
+    if (!collectionGuid || isRunningRef.current) return;
+    isRunningRef.current = true;
+    stopRequestedRef.current = false;
+    setIsRunning(true);
+    void (async () => {
+      try {
+        while (!stopRequestedRef.current) {
+          const next = queueRef.current.shift();
+          if (!next) break;
+          const canContinue = await identifyAndSaveImage(
+            collectionGuid,
+            next.item,
+            next.file,
+          );
+          if (!canContinue) {
+            hasHaltedOnFailureRef.current = true;
+            setHasHaltedOnFailure(true);
+            queueRef.current = [];
+            break;
           }
         }
-      })();
+      } finally {
+        if (stopRequestedRef.current) queueRef.current = [];
+        isRunningRef.current = false;
+        setIsRunning(false);
+        void invalidateCollectionCards(queryClient, collectionGuid);
+        void invalidateUnmatchedCards(queryClient, collectionGuid);
+        const { orgId } = latestRef.current;
+        if (orgId) {
+          void queryClient.invalidateQueries({
+            queryKey: billingQueryOptions(orgId).queryKey,
+          });
+        }
+      }
+    })();
+  }, [collectionGuid, identifyAndSaveImage, queryClient]);
+
+  const enqueueFiles = useCallback(
+    (files: File[]) => {
+      if (!collectionGuid || hasHaltedOnFailureRef.current) return;
+      const queued = files
+        .filter((file) => file.type.startsWith("image/"))
+        .map(
+          (file): QueuedScanImage => ({
+            file,
+            item: {
+              id: generateScanId(),
+              fileName: file.name,
+              status: "queued",
+            },
+          }),
+        );
+      if (queued.length === 0) return;
+      queueRef.current.push(...queued);
+      setItems((previous) => [...previous, ...queued.map(({ item }) => item)]);
+      runQueue();
     },
-    [collectionGuid, identifyAndSaveImage, queryClient],
+    [collectionGuid, runQueue],
+  );
+
+  const clear = useCallback(() => {
+    if (isRunningRef.current) return;
+    queueRef.current = [];
+    setItems([]);
+    hasHaltedOnFailureRef.current = false;
+    setHasHaltedOnFailure(false);
+  }, []);
+
+  const importFiles = useCallback(
+    (files: File[]) => {
+      if (isRunningRef.current) return;
+      clear();
+      enqueueFiles(sortFilesByName(files));
+    },
+    [clear, enqueueFiles],
   );
 
   const stop = useCallback(() => {
     stopRequestedRef.current = true;
+    queueRef.current = [];
   }, []);
 
-  return { items, isRunning, importFiles, stop };
+  return {
+    items,
+    isRunning,
+    hasHaltedOnFailure,
+    importFiles,
+    enqueueFiles,
+    clear,
+    stop,
+  };
 }

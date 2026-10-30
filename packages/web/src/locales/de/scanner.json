@@ -2,13 +2,16 @@
   "camera": {
     "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut.",
     "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an.",
-    "piUnavailable": "Die Webcam am Raspberry Pi ist nicht verfügbar."
+    "piUnavailable": "Die Webcam am Raspberry Pi ist nicht verfügbar.",
+    "documentScannerUnavailable": "Der Dokumentenscanner konnte nicht geöffnet werden. Prüfe, ob er eingeschaltet ist und nicht von einer anderen App verwendet wird."
   },
   "scanEngine": {
     "searchFailed": "Kartensuche fehlgeschlagen",
     "videoStartFailed": "Video konnte nicht gestartet werden",
     "cameraReinitFailed": "Kamera konnte nicht neu initialisiert werden",
-    "phoneCaptureFailed": "Telefon hat nicht rechtzeitig mit einem Foto geantwortet."
+    "phoneCaptureFailed": "Telefon hat nicht rechtzeitig mit einem Foto geantwortet.",
+    "documentScannerNoPage": "Keine gescannte Karte zum Erkennen. Zieh zuerst eine Karte über den Dokumentenscanner ein.",
+    "documentScannerPageUnreadable": "Das Bild vom Dokumentenscanner konnte nicht gelesen werden."
   },
   "sessionLock": {
     "message": "Auf diesem Sortierer läuft eine Sortiersitzung. Pausiere das Scannen, um hier Änderungen vorzunehmen.",
@@ -341,7 +344,13 @@
       "connected": "Verbunden",
       "connecting": "Verbindet",
       "disconnected": "Nicht verbunden"
-    }
+    },
+    "documentScanners": "Dokumentenscanner",
+    "documentScannerOption": {
+      "feeder": "{{name}} (Einzug)",
+      "flatbed": "{{name}} (Flachbett)"
+    },
+    "setFlatbedCardPosition": "Kartenposition auf dem Glas festlegen"
   },
   "ocrBetaDialog": {
     "title": "OCR-Texterkennung (Beta)",
@@ -394,7 +403,9 @@
     "waitingForPhoneTitle": "Warte auf dein Telefon",
     "showQrCode": "QR-Code anzeigen",
     "sensorBlocked": "Der Sensor von Modul {{module}} erkennt eine Karte, daher wurde der Selbsttest nicht ausgeführt.",
-    "resolveSensorBlocked": "Beheben"
+    "resolveSensorBlocked": "Beheben",
+    "documentScannerReady": "Dokumentenscanner bereit. Lege Karten in den Scanner und starte das Scannen.",
+    "flatbedScannerReady": "Flachbett bereit. Lege eine Karte auf das Glas und drücke Karte scannen."
   },
   "sessionErrorsPanel": {
     "heading": "Fehler"
@@ -1038,6 +1049,56 @@
       "description": "Lass eine dieser Karten durch den Sortierer laufen, um Einstellungen während des Laufs zu ändern. Sie landet dort, wo nicht erkannte Karten landen, und wird nie in einer Sammlung gespeichert.",
       "print": "Drucken",
       "printTip": "Drucke auf Karton mit 100 % Skalierung und Rändern auf Standard. Auf jede Seite passen 9 Karten. Schneide entlang der Ränder und halte den QR-Code flach und frei von Spiegelungen."
+    }
+  },
+  "documentScannerFeed": {
+    "cardDidNotArrive": "Die gescannte Karte ist nicht im Sorter angekommen. Räume den Weg zwischen Scanner und Modul 1 frei und lege die Karte wieder in den Scanner.",
+    "moduleOneNotEmpty": "In Modul 1 liegt bereits eine Karte. Entferne sie, bevor du über den Dokumentenscanner einziehst.",
+    "moveFlatbedCard": {
+      "title": "Karte in den Sorter legen",
+      "description": "Nimm die gescannte Karte vom Glas und lege sie in Modul 1. Lege dann die nächste Karte auf das Glas."
+    }
+  },
+  "flatbed": {
+    "stepsLabel": "Schritte beim Flachbettscannen",
+    "steps": {
+      "scan": "Scannen",
+      "move": "Umlegen",
+      "sort": "Sortieren",
+      "identify": "Erkennen"
+    },
+    "instruction": {
+      "place-card": "Lege eine Karte mit der Vorderseite nach unten an die markierte Stelle auf dem Glas, schließe den Deckel und drücke dann Karte scannen.",
+      "scanning": "Glas wird gescannt...",
+      "moveCard": "Lege die Karte vom Glas in Modul 1 (noch {{seconds}} s).",
+      "missed-card": "Die Karte ist nicht in Modul 1 angekommen. Lege sie in Modul 1 und drücke Weiter, oder scanne sie erneut.",
+      "identifying": "Karte wird erkannt...",
+      "done": "Karte sortiert. Lege die nächste Karte auf das Glas.",
+      "doneWithoutSorter": "Lege die Karte in das oben angezeigte Fach und dann die nächste Karte auf das Glas."
+    },
+    "scanCard": "Karte scannen",
+    "scanCardTooltip": "Die Karte auf dem Glas scannen",
+    "scanning": "Scanne...",
+    "identifying": "Erkenne...",
+    "continue": "Weiter",
+    "continueTooltip": "Die gescannte Karte sortieren, sobald sie in Modul 1 liegt",
+    "rescan": "Erneut scannen",
+    "cancel": "Abbrechen",
+    "scanFailed": "Das Glas konnte nicht gescannt werden",
+    "calibration": {
+      "title": "Kartenposition festlegen",
+      "description": "Zeige der App, wo du jede Karte auf das Flachbettglas legst.",
+      "instructions": "Lege eine Karte mit der Vorderseite nach unten dorthin, wo du jede Karte auflegen wirst, zum Beispiel in die Ecke am Pfeil. Schließe den Deckel und scanne dann das Glas.",
+      "scanGlass": "Glas scannen",
+      "scanning": "Glas wird gescannt...",
+      "scanAgain": "Erneut scannen",
+      "dragHint": "Ziehe einen Rahmen um die Karte, falls der erkannte Rahmen nicht passt.",
+      "boxTooSmall": "Der Rahmen ist zu klein für eine Karte. Ziehe einen größeren Rahmen um sie.",
+      "save": "Position speichern",
+      "cancel": "Abbrechen",
+      "previewAlt": "Scan des gesamten Flachbettglases",
+      "editorLabel": "Flachbettglas. Ziehe, um die Position der Karte zu markieren.",
+      "previewFailed": "Das Glas konnte nicht gescannt werden. Prüfe, ob der Scanner eingeschaltet ist, und versuche es erneut."
     }
   }
 }

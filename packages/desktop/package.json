@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsup",
     "start": "tsup && electron .",
-    "dist": "tsup && node scripts/stage-koffi.mjs && electron-builder"
+    "scanner-helper": "node scripts/build-scanner-helper.mjs",
+    "dist": "tsup && node scripts/stage-koffi.mjs && node scripts/build-scanner-helper.mjs && electron-builder"
   },
   "devDependencies": {
     "@magic-vault/shared": "workspace:*",

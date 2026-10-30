@@ -424,6 +424,39 @@
     "close": "Close",
     "importMore": "Import more",
     "unreadable": "Couldn't read this image.",
-    "identifyFailed": "Couldn't identify this image."
+    "identifyFailed": "Couldn't identify this image.",
+    "documentScan": {
+      "title": "Document scanner",
+      "scannerLabel": "Scanner",
+      "scannerOption": "{{name}} ({{driver}})",
+      "scan": "Scan",
+      "refresh": "Refresh scanners",
+      "noScanners": "No scanners found. Install your scanner's TWAIN or WIA driver (PaperStream IP for Ricoh fi scanners), then refresh.",
+      "folderLabel": "Watch folder",
+      "noFolder": "Choose the folder your scanning software saves to.",
+      "chooseFolder": "Choose folder",
+      "changeFolder": "Change folder",
+      "watchFolder": "Watch folder",
+      "scanning": "Scanning with {{scanner}}. Cards are imported as they leave the feeder.",
+      "watching": "Watching {{folder}}. New images are imported as they appear.",
+      "stopScanner": "Stop scanner",
+      "stopWatching": "Stop watching",
+      "stopping": "Stopping...",
+      "errors": {
+        "scanner_helper_missing": "The scanner component is missing from this install. Reinstall the MAULT desktop app.",
+        "scanner_busy": "The scanner is busy. Close other scanning apps and try again.",
+        "scanner_offline": "Can't reach the scanner. Check that it is on and connected.",
+        "paper_jam": "Paper jam. Clear the feeder, then scan the remaining cards.",
+        "feeder_empty": "The feeder is empty. Load cards and scan again.",
+        "cover_open": "The scanner cover is open. Close it and scan again.",
+        "no_feeder": "This scanner has no document feeder. Choose a scanner with a feeder.",
+        "scanner_error": "The scanner stopped. Check for a double feed or jam, then scan the remaining cards.",
+        "folder_missing": "Can't read the watched folder. Choose it again.",
+        "start_failed": "Couldn't start scanning. Wait a moment and try again.",
+        "unknown": "Something went wrong while scanning.",
+        "scanner_in_use": "The document scanner is already in use. Stop the other scan first.",
+        "session_closed": "The connection to the document scanner was lost. Select the scanner again."
+      }
+    }
   }
 }

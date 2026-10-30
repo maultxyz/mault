@@ -23,6 +23,7 @@ import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { useDocumentScan } from "@/features/scanner/api/use-document-scan";
 import { useScanImageImport } from "@/features/scanner/api/use-scan-image-import";
 import { ScanImageImportDialog } from "@/features/scanner/components/scan-image-import-dialog";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
@@ -128,6 +129,11 @@ export function CardGrid() {
   const [addCardOpen, setAddCardOpen] = useState(false);
   const [importScansOpen, setImportScansOpen] = useState(false);
   const scanImageImport = useScanImageImport(collectionGuid);
+  const documentScan = useDocumentScan(
+    scanImageImport,
+    collectionGuid,
+    importScansOpen,
+  );
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
     viewedCollection && locks[viewedCollection.guid]?.userId === currentUserId
@@ -594,6 +600,7 @@ export function CardGrid() {
         open={importScansOpen}
         onOpenChange={setImportScansOpen}
         scanImageImport={scanImageImport}
+        documentScan={documentScan}
       />
     </>
   );

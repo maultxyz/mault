@@ -8,7 +8,9 @@ import {
   MAIN_WINDOW_SIZE,
   WINDOW_BACKGROUND,
 } from "./lib/constants/desktop";
+import { loadDevelopmentEnv } from "./lib/development-env";
 import { registerDevicePickerIpc } from "./lib/device-picker";
+import { registerDocumentScanIpc } from "./lib/document-scan";
 import { registerBluetoothPicker, registerSerialPicker } from "./lib/devices";
 import { registerNavigation } from "./lib/navigation";
 import { registerDesktopNotifications } from "./lib/notifications";
@@ -16,6 +18,8 @@ import { registerPermissionHandlers } from "./lib/permissions";
 import { registerScannerThumbar, trackScannerThumbar } from "./lib/thumbar";
 import { startAutoUpdates } from "./lib/updater";
 import { registerWindowStateIpc, trackWindowState } from "./lib/window-state";
+
+loadDevelopmentEnv();
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -73,6 +77,7 @@ if (!app.requestSingleInstanceLock()) {
     registerScannerThumbar();
     registerDesktopNotifications();
     registerWindowStateIpc();
+    registerDocumentScanIpc();
     createMainWindow();
     startAutoUpdates();
     app.on("activate", () => {

@@ -241,7 +241,8 @@
       "reviewStart": "Karten einzeln prüfen",
       "reviewAccept": "Beim Prüfen: Karte stimmt, weiter",
       "goSortingRules": "Zu den Sortierregeln",
-      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen"
+      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen",
+      "scanFlatbedCard": "Karte auf dem Flachbett scannen"
     }
   },
   "mobileMenu": {
