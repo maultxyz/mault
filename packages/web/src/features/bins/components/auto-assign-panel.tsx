@@ -67,11 +67,6 @@ export function AutoAssignPanel() {
       )}
       data-tour="auto-assign-panel"
     >
-      {isMobile && (
-        <h2 className="font-heading text-sm font-semibold text-foreground">
-          {t("sortingModePanel.title")}
-        </h2>
-      )}
       <SortingModeToggleRow
         label={t("autoAssignPanel.heading")}
         description={t("autoAssignPanel.description")}

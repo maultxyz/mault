@@ -62,7 +62,10 @@ import {
 } from "@magic-vault/shared";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
-import type { BinSortSource } from "@/lib/interfaces/bins";
+import type {
+  BinConfigPanelProps,
+  BinSortSource,
+} from "@/lib/interfaces/bins";
 import { useTranslation } from "react-i18next";
 
 function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
@@ -81,7 +84,7 @@ function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
   }, []);
 }
 
-export function BinConfigPanel() {
+export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
   const { t } = useTranslation("bins");
   const {
     selectedConfig: config,
@@ -845,9 +848,11 @@ export function BinConfigPanel() {
           className="flex flex-col"
         >
           <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <h2 className="text-sm font-semibold font-heading">
-              {t("binLabel", { number: config.binNumber })}
-            </h2>
+            {showTitle && (
+              <h2 className="text-sm font-semibold font-heading">
+                {t("binLabel", { number: config.binNumber })}
+              </h2>
+            )}
             {catchAllToggle}
           </div>
           {catchAllNotice}
@@ -865,9 +870,11 @@ export function BinConfigPanel() {
     return (
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-4">
-          <h2 className="text-sm font-semibold font-heading">
-            {t("binLabel", { number: config.binNumber })}
-          </h2>
+          {showTitle && (
+            <h2 className="text-sm font-semibold font-heading">
+              {t("binLabel", { number: config.binNumber })}
+            </h2>
+          )}
           {config.isCatchAll && (
             <Button type="button" variant="outline-selected" disabled>
               {t("binConfigPanel.catchAllEnabled")}
@@ -949,9 +956,11 @@ export function BinConfigPanel() {
         className="flex flex-col"
       >
         <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h2 className="font-heading text-sm font-semibold">
-            {t("binLabel", { number: config.binNumber })}
-          </h2>
+          {showTitle && (
+            <h2 className="font-heading text-sm font-semibold">
+              {t("binLabel", { number: config.binNumber })}
+            </h2>
+          )}
           {catchAllToggle}
         </div>
         {catchAllNotice}

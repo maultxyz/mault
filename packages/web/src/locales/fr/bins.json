@@ -59,7 +59,7 @@
     "apiDocsLink": "Référence des champs",
     "clear": "Effacer",
     "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}",
-    "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis ci-dessus. Désactive-le pour configurer les bacs.",
+    "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis dans Mode de tri. Désactive-le pour configurer les bacs.",
     "modeChangePending": "Enregistre ou ignore le changement de mode en attente ci-dessus avant de modifier les bacs.",
     "priorityLabel": "Niveau de priorité",
     "priorityPlaceholder": "Aucun",
@@ -312,8 +312,8 @@
     "title": "Mode de tri",
     "explain": "À quoi sert {{mode}} ?"
   },
-  "mobileBinPicker": {
-    "caption": "En cours de modification",
-    "title": "Choisir un bac"
+  "mobileBins": {
+    "rulesMode": "Règles",
+    "binsTitle": "Bacs"
   }
 }

@@ -102,5 +102,6 @@ export interface BinRowProps {
   bin: BinConfig;
   bins: BinConfig[];
   fieldDefinitions: FieldMeta[];
+  summary?: string;
   onPress: () => void;
 }

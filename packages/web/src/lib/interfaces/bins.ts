@@ -217,3 +217,13 @@ export interface SortingModeToggleRowProps {
   className?: string;
   dataTour?: string;
 }
+
+export type MobileBinsScreen = "overview" | "bin" | "mode" | "repack";
+
+export interface BinListProps {
+  onOpenBin?: (binNumber: number) => void;
+}
+
+export interface BinConfigPanelProps {
+  showTitle?: boolean;
+}

@@ -1,4 +1,3 @@
-import { MobilePageHeader } from "@/components/mobile-page-header";
 import {
   BinConfigsProvider,
   useBinConfigs,
@@ -7,22 +6,15 @@ import { AlphabetPanel } from "@/features/bins/components/alphabet-panel";
 import { AutoAssignPanel } from "@/features/bins/components/auto-assign-panel";
 import { BinConfigPanel } from "@/features/bins/components/bin-config-panel";
 import { BinList } from "@/features/bins/components/bin-list";
+import { MobileBins } from "@/features/bins/components/mobile-bins";
 import { BinRulesMenu } from "@/features/bins/components/bin-rules-menu";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
-import { MobileBinPicker } from "@/features/bins/components/mobile-bin-picker";
-import { MobilePresetSelector } from "@/features/bins/components/mobile-preset-selector";
 import { RepackPanel } from "@/features/bins/components/repack-panel";
 import { RepackTour } from "@/features/bins/components/repack-tour";
 import { SortingRulesIntro } from "@/features/bins/components/sorting-rules-intro";
 import { SortingRulesTour } from "@/features/bins/components/sorting-rules-tour";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import {
-  MOBILE_NAV_SCROLL_PADDING_CLASS,
-  MOBILE_PAGE_BODY_CLASS,
-} from "@/lib/constants/nav";
-import { cn } from "@/lib/utils";
-import { useTranslation } from "react-i18next";
 
 function BinsHelpTour({ className }: { className?: string }) {
   const { selectedSet } = useBinConfigs();
@@ -30,34 +22,6 @@ function BinsHelpTour({ className }: { className?: string }) {
     <RepackTour className={className} />
   ) : (
     <SortingRulesTour className={className} />
-  );
-}
-
-function MobileBins() {
-  const { t } = useTranslation("bins");
-
-  return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
-      <MobilePageHeader
-        title={t("page.title")}
-        actions={<BinRulesMenu className="shrink-0" />}
-      />
-      <div
-        className={cn(
-          "@container min-h-0 flex-1 overflow-y-auto",
-          MOBILE_NAV_SCROLL_PADDING_CLASS,
-        )}
-      >
-        <div className={cn(MOBILE_PAGE_BODY_CLASS, "gap-4")}>
-          <MobilePresetSelector />
-          <AutoAssignPanel />
-          <RepackPanel />
-          <AlphabetPanel />
-          <MobileBinPicker />
-          <BinConfigPanel />
-        </div>
-      </div>
-    </div>
   );
 }
 

@@ -2,10 +2,14 @@ import * as Crypto from "expo-crypto";
 import type { TFunction } from "i18next";
 import {
   COUNT_OPERATORS,
+  getAlphabetPassLetters,
+  getCatchAllBin,
   isRuleGroup,
   type BinCondition,
   type BinConfig,
   type BinRuleGroup,
+  type BinSet,
+  type BinSetMode,
   type FieldMeta,
 } from "@magic-vault/shared";
 import { MULTI_VALUE_OPERATORS, VALUELESS_OPERATORS } from "@/lib/constants/rules";
@@ -97,4 +101,52 @@ export function overflowTargetsFor(binNumber: number, bins: BinConfig[]): number
         b.overflowBin == null,
     )
     .map((b) => b.binNumber);
+}
+
+export function binModeSummaries(
+  set: BinSet | null | undefined,
+  mode: BinSetMode,
+  bins: BinConfig[],
+  t: TFunction,
+): Map<number, string> {
+  const summaries = new Map<number, string>();
+  if (!set) return summaries;
+  if (mode === "alphabet") {
+    const letters = getAlphabetPassLetters(bins, set.alphabetPass, set.alphabetPrefix);
+    for (const bin of bins) {
+      const letter = letters.get(bin.binNumber);
+      summaries.set(
+        bin.binNumber,
+        bin.isCatchAll
+          ? t("rules.catchAllDescription")
+          : letter
+            ? t("rules.binSummary.alphabetLetter", { letter })
+            : t("rules.alphabet.unusedBin"),
+      );
+    }
+  } else if (mode === "chaos") {
+    for (const bin of bins) {
+      summaries.set(bin.binNumber, bin.isCatchAll ? t("rules.catchAllDescription") : t("rules.binSummary.chaos"));
+    }
+  } else if (mode === "scan-only") {
+    const scannedBin = set.scanOnlyBin ?? getCatchAllBin(bins)?.binNumber;
+    for (const bin of bins) {
+      const isScannedBin = bin.binNumber === scannedBin;
+      summaries.set(
+        bin.binNumber,
+        bin.isCatchAll
+          ? isScannedBin
+            ? t("rules.binSummary.scanOnlyEverything")
+            : t("rules.binSummary.scanOnlyUnidentified")
+          : isScannedBin
+            ? t("rules.binSummary.scanOnlyScanned")
+            : t("rules.binSummary.scanOnlyOff"),
+      );
+    }
+  }
+  return summaries;
+}
+
+export function modeLocksBinRules(mode: BinSetMode): boolean {
+  return mode === "alphabet" || mode === "chaos" || mode === "repack" || mode === "auto-assign";
 }
