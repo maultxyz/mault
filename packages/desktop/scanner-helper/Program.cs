@@ -39,20 +39,17 @@ public static class Program
 
     private static async Task<int> ListScanners(ScanController controller)
     {
-        var scanners = new List<ScannerSummary>();
+        var listedScanners = new List<ListedScanner>();
         foreach (var driver in ListedDrivers)
         {
             try
             {
                 foreach (var device in await controller.GetDeviceList(driver))
                 {
-                    var paperSources = await ReadPaperSources(controller, device);
-                    scanners.Add(new ScannerSummary(
-                        device.ID,
-                        device.Name,
-                        ScanArguments.DriverName(driver),
-                        paperSources.SupportsFeeder,
-                        paperSources.SupportsFlatbed));
+                    listedScanners.Add(new ListedScanner(
+                        device,
+                        driver,
+                        await ReadPaperSources(controller, device)));
                 }
             }
             catch (Exception error)
@@ -61,11 +58,11 @@ public static class Program
             }
         }
 
-        HelperOutput.Write(new ScannersMessage("scanners", scanners));
+        HelperOutput.Write(new ScannersMessage("scanners", ScannerListing.MergeDriversOfSameScanner(listedScanners)));
         return 0;
     }
 
-    private static async Task<(bool SupportsFeeder, bool SupportsFlatbed)> ReadPaperSources(
+    private static async Task<PaperSources?> ReadPaperSources(
         ScanController controller,
         ScanDevice device)
     {
@@ -73,13 +70,13 @@ public static class Program
         {
             var caps = await controller.GetCaps(device, CancellationToken.None);
             var paperSourceCaps = caps.PaperSourceCaps;
-            if (paperSourceCaps is null) return (true, true);
-            return (paperSourceCaps.SupportsFeeder, paperSourceCaps.SupportsFlatbed);
+            if (paperSourceCaps is null) return null;
+            return new PaperSources(paperSourceCaps.SupportsFeeder, paperSourceCaps.SupportsFlatbed);
         }
         catch (Exception error)
         {
             Console.Error.WriteLine($"Reading capabilities of {device.Name} failed: {error.Message}");
-            return (true, true);
+            return null;
         }
     }
 
