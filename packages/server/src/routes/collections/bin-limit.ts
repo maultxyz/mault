@@ -22,7 +22,7 @@ export async function findFullBin(
 ): Promise<BinLimitStatus | null> {
   const result = await tx.execute(sql`
     WITH target AS (
-      SELECT b.last_emptied_at
+      SELECT b.id
       FROM ${bins} b
       JOIN ${binSets} s ON s.id = b.bin_set
       WHERE s.is_active
@@ -54,13 +54,13 @@ export async function findFullBin(
         SELECT count(*)::int FROM ${collectionCards} c
         WHERE c.collection_id = ${collectionId}
           AND c.bin_number = ${binNumber}
-          AND (t.last_emptied_at IS NULL OR c.scanned_at > t.last_emptied_at)
+          AND c.bin_emptied_at IS NULL
       ) + (
         SELECT count(*)::int FROM ${unmatchedCards} u
         WHERE u.collection_id = ${collectionId}
           AND u.bin_number = ${binNumber}
           AND u.is_deleted = false
-          AND (t.last_emptied_at IS NULL OR u.scanned_at > t.last_emptied_at)
+          AND u.bin_emptied_at IS NULL
       ) AS count
     FROM target t
   `);

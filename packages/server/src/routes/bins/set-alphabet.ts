@@ -1,9 +1,10 @@
 import { normalizeAlphabetPrefix } from "@magic-vault/shared";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { bins, binSets } from "../../db/schema";
+import { binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { markBinsEmptied } from "../../lib/bin-emptying";
 import { loadSets } from "./shared";
 
 export const setAlphabetRoute = new Hono<AppEnv>().put(
@@ -38,6 +39,12 @@ export const setAlphabetRoute = new Hono<AppEnv>().put(
           alphabetPass: true,
           alphabetPrefix: true,
         },
+        with: {
+          bins: {
+            where: (bin, { eq }) => eq(bin.isDeleted, false),
+            columns: { binNumber: true },
+          },
+        },
       });
       if (!target) return { message: "Set not found.", success: false };
 
@@ -50,12 +57,12 @@ export const setAlphabetRoute = new Hono<AppEnv>().put(
         (!target.isAlphabetMode ||
           alphabetPass !== target.alphabetPass ||
           alphabetPrefix !== target.alphabetPrefix);
-      const now = new Date();
       if (startsPass) {
-        await tx
-          .update(bins)
-          .set({ lastEmptiedAt: now, updatedAt: now })
-          .where(and(eq(bins.binSet, target.id), eq(bins.isDeleted, false)));
+        await markBinsEmptied(
+          tx,
+          orgId,
+          target.bins.map((bin) => bin.binNumber),
+        );
       }
 
       await tx
@@ -64,7 +71,7 @@ export const setAlphabetRoute = new Hono<AppEnv>().put(
           isAlphabetMode,
           alphabetPass,
           alphabetPrefix,
-          updatedAt: now,
+          updatedAt: new Date(),
         })
         .where(eq(binSets.id, target.id));
       return loadSets(tx, orgId);

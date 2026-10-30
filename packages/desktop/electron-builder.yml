@@ -25,6 +25,8 @@ win:
   extraResources:
     - from: native/koffi
       to: koffi
+    - from: native/scanner-helper
+      to: scanner-helper
 nsis:
   oneClick: true
   perMachine: false

@@ -89,6 +89,7 @@
   "appVersion": {
     "outdatedBanner": "A new version of Mault is available.",
     "refreshButton": "Refresh",
+    "terminalUpdate": "Finish scanning and syncing, then run this command in a terminal on the Pi. Enter your sudo password if prompted. When it finishes, refresh this page:",
     "updateButton": "Update Mault",
     "updating": "Updating Mault. Keep this page open while services restart.",
     "updateSucceeded": "Mault updated successfully. Refresh to use the new version.",
@@ -138,7 +139,15 @@
     "revert": "Revert"
   },
   "loadingGate": {
-    "loadingVault": "Loading your vault…"
+    "loadingVault": "Loading your vault…",
+    "quips": {
+      "shuffling": "Shuffling the deck…",
+      "feeding": "Feeding the sorter…",
+      "polishing": "Polishing the foils…",
+      "counting": "Counting your cards…",
+      "pricing": "Checking today's prices…",
+      "sorting": "Sorting it all out…"
+    }
   },
   "notFound": {
     "title": "Page not found",
@@ -232,7 +241,8 @@
       "reviewStart": "Start reviewing cards one by one",
       "reviewAccept": "While reviewing: card looks right, go to next",
       "goSortingRules": "Go to sorting rules",
-      "intakeOpenScanner": "Open the scanner for this intake"
+      "intakeOpenScanner": "Open the scanner for this intake",
+      "scanFlatbedCard": "Scan the card on the flatbed"
     }
   },
   "mobileMenu": {

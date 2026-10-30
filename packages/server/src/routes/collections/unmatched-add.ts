@@ -9,6 +9,7 @@ import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
 import { deleteScanImages, storeScanImage } from "../../lib/scan-images";
 import { recordDeviceSorted } from "../../lib/device-alerts";
 import { recordUnmatchedScan } from "../../lib/scan-stats";
+import { lateSaveBinEmptiedAtSql } from "../../lib/bin-emptying";
 import { emitToSession } from "../../lib/session-stream";
 import {
   rejectWhileImpersonating,
@@ -96,6 +97,11 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
             capturedImageKey: storedImage.key,
             scannedAt: new Date(scannedAt),
             binNumber: binNumber ?? null,
+            binEmptiedAt: lateSaveBinEmptiedAtSql(
+              orgId,
+              binNumber,
+              new Date(scannedAt).getTime(),
+            ),
             diagnostics: diagnostics ?? null,
             embedding: embedding?.length === MILO_EMBEDDING_DIM ? embedding : null,
             scannedByUserId: c.get("userId"),

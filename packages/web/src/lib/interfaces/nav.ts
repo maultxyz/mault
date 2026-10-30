@@ -63,6 +63,7 @@ export interface MobilePageHeaderProps {
 export interface MobileQuickActionProps extends ComponentProps<"button"> {
   icon: ReactNode;
   label: string;
+  hint?: ReactNode;
   to?: string;
 }
 

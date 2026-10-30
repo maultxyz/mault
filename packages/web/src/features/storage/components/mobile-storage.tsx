@@ -6,11 +6,13 @@ import { MobileListRow } from "@/components/mobile-list-row";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import { Button } from "@/components/ui/button";
+import { DrawerTitle } from "@/components/ui/drawer";
 import {
   fetchNextUnreviewedStorageCard,
   storageLocationUnreviewedCardsQueryOptions,
 } from "@/features/storage/api/storage-locations";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
+import { MobileCardDrawer } from "@/features/cards/components/mobile-card-drawer";
 import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import { useQuery } from "@tanstack/react-query";
@@ -53,6 +55,7 @@ import { useSearchParams } from "react-router-dom";
 
 export function MobileStorage() {
   const { t } = useTranslation("storage");
+  const { t: tCards } = useTranslation("cards");
   const { locations, isLoading, isMutating, create, rename, remove } =
     useStorageLocations();
   const { format } = usePriceSource();
@@ -71,16 +74,15 @@ export function MobileStorage() {
   const selectedGuid = searchParams.get(STORAGE_LOCATION_SEARCH_PARAM);
   const selected = locations.find((l) => l.guid === selectedGuid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
+  const [shownScanId, setShownScanId] = useState(openScanId);
+  if (openScanId && openScanId !== shownScanId) setShownScanId(openScanId);
   const reviewParam = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM);
   const isReviewing = reviewParam === "1";
   const isGridReviewing =
     !!selected && !openScanId && reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
   const [reviewLayout, setReviewLayout] = useReviewLayout();
   const reviewGridPage = useQuery(
-    storageLocationUnreviewedCardsQueryOptions(
-      selected?.guid,
-      isGridReviewing,
-    ),
+    storageLocationUnreviewedCardsQueryOptions(selected?.guid, isGridReviewing),
   );
 
   const select = useCallback(
@@ -165,26 +167,6 @@ export function MobileStorage() {
       />
     </>
   );
-
-  if (selected && openScanId) {
-    return (
-      <div
-        className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-hidden",
-          MOBILE_NAV_SCROLL_PADDING_CLASS,
-        )}
-      >
-        <StorageCardDetail
-          location={selected}
-          scanId={openScanId}
-          reviewMode={isReviewing}
-          onNavigate={(scanId) => openCard(selected.guid, scanId)}
-          onShowReviewGrid={openReviewGrid}
-          onClose={closeCard}
-        />
-      </div>
-    );
-  }
 
   if (selected && isGridReviewing) {
     return (
@@ -272,6 +254,24 @@ export function MobileStorage() {
           </div>
         </div>
         {dialogs}
+        <MobileCardDrawer open={!!openScanId} onClose={closeCard}>
+          <DrawerTitle className="sr-only">
+            {tCards("cardDetailPanel.cardDetailsFallback")}
+          </DrawerTitle>
+          {shownScanId && (
+            <div data-vaul-no-drag className="flex min-h-0 flex-1 flex-col">
+              <StorageCardDetail
+                key={shownScanId}
+                location={selected}
+                scanId={shownScanId}
+                reviewMode={isReviewing}
+                onNavigate={(scanId) => openCard(selected.guid, scanId)}
+                onShowReviewGrid={openReviewGrid}
+                onClose={closeCard}
+              />
+            </div>
+          )}
+        </MobileCardDrawer>
       </div>
     );
   }

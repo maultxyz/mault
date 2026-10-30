@@ -78,7 +78,9 @@
       "setLine": "Ligne d'extension",
       "number": "Numéro"
     },
-    "copyOf": "Exemplaire {{index}} sur {{count}}"
+    "copyOf": "Exemplaire {{index}} sur {{count}}",
+    "moreOptions": "Plus",
+    "actions": "Actions de la carte"
   },
   "cardFilterPopover": {
     "color": "Couleur",
@@ -120,7 +122,8 @@
     "deleteCardsDescription_one": "Cela retirera définitivement la carte sélectionnée de ta collection. Cette action est irréversible.",
     "deleteCardsDescription_other": "Cela retirera définitivement les cartes sélectionnées de ta collection. Cette action est irréversible.",
     "downloadedHidden_one": "1 carte téléchargée est masquée par le filtre des téléchargements.",
-    "downloadedHidden_other": "{{count}} cartes téléchargées sont masquées par le filtre des téléchargements."
+    "downloadedHidden_other": "{{count}} cartes téléchargées sont masquées par le filtre des téléchargements.",
+    "moveToLocation": "Déplacer"
   },
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",
@@ -421,6 +424,39 @@
     "close": "Fermer",
     "importMore": "Importer d'autres images",
     "unreadable": "Impossible de lire cette image.",
-    "identifyFailed": "Impossible d'identifier cette image."
+    "identifyFailed": "Impossible d'identifier cette image.",
+    "documentScan": {
+      "title": "Scanner de documents",
+      "scannerLabel": "Scanner",
+      "scannerOption": "{{name}} ({{driver}})",
+      "scan": "Scanner",
+      "refresh": "Actualiser les scanners",
+      "noScanners": "Aucun scanner trouvé. Installez le pilote TWAIN ou WIA de votre scanner (PaperStream IP pour les scanners Ricoh fi), puis actualisez.",
+      "folderLabel": "Dossier surveillé",
+      "noFolder": "Choisissez le dossier où votre logiciel de numérisation enregistre les images.",
+      "chooseFolder": "Choisir un dossier",
+      "changeFolder": "Changer de dossier",
+      "watchFolder": "Surveiller le dossier",
+      "scanning": "Numérisation avec {{scanner}}. Les cartes sont importées dès qu'elles sortent du chargeur.",
+      "watching": "Surveillance de {{folder}}. Les nouvelles images sont importées dès leur apparition.",
+      "stopScanner": "Arrêter le scanner",
+      "stopWatching": "Arrêter la surveillance",
+      "stopping": "Arrêt en cours...",
+      "errors": {
+        "scanner_helper_missing": "Le composant scanner manque dans cette installation. Réinstallez l'application de bureau MAULT.",
+        "scanner_busy": "Le scanner est occupé. Fermez les autres logiciels de numérisation et réessayez.",
+        "scanner_offline": "Impossible de joindre le scanner. Vérifiez qu'il est allumé et connecté.",
+        "paper_jam": "Bourrage papier. Dégagez le chargeur, puis numérisez les cartes restantes.",
+        "feeder_empty": "Le chargeur est vide. Chargez des cartes et numérisez à nouveau.",
+        "cover_open": "Le capot du scanner est ouvert. Fermez-le et numérisez à nouveau.",
+        "no_feeder": "Ce scanner n'a pas de chargeur de documents. Choisissez un scanner avec chargeur.",
+        "scanner_error": "Le scanner s'est arrêté. Vérifiez s'il y a eu un double engagement ou un bourrage, puis numérisez les cartes restantes.",
+        "folder_missing": "Impossible de lire le dossier surveillé. Choisissez-le à nouveau.",
+        "start_failed": "Impossible de lancer la numérisation. Patientez un instant et réessayez.",
+        "unknown": "Une erreur est survenue pendant la numérisation.",
+        "scanner_in_use": "Le scanner de documents est déjà utilisé. Arrêtez d'abord l'autre numérisation.",
+        "session_closed": "La connexion au scanner de documents a été perdue. Sélectionnez à nouveau le scanner."
+      }
+    }
   }
 }

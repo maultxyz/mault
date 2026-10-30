@@ -143,7 +143,7 @@ export function CameraPrintingScore({
         <IconFocus2 />
         {t("cameraPrintingScore.heading")}
       </Button>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog drawerOnMobile={false} open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>{t("cameraPrintingScore.heading")}</DialogTitle>

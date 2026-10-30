@@ -4,6 +4,8 @@ export const BUILD_CHECKLIST_STORAGE_KEY = "magic-vault:build-checklist";
 export const IGNORE_IR_SENSORS_STORAGE_KEY =
   "magic-vault:scanner-ignore-ir-sensors";
 export const HAND_SCAN_STORAGE_KEY = "magic-vault:scanner-hand-scan";
+export const FLATBED_PLACEMENT_STORAGE_KEY_PREFIX =
+  "magic-vault:flatbed-placement:";
 export const ONNX_EXECUTION_PROVIDER_STORAGE_KEY =
   "magic-vault:scanner-onnx-execution-provider";
 export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =

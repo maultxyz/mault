@@ -23,6 +23,7 @@ import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { useDocumentScan } from "@/features/scanner/api/use-document-scan";
 import { useScanImageImport } from "@/features/scanner/api/use-scan-image-import";
 import { ScanImageImportDialog } from "@/features/scanner/components/scan-image-import-dialog";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
@@ -34,6 +35,7 @@ import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
+import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import {
   allExportAdapters,
   runExport,
@@ -71,6 +73,7 @@ import type {
 } from "@/lib/interfaces/cards";
 import {
   IconAlbum,
+  IconBox,
   IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
@@ -126,6 +129,11 @@ export function CardGrid() {
   const [addCardOpen, setAddCardOpen] = useState(false);
   const [importScansOpen, setImportScansOpen] = useState(false);
   const scanImageImport = useScanImageImport(collectionGuid);
+  const documentScan = useDocumentScan(
+    scanImageImport,
+    collectionGuid,
+    importScansOpen,
+  );
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
     viewedCollection && locks[viewedCollection.guid]?.userId === currentUserId
@@ -498,6 +506,17 @@ export function CardGrid() {
     [moveCards, exportedScanIds, collectionGuid],
   );
 
+  const [moveSelectedOpen, setMoveSelectedOpen] = useState(false);
+  const handleMoveSelected = useCallback(
+    (locationGuid: string) =>
+      moveCards({
+        guid: locationGuid,
+        scanIds: Array.from(selectedIds),
+        collectionGuid,
+      }),
+    [moveCards, selectedIds, collectionGuid],
+  );
+
   const handleDeleteExported = useCallback(() => {
     if (!exportedScanIds) return;
     removeCards(exportedScanIds);
@@ -581,6 +600,7 @@ export function CardGrid() {
         open={importScansOpen}
         onOpenChange={setImportScansOpen}
         scanImageImport={scanImageImport}
+        documentScan={documentScan}
       />
     </>
   );
@@ -973,6 +993,17 @@ export function CardGrid() {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+                {!storageLocked && (
+                  <Button
+                    variant="ghost"
+                    disabled={isMoving}
+                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                    onClick={() => setMoveSelectedOpen(true)}
+                  >
+                    <IconBox />
+                    {t("cardGrid.moveToLocation")}
+                  </Button>
+                )}
                 <Button
                   variant="destructive"
                   className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
@@ -1021,6 +1052,14 @@ export function CardGrid() {
           className="mt-4"
         />
       </DeleteDialog>
+
+      <MoveToLocationDialog
+        open={moveSelectedOpen}
+        count={selectedIds.size}
+        isMoving={isMoving}
+        onOpenChange={setMoveSelectedOpen}
+        onMove={handleMoveSelected}
+      />
 
       <ExportedCardsDialog
         open={exportedScanIds != null && !storageLocked && !confirmDeleteExported}

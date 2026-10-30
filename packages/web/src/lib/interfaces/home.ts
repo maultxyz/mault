@@ -1,10 +1,5 @@
 import type { OrgOverviewCard, OrgOverviewDay } from "@magic-vault/shared";
 
-export interface HomeStatTileProps {
-  label: string;
-  value: string;
-}
-
 export interface ScanActivityChartProps {
   days: OrgOverviewDay[];
 }

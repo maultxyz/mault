@@ -416,22 +416,6 @@ export const routes: RouteObject[] = [
                     element: <SortersPage />,
                   },
                   {
-                    path: ORDERS_PATH,
-                    element: <Navigate to={INTAKE_PATH} replace />,
-                  },
-                  {
-                    path: INTAKE_PATH,
-                    element: <IntakePage />,
-                  },
-                  {
-                    path: PICKS_PATH,
-                    element: <PicksPage />,
-                  },
-                  {
-                    path: LEGACY_INTAKE_PATH,
-                    element: <LegacyIntakeRedirect />,
-                  },
-                  {
                     path: LEGACY_REPORTS_PATH,
                     element: <Navigate to={STATS_PATH} replace />,
                   },
@@ -559,6 +543,22 @@ export const routes: RouteObject[] = [
               {
                 path: STORAGE_PATH,
                 element: <StoragePage />,
+              },
+              {
+                path: ORDERS_PATH,
+                element: <Navigate to={INTAKE_PATH} replace />,
+              },
+              {
+                path: INTAKE_PATH,
+                element: <IntakePage />,
+              },
+              {
+                path: PICKS_PATH,
+                element: <PicksPage />,
+              },
+              {
+                path: LEGACY_INTAKE_PATH,
+                element: <LegacyIntakeRedirect />,
               },
               {
                 element: <RequireCollectionGuard />,

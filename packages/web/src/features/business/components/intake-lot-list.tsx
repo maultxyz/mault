@@ -46,7 +46,7 @@ export function IntakeLotList({
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto max-md:gap-3">
         {lots.map((lot) => {
           const total =
             lot.status === "accepted" ? lot.paidTotal : lot.cashOffer;
@@ -54,7 +54,7 @@ export function IntakeLotList({
             <Button
               key={lot.guid}
               variant={lot.guid === selectedGuid ? "selected" : "ghost"}
-              className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start"
+              className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start max-md:h-auto max-md:gap-1 max-md:p-3"
               onClick={() => onSelect(lot.guid)}
             >
               <span className="flex w-full items-center gap-2">

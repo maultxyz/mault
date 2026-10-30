@@ -29,7 +29,12 @@ export function SessionMonitorView({
   const { unmatchedCards, unmatchedCount, errors, status } = session;
   const isMobile = useIsMobile();
   const unmatchedView = useUnmatchedView();
-  const cards = useMonitorCards(session, cardsSource, canEditCards);
+  const cards = useMonitorCards(
+    session,
+    cardsSource,
+    canEditCards,
+    canEditCards || isMobile,
+  );
   const { stats, cardCount, matchingCount, openScanId, setOpenScanId } = cards;
 
   const handleOpenCard = useCallback(

@@ -178,9 +178,7 @@ export function MobileMonitorCards({
             <MobileCardTile
               key={entry.scanId}
               entry={entry}
-              onOpen={
-                canEditCards ? () => setOpenScanId(entry.scanId) : undefined
-              }
+              onOpen={() => setOpenScanId(entry.scanId)}
               onLongPress={
                 canEditCards ? () => setActionsEntry(entry) : undefined
               }

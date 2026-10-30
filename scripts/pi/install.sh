@@ -1,6 +1,76 @@
 #!/bin/bash
 set -euo pipefail
 
+# Dockerfiles own the application toolchain pins. Use Python so this also
+# works on a fresh Pi before Node or pnpm has been installed.
+pi_docker_toolchain() {
+  python3 - "$1" <<'PY'
+import json
+from pathlib import Path
+import re
+import sys
+
+root = Path(sys.argv[1])
+versions = {"Node": set(), "pnpm": set()}
+for name in ("Dockerfile.server", "Dockerfile.web", "Dockerfile.bot", "Dockerfile.api-docs"):
+    text = (root / name).read_text()
+    nodes = re.findall(r"^FROM\s+node:(\d+)(?:[.\w-]*)(?:\s|$)", text, re.M | re.I)
+    pnpms = re.findall(r"^RUN\s+npm\s+install\s+-g\s+pnpm@(\d+\.\d+\.\d+)(?:\s|$)", text, re.M)
+    if not nodes or not pnpms:
+        sys.exit(f"[dependencies] Cannot read pinned Node and pnpm versions from {name}.")
+    versions["Node"].update(nodes)
+    versions["pnpm"].update(pnpms)
+for name, values in versions.items():
+    if len(values) != 1:
+        sys.exit(f"[dependencies] Dockerfiles disagree on {name}: {sorted(values)}")
+node = next(iter(versions["Node"]))
+pnpm = next(iter(versions["pnpm"]))
+if json.loads((root / "package.json").read_text()).get("packageManager") != f"pnpm@{pnpm}":
+    sys.exit("[dependencies] package.json packageManager must match the Dockerfile pnpm version.")
+print(node, pnpm)
+PY
+}
+
+pi_ensure_toolchain() {
+  local root="$1" pins required_node required_pnpm current_node=0 setup_file
+  pins="$(pi_docker_toolchain "$root")" || return 1
+  read -r required_node required_pnpm <<< "$pins"
+  echo "[dependencies] Docker toolchain: Node $required_node, pnpm $required_pnpm"
+  if command -v node >/dev/null 2>&1; then
+    current_node="$(node -p 'process.versions.node.split(".")[0]')"
+  fi
+  if [[ "$current_node" != "$required_node" ]]; then
+    echo "[dependencies] Installing Node $required_node (current major: $current_node)"
+    setup_file="$(mktemp)" || return 1
+    if ! curl -fsSL "https://deb.nodesource.com/setup_${required_node}.x" -o "$setup_file"; then
+      rm -f "$setup_file"
+      return 1
+    fi
+    if ! sudo -E bash "$setup_file"; then
+      rm -f "$setup_file"
+      return 1
+    fi
+    rm -f "$setup_file"
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs || return 1
+    hash -r
+  fi
+  if [[ "$(node -p 'process.versions.node.split(".")[0]')" != "$required_node" ]]; then
+    echo "[dependencies] Node on PATH does not match Docker's Node $required_node. Check for a user-installed Node override." >&2
+    return 1
+  fi
+  if ! command -v pnpm >/dev/null 2>&1 || [[ "$(pnpm --version)" != "$required_pnpm" ]]; then
+    echo "[dependencies] Installing pnpm $required_pnpm"
+    # Replace any Corepack shim left by older Pi installations.
+    sudo npm install -g --force "pnpm@$required_pnpm" || return 1
+    hash -r
+  fi
+  if [[ "$(pnpm --version)" != "$required_pnpm" ]]; then
+    echo "[dependencies] pnpm on PATH does not match Docker's pnpm $required_pnpm." >&2
+    return 1
+  fi
+}
+
+
 # shellcheck disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/session.sh"
 pi_require_user
@@ -16,22 +86,7 @@ sudo systemctl enable --now postgresql
 pg_major="$(psql --version | awk '{print $3}' | cut -d. -f1)"
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "postgresql-${pg_major}-pgvector"
 
-node_major=0
-if command -v node >/dev/null 2>&1; then
-  node_major="$(node -p 'process.versions.node.split(".")[0]')"
-fi
-if [[ "$node_major" -lt 22 ]]; then
-  echo "[install] Installing Node 22"
-  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs
-fi
-
-if ! command -v pnpm >/dev/null 2>&1 || [[ "$(pnpm -v)" != "9.1.3" ]]; then
-  echo "[install] Installing pnpm"
-  sudo corepack enable
-  sudo env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack prepare pnpm@9.1.3 --activate
-fi
-hash -r
+pi_ensure_toolchain "$ROOT"
 
 if [[ ! -f .env ]]; then
   python3 - << 'PY'
@@ -95,7 +150,7 @@ sudo -u postgres psql -d mault -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EX
 
 pnpm install
 pnpm --filter @magic-vault/server build
-pnpm --filter @magic-vault/web build
+NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=4096" pnpm --filter @magic-vault/web build
 
 set -a
 # shellcheck disable=SC1091

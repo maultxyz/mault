@@ -17,6 +17,7 @@ import {
   IconLoader2,
   IconQrcode,
   IconRefresh,
+  IconScan,
 } from "@tabler/icons-react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useTranslation } from "react-i18next";
@@ -64,7 +65,7 @@ export function ScannerOverlay({
   autoFeed,
   cameraSource,
   phonePairingStatus,
-  hasPhonePhoto,
+  hasStillPhoto,
   dailyLimitReached,
   onRetryError,
   onConnectCamera,
@@ -74,6 +75,7 @@ export function ScannerOverlay({
   onConnectScannerCloud,
   bluetoothSupported,
   handScanActive,
+  isFlatbedMode = false,
   lastRoutedBin,
   onEnableHandScan,
   sessionLive = false,
@@ -138,7 +140,22 @@ export function ScannerOverlay({
     );
   }
 
-  if (isPhoneMode && phonePairingStatus === "connected" && !hasPhonePhoto) {
+  if (cameraSource === "document-scanner" && !hasStillPhoto) {
+    return (
+      <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
+        <div className="text-center text-sm text-foreground/70 max-w-56">
+          <IconScan className="mx-auto mb-2 size-5" />
+          <p>
+            {isFlatbedMode
+              ? t("scannerOverlay.flatbedScannerReady")
+              : t("scannerOverlay.documentScannerReady")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isPhoneMode && phonePairingStatus === "connected" && !hasStillPhoto) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
         <div className="text-center text-sm text-foreground/70">
