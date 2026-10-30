@@ -1,3 +1,4 @@
+import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type {
   CardCondition,
   CardScanOrigin,
@@ -407,7 +408,7 @@ export interface CardDetailPanelProps {
   reviewMode?: boolean;
   onReviewComplete?: () => void;
   onShowReviewGrid?: () => void;
-  footerActions?: ReactNode;
+  extraActions?: CardDetailAction[];
   onRemoveShortcut?: () => void;
 }
 
@@ -512,4 +513,27 @@ export interface CardThumbnailProps {
   image: PlayingCardImage | null | undefined;
   isFoil?: boolean;
   className?: string;
+}
+
+export interface MobileCardDrawerProps {
+  open: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}
+
+export interface CardDetailAction {
+  key: string;
+  label: string;
+  icon: ReactNode;
+  onSelect: () => void;
+  destructive?: boolean;
+  disabled?: boolean;
+  hotkeyId?: HotkeyId;
+}
+
+export interface CardDetailActionsSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  actions: CardDetailAction[];
 }

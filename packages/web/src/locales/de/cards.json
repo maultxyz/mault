@@ -78,7 +78,9 @@
       "setLine": "Setzeile",
       "number": "Nummer"
     },
-    "copyOf": "Exemplar {{index}} von {{count}}"
+    "copyOf": "Exemplar {{index}} von {{count}}",
+    "moreOptions": "Mehr",
+    "actions": "Kartenaktionen"
   },
   "cardFilterPopover": {
     "color": "Farbe",

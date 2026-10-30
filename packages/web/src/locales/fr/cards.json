@@ -78,7 +78,9 @@
       "setLine": "Ligne d'extension",
       "number": "Numéro"
     },
-    "copyOf": "Exemplaire {{index}} sur {{count}}"
+    "copyOf": "Exemplaire {{index}} sur {{count}}",
+    "moreOptions": "Plus",
+    "actions": "Actions de la carte"
   },
   "cardFilterPopover": {
     "color": "Couleur",

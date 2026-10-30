@@ -1,24 +1,101 @@
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
+import { Drawer as DrawerPrimitive } from "vaul"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { DrawerContent } from "@/components/ui/drawer"
+import { useIsMobile } from "@/hooks/use-is-mobile"
+import { DialogPresentationContext } from "@/lib/dialog-presentation-context"
+import type { DialogProps } from "@/lib/interfaces/dialog"
 import { IconX } from "@tabler/icons-react"
 
-function Dialog({ ...props }: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+function asChildElement(render: unknown, children: React.ReactNode) {
+  if (React.isValidElement(render)) {
+    return children === undefined
+      ? render
+      : React.cloneElement(render, undefined, children)
+  }
+  return <button type="button">{children}</button>
 }
 
-function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
-  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
+function Dialog({
+  open,
+  defaultOpen,
+  onOpenChange,
+  drawerOnMobile = true,
+  children,
+}: DialogProps) {
+  const isMobile = useIsMobile()
+  if (isMobile && drawerOnMobile) {
+    return (
+      <DialogPresentationContext value="drawer">
+        <DrawerPrimitive.Root
+          open={open}
+          defaultOpen={defaultOpen}
+          onOpenChange={onOpenChange}
+        >
+          {children}
+        </DrawerPrimitive.Root>
+      </DialogPresentationContext>
+    )
+  }
+  return (
+    <DialogPresentationContext value="dialog">
+      <DialogPrimitive.Root
+        data-slot="dialog"
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={(next) => onOpenChange?.(next)}
+      >
+        {children}
+      </DialogPrimitive.Root>
+    </DialogPresentationContext>
+  )
+}
+
+function DialogTrigger({
+  render,
+  children,
+  ...props
+}: DialogPrimitive.Trigger.Props) {
+  const presentation = React.useContext(DialogPresentationContext)
+  if (presentation === "drawer") {
+    return (
+      <DrawerPrimitive.Trigger asChild>
+        {asChildElement(render, children)}
+      </DrawerPrimitive.Trigger>
+    )
+  }
+  return (
+    <DialogPrimitive.Trigger data-slot="dialog-trigger" render={render} {...props}>
+      {children}
+    </DialogPrimitive.Trigger>
+  )
 }
 
 function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
 }
 
-function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
+function DialogClose({
+  render,
+  children,
+  ...props
+}: DialogPrimitive.Close.Props) {
+  const presentation = React.useContext(DialogPresentationContext)
+  if (presentation === "drawer") {
+    return (
+      <DrawerPrimitive.Close asChild>
+        {asChildElement(render, children)}
+      </DrawerPrimitive.Close>
+    )
+  }
+  return (
+    <DialogPrimitive.Close data-slot="dialog-close" render={render} {...props}>
+      {children}
+    </DialogPrimitive.Close>
+  )
 }
 
 function DialogOverlay({
@@ -45,6 +122,16 @@ function DialogContent({
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
 }) {
+  const presentation = React.useContext(DialogPresentationContext)
+  if (presentation === "drawer") {
+    return (
+      <DrawerContent data-slot="dialog-content">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-control text-popover-foreground">
+          {children}
+        </div>
+      </DrawerContent>
+    )
+  }
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -107,37 +194,59 @@ function DialogFooter({
     >
       {children}
       {showCloseButton && (
-        <DialogPrimitive.Close render={<Button variant="outline" />}>
+        <DialogClose render={<Button variant="outline" />}>
           Close
-        </DialogPrimitive.Close>
+        </DialogClose>
       )}
     </div>
   )
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+function DialogTitle({ className, children, ...props }: DialogPrimitive.Title.Props) {
+  const presentation = React.useContext(DialogPresentationContext)
+  const classes = cn("font-heading text-sm font-medium", className)
+  if (presentation === "drawer") {
+    return (
+      <DrawerPrimitive.Title data-slot="dialog-title" className={classes}>
+        {children}
+      </DrawerPrimitive.Title>
+    )
+  }
   return (
-    <DialogPrimitive.Title
-      data-slot="dialog-title"
-      className={cn("font-heading text-sm font-medium", className)}
-      {...props}
-    />
+    <DialogPrimitive.Title data-slot="dialog-title" className={classes} {...props}>
+      {children}
+    </DialogPrimitive.Title>
   )
 }
 
 function DialogDescription({
   className,
+  children,
   ...props
 }: DialogPrimitive.Description.Props) {
+  const presentation = React.useContext(DialogPresentationContext)
+  const classes = cn(
+    "text-xs/relaxed text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+    className
+  )
+  if (presentation === "drawer") {
+    return (
+      <DrawerPrimitive.Description
+        data-slot="dialog-description"
+        className={classes}
+      >
+        {children}
+      </DrawerPrimitive.Description>
+    )
+  }
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn(
-        "text-xs/relaxed text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
-        className
-      )}
+      className={classes}
       {...props}
-    />
+    >
+      {children}
+    </DialogPrimitive.Description>
   )
 }
 

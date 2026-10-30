@@ -78,7 +78,9 @@
       "setLine": "Set line",
       "number": "Number"
     },
-    "copyOf": "Copy {{index}} of {{count}}"
+    "copyOf": "Copy {{index}} of {{count}}",
+    "moreOptions": "More",
+    "actions": "Card actions"
   },
   "cardFilterPopover": {
     "color": "Color",

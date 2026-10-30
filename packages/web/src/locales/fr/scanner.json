@@ -307,7 +307,6 @@
     "start": "Démarrer le scan",
     "sessionSummary_one": "{{count}} carte scannée · {{time}}",
     "sessionSummary_other": "{{count}} cartes scannées · {{time}}",
-    "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
     "startRemoving": "Démarrer le retrait"
   },
   "scannerDebug": {
@@ -751,12 +750,24 @@
     "recentlyScanned": "Scannées récemment",
     "seeAllStats": "Toutes les statistiques",
     "actions": {
-      "scan": "Scanner",
       "newCollection": "Nouvelle",
-      "sorter": "Trieuse",
-      "stats": "Stats"
+      "stats": "Stats",
+      "buySell": "Achat-vente"
     },
-    "activeCollection": "Active"
+    "activeCollection": "Active",
+    "scanHero": {
+      "title": "Commencer le scan",
+      "sortInto": "Trier dans {{collection}}",
+      "noCollection": "Choisis une collection où trier"
+    },
+    "actionHints": {
+      "newCollection": "Ajouter une collection",
+      "buySell": "Rachats et préparations",
+      "buySellOpen_one": "{{count}} rachat ouvert",
+      "buySellOpen_other": "{{count}} rachats ouverts",
+      "stats": "Graphiques et historique"
+    },
+    "statsHeading": "Aperçu"
   },
   "resetToNeutral": {
     "done": "Trieuse remise en position neutre",

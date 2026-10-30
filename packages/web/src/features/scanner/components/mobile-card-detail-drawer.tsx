@@ -1,11 +1,14 @@
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { DrawerTitle } from "@/components/ui/drawer";
+import { MobileCardDrawer } from "@/features/cards/components/mobile-card-drawer";
 import {
   loadCollectionPositionStep,
   usePrefetchDetailCards,
 } from "@/features/cards/api/use-prefetch-detail-cards";
+import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
+import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
@@ -20,6 +23,8 @@ import { useTranslation } from "react-i18next";
 
 export function MobileCardDetailDrawer({
   collectionGuid,
+  collection,
+  canEditCards,
   scanId,
   reviewMode = false,
   onNavigate,
@@ -32,33 +37,30 @@ export function MobileCardDetailDrawer({
   const reviewSession = useReviewSession(scanId, reviewMode);
 
   return (
-    <Drawer
-      open={!!scanId}
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
-      <DrawerContent className="data-[vaul-drawer-direction=bottom]:h-[92dvh] data-[vaul-drawer-direction=bottom]:max-h-[92dvh]">
-        {shownScanId && (
-          <MobileCardDetailBody
-            key={shownScanId}
-            collectionGuid={collectionGuid}
-            scanId={shownScanId}
-            reviewMode={reviewMode}
-            reviewSession={reviewSession}
-            onNavigate={onNavigate}
-            onReviewComplete={onReviewComplete}
-            onShowReviewGrid={onShowReviewGrid}
-            onClose={onClose}
-          />
-        )}
-      </DrawerContent>
-    </Drawer>
+    <MobileCardDrawer open={!!scanId} onClose={onClose}>
+      {shownScanId && (
+        <MobileCardDetailBody
+          key={shownScanId}
+          collectionGuid={collectionGuid}
+          collection={collection}
+          canEditCards={canEditCards}
+          scanId={shownScanId}
+          reviewMode={reviewMode}
+          reviewSession={reviewSession}
+          onNavigate={onNavigate}
+          onReviewComplete={onReviewComplete}
+          onShowReviewGrid={onShowReviewGrid}
+          onClose={onClose}
+        />
+      )}
+    </MobileCardDrawer>
   );
 }
 
 function MobileCardDetailBody({
   collectionGuid,
+  collection,
+  canEditCards,
   scanId,
   reviewMode,
   reviewSession,
@@ -69,8 +71,11 @@ function MobileCardDetailBody({
 }: MobileCardDetailBodyProps) {
   const { t } = useTranslation("cards");
   const { removeCard } = useScannedCards();
+  const collectionCardActions = useCollectionCardActions(collectionGuid);
   const queryClient = useQueryClient();
-  const query = reviewMode ? MONITOR_NEEDS_REVIEW_CARDS_QUERY : CARD_LOOKUP_QUERY;
+  const query = reviewMode
+    ? MONITOR_NEEDS_REVIEW_CARDS_QUERY
+    : CARD_LOOKUP_QUERY;
   const { data: position, isPending } = useQuery(
     collectionCardPositionQueryOptions(collectionGuid, scanId, query),
   );
@@ -92,11 +97,7 @@ function MobileCardDetailBody({
       ),
     [queryClient, collectionGuid, query],
   );
-  usePrefetchDetailCards(
-    entry ? nextScanId : null,
-    true,
-    loadPrefetchStep,
-  );
+  usePrefetchDetailCards(entry ? nextScanId : null, true, loadPrefetchStep);
 
   useEffect(() => {
     if (isMissing && !reviewMode) onClose();
@@ -113,41 +114,57 @@ function MobileCardDetailBody({
     );
   }
 
+  const panel = (
+    <CardDetailPanel
+      scanId={entry.scanId}
+      currentCard={entry.card}
+      alternativeMatches={entry.alternativeMatches}
+      lowConfidenceMatch={entry.lowConfidenceMatch}
+      wasCorrected={entry.corrected}
+      isReviewed={entry.reviewed}
+      storageLocation={entry.storageLocation}
+      isFoil={entry.isFoil}
+      foilType={entry.foilType}
+      condition={entry.condition}
+      language={entry.language}
+      binNumber={entry.binNumber}
+      onClose={onClose}
+      onRemove={
+        canEditCards
+          ? () => {
+              removeCard(entry.scanId);
+              if (reviewMode) reviewSession.forget(entry.scanId);
+              if (reviewMode && nextScanId) onNavigate(nextScanId);
+              else onClose();
+            }
+          : undefined
+      }
+      onPrev={() => onNavigate(prevScanId)}
+      onNext={() => onNavigate(nextScanId)}
+      hasPrev={!!prevScanId}
+      hasNext={!!nextScanId}
+      currentIndex={position?.index ?? 0}
+      total={position?.total ?? 0}
+      copyIndex={position?.copyIndex ?? -1}
+      copyCount={position?.copyCount ?? 1}
+      reviewMode={reviewMode}
+      onReviewComplete={() => onReviewComplete(position?.total ?? 0)}
+      onShowReviewGrid={onShowReviewGrid}
+    />
+  );
+
   return (
     <div data-vaul-no-drag className="flex min-h-0 flex-1 flex-col">
       <DrawerTitle className="sr-only">{entry.card.name}</DrawerTitle>
-      <CardDetailPanel
-        scanId={entry.scanId}
-        currentCard={entry.card}
-        alternativeMatches={entry.alternativeMatches}
-        lowConfidenceMatch={entry.lowConfidenceMatch}
-        wasCorrected={entry.corrected}
-        isReviewed={entry.reviewed}
-        storageLocation={entry.storageLocation}
-        isFoil={entry.isFoil}
-        foilType={entry.foilType}
-        condition={entry.condition}
-        language={entry.language}
-        binNumber={entry.binNumber}
-        onClose={onClose}
-        onRemove={() => {
-          removeCard(entry.scanId);
-          if (reviewMode) reviewSession.forget(entry.scanId);
-          if (reviewMode && nextScanId) onNavigate(nextScanId);
-          else onClose();
-        }}
-        onPrev={() => onNavigate(prevScanId)}
-        onNext={() => onNavigate(nextScanId)}
-        hasPrev={!!prevScanId}
-        hasNext={!!nextScanId}
-        currentIndex={position?.index ?? 0}
-        total={position?.total ?? 0}
-        copyIndex={position?.copyIndex ?? -1}
-        copyCount={position?.copyCount ?? 1}
-        reviewMode={reviewMode}
-        onReviewComplete={() => onReviewComplete(position?.total ?? 0)}
-        onShowReviewGrid={onShowReviewGrid}
-      />
+      {canEditCards ? (
+        panel
+      ) : (
+        <CardDetailScopeContext
+          value={{ collection, actions: collectionCardActions }}
+        >
+          {panel}
+        </CardDetailScopeContext>
+      )}
     </div>
   );
 }

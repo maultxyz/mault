@@ -307,7 +307,6 @@
     "start": "Start scanning",
     "sessionSummary_one": "{{count}} card scanned · {{time}}",
     "sessionSummary_other": "{{count}} cards scanned · {{time}}",
-    "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
     "startRemoving": "Start removing"
   },
   "scannerDebug": {
@@ -751,12 +750,24 @@
     "recentlyScanned": "Recently scanned",
     "seeAllStats": "See all stats",
     "actions": {
-      "scan": "Scan",
       "newCollection": "New",
-      "sorter": "Sorter",
-      "stats": "Stats"
+      "stats": "Stats",
+      "buySell": "Buy & sell"
     },
-    "activeCollection": "Active"
+    "activeCollection": "Active",
+    "scanHero": {
+      "title": "Start scanning",
+      "sortInto": "Sort into {{collection}}",
+      "noCollection": "Pick a collection to sort into"
+    },
+    "actionHints": {
+      "newCollection": "Add a collection",
+      "buySell": "Intake and picks",
+      "buySellOpen_one": "{{count}} open intake",
+      "buySellOpen_other": "{{count}} open intakes",
+      "stats": "Charts and history"
+    },
+    "statsHeading": "Overview"
   },
   "resetToNeutral": {
     "done": "Sorter reset to neutral",

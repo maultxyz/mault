@@ -31,6 +31,7 @@ export function useMonitorCards(
   session: SessionMonitorState,
   cardsSource: MonitorCardsSource,
   canEditCards: boolean,
+  canOpenCards: boolean,
 ): MonitorCardsState {
   const queryClient = useQueryClient();
   const { collection, cardsVersion } = session;
@@ -128,7 +129,7 @@ export function useMonitorCards(
   );
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const openScanId = canEditCards
+  const openScanId = canOpenCards
     ? (searchParams.get(MONITOR_OPEN_CARD_PARAM) ?? undefined)
     : undefined;
 

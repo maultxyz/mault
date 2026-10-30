@@ -1,6 +1,4 @@
 import { DeleteDialog } from "@/components/delete-dialog";
-import { HotkeyHint } from "@/components/hotkey-hint";
-import { Button } from "@/components/ui/button";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
@@ -183,27 +181,24 @@ export function StorageCardDetail({
           onClose();
         }}
         onRemoveShortcut={() => setConfirmRemoveOpen(true)}
-        footerActions={
-          <>
-            <Button
-              variant="outline"
-              disabled={isMoving}
-              onClick={() => setMoveOpen(true)}
-            >
-              <IconTransfer />
-              {tStorage("cardLocation.move")}
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={isRemoving}
-              onClick={() => setConfirmRemoveOpen(true)}
-            >
-              <IconBoxOff className="size-4" />
-              {tStorage("cardLocation.remove")}
-              <HotkeyHint id="cardRemove" />
-            </Button>
-          </>
-        }
+        extraActions={[
+          {
+            key: "move",
+            label: tStorage("cardLocation.move"),
+            icon: <IconTransfer />,
+            disabled: isMoving,
+            onSelect: () => setMoveOpen(true),
+          },
+          {
+            key: "remove-from-location",
+            label: tStorage("cardLocation.remove"),
+            icon: <IconBoxOff />,
+            destructive: true,
+            disabled: isRemoving,
+            hotkeyId: "cardRemove",
+            onSelect: () => setConfirmRemoveOpen(true),
+          },
+        ]}
       />
       <MoveToLocationDialog
         open={moveOpen}

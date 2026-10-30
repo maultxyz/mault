@@ -1,6 +1,4 @@
 import { DeleteDialog } from "@/components/delete-dialog";
-import { HotkeyHint } from "@/components/hotkey-hint";
-import { Button } from "@/components/ui/button";
 import {
   businessKeys,
   intakeCardContextQueryOptions,
@@ -160,17 +158,19 @@ export function IntakeCardDetail({
         onRemoveShortcut={
           canRemove ? () => setConfirmRemoveOpen(true) : undefined
         }
-        footerActions={
-          canRemove ? (
-            <Button
-              variant="destructive"
-              onClick={() => setConfirmRemoveOpen(true)}
-            >
-              <IconX className="size-4" />
-              {tBusiness("intake.review.remove")}
-              <HotkeyHint id="cardRemove" />
-            </Button>
-          ) : undefined
+        extraActions={
+          canRemove
+            ? [
+                {
+                  key: "remove-from-intake",
+                  label: tBusiness("intake.review.remove"),
+                  icon: <IconX />,
+                  destructive: true,
+                  hotkeyId: "cardRemove",
+                  onSelect: () => setConfirmRemoveOpen(true),
+                },
+              ]
+            : undefined
         }
       />
       <DeleteDialog
