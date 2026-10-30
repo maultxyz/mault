@@ -9,7 +9,7 @@
     "build": "tsup",
     "start": "tsup && electron .",
     "scanner-helper": "node scripts/build-scanner-helper.mjs",
-    "dist": "tsup && node scripts/stage-koffi.mjs && node scripts/build-scanner-helper.mjs && electron-builder"
+    "dist": "tsup && node scripts/stage-koffi.mjs && node scripts/build-scanner-helper.mjs && electron-builder --config electron-builder.config.js"
   },
   "devDependencies": {
     "@magic-vault/shared": "workspace:*",

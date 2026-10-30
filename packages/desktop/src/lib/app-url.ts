@@ -4,14 +4,14 @@ import {
   DEFAULT_LOCALE,
   DESKTOP_STRINGS,
   DEVELOPMENT_APP_URL,
-  PRODUCTION_APP_URL,
   START_PATH,
 } from "./constants/desktop";
+import { CHANNEL_SETTINGS } from "./channel";
 import type { DesktopLocale, DesktopStrings } from "./interfaces/desktop";
 
 export function getAppOrigin(): string {
   const configured = process.env[APP_URL_ENV];
-  const url = configured || (app.isPackaged ? PRODUCTION_APP_URL : DEVELOPMENT_APP_URL);
+  const url = configured || (app.isPackaged ? CHANNEL_SETTINGS.appUrl : DEVELOPMENT_APP_URL);
   return new URL(url).origin;
 }
 

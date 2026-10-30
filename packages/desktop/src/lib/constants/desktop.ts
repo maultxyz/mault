@@ -1,9 +1,22 @@
 import type {
+  DesktopChannel,
+  DesktopChannelSettings,
   DesktopLocale,
   DesktopStrings,
 } from "../interfaces/desktop";
 
-export const PRODUCTION_APP_URL = "https://mault.xyz";
+export const DESKTOP_CHANNEL_SETTINGS: Record<DesktopChannel, DesktopChannelSettings> = {
+  production: {
+    appUrl: "https://mault.xyz",
+    appUserModelId: "xyz.mault.desktop",
+    iconBaseName: "app-icon",
+  },
+  development: {
+    appUrl: "https://dev.mault.xyz",
+    appUserModelId: "xyz.mault.desktop.dev",
+    iconBaseName: "app-icon-development",
+  },
+};
 export const DEVELOPMENT_APP_URL = "http://localhost:5173";
 export const APP_URL_ENV = "MAULT_URL";
 export const ROOT_ENV_FILE_RELATIVE_PATH = "../../.env";
@@ -13,8 +26,7 @@ export const MAIN_WINDOW_SIZE = { width: 1440, height: 900 };
 export const MAIN_WINDOW_MIN_SIZE = { width: 960, height: 640 };
 export const PICKER_WINDOW_SIZE = { width: 420, height: 380 };
 export const WINDOW_BACKGROUND = { light: "#ffffff", dark: "#1e1f21" };
-export const APP_ICON_FILE = "app-icon.png";
-export const WINDOWS_APP_ICON_FILE = "app-icon.ico";
+
 
 export const GRANTED_SERIAL_PORTS_FILE = "granted-serial-ports.json";
 export const UNNAMED_BLUETOOTH_DEVICE_PATTERN = /^Unknown or Unsupported Device/i;
@@ -104,7 +116,6 @@ export const WIN32 = {
 export const PIP_WINDOW_SIZE = { width: 220, height: 400 };
 export const PIP_WINDOW_MIN_SIZE = { width: 160, height: 240 };
 export const PIP_WINDOW_MARGIN = 24;
-export const APP_USER_MODEL_ID = "xyz.mault.desktop";
 export const MAX_NOTIFICATION_TITLE_LENGTH = 200;
 export const MAX_NOTIFICATION_BODY_LENGTH = 1000;
 export const NOTIFICATION_DEDUPE_MS = 10_000;

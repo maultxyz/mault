@@ -8,6 +8,14 @@ import type { BrowserWindow, WebContents } from "electron";
 
 export type PickerKind = "serial" | "bluetooth";
 
+export type DesktopChannel = "production" | "development";
+
+export interface DesktopChannelSettings {
+  appUrl: string;
+  appUserModelId: string;
+  iconBaseName: string;
+}
+
 export type DesktopLocale = "en" | "de" | "fr";
 
 export interface PickerDevice {

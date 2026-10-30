@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: Version bump
+        description: Version bump (master only; dev builds use the current version plus the run number)
         type: choice
         options: [patch, minor, major]
         default: patch
@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: desktop-release
+  group: desktop-release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -21,13 +21,31 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      channel: ${{ steps.channel.outputs.channel }}
+      release-tag: ${{ steps.channel.outputs.release-tag }}
+      artifact-prefix: ${{ steps.channel.outputs.artifact-prefix }}
     steps:
-      - name: Check branch
+      # master publishes the production app (desktop-latest); dev publishes the
+      # separately installed MAULT Dev app (desktop-dev) that loads dev.mault.xyz.
+      - name: Pick channel
+        id: channel
         run: |
-          if [ "${{ github.ref_name }}" != "master" ]; then
-            echo "::error::Desktop releases run from master, not ${{ github.ref_name }}."
-            exit 1
-          fi
+          case "${{ github.ref_name }}" in
+            master)
+              echo "channel=production" >> "$GITHUB_OUTPUT"
+              echo "release-tag=desktop-latest" >> "$GITHUB_OUTPUT"
+              echo "artifact-prefix=MAULT" >> "$GITHUB_OUTPUT"
+              ;;
+            dev)
+              echo "channel=development" >> "$GITHUB_OUTPUT"
+              echo "release-tag=desktop-dev" >> "$GITHUB_OUTPUT"
+              echo "artifact-prefix=MAULT-Dev" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::Desktop releases run from master or dev, not ${{ github.ref_name }}."
+              exit 1
+              ;;
+          esac
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,11 +55,15 @@ jobs:
         working-directory: packages/desktop
         run: |
           CURRENT=$(node -p "require('./package.json').version")
-          VERSION=$(node -e '
-            const [major, minor, patch] = process.argv[1].split(".").map(Number);
-            const bump = process.argv[2];
-            console.log(bump === "major" ? `${major + 1}.0.0` : bump === "minor" ? `${major}.${minor + 1}.0` : `${major}.${minor}.${patch + 1}`);
-          ' "$CURRENT" "${{ inputs.bump }}")
+          if [ "${{ steps.channel.outputs.channel }}" = "development" ]; then
+            VERSION="$CURRENT-dev.${{ github.run_number }}"
+          else
+            VERSION=$(node -e '
+              const [major, minor, patch] = process.argv[1].split(".").map(Number);
+              const bump = process.argv[2];
+              console.log(bump === "major" ? `${major + 1}.0.0` : bump === "minor" ? `${major}.${minor + 1}.0` : `${major}.${minor}.${patch + 1}`);
+            ' "$CURRENT" "${{ inputs.bump }}")
+          fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
   build:
@@ -81,10 +103,13 @@ jobs:
 
       # Windows signing runs only when these secrets exist; without them the
       # installer is unsigned and SmartScreen warns on first run.
+      # MAULT_DESKTOP_CHANNEL is read by both tsup (app URL, app ID, icon) and
+      # electron-builder.config.js (installer name, app ID, update feed).
       - name: Build
         working-directory: packages/desktop
         shell: bash
         env:
+          MAULT_DESKTOP_CHANNEL: ${{ needs.version.outputs.channel }}
           WIN_CSC_LINK: ${{ secrets.DESKTOP_WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.DESKTOP_WIN_CSC_KEY_PASSWORD }}
         run: pnpm dist --publish never
@@ -99,12 +124,16 @@ jobs:
             packages/desktop/release/*.AppImage
             packages/desktop/release/*.blockmap
             packages/desktop/release/latest*.yml
+            packages/desktop/release/dev*.yml
 
   publish:
     needs: [version, build]
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ needs.version.outputs.version }}
+      CHANNEL: ${{ needs.version.outputs.channel }}
+      RELEASE_TAG: ${{ needs.version.outputs.release-tag }}
+      ARTIFACT_PREFIX: ${{ needs.version.outputs.artifact-prefix }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
@@ -118,19 +147,29 @@ jobs:
           path: installers
           merge-multiple: true
 
-      # desktop-latest is the fixed URL electron-updater reads (the generic
-      # provider in electron-builder.yml), so it is replaced on every release.
-      - name: Publish desktop-latest release
+      # The release tag is the fixed URL electron-updater reads (the generic
+      # provider in electron-builder.config.js), so it is replaced on every release.
+      - name: Publish release
         run: |
-          cp installers/MAULT-*-win-*.exe installers/MAULT-windows.exe
-          cp installers/MAULT-*-linux-*.AppImage installers/MAULT-linux.AppImage
-          gh release delete desktop-latest --cleanup-tag --yes || true
-          gh release create desktop-latest installers/* \
-            --title "MAULT Desktop v$VERSION" \
-            --notes "MAULT desktop app v$VERSION." \
-            --latest=false
+          cp installers/"$ARTIFACT_PREFIX"-*-win-*.exe installers/"$ARTIFACT_PREFIX"-windows.exe
+          cp installers/"$ARTIFACT_PREFIX"-*-linux-*.AppImage installers/"$ARTIFACT_PREFIX"-linux.AppImage
+          gh release delete "$RELEASE_TAG" --cleanup-tag --yes || true
+          if [ "$CHANNEL" = "development" ]; then
+            gh release create "$RELEASE_TAG" installers/* \
+              --target "${{ github.sha }}" \
+              --title "MAULT Desktop Dev v$VERSION" \
+              --notes "Development build of the MAULT desktop app from ${{ github.sha }}. It installs as MAULT Dev next to the production app and loads dev.mault.xyz." \
+              --prerelease \
+              --latest=false
+          else
+            gh release create "$RELEASE_TAG" installers/* \
+              --title "MAULT Desktop v$VERSION" \
+              --notes "MAULT desktop app v$VERSION." \
+              --latest=false
+          fi
 
       - name: Commit and tag desktop version
+        if: needs.version.outputs.channel == 'production'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
@@ -145,7 +184,7 @@ jobs:
       - name: Summary
         run: |
           {
-            echo "## Desktop release v$VERSION"
+            echo "## Desktop $CHANNEL release v$VERSION"
             echo ""
-            echo "- Downloads: https://github.com/${{ github.repository }}/releases/tag/desktop-latest"
+            echo "- Downloads: https://github.com/${{ github.repository }}/releases/tag/$RELEASE_TAG"
           } >> "$GITHUB_STEP_SUMMARY"

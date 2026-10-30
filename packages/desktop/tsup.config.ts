@@ -12,6 +12,11 @@ export default defineConfig({
   outDir: "dist",
   clean: true,
   publicDir: "static",
+  define: {
+    "process.env.MAULT_DESKTOP_CHANNEL": JSON.stringify(
+      process.env.MAULT_DESKTOP_CHANNEL ?? "production",
+    ),
+  },
   external: ["electron", /^@koromix\//],
   noExternal: [/^(?!electron$|@koromix\/).*/],
 });

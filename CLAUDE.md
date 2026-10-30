@@ -134,6 +134,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 ### Desktop (`packages/desktop`)
 
 - Loads the hosted web app, never a bundled copy. The web app talks to it only through the feature-detected `window.maultDesktop` bridge (`DesktopBridge` in `shared`).
+- Build channel `MAULT_DESKTOP_CHANNEL` (`production` from master, `development` from dev) is baked in by tsup (`lib/channel.ts`: app URL, Windows app ID, icon) and read by `electron-builder.config.js` (app ID, name, update feed `desktop-latest`/`desktop-dev`). MAULT Dev installs next to MAULT and loads dev.mault.xyz; keep the two configs' channel lists in step.
 - Thumbnail buttons: no calls until shortly after the main window is first shown, and never pass `flags: ["enabled"]`.
 - Serial permissions only allow ports picked through `device-picker.ts`; the permission handler receives Chromium's snake_case object, not the picker's.
 - `backgroundThrottling: false` hides occlusion from the page, so "covered or minimized" comes from `window-state.ts`/`window-coverage.ts`.

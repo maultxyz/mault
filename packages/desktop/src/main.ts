@@ -2,8 +2,8 @@ import { app, BrowserWindow, nativeTheme, session } from "electron";
 import path from "path";
 import { appIconPath, applyTaskbarIcon } from "./lib/app-icon";
 import { getStartUrl } from "./lib/app-url";
+import { CHANNEL_SETTINGS } from "./lib/channel";
 import {
-  APP_USER_MODEL_ID,
   ELECTRON_USER_AGENT_TOKENS,
   MAIN_WINDOW_MIN_SIZE,
   MAIN_WINDOW_SIZE,
@@ -59,7 +59,7 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.userAgentFallback = app.userAgentFallback.replace(ELECTRON_USER_AGENT_TOKENS, "");
-  if (process.platform === "win32") app.setAppUserModelId(APP_USER_MODEL_ID);
+  if (process.platform === "win32") app.setAppUserModelId(CHANNEL_SETTINGS.appUserModelId);
 
   app.on("second-instance", () => {
     if (!mainWindow) return;
