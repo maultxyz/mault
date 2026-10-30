@@ -139,7 +139,15 @@
     "revert": "Rétablir"
   },
   "loadingGate": {
-    "loadingVault": "Chargement de ton coffre…"
+    "loadingVault": "Chargement de ton coffre…",
+    "quips": {
+      "shuffling": "On mélange le paquet…",
+      "feeding": "On nourrit la trieuse…",
+      "polishing": "On fait briller les foils…",
+      "counting": "On compte tes cartes…",
+      "pricing": "On vérifie les prix du jour…",
+      "sorting": "On met tout en ordre…"
+    }
   },
   "notFound": {
     "title": "Page introuvable",

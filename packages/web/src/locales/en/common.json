@@ -139,7 +139,15 @@
     "revert": "Revert"
   },
   "loadingGate": {
-    "loadingVault": "Loading your vault…"
+    "loadingVault": "Loading your vault…",
+    "quips": {
+      "shuffling": "Shuffling the deck…",
+      "feeding": "Feeding the sorter…",
+      "polishing": "Polishing the foils…",
+      "counting": "Counting your cards…",
+      "pricing": "Checking today's prices…",
+      "sorting": "Sorting it all out…"
+    }
   },
   "notFound": {
     "title": "Page not found",
