@@ -31,6 +31,13 @@ export const storageLocationsPageQueryOptions = (orgId: string | null) =>
     enabled: !!orgId,
   });
 
+export const storageLocationsQueryOptions = (orgId: string | null, enabled: boolean) =>
+  queryOptions({
+    queryKey: ["storage-locations", orgId, "all"] as const,
+    queryFn: () => unwrapOr(apiGet<Result<StorageLocation[]>>("/api/storage-locations"), []),
+    enabled: !!orgId && enabled,
+  });
+
 export const storageLocationQueryOptions = (guid: string) =>
   queryOptions({
     queryKey: ["storage-locations", "location", guid] as const,
@@ -106,6 +113,10 @@ export async function renameStorageLocation(guid: string, name: string): Promise
 
 export async function deleteStorageLocation(guid: string): Promise<void> {
   check(await apiDelete<Result<unknown>>(`/api/storage-locations/${guid}`));
+}
+
+export async function moveCardsToStorageLocation(guid: string, scanIds: string[]): Promise<void> {
+  check(await apiPost<Result<unknown>>(`/api/storage-locations/${guid}/cards`, { scanIds }));
 }
 
 export async function markStorageLocationCardsDownloaded(guid: string, scanIds: string[]): Promise<void> {

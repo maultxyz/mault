@@ -65,7 +65,10 @@
   "cardLocation": {
     "heading": "Lager",
     "value": "{{name}} · #{{position}}",
-    "remove": "Aus Box entfernen"
+    "remove": "Aus Box entfernen",
+    "move": "Verschieben",
+    "store": "In Lagerort verschieben",
+    "notStored": "Keinem Lagerort zugeordnet"
   },
   "toasts": {
     "failed": "Lagerorte konnten nicht aktualisiert werden",
@@ -119,5 +122,13 @@
     "next": "Weiter",
     "page": "Seite {{page}} von {{count}}",
     "range": "{{from}}-{{to}} von {{total}} Karten"
+  },
+  "moveDialog": {
+    "title_one": "Karte in einen Lagerort verschieben",
+    "title_other": "{{count}} Karten in einen Lagerort verschieben",
+    "description_one": "Die Karte wird ans Ende des gewählten Lagerorts gelegt. War sie woanders gelagert, verlässt sie diesen Ort.",
+    "description_other": "Die Karten werden in der Reihenfolge deiner Auswahl ans Ende des gewählten Lagerorts gelegt. Karten, die woanders gelagert waren, verlassen ihren alten Ort.",
+    "cancel": "Abbrechen",
+    "confirm": "Verschieben"
   }
 }

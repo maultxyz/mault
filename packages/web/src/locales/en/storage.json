@@ -65,7 +65,10 @@
   "cardLocation": {
     "heading": "Storage",
     "value": "{{name}} · #{{position}}",
-    "remove": "Remove from box"
+    "remove": "Remove from box",
+    "move": "Move",
+    "store": "Move to location",
+    "notStored": "Not in a storage location"
   },
   "toasts": {
     "failed": "Couldn't update storage locations",
@@ -119,5 +122,13 @@
     "next": "Next",
     "page": "Page {{page}} of {{count}}",
     "range": "{{from}}-{{to}} of {{total}} cards"
+  },
+  "moveDialog": {
+    "title_one": "Move card to a location",
+    "title_other": "Move {{count}} cards to a location",
+    "description_one": "The card is added to the end of the location you pick. If it was stored somewhere else, it leaves that location.",
+    "description_other": "The cards are added to the end of the location you pick, in the order you selected them. Cards stored somewhere else leave their old location.",
+    "cancel": "Cancel",
+    "confirm": "Move"
   }
 }

@@ -12,15 +12,17 @@ import { collectionCardPositionQueryOptions } from "@/features/collections/api/c
 import { useCollections } from "@/features/collections/api/use-collections";
 import { storageLocationCardContextQueryOptions } from "@/features/storage/api/storage-locations";
 import {
+  useMoveCardsToLocation,
   useRemoveCardFromLocation,
   useStoredCardActions,
 } from "@/features/storage/api/use-storage-locations";
+import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
-import { IconBoxOff } from "@tabler/icons-react";
+import { IconBoxOff, IconTransfer } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,7 +38,9 @@ export function StorageCardDetail({
   const { t } = useTranslation("cards");
   const { t: tStorage } = useTranslation("storage");
   const { removeCard, isRemoving } = useRemoveCardFromLocation();
+  const { moveCards, isMoving } = useMoveCardsToLocation();
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
   const queryClient = useQueryClient();
   const { collections } = useCollections();
   const { data: context, isPending } = useQuery(
@@ -129,12 +133,26 @@ export function StorageCardDetail({
 
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 
-  const removeFromLocation = () => {
-    setConfirmRemoveOpen(false);
-    void removeCard(location.guid, scanId);
+  const leaveCard = () => {
     if (reviewMode) reviewSession.forget(scanId);
     if (nextScanId) onNavigate(nextScanId);
     else onClose();
+  };
+
+  const removeFromLocation = () => {
+    setConfirmRemoveOpen(false);
+    void removeCard(location.guid, scanId);
+    leaveCard();
+  };
+
+  const moveToLocation = async (locationGuid: string) => {
+    const moved = await moveCards({
+      guid: locationGuid,
+      scanIds: [scanId],
+      collectionGuid: stored.collectionGuid,
+    });
+    if (moved) leaveCard();
+    return moved;
   };
 
   return (
@@ -166,16 +184,34 @@ export function StorageCardDetail({
         }}
         onRemoveShortcut={() => setConfirmRemoveOpen(true)}
         footerActions={
-          <Button
-            variant="destructive"
-            disabled={isRemoving}
-            onClick={() => setConfirmRemoveOpen(true)}
-          >
-            <IconBoxOff className="size-4" />
-            {tStorage("cardLocation.remove")}
-            <HotkeyHint id="cardRemove" />
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              disabled={isMoving}
+              onClick={() => setMoveOpen(true)}
+            >
+              <IconTransfer />
+              {tStorage("cardLocation.move")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={isRemoving}
+              onClick={() => setConfirmRemoveOpen(true)}
+            >
+              <IconBoxOff className="size-4" />
+              {tStorage("cardLocation.remove")}
+              <HotkeyHint id="cardRemove" />
+            </Button>
+          </>
         }
+      />
+      <MoveToLocationDialog
+        open={moveOpen}
+        count={1}
+        excludedLocationGuid={location.guid}
+        isMoving={isMoving}
+        onOpenChange={setMoveOpen}
+        onMove={moveToLocation}
       />
       <DeleteDialog
         open={confirmRemoveOpen}

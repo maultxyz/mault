@@ -1209,7 +1209,10 @@
       "start": "Karten prüfen",
       "nothingLeft": "Nichts mehr zu prüfen. Jede Karte hier wurde bereits geprüft.",
       "startFailed": "Die Prüfung konnte nicht gestartet werden"
-    }
+    },
+    "moveToLocation": "In Lagerort verschieben",
+    "moveToOtherLocation": "In anderen Lagerort verschieben",
+    "searchLocations": "Lagerorte suchen"
   },
   "settings": {
     "title": "Einstellungen",

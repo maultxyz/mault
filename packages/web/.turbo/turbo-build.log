@@ -1,0 +1,523 @@
+
+> @magic-vault/web@1.0.180 build C:\Users\User\Documents\Coding\magic-vault\packages\web
+> tsc -b && vite build
+
+[36mvite v6.4.1 [32mbuilding for production...[36m[39m
+transforming...
+[33m../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33m../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33m../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33m../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[32m✓[39m 10233 modules transformed.
+[33mExport "AuthView" of module "../../node_modules/.pnpm/@neondatabase_4girtxx7ybchv7af3inijvmq64/node_modules/@neondatabase/auth-ui/dist/index.mjs" was reexported through module "../../node_modules/.pnpm/@neondatabase_mtjpziay4qrwfh3xr6pxrhotve/node_modules/@neondatabase/auth/dist/ui-CnVnqGns.mjs" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/routes/neon/auth.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.[39m
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mmanifest.webmanifest                                         [39m[1m[2m     0.47 kB[22m[1m[22m
+[2mdist/[22m[32massets/jetbrains-mono-vietnamese-wght-normal-Bt-aOZkq.woff2  [39m[1m[2m     7.50 kB[22m[1m[22m
+[2mdist/[22m[32massets/jetbrains-mono-greek-wght-normal-Bw9x6K1M.woff2       [39m[1m[2m     9.00 kB[22m[1m[22m
+[2mdist/[22m[32massets/figtree-latin-ext-wght-normal-DCwSJGxG.woff2          [39m[1m[2m    10.28 kB[22m[1m[22m
+[2mdist/[22m[32mindex.html                                                   [39m[1m[2m    11.42 kB[22m[1m[22m[2m │ gzip:     3.81 kB[22m
+[2mdist/[22m[32massets/jetbrains-mono-cyrillic-wght-normal-D73BlboJ.woff2    [39m[1m[2m    12.11 kB[22m[1m[22m
+[2mdist/[22m[32massets/geist-mono-cyrillic-wght-normal-BZdD_g9V.woff2        [39m[1m[2m    12.62 kB[22m[1m[22m
+[2mdist/[22m[32massets/geist-mono-latin-ext-wght-normal-b6lpi8_2.woff2       [39m[1m[2m    13.04 kB[22m[1m[22m
+[2mdist/[22m[32massets/jetbrains-mono-latin-ext-wght-normal-DBQx-q_a.woff2   [39m[1m[2m    15.20 kB[22m[1m[22m
+[2mdist/[22m[32massets/figtree-latin-wght-normal-D_ZTVpCC.woff2              [39m[1m[2m    20.16 kB[22m[1m[22m
+[2mdist/[22m[32massets/geist-mono-latin-wght-normal-Cjtb1TV-.woff2           [39m[1m[2m    31.37 kB[22m[1m[22m
+[2mdist/[22m[32massets/jetbrains-mono-latin-wght-normal-B9CIFXIH.woff2       [39m[1m[2m    40.40 kB[22m[1m[22m
+[2mdist/[22m[32massets/milo-sync.worker-POol_p3o.js                          [39m[1m[2m   176.91 kB[22m[1m[22m
+[2mdist/[22m[32massets/ort-wasm-simd-threaded-DcHrbrbl.wasm                  [39m[1m[2m14,239.90 kB[22m[1m[22m[2m │ gzip: 3,695.88 kB[22m
+[2mdist/[22m[32massets/ort-wasm-simd-threaded.asyncify-D5D0fo7z.wasm         [39m[1m[2m26,781.91 kB[22m[1m[22m[2m │ gzip: 6,673.53 kB[22m
+[2mdist/[22m[35massets/index-CT1dciz3.css                                    [39m[1m[2m   214.87 kB[22m[1m[22m[2m │ gzip:    34.66 kB[22m
+[2mdist/[22m[36massets/scryfall.constant-D3n8KM0X.js                         [39m[1m[2m     0.03 kB[22m[1m[22m[2m │ gzip:     0.05 kB[22m
+[2mdist/[22m[36massets/limits-B9PRfJby.js                                    [39m[1m[2m     0.05 kB[22m[1m[22m[2m │ gzip:     0.06 kB[22m
+[2mdist/[22m[36massets/forms-ws8-tk6O.js                                     [39m[1m[2m     0.05 kB[22m[1m[22m[2m │ gzip:     0.07 kB[22m
+[2mdist/[22m[36massets/pagination-Cls6Jht7.js                                [39m[1m[2m     0.05 kB[22m[1m[22m[2m │ gzip:     0.07 kB[22m
+[2mdist/[22m[36massets/delay-2S0BUUWF.js                                     [39m[1m[2m     0.07 kB[22m[1m[22m[2m │ gzip:     0.09 kB[22m
+[2mdist/[22m[36massets/web-bluetooth-DtS3MAo2.js                             [39m[1m[2m     0.08 kB[22m[1m[22m[2m │ gzip:     0.09 kB[22m
+[2mdist/[22m[36massets/settings-section-context-CIQmEC22.js                  [39m[1m[2m     0.09 kB[22m[1m[22m[2m │ gzip:     0.10 kB[22m
+[2mdist/[22m[36massets/image-proxy-BByDpglb.js                               [39m[1m[2m     0.09 kB[22m[1m[22m[2m │ gzip:     0.11 kB[22m
+[2mdist/[22m[36massets/scan-canvas-DaLXzit9.js                               [39m[1m[2m     0.10 kB[22m[1m[22m[2m │ gzip:     0.12 kB[22m
+[2mdist/[22m[36massets/esp32-flash-state-FhzzKwZY.js                         [39m[1m[2m     0.11 kB[22m[1m[22m[2m │ gzip:     0.11 kB[22m
+[2mdist/[22m[36massets/use-settings-sections-Bie8MJOK.js                     [39m[1m[2m     0.13 kB[22m[1m[22m[2m │ gzip:     0.14 kB[22m
+[2mdist/[22m[36massets/scan-log-CDjqN8az.js                                  [39m[1m[2m     0.14 kB[22m[1m[22m[2m │ gzip:     0.12 kB[22m
+[2mdist/[22m[36massets/billing-iDQBVeXT.js                                   [39m[1m[2m     0.14 kB[22m[1m[22m[2m │ gzip:     0.14 kB[22m
+[2mdist/[22m[36massets/host-CX6ffo-U.js                                      [39m[1m[2m     0.14 kB[22m[1m[22m[2m │ gzip:     0.14 kB[22m
+[2mdist/[22m[36massets/subscription-DUFu0gbS.js                              [39m[1m[2m     0.15 kB[22m[1m[22m[2m │ gzip:     0.15 kB[22m
+[2mdist/[22m[36massets/sidebar-item-CAeVMN0V.js                              [39m[1m[2m     0.17 kB[22m[1m[22m[2m │ gzip:     0.16 kB[22m
+[2mdist/[22m[36massets/bin-set-mode-BKeC54Z_.js                              [39m[1m[2m     0.18 kB[22m[1m[22m[2m │ gzip:     0.15 kB[22m
+[2mdist/[22m[36massets/use-debounced-value-X96RmNGl.js                       [39m[1m[2m     0.19 kB[22m[1m[22m[2m │ gzip:     0.16 kB[22m
+[2mdist/[22m[36massets/use-storage-access-BQD4D0G6.js                        [39m[1m[2m     0.19 kB[22m[1m[22m[2m │ gzip:     0.18 kB[22m
+[2mdist/[22m[36massets/skeleton-CidZ8Yf9.js                                  [39m[1m[2m     0.19 kB[22m[1m[22m[2m │ gzip:     0.17 kB[22m
+[2mdist/[22m[36massets/firmware-ByW3O01S.js                                  [39m[1m[2m     0.19 kB[22m[1m[22m[2m │ gzip:     0.16 kB[22m
+[2mdist/[22m[36massets/use-onboarding-k-RN1eJz.js                            [39m[1m[2m     0.21 kB[22m[1m[22m[2m │ gzip:     0.18 kB[22m
+[2mdist/[22m[36massets/page-request-Cpf7tzI4.js                              [39m[1m[2m     0.23 kB[22m[1m[22m[2m │ gzip:     0.19 kB[22m
+[2mdist/[22m[36massets/plans.constant-DrCza5gt.js                            [39m[1m[2m     0.24 kB[22m[1m[22m[2m │ gzip:     0.18 kB[22m
+[2mdist/[22m[36massets/request-with-toasts-B2jI_Qym.js                       [39m[1m[2m     0.24 kB[22m[1m[22m[2m │ gzip:     0.20 kB[22m
+[2mdist/[22m[36massets/number-input-JRgNE5Pf.js                              [39m[1m[2m     0.24 kB[22m[1m[22m[2m │ gzip:     0.20 kB[22m
+[2mdist/[22m[36massets/card-language-BmtmhGYW.js                             [39m[1m[2m     0.25 kB[22m[1m[22m[2m │ gzip:     0.18 kB[22m
+[2mdist/[22m[36massets/use-foil-options-CV9yrkeJ.js                          [39m[1m[2m     0.25 kB[22m[1m[22m[2m │ gzip:     0.21 kB[22m
+[2mdist/[22m[36massets/use-hotkeys-INTa-5zM.js                               [39m[1m[2m     0.25 kB[22m[1m[22m[2m │ gzip:     0.20 kB[22m
+[2mdist/[22m[36massets/serial-timing.constant-Dftvl2eG.js                    [39m[1m[2m     0.25 kB[22m[1m[22m[2m │ gzip:     0.17 kB[22m
+[2mdist/[22m[36massets/list-skeleton-BkVM84yu.js                             [39m[1m[2m     0.28 kB[22m[1m[22m[2m │ gzip:     0.23 kB[22m
+[2mdist/[22m[36massets/leaderboard-3gNi0wRx.js                               [39m[1m[2m     0.28 kB[22m[1m[22m[2m │ gzip:     0.23 kB[22m
+[2mdist/[22m[36massets/scanner.constant-mzaBHtUw.js                          [39m[1m[2m     0.29 kB[22m[1m[22m[2m │ gzip:     0.22 kB[22m
+[2mdist/[22m[36massets/onboarding-tour-g-MmTt2W.js                           [39m[1m[2m     0.29 kB[22m[1m[22m[2m │ gzip:     0.21 kB[22m
+[2mdist/[22m[36massets/pagination-DwQtlfGt.js                                [39m[1m[2m     0.29 kB[22m[1m[22m[2m │ gzip:     0.21 kB[22m
+[2mdist/[22m[36massets/foil-overlay-D7uGU2jJ.js                              [39m[1m[2m     0.31 kB[22m[1m[22m[2m │ gzip:     0.23 kB[22m
+[2mdist/[22m[36massets/storage-upgrade-note-D1wG8EM3.js                      [39m[1m[2m     0.31 kB[22m[1m[22m[2m │ gzip:     0.25 kB[22m
+[2mdist/[22m[36massets/IconMinus-O3OILUx3.js                                 [39m[1m[2m     0.32 kB[22m[1m[22m[2m │ gzip:     0.26 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+[2mdist/[22m[36massets/page-intro-j9FSmoOm.js                                [39m[1m[2m     0.32 kB[22m[1m[22m[2m │ gzip:     0.23 kB[22m
+[2mdist/[22m[36massets/mobile-section-rM5---eb.js                            [39m[1m[2m     0.33 kB[22m[1m[22m[2m │ gzip:     0.24 kB[22m
+[2mdist/[22m[36massets/use-client-pagination-BigUAz7a.js                     [39m[1m[2m     0.33 kB[22m[1m[22m[2m │ gzip:     0.26 kB[22m
+[2mdist/[22m[36massets/health-CeTtFyJX.js                                    [39m[1m[2m     0.33 kB[22m[1m[22m[2m │ gzip:     0.26 kB[22m
+[2mdist/[22m[36massets/IconChevronLeft-B4r7UOEA.js                           [39m[1m[2m     0.33 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m
+- Using dynamic import() to code-split the application
+[2mdist/[22m[36massets/IconChevronRight-Daxk2W3b.js                          [39m[1m[2m     0.33 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m
+[2mdist/[22m[36massets/IconBluetooth-Bes6weye.js                             [39m[1m[2m     0.34 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m
+[2mdist/[22m[36massets/IconRotate-R9lgZNfX.js                                [39m[1m[2m     0.34 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[2mdist/[22m[36massets/public-announcement-banner-Yo5WMaZc.js                [39m[1m[2m     0.35 kB[22m[1m[22m[2m │ gzip:     0.25 kB[22m
+[2mdist/[22m[36massets/terms-DMvFJfJO.js                                     [39m[1m[2m     0.35 kB[22m[1m[22m[2m │ gzip:     0.25 kB[22m
+[2mdist/[22m[36massets/use-announcement-alerts-DjutQQHz.js                   [39m[1m[2m     0.35 kB[22m[1m[22m[2m │ gzip:     0.24 kB[22m
+[2mdist/[22m[36massets/IconPlus-CY6zCrkO.js                                  [39m[1m[2m     0.35 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m
+[2mdist/[22m[36massets/privacy-Dv4OY_Fx.js                                   [39m[1m[2m     0.35 kB[22m[1m[22m[2m │ gzip:     0.26 kB[22m
+[2mdist/[22m[36massets/brand-mark-B06_2Th-.js                                [39m[1m[2m     0.37 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m
+[2mdist/[22m[36massets/mobile-search-input-XwH5vSP1.js                       [39m[1m[2m     0.38 kB[22m[1m[22m[2m │ gzip:     0.28 kB[22m
+[2mdist/[22m[36massets/IconSearch-D3OCCNgf.js                                [39m[1m[2m     0.38 kB[22m[1m[22m[2m │ gzip:     0.28 kB[22m
+[2mdist/[22m[36massets/IconDeviceUsb-D2czBgHc.js                             [39m[1m[2m     0.38 kB[22m[1m[22m[2m │ gzip:     0.29 kB[22m
+[2mdist/[22m[36massets/IconHistory-DJwLAv8y.js                               [39m[1m[2m     0.38 kB[22m[1m[22m[2m │ gzip:     0.29 kB[22m
+[2mdist/[22m[36massets/IconTool-DMPub823.js                                  [39m[1m[2m     0.39 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/IconPlayerStop-DA4JlEAq.js                            [39m[1m[2m     0.40 kB[22m[1m[22m[2m │ gzip:     0.29 kB[22m
+[2mdist/[22m[36massets/IconArrowUp-BzEtNqGz.js                               [39m[1m[2m     0.40 kB[22m[1m[22m[2m │ gzip:     0.29 kB[22m
+[2mdist/[22m[36massets/IconArrowLeft-Y30rWPyN.js                             [39m[1m[2m     0.40 kB[22m[1m[22m[2m │ gzip:     0.28 kB[22m
+[2mdist/[22m[36massets/IconArrowDown-COq7THLR.js                             [39m[1m[2m     0.40 kB[22m[1m[22m[2m │ gzip:     0.29 kB[22m
+[2mdist/[22m[36massets/IconArrowRight-DewkkCCt.js                            [39m[1m[2m     0.40 kB[22m[1m[22m[2m │ gzip:     0.29 kB[22m
+[2mdist/[22m[36massets/IconPencil-Betiygzd.js                                [39m[1m[2m     0.40 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/use-server-paged-list-Bnjmqife.js                     [39m[1m[2m     0.40 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/primary-color-KNbIVwC4.js                             [39m[1m[2m     0.41 kB[22m[1m[22m[2m │ gzip:     0.22 kB[22m
+[2mdist/[22m[36massets/IconClockHour3-tcttDNyF.js                            [39m[1m[2m     0.43 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/IconUpload-JpNMDRXI.js                                [39m[1m[2m     0.43 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/card-thumbnail-CaBe-Bb0.js                            [39m[1m[2m     0.43 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconAlbum-DPisAp-s.js                                 [39m[1m[2m     0.43 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/IconDownload-AWmmikUY.js                              [39m[1m[2m     0.43 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/IconRestore-BdeixsMf.js                               [39m[1m[2m     0.44 kB[22m[1m[22m[2m │ gzip:     0.31 kB[22m
+[2mdist/[22m[36massets/clipboard-CbCE8i-T.js                                 [39m[1m[2m     0.44 kB[22m[1m[22m[2m │ gzip:     0.27 kB[22m
+[2mdist/[22m[36massets/IconEye-C2SdcTJM.js                                   [39m[1m[2m     0.45 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/no-game-banner-CncCPB1h.js                            [39m[1m[2m     0.45 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconExternalLink-CyuXU2IA.js                          [39m[1m[2m     0.46 kB[22m[1m[22m[2m │ gzip:     0.31 kB[22m
+[2mdist/[22m[36massets/IconDots-wVoL2uOD.js                                  [39m[1m[2m     0.46 kB[22m[1m[22m[2m │ gzip:     0.28 kB[22m
+[2mdist/[22m[36massets/IconBox-CgqmuIBd.js                                   [39m[1m[2m     0.46 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/IconDeviceMobile-CVA5qzR_.js                          [39m[1m[2m     0.47 kB[22m[1m[22m[2m │ gzip:     0.31 kB[22m
+[2mdist/[22m[36massets/monitor-links-CMIH_8Z9.js                             [39m[1m[2m     0.47 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/IconHelpCircle-D7trKGYP.js                            [39m[1m[2m     0.47 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconApi-DzJVwzbL.js                                   [39m[1m[2m     0.48 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconCoin-D67HOOrb.js                                  [39m[1m[2m     0.48 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconClipboard-DRPkZjwe.js                             [39m[1m[2m     0.49 kB[22m[1m[22m[2m │ gzip:     0.31 kB[22m
+[2mdist/[22m[36massets/IconLock-hjaG9fb7.js                                  [39m[1m[2m     0.50 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconEdit-D77-ydjg.js                                  [39m[1m[2m     0.50 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconLink-DdkprLpL.js                                  [39m[1m[2m     0.50 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+[2mdist/[22m[36massets/responsive-segmented-C8mTEdmD.js                      [39m[1m[2m     0.50 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconLockOpen-BnVOAahq.js                              [39m[1m[2m     0.50 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconCamera-CbYa-cRV.js                                [39m[1m[2m     0.51 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconDeviceDesktop-CDA09ymh.js                         [39m[1m[2m     0.51 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconShoppingCart-Cxu82ieq.js                          [39m[1m[2m     0.51 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconSparkles-CWQ5faWL.js                              [39m[1m[2m     0.51 kB[22m[1m[22m[2m │ gzip:     0.30 kB[22m
+[2mdist/[22m[36massets/IconDevices-CKP-_iDr.js                               [39m[1m[2m     0.51 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/IconPackage-D9em6Oe1.js                               [39m[1m[2m     0.52 kB[22m[1m[22m[2m │ gzip:     0.31 kB[22m
+[2mdist/[22m[36massets/IconUsers-COUL50bG.js                                 [39m[1m[2m     0.52 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/use-card-detail-scope-B-S9P1FA.js                     [39m[1m[2m     0.52 kB[22m[1m[22m[2m │ gzip:     0.28 kB[22m
+[2mdist/[22m[36massets/notification-settings-BMBuZdoe.js                     [39m[1m[2m     0.53 kB[22m[1m[22m[2m │ gzip:     0.36 kB[22m
+[2mdist/[22m[36massets/use-reset-to-neutral-D2QYqubN.js                      [39m[1m[2m     0.53 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+[2mdist/[22m[36massets/IconVideoOff-D3qgdYxd.js                              [39m[1m[2m     0.53 kB[22m[1m[22m[2m │ gzip:     0.35 kB[22m
+[2mdist/[22m[36massets/IconTrash-fbrn_QU2.js                                 [39m[1m[2m     0.53 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconCash-DtZL7vX7.js                                  [39m[1m[2m     0.53 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconArrowsShuffle-DP6rJNva.js                         [39m[1m[2m     0.54 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+[2mdist/[22m[36massets/IconTruckDelivery-DvS0Ajkg.js                         [39m[1m[2m     0.54 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+[2mdist/[22m[36massets/marketing-section-header-DUmdUUf_.js                  [39m[1m[2m     0.55 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconWand-BUao98CF.js                                  [39m[1m[2m     0.56 kB[22m[1m[22m[2m │ gzip:     0.32 kB[22m
+[2mdist/[22m[36massets/esp32-flash-dialog-oGsWE2uN.js                        [39m[1m[2m     0.56 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconListCheck-Bejub9jC.js                             [39m[1m[2m     0.56 kB[22m[1m[22m[2m │ gzip:     0.31 kB[22m
+[2mdist/[22m[36massets/format-YbPpdtof.js                                    [39m[1m[2m     0.56 kB[22m[1m[22m[2m │ gzip:     0.31 kB[22m
+[2mdist/[22m[36massets/IconFocusCentered-DSq0UHpm.js                         [39m[1m[2m     0.57 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconPrinter-BUaPQifR.js                               [39m[1m[2m     0.57 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconHeartRateMonitor-Cz923Shu.js                      [39m[1m[2m     0.57 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+[2mdist/[22m[36massets/IconTrophy-DyHBv-wR.js                                [39m[1m[2m     0.57 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/mobile-icon-badge-fXwUI4tH.js                         [39m[1m[2m     0.57 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconRotate2-CsxH_yU9.js                               [39m[1m[2m     0.57 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+[2mdist/[22m[36massets/IconLanguage-DDl3d6ns.js                              [39m[1m[2m     0.57 kB[22m[1m[22m[2m │ gzip:     0.36 kB[22m
+[2mdist/[22m[36massets/tour-storage-BAegdHRL.js                              [39m[1m[2m     0.58 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m
+[2mdist/[22m[36massets/guide-footer-YfdRpH8i.js                              [39m[1m[2m     0.58 kB[22m[1m[22m[2m │ gzip:     0.37 kB[22m
+[2mdist/[22m[36massets/IconCopy-BbAjtx8a.js                                  [39m[1m[2m     0.58 kB[22m[1m[22m[2m │ gzip:     0.36 kB[22m
+[2mdist/[22m[36massets/monitor-links.constant-BKSQSpuE.js                    [39m[1m[2m     0.58 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconArrowsSplit2-B11m0ogQ.js                          [39m[1m[2m     0.59 kB[22m[1m[22m[2m │ gzip:     0.36 kB[22m
+[2mdist/[22m[36massets/IconBellRinging-C0owWBJd.js                           [39m[1m[2m     0.59 kB[22m[1m[22m[2m │ gzip:     0.36 kB[22m
+[2mdist/[22m[36massets/IconTextScan2-xToZzxsm.js                             [39m[1m[2m     0.60 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+[2mdist/[22m[36massets/IconBrandGithub-uoXqDVKv.js                           [39m[1m[2m     0.61 kB[22m[1m[22m[2m │ gzip:     0.39 kB[22m
+[2mdist/[22m[36massets/connect-sorter-menu-options-BepP0jG_.js               [39m[1m[2m     0.61 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m
+[2mdist/[22m[36massets/IconCircleCheckFilled-C7zK9C6d.js                     [39m[1m[2m     0.61 kB[22m[1m[22m[2m │ gzip:     0.39 kB[22m
+[2mdist/[22m[36massets/callout-Dfs-MaMx.js                                   [39m[1m[2m     0.62 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m
+[2mdist/[22m[36massets/IconCards-D2tLLGgE.js                                 [39m[1m[2m     0.62 kB[22m[1m[22m[2m │ gzip:     0.40 kB[22m
+[2mdist/[22m[36massets/format-CF_X0KZl.js                                    [39m[1m[2m     0.63 kB[22m[1m[22m[2m │ gzip:     0.37 kB[22m
+[2mdist/[22m[36massets/IconWifiOff-bhjUElYH.js                               [39m[1m[2m     0.63 kB[22m[1m[22m[2m │ gzip:     0.39 kB[22m
+[2mdist/[22m[36massets/use-card-filters-CHFlhCTd.js                          [39m[1m[2m     0.63 kB[22m[1m[22m[2m │ gzip:     0.37 kB[22m
+[2mdist/[22m[36massets/IconChartBar-LQKcsrgP.js                              [39m[1m[2m     0.64 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconListDetails-BbAgAPpd.js                           [39m[1m[2m     0.64 kB[22m[1m[22m[2m │ gzip:     0.33 kB[22m
+[2mdist/[22m[36massets/IconCameraSpark-B6qmMc5Y.js                           [39m[1m[2m     0.64 kB[22m[1m[22m[2m │ gzip:     0.37 kB[22m
+[2mdist/[22m[36massets/IconCube-wnccgOo0.js                                  [39m[1m[2m     0.65 kB[22m[1m[22m[2m │ gzip:     0.39 kB[22m
+[2mdist/[22m[36massets/IconPhotoOff-DNRrKqE4.js                              [39m[1m[2m     0.65 kB[22m[1m[22m[2m │ gzip:     0.42 kB[22m
+[2mdist/[22m[36massets/canvas-fit-CeQnjh-u.js                                [39m[1m[2m     0.66 kB[22m[1m[22m[2m │ gzip:     0.39 kB[22m
+[2mdist/[22m[36massets/vision-model.constant-DsEj06gw.js                     [39m[1m[2m     0.66 kB[22m[1m[22m[2m │ gzip:     0.45 kB[22m
+[2mdist/[22m[36massets/textarea-CYKWT6YZ.js                                  [39m[1m[2m     0.67 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m
+[2mdist/[22m[36massets/IconKey-D3FGxunk.js                                   [39m[1m[2m     0.68 kB[22m[1m[22m[2m │ gzip:     0.42 kB[22m
+[2mdist/[22m[36massets/page-header-rkGZ85-f.js                               [39m[1m[2m     0.69 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m
+[2mdist/[22m[36massets/firmware-feature-gate-ZXFzKN6r.js                     [39m[1m[2m     0.70 kB[22m[1m[22m[2m │ gzip:     0.42 kB[22m
+[2mdist/[22m[36massets/IconPlugConnectedX-BAmYKjoy.js                        [39m[1m[2m     0.70 kB[22m[1m[22m[2m │ gzip:     0.37 kB[22m
+[2mdist/[22m[36massets/IconCoffee-C-LvjqxE.js                                [39m[1m[2m     0.70 kB[22m[1m[22m[2m │ gzip:     0.39 kB[22m
+[2mdist/[22m[36massets/IconLayoutGrid-boHtsPKG.js                            [39m[1m[2m     0.71 kB[22m[1m[22m[2m │ gzip:     0.31 kB[22m
+[2mdist/[22m[36massets/IconCpu-Wa_1p_OB.js                                   [39m[1m[2m     0.71 kB[22m[1m[22m[2m │ gzip:     0.35 kB[22m
+[2mdist/[22m[36massets/card-search-CUegBAjS.js                               [39m[1m[2m     0.73 kB[22m[1m[22m[2m │ gzip:     0.34 kB[22m
+[2mdist/[22m[36massets/marketing-rule-CG18k07y.js                            [39m[1m[2m     0.74 kB[22m[1m[22m[2m │ gzip:     0.46 kB[22m
+[2mdist/[22m[36massets/plan-price-D2trCHDf.js                                [39m[1m[2m     0.75 kB[22m[1m[22m[2m │ gzip:     0.41 kB[22m
+[2mdist/[22m[36massets/org-settings-BNotSybt.js                              [39m[1m[2m     0.76 kB[22m[1m[22m[2m │ gzip:     0.45 kB[22m
+[2mdist/[22m[36massets/alert-banner-Bg2FpXv9.js                              [39m[1m[2m     0.76 kB[22m[1m[22m[2m │ gzip:     0.48 kB[22m
+[2mdist/[22m[36massets/IconRosette-DBkrun0F.js                               [39m[1m[2m     0.77 kB[22m[1m[22m[2m │ gzip:     0.40 kB[22m
+[2mdist/[22m[36massets/IconFileSettings-CxLLwEe9.js                          [39m[1m[2m     0.79 kB[22m[1m[22m[2m │ gzip:     0.41 kB[22m
+[2mdist/[22m[36massets/use-camera-signal-channel-B0FzOc4Z.js                 [39m[1m[2m     0.79 kB[22m[1m[22m[2m │ gzip:     0.44 kB[22m
+[2mdist/[22m[36massets/initials-avatar-BMdjBsYw.js                           [39m[1m[2m     0.80 kB[22m[1m[22m[2m │ gzip:     0.50 kB[22m
+[2mdist/[22m[36massets/index-JgRk_mB7.js                                     [39m[1m[2m     0.80 kB[22m[1m[22m[2m │ gzip:     0.49 kB[22m
+[2mdist/[22m[36massets/use-billing-Dn7sru7C.js                               [39m[1m[2m     0.82 kB[22m[1m[22m[2m │ gzip:     0.43 kB[22m
+[2mdist/[22m[36massets/storage.schema-D51H6G_1.js                            [39m[1m[2m     0.83 kB[22m[1m[22m[2m │ gzip:     0.48 kB[22m
+[2mdist/[22m[36massets/mobile-segmented-control-DcWWtv9r.js                  [39m[1m[2m     0.83 kB[22m[1m[22m[2m │ gzip:     0.51 kB[22m
+[2mdist/[22m[36massets/use-price-source-CwGpfND0.js                          [39m[1m[2m     0.86 kB[22m[1m[22m[2m │ gzip:     0.43 kB[22m
+[2mdist/[22m[36massets/session-lock-DDCtrcGC.js                              [39m[1m[2m     0.86 kB[22m[1m[22m[2m │ gzip:     0.50 kB[22m
+[2mdist/[22m[36massets/price-source-D9MhwbnK.js                              [39m[1m[2m     0.87 kB[22m[1m[22m[2m │ gzip:     0.51 kB[22m
+[2mdist/[22m[36massets/sorter-link-V2gaf0qn.js                               [39m[1m[2m     0.87 kB[22m[1m[22m[2m │ gzip:     0.53 kB[22m
+[2mdist/[22m[36massets/developer-C0tj5ycL.js                                 [39m[1m[2m     0.87 kB[22m[1m[22m[2m │ gzip:     0.47 kB[22m
+[2mdist/[22m[36massets/slider-field-DMGnhxWC.js                              [39m[1m[2m     0.87 kB[22m[1m[22m[2m │ gzip:     0.45 kB[22m
+[2mdist/[22m[36massets/announcements-BnMGwV8D.js                             [39m[1m[2m     0.88 kB[22m[1m[22m[2m │ gzip:     0.38 kB[22m
+[2mdist/[22m[36massets/IconSettings-IOFSEMlU.js                              [39m[1m[2m     0.89 kB[22m[1m[22m[2m │ gzip:     0.45 kB[22m
+[2mdist/[22m[36massets/section-nav-DX1LSare.js                               [39m[1m[2m     0.90 kB[22m[1m[22m[2m │ gzip:     0.50 kB[22m
+[2mdist/[22m[36massets/layout-CwtwQ070.js                                    [39m[1m[2m     0.92 kB[22m[1m[22m[2m │ gzip:     0.52 kB[22m
+[2mdist/[22m[36massets/IconQrcode-IPZbe16a.js                                [39m[1m[2m     0.94 kB[22m[1m[22m[2m │ gzip:     0.37 kB[22m
+[2mdist/[22m[36massets/unsaved-changes-guard-Bj9QlttM.js                     [39m[1m[2m     0.96 kB[22m[1m[22m[2m │ gzip:     0.50 kB[22m
+[2mdist/[22m[36massets/button-group-DgDRjcwP.js                              [39m[1m[2m     0.96 kB[22m[1m[22m[2m │ gzip:     0.46 kB[22m
+[2mdist/[22m[36massets/rule-dialog-fields-C8Qbz8Wn.js                        [39m[1m[2m     0.97 kB[22m[1m[22m[2m │ gzip:     0.53 kB[22m
+[2mdist/[22m[36massets/card-sets-l-3jrLPh.js                                 [39m[1m[2m     0.97 kB[22m[1m[22m[2m │ gzip:     0.42 kB[22m
+[2mdist/[22m[36massets/language-switcher-7okbVpLb.js                         [39m[1m[2m     1.01 kB[22m[1m[22m[2m │ gzip:     0.54 kB[22m
+[2mdist/[22m[36massets/use-pick-list-DXuQBpaO.js                             [39m[1m[2m     1.02 kB[22m[1m[22m[2m │ gzip:     0.58 kB[22m
+[2mdist/[22m[36massets/ocr-region-overlay-D9ek5Uwv.js                        [39m[1m[2m     1.04 kB[22m[1m[22m[2m │ gzip:     0.61 kB[22m
+[2mdist/[22m[36massets/settings-section-B4zg1uDd.js                          [39m[1m[2m     1.05 kB[22m[1m[22m[2m │ gzip:     0.52 kB[22m
+[2mdist/[22m[36massets/use-sign-out-Be0Xm_K-.js                              [39m[1m[2m     1.05 kB[22m[1m[22m[2m │ gzip:     0.50 kB[22m
+[2mdist/[22m[36massets/camera-stream-CedirdnN.js                             [39m[1m[2m     1.06 kB[22m[1m[22m[2m │ gzip:     0.61 kB[22m
+[2mdist/[22m[36massets/table-cb9wW38Y.js                                     [39m[1m[2m     1.08 kB[22m[1m[22m[2m │ gzip:     0.44 kB[22m
+[2mdist/[22m[36massets/business-WfXFQw0n.js                                  [39m[1m[2m     1.10 kB[22m[1m[22m[2m │ gzip:     0.55 kB[22m
+[2mdist/[22m[36massets/compute-stats-C8tX3Cjb.js                             [39m[1m[2m     1.16 kB[22m[1m[22m[2m │ gzip:     0.49 kB[22m
+[2mdist/[22m[36massets/footer-C1KOb3I3.js                                    [39m[1m[2m     1.20 kB[22m[1m[22m[2m │ gzip:     0.57 kB[22m
+[2mdist/[22m[36massets/business-view-switch-DyLFGjYf.js                      [39m[1m[2m     1.23 kB[22m[1m[22m[2m │ gzip:     0.66 kB[22m
+[2mdist/[22m[36massets/save-bar-Oi77ff18.js                                  [39m[1m[2m     1.24 kB[22m[1m[22m[2m │ gzip:     0.73 kB[22m
+[2mdist/[22m[36massets/status-badge-XPpZzgEy.js                              [39m[1m[2m     1.25 kB[22m[1m[22m[2m │ gzip:     0.70 kB[22m
+[2mdist/[22m[36massets/mobile-page-header-B7VflaZz.js                        [39m[1m[2m     1.26 kB[22m[1m[22m[2m │ gzip:     0.65 kB[22m
+[2mdist/[22m[36massets/sounds-Diq5XSIZ.js                                    [39m[1m[2m     1.26 kB[22m[1m[22m[2m │ gzip:     0.61 kB[22m
+[2mdist/[22m[36massets/card-page-cache-DxVUkwW6.js                           [39m[1m[2m     1.28 kB[22m[1m[22m[2m │ gzip:     0.63 kB[22m
+[2mdist/[22m[36massets/use-module-count-config-wkkOHtX0.js                   [39m[1m[2m     1.29 kB[22m[1m[22m[2m │ gzip:     0.71 kB[22m
+[2mdist/[22m[36massets/notifications-BO2DhqMt.js                             [39m[1m[2m     1.29 kB[22m[1m[22m[2m │ gzip:     0.61 kB[22m
+[2mdist/[22m[36massets/stat-group-DMUuvwQR.js                                [39m[1m[2m     1.36 kB[22m[1m[22m[2m │ gzip:     0.62 kB[22m
+[2mdist/[22m[36massets/health-CVNQ-jpz.js                                    [39m[1m[2m     1.39 kB[22m[1m[22m[2m │ gzip:     0.79 kB[22m
+[2mdist/[22m[36massets/join-FNYCr6cC.js                                      [39m[1m[2m     1.40 kB[22m[1m[22m[2m │ gzip:     0.75 kB[22m
+[2mdist/[22m[36massets/list-pagination-NQl51une.js                           [39m[1m[2m     1.43 kB[22m[1m[22m[2m │ gzip:     0.54 kB[22m
+[2mdist/[22m[36massets/card-CmhcT4vn.js                                      [39m[1m[2m     1.48 kB[22m[1m[22m[2m │ gzip:     0.55 kB[22m
+[2mdist/[22m[36massets/notifications-CpnH7CGw.js                             [39m[1m[2m     1.49 kB[22m[1m[22m[2m │ gzip:     0.71 kB[22m
+[2mdist/[22m[36massets/notifications-CLQbrKMz.js                             [39m[1m[2m     1.51 kB[22m[1m[22m[2m │ gzip:     0.71 kB[22m
+[2mdist/[22m[36massets/health-C-dzdKzn.js                                    [39m[1m[2m     1.54 kB[22m[1m[22m[2m │ gzip:     0.89 kB[22m
+[2mdist/[22m[36massets/theme-toggle-BE0MgjOh.js                              [39m[1m[2m     1.54 kB[22m[1m[22m[2m │ gzip:     0.72 kB[22m
+[2mdist/[22m[36massets/collections-CKrUdkH0.js                               [39m[1m[2m     1.56 kB[22m[1m[22m[2m │ gzip:     0.72 kB[22m
+[2mdist/[22m[36massets/forgot-password-BQX8UHzD.js                           [39m[1m[2m     1.56 kB[22m[1m[22m[2m │ gzip:     0.77 kB[22m
+[2mdist/[22m[36massets/health-0HLEo_9F.js                                    [39m[1m[2m     1.60 kB[22m[1m[22m[2m │ gzip:     0.91 kB[22m
+[2mdist/[22m[36massets/use-shift-click-CEMaQV0V.js                           [39m[1m[2m     1.61 kB[22m[1m[22m[2m │ gzip:     0.77 kB[22m
+[2mdist/[22m[36massets/mobile-list-row-BsgvJyN8.js                           [39m[1m[2m     1.62 kB[22m[1m[22m[2m │ gzip:     0.85 kB[22m
+[2mdist/[22m[36massets/use-org-settings-draft-BChD2az6.js                    [39m[1m[2m     1.64 kB[22m[1m[22m[2m │ gzip:     0.85 kB[22m
+[2mdist/[22m[36massets/games-Bjc-6sKD.js                                     [39m[1m[2m     1.67 kB[22m[1m[22m[2m │ gzip:     0.43 kB[22m
+[2mdist/[22m[36massets/alphabet-pass-dialog-Cm3Wiv7O.js                      [39m[1m[2m     1.68 kB[22m[1m[22m[2m │ gzip:     0.90 kB[22m
+[2mdist/[22m[36massets/connect-sorter-menu-items-7whfbFmN.js                 [39m[1m[2m     1.70 kB[22m[1m[22m[2m │ gzip:     0.84 kB[22m
+[2mdist/[22m[36massets/base-BwkJmrSM.js                                      [39m[1m[2m     1.71 kB[22m[1m[22m[2m │ gzip:     0.98 kB[22m
+[2mdist/[22m[36massets/billing-BHKqkWNX.js                                   [39m[1m[2m     1.72 kB[22m[1m[22m[2m │ gzip:     0.78 kB[22m
+[2mdist/[22m[36massets/layout-iPYFRasT.js                                    [39m[1m[2m     1.77 kB[22m[1m[22m[2m │ gzip:     0.89 kB[22m
+[2mdist/[22m[36massets/scan-rule-fields-B4flDYKA.js                          [39m[1m[2m     1.78 kB[22m[1m[22m[2m │ gzip:     0.82 kB[22m
+[2mdist/[22m[36massets/use-connect-with-stale-check-VnRYqhGz.js              [39m[1m[2m     1.82 kB[22m[1m[22m[2m │ gzip:     0.99 kB[22m
+[2mdist/[22m[36massets/phone-camera-pairing-dialog-rEulvsp6.js               [39m[1m[2m     1.85 kB[22m[1m[22m[2m │ gzip:     0.85 kB[22m
+[2mdist/[22m[36massets/legal-page-DYqJ-y4R.js                                [39m[1m[2m     1.88 kB[22m[1m[22m[2m │ gzip:     0.88 kB[22m
+[2mdist/[22m[36massets/new-board-flash-dialog-DhY2HxUD.js                    [39m[1m[2m     1.89 kB[22m[1m[22m[2m │ gzip:     0.91 kB[22m
+[2mdist/[22m[36massets/auth-CuYdDbBs.js                                      [39m[1m[2m     1.92 kB[22m[1m[22m[2m │ gzip:     0.75 kB[22m
+[2mdist/[22m[36massets/card-detection-CoEj-xcF.js                            [39m[1m[2m     1.93 kB[22m[1m[22m[2m │ gzip:     0.98 kB[22m
+[2mdist/[22m[36massets/billing-ohgUYDnG.js                                   [39m[1m[2m     1.94 kB[22m[1m[22m[2m │ gzip:     0.89 kB[22m
+[2mdist/[22m[36massets/badge-4aWmRmHE.js                                     [39m[1m[2m     1.96 kB[22m[1m[22m[2m │ gzip:     0.78 kB[22m
+[2mdist/[22m[36massets/ocr-regions.constant-Du3QA7La.js                      [39m[1m[2m     1.96 kB[22m[1m[22m[2m │ gzip:     0.67 kB[22m
+[2mdist/[22m[36massets/billing-DgI4van3.js                                   [39m[1m[2m     1.98 kB[22m[1m[22m[2m │ gzip:     0.91 kB[22m
+[2mdist/[22m[36massets/delete-dialog-pKCADj5R.js                             [39m[1m[2m     2.04 kB[22m[1m[22m[2m │ gzip:     0.98 kB[22m
+[2mdist/[22m[36massets/announcements-DoANU3ZM.js                             [39m[1m[2m     2.07 kB[22m[1m[22m[2m │ gzip:     0.99 kB[22m
+[2mdist/[22m[36massets/sounds-DM3PbYPF.js                                    [39m[1m[2m     2.09 kB[22m[1m[22m[2m │ gzip:     0.86 kB[22m
+[2mdist/[22m[36massets/add-card-dialog-BC2Zalqv.js                           [39m[1m[2m     2.14 kB[22m[1m[22m[2m │ gzip:     1.07 kB[22m
+[2mdist/[22m[36massets/esp32c6-8U2RHDXz.js                                   [39m[1m[2m     2.14 kB[22m[1m[22m[2m │ gzip:     1.02 kB[22m
+[2mdist/[22m[36massets/desktop-scanner-controls-D4IAOlVr.js                  [39m[1m[2m     2.16 kB[22m[1m[22m[2m │ gzip:     1.25 kB[22m
+[2mdist/[22m[36massets/colors-BPS51NhM.js                                    [39m[1m[2m     2.17 kB[22m[1m[22m[2m │ gzip:     0.70 kB[22m
+[2mdist/[22m[36massets/reset-password-ivZP5ZCA.js                            [39m[1m[2m     2.17 kB[22m[1m[22m[2m │ gzip:     0.93 kB[22m
+[2mdist/[22m[36massets/admin-BdWOve8C.js                                     [39m[1m[2m     2.24 kB[22m[1m[22m[2m │ gzip:     1.21 kB[22m
+[2mdist/[22m[36massets/auth-DNukUWoO.js                                      [39m[1m[2m     2.25 kB[22m[1m[22m[2m │ gzip:     0.86 kB[22m
+[2mdist/[22m[36massets/auth-CtvrkAWD.js                                      [39m[1m[2m     2.27 kB[22m[1m[22m[2m │ gzip:     0.91 kB[22m
+[2mdist/[22m[36massets/esp32c2-_QMYrWTW.js                                   [39m[1m[2m     2.29 kB[22m[1m[22m[2m │ gzip:     1.13 kB[22m
+[2mdist/[22m[36massets/announcements-BIsk91Ly.js                             [39m[1m[2m     2.30 kB[22m[1m[22m[2m │ gzip:     1.14 kB[22m
+[2mdist/[22m[36massets/announcements-DaDkw0sG.js                             [39m[1m[2m     2.31 kB[22m[1m[22m[2m │ gzip:     1.12 kB[22m
+[2mdist/[22m[36massets/collection-cards-BW1Zj9Km.js                          [39m[1m[2m     2.32 kB[22m[1m[22m[2m │ gzip:     0.85 kB[22m
+[2mdist/[22m[36massets/sorter-model-DFtsmwm_.js                              [39m[1m[2m     2.36 kB[22m[1m[22m[2m │ gzip:     1.12 kB[22m
+[2mdist/[22m[36massets/sounds-BuakcATd.js                                    [39m[1m[2m     2.44 kB[22m[1m[22m[2m │ gzip:     1.00 kB[22m
+[2mdist/[22m[36massets/sounds-Db1c4O0t.js                                    [39m[1m[2m     2.45 kB[22m[1m[22m[2m │ gzip:     1.03 kB[22m
+[2mdist/[22m[36massets/pick-list-SSDBOoJw.js                                 [39m[1m[2m     2.50 kB[22m[1m[22m[2m │ gzip:     1.22 kB[22m
+[2mdist/[22m[36massets/esp32h2-juEB2Qm8.js                                   [39m[1m[2m     2.55 kB[22m[1m[22m[2m │ gzip:     1.15 kB[22m
+[2mdist/[22m[36massets/storage-locations-Diu7A-bZ.js                         [39m[1m[2m     2.63 kB[22m[1m[22m[2m │ gzip:     0.79 kB[22m
+[2mdist/[22m[36massets/use-bin-heights-sy5Zt-GX.js                           [39m[1m[2m     2.75 kB[22m[1m[22m[2m │ gzip:     1.15 kB[22m
+[2mdist/[22m[36massets/pricing-e7x8UEu0.js                                   [39m[1m[2m     2.77 kB[22m[1m[22m[2m │ gzip:     1.14 kB[22m
+[2mdist/[22m[36massets/business.schema-CfY7XMKe.js                           [39m[1m[2m     2.78 kB[22m[1m[22m[2m │ gzip:     1.08 kB[22m
+[2mdist/[22m[36massets/auth-Q_s4sTQ9.js                                      [39m[1m[2m     2.82 kB[22m[1m[22m[2m │ gzip:     1.13 kB[22m
+[2mdist/[22m[36massets/esp32c3-M_DC5YAU.js                                   [39m[1m[2m     2.88 kB[22m[1m[22m[2m │ gzip:     1.29 kB[22m
+[2mdist/[22m[36massets/download-CcHVunEh.js                                  [39m[1m[2m     2.88 kB[22m[1m[22m[2m │ gzip:     1.28 kB[22m
+[2mdist/[22m[36massets/index-FZn_HlOL.js                                     [39m[1m[2m     2.88 kB[22m[1m[22m[2m │ gzip:     1.23 kB[22m
+[2mdist/[22m[36massets/audit-drawer-DzXDNSLX.js                              [39m[1m[2m     2.89 kB[22m[1m[22m[2m │ gzip:     1.19 kB[22m
+[2mdist/[22m[36massets/discord-role-select-B7bGpV47.js                       [39m[1m[2m     2.92 kB[22m[1m[22m[2m │ gzip:     1.12 kB[22m
+[2mdist/[22m[36massets/stats-Dj_7F3q4.js                                     [39m[1m[2m     3.09 kB[22m[1m[22m[2m │ gzip:     1.33 kB[22m
+[2mdist/[22m[36massets/unmatched-diagnostics-details-B4SSntLe.js             [39m[1m[2m     3.15 kB[22m[1m[22m[2m │ gzip:     0.98 kB[22m
+[2mdist/[22m[36massets/firmware-flash-dialog-DMnCj6Q1.js                     [39m[1m[2m     3.17 kB[22m[1m[22m[2m │ gzip:     1.31 kB[22m
+[2mdist/[22m[36massets/esp32c61-B8Yjsbbv.js                                  [39m[1m[2m     3.19 kB[22m[1m[22m[2m │ gzip:     1.25 kB[22m
+[2mdist/[22m[36massets/download-CIZIvPqT.js                                  [39m[1m[2m     3.21 kB[22m[1m[22m[2m │ gzip:     1.48 kB[22m
+[2mdist/[22m[36massets/scan-pair-erFKoIdA.js                                 [39m[1m[2m     3.31 kB[22m[1m[22m[2m │ gzip:     1.60 kB[22m
+[2mdist/[22m[36massets/describe-control-command--mtgdDYi.js                  [39m[1m[2m     3.31 kB[22m[1m[22m[2m │ gzip:     1.13 kB[22m
+[2mdist/[22m[36massets/stats-DWrFQUzM.js                                     [39m[1m[2m     3.31 kB[22m[1m[22m[2m │ gzip:     1.46 kB[22m
+[2mdist/[22m[36massets/scan-removal-list-CNoRSiW_.js                         [39m[1m[2m     3.43 kB[22m[1m[22m[2m │ gzip:     1.49 kB[22m
+[2mdist/[22m[36massets/stats-DIC0AEki.js                                     [39m[1m[2m     3.43 kB[22m[1m[22m[2m │ gzip:     1.50 kB[22m
+[2mdist/[22m[36massets/input-group-BPVZUkHl.js                               [39m[1m[2m     3.44 kB[22m[1m[22m[2m │ gzip:     1.22 kB[22m
+[2mdist/[22m[36massets/account-CD5xHLuT.js                                   [39m[1m[2m     3.45 kB[22m[1m[22m[2m │ gzip:     1.33 kB[22m
+[2mdist/[22m[36massets/download-MH6d4ou8.js                                  [39m[1m[2m     3.50 kB[22m[1m[22m[2m │ gzip:     1.51 kB[22m
+[2mdist/[22m[36massets/esp32-CQA3BYvF.js                                     [39m[1m[2m     3.53 kB[22m[1m[22m[2m │ gzip:     1.66 kB[22m
+[2mdist/[22m[36massets/me-BmUvTMjv.js                                        [39m[1m[2m     3.63 kB[22m[1m[22m[2m │ gzip:     1.58 kB[22m
+[2mdist/[22m[36massets/billing-Bn5tZ7WQ.js                                   [39m[1m[2m     3.68 kB[22m[1m[22m[2m │ gzip:     1.39 kB[22m
+[2mdist/[22m[36massets/card-swatches-BrKjreiN.js                             [39m[1m[2m     3.72 kB[22m[1m[22m[2m │ gzip:     1.86 kB[22m
+[2mdist/[22m[36massets/discord-bot-RWHg0-mC.js                               [39m[1m[2m     3.74 kB[22m[1m[22m[2m │ gzip:     1.54 kB[22m
+[2mdist/[22m[36massets/auth-Xt1mpf88.js                                      [39m[1m[2m     3.74 kB[22m[1m[22m[2m │ gzip:     1.15 kB[22m
+[2mdist/[22m[36massets/sorter-wifi-dialog-BtVTkW66.js                        [39m[1m[2m     3.85 kB[22m[1m[22m[2m │ gzip:     1.75 kB[22m
+[2mdist/[22m[36massets/account-ClG1_LbU.js                                   [39m[1m[2m     3.99 kB[22m[1m[22m[2m │ gzip:     1.55 kB[22m
+[2mdist/[22m[36massets/esp32s3-CKT7rfTs.js                                   [39m[1m[2m     4.00 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m
+[2mdist/[22m[36massets/account-D-Dk2u5S.js                                   [39m[1m[2m     4.04 kB[22m[1m[22m[2m │ gzip:     1.57 kB[22m
+[2mdist/[22m[36massets/app-stream-CsFSmJ7z.js                                [39m[1m[2m     4.07 kB[22m[1m[22m[2m │ gzip:     1.65 kB[22m
+[2mdist/[22m[36massets/discord-bot-CpklKoA2.js                               [39m[1m[2m     4.17 kB[22m[1m[22m[2m │ gzip:     1.75 kB[22m
+[2mdist/[22m[36massets/discord-bot-C3TTioEz.js                               [39m[1m[2m     4.21 kB[22m[1m[22m[2m │ gzip:     1.74 kB[22m
+[2mdist/[22m[36massets/companies-DO5naPgH.js                                 [39m[1m[2m     4.25 kB[22m[1m[22m[2m │ gzip:     1.63 kB[22m
+[2mdist/[22m[36massets/card-search-picker-CSQNLgvu.js                        [39m[1m[2m     4.25 kB[22m[1m[22m[2m │ gzip:     1.95 kB[22m
+[2mdist/[22m[36massets/switch-BFsPlR6E.js                                    [39m[1m[2m     4.27 kB[22m[1m[22m[2m │ gzip:     1.89 kB[22m
+[2mdist/[22m[36massets/games-gol9l9-y.js                                     [39m[1m[2m     4.33 kB[22m[1m[22m[2m │ gzip:     1.75 kB[22m
+[2mdist/[22m[36massets/create-collection-dialog-mpucTR0y.js                  [39m[1m[2m     4.42 kB[22m[1m[22m[2m │ gzip:     1.72 kB[22m
+[2mdist/[22m[36massets/storage-BzJMLHWV.js                                   [39m[1m[2m     4.43 kB[22m[1m[22m[2m │ gzip:     1.77 kB[22m
+[2mdist/[22m[36massets/settings-BZ9Kit7I.js                                  [39m[1m[2m     4.66 kB[22m[1m[22m[2m │ gzip:     1.96 kB[22m
+[2mdist/[22m[36massets/verify-email-D5Aa_TVQ.js                              [39m[1m[2m     4.78 kB[22m[1m[22m[2m │ gzip:     1.93 kB[22m
+[2mdist/[22m[36massets/storage-BEHIEmWe.js                                   [39m[1m[2m     4.87 kB[22m[1m[22m[2m │ gzip:     1.99 kB[22m
+[2mdist/[22m[36massets/scanning-D90HN28B.js                                  [39m[1m[2m     4.90 kB[22m[1m[22m[2m │ gzip:     1.44 kB[22m
+[2mdist/[22m[36massets/storage-B1si5SUu.js                                   [39m[1m[2m     4.90 kB[22m[1m[22m[2m │ gzip:     1.96 kB[22m
+[2mdist/[22m[36massets/companies-Drazg5hQ.js                                 [39m[1m[2m     4.91 kB[22m[1m[22m[2m │ gzip:     1.89 kB[22m
+[2mdist/[22m[36massets/games-BNlksw91.js                                     [39m[1m[2m     4.91 kB[22m[1m[22m[2m │ gzip:     2.03 kB[22m
+[2mdist/[22m[36massets/general-CTo1RvUn.js                                   [39m[1m[2m     4.91 kB[22m[1m[22m[2m │ gzip:     1.70 kB[22m
+[2mdist/[22m[36massets/companies-CQ6OI_Uw.js                                 [39m[1m[2m     4.94 kB[22m[1m[22m[2m │ gzip:     1.93 kB[22m
+[2mdist/[22m[36massets/games-CPdnqaCQ.js                                     [39m[1m[2m     4.97 kB[22m[1m[22m[2m │ gzip:     2.04 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32c2-B8dsLG7-.js                         [39m[1m[2m     4.99 kB[22m[1m[22m[2m │ gzip:     3.41 kB[22m
+[2mdist/[22m[36massets/plans-A_-CkI9_.js                                     [39m[1m[2m     5.01 kB[22m[1m[22m[2m │ gzip:     2.00 kB[22m
+[2mdist/[22m[36massets/test-B6__Sm4x.js                                      [39m[1m[2m     5.14 kB[22m[1m[22m[2m │ gzip:     2.00 kB[22m
+[2mdist/[22m[36massets/settings-CorVXjrz.js                                  [39m[1m[2m     5.16 kB[22m[1m[22m[2m │ gzip:     2.26 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32-DIlGCCSz.js                           [39m[1m[2m     5.19 kB[22m[1m[22m[2m │ gzip:     3.41 kB[22m
+[2mdist/[22m[36massets/print-parts-viewer-hoveS1PN.js                        [39m[1m[2m     5.27 kB[22m[1m[22m[2m │ gzip:     2.24 kB[22m
+[2mdist/[22m[36massets/base-support-C-V3HY76.js                              [39m[1m[2m     5.35 kB[22m[1m[22m[2m │ gzip:     2.15 kB[22m
+[2mdist/[22m[36massets/settings-DDxTK7YZ.js                                  [39m[1m[2m     5.43 kB[22m[1m[22m[2m │ gzip:     2.28 kB[22m
+[2mdist/[22m[36massets/collections-DGXJEc36.js                               [39m[1m[2m     5.43 kB[22m[1m[22m[2m │ gzip:     1.97 kB[22m
+[2mdist/[22m[36massets/esp32c5-DE_0W_vs.js                                   [39m[1m[2m     5.43 kB[22m[1m[22m[2m │ gzip:     2.12 kB[22m
+[2mdist/[22m[36massets/collection-view-Dn9knSeo.js                           [39m[1m[2m     5.44 kB[22m[1m[22m[2m │ gzip:     2.31 kB[22m
+[2mdist/[22m[36massets/vision-Dwx-LW-G.js                                    [39m[1m[2m     5.46 kB[22m[1m[22m[2m │ gzip:     2.52 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32c6-BMffPMCp.js                         [39m[1m[2m     5.54 kB[22m[1m[22m[2m │ gzip:     3.75 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32c61-Dm89Jp02.js                        [39m[1m[2m     5.54 kB[22m[1m[22m[2m │ gzip:     3.75 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32h2-DKTWdQO2.js                         [39m[1m[2m     5.54 kB[22m[1m[22m[2m │ gzip:     3.76 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32c3-LInKOK0z.js                         [39m[1m[2m     5.64 kB[22m[1m[22m[2m │ gzip:     3.85 kB[22m
+[2mdist/[22m[36massets/self-host-CXqB-rYU.js                                 [39m[1m[2m     5.70 kB[22m[1m[22m[2m │ gzip:     2.25 kB[22m
+[2mdist/[22m[36massets/users-Cy8CrmLK.js                                     [39m[1m[2m     5.71 kB[22m[1m[22m[2m │ gzip:     2.02 kB[22m
+[2mdist/[22m[36massets/esp32s2-DrOnUOjg.js                                   [39m[1m[2m     5.73 kB[22m[1m[22m[2m │ gzip:     2.06 kB[22m
+[2mdist/[22m[36massets/workbox-window.prod.es5-BBnX5xw4.js                   [39m[1m[2m     5.75 kB[22m[1m[22m[2m │ gzip:     2.36 kB[22m
+[2mdist/[22m[36massets/checkbox-6j5jf-2G.js                                  [39m[1m[2m     5.76 kB[22m[1m[22m[2m │ gzip:     2.53 kB[22m
+[2mdist/[22m[36massets/use-storage-locations-cgdqOhxc.js                     [39m[1m[2m     5.81 kB[22m[1m[22m[2m │ gzip:     1.57 kB[22m
+[2mdist/[22m[36massets/station-overview-card-p_bR1Tmq.js                     [39m[1m[2m     6.04 kB[22m[1m[22m[2m │ gzip:     2.58 kB[22m
+[2mdist/[22m[36massets/collections-CZ-5PUg9.js                               [39m[1m[2m     6.09 kB[22m[1m[22m[2m │ gzip:     2.21 kB[22m
+[2mdist/[22m[36massets/watch-CzwRkDBS.js                                     [39m[1m[2m     6.18 kB[22m[1m[22m[2m │ gzip:     2.76 kB[22m
+[2mdist/[22m[36massets/collections-BnCIDS9s.js                               [39m[1m[2m     6.29 kB[22m[1m[22m[2m │ gzip:     2.22 kB[22m
+[2mdist/[22m[36massets/use-business-CfcZg7Wx.js                              [39m[1m[2m     6.29 kB[22m[1m[22m[2m │ gzip:     1.89 kB[22m
+[2mdist/[22m[36massets/module-calibration-grid-CY24vPtf.js                   [39m[1m[2m     6.38 kB[22m[1m[22m[2m │ gzip:     2.13 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32s2-DLJQYVPj.js                         [39m[1m[2m     6.41 kB[22m[1m[22m[2m │ gzip:     4.12 kB[22m
+[2mdist/[22m[36massets/download-Dov3CEdD.js                                  [39m[1m[2m     6.55 kB[22m[1m[22m[2m │ gzip:     2.08 kB[22m
+[2mdist/[22m[36massets/card-search-set-select-DxrpIF1H.js                    [39m[1m[2m     6.56 kB[22m[1m[22m[2m │ gzip:     2.71 kB[22m
+[2mdist/[22m[36massets/public-nav-SZXMoOv4.js                                [39m[1m[2m     6.71 kB[22m[1m[22m[2m │ gzip:     2.62 kB[22m
+[2mdist/[22m[36massets/sorter-layout-Py2E7qc7.js                             [39m[1m[2m     6.93 kB[22m[1m[22m[2m │ gzip:     2.47 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32c5-DfY6_UTr.js                         [39m[1m[2m     7.05 kB[22m[1m[22m[2m │ gzip:     4.74 kB[22m
+[2mdist/[22m[36massets/discord-bot-c3CNxiyN.js                               [39m[1m[2m     7.10 kB[22m[1m[22m[2m │ gzip:     2.37 kB[22m
+[2mdist/[22m[36massets/legal-Do9gqh6T.js                                     [39m[1m[2m     7.16 kB[22m[1m[22m[2m │ gzip:     2.79 kB[22m
+[2mdist/[22m[36massets/integrations-B_8qV05s.js                              [39m[1m[2m     7.22 kB[22m[1m[22m[2m │ gzip:     2.70 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32p4rc1-_ns1H9Hd.js                      [39m[1m[2m     7.51 kB[22m[1m[22m[2m │ gzip:     4.99 kB[22m
+[2mdist/[22m[36massets/model-fetch-BuH0bz_6.js                               [39m[1m[2m     7.52 kB[22m[1m[22m[2m │ gzip:     3.06 kB[22m
+[2mdist/[22m[36massets/business-CbxX2IeF.js                                  [39m[1m[2m     7.53 kB[22m[1m[22m[2m │ gzip:     2.23 kB[22m
+[2mdist/[22m[36massets/intake-receipt-GSRl0o18.js                            [39m[1m[2m     7.58 kB[22m[1m[22m[2m │ gzip:     2.88 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32s3-B0-qH3ON.js                         [39m[1m[2m     7.66 kB[22m[1m[22m[2m │ gzip:     4.88 kB[22m
+[2mdist/[22m[36massets/sorter-DD7Od027.js                                    [39m[1m[2m     7.70 kB[22m[1m[22m[2m │ gzip:     2.87 kB[22m
+[2mdist/[22m[36massets/stub_flasher_32p4-BYTMSBQf.js                         [39m[1m[2m     7.72 kB[22m[1m[22m[2m │ gzip:     5.05 kB[22m
+[2mdist/[22m[36massets/rule-summary-4s0rt33m.js                              [39m[1m[2m     7.76 kB[22m[1m[22m[2m │ gzip:     2.71 kB[22m
+[2mdist/[22m[36massets/monitor-DeDf31Wz.js                                   [39m[1m[2m     7.87 kB[22m[1m[22m[2m │ gzip:     3.32 kB[22m
+[2mdist/[22m[36massets/preset-action-dialogs-D5H7RR-K.js                     [39m[1m[2m     7.97 kB[22m[1m[22m[2m │ gzip:     2.93 kB[22m
+[2mdist/[22m[36massets/card-image-search-Bz5_7mi8.js                         [39m[1m[2m     7.99 kB[22m[1m[22m[2m │ gzip:     3.07 kB[22m
+[2mdist/[22m[36massets/hardware-D73Dx6Ye.js                                  [39m[1m[2m     8.04 kB[22m[1m[22m[2m │ gzip:     3.02 kB[22m
+[2mdist/[22m[36massets/guide-setup-step-BMvSH7Qq.js                          [39m[1m[2m     8.44 kB[22m[1m[22m[2m │ gzip:     3.19 kB[22m
+[2mdist/[22m[36massets/sorter-model-viewer-Cr-YcfMq.js                       [39m[1m[2m     8.45 kB[22m[1m[22m[2m │ gzip:     3.37 kB[22m
+[2mdist/[22m[36massets/integrations-CVtGAp2S.js                              [39m[1m[2m     8.46 kB[22m[1m[22m[2m │ gzip:     3.06 kB[22m
+[2mdist/[22m[36massets/integrations-bM_0lMpg.js                              [39m[1m[2m     8.50 kB[22m[1m[22m[2m │ gzip:     3.11 kB[22m
+[2mdist/[22m[36massets/legal-BQsirupO.js                                     [39m[1m[2m     8.52 kB[22m[1m[22m[2m │ gzip:     3.33 kB[22m
+[2mdist/[22m[36massets/onboarding-CMdLDriB.js                                [39m[1m[2m     8.53 kB[22m[1m[22m[2m │ gzip:     3.33 kB[22m
+[2mdist/[22m[36massets/legal-CB6WWNlG.js                                     [39m[1m[2m     8.68 kB[22m[1m[22m[2m │ gzip:     3.20 kB[22m
+[2mdist/[22m[36massets/use-camera-QZgZzXpW.js                                [39m[1m[2m     8.72 kB[22m[1m[22m[2m │ gzip:     3.67 kB[22m
+[2mdist/[22m[36massets/phone-camera-CSRr8VVn.js                              [39m[1m[2m     8.80 kB[22m[1m[22m[2m │ gzip:     3.55 kB[22m
+[2mdist/[22m[36massets/evaluate-bin-TN4VHCOn.js                              [39m[1m[2m     8.91 kB[22m[1m[22m[2m │ gzip:     3.20 kB[22m
+[2mdist/[22m[36massets/esp32p4-yS-1Olr0.js                                   [39m[1m[2m     8.99 kB[22m[1m[22m[2m │ gzip:     2.74 kB[22m
+[2mdist/[22m[36massets/monitor-sessions-szwus_0a.js                          [39m[1m[2m     9.12 kB[22m[1m[22m[2m │ gzip:     3.34 kB[22m
+[2mdist/[22m[36massets/pi-scan-store-DOgO6_6W.js                             [39m[1m[2m     9.52 kB[22m[1m[22m[2m │ gzip:     3.92 kB[22m
+[2mdist/[22m[36massets/selfhost-BaurU8Dm.js                                  [39m[1m[2m     9.53 kB[22m[1m[22m[2m │ gzip:     3.54 kB[22m
+[2mdist/[22m[36massets/landing-DMq2pBvF.js                                   [39m[1m[2m     9.55 kB[22m[1m[22m[2m │ gzip:     4.02 kB[22m
+[2mdist/[22m[36massets/connection-DwboYcNJ.js                                [39m[1m[2m     9.66 kB[22m[1m[22m[2m │ gzip:     2.93 kB[22m
+[2mdist/[22m[36massets/common-D0s0qCqJ.js                                    [39m[1m[2m     9.67 kB[22m[1m[22m[2m │ gzip:     3.96 kB[22m
+[2mdist/[22m[36massets/onboarding-Du9Z7OeO.js                                [39m[1m[2m    10.07 kB[22m[1m[22m[2m │ gzip:     3.91 kB[22m
+[2mdist/[22m[36massets/onboarding-COyZbtEQ.js                                [39m[1m[2m    10.13 kB[22m[1m[22m[2m │ gzip:     3.81 kB[22m
+[2mdist/[22m[36massets/selfhost-BTdOpkCZ.js                                  [39m[1m[2m    10.71 kB[22m[1m[22m[2m │ gzip:     4.01 kB[22m
+[2mdist/[22m[36massets/landing-CLsfXG6X.js                                   [39m[1m[2m    10.83 kB[22m[1m[22m[2m │ gzip:     4.62 kB[22m
+[2mdist/[22m[36massets/common-CV4OLb5Y.js                                    [39m[1m[2m    10.86 kB[22m[1m[22m[2m │ gzip:     4.50 kB[22m
+[2mdist/[22m[36massets/selfhost-C_vOAV1u.js                                  [39m[1m[2m    10.91 kB[22m[1m[22m[2m │ gzip:     3.97 kB[22m
+[2mdist/[22m[36massets/use-bin-configs-LSZvEYdd.js                           [39m[1m[2m    11.00 kB[22m[1m[22m[2m │ gzip:     3.60 kB[22m
+[2mdist/[22m[36massets/common-CwhX0vCl.js                                    [39m[1m[2m    11.15 kB[22m[1m[22m[2m │ gzip:     4.56 kB[22m
+[2mdist/[22m[36massets/landing-GOHYJwm9.js                                   [39m[1m[2m    11.23 kB[22m[1m[22m[2m │ gzip:     4.63 kB[22m
+[2mdist/[22m[36massets/Trans-CBM1JR7u.js                                     [39m[1m[2m    11.27 kB[22m[1m[22m[2m │ gzip:     4.78 kB[22m
+[2mdist/[22m[36massets/health-4AHpfgDJ.js                                    [39m[1m[2m    11.41 kB[22m[1m[22m[2m │ gzip:     4.03 kB[22m
+[2mdist/[22m[36massets/popover-cruGQncI.js                                   [39m[1m[2m    11.51 kB[22m[1m[22m[2m │ gzip:     4.46 kB[22m
+[2mdist/[22m[36massets/accordion-DmK4ludS.js                                 [39m[1m[2m    11.96 kB[22m[1m[22m[2m │ gzip:     4.35 kB[22m
+[2mdist/[22m[36massets/stub_flasher_8266-Bxnk_IeY.js                         [39m[1m[2m    12.29 kB[22m[1m[22m[2m │ gzip:     7.58 kB[22m
+[2mdist/[22m[36massets/index-BvRl9k4r.js                                     [39m[1m[2m    12.77 kB[22m[1m[22m[2m │ gzip:     5.11 kB[22m
+[2mdist/[22m[36massets/control-cards-BJ--2vKn.js                             [39m[1m[2m    13.06 kB[22m[1m[22m[2m │ gzip:     4.91 kB[22m
+[2mdist/[22m[36massets/unmatched-cards-panel-DdrPkXow.js                     [39m[1m[2m    13.51 kB[22m[1m[22m[2m │ gzip:     4.26 kB[22m
+[2mdist/[22m[36massets/cards-D4oRF_BL.js                                     [39m[1m[2m    13.57 kB[22m[1m[22m[2m │ gzip:     4.84 kB[22m
+[2mdist/[22m[36massets/scroll-area-CdgzJDce.js                               [39m[1m[2m    13.83 kB[22m[1m[22m[2m │ gzip:     4.76 kB[22m
+[2mdist/[22m[36massets/sounds-CZ5yq8Kw.js                                    [39m[1m[2m    14.72 kB[22m[1m[22m[2m │ gzip:     5.46 kB[22m
+[2mdist/[22m[36massets/use-channel-layout-CDGS5hwk.js                        [39m[1m[2m    15.07 kB[22m[1m[22m[2m │ gzip:     5.10 kB[22m
+[2mdist/[22m[36massets/cards-BLpXi4ko.js                                     [39m[1m[2m    15.30 kB[22m[1m[22m[2m │ gzip:     5.49 kB[22m
+[2mdist/[22m[36massets/cards-DB-Iqhim.js                                     [39m[1m[2m    15.44 kB[22m[1m[22m[2m │ gzip:     5.45 kB[22m
+[2mdist/[22m[36massets/integrations-DYEZI29f.js                              [39m[1m[2m    15.79 kB[22m[1m[22m[2m │ gzip:     4.69 kB[22m
+[2mdist/[22m[36massets/sorters-0aM0NGtP.js                                   [39m[1m[2m    15.83 kB[22m[1m[22m[2m │ gzip:     5.21 kB[22m
+[2mdist/[22m[36massets/bins-FRHAKX-b.js                                      [39m[1m[2m    16.07 kB[22m[1m[22m[2m │ gzip:     5.70 kB[22m
+[2mdist/[22m[36massets/game-editor-BoiKVUMf.js                               [39m[1m[2m    16.14 kB[22m[1m[22m[2m │ gzip:     5.40 kB[22m
+[2mdist/[22m[36massets/organization-Dtv_7fJw.js                              [39m[1m[2m    16.40 kB[22m[1m[22m[2m │ gzip:     4.60 kB[22m
+[2mdist/[22m[36massets/business-mhLR5Kxp.js                                  [39m[1m[2m    16.98 kB[22m[1m[22m[2m │ gzip:     5.96 kB[22m
+[2mdist/[22m[36massets/admin-DVxKSJhk.js                                     [39m[1m[2m    17.00 kB[22m[1m[22m[2m │ gzip:     6.42 kB[22m
+[2mdist/[22m[36massets/account-B35diVo7.js                                   [39m[1m[2m    17.59 kB[22m[1m[22m[2m │ gzip:     4.93 kB[22m
+[2mdist/[22m[36massets/discord-DgDTkKKU.js                                   [39m[1m[2m    17.62 kB[22m[1m[22m[2m │ gzip:     5.52 kB[22m
+[2mdist/[22m[36massets/collections-DPD32Dv9.js                               [39m[1m[2m    17.90 kB[22m[1m[22m[2m │ gzip:     6.26 kB[22m
+[2mdist/[22m[36massets/bins-BW97S045.js                                      [39m[1m[2m    18.49 kB[22m[1m[22m[2m │ gzip:     6.46 kB[22m
+[2mdist/[22m[36massets/slider-CBPQ_YOo.js                                    [39m[1m[2m    18.80 kB[22m[1m[22m[2m │ gzip:     7.44 kB[22m
+[2mdist/[22m[36massets/bins-d14-LZ7-.js                                      [39m[1m[2m    18.98 kB[22m[1m[22m[2m │ gzip:     6.44 kB[22m
+[2mdist/[22m[36massets/business-Cu6Fsklt.js                                  [39m[1m[2m    19.02 kB[22m[1m[22m[2m │ gzip:     6.52 kB[22m
+[2mdist/[22m[36massets/business-BgOymK7W.js                                  [39m[1m[2m    19.49 kB[22m[1m[22m[2m │ gzip:     6.64 kB[22m
+[2mdist/[22m[36massets/admin-BeAqoO2_.js                                     [39m[1m[2m    19.63 kB[22m[1m[22m[2m │ gzip:     7.38 kB[22m
+[2mdist/[22m[36massets/admin-DkjCGv2X.js                                     [39m[1m[2m    20.18 kB[22m[1m[22m[2m │ gzip:     7.42 kB[22m
+[2mdist/[22m[36massets/scan-stats-_Dn_tbkB.js                                [39m[1m[2m    20.66 kB[22m[1m[22m[2m │ gzip:     6.81 kB[22m
+[2mdist/[22m[36massets/scan-DaVdi-1E.js                                      [39m[1m[2m    21.28 kB[22m[1m[22m[2m │ gzip:     6.43 kB[22m
+[2mdist/[22m[36massets/deleted-CG4xEl0s.js                                   [39m[1m[2m    21.45 kB[22m[1m[22m[2m │ gzip:     6.29 kB[22m
+[2mdist/[22m[36massets/calibration-DnRRyhha.js                               [39m[1m[2m    22.12 kB[22m[1m[22m[2m │ gzip:     6.62 kB[22m
+[2mdist/[22m[36massets/notifications-DhHCqgRu.js                             [39m[1m[2m    22.45 kB[22m[1m[22m[2m │ gzip:     6.59 kB[22m
+[2mdist/[22m[36massets/layout-DQRl2AeX.js                                    [39m[1m[2m    24.31 kB[22m[1m[22m[2m │ gzip:     8.11 kB[22m
+[2mdist/[22m[36massets/scan-region-3YTI6Gjs.js                               [39m[1m[2m    24.43 kB[22m[1m[22m[2m │ gzip:     7.90 kB[22m
+[2mdist/[22m[36massets/browser-Ikud896r.js                                   [39m[1m[2m    25.39 kB[22m[1m[22m[2m │ gzip:     9.96 kB[22m
+[2mdist/[22m[36massets/picks-C69lCUsN.js                                     [39m[1m[2m    25.81 kB[22m[1m[22m[2m │ gzip:     8.22 kB[22m
+[2mdist/[22m[36massets/storage-YK3ZHeeS.js                                   [39m[1m[2m    25.98 kB[22m[1m[22m[2m │ gzip:     8.53 kB[22m
+[2mdist/[22m[36massets/calibration-DqFkI-BY.js                               [39m[1m[2m    26.24 kB[22m[1m[22m[2m │ gzip:     9.42 kB[22m
+[2mdist/[22m[36massets/stat-cell-jgVDCNF8.js                                 [39m[1m[2m    26.80 kB[22m[1m[22m[2m │ gzip:     7.24 kB[22m
+[2mdist/[22m[36massets/build-DwadOW57.js                                     [39m[1m[2m    29.47 kB[22m[1m[22m[2m │ gzip:    10.81 kB[22m
+[2mdist/[22m[36massets/dropdown-menu-B_-k-lTe.js                             [39m[1m[2m    29.80 kB[22m[1m[22m[2m │ gzip:     9.75 kB[22m
+[2mdist/[22m[36massets/session-monitor-view-DaZknKmW.js                      [39m[1m[2m    30.01 kB[22m[1m[22m[2m │ gzip:     9.47 kB[22m
+[2mdist/[22m[36massets/calibration-Bg1Iigqw.js                               [39m[1m[2m    30.17 kB[22m[1m[22m[2m │ gzip:    10.74 kB[22m
+[2mdist/[22m[36massets/calibration-BG9JSI69.js                               [39m[1m[2m    30.59 kB[22m[1m[22m[2m │ gzip:    10.56 kB[22m
+[2mdist/[22m[36massets/build-DH7JncKk.js                                     [39m[1m[2m    33.26 kB[22m[1m[22m[2m │ gzip:    12.36 kB[22m
+[2mdist/[22m[36massets/intake-GqlqTP_G.js                                    [39m[1m[2m    33.74 kB[22m[1m[22m[2m │ gzip:    10.25 kB[22m
+[2mdist/[22m[36massets/build-DKlWPZRI.js                                     [39m[1m[2m    34.01 kB[22m[1m[22m[2m │ gzip:    12.08 kB[22m
+[2mdist/[22m[36massets/use-serial-j7_2ijFx.js                                [39m[1m[2m    36.26 kB[22m[1m[22m[2m │ gzip:    11.81 kB[22m
+[2mdist/[22m[36massets/stats-4bYA94a3.js                                     [39m[1m[2m    36.61 kB[22m[1m[22m[2m │ gzip:    10.60 kB[22m
+[2mdist/[22m[36massets/combobox-BcNbBovt.js                                  [39m[1m[2m    37.36 kB[22m[1m[22m[2m │ gzip:    12.98 kB[22m
+[2mdist/[22m[36massets/cards-DZskU1n8.js                                     [39m[1m[2m    37.88 kB[22m[1m[22m[2m │ gzip:    11.76 kB[22m
+[2mdist/[22m[36massets/providers-BGgIhLGr.js                                 [39m[1m[2m    38.93 kB[22m[1m[22m[2m │ gzip:    13.25 kB[22m
+[2mdist/[22m[36massets/scanner-B0YPXVuJ.js                                   [39m[1m[2m    40.76 kB[22m[1m[22m[2m │ gzip:    13.37 kB[22m
+[2mdist/[22m[36massets/use-scanned-cards-B4b-6DXR.js                         [39m[1m[2m    41.81 kB[22m[1m[22m[2m │ gzip:    13.56 kB[22m
+[2mdist/[22m[36massets/index-Cp72QpqA.js                                     [39m[1m[2m    46.41 kB[22m[1m[22m[2m │ gzip:    12.60 kB[22m
+[2mdist/[22m[36massets/scanner-LnqrF7Uy.js                                   [39m[1m[2m    46.83 kB[22m[1m[22m[2m │ gzip:    15.17 kB[22m
+[2mdist/[22m[36massets/build-3PvlA4s8.js                                     [39m[1m[2m    47.01 kB[22m[1m[22m[2m │ gzip:    12.33 kB[22m
+[2mdist/[22m[36massets/scanner-DZe2THEU.js                                   [39m[1m[2m    47.52 kB[22m[1m[22m[2m │ gzip:    14.93 kB[22m
+[2mdist/[22m[36massets/review-grid-DpJ_y5GG.js                               [39m[1m[2m    50.24 kB[22m[1m[22m[2m │ gzip:    14.47 kB[22m
+[2mdist/[22m[36massets/bins-4HvHgTV-.js                                      [39m[1m[2m    56.13 kB[22m[1m[22m[2m │ gzip:    14.43 kB[22m
+[2mdist/[22m[36massets/card-grid-YknHPdiU.js                                 [39m[1m[2m    57.72 kB[22m[1m[22m[2m │ gzip:    17.87 kB[22m
+[2mdist/[22m[36massets/layout-BphFQ5lQ.js                                    [39m[1m[2m    58.26 kB[22m[1m[22m[2m │ gzip:    17.15 kB[22m
+[2mdist/[22m[36massets/card-scanner-BRzzj8Nf.js                              [39m[1m[2m    67.04 kB[22m[1m[22m[2m │ gzip:    21.52 kB[22m
+[2mdist/[22m[36massets/use-tour-B4PENYiN.js                                  [39m[1m[2m    75.71 kB[22m[1m[22m[2m │ gzip:    25.90 kB[22m
+[2mdist/[22m[36massets/esp32-flasher-BhAIosue.js                             [39m[1m[2m   114.11 kB[22m[1m[22m[2m │ gzip:    35.94 kB[22m
+[2mdist/[22m[36massets/milo-client-Cm0_weIz.js                               [39m[1m[2m   123.61 kB[22m[1m[22m[2m │ gzip:    41.28 kB[22m
+[2mdist/[22m[36massets/qr-code-CjUkGDxB.js                                   [39m[1m[2m   130.70 kB[22m[1m[22m[2m │ gzip:    47.47 kB[22m
+[2mdist/[22m[36massets/sorter-scene-DFZ4EtSb.js                              [39m[1m[33m   606.66 kB[39m[22m[2m │ gzip:   155.45 kB[22m
+[2mdist/[22m[36massets/index-BfxI4ASP.js                                     [39m[1m[33m 1,720.60 kB[39m[22m[2m │ gzip:   517.95 kB[22m
+[32m✓ built in 38.04s[39m
+[33m../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33m../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33mExport "AuthView" of module "../../node_modules/.pnpm/@neondatabase_4girtxx7ybchv7af3inijvmq64/node_modules/@neondatabase/auth-ui/dist/index.mjs" was reexported through module "../../node_modules/.pnpm/@neondatabase_mtjpziay4qrwfh3xr6pxrhotve/node_modules/@neondatabase/auth/dist/ui-CnVnqGns.mjs" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/routes/neon/auth.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.[39m
+(node:35692) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+PWA v1.3.0
+mode      generateSW
+precache  458 entries (6507.66 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-9c191d2f.js

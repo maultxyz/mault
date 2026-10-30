@@ -1209,7 +1209,10 @@
       "start": "Vérifier les cartes",
       "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées.",
       "startFailed": "Impossible de lancer la vérification"
-    }
+    },
+    "moveToLocation": "Déplacer vers un emplacement",
+    "moveToOtherLocation": "Déplacer vers un autre emplacement",
+    "searchLocations": "Rechercher des emplacements"
   },
   "settings": {
     "title": "Paramètres",
