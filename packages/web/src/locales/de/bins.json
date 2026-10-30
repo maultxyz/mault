@@ -59,7 +59,7 @@
     "apiDocsLink": "Feldreferenz",
     "clear": "Leeren",
     "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}",
-    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die oben gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren.",
+    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren.",
     "modeChangePending": "Speichere oder verwerfe die ausstehende Modusänderung oben, bevor du Fächer bearbeitest.",
     "priorityLabel": "Prioritätsstufe",
     "priorityPlaceholder": "Keine",
@@ -312,8 +312,8 @@
     "title": "Sortiermodus",
     "explain": "Was macht {{mode}}?"
   },
-  "mobileBinPicker": {
-    "caption": "Wird bearbeitet",
-    "title": "Fach auswählen"
+  "mobileBins": {
+    "rulesMode": "Regeln",
+    "binsTitle": "Fächer"
   }
 }

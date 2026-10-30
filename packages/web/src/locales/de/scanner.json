@@ -307,7 +307,6 @@
     "start": "Scan starten",
     "sessionSummary_one": "{{count}} Karte gescannt · {{time}}",
     "sessionSummary_other": "{{count}} Karten gescannt · {{time}}",
-    "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
     "startRemoving": "Entfernen starten"
   },
   "scannerDebug": {
@@ -751,12 +750,24 @@
     "recentlyScanned": "Zuletzt gescannt",
     "seeAllStats": "Alle Statistiken",
     "actions": {
-      "scan": "Scannen",
       "newCollection": "Neu",
-      "sorter": "Sortierer",
-      "stats": "Statistik"
+      "stats": "Statistik",
+      "buySell": "Handel"
     },
-    "activeCollection": "Aktiv"
+    "activeCollection": "Aktiv",
+    "scanHero": {
+      "title": "Scannen starten",
+      "sortInto": "In {{collection}} sortieren",
+      "noCollection": "Wähle eine Sammlung zum Sortieren"
+    },
+    "actionHints": {
+      "newCollection": "Sammlung anlegen",
+      "buySell": "Ankauf und Picks",
+      "buySellOpen_one": "{{count}} offener Ankauf",
+      "buySellOpen_other": "{{count}} offene Ankäufe",
+      "stats": "Diagramme und Verlauf"
+    },
+    "statsHeading": "Übersicht"
   },
   "resetToNeutral": {
     "done": "Sortierer in Grundstellung",

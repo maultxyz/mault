@@ -19,6 +19,7 @@ import { activateBinSet } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { AlphabetPassCard } from "@/features/rules/components/alphabet-pass-card";
 import { BinRow } from "@/features/rules/components/bin-row";
+import { binModeSummaries } from "@/features/rules/lib/rules";
 import { binSetMode } from "@magic-vault/shared";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { SPACING } from "@/lib/constants/theme";
@@ -30,6 +31,7 @@ export default function RulesScreen() {
   const data = useRulesData();
   const { collection, sets, activeSet, bins, fieldDefinitions } = data;
   const mode = binSetMode(activeSet);
+  const summaries = binModeSummaries(activeSet, mode, bins, t);
   const [pickerOpen, setPickerOpen] = useState(false);
   const activate = useMutation({
     mutationFn: activateBinSet,
@@ -108,6 +110,7 @@ export default function RulesScreen() {
                     bin={bin}
                     bins={bins}
                     fieldDefinitions={fieldDefinitions}
+                    summary={summaries.get(bin.binNumber)}
                     onPress={() =>
                       router.push({ pathname: "/rules/[binNumber]", params: { binNumber: String(bin.binNumber) } })
                     }

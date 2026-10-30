@@ -131,12 +131,12 @@ export function MobileMonitorActivity({
                     <button
                       type="button"
                       onClick={() => onOpenCard(entry.scanId)}
-                      className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors active:bg-muted"
+                      className="flex w-full items-center gap-3 py-2 text-left transition-colors active:bg-muted"
                     >
                       {content}
                     </button>
                   ) : (
-                    <div className="flex items-center gap-3 px-2 py-2">
+                    <div className="flex items-center gap-3 py-2">
                       {content}
                     </div>
                   )}

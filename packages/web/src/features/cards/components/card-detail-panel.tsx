@@ -41,6 +41,7 @@ import { StorageDeleteWarning } from "@/features/cards/components/storage-delete
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
+import { CardDetailActionsSheet } from "@/features/cards/components/card-detail-actions-sheet";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import {
   Accordion,
@@ -48,7 +49,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { SIMILAR_MATCHES_ACCORDION_VALUE } from "@/lib/constants/cards";
+import {
+  MORE_DETAIL_OPTIONS_ACCORDION_VALUE,
+  SIMILAR_MATCHES_ACCORDION_VALUE,
+} from "@/lib/constants/cards";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { CardDrawerContext } from "@/lib/card-drawer-context";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import {
   CARD_OCR_REGIONS_STORAGE_KEY,
@@ -75,8 +81,11 @@ import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useScanDraft } from "@/features/cards/api/use-scan-draft";
 import {
   IconCheck,
+  IconChevronLeft,
+  IconChevronRight,
   IconChevronUp,
   IconChevronDown,
+  IconDots,
   IconLayoutGrid,
   IconPencil,
   IconTrash,
@@ -84,7 +93,7 @@ import {
 } from "@tabler/icons-react";
 import { cardScanOriginQueryOptions } from "@/features/collections/api/collections";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type {
   CardCorrectionOptions,
@@ -117,17 +126,21 @@ export function CardDetailPanel({
   reviewMode = false,
   onReviewComplete,
   onShowReviewGrid,
-  footerActions,
+  extraActions,
   onRemoveShortcut,
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
+  const isMobile = useIsMobile();
+  const inCardDrawer = useContext(CardDrawerContext);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [showOcrRegions, setShowOcrRegions] = usePersistedFlag(
     CARD_OCR_REGIONS_STORAGE_KEY,
   );
-  const [showTechnicalDetails, handleTechnicalDetailsChange] =
-    usePersistedFlag(CARD_TECHNICAL_DETAILS_STORAGE_KEY);
+  const [showTechnicalDetails, handleTechnicalDetailsChange] = usePersistedFlag(
+    CARD_TECHNICAL_DETAILS_STORAGE_KEY,
+  );
   const [viewerOpen, setViewerOpen] = useState(false);
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
@@ -146,7 +159,9 @@ export function CardDetailPanel({
   } = useCardDetailActions();
   const { priceOf, format, conditionMultipliers } = usePriceSource();
   const canConfirm =
-    !!scanId && (lowConfidenceMatch || !!alternativeMatches?.length) && !wasCorrected;
+    !!scanId &&
+    (lowConfidenceMatch || !!alternativeMatches?.length) &&
+    !wasCorrected;
   const collection = useCardDetailCollection();
   const foilOptions = useFoilOptions();
   const { data: scanOrigin } = useQuery({
@@ -191,10 +206,17 @@ export function CardDetailPanel({
       }
       setCandidates(all);
       setSelectedId(currentCard.id);
-      setAreMatchesOpen(!isReviewed && !wasCorrected);
+      setAreMatchesOpen(!isMobile && !isReviewed && !wasCorrected);
       setEditing(false);
     }
-  }, [scanId, currentCard, alternativeMatches, isReviewed, wasCorrected]);
+  }, [
+    scanId,
+    currentCard,
+    alternativeMatches,
+    isReviewed,
+    wasCorrected,
+    isMobile,
+  ]);
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useScanImage(collection?.guid, scanId);
@@ -289,7 +311,8 @@ export function CardDetailPanel({
   };
 
   const requestRemove =
-    onRemoveShortcut ?? (onRemove ? () => setConfirmRemoveOpen(true) : undefined);
+    onRemoveShortcut ??
+    (onRemove ? () => setConfirmRemoveOpen(true) : undefined);
 
   useHotkeys(
     {
@@ -319,7 +342,7 @@ export function CardDetailPanel({
     <Skeleton className="h-full w-full rounded-none" />
   );
 
-  const imageWidthClass = reviewMode ? "w-full" : "w-56";
+  const imageWidthClass = reviewMode ? "w-full" : "w-56 max-md:w-full";
 
   const cardImages = (
     <>
@@ -382,6 +405,33 @@ export function CardDetailPanel({
     </>
   );
 
+  const displayToggles = (
+    <>
+      {capturedImageUrl && (
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span>{t("cardDetailPanel.showOcrRegions")}</span>
+          <Switch
+            size="sm"
+            aria-label={t("cardDetailPanel.showOcrRegions")}
+            checked={showOcrRegions}
+            onCheckedChange={setShowOcrRegions}
+          />
+        </div>
+      )}
+      {scanId && (
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span>{t("technicalDetails.toggle")}</span>
+          <Switch
+            size="sm"
+            aria-label={t("technicalDetails.toggle")}
+            checked={showTechnicalDetails}
+            onCheckedChange={handleTechnicalDetailsChange}
+          />
+        </div>
+      )}
+    </>
+  );
+
   const cardName =
     selectedCard?.name ?? t("cardDetailPanel.cardDetailsFallback");
   const typeLine = selectedCard?.typeLine ?? "";
@@ -398,102 +448,100 @@ export function CardDetailPanel({
         />
       )}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2">
-          <ButtonGroup className="shrink-0">
+        {!inCardDrawer && (
+          <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2">
+            <ButtonGroup className="shrink-0">
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={onPrev}
+                disabled={!hasPrev}
+                aria-label={t("cardDetailPanel.previousCard")}
+              >
+                <IconChevronUp />
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={onNext}
+                disabled={!hasNext}
+                aria-label={t("cardDetailPanel.nextCard")}
+              >
+                <IconChevronDown />
+              </Button>
+            </ButtonGroup>
+            <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-1 text-xs text-foreground/70">
+              {!isMobile && displayToggles}
+            </div>
+            {reviewMode && onShowReviewGrid && (
+              <Button
+                variant="outline"
+                className="shrink-0"
+                onClick={onShowReviewGrid}
+              >
+                <IconLayoutGrid />
+                {t("reviewGrid.layoutGrid")}
+              </Button>
+            )}
             <Button
               size="icon"
-              variant="outline"
-              onClick={onPrev}
-              disabled={!hasPrev}
-              aria-label={t("cardDetailPanel.previousCard")}
-            >
-              <IconChevronUp />
-            </Button>
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={onNext}
-              disabled={!hasNext}
-              aria-label={t("cardDetailPanel.nextCard")}
-            >
-              <IconChevronDown />
-            </Button>
-          </ButtonGroup>
-          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-1 text-xs text-foreground/70">
-            {capturedImageUrl && (
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <span>{t("cardDetailPanel.showOcrRegions")}</span>
-                <Switch
-                  size="sm"
-                  aria-label={t("cardDetailPanel.showOcrRegions")}
-                  checked={showOcrRegions}
-                  onCheckedChange={setShowOcrRegions}
-                />
-              </div>
-            )}
-            {scanId && (
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <span>{t("technicalDetails.toggle")}</span>
-                <Switch
-                  size="sm"
-                  aria-label={t("technicalDetails.toggle")}
-                  checked={showTechnicalDetails}
-                  onCheckedChange={handleTechnicalDetailsChange}
-                />
-              </div>
-            )}
-          </div>
-          {reviewMode && onShowReviewGrid && (
-            <Button
-              variant="outline"
+              variant="ghost"
               className="shrink-0"
-              onClick={onShowReviewGrid}
+              onClick={onClose}
+              aria-label={t("cardDetailPanel.backToList")}
             >
-              <IconLayoutGrid />
-              {t("reviewGrid.layoutGrid")}
+              <IconX />
             </Button>
-          )}
-          <Button
-            size="icon"
-            variant="ghost"
-            className="shrink-0"
-            onClick={onClose}
-            aria-label={t("cardDetailPanel.backToList")}
-          >
-            <IconX />
-          </Button>
-        </div>
-        <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6">
-          <div className="min-w-0">
-            <div className="flex items-baseline gap-2">
-              <h2 className="font-semibold text-base truncate">{cardName}</h2>
-              {total != null && currentIndex != null && (
-                <span className="text-xs text-foreground/70 shrink-0">
-                  {currentIndex + 1} / {total}
-                </span>
-              )}
-              {reviewMode && (
-                <Badge variant="outline" className="shrink-0">
-                  {t("review.badge")}
-                </Badge>
-              )}
-              {(isReviewed || wasCorrected) && (
-                <Badge variant="success" className="shrink-0">
-                  <IconCheck />
-                  {t("technicalDetails.reviewed")}
-                </Badge>
-              )}
-              {copyCount != null && copyCount > 1 && (
-                <Badge variant="secondary" className="shrink-0">
-                  {t("cardDetailPanel.copyOf", {
-                    index: (copyIndex ?? 0) + 1,
-                    count: copyCount,
-                  })}
-                </Badge>
+          </div>
+        )}
+        <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6 max-md:p-4 max-md:gap-5">
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
+                <h2 className="font-semibold text-base truncate max-md:basis-full max-md:whitespace-normal max-md:line-clamp-2">
+                  {cardName}
+                </h2>
+                {total != null && currentIndex != null && (
+                  <span className="text-xs text-foreground/70 shrink-0">
+                    {currentIndex + 1} / {total}
+                  </span>
+                )}
+                {reviewMode && (
+                  <Badge variant="outline" className="shrink-0">
+                    {t("review.badge")}
+                  </Badge>
+                )}
+                {(isReviewed || wasCorrected) && (
+                  <Badge variant="success" className="shrink-0">
+                    <IconCheck />
+                    {t("technicalDetails.reviewed")}
+                  </Badge>
+                )}
+                {copyCount != null && copyCount > 1 && (
+                  <Badge variant="secondary" className="shrink-0">
+                    {t("cardDetailPanel.copyOf", {
+                      index: (copyIndex ?? 0) + 1,
+                      count: copyCount,
+                    })}
+                  </Badge>
+                )}
+              </div>
+              {typeLine && (
+                <p className="text-sm text-foreground/70 truncate">
+                  {typeLine}
+                </p>
               )}
             </div>
-            {typeLine && (
-              <p className="text-sm text-foreground/70 truncate">{typeLine}</p>
+            {inCardDrawer && currentCard && !editing && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="-mt-1 -mr-2 shrink-0"
+                aria-label={t("cardDetailPanel.actions")}
+                onClick={() => setActionsOpen(true)}
+              >
+                <IconDots />
+              </Button>
             )}
           </div>
           {currentCard && !editing ? (
@@ -513,7 +561,9 @@ export function CardDetailPanel({
 
               {hasMultipleCandidates && (
                 <Accordion
-                  value={areMatchesOpen ? [SIMILAR_MATCHES_ACCORDION_VALUE] : []}
+                  value={
+                    areMatchesOpen ? [SIMILAR_MATCHES_ACCORDION_VALUE] : []
+                  }
                   onValueChange={(value) =>
                     setAreMatchesOpen(
                       value.includes(SIMILAR_MATCHES_ACCORDION_VALUE),
@@ -543,7 +593,7 @@ export function CardDetailPanel({
                             card={c}
                             isSelected={c.id === selectedId}
                             onClick={() => handleSelectCandidate(c)}
-                            className="w-56 shrink-0"
+                            className="w-56 shrink-0 max-md:w-36"
                           />
                         ))}
                       </div>
@@ -559,7 +609,7 @@ export function CardDetailPanel({
                 )}
               >
                 {!reviewMode && (
-                  <div className="flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row">
+                  <div className="flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row max-md:grid max-md:grid-cols-2">
                     {cardImages}
                   </div>
                 )}
@@ -615,7 +665,7 @@ export function CardDetailPanel({
                             {selectedCard.text}
                           </p>
                         )}
-                        <div className="flex flex-wrap gap-6 items-start">
+                        <div className="flex flex-wrap gap-6 items-start max-md:grid max-md:grid-cols-2 max-md:gap-3">
                           <div className="flex flex-col gap-1.5">
                             <Label>{t("foil")}</Label>
                             <Select
@@ -634,7 +684,7 @@ export function CardDetailPanel({
                             >
                               <SelectTrigger
                                 ref={foilTriggerRef}
-                                className="w-40"
+                                className="w-40 max-md:w-full"
                               >
                                 <SelectValue placeholder={t("foilNone")} />
                               </SelectTrigger>
@@ -666,7 +716,7 @@ export function CardDetailPanel({
                             >
                               <SelectTrigger
                                 ref={conditionTriggerRef}
-                                className="w-40"
+                                className="w-40 max-md:w-full"
                               >
                                 <SelectValue>
                                   {t(`condition.names.${currentCondition}`)}
@@ -696,7 +746,8 @@ export function CardDetailPanel({
                             <Select
                               value={currentLanguage}
                               onValueChange={(value) => {
-                                if (scanId && value) scanDraft.setLanguage(value);
+                                if (scanId && value)
+                                  scanDraft.setLanguage(value);
                               }}
                               disabled={!scanId}
                               onOpenChangeComplete={(open) => {
@@ -705,7 +756,7 @@ export function CardDetailPanel({
                             >
                               <SelectTrigger
                                 ref={languageTriggerRef}
-                                className="w-40"
+                                className="w-40 max-md:w-full"
                               >
                                 <SelectValue>
                                   {LANGUAGE_LABELS[currentLanguage] ??
@@ -729,7 +780,7 @@ export function CardDetailPanel({
                       <CardStorageLocationSection
                         scanId={scanId}
                         collectionGuid={collection?.guid}
-                        canEdit={!footerActions}
+                        canEdit={!extraActions}
                       />
                     )}
 
@@ -757,6 +808,22 @@ export function CardDetailPanel({
                 )}
               </div>
 
+              {isMobile && (capturedImageUrl || scanId) && (
+                <Accordion>
+                  <AccordionItem
+                    value={MORE_DETAIL_OPTIONS_ACCORDION_VALUE}
+                    className="border-b-0"
+                  >
+                    <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
+                      {t("cardDetailPanel.moreOptions")}
+                    </AccordionTrigger>
+                    <AccordionContent className="flex flex-col items-start gap-3 pb-0 text-xs text-foreground/70">
+                      {displayToggles}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
+
               {showTechnicalDetails && scanId && (
                 <CardTechnicalDetails
                   scanId={scanId}
@@ -777,9 +844,44 @@ export function CardDetailPanel({
             />
           )}
         </div>
-        {currentCard && !editing ? (
+        {currentCard && !editing && inCardDrawer ? (
+          <div className="shrink-0 border-t bg-background/80 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-2xl">
+            <div className="flex items-center gap-1.5">
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={onPrev}
+                disabled={!hasPrev}
+                aria-label={t("cardDetailPanel.previousCard")}
+              >
+                <IconChevronLeft />
+              </Button>
+              {reviewMode ? (
+                <Button className="flex-1" onClick={acceptInReview}>
+                  <IconCheck className="size-4" />
+                  {hasNext ? t("review.acceptNext") : t("review.acceptFinish")}
+                </Button>
+              ) : (
+                <span className="flex-1 text-center text-xs text-foreground/70 tabular-nums">
+                  {total != null && currentIndex != null
+                    ? `${currentIndex + 1} / ${total}`
+                    : null}
+                </span>
+              )}
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={onNext}
+                disabled={!hasNext}
+                aria-label={t("cardDetailPanel.nextCard")}
+              >
+                <IconChevronRight />
+              </Button>
+            </div>
+          </div>
+        ) : currentCard && !editing ? (
           <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
-            <div className="flex flex-wrap gap-2 items-center w-full">
+            <div className="flex flex-wrap gap-2 items-center w-full max-md:gap-1.5 max-md:[&>*]:flex-1">
               {reviewMode && (
                 <Button onClick={acceptInReview}>
                   <IconCheck className="size-4" />
@@ -806,12 +908,25 @@ export function CardDetailPanel({
                 {t("cardPicker.correctCard")}
                 <HotkeyHint id="cardCorrect" />
               </Button>
-              {footerActions}
+              {extraActions?.map((action) => (
+                <Button
+                  key={action.key}
+                  variant={action.destructive ? "destructive" : "outline"}
+                  disabled={action.disabled}
+                  onClick={action.onSelect}
+                >
+                  {action.icon}
+                  {action.label}
+                  {action.hotkeyId && <HotkeyHint id={action.hotkeyId} />}
+                </Button>
+              ))}
               {onRemove && (
                 <Button
                   variant="destructive"
                   onClick={
-                    storageLocation ? () => setConfirmRemoveOpen(true) : onRemove
+                    storageLocation
+                      ? () => setConfirmRemoveOpen(true)
+                      : onRemove
                   }
                 >
                   <IconTrash className="size-4" />
@@ -846,6 +961,59 @@ export function CardDetailPanel({
           </div>
         )}
       </div>
+      {inCardDrawer && (
+        <CardDetailActionsSheet
+          open={actionsOpen}
+          onOpenChange={setActionsOpen}
+          title={cardName}
+          actions={[
+            ...(canConfirm && !reviewMode
+              ? [
+                  {
+                    key: "mark-correct",
+                    label: t("cardDetailPanel.markCorrect"),
+                    icon: <IconCheck />,
+                    onSelect: () => {
+                      if (!scanId) return;
+                      setAreMatchesOpen(false);
+                      confirmCard(scanId);
+                    },
+                  },
+                ]
+              : []),
+            {
+              key: "correct",
+              label: t("cardPicker.correctCard"),
+              icon: <IconPencil />,
+              onSelect: startEditing,
+            },
+            ...(reviewMode && onShowReviewGrid
+              ? [
+                  {
+                    key: "review-grid",
+                    label: t("reviewGrid.layoutGrid"),
+                    icon: <IconLayoutGrid />,
+                    onSelect: onShowReviewGrid,
+                  },
+                ]
+              : []),
+            ...(extraActions ?? []),
+            ...(onRemove
+              ? [
+                  {
+                    key: "remove",
+                    label: t("cardPicker.remove"),
+                    icon: <IconTrash />,
+                    destructive: true,
+                    onSelect: storageLocation
+                      ? () => setConfirmRemoveOpen(true)
+                      : onRemove,
+                  },
+                ]
+              : []),
+          ]}
+        />
+      )}
       {onRemove && (
         <DeleteDialog
           open={confirmRemoveOpen}

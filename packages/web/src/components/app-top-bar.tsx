@@ -19,8 +19,7 @@ export function AppTopBar() {
   return (
     <header className="relative flex h-9 shrink-0 items-center gap-1 px-1.5">
       <BrandAlertTrigger />
-      <span aria-hidden className="mx-1 h-4 w-px bg-sidebar-border" />
-      <div className="flex min-w-0 flex-1 items-center gap-1">
+      <div className="ml-8.25 flex min-w-0 flex-1 items-center gap-1">
         <OrgSwitcher />
         <BreadcrumbSeparator />
         <StationMenu />

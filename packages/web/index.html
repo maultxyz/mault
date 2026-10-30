@@ -164,9 +164,6 @@
         width: 56px;
         height: 56px;
       }
-      .boot-shell-card-space {
-        display: none;
-      }
       .dark .boot-shell {
         background: #1e1f21;
         color: #a1a1aa;
@@ -175,35 +172,17 @@
         color: oklch(0.985 0 0);
       }
       [data-boot="app"] .boot-shell {
-        gap: 8px;
         background: #f7f8f9;
       }
       [data-boot="app"].dark .boot-shell {
         background: #000;
       }
-      [data-boot="app"] .boot-shell-icon {
-        box-sizing: border-box;
-        width: 36px;
-        height: 36px;
-        margin-bottom: 4px;
-        border: 1px solid #e9ebf0;
-        border-radius: 0.625rem;
-        background: oklch(0.141 0.005 285.823 / 4%);
-      }
-      [data-boot="app"].dark .boot-shell-icon {
-        border-color: oklch(1 0 0 / 10%);
-        background: oklch(0.985 0 0 / 4%);
-      }
       [data-boot="app"] .boot-shell-icon svg {
-        width: 28px;
-        height: 28px;
+        width: 48px;
+        height: 48px;
       }
       [data-boot="app"] .boot-shell-tagline {
         display: none;
-      }
-      [data-boot="app"] .boot-shell-card-space {
-        display: block;
-        height: 144px;
       }
     </style>
     <script>
@@ -258,7 +237,6 @@
         </svg>
       </span>
       <span class="boot-shell-tagline">MAULT · Automated trading card sorting</span>
-      <span class="boot-shell-card-space"></span>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

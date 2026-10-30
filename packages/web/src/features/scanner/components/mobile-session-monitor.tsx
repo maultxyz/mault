@@ -123,13 +123,7 @@ export function MobileSessionMonitor({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <MobilePageHeader
-        title={
-          collection ? (
-            collection.name
-          ) : (
-            <Skeleton className="h-7 w-40" />
-          )
-        }
+        title={collection ? collection.name : <Skeleton className="h-7 w-40" />}
         subtitle={[
           t(`mobileMonitor.status.${status}`),
           collection?.game?.name,
@@ -164,7 +158,9 @@ export function MobileSessionMonitor({
       >
         <div className="flex flex-col gap-0.5">
           <p className={MOBILE_HERO_LABEL_CLASS}>
-            {hasPricing ? t("sessionStatsPanel.value") : t("mobileMonitor.cards")}
+            {hasPricing
+              ? t("sessionStatsPanel.value")
+              : t("mobileMonitor.cards")}
           </p>
           <p className={MOBILE_HERO_VALUE_CLASS}>
             {stats?.hasPricing ? format(stats.totalValue) : String(cardCount)}
@@ -228,30 +224,30 @@ export function MobileSessionMonitor({
                 collectionGuid={collectionGuid}
                 stats={stats}
                 canEditCards={canEditCards}
-                onOpenCard={canEditCards ? handleOpenCard : undefined}
+                onOpenCard={handleOpenCard}
               />
             )}
           </div>
         </>
       )}
 
-      {canEditCards && (
-        <MobileCardDetailDrawer
-          collectionGuid={collectionGuid}
-          scanId={openScanId}
-          reviewMode={reviewing}
-          onShowReviewGrid={openReviewGrid}
-          onNavigate={(next) => {
-            if (next) setOpenScanId(next);
-            else handleCloseCard();
-          }}
-          onReviewComplete={(count) => {
-            handleCloseCard();
-            toast.success(tCards("review.complete", { count }));
-          }}
-          onClose={handleCloseCard}
-        />
-      )}
+      <MobileCardDetailDrawer
+        collectionGuid={collectionGuid}
+        collection={collection}
+        canEditCards={canEditCards}
+        scanId={openScanId}
+        reviewMode={reviewing}
+        onShowReviewGrid={openReviewGrid}
+        onNavigate={(next) => {
+          if (next) setOpenScanId(next);
+          else handleCloseCard();
+        }}
+        onReviewComplete={(count) => {
+          handleCloseCard();
+          toast.success(tCards("review.complete", { count }));
+        }}
+        onClose={handleCloseCard}
+      />
     </div>
   );
 }

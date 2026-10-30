@@ -1,5 +1,8 @@
 import { EmptyState } from "@/components/empty-state";
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Button } from "@/components/ui/button";
+import { DrawerTitle } from "@/components/ui/drawer";
+import { MobileCardDrawer } from "@/features/cards/components/mobile-card-drawer";
 import {
   intakeLotQueryOptions,
   intakeLotsQueryOptions,
@@ -12,7 +15,10 @@ import { IntakeLotDetail } from "@/features/business/components/intake-lot-detai
 import { IntakeLotDialog } from "@/features/business/components/intake-lot-dialog";
 import { IntakeLotList } from "@/features/business/components/intake-lot-list";
 import { BusinessViewSwitch } from "@/features/business/components/business-view-switch";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import {
   BUSINESS_INTAKE_VIEW,
   INTAKE_CARD_PARAM,
@@ -30,6 +36,9 @@ import { useSearchParams } from "react-router-dom";
 
 export default function IntakePage() {
   const { t } = useTranslation("business");
+  const { t: tCommon } = useTranslation("common");
+  const { t: tCards } = useTranslation("cards");
+  const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedParam = searchParams.get(INTAKE_LOT_PARAM);
@@ -42,8 +51,12 @@ export default function IntakePage() {
     selectedParam,
   );
   const [createOpen, setCreateOpen] = useState(false);
-  const selectedGuid = selectedParam ?? lots[0]?.guid;
+  const selectedGuid = isMobile
+    ? (selectedParam ?? undefined)
+    : (selectedParam ?? lots[0]?.guid);
   const openScanId = searchParams.get(INTAKE_CARD_PARAM);
+  const [shownScanId, setShownScanId] = useState(openScanId);
+  if (openScanId && openScanId !== shownScanId) setShownScanId(openScanId);
   const reviewParam = searchParams.get(INTAKE_REVIEW_PARAM);
   const isReviewing = reviewParam === "1";
   const isGridReviewing =
@@ -90,6 +103,116 @@ export default function IntakePage() {
       replace: true,
     });
   }, [selectedGuid, setSearchParams]);
+
+  const createDialog = (
+    <IntakeLotDialog
+      open={createOpen}
+      onOpenChange={setCreateOpen}
+      onCreated={(guid) => select(guid)}
+    />
+  );
+
+  if (isMobile) {
+    if (isGridReviewing) {
+      return (
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <ReviewGrid
+            cards={reviewGridPage.data?.cards ?? []}
+            total={reviewGridPage.data?.total ?? 0}
+            isLoading={reviewGridPage.isPending}
+            isError={reviewGridPage.isError}
+            onOpenOneByOne={(card) => {
+              setReviewLayout("single");
+              openCard(card.scanId, true);
+            }}
+            onClose={closeCard}
+          />
+        </div>
+      );
+    }
+    if (selectedGuid) {
+      return (
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <MobilePageHeader
+            title={t("views.intake")}
+            onBack={() => select(null)}
+          />
+          <div
+            className={cn(
+              "min-h-0 flex-1 overflow-y-auto p-4",
+              MOBILE_NAV_SCROLL_PADDING_CLASS,
+            )}
+          >
+            <div className="flex flex-col gap-4">
+              {access?.isLocked && <BusinessUpgradeCallout />}
+              <IntakeLotDetail
+                key={selectedGuid}
+                guid={selectedGuid}
+                onDeleted={() => select(null)}
+                onOpenCard={openCard}
+                onOpenReviewGrid={openReviewGrid}
+              />
+            </div>
+          </div>
+          <MobileCardDrawer open={!!openScanId} onClose={closeCard}>
+            <DrawerTitle className="sr-only">
+              {tCards("cardDetailPanel.cardDetailsFallback")}
+            </DrawerTitle>
+            {shownScanId && selectedLot && (
+              <div data-vaul-no-drag className="flex min-h-0 flex-1 flex-col">
+                <IntakeCardDetail
+                  key={shownScanId}
+                  lot={selectedLot}
+                  scanId={shownScanId}
+                  reviewMode={isReviewing}
+                  onNavigate={(scanId) => openCard(scanId)}
+                  onShowReviewGrid={openReviewGrid}
+                  onClose={closeCard}
+                />
+              </div>
+            )}
+          </MobileCardDrawer>
+        </div>
+      );
+    }
+    return (
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <MobilePageHeader
+          title={tCommon("nav.intake")}
+          actions={
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label={t("intake.new")}
+              disabled={access?.isLocked}
+              onClick={() => setCreateOpen(true)}
+            >
+              <IconPlus />
+            </Button>
+          }
+        />
+        <div
+          className={cn(
+            "flex min-h-0 flex-1 flex-col",
+            MOBILE_NAV_SCROLL_PADDING_CLASS,
+          )}
+        >
+          <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
+            <BusinessViewSwitch value={BUSINESS_INTAKE_VIEW} />
+            {access?.isLocked && <BusinessUpgradeCallout />}
+            <IntakeLotList
+              lots={lots}
+              pagination={pagination}
+              selectedGuid={selectedGuid}
+              isLoading={isLoading}
+              onSelect={select}
+            />
+          </div>
+        </div>
+        {createDialog}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
@@ -161,12 +284,7 @@ export default function IntakePage() {
           </section>
         )}
       </div>
-      <IntakeLotDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onCreated={(guid) => select(guid)}
-      />
+      {createDialog}
     </div>
   );
 }
-

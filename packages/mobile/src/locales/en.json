@@ -989,7 +989,18 @@
       "confirmPileTitle": "Start the {{prefix}} pile?",
       "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{prefix}} pile in the feeder. All bins will be marked as emptied.",
       "confirm": "Bins are empty"
-    }
+    },
+    "binSummary": {
+      "alphabetLetter": "Names starting with {{letter}}",
+      "chaos": "Fills in turn",
+      "scanOnlyEverything": "Scanned and unidentified cards go here",
+      "scanOnlyUnidentified": "Unidentified cards go here",
+      "scanOnlyScanned": "Scanned cards go here",
+      "scanOnlyOff": "Not used while scan only is on"
+    },
+    "modeLocked": "Rules don't apply in {{mode}} mode. Change the sorting mode to edit them.",
+    "autoAssignLocked": "Auto-detect sets these rules for you. Change the sorting mode to edit them.",
+    "scanOnlyLocked": "Scan only is on. Scanned and unidentified cards go to the bins picked in Sorting mode. Turn it off to configure bins."
   },
   "calibration": {
     "title": "Calibration",

@@ -565,6 +565,8 @@ export interface MobileCardActionsBodyProps {
 
 export interface MobileCardDetailDrawerProps {
   collectionGuid: string;
+  collection: Collection | null;
+  canEditCards: boolean;
   scanId: string | undefined;
   reviewMode?: boolean;
   onNavigate: (scanId: string | null) => void;
@@ -575,6 +577,8 @@ export interface MobileCardDetailDrawerProps {
 
 export interface MobileCardDetailBodyProps {
   collectionGuid: string;
+  collection: Collection | null;
+  canEditCards: boolean;
   scanId: string;
   reviewMode: boolean;
   reviewSession: ReviewSession;

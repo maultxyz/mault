@@ -139,7 +139,15 @@
     "revert": "Zurücksetzen"
   },
   "loadingGate": {
-    "loadingVault": "Dein Vault wird geladen…"
+    "loadingVault": "Dein Vault wird geladen…",
+    "quips": {
+      "shuffling": "Deck wird gemischt…",
+      "feeding": "Sortierer wird gefüttert…",
+      "polishing": "Foils werden poliert…",
+      "counting": "Karten werden gezählt…",
+      "pricing": "Tagespreise werden geprüft…",
+      "sorting": "Alles wird sortiert…"
+    }
   },
   "notFound": {
     "title": "Seite nicht gefunden",

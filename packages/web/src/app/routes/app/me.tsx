@@ -18,6 +18,7 @@ import {
 } from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { INTAKE_PATH } from "@/lib/constants/business";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
 import type { ThemeOption } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ import {
   IconActivityHeartbeat,
   IconBrandDiscord,
   IconBuilding,
+  IconCash,
   IconChartBar,
   IconLanguage,
   IconLogout,
@@ -134,6 +136,11 @@ export default function MePage() {
               icon={<IconChartBar />}
               label={t("nav.stats")}
               to={STATS_PATH}
+            />
+            <MobileListRow
+              icon={<IconCash />}
+              label={t("nav.intake")}
+              to={INTAKE_PATH}
             />
             <MobileListRow
               icon={<IconActivityHeartbeat />}

@@ -17,7 +17,8 @@ import { saveBinConfig } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { binSchema } from "@/features/rules/lib/bin-schema";
-import { emptyRules, overflowSourcesFor, overflowTargetsFor } from "@/features/rules/lib/rules";
+import { emptyRules, modeLocksBinRules, overflowSourcesFor, overflowTargetsFor } from "@/features/rules/lib/rules";
+import { binSetMode } from "@magic-vault/shared";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { BinFormValues } from "@/lib/interfaces/forms";
@@ -59,8 +60,11 @@ export default function BinEditorScreen() {
   const sources = overflowSourcesFor(binNumber, bins);
   const targets = overflowTargetsFor(binNumber, bins);
   const pickList = !!bin?.pickList;
-  const readOnly = !editableSet || pickList;
-  const rulesLocked = readOnly || sources.length > 0;
+  const mode = binSetMode(activeSet);
+  const isScanOnly = mode === "scan-only";
+  const modeLocksRules = modeLocksBinRules(mode);
+  const readOnly = !editableSet || pickList || isScanOnly;
+  const rulesLocked = readOnly || sources.length > 0 || modeLocksRules;
   const otherCatchAll = bins.some((b) => b.binNumber !== binNumber && b.isCatchAll);
 
   const save = useMutation({
@@ -113,40 +117,9 @@ export default function BinEditorScreen() {
         {pickList ? <Callout tone="info" title={t("rules.pickListNotice")} /> : null}
         {save.isError ? <Callout tone="destructive" title={t("rules.saveFailed")} /> : null}
 
-        <View style={{ gap: SPACING.md }}>
-          <View style={{ gap: 2 }}>
-            <SectionHeader title={isCatchAll ? t("rules.overrideLabel") : t("rules.rulesLabel")} />
-            <AppText size="sm" tone="secondary">
-              {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
-            </AppText>
-          </View>
-          {sources.length > 0 ? (
-            <Callout
-              tone="info"
-              title={t("rules.overflowTargetNotice", { count: sources.length, bins: sources.join(", ") })}
-            />
-          ) : null}
-          <Controller
-            control={form.control}
-            name="rules"
-            render={({ field }) =>
-              field.value ? (
-                <RuleGroupEditor
-                  group={field.value}
-                  onChange={field.onChange}
-                  fieldDefinitions={fieldDefinitions}
-                  freeformOptions={freeformOptions}
-                  disabled={rulesLocked}
-                />
-              ) : (
-                <View />
-              )
-            }
-          />
-        </View>
+        {isScanOnly ? <Callout tone="info" title={t("rules.scanOnlyLocked")} /> : null}
 
         <View style={{ gap: SPACING.sm }}>
-          <SectionHeader title={t("rules.settingsTitle")} />
           {catchAllError ? <Callout tone="warning" title={t("rules.needCatchAll")} /> : null}
           <ListGroup>
             <Controller
@@ -178,7 +151,52 @@ export default function BinEditorScreen() {
                 />
               )}
             />
-            {!isCatchAll ? (
+          </ListGroup>
+        </View>
+
+        {!isScanOnly ? (
+          <View style={{ gap: SPACING.md }}>
+            <View style={{ gap: 2 }}>
+              <SectionHeader title={isCatchAll ? t("rules.overrideLabel") : t("rules.rulesLabel")} />
+              <AppText size="sm" tone="secondary">
+                {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
+              </AppText>
+            </View>
+            {sources.length > 0 ? (
+              <Callout
+                tone="info"
+                title={t("rules.overflowTargetNotice", { count: sources.length, bins: sources.join(", ") })}
+              />
+            ) : null}
+            {mode === "auto-assign" ? <Callout tone="info" title={t("rules.autoAssignLocked")} /> : null}
+            {modeLocksRules && mode !== "auto-assign" ? (
+              <Callout tone="info" title={t("rules.modeLocked", { mode: t(`rules.modes.${mode}.title`) })} />
+            ) : (
+              <Controller
+                control={form.control}
+                name="rules"
+                render={({ field }) =>
+                  field.value ? (
+                    <RuleGroupEditor
+                      group={field.value}
+                      onChange={field.onChange}
+                      fieldDefinitions={fieldDefinitions}
+                      freeformOptions={freeformOptions}
+                      disabled={rulesLocked}
+                    />
+                  ) : (
+                    <View />
+                  )
+                }
+              />
+            )}
+          </View>
+        ) : null}
+
+        {!isCatchAll ? (
+          <View style={{ gap: SPACING.sm }}>
+            <SectionHeader title={t("rules.settingsTitle")} />
+            <ListGroup>
               <Controller
                 control={form.control}
                 name="isDisabled"
@@ -201,30 +219,30 @@ export default function BinEditorScreen() {
                   />
                 )}
               />
-            ) : null}
-            {!isCatchAll ? (
-              <ListRow
-                title={t("rules.overflowLabel")}
-                subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
-                value={overflowBin != null ? t("rules.bin", { number: overflowBin }) : t("rules.overflowNone")}
-                disabled={readOnly || (targets.length === 0 && overflowBin == null)}
-                onPress={() => setOverflowOpen(true)}
-              />
-            ) : null}
-          </ListGroup>
-          <OptionSheet
-            visible={overflowOpen}
-            title={t("rules.overflowLabel")}
-            options={overflowOptions}
-            selected={[overflowBin != null ? String(overflowBin) : ""]}
-            onSelect={(value) => {
-              form.setValue("overflowBin", value === "" ? null : Number(value), { shouldDirty: true });
-              setOverflowOpen(false);
-            }}
-            onClose={() => setOverflowOpen(false)}
-          />
-        </View>
+              {!modeLocksRules && !isScanOnly ? (
+                <ListRow
+                  title={t("rules.overflowLabel")}
+                  subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
+                  value={overflowBin != null ? t("rules.bin", { number: overflowBin }) : t("rules.overflowNone")}
+                  disabled={readOnly || (targets.length === 0 && overflowBin == null)}
+                  onPress={() => setOverflowOpen(true)}
+                />
+              ) : null}
+            </ListGroup>
+          </View>
+        ) : null}
       </ScrollView>
+      <OptionSheet
+        visible={overflowOpen}
+        title={t("rules.overflowLabel")}
+        options={overflowOptions}
+        selected={[overflowBin != null ? String(overflowBin) : ""]}
+        onSelect={(value) => {
+          form.setValue("overflowBin", value === "" ? null : Number(value), { shouldDirty: true });
+          setOverflowOpen(false);
+        }}
+        onClose={() => setOverflowOpen(false)}
+      />
       <SaveBar
         visible={isDirty && !readOnly}
         saving={save.isPending}

@@ -8,6 +8,7 @@ import { getInitials } from "@/components/ui/initials-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
+import { openIntakeLotsQueryOptions } from "@/features/business/api/business";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@/features/collections/components/mobile-home-overview";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { useScrollCollapse } from "@/hooks/use-scroll-collapse";
 import { useAuthSession } from "@/lib/auth";
 import { useCollectionLocks } from "@/lib/app-stream";
 import {
@@ -24,15 +26,16 @@ import {
   MOBILE_NAV_SCROLL_PADDING_CLASS,
   MOBILE_PAGE_BODY_CLASS,
   MOBILE_SCAN_PATH,
-  MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
 import { MOBILE_HOME_SEARCH_MIN_COLLECTIONS } from "@/lib/constants/collections";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { INTAKE_PATH } from "@/lib/constants/business";
 import { cn } from "@/lib/utils";
 import {
   IconAlbum,
+  IconArrowRight,
+  IconCash,
   IconChartBar,
-  IconCpu,
   IconPlus,
   IconScan,
 } from "@tabler/icons-react";
@@ -55,12 +58,19 @@ export function MobileHome() {
     enabled: !!activeOrg,
   });
   const { activeCollection } = useCollections();
+  const { data: openIntakeLots = [] } = useQuery(
+    openIntakeLotsQueryOptions(activeOrg?.id),
+  );
+  const openIntakeCount = openIntakeLots.filter(
+    (lot) => lot.status === "open",
+  ).length;
   const { locks, currentUserId } = useCollectionLocks();
   const { format } = usePriceSource();
   const { data: session } = useAuthSession();
   const [searchQuery, setSearchQuery] = useState("");
-  const scanPath =
-    usePiHost() && isRemoteBrowser() ? "/app" : MOBILE_SCAN_PATH;
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
+  const heroCollapsed = useScrollCollapse(scrollRoot);
+  const scanPath = usePiHost() && isRemoteBrowser() ? "/app" : MOBILE_SCAN_PATH;
   const firstName = session?.user?.name?.trim().split(/\s+/)[0];
   const query = searchQuery.trim().toLowerCase();
 
@@ -85,41 +95,78 @@ export function MobileHome() {
             ? t("home.greeting", { name: firstName })
             : t("home.greetingNoName")
         }
-      />
+        collapsed={heroCollapsed}
+        actions={
+          heroCollapsed &&
+          overview && (
+            <span className="font-heading text-lg font-semibold tabular-nums animate-in fade-in-0 duration-200 motion-reduce:animate-none">
+              {format(overview.totalValue)}
+            </span>
+          )
+        }
+      >
+        <MobileHomeHero orgId={activeOrg?.id} />
+      </MobilePageHeader>
       <div
+        ref={setScrollRoot}
         className={cn(
           "min-h-0 flex-1 overflow-y-auto",
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
         <div className={MOBILE_PAGE_BODY_CLASS}>
-          <MobileHomeHero orgId={activeOrg?.id} />
-
-          <div className="flex justify-between gap-2">
-            <MobileQuickAction
-              icon={<IconScan />}
-              label={t("home.actions.scan")}
+          <div className="flex flex-col gap-2">
+            <Link
               to={scanPath}
-            />
-            <CreateCollectionDialog
-              trigger={({ disabled }) => (
-                <MobileQuickAction
-                  icon={<IconPlus />}
-                  label={t("home.actions.newCollection")}
-                  disabled={disabled}
-                />
-              )}
-            />
-            <MobileQuickAction
-              icon={<IconCpu />}
-              label={t("home.actions.sorter")}
-              to={MOBILE_SORTER_PATH}
-            />
-            <MobileQuickAction
-              icon={<IconChartBar />}
-              label={t("home.actions.stats")}
-              to={STATS_PATH}
-            />
+              className="flex items-center gap-3 rounded-lg bg-primary p-4 text-primary-foreground transition-colors active:bg-primary-hover"
+            >
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/15 [&_svg]:size-5">
+                <IconScan />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="truncate font-heading text-base font-semibold">
+                  {t("home.scanHero.title")}
+                </span>
+                <span className="truncate text-xs text-primary-foreground/80">
+                  {activeCollection
+                    ? t("home.scanHero.sortInto", {
+                        collection: activeCollection.name,
+                      })
+                    : t("home.scanHero.noCollection")}
+                </span>
+              </span>
+              <IconArrowRight className="size-5 shrink-0" />
+            </Link>
+            <div className="grid grid-cols-3 overflow-hidden rounded-lg border border-input bg-input/20 dark:bg-input/30">
+              <CreateCollectionDialog
+                trigger={({ disabled }) => (
+                  <MobileQuickAction
+                    icon={<IconPlus />}
+                    label={t("home.actions.newCollection")}
+                    hint={t("home.actionHints.newCollection")}
+                    disabled={disabled}
+                  />
+                )}
+              />
+              <MobileQuickAction
+                icon={<IconCash />}
+                label={t("home.actions.buySell")}
+                hint={
+                  openIntakeCount > 0
+                    ? t("home.actionHints.buySellOpen", {
+                        count: openIntakeCount,
+                      })
+                    : t("home.actionHints.buySell")
+                }
+                to={INTAKE_PATH}
+              />
+              <MobileQuickAction
+                icon={<IconChartBar />}
+                label={t("home.actions.stats")}
+                hint={t("home.actionHints.stats")}
+                to={STATS_PATH}
+              />
+            </div>
           </div>
 
           {!query && <MobileHomeOverview orgId={activeOrg?.id} />}
@@ -168,7 +215,9 @@ export function MobileHome() {
                           {getInitials(lock.displayName)}
                         </MobileIconBadge>
                       ) : (
-                        <MobileIconBadge tone={isActive ? "primary" : "neutral"}>
+                        <MobileIconBadge
+                          tone={isActive ? "primary" : "neutral"}
+                        >
                           {isActive ? <IconScan /> : <IconAlbum />}
                         </MobileIconBadge>
                       )}
