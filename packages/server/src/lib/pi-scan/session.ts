@@ -220,22 +220,16 @@ async function loadFillCounts(
           SELECT count(*)::int FROM collection_cards c
           WHERE c.collection_id = ${collectionId}
             AND c.bin_number = b."binNumber"
-            AND (
-              b."lastEmptiedAt" IS NULL
-              OR c.scanned_at > to_timestamp(b."lastEmptiedAt" / 1000.0) AT TIME ZONE 'UTC'
-            )
+            AND c.bin_emptied_at IS NULL
         ) + (
           SELECT count(*)::int FROM unmatched_cards u
           WHERE u.collection_id = ${collectionId}
             AND u.bin_number = b."binNumber"
             AND u.is_deleted = false
-            AND (
-              b."lastEmptiedAt" IS NULL
-              OR u.scanned_at > to_timestamp(b."lastEmptiedAt" / 1000.0) AT TIME ZONE 'UTC'
-            )
+            AND u.bin_emptied_at IS NULL
         ) AS count
       FROM jsonb_to_recordset(${JSON.stringify(windows)}::jsonb)
-        AS b("binNumber" int, "lastEmptiedAt" float8)
+        AS b("binNumber" int)
     `),
   );
   const counts = new Map<number, number>();

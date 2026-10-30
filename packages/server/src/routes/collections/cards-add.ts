@@ -17,6 +17,7 @@ import { acquireLock } from "../../lib/scan-lock";
 import { deleteScanImages, storeScanImage } from "../../lib/scan-images";
 import { recordDeviceSorted } from "../../lib/device-alerts";
 import { findOpenIntakeLotId } from "../../lib/intake";
+import { lateSaveBinEmptiedAtSql } from "../../lib/bin-emptying";
 import { recordMatchedScan } from "../../lib/scan-stats";
 import {
   sorterLimitForPlan,
@@ -241,6 +242,11 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             card: saved.card,
             scannedAt: new Date(scannedAt),
             binNumber: binNumber ?? null,
+            binEmptiedAt: lateSaveBinEmptiedAtSql(
+              orgId,
+              binNumber,
+              new Date(scannedAt).getTime(),
+            ),
             capturedImageDataUrl: storedImage.dataUrl,
             capturedImageKey: storedImage.key,
             isFoil: isFoil ?? false,
