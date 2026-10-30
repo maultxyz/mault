@@ -110,6 +110,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           card: saved.card,
           scannedAt: unmatched.scannedAt,
           binNumber: unmatched.binNumber,
+          binEmptiedAt: unmatched.binEmptiedAt,
           capturedImageDataUrl: unmatched.capturedImageDataUrl,
           capturedImageKey: unmatched.capturedImageKey,
           isFoil: isFoil ?? foilType != null,

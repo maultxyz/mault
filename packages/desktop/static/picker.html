@@ -4,29 +4,50 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src 'self'"
     />
     <title>MAULT</title>
     <style>
+      @font-face {
+        font-family: "Figtree Variable";
+        font-style: normal;
+        font-weight: 300 900;
+        font-display: block;
+        src: url("fonts/figtree-latin-wght-normal.woff2") format("woff2-variations");
+      }
+      @font-face {
+        font-family: "JetBrains Mono Variable";
+        font-style: normal;
+        font-weight: 100 800;
+        font-display: block;
+        src: url("fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+      }
       :root {
         color-scheme: light dark;
-        --bg: #ffffff;
-        --fg: #09090b;
-        --muted: rgba(9, 9, 11, 0.7);
-        --border: #e4e4e7;
-        --hover: #f4f4f5;
-        --selected: #eff4ff;
-        --primary: #1447e6;
-        --primary-fg: #ffffff;
+        --background: #ffffff;
+        --foreground: #292d34;
+        --muted: #f7f8f9;
+        --border: #e3e5ea;
+        --primary: #7b68ee;
+        --primary-foreground: #ffffff;
+        --primary-hover: color-mix(in oklch, var(--primary), black 12%);
+        --primary-text: var(--primary);
+        --selected: color-mix(in oklch, var(--primary) 10%, transparent);
+        --selected-hover: color-mix(in oklch, var(--primary) 15%, transparent);
+        --outline-background: var(--background);
+        --outline-hover: var(--muted);
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #09090b;
-          --fg: #fafafa;
-          --muted: rgba(250, 250, 250, 0.7);
-          --border: #27272a;
-          --hover: #18181b;
-          --selected: #172554;
+          --background: #1e1f21;
+          --foreground: #e3e4e8;
+          --muted: #2a2c30;
+          --border: rgb(255 255 255 / 10%);
+          --primary-text: oklch(from var(--primary) max(l, 0.72) c h);
+          --selected: color-mix(in oklch, var(--primary) 20%, transparent);
+          --selected-hover: color-mix(in oklch, var(--primary) 25%, transparent);
+          --outline-background: rgb(255 255 255 / 3%);
+          --outline-hover: rgb(255 255 255 / 5%);
         }
       }
       * {
@@ -40,20 +61,28 @@
       body {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 16px;
         padding: 16px;
-        background: var(--bg);
-        color: var(--fg);
-        font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--background);
+        color: var(--foreground);
+        font-family: "Figtree Variable", sans-serif;
+        font-size: 12px;
+        line-height: 16px;
         user-select: none;
+        -webkit-font-smoothing: antialiased;
       }
       h1 {
         margin: 0;
-        font-size: 16px;
-        font-weight: 600;
+        font-family: "JetBrains Mono Variable", monospace;
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 500;
       }
       ul {
         flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
         margin: 0;
         padding: 4px;
         overflow-y: auto;
@@ -64,47 +93,87 @@
       li {
         display: flex;
         flex-direction: column;
-        padding: 8px 10px;
+        gap: 2px;
+        padding: 6px 8px;
         border-radius: 6px;
         cursor: pointer;
+        outline: none;
       }
       li:hover {
-        background: var(--hover);
+        background: var(--muted);
       }
       li[aria-selected="true"] {
         background: var(--selected);
+        color: var(--primary-text);
+      }
+      li[aria-selected="true"]:hover {
+        background: var(--selected-hover);
       }
       li small,
       .empty {
-        color: var(--muted);
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
         font-size: 12px;
       }
+      li.name-pending {
+        color: color-mix(in oklch, var(--foreground) 70%, transparent);
+      }
+      li[aria-selected="true"] small {
+        color: inherit;
+        opacity: 0.8;
+      }
       .empty {
-        padding: 8px 10px;
+        padding: 6px 8px;
         cursor: default;
+      }
+      .empty:hover {
+        background: none;
       }
       footer {
         display: flex;
         justify-content: flex-end;
-        gap: 8px;
+        gap: 6px;
       }
       button {
-        padding: 6px 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 24px;
+        padding: 0 8px;
         border: 1px solid var(--border);
-        border-radius: 6px;
-        background: transparent;
-        color: var(--fg);
+        border-radius: 8px;
+        background: var(--outline-background);
+        color: var(--foreground);
         font: inherit;
+        font-weight: 500;
+        white-space: nowrap;
         cursor: pointer;
+        outline: none;
+        transition: background-color 150ms;
+      }
+      button:hover {
+        background: var(--outline-hover);
+      }
+      button:focus-visible {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px color-mix(in oklch, var(--primary) 30%, transparent);
       }
       button.primary {
-        border-color: var(--primary);
+        border-color: transparent;
         background: var(--primary);
-        color: var(--primary-fg);
+        color: var(--primary-foreground);
+        font-weight: 600;
+      }
+      button.primary:hover {
+        background: var(--primary-hover);
       }
       button:disabled {
         opacity: 0.5;
-        cursor: default;
+        pointer-events: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        button {
+          transition: none;
+        }
       }
     </style>
   </head>
@@ -142,6 +211,7 @@
           item.setAttribute("role", "option");
           item.setAttribute("aria-selected", String(device.id === selected));
           item.textContent = device.label;
+          if (device.isNamePending) item.classList.add("name-pending");
           if (device.detail) {
             const detail = document.createElement("small");
             detail.textContent = device.detail;

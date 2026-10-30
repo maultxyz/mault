@@ -2,13 +2,16 @@
   "camera": {
     "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
     "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse.",
-    "piUnavailable": "La webcam du Raspberry Pi n'est pas disponible."
+    "piUnavailable": "La webcam du Raspberry Pi n'est pas disponible.",
+    "documentScannerUnavailable": "Impossible d'ouvrir le scanner de documents. Vérifiez qu'il est allumé et qu'aucune autre application ne l'utilise."
   },
   "scanEngine": {
     "searchFailed": "Échec de la recherche de la carte",
     "videoStartFailed": "Échec du démarrage de la vidéo",
     "cameraReinitFailed": "Échec de la réinitialisation de la caméra",
-    "phoneCaptureFailed": "Le téléphone n'a pas envoyé de photo à temps."
+    "phoneCaptureFailed": "Le téléphone n'a pas envoyé de photo à temps.",
+    "documentScannerNoPage": "Aucune carte numérisée à identifier. Faites d'abord passer une carte dans le scanner de documents.",
+    "documentScannerPageUnreadable": "Impossible de lire l'image du scanner de documents."
   },
   "sessionLock": {
     "message": "Une session de tri est en cours sur ce trieur. Mettez le scan en pause pour modifier ces réglages.",
@@ -307,7 +310,6 @@
     "start": "Démarrer le scan",
     "sessionSummary_one": "{{count}} carte scannée · {{time}}",
     "sessionSummary_other": "{{count}} cartes scannées · {{time}}",
-    "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
     "startRemoving": "Démarrer le retrait"
   },
   "scannerDebug": {
@@ -342,7 +344,13 @@
       "connected": "Connecté",
       "connecting": "Connexion",
       "disconnected": "Non connecté"
-    }
+    },
+    "documentScanners": "Scanners de documents",
+    "documentScannerOption": {
+      "feeder": "{{name}} (chargeur)",
+      "flatbed": "{{name}} (à plat)"
+    },
+    "setFlatbedCardPosition": "Définir la position de la carte sur la vitre"
   },
   "ocrBetaDialog": {
     "title": "Correspondance de texte OCR (bêta)",
@@ -395,7 +403,9 @@
     "waitingForPhoneTitle": "En attente de ton téléphone",
     "showQrCode": "Afficher le code QR",
     "sensorBlocked": "Le capteur du module {{module}} détecte une carte, l'autotest n'a donc pas été lancé.",
-    "resolveSensorBlocked": "Résoudre"
+    "resolveSensorBlocked": "Résoudre",
+    "documentScannerReady": "Scanner de documents prêt. Chargez des cartes dans le scanner et lancez la numérisation.",
+    "flatbedScannerReady": "Scanner à plat prêt. Posez une carte sur la vitre et appuyez sur Numériser la carte."
   },
   "sessionErrorsPanel": {
     "heading": "Erreurs"
@@ -751,12 +761,24 @@
     "recentlyScanned": "Scannées récemment",
     "seeAllStats": "Toutes les statistiques",
     "actions": {
-      "scan": "Scanner",
       "newCollection": "Nouvelle",
-      "sorter": "Trieuse",
-      "stats": "Stats"
+      "stats": "Stats",
+      "buySell": "Achat-vente"
     },
-    "activeCollection": "Active"
+    "activeCollection": "Active",
+    "scanHero": {
+      "title": "Commencer le scan",
+      "sortInto": "Trier dans {{collection}}",
+      "noCollection": "Choisis une collection où trier"
+    },
+    "actionHints": {
+      "newCollection": "Ajouter une collection",
+      "buySell": "Rachats et préparations",
+      "buySellOpen_one": "{{count}} rachat ouvert",
+      "buySellOpen_other": "{{count}} rachats ouverts",
+      "stats": "Graphiques et historique"
+    },
+    "statsHeading": "Aperçu"
   },
   "resetToNeutral": {
     "done": "Trieuse remise en position neutre",
@@ -1027,6 +1049,56 @@
       "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
       "print": "Imprimer",
       "printTip": "Imprime sur du papier cartonné à l'échelle 100 % avec les marges sur Par défaut. Chaque page contient 9 cartes. Découpe le long des bordures et garde le QR code bien à plat et sans reflets."
+    }
+  },
+  "documentScannerFeed": {
+    "cardDidNotArrive": "La carte numérisée n'est pas arrivée dans le trieur. Dégagez le passage entre le scanner et le module 1, puis remettez la carte dans le scanner.",
+    "moduleOneNotEmpty": "Une carte se trouve déjà dans le module 1. Retirez-la avant de charger depuis le scanner de documents.",
+    "moveFlatbedCard": {
+      "title": "Placez la carte dans le trieur",
+      "description": "Retirez la carte numérisée de la vitre et placez-la dans le module 1, puis posez la carte suivante sur la vitre."
+    }
+  },
+  "flatbed": {
+    "stepsLabel": "Étapes de numérisation à plat",
+    "steps": {
+      "scan": "Numériser",
+      "move": "Déplacer",
+      "sort": "Trier",
+      "identify": "Identifier"
+    },
+    "instruction": {
+      "place-card": "Posez une carte face contre la vitre à l'emplacement marqué, fermez le capot, puis appuyez sur Numériser la carte.",
+      "scanning": "Numérisation de la vitre...",
+      "moveCard": "Déplacez la carte de la vitre vers le module 1 ({{seconds}} s restantes).",
+      "missed-card": "La carte n'est pas arrivée dans le module 1. Placez-la dans le module 1 et appuyez sur Continuer, ou numérisez-la à nouveau.",
+      "identifying": "Identification de la carte...",
+      "done": "Carte triée. Posez la carte suivante sur la vitre.",
+      "doneWithoutSorter": "Placez la carte dans le bac indiqué ci-dessus, puis posez la carte suivante sur la vitre."
+    },
+    "scanCard": "Numériser la carte",
+    "scanCardTooltip": "Numériser la carte posée sur la vitre",
+    "scanning": "Numérisation...",
+    "identifying": "Identification...",
+    "continue": "Continuer",
+    "continueTooltip": "Trier la carte numérisée une fois qu'elle est dans le module 1",
+    "rescan": "Renumériser",
+    "cancel": "Annuler",
+    "scanFailed": "Impossible de numériser la vitre",
+    "calibration": {
+      "title": "Définir la position de la carte",
+      "description": "Indiquez à l'application où vous posez chaque carte sur la vitre du scanner à plat.",
+      "instructions": "Posez une carte face contre la vitre à l'endroit où vous poserez chaque carte, par exemple calée dans le coin indiqué par la flèche. Fermez le capot, puis numérisez la vitre.",
+      "scanGlass": "Numériser la vitre",
+      "scanning": "Numérisation de la vitre...",
+      "scanAgain": "Numériser à nouveau",
+      "dragHint": "Tracez un cadre autour de la carte si le cadre détecté n'est pas juste.",
+      "boxTooSmall": "Le cadre est trop petit pour une carte. Tracez un cadre plus grand autour d'elle.",
+      "save": "Enregistrer la position",
+      "cancel": "Annuler",
+      "previewAlt": "Numérisation de toute la vitre du scanner à plat",
+      "editorLabel": "Vitre du scanner à plat. Faites glisser pour marquer l'emplacement de la carte.",
+      "previewFailed": "Impossible de numériser la vitre. Vérifiez que le scanner est allumé et réessayez."
     }
   }
 }

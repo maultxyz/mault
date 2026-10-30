@@ -299,7 +299,6 @@ export const bins = pgTable(
     isDisabled: boolean("is_disabled").notNull().default(false),
     pickList: jsonb("pick_list"),
     repackPriority: integer("repack_priority"),
-    lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -605,6 +604,7 @@ export const collectionCards = pgTable(
     ),
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
+    binEmptiedAt: timestamp("bin_emptied_at"),
     capturedImageDataUrl: text("captured_image_data_url"),
     capturedImageKey: text("captured_image_key"),
     isFoil: boolean("is_foil").notNull().default(false),
@@ -674,6 +674,11 @@ export const collectionCards = pgTable(
       table.collectionId,
       table.binNumber,
       table.scannedAt,
+    ),
+    index("collection_cards_org_bin_emptied_idx").on(
+      table.orgId,
+      table.binNumber,
+      table.binEmptiedAt,
     ),
     crudPolicy({
       role: authenticatedRole,
@@ -942,6 +947,7 @@ export const unmatchedCards = pgTable(
     capturedImageKey: text("captured_image_key"),
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
+    binEmptiedAt: timestamp("bin_emptied_at"),
     diagnostics: jsonb("diagnostics"),
     embedding: vector("embedding"),
     scannedByUserId: text("scanned_by_user_id"),
@@ -958,6 +964,11 @@ export const unmatchedCards = pgTable(
     index("unmatched_cards_collection_scanned_idx").on(
       table.collectionId,
       table.scannedAt,
+    ),
+    index("unmatched_cards_org_bin_emptied_idx").on(
+      table.orgId,
+      table.binNumber,
+      table.binEmptiedAt,
     ),
     crudPolicy({
       role: authenticatedRole,

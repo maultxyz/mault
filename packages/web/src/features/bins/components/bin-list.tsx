@@ -4,6 +4,7 @@ import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { BinCard } from "@/features/bins/components/bin-card";
 import { useOrg } from "@/features/companies/api/use-organization";
+import type { BinListProps } from "@/lib/interfaces/bins";
 import {
   getAlphabetPassLetters,
   getOverflowSources,
@@ -13,7 +14,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
-export function BinList() {
+export function BinList({ onOpenBin }: BinListProps) {
   const { t } = useTranslation("bins");
   const {
     configs,
@@ -97,7 +98,11 @@ export function BinList() {
                 : []
             }
             disabled={isModeDirty}
-            onClick={() => setSelectedBin(config.binNumber)}
+            onClick={() =>
+              onOpenBin
+                ? onOpenBin(config.binNumber)
+                : setSelectedBin(config.binNumber)
+            }
           />
         ))}
       </div>

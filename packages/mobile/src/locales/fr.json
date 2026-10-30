@@ -989,7 +989,18 @@
       "confirmPileTitle": "Commencer la pile {{prefix}} ?",
       "confirmPileDescription": "Vide chaque bac en gardant chaque pile dans l'ordre, puis mets la pile {{prefix}} dans le chargeur. Tous les bacs seront marqués comme vidés.",
       "confirm": "Les bacs sont vides"
-    }
+    },
+    "binSummary": {
+      "alphabetLetter": "Noms commençant par {{letter}}",
+      "chaos": "Se remplit à son tour",
+      "scanOnlyEverything": "Les cartes scannées et non identifiées vont ici",
+      "scanOnlyUnidentified": "Les cartes non identifiées vont ici",
+      "scanOnlyScanned": "Les cartes scannées vont ici",
+      "scanOnlyOff": "Inutilisé tant que Scan uniquement est activé"
+    },
+    "modeLocked": "Les règles ne s'appliquent pas en mode {{mode}}. Change le mode de tri pour les modifier.",
+    "autoAssignLocked": "La détection automatique définit ces règles pour toi. Change le mode de tri pour les modifier.",
+    "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis dans Mode de tri. Désactive-le pour configurer les bacs."
   },
   "calibration": {
     "title": "Calibrage",
@@ -1209,7 +1220,10 @@
       "start": "Vérifier les cartes",
       "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées.",
       "startFailed": "Impossible de lancer la vérification"
-    }
+    },
+    "moveToLocation": "Déplacer vers un emplacement",
+    "moveToOtherLocation": "Déplacer vers un autre emplacement",
+    "searchLocations": "Rechercher des emplacements"
   },
   "settings": {
     "title": "Paramètres",

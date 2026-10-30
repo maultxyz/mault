@@ -33,3 +33,6 @@ export const PICK_LIST_DECKLIST_MAX_LENGTH = 50000;
 
 export const BIN_SETTINGS_LIST_CLASS =
   "flex flex-col divide-y rounded-lg border";
+
+export const MOBILE_BINS_SCREEN_PARAM = "screen";
+export const MOBILE_BINS_BIN_PARAM = "bin";

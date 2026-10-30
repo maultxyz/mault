@@ -6,7 +6,11 @@ import type {
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { bins, storageLocations } from "../../db/schema";
+import { storageLocations } from "../../db/schema";
+import {
+  loadBinEmptiedTimes,
+  markBinsEmptied,
+} from "../../lib/bin-emptying";
 import {
   isStorageAllowed,
   STORAGE_UPGRADE_MESSAGE,
@@ -14,12 +18,7 @@ import {
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import {
-  emptyRules,
-  resolveGameId,
-  activeBinSetWhere,
-  markBinsEmptied,
-} from "./shared";
+import { resolveGameId, activeBinSetWhere } from "./shared";
 
 export const emptyBinRoute = new Hono<AppEnv>().post(
   "/bins/:binNumber/empty",
@@ -46,29 +45,9 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       const activeBinSet = await tx.query.binSets.findFirst({
         where: (t) => activeBinSetWhere(t, orgId, gameId),
         columns: { id: true },
-        with: {
-          bins: {
-            where: (bin, { eq }) => eq(bin.isDeleted, false),
-            columns: { id: true, binNumber: true },
-          },
-        },
       });
       if (!activeBinSet)
         return { message: "No active set found.", success: false };
-
-      const existing =
-        activeBinSet.bins.find((b) => b.binNumber === binNumber) ??
-        (
-          await tx
-            .insert(bins)
-            .values({
-              binNumber,
-              rules: emptyRules(),
-              binSet: activeBinSet.id,
-              orgId,
-            })
-            .returning({ id: bins.id })
-        )[0];
 
       let storedScanIds: string[] = [];
       if (locationGuid && collectionGuid) {
@@ -104,7 +83,6 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           return { message: "Collection not found.", success: false };
         }
         storedScanIds = await assignBinToLocation(tx, {
-          binId: existing.id,
           binNumber,
           collectionId: collection.id,
           locationId: location.id,
@@ -133,9 +111,9 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           overflowBin: true,
           isDisabled: true,
           repackPriority: true,
-          lastEmptiedAt: true,
         },
       });
+      const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
 
       return {
         message: "Bin marked as emptied.",
@@ -156,7 +134,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
             overflowBin: b.overflowBin,
             isDisabled: b.isDisabled,
             repackPriority: b.repackPriority,
-            lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
+            lastEmptiedAt: emptiedTimes.get(b.binNumber) ?? null,
           }),
         ),
       };

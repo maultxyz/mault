@@ -1,4 +1,5 @@
 import { FoilOverlay } from "@/components/foil-overlay";
+import { StatGroup } from "@/components/stat-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -9,7 +10,6 @@ import {
 } from "@/lib/constants/nav";
 import type {
   HomeCardStripProps,
-  HomeStatTileProps,
   MobileHomeHeroProps,
   MobileHomeOverviewProps,
   ScanActivityChartProps,
@@ -27,17 +27,6 @@ function formatDay(date: string): string {
     day: "numeric",
     timeZone: "UTC",
   });
-}
-
-function HomeStatTile({ label, value }: HomeStatTileProps) {
-  return (
-    <div className="min-w-0 rounded-lg bg-card px-3.5 py-3 ring-1 ring-border">
-      <p className="truncate font-heading text-lg leading-tight font-semibold text-foreground tabular-nums">
-        {value}
-      </p>
-      <p className="truncate text-xs text-foreground/70">{label}</p>
-    </div>
-  );
 }
 
 function ScanActivityChart({ days }: ScanActivityChartProps) {
@@ -164,11 +153,7 @@ export function MobileHomeOverview({ orgId }: MobileHomeOverviewProps) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-5">
-        <div className="grid grid-cols-3 gap-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-lg" />
-          ))}
-        </div>
+        <Skeleton className="h-20 rounded-lg" />
         <Skeleton className="h-32 rounded-lg" />
       </div>
     );
@@ -177,20 +162,27 @@ export function MobileHomeOverview({ orgId }: MobileHomeOverviewProps) {
 
   return (
     <div className="flex flex-col gap-7">
-      <div className="grid grid-cols-3 gap-2">
-        <HomeStatTile
-          label={t("home.scannedToday")}
-          value={data.scansToday.toLocaleString()}
-        />
-        <HomeStatTile
-          label={t("home.thisWeek")}
-          value={data.scansThisWeek.toLocaleString()}
-        />
-        <HomeStatTile
-          label={t("home.collections")}
-          value={data.collectionCount.toLocaleString()}
-        />
-      </div>
+      <StatGroup
+        heading={t("home.statsHeading")}
+        gridClassName="grid-cols-3"
+        tiles={[
+          {
+            key: "scanned-today",
+            label: t("home.scannedToday"),
+            value: data.scansToday.toLocaleString(),
+          },
+          {
+            key: "this-week",
+            label: t("home.thisWeek"),
+            value: data.scansThisWeek.toLocaleString(),
+          },
+          {
+            key: "collections",
+            label: t("home.collections"),
+            value: data.collectionCount.toLocaleString(),
+          },
+        ]}
+      />
 
       {data.scansByDay.length > 1 && (
         <MobileSection

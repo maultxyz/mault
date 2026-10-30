@@ -2,6 +2,7 @@ import { DOWNLOAD_PATH } from "@/lib/constants/download";
 import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { ORDERS_PATH } from "@/lib/constants/business";
 import { SHOP_URL } from "@/lib/constants/links";
 
 export const NAV_SUBITEMS_LIMIT = 5;
@@ -39,9 +40,9 @@ export const SCROLL_COLLAPSE_MIN_OVERFLOW = 160;
 export const MOBILE_PAGE_TITLE_CLASS =
   "font-heading text-lg font-semibold leading-tight tracking-tight text-foreground";
 export const MOBILE_PAGE_BODY_CLASS = "flex w-full flex-col gap-5 px-4 pt-4 pb-6";
-export const MOBILE_LIST_CLASS = "flex shrink-0 flex-col divide-y divide-border overflow-hidden rounded-lg bg-card ring-1 ring-border";
+export const MOBILE_LIST_CLASS = "flex shrink-0 flex-col divide-y divide-border";
 export const MOBILE_LIST_ROW_CLASS =
-  "flex min-h-12 w-full items-center gap-3 px-3 py-2 text-left text-sm font-medium text-foreground transition-colors active:bg-muted";
+  "flex min-h-12 w-full items-center gap-3 py-2 text-left text-sm font-medium text-foreground transition-colors active:bg-muted";
 export const MOBILE_ICON_TILE_CLASS =
   "flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-foreground [&_svg]:size-4";
 export const MOBILE_SECTION_LABEL_CLASS =
@@ -81,6 +82,7 @@ export const MOBILE_ACCOUNT_TAB_PATHS = [
   "/app/health",
   SETTINGS_PATHS.root,
   STATS_PATH,
+  ORDERS_PATH,
 ];
 export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 export const MOBILE_IMMERSIVE_PATTERN = /^\/app\/scan\/?$/;

@@ -112,7 +112,7 @@ export function NotificationRuleDialog({
     });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog drawerOnMobile={false} open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <DialogHeader>

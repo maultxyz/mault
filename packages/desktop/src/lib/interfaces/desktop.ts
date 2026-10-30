@@ -1,4 +1,10 @@
-import type { BrowserWindow } from "electron";
+import type {
+  DesktopDocumentScanErrorReason,
+  DesktopDocumentScanner,
+  DesktopDocumentScannerCaptureRequest,
+  DesktopDocumentScannerFeedResult,
+} from "@magic-vault/shared";
+import type { BrowserWindow, WebContents } from "electron";
 
 export type PickerKind = "serial" | "bluetooth";
 
@@ -8,6 +14,7 @@ export interface PickerDevice {
   id: string;
   label: string;
   detail?: string;
+  isNamePending?: boolean;
 }
 
 export interface PickerState {
@@ -27,6 +34,7 @@ export interface DesktopStrings {
   serialTitle: string;
   bluetoothTitle: string;
   searching: string;
+  lookingUpName: string;
   connect: string;
   cancel: string;
   offlineTitle: string;
@@ -67,4 +75,37 @@ export interface ScreenRect {
 
 export interface CoverageApi {
   coveredRatio: (handle: Buffer) => number;
+}
+
+export type ScannerHelperMessage =
+  | { type: "scanners"; scanners: DesktopDocumentScanner[] }
+  | { type: "ready" }
+  | {
+      type: "page";
+      pageIndex: number;
+      filePath: string;
+      paperSource?: string;
+      scanWidthMm?: number;
+      scanHeightMm?: number;
+    }
+  | { type: "error"; reason: DesktopDocumentScanErrorReason; message: string }
+  | { type: "finished"; pageCount: number };
+
+export interface ActiveDocumentScan {
+  scanBatchId: string;
+  webContents: WebContents;
+  stop: () => void;
+}
+
+export interface StoredDocumentScanFolder {
+  folderPath: string;
+}
+
+export interface DocumentScannerSession {
+  sessionId: string;
+  webContents: WebContents;
+  feedCard: (
+    request: DesktopDocumentScannerCaptureRequest,
+  ) => Promise<DesktopDocumentScannerFeedResult>;
+  close: () => void;
 }

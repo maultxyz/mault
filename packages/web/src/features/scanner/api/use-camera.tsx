@@ -17,7 +17,31 @@ import {
   piCameraDevice,
   readPiCameraHealth,
 } from "@/features/scanner/lib/pi-camera";
-import { PI_CAMERA_DEVICE_ID } from "@/lib/constants/scanner";
+import {
+  DOCUMENT_SCANNERS_QUERY_KEY,
+  FLATBED_DEFAULT_PLACEMENT,
+  PI_CAMERA_DEVICE_ID,
+} from "@/lib/constants/scanner";
+import {
+  documentScannerKey,
+  documentScannerModeOf,
+  documentScannerOptionsFor,
+  getDocumentScannerSessionBridge,
+  isDocumentScannerCameraId,
+  requireDocumentScannerSessionBridge,
+} from "@/features/scanner/lib/document-scan-bridge";
+import {
+  cropFlatbedPage,
+  flatbedScanHeightMm,
+  loadFlatbedPlacement,
+  storeFlatbedPlacement,
+} from "@/features/scanner/lib/flatbed-placement";
+import { generateScanId } from "@/lib/utils";
+import type {
+  DesktopDocumentScannerCaptureRequest,
+  DesktopDocumentScannerFeedResult,
+} from "@magic-vault/shared";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   acquireFreeStream,
   camerasHeldByOtherStations,
@@ -32,6 +56,9 @@ import type {
   CameraRange,
   CameraSource,
   CameraStatus,
+  DocumentScannerOption,
+  DocumentScannerSessionState,
+  FlatbedPlacement,
 } from "@/lib/interfaces/scanner";
 import {
   createContext,
@@ -61,6 +88,47 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
   const [cameraSource, setCameraSource] = useState<CameraSource>("local");
   const streamRef = useRef<MediaStream | null>(null);
+  const queryClient = useQueryClient();
+  const documentScannerBridge = useMemo(getDocumentScannerSessionBridge, []);
+  const documentScannerSessionRef = useRef<DocumentScannerSessionState | null>(
+    null,
+  );
+  const documentScannerPageRef = useRef<File | null>(null);
+  const { data: documentScannerList } = useQuery({
+    queryKey: DOCUMENT_SCANNERS_QUERY_KEY,
+    queryFn: () =>
+      requireDocumentScannerSessionBridge(documentScannerBridge).listDocumentScanners(),
+    enabled: !!documentScannerBridge,
+    staleTime: Number.POSITIVE_INFINITY,
+    retry: false,
+  });
+  const documentScannerOptions = useMemo<DocumentScannerOption[]>(
+    () => documentScannerOptionsFor(documentScannerList?.scanners ?? []),
+    [documentScannerList],
+  );
+  const selectedDocumentScannerOption =
+    cameraSource === "document-scanner"
+      ? (documentScannerOptions.find((option) => option.cameraId === selectedCameraId) ??
+        null)
+      : null;
+  const selectedDocumentScanner = selectedDocumentScannerOption?.scanner ?? null;
+  const documentScannerMode =
+    cameraSource === "document-scanner" ? documentScannerModeOf(selectedCameraId) : null;
+  const isSimulatedDocumentScanner = !!selectedDocumentScanner?.isSimulated;
+  const selectedScannerKey = selectedDocumentScanner
+    ? documentScannerKey(selectedDocumentScanner)
+    : null;
+  const [placementsByScanner, setPlacementsByScanner] = useState<
+    Record<string, FlatbedPlacement | null>
+  >({});
+  const flatbedPlacement =
+    documentScannerMode === "flatbed" && selectedScannerKey
+      ? (selectedScannerKey in placementsByScanner
+          ? placementsByScanner[selectedScannerKey]
+          : loadFlatbedPlacement(selectedScannerKey))
+      : null;
+  const flatbedPlacementRef = useRef(flatbedPlacement);
+  flatbedPlacementRef.current = flatbedPlacement;
   const { activeCollection } = useCollections();
   const { station, isLive } = useStation();
   const stationsCtx = useStations();
@@ -75,8 +143,129 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     return camerasHeldByOtherStations(stations, isStationLive, stationId);
   }, [stationId]);
 
+  const closeDocumentScannerSession = useCallback(() => {
+    const session = documentScannerSessionRef.current;
+    documentScannerSessionRef.current = null;
+    documentScannerPageRef.current = null;
+    if (session) documentScannerBridge?.closeDocumentScannerSession(session.sessionId);
+  }, [documentScannerBridge]);
+
+  const openDocumentScanner = useCallback(
+    async (cameraId: string) => {
+      setStatus("requesting");
+      setErrorMessage("");
+      setCameraSource("document-scanner");
+      setSelectedCameraId(cameraId);
+      try {
+        const bridge = requireDocumentScannerSessionBridge(documentScannerBridge);
+        const { scanners } = await queryClient.fetchQuery({
+          queryKey: DOCUMENT_SCANNERS_QUERY_KEY,
+          queryFn: () => bridge.listDocumentScanners(),
+          staleTime: Number.POSITIVE_INFINITY,
+        });
+        const scanner = documentScannerOptionsFor(scanners).find(
+          (option) => option.cameraId === cameraId,
+        )?.scanner;
+        if (!scanner) throw new Error(`Document scanner ${cameraId} is not connected`);
+        const session: DocumentScannerSessionState = {
+          sessionId: generateScanId(),
+          cameraId,
+        };
+        await bridge.openDocumentScannerSession({
+          sessionId: session.sessionId,
+          scanner: {
+            scannerId: scanner.scannerId,
+            scannerName: scanner.name,
+            driver: scanner.driver,
+          },
+        });
+        documentScannerSessionRef.current = session;
+        documentScannerPageRef.current = null;
+        stationsRef.current.setStationCamera(stationId, cameraId);
+        setStatus("ready");
+      } catch (err) {
+        console.error("[camera] document scanner failed to open:", err);
+        setErrorMessage(t("camera.documentScannerUnavailable"));
+        setStatus("error");
+      }
+    },
+    [documentScannerBridge, queryClient, stationId, t],
+  );
+
+  const captureDocumentScannerPage = useCallback(
+    async (
+      request: DesktopDocumentScannerCaptureRequest,
+    ): Promise<{ result: DesktopDocumentScannerFeedResult; page: File | null }> => {
+      const session = documentScannerSessionRef.current;
+      if (!session || !documentScannerBridge) {
+        return { result: { type: "error", reason: "session_closed" }, page: null };
+      }
+      const result = await documentScannerBridge.feedDocumentScannerCard(
+        session.sessionId,
+        request,
+      );
+      if (result.type !== "page") return { result, page: null };
+      const page = new File([result.imageBytes.slice()], result.fileName, {
+        type: result.mimeType,
+      });
+      return { result, page };
+    },
+    [documentScannerBridge],
+  );
+
+  const feedDocumentScannerCard = useCallback(async () => {
+    const { result, page } = await captureDocumentScannerPage({ kind: "feeder" });
+    if (page) documentScannerPageRef.current = page;
+    return result;
+  }, [captureDocumentScannerPage]);
+
+  const scanFlatbedCard = useCallback(async (): Promise<DesktopDocumentScannerFeedResult> => {
+    const placement = flatbedPlacementRef.current ?? FLATBED_DEFAULT_PLACEMENT;
+    const { result, page } = await captureDocumentScannerPage({
+      kind: "flatbed",
+      scanHeightMm: flatbedScanHeightMm(placement),
+    });
+    if (!page || result.type !== "page") return result;
+    try {
+      documentScannerPageRef.current = result.scanWidthMm
+        ? await cropFlatbedPage(page, result.scanWidthMm, placement)
+        : page;
+    } catch (error) {
+      console.error("[camera] cropping the flatbed scan failed:", error);
+      return { type: "error", reason: "unknown", message: String(error) };
+    }
+    return result;
+  }, [captureDocumentScannerPage]);
+
+  const previewFlatbedGlass = useCallback(
+    async () => (await captureDocumentScannerPage({ kind: "flatbed-preview" })).result,
+    [captureDocumentScannerPage],
+  );
+
+  const saveFlatbedPlacement = useCallback(
+    (placement: FlatbedPlacement) => {
+      if (!selectedScannerKey) return;
+      storeFlatbedPlacement(selectedScannerKey, placement);
+      setPlacementsByScanner((previous) => ({
+        ...previous,
+        [selectedScannerKey]: placement,
+      }));
+    },
+    [selectedScannerKey],
+  );
+
+  const takeDocumentScannerPage = useCallback(() => {
+    const page = documentScannerPageRef.current;
+    documentScannerPageRef.current = null;
+    return page;
+  }, []);
+
   const startCamera = useCallback(
     async (deviceId?: string) => {
+      if (isDocumentScannerCameraId(deviceId)) {
+        if (deviceId) await openDocumentScanner(deviceId);
+        return;
+      }
       setStatus("requesting");
       setErrorMessage("");
       try {
@@ -161,7 +350,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         setStatus("error");
       }
     },
-    [t, stationId, otherStationCameraIds, isMobile],
+    [t, stationId, otherStationCameraIds, isMobile, openDocumentScanner],
   );
 
   const setFocusDistance = useCallback((value: number | null) => {
@@ -205,11 +394,17 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     if (cameraSource === "phone") {
       stopPhonePairingInternal();
     }
+    closeDocumentScannerSession();
     releaseLocalStream();
     setCameraSource("local");
     setStatus("idle");
     setErrorMessage("");
-  }, [cameraSource, stopPhonePairingInternal, releaseLocalStream]);
+  }, [
+    cameraSource,
+    stopPhonePairingInternal,
+    releaseLocalStream,
+    closeDocumentScannerSession,
+  ]);
 
   const retryCamera = useCallback(async () => {
     stopCamera();
@@ -217,11 +412,12 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   }, [startCamera, stopCamera, selectedCameraId]);
 
   const startPhonePairing = useCallback(() => {
+    closeDocumentScannerSession();
     releaseLocalStream();
     setErrorMessage("");
     setCameraSource("phone");
     startPhonePairingInternal();
-  }, [startPhonePairingInternal, releaseLocalStream]);
+  }, [startPhonePairingInternal, releaseLocalStream, closeDocumentScannerSession]);
 
   const stopPhonePairing = useCallback(() => {
     stopPhonePairingInternal();
@@ -243,10 +439,18 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     void startCamera(stationCameraIdRef.current ?? undefined);
 
     return () => {
+      closeDocumentScannerSession();
       releaseLocalStream();
       setStatus("idle");
     };
-  }, [startCamera, isMobile, isLive, piRemote, releaseLocalStream]);
+  }, [
+    startCamera,
+    isMobile,
+    isLive,
+    piRemote,
+    releaseLocalStream,
+    closeDocumentScannerSession,
+  ]);
 
   useEffect(() => {
     if (selectedCameraId === PI_CAMERA_DEVICE_ID) return;
@@ -292,6 +496,15 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         stopPhonePairing,
         requestPhoneCapture,
         sendPhoneScanRegion,
+        documentScannerOptions,
+        documentScannerMode,
+        isSimulatedDocumentScanner,
+        feedDocumentScannerCard,
+        scanFlatbedCard,
+        previewFlatbedGlass,
+        flatbedPlacement,
+        saveFlatbedPlacement,
+        takeDocumentScannerPage,
       }}
     >
       {children}

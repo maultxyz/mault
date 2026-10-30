@@ -989,7 +989,18 @@
       "confirmPileTitle": "Stapel {{prefix}} starten?",
       "confirmPileDescription": "Leere jeden Behälter und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{prefix}} in den Zuführer. Alle Behälter werden als geleert markiert.",
       "confirm": "Behälter sind leer"
-    }
+    },
+    "binSummary": {
+      "alphabetLetter": "Namen mit {{letter}}",
+      "chaos": "Wird der Reihe nach gefüllt",
+      "scanOnlyEverything": "Gescannte und nicht erkannte Karten kommen hierher",
+      "scanOnlyUnidentified": "Nicht erkannte Karten kommen hierher",
+      "scanOnlyScanned": "Gescannte Karten kommen hierher",
+      "scanOnlyOff": "Nicht genutzt, solange Nur Scannen aktiv ist"
+    },
+    "modeLocked": "Regeln gelten im Modus {{mode}} nicht. Ändere den Sortiermodus, um sie zu bearbeiten.",
+    "autoAssignLocked": "Die automatische Erkennung legt diese Regeln für dich fest. Ändere den Sortiermodus, um sie zu bearbeiten.",
+    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren."
   },
   "calibration": {
     "title": "Kalibrierung",
@@ -1209,7 +1220,10 @@
       "start": "Karten prüfen",
       "nothingLeft": "Nichts mehr zu prüfen. Jede Karte hier wurde bereits geprüft.",
       "startFailed": "Die Prüfung konnte nicht gestartet werden"
-    }
+    },
+    "moveToLocation": "In Lagerort verschieben",
+    "moveToOtherLocation": "In anderen Lagerort verschieben",
+    "searchLocations": "Lagerorte suchen"
   },
   "settings": {
     "title": "Einstellungen",

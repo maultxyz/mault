@@ -2,7 +2,8 @@ import type { EmptyAllBinsInput } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { bins, storageLocations } from "../../db/schema";
+import { storageLocations } from "../../db/schema";
+import { markBinsEmptied } from "../../lib/bin-emptying";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import {
   isStorageAllowed,
@@ -13,9 +14,7 @@ import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   activeBinSetWhere,
-  emptyRules,
   loadSets,
-  markBinsEmptied,
   resolveGameId,
 } from "./shared";
 
@@ -64,33 +63,20 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
         with: {
           bins: {
             where: (bin, { eq }) => eq(bin.isDeleted, false),
-            columns: { id: true, binNumber: true },
+            columns: { binNumber: true },
           },
         },
       });
       if (!activeBinSet)
         return { message: "No active set found.", success: false };
 
-      const binIds = new Map(
-        activeBinSet.bins.map((b) => [b.binNumber, b.id]),
-      );
-      const missing = [
-        ...new Set([...binNumbers, ...locations.map((l) => l.binNumber)]),
-      ].filter((n) => !binIds.has(n));
-      if (missing.length > 0) {
-        const inserted = await tx
-          .insert(bins)
-          .values(
-            missing.map((binNumber) => ({
-              binNumber,
-              rules: emptyRules(),
-              binSet: activeBinSet.id,
-              orgId,
-            })),
-          )
-          .returning({ id: bins.id, binNumber: bins.binNumber });
-        for (const bin of inserted) binIds.set(bin.binNumber, bin.id);
-      }
+      const emptiedBinNumbers = [
+        ...new Set([
+          ...activeBinSet.bins.map((b) => b.binNumber),
+          ...binNumbers,
+          ...locations.map((l) => l.binNumber),
+        ]),
+      ];
 
       const stored = new Map<string, string[]>();
       if (locations.length > 0) {
@@ -136,7 +122,6 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
             locationIds.set(locationGuid, locationId);
           }
           const scanIds = await assignBinToLocation(tx, {
-            binId: binIds.get(binNumber)!,
             binNumber,
             collectionId: collection.id,
             locationId,
@@ -155,7 +140,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
         }
       }
 
-      await markBinsEmptied(tx, orgId, [...binIds.keys()]);
+      await markBinsEmptied(tx, orgId, emptiedBinNumbers);
 
       const sets = await loadSets(tx, orgId);
       return {

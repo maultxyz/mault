@@ -78,7 +78,9 @@
       "setLine": "Setzeile",
       "number": "Nummer"
     },
-    "copyOf": "Exemplar {{index}} von {{count}}"
+    "copyOf": "Exemplar {{index}} von {{count}}",
+    "moreOptions": "Mehr",
+    "actions": "Kartenaktionen"
   },
   "cardFilterPopover": {
     "color": "Farbe",
@@ -120,7 +122,8 @@
     "deleteCardsDescription_one": "Dadurch wird die ausgewählte Karte dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteCardsDescription_other": "Dadurch werden die ausgewählten Karten dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
     "downloadedHidden_one": "1 heruntergeladene Karte wird vom Download-Filter ausgeblendet.",
-    "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet."
+    "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet.",
+    "moveToLocation": "Verschieben"
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
@@ -421,6 +424,39 @@
     "close": "Schließen",
     "importMore": "Weitere importieren",
     "unreadable": "Dieses Bild konnte nicht gelesen werden.",
-    "identifyFailed": "Dieses Bild konnte nicht erkannt werden."
+    "identifyFailed": "Dieses Bild konnte nicht erkannt werden.",
+    "documentScan": {
+      "title": "Dokumentenscanner",
+      "scannerLabel": "Scanner",
+      "scannerOption": "{{name}} ({{driver}})",
+      "scan": "Scannen",
+      "refresh": "Scanner aktualisieren",
+      "noScanners": "Keine Scanner gefunden. Installiere den TWAIN- oder WIA-Treiber deines Scanners (PaperStream IP für Ricoh fi Scanner) und aktualisiere dann.",
+      "folderLabel": "Ordner überwachen",
+      "noFolder": "Wähle den Ordner, in dem deine Scan-Software speichert.",
+      "chooseFolder": "Ordner wählen",
+      "changeFolder": "Ordner ändern",
+      "watchFolder": "Ordner überwachen",
+      "scanning": "Scanne mit {{scanner}}. Karten werden importiert, sobald sie den Einzug verlassen.",
+      "watching": "Überwache {{folder}}. Neue Bilder werden importiert, sobald sie erscheinen.",
+      "stopScanner": "Scanner stoppen",
+      "stopWatching": "Überwachung beenden",
+      "stopping": "Wird gestoppt...",
+      "errors": {
+        "scanner_helper_missing": "Die Scanner-Komponente fehlt in dieser Installation. Installiere die MAULT Desktop-App neu.",
+        "scanner_busy": "Der Scanner ist belegt. Schließe andere Scan-Programme und versuche es erneut.",
+        "scanner_offline": "Der Scanner ist nicht erreichbar. Prüfe, ob er eingeschaltet und verbunden ist.",
+        "paper_jam": "Papierstau. Räume den Einzug frei und scanne die restlichen Karten.",
+        "feeder_empty": "Der Einzug ist leer. Lege Karten ein und scanne erneut.",
+        "cover_open": "Die Scannerabdeckung ist offen. Schließe sie und scanne erneut.",
+        "no_feeder": "Dieser Scanner hat keinen Dokumenteneinzug. Wähle einen Scanner mit Einzug.",
+        "scanner_error": "Der Scanner hat angehalten. Prüfe auf Doppeleinzug oder Stau und scanne dann die restlichen Karten.",
+        "folder_missing": "Der überwachte Ordner kann nicht gelesen werden. Wähle ihn erneut.",
+        "start_failed": "Der Scan konnte nicht gestartet werden. Warte kurz und versuche es erneut.",
+        "unknown": "Beim Scannen ist ein Fehler aufgetreten.",
+        "scanner_in_use": "Der Dokumentenscanner wird bereits verwendet. Beende zuerst den anderen Scan.",
+        "session_closed": "Die Verbindung zum Dokumentenscanner wurde getrennt. Wähle den Scanner erneut aus."
+      }
+    }
   }
 }

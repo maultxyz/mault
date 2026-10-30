@@ -28,7 +28,9 @@ class UpdateTests(unittest.TestCase):
         for name in ["api", "web", "camera"]:
             shutil.copyfile(UPDATER.parent / f"mault-{name}.service", scripts / f"mault-{name}.service")
         (self.source / ".gitignore").write_text(".env\n")
-        (self.source / "package.json").write_text('{"version":"1.0.0"}\n')
+        (self.source / "package.json").write_text('{"version":"1.0.0","packageManager":"pnpm@9.1.3"}\n')
+        for name in ("server", "web", "bot", "api-docs"):
+            (self.source / f"Dockerfile.{name}").write_text("FROM node:26-slim\nRUN npm install -g pnpm@9.1.3\n")
         self.git(self.source, "add", ".")
         self.git(self.source, "commit", "-m", "Initial installation")
         self.repo = self.root / "projects/mault-pi-host"
@@ -41,10 +43,10 @@ class UpdateTests(unittest.TestCase):
         self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}",
                         XDG_CONFIG_HOME=str(self.root / "config"), UPDATE_TEST_LOG=str(self.log),
                         UPDATE_TEST_NODE=shutil.which("node"))
-        for name in ["pnpm", "systemctl", "curl", "node", "sleep"]:
+        for name in ["pnpm", "systemctl", "curl", "node", "sleep", "sudo"]:
             script = self.bin / name
             script.write_text(
-                '#!/bin/bash\nprintf "%s %s\\n" "${0##*/}" "$*" >> "$UPDATE_TEST_LOG"\n'
+                '#!/bin/bash\nif [[ "${0##*/}" == pnpm && "$*" == *build* ]]; then echo "heap=$NODE_OPTIONS $*" >> "$UPDATE_TEST_LOG"; fi\nprintf "%s %s\\n" "${0##*/}" "$*" >> "$UPDATE_TEST_LOG"\n'
                 'if [[ "${0##*/}" == curl && "${UPDATE_TEST_CURL_FAILURE:-}" != "" ]]; then\n'
                 '  if [[ "$*" == *S* ]]; then echo "curl: (7) Failed to connect" >&2; fi\n'
                 '  if [[ "$UPDATE_TEST_CURL_FAILURE" == always || ! -f "$UPDATE_TEST_LOG.retry" ]]; then\n'
@@ -57,6 +59,9 @@ class UpdateTests(unittest.TestCase):
                 'fi\n'
                 'if [[ "${0##*/}" == node && "$1" == */install-services.mjs ]]; then exec "$UPDATE_TEST_NODE" "$@"; fi\n'
                 'if [[ "${0##*/}" == pnpm && "${FAIL_BUILD:-}" == 1 && "$*" == *build* ]]; then exit 1; fi\n'
+                'if [[ "${0##*/}" == node && "$*" == *process.versions.node* ]]; then echo "${UPDATE_TEST_NODE_MAJOR:-26}"; exit 0; fi\n'
+                'if [[ "${0##*/}" == pnpm && "$1" == --version ]]; then echo 9.1.3; exit 0; fi\n'
+                'if [[ "${0##*/}" == sudo ]]; then echo "sudo: a password is required" >&2; exit 1; fi\n'
                 'if [[ "${0##*/}" == node ]]; then echo 1.0.1; fi\n'
             )
             script.chmod(0o755)
@@ -66,7 +71,7 @@ class UpdateTests(unittest.TestCase):
                               text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.strip()
 
     def publish(self):
-        (self.source / "package.json").write_text('{"version":"1.0.1"}\n')
+        (self.source / "package.json").write_text('{"version":"1.0.1","packageManager":"pnpm@9.1.3"}\n')
         self.git(self.source, "commit", "-am", "Release update")
 
     def update(self):
@@ -81,6 +86,7 @@ class UpdateTests(unittest.TestCase):
         calls = self.log.read_text()
         self.assertLess(calls.index("systemctl --user stop"), calls.index("pnpm install --frozen-lockfile"))
         self.assertLess(calls.index("@magic-vault/web build"), calls.index("systemctl --user start"))
+        self.assertIn("heap=--max-old-space-size=4096 --filter @magic-vault/web build", calls)
         self.assertIn("systemctl --user daemon-reload", calls)
         self.assertIn("is-active --quiet mault-camera.service", calls)
         self.assertTrue((self.root / "config/systemd/user/mault-api.service").exists())
@@ -96,6 +102,13 @@ class UpdateTests(unittest.TestCase):
         self.assertNotIn("%h/mault", api + web + camera)
         for unit in ["mault-web.service", "mault-api.service", "mault-camera.service"]:
             self.assertIn(f"systemctl --user reset-failed {unit}", calls)
+
+    def test_dependency_permission_failure_leaves_services_running(self):
+        self.env["UPDATE_TEST_NODE_MAJOR"] = "22"
+        result = self.update()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("sudo: a password is required", result.stdout)
+        self.assertNotIn("systemctl --user stop", self.log.read_text())
 
     def test_unloaded_units_do_not_prevent_service_start(self):
         self.publish()

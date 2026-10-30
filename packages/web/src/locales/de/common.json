@@ -89,6 +89,7 @@
   "appVersion": {
     "outdatedBanner": "Eine neue Version von Mault ist verfügbar.",
     "refreshButton": "Aktualisieren",
+    "terminalUpdate": "Beende Scans und Synchronisierungen und führe diesen Befehl in einem Terminal auf dem Pi aus. Gib bei Aufforderung dein sudo-Passwort ein. Lade danach diese Seite neu:",
     "updateButton": "Mault aktualisieren",
     "updating": "Mault wird aktualisiert. Lass diese Seite geöffnet, während die Dienste neu starten.",
     "updateSucceeded": "Mault wurde erfolgreich aktualisiert. Lade die Seite neu, um die neue Version zu verwenden.",
@@ -138,7 +139,15 @@
     "revert": "Zurücksetzen"
   },
   "loadingGate": {
-    "loadingVault": "Dein Vault wird geladen…"
+    "loadingVault": "Dein Vault wird geladen…",
+    "quips": {
+      "shuffling": "Deck wird gemischt…",
+      "feeding": "Sortierer wird gefüttert…",
+      "polishing": "Foils werden poliert…",
+      "counting": "Karten werden gezählt…",
+      "pricing": "Tagespreise werden geprüft…",
+      "sorting": "Alles wird sortiert…"
+    }
   },
   "notFound": {
     "title": "Seite nicht gefunden",
@@ -232,7 +241,8 @@
       "reviewStart": "Karten einzeln prüfen",
       "reviewAccept": "Beim Prüfen: Karte stimmt, weiter",
       "goSortingRules": "Zu den Sortierregeln",
-      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen"
+      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen",
+      "scanFlatbedCard": "Karte auf dem Flachbett scannen"
     }
   },
   "mobileMenu": {

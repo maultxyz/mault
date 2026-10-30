@@ -24,6 +24,7 @@ export type HotkeyId =
   | "scanPauseResume"
   | "scanNow"
   | "scanFeed"
+  | "scanFlatbedCard"
   | "scanToggleAutoFeed"
   | "scanCycleFoil"
   | "scanPickSet"

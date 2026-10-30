@@ -292,37 +292,97 @@ code {
   --font-heading: "JetBrains Mono Variable", monospace;
 }
 
-@keyframes card-scan-pass {
-  0% {
-    transform: translateY(-135%) rotate(-2deg);
-    opacity: 0;
+@keyframes loading-viewfinder-lock {
+  0%,
+  48% {
+    opacity: 0.55;
+    transform: translate(0, 0);
   }
-  12% {
+  56%,
+  84% {
     opacity: 1;
-  }
-  50% {
-    transform: translateY(0) rotate(0deg);
-  }
-  88% {
-    opacity: 1;
+    transform: translate(var(--lock-x), var(--lock-y));
   }
   100% {
-    transform: translateY(135%) rotate(2deg);
+    opacity: 0.55;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes loading-scan-beam {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  48% {
+    transform: translateY(8rem);
+    opacity: 1;
+  }
+  54%,
+  100% {
+    transform: translateY(8rem);
     opacity: 0;
   }
 }
 
-@keyframes card-scan-flash {
+@keyframes loading-card-recognized {
   0%,
-  38%,
-  62%,
+  50% {
+    transform: scale(1);
+  }
+  57% {
+    transform: scale(1.05);
+  }
+  64%,
   100% {
-    opacity: 0.2;
-    transform: scaleX(0.7);
+    transform: scale(1);
+  }
+}
+
+@keyframes loading-recognized-pop {
+  0%,
+  52% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  66%,
+  86% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes loading-hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
   }
   50% {
-    opacity: 1;
-    transform: scaleX(1);
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes loading-hero-shadow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(0.75);
+    opacity: 0.5;
   }
 }
 

@@ -10,11 +10,11 @@ import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, ICON_BADGE_SIZE } from "@/lib/constants/ui";
 import type { BinRowProps } from "@/lib/interfaces/rules";
 
-export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
+export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRowProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const sources = overflowSourcesFor(bin.binNumber, bins);
-  const chips = bin.pickList ? [] : ruleChips(bin.rules, fieldDefinitions, t);
+  const chips = bin.pickList || summary ? [] : ruleChips(bin.rules, fieldDefinitions, t);
   const shownChips = chips.slice(0, BIN_ROW_MAX_CHIPS);
   const hiddenCount = chips.length - shownChips.length;
   const hasTags = bin.isCatchAll || bin.isDisabled || !!bin.pickList || sources.length > 0 || bin.overflowBin != null;
@@ -53,7 +53,19 @@ export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
         <AppText size="base" weight="semibold" style={{ lineHeight: ICON_BADGE_SIZE / 2 + 4, marginTop: 6 }}>
           {t("rules.bin", { number: bin.binNumber })}
         </AppText>
-        {empty ? (
+        {summary ? (
+          <View style={{ gap: SPACING.xs + 2 }}>
+            {bin.isCatchAll || bin.isDisabled ? (
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.xs + 2 }}>
+                {bin.isCatchAll ? <Pill tone="primary" label={t("rules.catchAll")} /> : null}
+                {bin.isDisabled ? <Pill tone="warning" label={t("rules.disabled")} /> : null}
+              </View>
+            ) : null}
+            <AppText size="sm" tone="secondary">
+              {summary}
+            </AppText>
+          </View>
+        ) : empty ? (
           <AppText size="sm" tone="secondary">
             {t("rules.noRulesTapToAdd")}
           </AppText>

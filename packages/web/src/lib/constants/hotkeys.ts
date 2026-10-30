@@ -59,6 +59,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   scanPauseResume: { group: "scanner", keys: [{ key: " " }] },
   scanNow: { group: "scanner", keys: [{ key: "s" }] },
   scanFeed: { group: "scanner", keys: [{ key: "f" }] },
+  scanFlatbedCard: { group: "scanner", keys: [{ key: " " }] },
   scanToggleAutoFeed: { group: "scanner", keys: [{ key: "a" }] },
   scanClearDevice: { group: "scanner", keys: [{ key: "c", shift: true }] },
   scanCycleFoil: { group: "scanner", keys: [{ key: "f", shift: true }] },

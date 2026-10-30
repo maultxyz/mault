@@ -1,15 +1,8 @@
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { createOrder } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business";
@@ -79,86 +72,14 @@ export function OrderImportDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{t("orders.importTitle")}</DialogTitle>
-          <DialogDescription>{t("orders.importDescription")}</DialogDescription>
-        </DialogHeader>
-        <form
-          id="order-import-form"
-          className="flex flex-col gap-3"
-          onSubmit={form.handleSubmit(submit)}
-        >
-          <Controller
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="order-name">{t("orders.name")}</FieldLabel>
-                <Input
-                  {...field}
-                  id="order-name"
-                  placeholder={t("orders.namePlaceholder")}
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-          <Controller
-            name="text"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <div className="flex items-center justify-between gap-2">
-                  <FieldLabel htmlFor="order-text">{t("orders.contents")}</FieldLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileRef.current?.click()}
-                  >
-                    <IconFileUpload />
-                    {t("orders.chooseFile")}
-                  </Button>
-                </div>
-                <Textarea
-                  {...field}
-                  id="order-text"
-                  rows={10}
-                  className="max-h-[40svh] overflow-y-auto font-mono"
-                  placeholder={t("orders.contentsPlaceholder")}
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-          <input
-            ref={fileRef}
-            type="file"
-            accept={ORDER_IMPORT_ACCEPT}
-            className="hidden"
-            onChange={(e) => {
-              void readFile(e.target.files?.[0]);
-              e.target.value = "";
-            }}
-          />
-          {text?.trim() && (
-            <Callout variant={parsed.lines.length > 0 ? "info" : "warning"}>
-              {parsed.lines.length > 0
-                ? t("orders.preview", {
-                    source: t(`orders.sources.${parsed.source}`),
-                    lines: parsed.lines.length,
-                    quantity,
-                  })
-                : t("orders.previewEmpty")}
-              {parsed.skipped > 0 &&
-                ` ${t("orders.previewSkipped", { count: parsed.skipped })}`}
-            </Callout>
-          )}
-        </form>
-        <DialogFooter>
+    <DynamicDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      className="sm:max-w-2xl"
+      title={t("orders.importTitle")}
+      description={t("orders.importDescription")}
+      footer={
+        <>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("actions.cancel")}
           </Button>
@@ -171,11 +92,89 @@ export function OrderImportDialog({
               parsed.lines.length === 0
             }
           >
-            {form.formState.isSubmitting && <IconLoader2 className="animate-spin" />}
+            {form.formState.isSubmitting && (
+              <IconLoader2 className="animate-spin" />
+            )}
             {t("orders.import")}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </>
+      }
+    >
+      <form
+        id="order-import-form"
+        className="flex flex-col gap-3"
+        onSubmit={form.handleSubmit(submit)}
+      >
+        <Controller
+          name="name"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid || undefined}>
+              <FieldLabel htmlFor="order-name">{t("orders.name")}</FieldLabel>
+              <Input
+                {...field}
+                id="order-name"
+                placeholder={t("orders.namePlaceholder")}
+                aria-invalid={fieldState.invalid}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="text"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid || undefined}>
+              <div className="flex items-center justify-between gap-2">
+                <FieldLabel htmlFor="order-text">
+                  {t("orders.contents")}
+                </FieldLabel>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <IconFileUpload />
+                  {t("orders.chooseFile")}
+                </Button>
+              </div>
+              <Textarea
+                {...field}
+                id="order-text"
+                rows={10}
+                className="max-h-[40svh] overflow-y-auto font-mono max-md:max-h-[30svh]"
+                placeholder={t("orders.contentsPlaceholder")}
+                aria-invalid={fieldState.invalid}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <input
+          ref={fileRef}
+          type="file"
+          accept={ORDER_IMPORT_ACCEPT}
+          className="hidden"
+          onChange={(e) => {
+            void readFile(e.target.files?.[0]);
+            e.target.value = "";
+          }}
+        />
+        {text?.trim() && (
+          <Callout variant={parsed.lines.length > 0 ? "info" : "warning"}>
+            {parsed.lines.length > 0
+              ? t("orders.preview", {
+                  source: t(`orders.sources.${parsed.source}`),
+                  lines: parsed.lines.length,
+                  quantity,
+                })
+              : t("orders.previewEmpty")}
+            {parsed.skipped > 0 &&
+              ` ${t("orders.previewSkipped", { count: parsed.skipped })}`}
+          </Callout>
+        )}
+      </form>
+    </DynamicDialog>
   );
 }
