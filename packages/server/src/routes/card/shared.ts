@@ -24,6 +24,7 @@ import {
 } from "../../lib/constants/card-search";
 import { SHOW_SCAN_LOGS } from "../../lib/constants/logging";
 import {
+  OCR_MATCH_MAX_IMAGE_DISTANCE,
   OCR_MAX_NAME_LINES,
   OCR_NAME_CANDIDATE_LIMIT,
   OCR_NAME_MIN_LENGTH,
@@ -489,6 +490,18 @@ function mergeReadouts(primary: OcrReadout, fallback: OcrReadout): OcrReadout {
   };
 }
 
+function isCloserTextMatch(
+  candidate: CardTextMatchResult,
+  current: CardTextMatchResult,
+): boolean {
+  if (!candidate.data) return false;
+  if (!current.data) return true;
+  const candidateConfirmed = !!candidate.ocr.printingConfirmed;
+  const currentConfirmed = !!current.ocr.printingConfirmed;
+  if (candidateConfirmed !== currentConfirmed) return candidateConfirmed;
+  return candidate.data[0].distance < current.data[0].distance;
+}
+
 export async function findCardMatchesByOcr(
   jwtClaims: string,
   buffer: Buffer,
@@ -496,28 +509,52 @@ export async function findCardMatchesByOcr(
   params: Omit<CardTextMatchParams, "readout">,
   trace?: OcrRegionTrace[],
 ): Promise<CardTextMatchResult> {
-  const readout = await ocrRegions(
-    buffer,
-    regions.filter((region) => !region.fallback),
-    trace,
+  const { primary, fallback } = await ocrRegions(buffer, regions, trace);
+  const readout = mergeReadouts(primary, fallback);
+  const nameCandidates = [
+    { name: primary.name, fromFallback: false },
+    { name: fallback.name, fromFallback: true },
+  ].filter(
+    (candidate, index, all) =>
+      candidate.name &&
+      all.findIndex((other) => other.name === candidate.name) === index,
   );
-  const first = await findCardMatchesByText(jwtClaims, { ...params, readout });
+  if (nameCandidates.length === 0) {
+    return findCardMatchesByText(jwtClaims, { ...params, readout });
+  }
 
-  const needsName = !first.data;
-  const needsPrinting = !!first.data && !first.ocr.printingConfirmed;
-  const fallbacks = regions.filter(
-    (region) =>
-      region.fallback &&
-      (needsName || (needsPrinting && region.field !== "name")),
+  const results = await Promise.all(
+    nameCandidates.map(async ({ name, fromFallback }) => ({
+      fromFallback,
+      result: await findCardMatchesByText(jwtClaims, {
+        ...params,
+        readout: { ...readout, name },
+      }),
+    })),
   );
-  if (fallbacks.length === 0) return first;
-
-  const second = await findCardMatchesByText(jwtClaims, {
-    ...params,
-    readout: mergeReadouts(readout, await ocrRegions(buffer, fallbacks, trace)),
-  });
-  const used = second.data ? second : first;
-  return { ...used, ocr: { ...used.ocr, usedFallback: true } };
+  const closest = results.reduce((best, candidate) =>
+    isCloserTextMatch(candidate.result, best.result) ? candidate : best,
+  );
+  const ocr = {
+    ...closest.result.ocr,
+    readout,
+    usedFallback: closest.fromFallback,
+  };
+  const leader = closest.result.data?.[0];
+  if (
+    leader &&
+    !ocr.printingConfirmed &&
+    leader.distance > OCR_MATCH_MAX_IMAGE_DISTANCE
+  ) {
+    return {
+      message: "The card matched by text looks too different from the scan.",
+      success: true,
+      data: null,
+      nearestDistance: leader.distance,
+      ocr,
+    };
+  }
+  return { ...closest.result, ocr };
 }
 
 export async function attachMatchedCards<T extends CardMatchSearchResult>(

@@ -293,7 +293,7 @@
     "ocrSetLine": "Gelesene Set-Zeile",
     "ocrNumber": "Gelesene Nummer",
     "ocrMatchedName": "Ähnlichster Kartenname",
-    "ocrUsedFallback": "Ausweichbereiche genutzt",
+    "ocrUsedFallback": "Über Ausweich-Namen erkannt",
     "ocrUsedFallbackYes": "Ja",
     "ocrUsedFallbackNo": "Nein",
     "ocrNotRun": "OCR lief für diesen Scan nicht.",

@@ -404,7 +404,7 @@
       "nothingRead": "Rien de lu",
       "closestName": "Nom de carte le plus proche : {{name}} (similarité {{score}})",
       "noName": "Aucun nom de carte n'était assez proche du texte lu.",
-      "usedFallback": "Les zones de secours ont aussi été lues.",
+      "usedFallback": "Reconnue grâce à la zone de nom de secours.",
       "noMatch": "Aucune correspondance par le texte",
       "anchoredTo": "Zone placée sur la ligne lue comme \"{{text}}\""
     },

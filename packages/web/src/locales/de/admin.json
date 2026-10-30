@@ -404,7 +404,7 @@
       "nothingRead": "Nichts gelesen",
       "closestName": "Nächster Kartenname: {{name}} (Ähnlichkeit {{score}})",
       "noName": "Kein Kartenname war nah genug am gelesenen Text.",
-      "usedFallback": "Die Ausweichbereiche wurden ebenfalls gelesen.",
+      "usedFallback": "Über den Ausweich-Namensbereich erkannt.",
       "noMatch": "Kein Treffer per Text",
       "anchoredTo": "Bereich auf die Zeile gesetzt, die als \"{{text}}\" gelesen wurde"
     },
