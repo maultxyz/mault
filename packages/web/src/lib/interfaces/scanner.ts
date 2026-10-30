@@ -314,6 +314,7 @@ export interface ScannerControlsProps {
   onStop?: () => void;
   onAutoFeedChange?: (enabled: boolean) => void;
   flatbedScan?: FlatbedScanFlow;
+  onCalibrateFlatbed?: () => void;
 }
 
 export interface ScannerControlButtonProps {
@@ -323,6 +324,21 @@ export interface ScannerControlButtonProps {
   disabled?: boolean;
   selected?: boolean;
   children: ReactNode;
+}
+
+export interface CameraMenuItemsProps {
+  isCameraActive: boolean;
+  cameras: MediaDeviceInfo[];
+  documentScannerOptions: DocumentScannerOption[];
+  isFlatbedSelected: boolean;
+  selectedCameraId: string | null;
+  phonePairingStatus: PhoneCameraCaptureStatus;
+  scanningBlocked: boolean;
+  onCameraConnect: () => void;
+  onCameraDisconnect: () => void;
+  onCameraSelect: (deviceId: string) => void;
+  onCalibrateFlatbed: () => void;
+  onOpenPhonePairing: () => void;
 }
 
 export interface ScannerOverlayProps {
@@ -339,10 +355,10 @@ export interface ScannerOverlayProps {
   cameraSource: CameraSource;
   phonePairingStatus: PhoneCameraCaptureStatus;
   hasStillPhoto: boolean;
-  isFlatbedMode?: boolean;
+  flatbedScan?: FlatbedScanFlow;
   dailyLimitReached: boolean;
   onRetryError: () => void;
-  onConnectCamera: () => void;
+  cameraMenu: CameraMenuItemsProps;
   onOpenPhonePairing: () => void;
   onConnectScanner: () => void;
   onConnectScannerBluetooth: () => void;
@@ -1243,6 +1259,11 @@ export interface FlatbedScanFlowOptions {
 export interface FlatbedScanControlsProps {
   flow: FlatbedScanFlow;
   orientation: "horizontal" | "vertical";
+}
+
+export interface FlatbedScanButtonProps {
+  flow: FlatbedScanFlow;
+  className?: string;
 }
 
 export interface FlatbedPlacementDialogProps {

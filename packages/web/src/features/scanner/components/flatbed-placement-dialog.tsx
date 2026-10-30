@@ -90,6 +90,7 @@ export function FlatbedPlacementDialog({
       title={t("flatbed.calibration.title")}
       description={t("flatbed.calibration.description")}
       className="sm:max-w-xl"
+      dismissible={false}
       footer={
         <>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

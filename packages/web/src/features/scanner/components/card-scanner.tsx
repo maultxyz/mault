@@ -660,6 +660,7 @@ export function CardScanner({
   const scannerControls = (
     <ScannerControls
       flatbedScan={isFlatbedMode ? flatbedScan : undefined}
+      onCalibrateFlatbed={() => setFlatbedPlacementOpen(true)}
       orientation={isSideControls ? "vertical" : "horizontal"}
       status={displayStatus}
       isConnected={isConnected}
@@ -892,14 +893,27 @@ export function CardScanner({
           hasStillPhoto={hasStillPhoto}
           dailyLimitReached={isAtScanLimit}
           onRetryError={handleRetryError}
-          onConnectCamera={handleRetryError}
+          cameraMenu={{
+            isCameraActive,
+            cameras,
+            documentScannerOptions,
+            isFlatbedSelected: isFlatbedMode,
+            selectedCameraId,
+            phonePairingStatus,
+            scanningBlocked,
+            onCameraConnect: handleRetryError,
+            onCameraDisconnect: handleStopCamera,
+            onCameraSelect: selectCamera,
+            onCalibrateFlatbed: () => setFlatbedPlacementOpen(true),
+            onOpenPhonePairing: handleOpenPhonePairing,
+          }}
           onOpenPhonePairing={handleOpenPhonePairing}
           onConnectScanner={connect}
           onConnectScannerBluetooth={connectBluetooth}
           onConnectScannerCloud={connectCloud}
           bluetoothSupported={bluetoothSupported}
           handScanActive={handScanActive || (isFlatbedMode && !isConnected)}
-          isFlatbedMode={isFlatbedMode}
+          flatbedScan={isFlatbedMode ? flatbedScan : undefined}
           lastRoutedBin={visibleLastRoutedBin}
           onEnableHandScan={() => setHandScan(true)}
           sessionLive={piScanLive || piScan.starting}

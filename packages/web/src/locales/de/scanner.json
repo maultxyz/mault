@@ -346,9 +346,9 @@
       "disconnected": "Nicht verbunden"
     },
     "documentScanners": "Dokumentenscanner",
-    "documentScannerOption": {
-      "feeder": "{{name}} (Einzug)",
-      "flatbed": "{{name}} (Flachbett)"
+    "documentScannerMode": {
+      "feeder": "Einzug",
+      "flatbed": "Flachbett"
     },
     "setFlatbedCardPosition": "Kartenposition auf dem Glas festlegen"
   },
@@ -404,8 +404,7 @@
     "showQrCode": "QR-Code anzeigen",
     "sensorBlocked": "Der Sensor von Modul {{module}} erkennt eine Karte, daher wurde der Selbsttest nicht ausgeführt.",
     "resolveSensorBlocked": "Beheben",
-    "documentScannerReady": "Dokumentenscanner bereit. Lege Karten in den Scanner und starte das Scannen.",
-    "flatbedScannerReady": "Flachbett bereit. Lege eine Karte auf das Glas und drücke Karte scannen."
+    "documentScannerReady": "Dokumentenscanner bereit. Lege Karten in den Scanner und starte das Scannen."
   },
   "sessionErrorsPanel": {
     "heading": "Fehler"
@@ -1060,13 +1059,6 @@
     }
   },
   "flatbed": {
-    "stepsLabel": "Schritte beim Flachbettscannen",
-    "steps": {
-      "scan": "Scannen",
-      "move": "Umlegen",
-      "sort": "Sortieren",
-      "identify": "Erkennen"
-    },
     "instruction": {
       "place-card": "Lege eine Karte mit der Vorderseite nach unten an die markierte Stelle auf dem Glas, schließe den Deckel und drücke dann Karte scannen.",
       "scanning": "Glas wird gescannt...",

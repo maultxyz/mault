@@ -24,6 +24,9 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
+import { CameraMenuItems } from "@/features/scanner/components/camera-menu-items";
+import { flatbedInstruction } from "@/features/scanner/lib/flatbed-instruction";
+import { FLATBED_OVERRIDDEN_STATUSES } from "@/lib/constants/scanner";
 
 const statusPill = cva(
   "absolute bottom-1 left-1 right-1 z-30 rounded-lg backdrop-blur-3xl border text-xs px-2 py-1 flex flex-row gap-1.5 items-center text-foreground",
@@ -68,14 +71,14 @@ export function ScannerOverlay({
   hasStillPhoto,
   dailyLimitReached,
   onRetryError,
-  onConnectCamera,
+  cameraMenu,
   onOpenPhonePairing,
   onConnectScanner,
   onConnectScannerBluetooth,
   onConnectScannerCloud,
   bluetoothSupported,
   handScanActive,
-  isFlatbedMode = false,
+  flatbedScan,
   lastRoutedBin,
   onEnableHandScan,
   sessionLive = false,
@@ -123,16 +126,15 @@ export function ScannerOverlay({
                 {t("scannerOverlay.showQrCode")}
               </Button>
             ) : (
-              <>
-                <Button onClick={onConnectCamera}>
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button />}>
                   <IconCameraSpark />
                   {t("scannerOverlay.connectCameraButton")}
-                </Button>
-                <Button variant="ghost" onClick={onOpenPhonePairing}>
-                  <IconDeviceMobile />
-                  {t("usePhoneAsCamera")}
-                </Button>
-              </>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-auto min-w-56 whitespace-nowrap">
+                  <CameraMenuItems {...cameraMenu} />
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>
@@ -145,9 +147,9 @@ export function ScannerOverlay({
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
         <div className="text-center text-sm text-foreground/70 max-w-56">
           <IconScan className="mx-auto mb-2 size-5" />
-          <p>
-            {isFlatbedMode
-              ? t("scannerOverlay.flatbedScannerReady")
+          <p aria-live="polite">
+            {flatbedScan
+              ? flatbedInstruction(t, flatbedScan)
               : t("scannerOverlay.documentScannerReady")}
           </p>
         </div>
@@ -282,6 +284,28 @@ export function ScannerOverlay({
   }
 
   function renderScanStatus() {
+    if (flatbedScan && !FLATBED_OVERRIDDEN_STATUSES.includes(status)) {
+      const isBusy =
+        flatbedScan.step === "scanning" || flatbedScan.step === "identifying";
+      return (
+        <StatusPill
+          variant={
+            flatbedScan.step === "missed-card"
+              ? "warning"
+              : isBusy
+                ? "loading"
+                : "default"
+          }
+        >
+          {isBusy ? (
+            <IconLoader2 className="size-3.5 animate-spin shrink-0" />
+          ) : (
+            <IconScan className="size-3.5 shrink-0" />
+          )}
+          <span aria-live="polite">{flatbedInstruction(t, flatbedScan)}</span>
+        </StatusPill>
+      );
+    }
     switch (status) {
       case "initializing":
         return (
@@ -342,7 +366,7 @@ export function ScannerOverlay({
           </StatusPill>
         );
       default:
-        if (handScanActive) {
+        if (handScanActive && cameraSource !== "document-scanner") {
           return (
             <StatusPill>
               <IconCards className="size-3.5 shrink-0" />

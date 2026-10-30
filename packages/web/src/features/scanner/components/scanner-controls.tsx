@@ -19,7 +19,10 @@ import { useCollectionCardsSummary } from "@/features/collections/api/use-collec
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
-import { FlatbedScanControls } from "@/features/scanner/components/flatbed-scan-controls";
+import {
+  FlatbedScanButton,
+  FlatbedScanControls,
+} from "@/features/scanner/components/flatbed-scan-controls";
 import { ForcedSetPicker } from "@/features/scanner/components/forced-set-picker";
 import { ScanModeSwitch } from "@/features/scanner/components/scan-mode-switch";
 import { ScanRemovalBinSelect } from "@/features/scanner/components/scan-removal-bin-select";
@@ -33,6 +36,7 @@ import type {
 import {
   IconArrowBarToDown,
   IconBolt,
+  IconBorderCorners,
   IconFocus2,
   IconLoader2,
   IconPlayerPause,
@@ -42,6 +46,7 @@ import {
   IconStackPop,
 } from "@tabler/icons-react";
 import { formatElapsed } from "@/lib/format";
+import { FLATBED_IDLE_STEPS } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import {
   CARD_CONDITIONS,
@@ -98,6 +103,7 @@ export function ScannerControls({
   onStop,
   onAutoFeedChange,
   flatbedScan,
+  onCalibrateFlatbed,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -191,7 +197,12 @@ export function ScannerControls({
       )}
       <div className={cn("flex gap-2", isVertical ? "flex-col" : "flex-row")}>
         {!sessionFeed && <ScanModeSwitch className="shrink-0" />}
-        {!flatbedScan && (
+        {flatbedScan ? (
+          <FlatbedScanButton
+            flow={flatbedScan}
+            className={cn(!isVertical && "flex-1")}
+          />
+        ) : (
           <Tooltip>
             <TooltipTrigger
               render={
@@ -225,6 +236,15 @@ export function ScannerControls({
             >
               <IconFocus2 />
             </ScannerControlButton>
+            {flatbedScan && onCalibrateFlatbed && (
+              <ScannerControlButton
+                tooltip={t("scannerMenu.setFlatbedCardPosition")}
+                onClick={onCalibrateFlatbed}
+                disabled={!FLATBED_IDLE_STEPS.includes(flatbedScan.step)}
+              >
+                <IconBorderCorners />
+              </ScannerControlButton>
+            )}
             {(isConnected || sessionFeed) && (
               <>
                 {!flatbedScan && (

@@ -235,15 +235,6 @@ export const FLATBED_DETECTION_MIN_DARK_PIXELS_PER_LINE = 3;
 export const FLATBED_DETECTION_PADDING_MM = 2;
 export const FLATBED_CROPPED_PAGE_QUALITY = 0.92;
 export const FLATBED_COUNTDOWN_TICK_MS = 250;
-export const FLATBED_STEP_LABELS_WITH_SORTER = [
-  "flatbed.steps.scan",
-  "flatbed.steps.move",
-  "flatbed.steps.sort",
-] as const;
-export const FLATBED_STEP_LABELS_WITHOUT_SORTER = [
-  "flatbed.steps.scan",
-  "flatbed.steps.identify",
-] as const;
 export const FLATBED_IDLE_STEPS: readonly FlatbedScanStep[] = [
   "place-card",
   "done",
@@ -260,3 +251,9 @@ export const STATION_STATUS_BADGE_VARIANTS: Record<
 
 export const SORTERS_GRID_CLASS =
   "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
+export const FLATBED_OVERRIDDEN_STATUSES: ScannerStatus[] = [
+  "error",
+  "duplicate",
+  "no-match",
+];

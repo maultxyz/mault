@@ -346,9 +346,9 @@
       "disconnected": "Non connecté"
     },
     "documentScanners": "Scanners de documents",
-    "documentScannerOption": {
-      "feeder": "{{name}} (chargeur)",
-      "flatbed": "{{name}} (à plat)"
+    "documentScannerMode": {
+      "feeder": "Chargeur",
+      "flatbed": "À plat"
     },
     "setFlatbedCardPosition": "Définir la position de la carte sur la vitre"
   },
@@ -404,8 +404,7 @@
     "showQrCode": "Afficher le code QR",
     "sensorBlocked": "Le capteur du module {{module}} détecte une carte, l'autotest n'a donc pas été lancé.",
     "resolveSensorBlocked": "Résoudre",
-    "documentScannerReady": "Scanner de documents prêt. Chargez des cartes dans le scanner et lancez la numérisation.",
-    "flatbedScannerReady": "Scanner à plat prêt. Posez une carte sur la vitre et appuyez sur Numériser la carte."
+    "documentScannerReady": "Scanner de documents prêt. Chargez des cartes dans le scanner et lancez la numérisation."
   },
   "sessionErrorsPanel": {
     "heading": "Erreurs"
@@ -1060,13 +1059,6 @@
     }
   },
   "flatbed": {
-    "stepsLabel": "Étapes de numérisation à plat",
-    "steps": {
-      "scan": "Numériser",
-      "move": "Déplacer",
-      "sort": "Trier",
-      "identify": "Identifier"
-    },
     "instruction": {
       "place-card": "Posez une carte face contre la vitre à l'emplacement marqué, fermez le capot, puis appuyez sur Numériser la carte.",
       "scanning": "Numérisation de la vitre...",

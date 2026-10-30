@@ -346,9 +346,9 @@
       "disconnected": "Not connected"
     },
     "documentScanners": "Document scanners",
-    "documentScannerOption": {
-      "feeder": "{{name}} (feeder)",
-      "flatbed": "{{name}} (flatbed)"
+    "documentScannerMode": {
+      "feeder": "Feeder",
+      "flatbed": "Flatbed"
     },
     "setFlatbedCardPosition": "Set card position on glass"
   },
@@ -404,8 +404,7 @@
     "showQrCode": "Show QR code",
     "sensorBlocked": "Module {{module}}'s sensor sees a card, so the self-test didn't run.",
     "resolveSensorBlocked": "Resolve",
-    "documentScannerReady": "Document scanner ready. Load cards into the scanner and start scanning.",
-    "flatbedScannerReady": "Flatbed ready. Place a card on the glass and press Scan card."
+    "documentScannerReady": "Document scanner ready. Load cards into the scanner and start scanning."
   },
   "sessionErrorsPanel": {
     "heading": "Errors"
@@ -1060,13 +1059,6 @@
     }
   },
   "flatbed": {
-    "stepsLabel": "Flatbed scanning steps",
-    "steps": {
-      "scan": "Scan",
-      "move": "Move",
-      "sort": "Sort",
-      "identify": "Identify"
-    },
     "instruction": {
       "place-card": "Place a card face down in the marked spot on the glass, close the lid, then press Scan card.",
       "scanning": "Scanning the glass...",

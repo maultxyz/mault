@@ -3,9 +3,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -15,13 +13,11 @@ import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconArrowBarToDown,
   IconCameraSpark,
-  IconDeviceMobile,
   IconDeviceUsb,
   IconDeviceUsbFilled,
   IconDownload,
   IconPlus,
   IconQrcode,
-  IconScan,
   IconRotate2,
 } from "@tabler/icons-react";
 import { useState } from "react";
@@ -36,6 +32,7 @@ import type {
 import { SCANNER_CONNECTION_DOT_CLASS } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
+import { CameraMenuItems } from "@/features/scanner/components/camera-menu-items";
 
 function ConnectionStatusPill({
   label,
@@ -134,76 +131,24 @@ export function ScannerStatusBar({
             />
           }
         />
-        <DropdownMenuContent align="start" className="w-56">
-          {isCameraActive ? (
-            <>
-              {cameras.length > 1 && (
-                <>
-                  {cameras.map((cam, i) => (
-                    <DropdownMenuCheckboxItem
-                      key={cam.deviceId}
-                      checked={cam.deviceId === selectedCameraId}
-                      onCheckedChange={() => onCameraSelect(cam.deviceId)}
-                    >
-                      {cam.label ||
-                        t("scannerMenu.cameraFallbackLabel", {
-                          index: i + 1,
-                        })}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                </>
-              )}
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={onCameraDisconnect}
-              >
-                {t("disconnect")}
-              </DropdownMenuItem>
-            </>
-          ) : (
-            <DropdownMenuItem
-              disabled={scanningBlocked}
-              onClick={onCameraConnect}
-            >
-              {t("connect")}
-            </DropdownMenuItem>
-          )}
-          {documentScannerOptions.length > 0 && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>
-                  {t("scannerMenu.documentScanners")}
-                </DropdownMenuLabel>
-                {documentScannerOptions.map((option) => (
-                  <DropdownMenuCheckboxItem
-                    key={option.cameraId}
-                    disabled={scanningBlocked}
-                    checked={option.cameraId === selectedCameraId}
-                    onCheckedChange={() => onCameraSelect(option.cameraId)}
-                  >
-                    {t(`scannerMenu.documentScannerOption.${option.mode}`, {
-                      name: option.scanner.name,
-                    })}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuGroup>
-              {isFlatbedSelected && (
-                <DropdownMenuItem onClick={onCalibrateFlatbed}>
-                  <IconScan />
-                  {t("scannerMenu.setFlatbedCardPosition")}
-                </DropdownMenuItem>
-              )}
-            </>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onOpenPhonePairing}>
-            <IconDeviceMobile />
-            {phonePairingStatus === "connected"
-              ? t("scannerMenu.phoneCameraConnected")
-              : t("usePhoneAsCamera")}
-          </DropdownMenuItem>
+        <DropdownMenuContent
+          align="start"
+          className="w-auto min-w-56 whitespace-nowrap"
+        >
+          <CameraMenuItems
+            isCameraActive={isCameraActive}
+            cameras={cameras}
+            documentScannerOptions={documentScannerOptions}
+            isFlatbedSelected={isFlatbedSelected}
+            selectedCameraId={selectedCameraId}
+            phonePairingStatus={phonePairingStatus}
+            scanningBlocked={scanningBlocked}
+            onCameraConnect={onCameraConnect}
+            onCameraDisconnect={onCameraDisconnect}
+            onCameraSelect={onCameraSelect}
+            onCalibrateFlatbed={onCalibrateFlatbed}
+            onOpenPhonePairing={onOpenPhonePairing}
+          />
         </DropdownMenuContent>
       </DropdownMenu>
       <DropdownMenu>

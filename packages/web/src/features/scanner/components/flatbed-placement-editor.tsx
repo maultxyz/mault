@@ -46,8 +46,11 @@ export function FlatbedPlacementEditor({
       ref={containerRef}
       role="application"
       aria-label={t("flatbed.calibration.editorLabel")}
-      className="relative w-full cursor-crosshair touch-none select-none overflow-hidden rounded-lg ring-1 ring-border"
-      style={{ aspectRatio: `${glassWidthMm} / ${glassHeightMm}` }}
+      className="relative mx-auto cursor-crosshair touch-none select-none overflow-hidden rounded-lg ring-1 ring-border"
+      style={{
+        aspectRatio: `${glassWidthMm} / ${glassHeightMm}`,
+        width: `min(100%, calc((100dvh - 22rem) * ${glassWidthMm / glassHeightMm}))`,
+      }}
       onPointerDown={(event) => {
         const start = pointerFraction(event);
         if (!start) return;

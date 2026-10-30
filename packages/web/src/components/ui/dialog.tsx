@@ -24,6 +24,7 @@ function Dialog({
   defaultOpen,
   onOpenChange,
   drawerOnMobile = true,
+  dismissible = true,
   children,
 }: DialogProps) {
   const isMobile = useIsMobile()
@@ -34,6 +35,7 @@ function Dialog({
           open={open}
           defaultOpen={defaultOpen}
           onOpenChange={onOpenChange}
+          dismissible={dismissible}
         >
           {children}
         </DrawerPrimitive.Root>
@@ -47,6 +49,7 @@ function Dialog({
         open={open}
         defaultOpen={defaultOpen}
         onOpenChange={(next) => onOpenChange?.(next)}
+        disablePointerDismissal={!dismissible}
       >
         {children}
       </DialogPrimitive.Root>

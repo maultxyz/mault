@@ -92,10 +92,10 @@ export function DynamicDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange} dismissible={dismissible}>
       {trigger && <DialogTrigger render={trigger}></DialogTrigger>}
       <DialogContent
-        className={cn("flex flex-col", className)}
+        className={cn("flex max-h-[calc(100dvh-2rem)] flex-col", className)}
         showCloseButton={dismissible}
         onKeyDown={onKeyDown}
       >
