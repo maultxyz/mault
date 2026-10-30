@@ -446,6 +446,7 @@
         "scanner_helper_missing": "Die Scanner-Komponente fehlt in dieser Installation. Installiere die MAULT Desktop-App neu.",
         "scanner_busy": "Der Scanner ist belegt. Schließe andere Scan-Programme und versuche es erneut.",
         "scanner_offline": "Der Scanner ist nicht erreichbar. Prüfe, ob er eingeschaltet und verbunden ist.",
+        "scanner_offline_twain": "Der TWAIN-Treiber erreicht den Scanner nicht. Füge den Scanner im Scan-Programm des Herstellers hinzu (bei Epson im Epson Scan 2 Utility) oder wähle stattdessen seinen WIA-Eintrag.",
         "paper_jam": "Papierstau. Räume den Einzug frei und scanne die restlichen Karten.",
         "feeder_empty": "Der Einzug ist leer. Lege Karten ein und scanne erneut.",
         "cover_open": "Die Scannerabdeckung ist offen. Schließe sie und scanne erneut.",

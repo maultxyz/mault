@@ -11,36 +11,21 @@ public static partial class ScannerListing
 {
     private const int MinimumModelKeyLength = 4;
 
-    public static List<ScannerSummary> MergeDriversOfSameScanner(IReadOnlyList<ListedScanner> listedScanners)
+    public static List<ScannerSummary> Summarize(IReadOnlyList<ListedScanner> listedScanners)
     {
         var wiaScanners = listedScanners.Where(scanner => scanner.Driver == Driver.Wia).ToList();
-        var mergedWiaScanners = new HashSet<ListedScanner>();
-        var summaries = new List<ScannerSummary>();
-
-        foreach (var scanner in listedScanners.Where(scanner => scanner.Driver != Driver.Wia))
-        {
-            var sameWiaScanner = scanner.Driver == Driver.Twain
-                ? wiaScanners.FirstOrDefault(wiaScanner =>
-                    !mergedWiaScanners.Contains(wiaScanner) && IsSameModel(scanner.Device.Name, wiaScanner.Device.Name))
-                : null;
-            if (sameWiaScanner is null)
-            {
-                summaries.Add(ToSummary(scanner, scanner.PaperSources));
-                continue;
-            }
-
-            mergedWiaScanners.Add(sameWiaScanner);
-            var keptScanner = scanner.PaperSources is null && sameWiaScanner.PaperSources is not null
-                ? sameWiaScanner
-                : scanner;
-            summaries.Add(ToSummary(keptScanner, scanner.PaperSources ?? sameWiaScanner.PaperSources));
-        }
-
-        summaries.AddRange(wiaScanners
-            .Where(wiaScanner => !mergedWiaScanners.Contains(wiaScanner))
-            .Select(wiaScanner => ToSummary(wiaScanner, wiaScanner.PaperSources)));
-        return summaries;
+        return listedScanners
+            .Select(scanner => ToSummary(scanner, scanner.PaperSources ?? MatchingWiaPaperSources(scanner, wiaScanners)))
+            .ToList();
     }
+
+    private static PaperSources? MatchingWiaPaperSources(ListedScanner scanner, IReadOnlyList<ListedScanner> wiaScanners) =>
+        scanner.Driver == Driver.Twain
+            ? wiaScanners
+                .Where(wiaScanner => wiaScanner.PaperSources is not null && IsSameModel(scanner.Device.Name, wiaScanner.Device.Name))
+                .Select(wiaScanner => wiaScanner.PaperSources)
+                .FirstOrDefault()
+            : null;
 
     private static ScannerSummary ToSummary(ListedScanner scanner, PaperSources? paperSources) => new(
         scanner.Device.ID,

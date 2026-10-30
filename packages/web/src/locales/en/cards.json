@@ -446,6 +446,7 @@
         "scanner_helper_missing": "The scanner component is missing from this install. Reinstall the MAULT desktop app.",
         "scanner_busy": "The scanner is busy. Close other scanning apps and try again.",
         "scanner_offline": "Can't reach the scanner. Check that it is on and connected.",
+        "scanner_offline_twain": "The scanner's TWAIN driver can't reach it. Add the scanner in the maker's scan utility (for Epson, Epson Scan 2 Utility), or choose its WIA entry instead.",
         "paper_jam": "Paper jam. Clear the feeder, then scan the remaining cards.",
         "feeder_empty": "The feeder is empty. Load cards and scan again.",
         "cover_open": "The scanner cover is open. Close it and scan again.",

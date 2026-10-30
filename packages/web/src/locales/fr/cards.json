@@ -446,6 +446,7 @@
         "scanner_helper_missing": "Le composant scanner manque dans cette installation. Réinstallez l'application de bureau MAULT.",
         "scanner_busy": "Le scanner est occupé. Fermez les autres logiciels de numérisation et réessayez.",
         "scanner_offline": "Impossible de joindre le scanner. Vérifiez qu'il est allumé et connecté.",
+        "scanner_offline_twain": "Le pilote TWAIN ne parvient pas à joindre le scanner. Ajoutez le scanner dans l'utilitaire de numérisation du fabricant (pour Epson, Epson Scan 2 Utility) ou choisissez plutôt son entrée WIA.",
         "paper_jam": "Bourrage papier. Dégagez le chargeur, puis numérisez les cartes restantes.",
         "feeder_empty": "Le chargeur est vide. Chargez des cartes et numérisez à nouveau.",
         "cover_open": "Le capot du scanner est ouvert. Fermez-le et numérisez à nouveau.",

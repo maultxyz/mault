@@ -498,6 +498,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         sendPhoneScanRegion,
         documentScannerOptions,
         documentScannerMode,
+        documentScannerDriver: selectedDocumentScanner?.driver ?? null,
         isSimulatedDocumentScanner,
         feedDocumentScannerCard,
         scanFlatbedCard,

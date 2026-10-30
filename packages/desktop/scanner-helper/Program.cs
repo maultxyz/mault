@@ -58,7 +58,7 @@ public static class Program
             }
         }
 
-        HelperOutput.Write(new ScannersMessage("scanners", ScannerListing.MergeDriversOfSameScanner(listedScanners)));
+        HelperOutput.Write(new ScannersMessage("scanners", ScannerListing.Summarize(listedScanners)));
         return 0;
     }
 

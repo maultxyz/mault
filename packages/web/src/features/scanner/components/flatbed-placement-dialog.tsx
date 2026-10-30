@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { FlatbedPlacementEditor } from "@/features/scanner/components/flatbed-placement-editor";
+import { documentScanErrorMessage } from "@/features/scanner/lib/document-scan-errors";
 import {
   detectCardPlacement,
   isPlacementLargeEnough,
@@ -34,8 +35,12 @@ export function FlatbedPlacementDialog({
 }: FlatbedPlacementDialogProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
-  const { previewFlatbedGlass, flatbedPlacement, saveFlatbedPlacement } =
-    useCameraContext();
+  const {
+    previewFlatbedGlass,
+    flatbedPlacement,
+    saveFlatbedPlacement,
+    documentScannerDriver,
+  } = useCameraContext();
   const [preview, setPreview] = useState<FlatbedPreview | null>(null);
   const [draftPlacement, setDraftPlacement] = useState<FlatbedPlacement | null>(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -60,7 +65,7 @@ export function FlatbedPlacementDialog({
       const result = await previewFlatbedGlass();
       if (result.type === "error") {
         setErrorMessage(
-          tCards(`importScans.documentScan.errors.${result.reason}`),
+          documentScanErrorMessage(tCards, result.reason, documentScannerDriver),
         );
         return;
       }

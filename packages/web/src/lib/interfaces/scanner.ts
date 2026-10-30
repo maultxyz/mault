@@ -3,6 +3,7 @@ import type { AppToast } from "@/lib/interfaces/toast";
 import type { CardViewMode, ReviewSession } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
+  DesktopDocumentScanDriver,
   BinConfig,
   CardCondition,
   CardFilters,
@@ -110,6 +111,7 @@ export interface CameraContextValue {
   sendPhoneScanRegion: (region: ScanRegion) => void;
   documentScannerOptions: DocumentScannerOption[];
   documentScannerMode: DocumentScannerMode | null;
+  documentScannerDriver: DesktopDocumentScanDriver | null;
   isSimulatedDocumentScanner: boolean;
   feedDocumentScannerCard: () => Promise<DesktopDocumentScannerFeedResult>;
   scanFlatbedCard: () => Promise<DesktopDocumentScannerFeedResult>;

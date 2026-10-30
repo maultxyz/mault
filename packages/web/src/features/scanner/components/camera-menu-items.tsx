@@ -72,6 +72,7 @@ export function CameraMenuItems({
                 <Badge variant="secondary">
                   {t(`scannerMenu.documentScannerMode.${option.mode}`)}
                 </Badge>
+                <Badge variant="outline">{option.scanner.driver.toUpperCase()}</Badge>
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuGroup>

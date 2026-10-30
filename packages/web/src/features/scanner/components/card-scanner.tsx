@@ -13,6 +13,7 @@ import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { feedCardFromDocumentScanner } from "@/features/scanner/lib/document-scanner-feed";
 import { useFlatbedScan } from "@/features/scanner/api/use-flatbed-scan";
 import { FlatbedPlacementDialog } from "@/features/scanner/components/flatbed-placement-dialog";
+import { documentScanErrorMessage } from "@/features/scanner/lib/document-scan-errors";
 import { usePiScanSession } from "@/features/scanner/api/use-pi-scan-session";
 import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
 import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
@@ -129,6 +130,7 @@ export function CardScanner({
     scanFlatbedCard,
     takeDocumentScannerPage,
     flatbedPlacement,
+    documentScannerDriver,
   } = useCameraContext();
   const { t: tCards } = useTranslation("cards");
   const [flatbedPlacementOpen, setFlatbedPlacementOpen] = useState(false);
@@ -532,7 +534,7 @@ export function CardScanner({
     onCardReady: handleCardArrived,
     onScanFailed: (reason) =>
       toast.error(t("flatbed.scanFailed"), {
-        description: tCards(`importScans.documentScan.errors.${reason}`),
+        description: documentScanErrorMessage(tCards, reason, documentScannerDriver),
       }),
     onModuleOneNotEmpty: () =>
       toast.error(t("documentScannerFeed.moduleOneNotEmpty")),
@@ -557,7 +559,7 @@ export function CardScanner({
         readIR,
         ignoreIrSensors,
         describeScannerError: (reason) =>
-          t(`importScans.documentScan.errors.${reason}`, { ns: "cards" }),
+          documentScanErrorMessage(tCards, reason, documentScannerDriver),
         deliverCardWithSorterFeeder: isSimulatedDocumentScanner
           ? () => sendRequest({ feeder: true }, 10000)
           : undefined,
@@ -581,6 +583,8 @@ export function CardScanner({
     ignoreIrSensors,
     toast,
     t,
+    tCards,
+    documentScannerDriver,
   ]);
 
   useEffect(() => {
