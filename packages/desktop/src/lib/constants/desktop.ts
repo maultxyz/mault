@@ -13,8 +13,11 @@ export const MAIN_WINDOW_SIZE = { width: 1440, height: 900 };
 export const MAIN_WINDOW_MIN_SIZE = { width: 960, height: 640 };
 export const PICKER_WINDOW_SIZE = { width: 420, height: 380 };
 export const WINDOW_BACKGROUND = { light: "#ffffff", dark: "#1e1f21" };
+export const APP_ICON_FILE = "app-icon.png";
+export const WINDOWS_APP_ICON_FILE = "app-icon.ico";
 
 export const GRANTED_SERIAL_PORTS_FILE = "granted-serial-ports.json";
+export const UNNAMED_BLUETOOTH_DEVICE_PATTERN = /^Unknown or Unsupported Device/i;
 
 export const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
@@ -132,6 +135,7 @@ export const DESKTOP_STRINGS: Record<DesktopLocale, DesktopStrings> = {
     serialTitle: "Select a sorter port",
     bluetoothTitle: "Select a sorter",
     searching: "Searching for devices...",
+    lookingUpName: "Looking up name...",
     connect: "Connect",
     cancel: "Cancel",
     offlineTitle: "Can't reach MAULT",
@@ -139,23 +143,25 @@ export const DESKTOP_STRINGS: Record<DesktopLocale, DesktopStrings> = {
     retry: "Retry",
   },
   de: {
-    serialTitle: "Sorter-Anschluss auswÃ¤hlen",
-    bluetoothTitle: "Sorter auswÃ¤hlen",
-    searching: "Suche nach GerÃ¤ten...",
+    serialTitle: "Sorter-Anschluss auswählen",
+    bluetoothTitle: "Sorter auswählen",
+    searching: "Suche nach Geräten...",
+    lookingUpName: "Name wird abgerufen...",
     connect: "Verbinden",
     cancel: "Abbrechen",
     offlineTitle: "MAULT ist nicht erreichbar",
-    offlineBody: "PrÃ¼fe deine Internetverbindung und versuche es erneut.",
+    offlineBody: "Prüfe deine Internetverbindung und versuche es erneut.",
     retry: "Erneut versuchen",
   },
   fr: {
     serialTitle: "Choisir le port du trieur",
     bluetoothTitle: "Choisir un trieur",
     searching: "Recherche d'appareils...",
+    lookingUpName: "Recherche du nom...",
     connect: "Connecter",
     cancel: "Annuler",
     offlineTitle: "Impossible de joindre MAULT",
-    offlineBody: "VÃ©rifiez votre connexion Internet et rÃ©essayez.",
-    retry: "RÃ©essayer",
+    offlineBody: "Vérifiez votre connexion Internet et réessayez.",
+    retry: "Réessayer",
   },
 };

@@ -14,6 +14,7 @@ export interface PickerDevice {
   id: string;
   label: string;
   detail?: string;
+  isNamePending?: boolean;
 }
 
 export interface PickerState {
@@ -33,6 +34,7 @@ export interface DesktopStrings {
   serialTitle: string;
   bluetoothTitle: string;
   searching: string;
+  lookingUpName: string;
   connect: string;
   cancel: string;
   offlineTitle: string;
