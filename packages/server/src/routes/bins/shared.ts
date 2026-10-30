@@ -16,6 +16,7 @@ import {
   type PickListInput,
 } from "@magic-vault/shared";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { loadBinEmptiedTimes } from "../../lib/bin-emptying";
 import { listOrgDevices } from "../../lib/devices";
 import type { Transaction } from "../../db";
 import { bins, binSetAudit, binSets } from "../../db/schema";
@@ -177,7 +178,6 @@ function toBinSet(row: {
     isDisabled: boolean;
     pickList: unknown;
     repackPriority: number | null;
-    lastEmptiedAt: Date | null;
   }[];
   game: {
     guid: string | null;
@@ -191,7 +191,7 @@ function toBinSet(row: {
     createdAt: Date;
     updatedAt: Date;
   } | null;
-}): BinSet {
+}, emptiedTimes: Map<number, number>): BinSet {
   return {
     guid: row.guid!,
     name: row.name,
@@ -224,7 +224,7 @@ function toBinSet(row: {
       isDisabled: bin.isDisabled,
       pickList: bin.isCatchAll ? null : toPickList(bin.pickList),
       repackPriority: bin.repackPriority,
-      lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
+      lastEmptiedAt: emptiedTimes.get(bin.binNumber) ?? null,
     })),
     game: row.game
       ? {
@@ -284,7 +284,6 @@ const binSetQuery = {
         isDisabled: true,
         pickList: true,
         repackPriority: true,
-        lastEmptiedAt: true,
       },
     },
     game: true,
@@ -298,7 +297,12 @@ export async function loadSets(tx: Transaction, orgId: string) {
       and(eq(binSets.orgId, orgId), eq(binSets.isDeleted, false)),
     orderBy: (binSets, { desc }) => [desc(binSets.updatedAt)],
   });
-  return { message: "Loaded sets.", success: true, data: rows.map(toBinSet) };
+  const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
+  return {
+    message: "Loaded sets.",
+    success: true,
+    data: rows.map((row) => toBinSet(row, emptiedTimes)),
+  };
 }
 
 export async function snapshotBinSet(
@@ -355,25 +359,6 @@ export async function resolveGameId(
     columns: { id: true },
   });
   return game?.id ?? null;
-}
-
-export async function markBinsEmptied(
-  tx: Transaction,
-  orgId: string,
-  binNumbers: number[],
-): Promise<void> {
-  if (binNumbers.length === 0) return;
-  const now = new Date();
-  await tx
-    .update(bins)
-    .set({ lastEmptiedAt: now, updatedAt: now })
-    .where(
-      and(
-        eq(bins.orgId, orgId),
-        inArray(bins.binNumber, binNumbers),
-        eq(bins.isDeleted, false),
-      ),
-    );
 }
 
 export function activeBinSetWhere(

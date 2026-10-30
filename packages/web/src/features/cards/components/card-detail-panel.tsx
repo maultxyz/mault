@@ -729,7 +729,7 @@ export function CardDetailPanel({
                       <CardStorageLocationSection
                         scanId={scanId}
                         collectionGuid={collection?.guid}
-                        canRemove={!footerActions}
+                        canEdit={!footerActions}
                       />
                     )}
 

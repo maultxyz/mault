@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import type { Transaction } from "../db";
-import { bins, collectionCards, unmatchedCards } from "../db/schema";
+import { collectionCards, unmatchedCards } from "../db/schema";
 import type {
   AssignBinToLocationInput,
   MoveCardsToLocationInput,
@@ -9,26 +9,23 @@ import type {
 
 export async function assignBinToLocation(
   tx: Transaction,
-  { binId, binNumber, collectionId, locationId }: AssignBinToLocationInput,
+  { binNumber, collectionId, locationId }: AssignBinToLocationInput,
 ): Promise<string[]> {
   const result = await tx.execute(sql`
-    WITH emptied AS (
-      SELECT last_emptied_at FROM ${bins} WHERE id = ${binId}
-    ),
-    stack AS (
+    WITH stack AS (
       SELECT 'card' AS kind, cc.id, cc.scanned_at
-      FROM ${collectionCards} cc, emptied e
+      FROM ${collectionCards} cc
       WHERE cc.collection_id = ${collectionId}
         AND cc.bin_number = ${binNumber}
         AND cc.location_id IS NULL
-        AND (e.last_emptied_at IS NULL OR cc.scanned_at > e.last_emptied_at)
+        AND cc.bin_emptied_at IS NULL
       UNION ALL
       SELECT 'unmatched' AS kind, u.id, u.scanned_at
-      FROM ${unmatchedCards} u, emptied e
+      FROM ${unmatchedCards} u
       WHERE u.collection_id = ${collectionId}
         AND u.bin_number = ${binNumber}
         AND u.is_deleted = false
-        AND (e.last_emptied_at IS NULL OR u.scanned_at > e.last_emptied_at)
+        AND u.bin_emptied_at IS NULL
     ),
     numbered AS (
       SELECT kind, id, row_number() OVER (ORDER BY scanned_at DESC, kind DESC, id DESC) AS rn

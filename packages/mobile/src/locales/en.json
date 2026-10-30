@@ -1209,7 +1209,10 @@
       "start": "Review cards",
       "nothingLeft": "Nothing left to review. Every card here has already been reviewed.",
       "startFailed": "Couldn't start the review"
-    }
+    },
+    "moveToLocation": "Move to location",
+    "moveToOtherLocation": "Move to another location",
+    "searchLocations": "Search locations"
   },
   "settings": {
     "title": "Settings",

@@ -65,7 +65,10 @@
   "cardLocation": {
     "heading": "Rangement",
     "value": "{{name}} · #{{position}}",
-    "remove": "Retirer de la boîte"
+    "remove": "Retirer de la boîte",
+    "move": "Déplacer",
+    "store": "Déplacer vers un emplacement",
+    "notStored": "Dans aucun emplacement de rangement"
   },
   "toasts": {
     "failed": "Impossible de mettre à jour les emplacements",
@@ -119,5 +122,13 @@
     "next": "Suivant",
     "page": "Page {{page}} sur {{count}}",
     "range": "{{from}}-{{to}} sur {{total}} cartes"
+  },
+  "moveDialog": {
+    "title_one": "Déplacer la carte vers un emplacement",
+    "title_other": "Déplacer {{count}} cartes vers un emplacement",
+    "description_one": "La carte est ajoutée à la fin de l'emplacement choisi. Si elle était rangée ailleurs, elle quitte cet emplacement.",
+    "description_other": "Les cartes sont ajoutées à la fin de l'emplacement choisi, dans l'ordre de votre sélection. Les cartes rangées ailleurs quittent leur ancien emplacement.",
+    "cancel": "Annuler",
+    "confirm": "Déplacer"
   }
 }

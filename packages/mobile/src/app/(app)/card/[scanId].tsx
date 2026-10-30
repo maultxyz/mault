@@ -51,10 +51,13 @@ import {
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { billingQueryOptions } from "@/features/org/api/billing";
 import {
   cardStorageLocationQueryOptions,
   fetchFirstUnreviewedStorageCard,
+  moveCardsToStorageLocation,
   storageLocationCardContextQueryOptions,
+  storageLocationsQueryOptions,
 } from "@/features/storage/api/storage";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
@@ -93,7 +96,11 @@ export default function CardDetailScreen() {
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
   const [matchesOpenState, setMatchesOpenState] = useState<MatchesOpenState | null>(null);
-  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | null>(null);
+  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | "location" | null>(null);
+  const billing = useQuery(billingQueryOptions(activeOrgId));
+  const canMoveToLocation = !!billing.data && billing.data.storage !== false;
+  const locations = useQuery(storageLocationsQueryOptions(activeOrgId, canMoveToLocation));
+  const moveTargets = (locations.data ?? []).filter((location) => location.guid !== storage.data?.guid);
 
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
   const nextScanId = position.data?.nextScanId ?? null;
@@ -179,6 +186,15 @@ export default function CardDetailScreen() {
       void queryClient.invalidateQueries({ queryKey: ["collections"] });
       router.back();
     },
+  });
+
+  const moveToLocation = useMutation({
+    mutationFn: (locationGuid: string) => moveCardsToStorageLocation(locationGuid, [scanId]),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
+      invalidateCollectionCards(queryClient, guid);
+    },
+    onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
   });
 
   usePreventRemove(isDirty && !saveDraft.isPending, ({ data }) => {
@@ -437,6 +453,16 @@ export default function CardDetailScreen() {
                     </AppText>
                   </Pressable>
                 ) : null}
+                {entry && canMoveToLocation && moveTargets.length > 0 ? (
+                  <ListGroup>
+                    <ListRow
+                      icon="transfer"
+                      title={storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation")}
+                      disabled={moveToLocation.isPending}
+                      onPress={() => setSheet("location")}
+                    />
+                  </ListGroup>
+                ) : null}
               </View>
             ) : position.isPending ? (
               <View style={{ gap: SPACING.sm }}>
@@ -576,6 +602,18 @@ export default function CardDetailScreen() {
         onSelect={(value) => {
           form.setValue("language", value, { shouldDirty: true });
           setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "location"}
+        title={t("storage.moveToLocation")}
+        options={moveTargets.map((location) => ({ value: location.guid, label: location.name }))}
+        selected={[]}
+        searchPlaceholder={t("storage.searchLocations")}
+        onSelect={(locationGuid) => {
+          setSheet(null);
+          moveToLocation.mutate(locationGuid);
         }}
         onClose={() => setSheet(null)}
       />

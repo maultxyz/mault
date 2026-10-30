@@ -8,6 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins } from "../../db/schema";
+import { loadBinEmptiedTimes } from "../../lib/bin-emptying";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   resolveGameId,
@@ -170,9 +171,9 @@ export const editBinRoute = new Hono<AppEnv>().put(
           isDisabled: true,
           pickList: true,
           repackPriority: true,
-          lastEmptiedAt: true,
         },
       });
+      const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
 
       return {
         message: "Successfully saved bin config.",
@@ -192,7 +193,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             isDisabled: b.isDisabled,
             pickList: b.isCatchAll ? null : toPickList(b.pickList),
             repackPriority: b.repackPriority,
-            lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
+            lastEmptiedAt: emptiedTimes.get(b.binNumber) ?? null,
           }),
         ),
       };

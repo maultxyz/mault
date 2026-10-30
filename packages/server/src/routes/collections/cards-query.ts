@@ -56,7 +56,7 @@ const cardFiltersSchema = z.object({
 const binWindowsSchema = z.array(
   z.object({
     binNumber: z.number().int(),
-    lastEmptiedAt: z.number().nullable(),
+    lastEmptiedAt: z.number().nullable().optional(),
   }),
 );
 
@@ -711,14 +711,11 @@ export async function loadAllCardStats(
 function binWindowsJoin(collectionId: number, bins: BinWindow[]): SQL {
   return sql`
     FROM jsonb_to_recordset(${JSON.stringify(bins)}::jsonb)
-      AS b("binNumber" int, "lastEmptiedAt" float8)
+      AS b("binNumber" int)
     JOIN collection_cards cc
       ON cc.collection_id = ${collectionId}
       AND cc.bin_number = b."binNumber"
-      AND (
-        b."lastEmptiedAt" IS NULL
-        OR cc.scanned_at > to_timestamp(b."lastEmptiedAt" / 1000.0) AT TIME ZONE 'UTC'
-      )`;
+      AND cc.bin_emptied_at IS NULL`;
 }
 
 export async function loadBinCounts(
@@ -733,22 +730,16 @@ export async function loadBinCounts(
         SELECT count(*) FROM collection_cards cc
         WHERE cc.collection_id = ${collectionId}
           AND cc.bin_number = b."binNumber"
-          AND (
-            b."lastEmptiedAt" IS NULL
-            OR cc.scanned_at > to_timestamp(b."lastEmptiedAt" / 1000.0) AT TIME ZONE 'UTC'
-          )
+          AND cc.bin_emptied_at IS NULL
       )::int + (
         SELECT count(*) FROM unmatched_cards u
         WHERE u.collection_id = ${collectionId}
           AND u.bin_number = b."binNumber"
           AND u.is_deleted = false
-          AND (
-            b."lastEmptiedAt" IS NULL
-            OR u.scanned_at > to_timestamp(b."lastEmptiedAt" / 1000.0) AT TIME ZONE 'UTC'
-          )
+          AND u.bin_emptied_at IS NULL
       )::int AS count
     FROM jsonb_to_recordset(${JSON.stringify(bins)}::jsonb)
-      AS b("binNumber" int, "lastEmptiedAt" float8)
+      AS b("binNumber" int)
   `);
   return (
     result.rows as unknown as { bin_number: number; count: number }[]
