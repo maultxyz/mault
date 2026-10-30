@@ -293,7 +293,7 @@
     "ocrSetLine": "Set line read",
     "ocrNumber": "Number read",
     "ocrMatchedName": "Closest card name",
-    "ocrUsedFallback": "Fallback regions used",
+    "ocrUsedFallback": "Matched by fallback name",
     "ocrUsedFallbackYes": "Yes",
     "ocrUsedFallbackNo": "No",
     "ocrNotRun": "OCR didn't run for this scan.",

@@ -415,7 +415,7 @@
       "nothingRead": "Nothing read",
       "closestName": "Closest card name: {{name}} (similarity {{score}})",
       "noName": "No card name was close enough to the text read.",
-      "usedFallback": "The fallback regions were also read.",
+      "usedFallback": "Matched using the fallback name region.",
       "noMatch": "No match from text",
       "anchoredTo": "Box placed on the line read as \"{{text}}\""
     },

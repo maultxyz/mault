@@ -293,7 +293,7 @@
     "ocrSetLine": "Ligne d'extension lue",
     "ocrNumber": "Numéro lu",
     "ocrMatchedName": "Nom de carte le plus proche",
-    "ocrUsedFallback": "Zones de secours utilisées",
+    "ocrUsedFallback": "Reconnue par le nom de secours",
     "ocrUsedFallbackYes": "Oui",
     "ocrUsedFallbackNo": "Non",
     "ocrNotRun": "L'OCR n'a pas été lancé pour ce scan.",
