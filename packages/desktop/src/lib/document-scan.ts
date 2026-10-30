@@ -350,7 +350,8 @@ export function registerDocumentScanIpc() {
 
   ipcMain.on(DOCUMENT_SCAN_CHANNELS.closeSession, (event, sessionId: unknown) => {
     if (!isAppOrigin(event.senderFrame?.origin)) return;
-    if (scannerSession?.sessionId === sessionId && scannerSession.webContents === event.sender) {
+    const session = scannerSession;
+    if (session && session.sessionId === sessionId && session.webContents === event.sender) {
       closeScannerSession();
     }
   });

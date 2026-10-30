@@ -38,7 +38,6 @@ import type {
   DesktopDocumentScanner,
   DesktopDocumentScannerFeedResult,
   DesktopDocumentScanRequest,
-  SerialRequestResult,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
