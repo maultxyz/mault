@@ -1123,6 +1123,8 @@
         "small": "Klein",
         "medium": "Mittel",
         "large": "Groß",
+        "xlarge": "Extra groß",
+        "xxlarge": "Extra extra groß",
         "unlimited": "Unbegrenzt",
         "custom": "Benutzerdefiniert"
       },
