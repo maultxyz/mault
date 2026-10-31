@@ -9,8 +9,6 @@
   },
   "planFooterTooltip": {
     "free": "Plan gratuit · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour passer à la version supérieure.",
-    "freeUnlimited": "Plan gratuit. Clique pour voir ton plan.",
-    "paid": "Plan {{plan}}. Clique pour gérer la facturation.",
     "paidLimited": "Plan {{plan}} · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour gérer la facturation."
   },
   "includes": "Ton plan comprend",

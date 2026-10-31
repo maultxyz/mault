@@ -15,28 +15,17 @@ export function PlanBadge() {
   const navigate = useNavigate();
   const { billing, isLoading } = useBilling();
 
-  if (isLoading || !billing) return null;
+  if (isLoading || !billing || billing.dailyLimit == null) return null;
 
   const isPaid = billing.plan !== "free";
   const planName = t(`plan.${billingPlanNameKey(billing)}`);
   const dailyLimit = billing.dailyLimit;
   const used = billing.cardsScannedToday;
-  const usagePercent = dailyLimit
-    ? Math.min(100, Math.round((used / dailyLimit) * 100))
-    : 100;
-
-  const tooltip =
-    dailyLimit == null
-      ? t(
-          isPaid
-            ? "planFooterTooltip.paid"
-            : "planFooterTooltip.freeUnlimited",
-          { plan: planName },
-        )
-      : t(
-          isPaid ? "planFooterTooltip.paidLimited" : "planFooterTooltip.free",
-          { plan: planName, used, limit: dailyLimit },
-        );
+  const usagePercent = Math.min(100, Math.round((used / dailyLimit) * 100));
+  const tooltip = t(
+    isPaid ? "planFooterTooltip.paidLimited" : "planFooterTooltip.free",
+    { plan: planName, used, limit: dailyLimit },
+  );
 
   return (
     <>
@@ -55,19 +44,17 @@ export function PlanBadge() {
           >
             {planName}
           </span>
-          {dailyLimit != null && (
-            <div className="flex items-center gap-1.5">
-              <div className="h-1.5 w-14 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${usagePercent}%` }}
-                />
-              </div>
-              <span className="text-xs tabular-nums text-foreground/70">
-                {t("plan.scansToday", { used, limit: dailyLimit })}
-              </span>
+          <div className="flex items-center gap-1.5">
+            <div className="h-1.5 w-14 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary"
+                style={{ width: `${usagePercent}%` }}
+              />
             </div>
-          )}
+            <span className="text-xs tabular-nums text-foreground/70">
+              {t("plan.scansToday", { used, limit: dailyLimit })}
+            </span>
+          </div>
         </TooltipTrigger>
         <TooltipContent side="top">{tooltip}</TooltipContent>
       </Tooltip>

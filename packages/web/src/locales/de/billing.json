@@ -9,8 +9,6 @@
   },
   "planFooterTooltip": {
     "free": "Kostenloser Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um zu upgraden.",
-    "freeUnlimited": "Kostenloser Plan. Klicken, um deinen Plan anzusehen.",
-    "paid": "{{plan}}-Plan. Klicken, um die Abrechnung zu verwalten.",
     "paidLimited": "{{plan}}-Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um die Abrechnung zu verwalten."
   },
   "includes": "Dein Plan enthält",
