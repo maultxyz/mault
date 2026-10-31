@@ -49,6 +49,7 @@ export interface BillingStatus {
   prices?: PlanIntervalPrices;
   planPrices?: PaidPlanPrices;
   cardsScannedToday: number;
+  cardsScannedThisMonth?: number;
   dailyLimit: number | null;
   maxOrganizations?: number | null;
   ownedOrganizations?: number;
@@ -56,7 +57,9 @@ export interface BillingStatus {
   memberCount?: number;
   maxConnectedSorters?: number | null;
   maxSoundRules?: number | null;
+  soundRuleCount?: number;
   maxNotificationRules?: number | null;
+  notificationRuleCount?: number;
   maxCollections?: number | null;
   collectionCount?: number;
   chaosSort?: boolean;
@@ -68,6 +71,20 @@ export interface BillingStatus {
   apiAccess?: boolean;
   businessTools?: boolean;
 }
+
+export type BillingPlanTableRow =
+  | {
+      kind: "limit";
+      key: PlanLimitKey;
+      limit: number | null;
+      used: number | null;
+    }
+  | {
+      kind: "feature";
+      key: PlanFeatureKey;
+      included: boolean;
+      used: number | null;
+    };
 
 export interface MemberSeatLimitErrorBody {
   success: false;

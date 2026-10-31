@@ -90,12 +90,6 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
 
 export const PRICING_SHARED_FEATURE_KEYS = ["games", "notifications"] as const;
 
-export const PRICING_FEATURE_EXTRA_KEYS: Partial<
-  Record<PlanFeatureKey, readonly string[]>
-> = {
-  businessTools: ["businessOps"],
-};
-
 export const PRICING_HIGHLIGHTED_PLAN: PlanKey = "enthusiast";
 
 export const PRICING_FALLBACK_HIGHLIGHTED_PLAN: PlanKey = "business";

@@ -11,8 +11,36 @@
     "free": "Kostenloser Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um zu upgraden.",
     "paidLimited": "{{plan}}-Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um die Abrechnung zu verwalten."
   },
-  "includes": "Dein Plan enthält",
-  "usage": "{{used}} / {{limit}} Karten heute gescannt",
+  "planTable": {
+    "columns": {
+      "offering": "Leistung",
+      "yourPlan": "Dein Plan",
+      "usage": "Nutzung"
+    },
+    "rows": {
+      "dailyScans": "Kartenscans pro Tag",
+      "organizations": "Deine Organisationen",
+      "membersPerOrg": "Mitglieder pro Organisation",
+      "connectedSorters": "Gleichzeitig verbundene Sortierer",
+      "soundRules": "Sound-Regeln",
+      "notificationRules": "Discord-Benachrichtigungsregeln",
+      "collections": "Sammlungen",
+      "chaosSort": "Chaos-Sortierung",
+      "repacks": "Repacks",
+      "customSounds": "Eigene Sounds",
+      "fleetHealth": "Flottenzustand",
+      "storage": "Lagerorte",
+      "apiAccess": "API-Zugriff",
+      "businessTools": "Ankauf und Verkauf"
+    },
+    "unlimited": "Unbegrenzt",
+    "included": "Enthalten",
+    "notIncluded": "Nicht enthalten",
+    "noUsage": "-",
+    "usedToday": "{{count}} heute",
+    "scansThisMonth_one": "{{count}} Karte diesen Monat gescannt.",
+    "scansThisMonth_other": "{{count}} Karten diesen Monat gescannt."
+  },
   "upgradeMonthly": "Upgrade für {{price}}/Monat",
   "upgradeYearly": "Upgrade für {{price}}/Jahr",
   "yearlySavings": "Mit jährlicher Abrechnung sparst du {{percent}} %.",

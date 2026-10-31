@@ -1,10 +1,14 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { orgDailyScanUsage } from "../db/schema";
 import { planLimit } from "./plan-config";
 
 function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function firstDayOfMonthUtc(): string {
+  return `${new Date().toISOString().slice(0, 7)}-01`;
 }
 
 export function dailyScanLimitForPlan(plan: string | undefined): number | null {
@@ -30,7 +34,9 @@ export async function consumeDailyScan(
         updatedAt: new Date(),
       },
       setWhere:
-        limit == null ? undefined : sql`${orgDailyScanUsage.scanCount} < ${limit}`,
+        limit == null
+          ? undefined
+          : sql`${orgDailyScanUsage.scanCount} < ${limit}`,
     })
     .returning({ scanCount: orgDailyScanUsage.scanCount });
   return rows.length > 0;
@@ -47,6 +53,24 @@ export async function getScansToday(
       and(
         eq(orgDailyScanUsage.orgId, orgId),
         eq(orgDailyScanUsage.day, todayUtc()),
+      ),
+    );
+  return row?.scanCount ?? 0;
+}
+
+export async function getScansThisMonth(
+  tx: Transaction,
+  orgId: string,
+): Promise<number> {
+  const [row] = await tx
+    .select({
+      scanCount: sql<number>`coalesce(sum(${orgDailyScanUsage.scanCount}), 0)::int`,
+    })
+    .from(orgDailyScanUsage)
+    .where(
+      and(
+        eq(orgDailyScanUsage.orgId, orgId),
+        gte(orgDailyScanUsage.day, firstDayOfMonthUtc()),
       ),
     );
   return row?.scanCount ?? 0;

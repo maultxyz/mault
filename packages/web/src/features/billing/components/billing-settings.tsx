@@ -1,5 +1,5 @@
 import { Callout } from "@/components/callout";
-import { Badge } from "@/components/ui/badge";
+import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import {
   DEFAULT_BILLING_INTERVAL,
@@ -9,7 +9,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useBilling } from "../api/use-billing";
 import { billingPlanNameKey } from "../lib/billing-plan-name";
-import { PlanFeatures } from "./plan-features";
+import { BillingPlanTable } from "./billing-plan-table";
 import { PlanUpgradeOption } from "./plan-upgrade-option";
 
 export function BillingSettings() {
@@ -27,48 +27,18 @@ export function BillingSettings() {
   if (isLoading || !billing) return null;
 
   const isPaid = billing.plan !== "free";
-  const usagePercent =
-    billing.dailyLimit != null
-      ? Math.min(
-          100,
-          Math.round((billing.cardsScannedToday / billing.dailyLimit) * 100),
-        )
-      : 0;
   const upgradeOptions = PAID_PLAN_KEYS.flatMap((plan) => {
     const prices = billing.planPrices?.[plan];
     return prices && (prices.month || prices.year) ? [{ plan, prices }] : [];
   });
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <Badge variant={isPaid ? "success" : "secondary"}>
-          {t(`plan.${billingPlanNameKey(billing)}`)}
-        </Badge>
-      </div>
-
+    <SettingsSection heading={t(`plan.${billingPlanNameKey(billing)}`)}>
       {billing.isLegacyPlan && (
         <Callout variant="info">{t("legacyPlanNote")}</Callout>
       )}
 
-      <PlanFeatures billing={billing} />
-
-      {billing.dailyLimit != null && (
-        <div className="flex flex-col gap-1.5">
-          <p className="text-xs text-foreground/70">
-            {t("usage", {
-              used: billing.cardsScannedToday,
-              limit: billing.dailyLimit,
-            })}
-          </p>
-          <div className="h-1.5 w-full rounded-full bg-muted">
-            <div
-              className="h-1.5 rounded-full bg-primary"
-              style={{ width: `${usagePercent}%` }}
-            />
-          </div>
-        </div>
-      )}
+      <BillingPlanTable billing={billing} />
 
       {isPaid && billing.cancelAtPeriodEnd && billing.currentPeriodEnd && (
         <p className="text-xs text-foreground/70">
@@ -95,7 +65,9 @@ export function BillingSettings() {
               {t("manage")}
             </Button>
           </div>
-          <p className="text-xs text-foreground/70">{t("changePlanInPortal")}</p>
+          <p className="text-xs text-foreground/70">
+            {t("changePlanInPortal")}
+          </p>
         </div>
       )}
 
@@ -128,6 +100,6 @@ export function BillingSettings() {
           </Button>
         </div>
       )}
-    </div>
+    </SettingsSection>
   );
 }
