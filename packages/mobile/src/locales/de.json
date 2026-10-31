@@ -637,6 +637,8 @@
       "notFoil": "Kein Foil",
       "set": "Set",
       "anySet": "Beliebiges Set",
+      "setCount_one": "{{count}} Set",
+      "setCount_other": "{{count}} Sets",
       "searchSets": "Sets suchen",
       "condition": "Zustand"
     },

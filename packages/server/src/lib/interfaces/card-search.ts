@@ -151,7 +151,7 @@ export interface CardTextMatchParams {
   matchAllLanguages: boolean;
   embeddings: CardSearchEmbeddings;
   readout: OcrReadout;
-  preferredSetCode?: string;
+  preferredSetCodes?: string[];
 }
 
 export interface CardTextMatchResult extends CardMatchSearchResult {

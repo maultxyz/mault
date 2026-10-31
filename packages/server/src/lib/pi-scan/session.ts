@@ -162,6 +162,17 @@ function publicState(session: PiScanLive | undefined): PiScanSessionState {
   };
 }
 
+function cleanSetCodes(setCodes: unknown): string[] {
+  if (!Array.isArray(setCodes)) return [];
+  return [
+    ...new Set(
+      setCodes.flatMap((code) =>
+        typeof code === "string" && code.trim() ? [code.trim()] : [],
+      ),
+    ),
+  ];
+}
+
 function holdClock(session: PiScanLive) {
   if (session.pauseStartedAt != null) return;
   session.pauseStartedAt = Date.now();
@@ -462,7 +473,7 @@ async function searchOrientation(
       lang: context.lang,
       matchAllLanguages: context.matchAllLanguages,
       embeddings,
-      preferredSetCode: session.preferredSetCode ?? undefined,
+      preferredSetCodes: session.preferredSetCodes,
     }),
     context.gameKey,
     context.lang,
@@ -564,7 +575,7 @@ async function matchFrame(
               lang: context.lang,
               matchAllLanguages: context.matchAllLanguages,
               embeddings: { embedding: option.embedding },
-              preferredSetCode: session.preferredSetCode ?? undefined,
+              preferredSetCodes: session.preferredSetCodes,
             },
           );
         } catch (err) {
@@ -1152,7 +1163,7 @@ function createSession(
     current: null,
     lastCard: null,
     foilType: body.foilType ?? null,
-    preferredSetCode: body.preferredSetCode?.trim() || null,
+    preferredSetCodes: cleanSetCodes(body.preferredSetCodes),
     autoFeed: body.autoFeed !== false,
     feedRequested: false,
     cardInFlight: false,
@@ -1265,7 +1276,7 @@ export function stopPiScanSession(orgId: string): PiScanSessionState {
 export function updatePiScanSettings(
   orgId: string,
   foilType: string | null | undefined,
-  preferredSetCode: string | null | undefined,
+  preferredSetCodes: string[] | undefined,
   autoFeed?: boolean,
 ): PiScanSessionState | null {
   const session = sessions.get(orgId);
@@ -1273,8 +1284,8 @@ export function updatePiScanSettings(
     return null;
   }
   if (foilType !== undefined) session.foilType = foilType;
-  if (preferredSetCode !== undefined) {
-    session.preferredSetCode = preferredSetCode?.trim() || null;
+  if (preferredSetCodes !== undefined) {
+    session.preferredSetCodes = cleanSetCodes(preferredSetCodes);
   }
   if (typeof autoFeed === "boolean") session.autoFeed = autoFeed;
   return publicState(session);

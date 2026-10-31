@@ -69,7 +69,7 @@ export interface PiScanLive {
   current: PiScanSessionSight | null;
   lastCard: PiScanSessionSight | null;
   foilType: string | null;
-  preferredSetCode: string | null;
+  preferredSetCodes: string[];
   autoFeed: boolean;
   feedRequested: boolean;
   cardInFlight: boolean;

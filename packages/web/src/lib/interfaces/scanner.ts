@@ -107,7 +107,7 @@ export interface CameraContextValue {
 
 export interface MatchScope {
   collectionGuid?: string;
-  preferredSetCode?: string | null;
+  preferredSetCodes?: string[];
 }
 
 export interface ScannedCardsContextValue {
@@ -116,7 +116,7 @@ export interface ScannedCardsContextValue {
   isLoading: boolean;
   autoFeed: boolean;
   forceFoilType: string | null;
-  forceSetCode: string | null;
+  forceSetCodes: string[];
   scanCondition: CardCondition;
   elapsedMs: number;
   isTimerActive: boolean;
@@ -127,8 +127,8 @@ export interface ScannedCardsContextValue {
   resetSessionStats: () => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
-  setForceSetCode: (setCode: string | null) => void;
-  setForceSetCodeAfterCollectionSwitch: (setCode: string | null) => void;
+  setForceSetCodes: (setCodes: string[]) => void;
+  setForceSetCodesAfterCollectionSwitch: (setCodes: string[]) => void;
   setScanCondition: (condition: CardCondition) => void;
   addCard: (
     card: PlayingCardWithDistance,

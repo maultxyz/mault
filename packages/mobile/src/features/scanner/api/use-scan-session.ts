@@ -220,16 +220,16 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [controlCardNotice]);
 
   const [forcedFoilType, setForcedFoilTypeState] = useState<string | null>(null);
-  const [forcedSetCode, setForcedSetCodeState] = useState<string | null>(null);
+  const [forcedSetCodes, setForcedSetCodesState] = useState<string[]>([]);
   const forcedFoilTypeRef = useRef<string | null>(null);
-  const forcedSetCodeRef = useRef<string | null>(null);
+  const forcedSetCodesRef = useRef<string[]>([]);
   const setForcedFoilType = useCallback((foilType: string | null) => {
     forcedFoilTypeRef.current = foilType;
     setForcedFoilTypeState(foilType);
   }, []);
-  const setForcedSetCode = useCallback((setCode: string | null) => {
-    forcedSetCodeRef.current = setCode;
-    setForcedSetCodeState(setCode);
+  const setForcedSetCodes = useCallback((setCodes: string[]) => {
+    forcedSetCodesRef.current = setCodes;
+    setForcedSetCodesState(setCodes);
   }, []);
 
   const forcedValuesAfterCollectionSwitchRef = useRef<Pick<
@@ -244,11 +244,11 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       releaseScanLock(previous).catch(() => {});
       const forcedValues = forcedValuesAfterCollectionSwitchRef.current;
       forcedValuesAfterCollectionSwitchRef.current = null;
-      setForcedSetCode(forcedValues?.forcedSetCode ?? null);
+      setForcedSetCodes(forcedValues?.forcedSetCode ? [forcedValues.forcedSetCode] : []);
       setForcedFoilType(forcedValues?.forcedFoilType ?? null);
     }
     lockedCollectionGuidRef.current = next;
-  }, [collection?.guid, setForcedSetCode, setForcedFoilType]);
+  }, [collection?.guid, setForcedSetCodes, setForcedFoilType]);
   useEffect(
     () => () => {
       const guid = lockedCollectionGuidRef.current;
@@ -695,7 +695,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         };
       } else {
         if (command.forcedFoilType !== undefined) setForcedFoilType(command.forcedFoilType);
-        if (command.forcedSetCode !== undefined) setForcedSetCode(command.forcedSetCode);
+        if (command.forcedSetCode !== undefined) {
+          setForcedSetCodes(command.forcedSetCode ? [command.forcedSetCode] : []);
+        }
       }
       try {
         if (switchesCollection && command.collectionGuid) {
@@ -722,7 +724,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       queryClient,
       routeControlCard,
       setForcedFoilType,
-      setForcedSetCode,
+      setForcedSetCodes,
       setScanCondition,
     ],
   );
@@ -748,7 +750,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const outcome = await identifyCard(
         async () => (captured.frame = await ctx.capture()),
         {
-          scope: { collectionGuid: ctx.collection.guid, preferredSetCode: forcedSetCodeRef.current },
+          scope: { collectionGuid: ctx.collection.guid, preferredSetCodes: forcedSetCodesRef.current },
           matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
           ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
@@ -972,8 +974,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     trackLiveCorners,
     forcedFoilType,
     setForcedFoilType,
-    forcedSetCode,
-    setForcedSetCode,
+    forcedSetCodes,
+    setForcedSetCodes,
     scanCondition,
     setScanCondition,
     controlCardNotice,

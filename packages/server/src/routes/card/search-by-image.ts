@@ -6,7 +6,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   attachMatchedCards,
   findCardMatches,
-  parsePreferredSetCode,
+  parsePreferredSetCodes,
 } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
@@ -62,7 +62,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
       const result = await findCardMatches({
         ...resolved,
         embeddings,
-        preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
+        preferredSetCodes: parsePreferredSetCodes(body),
       });
       const withEmbedding = result.diagnostics
         ? {

@@ -227,18 +227,18 @@ export function faceDistance(face: CardFaceMatch, other: CardFaceMatch): number 
   return cosineDistance(faceEmbedding(face), 0, faceEmbedding(other));
 }
 
-export function closestPrintingInSet(
+export function closestPrintingInSets(
   segment: CardMatchSegment,
   name: string,
-  setCode: string,
+  setCodes: string[],
   query: Float32Array,
 ): CardFaceMatch | null {
-  const wantedSetCode = setCode.toLowerCase();
+  const wantedSetCodes = new Set(setCodes.map((code) => code.toLowerCase()));
   let closest: CardFaceMatch | null = null;
   for (let row = 0; row < segment.cardIds.length; row++) {
     if (
       segment.names[row] !== name ||
-      segment.setCodes[row].toLowerCase() !== wantedSetCode
+      !wantedSetCodes.has(segment.setCodes[row].toLowerCase())
     ) {
       continue;
     }

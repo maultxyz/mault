@@ -32,8 +32,8 @@ export function useApplyScannerControlCode(
     sendCatchAllBin,
     setAutoFeed,
     setForceFoilType,
-    setForceSetCode,
-    setForceSetCodeAfterCollectionSwitch,
+    setForceSetCodes,
+    setForceSetCodesAfterCollectionSwitch,
     setScanCondition,
   } = useScannedCards();
 
@@ -68,10 +68,11 @@ export function useApplyScannerControlCode(
         !!command.collectionGuid &&
         command.collectionGuid !== activeCollection?.guid;
       if (command.forcedSetCode !== undefined) {
+        const setCodes = command.forcedSetCode ? [command.forcedSetCode] : [];
         if (switchesCollection && activeCollection) {
-          setForceSetCodeAfterCollectionSwitch(command.forcedSetCode);
+          setForceSetCodesAfterCollectionSwitch(setCodes);
         } else {
-          setForceSetCode(command.forcedSetCode);
+          setForceSetCodes(setCodes);
         }
       }
       if (switchesCollection && command.collectionGuid) {
@@ -117,8 +118,8 @@ export function useApplyScannerControlCode(
       setAllowDuplicates,
       setAutoFeed,
       setForceFoilType,
-      setForceSetCode,
-      setForceSetCodeAfterCollectionSwitch,
+      setForceSetCodes,
+      setForceSetCodesAfterCollectionSwitch,
       setScanCondition,
       t,
       tCards,

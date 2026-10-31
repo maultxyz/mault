@@ -10,7 +10,9 @@ import type { MatchScope } from "@/lib/interfaces/scanner";
 function scopeForm(embedding: number[], scope: MatchScope): FormData {
   const form = new FormData();
   form.append("collectionGuid", scope.collectionGuid);
-  if (scope.preferredSetCode) form.append("preferredSetCode", scope.preferredSetCode);
+  if (scope.preferredSetCodes?.length) {
+    form.append("preferredSetCodes", JSON.stringify(scope.preferredSetCodes));
+  }
   form.append("embedding", JSON.stringify(embedding));
   return form;
 }

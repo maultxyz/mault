@@ -32,7 +32,7 @@ import {
 } from "../../lib/constants/ocr";
 import { cardMatchSegments } from "../../lib/card-match-index";
 import {
-  closestPrintingInSet,
+  closestPrintingInSets,
   faceDistance,
   nearestCardFaces,
   normalizedEmbedding,
@@ -116,19 +116,46 @@ export function matchingExclusionFilter({ gameKey, lang }: CollectionMatchScope)
     : sql``;
 }
 
-export function parsePreferredSetCode(value: unknown): string | undefined {
+function trimmedSetCode(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
-    : undefined;
+    : null;
+}
+
+function parseSetCodeList(value: unknown): string[] {
+  if (typeof value !== "string" || value.length === 0) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.flatMap((code) => trimmedSetCode(code) ?? [])
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+export function parsePreferredSetCodes(body: Record<string, unknown>): string[] {
+  const legacySetCode = trimmedSetCode(body["preferredSetCode"]);
+  return [
+    ...new Set([
+      ...parseSetCodeList(body["preferredSetCodes"]),
+      ...(legacySetCode ? [legacySetCode] : []),
+    ]),
+  ];
+}
+
+function isPreferredSetCode(setCode: string, preferredSetCodes: string[] = []) {
+  const wanted = setCode.toLowerCase();
+  return preferredSetCodes.some((code) => code.toLowerCase() === wanted);
 }
 
 export async function findCardMatches({
   embeddings,
-  preferredSetCode,
+  preferredSetCodes = [],
   ...scope
 }: CollectionMatchScope & {
   embeddings: CardSearchEmbeddings;
-  preferredSetCode?: string;
+  preferredSetCodes?: string[];
 }): Promise<CardMatchSearchResult> {
   const { gameKey, lang } = scope;
   const segments = await cardMatchSegments(scope);
@@ -238,8 +265,8 @@ export async function findCardMatches({
   const [leader] = ranked;
   const leaderSegment = segments.find((segment) => segment.lang === leader.lang);
   const preferred =
-    preferredSetCode && leaderSegment
-      ? closestPrintingInSet(leaderSegment, leader.name, preferredSetCode, query)
+    preferredSetCodes.length > 0 && leaderSegment
+      ? closestPrintingInSets(leaderSegment, leader.name, preferredSetCodes, query)
       : null;
   const accepted = preferred
     ? [
@@ -337,7 +364,7 @@ function matchesCollectorNumber(
 
 export async function findCardMatchesByText(
   jwtClaims: string,
-  { embeddings, readout, preferredSetCode, ...scope }: CardTextMatchParams,
+  { embeddings, readout, preferredSetCodes, ...scope }: CardTextMatchParams,
 ): Promise<CardTextMatchResult> {
   const { gameKey } = scope;
   const nameQueries = ocrNameQueries(readout.name);
@@ -405,10 +432,10 @@ export async function findCardMatchesByText(
           row.collector_number as string | null,
           numberCandidates,
         ),
-        isPreferredSet:
-          !!preferredSetCode &&
-          (row.set_code as string).toLowerCase() ===
-            preferredSetCode.toLowerCase(),
+        isPreferredSet: isPreferredSetCode(
+          row.set_code as string,
+          preferredSetCodes,
+        ),
       }))
       .sort(
         (a, b) =>
@@ -447,7 +474,7 @@ export async function findCardMatchesByText(
 
 async function findCardMatchesByPrintedSetAndNumber(
   jwtClaims: string,
-  { embeddings, readout, preferredSetCode, ...scope }: CardTextMatchParams,
+  { embeddings, readout, preferredSetCodes, ...scope }: CardTextMatchParams,
 ): Promise<CardTextMatchResult> {
   const printedText = [readout.setLine, readout.number]
     .filter(Boolean)
@@ -492,10 +519,10 @@ async function findCardMatchesByPrintedSetAndNumber(
         row.set_code as string,
         printedTokens,
       ),
-      isPreferredSet:
-        !!preferredSetCode &&
-        (row.set_code as string).toLowerCase() ===
-          preferredSetCode.toLowerCase(),
+      isPreferredSet: isPreferredSetCode(
+        row.set_code as string,
+        preferredSetCodes,
+      ),
     }))
     .sort(
       (a, b) =>

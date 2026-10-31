@@ -31,13 +31,13 @@ export interface PiScanSessionState {
 export interface PiScanSessionStartBody {
   collectionGuid: string;
   foilType?: string | null;
-  preferredSetCode?: string | null;
+  preferredSetCodes?: string[];
   autoFeed?: boolean;
 }
 
 export interface PiScanSessionSettingsBody {
   foilType?: string | null;
-  preferredSetCode?: string | null;
+  preferredSetCodes?: string[];
   autoFeed?: boolean;
 }
 

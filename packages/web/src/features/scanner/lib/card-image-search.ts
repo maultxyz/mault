@@ -46,8 +46,11 @@ import {
 function appendMatchScope(formData: FormData, scope: MatchScope): void {
   if (scope.collectionGuid)
     formData.append("collectionGuid", scope.collectionGuid);
-  if (scope.preferredSetCode)
-    formData.append("preferredSetCode", scope.preferredSetCode);
+  if (scope.preferredSetCodes?.length)
+    formData.append(
+      "preferredSetCodes",
+      JSON.stringify(scope.preferredSetCodes),
+    );
 }
 
 function buildSearchFormData(

@@ -28,19 +28,28 @@ import { useTranslation } from "react-i18next";
 
 export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
   const { t } = useTranslation("scanner");
-  const { forceSetCode, setForceSetCode } = useScannedCards();
+  const { forceSetCodes, setForceSetCodes } = useScannedCards();
   const { activeCollection } = useCollections();
   const [query, setQuery] = useState("");
   const { data: sets = [], isLoading } = useQuery({
     ...cardSetsQueryOptions(activeCollection?.guid),
-    enabled: !!activeCollection?.guid && (open || !!forceSetCode),
+    enabled: !!activeCollection?.guid && (open || forceSetCodes.length > 0),
   });
 
-  const selected = sets.find((set) => set.code === forceSetCode);
-  const selectedLabel = forceSetCode
-    ? (selected?.name ?? forceSetCode.toUpperCase())
-    : t("scannerControls.anySet");
-  const tooltip = t("scannerControls.setTooltip", { set: selectedLabel });
+  const setName = (code: string) =>
+    sets.find((set) => set.code === code)?.name ?? code.toUpperCase();
+  const buttonLabel =
+    forceSetCodes.length === 0
+      ? t("scannerControls.anySet")
+      : forceSetCodes.length === 1
+        ? forceSetCodes[0].toUpperCase()
+        : t("scannerControls.setCount", { count: forceSetCodes.length });
+  const tooltip = t("scannerControls.setTooltip", {
+    set:
+      forceSetCodes.length === 0
+        ? t("scannerControls.anySet")
+        : forceSetCodes.map(setName).join(", "),
+  });
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -54,8 +63,17 @@ export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
     return matches.slice(0, CARD_SET_PICKER_LIMIT);
   }, [sets, query]);
 
-  const choose = (code: string | null) => {
-    setForceSetCode(code);
+  const toggle = (code: string) => {
+    setForceSetCodes(
+      forceSetCodes.includes(code)
+        ? forceSetCodes.filter((selected) => selected !== code)
+        : [...forceSetCodes, code],
+    );
+    setQuery("");
+  };
+
+  const chooseAnySet = () => {
+    setForceSetCodes([]);
     onOpenChange(false);
     setQuery("");
   };
@@ -68,13 +86,13 @@ export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
             <PopoverTrigger
               render={
                 <Button
-                  variant={forceSetCode ? "outline-selected" : "outline"}
+                  variant={
+                    forceSetCodes.length > 0 ? "outline-selected" : "outline"
+                  }
                   aria-label={tooltip}
                 >
                   <IconStack3 />
-                  <span className="max-w-32 truncate">
-                    {forceSetCode ? forceSetCode.toUpperCase() : selectedLabel}
-                  </span>
+                  <span className="max-w-32 truncate">{buttonLabel}</span>
                 </Button>
               }
             />
@@ -97,15 +115,15 @@ export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
           onKeyDown={(e) => {
             if (e.key === "Enter" && query.trim() && filtered[0]) {
               e.preventDefault();
-              choose(filtered[0].code);
+              toggle(filtered[0].code);
             }
           }}
         />
         <div className="flex max-h-72 flex-col gap-0.5 overflow-y-auto">
           <SetOption
             label={t("scannerControls.anySet")}
-            active={!forceSetCode}
-            onSelect={() => choose(null)}
+            active={forceSetCodes.length === 0}
+            onSelect={chooseAnySet}
           />
           {isLoading && <ListSkeleton className="py-1" />}
           {!isLoading && filtered.length === 0 && (
@@ -118,8 +136,8 @@ export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
               key={set.code}
               label={set.name}
               detail={set.code.toUpperCase()}
-              active={set.code === forceSetCode}
-              onSelect={() => choose(set.code)}
+              active={forceSetCodes.includes(set.code)}
+              onSelect={() => toggle(set.code)}
             />
           ))}
         </div>
@@ -132,6 +150,7 @@ function SetOption({ label, detail, active, onSelect }: ForcedSetOptionProps) {
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onSelect}
       className={cn(
         "flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",

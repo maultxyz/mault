@@ -120,7 +120,7 @@ export default function ScanScreen() {
   const session = useScanSession({ capture });
   const { data: cardSets } = useQuery({
     ...cardSetsQueryOptions(collection?.guid ?? null),
-    enabled: !!collection?.guid && (setPickerOpen || !!session.forcedSetCode),
+    enabled: !!collection?.guid && (setPickerOpen || session.forcedSetCodes.length > 0),
   });
   const confirmMarkFullBinsEmpty = () =>
     Alert.alert(
@@ -138,9 +138,13 @@ export default function ScanScreen() {
         },
       ],
     );
-  const forcedSetName = session.forcedSetCode
-    ? (cardSets?.find((cardSet) => cardSet.code === session.forcedSetCode)?.name ?? session.forcedSetCode.toUpperCase())
-    : t("scan.options.anySet");
+  const forcedSetName =
+    session.forcedSetCodes.length === 0
+      ? t("scan.options.anySet")
+      : session.forcedSetCodes.length === 1
+        ? (cardSets?.find((cardSet) => cardSet.code === session.forcedSetCodes[0])?.name ??
+          session.forcedSetCodes[0].toUpperCase())
+        : t("scan.options.setCount", { count: session.forcedSetCodes.length });
   const controlCardDescription = session.controlCardNotice
     ? listScannerControlActions(session.controlCardNotice.command, {
         collectionName: (guid) => collections?.find((c) => c.guid === guid)?.name ?? guid,
@@ -520,10 +524,18 @@ export default function ScanScreen() {
           { value: ANY_SET_OPTION, label: t("scan.options.anySet") },
           ...(cardSets ?? []).map((cardSet) => ({ value: cardSet.code, label: cardSet.name })),
         ]}
-        selected={[session.forcedSetCode ?? ANY_SET_OPTION]}
+        selected={session.forcedSetCodes.length > 0 ? session.forcedSetCodes : [ANY_SET_OPTION]}
         onSelect={(value) => {
-          setSetPickerOpen(false);
-          session.setForcedSetCode(value === ANY_SET_OPTION ? null : value);
+          if (value === ANY_SET_OPTION) {
+            setSetPickerOpen(false);
+            session.setForcedSetCodes([]);
+            return;
+          }
+          session.setForcedSetCodes(
+            session.forcedSetCodes.includes(value)
+              ? session.forcedSetCodes.filter((code) => code !== value)
+              : [...session.forcedSetCodes, value],
+          );
         }}
         onClose={() => setSetPickerOpen(false)}
       />

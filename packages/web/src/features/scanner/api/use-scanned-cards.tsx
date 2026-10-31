@@ -314,8 +314,8 @@ export function ScannedCardsProvider({
 
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);
-  const [forceSetCode, setForceSetCode] = useState<string | null>(null);
-  const forceSetCodeAfterCollectionSwitchRef = useRef<string | null>(null);
+  const [forceSetCodes, setForceSetCodes] = useState<string[]>([]);
+  const forceSetCodesAfterCollectionSwitchRef = useRef<string[]>([]);
   const [scanCondition, setScanConditionState] = useState<CardCondition>(
     DEFAULT_CARD_CONDITION,
   );
@@ -515,9 +515,9 @@ export function ScannedCardsProvider({
     setForceFoilTypeState(foilType);
   }, []);
 
-  const setForceSetCodeAfterCollectionSwitch = useCallback(
-    (setCode: string | null) => {
-      forceSetCodeAfterCollectionSwitchRef.current = setCode;
+  const setForceSetCodesAfterCollectionSwitch = useCallback(
+    (setCodes: string[]) => {
+      forceSetCodesAfterCollectionSwitchRef.current = setCodes;
     },
     [],
   );
@@ -532,8 +532,8 @@ export function ScannedCardsProvider({
     const next = activeCollection?.guid;
     if (prev && prev !== next) {
       releaseScanLock(prev).catch(() => {});
-      setForceSetCode(forceSetCodeAfterCollectionSwitchRef.current);
-      forceSetCodeAfterCollectionSwitchRef.current = null;
+      setForceSetCodes(forceSetCodesAfterCollectionSwitchRef.current);
+      forceSetCodesAfterCollectionSwitchRef.current = [];
     }
     prevCollectionGuidRef.current = next;
     activeCollectionRef.current = activeCollection;
@@ -1470,7 +1470,7 @@ export function ScannedCardsProvider({
         isLoading,
         autoFeed,
         forceFoilType,
-        forceSetCode,
+        forceSetCodes,
         scanCondition,
         elapsedMs,
         isTimerActive,
@@ -1481,8 +1481,8 @@ export function ScannedCardsProvider({
         resetSessionStats,
         setAutoFeed,
         setForceFoilType,
-        setForceSetCode,
-        setForceSetCodeAfterCollectionSwitch,
+        setForceSetCodes,
+        setForceSetCodesAfterCollectionSwitch,
         setScanCondition,
         registerCardArrivedHook,
         registerPauseHook,

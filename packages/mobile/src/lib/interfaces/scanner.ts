@@ -30,7 +30,7 @@ export type Orientation = "upright" | "rotated";
 
 export interface MatchScope {
   collectionGuid: string;
-  preferredSetCode?: string | null;
+  preferredSetCodes?: string[];
 }
 
 export interface OrientedPick {
@@ -178,8 +178,8 @@ export interface ScanSessionValue extends ScanSessionState {
   trackLiveCorners: (corners: LiveCorners | null) => void;
   forcedFoilType: string | null;
   setForcedFoilType: (foilType: string | null) => void;
-  forcedSetCode: string | null;
-  setForcedSetCode: (setCode: string | null) => void;
+  forcedSetCodes: string[];
+  setForcedSetCodes: (setCodes: string[]) => void;
   scanCondition: CardCondition;
   setScanCondition: (condition: CardCondition) => void;
   controlCardNotice: ControlCardNotice | null;

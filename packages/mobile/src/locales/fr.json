@@ -637,6 +637,8 @@
       "notFoil": "Non foil",
       "set": "Extension",
       "anySet": "N'importe quelle extension",
+      "setCount_one": "{{count}} extension",
+      "setCount_other": "{{count}} extensions",
       "searchSets": "Rechercher une extension",
       "condition": "État"
     },

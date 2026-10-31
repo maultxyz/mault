@@ -73,7 +73,7 @@ export const piScanRouter = new Hono<AppEnv>()
     const state = updatePiScanSettings(
       c.get("orgId"),
       body.foilType,
-      body.preferredSetCode,
+      body.preferredSetCodes,
       body.autoFeed,
     );
     if (!state) {

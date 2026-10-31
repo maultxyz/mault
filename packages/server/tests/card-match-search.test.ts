@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   buildCardMatchSegment,
-  closestPrintingInSet,
+  closestPrintingInSets,
   faceDistance,
   nearestCardFaces,
   normalizedEmbedding,
@@ -78,7 +78,7 @@ test("nearest card faces merge segments and measure distance to the leader face"
   assert.ok(faceDistance(nearest[1], nearest[0]) > 0);
 });
 
-test("closest printing in set matches name and set code case-insensitively", () => {
+test("closest printing in sets matches name and any set code case-insensitively", () => {
   const segment = buildCardMatchSegment("mtg", "en", [
     sourceRow("a", axisEmbedding(0, 0.5), { name: "Bolt", setCode: "LEA" }),
     sourceRow("b", axisEmbedding(0, 0.1), { name: "Bolt", setCode: "lea" }),
@@ -86,9 +86,11 @@ test("closest printing in set matches name and set code case-insensitively", () 
   ]);
   const query = normalizedEmbedding(axisEmbedding(0));
 
-  const preferred = closestPrintingInSet(segment, "Bolt", "Lea", query);
+  const preferred = closestPrintingInSets(segment, "Bolt", ["Lea"], query);
   assert.equal(preferred && segment.cardIds[preferred.row], "b");
-  assert.equal(closestPrintingInSet(segment, "Bolt", "2ed", query), null);
+  const either = closestPrintingInSets(segment, "Bolt", ["2ed", "M10", "LEA"], query);
+  assert.equal(either && segment.cardIds[either.row], "c");
+  assert.equal(closestPrintingInSets(segment, "Bolt", ["2ed"], query), null);
 });
 
 test("normalized embedding rejects the wrong dimension", () => {

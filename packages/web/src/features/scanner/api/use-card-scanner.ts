@@ -117,7 +117,7 @@ export function useCardScanner({
     requestPhoneCapture,
   } = useCameraContext();
   const { activeCollection } = useCollections();
-  const { forceSetCode: preferredSetCode } = useScannedCards();
+  const { forceSetCodes: preferredSetCodes } = useScannedCards();
   const { activeOrg } = useOrg();
   const device = useDevice();
   const { data: billingData } = useQuery(billingQueryOptions(activeOrg?.id));
@@ -167,8 +167,8 @@ export function useCardScanner({
 
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
-  const preferredSetCodeRef = useRef(preferredSetCode);
-  preferredSetCodeRef.current = preferredSetCode;
+  const preferredSetCodesRef = useRef(preferredSetCodes);
+  preferredSetCodesRef.current = preferredSetCodes;
 
   const colorBarRegionRef = useRef<ColorBarRegion | undefined>(undefined);
   colorBarRegionRef.current =
@@ -311,7 +311,7 @@ export function useCardScanner({
           contour,
           {
             collectionGuid: activeCollectionGuidRef.current,
-            preferredSetCode: preferredSetCodeRef.current,
+            preferredSetCodes: preferredSetCodesRef.current,
           },
           ocrEnabledRef.current,
           matchesNeededRef.current,
