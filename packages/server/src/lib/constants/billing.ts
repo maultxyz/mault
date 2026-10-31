@@ -29,3 +29,4 @@ export const ACTIVE_SUBSCRIPTION_STATUSES = [
   "trialing",
   "past_due",
 ] as const;
+export const PLATFORM_BILLING_SETTINGS_ID = "platform";

@@ -23,6 +23,7 @@ import {
 } from "../../lib/organization-limit";
 import { toPlanKey } from "../../lib/plan-config";
 import { currentPreviewPlan } from "../../lib/plan-preview";
+import { isLegacyPricingActive } from "../../lib/pricing-mode";
 import { repacksAllowedForPlan } from "../../lib/repack-access";
 import { customSoundsAllowedForPlan } from "../../lib/custom-sounds-access";
 import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
@@ -64,7 +65,8 @@ export const getBillingRoute = new Hono<AppEnv>().get(
             plan === LEGACY_BUSINESS_PLAN
               ? LEGACY_BUSINESS_REPORTED_PLAN
               : plan,
-          isLegacyPlan: plan === LEGACY_BUSINESS_PLAN,
+          isLegacyPlan:
+            plan === LEGACY_BUSINESS_PLAN && !isLegacyPricingActive(),
           isPlanPreview: !!previewPlan,
           status: billing?.status ?? null,
           cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,

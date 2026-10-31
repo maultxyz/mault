@@ -326,6 +326,26 @@
       "heading": "Tarif in der Vorschau ansehen",
       "description": "Sieh die App so, wie eine Organisation mit einem anderen Tarif sie sieht: Limits, gesperrte Funktionen und die Abrechnungsseite folgen dem gewählten Tarif. Betrifft nur deine eigenen Anfragen in diesem Browser.",
       "off": "Aus"
+    },
+    "pricingMode": {
+      "heading": "Preismodell",
+      "cancel": "Abbrechen",
+      "saved": "Preismodell aktualisiert.",
+      "saveFailed": "Das Preismodell konnte nicht aktualisiert werden.",
+      "legacy": {
+        "badge": "Alte Preise",
+        "description": "Nur Free und der ursprüngliche Business-Tarif werden zu den alten Business-Preisen verkauft. Neue Business-Abonnenten erhalten den Legacy-Business-Tarif.",
+        "switch": "Zu neuen Preisen wechseln",
+        "confirmTitle": "Zu den neuen Preisen wechseln?",
+        "confirmDescription": "Enthusiast und der neue Business-Tarif sind sofort erhältlich, mit den Preisen aus STRIPE_PRICE_ID_ENTHUSIAST und STRIPE_PRICE_ID_BUSINESS. Bestehende Business-Abonnenten behalten ihren Tarif und sehen ihn künftig als Legacy gekennzeichnet."
+      },
+      "tiered": {
+        "badge": "Neue Preise",
+        "description": "Free, Enthusiast und Business sind erhältlich. Bestehende Abonnenten des ursprünglichen Business-Tarifs behalten ihn als Legacy-Tarif.",
+        "switch": "Zu alten Preisen zurückwechseln",
+        "confirmTitle": "Zu den alten Preisen zurückwechseln?",
+        "confirmDescription": "Enthusiast und der neue Business-Tarif werden nicht mehr verkauft, und der Business-Checkout nutzt wieder die alten Preise. Wer bereits einen neuen Tarif abonniert hat, behält ihn."
+      }
     }
   },
   "deletedItems": {

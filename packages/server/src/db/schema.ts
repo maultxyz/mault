@@ -1358,6 +1358,14 @@ export const scanStats = pgTable(
   ],
 );
 
+export const platformBillingSettings = pgTable("platform_billing_settings", {
+  id: text("id").primaryKey(),
+  isLegacyPricingActive: boolean("is_legacy_pricing_active")
+    .notNull()
+    .default(true),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const platformStatsSettings = pgTable("platform_stats_settings", {
   id: text("id").primaryKey(),
   stats: jsonb("stats").notNull().default([]),

@@ -35,6 +35,7 @@ export interface AdminPlanConfigResponse {
   config: PlanConfig;
   defaults: PlanConfig;
   billingEnabled: boolean;
+  isLegacyPricingActive: boolean;
 }
 
 export interface BillingStatus {

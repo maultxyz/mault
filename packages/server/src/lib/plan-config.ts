@@ -14,6 +14,7 @@ import { eq } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { orgBilling, planSettings } from "../db/schema";
 import { currentPreviewPlan } from "./plan-preview";
+import { refreshPricingMode } from "./pricing-mode";
 import { PLAN_CONFIG_LOAD_RETRY_MS } from "./constants/timing";
 import {
   ENTHUSIAST_PLAN_DAILY_SCAN_LIMIT,
@@ -164,7 +165,10 @@ export function parsePlanConfig(input: unknown): PlanConfig | null {
 }
 
 export async function refreshPlanConfig(): Promise<PlanConfig> {
-  const rows = await db.select().from(planSettings);
+  const [rows] = await Promise.all([
+    db.select().from(planSettings),
+    refreshPricingMode(),
+  ]);
   const defaults = defaultPlanConfig();
   const next = { ...defaults };
   for (const row of rows) {

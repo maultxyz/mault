@@ -326,6 +326,26 @@
       "heading": "Prévisualiser une offre",
       "description": "Voyez l'application comme une organisation avec une autre offre : les limites, les fonctions verrouillées et la page de facturation suivent l'offre choisie. Ne concerne que vos propres requêtes dans ce navigateur.",
       "off": "Désactivé"
+    },
+    "pricingMode": {
+      "heading": "Mode de tarification",
+      "cancel": "Annuler",
+      "saved": "Mode de tarification mis à jour.",
+      "saveFailed": "Impossible de mettre à jour le mode de tarification.",
+      "legacy": {
+        "badge": "Anciens tarifs",
+        "description": "Seules les offres Gratuite et Business d'origine sont en vente, aux anciens prix Business. Les nouveaux abonnés Business obtiennent l'offre Business historique.",
+        "switch": "Passer aux nouveaux tarifs",
+        "confirmTitle": "Passer aux nouveaux tarifs ?",
+        "confirmDescription": "Passionné et la nouvelle offre Business sont mises en vente immédiatement, avec les prix STRIPE_PRICE_ID_ENTHUSIAST et STRIPE_PRICE_ID_BUSINESS. Les abonnés Business actuels conservent leur offre, désormais indiquée comme historique."
+      },
+      "tiered": {
+        "badge": "Nouveaux tarifs",
+        "description": "Les offres Gratuite, Passionné et Business sont en vente. Les abonnés à l'offre Business d'origine la conservent comme offre historique.",
+        "switch": "Revenir aux anciens tarifs",
+        "confirmTitle": "Revenir aux anciens tarifs ?",
+        "confirmDescription": "Passionné et la nouvelle offre Business ne sont plus vendues, et le paiement Business repasse aux anciens prix. Les personnes déjà abonnées à une nouvelle offre la conservent."
+      }
     }
   },
   "deletedItems": {

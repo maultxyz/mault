@@ -1,6 +1,7 @@
 import {
   BILLING_INTERVALS,
   LEGACY_BUSINESS_PLAN,
+  LEGACY_BUSINESS_REPORTED_PLAN,
   PAID_PLAN_KEYS,
   type PlanKey,
   type BillingInterval,
@@ -14,6 +15,7 @@ import {
   LEGACY_BUSINESS_PRICE_ID_ENV,
   PLAN_PRICE_ID_ENV,
 } from "./constants/billing";
+import { isLegacyPricingActive } from "./pricing-mode";
 import { STRIPE_PRICE_CACHE_TTL_MS as PRICE_CACHE_TTL_MS } from "./constants/timing";
 
 let _stripe: Stripe | null = null;
@@ -35,10 +37,33 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
+function findLegacyBusinessPriceId(
+  interval: BillingInterval,
+): string | undefined {
+  return (
+    process.env[LEGACY_BUSINESS_PRICE_ID_ENV[interval]] ||
+    process.env[PLAN_PRICE_ID_ENV.business[interval]] ||
+    undefined
+  );
+}
+
+export function hasSeparateLegacyBusinessPrices(): boolean {
+  const legacyMonthly = process.env[LEGACY_BUSINESS_PRICE_ID_ENV.month];
+  return (
+    !!legacyMonthly &&
+    legacyMonthly !== process.env[PLAN_PRICE_ID_ENV.business.month]
+  );
+}
+
 export function findPlanPriceId(
   plan: PaidPlanKey,
   interval: BillingInterval,
 ): string | undefined {
+  if (isLegacyPricingActive()) {
+    return plan === LEGACY_BUSINESS_REPORTED_PLAN
+      ? findLegacyBusinessPriceId(interval)
+      : undefined;
+  }
   return process.env[PLAN_PRICE_ID_ENV[plan][interval]] || undefined;
 }
 
@@ -47,8 +72,7 @@ export function findPlanForPriceId(
 ): { plan: PlanKey; interval: BillingInterval } | null {
   if (!priceId) return null;
   const legacyInterval = BILLING_INTERVALS.find(
-    (interval) =>
-      process.env[LEGACY_BUSINESS_PRICE_ID_ENV[interval]] === priceId,
+    (interval) => findLegacyBusinessPriceId(interval) === priceId,
   );
   if (legacyInterval) {
     return { plan: LEGACY_BUSINESS_PLAN, interval: legacyInterval };
@@ -68,7 +92,10 @@ export const FREE_PLAN_DAILY_SCAN_LIMIT =
 export const FREE_PLAN_MAX_CONNECTED_SORTERS =
   Number(process.env.FREE_PLAN_MAX_CONNECTED_SORTERS) || 1;
 
-let _portalConfigurationId: string | null = null;
+let _portalConfiguration: {
+  id: string;
+  isLegacyPricing: boolean;
+} | null = null;
 
 async function listPaidPlanPortalProducts(): Promise<
   { product: string; prices: string[] }[]
@@ -97,7 +124,10 @@ async function listPaidPlanPortalProducts(): Promise<
 export async function getBillingPortalConfigurationId(): Promise<
   string | undefined
 > {
-  if (_portalConfigurationId) return _portalConfigurationId;
+  const isLegacyPricing = isLegacyPricingActive();
+  if (_portalConfiguration?.isLegacyPricing === isLegacyPricing) {
+    return _portalConfiguration.id;
+  }
 
   const stripe = getStripe();
   const { data } = await stripe.billingPortal.configurations.list({
@@ -108,10 +138,14 @@ export async function getBillingPortalConfigurationId(): Promise<
   if (!config) return undefined;
 
   const products = await listPaidPlanPortalProducts();
+  const priceCount = products.reduce(
+    (total, product) => total + product.prices.length,
+    0,
+  );
   await stripe.billingPortal.configurations.update(config.id, {
     features: {
       subscription_cancel: { enabled: true, mode: "at_period_end" },
-      ...(products.length > 1 && {
+      ...(priceCount > 1 && {
         subscription_update: {
           enabled: true,
           default_allowed_updates: ["price"],
@@ -122,7 +156,7 @@ export async function getBillingPortalConfigurationId(): Promise<
     },
   });
 
-  _portalConfigurationId = config.id;
+  _portalConfiguration = { id: config.id, isLegacyPricing };
   return config.id;
 }
 

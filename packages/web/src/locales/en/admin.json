@@ -337,6 +337,26 @@
       "heading": "Preview a plan",
       "description": "See the app as an organization on another plan would: limits, locked features and the billing page all follow the plan you pick. Only affects your own requests on this browser.",
       "off": "Off"
+    },
+    "pricingMode": {
+      "heading": "Pricing mode",
+      "cancel": "Cancel",
+      "saved": "Pricing mode updated.",
+      "saveFailed": "Couldn't update the pricing mode.",
+      "legacy": {
+        "badge": "Old pricing",
+        "description": "Only Free and the original Business plan are on sale, at the legacy Business prices. New Business subscribers get the legacy Business tier.",
+        "switch": "Switch to new pricing",
+        "confirmTitle": "Switch to the new pricing?",
+        "confirmDescription": "Enthusiast and the new Business plan go on sale right away, using the STRIPE_PRICE_ID_ENTHUSIAST and STRIPE_PRICE_ID_BUSINESS prices. Current Business subscribers keep their plan and start seeing it labelled as legacy."
+      },
+      "tiered": {
+        "badge": "New pricing",
+        "description": "Free, Enthusiast and Business are on sale. Existing subscribers to the original Business plan keep it as the legacy tier.",
+        "switch": "Switch back to old pricing",
+        "confirmTitle": "Switch back to the old pricing?",
+        "confirmDescription": "Enthusiast and the new Business plan stop being sold, and Business checkout goes back to the legacy prices. People who already subscribed to a new plan keep it."
+      }
     }
   },
   "deletedItems": {
