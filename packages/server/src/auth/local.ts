@@ -137,6 +137,18 @@ export const localAuthProvider: AuthProvider = {
     return rows.rows;
   },
 
+  async listOrgMemberUserIdsBySeat(orgId) {
+    const rows = await db.execute<{ user_id: string }>(
+      sql`
+        SELECT user_id::text AS user_id
+        FROM own_auth_organisation_members
+        WHERE organisation_id::text = ${orgId} AND status = 'active'
+        ORDER BY (role = 'owner') DESC, created_at, id
+      `,
+    );
+    return rows.rows.map((row) => row.user_id);
+  },
+
   async getOrganisationName(orgId) {
     const rows = await db.execute<{ name: string }>(
       sql`SELECT name FROM own_auth_organisations WHERE id = ${orgId} LIMIT 1`,

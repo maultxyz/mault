@@ -1,13 +1,17 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatPlanPrice, yearlySavingsPercent } from "@/lib/plan-price";
-import { DEFAULT_BILLING_INTERVAL } from "@magic-vault/shared";
+import {
+  DEFAULT_BILLING_INTERVAL,
+  DEFAULT_PAID_PLAN,
+  PAID_PLAN_KEYS,
+} from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { useBilling } from "../api/use-billing";
 import { PlanFeatures } from "./plan-features";
+import { PlanUpgradeOption } from "./plan-upgrade-option";
 
 export function BillingSettings() {
-  const { t, i18n } = useTranslation("billing");
+  const { t } = useTranslation("billing");
   const {
     billing,
     isLoading,
@@ -20,7 +24,7 @@ export function BillingSettings() {
 
   if (isLoading || !billing) return null;
 
-  const isBusiness = billing.plan === "business";
+  const isPaid = billing.plan !== "free";
   const usagePercent =
     billing.dailyLimit != null
       ? Math.min(
@@ -28,21 +32,22 @@ export function BillingSettings() {
           Math.round((billing.cardsScannedToday / billing.dailyLimit) * 100),
         )
       : 0;
-  const monthlyPrice = billing.prices?.month ?? null;
-  const yearlyPrice = billing.prices?.year ?? null;
-  const yearlySavings = yearlySavingsPercent(monthlyPrice, yearlyPrice);
+  const upgradeOptions = PAID_PLAN_KEYS.flatMap((plan) => {
+    const prices = billing.planPrices?.[plan];
+    return prices && (prices.month || prices.year) ? [{ plan, prices }] : [];
+  });
 
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <Badge variant={isBusiness ? "success" : "secondary"}>
-          {t(isBusiness ? "plan.business" : "plan.free")}
+        <Badge variant={isPaid ? "success" : "secondary"}>
+          {t(`plan.${billing.plan}`)}
         </Badge>
       </div>
 
       <PlanFeatures billing={billing} />
 
-      {!isBusiness && billing.dailyLimit != null && (
+      {billing.dailyLimit != null && (
         <div className="flex flex-col gap-1.5">
           <p className="text-xs text-foreground/70">
             {t("usage", {
@@ -59,7 +64,7 @@ export function BillingSettings() {
         </div>
       )}
 
-      {isBusiness && billing.cancelAtPeriodEnd && billing.currentPeriodEnd && (
+      {isPaid && billing.cancelAtPeriodEnd && billing.currentPeriodEnd && (
         <p className="text-xs text-foreground/70">
           {t("cancelAtPeriodEnd", {
             date: new Date(billing.currentPeriodEnd).toLocaleDateString(),
@@ -67,15 +72,15 @@ export function BillingSettings() {
         </p>
       )}
 
-      {isBusiness && billing.interval && !billing.cancelAtPeriodEnd && (
+      {isPaid && billing.interval && !billing.cancelAtPeriodEnd && (
         <p className="text-xs text-foreground/70">
           {t(billing.interval === "year" ? "billedYearly" : "billedMonthly")}
         </p>
       )}
 
-      {canManage && (
-        <div>
-          {isBusiness ? (
+      {canManage && isPaid && (
+        <div className="flex flex-col gap-1.5">
+          <div>
             <Button
               variant="outline"
               onClick={openPortal}
@@ -83,43 +88,38 @@ export function BillingSettings() {
             >
               {t("manage")}
             </Button>
-          ) : yearlyPrice ? (
-            <div className="flex flex-col gap-1.5">
-              <div className="flex flex-wrap gap-1.5">
-                <Button
-                  variant="outline"
-                  onClick={() => startCheckout("month")}
-                  disabled={isStartingCheckout}
-                >
-                  {monthlyPrice
-                    ? t("upgradeMonthly", {
-                        price: formatPlanPrice(monthlyPrice, i18n.language),
-                      })
-                    : t("upgrade")}
-                </Button>
-                <Button
-                  onClick={() => startCheckout("year")}
-                  disabled={isStartingCheckout}
-                >
-                  {t("upgradeYearly", {
-                    price: formatPlanPrice(yearlyPrice, i18n.language),
-                  })}
-                </Button>
-              </div>
-              {yearlySavings != null && (
-                <p className="text-xs text-foreground/70">
-                  {t("yearlySavings", { percent: yearlySavings })}
-                </p>
-              )}
-            </div>
-          ) : (
-            <Button
-              onClick={() => startCheckout(DEFAULT_BILLING_INTERVAL)}
-              disabled={isStartingCheckout}
-            >
-              {t("upgrade")}
-            </Button>
-          )}
+          </div>
+          <p className="text-xs text-foreground/70">{t("changePlanInPortal")}</p>
+        </div>
+      )}
+
+      {canManage && !isPaid && upgradeOptions.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {upgradeOptions.map(({ plan, prices }) => (
+            <PlanUpgradeOption
+              key={plan}
+              plan={plan}
+              prices={prices}
+              isStartingCheckout={isStartingCheckout}
+              onCheckout={startCheckout}
+            />
+          ))}
+        </div>
+      )}
+
+      {canManage && !isPaid && upgradeOptions.length === 0 && (
+        <div>
+          <Button
+            onClick={() =>
+              startCheckout({
+                plan: DEFAULT_PAID_PLAN,
+                interval: DEFAULT_BILLING_INTERVAL,
+              })
+            }
+            disabled={isStartingCheckout}
+          >
+            {t("upgradeTo", { plan: t(`plan.${DEFAULT_PAID_PLAN}`) })}
+          </Button>
         </div>
       )}
     </div>

@@ -214,45 +214,81 @@
   "pricing": {
     "eyebrow": "Pricing",
     "heading": "Simple, transparent pricing",
-    "subtitle": "The same app either way. Free covers casual sorting. Business removes the daily scan cap, runs several sorters at once, unlocks unlimited custom sounds and Discord notification rules, and adds storage, API access and tools for running a shop.",
+    "subtitle": "The same app on every plan. Free covers casual sorting. Enthusiast raises the limits and adds chaos sort and storage locations for serious collectors. Business removes the limits and adds API access and tools to buy and sell cards.",
     "intervals": {
       "label": "Billing period",
       "month": "Monthly",
       "year": "Yearly"
     },
     "shared": {
-      "collections": "Unlimited collections",
       "games": "Every supported card game",
       "notifications": "Discord scan notifications"
     },
-    "free": {
-      "name": "Free",
-      "price": "$0",
-      "description": "For casual collectors getting started.",
-      "scanLimit": "Up to {{limit}} card scans per day",
-      "sorters_one": "{{count}} sorter connected at a time",
-      "sorters_other": "{{count}} sorters connected at a time",
-      "soundRules_one": "{{count}} custom sound rule",
-      "soundRules_other": "{{count}} custom sound rules",
-      "notificationRules_one": "{{count}} Discord notification rule",
-      "notificationRules_other": "{{count}} Discord notification rules"
+    "perMonth": "/month",
+    "perYear": "/year",
+    "yearlySavings": "Save {{percent}}% with yearly billing",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "$0",
+        "description": "For casual collectors getting started.",
+        "cta": "Get started free"
+      },
+      "enthusiast": {
+        "name": "Enthusiast",
+        "description": "For serious collectors sorting at home.",
+        "cta": "Start Enthusiast plan"
+      },
+      "business": {
+        "name": "Business",
+        "description": "For shops and teams that buy and sell cards.",
+        "cta": "Start Business plan"
+      }
     },
-    "business": {
-      "name": "Business",
-      "perMonth": "/month",
-      "perYear": "/year",
-      "yearlySavings": "Save {{percent}}% with yearly billing",
-      "description": "For shops and serious collectors.",
-      "unlimitedScans": "Unlimited card scans",
-      "cta": "Start Business plan",
-      "sorters_one": "Up to {{count}} sorter at once, from one browser",
-      "sorters_other": "Up to {{count}} sorters at once, from one browser",
-      "soundRules": "Unlimited sound rules with your own uploaded clips",
-      "notificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel",
+    "limits": {
+      "dailyScans": {
+        "limited_one": "Up to {{count}} card scan per day",
+        "limited_other": "Up to {{count}} card scans per day",
+        "unlimited": "Unlimited card scans"
+      },
+      "organizations": {
+        "limited_one": "Own {{count}} organization",
+        "limited_other": "Own up to {{count}} organizations",
+        "unlimited": "Own as many organizations as you need"
+      },
+      "membersPerOrg": {
+        "limited_one": "{{count}} member per organization",
+        "limited_other": "Up to {{count}} members per organization",
+        "unlimited": "Unlimited members in each organization"
+      },
+      "connectedSorters": {
+        "limited_one": "{{count}} sorter connected at a time",
+        "limited_other": "Up to {{count}} sorters at once, from one browser",
+        "unlimited": "Unlimited sorters at once"
+      },
+      "soundRules": {
+        "limited_one": "{{count}} custom sound rule",
+        "limited_other": "{{count}} custom sound rules",
+        "unlimited": "Unlimited sound rules"
+      },
+      "notificationRules": {
+        "limited_one": "{{count}} Discord notification rule",
+        "limited_other": "{{count}} Discord notification rules",
+        "unlimited": "Unlimited Discord notification rules, each posting matching cards to its own channel"
+      },
+      "collections": {
+        "limited_one": "{{count}} collection",
+        "limited_other": "Up to {{count}} collections",
+        "unlimited": "Unlimited collections"
+      }
+    },
+    "features": {
       "chaosSort": "Chaos sort, the fastest way to put away a big pile",
+      "repacks": "Repack building: every bin fills its own pack from the slots you define",
+      "customSounds": "Custom sounds: upload your own clips to play when matching cards are sorted",
       "storage": "Storage locations: record which box every card is in and where, then search across them",
       "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
-      "businessTools": "Shop tools: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins",
+      "businessTools": "Buy and sell: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins",
       "businessOps": "Shop management: spot-check a batch's accuracy, see staff activity, get sorter jam and service alerts, and keep buy prices hidden from staff"
     }
   },

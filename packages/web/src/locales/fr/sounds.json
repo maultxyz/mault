@@ -22,7 +22,8 @@
     "saveName": "Enregistrer le nom",
     "cancelRename": "Annuler",
     "renameFailed": "Impossible de renommer le clip sonore.",
-    "stop": "Arrêter {{name}}"
+    "stop": "Arrêter {{name}}",
+    "notInPlan": "L'import de sons personnalisés ne fait pas partie de votre offre."
   },
   "rules": {
     "heading": "Règles sonores",
@@ -39,9 +40,9 @@
     "delete": "Supprimer {{name}}",
     "saved": "Règles sonores enregistrées.",
     "saveFailed": "Impossible d'enregistrer les règles sonores.",
-    "limitReached_one": "L'offre gratuite inclut {{count}} règle sonore. Passe à Business pour des règles sonores illimitées.",
-    "limitReached_other": "L'offre gratuite inclut {{count}} règles sonores. Passe à Business pour des règles sonores illimitées.",
-    "upgrade": "Passer à Business"
+    "limitReached_one": "Ton offre inclut {{count}} règle sonore. Passe à une offre supérieure pour plus de règles sonores.",
+    "limitReached_other": "Ton offre inclut {{count}} règles sonores. Passe à une offre supérieure pour plus de règles sonores.",
+    "upgrade": "Voir les offres"
   },
   "ruleDialog": {
     "addTitle": "Ajouter une règle sonore",

@@ -245,7 +245,8 @@
   "plans": {
     "planNames": {
       "free": "Free",
-      "business": "Business"
+      "business": "Business",
+      "enthusiast": "Enthusiast"
     },
     "featuresHeading": "Funktionen",
     "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",
@@ -274,8 +275,16 @@
         "description": "Organisations-API-Schlüssel anlegen und Karten und Lagerorte über die öffentliche API lesen. Bestehende Schlüssel lassen sich immer widerrufen."
       },
       "businessTools": {
-        "label": "Business-Werkzeuge",
+        "label": "Kaufen und Verkaufen",
         "description": "Ankäufe mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
+      },
+      "repacks": {
+        "label": "Repacks",
+        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+      },
+      "customSounds": {
+        "label": "Eigene Sounds",
+        "description": "Eigene Soundclips für Soundregeln hochladen. Ausschalten verhindert nur neue Uploads. Bereits hochgeladene Clips werden weiter abgespielt."
       }
     },
     "limits": {
@@ -294,6 +303,18 @@
       "notificationRules": {
         "label": "Benachrichtigungsregeln",
         "description": "Discord-Benachrichtigungsregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
+      },
+      "organizations": {
+        "label": "Eigene Organisationen",
+        "description": "Organisationen, die ein Nutzer besitzen darf. Die App prüft beim Anlegen einer neuen Organisation gegen den Tarif der gerade geöffneten Organisation."
+      },
+      "membersPerOrg": {
+        "label": "Mitglieder pro Organisation",
+        "description": "Mitglieder pro Organisation, Inhaber zuerst, dann nach Beitrittsdatum gezählt. Mitglieder über dem Limit sind gesperrt, bis der Tarif erhöht oder Mitglieder entfernt werden."
+      },
+      "collections": {
+        "label": "Sammlungen",
+        "description": "Sammlungen pro Organisation. Wird nur beim Anlegen einer Sammlung geprüft."
       }
     }
   },

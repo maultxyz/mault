@@ -33,7 +33,10 @@
     "organizationDeleted": "Organisation gelöscht.",
     "failedToDelete": "Löschen fehlgeschlagen.",
     "cancelSubscriptionFirst": "Kündige das Abonnement dieser Organisation, bevor du sie löschst. Sobald es zum Ende des Abrechnungszeitraums gekündigt ist, kannst du die Organisation löschen.",
-    "manageBilling": "Abrechnung verwalten"
+    "manageBilling": "Abrechnung verwalten",
+    "memberLimitReached_one": "Dein Tarif enthält {{count}} Mitglied pro Organisation, offene Einladungen mitgezählt. Upgrade deinen Tarif, um mehr einzuladen.",
+    "memberLimitReached_other": "Dein Tarif enthält {{count}} Mitglieder pro Organisation, offene Einladungen mitgezählt. Upgrade deinen Tarif, um mehr einzuladen.",
+    "memberLimitUpgrade": "Tarife ansehen"
   },
   "orgSwitcher": {
     "organizations": "Organisationen",
@@ -41,7 +44,10 @@
     "newOrganizationTitle": "Neue Organisation",
     "newOrganizationDescription": "Erstelle eine neue Organisation, um deine Fächer, Sammlungen und Kalibrierung zu verwalten.",
     "cancel": "Abbrechen",
-    "organizationCreated": "Organisation \"{{name}}\" erstellt."
+    "organizationCreated": "Organisation \"{{name}}\" erstellt.",
+    "organizationLimitReached_one": "Mit dem Tarif von {{name}} kannst du {{count}} Organisation besitzen. Upgrade diesen Tarif, um weitere anzulegen.",
+    "organizationLimitReached_other": "Mit dem Tarif von {{name}} kannst du {{count}} Organisationen besitzen. Upgrade diesen Tarif, um weitere anzulegen.",
+    "organizationLimitUpgrade": "Tarife ansehen"
   },
   "discordBot": {
     "heading": "Discord-Bot",

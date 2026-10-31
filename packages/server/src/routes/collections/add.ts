@@ -2,6 +2,11 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { collections } from "../../db/schema";
+import {
+  collectionLimitMessage,
+  countLiveCollections,
+  getCollectionLimit,
+} from "../../lib/collection-limit";
 import { emitToOrg } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { collectionNameTaken, loadCollections } from "./shared";
@@ -32,6 +37,14 @@ export const addCollectionRoute = new Hono<AppEnv>().post(
     }
 
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const limit = await getCollectionLimit(tx, orgId);
+      if (limit != null && (await countLiveCollections(tx, orgId)) >= limit) {
+        return {
+          success: false,
+          message: collectionLimitMessage(limit),
+          upgradeRequired: true,
+        };
+      }
       let gameId: number | null = null;
       if (gameGuid) {
         const game = await tx.query.games.findFirst({

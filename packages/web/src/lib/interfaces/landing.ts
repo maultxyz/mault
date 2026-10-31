@@ -1,15 +1,17 @@
 import type { Icon } from "@tabler/icons-react";
 import type { ComponentType, ReactNode } from "react";
 import type {
-  BusinessPriceInfo,
+  BillingInterval,
+  PaidPlanPrices,
   PlanConfig,
+  PlanIntervalPrices,
+  PlanKey,
   PlanSettings,
   PlayingCardWithDistance,
 } from "@magic-vault/shared";
 
 export interface PublicPricing {
-  business: BusinessPriceInfo | null;
-  businessYearly?: BusinessPriceInfo | null;
+  planPrices?: PaidPlanPrices | null;
   plans?: PlanConfig;
   maxConnectedSorters?: number;
 }
@@ -18,6 +20,16 @@ export interface PlanBulletsProps {
   settings: PlanSettings;
   maxConnectedSorters: number;
   emphasized?: boolean;
+}
+
+export interface PricingPlanCardProps {
+  plan: PlanKey;
+  lead: string;
+  settings: PlanSettings;
+  maxConnectedSorters: number;
+  prices: PlanIntervalPrices | null;
+  interval: BillingInterval;
+  emphasized: boolean;
 }
 
 export interface DemoScannedCard {

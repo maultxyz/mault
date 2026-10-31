@@ -9,7 +9,7 @@
     "generic": "Something went wrong. Try again."
   },
   "upgrade": {
-    "locked": "Intake, picks, cost tracking and spot checks are part of the Business plan. You can still view what you already have.",
+    "locked": "Buy and sell (intake, picks, cost tracking and spot checks) is not part of your plan. You can still view what you already have.",
     "link": "See plans"
   },
   "status": {

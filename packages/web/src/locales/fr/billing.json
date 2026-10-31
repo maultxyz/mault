@@ -3,25 +3,25 @@
     "free": "Gratuit",
     "business": "Entreprise",
     "label": "Plan",
-    "scansToday": "{{used}}/{{limit}} aujourd'hui"
+    "scansToday": "{{used}}/{{limit}} aujourd'hui",
+    "enthusiast": "Passionné"
   },
   "planFooterTooltip": {
     "free": "Plan gratuit · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour passer à la version supérieure.",
-    "business": "Plan Entreprise. Clique pour gérer la facturation.",
     "freeUnlimited": "Plan gratuit. Clique pour voir ton plan.",
-    "businessLimited": "Plan Entreprise · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour gérer la facturation."
+    "paid": "Plan {{plan}}. Clique pour gérer la facturation.",
+    "paidLimited": "Plan {{plan}} · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour gérer la facturation."
   },
   "includes": "Ton plan comprend",
   "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
-  "upgrade": "Passer à Entreprise",
-  "upgradeMonthly": "Passer à Entreprise pour {{price}}/mois",
-  "upgradeYearly": "Passer à Entreprise pour {{price}}/an",
+  "upgradeMonthly": "S'abonner pour {{price}}/mois",
+  "upgradeYearly": "S'abonner pour {{price}}/an",
   "yearlySavings": "La facturation annuelle te fait économiser {{percent}} %.",
   "manage": "Gérer la facturation",
   "cancelAtPeriodEnd": "Ton abonnement se termine le {{date}}.",
   "billedMonthly": "Facturation mensuelle.",
   "billedYearly": "Facturation annuelle.",
-  "checkoutSuccess": "Tu es maintenant sur le plan Entreprise !",
+  "checkoutSuccess": "Merci pour ton abonnement ! Ton nouveau plan est actif.",
   "checkoutError": "Échec du démarrage du paiement. Réessaie.",
   "portalError": "Échec de l'ouverture du portail de facturation. Réessaie.",
   "supportPrompt": {
@@ -34,5 +34,7 @@
     "dontAskAgain": "Ne plus demander",
     "githubStars_one": "{{count}} étoile sur GitHub",
     "githubStars_other": "{{count}} étoiles sur GitHub"
-  }
+  },
+  "upgradeTo": "Passer à {{plan}}",
+  "changePlanInPortal": "Change d'offre ou de période de facturation depuis le portail de facturation."
 }

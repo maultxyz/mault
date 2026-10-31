@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -11,8 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { billingQueryOptions } from "@/features/billing/api/billing";
 import { checkCollectionName } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useOrg } from "@/features/companies/api/use-organization";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import {
   gameLanguagesQueryOptions,
   gamesQueryOptions,
@@ -24,6 +28,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import type { CreateCollectionDialogProps } from "@/lib/interfaces/collections";
 import {
   createCollectionFormSchema,
@@ -37,6 +42,12 @@ export function CreateCollectionDialog({
 }: CreateCollectionDialogProps) {
   const { t } = useTranslation("collections");
   const { isMutating, createCollection } = useCollections();
+  const { activeOrg } = useOrg();
+  const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
+  const collectionLimit = billing?.maxCollections ?? null;
+  const atCollectionLimit =
+    collectionLimit != null &&
+    (billing?.collectionCount ?? 0) >= collectionLimit;
   const { data: games = [] } = useQuery(gamesQueryOptions);
   const activeGames = games.filter((g) => g.isActive);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -118,7 +129,8 @@ export function CreateCollectionDialog({
 
   const handleCreate = useCallback(
     async (values: CreateCollectionFormValues) => {
-      await createCollection(values);
+      const created = await createCollection(values);
+      if (!created) return;
       form.reset();
       setOpen(false);
     },
@@ -143,7 +155,9 @@ export function CreateCollectionDialog({
           <Button
             type="submit"
             form="create-collection-form"
-            disabled={!form.formState.isValid || isMutating}
+            disabled={
+              !form.formState.isValid || isMutating || atCollectionLimit
+            }
           >
             {isMutating && <IconLoader2 className="size-4 animate-spin" />}
             {t("createDialog.create")}
@@ -157,6 +171,18 @@ export function CreateCollectionDialog({
         onSubmit={form.handleSubmit(handleCreate)}
         className="flex flex-col gap-4"
       >
+        {atCollectionLimit && (
+          <Callout variant="warning">
+            {t("createDialog.limitReached", { count: collectionLimit ?? 0 })}{" "}
+            <Link
+              to={SETTINGS_PATHS.billing}
+              onClick={() => handleOpenChange(false)}
+              className="font-medium underline-offset-4 hover:underline"
+            >
+              {t("createDialog.upgrade")}
+            </Link>
+          </Callout>
+        )}
         <Controller
           name="gameGuid"
           control={form.control}

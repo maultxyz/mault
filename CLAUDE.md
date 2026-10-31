@@ -102,7 +102,8 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Stats that must survive deletes read `scan_stats`/`org_daily_scan_usage`. Scan images are read through `resolveScanImageUrl`.
 - Control cards: `shared`'s `scanner-control-code.ts` owns the versioned `mault-control:` QR payload (unknown keys reject the card, so bump the version for new fields). Web checks for a QR before identifying; mobile only after a no-match (jsQR is slow on Hermes). A control card is never saved: it routes like an unmatched card, and a bad card pauses.
 - Any correct, confirm or review accept sets `is_reviewed` and clears `low_confidence_match`; `is_corrected` stays separate.
-- Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only.
+- Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only. Exceptions: `membersPerOrg` is enforced on every request (`requireOrg` and SSE return 402 `member_seat_limit`, never 403; owners first, then join order) and `organizations` is a client-side gate on the active org's plan (Neon creates orgs client-side). The `businessTools` feature is "Buy and sell" in copy.
+- Paid tiers (`PAID_PLAN_KEYS`) map to Stripe prices through `PLAN_PRICE_ID_ENV`; the webhook derives the plan from the price ID, and tier switches go through the portal (checkout refuses an org that already has a subscription).
 - In-process server state (locks, leases, sorter links, rate limits) is per process.
 - Single-card changes emit `collections_changed` through the throttled `emitCollectionCardsChanged`; web card queries refresh through the throttled `invalidateCollectionCards`.
 - Every connected sorter is a station (a tab) plus one idle standby. Background stations stay laid out (never `display: none`) so their scanners keep sorting.

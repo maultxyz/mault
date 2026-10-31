@@ -1,7 +1,7 @@
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { getPlanConfig } from "../../lib/plan-config";
-import { getBusinessPrices, isBillingEnabled } from "../../lib/stripe";
+import { getPaidPlanPrices, isBillingEnabled } from "../../lib/stripe";
 import type { AppEnv } from "../../middleware/auth";
 
 function planDetails() {
@@ -9,21 +9,14 @@ function planDetails() {
 }
 
 export const pricingRoute = new Hono<AppEnv>().get("/pricing", async (c) => {
-  try {
-    const prices = isBillingEnabled() ? await getBusinessPrices() : null;
-    return c.json({
-      success: true,
-      data: {
-        business: prices?.month ?? null,
-        businessYearly: prices?.year ?? null,
-        ...planDetails(),
-      },
-    });
-  } catch (err) {
-    console.error(err);
-    return c.json({
-      success: true,
-      data: { business: null, ...planDetails() },
-    });
-  }
+  const planPrices = isBillingEnabled() ? await getPaidPlanPrices() : null;
+  return c.json({
+    success: true,
+    data: {
+      business: planPrices?.business.month ?? null,
+      businessYearly: planPrices?.business.year ?? null,
+      planPrices,
+      ...planDetails(),
+    },
+  });
 });

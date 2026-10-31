@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import { useOrg } from "../api/use-organization";
+import { useOrganizationLimit } from "../api/use-organization-limit";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import {
   organizationNameFormSchema,
@@ -48,6 +50,8 @@ export function OrgSwitcher() {
   const { isImpersonating } = useImpersonation();
   const navigate = useNavigate();
   const [createOpen, setCreateOpen] = useState(false);
+  const { organizationLimit, atOrganizationLimit, activeOrgName } =
+    useOrganizationLimit();
 
   const form = useForm<OrganizationNameFormValues>({
     resolver: zodResolver(organizationNameFormSchema),
@@ -55,6 +59,7 @@ export function OrgSwitcher() {
   });
 
   async function handleCreate({ name }: OrganizationNameFormValues) {
+    if (atOrganizationLimit) return;
     const result = await createOrganization(name.trim());
     if ("error" in result) {
       toast.error(result.error || t("failedToCreateOrganization"));
@@ -146,7 +151,7 @@ export function OrgSwitcher() {
             <Button
               type="submit"
               form="create-org-form"
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || atOrganizationLimit}
             >
               {form.formState.isSubmitting
                 ? t("creatingOrganization")
@@ -156,7 +161,33 @@ export function OrgSwitcher() {
         }
         footerClassName="flex-col-reverse md:flex-row"
       >
-        <form id="create-org-form" onSubmit={form.handleSubmit(handleCreate)}>
+        <form
+          id="create-org-form"
+          onSubmit={form.handleSubmit(handleCreate)}
+          className="flex flex-col gap-3"
+        >
+          {atOrganizationLimit && (
+            <Callout
+              variant="warning"
+              action={
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setCreateOpen(false);
+                    navigate(SETTINGS_PATHS.billing);
+                  }}
+                >
+                  {t("orgSwitcher.organizationLimitUpgrade")}
+                </Button>
+              }
+            >
+              {t("orgSwitcher.organizationLimitReached", {
+                count: organizationLimit ?? 0,
+                name: activeOrgName,
+              })}
+            </Callout>
+          )}
           <Input
             placeholder={t("organizationNamePlaceholder")}
             {...form.register("name")}

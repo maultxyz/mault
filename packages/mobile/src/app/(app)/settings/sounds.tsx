@@ -62,6 +62,7 @@ export default function SoundsSettingsScreen() {
   const rules = useMemo(() => rulesQuery.data ?? [], [rulesQuery.data]);
   const ruleLimit = billing?.maxSoundRules ?? null;
   const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
+  const isUploadLocked = billing?.customSounds === false;
   const [message, setMessage] = useState<{ tone: "success" | "destructive"; text: string } | null>(null);
   const [saveError, setSaveError] = useState(false);
   const [clipActions, setClipActions] = useState<SoundClip | null>(null);
@@ -291,8 +292,12 @@ export default function SoundsSettingsScreen() {
         icon="upload"
         label={upload.isPending ? t("settings.sounds.library.uploading") : t("settings.sounds.library.upload")}
         loading={upload.isPending}
+        disabled={isUploadLocked}
         onPress={() => void pickClip()}
       />
+      {isUploadLocked ? (
+        <Callout tone="info" title={t("settings.sounds.library.notInPlan")} />
+      ) : null}
 
       {gameGuid ? (
         <>

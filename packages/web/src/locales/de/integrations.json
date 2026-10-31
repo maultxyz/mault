@@ -66,8 +66,8 @@
     "edit": "{{name}} bearbeiten",
     "delete": "{{name}} löschen",
     "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden.",
-    "limitReached_one": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregel. Upgrade auf Business für unbegrenzte Regeln.",
-    "limitReached_other": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade auf Business für unbegrenzte Regeln.",
+    "limitReached_one": "Dein Tarif enthält {{count}} Discord-Benachrichtigungsregel. Upgrade deinen Tarif für mehr Regeln.",
+    "limitReached_other": "Dein Tarif enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade deinen Tarif für mehr Regeln.",
     "upgrade": "Upgrade",
     "andPings": "und pingt"
   },
@@ -120,7 +120,7 @@
     "copyFailed": "Der API-Schlüssel konnte nicht kopiert werden.",
     "managersOnly": "Nur Inhaber und Admins der Organisation können API-Schlüssel erstellen oder widerrufen.",
     "loadFailed": "API-Schlüssel konnten nicht geladen werden.",
-    "upgrade": "API-Schlüssel sind Teil des Business-Plans.",
+    "upgrade": "API-Schlüssel sind nicht Teil deines Tarifs.",
     "upgradeLink": "Upgraden",
     "copy": "Schlüssel kopieren",
     "reference": "API-Referenz",
@@ -180,7 +180,7 @@
     "copySecret": "Geheimnis kopieren",
     "secretCopied": "Signaturgeheimnis kopiert.",
     "copyFailed": "Das Geheimnis konnte nicht kopiert werden.",
-    "upgrade": "Webhooks sind Teil des Business-Plans.",
+    "upgrade": "Webhooks sind nicht Teil deines Tarifs.",
     "loadFailed": "Webhooks konnten nicht geladen werden."
   }
 }

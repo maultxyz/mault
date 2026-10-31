@@ -245,7 +245,8 @@
   "plans": {
     "planNames": {
       "free": "Free",
-      "business": "Business"
+      "business": "Business",
+      "enthusiast": "Enthusiast"
     },
     "featuresHeading": "Fonctionnalités",
     "featuresDescription": "Quelles offres peuvent utiliser chaque fonctionnalité. Les fonctionnalités sont définies dans le code, une nouvelle apparaît ici une fois développée.",
@@ -274,8 +275,16 @@
         "description": "Créer des clés API d'organisation et lire les cartes et les emplacements via l'API publique. Révoquer une clé existante reste toujours possible."
       },
       "businessTools": {
-        "label": "Outils Business",
+        "label": "Achat et vente",
         "description": "Rachats avec offres de rachat, import et expédition des commandes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
+      },
+      "repacks": {
+        "label": "Repacks",
+        "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux déjà en mode repack continuent de fonctionner."
+      },
+      "customSounds": {
+        "label": "Sons personnalisés",
+        "description": "Importer des clips sonores personnalisés pour les règles sonores. Le désactiver bloque seulement les nouveaux imports. Les clips déjà importés continuent d'être joués."
       }
     },
     "limits": {
@@ -294,6 +303,18 @@
       "notificationRules": {
         "label": "Règles de notification",
         "description": "Règles de notification Discord tous jeux confondus. Vérifié uniquement à l'ajout d'une règle."
+      },
+      "organizations": {
+        "label": "Organisations possédées",
+        "description": "Organisations qu'un utilisateur peut posséder. L'application vérifie à la création d'une organisation, d'après l'offre de l'organisation ouverte."
+      },
+      "membersPerOrg": {
+        "label": "Membres par organisation",
+        "description": "Membres par organisation, comptés propriétaires d'abord, puis par date d'arrivée. Les membres au-delà de la limite sont bloqués jusqu'à ce que l'offre soit améliorée ou que des membres soient retirés."
+      },
+      "collections": {
+        "label": "Collections",
+        "description": "Collections par organisation. Vérifié uniquement à la création d'une collection."
       }
     }
   },

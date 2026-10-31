@@ -1,10 +1,17 @@
+import { MEMBER_SEAT_LIMIT_ERROR_CODE, MEMBER_SEAT_LIMIT_HTTP_STATUS, type MemberSeatLimitErrorBody } from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
+import { lockOrgForMemberSeatLimit } from "@/lib/api/member-seat-lock";
+import { UpgradeRequiredError } from "@/lib/api/upgrade-required-error";
 import { getAccessToken, getActiveOrgId, signOut } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
 import type { ApiRequestOptions, RequestAuth } from "@/lib/interfaces/api";
 
 export async function getRequestAuth(): Promise<RequestAuth> {
   return { token: await getAccessToken(), orgId: getActiveOrgId() };
+}
+
+export function resolveRequestOrgId(orgId?: string | null): string | null {
+  return orgId === undefined ? getActiveOrgId() : orgId;
 }
 
 export async function getAuthHeaders(orgId?: string | null): Promise<Record<string, string>> {
@@ -22,6 +29,16 @@ export function handleForbidden(res: Response): void {
   throw new ApiStatusError(403);
 }
 
+export async function trackMemberSeatLimit(res: Response, orgId: string | null): Promise<void> {
+  if (!orgId || res.status !== MEMBER_SEAT_LIMIT_HTTP_STATUS) return;
+  const body = (await res
+    .clone()
+    .json()
+    .catch(() => null)) as Partial<MemberSeatLimitErrorBody> | null;
+  if (body?.code !== MEMBER_SEAT_LIMIT_ERROR_CODE) return;
+  lockOrgForMemberSeatLimit({ orgId, limit: body.limit ?? 0 });
+}
+
 export async function apiRequest<T>(
   path: string,
   { method = "GET", body, form, orgId, acceptStatuses = [] }: ApiRequestOptions = {},
@@ -34,6 +51,7 @@ export async function apiRequest<T>(
     body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
   });
   handleForbidden(res);
+  await trackMemberSeatLimit(res, resolveRequestOrgId(orgId));
   if (!res.ok && !acceptStatuses.includes(res.status)) {
     throw new ApiStatusError(res.status);
   }
@@ -61,9 +79,12 @@ export function apiPostForm<T>(path: string, form: FormData): Promise<T> {
 }
 
 export async function unwrap<T>(
-  request: Promise<{ success: boolean; data?: T; message?: string }>,
+  request: Promise<{ success: boolean; data?: T; message?: string; upgradeRequired?: boolean }>,
 ): Promise<T> {
   const result = await request;
+  if (!result.success && result.upgradeRequired) {
+    throw new UpgradeRequiredError(result.message ?? "Upgrade required.");
+  }
   if (!result.success || result.data === undefined) {
     throw new Error(result.message ?? "Request failed.");
   }

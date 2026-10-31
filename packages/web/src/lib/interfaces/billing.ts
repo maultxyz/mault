@@ -1,22 +1,9 @@
-import type { BillingInterval, BusinessPrices } from "@magic-vault/shared";
-
-export interface BillingStatus {
-  plan: "free" | "business";
-  status: string | null;
-  cancelAtPeriodEnd: boolean;
-  currentPeriodEnd: string | null;
-  interval?: BillingInterval | null;
-  prices?: BusinessPrices;
-  cardsScannedToday: number;
-  dailyLimit: number | null;
-  maxConnectedSorters?: number | null;
-  maxSoundRules?: number | null;
-  maxNotificationRules?: number | null;
-  chaosSort?: boolean;
-  storage?: boolean;
-  apiAccess?: boolean;
-  businessTools?: boolean;
-}
+import type {
+  BillingInterval,
+  BillingStatus,
+  PaidPlanKey,
+  PlanIntervalPrices,
+} from "@magic-vault/shared";
 
 export interface SupportPromptState {
   scans: number;
@@ -37,4 +24,25 @@ export interface PlanFeaturesProps {
 
 export interface GithubRepoResponse {
   stargazers_count: number;
+}
+
+export interface CheckoutRequest {
+  plan: PaidPlanKey;
+  interval: BillingInterval;
+}
+
+export interface PlanUpgradeOptionProps {
+  plan: PaidPlanKey;
+  prices: PlanIntervalPrices;
+  isStartingCheckout: boolean;
+  onCheckout: (request: CheckoutRequest) => void;
+}
+
+export interface MemberSeatLock {
+  orgId: string;
+  limit: number;
+}
+
+export interface PlanLockHintProps {
+  message: string;
 }

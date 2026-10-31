@@ -199,7 +199,8 @@
     "siftLabel": "Sift cards out",
     "siftDescription": "Cards that match the rules below go to the first bin instead of a pack, so you can pull out cards you want to keep (by value, rarity, set or anything else) while every other bin builds packs from the rest.",
     "siftHint": "Cards matching these rules go to bin {{bin}}. Every other bin builds packs from the rest.",
-    "siftNoBin": "Sifting needs at least one enabled bin besides the catch-all."
+    "siftNoBin": "Sifting needs at least one enabled bin besides the catch-all.",
+    "notInPlan": "Building repacks is not part of your plan."
   },
   "skipSavingPanel": {
     "heading": "Don't save cards",
@@ -207,13 +208,11 @@
   },
   "chaosPanel": {
     "heading": "Chaos sort",
-    "businessBadge": "Business",
-    "businessOnly": "Chaos sort is part of the Business plan.",
-    "upgrade": "Upgrade",
     "description": "Ignores the rules and fills the bins one after another, moving on when a bin is full. When you empty a bin, pick the storage location you put it in, and every card is recorded there in order.",
     "binSizeLabel": "Cards per bin",
     "binSizePlaceholder": "Fill to bin size",
-    "binSizeDescription": "Moves to the next bin after this many cards. Leave empty to fill each bin to its calibrated size."
+    "binSizeDescription": "Moves to the next bin after this many cards. Leave empty to fill each bin to its calibrated size.",
+    "notInPlan": "Chaos sort is not part of your plan."
   },
   "alphabetPanel": {
     "heading": "Sort alphabetically",
@@ -315,5 +314,8 @@
   "mobileBins": {
     "rulesMode": "Rules",
     "binsTitle": "Bins"
+  },
+  "planLock": {
+    "badge": "Upgrade"
   }
 }

@@ -8,6 +8,10 @@ import { Hono } from "hono";
 import { randomUUID } from "node:crypto";
 import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
+import {
+  CUSTOM_SOUNDS_UPGRADE_MESSAGE,
+  isCustomSoundsAllowed,
+} from "../../lib/custom-sounds-access";
 import { deleteObjects } from "../../lib/object-storage";
 import { storeSoundClip } from "../../lib/sound-clips";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -40,6 +44,17 @@ export const uploadSoundClipRoute = new Hono<AppEnv>().post(
     );
     if (!name.success) {
       return c.json({ success: false, message: "Give the clip a name." });
+    }
+
+    const allowed = await authQuery(c.get("jwtClaims"), (tx) =>
+      isCustomSoundsAllowed(tx, orgId),
+    );
+    if (!allowed) {
+      return c.json({
+        success: false,
+        message: CUSTOM_SOUNDS_UPGRADE_MESSAGE,
+        upgradeRequired: true,
+      });
     }
 
     try {

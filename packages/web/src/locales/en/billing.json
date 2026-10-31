@@ -3,17 +3,17 @@
     "free": "Free",
     "business": "Business",
     "label": "Plan",
-    "scansToday": "{{used}}/{{limit}} today"
+    "scansToday": "{{used}}/{{limit}} today",
+    "enthusiast": "Enthusiast"
   },
   "planFooterTooltip": {
     "free": "Free plan · {{used}} of {{limit}} cards scanned today. Click to upgrade.",
-    "business": "Business plan. Click to manage billing.",
     "freeUnlimited": "Free plan. Click to see your plan.",
-    "businessLimited": "Business plan · {{used}} of {{limit}} cards scanned today. Click to manage billing."
+    "paid": "{{plan}} plan. Click to manage billing.",
+    "paidLimited": "{{plan}} plan · {{used}} of {{limit}} cards scanned today. Click to manage billing."
   },
   "includes": "Your plan includes",
   "usage": "{{used}} / {{limit}} cards scanned today",
-  "upgrade": "Upgrade to Business",
   "upgradeMonthly": "Upgrade for {{price}}/month",
   "upgradeYearly": "Upgrade for {{price}}/year",
   "yearlySavings": "Yearly billing saves {{percent}}%.",
@@ -21,7 +21,7 @@
   "cancelAtPeriodEnd": "Your subscription ends on {{date}}.",
   "billedMonthly": "Billed monthly.",
   "billedYearly": "Billed yearly.",
-  "checkoutSuccess": "You're now on the Business plan!",
+  "checkoutSuccess": "Thanks for subscribing! Your new plan is active.",
   "checkoutError": "Failed to start checkout. Please try again.",
   "portalError": "Failed to open billing portal. Please try again.",
   "supportPrompt": {
@@ -34,5 +34,7 @@
     "dontAskAgain": "Don't ask again",
     "githubStars_one": "{{count}} star on GitHub",
     "githubStars_other": "{{count}} stars on GitHub"
-  }
+  },
+  "upgradeTo": "Upgrade to {{plan}}",
+  "changePlanInPortal": "Switch plans or change your billing period in the billing portal."
 }

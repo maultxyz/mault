@@ -10,6 +10,7 @@ import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
 import { billingQueryOptions } from "@/features/org/api/billing";
+import { planFeatureLines } from "@/features/org/lib/plan-features";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
@@ -19,27 +20,8 @@ export default function BillingSettingsScreen() {
   const colors = useTheme();
   const org = useActiveOrg();
   const { data: billing, isPending, refetch, isRefetching } = useQuery(billingQueryOptions(org?.id ?? null));
-  const isBusiness = billing?.plan === "business";
-  const f = (key: string, options?: Record<string, unknown>) => t(`settings.billing.features.${key}`, options);
-  const features = billing
-    ? [
-        billing.dailyLimit == null ? f("unlimitedScans") : f("scanLimit", { limit: billing.dailyLimit }),
-        billing.maxConnectedSorters != null
-          ? f(isBusiness ? "businessSorters" : "freeSorters", { count: billing.maxConnectedSorters })
-          : null,
-        billing.maxSoundRules == null ? f("soundRules") : f("freeSoundRules", { count: billing.maxSoundRules }),
-        billing.maxNotificationRules == null
-          ? f("notificationRules")
-          : f("freeNotificationRules", { count: billing.maxNotificationRules }),
-        billing.chaosSort ? f("chaosSort") : null,
-        billing.storage ? f("storage") : null,
-        billing.apiAccess ? f("apiAccess") : null,
-        billing.businessTools ? f("businessTools") : null,
-        f("collections"),
-        f("games"),
-        f("notifications"),
-      ].filter((feature): feature is string => !!feature)
-    : [];
+  const isPaidPlan = !!billing && billing.plan !== "free";
+  const features = billing ? planFeatureLines(t, billing) : [];
   const usagePercent =
     billing?.dailyLimit != null ? Math.min(100, Math.round((billing.cardsScannedToday / billing.dailyLimit) * 100)) : 0;
 
@@ -53,8 +35,8 @@ export default function BillingSettingsScreen() {
         <Skeleton height={240} />
       ) : (
         <Surface style={{ gap: SPACING.lg }}>
-          <Pill tone={isBusiness ? "success" : "neutral"} label={t(`settings.billing.plan.${billing.plan}`)} />
-          {!isBusiness && billing.dailyLimit != null ? (
+          <Pill tone={isPaidPlan ? "success" : "neutral"} label={t(`settings.billing.plan.${billing.plan}`)} />
+          {billing.dailyLimit != null ? (
             <View style={{ gap: SPACING.xs }}>
               <AppText size="xs" tone="secondary">
                 {t("settings.billing.usage", { used: billing.cardsScannedToday, limit: billing.dailyLimit })}
@@ -64,7 +46,7 @@ export default function BillingSettingsScreen() {
               </View>
             </View>
           ) : null}
-          {isBusiness && billing.cancelAtPeriodEnd && billing.currentPeriodEnd ? (
+          {isPaidPlan && billing.cancelAtPeriodEnd && billing.currentPeriodEnd ? (
             <AppText size="xs" tone="secondary">
               {t("settings.billing.cancelAtPeriodEnd", {
                 date: new Date(billing.currentPeriodEnd).toLocaleDateString(i18n.language),

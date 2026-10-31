@@ -256,7 +256,8 @@
   "plans": {
     "planNames": {
       "free": "Free",
-      "business": "Business"
+      "business": "Business",
+      "enthusiast": "Enthusiast"
     },
     "featuresHeading": "Features",
     "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",
@@ -285,8 +286,16 @@
         "description": "Create organization API keys and read cards and storage locations through the public API. Revoking existing keys always works."
       },
       "businessTools": {
-        "label": "Business tools",
+        "label": "Buy and sell",
         "description": "Intake lots with buylist offers, order import and fulfilment, cost and margin reports, and spot checks. Existing records stay viewable either way."
+      },
+      "repacks": {
+        "label": "Repacks",
+        "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already in repack mode keep working."
+      },
+      "customSounds": {
+        "label": "Custom sounds",
+        "description": "Upload custom sound clips for sound rules. Turning it off only stops new uploads. Clips already uploaded keep playing."
       }
     },
     "limits": {
@@ -305,6 +314,18 @@
       "notificationRules": {
         "label": "Notification rules",
         "description": "Discord notification rules across all games. Only checked when adding a rule."
+      },
+      "organizations": {
+        "label": "Owned organizations",
+        "description": "Organizations a user may own. Checked in the app against the plan of the organization the user has open when creating a new one."
+      },
+      "membersPerOrg": {
+        "label": "Members per organization",
+        "description": "Members per organization, counted owners first, then by join date. Members past the limit are locked out until the plan is upgraded or members are removed."
+      },
+      "collections": {
+        "label": "Collections",
+        "description": "Collections per organization. Only checked when creating a collection."
       }
     }
   },

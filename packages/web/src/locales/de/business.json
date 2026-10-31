@@ -9,7 +9,7 @@
     "generic": "Etwas ist schiefgelaufen. Versuch es noch einmal."
   },
   "upgrade": {
-    "locked": "Ankauf, Picks, Einkaufspreise und Stichproben gehören zum Business-Tarif. Was du schon hast, kannst du weiterhin ansehen.",
+    "locked": "Kaufen und Verkaufen (Ankauf, Picks, Einkaufspreise und Stichproben) ist nicht Teil deines Tarifs. Was du schon hast, kannst du weiterhin ansehen.",
     "link": "Tarife ansehen"
   },
   "status": {

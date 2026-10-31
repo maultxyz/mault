@@ -22,7 +22,8 @@
     "saveName": "Save name",
     "cancelRename": "Cancel",
     "renameFailed": "Couldn't rename the sound clip.",
-    "stop": "Stop {{name}}"
+    "stop": "Stop {{name}}",
+    "notInPlan": "Uploading custom sounds isn't part of your plan."
   },
   "rules": {
     "heading": "Sound rules",
@@ -39,8 +40,8 @@
     "delete": "Delete {{name}}",
     "saved": "Sound rules saved.",
     "saveFailed": "Couldn't save the sound rules.",
-    "limitReached_one": "The free plan includes {{count}} sound rule. Upgrade to Business for unlimited sound rules.",
-    "limitReached_other": "The free plan includes {{count}} sound rules. Upgrade to Business for unlimited sound rules.",
+    "limitReached_one": "Your plan includes {{count}} sound rule. Upgrade your plan for more sound rules.",
+    "limitReached_other": "Your plan includes {{count}} sound rules. Upgrade your plan for more sound rules.",
     "upgrade": "Upgrade"
   },
   "ruleDialog": {

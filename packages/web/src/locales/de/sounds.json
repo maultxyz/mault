@@ -22,7 +22,8 @@
     "saveName": "Namen speichern",
     "cancelRename": "Abbrechen",
     "renameFailed": "Der Soundclip konnte nicht umbenannt werden.",
-    "stop": "{{name}} stoppen"
+    "stop": "{{name}} stoppen",
+    "notInPlan": "Das Hochladen eigener Sounds ist nicht Teil deines Tarifs."
   },
   "rules": {
     "heading": "Soundregeln",
@@ -39,8 +40,8 @@
     "delete": "{{name}} löschen",
     "saved": "Soundregeln gespeichert.",
     "saveFailed": "Die Soundregeln konnten nicht gespeichert werden.",
-    "limitReached_one": "Der kostenlose Plan enthält {{count}} Soundregel. Wechsle zu Business für unbegrenzte Soundregeln.",
-    "limitReached_other": "Der kostenlose Plan enthält {{count}} Soundregeln. Wechsle zu Business für unbegrenzte Soundregeln.",
+    "limitReached_one": "Dein Tarif enthält {{count}} Soundregel. Upgrade deinen Tarif für mehr Soundregeln.",
+    "limitReached_other": "Dein Tarif enthält {{count}} Soundregeln. Upgrade deinen Tarif für mehr Soundregeln.",
     "upgrade": "Upgraden"
   },
   "ruleDialog": {

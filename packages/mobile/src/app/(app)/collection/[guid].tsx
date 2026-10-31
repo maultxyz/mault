@@ -108,6 +108,7 @@ export default function CollectionScreen() {
     onSuccess: (next) => {
       queryClient.setQueryData(collectionsOptions.queryKey, next);
       void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
+      void queryClient.invalidateQueries({ queryKey: ["billing"] });
       router.back();
     },
   });

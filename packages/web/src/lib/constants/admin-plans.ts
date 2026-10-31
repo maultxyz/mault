@@ -1,4 +1,4 @@
 export const PLAN_GRID_CLASS =
-  "grid grid-cols-[minmax(0,1fr)_repeat(2,7rem)] gap-3 sm:grid-cols-[minmax(0,1fr)_repeat(2,9rem)]";
+  "grid grid-cols-[minmax(0,1fr)_repeat(3,5.5rem)] gap-2 sm:grid-cols-[minmax(0,1fr)_repeat(3,8rem)] sm:gap-3";
 
 export const PLAN_LIMIT_FALLBACK = 1;

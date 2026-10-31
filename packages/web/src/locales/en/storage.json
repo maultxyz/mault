@@ -93,10 +93,10 @@
     "limited": "Showing the first {{count}} cards. Search for more of the name to narrow it down."
   },
   "upgrade": {
-    "businessOnly": "Storage locations are part of the Business plan.",
+    "businessOnly": "Storage locations are not part of your plan.",
     "link": "Upgrade",
     "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
-    "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs Business."
+    "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs a plan that includes storage."
   },
   "review": {
     "start": "Review cards",

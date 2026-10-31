@@ -16,7 +16,7 @@ export const WEBHOOK_LAST_ERROR_MAX_LENGTH = 300;
 export const WEBHOOK_USER_AGENT = "Mault-Webhooks/1";
 export const WEBHOOK_AUTO_DISABLED_REASON = `Disabled after ${WEBHOOK_MAX_CONSECUTIVE_FAILURES} failed deliveries in a row.`;
 export const WEBHOOK_UPGRADE_MESSAGE =
-  "Webhooks are part of the Business plan. Upgrade to Business to add them.";
+  "Webhooks are not part of your plan. Upgrade your plan to add them.";
 
 export const WEBHOOK_BLOCKED_IPV4_SUBNETS: [string, number][] = [
   ["0.0.0.0", 8],

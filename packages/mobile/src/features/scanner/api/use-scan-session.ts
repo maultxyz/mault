@@ -724,7 +724,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     if (!ctx.collection) return;
     const device = ctx.sorter.device;
     const atLimit =
-      ctx.billing?.plan === "free" &&
+      !!ctx.billing &&
       ctx.billing.dailyLimit != null &&
       ctx.billing.cardsScannedToday >= ctx.billing.dailyLimit;
     if (atLimit) {

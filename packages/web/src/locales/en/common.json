@@ -317,5 +317,16 @@
     "verificationCodeLength": "Enter the {{length}}-digit code.",
     "verificationCodeNumeric": "The code can only contain numbers.",
     "controlCardActionRequired": "Pick at least one thing for the card to change."
+  },
+  "memberSeatLock": {
+    "title": "This organization is over its member limit",
+    "description_one": "The plan of {{name}} includes {{count}} member, and your seat is past that limit. Ask an owner to upgrade the plan or remove members.",
+    "description_other": "The plan of {{name}} includes {{count}} members, and your seat is past that limit. Ask an owner to upgrade the plan or remove members.",
+    "switchOrganization": "Switch to another organization",
+    "tryAgain": "Try again",
+    "signOut": "Sign out"
+  },
+  "planLock": {
+    "link": "See plans"
   }
 }

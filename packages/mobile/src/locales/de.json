@@ -73,6 +73,8 @@
     "experimental": "Experimentell",
     "create": "Erstellen",
     "createFailed": "Die Sammlung konnte nicht erstellt werden",
+    "limitReached_one": "Dein Plan enthält {{count}} Sammlung. Führe im Web ein Upgrade deines Plans durch, um mehr zu erstellen.",
+    "limitReached_other": "Dein Plan enthält {{count}} Sammlungen. Führe im Web ein Upgrade deines Plans durch, um mehr zu erstellen.",
     "rename": "Umbenennen",
     "renameTitle": "Sammlung umbenennen",
     "renameDescription": "Benenne diese Sammlung um.",
@@ -901,7 +903,7 @@
     "mode": {
       "title": "Sortiermodus",
       "saveFailed": "Der Sortiermodus konnte nicht gespeichert werden",
-      "chaosLocked": "Teil des Business-Plans. Führe im Web ein Upgrade durch, um ihn zu nutzen.",
+      "featureLocked": "Nicht in deinem Plan enthalten. Führe im Web ein Upgrade deines Plans durch, um es zu nutzen.",
       "matchedBin": "Gescannte Karten",
       "matchedBinDescription": "Karten, die erkannt wurden",
       "unmatchedBin": "Nicht erkannte Karten",
@@ -1213,9 +1215,9 @@
     "location": "Lager",
     "removeFromLocation": "Aus Lagerort entfernen",
     "noCardsTitle": "Dieser Lagerort ist leer",
-    "businessOnly": "Lagerorte sind Teil des Business-Tarifs.",
+    "businessOnly": "Lagerorte sind nicht in deinem Plan enthalten.",
     "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
-    "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht Business.",
+    "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht einen Plan mit Lagerorten.",
     "actionFailed": "Lager konnte nicht aktualisiert werden",
     "actions": "Lagerort-Aktionen",
     "review": {
@@ -1370,11 +1372,21 @@
       "failed": "Die Organisation konnte nicht aktualisiert werden",
       "cancel": "Abbrechen",
       "membersUnavailable": "Mitglieder werden über die Admin-Werkzeuge deines selbst gehosteten Servers verwaltet.",
-      "noInvites": "Keine offenen Einladungen"
+      "noInvites": "Keine offenen Einladungen",
+      "memberLimitReached_one": "Dein Plan enthält {{count}} Mitglied pro Organisation. Führe im Web ein Upgrade deines Plans durch, um mehr einzuladen.",
+      "memberLimitReached_other": "Dein Plan enthält {{count}} Mitglieder pro Organisation. Führe im Web ein Upgrade deines Plans durch, um mehr einzuladen.",
+      "seatLocked": {
+        "title": "Du kannst {{name}} gerade nicht nutzen",
+        "description_one": "Der Plan dieser Organisation erlaubt {{count}} Mitglied. Bitte den Inhaber, ein Upgrade durchzuführen oder Mitglieder zu entfernen.",
+        "description_other": "Der Plan dieser Organisation erlaubt {{count}} Mitglieder. Bitte den Inhaber, ein Upgrade durchzuführen oder Mitglieder zu entfernen.",
+        "tryAgain": "Erneut versuchen",
+        "switchHeading": "Organisation wechseln"
+      }
     },
     "billing": {
       "plan": {
         "free": "Free",
+        "enthusiast": "Enthusiast",
         "business": "Business"
       },
       "includes": "Dein Plan enthält",
@@ -1385,23 +1397,32 @@
       "features": {
         "scanLimit": "Bis zu {{limit}} Kartenscans pro Tag",
         "unlimitedScans": "Unbegrenzte Kartenscans",
-        "freeSorters_one": "{{count}} verbundener Sortierer gleichzeitig",
-        "freeSorters_other": "{{count}} verbundene Sortierer gleichzeitig",
-        "businessSorters_one": "Bis zu {{count}} Sortierer gleichzeitig",
-        "businessSorters_other": "Bis zu {{count}} Sortierer gleichzeitig",
-        "freeSoundRules_one": "{{count}} eigene Soundregel",
-        "freeSoundRules_other": "{{count}} eigene Soundregeln",
-        "soundRules": "Unbegrenzte Soundregeln mit deinen eigenen hochgeladenen Clips",
-        "freeNotificationRules_one": "{{count}} Discord-Benachrichtigungsregel",
-        "freeNotificationRules_other": "{{count}} Discord-Benachrichtigungsregeln",
-        "notificationRules": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten",
+        "organizations_one": "Bis zu {{count}} eigene Organisation",
+        "organizations_other": "Bis zu {{count}} eigene Organisationen",
+        "unlimitedOrganizations": "Unbegrenzte Organisationen",
+        "members_one": "Bis zu {{count}} Mitglied pro Organisation",
+        "members_other": "Bis zu {{count}} Mitglieder pro Organisation",
+        "unlimitedMembers": "Unbegrenzte Mitglieder pro Organisation",
+        "collections_one": "Bis zu {{count}} Sammlung",
+        "collections_other": "Bis zu {{count}} Sammlungen",
+        "unlimitedCollections": "Unbegrenzte Sammlungen",
+        "sorters_one": "Bis zu {{count}} verbundener Sortierer gleichzeitig",
+        "sorters_other": "Bis zu {{count}} verbundene Sortierer gleichzeitig",
+        "unlimitedSorters": "Unbegrenzt viele verbundene Sortierer",
+        "soundRules_one": "{{count}} eigene Soundregel",
+        "soundRules_other": "{{count}} eigene Soundregeln",
+        "unlimitedSoundRules": "Unbegrenzte Soundregeln",
+        "notificationRules_one": "{{count}} Discord-Benachrichtigungsregel",
+        "notificationRules_other": "{{count}} Discord-Benachrichtigungsregeln",
+        "unlimitedNotificationRules": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten",
         "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
+        "repacks": "Repacks: stelle Packs Platz für Platz aus deinen Karten zusammen",
+        "customSounds": "Eigene Sounds: lade deine eigenen Clips für Soundregeln hoch",
         "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
         "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
-        "collections": "Unbegrenzte Sammlungen",
+        "businessTools": "An- und Verkauf: Ankaufsangebote, Picklisten und Margenberichte",
         "games": "Jedes unterstützte Sammelkartenspiel",
-        "notifications": "Discord-Scan-Benachrichtigungen",
-        "businessTools": "Werkzeuge für Läden: Ankaufsangebote, Picklisten und Margenberichte"
+        "notifications": "Discord-Scan-Benachrichtigungen"
       }
     },
     "apiKeys": {
@@ -1430,7 +1451,7 @@
       "revealDone": "Ich habe ihn kopiert",
       "managersOnly": "Nur Inhaber und Admins der Organisation können API-Schlüssel erstellen oder widerrufen.",
       "loadFailed": "API-Schlüssel konnten nicht geladen werden.",
-      "upgrade": "API-Schlüssel sind Teil des Business-Plans.",
+      "upgrade": "API-Schlüssel sind nicht in deinem Plan enthalten.",
       "share": "Schlüssel teilen",
       "cancel": "Abbrechen"
     },
@@ -1484,7 +1505,7 @@
       "copySecret": "Geheimnis kopieren",
       "secretCopied": "Signaturgeheimnis kopiert.",
       "copyFailed": "Das Geheimnis konnte nicht kopiert werden.",
-      "upgrade": "Webhooks sind Teil des Business-Plans.",
+      "upgrade": "Webhooks sind nicht in deinem Plan enthalten.",
       "loadFailed": "Webhooks konnten nicht geladen werden.",
       "share": "Secret teilen",
       "cancel": "Abbrechen",
@@ -1534,8 +1555,8 @@
         "edit": "{{name}} bearbeiten",
         "delete": "{{name}} löschen",
         "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden.",
-        "limitReached_one": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregel. Upgrade auf Business für unbegrenzte Regeln.",
-        "limitReached_other": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade auf Business für unbegrenzte Regeln.",
+        "limitReached_one": "Dein Plan enthält {{count}} Discord-Benachrichtigungsregel. Führe ein Upgrade deines Plans durch, um mehr zu bekommen.",
+        "limitReached_other": "Dein Plan enthält {{count}} Discord-Benachrichtigungsregeln. Führe ein Upgrade deines Plans durch, um mehr zu bekommen.",
         "upgrade": "Upgraden",
         "andPings": "und pingt"
       },
@@ -1637,7 +1658,8 @@
         "stop": "{{name}} stoppen",
         "pickFailed": "Diese Datei konnte nicht geöffnet werden.",
         "renamed": "Soundclip umbenannt.",
-        "deleteConfirm": "Regeln, die diesen Clip abspielen, spielen dann keinen Sound mehr."
+        "deleteConfirm": "Regeln, die diesen Clip abspielen, spielen dann keinen Sound mehr.",
+        "notInPlan": "Das Hochladen eigener Sounds ist nicht Teil deines Tarifs."
       },
       "rules": {
         "heading": "Soundregeln",
@@ -1654,8 +1676,8 @@
         "delete": "{{name}} löschen",
         "saved": "Soundregeln gespeichert.",
         "saveFailed": "Die Soundregeln konnten nicht gespeichert werden.",
-        "limitReached_one": "Der kostenlose Plan enthält {{count}} Soundregel. Wechsle zu Business für unbegrenzte Soundregeln.",
-        "limitReached_other": "Der kostenlose Plan enthält {{count}} Soundregeln. Wechsle zu Business für unbegrenzte Soundregeln.",
+        "limitReached_one": "Dein Plan enthält {{count}} Soundregel. Führe ein Upgrade deines Plans durch, um mehr zu bekommen.",
+        "limitReached_other": "Dein Plan enthält {{count}} Soundregeln. Führe ein Upgrade deines Plans durch, um mehr zu bekommen.",
         "upgrade": "Upgraden",
         "deleteConfirm": "Diese Regel spielt dann keinen Sound mehr ab."
       },

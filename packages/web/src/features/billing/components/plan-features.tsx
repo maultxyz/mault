@@ -1,39 +1,25 @@
+import { billingPlanSettings } from "@/features/billing/lib/billing-plan-settings";
 import { PRICING_SHARED_FEATURE_KEYS } from "@/lib/constants/pricing";
 import type { PlanFeaturesProps } from "@/lib/interfaces/billing";
+import { planBullets } from "@/lib/plan-bullets";
+import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import { IconCheck } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function PlanFeatures({ billing }: PlanFeaturesProps) {
   const { t } = useTranslation("billing");
   const { t: tLanding } = useTranslation("landing");
-  const isBusiness = billing.plan === "business";
 
   const features = [
-    billing.dailyLimit == null
-      ? tLanding("pricing.business.unlimitedScans")
-      : tLanding("pricing.free.scanLimit", { limit: billing.dailyLimit }),
-    billing.maxConnectedSorters != null &&
-      tLanding(
-        isBusiness ? "pricing.business.sorters" : "pricing.free.sorters",
-        { count: billing.maxConnectedSorters },
-      ),
-    billing.maxSoundRules == null
-      ? tLanding("pricing.business.soundRules")
-      : tLanding("pricing.free.soundRules", { count: billing.maxSoundRules }),
-    billing.maxNotificationRules == null
-      ? tLanding("pricing.business.notificationRules")
-      : tLanding("pricing.free.notificationRules", {
-          count: billing.maxNotificationRules,
-        }),
-    billing.chaosSort && tLanding("pricing.business.chaosSort"),
-    billing.storage && tLanding("pricing.business.storage"),
-    billing.apiAccess && tLanding("pricing.business.apiAccess"),
-    billing.businessTools && tLanding("pricing.business.businessTools"),
-    billing.businessTools && tLanding("pricing.business.businessOps"),
+    ...planBullets(
+      billingPlanSettings(billing),
+      MAX_CONNECTED_SORTERS,
+      tLanding,
+    ),
     ...PRICING_SHARED_FEATURE_KEYS.map((key) =>
       tLanding(`pricing.shared.${key}`),
     ),
-  ].filter((feature): feature is string => !!feature);
+  ];
 
   return (
     <div className="flex flex-col gap-2">

@@ -3,6 +3,7 @@ import {
   binsQueryOptions,
   createSet as createSetFn,
 } from "@/features/bins/api/sort-bins";
+import { billingKeys } from "@/features/billing/api/billing";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import {
   activateCollection as activateCollectionFn,
@@ -107,7 +108,12 @@ export function CollectionsProvider({
     mutationFn: (values: CreateCollectionFormValues) =>
       createCollectionFn(values),
     onSuccess: async (r, { name }) => {
-      if (r.success && r.data) {
+      void queryClient.invalidateQueries({ queryKey: billingKeys.root() });
+      if (!r.success) {
+        toast.error(r.message || t("errors.createFailed"));
+        return;
+      }
+      if (r.data) {
         setCollections(r.data);
         const created = r.data.find((c) => c.isActive);
         if (created) setActiveGuid(created.guid);
@@ -151,6 +157,7 @@ export function CollectionsProvider({
     mutationFn: deleteCollectionFn,
     onSuccess: (r) => {
       if (r.success && r.data) setCollections(r.data);
+      void queryClient.invalidateQueries({ queryKey: billingKeys.root() });
     },
     onError: () => toast.error(t("errors.deleteFailed")),
   });
@@ -179,7 +186,8 @@ export function CollectionsProvider({
 
   const create = useCallback(
     async (values: CreateCollectionFormValues) => {
-      await createMutation.mutateAsync(values);
+      const result = await createMutation.mutateAsync(values);
+      return result.success;
     },
     [createMutation],
   );

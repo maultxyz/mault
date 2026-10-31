@@ -317,5 +317,16 @@
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
     "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
     "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
+  },
+  "memberSeatLock": {
+    "title": "Diese Organisation hat ihr Mitgliederlimit überschritten",
+    "description_one": "Der Tarif von {{name}} enthält {{count}} Mitglied, und dein Platz liegt über diesem Limit. Bitte einen Inhaber, den Tarif zu erhöhen oder Mitglieder zu entfernen.",
+    "description_other": "Der Tarif von {{name}} enthält {{count}} Mitglieder, und dein Platz liegt über diesem Limit. Bitte einen Inhaber, den Tarif zu erhöhen oder Mitglieder zu entfernen.",
+    "switchOrganization": "Zu einer anderen Organisation wechseln",
+    "tryAgain": "Erneut versuchen",
+    "signOut": "Abmelden"
+  },
+  "planLock": {
+    "link": "Tarife ansehen"
   }
 }

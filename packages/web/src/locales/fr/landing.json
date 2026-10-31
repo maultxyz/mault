@@ -214,45 +214,81 @@
   "pricing": {
     "eyebrow": "Tarifs",
     "heading": "Des tarifs simples et transparents",
-    "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois, débloque les sons personnalisés et les règles de notification Discord illimités, et ajoute le rangement, l'accès API et des outils pour gérer une boutique.",
+    "subtitle": "La même application dans chaque offre. L'offre gratuite suffit pour un tri occasionnel. Enthusiast relève les limites et ajoute le tri en vrac et le rangement pour les collectionneurs assidus. Business supprime les limites et ajoute l'accès API et des outils pour acheter et vendre des cartes.",
     "intervals": {
       "label": "Période de facturation",
       "month": "Mensuel",
       "year": "Annuel"
     },
     "shared": {
-      "collections": "Collections illimitées",
       "games": "Tous les jeux de cartes pris en charge",
       "notifications": "Notifications Discord de scan"
     },
-    "free": {
-      "name": "Free",
-      "price": "0 $",
-      "description": "Pour les collectionneurs occasionnels qui débutent.",
-      "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour",
-      "sorters_one": "{{count}} trieur connecté à la fois",
-      "sorters_other": "{{count}} trieurs connectés à la fois",
-      "soundRules_one": "{{count}} règle sonore personnalisée",
-      "soundRules_other": "{{count}} règles sonores personnalisées",
-      "notificationRules_one": "{{count}} règle de notification Discord",
-      "notificationRules_other": "{{count}} règles de notification Discord"
+    "perMonth": "/mois",
+    "perYear": "/an",
+    "yearlySavings": "Économise {{percent}} % avec la facturation annuelle",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "0 $",
+        "description": "Pour les collectionneurs occasionnels qui débutent.",
+        "cta": "Commencer gratuitement"
+      },
+      "enthusiast": {
+        "name": "Enthusiast",
+        "description": "Pour les collectionneurs assidus qui trient chez eux.",
+        "cta": "Passer au plan Enthusiast"
+      },
+      "business": {
+        "name": "Business",
+        "description": "Pour les boutiques et les équipes qui achètent et vendent des cartes.",
+        "cta": "Passer au plan Business"
+      }
     },
-    "business": {
-      "name": "Business",
-      "perMonth": "/mois",
-      "perYear": "/an",
-      "yearlySavings": "Économise {{percent}} % avec la facturation annuelle",
-      "description": "Pour les boutiques et les collectionneurs assidus.",
-      "unlimitedScans": "Scans de cartes illimités",
-      "cta": "Passer au plan Business",
-      "sorters_one": "Jusqu'à {{count}} trieur à la fois, depuis un seul navigateur",
-      "sorters_other": "Jusqu'à {{count}} trieurs à la fois, depuis un seul navigateur",
-      "soundRules": "Règles sonores illimitées avec tes propres clips importés",
-      "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
+    "limits": {
+      "dailyScans": {
+        "limited_one": "Jusqu'à {{count}} scan de carte par jour",
+        "limited_other": "Jusqu'à {{count}} scans de cartes par jour",
+        "unlimited": "Scans de cartes illimités"
+      },
+      "organizations": {
+        "limited_one": "{{count}} organisation à vous",
+        "limited_other": "Jusqu'à {{count}} organisations à vous",
+        "unlimited": "Autant d'organisations que nécessaire"
+      },
+      "membersPerOrg": {
+        "limited_one": "{{count}} membre par organisation",
+        "limited_other": "Jusqu'à {{count}} membres par organisation",
+        "unlimited": "Membres illimités dans chaque organisation"
+      },
+      "connectedSorters": {
+        "limited_one": "{{count}} trieur connecté à la fois",
+        "limited_other": "Jusqu'à {{count}} trieurs à la fois, depuis un seul navigateur",
+        "unlimited": "Trieurs illimités à la fois"
+      },
+      "soundRules": {
+        "limited_one": "{{count}} règle sonore personnalisée",
+        "limited_other": "{{count}} règles sonores personnalisées",
+        "unlimited": "Règles sonores illimitées"
+      },
+      "notificationRules": {
+        "limited_one": "{{count}} règle de notification Discord",
+        "limited_other": "{{count}} règles de notification Discord",
+        "unlimited": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon"
+      },
+      "collections": {
+        "limited_one": "{{count}} collection",
+        "limited_other": "Jusqu'à {{count}} collections",
+        "unlimited": "Collections illimitées"
+      }
+    },
+    "features": {
       "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
+      "repacks": "Création de repacks : chaque bac remplit son propre pack à partir des créneaux que vous définissez",
+      "customSounds": "Sons personnalisés : importez vos propres clips à jouer quand des cartes correspondantes sont triées",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
       "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
-      "businessTools": "Outils pour boutiques : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges",
+      "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges",
       "businessOps": "Gestion de boutique : contrôler la précision d'un lot par échantillon, suivre l'activité du personnel, recevoir les alertes de bourrage et d'entretien des trieurs, et masquer les prix de rachat au personnel"
     }
   },

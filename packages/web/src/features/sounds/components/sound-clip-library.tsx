@@ -1,6 +1,8 @@
 import { EmptyState } from "@/components/empty-state";
+import { PlanLockHint } from "@/components/plan-lock-hint";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
+import { useBilling } from "@/features/billing/api/use-billing";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
   soundClipsQueryOptions,
@@ -37,6 +39,8 @@ export function SoundClipLibrary() {
   const inputRef = useRef<HTMLInputElement>(null);
   const clipsOpts = soundClipsQueryOptions(activeOrg?.id);
   const { data: clips = [], isLoading } = useQuery(clipsOpts);
+  const { billing } = useBilling();
+  const isUploadLocked = billing?.customSounds === false;
 
   const upload = useMutation({
     mutationFn: async (file: File) =>
@@ -78,7 +82,7 @@ export function SoundClipLibrary() {
           <Button
             variant="outline"
             onClick={() => inputRef.current?.click()}
-            disabled={upload.isPending}
+            disabled={upload.isPending || isUploadLocked}
           >
             <IconUpload />
             {upload.isPending ? t("library.uploading") : t("library.upload")}
@@ -96,7 +100,7 @@ export function SoundClipLibrary() {
         </>
       }
     >
-
+      {isUploadLocked && <PlanLockHint message={t("library.notInPlan")} />}
       {!isLoading && clips.length === 0 ? (
         <EmptyState size="compact" icon={IconMusic} title={t("library.empty")} />
       ) : (

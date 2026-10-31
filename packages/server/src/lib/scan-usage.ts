@@ -12,7 +12,7 @@ export function dailyScanLimitForPlan(plan: string | undefined): number | null {
 }
 
 export function dailyScanLimitMessage(limit: number | null): string {
-  return `Daily scan limit reached (${limit ?? 0}/day). Upgrade to Business for unlimited scanning.`;
+  return `Daily scan limit reached (${limit ?? 0}/day). Upgrade your plan to scan more.`;
 }
 
 export async function consumeDailyScan(

@@ -132,6 +132,18 @@ export const neonAuthProvider: AuthProvider = {
     return rows.rows;
   },
 
+  async listOrgMemberUserIdsBySeat(orgId) {
+    const rows = await db.execute<{ userId: string }>(
+      sql`
+        SELECT "userId"
+        FROM neon_auth.member
+        WHERE "organizationId" = ${orgId}
+        ORDER BY (role = 'owner') DESC, "createdAt", id
+      `,
+    );
+    return rows.rows.map((row) => row.userId);
+  },
+
   async getOrganisationName(orgId) {
     const rows = await db.execute<{ name: string }>(
       sql`SELECT name FROM neon_auth.organization WHERE id = ${orgId} LIMIT 1`,
