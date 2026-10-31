@@ -10,6 +10,7 @@ import {
   collectionLimitForPlan,
   countLiveCollections,
 } from "../../lib/collection-limit";
+import { fleetHealthAllowedForPlan } from "../../lib/fleet-health-access";
 import { memberLimitForPlan } from "../../lib/member-seat-limit";
 import { notificationRuleLimitForPlan } from "../../lib/notification-rule-limit";
 import {
@@ -73,6 +74,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
           chaosSort: chaosSortAllowedForPlan(plan),
           repacks: repacksAllowedForPlan(plan),
           customSounds: customSoundsAllowedForPlan(plan),
+          fleetHealth: fleetHealthAllowedForPlan(plan),
           storage: storageAllowedForPlan(plan),
           apiAccess: apiAccessAllowedForPlan(plan),
           businessTools: businessToolsAllowedForPlan(plan),

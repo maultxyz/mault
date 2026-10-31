@@ -469,7 +469,8 @@
       "feeder_empty": "Einzug leer",
       "offline": "Offline",
       "maintenance": "Wartung fällig"
-    }
+    },
+    "notInPlan": "Der Flottenzustand ist nicht Teil deines Tarifs."
   },
   "banner": {
     "title": "Ankauf läuft: {{name}}",

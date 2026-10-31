@@ -23,6 +23,7 @@ export function planFeatureLines(t: TFunction, billing: BillingStatus): string[]
     featureLine(billing.chaosSort, "chaosSort"),
     featureLine(billing.repacks, "repacks"),
     featureLine(billing.customSounds, "customSounds"),
+    featureLine(billing.fleetHealth, "fleetHealth"),
     featureLine(billing.storage, "storage"),
     featureLine(billing.apiAccess, "apiAccess"),
     featureLine(billing.businessTools, "businessTools"),

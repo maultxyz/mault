@@ -286,6 +286,7 @@
       "chaosSort": "Chaos sort, the fastest way to put away a big pile",
       "repacks": "Repack building: every bin fills its own pack from the slots you define",
       "customSounds": "Custom sounds: upload your own clips to play when matching cards are sorted",
+      "fleetHealth": "Fleet health: see every sorter's status, cards since service and alert history, and set service intervals",
       "storage": "Storage locations: record which box every card is in and where, then search across them",
       "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
       "businessTools": "Buy and sell: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins",

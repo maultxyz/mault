@@ -469,7 +469,8 @@
       "feeder_empty": "Chargeur vide",
       "offline": "Hors ligne",
       "maintenance": "Entretien à faire"
-    }
+    },
+    "notInPlan": "La santé du parc ne fait pas partie de votre offre."
   },
   "banner": {
     "title": "Rachat en cours : {{name}}",

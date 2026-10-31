@@ -296,6 +296,10 @@
       "customSounds": {
         "label": "Custom sounds",
         "description": "Upload custom sound clips for sound rules. Turning it off only stops new uploads. Clips already uploaded keep playing."
+      },
+      "fleetHealth": {
+        "label": "Fleet health",
+        "description": "The sorter health panel on the Sorters page: status, cards since service, alert history and service intervals. Jam and offline alerts are still recorded and sent either way."
       }
     },
     "limits": {

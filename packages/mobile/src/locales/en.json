@@ -1418,6 +1418,7 @@
         "chaosSort": "Chaos sort, the fastest way to put away a big pile",
         "repacks": "Repacks: build packs from your cards slot by slot",
         "customSounds": "Custom sounds: upload your own clips for sound rules",
+        "fleetHealth": "Fleet health: sorter status, service intervals and alert history",
         "storage": "Storage locations: record which box every card is in and where, then search across them",
         "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
         "businessTools": "Buy and sell: intake offers, order pull sheets and margin reports",

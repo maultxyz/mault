@@ -285,6 +285,10 @@
       "customSounds": {
         "label": "Sons personnalisés",
         "description": "Importer des clips sonores personnalisés pour les règles sonores. Le désactiver bloque seulement les nouveaux imports. Les clips déjà importés continuent d'être joués."
+      },
+      "fleetHealth": {
+        "label": "Santé du parc",
+        "description": "Le panneau de santé de la page Trieuses : état, cartes depuis le dernier entretien, historique des alertes et intervalles d'entretien. Les alertes de bourrage et de déconnexion restent enregistrées et envoyées dans tous les cas."
       }
     },
     "limits": {

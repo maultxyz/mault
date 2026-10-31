@@ -6,6 +6,7 @@ export function billingPlanSettings(billing: BillingStatus): PlanSettings {
       chaosSort: billing.chaosSort ?? false,
       repacks: billing.repacks ?? false,
       customSounds: billing.customSounds ?? false,
+      fleetHealth: billing.fleetHealth ?? false,
       storage: billing.storage ?? false,
       apiAccess: billing.apiAccess ?? false,
       businessTools: billing.businessTools ?? false,

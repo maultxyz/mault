@@ -8,6 +8,7 @@ export const PLAN_FEATURE_KEYS = [
   "chaosSort",
   "repacks",
   "customSounds",
+  "fleetHealth",
   "storage",
   "apiAccess",
   "businessTools",

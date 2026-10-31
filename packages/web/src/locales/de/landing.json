@@ -286,6 +286,7 @@
       "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
       "repacks": "Repacks erstellen: jedes Fach füllt sein eigenes Pack aus den Slots, die du festlegst",
       "customSounds": "Eigene Sounds: lade deine eigenen Clips hoch, die beim Sortieren passender Karten abgespielt werden",
+      "fleetHealth": "Flottenzustand: sieh Status, Karten seit der letzten Wartung und Alarmverlauf jedes Sortierers und lege Wartungsintervalle fest",
       "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
       "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
       "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen",

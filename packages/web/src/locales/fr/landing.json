@@ -286,6 +286,7 @@
       "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
       "repacks": "Création de repacks : chaque bac remplit son propre pack à partir des créneaux que vous définissez",
       "customSounds": "Sons personnalisés : importez vos propres clips à jouer quand des cartes correspondantes sont triées",
+      "fleetHealth": "Santé du parc : consultez l'état de chaque trieuse, les cartes depuis le dernier entretien et l'historique des alertes, et définissez les intervalles d'entretien",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
       "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
       "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges",

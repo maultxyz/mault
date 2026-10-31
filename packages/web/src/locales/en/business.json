@@ -469,7 +469,8 @@
       "feeder_empty": "Feeder empty",
       "offline": "Offline",
       "maintenance": "Service due"
-    }
+    },
+    "notInPlan": "Fleet health isn't part of your plan."
   },
   "banner": {
     "title": "Intake in progress: {{name}}",

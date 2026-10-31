@@ -285,6 +285,10 @@
       "customSounds": {
         "label": "Eigene Sounds",
         "description": "Eigene Soundclips für Soundregeln hochladen. Ausschalten verhindert nur neue Uploads. Bereits hochgeladene Clips werden weiter abgespielt."
+      },
+      "fleetHealth": {
+        "label": "Flottenzustand",
+        "description": "Das Zustandspanel auf der Sortierer-Seite: Status, Karten seit der letzten Wartung, Alarmverlauf und Wartungsintervalle. Stau- und Offline-Alarme werden in jedem Fall weiter erfasst und gesendet."
       }
     },
     "limits": {

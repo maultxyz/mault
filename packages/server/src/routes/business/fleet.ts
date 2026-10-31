@@ -14,6 +14,10 @@ import { Hono } from "hono";
 import type { Transaction } from "../../db";
 import { deviceAlerts, devices } from "../../db/schema";
 import { logActivity } from "../../lib/activity-log";
+import {
+  FLEET_HEALTH_LOCKED_RESULT,
+  isFleetHealthAllowed,
+} from "../../lib/fleet-health-access";
 import { isDeviceLeased } from "../../lib/device-leases";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -40,6 +44,9 @@ export const fleetRoute = new Hono<AppEnv>()
   .get("/fleet", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx) => {
       const orgId = c.get("orgId");
+      if (!(await isFleetHealthAllowed(tx, orgId))) {
+        return FLEET_HEALTH_LOCKED_RESULT;
+      }
       const deviceRows = await tx
         .select()
         .from(devices)
@@ -108,6 +115,9 @@ export const fleetRoute = new Hono<AppEnv>()
     }
     return businessQuery(c, async (tx, access) => {
       if (!access.canManageSettings) return BUSINESS_FORBIDDEN_RESULT;
+      if (!(await isFleetHealthAllowed(tx, c.get("orgId")))) {
+        return FLEET_HEALTH_LOCKED_RESULT;
+      }
       const device = await findDevice(tx, c.get("orgId"), c.req.param("guid"));
       if (!device) return notFound(SORTER_NOT_FOUND_MESSAGE);
       await tx
@@ -123,6 +133,9 @@ export const fleetRoute = new Hono<AppEnv>()
   .post("/fleet/:guid/serviced", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx) => {
       const orgId = c.get("orgId");
+      if (!(await isFleetHealthAllowed(tx, orgId))) {
+        return FLEET_HEALTH_LOCKED_RESULT;
+      }
       const device = await findDevice(tx, orgId, c.req.param("guid"));
       if (!device) return notFound(SORTER_NOT_FOUND_MESSAGE);
       await tx

@@ -57,6 +57,7 @@ export interface BillingStatus {
   chaosSort?: boolean;
   repacks?: boolean;
   customSounds?: boolean;
+  fleetHealth?: boolean;
   storage?: boolean;
   apiAccess?: boolean;
   businessTools?: boolean;
