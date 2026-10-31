@@ -45,6 +45,10 @@ export interface TcgtrackingGameConfig {
   fallbacks?: boolean;
   numberKeyOf?(card: PlayingCard): string | null;
   isBasePrinting?(card: PlayingCard): boolean;
+  productMatchesParallelPrinting?(
+    card: PlayingCard,
+    product: TcgtrackingProduct,
+  ): boolean;
   primaryCardIdOf?(product: TcgtrackingProduct): string | null;
   comparableProductName?(name: string): string;
   colorIdentityOf?(colors: string[]): string[];

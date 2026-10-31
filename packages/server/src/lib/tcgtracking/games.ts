@@ -1,10 +1,15 @@
 import {
+  GUNDAM_PRODUCT_CARD_NUMBER_TAG_PATTERN,
   POKEMON_BASIC_ENERGY_PREFIX_PATTERN,
   TCGTRACKING_MTG_COLOR_LETTERS,
 } from "../constants/tcgtracking";
 import type { GundamCard } from "../interfaces/gundam";
 import type { TcgtrackingGameConfig } from "../interfaces/tcgtracking";
 import { collectorNumberKey } from "./keys";
+
+function gundamRarityKey(rarity: string | null | undefined): string {
+  return (rarity ?? "").replace(/\s+/g, "").toUpperCase();
+}
 
 export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
   mtg: {
@@ -31,6 +36,12 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
       const raw = card.raw as GundamCard;
       return !raw.product_id || raw.product_id === raw.card_number;
     },
+    productMatchesParallelPrinting: (card, product) => {
+      const rarity = gundamRarityKey((card.raw as GundamCard).rarity);
+      return rarity.includes("+") && rarity === gundamRarityKey(product.rarity);
+    },
+    comparableProductName: (name) =>
+      name.replace(GUNDAM_PRODUCT_CARD_NUMBER_TAG_PATTERN, ""),
   },
   fab: { numbering: "global" },
   pokemon: {
