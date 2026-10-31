@@ -791,12 +791,23 @@ void lowerPaddleForPush(int module) {
 // twitches, so idle positional servos get no signal at all. Gear friction
 // holds them in place. The feeder is left alone: stopFeeder() already
 // releases it, and a calibration preview keeps it running on purpose.
+// Adafruit's setPin() discards the I2C result, so a write dropped by a
+// supply dip (servo inrush under load) left the feeder spinning at its last
+// speed with nothing noticing. Write full-off directly and retry after a
+// driver recovery, like setServoPosition() does for moves.
+void cutServoSignal(int channel) {
+  if (pwm.setPWM(channel, 0, 4096) != 0) {
+    recoverServoDriver();
+    pwm.setPWM(channel, 0, 4096);
+  }
+}
+
 void releaseIdleServos() {
   if (servosReleased || millis() - lastServoMoveAt < SERVO_IDLE_RELEASE_MS) {
     return;
   }
   for (int m = 1; m <= maxModuleForOffset(); m++) {
-    for (int s = 0; s < 3; s++) pwm.setPin(getChannel(m, s), 0);
+    for (int s = 0; s < 3; s++) cutServoSignal(getChannel(m, s));
     paddleOpenedAt[m - 1] = 0;
   }
   servosReleased = true;
@@ -812,7 +823,7 @@ void setModuleNeutral(int module, unsigned long staggerMs) {
 }
 
 void stopFeeder() {
-  pwm.setPin(getFeederChannel(), 0);  // cut PWM signal entirely to stop 360° servo
+  cutServoSignal(getFeederChannel());  // cut PWM signal entirely to stop 360° servo
 }
 
 // The last card in the hopper has nothing behind it to push it fully in, so
@@ -1526,7 +1537,7 @@ void runCommand(JsonDocument& doc, Print& reply) {
   if (doc["channelStop"].is<int>()) {
     int channel = doc["channelStop"].as<int>();
     if (!channelInRange(channel, reply)) return;
-    pwm.setPin(channel, 0);
+    cutServoSignal(channel);
     reply.print(F("{\"status\":\"ok\",\"channel\":"));
     reply.print(channel);
     reply.println(F("}"));
