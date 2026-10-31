@@ -89,12 +89,9 @@ export function StationMenu() {
           >
             <span className="relative grid size-4.5 shrink-0 place-items-center rounded-sm bg-foreground text-background">
               <IconCpu className="size-3" />
-              <span
-                className={cn(
-                  "absolute -right-0.5 -bottom-0.5 size-2 rounded-full ring-2 ring-sidebar",
-                  hasConnectedStations ? "bg-success" : "bg-foreground/30",
-                )}
-              />
+              {hasConnectedStations && (
+                <span className="absolute -right-0.5 -bottom-0.5 size-2 rounded-full bg-success ring-2 ring-sidebar" />
+              )}
             </span>
             <span
               className={cn(
