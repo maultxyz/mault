@@ -56,7 +56,6 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 import { useHandScan } from "@/features/scanner/lib/hand-scan";
-import { parseSerialReply } from "@magic-vault/shared";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function CardScanner({
