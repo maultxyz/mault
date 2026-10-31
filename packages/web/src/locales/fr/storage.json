@@ -96,7 +96,7 @@
     "businessOnly": "Les emplacements de rangement ne font pas partie de votre offre.",
     "link": "Voir les offres",
     "locked": "Notez dans quelle boîte va chaque carte, et à quelle place, quand vous videz un bac.",
-    "lockedWithLocations": "Vous pouvez toujours parcourir, rechercher et modifier vos emplacements, mais y enregistrer de nouvelles cartes nécessite une offre qui inclut le rangement."
+    "lockedWithLocations": "Vous pouvez toujours consulter, rechercher et exporter vos emplacements et leurs cartes. Toute modification nécessite une offre qui inclut le rangement."
   },
   "review": {
     "start": "Vérifier les cartes",

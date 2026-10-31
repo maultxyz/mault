@@ -320,6 +320,11 @@
         "label": "Collections",
         "description": "Collections par organisation. Vérifié uniquement à la création d'une collection."
       }
+    },
+    "preview": {
+      "heading": "Prévisualiser une offre",
+      "description": "Voyez l'application comme une organisation avec une autre offre : les limites, les fonctions verrouillées et la page de facturation suivent l'offre choisie. Ne concerne que vos propres requêtes dans ce navigateur.",
+      "off": "Désactivé"
     }
   },
   "deletedItems": {

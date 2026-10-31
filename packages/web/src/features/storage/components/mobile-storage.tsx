@@ -203,37 +203,41 @@ export function MobileStorage() {
           })}
           onBack={() => select(null)}
           actions={
-            <>
-              <Button
-                variant="ghost"
-                className={MOBILE_CIRCLE_BUTTON_CLASS}
-                aria-label={t("page.rename")}
-                disabled={isMutating}
-                onClick={() => setRenameOpen(true)}
-              >
-                <IconEdit />
-              </Button>
-              <Button
-                variant="ghost"
-                className={cn(MOBILE_CIRCLE_BUTTON_CLASS, "text-destructive")}
-                aria-label={t("page.delete")}
-                disabled={isMutating}
-                onClick={() => setDeleteOpen(true)}
-              >
-                <IconTrash />
-              </Button>
-            </>
+            !isLocked && (
+              <>
+                <Button
+                  variant="ghost"
+                  className={MOBILE_CIRCLE_BUTTON_CLASS}
+                  aria-label={t("page.rename")}
+                  disabled={isMutating}
+                  onClick={() => setRenameOpen(true)}
+                >
+                  <IconEdit />
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={cn(MOBILE_CIRCLE_BUTTON_CLASS, "text-destructive")}
+                  aria-label={t("page.delete")}
+                  disabled={isMutating}
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <IconTrash />
+                </Button>
+              </>
+            )
           }
         >
           {selected.cardCount > 0 && (
             <div className="flex gap-1.5">
-              <Button
-                className={MOBILE_PILL_BUTTON_SM_CLASS}
-                onClick={() => void startReview()}
-              >
-                <IconListCheck />
-                {t("review.start")}
-              </Button>
+              {!isLocked && (
+                <Button
+                  className={MOBILE_PILL_BUTTON_SM_CLASS}
+                  onClick={() => void startReview()}
+                >
+                  <IconListCheck />
+                  {t("review.start")}
+                </Button>
+              )}
               <StorageExportMenu location={selected} />
             </div>
           )}

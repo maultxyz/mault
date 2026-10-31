@@ -331,6 +331,11 @@
         "label": "Collections",
         "description": "Collections per organization. Only checked when creating a collection."
       }
+    },
+    "preview": {
+      "heading": "Preview a plan",
+      "description": "See the app as an organization on another plan would: limits, locked features and the billing page all follow the plan you pick. Only affects your own requests on this browser.",
+      "off": "Off"
     }
   },
   "deletedItems": {

@@ -24,6 +24,8 @@ import {
 import { ExportSheet } from "@/features/cards/components/export-sheet";
 import { shareCsv } from "@/features/cards/lib/share-csv";
 import { gamesQueryOptions } from "@/features/games/api/games";
+import { billingQueryOptions } from "@/features/org/api/billing";
+import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { LIST_END_THRESHOLD } from "@/lib/constants/collections";
@@ -38,6 +40,9 @@ export default function StorageLocationScreen() {
   const pricing = usePricing();
   const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
+  const orgId = useActiveOrgId();
+  const { data: billing } = useQuery(billingQueryOptions(orgId));
+  const isStorageLocked = billing?.storage === false;
   const { data: location } = useQuery(storageLocationQueryOptions(guid));
   const cards = useInfiniteQuery(storageLocationCardsPageQueryOptions(guid));
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.cards) ?? [], [cards.data]);
@@ -140,6 +145,7 @@ export default function StorageLocationScreen() {
           }
           onBack={() => router.back()}
           actions={
+            isStorageLocked ? null : (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t("storage.actions")}
@@ -156,6 +162,7 @@ export default function StorageLocationScreen() {
             >
               <Icon name="more" size={18} color={colors.foreground} />
             </Pressable>
+            )
           }
         />
       }
@@ -184,7 +191,9 @@ export default function StorageLocationScreen() {
             {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
             {location && location.cardCount > 0 ? (
               <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-                <Button style={{ flex: 1 }} icon="check" label={t("storage.review.start")} onPress={() => void startReview()} />
+                {isStorageLocked ? null : (
+                  <Button style={{ flex: 1 }} icon="check" label={t("storage.review.start")} onPress={() => void startReview()} />
+                )}
                 <Button
                   style={{ flex: 1 }}
                   variant="secondary"

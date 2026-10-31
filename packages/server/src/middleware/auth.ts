@@ -8,6 +8,7 @@ import {
   SCANNING_BLOCKED_WHILE_IMPERSONATING_MESSAGE,
 } from "../lib/constants/auth";
 import { cachedDisplayName } from "../lib/display-name-cache";
+import { parsePreviewPlan, planPreviewStorage } from "../lib/plan-preview";
 import {
   findMemberSeatOverflow,
   memberSeatLimitMessage,
@@ -15,10 +16,11 @@ import {
 import {
   MEMBER_SEAT_LIMIT_ERROR_CODE,
   MEMBER_SEAT_LIMIT_HTTP_STATUS,
+  PLAN_PREVIEW_HEADER,
+  PLAN_PREVIEW_ROLE,
   type OrgRole,
 } from "@magic-vault/shared";
 import type { ImpersonationPayload } from "../lib/interfaces/auth";
-
 
 export type AppVariables = {
   jwtClaims: string;
@@ -149,6 +151,14 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
   c.set("userId", payload.sub);
   c.set("userRole", role);
   c.set("impersonatedBy", null);
+  const previewPlan =
+    role === PLAN_PREVIEW_ROLE
+      ? parsePreviewPlan(c.req.header(PLAN_PREVIEW_HEADER))
+      : null;
+  if (previewPlan) {
+    await planPreviewStorage.run(previewPlan, () => next());
+    return;
+  }
   await next();
 });
 

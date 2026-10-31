@@ -18,12 +18,16 @@ import {
   organizationLimitForPlan,
 } from "../../lib/organization-limit";
 import { toPlanKey } from "../../lib/plan-config";
+import { currentPreviewPlan } from "../../lib/plan-preview";
 import { repacksAllowedForPlan } from "../../lib/repack-access";
 import { customSoundsAllowedForPlan } from "../../lib/custom-sounds-access";
 import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
 import { sorterLimitForPlan } from "../../lib/sorter-limit";
 import { soundRuleLimitForPlan } from "../../lib/sound-rule-limit";
-import { storageAllowedForPlan } from "../../lib/storage-access";
+import {
+  countLiveStorageLocations,
+  storageAllowedForPlan,
+} from "../../lib/storage-access";
 import { findPlanForPriceId, getPaidPlanPrices } from "../../lib/stripe";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
@@ -44,13 +48,16 @@ export const getBillingRoute = new Hono<AppEnv>().get(
       });
       const count = await getScansToday(tx, orgId);
       const collectionCount = await countLiveCollections(tx, orgId);
+      const storageLocationCount = await countLiveStorageLocations(tx, orgId);
 
-      const plan = toPlanKey(billing?.plan);
+      const previewPlan = currentPreviewPlan();
+      const plan = previewPlan ?? toPlanKey(billing?.plan);
       return {
         success: true,
         message: "Loaded.",
         data: {
           plan,
+          isPlanPreview: !!previewPlan,
           status: billing?.status ?? null,
           cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,
           currentPeriodEnd: billing?.currentPeriodEnd ?? null,
@@ -76,6 +83,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
           customSounds: customSoundsAllowedForPlan(plan),
           fleetHealth: fleetHealthAllowedForPlan(plan),
           storage: storageAllowedForPlan(plan),
+          storageLocationCount,
           apiAccess: apiAccessAllowedForPlan(plan),
           businessTools: businessToolsAllowedForPlan(plan),
         },

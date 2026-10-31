@@ -4,11 +4,12 @@ import { db } from "../db";
 import { orgBilling } from "../db/schema";
 import { MEMBER_SEAT_CACHE_TTL_MS } from "./constants/timing";
 import { planLimit } from "./plan-config";
+import { currentPreviewPlan } from "./plan-preview";
 import { isBillingEnabled } from "./stripe";
 
 const seatCache = new Map<
   string,
-  { limit: number | null; seatedUserIds: string[]; cachedAt: number }
+  { plan: string; seatedUserIds: string[]; cachedAt: number }
 >();
 
 export function memberLimitForPlan(plan: string | undefined): number | null {
@@ -24,12 +25,12 @@ async function loadSeats(orgId: string) {
     where: eq(orgBilling.orgId, orgId),
     columns: { plan: true },
   });
-  const limit = memberLimitForPlan(billing?.plan ?? "free");
-  const seatedUserIds =
-    limit == null
-      ? []
-      : await authProvider.listOrgMemberUserIdsBySeat(orgId);
-  const entry = { limit, seatedUserIds, cachedAt: Date.now() };
+  const seatedUserIds = await authProvider.listOrgMemberUserIdsBySeat(orgId);
+  const entry = {
+    plan: billing?.plan ?? "free",
+    seatedUserIds,
+    cachedAt: Date.now(),
+  };
   seatCache.set(orgId, entry);
   return entry;
 }
@@ -43,8 +44,10 @@ export async function findMemberSeatOverflow(
   userId: string,
   role: string,
 ): Promise<number | null> {
-  if (!isBillingEnabled() || role === "owner") return null;
-  const { limit, seatedUserIds } = await loadSeats(orgId);
+  if (role === "owner") return null;
+  if (!isBillingEnabled() && !currentPreviewPlan()) return null;
+  const { plan, seatedUserIds } = await loadSeats(orgId);
+  const limit = memberLimitForPlan(plan);
   if (limit == null) return null;
   const seat = seatedUserIds.indexOf(userId);
   if (seat === -1 || seat < Math.max(limit, 1)) return null;

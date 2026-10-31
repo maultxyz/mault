@@ -25,7 +25,9 @@
     "more": "Plus",
     "stats": "Statistiques",
     "sortingRules": "Règles de tri",
-    "intake": "Achat & vente"
+    "intake": "Achat & vente",
+    "upgradeYourPlan": "Changez d'offre",
+    "upgradeShort": "Changer"
   },
   "alerts": {
     "dismiss": "Ignorer",
@@ -328,5 +330,14 @@
   },
   "planLock": {
     "link": "Voir les offres"
+  },
+  "planPreview": {
+    "banner": "Aperçu de l'offre {{plan}}. Les limites et les fonctions verrouillées suivent cette offre.",
+    "stop": "Arrêter l'aperçu",
+    "planNames": {
+      "free": "Gratuit",
+      "enthusiast": "Passionné",
+      "business": "Entreprise"
+    }
   }
 }

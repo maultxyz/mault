@@ -25,7 +25,9 @@
     "more": "More",
     "stats": "Stats",
     "sortingRules": "Sorting rules",
-    "intake": "Buy & sell"
+    "intake": "Buy & sell",
+    "upgradeYourPlan": "Upgrade your plan",
+    "upgradeShort": "Upgrade"
   },
   "alerts": {
     "dismiss": "Dismiss",
@@ -328,5 +330,14 @@
   },
   "planLock": {
     "link": "See plans"
+  },
+  "planPreview": {
+    "banner": "Previewing the {{plan}} plan. Limits and locked features follow that plan.",
+    "stop": "Stop preview",
+    "planNames": {
+      "free": "Free",
+      "enthusiast": "Enthusiast",
+      "business": "Business"
+    }
   }
 }

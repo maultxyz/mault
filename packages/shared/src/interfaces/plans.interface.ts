@@ -37,6 +37,7 @@ export interface AdminPlanConfigResponse {
 
 export interface BillingStatus {
   plan: PlanKey;
+  isPlanPreview?: boolean;
   status: string | null;
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string | null;
@@ -59,6 +60,7 @@ export interface BillingStatus {
   customSounds?: boolean;
   fleetHealth?: boolean;
   storage?: boolean;
+  storageLocationCount?: number;
   apiAccess?: boolean;
   businessTools?: boolean;
 }

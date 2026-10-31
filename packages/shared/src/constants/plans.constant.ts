@@ -30,6 +30,10 @@ export const BILLING_INTERVALS = ["month", "year"] as const;
 
 export const DEFAULT_BILLING_INTERVAL = "month";
 
+export const PLAN_PREVIEW_HEADER = "X-Plan-Preview";
+
+export const PLAN_PREVIEW_ROLE = "admin";
+
 export const MEMBER_SEAT_LIMIT_ERROR_CODE = "member_seat_limit";
 
 export const MEMBER_SEAT_LIMIT_HTTP_STATUS = 402;

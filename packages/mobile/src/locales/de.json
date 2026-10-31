@@ -24,7 +24,9 @@
     "account": "Konto",
     "home": "Startseite",
     "rules": "Regeln",
-    "storage": "Lager"
+    "storage": "Lager",
+    "upgradeYourPlan": "Tarif upgraden",
+    "upgradeShort": "Upgrade"
   },
   "auth": {
     "tagline": "Scanne, sortiere und verwalte deine Karten vom Handy aus.",
@@ -1217,7 +1219,7 @@
     "noCardsTitle": "Dieser Lagerort ist leer",
     "businessOnly": "Lagerorte sind nicht in deinem Plan enthalten.",
     "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
-    "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht einen Plan mit Lagerorten.",
+    "lockedWithLocations": "Du kannst deine Lagerorte und die Karten darin weiter ansehen und durchsuchen. Änderungen brauchen einen Plan mit Lagerorten.",
     "actionFailed": "Lager konnte nicht aktualisiert werden",
     "actions": "Lagerort-Aktionen",
     "review": {

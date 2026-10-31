@@ -9,7 +9,11 @@ import { getAuthSession, getOrgId } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/api";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { readMemberSeatLimit, setMemberSeatLock } from "@/lib/member-seat-lock";
-import { MEMBER_SEAT_LIMIT_HTTP_STATUS } from "@magic-vault/shared";
+import { getPlanPreview } from "@/lib/plan-preview";
+import {
+  MEMBER_SEAT_LIMIT_HTTP_STATUS,
+  PLAN_PREVIEW_HEADER,
+} from "@magic-vault/shared";
 
 
 export async function getRequestAuth(): Promise<{
@@ -29,9 +33,11 @@ export async function getRequestAuth(): Promise<{
 
 export async function getAuthHeaders(): Promise<HeadersInit> {
   const { token, orgId } = await getRequestAuth();
+  const planPreview = getPlanPreview();
   return {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(orgId ? { "X-Org-Id": orgId } : {}),
+    ...(planPreview ? { [PLAN_PREVIEW_HEADER]: planPreview } : {}),
   };
 }
 

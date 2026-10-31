@@ -96,7 +96,7 @@
     "businessOnly": "Lagerorte sind nicht Teil deines Tarifs.",
     "link": "Upgraden",
     "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
-    "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht einen Tarif mit Lagerorten."
+    "lockedWithLocations": "Du kannst deine Lagerorte und die Karten darin weiter ansehen, durchsuchen und exportieren. Änderungen brauchen einen Tarif mit Lagerorten."
   },
   "review": {
     "start": "Karten prüfen",

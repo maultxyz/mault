@@ -13,6 +13,7 @@ import {
 import { eq } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { orgBilling, planSettings } from "../db/schema";
+import { currentPreviewPlan } from "./plan-preview";
 import { PLAN_CONFIG_LOAD_RETRY_MS } from "./constants/timing";
 import {
   ENTHUSIAST_PLAN_DAILY_SCAN_LIMIT,
@@ -192,6 +193,8 @@ export function planHasFeature(
   plan: string | undefined,
   feature: PlanFeatureKey,
 ): boolean {
+  const previewPlan = currentPreviewPlan();
+  if (previewPlan) return cachedConfig[previewPlan].features[feature];
   if (!isBillingEnabled()) return true;
   return cachedConfig[toPlanKey(plan)].features[feature];
 }
@@ -200,6 +203,8 @@ export function planLimit(
   plan: string | undefined,
   limit: PlanLimitKey,
 ): number | null {
+  const previewPlan = currentPreviewPlan();
+  if (previewPlan) return cachedConfig[previewPlan].limits[limit];
   if (!isBillingEnabled()) return null;
   return cachedConfig[toPlanKey(plan)].limits[limit];
 }
@@ -215,6 +220,8 @@ export async function loadPlanForOrg(
   tx: Transaction,
   orgId: string,
 ): Promise<string | undefined> {
+  const previewPlan = currentPreviewPlan();
+  if (previewPlan) return previewPlan;
   if (!isBillingEnabled()) return undefined;
   const billing = await tx.query.orgBilling.findFirst({
     where: eq(orgBilling.orgId, orgId),
@@ -228,6 +235,6 @@ export async function orgHasFeature(
   orgId: string,
   feature: PlanFeatureKey,
 ): Promise<boolean> {
-  if (!isBillingEnabled()) return true;
+  if (!isBillingEnabled() && !currentPreviewPlan()) return true;
   return planHasFeature(await loadPlanForOrg(tx, orgId), feature);
 }

@@ -320,6 +320,11 @@
         "label": "Sammlungen",
         "description": "Sammlungen pro Organisation. Wird nur beim Anlegen einer Sammlung geprüft."
       }
+    },
+    "preview": {
+      "heading": "Tarif in der Vorschau ansehen",
+      "description": "Sieh die App so, wie eine Organisation mit einem anderen Tarif sie sieht: Limits, gesperrte Funktionen und die Abrechnungsseite folgen dem gewählten Tarif. Betrifft nur deine eigenen Anfragen in diesem Browser.",
+      "off": "Aus"
     }
   },
   "deletedItems": {

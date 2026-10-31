@@ -96,7 +96,7 @@
     "businessOnly": "Storage locations are not part of your plan.",
     "link": "Upgrade",
     "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
-    "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs a plan that includes storage."
+    "lockedWithLocations": "You can still view, search and export your locations and the cards in them. Changing anything needs a plan that includes storage."
   },
   "review": {
     "start": "Review cards",

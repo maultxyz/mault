@@ -9,7 +9,11 @@ import { PI_SERIAL_PATH } from "./lib/constants/pi-serial";
 import { API_PORT, getApiHost } from "./lib/constants/server";
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
-import { PUBLIC_API_KEY_HEADER, SYNC_API_PATH } from "@magic-vault/shared";
+import {
+  PLAN_PREVIEW_HEADER,
+  PUBLIC_API_KEY_HEADER,
+  SYNC_API_PATH,
+} from "@magic-vault/shared";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
@@ -57,7 +61,12 @@ const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
 const appCors = cors({
   origin: getWebUrl(),
   allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  allowHeaders: ["Content-Type", "Authorization", "X-Org-Id"],
+  allowHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Org-Id",
+    PLAN_PREVIEW_HEADER,
+  ],
 });
 const publicApiCors = cors({
   origin: "*",

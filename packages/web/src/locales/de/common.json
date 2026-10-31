@@ -25,7 +25,9 @@
     "more": "Mehr",
     "stats": "Statistiken",
     "sortingRules": "Sortierregeln",
-    "intake": "An- & Verkauf"
+    "intake": "An- & Verkauf",
+    "upgradeYourPlan": "Tarif upgraden",
+    "upgradeShort": "Upgrade"
   },
   "alerts": {
     "dismiss": "Verwerfen",
@@ -328,5 +330,14 @@
   },
   "planLock": {
     "link": "Tarife ansehen"
+  },
+  "planPreview": {
+    "banner": "Vorschau des Tarifs {{plan}}. Limits und gesperrte Funktionen folgen diesem Tarif.",
+    "stop": "Vorschau beenden",
+    "planNames": {
+      "free": "Kostenlos",
+      "enthusiast": "Enthusiast",
+      "business": "Business"
+    }
   }
 }

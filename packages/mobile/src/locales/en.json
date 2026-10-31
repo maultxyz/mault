@@ -24,7 +24,9 @@
     "account": "Account",
     "home": "Home",
     "rules": "Rules",
-    "storage": "Storage"
+    "storage": "Storage",
+    "upgradeYourPlan": "Upgrade your plan",
+    "upgradeShort": "Upgrade"
   },
   "auth": {
     "tagline": "Scan, sort and track your cards from your phone.",
@@ -1217,7 +1219,7 @@
     "noCardsTitle": "This location is empty",
     "businessOnly": "Storage locations aren't included in your plan.",
     "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
-    "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs a plan that includes storage.",
+    "lockedWithLocations": "You can still view and search your locations and the cards in them. Changing anything needs a plan that includes storage.",
     "actionFailed": "Couldn't update storage",
     "actions": "Location actions",
     "review": {

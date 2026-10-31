@@ -4,6 +4,8 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { ORDERS_PATH } from "@/lib/constants/business";
 import { SHOP_URL } from "@/lib/constants/links";
+import { STORAGE_PATH } from "@/lib/constants/storage";
+import type { PlanGatedPath } from "@/lib/interfaces/nav";
 
 export const NAV_SUBITEMS_LIMIT = 5;
 
@@ -96,3 +98,13 @@ export const PUBLIC_NAV_PAGES = [
   { key: "download", to: DOWNLOAD_PATH },
   { key: "shop", to: SHOP_URL, external: true },
 ] as const;
+
+export const PLAN_GATED_PATHS: readonly PlanGatedPath[] = [
+  {
+    pathPrefix: STORAGE_PATH,
+    feature: "storage",
+    readOnlyWhenCountKey: "storageLocationCount",
+  },
+  { pathPrefix: ORDERS_PATH, feature: "businessTools" },
+  { pathPrefix: SETTINGS_PATHS.business, feature: "businessTools" },
+];
