@@ -1,4 +1,4 @@
-import { Callout } from "@/components/callout";
+import { PlanNotice } from "@/components/plan-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -16,7 +16,6 @@ import { billingQueryOptions } from "@/features/billing/api/billing";
 import { checkCollectionName } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import {
   gameLanguagesQueryOptions,
   gamesQueryOptions,
@@ -28,7 +27,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import type { CreateCollectionDialogProps } from "@/lib/interfaces/collections";
 import {
   createCollectionFormSchema,
@@ -172,16 +170,13 @@ export function CreateCollectionDialog({
         className="flex flex-col gap-4"
       >
         {atCollectionLimit && (
-          <Callout variant="warning">
-            {t("createDialog.limitReached", { count: collectionLimit ?? 0 })}{" "}
-            <Link
-              to={SETTINGS_PATHS.billing}
-              onClick={() => handleOpenChange(false)}
-              className="font-medium underline-offset-4 hover:underline"
-            >
-              {t("createDialog.upgrade")}
-            </Link>
-          </Callout>
+          <PlanNotice
+            message={t("createDialog.limitReached", {
+              count: collectionLimit ?? 0,
+            })}
+            linkLabel={t("createDialog.upgrade")}
+            onLinkClick={() => handleOpenChange(false)}
+          />
         )}
         <Controller
           name="gameGuid"

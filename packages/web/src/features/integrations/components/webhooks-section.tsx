@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
@@ -14,7 +15,6 @@ import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWebhooks } from "@/features/integrations/api/use-webhooks";
 import { WebhookDialog } from "@/features/integrations/components/webhook-dialog";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { WebhookEndpoint } from "@magic-vault/shared";
 import {
   IconCopy,
@@ -24,7 +24,6 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import { copyWithToast } from "@/lib/clipboard";
 
 function formatDateTime(value: string): string {
@@ -96,15 +95,10 @@ export function WebhooksSection() {
       }
     >
       {isLocked && (
-        <Callout variant="info">
-          {t("webhooks.upgrade")}{" "}
-          <Link
-            to={SETTINGS_PATHS.billing}
-            className="font-medium text-foreground underline-offset-4 hover:underline"
-          >
-            {t("apiKeys.upgradeLink")}
-          </Link>
-        </Callout>
+        <PlanNotice
+          message={t("webhooks.upgrade")}
+          linkLabel={t("apiKeys.upgradeLink")}
+        />
       )}
       {isError && (
         <Callout variant="error">{t("webhooks.loadFailed")}</Callout>

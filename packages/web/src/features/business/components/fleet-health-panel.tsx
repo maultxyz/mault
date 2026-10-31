@@ -1,7 +1,7 @@
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
-import { PlanLockHint } from "@/components/plan-lock-hint";
+import { PlanNotice } from "@/components/plan-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useBilling } from "@/features/billing/api/use-billing";
@@ -48,7 +48,7 @@ export function FleetHealthPanel() {
           <h2 className="font-heading text-sm font-semibold">{t("fleet.title")}</h2>
           <p className="text-xs text-foreground/70">{t("fleet.description")}</p>
         </div>
-        <PlanLockHint message={t("fleet.notInPlan")} />
+        <PlanNotice message={t("fleet.notInPlan")} />
       </div>
     );
   }

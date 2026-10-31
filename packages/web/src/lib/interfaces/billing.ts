@@ -39,8 +39,11 @@ export interface MemberSeatLock {
   limit: number;
 }
 
-export interface PlanLockHintProps {
+export interface PlanNoticeProps {
   message: string;
+  linkLabel?: string;
+  onLinkClick?: () => void;
+  className?: string;
 }
 
 export interface BillingPlanTableProps {

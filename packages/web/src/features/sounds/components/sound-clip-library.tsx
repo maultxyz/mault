@@ -1,5 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
-import { PlanLockHint } from "@/components/plan-lock-hint";
+import { PlanNotice } from "@/components/plan-notice";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { useBilling } from "@/features/billing/api/use-billing";
@@ -59,7 +59,7 @@ export function SoundClipLibrary() {
         </>
       }
     >
-      {isUploadLocked && <PlanLockHint message={t("library.notInPlan")} />}
+      {isUploadLocked && <PlanNotice message={t("library.notInPlan")} />}
       {!isLoading && clips.length === 0 ? (
         <EmptyState
           size="compact"

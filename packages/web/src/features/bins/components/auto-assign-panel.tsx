@@ -19,7 +19,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
-import { PlanLockHint } from "@/components/plan-lock-hint";
+import { PlanNotice } from "@/components/plan-notice";
 import { ScanOnlyBinSelect } from "@/features/bins/components/scan-only-bin-select";
 import { SortingModeToggleRow } from "@/features/bins/components/sorting-mode-toggle-row";
 import { CHAOS_BIN_SIZE_MAX, SCAN_ONLY_DEFAULT_BIN } from "@magic-vault/shared";
@@ -200,7 +200,7 @@ export function AutoAssignPanel() {
         onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
       />
       {repackLocked && (
-        <PlanLockHint message={t("repackPanel.notInPlan")} />
+        <PlanNotice message={t("repackPanel.notInPlan")} />
       )}
 
       <SortingModeToggleRow
@@ -238,7 +238,7 @@ export function AutoAssignPanel() {
         }
         onCheckedChange={(checked) => stageMode({ isChaosMode: checked })}
       />
-      {chaosLocked && <PlanLockHint message={t("chaosPanel.notInPlan")} />}
+      {chaosLocked && <PlanNotice message={t("chaosPanel.notInPlan")} />}
       {isChaosMode && (
         <div className="flex flex-col gap-1 pl-1">
           <label htmlFor="chaos-bin-size" className="text-xs font-medium">
