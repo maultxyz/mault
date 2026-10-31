@@ -1,3 +1,7 @@
+import {
+  LEGACY_BUSINESS_PLAN,
+  LEGACY_BUSINESS_REPORTED_PLAN,
+} from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authProvider } from "../../auth";
@@ -56,7 +60,11 @@ export const getBillingRoute = new Hono<AppEnv>().get(
         success: true,
         message: "Loaded.",
         data: {
-          plan,
+          plan:
+            plan === LEGACY_BUSINESS_PLAN
+              ? LEGACY_BUSINESS_REPORTED_PLAN
+              : plan,
+          isLegacyPlan: plan === LEGACY_BUSINESS_PLAN,
           isPlanPreview: !!previewPlan,
           status: billing?.status ?? null,
           cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,

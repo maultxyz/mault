@@ -1389,7 +1389,8 @@
       "plan": {
         "free": "Free",
         "enthusiast": "Enthusiast",
-        "business": "Business"
+        "business": "Business",
+        "legacyBusiness": "Business (Legacy)"
       },
       "includes": "Dein Plan enthält",
       "usage": "{{used}} / {{limit}} Karten heute gescannt",
@@ -1426,7 +1427,8 @@
         "businessTools": "An- und Verkauf: Ankaufsangebote, Picklisten und Margenberichte",
         "games": "Jedes unterstützte Sammelkartenspiel",
         "notifications": "Discord-Scan-Benachrichtigungen"
-      }
+      },
+      "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen."
     },
     "apiKeys": {
       "heading": "API-Schlüssel",

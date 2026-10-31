@@ -1,4 +1,4 @@
-import { DEFAULT_PAID_PLAN } from "@magic-vault/shared";
+import { LEGACY_BUSINESS_PLAN } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import type Stripe from "stripe";
@@ -21,7 +21,7 @@ async function upsertOrgBillingFromSubscription(
   const plan =
     subscription.status === "canceled"
       ? "free"
-      : (findPlanForPriceId(item?.price.id)?.plan ?? DEFAULT_PAID_PLAN);
+      : (findPlanForPriceId(item?.price.id)?.plan ?? LEGACY_BUSINESS_PLAN);
   const cancelAtPeriodEnd =
     subscription.cancel_at_period_end || subscription.cancel_at != null;
   await db

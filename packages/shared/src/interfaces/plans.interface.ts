@@ -4,9 +4,11 @@ import type {
   PLAN_FEATURE_KEYS,
   PLAN_KEYS,
   PLAN_LIMIT_KEYS,
+  PUBLIC_PLAN_KEYS,
 } from "../constants/plans.constant";
 
 export type PlanKey = (typeof PLAN_KEYS)[number];
+export type PublicPlanKey = (typeof PUBLIC_PLAN_KEYS)[number];
 export type PaidPlanKey = (typeof PAID_PLAN_KEYS)[number];
 export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number];
 export type PlanLimitKey = (typeof PLAN_LIMIT_KEYS)[number];
@@ -36,7 +38,8 @@ export interface AdminPlanConfigResponse {
 }
 
 export interface BillingStatus {
-  plan: PlanKey;
+  plan: PublicPlanKey;
+  isLegacyPlan?: boolean;
   isPlanPreview?: boolean;
   status: string | null;
   cancelAtPeriodEnd: boolean;

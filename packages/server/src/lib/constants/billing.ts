@@ -14,6 +14,11 @@ export const PLAN_PRICE_ID_ENV: Record<
   },
 };
 
+export const LEGACY_BUSINESS_PRICE_ID_ENV: Record<BillingInterval, string> = {
+  month: "STRIPE_PRICE_ID_LEGACY_BUSINESS",
+  year: "STRIPE_PRICE_ID_LEGACY_BUSINESS_YEARLY",
+};
+
 export const ENTHUSIAST_PLAN_DAILY_SCAN_LIMIT = 500;
 export const ENTHUSIAST_PLAN_MAX_CONNECTED_SORTERS = 2;
 export const ENTHUSIAST_PLAN_MAX_SOUND_RULES = 5;

@@ -246,7 +246,8 @@
     "planNames": {
       "free": "Free",
       "business": "Business",
-      "enthusiast": "Enthusiast"
+      "enthusiast": "Enthusiast",
+      "legacyBusiness": "Business (Legacy)"
     },
     "featuresHeading": "Funktionen",
     "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",

@@ -257,7 +257,8 @@
     "planNames": {
       "free": "Free",
       "business": "Business",
-      "enthusiast": "Enthusiast"
+      "enthusiast": "Enthusiast",
+      "legacyBusiness": "Business (legacy)"
     },
     "featuresHeading": "Features",
     "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",

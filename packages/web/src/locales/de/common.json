@@ -337,7 +337,8 @@
     "planNames": {
       "free": "Kostenlos",
       "enthusiast": "Enthusiast",
-      "business": "Business"
+      "business": "Business",
+      "legacyBusiness": "Business (Legacy)"
     }
   }
 }

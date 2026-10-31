@@ -1,4 +1,15 @@
-export const PLAN_KEYS = ["free", "enthusiast", "business"] as const;
+export const PLAN_KEYS = [
+  "free",
+  "enthusiast",
+  "business",
+  "legacyBusiness",
+] as const;
+
+export const PUBLIC_PLAN_KEYS = ["free", "enthusiast", "business"] as const;
+
+export const LEGACY_BUSINESS_PLAN = "legacyBusiness";
+
+export const LEGACY_BUSINESS_REPORTED_PLAN = "business";
 
 export const PAID_PLAN_KEYS = ["enthusiast", "business"] as const;
 

@@ -1,6 +1,8 @@
 import {
   BILLING_INTERVALS,
+  LEGACY_BUSINESS_PLAN,
   PAID_PLAN_KEYS,
+  type PlanKey,
   type BillingInterval,
   type PaidPlanKey,
   type PaidPlanPrices,
@@ -8,7 +10,10 @@ import {
   type PlanPriceInfo,
 } from "@magic-vault/shared";
 import Stripe from "stripe";
-import { PLAN_PRICE_ID_ENV } from "./constants/billing";
+import {
+  LEGACY_BUSINESS_PRICE_ID_ENV,
+  PLAN_PRICE_ID_ENV,
+} from "./constants/billing";
 import { STRIPE_PRICE_CACHE_TTL_MS as PRICE_CACHE_TTL_MS } from "./constants/timing";
 
 let _stripe: Stripe | null = null;
@@ -39,8 +44,15 @@ export function findPlanPriceId(
 
 export function findPlanForPriceId(
   priceId: string | null | undefined,
-): { plan: PaidPlanKey; interval: BillingInterval } | null {
+): { plan: PlanKey; interval: BillingInterval } | null {
   if (!priceId) return null;
+  const legacyInterval = BILLING_INTERVALS.find(
+    (interval) =>
+      process.env[LEGACY_BUSINESS_PRICE_ID_ENV[interval]] === priceId,
+  );
+  if (legacyInterval) {
+    return { plan: LEGACY_BUSINESS_PLAN, interval: legacyInterval };
+  }
   for (const plan of PAID_PLAN_KEYS) {
     for (const interval of BILLING_INTERVALS) {
       if (findPlanPriceId(plan, interval) === priceId) {

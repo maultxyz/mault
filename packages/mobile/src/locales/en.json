@@ -1389,7 +1389,8 @@
       "plan": {
         "free": "Free",
         "enthusiast": "Enthusiast",
-        "business": "Business"
+        "business": "Business",
+        "legacyBusiness": "Business (legacy)"
       },
       "includes": "Your plan includes",
       "usage": "{{used}} / {{limit}} cards scanned today",
@@ -1426,7 +1427,8 @@
         "businessTools": "Buy and sell: intake offers, order pull sheets and margin reports",
         "games": "Every supported card game",
         "notifications": "Discord scan notifications"
-      }
+      },
+      "legacyPlanNote": "You're on the original Business plan, which is no longer offered. You keep it, with everything it includes, for as long as your subscription stays active. Switching to another plan or cancelling can't be undone."
     },
     "apiKeys": {
       "heading": "API keys",

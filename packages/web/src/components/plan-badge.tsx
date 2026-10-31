@@ -5,6 +5,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBilling } from "@/features/billing/api/use-billing";
+import { billingPlanNameKey } from "@/features/billing/lib/billing-plan-name";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -17,7 +18,7 @@ export function PlanBadge() {
   if (isLoading || !billing) return null;
 
   const isPaid = billing.plan !== "free";
-  const planName = t(`plan.${billing.plan}`);
+  const planName = t(`plan.${billingPlanNameKey(billing)}`);
   const dailyLimit = billing.dailyLimit;
   const used = billing.cardsScannedToday;
   const usagePercent = dailyLimit

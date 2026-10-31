@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useBilling } from "@/features/billing/api/use-billing";
+import { billingPlanNameKey } from "@/features/billing/lib/billing-plan-name";
 import { usePlanPreview } from "@/hooks/use-plan-preview";
 import { ALERT_SEVERITY_BANNER_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
@@ -23,7 +24,7 @@ export function PlanPreviewBanner() {
       <IconEye className="size-3.5 shrink-0" />
       <span>
         {t("planPreview.banner", {
-          plan: t(`planPreview.planNames.${billing.plan}`),
+          plan: t(`planPreview.planNames.${billingPlanNameKey(billing)}`),
         })}
       </span>
       <Button variant="outline" onClick={() => changePreviewPlan(null)}>

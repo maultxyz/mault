@@ -1,8 +1,10 @@
+import { LEGACY_BUSINESS_PLAN } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { Callout } from "@/components/ui/callout";
 import { Icon } from "@/components/ui/icon";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
@@ -35,7 +37,8 @@ export default function BillingSettingsScreen() {
         <Skeleton height={240} />
       ) : (
         <Surface style={{ gap: SPACING.lg }}>
-          <Pill tone={isPaidPlan ? "success" : "neutral"} label={t(`settings.billing.plan.${billing.plan}`)} />
+          <Pill tone={isPaidPlan ? "success" : "neutral"} label={t(`settings.billing.plan.${billing.isLegacyPlan ? LEGACY_BUSINESS_PLAN : billing.plan}`)} />
+          {billing.isLegacyPlan ? <Callout tone="info" title={t("settings.billing.legacyPlanNote")} /> : null}
           {billing.dailyLimit != null ? (
             <View style={{ gap: SPACING.xs }}>
               <AppText size="xs" tone="secondary">

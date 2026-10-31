@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,6 +8,7 @@ import {
 } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { useBilling } from "../api/use-billing";
+import { billingPlanNameKey } from "../lib/billing-plan-name";
 import { PlanFeatures } from "./plan-features";
 import { PlanUpgradeOption } from "./plan-upgrade-option";
 
@@ -41,9 +43,13 @@ export function BillingSettings() {
     <div className="flex flex-col gap-3">
       <div>
         <Badge variant={isPaid ? "success" : "secondary"}>
-          {t(`plan.${billing.plan}`)}
+          {t(`plan.${billingPlanNameKey(billing)}`)}
         </Badge>
       </div>
+
+      {billing.isLegacyPlan && (
+        <Callout variant="info">{t("legacyPlanNote")}</Callout>
+      )}
 
       <PlanFeatures billing={billing} />
 

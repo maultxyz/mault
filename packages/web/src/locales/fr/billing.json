@@ -4,7 +4,8 @@
     "business": "Entreprise",
     "label": "Plan",
     "scansToday": "{{used}}/{{limit}} aujourd'hui",
-    "enthusiast": "Passionné"
+    "enthusiast": "Passionné",
+    "legacyBusiness": "Business (ancienne offre)"
   },
   "planFooterTooltip": {
     "free": "Plan gratuit · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour passer à la version supérieure.",
@@ -36,5 +37,6 @@
     "githubStars_other": "{{count}} étoiles sur GitHub"
   },
   "upgradeTo": "Passer à {{plan}}",
-  "changePlanInPortal": "Change d'offre ou de période de facturation depuis le portail de facturation."
+  "changePlanInPortal": "Change d'offre ou de période de facturation depuis le portail de facturation.",
+  "legacyPlanNote": "Vous avez l'offre Business d'origine, qui n'est plus proposée. Vous la conservez, avec tout ce qu'elle inclut, tant que votre abonnement reste actif. Passer à une autre offre ou résilier est définitif."
 }

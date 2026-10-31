@@ -1,8 +1,4 @@
-import type {
-  PlanConfig,
-  PlanFeatureKey,
-  PlanKey,
-} from "@magic-vault/shared";
+import type { PlanConfig, PlanFeatureKey, PlanKey } from "@magic-vault/shared";
 
 export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
   free: {
@@ -46,6 +42,26 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
     },
   },
   business: {
+    features: {
+      chaosSort: true,
+      repacks: true,
+      customSounds: true,
+      fleetHealth: true,
+      storage: true,
+      apiAccess: true,
+      businessTools: true,
+    },
+    limits: {
+      dailyScans: null,
+      organizations: null,
+      membersPerOrg: null,
+      connectedSorters: null,
+      soundRules: null,
+      notificationRules: null,
+      collections: null,
+    },
+  },
+  legacyBusiness: {
     features: {
       chaosSort: true,
       repacks: true,

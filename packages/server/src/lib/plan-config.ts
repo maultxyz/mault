@@ -91,6 +91,26 @@ export function defaultPlanConfig(): PlanConfig {
         collections: null,
       },
     },
+    legacyBusiness: {
+      features: {
+        chaosSort: true,
+        repacks: true,
+        customSounds: true,
+        fleetHealth: true,
+        storage: true,
+        apiAccess: true,
+        businessTools: true,
+      },
+      limits: {
+        dailyScans: null,
+        organizations: null,
+        membersPerOrg: null,
+        connectedSorters: null,
+        soundRules: null,
+        notificationRules: null,
+        collections: null,
+      },
+    },
   };
 }
 

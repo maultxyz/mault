@@ -1389,7 +1389,8 @@
       "plan": {
         "free": "Free",
         "enthusiast": "Enthusiast",
-        "business": "Business"
+        "business": "Business",
+        "legacyBusiness": "Business (ancienne offre)"
       },
       "includes": "Ton plan comprend",
       "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
@@ -1426,7 +1427,8 @@
         "businessTools": "Achat et vente : offres de rachat, listes de préparation et rapports de marges",
         "games": "Tous les jeux de cartes pris en charge",
         "notifications": "Notifications Discord de scan"
-      }
+      },
+      "legacyPlanNote": "Vous avez l'offre Business d'origine, qui n'est plus proposée. Vous la conservez, avec tout ce qu'elle inclut, tant que votre abonnement reste actif. Passer à une autre offre ou résilier est définitif."
     },
     "apiKeys": {
       "heading": "Clés API",

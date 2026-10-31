@@ -4,7 +4,8 @@
     "business": "Business",
     "label": "Plan",
     "scansToday": "{{used}}/{{limit}} heute",
-    "enthusiast": "Enthusiast"
+    "enthusiast": "Enthusiast",
+    "legacyBusiness": "Business (Legacy)"
   },
   "planFooterTooltip": {
     "free": "Kostenloser Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um zu upgraden.",
@@ -36,5 +37,6 @@
     "githubStars_other": "{{count}} Sterne auf GitHub"
   },
   "upgradeTo": "Auf {{plan}} upgraden",
-  "changePlanInPortal": "Tarif wechseln oder Abrechnungszeitraum ändern kannst du im Abrechnungsportal."
+  "changePlanInPortal": "Tarif wechseln oder Abrechnungszeitraum ändern kannst du im Abrechnungsportal.",
+  "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen."
 }

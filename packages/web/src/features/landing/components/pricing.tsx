@@ -14,7 +14,7 @@ import {
   DEFAULT_BILLING_INTERVAL,
   MAX_CONNECTED_SORTERS,
   PAID_PLAN_KEYS,
-  PLAN_KEYS,
+  PUBLIC_PLAN_KEYS,
   type BillingInterval,
 } from "@magic-vault/shared";
 import { useState } from "react";
@@ -32,7 +32,7 @@ export function LandingPricing({ step }: MarketingStepProps) {
   const [interval, setBillingInterval] = useState<BillingInterval>(
     DEFAULT_BILLING_INTERVAL,
   );
-  const visiblePlans = PLAN_KEYS.filter(
+  const visiblePlans = PUBLIC_PLAN_KEYS.filter(
     (plan) =>
       plan === "free" ||
       !planPrices ||
