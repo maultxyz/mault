@@ -11,6 +11,7 @@ import type {
   TcgtrackingGameConfig,
 } from "../interfaces/tcgtracking";
 import { tcgtrackingCardImage, tcgtrackingFallbackId } from "./catalog";
+import { printedCollectorNumber } from "./keys";
 
 export function isTcgtrackingFallbackData(
   data: unknown,
@@ -73,7 +74,7 @@ export function normalizeTcgtrackingFallback(
     image: tcgtrackingCardImage(data.product.id),
     set: fallbackSetCode(data),
     setName: data.set.name,
-    collectorNumber: data.product.number ?? "",
+    collectorNumber: printedCollectorNumber(data.product.number),
     rarity: data.product.rarity ?? "",
     typeLine:
       extText(ext, TCGTRACKING_EXT_KEYS.fullType) ??
@@ -94,16 +95,29 @@ export function normalizeTcgtrackingFallback(
   };
 }
 
-export function toTcgtrackingFallbackSyncCard(
+export function toTcgtrackingFallbackData(
   entry: TcgtrackingCatalogEntry,
   primarySetCode: string | undefined,
-): SyncSourceCard {
-  const data: TcgtrackingFallbackData = {
+  config: TcgtrackingGameConfig,
+): TcgtrackingFallbackData {
+  return {
+    ...config.primaryShapedFieldsOf?.({
+      name: entry.product.name,
+      collectorNumber: printedCollectorNumber(entry.product.number),
+    }),
     source: TCGTRACKING_FALLBACK_SOURCE,
     product: entry.product,
     set: entry.set,
     ...(primarySetCode ? { primarySetCode } : {}),
   };
+}
+
+export function toTcgtrackingFallbackSyncCard(
+  entry: TcgtrackingCatalogEntry,
+  primarySetCode: string | undefined,
+  config: TcgtrackingGameConfig,
+): SyncSourceCard {
+  const data = toTcgtrackingFallbackData(entry, primarySetCode, config);
   return {
     id: tcgtrackingFallbackId(entry.product.id),
     name: entry.product.name,

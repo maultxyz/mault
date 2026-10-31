@@ -48,6 +48,12 @@ export interface TcgtrackingFallbackData {
   set: TcgtrackingCatalogSet;
   primarySetCode?: string;
   supersededByCardId?: string;
+  [primaryShapedField: string]: unknown;
+}
+
+export interface TcgtrackingPrimaryShapedFieldsInput {
+  name: string;
+  collectorNumber: string;
 }
 
 export type TcgtrackingNumbering = "global" | "per-set" | "name-only";
@@ -64,6 +70,9 @@ export interface TcgtrackingGameConfig {
   primaryCardIdOf?(product: TcgtrackingProduct): string | null;
   comparableProductName?(name: string): string;
   colorIdentityOf?(colors: string[]): string[];
+  primaryShapedFieldsOf?(
+    input: TcgtrackingPrimaryShapedFieldsInput,
+  ): Record<string, unknown>;
 }
 
 export interface TcgtrackingPrimaryCard {

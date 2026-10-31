@@ -8,6 +8,7 @@ import {
 import {
   isTcgtrackingFallbackData,
   normalizeTcgtrackingFallback,
+  toTcgtrackingFallbackData,
 } from "./fallback";
 import { TCGTRACKING_GAMES } from "./games";
 
@@ -50,7 +51,7 @@ export function withTcgtracking(
         success: true,
         message: "Successfully fetched card by id.",
         data: normalizeTcgtrackingFallback(
-          { source: "tcgtracking", ...entry },
+          toTcgtrackingFallbackData(entry, undefined, config),
           id,
           config,
         ),
