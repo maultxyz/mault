@@ -321,10 +321,6 @@ export const routes: RouteObject[] = [
             element: <LegacyIntakeReceiptRedirect />,
           },
           {
-            path: CONTROL_CARDS_PATH,
-            element: <ControlCardsPage />,
-          },
-          {
             path: "/app/verify-email",
             element:
               AUTH_PROVIDER === "local" ? (
@@ -614,6 +610,10 @@ export const routes: RouteObject[] = [
               {
                 path: "/app/health",
                 element: <HealthPage />,
+              },
+              {
+                path: CONTROL_CARDS_PATH,
+                element: <ControlCardsPage />,
               },
               {
                 path: STATS_PATH,
