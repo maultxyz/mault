@@ -9,9 +9,12 @@ import {
 import type { MemberSeatLimitErrorBody } from "./interfaces/plans.interface";
 
 export class MemberSeatLimitError extends Error {
-  constructor(readonly limit: number) {
+  readonly limit: number;
+
+  constructor(limit: number) {
     super(`This organization's member seat limit of ${limit} is reached.`);
     this.name = "MemberSeatLimitError";
+    this.limit = limit;
   }
 }
 
