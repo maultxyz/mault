@@ -1,13 +1,8 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useOrg } from "@/features/companies/api/use-organization";
-import {
-  deleteSoundClip,
-  renameSoundClip,
-  soundClipsQueryOptions,
-} from "@/features/sounds/api/sounds";
 import { SoundWaveform } from "@/features/sounds/components/sound-waveform";
 import type {
   ClipPreviewState,
@@ -29,15 +24,19 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect,  useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-export function SoundClipRow({ clip }: SoundClipRowProps) {
+export function SoundClipRow({
+  clip,
+  clipsQueryKey,
+  renameClip,
+  deleteClip,
+}: SoundClipRowProps) {
   const { t } = useTranslation("sounds");
-  const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
-  const clipsKey = soundClipsQueryOptions(activeOrg?.id).queryKey;
+  const canManage = !!renameClip && !!deleteClip;
   const [editing, setEditing] = useState(false);
   const [preview] = useState<ClipPreviewState>(() => ({
     audio: null,
@@ -57,14 +56,14 @@ export function SoundClipRow({ clip }: SoundClipRowProps) {
   });
 
   const rename = useMutation({
-    mutationFn: (name: string) => renameSoundClip(clip.guid, name),
+    mutationFn: (name: string) => renameClip!(clip.guid, name),
     onSuccess: (result) => {
       if (!result.success || !result.data) {
         toast.error(result.message || t("library.renameFailed"));
         return;
       }
       const saved = result.data;
-      queryClient.setQueryData(clipsKey, (old: SoundClip[] | undefined) =>
+      queryClient.setQueryData(clipsQueryKey, (old: SoundClip[] | undefined) =>
         old?.map((c) => (c.guid === saved.guid ? saved : c)),
       );
       setEditing(false);
@@ -73,9 +72,9 @@ export function SoundClipRow({ clip }: SoundClipRowProps) {
   });
 
   const remove = useMutation({
-    mutationFn: () => deleteSoundClip(clip.guid),
+    mutationFn: () => deleteClip!(clip.guid),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: clipsKey });
+      void queryClient.invalidateQueries({ queryKey: clipsQueryKey });
       void queryClient.invalidateQueries({ queryKey: ["sound-rules"] });
     },
     onError: () => toast.error(t("library.deleteFailed")),
@@ -165,7 +164,12 @@ export function SoundClipRow({ clip }: SoundClipRowProps) {
             </ButtonGroup>
           </form>
         ) : (
-          <span className="block truncate text-sm">{clip.name}</span>
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="truncate text-sm">{clip.name}</span>
+            {clip.isSystem && !canManage && (
+              <Badge variant="secondary">{t("library.builtIn")}</Badge>
+            )}
+          </span>
         )}
       </div>
 
@@ -202,28 +206,30 @@ export function SoundClipRow({ clip }: SoundClipRowProps) {
       <span className="col-start-3 row-start-2 text-sm tabular-nums text-foreground/70">
         {t("library.size", { kb: Math.ceil(clip.sizeBytes / 1024) })}
       </span>
-      <ButtonGroup className="col-start-4 row-start-2">
-        <Button
-          size="icon"
-          variant="outline"
-          disabled={editing}
-          aria-label={t("library.rename", { name: clip.name })}
-          title={t("library.rename", { name: clip.name })}
-          onClick={startEditing}
-        >
-          <IconPencil size={14} />
-        </Button>
-        <Button
-          size="icon"
-          variant="outline-destructive"
-          disabled={remove.isPending}
-          aria-label={t("library.delete", { name: clip.name })}
-          title={t("library.delete", { name: clip.name })}
-          onClick={() => remove.mutate()}
-        >
-          <IconTrash size={14} />
-        </Button>
-      </ButtonGroup>
+      {canManage && (
+        <ButtonGroup className="col-start-4 row-start-2">
+          <Button
+            size="icon"
+            variant="outline"
+            disabled={editing}
+            aria-label={t("library.rename", { name: clip.name })}
+            title={t("library.rename", { name: clip.name })}
+            onClick={startEditing}
+          >
+            <IconPencil size={14} />
+          </Button>
+          <Button
+            size="icon"
+            variant="outline-destructive"
+            disabled={remove.isPending}
+            aria-label={t("library.delete", { name: clip.name })}
+            title={t("library.delete", { name: clip.name })}
+            onClick={() => remove.mutate()}
+          >
+            <IconTrash size={14} />
+          </Button>
+        </ButtonGroup>
+      )}
     </li>
   );
 }

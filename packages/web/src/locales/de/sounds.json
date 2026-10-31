@@ -23,7 +23,8 @@
     "cancelRename": "Abbrechen",
     "renameFailed": "Der Soundclip konnte nicht umbenannt werden.",
     "stop": "{{name}} stoppen",
-    "notInPlan": "Das Hochladen eigener Sounds ist nicht Teil deines Tarifs."
+    "notInPlan": "Das Hochladen eigener Sounds ist nicht Teil deines Tarifs, aber du kannst die integrierten Clips in deinen Regeln verwenden.",
+    "builtIn": "Integriert"
   },
   "rules": {
     "heading": "Soundregeln",

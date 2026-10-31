@@ -1677,7 +1677,8 @@
         "pickFailed": "Diese Datei konnte nicht geöffnet werden.",
         "renamed": "Soundclip umbenannt.",
         "deleteConfirm": "Regeln, die diesen Clip abspielen, spielen dann keinen Sound mehr.",
-        "notInPlan": "Das Hochladen eigener Sounds ist nicht Teil deines Tarifs."
+        "notInPlan": "Das Hochladen eigener Sounds ist nicht Teil deines Tarifs, aber du kannst die integrierten Clips in deinen Regeln verwenden.",
+        "builtIn": "Integriert"
       },
       "rules": {
         "heading": "Soundregeln",

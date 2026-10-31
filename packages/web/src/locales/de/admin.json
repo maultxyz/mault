@@ -8,6 +8,7 @@
     "users": "Benutzer",
     "plans": "Tarife",
     "discord": "Discord",
+    "sounds": "Sounds",
     "deleted": "Gelöscht und nicht erkannt",
     "hardware": "Hardware",
     "developer": "Entwickler"
@@ -545,5 +546,10 @@
       "clientSent": "Testfehler an Rollbar gesendet (Client).",
       "serverError": "Testfehler konnte nicht an Rollbar gesendet werden (Server)"
     }
+  },
+  "systemSoundClips": {
+    "heading": "System-Soundclips",
+    "description": "Clips, die jede Organisation in ihren Sound-Regeln verwenden kann. Organisationen können sie abspielen, aber nicht umbenennen oder löschen.",
+    "empty": "Noch keine System-Soundclips."
   }
 }

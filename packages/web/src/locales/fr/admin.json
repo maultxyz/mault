@@ -8,6 +8,7 @@
     "users": "Utilisateurs",
     "plans": "Offres",
     "discord": "Discord",
+    "sounds": "Sons",
     "deleted": "Supprimés et non reconnus",
     "hardware": "Matériel",
     "developer": "Développeur"
@@ -545,5 +546,10 @@
       "clientSent": "Erreur de test envoyée à Rollbar (client).",
       "serverError": "Impossible d'envoyer l'erreur de test à Rollbar (serveur)"
     }
+  },
+  "systemSoundClips": {
+    "heading": "Clips sonores système",
+    "description": "Des clips que chaque organisation peut utiliser dans ses règles sonores. Les organisations peuvent les écouter, mais pas les renommer ni les supprimer.",
+    "empty": "Aucun clip sonore système pour le moment."
   }
 }

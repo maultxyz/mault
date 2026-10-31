@@ -1677,7 +1677,8 @@
         "pickFailed": "Impossible d'ouvrir ce fichier.",
         "renamed": "Extrait sonore renommé.",
         "deleteConfirm": "Les règles qui jouent cet extrait ne joueront plus de son.",
-        "notInPlan": "L'import de sons personnalisés ne fait pas partie de votre offre."
+        "notInPlan": "L'import de sons personnalisés ne fait pas partie de votre offre, mais vous pouvez utiliser les clips intégrés dans vos règles.",
+        "builtIn": "Intégré"
       },
       "rules": {
         "heading": "Règles sonores",

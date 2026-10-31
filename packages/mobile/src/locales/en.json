@@ -1677,7 +1677,8 @@
         "pickFailed": "Couldn't open that file.",
         "renamed": "Sound clip renamed.",
         "deleteConfirm": "Rules that play this clip stop playing a sound.",
-        "notInPlan": "Uploading custom sounds isn't part of your plan."
+        "notInPlan": "Uploading your own sounds isn't part of your plan, but you can use the built-in clips in your rules.",
+        "builtIn": "Built-in"
       },
       "rules": {
         "heading": "Sound rules",

@@ -990,7 +990,7 @@ export const soundClips = pgTable(
     storageKey: text("storage_key"),
     dataUrl: text("data_url"),
     waveform: jsonb("waveform"),
-    orgId: text("org_id").notNull(),
+    orgId: text("org_id"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -1000,7 +1000,7 @@ export const soundClips = pgTable(
     index("sound_clips_org_idx").on(table.orgId),
     crudPolicy({
       role: authenticatedRole,
-      read: orgRls(table.orgId),
+      read: sql`(${table.orgId} IS NULL OR ${orgRls(table.orgId)})`,
       modify: orgRls(table.orgId),
     }),
   ],
