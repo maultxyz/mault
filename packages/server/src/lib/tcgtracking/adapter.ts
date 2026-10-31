@@ -56,6 +56,21 @@ export function withTcgtracking(
         ),
       };
     },
+    cardmarket: adapter.cardmarket && {
+      ...adapter.cardmarket,
+      productIdFromRaw(card) {
+        if (isTcgtrackingFallbackData(card.raw)) {
+          return card.raw.product.cardmarket_id;
+        }
+        return adapter.cardmarket?.productIdFromRaw?.(card);
+      },
+      productNames: adapter.cardmarket.productNames
+        ? (card) =>
+            isTcgtrackingFallbackData(card.raw)
+              ? []
+              : (adapter.cardmarket?.productNames?.(card) ?? [])
+        : undefined,
+    },
     excludedFromMatchingSql: adapter.excludedFromMatchingSql
       ? sql`((${adapter.excludedFromMatchingSql}) OR ${superseded})`
       : superseded,

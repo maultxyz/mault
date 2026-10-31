@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import type { PlayingCard } from "@magic-vault/shared";
+import { withTcgtracking } from "../src/lib/tcgtracking/adapter";
 import { normalizeTcgtrackingFallback } from "../src/lib/tcgtracking/fallback";
 import { TCGTRACKING_GAMES } from "../src/lib/tcgtracking/games";
 import {
@@ -8,6 +10,7 @@ import {
   collectorNumberKey,
   comparableProductName,
 } from "../src/lib/tcgtracking/keys";
+import type { CardSearchAdapter } from "../src/lib/interfaces/card-search";
 import type { TcgtrackingFallbackData } from "../src/lib/interfaces/tcgtracking";
 
 function fallback(ext: Record<string, unknown>): TcgtrackingFallbackData {
@@ -142,4 +145,24 @@ test("mtg fallback colors become color letters and keep the full type", () => {
   assert.deepEqual(card.colorIdentity, ["W", "U"]);
   assert.equal(card.typeLine, "Artifact Creature \u2014 Borg");
   assert.equal(card.set, "trk");
+});
+
+test("fallback cards price on Cardmarket by id, never through the adapter's raw name hook", () => {
+  const adapter = withTcgtracking("onepiece", {
+    tcgplayer: { categoryId: 68 },
+    cardmarket: {
+      gameId: 18,
+      productNames: (card: PlayingCard) => [
+        (card.raw as { card_name: string }).card_name.trim(),
+      ],
+    },
+  } as unknown as CardSearchAdapter);
+  const data = fallback({});
+  const card = normalizeTcgtrackingFallback(
+    { ...data, product: { ...data.product, cardmarket_id: 834211 } },
+    "tcgp-712889",
+    TCGTRACKING_GAMES.onepiece,
+  );
+  assert.equal(adapter.cardmarket?.productIdFromRaw?.(card), 834211);
+  assert.deepEqual(adapter.cardmarket?.productNames?.(card), []);
 });
