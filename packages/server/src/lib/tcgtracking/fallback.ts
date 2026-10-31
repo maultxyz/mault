@@ -22,7 +22,7 @@ export function isTcgtrackingFallbackData(
   );
 }
 
-function extValues(
+export function extValues(
   ext: Record<string, unknown>,
   keys: readonly string[],
 ): string[] {
@@ -41,7 +41,7 @@ function extValues(
   return [];
 }
 
-function extText(
+export function extText(
   ext: Record<string, unknown>,
   keys: readonly string[],
 ): string | undefined {

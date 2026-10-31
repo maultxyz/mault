@@ -75,6 +75,23 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       fallback: true,
     },
   ],
+  pokemonjp: [
+    {
+      field: "number",
+      x: 0.03,
+      y: 0.935,
+      width: 0.28,
+      height: 0.035,
+    },
+    {
+      field: "number",
+      x: 0.782,
+      y: 0.947,
+      width: 0.174,
+      height: 0.033,
+      fallback: true,
+    },
+  ],
   yugioh: [
     {
       field: "name",

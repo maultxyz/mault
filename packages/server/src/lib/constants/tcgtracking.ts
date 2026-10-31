@@ -29,4 +29,6 @@ export const TCGTRACKING_EXT_KEYS = {
 export const TCGTRACKING_PRODUCT_NUMBER_SUFFIX_PATTERN =
   /\s+-\s+[A-Za-z]*\d+[A-Za-z]?(?:\/\d+)?(?=\s*(?:\(|$))/;
 
+export const GUNDAM_PRODUCT_CARD_NUMBER_TAG_PATTERN = /\s*\([A-Z]+\d*-\d+\)/g;
+
 export const POKEMON_BASIC_ENERGY_PREFIX_PATTERN = /^Basic\s+(?=.*\bEnergy\b)/i;

@@ -29,6 +29,7 @@ import {
   OCR_NAME_CANDIDATE_LIMIT,
   OCR_NAME_MIN_LENGTH,
   OCR_NAME_MIN_SIMILARITY,
+  OCR_PRINTED_NUMBER_CANDIDATE_LIMIT,
 } from "../../lib/constants/ocr";
 import type {
   CardMatchSearchResult,
@@ -38,6 +39,7 @@ import type {
 } from "../../lib/interfaces/card-search";
 import { ocrRegions } from "../../lib/ocr";
 import { stripLeadingZeros } from "../../lib/ocr-calibration/match";
+import { pgTextArray } from "../../lib/sql-arrays";
 
 export function normalizeForMatch(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -362,6 +364,30 @@ function ocrNumberCandidates(text: string): string[] {
   );
 }
 
+export function printedCollectorNumberCandidates(text: string): string[] {
+  const numbersBeforeSlash = [...text.matchAll(/(\d+)\s*\//g)].map((match) =>
+    stripLeadingZeros(match[1]),
+  );
+  return [
+    ...new Set(
+      numbersBeforeSlash.length > 0
+        ? numbersBeforeSlash
+        : ocrNumberCandidates(text),
+    ),
+  ];
+}
+
+export function printedSetCodeMatchLength(
+  setCode: string,
+  printedTokens: string[],
+): number {
+  const code = normalizeForMatch(setCode);
+  return code.length >= 2 &&
+    printedTokens.some((token) => token.startsWith(code))
+    ? code.length
+    : 0;
+}
+
 function matchesCollectorNumber(
   collectorNumber: string | null,
   numberCandidates: string[],
@@ -480,6 +506,109 @@ export async function findCardMatchesByText(
   });
 }
 
+async function findCardMatchesByPrintedSetAndNumber(
+  jwtClaims: string,
+  { embeddings, readout, preferredSetCode, ...scope }: CardTextMatchParams,
+): Promise<CardTextMatchResult> {
+  const printedText = [readout.setLine, readout.number]
+    .filter(Boolean)
+    .join("\n");
+  const numberCandidates = printedCollectorNumberCandidates(printedText);
+  const noMatch: CardTextMatchResult = {
+    message: "No card matched the set code and number on the card.",
+    success: true,
+    data: null,
+    nearestDistance: null,
+    ocr: { readout, matchedName: null, nameScore: null },
+  };
+  if (numberCandidates.length === 0) return noMatch;
+
+  const embeddingStr = vectorLiteral(embeddings.embedding)!;
+  const printedTokens = extractOcrTokens(printedText);
+  const rows = await authQuery(jwtClaims, async (tx) => {
+    const result = await tx.execute(sql`
+      SELECT
+        card_id,
+        lang,
+        set_code,
+        ${cardDistanceSql(embeddingStr)} AS distance
+      FROM cards
+      WHERE game_key = ${scope.gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)}
+        AND regexp_replace(substring(collector_number from '[0-9]+'), '^0+(?=[0-9])', '')
+          = ANY(${pgTextArray(numberCandidates)}::text[])
+      ORDER BY distance ASC
+      LIMIT ${OCR_PRINTED_NUMBER_CANDIDATE_LIMIT}
+    `);
+    return result.rows;
+  });
+  if (rows.length === 0) return noMatch;
+
+  const printings = rows
+    .map((row) => ({
+      id: row.card_id as string,
+      cardId: row.card_id as string,
+      lang: row.lang as string,
+      distance: row.distance as number,
+      setCodeMatchLength: printedSetCodeMatchLength(
+        row.set_code as string,
+        printedTokens,
+      ),
+      isPreferredSet:
+        !!preferredSetCode &&
+        (row.set_code as string).toLowerCase() ===
+          preferredSetCode.toLowerCase(),
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.isPreferredSet) - Number(a.isPreferredSet) ||
+        b.setCodeMatchLength - a.setCodeMatchLength ||
+        a.distance - b.distance,
+    );
+
+  const data: SearchCardMatch[] = withConfidence(
+    printings.slice(0, CARD_MATCH_LIMIT),
+  ).map(({ id, cardId, lang, distance, confidence }) => ({
+    id,
+    cardId,
+    lang,
+    distance,
+    confidence,
+  }));
+
+  return {
+    message: "Matched card by the set code and number on the card.",
+    success: true,
+    data,
+    nearestDistance: printings[0].distance,
+    ocr: {
+      readout,
+      matchedName: null,
+      nameScore: null,
+      printingConfirmed: printings[0].setCodeMatchLength > 0,
+    },
+  };
+}
+
+function withoutDistantUnconfirmedMatch(
+  result: CardTextMatchResult,
+): CardTextMatchResult {
+  const leader = result.data?.[0];
+  if (
+    leader &&
+    !result.ocr.printingConfirmed &&
+    leader.distance > OCR_MATCH_MAX_IMAGE_DISTANCE
+  ) {
+    return {
+      message: "The card matched by text looks too different from the scan.",
+      success: true,
+      data: null,
+      nearestDistance: leader.distance,
+      ocr: result.ocr,
+    };
+  }
+  return result;
+}
+
 function mergeReadouts(primary: OcrReadout, fallback: OcrReadout): OcrReadout {
   const merge = (field: OcrField) =>
     [primary[field], fallback[field]].filter(Boolean).join("\n");
@@ -511,6 +640,17 @@ export async function findCardMatchesByOcr(
 ): Promise<CardTextMatchResult> {
   const { primary, fallback } = await ocrRegions(buffer, regions, trace);
   const readout = mergeReadouts(primary, fallback);
+  if (
+    resolveCardSearchForGame(params.gameKey, params.lang)?.adapter
+      .ocrMatchesByPrintedSetAndNumber
+  ) {
+    return withoutDistantUnconfirmedMatch(
+      await findCardMatchesByPrintedSetAndNumber(jwtClaims, {
+        ...params,
+        readout,
+      }),
+    );
+  }
   const nameCandidates = [
     { name: primary.name, fromFallback: false },
     { name: fallback.name, fromFallback: true },
@@ -535,26 +675,14 @@ export async function findCardMatchesByOcr(
   const closest = results.reduce((best, candidate) =>
     isCloserTextMatch(candidate.result, best.result) ? candidate : best,
   );
-  const ocr = {
-    ...closest.result.ocr,
-    readout,
-    usedFallback: closest.fromFallback,
-  };
-  const leader = closest.result.data?.[0];
-  if (
-    leader &&
-    !ocr.printingConfirmed &&
-    leader.distance > OCR_MATCH_MAX_IMAGE_DISTANCE
-  ) {
-    return {
-      message: "The card matched by text looks too different from the scan.",
-      success: true,
-      data: null,
-      nearestDistance: leader.distance,
-      ocr,
-    };
-  }
-  return { ...closest.result, ocr };
+  return withoutDistantUnconfirmedMatch({
+    ...closest.result,
+    ocr: {
+      ...closest.result.ocr,
+      readout,
+      usedFallback: closest.fromFallback,
+    },
+  });
 }
 
 export async function attachMatchedCards<T extends CardMatchSearchResult>(

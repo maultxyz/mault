@@ -9,6 +9,7 @@ import { gundamAdapter } from "../adapters/gundam/search";
 import { lorcanaAdapter } from "../adapters/lorcana/search";
 import { onePieceAdapter } from "../adapters/onepiece/search";
 import { pokemonAdapter } from "../adapters/pokemon/search";
+import { pokemonJapanAdapter } from "../adapters/pokemon-japan/search";
 import { riftboundAdapter } from "../adapters/riftbound/search";
 import { swuAdapter } from "../adapters/swu/search";
 import { scryfallAdapter } from "../adapters/scryfall/search";
@@ -32,6 +33,7 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   pokemon: withCache(
     withErrorHandling(withTcgtracking("pokemon", pokemonAdapter)),
   ),
+  pokemonjp: withCache(withErrorHandling(pokemonJapanAdapter)),
   lorcana: withCache(
     withErrorHandling(withTcgtracking("lorcana", lorcanaAdapter)),
   ),

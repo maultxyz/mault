@@ -34,6 +34,7 @@ export const FOIL_FINISH_LABEL = "Foil";
 export const TCGPLAYER_PRODUCT_LINES: Record<string, string> = {
   mtg: "Magic",
   pokemon: "Pokemon",
+  pokemonjp: "Pokemon Japan",
   yugioh: "YuGiOh",
   lorcana: "Lorcana TCG",
   onepiece: "One Piece Card Game",

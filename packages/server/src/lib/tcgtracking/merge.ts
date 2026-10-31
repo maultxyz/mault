@@ -167,7 +167,14 @@ function pickByKey(
   config: TcgtrackingGameConfig,
 ): TcgtrackingProduct | null {
   const isBase = config.isBasePrinting?.(primary.card) ?? false;
-  if (primariesWithKey > 1 && !isBase) return null;
+  if (primariesWithKey > 1 && !isBase) {
+    const parallels = config.productMatchesParallelPrinting
+      ? candidates.filter((entry) =>
+          config.productMatchesParallelPrinting?.(primary.card, entry.product),
+        )
+      : [];
+    return parallels.length === 1 ? parallels[0].product : null;
+  }
   const named = candidates.filter(
     (entry) =>
       cardNameKey(comparableProductName(config, entry.product)) ===
@@ -327,6 +334,7 @@ export async function mergeTcgtrackingCatalog(
   }
 
   const cardIdByProductId = new Map<number, string>();
+  const linkedPrimaryCountByKey = new Map<string, number>();
   const merged = primaryCards.map((card, index) => {
     const primary = primaries[index];
     if (!primary || config.numbering === "name-only") return card;
@@ -345,6 +353,9 @@ export async function mergeTcgtrackingCatalog(
         : null);
     if (!product || cardIdByProductId.has(product.id)) return card;
     cardIdByProductId.set(product.id, primary.id);
+    if (key) {
+      linkedPrimaryCountByKey.set(key, (linkedPrimaryCountByKey.get(key) ?? 0) + 1);
+    }
     return stampProductId(card, product.id);
   });
 
@@ -364,7 +375,13 @@ export async function mergeTcgtrackingCatalog(
     }
     const key = productKey(config, entry, alignedSets);
     if (config.numbering === "global") {
-      return !!key && !primaryCountByKey.has(key);
+      if (!key) return false;
+      const primaryCount = primaryCountByKey.get(key) ?? 0;
+      return (
+        primaryCount === 0 ||
+        (!!config.productMatchesParallelPrinting &&
+          linkedPrimaryCountByKey.get(key) === primaryCount)
+      );
     }
     const alignedSet = alignedSets.get(entry.set.id);
     if (!alignedSet) {

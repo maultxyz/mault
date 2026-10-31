@@ -72,6 +72,7 @@ export interface CardSearchAdapter {
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
   rarePrintingSql?: SQL;
   excludedFromMatchingSql?: SQL;
+  ocrMatchesByPrintedSetAndNumber?: boolean;
   foilPrintingVariants?: FoilPrintingVariants;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;

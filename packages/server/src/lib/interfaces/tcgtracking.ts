@@ -16,6 +16,18 @@ export interface TcgtrackingProduct {
   ext_data: Record<string, unknown> | null;
   image_url: string | null;
   scryfall_id?: string | null;
+  cardmarket_id?: number | null;
+}
+
+export interface TcgtrackingProductLookup {
+  success: boolean;
+  product: {
+    category_id: number;
+    group_id: number;
+    set_name: string;
+    set_abbr: string | null;
+    set_released: string | null;
+  };
 }
 
 export interface TcgtrackingCatalogSet {
@@ -45,6 +57,10 @@ export interface TcgtrackingGameConfig {
   fallbacks?: boolean;
   numberKeyOf?(card: PlayingCard): string | null;
   isBasePrinting?(card: PlayingCard): boolean;
+  productMatchesParallelPrinting?(
+    card: PlayingCard,
+    product: TcgtrackingProduct,
+  ): boolean;
   primaryCardIdOf?(product: TcgtrackingProduct): string | null;
   comparableProductName?(name: string): string;
   colorIdentityOf?(colors: string[]): string[];

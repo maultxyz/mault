@@ -1,6 +1,7 @@
 export const GAME_ABBREVIATIONS: Record<string, string> = {
   mtg: "MTG",
   pokemon: "PTCG",
+  pokemonjp: "PTCGJ",
   yugioh: "YGO",
   lorcana: "LOR",
   onepiece: "OPCG",
