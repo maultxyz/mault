@@ -92,6 +92,8 @@
     "forward": "Vorwärts",
     "reverse": "Rückwärts",
     "timeoutLabel": "Timeout (ms)",
+    "feedRetryCountLabel": "Einzugswiederholungen",
+    "feedRetryCountDescription": "Wenn ein Einzug ohne Karte abläuft, wird der Einzugsbefehl bis zu so oft erneut gesendet, bevor pausiert wird. 0 schaltet Wiederholungen aus.",
     "pulseDurationLabel": "Impulsdauer (ms)",
     "continuousFeedButton": "Dauerhafte Zuführung",
     "pauseDurationLabel": "Pausendauer (ms)",
@@ -325,6 +327,7 @@
       "pulse": "Impuls",
       "pause": "Pause",
       "settle": "Verzögerung (letzte Karte)",
+      "feedRetries": "Wiederholungen",
       "rollback": "Zurückrollen"
     },
     "toasts": {

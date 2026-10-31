@@ -38,6 +38,7 @@ export interface PiScanRunContext {
   moduleCount: number;
   region: ScanRegion;
   settleMs: number;
+  feedRetryCount: number;
   checkBothOrientations: boolean;
   flipCamera: boolean;
   matchesNeeded: number;

@@ -419,6 +419,7 @@ export const feederConfigs = pgTable(
     settleDuration: integer("settle_duration").notNull().default(150),
     reverseSpeed: integer("reverse_speed").notNull().default(333),
     reverseDuration: integer("reverse_duration").notNull().default(0),
+    feedRetryCount: integer("feed_retry_count").notNull().default(1),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -1267,6 +1268,7 @@ export const feederConfigAudit = pgTable(
     settleDuration: integer("settle_duration").notNull(),
     reverseSpeed: integer("reverse_speed").notNull().default(333),
     reverseDuration: integer("reverse_duration").notNull().default(0),
+    feedRetryCount: integer("feed_retry_count").notNull().default(1),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [

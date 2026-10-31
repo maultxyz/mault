@@ -223,6 +223,7 @@ export interface FeederCalibrationPanelProps {
   settleDurationValue: number;
   reverseSpeedValue: number;
   reverseDurationValue: number;
+  feedRetryCountValue: number;
   stopPulse: number | null;
   canEditTimings: boolean;
   canCalibrate: boolean;
@@ -235,6 +236,7 @@ export interface FeederCalibrationPanelProps {
   onSettleDurationChange: (value: number) => void;
   onReverseSpeedChange: (value: number) => void;
   onReverseDurationChange: (value: number) => void;
+  onFeedRetryCountChange: (value: number) => void;
   onSelectContinuous: () => void;
   fullWidth?: boolean;
 }

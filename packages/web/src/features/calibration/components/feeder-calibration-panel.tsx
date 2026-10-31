@@ -23,6 +23,8 @@ import {
   SERVO_PULSE_MAX,
   SERVO_PULSE_MIN,
   signedPercentToPulse,
+  FEED_RETRY_COUNT_MAX,
+  FEED_RETRY_COUNT_MIN,
 } from "@magic-vault/shared";
 
 export function FeederCalibrationPanel({
@@ -33,6 +35,7 @@ export function FeederCalibrationPanel({
   settleDurationValue,
   reverseSpeedValue,
   reverseDurationValue,
+  feedRetryCountValue,
   stopPulse,
   canEditTimings,
   canCalibrate,
@@ -45,6 +48,7 @@ export function FeederCalibrationPanel({
   onSettleDurationChange,
   onReverseSpeedChange,
   onReverseDurationChange,
+  onFeedRetryCountChange,
   onSelectContinuous,
   fullWidth = false,
 }: FeederCalibrationPanelProps) {
@@ -176,6 +180,21 @@ export function FeederCalibrationPanel({
             />
           )}
         </SliderField>
+
+        <SliderField
+          label={t("feederCalibrationPanel.feedRetryCountLabel")}
+          description={t("feederCalibrationPanel.feedRetryCountDescription")}
+          valueLabel={
+            feedRetryCountValue === 0
+              ? t("feederCalibrationPanel.off")
+              : String(feedRetryCountValue)
+          }
+          min={FEED_RETRY_COUNT_MIN}
+          max={FEED_RETRY_COUNT_MAX}
+          step={1}
+          value={feedRetryCountValue}
+          onValueChange={onFeedRetryCountChange}
+        />
 
         <SliderField
           label={t("feederCalibrationPanel.pulseDurationLabel")}

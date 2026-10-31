@@ -35,7 +35,12 @@ import {
 } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
-import type { ScannerStatus } from "@magic-vault/shared";
+import {
+  feedWithRetries,
+  parseSerialReply,
+  type ScannerStatus,
+} from "@magic-vault/shared";
+import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
@@ -114,6 +119,7 @@ export function CardScanner({
     sendTest,
     sendRequest,
   } = useSerial();
+  const { feederConfig } = useFeederConfig();
   const device = useDevice();
   const {
     connect,
@@ -343,9 +349,10 @@ export function CardScanner({
     setIsFeeding(true);
     try {
       if (!(await prepareDevice())) return;
-      const { sent, line: response } = await sendRequest(
-        { feeder: true },
-        10000,
+      const { sent, line: response } = await feedWithRetries(
+        () => sendRequest({ feeder: true }, 10000),
+        (result) => (result.sent ? parseSerialReply(result.line) : null),
+        ignoreIrSensors ? 0 : feederConfig.feedRetryCount,
       );
       if (!sent) {
         toast.error(t("cardScanner.feedFailed.title"), {
@@ -436,6 +443,7 @@ export function CardScanner({
     toast,
     isReady,
     ignoreIrSensors,
+    feederConfig.feedRetryCount,
     prepareDevice,
     sendRequest,
     handleCardArrived,

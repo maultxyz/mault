@@ -1,6 +1,7 @@
 import {
   SERIAL_BUSY_ERROR,
   SERIAL_FED_EVENT,
+  SERIAL_FEED_TIMEOUT_ERROR_PREFIX,
   SERIAL_JAM_ERROR,
   SERIAL_READY_STATUS,
   SERIAL_RESET_REASONS,
@@ -96,6 +97,33 @@ export function statusResetReason(message: unknown): SerialResetReason | null {
 
 export function isServoDriverMissing(message: unknown): boolean {
   return asFields(message)?.servoDriver === SERIAL_SERVO_DRIVER_MISSING;
+}
+
+export function isFeedTimeoutReply(
+  reply: Record<string, unknown> | null,
+): boolean {
+  if (!reply || reply.empty === true) return false;
+  if (reply.detected === false) return true;
+  return (
+    typeof reply.error === "string" &&
+    reply.error.startsWith(SERIAL_FEED_TIMEOUT_ERROR_PREFIX)
+  );
+}
+
+export async function feedWithRetries<TResult>(
+  feedOnce: () => Promise<TResult>,
+  replyOf: (result: TResult) => Record<string, unknown> | null,
+  retryCount: number,
+): Promise<TResult> {
+  let result = await feedOnce();
+  for (
+    let retry = 0;
+    retry < retryCount && isFeedTimeoutReply(replyOf(result));
+    retry++
+  ) {
+    result = await feedOnce();
+  }
+  return result;
 }
 
 export function retractCardOutcome(

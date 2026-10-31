@@ -1071,6 +1071,8 @@
       "forward": "Forward",
       "reverse": "Reverse",
       "timeoutLabel": "Timeout (ms)",
+      "feedRetryCountLabel": "Feed Retries",
+      "feedRetryCountDescription": "When a feed times out without delivering a card, send the feed command again up to this many times before pausing. 0 turns retries off.",
       "pulseDurationLabel": "Pulse Duration (ms)",
       "continuousFeedButton": "Continuous Feed",
       "pauseDurationLabel": "Pause Duration (ms)",

@@ -40,6 +40,7 @@ import {
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { recordPickListFound } from "@/features/bins/api/use-pick-list";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useDevice } from "@/features/calibration/api/use-device";
@@ -145,6 +146,9 @@ export function ScannedCardsProvider({
   const device = useDevice();
   const deviceGuidRef = useRef(device?.guid);
   deviceGuidRef.current = device?.guid;
+  const { feederConfig } = useFeederConfig();
+  const feedRetryCountRef = useRef(feederConfig.feedRetryCount);
+  feedRetryCountRef.current = feederConfig.feedRetryCount;
   const pipelinedFeedRef = useRef(device?.pipelinedFeed ?? false);
   pipelinedFeedRef.current = device?.pipelinedFeed ?? false;
   const isPipelinedFeedEnabled = useCallback(
@@ -299,6 +303,7 @@ export function ScannedCardsProvider({
     serialRef,
     activeCollectionRef,
     deviceGuidRef,
+    feedRetryCountRef,
   });
   const showJamToast = useJamToast(resume);
   useDeployScanPause(

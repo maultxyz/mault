@@ -5,6 +5,8 @@ import { and, eq, sql } from "drizzle-orm";
 import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_FEEDER_CALIBRATION,
+  feedWithRetries,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEWARP_OUTPUT_SIZE,
@@ -49,7 +51,7 @@ import {
 } from "@magic-vault/shared";
 import { authQuery } from "../../db";
 import { piUpdateRunning } from "../pi-update";
-import { collections, games, orgSettings } from "../../db/schema";
+import { collections, feederConfigs, games, orgSettings } from "../../db/schema";
 import type {
   PiScanBinCard,
   PiScanFrameMatch,
@@ -370,6 +372,10 @@ async function prepareContext(
       where: eq(orgSettings.orgId, session.orgId),
       columns: { ocrEnabled: true },
     });
+    const feeder = await tx.query.feederConfigs.findFirst({
+      where: eq(feederConfigs.deviceId, device.id),
+      columns: { feedRetryCount: true },
+    });
     const loaded = await loadBinContents(
       tx,
       { id: collection.id, gameKey: collection.gameKey, lang: collection.lang },
@@ -395,6 +401,8 @@ async function prepareContext(
       moduleCount: device.moduleCount,
       region: toScanRegion(device),
       settleMs: device.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+      feedRetryCount:
+        feeder?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
       checkBothOrientations:
         device.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
       flipCamera: device.flipCamera,
@@ -761,7 +769,11 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       }
 
       console.log(`[pi-scan] feeding card ${session.cardsScanned + 1}`);
-      const fed = await link.command({ feeder: true }, PI_SCAN_FEED_TIMEOUT_MS);
+      const fed = await feedWithRetries(
+        () => link.command({ feeder: true }, PI_SCAN_FEED_TIMEOUT_MS),
+        (reply) => reply,
+        context.feedRetryCount,
+      );
       const fedError = lineError(fed);
       if (fedError) {
         const empty = fed.empty === true || fedError.startsWith("empty");

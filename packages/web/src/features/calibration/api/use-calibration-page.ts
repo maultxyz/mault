@@ -261,6 +261,7 @@ export function useCalibrationPage() {
   const feederSettleDurationValue = feederValues.settleDuration;
   const feederReverseSpeedValue = feederValues.reverseSpeed;
   const feederReverseDurationValue = feederValues.reverseDuration;
+  const feederFeedRetryCountValue = feederValues.feedRetryCount;
   const setFeederDraftField = useCallback(
     (field: keyof FeederCalibration, value: number) => {
       feederSpeedAnchorRef.current = null;
@@ -714,6 +715,11 @@ export function useCalibrationPage() {
     [setFeederDraftField],
   );
 
+  const handleFeederFeedRetryCountChange = useCallback(
+    (value: number) => setFeederDraftField("feedRetryCount", value),
+    [setFeederDraftField],
+  );
+
   const handleFeederSelectContinuous = useCallback(
     () => setFeederDraftField("pulseDuration", 0),
     [setFeederDraftField],
@@ -1060,6 +1066,7 @@ export function useCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
+    feederFeedRetryCountValue,
     feederStopPulse,
     handleFeederSpeedChange,
     handleFeederStopPulseChange,
@@ -1070,6 +1077,7 @@ export function useCalibrationPage() {
     handleFeederSettleDurationChange,
     handleFeederReverseSpeedChange,
     handleFeederReverseDurationChange,
+    handleFeederFeedRetryCountChange,
     handleFeederSelectContinuous,
     scanRegion,
     captureSettleDelayMs,

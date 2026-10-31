@@ -36,6 +36,7 @@ export function isFirmwareFeatureSupported(
 }
 
 export const SERIAL_FED_EVENT = "fed";
+export const SERIAL_FEED_TIMEOUT_ERROR_PREFIX = "timeout";
 export const SERIAL_JAM_ERROR = "jam";
 export const SERIAL_BUSY_ERROR = "busy";
 export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";

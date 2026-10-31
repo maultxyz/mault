@@ -92,6 +92,8 @@
     "forward": "Avant",
     "reverse": "Inverse",
     "timeoutLabel": "Délai d'expiration (ms)",
+    "feedRetryCountLabel": "Nouvelles tentatives d'alimentation",
+    "feedRetryCountDescription": "Quand une alimentation expire sans livrer de carte, renvoyer la commande d'alimentation jusqu'à ce nombre de fois avant la pause. 0 désactive les nouvelles tentatives.",
     "pulseDurationLabel": "Durée de l'impulsion (ms)",
     "continuousFeedButton": "Alimentation continue",
     "pauseDurationLabel": "Durée de la pause (ms)",
@@ -325,6 +327,7 @@
       "pulse": "Impulsion",
       "pause": "Pause",
       "settle": "Délai de détection finale",
+      "feedRetries": "Tentatives",
       "rollback": "Recul"
     },
     "toasts": {

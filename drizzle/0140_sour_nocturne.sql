@@ -1,0 +1,2 @@
+ALTER TABLE "feeder_config_audit" ADD COLUMN "feed_retry_count" integer DEFAULT 1 NOT NULL;--> statement-breakpoint
+ALTER TABLE "feeder_configs" ADD COLUMN "feed_retry_count" integer DEFAULT 1 NOT NULL;

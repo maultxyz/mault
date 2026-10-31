@@ -40,4 +40,8 @@ export const DEFAULT_FEEDER_CALIBRATION: FeederCalibration = {
   settleDuration: 500,
   reverseSpeed: 333,
   reverseDuration: 0,
+  feedRetryCount: 1,
 };
+
+export const FEED_RETRY_COUNT_MIN = 0;
+export const FEED_RETRY_COUNT_MAX = 5;
