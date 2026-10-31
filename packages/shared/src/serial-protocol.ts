@@ -4,9 +4,14 @@ import {
   SERIAL_JAM_ERROR,
   SERIAL_READY_STATUS,
   SERIAL_RESET_REASONS,
+  SERIAL_RETRACTED_STATUS,
+  SERIAL_ROLLBACK_OFF_ERROR,
   SERIAL_SERVO_DRIVER_MISSING,
 } from "./constants/firmware.constant";
-import type { SerialResetReason } from "./interfaces/firmware.interface";
+import type {
+  RetractCardOutcome,
+  SerialResetReason,
+} from "./interfaces/firmware.interface";
 
 function asFields(message: unknown): Record<string, unknown> | null {
   return typeof message === "object" && message !== null
@@ -91,4 +96,12 @@ export function statusResetReason(message: unknown): SerialResetReason | null {
 
 export function isServoDriverMissing(message: unknown): boolean {
   return asFields(message)?.servoDriver === SERIAL_SERVO_DRIVER_MISSING;
+}
+
+export function retractCardOutcome(
+  reply: Record<string, unknown> | null,
+): RetractCardOutcome {
+  if (reply?.status === SERIAL_RETRACTED_STATUS) return "retracted";
+  if (reply?.error === SERIAL_ROLLBACK_OFF_ERROR) return "rollback_off";
+  return "failed";
 }

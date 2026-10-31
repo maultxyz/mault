@@ -75,6 +75,10 @@ export function updatePiScanSettings(
   return send("POST", `${PI_SCAN_SESSION_API}/settings`, body);
 }
 
+export function resetPiScanSessionStats(): Promise<PiScanSessionResult> {
+  return send("POST", `${PI_SCAN_SESSION_API}/reset-stats`);
+}
+
 export function feedPiScanSession(): Promise<PiScanSessionResult> {
   return send("POST", `${PI_SCAN_SESSION_API}/feed`);
 }

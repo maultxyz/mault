@@ -274,6 +274,7 @@
     "avgValue": "Avg Value",
     "sessionTime": "Session Time",
     "cardsPerHour": "Cards / hr",
+    "resetSession": "Reset session time and cards per hour",
     "byColor": "By Color",
     "bySet": "By Set",
     "showLess": "Show less",
@@ -295,6 +296,7 @@
     "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
     "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "retractCardTooltip": "Retract card (runs the feeder backward)",
     "stopPiScan": "Stop scanning and release the sorter",
     "resetToNeutralTooltip": "Reset to neutral (closes every bottom and paddle, centers the pushers)",
     "foilTooltip": "Foil type for scanned cards: {{type}}",
@@ -335,6 +337,7 @@
     "flashNewBoard": "Flash a new board",
     "connectAnotherUpgrade": "Connect more sorters with a bigger plan",
     "clearDevice": "Clear device",
+    "retractCard": "Retract card",
     "resetToNeutral": "Reset to neutral",
     "sorter": "Sorter",
     "connectionStates": {
@@ -771,6 +774,17 @@
       "description": "The sorter didn't confirm the reset. Check the connection and try again."
     }
   },
+  "retractCard": {
+    "done": "Card pulled back into the hopper",
+    "failed": {
+      "title": "Couldn't retract the card",
+      "description": "The sorter didn't confirm the retract. Check the connection and try again."
+    },
+    "rollbackOff": {
+      "title": "Roll back is off",
+      "description": "Set \"Roll Back After Feed\" in feeder calibration to retract cards."
+    }
+  },
   "pendingScanSaves": {
     "saving": {
       "title_one": "Saving {{count}} scan",
@@ -844,6 +858,8 @@
       "feedDescription": "Feed a single card, then scan and sort it",
       "drop": "Drop cards",
       "dropDescription": "Open every module so stuck cards fall through",
+      "retract": "Retract card",
+      "retractDescription": "Run the feeder backward to pull a card back into the hopper",
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
       "sorterDescription": "Connection, self-test and status"

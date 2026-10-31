@@ -1436,12 +1436,16 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
-  const clearCards = useCallback(() => {
-    const collection = activeCollectionRef.current;
-    binContentsRef.current = [];
+  const resetSessionStats = useCallback(() => {
     setTimerResetSignal((s) => s + 1);
     setRecentScanTimes([]);
     setSessionScanCount(0);
+  }, []);
+
+  const clearCards = useCallback(() => {
+    const collection = activeCollectionRef.current;
+    binContentsRef.current = [];
+    resetSessionStats();
     if (collection) {
       emptyCollectionRef
         .current(collection.guid)
@@ -1451,7 +1455,7 @@ export function ScannedCardsProvider({
           syncUnmatched(collection.guid);
         });
     }
-  }, [queryClient, syncUnmatched]);
+  }, [queryClient, syncUnmatched, resetSessionStats]);
 
   return (
     <ScannedCardsContext
@@ -1469,6 +1473,7 @@ export function ScannedCardsProvider({
         sessionScanCount,
         lastRoutedBin,
         setScannerRunning,
+        resetSessionStats,
         setAutoFeed,
         setForceFoilType,
         setForceSetCode,

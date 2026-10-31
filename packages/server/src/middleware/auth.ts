@@ -7,7 +7,12 @@ import {
   IMPERSONATION_TTL_SECONDS,
   SCANNING_BLOCKED_WHILE_IMPERSONATING_MESSAGE,
 } from "../lib/constants/auth";
+import {
+  AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+  AUTH_LOOKUP_CACHE_TTL_MS,
+} from "../lib/constants/timing";
 import { cachedDisplayName } from "../lib/display-name-cache";
+import { createKeyedCache } from "../lib/keyed-cache";
 import { parsePreviewPlan, planPreviewStorage } from "../lib/plan-preview";
 import {
   findMemberSeatOverflow,
@@ -31,6 +36,15 @@ export type AppVariables = {
   impersonatedBy: string | null;
 };
 export type AppEnv = { Variables: AppVariables };
+
+const userRoleCache = createKeyedCache<string>(
+  AUTH_LOOKUP_CACHE_TTL_MS,
+  AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+);
+const orgMembershipCache = createKeyedCache<{ role: OrgRole } | null>(
+  AUTH_LOOKUP_CACHE_TTL_MS,
+  AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+);
 
 export async function verifyToken(
   token: string,
@@ -76,7 +90,7 @@ async function verifyImpersonationToken(
 }
 
 export async function getUserRole(userId: string): Promise<string> {
-  return authProvider.getUserRole(userId);
+  return userRoleCache.get(userId, () => authProvider.getUserRole(userId));
 }
 
 export async function getUserContact(
@@ -172,7 +186,9 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
   }
 
   const userId = c.get("userId");
-  const member = await authProvider.resolveOrgMembership(userId, orgId);
+  const member = await orgMembershipCache.get(`${userId}:${orgId}`, () =>
+    authProvider.resolveOrgMembership(userId, orgId),
+  );
 
   if (!member) {
     return c.json(

@@ -344,6 +344,7 @@
     "runSelfTest": "Lancer l'autotest",
     "neutral": "Retour en position neutre",
     "dropCard": "Lâcher la carte retenue",
+    "retractCard": "Retirer la carte",
     "disconnect": "Déconnecter",
     "commLog": "Journal de communication",
     "commLogEmpty": "Rien d'envoyé ni de reçu pour l'instant.",
@@ -440,6 +441,12 @@
       "offline": "Hors ligne",
       "inUse": "Utilisé sur un autre appareil"
     }
+  },
+  "retractCard": {
+    "failedTitle": "Impossible de retirer la carte",
+    "failedDescription": "Le trieur n'a pas confirmé le retrait. Vérifiez la connexion et réessayez.",
+    "rollbackOffTitle": "Le recul est désactivé",
+    "rollbackOffDescription": "Définissez « Recul après l'alimentation » dans l'étalonnage de l'alimentation pour retirer des cartes."
   },
   "scan": {
     "start": "Démarrer",
@@ -598,6 +605,8 @@
       "feedDescription": "Charger une carte, puis la scanner et la trier",
       "drop": "Faire tomber les cartes",
       "dropDescription": "Ouvrir chaque module pour libérer les cartes coincées",
+      "retract": "Retirer la carte",
+      "retractDescription": "Faire tourner l'alimentation à l'envers pour ramener une carte dans le bac",
       "neutral": "Position neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
       "sorter": "Trieuse",
@@ -1076,6 +1085,7 @@
     "testing": "Test en cours…",
     "feed": "Alimenter",
     "dropCard": "Éjecter la carte",
+    "retractCard": "Retirer la carte",
     "calibrateBeforeTest": "Calibre tous les modules avant de lancer le test",
     "testBeforeControls": "Lance un test réussi pour débloquer les commandes de l'appareil.",
     "resetServosToDefaults": "Réinitialiser les servos",

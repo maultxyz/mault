@@ -73,6 +73,7 @@
     "label": "Routage des bacs",
     "feed": "Alimenter",
     "dropCard": "Lâcher la carte",
+    "retractCard": "Retirer la carte",
     "binActive": "Bac {{bin}}…",
     "running": "En cours…",
     "sampleRun": "Test d'exécution",

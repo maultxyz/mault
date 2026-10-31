@@ -18,6 +18,7 @@ import type {
   WorkResponseMessage,
   WorkerToParentMessage,
 } from "../interfaces/sync-job";
+import { invalidateCardMatchIndex } from "../card-match-index";
 import { publicGamesCache } from "../public-games";
 import { SYNC_SOURCES } from "./sources";
 import {
@@ -182,6 +183,7 @@ export function startSync(
   child.on("close", (code) => {
     currentWorker = null;
     publicGamesCache.invalidate();
+    invalidateCardMatchIndex(gameKey);
     rejectPendingWork("Sync worker stopped.");
     if (reachedTerminalStatus) return;
     const msg = `Sync worker exited unexpectedly (code ${code ?? "unknown"}).`;

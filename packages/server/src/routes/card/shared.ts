@@ -18,7 +18,6 @@ import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
   MATCH_MAX_DISTANCE_RATIO,
-  CARD_MATCH_HNSW_EF_SEARCH,
   CARD_MATCH_LIMIT,
   CARD_MATCH_RUNNER_UP_SEARCH_LIMIT,
 } from "../../lib/constants/card-search";
@@ -31,7 +30,15 @@ import {
   OCR_NAME_MIN_SIMILARITY,
   OCR_PRINTED_NUMBER_CANDIDATE_LIMIT,
 } from "../../lib/constants/ocr";
+import { cardMatchSegments } from "../../lib/card-match-index";
+import {
+  closestPrintingInSet,
+  faceDistance,
+  nearestCardFaces,
+  normalizedEmbedding,
+} from "../../lib/card-match-search";
 import type {
+  CardMatchCandidate,
   CardMatchSearchResult,
   CardTextMatchParams,
   CardTextMatchResult,
@@ -115,221 +122,153 @@ export function parsePreferredSetCode(value: unknown): string | undefined {
     : undefined;
 }
 
-export async function findCardMatches(
-  jwtClaims: string,
-  {
-    embeddings,
-    preferredSetCode,
-    ...scope
-  }: CollectionMatchScope & {
-    embeddings: CardSearchEmbeddings;
-    preferredSetCode?: string;
-  },
-): Promise<CardMatchSearchResult> {
+export async function findCardMatches({
+  embeddings,
+  preferredSetCode,
+  ...scope
+}: CollectionMatchScope & {
+  embeddings: CardSearchEmbeddings;
+  preferredSetCode?: string;
+}): Promise<CardMatchSearchResult> {
   const { gameKey, lang } = scope;
-  const embeddingStr = vectorLiteral(embeddings.embedding)!;
-  const rarePrintingSql =
-    resolveCardSearchForGame(gameKey, lang)?.adapter.rarePrintingSql ??
-    sql`false`;
+  const segments = await cardMatchSegments(scope);
+  const query = normalizedEmbedding(embeddings.embedding);
+  const nearest = nearestCardFaces(
+    segments,
+    query,
+    CARD_MATCH_RUNNER_UP_SEARCH_LIMIT,
+  );
+  const matches: CardMatchCandidate[] = nearest.map((face) => ({
+    cardId: face.segment.cardIds[face.row],
+    lang: face.segment.lang,
+    name: face.segment.names[face.row],
+    setCode: face.segment.setCodes[face.row],
+    rarePrinting: face.segment.rarePrinting[face.row] === 1,
+    distance: face.distance,
+    leaderDistance: faceDistance(face, nearest[0]),
+  }));
 
-  return authQuery(jwtClaims, async (tx) => {
-    await tx.execute(sql`
-      SELECT
-        set_config('hnsw.iterative_scan', 'strict_order', true),
-        set_config('hnsw.max_scan_tuples', '100000', true),
-        set_config('hnsw.ef_search', ${String(CARD_MATCH_HNSW_EF_SEARCH)}, true)
-    `);
+  const leaderName = matches[0]?.name;
+  const runnerUp = matches.find((match) => match.name !== leaderName);
+  const runnerUpDistance = runnerUp?.distance ?? null;
 
-    const matches = await tx.execute(sql`
-      WITH front_faces AS (
-        SELECT
-          card_id,
-          lang,
-          name,
-          set_code,
-          embedding AS face_embedding,
-          (${rarePrintingSql}) AS rare_printing,
-          embedding <=> ${embeddingStr}::vector(128) AS distance
-        FROM cards
-        WHERE game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)}
-        ORDER BY embedding <=> ${embeddingStr}::vector(128)
-        LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
-      ),
-      back_faces AS (
-        SELECT
-          card_id,
-          lang,
-          name,
-          set_code,
-          back_embedding AS face_embedding,
-          (${rarePrintingSql}) AS rare_printing,
-          back_embedding <=> ${embeddingStr}::vector(128) AS distance
-        FROM cards
-        WHERE back_embedding IS NOT NULL
-          AND game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)}
-        ORDER BY back_embedding <=> ${embeddingStr}::vector(128)
-        LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
-      ),
-      nearest AS (
-        SELECT DISTINCT ON (card_id, lang) *
-        FROM (
-          SELECT * FROM front_faces
-          UNION ALL
-          SELECT * FROM back_faces
-        ) faces
-        ORDER BY card_id, lang, distance
-      )
-      SELECT
-        card_id,
-        lang,
-        name,
-        set_code,
-        rare_printing,
-        distance,
-        face_embedding <=> first_value(face_embedding) OVER (ORDER BY distance) AS leader_distance
-      FROM nearest
-      ORDER BY distance
-      LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
-    `);
+  const candidates = poolDuplicatePrintings(
+    withConfidence(
+      matches.slice(0, CARD_MATCH_LIMIT).map((match) => ({
+        id: match.cardId,
+        cardId: match.cardId,
+        lang: match.lang,
+        name: match.name,
+        setCode: match.setCode,
+        distance: match.distance,
+        leaderDistance: match.leaderDistance,
+      })),
+    ),
+  );
 
-    const leaderName = matches.rows[0]?.name as string | undefined;
-    const runnerUpDistance =
-      (matches.rows.find((row) => row.name !== leaderName)?.distance as
-        | number
-        | undefined) ?? null;
-
-    const candidates = poolDuplicatePrintings(
-      withConfidence(
-        matches.rows.slice(0, CARD_MATCH_LIMIT).map((row) => ({
-          id: row.card_id as string,
-          cardId: row.card_id as string,
-          lang: row.lang as string,
-          name: row.name as string,
-          setCode: row.set_code as string,
-          distance: row.distance as number,
-          leaderDistance: row.leader_distance as number,
-        })),
-      ),
+  if (SHOW_SCAN_LOGS) {
+    console.log(
+      `[card-search] nearest candidates for game=${gameKey} lang=${lang} (maxDistance=${DISTANCE_THRESHOLD}, maxRatio=${MATCH_MAX_DISTANCE_RATIO}, runnerUpDistance=${runnerUpDistance}):`,
     );
+    console.table(candidates);
+  }
 
-    if (SHOW_SCAN_LOGS) {
-      console.log(
-        `[card-search] nearest candidates for game=${gameKey} lang=${lang} (maxDistance=${DISTANCE_THRESHOLD}, maxRatio=${MATCH_MAX_DISTANCE_RATIO}, runnerUpDistance=${runnerUpDistance}):`,
-      );
-      console.table(candidates);
-    }
-
-    const nearestDistance = candidates[0]?.distance ?? null;
-    const isAmbiguous =
-      nearestDistance != null &&
-      runnerUpDistance != null &&
-      nearestDistance >= runnerUpDistance * MATCH_MAX_DISTANCE_RATIO;
-    const rows = isAmbiguous
-      ? []
-      : candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
-    if (rows.length === 0) {
-      const reason: SearchNoMatchReason =
-        nearestDistance == null
-          ? "empty_index"
-          : isAmbiguous
-            ? "ambiguous"
-            : "too_far";
-      return {
-        message: "Successfully searched for card.",
-        success: true,
-        data: null,
-        nearestDistance,
-        diagnostics: {
-          reason,
-          gameKey,
-          lang,
-          nearestDistance,
-          runnerUpDistance,
-          runnerUpName:
-            (matches.rows.find((row) => row.name !== leaderName)?.name as
-              | string
-              | undefined) ?? null,
-          distanceThreshold: DISTANCE_THRESHOLD,
-          maxDistanceRatio: MATCH_MAX_DISTANCE_RATIO,
-          candidates: candidates.map(({ cardId, name, setCode, distance }) => ({
-            cardId,
-            name,
-            setCode,
-            distance,
-          })),
-        },
-      };
-    }
-
-    const topRow = matches.rows[0];
-    const regularRow =
-      topRow?.rare_printing === true
-        ? matches.rows.find(
-            (row) =>
-              row.rare_printing !== true &&
-              row.name === topRow.name &&
-              (row.leader_distance as number) <=
-                DUPLICATE_PRINTING_MAX_DISTANCE,
-          )
-        : undefined;
-    const ranked = regularRow
-      ? [
-          {
-            ...rows[0],
-            id: regularRow.card_id as string,
-            cardId: regularRow.card_id as string,
-            lang: regularRow.lang as string,
-            setCode: regularRow.set_code as string,
-            distance: regularRow.distance as number,
-          },
-          ...rows.filter((row) => row.cardId !== regularRow.card_id),
-        ]
-      : rows;
-
-    const [leader] = ranked;
-    const preferred = preferredSetCode
-      ? await tx.execute(sql`
-          SELECT card_id, ${cardDistanceSql(embeddingStr)} AS distance
-          FROM cards
-          WHERE game_key = ${gameKey}
-            AND lang = ${leader.lang}
-            AND name = ${leader.name}
-            AND lower(set_code) = lower(${preferredSetCode})
-            ${matchingExclusionFilter(scope)}
-          ORDER BY distance
-          LIMIT 1
-        `)
-      : null;
-    const preferredRow = preferred?.rows[0];
-    const accepted = preferredRow
-      ? [
-          {
-            ...leader,
-            id: preferredRow.card_id as string,
-            cardId: preferredRow.card_id as string,
-            distance: preferredRow.distance as number,
-          },
-          ...ranked.filter((row) => row.name !== leader.name),
-        ]
-      : ranked;
-
-    const matchList: SearchCardMatch[] = accepted.map(
-      ({ id, cardId, lang: matchLang, distance, confidence }) => ({
-        id,
-        cardId,
-        lang: matchLang,
-        distance,
-        confidence,
-      }),
-    );
-
+  const nearestDistance = candidates[0]?.distance ?? null;
+  const isAmbiguous =
+    nearestDistance != null &&
+    runnerUpDistance != null &&
+    nearestDistance >= runnerUpDistance * MATCH_MAX_DISTANCE_RATIO;
+  const rows = isAmbiguous
+    ? []
+    : candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
+  if (rows.length === 0) {
+    const reason: SearchNoMatchReason =
+      nearestDistance == null
+        ? "empty_index"
+        : isAmbiguous
+          ? "ambiguous"
+          : "too_far";
     return {
       message: "Successfully searched for card.",
       success: true,
-      data: matchList.length > 0 ? matchList : null,
+      data: null,
       nearestDistance,
+      diagnostics: {
+        reason,
+        gameKey,
+        lang,
+        nearestDistance,
+        runnerUpDistance,
+        runnerUpName: runnerUp?.name ?? null,
+        distanceThreshold: DISTANCE_THRESHOLD,
+        maxDistanceRatio: MATCH_MAX_DISTANCE_RATIO,
+        candidates: candidates.map(({ cardId, name, setCode, distance }) => ({
+          cardId,
+          name,
+          setCode,
+          distance,
+        })),
+      },
     };
-  });
+  }
+
+  const topMatch = matches[0];
+  const regularMatch = topMatch?.rarePrinting
+    ? matches.find(
+        (match) =>
+          !match.rarePrinting &&
+          match.name === topMatch.name &&
+          match.leaderDistance <= DUPLICATE_PRINTING_MAX_DISTANCE,
+      )
+    : undefined;
+  const ranked = regularMatch
+    ? [
+        {
+          ...rows[0],
+          id: regularMatch.cardId,
+          cardId: regularMatch.cardId,
+          lang: regularMatch.lang,
+          setCode: regularMatch.setCode,
+          distance: regularMatch.distance,
+        },
+        ...rows.filter((row) => row.cardId !== regularMatch.cardId),
+      ]
+    : rows;
+
+  const [leader] = ranked;
+  const leaderSegment = segments.find((segment) => segment.lang === leader.lang);
+  const preferred =
+    preferredSetCode && leaderSegment
+      ? closestPrintingInSet(leaderSegment, leader.name, preferredSetCode, query)
+      : null;
+  const accepted = preferred
+    ? [
+        {
+          ...leader,
+          id: preferred.segment.cardIds[preferred.row],
+          cardId: preferred.segment.cardIds[preferred.row],
+          distance: preferred.distance,
+        },
+        ...ranked.filter((row) => row.name !== leader.name),
+      ]
+    : ranked;
+
+  const matchList: SearchCardMatch[] = accepted.map(
+    ({ id, cardId, lang: matchLang, distance, confidence }) => ({
+      id,
+      cardId,
+      lang: matchLang,
+      distance,
+      confidence,
+    }),
+  );
+
+  return {
+    message: "Successfully searched for card.",
+    success: true,
+    data: matchList.length > 0 ? matchList : null,
+    nearestDistance,
+  };
 }
 
 export function ocrNameQueries(text: string): string[] {

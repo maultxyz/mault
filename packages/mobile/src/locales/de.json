@@ -344,6 +344,7 @@
     "runSelfTest": "Selbsttest ausführen",
     "neutral": "Zurück in Neutralstellung",
     "dropCard": "Gehaltene Karte fallen lassen",
+    "retractCard": "Karte zurückziehen",
     "disconnect": "Trennen",
     "commLog": "Kommunikationsprotokoll",
     "commLogEmpty": "Noch nichts gesendet oder empfangen.",
@@ -440,6 +441,12 @@
       "offline": "Offline",
       "inUse": "Auf einem anderen Gerät in Verwendung"
     }
+  },
+  "retractCard": {
+    "failedTitle": "Karte konnte nicht zurückgezogen werden",
+    "failedDescription": "Der Sortierer hat das Zurückziehen nicht bestätigt. Prüfe die Verbindung und versuche es erneut.",
+    "rollbackOffTitle": "Zurückrollen ist aus",
+    "rollbackOffDescription": "Stelle \"Nach dem Einzug zurückrollen\" in der Kalibrierung der Zuführung ein, um Karten zurückzuziehen."
   },
   "scan": {
     "start": "Start",
@@ -598,6 +605,8 @@
       "feedDescription": "Eine Karte einziehen, dann scannen und sortieren",
       "drop": "Karten fallen lassen",
       "dropDescription": "Alle Module öffnen, damit festsitzende Karten durchfallen",
+      "retract": "Karte zurückziehen",
+      "retractDescription": "Die Zuführung rückwärts laufen lassen, um eine Karte zurück in den Kartenschacht zu ziehen",
       "neutral": "Grundstellung",
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
       "sorter": "Sortierer",
@@ -1076,6 +1085,7 @@
     "testing": "Wird getestet…",
     "feed": "Zuführen",
     "dropCard": "Karte abwerfen",
+    "retractCard": "Karte zurückziehen",
     "calibrateBeforeTest": "Kalibriere alle Module, bevor du den Test ausführst",
     "testBeforeControls": "Führe einen erfolgreichen Test aus, um die Gerätesteuerung freizuschalten.",
     "resetServosToDefaults": "Servos auf Standard zurücksetzen",

@@ -73,6 +73,7 @@
     "label": "Bin Routing",
     "feed": "Feed",
     "dropCard": "Drop Card",
+    "retractCard": "Retract Card",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
     "sampleRun": "Sample Run",

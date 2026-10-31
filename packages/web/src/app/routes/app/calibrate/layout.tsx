@@ -93,6 +93,9 @@ export default function CalibrateLayout() {
     handleTest,
     handleFeed,
     handleDropCard,
+    handleRetractCard,
+    isRetracting,
+    retractLockedReason,
     isSampleRunning,
     handleCopyCalibration,
     handleExportConfig,
@@ -171,6 +174,20 @@ export default function CalibrateLayout() {
                 onClick={handleDropCard}
               >
                 {t("binRoutingControls.dropCard")}
+              </Button>
+              <Button
+                variant="outline"
+                title={retractLockedReason ?? undefined}
+                disabled={
+                  !isReady ||
+                  activeBin !== null ||
+                  isSampleRunning ||
+                  isRetracting ||
+                  retractLockedReason !== null
+                }
+                onClick={() => void handleRetractCard()}
+              >
+                {t("binRoutingControls.retractCard")}
               </Button>
               {isUnconfigured ? (
                 <span className="text-sm text-foreground/70">

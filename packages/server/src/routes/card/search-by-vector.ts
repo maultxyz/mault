@@ -41,7 +41,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
     const { gameKey, lang } = resolved;
 
     try {
-      const result = await findCardMatches(c.get("jwtClaims"), {
+      const result = await findCardMatches({
         ...resolved,
         embeddings,
         preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),

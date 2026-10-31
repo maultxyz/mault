@@ -449,7 +449,7 @@ async function searchOrientation(
 ) {
   const embeddings = await vectorizeCardImage(image);
   const result = await attachMatchedCards(
-    await findCardMatches(session.jwtClaims, {
+    await findCardMatches({
       gameKey: context.gameKey,
       lang: context.lang,
       matchAllLanguages: context.matchAllLanguages,
@@ -1265,6 +1265,21 @@ export function updatePiScanSettings(
     session.preferredSetCode = preferredSetCode?.trim() || null;
   }
   if (typeof autoFeed === "boolean") session.autoFeed = autoFeed;
+  return publicState(session);
+}
+
+export function resetPiScanSessionStats(
+  orgId: string,
+): PiScanSessionState | null {
+  const session = sessions.get(orgId);
+  if (!session || session.phase === "idle" || session.startedAt <= 0) {
+    return null;
+  }
+  const now = Date.now();
+  session.cardsScanned = 0;
+  session.startedAt = now;
+  session.pausedMs = 0;
+  if (session.pauseStartedAt != null) session.pauseStartedAt = now;
   return publicState(session);
 }
 

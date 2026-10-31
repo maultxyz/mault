@@ -59,7 +59,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
     }
 
     try {
-      const result = await findCardMatches(c.get("jwtClaims"), {
+      const result = await findCardMatches({
         ...resolved,
         embeddings,
         preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),

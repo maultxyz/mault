@@ -1,12 +1,17 @@
 import { Sparkline } from "@/components/sparkline";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
-import { piScanHoldsPort } from "@/features/scanner/api/pi-scan-session";
+import {
+  piScanHoldsPort,
+  resetPiScanSessionStats,
+} from "@/features/scanner/api/pi-scan-session";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { bucketScanTimes } from "@/features/scanner/lib/scan-rate";
 import { piScanElapsedMs } from "@/features/scanner/lib/pi-scan-status";
 import {
+  applyPiScanState,
   getPiScanState,
   subscribePiScan,
 } from "@/features/scanner/lib/pi-scan-store";
@@ -21,6 +26,7 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
 import type { ScanStatsProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
+import { IconRestore } from "@tabler/icons-react";
 import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -28,8 +34,13 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   const Container = scrollable ? ScrollArea : "div";
   const { t } = useTranslation("scanner");
   const [expandedSets, setExpandedSets] = useState(false);
-  const { elapsedMs, isTimerActive, recentScanTimes, sessionScanCount } =
-    useScannedCards();
+  const {
+    elapsedMs,
+    isTimerActive,
+    recentScanTimes,
+    sessionScanCount,
+    resetSessionStats,
+  } = useScannedCards();
   const piScan = useSyncExternalStore(subscribePiScan, getPiScanState);
   const piLive =
     piScanHoldsPort(piScan) ||
@@ -41,6 +52,9 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   if (!piLive) {
     piTimes.current = [];
     piSeen.current = 0;
+  } else if (piScan.cardsScanned < piSeen.current) {
+    piTimes.current = [];
+    piSeen.current = piScan.cardsScanned;
   } else if (piScan.cardsScanned !== piSeen.current) {
     const added = piScan.cardsScanned - piSeen.current;
     if (added > 0) {
@@ -52,6 +66,15 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   const shownCount = piLive ? piScan.cardsScanned : sessionScanCount;
   const shownRunning = piLive ? piScan.phase === "running" : isTimerActive;
   const shownTimes = piLive ? piTimes.current : recentScanTimes;
+  const resetShownSession = () => {
+    if (!piLive) {
+      resetSessionStats();
+      return;
+    }
+    void resetPiScanSessionStats().then((result) => {
+      if (result.data) applyPiScanState(result.data);
+    });
+  };
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
   const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
   const { displayStats: stats } = useCollectionCardsSummary(query);
@@ -75,6 +98,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
     value: string;
     indicator?: boolean;
     trend?: number[];
+    action?: React.ReactNode;
   }[] = [
     { label: t("totalCards"), value: String(stats.totalCount) },
     { label: t("unique"), value: String(stats.uniqueCount) },
@@ -90,6 +114,19 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
       label: t("scanStats.sessionTime"),
       value: formatElapsed(shownElapsed),
       indicator: shownRunning,
+      action: (
+        <Button
+          size="icon"
+          variant="ghost"
+          className="-my-1.5 ml-auto"
+          aria-label={t("scanStats.resetSession")}
+          title={t("scanStats.resetSession")}
+          disabled={shownElapsed === 0 && shownCount === 0}
+          onClick={resetShownSession}
+        >
+          <IconRestore />
+        </Button>
+      ),
     },
     {
       label: t("scanStats.cardsPerHour"),
@@ -132,6 +169,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 label={card.label}
                 value={card.value}
                 indicator={card.indicator}
+                action={card.action}
                 className={cn(
                   i % 2 === 0 && "border-r",
                   i < statCards.length - 2 && "border-b",
@@ -295,12 +333,14 @@ function StatCard({
   value,
   className,
   indicator,
+  action,
   children,
 }: {
   label: string;
   value: string;
   className?: string;
   indicator?: boolean;
+  action?: React.ReactNode;
   children?: React.ReactNode;
 }) {
   return (
@@ -314,6 +354,7 @@ function StatCard({
             className={`size-1.5 rounded-full shrink-0 ${indicator ? "bg-success animate-pulse" : "bg-muted-foreground/40"}`}
           />
         )}
+        {action}
       </div>
       <p className="text-sm font-semibold">{value}</p>
       {children}

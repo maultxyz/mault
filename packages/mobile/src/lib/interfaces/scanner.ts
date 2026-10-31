@@ -300,7 +300,7 @@ export interface ScanOptionsSheetProps {
   onClose: () => void;
 }
 
-export type ScannerControlAction = "scan" | "feed" | "drop" | "neutral";
+export type ScannerControlAction = "scan" | "feed" | "drop" | "retract" | "neutral";
 
 export interface CameraChoice {
   devices: CameraDevice[];

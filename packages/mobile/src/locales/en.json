@@ -344,6 +344,7 @@
     "runSelfTest": "Run self-test",
     "neutral": "Return to neutral",
     "dropCard": "Drop held card",
+    "retractCard": "Retract card",
     "disconnect": "Disconnect",
     "commLog": "Communication log",
     "commLogEmpty": "Nothing sent or received yet.",
@@ -440,6 +441,12 @@
       "offline": "Offline",
       "inUse": "In use on another device"
     }
+  },
+  "retractCard": {
+    "failedTitle": "Couldn't retract the card",
+    "failedDescription": "The sorter didn't confirm the retract. Check the connection and try again.",
+    "rollbackOffTitle": "Roll back is off",
+    "rollbackOffDescription": "Set \"Roll Back After Feed\" in feeder calibration to retract cards."
   },
   "scan": {
     "start": "Start",
@@ -598,6 +605,8 @@
       "feedDescription": "Feed a single card, then scan and sort it",
       "drop": "Drop cards",
       "dropDescription": "Open every module so stuck cards fall through",
+      "retract": "Retract card",
+      "retractDescription": "Run the feeder backward to pull a card back into the hopper",
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
       "sorter": "Sorter",
@@ -1076,6 +1085,7 @@
     "testing": "Testing…",
     "feed": "Feed",
     "dropCard": "Drop card",
+    "retractCard": "Retract card",
     "calibrateBeforeTest": "Calibrate all modules before running the test",
     "testBeforeControls": "Run a successful test to unlock the device controls.",
     "resetServosToDefaults": "Reset servos to defaults",

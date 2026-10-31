@@ -127,6 +127,16 @@ export interface SyncSource {
   fetchOne(id: string, baseUrl: string, lang?: string): Promise<FetchOneResult>;
 }
 
+export interface CardMatchCandidate {
+  cardId: string;
+  lang: string;
+  name: string;
+  setCode: string;
+  rarePrinting: boolean;
+  distance: number;
+  leaderDistance: number;
+}
+
 export interface CardMatchSearchResult {
   message: string;
   success: true;

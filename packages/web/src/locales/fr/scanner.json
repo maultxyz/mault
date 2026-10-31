@@ -274,6 +274,7 @@
     "avgValue": "Valeur moyenne",
     "sessionTime": "Durée de la session",
     "cardsPerHour": "Cartes / h",
+    "resetSession": "Réinitialiser la durée de session et les cartes par heure",
     "byColor": "Par couleur",
     "bySet": "Par set",
     "showLess": "Afficher moins",
@@ -295,6 +296,7 @@
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "retractCardTooltip": "Retirer la carte (fait tourner l'alimentation à l'envers)",
     "stopPiScan": "Arrêter le tri et libérer le trieur",
     "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
     "foilTooltip": "Type de foil des cartes scannées : {{type}}",
@@ -335,6 +337,7 @@
     "flashNewBoard": "Flasher une nouvelle carte",
     "connectAnotherUpgrade": "Connecter plus de trieuses avec une offre supérieure",
     "clearDevice": "Vider l'appareil",
+    "retractCard": "Retirer la carte",
     "resetToNeutral": "Remettre au neutre",
     "sorter": "Trieur",
     "connectionStates": {
@@ -771,6 +774,17 @@
       "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez."
     }
   },
+  "retractCard": {
+    "done": "Carte ramenée dans le bac",
+    "failed": {
+      "title": "Impossible de retirer la carte",
+      "description": "Le trieur n'a pas confirmé le retrait. Vérifiez la connexion et réessayez."
+    },
+    "rollbackOff": {
+      "title": "Le recul est désactivé",
+      "description": "Définissez « Recul après l'alimentation » dans l'étalonnage de l'alimentation pour retirer des cartes."
+    }
+  },
   "pendingScanSaves": {
     "saving": {
       "title_one": "Enregistrement de {{count}} scan",
@@ -844,6 +858,8 @@
       "feedDescription": "Charger une carte, puis la scanner et la trier",
       "drop": "Faire tomber les cartes",
       "dropDescription": "Ouvrir chaque module pour libérer les cartes coincées",
+      "retract": "Retirer la carte",
+      "retractDescription": "Faire tourner l'alimentation à l'envers pour ramener une carte dans le bac",
       "neutral": "Remettre au neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
       "sorterDescription": "Connexion, autotest et état"

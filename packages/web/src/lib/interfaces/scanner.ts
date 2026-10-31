@@ -124,6 +124,7 @@ export interface ScannedCardsContextValue {
   sessionScanCount: number;
   lastRoutedBin: LastRoutedBin | null;
   setScannerRunning: (running: boolean) => void;
+  resetSessionStats: () => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
   setForceSetCode: (setCode: string | null) => void;

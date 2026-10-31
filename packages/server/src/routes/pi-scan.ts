@@ -11,6 +11,7 @@ import {
   startPiScanSession,
   stopPiScanSession,
   requestPiScanFeed,
+  resetPiScanSessionStats,
   updatePiScanSettings,
 } from "../lib/pi-scan/session";
 import {
@@ -84,6 +85,13 @@ export const piScanRouter = new Hono<AppEnv>()
     const state = requestPiScanFeed(c.get("orgId"));
     if (!state) {
       return c.json({ success: false, message: "No scan is running." }, 409);
+    }
+    return c.json({ success: true, data: state });
+  })
+  .post("/reset-stats", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
+    const state = resetPiScanSessionStats(c.get("orgId"));
+    if (!state) {
+      return c.json({ success: false, message: "No scan session to reset." }, 409);
     }
     return c.json({ success: true, data: state });
   })

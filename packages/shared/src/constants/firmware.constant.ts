@@ -22,6 +22,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   storedCalibration: "2.5.0",
   paddleOpenDelay: "2.6.0",
   wifiRemote: "2.10.0",
+  retractCard: "2.11.0",
 };
 
 export function isFirmwareFeatureSupported(
@@ -38,6 +39,9 @@ export const SERIAL_FED_EVENT = "fed";
 export const SERIAL_JAM_ERROR = "jam";
 export const SERIAL_BUSY_ERROR = "busy";
 export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";
+export const SERIAL_ROLLBACK_OFF_ERROR = "rollback_off";
+export const SERIAL_RETRACTED_STATUS = "retracted";
+export const RETRACT_CARD_TIMEOUT_MS = 10_000;
 export const SERIAL_SEQ_MAX = 2_000_000_000;
 export const SERIAL_IDENTIFY_ATTEMPTS = 5;
 export const SERIAL_READY_STATUS = "ready";

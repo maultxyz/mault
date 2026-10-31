@@ -73,6 +73,7 @@
     "label": "Fach-Routing",
     "feed": "Zuführen",
     "dropCard": "Karte abwerfen",
+    "retractCard": "Karte zurückziehen",
     "binActive": "Fach {{bin}}…",
     "running": "Läuft…",
     "sampleRun": "Testlauf",

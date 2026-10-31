@@ -137,7 +137,7 @@ async function retryScan(
   if (!row.gameKey) return { ...empty, status: "no_game" };
 
   const result = await attachMatchedCards(
-    await findCardMatches(jwtClaims, {
+    await findCardMatches({
       gameKey: row.gameKey,
       lang: row.lang,
       matchAllLanguages: row.matchAllLanguages,
