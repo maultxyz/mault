@@ -464,9 +464,6 @@
     "emptyDescription": "Chaque scan de cette collection a été reconnu.",
     "backToCards": "Retour aux cartes",
     "backToGrid": "Retour aux cartes non reconnues",
-    "pageOf": "Page {{page}} sur {{total}}",
-    "previousPage": "Page précédente",
-    "nextPage": "Page suivante",
     "openCard": "Ouvrir la carte non reconnue",
     "expand": "Afficher les cartes non reconnues",
     "collapse": "Masquer les cartes non reconnues",
@@ -663,8 +660,6 @@
     "searchPlaceholder": "Rechercher des cartes",
     "needsReview": "À vérifier",
     "back": "Retour aux sessions",
-    "previousPage": "Page précédente",
-    "nextPage": "Page suivante",
     "bin": "Bac {{number}}",
     "noActivity": "Rien n'a encore été scanné. Les scans apparaissent ici en direct.",
     "status": {

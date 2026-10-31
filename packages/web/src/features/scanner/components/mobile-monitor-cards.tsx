@@ -2,10 +2,11 @@ import {
   type GroupedScannedCard,
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MobileCardActionsDrawer } from "@/features/scanner/components/mobile-card-actions-drawer";
 import { EmptyState } from "@/components/empty-state";
 import { Callout } from "@/components/callout";
+import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import {
@@ -22,8 +23,6 @@ import { MobileCardTile } from "@/features/scanner/components/mobile-card-tile";
 import type { MobileMonitorCardsProps } from "@/lib/interfaces/scanner";
 import {
   IconCards,
-  IconChevronLeft,
-  IconChevronRight,
   IconHelpCircle,
   IconListCheck,
   IconSearch,
@@ -39,7 +38,6 @@ export function MobileMonitorCards({
   onStartReview,
 }: MobileMonitorCardsProps) {
   const { t } = useTranslation("scanner");
-  const { t: tCards } = useTranslation("cards");
   const {
     searchQuery,
     setSearchQuery,
@@ -66,9 +64,12 @@ export function MobileMonitorCards({
   const showReviewChip =
     canEditCards && (needsReviewCount > 0 || filters.needsAttention);
 
-  const goToPage = (next: number, target: HTMLElement) => {
+  const paginationRef = useRef<HTMLDivElement>(null);
+  const goToPage = (next: number) => {
     setPage(next);
-    target.closest("[data-scroll-root]")?.scrollTo({ top: 0 });
+    paginationRef.current
+      ?.closest("[data-scroll-root]")
+      ?.scrollTo({ top: 0 });
   };
 
   const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(
@@ -187,35 +188,16 @@ export function MobileMonitorCards({
         </div>
       )}
 
-      {pageCount > 1 && (
-        <div className="flex items-center justify-center gap-4 pb-8">
-          <Button
-            variant="outline"
-            size="icon"
-            className={MOBILE_ICON_BUTTON_CLASS}
-            onClick={(e) => goToPage(Math.max(0, page - 1), e.currentTarget)}
-            disabled={page === 0}
-            aria-label={t("mobileMonitor.previousPage")}
-          >
-            <IconChevronLeft />
-          </Button>
-          <span className="text-sm text-foreground/70 tabular-nums">
-            {tCards("cardGrid.pageOf", { page: page + 1, total: pageCount })}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            className={MOBILE_ICON_BUTTON_CLASS}
-            onClick={(e) =>
-              goToPage(Math.min(pageCount - 1, page + 1), e.currentTarget)
-            }
-            disabled={page === pageCount - 1}
-            aria-label={t("mobileMonitor.nextPage")}
-          >
-            <IconChevronRight />
-          </Button>
-        </div>
-      )}
+      <div ref={paginationRef}>
+        <ListPagination
+          className="px-4 pb-8"
+          pagination={{
+            page: page + 1,
+            pageCount,
+            setPage: (nextPage) => goToPage(nextPage - 1),
+          }}
+        />
+      </div>
       {canEditCards && (
         <MobileCardActionsDrawer
           entry={actionsEntry}

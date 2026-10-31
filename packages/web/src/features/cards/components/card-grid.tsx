@@ -2,6 +2,7 @@ import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { useHiddenDownloadedCount } from "@/features/cards/api/use-hidden-downloaded-count";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -74,8 +75,6 @@ import {
   IconAlbum,
   IconBox,
   IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
   IconDownload,
   IconPhotoUp,
   IconPlus,
@@ -856,32 +855,14 @@ export function CardGrid() {
             })}
           </div>
         )}
-        {pageCount > 1 && (
-          <div className="flex items-center justify-center gap-3 pt-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={clampedPage === 0}
-            >
-              <IconChevronLeft />
-            </Button>
-            <span className="text-sm text-foreground/70">
-              {t("cardGrid.pageOf", {
-                page: clampedPage + 1,
-                total: pageCount,
-              })}
-            </span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-              disabled={clampedPage === pageCount - 1}
-            >
-              <IconChevronRight />
-            </Button>
-          </div>
-        )}
+        <ListPagination
+          className="pt-4"
+          pagination={{
+            page: clampedPage + 1,
+            pageCount,
+            setPage: (nextPage) => setPage(nextPage - 1),
+          }}
+        />
       </div>
 
       {selectedIds.size > 0 && (

@@ -98,8 +98,7 @@
     "searchPlaceholder": "Nach Name suchen...",
     "loadError": "Karten konnten nicht geladen werden",
     "revectorizeTitle": "Neu vektorisieren",
-    "empty": "Keine Karten gefunden",
-    "pageOf": "Seite {{page}} von {{total}}"
+    "empty": "Keine Karten gefunden"
   },
   "syncCardById": {
     "heading": "Karte per ID synchronisieren",

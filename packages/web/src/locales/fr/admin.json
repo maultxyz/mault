@@ -98,8 +98,7 @@
     "searchPlaceholder": "Rechercher par nom...",
     "loadError": "Échec du chargement des cartes",
     "revectorizeTitle": "Revectoriser",
-    "empty": "Aucune carte trouvée",
-    "pageOf": "Page {{page}} sur {{total}}"
+    "empty": "Aucune carte trouvée"
   },
   "syncCardById": {
     "heading": "Synchroniser une carte par ID",

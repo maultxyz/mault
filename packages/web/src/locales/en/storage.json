@@ -117,12 +117,6 @@
     "binLabel_other": "Bin {{bin}} · {{count}} cards",
     "confirm": "Empty all bins"
   },
-  "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{page}} of {{count}}",
-    "range": "{{from}}-{{to}} of {{total}} cards"
-  },
   "moveDialog": {
     "title_one": "Move card to a location",
     "title_other": "Move {{count}} cards to a location",

@@ -1,3 +1,4 @@
+import { ListPagination } from "@/components/list-pagination";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,8 +6,6 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { listCards, revectorizeCard } from "@/lib/api/admin";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import {
-  IconChevronLeft,
-  IconChevronRight,
   IconRefresh,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -130,33 +129,20 @@ export function CardDatabaseManager() {
           )}
         </div>
 
-        {cardsQuery.data && totalPages > 1 && (
-          <div className="border-t px-4 py-2 flex items-center justify-between">
-            <p className="text-xs text-foreground/70">
-              {t("cardDatabase.pageOf", {
-                page: cardPage,
-                total: totalPages,
-              })}
-            </p>
-            <div className="flex gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                disabled={cardPage <= 1}
-                onClick={() => setCardPage((p) => p - 1)}
-              >
-                <IconChevronLeft />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                disabled={cardPage >= totalPages}
-                onClick={() => setCardPage((p) => p + 1)}
-              >
-                <IconChevronRight />
-              </Button>
-            </div>
-          </div>
+        {cardsQuery.data && (
+          <ListPagination
+            className="border-t px-4 py-2"
+            pagination={{
+              page: cardPage,
+              pageCount: totalPages,
+              setPage: setCardPage,
+              from: (cardPage - 1) * cardsQuery.data.limit + 1,
+              to:
+                (cardPage - 1) * cardsQuery.data.limit +
+                cardsQuery.data.cards.length,
+              total: cardsQuery.data.total,
+            }}
+          />
         )}
       </div>
     </SettingsSection>

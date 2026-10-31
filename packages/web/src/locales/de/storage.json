@@ -117,12 +117,6 @@
     "binLabel_other": "Fach {{bin}} · {{count}} Karten",
     "confirm": "Alle Fächer leeren"
   },
-  "pagination": {
-    "previous": "Zurück",
-    "next": "Weiter",
-    "page": "Seite {{page}} von {{count}}",
-    "range": "{{from}}-{{to}} von {{total}} Karten"
-  },
   "moveDialog": {
     "title_one": "Karte in einen Lagerort verschieben",
     "title_other": "{{count}} Karten in einen Lagerort verschieben",

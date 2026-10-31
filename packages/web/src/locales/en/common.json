@@ -261,7 +261,9 @@
   "pagination": {
     "previous": "Previous",
     "next": "Next",
-    "page": "Page {{page}} of {{count}}",
+    "label": "Pagination",
+    "pageNumber": "Page {{page}}",
+    "goToPage": "Go to page",
     "range": "{{from}}-{{to}} of {{total}}"
   },
   "guide": {

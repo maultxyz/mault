@@ -464,9 +464,6 @@
     "emptyDescription": "Every scan in this collection was matched.",
     "backToCards": "Back to cards",
     "backToGrid": "Back to unmatched cards",
-    "pageOf": "Page {{page}} of {{total}}",
-    "previousPage": "Previous page",
-    "nextPage": "Next page",
     "openCard": "Open unmatched card",
     "expand": "Show unmatched cards",
     "collapse": "Hide unmatched cards",
@@ -663,8 +660,6 @@
     "searchPlaceholder": "Search cards",
     "needsReview": "Needs review",
     "back": "Back to sessions",
-    "previousPage": "Previous page",
-    "nextPage": "Next page",
     "bin": "Bin {{number}}",
     "noActivity": "Nothing scanned yet. Scans show up here as they happen.",
     "status": {

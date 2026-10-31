@@ -98,8 +98,7 @@
     "searchPlaceholder": "Search by name...",
     "loadError": "Failed to load cards",
     "revectorizeTitle": "Re-vectorize",
-    "empty": "No cards found",
-    "pageOf": "Page {{page}} of {{total}}"
+    "empty": "No cards found"
   },
   "syncCardById": {
     "heading": "Sync Card by ID",

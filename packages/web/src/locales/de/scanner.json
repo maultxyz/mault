@@ -464,9 +464,6 @@
     "emptyDescription": "Jeder Scan in dieser Sammlung wurde erkannt.",
     "backToCards": "Zurück zu den Karten",
     "backToGrid": "Zurück zu den nicht erkannten Karten",
-    "pageOf": "Seite {{page}} von {{total}}",
-    "previousPage": "Vorherige Seite",
-    "nextPage": "Nächste Seite",
     "openCard": "Nicht erkannte Karte öffnen",
     "expand": "Nicht erkannte Karten anzeigen",
     "collapse": "Nicht erkannte Karten ausblenden",
@@ -663,8 +660,6 @@
     "searchPlaceholder": "Karten suchen",
     "needsReview": "Zu prüfen",
     "back": "Zurück zu den Sitzungen",
-    "previousPage": "Vorherige Seite",
-    "nextPage": "Nächste Seite",
     "bin": "Fach {{number}}",
     "noActivity": "Noch nichts gescannt. Scans erscheinen hier, sobald sie passieren.",
     "status": {

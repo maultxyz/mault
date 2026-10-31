@@ -117,12 +117,6 @@
     "binLabel_other": "Bac {{bin}} · {{count}} cartes",
     "confirm": "Vider tous les bacs"
   },
-  "pagination": {
-    "previous": "Précédent",
-    "next": "Suivant",
-    "page": "Page {{page}} sur {{count}}",
-    "range": "{{from}}-{{to}} sur {{total}} cartes"
-  },
   "moveDialog": {
     "title_one": "Déplacer la carte vers un emplacement",
     "title_other": "Déplacer {{count}} cartes vers un emplacement",
