@@ -184,7 +184,7 @@
     },
     "scanLimitReached": {
       "title": "Daily scan limit reached",
-      "description": "Upgrade to Business for unlimited scanning."
+      "description": "Upgrade your plan for more daily scans."
     },
     "routingFailed": {
       "title": "Routing failed",
@@ -333,7 +333,7 @@
     "connectAnotherUsb": "Connect another sorter (USB)",
     "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
     "flashNewBoard": "Flash a new board",
-    "connectAnotherUpgrade": "Connect more sorters with Business",
+    "connectAnotherUpgrade": "Connect more sorters with a bigger plan",
     "clearDevice": "Clear device",
     "resetToNeutral": "Reset to neutral",
     "sorter": "Sorter",
@@ -368,7 +368,7 @@
     "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect."
   },
   "scannerOverlay": {
-    "dailyLimitReached": "Daily scan limit reached. Upgrade to Business for unlimited scanning.",
+    "dailyLimitReached": "Daily scan limit reached. Upgrade your plan for more daily scans.",
     "upgradeButton": "Upgrade plan",
     "connectCamera": "Connect the webcam mounted over the sorter, or pair your phone to use as the camera.",
     "waitingForPhone": "Scan the QR code with your phone to pair it as the camera.",
@@ -464,9 +464,6 @@
     "emptyDescription": "Every scan in this collection was matched.",
     "backToCards": "Back to cards",
     "backToGrid": "Back to unmatched cards",
-    "pageOf": "Page {{page}} of {{total}}",
-    "previousPage": "Previous page",
-    "nextPage": "Next page",
     "openCard": "Open unmatched card",
     "expand": "Show unmatched cards",
     "collapse": "Hide unmatched cards",
@@ -633,8 +630,8 @@
       "description": "Disconnect a sorter before connecting another one."
     },
     "limitReached": {
-      "title": "More sorters need the Business plan",
-      "description": "The free plan runs one sorter at a time. Disconnect the other sorter, or upgrade to Business in Settings to run several at once."
+      "title": "Your plan's sorter limit is reached",
+      "description": "Your plan runs a limited number of sorters at a time. Disconnect another sorter, or upgrade your plan in Settings to run more at once."
     }
   },
   "watchPage": {
@@ -663,8 +660,6 @@
     "searchPlaceholder": "Search cards",
     "needsReview": "Needs review",
     "back": "Back to sessions",
-    "previousPage": "Previous page",
-    "nextPage": "Next page",
     "bin": "Bin {{number}}",
     "noActivity": "Nothing scanned yet. Scans show up here as they happen.",
     "status": {

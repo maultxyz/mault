@@ -1,8 +1,10 @@
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { PlanLockHint } from "@/components/plan-lock-hint";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useBilling } from "@/features/billing/api/use-billing";
 import {
   fleetQueryOptions,
   markDeviceServiced,
@@ -26,12 +28,30 @@ export function FleetHealthPanel() {
   const { t } = useTranslation("business");
   const { orgId, access } = useBusinessAccess();
   const run = useBusinessAction();
-  const { data: fleet, isLoading } = useQuery(fleetQueryOptions(orgId));
+  const { billing } = useBilling();
+  const isFleetHealthLocked = billing?.fleetHealth === false;
+  const fleetOptions = fleetQueryOptions(orgId);
+  const { data: fleet, isLoading } = useQuery({
+    ...fleetOptions,
+    enabled: fleetOptions.enabled && !isFleetHealthLocked,
+  });
   const [intervalTarget, setIntervalTarget] = useState<DeviceHealth | null>(null);
   const alertsPagination = useClientPagination(
     fleet?.alerts ?? [],
     FLEET_ALERTS_PAGE_SIZE,
   );
+
+  if (isFleetHealthLocked) {
+    return (
+      <div className="flex flex-col gap-2">
+        <div>
+          <h2 className="font-heading text-sm font-semibold">{t("fleet.title")}</h2>
+          <p className="text-xs text-foreground/70">{t("fleet.description")}</p>
+        </div>
+        <PlanLockHint message={t("fleet.notInPlan")} />
+      </div>
+    );
+  }
 
   if (isLoading || !fleet) return <ListSkeleton rows={4} />;
 

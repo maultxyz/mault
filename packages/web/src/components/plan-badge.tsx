@@ -5,6 +5,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBilling } from "@/features/billing/api/use-billing";
+import { billingPlanNameKey } from "@/features/billing/lib/billing-plan-name";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -16,7 +17,8 @@ export function PlanBadge() {
 
   if (isLoading || !billing) return null;
 
-  const isBusiness = billing.plan === "business";
+  const isPaid = billing.plan !== "free";
+  const planName = t(`plan.${billingPlanNameKey(billing)}`);
   const dailyLimit = billing.dailyLimit;
   const used = billing.cardsScannedToday;
   const usagePercent = dailyLimit
@@ -26,18 +28,14 @@ export function PlanBadge() {
   const tooltip =
     dailyLimit == null
       ? t(
-          isBusiness
-            ? "planFooterTooltip.business"
+          isPaid
+            ? "planFooterTooltip.paid"
             : "planFooterTooltip.freeUnlimited",
+          { plan: planName },
         )
       : t(
-          isBusiness
-            ? "planFooterTooltip.businessLimited"
-            : "planFooterTooltip.free",
-          {
-            used,
-            limit: dailyLimit,
-          },
+          isPaid ? "planFooterTooltip.paidLimited" : "planFooterTooltip.free",
+          { plan: planName, used, limit: dailyLimit },
         );
 
   return (
@@ -50,12 +48,12 @@ export function PlanBadge() {
           <span className="text-xs text-foreground/70">{t("plan.label")}</span>
           <span
             className={
-              isBusiness
+              isPaid
                 ? "text-xs font-semibold"
                 : "text-xs text-foreground/70"
             }
           >
-            {t(isBusiness ? "plan.business" : "plan.free")}
+            {planName}
           </span>
           {dailyLimit != null && (
             <div className="flex items-center gap-1.5">

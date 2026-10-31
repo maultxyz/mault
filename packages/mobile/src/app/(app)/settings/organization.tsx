@@ -51,7 +51,9 @@ export default function OrganizationSettingsScreen() {
   const [roleSheet, setRoleSheet] = useState<OrgMember | null>(null);
   const [inviteRoleOpen, setInviteRoleOpen] = useState(false);
   const [error, setError] = useState(false);
-  const subscriptionBlocksDelete = billing?.plan === "business" && !billing.cancelAtPeriodEnd;
+  const subscriptionBlocksDelete = !!billing && billing.plan !== "free" && !billing.cancelAtPeriodEnd;
+  const memberLimit = billing?.maxMembersPerOrg ?? null;
+  const memberLimitReached = memberLimit != null && (billing?.memberCount ?? 0) >= memberLimit;
 
   const renameForm = useForm<OrganizationNameFormValues>({
     resolver: zodResolver(organizationNameFormSchema),
@@ -66,6 +68,7 @@ export default function OrganizationSettingsScreen() {
 
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ["organization", orgId] });
+    await queryClient.invalidateQueries({ queryKey: billingQueryOptions(orgId).queryKey });
   };
   const mutate = useMutation({
     mutationFn: async (task: () => Promise<void>) => task(),
@@ -172,6 +175,9 @@ export default function OrganizationSettingsScreen() {
           <AppText heading weight="semibold">
             {t("settings.org.inviteMemberHeading")}
           </AppText>
+          {memberLimitReached ? (
+            <Callout tone="info" title={t("settings.org.memberLimitReached", { count: memberLimit })} />
+          ) : null}
           <Controller
             control={inviteForm.control}
             name="email"
@@ -199,6 +205,7 @@ export default function OrganizationSettingsScreen() {
             icon="plus"
             label={t("settings.org.invite")}
             loading={mutate.isPending}
+            disabled={memberLimitReached}
             onPress={inviteForm.handleSubmit((values) =>
               run(async () => {
                 await inviteMember(orgId ?? "", values.email.trim(), values.role);

@@ -1,3 +1,4 @@
+import { PlanLockTag } from "@/components/plan-lock-tag";
 import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import type { SectionNavProps } from "@/lib/interfaces/nav";
 import { sidebarItemClassName } from "@/lib/sidebar-item";
@@ -28,7 +29,23 @@ export function SectionNav({
           {subtitle}
         </p>
       </div>
-      {items.map((item) => (
+      {items.map((item) =>
+        item.disabled ? (
+          <span
+            key={item.to}
+            aria-disabled="true"
+            className={cn(
+              sidebarItemClassName({ isActive: false }),
+              "shrink-0 cursor-not-allowed justify-start gap-2 px-2.5 border-0 text-foreground/40 hover:bg-transparent hover:text-foreground/40 lg:w-full",
+            )}
+          >
+            {item.icon}
+            <span className="whitespace-nowrap lg:truncate">{item.label}</span>
+            {item.lockTag && (
+              <PlanLockTag label={item.lockTag} className="ml-auto" />
+            )}
+          </span>
+        ) : (
         <NavLink
           key={item.to}
           to={item.to}
@@ -41,8 +58,12 @@ export function SectionNav({
         >
           {item.icon}
           <span className="whitespace-nowrap lg:truncate">{item.label}</span>
+          {item.lockTag && (
+            <PlanLockTag label={item.lockTag} className="ml-auto" />
+          )}
         </NavLink>
-      ))}
+        ),
+      )}
     </nav>
   );
 }

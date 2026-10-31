@@ -214,46 +214,117 @@
   "pricing": {
     "eyebrow": "Preise",
     "heading": "Einfache, transparente Preise",
-    "subtitle": "Dieselbe App in beiden Fällen. Free reicht für gelegentliches Sortieren. Business hebt das tägliche Scanlimit auf, betreibt mehrere Sortierer gleichzeitig, schaltet unbegrenzte eigene Sounds und Discord-Benachrichtigungsregeln frei und bringt Lagerorte, API-Zugriff und Werkzeuge für deinen Laden mit.",
+    "subtitle": "Dieselbe App in jedem Tarif. Free reicht für gelegentliches Sortieren. Enthusiast hebt die Limits an und bringt chaotisches Sortieren und Lagerorte für ambitionierte Sammler. Business hebt die Limits auf und bringt API-Zugriff und Werkzeuge zum Kaufen und Verkaufen von Karten.",
     "intervals": {
       "label": "Abrechnungszeitraum",
       "month": "Monatlich",
       "year": "Jährlich"
     },
     "shared": {
-      "collections": "Unbegrenzte Sammlungen",
       "games": "Jedes unterstützte Sammelkartenspiel",
       "notifications": "Discord-Scan-Benachrichtigungen"
     },
-    "free": {
-      "name": "Free",
-      "price": "0 $",
-      "description": "Für gelegentliche Sammler, die gerade erst anfangen.",
-      "scanLimit": "Bis zu {{limit}} Kartenscans pro Tag",
-      "sorters_one": "{{count}} verbundener Sortierer gleichzeitig",
-      "sorters_other": "{{count}} verbundene Sortierer gleichzeitig",
-      "soundRules_one": "{{count}} eigene Soundregel",
-      "soundRules_other": "{{count}} eigene Soundregeln",
-      "notificationRules_one": "{{count}} Discord-Benachrichtigungsregel",
-      "notificationRules_other": "{{count}} Discord-Benachrichtigungsregeln"
+    "perMonth": "/Monat",
+    "perYear": "/Jahr",
+    "yearlySavings": "Spare {{percent}} % mit jährlicher Abrechnung",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "0 $",
+        "description": "Für gelegentliche Sammler, die gerade erst anfangen.",
+        "cta": "Kostenlos starten"
+      },
+      "enthusiast": {
+        "name": "Enthusiast",
+        "description": "Für ambitionierte Sammler, die zu Hause sortieren.",
+        "cta": "Enthusiast-Plan starten"
+      },
+      "business": {
+        "name": "Business",
+        "description": "Für Läden und Teams, die Karten kaufen und verkaufen.",
+        "cta": "Business-Plan starten"
+      }
     },
-    "business": {
-      "name": "Business",
-      "perMonth": "/Monat",
-      "perYear": "/Jahr",
-      "yearlySavings": "Spare {{percent}} % mit jährlicher Abrechnung",
-      "description": "Für Shops und ambitionierte Sammler.",
-      "unlimitedScans": "Unbegrenzte Kartenscans",
-      "cta": "Business-Plan starten",
-      "sorters_one": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
-      "sorters_other": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
-      "soundRules": "Unbegrenzte Soundregeln mit deinen eigenen hochgeladenen Clips",
-      "notificationRules": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten",
+    "limits": {
+      "dailyScans": {
+        "limited_one": "Bis zu {{count}} Kartenscan pro Tag",
+        "limited_other": "Bis zu {{count}} Kartenscans pro Tag",
+        "unlimited": "Unbegrenzte Kartenscans"
+      },
+      "organizations": {
+        "limited_one": "{{count}} eigene Organisation",
+        "limited_other": "Bis zu {{count}} eigene Organisationen",
+        "unlimited": "So viele eigene Organisationen, wie du brauchst"
+      },
+      "membersPerOrg": {
+        "limited_one": "{{count}} Mitglied pro Organisation",
+        "limited_other": "Bis zu {{count}} Mitglieder pro Organisation",
+        "unlimited": "Unbegrenzt viele Mitglieder in jeder Organisation"
+      },
+      "connectedSorters": {
+        "limited_one": "{{count}} verbundener Sortierer gleichzeitig",
+        "limited_other": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
+        "unlimited": "Unbegrenzt viele Sortierer gleichzeitig"
+      },
+      "soundRules": {
+        "limited_one": "{{count}} eigene Soundregel",
+        "limited_other": "{{count}} eigene Soundregeln",
+        "unlimited": "Unbegrenzte Soundregeln"
+      },
+      "notificationRules": {
+        "limited_one": "{{count}} Discord-Benachrichtigungsregel",
+        "limited_other": "{{count}} Discord-Benachrichtigungsregeln",
+        "unlimited": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten"
+      },
+      "collections": {
+        "limited_one": "{{count}} Sammlung",
+        "limited_other": "Bis zu {{count}} Sammlungen",
+        "unlimited": "Unbegrenzte Sammlungen"
+      }
+    },
+    "features": {
       "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
+      "repacks": "Repacks erstellen: jedes Fach füllt sein eigenes Pack aus den Slots, die du festlegst",
+      "customSounds": "Eigene Sounds: lade deine eigenen Clips hoch, die beim Sortieren passender Karten abgespielt werden",
+      "fleetHealth": "Flottenzustand: sieh Status, Karten seit der letzten Wartung und Alarmverlauf jedes Sortierers und lege Wartungsintervalle fest",
       "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
       "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
-      "businessTools": "Werkzeuge für Läden: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen",
+      "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen",
       "businessOps": "Ladenverwaltung: die Genauigkeit einer Charge per Stichprobe prüfen, die Aktivität deines Teams sehen, Warnungen bei Stau und fälliger Wartung der Sortierer erhalten und Ankaufspreise vor deinem Team verbergen"
+    },
+    "compare": {
+      "heading": "Alle Funktionen im Vergleich",
+      "subtitle": "Alles, was jeder Tarif enthält, nebeneinander.",
+      "feature": "Funktion",
+      "seeAll": "Alle Funktionen vergleichen",
+      "groups": {
+        "limits": "Limits",
+        "features": "Funktionen",
+        "included": "In jedem Tarif enthalten"
+      },
+      "cells": {
+        "unlimited": "Unbegrenzt",
+        "included": "Enthalten",
+        "notIncluded": "Nicht enthalten"
+      },
+      "limits": {
+        "dailyScans": "Kartenscans pro Tag",
+        "organizations": "Eigene Organisationen",
+        "membersPerOrg": "Mitglieder pro Organisation",
+        "connectedSorters": "Gleichzeitig verbundene Sortierer",
+        "soundRules": "Soundregeln",
+        "notificationRules": "Discord-Benachrichtigungsregeln",
+        "collections": "Sammlungen"
+      },
+      "features": {
+        "chaosSort": "Chaos-Sortierung",
+        "repacks": "Repacks erstellen",
+        "customSounds": "Eigene Sounds",
+        "fleetHealth": "Flottenzustand",
+        "storage": "Lagerorte",
+        "apiAccess": "API-Zugriff",
+        "businessTools": "An- und Verkauf"
+      }
     }
   },
   "cta": {

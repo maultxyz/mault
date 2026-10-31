@@ -16,6 +16,7 @@ export interface AuthProvider {
   listUserOrganisations(
     userId: string,
   ): Promise<{ id: string; name: string; role: string }[]>;
+  listOrgMemberUserIdsBySeat(orgId: string): Promise<string[]>;
 
   getOrganisationName(orgId: string): Promise<string>;
   getOrganisationNames(orgIds: string[]): Promise<Map<string, string>>;

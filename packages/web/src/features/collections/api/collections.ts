@@ -16,6 +16,7 @@ import {
   type MatchedScanDiagnostics,
   type Result,
   SCAN_SAVE_ACCEPTED_STATUSES,
+  throwIfMemberSeatLimit,
   type ScannedCard,
   type SortOnlyScanRequest,
   type UnmatchedCard,
@@ -123,6 +124,7 @@ export async function addCollectionCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
+  await throwIfMemberSeatLimit(res);
   if (res.ok || SCAN_SAVE_ACCEPTED_STATUSES.includes(res.status))
     return res.json();
   throw new ApiStatusError(res.status);
@@ -139,6 +141,7 @@ export async function recordSortOnlyScan(
     body: JSON.stringify(request),
   });
   await handleForbidden(res);
+  await throwIfMemberSeatLimit(res);
   if (res.ok || res.status === 402) return res.json();
   throw new ApiStatusError(res.status);
 }
@@ -305,6 +308,7 @@ export async function addUnmatchedCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
+  await throwIfMemberSeatLimit(res);
   if (res.ok || res.status === 409) return res.json();
   throw new ApiStatusError(res.status);
 }

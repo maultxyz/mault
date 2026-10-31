@@ -103,7 +103,6 @@
     "scanToGetStarted": "Scanne une carte pour commencer",
     "noCardsMatchFilters": "Aucune carte ne correspond aux filtres actuels",
     "tryAdjusting": "Essaie d'ajuster ta recherche, ton tri ou tes filtres",
-    "pageOf": "Page {{page}} sur {{total}}",
     "cardsSelected_one": "{{count}} carte sélectionnée",
     "cardsSelected_other": "{{count}} cartes sélectionnées",
     "clear": "Effacer",

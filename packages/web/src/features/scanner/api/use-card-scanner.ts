@@ -123,7 +123,6 @@ export function useCardScanner({
   const { data: billingData } = useQuery(billingQueryOptions(activeOrg?.id));
 
   const isAtScanLimit =
-    billingData?.plan === "free" &&
     billingData?.dailyLimit != null &&
     billingData.cardsScannedToday >= billingData.dailyLimit;
   const isAtScanLimitRef = useRef(isAtScanLimit);

@@ -74,7 +74,13 @@ export interface BinConfig {
   lastEmptiedAt?: number | null;
 }
 
-export type BinSizePreset = "small" | "medium" | "large" | "unlimited";
+export type BinSizePreset =
+  | "small"
+  | "medium"
+  | "large"
+  | "xlarge"
+  | "xxlarge"
+  | "unlimited";
 
 export type BinSizeOption = BinSizePreset | "custom";
 

@@ -10,6 +10,7 @@ import {
 } from "@/lib/constants/nav";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import type {
   MobileNavTabIconProps,
   MobileNavTabProps,
@@ -44,18 +45,30 @@ function TabIcon({ icon, dot, active }: MobileNavTabIconProps) {
   );
 }
 
-function MobileNavTab({ to, icon, label, active, badge }: MobileNavTabProps) {
+function MobileNavTab({
+  to,
+  icon,
+  label,
+  active,
+  badge,
+  lockTag,
+  disabled,
+}: MobileNavTabProps) {
   return (
     <Link
       to={to}
       aria-current={active ? "page" : undefined}
+      aria-disabled={disabled ? true : undefined}
+      aria-label={lockTag ? `${label}, ${lockTag}` : undefined}
       className={cn(
         MOBILE_NAV_TAB_CLASS,
         active ? MOBILE_NAV_TAB_ACTIVE_CLASS : "text-foreground/70",
+        disabled && "pointer-events-none text-foreground/40",
       )}
     >
       <TabIcon icon={icon} dot={badge} active={active} />
       {label}
+      {lockTag && <span className="text-2xs leading-none">{lockTag}</span>}
     </Link>
   );
 }
@@ -67,6 +80,8 @@ export function MobileNav() {
   const scanPath = piRemote ? "/app" : MOBILE_SCAN_PATH;
   const { locks, currentUserId } = useCollectionLocks();
   const liveCounts = useLiveSessionCounts();
+  const { planLockFor } = usePlanLockedPath();
+  const storageLock = planLockFor(STORAGE_PATH);
 
   const hasLiveSessions = !!(
     currentUserId &&
@@ -106,6 +121,8 @@ export function MobileNav() {
         icon={<IconBox size={22} />}
         label={t("mobileTabs.storage")}
         active={pathname.startsWith(STORAGE_PATH)}
+        lockTag={storageLock && t("nav.upgradeShort")}
+        disabled={storageLock?.isDisabled}
       />
       <MobileNavTab
         to={MOBILE_ACCOUNT_PATH}

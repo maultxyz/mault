@@ -9,7 +9,7 @@
     "generic": "Etwas ist schiefgelaufen. Versuch es noch einmal."
   },
   "upgrade": {
-    "locked": "Ankauf, Picks, Einkaufspreise und Stichproben gehören zum Business-Tarif. Was du schon hast, kannst du weiterhin ansehen.",
+    "locked": "Kaufen und Verkaufen (Ankauf, Picks, Einkaufspreise und Stichproben) ist nicht Teil deines Tarifs. Was du schon hast, kannst du weiterhin ansehen.",
     "link": "Tarife ansehen"
   },
   "status": {
@@ -469,7 +469,8 @@
       "feeder_empty": "Einzug leer",
       "offline": "Offline",
       "maintenance": "Wartung fällig"
-    }
+    },
+    "notInPlan": "Der Flottenzustand ist nicht Teil deines Tarifs."
   },
   "banner": {
     "title": "Ankauf läuft: {{name}}",

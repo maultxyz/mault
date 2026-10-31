@@ -93,10 +93,10 @@
     "limited": "Die ersten {{count}} Karten werden angezeigt. Gib mehr vom Namen ein, um die Suche einzugrenzen."
   },
   "upgrade": {
-    "businessOnly": "Lagerorte sind Teil des Business-Tarifs.",
+    "businessOnly": "Lagerorte sind nicht Teil deines Tarifs.",
     "link": "Upgraden",
     "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
-    "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht Business."
+    "lockedWithLocations": "Du kannst deine Lagerorte und die Karten darin weiter ansehen, durchsuchen und exportieren. Änderungen brauchen einen Tarif mit Lagerorten."
   },
   "review": {
     "start": "Karten prüfen",
@@ -116,12 +116,6 @@
     "binLabel_one": "Fach {{bin}} · {{count}} Karte",
     "binLabel_other": "Fach {{bin}} · {{count}} Karten",
     "confirm": "Alle Fächer leeren"
-  },
-  "pagination": {
-    "previous": "Zurück",
-    "next": "Weiter",
-    "page": "Seite {{page}} von {{count}}",
-    "range": "{{from}}-{{to}} von {{total}} Karten"
   },
   "moveDialog": {
     "title_one": "Karte in einen Lagerort verschieben",

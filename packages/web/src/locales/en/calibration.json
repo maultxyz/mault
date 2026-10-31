@@ -59,6 +59,8 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
+      "xlarge": "Extra large",
+      "xxlarge": "Extra extra large",
       "unlimited": "Unlimited",
       "custom": "Custom"
     },

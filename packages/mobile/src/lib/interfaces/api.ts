@@ -16,3 +16,12 @@ export interface ApiRequestOptions {
   orgId?: string | null;
   acceptStatuses?: number[];
 }
+
+export interface MemberSeatLock {
+  orgId: string;
+  limit: number;
+}
+
+export interface MemberSeatLockedProps {
+  lock: MemberSeatLock;
+}

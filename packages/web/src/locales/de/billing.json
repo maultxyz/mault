@@ -3,17 +3,18 @@
     "free": "Kostenlos",
     "business": "Business",
     "label": "Plan",
-    "scansToday": "{{used}}/{{limit}} heute"
+    "scansToday": "{{used}}/{{limit}} heute",
+    "enthusiast": "Enthusiast",
+    "legacyBusiness": "Business (Legacy)"
   },
   "planFooterTooltip": {
     "free": "Kostenloser Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um zu upgraden.",
-    "business": "Business-Plan. Klicken, um die Abrechnung zu verwalten.",
     "freeUnlimited": "Kostenloser Plan. Klicken, um deinen Plan anzusehen.",
-    "businessLimited": "Business-Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um die Abrechnung zu verwalten."
+    "paid": "{{plan}}-Plan. Klicken, um die Abrechnung zu verwalten.",
+    "paidLimited": "{{plan}}-Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um die Abrechnung zu verwalten."
   },
   "includes": "Dein Plan enthält",
   "usage": "{{used}} / {{limit}} Karten heute gescannt",
-  "upgrade": "Auf Business upgraden",
   "upgradeMonthly": "Upgrade für {{price}}/Monat",
   "upgradeYearly": "Upgrade für {{price}}/Jahr",
   "yearlySavings": "Mit jährlicher Abrechnung sparst du {{percent}} %.",
@@ -21,7 +22,7 @@
   "cancelAtPeriodEnd": "Dein Abonnement endet am {{date}}.",
   "billedMonthly": "Monatliche Abrechnung.",
   "billedYearly": "Jährliche Abrechnung.",
-  "checkoutSuccess": "Du bist jetzt auf dem Business-Plan!",
+  "checkoutSuccess": "Danke für dein Abo! Dein neuer Plan ist aktiv.",
   "checkoutError": "Checkout konnte nicht gestartet werden. Bitte versuche es erneut.",
   "portalError": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut.",
   "supportPrompt": {
@@ -34,5 +35,8 @@
     "dontAskAgain": "Nicht mehr fragen",
     "githubStars_one": "{{count}} Stern auf GitHub",
     "githubStars_other": "{{count}} Sterne auf GitHub"
-  }
+  },
+  "upgradeTo": "Auf {{plan}} upgraden",
+  "changePlanInPortal": "Tarif wechseln oder Abrechnungszeitraum ändern kannst du im Abrechnungsportal.",
+  "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen."
 }

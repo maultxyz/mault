@@ -98,8 +98,7 @@
     "searchPlaceholder": "Search by name...",
     "loadError": "Failed to load cards",
     "revectorizeTitle": "Re-vectorize",
-    "empty": "No cards found",
-    "pageOf": "Page {{page}} of {{total}}"
+    "empty": "No cards found"
   },
   "syncCardById": {
     "heading": "Sync Card by ID",
@@ -257,7 +256,9 @@
   "plans": {
     "planNames": {
       "free": "Free",
-      "business": "Business"
+      "business": "Business",
+      "enthusiast": "Enthusiast",
+      "legacyBusiness": "Business (legacy)"
     },
     "featuresHeading": "Features",
     "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",
@@ -286,8 +287,20 @@
         "description": "Create organization API keys and read cards and storage locations through the public API. Revoking existing keys always works."
       },
       "businessTools": {
-        "label": "Business tools",
+        "label": "Buy and sell",
         "description": "Intake lots with buylist offers, order import and fulfilment, cost and margin reports, and spot checks. Existing records stay viewable either way."
+      },
+      "repacks": {
+        "label": "Repacks",
+        "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already in repack mode keep working."
+      },
+      "customSounds": {
+        "label": "Custom sounds",
+        "description": "Upload custom sound clips for sound rules. Turning it off only stops new uploads. Clips already uploaded keep playing."
+      },
+      "fleetHealth": {
+        "label": "Fleet health",
+        "description": "The sorter health panel on the Sorters page: status, cards since service, alert history and service intervals. Jam and offline alerts are still recorded and sent either way."
       }
     },
     "limits": {
@@ -306,6 +319,43 @@
       "notificationRules": {
         "label": "Notification rules",
         "description": "Discord notification rules across all games. Only checked when adding a rule."
+      },
+      "organizations": {
+        "label": "Owned organizations",
+        "description": "Organizations a user may own. Checked in the app against the plan of the organization the user has open when creating a new one."
+      },
+      "membersPerOrg": {
+        "label": "Members per organization",
+        "description": "Members per organization, counted owners first, then by join date. Members past the limit are locked out until the plan is upgraded or members are removed."
+      },
+      "collections": {
+        "label": "Collections",
+        "description": "Collections per organization. Only checked when creating a collection."
+      }
+    },
+    "preview": {
+      "heading": "Preview a plan",
+      "description": "See the app as an organization on another plan would: limits, locked features and the billing page all follow the plan you pick. Only affects your own requests on this browser.",
+      "off": "Off"
+    },
+    "pricingMode": {
+      "heading": "Pricing mode",
+      "cancel": "Cancel",
+      "saved": "Pricing mode updated.",
+      "saveFailed": "Couldn't update the pricing mode.",
+      "legacy": {
+        "badge": "Old pricing",
+        "description": "Only Free and the original Business plan are on sale, at the legacy Business prices. New Business subscribers get the legacy Business tier.",
+        "switch": "Switch to new pricing",
+        "confirmTitle": "Switch to the new pricing?",
+        "confirmDescription": "Enthusiast and the new Business plan go on sale right away, using the STRIPE_PRICE_ID_ENTHUSIAST and STRIPE_PRICE_ID_BUSINESS prices. Current Business subscribers keep their plan and start seeing it labelled as legacy."
+      },
+      "tiered": {
+        "badge": "New pricing",
+        "description": "Free, Enthusiast and Business are on sale. Existing subscribers to the original Business plan keep it as the legacy tier.",
+        "switch": "Switch back to old pricing",
+        "confirmTitle": "Switch back to the old pricing?",
+        "confirmDescription": "Enthusiast and the new Business plan stop being sold, and Business checkout goes back to the legacy prices. People who already subscribed to a new plan keep it."
       }
     }
   },

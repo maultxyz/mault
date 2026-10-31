@@ -27,7 +27,10 @@
     "langPlaceholder": "Select a language...",
     "matchAllLanguagesLabel": "Match cards in every language",
     "matchAllLanguagesDescription": "Scans match printings in any of this game's languages instead of only the one picked above. Searching and correcting still use the picked language.",
-    "experimental": "Experimental"
+    "experimental": "Experimental",
+    "limitReached_one": "Your plan includes {{count}} collection.",
+    "limitReached_other": "Your plan includes {{count}} collections.",
+    "upgrade": "Upgrade your plan to add more."
   },
   "requireDialog": {
     "title": "Create your first collection",

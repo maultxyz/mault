@@ -2,7 +2,7 @@ import type { OrgRole } from "@magic-vault/shared";
 import type { BusinessResult } from "../interfaces/business";
 
 export const BUSINESS_UPGRADE_MESSAGE =
-  "Business tools are part of the Business plan. Upgrade to Business to use them.";
+  "Buy and sell is not part of your plan. Upgrade your plan to use it.";
 export const BUSINESS_FORBIDDEN_MESSAGE =
   "Your organization role doesn't allow this.";
 export const BUSINESS_MANAGER_ROLES: OrgRole[] = ["owner", "admin"];

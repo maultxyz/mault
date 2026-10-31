@@ -17,7 +17,7 @@ export default function DiscordBotPage() {
   });
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
+    <div className="relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
       <BlueprintBackdrop />
       <PublicNav containerClassName="max-w-4xl" />
       <main className="flex-1">

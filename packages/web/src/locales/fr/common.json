@@ -25,7 +25,9 @@
     "more": "Plus",
     "stats": "Statistiques",
     "sortingRules": "Règles de tri",
-    "intake": "Achat & vente"
+    "intake": "Achat & vente",
+    "upgradeYourPlan": "Changez d'offre",
+    "upgradeShort": "Changer"
   },
   "alerts": {
     "dismiss": "Ignorer",
@@ -261,7 +263,9 @@
   "pagination": {
     "previous": "Précédent",
     "next": "Suivant",
-    "page": "Page {{page}} sur {{count}}",
+    "label": "Pagination",
+    "pageNumber": "Page {{page}}",
+    "goToPage": "Aller à la page",
     "range": "{{from}}-{{to}} sur {{total}}"
   },
   "guide": {
@@ -315,5 +319,26 @@
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
     "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
+  },
+  "memberSeatLock": {
+    "title": "Cette organisation dépasse sa limite de membres",
+    "description_one": "L'offre de {{name}} inclut {{count}} membre, et ta place dépasse cette limite. Demande à un propriétaire de passer à une offre supérieure ou de retirer des membres.",
+    "description_other": "L'offre de {{name}} inclut {{count}} membres, et ta place dépasse cette limite. Demande à un propriétaire de passer à une offre supérieure ou de retirer des membres.",
+    "switchOrganization": "Passer à une autre organisation",
+    "tryAgain": "Réessayer",
+    "signOut": "Se déconnecter"
+  },
+  "planLock": {
+    "link": "Voir les offres"
+  },
+  "planPreview": {
+    "banner": "Aperçu de l'offre {{plan}}. Les limites et les fonctions verrouillées suivent cette offre.",
+    "stop": "Arrêter l'aperçu",
+    "planNames": {
+      "free": "Gratuit",
+      "enthusiast": "Passionné",
+      "business": "Entreprise",
+      "legacyBusiness": "Business (ancienne offre)"
+    }
   }
 }

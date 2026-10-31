@@ -59,6 +59,8 @@
       "small": "Petit",
       "medium": "Moyen",
       "large": "Grand",
+      "xlarge": "Très grand",
+      "xxlarge": "Très très grand",
       "unlimited": "Illimité",
       "custom": "Personnalisé"
     },

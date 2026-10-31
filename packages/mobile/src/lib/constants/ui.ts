@@ -35,3 +35,4 @@ export const THEME_PREFERENCES = ["light", "dark", "system"] as const;
 
 export const SHUTTER_SIZE = 48;
 export const SHUTTER_ICON_SIZE = 20;
+export const LOCKED_TAB_OPACITY = 0.5;

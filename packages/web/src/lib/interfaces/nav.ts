@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import type { THEME_OPTIONS } from "@/lib/constants/nav";
+import type { PlanFeatureKey } from "@magic-vault/shared";
 
 export interface NavSubItemDef {
   key: string;
@@ -17,6 +18,7 @@ export interface NavItemDef {
   badge?: boolean;
   disabled?: boolean;
   tooltip?: string;
+  lockTag?: string;
   external?: boolean;
   subItems?: NavSubItemDef[];
 }
@@ -25,6 +27,8 @@ export interface SectionNavItem {
   to: string;
   icon: ReactNode;
   label: string;
+  lockTag?: string;
+  disabled?: boolean;
 }
 
 export interface SectionNavProps {
@@ -41,6 +45,8 @@ export interface MobileNavTabProps {
   label: string;
   active: boolean;
   badge?: boolean;
+  lockTag?: string;
+  disabled?: boolean;
 }
 
 export interface MobileNavTabIconProps {
@@ -156,4 +162,20 @@ export interface ResponsiveSegmentedProps<T extends string> {
   label: string;
   size?: "sm" | "default";
   className?: string;
+}
+
+export interface PlanLockTagProps {
+  label: string;
+  className?: string;
+}
+
+export interface PlanGatedPath {
+  pathPrefix: string;
+  feature: PlanFeatureKey;
+  readOnlyWhenCountKey?: "storageLocationCount";
+}
+
+export interface PlanLock {
+  tag: string;
+  isDisabled: boolean;
 }

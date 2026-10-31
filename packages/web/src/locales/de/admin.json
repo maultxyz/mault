@@ -98,8 +98,7 @@
     "searchPlaceholder": "Nach Name suchen...",
     "loadError": "Karten konnten nicht geladen werden",
     "revectorizeTitle": "Neu vektorisieren",
-    "empty": "Keine Karten gefunden",
-    "pageOf": "Seite {{page}} von {{total}}"
+    "empty": "Keine Karten gefunden"
   },
   "syncCardById": {
     "heading": "Karte per ID synchronisieren",
@@ -246,7 +245,9 @@
   "plans": {
     "planNames": {
       "free": "Free",
-      "business": "Business"
+      "business": "Business",
+      "enthusiast": "Enthusiast",
+      "legacyBusiness": "Business (Legacy)"
     },
     "featuresHeading": "Funktionen",
     "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",
@@ -275,8 +276,20 @@
         "description": "Organisations-API-Schlüssel anlegen und Karten und Lagerorte über die öffentliche API lesen. Bestehende Schlüssel lassen sich immer widerrufen."
       },
       "businessTools": {
-        "label": "Business-Werkzeuge",
+        "label": "Kaufen und Verkaufen",
         "description": "Ankäufe mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
+      },
+      "repacks": {
+        "label": "Repacks",
+        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+      },
+      "customSounds": {
+        "label": "Eigene Sounds",
+        "description": "Eigene Soundclips für Soundregeln hochladen. Ausschalten verhindert nur neue Uploads. Bereits hochgeladene Clips werden weiter abgespielt."
+      },
+      "fleetHealth": {
+        "label": "Flottenzustand",
+        "description": "Das Zustandspanel auf der Sortierer-Seite: Status, Karten seit der letzten Wartung, Alarmverlauf und Wartungsintervalle. Stau- und Offline-Alarme werden in jedem Fall weiter erfasst und gesendet."
       }
     },
     "limits": {
@@ -295,6 +308,43 @@
       "notificationRules": {
         "label": "Benachrichtigungsregeln",
         "description": "Discord-Benachrichtigungsregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
+      },
+      "organizations": {
+        "label": "Eigene Organisationen",
+        "description": "Organisationen, die ein Nutzer besitzen darf. Die App prüft beim Anlegen einer neuen Organisation gegen den Tarif der gerade geöffneten Organisation."
+      },
+      "membersPerOrg": {
+        "label": "Mitglieder pro Organisation",
+        "description": "Mitglieder pro Organisation, Inhaber zuerst, dann nach Beitrittsdatum gezählt. Mitglieder über dem Limit sind gesperrt, bis der Tarif erhöht oder Mitglieder entfernt werden."
+      },
+      "collections": {
+        "label": "Sammlungen",
+        "description": "Sammlungen pro Organisation. Wird nur beim Anlegen einer Sammlung geprüft."
+      }
+    },
+    "preview": {
+      "heading": "Tarif in der Vorschau ansehen",
+      "description": "Sieh die App so, wie eine Organisation mit einem anderen Tarif sie sieht: Limits, gesperrte Funktionen und die Abrechnungsseite folgen dem gewählten Tarif. Betrifft nur deine eigenen Anfragen in diesem Browser.",
+      "off": "Aus"
+    },
+    "pricingMode": {
+      "heading": "Preismodell",
+      "cancel": "Abbrechen",
+      "saved": "Preismodell aktualisiert.",
+      "saveFailed": "Das Preismodell konnte nicht aktualisiert werden.",
+      "legacy": {
+        "badge": "Alte Preise",
+        "description": "Nur Free und der ursprüngliche Business-Tarif werden zu den alten Business-Preisen verkauft. Neue Business-Abonnenten erhalten den Legacy-Business-Tarif.",
+        "switch": "Zu neuen Preisen wechseln",
+        "confirmTitle": "Zu den neuen Preisen wechseln?",
+        "confirmDescription": "Enthusiast und der neue Business-Tarif sind sofort erhältlich, mit den Preisen aus STRIPE_PRICE_ID_ENTHUSIAST und STRIPE_PRICE_ID_BUSINESS. Bestehende Business-Abonnenten behalten ihren Tarif und sehen ihn künftig als Legacy gekennzeichnet."
+      },
+      "tiered": {
+        "badge": "Neue Preise",
+        "description": "Free, Enthusiast und Business sind erhältlich. Bestehende Abonnenten des ursprünglichen Business-Tarifs behalten ihn als Legacy-Tarif.",
+        "switch": "Zu alten Preisen zurückwechseln",
+        "confirmTitle": "Zu den alten Preisen zurückwechseln?",
+        "confirmDescription": "Enthusiast und der neue Business-Tarif werden nicht mehr verkauft, und der Business-Checkout nutzt wieder die alten Preise. Wer bereits einen neuen Tarif abonniert hat, behält ihn."
       }
     }
   },

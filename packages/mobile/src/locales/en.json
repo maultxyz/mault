@@ -24,7 +24,9 @@
     "account": "Account",
     "home": "Home",
     "rules": "Rules",
-    "storage": "Storage"
+    "storage": "Storage",
+    "upgradeYourPlan": "Upgrade your plan",
+    "upgradeShort": "Upgrade"
   },
   "auth": {
     "tagline": "Scan, sort and track your cards from your phone.",
@@ -73,6 +75,8 @@
     "experimental": "Experimental",
     "create": "Create",
     "createFailed": "Couldn't create the collection",
+    "limitReached_one": "Your plan includes {{count}} collection. Upgrade your plan on the web to create more.",
+    "limitReached_other": "Your plan includes {{count}} collections. Upgrade your plan on the web to create more.",
     "rename": "Rename",
     "renameTitle": "Rename collection",
     "renameDescription": "Rename this collection.",
@@ -901,7 +905,7 @@
     "mode": {
       "title": "Sorting mode",
       "saveFailed": "Couldn't save the sorting mode",
-      "chaosLocked": "Part of the Business plan. Upgrade on the web to use it.",
+      "featureLocked": "Not included in your plan. Upgrade your plan on the web to use it.",
       "matchedBin": "Scanned cards",
       "matchedBinDescription": "Cards that were identified",
       "unmatchedBin": "Unidentified cards",
@@ -1123,6 +1127,8 @@
         "small": "Small",
         "medium": "Medium",
         "large": "Large",
+        "xlarge": "Extra large",
+        "xxlarge": "Extra extra large",
         "unlimited": "Unlimited",
         "custom": "Custom"
       },
@@ -1211,9 +1217,9 @@
     "location": "Storage",
     "removeFromLocation": "Remove from location",
     "noCardsTitle": "This location is empty",
-    "businessOnly": "Storage locations are part of the Business plan.",
+    "businessOnly": "Storage locations aren't included in your plan.",
     "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
-    "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs Business.",
+    "lockedWithLocations": "You can still view and search your locations and the cards in them. Changing anything needs a plan that includes storage.",
     "actionFailed": "Couldn't update storage",
     "actions": "Location actions",
     "review": {
@@ -1368,12 +1374,23 @@
       "failed": "Couldn't update the organization",
       "cancel": "Cancel",
       "membersUnavailable": "Members are managed by your self-hosted server's admin tools.",
-      "noInvites": "No pending invites"
+      "noInvites": "No pending invites",
+      "memberLimitReached_one": "Your plan includes {{count}} member per organization. Upgrade your plan on the web to invite more.",
+      "memberLimitReached_other": "Your plan includes {{count}} members per organization. Upgrade your plan on the web to invite more.",
+      "seatLocked": {
+        "title": "You can't use {{name}} right now",
+        "description_one": "This organization's plan allows {{count}} member. Ask the owner to upgrade the plan or remove members.",
+        "description_other": "This organization's plan allows {{count}} members. Ask the owner to upgrade the plan or remove members.",
+        "tryAgain": "Try again",
+        "switchHeading": "Switch organization"
+      }
     },
     "billing": {
       "plan": {
         "free": "Free",
-        "business": "Business"
+        "enthusiast": "Enthusiast",
+        "business": "Business",
+        "legacyBusiness": "Business (legacy)"
       },
       "includes": "Your plan includes",
       "usage": "{{used}} / {{limit}} cards scanned today",
@@ -1383,24 +1400,35 @@
       "features": {
         "scanLimit": "Up to {{limit}} card scans per day",
         "unlimitedScans": "Unlimited card scans",
-        "freeSorters_one": "{{count}} sorter connected at a time",
-        "freeSorters_other": "{{count}} sorters connected at a time",
-        "businessSorters_one": "Up to {{count}} sorter at once",
-        "businessSorters_other": "Up to {{count}} sorters at once",
-        "freeSoundRules_one": "{{count}} custom sound rule",
-        "freeSoundRules_other": "{{count}} custom sound rules",
-        "soundRules": "Unlimited sound rules with your own uploaded clips",
-        "freeNotificationRules_one": "{{count}} Discord notification rule",
-        "freeNotificationRules_other": "{{count}} Discord notification rules",
-        "notificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel",
+        "organizations_one": "Own up to {{count}} organization",
+        "organizations_other": "Own up to {{count}} organizations",
+        "unlimitedOrganizations": "Unlimited organizations",
+        "members_one": "Up to {{count}} member per organization",
+        "members_other": "Up to {{count}} members per organization",
+        "unlimitedMembers": "Unlimited members per organization",
+        "collections_one": "Up to {{count}} collection",
+        "collections_other": "Up to {{count}} collections",
+        "unlimitedCollections": "Unlimited collections",
+        "sorters_one": "Up to {{count}} sorter connected at once",
+        "sorters_other": "Up to {{count}} sorters connected at once",
+        "unlimitedSorters": "Unlimited connected sorters",
+        "soundRules_one": "{{count}} custom sound rule",
+        "soundRules_other": "{{count}} custom sound rules",
+        "unlimitedSoundRules": "Unlimited sound rules",
+        "notificationRules_one": "{{count}} Discord notification rule",
+        "notificationRules_other": "{{count}} Discord notification rules",
+        "unlimitedNotificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel",
         "chaosSort": "Chaos sort, the fastest way to put away a big pile",
+        "repacks": "Repacks: build packs from your cards slot by slot",
+        "customSounds": "Custom sounds: upload your own clips for sound rules",
+        "fleetHealth": "Fleet health: sorter status, service intervals and alert history",
         "storage": "Storage locations: record which box every card is in and where, then search across them",
         "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
-        "collections": "Unlimited collections",
+        "businessTools": "Buy and sell: intake offers, order pull sheets and margin reports",
         "games": "Every supported card game",
-        "notifications": "Discord scan notifications",
-        "businessTools": "Shop tools: intake offers, order pull sheets and margin reports"
-      }
+        "notifications": "Discord scan notifications"
+      },
+      "legacyPlanNote": "You're on the original Business plan, which is no longer offered. You keep it, with everything it includes, for as long as your subscription stays active. Switching to another plan or cancelling can't be undone."
     },
     "apiKeys": {
       "heading": "API keys",
@@ -1428,7 +1456,7 @@
       "revealDone": "I've copied it",
       "managersOnly": "Only organization owners and admins can create or revoke API keys.",
       "loadFailed": "Couldn't load API keys.",
-      "upgrade": "API keys are part of the Business plan.",
+      "upgrade": "API keys aren't included in your plan.",
       "share": "Share key",
       "cancel": "Cancel"
     },
@@ -1482,7 +1510,7 @@
       "copySecret": "Copy secret",
       "secretCopied": "Signing secret copied.",
       "copyFailed": "Couldn't copy the secret.",
-      "upgrade": "Webhooks are part of the Business plan.",
+      "upgrade": "Webhooks aren't included in your plan.",
       "loadFailed": "Couldn't load webhooks.",
       "share": "Share secret",
       "cancel": "Cancel",
@@ -1532,8 +1560,8 @@
         "edit": "Edit {{name}}",
         "delete": "Delete {{name}}",
         "saveFailed": "Couldn't save the notification rules.",
-        "limitReached_one": "The free plan includes {{count}} Discord notification rule. Upgrade to Business for unlimited rules.",
-        "limitReached_other": "The free plan includes {{count}} Discord notification rules. Upgrade to Business for unlimited rules.",
+        "limitReached_one": "Your plan includes {{count}} Discord notification rule. Upgrade your plan for more.",
+        "limitReached_other": "Your plan includes {{count}} Discord notification rules. Upgrade your plan for more.",
         "upgrade": "Upgrade",
         "andPings": "and pings"
       },
@@ -1635,7 +1663,8 @@
         "stop": "Stop {{name}}",
         "pickFailed": "Couldn't open that file.",
         "renamed": "Sound clip renamed.",
-        "deleteConfirm": "Rules that play this clip stop playing a sound."
+        "deleteConfirm": "Rules that play this clip stop playing a sound.",
+        "notInPlan": "Uploading custom sounds isn't part of your plan."
       },
       "rules": {
         "heading": "Sound rules",
@@ -1652,8 +1681,8 @@
         "delete": "Delete {{name}}",
         "saved": "Sound rules saved.",
         "saveFailed": "Couldn't save the sound rules.",
-        "limitReached_one": "The free plan includes {{count}} sound rule. Upgrade to Business for unlimited sound rules.",
-        "limitReached_other": "The free plan includes {{count}} sound rules. Upgrade to Business for unlimited sound rules.",
+        "limitReached_one": "Your plan includes {{count}} sound rule. Upgrade your plan for more.",
+        "limitReached_other": "Your plan includes {{count}} sound rules. Upgrade your plan for more.",
         "upgrade": "Upgrade",
         "deleteConfirm": "This rule stops playing its sound."
       },

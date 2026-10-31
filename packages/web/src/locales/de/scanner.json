@@ -184,7 +184,7 @@
     },
     "scanLimitReached": {
       "title": "Tägliches Scan-Limit erreicht",
-      "description": "Upgrade auf Business für unbegrenztes Scannen."
+      "description": "Upgrade deinen Tarif für mehr Scans pro Tag."
     },
     "routingFailed": {
       "title": "Weiterleitung fehlgeschlagen",
@@ -333,7 +333,7 @@
     "connectAnotherUsb": "Weiteren Sortierer verbinden (USB)",
     "connectAnotherBluetooth": "Weiteren Sortierer verbinden (Bluetooth)",
     "flashNewBoard": "Neue Platine flashen",
-    "connectAnotherUpgrade": "Mehr Sortierer mit Business verbinden",
+    "connectAnotherUpgrade": "Mehr Sortierer mit einem größeren Tarif verbinden",
     "clearDevice": "Gerät leeren",
     "resetToNeutral": "In Neutralstellung bringen",
     "sorter": "Sortierer",
@@ -368,7 +368,7 @@
     "sessionEndedDescription": "Der Scanner hat diese Kamera getrennt. Du kannst die Kamera ausschalten oder einen neuen QR-Code scannen, um dich wieder zu verbinden."
   },
   "scannerOverlay": {
-    "dailyLimitReached": "Tägliches Scan-Limit erreicht. Upgrade auf Business für unbegrenztes Scannen.",
+    "dailyLimitReached": "Tägliches Scan-Limit erreicht. Upgrade deinen Tarif für mehr Scans pro Tag.",
     "upgradeButton": "Plan upgraden",
     "connectCamera": "Verbinde die Webcam über dem Sortierer oder kopple dein Telefon als Kamera.",
     "waitingForPhone": "Scanne den QR-Code mit deinem Telefon, um es als Kamera zu koppeln.",
@@ -464,9 +464,6 @@
     "emptyDescription": "Jeder Scan in dieser Sammlung wurde erkannt.",
     "backToCards": "Zurück zu den Karten",
     "backToGrid": "Zurück zu den nicht erkannten Karten",
-    "pageOf": "Seite {{page}} von {{total}}",
-    "previousPage": "Vorherige Seite",
-    "nextPage": "Nächste Seite",
     "openCard": "Nicht erkannte Karte öffnen",
     "expand": "Nicht erkannte Karten anzeigen",
     "collapse": "Nicht erkannte Karten ausblenden",
@@ -633,8 +630,8 @@
       "description": "Trenne einen Sortierer, bevor du einen weiteren verbindest."
     },
     "limitReached": {
-      "title": "Weitere Sortierer erfordern den Business-Tarif",
-      "description": "Der kostenlose Tarif betreibt jeweils nur einen Sortierer. Trenne den anderen Sortierer oder wechsle in den Einstellungen zu Business, um mehrere gleichzeitig zu betreiben."
+      "title": "Das Sortiererlimit deines Tarifs ist erreicht",
+      "description": "Dein Tarif betreibt nur eine begrenzte Zahl von Sortierern gleichzeitig. Trenne einen anderen Sortierer oder upgrade deinen Tarif in den Einstellungen, um mehr gleichzeitig zu betreiben."
     }
   },
   "watchPage": {
@@ -663,8 +660,6 @@
     "searchPlaceholder": "Karten suchen",
     "needsReview": "Zu prüfen",
     "back": "Zurück zu den Sitzungen",
-    "previousPage": "Vorherige Seite",
-    "nextPage": "Nächste Seite",
     "bin": "Fach {{number}}",
     "noActivity": "Noch nichts gescannt. Scans erscheinen hier, sobald sie passieren.",
     "status": {

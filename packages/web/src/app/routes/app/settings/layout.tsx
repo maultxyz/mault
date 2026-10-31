@@ -8,6 +8,7 @@ import { PageIntro } from "@/components/page-intro";
 import { SectionNav } from "@/components/section-nav";
 import { useBillingCheckoutReturn } from "@/features/billing/api/use-billing-checkout-return";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useSettingsSections } from "@/hooks/use-settings-sections";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { useTranslation } from "react-i18next";
@@ -18,6 +19,7 @@ export default function SettingsLayout() {
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
   const sections = useSettingsSections();
+  const { planLockFor } = usePlanLockedPath();
   useBillingCheckoutReturn();
 
   const current = sections.find(
@@ -59,11 +61,16 @@ export default function SettingsLayout() {
       <SectionNav
         title={t("title")}
         subtitle={t("subtitle")}
-        items={sections.map((section) => ({
-          to: section.path,
-          icon: <section.icon size={16} />,
-          label: t(section.labelKey),
-        }))}
+        items={sections.map((section) => {
+          const lock = planLockFor(`${SETTINGS_PATHS.root}/${section.path}`);
+          return {
+            to: section.path,
+            icon: <section.icon size={16} />,
+            label: t(section.labelKey),
+            lockTag: lock?.tag,
+            disabled: lock?.isDisabled,
+          };
+        })}
         className="lg:col-span-2"
       />
 

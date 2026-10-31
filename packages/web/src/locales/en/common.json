@@ -25,7 +25,9 @@
     "more": "More",
     "stats": "Stats",
     "sortingRules": "Sorting rules",
-    "intake": "Buy & sell"
+    "intake": "Buy & sell",
+    "upgradeYourPlan": "Upgrade your plan",
+    "upgradeShort": "Upgrade"
   },
   "alerts": {
     "dismiss": "Dismiss",
@@ -261,7 +263,9 @@
   "pagination": {
     "previous": "Previous",
     "next": "Next",
-    "page": "Page {{page}} of {{count}}",
+    "label": "Pagination",
+    "pageNumber": "Page {{page}}",
+    "goToPage": "Go to page",
     "range": "{{from}}-{{to}} of {{total}}"
   },
   "guide": {
@@ -315,5 +319,26 @@
     "verificationCodeLength": "Enter the {{length}}-digit code.",
     "verificationCodeNumeric": "The code can only contain numbers.",
     "controlCardActionRequired": "Pick at least one thing for the card to change."
+  },
+  "memberSeatLock": {
+    "title": "This organization is over its member limit",
+    "description_one": "The plan of {{name}} includes {{count}} member, and your seat is past that limit. Ask an owner to upgrade the plan or remove members.",
+    "description_other": "The plan of {{name}} includes {{count}} members, and your seat is past that limit. Ask an owner to upgrade the plan or remove members.",
+    "switchOrganization": "Switch to another organization",
+    "tryAgain": "Try again",
+    "signOut": "Sign out"
+  },
+  "planLock": {
+    "link": "See plans"
+  },
+  "planPreview": {
+    "banner": "Previewing the {{plan}} plan. Limits and locked features follow that plan.",
+    "stop": "Stop preview",
+    "planNames": {
+      "free": "Free",
+      "enthusiast": "Enthusiast",
+      "business": "Business",
+      "legacyBusiness": "Business (legacy)"
+    }
   }
 }

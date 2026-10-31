@@ -24,7 +24,9 @@
     "account": "Compte",
     "home": "Accueil",
     "rules": "Règles",
-    "storage": "Rangement"
+    "storage": "Rangement",
+    "upgradeYourPlan": "Changez d'offre",
+    "upgradeShort": "Changer"
   },
   "auth": {
     "tagline": "Scanne, trie et suis tes cartes depuis ton téléphone.",
@@ -73,6 +75,8 @@
     "experimental": "Expérimental",
     "create": "Créer",
     "createFailed": "Impossible de créer la collection",
+    "limitReached_one": "Ton offre inclut {{count}} collection. Passe à une offre supérieure sur le web pour en créer plus.",
+    "limitReached_other": "Ton offre inclut {{count}} collections. Passe à une offre supérieure sur le web pour en créer plus.",
     "rename": "Renommer",
     "renameTitle": "Renommer la collection",
     "renameDescription": "Renomme cette collection.",
@@ -901,7 +905,7 @@
     "mode": {
       "title": "Mode de tri",
       "saveFailed": "Impossible d'enregistrer le mode de tri",
-      "chaosLocked": "Inclus dans l'offre Business. Passe à l'offre supérieure sur le web pour l'utiliser.",
+      "featureLocked": "Non inclus dans ton offre. Passe à une offre supérieure sur le web pour l'utiliser.",
       "matchedBin": "Cartes scannées",
       "matchedBinDescription": "Cartes qui ont été identifiées",
       "unmatchedBin": "Cartes non identifiées",
@@ -1123,6 +1127,8 @@
         "small": "Petit",
         "medium": "Moyen",
         "large": "Grand",
+        "xlarge": "Très grand",
+        "xxlarge": "Très très grand",
         "unlimited": "Illimité",
         "custom": "Personnalisé"
       },
@@ -1211,9 +1217,9 @@
     "location": "Rangement",
     "removeFromLocation": "Retirer de l'emplacement",
     "noCardsTitle": "Cet emplacement est vide",
-    "businessOnly": "Les emplacements de rangement font partie de l'offre Business.",
+    "businessOnly": "Les emplacements de rangement ne sont pas inclus dans ton offre.",
     "locked": "Notez dans quelle boîte va chaque carte, et à quelle place, quand vous videz un bac.",
-    "lockedWithLocations": "Vous pouvez toujours parcourir, rechercher et modifier vos emplacements, mais y enregistrer de nouvelles cartes nécessite Business.",
+    "lockedWithLocations": "Tu peux toujours consulter et rechercher tes emplacements et leurs cartes. Toute modification nécessite une offre qui inclut le rangement.",
     "actionFailed": "Impossible de mettre à jour le rangement",
     "actions": "Actions de l'emplacement",
     "review": {
@@ -1368,12 +1374,23 @@
       "failed": "Impossible de mettre à jour l'organisation",
       "cancel": "Annuler",
       "membersUnavailable": "Les membres sont gérés avec les outils d'administration de ton serveur auto-hébergé.",
-      "noInvites": "Aucune invitation en attente"
+      "noInvites": "Aucune invitation en attente",
+      "memberLimitReached_one": "Ton offre inclut {{count}} membre par organisation. Passe à une offre supérieure sur le web pour en inviter plus.",
+      "memberLimitReached_other": "Ton offre inclut {{count}} membres par organisation. Passe à une offre supérieure sur le web pour en inviter plus.",
+      "seatLocked": {
+        "title": "Tu ne peux pas utiliser {{name}} pour le moment",
+        "description_one": "L'offre de cette organisation autorise {{count}} membre. Demande au propriétaire de changer d'offre ou de retirer des membres.",
+        "description_other": "L'offre de cette organisation autorise {{count}} membres. Demande au propriétaire de changer d'offre ou de retirer des membres.",
+        "tryAgain": "Réessayer",
+        "switchHeading": "Changer d'organisation"
+      }
     },
     "billing": {
       "plan": {
         "free": "Free",
-        "business": "Business"
+        "enthusiast": "Enthusiast",
+        "business": "Business",
+        "legacyBusiness": "Business (ancienne offre)"
       },
       "includes": "Ton plan comprend",
       "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
@@ -1383,24 +1400,35 @@
       "features": {
         "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour",
         "unlimitedScans": "Scans de cartes illimités",
-        "freeSorters_one": "{{count}} trieur connecté à la fois",
-        "freeSorters_other": "{{count}} trieurs connectés à la fois",
-        "businessSorters_one": "Jusqu'à {{count}} trieur à la fois",
-        "businessSorters_other": "Jusqu'à {{count}} trieurs à la fois",
-        "freeSoundRules_one": "{{count}} règle sonore personnalisée",
-        "freeSoundRules_other": "{{count}} règles sonores personnalisées",
-        "soundRules": "Règles sonores illimitées avec tes propres clips importés",
-        "freeNotificationRules_one": "{{count}} règle de notification Discord",
-        "freeNotificationRules_other": "{{count}} règles de notification Discord",
-        "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
+        "organizations_one": "Jusqu'à {{count}} organisation à toi",
+        "organizations_other": "Jusqu'à {{count}} organisations à toi",
+        "unlimitedOrganizations": "Organisations illimitées",
+        "members_one": "Jusqu'à {{count}} membre par organisation",
+        "members_other": "Jusqu'à {{count}} membres par organisation",
+        "unlimitedMembers": "Membres illimités par organisation",
+        "collections_one": "Jusqu'à {{count}} collection",
+        "collections_other": "Jusqu'à {{count}} collections",
+        "unlimitedCollections": "Collections illimitées",
+        "sorters_one": "Jusqu'à {{count}} trieur connecté à la fois",
+        "sorters_other": "Jusqu'à {{count}} trieurs connectés à la fois",
+        "unlimitedSorters": "Trieurs connectés illimités",
+        "soundRules_one": "{{count}} règle sonore personnalisée",
+        "soundRules_other": "{{count}} règles sonores personnalisées",
+        "unlimitedSoundRules": "Règles sonores illimitées",
+        "notificationRules_one": "{{count}} règle de notification Discord",
+        "notificationRules_other": "{{count}} règles de notification Discord",
+        "unlimitedNotificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
         "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
+        "repacks": "Repacks : compose des paquets avec tes cartes, emplacement par emplacement",
+        "customSounds": "Sons personnalisés : importez vos propres clips pour les règles sonores",
+        "fleetHealth": "Santé du parc : état des trieuses, intervalles d'entretien et historique des alertes",
         "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
         "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
-        "collections": "Collections illimitées",
+        "businessTools": "Achat et vente : offres de rachat, listes de préparation et rapports de marges",
         "games": "Tous les jeux de cartes pris en charge",
-        "notifications": "Notifications Discord de scan",
-        "businessTools": "Outils pour boutiques : offres de rachat, listes de préparation et rapports de marges"
-      }
+        "notifications": "Notifications Discord de scan"
+      },
+      "legacyPlanNote": "Vous avez l'offre Business d'origine, qui n'est plus proposée. Vous la conservez, avec tout ce qu'elle inclut, tant que votre abonnement reste actif. Passer à une autre offre ou résilier est définitif."
     },
     "apiKeys": {
       "heading": "Clés API",
@@ -1428,7 +1456,7 @@
       "revealDone": "Je l'ai copiée",
       "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent créer ou révoquer des clés API.",
       "loadFailed": "Impossible de charger les clés API.",
-      "upgrade": "Les clés API font partie de l'offre Business.",
+      "upgrade": "Les clés API ne sont pas incluses dans ton offre.",
       "share": "Partager la clé",
       "cancel": "Annuler"
     },
@@ -1482,7 +1510,7 @@
       "copySecret": "Copier le secret",
       "secretCopied": "Secret de signature copié.",
       "copyFailed": "Impossible de copier le secret.",
-      "upgrade": "Les webhooks font partie de l'offre Business.",
+      "upgrade": "Les webhooks ne sont pas inclus dans ton offre.",
       "loadFailed": "Impossible de charger les webhooks.",
       "share": "Partager le secret",
       "cancel": "Annuler",
@@ -1532,9 +1560,9 @@
         "edit": "Modifier {{name}}",
         "delete": "Supprimer {{name}}",
         "saveFailed": "Impossible d'enregistrer les règles de notification.",
-        "limitReached_one": "L'offre gratuite inclut {{count}} règle de notification Discord. Passe à Business pour des règles illimitées.",
-        "limitReached_other": "L'offre gratuite inclut {{count}} règles de notification Discord. Passe à Business pour des règles illimitées.",
-        "upgrade": "Passer à Business",
+        "limitReached_one": "Ton offre inclut {{count}} règle de notification Discord. Passe à une offre supérieure pour en avoir plus.",
+        "limitReached_other": "Ton offre inclut {{count}} règles de notification Discord. Passe à une offre supérieure pour en avoir plus.",
+        "upgrade": "Changer d'offre",
         "andPings": "et mentionne"
       },
       "ruleDialog": {
@@ -1635,7 +1663,8 @@
         "stop": "Arrêter {{name}}",
         "pickFailed": "Impossible d'ouvrir ce fichier.",
         "renamed": "Extrait sonore renommé.",
-        "deleteConfirm": "Les règles qui jouent cet extrait ne joueront plus de son."
+        "deleteConfirm": "Les règles qui jouent cet extrait ne joueront plus de son.",
+        "notInPlan": "L'import de sons personnalisés ne fait pas partie de votre offre."
       },
       "rules": {
         "heading": "Règles sonores",
@@ -1652,9 +1681,9 @@
         "delete": "Supprimer {{name}}",
         "saved": "Règles sonores enregistrées.",
         "saveFailed": "Impossible d'enregistrer les règles sonores.",
-        "limitReached_one": "L'offre gratuite inclut {{count}} règle sonore. Passe à Business pour des règles sonores illimitées.",
-        "limitReached_other": "L'offre gratuite inclut {{count}} règles sonores. Passe à Business pour des règles sonores illimitées.",
-        "upgrade": "Passer à Business",
+        "limitReached_one": "Ton offre inclut {{count}} règle sonore. Passe à une offre supérieure pour en avoir plus.",
+        "limitReached_other": "Ton offre inclut {{count}} règles sonores. Passe à une offre supérieure pour en avoir plus.",
+        "upgrade": "Changer d'offre",
         "deleteConfirm": "Cette règle ne jouera plus de son."
       },
       "ruleDialog": {

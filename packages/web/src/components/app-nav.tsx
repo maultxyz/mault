@@ -55,6 +55,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
+import { PlanLockTag } from "@/components/plan-lock-tag";
+import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 
 function CollapsedNavItem({
@@ -65,6 +67,7 @@ function CollapsedNavItem({
   badge,
   disabled,
   tooltip,
+  lockTag,
   external,
 }: NavItemDef) {
   return (
@@ -107,7 +110,18 @@ function CollapsedNavItem({
           )}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="right">{disabled ? tooltip : label}</TooltipContent>
+      <TooltipContent side="right">
+        {lockTag ? (
+          <span className="flex items-center gap-1.5">
+            {label}
+            <PlanLockTag label={lockTag} />
+          </span>
+        ) : disabled ? (
+          tooltip
+        ) : (
+          label
+        )}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -182,6 +196,7 @@ function ExpandedNavItem({
   badge,
   disabled,
   tooltip,
+  lockTag,
   external,
 }: NavItemDef) {
   const inner = (
@@ -193,6 +208,7 @@ function ExpandedNavItem({
         )}
       </span>
       <span className="truncate">{label}</span>
+      {lockTag && <PlanLockTag label={lockTag} className="ml-auto" />}
     </>
   );
 
@@ -292,6 +308,13 @@ export function AppNav() {
       ? `${t("nav.githubAriaLabel")} (${t("nav.githubStars", { count: githubStars })})`
       : t("nav.githubAriaLabel");
   const { isStaff } = useRole();
+  const { planLockFor } = usePlanLockedPath();
+  const planGated = (path: string) => {
+    const lock = planLockFor(path);
+    return lock
+      ? { disabled: lock.isDisabled, lockTag: lock.tag, tooltip: lock.tag }
+      : {};
+  };
   const { collections, activeCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
 
@@ -362,11 +385,13 @@ export function AppNav() {
       to: STORAGE_PATH,
       icon: <IconBox size={16} />,
       label: t("nav.storage"),
+      ...planGated(STORAGE_PATH),
     },
     {
       to: ORDERS_PATH,
       icon: <IconCash size={16} />,
       label: t("nav.intake"),
+      ...planGated(ORDERS_PATH),
     },
 
 

@@ -224,6 +224,13 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid name." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isStorageAllowed(tx, orgId))) {
+        return {
+          success: false,
+          message: STORAGE_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
       if (await locationNameTaken(tx, orgId, name, guid)) {
         return { success: false, message: "That name is already used." };
       }
@@ -249,6 +256,13 @@ const router = new Hono<AppEnv>()
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isStorageAllowed(tx, orgId))) {
+        return {
+          success: false,
+          message: STORAGE_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
           and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
@@ -640,6 +654,13 @@ const router = new Hono<AppEnv>()
     const guid = c.req.param("guid");
     const scanId = c.req.param("scanId");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isStorageAllowed(tx, orgId))) {
+        return {
+          success: false,
+          message: STORAGE_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
           and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),

@@ -103,7 +103,6 @@
     "scanToGetStarted": "Scan a card to get started",
     "noCardsMatchFilters": "No cards match the current filters",
     "tryAdjusting": "Try adjusting your search, sort, or filter options",
-    "pageOf": "Page {{page}} of {{total}}",
     "cardsSelected_one": "{{count}} card selected",
     "cardsSelected_other": "{{count}} cards selected",
     "clear": "Clear",

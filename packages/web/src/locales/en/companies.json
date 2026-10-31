@@ -33,7 +33,10 @@
     "organizationDeleted": "Organization deleted.",
     "failedToDelete": "Failed to delete.",
     "cancelSubscriptionFirst": "Cancel this organization's subscription before deleting it. Once it's set to cancel at the end of the billing period, you can delete the organization.",
-    "manageBilling": "Manage billing"
+    "manageBilling": "Manage billing",
+    "memberLimitReached_one": "Your plan includes {{count}} member per organization, counting pending invites. Upgrade your plan to invite more.",
+    "memberLimitReached_other": "Your plan includes {{count}} members per organization, counting pending invites. Upgrade your plan to invite more.",
+    "memberLimitUpgrade": "See plans"
   },
   "orgSwitcher": {
     "organizations": "Organizations",
@@ -41,7 +44,10 @@
     "newOrganizationTitle": "New Organization",
     "newOrganizationDescription": "Create a new organization to scope your bins, collections, and calibration.",
     "cancel": "Cancel",
-    "organizationCreated": "Organization \"{{name}}\" created."
+    "organizationCreated": "Organization \"{{name}}\" created.",
+    "organizationLimitReached_one": "The plan of {{name}} lets you own {{count}} organization. Upgrade its plan to create more.",
+    "organizationLimitReached_other": "The plan of {{name}} lets you own {{count}} organizations. Upgrade its plan to create more.",
+    "organizationLimitUpgrade": "See plans"
   },
   "discordBot": {
     "heading": "Discord Bot",

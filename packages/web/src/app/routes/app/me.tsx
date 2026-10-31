@@ -1,5 +1,6 @@
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileListRow } from "@/components/mobile-list-row";
+import { PlanLockTag } from "@/components/plan-lock-tag";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSection } from "@/components/mobile-section";
 import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
@@ -7,6 +8,7 @@ import { getInitials } from "@/components/ui/initials-avatar";
 import { useSignOut } from "@/features/account/api/use-sign-out";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useAuthSession } from "@/lib/auth";
 import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { LANGUAGE_NATIVE_NAMES } from "@/lib/constants/languages";
@@ -48,6 +50,8 @@ export default function MePage() {
   const { orgs, activeOrg, setActiveOrg } = useOrg();
   const { theme, setTheme } = useTheme();
   const signOut = useSignOut();
+  const { planLockFor } = usePlanLockedPath();
+  const intakeLock = planLockFor(INTAKE_PATH);
 
   if (!isMobile) return <Navigate to={SETTINGS_PATHS.root} replace />;
 
@@ -141,6 +145,8 @@ export default function MePage() {
               icon={<IconCash />}
               label={t("nav.intake")}
               to={INTAKE_PATH}
+              disabled={intakeLock?.isDisabled}
+              trailing={intakeLock && <PlanLockTag label={intakeLock.tag} />}
             />
             <MobileListRow
               icon={<IconActivityHeartbeat />}

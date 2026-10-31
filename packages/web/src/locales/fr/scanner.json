@@ -184,7 +184,7 @@
     },
     "scanLimitReached": {
       "title": "Limite de scans quotidienne atteinte",
-      "description": "Passe à Entreprise pour un scan illimité."
+      "description": "Passe à une offre supérieure pour plus de scans par jour."
     },
     "routingFailed": {
       "title": "Échec du routage",
@@ -333,7 +333,7 @@
     "connectAnotherUsb": "Connecter une autre trieuse (USB)",
     "connectAnotherBluetooth": "Connecter une autre trieuse (Bluetooth)",
     "flashNewBoard": "Flasher une nouvelle carte",
-    "connectAnotherUpgrade": "Connecter plus de trieuses avec Business",
+    "connectAnotherUpgrade": "Connecter plus de trieuses avec une offre supérieure",
     "clearDevice": "Vider l'appareil",
     "resetToNeutral": "Remettre au neutre",
     "sorter": "Trieur",
@@ -368,7 +368,7 @@
     "sessionEndedDescription": "Le scanner a déconnecté cette caméra. Tu peux éteindre la caméra ou scanner un nouveau code QR pour te reconnecter."
   },
   "scannerOverlay": {
-    "dailyLimitReached": "Limite de scans quotidienne atteinte. Passe à Entreprise pour un scan illimité.",
+    "dailyLimitReached": "Limite de scans quotidienne atteinte. Passe à une offre supérieure pour plus de scans par jour.",
     "upgradeButton": "Mettre à niveau",
     "connectCamera": "Connecte la webcam installée au-dessus du trieur, ou associe ton téléphone comme caméra.",
     "waitingForPhone": "Scanne le code QR avec ton téléphone pour l'associer comme caméra.",
@@ -464,9 +464,6 @@
     "emptyDescription": "Chaque scan de cette collection a été reconnu.",
     "backToCards": "Retour aux cartes",
     "backToGrid": "Retour aux cartes non reconnues",
-    "pageOf": "Page {{page}} sur {{total}}",
-    "previousPage": "Page précédente",
-    "nextPage": "Page suivante",
     "openCard": "Ouvrir la carte non reconnue",
     "expand": "Afficher les cartes non reconnues",
     "collapse": "Masquer les cartes non reconnues",
@@ -633,8 +630,8 @@
       "description": "Déconnectez une trieuse avant d'en connecter une autre."
     },
     "limitReached": {
-      "title": "Plus de trieuses nécessitent l'offre Business",
-      "description": "L'offre gratuite ne gère qu'une trieuse à la fois. Déconnectez l'autre trieuse, ou passez à Business dans les paramètres pour en utiliser plusieurs à la fois."
+      "title": "La limite de trieuses de votre offre est atteinte",
+      "description": "Votre offre ne gère qu'un nombre limité de trieuses à la fois. Déconnectez une autre trieuse, ou passez à une offre supérieure dans les paramètres pour en utiliser plus à la fois."
     }
   },
   "watchPage": {
@@ -663,8 +660,6 @@
     "searchPlaceholder": "Rechercher des cartes",
     "needsReview": "À vérifier",
     "back": "Retour aux sessions",
-    "previousPage": "Page précédente",
-    "nextPage": "Page suivante",
     "bin": "Bac {{number}}",
     "noActivity": "Rien n'a encore été scanné. Les scans apparaissent ici en direct.",
     "status": {

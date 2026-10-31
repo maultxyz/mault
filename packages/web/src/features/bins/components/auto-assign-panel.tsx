@@ -16,11 +16,10 @@ import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
+import { PlanLockHint } from "@/components/plan-lock-hint";
 import { ScanOnlyBinSelect } from "@/features/bins/components/scan-only-bin-select";
 import { SortingModeToggleRow } from "@/features/bins/components/sorting-mode-toggle-row";
 import { CHAOS_BIN_SIZE_MAX, SCAN_ONLY_DEFAULT_BIN } from "@magic-vault/shared";
@@ -58,6 +57,8 @@ export function AutoAssignPanel() {
   const isChaosMode = effectiveMode.isChaosMode;
   const disableToggles = isPresetMutating || isSavingMode;
   const chaosLocked = billing?.chaosSort === false && !selectedSet.isChaosMode;
+  const repackLocked =
+    billing?.repacks === false && !selectedSet.isRepackMode;
 
   return (
     <Field
@@ -182,9 +183,15 @@ export function AutoAssignPanel() {
         dataTour="repack-toggle"
         label={t("repackPanel.heading")}
         description={t("repackPanel.description")}
+        badge={
+          repackLocked && (
+            <Badge variant="outline">{t("planLock.badge")}</Badge>
+          )
+        }
         checked={isRepackMode}
         disabled={
           disableToggles ||
+          repackLocked ||
           isEnabled ||
           isScanOnly ||
           isAlphabetMode ||
@@ -192,6 +199,9 @@ export function AutoAssignPanel() {
         }
         onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
       />
+      {repackLocked && (
+        <PlanLockHint message={t("repackPanel.notInPlan")} />
+      )}
 
       <SortingModeToggleRow
         className="border-t pt-2"
@@ -214,7 +224,7 @@ export function AutoAssignPanel() {
         description={t("chaosPanel.description")}
         badge={
           chaosLocked && (
-            <Badge variant="outline">{t("chaosPanel.businessBadge")}</Badge>
+            <Badge variant="outline">{t("planLock.badge")}</Badge>
           )
         }
         checked={isChaosMode}
@@ -228,17 +238,7 @@ export function AutoAssignPanel() {
         }
         onCheckedChange={(checked) => stageMode({ isChaosMode: checked })}
       />
-      {chaosLocked && (
-        <p className="pl-1 text-xs text-foreground/70">
-          {t("chaosPanel.businessOnly")}{" "}
-          <Link
-            to={SETTINGS_PATHS.billing}
-            className="font-medium text-foreground underline-offset-4 hover:underline"
-          >
-            {t("chaosPanel.upgrade")}
-          </Link>
-        </p>
-      )}
+      {chaosLocked && <PlanLockHint message={t("chaosPanel.notInPlan")} />}
       {isChaosMode && (
         <div className="flex flex-col gap-1 pl-1">
           <label htmlFor="chaos-bin-size" className="text-xs font-medium">

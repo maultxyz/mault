@@ -1,13 +1,11 @@
 import { EmptyState } from "@/components/empty-state";
 import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
-import { Button } from "@/components/ui/button";
+import { ListPagination } from "@/components/list-pagination";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
 import type { MonitorCardGridProps } from "@/lib/interfaces/scanner";
 import {
   IconCards,
-  IconChevronLeft,
-  IconChevronRight,
   IconSearch,
   IconWifiOff,
 } from "@tabler/icons-react";
@@ -28,7 +26,6 @@ export function MonitorCardGrid({
   onOpenCard,
 }: MonitorCardGridProps) {
   const { t } = useTranslation("scanner");
-  const { t: tCards } = useTranslation("cards");
 
   return (
     <>
@@ -94,29 +91,14 @@ export function MonitorCardGrid({
           ))}
         </div>
       )}
-      {pageCount > 1 && (
-        <div className="flex items-center justify-center gap-3 pb-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => onPageChange(Math.max(0, page - 1))}
-            disabled={page === 0}
-          >
-            <IconChevronLeft />
-          </Button>
-          <span className="text-sm text-foreground/70">
-            {tCards("cardGrid.pageOf", { page: page + 1, total: pageCount })}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => onPageChange(Math.min(pageCount - 1, page + 1))}
-            disabled={page === pageCount - 1}
-          >
-            <IconChevronRight />
-          </Button>
-        </div>
-      )}
+      <ListPagination
+        className="px-4 pb-4"
+        pagination={{
+          page: page + 1,
+          pageCount,
+          setPage: (nextPage) => onPageChange(nextPage - 1),
+        }}
+      />
     </>
   );
 }
