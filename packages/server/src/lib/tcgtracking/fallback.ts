@@ -89,6 +89,7 @@ export function normalizeTcgtrackingFallback(
     cmc: Number.isFinite(cost) ? cost : undefined,
     tcgplayerId: String(data.product.id),
     lang: "en",
+    isFallbackData: true,
     raw: data,
   };
 }

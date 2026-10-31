@@ -769,6 +769,8 @@
     "manaCost": "Mana cost",
     "powerToughness": "Power/Toughness",
     "artist": "Artist",
+    "dataSource": "Data source",
+    "fallbackData": "Fallback data (TCGplayer catalog)",
     "bin": "Bin",
     "viewSource": "View source",
     "remove": "Remove",

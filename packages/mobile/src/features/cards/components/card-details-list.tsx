@@ -34,6 +34,9 @@ export function CardDetailsList({ card, binNumber }: CardDetailsListProps) {
         <DetailRow label={t("cardDetail.powerToughness")} value={`${card.power}/${card.toughness}`} />
       ) : null}
       {card.artist ? <DetailRow label={t("cardDetail.artist")} value={card.artist} /> : null}
+      {card.isFallbackData ? (
+        <DetailRow label={t("cardDetail.dataSource")} value={t("cardDetail.fallbackData")} />
+      ) : null}
       {binNumber != null ? <DetailRow label={t("cardDetail.bin")} value={String(binNumber)} /> : null}
       {card.sourceUrl ? (
         <Pressable

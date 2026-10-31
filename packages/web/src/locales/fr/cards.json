@@ -69,6 +69,8 @@
     "manaCost": "Coût de mana",
     "powerToughness": "Force / Endurance",
     "artist": "Artiste",
+    "dataSource": "Source des données",
+    "fallbackData": "Données de secours (catalogue TCGplayer)",
     "binLocation": "Emplacement du bac",
     "showOcrRegions": "Afficher les zones OCR",
     "noOcrRegions": "Ce jeu n'a pas de zones OCR.",

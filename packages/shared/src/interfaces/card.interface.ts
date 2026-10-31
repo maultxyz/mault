@@ -88,6 +88,7 @@ export interface PlayingCard {
   purchaseLinks?: CardPurchaseLinks;
   sourceUrl?: string;
   tcgplayerId?: string;
+  isFallbackData?: boolean;
   cmc?: number;
   lang?: string;
   raw?: unknown;

@@ -69,6 +69,8 @@
     "manaCost": "Manakosten",
     "powerToughness": "Stärke / Widerstand",
     "artist": "Künstler",
+    "dataSource": "Datenquelle",
+    "fallbackData": "Ersatzdaten (TCGplayer-Katalog)",
     "binLocation": "Fachposition",
     "showOcrRegions": "OCR-Bereiche anzeigen",
     "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",

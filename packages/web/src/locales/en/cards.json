@@ -69,6 +69,8 @@
     "manaCost": "Mana cost",
     "powerToughness": "Power / Toughness",
     "artist": "Artist",
+    "dataSource": "Data source",
+    "fallbackData": "Fallback data (TCGplayer catalog)",
     "binLocation": "Bin location",
     "showOcrRegions": "Show OCR regions",
     "noOcrRegions": "This game has no OCR regions.",
