@@ -27,9 +27,6 @@ extern const uint8_t x509_crt_bundle_end[] asm("_binary_x509_crt_bundle_end");
 
 #define CLOUD_START_DELAY_MS 2000
 #define CLOUD_WIFI_TX_POWER WIFI_POWER_15dBm
-#define CLOUD_BROWNOUT_SAFE_BOOTS 2
-#define CLOUD_STABLE_UPTIME_MS 60000
-#define CLOUD_BROWNOUT_MAGIC 0x4D564254
 
 uint8_t cloudConnect(const CloudSettings& s);
 void cloudApplyWifi(const CloudSettings& s);
@@ -47,8 +44,6 @@ volatile uint32_t cloudSettingsVersion = 0;
 portMUX_TYPE cloudMux = portMUX_INITIALIZER_UNLOCKED;
 Preferences cloudPrefs;
 
-RTC_NOINIT_ATTR uint32_t cloudBrownoutMagic;
-RTC_NOINIT_ATTR uint32_t cloudBrownoutBoots;
 volatile bool cloudPausedForPower = false;
 char wifiIp[16] = "";
 int wifiRssi = 0;
@@ -100,7 +95,7 @@ void cloudInit() {
   cloudTxQueue = xQueueCreate(CLOUD_TX_QUEUE_DEPTH, sizeof(CloudTxLine));
   cloudPrefs.begin("cloud", false);
   loadCloudSettings();
-  cloudTrackBrownouts();
+  cloudPauseAfterBrownouts();
   // Wi-Fi credentials live in this sketch's own NVS namespace, not the
   // core's, so clearWifi forgets them completely.
   WiFi.persistent(false);
@@ -179,18 +174,9 @@ void cloudApplyWifi(const CloudSettings& s) {
   WiFi.begin(s.ssid, s.password[0] ? s.password : nullptr);
 }
 
-void cloudTrackBrownouts() {
-  if (cloudBrownoutMagic != CLOUD_BROWNOUT_MAGIC) {
-    cloudBrownoutMagic = CLOUD_BROWNOUT_MAGIC;
-    cloudBrownoutBoots = 0;
-  }
-  if (esp_reset_reason() == ESP_RST_BROWNOUT) {
-    cloudBrownoutBoots++;
-  } else {
-    cloudBrownoutBoots = 0;
-  }
-  cloudPausedForPower = cloudBrownoutBoots >= CLOUD_BROWNOUT_SAFE_BOOTS &&
-                        cloudSettings.ssid[0] != '\0';
+void cloudPauseAfterBrownouts() {
+  cloudPausedForPower =
+      bootingAfterRepeatedBrownouts() && cloudSettings.ssid[0] != '\0';
 }
 
 void cloudWaitWhilePaused() {
@@ -201,7 +187,7 @@ void cloudWaitWhilePaused() {
       currentCloudSettings().url[0] ? CLOUD_LINK_OFFLINE : CLOUD_LINK_UNCONFIGURED;
   while (cloudSettingsVersion == pausedVersion) vTaskDelay(pdMS_TO_TICKS(250));
   cloudPausedForPower = false;
-  cloudBrownoutBoots = 0;
+  consecutiveBrownoutBoots = 0;
 }
 
 void cloudTask(void*) {
@@ -217,9 +203,6 @@ void cloudTask(void*) {
   unsigned long retryDelay = CLOUD_RETRY_MIN_MS;
 
   for (;;) {
-    if (cloudBrownoutBoots != 0 && millis() > CLOUD_STABLE_UPTIME_MS) {
-      cloudBrownoutBoots = 0;
-    }
     if (appliedVersion != cloudSettingsVersion) {
       portENTER_CRITICAL(&cloudMux);
       local = cloudSettings;
