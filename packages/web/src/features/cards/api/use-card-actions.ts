@@ -1,4 +1,7 @@
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
+import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
+import { useStorageAccess } from "@/features/storage/api/use-storage-access";
+import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import {
   cardFoilTypeOptions,
@@ -14,9 +17,16 @@ export function useCardActions(entry: GroupedScannedCard) {
   const { confirmCard, setCardsFoilType, setCardsCondition, removeCards } =
     useScannedCards();
   const gameFoilOptions = useFoilOptions();
+  const { collection: viewedCollection } = useViewedCollection();
+  const { isLocked: storageLocked } = useStorageAccess();
+  const { moveCards, isMoving } = useMoveCardsToLocation();
 
   return {
-    foilOptions: cardFoilTypeOptions(gameFoilOptions, entry.card, entry.foilType),
+    foilOptions: cardFoilTypeOptions(
+      gameFoilOptions,
+      entry.card,
+      entry.foilType,
+    ),
     canConfirm:
       (entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) &&
       !entry.corrected,
@@ -37,5 +47,13 @@ export function useCardActions(entry: GroupedScannedCard) {
       );
     },
     remove: () => removeCards(entry.scanIds),
+    canMoveToLocation: !storageLocked,
+    isMovingToLocation: isMoving,
+    moveToLocation: (locationGuid: string) =>
+      moveCards({
+        guid: locationGuid,
+        scanIds: entry.scanIds,
+        collectionGuid: viewedCollection?.guid,
+      }),
   };
 }

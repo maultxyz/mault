@@ -337,7 +337,11 @@ export interface ScannerOverlayProps {
   sessionLive?: boolean;
   sessionDetail?: string | null;
   piReady?: boolean;
+  region?: ScannerOverlayRegion;
+  statusStripTouchesPanelEdges?: boolean;
 }
+
+export type ScannerOverlayRegion = "all" | "viewer" | "status-strip";
 
 export interface SetStats {
   code: string;
@@ -636,6 +640,7 @@ export interface CollapsibleStatPanelProps {
 export interface CardScannerComponentProps extends CardScannerProps {
   controlsContainer?: HTMLElement | null;
   renderChrome?: (chrome: ScannerChromeContext) => ReactNode;
+  viewerTouchesPanelEdges?: boolean;
 }
 
 export interface ScannerChromeContext {

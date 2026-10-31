@@ -7,11 +7,13 @@ import {
 } from "@/components/ui/drawer";
 import { useCardActions } from "@/features/cards/api/use-card-actions";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
+import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import type {
   MobileCardActionsBodyProps,
   MobileCardActionsDrawerProps,
 } from "@/lib/interfaces/scanner";
 import {
+  IconBox,
   IconCheck,
   IconCopy,
   IconExternalLink,
@@ -37,7 +39,11 @@ function MobileCardActionsBody({
     setFoil,
     copyName,
     remove,
+    canMoveToLocation,
+    isMovingToLocation,
+    moveToLocation,
   } = useCardActions(entry);
+  const [moveToLocationOpen, setMoveToLocationOpen] = useState(false);
   const run = (action: () => void) => () => {
     action();
     onClose();
@@ -55,9 +61,7 @@ function MobileCardActionsBody({
   };
 
   return (
-    <div
-      className="flex flex-col gap-4 overflow-y-auto px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]"
-    >
+    <div className="flex flex-col gap-4 overflow-y-auto px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
       <div className="flex items-center gap-3">
         <div className="aspect-[2.5/3.5] w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
           {entry.card.image?.small && (
@@ -95,6 +99,16 @@ function MobileCardActionsBody({
           >
             <IconCheck className="size-5" />
             {t("cardContextMenu.markCorrect")}
+          </Button>
+        )}
+        {canMoveToLocation && (
+          <Button
+            variant="ghost"
+            className={actionClass}
+            onClick={() => setMoveToLocationOpen(true)}
+          >
+            <IconBox className="size-5" />
+            {t("cardContextMenu.moveToLocation")}
           </Button>
         )}
         <Button
@@ -160,6 +174,17 @@ function MobileCardActionsBody({
           ? t("storageDeleteWarning.deleteAnyway")
           : t("cardContextMenu.remove", { count: entry.scanIds.length })}
       </Button>
+      <MoveToLocationDialog
+        open={moveToLocationOpen}
+        count={entry.scanIds.length}
+        isMoving={isMovingToLocation}
+        onOpenChange={setMoveToLocationOpen}
+        onMove={async (locationGuid) => {
+          const moved = await moveToLocation(locationGuid);
+          if (moved) onClose();
+          return moved;
+        }}
+      />
     </div>
   );
 }

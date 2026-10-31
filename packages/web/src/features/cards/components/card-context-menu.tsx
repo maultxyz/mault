@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/context-menu";
 import { useCardActions } from "@/features/cards/api/use-card-actions";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
+import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import type { CardContextMenuProps } from "@/lib/interfaces/cards";
 import {
+  IconBox,
   IconCheck,
   IconCopy,
   IconExternalLink,
@@ -46,8 +48,12 @@ export function CardContextMenu({
     setCondition,
     copyName,
     remove,
+    canMoveToLocation,
+    isMovingToLocation,
+    moveToLocation,
   } = useCardActions(entry);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
+  const [moveToLocationOpen, setMoveToLocationOpen] = useState(false);
   const storedCount = entry.storedCount ?? (entry.storageLocation ? 1 : 0);
   const requestRemove = () =>
     storedCount > 0 ? setConfirmRemoveOpen(true) : remove();
@@ -123,6 +129,12 @@ export function CardContextMenu({
               ))}
             </ContextMenuSubContent>
           </ContextMenuSub>
+          {canMoveToLocation && (
+            <ContextMenuItem onClick={() => setMoveToLocationOpen(true)}>
+              <IconBox />
+              {t("cardContextMenu.moveToLocation")}
+            </ContextMenuItem>
+          )}
           <ContextMenuItem onClick={() => void copyName()}>
             <IconCopy />
             {t("cardContextMenu.copyName")}
@@ -150,6 +162,13 @@ export function CardContextMenu({
           className="mt-4"
         />
       </DeleteDialog>
+      <MoveToLocationDialog
+        open={moveToLocationOpen}
+        count={entry.scanIds.length}
+        isMoving={isMovingToLocation}
+        onOpenChange={setMoveToLocationOpen}
+        onMove={moveToLocation}
+      />
     </>
   );
 }
