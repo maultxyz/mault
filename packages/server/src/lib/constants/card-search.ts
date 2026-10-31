@@ -62,6 +62,27 @@ export const NETDECK_IMAGE_URL_REFRESH_MARGIN_MS = 10 * 60 * 1000;
 export const NETDECK_IMAGE_URL_FALLBACK_TTL_MS = 60 * 60 * 1000;
 export const CYBERPUNK_TCGPLAYER_CATEGORY_ID = 92;
 
+export const POKEMON_JAPAN_TCGPLAYER_CATEGORY_ID = 85;
+export const POKEMON_JAPAN_CARDMARKET_GAME_ID = 6;
+export const POKEMON_JAPAN_LANGUAGES = ["ja"];
+export const POKEMON_JAPAN_SEARCH_RECENT_SET_COUNT = 5;
+export const POKEMON_JAPAN_SEARCH_RESULT_LIMIT = 30;
+export const POKEMON_JAPAN_EXT_KEYS = {
+  stage: ["stage", "Stage"],
+  energyTypes: ["cardType", "Card Type"],
+  hitPoints: ["hp", "HP"],
+  retreatCost: ["retreatCost", "Retreat Cost"],
+  description: ["description", "Description"],
+  attacks: [
+    ["attack1", "Attack 1"],
+    ["attack2", "Attack 2"],
+    ["attack3", "Attack 3"],
+    ["attack4", "Attack 4"],
+  ],
+  artist: ["Artist", "artist"],
+} as const;
+export const POKEMON_JAPAN_RARITY_NONE = "None";
+
 export const FAB_SEARCH_CARD_LIMIT = 12;
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {

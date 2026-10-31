@@ -15,6 +15,7 @@ import {
 import type {
   TcgtrackingCatalogEntry,
   TcgtrackingProduct,
+  TcgtrackingProductLookup,
   TcgtrackingSet,
 } from "../interfaces/tcgtracking";
 
@@ -48,7 +49,60 @@ function slimProduct(product: TcgtrackingProduct): TcgtrackingProduct {
     ext_data: product.ext_data ?? null,
     image_url: product.image_url ?? null,
     ...(product.scryfall_id ? { scryfall_id: product.scryfall_id } : {}),
+    ...(product.cardmarket_id ? { cardmarket_id: product.cardmarket_id } : {}),
   };
+}
+
+export async function fetchTcgtrackingSets(
+  categoryId: number,
+  signal?: AbortSignal,
+): Promise<TcgtrackingSet[]> {
+  const { sets } = await getJson<{ sets: TcgtrackingSet[] }>(
+    `/${categoryId}/sets`,
+    signal,
+  );
+  return sets.filter((set) => set.product_count > 0);
+}
+
+export async function fetchTcgtrackingSetEntries(
+  categoryId: number,
+  set: TcgtrackingSet,
+  signal?: AbortSignal,
+): Promise<TcgtrackingCatalogEntry[]> {
+  const { products } = await getJson<{ products: TcgtrackingProduct[] }>(
+    `/${categoryId}/sets/${set.id}/cards`,
+    signal,
+  );
+  return products.map((product) => ({
+    product: slimProduct(product),
+    set: {
+      id: set.id,
+      name: set.name,
+      abbreviation: set.abbreviation,
+      published_on: set.published_on ?? null,
+    },
+  }));
+}
+
+export async function fetchTcgtrackingProductEntry(
+  categoryId: number,
+  productId: number,
+): Promise<TcgtrackingCatalogEntry | null> {
+  const lookup = await getJson<TcgtrackingProductLookup>(
+    `/products/${productId}`,
+  ).catch(() => null);
+  if (!lookup?.success || lookup.product.category_id !== categoryId) {
+    return null;
+  }
+  const { product } = lookup;
+  const entries = await fetchTcgtrackingSetEntries(categoryId, {
+    id: product.group_id,
+    name: product.set_name,
+    abbreviation: product.set_abbr,
+    product_count: 1,
+    published_on: product.set_released,
+  });
+  return entries.find((entry) => entry.product.id === productId) ?? null;
 }
 
 async function fetchCatalog(
@@ -57,30 +111,12 @@ async function fetchCatalog(
   signal?: AbortSignal,
 ): Promise<TcgtrackingCatalogEntry[]> {
   addLog(`Fetching TCGTracking sets for category ${categoryId}...`);
-  const { sets } = await getJson<{ sets: TcgtrackingSet[] }>(
-    `/${categoryId}/sets`,
-    signal,
-  );
+  const sets = await fetchTcgtrackingSets(categoryId, signal);
   const entries: TcgtrackingCatalogEntry[] = [];
   for (const set of sets) {
     if (signal?.aborted) break;
-    if (set.product_count === 0) continue;
     try {
-      const { products } = await getJson<{ products: TcgtrackingProduct[] }>(
-        `/${categoryId}/sets/${set.id}/cards`,
-        signal,
-      );
-      for (const product of products) {
-        entries.push({
-          product: slimProduct(product),
-          set: {
-            id: set.id,
-            name: set.name,
-            abbreviation: set.abbreviation,
-            published_on: set.published_on ?? null,
-          },
-        });
-      }
+      entries.push(...(await fetchTcgtrackingSetEntries(categoryId, set, signal)));
     } catch (err) {
       addLog(
         `TCGTracking set ${set.name} skipped: ${err instanceof Error ? err.message : String(err)}`,
