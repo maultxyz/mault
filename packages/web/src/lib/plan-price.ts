@@ -1,4 +1,8 @@
-import type { PlanPriceInfo } from "@magic-vault/shared";
+import type {
+  BillingInterval,
+  PlanIntervalPrices,
+  PlanPriceInfo,
+} from "@magic-vault/shared";
 
 export function formatPlanPrice(
   { amount, currency }: PlanPriceInfo,
@@ -20,4 +24,15 @@ export function yearlySavingsPercent(
   if (!monthly || !yearly || monthly.currency !== yearly.currency) return null;
   const percent = Math.round((1 - yearly.amount / (monthly.amount * 12)) * 100);
   return percent > 0 ? percent : null;
+}
+
+export function shownPlanPrice(
+  prices: PlanIntervalPrices | null,
+  interval: BillingInterval,
+): { price: PlanPriceInfo | null; isYearly: boolean } {
+  const price =
+    interval === "year"
+      ? (prices?.year ?? prices?.month ?? null)
+      : (prices?.month ?? prices?.year ?? null);
+  return { price, isYearly: !!price && price === prices?.year };
 }

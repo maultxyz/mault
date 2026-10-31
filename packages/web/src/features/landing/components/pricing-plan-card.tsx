@@ -2,7 +2,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { MarketingRule } from "@/components/marketing-rule";
 import { PlanBullets } from "@/features/landing/components/plan-bullets";
 import type { PricingPlanCardProps } from "@/lib/interfaces/landing";
-import { formatPlanPrice, yearlySavingsPercent } from "@/lib/plan-price";
+import {
+  formatPlanPrice,
+  shownPlanPrice,
+  yearlySavingsPercent,
+} from "@/lib/plan-price";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -18,11 +22,10 @@ export function PricingPlanCard({
 }: PricingPlanCardProps) {
   const { t, i18n } = useTranslation("landing");
   const isFree = plan === "free";
-  const shownPrice =
-    interval === "year"
-      ? (prices?.year ?? prices?.month ?? null)
-      : (prices?.month ?? prices?.year ?? null);
-  const isYearlyPrice = !!shownPrice && shownPrice === prices?.year;
+  const { price: shownPrice, isYearly: isYearlyPrice } = shownPlanPrice(
+    prices,
+    interval,
+  );
   const yearlySavings = isYearlyPrice
     ? yearlySavingsPercent(prices?.month, prices?.year)
     : null;

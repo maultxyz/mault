@@ -291,6 +291,40 @@
       "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
       "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges",
       "businessOps": "Gestion de boutique : contrôler la précision d'un lot par échantillon, suivre l'activité du personnel, recevoir les alertes de bourrage et d'entretien des trieurs, et masquer les prix de rachat au personnel"
+    },
+    "compare": {
+      "heading": "Comparer toutes les fonctionnalités",
+      "subtitle": "Tout ce que chaque offre inclut, côte à côte.",
+      "feature": "Fonctionnalité",
+      "seeAll": "Comparer toutes les fonctionnalités",
+      "groups": {
+        "limits": "Limites",
+        "features": "Fonctionnalités",
+        "included": "Inclus dans toutes les offres"
+      },
+      "cells": {
+        "unlimited": "Illimité",
+        "included": "Inclus",
+        "notIncluded": "Non inclus"
+      },
+      "limits": {
+        "dailyScans": "Scans de cartes par jour",
+        "organizations": "Organisations possédées",
+        "membersPerOrg": "Membres par organisation",
+        "connectedSorters": "Trieuses connectées simultanément",
+        "soundRules": "Règles sonores",
+        "notificationRules": "Règles de notification Discord",
+        "collections": "Collections"
+      },
+      "features": {
+        "chaosSort": "Tri chaos",
+        "repacks": "Création de repacks",
+        "customSounds": "Sons personnalisés",
+        "fleetHealth": "Santé du parc",
+        "storage": "Emplacements de rangement",
+        "apiAccess": "Accès API",
+        "businessTools": "Achat et vente"
+      }
     }
   },
   "cta": {

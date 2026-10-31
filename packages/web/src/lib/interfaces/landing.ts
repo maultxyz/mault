@@ -8,6 +8,7 @@ import type {
   PlanKey,
   PlanSettings,
   PlayingCardWithDistance,
+  PublicPlanKey,
 } from "@magic-vault/shared";
 
 export interface PublicPricing {
@@ -158,4 +159,24 @@ export interface DemoCountedPriceProps {
   value: number;
   isRevealed: boolean;
   className?: string;
+}
+
+export interface PricingComparisonRow {
+  key: string;
+  label: string;
+  cells: ReactNode[];
+}
+
+export interface PricingComparisonGroup {
+  key: "limits" | "features" | "included";
+  rows: PricingComparisonRow[];
+}
+
+export interface PricingComparisonProps {
+  plans: readonly PublicPlanKey[];
+  configs: PlanConfig;
+  maxConnectedSorters: number;
+  highlightedPlan: PlanKey;
+  planPrices: PaidPlanPrices | null;
+  interval: BillingInterval;
 }

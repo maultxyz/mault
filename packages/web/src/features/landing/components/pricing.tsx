@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { usePublicPricing } from "@/features/landing/api/use-public-pricing";
+import { PricingComparison } from "@/features/landing/components/pricing-comparison";
 import { PricingPlanCard } from "@/features/landing/components/pricing-plan-card";
 import {
   DEFAULT_PUBLIC_PLAN_CONFIG,
+  PRICING_FALLBACK_HIGHLIGHTED_PLAN,
   PRICING_GRID_COLUMNS_CLASS,
   PRICING_HIGHLIGHTED_PLAN,
 } from "@/lib/constants/pricing";
@@ -39,6 +41,11 @@ export function LandingPricing({ step }: MarketingStepProps) {
       !!planPrices[plan].month ||
       !!planPrices[plan].year,
   );
+  const highlightedPlan = visiblePlans.some(
+    (plan) => plan === PRICING_HIGHLIGHTED_PLAN,
+  )
+    ? PRICING_HIGHLIGHTED_PLAN
+    : PRICING_FALLBACK_HIGHLIGHTED_PLAN;
   const hasYearly =
     !!planPrices &&
     PAID_PLAN_KEYS.some(
@@ -88,10 +95,19 @@ export function LandingPricing({ step }: MarketingStepProps) {
               maxConnectedSorters={maxConnectedSorters}
               prices={plan === "free" ? null : (planPrices?.[plan] ?? null)}
               interval={interval}
-              emphasized={plan === PRICING_HIGHLIGHTED_PLAN}
+              emphasized={plan === highlightedPlan}
             />
           ))}
         </div>
+
+        <PricingComparison
+          plans={visiblePlans}
+          configs={plans}
+          maxConnectedSorters={maxConnectedSorters}
+          highlightedPlan={highlightedPlan}
+          planPrices={planPrices}
+          interval={interval}
+        />
       </div>
     </section>
   );

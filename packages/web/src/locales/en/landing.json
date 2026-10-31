@@ -291,6 +291,40 @@
       "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
       "businessTools": "Buy and sell: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins",
       "businessOps": "Shop management: spot-check a batch's accuracy, see staff activity, get sorter jam and service alerts, and keep buy prices hidden from staff"
+    },
+    "compare": {
+      "heading": "Compare every feature",
+      "subtitle": "Everything each plan includes, side by side.",
+      "feature": "Feature",
+      "seeAll": "Compare all features",
+      "groups": {
+        "limits": "Limits",
+        "features": "Features",
+        "included": "Included in every plan"
+      },
+      "cells": {
+        "unlimited": "Unlimited",
+        "included": "Included",
+        "notIncluded": "Not included"
+      },
+      "limits": {
+        "dailyScans": "Card scans per day",
+        "organizations": "Organizations you can own",
+        "membersPerOrg": "Members per organization",
+        "connectedSorters": "Sorters connected at once",
+        "soundRules": "Sound rules",
+        "notificationRules": "Discord notification rules",
+        "collections": "Collections"
+      },
+      "features": {
+        "chaosSort": "Chaos sort",
+        "repacks": "Repack building",
+        "customSounds": "Custom sounds",
+        "fleetHealth": "Fleet health",
+        "storage": "Storage locations",
+        "apiAccess": "API access",
+        "businessTools": "Buy and sell"
+      }
     }
   },
   "cta": {

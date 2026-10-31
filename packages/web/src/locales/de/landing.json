@@ -291,6 +291,40 @@
       "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
       "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen",
       "businessOps": "Ladenverwaltung: die Genauigkeit einer Charge per Stichprobe prüfen, die Aktivität deines Teams sehen, Warnungen bei Stau und fälliger Wartung der Sortierer erhalten und Ankaufspreise vor deinem Team verbergen"
+    },
+    "compare": {
+      "heading": "Alle Funktionen im Vergleich",
+      "subtitle": "Alles, was jeder Tarif enthält, nebeneinander.",
+      "feature": "Funktion",
+      "seeAll": "Alle Funktionen vergleichen",
+      "groups": {
+        "limits": "Limits",
+        "features": "Funktionen",
+        "included": "In jedem Tarif enthalten"
+      },
+      "cells": {
+        "unlimited": "Unbegrenzt",
+        "included": "Enthalten",
+        "notIncluded": "Nicht enthalten"
+      },
+      "limits": {
+        "dailyScans": "Kartenscans pro Tag",
+        "organizations": "Eigene Organisationen",
+        "membersPerOrg": "Mitglieder pro Organisation",
+        "connectedSorters": "Gleichzeitig verbundene Sortierer",
+        "soundRules": "Soundregeln",
+        "notificationRules": "Discord-Benachrichtigungsregeln",
+        "collections": "Sammlungen"
+      },
+      "features": {
+        "chaosSort": "Chaos-Sortierung",
+        "repacks": "Repacks erstellen",
+        "customSounds": "Eigene Sounds",
+        "fleetHealth": "Flottenzustand",
+        "storage": "Lagerorte",
+        "apiAccess": "API-Zugriff",
+        "businessTools": "An- und Verkauf"
+      }
     }
   },
   "cta": {

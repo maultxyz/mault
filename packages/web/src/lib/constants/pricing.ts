@@ -1,4 +1,9 @@
-import type { PlanConfig, PlanFeatureKey, PlanKey } from "@magic-vault/shared";
+import type {
+  PlanConfig,
+  PlanFeatureKey,
+  PlanKey,
+  PlanLimitKey,
+} from "@magic-vault/shared";
 
 export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
   free: {
@@ -91,10 +96,32 @@ export const PRICING_FEATURE_EXTRA_KEYS: Partial<
   businessTools: ["businessOps"],
 };
 
-export const PRICING_HIGHLIGHTED_PLAN: PlanKey = "business";
+export const PRICING_HIGHLIGHTED_PLAN: PlanKey = "enthusiast";
+
+export const PRICING_FALLBACK_HIGHLIGHTED_PLAN: PlanKey = "business";
 
 export const PRICING_GRID_COLUMNS_CLASS: Record<number, string> = {
   1: "",
   2: "sm:grid-cols-2",
   3: "lg:grid-cols-3",
+};
+
+export const PRICING_HIGHLIGHT_LIMIT_KEYS: readonly PlanLimitKey[] = [
+  "dailyScans",
+  "connectedSorters",
+  "membersPerOrg",
+];
+
+export const PRICING_HIGHLIGHT_FEATURE_KEYS: readonly PlanFeatureKey[] = [
+  "chaosSort",
+  "storage",
+  "businessTools",
+];
+
+export const PRICING_COMPARISON_ID = "pricing-comparison";
+
+export const PRICING_COMPARISON_GRID_CLASS: Record<number, string> = {
+  1: "grid-cols-[minmax(0,1fr)_minmax(4.5rem,9rem)]",
+  2: "grid-cols-[minmax(0,1fr)_repeat(2,minmax(4.5rem,9rem))]",
+  3: "grid-cols-[minmax(0,1fr)_repeat(3,minmax(4.5rem,9rem))]",
 };
