@@ -281,7 +281,11 @@
     "showAllSets": "Show all {{count}} sets",
     "scanRateTrend": "Scans per minute over the last 12 minutes",
     "scanRateNow": "{{count}} scans this minute",
-    "scanRatePoint": "{{count}} scans, {{minutes}} min ago"
+    "scanRatePoint": "{{count}} scans, {{minutes}} min ago",
+    "heading": "Stats",
+    "summaryCards_one": "{{count}} card",
+    "summaryCards_other": "{{count}} cards",
+    "summaryRate": "{{rate}}/hr"
   },
   "scannerControls": {
     "scanAgain": "Scan Again",

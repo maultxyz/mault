@@ -20,12 +20,15 @@ import {
   SCAN_RATE_BUCKET_COUNT,
   SCAN_RATE_BUCKET_MS,
   SCAN_RATE_REFRESH_MS,
+  SCAN_STATS_SUMMARY_SEPARATOR,
 } from "@/lib/constants/scanner";
+import { SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS } from "@/lib/constants/storage-keys";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
 import type { ScanStatsProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
+import { CollapsibleStatPanel } from "@/features/scanner/components/collapsible-stat-panel";
 import { IconRestore } from "@tabler/icons-react";
 import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
@@ -92,6 +95,23 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   }
 
   const visibleSets = expandedSets ? stats.sets : stats.sets.slice(0, 5);
+  const cardsPerHour =
+    shownElapsed > 0
+      ? Math.round((shownCount / shownElapsed) * 3_600_000)
+      : null;
+  const overviewSummary = [
+    t("scanStats.summaryCards", { count: stats.totalCount }),
+    stats.hasPricing ? format(stats.totalValue) : null,
+    cardsPerHour !== null
+      ? t("scanStats.summaryRate", { rate: cardsPerHour })
+      : null,
+  ]
+    .filter(Boolean)
+    .join(SCAN_STATS_SUMMARY_SEPARATOR);
+  const countsSummary = (entries: { label: string; count: number }[]) =>
+    entries
+      .map((entry) => `${entry.label} ${entry.count}`)
+      .join(SCAN_STATS_SUMMARY_SEPARATOR);
 
   const statCards: {
     label: string;
@@ -130,10 +150,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
     },
     {
       label: t("scanStats.cardsPerHour"),
-      value:
-        shownElapsed > 0
-          ? String(Math.round((shownCount / shownElapsed) * 3_600_000))
-          : "-",
+      value: cardsPerHour !== null ? String(cardsPerHour) : "-",
       trend:
         shownTimes.length > 0
           ? bucketScanTimes(
@@ -161,7 +178,12 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
           scrollable && "pr-3",
         )}
       >
-        <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input">
+        <CollapsibleStatPanel
+          heading={t("scanStats.heading")}
+          collapsedSummary={overviewSummary}
+          showLiveIndicator={shownRunning}
+          expandedStorageKey={SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS.overview}
+        >
           <div className="grid grid-cols-2">
             {statCards.map((card, i) => (
               <StatCard
@@ -209,13 +231,14 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
               </div>
             </div>
           )}
-        </div>
+        </CollapsibleStatPanel>
         {stats.rarities.length > 0 && (
-          <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
-              {t("byRarity")}
-            </p>
-            <div className="flex flex-col gap-1">
+          <CollapsibleStatPanel
+            heading={t("byRarity")}
+            collapsedSummary={countsSummary(stats.rarities)}
+            expandedStorageKey={SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS.rarity}
+          >
+            <div className="flex flex-col gap-1 p-2">
               {stats.rarities.map((r) => {
                 const active = filters.rarities.includes(r.key);
                 return (
@@ -242,14 +265,15 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 );
               })}
             </div>
-          </div>
+          </CollapsibleStatPanel>
         )}
         {stats.colors.length > 0 && (
-          <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
-              {t("scanStats.byColor")}
-            </p>
-            <div className="flex flex-col gap-1">
+          <CollapsibleStatPanel
+            heading={t("scanStats.byColor")}
+            collapsedSummary={countsSummary(stats.colors)}
+            expandedStorageKey={SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS.color}
+          >
+            <div className="flex flex-col gap-1 p-2">
               {stats.colors.map((c) => {
                 const active = filters.colors.includes(c.key);
                 return (
@@ -276,13 +300,16 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 );
               })}
             </div>
-          </div>
+          </CollapsibleStatPanel>
         )}
-        <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-          <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
-            {t("scanStats.bySet")}
-          </p>
-          <div className="flex flex-col gap-1">
+        <CollapsibleStatPanel
+          heading={t("scanStats.bySet")}
+          collapsedSummary={countsSummary(
+            stats.sets.map((set) => ({ label: set.name, count: set.count })),
+          )}
+          expandedStorageKey={SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS.set}
+        >
+          <div className="flex flex-col gap-1 p-2">
             {visibleSets.map((s) => {
               const active = filters.sets.includes(s.code);
               return (
@@ -314,7 +341,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
           {stats.sets.length > 5 && (
             <button
               type="button"
-              className="text-xs text-primary hover:underline mt-1"
+              className="text-xs text-primary hover:underline mx-2 mb-2"
               onClick={() => setExpandedSets((prev) => !prev)}
             >
               {expandedSets
@@ -322,7 +349,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 : t("scanStats.showAllSets", { count: stats.sets.length })}
             </button>
           )}
-        </div>
+        </CollapsibleStatPanel>
       </div>
     </Container>
   );

@@ -625,6 +625,14 @@ export interface ScanStatsProps {
   scrollable?: boolean;
 }
 
+export interface CollapsibleStatPanelProps {
+  heading: string;
+  collapsedSummary: string;
+  showLiveIndicator?: boolean;
+  expandedStorageKey: string;
+  children: ReactNode;
+}
+
 export interface CardScannerComponentProps extends CardScannerProps {
   controlsContainer?: HTMLElement | null;
   renderChrome?: (chrome: ScannerChromeContext) => ReactNode;

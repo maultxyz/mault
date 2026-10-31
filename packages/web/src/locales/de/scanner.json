@@ -281,7 +281,11 @@
     "showAllSets": "Alle {{count}} Sets anzeigen",
     "scanRateTrend": "Scans pro Minute in den letzten 12 Minuten",
     "scanRateNow": "{{count}} Scans in dieser Minute",
-    "scanRatePoint": "{{count}} Scans, vor {{minutes}} Min."
+    "scanRatePoint": "{{count}} Scans, vor {{minutes}} Min.",
+    "heading": "Statistiken",
+    "summaryCards_one": "{{count}} Karte",
+    "summaryCards_other": "{{count}} Karten",
+    "summaryRate": "{{rate}}/Std"
   },
   "scannerControls": {
     "scanAgain": "Erneut scannen",
