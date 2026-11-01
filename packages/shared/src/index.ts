@@ -129,6 +129,7 @@ export * from "./interfaces/webhooks.interface";
 export * from "./constants/webhooks.constant";
 export * from "./schemas/public-api.schema";
 export * from "./schemas/forms.schema";
+export * from "./schemas/card-export.schema";
 export * from "./interfaces/public-api.interface";
 export * from "./constants/public-api.constant";
 export * from "./openapi";

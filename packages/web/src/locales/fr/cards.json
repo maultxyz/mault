@@ -124,7 +124,8 @@
     "deleteCardsDescription_other": "Cela retirera définitivement les cartes sélectionnées de ta collection. Cette action est irréversible.",
     "downloadedHidden_one": "1 carte téléchargée est masquée par le filtre des téléchargements.",
     "downloadedHidden_other": "{{count}} cartes téléchargées sont masquées par le filtre des téléchargements.",
-    "moveToLocation": "Déplacer"
+    "moveToLocation": "Déplacer",
+    "exporting": "Export en cours"
   },
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",
@@ -208,7 +209,8 @@
     "download": "Télécharger ({{count}})",
     "downloadFailed": "Impossible de télécharger l'export.",
     "sessionWrappedToggle": "Wrapped",
-    "combineDuplicates": "Regrouper les doublons"
+    "combineDuplicates": "Regrouper les doublons",
+    "exporting": "Export en cours"
   },
   "sessionWrapped": {
     "srTitle": "Le récap de {{collectionName}}",

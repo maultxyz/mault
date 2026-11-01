@@ -8,6 +8,7 @@ export interface ExportContext {
   fieldDefinitions: FieldMeta[];
   gameKey?: string;
   gameName?: string;
+  tcgplayerSkuIdsByEntryKey?: Record<string, string>;
 }
 
 export interface GroupedEntry {
@@ -29,6 +30,7 @@ export interface ExportAdapter {
   filenameSlug: string;
   groupBy: GroupBy;
   games: "all" | string[];
+  usesTcgplayerSkus?: boolean;
   headers: (ctx: ExportContext) => string[];
   row: (entry: GroupedEntry, ctx: ExportContext) => string[];
 }

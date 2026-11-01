@@ -1812,7 +1812,8 @@
     "title": "Export {{name}}",
     "loading": "Loading cards",
     "combineDuplicates": "Combine duplicates",
-    "failed": "Couldn't export the cards"
+    "failed": "Couldn't export the cards",
+    "exporting": "Exporting"
   },
   "alerts": {
     "title": "Notifications",

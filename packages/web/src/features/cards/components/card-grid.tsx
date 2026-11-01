@@ -38,7 +38,7 @@ import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locat
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import {
   allExportAdapters,
-  runExport,
+  downloadCollectionCsv,
   supportsGame,
   type ExportAdapter,
 } from "@/features/cards/lib/export";
@@ -46,7 +46,6 @@ import {
   collectionCardPositionQueryOptions,
   collectionCardsPageQueryOptions,
   collectionCardsCountQueryOptions,
-  loadCardsForExport,
   loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
@@ -76,6 +75,7 @@ import {
   IconBox,
   IconChevronDown,
   IconDownload,
+  IconLoader2,
   IconPhotoUp,
   IconPlus,
   IconRosette,
@@ -448,25 +448,13 @@ export function CardGrid() {
       if (!collectionGuid) return;
       setExportingSelected(true);
       try {
-        const selectedCards = await loadCardsForExport(collectionGuid, [
-          ...selectedIds,
-        ]);
-        const slug = (viewedCollection?.name ?? "collection")
-          .replace(/\s+/g, "-")
-          .toLowerCase();
-        runExport(
+        const exportedIds = [...selectedIds];
+        await downloadCollectionCsv(
+          collectionGuid,
           adapter,
-          selectedCards,
-          slug,
-          {
-            isMtg: gameKey === "mtg",
-            fieldDefinitions,
-            gameKey,
-            gameName: viewedCollection?.game?.name,
-          },
-          true,
+          viewedCollection?.name ?? "collection",
+          { scanIds: exportedIds, combineDuplicates: true },
         );
-        const exportedIds = selectedCards.map((card) => card.scanId);
         markCardsDownloaded(exportedIds);
         if (!readOnly) setExportedScanIds(exportedIds);
       } catch (err) {
@@ -480,10 +468,7 @@ export function CardGrid() {
       collectionGuid,
       selectedIds,
       viewedCollection?.name,
-      viewedCollection?.game?.name,
       readOnly,
-      gameKey,
-      fieldDefinitions,
       markCardsDownloaded,
       t,
     ],
@@ -891,8 +876,12 @@ export function CardGrid() {
                   />
                 }
               >
-                <IconDownload />
-                {t("cardGrid.export")}
+                {exportingSelected ? (
+                  <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+                ) : (
+                  <IconDownload />
+                )}
+                {exportingSelected ? t("cardGrid.exporting") : t("cardGrid.export")}
                 <IconChevronDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" side="top">

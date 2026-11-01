@@ -1812,7 +1812,8 @@
     "title": "{{name}} exportieren",
     "loading": "Karten werden geladen",
     "combineDuplicates": "Duplikate zusammenfassen",
-    "failed": "Die Karten konnten nicht exportiert werden"
+    "failed": "Die Karten konnten nicht exportiert werden",
+    "exporting": "Wird exportiert"
   },
   "alerts": {
     "title": "Benachrichtigungen",

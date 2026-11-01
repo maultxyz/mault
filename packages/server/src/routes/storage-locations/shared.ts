@@ -5,6 +5,8 @@ import {
   type StorageLocation,
   type StorageLocationCard,
   type StorageLocationCardNeighbor,
+  type StorageLocationExportCard,
+  type StorageLocationExportSummary,
 } from "@magic-vault/shared";
 import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
 import { uuidArraySql } from "../../lib/sql-arrays";
@@ -250,4 +252,73 @@ export async function loadLocations(
     cardCount: Number(r.card_count),
     totalValue: Number(r.total_value),
   }));
+}
+
+export async function loadStorageLocationExportCards(
+  tx: Transaction,
+  locationId: number,
+): Promise<StorageLocationExportCard[]> {
+  const rows = await tx
+    .select({
+      scanId: collectionCards.guid,
+      position: collectionCards.locationPosition,
+      card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`${collectionCards.card}`)}`,
+      isFoil: collectionCards.isFoil,
+      foilType: collectionCards.foilType,
+      condition: collectionCards.condition,
+      language: collectionCards.language,
+      collectionName: collections.name,
+      collectionLang: collections.lang,
+      gameKey: games.key,
+    })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .where(
+      and(
+        eq(collectionCards.locationId, locationId),
+        eq(collections.isDeleted, false),
+      ),
+    )
+    .orderBy(asc(collectionCards.locationPosition));
+  const cards = await hydrateSavedCards(
+    rows.map((r) => ({
+      gameKey: r.gameKey,
+      lang: r.collectionLang,
+      card: r.card,
+    })),
+    { includeRaw: true },
+  );
+  return rows.map((r, i) => ({
+    scanId: r.scanId!,
+    position: r.position ?? 0,
+    collectionName: r.collectionName,
+    gameKey: r.gameKey,
+    card: cards[i],
+    isFoil: r.isFoil,
+    foilType: r.foilType,
+    condition: toCardCondition(r.condition),
+    language: r.language,
+  }));
+}
+
+export async function loadStorageLocationExportSummary(
+  tx: Transaction,
+  locationId: number,
+): Promise<StorageLocationExportSummary> {
+  const rows = await tx
+    .select({ scanId: collectionCards.guid, gameKey: games.key })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .where(
+      and(
+        eq(collectionCards.locationId, locationId),
+        eq(collections.isDeleted, false),
+      ),
+    );
+  return {
+    gameKeys: [...new Set(rows.map((row) => row.gameKey))],
+    scanIds: rows.flatMap((row) => (row.scanId ? [row.scanId] : [])),
+  };
 }

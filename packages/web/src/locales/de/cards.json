@@ -124,7 +124,8 @@
     "deleteCardsDescription_other": "Dadurch werden die ausgewählten Karten dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
     "downloadedHidden_one": "1 heruntergeladene Karte wird vom Download-Filter ausgeblendet.",
     "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet.",
-    "moveToLocation": "Verschieben"
+    "moveToLocation": "Verschieben",
+    "exporting": "Wird exportiert"
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
@@ -208,7 +209,8 @@
     "download": "Herunterladen ({{count}})",
     "downloadFailed": "Der Export konnte nicht heruntergeladen werden.",
     "sessionWrappedToggle": "Wrapped",
-    "combineDuplicates": "Duplikate zusammenfassen"
+    "combineDuplicates": "Duplikate zusammenfassen",
+    "exporting": "Wird exportiert"
   },
   "sessionWrapped": {
     "srTitle": "{{collectionName}} Jahresrückblick",

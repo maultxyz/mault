@@ -1,5 +1,5 @@
 import type { PlayingCard } from "../interfaces/card.interface";
-import { conditionLabel, csvEscape, finishLabel } from "./base";
+import { conditionLabel, csvEscape, exportEntryKey, finishLabel } from "./base";
 import { TCGPLAYER_PRODUCT_LINES } from "../constants/card-export.constant";
 import { cardPriceFor } from "../price-source";
 import type {
@@ -19,6 +19,10 @@ function tcgplayerId(card: PlayingCard): string {
   const legacyId =
     raw?.tcgplayer_id ?? raw?.printing?.tcgplayer_product_id ?? null;
   return legacyId != null ? String(legacyId) : "";
+}
+
+function tcgplayerIdForEntry(entry: GroupedEntry, ctx: ExportContext): string {
+  return ctx.tcgplayerSkuIdsByEntryKey?.[exportEntryKey(entry)] ?? tcgplayerId(entry.card);
 }
 
 function productLine(ctx: ExportContext): string {
@@ -45,6 +49,7 @@ export const tcgplayerAdapter: ExportAdapter = {
   filenameSlug: "tcgplayer",
   groupBy: "card-foil",
   games: "all",
+  usesTcgplayerSkus: true,
   headers: () => [
     "TCGplayer Id",
     "Product Line",
@@ -53,16 +58,18 @@ export const tcgplayerAdapter: ExportAdapter = {
     "Number",
     "Rarity",
     "Condition",
+    "Add to Quantity",
     "TCG Marketplace Price",
   ],
   row: (entry, ctx) => [
-    tcgplayerId(entry.card),
+    tcgplayerIdForEntry(entry, ctx),
     csvEscape(productLine(ctx)),
     csvEscape(entry.card.setName),
     csvEscape(entry.card.name),
-    String(entry.quantity),
+    csvEscape(entry.card.collectorNumber ?? ""),
     csvEscape(entry.card.rarity ?? ""),
     csvEscape(tcgplayerCondition(entry, ctx)),
+    String(entry.quantity),
     marketPrice(entry),
   ],
 };

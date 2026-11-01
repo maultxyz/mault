@@ -106,7 +106,9 @@
   "export": {
     "button": "Exportieren",
     "loading": "Karten werden geladen",
-    "combineDuplicates": "Duplikate zusammenfassen"
+    "combineDuplicates": "Duplikate zusammenfassen",
+    "failed": "Die Karten konnten nicht exportiert werden.",
+    "exporting": "Wird exportiert"
   },
   "emptyAllDialog": {
     "title": "Alle Fächer leeren",

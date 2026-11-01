@@ -82,3 +82,20 @@ export interface TcgtrackingPrimaryCard {
   nameKey: string;
   baseNameKey: string;
 }
+
+export interface TcgtrackingSkuEntry {
+  cnd: string;
+  var: string;
+  lng: string;
+}
+
+export interface TcgtrackingSetSkusResponse {
+  products: Record<string, Record<string, TcgtrackingSkuEntry>>;
+}
+
+export interface TcgtrackingSku {
+  skuId: string;
+  condition: string;
+  variant: string;
+  language: string;
+}

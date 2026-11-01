@@ -124,7 +124,8 @@
     "deleteCardsDescription_other": "This will permanently remove the selected cards from your collection. This action cannot be undone.",
     "downloadedHidden_one": "1 downloaded card is hidden by the downloaded filter.",
     "downloadedHidden_other": "{{count}} downloaded cards are hidden by the downloaded filter.",
-    "moveToLocation": "Move"
+    "moveToLocation": "Move",
+    "exporting": "Exporting"
   },
   "cardSelectDialog": {
     "defaultTitle": "Select Card",
@@ -208,7 +209,8 @@
     "download": "Download ({{count}})",
     "downloadFailed": "Couldn't download the export.",
     "sessionWrappedToggle": "Wrapped",
-    "combineDuplicates": "Combine duplicates"
+    "combineDuplicates": "Combine duplicates",
+    "exporting": "Exporting"
   },
   "sessionWrapped": {
     "srTitle": "{{collectionName}} Wrapped",

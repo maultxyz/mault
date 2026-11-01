@@ -106,7 +106,9 @@
   "export": {
     "button": "Export",
     "loading": "Loading cards",
-    "combineDuplicates": "Combine duplicates"
+    "combineDuplicates": "Combine duplicates",
+    "failed": "Couldn't export the cards.",
+    "exporting": "Exporting"
   },
   "emptyAllDialog": {
     "title": "Empty all bins",

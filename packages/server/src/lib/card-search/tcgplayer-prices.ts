@@ -13,7 +13,7 @@ import type {
 } from "../interfaces/card-search";
 import { median } from "../statistics";
 
-function productIdOf(
+export function tcgplayerProductIdOf(
   pricing: TcgplayerPricing,
   card: PlayingCard,
 ): number | null {
@@ -25,7 +25,7 @@ async function resolveProductIds(
   pricing: TcgplayerPricing,
   cards: PlayingCard[],
 ): Promise<number[][]> {
-  const direct = cards.map((card) => productIdOf(pricing, card));
+  const direct = cards.map((card) => tcgplayerProductIdOf(pricing, card));
   const matches = cards.map((card, i) =>
     direct[i] === null ? (pricing.productMatch?.(card) ?? null) : null,
   );

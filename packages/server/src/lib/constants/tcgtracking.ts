@@ -32,3 +32,14 @@ export const TCGTRACKING_PRODUCT_NUMBER_SUFFIX_PATTERN =
 export const GUNDAM_PRODUCT_CARD_NUMBER_TAG_PATTERN = /\s*\([A-Z]+\d*-\d+\)/g;
 
 export const POKEMON_BASIC_ENERGY_PREFIX_PATTERN = /^Basic\s+(?=.*\bEnergy\b)/i;
+
+export const TCGTRACKING_SKU_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+export const TCGTRACKING_SKU_CACHE_MAX_KEYS = 200_000;
+export const TCGTRACKING_PRODUCT_SET_CACHE_MAX_KEYS = 50_000;
+export const TCGTRACKING_SKU_SET_FETCH_CONCURRENCY = 3;
+export const TCGTRACKING_PRODUCT_SET_LOOKUPS_PER_EXPORT_MAX = 200;
+export const TCGTRACKING_SKU_LANGUAGE_CODES: Record<string, string> = {
+  ja: "JP",
+  zhs: "CS",
+  zht: "CT",
+};
