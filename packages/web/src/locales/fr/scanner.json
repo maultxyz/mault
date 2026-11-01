@@ -124,6 +124,12 @@
         "startButton": "Choisir la carte et flasher",
         "success": "Firmware installé. Débranchez le câble USB de l'ESP32, puis rebranchez-le pour démarrer le nouveau firmware.",
         "connectButton": "Connecter la trieuse"
+      },
+      "version": {
+        "label": "Version du firmware",
+        "recommended": "v{{version}} (recommandée)",
+        "option": "v{{version}}",
+        "otherVersionWarning": "Cette application est conçue pour le firmware v{{version}}. Les autres versions peuvent manquer de fonctionnalités ou se comporter différemment."
       }
     },
     "pushBlocked": {

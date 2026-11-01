@@ -124,6 +124,12 @@
         "startButton": "Choose board and flash",
         "success": "Firmware installed. Unplug the ESP32's USB cable, then plug it back in to start the new firmware.",
         "connectButton": "Connect sorter"
+      },
+      "version": {
+        "label": "Firmware version",
+        "recommended": "v{{version}} (recommended)",
+        "option": "v{{version}}",
+        "otherVersionWarning": "This app is built for firmware v{{version}}. Other versions may be missing features or behave differently."
       }
     },
     "pushBlocked": {

@@ -1,7 +1,18 @@
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useFirmwareOptions } from "@/features/scanner/api/use-firmware-options";
 import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
+import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
 import type {
   FirmwareFlashState,
   FlashEsp32Result,
@@ -39,16 +50,30 @@ export function FirmwareFlashDialog({
   isFlashing: boolean;
   flashProgress: number | null;
   flashLog: string[];
-  onStart: () => Promise<FlashEsp32Result | null>;
+  onStart: (firmwareUrl: string) => Promise<FlashEsp32Result | null>;
 }) {
   const { t } = useTranslation("scanner");
   const [state, setState] = useState<FirmwareFlashState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const flashLogRef = useStickToBottom(flashLog);
+  const firmwareOptions = useFirmwareOptions(open);
+  const [selectedVersion, setSelectedVersion] = useState(
+    LATEST_FIRMWARE_VERSION,
+  );
+  const selectedOption =
+    firmwareOptions.find((option) => option.version === selectedVersion) ??
+    firmwareOptions[0];
 
   useEffect(() => {
-    if (!open) setState("idle");
+    if (open) return;
+    setState("idle");
+    setSelectedVersion(LATEST_FIRMWARE_VERSION);
   }, [open]);
+
+  const versionLabel = (version: string) =>
+    version === LATEST_FIRMWARE_VERSION
+      ? t("serial.flash.version.recommended", { version })
+      : t("serial.flash.version.option", { version });
 
   const describeFailure = (result: FlashEsp32Result) => {
     switch (result.reason) {
@@ -70,7 +95,7 @@ export function FirmwareFlashDialog({
   };
 
   const handleStart = async () => {
-    const pending = onStart();
+    const pending = onStart(selectedOption.firmwareUrl);
     setState("flashing");
     const result = await pending;
     if (!result) {
@@ -121,7 +146,38 @@ export function FirmwareFlashDialog({
         )
       }
     >
-      {state === "idle" && hint}
+      {state === "idle" && (
+        <div className="flex flex-col gap-3">
+          <Field>
+            <FieldLabel>{t("serial.flash.version.label")}</FieldLabel>
+            <Select
+              value={selectedOption.version}
+              onValueChange={(version) => {
+                if (version) setSelectedVersion(version);
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue>{versionLabel(selectedOption.version)}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {firmwareOptions.map((option) => (
+                  <SelectItem key={option.version} value={option.version}>
+                    {versionLabel(option.version)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          {!selectedOption.isBundled && (
+            <Callout variant="warning">
+              {t("serial.flash.version.otherVersionWarning", {
+                version: LATEST_FIRMWARE_VERSION,
+              })}
+            </Callout>
+          )}
+          {hint}
+        </div>
+      )}
 
       {state === "flashing" && isFlashing && (
         <div className="flex flex-col gap-3">

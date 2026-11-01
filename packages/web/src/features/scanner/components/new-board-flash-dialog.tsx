@@ -39,8 +39,8 @@ export function NewBoardFlashDialog({
       isFlashing={isFlashing}
       flashProgress={flashProgress}
       flashLog={flashLog}
-      onStart={async () => {
-        const result = await flashNewBoard();
+      onStart={async (firmwareUrl) => {
+        const result = await flashNewBoard(firmwareUrl);
         if (result?.success) onFlashed?.();
         return result;
       }}
