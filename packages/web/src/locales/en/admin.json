@@ -8,6 +8,7 @@
     "users": "Users",
     "plans": "Plans",
     "discord": "Discord",
+    "sounds": "Sounds",
     "deleted": "Deleted and unmatched",
     "hardware": "Hardware",
     "developer": "Developer"
@@ -545,5 +546,10 @@
       "saved": "Linked account role saved.",
       "saveFailed": "Couldn't save the linked account role."
     }
+  },
+  "systemSoundClips": {
+    "heading": "System sound clips",
+    "description": "Clips every organization can use in its sound rules. Organizations can play them but can't rename or delete them.",
+    "empty": "No system sound clips yet."
   }
 }

@@ -8,6 +8,7 @@ import {
 import {
   isTcgtrackingFallbackData,
   normalizeTcgtrackingFallback,
+  toTcgtrackingFallbackData,
 } from "./fallback";
 import { TCGTRACKING_GAMES } from "./games";
 
@@ -50,11 +51,26 @@ export function withTcgtracking(
         success: true,
         message: "Successfully fetched card by id.",
         data: normalizeTcgtrackingFallback(
-          { source: "tcgtracking", ...entry },
+          toTcgtrackingFallbackData(entry, undefined, config),
           id,
           config,
         ),
       };
+    },
+    cardmarket: adapter.cardmarket && {
+      ...adapter.cardmarket,
+      productIdFromRaw(card) {
+        if (isTcgtrackingFallbackData(card.raw)) {
+          return card.raw.product.cardmarket_id;
+        }
+        return adapter.cardmarket?.productIdFromRaw?.(card);
+      },
+      productNames: adapter.cardmarket.productNames
+        ? (card) =>
+            isTcgtrackingFallbackData(card.raw)
+              ? []
+              : (adapter.cardmarket?.productNames?.(card) ?? [])
+        : undefined,
     },
     excludedFromMatchingSql: adapter.excludedFromMatchingSql
       ? sql`((${adapter.excludedFromMatchingSql}) OR ${superseded})`

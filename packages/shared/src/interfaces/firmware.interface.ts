@@ -5,6 +5,14 @@ export type FirmwareFeature =
   | "feederRollback"
   | "storedCalibration"
   | "paddleOpenDelay"
-  | "wifiRemote";
+  | "wifiRemote"
+  | "retractCard";
+
+export type RetractCardOutcome = "retracted" | "rollback_off" | "failed";
 
 export type SerialResetReason = (typeof SERIAL_RESET_REASONS)[number];
+
+export interface FirmwareRelease {
+  version: string;
+  publishedAt: string;
+}

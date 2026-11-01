@@ -27,7 +27,10 @@ export const DEFAULT_MIN_SHARPNESS = 0.02;
 
 export const COLOR_BAR_MIN_SATURATION = 0.35;
 export const COLOR_BAR_MIN_BRIGHTNESS = 64;
-export const COLOR_BAR_MIN_SHARE = 0.12;
+export const COLOR_BAR_MIN_ROW_SHARE = 0.5;
+export const COLOR_BAR_MAX_RUNNER_UP_RATIO = 0.5;
+export const COLOR_BAR_WHITE_REFERENCE_PERCENTILE = 0.75;
+export const COLOR_BAR_MIN_WHITE_BRIGHTNESS = 96;
 export const COLOR_BAR_HUE_RANGES: Record<string, [number, number][]> = {
   Red: [
     [0, 20],

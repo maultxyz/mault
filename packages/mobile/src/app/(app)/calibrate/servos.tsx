@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCalibration } from "@/features/calibration/api/use-calibration";
 import { FeederPanel } from "@/features/calibration/components/feeder-panel";
 import { ModuleCard } from "@/features/calibration/components/module-card";
+import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
 import { PHASE_TONES } from "@/lib/constants/sorter";
@@ -22,6 +23,7 @@ export default function CalibrateScreen() {
   const navigation = useNavigation();
   const sorter = useSorter();
   const state = useCalibration();
+  const retract = useRetractCard();
 
   usePreventRemove(state.isDirty && !state.isSaving, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("calibration.discardDescription"), [
@@ -74,6 +76,8 @@ export default function CalibrateScreen() {
               disabled={!state.isReady}
               onPress={() => void state.handleFeed()}
             />
+          </View>
+          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
             <Button
               style={{ flex: 1 }}
               variant="secondary"
@@ -82,7 +86,21 @@ export default function CalibrateScreen() {
               disabled={!state.isReady}
               onPress={state.handleDropCard}
             />
+            <Button
+              style={{ flex: 1 }}
+              variant="secondary"
+              icon="arrowUp"
+              label={t("calibration.retractCard")}
+              loading={retract.isRetracting}
+              disabled={!state.isReady || retract.retractLockedReason !== null}
+              onPress={() => void retract.retractCard(state.applyDraftsToDevice)}
+            />
           </View>
+          {retract.retractLockedReason ? (
+            <AppText size="xs" tone="secondary">
+              {retract.retractLockedReason}
+            </AppText>
+          ) : null}
           {state.isUnconfigured ? (
             <AppText size="xs" tone="secondary">
               {t("calibration.calibrateBeforeTest")}

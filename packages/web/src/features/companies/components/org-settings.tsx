@@ -1,5 +1,5 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
-import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useBilling } from "@/features/billing/api/use-billing";
 import { hasActiveSubscription } from "@/features/billing/lib/subscription";
 import { apiDelete } from "@/lib/api/client";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { neon } from "@/lib/auth/client";
 import {
   memberRolesSchema,
@@ -26,7 +25,6 @@ import { IconTrash } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import {
   organizationInviteFormSchema,
@@ -52,7 +50,6 @@ export function OrgSettings() {
   const myRole = activeMember?.role as OrgRole | undefined;
   const canManage = myRole === "owner" || myRole === "admin";
   const isOwner = myRole === "owner";
-  const navigate = useNavigate();
 
   const { billing, openPortal, isOpeningPortal } = useBilling();
   const blockedBySubscription = hasActiveSubscription(billing);
@@ -340,21 +337,12 @@ export function OrgSettings() {
                   {t("orgSettings.inviteMemberHeading")}
                 </h3>
                 {atMemberLimit && (
-                  <Callout
-                    variant="warning"
-                    action={
-                      <Button
-                        variant="outline"
-                        onClick={() => navigate(SETTINGS_PATHS.billing)}
-                      >
-                        {t("orgSettings.memberLimitUpgrade")}
-                      </Button>
-                    }
-                  >
-                    {t("orgSettings.memberLimitReached", {
+                  <PlanNotice
+                    message={t("orgSettings.memberLimitReached", {
                       count: memberLimit ?? 0,
                     })}
-                  </Callout>
+                    linkLabel={t("orgSettings.memberLimitUpgrade")}
+                  />
                 )}
                 <form
                   onSubmit={inviteForm.handleSubmit(handleInvite)}

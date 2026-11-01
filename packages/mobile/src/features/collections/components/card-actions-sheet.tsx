@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Modal, Pressable, View } from "react-native";
@@ -14,6 +14,9 @@ import {
   removeCollectionCards,
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
+import { billingQueryOptions } from "@/features/org/api/billing";
+import { moveCardsToStorageLocation, storageLocationsQueryOptions } from "@/features/storage/api/storage";
+import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { CardActionsSheetProps } from "@/lib/interfaces/collections";
@@ -24,7 +27,12 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
-  const [picker, setPicker] = useState<"foil" | "condition" | null>(null);
+  const [picker, setPicker] = useState<"foil" | "condition" | "location" | null>(null);
+  const activeOrgId = useActiveOrgId();
+  const billing = useQuery(billingQueryOptions(activeOrgId));
+  const canMoveToLocation = !!billing.data && billing.data.storage !== false;
+  const locations = useQuery(storageLocationsQueryOptions(activeOrgId, canMoveToLocation));
+  const moveTargets = locations.data ?? [];
   const scanIds = entry?.scanIds?.length ? entry.scanIds : entry ? [entry.scanId] : [];
   const flagged = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
 
@@ -38,6 +46,16 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
     mutationFn: () => removeCollectionCards(collectionGuid, scanIds),
     onSettled: () => invalidateCollectionCards(queryClient, collectionGuid),
     onSuccess: onClose,
+  });
+
+  const moveToLocation = useMutation({
+    mutationFn: (locationGuid: string) => moveCardsToStorageLocation(locationGuid, scanIds),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
+      invalidateCollectionCards(queryClient, collectionGuid);
+      onClose();
+    },
+    onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
   });
 
   const confirmRemove = () =>
@@ -95,6 +113,14 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
               ) : null}
               <ListRow icon="sparkles" title={t("cardDetail.foil")} onPress={() => setPicker("foil")} />
               <ListRow icon="condition" title={t("cardDetail.condition")} onPress={() => setPicker("condition")} />
+              {canMoveToLocation && moveTargets.length > 0 ? (
+                <ListRow
+                  icon="transfer"
+                  title={t("storage.moveToLocation")}
+                  disabled={moveToLocation.isPending}
+                  onPress={() => setPicker("location")}
+                />
+              ) : null}
               <ListRow icon="trash" tone="destructive" title={t("cardDetail.remove")} onPress={confirmRemove} />
             </ListGroup>
           </View>
@@ -119,6 +145,18 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
         onSelect={(value) => {
           setPicker(null);
           update.mutate({ condition: value as CardCondition });
+        }}
+        onClose={() => setPicker(null)}
+      />
+      <OptionSheet
+        visible={picker === "location"}
+        title={t("storage.moveToLocation")}
+        options={moveTargets.map((location) => ({ value: location.guid, label: location.name }))}
+        selected={[]}
+        searchPlaceholder={t("storage.searchLocations")}
+        onSelect={(locationGuid) => {
+          setPicker(null);
+          moveToLocation.mutate(locationGuid);
         }}
         onClose={() => setPicker(null)}
       />

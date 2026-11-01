@@ -226,6 +226,14 @@ command arrived on.
   after a power cycle or the next `setWifi`/`setCloud`/`clearWifi`. 60 s of
   uptime clears the brownout count. The Uno R4 WiFi also waits 2 s after boot
   but has no brownout pause.
+- **Brownout boot guard (ESP32):** after the same 2 brownout resets in a row,
+  boot cuts every servo signal and stops the feeder instead of driving the
+  servos to neutral, so a stalled servo or weak supply can't hold the board in
+  a reset loop. The PCA9685 can keep driving a servo through an MCU reset,
+  which is why the signals are cut rather than the move skipped. The next
+  command that moves a servo (such as `neutral`) powers it again. `clearDevice`
+  opens the bottom trapdoors one at a time, `SERVO_STAGGER_MS` apart, instead of
+  all at once.
 
 ## Hardware model
 
@@ -359,8 +367,20 @@ stops the feeder. → `{"status":"ok"}`
 ```json
 {"clearDevice": true}
 ```
-Opens **every** module's bottom trapdoor at once (useful for flushing a
-physically stuck card), then resets to neutral. → `{"status":"cleared"}`
+Opens **every** module's bottom trapdoor, `SERVO_STAGGER_MS` apart (useful
+for flushing a physically stuck card), then resets to neutral.
+→ `{"status":"cleared"}`
+
+### `retractCard` (2.11.0+)
+```json
+{"retractCard": true}
+```
+Runs the feeder backward with the rollback settings (`reverseSpeed` for
+`reverseDuration` ms, see `setFeederConfig`) to pull a partly fed card back
+into the hopper. Unlike the automatic rollback it runs whether or not the
+hopper sensor sees cards. → `{"status":"retracted"}`, or
+`{"error":"rollback_off"}` when `reverseDuration` is `0`. Older firmware
+replies `{"error":"unknown command"}`.
 
 ### `servo` (manual single-servo move)
 ```json

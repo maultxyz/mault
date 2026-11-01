@@ -55,6 +55,7 @@ export function buildCalibrationDebugText({
     `  settleDuration: ${feederConfig.settleDuration}ms`,
     `  reverseSpeed: ${feederConfig.reverseSpeed}`,
     `  reverseDuration: ${feederConfig.reverseDuration > 0 ? `${feederConfig.reverseDuration}ms` : "off"}`,
+    `  feedRetryCount: ${feederConfig.feedRetryCount}`,
     "",
   ];
 

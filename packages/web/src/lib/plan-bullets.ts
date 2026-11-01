@@ -1,11 +1,8 @@
 import {
-  PRICING_FEATURE_EXTRA_KEYS,
   PRICING_HIGHLIGHT_FEATURE_KEYS,
   PRICING_HIGHLIGHT_LIMIT_KEYS,
 } from "@/lib/constants/pricing";
 import {
-  PLAN_FEATURE_KEYS,
-  PLAN_LIMIT_KEYS,
   type PlanFeatureKey,
   type PlanLimitKey,
   type PlanSettings,
@@ -41,26 +38,10 @@ function featureBullets(
   settings: PlanSettings,
   keys: readonly PlanFeatureKey[],
   t: TFunction<"landing">,
-  withExtras: boolean,
 ): string[] {
   return keys
     .filter((key) => settings.features[key])
-    .flatMap((key) => [
-      key,
-      ...(withExtras ? (PRICING_FEATURE_EXTRA_KEYS[key] ?? []) : []),
-    ])
     .map((key) => t(`pricing.features.${key}`));
-}
-
-export function planBullets(
-  settings: PlanSettings,
-  maxConnectedSorters: number,
-  t: TFunction<"landing">,
-): string[] {
-  return [
-    ...limitBullets(settings, PLAN_LIMIT_KEYS, maxConnectedSorters, t),
-    ...featureBullets(settings, PLAN_FEATURE_KEYS, t, true),
-  ];
 }
 
 export function planHighlightBullets(
@@ -75,6 +56,6 @@ export function planHighlightBullets(
       maxConnectedSorters,
       t,
     ),
-    ...featureBullets(settings, PRICING_HIGHLIGHT_FEATURE_KEYS, t, false),
+    ...featureBullets(settings, PRICING_HIGHLIGHT_FEATURE_KEYS, t),
   ];
 }

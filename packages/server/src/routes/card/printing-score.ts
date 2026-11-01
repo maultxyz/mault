@@ -198,7 +198,7 @@ export const printingScoreRoute = new Hono<AppEnv>().post(
     for (const embedding of embeddings) {
       matches.push({
         embedding,
-        result: await findCardMatches(c.get("jwtClaims"), {
+        result: await findCardMatches({
           ...resolved,
           embeddings: { embedding },
         }),

@@ -10,7 +10,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   attachMatchedCards,
   findCardMatchesByOcr,
-  parsePreferredSetCode,
+  parsePreferredSetCodes,
   parseEmbeddingField,
 } from "./shared";
 
@@ -76,7 +76,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
         {
           ...resolved,
           embeddings: { embedding },
-          preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
+          preferredSetCodes: parsePreferredSetCodes(body),
         },
       );
       const { readout } = result.ocr;

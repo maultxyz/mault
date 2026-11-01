@@ -20,7 +20,7 @@ import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { useRole } from "@/hooks/use-role";
 import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
 import { useSyncState } from "@/lib/app-stream";
-import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
+import { useLatestFirmwareVersion } from "@/hooks/use-latest-firmware-version";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -143,6 +143,7 @@ function SorterStatusItem() {
   const toast = useStationToast();
   const { isConnected, isReady, firmwareVersion, checkFirmwareVersion } =
     useSerial();
+  const latestFirmwareVersion = useLatestFirmwareVersion();
   const entries = useCommLog();
   const commLogRef = useStickToBottom(entries);
 
@@ -163,11 +164,11 @@ function SorterStatusItem() {
     const toastId = toast.loading(t("statusFooter.firmwareChecking"));
     const result = await checkFirmwareVersion();
     if (result.status === "ok") {
-      if (isFirmwareVersionOutdated(result.version, LATEST_FIRMWARE_VERSION)) {
+      if (isFirmwareVersionOutdated(result.version, latestFirmwareVersion)) {
         toast.warning(
           t("statusFooter.firmwareOutdated", {
             version: result.version,
-            latest: LATEST_FIRMWARE_VERSION,
+            latest: latestFirmwareVersion,
           }),
           { id: toastId },
         );

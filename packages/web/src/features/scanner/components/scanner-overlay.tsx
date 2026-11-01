@@ -25,9 +25,15 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 
 const statusPill = cva(
-  "absolute bottom-1 left-1 right-1 z-30 rounded-lg backdrop-blur-3xl border text-xs px-2 py-1 flex flex-row gap-1.5 items-center text-foreground",
+  "border text-xs px-2 py-1 flex flex-row gap-1.5 items-center text-foreground",
   {
     variants: {
+      placement: {
+        overlay:
+          "absolute bottom-1 left-1 right-1 z-30 rounded-lg backdrop-blur-3xl",
+        strip: "min-h-8 rounded-lg",
+        "strip-touching-panel-edges": "min-h-8 border-x-0 border-t-0",
+      },
       variant: {
         default: "bg-background border-border",
         loading: "bg-background border-border",
@@ -35,19 +41,22 @@ const statusPill = cva(
         error: "bg-destructive-strong border-destructive-strong text-white",
       },
     },
-    defaultVariants: { variant: "default" },
+    defaultVariants: { placement: "overlay", variant: "default" },
   },
 );
 
 function StatusPill({
   children,
+  placement,
   variant,
   className,
-}: { children: React.ReactNode; className?: string } & VariantProps<
+}: { children?: React.ReactNode; className?: string } & VariantProps<
   typeof statusPill
 >) {
   return (
-    <div className={cn(statusPill({ variant }), className)}>{children}</div>
+    <div className={cn(statusPill({ placement, variant }), className)}>
+      {children}
+    </div>
   );
 }
 
@@ -79,75 +88,26 @@ export function ScannerOverlay({
   sessionLive = false,
   sessionDetail = null,
   piReady = false,
+  region = "all",
+  statusStripTouchesPanelEdges = false,
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
   const hasWifiSorters = useWifiSorters(false).length > 0;
   const isPhoneMode = cameraSource === "phone";
+  const pillPlacement =
+    region !== "status-strip"
+      ? "overlay"
+      : statusStripTouchesPanelEdges
+        ? "strip-touching-panel-edges"
+        : "strip";
+  const fullOverlay = renderFullOverlay();
 
-  if (dailyLimitReached) {
-    return (
-      <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-sm text-foreground/70 max-w-56 flex flex-col items-center gap-2">
-          <IconAlertTriangle className="mx-auto size-5 text-destructive" />
-          <p>{t("scannerOverlay.dailyLimitReached")}</p>
-          <Button nativeButton={false}>
-            <Link to={SETTINGS_PATHS.billing}>{t("scannerOverlay.upgradeButton")}</Link>
-          </Button>
-        </div>
-      </div>
-    );
+  if (region === "status-strip") {
+    if (fullOverlay) return null;
+    return renderStatusPill() ?? <StatusPill placement={pillPlacement} />;
   }
 
-  if (!isCameraActive && !sessionLive) {
-    return (
-      <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="flex flex-col items-center gap-3 text-center max-w-56">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-semibold text-foreground">
-              {isPhoneMode
-                ? t("scannerOverlay.waitingForPhoneTitle")
-                : t("scannerOverlay.noCameraTitle")}
-            </p>
-            <p className="text-xs text-foreground/70">
-              {isPhoneMode
-                ? t("scannerOverlay.waitingForPhone")
-                : t("scannerOverlay.connectCamera")}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1.5 w-full">
-            {isPhoneMode ? (
-              <Button onClick={onOpenPhonePairing}>
-                <IconQrcode />
-                {t("scannerOverlay.showQrCode")}
-              </Button>
-            ) : (
-              <>
-                <Button onClick={onConnectCamera}>
-                  <IconCameraSpark />
-                  {t("scannerOverlay.connectCameraButton")}
-                </Button>
-                <Button variant="ghost" onClick={onOpenPhonePairing}>
-                  <IconDeviceMobile />
-                  {t("usePhoneAsCamera")}
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (isPhoneMode && phonePairingStatus === "connected" && !hasPhonePhoto) {
-    return (
-      <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-sm text-foreground/70">
-          <IconDeviceMobile className="mx-auto mb-2 size-5" />
-          <p>{t("scannerOverlay.phoneReadyNoPhoto")}</p>
-        </div>
-      </div>
-    );
-  }
+  if (fullOverlay) return fullOverlay;
 
   return (
     <>
@@ -168,14 +128,88 @@ export function ScannerOverlay({
           </div>
         </div>
       )}
-      {renderStatusPill()}
+      {region === "all" && renderStatusPill()}
     </>
   );
+
+  function renderFullOverlay() {
+    if (dailyLimitReached) {
+      return (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
+          <div className="text-center text-sm text-foreground/70 max-w-56 flex flex-col items-center gap-2">
+            <IconAlertTriangle className="mx-auto size-5 text-destructive" />
+            <p>{t("scannerOverlay.dailyLimitReached")}</p>
+            <Button nativeButton={false}>
+              <Link to={SETTINGS_PATHS.billing}>
+                {t("scannerOverlay.upgradeButton")}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (!isCameraActive && !sessionLive) {
+      return (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
+          <div className="flex flex-col items-center gap-3 text-center max-w-56">
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-semibold text-foreground">
+                {isPhoneMode
+                  ? t("scannerOverlay.waitingForPhoneTitle")
+                  : t("scannerOverlay.noCameraTitle")}
+              </p>
+              <p className="text-xs text-foreground/70">
+                {isPhoneMode
+                  ? t("scannerOverlay.waitingForPhone")
+                  : t("scannerOverlay.connectCamera")}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1.5 w-full">
+              {isPhoneMode ? (
+                <Button onClick={onOpenPhonePairing}>
+                  <IconQrcode />
+                  {t("scannerOverlay.showQrCode")}
+                </Button>
+              ) : (
+                <>
+                  <Button onClick={onConnectCamera}>
+                    <IconCameraSpark />
+                    {t("scannerOverlay.connectCameraButton")}
+                  </Button>
+                  <Button variant="ghost" onClick={onOpenPhonePairing}>
+                    <IconDeviceMobile />
+                    {t("usePhoneAsCamera")}
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (isPhoneMode && phonePairingStatus === "connected" && !hasPhonePhoto) {
+      return (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
+          <div className="text-center text-sm text-foreground/70">
+            <IconDeviceMobile className="mx-auto mb-2 size-5" />
+            <p>{t("scannerOverlay.phoneReadyNoPhoto")}</p>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  }
 
   function renderStatusPill() {
     if (sessionLive) {
       return (
-        <StatusPill variant={status === "paused" ? "default" : "loading"}>
+        <StatusPill
+          placement={pillPlacement}
+          variant={status === "paused" ? "default" : "loading"}
+        >
           {status === "paused" ? (
             <IconHandStop className="size-3.5 shrink-0" />
           ) : (
@@ -188,7 +222,7 @@ export function ScannerOverlay({
 
     if (!isConnected && !handScanActive && !piReady) {
       return (
-        <StatusPill variant="warning">
+        <StatusPill placement={pillPlacement} variant="warning">
           <IconDeviceUsb className="size-3.5 shrink-0" />
           <span className="flex-1">
             {t("scannerOverlay.scannerNotConnected")}
@@ -207,9 +241,7 @@ export function ScannerOverlay({
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={onConnectScanner}>
-              {t("connect")}
-            </Button>
+            <Button onClick={onConnectScanner}>{t("connect")}</Button>
           )}
           <Button variant="secondary" onClick={onEnableHandScan}>
             {t("scannerOverlay.scanByHand")}
@@ -222,7 +254,7 @@ export function ScannerOverlay({
 
     if (isConnected && sensorBlockedModule !== null) {
       return (
-        <StatusPill variant="error">
+        <StatusPill placement={pillPlacement} variant="error">
           <IconAlertTriangle className="size-3.5 shrink-0" />
           <span className="flex-1">
             {t("scannerOverlay.sensorBlocked", { module: sensorBlockedModule })}
@@ -236,7 +268,7 @@ export function ScannerOverlay({
 
     if (isConnected && !isReady) {
       return (
-        <StatusPill variant="loading">
+        <StatusPill placement={pillPlacement} variant="loading">
           <IconLoader2 className="size-3.5 animate-spin shrink-0" />
           <span>{t("scannerOverlay.testingScanner")}</span>
         </StatusPill>
@@ -245,7 +277,7 @@ export function ScannerOverlay({
 
     if (isConnected && !firmwareVersion) {
       return (
-        <StatusPill variant="error">
+        <StatusPill placement={pillPlacement} variant="error">
           <IconAlertTriangle className="size-3.5 shrink-0" />
           <span>{t("scannerOverlay.firmwareVersionMissing")}</span>
         </StatusPill>
@@ -254,7 +286,7 @@ export function ScannerOverlay({
 
     if (!hasCatchAll) {
       return (
-        <StatusPill variant="warning">
+        <StatusPill placement={pillPlacement} variant="warning">
           <IconAlertTriangle className="size-3.5 shrink-0" />
           <span>{t("scannerOverlay.noCatchAllBin")}</span>
         </StatusPill>
@@ -268,21 +300,21 @@ export function ScannerOverlay({
     switch (status) {
       case "initializing":
         return (
-          <StatusPill variant="loading">
+          <StatusPill placement={pillPlacement} variant="loading">
             <IconLoader2 className="size-3.5 animate-spin shrink-0" />
             <span>{t("scannerOverlay.initializing")}</span>
           </StatusPill>
         );
       case "requesting-camera":
         return (
-          <StatusPill variant="loading">
+          <StatusPill placement={pillPlacement} variant="loading">
             <IconCameraSpark className="size-3.5 shrink-0" />
             <span>{t("requestingCameraAccess")}</span>
           </StatusPill>
         );
       case "error":
         return (
-          <StatusPill variant="error">
+          <StatusPill placement={pillPlacement} variant="error">
             <span className="flex-1">{errorMessage}</span>
             <Button
               variant="outline"
@@ -296,30 +328,34 @@ export function ScannerOverlay({
         );
       case "settling":
         return (
-          <StatusPill variant="loading">
+          <StatusPill placement={pillPlacement} variant="loading">
             <IconLoader2 className="size-3.5 animate-spin shrink-0" />
             <span>{t("scannerOverlay.settling")}</span>
           </StatusPill>
         );
       case "searching":
         return (
-          <StatusPill variant="loading">
+          <StatusPill placement={pillPlacement} variant="loading">
             <IconLoader2 className="size-3.5 animate-spin shrink-0" />
             <span>{t("scannerOverlay.identifyingCard")}</span>
           </StatusPill>
         );
       case "paused":
-        return <StatusPill>{t("scannerOverlay.paused")}</StatusPill>;
+        return (
+          <StatusPill placement={pillPlacement}>
+            {t("scannerOverlay.paused")}
+          </StatusPill>
+        );
       case "duplicate":
         return (
-          <StatusPill variant="warning">
+          <StatusPill placement={pillPlacement} variant="warning">
             <IconAlertTriangle className="size-3.5 shrink-0" />
             <span>{t("scannerOverlay.duplicate")}</span>
           </StatusPill>
         );
       case "no-match":
         return (
-          <StatusPill variant="warning">
+          <StatusPill placement={pillPlacement} variant="warning">
             <IconAlertTriangle className="size-3.5 shrink-0" />
             <span>{t("scannerOverlay.noMatch")}</span>
           </StatusPill>
@@ -327,7 +363,7 @@ export function ScannerOverlay({
       default:
         if (handScanActive) {
           return (
-            <StatusPill>
+            <StatusPill placement={pillPlacement}>
               <IconCards className="size-3.5 shrink-0" />
               <span>{t("scannerOverlay.handScanPrompt")}</span>
             </StatusPill>
@@ -335,7 +371,7 @@ export function ScannerOverlay({
         }
         if (!autoFeed) {
           return (
-            <StatusPill>
+            <StatusPill placement={pillPlacement}>
               <IconHandStop className="size-3.5 shrink-0" />
               <span>{t("scannerOverlay.autoFeedOff")}</span>
             </StatusPill>

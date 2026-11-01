@@ -1,8 +1,8 @@
-import { publicGet } from "@/lib/api/client";
 import { notePiHost } from "@/lib/pi-host";
 import { APP_VERSION_CHECK_INTERVAL_MS as CHECK_INTERVAL_MS } from "@/lib/constants/timing";
+import { getLatestFirmwareVersion } from "@/lib/latest-firmware-version";
+import { fetchServerVersion } from "@/lib/server-version";
 import { useEffect, useState } from "react";
-import type { AppVersionResponse } from "@/lib/interfaces/nav";
 
 export function useAppVersionCheck() {
   const [isOutdated, setIsOutdated] = useState(false);
@@ -13,9 +13,15 @@ export function useAppVersionCheck() {
 
     async function check() {
       try {
-        const res = await publicGet<AppVersionResponse>("/api/public/version");
-        notePiHost(res.data.piHost === true);
-        if (!cancelled && res.data.version !== __APP_VERSION__) {
+        const serverVersion = await fetchServerVersion();
+        notePiHost(serverVersion.piHost === true);
+        const firmwareChanged =
+          (serverVersion.latestFirmwareVersion ?? null) !==
+          getLatestFirmwareVersion();
+        if (
+          !cancelled &&
+          (serverVersion.version !== __APP_VERSION__ || firmwareChanged)
+        ) {
           setIsOutdated(true);
         }
       } catch {}

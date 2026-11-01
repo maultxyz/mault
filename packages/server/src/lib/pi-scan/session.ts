@@ -5,6 +5,8 @@ import { and, eq, sql } from "drizzle-orm";
 import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_FEEDER_CALIBRATION,
+  feedWithRetries,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEWARP_OUTPUT_SIZE,
@@ -49,7 +51,7 @@ import {
 } from "@magic-vault/shared";
 import { authQuery } from "../../db";
 import { piUpdateRunning } from "../pi-update";
-import { collections, games, orgSettings } from "../../db/schema";
+import { collections, feederConfigs, games, orgSettings } from "../../db/schema";
 import type {
   PiScanBinCard,
   PiScanFrameMatch,
@@ -158,6 +160,17 @@ function publicState(session: PiScanLive | undefined): PiScanSessionState {
         : null,
     autoFeed: session.autoFeed,
   };
+}
+
+function cleanSetCodes(setCodes: unknown): string[] {
+  if (!Array.isArray(setCodes)) return [];
+  return [
+    ...new Set(
+      setCodes.flatMap((code) =>
+        typeof code === "string" && code.trim() ? [code.trim()] : [],
+      ),
+    ),
+  ];
 }
 
 function holdClock(session: PiScanLive) {
@@ -370,6 +383,10 @@ async function prepareContext(
       where: eq(orgSettings.orgId, session.orgId),
       columns: { ocrEnabled: true },
     });
+    const feeder = await tx.query.feederConfigs.findFirst({
+      where: eq(feederConfigs.deviceId, device.id),
+      columns: { feedRetryCount: true },
+    });
     const loaded = await loadBinContents(
       tx,
       { id: collection.id, gameKey: collection.gameKey, lang: collection.lang },
@@ -395,6 +412,8 @@ async function prepareContext(
       moduleCount: device.moduleCount,
       region: toScanRegion(device),
       settleMs: device.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+      feedRetryCount:
+        feeder?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
       checkBothOrientations:
         device.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
       flipCamera: device.flipCamera,
@@ -449,12 +468,12 @@ async function searchOrientation(
 ) {
   const embeddings = await vectorizeCardImage(image);
   const result = await attachMatchedCards(
-    await findCardMatches(session.jwtClaims, {
+    await findCardMatches({
       gameKey: context.gameKey,
       lang: context.lang,
       matchAllLanguages: context.matchAllLanguages,
       embeddings,
-      preferredSetCode: session.preferredSetCode ?? undefined,
+      preferredSetCodes: session.preferredSetCodes,
     }),
     context.gameKey,
     context.lang,
@@ -556,7 +575,7 @@ async function matchFrame(
               lang: context.lang,
               matchAllLanguages: context.matchAllLanguages,
               embeddings: { embedding: option.embedding },
-              preferredSetCode: session.preferredSetCode ?? undefined,
+              preferredSetCodes: session.preferredSetCodes,
             },
           );
         } catch (err) {
@@ -581,25 +600,30 @@ async function matchFrame(
     }
   }
 
-  const colorRegion = corners.contour
-    ? COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey]
-    : undefined;
-  const detectedColor = colorRegion
-    ? detectColorBarRgba(
-        best.orientation === "rotated" ? rotateRgba180(upright) : upright,
-        colorRegion,
-      )
-    : null;
+  const colorRegion = COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey];
+  const detectedColor =
+    colorRegion && corners.contour
+      ? detectColorBarRgba(
+          best.orientation === "rotated" ? rotateRgba180(upright) : upright,
+          colorRegion,
+        )
+      : null;
+  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
+    await resolveCardSearchMatches(best.result, async () => null),
+    {
+      gameHasColorBar: !!colorRegion,
+      detectedColor,
+      printingConfirmed: matchedBy === "ocr" && !!ocr?.printingConfirmed,
+    },
+  );
 
   return {
     ...best,
-    resolved: preferDetectedColor(
-      await resolveCardSearchMatches(best.result, async () => null),
-      detectedColor,
-    ),
+    resolved,
     ocr,
     matchedBy,
     lowConfidenceFromOcr,
+    colorVariantUncertain,
     detection,
     detectedColor,
   };
@@ -761,7 +785,11 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       }
 
       console.log(`[pi-scan] feeding card ${session.cardsScanned + 1}`);
-      const fed = await link.command({ feeder: true }, PI_SCAN_FEED_TIMEOUT_MS);
+      const fed = await feedWithRetries(
+        () => link.command({ feeder: true }, PI_SCAN_FEED_TIMEOUT_MS),
+        (reply) => reply,
+        context.feedRetryCount,
+      );
       const fedError = lineError(fed);
       if (fedError) {
         const empty = fed.empty === true || fedError.startsWith("empty");
@@ -971,6 +999,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             alternativeMatches: alternatives,
             lowConfidenceMatch:
               matched.lowConfidenceFromOcr ||
+              matched.colorVariantUncertain ||
               lowMatchBin?.binNumber === chosen.binNumber,
             diagnostics,
             vectorizedOn: "server",
@@ -1140,7 +1169,7 @@ function createSession(
     current: null,
     lastCard: null,
     foilType: body.foilType ?? null,
-    preferredSetCode: body.preferredSetCode?.trim() || null,
+    preferredSetCodes: cleanSetCodes(body.preferredSetCodes),
     autoFeed: body.autoFeed !== false,
     feedRequested: false,
     cardInFlight: false,
@@ -1253,7 +1282,7 @@ export function stopPiScanSession(orgId: string): PiScanSessionState {
 export function updatePiScanSettings(
   orgId: string,
   foilType: string | null | undefined,
-  preferredSetCode: string | null | undefined,
+  preferredSetCodes: string[] | undefined,
   autoFeed?: boolean,
 ): PiScanSessionState | null {
   const session = sessions.get(orgId);
@@ -1261,10 +1290,25 @@ export function updatePiScanSettings(
     return null;
   }
   if (foilType !== undefined) session.foilType = foilType;
-  if (preferredSetCode !== undefined) {
-    session.preferredSetCode = preferredSetCode?.trim() || null;
+  if (preferredSetCodes !== undefined) {
+    session.preferredSetCodes = cleanSetCodes(preferredSetCodes);
   }
   if (typeof autoFeed === "boolean") session.autoFeed = autoFeed;
+  return publicState(session);
+}
+
+export function resetPiScanSessionStats(
+  orgId: string,
+): PiScanSessionState | null {
+  const session = sessions.get(orgId);
+  if (!session || session.phase === "idle" || session.startedAt <= 0) {
+    return null;
+  }
+  const now = Date.now();
+  session.cardsScanned = 0;
+  session.startedAt = now;
+  session.pausedMs = 0;
+  if (session.pauseStartedAt != null) session.pauseStartedAt = now;
   return publicState(session);
 }
 

@@ -344,6 +344,7 @@
     "runSelfTest": "Selbsttest ausführen",
     "neutral": "Zurück in Neutralstellung",
     "dropCard": "Gehaltene Karte fallen lassen",
+    "retractCard": "Karte zurückziehen",
     "disconnect": "Trennen",
     "commLog": "Kommunikationsprotokoll",
     "commLogEmpty": "Noch nichts gesendet oder empfangen.",
@@ -440,6 +441,12 @@
       "offline": "Offline",
       "inUse": "Auf einem anderen Gerät in Verwendung"
     }
+  },
+  "retractCard": {
+    "failedTitle": "Karte konnte nicht zurückgezogen werden",
+    "failedDescription": "Der Sortierer hat das Zurückziehen nicht bestätigt. Prüfe die Verbindung und versuche es erneut.",
+    "rollbackOffTitle": "Zurückrollen ist aus",
+    "rollbackOffDescription": "Stelle \"Nach dem Einzug zurückrollen\" in der Kalibrierung der Zuführung ein, um Karten zurückzuziehen."
   },
   "scan": {
     "start": "Start",
@@ -598,6 +605,8 @@
       "feedDescription": "Eine Karte einziehen, dann scannen und sortieren",
       "drop": "Karten fallen lassen",
       "dropDescription": "Alle Module öffnen, damit festsitzende Karten durchfallen",
+      "retract": "Karte zurückziehen",
+      "retractDescription": "Die Zuführung rückwärts laufen lassen, um eine Karte zurück in den Kartenschacht zu ziehen",
       "neutral": "Grundstellung",
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
       "sorter": "Sortierer",
@@ -628,6 +637,8 @@
       "notFoil": "Kein Foil",
       "set": "Set",
       "anySet": "Beliebiges Set",
+      "setCount_one": "{{count}} Set",
+      "setCount_other": "{{count}} Sets",
       "searchSets": "Sets suchen",
       "condition": "Zustand"
     },
@@ -1062,6 +1073,8 @@
       "forward": "Vorwärts",
       "reverse": "Rückwärts",
       "timeoutLabel": "Zeitlimit (ms)",
+      "feedRetryCountLabel": "Einzugswiederholungen",
+      "feedRetryCountDescription": "Wenn ein Einzug ohne Karte abläuft, wird der Einzugsbefehl bis zu so oft erneut gesendet, bevor pausiert wird. 0 schaltet Wiederholungen aus.",
       "pulseDurationLabel": "Impulsdauer (ms)",
       "continuousFeedButton": "Dauerhafte Zuführung",
       "pauseDurationLabel": "Pausendauer (ms)",
@@ -1076,6 +1089,7 @@
     "testing": "Wird getestet…",
     "feed": "Zuführen",
     "dropCard": "Karte abwerfen",
+    "retractCard": "Karte zurückziehen",
     "calibrateBeforeTest": "Kalibriere alle Module, bevor du den Test ausführst",
     "testBeforeControls": "Führe einen erfolgreichen Test aus, um die Gerätesteuerung freizuschalten.",
     "resetServosToDefaults": "Servos auf Standard zurücksetzen",
@@ -1394,42 +1408,39 @@
         "business": "Business",
         "legacyBusiness": "Business (Legacy)"
       },
-      "includes": "Dein Plan enthält",
-      "usage": "{{used}} / {{limit}} Karten heute gescannt",
+      "planTable": {
+        "columns": {
+          "offering": "Leistung",
+          "yourPlan": "Dein Plan",
+          "usage": "Nutzung"
+        },
+        "rows": {
+          "dailyScans": "Kartenscans pro Tag",
+          "organizations": "Deine Organisationen",
+          "membersPerOrg": "Mitglieder pro Organisation",
+          "connectedSorters": "Gleichzeitig verbundene Sortierer",
+          "soundRules": "Sound-Regeln",
+          "notificationRules": "Discord-Benachrichtigungsregeln",
+          "collections": "Sammlungen",
+          "chaosSort": "Chaos-Sortierung",
+          "repacks": "Repacks",
+          "customSounds": "Eigene Sounds",
+          "fleetHealth": "Flottenzustand",
+          "storage": "Lagerorte",
+          "apiAccess": "API-Zugriff",
+          "businessTools": "Ankauf und Verkauf"
+        },
+        "unlimited": "Unbegrenzt",
+        "included": "Enthalten",
+        "notIncluded": "Nicht enthalten",
+        "noUsage": "-",
+        "usedToday": "{{count}} heute",
+        "scansThisMonth_one": "{{count}} Karte diesen Monat gescannt.",
+        "scansThisMonth_other": "{{count}} Karten diesen Monat gescannt."
+      },
       "cancelAtPeriodEnd": "Dein Abonnement endet am {{date}}.",
       "manageOnWeb": "Tarifänderungen und Zahlungsdaten werden in der Web-App verwaltet.",
       "openWeb": "Abrechnung im Web öffnen",
-      "features": {
-        "scanLimit": "Bis zu {{limit}} Kartenscans pro Tag",
-        "unlimitedScans": "Unbegrenzte Kartenscans",
-        "organizations_one": "Bis zu {{count}} eigene Organisation",
-        "organizations_other": "Bis zu {{count}} eigene Organisationen",
-        "unlimitedOrganizations": "Unbegrenzte Organisationen",
-        "members_one": "Bis zu {{count}} Mitglied pro Organisation",
-        "members_other": "Bis zu {{count}} Mitglieder pro Organisation",
-        "unlimitedMembers": "Unbegrenzte Mitglieder pro Organisation",
-        "collections_one": "Bis zu {{count}} Sammlung",
-        "collections_other": "Bis zu {{count}} Sammlungen",
-        "unlimitedCollections": "Unbegrenzte Sammlungen",
-        "sorters_one": "Bis zu {{count}} verbundener Sortierer gleichzeitig",
-        "sorters_other": "Bis zu {{count}} verbundene Sortierer gleichzeitig",
-        "unlimitedSorters": "Unbegrenzt viele verbundene Sortierer",
-        "soundRules_one": "{{count}} eigene Soundregel",
-        "soundRules_other": "{{count}} eigene Soundregeln",
-        "unlimitedSoundRules": "Unbegrenzte Soundregeln",
-        "notificationRules_one": "{{count}} Discord-Benachrichtigungsregel",
-        "notificationRules_other": "{{count}} Discord-Benachrichtigungsregeln",
-        "unlimitedNotificationRules": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten",
-        "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
-        "repacks": "Repacks: stelle Packs Platz für Platz aus deinen Karten zusammen",
-        "customSounds": "Eigene Sounds: lade deine eigenen Clips für Soundregeln hoch",
-        "fleetHealth": "Flottenzustand: Sortiererstatus, Wartungsintervalle und Alarmverlauf",
-        "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
-        "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
-        "businessTools": "An- und Verkauf: Ankaufsangebote, Picklisten und Margenberichte",
-        "games": "Jedes unterstützte Sammelkartenspiel",
-        "notifications": "Discord-Scan-Benachrichtigungen"
-      },
       "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen."
     },
     "apiKeys": {
@@ -1666,7 +1677,8 @@
         "pickFailed": "Diese Datei konnte nicht geöffnet werden.",
         "renamed": "Soundclip umbenannt.",
         "deleteConfirm": "Regeln, die diesen Clip abspielen, spielen dann keinen Sound mehr.",
-        "notInPlan": "Das Hochladen eigener Sounds ist nicht Teil deines Tarifs."
+        "notInPlan": "Das Hochladen eigener Sounds ist nicht Teil deines Tarifs, aber du kannst die integrierten Clips in deinen Regeln verwenden.",
+        "builtIn": "Integriert"
       },
       "rules": {
         "heading": "Soundregeln",

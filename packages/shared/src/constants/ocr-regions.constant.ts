@@ -263,7 +263,13 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
 };
 
 export const COLOR_BAR_REGIONS_BY_GAME_KEY: Record<string, ColorBarRegion> = {
-  fab: { x: 0.2, y: 0.03, width: 0.6, height: 0.04 },
+  fab: {
+    x: 0.25,
+    y: 0.025,
+    width: 0.5,
+    height: 0.045,
+    whiteReference: { x: 0.3, y: 0.088, width: 0.4, height: 0.014 },
+  },
 };
 
 export const DISTANCE_THRESHOLD = 0.4;

@@ -2,11 +2,11 @@ import {
   LEGACY_BUSINESS_PLAN,
   LEGACY_BUSINESS_REPORTED_PLAN,
 } from "@magic-vault/shared";
-import { eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authProvider } from "../../auth";
 import { authQuery } from "../../db";
-import { orgBilling } from "../../db/schema";
+import { notificationRules, orgBilling, soundRules } from "../../db/schema";
 import { apiAccessAllowedForPlan } from "../../lib/api-access";
 import { businessToolsAllowedForPlan } from "../../lib/business-access";
 import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
@@ -26,7 +26,11 @@ import { currentPreviewPlan } from "../../lib/plan-preview";
 import { isLegacyPricingActive } from "../../lib/pricing-mode";
 import { repacksAllowedForPlan } from "../../lib/repack-access";
 import { customSoundsAllowedForPlan } from "../../lib/custom-sounds-access";
-import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
+import {
+  dailyScanLimitForPlan,
+  getScansThisMonth,
+  getScansToday,
+} from "../../lib/scan-usage";
 import { sorterLimitForPlan } from "../../lib/sorter-limit";
 import { soundRuleLimitForPlan } from "../../lib/sound-rule-limit";
 import {
@@ -51,9 +55,25 @@ export const getBillingRoute = new Hono<AppEnv>().get(
       const billing = await tx.query.orgBilling.findFirst({
         where: eq(orgBilling.orgId, orgId),
       });
-      const count = await getScansToday(tx, orgId);
+      const scansToday = await getScansToday(tx, orgId);
+      const scansThisMonth = await getScansThisMonth(tx, orgId);
       const collectionCount = await countLiveCollections(tx, orgId);
       const storageLocationCount = await countLiveStorageLocations(tx, orgId);
+      const [{ soundRuleCount }] = await tx
+        .select({ soundRuleCount: count() })
+        .from(soundRules)
+        .where(
+          and(eq(soundRules.orgId, orgId), eq(soundRules.isDeleted, false)),
+        );
+      const [{ notificationRuleCount }] = await tx
+        .select({ notificationRuleCount: count() })
+        .from(notificationRules)
+        .where(
+          and(
+            eq(notificationRules.orgId, orgId),
+            eq(notificationRules.isDeleted, false),
+          ),
+        );
 
       const previewPlan = currentPreviewPlan();
       const plan = previewPlan ?? toPlanKey(billing?.plan);
@@ -77,7 +97,8 @@ export const getBillingRoute = new Hono<AppEnv>().get(
               : (findPlanForPriceId(billing?.stripePriceId)?.interval ?? null),
           prices: planPrices.business,
           planPrices,
-          cardsScannedToday: count,
+          cardsScannedToday: scansToday,
+          cardsScannedThisMonth: scansThisMonth,
           dailyLimit: dailyScanLimitForPlan(plan),
           maxOrganizations: organizationLimitForPlan(plan),
           ownedOrganizations,
@@ -85,7 +106,9 @@ export const getBillingRoute = new Hono<AppEnv>().get(
           memberCount: memberUserIds.length,
           maxConnectedSorters: sorterLimitForPlan(plan),
           maxSoundRules: soundRuleLimitForPlan(plan),
+          soundRuleCount,
           maxNotificationRules: notificationRuleLimitForPlan(plan),
+          notificationRuleCount,
           maxCollections: collectionLimitForPlan(plan),
           collectionCount,
           chaosSort: chaosSortAllowedForPlan(plan),

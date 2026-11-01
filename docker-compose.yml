@@ -74,8 +74,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
-      args:
-        VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-}
     # Read at container start-up (docker/web-env.sh), not baked into the build.
     environment:
       # Empty - every frontend API call already hardcodes an /api/... path

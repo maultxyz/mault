@@ -17,7 +17,8 @@ export function controlCardsPath(prefill: {
   if (prefill.collectionGuid) {
     params.set(CONTROL_CARDS_COLLECTION_PARAM, prefill.collectionGuid);
   }
-  if (prefill.presetGuid) params.set(CONTROL_CARDS_PRESET_PARAM, prefill.presetGuid);
+  if (prefill.presetGuid)
+    params.set(CONTROL_CARDS_PRESET_PARAM, prefill.presetGuid);
   const query = params.toString();
   return query ? `${CONTROL_CARDS_PATH}?${query}` : CONTROL_CARDS_PATH;
 }
@@ -34,7 +35,8 @@ export const CONTROL_CARD_TITLE_MAX_LENGTH = 40;
 
 export const CONTROL_CARDS_PER_PAGE = 9;
 
-export const CONTROL_CARD_PRINT_PAGE_STYLE = "@page { margin: 6mm; }";
+export const CONTROL_CARD_PRINT_PAGE_STYLE =
+  "@page { margin: 6mm; } @media print { #root { display: none !important; } body { background: white !important; } }";
 
 export const CONTROL_CARD_QR_OPTIONS: QRCodeToDataURLOptions = {
   errorCorrectionLevel: "M",

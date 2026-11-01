@@ -1,4 +1,4 @@
-import { Callout } from "@/components/callout";
+import { PlanNotice } from "@/components/plan-notice";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -167,26 +167,14 @@ export function OrgSwitcher() {
           className="flex flex-col gap-3"
         >
           {atOrganizationLimit && (
-            <Callout
-              variant="warning"
-              action={
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setCreateOpen(false);
-                    navigate(SETTINGS_PATHS.billing);
-                  }}
-                >
-                  {t("orgSwitcher.organizationLimitUpgrade")}
-                </Button>
-              }
-            >
-              {t("orgSwitcher.organizationLimitReached", {
+            <PlanNotice
+              message={t("orgSwitcher.organizationLimitReached", {
                 count: organizationLimit ?? 0,
                 name: activeOrgName,
               })}
-            </Callout>
+              linkLabel={t("orgSwitcher.organizationLimitUpgrade")}
+              onLinkClick={() => setCreateOpen(false)}
+            />
           )}
           <Input
             placeholder={t("organizationNamePlaceholder")}

@@ -17,6 +17,11 @@ import { yugiohAdapter } from "../adapters/yugioh/search";
 import { withCache } from "./cache";
 import { withErrorHandling } from "./error-handling";
 import { withTcgtracking } from "../tcgtracking/adapter";
+import {
+  AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+  COLLECTION_MATCH_SCOPE_CACHE_TTL_MS,
+} from "../constants/timing";
+import { createKeyedCache } from "../keyed-cache";
 import type {
   CardSearchAdapter,
   CollectionMatchScope,
@@ -60,11 +65,25 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   ),
 };
 
+const collectionMatchScopeCache = createKeyedCache<CollectionMatchScope | null>(
+  COLLECTION_MATCH_SCOPE_CACHE_TTL_MS,
+  AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+);
+
 export async function resolveGameKeyAndLang(
   jwtClaims: string,
   collectionGuid: string | undefined,
 ): Promise<CollectionMatchScope | null> {
   if (!collectionGuid) return null;
+  return collectionMatchScopeCache.get(`${jwtClaims}|${collectionGuid}`, () =>
+    loadCollectionMatchScope(jwtClaims, collectionGuid),
+  );
+}
+
+async function loadCollectionMatchScope(
+  jwtClaims: string,
+  collectionGuid: string,
+): Promise<CollectionMatchScope | null> {
   return authQuery(jwtClaims, async (tx) => {
     const [row] = await tx
       .select({

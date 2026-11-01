@@ -24,7 +24,7 @@ function BinCell({
         active
           ? "bg-primary text-primary-foreground"
           : inverted
-            ? "text-background/70"
+            ? "text-tooltip-foreground/70"
             : "text-foreground/70",
       )}
     >
@@ -36,7 +36,7 @@ function BinCell({
             active
               ? "text-primary-foreground/80"
               : inverted
-                ? "text-background/50"
+                ? "text-tooltip-foreground/70"
                 : "text-foreground/70",
           )}
         >

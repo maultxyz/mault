@@ -344,6 +344,7 @@
     "runSelfTest": "Run self-test",
     "neutral": "Return to neutral",
     "dropCard": "Drop held card",
+    "retractCard": "Retract card",
     "disconnect": "Disconnect",
     "commLog": "Communication log",
     "commLogEmpty": "Nothing sent or received yet.",
@@ -440,6 +441,12 @@
       "offline": "Offline",
       "inUse": "In use on another device"
     }
+  },
+  "retractCard": {
+    "failedTitle": "Couldn't retract the card",
+    "failedDescription": "The sorter didn't confirm the retract. Check the connection and try again.",
+    "rollbackOffTitle": "Roll back is off",
+    "rollbackOffDescription": "Set \"Roll Back After Feed\" in feeder calibration to retract cards."
   },
   "scan": {
     "start": "Start",
@@ -598,6 +605,8 @@
       "feedDescription": "Feed a single card, then scan and sort it",
       "drop": "Drop cards",
       "dropDescription": "Open every module so stuck cards fall through",
+      "retract": "Retract card",
+      "retractDescription": "Run the feeder backward to pull a card back into the hopper",
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
       "sorter": "Sorter",
@@ -628,6 +637,8 @@
       "notFoil": "Not foil",
       "set": "Set",
       "anySet": "Any set",
+      "setCount_one": "{{count}} set",
+      "setCount_other": "{{count}} sets",
       "searchSets": "Search sets",
       "condition": "Condition"
     },
@@ -1062,6 +1073,8 @@
       "forward": "Forward",
       "reverse": "Reverse",
       "timeoutLabel": "Timeout (ms)",
+      "feedRetryCountLabel": "Feed Retries",
+      "feedRetryCountDescription": "When a feed times out without delivering a card, send the feed command again up to this many times before pausing. 0 turns retries off.",
       "pulseDurationLabel": "Pulse Duration (ms)",
       "continuousFeedButton": "Continuous Feed",
       "pauseDurationLabel": "Pause Duration (ms)",
@@ -1076,6 +1089,7 @@
     "testing": "Testing…",
     "feed": "Feed",
     "dropCard": "Drop card",
+    "retractCard": "Retract card",
     "calibrateBeforeTest": "Calibrate all modules before running the test",
     "testBeforeControls": "Run a successful test to unlock the device controls.",
     "resetServosToDefaults": "Reset servos to defaults",
@@ -1394,42 +1408,39 @@
         "business": "Business",
         "legacyBusiness": "Business (legacy)"
       },
-      "includes": "Your plan includes",
-      "usage": "{{used}} / {{limit}} cards scanned today",
+      "planTable": {
+        "columns": {
+          "offering": "Offering",
+          "yourPlan": "Your plan",
+          "usage": "Usage"
+        },
+        "rows": {
+          "dailyScans": "Card scans per day",
+          "organizations": "Organizations you own",
+          "membersPerOrg": "Members per organization",
+          "connectedSorters": "Sorters connected at once",
+          "soundRules": "Sound rules",
+          "notificationRules": "Discord notification rules",
+          "collections": "Collections",
+          "chaosSort": "Chaos sort",
+          "repacks": "Repacks",
+          "customSounds": "Custom sounds",
+          "fleetHealth": "Fleet health",
+          "storage": "Storage locations",
+          "apiAccess": "API access",
+          "businessTools": "Buy and sell"
+        },
+        "unlimited": "Unlimited",
+        "included": "Included",
+        "notIncluded": "Not included",
+        "noUsage": "-",
+        "usedToday": "{{count}} today",
+        "scansThisMonth_one": "{{count}} card scanned this month.",
+        "scansThisMonth_other": "{{count}} cards scanned this month."
+      },
       "cancelAtPeriodEnd": "Your subscription ends on {{date}}.",
       "manageOnWeb": "Plan changes and payment details are handled on the web app.",
       "openWeb": "Open billing on the web",
-      "features": {
-        "scanLimit": "Up to {{limit}} card scans per day",
-        "unlimitedScans": "Unlimited card scans",
-        "organizations_one": "Own up to {{count}} organization",
-        "organizations_other": "Own up to {{count}} organizations",
-        "unlimitedOrganizations": "Unlimited organizations",
-        "members_one": "Up to {{count}} member per organization",
-        "members_other": "Up to {{count}} members per organization",
-        "unlimitedMembers": "Unlimited members per organization",
-        "collections_one": "Up to {{count}} collection",
-        "collections_other": "Up to {{count}} collections",
-        "unlimitedCollections": "Unlimited collections",
-        "sorters_one": "Up to {{count}} sorter connected at once",
-        "sorters_other": "Up to {{count}} sorters connected at once",
-        "unlimitedSorters": "Unlimited connected sorters",
-        "soundRules_one": "{{count}} custom sound rule",
-        "soundRules_other": "{{count}} custom sound rules",
-        "unlimitedSoundRules": "Unlimited sound rules",
-        "notificationRules_one": "{{count}} Discord notification rule",
-        "notificationRules_other": "{{count}} Discord notification rules",
-        "unlimitedNotificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel",
-        "chaosSort": "Chaos sort, the fastest way to put away a big pile",
-        "repacks": "Repacks: build packs from your cards slot by slot",
-        "customSounds": "Custom sounds: upload your own clips for sound rules",
-        "fleetHealth": "Fleet health: sorter status, service intervals and alert history",
-        "storage": "Storage locations: record which box every card is in and where, then search across them",
-        "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
-        "businessTools": "Buy and sell: intake offers, order pull sheets and margin reports",
-        "games": "Every supported card game",
-        "notifications": "Discord scan notifications"
-      },
       "legacyPlanNote": "You're on the original Business plan, which is no longer offered. You keep it, with everything it includes, for as long as your subscription stays active. Switching to another plan or cancelling can't be undone."
     },
     "apiKeys": {
@@ -1666,7 +1677,8 @@
         "pickFailed": "Couldn't open that file.",
         "renamed": "Sound clip renamed.",
         "deleteConfirm": "Rules that play this clip stop playing a sound.",
-        "notInPlan": "Uploading custom sounds isn't part of your plan."
+        "notInPlan": "Uploading your own sounds isn't part of your plan, but you can use the built-in clips in your rules.",
+        "builtIn": "Built-in"
       },
       "rules": {
         "heading": "Sound rules",

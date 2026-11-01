@@ -38,6 +38,7 @@ export interface PiScanRunContext {
   moduleCount: number;
   region: ScanRegion;
   settleMs: number;
+  feedRetryCount: number;
   checkBothOrientations: boolean;
   flipCamera: boolean;
   matchesNeeded: number;
@@ -68,7 +69,7 @@ export interface PiScanLive {
   current: PiScanSessionSight | null;
   lastCard: PiScanSessionSight | null;
   foilType: string | null;
-  preferredSetCode: string | null;
+  preferredSetCodes: string[];
   autoFeed: boolean;
   feedRequested: boolean;
   cardInFlight: boolean;
@@ -96,6 +97,7 @@ export interface PiScanFrameMatch {
   ocr: OcrDiagnostics | null;
   matchedBy: ScanMatchSource;
   lowConfidenceFromOcr: boolean;
+  colorVariantUncertain: boolean;
   detection: ScanDetectionDiagnostics;
   detectedColor: string | null;
 }

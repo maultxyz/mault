@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
+import { invalidateCardMatchIndex } from "../../lib/card-match-index";
 import { publicGamesCache } from "../../lib/public-games";
 import { getStatus } from "../../lib/sync-job";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
@@ -29,11 +30,13 @@ export const cardsDumpRoute = new Hono<AppEnv>().post(
         .delete(cardImageVectors)
         .where(eq(cardImageVectors.gameKey, gameKey));
       publicGamesCache.invalidate();
+      invalidateCardMatchIndex(gameKey);
       return c.json({ success: true, message: `Cleared "${gameKey}" cards` });
     }
 
     await db.delete(cardImageVectors);
     publicGamesCache.invalidate();
+    invalidateCardMatchIndex();
     return c.json({ success: true, message: "Card database cleared" });
   },
 );

@@ -124,6 +124,13 @@
         "startButton": "Platine wählen und flashen",
         "success": "Firmware installiert. Zieh das USB-Kabel des ESP32 ab und steck es wieder ein, um die neue Firmware zu starten.",
         "connectButton": "Sortierer verbinden"
+      },
+      "version": {
+        "label": "Firmware-Version",
+        "recommended": "v{{version}} (empfohlen)",
+        "recommendedUnknownVersion": "Neueste (empfohlen)",
+        "option": "v{{version}}",
+        "otherVersionWarning": "Die empfohlene Version ist die, für die diese App gebaut ist. Andere Versionen können Funktionen vermissen lassen oder sich anders verhalten."
       }
     },
     "pushBlocked": {
@@ -274,13 +281,18 @@
     "avgValue": "Durchschnittswert",
     "sessionTime": "Sitzungsdauer",
     "cardsPerHour": "Karten/Std",
+    "resetSession": "Sitzungszeit und Karten pro Stunde zurücksetzen",
     "byColor": "Nach Farbe",
     "bySet": "Nach Set",
     "showLess": "Weniger anzeigen",
     "showAllSets": "Alle {{count}} Sets anzeigen",
     "scanRateTrend": "Scans pro Minute in den letzten 12 Minuten",
     "scanRateNow": "{{count}} Scans in dieser Minute",
-    "scanRatePoint": "{{count}} Scans, vor {{minutes}} Min."
+    "scanRatePoint": "{{count}} Scans, vor {{minutes}} Min.",
+    "heading": "Statistiken",
+    "summaryCards_one": "{{count}} Karte",
+    "summaryCards_other": "{{count}} Karten",
+    "summaryRate": "{{rate}}/Std"
   },
   "scannerControls": {
     "scanAgain": "Erneut scannen",
@@ -295,14 +307,17 @@
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
     "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
+    "retractCardTooltip": "Karte zurückziehen (Zuführung läuft rückwärts)",
     "stopPiScan": "Sortierung stoppen und den Sorter freigeben",
     "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
     "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}",
     "setTooltip": "Set für gescannte Karten: {{set}}",
     "anySet": "Beliebiges Set",
+    "setCount_one": "{{count}} Set",
+    "setCount_other": "{{count}} Sets",
     "setSearchPlaceholder": "Sets suchen",
     "noSets": "Keine Sets gefunden",
-    "setHint": "Gescannte Karten verwenden ihren Druck aus diesem Set, wenn es einen gibt.",
+    "setHint": "Gescannte Karten verwenden ihren Druck aus einem dieser Sets, wenn es einen gibt. Wähle so viele wie nötig.",
     "conditionTooltip": "Zustand für gescannte Karten: {{condition}}",
     "start": "Scan starten",
     "sessionSummary_one": "{{count}} Karte gescannt · {{time}}",
@@ -335,6 +350,7 @@
     "flashNewBoard": "Neue Platine flashen",
     "connectAnotherUpgrade": "Mehr Sortierer mit einem größeren Tarif verbinden",
     "clearDevice": "Gerät leeren",
+    "retractCard": "Karte zurückziehen",
     "resetToNeutral": "In Neutralstellung bringen",
     "sorter": "Sortierer",
     "connectionStates": {
@@ -771,6 +787,17 @@
       "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
     }
   },
+  "retractCard": {
+    "done": "Karte zurück in den Kartenschacht gezogen",
+    "failed": {
+      "title": "Karte konnte nicht zurückgezogen werden",
+      "description": "Der Sortierer hat das Zurückziehen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
+    },
+    "rollbackOff": {
+      "title": "Zurückrollen ist aus",
+      "description": "Stelle \"Nach dem Einzug zurückrollen\" in der Kalibrierung der Zuführung ein, um Karten zurückzuziehen."
+    }
+  },
   "pendingScanSaves": {
     "saving": {
       "title_one": "{{count}} Scan wird gespeichert",
@@ -844,6 +871,8 @@
       "feedDescription": "Eine Karte einziehen, dann scannen und sortieren",
       "drop": "Karten fallen lassen",
       "dropDescription": "Alle Module öffnen, damit festsitzende Karten durchfallen",
+      "retract": "Karte zurückziehen",
+      "retractDescription": "Die Zuführung rückwärts laufen lassen, um eine Karte zurück in den Kartenschacht zu ziehen",
       "neutral": "Auf neutral zurücksetzen",
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
       "sorterDescription": "Verbindung, Selbsttest und Status"

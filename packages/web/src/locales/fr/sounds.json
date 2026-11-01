@@ -23,7 +23,8 @@
     "cancelRename": "Annuler",
     "renameFailed": "Impossible de renommer le clip sonore.",
     "stop": "Arrêter {{name}}",
-    "notInPlan": "L'import de sons personnalisés ne fait pas partie de votre offre."
+    "notInPlan": "L'import de sons personnalisés ne fait pas partie de votre offre, mais vous pouvez utiliser les clips intégrés dans vos règles.",
+    "builtIn": "Intégré"
   },
   "rules": {
     "heading": "Règles sonores",

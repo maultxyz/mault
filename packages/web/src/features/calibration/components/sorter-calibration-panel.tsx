@@ -151,6 +151,7 @@ export function SorterCalibrationPanel({
             settleDurationValue={state.feederSettleDurationValue}
             reverseSpeedValue={state.feederReverseSpeedValue}
             reverseDurationValue={state.feederReverseDurationValue}
+            feedRetryCountValue={state.feederFeedRetryCountValue}
             stopPulse={state.feederStopPulse}
             canEditTimings={canEditTimings}
             canCalibrate={state.canCalibrate}
@@ -163,6 +164,7 @@ export function SorterCalibrationPanel({
             onSettleDurationChange={state.handleFeederSettleDurationChange}
             onReverseSpeedChange={state.handleFeederReverseSpeedChange}
             onReverseDurationChange={state.handleFeederReverseDurationChange}
+            onFeedRetryCountChange={state.handleFeederFeedRetryCountChange}
             onSelectContinuous={state.handleFeederSelectContinuous}
             fullWidth
           />

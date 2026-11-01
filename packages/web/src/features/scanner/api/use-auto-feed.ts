@@ -2,7 +2,12 @@ import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
 import { useSerialMessage } from "@/features/scanner/api/use-serial";
-import { isFedEvent } from "@magic-vault/shared";
+import {
+  feedWithRetries,
+  isFedEvent,
+  isFeedTimeoutReply,
+  parseSerialReply,
+} from "@magic-vault/shared";
 import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,10 +18,12 @@ export function useAutoFeed({
   serialRef,
   activeCollectionRef,
   deviceGuidRef,
+  feedRetryCountRef,
 }: {
   serialRef: RefObject<AutoFeedSerial>;
   activeCollectionRef: RefObject<Collection | null | undefined>;
   deviceGuidRef: RefObject<string | undefined>;
+  feedRetryCountRef: RefObject<number>;
 }) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
@@ -125,15 +132,16 @@ export function useAutoFeed({
     [toast, t, serialRef, activeCollectionRef, deviceGuidRef, pause],
   );
 
-  useSerialMessage((message) => {
-    if (!isFedEvent(message) || !autoFeedRef.current) return;
-    handleFeedResult(message);
-  });
+  const feedRetryCount = useCallback(
+    () => (serialRef.current.ignoreIrSensors ? 0 : feedRetryCountRef.current),
+    [serialRef, feedRetryCountRef],
+  );
 
-  const triggerAutoFeed = useCallback(async () => {
-    const { sent, line: response } = await serialRef.current.sendRequest(
-      { feeder: true },
-      10000,
+  const sendAutoFeed = useCallback(async (retryCount: number) => {
+    const { sent, line: response } = await feedWithRetries(
+      () => serialRef.current.sendRequest({ feeder: true }, 10000),
+      (result) => (result.sent ? parseSerialReply(result.line) : null),
+      retryCount,
     );
     if (!sent) {
       pause();
@@ -187,6 +195,21 @@ export function useAutoFeed({
     pause,
     handleFeedResult,
   ]);
+
+  const triggerAutoFeed = useCallback(
+    () => sendAutoFeed(feedRetryCount()),
+    [sendAutoFeed, feedRetryCount],
+  );
+
+  useSerialMessage((message) => {
+    if (!isFedEvent(message) || !autoFeedRef.current) return;
+    const retryCount = feedRetryCount();
+    if (retryCount > 0 && isFeedTimeoutReply(message)) {
+      void sendAutoFeed(retryCount - 1);
+      return;
+    }
+    handleFeedResult(message);
+  });
 
   return {
     autoFeed,

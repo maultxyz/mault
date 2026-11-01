@@ -23,7 +23,8 @@
     "cancelRename": "Cancel",
     "renameFailed": "Couldn't rename the sound clip.",
     "stop": "Stop {{name}}",
-    "notInPlan": "Uploading custom sounds isn't part of your plan."
+    "notInPlan": "Uploading your own sounds isn't part of your plan, but you can use the built-in clips in your rules.",
+    "builtIn": "Built-in"
   },
   "rules": {
     "heading": "Sound rules",

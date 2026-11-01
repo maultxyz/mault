@@ -344,6 +344,7 @@
     "runSelfTest": "Lancer l'autotest",
     "neutral": "Retour en position neutre",
     "dropCard": "Lâcher la carte retenue",
+    "retractCard": "Retirer la carte",
     "disconnect": "Déconnecter",
     "commLog": "Journal de communication",
     "commLogEmpty": "Rien d'envoyé ni de reçu pour l'instant.",
@@ -440,6 +441,12 @@
       "offline": "Hors ligne",
       "inUse": "Utilisé sur un autre appareil"
     }
+  },
+  "retractCard": {
+    "failedTitle": "Impossible de retirer la carte",
+    "failedDescription": "Le trieur n'a pas confirmé le retrait. Vérifiez la connexion et réessayez.",
+    "rollbackOffTitle": "Le recul est désactivé",
+    "rollbackOffDescription": "Définissez « Recul après l'alimentation » dans l'étalonnage de l'alimentation pour retirer des cartes."
   },
   "scan": {
     "start": "Démarrer",
@@ -598,6 +605,8 @@
       "feedDescription": "Charger une carte, puis la scanner et la trier",
       "drop": "Faire tomber les cartes",
       "dropDescription": "Ouvrir chaque module pour libérer les cartes coincées",
+      "retract": "Retirer la carte",
+      "retractDescription": "Faire tourner l'alimentation à l'envers pour ramener une carte dans le bac",
       "neutral": "Position neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
       "sorter": "Trieuse",
@@ -628,6 +637,8 @@
       "notFoil": "Non foil",
       "set": "Extension",
       "anySet": "N'importe quelle extension",
+      "setCount_one": "{{count}} extension",
+      "setCount_other": "{{count}} extensions",
       "searchSets": "Rechercher une extension",
       "condition": "État"
     },
@@ -1062,6 +1073,8 @@
       "forward": "Avant",
       "reverse": "Inverse",
       "timeoutLabel": "Délai (ms)",
+      "feedRetryCountLabel": "Nouvelles tentatives d'alimentation",
+      "feedRetryCountDescription": "Quand une alimentation expire sans livrer de carte, renvoyer la commande d'alimentation jusqu'à ce nombre de fois avant la pause. 0 désactive les nouvelles tentatives.",
       "pulseDurationLabel": "Durée de l'impulsion (ms)",
       "continuousFeedButton": "Alimentation continue",
       "pauseDurationLabel": "Durée de la pause (ms)",
@@ -1076,6 +1089,7 @@
     "testing": "Test en cours…",
     "feed": "Alimenter",
     "dropCard": "Éjecter la carte",
+    "retractCard": "Retirer la carte",
     "calibrateBeforeTest": "Calibre tous les modules avant de lancer le test",
     "testBeforeControls": "Lance un test réussi pour débloquer les commandes de l'appareil.",
     "resetServosToDefaults": "Réinitialiser les servos",
@@ -1394,42 +1408,39 @@
         "business": "Business",
         "legacyBusiness": "Business (ancienne offre)"
       },
-      "includes": "Ton plan comprend",
-      "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
+      "planTable": {
+        "columns": {
+          "offering": "Offre",
+          "yourPlan": "Votre forfait",
+          "usage": "Utilisation"
+        },
+        "rows": {
+          "dailyScans": "Scans de cartes par jour",
+          "organizations": "Organisations dont vous êtes propriétaire",
+          "membersPerOrg": "Membres par organisation",
+          "connectedSorters": "Trieuses connectées en même temps",
+          "soundRules": "Règles sonores",
+          "notificationRules": "Règles de notification Discord",
+          "collections": "Collections",
+          "chaosSort": "Tri chaos",
+          "repacks": "Repacks",
+          "customSounds": "Sons personnalisés",
+          "fleetHealth": "État de la flotte",
+          "storage": "Emplacements de rangement",
+          "apiAccess": "Accès API",
+          "businessTools": "Achat et vente"
+        },
+        "unlimited": "Illimité",
+        "included": "Inclus",
+        "notIncluded": "Non inclus",
+        "noUsage": "-",
+        "usedToday": "{{count}} aujourd'hui",
+        "scansThisMonth_one": "{{count}} carte scannée ce mois-ci.",
+        "scansThisMonth_other": "{{count}} cartes scannées ce mois-ci."
+      },
       "cancelAtPeriodEnd": "Ton abonnement se termine le {{date}}.",
       "manageOnWeb": "Les changements de forfait et les informations de paiement se gèrent dans l'application web.",
       "openWeb": "Ouvrir la facturation sur le web",
-      "features": {
-        "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour",
-        "unlimitedScans": "Scans de cartes illimités",
-        "organizations_one": "Jusqu'à {{count}} organisation à toi",
-        "organizations_other": "Jusqu'à {{count}} organisations à toi",
-        "unlimitedOrganizations": "Organisations illimitées",
-        "members_one": "Jusqu'à {{count}} membre par organisation",
-        "members_other": "Jusqu'à {{count}} membres par organisation",
-        "unlimitedMembers": "Membres illimités par organisation",
-        "collections_one": "Jusqu'à {{count}} collection",
-        "collections_other": "Jusqu'à {{count}} collections",
-        "unlimitedCollections": "Collections illimitées",
-        "sorters_one": "Jusqu'à {{count}} trieur connecté à la fois",
-        "sorters_other": "Jusqu'à {{count}} trieurs connectés à la fois",
-        "unlimitedSorters": "Trieurs connectés illimités",
-        "soundRules_one": "{{count}} règle sonore personnalisée",
-        "soundRules_other": "{{count}} règles sonores personnalisées",
-        "unlimitedSoundRules": "Règles sonores illimitées",
-        "notificationRules_one": "{{count}} règle de notification Discord",
-        "notificationRules_other": "{{count}} règles de notification Discord",
-        "unlimitedNotificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
-        "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
-        "repacks": "Repacks : compose des paquets avec tes cartes, emplacement par emplacement",
-        "customSounds": "Sons personnalisés : importez vos propres clips pour les règles sonores",
-        "fleetHealth": "Santé du parc : état des trieuses, intervalles d'entretien et historique des alertes",
-        "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
-        "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
-        "businessTools": "Achat et vente : offres de rachat, listes de préparation et rapports de marges",
-        "games": "Tous les jeux de cartes pris en charge",
-        "notifications": "Notifications Discord de scan"
-      },
       "legacyPlanNote": "Vous avez l'offre Business d'origine, qui n'est plus proposée. Vous la conservez, avec tout ce qu'elle inclut, tant que votre abonnement reste actif. Passer à une autre offre ou résilier est définitif."
     },
     "apiKeys": {
@@ -1666,7 +1677,8 @@
         "pickFailed": "Impossible d'ouvrir ce fichier.",
         "renamed": "Extrait sonore renommé.",
         "deleteConfirm": "Les règles qui jouent cet extrait ne joueront plus de son.",
-        "notInPlan": "L'import de sons personnalisés ne fait pas partie de votre offre."
+        "notInPlan": "L'import de sons personnalisés ne fait pas partie de votre offre, mais vous pouvez utiliser les clips intégrés dans vos règles.",
+        "builtIn": "Intégré"
       },
       "rules": {
         "heading": "Règles sonores",

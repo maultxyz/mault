@@ -12,6 +12,7 @@ import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-m
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconArrowBarToDown,
+  IconArrowBarToUp,
   IconCameraSpark,
   IconDeviceMobile,
   IconDeviceUsb,
@@ -33,6 +34,7 @@ import type {
 import { SCANNER_CONNECTION_DOT_CLASS } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
+import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 
 function ConnectionStatusPill({
   label,
@@ -98,6 +100,7 @@ export function ScannerStatusBar({
   onHandScanChange,
 }: ScannerStatusBarProps) {
   const { t } = useTranslation("scanner");
+  const { retractCard, isRetracting, retractLockedReason } = useRetractCard();
   const navigate = useNavigate();
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
   const webSerialSupported =
@@ -209,6 +212,16 @@ export function ScannerStatusBar({
               >
                 <IconArrowBarToDown />
                 {t("scannerMenu.clearDevice")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={
+                  !isReady || isRetracting || retractLockedReason !== null
+                }
+                title={retractLockedReason ?? undefined}
+                onClick={() => void retractCard()}
+              >
+                <IconArrowBarToUp />
+                {t("scannerMenu.retractCard")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={!isReady || isResettingDevice}

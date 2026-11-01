@@ -9,12 +9,38 @@
   },
   "planFooterTooltip": {
     "free": "Plan gratuit · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour passer à la version supérieure.",
-    "freeUnlimited": "Plan gratuit. Clique pour voir ton plan.",
-    "paid": "Plan {{plan}}. Clique pour gérer la facturation.",
     "paidLimited": "Plan {{plan}} · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour gérer la facturation."
   },
-  "includes": "Ton plan comprend",
-  "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
+  "planTable": {
+    "columns": {
+      "offering": "Offre",
+      "yourPlan": "Votre forfait",
+      "usage": "Utilisation"
+    },
+    "rows": {
+      "dailyScans": "Scans de cartes par jour",
+      "organizations": "Organisations dont vous êtes propriétaire",
+      "membersPerOrg": "Membres par organisation",
+      "connectedSorters": "Trieuses connectées en même temps",
+      "soundRules": "Règles sonores",
+      "notificationRules": "Règles de notification Discord",
+      "collections": "Collections",
+      "chaosSort": "Tri chaos",
+      "repacks": "Repacks",
+      "customSounds": "Sons personnalisés",
+      "fleetHealth": "État de la flotte",
+      "storage": "Emplacements de rangement",
+      "apiAccess": "Accès API",
+      "businessTools": "Achat et vente"
+    },
+    "unlimited": "Illimité",
+    "included": "Inclus",
+    "notIncluded": "Non inclus",
+    "noUsage": "-",
+    "usedToday": "{{count}} aujourd'hui",
+    "scansThisMonth_one": "{{count}} carte scannée ce mois-ci.",
+    "scansThisMonth_other": "{{count}} cartes scannées ce mois-ci."
+  },
   "upgradeMonthly": "S'abonner pour {{price}}/mois",
   "upgradeYearly": "S'abonner pour {{price}}/an",
   "yearlySavings": "La facturation annuelle te fait économiser {{percent}} %.",

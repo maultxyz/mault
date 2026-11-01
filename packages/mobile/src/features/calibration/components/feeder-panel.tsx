@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import {
+  FEED_RETRY_COUNT_MAX,
+  FEED_RETRY_COUNT_MIN,
   FIRMWARE_FEATURE_MIN_VERSIONS,
   isFirmwareFeatureSupported,
   pulseToDirectionalSpeed,
@@ -114,6 +116,17 @@ export function FeederPanel({ state, firmwareVersion }: FeederPanelProps) {
       </View>
       {speed("speed", "calibration.feeder.speedLabel", t("calibration.feeder.speedTooltip"))}
       {timing("duration", "calibration.feeder.timeoutLabel", 10, FEEDER_DURATION_SLIDER_MAX, ms(values.duration))}
+      <SliderField
+        label={t("calibration.feeder.feedRetryCountLabel")}
+        description={t("calibration.feeder.feedRetryCountDescription")}
+        valueLabel={values.feedRetryCount === 0 ? t("calibration.feeder.off") : String(values.feedRetryCount)}
+        accessibilityLabel={t("calibration.feeder.feedRetryCountLabel")}
+        min={FEED_RETRY_COUNT_MIN}
+        max={FEED_RETRY_COUNT_MAX}
+        step={1}
+        value={values.feedRetryCount}
+        onValueChange={(value) => state.handleFeederChange("feedRetryCount", value)}
+      />
       <View style={{ gap: SPACING.sm }}>
         {timing(
           "pulseDuration",

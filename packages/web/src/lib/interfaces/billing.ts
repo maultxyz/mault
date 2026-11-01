@@ -18,10 +18,6 @@ export interface SupportPromptToastProps {
   githubStars?: number;
 }
 
-export interface PlanFeaturesProps {
-  billing: BillingStatus;
-}
-
 export interface GithubRepoResponse {
   stargazers_count: number;
 }
@@ -43,6 +39,13 @@ export interface MemberSeatLock {
   limit: number;
 }
 
-export interface PlanLockHintProps {
+export interface PlanNoticeProps {
   message: string;
+  linkLabel?: string;
+  onLinkClick?: () => void;
+  className?: string;
+}
+
+export interface BillingPlanTableProps {
+  billing: BillingStatus;
 }

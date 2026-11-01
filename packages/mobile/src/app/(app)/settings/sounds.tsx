@@ -268,8 +268,13 @@ export default function SoundsSettingsScreen() {
             <ListRow
               key={clip.guid}
               title={clip.name}
-              subtitle={t("settings.sounds.library.size", { kb: Math.max(1, Math.round(clip.sizeBytes / 1024)) })}
-              onPress={() => setClipActions(clip)}
+              subtitle={[
+                clip.isSystem ? t("settings.sounds.library.builtIn") : null,
+                t("settings.sounds.library.size", { kb: Math.max(1, Math.round(clip.sizeBytes / 1024)) }),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+              onPress={clip.isSystem ? undefined : () => setClipActions(clip)}
               leading={
                 <IconButton
                   icon={playingGuid === clip.guid ? "stop" : "play"}

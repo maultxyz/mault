@@ -3,6 +3,7 @@ import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { SYNC_SOURCES } from "../../lib/sync-job";
 import { toPortraitCardImage } from "../../lib/card-image";
+import { invalidateCardMatchIndex } from "../../lib/card-match-index";
 import { publicGamesCache } from "../../lib/public-games";
 import { vectorizeCardImage } from "../../lib/vectorize";
 import { storedCollectorNumber } from "../../lib/card-search/collector-number";
@@ -107,6 +108,7 @@ export async function syncOneCard(
       },
     });
   publicGamesCache.invalidate();
+  invalidateCardMatchIndex(gameKey);
 
   return { success: true, message: `Synced: ${card.name}` };
 }

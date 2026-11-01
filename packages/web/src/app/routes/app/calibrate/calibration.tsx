@@ -116,6 +116,10 @@ function FeederHistoryBody({ entry }: { entry: FeederConfigAuditEntry }) {
       </span>
       <span>{t("calibratePage.msValue", { value: c.settleDuration })}</span>
       <span className="text-foreground/70">
+        {t("calibratePage.feederHistory.feedRetries")}
+      </span>
+      <span>{c.feedRetryCount}</span>
+      <span className="text-foreground/70">
         {t("calibratePage.feederHistory.rollback")}
       </span>
       <span>
@@ -166,6 +170,7 @@ export default function CalibrateCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
+    feederFeedRetryCountValue,
     feederStopPulse,
     handleFeederSpeedChange,
     handleFeederStopPulseChange,
@@ -176,6 +181,7 @@ export default function CalibrateCalibrationPage() {
     handleFeederSettleDurationChange,
     handleFeederReverseSpeedChange,
     handleFeederReverseDurationChange,
+    handleFeederFeedRetryCountChange,
     handleFeederSelectContinuous,
     isFeederModuleDirty,
     isSavingFeederModule,
@@ -347,6 +353,7 @@ export default function CalibrateCalibrationPage() {
               settleDurationValue={feederSettleDurationValue}
               reverseSpeedValue={feederReverseSpeedValue}
               reverseDurationValue={feederReverseDurationValue}
+              feedRetryCountValue={feederFeedRetryCountValue}
               stopPulse={feederStopPulse}
               canEditTimings={isConnected || isOfflineCalibration}
               canCalibrate={canCalibrate}
@@ -359,6 +366,7 @@ export default function CalibrateCalibrationPage() {
               onSettleDurationChange={handleFeederSettleDurationChange}
               onReverseSpeedChange={handleFeederReverseSpeedChange}
               onReverseDurationChange={handleFeederReverseDurationChange}
+              onFeedRetryCountChange={handleFeederFeedRetryCountChange}
               onSelectContinuous={handleFeederSelectContinuous}
             />
           </SettingsSection>

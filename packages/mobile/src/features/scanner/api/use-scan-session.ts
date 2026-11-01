@@ -9,6 +9,8 @@ import {
   computeBinCount,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CARD_CONDITION,
+  DEFAULT_FEEDER_CALIBRATION,
+  feedWithRetries,
   findScannerControlCommandProblem,
   parseScannerControlCode,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
@@ -18,6 +20,7 @@ import {
   getChaosBins,
   hasMaxCopiesBins,
   isFedEvent,
+  isFeedTimeoutReply,
   isScanFillingLastRepackPack,
   OCR_REGIONS_BY_GAME_KEY,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
@@ -37,7 +40,10 @@ import {
   type ScannerControlCommand,
   type ScanRoutingContext,
 } from "@magic-vault/shared";
-import { binHeightsQueryOptions } from "@/features/calibration/api/calibration-configs";
+import {
+  binHeightsQueryOptions,
+  feederConfigQueryOptions,
+} from "@/features/calibration/api/calibration-configs";
 import {
   collectionsQueryOptions,
   releaseScanLock,
@@ -97,6 +103,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const { data: binRoutes } = useQuery(binRoutesQueryOptions(sorter.device?.guid ?? null));
+  const { data: feederConfig } = useQuery(feederConfigQueryOptions(sorter.device?.guid ?? null));
   const { data: binHeights, isError: binHeightsFailed } = useQuery(
     binHeightsQueryOptions(sorter.device?.guid ?? null),
   );
@@ -168,6 +175,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     allowDuplicates,
     handScanActive,
     removal,
+    feedRetryCount: feederConfig?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
   };
   const latestRef = useRef(latest);
   latestRef.current = latest;
@@ -212,16 +220,16 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [controlCardNotice]);
 
   const [forcedFoilType, setForcedFoilTypeState] = useState<string | null>(null);
-  const [forcedSetCode, setForcedSetCodeState] = useState<string | null>(null);
+  const [forcedSetCodes, setForcedSetCodesState] = useState<string[]>([]);
   const forcedFoilTypeRef = useRef<string | null>(null);
-  const forcedSetCodeRef = useRef<string | null>(null);
+  const forcedSetCodesRef = useRef<string[]>([]);
   const setForcedFoilType = useCallback((foilType: string | null) => {
     forcedFoilTypeRef.current = foilType;
     setForcedFoilTypeState(foilType);
   }, []);
-  const setForcedSetCode = useCallback((setCode: string | null) => {
-    forcedSetCodeRef.current = setCode;
-    setForcedSetCodeState(setCode);
+  const setForcedSetCodes = useCallback((setCodes: string[]) => {
+    forcedSetCodesRef.current = setCodes;
+    setForcedSetCodesState(setCodes);
   }, []);
 
   const forcedValuesAfterCollectionSwitchRef = useRef<Pick<
@@ -236,11 +244,11 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       releaseScanLock(previous).catch(() => {});
       const forcedValues = forcedValuesAfterCollectionSwitchRef.current;
       forcedValuesAfterCollectionSwitchRef.current = null;
-      setForcedSetCode(forcedValues?.forcedSetCode ?? null);
+      setForcedSetCodes(forcedValues?.forcedSetCode ? [forcedValues.forcedSetCode] : []);
       setForcedFoilType(forcedValues?.forcedFoilType ?? null);
     }
     lockedCollectionGuidRef.current = next;
-  }, [collection?.guid, setForcedSetCode, setForcedFoilType]);
+  }, [collection?.guid, setForcedSetCodes, setForcedFoilType]);
   useEffect(
     () => () => {
       const guid = lockedCollectionGuidRef.current;
@@ -687,7 +695,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         };
       } else {
         if (command.forcedFoilType !== undefined) setForcedFoilType(command.forcedFoilType);
-        if (command.forcedSetCode !== undefined) setForcedSetCode(command.forcedSetCode);
+        if (command.forcedSetCode !== undefined) {
+          setForcedSetCodes(command.forcedSetCode ? [command.forcedSetCode] : []);
+        }
       }
       try {
         if (switchesCollection && command.collectionGuid) {
@@ -714,7 +724,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       queryClient,
       routeControlCard,
       setForcedFoilType,
-      setForcedSetCode,
+      setForcedSetCodes,
       setScanCondition,
     ],
   );
@@ -740,7 +750,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const outcome = await identifyCard(
         async () => (captured.frame = await ctx.capture()),
         {
-          scope: { collectionGuid: ctx.collection.guid, preferredSetCode: forcedSetCodeRef.current },
+          scope: { collectionGuid: ctx.collection.guid, preferredSetCodes: forcedSetCodesRef.current },
           matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
           ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
@@ -805,10 +815,16 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     [pause, reportSorterEvent],
   );
 
+  const feedWithConfiguredRetries = useCallback(
+    (retryCount: number) =>
+      feedWithRetries(() => latestRef.current.sorter.feed(), (reply) => reply, retryCount),
+    [],
+  );
+
   const triggerFeed = useCallback(() => {
     setPhase("feeding");
-    void latestRef.current.sorter.feed().then(handleFeedResult);
-  }, [handleFeedResult, setPhase]);
+    void feedWithConfiguredRetries(latestRef.current.feedRetryCount).then(handleFeedResult);
+  }, [feedWithConfiguredRetries, handleFeedResult, setPhase]);
   triggerFeedRef.current = triggerFeed;
 
   const onCardArrived = useCallback(() => {
@@ -830,6 +846,12 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     if (!isFedEvent(message)) return;
     if (!runningRef.current) {
       if (!message.error) heldArrivalRef.current = true;
+      return;
+    }
+    const { feedRetryCount } = latestRef.current;
+    if (feedRetryCount > 0 && isFeedTimeoutReply(message)) {
+      setPhase("feeding");
+      void feedWithConfiguredRetries(feedRetryCount - 1).then(handleFeedResult);
       return;
     }
     handleFeedResult(message);
@@ -896,13 +918,13 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       return;
     }
     setPhase("feeding");
-    const reply = await latestRef.current.sorter.feed();
+    const reply = await feedWithConfiguredRetries(latestRef.current.feedRetryCount);
     if (!reply || reply.empty || reply.error || reply.detected === false) {
       handleFeedResult(reply, "feeder");
       return;
     }
     await runCapture();
-  }, [handleFeedResult, runCapture, setPhase, triggerFeed]);
+  }, [feedWithConfiguredRetries, handleFeedResult, runCapture, setPhase, triggerFeed]);
 
   const setAutoFeed = useCallback(
     (value: boolean) => {
@@ -952,8 +974,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     trackLiveCorners,
     forcedFoilType,
     setForcedFoilType,
-    forcedSetCode,
-    setForcedSetCode,
+    forcedSetCodes,
+    setForcedSetCodes,
     scanCondition,
     setScanCondition,
     controlCardNotice,

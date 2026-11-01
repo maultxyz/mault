@@ -124,6 +124,13 @@
         "startButton": "Choisir la carte et flasher",
         "success": "Firmware installé. Débranchez le câble USB de l'ESP32, puis rebranchez-le pour démarrer le nouveau firmware.",
         "connectButton": "Connecter la trieuse"
+      },
+      "version": {
+        "label": "Version du firmware",
+        "recommended": "v{{version}} (recommandée)",
+        "recommendedUnknownVersion": "Dernière (recommandée)",
+        "option": "v{{version}}",
+        "otherVersionWarning": "La version recommandée est celle pour laquelle cette application est conçue. Les autres versions peuvent manquer de fonctionnalités ou se comporter différemment."
       }
     },
     "pushBlocked": {
@@ -274,13 +281,18 @@
     "avgValue": "Valeur moyenne",
     "sessionTime": "Durée de la session",
     "cardsPerHour": "Cartes / h",
+    "resetSession": "Réinitialiser la durée de session et les cartes par heure",
     "byColor": "Par couleur",
     "bySet": "Par set",
     "showLess": "Afficher moins",
     "showAllSets": "Afficher les {{count}} sets",
     "scanRateTrend": "Scans par minute sur les 12 dernières minutes",
     "scanRateNow": "{{count}} scans cette minute",
-    "scanRatePoint": "{{count}} scans, il y a {{minutes}} min"
+    "scanRatePoint": "{{count}} scans, il y a {{minutes}} min",
+    "heading": "Statistiques",
+    "summaryCards_one": "{{count}} carte",
+    "summaryCards_other": "{{count}} cartes",
+    "summaryRate": "{{rate}}/h"
   },
   "scannerControls": {
     "scanAgain": "Scanner à nouveau",
@@ -295,14 +307,17 @@
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "retractCardTooltip": "Retirer la carte (fait tourner l'alimentation à l'envers)",
     "stopPiScan": "Arrêter le tri et libérer le trieur",
     "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
     "foilTooltip": "Type de foil des cartes scannées : {{type}}",
     "setTooltip": "Extension des cartes scannées : {{set}}",
     "anySet": "N'importe quelle extension",
+    "setCount_one": "{{count}} extension",
+    "setCount_other": "{{count}} extensions",
     "setSearchPlaceholder": "Rechercher une extension",
     "noSets": "Aucune extension trouvée",
-    "setHint": "Les cartes scannées utilisent leur impression de cette extension lorsqu'elle existe.",
+    "setHint": "Les cartes scannées utilisent leur impression de l'une de ces extensions lorsqu'elle existe. Choisissez-en autant que nécessaire.",
     "conditionTooltip": "État des cartes scannées : {{condition}}",
     "start": "Démarrer le scan",
     "sessionSummary_one": "{{count}} carte scannée · {{time}}",
@@ -335,6 +350,7 @@
     "flashNewBoard": "Flasher une nouvelle carte",
     "connectAnotherUpgrade": "Connecter plus de trieuses avec une offre supérieure",
     "clearDevice": "Vider l'appareil",
+    "retractCard": "Retirer la carte",
     "resetToNeutral": "Remettre au neutre",
     "sorter": "Trieur",
     "connectionStates": {
@@ -771,6 +787,17 @@
       "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez."
     }
   },
+  "retractCard": {
+    "done": "Carte ramenée dans le bac",
+    "failed": {
+      "title": "Impossible de retirer la carte",
+      "description": "Le trieur n'a pas confirmé le retrait. Vérifiez la connexion et réessayez."
+    },
+    "rollbackOff": {
+      "title": "Le recul est désactivé",
+      "description": "Définissez « Recul après l'alimentation » dans l'étalonnage de l'alimentation pour retirer des cartes."
+    }
+  },
   "pendingScanSaves": {
     "saving": {
       "title_one": "Enregistrement de {{count}} scan",
@@ -844,6 +871,8 @@
       "feedDescription": "Charger une carte, puis la scanner et la trier",
       "drop": "Faire tomber les cartes",
       "dropDescription": "Ouvrir chaque module pour libérer les cartes coincées",
+      "retract": "Retirer la carte",
+      "retractDescription": "Faire tourner l'alimentation à l'envers pour ramener une carte dans le bac",
       "neutral": "Remettre au neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
       "sorterDescription": "Connexion, autotest et état"

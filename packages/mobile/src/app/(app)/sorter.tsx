@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useWifiSorters } from "@/features/sorter/api/use-wifi-sorters";
 import { CommLog } from "@/features/sorter/components/comm-log";
@@ -23,6 +24,7 @@ export default function SorterScreen() {
   const { t } = useTranslation();
   const colors = useTheme();
   const sorter = useSorter();
+  const retract = useRetractCard();
   const [showLog, setShowLog] = useState(false);
   const busy = (BUSY_PHASES as readonly string[]).includes(sorter.phase);
   const connected = sorter.isConnected;
@@ -122,6 +124,13 @@ export default function SorterScreen() {
               title={t("sorter.dropCard")}
               disabled={!sorter.isReady}
               onPress={() => void sorter.clearDevice()}
+            />
+            <ListRow
+              icon="arrowUp"
+              title={t("sorter.retractCard")}
+              subtitle={retract.retractLockedReason ?? undefined}
+              disabled={!sorter.isReady || retract.isRetracting || retract.retractLockedReason !== null}
+              onPress={() => void retract.retractCard()}
             />
             <ListRow
               icon="close"

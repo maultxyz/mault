@@ -20,6 +20,7 @@ import { syncSourcesRoute } from "./sync-sources";
 import { syncStartRoute } from "./sync-start";
 import { syncStatusRoute } from "./sync-status";
 import { syncWorkRoute } from "./sync-work";
+import { systemSoundClipsRoute } from "./system-sound-clips";
 import { unmatchedRetryRoute } from "./unmatched-retry";
 
 const router = new Hono<AppEnv>()
@@ -43,6 +44,7 @@ const router = new Hono<AppEnv>()
   .route("/", discordChannelsRoute)
   .route("/", discordLinkedRoleRoute)
   .route("/", deletedItemsRoute)
+  .route("/", systemSoundClipsRoute)
   .route("/", unmatchedRetryRoute);
 
 export { router as adminRouter };

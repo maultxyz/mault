@@ -1,20 +1,27 @@
+import { Callout } from "@/components/callout";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
-import type { PlanLockHintProps } from "@/lib/interfaces/billing";
+import type { PlanNoticeProps } from "@/lib/interfaces/billing";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-export function PlanLockHint({ message }: PlanLockHintProps) {
+export function PlanNotice({
+  message,
+  linkLabel,
+  onLinkClick,
+  className,
+}: PlanNoticeProps) {
   const { t } = useTranslation("common");
 
   return (
-    <p className="pl-1 text-xs text-foreground/70">
+    <Callout variant="info" className={className}>
       {message}{" "}
       <Link
         to={SETTINGS_PATHS.billing}
+        onClick={onLinkClick}
         className="font-medium text-foreground underline-offset-4 hover:underline"
       >
-        {t("planLock.link")}
+        {linkLabel ?? t("planLock.link")}
       </Link>
-    </p>
+    </Callout>
   );
 }

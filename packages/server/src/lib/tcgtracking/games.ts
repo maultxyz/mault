@@ -25,6 +25,7 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
   onepiece: {
     numbering: "global",
     isBasePrinting: (card) => card.id === card.collectorNumber,
+    primaryShapedFieldsOf: ({ name }) => ({ card_name: name }),
   },
   gundam: {
     numbering: "global",
@@ -42,17 +43,55 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
     },
     comparableProductName: (name) =>
       name.replace(GUNDAM_PRODUCT_CARD_NUMBER_TAG_PATTERN, ""),
+    primaryShapedFieldsOf: ({ name }) => ({ name }),
   },
-  fab: { numbering: "global" },
+  fab: {
+    numbering: "global",
+    primaryShapedFieldsOf: ({ name }) => ({ card: { name } }),
+  },
   pokemon: {
     numbering: "per-set",
     comparableProductName: (name) =>
       name.replace(POKEMON_BASIC_ENERGY_PREFIX_PATTERN, ""),
+    primaryShapedFieldsOf: ({ name, collectorNumber }) => ({
+      name,
+      localId: collectorNumber,
+    }),
   },
-  lorcana: { numbering: "per-set" },
-  riftbound: { numbering: "per-set" },
-  swu: { numbering: "per-set" },
-  grandarchive: { numbering: "per-set" },
-  cyberpunk: { numbering: "per-set" },
-  yugioh: { numbering: "name-only" },
+  lorcana: {
+    numbering: "per-set",
+    primaryShapedFieldsOf: ({ name, collectorNumber }) => ({
+      name,
+      collector_number: collectorNumber,
+    }),
+  },
+  riftbound: {
+    numbering: "per-set",
+    primaryShapedFieldsOf: ({ name, collectorNumber }) => ({
+      name,
+      collector_number: collectorNumber,
+    }),
+  },
+  swu: {
+    numbering: "per-set",
+    primaryShapedFieldsOf: ({ name, collectorNumber }) => ({
+      Name: name,
+      Number: collectorNumber,
+    }),
+  },
+  grandarchive: {
+    numbering: "per-set",
+    primaryShapedFieldsOf: ({ name }) => ({ card: { name } }),
+  },
+  cyberpunk: {
+    numbering: "per-set",
+    primaryShapedFieldsOf: ({ name, collectorNumber }) => ({
+      name,
+      print_number: collectorNumber,
+    }),
+  },
+  yugioh: {
+    numbering: "name-only",
+    primaryShapedFieldsOf: ({ name }) => ({ name }),
+  },
 };

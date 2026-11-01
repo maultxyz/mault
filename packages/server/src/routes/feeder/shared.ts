@@ -8,6 +8,7 @@ export function rowToCalibration(row: {
   settleDuration: number;
   reverseSpeed: number;
   reverseDuration: number;
+  feedRetryCount: number;
 }): FeederCalibration {
   return {
     speed: row.speed,
@@ -17,5 +18,6 @@ export function rowToCalibration(row: {
     settleDuration: row.settleDuration,
     reverseSpeed: row.reverseSpeed,
     reverseDuration: row.reverseDuration,
+    feedRetryCount: row.feedRetryCount,
   };
 }
