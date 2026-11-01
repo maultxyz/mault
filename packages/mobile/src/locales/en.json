@@ -822,6 +822,7 @@
     "prices": "Prices",
     "binLocation": "Bin location",
     "scanOrigin": {
+      "scannedAt": "Scanned",
       "scannedBy": "By",
       "sorter": "Sorter",
       "deletedSorter": "{{name}} (deleted)"

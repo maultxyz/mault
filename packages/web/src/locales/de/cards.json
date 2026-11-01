@@ -378,6 +378,7 @@
     "setSelected": "Zustand"
   },
   "scanOrigin": {
+    "scannedAt": "Gescannt",
     "scannedBy": "Von",
     "sorter": "Sortierer",
     "deletedSorter": "{{name}} (gelöscht)"

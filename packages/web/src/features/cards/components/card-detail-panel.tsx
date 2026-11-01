@@ -170,7 +170,9 @@ export function CardDetailPanel({
     enabled: !!collection?.guid && !!scanId,
   });
   const hasScanOrigin =
-    !!scanId && !!scanOrigin && (!!scanOrigin.scannedBy || !!scanOrigin.device);
+    !!scanId &&
+    !!scanOrigin &&
+    (!!scanOrigin.scannedAt || !!scanOrigin.scannedBy || !!scanOrigin.device);
   const { acquisitionCost, saveCardAcquisitionCost } =
     useCardAcquisitionCost(scanId);
   const scanDraft = useScanDraft({

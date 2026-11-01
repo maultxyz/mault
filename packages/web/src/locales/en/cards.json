@@ -378,6 +378,7 @@
     "setSelected": "Condition"
   },
   "scanOrigin": {
+    "scannedAt": "Scanned",
     "scannedBy": "By",
     "sorter": "Sorter",
     "deletedSorter": "{{name}} (deleted)"

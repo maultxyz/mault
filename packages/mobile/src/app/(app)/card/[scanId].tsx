@@ -63,6 +63,7 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
+import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { saveReviewLayout } from "@/lib/review-layout";
@@ -78,7 +79,7 @@ export default function CardDetailScreen() {
   }>();
   const reviewMode = review === "1";
   const storageReview = reviewMode && !!storageGuid;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
   const insets = useSafeAreaInsets();
@@ -88,7 +89,8 @@ export default function CardDetailScreen() {
   const storageContext = useQuery(storageLocationCardContextQueryOptions(storageGuid ?? "", scanId, storageReview));
   const image = useQuery(scanImageQueryOptions(guid, scanId));
   const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
-  const hasScanOrigin = !!origin.data && (!!origin.data.scannedBy || !!origin.data.device);
+  const hasScanOrigin =
+    !!origin.data && (!!origin.data.scannedAt || !!origin.data.scannedBy || !!origin.data.device);
   const storage = useQuery(cardStorageLocationQueryOptions(guid, scanId));
   const activeOrgId = useActiveOrgId();
   const collections = useQuery(collectionsQueryOptions(activeOrgId));
@@ -477,6 +479,13 @@ export default function CardDetailScreen() {
                 <SectionHeader title={t("cardDetail.thisScan")} />
                 {origin.data && hasScanOrigin ? (
                   <ListGroup>
+                    {origin.data.scannedAt ? (
+                      <ListRow
+                        icon="clock"
+                        title={t("cardDetail.scanOrigin.scannedAt")}
+                        value={formatDateTime(origin.data.scannedAt, i18n.language)}
+                      />
+                    ) : null}
                     {origin.data.scannedBy ? (
                       <ListRow icon="account" title={t("cardDetail.scanOrigin.scannedBy")} value={origin.data.scannedBy.name} />
                     ) : null}
