@@ -1,4 +1,5 @@
 import { type PlayingCard, proxiedImageUrl } from "@magic-vault/shared";
+import { sql } from "drizzle-orm";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import {
@@ -105,6 +106,7 @@ export const pokemonAdapter: CardSearchAdapter = {
   defaultUrl: POKEMON_DEFAULT_URL,
   urlForLang,
   normalizeStored: (raw) => normalizePokemonCard(raw as PokemonCardDetail),
+  excludedFromMatchingSql: sql`(data->>'image') LIKE '%/tcgp/%'`,
   tcgplayer: {
     categoryId: 3,
     productIdFromRaw: (card) =>

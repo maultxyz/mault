@@ -5,6 +5,11 @@ export interface PokemonCardBrief {
   image?: string;
 }
 
+export interface PokemonSeries {
+  id: string;
+  sets: { id: string }[];
+}
+
 export interface PokemonAttack {
   name: string;
   cost?: string[];
