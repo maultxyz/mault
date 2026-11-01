@@ -106,18 +106,6 @@ export async function fetchTcgtrackingSetSkus(
   );
 }
 
-export async function fetchTcgtrackingProductSetId(
-  categoryId: number,
-  productId: number,
-): Promise<number | null> {
-  const lookup = await getJson<TcgtrackingProductLookup>(
-    `/products/${productId}`,
-  ).catch(() => null);
-  return lookup?.success && lookup.product.category_id === categoryId
-    ? lookup.product.group_id
-    : null;
-}
-
 export async function fetchTcgtrackingProductEntry(
   categoryId: number,
   productId: number,

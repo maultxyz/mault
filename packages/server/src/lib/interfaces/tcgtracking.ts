@@ -6,6 +6,8 @@ export interface TcgtrackingSet {
   abbreviation: string | null;
   product_count: number;
   published_on: string | null;
+  products_modified?: string | null;
+  sku_count?: number | null;
 }
 
 export interface TcgtrackingProduct {
@@ -98,4 +100,11 @@ export interface TcgtrackingSku {
   condition: string;
   variant: string;
   language: string;
+}
+
+export interface TcgplayerSkuSyncResult {
+  skipped: boolean;
+  sets: number;
+  skuRows: number;
+  failedSets: number;
 }

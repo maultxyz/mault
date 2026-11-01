@@ -1,7 +1,6 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
+import type { PlayingCard } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { ONE_PIECE_DEFAULT_URL } from "../../constants/urls";
 import type { OptcgCard } from "../../interfaces/onepiece";
@@ -189,102 +188,8 @@ export async function findCardVersion(
   return { match: null, errorStatus, urls };
 }
 
-const FILTERED_ENDPOINTS = [
-  "sets/filtered",
-  "decks/filtered",
-  "promos/filtered",
-];
-
-export async function searchCards(
-  query: string,
-  baseUrl: string = ONE_PIECE_DEFAULT_URL,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const name = encodeURIComponent(query.trim());
-  const responses = await Promise.all(
-    FILTERED_ENDPOINTS.map((endpoint) =>
-      fetchCardApi(`${baseUrl}/${endpoint}/?card_name=${name}`, {
-        headers: CARD_API_HEADERS,
-      }),
-    ),
-  );
-
-  const found: OptcgCard[] = [];
-  let anyOk = false;
-  let errorStatus: number | undefined;
-  for (const response of responses) {
-    if (response.status === 404) {
-      anyOk = true;
-      continue;
-    }
-    if (!response.ok) {
-      errorStatus ??= response.status;
-      continue;
-    }
-    const data = (await response.json()) as OptcgCard[];
-    if (!Array.isArray(data)) continue;
-    anyOk = true;
-    found.push(...data);
-  }
-
-  if (!anyOk) {
-    return {
-      message: "Failed to fetch from the OPTCG API.",
-      success: false,
-    };
-  }
-
-  if (errorStatus !== undefined) {
-    return {
-      message: `OPTCG API error: ${errorStatus}`,
-      success: false,
-    };
-  }
-
-  if (found.length === 0) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  const { rows } = dedupeOnePieceRows(found);
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: rows.map(({ raw, id }) => normalizeOnePieceCard(raw, id)),
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = ONE_PIECE_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const { match, errorStatus } = await findCardVersion(id, baseUrl);
-
-  if (!match) {
-    return errorStatus
-      ? {
-          success: false,
-          message: `OPTCG API error: ${errorStatus} for card ${id}`,
-        }
-      : { success: false, message: `Card ${id} not found.` };
-  }
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizeOnePieceCard(match, id),
-  };
-}
-
 export const onePieceAdapter: CardSearchAdapter = {
   defaultUrl: ONE_PIECE_DEFAULT_URL,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw, id) => normalizeOnePieceCard(raw as OptcgCard, id),
   tcgplayer: {
     categoryId: 68,

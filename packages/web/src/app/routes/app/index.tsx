@@ -1,3 +1,4 @@
+import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { ResizeHandle } from "@/components/ui/resize-handle";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
@@ -17,14 +18,39 @@ import { usePiHost } from "@/hooks/use-pi-host";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import type { StationPanelLayout } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
+import { useImpersonation } from "@/hooks/use-impersonation";
 import { useResizablePanel } from "@/hooks/use-resizable-panel";
 import { IconCards } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
+function ScannerPanels({
+  layout,
+  size,
+}: {
+  layout: StationPanelLayout;
+  size: number;
+}) {
+  const { isImpersonating } = useImpersonation();
+  if (!isImpersonating) return <StationPanels layout={layout} size={size} />;
+  return (
+    <div
+      className={cn(
+        "shrink-0 p-2 bg-sidebar/70",
+        layout === "horizontal" ? "h-full" : "w-full",
+      )}
+      style={layout === "horizontal" ? { width: size } : { height: size }}
+    >
+      <ScanningBlockedWhileImpersonating />
+    </div>
+  );
+}
+
 function MobileScanner() {
   const { t } = useTranslation("scanner");
+  const { isImpersonating } = useImpersonation();
   const {
     unmatchedCards,
     unmatchedCount,
@@ -43,7 +69,13 @@ function MobileScanner() {
       )}
     >
       <div className="p-2 size-full bg-sidebar flex flex-col gap-2">
-        <CardScanner className="flex-1 min-h-0" />
+        {isImpersonating ? (
+          <div className="flex-1 min-h-0">
+            <ScanningBlockedWhileImpersonating />
+          </div>
+        ) : (
+          <CardScanner className="flex-1 min-h-0" />
+        )}
         <UnmatchedCardsPanel
           canIdentify
           cards={unmatchedCards}
@@ -120,7 +152,7 @@ export default function App() {
   if (isVertical) {
     return (
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-        <StationPanels layout="vertical" size={scannerHeight} />
+        <ScannerPanels layout="vertical" size={scannerHeight} />
         <ResizeHandle
           orientation="horizontal"
           isDragging={isResizingHeight}
@@ -135,7 +167,7 @@ export default function App() {
 
   return (
     <div className="flex flex-1 min-h-0 overflow-hidden">
-      <StationPanels layout="horizontal" size={scannerWidth} />
+      <ScannerPanels layout="horizontal" size={scannerWidth} />
       <ResizeHandle
         orientation="vertical"
         isDragging={isResizingWidth}

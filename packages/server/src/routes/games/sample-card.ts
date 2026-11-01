@@ -1,5 +1,8 @@
 import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
+import { and, eq, ilike, isNotNull } from "drizzle-orm";
 import { Hono } from "hono";
+import { db } from "../../db";
+import { cardImageVectors } from "../../db/schema";
 import { ADAPTERS_BY_GAME_KEY } from "../../lib/card-search/resolve";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 
@@ -25,26 +28,33 @@ export const sampleCardRoute = new Hono<AppEnv>().get(
       );
     }
 
-    try {
-      const result = await adapter.search(query, adapter.defaultUrl, "en");
-      if (!result.success || !result.data?.length) {
-        return c.json(
-          { success: false, message: result.message || "No cards found." },
-          404,
-        );
-      }
-
-      const card = result.data[0];
-      return c.json({
-        success: true,
-        data: { name: card.name, raw: card.raw },
-      });
-    } catch (err) {
-      console.error(err);
+    const [stored] = await db
+      .select({
+        cardId: cardImageVectors.cardId,
+        lang: cardImageVectors.lang,
+        data: cardImageVectors.data,
+      })
+      .from(cardImageVectors)
+      .where(
+        and(
+          eq(cardImageVectors.gameKey, key),
+          ilike(cardImageVectors.name, `%${query.trim()}%`),
+          isNotNull(cardImageVectors.data),
+        ),
+      )
+      .limit(1);
+    const storedCard = stored
+      ? adapter.normalizeStored(stored.data, stored.cardId, stored.lang)
+      : null;
+    if (!storedCard) {
       return c.json(
-        { success: false, message: "Failed to fetch sample card." },
-        502,
+        { success: false, message: "No synced card matches that name." },
+        404,
       );
     }
+    return c.json({
+      success: true,
+      data: { name: storedCard.name, raw: storedCard.raw },
+    });
   },
 );

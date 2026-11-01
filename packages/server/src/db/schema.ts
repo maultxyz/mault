@@ -1445,6 +1445,39 @@ export const tcgplayerProducts = pgTable(
   ],
 );
 
+export const tcgplayerSkus = pgTable(
+  "tcgplayer_skus",
+  {
+    productId: integer("product_id").notNull(),
+    variant: text("variant").notNull(),
+    language: text("language").notNull(),
+    categoryId: integer("category_id").notNull(),
+    setId: integer("set_id").notNull(),
+    nearMintSkuId: integer("near_mint_sku_id"),
+    lightlyPlayedSkuId: integer("lightly_played_sku_id"),
+    moderatelyPlayedSkuId: integer("moderately_played_sku_id"),
+    heavilyPlayedSkuId: integer("heavily_played_sku_id"),
+    damagedSkuId: integer("damaged_sku_id"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.productId, table.variant, table.language] }),
+    index("tcgplayer_skus_category_set_idx").on(table.categoryId, table.setId),
+  ],
+);
+
+export const tcgplayerSkuSets = pgTable(
+  "tcgplayer_sku_sets",
+  {
+    categoryId: integer("category_id").notNull(),
+    setId: integer("set_id").notNull(),
+    productsModified: text("products_modified"),
+    skuCount: integer("sku_count"),
+    syncedAt: timestamp("synced_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.categoryId, table.setId] })],
+);
+
 export const cardmarketPrices = pgTable(
   "cardmarket_prices",
   {

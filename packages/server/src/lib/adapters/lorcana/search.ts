@@ -1,8 +1,5 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
-import { fetchCardApi } from "../../card-search/fetch";
+import type { PlayingCard } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
-import { CARD_API_HEADERS } from "../../constants/card-search";
 import {
   LORCANA_DE_DEFAULT_URL,
   LORCANA_DEFAULT_URL,
@@ -104,128 +101,10 @@ export function normalizeLorcanaDeCard(raw: LorcanaDeCard): PlayingCard {
   };
 }
 
-function isGermanApi(baseUrl: string): boolean {
-  return baseUrl.startsWith(LORCANA_DE_DEFAULT_URL);
-}
-
-export async function searchCards(
-  query: string,
-  baseUrl: string = LORCANA_DEFAULT_URL,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  if (isGermanApi(baseUrl)) {
-    const url = `${baseUrl}/search?q=${encodeURIComponent(query)}`;
-    const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
-
-    if (!response.ok) {
-      return {
-        message: "Failed to fetch from the Lorcana DE API.",
-        success: false,
-      };
-    }
-
-    const data = (await response.json()) as { cards: LorcanaDeCard[] };
-    if (data.cards.length === 0) {
-      return {
-        message: `No cards were found with the query: ${query}`,
-        success: false,
-      };
-    }
-
-    return {
-      message: "Cards successfully retrieved.",
-      data: data.cards.map(normalizeLorcanaDeCard),
-      success: true,
-    };
-  }
-
-  const url = `${baseUrl}/search?q=${encodeURIComponent(query)}&unique=prints`;
-  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
-
-  if (response.status === 404) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from the Lorcast API.",
-      success: false,
-    };
-  }
-
-  const data = (await response.json()) as { results: LorcastCard[] };
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: data.results.map(normalizeLorcanaCard),
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = LORCANA_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  if (isGermanApi(baseUrl)) {
-    const response = await fetchCardApi(`${baseUrl}/${id}`, {
-      headers: CARD_API_HEADERS,
-    });
-
-    if (!response.ok) {
-      return {
-        success: false,
-        message: `Lorcana DE API error: ${response.status} for card ${id}`,
-      };
-    }
-
-    const raw = (await response.json()) as LorcanaDeCard;
-
-    return {
-      success: true,
-      message: "Successfully fetched card by id.",
-      data: normalizeLorcanaDeCard(raw),
-    };
-  }
-
-  const parsed = parseLorcanaCardId(id);
-  if (!parsed) {
-    return { success: false, message: `Card ${id} not found.` };
-  }
-
-  const response = await fetchCardApi(
-    `${baseUrl}/${parsed.setCode}/${parsed.number}`,
-    {
-      headers: CARD_API_HEADERS,
-    },
-  );
-
-  if (!response.ok) {
-    return {
-      success: false,
-      message: `Lorcast API error: ${response.status} for card ${id}`,
-    };
-  }
-
-  const raw = (await response.json()) as LorcastCard;
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizeLorcanaCard(raw),
-  };
-}
-
 export const lorcanaAdapter: CardSearchAdapter = {
   defaultUrl: LORCANA_DEFAULT_URL,
   urlForLang: (lang) =>
     lang === "de" ? LORCANA_DE_DEFAULT_URL : LORCANA_DEFAULT_URL,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw, _id, lang) =>
     lang === "de"
       ? normalizeLorcanaDeCard(raw as LorcanaDeCard)

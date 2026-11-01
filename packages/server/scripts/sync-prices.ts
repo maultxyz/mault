@@ -9,6 +9,7 @@ import {
 } from "../src/lib/discord";
 import type { PriceSyncSummary } from "../src/lib/interfaces/discord";
 import { syncTcgplayerPrices } from "../src/lib/tcgplayer-price-sync";
+import { syncTcgplayerSkus } from "../src/lib/tcgplayer-sku-sync";
 
 const log = (msg: string) => console.log(`[sync-prices] ${msg}`);
 const force = process.argv.includes("--force");
@@ -62,6 +63,19 @@ async function run(): Promise<boolean> {
     console.error("[sync-prices] TCGplayer sync failed:", err);
     ok = false;
     sources.TCGplayer = { status: "failed" };
+  }
+  try {
+    log("TCGplayer SKUs: starting.");
+    const skus = await syncTcgplayerSkus({ force, log });
+    ok &&= skus.failedSets === 0;
+    log(
+      skus.skipped
+        ? "TCGplayer SKUs: unchanged."
+        : `TCGplayer SKUs: ${skus.sets} sets, ${skus.skuRows} rows, ${skus.failedSets} failed.`,
+    );
+  } catch (err) {
+    console.error("[sync-prices] TCGplayer SKU sync failed:", err);
+    ok = false;
   }
   try {
     log("Cardmarket: starting.");
