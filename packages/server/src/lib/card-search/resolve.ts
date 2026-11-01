@@ -14,8 +14,6 @@ import { riftboundAdapter } from "../adapters/riftbound/search";
 import { swuAdapter } from "../adapters/swu/search";
 import { scryfallAdapter } from "../adapters/scryfall/search";
 import { yugiohAdapter } from "../adapters/yugioh/search";
-import { withCache } from "./cache";
-import { withErrorHandling } from "./error-handling";
 import { withTcgtracking } from "../tcgtracking/adapter";
 import {
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,
@@ -29,41 +27,32 @@ import type {
 } from "../interfaces/card-search";
 
 export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
-  mtg: withCache(
-    withErrorHandling(withTcgtracking("mtg", scryfallAdapter)),
-  ),
-  gundam: withCache(
-    withErrorHandling(withTcgtracking("gundam", gundamAdapter)),
-  ),
-  pokemon: withCache(
-    withErrorHandling(withTcgtracking("pokemon", pokemonAdapter)),
-  ),
-  pokemonjp: withCache(withErrorHandling(pokemonJapanAdapter)),
-  lorcana: withCache(
-    withErrorHandling(withTcgtracking("lorcana", lorcanaAdapter)),
-  ),
-  onepiece: withCache(
-    withErrorHandling(withTcgtracking("onepiece", onePieceAdapter)),
-  ),
-  fab: withCache(
-    withErrorHandling(withTcgtracking("fab", fabAdapter)),
-  ),
-  yugioh: withCache(
-    withErrorHandling(withTcgtracking("yugioh", yugiohAdapter)),
-  ),
-  riftbound: withCache(
-    withErrorHandling(withTcgtracking("riftbound", riftboundAdapter)),
-  ),
-  swu: withCache(
-    withErrorHandling(withTcgtracking("swu", swuAdapter)),
-  ),
-  grandarchive: withCache(
-    withErrorHandling(withTcgtracking("grandarchive", grandArchiveAdapter)),
-  ),
-  cyberpunk: withCache(
-    withErrorHandling(withTcgtracking("cyberpunk", cyberpunkAdapter)),
-  ),
+  mtg: withTcgtracking("mtg", scryfallAdapter),
+  gundam: withTcgtracking("gundam", gundamAdapter),
+  pokemon: withTcgtracking("pokemon", pokemonAdapter),
+  pokemonjp: pokemonJapanAdapter,
+  lorcana: withTcgtracking("lorcana", lorcanaAdapter),
+  onepiece: withTcgtracking("onepiece", onePieceAdapter),
+  fab: withTcgtracking("fab", fabAdapter),
+  yugioh: withTcgtracking("yugioh", yugiohAdapter),
+  riftbound: withTcgtracking("riftbound", riftboundAdapter),
+  swu: withTcgtracking("swu", swuAdapter),
+  grandarchive: withTcgtracking("grandarchive", grandArchiveAdapter),
+  cyberpunk: withTcgtracking("cyberpunk", cyberpunkAdapter),
 };
+
+export function adapterEntriesForGameKeys(
+  gameKeys: string[] | undefined,
+): [string, CardSearchAdapter][] {
+  if (!gameKeys) return Object.entries(ADAPTERS_BY_GAME_KEY);
+  const unknownGameKeys = gameKeys.filter(
+    (gameKey) => !(gameKey in ADAPTERS_BY_GAME_KEY),
+  );
+  if (unknownGameKeys.length > 0) {
+    throw new Error(`Unknown game keys: ${unknownGameKeys.join(", ")}`);
+  }
+  return gameKeys.map((gameKey) => [gameKey, ADAPTERS_BY_GAME_KEY[gameKey]]);
+}
 
 const collectionMatchScopeCache = createKeyedCache<CollectionMatchScope | null>(
   COLLECTION_MATCH_SCOPE_CACHE_TTL_MS,

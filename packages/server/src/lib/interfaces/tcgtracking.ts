@@ -6,6 +6,8 @@ export interface TcgtrackingSet {
   abbreviation: string | null;
   product_count: number;
   published_on: string | null;
+  products_modified?: string | null;
+  sku_count?: number | null;
 }
 
 export interface TcgtrackingProduct {
@@ -81,4 +83,28 @@ export interface TcgtrackingPrimaryCard {
   numberKey: string | null;
   nameKey: string;
   baseNameKey: string;
+}
+
+export interface TcgtrackingSkuEntry {
+  cnd: string;
+  var: string;
+  lng: string;
+}
+
+export interface TcgtrackingSetSkusResponse {
+  products: Record<string, Record<string, TcgtrackingSkuEntry>>;
+}
+
+export interface TcgtrackingSku {
+  skuId: string;
+  condition: string;
+  variant: string;
+  language: string;
+}
+
+export interface TcgplayerSkuSyncResult {
+  skipped: boolean;
+  sets: number;
+  skuRows: number;
+  failedSets: number;
 }

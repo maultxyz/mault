@@ -5,11 +5,13 @@ import { POKEMON_DEFAULT_URL } from "../../constants/urls";
 import {
   POKEMON_DETAIL_CONCURRENCY,
   POKEMON_DETAIL_LOG_EVERY,
+  POKEMON_DIGITAL_ONLY_SERIES_IDS,
   POKEMON_SYNC_PAGE_LIMIT,
 } from "../../constants/sync";
 import type {
   PokemonCardBrief,
   PokemonCardDetail,
+  PokemonSeries,
 } from "../../interfaces/pokemon";
 import { fetchDetail } from "./search";
 
@@ -98,7 +100,38 @@ async function fetchCards(
     page += 1;
   }
 
-  return fetchDetails(all, listUrl, addLog, signal);
+  const digitalOnlySetIds = await fetchDigitalOnlySetIds(listUrl, signal);
+  const printed = all.filter(
+    (brief) => !digitalOnlySetIds.has(briefSetId(brief)),
+  );
+  if (printed.length < all.length) {
+    addLog(
+      `Skipped ${all.length - printed.length} digital-only cards (Pokémon TCG Pocket).`,
+    );
+  }
+
+  return fetchDetails(printed, listUrl, addLog, signal);
+}
+
+function briefSetId(brief: PokemonCardBrief): string {
+  return brief.id.slice(0, -(brief.localId.length + 1));
+}
+
+async function fetchDigitalOnlySetIds(
+  listUrl: string,
+  signal?: AbortSignal,
+): Promise<Set<string>> {
+  const setIds = new Set<string>();
+  for (const seriesId of POKEMON_DIGITAL_ONLY_SERIES_IDS) {
+    const url = listUrl.replace(/\/cards$/, `/series/${seriesId}`);
+    const res = await fetch(url, { headers: CARD_API_HEADERS, signal });
+    if (res.status === 404) continue;
+    if (!res.ok)
+      throw new Error(`Pokémon series ${seriesId} fetch failed: ${res.status}`);
+    const series = (await res.json()) as PokemonSeries;
+    for (const set of series.sets) setIds.add(set.id);
+  }
+  return setIds;
 }
 
 async function fetchOne(id: string, baseUrl: string, lang?: string) {

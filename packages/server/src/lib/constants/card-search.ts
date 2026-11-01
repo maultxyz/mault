@@ -55,7 +55,6 @@ export const SINGLE_TOKEN_PATTERN = /^#?([a-z0-9-]+)$/i;
 export const NAME_AND_NUMBER_PATTERN =
   /^(.*\S)\s+#?([a-z0-9-]*\d[a-z0-9-]*)(?:\/\d+)?$/i;
 
-export const NETDECK_SEARCH_PAGE_SIZE = 30;
 export const NETDECK_IMAGE_GAMES = new Set(["cyberpunk"]);
 export const NETDECK_SLUG_PATTERN = /^[a-z0-9-]+$/;
 export const NETDECK_IMAGE_URL_REFRESH_MARGIN_MS = 10 * 60 * 1000;
@@ -65,8 +64,6 @@ export const CYBERPUNK_TCGPLAYER_CATEGORY_ID = 92;
 export const POKEMON_JAPAN_TCGPLAYER_CATEGORY_ID = 85;
 export const POKEMON_JAPAN_CARDMARKET_GAME_ID = 6;
 export const POKEMON_JAPAN_LANGUAGES = ["ja"];
-export const POKEMON_JAPAN_SEARCH_RECENT_SET_COUNT = 5;
-export const POKEMON_JAPAN_SEARCH_RESULT_LIMIT = 30;
 export const POKEMON_JAPAN_EXT_KEYS = {
   stage: ["stage", "Stage"],
   energyTypes: ["cardType", "Card Type"],
@@ -83,7 +80,6 @@ export const POKEMON_JAPAN_EXT_KEYS = {
 } as const;
 export const POKEMON_JAPAN_RARITY_NONE = "None";
 
-export const FAB_SEARCH_CARD_LIMIT = 12;
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {
   S: "Normal",
@@ -97,7 +93,6 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
   U: "Unlimited Edition ",
 };
 
-export const GRAND_ARCHIVE_SEARCH_PAGE_SIZE = 30;
 export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
   1: "Common",
   2: "Uncommon",

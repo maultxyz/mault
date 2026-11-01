@@ -9,18 +9,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   allExportAdapters,
-  runExport,
+  downloadStorageLocationCsv,
   supportsGame,
   type ExportAdapter,
 } from "@/features/cards/lib/export";
-import { gamesQueryOptions } from "@/features/games/api/games";
-import { storageLocationExportQueryOptions } from "@/features/storage/api/storage-locations";
+import { storageLocationExportSummaryQueryOptions } from "@/features/storage/api/storage-locations";
 import { useMarkStorageCardsDownloaded } from "@/features/storage/api/use-mark-storage-cards-downloaded";
 import type { StorageExportMenuProps } from "@/lib/interfaces/storage";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_PILL_BUTTON_SM_CLASS } from "@/lib/constants/nav";
-import { IconChevronDown, IconDownload } from "@tabler/icons-react";
+import { IconChevronDown, IconDownload, IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "@/lib/toast";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -29,51 +29,34 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const [combineDuplicates, setCombineDuplicates] = useState(true);
-  const { data: cards } = useQuery(
-    storageLocationExportQueryOptions(location.guid, open),
+  const { data: summary } = useQuery(
+    storageLocationExportSummaryQueryOptions(location.guid, open),
   );
-  const { data: games = [] } = useQuery(gamesQueryOptions);
   const markCardsDownloaded = useMarkStorageCardsDownloaded(location.guid);
+  const [exporting, setExporting] = useState(false);
 
-  const gameKeys = useMemo(
-    () => [...new Set((cards ?? []).map((entry) => entry.gameKey ?? undefined))],
-    [cards],
-  );
   const adapters = useMemo(
     () =>
       allExportAdapters.filter((adapter) =>
-        gameKeys.every((key) => supportsGame(adapter, key)),
+        (summary?.gameKeys ?? []).every((key) => supportsGame(adapter, key ?? undefined)),
       ),
-    [gameKeys],
-  );
-  const singleGameKey = gameKeys.length === 1 ? gameKeys[0] : undefined;
-  const fieldDefinitions = useMemo(
-    () => games.find((game) => game.key === singleGameKey)?.fieldDefinitions ?? [],
-    [games, singleGameKey],
+    [summary?.gameKeys],
   );
 
-  const handleExport = (adapter: ExportAdapter) => {
-    if (!cards) return;
-    const slug = location.name.replace(/\s+/g, "-").toLowerCase();
-    runExport(
-      adapter,
-      cards.map((entry) => ({
-        card: entry.card,
-        isFoil: entry.isFoil,
-        foilType: entry.foilType ?? undefined,
-        condition: entry.condition,
-        language: entry.language ?? undefined,
-      })),
-      slug,
-      {
-        isMtg: singleGameKey === "mtg",
-        fieldDefinitions,
-        gameKey: singleGameKey,
-        gameName: games.find((game) => game.key === singleGameKey)?.name,
-      },
-      combineDuplicates,
-    );
-    markCardsDownloaded(cards.map((entry) => entry.scanId));
+  const handleExport = async (adapter: ExportAdapter) => {
+    if (!summary) return;
+    setExporting(true);
+    try {
+      await downloadStorageLocationCsv(location.guid, adapter, location.name, {
+        combineDuplicates,
+      });
+      markCardsDownloaded(summary.scanIds);
+    } catch (err) {
+      console.error("Failed to export storage location:", err);
+      toast.error(t("export.failed"));
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -81,13 +64,18 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
       <DropdownMenuTrigger
         render={
           <Button
+            disabled={exporting}
             variant={isMobile ? "secondary" : "outline"}
             className={isMobile ? MOBILE_PILL_BUTTON_SM_CLASS : undefined}
           />
         }
       >
-        <IconDownload />
-        {t("export.button")}
+        {exporting ? (
+          <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+        ) : (
+          <IconDownload />
+        )}
+        {exporting ? t("export.exporting") : t("export.button")}
         <IconChevronDown />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -98,7 +86,7 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
           {t("export.combineDuplicates")}
         </DropdownMenuCheckboxItem>
         <DropdownMenuSeparator />
-        {cards ? (
+        {summary ? (
           adapters.map((adapter) => (
             <DropdownMenuItem
               key={adapter.key}

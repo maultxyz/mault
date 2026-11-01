@@ -7,10 +7,11 @@ import type {
   StorageLocationCard,
   StorageLocationCardContext,
   StorageLocationCardPage,
-  StorageLocationExportCard,
+  StorageLocationCsvExportRequest,
+  StorageLocationExportSummary,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
-import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost, apiPostText, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import { STORAGE_LOCATIONS_PAGE_SIZE } from "@/lib/constants/storage";
 
 function check(result: { success: boolean; message?: string }): void {
@@ -73,13 +74,20 @@ export async function fetchFirstUnreviewedStorageCard(guid: string): Promise<Sto
   return page.cards[0] ?? null;
 }
 
-export const storageLocationExportQueryOptions = (guid: string, enabled: boolean) =>
+export const storageLocationExportSummaryQueryOptions = (guid: string, enabled: boolean) =>
   queryOptions({
-    queryKey: ["storage-locations", "export", guid] as const,
+    queryKey: ["storage-locations", "export-summary", guid] as const,
     queryFn: () =>
-      unwrapOr(apiGet<Result<StorageLocationExportCard[]>>(`/api/storage-locations/${guid}/cards/export`), []),
+      unwrapOr(
+        apiGet<Result<StorageLocationExportSummary>>(`/api/storage-locations/${guid}/cards/export-summary`),
+        { gameKeys: [], scanIds: [] },
+      ),
     enabled,
   });
+
+export function downloadStorageLocationCsv(guid: string, request: StorageLocationCsvExportRequest): Promise<string> {
+  return apiPostText(`/api/storage-locations/${guid}/cards/csv-export`, request);
+}
 
 export const storageSearchQueryOptions = (query: string) =>
   queryOptions({

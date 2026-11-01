@@ -147,6 +147,7 @@ export function CardDetailPanel({
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [areMatchesOpen, setAreMatchesOpen] = useState(false);
   const prevScanIdRef = useRef<string | undefined>(undefined);
+  const prevCardIdRef = useRef<string | undefined>(undefined);
 
   const { addCard } = useScannedCards();
   const {
@@ -208,7 +209,15 @@ export function CardDetailPanel({
       setSelectedId(currentCard.id);
       setAreMatchesOpen(!isMobile && !isReviewed && !wasCorrected);
       setEditing(false);
+    } else if (currentCard.id !== prevCardIdRef.current) {
+      setCandidates((prev) =>
+        prev.some((c) => c.id === currentCard.id)
+          ? prev
+          : [...prev, currentCard],
+      );
+      setSelectedId(currentCard.id);
     }
+    prevCardIdRef.current = currentCard.id;
   }, [
     scanId,
     currentCard,

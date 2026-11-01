@@ -3,11 +3,18 @@ import type { FieldMeta } from "./sort-bins.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
 import type { ScannedCard } from "./scanner.interface";
 
+export interface TcgplayerSkuMatch {
+  productId: string;
+  variant: string | null;
+  skuId: string | null;
+}
+
 export interface ExportContext {
   isMtg: boolean;
   fieldDefinitions: FieldMeta[];
   gameKey?: string;
   gameName?: string;
+  tcgplayerSkusByEntryKey?: Record<string, TcgplayerSkuMatch>;
 }
 
 export interface GroupedEntry {
@@ -29,6 +36,7 @@ export interface ExportAdapter {
   filenameSlug: string;
   groupBy: GroupBy;
   games: "all" | string[];
+  usesTcgplayerSkus?: boolean;
   headers: (ctx: ExportContext) => string[];
   row: (entry: GroupedEntry, ctx: ExportContext) => string[];
 }

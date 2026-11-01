@@ -17,6 +17,8 @@ import type {
   TcgtrackingProduct,
   TcgtrackingProductLookup,
   TcgtrackingSet,
+  TcgtrackingSetSkusResponse,
+  TcgtrackingSku,
 } from "../interfaces/tcgtracking";
 
 const catalogs = new Map<
@@ -82,6 +84,26 @@ export async function fetchTcgtrackingSetEntries(
       published_on: set.published_on ?? null,
     },
   }));
+}
+
+export async function fetchTcgtrackingSetSkus(
+  categoryId: number,
+  setId: number,
+): Promise<Map<number, TcgtrackingSku[]>> {
+  const { products } = await getJson<TcgtrackingSetSkusResponse>(
+    `/${categoryId}/sets/${setId}/skus`,
+  );
+  return new Map(
+    Object.entries(products ?? {}).map(([productId, skus]) => [
+      Number(productId),
+      Object.entries(skus).map(([skuId, sku]) => ({
+        skuId,
+        condition: sku.cnd,
+        variant: sku.var,
+        language: sku.lng,
+      })),
+    ]),
+  );
 }
 
 export async function fetchTcgtrackingProductEntry(

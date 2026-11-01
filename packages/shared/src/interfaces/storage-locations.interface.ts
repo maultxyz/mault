@@ -75,3 +75,8 @@ export interface EmptyBinOptions {
   locationGuid?: string;
   collectionGuid?: string;
 }
+
+export interface StorageLocationExportSummary {
+  gameKeys: (string | null)[];
+  scanIds: string[];
+}

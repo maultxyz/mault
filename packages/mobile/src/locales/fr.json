@@ -1812,7 +1812,8 @@
     "title": "Exporter {{name}}",
     "loading": "Chargement des cartes",
     "combineDuplicates": "Regrouper les doublons",
-    "failed": "Impossible d'exporter les cartes"
+    "failed": "Impossible d'exporter les cartes",
+    "exporting": "Export en cours"
   },
   "alerts": {
     "title": "Notifications",

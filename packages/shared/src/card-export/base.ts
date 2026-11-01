@@ -46,7 +46,15 @@ export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
   return price != null ? price.toFixed(2) : "";
 }
 
-function groupCards(
+export function exportEntryKey(
+  entry: Pick<GroupedEntry, "isFoil" | "foilType" | "condition" | "language"> & {
+    card: Pick<PlayingCardWithDistance, "id">;
+  },
+): string {
+  return `${entry.card.id}:${entry.isFoil}:${entry.foilType ?? ""}:${entry.condition}:${entry.language}`;
+}
+
+export function groupExportCards(
   cards: ExportableCard[],
   groupBy: GroupBy,
   combineDuplicates: boolean,
@@ -67,7 +75,7 @@ function groupCards(
     const language = scanLanguage(entry);
     const key =
       groupBy === "card-foil"
-        ? `${entry.card.id}:${isFoil}:${entry.foilType ?? ""}:${condition}:${language}`
+        ? exportEntryKey({ card: entry.card, isFoil, foilType: entry.foilType, condition, language })
         : `${entry.card.id}:${condition}:${language}`;
     const existing = grouped.get(key);
     if (existing) existing.quantity++;
@@ -92,7 +100,7 @@ export function buildExportCsv(
   ctx: ExportContext,
   combineDuplicates: boolean,
 ): string {
-  const entries = groupCards(cards, adapter.groupBy, combineDuplicates);
+  const entries = groupExportCards(cards, adapter.groupBy, combineDuplicates);
   return [
     adapter.headers(ctx).join(","),
     ...entries.map((entry) => adapter.row(entry, ctx).join(",")),

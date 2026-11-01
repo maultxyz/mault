@@ -4,7 +4,6 @@ import type {
   OcrDiagnostics,
   OcrReadout,
   PlayingCard,
-  Result,
   SearchCardMatch,
 } from "@magic-vault/shared";
 import type { SQL } from "drizzle-orm";
@@ -63,12 +62,6 @@ export interface FoilPrintingVariants {
 export interface CardSearchAdapter {
   defaultUrl: string;
   urlForLang?(lang: string): string;
-  search(
-    query: string,
-    baseUrl: string,
-    lang: string,
-  ): Promise<Result<PlayingCard[]>>;
-  searchById(id: string, baseUrl: string): Promise<Result<PlayingCard>>;
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
   rarePrintingSql?: SQL;
   excludedFromMatchingSql?: SQL;

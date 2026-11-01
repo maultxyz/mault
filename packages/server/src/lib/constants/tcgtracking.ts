@@ -1,3 +1,5 @@
+import type { CardCondition } from "@magic-vault/shared";
+
 export const TCGTRACKING_FALLBACK_ID_PREFIX = "tcgp-";
 export const TCGTRACKING_FALLBACK_SOURCE = "tcgtracking";
 export const TCGTRACKING_REQUEST_DELAY_MS = 150;
@@ -32,3 +34,18 @@ export const TCGTRACKING_PRODUCT_NUMBER_SUFFIX_PATTERN =
 export const GUNDAM_PRODUCT_CARD_NUMBER_TAG_PATTERN = /\s*\([A-Z]+\d*-\d+\)/g;
 
 export const POKEMON_BASIC_ENERGY_PREFIX_PATTERN = /^Basic\s+(?=.*\bEnergy\b)/i;
+
+export const TCGPLAYER_SKU_UPSERT_BATCH_SIZE = 1000;
+export const TCGPLAYER_SKU_PROGRESS_LOG_EVERY_SETS = 50;
+export const TCGPLAYER_SKU_CONDITION_COLUMNS = {
+  NM: "nearMintSkuId",
+  LP: "lightlyPlayedSkuId",
+  MP: "moderatelyPlayedSkuId",
+  HP: "heavilyPlayedSkuId",
+  DMG: "damagedSkuId",
+} as const satisfies Record<CardCondition, string>;
+export const TCGTRACKING_SKU_LANGUAGE_CODES: Record<string, string> = {
+  ja: "JP",
+  zhs: "CS",
+  zht: "CT",
+};

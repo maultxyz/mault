@@ -2,7 +2,7 @@ import { max, sql } from "drizzle-orm";
 import { db } from "../db";
 import { tcgplayerPrices, tcgplayerProducts } from "../db/schema";
 import { fetchCardApi } from "./card-search/fetch";
-import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
+import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import { CARD_API_HEADERS } from "./constants/card-search";
 import {
   TCGPLAYER_PRICE_UPSERT_BATCH_SIZE,
@@ -134,9 +134,11 @@ async function lastSyncedByCategory(
 
 export async function syncTcgplayerPrices({
   force = false,
+  gameKeys,
   log,
 }: {
   force?: boolean;
+  gameKeys?: string[];
   log: (msg: string) => void;
 }): Promise<PriceSyncResult> {
   const pricesSyncedAt = await lastSyncedByCategory(tcgplayerPrices);
@@ -145,7 +147,7 @@ export async function syncTcgplayerPrices({
   const recentCutoff = new Date(Date.now() - TCGCSV_MIN_PULL_INTERVAL_MS);
 
   const needsProducts = new Map<number, boolean>();
-  for (const adapter of Object.values(ADAPTERS_BY_GAME_KEY)) {
+  for (const [, adapter] of adapterEntriesForGameKeys(gameKeys)) {
     if (!adapter.tcgplayer) continue;
     const { categoryId, productMatch } = adapter.tcgplayer;
     needsProducts.set(

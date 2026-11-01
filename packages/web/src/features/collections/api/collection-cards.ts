@@ -9,7 +9,6 @@ import type {
   CollectionCardsQuery,
   CollectionCardsSummary,
   Result,
-  ScannedCard,
 } from "@magic-vault/shared";
 import { UNMATCHED_PAGE_SIZE } from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
@@ -51,8 +50,6 @@ export const collectionCardsKeys = {
     scanId: string | undefined,
     query: CollectionCardsQuery,
   ) => [...collectionCardsKeys.all(guid), "position", scanId, query] as const,
-  export: (guid: string | undefined) =>
-    [...collectionCardsKeys.all(guid), "export"] as const,
   binCounts: (guid: string | undefined, bins: BinWindow[]) =>
     [...collectionCardsKeys.all(guid), "bin-counts", bins] as const,
 };
@@ -89,17 +86,6 @@ export function loadCollectionCardIds(
     apiGet<Result<string[]>>(
       `/api/collections/${guid}/cards/ids?${cardsQueryParams(query)}`,
     ),
-  );
-}
-
-export function loadCardsForExport(
-  guid: string,
-  scanIds: string[],
-): Promise<ScannedCard[]> {
-  return unwrap(
-    apiPost<Result<ScannedCard[]>>(`/api/collections/${guid}/cards/export`, {
-      scanIds,
-    }),
   );
 }
 
@@ -196,19 +182,6 @@ export const collectionCardPositionQueryOptions = (
         ),
       ),
     enabled: !!guid && !!scanId,
-  });
-
-export const collectionCardsExportQueryOptions = (
-  guid: string | undefined,
-  enabled: boolean,
-) =>
-  queryOptions({
-    queryKey: collectionCardsKeys.export(guid),
-    queryFn: () =>
-      unwrap(
-        apiGet<Result<ScannedCard[]>>(`/api/collections/${guid}/cards/export`),
-      ),
-    enabled: !!guid && enabled,
   });
 
 export const binCardCountsQueryOptions = (

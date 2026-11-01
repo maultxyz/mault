@@ -60,11 +60,11 @@ export function ExportSheet({
             value={combineDuplicates}
             onValueChange={onCombineDuplicatesChange}
           />
-          {loading ? (
+          {loading || exporting ? (
             <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingVertical: SPACING.md }}>
               <ActivityIndicator color={colors.foreground} />
               <AppText size="sm" tone="secondary">
-                {t("export.loading")}
+                {exporting ? t("export.exporting") : t("export.loading")}
               </AppText>
             </View>
           ) : (

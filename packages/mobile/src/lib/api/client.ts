@@ -58,6 +58,21 @@ export async function apiRequest<T>(
   return (await res.json()) as T;
 }
 
+export async function apiPostText(path: string, body: unknown): Promise<string> {
+  const orgId = resolveRequestOrgId();
+  const headers = await getAuthHeaders();
+  headers["Content-Type"] = "application/json";
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+  handleForbidden(res);
+  await trackMemberSeatLimit(res, orgId);
+  if (!res.ok) throw new ApiStatusError(res.status);
+  return res.text();
+}
+
 export function apiGet<T>(path: string): Promise<T> {
   return apiRequest<T>(path);
 }

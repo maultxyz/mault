@@ -339,17 +339,12 @@ export const routes: RouteObject[] = [
                     element: <RequireCollectionGuard />,
                     children: [
                       {
-                        element: <BlockedWhileImpersonatingGuard />,
-                        children: [
-                          {
-                            path: "/app",
-                            element: <ScannerPage />,
-                          },
-                          {
-                            path: "/app/cards/:scanId",
-                            element: <ScannerPage />,
-                          },
-                        ],
+                        path: "/app",
+                        element: <ScannerPage />,
+                      },
+                      {
+                        path: "/app/cards/:scanId",
+                        element: <ScannerPage />,
                       },
                       {
                         path: "/app/collections",

@@ -106,7 +106,9 @@
   "export": {
     "button": "Exporter",
     "loading": "Chargement des cartes",
-    "combineDuplicates": "Regrouper les doublons"
+    "combineDuplicates": "Regrouper les doublons",
+    "failed": "Impossible d'exporter les cartes.",
+    "exporting": "Export en cours"
   },
   "emptyAllDialog": {
     "title": "Vider tous les bacs",

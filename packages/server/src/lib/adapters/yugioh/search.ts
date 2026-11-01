@@ -1,14 +1,10 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
-import { fetchCardApi } from "../../card-search/fetch";
+import type { PlayingCard } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
-import { CARD_API_HEADERS } from "../../constants/card-search";
 import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
 import type {
   YgoCardImage,
   YgoCardPrice,
   YgoCard,
-  YgoApiResponse,
 } from "../../interfaces/yugioh";
 
 export function splitSetCode(setCode: string): { set: string; number: string } {
@@ -63,81 +59,8 @@ export function normalizeYugiohCard(raw: YgoCard): PlayingCard[] {
   return images.map((image) => normalizeOne(raw, image));
 }
 
-export async function searchCards(
-  query: string,
-  baseUrl: string = YUGIOH_DEFAULT_URL,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const url = `${baseUrl}?fname=${encodeURIComponent(query)}`;
-  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
-
-  if (response.status === 400) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from the YGOPRODeck API.",
-      success: false,
-    };
-  }
-
-  const json = (await response.json()) as YgoApiResponse;
-  const rows = json.data ?? [];
-
-  if (rows.length === 0) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: rows.flatMap(normalizeYugiohCard),
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = YUGIOH_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const url = `${baseUrl}?id=${encodeURIComponent(id)}`;
-  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
-
-  if (!response.ok) {
-    return {
-      success: false,
-      message: `YGOPRODeck API error: ${response.status} for card ${id}`,
-    };
-  }
-
-  const json = (await response.json()) as YgoApiResponse;
-  const raw = json.data?.[0];
-  if (!raw) {
-    return { success: false, message: `Card ${id} not found.` };
-  }
-
-  const variants = normalizeYugiohCard(raw);
-  const match = variants.find((c) => c.id === id) ?? variants[0];
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: match,
-  };
-}
-
 export const yugiohAdapter: CardSearchAdapter = {
   defaultUrl: YUGIOH_DEFAULT_URL,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw, id) =>
     normalizeYugiohCard(raw as YgoCard).find((card) => card.id === id) ?? null,
   tcgplayer: {

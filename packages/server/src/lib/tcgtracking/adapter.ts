@@ -1,14 +1,9 @@
 import { sql } from "drizzle-orm";
 import type { CardSearchAdapter } from "../interfaces/card-search";
-import {
-  loadTcgtrackingCatalog,
-  tcgtrackingCardImage,
-  tcgtrackingProductIdOf,
-} from "./catalog";
+import { tcgtrackingCardImage } from "./catalog";
 import {
   isTcgtrackingFallbackData,
   normalizeTcgtrackingFallback,
-  toTcgtrackingFallbackData,
 } from "./fallback";
 import { TCGTRACKING_GAMES } from "./games";
 
@@ -39,23 +34,6 @@ export function withTcgtracking(
             tcgplayerId: String(productId),
           }
         : card;
-    },
-    async searchById(id, baseUrl) {
-      const productId = tcgtrackingProductIdOf(id);
-      if (productId === null) return adapter.searchById(id, baseUrl);
-      const entry = (await loadTcgtrackingCatalog(categoryId)).find(
-        (candidate) => candidate.product.id === productId,
-      );
-      if (!entry) return { success: false, message: `Card ${id} not found.` };
-      return {
-        success: true,
-        message: "Successfully fetched card by id.",
-        data: normalizeTcgtrackingFallback(
-          toTcgtrackingFallbackData(entry, undefined, config),
-          id,
-          config,
-        ),
-      };
     },
     cardmarket: adapter.cardmarket && {
       ...adapter.cardmarket,

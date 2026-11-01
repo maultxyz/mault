@@ -1,21 +1,18 @@
 import {
-  buildExportCsv,
   exportFilename,
-  type ExportableCard,
+  type CollectionCsvExportRequest,
   type ExportAdapter,
-  type ExportContext,
+  type StorageLocationCsvExportRequest,
 } from "@magic-vault/shared";
+import { apiPostBlob } from "@/lib/api/client";
 
 export {
   allExportAdapters,
   supportsGame,
-  type ExportableCard,
   type ExportAdapter,
-  type ExportContext,
 } from "@magic-vault/shared";
 
-function downloadCsv(csv: string, filename: string) {
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -24,13 +21,32 @@ function downloadCsv(csv: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export function runExport(
+function exportSlug(exportName: string): string {
+  return exportName.replace(/\s+/g, "-").toLowerCase();
+}
+
+export async function downloadCollectionCsv(
+  collectionGuid: string,
   adapter: ExportAdapter,
-  cards: ExportableCard[],
-  collection: string,
-  ctx: ExportContext,
-  combineDuplicates: boolean,
-) {
-  if (cards.length === 0) return;
-  downloadCsv(buildExportCsv(adapter, cards, ctx, combineDuplicates), exportFilename(adapter, collection));
+  exportName: string,
+  request: Omit<CollectionCsvExportRequest, "format">,
+): Promise<void> {
+  const csv = await apiPostBlob(`/api/collections/${collectionGuid}/cards/csv-export`, {
+    ...request,
+    format: adapter.key,
+  });
+  downloadBlob(csv, exportFilename(adapter, exportSlug(exportName)));
+}
+
+export async function downloadStorageLocationCsv(
+  locationGuid: string,
+  adapter: ExportAdapter,
+  exportName: string,
+  request: Omit<StorageLocationCsvExportRequest, "format">,
+): Promise<void> {
+  const csv = await apiPostBlob(`/api/storage-locations/${locationGuid}/cards/csv-export`, {
+    ...request,
+    format: adapter.key,
+  });
+  downloadBlob(csv, exportFilename(adapter, exportSlug(exportName)));
 }
