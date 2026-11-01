@@ -10,6 +10,7 @@ import {
 } from "../src/lib/discord";
 import type { PriceSyncSummary } from "../src/lib/interfaces/discord";
 import { syncTcgplayerPrices } from "../src/lib/tcgplayer-price-sync";
+import { syncGameFoilTypesFromTcgplayer } from "../src/lib/tcgplayer-foil-types";
 import { syncTcgplayerSkus } from "../src/lib/tcgplayer-sku-sync";
 
 const log = (msg: string) => console.log(`[sync-prices] ${msg}`);
@@ -84,6 +85,7 @@ async function run(): Promise<boolean> {
         ? "TCGplayer SKUs: unchanged."
         : `TCGplayer SKUs: ${skus.sets} sets, ${skus.skuRows} rows, ${skus.failedSets} failed.`,
     );
+    await syncGameFoilTypesFromTcgplayer({ gameKeys, log });
   } catch (err) {
     console.error("[sync-prices] TCGplayer SKU sync failed:", err);
     ok = false;

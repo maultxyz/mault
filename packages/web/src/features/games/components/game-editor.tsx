@@ -242,20 +242,6 @@ export function GameEditor({ game }: GameEditorProps) {
                   </FieldDescription>
                   <FieldError errors={[errors.cardThickness]} />
                 </Field>
-                <Field data-invalid={!!errors.foilTypesText}>
-                  <FieldLabel htmlFor="game-foil-types">
-                    {t("gameForm.foilTypesLabel")}
-                  </FieldLabel>
-                  <Input
-                    id="game-foil-types"
-                    placeholder={t("gameForm.foilTypesPlaceholder")}
-                    {...register("foilTypesText")}
-                  />
-                  <FieldDescription>
-                    {t("gameForm.foilTypesDescription")}
-                  </FieldDescription>
-                  <FieldError errors={[errors.foilTypesText]} />
-                </Field>
               </div>
             </SettingsSection>
 

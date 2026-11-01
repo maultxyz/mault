@@ -33,3 +33,12 @@ export const POKEMON_FINISH_SUBTYPES: Record<string, string[]> = {
 };
 
 export const POKEMON_SEPARATE_FINISH_PRODUCT_SUBTYPES = ["Normal"];
+
+export const POKEMON_NON_FOIL_PRICE_SUBTYPES = ["normal", "unlimited", "1st-edition"];
+
+export const POKEMON_REVERSE_HOLO_PRICE_SUBTYPE = "reverse-holofoil";
+
+export const POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT: Record<string, string> = {
+  Holofoil: "Holo",
+  "Reverse Holofoil": "Reverse Holo",
+};

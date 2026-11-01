@@ -1,6 +1,9 @@
 import type { PlayingCard } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { SCRYFALL_LIST_SET_CODES } from "../../constants/card-search";
+import {
+  SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT,
+  SCRYFALL_LIST_SET_CODES,
+} from "../../constants/card-search";
 import { sql } from "drizzle-orm";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
 import { scryfallFoilPrintingVariants } from "./foil-printings";
@@ -69,6 +72,8 @@ export const scryfallAdapter: CardSearchAdapter = {
   foilPrintingVariants: scryfallFoilPrintingVariants,
   tcgplayer: {
     categoryId: 1,
+    foilTypeOfVariant: (variant) =>
+      SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT[variant] ?? variant,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
     productIdFromRaw: (card) => (card.raw as ScryfallApiCard).tcgplayer_id,
   },

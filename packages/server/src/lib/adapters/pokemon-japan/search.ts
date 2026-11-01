@@ -5,6 +5,7 @@ import {
   POKEMON_JAPAN_RARITY_NONE,
   POKEMON_JAPAN_TCGPLAYER_CATEGORY_ID,
 } from "../../constants/card-search";
+import { POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT } from "../../constants/pokemon";
 import { POKEMON_JAPAN_DEFAULT_URL } from "../../constants/urls";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import type { TcgtrackingCatalogEntry } from "../../interfaces/tcgtracking";
@@ -77,6 +78,8 @@ export const pokemonJapanAdapter: CardSearchAdapter = {
   ocrMatchesByPrintedSetAndNumber: true,
   tcgplayer: {
     categoryId: POKEMON_JAPAN_TCGPLAYER_CATEGORY_ID,
+    foilTypeOfVariant: (variant) =>
+      POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT[variant] ?? variant,
     productIdFromRaw: (card) => rawEntry(card).product.id,
     subTypes: () => ({
       price: ["Normal", "Holofoil"],

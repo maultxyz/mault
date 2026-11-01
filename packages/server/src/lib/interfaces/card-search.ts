@@ -37,6 +37,7 @@ export interface TcgplayerFinishProduct {
 
 export interface TcgplayerPricing {
   categoryId: number;
+  foilTypeOfVariant?(variantWithoutEdition: string): string;
   subTypes(card: PlayingCard): TcgplayerSubTypes;
   finishProducts?(card: PlayingCard): TcgplayerFinishProduct[];
   productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
