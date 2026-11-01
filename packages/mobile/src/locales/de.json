@@ -822,6 +822,7 @@
     "prices": "Preise",
     "binLocation": "Fachposition",
     "scanOrigin": {
+      "scannedAt": "Gescannt",
       "scannedBy": "Von",
       "sorter": "Sortierer",
       "deletedSorter": "{{name}} (gelöscht)"

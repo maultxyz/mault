@@ -25,6 +25,13 @@ export function formatShortDateTime(value: Date | string): string {
   });
 }
 
+export function formatDateTime(value: Date | string): string {
+  return new Date(value).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
 export function formatShortDate(value: Date | string): string {
   return new Date(value).toLocaleDateString(undefined, {
     month: "short",

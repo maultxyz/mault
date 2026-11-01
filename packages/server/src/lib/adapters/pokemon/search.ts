@@ -5,9 +5,11 @@ import type { CardSearchAdapter } from "../../interfaces/card-search";
 import {
   pokemonFinishes,
   pokemonFinishProducts,
+  pokemonFoilOnlyFoilType,
   pokemonTcgplayerProductId,
 } from "./finishes";
 import { CARD_API_HEADERS } from "../../constants/card-search";
+import { POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT } from "../../constants/pokemon";
 import { POKEMON_DEFAULT_URL } from "../../constants/urls";
 import type {
   PokemonCardDetail,
@@ -84,6 +86,7 @@ function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
     sourceUrl: `https://tcgdex.dev/cards/${raw.id}`,
     tcgplayerId: resolveTcgplayerId(raw.pricing),
     foilTypes: foilTypes.length > 0 ? foilTypes : undefined,
+    foilOnlyFoilType: pokemonFoilOnlyFoilType(raw, foilTypes),
     cmc: raw.retreat,
     raw,
   };
@@ -109,6 +112,8 @@ export const pokemonAdapter: CardSearchAdapter = {
   excludedFromMatchingSql: sql`(data->>'image') LIKE '%/tcgp/%'`,
   tcgplayer: {
     categoryId: 3,
+    foilTypeOfVariant: (variant) =>
+      POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT[variant] ?? variant,
     productIdFromRaw: (card) =>
       resolveTcgplayerId((card.raw as PokemonCardDetail).pricing),
     finishProducts: pokemonFinishProducts,

@@ -15,7 +15,6 @@ const exportedGameSchema = z.object({
   key: z.string().trim().regex(GAME_KEY_PATTERN),
   name: z.string().trim().min(1),
   apiDocsUrl: z.string().trim().url().nullable().default(null),
-  foilTypes: z.array(z.string().trim().min(1)).default([]),
   cardThickness: z.number().positive().nullable().default(null),
   isActive: z.boolean().default(true),
   fieldDefinitions: z

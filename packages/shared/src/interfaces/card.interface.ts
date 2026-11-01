@@ -84,6 +84,7 @@ export interface PlayingCard {
   cardKingdomPriceFoil?: PlayingCardCardKingdomPrice;
   pricesAtScan?: CardPricesAtScan;
   foilTypes?: string[];
+  foilOnlyFoilType?: string;
   finishPrices?: Record<string, CardFinishPrices>;
   purchaseLinks?: CardPurchaseLinks;
   sourceUrl?: string;

@@ -14,6 +14,10 @@ export const SCRYFALL_LIST_SET_CODES = ["plst", "ulst"];
 
 export const SCRYFALL_ETCHED_FINISH = "etched";
 
+export const SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT: Record<string, string> = {
+  Foil: "Traditional",
+};
+
 export const SCRYFALL_FOIL_PROMO_TYPES = [
   "surgefoil",
   "galaxyfoil",

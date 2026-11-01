@@ -15,7 +15,6 @@ export function buildGamesExport(games: Game[]): GamesExport {
       key: g.key,
       name: g.name,
       apiDocsUrl: g.apiDocsUrl,
-      foilTypes: g.foilTypes,
       cardThickness: g.cardThickness,
       isActive: g.isActive,
       fieldDefinitions: g.fieldDefinitions.map((f) => ({
@@ -38,7 +37,6 @@ export function toGameInput(game: ExportedGame): GameInput {
     key: game.key,
     name: game.name,
     apiDocsUrl: game.apiDocsUrl,
-    foilTypes: game.foilTypes,
     cardThickness: game.cardThickness,
     isActive: game.isActive,
     fieldDefinitions: game.fieldDefinitions.map((f) => ({

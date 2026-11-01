@@ -49,3 +49,7 @@ export const TCGTRACKING_SKU_LANGUAGE_CODES: Record<string, string> = {
   zhs: "CS",
   zht: "CT",
 };
+
+export const TCGPLAYER_FOIL_VARIANT_PATTERN = /foil/i;
+
+export const TCGPLAYER_EDITION_VARIANT_PREFIX_PATTERN = /^(1st Edition|Unlimited) /;

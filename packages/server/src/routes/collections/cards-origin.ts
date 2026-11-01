@@ -26,7 +26,11 @@ export const collectionCardOriginRoute = new Hono<AppEnv>().get(
         deviceIsDeleted: devices.isDeleted,
       };
       const [matched] = await tx
-        .select({ userId: collectionCards.scannedByUserId, ...deviceColumns })
+        .select({
+          userId: collectionCards.scannedByUserId,
+          scannedAt: collectionCards.scannedAt,
+          ...deviceColumns,
+        })
         .from(collectionCards)
         .leftJoin(devices, eq(devices.id, collectionCards.scannedByDeviceId))
         .where(
@@ -38,7 +42,11 @@ export const collectionCardOriginRoute = new Hono<AppEnv>().get(
         .limit(1);
       if (matched) return matched;
       const [unmatched] = await tx
-        .select({ userId: unmatchedCards.scannedByUserId, ...deviceColumns })
+        .select({
+          userId: unmatchedCards.scannedByUserId,
+          scannedAt: unmatchedCards.scannedAt,
+          ...deviceColumns,
+        })
         .from(unmatchedCards)
         .leftJoin(devices, eq(devices.id, unmatchedCards.scannedByDeviceId))
         .where(
@@ -63,6 +71,7 @@ export const collectionCardOriginRoute = new Hono<AppEnv>().get(
               isDeleted: row.deviceIsDeleted ?? false,
             }
           : null,
+      scannedAt: row.scannedAt.toISOString(),
     };
     return c.json({ success: true, data });
   },

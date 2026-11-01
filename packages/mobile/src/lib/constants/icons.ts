@@ -6,6 +6,7 @@ import IconAlertTriangle from "@tabler/icons-react-native/IconAlertTriangle";
 import IconArrowDown from "@tabler/icons-react-native/IconArrowDown";
 import IconArrowsSplit2 from "@tabler/icons-react-native/IconArrowsSplit2";
 import IconBell from "@tabler/icons-react-native/IconBell";
+import IconClock from "@tabler/icons-react-native/IconClock";
 import IconArrowsShuffle from "@tabler/icons-react-native/IconArrowsShuffle";
 import IconLanguage from "@tabler/icons-react-native/IconLanguage";
 import IconHeartbeat from "@tabler/icons-react-native/IconHeartbeat";
@@ -64,6 +65,7 @@ import IconX from "@tabler/icons-react-native/IconX";
 
 export const ICONS = {
   account: IconUserCircle,
+  clock: IconClock,
   adjust: IconAdjustments,
   connection: IconPlugConnected,
   layout: IconLayoutGrid,

@@ -13,7 +13,6 @@ export function toGameFormValues(game?: Game | null): GameFormValues {
       key: "",
       name: "",
       apiDocsUrl: "",
-      foilTypesText: "",
       cardThickness: null,
       isActive: true,
       fieldDefinitions: [],
@@ -23,7 +22,6 @@ export function toGameFormValues(game?: Game | null): GameFormValues {
     key: game.key,
     name: game.name,
     apiDocsUrl: game.apiDocsUrl ?? "",
-    foilTypesText: game.foilTypes.join(", "),
     cardThickness: game.cardThickness ?? null,
     isActive: game.isActive,
     fieldDefinitions: game.fieldDefinitions.map((f) => ({
@@ -35,15 +33,6 @@ export function toGameFormValues(game?: Game | null): GameFormValues {
       originalField: f.field,
     })),
   };
-}
-
-export function toFoilTypes(foilTypesText: string | undefined): string[] {
-  return (
-    foilTypesText
-      ?.split(",")
-      .map((v) => v.trim())
-      .filter(Boolean) ?? []
-  );
 }
 
 export function toFieldRenames(
@@ -88,7 +77,6 @@ export function toGameInput(values: GameFormValues): GameInput {
     key: values.key,
     name: values.name,
     apiDocsUrl: values.apiDocsUrl || null,
-    foilTypes: toFoilTypes(values.foilTypesText),
     cardThickness: values.cardThickness,
     isActive: values.isActive,
     fieldDefinitions: toFieldDefinitions(values.fieldDefinitions),

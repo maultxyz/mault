@@ -378,6 +378,7 @@
     "setSelected": "État"
   },
   "scanOrigin": {
+    "scannedAt": "Scanné",
     "scannedBy": "Par",
     "sorter": "Trieuse",
     "deletedSorter": "{{name}} (supprimée)"
