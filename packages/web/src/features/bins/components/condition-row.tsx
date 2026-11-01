@@ -45,6 +45,36 @@ import { IconChevronDown, IconX } from "@tabler/icons-react";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+function NumericConditionInput({
+  value,
+  onChange,
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+}) {
+  const [draftText, setDraftText] = useState(() =>
+    value === "" ? "" : String(value),
+  );
+  const draftMatchesValue =
+    draftText === "" ? value === "" : Number(draftText) === value;
+
+  return (
+    <Input
+      type="number"
+      step="any"
+      placeholder="0"
+      max={CONDITION_NUMERIC_MAX}
+      className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
+      value={draftMatchesValue ? draftText : String(value)}
+      onChange={(e) => {
+        const raw = e.target.value;
+        setDraftText(raw);
+        onChange(raw === "" ? "" : Number(raw));
+      }}
+    />
+  );
+}
+
 function FreeformMultiInput({
   value,
   onChange,
@@ -278,17 +308,10 @@ export function ConditionRow({
 
     if (fieldMeta.type === "numeric") {
       return (
-        <Input
-          type="number"
-          step="any"
-          placeholder="0"
-          max={CONDITION_NUMERIC_MAX}
-          className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
-          value={condition.value === "" ? "" : String(condition.value)}
-          onChange={(e) => {
-            const raw = e.target.value;
-            handleValueChange(raw === "" ? "" : Number(raw));
-          }}
+        <NumericConditionInput
+          key={`${condition.field}:${condition.operator}`}
+          value={Array.isArray(condition.value) ? "" : condition.value}
+          onChange={handleValueChange}
         />
       );
     }
