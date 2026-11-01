@@ -41,6 +41,19 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   cyberpunk: withTcgtracking("cyberpunk", cyberpunkAdapter),
 };
 
+export function adapterEntriesForGameKeys(
+  gameKeys: string[] | undefined,
+): [string, CardSearchAdapter][] {
+  if (!gameKeys) return Object.entries(ADAPTERS_BY_GAME_KEY);
+  const unknownGameKeys = gameKeys.filter(
+    (gameKey) => !(gameKey in ADAPTERS_BY_GAME_KEY),
+  );
+  if (unknownGameKeys.length > 0) {
+    throw new Error(`Unknown game keys: ${unknownGameKeys.join(", ")}`);
+  }
+  return gameKeys.map((gameKey) => [gameKey, ADAPTERS_BY_GAME_KEY[gameKey]]);
+}
+
 const collectionMatchScopeCache = createKeyedCache<CollectionMatchScope | null>(
   COLLECTION_MATCH_SCOPE_CACHE_TTL_MS,
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,

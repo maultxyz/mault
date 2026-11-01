@@ -2,7 +2,7 @@ import { isCardCondition } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { tcgplayerSkus, tcgplayerSkuSets } from "../db/schema";
-import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
+import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import {
   TCGPLAYER_SKU_CONDITION_COLUMNS,
   TCGPLAYER_SKU_PROGRESS_LOG_EVERY_SETS,
@@ -18,10 +18,10 @@ import {
   fetchTcgtrackingSetSkus,
 } from "./tcgtracking/catalog";
 
-function tcgplayerCategoryIds(): number[] {
+function tcgplayerCategoryIds(gameKeys: string[] | undefined): number[] {
   return [
     ...new Set(
-      Object.values(ADAPTERS_BY_GAME_KEY).flatMap((adapter) =>
+      adapterEntriesForGameKeys(gameKeys).flatMap(([, adapter]) =>
         adapter.tcgplayer ? [adapter.tcgplayer.categoryId] : [],
       ),
     ),
@@ -90,15 +90,17 @@ async function replaceSetSkus(
 
 export async function syncTcgplayerSkus({
   force = false,
+  gameKeys,
   log,
 }: {
   force?: boolean;
+  gameKeys?: string[];
   log: (msg: string) => void;
 }): Promise<TcgplayerSkuSyncResult> {
   let syncedSets = 0;
   let skuRows = 0;
   let failedSets = 0;
-  for (const categoryId of tcgplayerCategoryIds()) {
+  for (const categoryId of tcgplayerCategoryIds(gameKeys)) {
     const sets = (await fetchTcgtrackingSets(categoryId)).filter(
       (set) => (set.sku_count ?? 0) > 0,
     );
