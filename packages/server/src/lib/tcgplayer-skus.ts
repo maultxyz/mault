@@ -1,4 +1,8 @@
-import type { GroupedEntry, PlayingCard } from "@magic-vault/shared";
+import type {
+  GroupedEntry,
+  PlayingCard,
+  TcgplayerSkuMatch,
+} from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { tcgplayerSkus } from "../db/schema";
@@ -41,10 +45,10 @@ function skuTargetFor(
   return { productId, variants, condition, languageCode };
 }
 
-export async function resolveTcgplayerSkuIds(
+export async function resolveTcgplayerSkus(
   gameKey: string | undefined,
   entries: GroupedEntry[],
-): Promise<(string | null)[]> {
+): Promise<(TcgplayerSkuMatch | null)[]> {
   const pricing = gameKey ? ADAPTERS_BY_GAME_KEY[gameKey]?.tcgplayer : undefined;
   if (!pricing) return entries.map(() => null);
 
@@ -69,11 +73,12 @@ export async function resolveTcgplayerSkuIds(
 
   return targets.map((target) => {
     if (!target) return null;
+    const productId = String(target.productId);
     for (const variant of target.variants) {
       const row = rowsByKey.get(`${target.productId}:${variant}:${target.languageCode}`);
       const skuId = row?.[TCGPLAYER_SKU_CONDITION_COLUMNS[target.condition]];
-      if (skuId != null) return String(skuId);
+      if (skuId != null) return { productId, variant, skuId: String(skuId) };
     }
-    return null;
+    return { productId, variant: target.variants[0] ?? null, skuId: null };
   });
 }

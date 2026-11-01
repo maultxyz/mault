@@ -43,3 +43,37 @@ export const TCGPLAYER_PRODUCT_LINES: Record<string, string> = {
   gundam: "Gundam Card Game",
   grandarchive: "Grand Archive TCG",
 };
+
+export const SORTSWIFT_CONDITION_CODES: Record<CardCondition, string> = {
+  NM: "NM",
+  LP: "LP",
+  MP: "MP",
+  HP: "HP",
+  DMG: "DM",
+};
+
+export const SORTSWIFT_PRICE_HEADERS = [
+  "TCGPlayer Price",
+  "Shopify Price",
+  "Cardtrader Price",
+  "Manapool Price",
+  "Misprint Price",
+  "eBay Price",
+  "Square Price",
+];
+
+export const SORTSWIFT_OVERRIDE_PRICE_HEADERS = [
+  "Override Price",
+  "Override Price (Internal)",
+  "Override Price (Tcgplayer)",
+  "Override Price (Shopify)",
+  "Override Price (Ebay)",
+  "Override Price (Cardtrader)",
+  "Override Price (Manapool)",
+  "Override Price (Misprint)",
+  "Override Price (Square)",
+  "Override Price (Walmart)",
+  "Override Price (Woocommerce)",
+  "Override Price (Lgsmarket)",
+  "Override Price (Cardnexus)",
+];

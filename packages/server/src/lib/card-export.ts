@@ -9,7 +9,7 @@ import {
 } from "@magic-vault/shared";
 import type { Context } from "hono";
 import type { CardExportInput, CardExportResult } from "./interfaces/card-export";
-import { resolveTcgplayerSkuIds } from "./tcgplayer-skus";
+import { resolveTcgplayerSkus } from "./tcgplayer-skus";
 
 export async function buildCardExport({
   format,
@@ -32,11 +32,11 @@ export async function buildCardExport({
   };
   if (adapter.usesTcgplayerSkus) {
     const entries = groupExportCards(cards, adapter.groupBy, combineDuplicates);
-    const skuIds = await resolveTcgplayerSkuIds(game?.key, entries);
-    ctx.tcgplayerSkuIdsByEntryKey = Object.fromEntries(
+    const skuMatches = await resolveTcgplayerSkus(game?.key, entries);
+    ctx.tcgplayerSkusByEntryKey = Object.fromEntries(
       entries.flatMap((entry, index) => {
-        const skuId = skuIds[index];
-        return skuId ? [[exportEntryKey(entry), skuId]] : [];
+        const skuMatch = skuMatches[index];
+        return skuMatch ? [[exportEntryKey(entry), skuMatch]] : [];
       }),
     );
   }

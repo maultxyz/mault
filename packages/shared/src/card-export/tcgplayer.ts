@@ -8,7 +8,7 @@ import type {
   GroupedEntry,
 } from "../interfaces/card-export.interface";
 
-function tcgplayerId(card: PlayingCard): string {
+export function tcgplayerId(card: PlayingCard): string {
   if (card.tcgplayerId) return card.tcgplayerId;
   const raw = card.raw as
     | {
@@ -22,10 +22,10 @@ function tcgplayerId(card: PlayingCard): string {
 }
 
 function tcgplayerIdForEntry(entry: GroupedEntry, ctx: ExportContext): string {
-  return ctx.tcgplayerSkuIdsByEntryKey?.[exportEntryKey(entry)] ?? tcgplayerId(entry.card);
+  return ctx.tcgplayerSkusByEntryKey?.[exportEntryKey(entry)]?.skuId ?? tcgplayerId(entry.card);
 }
 
-function productLine(ctx: ExportContext): string {
+export function productLine(ctx: ExportContext): string {
   if (!ctx.gameKey) return "";
   return TCGPLAYER_PRODUCT_LINES[ctx.gameKey] ?? ctx.gameName ?? "";
 }
@@ -38,7 +38,7 @@ function tcgplayerCondition(
   return isFoil ? `${label} ${finishLabel(true, ctx.isMtg ? null : foilType)}` : label;
 }
 
-function marketPrice({ card, isFoil, foilType }: GroupedEntry): string {
+export function marketPrice({ card, isFoil, foilType }: GroupedEntry): string {
   const price = cardPriceFor(card, { isFoil, foilType }, "tcgplayer");
   return price != null ? price.toFixed(2) : "";
 }
