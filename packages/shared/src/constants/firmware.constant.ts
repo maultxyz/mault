@@ -2,9 +2,9 @@ import type { FirmwareFeature } from "../interfaces/firmware.interface";
 
 export function isFirmwareVersionOutdated(
   version: string | null | undefined,
-  latestVersion: string,
+  latestVersion: string | null | undefined,
 ): boolean {
-  if (!version) return false;
+  if (!version || !latestVersion) return false;
   const current = version.split(".").map((n) => parseInt(n, 10) || 0);
   const latest = latestVersion.split(".").map((n) => parseInt(n, 10) || 0);
   for (let i = 0; i < Math.max(current.length, latest.length); i++) {

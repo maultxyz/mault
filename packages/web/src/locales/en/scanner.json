@@ -128,8 +128,9 @@
       "version": {
         "label": "Firmware version",
         "recommended": "v{{version}} (recommended)",
+        "recommendedUnknownVersion": "Latest (recommended)",
         "option": "v{{version}}",
-        "otherVersionWarning": "This app is built for firmware v{{version}}. Other versions may be missing features or behave differently."
+        "otherVersionWarning": "The recommended version is the one this app is built for. Other versions may be missing features or behave differently."
       }
     },
     "pushBlocked": {

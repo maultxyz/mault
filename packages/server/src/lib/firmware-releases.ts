@@ -10,6 +10,14 @@ import type {
   GitHubRelease,
 } from "./interfaces/firmware-releases";
 
+export function getLatestFirmwareVersion(): string | null {
+  return (
+    process.env.LATEST_FIRMWARE_VERSION ||
+    process.env.VITE_LATEST_FIRMWARE_VERSION ||
+    null
+  );
+}
+
 export function toEsp32FirmwareReleases(
   releases: GitHubRelease[],
 ): Esp32FirmwareRelease[] {

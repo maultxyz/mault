@@ -300,10 +300,7 @@ jobs:
             ${{ steps.images.outputs.web }}:sha-${{ github.sha }}
           # The image is public, so deployment config (Neon URLs, Rollbar
           # token, app env) comes from the container's environment in Coolify
-          # at start-up instead. Only the firmware version, which describes the
-          # binary baked into the image, is a build arg.
-          build-args: |
-            VITE_LATEST_FIRMWARE_VERSION=${{ steps.firmware.outputs.version }}
+          # at start-up instead.
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 
@@ -317,6 +314,10 @@ jobs:
           tags: |
             ${{ steps.images.outputs.server }}:v${{ steps.appversion.outputs.version }}
             ${{ steps.images.outputs.server }}:sha-${{ github.sha }}
+          # The server reports the version of the firmware binary baked into
+          # the web image above, so open tabs refresh when it changes.
+          build-args: |
+            LATEST_FIRMWARE_VERSION=${{ steps.firmware.outputs.version }}
           cache-from: type=gha,scope=server
           cache-to: type=gha,mode=max,scope=server
 

@@ -128,8 +128,9 @@
       "version": {
         "label": "Version du firmware",
         "recommended": "v{{version}} (recommandée)",
+        "recommendedUnknownVersion": "Dernière (recommandée)",
         "option": "v{{version}}",
-        "otherVersionWarning": "Cette application est conçue pour le firmware v{{version}}. Les autres versions peuvent manquer de fonctionnalités ou se comporter différemment."
+        "otherVersionWarning": "La version recommandée est celle pour laquelle cette application est conçue. Les autres versions peuvent manquer de fonctionnalités ou se comporter différemment."
       }
     },
     "pushBlocked": {

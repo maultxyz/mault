@@ -128,8 +128,9 @@
       "version": {
         "label": "Firmware-Version",
         "recommended": "v{{version}} (empfohlen)",
+        "recommendedUnknownVersion": "Neueste (empfohlen)",
         "option": "v{{version}}",
-        "otherVersionWarning": "Diese App ist für Firmware v{{version}} gebaut. Andere Versionen können Funktionen vermissen lassen oder sich anders verhalten."
+        "otherVersionWarning": "Die empfohlene Version ist die, für die diese App gebaut ist. Andere Versionen können Funktionen vermissen lassen oder sich anders verhalten."
       }
     },
     "pushBlocked": {

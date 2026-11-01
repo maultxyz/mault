@@ -3,7 +3,7 @@ import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { Esp32FlashDialog } from "@/features/scanner/components/esp32-flash-dialog";
 import type { AppAlert } from "@/lib/interfaces/alerts";
-import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
+import { useLatestFirmwareVersion } from "@/hooks/use-latest-firmware-version";
 import { FIRMWARE_RELEASES_URL } from "@/lib/constants/links";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";
 import { IconAlertTriangle } from "@tabler/icons-react";
@@ -17,11 +17,12 @@ export function useFirmwareVersionAlert(): {
   const { t } = useTranslation("scanner");
   const { isConnected, firmwareVersion, board, transport, isFlashing } =
     useSerial();
+  const latestFirmwareVersion = useLatestFirmwareVersion();
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
 
   const showAlert =
     isConnected &&
-    isFirmwareVersionOutdated(firmwareVersion, LATEST_FIRMWARE_VERSION);
+    isFirmwareVersionOutdated(firmwareVersion, latestFirmwareVersion);
   const isEsp32 = (board === "esp32" && transport === "serial") || isFlashing;
   const isEsp32OverBluetooth =
     board === "esp32" && transport === "bluetooth" && !isFlashing;
@@ -50,7 +51,7 @@ export function useFirmwareVersionAlert(): {
             : "serial.firmwareOutdatedBanner",
         {
           version: firmwareVersion,
-          latest: LATEST_FIRMWARE_VERSION,
+          latest: latestFirmwareVersion,
         },
       ),
       actions: isEsp32OverBluetooth || isEsp32OverCloud ? undefined : isEsp32 ? (

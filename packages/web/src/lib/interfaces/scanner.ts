@@ -201,7 +201,8 @@ export interface FlashEsp32Result {
 export type FirmwareFlashState = "idle" | "flashing" | "success" | "error";
 
 export interface FirmwareOption {
-  version: string;
+  key: string;
+  version: string | null;
   firmwareUrl: string;
   isBundled: boolean;
 }

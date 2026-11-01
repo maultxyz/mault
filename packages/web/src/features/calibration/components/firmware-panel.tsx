@@ -6,7 +6,7 @@ import { useNewBoardFlash } from "@/features/scanner/api/use-new-board-flash";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { Esp32FlashDialog } from "@/features/scanner/components/esp32-flash-dialog";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
-import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
+import { useLatestFirmwareVersion } from "@/hooks/use-latest-firmware-version";
 import { FIRMWARE_RELEASES_URL } from "@/lib/constants/links";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";
 import { IconDownload, IconExternalLink } from "@tabler/icons-react";
@@ -24,6 +24,7 @@ export function FirmwarePanel() {
     connect,
   } = useSerial();
   const { isSupported: webSerialSupported } = useNewBoardFlash();
+  const latestFirmwareVersion = useLatestFirmwareVersion();
   const [connectedFlashOpen, setConnectedFlashOpen] = useState(false);
   const [newBoardFlashOpen, setNewBoardFlashOpen] = useState(false);
 
@@ -39,7 +40,7 @@ export function FirmwarePanel() {
   const isUno = isConnected && board === "uno_r4" && !isFlashing;
   const isOutdated =
     isConnected &&
-    isFirmwareVersionOutdated(firmwareVersion, LATEST_FIRMWARE_VERSION);
+    isFirmwareVersionOutdated(firmwareVersion, latestFirmwareVersion);
 
   const installedLabel = isConnected
     ? (firmwareVersion ?? t("firmware.unknownVersion"))
@@ -92,7 +93,9 @@ export function FirmwarePanel() {
           <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
             {t("firmware.latest")}
           </span>
-          <span className="text-sm font-medium">{LATEST_FIRMWARE_VERSION}</span>
+          <span className="text-sm font-medium">
+            {latestFirmwareVersion ?? t("firmware.unknownVersion")}
+          </span>
         </div>
       </div>
       {isEsp32OverBluetooth && (

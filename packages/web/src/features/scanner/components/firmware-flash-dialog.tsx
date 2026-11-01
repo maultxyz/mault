@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/select";
 import { useFirmwareOptions } from "@/features/scanner/api/use-firmware-options";
 import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
-import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
+import { BUNDLED_FIRMWARE_OPTION_KEY } from "@/lib/constants/firmware";
 import type {
   FirmwareFlashState,
+  FirmwareOption,
   FlashEsp32Result,
 } from "@/lib/interfaces/scanner";
 import {
@@ -57,23 +58,25 @@ export function FirmwareFlashDialog({
   const [errorMessage, setErrorMessage] = useState("");
   const flashLogRef = useStickToBottom(flashLog);
   const firmwareOptions = useFirmwareOptions(open);
-  const [selectedVersion, setSelectedVersion] = useState(
-    LATEST_FIRMWARE_VERSION,
+  const [selectedOptionKey, setSelectedOptionKey] = useState(
+    BUNDLED_FIRMWARE_OPTION_KEY,
   );
   const selectedOption =
-    firmwareOptions.find((option) => option.version === selectedVersion) ??
+    firmwareOptions.find((option) => option.key === selectedOptionKey) ??
     firmwareOptions[0];
 
   useEffect(() => {
     if (open) return;
     setState("idle");
-    setSelectedVersion(LATEST_FIRMWARE_VERSION);
+    setSelectedOptionKey(BUNDLED_FIRMWARE_OPTION_KEY);
   }, [open]);
 
-  const versionLabel = (version: string) =>
-    version === LATEST_FIRMWARE_VERSION
-      ? t("serial.flash.version.recommended", { version })
-      : t("serial.flash.version.option", { version });
+  const optionLabel = (option: FirmwareOption) =>
+    !option.isBundled
+      ? t("serial.flash.version.option", { version: option.version })
+      : option.version
+        ? t("serial.flash.version.recommended", { version: option.version })
+        : t("serial.flash.version.recommendedUnknownVersion");
 
   const describeFailure = (result: FlashEsp32Result) => {
     switch (result.reason) {
@@ -151,18 +154,18 @@ export function FirmwareFlashDialog({
           <Field>
             <FieldLabel>{t("serial.flash.version.label")}</FieldLabel>
             <Select
-              value={selectedOption.version}
-              onValueChange={(version) => {
-                if (version) setSelectedVersion(version);
+              value={selectedOption.key}
+              onValueChange={(optionKey) => {
+                if (optionKey) setSelectedOptionKey(optionKey);
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue>{versionLabel(selectedOption.version)}</SelectValue>
+                <SelectValue>{optionLabel(selectedOption)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {firmwareOptions.map((option) => (
-                  <SelectItem key={option.version} value={option.version}>
-                    {versionLabel(option.version)}
+                  <SelectItem key={option.key} value={option.key}>
+                    {optionLabel(option)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -170,9 +173,7 @@ export function FirmwareFlashDialog({
           </Field>
           {!selectedOption.isBundled && (
             <Callout variant="warning">
-              {t("serial.flash.version.otherVersionWarning", {
-                version: LATEST_FIRMWARE_VERSION,
-              })}
+              {t("serial.flash.version.otherVersionWarning")}
             </Callout>
           )}
           {hint}
