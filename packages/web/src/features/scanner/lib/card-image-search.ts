@@ -169,6 +169,7 @@ async function toAttemptOutcome(
   best: OrientedSearchPick,
   collectionGuid: string | undefined,
   colorBarRegion: ColorBarRegion | undefined,
+  readColorBarFromScan: boolean,
   context: Pick<
     ScanAttemptOutcome,
     | "detectedContour"
@@ -179,19 +180,27 @@ async function toAttemptOutcome(
     | "matchedBy"
   >,
 ): Promise<ScanAttemptOutcome> {
-  const detectedColor = colorBarRegion
-    ? detectColorBar(best.canvas, colorBarRegion)
-    : null;
-  return {
-    ...preferDetectedColor(
-      await resolveCardSearchMatches(
-        best.result,
-        async (match) =>
-          (await getCardById(match.cardId, collectionGuid, match.lang)).data,
-      ),
-      detectedColor,
+  const detectedColor =
+    colorBarRegion && readColorBarFromScan
+      ? detectColorBar(best.canvas, colorBarRegion)
+      : null;
+  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
+    await resolveCardSearchMatches(
+      best.result,
+      async (match) =>
+        (await getCardById(match.cardId, collectionGuid, match.lang)).data,
     ),
+    {
+      gameHasColorBar: !!colorBarRegion,
+      detectedColor,
+      printingConfirmed:
+        context.matchedBy === "ocr" && !!context.ocr?.printingConfirmed,
+    },
+  );
+  return {
+    ...resolved,
     ...context,
+    lowConfidenceMatch: context.lowConfidenceMatch || colorVariantUncertain,
     detectedColor,
     debugImageUrl: best.canvas.toDataURL("image/jpeg", 0.8),
     search: best.result.diagnostics ?? null,
@@ -294,6 +303,7 @@ async function runCardImageSearch(
         text?.pick ?? best,
         collectionGuid,
         colorBarRegion,
+        true,
         {
           detectedContour: corners.contour,
           vectorizedOn: "web",
@@ -329,7 +339,7 @@ async function runCardImageSearch(
   created.push(best.canvas);
   if (best.alternate) created.push(best.alternate.canvas);
 
-  return toAttemptOutcome(best, collectionGuid, undefined, {
+  return toAttemptOutcome(best, collectionGuid, colorBarRegion, false, {
     detectedContour: null,
     vectorizedOn: "server",
     detection: { ...detection, fallbackReason },

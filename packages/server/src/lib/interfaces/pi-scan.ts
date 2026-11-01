@@ -97,6 +97,7 @@ export interface PiScanFrameMatch {
   ocr: OcrDiagnostics | null;
   matchedBy: ScanMatchSource;
   lowConfidenceFromOcr: boolean;
+  colorVariantUncertain: boolean;
   detection: ScanDetectionDiagnostics;
   detectedColor: string | null;
 }

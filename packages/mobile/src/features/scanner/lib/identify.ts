@@ -132,13 +132,22 @@ async function attemptOnce(
   const region = options.colorBarRegionKey
     ? COLOR_BAR_REGIONS_BY_GAME_KEY[options.colorBarRegionKey]
     : undefined;
-  const detectedColor = region ? detectColorBarRgba(pick.pixels, region) : null;
-  const resolved = await resolveCardSearchMatches(pick.result, (match) =>
-    getCardById(match.cardId, options.scope.collectionGuid, match.lang),
+  const detectedColor =
+    region && corners.contour ? detectColorBarRgba(pick.pixels, region) : null;
+  const matchedBy = text?.pick ? "ocr" : "embedding";
+  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
+    await resolveCardSearchMatches(pick.result, (match) =>
+      getCardById(match.cardId, options.scope.collectionGuid, match.lang),
+    ),
+    {
+      gameHasColorBar: !!region,
+      detectedColor,
+      printingConfirmed: matchedBy === "ocr" && !!text?.ocr?.printingConfirmed,
+    },
   );
 
   return {
-    ...preferDetectedColor(resolved, detectedColor),
+    ...resolved,
     detection,
     contour: corners.contour,
     orientation: pick.orientation,
@@ -147,8 +156,8 @@ async function attemptOnce(
     search: pick.result.diagnostics ?? null,
     topDistance: pick.result.data?.[0]?.distance ?? pick.result.nearestDistance ?? null,
     ocr: text?.ocr ?? null,
-    matchedBy: text?.pick ? "ocr" : "embedding",
-    lowConfidenceMatch: !!text?.pick && !hasCardMatch(best.result),
+    matchedBy,
+    lowConfidenceMatch: (!!text?.pick && !hasCardMatch(best.result)) || colorVariantUncertain,
     detectedColor,
   };
 }

@@ -362,6 +362,18 @@ function matchesCollectorNumber(
   return !!digits && numberCandidates.includes(stripLeadingZeros(digits));
 }
 
+function isLeadingPrintingConfirmed(
+  printings: { setCode: string; setLineMatch: boolean; numberMatch: boolean }[],
+): boolean {
+  const [leader] = printings;
+  if (leader.numberMatch) return true;
+  return (
+    leader.setLineMatch &&
+    printings.filter((printing) => printing.setCode === leader.setCode)
+      .length === 1
+  );
+}
+
 export async function findCardMatchesByText(
   jwtClaims: string,
   { embeddings, readout, preferredSetCodes, ...scope }: CardTextMatchParams,
@@ -449,7 +461,7 @@ export async function findCardMatchesByText(
       readout,
       matchedName,
       nameScore,
-      printingConfirmed: printings[0].setLineMatch || printings[0].numberMatch,
+      printingConfirmed: isLeadingPrintingConfirmed(printings),
     };
 
     const data: SearchCardMatch[] = withConfidence(

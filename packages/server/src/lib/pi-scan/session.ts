@@ -600,25 +600,30 @@ async function matchFrame(
     }
   }
 
-  const colorRegion = corners.contour
-    ? COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey]
-    : undefined;
-  const detectedColor = colorRegion
-    ? detectColorBarRgba(
-        best.orientation === "rotated" ? rotateRgba180(upright) : upright,
-        colorRegion,
-      )
-    : null;
+  const colorRegion = COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey];
+  const detectedColor =
+    colorRegion && corners.contour
+      ? detectColorBarRgba(
+          best.orientation === "rotated" ? rotateRgba180(upright) : upright,
+          colorRegion,
+        )
+      : null;
+  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
+    await resolveCardSearchMatches(best.result, async () => null),
+    {
+      gameHasColorBar: !!colorRegion,
+      detectedColor,
+      printingConfirmed: matchedBy === "ocr" && !!ocr?.printingConfirmed,
+    },
+  );
 
   return {
     ...best,
-    resolved: preferDetectedColor(
-      await resolveCardSearchMatches(best.result, async () => null),
-      detectedColor,
-    ),
+    resolved,
     ocr,
     matchedBy,
     lowConfidenceFromOcr,
+    colorVariantUncertain,
     detection,
     detectedColor,
   };
@@ -994,6 +999,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             alternativeMatches: alternatives,
             lowConfidenceMatch:
               matched.lowConfidenceFromOcr ||
+              matched.colorVariantUncertain ||
               lowMatchBin?.binNumber === chosen.binNumber,
             diagnostics,
             vectorizedOn: "server",
