@@ -27,6 +27,33 @@ export const MOXFIELD_LANGUAGE_NAMES: Record<string, string> = {
   zht: "Chinese Traditional",
 };
 
+export const POWERTOOLS_FINISH_FAMILY_TOKENS: Record<string, string> = {
+  Holo: "Holo",
+  "Reverse Holo": "ReverseHolo",
+};
+
+export const POWERTOOLS_FINISH_PATTERN_TOKENS: Record<string, string> = {
+  "Poké Ball": "Pokeball",
+  "Master Ball": "Masterball",
+  "Energy Symbol": "Energy",
+  "Friend Ball": "Friendball",
+  "Dusk Ball": "Duskball",
+  "Love Ball": "Loveball",
+  "Quick Ball": "Quickball",
+  "Team Rocket": "TeamRocket",
+  Cosmos: "Cosmos",
+  "Cracked Ice": "IceCracked",
+  Galaxy: "Galaxy",
+  Rainbow: "Rainbow",
+  Gold: "Gold",
+  Tinsel: "Tinsel",
+  Mirror: "Mirror",
+  Starlight: "Starlight",
+  "League Stamp": "League",
+  "Player Rewards Stamp": "PlayerRewards",
+  "Professor Program Stamp": "ProfessorProgram",
+};
+
 export const NONFOIL_FINISH_LABEL = "Normal";
 
 export const FOIL_FINISH_LABEL = "Foil";
