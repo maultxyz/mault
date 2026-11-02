@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import EventSource from "react-native-sse";
 import {
   RECENT_SCANNED_CARDS_COUNT,
+  type CardsReviewedEvent,
   type Collection,
   type ScannedCard,
   type UnmatchedCard,
@@ -75,6 +76,20 @@ export function useSessionStream(collectionGuid: string): MonitorState {
           case "cards_removed": {
             const ids = new Set(parse<{ scanIds: string[] }>(data)?.scanIds ?? []);
             return { ...prev, recentCards: prev.recentCards.filter((c) => !ids.has(c.scanId)) };
+          }
+          case "cards_reviewed": {
+            const event = parse<CardsReviewedEvent>(data);
+            if (!event) return prev;
+            const confirmedIds = new Set(event.confirmedScanIds);
+            const acceptedIds = new Set([...event.confirmedScanIds, ...event.reviewedScanIds]);
+            return {
+              ...prev,
+              recentCards: prev.recentCards.map((c) =>
+                acceptedIds.has(c.scanId)
+                  ? { ...c, reviewed: true, lowConfidenceMatch: false, corrected: confirmedIds.has(c.scanId) || c.corrected }
+                  : c,
+              ),
+            };
           }
           case "cards_cleared":
             return { ...prev, recentCards: [] };

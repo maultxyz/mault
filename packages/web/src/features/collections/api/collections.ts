@@ -15,6 +15,8 @@ import {
   type IdentifyUnmatchedCardRequest,
   type MatchedScanDiagnostics,
   type Result,
+  type ReviewAcceptRequest,
+  type ReviewAcceptResult,
   SCAN_SAVE_ACCEPTED_STATUSES,
   throwIfMemberSeatLimit,
   type ScannedCard,
@@ -237,6 +239,16 @@ export async function removeCollectionCard(
   scanId: string,
 ): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/cards/${scanId}`);
+}
+
+export async function acceptCollectionCardReviews(
+  guid: string,
+  request: ReviewAcceptRequest,
+): Promise<Result<ReviewAcceptResult>> {
+  return apiPost<Result<ReviewAcceptResult>>(
+    `/api/collections/${guid}/cards/accept-review`,
+    request,
+  );
 }
 
 export async function removeCollectionCards(

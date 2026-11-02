@@ -1,13 +1,12 @@
 import { businessKeys } from "@/features/business/api/business";
 import {
-  confirmCollectionCard,
-  markCollectionCardReviewed,
+  acceptCollectionCardReviews,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import { storageLocationKeys } from "@/features/storage/api/storage-locations";
 import {
-  reviewAcceptKind,
+  groupReviewAcceptRequests,
   type PlayingCard,
   type ReviewGridCard,
 } from "@magic-vault/shared";
@@ -34,18 +33,21 @@ export function useReviewGridActions() {
 
   const acceptCards = useCallback(
     async (cards: ReviewGridCard[]): Promise<ReviewGridCard[]> => {
-      const results = await Promise.allSettled(
-        cards.map((card) =>
-          reviewAcceptKind(card) === "confirm"
-            ? confirmCollectionCard(card.collectionGuid, card.scanId)
-            : markCollectionCardReviewed(card.collectionGuid, card.scanId),
+      const results = await Promise.all(
+        groupReviewAcceptRequests(cards).map(
+          ({ collectionGuid, ...request }) =>
+            acceptCollectionCardReviews(collectionGuid, request).catch(
+              () => null,
+            ),
         ),
       );
       refreshReviewedCards(cards.map((card) => card.collectionGuid));
-      return cards.filter((_card, index) => {
-        const result = results[index];
-        return result.status === "rejected" || !result.value.success;
-      });
+      const acceptedScanIds = new Set(
+        results.flatMap((result) =>
+          result?.success ? (result.data?.acceptedScanIds ?? []) : [],
+        ),
+      );
+      return cards.filter((card) => !acceptedScanIds.has(card.scanId));
     },
     [refreshReviewedCards],
   );

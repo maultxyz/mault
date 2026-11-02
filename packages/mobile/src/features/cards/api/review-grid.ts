@@ -1,15 +1,17 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import {
   EMPTY_CARD_FILTERS,
-  reviewAcceptKind,
+  groupReviewAcceptRequests,
   toReviewGridCard,
   type CollectionCardsPage,
   type Result,
+  type ReviewAcceptRequest,
+  type ReviewAcceptResult,
   type ReviewGridCard,
   type StorageLocationCardPage,
 } from "@magic-vault/shared";
-import { invalidateCollectionCards, updateCollectionCard } from "@/features/collections/api/collection-cards";
-import { apiGet, unwrap } from "@/lib/api/client";
+import { invalidateCollectionCards } from "@/features/collections/api/collection-cards";
+import { apiGet, apiPost, unwrap } from "@/lib/api/client";
 import type { ReviewGridData } from "@/lib/interfaces/cards";
 
 export const collectionReviewGridQueryOptions = (guid: string) =>
@@ -38,16 +40,17 @@ export const storageReviewGridQueryOptions = (guid: string) =>
     },
   });
 
+function acceptCollectionCardReviews(guid: string, request: ReviewAcceptRequest): Promise<ReviewAcceptResult> {
+  return unwrap(apiPost<Result<ReviewAcceptResult>>(`/api/collections/${guid}/cards/accept-review`, request));
+}
+
 export async function acceptReviewCards(queryClient: QueryClient, cards: ReviewGridCard[]): Promise<ReviewGridCard[]> {
-  const results = await Promise.allSettled(
-    cards.map((card) =>
-      updateCollectionCard(
-        card.collectionGuid,
-        card.scanId,
-        reviewAcceptKind(card) === "confirm" ? { confirmed: true } : { reviewed: true },
-      ),
+  const results = await Promise.all(
+    groupReviewAcceptRequests(cards).map(({ collectionGuid, ...request }) =>
+      acceptCollectionCardReviews(collectionGuid, request).catch(() => null),
     ),
   );
   for (const guid of new Set(cards.map((card) => card.collectionGuid))) invalidateCollectionCards(queryClient, guid);
-  return cards.filter((_card, index) => results[index].status === "rejected");
+  const acceptedScanIds = new Set(results.flatMap((result) => result?.acceptedScanIds ?? []));
+  return cards.filter((card) => !acceptedScanIds.has(card.scanId));
 }
