@@ -6,12 +6,11 @@ import { useTranslation } from "react-i18next";
 export function ControlCardTile({ entry, onRemove }: ControlCardTileProps) {
   const { t } = useTranslation("scanner");
   return (
-    <div className="relative flex h-[88mm] w-[63mm] break-inside-avoid flex-col items-center gap-[2mm] rounded-lg border border-black bg-white print:rounded-none p-[4mm] text-black animate-in fade-in motion-reduce:animate-none">
+    <div className="relative flex h-[88mm] w-[63mm] break-inside-avoid flex-col items-center gap-[2mm] rounded-lg border border-black bg-white print:rounded-none p-[4mm] text-black animate-in fade-in motion-reduce:animate-none print:animate-none">
       <p className="w-full truncate text-center font-heading text-sm font-semibold">
         {entry.title || t("controlCards.tile.defaultTitle")}
       </p>
       <img
-        loading="lazy"
         src={entry.qrCodeDataUrl}
         alt={t("controlCards.tile.qrAlt")}
         className="size-[46mm]"

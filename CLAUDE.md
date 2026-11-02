@@ -41,6 +41,8 @@ For every change (feature, fix, copy, setting, API):
 
 pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.ts`, `serial-protocol.ts`; no build), `server` (Hono 4, Drizzle, Postgres), `web` (React 19 SPA), `mobile` (Expo), `desktop` (Electron shell), `bot` (Discord), `api-docs` (Scalar). One root `.env`. The Vite proxy strips `/api`, so server routes have no `/api` prefix. `docker-compose.yml` is the self-hosted stack.
 
+Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a timer: `/public/health` (polled by every open tab and uptime monitors) only runs `select 1` while the pool already holds connections, else it returns the last healthy result, and the bot refreshes its games list daily.
+
 ### Auth & RLS
 
 - `AUTH_PROVIDER` is `neon` (default) or `local`; `auth/index.ts` picks the provider and route code never branches on it. Bearer tokens everywhere, never cookies. The web client is chosen at module level from `VITE_AUTH_PROVIDER`.

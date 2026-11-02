@@ -21,6 +21,7 @@ export const CARD_PRICE_DETAIL_KEYS = [
   "finishPrices",
   "priceByCondition",
   "priceFoilByCondition",
+  "foilOnlyFoilType",
 ] as const;
 
 export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;

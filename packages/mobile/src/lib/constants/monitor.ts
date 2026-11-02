@@ -9,6 +9,7 @@ export const MONITOR_EVENTS = [
   "card_updated",
   "card_removed",
   "cards_removed",
+  "cards_reviewed",
   "cards_cleared",
   "unmatched_added",
   "unmatched_removed",

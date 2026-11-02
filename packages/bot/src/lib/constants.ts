@@ -52,7 +52,7 @@ export const ACCOUNT_NOT_LINKED_MESSAGE =
 
 export const PRESENCE_CYCLE_MS = 20_000;
 
-export const PRESENCE_REFRESH_MS = 10 * 60 * 1000;
+export const PRESENCE_REFRESH_MS = 24 * 60 * 60 * 1000;
 
 export const PRESENCE_RETRY_MS = 15_000;
 
