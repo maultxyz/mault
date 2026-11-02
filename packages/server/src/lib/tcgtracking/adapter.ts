@@ -4,6 +4,7 @@ import { tcgtrackingCardImage } from "./catalog";
 import {
   isTcgtrackingFallbackData,
   normalizeTcgtrackingFallback,
+  withFallbackIdentity,
 } from "./fallback";
 import { TCGTRACKING_GAMES } from "./games";
 
@@ -20,7 +21,14 @@ export function withTcgtracking(
     ...adapter,
     normalizeStored(raw, id, lang) {
       if (isTcgtrackingFallbackData(raw)) {
-        return normalizeTcgtrackingFallback(raw, id, config);
+        const fallbackCard = normalizeTcgtrackingFallback(raw, id, config);
+        if (!config.normalizesFallbackThroughPrimaryAdapter || !raw.tcgtrackingSet) {
+          return fallbackCard;
+        }
+        const primaryCard = adapter.normalizeStored(raw, id, lang);
+        return primaryCard
+          ? withFallbackIdentity(primaryCard, fallbackCard)
+          : fallbackCard;
       }
       const card = adapter.normalizeStored(raw, id, lang);
       const productId = (raw as { tcgtrackingProductId?: unknown } | null)

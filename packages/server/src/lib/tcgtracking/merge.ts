@@ -19,6 +19,7 @@ import type {
   TcgtrackingFallbackData,
   TcgtrackingGameConfig,
   TcgtrackingPrimaryCard,
+  TcgtrackingPrimarySet,
   TcgtrackingProduct,
 } from "../interfaces/tcgtracking";
 import {
@@ -206,6 +207,14 @@ function stampProductId(card: SyncSourceCard, productId: number): SyncSourceCard
   };
 }
 
+function storedPrimarySetOf(
+  data: TcgtrackingFallbackData | undefined,
+): TcgtrackingPrimarySet | undefined {
+  return data?.primarySetCode
+    ? { code: data.primarySetCode, name: data.primarySetName }
+    : undefined;
+}
+
 async function loadStoredFallbacks(
   gameKey: string,
   lang: string,
@@ -305,6 +314,15 @@ export async function mergeTcgtrackingCatalog(
     const key = productKey(config, entry, alignedSets);
     if (key) productsByKey.set(key, [...(productsByKey.get(key) ?? []), entry]);
   }
+  const primarySetNameByCode = new Map(
+    knownPrimaries.map((primary) => [primary.card.set, primary.card.setName]),
+  );
+  const primarySetOf = (
+    entry: TcgtrackingCatalogEntry,
+  ): TcgtrackingPrimarySet | undefined => {
+    const code = alignedSets.get(entry.set.id);
+    return code ? { code, name: primarySetNameByCode.get(code) || undefined } : undefined;
+  };
   const primaryCountByKey = new Map<string, number>();
   const primaryIdByKey = new Map<string, string>();
   const primaryBaseNames = new Set<string>();
@@ -401,11 +419,7 @@ export async function mergeTcgtrackingCatalog(
   const fallbacks = catalog
     .filter(isMissingFromPrimary)
     .map((entry) =>
-      toTcgtrackingFallbackSyncCard(
-        entry,
-        alignedSets.get(entry.set.id),
-        config,
-      ),
+      toTcgtrackingFallbackSyncCard(entry, primarySetOf(entry), config),
     );
   const fallbackIds = new Set(fallbacks.map((card) => card.id));
 
@@ -421,7 +435,7 @@ export async function mergeTcgtrackingCatalog(
       "primary";
     const card = toTcgtrackingFallbackSyncCard(
       entry,
-      data.primarySetCode,
+      storedPrimarySetOf(data),
       config,
     );
     superseded.push({
@@ -467,7 +481,7 @@ export async function fetchOneWithTcgtracking(
   const stored = (await loadStoredFallbacks(gameKey, lang, id)).get(id);
   const fallback = toTcgtrackingFallbackSyncCard(
     entry,
-    stored?.primarySetCode,
+    storedPrimarySetOf(stored),
     context.config,
   );
   const { id: _id, ...card } = stored?.supersededByCardId
