@@ -13,11 +13,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { usePriceSource } from "@/hooks/use-price-source";
 import type { LightingPanelProps } from "@/lib/interfaces/calibration";
 import {
   isLightMode,
   LIGHT_BRIGHTNESS_MAX,
   LIGHT_MODES,
+  VALUE_CELEBRATION_DURATION_MIN_MS,
+  VALUE_CELEBRATION_DURATION_MAX_MS,
 } from "@magic-vault/shared";
 import { IconConfetti, IconInfoCircle, IconX } from "@tabler/icons-react";
 import { Controller, useWatch } from "react-hook-form";
@@ -33,6 +37,8 @@ export function LightingPanel({
 }: LightingPanelProps) {
   const { t } = useTranslation("calibration");
   const mode = useWatch({ control, name: "lightMode" });
+  const celebrationEnabled = useWatch({ control, name: "valueCelebrationEnabled" });
+  const { source, format } = usePriceSource();
 
   return (
     <FirmwareFeatureGate feature="lighting" className="flex flex-col gap-6">
@@ -136,6 +142,73 @@ export function LightingPanel({
             <Skeleton className="h-6 w-full" />
           </div>
         )}
+      </SettingsSection>
+
+      <SettingsSection
+        heading={t("lights.celebration.heading")}
+        description={t("lights.celebration.description")}
+      >
+        {isLoaded ? (
+          <div className="flex flex-col gap-4">
+            <Controller
+              control={control}
+              name="valueCelebrationEnabled"
+              render={({ field }) => (
+                <div className="flex items-center gap-2">
+                  <Switch id="value-celebration-enabled" checked={field.value} onCheckedChange={field.onChange} />
+                  <Label htmlFor="value-celebration-enabled">{t("lights.celebration.enabled")}</Label>
+                </div>
+              )}
+            />
+            <Controller
+              control={control}
+              name="valueCelebrationThreshold"
+              render={({ field, fieldState }) => (
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="value-celebration-threshold">{t("lights.celebration.threshold", { currency: format(0) })}</Label>
+                  <Input
+                    id="value-celebration-threshold"
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    disabled={!celebrationEnabled}
+                    value={Number.isNaN(field.value) ? "" : field.value}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                    onChange={(event) => field.onChange(event.target.valueAsNumber)}
+                    aria-invalid={!!fieldState.error}
+                    className="sm:w-64"
+                  />
+                  {fieldState.error && <p className="text-xs text-destructive">{t("lights.celebration.invalidThreshold")}</p>}
+                </div>
+              )}
+            />
+            <Controller
+              control={control}
+              name="valueCelebrationDurationMs"
+              render={({ field, fieldState }) => (
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="value-celebration-duration">{t("lights.celebration.duration")}</Label>
+                  <Input
+                    id="value-celebration-duration"
+                    type="number"
+                    min={VALUE_CELEBRATION_DURATION_MIN_MS}
+                    max={VALUE_CELEBRATION_DURATION_MAX_MS}
+                    step={1}
+                    value={Number.isNaN(field.value) ? "" : field.value}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                    onChange={(event) => field.onChange(event.target.valueAsNumber)}
+                    aria-invalid={!!fieldState.error}
+                    className="sm:w-64"
+                  />
+                  {fieldState.error && <p className="text-xs text-destructive">{t("lights.celebration.invalidDuration")}</p>}
+                </div>
+              )}
+            />
+            <p className="text-xs text-foreground/70">{t("lights.celebration.source", { source })}</p>
+          </div>
+        ) : <Skeleton className="h-20 w-full" />}
       </SettingsSection>
 
       <SettingsSection

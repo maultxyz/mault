@@ -7,7 +7,7 @@ import type {
   ModuleConfig,
   ServoCalibration,
   ChannelLayout,
-  LightSettings,
+  LightingDraft,
   ScanRegion,
 } from "@magic-vault/shared";
 import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
@@ -286,7 +286,7 @@ export interface CalibrationConflictDialogProps {
   onChoose: (source: CalibrationSource) => void;
 }
 
-export interface Device extends LightSettings {
+export interface Device extends LightingDraft {
   guid: string;
   name: string;
   hardwareId: string | null;
@@ -465,7 +465,7 @@ export interface ScanRegionCalibrationPanelProps {
 export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
 
 export interface LightingPanelProps {
-  control: Control<LightSettings>;
+  control: Control<LightingDraft>;
   isLoaded: boolean;
   canControl: boolean;
   onPreview: () => void;

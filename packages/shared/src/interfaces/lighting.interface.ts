@@ -1,4 +1,5 @@
 import type { LIGHT_MODES } from "../constants/lighting.constant";
+import type { PriceSource } from "./price-source.interface";
 
 export type LightMode = (typeof LIGHT_MODES)[number];
 
@@ -7,3 +8,12 @@ export interface LightSettings {
   lightColor: string;
   lightBrightness: number;
 }
+
+export interface ValueCelebrationSettings {
+  valueCelebrationEnabled: boolean;
+  valueCelebrationThreshold: number;
+  valueCelebrationPriceSource: PriceSource;
+  valueCelebrationDurationMs: number;
+}
+
+export interface LightingDraft extends LightSettings, ValueCelebrationSettings {}

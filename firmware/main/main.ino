@@ -95,6 +95,10 @@
 // reason as the BLE headers above.
 #define LED_STRIP_SUPPORTED 1
 #define ENABLE_DYNAMIC_FOIL_DETECTION 1
+// Diagnostic: isolate the external strip from the onboard RGB driver.
+#ifndef ENABLE_ONBOARD_RGB_STATUS
+#define ENABLE_ONBOARD_RGB_STATUS 0
+#endif
 #if LED_STRIP_SUPPORTED
 #include <FastLED.h>
 #endif
@@ -210,7 +214,7 @@ int moduleChannelOffset = 0;
 // integrated flash/PSRAM (26-37).
 const int IR_PINS[MAX_MODULES] = {4, 5, 6, 7, 15};
 #define IR_PIN_HOPPER 16
-#define LED_PIN 17
+#define LED_PIN 18
 #elif defined(ARDUINO_ARCH_ESP32)
 // Classic ESP32 (WROOM/WROVER) pins avoid strapping (0, 2, 5, 12, 15),
 // flash (6-11), WROVER PSRAM (16, 17), and input-only pins (34-39, no
@@ -702,7 +706,8 @@ void lowerPaddleForPush(int module) {
   if (paddleOpenedAt[module - 1] == 0) {
     setServoPosition(getChannel(module, 1), moduleConfig[module - 1].paddleOpen);
   }
-  unsigned long openDelay = (unsigned long)max(moduleConfig[module - 1].paddleOpenDelay, 0);
+  int configuredDelay = moduleConfig[module - 1].paddleOpenDelay;
+  unsigned long openDelay = configuredDelay > 0 ? (unsigned long)configuredDelay : 0;
   unsigned long elapsed = millis() - paddleOpenedAt[module - 1];
   if (elapsed < openDelay) waitMs(openDelay - elapsed);
 }
@@ -881,7 +886,7 @@ void checkModuleJams() {
   }
 }
 
-#if defined(RGB_BUILTIN)
+#if defined(RGB_BUILTIN) && ENABLE_ONBOARD_RGB_STATUS
 #ifndef RGB_BRIGHTNESS
 #define RGB_BRIGHTNESS 64
 #endif
@@ -1684,7 +1689,7 @@ void runCommand(char* json, Print& reply) {
 
 void setup() {
   captureResetReason();
-#if defined(RGB_BUILTIN)
+#if defined(RGB_BUILTIN) && ENABLE_ONBOARD_RGB_STATUS
   rgbLedWrite(RGB_BUILTIN, 0, 0, RGB_BRIGHTNESS);  // blue - powered, not yet connected
 #endif
 
@@ -1751,7 +1756,7 @@ void loop() {
 #if LED_STRIP_SUPPORTED
   updateLedStrip();
 #endif
-#if defined(RGB_BUILTIN)
+#if defined(RGB_BUILTIN) && ENABLE_ONBOARD_RGB_STATUS
   updateStatusLed();
 #endif
 }

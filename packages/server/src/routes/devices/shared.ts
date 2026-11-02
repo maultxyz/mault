@@ -3,6 +3,7 @@ import {
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   toLightMode,
+  toPriceSource,
 } from "@magic-vault/shared";
 import { toScanRegion } from "../org-settings/shared";
 
@@ -26,6 +27,10 @@ export function toDevice(row: {
   lightMode: string;
   lightColor: string;
   lightBrightness: number;
+  valueCelebrationEnabled: boolean;
+  valueCelebrationThreshold: number;
+  valueCelebrationPriceSource: string;
+  valueCelebrationDurationMs: number;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -49,6 +54,10 @@ export function toDevice(row: {
     lightMode: toLightMode(row.lightMode),
     lightColor: row.lightColor,
     lightBrightness: row.lightBrightness,
+    valueCelebrationEnabled: row.valueCelebrationEnabled,
+    valueCelebrationThreshold: row.valueCelebrationThreshold,
+    valueCelebrationPriceSource: toPriceSource(row.valueCelebrationPriceSource),
+    valueCelebrationDurationMs: row.valueCelebrationDurationMs,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

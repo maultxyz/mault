@@ -17,8 +17,9 @@ export async function routeCardToBin({
   pause,
   triggerAutoFeed,
   onJam,
+  onRouted,
 }: RouteCardToBinParams): Promise<void> {
-  const feedNext = isAutoFeedEnabled() && isPipelinedFeedEnabled();
+  const feedNext = !onRouted && isAutoFeedEnabled() && isPipelinedFeedEnabled();
   const response = await sendRoute(route, { feedNext });
 
   if (!response) {
@@ -83,6 +84,11 @@ export async function routeCardToBin({
       binNumber: route.binNumber,
       collectionGuid,
     });
+    pause();
+    return;
+  }
+
+  if (onRouted && !(await onRouted())) {
     pause();
     return;
   }

@@ -33,6 +33,7 @@ import {
   DEFAULT_LIGHT_BRIGHTNESS,
   DEFAULT_LIGHT_COLOR,
   DEFAULT_LIGHT_MODE,
+  DEFAULT_VALUE_CELEBRATION_DURATION_MS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_MODULE_COUNT,
   DEFAULT_SCAN_REGION,
@@ -271,6 +272,10 @@ export const DEFAULT_DEVICE: Device = {
   lightMode: DEFAULT_LIGHT_MODE,
   lightColor: DEFAULT_LIGHT_COLOR,
   lightBrightness: DEFAULT_LIGHT_BRIGHTNESS,
+  valueCelebrationEnabled: false,
+  valueCelebrationThreshold: 0,
+  valueCelebrationPriceSource: "tcgplayer",
+  valueCelebrationDurationMs: DEFAULT_VALUE_CELEBRATION_DURATION_MS,
   createdAt: "",
   updatedAt: "",
 };

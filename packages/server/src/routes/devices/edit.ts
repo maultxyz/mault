@@ -5,10 +5,13 @@ import {
   isLightBrightness,
   isLightColor,
   isLightMode,
+  isPriceSource,
+  isValueCelebrationDuration,
   LIGHT_BRIGHTNESS_MAX,
   maxModulesForLayout,
   type ChannelLayout,
   type LightMode,
+  type PriceSource,
 } from "@magic-vault/shared";
 import { and, eq, gt } from "drizzle-orm";
 import { Hono } from "hono";
@@ -46,7 +49,26 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       lightMode?: LightMode;
       lightColor?: string;
       lightBrightness?: number;
+      valueCelebrationEnabled?: boolean;
+      valueCelebrationThreshold?: number;
+      valueCelebrationPriceSource?: PriceSource;
+      valueCelebrationDurationMs?: number;
     }>();
+    if ("valueCelebrationEnabled" in body && typeof body.valueCelebrationEnabled !== "boolean") {
+      return c.json({ success: false, message: "Celebration enabled must be a boolean." }, 400);
+    }
+    if ("valueCelebrationThreshold" in body &&
+      (typeof body.valueCelebrationThreshold !== "number" ||
+        !Number.isFinite(body.valueCelebrationThreshold) ||
+        body.valueCelebrationThreshold < 0)) {
+      return c.json({ success: false, message: "Celebration threshold must be a finite non-negative number." }, 400);
+    }
+    if ("valueCelebrationPriceSource" in body && !isPriceSource(body.valueCelebrationPriceSource)) {
+      return c.json({ success: false, message: "Unknown celebration price source." }, 400);
+    }
+    if ("valueCelebrationDurationMs" in body && !isValueCelebrationDuration(body.valueCelebrationDurationMs)) {
+      return c.json({ success: false, message: "Celebration duration must be an integer from 100 to 3000 ms." }, 400);
+    }
     if ("lightMode" in body && !isLightMode(body.lightMode)) {
       return c.json({ success: false, message: "Unknown light mode." }, 400);
     }
@@ -163,6 +185,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
           lightMode: body.lightMode ?? device.lightMode,
           lightColor: body.lightColor?.toLowerCase() ?? device.lightColor,
           lightBrightness: body.lightBrightness ?? device.lightBrightness,
+          valueCelebrationEnabled: body.valueCelebrationEnabled ?? device.valueCelebrationEnabled,
+          valueCelebrationThreshold: body.valueCelebrationThreshold ?? device.valueCelebrationThreshold,
+          valueCelebrationPriceSource: body.valueCelebrationPriceSource ?? device.valueCelebrationPriceSource,
+          valueCelebrationDurationMs: body.valueCelebrationDurationMs ?? device.valueCelebrationDurationMs,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null
               ? Math.min(

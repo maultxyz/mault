@@ -1,18 +1,23 @@
 #if LED_STRIP_SUPPORTED
-constexpr uint16_t LED_COUNT = 10;
+constexpr uint16_t LED_COUNT = 5;
+constexpr uint8_t LED_FULL_MASK = (1 << LED_COUNT) - 1;
+constexpr uint8_t LED_MAIN_MASK = 0b01110;
+constexpr unsigned long VALUE_CELEBRATION_DEFAULT_MS = 500;
+constexpr unsigned long VALUE_CELEBRATION_MIN_MS = 100;
+constexpr unsigned long VALUE_CELEBRATION_MAX_MS = 3000;
 
 CRGB stripLeds[LED_COUNT];
+uint8_t stripLedMask = LED_MAIN_MASK;
 uint8_t stripBrightness = 160;
 const char* stripMode = "off";
 CRGB stripColor = CRGB::Black;
 const char* stripAlert = "none";
 unsigned long stripAlertStartedAt = 0;
 unsigned long stripLastFrameAt = 0;
+unsigned long stripCelebrationDurationMs = VALUE_CELEBRATION_DEFAULT_MS;
 
 void setStripAlert(const char* alert) {
-  // A jam takes priority over an empty hopper or a valuable-card celebration.
-  if (strcmp(stripAlert, "jam") == 0 && strcmp(alert, "jam") != 0) return;
-  if (strcmp(stripAlert, "empty") == 0 && strcmp(alert, "value") == 0) return;
+  if (strcmp(alert, "value") != 0) return;
   stripAlert = alert;
   stripAlertStartedAt = millis();
   stripLastFrameAt = millis() - 100;
@@ -32,11 +37,19 @@ void printLightState(Print& reply) {
   reply.print(stripAlert);
   reply.print(F("\",\"brightness\":"));
   reply.print(stripBrightness);
+  reply.print(F(",\"leds\":"));
+  reply.print(stripLedMask);
+  if (strcmp(stripAlert, "value") == 0) {
+    reply.print(F(",\"durationMs\":"));
+    reply.print(stripCelebrationDurationMs);
+  }
   reply.println(F("}"));
 }
 
 void renderLedStrip() {
-  fill_solid(stripLeds, LED_COUNT, stripColor);
+  for (uint16_t i = 0; i < LED_COUNT; i++) {
+    stripLeds[i] = (stripLedMask >> i) & 1 ? stripColor : CRGB::Black;
+  }
   FastLED.setBrightness(stripBrightness);
   FastLED.show();
 }
@@ -49,20 +62,16 @@ void initLedStrip() {
 void updateLedStrip() {
   if (strcmp(stripAlert, "none") != 0) {
     unsigned long elapsed = millis() - stripAlertStartedAt;
-    if (strcmp(stripAlert, "value") == 0 && elapsed >= 3000) {
+    if (strcmp(stripAlert, "value") == 0 && elapsed >= stripCelebrationDurationMs) {
       stripAlert = "none";
       renderLedStrip();
     } else {
       if (millis() - stripLastFrameAt < 100) return;
       stripLastFrameAt = millis();
-      CRGB color = CRGB::Black;
-      if (strcmp(stripAlert, "value") == 0) {
-        const CRGB colors[] = {CRGB::Red, CRGB::Green, CRGB::Blue};
-        if ((elapsed / 250) % 2 == 0) color = colors[(elapsed / 500) % 3];
-      } else if ((elapsed / 500) % 2 == 0) {
-        color = strcmp(stripAlert, "jam") == 0 ? CRGB::Red : CRGB::Yellow;
+      const CRGB colors[] = {CRGB::Red, CRGB::Green, CRGB::Blue};
+      for (uint16_t i = 0; i < LED_COUNT; i++) {
+        stripLeds[i] = colors[(i + elapsed / 100) % 3];
       }
-      fill_solid(stripLeds, LED_COUNT, color);
       FastLED.setBrightness(stripBrightness);
       FastLED.show();
       return;
@@ -73,10 +82,9 @@ void updateLedStrip() {
   static uint8_t position = 0;
   if (strcmp(stripMode, "foil") != 0 || millis() - lastStep < 60) return;
   lastStep = millis();
-  fill_solid(stripLeds, LED_COUNT, CRGB(30, 30, 40));
-  stripLeds[position] = CRGB::White;
-  stripLeds[(position + 1) % LED_COUNT] = CRGB::White;
-  position = (position + 1) % LED_COUNT;
+  fill_solid(stripLeds, LED_COUNT, CRGB::Black);
+  stripLeds[position == 0 ? 0 : LED_COUNT - 1] = CRGB::White;
+  position = (position + 1) % 2;
   FastLED.show();
 #endif
 }
@@ -85,6 +93,8 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
   JsonVariantConst request = doc["setLight"];
   const char* mode = nullptr;
   uint8_t brightness = stripBrightness;
+  uint8_t ledMask = LED_MAIN_MASK;
+  unsigned long durationMs = VALUE_CELEBRATION_DEFAULT_MS;
   CRGB color = stripColor;
 
   if (request.is<const char*>()) {
@@ -95,6 +105,15 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
       return;
     }
     mode = request["mode"].as<const char*>();
+    if (!request["durationMs"].isNull()) {
+      if (!request["durationMs"].is<unsigned long>() ||
+        request["durationMs"].as<unsigned long>() < VALUE_CELEBRATION_MIN_MS ||
+        request["durationMs"].as<unsigned long>() > VALUE_CELEBRATION_MAX_MS) {
+        reply.println(F("{\"error\":\"durationMs must be an integer from 100 to 3000\"}"));
+        return;
+      }
+      durationMs = request["durationMs"].as<unsigned long>();
+    }
     const char* fields[] = {"brightness", "r", "g", "b"};
     for (const char* field : fields) {
       if (request[field].isNull()) continue;
@@ -103,6 +122,14 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
         reply.println(F("{\"error\":\"light values must be integers from 0 to 255\"}"));
         return;
       }
+    }
+    if (!request["leds"].isNull()) {
+      if (!request["leds"].is<int>() || request["leds"].as<int>() < 1 ||
+          request["leds"].as<int>() > LED_FULL_MASK) {
+        reply.println(F("{\"error\":\"leds must be a bitmask from 1 to 31\"}"));
+        return;
+      }
+      ledMask = request["leds"].as<uint8_t>();
     }
     brightness = request["brightness"] | stripBrightness;
     if (strcmp(mode, "custom") == 0) {
@@ -124,13 +151,14 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
     return;
   }
   if (strcmp(mode, "value") == 0) {
+    stripCelebrationDurationMs = durationMs;
     setStripAlert("value");
     printLightState(reply);
     return;
   }
   if (strcmp(mode, "white") == 0 || strcmp(mode, "auto") == 0) {
     nextMode = strcmp(mode, "auto") == 0 ? "auto" : "white";
-    color = CRGB(240, 240, 255);
+    color = CRGB::White;
   } else if (strcmp(mode, "off") == 0) {
     nextMode = "off";
     color = CRGB::Black;
@@ -152,6 +180,7 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
   stripMode = nextMode;
   stripColor = color;
   stripBrightness = brightness;
+  stripLedMask = ledMask;
   if ((doc["clearAlert"] | false) && strcmp(stripAlert, "value") != 0) {
     stripAlert = "none";
   }

@@ -3,6 +3,7 @@ import {
   saveDevice,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { usePriceSource } from "@/hooks/use-price-source";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -14,10 +15,13 @@ import {
   DEFAULT_LIGHT_BRIGHTNESS,
   DEFAULT_LIGHT_COLOR,
   DEFAULT_LIGHT_MODE,
+  DEFAULT_VALUE_CELEBRATION_DURATION_MS,
+  confirmedValueCelebrationDuration,
   isFirmwareFeatureSupported,
-  LIGHT_VALUE_COMMAND,
+  toValueCelebrationCommand,
   toSetLightCommand,
   type LightSettings,
+  type LightingDraft,
 } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,20 +34,26 @@ export function useLightSettingsDraft() {
   const toast = useStationToast();
   const { activeOrg } = useOrg();
   const device = useDevice();
+  const { source } = usePriceSource();
   const queryClient = useQueryClient();
   const { isReady, firmwareVersion, sendRequest } = useSerial();
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const values = useMemo<LightSettings>(
+  const values = useMemo<LightingDraft>(
     () => ({
       lightMode: device?.lightMode ?? DEFAULT_LIGHT_MODE,
       lightColor: device?.lightColor ?? DEFAULT_LIGHT_COLOR,
       lightBrightness: device?.lightBrightness ?? DEFAULT_LIGHT_BRIGHTNESS,
+      valueCelebrationEnabled: device?.valueCelebrationEnabled ?? false,
+      valueCelebrationThreshold: device?.valueCelebrationThreshold ?? 0,
+      valueCelebrationPriceSource: source,
+      valueCelebrationDurationMs: device?.valueCelebrationDurationMs ?? DEFAULT_VALUE_CELEBRATION_DURATION_MS,
     }),
-    [device?.lightMode, device?.lightColor, device?.lightBrightness],
+    [device?.lightMode, device?.lightColor, device?.lightBrightness,
+      device?.valueCelebrationEnabled, device?.valueCelebrationThreshold, device?.valueCelebrationDurationMs, source],
   );
 
-  const form = useForm<LightSettings>({
+  const form = useForm<LightingDraft>({
     resolver: zodResolver(lightSettingsSchema),
     values,
     resetOptions: { keepDirtyValues: true },
@@ -75,7 +85,7 @@ export function useLightSettingsDraft() {
     [],
   );
 
-  const save = async (draft: LightSettings) => {
+  const save = async (draft: LightingDraft) => {
     if (!device?.guid) return;
     try {
       const result = await saveDevice(device.guid, draft);
@@ -106,8 +116,18 @@ export function useLightSettingsDraft() {
     isDirty: form.formState.isDirty,
     isSaving: form.formState.isSubmitting,
     schedulePreview,
-    testCelebration: () => {
-      if (canControl) void sendRequest(LIGHT_VALUE_COMMAND);
+    testCelebration: async () => {
+      if (!canControl) return;
+      try {
+        const durationMs = form.getValues("valueCelebrationDurationMs");
+        const { sent, line } = await sendRequest(toValueCelebrationCommand(durationMs));
+        if (!sent || !line || confirmedValueCelebrationDuration(line, durationMs) === null) {
+          throw new Error("Celebration preview blocked or unconfirmed");
+        }
+      } catch (error) {
+        console.error("Celebration preview failed:", error);
+        toast.error(t("lights.celebration.previewFailed"));
+      }
     },
     clearAlert: () => sendLights(form.getValues(), { clearAlert: true }),
     save: () => void form.handleSubmit(save)(),

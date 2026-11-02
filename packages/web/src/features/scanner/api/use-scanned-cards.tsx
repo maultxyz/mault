@@ -77,6 +77,7 @@ import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import { useValueCelebration } from "@/features/scanner/api/use-value-celebration";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { BinCorrectionDialog } from "@/features/scanner/components/bin-correction-dialog";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
@@ -136,6 +137,9 @@ export function ScannedCardsProvider({
   }, []);
   const { routes: binRoutes } = useBinRoutes();
   const device = useDevice();
+  const prepareCelebration = useValueCelebration();
+  const prepareCelebrationRef = useRef(prepareCelebration);
+  prepareCelebrationRef.current = prepareCelebration;
   const deviceGuidRef = useRef(device?.guid);
   deviceGuidRef.current = device?.guid;
   const pipelinedFeedRef = useRef(device?.pipelinedFeed ?? false);
@@ -736,6 +740,7 @@ export function ScannedCardsProvider({
         );
       }
 
+      const celebrate = prepareCelebrationRef.current(card, record.isFoil);
       if (
         matchedBin &&
         serialRef.current.isConnected &&
@@ -755,6 +760,11 @@ export function ScannedCardsProvider({
           pause,
           triggerAutoFeed,
           onJam: showJamToast,
+          onRouted: celebrate,
+        });
+      } else if (celebrate) {
+        void celebrate().then((success) => {
+          if (!success) pause();
         });
       }
 

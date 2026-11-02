@@ -862,6 +862,20 @@
       "when": 1792501816120,
       "tag": "0122_device_lighting",
       "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1792566908539,
+      "tag": "0123_illegal_odin",
+      "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "7",
+      "when": 1793115589565,
+      "tag": "0124_celebration_duration",
+      "breakpoints": true
     }
   ]
 }

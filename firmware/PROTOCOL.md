@@ -579,7 +579,15 @@ refused the token (set it up again with a fresh token).
 
 ### `setLight` (firmware 2.11.0+)
 
-Drives the WS2812B strip (10 LEDs) on `LED_PIN`: GPIO 17 on the ESP32-S3,
+The strip starts off on power-up, with brightness initialized to 160/255.
+The app applies saved lighting settings when it connects.
+
+For the current lighting diagnostic, `ENABLE_ONBOARD_RGB_STATUS` defaults to
+`0` in `main/main.ino`: onboard RGB status writes are disabled to isolate potential
+interaction with the external strip driver. Set it to `1` (or build with
+`-DENABLE_ONBOARD_RGB_STATUS=1`) to restore them.
+
+Drives the WS2812B strip (5 LEDs) on `LED_PIN`: GPIO 18 on the ESP32-S3,
 13 on classic ESP32, D8 on the Uno R4. Older firmware answers
 `{"error":"unknown command"}`.
 
@@ -589,17 +597,37 @@ Drives the WS2812B strip (10 LEDs) on `LED_PIN`: GPIO 17 on the ESP32-S3,
 ```
 `mode` is `white`, `auto` (same color as white), `off`, `custom` (needs
 `r`, `g` and `b`), `foil` (a white light chasing around the strip) or
-`value` (a 3 s red/green/blue celebration flash that leaves the mode
-alone). `brightness` and the color channels are integers from 0 to 255;
+`value` (red/green/blue colours rotating across all five LEDs, leaving the mode
+alone). White and auto use neutral RGB 255/255/255, not a blue-biased white.
+For `value`, an object request can set `durationMs` to an integer from 100 to
+3000 (default 500). For example:
+`{"setLight":{"mode":"value","durationMs":500}}`.
+The reply includes `"durationMs":500` while the value animation is active.
+The scanner requires this acknowledgement, waits for that duration plus a
+150 ms margin, and confirms restoration of main lighting before feeding again.
+Older firmware without the duration echo pauses scanning rather than assuming
+the shorter animation completed. `brightness` and the color channels are integers from 0 to 255;
 `brightness` defaults to the current one (160 at boot). `clearAlert`
-drops an active `jam` or `empty` alert.
-→ `{"status":"ok","lightMode":"white","lightAlert":"none","brightness":160}`
+is retained for compatibility. Jam and empty-hopper conditions no longer set
+lighting alerts or change the current illumination; their error replies and
+events remain unchanged.
 
-Alerts override the mode until they clear. `jam` (flashing red) starts with
-an unsolicited `jam` or a `timeout: no card detected at module N` and clears
-after a successful `route` or `clearDevice`. `empty` (flashing yellow)
-starts when a feed finds the hopper empty and clears on the next delivered
-card. A jam outranks an empty hopper, and both outrank `value`.
+An object request may also set `leds`, a bitmask of the LEDs to light
+(bit 0 is LED 0, 31 is all five), for directional foil experiments: for
+example `{"setLight": {"mode": "white", "brightness": 32, "leds": 16}}` lights
+only LED 4, and `"leds": 14` lights LEDs 1 to 3. Any request without `leds` resets
+to LEDs 1 to 3, the main diffused lighting. Jam and empty-hopper conditions
+leave lighting unchanged. Value celebrations are
+the exception: all five LEDs rotate colours, then restore the previous lighting.
+Otherwise LEDs 0 and 4 are reserved for directional foil detection; the optional `foil` animation alternates those
+two LEDs with the middle LEDs off. Firmware without this field
+ignores it and replies without `leds`.
+→ `{"status":"ok","lightMode":"white","lightAlert":"none","brightness":160,"leds":14}`
+
+Only `value` overrides lighting, for its configured duration. Jam and empty
+events still report sorter faults, but do not set `lightAlert` or interrupt
+calibration lighting. Older firmware may still flash red/yellow for these
+conditions; reflash to disable those light signals.
 
 ### `readIR`
 ```json

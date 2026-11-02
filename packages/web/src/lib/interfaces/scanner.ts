@@ -794,6 +794,7 @@ export interface ClientDewarpResult {
 }
 
 export interface RouteCardToBinParams {
+  onRouted?: () => Promise<boolean>;
   route: BinRoute;
   sendRoute: (
     route: BinRoute,

@@ -2,6 +2,8 @@ import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
 import { ScanRegionCalibrationPanel } from "@/features/calibration/components/scan-region-calibration-panel";
+import { FoilCalibrationPanel } from "@/features/calibration/components/foil-calibration-panel";
+import { useFoilCalibration } from "@/features/calibration/api/use-foil-calibration";
 
 export default function CalibrateScanRegionPage() {
   const {
@@ -20,10 +22,16 @@ export default function CalibrateScanRegionPage() {
     handleSaveScanRegion,
     handleDiscardScanRegion,
   } = useCalibrationOutletContext();
+  const foilCalibration = useFoilCalibration({
+    scanRegion,
+    captureSettleDelayMs,
+    disabled: isDeviceLoading || isScanRegionSectionDirty || isSavingScanRegion,
+  });
 
   return (
     <>
-      <ScanRegionCalibrationPanel
+      <fieldset disabled={foilCalibration.busy} inert={foilCalibration.busy} className="contents">
+        <ScanRegionCalibrationPanel
         scanRegion={scanRegion}
         captureSettleDelayMs={captureSettleDelayMs}
         matchesNeeded={matchesNeeded}
@@ -34,7 +42,9 @@ export default function CalibrateScanRegionPage() {
         onCaptureSettleChange={handleCaptureSettleChange}
         onMatchesNeededChange={handleMatchesNeededChange}
         onCheckBothOrientationsChange={handleCheckBothOrientationsChange}
-      />
+        />
+      </fieldset>
+      <FoilCalibrationPanel calibration={foilCalibration} />
 
       <SaveBar
         show={isScanRegionSectionDirty}
@@ -43,8 +53,11 @@ export default function CalibrateScanRegionPage() {
         onDiscard={handleDiscardScanRegion}
       />
       <UnsavedChangesGuard
-        isDirty={isScanRegionSectionDirty}
-        onDiscard={handleDiscardScanRegion}
+        isDirty={isScanRegionSectionDirty || foilCalibration.busy}
+        onDiscard={() => {
+          foilCalibration.cancel();
+          handleDiscardScanRegion();
+        }}
       />
     </>
   );
