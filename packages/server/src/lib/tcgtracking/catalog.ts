@@ -101,6 +101,7 @@ export async function fetchTcgtrackingSetSkus(
         condition: sku.cnd,
         variant: sku.var,
         language: sku.lng,
+        marketPrice: sku.mkt ?? sku.low ?? null,
       })),
     ]),
   );

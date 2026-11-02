@@ -80,6 +80,7 @@ async function run(): Promise<boolean> {
     log("TCGplayer SKUs: starting.");
     const skus = await syncTcgplayerSkus({ force, gameKeys, log });
     ok &&= skus.failedSets === 0;
+    pulled ||= skus.sets > 0;
     log(
       skus.skipped
         ? "TCGplayer SKUs: unchanged."

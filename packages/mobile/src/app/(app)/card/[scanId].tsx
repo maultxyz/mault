@@ -401,7 +401,12 @@ export default function CardDetailScreen() {
             {card ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.prices")} />
-                <CardPriceDetails card={card} isFoil={draftFoil != null} foilType={draftFoil} />
+                <CardPriceDetails
+                  card={card}
+                  isFoil={draftFoil != null}
+                  foilType={draftFoil}
+                  condition={draftCondition}
+                />
                 <CardPurchaseLinks card={card} />
                 {entry && acquisitionCost.data ? (
                   <PricePaidField

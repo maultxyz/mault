@@ -1,3 +1,4 @@
+import { DEFAULT_CARD_CONDITION } from "./constants/card-condition.constant";
 import {
   CARD_PRICE_AT_SCAN_KEYS,
   DEFAULT_PRICE_SOURCE,
@@ -17,6 +18,7 @@ import type {
 import type {
   PriceChangeSinceScan,
   PriceSource,
+  TcgplayerHeadlinePrices,
 } from "./interfaces/price-source.interface";
 
 export function isPriceSource(value: unknown): value is PriceSource {
@@ -31,13 +33,57 @@ export function toCardFinish(finish: boolean | CardFinish | null | undefined): C
   return typeof finish === "object" && finish !== null ? finish : { isFoil: !!finish };
 }
 
+export function tcgplayerConditionPriceFor(
+  card: Partial<Pick<PlayingCard, "priceByCondition" | "priceFoilByCondition" | "finishPrices">>,
+  finish: boolean | CardFinish | null | undefined,
+  condition: CardCondition | null | undefined,
+): number | null {
+  if (!condition || condition === DEFAULT_CARD_CONDITION) return null;
+  const { isFoil, foilType } = toCardFinish(finish);
+  if (!isFoil) return card.priceByCondition?.[condition] ?? null;
+  const finishPrices = foilType ? card.finishPrices?.[foilType] : undefined;
+  const conditionPrices = finishPrices
+    ? finishPrices.priceFoilByCondition
+    : card.priceFoilByCondition;
+  return conditionPrices?.[condition] ?? null;
+}
+
+export function tcgplayerHeadlinePrices(
+  card: PlayingCard,
+  foilType: string | null | undefined,
+  condition: CardCondition | null | undefined,
+): TcgplayerHeadlinePrices {
+  const conditionPrice = tcgplayerConditionPriceFor(card, false, condition);
+  const conditionFoilPrice = tcgplayerConditionPriceFor(
+    card,
+    { isFoil: true, foilType },
+    condition,
+  );
+  return {
+    price: conditionPrice ?? card.price,
+    foilPrice:
+      conditionFoilPrice ??
+      (foilType ? card.finishPrices?.[foilType]?.priceFoil : null) ??
+      card.priceFoil,
+    priceAtScan: conditionPrice == null ? (card.pricesAtScan?.price ?? null) : null,
+    foilPriceAtScan:
+      conditionFoilPrice == null ? (card.pricesAtScan?.priceFoil ?? null) : null,
+    isConditionPrice: conditionPrice != null || conditionFoilPrice != null,
+  };
+}
+
 export function cardPriceFor(
-  card: CardPricesAtScan & Pick<PlayingCard, "finishPrices">,
+  card: CardPricesAtScan &
+    Partial<Pick<PlayingCard, "finishPrices" | "priceByCondition" | "priceFoilByCondition">>,
   finish: boolean | CardFinish | null | undefined,
   source: PriceSource,
   condition?: CardCondition | null,
   multipliers?: ConditionMultipliers,
 ): number | null {
+  if (source === "tcgplayer") {
+    const conditionPrice = tcgplayerConditionPriceFor(card, finish, condition);
+    if (conditionPrice != null) return conditionPrice;
+  }
   const { isFoil, foilType } = toCardFinish(finish);
   const fields = PRICE_SOURCE_FIELDS[source];
   const regular = card[fields.price] ?? null;

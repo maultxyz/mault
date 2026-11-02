@@ -35,6 +35,8 @@ export const SAVED_CARD_SCAN_KEYS = [
   "pricesAtScan",
   "purchaseLinks",
   "finishPrices",
+  "priceByCondition",
+  "priceFoilByCondition",
 ] as const;
 
 export const SAVED_CARD_READ_TIME_KEYS = [
@@ -42,6 +44,8 @@ export const SAVED_CARD_READ_TIME_KEYS = [
   "pricesAtScan",
   "purchaseLinks",
   "finishPrices",
+  "priceByCondition",
+  "priceFoilByCondition",
 ] as const;
 
 export const SAVED_ALTERNATIVE_KEYS = [

@@ -86,6 +86,7 @@ function extendedValue(product: TcgcsvProduct, name: string): string | null {
 
 async function upsertProducts(
   categoryId: number,
+  group: TcgcsvGroup,
   products: TcgcsvProduct[],
 ): Promise<void> {
   for (
@@ -101,6 +102,7 @@ async function upsertProducts(
           productId: p.productId,
           categoryId,
           groupId: p.groupId,
+          groupName: group.name,
           name: p.name,
           number: extendedValue(p, "Number"),
           rarity: extendedValue(p, "Rarity"),
@@ -111,6 +113,7 @@ async function upsertProducts(
         set: {
           categoryId: sql`excluded.category_id`,
           groupId: sql`excluded.group_id`,
+          groupName: sql`excluded.group_name`,
           name: sql`excluded.name`,
           number: sql`excluded.number`,
           rarity: sql`excluded.rarity`,
@@ -218,7 +221,7 @@ export async function syncTcgplayerPrices({
           const products = await tcgcsvResults<TcgcsvProduct>(
             `${groupPath}/products`,
           );
-          await upsertProducts(plan.categoryId, products);
+          await upsertProducts(plan.categoryId, group, products);
           categoryProducts += products.length;
         }
         if (plan.prices) {

@@ -81,6 +81,9 @@ function withStoredPrices<T extends PlayingCard>(
     cardKingdomPriceFoil:
       details.cardKingdomPriceFoil ?? card.cardKingdomPriceFoil,
     finishPrices: details.finishPrices ?? card.finishPrices,
+    priceByCondition: details.priceByCondition ?? card.priceByCondition,
+    priceFoilByCondition:
+      details.priceFoilByCondition ?? card.priceFoilByCondition,
   };
 }
 

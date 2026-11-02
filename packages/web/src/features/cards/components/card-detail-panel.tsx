@@ -69,6 +69,7 @@ import {
   isCardLanguage,
   scanLanguage,
   isCardCondition,
+  tcgplayerConditionPriceFor,
   toCardCondition,
   type CardCondition,
   type PlayingCard,
@@ -158,7 +159,7 @@ export function CardDetailPanel({
     setCardCondition,
     setCardLanguage,
   } = useCardDetailActions();
-  const { priceOf, format, conditionMultipliers } = usePriceSource();
+  const { priceOf, format, conditionMultipliers, source } = usePriceSource();
   const canConfirm =
     !!scanId &&
     (lowConfidenceMatch || !!alternativeMatches?.length) &&
@@ -300,6 +301,14 @@ export function CardDetailPanel({
         currentCondition,
       )
     : null;
+  const isTcgplayerConditionPrice =
+    source === "tcgplayer" &&
+    !!selectedCard &&
+    tcgplayerConditionPriceFor(
+      selectedCard,
+      { isFoil: draftIsFoil, foilType: currentFoilType },
+      currentCondition,
+    ) != null;
   const cardFoilOptions = cardFoilTypeOptions(
     foilOptions,
     selectedCard,
@@ -633,6 +642,7 @@ export function CardDetailPanel({
                           card={selectedCard}
                           isFoil={draftIsFoil}
                           foilType={currentFoilType}
+                          condition={currentCondition}
                         />
                         <CardPurchaseLinks card={selectedCard} />
                         {scanId && acquisitionCost && (
@@ -744,11 +754,16 @@ export function CardDetailPanel({
                             {conditionPrice != null &&
                               currentCondition !== DEFAULT_CARD_CONDITION && (
                                 <p className="text-2xs text-foreground/70">
-                                  {t("condition.priceHint", {
-                                    price: format(conditionPrice),
-                                    percent:
-                                      conditionMultipliers[currentCondition],
-                                  })}
+                                  {isTcgplayerConditionPrice
+                                    ? t("condition.marketPriceHint", {
+                                        price: format(conditionPrice),
+                                        condition: currentCondition,
+                                      })
+                                    : t("condition.priceHint", {
+                                        price: format(conditionPrice),
+                                        percent:
+                                          conditionMultipliers[currentCondition],
+                                      })}
                                 </p>
                               )}
                           </div>

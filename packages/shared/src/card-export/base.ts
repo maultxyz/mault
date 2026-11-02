@@ -92,6 +92,23 @@ export function groupExportCards(
   return Array.from(grouped.values());
 }
 
+function mergeEntriesByRowKey(
+  adapter: ExportAdapter,
+  entries: GroupedEntry[],
+  ctx: ExportContext,
+): GroupedEntry[] {
+  const rowKey = adapter.rowKey;
+  if (!rowKey) return entries;
+  const merged = new Map<string, GroupedEntry>();
+  for (const entry of entries) {
+    const key = rowKey(entry, ctx);
+    const existing = merged.get(key);
+    if (existing) existing.quantity += entry.quantity;
+    else merged.set(key, { ...entry });
+  }
+  return Array.from(merged.values());
+}
+
 const dateSuffix = () => new Date().toISOString().slice(0, 10);
 
 export function buildExportCsv(
@@ -100,7 +117,11 @@ export function buildExportCsv(
   ctx: ExportContext,
   combineDuplicates: boolean,
 ): string {
-  const entries = groupExportCards(cards, adapter.groupBy, combineDuplicates);
+  const entries = mergeEntriesByRowKey(
+    adapter,
+    groupExportCards(cards, adapter.groupBy, combineDuplicates),
+    ctx,
+  );
   return [
     adapter.headers(ctx).join(","),
     ...entries.map((entry) => adapter.row(entry, ctx).join(",")),

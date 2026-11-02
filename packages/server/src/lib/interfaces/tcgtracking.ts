@@ -7,6 +7,7 @@ export interface TcgtrackingSet {
   product_count: number;
   published_on: string | null;
   products_modified?: string | null;
+  skus_modified?: string | null;
   sku_count?: number | null;
 }
 
@@ -89,6 +90,8 @@ export interface TcgtrackingSkuEntry {
   cnd: string;
   var: string;
   lng: string;
+  mkt?: number | null;
+  low?: number | null;
 }
 
 export interface TcgtrackingSetSkusResponse {
@@ -100,6 +103,7 @@ export interface TcgtrackingSku {
   condition: string;
   variant: string;
   language: string;
+  marketPrice: number | null;
 }
 
 export interface TcgplayerSkuSyncResult {

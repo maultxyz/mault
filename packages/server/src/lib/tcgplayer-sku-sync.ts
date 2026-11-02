@@ -5,6 +5,7 @@ import { tcgplayerSkus, tcgplayerSkuSets } from "../db/schema";
 import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import {
   TCGPLAYER_SKU_CONDITION_COLUMNS,
+  TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS,
   TCGPLAYER_SKU_PROGRESS_LOG_EVERY_SETS,
   TCGPLAYER_SKU_UPSERT_BATCH_SIZE,
 } from "./constants/tcgtracking";
@@ -47,6 +48,7 @@ function toSkuRows(
         setId,
       };
       row[TCGPLAYER_SKU_CONDITION_COLUMNS[sku.condition]] = skuId;
+      row[TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS[sku.condition]] = sku.marketPrice;
       rowsByKey.set(key, row);
     }
   }
@@ -75,6 +77,7 @@ async function replaceSetSkus(
     }
     const marker = {
       productsModified: set.products_modified ?? null,
+      skusModified: set.skus_modified ?? null,
       skuCount: set.sku_count ?? null,
       syncedAt: new Date(),
     };
@@ -118,6 +121,7 @@ export async function syncTcgplayerSkus({
         force ||
         !marker ||
         marker.productsModified !== (set.products_modified ?? null) ||
+        marker.skusModified !== (set.skus_modified ?? null) ||
         marker.skuCount !== (set.sku_count ?? null)
       );
     });

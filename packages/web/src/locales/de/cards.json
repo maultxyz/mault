@@ -31,6 +31,7 @@
     "trend": "Preistrend",
     "avg7": "7-Tage-Schnitt",
     "tcgplayerMarket": "TCGplayer Marktpreis",
+    "tcgplayerMarketCondition": "TCGplayer Marktpreis ({{condition}})",
     "cardmarketAvg": "Cardmarket Durchschnitt",
     "foilPrice": "Foil {{price}}",
     "priceAtScan": "Beim Scan {{price}}",
@@ -375,6 +376,7 @@
       "DMG": "Beschädigt (DMG)"
     },
     "priceHint": "{{price}} bei {{percent}} % des NM-Preises",
+    "marketPriceHint": "{{price}} TCGplayer Marktpreis für {{condition}}",
     "setSelected": "Zustand"
   },
   "scanOrigin": {

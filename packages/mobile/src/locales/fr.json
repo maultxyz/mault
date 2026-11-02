@@ -1747,6 +1747,7 @@
     "trend": "Tendance",
     "avg7": "Moy. 7 jours",
     "tcgplayerMarket": "Prix du marché TCGplayer",
+    "tcgplayerMarketCondition": "Prix du marché TCGplayer ({{condition}})",
     "cardmarketAvg": "Moyenne Cardmarket",
     "foilPrice": "Foil {{price}}",
     "priceAtScan": "Au scan {{price}}",
