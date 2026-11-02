@@ -175,7 +175,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 ### Deploys
 
 - `deploy.yml` builds GHCR images; Coolify pulls `:latest` (master) or `:dev`. Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`.
-- Web `VITE_*` config is runtime: read it through `runtimeEnv()`, never `import.meta.env.VITE_*` (no build args). The bundled firmware's version comes from the server's `LATEST_FIRMWARE_VERSION` through `/public/version` (`useLatestFirmwareVersion`); a change triggers the same refresh prompt as a new app version.
+- Web `VITE_*` config is runtime: read it through `runtimeEnv()`, never `import.meta.env.VITE_*` (no build args). The bundled firmware's version is the server reading `FIRMWARE_VERSION` from `firmware/main/main.ino` (copied into the server image; dev deploys write the dev version into it; `LATEST_FIRMWARE_VERSION` is only a fallback) through `/public/version` (`useLatestFirmwareVersion`); a change triggers the same refresh prompt as a new app version.
 - Mobile, desktop and firmware have their own release workflows and versions. Mobile `MOBILE_*` values must be set as EAS environment variables. Firmware versions are bumped by the release workflow.
 
 ## Web conventions

@@ -1,17 +1,36 @@
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { createCachedValue } from "./cached-value";
 import { CARD_API_USER_AGENT } from "./constants/card-search";
 import {
   ESP32_FIRMWARE_ASSET_NAME,
   FIRMWARE_GITHUB_RELEASES_URL,
   FIRMWARE_RELEASE_TAG_PREFIX,
+  FIRMWARE_SKETCH_PATH,
+  FIRMWARE_SKETCH_VERSION_PATTERN,
 } from "./constants/firmware-releases";
 import type {
   Esp32FirmwareRelease,
   GitHubRelease,
 } from "./interfaces/firmware-releases";
 
+function readCheckedOutFirmwareVersion(): string | null {
+  let directory = process.cwd();
+  while (!existsSync(join(directory, FIRMWARE_SKETCH_PATH))) {
+    const parent = dirname(directory);
+    if (parent === directory) return null;
+    directory = parent;
+  }
+  const sketch = readFileSync(join(directory, FIRMWARE_SKETCH_PATH), "utf8");
+  return sketch.match(FIRMWARE_SKETCH_VERSION_PATTERN)?.[1] ?? null;
+}
+
+let checkedOutFirmwareVersion: string | null | undefined;
+
 export function getLatestFirmwareVersion(): string | null {
+  checkedOutFirmwareVersion ??= readCheckedOutFirmwareVersion();
   return (
+    checkedOutFirmwareVersion ||
     process.env.LATEST_FIRMWARE_VERSION ||
     process.env.VITE_LATEST_FIRMWARE_VERSION ||
     null

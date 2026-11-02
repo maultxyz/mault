@@ -239,7 +239,7 @@ Four images, built from the repo root and published by CI (`.github/workflows/de
 | `Dockerfile.api-docs` | `mault-api-docs` | Public API reference                             |
 | `Dockerfile.bot`      | `mault-bot`      | Optional Discord bot                             |
 
-The images are public, so the web image reads its `VITE_*` settings at container start (`docker/web-env.sh` writes `env.js`). The server reports the bundled firmware's version from `LATEST_FIRMWARE_VERSION` (a server build arg in deploys).
+The images are public, so the web image reads its `VITE_*` settings at container start (`docker/web-env.sh` writes `env.js`). The server reports the bundled firmware's version from `FIRMWARE_VERSION` in `firmware/main/main.ino`, which the server image copies.
 
 The scanner downloads its ONNX weights from `huggingface.co` at runtime (pinned by revision and SHA-256). Allowlist it in DNS blockers such as Pi-hole.
 

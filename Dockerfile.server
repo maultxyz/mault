@@ -91,10 +91,10 @@ RUN pnpm --filter @magic-vault/server build
 # "work" instead of refusing to run, unless NODE_ENV=production is set.
 ENV NODE_ENV=production
 
-# Version of the firmware binary bundled in the web image from the same
-# deploy; served by /public/version so open tabs refresh when it changes.
-ARG LATEST_FIRMWARE_VERSION
-ENV LATEST_FIRMWARE_VERSION=$LATEST_FIRMWARE_VERSION
+# The sketch's FIRMWARE_VERSION is the version of the firmware binary bundled
+# in the web image from the same commit; served by /public/version so open
+# tabs refresh when it changes. Dev deploys write the dev version into it.
+COPY firmware/main/main.ino firmware/main/main.ino
 
 EXPOSE 3001
 CMD ["node", "packages/server/dist/index.js"]
