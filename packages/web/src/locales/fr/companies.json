@@ -33,7 +33,10 @@
     "organizationDeleted": "Organisation supprimée.",
     "failedToDelete": "Échec de la suppression.",
     "cancelSubscriptionFirst": "Annulez l'abonnement de cette organisation avant de la supprimer. Une fois qu'il est programmé pour s'arrêter à la fin de la période de facturation, vous pourrez supprimer l'organisation.",
-    "manageBilling": "Gérer la facturation"
+    "manageBilling": "Gérer la facturation",
+    "memberLimitReached_one": "Ton offre inclut {{count}} membre par organisation, invitations en attente comprises. Passe à une offre supérieure pour inviter plus de monde.",
+    "memberLimitReached_other": "Ton offre inclut {{count}} membres par organisation, invitations en attente comprises. Passe à une offre supérieure pour inviter plus de monde.",
+    "memberLimitUpgrade": "Voir les offres"
   },
   "orgSwitcher": {
     "organizations": "Organisations",
@@ -41,7 +44,10 @@
     "newOrganizationTitle": "Nouvelle organisation",
     "newOrganizationDescription": "Crée une nouvelle organisation pour délimiter tes bacs, collections et calibrations.",
     "cancel": "Annuler",
-    "organizationCreated": "Organisation « {{name}} » créée."
+    "organizationCreated": "Organisation « {{name}} » créée.",
+    "organizationLimitReached_one": "L'offre de {{name}} te permet de posséder {{count}} organisation. Passe à une offre supérieure pour en créer d'autres.",
+    "organizationLimitReached_other": "L'offre de {{name}} te permet de posséder {{count}} organisations. Passe à une offre supérieure pour en créer d'autres.",
+    "organizationLimitUpgrade": "Voir les offres"
   },
   "discordBot": {
     "heading": "Bot Discord",

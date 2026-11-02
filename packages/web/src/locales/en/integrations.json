@@ -66,8 +66,8 @@
     "edit": "Edit {{name}}",
     "delete": "Delete {{name}}",
     "saveFailed": "Couldn't save the notification rules.",
-    "limitReached_one": "The free plan includes {{count}} Discord notification rule. Upgrade to Business for unlimited rules.",
-    "limitReached_other": "The free plan includes {{count}} Discord notification rules. Upgrade to Business for unlimited rules.",
+    "limitReached_one": "Your plan includes {{count}} Discord notification rule. Upgrade your plan for more rules.",
+    "limitReached_other": "Your plan includes {{count}} Discord notification rules. Upgrade your plan for more rules.",
     "upgrade": "Upgrade",
     "andPings": "and pings"
   },
@@ -120,7 +120,7 @@
     "copyFailed": "Couldn't copy the API key.",
     "managersOnly": "Only organization owners and admins can create or revoke API keys.",
     "loadFailed": "Couldn't load API keys.",
-    "upgrade": "API keys are part of the Business plan.",
+    "upgrade": "API keys are not part of your plan.",
     "upgradeLink": "Upgrade",
     "copy": "Copy key",
     "reference": "API reference",
@@ -180,7 +180,7 @@
     "copySecret": "Copy secret",
     "secretCopied": "Signing secret copied.",
     "copyFailed": "Couldn't copy the secret.",
-    "upgrade": "Webhooks are part of the Business plan.",
+    "upgrade": "Webhooks are not part of your plan.",
     "loadFailed": "Couldn't load webhooks."
   }
 }

@@ -69,6 +69,7 @@ export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil: boolean;
   foilType?: string | null;
+  condition?: CardCondition | null;
 }
 
 export interface PriceHeadline {

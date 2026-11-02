@@ -31,6 +31,7 @@
     "trend": "Tendance",
     "avg7": "Moy. 7 jours",
     "tcgplayerMarket": "Prix du marché TCGplayer",
+    "tcgplayerMarketCondition": "Prix du marché TCGplayer ({{condition}})",
     "cardmarketAvg": "Moyenne Cardmarket",
     "foilPrice": "Foil {{price}}",
     "priceAtScan": "Au scan {{price}}",
@@ -69,6 +70,8 @@
     "manaCost": "Coût de mana",
     "powerToughness": "Force / Endurance",
     "artist": "Artiste",
+    "dataSource": "Source des données",
+    "fallbackData": "Données de secours (catalogue TCGplayer)",
     "binLocation": "Emplacement du bac",
     "showOcrRegions": "Afficher les zones OCR",
     "noOcrRegions": "Ce jeu n'a pas de zones OCR.",
@@ -103,7 +106,6 @@
     "scanToGetStarted": "Scanne une carte pour commencer",
     "noCardsMatchFilters": "Aucune carte ne correspond aux filtres actuels",
     "tryAdjusting": "Essaie d'ajuster ta recherche, ton tri ou tes filtres",
-    "pageOf": "Page {{page}} sur {{total}}",
     "cardsSelected_one": "{{count}} carte sélectionnée",
     "cardsSelected_other": "{{count}} cartes sélectionnées",
     "clear": "Effacer",
@@ -123,7 +125,8 @@
     "deleteCardsDescription_other": "Cela retirera définitivement les cartes sélectionnées de ta collection. Cette action est irréversible.",
     "downloadedHidden_one": "1 carte téléchargée est masquée par le filtre des téléchargements.",
     "downloadedHidden_other": "{{count}} cartes téléchargées sont masquées par le filtre des téléchargements.",
-    "moveToLocation": "Déplacer"
+    "moveToLocation": "Déplacer",
+    "exporting": "Export en cours"
   },
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",
@@ -207,7 +210,8 @@
     "download": "Télécharger ({{count}})",
     "downloadFailed": "Impossible de télécharger l'export.",
     "sessionWrappedToggle": "Wrapped",
-    "combineDuplicates": "Regrouper les doublons"
+    "combineDuplicates": "Regrouper les doublons",
+    "exporting": "Export en cours"
   },
   "sessionWrapped": {
     "srTitle": "Le récap de {{collectionName}}",
@@ -317,6 +321,7 @@
     "copyName": "Copier le nom",
     "copied": "Nom copié.",
     "copyFailed": "Impossible de copier le nom.",
+    "moveToLocation": "Déplacer vers un emplacement",
     "remove_one": "Retirer la carte",
     "remove_other": "Retirer {{count}} cartes"
   },
@@ -371,9 +376,11 @@
       "DMG": "Endommagée (DMG)"
     },
     "priceHint": "{{price}} à {{percent}} % du prix NM",
+    "marketPriceHint": "{{price}} prix du marché TCGplayer pour {{condition}}",
     "setSelected": "État"
   },
   "scanOrigin": {
+    "scannedAt": "Scanné",
     "scannedBy": "Par",
     "sorter": "Trieuse",
     "deletedSorter": "{{name}} (supprimée)"

@@ -23,6 +23,8 @@ export const BIN_HEIGHT_PRESETS: BinHeightPreset[] = [
   { key: "small", height: 60 },
   { key: "medium", height: 113 },
   { key: "large", height: 187 },
+  { key: "xlarge", height: 250 },
+  { key: "xxlarge", height: 350 },
   { key: "unlimited", height: UNLIMITED_BIN_HEIGHT },
 ];
 

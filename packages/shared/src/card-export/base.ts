@@ -46,7 +46,15 @@ export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
   return price != null ? price.toFixed(2) : "";
 }
 
-function groupCards(
+export function exportEntryKey(
+  entry: Pick<GroupedEntry, "isFoil" | "foilType" | "condition" | "language"> & {
+    card: Pick<PlayingCardWithDistance, "id">;
+  },
+): string {
+  return `${entry.card.id}:${entry.isFoil}:${entry.foilType ?? ""}:${entry.condition}:${entry.language}`;
+}
+
+export function groupExportCards(
   cards: ExportableCard[],
   groupBy: GroupBy,
   combineDuplicates: boolean,
@@ -67,7 +75,7 @@ function groupCards(
     const language = scanLanguage(entry);
     const key =
       groupBy === "card-foil"
-        ? `${entry.card.id}:${isFoil}:${entry.foilType ?? ""}:${condition}:${language}`
+        ? exportEntryKey({ card: entry.card, isFoil, foilType: entry.foilType, condition, language })
         : `${entry.card.id}:${condition}:${language}`;
     const existing = grouped.get(key);
     if (existing) existing.quantity++;
@@ -84,6 +92,23 @@ function groupCards(
   return Array.from(grouped.values());
 }
 
+function mergeEntriesByRowKey(
+  adapter: ExportAdapter,
+  entries: GroupedEntry[],
+  ctx: ExportContext,
+): GroupedEntry[] {
+  const rowKey = adapter.rowKey;
+  if (!rowKey) return entries;
+  const merged = new Map<string, GroupedEntry>();
+  for (const entry of entries) {
+    const key = rowKey(entry, ctx);
+    const existing = merged.get(key);
+    if (existing) existing.quantity += entry.quantity;
+    else merged.set(key, { ...entry });
+  }
+  return Array.from(merged.values());
+}
+
 const dateSuffix = () => new Date().toISOString().slice(0, 10);
 
 export function buildExportCsv(
@@ -92,7 +117,11 @@ export function buildExportCsv(
   ctx: ExportContext,
   combineDuplicates: boolean,
 ): string {
-  const entries = groupCards(cards, adapter.groupBy, combineDuplicates);
+  const entries = mergeEntriesByRowKey(
+    adapter,
+    groupExportCards(cards, adapter.groupBy, combineDuplicates),
+    ctx,
+  );
   return [
     adapter.headers(ctx).join(","),
     ...entries.map((entry) => adapter.row(entry, ctx).join(",")),

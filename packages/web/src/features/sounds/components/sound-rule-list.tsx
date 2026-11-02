@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { EmptyState } from "@/components/empty-state";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
@@ -31,8 +32,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
   const { t } = useTranslation("sounds");
@@ -47,7 +46,6 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
   );
   const ruleLimit = billing?.maxSoundRules ?? null;
   const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
-  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<SoundRule | null>(null);
 
@@ -90,14 +88,10 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
     >
 
       {atRuleLimit && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-muted p-3">
-          <p className="text-sm text-foreground/70">
-            {t("rules.limitReached", { count: ruleLimit })}
-          </p>
-          <Button variant="outline" onClick={() => navigate(SETTINGS_PATHS.billing)}>
-            {t("rules.upgrade")}
-          </Button>
-        </div>
+        <PlanNotice
+          message={t("rules.limitReached", { count: ruleLimit })}
+          linkLabel={t("rules.upgrade")}
+        />
       )}
       {clips.length === 0 && (
         <EmptyState size="compact" icon={IconUpload} title={t("rules.needsClip")} />

@@ -29,6 +29,13 @@ export const notificationRulesQueryOptions = (orgId: string | null, gameGuid: st
     enabled: !!orgId && !!gameGuid,
   });
 
+export const notificationRuleCountQueryOptions = (orgId: string | null) =>
+  queryOptions({
+    queryKey: ["notification-rules", orgId, "count"] as const,
+    queryFn: () => apiGet<Result<number>>("/api/integrations/discord/rules/count").then((r) => r.data ?? 0),
+    enabled: !!orgId,
+  });
+
 export function addNotificationRule(gameGuid: string, input: NotificationRuleInput): Promise<NotificationRule[]> {
   return unwrap(apiPost<Result<NotificationRule[]>>("/api/integrations/discord/rules", { ...input, gameGuid }));
 }

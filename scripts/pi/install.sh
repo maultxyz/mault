@@ -105,7 +105,6 @@ MONITOR_LINK_SECRET={secrets.token_hex(32)}
 WEB_URL=http://127.0.0.1:8080
 PORT=3001
 VITE_APP_ENV=local
-VITE_LATEST_FIRMWARE_VERSION=2.10.0
 PI_HOST=1
 """
 Path(".env").write_text(text)

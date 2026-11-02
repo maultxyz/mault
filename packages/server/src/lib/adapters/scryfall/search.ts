@@ -1,9 +1,7 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
-import { fetchCardApi } from "../../card-search/fetch";
+import type { PlayingCard } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
 import {
-  CARD_API_HEADERS,
+  SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT,
   SCRYFALL_LIST_SET_CODES,
 } from "../../constants/card-search";
 import { sql } from "drizzle-orm";
@@ -63,72 +61,8 @@ function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
   };
 }
 
-export async function searchCards(
-  query: string,
-  baseUrl: string = SCRYFALL_DEFAULT_URL,
-  lang?: string,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const scopedQuery = lang ? `${query} lang:${lang}` : query;
-  const scryfallUrl = `${baseUrl}/search?q=${encodeURIComponent(scopedQuery)}&unique=prints&order=released&dir=desc`;
-
-  const response = await fetchCardApi(scryfallUrl, {
-    headers: CARD_API_HEADERS,
-  });
-
-  if (response.status === 404) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from Scryfall.",
-      success: false,
-    };
-  }
-
-  const data = (await response.json()) as { data: ScryfallApiCard[] };
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: data.data.map(normalizeScryfallCard),
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = SCRYFALL_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const response = await fetchCardApi(`${baseUrl}/${id}`, {
-    headers: CARD_API_HEADERS,
-  });
-
-  if (!response.ok) {
-    return {
-      success: false,
-      message: `Scryfall API error: ${response.status} for card ${id}`,
-    };
-  }
-
-  const raw = (await response.json()) as ScryfallApiCard;
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizeScryfallCard(raw),
-  };
-}
-
 export const scryfallAdapter: CardSearchAdapter = {
   defaultUrl: SCRYFALL_DEFAULT_URL,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw) => normalizeScryfallCard(raw as ScryfallApiCard),
   rarePrintingSql: sql`((data->>'promo') = 'true' OR lower(set_code) IN (${sql.join(
     SCRYFALL_LIST_SET_CODES.map((code) => sql`${code}`),
@@ -138,6 +72,8 @@ export const scryfallAdapter: CardSearchAdapter = {
   foilPrintingVariants: scryfallFoilPrintingVariants,
   tcgplayer: {
     categoryId: 1,
+    foilTypeOfVariant: (variant) =>
+      SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT[variant] ?? variant,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
     productIdFromRaw: (card) => (card.raw as ScryfallApiCard).tcgplayer_id,
   },

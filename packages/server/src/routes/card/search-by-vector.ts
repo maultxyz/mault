@@ -7,7 +7,7 @@ import {
   attachMatchedCards,
   findCardMatches,
   parseEmbeddingField,
-  parsePreferredSetCode,
+  parsePreferredSetCodes,
 } from "./shared";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
@@ -41,10 +41,10 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
     const { gameKey, lang } = resolved;
 
     try {
-      const result = await findCardMatches(c.get("jwtClaims"), {
+      const result = await findCardMatches({
         ...resolved,
         embeddings,
-        preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
+        preferredSetCodes: parsePreferredSetCodes(body),
       });
       return c.json(await attachMatchedCards(result, gameKey, lang));
     } catch (err) {

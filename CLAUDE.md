@@ -41,6 +41,8 @@ For every change (feature, fix, copy, setting, API):
 
 pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.ts`, `serial-protocol.ts`; no build), `server` (Hono 4, Drizzle, Postgres), `web` (React 19 SPA), `mobile` (Expo), `desktop` (Electron shell), `bot` (Discord), `api-docs` (Scalar). One root `.env`. The Vite proxy strips `/api`, so server routes have no `/api` prefix. `docker-compose.yml` is the self-hosted stack.
 
+Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a timer: `/public/health` (polled by every open tab and uptime monitors) only runs `select 1` while the pool already holds connections, else it returns the last healthy result, and the bot refreshes its games list daily.
+
 ### Auth & RLS
 
 - `AUTH_PROVIDER` is `neon` (default) or `local`; `auth/index.ts` picks the provider and route code never branches on it. Bearer tokens everywhere, never cookies. The web client is chosen at module level from `VITE_AUTH_PROVIDER`.
@@ -48,6 +50,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - User-scoped DB access goes through `authQuery(jwtClaims, tx => ...)`. Plain `db` only for intentional RLS bypass (sync, webhooks, bootstrap, stats). New user/org tables use `.enableRLS()` + `crudPolicy` and need grants in `db/bootstrap-local.sql`.
 - Platform staff routes use `requireRole(...PLATFORM_STAFF_ROLES)`; card sync, card database tools, plans, hardware and developer stay `requireRole("admin")`. Web gates with `useRole().isStaff`, `AdminGuard` and `adminOnly`.
 - A 403 signs the web client out, so owner/admin checks on pages members can reach are done inline.
+- Platform role and org membership lookups are cached per process for 10 s (`AUTH_LOOKUP_CACHE_TTL_MS`) and collection match scope for 60 s; null results are never cached, so a new member or collection never gets a stale 403.
 - Route handlers don't wrap their work in try/catch: `app.onError` logs and returns the JSON 500, and `/v1` registers its own `onError` (Scryfall error) before it is mounted. Catch only to turn a specific error into a different response.
 - Local auth (own-auth): `getOwnAuth()` stays lazy because `auth/local.ts` is imported in Neon mode too and `createOwnAuth()` throws in production without `OWN_AUTH_TOKEN_PEPPER`. `LocalEmailProvider.send()` must never throw (own-auth calls it for every invite and reset); invite links are captured per request through AsyncLocalStorage because own-auth only returns raw tokens when `exposeRawTokens` is set. Local API keys are personal (no `organisationId`), so they map onto a normal `{ sub }` session. The first account on a fresh local instance becomes platform admin. Password-reset responses stay generic (no account enumeration).
 - The active org lives in localStorage for both providers: own-auth has no active org, and Neon's cached session lags `organization.setActive`.
@@ -66,10 +69,12 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - `cards.data` stores the API's raw card object (read through `normalizeStored`); one entry per artwork; art through `toPortraitCardImage()`; every `cards.data` write also sets `collector_number`.
 - Never hardcode source-specific fields: read through the game's `fieldDefinitions` and `getByPath`/`getCardValue`. Game-specific behaviour goes on the adapter (e.g. `rarePrintingSql`).
 - TCGTracking (`lib/tcgtracking/`) wraps every sync source and adapter whose game is in `TCGTRACKING_GAMES`: linked cards get `tcgtrackingProductId` (read as `tcgplayerId`), cards the primary lacks become `tcgp-<productId>` fallbacks normalized from TCGTracking data, and covered fallbacks get `supersededByCardId` and drop out of matching. English only.
+- Japanese Pokémon is its own game (`pokemonjp`, TCGplayer category 85) synced straight from TCGTracking, not through the TCGTracking wrapper: English names, lang `ja`, ids are TCGplayer product ids. Its OCR (`ocrMatchesByPrintedSetAndNumber`) matches the printed set code and collector number, never the name.
 - Finishes (foil patterns such as Pokémon "Reverse Holo (Poké Ball)") come from the adapter: `PlayingCard.foilTypes` lists them, `tcgplayer.finishProducts` prices each into `finishPrices`, and `cardPriceFor` takes `{ isFoil, foilType }`. Scanners never detect the pattern from the photo (too unreliable): shared `scanFoilType` only narrows the session's foil type when the card has a single finish in that family.
 - Rules store field keys only; anything new that stores a field key goes in `lib/field-renames.ts`.
 - Rule evaluation runs on `toRuleCard(...)` with `withScanRuleFields`; never save a `$scan` card. Text comparisons are trimmed and lowercased.
-- Scanning never calls upstream card APIs (reads go through `card-search/stored-cards.ts`). netdeck images render through `/cards/netdeck-image/...` because their URLs expire.
+- CSV exports are built on the server (`lib/card-export.ts`, `POST .../cards/csv-export`); web and mobile only pick the format and download. TCGplayer rows carry SKU ids and the condition's SKU market price (falling back to the printing's price) read from `tcgplayer_skus`, which `sync-prices` fills from TCGTracking per set whose products or SKU prices changed (`lib/tcgplayer-sku-sync.ts`); exports never call TCGTracking. `GET /storage-locations/:guid/cards/export` (JSON) stays for store app versions.
+- Only sync calls upstream card APIs (card sync, admin single-card re-sync, `sync-prices`). Search, lookups, exports and scanning read stored data through `card-search/stored-cards.ts`; a card that isn't synced is "not found", never fetched. Adapters have no `search`/`searchById`. netdeck images render through `/cards/netdeck-image/...` because their URLs expire.
 - `collection_cards.card` is a slim scan-time copy referencing `cards` by `(game, lang, card_id)`, not a foreign key (cards get hard-deleted and fallback ids get superseded). Writes go through `toSavedCardSnapshots` (drops `raw` and turns alternatives into references only when the card is in `cards`); every read that returns cards goes through `hydrateSavedScans`/`hydrateSavedCards`, which overlays the current catalog card and keeps scan-time keys (`SAVED_CARD_SCAN_KEYS`).
 - SQL over many collection rows reads the generated `card_*` columns, never `cc.card ->> ...`; catalog fields (set name, rarity, colors, search text, image) come from `cards` columns via `cardCatalogJoinSql` with `CATALOG_CC_ALIAS_COLUMNS` falling back to the `card_*` columns. Sync fills those `cards` columns through `catalogColumnsFor`. Long lists page on the server.
 
@@ -77,6 +82,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 
 - `scripts/sync-prices.ts` runs on an external schedule only. tcgcsv: at most one pull per 20 h, check `last-updated.txt` first, 1 request/s, `CARD_API_USER_AGENT` on every outgoing request, never from request paths.
 - Never read `card.price` for display or totals: use `cardPriceFor`/`formatPrice` (web `usePriceSource().priceOf`) or server `loadOrgPricing`. SQL totals take the org's `OrgPricing`. Currencies never mix.
+- TCGplayer prices below NM come from the condition's SKU market price (`priceByCondition`/`priceFoilByCondition`, per finish in `finishPrices`) when synced, else the NM price times the org's condition multiplier; `cardPriceFor` and `tcgplayerHeadlinePrices` own that choice. SQL totals still use multipliers only.
 - `collection_cards.card` keeps the prices it was saved with: that is the scan-time price (`pricesAtScan`, added on read), so never refresh prices inside it.
 
 ### Soft deletes
@@ -88,10 +94,11 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 
 ### Scanning
 
-- Swapping the embedding model is a breaking migration. There is no table-wide HNSW index: each `game_key` (and lang) gets a partial index built by `ensureGameVectorIndex` (`CREATE INDEX CONCURRENTLY` on a dedicated client, fire-and-forget from the Games routes). Filtered embedding queries need `hnsw.iterative_scan`. Rebuild vector indexes through `rebuildGameVectorIndex` (plain `REINDEX` keeps old params); sync skips `volatileDataKeys` diffs to avoid HNSW churn.
+- Swapping the embedding model is a breaking migration. There is no table-wide HNSW index: each `game_key` (and lang) gets a partial index built by `ensureGameVectorIndex` (`CREATE INDEX CONCURRENTLY` on a dedicated client, fire-and-forget from the Games routes). Scan matching no longer reads these indexes; any new filtered embedding query in SQL needs `hnsw.iterative_scan`. Rebuild vector indexes through `rebuildGameVectorIndex` (plain `REINDEX` keeps old params); sync skips `volatileDataKeys` diffs to avoid HNSW churn.
+- `findCardMatches` searches the in-memory `lib/card-match-index.ts` (exact cosine over each game and lang, never SQL): it loads through plain `db` (an intentional RLS bypass, `cards` is readable by everyone), excludes `excludedFromMatchingSql` rows and flags `rarePrintingSql` at load time, warms at startup, reloads when a sync worker closes, an admin re-vectorizes a card or cards are dumped, and checks a count/`updated_at` signature every 60 s (skipped while that game syncs). Idle segments are evicted above `CARD_MATCH_INDEX_MAX_MB` (1024, Pi 384). Data-only sync refreshes don't touch `updated_at`, so other processes only see them after a restart.
 - `findCardMatches` prefers a regular printing over a same-art promo or list reprint (`rarePrintingSql`); an explicit preferred set wins.
 - OCR reads every name region in one detection pass, matches each, and keeps the name whose printing is confirmed or whose image is closest; an unconfirmed OCR match farther than `OCR_MATCH_MAX_IMAGE_DISTANCE` (0.7, the knee in corrected-scan data from 2026-10-30) becomes no match.
-- Every query that compares a scan against `cards` (embedding, OCR name, preferred set) adds `matchingExclusionFilter(scope)`, which skips the adapter's `excludedFromMatchingSql` rows (Scryfall `digital` printings). The rows stay synced.
+- Every SQL query that compares a scan against `cards` (OCR name, printed set and number) adds `matchingExclusionFilter(scope)`, which skips the adapter's `excludedFromMatchingSql` rows (Scryfall `digital` printings, stored Pokémon TCG Pocket cards). The Scryfall rows stay synced; Pokémon sync skips Pocket sets (`POKEMON_DIGITAL_ONLY_SERIES_IDS`).
 - An onnxruntime-web WASM `RuntimeError` is permanent for the page; don't retry.
 - Server OCR is PaddleOCR on onnxruntime-node (`lib/paddle-ocr.ts`, pinned in `constants/ocr.ts`, pre-downloaded in `Dockerfile.server`): one detection pass over the whole card, then regions anchor to the detected lines and only unanchored regions are read from their fixed box. The v5 recognizer needs input height 48 and the small v3 detector is deliberate (the v5 server detector is about 9x slower on a Pi).
 - Mobile Safari reloads tabs that pile up canvas memory: reuse scratch canvases, free per-scan ones with `releaseCanvases`, warp on the CPU (`warpRgba`), never WebGL.
@@ -102,7 +109,10 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - Stats that must survive deletes read `scan_stats`/`org_daily_scan_usage`. Scan images are read through `resolveScanImageUrl`.
 - Control cards: `shared`'s `scanner-control-code.ts` owns the versioned `mault-control:` QR payload (unknown keys reject the card, so bump the version for new fields). Web checks for a QR before identifying; mobile only after a no-match (jsQR is slow on Hermes). A control card is never saved: it routes like an unmatched card, and a bad card pauses.
 - Any correct, confirm or review accept sets `is_reviewed` and clears `low_confidence_match`; `is_corrected` stays separate.
-- Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only.
+- Plan features/limits: a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check; limits apply on create/enable only. Exceptions: `membersPerOrg` is enforced on every request (`requireOrg` and SSE return 402 `member_seat_limit`, never 403; owners first, then join order) and `organizations` is a client-side gate on the active org's plan (Neon creates orgs client-side). The `businessTools` feature is "Buy and sell" in copy.
+- Platform admins preview a tier with the `X-Plan-Preview` header (web sends it from `lib/plan-preview.ts`); `requireAuth` puts it in `planPreviewStorage`, so plan checks must go through `plan-config`, never read `org_billing.plan` directly.
+- The retired Business plan is the `legacyBusiness` tier (migration 0138, `STRIPE_PRICE_ID_LEGACY_BUSINESS*`): never sold, unknown Stripe prices fall back to it, and the API reports it as `plan: "business"` with `isLegacyPlan` so store app versions still show Business. While the admin "old pricing" mode is on (`platform_billing_settings`, default on), only Business is sold, at the legacy prices (falling back to `STRIPE_PRICE_ID_BUSINESS`), and `isLegacyPlan` stays false; read prices through `findPlanPriceId`, never the env vars.
+- Paid tiers (`PAID_PLAN_KEYS`) map to Stripe prices through `PLAN_PRICE_ID_ENV`; the webhook derives the plan from the price ID, and tier switches go through the portal (checkout refuses an org that already has a subscription).
 - In-process server state (locks, leases, sorter links, rate limits) is per process.
 - Single-card changes emit `collections_changed` through the throttled `emitCollectionCardsChanged`; web card queries refresh through the throttled `invalidateCollectionCards`.
 - Every connected sorter is a station (a tab) plus one idle standby. Background stations stay laid out (never `display: none`) so their scanners keep sorting.
@@ -113,6 +123,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 - One command at a time; every blocking wait goes through `waitMs()`; pusher moves through `setServoPosition()`.
 - `handleCommand` parses its line as `const char*` and prints replies directly. New `ModuleConfig`/`FeederConfig` fields go in `MODULE_FIELDS`/`FEEDER_FIELDS` too; changing `ModuleConfig` needs an EEPROM layout migration.
 - A function whose signature uses a sketch-defined struct needs a manual prototype right after the struct.
+- `FeederCalibration.feedRetryCount` is app-only: the firmware ignores it and it stays out of `FEEDER_CALIBRATION_FIELDS`. Web, mobile and Pi feeds go through `shared`'s `feedWithRetries`, which resends `{"feeder": true}` only on a timeout (`isFeedTimeoutReply`), never on an empty hopper or another error.
 - Firmware `route` runs the feeder first when module 1 reads empty, so scan routes pass `requireLoadedCard` (`readIR` before routing) or they sort an unscanned card; only calibration routes rely on the implicit feed.
 - Replies match by `seq`: use `sendRequest`/`sendRawCommand`. Minimum-firmware features go in `FIRMWARE_FEATURE_MIN_VERSIONS` with a gate and a fallback.
 - ESP32-S3 builds pin `FlashMode=dio` and `PartitionScheme=min_spiffs`; `esp32-flasher.ts` writes the merged bin around NVS, never whole at 0.
@@ -170,7 +181,7 @@ pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.
 ### Deploys
 
 - `deploy.yml` builds GHCR images; Coolify pulls `:latest` (master) or `:dev`. Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`.
-- Web `VITE_*` config is runtime: read it through `runtimeEnv()`, never `import.meta.env.VITE_*` (only `VITE_LATEST_FIRMWARE_VERSION` is a build arg).
+- Web `VITE_*` config is runtime: read it through `runtimeEnv()`, never `import.meta.env.VITE_*` (no build args). The bundled firmware's version is the server reading `FIRMWARE_VERSION` from `firmware/main/main.ino` (copied into the server image; dev deploys write the dev version into it; `LATEST_FIRMWARE_VERSION` is only a fallback) through `/public/version` (`useLatestFirmwareVersion`); a change triggers the same refresh prompt as a new app version.
 - Mobile, desktop and firmware have their own release workflows and versions. Mobile `MOBILE_*` values must be set as EAS environment variables. Firmware versions are bumped by the release workflow.
 
 ## Web conventions

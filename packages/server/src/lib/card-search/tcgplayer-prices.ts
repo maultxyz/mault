@@ -1,19 +1,26 @@
-import type {
-  CardFinishPrices,
-  PlayingCard,
-  PlayingCardPriceRange,
+import {
+  CARD_CONDITIONS,
+  type CardConditionPrices,
+  type CardFinishPrices,
+  type PlayingCard,
+  type PlayingCardPriceRange,
 } from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
-import { tcgplayerPrices, tcgplayerProducts } from "../../db/schema";
+import { tcgplayerPrices, tcgplayerProducts, tcgplayerSkus } from "../../db/schema";
+import {
+  TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS,
+  TCGTRACKING_SKU_LANGUAGE_CODES,
+} from "../constants/tcgtracking";
 import type {
   CardSearchAdapter,
   TcgplayerFinishProduct,
   TcgplayerPricing,
+  TcgplayerSubTypes,
 } from "../interfaces/card-search";
 import { median } from "../statistics";
 
-function productIdOf(
+export function tcgplayerProductIdOf(
   pricing: TcgplayerPricing,
   card: PlayingCard,
 ): number | null {
@@ -21,11 +28,16 @@ function productIdOf(
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+export function skuLanguageCode(language: string): string {
+  const normalized = language.toLowerCase();
+  return TCGTRACKING_SKU_LANGUAGE_CODES[normalized] ?? normalized.toUpperCase();
+}
+
 async function resolveProductIds(
   pricing: TcgplayerPricing,
   cards: PlayingCard[],
 ): Promise<number[][]> {
-  const direct = cards.map((card) => productIdOf(pricing, card));
+  const direct = cards.map((card) => tcgplayerProductIdOf(pricing, card));
   const matches = cards.map((card, i) =>
     direct[i] === null ? (pricing.productMatch?.(card) ?? null) : null,
   );
@@ -84,16 +96,51 @@ function combineRanges(
   };
 }
 
+function combineConditionPrices(
+  prices: CardConditionPrices[],
+): CardConditionPrices | undefined {
+  if (prices.length <= 1) return prices[0];
+  const entries = CARD_CONDITIONS.flatMap((condition) => {
+    const value = median(prices.flatMap((price) => price[condition] ?? []));
+    return value == null ? [] : [[condition, value] as const];
+  });
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
 function finishPricesFor(
   finishes: TcgplayerFinishProduct[],
   rangeOf: (productId: number, subTypes: string[]) => PlayingCardPriceRange | undefined,
+  conditionPricesOf: (productId: number, subTypes: string[]) => CardConditionPrices | undefined,
 ): Record<string, CardFinishPrices> | undefined {
   const entries = finishes.flatMap((finish) => {
     const range = rangeOf(finish.productId, finish.subTypes);
     const priceFoil = range?.market ?? range?.mid ?? null;
-    return priceFoil == null ? [] : [[finish.foilType, { priceFoil }] as const];
+    if (priceFoil == null) return [];
+    const priceFoilByCondition = conditionPricesOf(finish.productId, finish.subTypes);
+    return [
+      [finish.foilType, priceFoilByCondition ? { priceFoil, priceFoilByCondition } : { priceFoil }] as const,
+    ];
   });
   return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+function foilOnlyFoilTypeOf(
+  pricing: TcgplayerPricing,
+  productIds: number[],
+  subTypes: TcgplayerSubTypes,
+  rangeOf: (productId: number, subTypes: string[]) => PlayingCardPriceRange | undefined,
+): string | undefined {
+  const nonFoilSubTypes = subTypes.price.filter(
+    (subType) => !subTypes.priceFoil.includes(subType),
+  );
+  if (productIds.some((productId) => rangeOf(productId, nonFoilSubTypes))) {
+    return undefined;
+  }
+  const foilSubType = subTypes.priceFoil.find((subType) =>
+    productIds.some((productId) => rangeOf(productId, [subType])),
+  );
+  if (!foilSubType) return undefined;
+  return pricing.foilTypeOfVariant?.(foilSubType) ?? foilSubType;
 }
 
 function medianFinishPrice(
@@ -154,9 +201,37 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       .map((subType) => ranges.get(`${productId}:${subType}`))
       .find((r) => r?.market != null || r?.mid != null);
 
+  const skuRows = await db
+    .select()
+    .from(tcgplayerSkus)
+    .where(
+      and(
+        eq(tcgplayerSkus.categoryId, pricing.categoryId),
+        inArray(tcgplayerSkus.productId, productIds),
+      ),
+    );
+  const conditionPricesByKey = new Map<string, CardConditionPrices>();
+  for (const row of skuRows) {
+    const entries = CARD_CONDITIONS.flatMap((condition) => {
+      const price = row[TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS[condition]];
+      return price == null ? [] : [[condition, price] as const];
+    });
+    if (entries.length > 0) {
+      conditionPricesByKey.set(
+        `${row.productId}:${row.variant}:${row.language}`,
+        Object.fromEntries(entries),
+      );
+    }
+  }
+
   return cards.map((card, i) => {
     const cardProductIds = productIdsByCard[i];
-    const finishPrices = finishPricesFor(finishProductsByCard[i], rangeOf);
+    const languageCode = skuLanguageCode(card.lang ?? "en");
+    const conditionPricesOf = (productId: number, subTypes: string[]) =>
+      subTypes
+        .map((subType) => conditionPricesByKey.get(`${productId}:${subType}:${languageCode}`))
+        .find((prices) => prices != null);
+    const finishPrices = finishPricesFor(finishProductsByCard[i], rangeOf, conditionPricesOf);
     if (cardProductIds.length === 0 && !finishPrices) return card;
 
     const rangeFor = (subTypes: string[]) =>
@@ -165,6 +240,10 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
           const range = rangeOf(productId, subTypes);
           return range ? [range] : [];
         }),
+      );
+    const conditionPricesFor = (subTypes: string[]) =>
+      combineConditionPrices(
+        cardProductIds.flatMap((productId) => conditionPricesOf(productId, subTypes) ?? []),
       );
 
     const subTypes = pricing.subTypes(card);
@@ -181,6 +260,12 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       priceRange: range ?? card.priceRange,
       priceRangeFoil: rangeFoil ?? card.priceRangeFoil,
       finishPrices: finishPrices ?? card.finishPrices,
+      priceByCondition: conditionPricesFor(subTypes.price) ?? card.priceByCondition,
+      priceFoilByCondition:
+        conditionPricesFor(subTypes.priceFoil) ?? card.priceFoilByCondition,
+      foilOnlyFoilType:
+        card.foilOnlyFoilType ??
+        foilOnlyFoilTypeOf(pricing, cardProductIds, subTypes, rangeOf),
     };
   });
 }

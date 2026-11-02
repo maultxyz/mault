@@ -39,8 +39,16 @@ import {
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
-import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
-import type { ScannerStatus } from "@magic-vault/shared";
+import type {
+  CardScannerComponentProps,
+  ScannerOverlayProps,
+} from "@/lib/interfaces/scanner";
+import {
+  feedWithRetries,
+  parseSerialReply,
+  type ScannerStatus,
+} from "@magic-vault/shared";
+import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
@@ -56,7 +64,6 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 import { useHandScan } from "@/features/scanner/lib/hand-scan";
-import { parseSerialReply } from "@magic-vault/shared";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function CardScanner({
@@ -65,6 +72,7 @@ export function CardScanner({
   controlsPosition = "bottom",
   controlsContainer,
   renderChrome,
+  viewerTouchesPanelEdges = false,
 }: CardScannerComponentProps) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
@@ -135,6 +143,7 @@ export function CardScanner({
   const { t: tCards } = useTranslation("cards");
   const [flatbedPlacementOpen, setFlatbedPlacementOpen] = useState(false);
   const flatbedPlacementPromptedRef = useRef<string | null>(null);
+  const { feederConfig } = useFeederConfig();
   const device = useDevice();
   const {
     connect,
@@ -364,7 +373,11 @@ export function CardScanner({
     setIsFeeding(true);
     try {
       if (!(await prepareDevice())) return;
-      const { sent, line: response } = await feedOneCard();
+      const { sent, line: response } = await feedWithRetries(
+        feedOneCard,
+        (result) => (result.sent ? parseSerialReply(result.line) : null),
+        ignoreIrSensors ? 0 : feederConfig.feedRetryCount,
+      );
       if (!sent) {
         toast.error(t("cardScanner.feedFailed.title"), {
           description: t("feederCommandFailedDescription"),
@@ -454,6 +467,7 @@ export function CardScanner({
     toast,
     isReady,
     ignoreIrSensors,
+    feederConfig.feedRetryCount,
     prepareDevice,
     feedOneCard,
     handleCardArrived,
@@ -821,6 +835,54 @@ export function CardScanner({
     );
   }
 
+  const showStatusStrip = !isSideControls;
+  const overlayProps: ScannerOverlayProps = {
+    status: displayStatus,
+    errorMessage,
+    isCameraActive,
+    isConnected,
+    isReady,
+    sensorBlockedModule,
+    onResolveSensorBlocked: reopenSensorBlockedToast,
+    firmwareVersion,
+    hasCatchAll,
+    autoFeed,
+    cameraSource,
+    phonePairingStatus,
+    hasStillPhoto,
+    dailyLimitReached: isAtScanLimit,
+    onRetryError: handleRetryError,
+    cameraMenu: {
+      isCameraActive,
+      cameras,
+      documentScannerOptions,
+      isFlatbedSelected: isFlatbedMode,
+      selectedCameraId,
+      phonePairingStatus,
+      scanningBlocked,
+      onCameraConnect: handleRetryError,
+      onCameraDisconnect: handleStopCamera,
+      onCameraSelect: selectCamera,
+      onCalibrateFlatbed: () => setFlatbedPlacementOpen(true),
+      onOpenPhonePairing: handleOpenPhonePairing,
+    },
+    onOpenPhonePairing: handleOpenPhonePairing,
+    onConnectScanner: connect,
+    onConnectScannerBluetooth: connectBluetooth,
+    onConnectScannerCloud: connectCloud,
+    bluetoothSupported,
+    handScanActive: handScanActive || (isFlatbedMode && !isConnected),
+    flatbedScan: isFlatbedMode ? flatbedScan : undefined,
+    lastRoutedBin: visibleLastRoutedBin,
+    onEnableHandScan: () => setHandScan(true),
+    sessionLive: piScanLive || piScan.starting,
+    piReady: piScan.cameraReady,
+    sessionDetail:
+      piScan.starting && !piScanLive
+        ? t("piScan.starting")
+        : piScanStatusText(t, piScan.state),
+  };
+
   return (
     <div
       className={cn(
@@ -829,147 +891,115 @@ export function CardScanner({
         className,
       )}
     >
-      <div
-        className={cn(
-          "relative isolate overflow-hidden bg-background rounded-lg border",
-          isSideControls
-            ? "h-full aspect-[2.5/3.5] shrink-0"
-            : "w-full h-full max-w-full",
-          !compact && !isSideControls && "md:aspect-[2.5/3.5]",
-          isRemoveModeActive && "border-destructive ring-2 ring-destructive/40",
-        )}
-      >
-        <video ref={videoRef} className="hidden" playsInline muted />
-        {piRemote && isCameraActive && (
-          <PiCameraPreview
-            alt={t("piScan.preview")}
-            rotated
-            flipped={device?.flipCamera}
-            className="absolute max-w-none"
+      <div className={showStatusStrip ? "flex flex-col" : "contents"}>
+        <div
+          className={cn(
+            "relative isolate overflow-hidden bg-background rounded-lg border",
+            viewerTouchesPanelEdges && "rounded-none border-x-0 border-t-0",
+            isSideControls
+              ? "h-full aspect-[2.5/3.5] shrink-0"
+              : "w-full h-full max-w-full",
+            !compact && !isSideControls && "md:aspect-[2.5/3.5]",
+            isRemoveModeActive &&
+              "border-destructive ring-2 ring-destructive/40",
+          )}
+        >
+          <video ref={videoRef} className="hidden" playsInline muted />
+          {piRemote && isCameraActive && (
+            <PiCameraPreview
+              alt={t("piScan.preview")}
+              rotated
+              flipped={device?.flipCamera}
+              className="absolute max-w-none"
+            />
+          )}
+          <canvas
+            ref={displayCanvasRef}
+            className={cn(
+              "absolute",
+              piRemote && "hidden",
+              previewRotated && cameraSource === "local" && "rotate-90",
+            )}
+          />
+          <canvas
+            ref={overlayCanvasRef}
+            className={cn(
+              "absolute z-20 pointer-events-none",
+              piRemote && "hidden",
+              previewRotated && cameraSource === "local" && "rotate-90",
+            )}
+          />
+          {isAdmin && debugImageUrl && (
+            <Tooltip>
+              <TooltipTrigger className="absolute bottom-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
+                <IconEye size={16} />
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className="bg-background text-foreground border border-border p-0 shadow-lg max-w-none"
+              >
+                <img
+                  src={debugImageUrl}
+                  alt={t("cardScanner.lastSearchImageAlt")}
+                  className="w-48 aspect-[2.5/3.5] object-fill"
+                />
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <ScannerOverlay
+            {...overlayProps}
+            region={showStatusStrip ? "viewer" : "all"}
+          />
+          <ScannerStatusBar
+            isCameraActive={isCameraActive}
+            isConnected={isConnected}
+            autoFeed={autoFeed}
+            allowDuplicates={allowDuplicates}
+            cameras={cameras}
+            documentScannerOptions={documentScannerOptions}
+            isFlatbedSelected={isFlatbedMode}
+            onCalibrateFlatbed={() => setFlatbedPlacementOpen(true)}
+            selectedCameraId={selectedCameraId}
+            phonePairingStatus={phonePairingStatus}
+            scanningBlocked={scanningBlocked}
+            onCameraConnect={handleRetryError}
+            onCameraDisconnect={handleStopCamera}
+            onCameraSelect={selectCamera}
+            onOpenPhonePairing={handleOpenPhonePairing}
+            onScannerConnect={connect}
+            onScannerConnectBluetooth={connectBluetooth}
+            onScannerConnectCloud={connectCloud}
+            bluetoothSupported={bluetoothSupported}
+            onScannerDisconnect={disconnect}
+            onScannerRetry={sendTest}
+            onCalibrate={() => {
+              setActiveStation(station.id);
+              navigate("/app/calibrate");
+            }}
+            onConnectAnotherUsb={() => connectAnotherSorter("usb")}
+            onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
+            onConnectAnotherCloud={connectAnotherSorterCloud}
+            canConnectAnotherSorter={canConnectAnotherSorter}
+            sorterLimitIsHardCap={sorterLimitIsHardCap}
+            onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
+            isReady={isReady}
+            isClearingDevice={isClearingDevice}
+            isResettingDevice={isResettingDevice}
+            onClearDevice={() => void handleClearDevice()}
+            onResetDevice={() => void handleResetToNeutral()}
+            onAutoFeedChange={changeAutoFeed}
+            onAllowDuplicatesChange={setAllowDuplicates}
+            handScan={handScan}
+            onHandScanChange={setHandScan}
+          />
+        </div>
+        {showStatusStrip && (
+          <ScannerOverlay
+            {...overlayProps}
+            region="status-strip"
+            statusStripTouchesPanelEdges={viewerTouchesPanelEdges}
           />
         )}
-        <canvas
-          ref={displayCanvasRef}
-          className={cn(
-            "absolute",
-            piRemote && "hidden",
-            previewRotated && cameraSource === "local" && "rotate-90",
-          )}
-        />
-        <canvas
-          ref={overlayCanvasRef}
-          className={cn(
-            "absolute z-20 pointer-events-none",
-            piRemote && "hidden",
-            previewRotated && cameraSource === "local" && "rotate-90",
-          )}
-        />
-        {isAdmin && debugImageUrl && (
-          <Tooltip>
-            <TooltipTrigger className="absolute bottom-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
-              <IconEye size={16} />
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              className="bg-background text-foreground border border-border p-0 shadow-lg max-w-none"
-            >
-              <img
-                src={debugImageUrl}
-                alt={t("cardScanner.lastSearchImageAlt")}
-                className="w-48 aspect-[2.5/3.5] object-fill"
-              />
-            </TooltipContent>
-          </Tooltip>
-        )}
-        <ScannerOverlay
-          status={displayStatus}
-          errorMessage={errorMessage}
-          isCameraActive={isCameraActive}
-          isConnected={isConnected}
-          isReady={isReady}
-          sensorBlockedModule={sensorBlockedModule}
-          onResolveSensorBlocked={reopenSensorBlockedToast}
-          firmwareVersion={firmwareVersion}
-          hasCatchAll={hasCatchAll}
-          autoFeed={autoFeed}
-          cameraSource={cameraSource}
-          phonePairingStatus={phonePairingStatus}
-          hasStillPhoto={hasStillPhoto}
-          dailyLimitReached={isAtScanLimit}
-          onRetryError={handleRetryError}
-          cameraMenu={{
-            isCameraActive,
-            cameras,
-            documentScannerOptions,
-            isFlatbedSelected: isFlatbedMode,
-            selectedCameraId,
-            phonePairingStatus,
-            scanningBlocked,
-            onCameraConnect: handleRetryError,
-            onCameraDisconnect: handleStopCamera,
-            onCameraSelect: selectCamera,
-            onCalibrateFlatbed: () => setFlatbedPlacementOpen(true),
-            onOpenPhonePairing: handleOpenPhonePairing,
-          }}
-          onOpenPhonePairing={handleOpenPhonePairing}
-          onConnectScanner={connect}
-          onConnectScannerBluetooth={connectBluetooth}
-          onConnectScannerCloud={connectCloud}
-          bluetoothSupported={bluetoothSupported}
-          handScanActive={handScanActive || (isFlatbedMode && !isConnected)}
-          flatbedScan={isFlatbedMode ? flatbedScan : undefined}
-          lastRoutedBin={visibleLastRoutedBin}
-          onEnableHandScan={() => setHandScan(true)}
-          sessionLive={piScanLive || piScan.starting}
-          piReady={piScan.cameraReady}
-          sessionDetail={
-            piScan.starting && !piScanLive
-              ? t("piScan.starting")
-              : piScanStatusText(t, piScan.state)
-          }
-        />
-        <ScannerStatusBar
-          isCameraActive={isCameraActive}
-          isConnected={isConnected}
-          autoFeed={autoFeed}
-          allowDuplicates={allowDuplicates}
-          cameras={cameras}
-          documentScannerOptions={documentScannerOptions}
-          isFlatbedSelected={isFlatbedMode}
-          onCalibrateFlatbed={() => setFlatbedPlacementOpen(true)}
-          selectedCameraId={selectedCameraId}
-          phonePairingStatus={phonePairingStatus}
-          scanningBlocked={scanningBlocked}
-          onCameraConnect={handleRetryError}
-          onCameraDisconnect={handleStopCamera}
-          onCameraSelect={selectCamera}
-          onOpenPhonePairing={handleOpenPhonePairing}
-          onScannerConnect={connect}
-          onScannerConnectBluetooth={connectBluetooth}
-          onScannerConnectCloud={connectCloud}
-          bluetoothSupported={bluetoothSupported}
-          onScannerDisconnect={disconnect}
-          onScannerRetry={sendTest}
-          onCalibrate={() => {
-            setActiveStation(station.id);
-            navigate("/app/calibrate");
-          }}
-          onConnectAnotherUsb={() => connectAnotherSorter("usb")}
-          onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
-          onConnectAnotherCloud={connectAnotherSorterCloud}
-          canConnectAnotherSorter={canConnectAnotherSorter}
-          sorterLimitIsHardCap={sorterLimitIsHardCap}
-          onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
-          isReady={isReady}
-          isClearingDevice={isClearingDevice}
-          isResettingDevice={isResettingDevice}
-          onClearDevice={() => void handleClearDevice()}
-          onResetDevice={() => void handleResetToNeutral()}
-          onAutoFeedChange={changeAutoFeed}
-          onAllowDuplicatesChange={setAllowDuplicates}
-          handScan={handScan}
-          onHandScanChange={setHandScan}
-        />
       </div>
       {isCameraActive && !controlsContainer && scannerControls}
       {isCameraActive &&

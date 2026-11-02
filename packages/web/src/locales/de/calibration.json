@@ -59,6 +59,8 @@
       "small": "Klein",
       "medium": "Mittel",
       "large": "Groß",
+      "xlarge": "Extra groß",
+      "xxlarge": "Extra extra groß",
       "unlimited": "Unbegrenzt",
       "custom": "Benutzerdefiniert"
     },
@@ -71,6 +73,7 @@
     "label": "Fach-Routing",
     "feed": "Zuführen",
     "dropCard": "Karte abwerfen",
+    "retractCard": "Karte zurückziehen",
     "binActive": "Fach {{bin}}…",
     "running": "Läuft…",
     "sampleRun": "Testlauf",
@@ -89,6 +92,8 @@
     "forward": "Vorwärts",
     "reverse": "Rückwärts",
     "timeoutLabel": "Timeout (ms)",
+    "feedRetryCountLabel": "Einzugswiederholungen",
+    "feedRetryCountDescription": "Wenn ein Einzug ohne Karte abläuft, wird der Einzugsbefehl bis zu so oft erneut gesendet, bevor pausiert wird. 0 schaltet Wiederholungen aus.",
     "pulseDurationLabel": "Impulsdauer (ms)",
     "continuousFeedButton": "Dauerhafte Zuführung",
     "pauseDurationLabel": "Pausendauer (ms)",
@@ -322,6 +327,7 @@
       "pulse": "Impuls",
       "pause": "Pause",
       "settle": "Verzögerung (letzte Karte)",
+      "feedRetries": "Wiederholungen",
       "rollback": "Zurückrollen"
     },
     "toasts": {

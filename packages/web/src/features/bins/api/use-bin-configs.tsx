@@ -469,7 +469,9 @@ export function BinConfigsProvider({
       guid: string;
       config: RepackConfigPatch;
     }) => setRepackConfigAction(guid, config),
-    ...presetsMutationHandlers("useBinConfigs.toasts.repackFailed"),
+    ...presetsMutationHandlers("useBinConfigs.toasts.repackFailed", {
+      showServerMessage: true,
+    }),
   });
 
   const setChaosModeMutation = useMutation({
@@ -682,13 +684,13 @@ export function BinConfigsProvider({
         );
       }
       if (modeDraft.isRepackMode !== modeBaseline.isRepackMode) {
-        await setRepackConfigFn({
+        const repackSaved = await setRepackConfigFn({
           isRepackMode: modeDraft.isRepackMode,
           repackSlots: selectedSet.repackSlots,
           repackUniqueBy: selectedSet.repackUniqueBy,
           repackSiftRules: selectedSet.repackSiftRules,
         });
-        if (modeDraft.isRepackMode) {
+        if (repackSaved && modeDraft.isRepackMode) {
           const lastBin = configs[configs.length - 1];
           if (lastBin && !lastBin.isCatchAll) {
             save({

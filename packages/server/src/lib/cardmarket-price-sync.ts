@@ -2,7 +2,7 @@ import { max, sql } from "drizzle-orm";
 import { db } from "../db";
 import { cardmarketPrices, cardmarketProducts } from "../db/schema";
 import { cardmarketMatchName } from "./card-search/cardmarket-prices";
-import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
+import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import { CARD_API_HEADERS } from "./constants/card-search";
 import {
   CARDMARKET_PRICE_UPSERT_BATCH_SIZE,
@@ -144,13 +144,15 @@ async function lastSyncedByGame(): Promise<Map<number, Date>> {
 
 export async function syncCardmarketPrices({
   force = false,
+  gameKeys,
   log,
 }: {
   force?: boolean;
+  gameKeys?: string[];
   log: (msg: string) => void;
 }): Promise<CardmarketSyncResult> {
   const needsProducts = new Map<number, boolean>();
-  for (const adapter of Object.values(ADAPTERS_BY_GAME_KEY)) {
+  for (const [, adapter] of adapterEntriesForGameKeys(gameKeys)) {
     if (!adapter.cardmarket) continue;
     const { gameId, productNames } = adapter.cardmarket;
     needsProducts.set(

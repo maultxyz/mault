@@ -59,6 +59,8 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
+      "xlarge": "Extra large",
+      "xxlarge": "Extra extra large",
       "unlimited": "Unlimited",
       "custom": "Custom"
     },
@@ -71,6 +73,7 @@
     "label": "Bin Routing",
     "feed": "Feed",
     "dropCard": "Drop Card",
+    "retractCard": "Retract Card",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
     "sampleRun": "Sample Run",
@@ -89,6 +92,8 @@
     "forward": "Forward",
     "reverse": "Reverse",
     "timeoutLabel": "Timeout (ms)",
+    "feedRetryCountLabel": "Feed Retries",
+    "feedRetryCountDescription": "When a feed times out without delivering a card, send the feed command again up to this many times before pausing. 0 turns retries off.",
     "pulseDurationLabel": "Pulse Duration (ms)",
     "continuousFeedButton": "Continuous Feed",
     "pauseDurationLabel": "Pause Duration (ms)",
@@ -322,6 +327,7 @@
       "pulse": "Pulse",
       "pause": "Pause",
       "settle": "Final Detection Delay",
+      "feedRetries": "Retries",
       "rollback": "Roll Back"
     },
     "toasts": {

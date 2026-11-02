@@ -8,10 +8,22 @@ export interface ClientPagination<T> {
   setPage: (page: number) => void;
 }
 
-export interface ListPaginationProps {
-  pagination: ClientPagination<unknown>;
-  compact?: boolean;
+export interface PaginationControls {
+  page: number;
+  pageCount: number;
+  setPage: (page: number) => void;
+  from?: number;
+  to?: number;
+  total?: number;
 }
+
+export interface ListPaginationProps {
+  pagination: PaginationControls;
+  compact?: boolean;
+  className?: string;
+}
+
+export type PageSpreadItem = number | "start-ellipsis" | "end-ellipsis";
 
 export interface PageRequest {
   page: number | null;

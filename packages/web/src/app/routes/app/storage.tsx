@@ -168,6 +168,7 @@ function DesktopStoragePage() {
   };
 
   const canStartReview =
+    !isLocked &&
     !!selected &&
     !isSearching &&
     !isCardOpen &&
@@ -275,38 +276,44 @@ function DesktopStoragePage() {
                 )}
                 {selected.cardCount > 0 && (
                   <>
-                    <Button
-                      variant="outline"
-                      title={t("review.startTitle")}
-                      onClick={() => void startReview()}
-                    >
-                      <IconListCheck />
-                      {t("review.start")}
-                      <HotkeyHint id="reviewStart" />
-                    </Button>
+                    {!isLocked && (
+                      <Button
+                        variant="outline"
+                        title={t("review.startTitle")}
+                        onClick={() => void startReview()}
+                      >
+                        <IconListCheck />
+                        {t("review.start")}
+                        <HotkeyHint id="reviewStart" />
+                      </Button>
+                    )}
                     <StorageExportMenu location={selected} />
                   </>
                 )}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label={t("page.rename")}
-                  title={t("page.rename")}
-                  disabled={isMutating}
-                  onClick={() => setRenameOpen(true)}
-                >
-                  <IconEdit />
-                </Button>
-                <Button
-                  variant="outline-destructive"
-                  size="icon"
-                  aria-label={t("page.delete")}
-                  title={t("page.delete")}
-                  disabled={isMutating}
-                  onClick={() => setDeleteOpen(true)}
-                >
-                  <IconTrash />
-                </Button>
+                {!isLocked && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label={t("page.rename")}
+                      title={t("page.rename")}
+                      disabled={isMutating}
+                      onClick={() => setRenameOpen(true)}
+                    >
+                      <IconEdit />
+                    </Button>
+                    <Button
+                      variant="outline-destructive"
+                      size="icon"
+                      aria-label={t("page.delete")}
+                      title={t("page.delete")}
+                      disabled={isMutating}
+                      onClick={() => setDeleteOpen(true)}
+                    >
+                      <IconTrash />
+                    </Button>
+                  </>
+                )}
               </div>
             )}
 

@@ -362,6 +362,7 @@ export function useCalibration(): CalibrationState {
     handleTest,
     handleFeed,
     handleDropCard,
+    applyDraftsToDevice,
     handleResetServosToDefaults,
     save,
     discard,

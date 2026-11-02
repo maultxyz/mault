@@ -6,7 +6,7 @@ import type {
   StorageLocation,
   StorageLocationCardContext,
   StorageLocationCardPage,
-  StorageLocationExportCard,
+  StorageLocationExportSummary,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import { pageRequestParams } from "@/lib/api/page-request";
@@ -138,16 +138,16 @@ export function fetchNextUnreviewedStorageCard(
   ).then((r) => r.data ?? null);
 }
 
-export const storageLocationExportQueryOptions = (
+export const storageLocationExportSummaryQueryOptions = (
   guid: string | undefined,
   enabled: boolean,
 ) =>
   queryOptions({
     queryKey: storageLocationKeys.export(guid),
     queryFn: () =>
-      apiGet<Result<StorageLocationExportCard[]>>(
-        `/api/storage-locations/${guid}/cards/export`,
-      ).then((r) => r.data ?? []),
+      apiGet<Result<StorageLocationExportSummary>>(
+        `/api/storage-locations/${guid}/cards/export-summary`,
+      ).then((r) => r.data ?? { gameKeys: [], scanIds: [] }),
     enabled: !!guid && enabled,
   });
 

@@ -39,4 +39,5 @@ export interface ScannedCardSqlColumns {
 export interface CardPriceRefreshOptions {
   log: (msg: string) => void;
   onlyMissing: boolean;
+  gameKeys?: string[];
 }

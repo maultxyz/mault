@@ -41,6 +41,7 @@ export const REGION_MARGIN_Y = 0.02;
 export const OCR_NAME_MIN_LENGTH = 3;
 export const OCR_NAME_MIN_SIMILARITY = 0.45;
 export const OCR_NAME_CANDIDATE_LIMIT = 60;
+export const OCR_PRINTED_NUMBER_CANDIDATE_LIMIT = 1000;
 export const OCR_MATCH_MAX_IMAGE_DISTANCE = 0.7;
 export const OCR_MAX_NAME_LINES = 8;
 export const OCR_SEARCH_MARGIN_X = 0.04;

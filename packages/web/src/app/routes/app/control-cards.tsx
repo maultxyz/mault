@@ -1,4 +1,3 @@
-import { BaseProviders } from "@/app/providers";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { ControlCardBuilder } from "@/features/control-cards/components/control-card-builder";
@@ -8,20 +7,34 @@ import {
   CONTROL_CARDS_BACK_PATH,
 } from "@/lib/constants/control-cards";
 import type { ControlCardSheetEntry } from "@/lib/interfaces/control-cards";
-import { IconArrowLeft, IconInfoCircle, IconPrinter } from "@tabler/icons-react";
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
+import {
+  IconArrowLeft,
+  IconInfoCircle,
+  IconPrinter,
+} from "@tabler/icons-react";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-function ControlCards() {
+export default function ControlCardsPage() {
   const { t } = useTranslation("scanner");
   const [entries, setEntries] = useState<ControlCardSheetEntry[]>([]);
+  const removeEntry = (entryId: string) =>
+    setEntries((previous) => previous.filter((entry) => entry.id !== entryId));
 
   return (
-    <div className="min-h-dvh bg-background text-foreground print:bg-white">
+    <div
+      className={cn(
+        "min-h-0 flex-1 overflow-y-auto text-foreground",
+        MOBILE_NAV_SCROLL_PADDING_CLASS,
+      )}
+    >
       <style>{CONTROL_CARD_PRINT_PAGE_STYLE}</style>
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6 print:max-w-none print:p-0">
-        <div className="flex flex-wrap items-start justify-between gap-4 print:hidden">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
             <Button
               variant="ghost"
@@ -47,31 +60,20 @@ function ControlCards() {
             {t("controlCards.page.print")}
           </Button>
         </div>
-        <Callout icon={IconInfoCircle} className="print:hidden">
+        <Callout icon={IconInfoCircle}>
           {t("controlCards.page.printTip")}
         </Callout>
-        <div className="print:hidden">
-          <ControlCardBuilder
-            onAdd={(entry) => setEntries((previous) => [...previous, entry])}
-          />
-        </div>
-        <ControlCardSheet
-          entries={entries}
-          onRemove={(entryId) =>
-            setEntries((previous) =>
-              previous.filter((entry) => entry.id !== entryId),
-            )
-          }
+        <ControlCardBuilder
+          onAdd={(entry) => setEntries((previous) => [...previous, entry])}
         />
+        <ControlCardSheet entries={entries} onRemove={removeEntry} />
       </div>
+      {createPortal(
+        <div className="hidden bg-white print:block">
+          <ControlCardSheet entries={entries} onRemove={removeEntry} />
+        </div>,
+        document.body,
+      )}
     </div>
-  );
-}
-
-export default function ControlCardsPage() {
-  return (
-    <BaseProviders>
-      <ControlCards />
-    </BaseProviders>
   );
 }

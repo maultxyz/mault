@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgBilling } from "../../db/schema";
 import {
-  getCancelAtPeriodEndPortalConfigurationId,
+  getBillingPortalConfigurationId,
   getStripe,
 } from "../../lib/stripe";
 import {
@@ -32,7 +32,7 @@ export const portalBillingRoute = new Hono<AppEnv>().post(
         );
       }
 
-      const configuration = await getCancelAtPeriodEndPortalConfigurationId();
+      const configuration = await getBillingPortalConfigurationId();
       const session = await getStripe().billingPortal.sessions.create({
         customer: billing.stripeCustomerId,
         return_url: `${webUrl()}/app/settings`,

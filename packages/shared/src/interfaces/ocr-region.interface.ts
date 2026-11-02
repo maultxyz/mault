@@ -31,9 +31,13 @@ export interface OcrDiagnostics {
   usedFallback?: boolean;
 }
 
-export interface ColorBarRegion {
+export interface ColorBarBox {
   x: number;
   y: number;
   width: number;
   height: number;
+}
+
+export interface ColorBarRegion extends ColorBarBox {
+  whiteReference: ColorBarBox;
 }

@@ -228,4 +228,5 @@ export interface ScanOriginDevice {
 export interface CardScanOrigin {
   scannedBy: ScanOriginUser | null;
   device: ScanOriginDevice | null;
+  scannedAt?: string;
 }

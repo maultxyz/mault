@@ -9,6 +9,10 @@ export function collectorNumberKey(number: string): string {
   return /^\d+$/.test(head) ? String(Number(head)) : head;
 }
 
+export function printedCollectorNumber(number: string | null): string {
+  return (number ?? "").split("/")[0].trim();
+}
+
 export function cardNameKey(name: string): string {
   return name
     .normalize("NFKD")

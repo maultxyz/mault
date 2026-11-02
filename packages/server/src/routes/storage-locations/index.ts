@@ -5,14 +5,15 @@ import {
   STORAGE_MOVE_CARDS_MAX,
   STORAGE_SEARCH_QUERY_MAX_LENGTH,
   STORAGE_SEARCH_RESULT_LIMIT,
+  storageLocationCsvExportRequestSchema,
   toCardCondition,
+  type FieldMeta,
   type PagedList,
   type PlayingCardWithDistance,
   type StorageLocation,
   type StorageLocationCard,
   type StorageLocationCardContext,
   type StorageLocationCardPage,
-  type StorageLocationExportCard,
   type StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
@@ -39,12 +40,15 @@ import { hydrateSavedCards } from "../../lib/saved-cards";
 import { canViewCardCosts } from "../../lib/business-access";
 import { emitToSession } from "../../lib/session-stream";
 import { uuidArraySql } from "../../lib/sql-arrays";
+import { buildCardExport, csvResponse } from "../../lib/card-export";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { parseScanIds } from "../collections/cards-query";
 import {
   countStoredCards,
   findLocationId,
   findStoredCardNeighbor,
+  loadStorageLocationExportCards,
+  loadStorageLocationExportSummary,
   loadLocations,
   locationNameTaken,
   orderedLocationGuids,
@@ -224,6 +228,13 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid name." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isStorageAllowed(tx, orgId))) {
+        return {
+          success: false,
+          message: STORAGE_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
       if (await locationNameTaken(tx, orgId, name, guid)) {
         return { success: false, message: "That name is already used." };
       }
@@ -249,6 +260,13 @@ const router = new Hono<AppEnv>()
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isStorageAllowed(tx, orgId))) {
+        return {
+          success: false,
+          message: STORAGE_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
           and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
@@ -412,62 +430,85 @@ const router = new Hono<AppEnv>()
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const locationId = await findLocationId(tx, orgId, guid);
+      if (locationId === null) {
+        return { success: false, message: "Storage location not found." };
+      }
+      return {
+        success: true,
+        data: await loadStorageLocationExportCards(tx, locationId),
+      };
+    });
+    return c.json(result);
+  })
+  .get("/:guid/cards/export-summary", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const locationId = await findLocationId(tx, orgId, guid);
+      if (locationId === null) {
+        return { success: false, message: "Storage location not found." };
+      }
+      return {
+        success: true,
+        data: await loadStorageLocationExportSummary(tx, locationId),
+      };
+    });
+    return c.json(result);
+  })
+  .post("/:guid/cards/csv-export", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const input = storageLocationCsvExportRequestSchema.safeParse(
+      await c.req.json().catch(() => ({})),
+    );
+    if (!input.success) {
+      return c.json({ success: false, message: "Invalid export request." }, 400);
+    }
+    const loaded = await authQuery(c.get("jwtClaims"), async (tx) => {
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
           and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-        columns: { id: true },
+        columns: { id: true, name: true },
       });
-      if (!location) {
-        return { success: false, message: "Storage location not found." };
-      }
-      const rows = await tx
-        .select({
-          scanId: collectionCards.guid,
-          position: collectionCards.locationPosition,
-          card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`${collectionCards.card}`)}`,
-          isFoil: collectionCards.isFoil,
-          foilType: collectionCards.foilType,
-          condition: collectionCards.condition,
-          language: collectionCards.language,
-          collectionName: collections.name,
-          collectionLang: collections.lang,
-          gameKey: games.key,
-        })
-        .from(collectionCards)
-        .innerJoin(
-          collections,
-          eq(collections.id, collectionCards.collectionId),
-        )
-        .leftJoin(games, eq(games.id, collections.gameId))
-        .where(
-          and(
-            eq(collectionCards.locationId, location.id),
-            eq(collections.isDeleted, false),
-          ),
-        )
-        .orderBy(asc(collectionCards.locationPosition));
-      const cards = await hydrateSavedCards(
-        rows.map((r) => ({
-          gameKey: r.gameKey,
-          lang: r.collectionLang,
-          card: r.card,
-        })),
-        { includeRaw: true },
-      );
-      const data: StorageLocationExportCard[] = rows.map((r, i) => ({
-        scanId: r.scanId!,
-        position: r.position ?? 0,
-        collectionName: r.collectionName,
-        gameKey: r.gameKey,
-        card: cards[i],
-        isFoil: r.isFoil,
-        foilType: r.foilType,
-        condition: toCardCondition(r.condition),
-        language: r.language,
-      }));
-      return { success: true, data };
+      if (!location) return null;
+      const cards = await loadStorageLocationExportCards(tx, location.id);
+      const gameKeys = [...new Set(cards.map((card) => card.gameKey))];
+      const singleGameKey = gameKeys.length === 1 ? gameKeys[0] : null;
+      const game = singleGameKey
+        ? await tx.query.games.findFirst({
+            where: (t, { eq }) => eq(t.key, singleGameKey),
+            columns: { key: true, name: true, fieldDefinitions: true },
+          })
+        : undefined;
+      return { location, cards, gameKeys, game };
     });
-    return c.json(result);
+    if (!loaded) {
+      return c.json({ success: false, message: "Storage location not found." }, 404);
+    }
+    const { location, cards, gameKeys, game } = loaded;
+    const result = await buildCardExport({
+      format: input.data.format,
+      combineDuplicates: input.data.combineDuplicates,
+      cards: cards.map((card) => ({
+        card: card.card,
+        isFoil: card.isFoil,
+        foilType: card.foilType ?? undefined,
+        condition: card.condition,
+        language: card.language ?? undefined,
+      })),
+      gameKeys,
+      game: game
+        ? {
+            key: game.key,
+            name: game.name,
+            fieldDefinitions: (game.fieldDefinitions as FieldMeta[] | null) ?? [],
+          }
+        : null,
+      exportName: location.name,
+    });
+    if (!result.success) return c.json(result, 400);
+    return csvResponse(c, result.csv, result.filename);
   })
   .post("/:guid/cards/mark-downloaded", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
@@ -640,6 +681,13 @@ const router = new Hono<AppEnv>()
     const guid = c.req.param("guid");
     const scanId = c.req.param("scanId");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isStorageAllowed(tx, orgId))) {
+        return {
+          success: false,
+          message: STORAGE_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
           and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),

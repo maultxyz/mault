@@ -35,7 +35,6 @@ export interface GameInput {
   name: string;
   fieldDefinitions: FieldMeta[];
   fieldRenames?: FieldRenames;
-  foilTypes?: string[];
   apiDocsUrl?: string | null;
   cardThickness?: number | null;
   isActive?: boolean;

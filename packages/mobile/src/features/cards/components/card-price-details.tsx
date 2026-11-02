@@ -1,4 +1,4 @@
-import { priceChangeSinceScan } from "@magic-vault/shared";
+import { priceChangeSinceScan, tcgplayerHeadlinePrices } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
@@ -11,23 +11,21 @@ import { PRICE_TABLE_COLUMN_WIDTH } from "@/lib/constants/cards";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardPriceDetailsProps, PriceSourceSection } from "@/lib/interfaces/cards";
 
-export function CardPriceDetails({ card, isFoil, foilType }: CardPriceDetailsProps) {
+export function CardPriceDetails({ card, isFoil, foilType, condition }: CardPriceDetailsProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const { source } = usePricing();
   const [open, setOpen] = useState(false);
+  const { isConditionPrice, ...tcgplayerHeadline } = tcgplayerHeadlinePrices(card, foilType, condition);
 
   const sections: PriceSourceSection[] = [
     {
       source: "tcgplayer",
       headline: {
-        label: t("priceTable.tcgplayerMarket"),
-        price: card.price,
-        foilPrice:
-          (foilType ? card.finishPrices?.[foilType]?.priceFoil : null) ??
-          card.priceFoil,
-        priceAtScan: card.pricesAtScan?.price,
-        foilPriceAtScan: card.pricesAtScan?.priceFoil,
+        label: isConditionPrice
+          ? t("priceTable.tcgplayerMarketCondition", { condition })
+          : t("priceTable.tcgplayerMarket"),
+        ...tcgplayerHeadline,
         format: formatUsd,
       },
       table: {

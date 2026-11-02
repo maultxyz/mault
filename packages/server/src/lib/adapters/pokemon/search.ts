@@ -1,20 +1,17 @@
-import {
-  type PlayingCard,
-  type Result,
-  proxiedImageUrl,
-} from "@magic-vault/shared";
+import { type PlayingCard, proxiedImageUrl } from "@magic-vault/shared";
+import { sql } from "drizzle-orm";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
 import {
   pokemonFinishes,
   pokemonFinishProducts,
+  pokemonFoilOnlyFoilType,
   pokemonTcgplayerProductId,
 } from "./finishes";
 import { CARD_API_HEADERS } from "../../constants/card-search";
+import { POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT } from "../../constants/pokemon";
 import { POKEMON_DEFAULT_URL } from "../../constants/urls";
 import type {
-  PokemonCardBrief,
   PokemonCardDetail,
   PokemonPricing,
 } from "../../interfaces/pokemon";
@@ -89,6 +86,7 @@ function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
     sourceUrl: `https://tcgdex.dev/cards/${raw.id}`,
     tcgplayerId: resolveTcgplayerId(raw.pricing),
     foilTypes: foilTypes.length > 0 ? foilTypes : undefined,
+    foilOnlyFoilType: pokemonFoilOnlyFoilType(raw, foilTypes),
     cmc: raw.retreat,
     raw,
   };
@@ -107,73 +105,15 @@ export async function fetchDetail(
   return (await response.json()) as PokemonCardDetail;
 }
 
-const MAX_ENRICHED_RESULTS = 30;
-
-export async function searchCards(
-  query: string,
-  baseUrl: string = POKEMON_DEFAULT_URL,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const url = `${baseUrl}?name=${encodeURIComponent(query)}&pagination:itemsPerPage=${MAX_ENRICHED_RESULTS}`;
-  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from the TCGdex Pokémon API.",
-      success: false,
-    };
-  }
-
-  const briefs = (await response.json()) as PokemonCardBrief[];
-  if (briefs.length === 0) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  const details = await Promise.all(
-    briefs.map((b) => fetchDetail(b.id, baseUrl)),
-  );
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: details
-      .filter((d): d is PokemonCardDetail => d !== null)
-      .map(normalizePokemonCard),
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = POKEMON_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const raw = await fetchDetail(id, baseUrl);
-  if (!raw) {
-    return {
-      success: false,
-      message: `TCGdex API error: card ${id} not found.`,
-    };
-  }
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizePokemonCard(raw),
-  };
-}
-
 export const pokemonAdapter: CardSearchAdapter = {
   defaultUrl: POKEMON_DEFAULT_URL,
   urlForLang,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw) => normalizePokemonCard(raw as PokemonCardDetail),
+  excludedFromMatchingSql: sql`(data->>'image') LIKE '%/tcgp/%'`,
   tcgplayer: {
     categoryId: 3,
+    foilTypeOfVariant: (variant) =>
+      POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT[variant] ?? variant,
     productIdFromRaw: (card) =>
       resolveTcgplayerId((card.raw as PokemonCardDetail).pricing),
     finishProducts: pokemonFinishProducts,

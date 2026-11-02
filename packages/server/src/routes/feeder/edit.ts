@@ -1,4 +1,8 @@
-import type { FeederCalibration } from "@magic-vault/shared";
+import {
+  FEED_RETRY_COUNT_MAX,
+  FEED_RETRY_COUNT_MIN,
+  type FeederCalibration,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { feederConfigAudit, feederConfigs } from "../../db/schema";
@@ -14,6 +18,21 @@ export const editFeederRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
     const calibration = await c.req.json<FeederCalibration>();
+    const { feedRetryCount } = calibration;
+    if (
+      feedRetryCount !== undefined &&
+      (!Number.isInteger(feedRetryCount) ||
+        feedRetryCount < FEED_RETRY_COUNT_MIN ||
+        feedRetryCount > FEED_RETRY_COUNT_MAX)
+    ) {
+      return c.json(
+        {
+          success: false,
+          message: `feedRetryCount must be a whole number from ${FEED_RETRY_COUNT_MIN} to ${FEED_RETRY_COUNT_MAX}.`,
+        },
+        400,
+      );
+    }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const device = await getDeviceByGuid(tx, orgId, deviceGuid);
       if (!device) return { success: false, message: "Device not found." };

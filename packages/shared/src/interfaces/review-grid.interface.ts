@@ -10,3 +10,18 @@ export interface ReviewGridCard {
   hasAlternatives: boolean;
   corrected: boolean;
 }
+
+export interface ReviewAcceptResult {
+  acceptedScanIds: string[];
+}
+
+export interface CollectionReviewAcceptRequest {
+  collectionGuid: string;
+  confirmScanIds: string[];
+  reviewScanIds: string[];
+}
+
+export interface CardsReviewedEvent {
+  confirmedScanIds: string[];
+  reviewedScanIds: string[];
+}

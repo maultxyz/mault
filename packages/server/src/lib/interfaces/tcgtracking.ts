@@ -6,6 +6,9 @@ export interface TcgtrackingSet {
   abbreviation: string | null;
   product_count: number;
   published_on: string | null;
+  products_modified?: string | null;
+  skus_modified?: string | null;
+  sku_count?: number | null;
 }
 
 export interface TcgtrackingProduct {
@@ -16,6 +19,18 @@ export interface TcgtrackingProduct {
   ext_data: Record<string, unknown> | null;
   image_url: string | null;
   scryfall_id?: string | null;
+  cardmarket_id?: number | null;
+}
+
+export interface TcgtrackingProductLookup {
+  success: boolean;
+  product: {
+    category_id: number;
+    group_id: number;
+    set_name: string;
+    set_abbr: string | null;
+    set_released: string | null;
+  };
 }
 
 export interface TcgtrackingCatalogSet {
@@ -36,6 +51,12 @@ export interface TcgtrackingFallbackData {
   set: TcgtrackingCatalogSet;
   primarySetCode?: string;
   supersededByCardId?: string;
+  [primaryShapedField: string]: unknown;
+}
+
+export interface TcgtrackingPrimaryShapedFieldsInput {
+  name: string;
+  collectorNumber: string;
 }
 
 export type TcgtrackingNumbering = "global" | "per-set" | "name-only";
@@ -45,9 +66,16 @@ export interface TcgtrackingGameConfig {
   fallbacks?: boolean;
   numberKeyOf?(card: PlayingCard): string | null;
   isBasePrinting?(card: PlayingCard): boolean;
+  productMatchesParallelPrinting?(
+    card: PlayingCard,
+    product: TcgtrackingProduct,
+  ): boolean;
   primaryCardIdOf?(product: TcgtrackingProduct): string | null;
   comparableProductName?(name: string): string;
   colorIdentityOf?(colors: string[]): string[];
+  primaryShapedFieldsOf?(
+    input: TcgtrackingPrimaryShapedFieldsInput,
+  ): Record<string, unknown>;
 }
 
 export interface TcgtrackingPrimaryCard {
@@ -56,4 +84,31 @@ export interface TcgtrackingPrimaryCard {
   numberKey: string | null;
   nameKey: string;
   baseNameKey: string;
+}
+
+export interface TcgtrackingSkuEntry {
+  cnd: string;
+  var: string;
+  lng: string;
+  mkt?: number | null;
+  low?: number | null;
+}
+
+export interface TcgtrackingSetSkusResponse {
+  products: Record<string, Record<string, TcgtrackingSkuEntry>>;
+}
+
+export interface TcgtrackingSku {
+  skuId: string;
+  condition: string;
+  variant: string;
+  language: string;
+  marketPrice: number | null;
+}
+
+export interface TcgplayerSkuSyncResult {
+  skipped: boolean;
+  sets: number;
+  skuRows: number;
+  failedSets: number;
 }

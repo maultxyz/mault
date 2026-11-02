@@ -115,6 +115,7 @@ const AdminGameEditorPage = lazy(
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
+const AdminSoundsPage = lazy(() => import("@/app/routes/app/admin/sounds"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
 const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
 const AdminDeveloperPage = lazy(
@@ -320,10 +321,6 @@ export const routes: RouteObject[] = [
             element: <LegacyIntakeReceiptRedirect />,
           },
           {
-            path: CONTROL_CARDS_PATH,
-            element: <ControlCardsPage />,
-          },
-          {
             path: "/app/verify-email",
             element:
               AUTH_PROVIDER === "local" ? (
@@ -342,17 +339,12 @@ export const routes: RouteObject[] = [
                     element: <RequireCollectionGuard />,
                     children: [
                       {
-                        element: <BlockedWhileImpersonatingGuard />,
-                        children: [
-                          {
-                            path: "/app",
-                            element: <ScannerPage />,
-                          },
-                          {
-                            path: "/app/cards/:scanId",
-                            element: <ScannerPage />,
-                          },
-                        ],
+                        path: "/app",
+                        element: <ScannerPage />,
+                      },
+                      {
+                        path: "/app/cards/:scanId",
+                        element: <ScannerPage />,
                       },
                       {
                         path: "/app/collections",
@@ -462,6 +454,10 @@ export const routes: RouteObject[] = [
                           {
                             path: "discord",
                             element: <AdminDiscordPage />,
+                          },
+                          {
+                            path: "sounds",
+                            element: <AdminSoundsPage />,
                           },
                           {
                             path: "discord-channels",
@@ -609,6 +605,10 @@ export const routes: RouteObject[] = [
               {
                 path: "/app/health",
                 element: <HealthPage />,
+              },
+              {
+                path: CONTROL_CARDS_PATH,
+                element: <ControlCardsPage />,
               },
               {
                 path: STATS_PATH,

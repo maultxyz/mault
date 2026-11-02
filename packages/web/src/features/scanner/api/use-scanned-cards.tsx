@@ -40,6 +40,7 @@ import {
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { recordPickListFound } from "@/features/bins/api/use-pick-list";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useDevice } from "@/features/calibration/api/use-device";
@@ -145,6 +146,9 @@ export function ScannedCardsProvider({
   const device = useDevice();
   const deviceGuidRef = useRef(device?.guid);
   deviceGuidRef.current = device?.guid;
+  const { feederConfig } = useFeederConfig();
+  const feedRetryCountRef = useRef(feederConfig.feedRetryCount);
+  feedRetryCountRef.current = feederConfig.feedRetryCount;
   const pipelinedFeedRef = useRef(device?.pipelinedFeed ?? false);
   pipelinedFeedRef.current = device?.pipelinedFeed ?? false;
   const hasCustomFeedSourceRef = useRef<() => boolean>(() => false);
@@ -303,6 +307,7 @@ export function ScannedCardsProvider({
     serialRef,
     activeCollectionRef,
     deviceGuidRef,
+    feedRetryCountRef,
   });
   hasCustomFeedSourceRef.current = hasCustomFeedSource;
   const showJamToast = useJamToast(resume);
@@ -314,8 +319,8 @@ export function ScannedCardsProvider({
 
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);
-  const [forceSetCode, setForceSetCode] = useState<string | null>(null);
-  const forceSetCodeAfterCollectionSwitchRef = useRef<string | null>(null);
+  const [forceSetCodes, setForceSetCodes] = useState<string[]>([]);
+  const forceSetCodesAfterCollectionSwitchRef = useRef<string[]>([]);
   const [scanCondition, setScanConditionState] = useState<CardCondition>(
     DEFAULT_CARD_CONDITION,
   );
@@ -515,9 +520,9 @@ export function ScannedCardsProvider({
     setForceFoilTypeState(foilType);
   }, []);
 
-  const setForceSetCodeAfterCollectionSwitch = useCallback(
-    (setCode: string | null) => {
-      forceSetCodeAfterCollectionSwitchRef.current = setCode;
+  const setForceSetCodesAfterCollectionSwitch = useCallback(
+    (setCodes: string[]) => {
+      forceSetCodesAfterCollectionSwitchRef.current = setCodes;
     },
     [],
   );
@@ -532,8 +537,8 @@ export function ScannedCardsProvider({
     const next = activeCollection?.guid;
     if (prev && prev !== next) {
       releaseScanLock(prev).catch(() => {});
-      setForceSetCode(forceSetCodeAfterCollectionSwitchRef.current);
-      forceSetCodeAfterCollectionSwitchRef.current = null;
+      setForceSetCodes(forceSetCodesAfterCollectionSwitchRef.current);
+      forceSetCodesAfterCollectionSwitchRef.current = [];
     }
     prevCollectionGuidRef.current = next;
     activeCollectionRef.current = activeCollection;
@@ -1441,12 +1446,16 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
-  const clearCards = useCallback(() => {
-    const collection = activeCollectionRef.current;
-    binContentsRef.current = [];
+  const resetSessionStats = useCallback(() => {
     setTimerResetSignal((s) => s + 1);
     setRecentScanTimes([]);
     setSessionScanCount(0);
+  }, []);
+
+  const clearCards = useCallback(() => {
+    const collection = activeCollectionRef.current;
+    binContentsRef.current = [];
+    resetSessionStats();
     if (collection) {
       emptyCollectionRef
         .current(collection.guid)
@@ -1456,7 +1465,7 @@ export function ScannedCardsProvider({
           syncUnmatched(collection.guid);
         });
     }
-  }, [queryClient, syncUnmatched]);
+  }, [queryClient, syncUnmatched, resetSessionStats]);
 
   return (
     <ScannedCardsContext
@@ -1466,7 +1475,7 @@ export function ScannedCardsProvider({
         isLoading,
         autoFeed,
         forceFoilType,
-        forceSetCode,
+        forceSetCodes,
         scanCondition,
         elapsedMs,
         isTimerActive,
@@ -1474,10 +1483,11 @@ export function ScannedCardsProvider({
         sessionScanCount,
         lastRoutedBin,
         setScannerRunning,
+        resetSessionStats,
         setAutoFeed,
         setForceFoilType,
-        setForceSetCode,
-        setForceSetCodeAfterCollectionSwitch,
+        setForceSetCodes,
+        setForceSetCodesAfterCollectionSwitch,
         setScanCondition,
         registerCardArrivedHook,
         registerFeedSource,

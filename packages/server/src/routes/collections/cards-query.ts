@@ -109,7 +109,9 @@ export async function findCardsCollection(
   const [collection] = await tx
     .select({
       id: collections.id,
+      name: collections.name,
       gameKey: games.key,
+      gameName: games.name,
       lang: collections.lang,
       fieldDefinitions: games.fieldDefinitions,
     })
@@ -126,7 +128,9 @@ export async function findCardsCollection(
   if (!collection) return null;
   return {
     id: collection.id,
+    name: collection.name,
     gameKey: collection.gameKey,
+    gameName: collection.gameName,
     lang: collection.lang,
     fieldDefinitions: (collection.fieldDefinitions as FieldMeta[] | null) ?? [],
   };

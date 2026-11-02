@@ -1,10 +1,6 @@
 import { sql } from "drizzle-orm";
 import type { CardSearchAdapter } from "../interfaces/card-search";
-import {
-  loadTcgtrackingCatalog,
-  tcgtrackingCardImage,
-  tcgtrackingProductIdOf,
-} from "./catalog";
+import { tcgtrackingCardImage } from "./catalog";
 import {
   isTcgtrackingFallbackData,
   normalizeTcgtrackingFallback,
@@ -39,22 +35,20 @@ export function withTcgtracking(
           }
         : card;
     },
-    async searchById(id, baseUrl) {
-      const productId = tcgtrackingProductIdOf(id);
-      if (productId === null) return adapter.searchById(id, baseUrl);
-      const entry = (await loadTcgtrackingCatalog(categoryId)).find(
-        (candidate) => candidate.product.id === productId,
-      );
-      if (!entry) return { success: false, message: `Card ${id} not found.` };
-      return {
-        success: true,
-        message: "Successfully fetched card by id.",
-        data: normalizeTcgtrackingFallback(
-          { source: "tcgtracking", ...entry },
-          id,
-          config,
-        ),
-      };
+    cardmarket: adapter.cardmarket && {
+      ...adapter.cardmarket,
+      productIdFromRaw(card) {
+        if (isTcgtrackingFallbackData(card.raw)) {
+          return card.raw.product.cardmarket_id;
+        }
+        return adapter.cardmarket?.productIdFromRaw?.(card);
+      },
+      productNames: adapter.cardmarket.productNames
+        ? (card) =>
+            isTcgtrackingFallbackData(card.raw)
+              ? []
+              : (adapter.cardmarket?.productNames?.(card) ?? [])
+        : undefined,
     },
     excludedFromMatchingSql: adapter.excludedFromMatchingSql
       ? sql`((${adapter.excludedFromMatchingSql}) OR ${superseded})`

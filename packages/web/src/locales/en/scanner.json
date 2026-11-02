@@ -127,6 +127,13 @@
         "startButton": "Choose board and flash",
         "success": "Firmware installed. Unplug the ESP32's USB cable, then plug it back in to start the new firmware.",
         "connectButton": "Connect sorter"
+      },
+      "version": {
+        "label": "Firmware version",
+        "recommended": "v{{version}} (recommended)",
+        "recommendedUnknownVersion": "Latest (recommended)",
+        "option": "v{{version}}",
+        "otherVersionWarning": "The recommended version is the one this app is built for. Other versions may be missing features or behave differently."
       }
     },
     "pushBlocked": {
@@ -187,7 +194,7 @@
     },
     "scanLimitReached": {
       "title": "Daily scan limit reached",
-      "description": "Upgrade to Business for unlimited scanning."
+      "description": "Upgrade your plan for more daily scans."
     },
     "routingFailed": {
       "title": "Routing failed",
@@ -277,13 +284,18 @@
     "avgValue": "Avg Value",
     "sessionTime": "Session Time",
     "cardsPerHour": "Cards / hr",
+    "resetSession": "Reset session time and cards per hour",
     "byColor": "By Color",
     "bySet": "By Set",
     "showLess": "Show less",
     "showAllSets": "Show all {{count}} sets",
     "scanRateTrend": "Scans per minute over the last 12 minutes",
     "scanRateNow": "{{count}} scans this minute",
-    "scanRatePoint": "{{count}} scans, {{minutes}} min ago"
+    "scanRatePoint": "{{count}} scans, {{minutes}} min ago",
+    "heading": "Stats",
+    "summaryCards_one": "{{count}} card",
+    "summaryCards_other": "{{count}} cards",
+    "summaryRate": "{{rate}}/hr"
   },
   "scannerControls": {
     "scanAgain": "Scan Again",
@@ -298,14 +310,17 @@
     "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
     "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "retractCardTooltip": "Retract card (runs the feeder backward)",
     "stopPiScan": "Stop scanning and release the sorter",
     "resetToNeutralTooltip": "Reset to neutral (closes every bottom and paddle, centers the pushers)",
     "foilTooltip": "Foil type for scanned cards: {{type}}",
     "setTooltip": "Set for scanned cards: {{set}}",
     "anySet": "Any set",
+    "setCount_one": "{{count}} set",
+    "setCount_other": "{{count}} sets",
     "setSearchPlaceholder": "Search sets",
     "noSets": "No sets found",
-    "setHint": "Scanned cards use their printing from this set when one exists.",
+    "setHint": "Scanned cards use their printing from one of these sets when one exists. Pick as many as you need.",
     "conditionTooltip": "Condition for scanned cards: {{condition}}",
     "start": "Start scanning",
     "sessionSummary_one": "{{count}} card scanned · {{time}}",
@@ -336,8 +351,9 @@
     "connectAnotherUsb": "Connect another sorter (USB)",
     "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
     "flashNewBoard": "Flash a new board",
-    "connectAnotherUpgrade": "Connect more sorters with Business",
+    "connectAnotherUpgrade": "Connect more sorters with a bigger plan",
     "clearDevice": "Clear device",
+    "retractCard": "Retract card",
     "resetToNeutral": "Reset to neutral",
     "sorter": "Sorter",
     "connectionStates": {
@@ -377,7 +393,7 @@
     "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect."
   },
   "scannerOverlay": {
-    "dailyLimitReached": "Daily scan limit reached. Upgrade to Business for unlimited scanning.",
+    "dailyLimitReached": "Daily scan limit reached. Upgrade your plan for more daily scans.",
     "upgradeButton": "Upgrade plan",
     "connectCamera": "Connect the webcam mounted over the sorter, or pair your phone to use as the camera.",
     "waitingForPhone": "Scan the QR code with your phone to pair it as the camera.",
@@ -474,9 +490,6 @@
     "emptyDescription": "Every scan in this collection was matched.",
     "backToCards": "Back to cards",
     "backToGrid": "Back to unmatched cards",
-    "pageOf": "Page {{page}} of {{total}}",
-    "previousPage": "Previous page",
-    "nextPage": "Next page",
     "openCard": "Open unmatched card",
     "expand": "Show unmatched cards",
     "collapse": "Hide unmatched cards",
@@ -643,8 +656,8 @@
       "description": "Disconnect a sorter before connecting another one."
     },
     "limitReached": {
-      "title": "More sorters need the Business plan",
-      "description": "The free plan runs one sorter at a time. Disconnect the other sorter, or upgrade to Business in Settings to run several at once."
+      "title": "Your plan's sorter limit is reached",
+      "description": "Your plan runs a limited number of sorters at a time. Disconnect another sorter, or upgrade your plan in Settings to run more at once."
     }
   },
   "watchPage": {
@@ -673,8 +686,6 @@
     "searchPlaceholder": "Search cards",
     "needsReview": "Needs review",
     "back": "Back to sessions",
-    "previousPage": "Previous page",
-    "nextPage": "Next page",
     "bin": "Bin {{number}}",
     "noActivity": "Nothing scanned yet. Scans show up here as they happen.",
     "status": {
@@ -786,6 +797,17 @@
       "description": "The sorter didn't confirm the reset. Check the connection and try again."
     }
   },
+  "retractCard": {
+    "done": "Card pulled back into the hopper",
+    "failed": {
+      "title": "Couldn't retract the card",
+      "description": "The sorter didn't confirm the retract. Check the connection and try again."
+    },
+    "rollbackOff": {
+      "title": "Roll back is off",
+      "description": "Set \"Roll Back After Feed\" in feeder calibration to retract cards."
+    }
+  },
   "pendingScanSaves": {
     "saving": {
       "title_one": "Saving {{count}} scan",
@@ -859,6 +881,8 @@
       "feedDescription": "Feed a single card, then scan and sort it",
       "drop": "Drop cards",
       "dropDescription": "Open every module so stuck cards fall through",
+      "retract": "Retract card",
+      "retractDescription": "Run the feeder backward to pull a card back into the hopper",
       "neutral": "Reset to neutral",
       "neutralDescription": "Move every servo back to its resting position",
       "sorterDescription": "Connection, self-test and status"

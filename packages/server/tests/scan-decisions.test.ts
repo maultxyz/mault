@@ -6,6 +6,8 @@ import {
   pickBetterOrientation,
   resolveCardSearchMatches,
   preferDetectedColor,
+  detectColorBarRgba,
+  COLOR_BAR_REGIONS_BY_GAME_KEY,
   resolveScanBin,
   needsTextSearch,
   type BinConfig,
@@ -71,19 +73,94 @@ test("orientation chooses a usable match before distance, retaining upright on a
   assert.equal(needsTextSearch({ diagnostics: { reason: "ambiguous" } }), true);
 });
 
-test("shared color preference cannot expand the resolved close-match window", async () => {
-  const result = {
-    data: [
-      { cardId: "blue", distance: 0.1, confidence: 90, card: { id: "blue", colorIdentity: ["U"] } },
-      { cardId: "red-close", distance: 0.14, confidence: 86, card: { id: "red-close", colorIdentity: ["R"] } },
-      { cardId: "red-far", distance: 0.17, confidence: 83, card: { id: "red-far", colorIdentity: ["R"] } },
-    ],
+function pitchVariants(...cards: [string, string, number][]) {
+  return {
+    data: cards.map(([id, color, distance]) => ({
+      cardId: id,
+      distance,
+      confidence: 90,
+      card: { id, name: "Sink Below", colorIdentity: [color] },
+    })),
   };
+}
+
+const colorOnly = { gameHasColorBar: true, printingConfirmed: false };
+
+test("shared color preference cannot expand the resolved close-match window", async () => {
+  const result = pitchVariants(["blue", "Blue", 0.1], ["red-close", "Red", 0.14], ["red-far", "Red", 0.17]);
   const resolved = await resolveCardSearchMatches(result, async () => null);
-  const preferred = preferDetectedColor(resolved, "R");
+  const preferred = preferDetectedColor(resolved, { ...colorOnly, detectedColor: "Red" });
   assert.equal(preferred.card?.id, "red-close");
   assert.deepEqual(preferred.alternativeMatches.map((card) => card.id), ["blue"]);
+  assert.equal(preferred.colorVariantUncertain, false);
   assert.equal(result.data[0].cardId, "blue");
+});
+
+test("a confirmed collector number keeps its printing over the detected color", async () => {
+  const resolved = await resolveCardSearchMatches(
+    pitchVariants(["yellow", "Yellow", 0.1], ["red", "Red", 0.11]),
+    async () => null,
+  );
+  const agreeing = preferDetectedColor(resolved, { gameHasColorBar: true, printingConfirmed: true, detectedColor: "Yellow" });
+  assert.equal(agreeing.card?.id, "yellow");
+  assert.equal(agreeing.colorVariantUncertain, false);
+  const unread = preferDetectedColor(resolved, { gameHasColorBar: true, printingConfirmed: true, detectedColor: null });
+  assert.equal(unread.colorVariantUncertain, false);
+  const disagreeing = preferDetectedColor(resolved, { gameHasColorBar: true, printingConfirmed: true, detectedColor: "Red" });
+  assert.equal(disagreeing.card?.id, "yellow");
+  assert.equal(disagreeing.colorVariantUncertain, true);
+});
+
+test("pitch variants without a number or color match are flagged for review", async () => {
+  const resolved = await resolveCardSearchMatches(
+    pitchVariants(["yellow", "Yellow", 0.1], ["red", "Red", 0.11]),
+    async () => null,
+  );
+  assert.equal(preferDetectedColor(resolved, { ...colorOnly, detectedColor: null }).colorVariantUncertain, true);
+  assert.equal(preferDetectedColor(resolved, { ...colorOnly, detectedColor: "Blue" }).colorVariantUncertain, true);
+  const noColorBar = preferDetectedColor(resolved, { gameHasColorBar: false, printingConfirmed: false, detectedColor: null });
+  assert.equal(noColorBar.card?.id, "yellow");
+  assert.equal(noColorBar.colorVariantUncertain, false);
+  const single = await resolveCardSearchMatches(pitchVariants(["red", "Red", 0.1]), async () => null);
+  assert.equal(preferDetectedColor(single, { ...colorOnly, detectedColor: null }).colorVariantUncertain, false);
+});
+
+function fabTopImage(strip: [number, number, number], cast: [number, number, number]) {
+  const size = 448;
+  const data = new Uint8ClampedArray(size * size * 4);
+  const paint = (y: number): [number, number, number] => {
+    const fraction = y / size;
+    if (fraction < 0.033) return [0, 0, 0];
+    if (fraction >= 0.044 && fraction < 0.05) return strip;
+    if (fraction < 0.06) return [140, 110, 90];
+    return [238, 233, 219];
+  };
+  for (let y = 0; y < size; y++) {
+    const [r, g, b] = paint(y);
+    for (let x = 0; x < size; x++) {
+      const o = (y * size + x) * 4;
+      data[o] = r * cast[0];
+      data[o + 1] = g * cast[1];
+      data[o + 2] = b * cast[2];
+      data[o + 3] = 255;
+    }
+  }
+  return { data, width: size, height: size };
+}
+
+test("the Flesh and Blood pitch strip is read through warm and cool light", () => {
+  const region = COLOR_BAR_REGIONS_BY_GAME_KEY.fab;
+  const strips: [string, [number, number, number]][] = [
+    ["Red", [178, 21, 23]],
+    ["Yellow", [255, 236, 2]],
+    ["Blue", [0, 158, 223]],
+  ];
+  for (const cast of [[1, 1, 1], [1.1, 1, 0.7], [0.8, 0.95, 1.1]] as [number, number, number][]) {
+    for (const [color, strip] of strips) {
+      assert.equal(detectColorBarRgba(fabTopImage(strip, cast), region), color, `${color} under ${cast}`);
+    }
+    assert.equal(detectColorBarRgba(fabTopImage([238, 233, 219], cast), region), null, `no strip under ${cast}`);
+  }
 });
 
 test("consensus counts same-name printings across misses and selects the closest vote", () => {

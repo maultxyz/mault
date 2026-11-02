@@ -1,5 +1,4 @@
-import { publicGet } from "@/lib/api/client";
-import type { AppVersionResponse } from "@/lib/interfaces/nav";
+import { loadServerVersion } from "@/lib/server-version";
 
 let piHost = false;
 let settled = false;
@@ -20,15 +19,11 @@ export function notePiHost(value: boolean) {
 
 export function loadPiHost(): Promise<boolean> {
   if (!pending) {
-    pending = publicGet<AppVersionResponse>("/api/public/version")
-      .then((res) => {
-        notePiHost(res.data.piHost === true);
-        return piHost;
-      })
-      .catch(() => {
-        settled = true;
-        return piHost;
-      });
+    pending = loadServerVersion().then((serverVersion) => {
+      if (serverVersion) notePiHost(serverVersion.piHost === true);
+      else settled = true;
+      return piHost;
+    });
   }
   return pending;
 }

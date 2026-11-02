@@ -57,3 +57,11 @@ export const UNMATCHED_PANEL_EXPANDED_STORAGE_KEY =
   "magic-vault:unmatched-panel-expanded";
 export const SORTER_BOOT_NOTICES_STORAGE_KEY = "magic-vault:sorter-boot-notices";
 export const SORTER_MODEL_BETA_STORAGE_KEY = "magic-vault:sorter-model-beta";
+export const PLAN_PREVIEW_STORAGE_KEY = "mault:plan-preview";
+
+export const SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS = {
+  overview: "magic-vault:scan-stats-overview-expanded",
+  rarity: "magic-vault:scan-stats-rarity-expanded",
+  color: "magic-vault:scan-stats-color-expanded",
+  set: "magic-vault:scan-stats-set-expanded",
+} as const;

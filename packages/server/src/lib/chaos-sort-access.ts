@@ -2,7 +2,7 @@ import type { Transaction } from "../db";
 import { orgHasFeature, planHasFeature } from "./plan-config";
 
 export const CHAOS_SORT_UPGRADE_MESSAGE =
-  "Chaos sort is part of the Business plan. Upgrade to Business to use it.";
+  "Chaos sort is not part of your plan. Upgrade your plan to use it.";
 
 export function chaosSortAllowedForPlan(plan: string | undefined): boolean {
   return planHasFeature(plan, "chaosSort");

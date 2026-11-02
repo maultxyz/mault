@@ -15,7 +15,10 @@ import {
   type IdentifyUnmatchedCardRequest,
   type MatchedScanDiagnostics,
   type Result,
+  type ReviewAcceptRequest,
+  type ReviewAcceptResult,
   SCAN_SAVE_ACCEPTED_STATUSES,
+  throwIfMemberSeatLimit,
   type ScannedCard,
   type SortOnlyScanRequest,
   type UnmatchedCard,
@@ -123,6 +126,7 @@ export async function addCollectionCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
+  await throwIfMemberSeatLimit(res);
   if (res.ok || SCAN_SAVE_ACCEPTED_STATUSES.includes(res.status))
     return res.json();
   throw new ApiStatusError(res.status);
@@ -139,6 +143,7 @@ export async function recordSortOnlyScan(
     body: JSON.stringify(request),
   });
   await handleForbidden(res);
+  await throwIfMemberSeatLimit(res);
   if (res.ok || res.status === 402) return res.json();
   throw new ApiStatusError(res.status);
 }
@@ -236,6 +241,16 @@ export async function removeCollectionCard(
   return apiDelete<Result<null>>(`/api/collections/${guid}/cards/${scanId}`);
 }
 
+export async function acceptCollectionCardReviews(
+  guid: string,
+  request: ReviewAcceptRequest,
+): Promise<Result<ReviewAcceptResult>> {
+  return apiPost<Result<ReviewAcceptResult>>(
+    `/api/collections/${guid}/cards/accept-review`,
+    request,
+  );
+}
+
 export async function removeCollectionCards(
   guid: string,
   scanIds: string[],
@@ -305,6 +320,7 @@ export async function addUnmatchedCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
+  await throwIfMemberSeatLimit(res);
   if (res.ok || res.status === 409) return res.json();
   throw new ApiStatusError(res.status);
 }

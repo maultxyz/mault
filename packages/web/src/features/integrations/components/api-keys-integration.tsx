@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
@@ -21,7 +22,6 @@ import { Switch } from "@/components/ui/switch";
 import { useOrgApiKeys } from "@/features/integrations/api/use-org-api-keys";
 import { WebhooksSection } from "@/features/integrations/components/webhooks-section";
 import { API_REFERENCE_URL, PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import {
   type OrgApiKey,
   orgApiKeyFormSchema,
@@ -40,7 +40,6 @@ import {
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import { copyWithToast } from "@/lib/clipboard";
 import { formatShortDate } from "@/lib/format";
 
@@ -140,15 +139,10 @@ export function ApiKeysIntegration() {
           }
         >
           {isLocked && (
-            <Callout variant="info">
-              {t("apiKeys.upgrade")}{" "}
-              <Link
-                to={SETTINGS_PATHS.billing}
-                className="font-medium text-foreground underline-offset-4 hover:underline"
-              >
-                {t("apiKeys.upgradeLink")}
-              </Link>
-            </Callout>
+            <PlanNotice
+              message={t("apiKeys.upgrade")}
+              linkLabel={t("apiKeys.upgradeLink")}
+            />
           )}
           {!canManage && !isLoading && !isError && (
             <Callout variant="neutral">{t("apiKeys.managersOnly")}</Callout>

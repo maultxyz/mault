@@ -2,7 +2,7 @@ import { max, sql } from "drizzle-orm";
 import { db } from "../db";
 import { tcgplayerPrices, tcgplayerProducts } from "../db/schema";
 import { fetchCardApi } from "./card-search/fetch";
-import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
+import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import { CARD_API_HEADERS } from "./constants/card-search";
 import {
   TCGPLAYER_PRICE_UPSERT_BATCH_SIZE,
@@ -86,6 +86,7 @@ function extendedValue(product: TcgcsvProduct, name: string): string | null {
 
 async function upsertProducts(
   categoryId: number,
+  group: TcgcsvGroup,
   products: TcgcsvProduct[],
 ): Promise<void> {
   for (
@@ -101,6 +102,7 @@ async function upsertProducts(
           productId: p.productId,
           categoryId,
           groupId: p.groupId,
+          groupName: group.name,
           name: p.name,
           number: extendedValue(p, "Number"),
           rarity: extendedValue(p, "Rarity"),
@@ -111,6 +113,7 @@ async function upsertProducts(
         set: {
           categoryId: sql`excluded.category_id`,
           groupId: sql`excluded.group_id`,
+          groupName: sql`excluded.group_name`,
           name: sql`excluded.name`,
           number: sql`excluded.number`,
           rarity: sql`excluded.rarity`,
@@ -134,9 +137,11 @@ async function lastSyncedByCategory(
 
 export async function syncTcgplayerPrices({
   force = false,
+  gameKeys,
   log,
 }: {
   force?: boolean;
+  gameKeys?: string[];
   log: (msg: string) => void;
 }): Promise<PriceSyncResult> {
   const pricesSyncedAt = await lastSyncedByCategory(tcgplayerPrices);
@@ -144,27 +149,24 @@ export async function syncTcgplayerPrices({
   const productsCutoff = new Date(Date.now() - TCGPLAYER_PRODUCTS_MAX_AGE_MS);
   const recentCutoff = new Date(Date.now() - TCGCSV_MIN_PULL_INTERVAL_MS);
 
-  const needsProducts = new Map<number, boolean>();
-  for (const adapter of Object.values(ADAPTERS_BY_GAME_KEY)) {
-    if (!adapter.tcgplayer) continue;
-    const { categoryId, productMatch } = adapter.tcgplayer;
-    needsProducts.set(
-      categoryId,
-      (needsProducts.get(categoryId) ?? false) || !!productMatch,
-    );
-  }
+  const categoryIds = [
+    ...new Set(
+      adapterEntriesForGameKeys(gameKeys).flatMap(([, adapter]) =>
+        adapter.tcgplayer ? [adapter.tcgplayer.categoryId] : [],
+      ),
+    ),
+  ];
 
-  const pulledRecently = [...needsProducts].every(
-    ([categoryId, matchesProducts]) => {
-      const pricedAt = pricesSyncedAt.get(categoryId);
-      const productsAt = productsSyncedAt.get(categoryId);
-      return (
-        !!pricedAt &&
-        pricedAt > recentCutoff &&
-        (!matchesProducts || (!!productsAt && productsAt > productsCutoff))
-      );
-    },
-  );
+  const pulledRecently = categoryIds.every((categoryId) => {
+    const pricedAt = pricesSyncedAt.get(categoryId);
+    const productsAt = productsSyncedAt.get(categoryId);
+    return (
+      !!pricedAt &&
+      pricedAt > recentCutoff &&
+      !!productsAt &&
+      productsAt > productsCutoff
+    );
+  });
   if (!force && pulledRecently) {
     log("tcgcsv pulled within the last day for every category; skipping.");
     return { skipped: true, prices: 0, products: 0, failedGroups: 0 };
@@ -174,12 +176,11 @@ export async function syncTcgplayerPrices({
     (await (await tcgcsvGet("/last-updated.txt")).text()).trim(),
   );
 
-  const plans = [...needsProducts].flatMap(([categoryId, matchesProducts]) => {
+  const plans = categoryIds.flatMap((categoryId) => {
     const pricedAt = pricesSyncedAt.get(categoryId);
     const productsAt = productsSyncedAt.get(categoryId);
     const prices = force || !pricedAt || pricedAt < lastUpdated;
-    const products =
-      matchesProducts && (force || !productsAt || productsAt < productsCutoff);
+    const products = force || !productsAt || productsAt < productsCutoff;
     return prices || products ? [{ categoryId, prices, products }] : [];
   });
 
@@ -220,7 +221,7 @@ export async function syncTcgplayerPrices({
           const products = await tcgcsvResults<TcgcsvProduct>(
             `${groupPath}/products`,
           );
-          await upsertProducts(plan.categoryId, products);
+          await upsertProducts(plan.categoryId, group, products);
           categoryProducts += products.length;
         }
         if (plan.prices) {

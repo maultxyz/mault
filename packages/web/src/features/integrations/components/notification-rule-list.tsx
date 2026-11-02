@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -31,8 +32,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function NotificationRuleList({
   gameGuid,
@@ -50,7 +49,6 @@ export function NotificationRuleList({
   );
   const ruleLimit = billing?.maxNotificationRules ?? null;
   const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
-  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<NotificationRule | null>(null);
   const { control, formState } = useFormContext<DiscordSettingsDraftFormValues>();
@@ -94,14 +92,10 @@ export function NotificationRuleList({
       }
     >
       {atRuleLimit && (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-foreground/70">
-            {t("rules.limitReached", { count: ruleLimit })}
-          </p>
-          <Button variant="outline" onClick={() => navigate(SETTINGS_PATHS.billing)}>
-            {t("rules.upgrade")}
-          </Button>
-        </div>
+        <PlanNotice
+          message={t("rules.limitReached", { count: ruleLimit })}
+          linkLabel={t("rules.upgrade")}
+        />
       )}
       {!isLoading && rules.length === 0 && (
         <EmptyState size="compact" icon={IconBell} title={t("rules.empty")} />

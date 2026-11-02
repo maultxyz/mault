@@ -31,6 +31,7 @@
     "trend": "Trend",
     "avg7": "7-day avg",
     "tcgplayerMarket": "TCGplayer market",
+    "tcgplayerMarketCondition": "TCGplayer market ({{condition}})",
     "cardmarketAvg": "Cardmarket average",
     "foilPrice": "Foil {{price}}",
     "priceAtScan": "At scan {{price}}",
@@ -69,6 +70,8 @@
     "manaCost": "Mana cost",
     "powerToughness": "Power / Toughness",
     "artist": "Artist",
+    "dataSource": "Data source",
+    "fallbackData": "Fallback data (TCGplayer catalog)",
     "binLocation": "Bin location",
     "showOcrRegions": "Show OCR regions",
     "noOcrRegions": "This game has no OCR regions.",
@@ -103,7 +106,6 @@
     "scanToGetStarted": "Scan a card to get started",
     "noCardsMatchFilters": "No cards match the current filters",
     "tryAdjusting": "Try adjusting your search, sort, or filter options",
-    "pageOf": "Page {{page}} of {{total}}",
     "cardsSelected_one": "{{count}} card selected",
     "cardsSelected_other": "{{count}} cards selected",
     "clear": "Clear",
@@ -123,7 +125,8 @@
     "deleteCardsDescription_other": "This will permanently remove the selected cards from your collection. This action cannot be undone.",
     "downloadedHidden_one": "1 downloaded card is hidden by the downloaded filter.",
     "downloadedHidden_other": "{{count}} downloaded cards are hidden by the downloaded filter.",
-    "moveToLocation": "Move"
+    "moveToLocation": "Move",
+    "exporting": "Exporting"
   },
   "cardSelectDialog": {
     "defaultTitle": "Select Card",
@@ -207,7 +210,8 @@
     "download": "Download ({{count}})",
     "downloadFailed": "Couldn't download the export.",
     "sessionWrappedToggle": "Wrapped",
-    "combineDuplicates": "Combine duplicates"
+    "combineDuplicates": "Combine duplicates",
+    "exporting": "Exporting"
   },
   "sessionWrapped": {
     "srTitle": "{{collectionName}} Wrapped",
@@ -317,6 +321,7 @@
     "copyName": "Copy name",
     "copied": "Name copied.",
     "copyFailed": "Couldn't copy the name.",
+    "moveToLocation": "Move to location",
     "remove_one": "Remove card",
     "remove_other": "Remove {{count}} cards"
   },
@@ -371,9 +376,11 @@
       "DMG": "Damaged (DMG)"
     },
     "priceHint": "{{price}} at {{percent}}% of the NM price",
+    "marketPriceHint": "{{price}} TCGplayer market price for {{condition}}",
     "setSelected": "Condition"
   },
   "scanOrigin": {
+    "scannedAt": "Scanned",
     "scannedBy": "By",
     "sorter": "Sorter",
     "deletedSorter": "{{name}} (deleted)"

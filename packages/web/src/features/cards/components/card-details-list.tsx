@@ -54,6 +54,14 @@ export function CardDetailsList({ card }: CardDetailsListProps) {
             <dd>{card.artist}</dd>
           </>
         )}
+        {card.isFallbackData && (
+          <>
+            <dt className="text-foreground/70">
+              {t("cardDetailPanel.dataSource")}
+            </dt>
+            <dd>{t("cardDetailPanel.fallbackData")}</dd>
+          </>
+        )}
       </dl>
       {card.sourceUrl && (
         <a

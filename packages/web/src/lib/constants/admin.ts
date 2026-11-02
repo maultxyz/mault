@@ -16,6 +16,7 @@ import {
   IconBug,
   IconCards,
   IconCreditCard,
+  IconMusic,
   IconRestore,
   IconRotate360,
   IconUserScan,
@@ -96,6 +97,12 @@ export const ADMIN_SECTIONS = [
     path: "discord",
     icon: IconBrandDiscord,
     labelKey: "sections.discord",
+    adminOnly: false,
+  },
+  {
+    path: "sounds",
+    icon: IconMusic,
+    labelKey: "sections.sounds",
     adminOnly: false,
   },
   {

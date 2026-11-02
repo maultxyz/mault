@@ -1,15 +1,7 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
-import { fetchCardApi } from "../../card-search/fetch";
+import type { PlayingCard } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
-import { CARD_API_HEADERS } from "../../constants/card-search";
 import { RIFTBOUND_DEFAULT_URL } from "../../constants/urls";
-import type {
-  RiftboundCard,
-  RiftboundListResponse,
-} from "../../interfaces/riftbound";
-
-const SEARCH_PAGE_SIZE = 30;
+import type { RiftboundCard } from "../../interfaces/riftbound";
 
 function productMatchName(name: string): string {
   return name
@@ -58,66 +50,8 @@ export function normalizeRiftboundCard(raw: RiftboundCard): PlayingCard {
   };
 }
 
-export async function searchCards(
-  query: string,
-  baseUrl: string = RIFTBOUND_DEFAULT_URL,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const url = `${baseUrl}/name?fuzzy=${encodeURIComponent(query)}&size=${SEARCH_PAGE_SIZE}`;
-  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from the Riftcodex API.",
-      success: false,
-    };
-  }
-
-  const data = (await response.json()) as RiftboundListResponse;
-  if (data.items.length === 0) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: data.items.map(normalizeRiftboundCard),
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = RIFTBOUND_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const response = await fetchCardApi(`${baseUrl}/${id}`, {
-    headers: CARD_API_HEADERS,
-  });
-
-  if (!response.ok) {
-    return {
-      success: false,
-      message: `Riftcodex API error: ${response.status} for card ${id}`,
-    };
-  }
-
-  const raw = (await response.json()) as RiftboundCard;
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizeRiftboundCard(raw),
-  };
-}
-
 export const riftboundAdapter: CardSearchAdapter = {
   defaultUrl: RIFTBOUND_DEFAULT_URL,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw) => normalizeRiftboundCard(raw as RiftboundCard),
   tcgplayer: {
     categoryId: 89,

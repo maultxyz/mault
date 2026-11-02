@@ -267,22 +267,21 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Dev deploys flash the firmware-dev pre-release when one exists (see
-      # firmware-release.yml); the binary is swapped in the working tree only
-      # and never committed.
+      # firmware-release.yml); the binary and the sketch's version are swapped
+      # in the working tree only and never committed. The server reports the
+      # version from the sketch copied into its image.
       - name: Select firmware
-        id: firmware
         if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION="${{ vars.VITE_LATEST_FIRMWARE_VERSION }}"
           if [ "$IS_DEV" = "true" ] && gh release view firmware-dev --repo "${{ github.repository }}" >/dev/null 2>&1; then
             gh release download firmware-dev --repo "${{ github.repository }}"               -p esp32-latest.bin -p version.txt -D "$RUNNER_TEMP/firmware" --clobber
             cp "$RUNNER_TEMP/firmware/esp32-latest.bin" packages/web/public/firmware/esp32-latest.bin
             VERSION=$(tr -d '[:space:]' < "$RUNNER_TEMP/firmware/version.txt")
+            sed -i "s/#define FIRMWARE_VERSION \"[^\"]*\"/#define FIRMWARE_VERSION \"$VERSION\"/" firmware/main/main.ino
             echo "Using dev firmware v$VERSION"
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       # Images are pushed under their version and commit tags only. Coolify
       # pulls the channel tag (:latest for production, :dev for development),
@@ -300,10 +299,7 @@ jobs:
             ${{ steps.images.outputs.web }}:sha-${{ github.sha }}
           # The image is public, so deployment config (Neon URLs, Rollbar
           # token, app env) comes from the container's environment in Coolify
-          # at start-up instead. Only the firmware version, which describes the
-          # binary baked into the image, is a build arg.
-          build-args: |
-            VITE_LATEST_FIRMWARE_VERSION=${{ steps.firmware.outputs.version }}
+          # at start-up instead.
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 

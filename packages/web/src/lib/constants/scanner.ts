@@ -257,3 +257,5 @@ export const FLATBED_OVERRIDDEN_STATUSES: ScannerStatus[] = [
   "duplicate",
   "no-match",
 ];
+
+export const SCAN_STATS_SUMMARY_SEPARATOR = " · ";

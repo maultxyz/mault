@@ -120,13 +120,12 @@ export function useCardScanner({
     takeDocumentScannerPage,
   } = useCameraContext();
   const { activeCollection } = useCollections();
-  const { forceSetCode: preferredSetCode } = useScannedCards();
+  const { forceSetCodes: preferredSetCodes } = useScannedCards();
   const { activeOrg } = useOrg();
   const device = useDevice();
   const { data: billingData } = useQuery(billingQueryOptions(activeOrg?.id));
 
   const isAtScanLimit =
-    billingData?.plan === "free" &&
     billingData?.dailyLimit != null &&
     billingData.cardsScannedToday >= billingData.dailyLimit;
   const isAtScanLimitRef = useRef(isAtScanLimit);
@@ -171,8 +170,8 @@ export function useCardScanner({
 
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
-  const preferredSetCodeRef = useRef(preferredSetCode);
-  preferredSetCodeRef.current = preferredSetCode;
+  const preferredSetCodesRef = useRef(preferredSetCodes);
+  preferredSetCodesRef.current = preferredSetCodes;
 
   const colorBarRegionRef = useRef<ColorBarRegion | undefined>(undefined);
   colorBarRegionRef.current =
@@ -321,7 +320,7 @@ export function useCardScanner({
           contour,
           {
             collectionGuid: activeCollectionGuidRef.current,
-            preferredSetCode: preferredSetCodeRef.current,
+            preferredSetCodes: preferredSetCodesRef.current,
           },
           ocrEnabledRef.current,
           matchesNeededRef.current,

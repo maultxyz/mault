@@ -3,6 +3,10 @@ import { and, eq } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
 import { authProvider } from "../auth";
+import {
+  findMemberSeatOverflow,
+  memberSeatLimitMessage,
+} from "../lib/member-seat-limit";
 import { authQuery, db } from "../db";
 import { collections } from "../db/schema";
 import {
@@ -13,7 +17,11 @@ import {
   trackMonitorLinkStream,
   verifyMonitorLink,
 } from "../lib/monitor-links";
-import { DEPLOY_STATUS_EVENT } from "@magic-vault/shared";
+import {
+  DEPLOY_STATUS_EVENT,
+  MEMBER_SEAT_LIMIT_ERROR_CODE,
+  MEMBER_SEAT_LIMIT_HTTP_STATUS,
+} from "@magic-vault/shared";
 import {
   loadActiveDeployNotice,
   subscribeDeployNotice,
@@ -108,6 +116,18 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
   if (orgId) {
     const member = await authProvider.resolveOrgMembership(userId, orgId);
     if (!member) return c.json({ success: false, message: "Forbidden" }, 403);
+    const seatLimit = await findMemberSeatOverflow(orgId, userId, member.role);
+    if (seatLimit != null) {
+      return c.json(
+        {
+          success: false,
+          code: MEMBER_SEAT_LIMIT_ERROR_CODE,
+          message: memberSeatLimitMessage(seatLimit),
+          limit: seatLimit,
+        },
+        MEMBER_SEAT_LIMIT_HTTP_STATUS,
+      );
+    }
   }
 
   const jwtClaims = orgId

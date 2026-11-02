@@ -1,12 +1,10 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
+import type { PlayingCard } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
 import {
   CARD_API_HEADERS,
   GRAND_ARCHIVE_PROMO_RARITIES,
   GRAND_ARCHIVE_RARITY_NAMES,
-  GRAND_ARCHIVE_SEARCH_PAGE_SIZE,
 } from "../../constants/card-search";
 import {
   GRAND_ARCHIVE_API_ROOT,
@@ -109,71 +107,8 @@ export async function fetchCardByEditionSlug(
   return { card, url, status: res.status };
 }
 
-export async function searchCards(
-  query: string,
-  baseUrl: string = GRAND_ARCHIVE_DEFAULT_URL,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const response = await fetchCardApi(
-    grandArchiveSearchUrl(baseUrl, {
-      name: query,
-      page_size: GRAND_ARCHIVE_SEARCH_PAGE_SIZE,
-    }),
-    { headers: CARD_API_HEADERS },
-  );
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from the Grand Archive API.",
-      success: false,
-    };
-  }
-
-  const json = (await response.json()) as GrandArchiveSearchResponse;
-  const cards = json.data.flatMap((card) =>
-    card.editions.map((edition) => normalizeGrandArchiveEdition(card, edition)),
-  );
-
-  if (cards.length === 0) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: cards,
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = GRAND_ARCHIVE_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const { card, status } = await fetchCardByEditionSlug(id, baseUrl);
-  const edition = card && findGrandArchiveEdition(card, id);
-  if (!card || !edition) {
-    return {
-      success: false,
-      message: `Grand Archive API error: ${status} for card ${id}`,
-    };
-  }
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizeGrandArchiveEdition(card, edition),
-  };
-}
-
 export const grandArchiveAdapter: CardSearchAdapter = {
   defaultUrl: GRAND_ARCHIVE_DEFAULT_URL,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw, id) => {
     const card = raw as GrandArchiveCard;
     const edition = findGrandArchiveEdition(card, id);

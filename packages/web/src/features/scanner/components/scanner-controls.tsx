@@ -18,6 +18,7 @@ import {
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
+import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
   FlatbedScanButton,
@@ -35,6 +36,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import {
   IconArrowBarToDown,
+  IconArrowBarToUp,
   IconBolt,
   IconBorderCorners,
   IconFocus2,
@@ -137,6 +139,13 @@ export function ScannerControls({
   const canFeed = (sessionFeed || (isConnected && isReady)) && !isFeeding;
   const canClearDevice =
     !sessionLive && isConnected && isReady && !isClearingDevice;
+  const { retractCard, isRetracting, retractLockedReason } = useRetractCard();
+  const canRetractCard =
+    !sessionLive &&
+    isConnected &&
+    isReady &&
+    !isRetracting &&
+    retractLockedReason === null;
   const toggleAutoFeed = () => (onAutoFeedChange ?? setAutoFeed)(!autoFeed);
   const isVertical = orientation === "vertical";
 
@@ -297,6 +306,22 @@ export function ScannerControls({
                     <IconArrowBarToDown />
                   )}
                 </ScannerControlButton>
+                {!sessionLive && (
+                  <ScannerControlButton
+                    tooltip={
+                      retractLockedReason ??
+                      t("scannerControls.retractCardTooltip")
+                    }
+                    onClick={() => void retractCard()}
+                    disabled={!canRetractCard}
+                  >
+                    {isRetracting ? (
+                      <IconLoader2 className="animate-spin" />
+                    ) : (
+                      <IconArrowBarToUp />
+                    )}
+                  </ScannerControlButton>
+                )}
               </>
             )}
           </ButtonGroup>

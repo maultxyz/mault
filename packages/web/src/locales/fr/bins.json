@@ -199,7 +199,8 @@
     "siftLabel": "Mettre des cartes de côté",
     "siftDescription": "Les cartes qui correspondent aux règles ci-dessous vont dans le premier bac au lieu d'un paquet. Vous pouvez ainsi mettre de côté les cartes à garder (par valeur, rareté, édition ou autre) pendant que les autres bacs forment des paquets avec le reste.",
     "siftHint": "Les cartes qui correspondent à ces règles vont dans le bac {{bin}}. Les autres bacs forment des paquets avec le reste.",
-    "siftNoBin": "Ce tri nécessite au moins un bac activé en plus du bac fourre-tout."
+    "siftNoBin": "Ce tri nécessite au moins un bac activé en plus du bac fourre-tout.",
+    "notInPlan": "La création de repacks ne fait pas partie de ton offre."
   },
   "skipSavingPanel": {
     "heading": "Ne pas enregistrer les cartes",
@@ -207,13 +208,11 @@
   },
   "chaosPanel": {
     "heading": "Tri en vrac",
-    "businessBadge": "Business",
-    "businessOnly": "Le tri en vrac fait partie de l'offre Business.",
-    "upgrade": "Passer à Business",
     "description": "Ignore les règles et remplit les bacs l'un après l'autre, en passant au suivant quand un bac est plein. Quand tu vides un bac, choisis l'emplacement où tu le ranges, et chaque carte y est enregistrée dans l'ordre.",
     "binSizeLabel": "Cartes par bac",
     "binSizePlaceholder": "Remplir jusqu'à la taille du bac",
-    "binSizeDescription": "Passe au bac suivant après ce nombre de cartes. Laisse vide pour remplir chaque bac jusqu'à sa taille étalonnée."
+    "binSizeDescription": "Passe au bac suivant après ce nombre de cartes. Laisse vide pour remplir chaque bac jusqu'à sa taille étalonnée.",
+    "notInPlan": "Le tri en vrac ne fait pas partie de ton offre."
   },
   "alphabetPanel": {
     "heading": "Trier par ordre alphabétique",
@@ -315,5 +314,8 @@
   "mobileBins": {
     "rulesMode": "Règles",
     "binsTitle": "Bacs"
+  },
+  "planLock": {
+    "badge": "Mise à niveau"
   }
 }

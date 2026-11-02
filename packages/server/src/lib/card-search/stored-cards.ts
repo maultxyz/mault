@@ -172,37 +172,6 @@ async function searchStoredCards(
   };
 }
 
-async function hasStoredCards(
-  resolved: ResolvedCardSearch,
-): Promise<boolean> {
-  const [row] = await db
-    .select({ id: cardImageVectors.id })
-    .from(cardImageVectors)
-    .where(
-      and(
-        eq(cardImageVectors.gameKey, resolved.gameKey),
-        resolved.searchAllLanguages
-          ? undefined
-          : eq(cardImageVectors.lang, resolved.lang),
-        isNotNull(cardImageVectors.data),
-      ),
-    )
-    .limit(1);
-  return !!row;
-}
-
-async function fetchUpstreamCard(
-  resolved: ResolvedCardSearch,
-  id: string,
-): Promise<Result<PlayingCard>> {
-  const result = await resolved.adapter.searchById(id, resolved.baseUrl);
-  if (!result.success || !result.data) return result;
-  const [priced] = await applyCardPrices(resolved.adapter, resolved, [
-    result.data,
-  ]);
-  return { ...result, data: priced };
-}
-
 export async function sampleStoredCard(
   { adapter, gameKey, lang }: ResolvedCardSearch,
   index: number,
@@ -229,31 +198,19 @@ export async function searchCardById(
   id: string,
 ): Promise<Result<PlayingCard>> {
   const stored = (await findStoredCards(resolved, [id])).get(id);
-  if (stored) {
-    return {
-      success: true,
-      message: "Successfully fetched card by id.",
-      data: stored,
-    };
-  }
-  return fetchUpstreamCard(resolved, id);
+  if (!stored) return { success: false, message: `Card ${id} not found.` };
+  return {
+    success: true,
+    message: "Successfully fetched card by id.",
+    data: stored,
+  };
 }
 
 export async function searchCardsByIds(
   resolved: ResolvedCardSearch,
   ids: string[],
 ): Promise<Map<string, PlayingCard>> {
-  const stored = await findStoredCards(resolved, ids);
-  const missing = [...new Set(ids)].filter((id) => !stored.has(id));
-  const fetched = await Promise.all(
-    missing.map(
-      async (id) => [id, await fetchUpstreamCard(resolved, id)] as const,
-    ),
-  );
-  for (const [id, result] of fetched) {
-    if (result.success && result.data) stored.set(id, result.data);
-  }
-  return stored;
+  return findStoredCards(resolved, ids);
 }
 
 export async function searchCards(
@@ -264,30 +221,6 @@ export async function searchCards(
 ): Promise<Result<CardSearchPage>> {
   const invalid = validateQuery(query);
   if (invalid) return invalid;
-
-  if (!(await hasStoredCards(resolved))) {
-    if (offset > 0) {
-      return {
-        success: true,
-        message: "Cards successfully retrieved.",
-        data: { cards: [], nextOffset: null },
-      };
-    }
-    const result = await resolved.adapter.search(
-      query,
-      resolved.baseUrl,
-      resolved.lang,
-    );
-    if (!result.success || !result.data) return { ...result, data: undefined };
-    const priced = await applyCardPrices(
-      resolved.adapter,
-      resolved,
-      setCode
-        ? result.data.filter((card) => card.set === setCode)
-        : result.data,
-    );
-    return { ...result, data: { cards: priced, nextOffset: null } };
-  }
 
   const page = await searchStoredCards(resolved, query, offset, setCode);
   if (offset === 0 && page.cards.length === 0) {

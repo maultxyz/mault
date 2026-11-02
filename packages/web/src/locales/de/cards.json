@@ -31,6 +31,7 @@
     "trend": "Preistrend",
     "avg7": "7-Tage-Schnitt",
     "tcgplayerMarket": "TCGplayer Marktpreis",
+    "tcgplayerMarketCondition": "TCGplayer Marktpreis ({{condition}})",
     "cardmarketAvg": "Cardmarket Durchschnitt",
     "foilPrice": "Foil {{price}}",
     "priceAtScan": "Beim Scan {{price}}",
@@ -69,6 +70,8 @@
     "manaCost": "Manakosten",
     "powerToughness": "Stärke / Widerstand",
     "artist": "Künstler",
+    "dataSource": "Datenquelle",
+    "fallbackData": "Ersatzdaten (TCGplayer-Katalog)",
     "binLocation": "Fachposition",
     "showOcrRegions": "OCR-Bereiche anzeigen",
     "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
@@ -103,7 +106,6 @@
     "scanToGetStarted": "Scanne eine Karte, um loszulegen",
     "noCardsMatchFilters": "Keine Karten entsprechen den aktuellen Filtern",
     "tryAdjusting": "Passe deine Suche, Sortierung oder Filter an",
-    "pageOf": "Seite {{page}} von {{total}}",
     "cardsSelected_one": "{{count}} Karte ausgewählt",
     "cardsSelected_other": "{{count}} Karten ausgewählt",
     "clear": "Leeren",
@@ -123,7 +125,8 @@
     "deleteCardsDescription_other": "Dadurch werden die ausgewählten Karten dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
     "downloadedHidden_one": "1 heruntergeladene Karte wird vom Download-Filter ausgeblendet.",
     "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet.",
-    "moveToLocation": "Verschieben"
+    "moveToLocation": "Verschieben",
+    "exporting": "Wird exportiert"
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
@@ -207,7 +210,8 @@
     "download": "Herunterladen ({{count}})",
     "downloadFailed": "Der Export konnte nicht heruntergeladen werden.",
     "sessionWrappedToggle": "Wrapped",
-    "combineDuplicates": "Duplikate zusammenfassen"
+    "combineDuplicates": "Duplikate zusammenfassen",
+    "exporting": "Wird exportiert"
   },
   "sessionWrapped": {
     "srTitle": "{{collectionName}} Jahresrückblick",
@@ -317,6 +321,7 @@
     "copyName": "Namen kopieren",
     "copied": "Name kopiert.",
     "copyFailed": "Der Name konnte nicht kopiert werden.",
+    "moveToLocation": "In Lagerort verschieben",
     "remove_one": "Karte entfernen",
     "remove_other": "{{count}} Karten entfernen"
   },
@@ -371,9 +376,11 @@
       "DMG": "Beschädigt (DMG)"
     },
     "priceHint": "{{price}} bei {{percent}} % des NM-Preises",
+    "marketPriceHint": "{{price}} TCGplayer Marktpreis für {{condition}}",
     "setSelected": "Zustand"
   },
   "scanOrigin": {
+    "scannedAt": "Gescannt",
     "scannedBy": "Von",
     "sorter": "Sortierer",
     "deletedSorter": "{{name}} (gelöscht)"

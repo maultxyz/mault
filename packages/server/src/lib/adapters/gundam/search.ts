@@ -1,12 +1,5 @@
-import {
-  type PlayingCard,
-  type Result,
-  proxiedImageUrl,
-} from "@magic-vault/shared";
-import { fetchCardApi } from "../../card-search/fetch";
+import { type PlayingCard, proxiedImageUrl } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
-import { CARD_API_HEADERS } from "../../constants/card-search";
 import { GUNDAM_DEFAULT_URL } from "../../constants/urls";
 import type { GundamCard } from "../../interfaces/gundam";
 
@@ -45,94 +38,8 @@ function normalizeGundamCard(raw: GundamCard): PlayingCard {
   };
 }
 
-function extractRows(json: unknown): GundamCard[] {
-  if (Array.isArray(json)) return json as GundamCard[];
-  if (
-    json &&
-    typeof json === "object" &&
-    Array.isArray((json as { data?: unknown }).data)
-  ) {
-    return (json as { data: GundamCard[] }).data;
-  }
-  return [];
-}
-
-function extractOne(json: unknown): GundamCard | null {
-  if (
-    json &&
-    typeof json === "object" &&
-    "data" in json &&
-    (json as { data?: unknown }).data
-  ) {
-    return (json as { data: GundamCard }).data;
-  }
-  return (json as GundamCard) ?? null;
-}
-
-export async function searchCards(
-  query: string,
-  baseUrl: string = GUNDAM_DEFAULT_URL,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const url = `${baseUrl}?name=${encodeURIComponent(query)}&limit=60`;
-  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
-
-  if (response.status === 404) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from the Gundam Card Game API.",
-      success: false,
-    };
-  }
-
-  const rows = extractRows(await response.json());
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: rows.map(normalizeGundamCard),
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = GUNDAM_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const response = await fetchCardApi(`${baseUrl}/${id}`, {
-    headers: CARD_API_HEADERS,
-  });
-
-  if (!response.ok) {
-    return {
-      success: false,
-      message: `Gundam Card Game API error: ${response.status} for card ${id}`,
-    };
-  }
-
-  const raw = extractOne(await response.json());
-  if (!raw) {
-    return { success: false, message: `Card ${id} not found.` };
-  }
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizeGundamCard(raw),
-  };
-}
-
 export const gundamAdapter: CardSearchAdapter = {
   defaultUrl: GUNDAM_DEFAULT_URL,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw) => normalizeGundamCard(raw as GundamCard),
   tcgplayer: {
     categoryId: 86,

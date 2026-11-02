@@ -30,7 +30,7 @@ function sleep(ms: number): Promise<void> {
 export function usePiScanSession() {
   const { t } = useTranslation("scanner");
   const { activeCollection } = useCollections();
-  const { autoFeed, forceFoilType, forceSetCode } = useScannedCards();
+  const { autoFeed, forceFoilType, forceSetCodes } = useScannedCards();
   const { disconnect } = useSerial();
   const { isActive } = useStation();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
@@ -53,9 +53,9 @@ export function usePiScanSession() {
     if (!sessionLive || !isActive) return;
     void updatePiScanSettings({
       foilType: forceFoilType,
-      preferredSetCode: forceSetCode,
+      preferredSetCodes: forceSetCodes,
     }).catch(() => {});
-  }, [sessionLive, isActive, forceFoilType, forceSetCode]);
+  }, [sessionLive, isActive, forceFoilType, forceSetCodes]);
 
   const start = useCallback(async () => {
     if (!collectionGuid) {
@@ -71,7 +71,7 @@ export function usePiScanSession() {
       let result = await startPiScanSession({
         collectionGuid,
         foilType: forceFoilType,
-        preferredSetCode: forceSetCode,
+        preferredSetCodes: forceSetCodes,
         autoFeed,
       });
       if (!result.success && result.code === "busy") {
@@ -79,7 +79,7 @@ export function usePiScanSession() {
         result = await startPiScanSession({
           collectionGuid,
           foilType: forceFoilType,
-          preferredSetCode: forceSetCode,
+          preferredSetCodes: forceSetCodes,
           autoFeed,
         });
       }
@@ -97,7 +97,7 @@ export function usePiScanSession() {
     collectionGuid,
     disconnect,
     forceFoilType,
-    forceSetCode,
+    forceSetCodes,
     t,
   ]);
 

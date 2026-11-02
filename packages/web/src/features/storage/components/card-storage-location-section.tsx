@@ -67,7 +67,7 @@ export function CardStorageLocationSection({
                 {location ? t("cardLocation.move") : t("cardLocation.store")}
               </Button>
             )}
-            {location && (
+            {location && !storageLocked && (
               <Button
                 variant="outline-destructive"
                 disabled={isRemoving}

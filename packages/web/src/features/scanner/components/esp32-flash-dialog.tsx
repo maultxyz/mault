@@ -1,6 +1,5 @@
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { FirmwareFlashDialog } from "@/features/scanner/components/firmware-flash-dialog";
-import { ESP32_FIRMWARE_URL } from "@/lib/constants/links";
 import { useTranslation } from "react-i18next";
 
 export function Esp32FlashDialog({
@@ -24,7 +23,7 @@ export function Esp32FlashDialog({
       isFlashing={isFlashing}
       flashProgress={flashProgress}
       flashLog={flashLog}
-      onStart={() => flashEsp32(ESP32_FIRMWARE_URL)}
+      onStart={flashEsp32}
     />
   );
 }

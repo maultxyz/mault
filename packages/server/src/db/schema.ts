@@ -419,6 +419,7 @@ export const feederConfigs = pgTable(
     settleDuration: integer("settle_duration").notNull().default(150),
     reverseSpeed: integer("reverse_speed").notNull().default(333),
     reverseDuration: integer("reverse_duration").notNull().default(0),
+    feedRetryCount: integer("feed_retry_count").notNull().default(1),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -989,7 +990,7 @@ export const soundClips = pgTable(
     storageKey: text("storage_key"),
     dataUrl: text("data_url"),
     waveform: jsonb("waveform"),
-    orgId: text("org_id").notNull(),
+    orgId: text("org_id"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -999,7 +1000,7 @@ export const soundClips = pgTable(
     index("sound_clips_org_idx").on(table.orgId),
     crudPolicy({
       role: authenticatedRole,
-      read: orgRls(table.orgId),
+      read: sql`(${table.orgId} IS NULL OR ${orgRls(table.orgId)})`,
       modify: orgRls(table.orgId),
     }),
   ],
@@ -1267,6 +1268,7 @@ export const feederConfigAudit = pgTable(
     settleDuration: integer("settle_duration").notNull(),
     reverseSpeed: integer("reverse_speed").notNull().default(333),
     reverseDuration: integer("reverse_duration").notNull().default(0),
+    feedRetryCount: integer("feed_retry_count").notNull().default(1),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
@@ -1358,6 +1360,14 @@ export const scanStats = pgTable(
   ],
 );
 
+export const platformBillingSettings = pgTable("platform_billing_settings", {
+  id: text("id").primaryKey(),
+  isLegacyPricingActive: boolean("is_legacy_pricing_active")
+    .notNull()
+    .default(true),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const platformStatsSettings = pgTable("platform_stats_settings", {
   id: text("id").primaryKey(),
   stats: jsonb("stats").notNull().default([]),
@@ -1422,6 +1432,7 @@ export const tcgplayerProducts = pgTable(
     productId: integer("product_id").primaryKey(),
     categoryId: integer("category_id").notNull(),
     groupId: integer("group_id").notNull(),
+    groupName: text("group_name"),
     name: text("name").notNull(),
     number: text("number"),
     rarity: text("rarity"),
@@ -1433,6 +1444,45 @@ export const tcgplayerProducts = pgTable(
       table.number,
     ),
   ],
+);
+
+export const tcgplayerSkus = pgTable(
+  "tcgplayer_skus",
+  {
+    productId: integer("product_id").notNull(),
+    variant: text("variant").notNull(),
+    language: text("language").notNull(),
+    categoryId: integer("category_id").notNull(),
+    setId: integer("set_id").notNull(),
+    nearMintSkuId: integer("near_mint_sku_id"),
+    lightlyPlayedSkuId: integer("lightly_played_sku_id"),
+    moderatelyPlayedSkuId: integer("moderately_played_sku_id"),
+    heavilyPlayedSkuId: integer("heavily_played_sku_id"),
+    damagedSkuId: integer("damaged_sku_id"),
+    nearMintMarketPrice: doublePrecision("near_mint_market_price"),
+    lightlyPlayedMarketPrice: doublePrecision("lightly_played_market_price"),
+    moderatelyPlayedMarketPrice: doublePrecision("moderately_played_market_price"),
+    heavilyPlayedMarketPrice: doublePrecision("heavily_played_market_price"),
+    damagedMarketPrice: doublePrecision("damaged_market_price"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.productId, table.variant, table.language] }),
+    index("tcgplayer_skus_category_set_idx").on(table.categoryId, table.setId),
+  ],
+);
+
+export const tcgplayerSkuSets = pgTable(
+  "tcgplayer_sku_sets",
+  {
+    categoryId: integer("category_id").notNull(),
+    setId: integer("set_id").notNull(),
+    productsModified: text("products_modified"),
+    skusModified: text("skus_modified"),
+    skuCount: integer("sku_count"),
+    syncedAt: timestamp("synced_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.categoryId, table.setId] })],
 );
 
 export const cardmarketPrices = pgTable(

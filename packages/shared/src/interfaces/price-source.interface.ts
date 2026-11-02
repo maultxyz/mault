@@ -11,3 +11,11 @@ export interface PriceSourceFields {
   currency: string;
   symbol: string;
 }
+
+export interface TcgplayerHeadlinePrices {
+  price: number | null;
+  foilPrice: number | null;
+  priceAtScan: number | null;
+  foilPriceAtScan: number | null;
+  isConditionPrice: boolean;
+}

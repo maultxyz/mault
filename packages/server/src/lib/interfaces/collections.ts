@@ -3,7 +3,9 @@ import type { Transaction } from "../../db";
 
 export interface CardsCollection {
   id: number;
+  name: string;
   gameKey: string | null;
+  gameName: string | null;
   lang: string;
   fieldDefinitions: FieldMeta[];
 }

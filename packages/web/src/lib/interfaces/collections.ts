@@ -38,7 +38,7 @@ export interface CollectionsContextValue {
   isLoading: boolean;
   isActivating: boolean;
   isMutating: boolean;
-  createCollection: (values: CreateCollectionFormValues) => Promise<void>;
+  createCollection: (values: CreateCollectionFormValues) => Promise<boolean>;
   updateCollection: (guid: string, name: string) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
   deleteCollection: (guid: string) => Promise<void>;

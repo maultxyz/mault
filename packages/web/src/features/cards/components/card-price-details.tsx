@@ -7,7 +7,10 @@ import type {
   PriceTableProps,
 } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
-import { priceChangeSinceScan } from "@magic-vault/shared";
+import {
+  priceChangeSinceScan,
+  tcgplayerHeadlinePrices,
+} from "@magic-vault/shared";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -134,6 +137,7 @@ export function CardPriceDetails({
   card,
   isFoil = false,
   foilType,
+  condition,
   className,
 }: CardPriceDetailsProps) {
   const { t } = useTranslation("cards");
@@ -141,18 +145,20 @@ export function CardPriceDetails({
   const [tablesOpen, setTablesOpen] = useState(false);
 
   const toggleTables = () => setTablesOpen((open) => !open);
+  const { isConditionPrice, ...tcgplayerHeadline } = tcgplayerHeadlinePrices(
+    card,
+    foilType,
+    condition,
+  );
 
   const sections: PriceSourceSection[] = [
     {
       source: "tcgplayer",
       headline: {
-        label: t("priceTable.tcgplayerMarket"),
-        price: card.price,
-        foilPrice:
-          (foilType ? card.finishPrices?.[foilType]?.priceFoil : null) ??
-          card.priceFoil,
-        priceAtScan: card.pricesAtScan?.price,
-        foilPriceAtScan: card.pricesAtScan?.priceFoil,
+        label: isConditionPrice
+          ? t("priceTable.tcgplayerMarketCondition", { condition })
+          : t("priceTable.tcgplayerMarket"),
+        ...tcgplayerHeadline,
         format: formatUsd,
       },
       table: {

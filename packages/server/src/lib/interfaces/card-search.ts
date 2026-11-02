@@ -4,7 +4,6 @@ import type {
   OcrDiagnostics,
   OcrReadout,
   PlayingCard,
-  Result,
   SearchCardMatch,
 } from "@magic-vault/shared";
 import type { SQL } from "drizzle-orm";
@@ -38,6 +37,7 @@ export interface TcgplayerFinishProduct {
 
 export interface TcgplayerPricing {
   categoryId: number;
+  foilTypeOfVariant?(variantWithoutEdition: string): string;
   subTypes(card: PlayingCard): TcgplayerSubTypes;
   finishProducts?(card: PlayingCard): TcgplayerFinishProduct[];
   productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
@@ -63,15 +63,10 @@ export interface FoilPrintingVariants {
 export interface CardSearchAdapter {
   defaultUrl: string;
   urlForLang?(lang: string): string;
-  search(
-    query: string,
-    baseUrl: string,
-    lang: string,
-  ): Promise<Result<PlayingCard[]>>;
-  searchById(id: string, baseUrl: string): Promise<Result<PlayingCard>>;
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
   rarePrintingSql?: SQL;
   excludedFromMatchingSql?: SQL;
+  ocrMatchesByPrintedSetAndNumber?: boolean;
   foilPrintingVariants?: FoilPrintingVariants;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;
@@ -126,6 +121,16 @@ export interface SyncSource {
   fetchOne(id: string, baseUrl: string, lang?: string): Promise<FetchOneResult>;
 }
 
+export interface CardMatchCandidate {
+  cardId: string;
+  lang: string;
+  name: string;
+  setCode: string;
+  rarePrinting: boolean;
+  distance: number;
+  leaderDistance: number;
+}
+
 export interface CardMatchSearchResult {
   message: string;
   success: true;
@@ -140,7 +145,7 @@ export interface CardTextMatchParams {
   matchAllLanguages: boolean;
   embeddings: CardSearchEmbeddings;
   readout: OcrReadout;
-  preferredSetCode?: string;
+  preferredSetCodes?: string[];
 }
 
 export interface CardTextMatchResult extends CardMatchSearchResult {

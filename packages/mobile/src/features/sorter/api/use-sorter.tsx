@@ -32,6 +32,8 @@ import {
   type BinRoute,
   type RouteOptions,
   STORE_CONFIG_TIMEOUT_MS,
+  RETRACT_CARD_TIMEOUT_MS,
+  retractCardOutcome,
 } from "@magic-vault/shared";
 import {
   acquireDeviceLease,
@@ -511,6 +513,11 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const clearDevice = useCallback(async () => {
     await link.sendCommand({ clearDevice: true });
   }, []);
+  const retractCard = useCallback(
+    async () =>
+      retractCardOutcome(await link.sendParsed({ retractCard: true }, RETRACT_CARD_TIMEOUT_MS)),
+    [],
+  );
   const sendCommand = useCallback((command: object) => {
     void link.sendCommand(command);
   }, []);
@@ -593,6 +600,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       feed,
       sendNeutral,
       clearDevice,
+      retractCard,
       sendCommand,
       applySavedCalibration,
       updateDevice,
@@ -623,6 +631,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       feed,
       sendNeutral,
       clearDevice,
+      retractCard,
       sendCommand,
       applySavedCalibration,
       updateDevice,

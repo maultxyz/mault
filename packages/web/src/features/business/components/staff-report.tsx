@@ -232,7 +232,6 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
           </div>
           <ListPagination
             pagination={{
-              pageItems: activity.entries,
               page: activity.page,
               pageCount,
               from: (activity.page - 1) * activity.pageSize + 1,

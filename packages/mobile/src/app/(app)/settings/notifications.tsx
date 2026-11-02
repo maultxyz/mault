@@ -25,6 +25,7 @@ import { collectionsQueryOptions } from "@/features/collections/api/collections"
 import {
   discordIntegrationQueryOptions,
   generateDiscordLinkCode,
+  notificationRuleCountQueryOptions,
   notificationRulesQueryOptions,
   sendTestNotification,
   setDiscordChannel,
@@ -36,6 +37,7 @@ import {
   channelLabel,
   toDiscordSettingsDraft,
 } from "@/features/integrations/lib/discord-settings";
+import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions, saveOrgSettings } from "@/features/org/api/org-settings";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { SettingsPage } from "@/features/settings/components/settings-page";
@@ -57,6 +59,10 @@ export default function NotificationsSettingsScreen() {
   const rules = useQuery(notificationRulesQueryOptions(orgId, gameGuid));
   const settings = useQuery(orgSettingsQueryOptions(orgId));
   const collections = useQuery(collectionsQueryOptions(orgId));
+  const { data: billing } = useQuery(billingQueryOptions(orgId));
+  const { data: totalRules = 0 } = useQuery(notificationRuleCountQueryOptions(orgId));
+  const ruleLimit = billing?.maxNotificationRules ?? null;
+  const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
   const [picker, setPicker] = useState<DiscordChannelPicker | null>(null);
   const [linkCode, setLinkCode] = useState<DiscordLinkCode | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -400,6 +406,9 @@ export default function NotificationsSettingsScreen() {
           <AppText size="xs" tone="secondary">
             {t("settings.discord.rules.description")}
           </AppText>
+          {atRuleLimit && ruleLimit !== null ? (
+            <Callout tone="info" title={t("settings.discord.rules.limitReached", { count: ruleLimit })} />
+          ) : null}
           {!gameGuid ? (
             <Callout tone="info" title={t("settings.discord.rules.needsGame")} />
           ) : rules.data && rules.data.length === 0 ? (
@@ -443,6 +452,7 @@ export default function NotificationsSettingsScreen() {
               variant="secondary"
               icon="plus"
               label={t("settings.discord.rules.add")}
+              disabled={atRuleLimit}
               onPress={() => router.push("/settings/notification-rule")}
             />
           ) : null}

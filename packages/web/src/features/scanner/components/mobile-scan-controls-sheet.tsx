@@ -2,6 +2,7 @@ import { Callout } from "@/components/callout";
 import { MobileListRow } from "@/components/mobile-list-row";
 import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { MOBILE_LIST_CLASS, MOBILE_SORTER_PATH } from "@/lib/constants/nav";
 import { SESSION_TIMER_RUNNING_STATUSES } from "@/lib/constants/scanner";
@@ -11,6 +12,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import {
   IconArrowDown,
+  IconArrowUp,
   IconCpu,
   IconLoader2,
   IconPlayerPlay,
@@ -27,8 +29,12 @@ export function MobileScanControlsSheet({
   const { t } = useTranslation("scanner");
   const { isRemoveModeEnabled, setRemoveModeEnabled } = useScanRemoval();
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
+  const { retractCard, isRetracting, retractLockedReason } = useRetractCard();
   const busy =
-    chrome.isFeeding || chrome.isClearingDevice || chrome.isResettingDevice;
+    chrome.isFeeding ||
+    chrome.isClearingDevice ||
+    chrome.isResettingDevice ||
+    isRetracting;
   const sorterDisabled = running || !chrome.isReady || busy;
   const close = () => onOpenChange(false);
   const spinner = <IconLoader2 className="animate-spin" />;
@@ -79,6 +85,15 @@ export function MobileScanControlsSheet({
               description={t("mobileScan.controls.dropDescription")}
               disabled={sorterDisabled}
               onClick={chrome.onClearDevice}
+            />
+            <MobileListRow
+              icon={isRetracting ? spinner : <IconArrowUp />}
+              label={t("mobileScan.controls.retract")}
+              description={
+                retractLockedReason ?? t("mobileScan.controls.retractDescription")
+              }
+              disabled={sorterDisabled || retractLockedReason !== null}
+              onClick={() => void retractCard()}
             />
             <MobileListRow
               icon={chrome.isResettingDevice ? spinner : <IconRefresh />}

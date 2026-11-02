@@ -12,17 +12,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import { SessionWrappedToggle } from "@/components/session-wrapped-toggle";
-import { applyCardFilters } from "@/features/cards/api/use-card-filter-sort";
 import {
   allExportAdapters,
-  runExport,
+  downloadCollectionCsv,
   supportsGame,
   type ExportAdapter,
 } from "@/features/cards/lib/export";
 import { buildWrappedSlides } from "@/features/cards/lib/wrapped-slides";
 import {
   collectionCardsCountQueryOptions,
-  collectionCardsExportQueryOptions,
+  loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
@@ -35,7 +34,7 @@ import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   IconChevronDown,
   IconChevronLeft,
@@ -46,6 +45,7 @@ import {
   IconDownload,
   IconFlame,
   IconLayoutGrid,
+  IconLoader2,
   IconPalette,
   IconSparkles,
   IconStack2,
@@ -425,7 +425,6 @@ export function SessionSummaryDialog({
 }: SessionSummaryDialogProps) {
   const { t } = useTranslation("cards");
   const { format } = usePriceSource();
-  const queryClient = useQueryClient();
   const [includeDownloaded, setIncludeDownloaded] = useState(false);
   const [applyGridFilters, setApplyGridFilters] = useState(false);
   const [combineDuplicates, setCombineDuplicates] = useState(true);
@@ -439,31 +438,24 @@ export function SessionSummaryDialog({
   const previouslyDownloadedCount = summary
     ? summary.all.totalCount - summary.filtered.totalCount
     : 0;
+  const [downloading, setDownloading] = useState(false);
+  const exportQuery = {
+    ...ALL_CARDS_QUERY,
+    filters: {
+      ...(applyGridFilters ? gridFilters : EMPTY_CARD_FILTERS),
+      showDownloaded: includeDownloaded,
+    },
+  };
   const { data: exportCount } = useQuery({
-    ...collectionCardsCountQueryOptions(collectionGuid, {
-      ...ALL_CARDS_QUERY,
-      filters: {
-        ...(applyGridFilters ? gridFilters : EMPTY_CARD_FILTERS),
-        showDownloaded: includeDownloaded,
-      },
-    }),
+    ...collectionCardsCountQueryOptions(collectionGuid, exportQuery),
     enabled: open && !!collectionGuid,
   });
   const exportCardCount = exportCount?.totalCount ?? 0;
-  const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
-  const fieldDefinitions = activeCollection?.game?.fieldDefinitions ?? [];
   const { activeOrg } = useOrg();
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(activeOrg?.id));
   const wrappedEnabled = orgSettings?.sessionWrappedEnabled ?? true;
 
   const gameKey = activeCollection?.game?.key;
-  const isMtg = gameKey === "mtg";
-  const exportContext = {
-    isMtg,
-    fieldDefinitions,
-    gameKey,
-    gameName: activeCollection?.game?.name,
-  };
   const exportAdapters: ExportAdapter[] = allExportAdapters.filter((adapter) =>
     supportsGame(adapter, gameKey),
   );
@@ -506,26 +498,21 @@ export function SessionSummaryDialog({
 
   async function handleDownload(adapter: ExportAdapter) {
     if (!collectionGuid) return;
-    let cards;
+    setDownloading(true);
     try {
-      cards = await queryClient.fetchQuery({
-        ...collectionCardsExportQueryOptions(collectionGuid, true),
-        staleTime: 0,
+      const scanIds = await loadCollectionCardIds(collectionGuid, exportQuery);
+      await downloadCollectionCsv(collectionGuid, adapter, collectionName, {
+        scanIds,
+        combineDuplicates,
       });
+      onOpenChange(false);
+      onExported(scanIds);
     } catch (err) {
-      console.error("Failed to load cards for export:", err);
+      console.error("Failed to download export:", err);
       toast.error(t("sessionSummaryDialog.downloadFailed"));
-      return;
+    } finally {
+      setDownloading(false);
     }
-    const byDownloaded = includeDownloaded
-      ? cards
-      : cards.filter((c) => !c.isDownloaded);
-    const exportCards = applyGridFilters
-      ? applyCardFilters(byDownloaded, { ...gridFilters, showDownloaded: true })
-      : byDownloaded;
-    runExport(adapter, exportCards, slug, exportContext, combineDuplicates);
-    onOpenChange(false);
-    onExported(exportCards.map((c) => c.scanId));
   }
 
   function handleTouchStart(e: TouchEvent) {
@@ -703,10 +690,16 @@ export function SessionSummaryDialog({
       )}
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button disabled={exportCardCount === 0} className="w-full" />}
+          render={<Button disabled={exportCardCount === 0 || downloading} className="w-full" />}
         >
-          <IconDownload className="size-4" />
-          {t("sessionSummaryDialog.download", { count: exportCardCount })}
+          {downloading ? (
+            <IconLoader2 className="size-4 animate-spin motion-reduce:animate-none" />
+          ) : (
+            <IconDownload className="size-4" />
+          )}
+          {downloading
+            ? t("sessionSummaryDialog.exporting")
+            : t("sessionSummaryDialog.download", { count: exportCardCount })}
           <IconChevronDown className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">

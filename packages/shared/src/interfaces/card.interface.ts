@@ -1,4 +1,5 @@
 import type { SearchNoMatchReason } from "./api.interface";
+import type { CardCondition } from "./card-condition.interface";
 import type { PriceSource } from "./price-source.interface";
 
 export type SourceCard = object;
@@ -32,6 +33,8 @@ export interface PlayingCardCardKingdomPrice {
   url: string | null;
 }
 
+export type CardConditionPrices = Partial<Record<CardCondition, number>>;
+
 export type CardPurchaseLinks = Partial<Record<PriceSource, string>>;
 
 export type CardPricesAtScan = Partial<
@@ -47,7 +50,10 @@ export type CardPricesAtScan = Partial<
 >;
 
 export type CardFinishPrices = Partial<
-  Pick<PlayingCard, "priceFoil" | "priceEurFoil" | "priceCardKingdomFoil">
+  Pick<
+    PlayingCard,
+    "priceFoil" | "priceEurFoil" | "priceCardKingdomFoil" | "priceFoilByCondition"
+  >
 >;
 
 export interface CardFinish {
@@ -74,6 +80,8 @@ export interface PlayingCard {
   priceFoil: number | null;
   priceRange?: PlayingCardPriceRange;
   priceRangeFoil?: PlayingCardPriceRange;
+  priceByCondition?: CardConditionPrices;
+  priceFoilByCondition?: CardConditionPrices;
   priceEur?: number | null;
   priceEurFoil?: number | null;
   cardmarketPrice?: PlayingCardCardmarketPrice;
@@ -84,10 +92,12 @@ export interface PlayingCard {
   cardKingdomPriceFoil?: PlayingCardCardKingdomPrice;
   pricesAtScan?: CardPricesAtScan;
   foilTypes?: string[];
+  foilOnlyFoilType?: string;
   finishPrices?: Record<string, CardFinishPrices>;
   purchaseLinks?: CardPurchaseLinks;
   sourceUrl?: string;
   tcgplayerId?: string;
+  isFallbackData?: boolean;
   cmc?: number;
   lang?: string;
   raw?: unknown;

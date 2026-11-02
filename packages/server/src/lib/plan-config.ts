@@ -13,7 +13,15 @@ import {
 import { eq } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { orgBilling, planSettings } from "../db/schema";
+import { currentPreviewPlan } from "./plan-preview";
+import { refreshPricingMode } from "./pricing-mode";
 import { PLAN_CONFIG_LOAD_RETRY_MS } from "./constants/timing";
+import {
+  ENTHUSIAST_PLAN_DAILY_SCAN_LIMIT,
+  ENTHUSIAST_PLAN_MAX_CONNECTED_SORTERS,
+  ENTHUSIAST_PLAN_MAX_NOTIFICATION_RULES,
+  ENTHUSIAST_PLAN_MAX_SOUND_RULES,
+} from "./constants/billing";
 import {
   FREE_PLAN_DAILY_SCAN_LIMIT,
   FREE_PLAN_MAX_CONNECTED_SORTERS,
@@ -27,29 +35,81 @@ export function defaultPlanConfig(): PlanConfig {
     free: {
       features: {
         chaosSort: false,
+        repacks: true,
+        customSounds: true,
+        fleetHealth: true,
         storage: false,
         apiAccess: false,
         businessTools: false,
       },
       limits: {
         dailyScans: FREE_PLAN_DAILY_SCAN_LIMIT,
+        organizations: null,
+        membersPerOrg: null,
         connectedSorters: FREE_PLAN_MAX_CONNECTED_SORTERS,
         soundRules: FREE_PLAN_MAX_SOUND_RULES,
         notificationRules: FREE_PLAN_MAX_NOTIFICATION_RULES,
+        collections: null,
+      },
+    },
+    enthusiast: {
+      features: {
+        chaosSort: true,
+        repacks: true,
+        customSounds: true,
+        fleetHealth: true,
+        storage: true,
+        apiAccess: false,
+        businessTools: false,
+      },
+      limits: {
+        dailyScans: ENTHUSIAST_PLAN_DAILY_SCAN_LIMIT,
+        organizations: null,
+        membersPerOrg: null,
+        connectedSorters: ENTHUSIAST_PLAN_MAX_CONNECTED_SORTERS,
+        soundRules: ENTHUSIAST_PLAN_MAX_SOUND_RULES,
+        notificationRules: ENTHUSIAST_PLAN_MAX_NOTIFICATION_RULES,
+        collections: null,
       },
     },
     business: {
       features: {
         chaosSort: true,
+        repacks: true,
+        customSounds: true,
+        fleetHealth: true,
         storage: true,
         apiAccess: true,
         businessTools: true,
       },
       limits: {
         dailyScans: null,
+        organizations: null,
+        membersPerOrg: null,
         connectedSorters: null,
         soundRules: null,
         notificationRules: null,
+        collections: null,
+      },
+    },
+    legacyBusiness: {
+      features: {
+        chaosSort: true,
+        repacks: true,
+        customSounds: true,
+        fleetHealth: true,
+        storage: true,
+        apiAccess: true,
+        businessTools: true,
+      },
+      limits: {
+        dailyScans: null,
+        organizations: null,
+        membersPerOrg: null,
+        connectedSorters: null,
+        soundRules: null,
+        notificationRules: null,
+        collections: null,
       },
     },
   };
@@ -105,7 +165,10 @@ export function parsePlanConfig(input: unknown): PlanConfig | null {
 }
 
 export async function refreshPlanConfig(): Promise<PlanConfig> {
-  const rows = await db.select().from(planSettings);
+  const [rows] = await Promise.all([
+    db.select().from(planSettings),
+    refreshPricingMode(),
+  ]);
   const defaults = defaultPlanConfig();
   const next = { ...defaults };
   for (const row of rows) {
@@ -146,14 +209,16 @@ export function getPlanConfig(): PlanConfig {
   return cachedConfig;
 }
 
-function toPlanKey(plan: string | undefined): PlanKey {
-  return plan === "business" ? "business" : "free";
+export function toPlanKey(plan: string | null | undefined): PlanKey {
+  return PLAN_KEYS.find((key) => key === plan) ?? "free";
 }
 
 export function planHasFeature(
   plan: string | undefined,
   feature: PlanFeatureKey,
 ): boolean {
+  const previewPlan = currentPreviewPlan();
+  if (previewPlan) return cachedConfig[previewPlan].features[feature];
   if (!isBillingEnabled()) return true;
   return cachedConfig[toPlanKey(plan)].features[feature];
 }
@@ -162,6 +227,8 @@ export function planLimit(
   plan: string | undefined,
   limit: PlanLimitKey,
 ): number | null {
+  const previewPlan = currentPreviewPlan();
+  if (previewPlan) return cachedConfig[previewPlan].limits[limit];
   if (!isBillingEnabled()) return null;
   return cachedConfig[toPlanKey(plan)].limits[limit];
 }
@@ -177,6 +244,8 @@ export async function loadPlanForOrg(
   tx: Transaction,
   orgId: string,
 ): Promise<string | undefined> {
+  const previewPlan = currentPreviewPlan();
+  if (previewPlan) return previewPlan;
   if (!isBillingEnabled()) return undefined;
   const billing = await tx.query.orgBilling.findFirst({
     where: eq(orgBilling.orgId, orgId),
@@ -190,6 +259,6 @@ export async function orgHasFeature(
   orgId: string,
   feature: PlanFeatureKey,
 ): Promise<boolean> {
-  if (!isBillingEnabled()) return true;
+  if (!isBillingEnabled() && !currentPreviewPlan()) return true;
   return planHasFeature(await loadPlanForOrg(tx, orgId), feature);
 }

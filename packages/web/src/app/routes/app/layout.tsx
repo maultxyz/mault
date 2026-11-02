@@ -6,6 +6,7 @@ import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
 import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { PlanPreviewBanner } from "@/components/plan-preview-banner";
 import { IntakeBanner } from "@/features/business/components/intake-banner";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
@@ -63,7 +64,8 @@ export default function AppLayout() {
             className="top-[env(safe-area-inset-top)] size-14"
           />
           {isFramed && <MobileTopBar />}
-          <ImpersonationBanner />
+          <ImpersonationBanner />
+          <PlanPreviewBanner />
           <AlertStack />
           <PiScanStatusBar />
           <main
@@ -87,7 +89,8 @@ export default function AppLayout() {
           <div className="relative flex flex-row flex-1 min-h-0 overflow-hidden pr-1.5">
             <AppNav />
             <main className="relative flex-1 min-w-0 overflow-hidden flex flex-col rounded-lg border bg-background/70 shadow-xs dark:bg-background/60">
-              <ImpersonationBanner />
+              <ImpersonationBanner />
+              <PlanPreviewBanner />
               <AlertStack />
               <PiScanStatusBar />
               <IntakeBanner />

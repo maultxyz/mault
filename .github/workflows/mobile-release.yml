@@ -108,8 +108,10 @@ jobs:
             echo "::error::Set the MOBILE_ASC_APP_ID variable (App Store Connect > App Information > Apple ID) to submit iOS builds."
             exit 1
           fi
-          jq --arg id "$ASC_APP_ID" '.submit.production.ios.ascAppId = $id' eas.json > eas.json.tmp
-          mv eas.json.tmp eas.json
+          if [ -n "$ASC_APP_ID" ]; then
+            jq --arg id "$ASC_APP_ID" '.submit.production.ios.ascAppId = $id' eas.json > eas.json.tmp
+            mv eas.json.tmp eas.json
+          fi
 
       - name: Build${{ github.ref_name != 'dev' && ' and submit' || '' }}
         working-directory: packages/mobile

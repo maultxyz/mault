@@ -3,6 +3,10 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
+import {
+  isRepackAllowed,
+  REPACK_UPGRADE_MESSAGE,
+} from "../../lib/repack-access";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { clearAllBinRules, loadSets, snapshotBinSet } from "./shared";
 
@@ -42,6 +46,17 @@ export const setRepackRoute = new Hono<AppEnv>().put(
         columns: { id: true, guid: true, isRepackMode: true },
       });
       if (!target) return { message: "Set not found.", success: false };
+      if (
+        isRepackMode &&
+        !target.isRepackMode &&
+        !(await isRepackAllowed(tx, orgId))
+      ) {
+        return {
+          success: false,
+          message: REPACK_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
 
       if (isRepackMode && !target.isRepackMode) {
         await snapshotBinSet(tx, target.id, target.guid!, orgId);

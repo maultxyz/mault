@@ -69,6 +69,7 @@ import {
   isCardLanguage,
   scanLanguage,
   isCardCondition,
+  tcgplayerConditionPriceFor,
   toCardCondition,
   type CardCondition,
   type PlayingCard,
@@ -147,6 +148,7 @@ export function CardDetailPanel({
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [areMatchesOpen, setAreMatchesOpen] = useState(false);
   const prevScanIdRef = useRef<string | undefined>(undefined);
+  const prevCardIdRef = useRef<string | undefined>(undefined);
 
   const { addCard } = useScannedCards();
   const {
@@ -157,7 +159,7 @@ export function CardDetailPanel({
     setCardCondition,
     setCardLanguage,
   } = useCardDetailActions();
-  const { priceOf, format, conditionMultipliers } = usePriceSource();
+  const { priceOf, format, conditionMultipliers, source } = usePriceSource();
   const canConfirm =
     !!scanId &&
     (lowConfidenceMatch || !!alternativeMatches?.length) &&
@@ -169,7 +171,9 @@ export function CardDetailPanel({
     enabled: !!collection?.guid && !!scanId,
   });
   const hasScanOrigin =
-    !!scanId && !!scanOrigin && (!!scanOrigin.scannedBy || !!scanOrigin.device);
+    !!scanId &&
+    !!scanOrigin &&
+    (!!scanOrigin.scannedAt || !!scanOrigin.scannedBy || !!scanOrigin.device);
   const { acquisitionCost, saveCardAcquisitionCost } =
     useCardAcquisitionCost(scanId);
   const scanDraft = useScanDraft({
@@ -208,7 +212,15 @@ export function CardDetailPanel({
       setSelectedId(currentCard.id);
       setAreMatchesOpen(!isMobile && !isReviewed && !wasCorrected);
       setEditing(false);
+    } else if (currentCard.id !== prevCardIdRef.current) {
+      setCandidates((prev) =>
+        prev.some((c) => c.id === currentCard.id)
+          ? prev
+          : [...prev, currentCard],
+      );
+      setSelectedId(currentCard.id);
     }
+    prevCardIdRef.current = currentCard.id;
   }, [
     scanId,
     currentCard,
@@ -289,6 +301,14 @@ export function CardDetailPanel({
         currentCondition,
       )
     : null;
+  const isTcgplayerConditionPrice =
+    source === "tcgplayer" &&
+    !!selectedCard &&
+    tcgplayerConditionPriceFor(
+      selectedCard,
+      { isFoil: draftIsFoil, foilType: currentFoilType },
+      currentCondition,
+    ) != null;
   const cardFoilOptions = cardFoilTypeOptions(
     foilOptions,
     selectedCard,
@@ -622,6 +642,7 @@ export function CardDetailPanel({
                           card={selectedCard}
                           isFoil={draftIsFoil}
                           foilType={currentFoilType}
+                          condition={currentCondition}
                         />
                         <CardPurchaseLinks card={selectedCard} />
                         {scanId && acquisitionCost && (
@@ -733,11 +754,16 @@ export function CardDetailPanel({
                             {conditionPrice != null &&
                               currentCondition !== DEFAULT_CARD_CONDITION && (
                                 <p className="text-2xs text-foreground/70">
-                                  {t("condition.priceHint", {
-                                    price: format(conditionPrice),
-                                    percent:
-                                      conditionMultipliers[currentCondition],
-                                  })}
+                                  {isTcgplayerConditionPrice
+                                    ? t("condition.marketPriceHint", {
+                                        price: format(conditionPrice),
+                                        condition: currentCondition,
+                                      })
+                                    : t("condition.priceHint", {
+                                        price: format(conditionPrice),
+                                        percent:
+                                          conditionMultipliers[currentCondition],
+                                      })}
                                 </p>
                               )}
                           </div>

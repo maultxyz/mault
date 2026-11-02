@@ -27,7 +27,10 @@
     "langPlaceholder": "Sprache auswählen...",
     "matchAllLanguagesLabel": "Karten in allen Sprachen erkennen",
     "matchAllLanguagesDescription": "Scans erkennen Drucke in jeder Sprache dieses Spiels statt nur in der oben gewählten. Suche und Korrektur nutzen weiterhin die gewählte Sprache.",
-    "experimental": "Experimentell"
+    "experimental": "Experimentell",
+    "limitReached_one": "Dein Tarif enthält {{count}} Sammlung.",
+    "limitReached_other": "Dein Tarif enthält {{count}} Sammlungen.",
+    "upgrade": "Upgrade deinen Tarif, um weitere anzulegen."
   },
   "requireDialog": {
     "title": "Erstelle deine erste Sammlung",

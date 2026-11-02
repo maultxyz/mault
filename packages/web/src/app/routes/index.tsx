@@ -22,7 +22,7 @@ export default function LandingPage() {
   });
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
+    <div className="relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
       <BlueprintBackdrop />
       <SpiderWeb corner="top-right" withSpider className="size-28 max-md:size-16" />
       <PublicAnnouncementBanner />

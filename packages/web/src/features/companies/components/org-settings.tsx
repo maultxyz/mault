@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
@@ -215,6 +216,9 @@ export function OrgSettings() {
 
   const pendingInvites =
     activeOrg?.invitations?.filter((i) => i.status === "pending") ?? [];
+  const memberLimit = billing?.maxMembersPerOrg ?? null;
+  const seatsInUse = (activeOrg?.members.length ?? 0) + pendingInvites.length;
+  const atMemberLimit = memberLimit != null && seatsInUse >= memberLimit;
 
   return (
     <>
@@ -332,6 +336,14 @@ export function OrgSettings() {
                 <h3 className="text-sm font-semibold font-heading">
                   {t("orgSettings.inviteMemberHeading")}
                 </h3>
+                {atMemberLimit && (
+                  <PlanNotice
+                    message={t("orgSettings.memberLimitReached", {
+                      count: memberLimit ?? 0,
+                    })}
+                    linkLabel={t("orgSettings.memberLimitUpgrade")}
+                  />
+                )}
                 <form
                   onSubmit={inviteForm.handleSubmit(handleInvite)}
                   className="flex gap-2"
@@ -368,7 +380,9 @@ export function OrgSettings() {
                   />
                   <Button
                     type="submit"
-                    disabled={inviteForm.formState.isSubmitting}
+                    disabled={
+                      inviteForm.formState.isSubmitting || atMemberLimit
+                    }
                   >
                     {inviteForm.formState.isSubmitting
                       ? t("orgSettings.sending")

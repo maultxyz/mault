@@ -1,5 +1,6 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { unmatchedCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
@@ -14,8 +15,6 @@ import { UNMATCHED_PAGE_SIZE } from "@magic-vault/shared";
 import {
   IconArrowLeft,
   IconChecks,
-  IconChevronLeft,
-  IconChevronRight,
   IconPlayerPlay,
   IconTrash,
 } from "@tabler/icons-react";
@@ -151,31 +150,10 @@ export function UnmatchedCardsBrowser({
               />
             ))}
           </div>
-          {pageCount > 1 && (
-            <div className="flex items-center justify-center gap-3 pt-4">
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label={t("unmatchedCardsPanel.previousPage")}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-              >
-                <IconChevronLeft />
-              </Button>
-              <span className="text-sm text-foreground/70">
-                {t("unmatchedCardsPanel.pageOf", { page, total: pageCount })}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label={t("unmatchedCardsPanel.nextPage")}
-                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                disabled={page >= pageCount}
-              >
-                <IconChevronRight />
-              </Button>
-            </div>
-          )}
+          <ListPagination
+            className="pt-4"
+            pagination={{ page, pageCount, setPage }}
+          />
         </div>
       )}
     </div>

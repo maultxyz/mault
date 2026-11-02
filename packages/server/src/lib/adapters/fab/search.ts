@@ -1,10 +1,8 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
+import type { PlayingCard } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
 import {
   CARD_API_HEADERS,
-  FAB_SEARCH_CARD_LIMIT,
   FAB_STANDARD_FOILING,
   FAB_TCGPLAYER_EDITION_PREFIXES,
   FAB_TCGPLAYER_FOIL_NAMES,
@@ -16,7 +14,6 @@ import type {
   FabPrinting,
   FleshcubeCard,
   FleshcubePrinting,
-  FleshcubeSearchResponse,
 } from "../../interfaces/fleshcube";
 
 let fleshcubeQueue: Promise<unknown> = Promise.resolve();
@@ -141,76 +138,8 @@ export async function fetchCardByPrintingId(
   return { card: (await res.json()) as FleshcubeCard, url, status: res.status };
 }
 
-export async function searchCards(
-  query: string,
-  baseUrl: string = FAB_DEFAULT_URL,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const response = await fleshcubeFetch(
-    searchUrl(baseUrl, 1, FAB_SEARCH_CARD_LIMIT, query),
-  );
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from the Fleshcube API.",
-      success: false,
-    };
-  }
-
-  const json = (await response.json()) as FleshcubeSearchResponse;
-  const printingIds = json.results
-    .map((card) => card.printings[0]?.uniqueId)
-    .filter((id): id is string => Boolean(id));
-
-  const fullCards = await Promise.all(
-    printingIds.map((id) => fetchCardByPrintingId(id, baseUrl)),
-  );
-
-  const cards = fullCards.flatMap(({ card }) =>
-    card
-      ? card.cardPrintings.map((printing) =>
-          normalizeFabPrinting(card, printing),
-        )
-      : [],
-  );
-
-  if (cards.length === 0) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: cards,
-    success: true,
-  };
-}
-
-export async function searchCardById(
-  id: string,
-  baseUrl: string = FAB_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const { card } = await fetchCardByPrintingId(id, baseUrl);
-  const printing = card?.cardPrintings.find((p) => p.uniqueId === id);
-  if (!card || !printing) {
-    return { success: false, message: `Card ${id} not found.` };
-  }
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizeFabPrinting(card, printing),
-  };
-}
-
 export const fabAdapter: CardSearchAdapter = {
   defaultUrl: FAB_DEFAULT_URL,
-  search: searchCards,
-  searchById: searchCardById,
   normalizeStored: (raw, id) => {
     const card = raw as FleshcubeCard;
     const printing = card.cardPrintings.find((p) => p.uniqueId === id);

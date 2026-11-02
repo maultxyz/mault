@@ -2,6 +2,7 @@ import { AppLoadingGate, InitialLoadProvider } from "@/app/app-loading-gate";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { OrgPickerModal } from "@/features/companies/components/org-picker-modal";
+import { MemberSeatLockScreen } from "@/components/member-seat-lock-screen";
 import { OnboardingProvider } from "@/features/onboarding/components/onboarding-provider";
 import { SorterSelectionProvider } from "@/features/scanner/api/use-sorter-selection";
 import {
@@ -82,6 +83,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                         <AppLoadingGate>{children}</AppLoadingGate>
                       </AppAlertsProvider>
                       <OrgPickerModal />
+                      <MemberSeatLockScreen />
                       <DocumentTitleUpdater />
                     </OnboardingProvider>
                   </StationScopes>

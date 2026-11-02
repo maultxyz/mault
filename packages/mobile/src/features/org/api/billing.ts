@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { apiGet, unwrapOr } from "@/lib/api/client";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
-import type { BillingStatus } from "@/lib/interfaces/billing";
+import type { BillingStatus } from "@magic-vault/shared";
 
 export const billingQueryOptions = (orgId: string | null) =>
   queryOptions({

@@ -16,6 +16,7 @@ import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import { useOfflineCalibration } from "@/features/calibration/api/use-offline-calibration";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
+import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 import {
   buildCalibrationDebugText,
   defaultSliderValues,
@@ -260,6 +261,7 @@ export function useCalibrationPage() {
   const feederSettleDurationValue = feederValues.settleDuration;
   const feederReverseSpeedValue = feederValues.reverseSpeed;
   const feederReverseDurationValue = feederValues.reverseDuration;
+  const feederFeedRetryCountValue = feederValues.feedRetryCount;
   const setFeederDraftField = useCallback(
     (field: keyof FeederCalibration, value: number) => {
       feederSpeedAnchorRef.current = null;
@@ -713,6 +715,11 @@ export function useCalibrationPage() {
     [setFeederDraftField],
   );
 
+  const handleFeederFeedRetryCountChange = useCallback(
+    (value: number) => setFeederDraftField("feedRetryCount", value),
+    [setFeederDraftField],
+  );
+
   const handleFeederSelectContinuous = useCallback(
     () => setFeederDraftField("pulseDuration", 0),
     [setFeederDraftField],
@@ -897,6 +904,13 @@ export function useCalibrationPage() {
     sendCommand(JSON.stringify({ clearDevice: true }));
   }, [isReady, sendCommand]);
 
+  const { retractCard, isRetracting, retractLockedReason } = useRetractCard();
+  const handleRetractCard = useCallback(async () => {
+    if (!isReady) return;
+    await applyDraftsToDevice();
+    await retractCard();
+  }, [isReady, applyDraftsToDevice, retractCard]);
+
   const readIR = useCallback(async () => {
     if (!isReady || irBusyRef.current || activeBinRef.current !== null) return;
     irBusyRef.current = true;
@@ -1052,6 +1066,7 @@ export function useCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
+    feederFeedRetryCountValue,
     feederStopPulse,
     handleFeederSpeedChange,
     handleFeederStopPulseChange,
@@ -1062,6 +1077,7 @@ export function useCalibrationPage() {
     handleFeederSettleDurationChange,
     handleFeederReverseSpeedChange,
     handleFeederReverseDurationChange,
+    handleFeederFeedRetryCountChange,
     handleFeederSelectContinuous,
     scanRegion,
     captureSettleDelayMs,
@@ -1086,6 +1102,9 @@ export function useCalibrationPage() {
     handleDiscardScanRegion,
     handleFeed,
     handleDropCard,
+    handleRetractCard,
+    isRetracting,
+    retractLockedReason,
     isSampleRunning,
     handleSampleRun,
     irStates,

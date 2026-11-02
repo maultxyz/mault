@@ -1,13 +1,16 @@
 import type { BinRuleGroup, SoundClip, SoundRule } from "@magic-vault/shared";
 import {
+  SOUND_CLIP_EXTENSIONS,
+  SOUND_CLIP_MAX_BYTES,
   SOUND_CLIP_NAME_MAX_LENGTH,
   SOUND_CLIP_WAVEFORM_BARS,
   SOUND_RULE_NAME_MAX_LENGTH,
 } from "@magic-vault/shared";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import type { Transaction } from "../../db";
 import { games, soundClips, soundRules } from "../../db/schema";
+import type { SoundClipUploadParseResult } from "../../lib/interfaces/sounds";
 import { findGameId, ruleGroupSchema } from "../../lib/rule-groups";
 import { resolveSoundClipUrl } from "../../lib/sound-clips";
 
@@ -40,6 +43,32 @@ export const soundClipNameSchema = z
   .min(1)
   .max(SOUND_CLIP_NAME_MAX_LENGTH);
 
+export function parseSoundClipUpload(
+  body: Record<string, unknown>,
+): SoundClipUploadParseResult {
+  const file = body["file"];
+  if (!(file instanceof File)) {
+    return { success: false, message: "No sound file provided." };
+  }
+  const contentType = file.type.split(";")[0].trim().toLowerCase();
+  if (!SOUND_CLIP_EXTENSIONS[contentType]) {
+    return {
+      success: false,
+      message: "Use an MP3, WAV, OGG, WebM, M4A or AAC file.",
+    };
+  }
+  if (file.size > SOUND_CLIP_MAX_BYTES) {
+    return { success: false, message: "Sound clips can be at most 1 MB." };
+  }
+  const name = soundClipNameSchema.safeParse(
+    typeof body["name"] === "string" ? body["name"] : file.name,
+  );
+  if (!name.success) {
+    return { success: false, message: "Give the clip a name." };
+  }
+  return { success: true, file, contentType, name: name.data };
+}
+
 export async function toSoundClip(
   row: typeof soundClips.$inferSelect,
 ): Promise<SoundClip> {
@@ -50,6 +79,7 @@ export async function toSoundClip(
     sizeBytes: row.sizeBytes,
     url: await resolveSoundClipUrl(row),
     waveform: (row.waveform as number[] | null) ?? null,
+    isSystem: row.orgId === null,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -83,7 +113,7 @@ export async function findClipId(
   const clip = await tx.query.soundClips.findFirst({
     where: and(
       eq(soundClips.guid, clipGuid),
-      eq(soundClips.orgId, orgId),
+      or(eq(soundClips.orgId, orgId), isNull(soundClips.orgId)),
       eq(soundClips.isDeleted, false),
     ),
     columns: { id: true },

@@ -27,7 +27,10 @@
     "langPlaceholder": "Sélectionner une langue...",
     "matchAllLanguagesLabel": "Reconnaître les cartes dans toutes les langues",
     "matchAllLanguagesDescription": "Les scans reconnaissent les impressions dans toutes les langues de ce jeu, pas seulement celle choisie ci-dessus. La recherche et la correction utilisent toujours la langue choisie.",
-    "experimental": "Expérimental"
+    "experimental": "Expérimental",
+    "limitReached_one": "Ton offre inclut {{count}} collection.",
+    "limitReached_other": "Ton offre inclut {{count}} collections.",
+    "upgrade": "Passe à une offre supérieure pour en ajouter d'autres."
   },
   "requireDialog": {
     "title": "Crée ta première collection",

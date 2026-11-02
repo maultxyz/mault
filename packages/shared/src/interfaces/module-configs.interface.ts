@@ -26,4 +26,5 @@ export interface FeederCalibration {
   settleDuration: number;
   reverseSpeed: number;
   reverseDuration: number;
+  feedRetryCount: number;
 }

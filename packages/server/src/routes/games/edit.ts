@@ -22,7 +22,6 @@ export const editGameRoute = new Hono<AppEnv>().put(
       name,
       fieldDefinitions,
       fieldRenames,
-      foilTypes,
       apiDocsUrl,
       cardThickness,
       isActive,
@@ -56,7 +55,6 @@ export const editGameRoute = new Hono<AppEnv>().put(
       if (name !== undefined) updates.name = name.trim();
       if (fieldDefinitions !== undefined)
         updates.fieldDefinitions = fieldDefinitions;
-      if (foilTypes !== undefined) updates.foilTypes = foilTypes;
       if (apiDocsUrl !== undefined)
         updates.apiDocsUrl = apiDocsUrl?.trim() || null;
       if (cardThickness !== undefined) updates.cardThickness = cardThickness;

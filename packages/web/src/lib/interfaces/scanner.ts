@@ -123,7 +123,7 @@ export interface CameraContextValue {
 
 export interface MatchScope {
   collectionGuid?: string;
-  preferredSetCode?: string | null;
+  preferredSetCodes?: string[];
 }
 
 export interface ScannedCardsContextValue {
@@ -132,7 +132,7 @@ export interface ScannedCardsContextValue {
   isLoading: boolean;
   autoFeed: boolean;
   forceFoilType: string | null;
-  forceSetCode: string | null;
+  forceSetCodes: string[];
   scanCondition: CardCondition;
   elapsedMs: number;
   isTimerActive: boolean;
@@ -140,10 +140,11 @@ export interface ScannedCardsContextValue {
   sessionScanCount: number;
   lastRoutedBin: LastRoutedBin | null;
   setScannerRunning: (running: boolean) => void;
+  resetSessionStats: () => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
-  setForceSetCode: (setCode: string | null) => void;
-  setForceSetCodeAfterCollectionSwitch: (setCode: string | null) => void;
+  setForceSetCodes: (setCodes: string[]) => void;
+  setForceSetCodesAfterCollectionSwitch: (setCodes: string[]) => void;
   setScanCondition: (condition: CardCondition) => void;
   addCard: (
     card: PlayingCardWithDistance,
@@ -216,6 +217,13 @@ export interface FlashEsp32Result {
 }
 
 export type FirmwareFlashState = "idle" | "flashing" | "success" | "error";
+
+export interface FirmwareOption {
+  key: string;
+  version: string | null;
+  firmwareUrl: string;
+  isBundled: boolean;
+}
 
 export interface FlashImagePart {
   data: Uint8Array;
@@ -372,7 +380,11 @@ export interface ScannerOverlayProps {
   sessionLive?: boolean;
   sessionDetail?: string | null;
   piReady?: boolean;
+  region?: ScannerOverlayRegion;
+  statusStripTouchesPanelEdges?: boolean;
 }
+
+export type ScannerOverlayRegion = "all" | "viewer" | "status-strip";
 
 export interface SetStats {
   code: string;
@@ -660,9 +672,18 @@ export interface ScanStatsProps {
   scrollable?: boolean;
 }
 
+export interface CollapsibleStatPanelProps {
+  heading: string;
+  collapsedSummary: string;
+  showLiveIndicator?: boolean;
+  expandedStorageKey: string;
+  children: ReactNode;
+}
+
 export interface CardScannerComponentProps extends CardScannerProps {
   controlsContainer?: HTMLElement | null;
   renderChrome?: (chrome: ScannerChromeContext) => ReactNode;
+  viewerTouchesPanelEdges?: boolean;
 }
 
 export interface ScannerChromeContext {

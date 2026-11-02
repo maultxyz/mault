@@ -31,6 +31,7 @@ export const ONE_PIECE_DEFAULT_URL = "https://optcgapi.com/api";
 export const TCGTRACKING_API_ROOT = "https://openapi.tcgtracking.com/v1";
 export const TCGTRACKING_IMAGE_ROOT = "https://cdn.tcgtracking.com/product";
 export const POKEMON_DEFAULT_URL = "https://api.tcgdex.net/v2/en/cards";
+export const POKEMON_JAPAN_DEFAULT_URL = `${TCGTRACKING_API_ROOT}/85`;
 export const RIFTBOUND_DEFAULT_URL = "https://api.riftcodex.com/cards";
 export const SCRYFALL_DEFAULT_URL = "https://api.scryfall.com/cards";
 export const SWU_API_ROOT = "https://api.swu-db.com";

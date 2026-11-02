@@ -1,5 +1,6 @@
 import type { ScannedCard } from "./interfaces/scanner.interface";
 import type {
+  CollectionReviewAcceptRequest,
   ReviewAcceptKind,
   ReviewGridCard,
 } from "./interfaces/review-grid.interface";
@@ -22,4 +23,24 @@ export function toReviewGridCard(
     hasAlternatives: !!entry.alternativeMatches?.length,
     corrected: !!entry.corrected,
   };
+}
+
+export function groupReviewAcceptRequests(
+  cards: ReviewGridCard[],
+): CollectionReviewAcceptRequest[] {
+  const requests = new Map<string, CollectionReviewAcceptRequest>();
+  for (const card of cards) {
+    let request = requests.get(card.collectionGuid);
+    if (!request) {
+      request = {
+        collectionGuid: card.collectionGuid,
+        confirmScanIds: [],
+        reviewScanIds: [],
+      };
+      requests.set(card.collectionGuid, request);
+    }
+    if (reviewAcceptKind(card) === "confirm") request.confirmScanIds.push(card.scanId);
+    else request.reviewScanIds.push(card.scanId);
+  }
+  return [...requests.values()];
 }

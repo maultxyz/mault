@@ -231,7 +231,7 @@ export function DeviceCalibrationSyncProvider({
       const feederChanged = differences.some((d) => d.moduleNumber === null);
       const adopted: DeviceCalibration = {
         modules: adoptStoredModules(app.modules, stored, moduleNumbers),
-        feeder: feederChanged ? stored.feeder : app.feeder,
+        feeder: feederChanged ? { ...app.feeder, ...stored.feeder } : app.feeder,
       };
       try {
         for (const config of adopted.modules) {
@@ -244,7 +244,10 @@ export function DeviceCalibrationSyncProvider({
           if (!result.success) throw new Error(result.message);
         }
         if (feederChanged) {
-          const result = await saveFeederConfig(target.guid, stored.feeder);
+          const result = await saveFeederConfig(target.guid, {
+            ...app.feeder,
+            ...stored.feeder,
+          });
           if (!result.success) throw new Error(result.message);
         }
       } catch {

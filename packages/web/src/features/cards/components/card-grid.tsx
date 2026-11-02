@@ -2,6 +2,7 @@ import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { useHiddenDownloadedCount } from "@/features/cards/api/use-hidden-downloaded-count";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -38,7 +39,7 @@ import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locat
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import {
   allExportAdapters,
-  runExport,
+  downloadCollectionCsv,
   supportsGame,
   type ExportAdapter,
 } from "@/features/cards/lib/export";
@@ -46,7 +47,6 @@ import {
   collectionCardPositionQueryOptions,
   collectionCardsPageQueryOptions,
   collectionCardsCountQueryOptions,
-  loadCardsForExport,
   loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
@@ -75,9 +75,8 @@ import {
   IconAlbum,
   IconBox,
   IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
   IconDownload,
+  IconLoader2,
   IconPhotoUp,
   IconPlus,
   IconRosette,
@@ -455,25 +454,13 @@ export function CardGrid() {
       if (!collectionGuid) return;
       setExportingSelected(true);
       try {
-        const selectedCards = await loadCardsForExport(collectionGuid, [
-          ...selectedIds,
-        ]);
-        const slug = (viewedCollection?.name ?? "collection")
-          .replace(/\s+/g, "-")
-          .toLowerCase();
-        runExport(
+        const exportedIds = [...selectedIds];
+        await downloadCollectionCsv(
+          collectionGuid,
           adapter,
-          selectedCards,
-          slug,
-          {
-            isMtg: gameKey === "mtg",
-            fieldDefinitions,
-            gameKey,
-            gameName: viewedCollection?.game?.name,
-          },
-          true,
+          viewedCollection?.name ?? "collection",
+          { scanIds: exportedIds, combineDuplicates: true },
         );
-        const exportedIds = selectedCards.map((card) => card.scanId);
         markCardsDownloaded(exportedIds);
         if (!readOnly) setExportedScanIds(exportedIds);
       } catch (err) {
@@ -487,10 +474,7 @@ export function CardGrid() {
       collectionGuid,
       selectedIds,
       viewedCollection?.name,
-      viewedCollection?.game?.name,
       readOnly,
-      gameKey,
-      fieldDefinitions,
       markCardsDownloaded,
       t,
     ],
@@ -863,32 +847,14 @@ export function CardGrid() {
             })}
           </div>
         )}
-        {pageCount > 1 && (
-          <div className="flex items-center justify-center gap-3 pt-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={clampedPage === 0}
-            >
-              <IconChevronLeft />
-            </Button>
-            <span className="text-sm text-foreground/70">
-              {t("cardGrid.pageOf", {
-                page: clampedPage + 1,
-                total: pageCount,
-              })}
-            </span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-              disabled={clampedPage === pageCount - 1}
-            >
-              <IconChevronRight />
-            </Button>
-          </div>
-        )}
+        <ListPagination
+          className="pt-4"
+          pagination={{
+            page: clampedPage + 1,
+            pageCount,
+            setPage: (nextPage) => setPage(nextPage - 1),
+          }}
+        />
       </div>
 
       {selectedIds.size > 0 && (
@@ -917,8 +883,12 @@ export function CardGrid() {
                   />
                 }
               >
-                <IconDownload />
-                {t("cardGrid.export")}
+                {exportingSelected ? (
+                  <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+                ) : (
+                  <IconDownload />
+                )}
+                {exportingSelected ? t("cardGrid.exporting") : t("cardGrid.export")}
                 <IconChevronDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" side="top">

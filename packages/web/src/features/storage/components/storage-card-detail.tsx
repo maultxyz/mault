@@ -15,6 +15,7 @@ import {
   useStoredCardActions,
 } from "@/features/storage/api/use-storage-locations";
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
+import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
@@ -36,6 +37,7 @@ export function StorageCardDetail({
   const { t } = useTranslation("cards");
   const { t: tStorage } = useTranslation("storage");
   const { removeCard, isRemoving } = useRemoveCardFromLocation();
+  const { isLocked: storageLocked } = useStorageAccess();
   const { moveCards, isMoving } = useMoveCardsToLocation();
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
@@ -180,25 +182,31 @@ export function StorageCardDetail({
           toast.success(t("review.complete", { count: total }));
           onClose();
         }}
-        onRemoveShortcut={() => setConfirmRemoveOpen(true)}
-        extraActions={[
-          {
-            key: "move",
-            label: tStorage("cardLocation.move"),
-            icon: <IconTransfer />,
-            disabled: isMoving,
-            onSelect: () => setMoveOpen(true),
-          },
-          {
-            key: "remove-from-location",
-            label: tStorage("cardLocation.remove"),
-            icon: <IconBoxOff />,
-            destructive: true,
-            disabled: isRemoving,
-            hotkeyId: "cardRemove",
-            onSelect: () => setConfirmRemoveOpen(true),
-          },
-        ]}
+        onRemoveShortcut={
+          storageLocked ? undefined : () => setConfirmRemoveOpen(true)
+        }
+        extraActions={
+          storageLocked
+            ? []
+            : [
+                {
+                  key: "move",
+                  label: tStorage("cardLocation.move"),
+                  icon: <IconTransfer />,
+                  disabled: isMoving,
+                  onSelect: () => setMoveOpen(true),
+                },
+                {
+                  key: "remove-from-location",
+                  label: tStorage("cardLocation.remove"),
+                  icon: <IconBoxOff />,
+                  destructive: true,
+                  disabled: isRemoving,
+                  hotkeyId: "cardRemove",
+                  onSelect: () => setConfirmRemoveOpen(true),
+                },
+              ]
+        }
       />
       <MoveToLocationDialog
         open={moveOpen}

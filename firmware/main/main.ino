@@ -29,7 +29,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.10.3"
+#define FIRMWARE_VERSION "2.11.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -266,6 +266,19 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 // Gap between consecutive servo moves in setAllNeutral(), so a full reset
 // doesn't start every servo at once and pull the supply down.
 #define SERVO_STAGGER_MS 25
+
+#if defined(ARDUINO_ARCH_ESP32)
+// Brownout resets in a row, kept in RTC memory (survives a reset, not a power
+// cycle). After BROWNOUT_SAFE_BOOTS of them setup() leaves the servos
+// unpowered instead of driving them to neutral, and Wi-Fi stays paused, so a
+// stalled servo or weak supply can't hold the board in a reset loop. 60 s of
+// uptime clears the count.
+#define BROWNOUT_SAFE_BOOTS 2
+#define BROWNOUT_STABLE_UPTIME_MS 60000
+#define BROWNOUT_COUNTER_MAGIC 0x4D564254
+RTC_NOINIT_ATTR uint32_t brownoutCounterMagic;
+RTC_NOINIT_ATTR uint32_t consecutiveBrownoutBoots;
+#endif
 #define SELF_TEST_MODULE_SETTLE_MS 250
 
 // If a card sits at a module this long with no route in progress, something's
@@ -315,6 +328,34 @@ void feedWatchdog() {
 }
 
 const char* resetReason = "unknown";
+
+#if defined(ARDUINO_ARCH_ESP32)
+void trackBrownoutBoots() {
+  if (brownoutCounterMagic != BROWNOUT_COUNTER_MAGIC) {
+    brownoutCounterMagic = BROWNOUT_COUNTER_MAGIC;
+    consecutiveBrownoutBoots = 0;
+  }
+  if (esp_reset_reason() == ESP_RST_BROWNOUT) {
+    consecutiveBrownoutBoots++;
+  } else {
+    consecutiveBrownoutBoots = 0;
+  }
+}
+
+void clearBrownoutBootsWhenStable() {
+  if (consecutiveBrownoutBoots != 0 && millis() > BROWNOUT_STABLE_UPTIME_MS) {
+    consecutiveBrownoutBoots = 0;
+  }
+}
+#endif
+
+bool bootingAfterRepeatedBrownouts() {
+#if defined(ARDUINO_ARCH_ESP32)
+  return consecutiveBrownoutBoots >= BROWNOUT_SAFE_BOOTS;
+#else
+  return false;
+#endif
+}
 
 void captureResetReason() {
 #if defined(ARDUINO_ARCH_ESP32)
@@ -791,15 +832,30 @@ void lowerPaddleForPush(int module) {
 // twitches, so idle positional servos get no signal at all. Gear friction
 // holds them in place. The feeder is left alone: stopFeeder() already
 // releases it, and a calibration preview keeps it running on purpose.
+// Adafruit's setPin() discards the I2C result, so a write dropped by a
+// supply dip (servo inrush under load) left the feeder spinning at its last
+// speed with nothing noticing. Write full-off directly and retry after a
+// driver recovery, like setServoPosition() does for moves.
+void cutServoSignal(int channel) {
+  if (pwm.setPWM(channel, 0, 4096) != 0) {
+    recoverServoDriver();
+    pwm.setPWM(channel, 0, 4096);
+  }
+}
+
+void releaseAllServos() {
+  for (int m = 1; m <= maxModuleForOffset(); m++) {
+    for (int s = 0; s < 3; s++) cutServoSignal(getChannel(m, s));
+    paddleOpenedAt[m - 1] = 0;
+  }
+  servosReleased = true;
+}
+
 void releaseIdleServos() {
   if (servosReleased || millis() - lastServoMoveAt < SERVO_IDLE_RELEASE_MS) {
     return;
   }
-  for (int m = 1; m <= maxModuleForOffset(); m++) {
-    for (int s = 0; s < 3; s++) pwm.setPin(getChannel(m, s), 0);
-    paddleOpenedAt[m - 1] = 0;
-  }
-  servosReleased = true;
+  releaseAllServos();
 }
 
 void setModuleNeutral(int module, unsigned long staggerMs) {
@@ -812,16 +868,20 @@ void setModuleNeutral(int module, unsigned long staggerMs) {
 }
 
 void stopFeeder() {
-  pwm.setPin(getFeederChannel(), 0);  // cut PWM signal entirely to stop 360° servo
+  cutServoSignal(getFeederChannel());  // cut PWM signal entirely to stop 360° servo
 }
 
 // The last card in the hopper has nothing behind it to push it fully in, so
 // once the hopper's empty, keep the motor running settleDuration ms longer.
-void rollBackFeeder() {
-  if (feederConfig.reverseDuration <= 0 || !hopperHasCards()) return;
+void runFeederReverse() {
   setServoPosition(getFeederChannel(), feederConfig.reverseSpeed);
   waitMs(feederConfig.reverseDuration);
   stopFeeder();
+}
+
+void rollBackFeeder() {
+  if (feederConfig.reverseDuration <= 0 || !hopperHasCards()) return;
+  runFeederReverse();
 }
 
 void settleAndStopFeeder() {
@@ -1464,9 +1524,23 @@ void runCommand(JsonDocument& doc, Print& reply) {
   if (isTrue(doc["clearDevice"])) {
     for (int m = 1; m <= maxModuleForOffset(); m++) {
       setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
+      waitMs(SERVO_STAGGER_MS);
     }
     finishDrop();
     reply.println(F("{\"status\":\"cleared\"}"));
+    return;
+  }
+
+  // {"retractCard": true} - runs the feeder backward with the rollback
+  // settings (reverseSpeed for reverseDuration ms) to pull a partly fed card
+  // back into the hopper, whether or not the hopper sensor sees cards.
+  if (isTrue(doc["retractCard"])) {
+    if (feederConfig.reverseDuration <= 0) {
+      reply.println(F("{\"error\":\"rollback_off\"}"));
+      return;
+    }
+    runFeederReverse();
+    reply.println(F("{\"status\":\"retracted\"}"));
     return;
   }
 
@@ -1526,7 +1600,7 @@ void runCommand(JsonDocument& doc, Print& reply) {
   if (doc["channelStop"].is<int>()) {
     int channel = doc["channelStop"].as<int>();
     if (!channelInRange(channel, reply)) return;
-    pwm.setPin(channel, 0);
+    cutServoSignal(channel);
     reply.print(F("{\"status\":\"ok\",\"channel\":"));
     reply.print(channel);
     reply.println(F("}"));
@@ -1681,6 +1755,9 @@ void runCommand(JsonDocument& doc, Print& reply) {
 
 void setup() {
   captureResetReason();
+#if defined(ARDUINO_ARCH_ESP32)
+  trackBrownoutBoots();
+#endif
 #if defined(RGB_BUILTIN)
   rgbLedWrite(RGB_BUILTIN, 0, 0, RGB_BRIGHTNESS);  // blue - powered, not yet connected
 #endif
@@ -1708,7 +1785,15 @@ void setup() {
   pinMode(IR_PIN_HOPPER, INPUT_PULLUP);
 
   initServoDriver();
-  setAllNeutral();
+  // The PCA9685 can keep driving a stalled servo through an MCU reset, so a
+  // brownout loop cuts every signal rather than just skipping the move. The
+  // next command that moves a servo powers it again.
+  if (bootingAfterRepeatedBrownouts()) {
+    stopFeeder();
+    releaseAllServos();
+  } else {
+    setAllNeutral();
+  }
 
 #if defined(ARDUINO_ARCH_ESP32)
   initDeviceIdFromEspMac();
@@ -1747,6 +1832,9 @@ void setup() {
 
 void loop() {
   feedWatchdog();
+#if defined(ARDUINO_ARCH_ESP32)
+  clearBrownoutBootsWhenStable();
+#endif
   pumpInput();
   checkModuleJams();
   releaseIdleServos();

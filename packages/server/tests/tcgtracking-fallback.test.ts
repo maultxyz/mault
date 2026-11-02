@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { normalizeTcgtrackingFallback } from "../src/lib/tcgtracking/fallback";
+import type { PlayingCard } from "@magic-vault/shared";
+import { withTcgtracking } from "../src/lib/tcgtracking/adapter";
+import {
+  normalizeTcgtrackingFallback,
+  toTcgtrackingFallbackData,
+} from "../src/lib/tcgtracking/fallback";
 import { TCGTRACKING_GAMES } from "../src/lib/tcgtracking/games";
 import {
   baseCardNameKey,
@@ -8,6 +13,7 @@ import {
   collectorNumberKey,
   comparableProductName,
 } from "../src/lib/tcgtracking/keys";
+import type { CardSearchAdapter } from "../src/lib/interfaces/card-search";
 import type { TcgtrackingFallbackData } from "../src/lib/interfaces/tcgtracking";
 
 function fallback(ext: Record<string, unknown>): TcgtrackingFallbackData {
@@ -142,4 +148,50 @@ test("mtg fallback colors become color letters and keep the full type", () => {
   assert.deepEqual(card.colorIdentity, ["W", "U"]);
   assert.equal(card.typeLine, "Artifact Creature \u2014 Borg");
   assert.equal(card.set, "trk");
+});
+
+test("fallback cards price on Cardmarket by id, never through the adapter's raw name hook", () => {
+  const adapter = withTcgtracking("onepiece", {
+    tcgplayer: { categoryId: 68 },
+    cardmarket: {
+      gameId: 18,
+      productNames: (card: PlayingCard) => [
+        (card.raw as { card_name: string }).card_name.trim(),
+      ],
+    },
+  } as unknown as CardSearchAdapter);
+  const data = fallback({});
+  const card = normalizeTcgtrackingFallback(
+    { ...data, product: { ...data.product, cardmarket_id: 834211 } },
+    "tcgp-712889",
+    TCGTRACKING_GAMES.onepiece,
+  );
+  assert.equal(adapter.cardmarket?.productIdFromRaw?.(card), 834211);
+  assert.deepEqual(adapter.cardmarket?.productNames?.(card), []);
+});
+
+test("fallback data carries the primary source's name and number keys so field sorts match", () => {
+  const data = toTcgtrackingFallbackData(
+    {
+      product: {
+        id: 713248,
+        name: "Ledyba",
+        number: "001/015",
+        rarity: null,
+        ext_data: {},
+        image_url: null,
+      },
+      set: { id: 24000, name: "Mega Evolution", abbreviation: "MEG" },
+    },
+    undefined,
+    TCGTRACKING_GAMES.pokemon,
+  );
+  assert.equal(data.localId, "001");
+  assert.equal(data.name, "Ledyba");
+  assert.equal(data.source, "tcgtracking");
+  assert.equal(
+    normalizeTcgtrackingFallback(data, "tcgp-713248", TCGTRACKING_GAMES.pokemon)
+      .collectorNumber,
+    "001",
+  );
 });

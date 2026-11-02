@@ -1,11 +1,16 @@
+import {
+  billingPlanRowUsagePercent,
+  billingPlanTableRows,
+  LEGACY_BUSINESS_PLAN,
+  type BillingPlanTableRow,
+} from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
-import { Icon } from "@/components/ui/icon";
+import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
-import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
@@ -19,29 +24,20 @@ export default function BillingSettingsScreen() {
   const colors = useTheme();
   const org = useActiveOrg();
   const { data: billing, isPending, refetch, isRefetching } = useQuery(billingQueryOptions(org?.id ?? null));
-  const isBusiness = billing?.plan === "business";
-  const f = (key: string, options?: Record<string, unknown>) => t(`settings.billing.features.${key}`, options);
-  const features = billing
-    ? [
-        billing.dailyLimit == null ? f("unlimitedScans") : f("scanLimit", { limit: billing.dailyLimit }),
-        billing.maxConnectedSorters != null
-          ? f(isBusiness ? "businessSorters" : "freeSorters", { count: billing.maxConnectedSorters })
-          : null,
-        billing.maxSoundRules == null ? f("soundRules") : f("freeSoundRules", { count: billing.maxSoundRules }),
-        billing.maxNotificationRules == null
-          ? f("notificationRules")
-          : f("freeNotificationRules", { count: billing.maxNotificationRules }),
-        billing.chaosSort ? f("chaosSort") : null,
-        billing.storage ? f("storage") : null,
-        billing.apiAccess ? f("apiAccess") : null,
-        billing.businessTools ? f("businessTools") : null,
-        f("collections"),
-        f("games"),
-        f("notifications"),
-      ].filter((feature): feature is string => !!feature)
-    : [];
-  const usagePercent =
-    billing?.dailyLimit != null ? Math.min(100, Math.round((billing.cardsScannedToday / billing.dailyLimit) * 100)) : 0;
+  const isPaidPlan = !!billing && billing.plan !== "free";
+  const planRows = billing ? billingPlanTableRows(billing) : [];
+  const offeringText = (row: BillingPlanTableRow) => {
+    if (row.kind === "feature") return t(row.included ? "settings.billing.planTable.included" : "settings.billing.planTable.notIncluded");
+    if (row.limit == null) return t("settings.billing.planTable.unlimited");
+    if (row.limit === 0) return t("settings.billing.planTable.notIncluded");
+    return String(row.limit);
+  };
+  const usageText = (row: BillingPlanTableRow) => {
+    if (row.used == null) return t("settings.billing.planTable.noUsage");
+    return row.kind === "limit" && row.key === "dailyScans"
+      ? t("settings.billing.planTable.usedToday", { count: row.used })
+      : String(row.used);
+  };
 
   return (
     <Screen
@@ -53,37 +49,70 @@ export default function BillingSettingsScreen() {
         <Skeleton height={240} />
       ) : (
         <Surface style={{ gap: SPACING.lg }}>
-          <Pill tone={isBusiness ? "success" : "neutral"} label={t(`settings.billing.plan.${billing.plan}`)} />
-          {!isBusiness && billing.dailyLimit != null ? (
-            <View style={{ gap: SPACING.xs }}>
-              <AppText size="xs" tone="secondary">
-                {t("settings.billing.usage", { used: billing.cardsScannedToday, limit: billing.dailyLimit })}
+          <AppText size="lg" heading weight="bold">
+            {t(`settings.billing.plan.${billing.isLegacyPlan ? LEGACY_BUSINESS_PLAN : billing.plan}`)}
+          </AppText>
+          {billing.isLegacyPlan ? <Callout tone="info" title={t("settings.billing.legacyPlanNote")} /> : null}
+          <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: RADIUS.lg, overflow: "hidden" }}>
+            <View style={{ flexDirection: "row", gap: SPACING.sm, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, backgroundColor: colors.muted }}>
+              <AppText size="xs" weight="medium" tone="secondary" style={{ flex: 2 }}>
+                {t("settings.billing.planTable.columns.offering")}
               </AppText>
-              <View style={{ height: 6, borderRadius: RADIUS.full, backgroundColor: colors.muted }}>
-                <View style={{ width: `${usagePercent}%`, height: 6, borderRadius: RADIUS.full, backgroundColor: colors.primary }} />
-              </View>
+              <AppText size="xs" weight="medium" tone="secondary" style={{ flex: 1 }}>
+                {t("settings.billing.planTable.columns.yourPlan")}
+              </AppText>
+              <AppText size="xs" weight="medium" tone="secondary" style={{ flex: 1 }}>
+                {t("settings.billing.planTable.columns.usage")}
+              </AppText>
             </View>
+            {planRows.map((row) => {
+              const usagePercent = billingPlanRowUsagePercent(row);
+              const unavailable = row.kind === "feature" ? !row.included : row.limit === 0;
+              return (
+                <View
+                  key={`${row.kind}-${row.key}`}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: SPACING.sm,
+                    paddingHorizontal: SPACING.md,
+                    paddingVertical: SPACING.sm,
+                    borderTopWidth: 1,
+                    borderTopColor: colors.border,
+                  }}
+                >
+                  <AppText size="sm" style={{ flex: 2 }}>
+                    {t(`settings.billing.planTable.rows.${row.key}`)}
+                  </AppText>
+                  <AppText size="sm" tone={unavailable ? "secondary" : undefined} style={{ flex: 1, fontVariant: ["tabular-nums"] }}>
+                    {offeringText(row)}
+                  </AppText>
+                  <View style={{ flex: 1, gap: SPACING.xs }}>
+                    <AppText size="sm" tone={row.used == null ? "secondary" : undefined} style={{ fontVariant: ["tabular-nums"] }}>
+                      {usageText(row)}
+                    </AppText>
+                    {usagePercent != null ? (
+                      <View style={{ height: 4, borderRadius: RADIUS.full, backgroundColor: colors.muted }}>
+                        <View style={{ width: `${usagePercent}%`, height: 4, borderRadius: RADIUS.full, backgroundColor: colors.primary }} />
+                      </View>
+                    ) : null}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+          {billing.cardsScannedThisMonth != null ? (
+            <AppText size="xs" tone="secondary">
+              {t("settings.billing.planTable.scansThisMonth", { count: billing.cardsScannedThisMonth })}
+            </AppText>
           ) : null}
-          {isBusiness && billing.cancelAtPeriodEnd && billing.currentPeriodEnd ? (
+          {isPaidPlan && billing.cancelAtPeriodEnd && billing.currentPeriodEnd ? (
             <AppText size="xs" tone="secondary">
               {t("settings.billing.cancelAtPeriodEnd", {
                 date: new Date(billing.currentPeriodEnd).toLocaleDateString(i18n.language),
               })}
             </AppText>
           ) : null}
-          <View style={{ gap: SPACING.sm }}>
-            <AppText size="xs" weight="medium" tone="secondary" style={{ textTransform: "uppercase", letterSpacing: 0.6 }}>
-              {t("settings.billing.includes")}
-            </AppText>
-            {features.map((feature) => (
-              <View key={feature} style={{ flexDirection: "row", gap: SPACING.sm }}>
-                <View style={{ marginTop: 2 }}>
-                  <Icon name="check" size={16} color={colors.primaryText} />
-                </View>
-                <AppText style={{ flex: 1 }}>{feature}</AppText>
-              </View>
-            ))}
-          </View>
           <AppText size="xs" tone="secondary">
             {t("settings.billing.manageOnWeb")}
           </AppText>

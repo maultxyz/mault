@@ -3,7 +3,7 @@ import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
 import { db } from "../db";
 import { cardImageVectors, cardPrices } from "../db/schema";
 import { resolveLiveCardPrices } from "./card-search/card-prices";
-import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
+import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import {
   CARD_PRICE_DETAIL_KEYS,
   CARD_PRICE_REFRESH_BATCH_SIZE,
@@ -41,9 +41,10 @@ const PRICES_CHANGED = sql`(
 export async function refreshCardPrices({
   log,
   onlyMissing,
+  gameKeys,
 }: CardPriceRefreshOptions): Promise<number> {
   let total = 0;
-  for (const [gameKey, adapter] of Object.entries(ADAPTERS_BY_GAME_KEY)) {
+  for (const [gameKey, adapter] of adapterEntriesForGameKeys(gameKeys)) {
     if (!adapter.tcgplayer && !adapter.cardmarket && !adapter.cardkingdom) {
       continue;
     }

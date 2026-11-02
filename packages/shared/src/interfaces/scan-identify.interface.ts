@@ -24,6 +24,16 @@ export interface ResolvedCardSearchMatches {
   candidates: MatchCandidateDiagnostic[];
 }
 
+export interface DetectedColorEvidence {
+  gameHasColorBar: boolean;
+  detectedColor: string | null;
+  printingConfirmed: boolean;
+}
+
+export type ColorResolvedMatches<T extends ResolvedCardSearchMatches> = T & {
+  colorVariantUncertain: boolean;
+};
+
 export interface ScanAttemptResult extends ResolvedCardSearchMatches {
   detection: ScanDetectionDiagnostics;
   search: CardSearchDiagnostics | null;

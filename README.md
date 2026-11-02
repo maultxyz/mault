@@ -212,11 +212,12 @@ These target whatever `DATABASE_URL` points at. Read `CONTRIBUTING.md` before sh
 
 ## Prices
 
-`node packages/server/dist/scripts/sync-prices.js` pulls TCGplayer (via tcgcsv), Cardmarket and Card Kingdom, downloading only what changed. Nothing runs it automatically.
+`node packages/server/dist/scripts/sync-prices.js` pulls TCGplayer prices (via tcgcsv), TCGplayer SKU ids for the TCGplayer CSV export (via TCGTracking), Cardmarket and Card Kingdom, downloading only what changed. Nothing runs it automatically.
 
 - **Once a day, never more often.** tcgcsv blocks installs that poll it harder; the TCGplayer step also skips any run within 20 hours of its last pull.
 - **No automatic retries.** A failed run waits for the next daily run.
 - **First run:** after your first game sync, run it once by hand. Cards have no price until then. `--force` re-downloads everything; use it sparingly.
+- **Only some games:** `--games=mtg` (comma-separated game keys) limits every source and the price refresh to those games; Card Kingdom only runs when a listed game uses it.
 - Set `CARD_API_USER_AGENT` to a name unique to your install: a source that blocks a name blocks every install using it.
 
 Docker Compose, with `crontab -e` (replace `/opt/mault` with your `docker-compose.yml` folder):
@@ -238,7 +239,7 @@ Four images, built from the repo root and published by CI (`.github/workflows/de
 | `Dockerfile.api-docs` | `mault-api-docs` | Public API reference                             |
 | `Dockerfile.bot`      | `mault-bot`      | Optional Discord bot                             |
 
-The images are public, so the web image reads its `VITE_*` settings at container start (`docker/web-env.sh` writes `env.js`). Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg, since it describes the bundled firmware.
+The images are public, so the web image reads its `VITE_*` settings at container start (`docker/web-env.sh` writes `env.js`). The server reports the bundled firmware's version from `FIRMWARE_VERSION` in `firmware/main/main.ino`, which the server image copies.
 
 The scanner downloads its ONNX weights from `huggingface.co` at runtime (pinned by revision and SHA-256). Allowlist it in DNS blockers such as Pi-hole.
 

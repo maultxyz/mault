@@ -14,6 +14,10 @@ export const SCRYFALL_LIST_SET_CODES = ["plst", "ulst"];
 
 export const SCRYFALL_ETCHED_FINISH = "etched";
 
+export const SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT: Record<string, string> = {
+  Foil: "Traditional",
+};
+
 export const SCRYFALL_FOIL_PROMO_TYPES = [
   "surgefoil",
   "galaxyfoil",
@@ -55,14 +59,31 @@ export const SINGLE_TOKEN_PATTERN = /^#?([a-z0-9-]+)$/i;
 export const NAME_AND_NUMBER_PATTERN =
   /^(.*\S)\s+#?([a-z0-9-]*\d[a-z0-9-]*)(?:\/\d+)?$/i;
 
-export const NETDECK_SEARCH_PAGE_SIZE = 30;
 export const NETDECK_IMAGE_GAMES = new Set(["cyberpunk"]);
 export const NETDECK_SLUG_PATTERN = /^[a-z0-9-]+$/;
 export const NETDECK_IMAGE_URL_REFRESH_MARGIN_MS = 10 * 60 * 1000;
 export const NETDECK_IMAGE_URL_FALLBACK_TTL_MS = 60 * 60 * 1000;
 export const CYBERPUNK_TCGPLAYER_CATEGORY_ID = 92;
 
-export const FAB_SEARCH_CARD_LIMIT = 12;
+export const POKEMON_JAPAN_TCGPLAYER_CATEGORY_ID = 85;
+export const POKEMON_JAPAN_CARDMARKET_GAME_ID = 6;
+export const POKEMON_JAPAN_LANGUAGES = ["ja"];
+export const POKEMON_JAPAN_EXT_KEYS = {
+  stage: ["stage", "Stage"],
+  energyTypes: ["cardType", "Card Type"],
+  hitPoints: ["hp", "HP"],
+  retreatCost: ["retreatCost", "Retreat Cost"],
+  description: ["description", "Description"],
+  attacks: [
+    ["attack1", "Attack 1"],
+    ["attack2", "Attack 2"],
+    ["attack3", "Attack 3"],
+    ["attack4", "Attack 4"],
+  ],
+  artist: ["Artist", "artist"],
+} as const;
+export const POKEMON_JAPAN_RARITY_NONE = "None";
+
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {
   S: "Normal",
@@ -76,7 +97,6 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
   U: "Unlimited Edition ",
 };
 
-export const GRAND_ARCHIVE_SEARCH_PAGE_SIZE = 30;
 export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
   1: "Common",
   2: "Uncommon",
@@ -102,6 +122,13 @@ export const CARD_MATCH_LIMIT = 5;
 
 export const CARD_MATCH_RUNNER_UP_SEARCH_LIMIT = 20;
 
-export const CARD_MATCH_HNSW_EF_SEARCH = 1000;
+export const CARD_MATCH_INDEX_PAGE_SIZE = 20_000;
+export const CARD_MATCH_INDEX_REVALIDATE_MS = 60_000;
+export const CARD_MATCH_GAME_LANGS_CACHE_MAX_ENTRIES = 100;
+export const CARD_MATCH_INDEX_ROWS_PER_EVENT_LOOP_TURN = 2_000;
+export const CARD_MATCH_INDEX_ESTIMATED_ROW_TEXT_BYTES = 200;
+export const CARD_MATCH_INDEX_DEFAULT_MAX_MB = 1024;
+export const CARD_MATCH_INDEX_PI_DEFAULT_MAX_MB = 384;
+export const CARD_MATCH_INDEX_EVICTION_MIN_IDLE_MS = 10 * 60_000;
 export const CARD_VECTOR_INDEX_M = 32;
 export const CARD_VECTOR_INDEX_EF_CONSTRUCTION = 200;

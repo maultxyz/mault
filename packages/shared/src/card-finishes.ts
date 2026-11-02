@@ -20,7 +20,7 @@ export function scanFoilType(
   card: PlayingCard,
   sessionFoilType: string | null,
 ): string | null {
-  if (!sessionFoilType) return sessionFoilType;
+  if (!sessionFoilType) return card.foilOnlyFoilType ?? null;
   const family = finishFamily(sessionFoilType);
   if (sessionFoilType !== family) return sessionFoilType;
   const options = (card.foilTypes ?? []).filter(

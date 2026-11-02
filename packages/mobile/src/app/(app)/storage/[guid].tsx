@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
-import { allExportAdapters, buildExportCsv, exportFilename, supportsGame, type ExportAdapter } from "@magic-vault/shared";
+import { allExportAdapters, exportFilename, supportsGame, type ExportAdapter } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -15,15 +15,17 @@ import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   deleteStorageLocation,
+  downloadStorageLocationCsv,
   fetchFirstUnreviewedStorageCard,
   markStorageLocationCardsDownloaded,
   storageLocationCardsPageQueryOptions,
-  storageLocationExportQueryOptions,
+  storageLocationExportSummaryQueryOptions,
   storageLocationQueryOptions,
 } from "@/features/storage/api/storage";
 import { ExportSheet } from "@/features/cards/components/export-sheet";
 import { shareCsv } from "@/features/cards/lib/share-csv";
-import { gamesQueryOptions } from "@/features/games/api/games";
+import { billingQueryOptions } from "@/features/org/api/billing";
+import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { LIST_END_THRESHOLD } from "@/lib/constants/collections";
@@ -38,51 +40,32 @@ export default function StorageLocationScreen() {
   const pricing = usePricing();
   const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
+  const orgId = useActiveOrgId();
+  const { data: billing } = useQuery(billingQueryOptions(orgId));
+  const isStorageLocked = billing?.storage === false;
   const { data: location } = useQuery(storageLocationQueryOptions(guid));
   const cards = useInfiniteQuery(storageLocationCardsPageQueryOptions(guid));
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.cards) ?? [], [cards.data]);
   const [exportOpen, setExportOpen] = useState(false);
   const [combineDuplicates, setCombineDuplicates] = useState(true);
   const [notice, setNotice] = useState<{ tone: "info" | "destructive"; text: string } | null>(null);
-  const exportCards = useQuery(storageLocationExportQueryOptions(guid, exportOpen));
-  const { data: games = [] } = useQuery(gamesQueryOptions);
-  const gameKeys = useMemo(
-    () => [...new Set((exportCards.data ?? []).map((entry) => entry.gameKey ?? undefined))],
-    [exportCards.data],
-  );
+  const exportSummary = useQuery(storageLocationExportSummaryQueryOptions(guid, exportOpen));
   const adapters = useMemo(
-    () => allExportAdapters.filter((adapter) => gameKeys.every((key) => supportsGame(adapter, key))),
-    [gameKeys],
+    () =>
+      allExportAdapters.filter((adapter) =>
+        (exportSummary.data?.gameKeys ?? []).every((key) => supportsGame(adapter, key ?? undefined)),
+      ),
+    [exportSummary.data?.gameKeys],
   );
-  const singleGameKey = gameKeys.length === 1 ? gameKeys[0] : undefined;
 
   const runExport = useMutation({
     mutationFn: async (adapter: ExportAdapter) => {
-      const entries = exportCards.data ?? [];
-      if (entries.length === 0) return;
-      const fieldDefinitions = games.find((game) => game.key === singleGameKey)?.fieldDefinitions ?? [];
-      const csv = buildExportCsv(
-        adapter,
-        entries.map((entry) => ({
-          card: entry.card,
-          isFoil: entry.isFoil,
-          foilType: entry.foilType ?? undefined,
-          condition: entry.condition,
-        })),
-        {
-          isMtg: singleGameKey === "mtg",
-          fieldDefinitions,
-          gameKey: singleGameKey,
-          gameName: games.find((game) => game.key === singleGameKey)?.name,
-        },
-        combineDuplicates,
-      );
+      const scanIds = exportSummary.data?.scanIds ?? [];
+      if (scanIds.length === 0) return;
+      const csv = await downloadStorageLocationCsv(guid, { format: adapter.key, combineDuplicates });
       const slug = (location?.name ?? "storage").replace(/\s+/g, "-").toLowerCase();
       await shareCsv(csv, exportFilename(adapter, slug));
-      markStorageLocationCardsDownloaded(
-        guid,
-        entries.map((entry) => entry.scanId),
-      )
+      markStorageLocationCardsDownloaded(guid, scanIds)
         .catch((err) => console.error("Failed to mark cards downloaded:", err))
         .finally(() => void queryClient.invalidateQueries({ queryKey: ["collection-cards"] }));
     },
@@ -140,6 +123,7 @@ export default function StorageLocationScreen() {
           }
           onBack={() => router.back()}
           actions={
+            isStorageLocked ? null : (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t("storage.actions")}
@@ -156,6 +140,7 @@ export default function StorageLocationScreen() {
             >
               <Icon name="more" size={18} color={colors.foreground} />
             </Pressable>
+            )
           }
         />
       }
@@ -184,7 +169,9 @@ export default function StorageLocationScreen() {
             {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
             {location && location.cardCount > 0 ? (
               <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-                <Button style={{ flex: 1 }} icon="check" label={t("storage.review.start")} onPress={() => void startReview()} />
+                {isStorageLocked ? null : (
+                  <Button style={{ flex: 1 }} icon="check" label={t("storage.review.start")} onPress={() => void startReview()} />
+                )}
                 <Button
                   style={{ flex: 1 }}
                   variant="secondary"
@@ -236,9 +223,9 @@ export default function StorageLocationScreen() {
         visible={exportOpen}
         title={t("export.title", { name: location?.name ?? "" })}
         adapters={adapters}
-        loading={exportCards.isPending}
+        loading={exportSummary.isPending}
         exporting={runExport.isPending}
-        failed={runExport.isError || exportCards.isError}
+        failed={runExport.isError || exportSummary.isError}
         combineDuplicates={combineDuplicates}
         onCombineDuplicatesChange={setCombineDuplicates}
         onExport={(adapter) => runExport.mutate(adapter)}

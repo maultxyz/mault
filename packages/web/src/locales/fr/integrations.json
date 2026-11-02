@@ -66,8 +66,8 @@
     "edit": "Modifier {{name}}",
     "delete": "Supprimer {{name}}",
     "saveFailed": "Impossible d'enregistrer les règles de notification.",
-    "limitReached_one": "L'offre gratuite inclut {{count}} règle de notification Discord. Passe à Business pour des règles illimitées.",
-    "limitReached_other": "L'offre gratuite inclut {{count}} règles de notification Discord. Passe à Business pour des règles illimitées.",
+    "limitReached_one": "Ton offre inclut {{count}} règle de notification Discord. Passe à une offre supérieure pour plus de règles.",
+    "limitReached_other": "Ton offre inclut {{count}} règles de notification Discord. Passe à une offre supérieure pour plus de règles.",
     "upgrade": "Mettre à niveau",
     "andPings": "et mentionne"
   },
@@ -120,8 +120,8 @@
     "copyFailed": "Impossible de copier la clé API.",
     "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent créer ou révoquer des clés API.",
     "loadFailed": "Impossible de charger les clés API.",
-    "upgrade": "Les clés API font partie de l'offre Business.",
-    "upgradeLink": "Passer à Business",
+    "upgrade": "Les clés API ne font pas partie de votre offre.",
+    "upgradeLink": "Voir les offres",
     "copy": "Copier la clé",
     "reference": "Référence de l'API",
     "tryIt": "L'essayer dans la référence de l'API"
@@ -180,7 +180,7 @@
     "copySecret": "Copier le secret",
     "secretCopied": "Secret de signature copié.",
     "copyFailed": "Impossible de copier le secret.",
-    "upgrade": "Les webhooks font partie de l'offre Business.",
+    "upgrade": "Les webhooks ne font pas partie de votre offre.",
     "loadFailed": "Impossible de charger les webhooks."
   }
 }
