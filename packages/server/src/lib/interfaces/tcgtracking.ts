@@ -48,15 +48,26 @@ export interface TcgtrackingCatalogEntry {
 export interface TcgtrackingFallbackData {
   source: "tcgtracking";
   product: TcgtrackingProduct;
-  set: TcgtrackingCatalogSet;
+  tcgtrackingSet?: TcgtrackingCatalogSet;
   primarySetCode?: string;
+  primarySetName?: string;
   supersededByCardId?: string;
   [primaryShapedField: string]: unknown;
+}
+
+export interface TcgtrackingPrimarySet {
+  code: string;
+  name?: string;
 }
 
 export interface TcgtrackingPrimaryShapedFieldsInput {
   name: string;
   collectorNumber: string;
+  product: TcgtrackingProduct;
+  ext: Record<string, unknown>;
+  setCode: string;
+  tcgtrackingSetName: string;
+  primarySetName?: string;
 }
 
 export type TcgtrackingNumbering = "global" | "per-set" | "name-only";
@@ -76,6 +87,7 @@ export interface TcgtrackingGameConfig {
   primaryShapedFieldsOf?(
     input: TcgtrackingPrimaryShapedFieldsInput,
   ): Record<string, unknown>;
+  normalizesFallbackThroughPrimaryAdapter?: boolean;
 }
 
 export interface TcgtrackingPrimaryCard {
