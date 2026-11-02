@@ -55,6 +55,11 @@ export interface TcgtrackingFallbackData {
   [primaryShapedField: string]: unknown;
 }
 
+export interface TcgtrackingFinishProduct {
+  foilType: string;
+  productId: number;
+}
+
 export interface TcgtrackingPrimarySet {
   code: string;
   name?: string;
@@ -88,6 +93,15 @@ export interface TcgtrackingGameConfig {
     input: TcgtrackingPrimaryShapedFieldsInput,
   ): Record<string, unknown>;
   normalizesFallbackThroughPrimaryAdapter?: boolean;
+  productNumberKeyOf?(
+    product: TcgtrackingProduct,
+    setProducts: TcgtrackingProduct[],
+  ): string | null;
+  finishProductsOf?(
+    product: TcgtrackingProduct,
+    setProducts: TcgtrackingProduct[],
+  ): TcgtrackingFinishProduct[];
+  alignsSetsByName?: boolean;
 }
 
 export interface TcgtrackingPrimaryCard {

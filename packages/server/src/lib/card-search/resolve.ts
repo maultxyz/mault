@@ -13,6 +13,7 @@ import { pokemonJapanAdapter } from "../adapters/pokemon-japan/search";
 import { riftboundAdapter } from "../adapters/riftbound/search";
 import { swuAdapter } from "../adapters/swu/search";
 import { scryfallAdapter } from "../adapters/scryfall/search";
+import { sorceryAdapter } from "../adapters/sorcery/search";
 import { yugiohAdapter } from "../adapters/yugioh/search";
 import { withTcgtracking } from "../tcgtracking/adapter";
 import {
@@ -39,6 +40,7 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   swu: withTcgtracking("swu", swuAdapter),
   grandarchive: withTcgtracking("grandarchive", grandArchiveAdapter),
   cyberpunk: withTcgtracking("cyberpunk", cyberpunkAdapter),
+  sorcery: withTcgtracking("sorcery", sorceryAdapter),
 };
 
 export function adapterEntriesForGameKeys(
