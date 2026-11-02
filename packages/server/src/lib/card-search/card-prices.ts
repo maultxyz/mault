@@ -84,6 +84,7 @@ function withStoredPrices<T extends PlayingCard>(
     priceByCondition: details.priceByCondition ?? card.priceByCondition,
     priceFoilByCondition:
       details.priceFoilByCondition ?? card.priceFoilByCondition,
+    foilOnlyFoilType: card.foilOnlyFoilType ?? details.foilOnlyFoilType,
   };
 }
 

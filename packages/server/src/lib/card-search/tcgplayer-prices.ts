@@ -16,6 +16,7 @@ import type {
   CardSearchAdapter,
   TcgplayerFinishProduct,
   TcgplayerPricing,
+  TcgplayerSubTypes,
 } from "../interfaces/card-search";
 import { median } from "../statistics";
 
@@ -121,6 +122,25 @@ function finishPricesFor(
     ];
   });
   return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+function foilOnlyFoilTypeOf(
+  pricing: TcgplayerPricing,
+  productIds: number[],
+  subTypes: TcgplayerSubTypes,
+  rangeOf: (productId: number, subTypes: string[]) => PlayingCardPriceRange | undefined,
+): string | undefined {
+  const nonFoilSubTypes = subTypes.price.filter(
+    (subType) => !subTypes.priceFoil.includes(subType),
+  );
+  if (productIds.some((productId) => rangeOf(productId, nonFoilSubTypes))) {
+    return undefined;
+  }
+  const foilSubType = subTypes.priceFoil.find((subType) =>
+    productIds.some((productId) => rangeOf(productId, [subType])),
+  );
+  if (!foilSubType) return undefined;
+  return pricing.foilTypeOfVariant?.(foilSubType) ?? foilSubType;
 }
 
 function medianFinishPrice(
@@ -243,6 +263,9 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       priceByCondition: conditionPricesFor(subTypes.price) ?? card.priceByCondition,
       priceFoilByCondition:
         conditionPricesFor(subTypes.priceFoil) ?? card.priceFoilByCondition,
+      foilOnlyFoilType:
+        card.foilOnlyFoilType ??
+        foilOnlyFoilTypeOf(pricing, cardProductIds, subTypes, rangeOf),
     };
   });
 }
