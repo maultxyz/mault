@@ -25,6 +25,10 @@ function tcgplayerIdForEntry(entry: GroupedEntry, ctx: ExportContext): string {
   return ctx.tcgplayerSkusByEntryKey?.[exportEntryKey(entry)]?.skuId ?? tcgplayerId(entry.card);
 }
 
+function tcgplayerProductNameForEntry(entry: GroupedEntry, ctx: ExportContext): string {
+  return ctx.tcgplayerSkusByEntryKey?.[exportEntryKey(entry)]?.productName ?? entry.card.name;
+}
+
 export function productLine(ctx: ExportContext): string {
   if (!ctx.gameKey) return "";
   return TCGPLAYER_PRODUCT_LINES[ctx.gameKey] ?? ctx.gameName ?? "";
@@ -65,7 +69,7 @@ export const tcgplayerAdapter: ExportAdapter = {
     tcgplayerIdForEntry(entry, ctx),
     csvEscape(productLine(ctx)),
     csvEscape(entry.card.setName),
-    csvEscape(entry.card.name),
+    csvEscape(tcgplayerProductNameForEntry(entry, ctx)),
     csvEscape(entry.card.collectorNumber ?? ""),
     csvEscape(entry.card.rarity ?? ""),
     csvEscape(tcgplayerCondition(entry, ctx)),

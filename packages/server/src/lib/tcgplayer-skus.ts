@@ -5,7 +5,7 @@ import type {
 } from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { tcgplayerSkus } from "../db/schema";
+import { tcgplayerProducts, tcgplayerSkus } from "../db/schema";
 import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
 import { tcgplayerProductIdOf } from "./card-search/tcgplayer-prices";
 import {
@@ -70,15 +70,23 @@ export async function resolveTcgplayerSkus(
   const rowsByKey = new Map(
     rows.map((row) => [`${row.productId}:${row.variant}:${row.language}`, row]),
   );
+  const products = await db
+    .select({ productId: tcgplayerProducts.productId, name: tcgplayerProducts.name })
+    .from(tcgplayerProducts)
+    .where(inArray(tcgplayerProducts.productId, productIds));
+  const productNamesById = new Map(
+    products.map((product) => [product.productId, product.name]),
+  );
 
   return targets.map((target) => {
     if (!target) return null;
     const productId = String(target.productId);
+    const productName = productNamesById.get(target.productId) ?? null;
     for (const variant of target.variants) {
       const row = rowsByKey.get(`${target.productId}:${variant}:${target.languageCode}`);
       const skuId = row?.[TCGPLAYER_SKU_CONDITION_COLUMNS[target.condition]];
-      if (skuId != null) return { productId, variant, skuId: String(skuId) };
+      if (skuId != null) return { productId, variant, skuId: String(skuId), productName };
     }
-    return { productId, variant: target.variants[0] ?? null, skuId: null };
+    return { productId, variant: target.variants[0] ?? null, skuId: null, productName };
   });
 }

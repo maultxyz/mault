@@ -7,6 +7,7 @@ export interface TcgplayerSkuMatch {
   productId: string;
   variant: string | null;
   skuId: string | null;
+  productName: string | null;
 }
 
 export interface ExportContext {
