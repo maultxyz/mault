@@ -129,6 +129,8 @@ const discordChannelIdSchema = z.string().nullable();
 export const discordSettingsDraftFormSchema = z.object({
   scanChannelId: discordChannelIdSchema,
   errorChannelId: discordChannelIdSchema,
+  scanRoleId: discordChannelIdSchema,
+  errorRoleId: discordChannelIdSchema,
   overrides: z.record(
     z.string(),
     z.object({

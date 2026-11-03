@@ -60,6 +60,8 @@ export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
+export const CAMERA_BUSY_RETRY_DELAYS_MS = [150, 400, 800];
+export const CAMERA_BUSY_ERROR_NAMES = new Set(["NotReadableError", "AbortError"]);
 export const PI_CAMERA_BASE = "/api/pi-camera";
 export const PI_CAMERA_DEVICE_ID = "pi-webcam";
 export const PI_CAMERA_WIDTH = CAMERA_IDEAL_WIDTH;

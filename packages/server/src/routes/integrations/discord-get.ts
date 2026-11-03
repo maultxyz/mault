@@ -21,6 +21,8 @@ export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
             notifyOnScan: orgSettings.discordNotifyOnScan,
             scanChannelId: orgSettings.discordScanChannelId,
             errorChannelId: orgSettings.discordErrorChannelId,
+            scanRoleId: orgSettings.discordScanRoleId,
+            errorRoleId: orgSettings.discordErrorRoleId,
           })
           .from(orgSettings)
           .where(eq(orgSettings.orgId, orgId))
@@ -59,6 +61,8 @@ export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
       notifyOnScan: settings?.notifyOnScan ?? false,
       scanChannelId: settings?.scanChannelId ?? null,
       errorChannelId: settings?.errorChannelId ?? null,
+      scanRoleId: settings?.scanRoleId ?? null,
+      errorRoleId: settings?.errorRoleId ?? null,
       collections: collectionRows.map((row) => ({
         guid: row.guid!,
         name: row.name,

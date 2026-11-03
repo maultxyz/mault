@@ -18,6 +18,23 @@ async function getNotifyConfig(
   kind: DiscordNotificationKind,
   collectionGuid?: string,
 ): Promise<NotifyConfig> {
+  const rows = await db
+    .select({
+      discordScanChannelId: orgSettings.discordScanChannelId,
+      discordScanThreadId: orgSettings.discordScanThreadId,
+      discordErrorChannelId: orgSettings.discordErrorChannelId,
+      discordErrorThreadId: orgSettings.discordErrorThreadId,
+      discordScanRoleId: orgSettings.discordScanRoleId,
+      discordErrorRoleId: orgSettings.discordErrorRoleId,
+    })
+    .from(orgSettings)
+    .where(eq(orgSettings.orgId, orgId))
+    .limit(1);
+  const row = rows[0];
+  const pingRoleId =
+    (kind === "scan" ? row?.discordScanRoleId : row?.discordErrorRoleId) ??
+    null;
+
   if (collectionGuid) {
     const collectionRows = await db
       .select({
@@ -47,22 +64,12 @@ async function getNotifyConfig(
           (kind === "scan"
             ? collectionRow?.discordScanThreadId
             : collectionRow?.discordErrorThreadId) ?? null,
+        pingRoleId,
         source: "collection",
       };
     }
   }
 
-  const rows = await db
-    .select({
-      discordScanChannelId: orgSettings.discordScanChannelId,
-      discordScanThreadId: orgSettings.discordScanThreadId,
-      discordErrorChannelId: orgSettings.discordErrorChannelId,
-      discordErrorThreadId: orgSettings.discordErrorThreadId,
-    })
-    .from(orgSettings)
-    .where(eq(orgSettings.orgId, orgId))
-    .limit(1);
-  const row = rows[0];
   return {
     channelId:
       (kind === "scan"
@@ -71,6 +78,7 @@ async function getNotifyConfig(
     threadId:
       (kind === "scan" ? row?.discordScanThreadId : row?.discordErrorThreadId) ??
       null,
+    pingRoleId,
     source: "org",
   };
 }
@@ -129,6 +137,7 @@ export async function sendDiscordNotification(
 ): Promise<DiscordNotifyOutcome> {
   const config = await getNotifyConfig(orgId, kind, collectionGuid);
   if (!config.channelId) return "no_channel";
+  const pingRoleIds = config.pingRoleId ? [config.pingRoleId] : [];
 
   if (kind === "error" || !(await scanThreadsEnabled(orgId))) {
     const { ok } = await postEmbedToBot({
@@ -136,6 +145,7 @@ export async function sendDiscordNotification(
       embed,
       attachmentDataUrl,
       secondaryImageUrl,
+      pingRoleIds,
     });
     return ok ? "sent" : "failed";
   }
@@ -147,6 +157,7 @@ export async function sendDiscordNotification(
     embed,
     attachmentDataUrl,
     secondaryImageUrl,
+    pingRoleIds,
   });
   if (newThreadId && newThreadId !== config.threadId) {
     const update = { discordScanThreadId: newThreadId, updatedAt: new Date() };

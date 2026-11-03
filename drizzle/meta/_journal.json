@@ -1016,6 +1016,13 @@
       "when": 1793625162528,
       "tag": "0144_special_grim_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1793635054739,
+      "tag": "0145_organic_red_hulk",
+      "breakpoints": true
     }
   ]
 }

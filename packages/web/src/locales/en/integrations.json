@@ -19,6 +19,9 @@
     "none": "Don't post",
     "sameScan": "Same as every scan",
     "sameError": "Same as errors",
+    "scanRole": "Ping role for scans",
+    "errorRole": "Ping role for errors",
+    "roleHint": "Pick a role to mention with each post, including posts to collection override channels. The role must be mentionable by the bot.",
     "saved": "Channel saved.",
     "saveFailed": "Couldn't save the channel."
   },

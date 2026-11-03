@@ -1,6 +1,7 @@
 import type {
   DiscordChannel,
   DiscordIntegration,
+  DiscordRole,
   DiscordSettingsDraftFormValues,
   NotificationRule,
   OrgSettings,
@@ -16,6 +17,8 @@ export function toDiscordSettingsDraft(
   return {
     scanChannelId: integration?.scanChannelId ?? null,
     errorChannelId: integration?.errorChannelId ?? null,
+    scanRoleId: integration?.scanRoleId ?? null,
+    errorRoleId: integration?.errorRoleId ?? null,
     overrides: Object.fromEntries(
       (integration?.collections ?? []).map((override) => [
         override.guid,
@@ -45,4 +48,10 @@ export function channelLabel(channels: DiscordChannel[], id: string | null, t: T
   return channel.categoryName
     ? `#${channel.name} ${t("settings.discord.channels.inCategory", { category: channel.categoryName })}`
     : `#${channel.name}`;
+}
+
+export function roleLabel(roles: DiscordRole[], roleId: string | null, t: TFunction): string {
+  if (!roleId) return t("settings.discord.roles.none");
+  const role = roles.find((r) => r.id === roleId);
+  return role ? `@${role.name}` : t("settings.discord.roles.unknown", { id: roleId });
 }

@@ -15,6 +15,7 @@ import {
 } from "@/features/integrations/lib/discord-settings-draft";
 import { toast } from "@/lib/toast";
 import {
+  changedDiscordPingRoles,
   type DiscordIntegration,
   discordSettingsDraftFormSchema,
   type DiscordSettingsDraftFormValues,
@@ -52,7 +53,10 @@ export function useDiscordSettingsDraft(
     const requests: Promise<{ success: boolean }>[] = [];
 
     const orgChannels = changedDiscordChannels(integration, draft);
-    if (orgChannels) requests.push(setDiscordChannel(orgChannels));
+    const orgPingRoles = changedDiscordPingRoles(integration, draft);
+    if (orgChannels || orgPingRoles) {
+      requests.push(setDiscordChannel({ ...orgChannels, ...orgPingRoles }));
+    }
 
     for (const override of integration.collections) {
       const channels = draft.overrides[override.guid];
