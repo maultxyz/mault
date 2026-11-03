@@ -18,6 +18,7 @@ import {
   COLLECTION_CARD_SQL_COLUMNS,
 } from "./constants/card-prices";
 import type {
+  CardPriceDetails,
   CardPriceKey,
   ScannedCardSqlColumns,
 } from "./interfaces/card-prices";
@@ -30,6 +31,12 @@ function storedCardPriceSelect(cols: ScannedCardSqlColumns, select: SQL): SQL {
     JOIN games pg ON pg.id = pc.game_id
     WHERE cp.game_key = pg.key AND cp.lang = COALESCE(${cols.cardLang}, pc.lang) AND cp.card_id = ${cols.cardId}
   )`;
+}
+
+export function storedCardPriceDetailsSql(
+  cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
+): SQL<CardPriceDetails | null> {
+  return sql<CardPriceDetails | null>`${storedCardPriceSelect(cols, sql`cp.details`)}`;
 }
 
 export function storedCardPriceSql(
