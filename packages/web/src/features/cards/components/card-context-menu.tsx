@@ -17,6 +17,7 @@ import { MoveToLocationDialog } from "@/features/storage/components/move-to-loca
 import type { CardContextMenuProps } from "@/lib/interfaces/cards";
 import {
   IconBox,
+  IconTag,
   IconCheck,
   IconCopy,
   IconExternalLink,
@@ -26,7 +27,7 @@ import {
   IconSquare,
   IconTrash,
 } from "@tabler/icons-react";
-import { CARD_CONDITIONS } from "@magic-vault/shared";
+import { CARD_CONDITIONS, CARD_TAGS } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -46,6 +47,8 @@ export function CardContextMenu({
     confirm,
     setFoil,
     setCondition,
+    tagsSet,
+    toggleTag,
     copyName,
     remove,
     canMoveToLocation,
@@ -125,6 +128,24 @@ export function CardContextMenu({
                     <span className="size-3.5" />
                   )}
                   {t(`condition.names.${option}`)}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <IconTag />
+              {t("cardTags.title")}
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              {CARD_TAGS.map((tag) => (
+                <ContextMenuItem key={tag} onClick={() => toggleTag(tag)}>
+                  {tagsSet.includes(tag) ? (
+                    <IconCheck />
+                  ) : (
+                    <span className="size-3.5" />
+                  )}
+                  {t(`cardTags.names.${tag}`)}
                 </ContextMenuItem>
               ))}
             </ContextMenuSubContent>

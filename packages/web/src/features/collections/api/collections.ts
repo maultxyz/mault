@@ -15,6 +15,7 @@ import {
   type IdentifyUnmatchedCardRequest,
   type MatchedScanDiagnostics,
   type Result,
+  type SetCardTagsRequest,
   type ReviewAcceptRequest,
   type ReviewAcceptResult,
   SCAN_SAVE_ACCEPTED_STATUSES,
@@ -247,6 +248,16 @@ export async function acceptCollectionCardReviews(
 ): Promise<Result<ReviewAcceptResult>> {
   return apiPost<Result<ReviewAcceptResult>>(
     `/api/collections/${guid}/cards/accept-review`,
+    request,
+  );
+}
+
+export async function setCollectionCardTags(
+  guid: string,
+  request: SetCardTagsRequest,
+): Promise<Result<{ changedScanIds: string[] }>> {
+  return apiPost<Result<{ changedScanIds: string[] }>>(
+    `/api/collections/${guid}/cards/tags`,
     request,
   );
 }

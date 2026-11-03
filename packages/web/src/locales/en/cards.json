@@ -95,6 +95,7 @@
     "status": "Status",
     "needsAttention": "Needs attention",
     "showDownloadedCards": "Show downloaded cards",
+    "hideDownloadedCards": "Hide downloaded cards",
     "sets": "Sets",
     "resetFilters": "Reset filters"
   },
@@ -432,5 +433,16 @@
     "importMore": "Import more",
     "unreadable": "Couldn't read this image.",
     "identifyFailed": "Couldn't identify this image."
+  },
+  "cardTags": {
+    "title": "Tags",
+    "edit": "Edit tags",
+    "bulkAdd": "Add tag",
+    "bulkRemove": "Remove tag",
+    "names": {
+      "downloaded": "Downloaded",
+      "reviewed": "Reviewed",
+      "corrected": "Corrected"
+    }
   }
 }

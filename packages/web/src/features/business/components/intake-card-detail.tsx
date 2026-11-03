@@ -16,7 +16,7 @@ import { removeCollectionCard } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import { useReviewSession } from "@/hooks/use-review-session";
-import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
 import type { IntakeCardDetailProps } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
@@ -58,7 +58,7 @@ export function IntakeCardDetail({
     collectionCardPositionQueryOptions(
       stored?.collectionGuid,
       scanId,
-      CARD_LOOKUP_QUERY,
+      ALL_CARDS_QUERY,
     ),
   );
   const scanned = position?.entry.scanId === scanId ? position.entry : null;
@@ -82,7 +82,7 @@ export function IntakeCardDetail({
         collectionCardPositionQueryOptions(
           neighbor.collectionGuid,
           neighbor.scanId,
-          CARD_LOOKUP_QUERY,
+          ALL_CARDS_QUERY,
         ),
       );
     }
@@ -99,7 +99,7 @@ export function IntakeCardDetail({
         queryClient,
         nextContext.card.collectionGuid,
         upcomingScanId,
-        CARD_LOOKUP_QUERY,
+        ALL_CARDS_QUERY,
       );
       return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
     },
@@ -137,6 +137,7 @@ export function IntakeCardDetail({
         lowConfidenceMatch={stored.lowConfidenceMatch}
         wasCorrected={stored.corrected}
         isReviewed={stored.reviewed}
+        isDownloaded={scanned.isDownloaded}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
         condition={stored.condition}

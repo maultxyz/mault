@@ -95,6 +95,7 @@
     "status": "Status",
     "needsAttention": "Benötigt Aufmerksamkeit",
     "showDownloadedCards": "Heruntergeladene Karten anzeigen",
+    "hideDownloadedCards": "Heruntergeladene Karten ausblenden",
     "sets": "Editionen",
     "resetFilters": "Filter zurücksetzen"
   },
@@ -432,5 +433,16 @@
     "importMore": "Weitere importieren",
     "unreadable": "Dieses Bild konnte nicht gelesen werden.",
     "identifyFailed": "Dieses Bild konnte nicht erkannt werden."
+  },
+  "cardTags": {
+    "title": "Markierungen",
+    "edit": "Markierungen bearbeiten",
+    "bulkAdd": "Markierung hinzufügen",
+    "bulkRemove": "Markierung entfernen",
+    "names": {
+      "downloaded": "Heruntergeladen",
+      "reviewed": "Geprüft",
+      "corrected": "Korrigiert"
+    }
   }
 }

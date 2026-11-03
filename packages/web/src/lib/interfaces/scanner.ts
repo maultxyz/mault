@@ -5,6 +5,7 @@ import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
   CardCondition,
+  CardTag,
   CardFilters,
   CommLogEntry,
   EmptyBinOptions,
@@ -175,6 +176,7 @@ export interface ScannedCardsContextValue {
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
   setCardLanguage: (scanId: string, language: string) => void;
+  setCardsTags: (scanIds: string[], tags: CardTag[], enabled: boolean) => void;
   clearCards: () => void;
 }
 

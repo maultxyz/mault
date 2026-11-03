@@ -17,7 +17,7 @@ import {
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useReviewSession } from "@/hooks/use-review-session";
-import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
@@ -74,7 +74,7 @@ export function StorageCardDetail({
     collectionCardPositionQueryOptions(
       stored?.collectionGuid,
       scanId,
-      CARD_LOOKUP_QUERY,
+      ALL_CARDS_QUERY,
     ),
   );
   const scanned = position?.entry.scanId === scanId ? position.entry : null;
@@ -102,7 +102,7 @@ export function StorageCardDetail({
         collectionCardPositionQueryOptions(
           neighbor.collectionGuid,
           neighbor.scanId,
-          CARD_LOOKUP_QUERY,
+          ALL_CARDS_QUERY,
         ),
       );
     }
@@ -123,7 +123,7 @@ export function StorageCardDetail({
         queryClient,
         nextContext.card.collectionGuid,
         nextScanId,
-        CARD_LOOKUP_QUERY,
+        ALL_CARDS_QUERY,
       );
       return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
     },
@@ -164,6 +164,7 @@ export function StorageCardDetail({
         lowConfidenceMatch={stored.lowConfidenceMatch}
         wasCorrected={stored.corrected}
         isReviewed={stored.reviewed}
+        isDownloaded={scanned.isDownloaded}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
         condition={stored.condition}

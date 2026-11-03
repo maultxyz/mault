@@ -43,6 +43,7 @@ import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
 import { CardDetailActionsSheet } from "@/features/cards/components/card-detail-actions-sheet";
 import { DetailSection } from "@/features/cards/components/detail-section";
+import { CardTagsMenu } from "@/features/cards/components/card-tags-menu";
 import {
   Accordion,
   AccordionContent,
@@ -110,6 +111,7 @@ export function CardDetailPanel({
   lowConfidenceMatch = false,
   wasCorrected = false,
   isReviewed = false,
+  isDownloaded = false,
   storageLocation,
   isFoil = false,
   foilType,
@@ -531,11 +533,21 @@ export function CardDetailPanel({
                     {t("review.badge")}
                   </Badge>
                 )}
-                {(isReviewed || wasCorrected) && (
-                  <Badge variant="success" className="shrink-0">
-                    <IconCheck />
-                    {t("technicalDetails.reviewed")}
-                  </Badge>
+                {scanId ? (
+                  <CardTagsMenu
+                    scanId={scanId}
+                    isDownloaded={isDownloaded}
+                    isReviewed={isReviewed}
+                    wasCorrected={wasCorrected}
+                    useSheet={inCardDrawer}
+                  />
+                ) : (
+                  (isReviewed || wasCorrected) && (
+                    <Badge variant="success" className="shrink-0">
+                      <IconCheck />
+                      {t("technicalDetails.reviewed")}
+                    </Badge>
+                  )
                 )}
                 {copyCount != null && copyCount > 1 && (
                   <Badge variant="secondary" className="shrink-0">

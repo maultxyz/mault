@@ -256,19 +256,19 @@ export function CardFilterFields({
           onClick={() =>
             onFiltersChange({
               ...activeFilters,
-              showDownloaded: !activeFilters.showDownloaded,
+              hideDownloaded: !activeFilters.hideDownloaded,
             })
           }
           className={cn(
             chipBase,
             "flex items-center gap-1.5 px-2 h-7 max-md:h-9 max-md:px-3",
-            activeFilters.showDownloaded
+            activeFilters.hideDownloaded
               ? "bg-primary text-primary-foreground border-primary"
               : chipInactive,
           )}
         >
           <IconDownload className="size-3.5" />
-          {t("cardFilterPopover.showDownloadedCards")}
+          {t("cardFilterPopover.hideDownloadedCards")}
         </button>
       </div>
 

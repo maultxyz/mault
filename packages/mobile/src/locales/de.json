@@ -750,7 +750,7 @@
       "noBin": "Kein Fach",
       "status": "Status",
       "needsReview": "Zu prüfen",
-      "showDownloaded": "Heruntergeladene anzeigen",
+      "hideDownloaded": "Heruntergeladene ausblenden",
       "reset": "Zurücksetzen"
     },
     "sort": {
@@ -796,7 +796,6 @@
     "acceptNext": "Sieht richtig aus",
     "acceptFinish": "Sieht richtig aus",
     "reviewProgress": "Prüfe {{index}} von {{total}}",
-    "reviewed": "Geprüft",
     "similarMatches": "Ähnliche Übereinstimmungen",
     "similarMatchesHint": "Mehrere ähnliche Treffer. Tippe auf die richtige Version.",
     "thisScan": "Dieser Scan",
@@ -1919,5 +1918,15 @@
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
     "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
     "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
+  },
+  "cardTags": {
+    "title": "Markierungen",
+    "edit": "Markierungen bearbeiten",
+    "saveFailed": "Die Markierung konnte nicht geändert werden",
+    "names": {
+      "downloaded": "Heruntergeladen",
+      "reviewed": "Geprüft",
+      "corrected": "Korrigiert"
+    }
   }
 }

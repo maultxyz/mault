@@ -13,6 +13,7 @@ import { collectionCardDiagnosticsRoute } from "./cards-diagnostics";
 import { collectionCardImageRoute } from "./cards-image";
 import { editCollectionCardRoute } from "./cards-edit";
 import { acceptReviewCollectionCardsRoute } from "./cards-accept-review";
+import { setCollectionCardTagsRoute } from "./cards-tags";
 import { exportCollectionCardsRoute } from "./cards-export";
 import { collectionCardIdsRoute } from "./cards-ids";
 import { collectionCardCopiesRoute } from "./cards-copies";
@@ -65,6 +66,7 @@ const router = new Hono<AppEnv>()
   .route("/", collectionCardOriginRoute)
   .route("/", editCollectionCardRoute)
   .route("/", acceptReviewCollectionCardsRoute)
+  .route("/", setCollectionCardTagsRoute)
   .route("/", clearCollectionCardsRoute)
   .route("/", removeBulkCollectionCardsRoute)
   .route("/", markCollectionCardsDownloadedRoute)

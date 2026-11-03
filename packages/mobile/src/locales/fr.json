@@ -750,7 +750,7 @@
       "noBin": "Aucun bac",
       "status": "Statut",
       "needsReview": "À vérifier",
-      "showDownloaded": "Afficher les téléchargées",
+      "hideDownloaded": "Masquer les téléchargées",
       "reset": "Réinitialiser"
     },
     "sort": {
@@ -796,7 +796,6 @@
     "acceptNext": "Ça a l'air bon",
     "acceptFinish": "Ça a l'air bon",
     "reviewProgress": "Vérification {{index}} sur {{total}}",
-    "reviewed": "Vérifiée",
     "similarMatches": "Correspondances similaires",
     "similarMatchesHint": "Plusieurs correspondances proches. Touche la bonne version.",
     "thisScan": "Ce scan",
@@ -1919,5 +1918,15 @@
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
     "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
+  },
+  "cardTags": {
+    "title": "Étiquettes",
+    "edit": "Modifier les étiquettes",
+    "saveFailed": "Impossible de modifier l'étiquette",
+    "names": {
+      "downloaded": "Téléchargée",
+      "reviewed": "Vérifiée",
+      "corrected": "Corrigée"
+    }
   }
 }
