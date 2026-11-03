@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,6 +64,7 @@ import {
 import { collectionViewPath } from "@/lib/constants/collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { BULK_TAG_ACTIONS } from "@/lib/constants/card-tags";
 import {
   CARD_GRID_CLASS,
   CARD_GRID_DENSITY_CLASS,
@@ -80,7 +84,7 @@ import {
   IconPlus,
   IconRosette,
   IconSparkles,
-  IconTagOff,
+  IconTag,
 } from "@tabler/icons-react";
 import {
   CARD_CONDITIONS,
@@ -969,20 +973,26 @@ export function CardGrid() {
                       />
                     }
                   >
-                    <IconTagOff />
-                    {t("cardTags.clearTags")}
+                    <IconTag />
+                    {t("cardTags.title")}
                     <IconChevronDown />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="center" side="top">
-                    {CARD_TAGS.map((tag) => (
-                      <DropdownMenuItem
-                        key={tag}
-                        onClick={() =>
-                          setCardsTags(Array.from(selectedIds), [tag], false)
-                        }
-                      >
-                        {t(`cardTags.names.${tag}`)}
-                      </DropdownMenuItem>
+                    {BULK_TAG_ACTIONS.map(({ enabled, labelKey }, index) => (
+                      <DropdownMenuGroup key={labelKey}>
+                        {index > 0 && <DropdownMenuSeparator />}
+                        <DropdownMenuLabel>{t(labelKey)}</DropdownMenuLabel>
+                        {CARD_TAGS.map((tag) => (
+                          <DropdownMenuItem
+                            key={tag}
+                            onClick={() =>
+                              setCardsTags(Array.from(selectedIds), [tag], enabled)
+                            }
+                          >
+                            {t(`cardTags.names.${tag}`)}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuGroup>
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>

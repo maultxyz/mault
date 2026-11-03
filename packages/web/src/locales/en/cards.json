@@ -435,8 +435,9 @@
   },
   "cardTags": {
     "title": "Tags",
-    "clearTags": "Clear tags",
     "edit": "Edit tags",
+    "bulkAdd": "Add tag",
+    "bulkRemove": "Remove tag",
     "names": {
       "downloaded": "Downloaded",
       "reviewed": "Reviewed",

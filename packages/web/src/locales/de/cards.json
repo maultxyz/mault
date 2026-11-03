@@ -435,8 +435,9 @@
   },
   "cardTags": {
     "title": "Markierungen",
-    "clearTags": "Markierungen entfernen",
     "edit": "Markierungen bearbeiten",
+    "bulkAdd": "Markierung hinzufügen",
+    "bulkRemove": "Markierung entfernen",
     "names": {
       "downloaded": "Heruntergeladen",
       "reviewed": "Geprüft",

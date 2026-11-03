@@ -435,8 +435,9 @@
   },
   "cardTags": {
     "title": "Étiquettes",
-    "clearTags": "Retirer les étiquettes",
     "edit": "Modifier les étiquettes",
+    "bulkAdd": "Ajouter l'étiquette",
+    "bulkRemove": "Retirer l'étiquette",
     "names": {
       "downloaded": "Téléchargée",
       "reviewed": "Vérifiée",
