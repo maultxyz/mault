@@ -19,6 +19,9 @@
     "none": "Nicht posten",
     "sameScan": "Wie jeder Scan",
     "sameError": "Wie Fehler",
+    "scanRole": "Rolle bei Scans pingen",
+    "errorRole": "Rolle bei Fehlern pingen",
+    "roleHint": "Wähle eine Rolle, die bei jedem Beitrag erwähnt wird, auch in Kanälen von Sammlungsüberschreibungen. Der Bot muss die Rolle erwähnen können.",
     "saved": "Kanal gespeichert.",
     "saveFailed": "Der Kanal konnte nicht gespeichert werden."
   },

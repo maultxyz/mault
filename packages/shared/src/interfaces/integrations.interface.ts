@@ -40,6 +40,8 @@ export interface DiscordIntegration {
   notifyOnScan: boolean;
   scanChannelId: string | null;
   errorChannelId: string | null;
+  scanRoleId: string | null;
+  errorRoleId: string | null;
   collections: DiscordCollectionChannels[];
 }
 
@@ -64,7 +66,14 @@ export interface NotificationRuleInput {
 export interface DiscordChannelInput {
   scanChannelId?: string | null;
   errorChannelId?: string | null;
+  scanRoleId?: string | null;
+  errorRoleId?: string | null;
   collectionGuid?: string;
+}
+
+export interface DiscordPingRoles {
+  scanRoleId: string | null;
+  errorRoleId: string | null;
 }
 
 export interface DiscordAccountLink {

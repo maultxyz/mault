@@ -1104,6 +1104,8 @@ export const orgSettings = pgTable(
     discordScanThreadId: text("discord_scan_thread_id"),
     discordErrorChannelId: text("discord_error_channel_id"),
     discordErrorThreadId: text("discord_error_thread_id"),
+    discordScanRoleId: text("discord_scan_role_id"),
+    discordErrorRoleId: text("discord_error_role_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

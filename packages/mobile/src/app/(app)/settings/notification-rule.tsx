@@ -24,7 +24,7 @@ import {
   notificationRulesQueryOptions,
   updateNotificationRule,
 } from "@/features/integrations/api/discord";
-import { channelLabel } from "@/features/integrations/lib/discord-settings";
+import { channelLabel, roleLabel } from "@/features/integrations/lib/discord-settings";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { createGroup } from "@/features/rules/lib/rules";
@@ -125,12 +125,6 @@ export default function NotificationRuleScreen() {
       { text: t("settings.webhooks.delete"), style: "destructive", onPress: () => remove.mutate() },
     ]);
 
-  const roleLabel = (roleId: string | null) => {
-    if (!roleId) return t("settings.discord.roles.none");
-    const role = roles.find((r) => r.id === roleId);
-    return role ? `@${role.name}` : t("settings.discord.roles.unknown", { id: roleId });
-  };
-
   return (
     <View style={{ flex: 1 }}>
       <Screen
@@ -177,7 +171,7 @@ export default function NotificationRuleScreen() {
             <View style={{ gap: SPACING.xs }}>
               <SelectField
                 label={t("settings.discord.ruleDialog.role")}
-                value={roleLabel(field.value)}
+                value={roleLabel(roles, field.value, t)}
                 placeholder={t("settings.discord.roles.none")}
                 onPress={() => setPicker("role")}
               />

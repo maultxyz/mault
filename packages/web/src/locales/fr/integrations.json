@@ -19,6 +19,9 @@
     "none": "Ne pas publier",
     "sameScan": "Comme chaque scan",
     "sameError": "Comme les erreurs",
+    "scanRole": "Rôle à mentionner pour les scans",
+    "errorRole": "Rôle à mentionner pour les erreurs",
+    "roleHint": "Choisissez un rôle à mentionner dans chaque publication, y compris dans les salons des remplacements de collection. Le bot doit pouvoir mentionner ce rôle.",
     "saved": "Salon enregistré.",
     "saveFailed": "Impossible d'enregistrer le salon."
   },

@@ -56,6 +56,7 @@ export interface CardScannedEmbedResult {
 export interface NotifyConfig {
   channelId: string | null;
   threadId: string | null;
+  pingRoleId: string | null;
   source: "collection" | "org";
 }
 
