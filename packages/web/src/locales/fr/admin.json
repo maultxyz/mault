@@ -361,6 +361,7 @@
     "types": {
       "collection": "Collection",
       "binSet": "Préréglage de bacs",
+      "presetWorkflow": "Préréglage en plusieurs étapes",
       "bin": "Bac",
       "device": "Trieuse",
       "binRoute": "Route de bac",

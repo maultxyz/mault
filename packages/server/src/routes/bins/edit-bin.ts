@@ -20,7 +20,7 @@ import {
   toOverflowBin,
   toOverridePriority,
   toRepackPriority,
-  activeBinSetWhere,
+  editableBinSetWhere,
   emptyRules,
   normalizeOverflowBins,
   toBinPickList,
@@ -34,6 +34,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
     const gameGuid = c.req.query("gameGuid");
+    const presetGuid = c.req.query("presetGuid");
     const {
       rules,
       isCatchAll,
@@ -62,7 +63,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const gameId = await resolveGameId(tx, gameGuid);
       const activeBinSet = await tx.query.binSets.findFirst({
-        where: (t) => activeBinSetWhere(t, orgId, gameId),
+        where: (t) => editableBinSetWhere(t, orgId, gameId, presetGuid),
         columns: { id: true, guid: true },
         with: {
           bins: {

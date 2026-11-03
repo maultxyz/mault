@@ -11,6 +11,7 @@ export const modeSchema = z
     scanOnlyUnmatchedBin: z.number().int(),
     chaosBinSize: z.string().regex(/^\d*$/),
     skipSaving: z.boolean(),
+    isResortMode: z.boolean(),
   })
   .refine((values) => values.mode !== "auto-assign" || !!values.autoAssignField, { path: ["autoAssignField"] });
 

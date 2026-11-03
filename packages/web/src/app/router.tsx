@@ -30,7 +30,7 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
-import { SORTING_RULES_PATH } from "@/lib/constants/bins";
+import { PRESET_WORKFLOW_PATH, SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import {
@@ -93,6 +93,9 @@ const CollectionViewPage = lazy(
   () => import("@/app/routes/app/collection-view"),
 );
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
+const PresetWorkflowPage = lazy(
+  () => import("@/app/routes/app/preset-workflow"),
+);
 const CalibrateLayout = lazy(() => import("@/app/routes/app/calibrate/layout"));
 const CalibrateConnectionPage = lazy(
   () => import("@/app/routes/app/calibrate/connection"),
@@ -562,6 +565,10 @@ export const routes: RouteObject[] = [
                   {
                     path: SORTING_RULES_PATH,
                     element: <BinsPage />,
+                  },
+                  {
+                    path: PRESET_WORKFLOW_PATH,
+                    element: <PresetWorkflowPage />,
                   },
                 ],
               },

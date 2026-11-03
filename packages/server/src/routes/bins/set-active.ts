@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { deactivatePresetWorkflows } from "../../lib/preset-workflows";
 import { loadSets, activeBinSetWhere } from "./shared";
 
 export const setBinSetActiveRoute = new Hono<AppEnv>().put(
@@ -32,6 +33,7 @@ export const setBinSetActiveRoute = new Hono<AppEnv>().put(
         .update(binSets)
         .set({ isActive: true })
         .where(eq(binSets.id, target.id));
+      await deactivatePresetWorkflows(tx, orgId, target.gameId);
       return loadSets(tx, orgId);
     });
     return c.json(result);

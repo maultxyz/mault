@@ -1,0 +1,1 @@
+export const SORT_TEST_MAX_SAMPLE_SIZE = 100;

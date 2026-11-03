@@ -33,6 +33,15 @@ export async function searchGameCards(
   return apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`);
 }
 
+export async function getRandomSampleCards(
+  gameKey: string,
+  lang: string,
+  count: number,
+): Promise<Result<PlayingCard[]>> {
+  const params = new URLSearchParams({ gameKey, lang, count: String(count) });
+  return apiGet<Result<PlayingCard[]>>(`/api/cards/random-sample?${params}`);
+}
+
 export async function getSampleCard(
   gameKey: string,
   lang: string,

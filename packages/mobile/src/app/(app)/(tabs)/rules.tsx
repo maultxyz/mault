@@ -1,4 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,29 +13,23 @@ import { PickerCard } from "@/components/ui/picker-card";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { binSetsQueryOptions } from "@/features/devices/api/devices";
-import { activateBinSet } from "@/features/rules/api/bin-sets";
+import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { AlphabetPassCard } from "@/features/rules/components/alphabet-pass-card";
+import { PresetStageCard } from "@/features/rules/components/preset-stage-card";
 import { BinRow } from "@/features/rules/components/bin-row";
 import { binModeSummaries } from "@/features/rules/lib/rules";
 import { binSetMode } from "@magic-vault/shared";
-import { useActiveOrgId } from "@/hooks/use-org";
 import { SPACING } from "@/lib/constants/theme";
 
 export default function RulesScreen() {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const orgId = useActiveOrgId();
   const data = useRulesData();
   const { collection, sets, activeSet, bins, fieldDefinitions } = data;
   const mode = binSetMode(activeSet);
   const summaries = binModeSummaries(activeSet, mode, bins, t);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const activate = useMutation({
-    mutationFn: activateBinSet,
-    onSuccess: (next) => queryClient.setQueryData(binSetsQueryOptions(orgId).queryKey, next),
-  });
+  const picker = usePresetPicker();
 
   return (
     <Screen
@@ -45,7 +38,7 @@ export default function RulesScreen() {
       header={<PageHeader title={t("rules.title")} subtitle={collection?.game?.name ?? collection?.name} />}
     >
       {data.isError ? <Callout tone="destructive" title={t("rules.loadFailed")} /> : null}
-      {activate.isError ? <Callout tone="destructive" title={t("rules.activateFailed")} /> : null}
+      {picker.isError ? <Callout tone="destructive" title={t("rules.activateFailed")} /> : null}
 
       {data.isPending ? (
         <View style={{ gap: SPACING.sm }}>
@@ -70,9 +63,9 @@ export default function RulesScreen() {
             <PickerCard
               icon="rules"
               label={t("rules.presets")}
-              value={activeSet?.isActive ? activeSet.name : null}
+              value={picker.label}
               placeholder={t("rules.choosePreset")}
-              loading={activate.isPending}
+              loading={picker.isPending}
               onPress={() => setPickerOpen(true)}
             />
           )}
@@ -99,6 +92,7 @@ export default function RulesScreen() {
             </ListGroup>
           ) : null}
           {mode === "alphabet" && activeSet?.isActive ? <AlphabetPassCard set={activeSet} bins={bins} /> : null}
+          {activeSet?.isActive ? <PresetStageCard /> : null}
 
           {activeSet ? (
             <View style={{ gap: SPACING.sm }}>
@@ -124,11 +118,11 @@ export default function RulesScreen() {
       <OptionSheet
         visible={pickerOpen}
         title={t("rules.presets")}
-        options={sets.map((set) => ({ value: set.guid, label: set.name }))}
-        selected={activeSet?.isActive ? [activeSet.guid] : []}
+        options={picker.options}
+        selected={picker.selected}
         onSelect={(value) => {
           setPickerOpen(false);
-          if (value !== activeSet?.guid || !activeSet?.isActive) activate.mutate(value);
+          picker.choose(value);
         }}
         onClose={() => setPickerOpen(false)}
       />

@@ -26,9 +26,14 @@ function buildWelcomeEmbed(guildName: string) {
 }
 
 export async function sendWelcomeDm(member: GuildMember) {
-  if (member.user.bot || !WELCOME_GUILD_IDS.has(member.guild.id)) return;
+  const isWelcomeGuild = WELCOME_GUILD_IDS.has(member.guild.id);
+  console.log(
+    `[bot] Member ${member.user.id} joined ${member.guild.id} (bot: ${member.user.bot}, welcome server: ${isWelcomeGuild})`,
+  );
+  if (member.user.bot || !isWelcomeGuild) return;
   try {
     await member.send({ embeds: [buildWelcomeEmbed(member.guild.name)] });
+    console.log(`[bot] Sent the welcome DM to ${member.user.id} in ${member.guild.id}`);
   } catch (err) {
     console.warn(
       `[bot] Couldn't send the welcome DM to ${member.user.id} in ${member.guild.id}:`,

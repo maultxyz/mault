@@ -8,7 +8,11 @@ import {
   type BinRuleGroup,
 } from "@magic-vault/shared";
 import { z } from "zod";
-import { PICK_LIST_DECKLIST_MAX_LENGTH } from "@/lib/constants/bins";
+import {
+  BIN_RULE_TRANSFER_MODES,
+  PICK_LIST_DECKLIST_MAX_LENGTH,
+  PRESET_KINDS,
+} from "@/lib/constants/bins";
 
 export const createSetSchema = z.object({
   name: z
@@ -22,6 +26,51 @@ export const createSetSchema = z.object({
 });
 
 export type CreateSetFormValues = z.infer<typeof createSetSchema>;
+
+export const createPresetSchema = createSetSchema
+  .extend({
+    kind: z.enum(PRESET_KINDS),
+    firstPresetGuid: z.string(),
+  })
+  .refine(
+    (values) => values.kind !== "multiStage" || !!values.firstPresetGuid,
+    {
+      path: ["firstPresetGuid"],
+      message: formValidationMessage("valueRequired"),
+    },
+  );
+
+export type CreatePresetFormValues = z.infer<typeof createPresetSchema>;
+
+export const presetWorkflowRenameSchema = createSetSchema;
+
+export const binRuleTransferSchema = z.object({
+  mode: z.enum(BIN_RULE_TRANSFER_MODES),
+  targetBinNumber: z.number().int().positive().nullable(),
+}).refine((values) => values.targetBinNumber != null, {
+  path: ["targetBinNumber"],
+  message: formValidationMessage("valueRequired"),
+});
+
+export type BinRuleTransferFormValues = z.infer<typeof binRuleTransferSchema>;
+
+export const presetWorkflowStagesSchema = z.object({
+  stages: z
+    .array(
+      z.object({
+        stepGuid: z.string().nullable(),
+        presetGuid: z.string().min(1),
+        isResortMode: z.boolean(),
+      }),
+    )
+    .min(1),
+});
+
+export type PresetWorkflowStagesFormValues = z.infer<
+  typeof presetWorkflowStagesSchema
+>;
+
+export type PresetWorkflowRenameFormValues = CreateSetFormValues;
 
 const conditionOperatorValues = [
   "equals",

@@ -9,10 +9,8 @@ import { BinLevelCell } from "@/features/scanner/components/bin-level-cell";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { EmptyAllBinsDialog } from "@/features/storage/components/empty-all-bins-dialog";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
-import {
-  buildBinLevelLayout,
-  summarizeBinLevels,
-} from "@/features/scanner/lib/bin-levels";
+import { summarizeBinLevels } from "@/features/scanner/lib/bin-levels";
+import { buildBinLevelLayout } from "@/lib/bin-machine-layout";
 import { usePersistedFlag } from "@/hooks/use-persisted-state";
 import { BIN_LEVELS_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";

@@ -162,6 +162,7 @@ function toBinSet(row: {
   isChaosMode: boolean;
   chaosBinSize: number | null;
   skipSaving: boolean;
+  isResortMode: boolean;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -210,6 +211,7 @@ function toBinSet(row: {
     isChaosMode: row.isChaosMode,
     chaosBinSize: row.chaosBinSize,
     skipSaving: row.skipSaving,
+    isResortMode: row.isResortMode,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -264,6 +266,7 @@ const binSetQuery = {
     isChaosMode: true,
     chaosBinSize: true,
     skipSaving: true,
+    isResortMode: true,
     createdAt: true,
     updatedAt: true,
   },
@@ -372,6 +375,17 @@ export function activeBinSetWhere(
     eq(t.orgId, orgId),
     eq(t.isDeleted, false),
   );
+}
+
+export function editableBinSetWhere(
+  t: (typeof binSets)["_"]["columns"],
+  orgId: string,
+  gameId: number | null,
+  presetGuid: string | undefined,
+) {
+  return presetGuid
+    ? and(eq(t.guid, presetGuid), eq(t.orgId, orgId), eq(t.isDeleted, false))
+    : activeBinSetWhere(t, orgId, gameId);
 }
 
 export async function binSetNameTaken(
