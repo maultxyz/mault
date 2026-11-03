@@ -246,6 +246,9 @@
       "reviewAccept": "Beim Prüfen: markierten Treffer übernehmen, weiter",
       "reviewPreviousMatch": "Beim Prüfen: vorherigen ähnlichen Treffer markieren",
       "reviewNextMatch": "Beim Prüfen: nächsten ähnlichen Treffer markieren",
+      "reviewCycleFoil": "Beim Prüfen: Foil-Arten durchschalten",
+      "reviewCycleCondition": "Beim Prüfen: Zustände durchschalten",
+      "reviewCycleLanguage": "Beim Prüfen: Sprachen durchschalten",
       "goSortingRules": "Zu den Sortierregeln",
       "intakeOpenScanner": "Scanner für diesen Ankauf öffnen"
     }

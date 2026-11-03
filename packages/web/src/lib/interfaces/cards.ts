@@ -102,6 +102,7 @@ export interface CardImageViewerProps {
   capturedImageUrl: string;
   showOcrRegions: boolean;
   onShowOcrRegionsChange?: (show: boolean) => void;
+  ocrRegions?: OcrOverlayRegion[];
 }
 
 export interface PriceTableRow {
@@ -355,14 +356,19 @@ export interface CapturedImageThumbProps {
   alt: string;
 }
 
+export interface OcrOverlayRegion extends OcrRegion {
+  anchored?: boolean;
+}
+
 export interface OcrRegionOverlayProps {
   showLabels?: boolean;
-  regions?: OcrRegion[];
+  regions?: OcrOverlayRegion[];
 }
 
 export interface OcrRegionCropsProps {
   src: string;
   className?: string;
+  regions?: OcrOverlayRegion[];
 }
 
 export interface CardDetailActions {

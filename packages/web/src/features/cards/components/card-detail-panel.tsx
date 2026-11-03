@@ -70,6 +70,7 @@ import {
   cardFoilTypeOptions,
   DEFAULT_CARD_CONDITION,
   isCardLanguage,
+  OCR_REGIONS_BY_GAME_KEY,
   scanLanguage,
   isCardCondition,
   tcgplayerConditionPriceFor,
@@ -95,7 +96,15 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import { cardScanOriginQueryOptions } from "@/features/collections/api/collections";
+import {
+  cardDiagnosticsQueryOptions,
+  cardScanOriginQueryOptions,
+} from "@/features/collections/api/collections";
+import {
+  padFixedOcrRegions,
+  toOcrOverlayRegions,
+} from "@/features/cards/lib/ocr-read-regions";
+import { nextCycledOption } from "@/features/cards/lib/cycle-option";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -241,6 +250,17 @@ export function CardDetailPanel({
     useScanImage(collection?.guid, scanId);
   const showCapturedImageSlot =
     !!scanId && (isCapturedImageLoading || !!capturedImageUrl);
+  const { data: scanDiagnostics } = useQuery({
+    ...cardDiagnosticsQueryOptions(collection?.guid, scanId),
+    enabled:
+      !!collection?.guid && !!scanId && !!capturedImageUrl && ocrRegionsVisible,
+  });
+  const gameOcrRegions =
+    OCR_REGIONS_BY_GAME_KEY[collection?.game?.key ?? ""] ?? [];
+  const fixedOcrRegions = padFixedOcrRegions(gameOcrRegions);
+  const readOcrRegions = scanDiagnostics?.ocr?.regions?.length
+    ? toOcrOverlayRegions(scanDiagnostics.ocr.regions, gameOcrRegions)
+    : fixedOcrRegions;
 
   const stopEditing = useCallback(() => setEditing(false), []);
 
@@ -385,6 +405,7 @@ export function CardDetailPanel({
         ?.scrollIntoView({ block: "nearest", inline: "nearest" }),
     );
   };
+  const canCycleScanAttributes = reviewMode && isViewing && !!scanId;
   const canHighlightCandidates =
     reviewMode && isViewing && hasMultipleCandidates;
 
@@ -397,7 +418,26 @@ export function CardDetailPanel({
       cardPrevious: isViewing && hasPrev ? onPrev : undefined,
       cardNext: isViewing && hasNext ? onNext : undefined,
       cardCorrect: isViewing ? openCorrection : undefined,
-      cardToggleFoil: isViewing && scanId ? toggleFoil : undefined,
+      cardToggleFoil:
+        !reviewMode && isViewing && scanId ? toggleFoil : undefined,
+      reviewCycleFoil: canCycleScanAttributes
+        ? () =>
+            scanDraft.setFoilType(
+              nextCycledOption([null, ...cardFoilOptions], currentFoilType),
+            )
+        : undefined,
+      reviewCycleCondition: canCycleScanAttributes
+        ? () =>
+            scanDraft.setCondition(
+              nextCycledOption(CARD_CONDITIONS, currentCondition),
+            )
+        : undefined,
+      reviewCycleLanguage: canCycleScanAttributes
+        ? () =>
+            scanDraft.setLanguage(
+              nextCycledOption(languageOptions, currentLanguage),
+            )
+        : undefined,
       cardConditionNM: conditionHandler("NM"),
       cardConditionLP: conditionHandler("LP"),
       cardConditionMP: conditionHandler("MP"),
@@ -447,11 +487,14 @@ export function CardDetailPanel({
             )}
           >
             {capturedImage}
-            {ocrRegionsVisible && capturedImageUrl && <OcrRegionOverlay />}
+            {ocrRegionsVisible && capturedImageUrl && (
+              <OcrRegionOverlay regions={readOcrRegions} />
+            )}
           </button>
           {ocrRegionsVisible && capturedImageUrl && (
             <OcrRegionCrops
               src={capturedImageUrl}
+              regions={readOcrRegions}
               className={cn(imageWidthClass, "mt-1.5")}
             />
           )}
@@ -476,11 +519,12 @@ export function CardDetailPanel({
           />
           {draftIsFoil && <FoilOverlay />}
           {ocrRegionsVisible && selectedCard?.image?.normal && (
-            <OcrRegionOverlay />
+            <OcrRegionOverlay regions={fixedOcrRegions} />
           )}
         </div>
         {ocrRegionsVisible && selectedCard?.image?.normal && (
           <OcrRegionCrops
+            regions={fixedOcrRegions}
             src={selectedCard.image.normal}
             className={cn(imageWidthClass, "mt-1.5")}
           />
@@ -600,6 +644,121 @@ export function CardDetailPanel({
     </DetailSection>
   );
 
+  const scanAttributeControls = (
+    <div className="flex flex-wrap gap-6 items-start max-md:grid max-md:grid-cols-2 max-md:gap-3">
+      <div className="flex flex-col gap-1.5">
+        <Label>
+          {t("foil")}
+          {reviewMode && !isMobile && <HotkeyHint id="reviewCycleFoil" />}
+        </Label>
+        <Select
+          value={currentFoilType ?? "none"}
+          onValueChange={(value) => {
+            if (scanId) {
+              scanDraft.setFoilType(value === "none" ? null : value);
+            }
+          }}
+          disabled={!scanId}
+          onOpenChangeComplete={(open) => {
+            if (!open) foilTriggerRef.current?.blur();
+          }}
+        >
+          <SelectTrigger ref={foilTriggerRef} className="w-40 max-md:w-full">
+            <SelectValue placeholder={t("foilNone")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{t("foilNone")}</SelectItem>
+            {cardFoilOptions.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label>
+          {t("condition.label")}
+          {reviewMode && !isMobile && <HotkeyHint id="reviewCycleCondition" />}
+        </Label>
+        <Select
+          value={currentCondition}
+          onValueChange={(value) => {
+            if (scanId && isCardCondition(value)) {
+              scanDraft.setCondition(value);
+            }
+          }}
+          disabled={!scanId}
+          onOpenChangeComplete={(open) => {
+            if (!open) conditionTriggerRef.current?.blur();
+          }}
+        >
+          <SelectTrigger
+            ref={conditionTriggerRef}
+            className="w-40 max-md:w-full"
+          >
+            <SelectValue>
+              {t(`condition.names.${currentCondition}`)}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {CARD_CONDITIONS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {t(`condition.names.${option}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {conditionPrice != null &&
+          currentCondition !== DEFAULT_CARD_CONDITION && (
+            <p className="text-2xs text-foreground/70">
+              {isTcgplayerConditionPrice
+                ? t("condition.marketPriceHint", {
+                    price: format(conditionPrice),
+                    condition: currentCondition,
+                  })
+                : t("condition.priceHint", {
+                    price: format(conditionPrice),
+                    percent: conditionMultipliers[currentCondition],
+                  })}
+            </p>
+          )}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label>
+          {t("language")}
+          {reviewMode && !isMobile && <HotkeyHint id="reviewCycleLanguage" />}
+        </Label>
+        <Select
+          value={currentLanguage}
+          onValueChange={(value) => {
+            if (scanId && value) scanDraft.setLanguage(value);
+          }}
+          disabled={!scanId}
+          onOpenChangeComplete={(open) => {
+            if (!open) languageTriggerRef.current?.blur();
+          }}
+        >
+          <SelectTrigger
+            ref={languageTriggerRef}
+            className="w-40 max-md:w-full"
+          >
+            <SelectValue>
+              {LANGUAGE_LABELS[currentLanguage] ?? currentLanguage}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {languageOptions.map((option) => (
+              <SelectItem key={option} value={option}>
+                {LANGUAGE_LABELS[option] ?? option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
   const cardName =
     selectedCard?.name ?? t("cardDetailPanel.cardDetailsFallback");
   const typeLine = selectedCard?.typeLine ?? "";
@@ -613,6 +772,7 @@ export function CardDetailPanel({
           capturedImageUrl={capturedImageUrl}
           showOcrRegions={ocrRegionsVisible}
           onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}
+          ocrRegions={readOcrRegions}
         />
       )}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
@@ -669,11 +829,13 @@ export function CardDetailPanel({
                 <h2 className="font-semibold text-base truncate max-md:basis-full max-md:whitespace-normal max-md:line-clamp-2">
                   {cardName}
                 </h2>
-                {!(reviewMode && !isMobile) && total != null && currentIndex != null && (
-                  <span className="text-xs text-foreground/70 shrink-0">
-                    {currentIndex + 1} / {total}
-                  </span>
-                )}
+                {!(reviewMode && !isMobile) &&
+                  total != null &&
+                  currentIndex != null && (
+                    <span className="text-xs text-foreground/70 shrink-0">
+                      {currentIndex + 1} / {total}
+                    </span>
+                  )}
                 {reviewMode && (
                   <Badge variant="outline" className="shrink-0">
                     {t("review.badge")}
@@ -747,7 +909,10 @@ export function CardDetailPanel({
                     </div>
                     {similarMatches}
                   </div>
-                  {correctionSection}
+                  <div className="flex min-w-0 flex-col gap-6">
+                    {correctionSection}
+                    {scanId && scanAttributeControls}
+                  </div>
                 </div>
               ) : (
                 similarMatches
@@ -817,121 +982,7 @@ export function CardDetailPanel({
                             {selectedCard.text}
                           </p>
                         )}
-                        <div className="flex flex-wrap gap-6 items-start max-md:grid max-md:grid-cols-2 max-md:gap-3">
-                          <div className="flex flex-col gap-1.5">
-                            <Label>{t("foil")}</Label>
-                            <Select
-                              value={currentFoilType ?? "none"}
-                              onValueChange={(value) => {
-                                if (scanId) {
-                                  scanDraft.setFoilType(
-                                    value === "none" ? null : value,
-                                  );
-                                }
-                              }}
-                              disabled={!scanId}
-                              onOpenChangeComplete={(open) => {
-                                if (!open) foilTriggerRef.current?.blur();
-                              }}
-                            >
-                              <SelectTrigger
-                                ref={foilTriggerRef}
-                                className="w-40 max-md:w-full"
-                              >
-                                <SelectValue placeholder={t("foilNone")} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">
-                                  {t("foilNone")}
-                                </SelectItem>
-                                {cardFoilOptions.map((type) => (
-                                  <SelectItem key={type} value={type}>
-                                    {type}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <Label>{t("condition.label")}</Label>
-                            <Select
-                              value={currentCondition}
-                              onValueChange={(value) => {
-                                if (scanId && isCardCondition(value)) {
-                                  scanDraft.setCondition(value);
-                                }
-                              }}
-                              disabled={!scanId}
-                              onOpenChangeComplete={(open) => {
-                                if (!open) conditionTriggerRef.current?.blur();
-                              }}
-                            >
-                              <SelectTrigger
-                                ref={conditionTriggerRef}
-                                className="w-40 max-md:w-full"
-                              >
-                                <SelectValue>
-                                  {t(`condition.names.${currentCondition}`)}
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {CARD_CONDITIONS.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {t(`condition.names.${option}`)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {conditionPrice != null &&
-                              currentCondition !== DEFAULT_CARD_CONDITION && (
-                                <p className="text-2xs text-foreground/70">
-                                  {isTcgplayerConditionPrice
-                                    ? t("condition.marketPriceHint", {
-                                        price: format(conditionPrice),
-                                        condition: currentCondition,
-                                      })
-                                    : t("condition.priceHint", {
-                                        price: format(conditionPrice),
-                                        percent:
-                                          conditionMultipliers[
-                                            currentCondition
-                                          ],
-                                      })}
-                                </p>
-                              )}
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <Label>{t("language")}</Label>
-                            <Select
-                              value={currentLanguage}
-                              onValueChange={(value) => {
-                                if (scanId && value)
-                                  scanDraft.setLanguage(value);
-                              }}
-                              disabled={!scanId}
-                              onOpenChangeComplete={(open) => {
-                                if (!open) languageTriggerRef.current?.blur();
-                              }}
-                            >
-                              <SelectTrigger
-                                ref={languageTriggerRef}
-                                className="w-40 max-md:w-full"
-                              >
-                                <SelectValue>
-                                  {LANGUAGE_LABELS[currentLanguage] ??
-                                    currentLanguage}
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {languageOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {LANGUAGE_LABELS[option] ?? option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
+                        {!reviewMode && scanAttributeControls}
                       </div>
                     </DetailSection>
 

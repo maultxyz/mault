@@ -43,6 +43,9 @@ export type HotkeyId =
   | "reviewAccept"
   | "reviewPreviousMatch"
   | "reviewNextMatch"
+  | "reviewCycleFoil"
+  | "reviewCycleCondition"
+  | "reviewCycleLanguage"
   | "intakeOpenScanner";
 
 export interface HotkeyCombo {

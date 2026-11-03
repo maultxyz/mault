@@ -76,6 +76,7 @@
     "showOcrRegions": "Show OCR regions",
     "noOcrRegions": "This game has no OCR regions.",
     "ocrFallback": "{{field}} (fallback)",
+    "ocrFixedBox": "{{field}} (fixed box)",
     "ocrFields": {
       "name": "Name",
       "setLine": "Set line",

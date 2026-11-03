@@ -80,6 +80,9 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
   reviewPreviousMatch: { group: "cardDetail", keys: [{ key: "arrowup" }] },
   reviewNextMatch: { group: "cardDetail", keys: [{ key: "arrowdown" }] },
+  reviewCycleFoil: { group: "cardDetail", keys: [{ key: "f" }] },
+  reviewCycleCondition: { group: "cardDetail", keys: [{ key: "d" }] },
+  reviewCycleLanguage: { group: "cardDetail", keys: [{ key: "l" }] },
   intakeOpenScanner: { group: "intake", keys: [{ key: "o" }] },
 };
 

@@ -29,6 +29,7 @@ export function OcrRegionOverlay({
               region.fallback
                 ? "border-dashed border-warning bg-warning/10"
                 : "border-primary bg-primary/10",
+              region.anchored === false && "border-dotted",
             )}
             style={{
               left: `${region.x * 100}%`,
@@ -48,7 +49,9 @@ export function OcrRegionOverlay({
               >
                 {region.fallback
                   ? t("cardDetailPanel.ocrFallback", { field })
-                  : field}
+                  : region.anchored === false
+                    ? t("cardDetailPanel.ocrFixedBox", { field })
+                    : field}
               </span>
             )}
           </div>

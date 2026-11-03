@@ -17,6 +17,7 @@ export function CardImageViewer({
   capturedImageUrl,
   showOcrRegions,
   onShowOcrRegionsChange,
+  ocrRegions,
 }: CardImageViewerProps) {
   const { t } = useTranslation("cards");
 
@@ -41,9 +42,13 @@ export function CardImageViewer({
             src={capturedImageUrl}
             alt={t("cardPicker.scannedAlt")}
           />
-          {showOcrRegions && <OcrRegionOverlay showLabels />}
+          {showOcrRegions && (
+            <OcrRegionOverlay showLabels regions={ocrRegions} />
+          )}
         </div>
-        {showOcrRegions && <OcrRegionCrops src={capturedImageUrl} />}
+        {showOcrRegions && (
+          <OcrRegionCrops src={capturedImageUrl} regions={ocrRegions} />
+        )}
       </DialogContent>
     </Dialog>
   );

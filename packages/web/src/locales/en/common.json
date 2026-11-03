@@ -246,6 +246,9 @@
       "reviewAccept": "While reviewing: accept the highlighted match, go to next",
       "reviewPreviousMatch": "While reviewing: highlight the previous similar match",
       "reviewNextMatch": "While reviewing: highlight the next similar match",
+      "reviewCycleFoil": "While reviewing: cycle through the foil types",
+      "reviewCycleCondition": "While reviewing: cycle through the conditions",
+      "reviewCycleLanguage": "While reviewing: cycle through the languages",
       "goSortingRules": "Go to sorting rules",
       "intakeOpenScanner": "Open the scanner for this intake"
     }

@@ -5,11 +5,17 @@ import { cn } from "@/lib/utils";
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
-export function OcrRegionCrops({ src, className }: OcrRegionCropsProps) {
+export function OcrRegionCrops({
+  src,
+  className,
+  regions: regionsOverride,
+}: OcrRegionCropsProps) {
   const { t } = useTranslation("cards");
   const collection = useCardDetailCollection();
   const gameKey = collection?.game?.key;
-  const regions = gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : [];
+  const regions =
+    regionsOverride ??
+    (gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : []);
 
   if (regions.length === 0) {
     return (
@@ -28,7 +34,11 @@ export function OcrRegionCrops({ src, className }: OcrRegionCropsProps) {
               ? t("cardDetailPanel.ocrFallback", {
                   field: t(`cardDetailPanel.ocrFields.${region.field}`),
                 })
-              : t(`cardDetailPanel.ocrFields.${region.field}`)}
+              : region.anchored === false
+                ? t("cardDetailPanel.ocrFixedBox", {
+                    field: t(`cardDetailPanel.ocrFields.${region.field}`),
+                  })
+                : t(`cardDetailPanel.ocrFields.${region.field}`)}
           </figcaption>
           <div
             className="relative w-full overflow-hidden rounded-md border bg-muted"

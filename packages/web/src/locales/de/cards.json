@@ -76,6 +76,7 @@
     "showOcrRegions": "OCR-Bereiche anzeigen",
     "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
     "ocrFallback": "{{field}} (Ausweichbereich)",
+    "ocrFixedBox": "{{field}} (feste Box)",
     "ocrFields": {
       "name": "Name",
       "setLine": "Setzeile",

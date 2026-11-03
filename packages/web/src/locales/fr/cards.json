@@ -76,6 +76,7 @@
     "showOcrRegions": "Afficher les zones OCR",
     "noOcrRegions": "Ce jeu n'a pas de zones OCR.",
     "ocrFallback": "{{field}} (zone de secours)",
+    "ocrFixedBox": "{{field}} (zone fixe)",
     "ocrFields": {
       "name": "Nom",
       "setLine": "Ligne d'extension",

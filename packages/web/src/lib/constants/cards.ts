@@ -49,6 +49,7 @@ export const WRAPPED_GRAIN_OVERLAY =
 export const CARD_REVIEW_SEARCH_PARAM = "review";
 export const CARD_REVIEW_GRID_PARAM_VALUE = "grid";
 export const REVIEW_QUEUE_MAX_PAGES = 20;
+export const OCR_FIXED_REGION_PADDING_OF_CARD_WIDTH = 0.05;
 
 export const DETAIL_PREFETCH_COUNT = 3;
 

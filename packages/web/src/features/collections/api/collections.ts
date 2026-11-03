@@ -95,6 +95,18 @@ export async function loadCardDiagnostics(
   );
 }
 
+export const cardDiagnosticsQueryOptions = (
+  collectionGuid: string | undefined,
+  scanId: string | undefined,
+) =>
+  queryOptions({
+    queryKey: ["collection-card-diagnostics", collectionGuid, scanId],
+    queryFn: () =>
+      loadCardDiagnostics(collectionGuid!, scanId!).then((r) => r.data ?? null),
+    enabled: !!collectionGuid && !!scanId,
+    staleTime: Infinity,
+  });
+
 export const cardScanOriginQueryOptions = (
   collectionGuid: string | undefined,
   scanId: string,

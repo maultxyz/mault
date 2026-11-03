@@ -299,6 +299,29 @@ export default function CardDetailScreen() {
       { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
     ]);
 
+  const scanAttributeRows = (
+    <ListGroup>
+      <ListRow
+        icon="sparkles"
+        title={t("cardDetail.foil")}
+        value={draftFoil ?? t("cardDetail.foilNone")}
+        onPress={() => setSheet("foil")}
+      />
+      <ListRow
+        icon="condition"
+        title={t("cardDetail.condition")}
+        value={t(`cardDetail.conditions.${draftCondition}`)}
+        onPress={() => setSheet("condition")}
+      />
+      <ListRow
+        icon="language"
+        title={t("cardDetail.language")}
+        value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
+        onPress={() => setSheet("language")}
+      />
+    </ListGroup>
+  );
+
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
     borderRadius: RADIUS.lg,
@@ -469,6 +492,7 @@ export default function CardDetailScreen() {
                   disabled={correction.isPending}
                   onSelect={(selected) => void applyCorrection(selected)}
                 />
+                {scanAttributeRows}
               </View>
             ) : null}
 
@@ -500,28 +524,7 @@ export default function CardDetailScreen() {
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.details")} />
                 <CardDetailsList card={card} binNumber={entry?.binNumber} />
-                {entry ? (
-                  <ListGroup>
-                    <ListRow
-                      icon="sparkles"
-                      title={t("cardDetail.foil")}
-                      value={draftFoil ?? t("cardDetail.foilNone")}
-                      onPress={() => setSheet("foil")}
-                    />
-                    <ListRow
-                      icon="condition"
-                      title={t("cardDetail.condition")}
-                      value={t(`cardDetail.conditions.${draftCondition}`)}
-                      onPress={() => setSheet("condition")}
-                    />
-                    <ListRow
-                      icon="language"
-                      title={t("cardDetail.language")}
-                      value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
-                      onPress={() => setSheet("language")}
-                    />
-                  </ListGroup>
-                ) : null}
+                {entry && !reviewMode ? scanAttributeRows : null}
                 {storage.data ? (
                   <Pressable
                     accessibilityRole="link"

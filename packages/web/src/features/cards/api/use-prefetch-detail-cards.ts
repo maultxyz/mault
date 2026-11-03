@@ -2,6 +2,7 @@ import { cardSetsQueryOptions } from "@/features/cards/api/card-sets";
 import { cardSearchQueryOptions } from "@/features/cards/api/use-card-search";
 import { scanImageQueryOptions } from "@/features/cards/api/use-scan-image";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
+import { cardDiagnosticsQueryOptions } from "@/features/collections/api/collections";
 import {
   DETAIL_PREFETCH_COUNT,
   DETAIL_PREFETCH_STALE_MS,
@@ -137,7 +138,12 @@ export function usePrefetchDetailCards(
       isCancelled: () => cancelled,
       onStepLoaded: (scanId, step) => {
         preloadStepImages(step, reviewMode);
-        if (reviewMode) prefetchReviewCorrectionSearch(queryClient, step);
+        if (reviewMode) {
+          prefetchReviewCorrectionSearch(queryClient, step);
+          void queryClient.prefetchQuery(
+            cardDiagnosticsQueryOptions(step.collectionGuid, scanId),
+          );
+        }
         const scanImage = scanImageQueryOptions(step.collectionGuid, scanId);
         void (
           reviewMode

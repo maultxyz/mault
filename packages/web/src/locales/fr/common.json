@@ -246,6 +246,9 @@
       "reviewAccept": "Pendant la vérification : accepter la correspondance surlignée, suivante",
       "reviewPreviousMatch": "Pendant la vérification : surligner la correspondance similaire précédente",
       "reviewNextMatch": "Pendant la vérification : surligner la correspondance similaire suivante",
+      "reviewCycleFoil": "Pendant la vérification : parcourir les types de foil",
+      "reviewCycleCondition": "Pendant la vérification : parcourir les états",
+      "reviewCycleLanguage": "Pendant la vérification : parcourir les langues",
       "goSortingRules": "Aller aux règles de tri",
       "intakeOpenScanner": "Ouvrir le scanner pour ce rachat"
     }
