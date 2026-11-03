@@ -9,6 +9,7 @@ import {
 } from "@magic-vault/shared";
 import { z } from "zod";
 import {
+  BIN_RULE_TRANSFER_MODES,
   PICK_LIST_DECKLIST_MAX_LENGTH,
   PRESET_KINDS,
 } from "@/lib/constants/bins";
@@ -42,6 +43,16 @@ export const createPresetSchema = createSetSchema
 export type CreatePresetFormValues = z.infer<typeof createPresetSchema>;
 
 export const presetWorkflowRenameSchema = createSetSchema;
+
+export const binRuleTransferSchema = z.object({
+  mode: z.enum(BIN_RULE_TRANSFER_MODES),
+  targetBinNumber: z.number().int().positive().nullable(),
+}).refine((values) => values.targetBinNumber != null, {
+  path: ["targetBinNumber"],
+  message: formValidationMessage("valueRequired"),
+});
+
+export type BinRuleTransferFormValues = z.infer<typeof binRuleTransferSchema>;
 
 export const presetWorkflowStagesSchema = z.object({
   stages: z

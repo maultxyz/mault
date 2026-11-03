@@ -291,6 +291,19 @@
     "moveUp": "Move stage up",
     "moveDown": "Move stage down"
   },
+  "binRuleTransfer": {
+    "button": "Copy or move",
+    "title": "Copy or move rules from {{bin}}",
+    "description": "Puts this bin's sorting rules on another bin. Moving also clears them from this bin.",
+    "modeLabel": "Action",
+    "copy": "Copy",
+    "move": "Move",
+    "targetLabel": "To bin",
+    "chooseBin": "Choose a bin",
+    "catchAllBin": "Bin {{number}} (catch-all)",
+    "replaceWarning": "{{bin}} already has rules. They will be replaced.",
+    "saveFirst": "Save or discard your changes first."
+  },
   "binLabel": "Bin {{number}}",
   "catchAll": "Catch-all",
   "save": "Save",

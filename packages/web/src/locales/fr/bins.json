@@ -291,6 +291,19 @@
     "moveUp": "Monter l'étape",
     "moveDown": "Descendre l'étape"
   },
+  "binRuleTransfer": {
+    "button": "Copier ou déplacer",
+    "title": "Copier ou déplacer les règles de {{bin}}",
+    "description": "Applique les règles de tri de ce bac à un autre bac. Le déplacement les retire aussi de ce bac.",
+    "modeLabel": "Action",
+    "copy": "Copier",
+    "move": "Déplacer",
+    "targetLabel": "Vers le bac",
+    "chooseBin": "Choisir un bac",
+    "catchAllBin": "Bac {{number}} (fourre-tout)",
+    "replaceWarning": "{{bin}} a déjà des règles. Elles seront remplacées.",
+    "saveFirst": "Enregistrez ou annulez d'abord vos modifications."
+  },
   "binLabel": "Bac {{number}}",
   "catchAll": "Fourre-tout",
   "save": "Enregistrer",

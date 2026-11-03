@@ -988,6 +988,16 @@
       "multiplePacksLabel": "Mehrere Pakete pro Fach",
       "multiplePacksDescription": "Wenn ein Fach ein Paket fertig hat, beginnt es darauf ein neues und macht weiter, bis das Fach voll ist. Ein Fach beginnt ein neues Paket nur, wenn das ganze Paket noch hineinpasst, damit kein Paket unvollständig bleibt."
     },
+    "transfer": {
+      "button": "Kopieren oder verschieben",
+      "title": "Regeln kopieren oder verschieben nach",
+      "catchAllBin": "Fach {{number}} (Auffangfach)",
+      "confirmTitle": "Regeln nach {{bin}}",
+      "confirmDescription": "Beim Kopieren bleiben die Regeln auch in diesem Fach. Beim Verschieben werden sie hier entfernt.",
+      "replaceWarning": "{{bin}} hat bereits Regeln. Sie werden ersetzt.",
+      "copy": "Kopieren",
+      "move": "Verschieben"
+    },
     "stages": {
       "badge": "Mehrstufig",
       "missingPreset": "Gelöschte Vorlage",

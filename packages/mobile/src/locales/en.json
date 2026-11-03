@@ -988,6 +988,16 @@
       "multiplePacksLabel": "Multiple packs per bin",
       "multiplePacksDescription": "When a bin finishes a pack, it starts a new one on top of it and keeps going until the bin is full. A bin only starts a new pack if it has room for the whole pack, so packs are never cut short."
     },
+    "transfer": {
+      "button": "Copy or move",
+      "title": "Copy or move rules to",
+      "catchAllBin": "Bin {{number}} (catch-all)",
+      "confirmTitle": "Rules to {{bin}}",
+      "confirmDescription": "Copy keeps the rules on this bin too. Move clears them from this bin.",
+      "replaceWarning": "{{bin}} already has rules. They will be replaced.",
+      "copy": "Copy",
+      "move": "Move"
+    },
     "stages": {
       "badge": "Multi-stage",
       "missingPreset": "Deleted preset",

@@ -124,6 +124,12 @@ export interface PresetWorkflowRenameDialogProps {
   onClose: () => void;
 }
 
+export interface BinRuleTransferDialogProps {
+  source: BinConfig;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 export interface MobilePresetListProps {
   onPresetChosen: () => void;
 }

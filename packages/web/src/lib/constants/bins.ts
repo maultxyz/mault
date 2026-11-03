@@ -8,6 +8,7 @@ export const PRESET_WORKFLOW_PATH = "/app/rules/multi-stage/:workflowGuid";
 export const presetWorkflowPath = (workflowGuid: string) =>
   `/app/rules/multi-stage/${workflowGuid}`;
 export const PRESET_KINDS = ["rules", "multiStage"] as const;
+export const BIN_RULE_TRANSFER_MODES = ["copy", "move"] as const;
 export const CREATE_PRESET_DEFAULT_VALUES = {
   name: "",
   kind: "rules" as const,

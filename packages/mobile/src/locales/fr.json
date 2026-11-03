@@ -988,6 +988,16 @@
       "multiplePacksLabel": "Plusieurs paquets par bac",
       "multiplePacksDescription": "Quand un bac termine un paquet, il en commence un nouveau par-dessus et continue jusqu'à ce que le bac soit plein. Un bac ne commence un nouveau paquet que s'il a la place pour le paquet entier, donc aucun paquet n'est coupé."
     },
+    "transfer": {
+      "button": "Copier ou déplacer",
+      "title": "Copier ou déplacer les règles vers",
+      "catchAllBin": "Bac {{number}} (fourre-tout)",
+      "confirmTitle": "Règles vers {{bin}}",
+      "confirmDescription": "Copier garde aussi les règles sur ce bac. Déplacer les retire de ce bac.",
+      "replaceWarning": "{{bin}} a déjà des règles. Elles seront remplacées.",
+      "copy": "Copier",
+      "move": "Déplacer"
+    },
     "stages": {
       "badge": "Plusieurs étapes",
       "missingPreset": "Préréglage supprimé",

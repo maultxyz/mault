@@ -291,6 +291,19 @@
     "moveUp": "Stufe nach oben",
     "moveDown": "Stufe nach unten"
   },
+  "binRuleTransfer": {
+    "button": "Kopieren oder verschieben",
+    "title": "Regeln aus {{bin}} kopieren oder verschieben",
+    "description": "Überträgt die Sortierregeln dieses Fachs auf ein anderes Fach. Beim Verschieben werden sie in diesem Fach entfernt.",
+    "modeLabel": "Aktion",
+    "copy": "Kopieren",
+    "move": "Verschieben",
+    "targetLabel": "In Fach",
+    "chooseBin": "Fach wählen",
+    "catchAllBin": "Fach {{number}} (Auffangfach)",
+    "replaceWarning": "{{bin}} hat bereits Regeln. Sie werden ersetzt.",
+    "saveFirst": "Speichere oder verwirf zuerst deine Änderungen."
+  },
   "binLabel": "Fach {{number}}",
   "catchAll": "Auffangfach",
   "save": "Speichern",
