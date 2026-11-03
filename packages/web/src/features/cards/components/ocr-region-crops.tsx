@@ -1,6 +1,9 @@
 import { useCardDetailCollection } from "@/features/cards/api/use-card-detail-scope";
 import { MTG_ASPECT_RATIO } from "@/lib/constants/scanner";
-import type { OcrRegionCropsProps } from "@/lib/interfaces/cards";
+import type {
+  OcrOverlayRegion,
+  OcrRegionCropsProps,
+} from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
@@ -13,7 +16,7 @@ export function OcrRegionCrops({
   const { t } = useTranslation("cards");
   const collection = useCardDetailCollection();
   const gameKey = collection?.game?.key;
-  const regions =
+  const regions: OcrOverlayRegion[] =
     regionsOverride ??
     (gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : []);
 
