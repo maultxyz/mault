@@ -75,7 +75,10 @@
     "cardRemoved": "Carte retirée de son emplacement",
     "correctFailed": "Impossible de corriger la carte",
     "cardsMoved_one": "1 carte rangée en stockage",
-    "cardsMoved_other": "{{count}} cartes rangées en stockage"
+    "cardsMoved_other": "{{count}} cartes rangées en stockage",
+    "cardsMovedToCollection_one": "1 carte déplacée vers {{name}}",
+    "cardsMovedToCollection_other": "{{count}} cartes déplacées vers {{name}}",
+    "moveToCollectionFailed": "Impossible de déplacer les cartes"
   },
   "removeDialog": {
     "title": "Retirer {{name}} de {{location}} ?",
@@ -122,8 +125,15 @@
   "moveDialog": {
     "title_one": "Déplacer la carte vers un emplacement",
     "title_other": "Déplacer {{count}} cartes vers un emplacement",
+    "titleAnyTarget_one": "Déplacer la carte",
+    "titleAnyTarget_other": "Déplacer {{count}} cartes",
     "description_one": "La carte est ajoutée à la fin de l'emplacement choisi. Si elle était rangée ailleurs, elle quitte cet emplacement.",
     "description_other": "Les cartes sont ajoutées à la fin de l'emplacement choisi, dans l'ordre de votre sélection. Les cartes rangées ailleurs quittent leur ancien emplacement.",
+    "collectionDescription_one": "La carte quitte cette collection et rejoint celle que vous choisissez. Elle garde son emplacement de rangement et quitte son bac.",
+    "collectionDescription_other": "Les cartes quittent cette collection et rejoignent celle que vous choisissez. Elles gardent leurs emplacements de rangement et quittent leurs bacs.",
+    "targetLabel": "Déplacer vers",
+    "locationsGroup": "Emplacements",
+    "collectionsGroup": "Collections",
     "cancel": "Annuler",
     "confirm": "Déplacer"
   }

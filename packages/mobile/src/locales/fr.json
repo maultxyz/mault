@@ -1276,8 +1276,11 @@
       "startFailed": "Impossible de lancer la vérification"
     },
     "moveToLocation": "Déplacer vers un emplacement",
+    "moveToCollection": "Déplacer vers une collection",
+    "moveToCollectionFailed": "Impossible de déplacer les cartes",
     "moveToOtherLocation": "Déplacer vers un autre emplacement",
-    "searchLocations": "Rechercher des emplacements"
+    "searchLocations": "Rechercher des emplacements",
+    "searchCollections": "Rechercher des collections"
   },
   "settings": {
     "title": "Paramètres",

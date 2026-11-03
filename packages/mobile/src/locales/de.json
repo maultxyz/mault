@@ -1276,8 +1276,11 @@
       "startFailed": "Die Prüfung konnte nicht gestartet werden"
     },
     "moveToLocation": "In Lagerort verschieben",
+    "moveToCollection": "In Sammlung verschieben",
+    "moveToCollectionFailed": "Karten konnten nicht verschoben werden",
     "moveToOtherLocation": "In anderen Lagerort verschieben",
-    "searchLocations": "Lagerorte suchen"
+    "searchLocations": "Lagerorte suchen",
+    "searchCollections": "Sammlungen suchen"
   },
   "settings": {
     "title": "Einstellungen",

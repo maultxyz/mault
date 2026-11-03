@@ -6,6 +6,7 @@ import {
 import { useIntakeCardActions } from "@/features/business/api/use-intake-card-actions";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import {
+  fetchPrefetchQueryData,
   loadCollectionPositionStep,
   usePrefetchDetailCards,
 } from "@/features/cards/api/use-prefetch-detail-cards";
@@ -17,7 +18,6 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
-import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
 import type { IntakeCardDetailProps } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import { IconX } from "@tabler/icons-react";
@@ -90,22 +90,24 @@ export function IntakeCardDetail({
 
   const loadPrefetchStep = useCallback(
     async (upcomingScanId: string) => {
-      const nextContext = await queryClient.fetchQuery({
-        ...intakeCardContextQueryOptions(lot.guid, upcomingScanId, reviewMode),
-        staleTime: DETAIL_PREFETCH_STALE_MS,
-      });
+      const nextContext = await fetchPrefetchQueryData(
+        queryClient,
+        intakeCardContextQueryOptions(lot.guid, upcomingScanId, reviewMode),
+        reviewMode,
+      );
       if (!nextContext) return null;
       const step = await loadCollectionPositionStep(
         queryClient,
         nextContext.card.collectionGuid,
         upcomingScanId,
         ALL_CARDS_QUERY,
+        reviewMode,
       );
       return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
     },
     [queryClient, lot.guid, reviewMode],
   );
-  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep);
+  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep, reviewMode);
 
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 

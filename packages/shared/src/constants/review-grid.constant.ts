@@ -1,1 +1,5 @@
 export const REVIEW_GRID_CARD_LIMIT = 50;
+
+export const REVIEW_DETAIL_PREFETCH_COUNT = 10;
+
+export const REVIEW_DETAIL_PREFETCH_MAX_AGE_MS = 2 * 60 * 1000;

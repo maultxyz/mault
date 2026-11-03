@@ -3,11 +3,13 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import { raritySwatch } from "@/lib/card-swatches";
 import type { CardSearchResultTileProps } from "@/lib/interfaces/cards";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
+import { DEFAULT_CARD_LANGUAGE } from "@magic-vault/shared";
 
 export function CardSearchResultTile({
   card,
   disabled = false,
   isSelected = false,
+  reviewLayout = false,
   className,
   onClick,
   onKeyDown,
@@ -30,56 +32,107 @@ export function CardSearchResultTile({
           <div className="h-full w-full bg-background" />
         )}
       </div>
-      <div className="flex min-w-0 flex-col gap-0.5 px-1 pt-1 pb-0.5">
-        <div className="flex min-w-0 flex-row items-center justify-between gap-2">
-          <p className="truncate text-xs font-semibold" title={card.name}>
-            {card.name}
-          </p>
-          {matchPercent != null && (
-            <Badge
-              variant={matchPercent >= 80 ? "default" : "destructive"}
-              className={cn(
-                "shrink-0 tabular-nums",
-                matchPercent < 80 && "bg-destructive text-white",
-              )}
-            >
-              {matchPercent.toFixed(2)}%
-            </Badge>
-          )}
-        </div>
-        <div className="flex flex-row items-center justify-between gap-2">
-          <div className="flex min-w-0 flex-row items-center gap-1.5">
-            <div
-              className="size-3 shrink-0 rounded-full"
-              style={{ backgroundColor: raritySwatch(card.rarity).bg }}
-            />
+      {reviewLayout ? (
+        <div className="flex min-w-0 flex-col gap-0.5 px-1 pt-1.5 pb-0.5 leading-tight">
+          <div className="flex min-w-0 items-center gap-1.5">
             <p
-              className="truncate text-xs font-semibold uppercase"
-              title={card.setName}
+              className="min-w-0 flex-1 truncate text-xs font-semibold"
+              title={card.name}
             >
-              {card.set}
+              {card.name}
             </p>
-            <p className="shrink-0 text-xs text-foreground/70">
-              #{card.collectorNumber}
-            </p>
-          </div>
-          <div className="flex shrink-0 flex-row items-center gap-1.5">
-            {card.lang && (
-              <Badge variant="outline" className="uppercase">
-                {card.lang}
+            {matchPercent != null && (
+              <Badge
+                variant={matchPercent >= 80 ? "default" : "destructive"}
+                className={cn(
+                  "shrink-0 tabular-nums",
+                  matchPercent < 80 && "bg-destructive text-white",
+                )}
+              >
+                {matchPercent.toFixed(2)}%
               </Badge>
             )}
+          </div>
+          <p
+            className="truncate text-xs text-foreground/70"
+            title={card.setName}
+          >
+            {card.setName || card.set.toUpperCase()}
+          </p>
+          <div className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums">
+            <span
+              className="size-2 shrink-0 rounded-full"
+              style={{ backgroundColor: raritySwatch(card.rarity).bg }}
+              title={card.rarity}
+            />
+            <span className="min-w-0 truncate font-semibold uppercase">
+              {card.set} #{card.collectorNumber}
+            </span>
+            {card.lang && card.lang !== DEFAULT_CARD_LANGUAGE && (
+              <span className="shrink-0 font-semibold uppercase text-foreground/70">
+                {card.lang}
+              </span>
+            )}
             {displayPrice != null && (
-              <p className="text-xs font-medium text-foreground/70">
+              <span className="ml-auto shrink-0 font-medium">
                 {format(displayPrice)}
-              </p>
+              </span>
             )}
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex min-w-0 flex-col gap-0.5 px-1 pt-1 pb-0.5">
+          <div className="flex min-w-0 flex-row items-center justify-between gap-2">
+            <p className="truncate text-xs font-semibold" title={card.name}>
+              {card.name}
+            </p>
+            {matchPercent != null && (
+              <Badge
+                variant={matchPercent >= 80 ? "default" : "destructive"}
+                className={cn(
+                  "shrink-0 tabular-nums",
+                  matchPercent < 80 && "bg-destructive text-white",
+                )}
+              >
+                {matchPercent.toFixed(2)}%
+              </Badge>
+            )}
+          </div>
+          <div className="flex flex-row items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-row items-center gap-1.5">
+              <div
+                className="size-3 shrink-0 rounded-full"
+                style={{ backgroundColor: raritySwatch(card.rarity).bg }}
+              />
+              <p
+                className="truncate text-xs font-semibold uppercase"
+                title={card.setName}
+              >
+                {card.set}
+              </p>
+              <p className="shrink-0 text-xs text-foreground/70">
+                #{card.collectorNumber}
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-row items-center gap-1.5">
+              {card.lang && (
+                <Badge variant="outline" className="uppercase">
+                  {card.lang}
+                </Badge>
+              )}
+              {displayPrice != null && (
+                <p className="text-xs font-medium text-foreground/70">
+                  {format(displayPrice)}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
-  const tileClassName = "flex min-w-0 flex-col rounded-lg border bg-muted p-1 text-left";
+  const tileClassName =
+    "flex min-w-0 flex-col rounded-lg border bg-muted p-1 text-left";
   if (!onClick) {
     return <div className={cn(tileClassName, className)}>{content}</div>;
   }

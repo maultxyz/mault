@@ -9,9 +9,13 @@ import { CardSearchResultSkeletonGrid } from "@/features/cards/components/card-s
 import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
 import { CardSearchSetSelect } from "@/features/cards/components/card-search-set-select";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { CARD_SEARCH_ALL_SETS } from "@/lib/constants/cards";
+import {
+  CARD_CORRECTION_INLINE_GRID_CLASS,
+  CARD_SEARCH_ALL_SETS,
+} from "@/lib/constants/cards";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import type { CardCorrectionSearchProps } from "@/lib/interfaces/cards";
+import { cn } from "@/lib/utils";
 import { IconLoader2, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,6 +27,7 @@ import {
 export function CardCorrectionSearch({
   collectionGuid,
   initialQuery = "",
+  inline = false,
   capturedImage,
   disabled = false,
   onSelect,
@@ -49,6 +54,7 @@ export function CardCorrectionSearch({
     collectionGuid,
     selectedSet !== CARD_SEARCH_ALL_SETS ? selectedSet : undefined,
     selectedLanguage,
+    { keepResultsWhileRefreshing: inline },
   );
 
   const { inputRef, gridRef, onInputKeyDown, onResultKeyDown } =
@@ -59,6 +65,10 @@ export function CardCorrectionSearch({
       },
       onCancel,
     });
+
+  const resultGridClassName = inline
+    ? CARD_CORRECTION_INLINE_GRID_CLASS
+    : "grid-cols-3";
 
   const handleInputChange = (value: string) => {
     setQuery(value);
@@ -87,7 +97,7 @@ export function CardCorrectionSearch({
             onKeyDown={onInputKeyDown}
             ref={inputRef}
             className="pl-7"
-            autoFocus
+            autoFocus={!inline}
           />
         </div>
         <CardSearchLanguageSelect
@@ -104,51 +114,61 @@ export function CardCorrectionSearch({
           onChange={setSelectedSet}
         />
       </div>
-      <ScrollArea className="flex-1 overflow-y-auto min-h-48 border rounded-lg p-1 bg-sidebar">
-        {loading && (
-          <CardSearchResultSkeletonGrid className="grid-cols-3 gap-1.5" />
-        )}
-        {!loading && results.length === 0 && query.trim().length === 0 && (
-          <p className="text-center text-sm text-foreground/70 py-8">
-            {t("cardPicker.startTyping")}
-          </p>
-        )}
-        {!loading && results.length === 0 && query.trim().length >= 2 && (
-          <EmptyState
-            size="compact"
-            icon={IconSearch}
-            title={t("cardPicker.noCardsFound")}
-          />
-        )}
-        {!loading && results.length > 0 && (
-          <div
-            ref={gridRef}
-            className="grid grid-cols-3 gap-1.5"
-          >
-            {results.map((card) => (
-              <CardSearchResultTile
-                key={cardSearchResultKey(card)}
-                card={card}
-                disabled={disabled}
-                onKeyDown={onResultKeyDown}
-                onClick={(e) => onSelect(card, { stay: e.shiftKey })}
-              />
-            ))}
-          </div>
-        )}
-        {!loading && hasMore && (
-          <div className="flex justify-center py-2">
-            <Button
-              variant="outline"
-              onClick={loadMore}
-              disabled={isLoadingMore}
+      {(!inline || query.trim().length > 0) && (
+        <ScrollArea
+          className={cn(
+            "overflow-y-auto border rounded-lg p-1 bg-sidebar",
+            inline ? "max-h-[32rem]" : "flex-1 min-h-48",
+          )}
+        >
+          {loading && (
+            <CardSearchResultSkeletonGrid
+              className={cn(resultGridClassName, "gap-1.5")}
+            />
+          )}
+          {!loading && results.length === 0 && query.trim().length === 0 && (
+            <p className="text-center text-sm text-foreground/70 py-8">
+              {t("cardPicker.startTyping")}
+            </p>
+          )}
+          {!loading && results.length === 0 && query.trim().length >= 2 && (
+            <EmptyState
+              size="compact"
+              icon={IconSearch}
+              title={t("cardPicker.noCardsFound")}
+            />
+          )}
+          {!loading && results.length > 0 && (
+            <div
+              ref={gridRef}
+              className={cn("grid gap-1.5", resultGridClassName)}
             >
-              {isLoadingMore && <IconLoader2 className="animate-spin" />}
-              {t("cardPicker.loadMore")}
-            </Button>
-          </div>
-        )}
-      </ScrollArea>
+              {results.map((card) => (
+                <CardSearchResultTile
+                  key={cardSearchResultKey(card)}
+                  card={card}
+                  reviewLayout={inline}
+                  disabled={disabled}
+                  onKeyDown={onResultKeyDown}
+                  onClick={(e) => onSelect(card, { stay: e.shiftKey })}
+                />
+              ))}
+            </div>
+          )}
+          {!loading && hasMore && (
+            <div className="flex justify-center py-2">
+              <Button
+                variant="outline"
+                onClick={loadMore}
+                disabled={isLoadingMore}
+              >
+                {isLoadingMore && <IconLoader2 className="animate-spin" />}
+                {t("cardPicker.loadMore")}
+              </Button>
+            </div>
+          )}
+        </ScrollArea>
+      )}
     </>
   );
 }

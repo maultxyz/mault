@@ -75,7 +75,10 @@
     "cardRemoved": "Karte aus ihrem Lagerort entfernt",
     "correctFailed": "Die Karte konnte nicht korrigiert werden",
     "cardsMoved_one": "1 Karte ins Lager verschoben",
-    "cardsMoved_other": "{{count}} Karten ins Lager verschoben"
+    "cardsMoved_other": "{{count}} Karten ins Lager verschoben",
+    "cardsMovedToCollection_one": "1 Karte nach {{name}} verschoben",
+    "cardsMovedToCollection_other": "{{count}} Karten nach {{name}} verschoben",
+    "moveToCollectionFailed": "Karten konnten nicht verschoben werden"
   },
   "removeDialog": {
     "title": "{{name}} aus {{location}} entfernen?",
@@ -122,8 +125,15 @@
   "moveDialog": {
     "title_one": "Karte in einen Lagerort verschieben",
     "title_other": "{{count}} Karten in einen Lagerort verschieben",
+    "titleAnyTarget_one": "Karte verschieben",
+    "titleAnyTarget_other": "{{count}} Karten verschieben",
     "description_one": "Die Karte wird ans Ende des gewählten Lagerorts gelegt. War sie woanders gelagert, verlässt sie diesen Ort.",
     "description_other": "Die Karten werden in der Reihenfolge deiner Auswahl ans Ende des gewählten Lagerorts gelegt. Karten, die woanders gelagert waren, verlassen ihren alten Ort.",
+    "collectionDescription_one": "Die Karte verlässt diese Sammlung und kommt in die gewählte. Sie behält ihren Lagerort und verlässt ihr Fach.",
+    "collectionDescription_other": "Die Karten verlassen diese Sammlung und kommen in die gewählte. Sie behalten ihre Lagerorte und verlassen ihre Fächer.",
+    "targetLabel": "Verschieben nach",
+    "locationsGroup": "Lagerorte",
+    "collectionsGroup": "Sammlungen",
     "cancel": "Abbrechen",
     "confirm": "Verschieben"
   }

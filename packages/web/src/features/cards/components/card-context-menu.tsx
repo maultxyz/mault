@@ -52,8 +52,11 @@ export function CardContextMenu({
     copyName,
     remove,
     canMoveToLocation,
+    canMove,
+    sourceCollectionGuid,
     isMovingToLocation,
     moveToLocation,
+    moveToCollection,
   } = useCardActions(entry);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [moveToLocationOpen, setMoveToLocationOpen] = useState(false);
@@ -150,7 +153,7 @@ export function CardContextMenu({
               ))}
             </ContextMenuSubContent>
           </ContextMenuSub>
-          {canMoveToLocation && (
+          {canMove && (
             <ContextMenuItem onClick={() => setMoveToLocationOpen(true)}>
               <IconBox />
               {t("cardContextMenu.moveToLocation")}
@@ -188,7 +191,10 @@ export function CardContextMenu({
         count={entry.scanIds.length}
         isMoving={isMovingToLocation}
         onOpenChange={setMoveToLocationOpen}
+        showLocations={canMoveToLocation}
+        sourceCollectionGuid={sourceCollectionGuid}
         onMove={moveToLocation}
+        onMoveToCollection={moveToCollection}
       />
     </>
   );

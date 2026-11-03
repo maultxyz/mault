@@ -3,10 +3,17 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  collectionGuidFromMoveTarget,
+  collectionMoveTarget,
+} from "@/features/storage/lib/move-target";
 import { EMPTY_BIN_NEW_LOCATION } from "@/lib/constants/storage";
 import type { LocationMoveFieldsProps } from "@/lib/interfaces/storage";
 import { Controller } from "react-hook-form";
@@ -15,15 +22,26 @@ import { useTranslation } from "react-i18next";
 export function LocationMoveFields({
   form,
   locations,
+  showLocations = true,
+  collections = [],
   idPrefix,
 }: LocationMoveFieldsProps) {
   const { t } = useTranslation("storage");
   const locationGuid = form.watch("locationGuid");
 
-  const optionLabel = (value: string) =>
-    value === EMPTY_BIN_NEW_LOCATION
-      ? t("emptyDialog.newLocation")
-      : (locations.find((location) => location.guid === value)?.name ?? "");
+  const hasCollections = collections.length > 0;
+
+  const optionLabel = (value: string) => {
+    if (value === EMPTY_BIN_NEW_LOCATION) return t("emptyDialog.newLocation");
+    const collectionGuid = collectionGuidFromMoveTarget(value);
+    if (collectionGuid) {
+      return (
+        collections.find((collection) => collection.guid === collectionGuid)
+          ?.name ?? ""
+      );
+    }
+    return locations.find((location) => location.guid === value)?.name ?? "";
+  };
 
   return (
     <>
@@ -32,7 +50,11 @@ export function LocationMoveFields({
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
-            <FieldLabel>{t("emptyDialog.locationLabel")}</FieldLabel>
+            <FieldLabel>
+              {hasCollections
+                ? t("moveDialog.targetLabel")
+                : t("emptyDialog.locationLabel")}
+            </FieldLabel>
             <Select
               value={field.value || null}
               onValueChange={(value) => field.onChange(value ?? "")}
@@ -43,14 +65,35 @@ export function LocationMoveFields({
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {locations.map((location) => (
-                  <SelectItem key={location.guid} value={location.guid}>
-                    {location.name}
-                  </SelectItem>
-                ))}
-                <SelectItem value={EMPTY_BIN_NEW_LOCATION}>
-                  {t("emptyDialog.newLocation")}
-                </SelectItem>
+                {showLocations && (
+                  <SelectGroup>
+                    {hasCollections && (
+                      <SelectLabel>{t("moveDialog.locationsGroup")}</SelectLabel>
+                    )}
+                    {locations.map((location) => (
+                      <SelectItem key={location.guid} value={location.guid}>
+                        {location.name}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value={EMPTY_BIN_NEW_LOCATION}>
+                      {t("emptyDialog.newLocation")}
+                    </SelectItem>
+                  </SelectGroup>
+                )}
+                {showLocations && hasCollections && <SelectSeparator />}
+                {hasCollections && (
+                  <SelectGroup>
+                    <SelectLabel>{t("moveDialog.collectionsGroup")}</SelectLabel>
+                    {collections.map((collection) => (
+                      <SelectItem
+                        key={collection.guid}
+                        value={collectionMoveTarget(collection.guid)}
+                      >
+                        {collection.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                )}
               </SelectContent>
             </Select>
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
