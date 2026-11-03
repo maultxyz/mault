@@ -9,6 +9,7 @@ import {
   isRuleGroup,
 } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 function countConditions(config: BinConfig): number {
   function count(items: BinConfig["rules"]["conditions"]): number {
@@ -36,6 +37,7 @@ export function BinCard({
   overflowSources = [],
   disabled,
   onClick,
+  className,
 }: BinCardProps) {
   const { t } = useTranslation("bins");
   const isEmpty = config.rules.conditions.length === 0;
@@ -55,7 +57,10 @@ export function BinCard({
   return (
     <Button
       variant={active ? "selected" : "ghost"}
-      className="h-auto p-2 flex flex-col justify-start text-start w-full whitespace-normal max-md:h-auto max-md:gap-1 max-md:p-3 max-md:[&_p]:text-sm"
+      className={cn(
+        "h-auto p-2 flex flex-col justify-start text-start w-full whitespace-normal max-md:h-auto max-md:gap-1 max-md:p-3 max-md:[&_p]:text-sm",
+        className,
+      )}
       disabled={disabled}
       onClick={onClick}
     >

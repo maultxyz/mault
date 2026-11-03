@@ -206,6 +206,7 @@ export interface BinCardProps {
   overflowSources?: number[];
   disabled?: boolean;
   onClick: () => void;
+  className?: string;
 }
 
 export interface ConditionRowProps {
