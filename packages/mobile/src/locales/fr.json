@@ -750,7 +750,7 @@
       "noBin": "Aucun bac",
       "status": "Statut",
       "needsReview": "À vérifier",
-      "showDownloaded": "Afficher les téléchargées",
+      "hideDownloaded": "Masquer les téléchargées",
       "reset": "Réinitialiser"
     },
     "sort": {
@@ -796,7 +796,6 @@
     "acceptNext": "Ça a l'air bon",
     "acceptFinish": "Ça a l'air bon",
     "reviewProgress": "Vérification {{index}} sur {{total}}",
-    "reviewed": "Vérifiée",
     "similarMatches": "Correspondances similaires",
     "similarMatchesHint": "Plusieurs correspondances proches. Touche la bonne version.",
     "thisScan": "Ce scan",
@@ -936,7 +935,9 @@
       "repackSaveFirst": "Enregistre pour passer aux repacks, puis configure les emplacements des paquets.",
       "alphabetHint": "Après l'enregistrement, l'onglet Règles indique les lettres de chaque bac et te permet de passer au tour suivant.",
       "skipSaving": "Ne pas enregistrer les cartes",
-      "skipSavingDescription": "Les cartes sont identifiées et triées comme d'habitude, mais rien n'est ajouté à la collection. Les scans comptent toujours dans ta limite quotidienne."
+      "skipSavingDescription": "Les cartes sont identifiées et triées comme d'habitude, mais rien n'est ajouté à la collection. Les scans comptent toujours dans ta limite quotidienne.",
+      "resort": "Retrier les cartes enregistrées",
+      "resortDescription": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude."
     },
     "modes": {
       "rules": {
@@ -985,6 +986,36 @@
       "addSlot": "Ajouter un emplacement",
       "multiplePacksLabel": "Plusieurs paquets par bac",
       "multiplePacksDescription": "Quand un bac termine un paquet, il en commence un nouveau par-dessus et continue jusqu'à ce que le bac soit plein. Un bac ne commence un nouveau paquet que s'il a la place pour le paquet entier, donc aucun paquet n'est coupé."
+    },
+    "transfer": {
+      "button": "Copier ou déplacer",
+      "title": "Copier ou déplacer les règles vers",
+      "catchAllBin": "Bac {{number}} (fourre-tout)",
+      "confirmTitle": "Règles vers {{bin}}",
+      "confirmDescription": "Copier garde aussi les règles sur ce bac. Déplacer les retire de ce bac.",
+      "replaceWarning": "{{bin}} a déjà des règles. Elles seront remplacées.",
+      "copy": "Copier",
+      "move": "Déplacer"
+    },
+    "stages": {
+      "badge": "Plusieurs étapes",
+      "missingPreset": "Préréglage supprimé",
+      "pageTitle": "Étapes",
+      "pageDescription": "Toutes les étapes de ce préréglage, dans l'ordre. Touchez une étape pour y passer. Ajoutez et modifiez les étapes dans l'application web.",
+      "noWorkflowTitle": "Aucun préréglage en plusieurs étapes actif",
+      "noWorkflowDescription": "Choisissez un préréglage en plusieurs étapes pour voir ses étapes.",
+      "viewStages": "Toutes les étapes",
+      "stageHeading": "Étape {{number}}",
+      "current": "Actuelle",
+      "resort": "Retri",
+      "confirmMoveTitle": "Passer à {{name}} ?",
+      "confirmMoveDescription": "Videz d'abord tous les bacs et définissez des emplacements si vous le souhaitez. Mettez ensuite les cartes pour {{name}} dans le chargeur. Les bacs qui contiennent encore des cartes sont marqués comme vidés.",
+      "confirm": "Les bacs sont vides",
+      "switchFailed": "Impossible de changer d'étape",
+      "stageOf": "Étape {{number}} sur {{count}}",
+      "previousStage": "Étape précédente",
+      "nextStage": "Étape suivante",
+      "lastStage": "Dernière étape"
     },
     "alphabet": {
       "needBins": "Le tri alphabétique nécessite au moins un bac en plus du bac fourre-tout.",
@@ -1245,8 +1276,11 @@
       "startFailed": "Impossible de lancer la vérification"
     },
     "moveToLocation": "Déplacer vers un emplacement",
+    "moveToCollection": "Déplacer vers une collection",
+    "moveToCollectionFailed": "Impossible de déplacer les cartes",
     "moveToOtherLocation": "Déplacer vers un autre emplacement",
-    "searchLocations": "Rechercher des emplacements"
+    "searchLocations": "Rechercher des emplacements",
+    "searchCollections": "Rechercher des collections"
   },
   "settings": {
     "title": "Paramètres",
@@ -1887,5 +1921,15 @@
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
     "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
+  },
+  "cardTags": {
+    "title": "Étiquettes",
+    "edit": "Modifier les étiquettes",
+    "saveFailed": "Impossible de modifier l'étiquette",
+    "names": {
+      "downloaded": "Téléchargée",
+      "reviewed": "Vérifiée",
+      "corrected": "Corrigée"
+    }
   }
 }

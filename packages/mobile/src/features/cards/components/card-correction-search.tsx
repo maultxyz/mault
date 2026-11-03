@@ -26,7 +26,13 @@ import {
   cardSearchResultLabel,
 } from "@magic-vault/shared";
 
-export function CardCorrectionSearch({ collectionGuid, initialQuery, disabled = false, onSelect }: CardCorrectionSearchProps) {
+export function CardCorrectionSearch({
+  collectionGuid,
+  initialQuery,
+  inline = false,
+  disabled = false,
+  onSelect,
+}: CardCorrectionSearchProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
@@ -48,15 +54,17 @@ export function CardCorrectionSearch({ collectionGuid, initialQuery, disabled = 
         placeholder={t("cardDetail.searchPlaceholder")}
         accessibilityLabel={t("cardDetail.searchPlaceholder")}
       />
-      <ListGroup>
-        <ListRow
-          icon="language"
-          title={t("cardDetail.language")}
-          value={languageLabel(language)}
-          onPress={() => setLanguageSheetOpen(true)}
-        />
-      </ListGroup>
-      {tooShort ? (
+      {inline && tooShort ? null : (
+        <ListGroup>
+          <ListRow
+            icon="language"
+            title={t("cardDetail.language")}
+            value={languageLabel(language)}
+            onPress={() => setLanguageSheetOpen(true)}
+          />
+        </ListGroup>
+      )}
+      {inline && tooShort ? null : tooShort ? (
         <AppText tone="secondary" style={{ textAlign: "center", paddingVertical: SPACING.xl }}>
           {t("cardDetail.startTyping")}
         </AppText>

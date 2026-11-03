@@ -1,6 +1,7 @@
 export const DELETED_ITEM_TYPES = [
   "collection",
   "binSet",
+  "presetWorkflow",
   "bin",
   "device",
   "binRoute",

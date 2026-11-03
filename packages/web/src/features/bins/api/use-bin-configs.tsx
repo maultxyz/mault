@@ -48,6 +48,7 @@ import {
   setRepackConfig as setRepackConfigAction,
   setScanOnly as setScanOnlyAction,
   setSkipSaving as setSkipSavingAction,
+  setResortMode as setResortModeAction,
 } from "@/features/bins/api/sort-bins";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -64,6 +65,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { presetWorkflowsQueryKey } from "@/features/bins/api/preset-workflows";
 import { emptyRuleGroup } from "@/lib/rule-groups";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
@@ -95,8 +97,10 @@ const BinConfigsContext = createContext<BinConfigsContextValue | null>(null);
 
 export function BinConfigsProvider({
   children,
+  editingPresetGuid,
 }: {
   children: React.ReactNode;
+  editingPresetGuid?: string | null;
 }) {
   const { t } = useTranslation("bins");
   const queryClient = useQueryClient();
@@ -169,8 +173,12 @@ export function BinConfigsProvider({
   );
 
   const selectedSet = useMemo(
-    () => sets.find((s) => s.isActive) ?? sets[0],
-    [sets],
+    () =>
+      (editingPresetGuid &&
+        sets.find((s) => s.guid === editingPresetGuid)) ||
+      sets.find((s) => s.isActive) ||
+      sets[0],
+    [sets, editingPresetGuid],
   );
 
   const configs = useMemo(
@@ -209,6 +217,7 @@ export function BinConfigsProvider({
     isChaosMode: selectedSet?.isChaosMode ?? false,
     chaosBinSize: selectedSet?.chaosBinSize ?? null,
     skipSaving: selectedSet?.skipSaving ?? false,
+    isResortMode: selectedSet?.isResortMode ?? false,
   };
   const effectiveMode = modeDraft ?? modeBaseline;
   const isModeDirty =
@@ -221,29 +230,31 @@ export function BinConfigsProvider({
       modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode ||
       modeDraft.isChaosMode !== modeBaseline.isChaosMode ||
       modeDraft.chaosBinSize !== modeBaseline.chaosBinSize ||
-      modeDraft.skipSaving !== modeBaseline.skipSaving);
+      modeDraft.skipSaving !== modeBaseline.skipSaving ||
+      modeDraft.isResortMode !== modeBaseline.isResortMode);
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
-    onMutate: async ({
-      binNumber,
-      rules,
-      isCatchAll,
-      isOverride,
-      overridePriority,
-      lowMatchPercent,
-      maxCopies,
-      maxCopiesBy,
-      overflowBin,
-      isDisabled,
-      pickList,
-      repackPriority,
-    }) => {
+    onMutate: async (variables) => {
+      const {
+        binNumber,
+        rules,
+        isCatchAll,
+        isOverride,
+        overridePriority,
+        lowMatchPercent,
+        maxCopies,
+        maxCopiesBy,
+        overflowBin,
+        isDisabled,
+        pickList,
+        repackPriority,
+      } = variables;
       await queryClient.cancelQueries({ queryKey: binsQueryOptions.queryKey });
       const previous = queryClient.getQueryData<BinSet[]>(binsQueryOptions.queryKey);
       queryClient.setQueryData<BinSet[]>(binsQueryOptions.queryKey, (old = []) =>
         old.map((set) => {
-          if (!set.isActive || !matchesGame(set, activeGameGuid)) return set;
+          if (set.guid !== variables.presetGuid) return set;
           const idx = set.bins.findIndex((b) => b.binNumber === binNumber);
           const previousPickList = idx >= 0 ? set.bins[idx].pickList : null;
           const nextPickList = isCatchAll
@@ -312,7 +323,7 @@ export function BinConfigsProvider({
         queryClient.setQueryData(binsQueryOptions.queryKey, context.previous);
       toast.error(t("useBinConfigs.toasts.saveBinFailed"));
     },
-    onSuccess: (result) => {
+    onSuccess: (result, variables) => {
       if (!result.success) {
         queryClient.invalidateQueries({ queryKey: binsQueryOptions.queryKey });
         return;
@@ -321,7 +332,7 @@ export function BinConfigsProvider({
         const confirmedBins = result.data;
         queryClient.setQueryData<BinSet[]>(binsQueryOptions.queryKey, (old = []) =>
           old.map((set) =>
-            set.isActive && matchesGame(set, activeGameGuid)
+            set.guid === variables.presetGuid
               ? { ...set, bins: confirmedBins }
               : set,
           ),
@@ -333,7 +344,12 @@ export function BinConfigsProvider({
   const activateSetMutation = useMutation({
     mutationFn: activateSetAction,
     ...presetsMutationHandlers("useBinConfigs.toasts.activateSetFailed", {
-      onApplied: resetSelectedBin,
+      onApplied: () => {
+        resetSelectedBin();
+        void queryClient.invalidateQueries({
+          queryKey: presetWorkflowsQueryKey,
+        });
+      },
     }),
   });
 
@@ -346,7 +362,12 @@ export function BinConfigsProvider({
       initialBins?: DefaultBinInit[];
     }) => createSetAction(name, initialBins, activeGameGuid),
     ...presetsMutationHandlers("useBinConfigs.toasts.createSetFailed", {
-      onApplied: resetSelectedBin,
+      onApplied: () => {
+        resetSelectedBin();
+        void queryClient.invalidateQueries({
+          queryKey: presetWorkflowsQueryKey,
+        });
+      },
     }),
   });
 
@@ -490,6 +511,19 @@ export function BinConfigsProvider({
     }),
   });
 
+  const setResortModeMutation = useMutation({
+    mutationFn: ({
+      guid,
+      isResortMode,
+    }: {
+      guid: string;
+      isResortMode: boolean;
+    }) => setResortModeAction(guid, isResortMode),
+    ...presetsMutationHandlers("useBinConfigs.toasts.resortModeFailed", {
+      showServerMessage: true,
+    }),
+  });
+
   const setAlphabetConfigMutation = useMutation({
     mutationFn: ({ guid, config }: { guid: string; config: AlphabetConfig }) =>
       setAlphabetConfigAction(guid, config),
@@ -510,13 +544,18 @@ export function BinConfigsProvider({
     setRepackConfigMutation.isPending ||
     setAlphabetConfigMutation.isPending ||
     setChaosModeMutation.isPending ||
-    setSkipSavingMutation.isPending;
+    setSkipSavingMutation.isPending ||
+    setResortModeMutation.isPending;
 
   const save = useCallback(
     (input: BinConfigSaveInput) => {
-      saveBinMutation.mutate({ ...input, gameGuid: activeGameGuid });
+      saveBinMutation.mutate({
+        ...input,
+        gameGuid: activeGameGuid,
+        presetGuid: selectedSet?.guid,
+      });
     },
-    [saveBinMutation, activeGameGuid],
+    [saveBinMutation, activeGameGuid, selectedSet?.guid],
   );
 
   const emptyBin = useCallback(
@@ -718,6 +757,12 @@ export function BinConfigsProvider({
         await setSkipSavingMutation.mutateAsync({
           guid: selectedSet.guid,
           skipSaving: modeDraft.skipSaving,
+        });
+      }
+      if (modeDraft.isResortMode !== modeBaseline.isResortMode) {
+        await setResortModeMutation.mutateAsync({
+          guid: selectedSet.guid,
+          isResortMode: modeDraft.isResortMode,
         });
       }
       if (modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode) {

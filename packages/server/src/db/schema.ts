@@ -215,6 +215,7 @@ export const binSets = pgTable(
     isChaosMode: boolean("is_chaos_mode").notNull().default(false),
     chaosBinSize: integer("chaos_bin_size"),
     skipSaving: boolean("skip_saving").notNull().default(false),
+    isResortMode: boolean("is_resort_mode").notNull().default(false),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -223,6 +224,59 @@ export const binSets = pgTable(
   (table) => [
     unique("bin_sets_guid_idx").on(table.guid),
     index("bin_sets_org_game_idx").on(table.orgId, table.gameId),
+
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const presetWorkflows = pgTable(
+  "preset_workflows",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    name: text("name").notNull(),
+    gameId: integer("game_id").references(() => games.id),
+    isActive: boolean("is_active").notNull().default(false),
+    activeStepGuid: uuid("active_step_guid"),
+    orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("preset_workflows_guid_idx").on(table.guid),
+    index("preset_workflows_org_game_idx").on(table.orgId, table.gameId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const presetWorkflowSteps = pgTable(
+  "preset_workflow_steps",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    workflowId: integer("workflow_id")
+      .notNull()
+      .references(() => presetWorkflows.id),
+    position: integer("position").notNull().default(0),
+    presetGuid: uuid("preset_guid").notNull(),
+    isResortMode: boolean("is_resort_mode").notNull().default(true),
+    orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("preset_workflow_steps_guid_idx").on(table.guid),
+    index("preset_workflow_steps_workflow_idx").on(table.workflowId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

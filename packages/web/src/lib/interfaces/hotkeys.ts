@@ -41,6 +41,11 @@ export type HotkeyId =
   | "cardRemove"
   | "reviewStart"
   | "reviewAccept"
+  | "reviewPreviousMatch"
+  | "reviewNextMatch"
+  | "reviewCycleFoil"
+  | "reviewCycleCondition"
+  | "reviewCycleLanguage"
   | "intakeOpenScanner";
 
 export interface HotkeyCombo {

@@ -52,6 +52,7 @@ export default function SortingModeScreen() {
             scanOnlyUnmatchedBin: catchAll ?? SCAN_ONLY_DEFAULT_BIN,
             chaosBinSize: activeSet.chaosBinSize != null ? String(activeSet.chaosBinSize) : "",
             skipSaving: !!activeSet.skipSaving,
+            isResortMode: !!activeSet.isResortMode,
           }
         : undefined,
     [activeSet, catchAll],
@@ -247,7 +248,26 @@ export default function SortingModeScreen() {
               description={t("rules.mode.skipSavingDescription")}
               value={field.value}
               disabled={!editable}
-              onValueChange={field.onChange}
+              onValueChange={(checked) => {
+                field.onChange(checked);
+                if (checked) form.setValue("isResortMode", false, { shouldDirty: true });
+              }}
+            />
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="isResortMode"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("rules.mode.resort")}
+              description={t("rules.mode.resortDescription")}
+              value={field.value}
+              disabled={!editable}
+              onValueChange={(checked) => {
+                field.onChange(checked);
+                if (checked) form.setValue("skipSaving", false, { shouldDirty: true });
+              }}
             />
           )}
         />

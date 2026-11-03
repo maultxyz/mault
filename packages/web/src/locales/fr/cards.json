@@ -76,6 +76,7 @@
     "showOcrRegions": "Afficher les zones OCR",
     "noOcrRegions": "Ce jeu n'a pas de zones OCR.",
     "ocrFallback": "{{field}} (zone de secours)",
+    "ocrFixedBox": "{{field}} (zone fixe)",
     "ocrFields": {
       "name": "Nom",
       "setLine": "Ligne d'extension",
@@ -95,6 +96,7 @@
     "status": "Statut",
     "needsAttention": "Nécessite une attention",
     "showDownloadedCards": "Afficher les cartes téléchargées",
+    "hideDownloadedCards": "Masquer les cartes téléchargées",
     "sets": "Sets",
     "resetFilters": "Réinitialiser les filtres"
   },
@@ -321,7 +323,7 @@
     "copyName": "Copier le nom",
     "copied": "Nom copié.",
     "copyFailed": "Impossible de copier le nom.",
-    "moveToLocation": "Déplacer vers un emplacement",
+    "moveToLocation": "Déplacer",
     "remove_one": "Retirer la carte",
     "remove_other": "Retirer {{count}} cartes"
   },
@@ -332,6 +334,8 @@
     "correctNext": "corriger et passer à la suivante",
     "correctFinish": "corriger et terminer",
     "correctStay": "corriger et rester sur cette carte",
+    "pickMatch": "choisir une correspondance",
+    "jumpToSearch": "chercher la bonne carte",
     "keys": {
       "enter": "Entrée",
       "shiftEnter": "Maj Entrée"
@@ -340,6 +344,14 @@
     "complete_other": "Vérification terminée : {{count}} cartes vérifiées",
     "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées.",
     "startFailed": "Impossible de lancer la vérification. Réessayez."
+  },
+  "reviewQueue": {
+    "title": "Cartes à vérifier",
+    "progress": "{{checked}} sur {{total}} vérifiées",
+    "exit": "Quitter la vérification",
+    "loadFailed": "Impossible de charger les cartes à vérifier.",
+    "notShown_one": "{{count}} carte de plus n'est pas affichée ici.",
+    "notShown_other": "{{count}} cartes de plus ne sont pas affichées ici."
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -432,5 +444,16 @@
     "importMore": "Importer d'autres images",
     "unreadable": "Impossible de lire cette image.",
     "identifyFailed": "Impossible d'identifier cette image."
+  },
+  "cardTags": {
+    "title": "Étiquettes",
+    "edit": "Modifier les étiquettes",
+    "bulkAdd": "Ajouter l'étiquette",
+    "bulkRemove": "Retirer l'étiquette",
+    "names": {
+      "downloaded": "Téléchargée",
+      "reviewed": "Vérifiée",
+      "corrected": "Corrigée"
+    }
   }
 }

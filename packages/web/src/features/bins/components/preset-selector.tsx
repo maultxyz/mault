@@ -23,7 +23,9 @@ import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import type { PresetDialog } from "@/lib/interfaces/bins";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
-import type { BinSet } from "@magic-vault/shared";
+import { usePresetPicker } from "@/features/bins/api/use-preset-picker";
+import { PresetPickerBadge } from "@/features/bins/components/preset-picker-badge";
+import type { PresetPickerItem } from "@/lib/interfaces/bins";
 import {
   IconEdit,
   IconLoader2,
@@ -36,12 +38,15 @@ import { Link } from "react-router-dom";
 
 export function PresetSelector() {
   const { t } = useTranslation("bins");
-  const { sets, activateSet, selectedSet, isActivating, isPresetMutating } =
-    useBinConfigs();
+  const { selectedSet, isPresetMutating } = useBinConfigs();
+  const picker = usePresetPicker();
+  const isActivating = picker.isChoosing;
   const { activeCollection } = useCollections();
   const { activeOrg } = useOrg();
   const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });
   const [openDialog, setOpenDialog] = useState<PresetDialog | null>(null);
+  const selectedItem =
+    picker.items.find((item) => picker.isSelected(item)) ?? null;
 
   if (isLoading) {
     return (
@@ -57,11 +62,13 @@ export function PresetSelector() {
       <FieldLabel>{t("presetSelector.sortingLogic")}</FieldLabel>
       <ButtonGroup className="w-full">
         <Combobox
-          items={sets}
-          value={selectedSet ?? null}
-          onValueChange={(set) => set && activateSet(set.guid)}
-          itemToStringLabel={(set: BinSet) => set.name}
-          isItemEqualToValue={(a: BinSet, b: BinSet) => a?.guid === b?.guid}
+          items={picker.items}
+          value={selectedItem}
+          onValueChange={(item) => item && picker.choose(item)}
+          itemToStringLabel={(item: PresetPickerItem) => item.name}
+          isItemEqualToValue={(a: PresetPickerItem, b: PresetPickerItem) =>
+            a?.guid === b?.guid
+          }
         >
           <ComboboxInput
             className="flex-1 overflow-hidden"
@@ -77,9 +84,10 @@ export function PresetSelector() {
           <ComboboxContent>
             <ComboboxEmpty>{t("presetSelector.noMatchingSets")}</ComboboxEmpty>
             <ComboboxList>
-              {(set: BinSet) => (
-                <ComboboxItem key={set.guid} value={set}>
-                  <span className="truncate">{set.name}</span>
+              {(item: PresetPickerItem) => (
+                <ComboboxItem key={item.guid} value={item}>
+                  <span className="truncate">{item.name}</span>
+                  <PresetPickerBadge item={item} />
                 </ComboboxItem>
               )}
             </ComboboxList>

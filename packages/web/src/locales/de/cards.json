@@ -76,6 +76,7 @@
     "showOcrRegions": "OCR-Bereiche anzeigen",
     "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
     "ocrFallback": "{{field}} (Ausweichbereich)",
+    "ocrFixedBox": "{{field}} (feste Box)",
     "ocrFields": {
       "name": "Name",
       "setLine": "Setzeile",
@@ -95,6 +96,7 @@
     "status": "Status",
     "needsAttention": "Benötigt Aufmerksamkeit",
     "showDownloadedCards": "Heruntergeladene Karten anzeigen",
+    "hideDownloadedCards": "Heruntergeladene Karten ausblenden",
     "sets": "Editionen",
     "resetFilters": "Filter zurücksetzen"
   },
@@ -321,7 +323,7 @@
     "copyName": "Namen kopieren",
     "copied": "Name kopiert.",
     "copyFailed": "Der Name konnte nicht kopiert werden.",
-    "moveToLocation": "In Lagerort verschieben",
+    "moveToLocation": "Verschieben",
     "remove_one": "Karte entfernen",
     "remove_other": "{{count}} Karten entfernen"
   },
@@ -332,6 +334,8 @@
     "correctNext": "korrigieren und weiter",
     "correctFinish": "korrigieren und beenden",
     "correctStay": "korrigieren und bei dieser Karte bleiben",
+    "pickMatch": "Treffer wählen",
+    "jumpToSearch": "nach der richtigen Karte suchen",
     "keys": {
       "enter": "Enter",
       "shiftEnter": "Umschalt Enter"
@@ -340,6 +344,14 @@
     "complete_other": "Prüfung abgeschlossen: {{count}} Karten geprüft",
     "nothingLeft": "Nichts mehr zu prüfen. Alle Karten hier wurden bereits geprüft.",
     "startFailed": "Die Prüfung konnte nicht gestartet werden. Versuche es erneut."
+  },
+  "reviewQueue": {
+    "title": "Zu prüfende Karten",
+    "progress": "{{checked}} von {{total}} geprüft",
+    "exit": "Prüfung beenden",
+    "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden.",
+    "notShown_one": "{{count}} weitere Karte wird hier nicht angezeigt.",
+    "notShown_other": "{{count}} weitere Karten werden hier nicht angezeigt."
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -432,5 +444,16 @@
     "importMore": "Weitere importieren",
     "unreadable": "Dieses Bild konnte nicht gelesen werden.",
     "identifyFailed": "Dieses Bild konnte nicht erkannt werden."
+  },
+  "cardTags": {
+    "title": "Markierungen",
+    "edit": "Markierungen bearbeiten",
+    "bulkAdd": "Markierung hinzufügen",
+    "bulkRemove": "Markierung entfernen",
+    "names": {
+      "downloaded": "Heruntergeladen",
+      "reviewed": "Geprüft",
+      "corrected": "Korrigiert"
+    }
   }
 }

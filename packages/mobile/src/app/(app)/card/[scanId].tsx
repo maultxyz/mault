@@ -10,6 +10,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
+  CARD_TAGS,
+  cardTagsSetOn,
+  type CardTag,
   cardFoilTypeOptions,
   DEFAULT_CARD_CONDITION,
   isCardLanguage,
@@ -33,6 +36,7 @@ import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
+import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import type { MatchesOpenState } from "@/lib/interfaces/cards";
@@ -44,6 +48,7 @@ import { PricePaidField } from "@/features/cards/components/price-paid-field";
 import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import {
   cardScanOriginQueryOptions,
+  setCollectionCardTags,
   collectionCardQueryOptions,
   invalidateCollectionCards,
   removeCollectionCard,
@@ -51,6 +56,7 @@ import {
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import {
   cardStorageLocationQueryOptions,
@@ -98,7 +104,7 @@ export default function CardDetailScreen() {
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
   const [matchesOpenState, setMatchesOpenState] = useState<MatchesOpenState | null>(null);
-  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | "location" | null>(null);
+  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | "location" | "collection" | "tags" | null>(null);
   const billing = useQuery(billingQueryOptions(activeOrgId));
   const canMoveToLocation = !!billing.data && billing.data.storage !== false;
   const locations = useQuery(storageLocationsQueryOptions(activeOrgId, canMoveToLocation));
@@ -106,6 +112,18 @@ export default function CardDetailScreen() {
 
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
   const nextScanId = position.data?.nextScanId ?? null;
+  const reviewPrefetchStartScanId = !reviewMode
+    ? null
+    : storageReview
+      ? storageContext.data?.next?.scanId
+      : entry
+        ? nextScanId
+        : null;
+  usePrefetchCardDetails(reviewPrefetchStartScanId, {
+    collectionGuid: guid,
+    reviewMode: reviewMode && !storageReview,
+    storageGuid: storageReview ? storageGuid : undefined,
+  });
   const collection = collections.data?.find((c) => c.guid === guid);
   const gameFoilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
   const card = entry?.card;
@@ -113,6 +131,7 @@ export default function CardDetailScreen() {
   const showCaptured = image.isPending || !!capturedUrl;
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
+  const tagsSet = entry ? cardTagsSetOn(entry) : [];
   const areMatchesOpen = matchesOpenState?.scanId === scanId ? matchesOpenState.isOpen : !isReviewed;
 
   const candidates = useMemo(() => {
@@ -181,6 +200,20 @@ export default function CardDetailScreen() {
     onSettled: () => invalidateCollectionCards(queryClient, guid),
   });
 
+  const acceptInBackground = useMutation({
+    mutationFn: ({ kind, acceptedScanId }: { kind: "confirm" | "review"; acceptedScanId: string }) =>
+      updateCollectionCard(guid, acceptedScanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onError: (error) => Alert.alert(t("cardDetail.saveFailed"), error instanceof Error ? error.message : undefined),
+  });
+
+  const toggleTag = useMutation({
+    mutationFn: (tag: CardTag) =>
+      setCollectionCardTags(guid, { scanIds: [scanId], tags: [tag], enabled: !tagsSet.includes(tag) }),
+    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onError: (error) => Alert.alert(t("cardTags.saveFailed"), error instanceof Error ? error.message : undefined),
+  });
+
   const remove = useMutation({
     mutationFn: () => removeCollectionCard(guid, scanId),
     onSuccess: () => {
@@ -188,6 +221,11 @@ export default function CardDetailScreen() {
       void queryClient.invalidateQueries({ queryKey: ["collections"] });
       router.back();
     },
+  });
+
+  const { targetCollections, moveToCollection } = useMoveCardsToCollection({
+    sourceCollectionGuid: guid,
+    onMoved: () => router.back(),
   });
 
   const moveToLocation = useMutation({
@@ -240,7 +278,13 @@ export default function CardDetailScreen() {
   };
 
   const acceptInReview = async () => {
-    await markCorrect.mutateAsync(canConfirm ? "confirm" : "review");
+    const kind = canConfirm ? "confirm" : "review";
+    if (storageReview) {
+      await markCorrect.mutateAsync(kind);
+      await goToNextInReview();
+      return;
+    }
+    acceptInBackground.mutate({ kind, acceptedScanId: scanId });
     await goToNextInReview();
   };
 
@@ -254,6 +298,29 @@ export default function CardDetailScreen() {
       { text: t("cardDetail.cancel"), style: "cancel" },
       { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
     ]);
+
+  const scanAttributeRows = (
+    <ListGroup>
+      <ListRow
+        icon="sparkles"
+        title={t("cardDetail.foil")}
+        value={draftFoil ?? t("cardDetail.foilNone")}
+        onPress={() => setSheet("foil")}
+      />
+      <ListRow
+        icon="condition"
+        title={t("cardDetail.condition")}
+        value={t(`cardDetail.conditions.${draftCondition}`)}
+        onPress={() => setSheet("condition")}
+      />
+      <ListRow
+        icon="language"
+        title={t("cardDetail.language")}
+        value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
+        onPress={() => setSheet("language")}
+      />
+    </ListGroup>
+  );
 
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
@@ -319,11 +386,27 @@ export default function CardDetailScreen() {
                   </AppText>
                 ) : null}
                 {draftFoil ? <Pill tone="info" label={draftFoil} /> : null}
-                {isReviewed ? (
-                  <Pill tone="success" icon="check" label={t("cardDetail.reviewed")} />
-                ) : canConfirm ? (
-                  <Pill tone="warning" label={t("cards.needsReview")} />
-                ) : null}
+                {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t("cardTags.edit")}
+                  disabled={toggleTag.isPending}
+                  onPress={() => setSheet("tags")}
+                  style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: SPACING.xs }}
+                >
+                  {tagsSet.length === 0 ? (
+                    <Pill tone="neutral" label={t("cardTags.title")} />
+                  ) : (
+                    tagsSet.map((tag) =>
+                      tag === "reviewed" ? (
+                        <Pill key={tag} tone="success" icon="check" label={t(`cardTags.names.${tag}`)} />
+                      ) : (
+                        <Pill key={tag} tone="neutral" label={t(`cardTags.names.${tag}`)} />
+                      ),
+                    )
+                  )}
+                  <Icon name="expand" size={16} color={colors.foregroundSecondary} />
+                </Pressable>
               </View>
             ) : null}
 
@@ -398,6 +481,21 @@ export default function CardDetailScreen() {
               </View>
             </View>
 
+            {reviewMode && entry ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("cardDetail.correctCard")} />
+                <CardCorrectionSearch
+                  key={`${scanId}:${entry.card.id}`}
+                  inline
+                  collectionGuid={guid}
+                  initialQuery={entry.card.name}
+                  disabled={correction.isPending}
+                  onSelect={(selected) => void applyCorrection(selected)}
+                />
+                {scanAttributeRows}
+              </View>
+            ) : null}
+
             {card ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.prices")} />
@@ -426,28 +524,7 @@ export default function CardDetailScreen() {
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.details")} />
                 <CardDetailsList card={card} binNumber={entry?.binNumber} />
-                {entry ? (
-                  <ListGroup>
-                    <ListRow
-                      icon="sparkles"
-                      title={t("cardDetail.foil")}
-                      value={draftFoil ?? t("cardDetail.foilNone")}
-                      onPress={() => setSheet("foil")}
-                    />
-                    <ListRow
-                      icon="condition"
-                      title={t("cardDetail.condition")}
-                      value={t(`cardDetail.conditions.${draftCondition}`)}
-                      onPress={() => setSheet("condition")}
-                    />
-                    <ListRow
-                      icon="language"
-                      title={t("cardDetail.language")}
-                      value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
-                      onPress={() => setSheet("language")}
-                    />
-                  </ListGroup>
-                ) : null}
+                {entry && !reviewMode ? scanAttributeRows : null}
                 {storage.data ? (
                   <Pressable
                     accessibilityRole="link"
@@ -460,14 +537,24 @@ export default function CardDetailScreen() {
                     </AppText>
                   </Pressable>
                 ) : null}
-                {entry && canMoveToLocation && moveTargets.length > 0 ? (
+                {entry && ((canMoveToLocation && moveTargets.length > 0) || targetCollections.length > 0) ? (
                   <ListGroup>
-                    <ListRow
-                      icon="transfer"
-                      title={storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation")}
-                      disabled={moveToLocation.isPending}
-                      onPress={() => setSheet("location")}
-                    />
+                    {canMoveToLocation && moveTargets.length > 0 ? (
+                      <ListRow
+                        icon="transfer"
+                        title={storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation")}
+                        disabled={moveToLocation.isPending}
+                        onPress={() => setSheet("location")}
+                      />
+                    ) : null}
+                    {targetCollections.length > 0 ? (
+                      <ListRow
+                        icon="collections"
+                        title={t("storage.moveToCollection")}
+                        disabled={moveToCollection.isPending}
+                        onPress={() => setSheet("collection")}
+                      />
+                    ) : null}
                   </ListGroup>
                 ) : null}
               </View>
@@ -517,6 +604,7 @@ export default function CardDetailScreen() {
                 ) : null}
               </View>
             ) : null}
+
           </>
         )}
       </ScrollView>
@@ -535,13 +623,6 @@ export default function CardDetailScreen() {
         >
           {reviewMode ? (
             <>
-              <Button
-                style={{ flex: 1 }}
-                variant="secondary"
-                icon="edit"
-                label={t("cardDetail.correctCard")}
-                onPress={() => setEditing(true)}
-              />
               <Button
                 style={{ flex: 1 }}
                 icon="check"
@@ -616,6 +697,30 @@ export default function CardDetailScreen() {
         onSelect={(value) => {
           form.setValue("language", value, { shouldDirty: true });
           setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "tags"}
+        title={t("cardTags.title")}
+        options={CARD_TAGS.map((tag) => ({ value: tag, label: t(`cardTags.names.${tag}`) }))}
+        selected={tagsSet}
+        onSelect={(value) => {
+          setSheet(null);
+          const tag = CARD_TAGS.find((candidate) => candidate === value);
+          if (tag) toggleTag.mutate(tag);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "collection"}
+        title={t("storage.moveToCollection")}
+        options={targetCollections.map((target) => ({ value: target.guid, label: target.name }))}
+        selected={[]}
+        searchPlaceholder={t("storage.searchCollections")}
+        onSelect={(targetCollectionGuid) => {
+          setSheet(null);
+          moveToCollection.mutate({ scanIds: [scanId], targetCollectionGuid });
         }}
         onClose={() => setSheet(null)}
       />

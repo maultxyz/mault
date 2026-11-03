@@ -150,6 +150,7 @@ async function readRegions(
   const readouts: OcrRegionReadouts = {
     primary: emptyReadout(),
     fallback: emptyReadout(),
+    regions: [],
   };
   if (regions.length === 0) return readouts;
 
@@ -170,19 +171,23 @@ async function readRegions(
     const text =
       anchorText ??
       (await readRectangleText(buffer, rectangle, region));
+    const readRegion = {
+      field: region.field,
+      fallback: !!region.fallback,
+      anchored,
+      box: {
+        x0: rectangle.left / width,
+        y0: rectangle.top / height,
+        x1: (rectangle.left + rectangle.width) / width,
+        y1: (rectangle.top + rectangle.height) / height,
+      },
+    };
+    readouts.regions.push(readRegion);
     if (trace) {
       const crop = await sharp(buffer).extract(rectangle).png().toBuffer();
       trace.push({
-        field: region.field,
-        fallback: !!region.fallback,
-        anchored,
+        ...readRegion,
         anchorText,
-        box: {
-          x0: rectangle.left / width,
-          y0: rectangle.top / height,
-          x1: (rectangle.left + rectangle.width) / width,
-          y1: (rectangle.top + rectangle.height) / height,
-        },
         imageDataUrl: `data:image/png;base64,${crop.toString("base64")}`,
         text,
       });

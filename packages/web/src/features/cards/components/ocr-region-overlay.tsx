@@ -1,5 +1,8 @@
 import { useCardDetailCollection } from "@/features/cards/api/use-card-detail-scope";
-import type { OcrRegionOverlayProps } from "@/lib/interfaces/cards";
+import type {
+  OcrOverlayRegion,
+  OcrRegionOverlayProps,
+} from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
@@ -11,7 +14,7 @@ export function OcrRegionOverlay({
   const { t } = useTranslation("cards");
   const collection = useCardDetailCollection();
   const gameKey = collection?.game?.key;
-  const regions =
+  const regions: OcrOverlayRegion[] =
     regionsOverride ??
     (gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : []);
 
@@ -29,6 +32,7 @@ export function OcrRegionOverlay({
               region.fallback
                 ? "border-dashed border-warning bg-warning/10"
                 : "border-primary bg-primary/10",
+              region.anchored === false && "border-dotted",
             )}
             style={{
               left: `${region.x * 100}%`,
@@ -48,7 +52,9 @@ export function OcrRegionOverlay({
               >
                 {region.fallback
                   ? t("cardDetailPanel.ocrFallback", { field })
-                  : field}
+                  : region.anchored === false
+                    ? t("cardDetailPanel.ocrFixedBox", { field })
+                    : field}
               </span>
             )}
           </div>

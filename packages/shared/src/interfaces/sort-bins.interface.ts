@@ -111,6 +111,33 @@ export type BinSetMode =
   | "chaos"
   | "scan-only";
 
+export interface PresetWorkflowStep {
+  guid: string;
+  position: number;
+  presetGuid: string;
+  isResortMode: boolean;
+}
+
+export interface PresetWorkflowStageInput {
+  stepGuid: string | null;
+  presetGuid: string;
+  isResortMode: boolean;
+}
+
+export interface PresetWorkflow {
+  guid: string;
+  name: string;
+  gameGuid: string | null;
+  isActive: boolean;
+  activeStepGuid: string | null;
+  steps: PresetWorkflowStep[];
+}
+
+export interface PresetWorkflowsAndPresets {
+  workflows: PresetWorkflow[];
+  presets: BinSet[];
+}
+
 export interface BinSet {
   guid: string;
   name: string;
@@ -131,6 +158,7 @@ export interface BinSet {
   isChaosMode: boolean;
   chaosBinSize: number | null;
   skipSaving: boolean;
+  isResortMode: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

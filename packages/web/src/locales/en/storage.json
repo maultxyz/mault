@@ -75,7 +75,10 @@
     "cardRemoved": "Card removed from its location",
     "correctFailed": "Couldn't correct the card",
     "cardsMoved_one": "1 card moved to storage",
-    "cardsMoved_other": "{{count}} cards moved to storage"
+    "cardsMoved_other": "{{count}} cards moved to storage",
+    "cardsMovedToCollection_one": "1 card moved to {{name}}",
+    "cardsMovedToCollection_other": "{{count}} cards moved to {{name}}",
+    "moveToCollectionFailed": "Couldn't move the cards"
   },
   "removeDialog": {
     "title": "Remove {{name}} from {{location}}?",
@@ -122,8 +125,15 @@
   "moveDialog": {
     "title_one": "Move card to a location",
     "title_other": "Move {{count}} cards to a location",
+    "titleAnyTarget_one": "Move card",
+    "titleAnyTarget_other": "Move {{count}} cards",
     "description_one": "The card is added to the end of the location you pick. If it was stored somewhere else, it leaves that location.",
     "description_other": "The cards are added to the end of the location you pick, in the order you selected them. Cards stored somewhere else leave their old location.",
+    "collectionDescription_one": "The card leaves this collection and joins the one you pick. It keeps its storage location and leaves its bin.",
+    "collectionDescription_other": "The cards leave this collection and join the one you pick. They keep their storage locations and leave their bins.",
+    "targetLabel": "Move to",
+    "locationsGroup": "Storage locations",
+    "collectionsGroup": "Collections",
     "cancel": "Cancel",
     "confirm": "Move"
   }

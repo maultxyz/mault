@@ -102,7 +102,7 @@ function itemCount(value: string | number | string[] | null): number {
   return isNullish(value) ? 0 : 1;
 }
 
-function evaluateCondition(
+export function evaluateCondition(
   card: SourceCard,
   condition: BinCondition,
   fieldDefinitions: FieldMeta[],

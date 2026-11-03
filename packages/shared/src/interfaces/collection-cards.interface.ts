@@ -6,7 +6,7 @@ export interface CardFilters {
   rarities: string[];
   bins: Array<number | null>;
   needsAttention: boolean;
-  showDownloaded: boolean;
+  hideDownloaded: boolean;
   sets: string[];
   minMatchPercent: number;
   foilTypes: string[];

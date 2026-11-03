@@ -5,6 +5,7 @@ import {
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, binSets } from "../../db/schema";
+import { deactivatePresetWorkflows } from "../../lib/preset-workflows";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   binSetNameTaken,
@@ -54,6 +55,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
         .update(binSets)
         .set({ isActive: false })
         .where(activeBinSetWhere(binSets, orgId, gameId));
+      await deactivatePresetWorkflows(tx, orgId, gameId);
 
       const [newBinSet] = await tx
         .insert(binSets)

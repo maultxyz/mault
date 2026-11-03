@@ -14,6 +14,7 @@ import {
   removeCollectionCards,
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
+import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { moveCardsToStorageLocation, storageLocationsQueryOptions } from "@/features/storage/api/storage";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -27,7 +28,7 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
-  const [picker, setPicker] = useState<"foil" | "condition" | "location" | null>(null);
+  const [picker, setPicker] = useState<"foil" | "condition" | "location" | "collection" | null>(null);
   const activeOrgId = useActiveOrgId();
   const billing = useQuery(billingQueryOptions(activeOrgId));
   const canMoveToLocation = !!billing.data && billing.data.storage !== false;
@@ -46,6 +47,11 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
     mutationFn: () => removeCollectionCards(collectionGuid, scanIds),
     onSettled: () => invalidateCollectionCards(queryClient, collectionGuid),
     onSuccess: onClose,
+  });
+
+  const { targetCollections, moveToCollection } = useMoveCardsToCollection({
+    sourceCollectionGuid: collectionGuid,
+    onMoved: onClose,
   });
 
   const moveToLocation = useMutation({
@@ -121,6 +127,14 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
                   onPress={() => setPicker("location")}
                 />
               ) : null}
+              {targetCollections.length > 0 ? (
+                <ListRow
+                  icon="collections"
+                  title={t("storage.moveToCollection")}
+                  disabled={moveToCollection.isPending}
+                  onPress={() => setPicker("collection")}
+                />
+              ) : null}
               <ListRow icon="trash" tone="destructive" title={t("cardDetail.remove")} onPress={confirmRemove} />
             </ListGroup>
           </View>
@@ -157,6 +171,18 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
         onSelect={(locationGuid) => {
           setPicker(null);
           moveToLocation.mutate(locationGuid);
+        }}
+        onClose={() => setPicker(null)}
+      />
+      <OptionSheet
+        visible={picker === "collection"}
+        title={t("storage.moveToCollection")}
+        options={targetCollections.map((collection) => ({ value: collection.guid, label: collection.name }))}
+        selected={[]}
+        searchPlaceholder={t("storage.searchCollections")}
+        onSelect={(targetCollectionGuid) => {
+          setPicker(null);
+          moveToCollection.mutate({ scanIds, targetCollectionGuid });
         }}
         onClose={() => setPicker(null)}
       />

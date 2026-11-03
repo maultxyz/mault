@@ -6,6 +6,7 @@ import {
 import { useIntakeCardActions } from "@/features/business/api/use-intake-card-actions";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import {
+  fetchPrefetchQueryData,
   loadCollectionPositionStep,
   usePrefetchDetailCards,
 } from "@/features/cards/api/use-prefetch-detail-cards";
@@ -16,8 +17,7 @@ import { removeCollectionCard } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import { useReviewSession } from "@/hooks/use-review-session";
-import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
-import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import type { IntakeCardDetailProps } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import { IconX } from "@tabler/icons-react";
@@ -58,7 +58,7 @@ export function IntakeCardDetail({
     collectionCardPositionQueryOptions(
       stored?.collectionGuid,
       scanId,
-      CARD_LOOKUP_QUERY,
+      ALL_CARDS_QUERY,
     ),
   );
   const scanned = position?.entry.scanId === scanId ? position.entry : null;
@@ -82,7 +82,7 @@ export function IntakeCardDetail({
         collectionCardPositionQueryOptions(
           neighbor.collectionGuid,
           neighbor.scanId,
-          CARD_LOOKUP_QUERY,
+          ALL_CARDS_QUERY,
         ),
       );
     }
@@ -90,22 +90,24 @@ export function IntakeCardDetail({
 
   const loadPrefetchStep = useCallback(
     async (upcomingScanId: string) => {
-      const nextContext = await queryClient.fetchQuery({
-        ...intakeCardContextQueryOptions(lot.guid, upcomingScanId, reviewMode),
-        staleTime: DETAIL_PREFETCH_STALE_MS,
-      });
+      const nextContext = await fetchPrefetchQueryData(
+        queryClient,
+        intakeCardContextQueryOptions(lot.guid, upcomingScanId, reviewMode),
+        reviewMode,
+      );
       if (!nextContext) return null;
       const step = await loadCollectionPositionStep(
         queryClient,
         nextContext.card.collectionGuid,
         upcomingScanId,
-        CARD_LOOKUP_QUERY,
+        ALL_CARDS_QUERY,
+        reviewMode,
       );
       return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
     },
     [queryClient, lot.guid, reviewMode],
   );
-  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep);
+  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep, reviewMode);
 
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 
@@ -137,6 +139,7 @@ export function IntakeCardDetail({
         lowConfidenceMatch={stored.lowConfidenceMatch}
         wasCorrected={stored.corrected}
         isReviewed={stored.reviewed}
+        isDownloaded={scanned.isDownloaded}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
         condition={stored.condition}
