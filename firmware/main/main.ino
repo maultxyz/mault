@@ -29,7 +29,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.11.0"
+#define FIRMWARE_VERSION "2.12.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -316,6 +316,30 @@ int irPin(int module) {
 bool hopperHasCards() {
   return digitalRead(IR_PIN_HOPPER) == LOW;
 }
+
+// Module detection probes which IR sensors are wired. A plugged-in sensor
+// drives its output (its own pull-up holds it HIGH, a card pulls it LOW), so
+// it reads LOW under our pull-up or HIGH under a pull-down. An empty pin
+// floats and follows whichever internal resistor is on. The Uno R4's RA4M1
+// has no internal pull-down, so only ESP32 builds can tell them apart.
+#if defined(ARDUINO_ARCH_ESP32)
+#define MODULE_DETECTION_SUPPORTED 1
+#define IR_PROBE_SETTLE_MS 2
+#else
+#define MODULE_DETECTION_SUPPORTED 0
+#endif
+
+#if MODULE_DETECTION_SUPPORTED
+bool irSensorConnected(int module) {
+  int pin = irPin(module);
+  if (digitalRead(pin) == LOW) return true;
+  pinMode(pin, INPUT_PULLDOWN);
+  waitMs(IR_PROBE_SETTLE_MS);
+  bool drivenHigh = digitalRead(pin) == HIGH;
+  pinMode(pin, INPUT_PULLUP);
+  return drivenHigh;
+}
+#endif
 
 bool watchdogStarted = false;
 
@@ -1707,6 +1731,33 @@ void runCommand(JsonDocument& doc, Print& reply) {
     reply.print(F("],\"hopper\":"));
     printBool(hopperHasCards(), reply);  // true = cards remain in feeder stack
     reply.println(F("}"));
+    return;
+  }
+
+  // {"detectModules": true} - count modules from the IR sensors that are
+  // wired, from module 1 up to the first missing one. "sensors" lists every
+  // addressable module so the app can show gaps.
+  if (isTrue(doc["detectModules"])) {
+#if MODULE_DETECTION_SUPPORTED
+    bool connected[MAX_MODULES] = {false};
+    int detected = 0;
+    bool contiguous = true;
+    for (int m = 1; m <= maxModuleForOffset(); m++) {
+      connected[m - 1] = irSensorConnected(m);
+      if (!connected[m - 1]) contiguous = false;
+      if (contiguous) detected = m;
+    }
+    reply.print(F("{\"status\":\"ok\",\"modules\":"));
+    reply.print(detected);
+    reply.print(F(",\"sensors\":["));
+    for (int m = 1; m <= maxModuleForOffset(); m++) {
+      if (m > 1) reply.print(',');
+      printBool(connected[m - 1], reply);
+    }
+    reply.println(F("]}"));
+#else
+    reply.println(F("{\"error\":\"module detection unsupported\"}"));
+#endif
     return;
   }
 

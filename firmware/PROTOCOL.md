@@ -624,6 +624,21 @@ refused the token (set it up again with a fresh token).
 max module count for the active channel offset), `true` meaning a card
 is present. `hopper` is `true` while cards remain in the feeder stack.
 
+### `detectModules` (firmware 2.12.0+, ESP32 only)
+```json
+{"detectModules": true}
+```
+→ `{"status":"ok","modules":2,"sensors":[true,true,false,false,false]}`
+
+Probes each addressable module's IR pin to see whether a sensor is wired:
+a pin reading LOW under the pull-up is a sensor seeing a card, otherwise
+the pin is switched to a pull-down for 2 ms and a sensor holds it HIGH
+while an empty pin drops LOW. `modules` counts wired sensors from module 1
+up to the first missing one; `sensors` lists every addressable module.
+Boards without an internal pull-down (Uno R4) reply
+`{"error":"module detection unsupported"}`, and the app keeps the module
+count the user picked.
+
 ### `route` (the normal per-card sorting command)
 ```json
 {"route": {"module": 2, "direction": "left"}}

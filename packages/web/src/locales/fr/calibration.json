@@ -23,6 +23,13 @@
       "title": "Réduire le nombre de modules ?",
       "description": "Passer à {{count}} modules retirera les règles de tri et les données de calibration pour les modules et bacs au-delà de ce nombre, dans tous les préréglages de bacs.",
       "confirm": "Modifier le nombre de modules"
+    },
+    "detect": {
+      "button": "Détecter",
+      "found": "{{count}} module détecté grâce aux capteurs IR branchés.",
+      "found_other": "{{count}} modules détectés grâce aux capteurs IR branchés.",
+      "noneFound": "Aucun capteur IR trouvé. Vérifiez que le capteur du module 1 est branché.",
+      "failed": "Impossible de lire les capteurs IR du trieur."
     }
   },
   "channelLayoutUpgrade": {

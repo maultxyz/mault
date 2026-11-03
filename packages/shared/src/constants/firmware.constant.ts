@@ -23,7 +23,21 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   paddleOpenDelay: "2.6.0",
   wifiRemote: "2.10.0",
   retractCard: "2.11.0",
+  moduleDetection: "2.12.0",
 };
+
+export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32"];
+
+export function isModuleDetectionSupported(
+  version: string | null | undefined,
+  board: string | null | undefined,
+): boolean {
+  return (
+    !!board &&
+    MODULE_DETECTION_BOARDS.includes(board) &&
+    isFirmwareFeatureSupported(version, "moduleDetection")
+  );
+}
 
 export function isFirmwareFeatureSupported(
   version: string | null | undefined,
@@ -42,6 +56,8 @@ export const SERIAL_BUSY_ERROR = "busy";
 export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";
 export const SERIAL_ROLLBACK_OFF_ERROR = "rollback_off";
 export const SERIAL_RETRACTED_STATUS = "retracted";
+export const DETECT_MODULES_COMMAND = { detectModules: true } as const;
+export const DETECT_MODULES_TIMEOUT_MS = 5_000;
 export const RETRACT_CARD_TIMEOUT_MS = 10_000;
 export const SERIAL_SEQ_MAX = 2_000_000_000;
 export const SERIAL_IDENTIFY_ATTEMPTS = 5;

@@ -1161,7 +1161,14 @@
       "description": "Nombre de modules de tri physiques câblés. Modifie le nombre de bacs disponibles et les sections ci-dessous.",
       "reduceTitle": "Réduire le nombre de modules ?",
       "reduceDescription": "Passer à {{count}} modules retirera les règles de tri et les données de calibration pour les modules et bacs au-delà de ce nombre, dans tous les préréglages de bacs.",
-      "reduceConfirm": "Changer le nombre de modules"
+      "reduceConfirm": "Changer le nombre de modules",
+      "detect": {
+        "button": "Détecter",
+        "found_one": "{{count}} module détecté grâce aux capteurs IR branchés.",
+        "found_other": "{{count}} modules détectés grâce aux capteurs IR branchés.",
+        "noneFound": "Aucun capteur IR trouvé. Vérifiez que le capteur du module 1 est branché.",
+        "failed": "Impossible de lire les capteurs IR du trieur."
+      }
     },
     "bins": {
       "label": "Configuration des bacs",
