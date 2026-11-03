@@ -6,7 +6,10 @@ import {
 } from "@/lib/constants/scanner";
 import type { PhoneLocalCameraStatus } from "@/lib/interfaces/scanner";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { stopMediaStream } from "@/features/scanner/lib/camera-stream";
+import {
+  getUserMediaWhenCameraIsReleased,
+  stopMediaStream,
+} from "@/features/scanner/lib/camera-stream";
 
 function readStoredDeviceId(): string | null {
   try {
@@ -25,7 +28,7 @@ function writeStoredDeviceId(deviceId: string | null) {
 
 function openCamera(deviceId: string | null): Promise<MediaStream> {
   assertHardwareAllowedWhileImpersonating();
-  return navigator.mediaDevices.getUserMedia({
+  return getUserMediaWhenCameraIsReleased({
     video: {
       ...(deviceId
         ? { deviceId: { exact: deviceId } }
