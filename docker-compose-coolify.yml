@@ -4,6 +4,7 @@
 services:
   postgres:
     image: pgvector/pgvector:pg17
+    shm_size: 1gb
     environment:
       POSTGRES_DB: mault
       POSTGRES_USER: mault
