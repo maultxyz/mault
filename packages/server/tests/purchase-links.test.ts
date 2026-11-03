@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { PlayingCard } from "@magic-vault/shared";
-import { purchaseLinksFor } from "../src/lib/card-search/purchase-links";
+import {
+  purchaseLinksFor,
+  purchaseLinksForProduct,
+} from "../src/lib/card-search/purchase-links";
 import type { CardSearchAdapter } from "../src/lib/interfaces/card-search";
 
 const card = {
@@ -52,4 +55,18 @@ test("purchase links fall back to a name search without raw data", () => {
 test("purchase links skip marketplaces the game has no listing for", () => {
   const links = purchaseLinksFor({ cardmarket: { gameId: 24 } } as unknown as CardSearchAdapter, card);
   assert.deepEqual(links, {});
+});
+
+test("purchase links build from a stored product id and Card Kingdom url", () => {
+  const links = purchaseLinksForProduct(mtgAdapter, {
+    name: "Black Lotus",
+    tcgplayerProductId: 1234,
+    cardKingdomUrl: "https://www.cardkingdom.com/mtg/alpha/black-lotus",
+  });
+  assert.equal(links.tcgplayer, "https://www.tcgplayer.com/product/1234");
+  assert.equal(links.cardkingdom, "https://www.cardkingdom.com/mtg/alpha/black-lotus");
+  assert.equal(
+    links.cardmarket,
+    "https://www.cardmarket.com/en/Magic/Products/Search?searchString=Black%20Lotus",
+  );
 });

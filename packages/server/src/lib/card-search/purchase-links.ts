@@ -5,19 +5,16 @@ import {
   TCGPLAYER_SITE_URL,
 } from "../constants/urls";
 import type { CardSearchAdapter } from "../interfaces/card-search";
+import type { PurchaseLinkProduct } from "../interfaces/purchase-links";
 
 function tcgplayerLink(
   adapter: CardSearchAdapter,
-  card: PlayingCard,
+  product: PurchaseLinkProduct,
   searchName: string,
 ): string | undefined {
-  const pricing = adapter.tcgplayer;
-  if (!pricing) return undefined;
-  const productId = Number(
-    card.tcgplayerId ??
-      (card.raw != null ? pricing.productIdFromRaw?.(card) : undefined),
-  );
-  return Number.isInteger(productId) && productId > 0
+  if (!adapter.tcgplayer) return undefined;
+  const productId = product.tcgplayerProductId;
+  return productId != null && Number.isInteger(productId) && productId > 0
     ? `${TCGPLAYER_SITE_URL}/product/${productId}`
     : `${TCGPLAYER_SITE_URL}/search/all/product?q=${searchName}`;
 }
@@ -33,12 +30,10 @@ function cardmarketLink(
 
 function cardKingdomLink(
   adapter: CardSearchAdapter,
-  card: PlayingCard,
+  product: PurchaseLinkProduct,
   searchName: string,
 ): string | undefined {
-  const productUrl =
-    card.cardKingdomPrice?.url ?? card.cardKingdomPriceFoil?.url;
-  if (productUrl) return productUrl;
+  if (product.cardKingdomUrl) return product.cardKingdomUrl;
   if (!adapter.cardkingdom) return undefined;
   return new URL(
     `catalog/search?search=header&filter%5Bname%5D=${searchName}`,
@@ -46,17 +41,35 @@ function cardKingdomLink(
   ).toString();
 }
 
-export function purchaseLinksFor(
+export function purchaseLinksForProduct(
   adapter: CardSearchAdapter,
-  card: PlayingCard,
+  product: PurchaseLinkProduct,
 ): CardPurchaseLinks {
-  const searchName = encodeURIComponent(card.name);
+  const searchName = encodeURIComponent(product.name);
   const links: CardPurchaseLinks = {
-    tcgplayer: tcgplayerLink(adapter, card, searchName),
+    tcgplayer: tcgplayerLink(adapter, product, searchName),
     cardmarket: cardmarketLink(adapter, searchName),
-    cardkingdom: cardKingdomLink(adapter, card, searchName),
+    cardkingdom: cardKingdomLink(adapter, product, searchName),
   };
   return Object.fromEntries(
     Object.entries(links).filter(([, url]) => url != null),
   );
+}
+
+export function purchaseLinksFor(
+  adapter: CardSearchAdapter,
+  card: PlayingCard,
+): CardPurchaseLinks {
+  const productId = Number(
+    card.tcgplayerId ??
+      (card.raw != null
+        ? adapter.tcgplayer?.productIdFromRaw?.(card)
+        : undefined),
+  );
+  return purchaseLinksForProduct(adapter, {
+    name: card.name,
+    tcgplayerProductId: Number.isFinite(productId) ? productId : null,
+    cardKingdomUrl:
+      card.cardKingdomPrice?.url ?? card.cardKingdomPriceFoil?.url ?? null,
+  });
 }

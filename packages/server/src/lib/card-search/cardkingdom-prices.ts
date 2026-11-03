@@ -21,6 +21,7 @@ function printingKey(setCode: string, number: string): string {
 
 function toPrice(row: CardKingdomPriceRow): PlayingCardCardKingdomPrice {
   return {
+    productId: row.productId,
     retail: row.retail,
     buylist: row.buylist,
     inStock: row.retailQty,
