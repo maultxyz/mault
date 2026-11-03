@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Mault API",
-    "version": "1.0.191",
+    "version": "1.0.192",
     "description": "Look up where an organization's scanned cards are stored, and take them out of their box, move or delete them with a read and write key. Lists are paged with has_more and next_page (at most 500 per page), and every object carries an object field naming its type, like Scryfall's API."
   },
   "servers": [
@@ -1613,6 +1613,53 @@
         ],
         "additionalProperties": false
       },
+      "PurchaseUris": {
+        "type": "object",
+        "properties": {
+          "tcgplayer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The TCGplayer product page, or a TCGplayer search when the product id isn't known."
+          },
+          "cardmarket": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A Cardmarket search for this card."
+          },
+          "cardkingdom": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The Card Kingdom product page for this copy's finish, or a Card Kingdom search when the product isn't known."
+          }
+        },
+        "required": [
+          "tcgplayer",
+          "cardmarket",
+          "cardkingdom"
+        ],
+        "additionalProperties": false
+      },
       "ScannedCard": {
         "type": "object",
         "properties": {
@@ -1658,6 +1705,32 @@
             ],
             "description": "The printing's TCGplayer product id, or null when its card database doesn't list one."
           },
+          "cardmarket_product_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The printing's Cardmarket product id, or null when its card database doesn't list one."
+          },
+          "cardkingdom_product_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The Card Kingdom product id for this copy's finish (falling back to the other finish), or null when Card Kingdom doesn't list the printing."
+          },
           "lang": {
             "type": "string"
           },
@@ -1695,6 +1768,9 @@
           },
           "prices": {
             "$ref": "#/components/schemas/Prices"
+          },
+          "purchase_uris": {
+            "$ref": "#/components/schemas/PurchaseUris"
           },
           "location": {
             "anyOf": [
@@ -1747,12 +1823,15 @@
           "collector_number",
           "rarity",
           "tcgplayer_product_id",
+          "cardmarket_product_id",
+          "cardkingdom_product_id",
           "lang",
           "game",
           "finish",
           "foil_type",
           "condition",
           "prices",
+          "purchase_uris",
           "location",
           "collection",
           "needs_review",
