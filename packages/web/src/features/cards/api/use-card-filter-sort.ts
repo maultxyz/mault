@@ -43,7 +43,7 @@ export function applyCardFilters(
     );
   }
 
-  if (!filters.showDownloaded) {
+  if (filters.hideDownloaded) {
     result = result.filter((entry) => !entry.isDownloaded);
   }
 
@@ -111,7 +111,7 @@ export function useCardQueryState(
     filters.sets.length +
     filters.foilTypes.length +
     (filters.needsAttention ? 1 : 0) +
-    (filters.showDownloaded ? 1 : 0) +
+    (filters.hideDownloaded ? 1 : 0) +
     (filters.minMatchPercent > 0 ? 1 : 0);
 
   return {

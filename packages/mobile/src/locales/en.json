@@ -750,7 +750,7 @@
       "noBin": "No bin",
       "status": "Status",
       "needsReview": "Needs review",
-      "showDownloaded": "Show downloaded",
+      "hideDownloaded": "Hide downloaded",
       "reset": "Reset"
     },
     "sort": {

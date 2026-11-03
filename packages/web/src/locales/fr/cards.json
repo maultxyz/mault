@@ -95,6 +95,7 @@
     "status": "Statut",
     "needsAttention": "Nécessite une attention",
     "showDownloadedCards": "Afficher les cartes téléchargées",
+    "hideDownloadedCards": "Masquer les cartes téléchargées",
     "sets": "Sets",
     "resetFilters": "Réinitialiser les filtres"
   },

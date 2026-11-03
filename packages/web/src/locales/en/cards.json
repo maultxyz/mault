@@ -95,6 +95,7 @@
     "status": "Status",
     "needsAttention": "Needs attention",
     "showDownloadedCards": "Show downloaded cards",
+    "hideDownloadedCards": "Hide downloaded cards",
     "sets": "Sets",
     "resetFilters": "Reset filters"
   },

@@ -47,7 +47,7 @@ const cardFiltersSchema = z.object({
   rarities: z.array(z.string()).default([]),
   bins: z.array(z.number().int().nullable()).default([]),
   needsAttention: z.boolean().default(false),
-  showDownloaded: z.boolean().default(false),
+  hideDownloaded: z.boolean().default(false),
   sets: z.array(z.string()).default([]),
   minMatchPercent: z.number().min(0).max(100).default(0),
   foilTypes: z.array(z.string()).default([]),
@@ -237,7 +237,7 @@ export function cardFilterSql(
     );
   }
 
-  if (!filters.showDownloaded) {
+  if (filters.hideDownloaded) {
     conditions.push(sql`NOT cc.is_downloaded`);
   }
 

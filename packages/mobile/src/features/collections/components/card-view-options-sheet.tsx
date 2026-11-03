@@ -157,9 +157,9 @@ export function CardViewOptionsSheet({
             />,
             <FilterChip
               key="downloaded"
-              label={t("collection.filters.showDownloaded")}
-              selected={filters.showDownloaded}
-              onPress={() => onChange({ ...filters, showDownloaded: !filters.showDownloaded })}
+              label={t("collection.filters.hideDownloaded")}
+              selected={filters.hideDownloaded}
+              onPress={() => onChange({ ...filters, hideDownloaded: !filters.hideDownloaded })}
             />,
           ])}
         </ScrollView>

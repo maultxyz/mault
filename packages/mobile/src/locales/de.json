@@ -750,7 +750,7 @@
       "noBin": "Kein Fach",
       "status": "Status",
       "needsReview": "Zu prüfen",
-      "showDownloaded": "Heruntergeladene anzeigen",
+      "hideDownloaded": "Heruntergeladene ausblenden",
       "reset": "Zurücksetzen"
     },
     "sort": {

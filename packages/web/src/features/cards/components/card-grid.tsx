@@ -767,7 +767,7 @@ export function CardGrid() {
             hiddenDownloadedCount > 0 ? (
               <Button
                 variant="outline"
-                onClick={() => setFilters({ ...filters, showDownloaded: true })}
+                onClick={() => setFilters({ ...filters, hideDownloaded: false })}
               >
                 <IconDownload />
                 {t("cardFilterPopover.showDownloadedCards")}

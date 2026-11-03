@@ -158,7 +158,7 @@ export default function CollectionScreen() {
     filters.foilTypes.length +
     filters.bins.length +
     filters.sets.length +
-    (filters.showDownloaded ? 1 : 0);
+    (filters.hideDownloaded ? 1 : 0);
   const activeSortAndFilterCount = activeFilterCount + (sort ? 1 : 0);
 
   const shareLink = useMutation({

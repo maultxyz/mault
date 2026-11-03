@@ -750,7 +750,7 @@
       "noBin": "Aucun bac",
       "status": "Statut",
       "needsReview": "À vérifier",
-      "showDownloaded": "Afficher les téléchargées",
+      "hideDownloaded": "Masquer les téléchargées",
       "reset": "Réinitialiser"
     },
     "sort": {

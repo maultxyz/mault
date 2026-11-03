@@ -3,7 +3,7 @@ import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
   MOBILE_LIST_CLASS,
   MOBILE_LIST_ROW_CLASS,
@@ -23,7 +23,7 @@ export function MobileSessionScansSheet({
   const { t } = useTranslation("scanner");
   const { priceOf, format } = usePriceSource();
   const { data, isPending } = useQuery({
-    ...collectionCardsPageQueryOptions(collectionGuid, CARD_LOOKUP_QUERY, 0),
+    ...collectionCardsPageQueryOptions(collectionGuid, ALL_CARDS_QUERY, 0),
     enabled: open && !!collectionGuid && count > 0,
   });
   const items = (data?.items ?? []).slice(0, count);
