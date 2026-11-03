@@ -1276,8 +1276,11 @@
       "startFailed": "Couldn't start the review"
     },
     "moveToLocation": "Move to location",
+    "moveToCollection": "Move to collection",
+    "moveToCollectionFailed": "Couldn't move the cards",
     "moveToOtherLocation": "Move to another location",
-    "searchLocations": "Search locations"
+    "searchLocations": "Search locations",
+    "searchCollections": "Search collections"
   },
   "settings": {
     "title": "Settings",

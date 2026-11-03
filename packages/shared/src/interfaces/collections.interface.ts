@@ -12,3 +12,7 @@ export interface Collection {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface MoveCardsToCollectionResult {
+  moved: number;
+}

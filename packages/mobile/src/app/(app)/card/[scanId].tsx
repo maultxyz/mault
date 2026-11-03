@@ -55,6 +55,7 @@ import {
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import {
   cardStorageLocationQueryOptions,
@@ -102,7 +103,7 @@ export default function CardDetailScreen() {
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
   const [matchesOpenState, setMatchesOpenState] = useState<MatchesOpenState | null>(null);
-  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | "location" | "tags" | null>(null);
+  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | "location" | "collection" | "tags" | null>(null);
   const billing = useQuery(billingQueryOptions(activeOrgId));
   const canMoveToLocation = !!billing.data && billing.data.storage !== false;
   const locations = useQuery(storageLocationsQueryOptions(activeOrgId, canMoveToLocation));
@@ -200,6 +201,11 @@ export default function CardDetailScreen() {
       void queryClient.invalidateQueries({ queryKey: ["collections"] });
       router.back();
     },
+  });
+
+  const { targetCollections, moveToCollection } = useMoveCardsToCollection({
+    sourceCollectionGuid: guid,
+    onMoved: () => router.back(),
   });
 
   const moveToLocation = useMutation({
@@ -488,14 +494,24 @@ export default function CardDetailScreen() {
                     </AppText>
                   </Pressable>
                 ) : null}
-                {entry && canMoveToLocation && moveTargets.length > 0 ? (
+                {entry && ((canMoveToLocation && moveTargets.length > 0) || targetCollections.length > 0) ? (
                   <ListGroup>
-                    <ListRow
-                      icon="transfer"
-                      title={storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation")}
-                      disabled={moveToLocation.isPending}
-                      onPress={() => setSheet("location")}
-                    />
+                    {canMoveToLocation && moveTargets.length > 0 ? (
+                      <ListRow
+                        icon="transfer"
+                        title={storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation")}
+                        disabled={moveToLocation.isPending}
+                        onPress={() => setSheet("location")}
+                      />
+                    ) : null}
+                    {targetCollections.length > 0 ? (
+                      <ListRow
+                        icon="collections"
+                        title={t("storage.moveToCollection")}
+                        disabled={moveToCollection.isPending}
+                        onPress={() => setSheet("collection")}
+                      />
+                    ) : null}
                   </ListGroup>
                 ) : null}
               </View>
@@ -657,6 +673,18 @@ export default function CardDetailScreen() {
           setSheet(null);
           const tag = CARD_TAGS.find((candidate) => candidate === value);
           if (tag) toggleTag.mutate(tag);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "collection"}
+        title={t("storage.moveToCollection")}
+        options={targetCollections.map((target) => ({ value: target.guid, label: target.name }))}
+        selected={[]}
+        searchPlaceholder={t("storage.searchCollections")}
+        onSelect={(targetCollectionGuid) => {
+          setSheet(null);
+          moveToCollection.mutate({ scanIds: [scanId], targetCollectionGuid });
         }}
         onClose={() => setSheet(null)}
       />

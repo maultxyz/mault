@@ -322,7 +322,7 @@
     "copyName": "Copy name",
     "copied": "Name copied.",
     "copyFailed": "Couldn't copy the name.",
-    "moveToLocation": "Move to location",
+    "moveToLocation": "Move",
     "remove_one": "Remove card",
     "remove_other": "Remove {{count}} cards"
   },

@@ -56,6 +56,7 @@ import {
   releaseScanLock,
   removeCollectionCard,
   removeCollectionCards,
+  moveCollectionCardsToCollection,
   removeUnmatchedCard as removeUnmatchedCardApi,
   clearUnmatchedCards as clearUnmatchedCardsApi,
   setCollectionCardTags,
@@ -94,6 +95,7 @@ import type {
   BinCorrection,
   CorrectedBinTarget,
   LastRoutedBin,
+  MoveCardsToCollectionInput,
   PendingBinCard,
   ScannedCardsContextValue,
 } from "@/lib/interfaces/scanner";
@@ -1200,6 +1202,41 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
+  const moveCardsToCollection = useCallback(
+    ({
+      sourceCollectionGuid,
+      targetCollectionGuid,
+      scanIds,
+    }: MoveCardsToCollectionInput) => {
+      const idSet = new Set(scanIds);
+      return moveCollectionCardsToCollection(
+        sourceCollectionGuid,
+        scanIds,
+        targetCollectionGuid,
+      )
+        .then((result) => {
+          if (!result.success || !result.data) return null;
+          if (activeCollectionRef.current?.guid === sourceCollectionGuid) {
+            binContentsRef.current = binContentsRef.current.filter(
+              (c) => !idSet.has(c.scanId),
+            );
+          }
+          removeFromCardPages(queryClient, sourceCollectionGuid, idSet);
+          return result.data.moved;
+        })
+        .catch((err) => {
+          console.error("Failed to move cards:", err);
+          return null;
+        })
+        .finally(() => {
+          void invalidateCollectionCards(queryClient, sourceCollectionGuid);
+          void invalidateCollectionCards(queryClient, targetCollectionGuid);
+          void queryClient.invalidateQueries({ queryKey: ["collections"] });
+        });
+    },
+    [queryClient],
+  );
+
   const removeCard = useCallback(
     (scanId: string) => removeCards([scanId]),
     [removeCards],
@@ -1530,6 +1567,7 @@ export function ScannedCardsProvider({
         dismissFullBins,
         removeCard,
         removeCards,
+        moveCardsToCollection,
         correctCard,
         confirmCard,
         markCardReviewed,

@@ -322,7 +322,7 @@
     "copyName": "Namen kopieren",
     "copied": "Name kopiert.",
     "copyFailed": "Der Name konnte nicht kopiert werden.",
-    "moveToLocation": "In Lagerort verschieben",
+    "moveToLocation": "Verschieben",
     "remove_one": "Karte entfernen",
     "remove_other": "{{count}} Karten entfernen"
   },

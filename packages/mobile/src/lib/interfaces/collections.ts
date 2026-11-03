@@ -40,6 +40,16 @@ export interface CardActionsSheetProps {
   onClose: () => void;
 }
 
+export interface MoveCardsToCollectionOptions {
+  sourceCollectionGuid: string;
+  onMoved?: () => void;
+}
+
+export interface MoveCardsToCollectionVariables {
+  scanIds: string[];
+  targetCollectionGuid: string;
+}
+
 export interface FilterChipProps {
   label: string;
   selected: boolean;

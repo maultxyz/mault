@@ -14,6 +14,7 @@ import {
   type CreateCollectionFormValues,
   type IdentifyUnmatchedCardRequest,
   type MatchedScanDiagnostics,
+  type MoveCardsToCollectionResult,
   type Result,
   type SetCardTagsRequest,
   type ReviewAcceptRequest,
@@ -267,6 +268,17 @@ export async function removeCollectionCards(
   scanIds: string[],
 ): Promise<Result<null>> {
   return apiPost<Result<null>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds });
+}
+
+export async function moveCollectionCardsToCollection(
+  guid: string,
+  scanIds: string[],
+  targetCollectionGuid: string,
+): Promise<Result<MoveCardsToCollectionResult>> {
+  return apiPost<Result<MoveCardsToCollectionResult>>(
+    `/api/collections/${guid}/cards/move-to-collection`,
+    { scanIds, targetCollectionGuid },
+  );
 }
 
 export async function markCollectionCardsDownloaded(

@@ -168,6 +168,9 @@ export interface ScannedCardsContextValue {
   showJamToast: (options: JamToastOptions) => void;
   removeCard: (scanId: string) => void;
   removeCards: (scanIds: string[]) => Promise<boolean>;
+  moveCardsToCollection: (
+    input: MoveCardsToCollectionInput,
+  ) => Promise<number | null>;
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;
@@ -1173,4 +1176,10 @@ export interface ScanImageImportRowProps {
 export interface ScanImageCanvas {
   canvas: HTMLCanvasElement;
   imageContour: CardContour;
+}
+
+export interface MoveCardsToCollectionInput {
+  sourceCollectionGuid: string;
+  targetCollectionGuid: string;
+  scanIds: string[];
 }

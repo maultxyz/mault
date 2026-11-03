@@ -38,6 +38,8 @@ import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
+import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
+import { useMoveTargetCollections } from "@/features/collections/api/use-move-target-collections";
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import {
   allExportAdapters,
@@ -439,6 +441,9 @@ export function CardGrid() {
   const markCardsDownloaded = useMarkCardsDownloaded(collectionGuid);
   const { isLocked: storageLocked } = useStorageAccess();
   const { moveCards, isMoving } = useMoveCardsToLocation();
+  const moveTargetCollections = useMoveTargetCollections(collectionGuid);
+  const { moveToCollection, isMovingToCollection } =
+    useMoveCardsToCollection(collectionGuid);
   const selectedStoredCount = useStoredCardCount(
     collectionGuid,
     selectedIds,
@@ -500,6 +505,17 @@ export function CardGrid() {
         collectionGuid,
       }),
     [moveCards, selectedIds, collectionGuid],
+  );
+  const handleMoveSelectedToCollection = useCallback(
+    async (targetCollectionGuid: string) => {
+      const moved = await moveToCollection(
+        Array.from(selectedIds),
+        targetCollectionGuid,
+      );
+      if (moved) setSelectedIds(new Set());
+      return moved;
+    },
+    [moveToCollection, selectedIds],
   );
 
   const handleDeleteExported = useCallback(() => {
@@ -996,10 +1012,10 @@ export function CardGrid() {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {!storageLocked && (
+                {(!storageLocked || moveTargetCollections.length > 0) && (
                   <Button
                     variant="ghost"
-                    disabled={isMoving}
+                    disabled={isMoving || isMovingToCollection}
                     className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
                     onClick={() => setMoveSelectedOpen(true)}
                   >
@@ -1059,9 +1075,12 @@ export function CardGrid() {
       <MoveToLocationDialog
         open={moveSelectedOpen}
         count={selectedIds.size}
-        isMoving={isMoving}
+        isMoving={isMoving || isMovingToCollection}
+        showLocations={!storageLocked}
+        sourceCollectionGuid={collectionGuid}
         onOpenChange={setMoveSelectedOpen}
         onMove={handleMoveSelected}
+        onMoveToCollection={handleMoveSelectedToCollection}
       />
 
       <ExportedCardsDialog

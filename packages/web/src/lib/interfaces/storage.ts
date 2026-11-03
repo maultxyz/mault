@@ -2,6 +2,7 @@ import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { EmptyBinLocationFormValues } from "@/schemas/storage.schema";
 import type { UseFormReturn } from "react-hook-form";
 import type {
+  Collection,
   EmptyAllBinsOptions,
   EmptyBinOptions,
   StorageLocation,
@@ -43,13 +44,18 @@ export interface MoveCollectionsToLocationInput {
 export interface LocationMoveFormOptions {
   open: boolean;
   excludedLocationGuid?: string;
+  showLocations?: boolean;
+  collections?: Collection[];
   onMove: (locationGuid: string) => Promise<boolean>;
+  onMoveToCollection?: (collectionGuid: string) => Promise<boolean>;
   onMoved: () => void;
 }
 
 export interface LocationMoveFieldsProps {
   form: UseFormReturn<EmptyBinLocationFormValues>;
   locations: StorageLocation[];
+  showLocations?: boolean;
+  collections?: Collection[];
   idPrefix: string;
 }
 
@@ -58,8 +64,11 @@ export interface MoveToLocationDialogProps {
   count: number;
   excludedLocationGuid?: string;
   isMoving: boolean;
+  showLocations?: boolean;
+  sourceCollectionGuid?: string;
   onOpenChange: (open: boolean) => void;
   onMove: (locationGuid: string) => Promise<boolean>;
+  onMoveToCollection?: (collectionGuid: string) => Promise<boolean>;
 }
 
 export interface EmptyBinToLocationDialogProps {

@@ -1,4 +1,6 @@
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
+import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
+import { useMoveTargetCollections } from "@/features/collections/api/use-move-target-collections";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
@@ -27,6 +29,10 @@ export function useCardActions(entry: GroupedScannedCard) {
   const { collection: viewedCollection } = useViewedCollection();
   const { isLocked: storageLocked } = useStorageAccess();
   const { moveCards, isMoving } = useMoveCardsToLocation();
+  const sourceCollectionGuid = viewedCollection?.guid;
+  const targetCollections = useMoveTargetCollections(sourceCollectionGuid);
+  const { moveToCollection, isMovingToCollection } =
+    useMoveCardsToCollection(sourceCollectionGuid);
 
   return {
     foilOptions: cardFoilTypeOptions(
@@ -58,12 +64,16 @@ export function useCardActions(entry: GroupedScannedCard) {
     },
     remove: () => removeCards(entry.scanIds),
     canMoveToLocation: !storageLocked,
-    isMovingToLocation: isMoving,
+    canMove: !storageLocked || targetCollections.length > 0,
+    sourceCollectionGuid,
+    isMovingToLocation: isMoving || isMovingToCollection,
     moveToLocation: (locationGuid: string) =>
       moveCards({
         guid: locationGuid,
         scanIds: entry.scanIds,
         collectionGuid: viewedCollection?.guid,
       }),
+    moveToCollection: (targetCollectionGuid: string) =>
+      moveToCollection(entry.scanIds, targetCollectionGuid),
   };
 }

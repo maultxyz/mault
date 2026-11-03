@@ -131,6 +131,16 @@ export function removeCollectionCards(guid: string, scanIds: string[]): Promise<
   return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds }));
 }
 
+export function moveCollectionCardsToCollection(
+  guid: string,
+  scanIds: string[],
+  targetCollectionGuid: string,
+): Promise<unknown> {
+  return unwrap(
+    apiPost<Result<unknown>>(`/api/collections/${guid}/cards/move-to-collection`, { scanIds, targetCollectionGuid }),
+  );
+}
+
 export function fetchCollectionCardCopies(guid: string, cardIds: string[]): Promise<ScannedCard[]> {
   const params = new URLSearchParams({ cardIds: cardIds.join(",") });
   return unwrap(apiGet<Result<ScannedCard[]>>(`/api/collections/${guid}/cards/copies?${params.toString()}`));

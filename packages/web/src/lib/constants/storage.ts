@@ -1,5 +1,6 @@
 export const EMPTY_BIN_NEW_LOCATION = "__new__";
 export const EMPTY_BIN_NO_LOCATION = "__none__";
+export const MOVE_TARGET_COLLECTION_PREFIX = "collection:";
 export const STORAGE_PATH = "/app/storage";
 export const STORAGE_LOCATION_SEARCH_PARAM = "location";
 export const STORAGE_CARD_SEARCH_PARAM = "card";
