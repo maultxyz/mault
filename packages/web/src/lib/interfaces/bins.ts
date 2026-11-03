@@ -12,14 +12,12 @@ import type {
   FieldMeta,
   PickList,
   PickListInput,
-  PlayingCard,
   SortTestGroupCheck,
   PresetWorkflow,
   PresetWorkflowStep,
   RepackConfigPatch,
   ScanOnlyConfig,
 } from "@magic-vault/shared";
-import type { Control } from "react-hook-form";
 import type { ReactNode } from "react";
 import type { BinConfigFormValues } from "@/schemas/sort-bins.schema";
 
