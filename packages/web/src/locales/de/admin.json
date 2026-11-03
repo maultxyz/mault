@@ -361,6 +361,7 @@
     "types": {
       "collection": "Sammlung",
       "binSet": "Fach-Vorlage",
+      "presetWorkflow": "Mehrstufige Vorlage",
       "bin": "Fach",
       "device": "Sortierer",
       "binRoute": "Fach-Route",

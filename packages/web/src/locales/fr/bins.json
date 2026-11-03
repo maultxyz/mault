@@ -160,6 +160,7 @@
       "alphabetFailed": "Échec de la mise à jour du tri alphabétique",
       "chaosFailed": "Impossible de mettre à jour le tri en vrac",
       "skipSavingFailed": "Impossible de mettre à jour l'enregistrement",
+      "resortModeFailed": "Impossible de mettre à jour le retri",
       "cardsStored_one": "{{count}} carte rangée",
       "cardsStored_other": "{{count}} cartes rangées"
     }
@@ -206,6 +207,10 @@
     "heading": "Ne pas enregistrer les cartes",
     "description": "Les cartes sont identifiées et triées dans les bacs comme d'habitude, mais rien n'est ajouté à la collection. Les scans comptent toujours dans ta limite quotidienne."
   },
+  "resortPanel": {
+    "heading": "Retrier les cartes enregistrées",
+    "description": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude."
+  },
   "chaosPanel": {
     "heading": "Tri en vrac",
     "description": "Ignore les règles et remplit les bacs l'un après l'autre, en passant au suivant quand un bac est plein. Quand tu vides un bac, choisis l'emplacement où tu le ranges, et chaque carte y est enregistrée dans l'ordre.",
@@ -239,6 +244,52 @@
     "sortDeeper": "Trier plus finement",
     "sortDeeperItem": "Pile {{label}} selon la lettre suivante",
     "pileDoneHint": "C'est le dernier passage pour la pile {{prefix}}. Recommencez pour revenir à l'alphabet complet."
+  },
+  "presetWorkflows": {
+    "toasts": {
+      "saveFailed": "Impossible d'enregistrer le préréglage en plusieurs étapes",
+      "switchFailed": "Impossible de changer d'étape"
+    },
+    "badge": "Plusieurs étapes",
+    "missingPreset": "Préréglage supprimé",
+    "missingPresetDescription": "Le préréglage de cette étape a été supprimé. Choisissez-en un autre ci-dessus.",
+    "newDescription": "Exécutez des préréglages existants l'un après l'autre. Choisissez la première étape maintenant et ajoutez les autres depuis la page du préréglage.",
+    "kindLabel": "Type de préréglage",
+    "kindRules": "Règles",
+    "kindMultiStage": "Plusieurs étapes",
+    "firstStageLabel": "Première étape",
+    "choosePreset": "Choisir un préréglage",
+    "firstStageDescription": "Le préréglage qui trie la pile en premier. Vous ajoutez les étapes suivantes sur la page du préréglage.",
+    "pageDescription": "Exécute vos préréglages l'un après l'autre. Triez toute la pile avec l'étape 1, remettez les cartes dans le chargeur, puis passez à l'étape suivante. Les étapes après la première retrient les cartes déjà enregistrées, sauf si vous le désactivez.",
+    "start": "Démarrer",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer le préréglage en plusieurs étapes",
+    "deleteDescription": "Supprimer « {{name}} » ? Les préréglages qu'il utilise sont conservés.",
+    "renameTitle": "Renommer le préréglage en plusieurs étapes",
+    "renameDescription": "Saisissez un nouveau nom pour ce préréglage en plusieurs étapes.",
+    "notFoundTitle": "Préréglage en plusieurs étapes introuvable",
+    "notFoundDescription": "Il a peut-être été supprimé, ou il appartient à un autre jeu.",
+    "stageHeading": "Étape {{number}}",
+    "current": "Actuelle",
+    "resort": "Retri",
+    "editRules": "Modifier les règles",
+    "editingInactiveTitle": "Modification de {{name}}",
+    "editingInactiveDescription": "Ce n'est pas le préréglage utilisé par la trieuse. Les modifications s'appliquent partout où ce préréglage est utilisé, y compris dans ses préréglages en plusieurs étapes.",
+    "switchHere": "Passer à cette étape",
+    "saveFirst": "Enregistrez vos modifications avant de changer d'étape.",
+    "addStage": "Ajouter une étape",
+    "removeStage": "Retirer l'étape",
+    "confirmMoveTitle": "Passer à {{name}} ?",
+    "confirmMoveDescription": "Videz d'abord tous les bacs et définissez des emplacements si vous le souhaitez. Mettez ensuite les cartes pour {{name}} dans le chargeur. Les bacs qui contiennent encore des cartes sont marqués comme vidés.",
+    "binsAreEmpty": "Les bacs sont vides",
+    "editStages": "Modifier les étapes",
+    "stopFirst": "Arrêtez le scanner avant de changer d'étape.",
+    "previousStage": "Étape précédente",
+    "nextStage": "Étape suivante",
+    "lastStage": "Dernière étape",
+    "stageOf": "Étape {{number}} sur {{count}}",
+    "moveUp": "Monter l'étape",
+    "moveDown": "Descendre l'étape"
   },
   "binLabel": "Bac {{number}}",
   "catchAll": "Fourre-tout",

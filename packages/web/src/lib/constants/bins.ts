@@ -1,6 +1,18 @@
 import type { ConditionOperator } from "@magic-vault/shared";
 
 export const SORTING_RULES_PATH = "/app/rules";
+export const SORTING_RULES_PRESET_PARAM = "preset";
+export const sortingRulesPresetPath = (presetGuid: string) =>
+  `${SORTING_RULES_PATH}?${SORTING_RULES_PRESET_PARAM}=${encodeURIComponent(presetGuid)}`;
+export const PRESET_WORKFLOW_PATH = "/app/rules/multi-stage/:workflowGuid";
+export const presetWorkflowPath = (workflowGuid: string) =>
+  `/app/rules/multi-stage/${workflowGuid}`;
+export const PRESET_KINDS = ["rules", "multiStage"] as const;
+export const CREATE_PRESET_DEFAULT_VALUES = {
+  name: "",
+  kind: "rules" as const,
+  firstPresetGuid: "",
+};
 
 export const CONDITION_INPUT_CLASS = "max-md:h-10";
 

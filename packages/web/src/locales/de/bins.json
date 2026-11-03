@@ -160,6 +160,7 @@
       "alphabetFailed": "Alphabetische Sortierung konnte nicht aktualisiert werden",
       "chaosFailed": "Chaotisches Sortieren konnte nicht aktualisiert werden",
       "skipSavingFailed": "Speichern konnte nicht aktualisiert werden",
+      "resortModeFailed": "Neusortierung konnte nicht aktualisiert werden",
       "cardsStored_one": "{{count}} Karte eingelagert",
       "cardsStored_other": "{{count}} Karten eingelagert"
     }
@@ -206,6 +207,10 @@
     "heading": "Karten nicht speichern",
     "description": "Karten werden wie gewohnt erkannt und in Fächer sortiert, aber nicht zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit."
   },
+  "resortPanel": {
+    "heading": "Gespeicherte Karten neu sortieren",
+    "description": "Jeder Scan verschiebt ein Exemplar, das schon in dieser Sammlung ist, in sein neues Fach, statt ein weiteres hinzuzufügen. Das Exemplar behält Foil und Zustand und verlässt seinen bisherigen Lagerort. Karten, die noch nicht in der Sammlung sind, werden wie gewohnt hinzugefügt."
+  },
   "chaosPanel": {
     "heading": "Chaotisches Sortieren",
     "description": "Ignoriert die Regeln und füllt die Fächer nacheinander, das nächste, sobald eines voll ist. Wenn du ein Fach leerst, wählst du den Lagerort, und jede Karte wird dort der Reihe nach gespeichert.",
@@ -239,6 +244,52 @@
     "sortDeeper": "Tiefer sortieren",
     "sortDeeperItem": "Stapel {{label}} nach nächstem Buchstaben",
     "pileDoneHint": "Das ist der letzte Durchgang für den Stapel {{prefix}}. Mit „Von vorn beginnen“ geht es zurück zum ganzen Alphabet."
+  },
+  "presetWorkflows": {
+    "toasts": {
+      "saveFailed": "Mehrstufige Vorlage konnte nicht gespeichert werden",
+      "switchFailed": "Stufe konnte nicht gewechselt werden"
+    },
+    "badge": "Mehrstufig",
+    "missingPreset": "Gelöschte Vorlage",
+    "missingPresetDescription": "Die Vorlage dieser Stufe wurde gelöscht. Wähle oben eine andere Vorlage dafür.",
+    "newDescription": "Führe vorhandene Vorlagen nacheinander aus. Wähle jetzt die erste Stufe und füge den Rest auf der Seite der mehrstufigen Vorlage hinzu.",
+    "kindLabel": "Vorlagentyp",
+    "kindRules": "Regeln",
+    "kindMultiStage": "Mehrstufig",
+    "firstStageLabel": "Erste Stufe",
+    "choosePreset": "Vorlage wählen",
+    "firstStageDescription": "Die Vorlage, die den Stapel zuerst sortiert. Die nächsten Stufen fügst du auf der Seite der mehrstufigen Vorlage hinzu.",
+    "pageDescription": "Führt deine Vorlagen nacheinander aus. Sortiere den ganzen Stapel mit Stufe 1, lege die Karten zurück in den Einzug und gehe dann zur nächsten Stufe. Stufen nach der ersten sortieren die bereits gespeicherten Karten neu, außer du schaltest das aus.",
+    "start": "Starten",
+    "delete": "Löschen",
+    "deleteTitle": "Mehrstufige Vorlage löschen",
+    "deleteDescription": "„{{name}}“ löschen? Die verwendeten Vorlagen bleiben erhalten.",
+    "renameTitle": "Mehrstufige Vorlage umbenennen",
+    "renameDescription": "Gib einen neuen Namen für diese mehrstufige Vorlage ein.",
+    "notFoundTitle": "Mehrstufige Vorlage nicht gefunden",
+    "notFoundDescription": "Sie wurde vielleicht gelöscht oder gehört zu einem anderen Spiel.",
+    "stageHeading": "Stufe {{number}}",
+    "current": "Aktuell",
+    "resort": "Neu sortieren",
+    "editRules": "Regeln bearbeiten",
+    "editingInactiveTitle": "{{name}} bearbeiten",
+    "editingInactiveDescription": "Das ist nicht die Vorlage, die der Sortierer gerade verwendet. Änderungen gelten überall, wo diese Vorlage verwendet wird, auch in ihren mehrstufigen Vorlagen.",
+    "switchHere": "Hierher wechseln",
+    "saveFirst": "Speichere deine Änderungen, bevor du die Stufe wechselst.",
+    "addStage": "Stufe hinzufügen",
+    "removeStage": "Stufe entfernen",
+    "confirmMoveTitle": "Zu {{name}} wechseln?",
+    "confirmMoveDescription": "Leere vorher alle Fächer und lege bei Bedarf Lagerorte fest. Lege dann die Karten für {{name}} in den Einzug. Fächer, in denen noch Karten liegen, werden als geleert markiert.",
+    "binsAreEmpty": "Fächer sind leer",
+    "editStages": "Stufen bearbeiten",
+    "stopFirst": "Stoppe den Scanner, bevor du die Stufe wechselst.",
+    "previousStage": "Vorherige Stufe",
+    "nextStage": "Nächste Stufe",
+    "lastStage": "Letzte Stufe",
+    "stageOf": "Stufe {{number}} von {{count}}",
+    "moveUp": "Stufe nach oben",
+    "moveDown": "Stufe nach unten"
   },
   "binLabel": "Fach {{number}}",
   "catchAll": "Auffangfach",

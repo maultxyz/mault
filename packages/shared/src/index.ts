@@ -105,6 +105,7 @@ export * from "./card-swatches";
 export * from "./game-abbreviation";
 export * from "./discord-ping-roles";
 export * from "./bin-set-mode";
+export * from "./preset-workflows";
 export * from "./servo-pulse";
 export * from "./scan-save";
 export * from "./scan-removal";

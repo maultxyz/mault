@@ -936,7 +936,9 @@
       "repackSaveFirst": "Save to switch to repacks, then set up the pack slots.",
       "alphabetHint": "After saving, the Rules tab shows which letters each bin gets and lets you move to the next pass.",
       "skipSaving": "Don't save cards",
-      "skipSavingDescription": "Cards are identified and sorted as usual, but nothing is added to the collection. Scans still count toward your daily limit."
+      "skipSavingDescription": "Cards are identified and sorted as usual, but nothing is added to the collection. Scans still count toward your daily limit.",
+      "resort": "Re-sort saved cards",
+      "resortDescription": "Each scan moves a copy that is already in this collection into its new bin instead of adding another copy. The copy keeps its foil and condition and leaves its old storage location. Cards not in the collection yet are added as usual."
     },
     "modes": {
       "rules": {
@@ -985,6 +987,26 @@
       "addSlot": "Add slot",
       "multiplePacksLabel": "Multiple packs per bin",
       "multiplePacksDescription": "When a bin finishes a pack, it starts a new one on top of it and keeps going until the bin is full. A bin only starts a new pack if it has room for the whole pack, so packs are never cut short."
+    },
+    "stages": {
+      "badge": "Multi-stage",
+      "missingPreset": "Deleted preset",
+      "pageTitle": "Stages",
+      "pageDescription": "Every stage of this multi-stage preset, in order. Tap a stage to switch to it. Add and change stages in the web app.",
+      "noWorkflowTitle": "No multi-stage preset running",
+      "noWorkflowDescription": "Choose a multi-stage preset to see its stages.",
+      "viewStages": "All stages",
+      "stageHeading": "Stage {{number}}",
+      "current": "Current",
+      "resort": "Re-sort",
+      "confirmMoveTitle": "Switch to {{name}}?",
+      "confirmMoveDescription": "Empty every bin first, setting storage locations if you want them. Then put the cards for {{name}} in the feeder. Bins still holding cards are marked as emptied.",
+      "confirm": "Bins are empty",
+      "switchFailed": "Couldn't switch stages",
+      "stageOf": "Stage {{number}} of {{count}}",
+      "previousStage": "Previous stage",
+      "nextStage": "Next stage",
+      "lastStage": "Last stage"
     },
     "alphabet": {
       "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",

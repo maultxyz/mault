@@ -7,6 +7,7 @@ import type {
 } from "../interfaces/sort-bins.interface";
 
 export const SET_NAME_MAX_LENGTH = 50;
+export const PRESET_STAGE_PATH_SEPARATOR = " \u203a ";
 export const COUNT_OPERATORS: ConditionOperator[] = [
   "count_equals",
   "count_gt",

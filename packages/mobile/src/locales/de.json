@@ -936,7 +936,9 @@
       "repackSaveFirst": "Speichere, um zu Repacks zu wechseln, und richte dann die Pack-Plätze ein.",
       "alphabetHint": "Nach dem Speichern zeigt der Regeln-Tab, welche Buchstaben jeder Behälter bekommt, und du kannst zum nächsten Durchgang wechseln.",
       "skipSaving": "Karten nicht speichern",
-      "skipSavingDescription": "Karten werden wie gewohnt erkannt und sortiert, aber nichts wird zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit."
+      "skipSavingDescription": "Karten werden wie gewohnt erkannt und sortiert, aber nichts wird zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit.",
+      "resort": "Gespeicherte Karten neu sortieren",
+      "resortDescription": "Jeder Scan verschiebt ein Exemplar, das schon in dieser Sammlung ist, in sein neues Fach, statt ein weiteres hinzuzufügen. Das Exemplar behält Foil und Zustand und verlässt seinen bisherigen Lagerort. Karten, die noch nicht in der Sammlung sind, werden wie gewohnt hinzugefügt."
     },
     "modes": {
       "rules": {
@@ -985,6 +987,26 @@
       "addSlot": "Platz hinzufügen",
       "multiplePacksLabel": "Mehrere Pakete pro Fach",
       "multiplePacksDescription": "Wenn ein Fach ein Paket fertig hat, beginnt es darauf ein neues und macht weiter, bis das Fach voll ist. Ein Fach beginnt ein neues Paket nur, wenn das ganze Paket noch hineinpasst, damit kein Paket unvollständig bleibt."
+    },
+    "stages": {
+      "badge": "Mehrstufig",
+      "missingPreset": "Gelöschte Vorlage",
+      "pageTitle": "Stufen",
+      "pageDescription": "Alle Stufen dieser mehrstufigen Vorlage in ihrer Reihenfolge. Tippe auf eine Stufe, um zu ihr zu wechseln. Stufen fügst du in der Web-App hinzu und änderst sie dort.",
+      "noWorkflowTitle": "Keine mehrstufige Vorlage aktiv",
+      "noWorkflowDescription": "Wähle eine mehrstufige Vorlage, um ihre Stufen zu sehen.",
+      "viewStages": "Alle Stufen",
+      "stageHeading": "Stufe {{number}}",
+      "current": "Aktuell",
+      "resort": "Neu sortieren",
+      "confirmMoveTitle": "Zu {{name}} wechseln?",
+      "confirmMoveDescription": "Leere vorher alle Fächer und lege bei Bedarf Lagerorte fest. Lege dann die Karten für {{name}} in den Einzug. Fächer, in denen noch Karten liegen, werden als geleert markiert.",
+      "confirm": "Fächer sind leer",
+      "switchFailed": "Stufe konnte nicht gewechselt werden",
+      "stageOf": "Stufe {{number}} von {{count}}",
+      "previousStage": "Vorherige Stufe",
+      "nextStage": "Nächste Stufe",
+      "lastStage": "Letzte Stufe"
     },
     "alphabet": {
       "needBins": "Die alphabetische Sortierung braucht mindestens einen Behälter neben dem Sammelbehälter.",

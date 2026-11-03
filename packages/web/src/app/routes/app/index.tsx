@@ -9,6 +9,7 @@ import { useCollectionCardsSummary } from "@/features/collections/api/use-collec
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
+import { PresetStageControl } from "@/features/scanner/components/preset-stage-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
@@ -86,6 +87,7 @@ function MobileScanner() {
         />
         <BinStatusMeter />
         <AlphabetPassControl />
+        <PresetStageControl />
       </div>
       <Drawer>
         <DrawerTrigger asChild>

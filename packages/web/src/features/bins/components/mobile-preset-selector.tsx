@@ -5,12 +5,14 @@ import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { MobilePresetList } from "@/features/bins/components/mobile-preset-list";
 import { PresetActionDialogs } from "@/features/bins/components/preset-action-dialogs";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { controlCardsPath } from "@/lib/constants/control-cards";
 import { MOBILE_LIST_CLASS } from "@/lib/constants/nav";
 import type { PresetDialog } from "@/lib/interfaces/bins";
 import { binSetMode } from "@magic-vault/shared";
+import { usePresetPicker } from "@/features/bins/api/use-preset-picker";
 import {
   IconArrowsSplit2,
   IconClockHour3,
@@ -31,8 +33,9 @@ export function MobilePresetSelector() {
   const { t } = useTranslation("bins");
   const navigate = useNavigate();
   const { activeOrg } = useOrg();
-  const { sets, activateSet, selectedSet, isActivating, isPresetMutating } =
-    useBinConfigs();
+  const { sets, selectedSet, isPresetMutating } = useBinConfigs();
+  const picker = usePresetPicker();
+  const isActivating = picker.isChoosing;
   const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState<PresetDialog | null>(null);
@@ -67,7 +70,7 @@ export function MobilePresetSelector() {
             {t("presetSelector.sortingLogic")}
           </span>
           <span className="block truncate text-sm font-medium text-foreground">
-            {selectedSet?.name ?? t("presetSelector.selectSetPlaceholder")}
+            {picker.activeLabel ?? t("presetSelector.selectSetPlaceholder")}
           </span>
         </span>
         {selectedMode !== "rules" && (
@@ -83,32 +86,7 @@ export function MobilePresetSelector() {
             <DrawerTitle className="font-heading text-base font-semibold text-foreground">
               {t("presetSelector.sortingLogic")}
             </DrawerTitle>
-            <div className={MOBILE_LIST_CLASS}>
-              {sets.map((set) => {
-                const mode = binSetMode(set);
-                return (
-                  <MobileListRow
-                    key={set.guid}
-                    label={set.name}
-                    selected={set.guid === selectedSet?.guid}
-                    disabled={isActivating}
-                    value={
-                      mode !== "rules" ? (
-                        <Badge variant="outline">
-                          {t(`presetSelector.modeBadges.${mode}`)}
-                        </Badge>
-                      ) : undefined
-                    }
-                    onClick={() => {
-                      if (set.guid !== selectedSet?.guid) {
-                        void activateSet(set.guid);
-                      }
-                      setSheetOpen(false);
-                    }}
-                  />
-                );
-              })}
-            </div>
+            <MobilePresetList onPresetChosen={() => setSheetOpen(false)} />
             <div className={MOBILE_LIST_CLASS}>
               <MobileListRow
                 icon={<IconPlus />}

@@ -11,6 +11,7 @@ import { RepackPanel } from "@/features/bins/components/repack-panel";
 import {
   MOBILE_BINS_BIN_PARAM,
   MOBILE_BINS_SCREEN_PARAM,
+  presetWorkflowPath,
 } from "@/lib/constants/bins";
 import {
   MOBILE_LIST_CLASS,
@@ -20,7 +21,12 @@ import {
 import type { MobileBinsScreen } from "@/lib/interfaces/bins";
 import { cn } from "@/lib/utils";
 import { binSetMode } from "@magic-vault/shared";
-import { IconAdjustmentsHorizontal, IconPackages } from "@tabler/icons-react";
+import { useActivePresetWorkflow } from "@/features/bins/api/use-active-preset-workflow";
+import {
+  IconAdjustmentsHorizontal,
+  IconListNumbers,
+  IconPackages,
+} from "@tabler/icons-react";
 import { useCallback, useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -37,6 +43,7 @@ export function MobileBins() {
     selectedSet,
     isModeDirty,
   } = useBinConfigs();
+  const activeWorkflow = useActivePresetWorkflow();
 
   const binParam = Number(searchParams.get(MOBILE_BINS_BIN_PARAM));
   const openBinNumber = configs.some((config) => config.binNumber === binParam)
@@ -139,6 +146,17 @@ export function MobileBins() {
                 value={modeLabel}
                 onClick={() => openScreen({ [MOBILE_BINS_SCREEN_PARAM]: "mode" })}
               />
+              {activeWorkflow.workflow && (
+                <MobileListRow
+                  icon={<IconListNumbers />}
+                  label={t("presetWorkflows.editStages")}
+                  value={t("presetWorkflows.stageOf", {
+                    number: activeWorkflow.stageNumber,
+                    count: activeWorkflow.stageCount,
+                  })}
+                  to={presetWorkflowPath(activeWorkflow.workflow.guid)}
+                />
+              )}
               {selectedSet.isRepackMode && !isModeDirty && (
                 <MobileListRow
                   icon={<IconPackages />}

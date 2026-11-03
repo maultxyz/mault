@@ -20,16 +20,35 @@ import type {
 } from "@/lib/interfaces/bins";
 import { toast } from "@/lib/toast";
 import {
+  createPresetSchema,
   createSetSchema,
+  type CreatePresetFormValues,
   type CreateSetFormValues,
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { BinConfig, BinRuleGroup } from "@magic-vault/shared";
+import {
+  type BinConfig,
+  type BinRuleGroup,
+} from "@magic-vault/shared";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { usePresetWorkflows } from "@/features/bins/api/use-preset-workflows";
+import {
+  CREATE_PRESET_DEFAULT_VALUES,
+  presetWorkflowPath,
+} from "@/lib/constants/bins";
 
 function countConditions(group: BinRuleGroup): number {
   return group.conditions.reduce((n, c) => {
@@ -77,12 +96,16 @@ export function PresetActionDialogs({
     createSet,
     renameSet,
     deleteSet,
+    sets,
     selectedSet,
     isPresetMutating,
     resetAutoAssign,
   } = useBinConfigs();
   const { activeCollection } = useCollections();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { create: createWorkflow, isSaving: isSavingWorkflow } =
+    usePresetWorkflows();
   const createDialogOpen = openDialog === "create";
   const renameDialogOpen = openDialog === "rename";
   const historyOpen = openDialog === "history";
@@ -123,11 +146,12 @@ export function PresetActionDialogs({
     }));
   }, [historyResult]);
 
-  const createForm = useForm<CreateSetFormValues>({
-    resolver: zodResolver(createSetSchema),
-    defaultValues: { name: "" },
+  const createForm = useForm<CreatePresetFormValues>({
+    resolver: zodResolver(createPresetSchema),
+    defaultValues: CREATE_PRESET_DEFAULT_VALUES,
     mode: "onChange",
   });
+  const createKind = createForm.watch("kind");
 
   const renameForm = useForm<CreateSetFormValues>({
     resolver: zodResolver(createSetSchema),
@@ -145,12 +169,17 @@ export function PresetActionDialogs({
   const { data: createNameCheck } = useQuery({
     queryKey: ["bins", "check-name", createNameValue, activeGameGuid],
     queryFn: () => checkSetName(createNameValue, activeGameGuid),
-    enabled: createDialogOpen && !!createNameValue?.trim(),
+    enabled:
+      createDialogOpen && createKind === "rules" && !!createNameValue?.trim(),
     staleTime: 0,
   });
 
   useEffect(() => {
     if (!createDialogOpen || !createNameValue?.trim()) return;
+    if (createKind !== "rules") {
+      createForm.clearErrors("name");
+      return;
+    }
     if (
       createNameCheck?.success &&
       createNameCheck.data &&
@@ -163,7 +192,14 @@ export function PresetActionDialogs({
     } else {
       createForm.clearErrors("name");
     }
-  }, [createDialogOpen, createNameValue, createNameCheck, createForm, t]);
+  }, [
+    createDialogOpen,
+    createKind,
+    createNameValue,
+    createNameCheck,
+    createForm,
+    t,
+  ]);
 
   const renameNameValue = renameForm.watch("name");
   const { data: renameNameCheck } = useQuery({
@@ -197,18 +233,29 @@ export function PresetActionDialogs({
   }, [renameDialogOpen, renameNameValue, renameNameCheck, renameForm, t]);
 
   const handleCreate = useCallback(
-    async (values: CreateSetFormValues) => {
+    async (values: CreatePresetFormValues) => {
+      if (values.kind === "multiStage") {
+        const workflowGuid = await createWorkflow(
+          values.name,
+          values.firstPresetGuid,
+        );
+        if (!workflowGuid) return;
+        createForm.reset(CREATE_PRESET_DEFAULT_VALUES);
+        closeDialog();
+        navigate(presetWorkflowPath(workflowGuid));
+        return;
+      }
       await createSet(values.name);
-      createForm.reset();
+      createForm.reset(CREATE_PRESET_DEFAULT_VALUES);
       closeDialog();
     },
-    [createSet, createForm, closeDialog],
+    [createSet, createWorkflow, createForm, closeDialog, navigate],
   );
 
   const handleCreateDialogChange = useCallback(
     (open: boolean) => {
       onOpenDialogChange(open ? "create" : null);
-      if (!open) createForm.reset();
+      if (!open) createForm.reset(CREATE_PRESET_DEFAULT_VALUES);
     },
     [createForm, onOpenDialogChange],
   );
@@ -287,7 +334,11 @@ export function PresetActionDialogs({
         open={createDialogOpen}
         onOpenChange={handleCreateDialogChange}
         title={t("presetSelector.newSetTitle")}
-        description={t("presetSelector.newSetDescription")}
+        description={
+          createKind === "multiStage"
+            ? t("presetWorkflows.newDescription")
+            : t("presetSelector.newSetDescription")
+        }
         footer={
           <>
             <Button
@@ -299,9 +350,13 @@ export function PresetActionDialogs({
             <Button
               type="submit"
               form="create-set-form"
-              disabled={!createForm.formState.isValid || isPresetMutating}
+              disabled={
+                !createForm.formState.isValid ||
+                isPresetMutating ||
+                isSavingWorkflow
+              }
             >
-              {isPresetMutating && (
+              {(isPresetMutating || isSavingWorkflow) && (
                 <IconLoader2 className="size-4 animate-spin" />
               )}
               {t("presetSelector.create")}
@@ -312,8 +367,27 @@ export function PresetActionDialogs({
       >
         <form
           id="create-set-form"
+          className="flex flex-col gap-3"
           onSubmit={createForm.handleSubmit(handleCreate)}
         >
+          <Controller
+            name="kind"
+            control={createForm.control}
+            render={({ field }) => (
+              <ResponsiveSegmented
+                label={t("presetWorkflows.kindLabel")}
+                items={[
+                  { key: "rules", label: t("presetWorkflows.kindRules") },
+                  {
+                    key: "multiStage",
+                    label: t("presetWorkflows.kindMultiStage"),
+                  },
+                ]}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
           <Controller
             name="name"
             control={createForm.control}
@@ -335,6 +409,38 @@ export function PresetActionDialogs({
               </Field>
             )}
           />
+          {createKind === "multiStage" && (
+            <Controller
+              name="firstPresetGuid"
+              control={createForm.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel>{t("presetWorkflows.firstStageLabel")}</FieldLabel>
+                  <Select
+                    value={field.value || null}
+                    onValueChange={(value) => field.onChange(value ?? "")}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue>
+                        {sets.find((preset) => preset.guid === field.value)
+                          ?.name ?? t("presetWorkflows.choosePreset")}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sets.map((preset) => (
+                        <SelectItem key={preset.guid} value={preset.guid}>
+                          {preset.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-foreground/70">
+                    {t("presetWorkflows.firstStageDescription")}
+                  </p>
+                </Field>
+              )}
+            />
+          )}
         </form>
       </DynamicDialog>
       <DeleteDialog

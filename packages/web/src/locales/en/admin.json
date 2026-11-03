@@ -372,6 +372,7 @@
     "types": {
       "collection": "Collection",
       "binSet": "Bin preset",
+      "presetWorkflow": "Multi-stage preset",
       "bin": "Bin",
       "device": "Sorter",
       "binRoute": "Bin route",

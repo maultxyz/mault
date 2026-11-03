@@ -160,6 +160,7 @@
       "alphabetFailed": "Failed to update alphabetical sort",
       "chaosFailed": "Failed to update chaos sort",
       "skipSavingFailed": "Failed to update saving",
+      "resortModeFailed": "Failed to update re-sort",
       "cardsStored_one": "Stored {{count}} card",
       "cardsStored_other": "Stored {{count}} cards"
     }
@@ -206,6 +207,10 @@
     "heading": "Don't save cards",
     "description": "Cards are identified and sorted into bins as usual, but nothing is added to the collection. Scans still count toward your daily limit."
   },
+  "resortPanel": {
+    "heading": "Re-sort saved cards",
+    "description": "Each scan moves a copy that is already in this collection into its new bin instead of adding another copy. The copy keeps its foil and condition and leaves its old storage location. Cards not in the collection yet are added as usual."
+  },
   "chaosPanel": {
     "heading": "Chaos sort",
     "description": "Ignores the rules and fills the bins one after another, moving on when a bin is full. When you empty a bin, pick the storage location you put it in, and every card is recorded there in order.",
@@ -239,6 +244,52 @@
     "sortDeeper": "Sort deeper",
     "sortDeeperItem": "{{label}} pile by next letter",
     "pileDoneHint": "This is the last pass for the {{prefix}} pile. Start over to go back to the whole alphabet."
+  },
+  "presetWorkflows": {
+    "toasts": {
+      "saveFailed": "Couldn't save the multi-stage preset",
+      "switchFailed": "Couldn't switch stages"
+    },
+    "badge": "Multi-stage",
+    "missingPreset": "Deleted preset",
+    "missingPresetDescription": "This stage's preset was deleted. Pick another preset for it above.",
+    "newDescription": "Run existing presets one after another. Pick the first stage now and add the rest from the multi-stage page.",
+    "kindLabel": "Preset type",
+    "kindRules": "Rules",
+    "kindMultiStage": "Multi-stage",
+    "firstStageLabel": "First stage",
+    "choosePreset": "Choose a preset",
+    "firstStageDescription": "The preset that sorts the pile first. You add the next stages on the multi-stage page.",
+    "pageDescription": "Runs your presets one after another. Sort the whole pile with stage 1, put the cards back in the feeder, then move to the next stage. Stages after the first re-sort the cards you already saved, unless you turn that off.",
+    "start": "Start",
+    "delete": "Delete",
+    "deleteTitle": "Delete multi-stage preset",
+    "deleteDescription": "Delete \"{{name}}\"? The presets it uses are kept.",
+    "renameTitle": "Rename multi-stage preset",
+    "renameDescription": "Enter a new name for this multi-stage preset.",
+    "notFoundTitle": "Multi-stage preset not found",
+    "notFoundDescription": "It may have been deleted, or it belongs to another game.",
+    "stageHeading": "Stage {{number}}",
+    "current": "Current",
+    "resort": "Re-sort",
+    "editRules": "Edit rules",
+    "editingInactiveTitle": "Editing {{name}}",
+    "editingInactiveDescription": "This isn't the preset the sorter is running. Changes apply wherever this preset is used, including its multi-stage presets.",
+    "switchHere": "Switch here",
+    "saveFirst": "Save your changes before switching stages.",
+    "addStage": "Add stage",
+    "removeStage": "Remove stage",
+    "confirmMoveTitle": "Switch to {{name}}?",
+    "confirmMoveDescription": "Empty every bin first, setting storage locations if you want them. Then put the cards for {{name}} in the feeder. Bins still holding cards are marked as emptied.",
+    "binsAreEmpty": "Bins are empty",
+    "editStages": "Edit stages",
+    "stopFirst": "Stop the scanner before switching stages.",
+    "previousStage": "Previous stage",
+    "nextStage": "Next stage",
+    "lastStage": "Last stage",
+    "stageOf": "Stage {{number}} of {{count}}",
+    "moveUp": "Move stage up",
+    "moveDown": "Move stage down"
   },
   "binLabel": "Bin {{number}}",
   "catchAll": "Catch-all",
