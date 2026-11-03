@@ -12,6 +12,8 @@ import type {
   FieldMeta,
   PickList,
   PickListInput,
+  PlayingCard,
+  SortTestGroupCheck,
   PresetWorkflow,
   PresetWorkflowStep,
   RepackConfigPatch,
@@ -128,6 +130,14 @@ export interface BinRuleTransferDialogProps {
   source: BinConfig;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+export interface SortTestButtonProps {
+  disabled: boolean;
+}
+
+export interface SortTestGroupCheckListProps {
+  check: SortTestGroupCheck;
 }
 
 export interface MobilePresetListProps {

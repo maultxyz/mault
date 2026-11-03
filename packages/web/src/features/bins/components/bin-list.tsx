@@ -14,6 +14,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
+import { SortTestButton } from "@/features/bins/components/sort-test-button";
 import { useBinMachineLayout } from "@/features/bins/api/use-bin-machine-layout";
 import { cn } from "@/lib/utils";
 
@@ -91,6 +92,7 @@ export function BinList({ onOpenBin }: BinListProps) {
 
   return (
     <div className="flex flex-col gap-2 overflow-y-auto" data-tour="bin-list">
+      <SortTestButton disabled={isModeDirty} />
       <div className="grid grid-cols-2 overflow-hidden rounded-lg border">
         {slots.map(({ key, config, cellClassName }) =>
           config ? (
