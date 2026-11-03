@@ -48,10 +48,18 @@ export const WRAPPED_GRAIN_OVERLAY =
 
 export const CARD_REVIEW_SEARCH_PARAM = "review";
 export const CARD_REVIEW_GRID_PARAM_VALUE = "grid";
+export const REVIEW_QUEUE_MAX_PAGES = 20;
 
 export const DETAIL_PREFETCH_COUNT = 3;
 
 export const DETAIL_PREFETCH_STALE_MS = 30 * 1000;
+
 export const CARD_SEARCH_ALL_SETS = "all";
+export const CARD_CORRECTION_INLINE_GRID_CLASS =
+  "grid-cols-[repeat(auto-fill,minmax(11rem,1fr))]";
+export const REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS =
+  "@5xl:grid-cols-[minmax(0,48rem)_minmax(20rem,1fr)]";
+export const REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS =
+  "@5xl:grid-cols-[minmax(0,24rem)_minmax(20rem,1fr)]";
 export const SIMILAR_MATCHES_ACCORDION_VALUE = "similar-matches";
 export const MORE_DETAIL_OPTIONS_ACCORDION_VALUE = "more-detail-options";

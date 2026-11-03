@@ -36,6 +36,7 @@ import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
+import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import type { MatchesOpenState } from "@/lib/interfaces/cards";
@@ -111,6 +112,18 @@ export default function CardDetailScreen() {
 
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
   const nextScanId = position.data?.nextScanId ?? null;
+  const reviewPrefetchStartScanId = !reviewMode
+    ? null
+    : storageReview
+      ? storageContext.data?.next?.scanId
+      : entry
+        ? nextScanId
+        : null;
+  usePrefetchCardDetails(reviewPrefetchStartScanId, {
+    collectionGuid: guid,
+    reviewMode: reviewMode && !storageReview,
+    storageGuid: storageReview ? storageGuid : undefined,
+  });
   const collection = collections.data?.find((c) => c.guid === guid);
   const gameFoilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
   const card = entry?.card;
@@ -187,6 +200,13 @@ export default function CardDetailScreen() {
     onSettled: () => invalidateCollectionCards(queryClient, guid),
   });
 
+  const acceptInBackground = useMutation({
+    mutationFn: ({ kind, acceptedScanId }: { kind: "confirm" | "review"; acceptedScanId: string }) =>
+      updateCollectionCard(guid, acceptedScanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onError: (error) => Alert.alert(t("cardDetail.saveFailed"), error instanceof Error ? error.message : undefined),
+  });
+
   const toggleTag = useMutation({
     mutationFn: (tag: CardTag) =>
       setCollectionCardTags(guid, { scanIds: [scanId], tags: [tag], enabled: !tagsSet.includes(tag) }),
@@ -258,7 +278,13 @@ export default function CardDetailScreen() {
   };
 
   const acceptInReview = async () => {
-    await markCorrect.mutateAsync(canConfirm ? "confirm" : "review");
+    const kind = canConfirm ? "confirm" : "review";
+    if (storageReview) {
+      await markCorrect.mutateAsync(kind);
+      await goToNextInReview();
+      return;
+    }
+    acceptInBackground.mutate({ kind, acceptedScanId: scanId });
     await goToNextInReview();
   };
 
@@ -432,6 +458,20 @@ export default function CardDetailScreen() {
               </View>
             </View>
 
+            {reviewMode && entry ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("cardDetail.correctCard")} />
+                <CardCorrectionSearch
+                  key={`${scanId}:${entry.card.id}`}
+                  inline
+                  collectionGuid={guid}
+                  initialQuery={entry.card.name}
+                  disabled={correction.isPending}
+                  onSelect={(selected) => void applyCorrection(selected)}
+                />
+              </View>
+            ) : null}
+
             {card ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.prices")} />
@@ -580,13 +620,6 @@ export default function CardDetailScreen() {
         >
           {reviewMode ? (
             <>
-              <Button
-                style={{ flex: 1 }}
-                variant="secondary"
-                icon="edit"
-                label={t("cardDetail.correctCard")}
-                onPress={() => setEditing(true)}
-              />
               <Button
                 style={{ flex: 1 }}
                 icon="check"

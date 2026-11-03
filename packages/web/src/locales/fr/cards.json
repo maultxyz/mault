@@ -333,6 +333,8 @@
     "correctNext": "corriger et passer à la suivante",
     "correctFinish": "corriger et terminer",
     "correctStay": "corriger et rester sur cette carte",
+    "pickMatch": "choisir une correspondance",
+    "jumpToSearch": "chercher la bonne carte",
     "keys": {
       "enter": "Entrée",
       "shiftEnter": "Maj Entrée"
@@ -341,6 +343,14 @@
     "complete_other": "Vérification terminée : {{count}} cartes vérifiées",
     "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées.",
     "startFailed": "Impossible de lancer la vérification. Réessayez."
+  },
+  "reviewQueue": {
+    "title": "Cartes à vérifier",
+    "progress": "{{checked}} sur {{total}} vérifiées",
+    "exit": "Quitter la vérification",
+    "loadFailed": "Impossible de charger les cartes à vérifier.",
+    "notShown_one": "{{count}} carte de plus n'est pas affichée ici.",
+    "notShown_other": "{{count}} cartes de plus ne sont pas affichées ici."
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",

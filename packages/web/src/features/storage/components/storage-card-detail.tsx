@@ -3,6 +3,7 @@ import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-sco
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import {
+  fetchPrefetchQueryData,
   loadCollectionPositionStep,
   usePrefetchDetailCards,
 } from "@/features/cards/api/use-prefetch-detail-cards";
@@ -18,7 +19,6 @@ import { MoveToLocationDialog } from "@/features/storage/components/move-to-loca
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
-import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import { IconBoxOff, IconTransfer } from "@tabler/icons-react";
@@ -110,26 +110,28 @@ export function StorageCardDetail({
 
   const loadPrefetchStep = useCallback(
     async (nextScanId: string) => {
-      const nextContext = await queryClient.fetchQuery({
-        ...storageLocationCardContextQueryOptions(
+      const nextContext = await fetchPrefetchQueryData(
+        queryClient,
+        storageLocationCardContextQueryOptions(
           location.guid,
           nextScanId,
           reviewMode,
         ),
-        staleTime: DETAIL_PREFETCH_STALE_MS,
-      });
+        reviewMode,
+      );
       if (!nextContext) return null;
       const step = await loadCollectionPositionStep(
         queryClient,
         nextContext.card.collectionGuid,
         nextScanId,
         ALL_CARDS_QUERY,
+        reviewMode,
       );
       return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
     },
     [queryClient, location.guid, reviewMode],
   );
-  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep);
+  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep, reviewMode);
 
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 

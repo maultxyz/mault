@@ -105,6 +105,8 @@ import {
 } from "react-router-dom";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useReviewSession } from "@/hooks/use-review-session";
+import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
+import { reviewQueueStore } from "@/features/cards/lib/review-queue-store";
 import { toast } from "@/lib/toast";
 import {
   CARD_REVIEW_GRID_PARAM_VALUE,
@@ -231,6 +233,7 @@ export function CardGrid() {
     enabled: !readOnly && !!collectionGuid,
   });
   const reviewSession = useReviewSession(openScanId, isReviewing);
+  const reviewQueueSession = useReviewQueueSession();
   const reviewGridQuery = useMemo(
     () => ({ ...reviewQuery, grouped: false }),
     [reviewQuery],
@@ -253,6 +256,26 @@ export function CardGrid() {
   useEffect(() => {
     setPage(0);
   }, [cardsQuery, collectionGuid]);
+
+  const isOneByOneReviewing =
+    !readOnly && isReviewing && !!openScanId && !!collectionGuid;
+  useEffect(() => {
+    if (!isOneByOneReviewing) {
+      reviewQueueStore.stop();
+      return;
+    }
+    if (reviewQueueSession?.collectionGuid !== collectionGuid) {
+      reviewQueueStore.start(collectionGuid!, reviewGridQuery);
+    }
+    reviewQueueStore.setCurrent(openScanId!);
+  }, [
+    isOneByOneReviewing,
+    reviewQueueSession?.collectionGuid,
+    collectionGuid,
+    reviewGridQuery,
+    openScanId,
+  ]);
+  useEffect(() => () => reviewQueueStore.stop(), []);
 
   const { data: pageData, isPending: pagePending } = useQuery(
     collectionCardsPageQueryOptions(collectionGuid, cardsQuery, page),
@@ -290,6 +313,7 @@ export function CardGrid() {
         collectionGuid!,
         scanId,
         isReviewing ? reviewQuery : cardsQuery,
+        isReviewing,
       ),
     [queryClient, collectionGuid, isReviewing, reviewQuery, cardsQuery],
   );
@@ -301,6 +325,7 @@ export function CardGrid() {
       : null,
     !!collectionGuid,
     loadPrefetchStep,
+    isReviewing,
   );
 
   const startOneByOneReview = useCallback(async () => {
@@ -689,7 +714,10 @@ export function CardGrid() {
             ? undefined
             : () => {
                 removeCard(openEntry.scanId);
-                if (isReviewing) reviewSession.forget(openEntry.scanId);
+                if (isReviewing) {
+                  reviewSession.forget(openEntry.scanId);
+                  reviewQueueStore.markRemoved(openEntry.scanId);
+                }
                 setOpenScanId(isReviewing ? nextScanId : null, {
                   inReviewMode: isReviewing,
                 });
@@ -719,6 +747,7 @@ export function CardGrid() {
         reviewMode={isReviewing}
         onReviewComplete={() => finishReview(openPosition?.total ?? 0)}
         onShowReviewGrid={openReviewGrid}
+        onReviewed={reviewQueueStore.markReviewed}
       />
     );
     if (!readOnly) return detailPanel;

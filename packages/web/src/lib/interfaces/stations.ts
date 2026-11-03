@@ -148,3 +148,9 @@ export type PreTestHook = (device: Device | undefined) => Promise<void>;
 export interface BleReconnectState {
   cancel: (() => void) | null;
 }
+
+export interface StationPanelsProps {
+  layout: StationPanelLayout;
+  size: number;
+  overlay?: ReactNode;
+}

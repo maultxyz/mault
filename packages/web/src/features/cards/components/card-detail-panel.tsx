@@ -52,6 +52,8 @@ import {
 } from "@/components/ui/accordion";
 import {
   MORE_DETAIL_OPTIONS_ACCORDION_VALUE,
+  REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS,
+  REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS,
   SIMILAR_MATCHES_ACCORDION_VALUE,
 } from "@/lib/constants/cards";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -129,6 +131,7 @@ export function CardDetailPanel({
   reviewMode = false,
   onReviewComplete,
   onShowReviewGrid,
+  onReviewed,
   extraActions,
   onRemoveShortcut,
 }: CardDetailPanelProps) {
@@ -144,6 +147,7 @@ export function CardDetailPanel({
   const [showTechnicalDetails, handleTechnicalDetailsChange] = usePersistedFlag(
     CARD_TECHNICAL_DETAILS_STORAGE_KEY,
   );
+  const ocrRegionsVisible = reviewMode || showOcrRegions;
   const [viewerOpen, setViewerOpen] = useState(false);
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
@@ -151,6 +155,7 @@ export function CardDetailPanel({
   const [areMatchesOpen, setAreMatchesOpen] = useState(false);
   const prevScanIdRef = useRef<string | undefined>(undefined);
   const prevCardIdRef = useRef<string | undefined>(undefined);
+  const candidateStripRef = useRef<HTMLDivElement>(null);
 
   const { addCard } = useScannedCards();
   const {
@@ -239,6 +244,24 @@ export function CardDetailPanel({
 
   const stopEditing = useCallback(() => setEditing(false), []);
 
+  const correctionSearchRef = useRef<HTMLDivElement>(null);
+  const focusCorrectionSearch = () => {
+    const input = correctionSearchRef.current?.querySelector("input");
+    if (!input) return;
+    input.scrollIntoView({ block: "center" });
+    input.focus({ preventScroll: true });
+    input.select();
+  };
+  const leaveCorrectionSearch = () => {
+    const active = document.activeElement;
+    if (
+      active instanceof HTMLElement &&
+      correctionSearchRef.current?.contains(active)
+    ) {
+      active.blur();
+    }
+  };
+
   const goToNextInReview = useCallback(() => {
     if (hasNext) onNext?.();
     else onReviewComplete?.();
@@ -252,6 +275,7 @@ export function CardDetailPanel({
         return;
       }
       correctCard(scanId, card);
+      if (reviewMode) onReviewed?.(scanId);
       if (reviewMode && !stay) {
         runAfterCommit(goToNextInReview);
         return;
@@ -271,6 +295,7 @@ export function CardDetailPanel({
       onClose,
       stopEditing,
       reviewMode,
+      onReviewed,
       goToNextInReview,
       runAfterCommit,
     ],
@@ -292,6 +317,7 @@ export function CardDetailPanel({
   const isViewing = !!currentCard && !editing;
 
   const startEditing = () => setEditing(true);
+  const openCorrection = reviewMode ? focusCorrectionSearch : startEditing;
 
   const foilTriggerRef = useRef<HTMLButtonElement>(null);
   const conditionTriggerRef = useRef<HTMLButtonElement>(null);
@@ -324,13 +350,43 @@ export function CardDetailPanel({
     scanDraft.setFoilType(currentFoilType ? null : cardFoilOptions[0]);
   };
 
-  const acceptInReview = () => {
+  const acceptMatchInReview = (chosenCard: PlayingCard | undefined) => {
+    if (
+      scanId &&
+      chosenCard &&
+      currentCard &&
+      chosenCard.id !== currentCard.id
+    ) {
+      handleSelect(chosenCard);
+      return;
+    }
     if (scanId) {
       if (canConfirm) confirmCard(scanId);
       else markCardReviewed(scanId);
+      onReviewed?.(scanId);
     }
     runAfterCommit(goToNextInReview);
   };
+
+  const acceptInReview = () => acceptMatchInReview(selectedCard);
+
+  const highlightCandidate = (offset: number) => {
+    const selectedIndex = candidates.findIndex((c) => c.id === selectedId);
+    const highlighted =
+      candidates[
+        (selectedIndex + offset + candidates.length) % candidates.length
+      ];
+    if (!highlighted) return;
+    setSelectedId(highlighted.id);
+    setAreMatchesOpen(true);
+    requestAnimationFrame(() =>
+      candidateStripRef.current
+        ?.querySelector('[aria-pressed="true"]')
+        ?.scrollIntoView({ block: "nearest", inline: "nearest" }),
+    );
+  };
+  const canHighlightCandidates =
+    reviewMode && isViewing && hasMultipleCandidates;
 
   const requestRemove =
     onRemoveShortcut ??
@@ -340,7 +396,7 @@ export function CardDetailPanel({
     {
       cardPrevious: isViewing && hasPrev ? onPrev : undefined,
       cardNext: isViewing && hasNext ? onNext : undefined,
-      cardCorrect: isViewing ? startEditing : undefined,
+      cardCorrect: isViewing ? openCorrection : undefined,
       cardToggleFoil: isViewing && scanId ? toggleFoil : undefined,
       cardConditionNM: conditionHandler("NM"),
       cardConditionLP: conditionHandler("LP"),
@@ -349,6 +405,12 @@ export function CardDetailPanel({
       cardConditionDMG: conditionHandler("DMG"),
       cardClose: editing ? stopEditing : onClose,
       reviewAccept: reviewMode && isViewing ? acceptInReview : undefined,
+      reviewPreviousMatch: canHighlightCandidates
+        ? () => highlightCandidate(-1)
+        : undefined,
+      reviewNextMatch: canHighlightCandidates
+        ? () => highlightCandidate(1)
+        : undefined,
       cardRemove: isViewing ? requestRemove : undefined,
     },
     true,
@@ -385,9 +447,9 @@ export function CardDetailPanel({
             )}
           >
             {capturedImage}
-            {showOcrRegions && capturedImageUrl && <OcrRegionOverlay />}
+            {ocrRegionsVisible && capturedImageUrl && <OcrRegionOverlay />}
           </button>
-          {showOcrRegions && capturedImageUrl && (
+          {ocrRegionsVisible && capturedImageUrl && (
             <OcrRegionCrops
               src={capturedImageUrl}
               className={cn(imageWidthClass, "mt-1.5")}
@@ -413,11 +475,11 @@ export function CardDetailPanel({
             className="w-full h-full object-cover"
           />
           {draftIsFoil && <FoilOverlay />}
-          {showOcrRegions && selectedCard?.image?.normal && (
+          {ocrRegionsVisible && selectedCard?.image?.normal && (
             <OcrRegionOverlay />
           )}
         </div>
-        {showOcrRegions && selectedCard?.image?.normal && (
+        {ocrRegionsVisible && selectedCard?.image?.normal && (
           <OcrRegionCrops
             src={selectedCard.image.normal}
             className={cn(imageWidthClass, "mt-1.5")}
@@ -427,7 +489,8 @@ export function CardDetailPanel({
     </>
   );
 
-  const displayToggles = (
+  const hasDisplayToggles = !reviewMode && (!!capturedImageUrl || !!scanId);
+  const displayToggles = !reviewMode && (
     <>
       {capturedImageUrl && (
         <div className="flex items-center gap-2 whitespace-nowrap">
@@ -454,6 +517,89 @@ export function CardDetailPanel({
     </>
   );
 
+  const similarMatches = hasMultipleCandidates && (
+    <Accordion
+      value={areMatchesOpen ? [SIMILAR_MATCHES_ACCORDION_VALUE] : []}
+      onValueChange={(value) =>
+        setAreMatchesOpen(value.includes(SIMILAR_MATCHES_ACCORDION_VALUE))
+      }
+    >
+      <AccordionItem
+        value={SIMILAR_MATCHES_ACCORDION_VALUE}
+        className="border-b-0"
+      >
+        <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
+          <span className="flex items-center gap-1.5">
+            {t("cardDetailPanel.similarMatches")}
+            <Badge variant="outline">{candidates.length}</Badge>
+          </span>
+        </AccordionTrigger>
+        <AccordionContent className="gap-2 pb-0">
+          {!isMatchChosen && (
+            <p className="text-sm text-foreground/70">
+              {t("cardPicker.multipleMatches")}
+            </p>
+          )}
+          {reviewMode && !isMobile && (
+            <p className="flex items-center gap-1 text-xs text-foreground/70">
+              <HotkeyHint id="reviewPreviousMatch" />
+              <HotkeyHint id="reviewNextMatch" />
+              {t("review.pickMatch")}
+            </p>
+          )}
+          <div
+            ref={candidateStripRef}
+            className="flex gap-2 overflow-x-auto p-1"
+          >
+            {candidates.map((c) => (
+              <CardSearchResultTile
+                key={c.id}
+                card={c}
+                isSelected={c.id === selectedId}
+                reviewLayout={reviewMode}
+                onClick={() =>
+                  reviewMode ? acceptMatchInReview(c) : handleSelectCandidate(c)
+                }
+                className="w-56 shrink-0 max-md:w-36"
+              />
+            ))}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+
+  const correctionSection = reviewMode && scanId && currentCard && (
+    <DetailSection title={t("cardPicker.correctCard")}>
+      <div ref={correctionSearchRef} className="flex flex-col gap-2">
+        <CardCorrectionSearch
+          key={`${scanId}:${currentCard.id}`}
+          inline
+          initialQuery={currentCard.name}
+          collectionGuid={collection?.guid}
+          onSelect={handleSelect}
+          onCancel={leaveCorrectionSearch}
+        />
+        {!isMobile && (
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/70">
+            <span className="inline-flex items-center gap-1">
+              <HotkeyHint id="cardCorrect" />
+              {t("review.jumpToSearch")}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Kbd>{t("review.keys.enter")}</Kbd>
+              {hasNext ? t("review.correctNext") : t("review.correctFinish")}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Kbd>{t("review.keys.shiftEnter")}</Kbd>
+              {t("review.correctStay")}
+            </span>
+          </p>
+        )}
+      </div>
+    </DetailSection>
+  );
+
   const cardName =
     selectedCard?.name ?? t("cardDetailPanel.cardDetailsFallback");
   const typeLine = selectedCard?.typeLine ?? "";
@@ -465,8 +611,8 @@ export function CardDetailPanel({
           open={viewerOpen}
           onOpenChange={setViewerOpen}
           capturedImageUrl={capturedImageUrl}
-          showOcrRegions={showOcrRegions}
-          onShowOcrRegionsChange={setShowOcrRegions}
+          showOcrRegions={ocrRegionsVisible}
+          onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}
         />
       )}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
@@ -523,7 +669,7 @@ export function CardDetailPanel({
                 <h2 className="font-semibold text-base truncate max-md:basis-full max-md:whitespace-normal max-md:line-clamp-2">
                   {cardName}
                 </h2>
-                {total != null && currentIndex != null && (
+                {!(reviewMode && !isMobile) && total != null && currentIndex != null && (
                   <span className="text-xs text-foreground/70 shrink-0">
                     {currentIndex + 1} / {total}
                   </span>
@@ -578,60 +724,33 @@ export function CardDetailPanel({
           </div>
           {currentCard && !editing ? (
             <>
-              {reviewMode && (
+              {reviewMode ? (
                 <div
                   className={cn(
-                    "grid gap-4",
-                    showCapturedImageSlot
-                      ? "grid-cols-2 max-w-3xl"
-                      : "max-w-sm",
+                    "grid items-start gap-6",
+                    scanId &&
+                      (showCapturedImageSlot
+                        ? REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS
+                        : REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS),
                   )}
                 >
-                  {cardImages}
-                </div>
-              )}
-
-              {hasMultipleCandidates && (
-                <Accordion
-                  value={
-                    areMatchesOpen ? [SIMILAR_MATCHES_ACCORDION_VALUE] : []
-                  }
-                  onValueChange={(value) =>
-                    setAreMatchesOpen(
-                      value.includes(SIMILAR_MATCHES_ACCORDION_VALUE),
-                    )
-                  }
-                >
-                  <AccordionItem
-                    value={SIMILAR_MATCHES_ACCORDION_VALUE}
-                    className="border-b-0"
-                  >
-                    <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
-                      <span className="flex items-center gap-1.5">
-                        {t("cardDetailPanel.similarMatches")}
-                        <Badge variant="outline">{candidates.length}</Badge>
-                      </span>
-                    </AccordionTrigger>
-                    <AccordionContent className="gap-2 pb-0">
-                      {!isMatchChosen && (
-                        <p className="text-sm text-foreground/70">
-                          {t("cardPicker.multipleMatches")}
-                        </p>
+                  <div className="flex min-w-0 flex-col gap-6">
+                    <div
+                      className={cn(
+                        "grid gap-4",
+                        showCapturedImageSlot
+                          ? "grid-cols-2 max-w-3xl"
+                          : "max-w-sm",
                       )}
-                      <div className="flex gap-2 overflow-x-auto p-1">
-                        {candidates.map((c) => (
-                          <CardSearchResultTile
-                            key={c.id}
-                            card={c}
-                            isSelected={c.id === selectedId}
-                            onClick={() => handleSelectCandidate(c)}
-                            className="w-56 shrink-0 max-md:w-36"
-                          />
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                    >
+                      {cardImages}
+                    </div>
+                    {similarMatches}
+                  </div>
+                  {correctionSection}
+                </div>
+              ) : (
+                similarMatches
               )}
 
               <div
@@ -774,7 +893,9 @@ export function CardDetailPanel({
                                     : t("condition.priceHint", {
                                         price: format(conditionPrice),
                                         percent:
-                                          conditionMultipliers[currentCondition],
+                                          conditionMultipliers[
+                                            currentCondition
+                                          ],
                                       })}
                                 </p>
                               )}
@@ -846,7 +967,7 @@ export function CardDetailPanel({
                 )}
               </div>
 
-              {isMobile && (capturedImageUrl || scanId) && (
+              {isMobile && hasDisplayToggles && (
                 <Accordion>
                   <AccordionItem
                     value={MORE_DETAIL_OPTIONS_ACCORDION_VALUE}
@@ -862,7 +983,7 @@ export function CardDetailPanel({
                 </Accordion>
               )}
 
-              {showTechnicalDetails && scanId && (
+              {!reviewMode && showTechnicalDetails && scanId && (
                 <CardTechnicalDetails
                   scanId={scanId}
                   card={currentCard}
@@ -941,11 +1062,13 @@ export function CardDetailPanel({
                   {t("cardDetailPanel.markCorrect")}
                 </Button>
               )}
-              <Button variant="outline" onClick={startEditing}>
-                <IconPencil className="size-4" />
-                {t("cardPicker.correctCard")}
-                <HotkeyHint id="cardCorrect" />
-              </Button>
+              {!reviewMode && (
+                <Button variant="outline" onClick={startEditing}>
+                  <IconPencil className="size-4" />
+                  {t("cardPicker.correctCard")}
+                  <HotkeyHint id="cardCorrect" />
+                </Button>
+              )}
               {extraActions?.map((action) => (
                 <Button
                   key={action.key}
@@ -981,20 +1104,6 @@ export function CardDetailPanel({
                 {t("cardDetailPanel.cancel")}
                 <HotkeyHint id="cardClose" />
               </Button>
-              {reviewMode && scanId && (
-                <p className="ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/70">
-                  <span className="inline-flex items-center gap-1">
-                    <Kbd>{t("review.keys.enter")}</Kbd>
-                    {hasNext
-                      ? t("review.correctNext")
-                      : t("review.correctFinish")}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Kbd>{t("review.keys.shiftEnter")}</Kbd>
-                    {t("review.correctStay")}
-                  </span>
-                </p>
-              )}
             </div>
           </div>
         )}
@@ -1023,7 +1132,9 @@ export function CardDetailPanel({
               key: "correct",
               label: t("cardPicker.correctCard"),
               icon: <IconPencil />,
-              onSelect: startEditing,
+              onSelect: reviewMode
+                ? () => requestAnimationFrame(focusCorrectionSearch)
+                : startEditing,
             },
             ...(reviewMode && onShowReviewGrid
               ? [

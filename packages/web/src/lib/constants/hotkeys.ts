@@ -27,6 +27,8 @@ export const HOTKEY_KEY_LABEL_KEYS: Record<string, string> = {
   enter: "hotkeys.keys.enter",
   arrowleft: "hotkeys.keys.left",
   arrowright: "hotkeys.keys.right",
+  arrowup: "hotkeys.keys.up",
+  arrowdown: "hotkeys.keys.down",
   escape: "hotkeys.keys.escape",
   delete: "hotkeys.keys.delete",
 };
@@ -76,6 +78,8 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardRemove: { group: "cardDetail", keys: [{ key: "delete" }] },
   reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
   reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
+  reviewPreviousMatch: { group: "cardDetail", keys: [{ key: "arrowup" }] },
+  reviewNextMatch: { group: "cardDetail", keys: [{ key: "arrowdown" }] },
   intakeOpenScanner: { group: "intake", keys: [{ key: "o" }] },
 };
 

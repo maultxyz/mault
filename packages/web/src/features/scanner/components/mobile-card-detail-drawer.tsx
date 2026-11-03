@@ -94,10 +94,16 @@ function MobileCardDetailBody({
         collectionGuid,
         nextScanId,
         query,
+        reviewMode,
       ),
-    [queryClient, collectionGuid, query],
+    [queryClient, collectionGuid, query, reviewMode],
   );
-  usePrefetchDetailCards(entry ? nextScanId : null, true, loadPrefetchStep);
+  usePrefetchDetailCards(
+    entry ? nextScanId : null,
+    true,
+    loadPrefetchStep,
+    reviewMode,
+  );
 
   useEffect(() => {
     if (isMissing && !reviewMode) onClose();

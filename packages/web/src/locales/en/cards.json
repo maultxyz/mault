@@ -333,6 +333,8 @@
     "correctNext": "correct and go to next",
     "correctFinish": "correct and finish",
     "correctStay": "correct and stay on this card",
+    "pickMatch": "pick a match",
+    "jumpToSearch": "search for the right card",
     "keys": {
       "enter": "Enter",
       "shiftEnter": "Shift Enter"
@@ -341,6 +343,14 @@
     "complete_other": "Review complete: {{count}} cards checked",
     "nothingLeft": "Nothing left to review. Every card here has already been reviewed.",
     "startFailed": "Couldn't start the review. Try again."
+  },
+  "reviewQueue": {
+    "title": "Cards to review",
+    "progress": "{{checked}} of {{total}} reviewed",
+    "exit": "Exit review",
+    "loadFailed": "Couldn't load the cards to review.",
+    "notShown_one": "{{count}} more card isn't shown here.",
+    "notShown_other": "{{count}} more cards aren't shown here."
   },
   "reviewGrid": {
     "title": "Review cards",

@@ -198,6 +198,8 @@
       "ctrl": "Ctrl",
       "left": "←",
       "right": "→",
+      "up": "↑",
+      "down": "↓",
       "escape": "Échap",
       "enter": "Entrée",
       "delete": "Suppr"
@@ -241,7 +243,9 @@
       "cardClose": "Fermer la carte ou annuler la correction",
       "cardRemove": "Retirer la carte (de sa boîte si ouverte depuis le Rangement)",
       "reviewStart": "Vérifier les cartes une par une",
-      "reviewAccept": "Pendant la vérification : la carte est bonne, suivante",
+      "reviewAccept": "Pendant la vérification : accepter la correspondance surlignée, suivante",
+      "reviewPreviousMatch": "Pendant la vérification : surligner la correspondance similaire précédente",
+      "reviewNextMatch": "Pendant la vérification : surligner la correspondance similaire suivante",
       "goSortingRules": "Aller aux règles de tri",
       "intakeOpenScanner": "Ouvrir le scanner pour ce rachat"
     }

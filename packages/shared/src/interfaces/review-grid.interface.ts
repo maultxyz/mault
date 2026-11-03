@@ -25,3 +25,15 @@ export interface CardsReviewedEvent {
   confirmedScanIds: string[];
   reviewedScanIds: string[];
 }
+
+export interface DetailPrefetchChainStep {
+  nextScanId: string | null;
+}
+
+export interface DetailPrefetchChainOptions<Step extends DetailPrefetchChainStep> {
+  firstScanId: string;
+  stepCount: number;
+  loadStep: (scanId: string) => Promise<Step | null>;
+  onStepLoaded: (scanId: string, step: Step) => void;
+  isCancelled: () => boolean;
+}

@@ -2,7 +2,9 @@ import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { ResizeHandle } from "@/components/ui/resize-handle";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
+import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
 import { CardGrid } from "@/features/cards/components/card-grid";
+import { ReviewQueuePanel } from "@/features/cards/components/review-queue-panel";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
@@ -35,7 +37,13 @@ function ScannerPanels({
   size: number;
 }) {
   const { isImpersonating } = useImpersonation();
-  if (!isImpersonating) return <StationPanels layout={layout} size={size} />;
+  const reviewQueueSession = useReviewQueueSession();
+  const overlay = reviewQueueSession && (
+    <ReviewQueuePanel session={reviewQueueSession} />
+  );
+  if (!isImpersonating) {
+    return <StationPanels layout={layout} size={size} overlay={overlay} />;
+  }
   return (
     <div
       className={cn(
@@ -44,7 +52,7 @@ function ScannerPanels({
       )}
       style={layout === "horizontal" ? { width: size } : { height: size }}
     >
-      <ScanningBlockedWhileImpersonating />
+      {overlay || <ScanningBlockedWhileImpersonating />}
     </div>
   );
 }

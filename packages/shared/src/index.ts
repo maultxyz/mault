@@ -151,6 +151,7 @@ export * from "./business";
 export * from "./interfaces/review-grid.interface";
 export * from "./constants/review-grid.constant";
 export * from "./review-grid";
+export * from "./detail-prefetch";
 export * from "./order-import";
 export * from "./constants/card-tags.constant";
 export * from "./interfaces/card-tags.interface";

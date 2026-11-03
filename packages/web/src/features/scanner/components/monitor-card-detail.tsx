@@ -31,6 +31,7 @@ export function MonitorCardDetail({
         collectionGuid,
         nextScanId,
         cardsQuery,
+        false,
       ),
     [queryClient, collectionGuid, cardsQuery],
   );
@@ -38,6 +39,7 @@ export function MonitorCardDetail({
     entry ? position?.nextScanId : null,
     true,
     loadPrefetchStep,
+    false,
   );
 
   useEffect(() => {
