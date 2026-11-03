@@ -11,6 +11,7 @@ export const GAME_ABBREVIATIONS: Record<string, string> = {
   swu: "SWU",
   grandarchive: "GA",
   cyberpunk: "CP",
+  sorcery: "SCR",
 };
 
 export const GAME_ABBREVIATION_FALLBACK_LENGTH = 4;

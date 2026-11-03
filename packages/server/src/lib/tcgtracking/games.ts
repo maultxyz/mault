@@ -3,7 +3,14 @@ import {
   POKEMON_BASIC_ENERGY_PREFIX_PATTERN,
   TCGTRACKING_MTG_COLOR_LETTERS,
 } from "../constants/tcgtracking";
+import {
+  sorceryComparableProductName,
+  sorceryFoilProducts,
+  sorceryPrimaryArtworkKey,
+  sorceryProductArtworkKey,
+} from "../adapters/sorcery/tcgplayer-products";
 import type { GundamCard } from "../interfaces/gundam";
+import type { SorceryCard } from "../interfaces/sorcery";
 import type { TcgtrackingGameConfig } from "../interfaces/tcgtracking";
 import { collectorNumberKey } from "./keys";
 import {
@@ -97,5 +104,14 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
   yugioh: {
     numbering: "name-only",
     primaryShapedFieldsOf: ({ name }) => ({ name }),
+  },
+  sorcery: {
+    numbering: "per-set",
+    fallbacks: false,
+    alignsSetsByName: true,
+    numberKeyOf: (card) => sorceryPrimaryArtworkKey(card.raw as SorceryCard),
+    productNumberKeyOf: sorceryProductArtworkKey,
+    finishProductsOf: sorceryFoilProducts,
+    comparableProductName: sorceryComparableProductName,
   },
 };

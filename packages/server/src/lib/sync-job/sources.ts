@@ -8,6 +8,7 @@ import { pokemonSyncSource } from "../adapters/pokemon/sync";
 import { pokemonJapanSyncSource } from "../adapters/pokemon-japan/sync";
 import { riftboundSyncSource } from "../adapters/riftbound/sync";
 import { scryfallSyncSource } from "../adapters/scryfall/sync";
+import { sorcerySyncSource } from "../adapters/sorcery/sync";
 import { swuSyncSource } from "../adapters/swu/sync";
 import { yugiohSyncSource } from "../adapters/yugioh/sync";
 import type { SyncSource } from "../interfaces/card-search";
@@ -26,6 +27,7 @@ const BASE_SYNC_SOURCES: Record<string, SyncSource> = {
   swu: swuSyncSource,
   grandarchive: grandArchiveSyncSource,
   cyberpunk: cyberpunkSyncSource,
+  sorcery: sorcerySyncSource,
 };
 
 export const SYNC_SOURCES: Record<string, SyncSource> = Object.fromEntries(
