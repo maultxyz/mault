@@ -9,6 +9,8 @@ import type { SessionViewer } from "@/lib/interfaces/collections";
 import {
   type CardCondition,
   type CardsReviewedEvent,
+  type CardTagsChangedEvent,
+  withCardTags,
   type Collection,
   type ScannedCard,
   type UnmatchedCard,
@@ -146,6 +148,19 @@ export function useSessionEvents(
       const ids = new Set(scanIds);
       setRecentCards((prev) =>
         prev.map((c) => (ids.has(c.scanId) ? { ...c, isDownloaded: true } : c)),
+      );
+      cardsChanged();
+    });
+
+    on(scoped("cards_tags_changed"), (e) => {
+      const { scanIds, tags, enabled } = JSON.parse(
+        (e as MessageEvent).data,
+      ) as CardTagsChangedEvent;
+      const ids = new Set(scanIds);
+      setRecentCards((prev) =>
+        prev.map((c) =>
+          ids.has(c.scanId) ? withCardTags(c, tags, enabled) : c,
+        ),
       );
       cardsChanged();
     });

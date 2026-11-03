@@ -1,5 +1,6 @@
 import { businessKeys } from "@/features/business/api/business";
 import {
+  setCollectionCardTags,
   confirmCollectionCard,
   markCollectionCardReviewed,
   setCollectionCardCondition,
@@ -57,5 +58,9 @@ export function useIntakeCardActions(
       run((guid) => setCollectionCardCondition(guid, scanId, condition)),
     setCardLanguage: (scanId, language) =>
       run((guid) => setCollectionCardLanguage(guid, scanId, language)),
+    setCardTags: (scanId, tags, enabled) =>
+      run((guid) =>
+        setCollectionCardTags(guid, { scanIds: [scanId], tags, enabled }),
+      ),
   };
 }

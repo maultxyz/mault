@@ -3,6 +3,8 @@ import EventSource from "react-native-sse";
 import {
   RECENT_SCANNED_CARDS_COUNT,
   type CardsReviewedEvent,
+  type CardTagsChangedEvent,
+  withCardTags,
   type Collection,
   type ScannedCard,
   type UnmatchedCard,
@@ -89,6 +91,15 @@ export function useSessionStream(collectionGuid: string): MonitorState {
                   ? { ...c, reviewed: true, lowConfidenceMatch: false, corrected: confirmedIds.has(c.scanId) || c.corrected }
                   : c,
               ),
+            };
+          }
+          case "cards_tags_changed": {
+            const event = parse<CardTagsChangedEvent>(data);
+            if (!event) return prev;
+            const ids = new Set(event.scanIds);
+            return {
+              ...prev,
+              recentCards: prev.recentCards.map((c) => (ids.has(c.scanId) ? withCardTags(c, event.tags, event.enabled) : c)),
             };
           }
           case "cards_cleared":

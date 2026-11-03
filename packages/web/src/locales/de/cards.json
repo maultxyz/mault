@@ -432,5 +432,15 @@
     "importMore": "Weitere importieren",
     "unreadable": "Dieses Bild konnte nicht gelesen werden.",
     "identifyFailed": "Dieses Bild konnte nicht erkannt werden."
+  },
+  "cardTags": {
+    "title": "Markierungen",
+    "clearTags": "Markierungen entfernen",
+    "edit": "Markierungen bearbeiten",
+    "names": {
+      "downloaded": "Heruntergeladen",
+      "reviewed": "Geprüft",
+      "corrected": "Korrigiert"
+    }
   }
 }

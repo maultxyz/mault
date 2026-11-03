@@ -432,5 +432,15 @@
     "importMore": "Import more",
     "unreadable": "Couldn't read this image.",
     "identifyFailed": "Couldn't identify this image."
+  },
+  "cardTags": {
+    "title": "Tags",
+    "clearTags": "Clear tags",
+    "edit": "Edit tags",
+    "names": {
+      "downloaded": "Downloaded",
+      "reviewed": "Reviewed",
+      "corrected": "Corrected"
+    }
   }
 }

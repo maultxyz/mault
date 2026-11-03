@@ -1,4 +1,5 @@
 import {
+  setCollectionCardTags,
   confirmCollectionCard,
   markCollectionCardReviewed,
   setCollectionCardCondition,
@@ -24,6 +25,10 @@ import type {
   MoveCollectionsToLocationInput,
 } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
+import {
+  withCardTags,
+  type CardTag,
+} from "@magic-vault/shared";
 import type {
   CardCondition,
   PlayingCard,
@@ -441,6 +446,44 @@ export function useSetStoredCardLanguage() {
   };
 }
 
+export function useSetStoredCardTags() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({
+      entry,
+      tags,
+      enabled,
+    }: {
+      entry: StorageLocationSearchResult;
+      tags: CardTag[];
+      enabled: boolean;
+    }) =>
+      setCollectionCardTags(entry.collectionGuid, {
+        scanIds: [entry.scanId],
+        tags,
+        enabled,
+      }),
+    onMutate: ({ entry, tags, enabled }) =>
+      patchStoredCard(queryClient, entry, withCardTags({}, tags, enabled)),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, { entry }) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return {
+    setTags: (
+      entry: StorageLocationSearchResult,
+      tags: CardTag[],
+      enabled: boolean,
+    ) => mutation.mutate({ entry, tags, enabled }),
+  };
+}
+
 export function useStoredCardActions(
   entry: StorageLocationSearchResult | null,
 ): CardDetailActions {
@@ -450,6 +493,7 @@ export function useStoredCardActions(
   const { setFoilType } = useSetStoredCardFoilType();
   const { setCondition } = useSetStoredCardCondition();
   const { setLanguage } = useSetStoredCardLanguage();
+  const { setTags } = useSetStoredCardTags();
 
   return {
     correctCard: (_scanId, card) => {
@@ -469,6 +513,9 @@ export function useStoredCardActions(
     },
     setCardLanguage: (_scanId, language) => {
       if (entry) setLanguage(entry, language);
+    },
+    setCardTags: (_scanId, tags, enabled) => {
+      if (entry) setTags(entry, tags, enabled);
     },
   };
 }

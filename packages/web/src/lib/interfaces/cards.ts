@@ -1,6 +1,7 @@
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type {
   CardCondition,
+  CardTag,
   CardScanOrigin,
   CardFilters,
   CardStorageLocation,
@@ -364,6 +365,7 @@ export interface CardDetailActions {
   setCardFoilType: (scanId: string, foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardLanguage: (scanId: string, language: string) => void;
+  setCardTags: (scanId: string, tags: CardTag[], enabled: boolean) => void;
 }
 
 export interface ScanDraftOptions {
@@ -383,6 +385,14 @@ export interface CardDetailScope {
   actions?: CardDetailActions;
 }
 
+export interface CardTagsMenuProps {
+  scanId: string;
+  isDownloaded?: boolean;
+  isReviewed?: boolean;
+  wasCorrected?: boolean;
+  useSheet: boolean;
+}
+
 export interface CardDetailPanelProps {
   scanId?: string;
   onClose: () => void;
@@ -392,6 +402,7 @@ export interface CardDetailPanelProps {
   lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
+  isDownloaded?: boolean;
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;

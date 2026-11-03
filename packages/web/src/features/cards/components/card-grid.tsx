@@ -80,9 +80,11 @@ import {
   IconPlus,
   IconRosette,
   IconSparkles,
+  IconTagOff,
 } from "@tabler/icons-react";
 import {
   CARD_CONDITIONS,
+  CARD_TAGS,
   computeBinCount,
   toReviewGridCard,
 } from "@magic-vault/shared";
@@ -118,6 +120,7 @@ export function CardGrid() {
     clearCards,
     correctCard,
     setCardsCondition,
+    setCardsTags,
     setCardsFoilType,
     elapsedMs,
     sessionScanCount,
@@ -653,6 +656,7 @@ export function CardGrid() {
         lowConfidenceMatch={openEntry.lowConfidenceMatch}
         wasCorrected={openEntry.corrected}
         isReviewed={openEntry.reviewed}
+        isDownloaded={openEntry.isDownloaded}
         storageLocation={openEntry.storageLocation}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
@@ -952,6 +956,32 @@ export function CardGrid() {
                         }
                       >
                         {t(`condition.names.${option}`)}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                      />
+                    }
+                  >
+                    <IconTagOff />
+                    {t("cardTags.clearTags")}
+                    <IconChevronDown />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" side="top">
+                    {CARD_TAGS.map((tag) => (
+                      <DropdownMenuItem
+                        key={tag}
+                        onClick={() =>
+                          setCardsTags(Array.from(selectedIds), [tag], false)
+                        }
+                      >
+                        {t(`cardTags.names.${tag}`)}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

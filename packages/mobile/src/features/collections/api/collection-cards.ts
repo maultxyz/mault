@@ -1,6 +1,7 @@
 import { infiniteQueryOptions, keepPreviousData, queryOptions, type QueryClient } from "@tanstack/react-query";
 import {
   EMPTY_CARD_FILTERS,
+  type SetCardTagsRequest,
   type CardScanOrigin,
   type CollectionCardPosition,
   type CollectionCardsQuery,
@@ -74,6 +75,10 @@ export const reviewQueueQueryOptions = (guid: string) =>
 
 export function updateCollectionCard(guid: string, scanId: string, body: CardUpdateBody): Promise<unknown> {
   return unwrap(apiPut<Result<unknown>>(`/api/collections/${guid}/cards/${scanId}`, body));
+}
+
+export function setCollectionCardTags(guid: string, request: SetCardTagsRequest): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/tags`, request));
 }
 
 export function invalidateCollectionCards(queryClient: QueryClient, guid: string): void {

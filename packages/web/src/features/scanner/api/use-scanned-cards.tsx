@@ -35,6 +35,8 @@ import {
   scanFoilType,
   toRuleCard,
   UNMATCHED_PREVIEW_COUNT,
+  withCardTags,
+  type CardTag,
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
@@ -56,6 +58,7 @@ import {
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
   clearUnmatchedCards as clearUnmatchedCardsApi,
+  setCollectionCardTags,
   setCollectionCardBin,
   setCollectionCardsCondition,
   setCollectionCardLanguage,
@@ -1441,6 +1444,25 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
+  const setCardsTags = useCallback(
+    (scanIds: string[], tags: CardTag[], enabled: boolean) => {
+      const collection = activeCollectionRef.current;
+      if (!collection || scanIds.length === 0 || tags.length === 0) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set(scanIds),
+        (entry) => withCardTags(entry, tags, enabled),
+      );
+      setCollectionCardTags(collection.guid, { scanIds, tags, enabled })
+        .catch((err) => console.error("Failed to update card tags:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
   const resetSessionStats = useCallback(() => {
     setTimerResetSignal((s) => s + 1);
     setRecentScanTimes([]);
@@ -1516,6 +1538,7 @@ export function ScannedCardsProvider({
         setCardCondition,
         setCardsCondition,
         setCardLanguage,
+        setCardsTags,
         clearCards,
       }}
     >

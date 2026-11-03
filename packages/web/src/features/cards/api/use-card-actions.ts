@@ -5,6 +5,8 @@ import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locat
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import {
   cardFoilTypeOptions,
+  cardTagsSetOn,
+  type CardTag,
   toCardCondition,
   type CardCondition,
   type GroupedScannedCard,
@@ -14,8 +16,13 @@ import { copyWithToast } from "@/lib/clipboard";
 
 export function useCardActions(entry: GroupedScannedCard) {
   const { t } = useTranslation("cards");
-  const { confirmCard, setCardsFoilType, setCardsCondition, removeCards } =
-    useScannedCards();
+  const {
+    confirmCard,
+    setCardsFoilType,
+    setCardsCondition,
+    setCardsTags,
+    removeCards,
+  } = useScannedCards();
   const gameFoilOptions = useFoilOptions();
   const { collection: viewedCollection } = useViewedCollection();
   const { isLocked: storageLocked } = useStorageAccess();
@@ -39,6 +46,9 @@ export function useCardActions(entry: GroupedScannedCard) {
       setCardsFoilType(entry.scanIds, foilType),
     setCondition: (condition: CardCondition) =>
       setCardsCondition(entry.scanIds, condition),
+    tagsSet: cardTagsSetOn(entry),
+    toggleTag: (tag: CardTag) =>
+      setCardsTags(entry.scanIds, [tag], !cardTagsSetOn(entry).includes(tag)),
     copyName: async () => {
       await copyWithToast(
         entry.card.name,

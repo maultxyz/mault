@@ -796,7 +796,6 @@
     "acceptNext": "Looks right",
     "acceptFinish": "Looks right",
     "reviewProgress": "Reviewing {{index}} of {{total}}",
-    "reviewed": "Reviewed",
     "similarMatches": "Similar matches",
     "similarMatchesHint": "Several close matches. Tap the right version.",
     "thisScan": "This scan",
@@ -1919,5 +1918,15 @@
     "verificationCodeLength": "Enter the {{length}}-digit code.",
     "verificationCodeNumeric": "The code can only contain numbers.",
     "controlCardActionRequired": "Pick at least one thing for the card to change."
+  },
+  "cardTags": {
+    "title": "Tags",
+    "edit": "Edit tags",
+    "saveFailed": "Couldn't update the tag",
+    "names": {
+      "downloaded": "Downloaded",
+      "reviewed": "Reviewed",
+      "corrected": "Corrected"
+    }
   }
 }

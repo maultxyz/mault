@@ -432,5 +432,15 @@
     "importMore": "Importer d'autres images",
     "unreadable": "Impossible de lire cette image.",
     "identifyFailed": "Impossible d'identifier cette image."
+  },
+  "cardTags": {
+    "title": "Étiquettes",
+    "clearTags": "Retirer les étiquettes",
+    "edit": "Modifier les étiquettes",
+    "names": {
+      "downloaded": "Téléchargée",
+      "reviewed": "Vérifiée",
+      "corrected": "Corrigée"
+    }
   }
 }

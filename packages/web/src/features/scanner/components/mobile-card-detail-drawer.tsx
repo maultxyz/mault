@@ -122,6 +122,7 @@ function MobileCardDetailBody({
       lowConfidenceMatch={entry.lowConfidenceMatch}
       wasCorrected={entry.corrected}
       isReviewed={entry.reviewed}
+      isDownloaded={entry.isDownloaded}
       storageLocation={entry.storageLocation}
       isFoil={entry.isFoil}
       foilType={entry.foilType}
