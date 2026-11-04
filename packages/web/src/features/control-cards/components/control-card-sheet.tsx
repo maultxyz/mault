@@ -1,3 +1,4 @@
+import { BrandIcon } from "@/components/brand-icon";
 import { EmptyState } from "@/components/empty-state";
 import { ControlCardTile } from "@/features/control-cards/components/control-card-tile";
 import {
@@ -72,6 +73,27 @@ export function ControlCardSheet({ entries, onRemove }: ControlCardSheetProps) {
                   />
                 </g>
               ))}
+            </g>
+            <g
+              className="text-black"
+              transform={`translate(${layout.logo.originX} ${layout.logo.originY}) rotate(-90)`}
+            >
+              <BrandIcon
+                x={0}
+                y={-layout.logo.markSize}
+                width={layout.logo.markSize}
+                height={layout.logo.markSize}
+              />
+              <text
+                x={layout.logo.markSize + layout.logo.wordmarkGap}
+                y={-layout.logo.markSize / 2}
+                dominantBaseline="central"
+                fontSize={layout.logo.wordmarkFontSize}
+                fill="currentColor"
+                className="font-heading font-semibold"
+              >
+                {layout.logo.wordmark}
+              </text>
             </g>
           </svg>
           <div

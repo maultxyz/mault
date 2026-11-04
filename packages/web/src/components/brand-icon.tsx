@@ -1,10 +1,12 @@
-export function BrandIcon({ className }: { className?: string }) {
+import type { ComponentProps } from "react";
+
+export function BrandIcon(props: ComponentProps<"svg">) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 235 217"
       fill="none"
-      className={className}
+      {...props}
     >
       <path
         fill="currentColor"

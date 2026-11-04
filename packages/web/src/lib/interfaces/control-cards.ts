@@ -116,6 +116,14 @@ export interface ControlCardSheetLayout {
   bleed: number;
   cutLineWidth: number;
   cutLineColor: string;
+  logo: {
+    originX: number;
+    originY: number;
+    markSize: number;
+    wordmark: string;
+    wordmarkFontSize: number;
+    wordmarkGap: number;
+  };
 }
 
 export interface ControlCardSheetGeometry {

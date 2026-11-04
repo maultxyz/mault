@@ -55,6 +55,14 @@ export const CONTROL_CARD_SHEET_LAYOUT: ControlCardSheetLayout = {
   bleed: 1,
   cutLineWidth: 0.27,
   cutLineColor: "#000000",
+  logo: {
+    originX: 8.4,
+    originY: 40,
+    markSize: 7,
+    wordmark: "Mault",
+    wordmarkFontSize: 5.4,
+    wordmarkGap: 0.6,
+  },
 };
 
 export const CONTROL_CARD_STYLES = ["illustrated", "plain"] as const;
