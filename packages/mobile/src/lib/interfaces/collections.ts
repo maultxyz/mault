@@ -19,16 +19,20 @@ export interface CardSortOption {
   label: string;
 }
 
+export type CardViewMode = "grid" | "list";
+
 export interface CardViewOptionsSheetProps {
   visible: boolean;
-  grouped: boolean;
-  onGroupedChange: (grouped: boolean) => void;
+  viewMode?: CardViewMode;
+  onViewModeChange?: (mode: CardViewMode) => void;
+  grouped?: boolean;
+  onGroupedChange?: (grouped: boolean) => void;
   sortOptions: CardSortOption[];
   selectedSort: string;
   onSortChange: (sort: string) => void;
   filters: CardFilters;
   breakdown: StatsBreakdown | null;
-  binCount: number;
+  binCount?: number;
   onChange: (filters: CardFilters) => void;
   onClose: () => void;
 }

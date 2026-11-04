@@ -1,4 +1,3 @@
-import { DeleteDialog } from "@/components/delete-dialog";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +11,7 @@ import {
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { useRemoveCardFromLocation } from "@/features/storage/api/use-storage-locations";
 import { MobileStorageCardList } from "@/features/storage/components/mobile-storage-card-list";
+import { RemoveFromLocationDialog } from "@/features/storage/components/remove-from-location-dialog";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { StorageCardListProps } from "@/lib/interfaces/storage";
@@ -203,19 +203,22 @@ export function StorageCardList({
           </TableBody>
         </Table>
       </div>
-      <DeleteDialog
+      <RemoveFromLocationDialog
         open={!!pendingRemoval}
         onOpenChange={(open) => !open && setPendingRemoval(null)}
-        title={t("removeDialog.title", {
-          name: pendingRemoval?.card.name ?? "",
-          location: pendingRemoval?.locationName ?? "",
-        })}
-        description={t("removeDialog.description")}
-        confirmLabel={t("removeDialog.confirm")}
-        onConfirm={() => {
+        cardName={pendingRemoval?.card.name ?? ""}
+        locationName={pendingRemoval?.locationName ?? ""}
+        collectionName={pendingRemoval?.collectionName ?? ""}
+        onConfirm={(alsoRemoveFromCollection) => {
           const entry = pendingRemoval;
           setPendingRemoval(null);
-          if (entry) void removeCard(entry.locationGuid, entry.scanId);
+          if (!entry) return;
+          void removeCard({
+            locationGuid: entry.locationGuid,
+            scanId: entry.scanId,
+            collectionGuid: entry.collectionGuid,
+            alsoRemoveFromCollection,
+          });
         }}
       />
     </>

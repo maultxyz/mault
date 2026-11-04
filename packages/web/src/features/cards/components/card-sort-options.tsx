@@ -46,6 +46,7 @@ export function CardSortOptions({
   sortKey,
   onSortChange,
   sortableFields,
+  defaultSortLabel,
 }: CardSortOptionsProps) {
   const { t } = useTranslation("cards");
   const optionListRef = useRef<HTMLDivElement>(null);
@@ -68,7 +69,7 @@ export function CardSortOptions({
     >
       <SortOption
         ref={isScanOrderActive ? activeOptionRef : undefined}
-        label={t("cardToolbar.scanOrder")}
+        label={defaultSortLabel ?? t("cardToolbar.scanOrder")}
         active={isScanOrderActive}
         onSelect={() => onSortChange("scan-desc")}
       />

@@ -4,7 +4,7 @@ import { ResizeHandle } from "@/components/ui/resize-handle";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
 import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
 import { CardGrid } from "@/features/cards/components/card-grid";
-import { ReviewQueuePanel } from "@/features/cards/components/review-queue-panel";
+import { ReviewQueuePanel } from "@/features/cards/components/collection-review-queue-panel";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";

@@ -19,6 +19,7 @@ import { collections, games } from "../../db/schema";
 import { toScannedCard } from "./shared";
 import type {
   CardsCollection,
+  CardStatsSource,
   CollectionCardRow,
 } from "../../lib/interfaces/collections";
 import { UUID_PATTERN } from "../../lib/constants/validation";
@@ -291,7 +292,7 @@ function sortField(
   return meta ? { meta, dir } : null;
 }
 
-function sortUsesStoredPrices(
+export function sortUsesStoredPrices(
   sort: string | null,
   fieldDefinitions: FieldMeta[],
 ): boolean {
@@ -306,8 +307,16 @@ export function cardOrderSql(
   fieldDefinitions: FieldMeta[],
 ): SQL {
   const newestFirst = sql`cc.scanned_at DESC, cc.id DESC`;
+  const sortKey = cardSortKeySql(sort, fieldDefinitions);
+  return sortKey ? sql`${sortKey}, ${newestFirst}` : newestFirst;
+}
+
+export function cardSortKeySql(
+  sort: string | null,
+  fieldDefinitions: FieldMeta[],
+): SQL | null {
   const sorted = sortField(sort, fieldDefinitions);
-  if (!sorted) return newestFirst;
+  if (!sorted) return null;
   const { meta, dir } = sorted;
 
   const value = fieldValueSql(meta.path);
@@ -328,7 +337,7 @@ export function cardOrderSql(
     key = sql`${text} COLLATE "und-x-icu"`;
   }
 
-  return sql`${key} ${dir === "asc" ? sql`ASC` : sql`DESC`}, ${newestFirst}`;
+  return sql`${key} ${dir === "asc" ? sql`ASC` : sql`DESC`}`;
 }
 
 function rankedCardsCte(
@@ -645,8 +654,20 @@ function cardStatsJsonSql(source: SQL): SQL {
   )`;
 }
 
+function collectionStatsSource(collection: {
+  id: number;
+  gameKey: string | null;
+  lang: string;
+}): CardStatsSource {
+  return {
+    scope: collection,
+    joins: sql``,
+    where: sql`cc.collection_id = ${collection.id}`,
+  };
+}
+
 function cardStatsBaseSql(
-  collection: { id: number; gameKey: string | null; lang: string },
+  source: CardStatsSource,
   filter: SQL,
   pricing: OrgPricing,
 ): SQL {
@@ -658,9 +679,10 @@ function cardStatsBaseSql(
       cc.is_foil, cc.foil_type, cc.scanned_at,
       ${price} AS price, (${filter}) AS in_filter
     FROM collection_cards cc
-    ${cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS)}
-    ${cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS)}
-    WHERE cc.collection_id = ${collection.id}
+    ${source.joins}
+    ${cardPricesJoinSql("cp", source.scope, CC_ALIAS_SQL_COLUMNS)}
+    ${cardCatalogJoinSql(source.scope, CC_ALIAS_SQL_COLUMNS)}
+    WHERE ${source.where}
   `;
 }
 
@@ -686,7 +708,7 @@ export async function loadCardStats(
   pricing: OrgPricing,
 ): Promise<{ all: CardStatsAggregate; filtered: CardStatsAggregate }> {
   const result = await tx.execute(sql`
-    WITH base AS MATERIALIZED (${cardStatsBaseSql(collection, filter, pricing)}),
+    WITH base AS MATERIALIZED (${cardStatsBaseSql(collectionStatsSource(collection), filter, pricing)}),
     filtered AS (SELECT * FROM base WHERE in_filter)
     SELECT
       ${cardStatsJsonSql(sql`base`)} AS all_stats,
@@ -699,13 +721,21 @@ export async function loadCardStats(
   return { all: row.all_stats, filtered: row.filtered_stats };
 }
 
-export async function loadAllCardStats(
+export function loadAllCardStats(
   tx: Transaction,
   collection: { id: number; gameKey: string | null; lang: string },
   pricing: OrgPricing,
 ): Promise<CardStatsAggregate> {
+  return loadCardStatsForSource(tx, collectionStatsSource(collection), pricing);
+}
+
+export async function loadCardStatsForSource(
+  tx: Transaction,
+  source: CardStatsSource,
+  pricing: OrgPricing,
+): Promise<CardStatsAggregate> {
   const result = await tx.execute(sql`
-    WITH base AS MATERIALIZED (${cardStatsBaseSql(collection, sql`true`, pricing)})
+    WITH base AS MATERIALIZED (${cardStatsBaseSql(source, sql`true`, pricing)})
     SELECT ${cardStatsJsonSql(sql`base`)} AS all_stats
   `);
   const row = result.rows[0] as unknown as { all_stats: CardStatsAggregate };

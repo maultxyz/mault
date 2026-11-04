@@ -92,7 +92,12 @@ export function CardStorageLocationSection({
           confirmLabel={t("removeDialog.confirm")}
           onConfirm={() => {
             setConfirmOpen(false);
-            void removeCard(location.guid, scanId);
+            void removeCard({
+              locationGuid: location.guid,
+              scanId,
+              collectionGuid,
+              alsoRemoveFromCollection: false,
+            });
           }}
         />
       )}

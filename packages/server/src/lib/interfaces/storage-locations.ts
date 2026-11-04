@@ -23,3 +23,18 @@ export interface MoveCollectionToLocationInput {
   collectionId: number;
   locationId: number;
 }
+
+export interface StoredCardIdsPage {
+  rowIds: number[];
+  total: number;
+  page: number;
+}
+
+export interface StoredCardNavigationRow {
+  index: number;
+  total: number;
+  prev_scan_id: string | null;
+  prev_collection_guid: string | null;
+  next_scan_id: string | null;
+  next_collection_guid: string | null;
+}

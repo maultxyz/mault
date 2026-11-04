@@ -22,6 +22,7 @@ import type {
   CardPriceKey,
   ScannedCardSqlColumns,
 } from "./interfaces/card-prices";
+import type { CatalogJoinScope } from "./interfaces/saved-cards";
 
 function storedCardPriceSelect(cols: ScannedCardSqlColumns, select: SQL): SQL {
   return sql`(
@@ -135,7 +136,7 @@ export function collectionCardPricesJoinOn(): SQL {
 
 export function cardPricesJoinSql(
   cardPricesAlias: string,
-  { gameKey, lang }: { gameKey: string | null; lang: string },
+  { gameKey, lang }: CatalogJoinScope,
   { cardId, cardLang }: Pick<ScannedCardSqlColumns, "cardId" | "cardLang">,
 ): SQL {
   const cp = sql.raw(cardPricesAlias);

@@ -8,4 +8,4 @@ export const TAB_ICONS: Record<string, IconName> = {
   account: "account",
 };
 
-export const FULL_BLEED_ROUTE_PATTERN = /^\/desktop-camera\//;
+export const FULL_BLEED_ROUTE_PATTERN = /^\/(desktop-camera\/|storage-card-scan$)/;

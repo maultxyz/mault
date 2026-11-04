@@ -325,6 +325,7 @@
     "customerNameRequired": "Enter the customer's name.",
     "orderTextRequired": "Paste an order or choose a file.",
     "orderLinesRequired": "Keep at least one card on the pick.",
+    "decklistRequired": "Enter at least one card, one per line.",
     "cardCountRequired": "Enter a number of cards.",
     "storageLocationRequired": "Choose where the cards went.",
     "commandRequired": "Enter a command.",

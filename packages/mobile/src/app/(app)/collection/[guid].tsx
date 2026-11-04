@@ -8,7 +8,6 @@ import {
   DEFAULT_MODULE_COUNT,
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
   EMPTY_CARD_FILTERS,
-  SORTABLE_FIELD_TYPES,
   type CardFilters,
   type GroupedScannedCard,
 } from "@magic-vault/shared";
@@ -42,6 +41,7 @@ import {
 import { CollectionActivity } from "@/features/collections/components/collection-activity";
 import { useSessionStream } from "@/features/monitor/api/use-session-stream";
 import { useSorter } from "@/features/sorter/api/use-sorter";
+import { cardSortOptions, countActiveCardFilters } from "@/features/collections/lib/card-query";
 import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -143,23 +143,8 @@ export default function CollectionScreen() {
   const breakdown = useMemo(() => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats) : null), [stats]);
   const binCount = computeBinCount(sorter.device?.moduleCount ?? DEFAULT_MODULE_COUNT);
   const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
-  const sortOptions = [
-    { value: "scan-desc", label: t("collection.sort.scanOrder") },
-    ...(collection?.game?.fieldDefinitions ?? [])
-      .filter((field) => SORTABLE_FIELD_TYPES.includes(field.type))
-      .flatMap((field) => [
-        { value: `${field.field}-asc`, label: t("collection.sort.ascending", { field: field.label }) },
-        { value: `${field.field}-desc`, label: t("collection.sort.descending", { field: field.label }) },
-      ]),
-  ];
-  const activeFilterCount =
-    filters.colors.length +
-    filters.rarities.length +
-    filters.foilTypes.length +
-    filters.bins.length +
-    filters.sets.length +
-    (filters.hideDownloaded ? 1 : 0);
-  const activeSortAndFilterCount = activeFilterCount + (sort ? 1 : 0);
+  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), t);
+  const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
 
   const shareLink = useMutation({
     mutationFn: () => createMonitorLink(guid, DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
