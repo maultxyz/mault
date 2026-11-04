@@ -1,3 +1,4 @@
+import { PiScanPrefetch } from "./prefetch";
 import { routeLoadedPiCard } from "./route-card";
 import { waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
@@ -325,6 +326,7 @@ async function prepareContext(
         checkBothOrientations: true,
         flipCamera: true,
         matchesNeeded: true,
+        pipelinedFeed: true,
       },
     });
     if (!device?.guid) {
@@ -412,6 +414,7 @@ async function prepareContext(
       lang: collection.lang,
       deviceGuid: device.guid,
       moduleCount: device.moduleCount,
+      pipelinedFeed: device.pipelinedFeed,
       region: toScanRegion(device),
       settleMs: device.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,
       feedRetryCount:
@@ -728,8 +731,8 @@ function showCard(
   session.current = { name, binNumber, matched };
 }
 
-function savedCard(session: PiScanLive) {
-  session.cardInFlight = false;
+function savedCard(session: PiScanLive, hasPending = false) {
+  session.cardInFlight = hasPending;
   if (session.current) session.lastCard = session.current;
   session.current = null;
   session.activity = null;
@@ -759,10 +762,29 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
     `[pi-scan] started collection ${session.collectionGuid} on ${context.deviceGuid}`,
   );
   session.startedAt = Date.now();
+  const prefetch = new PiScanPrefetch(async () => {
+    await sleep(context.settleMs);
+    if (session.stopRequested || session.pauseRequested || link.jamModule != null) {
+      return null;
+    }
+    return matchUntilConsensus(session, context);
+  });
+  // Repack completion must pause before another card enters module 1.
+  const pipeline = {
+    enabled: () =>
+      context.pipelinedFeed &&
+      session.autoFeed &&
+      !session.pauseRequested &&
+      !session.stopRequested &&
+      !context.set.isRepackMode,
+    onFed: prefetch.offer,
+  };
   try {
     while (!session.stopRequested) {
+      if (session.pauseRequested || session.refreshRequested) prefetch.invalidate();
       if (!(await waitForResume(session))) break;
       while (
+        !prefetch.hasPending &&
         !session.autoFeed &&
         !session.feedRequested &&
         !session.stopRequested &&
@@ -787,8 +809,21 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       }
 
       console.log(`[pi-scan] feeding card ${session.cardsScanned + 1}`);
+      const prefetched = await prefetch.take();
+      if (prefetched && (session.pauseRequested || session.refreshRequested)) {
+        prefetched.identified = null;
+      }
+      if (!(await waitForResume(session))) break;
+      let bufferedFeed = prefetched?.feed;
       const fed = await feedWithRetries(
-        () => link.command({ feeder: true }, PI_SCAN_FEED_TIMEOUT_MS),
+        () => {
+          if (bufferedFeed) {
+            const result = bufferedFeed;
+            bufferedFeed = undefined;
+            return Promise.resolve(result);
+          }
+          return link.command({ feeder: true }, PI_SCAN_FEED_TIMEOUT_MS);
+        },
         (reply) => reply,
         context.feedRetryCount,
       );
@@ -805,14 +840,15 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         break;
       }
       session.activity = "matching";
-      await sleep(context.settleMs);
+      if (!prefetched?.identified) await sleep(context.settleMs);
       const jammedAfterFeed = takeJam(link);
       if (jammedAfterFeed != null) {
         fail(session, `Jam at module ${jammedAfterFeed}.`);
         break;
       }
 
-      const identified = await matchUntilConsensus(session, context);
+      const identified =
+        prefetched?.identified ?? await matchUntilConsensus(session, context);
       const matched = identified.matched;
       const card = identified.card;
       const imageUrl = jpegDataUrl(matched.image);
@@ -848,7 +884,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             continue;
           }
           const route = routeForBin(catchAll.binNumber, context.routes);
-          await routeLoadedPiCard(link, route);
+          await routeLoadedPiCard(link, route, pipeline);
           const diagnostics: UnmatchedScanDiagnostics = {
             reason: unmatchedReason(matched, identified.attempts),
             search: matched.result.diagnostics
@@ -883,7 +919,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             catchAll.binNumber,
             (context.counts.get(catchAll.binNumber) ?? 0) + 1,
           );
-          savedCard(session);
+          savedCard(session, prefetch.hasPending);
           session.cardsScanned += 1;
           console.log(`[pi-scan] unmatched -> bin ${catchAll.binNumber}`);
           break;
@@ -969,7 +1005,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         }
 
         const route = routeForBin(chosen.binNumber, context.routes);
-        await routeLoadedPiCard(link, route);
+        await routeLoadedPiCard(link, route, pipeline);
 
         const alternatives = matched.resolved.alternativeMatches;
         const lowMatchBin = findLowMatchCatchAll(ruleCard, context.configs);
@@ -1012,7 +1048,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           fail(session, saved.message);
           break;
         }
-        savedCard(session);
+        savedCard(session, prefetch.hasPending);
         context.counts.set(chosen.binNumber, countInBin(chosen) + 1);
         context.contents.push({
           binNumber: chosen.binNumber,
@@ -1043,6 +1079,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       fail(session, message);
     }
   } finally {
+    await prefetch.discard();
     if (session.phase === "error") {
       try {
         const stopped = await link.command({ feederStop: true }, PI_SCAN_STATUS_TIMEOUT_MS);

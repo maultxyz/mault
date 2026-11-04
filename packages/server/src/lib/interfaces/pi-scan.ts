@@ -39,6 +39,7 @@ export interface PiScanRunContext {
   region: ScanRegion;
   settleMs: number;
   feedRetryCount: number;
+  pipelinedFeed: boolean;
   checkBothOrientations: boolean;
   flipCamera: boolean;
   matchesNeeded: number;
