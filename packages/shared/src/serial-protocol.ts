@@ -133,3 +133,13 @@ export function retractCardOutcome(
   if (reply?.error === SERIAL_ROLLBACK_OFF_ERROR) return "rollback_off";
   return "failed";
 }
+
+export function detectedModuleCount(
+  reply: Record<string, unknown> | null,
+): number | null {
+  if (reply?.status !== "ok") return null;
+  const modules = reply.modules;
+  return typeof modules === "number" && Number.isInteger(modules) && modules >= 0
+    ? modules
+    : null;
+}

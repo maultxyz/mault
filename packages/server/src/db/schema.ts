@@ -1136,6 +1136,9 @@ export const orgSettings = pgTable(
       .notNull()
       .default(true),
     ocrEnabled: boolean("ocr_enabled").notNull().default(false),
+    foilDetectionEnabled: boolean("foil_detection_enabled")
+      .notNull()
+      .default(false),
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),
@@ -1376,6 +1379,34 @@ export const platformSyncApiKeys = pgTable(
   (table) => [
     unique("platform_sync_api_keys_guid_idx").on(table.guid),
     unique("platform_sync_api_keys_hash_idx").on(table.keyHash),
+    crudPolicy({
+      role: authenticatedRole,
+      read: false,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const platformFoilLabels = pgTable(
+  "platform_foil_labels",
+  {
+    id: serial().primaryKey(),
+    scanId: uuid("scan_id").notNull(),
+    orgId: text("org_id").notNull(),
+    gameKey: text("game_key"),
+    cardId: text("card_id").notNull(),
+    cardLang: text("card_lang"),
+    capturedImageKey: text("captured_image_key"),
+    isFoil: boolean("is_foil").notNull(),
+    savedIsFoil: boolean("saved_is_foil").notNull(),
+    savedFoilType: text("saved_foil_type"),
+    foilScore: doublePrecision("foil_score"),
+    labelledByUserId: text("labelled_by_user_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("platform_foil_labels_scan_id_idx").on(table.scanId),
     crudPolicy({
       role: authenticatedRole,
       read: false,

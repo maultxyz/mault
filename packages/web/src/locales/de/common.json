@@ -209,7 +209,8 @@
       "navigation": "Navigation",
       "scanner": "Scanner",
       "cardDetail": "Kartendetails",
-      "intake": "Ankauf"
+      "intake": "Ankauf",
+      "foilLabeling": "Foil-Kennzeichnung"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
@@ -250,7 +251,11 @@
       "reviewCycleCondition": "Beim Prüfen: Zustände durchschalten",
       "reviewCycleLanguage": "Beim Prüfen: Sprachen durchschalten",
       "goSortingRules": "Zu den Sortierregeln",
-      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen"
+      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen",
+      "foilLabelFoil": "Beim Kennzeichnen: als Foil markieren",
+      "foilLabelNotFoil": "Beim Kennzeichnen: als Nicht-Foil markieren",
+      "foilLabelSkip": "Beim Kennzeichnen: diese Karte überspringen",
+      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte"
     }
   },
   "mobileMenu": {

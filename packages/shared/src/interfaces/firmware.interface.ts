@@ -6,7 +6,9 @@ export type FirmwareFeature =
   | "storedCalibration"
   | "paddleOpenDelay"
   | "wifiRemote"
-  | "retractCard";
+  | "retractCard"
+  | "moduleDetection"
+  | "pusherNudge";
 
 export type RetractCardOutcome = "retracted" | "rollback_off" | "failed";
 

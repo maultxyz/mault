@@ -73,6 +73,13 @@ export interface ModuleCountConfigContextValue {
   discard: () => void;
 }
 
+export interface DetectModuleCountState {
+  isSupported: boolean;
+  isDetecting: boolean;
+  canDetect: boolean;
+  detect: () => Promise<void>;
+}
+
 export interface ServoConfig {
   name: ServoName;
   labelKey: string;

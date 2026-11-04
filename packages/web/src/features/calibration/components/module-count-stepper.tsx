@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DetectModulesButton } from "@/features/calibration/components/detect-modules-button";
 import { useModuleCountConfig } from "@/features/calibration/api/use-module-count-config";
 import { useTranslation } from "react-i18next";
 
@@ -14,23 +15,26 @@ export function ModuleCountStepper() {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <Select
-        value={String(displayCount)}
-        onValueChange={(value) => stage(Number(value))}
-      >
-        <SelectTrigger className="w-40">
-          <SelectValue>
-            {t("moduleCountStepper.value", { count: displayCount })}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((n) => (
-            <SelectItem key={n} value={String(n)}>
-              {t("moduleCountStepper.value", { count: n })}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex items-center gap-1.5">
+        <Select
+          value={String(displayCount)}
+          onValueChange={(value) => stage(Number(value))}
+        >
+          <SelectTrigger className="w-40">
+            <SelectValue>
+              {t("moduleCountStepper.value", { count: displayCount })}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((n) => (
+              <SelectItem key={n} value={String(n)}>
+                {t("moduleCountStepper.value", { count: n })}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <DetectModulesButton />
+      </div>
       <p className="text-xs leading-tight text-foreground/70">
         {t("moduleCountStepper.description")}
       </p>

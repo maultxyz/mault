@@ -52,6 +52,12 @@
     "toggleLabel": "Activer la correspondance de texte OCR",
     "badge": "Bêta"
   },
+  "foilDetection": {
+    "heading": "Détection des foils",
+    "description": "Marque un scan Magic comme foil quand la carte semble foil. Avec un trieur connecté et un firmware à jour, le poussoir déplace légèrement la carte dans les deux sens sans ouvrir la trappe latérale, et des photos montrent si son reflet change, ce qui ajoute environ une seconde par carte. Sinon, la zone de texte est vérifiée pour un reflet arc-en-ciel. Uniquement pour les cartes qui existent aussi en non-foil, et seulement quand le réglage foil du scanner est désactivé.",
+    "toggleLabel": "Détecter les foils sur la photo du scan",
+    "badge": "Expérimental"
+  },
   "draft": {
     "saved": "Paramètres enregistrés.",
     "saveFailed": "Impossible d'enregistrer tes paramètres. Réessaie."

@@ -4,6 +4,7 @@ import type {
   SearchCardMatch,
 } from "./api.interface";
 import type { PlayingCard, PlayingCardWithDistance } from "./card.interface";
+import type { FoilDetection } from "./foil-detection.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
 import type {
   MatchCandidateDiagnostic,
@@ -44,6 +45,7 @@ export interface ScanAttemptResult extends ResolvedCardSearchMatches {
   lowConfidenceMatch: boolean;
   matchedBy: ScanMatchSource;
   detectedColor: string | null;
+  foilDetection?: FoilDetection | null;
 }
 
 export interface ScanMatchDetails {

@@ -121,6 +121,9 @@ const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
 const AdminSoundsPage = lazy(() => import("@/app/routes/app/admin/sounds"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
 const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
+const AdminFoilLabelsPage = lazy(
+  () => import("@/app/routes/app/admin/foil-labels"),
+);
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
@@ -451,6 +454,10 @@ export const routes: RouteObject[] = [
                               {
                                 path: "plans",
                                 element: <AdminPlansPage />,
+                              },
+                              {
+                                path: "foil-labels",
+                                element: <AdminFoilLabelsPage />,
                               },
                             ],
                           },
