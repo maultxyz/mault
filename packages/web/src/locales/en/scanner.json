@@ -359,12 +359,6 @@
       "disconnected": "Not connected"
     }
   },
-  "ocrBetaDialog": {
-    "title": "OCR text matching (beta)",
-    "description": "When a scan isn't a confident match, this reads the card's name and set line to find the card or pick the right printing. Confident matches skip it, so scanning speed is unchanged. It's still in beta and can misread text. Turn it back off if it seems to be making matches worse.",
-    "confirm": "Enable OCR",
-    "cancel": "Cancel"
-  },
   "phoneCamera": {
     "scanDescription": "Scan this QR code on your phone, or open the link, so it can be used as this scanner's camera.",
     "connectedDescription": "Your phone is ready. It'll take a photo whenever this scanner needs one.",

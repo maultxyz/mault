@@ -359,12 +359,6 @@
       "disconnected": "Nicht verbunden"
     }
   },
-  "ocrBetaDialog": {
-    "title": "OCR-Texterkennung (Beta)",
-    "description": "Wenn ein Scan nicht sicher erkannt wird, liest diese Funktion den Kartennamen und die Set-Zeile, um die Karte zu finden oder die richtige Druckversion zu wählen. Sichere Treffer überspringen das, die Scangeschwindigkeit bleibt also gleich. Die Funktion ist noch in der Beta und kann Text falsch lesen. Schalte sie wieder aus, wenn die Treffer schlechter werden.",
-    "confirm": "OCR aktivieren",
-    "cancel": "Abbrechen"
-  },
   "phoneCamera": {
     "scanDescription": "Scanne diesen QR-Code mit deinem Telefon oder öffne den Link, damit es als Kamera dieses Scanners verwendet werden kann.",
     "connectedDescription": "Dein Telefon ist bereit: Es macht ein Foto, sobald dieser Scanner eines braucht.",

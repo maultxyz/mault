@@ -1424,14 +1424,7 @@
     "ocr": {
       "heading": "Text recognition (OCR)",
       "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
-      "toggleLabel": "Enable OCR text matching",
-      "badge": "Beta"
-    },
-    "ocrBetaDialog": {
-      "title": "OCR text matching (beta)",
-      "description": "When a scan isn't a confident match, this reads the card's name and set line to find the card or pick the right printing. Confident matches skip it, so scanning speed is unchanged. It's still in beta and can misread text. Turn it back off if it seems to be making matches worse.",
-      "confirm": "Enable OCR",
-      "cancel": "Cancel"
+      "toggleLabel": "Enable OCR text matching"
     },
     "correctionAutoClose": {
       "heading": "Card correction prompt",
