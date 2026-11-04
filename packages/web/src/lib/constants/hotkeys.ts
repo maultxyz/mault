@@ -61,6 +61,10 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   goCalibrate: { group: "navigation", keys: [{ key: "g" }, { key: "d" }] },
   goSettings: { group: "navigation", keys: [{ key: "g" }, { key: "," }] },
   goAdmin: { group: "navigation", keys: [{ key: "g" }, { key: "a" }] },
+  goNextSorterNeedingAttention: {
+    group: "navigation",
+    keys: [{ key: "g" }, { key: "n" }],
+  },
   scanPauseResume: { group: "scanner", keys: [{ key: " " }] },
   scanNow: { group: "scanner", keys: [{ key: "s" }] },
   scanFeed: { group: "scanner", keys: [{ key: "f" }] },

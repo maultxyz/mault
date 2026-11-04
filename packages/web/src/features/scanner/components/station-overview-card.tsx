@@ -7,10 +7,13 @@ import {
   COLLECTION_TILE_LIVE_CLASS,
   COLLECTION_TILE_SELECTED_CLASS,
 } from "@/lib/constants/collections";
-import { STATION_STATUS_BADGE_VARIANTS } from "@/lib/constants/scanner";
+import {
+  STATION_STATUS_BADGE_VARIANTS,
+  STATION_TILE_ATTENTION_CLASS,
+} from "@/lib/constants/scanner";
 import type { StationOverviewCardProps } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
-import { IconCards } from "@tabler/icons-react";
+import { IconAlertTriangle, IconCards } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function StationOverviewCard({
@@ -20,6 +23,8 @@ export function StationOverviewCard({
   latestCard,
   collectionName,
   totalCount,
+  sessionScanCount = 0,
+  attentionLabel,
   onOpen,
   openLabel,
   action,
@@ -31,12 +36,19 @@ export function StationOverviewCard({
   const statusLabel = {
     sorting: t("scannerPip.sorting"),
     paused: t("scannerPip.paused"),
+    attention: t("stations.attention.needsAttention"),
     offline: t("stations.overview.offline"),
   }[status];
 
   const cameraArea = (
     <div className="relative aspect-[3/4] overflow-hidden bg-black">
       {camera}
+      {attentionLabel && (
+        <div className="absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-destructive px-3 py-2 text-xs font-medium text-white">
+          <IconAlertTriangle className="size-3.5 shrink-0" />
+          <span className="truncate">{attentionLabel}</span>
+        </div>
+      )}
     </div>
   );
 
@@ -46,7 +58,9 @@ export function StationOverviewCard({
         COLLECTION_TILE_CLASS,
         selected
           ? COLLECTION_TILE_SELECTED_CLASS
-          : status === "sorting" && COLLECTION_TILE_LIVE_CLASS,
+          : status === "attention"
+            ? STATION_TILE_ATTENTION_CLASS
+            : status === "sorting" && COLLECTION_TILE_LIVE_CLASS,
       )}
     >
       {onOpen ? (
@@ -114,6 +128,8 @@ export function StationOverviewCard({
           <p className="truncate text-xs tabular-nums text-foreground/70">
             {latestCard?.name ?? t("stations.overview.noCards")} ·{" "}
             {t("cardCount", { count: totalCount })}
+            {sessionScanCount > 0 &&
+              ` · ${t("stations.overview.sessionCount", { count: sessionScanCount })}`}
           </p>
         </div>
         {action && <ButtonGroup className="shrink-0">{action}</ButtonGroup>}

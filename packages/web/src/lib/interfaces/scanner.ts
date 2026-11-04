@@ -37,7 +37,12 @@ import type {
   UnmatchedCard,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
-import type { PreTestHook } from "@/lib/interfaces/stations";
+import type {
+  PreTestHook,
+  SorterLimitReason,
+  StationAttention,
+  StationAttentionDetails,
+} from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
 
@@ -164,6 +169,11 @@ export interface ScannedCardsContextValue {
   registerPauseHook: (fn: () => void) => () => void;
   registerResumeHook: (fn: () => void) => () => void;
   pause: () => void;
+  pauseForAttention: (attention: StationAttentionDetails) => void;
+  resume: () => void;
+  attention: StationAttention | null;
+  reopenAttention: () => void;
+  reportScannerError: (message: string | null) => void;
   isFeedHalted: () => boolean;
   clearFeedHalt: () => void;
   showJamToast: (options: JamToastOptions) => void;
@@ -900,6 +910,102 @@ export interface RouteCardToBinParams {
 
 export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
 
+export type InferenceGraphOptimizationLevel =
+  | "disabled"
+  | "basic"
+  | "extended"
+  | "all";
+
+export interface VisionModelRunOptions {
+  graphOptimizationLevel?: InferenceGraphOptimizationLevel;
+}
+
+export interface VisionModelOutputs {
+  outputs: Record<string, Float32Array>;
+  outputNames: string[];
+}
+
+export interface InferenceWorkerInitRequest {
+  type: "init";
+  modelBuffer: ArrayBuffer;
+  executionProvider: OnnxExecutionProviderPreference;
+  runOptions: VisionModelRunOptions;
+}
+
+export interface InferenceWorkerRunRequest {
+  type: "run";
+  runId: number;
+  pixels: ArrayBuffer;
+  width: number;
+  height: number;
+}
+
+export type InferenceWorkerRequest =
+  | InferenceWorkerInitRequest
+  | InferenceWorkerRunRequest;
+
+export interface InferenceWorkerReadyMessage {
+  type: "ready";
+  executionProvider: OnnxExecutionProviderPreference;
+  webgpuFailureMessage: string | null;
+}
+
+export interface InferenceWorkerInitErrorMessage {
+  type: "init-error";
+  message: string;
+  isWasmRuntimeError: boolean;
+}
+
+export interface InferenceWorkerResultMessage {
+  type: "result";
+  runId: number;
+  outputs: Record<string, Float32Array>;
+  outputNames: string[];
+}
+
+export interface InferenceWorkerRunErrorMessage {
+  type: "run-error";
+  runId: number;
+  message: string;
+  isWasmRuntimeError: boolean;
+}
+
+export type InferenceWorkerMessage =
+  | InferenceWorkerReadyMessage
+  | InferenceWorkerInitErrorMessage
+  | InferenceWorkerResultMessage
+  | InferenceWorkerRunErrorMessage;
+
+export interface InferenceWorkerScope {
+  onmessage: ((event: MessageEvent<InferenceWorkerRequest>) => void) | null;
+  postMessage(message: InferenceWorkerMessage, transfer?: Transferable[]): void;
+}
+
+export interface NavigatorWithWebGpu extends Navigator {
+  gpu?: { requestAdapter(): Promise<unknown> };
+}
+
+export interface PendingInferenceRun {
+  resolve: (outputs: VisionModelOutputs) => void;
+  reject: (error: Error) => void;
+}
+
+export interface InferenceWorkerWaiter<TWorker> {
+  resolve: (worker: TWorker) => void;
+  reject: (error: Error) => void;
+}
+
+export interface VideoPreviewLoopOptions {
+  video: HTMLVideoElement;
+  drawFrame: () => boolean;
+  isForeground: () => boolean;
+}
+
+export interface VideoPreviewLoop {
+  drawNow: () => void;
+  stop: () => void;
+}
+
 export interface AutoFeedSerial {
   sendRequest: (
     command: object,
@@ -965,7 +1071,7 @@ export interface ScannerStatusBarProps {
   onConnectAnotherBluetooth: () => void;
   onConnectAnotherCloud: (deviceGuid: string) => void;
   canConnectAnotherSorter: boolean;
-  sorterLimitIsHardCap: boolean;
+  sorterLimitReason: SorterLimitReason;
   onUpgrade: () => void;
   handScan: boolean;
   onHandScanChange: (enabled: boolean) => void;
@@ -1120,6 +1226,11 @@ export interface ScannerPipPreviewAction {
   label: string;
   icon: ReactNode;
   onClick: () => void;
+}
+
+export interface DesktopPipHostSnapshot {
+  container: HTMLElement | null;
+  hasContent: boolean;
 }
 
 export interface ScannerPipPreviewProps {

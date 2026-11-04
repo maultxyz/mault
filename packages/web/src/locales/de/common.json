@@ -225,6 +225,7 @@
       "goCalibrate": "Zur Sortierer-Einrichtung",
       "goSettings": "Zu den Einstellungen",
       "goAdmin": "Zum Admin-Bereich",
+      "goNextSorterNeedingAttention": "Zum nächsten Sortierer, der Hilfe braucht",
       "scanPauseResume": "Scannen pausieren oder fortsetzen",
       "scanNow": "Jetzt scannen",
       "scanFeed": "Nächste Karte zuführen",

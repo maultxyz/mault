@@ -1,11 +1,20 @@
+import { INFERENCE_WORKERS_PER_MODEL } from "@/lib/constants/scanner";
 import { ONNX_EXECUTION_PROVIDER_STORAGE_KEY } from "@/lib/constants/storage-keys";
-import * as ort from "onnxruntime-web/webgpu";
 import { useSyncExternalStore } from "react";
 import type { PinnedModel } from "@magic-vault/shared";
 import { fetchPinnedModel } from "./model-fetch";
-import type { OnnxExecutionProviderPreference } from "@/lib/interfaces/scanner";
+import type {
+  InferenceWorkerMessage,
+  InferenceWorkerRequest,
+  InferenceWorkerWaiter,
+  OnnxExecutionProviderPreference,
+  PendingInferenceRun,
+  VisionModelOutputs,
+  VisionModelRunOptions,
+} from "@/lib/interfaces/scanner";
 
 const executionProviderListeners = new Set<() => void>();
+let webgpuUnavailable = false;
 
 export function getExecutionProviderPreference(): OnnxExecutionProviderPreference {
   try {
@@ -14,6 +23,18 @@ export function getExecutionProviderPreference(): OnnxExecutionProviderPreferenc
   } catch {
     return "wasm";
   }
+}
+
+function browserExposesWebgpu(): boolean {
+  return typeof navigator !== "undefined" && "gpu" in navigator;
+}
+
+export function getEffectiveExecutionProvider(): OnnxExecutionProviderPreference {
+  return getExecutionProviderPreference() === "webgpu" &&
+    !webgpuUnavailable &&
+    browserExposesWebgpu()
+    ? "webgpu"
+    : "wasm";
 }
 
 function notifyExecutionProviderListeners(): void {
@@ -32,7 +53,7 @@ export function setExecutionProviderPreference(
   } catch {}
 
   if (value === "webgpu") webgpuUnavailable = false;
-  resetSessions();
+  resetWorkerPools();
   notifyExecutionProviderListeners();
 }
 
@@ -41,12 +62,12 @@ if (typeof window !== "undefined") {
     if (event.key !== null && event.key !== ONNX_EXECUTION_PROVIDER_STORAGE_KEY) {
       return;
     }
-    resetSessions();
+    resetWorkerPools();
     notifyExecutionProviderListeners();
   });
 }
 
-function subscribeExecutionProviderPreference(listener: () => void) {
+function subscribeExecutionProvider(listener: () => void) {
   executionProviderListeners.add(listener);
   return () => {
     executionProviderListeners.delete(listener);
@@ -55,71 +76,43 @@ function subscribeExecutionProviderPreference(listener: () => void) {
 
 export function useExecutionProviderPreference() {
   const preference = useSyncExternalStore(
-    subscribeExecutionProviderPreference,
+    subscribeExecutionProvider,
     getExecutionProviderPreference,
   );
   return [preference, setExecutionProviderPreference] as const;
 }
 
-const sessions = new Map<string, Promise<ort.InferenceSession>>();
-const runQueues = new Map<string, Promise<unknown>>();
-let webgpuUnavailable = false;
-
-function enqueue<T>(key: string, task: () => Promise<T>): Promise<T> {
-  const next = (runQueues.get(key) ?? Promise.resolve())
-    .catch(() => {})
-    .then(task);
-  runQueues.set(
-    key,
-    next.catch(() => {}),
+export function useEffectiveExecutionProvider(): OnnxExecutionProviderPreference {
+  return useSyncExternalStore(
+    subscribeExecutionProvider,
+    getEffectiveExecutionProvider,
   );
-  return next;
-}
-
-function releaseWhenIdle(
-  key: string,
-  promise: Promise<ort.InferenceSession>,
-): void {
-  enqueue(key, async () => {
-    const session = await promise;
-    await session.release();
-  }).catch(() => {});
-}
-
-function resetSessions(keep?: string): void {
-  for (const [key, promise] of [...sessions]) {
-    if (key === keep) continue;
-    sessions.delete(key);
-    releaseWhenIdle(key, promise);
-  }
-}
-
-function effectiveExecutionProvider(): OnnxExecutionProviderPreference {
-  return getExecutionProviderPreference() === "webgpu" && !webgpuUnavailable
-    ? "webgpu"
-    : "wasm";
 }
 
 let runtimeFailure: Error | null = null;
 const runtimeFailureListeners = new Set<() => void>();
 
-function isWasmTrap(err: unknown): err is Error {
-  return (
-    err instanceof WebAssembly.RuntimeError ||
-    (err instanceof Error && err.name === "RuntimeError")
-  );
-}
-
-function markRuntimeFailed(err: Error): void {
+function markRuntimeFailed(error: Error): void {
   if (runtimeFailure) return;
-  runtimeFailure = err;
+  runtimeFailure = error;
   if (getExecutionProviderPreference() === "webgpu") {
     try {
       localStorage.removeItem(ONNX_EXECUTION_PROVIDER_STORAGE_KEY);
     } catch {}
     notifyExecutionProviderListeners();
   }
+  resetWorkerPools();
   runtimeFailureListeners.forEach((listener) => listener());
+}
+
+function markWebgpuUnavailable(reason: string): void {
+  if (webgpuUnavailable) return;
+  console.warn(
+    `[onnx-runtime] WebGPU session failed, using WASM for every model: ${reason}`,
+  );
+  webgpuUnavailable = true;
+  resetWorkerPools();
+  notifyExecutionProviderListeners();
 }
 
 export function getOnnxRuntimeFailure(): Error | null {
@@ -140,86 +133,245 @@ export function useOnnxRuntimeFailure(): Error | null {
   );
 }
 
-async function createSession(
-  key: string,
-  model: PinnedModel,
-  extraOptions?: Partial<ort.InferenceSession.SessionOptions>,
-): Promise<ort.InferenceSession> {
-  const buffer = await fetchPinnedModel(model);
-  if (effectiveExecutionProvider() === "webgpu") {
-    try {
-      return await ort.InferenceSession.create(buffer, {
-        executionProviders: ["webgpu", "wasm"],
-        ...extraOptions,
+function wasmRuntimeError(message: string): Error {
+  const error = new Error(message);
+  error.name = "RuntimeError";
+  return error;
+}
+
+class InferenceWorker {
+  readonly ready: Promise<void>;
+  private readonly worker: Worker;
+  private readonly pendingRuns = new Map<number, PendingInferenceRun>();
+  private nextRunId = 1;
+  private settleReady: InferenceWorkerWaiter<void> | null = null;
+  private failure: Error | null = null;
+
+  constructor(
+    modelBuffer: ArrayBuffer,
+    executionProvider: OnnxExecutionProviderPreference,
+    runOptions: VisionModelRunOptions,
+  ) {
+    this.worker = new Worker(new URL("./inference.worker.ts", import.meta.url), {
+      type: "module",
+    });
+    this.ready = new Promise((resolve, reject) => {
+      this.settleReady = { resolve, reject };
+    });
+    this.worker.onmessage = (event: MessageEvent<InferenceWorkerMessage>) =>
+      this.handleMessage(event.data);
+    this.worker.onerror = () => {
+      const error = new Error("The card recognition worker stopped unexpectedly.");
+      markRuntimeFailed(error);
+      this.fail(error);
+    };
+    const request: InferenceWorkerRequest = {
+      type: "init",
+      modelBuffer,
+      executionProvider,
+      runOptions,
+    };
+    this.worker.postMessage(request, [modelBuffer]);
+  }
+
+  run(imageData: ImageData): Promise<VisionModelOutputs> {
+    if (this.failure) return Promise.reject(this.failure);
+    const runId = this.nextRunId++;
+    const pixels = imageData.data.buffer as ArrayBuffer;
+    return new Promise((resolve, reject) => {
+      this.pendingRuns.set(runId, { resolve, reject });
+      const request: InferenceWorkerRequest = {
+        type: "run",
+        runId,
+        pixels,
+        width: imageData.width,
+        height: imageData.height,
+      };
+      this.worker.postMessage(request, [pixels]);
+    });
+  }
+
+  terminate(): void {
+    this.fail(new Error("The card recognition worker was stopped."));
+    this.worker.terminate();
+  }
+
+  private handleMessage(message: InferenceWorkerMessage): void {
+    if (message.type === "ready") {
+      if (message.webgpuFailureMessage) {
+        markWebgpuUnavailable(message.webgpuFailureMessage);
+      }
+      this.settleReady?.resolve();
+      this.settleReady = null;
+      return;
+    }
+    if (message.type === "init-error") {
+      const error = message.isWasmRuntimeError
+        ? wasmRuntimeError(message.message)
+        : new Error(message.message);
+      if (message.isWasmRuntimeError) markRuntimeFailed(error);
+      this.fail(error);
+      return;
+    }
+    const pendingRun = this.pendingRuns.get(message.runId);
+    if (!pendingRun) return;
+    this.pendingRuns.delete(message.runId);
+    if (message.type === "result") {
+      pendingRun.resolve({
+        outputs: message.outputs,
+        outputNames: message.outputNames,
       });
-    } catch (err) {
-      if (isWasmTrap(err)) {
-        markRuntimeFailed(err);
-        throw err;
-      }
-      console.warn(
-        `[onnx-runtime] ${key}: WebGPU session failed, using WASM for every model`,
-        err,
-      );
-      webgpuUnavailable = true;
-      resetSessions(key);
+      return;
     }
+    const error = message.isWasmRuntimeError
+      ? wasmRuntimeError(message.message)
+      : new Error(message.message);
+    if (message.isWasmRuntimeError) markRuntimeFailed(error);
+    pendingRun.reject(error);
   }
-  try {
-    return await ort.InferenceSession.create(buffer, {
-      executionProviders: ["wasm"],
-      ...extraOptions,
-    });
-  } catch (err) {
-    if (isWasmTrap(err)) markRuntimeFailed(err);
-    throw err;
+
+  private fail(error: Error): void {
+    this.failure ??= error;
+    this.settleReady?.reject(error);
+    this.settleReady = null;
+    for (const pendingRun of this.pendingRuns.values()) pendingRun.reject(error);
+    this.pendingRuns.clear();
   }
 }
 
-function loadSession(
-  key: string,
-  model: PinnedModel,
-  extraOptions?: Partial<ort.InferenceSession.SessionOptions>,
-): Promise<ort.InferenceSession> {
-  let promise = sessions.get(key);
-  if (!promise) {
-    const created = createSession(key, model, extraOptions);
-    sessions.set(key, created);
-    created.catch(() => {
-      if (sessions.get(key) === created) sessions.delete(key);
+const modelBuffers = new Map<string, Promise<ArrayBuffer>>();
+
+function loadModelBuffer(model: PinnedModel): Promise<ArrayBuffer> {
+  let buffer = modelBuffers.get(model.sha256);
+  if (!buffer) {
+    buffer = fetchPinnedModel(model);
+    modelBuffers.set(model.sha256, buffer);
+    buffer.catch(() => {
+      if (modelBuffers.get(model.sha256) === buffer) {
+        modelBuffers.delete(model.sha256);
+      }
     });
-    promise = created;
   }
-  return promise;
+  return buffer;
 }
 
-export function runOnnxModel(
-  key: string,
-  model: PinnedModel,
-  buildFeeds: (
-    session: ort.InferenceSession,
-  ) => ort.InferenceSession.OnnxValueMapType,
-  extraOptions?: Partial<ort.InferenceSession.SessionOptions>,
-): Promise<{
-  session: ort.InferenceSession;
-  outputs: ort.InferenceSession.OnnxValueMapType;
-}> {
-  return enqueue(key, async () => {
-    if (runtimeFailure) throw runtimeFailure;
-    const promise = loadSession(key, model, extraOptions);
-    const session = await promise;
-    if (runtimeFailure) throw runtimeFailure;
+class InferenceWorkerPool {
+  private readonly workers = new Set<InferenceWorker>();
+  private readonly idleWorkers: InferenceWorker[] = [];
+  private readonly waitingRuns: InferenceWorkerWaiter<InferenceWorker>[] = [];
+  private readonly model: PinnedModel;
+  private readonly runOptions: VisionModelRunOptions;
+  private startingWorkerCount = 0;
+  private retired = false;
+
+  constructor(model: PinnedModel, runOptions: VisionModelRunOptions) {
+    this.model = model;
+    this.runOptions = runOptions;
+  }
+
+  async run(imageData: ImageData): Promise<VisionModelOutputs> {
+    const worker = await this.acquireWorker();
+    let workerIsHealthy = true;
     try {
-      return { session, outputs: await session.run(buildFeeds(session)) };
-    } catch (err) {
-      if (isWasmTrap(err)) markRuntimeFailed(err);
-      if (sessions.get(key) === promise) {
-        sessions.delete(key);
-        await session.release().catch(() => {});
-      }
-      throw err;
+      return await worker.run(imageData);
+    } catch (error) {
+      workerIsHealthy = false;
+      throw error;
+    } finally {
+      this.releaseWorker(worker, workerIsHealthy);
     }
-  });
+  }
+
+  retire(): void {
+    this.retired = true;
+    for (const worker of this.idleWorkers.splice(0)) this.removeWorker(worker);
+  }
+
+  private acquireWorker(): Promise<InferenceWorker> {
+    if (runtimeFailure) return Promise.reject(runtimeFailure);
+    const idleWorker = this.idleWorkers.pop();
+    if (idleWorker) return Promise.resolve(idleWorker);
+    const executionProvider = getEffectiveExecutionProvider();
+    const workerLimit = INFERENCE_WORKERS_PER_MODEL[executionProvider];
+    if (this.workers.size + this.startingWorkerCount < workerLimit) {
+      return this.startWorker(executionProvider);
+    }
+    return new Promise((resolve, reject) =>
+      this.waitingRuns.push({ resolve, reject }),
+    );
+  }
+
+  private async startWorker(
+    executionProvider: OnnxExecutionProviderPreference,
+  ): Promise<InferenceWorker> {
+    this.startingWorkerCount++;
+    let worker: InferenceWorker | null = null;
+    try {
+      const modelBuffer = (await loadModelBuffer(this.model)).slice(0);
+      worker = new InferenceWorker(modelBuffer, executionProvider, this.runOptions);
+      await worker.ready;
+      this.workers.add(worker);
+      return worker;
+    } catch (error) {
+      worker?.terminate();
+      if (this.workers.size === 0 && this.startingWorkerCount === 1) {
+        const failure = error instanceof Error ? error : new Error(String(error));
+        for (const waiting of this.waitingRuns.splice(0)) waiting.reject(failure);
+      }
+      throw error;
+    } finally {
+      this.startingWorkerCount--;
+    }
+  }
+
+  private releaseWorker(worker: InferenceWorker, workerIsHealthy: boolean): void {
+    if (!workerIsHealthy) {
+      this.removeWorker(worker);
+      if (runtimeFailure) {
+        const failure = runtimeFailure;
+        for (const waiting of this.waitingRuns.splice(0)) waiting.reject(failure);
+        return;
+      }
+      const waiting = this.waitingRuns.shift();
+      if (waiting) this.acquireWorker().then(waiting.resolve, waiting.reject);
+      return;
+    }
+    const waiting = this.waitingRuns.shift();
+    if (waiting) {
+      waiting.resolve(worker);
+      return;
+    }
+    if (this.retired) {
+      this.removeWorker(worker);
+      return;
+    }
+    this.idleWorkers.push(worker);
+  }
+
+  private removeWorker(worker: InferenceWorker): void {
+    this.workers.delete(worker);
+    worker.terminate();
+  }
 }
 
-export { ort };
+const workerPools = new Map<string, InferenceWorkerPool>();
+
+function resetWorkerPools(): void {
+  for (const pool of workerPools.values()) pool.retire();
+  workerPools.clear();
+}
+
+export function runVisionModel(
+  modelKey: string,
+  model: PinnedModel,
+  imageData: ImageData,
+  runOptions: VisionModelRunOptions = {},
+): Promise<VisionModelOutputs> {
+  if (runtimeFailure) return Promise.reject(runtimeFailure);
+  let pool = workerPools.get(modelKey);
+  if (!pool) {
+    pool = new InferenceWorkerPool(model, runOptions);
+    workerPools.set(modelKey, pool);
+  }
+  return pool.run(imageData);
+}

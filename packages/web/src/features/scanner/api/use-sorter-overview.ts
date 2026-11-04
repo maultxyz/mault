@@ -13,7 +13,8 @@ export function useSorterOverview(searchQuery: string): SorterOverview {
   const { data: devices = [], isLoading } = useQuery(
     devicesQueryOptions(activeOrg?.id),
   );
-  const { stations, connectedStationIds } = useStations();
+  const { stations, connectedStationIds, stationIdsNeedingAttention } =
+    useStations();
   const { runningKeys } = useSorterSelection();
 
   const connectedSorters = stations
@@ -50,6 +51,7 @@ export function useSorterOverview(searchQuery: string): SorterOverview {
     sortingCount: connectedSorters.filter((sorter) =>
       runningKeys.has(sorter.selectionKey),
     ).length,
+    attentionCount: stationIdsNeedingAttention.length,
     totalCount: connectedSorters.length + offlineDevices.length,
   };
 }

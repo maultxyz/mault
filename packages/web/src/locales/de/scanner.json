@@ -21,7 +21,8 @@
     "noCollection": "Keine Sammlung",
     "minimize": "An den Rand minimieren",
     "expand": "Scanner-Vorschau anzeigen",
-    "hide": "Bis zur Rückkehr zu MAULT ausblenden"
+    "hide": "Bis zur Rückkehr zu MAULT ausblenden",
+    "showSorter": "{{name}} anzeigen"
   },
   "piScan": {
     "preview": "Live-Bild des Sortierers",
@@ -596,7 +597,8 @@
         "sorters": "Sortierer",
         "connected": "Verbunden",
         "sorting": "Sortiert gerade",
-        "offline": "Offline"
+        "offline": "Offline",
+        "attention": "Braucht Hilfe"
       },
       "searchPlaceholder": "Sortierer durchsuchen...",
       "noSearchResultsTitle": "Keine passenden Sortierer",
@@ -633,7 +635,17 @@
       "deleteConfirm": {
         "title": "{{name}} löschen?",
         "description": "Dadurch werden der Sortierer und alles, was für ihn gespeichert ist, entfernt: Kalibrierung, Fachzuordnungen, Fachhöhen, Feeder-Einstellungen und deren Änderungsverlauf. Gescannte Karten und Sammlungen bleiben erhalten. Wenn du ihn wieder anschließt, erscheint er als neuer, nicht kalibrierter Sortierer."
-      }
+      },
+      "start": "Starten",
+      "pauseAll": "Alle pausieren",
+      "resumeAll": "Alle fortsetzen",
+      "resumeSelected": "Fortsetzen ({{count}})",
+      "sessionCount_one": "{{count}} in dieser Sitzung",
+      "sessionCount_other": "{{count}} in dieser Sitzung"
+    },
+    "cpuInferenceLimitReached": {
+      "title": "WASM betreibt jeweils einen Sortierer",
+      "description": "Die Kartenerkennung auf der CPU (WASM) reicht für einen Sortierer. Stelle das KI-Erkennungs-Backend auf der Kalibrierungsseite Kamera auf WebGPU um, damit mehrere Sortierer gleichzeitig laufen."
     },
     "hardCapReached": {
       "title": "Höchstens {{max}} Sortierer gleichzeitig",
@@ -642,6 +654,35 @@
     "limitReached": {
       "title": "Das Sortiererlimit deines Tarifs ist erreicht",
       "description": "Dein Tarif betreibt nur eine begrenzte Zahl von Sortierern gleichzeitig. Trenne einen anderen Sortierer oder upgrade deinen Tarif in den Einstellungen, um mehr gleichzeitig zu betreiben."
+    },
+    "attention": {
+      "needsAttention": "Braucht Hilfe",
+      "count_one": "{{count}} braucht Hilfe",
+      "count_other": "{{count}} brauchen Hilfe",
+      "goToNext": "Zum nächsten Sortierer, der Hilfe braucht",
+      "reasons": {
+        "jam": "Stau an Modul {{module}}",
+        "hopperEmpty": "Der Kartenschacht ist leer",
+        "feederError": "Fehler im Einzug",
+        "noCardDetected": "Keine Karte ist beim Scanner angekommen",
+        "sorterNotResponding": "Der Sortierer antwortet nicht",
+        "routingFailed": "Eine Karte konnte nicht einsortiert werden",
+        "binLimit": "Fach {{bins}} ist voll",
+        "binLimitUnknown": "Ein Fach ist voll",
+        "binsFull_one": "Fach {{bins}} ist voll",
+        "binsFull_other": "Fächer {{bins}} sind voll",
+        "packsComplete": "Alle Packs sind fertig",
+        "saveFailed": "Ein Scan konnte nicht gespeichert werden",
+        "scanLimit": "Tägliches Scanlimit erreicht",
+        "sorterLimit": "Sortiererlimit erreicht",
+        "collectionLocked": "Die Sammlung ist gesperrt",
+        "scannerError": "Kamerafehler"
+      },
+      "fixes": {
+        "resume": "Fortsetzen",
+        "emptyBin": "Fach leeren",
+        "openSorter": "Sortierer öffnen"
+      }
     }
   },
   "watchPage": {

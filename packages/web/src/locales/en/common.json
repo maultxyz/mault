@@ -225,6 +225,7 @@
       "goCalibrate": "Go to sorter setup",
       "goSettings": "Go to settings",
       "goAdmin": "Go to admin",
+      "goNextSorterNeedingAttention": "Go to next sorter needing attention",
       "scanPauseResume": "Pause or resume scanning",
       "scanNow": "Scan now",
       "scanFeed": "Feed next card",

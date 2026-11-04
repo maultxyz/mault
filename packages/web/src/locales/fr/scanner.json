@@ -21,7 +21,8 @@
     "noCollection": "Aucune collection",
     "minimize": "Réduire sur le côté",
     "expand": "Afficher l'aperçu du scanner",
-    "hide": "Masquer jusqu'à votre retour dans MAULT"
+    "hide": "Masquer jusqu'à votre retour dans MAULT",
+    "showSorter": "Afficher {{name}}"
   },
   "piScan": {
     "preview": "Vue en direct de la trieuse",
@@ -596,7 +597,8 @@
         "sorters": "Trieuses",
         "connected": "Connectées",
         "sorting": "En tri",
-        "offline": "Hors ligne"
+        "offline": "Hors ligne",
+        "attention": "À vérifier"
       },
       "searchPlaceholder": "Rechercher des trieuses...",
       "noSearchResultsTitle": "Aucune trieuse correspondante",
@@ -633,7 +635,17 @@
       "deleteConfirm": {
         "title": "Supprimer {{name}} ?",
         "description": "Cela supprime le trieur et tout ce qui est enregistré pour lui : son étalonnage, ses routes de bacs, ses hauteurs de bacs, ses réglages du chargeur et leur historique. Les cartes scannées et les collections sont conservées. Si vous le rebranchez, il apparaîtra comme un nouveau trieur non étalonné."
-      }
+      },
+      "start": "Démarrer",
+      "pauseAll": "Tout mettre en pause",
+      "resumeAll": "Tout reprendre",
+      "resumeSelected": "Reprendre ({{count}})",
+      "sessionCount_one": "{{count}} dans cette session",
+      "sessionCount_other": "{{count}} dans cette session"
+    },
+    "cpuInferenceLimitReached": {
+      "title": "WASM gère une seule trieuse à la fois",
+      "description": "La reconnaissance des cartes sur le processeur (WASM) suffit pour une seule trieuse. Passe le moteur de détection IA sur WebGPU sur la page d'étalonnage Caméra pour utiliser plusieurs trieuses à la fois."
     },
     "hardCapReached": {
       "title": "{{max}} trieuses maximum à la fois",
@@ -642,6 +654,35 @@
     "limitReached": {
       "title": "La limite de trieuses de votre offre est atteinte",
       "description": "Votre offre ne gère qu'un nombre limité de trieuses à la fois. Déconnectez une autre trieuse, ou passez à une offre supérieure dans les paramètres pour en utiliser plus à la fois."
+    },
+    "attention": {
+      "needsAttention": "À vérifier",
+      "count_one": "{{count}} à vérifier",
+      "count_other": "{{count}} à vérifier",
+      "goToNext": "Aller à la prochaine trieuse à vérifier",
+      "reasons": {
+        "jam": "Bourrage au module {{module}}",
+        "hopperEmpty": "Le bac d'alimentation est vide",
+        "feederError": "Erreur du chargeur",
+        "noCardDetected": "Aucune carte n'est arrivée au scanner",
+        "sorterNotResponding": "La trieuse ne répond pas",
+        "routingFailed": "Une carte n'a pas pu être triée",
+        "binLimit": "Le bac {{bins}} est plein",
+        "binLimitUnknown": "Un bac est plein",
+        "binsFull_one": "Le bac {{bins}} est plein",
+        "binsFull_other": "Les bacs {{bins}} sont pleins",
+        "packsComplete": "Tous les paquets sont terminés",
+        "saveFailed": "Un scan n'a pas pu être enregistré",
+        "scanLimit": "Limite quotidienne de scans atteinte",
+        "sorterLimit": "Limite de trieuses atteinte",
+        "collectionLocked": "La collection est verrouillée",
+        "scannerError": "Erreur de caméra"
+      },
+      "fixes": {
+        "resume": "Reprendre",
+        "emptyBin": "Vider le bac",
+        "openSorter": "Ouvrir la trieuse"
+      }
     }
   },
   "watchPage": {
