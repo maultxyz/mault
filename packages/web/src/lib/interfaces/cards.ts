@@ -54,6 +54,7 @@ export interface CardSortOptionsProps {
   sortKey: string | null;
   onSortChange: (key: string | null) => void;
   sortableFields: FieldMeta[];
+  defaultSortLabel?: string;
 }
 
 export interface CardDetailsListProps {
@@ -482,9 +483,7 @@ export interface CardDisplayOptionsProps {
 }
 
 export interface CardViewOptionsDrawerProps
-  extends CardSortOptionsProps,
-    CardFilterFieldsProps,
-    CardDisplayOptionsProps {
+  extends CardSortOptionsProps, CardFilterFieldsProps, CardDisplayOptionsProps {
   triggerClassName?: string;
 }
 
@@ -583,8 +582,25 @@ export interface ReviewQueuePanelProps {
   session: ReviewQueueSession;
 }
 
+export interface ReviewQueueEntry {
+  scanId: string;
+  card: PlayingCardWithDistance;
+}
+
+export interface ReviewQueueListProps {
+  cards: ReviewQueueEntry[];
+  totalCards: number;
+  isPending: boolean;
+  isError: boolean;
+  currentScanId: string | null;
+  reviewedScanIds: ReadonlySet<string>;
+  removedScanIds: ReadonlySet<string>;
+  onOpen: (scanId: string) => void;
+  onExit: () => void;
+}
+
 export interface ReviewQueueRowProps {
-  entry: ScannedCard;
+  entry: ReviewQueueEntry;
   isCurrent: boolean;
   isReviewed: boolean;
   isRemoved: boolean;

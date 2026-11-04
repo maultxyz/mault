@@ -43,9 +43,18 @@ export default function StorageScreen() {
           title={t("storage.title")}
           subtitle={t("storage.subtitle")}
           actions={
-            !locked ? (
-              <IconButton icon="plus" variant="primary" accessibilityLabel={t("storage.newLocation")} onPress={() => router.push("/storage-name")} />
-            ) : null
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              {list.length > 0 ? (
+                <IconButton
+                  icon="checkAll"
+                  accessibilityLabel={t("storage.pickList.open")}
+                  onPress={() => router.push("/storage-pick-list")}
+                />
+              ) : null}
+              {!locked ? (
+                <IconButton icon="plus" variant="primary" accessibilityLabel={t("storage.newLocation")} onPress={() => router.push("/storage-name")} />
+              ) : null}
+            </View>
           }
         >
           {list.length > 0 ? (

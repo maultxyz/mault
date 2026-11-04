@@ -10,6 +10,7 @@ import type {
   orgApiKeyFormSchema,
   syncApiKeyFormSchema,
   storageLocationNameFormSchema,
+  storagePickListFormSchema,
   scanDraftFormSchema,
   discordSettingsDraftFormSchema,
   notificationRuleFormSchema,
@@ -41,3 +42,4 @@ export type SoundClipNameFormValues = z.infer<typeof soundClipNameFormSchema>;
 
 export type DiscordChannelsDraft =
   DiscordSettingsDraftFormValues["overrides"][string];
+export type StoragePickListFormValues = z.infer<typeof storagePickListFormSchema>;

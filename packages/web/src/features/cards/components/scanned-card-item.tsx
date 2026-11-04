@@ -79,8 +79,8 @@ export const ScannedCardItem = memo(function ScannedCardItem({
               <IconSparkles className="size-3 text-white" />
             </div>
           )}
-          <div className="absolute bottom-1 left-1 right-1 flex gap-1 items-center justify-between z-20">
-            <div className="flex gap-1 items-center min-w-0">
+          <div className="absolute bottom-1 left-1 right-1 z-20 flex flex-wrap-reverse items-center justify-between gap-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-1">
               <Tooltip>
                 <TooltipTrigger
                   render={
@@ -125,13 +125,13 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             {storageLocation ? (
               <StorageLocationBadge
                 location={storageLocation}
-                className="shadow-md"
+                className="ml-auto shadow-md"
               />
             ) : showBinLocation ? (
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <Badge variant="secondary" className="shadow-md">
+                    <Badge variant="secondary" className="ml-auto shadow-md">
                       {t("scannedCardItem.bin", { number: binNumber })}
                     </Badge>
                   }
@@ -141,7 +141,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 </TooltipContent>
               </Tooltip>
             ) : (
-              <Badge variant="secondary" className="shadow-md">
+              <Badge variant="secondary" className="ml-auto shadow-md">
                 {t("scannedCardItem.bin", { number: binNumber })}
               </Badge>
             )}
@@ -169,14 +169,12 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             checked={isSelected}
             aria-label={t("scannedCardTable.selectRow", { name: card.name })}
             onClick={(e) => e.stopPropagation()}
-            onCheckedChange={() =>
-              onToggleSelect({ shiftKey: consumeShift() })
-            }
+            onCheckedChange={() => onToggleSelect({ shiftKey: consumeShift() })}
           />
         </span>
       )}
-      <div className="flex flex-row justify-between items-center gap-2 px-1 pb-1">
-        <div className="flex min-w-0 flex-row items-center gap-2">
+      <div className="flex flex-row flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-1 pb-1">
+        <div className="flex min-w-0 flex-row items-center gap-1.5">
           <div
             className="size-3 rounded-full shrink-0"
             style={{ backgroundColor: raritySwatch(card.rarity).bg }}
@@ -187,7 +185,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
           >
             {card.set}
           </p>
-          <p className="shrink-0 text-xs text-foreground/70">
+          <p className="min-w-0 truncate text-xs text-foreground/70">
             #{card.collectorNumber}
           </p>
           {isDownloaded && (

@@ -766,7 +766,12 @@
       "removeTitle_other": "Retirer {{count}} exemplaires ?"
     },
     "viewOptions": "Options d'affichage",
-    "display": "Affichage"
+    "display": "Affichage",
+    "layout": "Disposition",
+    "viewModes": {
+      "list": "Liste",
+      "grid": "Grille"
+    }
   },
   "cardDetail": {
     "pricePaid": "Prix payé ({{currency}})",
@@ -1272,6 +1277,9 @@
     "location": "Rangement",
     "removeFromLocation": "Retirer de l'emplacement",
     "noCardsTitle": "Cet emplacement est vide",
+    "searchCardsPlaceholder": "Rechercher des cartes dans cet emplacement",
+    "positionOrder": "Place dans la boîte",
+    "noMatchingCards": "Aucune carte ne correspond à votre recherche ou à vos filtres",
     "businessOnly": "Les emplacements de rangement ne sont pas inclus dans ton offre.",
     "locked": "Notez dans quelle boîte va chaque carte, et à quelle place, quand vous videz un bac.",
     "lockedWithLocations": "Tu peux toujours consulter et rechercher tes emplacements et leurs cartes. Toute modification nécessite une offre qui inclut le rangement.",
@@ -1287,7 +1295,73 @@
     "moveToCollectionFailed": "Impossible de déplacer les cartes",
     "moveToOtherLocation": "Déplacer vers un autre emplacement",
     "searchLocations": "Rechercher des emplacements",
-    "searchCollections": "Rechercher des collections"
+    "searchCollections": "Rechercher des collections",
+    "pickList": {
+      "open": "Liste de collecte",
+      "title": "Liste de collecte",
+      "description": "Collez une decklist pour voir où chaque carte est rangée, puis cochez les cartes à mesure que vous les sortez.",
+      "decklistLabel": "Cartes à sortir",
+      "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+      "decklistHint": "Une carte par ligne. Les quantités, codes d'extension et titres de section sont acceptés.",
+      "findCards": "Trouver les cartes",
+      "editList": "Modifier la liste",
+      "clear": "Vider la liste",
+      "progress": "{{picked}} sur {{total}} sorties",
+      "emptyTitle": "Aucune de ces cartes n'est rangée",
+      "emptyDescription": "Seules les cartes rangées dans un emplacement apparaissent sur une liste de collecte.",
+      "loadFailed": "La liste de collecte n'a pas pu être chargée.",
+      "finish": "Retirer les cartes sorties de leurs emplacements",
+      "finishTitle_one": "Retirer {{count}} carte sortie de son emplacement ?",
+      "finishTitle_other": "Retirer {{count}} cartes sorties de leurs emplacements ?",
+      "finishDescription": "Elles restent dans votre collection. La liste de collecte est ensuite vidée.",
+      "finishConfirm": "Retirer",
+      "scan": {
+        "button": "Scanner pour cocher",
+        "noMatch": "Aucune carte reconnue. Réessayez avec toute la carte visible.",
+        "notOnList": "{{name}} ne reste pas sur votre liste de collecte.",
+        "picked": "{{name}} sortie de {{location}}, place {{position}}",
+        "failed": "Le scan a échoué. Réessayez.",
+        "title": "Scanner pour cocher",
+        "hint": "Placez une carte dans le cadre et appuyez sur le déclencheur.",
+        "done": "Terminé",
+        "remaining": "Encore {{count}} à sortir",
+        "loadingModels": "Préparation du scanner",
+        "alreadyPicked": "Tous les exemplaires de {{name}} de votre liste de collecte sont déjà sortis."
+      },
+      "finishFailed": "Les cartes sorties n'ont pas pu être retirées. Réessayez.",
+      "notStored": "Non rangée",
+      "missingCount_one": "{{count}} exemplaire non rangé",
+      "missingCount_other": "{{count}} exemplaires non rangés",
+      "moreActions": "Plus d'actions",
+      "picked": "Sortie"
+    },
+    "verify": {
+      "tabs": {
+        "cards": "Cartes",
+        "verify": "Vérifier"
+      },
+      "description": "Scannez les cartes de cet emplacement pour vérifier que tout ce qui doit s'y trouver y est.",
+      "progress": "{{verified}} sur {{total}} vérifiées",
+      "verified": "Vérifiée",
+      "startOver": "Recommencer",
+      "emptyTitle": "Rien à vérifier",
+      "emptyDescription": "Aucune carte n'est encore rangée dans cet emplacement.",
+      "loadFailed": "Les cartes de cet emplacement n'ont pas pu être chargées.",
+      "truncated": "Seules les {{max}} premières cartes de cet emplacement peuvent être vérifiées.",
+      "complete": "Toutes les cartes de cet emplacement sont vérifiées.",
+      "notInLocationTitle": "Scannées mais pas rangées ici",
+      "notInLocationDescription": "Ces cartes ne sont pas enregistrées dans cet emplacement. Remettez-les à leur place ou déplacez-les ici.",
+      "scan": {
+        "button": "Scanner pour vérifier",
+        "stop": "Arrêter le scan",
+        "verified": "{{name}} vérifiée, place {{position}}",
+        "alreadyVerified": "Tous les exemplaires de {{name}} dans cet emplacement sont déjà vérifiés.",
+        "notInLocation": "{{name}} n'est pas rangée dans cet emplacement.",
+        "hint": "Placez une carte de cet emplacement dans le cadre et appuyez sur le déclencheur.",
+        "title": "Vérifier les cartes",
+        "remaining": "Encore {{count}} à vérifier"
+      }
+    }
   },
   "settings": {
     "title": "Paramètres",
@@ -1922,6 +1996,7 @@
     "customerNameRequired": "Saisis le nom du client.",
     "orderTextRequired": "Colle une commande ou choisis un fichier.",
     "orderLinesRequired": "Garde au moins une carte dans la liste.",
+    "decklistRequired": "Saisissez au moins une carte, une par ligne.",
     "cardCountRequired": "Saisis un nombre de cartes.",
     "storageLocationRequired": "Choisis où sont allées les cartes.",
     "commandRequired": "Saisis une commande.",

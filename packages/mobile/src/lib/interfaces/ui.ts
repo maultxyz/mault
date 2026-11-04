@@ -50,6 +50,7 @@ export interface TextFieldProps {
   autoCapitalize?: "none" | "sentences" | "words";
   returnKeyType?: "next" | "done" | "go" | "search";
   onSubmitEditing?: () => void;
+  multiline?: boolean;
 }
 
 export interface SearchInputProps {
@@ -155,6 +156,7 @@ export interface CardRowProps {
   price?: string | null;
   binNumber?: number;
   lowConfidence?: boolean;
+  checked?: boolean;
   onPress?: () => void;
 }
 

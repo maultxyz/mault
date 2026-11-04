@@ -21,6 +21,7 @@ export function CardViewOptionsDrawer({
   sortKey,
   onSortChange,
   sortableFields,
+  defaultSortLabel,
   activeFilters,
   onFiltersChange,
   activeFilterCount,
@@ -85,6 +86,7 @@ export function CardViewOptionsDrawer({
               sortKey={sortKey}
               onSortChange={onSortChange}
               sortableFields={sortableFields}
+              defaultSortLabel={defaultSortLabel}
             />
           </section>
           <section className="flex flex-col gap-2">

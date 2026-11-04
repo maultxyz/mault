@@ -8,6 +8,7 @@ import {
   CARD_GROUP_DUPLICATES_STORAGE_KEY,
   CARD_REVIEW_LAYOUT_STORAGE_KEY,
   CARD_VIEW_MODE_STORAGE_KEY,
+  STORAGE_CARD_VIEW_MODE_STORAGE_KEY,
 } from "@/lib/constants/storage-keys";
 import type {
   CardGridDensity,
@@ -19,13 +20,18 @@ function parseCardViewMode(stored: string | null): CardViewMode {
   return stored === "list" ? "list" : "grid";
 }
 
+function parseStorageCardViewMode(stored: string | null): CardViewMode {
+  return stored === "grid" ? "grid" : "list";
+}
+
 function parseReviewLayout(stored: string | null): ReviewLayout {
   return stored === "single" ? "single" : "grid";
 }
 
 function parseCardGridDensity(stored: string | null): CardGridDensity {
-  return CARD_GRID_DENSITIES.find((density) => density === stored) ??
-    "comfortable";
+  return (
+    CARD_GRID_DENSITIES.find((density) => density === stored) ?? "comfortable"
+  );
 }
 
 export function useCardViewPreferences() {
@@ -42,6 +48,13 @@ export function useCardViewPreferences() {
     groupDuplicates,
     handleGroupDuplicatesChange,
   };
+}
+
+export function useStorageCardViewMode() {
+  return usePersistedState(
+    STORAGE_CARD_VIEW_MODE_STORAGE_KEY,
+    parseStorageCardViewMode,
+  );
 }
 
 export function useCardGridDensity() {

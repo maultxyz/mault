@@ -27,7 +27,7 @@ function cardsParams(search: string, page?: number, review = false): string {
   return params.toString();
 }
 
-function queryParams(query: CollectionCardsQuery, page: number): string {
+export function collectionCardsQueryParams(query: CollectionCardsQuery, page: number): string {
   const params = new URLSearchParams({ filters: JSON.stringify(query.filters), page: String(page) });
   if (query.grouped) params.set("grouped", "1");
   if (query.search) params.set("search", query.search);
@@ -39,7 +39,7 @@ export const collectionCardsQueryOptions = (guid: string, query: CollectionCards
   infiniteQueryOptions({
     queryKey: ["collection-cards", guid, "list", query] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${queryParams(query, pageParam)}`)),
+      unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${collectionCardsQueryParams(query, pageParam)}`)),
     initialPageParam: 0,
     getNextPageParam: (last) =>
       (last.page + 1) * last.pageSize < last.totalEntries ? last.page + 1 : undefined,

@@ -10,6 +10,7 @@ import {
 import { NOTIFICATION_RULE_NAME_MAX_LENGTH } from "../constants/integrations.constant";
 import { PRICE_SOURCES } from "../constants/price-source.constant";
 import { SET_NAME_MAX_LENGTH } from "../constants/sort-bins.constant";
+import { storagePickListEntries } from "../storage-pick-list";
 import { STORAGE_LOCATION_NAME_MAX_LENGTH } from "../constants/sorters.constant";
 import {
   SOUND_CLIP_NAME_MAX_LENGTH,
@@ -232,4 +233,10 @@ export const soundClipNameFormSchema = z.object({
       SOUND_CLIP_NAME_MAX_LENGTH,
       formValidationMessage("nameTooLong", { max: SOUND_CLIP_NAME_MAX_LENGTH }),
     ),
+});
+
+export const storagePickListFormSchema = z.object({
+  decklist: z
+    .string()
+    .refine((decklist) => storagePickListEntries(decklist).length > 0, formValidationMessage("decklistRequired")),
 });
