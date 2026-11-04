@@ -359,12 +359,6 @@
       "disconnected": "Non connecté"
     }
   },
-  "ocrBetaDialog": {
-    "title": "Correspondance de texte OCR (bêta)",
-    "description": "Quand un scan n'est pas une correspondance sûre, cette option lit le nom de la carte et sa ligne d'extension pour trouver la carte ou choisir la bonne impression. Les correspondances sûres l'ignorent, la vitesse de scan reste donc la même. Elle est encore en bêta et peut mal lire le texte. Désactive-la si elle semble dégrader les correspondances.",
-    "confirm": "Activer l'OCR",
-    "cancel": "Annuler"
-  },
   "phoneCamera": {
     "scanDescription": "Scanne ce code QR avec ton téléphone, ou ouvre le lien, pour qu'il puisse être utilisé comme caméra de ce scanner.",
     "connectedDescription": "Ton téléphone est prêt : il prendra une photo dès que ce scanner en aura besoin.",

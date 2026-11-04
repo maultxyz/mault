@@ -68,7 +68,6 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
         SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
         SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
         COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey],
-        null,
       );
       if (!outcome.card) {
         showResult({ kind: "no-match" });

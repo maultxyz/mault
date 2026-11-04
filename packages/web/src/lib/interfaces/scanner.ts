@@ -914,12 +914,6 @@ export interface PendingCapture {
   timeout: ReturnType<typeof setTimeout>;
 }
 
-export interface OcrBetaDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
-}
-
 export interface PhoneCameraPairingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

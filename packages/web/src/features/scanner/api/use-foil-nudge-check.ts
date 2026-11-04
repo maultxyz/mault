@@ -104,7 +104,7 @@ export function useFoilNudgeCheck(): CheckFoilByNudge {
         if (after) afterByDirection[direction] = after;
         else scanLog(`[foil-nudge] card not found in the photo after the ${direction} nudge`);
       }
-      const detection = detectFoilFromNudges(before, afterByDirection, gameKey);
+      const detection = detectFoilFromNudges(before, afterByDirection);
       if (!detection) {
         scanLog("[foil-nudge] skipped: no usable photo after either nudge");
         return null;

@@ -163,7 +163,6 @@ export function toScanMatchDetails(
           candidates: attempt.candidates,
           ocr: attempt.ocr,
           detectedColor: attempt.detectedColor,
-          foilDetection: attempt.foilDetection ?? null,
         },
       },
       noMatch: null,

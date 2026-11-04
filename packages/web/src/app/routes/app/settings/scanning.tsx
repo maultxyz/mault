@@ -10,7 +10,6 @@ import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CorrectionAutoCloseSetting } from "@/features/scanner/components/correction-auto-close-setting";
-import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { IconQrcode } from "@tabler/icons-react";
 import { Controller, useWatch } from "react-hook-form";
@@ -50,7 +49,6 @@ export default function SettingsScanningPage() {
       </SettingsSection>
       <SettingsSection
         heading={t("ocr.heading")}
-        badge={<Badge variant="outline">{t("ocr.badge")}</Badge>}
         description={t("ocr.description")}
       >
         <label className="flex items-center justify-between gap-3">
@@ -59,7 +57,7 @@ export default function SettingsScanningPage() {
             control={draft.control}
             name="ocrEnabled"
             render={({ field }) => (
-              <OcrToggle
+              <Switch
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}

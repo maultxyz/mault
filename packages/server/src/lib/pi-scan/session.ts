@@ -3,6 +3,7 @@ import { waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import {
+  scanFoilType,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_FEEDER_CALIBRATION,
@@ -14,7 +15,6 @@ import {
   OCR_CROP_WIDTH,
   OCR_REGIONS_BY_GAME_KEY,
   detectColorBarRgba,
-  detectFoilRgba,
   dewarpRgba,
   getDefaultCardContour,
   rotateRgba180,
@@ -28,8 +28,6 @@ import {
   hasMaxCopiesBins,
   isRulesMode,
   reservePickListBins,
-  resolveScanFoilType,
-  supportsFoilDetection,
   toRuleCard,
   withScanRuleFields,
   type CornerDetection,
@@ -385,7 +383,7 @@ async function prepareContext(
       : [];
     const settings = await tx.query.orgSettings.findFirst({
       where: eq(orgSettings.orgId, session.orgId),
-      columns: { ocrEnabled: true, foilDetectionEnabled: true },
+      columns: { ocrEnabled: true },
     });
     const feeder = await tx.query.feederConfigs.findFirst({
       where: eq(feederConfigs.deviceId, device.id),
@@ -424,10 +422,6 @@ async function prepareContext(
       matchesNeeded: device.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
       matchAllLanguages: collection.matchAllLanguages,
       ocrEnabled: settings?.ocrEnabled === true,
-      foilDetectionEnabled:
-        settings?.foilDetectionEnabled === true &&
-        supportsFoilDetection(collection.gameKey),
-      foilTypes,
       cardThickness: collection.cardThickness,
       fieldDefinitions,
       set: active,
@@ -624,10 +618,6 @@ async function matchFrame(
       printingConfirmed: matchedBy === "ocr" && !!ocr?.printingConfirmed,
     },
   );
-  const foilDetection =
-    context.foilDetectionEnabled && resolved.card
-      ? detectFoilRgba(upright, context.gameKey)
-      : null;
 
   return {
     ...best,
@@ -638,7 +628,6 @@ async function matchFrame(
     colorVariantUncertain,
     detection,
     detectedColor,
-    foilDetection,
   };
 }
 
@@ -902,12 +891,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         continue;
       }
 
-      const foilType = resolveScanFoilType(
-        card,
-        session.foilType,
-        matched.foilDetection,
-        context.foilTypes,
-      );
+      const foilType = scanFoilType(card, session.foilType);
       while (!session.stopRequested) {
         const ruleCard = toRuleCard(card, {
           isFoil: foilType != null,
@@ -999,7 +983,6 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           candidates: matched.resolved.candidates,
           ocr: matched.ocr,
           detectedColor: matched.detectedColor,
-          foilDetection: matched.foilDetection,
         };
         const saved = await saveThroughCollectionRoute(
           session.accessToken,

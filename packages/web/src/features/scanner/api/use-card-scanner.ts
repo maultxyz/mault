@@ -6,7 +6,6 @@ import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
-import { useFoilDetectionGameKey } from "@/features/scanner/api/use-foil-detection-game-key";
 import {
   captureDewarpedCardImage,
   searchCardImageWithConsensus,
@@ -214,9 +213,6 @@ export function useCardScanner({
     0;
   const ocrEnabledRef = useRef(false);
   ocrEnabledRef.current = !!orgSettings?.ocrEnabled && ocrSupported;
-  const foilDetectionGameKey = useFoilDetectionGameKey(activeCollection?.game?.key);
-  const foilDetectionGameKeyRef = useRef(foilDetectionGameKey);
-  foilDetectionGameKeyRef.current = foilDetectionGameKey;
   const [hasPhonePhoto, setHasPhonePhoto] = useState(false);
 
   useEffect(() => {
@@ -328,7 +324,6 @@ export function useCardScanner({
           matchesNeededRef.current,
           checkBothOrientationsRef.current,
           colorBarRegionRef.current,
-          foilDetectionGameKeyRef.current,
         );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
@@ -368,7 +363,8 @@ export function useCardScanner({
               fromLiveVideo && matched && dewarpedCardImage
                 ? await checkFoilByNudgeRef.current?.(
                     card,
-                    () => captureDewarpedCardImage(canvas, drawLatestVideoFrame),
+                    () =>
+                      captureDewarpedCardImage(canvas, drawLatestVideoFrame),
                     dewarpedCardImage,
                   )
                 : null;
@@ -402,13 +398,7 @@ export function useCardScanner({
         isCapturingRef.current = false;
       }
     },
-    [
-      updateStatus,
-      allowDuplicates,
-      drawLatestVideoFrame,
-      outlineAnimator,
-      t,
-    ],
+    [updateStatus, allowDuplicates, drawLatestVideoFrame, outlineAnimator, t],
   );
 
   const detectionLoop = useCallback(() => {

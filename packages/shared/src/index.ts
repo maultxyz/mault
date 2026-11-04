@@ -83,7 +83,6 @@ export * from "./constants/plans.constant";
 export * from "./constants/scanner.constant";
 export * from "./constants/pi-scan.constant";
 export * from "./constants/vision-model.constant";
-export * from "./constants/foil-detection.constant";
 export * from "./constants/foil-nudge.constant";
 export * from "./constants/org-settings.constant";
 export * from "./constants/org-overview.constant";

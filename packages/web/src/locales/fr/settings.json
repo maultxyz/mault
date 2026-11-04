@@ -49,13 +49,12 @@
   "ocr": {
     "heading": "Reconnaissance de texte (OCR)",
     "description": "Quand un scan n'est pas une correspondance sûre, le nom et la ligne d'extension de la carte sont lus pour la trouver. S'applique à tous les scanners de cette organisation, pour les jeux dont les zones de texte sont configurées.",
-    "toggleLabel": "Activer la correspondance de texte OCR",
-    "badge": "Bêta"
+    "toggleLabel": "Activer la correspondance de texte OCR"
   },
   "foilDetection": {
     "heading": "Détection des foils",
-    "description": "Marque un scan Magic comme foil quand la carte semble foil. Avec un trieur connecté et un firmware à jour, le poussoir déplace légèrement la carte dans les deux sens sans ouvrir la trappe latérale, et des photos montrent si son reflet change, ce qui ajoute environ une seconde par carte. Sinon, la zone de texte est vérifiée pour un reflet arc-en-ciel. Uniquement pour les cartes qui existent aussi en non-foil, et seulement quand le réglage foil du scanner est désactivé.",
-    "toggleLabel": "Détecter les foils sur la photo du scan",
+    "description": "Marque un scan comme foil quand la carte semble foil, pour tous les jeux. Avec un trieur connecté et un firmware à jour, le poussoir déplace légèrement la carte dans les deux sens sans ouvrir la trappe latérale, et des photos montrent si son reflet change, ce qui ajoute environ une seconde par carte. Sans trieur connecté ou avec un firmware plus ancien, les cartes ne sont pas vérifiées. Uniquement pour les cartes qui existent aussi en non-foil, et seulement quand le réglage foil du scanner est désactivé.",
+    "toggleLabel": "Détecter les foils en poussant la carte",
     "badge": "Expérimental"
   },
   "draft": {
