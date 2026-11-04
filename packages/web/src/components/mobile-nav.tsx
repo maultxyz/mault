@@ -24,7 +24,7 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react";
 import { usePiHost } from "@/hooks/use-pi-host";
-import { isRemoteBrowser } from "@/lib/host";
+import { usesHostHardware } from "@/lib/host";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
@@ -76,7 +76,7 @@ function MobileNavTab({
 export function MobileNav() {
   const { t } = useTranslation("common");
   const { pathname } = useLocation();
-  const piRemote = usePiHost() && isRemoteBrowser();
+  const piRemote = usePiHost() && usesHostHardware();
   const scanPath = piRemote ? "/app" : MOBILE_SCAN_PATH;
   const { locks, currentUserId } = useCollectionLocks();
   const liveCounts = useLiveSessionCounts();

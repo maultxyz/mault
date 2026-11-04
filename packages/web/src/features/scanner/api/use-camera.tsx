@@ -25,7 +25,7 @@ import {
 } from "@/features/scanner/lib/camera-stream";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHost } from "@/hooks/use-pi-host";
-import { isRemoteBrowser } from "@/lib/host";
+import { usesHostHardware } from "@/lib/host";
 import { loadPiHost } from "@/lib/pi-host";
 import type {
   CameraContextValue,
@@ -49,7 +49,7 @@ const CameraContext = createContext<CameraContextValue | null>(null);
 export function CameraProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("scanner");
   const isMobile = useIsMobile();
-  const piRemote = usePiHost() && isRemoteBrowser();
+  const piRemote = usePiHost() && usesHostHardware();
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");

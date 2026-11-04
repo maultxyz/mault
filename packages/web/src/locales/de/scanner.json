@@ -47,6 +47,8 @@
       "description": "Verbindung fehlgeschlagen. Stelle sicher, dass kein anderes Programm das Gerät verwendet."
     },
     "piMissing": "Am Raspberry Pi ist kein Sortierer angeschlossen.",
+    "piSorterBuiltIn": "Integrierter Raspberry-Pi-Sortierer",
+    "piSorterUnavailable": "Warten auf die integrierte Pi-Sortierersteuerung. Prüfe, ob der Dienst läuft.",
     "piBusy": "Der USB-Anschluss am Pi wird schon verwendet. Trenne ihn im anderen Browser oder stoppe den Scan auf dem Pi und versuche es erneut.",
     "piScanBusy": "Auf dem Pi läuft ein Scan, deshalb kann dieser Browser den Sorter nicht übernehmen. Stoppe zuerst den Scan.",
     "bluetoothPermissionBlocked": "Die Bluetooth-Berechtigung ist für diesen Browser blockiert. Überprüfe die Website-Einstellungen deines Browsers (oder chrome://settings/content/bluetoothDevices), um Bluetooth zuzulassen, und versuche es erneut.",
@@ -887,7 +889,8 @@
       "serial": "USB",
       "bluetooth": "Bluetooth",
       "cloud": "WLAN",
-      "pi": "Dieser Pi"
+      "pi": "Dieser Pi",
+      "pi-sorter": "Integrierter Pi-Sortierer"
     },
     "connectHint": "Schalte den Sortierer ein und verbinde dich.",
     "connectBluetooth": "Über Bluetooth verbinden",

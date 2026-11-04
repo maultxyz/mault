@@ -11,6 +11,7 @@ import {
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStation } from "@/features/scanner/api/use-stations";
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { readPiCameraHealth } from "@/features/scanner/lib/pi-camera";
 import {
   applyPiScanState,
@@ -32,6 +33,7 @@ export function usePiScanSession() {
   const { activeCollection } = useCollections();
   const { autoFeed, forceFoilType, forceSetCodes } = useScannedCards();
   const { disconnect } = useSerial();
+  const { piSorter } = usePiHostState();
   const { isActive } = useStation();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
   const [cameraReady, setCameraReady] = useState(false);
@@ -67,7 +69,7 @@ export function usePiScanSession() {
     setStarting(true);
     setPiScanHoldOverride(true);
     try {
-      await disconnect();
+      if (!piSorter) await disconnect();
       let result = await startPiScanSession({
         collectionGuid,
         foilType: forceFoilType,
@@ -96,6 +98,7 @@ export function usePiScanSession() {
     autoFeed,
     collectionGuid,
     disconnect,
+    piSorter,
     forceFoilType,
     forceSetCodes,
     t,

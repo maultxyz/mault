@@ -183,9 +183,19 @@ export interface ScannedCardsContextValue {
   clearCards: () => void;
 }
 
-export type SerialBoardType = "esp32" | "uno_r4";
+export type SerialBoardType = "esp32" | "uno_r4" | "raspberry_pi";
 
-export type SerialTransportType = "serial" | "bluetooth" | "cloud" | "pi";
+export type SerialTransportType =
+  | "serial"
+  | "bluetooth"
+  | "cloud"
+  | "pi"
+  | "pi-sorter";
+
+export interface SerialConnectOptions {
+  skipAutoTest?: boolean;
+  background?: boolean;
+}
 
 export type FlashFailureReason =
   | "wrong-chip"

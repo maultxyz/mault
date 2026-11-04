@@ -27,7 +27,7 @@ import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bi
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHost } from "@/hooks/use-pi-host";
-import { isRemoteBrowser } from "@/lib/host";
+import { usesHostHardware } from "@/lib/host";
 import { useRole } from "@/hooks/use-role";
 import {
   PAUSE_WHEN_HIDDEN_STATUSES,
@@ -75,8 +75,8 @@ export function CardScanner({
   const { isAdmin } = useRole();
   const isMobile = useIsMobile();
   const piHost = usePiHost();
-  const piRemote = piHost && isRemoteBrowser();
-  const previewRotated = !isMobile || (piHost && isRemoteBrowser());
+  const piRemote = piHost && usesHostHardware();
+  const previewRotated = !isMobile || (piHost && usesHostHardware());
   const {
     addCard,
     addUnmatchedCard,
@@ -691,10 +691,24 @@ export function CardScanner({
         className={cn("relative isolate overflow-hidden bg-black", className)}
       >
         <video ref={videoRef} className="hidden" playsInline muted />
-        <canvas ref={displayCanvasRef} className="absolute" />
+        {piRemote && isCameraActive && (
+          <PiCameraPreview
+            alt={t("piScan.preview")}
+            rotated
+            flipped={device?.flipCamera}
+            className="absolute max-w-none"
+          />
+        )}
+        <canvas
+          ref={displayCanvasRef}
+          className={cn("absolute", piRemote && "hidden")}
+        />
         <canvas
           ref={overlayCanvasRef}
-          className="absolute z-20 pointer-events-none"
+          className={cn(
+            "absolute z-20 pointer-events-none",
+            piRemote && "hidden",
+          )}
         />
         {renderChrome({
           status,
@@ -778,7 +792,12 @@ export function CardScanner({
         className,
       )}
     >
-      <div className={showStatusStrip ? "flex flex-col" : "contents"}>
+      <div
+        className={cn(
+          showStatusStrip ? "flex flex-col" : "contents",
+          showStatusStrip && piRemote && "max-md:flex-1 max-md:min-h-0",
+        )}
+      >
         <div
           className={cn(
             "relative isolate overflow-hidden bg-background rounded-lg border",
@@ -787,6 +806,7 @@ export function CardScanner({
               ? "h-full aspect-[2.5/3.5] shrink-0"
               : "w-full h-full max-w-full",
             !compact && !isSideControls && "md:aspect-[2.5/3.5]",
+            piRemote && !isSideControls && "max-md:flex-1 max-md:min-h-0",
             isRemoveModeActive &&
               "border-destructive ring-2 ring-destructive/40",
           )}

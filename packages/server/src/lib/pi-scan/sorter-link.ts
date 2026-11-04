@@ -1,11 +1,10 @@
-import type { SerialPort } from "serialport";
 import {
   isBootBanner,
   isUnsolicitedSerialMessage,
   replySeq,
   withSeq,
 } from "@magic-vault/shared";
-import type { SorterReplyWaiter } from "../interfaces/pi-serial";
+import type { SorterPort, SorterReplyWaiter } from "../interfaces/pi-serial";
 
 export class SorterLink {
   private buffer = "";
@@ -16,7 +15,7 @@ export class SorterLink {
   private closed = false;
   jamModule: number | null = null;
 
-  constructor(private port: SerialPort) {
+  constructor(private port: SorterPort) {
     port.on("data", this.onData);
     port.on("error", this.onError);
     port.on("close", this.onClose);

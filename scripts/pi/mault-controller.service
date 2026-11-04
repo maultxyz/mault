@@ -1,0 +1,14 @@
+[Unit]
+Description=Mault built-in Pi sorter controller
+PartOf=mault-api.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/mault
+ExecStart=/bin/bash %h/mault/scripts/pi/run-controller.sh
+Restart=on-failure
+RestartSec=2
+UMask=0077
+
+[Install]
+WantedBy=default.target

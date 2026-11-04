@@ -113,9 +113,15 @@ print("[install] Wrote .env")
 PY
 fi
 
-if ! grep -q '^PI_HOST=' .env; then
-  printf '\nPI_HOST=1\n' >> .env
-  echo "[install] Set PI_HOST=1"
+python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env"
+sorter_mode="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-mode)"
+if [[ "$sorter_mode" == gpio ]]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-lgpio python3-smbus raspi-config
+  sudo raspi-config nonint do_i2c 0
+  if [[ ! -e /dev/i2c-1 ]]; then
+    echo "[install] I2C enabled. Reboot the Pi, then rerun this installer." >&2
+    exit 1
+  fi
 fi
 
 PASSWORD="$(python3 - << 'PY'
@@ -158,31 +164,39 @@ set +a
 pnpm --filter @magic-vault/server db:migrate-local
 
 echo "[install] Enabling user services"
-dialout_members=",$(getent group dialout | cut -d: -f4),"
-case "$dialout_members" in
-  *,"$USER",*) ;;
-  *)
-    echo "[install] Adding $USER to dialout"
-    sudo usermod -aG dialout "$USER"
-    ;;
-esac
-case " $(id -nG) " in
-  *" dialout "*) dialout_active=1 ;;
-  *) dialout_active=0 ;;
-esac
+required_groups=(dialout)
+if [[ "$sorter_mode" == gpio ]]; then
+  required_groups=(gpio i2c)
+fi
+hardware_groups_active=1
+for group in "${required_groups[@]}"; do
+  case " $(id -nG "$USER") " in
+    *" $group "*) ;;
+    *) sudo usermod -aG "$group" "$USER" ;;
+  esac
+  case " $(id -nG) " in
+    *" $group "*) ;;
+    *) hardware_groups_active=0 ;;
+  esac
+done
 
 pi_ensure_user_bus
 
 node "$ROOT/scripts/pi/install-services.mjs" "$ROOT"
 systemctl --user daemon-reload
-if ! systemctl --user enable --now mault-camera.service mault-api.service mault-web.service; then
-  systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
-  exit 1
+if [[ "$sorter_mode" == gpio ]]; then
+  systemctl --user enable mault-controller.service
+elif systemctl --user cat mault-controller.service >/dev/null 2>&1; then
+  systemctl --user disable --now mault-controller.service
 fi
-if [[ "$dialout_active" -eq 0 ]]; then
+if [[ "$hardware_groups_active" -eq 0 ]]; then
   echo "[install] Restarting user services so they can open the sorter"
   sudo systemctl restart "user@$(id -u).service"
   pi_ensure_user_bus
+fi
+if ! systemctl --user enable --now mault-camera.service mault-api.service mault-web.service; then
+  systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
+  exit 1
 fi
 
 if ! {

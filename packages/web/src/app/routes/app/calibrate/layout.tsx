@@ -23,6 +23,7 @@ import type { SectionNavItem } from "@/lib/interfaces/nav";
 import {
   IconChevronDown,
   IconClipboard,
+  IconCpu,
   IconDeviceUsb,
   IconDeviceUsbFilled,
   IconDownload,
@@ -46,7 +47,7 @@ import {
   DEFAULT_CALIBRATION_SECTION,
 } from "@/lib/constants/calibration";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { usePiHost } from "@/hooks/use-pi-host";
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { PageIntro } from "@/components/page-intro";
@@ -58,6 +59,7 @@ export function useCalibrationOutletContext() {
 
 export default function CalibrateLayout() {
   const { t } = useTranslation("calibration");
+  const { t: tScanner } = useTranslation("scanner");
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -108,7 +110,7 @@ export default function CalibrateLayout() {
   const { isAdmin } = useRole();
   const isSessionActive = useIsSessionActive();
   const isMobile = useIsMobile();
-  const piHost = usePiHost();
+  const { piHost, piSorter } = usePiHostState();
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -132,7 +134,17 @@ export default function CalibrateLayout() {
               className="flex flex-wrap items-center gap-2"
               data-tour="calibration-connect"
             >
-              {isConnected ? (
+              {piSorter ? (
+                <Button
+                  variant="outline"
+                  disabled={isConnected}
+                  title={!isConnected ? tScanner("serial.piSorterUnavailable") : undefined}
+                  onClick={() => void connect()}
+                >
+                  <IconCpu />
+                  {tScanner("serial.piSorterBuiltIn")}
+                </Button>
+              ) : isConnected ? (
                 <Button variant="outline" onClick={disconnect}>
                   <IconDeviceUsbFilled />
                   {t("calibratePage.disconnect")}

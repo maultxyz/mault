@@ -1116,7 +1116,7 @@ async function arm(session: PiScanLive) {
     );
     const statusError = lineError(status);
     if (statusError) throw new PiScanStartError(statusError, "invalid");
-    const hardwareId = typeof status.id === "string" ? status.id.trim() : "";
+    const hardwareId = typeof status.id === "string" ? status.id.trim().toUpperCase() : "";
     if (!hardwareId) {
       throw new PiScanStartError("The sorter did not report an id.", "invalid");
     }

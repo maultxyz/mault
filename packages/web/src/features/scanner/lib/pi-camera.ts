@@ -8,7 +8,7 @@ import {
   PI_CAMERA_WIDTH,
 } from "@/lib/constants/scanner";
 import type { CameraRange, PiCameraHealth } from "@/lib/interfaces/scanner";
-import { isRemoteBrowser } from "@/lib/host";
+import { usesHostHardware } from "@/lib/host";
 import { isPiHost, loadPiHost } from "@/lib/pi-host";
 import { applyFocus, manualFocusRange } from "./camera-focus";
 
@@ -53,7 +53,7 @@ export function focusRangeForTrack(
 }
 
 export function browserMustUsePiCamera(): boolean {
-  return isPiHost() && isRemoteBrowser();
+  return isPiHost() && usesHostHardware();
 }
 
 export async function readPiCameraHealth(): Promise<PiCameraHealth> {
