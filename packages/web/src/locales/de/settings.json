@@ -52,6 +52,12 @@
     "toggleLabel": "OCR-Texterkennung aktivieren",
     "badge": "Beta"
   },
+  "foilDetection": {
+    "heading": "Foil-Erkennung",
+    "description": "Markiert einen Magic-Scan als Foil, wenn die Karte nach Foil aussieht. Mit verbundenem Sortierer und aktueller Firmware stößt der Schieber die Karte leicht in beide Richtungen an, ohne die Seitenklappe zu öffnen, und Fotos zeigen, ob sich ihr Glanz ändert. Das dauert etwa eine Sekunde pro Karte. Sonst wird das Textfeld auf einen Regenbogenschimmer geprüft. Nur für Karten, die es auch als Nicht-Foil gibt, und nur solange die Foil-Einstellung des Scanners aus ist.",
+    "toggleLabel": "Foils am Scan-Foto erkennen",
+    "badge": "Experimentell"
+  },
   "draft": {
     "saved": "Einstellungen gespeichert.",
     "saveFailed": "Deine Einstellungen konnten nicht gespeichert werden. Versuch es erneut."

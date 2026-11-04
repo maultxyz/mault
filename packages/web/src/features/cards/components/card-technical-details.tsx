@@ -94,6 +94,21 @@ export function CardTechnicalDetails({
                   {diagnostics.detectedColor ?? t("technicalDetails.noColor")}
                 </Row>
               )}
+              {typeof diagnostics.foilDetection?.foilScore === "number" && (
+                <Row label={t("technicalDetails.foilDetection")}>
+                  {t(
+                    diagnostics.foilDetection.isFoilDetected
+                      ? "technicalDetails.foilDetected"
+                      : "technicalDetails.foilNotDetected",
+                    {
+                      method: t(
+                        `technicalDetails.foilMethod.${diagnostics.foilDetection.method ?? "rainbow"}`,
+                      ),
+                      score: diagnostics.foilDetection.foilScore.toFixed(2),
+                    },
+                  )}
+                </Row>
+              )}
             </>
           )}
         </dl>

@@ -154,8 +154,6 @@ In direct mode the Pi itself is the sorter. The API sends commands to the local 
 | `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam                           |
 | `mault-controller` | Direct mode only: local Python GPIO/I2C controller, started and stopped with the API |
 
-Pi software tests use mocked hardware: run `python3 -m unittest discover -s scripts/pi/tests` and `python3 -m unittest scripts.pi.controller.test_controller`. The attended `python3 -m scripts.pi.controller.bench_test --config .pi-controller/calibration.json` command only previews its sequence; adding `--run` moves the connected sorter.
-
 Remote browsers use port 8080. The Linux API service binds only to localhost; HTTP and WebSocket requests reach it through the web app's proxy. Other deployments keep the existing API bind address unless `API_HOST` is configured.
 
 Updates are installed manually. Finish any scan, then run these commands on the Pi:

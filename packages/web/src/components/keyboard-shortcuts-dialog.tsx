@@ -8,7 +8,11 @@ import {
 } from "@/components/ui/dialog";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
-import { HOTKEY_GROUP_ORDER, HOTKEYS } from "@/lib/constants/hotkeys";
+import {
+  ADMIN_ONLY_HOTKEY_GROUPS,
+  HOTKEY_GROUP_ORDER,
+  HOTKEYS,
+} from "@/lib/constants/hotkeys";
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import { IconKeyboard } from "@tabler/icons-react";
 import { useState } from "react";
@@ -16,13 +20,18 @@ import { useTranslation } from "react-i18next";
 
 export function KeyboardShortcutsButton() {
   const { t } = useTranslation("common");
-  const { isStaff } = useRole();
+  const { isStaff, isAdmin } = useRole();
   const [open, setOpen] = useState(false);
 
   useHotkeys({ showShortcuts: () => setOpen(true) });
 
   const ids = (Object.keys(HOTKEYS) as HotkeyId[]).filter(
-    (id) => isStaff || id !== "goAdmin",
+    (id) =>
+      (isStaff || id !== "goAdmin") &&
+      (isAdmin || !ADMIN_ONLY_HOTKEY_GROUPS.includes(HOTKEYS[id].group)),
+  );
+  const groups = HOTKEY_GROUP_ORDER.filter((group) =>
+    ids.some((id) => HOTKEYS[id].group === group),
   );
 
   return (
@@ -42,7 +51,7 @@ export function KeyboardShortcutsButton() {
             <DialogDescription>{t("hotkeys.description")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
-            {HOTKEY_GROUP_ORDER.map((group) => (
+            {groups.map((group) => (
               <section key={group} className="flex flex-col gap-1.5">
                 <h3 className="text-xs font-semibold text-foreground">
                   {t(`hotkeys.groups.${group}`)}

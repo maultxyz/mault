@@ -311,7 +311,14 @@
     "copied": "Karten-JSON kopiert.",
     "copyFailed": "Karten-JSON konnte nicht kopiert werden.",
     "detectedColor": "Erkannter Farbbalken",
-    "noColor": "Keiner"
+    "foilDetection": "Foil-Erkennung",
+    "foilDetected": "Foil ({{method}} {{score}})",
+    "foilNotDetected": "Kein Foil ({{method}} {{score}})",
+    "noColor": "Keiner",
+    "foilMethod": {
+      "rainbow": "Regenbogenwert",
+      "nudge": "Änderung beim Anstoßen"
+    }
   },
   "cardContextMenu": {
     "open": "Details öffnen",

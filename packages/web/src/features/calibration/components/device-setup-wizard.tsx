@@ -14,6 +14,7 @@ import {
   writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { DetectModulesButton } from "@/features/calibration/components/detect-modules-button";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import { useModuleCountConfig } from "@/features/calibration/api/use-module-count-config";
@@ -541,25 +542,28 @@ export function DeviceSetupWizard() {
               body={t("setupWizard.moduleCount.body")}
             />
             <ControlPanel>
-              <Select
-                value={String(moduleCount.displayCount)}
-                onValueChange={(value) => moduleCount.stage(Number(value))}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue>
-                    {t("moduleCountStepper.value", {
-                      count: moduleCount.displayCount,
-                    })}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {moduleCount.options.map((n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      {t("moduleCountStepper.value", { count: n })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-1.5">
+                <Select
+                  value={String(moduleCount.displayCount)}
+                  onValueChange={(value) => moduleCount.stage(Number(value))}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue>
+                      {t("moduleCountStepper.value", {
+                        count: moduleCount.displayCount,
+                      })}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {moduleCount.options.map((n) => (
+                      <SelectItem key={n} value={String(n)}>
+                        {t("moduleCountStepper.value", { count: n })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <DetectModulesButton />
+              </div>
             </ControlPanel>
           </>
         )}

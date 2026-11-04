@@ -416,6 +416,15 @@ paddle not known to be down lowers the paddle itself, waits out the rest of
 `paddleOpenDelay` ms longer and the paddle is left lowered. Returning a pusher to neutral
 never touches the paddle.
 
+Since 2.13.0 a pusher move that stays within 20 pulse units of `pusherNeutral`
+and within 50% of the calibrated travel towards that side (`pusherLeft` or
+`pusherRight`) is a nudge and doesn't lower the paddle. The boot banner and
+`getStatus` report both limits as `"pusherNudgeMaxPulse"` and
+`"pusherNudgeMaxTravelPercent"`; the app sizes its nudge from them and doesn't
+nudge on firmware that leaves them out. The app uses it to shift a card slightly for its
+foil check; a move that small can't reach the paddle. Any larger move still
+lowers the paddle first.
+
 2.2.x only applied the check while the module's IR sensor read a card, and
 refused the move with
 `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}`
@@ -623,6 +632,21 @@ refused the token (set it up again with a fresh token).
 `ir` is one boolean per addressable module (array length = the current
 max module count for the active channel offset), `true` meaning a card
 is present. `hopper` is `true` while cards remain in the feeder stack.
+
+### `detectModules` (firmware 2.12.0+, ESP32 only)
+```json
+{"detectModules": true}
+```
+→ `{"status":"ok","modules":2,"sensors":[true,true,false,false,false]}`
+
+Probes each addressable module's IR pin to see whether a sensor is wired:
+a pin reading LOW under the pull-up is a sensor seeing a card, otherwise
+the pin is switched to a pull-down for 2 ms and a sensor holds it HIGH
+while an empty pin drops LOW. `modules` counts wired sensors from module 1
+up to the first missing one; `sensors` lists every addressable module.
+Boards without an internal pull-down (Uno R4) reply
+`{"error":"module detection unsupported"}`, and the app keeps the module
+count the user picked.
 
 ### `route` (the normal per-card sorting command)
 ```json

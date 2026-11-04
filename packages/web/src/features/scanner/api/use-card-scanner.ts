@@ -6,7 +6,11 @@ import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
-import { searchCardImageWithConsensus } from "@/features/scanner/lib/card-image-search";
+import { useFoilDetectionGameKey } from "@/features/scanner/api/use-foil-detection-game-key";
+import {
+  captureDewarpedCardImage,
+  searchCardImageWithConsensus,
+} from "@/features/scanner/lib/card-image-search";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
 import { createOutlineAnimator } from "@/features/scanner/lib/outline-animator";
@@ -88,6 +92,7 @@ export function useCardScanner({
   onSearchResults,
   onNoMatch,
   onControlCode,
+  checkFoilByNudge,
   onError,
   rotated = true,
   scanRegion: scanRegionProp,
@@ -189,6 +194,8 @@ export function useCardScanner({
   const onSearchResultsRef = useRef(onSearchResults);
   const onNoMatchRef = useRef(onNoMatch);
   const onControlCodeRef = useRef(onControlCode);
+  const checkFoilByNudgeRef = useRef(checkFoilByNudge);
+  checkFoilByNudgeRef.current = checkFoilByNudge;
   const handleErrorRef = useRef<(msg: string) => void>(() => {});
 
   const [status, setStatus] = useState<ScannerStatus>("initializing");
@@ -207,6 +214,9 @@ export function useCardScanner({
     0;
   const ocrEnabledRef = useRef(false);
   ocrEnabledRef.current = !!orgSettings?.ocrEnabled && ocrSupported;
+  const foilDetectionGameKey = useFoilDetectionGameKey(activeCollection?.game?.key);
+  const foilDetectionGameKeyRef = useRef(foilDetectionGameKey);
+  foilDetectionGameKeyRef.current = foilDetectionGameKey;
   const [hasPhonePhoto, setHasPhonePhoto] = useState(false);
 
   useEffect(() => {
@@ -303,6 +313,7 @@ export function useCardScanner({
           debugImageUrl,
           detectedContour,
           vectorizedOn,
+          dewarpedCardImage,
           matched,
           noMatch,
         } = await searchCardImageWithConsensus(
@@ -317,6 +328,7 @@ export function useCardScanner({
           matchesNeededRef.current,
           checkBothOrientationsRef.current,
           colorBarRegionRef.current,
+          foilDetectionGameKeyRef.current,
         );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
@@ -352,11 +364,24 @@ export function useCardScanner({
                 `[scanner] OCR name match used without an embedding match, flagged for review: ${card.name} (${card.id})`,
               );
             }
+            const foilDetection =
+              fromLiveVideo && matched && dewarpedCardImage
+                ? await checkFoilByNudgeRef.current?.(
+                    card,
+                    () => captureDewarpedCardImage(canvas, drawLatestVideoFrame),
+                    dewarpedCardImage,
+                  )
+                : null;
             onSearchResultsRef.current?.(
               [card, ...alternativeMatches],
               debugImageUrl,
               vectorizedOn,
-              matched ?? undefined,
+              matched && foilDetection
+                ? {
+                    ...matched,
+                    diagnostics: { ...matched.diagnostics, foilDetection },
+                  }
+                : (matched ?? undefined),
             );
             if (!pausedMidSearch) updateStatus("scanning");
           }

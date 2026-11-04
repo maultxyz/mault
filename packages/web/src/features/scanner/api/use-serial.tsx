@@ -76,6 +76,8 @@ import {
   statusResetReason,
   statusUptimeMs,
   type BinRoute,
+  parseFoilNudgeFirmwareLimits,
+  type FoilNudgeFirmwareLimits,
 } from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -108,6 +110,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [board, setBoard] = useState<SerialBoardType | null>(null);
   const [hasWifi, setHasWifi] = useState(false);
+  const [foilNudgeFirmwareLimits, setFoilNudgeFirmwareLimits] =
+    useState<FoilNudgeFirmwareLimits | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [transport, setTransport] =
     useState<SerialContextValue["transport"]>(null);
@@ -320,6 +324,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     setFirmwareVersion(null);
     setBoard(null);
     setHasWifi(false);
+    setFoilNudgeFirmwareLimits(null);
     setDeviceId(null);
     setTransport(null);
 
@@ -767,6 +772,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           setBoard(status.board);
         }
         setHasWifi(typeof status?.wifi === "string");
+        setFoilNudgeFirmwareLimits(parseFoilNudgeFirmwareLimits(status));
         if (hardwareId) setDeviceId(hardwareId);
         lastUptimeMsRef.current = statusUptimeMs(status);
         if (hardwareId) noticeAbnormalBoot(hardwareId, status);
@@ -1242,6 +1248,9 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       ) {
         setBoard(fields.board);
       }
+      if (fields.status === "ready") {
+        setFoilNudgeFirmwareLimits(parseFoilNudgeFirmwareLimits(fields));
+      }
       if (typeof fields.id === "string" && fields.id) setDeviceId(fields.id);
     };
     return session.subscribe(listener);
@@ -1356,6 +1365,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           setBoard(status.board);
         }
         if (typeof status.wifi === "string") setHasWifi(true);
+        setFoilNudgeFirmwareLimits(parseFoilNudgeFirmwareLimits(status));
         if (typeof status.version !== "string") return { status: "noVersion" };
         setFirmwareVersion(status.version);
         return { status: "ok", version: status.version };
@@ -1390,6 +1400,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   );
 
   const sendNeutral = useCallback(() => session.sendNeutral(), [session]);
+  const runWhenIdle = useCallback(
+    <T,>(task: () => Promise<T>) => session.runWhenIdle(task),
+    [session],
+  );
 
   const reopenSensorBlockedToast = useCallback(() => {
     reopenSensorBlockedToastRef.current?.();
@@ -1427,6 +1441,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         sensorBlockedModule,
         reopenSensorBlockedToast,
         firmwareVersion,
+        foilNudgeFirmwareLimits,
         board,
         hasWifi,
         deviceId,
@@ -1441,6 +1456,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         isRouteBusy,
         readIR,
         sendNeutral,
+        runWhenIdle,
         sendTest,
         runTest: runTestOnActiveTransport,
         checkFirmwareVersion,

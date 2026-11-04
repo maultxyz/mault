@@ -11,7 +11,8 @@
     "sounds": "Sounds",
     "deleted": "Deleted and unmatched",
     "hardware": "Hardware",
-    "developer": "Developer"
+    "developer": "Developer",
+    "foilLabels": "Foil labels"
   },
   "kitTest": {
     "board": {
@@ -552,5 +553,40 @@
     "heading": "System sound clips",
     "description": "Clips every organization can use in its sound rules. Organizations can play them but can't rename or delete them.",
     "empty": "No system sound clips yet."
+  },
+  "foilLabels": {
+    "heading": "Foil labels",
+    "description": "Check Magic scans saved as foil and mark whether each card really is foil. The labels train foil detection and never change the customer's collection.",
+    "counts": "{{remaining}} left to label · {{foil}} foil and {{notFoil}} not foil labelled so far",
+    "sessionCounts": "This session: {{foil}} foil, {{notFoil}} not foil",
+    "scanPhoto": "Scan photo",
+    "scanPhotoAlt": "Scan photo of {{name}}",
+    "catalogImage": "Catalog image",
+    "catalogImageAlt": "Catalog image of {{name}}",
+    "unknownCard": "Unknown card",
+    "savedAs": "Saved as {{foilType}}",
+    "foil": "foil",
+    "detectionScore": "Rainbow score {{score}}",
+    "noDetection": "No foil detection on this scan",
+    "decisions": {
+      "foil": "Labelled foil",
+      "notFoil": "Labelled not foil",
+      "skipped": "Skipped"
+    },
+    "actions": {
+      "foil": "Foil",
+      "notFoil": "Not foil",
+      "skip": "Skip",
+      "back": "Back",
+      "refresh": "Refresh"
+    },
+    "empty": {
+      "title": "Nothing left to label",
+      "description": "Every Magic scan saved as foil with a photo has a label, or you skipped the rest. Refresh to load skipped scans again."
+    },
+    "toasts": {
+      "saveError": "Couldn't save the label. Try that card again."
+    },
+    "nudgeScore": "Nudge change {{score}}"
   }
 }

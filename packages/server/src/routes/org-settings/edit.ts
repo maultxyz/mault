@@ -27,6 +27,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       discordScanUseThreads?: boolean;
       sessionWrappedEnabled?: boolean;
       ocrEnabled?: boolean;
+      foilDetectionEnabled?: boolean;
       correctionBinPrompt?: boolean;
       pauseScanningOnDeploy?: boolean;
       leaderboardOptIn?: boolean;
@@ -92,6 +93,10 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           "ocrEnabled" in body
             ? (body.ocrEnabled ?? false)
             : (existing?.ocrEnabled ?? false),
+        foilDetectionEnabled:
+          "foilDetectionEnabled" in body
+            ? (body.foilDetectionEnabled ?? false)
+            : (existing?.foilDetectionEnabled ?? false),
         correctionBinPrompt:
           "correctionBinPrompt" in body
             ? (body.correctionBinPrompt ?? true)
@@ -138,6 +143,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           discordScanUseThreads: merged.discordScanUseThreads,
           sessionWrappedEnabled: merged.sessionWrappedEnabled,
           ocrEnabled: merged.ocrEnabled,
+          foilDetectionEnabled: merged.foilDetectionEnabled,
           correctionBinPrompt: merged.correctionBinPrompt,
           pauseScanningOnDeploy: merged.pauseScanningOnDeploy,
           leaderboardOptIn: merged.leaderboardOptIn,

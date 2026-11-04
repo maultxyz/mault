@@ -58,6 +58,12 @@
     "toggleLabel": "Enable OCR text matching",
     "badge": "Beta"
   },
+  "foilDetection": {
+    "heading": "Foil detection",
+    "description": "Mark a Magic scan as foil when the card looks foil. With a connected sorter on current firmware, the pusher nudges the card slightly each way without opening the side paddle, and photos show whether its shine changes, which adds about a second per card. Otherwise the text box is checked for a rainbow sheen. Only used for cards that also come in non-foil, and only while the scanner's foil setting is off.",
+    "toggleLabel": "Detect foils from the scan photo",
+    "badge": "Experimental"
+  },
   "draft": {
     "saved": "Settings saved.",
     "saveFailed": "Couldn't save your settings. Try again."

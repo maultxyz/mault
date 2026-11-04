@@ -9,6 +9,7 @@ import { cardsSyncRoute } from "./cards-sync";
 import { deletedItemsRoute } from "./deleted-items";
 import { discordChannelsRoute } from "./discord-channels";
 import { discordLinkedRoleRoute } from "./discord-linked-role";
+import { foilLabelsRoute } from "./foil-labels";
 import { plansRoute } from "./plans";
 import { platformStatsRoute } from "./platform-stats";
 import { rollbarTestRoute } from "./rollbar-test";
@@ -45,6 +46,7 @@ const router = new Hono<AppEnv>()
   .route("/", discordLinkedRoleRoute)
   .route("/", deletedItemsRoute)
   .route("/", systemSoundClipsRoute)
-  .route("/", unmatchedRetryRoute);
+  .route("/", unmatchedRetryRoute)
+  .route("/", foilLabelsRoute);
 
 export { router as adminRouter };

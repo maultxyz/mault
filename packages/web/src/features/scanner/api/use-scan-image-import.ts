@@ -1,3 +1,4 @@
+import { useFoilDetectionGameKey } from "@/features/scanner/api/use-foil-detection-game-key";
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
@@ -25,6 +26,7 @@ import { generateScanId } from "@/lib/utils";
 import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   OCR_REGIONS_BY_GAME_KEY,
+  resolveScanFoilType,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -46,9 +48,11 @@ export function useScanImageImport(
   const isRunningRef = useRef(false);
   const stopRequestedRef = useRef(false);
 
-  const gameKey =
-    collections.find((collection) => collection.guid === collectionGuid)?.game
-      ?.key ?? "";
+  const targetGame = collections.find(
+    (collection) => collection.guid === collectionGuid,
+  )?.game;
+  const gameKey = targetGame?.key ?? "";
+  const foilDetectionGameKey = useFoilDetectionGameKey(gameKey);
   const isOcrSupported = (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0;
   const latest = {
     t,
@@ -57,6 +61,8 @@ export function useScanImageImport(
     orgId: activeOrg?.id ?? null,
     ocrEnabled: !!orgSettings?.ocrEnabled && isOcrSupported,
     colorBarRegion: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey],
+    foilDetectionGameKey,
+    gameFoilTypes: targetGame?.foilTypes ?? [],
   };
   const latestRef = useRef(latest);
   latestRef.current = latest;
@@ -82,8 +88,16 @@ export function useScanImageImport(
       item: ScanImageImportItem,
       file: File,
     ): Promise<boolean> => {
-      const { t, saveCard, saveUnmatched, orgId, ocrEnabled, colorBarRegion } =
-        latestRef.current;
+      const {
+        t,
+        saveCard,
+        saveUnmatched,
+        orgId,
+        ocrEnabled,
+        colorBarRegion,
+        foilDetectionGameKey,
+        gameFoilTypes,
+      } = latestRef.current;
       updateItem(item.id, { status: "identifying" });
       let sourceCanvas: HTMLCanvasElement | null = null;
       try {
@@ -108,6 +122,7 @@ export function useScanImageImport(
           SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
           SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
           colorBarRegion,
+          foilDetectionGameKey,
         );
         const scanTarget = {
           orgId,
@@ -120,11 +135,19 @@ export function useScanImageImport(
           scanLog(
             `[scan-import] ${file.name} matched ${outcome.card.name} (${outcome.card.id})`,
           );
+          const foilType = resolveScanFoilType(
+            outcome.card,
+            null,
+            outcome.matched?.diagnostics.foilDetection,
+            gameFoilTypes,
+          );
           const result = await saveCard({
             ...scanTarget,
             record: {
               scanId,
               card: outcome.card,
+              isFoil: foilType != null || undefined,
+              foilType: foilType ?? undefined,
               scannedAt,
               capturedImageUrl: outcome.debugImageUrl,
               alternativeMatches: outcome.alternativeMatches.length
