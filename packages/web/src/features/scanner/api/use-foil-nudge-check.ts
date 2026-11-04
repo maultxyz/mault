@@ -110,7 +110,10 @@ export function useFoilNudgeCheck(): CheckFoilByNudge {
         return null;
       }
       const changes = Object.entries(detection.nudgeChangesByDirection ?? {})
-        .map(([direction, change]) => `${direction} ${change.meanCellChange.toFixed(3)}`)
+        .map(
+          ([direction, change]) =>
+            `${direction} ${change.meanCellChange.toFixed(3)} (colour only ${change.colourOnlyChange.toFixed(4)})`,
+        )
         .join(", ");
       scanLog(`[foil-nudge] ${card.name}: nudge change ${changes}`);
       const beforeDataUrl = encodeForDiagnostics(before);

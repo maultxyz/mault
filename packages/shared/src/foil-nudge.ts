@@ -2,6 +2,7 @@ import {
   FOIL_NUDGE_CHANGE_THRESHOLD,
   FOIL_NUDGE_CHANGED_CELL_MIN_CHANGE,
   FOIL_NUDGE_DIRECTIONS,
+  FOIL_NUDGE_GREY_CELL_DETERMINANT,
   FOIL_NUDGE_GRID_COLUMNS,
   FOIL_NUDGE_GRID_ROWS,
   FOIL_NUDGE_INSET_RATIO,
@@ -125,17 +126,43 @@ function normalizeByChannelMeans(means: Float64Array): Float64Array {
   return normalized;
 }
 
+function colourChangeUnexplainedByBrightnessAndGlare(
+  before: Float64Array,
+  after: Float64Array,
+  cell: number,
+): number {
+  const x = [0, 1, 2].map((channel) => before[cell * 3 + channel] / 255);
+  const y = [0, 1, 2].map((channel) => after[cell * 3 + channel] / 255);
+  const sumX = x[0] + x[1] + x[2];
+  const sumY = y[0] + y[1] + y[2];
+  const sumXX = x[0] * x[0] + x[1] * x[1] + x[2] * x[2];
+  const sumXY = x[0] * y[0] + x[1] * y[1] + x[2] * y[2];
+  const determinant = 3 * sumXX - sumX * sumX;
+  const isGrey = Math.abs(determinant) < FOIL_NUDGE_GREY_CELL_DETERMINANT;
+  const brightnessScale = isGrey ? 0 : (3 * sumXY - sumX * sumY) / determinant;
+  const addedWhite = isGrey ? sumY / 3 : (sumXX * sumY - sumX * sumXY) / determinant;
+  const squaredResidual = y.reduce(
+    (total, value, channel) => total + (value - brightnessScale * x[channel] - addedWhite) ** 2,
+    0,
+  );
+  return Math.sqrt(squaredResidual / 3);
+}
+
 export function measureFoilNudgeChange(
   before: RgbaImage,
   after: RgbaImage,
 ): FoilNudgeMeasurement {
-  const beforeCells = normalizeByChannelMeans(cellMeans(before));
-  const afterCells = normalizeByChannelMeans(cellMeans(after));
+  const beforeMeans = cellMeans(before);
+  const afterMeans = cellMeans(after);
+  const beforeCells = normalizeByChannelMeans(beforeMeans);
+  const afterCells = normalizeByChannelMeans(afterMeans);
   const cellCount = beforeCells.length / 3;
   let changeSum = 0;
   let changedCells = 0;
   let maxCellChange = 0;
+  let colourOnlyChangeSum = 0;
   for (let cell = 0; cell < cellCount; cell++) {
+    colourOnlyChangeSum += colourChangeUnexplainedByBrightnessAndGlare(beforeMeans, afterMeans, cell);
     let change = 0;
     for (let channel = 0; channel < 3; channel++) {
       change += Math.abs(afterCells[cell * 3 + channel] - beforeCells[cell * 3 + channel]);
@@ -149,6 +176,7 @@ export function measureFoilNudgeChange(
     meanCellChange: changeSum / cellCount,
     changedCellShare: changedCells / cellCount,
     maxCellChange,
+    colourOnlyChange: colourOnlyChangeSum / cellCount,
   };
 }
 

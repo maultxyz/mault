@@ -2,6 +2,7 @@ export interface FoilNudgeMeasurement {
   meanCellChange: number;
   changedCellShare: number;
   maxCellChange: number;
+  colourOnlyChange: number;
 }
 
 export type FoilNudgeDirection = "left" | "right";

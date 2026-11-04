@@ -133,6 +133,28 @@ test("a sheen that only changes on one side is still detected as foil", () => {
   assert.equal(detection?.nudgeChangesByDirection?.left?.meanCellChange, 0);
 });
 
+test("white glare counts as change but not as a colour-only change", () => {
+  const before = cardImage(artwork);
+  const glare = cardImage((x, y) => {
+    const [red, green, blue] = artwork(x, y);
+    const white = Math.max(0, 1 - Math.hypot(x - 100, y - 140) / 70) * 90;
+    return [red + white, green + white, blue + white];
+  });
+  const change = measureFoilNudgeChange(before, glare);
+  assert.ok(change.meanCellChange > 0.05);
+  assert.ok(change.colourOnlyChange < 0.002);
+});
+
+test("a shift in colour shows up as a colour-only change", () => {
+  const before = cardImage(artwork);
+  const tinted = cardImage((x, y) => {
+    const [red, green, blue] = artwork(x, y);
+    const sheen = Math.max(0, 1 - Math.hypot(x - 100, y - 140) / 70);
+    return [red - 40 * sheen, green + 60 * sheen, blue - 20 * sheen];
+  });
+  assert.ok(measureFoilNudgeChange(before, tinted).colourOnlyChange > 0.01);
+});
+
 test("a second photo that comes out upside down is turned back before comparing", () => {
   const before = cardImage(artwork);
   const upsideDown = cardImage((x, y) => artwork(WIDTH - 1 - x, HEIGHT - 1 - y));
