@@ -1021,6 +1021,11 @@
       "pause": "Pause scanning"
     },
     "form": {
+      "style": "Card style",
+      "styles": {
+        "illustrated": "Illustrated",
+        "plain": "Plain"
+      },
       "title": "New control card",
       "description": "Pick what the card changes. Anything left on No change stays as it is.",
       "cardTitle": "Label",
@@ -1048,14 +1053,52 @@
     "tile": {
       "defaultTitle": "Control card",
       "qrAlt": "Control card QR code",
-      "remove": "Remove card"
+      "remove": "Remove card",
+      "illustratedAlt": "Illustrated control card"
     },
     "page": {
       "back": "Back to scanner",
       "title": "Control cards",
       "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
       "print": "Print",
-      "printTip": "Print on cardstock at 100% scale with margins on Default. Each page holds 9 cards. Cut along the borders and keep the QR code flat and free of glare."
+      "printTip": "Print on Letter cardstock at 100% scale (Actual size) with margins set to None. Each page holds 9 cards. Cut along the corner marks and keep the QR code flat and free of glare."
+    },
+    "illustrated": {
+      "typeLines": {
+        "sorcery": "Sorcery",
+        "instant": "Instant",
+        "enchantment": "Enchantment",
+        "artifact": "Artifact",
+        "creature": "Creature"
+      },
+      "names": {
+        "collection": "Portal to {{name}}",
+        "preset": "Rite of {{name}}",
+        "foil": "{{type}} Shimmer",
+        "notFoil": "Not Foil",
+        "set": "Seeker of {{name}}",
+        "anySet": "Wanderer of Every Set",
+        "condition": "Appraiser of {{condition}}",
+        "autoFeedOn": "Auto Feed the Swarm",
+        "autoFeedOff": "Autofeed Blocker",
+        "duplicatesOn": "Angelic Duplicates",
+        "duplicatesOff": "Duplicate Blocker",
+        "pause": "Sorter's Respite"
+      },
+      "rules": {
+        "collection": "Target Mault instance now sorts into the {{name}} collection.",
+        "preset": "Target Mault instance now follows the {{name}} rule preset.",
+        "foil": "Change target Foil Setting in target Mault instance to “{{type}}”.",
+        "notFoil": "Change target Foil Setting in target Mault instance to “Not Foil”.",
+        "set": "Target Mault instance only searches {{name}} for matches.",
+        "anySet": "Target Mault instance searches every set for matches.",
+        "condition": "Set the condition of target Mault instance to {{condition}}.",
+        "autoFeedOn": "Set your Auto Feed to true.",
+        "autoFeedOff": "Turn auto feed off on target Mault instance.",
+        "duplicatesOn": "Target Mault instance allows duplicates.",
+        "duplicatesOff": "Target Mault instance loses the ability to scan duplicates.",
+        "pause": "Tap target Mault instance. It doesn't untap until you resume scanning."
+      }
     }
   }
 }

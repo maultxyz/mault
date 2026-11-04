@@ -1021,6 +1021,11 @@
       "pause": "Mettre le scan en pause"
     },
     "form": {
+      "style": "Style de carte",
+      "styles": {
+        "illustrated": "Illustrée",
+        "plain": "Sobre"
+      },
       "title": "Nouvelle carte de contrôle",
       "description": "Choisis ce que la carte modifie. Tout ce qui reste sur Aucun changement ne bouge pas.",
       "cardTitle": "Libellé",
@@ -1048,14 +1053,52 @@
     "tile": {
       "defaultTitle": "Carte de contrôle",
       "qrAlt": "QR code de la carte de contrôle",
-      "remove": "Retirer la carte"
+      "remove": "Retirer la carte",
+      "illustratedAlt": "Carte de contrôle illustrée"
     },
     "page": {
       "back": "Retour au scanner",
       "title": "Cartes de contrôle",
       "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
       "print": "Imprimer",
-      "printTip": "Imprime sur du papier cartonné à l'échelle 100 % avec les marges sur Par défaut. Chaque page contient 9 cartes. Découpe le long des bordures et garde le QR code bien à plat et sans reflets."
+      "printTip": "Imprime sur du papier cartonné au format Letter à l'échelle 100 % (Taille réelle) avec les marges sur Aucune. Chaque page contient 9 cartes. Découpe le long des repères de coupe et garde le QR code bien à plat et sans reflets."
+    },
+    "illustrated": {
+      "typeLines": {
+        "sorcery": "Rituel",
+        "instant": "Éphémère",
+        "enchantment": "Enchantement",
+        "artifact": "Artefact",
+        "creature": "Créature"
+      },
+      "names": {
+        "collection": "Portail vers {{name}}",
+        "preset": "Rite de {{name}}",
+        "foil": "Miroitement {{type}}",
+        "notFoil": "Non foil",
+        "set": "Chercheur de {{name}}",
+        "anySet": "Vagabond de toutes les extensions",
+        "condition": "Expert en {{condition}}",
+        "autoFeedOn": "Nourrir l'essaim",
+        "autoFeedOff": "Bloqueur d'alimentation",
+        "duplicatesOn": "Doublons angéliques",
+        "duplicatesOff": "Bloqueur de doublons",
+        "pause": "Répit du trieur"
+      },
+      "rules": {
+        "collection": "L'instance Mault ciblée trie désormais dans la collection {{name}}.",
+        "preset": "L'instance Mault ciblée suit désormais le préréglage de règles {{name}}.",
+        "foil": "Règle le paramètre foil de l'instance Mault ciblée sur « {{type}} ».",
+        "notFoil": "Règle le paramètre foil de l'instance Mault ciblée sur « Non foil ».",
+        "set": "L'instance Mault ciblée cherche uniquement dans {{name}}.",
+        "anySet": "L'instance Mault ciblée cherche dans toutes les extensions.",
+        "condition": "Règle l'état de l'instance Mault ciblée sur {{condition}}.",
+        "autoFeedOn": "Active ton alimentation auto.",
+        "autoFeedOff": "Désactive l'alimentation auto de l'instance Mault ciblée.",
+        "duplicatesOn": "L'instance Mault ciblée autorise les doublons.",
+        "duplicatesOff": "L'instance Mault ciblée perd la capacité de scanner les doublons.",
+        "pause": "Engage l'instance Mault ciblée. Elle ne se dégage pas tant que tu ne reprends pas le scan."
+      }
     }
   }
 }

@@ -10,7 +10,7 @@ import { authProvider } from "../../auth";
 import { db } from "../../db";
 import type { DeletedItemRow } from "../../lib/interfaces/deleted-items";
 import { parsePageParams } from "../../lib/paging";
-import { invalidatePublicAnnouncements } from "../../lib/public-announcements";
+import { invalidateAnnouncementsCache } from "../../lib/public-announcements";
 import { publicGamesCache } from "../../lib/public-games";
 import { emitToOrg } from "../../lib/session-stream";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
@@ -78,7 +78,7 @@ export const deletedItemsRoute = new Hono<AppEnv>()
         DELETED_ITEM_SOURCES[type].restore(tx, c.req.param("guid")),
       );
       if (!result.success) return c.json(result);
-      if (type === "announcement") invalidatePublicAnnouncements();
+      if (type === "announcement") invalidateAnnouncementsCache();
       if (type === "game") publicGamesCache.invalidate();
       if (result.orgId && type === "collection") {
         emitToOrg(result.orgId, "collections_changed", {

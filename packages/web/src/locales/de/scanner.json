@@ -1021,6 +1021,11 @@
       "pause": "Scan pausieren"
     },
     "form": {
+      "style": "Kartenstil",
+      "styles": {
+        "illustrated": "Illustriert",
+        "plain": "Schlicht"
+      },
       "title": "Neue Steuerkarte",
       "description": "Wähle, was die Karte ändert. Alles auf Keine Änderung bleibt, wie es ist.",
       "cardTitle": "Beschriftung",
@@ -1048,14 +1053,52 @@
     "tile": {
       "defaultTitle": "Steuerkarte",
       "qrAlt": "QR-Code der Steuerkarte",
-      "remove": "Karte entfernen"
+      "remove": "Karte entfernen",
+      "illustratedAlt": "Illustrierte Steuerkarte"
     },
     "page": {
       "back": "Zurück zum Scanner",
       "title": "Steuerkarten",
       "description": "Lass eine dieser Karten durch den Sortierer laufen, um Einstellungen während des Laufs zu ändern. Sie landet dort, wo nicht erkannte Karten landen, und wird nie in einer Sammlung gespeichert.",
       "print": "Drucken",
-      "printTip": "Drucke auf Karton mit 100 % Skalierung und Rändern auf Standard. Auf jede Seite passen 9 Karten. Schneide entlang der Ränder und halte den QR-Code flach und frei von Spiegelungen."
+      "printTip": "Drucke auf Karton im Format Letter mit 100 % Skalierung (Tatsächliche Größe) und Rändern auf Keine. Auf jede Seite passen 9 Karten. Schneide entlang der Eckmarken und halte den QR-Code flach und frei von Spiegelungen."
+    },
+    "illustrated": {
+      "typeLines": {
+        "sorcery": "Hexerei",
+        "instant": "Spontanzauber",
+        "enchantment": "Verzauberung",
+        "artifact": "Artefakt",
+        "creature": "Kreatur"
+      },
+      "names": {
+        "collection": "Portal nach {{name}}",
+        "preset": "Ritus von {{name}}",
+        "foil": "{{type}}-Schimmer",
+        "notFoil": "Kein Foil",
+        "set": "Sucher von {{name}}",
+        "anySet": "Wanderer aller Sets",
+        "condition": "Gutachter für {{condition}}",
+        "autoFeedOn": "Füttere den Schwarm",
+        "autoFeedOff": "Einzugsblocker",
+        "duplicatesOn": "Engelhafte Duplikate",
+        "duplicatesOff": "Duplikatblocker",
+        "pause": "Rast des Sortierers"
+      },
+      "rules": {
+        "collection": "Die Ziel-Mault-Instanz sortiert ab jetzt in die Sammlung {{name}}.",
+        "preset": "Die Ziel-Mault-Instanz folgt ab jetzt der Regelvorlage {{name}}.",
+        "foil": "Ändere die Foil-Einstellung der Ziel-Mault-Instanz auf „{{type}}“.",
+        "notFoil": "Ändere die Foil-Einstellung der Ziel-Mault-Instanz auf „Kein Foil“.",
+        "set": "Die Ziel-Mault-Instanz sucht Treffer nur in {{name}}.",
+        "anySet": "Die Ziel-Mault-Instanz sucht Treffer in allen Sets.",
+        "condition": "Setze den Zustand der Ziel-Mault-Instanz auf {{condition}}.",
+        "autoFeedOn": "Schalte deinen automatischen Einzug an.",
+        "autoFeedOff": "Schalte den automatischen Einzug der Ziel-Mault-Instanz aus.",
+        "duplicatesOn": "Die Ziel-Mault-Instanz erlaubt Duplikate.",
+        "duplicatesOff": "Die Ziel-Mault-Instanz verliert die Fähigkeit, Duplikate zu scannen.",
+        "pause": "Tappe die Ziel-Mault-Instanz. Sie enttappt erst, wenn du das Scannen fortsetzt."
+      }
     }
   }
 }

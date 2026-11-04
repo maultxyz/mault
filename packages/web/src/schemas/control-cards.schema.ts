@@ -1,11 +1,13 @@
 import { formValidationMessage } from "@magic-vault/shared";
 import { z } from "zod";
 import {
+  CONTROL_CARD_STYLES,
   CONTROL_CARD_TITLE_MAX_LENGTH,
   CONTROL_CARD_TOGGLE_VALUES,
 } from "@/lib/constants/control-cards";
 
 export const controlCardSchema = z.object({
+  style: z.enum(CONTROL_CARD_STYLES),
   title: z
     .string()
     .trim()

@@ -1,3 +1,4 @@
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,19 +18,22 @@ import {
   ControlCardSetField,
 } from "@/features/control-cards/components/control-card-fields";
 import { toScannerControlCommand } from "@/features/control-cards/lib/control-card-command";
+import { pickControlCardIllustration } from "@/features/control-cards/lib/control-card-illustration";
 import { describeScannerControlCommand } from "@/features/control-cards/lib/describe-control-command";
+import { renderControlCard } from "@/features/control-cards/lib/render-control-card";
 import {
   CONTROL_CARD_ANY_SET,
   CONTROL_CARDS_COLLECTION_PARAM,
   CONTROL_CARDS_PRESET_PARAM,
   CONTROL_CARD_DEFAULT_VALUES,
   CONTROL_CARD_NOT_FOIL,
-  CONTROL_CARD_QR_OPTIONS,
+  CONTROL_CARD_STYLES,
   CONTROL_CARD_TOGGLE_VALUES,
   CONTROL_CARD_UNCHANGED,
 } from "@/lib/constants/control-cards";
 import type {
   ControlCardBuilderProps,
+  ControlCardFace,
   ControlCardOption,
 } from "@/lib/interfaces/control-cards";
 import {
@@ -41,11 +45,12 @@ import {
   encodeScannerControlCode,
   formValidationMessage,
   hasScannerControlChanges,
+  listScannerControlActions,
+  type ScannerControlCommandNames,
 } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import QRCode from "qrcode";
 import { useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -140,6 +145,10 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
       label: tCards(`condition.names.${condition}`),
     })),
   ];
+  const styleItems = CONTROL_CARD_STYLES.map((style) => ({
+    key: style,
+    label: t(`controlCards.form.styles.${style}`),
+  }));
   const toggleOptions = CONTROL_CARD_TOGGLE_VALUES.map((value) => ({
     value,
     label: t(`controlCards.form.toggle.${value}`),
@@ -159,32 +168,37 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
       });
       return;
     }
-    const qrCodeDataUrl = await QRCode.toDataURL(
-      encodeScannerControlCode(command),
-      CONTROL_CARD_QR_OPTIONS,
-    );
+    const controlCodeText = encodeScannerControlCode(command);
+    const names: ScannerControlCommandNames = {
+      collectionName: (guid) =>
+        collections.find((collection) => collection.guid === guid)?.name ??
+        guid,
+      presetName: (guid) =>
+        presets.find((preset) => preset.guid === guid)?.name ?? guid,
+      setName: (setCode) =>
+        cardSets.find((cardSet) => cardSet.code === setCode)?.name ??
+        setCode.toUpperCase(),
+      conditionName: (condition) => tCards(`condition.names.${condition}`),
+    };
+    const face: ControlCardFace =
+      values.style === "illustrated"
+        ? pickControlCardIllustration(
+            command,
+            listScannerControlActions(command, names),
+            values.title,
+            t,
+          )
+        : {
+            kind: "plain",
+            title: values.title || t("controlCards.tile.defaultTitle"),
+            actionLines: describeScannerControlCommand(command, names, t),
+          };
     onAdd({
       id: crypto.randomUUID(),
-      title: values.title,
-      actionLines: describeScannerControlCommand(
-        command,
-        {
-          collectionName: (guid) =>
-            collections.find((collection) => collection.guid === guid)
-              ?.name ?? guid,
-          presetName: (guid) =>
-            presets.find((preset) => preset.guid === guid)?.name ?? guid,
-          setName: (setCode) =>
-            cardSets.find((cardSet) => cardSet.code === setCode)?.name ??
-            setCode.toUpperCase(),
-          conditionName: (condition) =>
-            tCards(`condition.names.${condition}`),
-        },
-        t,
-      ),
-      qrCodeDataUrl,
+      style: values.style,
+      cardImageDataUrl: await renderControlCard(face, controlCodeText),
     });
-    form.reset(CONTROL_CARD_DEFAULT_VALUES);
+    form.reset({ ...CONTROL_CARD_DEFAULT_VALUES, style: values.style });
   };
 
   return (
@@ -198,26 +212,46 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
           className="flex flex-col gap-4"
           onSubmit={form.handleSubmit(submit)}
         >
-          <Controller
-            name="title"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="control-card-title">
-                  {t("controlCards.form.cardTitle")}
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id="control-card-title"
-                  placeholder={t("controlCards.form.cardTitlePlaceholder")}
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <Controller
+              name="title"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field
+                  className="min-w-0 flex-1"
+                  data-invalid={fieldState.invalid || undefined}
+                >
+                  <FieldLabel htmlFor="control-card-title">
+                    {t("controlCards.form.cardTitle")}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="control-card-title"
+                    placeholder={t("controlCards.form.cardTitlePlaceholder")}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="style"
+              control={form.control}
+              render={({ field }) => (
+                <Field className="sm:w-auto sm:shrink-0">
+                  <FieldLabel>{t("controlCards.form.style")}</FieldLabel>
+                  <ResponsiveSegmented
+                    label={t("controlCards.form.style")}
+                    items={styleItems}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </Field>
+              )}
+            />
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <ControlCardSelectField
               control={form.control}
