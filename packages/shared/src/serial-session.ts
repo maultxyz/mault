@@ -346,6 +346,10 @@ export class SerialSession<TTransport extends SerialSessionTransport> {
     return result;
   }
 
+  runWhenIdle<T>(task: () => Promise<T>): Promise<T | null> {
+    return this.runAfterRoutes(() => this.runExclusive(task, () => null));
+  }
+
   async sendNeutral(): Promise<boolean> {
     const reply = await this.runAfterRoutes(() =>
       this.sendAwaited({ neutral: true }, NEUTRAL_RESPONSE_TIMEOUT_MS),

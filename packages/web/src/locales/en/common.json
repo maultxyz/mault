@@ -209,7 +209,8 @@
       "navigation": "Navigation",
       "scanner": "Scanner",
       "cardDetail": "Card details",
-      "intake": "Intake"
+      "intake": "Intake",
+      "foilLabeling": "Foil labelling"
     },
     "actions": {
       "showShortcuts": "Show keyboard shortcuts",
@@ -250,7 +251,11 @@
       "reviewCycleCondition": "While reviewing: cycle through the conditions",
       "reviewCycleLanguage": "While reviewing: cycle through the languages",
       "goSortingRules": "Go to sorting rules",
-      "intakeOpenScanner": "Open the scanner for this intake"
+      "intakeOpenScanner": "Open the scanner for this intake",
+      "foilLabelFoil": "While labelling foils: mark as foil",
+      "foilLabelNotFoil": "While labelling foils: mark as not foil",
+      "foilLabelSkip": "While labelling foils: skip this card",
+      "foilLabelBack": "While labelling foils: go back to the previous card"
     }
   },
   "mobileMenu": {

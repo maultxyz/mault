@@ -24,6 +24,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   wifiRemote: "2.10.0",
   retractCard: "2.11.0",
   moduleDetection: "2.12.0",
+  pusherNudge: "2.13.0",
 };
 
 export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32"];

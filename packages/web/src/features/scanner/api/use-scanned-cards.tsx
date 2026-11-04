@@ -32,7 +32,7 @@ import {
   getChaosBins,
   getRepackPackBins,
   hasMaxCopiesBins,
-  scanFoilType,
+  resolveScanFoilType,
   toRuleCard,
   UNMATCHED_PREVIEW_COUNT,
   withCardTags,
@@ -667,7 +667,12 @@ export function ScannedCardsProvider({
         return;
       }
 
-      const forcedFoilType = scanFoilType(card, forceFoilTypeRef.current);
+      const forcedFoilType = resolveScanFoilType(
+        card,
+        forceFoilTypeRef.current,
+        details?.diagnostics.foilDetection,
+        collection.game?.foilTypes ?? [],
+      );
       const ruleCard = toRuleCard(card, {
         isFoil: forcedFoilType != null,
         foilType: forcedFoilType,

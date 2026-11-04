@@ -311,7 +311,14 @@
     "copied": "JSON de la carte copié.",
     "copyFailed": "Impossible de copier le JSON de la carte.",
     "detectedColor": "Barre de couleur détectée",
-    "noColor": "Aucune"
+    "foilDetection": "Détection des foils",
+    "foilDetected": "Foil ({{method}} {{score}})",
+    "foilNotDetected": "Pas foil ({{method}} {{score}})",
+    "noColor": "Aucune",
+    "foilMethod": {
+      "rainbow": "score arc-en-ciel",
+      "nudge": "variation au déplacement"
+    }
   },
   "cardContextMenu": {
     "open": "Ouvrir les détails",

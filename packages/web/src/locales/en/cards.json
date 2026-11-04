@@ -311,7 +311,14 @@
     "copied": "Card JSON copied.",
     "copyFailed": "Couldn't copy the card JSON.",
     "detectedColor": "Detected color bar",
-    "noColor": "None"
+    "foilDetection": "Foil detection",
+    "foilDetected": "Foil ({{method}} {{score}})",
+    "foilNotDetected": "Not foil ({{method}} {{score}})",
+    "noColor": "None",
+    "foilMethod": {
+      "rainbow": "rainbow score",
+      "nudge": "nudge change"
+    }
   },
   "cardContextMenu": {
     "open": "Open details",

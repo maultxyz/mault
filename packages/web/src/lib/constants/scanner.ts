@@ -224,3 +224,6 @@ export const SORTERS_GRID_CLASS =
   "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
 export const SCAN_STATS_SUMMARY_SEPARATOR = " · ";
+
+export const FOIL_NUDGE_DIAGNOSTIC_IMAGE_WIDTH = 224;
+export const FOIL_NUDGE_DIAGNOSTIC_JPEG_QUALITY = 0.8;

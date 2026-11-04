@@ -39,7 +39,10 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "scanner",
   "cardDetail",
   "intake",
+  "foilLabeling",
 ];
+
+export const ADMIN_ONLY_HOTKEY_GROUPS: HotkeyGroup[] = ["foilLabeling"];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   showShortcuts: { group: "general", keys: [{ key: "?" }] },
@@ -84,6 +87,10 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   reviewCycleCondition: { group: "cardDetail", keys: [{ key: "d" }] },
   reviewCycleLanguage: { group: "cardDetail", keys: [{ key: "l" }] },
   intakeOpenScanner: { group: "intake", keys: [{ key: "o" }] },
+  foilLabelFoil: { group: "foilLabeling", keys: [{ key: "f" }] },
+  foilLabelNotFoil: { group: "foilLabeling", keys: [{ key: "n" }] },
+  foilLabelSkip: { group: "foilLabeling", keys: [{ key: "s" }] },
+  foilLabelBack: { group: "foilLabeling", keys: [{ key: "arrowleft" }] },
 };
 
 export const HOTKEY_ROUTES = {

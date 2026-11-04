@@ -11,7 +11,8 @@
     "sounds": "Sounds",
     "deleted": "Gelöscht und nicht erkannt",
     "hardware": "Hardware",
-    "developer": "Entwickler"
+    "developer": "Entwickler",
+    "foilLabels": "Foil-Kennzeichnung"
   },
   "kitTest": {
     "board": {
@@ -552,5 +553,40 @@
     "heading": "System-Soundclips",
     "description": "Clips, die jede Organisation in ihren Sound-Regeln verwenden kann. Organisationen können sie abspielen, aber nicht umbenennen oder löschen.",
     "empty": "Noch keine System-Soundclips."
+  },
+  "foilLabels": {
+    "heading": "Foil-Kennzeichnung",
+    "description": "Prüfe als Foil gespeicherte Magic-Scans und markiere, ob die Karte wirklich Foil ist. Die Kennzeichnungen trainieren die Foil-Erkennung und ändern nie die Sammlung des Kunden.",
+    "counts": "Noch {{remaining}} zu kennzeichnen · bisher {{foil}} Foil und {{notFoil}} Nicht-Foil",
+    "sessionCounts": "Diese Sitzung: {{foil}} Foil, {{notFoil}} Nicht-Foil",
+    "scanPhoto": "Scan-Foto",
+    "scanPhotoAlt": "Scan-Foto von {{name}}",
+    "catalogImage": "Katalogbild",
+    "catalogImageAlt": "Katalogbild von {{name}}",
+    "unknownCard": "Unbekannte Karte",
+    "savedAs": "Gespeichert als {{foilType}}",
+    "foil": "Foil",
+    "detectionScore": "Regenbogenwert {{score}}",
+    "noDetection": "Keine Foil-Erkennung bei diesem Scan",
+    "decisions": {
+      "foil": "Als Foil gekennzeichnet",
+      "notFoil": "Als Nicht-Foil gekennzeichnet",
+      "skipped": "Übersprungen"
+    },
+    "actions": {
+      "foil": "Foil",
+      "notFoil": "Kein Foil",
+      "skip": "Überspringen",
+      "back": "Zurück",
+      "refresh": "Aktualisieren"
+    },
+    "empty": {
+      "title": "Nichts mehr zu kennzeichnen",
+      "description": "Jeder als Foil gespeicherte Magic-Scan mit Foto ist gekennzeichnet, oder du hast den Rest übersprungen. Aktualisiere, um übersprungene Scans erneut zu laden."
+    },
+    "toasts": {
+      "saveError": "Die Kennzeichnung konnte nicht gespeichert werden. Versuche diese Karte erneut."
+    },
+    "nudgeScore": "Änderung beim Anstoßen {{score}}"
   }
 }

@@ -416,6 +416,15 @@ paddle not known to be down lowers the paddle itself, waits out the rest of
 `paddleOpenDelay` ms longer and the paddle is left lowered. Returning a pusher to neutral
 never touches the paddle.
 
+Since 2.13.0 a pusher move that stays within 20 pulse units of `pusherNeutral`
+and within 50% of the calibrated travel towards that side (`pusherLeft` or
+`pusherRight`) is a nudge and doesn't lower the paddle. The boot banner and
+`getStatus` report both limits as `"pusherNudgeMaxPulse"` and
+`"pusherNudgeMaxTravelPercent"`; the app sizes its nudge from them and doesn't
+nudge on firmware that leaves them out. The app uses it to shift a card slightly for its
+foil check; a move that small can't reach the paddle. Any larger move still
+lowers the paddle first.
+
 2.2.x only applied the check while the module's IR sensor read a card, and
 refused the move with
 `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}`

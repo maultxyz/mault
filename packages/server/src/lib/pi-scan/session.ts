@@ -14,6 +14,7 @@ import {
   OCR_CROP_WIDTH,
   OCR_REGIONS_BY_GAME_KEY,
   detectColorBarRgba,
+  detectFoilRgba,
   dewarpRgba,
   getDefaultCardContour,
   rotateRgba180,
@@ -27,7 +28,8 @@ import {
   hasMaxCopiesBins,
   isRulesMode,
   reservePickListBins,
-  scanFoilType,
+  resolveScanFoilType,
+  supportsFoilDetection,
   toRuleCard,
   withScanRuleFields,
   type CornerDetection,
@@ -364,11 +366,13 @@ async function prepareContext(
     const heights = new Map<number, number>();
     for (const row of heightRows) heights.set(row.binNumber, row.height);
 
+    const foilTypes =
+      (collection.foilTypes as string[] | null) ?? active.game?.foilTypes ?? [];
     const fieldDefinitions = withScanRuleFields(
       (collection.fieldDefinitions as FieldMeta[] | null) ??
         active.game?.fieldDefinitions ??
         [],
-      (collection.foilTypes as string[] | null) ?? active.game?.foilTypes ?? [],
+      foilTypes,
     );
     const trackContents = active.isRepackMode || hasMaxCopiesBins(active.bins);
     const windows = trackContents
@@ -381,7 +385,7 @@ async function prepareContext(
       : [];
     const settings = await tx.query.orgSettings.findFirst({
       where: eq(orgSettings.orgId, session.orgId),
-      columns: { ocrEnabled: true },
+      columns: { ocrEnabled: true, foilDetectionEnabled: true },
     });
     const feeder = await tx.query.feederConfigs.findFirst({
       where: eq(feederConfigs.deviceId, device.id),
@@ -420,6 +424,10 @@ async function prepareContext(
       matchesNeeded: device.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
       matchAllLanguages: collection.matchAllLanguages,
       ocrEnabled: settings?.ocrEnabled === true,
+      foilDetectionEnabled:
+        settings?.foilDetectionEnabled === true &&
+        supportsFoilDetection(collection.gameKey),
+      foilTypes,
       cardThickness: collection.cardThickness,
       fieldDefinitions,
       set: active,
@@ -616,6 +624,10 @@ async function matchFrame(
       printingConfirmed: matchedBy === "ocr" && !!ocr?.printingConfirmed,
     },
   );
+  const foilDetection =
+    context.foilDetectionEnabled && resolved.card
+      ? detectFoilRgba(upright, context.gameKey)
+      : null;
 
   return {
     ...best,
@@ -626,6 +638,7 @@ async function matchFrame(
     colorVariantUncertain,
     detection,
     detectedColor,
+    foilDetection,
   };
 }
 
@@ -889,7 +902,12 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         continue;
       }
 
-      const foilType = scanFoilType(card, session.foilType);
+      const foilType = resolveScanFoilType(
+        card,
+        session.foilType,
+        matched.foilDetection,
+        context.foilTypes,
+      );
       while (!session.stopRequested) {
         const ruleCard = toRuleCard(card, {
           isFoil: foilType != null,
@@ -981,6 +999,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           candidates: matched.resolved.candidates,
           ocr: matched.ocr,
           detectedColor: matched.detectedColor,
+          foilDetection: matched.foilDetection,
         };
         const saved = await saveThroughCollectionRoute(
           session.accessToken,

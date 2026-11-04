@@ -4,6 +4,8 @@ import type {
 } from "./api.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
 import type { CardCondition } from "./card-condition.interface";
+import type { FoilDetection } from "./foil-detection.interface";
+import type { RgbaImage } from "./vision-model.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
 import type { ScannerControlCommand } from "./scanner-control-code.interface";
 import type { CardStorageLocation } from "./storage-locations.interface";
@@ -60,6 +62,12 @@ export type ScannerStatus =
   | "searching"
   | "error";
 
+export type CheckFoilByNudge = (
+  card: PlayingCardWithDistance,
+  captureAfterNudge: () => Promise<RgbaImage | null>,
+  before: RgbaImage,
+) => Promise<FoilDetection | null>;
+
 export interface CardScannerProps {
   onSearchResults?: (
     matches: PlayingCardWithDistance[],
@@ -73,6 +81,7 @@ export interface CardScannerProps {
     details?: UnmatchedScanDetails,
   ) => void;
   onControlCode?: (command: ScannerControlCommand | null) => void;
+  checkFoilByNudge?: CheckFoilByNudge;
   onManualAdd?: () => void;
   onError?: (error: string) => void;
   className?: string;
@@ -151,6 +160,7 @@ export interface MatchedScanDiagnostics {
   candidates: MatchCandidateDiagnostic[];
   ocr: OcrDiagnostics | null;
   detectedColor?: string | null;
+  foilDetection?: FoilDetection | null;
 }
 
 export interface MatchedScanDetails {

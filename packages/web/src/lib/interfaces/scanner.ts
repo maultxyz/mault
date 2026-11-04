@@ -5,6 +5,7 @@ import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
   CardCondition,
+  FoilNudgeFirmwareLimits,
   CardTag,
   CardFilters,
   CommLogEntry,
@@ -253,6 +254,7 @@ export interface SerialContextValue {
   sensorBlockedModule: number | null;
   reopenSensorBlockedToast: () => void;
   firmwareVersion: string | null;
+  foilNudgeFirmwareLimits: FoilNudgeFirmwareLimits | null;
   board: SerialBoardType | null;
   hasWifi: boolean;
   deviceId: string | null;
@@ -284,6 +286,7 @@ export interface SerialContextValue {
     command: object,
     timeoutMs?: number,
   ) => Promise<SerialRequestResult>;
+  runWhenIdle: <T>(task: () => Promise<T>) => Promise<T | null>;
   subscribe: (listener: SerialMessageListener) => () => void;
   registerPreTestHook: (fn: PreTestHook) => () => void;
   getCommLog: () => CommLogEntry[];
@@ -734,6 +737,7 @@ export interface ScanAttemptOutcome extends ScanAttemptResult {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
+  dewarpedCardImage: ImageData | null;
 }
 
 export interface ScanOutcome {
@@ -742,6 +746,7 @@ export interface ScanOutcome {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
+  dewarpedCardImage: ImageData | null;
   matched: MatchedScanDetails | null;
   noMatch: UnmatchedScanDetails | null;
 }

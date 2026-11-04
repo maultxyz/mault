@@ -7,7 +7,8 @@ export type FirmwareFeature =
   | "paddleOpenDelay"
   | "wifiRemote"
   | "retractCard"
-  | "moduleDetection";
+  | "moduleDetection"
+  | "pusherNudge";
 
 export type RetractCardOutcome = "retracted" | "rollback_off" | "failed";
 
