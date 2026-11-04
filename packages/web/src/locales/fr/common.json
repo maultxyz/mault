@@ -198,6 +198,8 @@
       "ctrl": "Ctrl",
       "left": "←",
       "right": "→",
+      "up": "↑",
+      "down": "↓",
       "escape": "Échap",
       "enter": "Entrée",
       "delete": "Suppr"
@@ -207,7 +209,8 @@
       "navigation": "Navigation",
       "scanner": "Scanner",
       "cardDetail": "Détails de la carte",
-      "intake": "Rachat"
+      "intake": "Rachat",
+      "foilLabeling": "Étiquetage des foils"
     },
     "actions": {
       "showShortcuts": "Afficher les raccourcis clavier",
@@ -241,9 +244,18 @@
       "cardClose": "Fermer la carte ou annuler la correction",
       "cardRemove": "Retirer la carte (de sa boîte si ouverte depuis le Rangement)",
       "reviewStart": "Vérifier les cartes une par une",
-      "reviewAccept": "Pendant la vérification : la carte est bonne, suivante",
+      "reviewAccept": "Pendant la vérification : accepter la correspondance surlignée, suivante",
+      "reviewPreviousMatch": "Pendant la vérification : surligner la correspondance similaire précédente",
+      "reviewNextMatch": "Pendant la vérification : surligner la correspondance similaire suivante",
+      "reviewCycleFoil": "Pendant la vérification : parcourir les types de foil",
+      "reviewCycleCondition": "Pendant la vérification : parcourir les états",
+      "reviewCycleLanguage": "Pendant la vérification : parcourir les langues",
       "goSortingRules": "Aller aux règles de tri",
       "intakeOpenScanner": "Ouvrir le scanner pour ce rachat",
+      "foilLabelFoil": "Pendant l'étiquetage : marquer comme foil",
+      "foilLabelNotFoil": "Pendant l'étiquetage : marquer comme non foil",
+      "foilLabelSkip": "Pendant l'étiquetage : passer cette carte",
+      "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente",
       "scanFlatbedCard": "Numériser la carte sur le scanner à plat"
     }
   },

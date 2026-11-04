@@ -2,13 +2,16 @@ import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { ResizeHandle } from "@/components/ui/resize-handle";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
+import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
 import { CardGrid } from "@/features/cards/components/card-grid";
+import { ReviewQueuePanel } from "@/features/cards/components/review-queue-panel";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
+import { PresetStageControl } from "@/features/scanner/components/preset-stage-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
@@ -34,7 +37,13 @@ function ScannerPanels({
   size: number;
 }) {
   const { isImpersonating } = useImpersonation();
-  if (!isImpersonating) return <StationPanels layout={layout} size={size} />;
+  const reviewQueueSession = useReviewQueueSession();
+  const overlay = reviewQueueSession && (
+    <ReviewQueuePanel session={reviewQueueSession} />
+  );
+  if (!isImpersonating) {
+    return <StationPanels layout={layout} size={size} overlay={overlay} />;
+  }
   return (
     <div
       className={cn(
@@ -43,7 +52,7 @@ function ScannerPanels({
       )}
       style={layout === "horizontal" ? { width: size } : { height: size }}
     >
-      <ScanningBlockedWhileImpersonating />
+      {overlay || <ScanningBlockedWhileImpersonating />}
     </div>
   );
 }
@@ -86,6 +95,7 @@ function MobileScanner() {
         />
         <BinStatusMeter />
         <AlphabetPassControl />
+        <PresetStageControl />
       </div>
       <Drawer>
         <DrawerTrigger asChild>

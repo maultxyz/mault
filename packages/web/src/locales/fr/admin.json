@@ -11,7 +11,8 @@
     "sounds": "Sons",
     "deleted": "Supprimés et non reconnus",
     "hardware": "Matériel",
-    "developer": "Développeur"
+    "developer": "Développeur",
+    "foilLabels": "Étiquettes foil"
   },
   "kitTest": {
     "board": {
@@ -361,6 +362,7 @@
     "types": {
       "collection": "Collection",
       "binSet": "Préréglage de bacs",
+      "presetWorkflow": "Préréglage en plusieurs étapes",
       "bin": "Bac",
       "device": "Trieuse",
       "binRoute": "Route de bac",
@@ -551,5 +553,40 @@
     "heading": "Clips sonores système",
     "description": "Des clips que chaque organisation peut utiliser dans ses règles sonores. Les organisations peuvent les écouter, mais pas les renommer ni les supprimer.",
     "empty": "Aucun clip sonore système pour le moment."
+  },
+  "foilLabels": {
+    "heading": "Étiquettes foil",
+    "description": "Vérifiez les scans Magic enregistrés comme foil et indiquez si chaque carte est vraiment foil. Les étiquettes entraînent la détection des foils et ne modifient jamais la collection du client.",
+    "counts": "{{remaining}} à étiqueter · {{foil}} foil et {{notFoil}} non foil étiquetés jusqu'ici",
+    "sessionCounts": "Cette session : {{foil}} foil, {{notFoil}} non foil",
+    "scanPhoto": "Photo du scan",
+    "scanPhotoAlt": "Photo du scan de {{name}}",
+    "catalogImage": "Image du catalogue",
+    "catalogImageAlt": "Image du catalogue de {{name}}",
+    "unknownCard": "Carte inconnue",
+    "savedAs": "Enregistrée comme {{foilType}}",
+    "foil": "foil",
+    "detectionScore": "Score arc-en-ciel {{score}}",
+    "noDetection": "Pas de détection foil sur ce scan",
+    "decisions": {
+      "foil": "Étiquetée foil",
+      "notFoil": "Étiquetée non foil",
+      "skipped": "Passée"
+    },
+    "actions": {
+      "foil": "Foil",
+      "notFoil": "Non foil",
+      "skip": "Passer",
+      "back": "Retour",
+      "refresh": "Actualiser"
+    },
+    "empty": {
+      "title": "Plus rien à étiqueter",
+      "description": "Chaque scan Magic enregistré comme foil avec une photo a une étiquette, ou vous avez passé le reste. Actualisez pour recharger les scans passés."
+    },
+    "toasts": {
+      "saveError": "Impossible d'enregistrer l'étiquette. Réessayez cette carte."
+    },
+    "nudgeScore": "Variation au déplacement {{score}}"
   }
 }

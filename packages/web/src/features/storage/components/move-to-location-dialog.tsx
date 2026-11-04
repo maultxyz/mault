@@ -7,7 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useMoveTargetCollections } from "@/features/collections/api/use-move-target-collections";
 import { LocationMoveFields } from "@/features/storage/components/location-move-fields";
+import { collectionGuidFromMoveTarget } from "@/features/storage/lib/move-target";
 import { useLocationMoveForm } from "@/features/storage/lib/use-location-move-form";
 import type { MoveToLocationDialogProps } from "@/lib/interfaces/storage";
 import { IconBox, IconLoader2 } from "@tabler/icons-react";
@@ -18,25 +20,44 @@ export function MoveToLocationDialog({
   count,
   excludedLocationGuid,
   isMoving,
+  showLocations = true,
+  sourceCollectionGuid,
   onOpenChange,
   onMove,
+  onMoveToCollection,
 }: MoveToLocationDialogProps) {
   const { t } = useTranslation("storage");
+  const targetCollections = useMoveTargetCollections(
+    onMoveToCollection ? sourceCollectionGuid : undefined,
+  );
   const { form, locations, submit, isCreating } = useLocationMoveForm({
     open,
     excludedLocationGuid,
+    showLocations,
+    collections: targetCollections,
     onMove,
+    onMoveToCollection,
     onMoved: () => onOpenChange(false),
   });
-  const isBusy = isMoving || isCreating;
+  const isBusy = isMoving || isCreating || form.formState.isSubmitting;
+  const hasCollections = targetCollections.length > 0;
+  const isCollectionTarget = !!collectionGuidFromMoveTarget(
+    form.watch("locationGuid"),
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t("moveDialog.title", { count })}</DialogTitle>
+          <DialogTitle>
+            {hasCollections
+              ? t("moveDialog.titleAnyTarget", { count })
+              : t("moveDialog.title", { count })}
+          </DialogTitle>
           <DialogDescription>
-            {t("moveDialog.description", { count })}
+            {isCollectionTarget
+              ? t("moveDialog.collectionDescription", { count })
+              : t("moveDialog.description", { count })}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -47,6 +68,8 @@ export function MoveToLocationDialog({
           <LocationMoveFields
             form={form}
             locations={locations}
+            showLocations={showLocations}
+            collections={targetCollections}
             idPrefix="move-to-location"
           />
         </form>

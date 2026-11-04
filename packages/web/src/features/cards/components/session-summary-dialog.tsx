@@ -29,7 +29,7 @@ import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
-import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import { ALL_CARDS_QUERY, NEW_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
@@ -434,7 +434,7 @@ export function SessionSummaryDialog({
 
   const { collection: activeCollection } = useViewedCollection();
 
-  const { summary, allStats: stats, totalCount } = useCollectionCardsSummary();
+  const { summary, allStats: stats, totalCount } = useCollectionCardsSummary(NEW_CARDS_QUERY);
   const previouslyDownloadedCount = summary
     ? summary.all.totalCount - summary.filtered.totalCount
     : 0;
@@ -443,7 +443,7 @@ export function SessionSummaryDialog({
     ...ALL_CARDS_QUERY,
     filters: {
       ...(applyGridFilters ? gridFilters : EMPTY_CARD_FILTERS),
-      showDownloaded: includeDownloaded,
+      hideDownloaded: !includeDownloaded,
     },
   };
   const { data: exportCount } = useQuery({

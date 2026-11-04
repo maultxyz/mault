@@ -4,7 +4,7 @@ import {
   type PublicMetrics,
   type ScanVectorizeSource,
 } from "@magic-vault/shared";
-import { eq, gt, isNotNull, sql } from "drizzle-orm";
+import { and, eq, gt, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "../db";
 import { scanStats } from "../db/schema";
 import {
@@ -78,6 +78,21 @@ export function markScanCorrected(scanId: string): Promise<void> {
       .update(scanStats)
       .set({ isCorrected: true })
       .where(eq(scanStats.scanId, scanId)),
+  );
+}
+
+export function setScansCorrected(
+  orgId: string,
+  scanIds: string[],
+  isCorrected: boolean,
+): Promise<void> {
+  return record(() =>
+    db
+      .update(scanStats)
+      .set({ isCorrected })
+      .where(
+        and(eq(scanStats.orgId, orgId), inArray(scanStats.scanId, scanIds)),
+      ),
   );
 }
 

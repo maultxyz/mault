@@ -60,7 +60,9 @@ import {
   sortOverrideBins,
   sortRepackPackBins,
 } from "@magic-vault/shared";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { IconArrowsExchange } from "@tabler/icons-react";
+import { BinRuleTransferDialog } from "@/features/bins/components/bin-rule-transfer-dialog";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import type {
   BinConfigPanelProps,
@@ -161,6 +163,9 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
     effectiveMode.isRepackMode ||
     effectiveMode.isAlphabetMode ||
     effectiveMode.isChaosMode;
+  const [isTransferOpen, setIsTransferOpen] = useState(false);
+  const canTransferRules =
+    !rulesLocked && !autoAssignField && config.rules.conditions.length > 0;
 
   const overflowSources = useMemo(
     () => getOverflowSources(configs, config.binNumber).map((c) => c.binNumber),
@@ -901,16 +906,34 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
               : t("binConfigPanel.rulesSectionDescription")}
           </p>
         </div>
-        {apiDocsUrl && (
-          <a
-            href={apiDocsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="shrink-0 text-xs text-foreground/70 transition-colors hover:text-foreground"
-          >
-            {t("binConfigPanel.apiDocsLink")}
-          </a>
-        )}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {canTransferRules && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={form.formState.isDirty}
+              title={
+                form.formState.isDirty
+                  ? t("binRuleTransfer.saveFirst")
+                  : undefined
+              }
+              onClick={() => setIsTransferOpen(true)}
+            >
+              <IconArrowsExchange />
+              {t("binRuleTransfer.button")}
+            </Button>
+          )}
+          {apiDocsUrl && (
+            <a
+              href={apiDocsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 text-xs text-foreground/70 transition-colors hover:text-foreground"
+            >
+              {t("binConfigPanel.apiDocsLink")}
+            </a>
+          )}
+        </div>
       </div>
       {!isCatchAll && autoAssignField ? (
         config.rules.conditions.length > 0 ? (
@@ -1029,6 +1052,11 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
         </div>
       </form>
       {saveControls}
+      <BinRuleTransferDialog
+        source={config}
+        open={isTransferOpen}
+        onOpenChange={setIsTransferOpen}
+      />
     </>
   );
 }

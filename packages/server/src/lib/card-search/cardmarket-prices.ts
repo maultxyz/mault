@@ -114,6 +114,7 @@ export async function applyCardmarketPrices<T extends PlayingCard>(
     const regular = combinePrices(
       products
         .map((row) => ({
+          productId: row.productId,
           low: row.low,
           trend: row.trend,
           avg: row.avg,
@@ -125,6 +126,7 @@ export async function applyCardmarketPrices<T extends PlayingCard>(
     const foil = combinePrices(
       products
         .map((row) => ({
+          productId: row.productId,
           low: row.lowFoil,
           trend: row.trendFoil,
           avg: row.avgFoil,

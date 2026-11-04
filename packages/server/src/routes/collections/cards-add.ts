@@ -45,6 +45,7 @@ import { loadOrgPlan } from "./scan-limit";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 import { toSavedCardSnapshots } from "../../lib/saved-cards";
+import { findCardToResort, moveResortedCard } from "../../lib/resort-scan";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -112,6 +113,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           binNumber?: number;
         };
 
+    let keepOnlyExistingImage = false;
     const storedImage = await storeScanImage(
       { orgId, collectionGuid: guid, scanId, kind: "cards" },
       capturedImageUrl,
@@ -227,6 +229,53 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           orgId,
           deviceGuid,
         );
+        const cardToResort = alreadySaved
+          ? null
+          : await findCardToResort(tx, {
+              orgId,
+              collectionId: collection.id,
+              gameId: collection.gameId,
+              cardId: (card as PlayingCardWithDistance).id,
+              scanIsFoil: isFoil ?? false,
+            });
+        if (cardToResort) {
+          await moveResortedCard(tx, {
+            rowId: cardToResort.id,
+            orgId,
+            scanId,
+            scannedAt,
+            binNumber,
+            scannedByUserId: userId,
+            scannedByDeviceId,
+            capturedImage: cardToResort.hasCapturedImage ? null : storedImage,
+          });
+          if (cardToResort.hasCapturedImage) keepOnlyExistingImage = true;
+          await tx
+            .update(collections)
+            .set({ updatedAt: new Date() })
+            .where(eq(collections.id, collection.id));
+          return {
+            result: {
+              success: true,
+              data: {
+                scanId,
+                card,
+                scannedAt,
+                binNumber,
+                capturedImageUrl,
+                isFoil: cardToResort.isFoil,
+                foilType: cardToResort.foilType ?? undefined,
+                condition: toCardCondition(cardToResort.condition),
+                alternativeMatches,
+                lowConfidenceMatch,
+              } as ScannedCard,
+            },
+            collectionName: collection.name,
+            gameName: collection.gameName ?? undefined,
+            gameId: collection.gameId,
+          };
+        }
+
         const intakeLotId = await findOpenIntakeLotId(tx, collection.id);
         const saved = await toSavedCardSnapshots(
           { gameKey: collection.gameKey, lang: collection.lang },
@@ -289,7 +338,9 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           gameId: collection.gameId,
         };
       });
-      if (!result.success) deleteScanImages([storedImage.key]);
+      if (!result.success || keepOnlyExistingImage) {
+        deleteScanImages([storedImage.key]);
+      }
       if (result.success) {
         void recordMatchedScan(
           orgId,

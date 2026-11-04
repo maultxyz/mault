@@ -14,7 +14,9 @@ import {
   type CreateCollectionFormValues,
   type IdentifyUnmatchedCardRequest,
   type MatchedScanDiagnostics,
+  type MoveCardsToCollectionResult,
   type Result,
+  type SetCardTagsRequest,
   type ReviewAcceptRequest,
   type ReviewAcceptResult,
   SCAN_SAVE_ACCEPTED_STATUSES,
@@ -92,6 +94,18 @@ export async function loadCardDiagnostics(
     `/api/collections/${guid}/cards/${scanId}/diagnostics`,
   );
 }
+
+export const cardDiagnosticsQueryOptions = (
+  collectionGuid: string | undefined,
+  scanId: string | undefined,
+) =>
+  queryOptions({
+    queryKey: ["collection-card-diagnostics", collectionGuid, scanId],
+    queryFn: () =>
+      loadCardDiagnostics(collectionGuid!, scanId!).then((r) => r.data ?? null),
+    enabled: !!collectionGuid && !!scanId,
+    staleTime: Infinity,
+  });
 
 export const cardScanOriginQueryOptions = (
   collectionGuid: string | undefined,
@@ -251,11 +265,32 @@ export async function acceptCollectionCardReviews(
   );
 }
 
+export async function setCollectionCardTags(
+  guid: string,
+  request: SetCardTagsRequest,
+): Promise<Result<{ changedScanIds: string[] }>> {
+  return apiPost<Result<{ changedScanIds: string[] }>>(
+    `/api/collections/${guid}/cards/tags`,
+    request,
+  );
+}
+
 export async function removeCollectionCards(
   guid: string,
   scanIds: string[],
 ): Promise<Result<null>> {
   return apiPost<Result<null>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds });
+}
+
+export async function moveCollectionCardsToCollection(
+  guid: string,
+  scanIds: string[],
+  targetCollectionGuid: string,
+): Promise<Result<MoveCardsToCollectionResult>> {
+  return apiPost<Result<MoveCardsToCollectionResult>>(
+    `/api/collections/${guid}/cards/move-to-collection`,
+    { scanIds, targetCollectionGuid },
+  );
 }
 
 export async function markCollectionCardsDownloaded(

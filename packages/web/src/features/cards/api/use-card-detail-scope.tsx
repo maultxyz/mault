@@ -26,6 +26,7 @@ export function useCardDetailActions(): CardDetailActions {
     setCardFoilType,
     setCardCondition,
     setCardLanguage,
+    setCardsTags,
   } = useScannedCards();
   return (
     scope?.actions ?? {
@@ -35,6 +36,8 @@ export function useCardDetailActions(): CardDetailActions {
       setCardFoilType,
       setCardCondition,
       setCardLanguage,
+      setCardTags: (scanId, tags, enabled) =>
+        setCardsTags([scanId], tags, enabled),
     }
   );
 }

@@ -80,9 +80,17 @@ export async function checkSetName(
 export async function saveBinConfig({
   binNumber,
   gameGuid,
+  presetGuid,
   ...body
-}: BinConfigSaveInput & { gameGuid?: string }): Promise<Result<BinConfig[]>> {
-  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
+}: BinConfigSaveInput & {
+  gameGuid?: string;
+  presetGuid?: string;
+}): Promise<Result<BinConfig[]>> {
+  const query = new URLSearchParams({
+    ...(gameGuid ? { gameGuid } : {}),
+    ...(presetGuid ? { presetGuid } : {}),
+  }).toString();
+  const params = query ? `?${query}` : "";
   return apiPut<Result<BinConfig[]>>(
     `/api/bins/bins/${binNumber}${params}`,
     body,
@@ -127,6 +135,15 @@ export async function setSkipSaving(
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/skip-saving`, {
     skipSaving,
+  });
+}
+
+export async function setResortMode(
+  guid: string,
+  isResortMode: boolean,
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/resort-mode`, {
+    isResortMode,
   });
 }
 

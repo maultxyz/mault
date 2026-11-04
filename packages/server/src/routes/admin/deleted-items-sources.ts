@@ -19,11 +19,13 @@ import {
   intakeLots,
   moduleConfigs,
   notificationRules,
+  presetWorkflows,
   soundClips,
   soundRules,
   storageLocations,
 } from "../../db/schema";
 import { binSetNameTaken } from "../bins/shared";
+import { presetWorkflowNameTaken } from "../../lib/preset-workflows";
 import { collectionNameTaken } from "../collections/shared";
 import { locationNameTaken } from "../storage-locations/shared";
 import type {
@@ -120,6 +122,49 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           .update(binSets)
           .set({ isDeleted: false, name })
           .where(eq(binSets.id, row.id));
+        return restored(row.orgId);
+      },
+    },
+    presetWorkflow: {
+      async list() {
+        const rows = await db
+          .select({
+            guid: presetWorkflows.guid,
+            name: presetWorkflows.name,
+            gameName: games.name,
+            orgId: presetWorkflows.orgId,
+            updatedAt: presetWorkflows.updatedAt,
+          })
+          .from(presetWorkflows)
+          .leftJoin(games, eq(games.id, presetWorkflows.gameId))
+          .where(eq(presetWorkflows.isDeleted, true));
+        return rows.map((r) => ({
+          type: "presetWorkflow",
+          guid: r.guid!,
+          name: r.name,
+          detail: r.gameName,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const row = await tx.query.presetWorkflows.findFirst({
+          where: and(
+            eq(presetWorkflows.guid, guid),
+            eq(presetWorkflows.isDeleted, true),
+          ),
+        });
+        if (!row) return NOT_FOUND;
+        const name = await findRestorableName(
+          row.name,
+          SET_NAME_MAX_LENGTH,
+          (candidate) =>
+            presetWorkflowNameTaken(tx, row.orgId, row.gameId, candidate),
+        );
+        await tx
+          .update(presetWorkflows)
+          .set({ isDeleted: false, name })
+          .where(eq(presetWorkflows.id, row.id));
         return restored(row.orgId);
       },
     },

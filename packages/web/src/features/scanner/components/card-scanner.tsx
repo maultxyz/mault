@@ -17,6 +17,7 @@ import { documentScanErrorMessage } from "@/features/scanner/lib/document-scan-e
 import { usePiScanSession } from "@/features/scanner/api/use-pi-scan-session";
 import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
 import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
+import { useFoilNudgeCheck } from "@/features/scanner/api/use-foil-nudge-check";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
@@ -195,6 +196,7 @@ export function CardScanner({
       [],
     ),
   );
+  const checkFoilByNudge = useFoilNudgeCheck();
   const {
     status,
     errorMessage,
@@ -249,6 +251,7 @@ export function CardScanner({
     },
     rotated: previewRotated,
     onControlCode: (command) => void applyControlCode(command),
+    checkFoilByNudge: isRemoveModeActive ? undefined : checkFoilByNudge,
     autoCapture: handScanActive,
     skipDuplicateCheck: isRemoveModeActive,
   });

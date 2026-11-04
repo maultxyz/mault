@@ -129,6 +129,8 @@ const discordChannelIdSchema = z.string().nullable();
 export const discordSettingsDraftFormSchema = z.object({
   scanChannelId: discordChannelIdSchema,
   errorChannelId: discordChannelIdSchema,
+  scanRoleId: discordChannelIdSchema,
+  errorRoleId: discordChannelIdSchema,
   overrides: z.record(
     z.string(),
     z.object({
@@ -186,6 +188,7 @@ export const orgSettingsDraftFormSchema = z.object({
   ),
   sessionWrappedEnabled: z.boolean(),
   ocrEnabled: z.boolean(),
+  foilDetectionEnabled: z.boolean(),
   correctionBinPrompt: z.boolean(),
   pauseScanningOnDeploy: z.boolean(),
   leaderboardOptIn: z.boolean(),

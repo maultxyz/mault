@@ -1,6 +1,7 @@
 import { infiniteQueryOptions, keepPreviousData, queryOptions, type QueryClient } from "@tanstack/react-query";
 import {
   EMPTY_CARD_FILTERS,
+  type SetCardTagsRequest,
   type CardScanOrigin,
   type CollectionCardPosition,
   type CollectionCardsQuery,
@@ -76,6 +77,10 @@ export function updateCollectionCard(guid: string, scanId: string, body: CardUpd
   return unwrap(apiPut<Result<unknown>>(`/api/collections/${guid}/cards/${scanId}`, body));
 }
 
+export function setCollectionCardTags(guid: string, request: SetCardTagsRequest): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/tags`, request));
+}
+
 export function invalidateCollectionCards(queryClient: QueryClient, guid: string): void {
   void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
   void queryClient.invalidateQueries({ queryKey: ["collection-card", guid] });
@@ -124,6 +129,16 @@ export function removeCollectionCard(guid: string, scanId: string): Promise<unkn
 
 export function removeCollectionCards(guid: string, scanIds: string[]): Promise<unknown> {
   return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds }));
+}
+
+export function moveCollectionCardsToCollection(
+  guid: string,
+  scanIds: string[],
+  targetCollectionGuid: string,
+): Promise<unknown> {
+  return unwrap(
+    apiPost<Result<unknown>>(`/api/collections/${guid}/cards/move-to-collection`, { scanIds, targetCollectionGuid }),
+  );
 }
 
 export function fetchCollectionCardCopies(guid: string, cardIds: string[]): Promise<ScannedCard[]> {

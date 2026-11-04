@@ -8,11 +8,11 @@ export function useHiddenDownloadedCount(
   enabled: boolean,
 ): number {
   const { collection: activeCollection } = useViewedCollection();
-  const active = enabled && !query.filters.showDownloaded;
+  const active = enabled && query.filters.hideDownloaded;
   const { data } = useQuery({
     ...collectionCardsCountQueryOptions(activeCollection?.guid, {
       ...query,
-      filters: { ...query.filters, showDownloaded: true },
+      filters: { ...query.filters, hideDownloaded: false },
     }),
     enabled: active && !!activeCollection?.guid,
     placeholderData: undefined,

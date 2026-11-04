@@ -64,6 +64,8 @@ export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
+export const CAMERA_BUSY_RETRY_DELAYS_MS = [150, 400, 800];
+export const CAMERA_BUSY_ERROR_NAMES = new Set(["NotReadableError", "AbortError"]);
 export const PI_CAMERA_BASE = "/api/pi-camera";
 export const PI_CAMERA_DEVICE_ID = "pi-webcam";
 export const PI_CAMERA_WIDTH = CAMERA_IDEAL_WIDTH;
@@ -259,3 +261,6 @@ export const FLATBED_OVERRIDDEN_STATUSES: ScannerStatus[] = [
 ];
 
 export const SCAN_STATS_SUMMARY_SEPARATOR = " · ";
+
+export const FOIL_NUDGE_DIAGNOSTIC_IMAGE_WIDTH = 224;
+export const FOIL_NUDGE_DIAGNOSTIC_JPEG_QUALITY = 0.8;

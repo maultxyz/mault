@@ -11,7 +11,7 @@ import { collectionCardPositionQueryOptions } from "@/features/collections/api/c
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useReviewSession } from "@/hooks/use-review-session";
-import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { MONITOR_NEEDS_REVIEW_CARDS_QUERY } from "@/lib/constants/scanner";
 import type {
   MobileCardDetailBodyProps,
@@ -75,7 +75,7 @@ function MobileCardDetailBody({
   const queryClient = useQueryClient();
   const query = reviewMode
     ? MONITOR_NEEDS_REVIEW_CARDS_QUERY
-    : CARD_LOOKUP_QUERY;
+    : ALL_CARDS_QUERY;
   const { data: position, isPending } = useQuery(
     collectionCardPositionQueryOptions(collectionGuid, scanId, query),
   );
@@ -94,10 +94,16 @@ function MobileCardDetailBody({
         collectionGuid,
         nextScanId,
         query,
+        reviewMode,
       ),
-    [queryClient, collectionGuid, query],
+    [queryClient, collectionGuid, query, reviewMode],
   );
-  usePrefetchDetailCards(entry ? nextScanId : null, true, loadPrefetchStep);
+  usePrefetchDetailCards(
+    entry ? nextScanId : null,
+    true,
+    loadPrefetchStep,
+    reviewMode,
+  );
 
   useEffect(() => {
     if (isMissing && !reviewMode) onClose();
@@ -122,6 +128,7 @@ function MobileCardDetailBody({
       lowConfidenceMatch={entry.lowConfidenceMatch}
       wasCorrected={entry.corrected}
       isReviewed={entry.reviewed}
+      isDownloaded={entry.isDownloaded}
       storageLocation={entry.storageLocation}
       isFoil={entry.isFoil}
       foilType={entry.foilType}

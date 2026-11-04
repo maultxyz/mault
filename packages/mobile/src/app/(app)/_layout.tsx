@@ -43,6 +43,7 @@ export default function AppLayout() {
           <Stack.Screen name="rules/[binNumber]" />
           <Stack.Screen name="rules/mode" />
           <Stack.Screen name="rules/repack" />
+          <Stack.Screen name="rules/stages" />
           <Stack.Screen name="stats" />
           <Stack.Screen name="collection-new" options={{ presentation: "modal", contentStyle: modalStyle }} />
           <Stack.Screen name="collection-rename" options={{ presentation: "modal", contentStyle: modalStyle }} />

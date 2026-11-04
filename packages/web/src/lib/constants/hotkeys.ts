@@ -27,6 +27,8 @@ export const HOTKEY_KEY_LABEL_KEYS: Record<string, string> = {
   enter: "hotkeys.keys.enter",
   arrowleft: "hotkeys.keys.left",
   arrowright: "hotkeys.keys.right",
+  arrowup: "hotkeys.keys.up",
+  arrowdown: "hotkeys.keys.down",
   escape: "hotkeys.keys.escape",
   delete: "hotkeys.keys.delete",
 };
@@ -37,7 +39,10 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "scanner",
   "cardDetail",
   "intake",
+  "foilLabeling",
 ];
+
+export const ADMIN_ONLY_HOTKEY_GROUPS: HotkeyGroup[] = ["foilLabeling"];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   showShortcuts: { group: "general", keys: [{ key: "?" }] },
@@ -77,7 +82,16 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardRemove: { group: "cardDetail", keys: [{ key: "delete" }] },
   reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
   reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
+  reviewPreviousMatch: { group: "cardDetail", keys: [{ key: "arrowup" }] },
+  reviewNextMatch: { group: "cardDetail", keys: [{ key: "arrowdown" }] },
+  reviewCycleFoil: { group: "cardDetail", keys: [{ key: "f" }] },
+  reviewCycleCondition: { group: "cardDetail", keys: [{ key: "d" }] },
+  reviewCycleLanguage: { group: "cardDetail", keys: [{ key: "l" }] },
   intakeOpenScanner: { group: "intake", keys: [{ key: "o" }] },
+  foilLabelFoil: { group: "foilLabeling", keys: [{ key: "f" }] },
+  foilLabelNotFoil: { group: "foilLabeling", keys: [{ key: "n" }] },
+  foilLabelSkip: { group: "foilLabeling", keys: [{ key: "s" }] },
+  foilLabelBack: { group: "foilLabeling", keys: [{ key: "arrowleft" }] },
 };
 
 export const HOTKEY_ROUTES = {

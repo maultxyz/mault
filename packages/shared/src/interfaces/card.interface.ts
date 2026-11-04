@@ -18,6 +18,7 @@ export interface PlayingCardPriceRange {
 }
 
 export interface PlayingCardCardmarketPrice {
+  productId?: number;
   low: number | null;
   trend: number | null;
   avg: number | null;
@@ -27,6 +28,7 @@ export interface PlayingCardCardmarketPrice {
 }
 
 export interface PlayingCardCardKingdomPrice {
+  productId?: number;
   retail: number | null;
   buylist: number | null;
   inStock: number | null;

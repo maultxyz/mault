@@ -1,3 +1,5 @@
+import type { Control } from "react-hook-form";
+import type { PresetWorkflowStagesFormValues } from "@/schemas/sort-bins.schema";
 import type {
   AlphabetStep,
   BinCondition,
@@ -10,10 +12,12 @@ import type {
   FieldMeta,
   PickList,
   PickListInput,
+  SortTestGroupCheck,
+  PresetWorkflow,
+  PresetWorkflowStep,
   RepackConfigPatch,
   ScanOnlyConfig,
 } from "@magic-vault/shared";
-import type { Control } from "react-hook-form";
 import type { ReactNode } from "react";
 import type { BinConfigFormValues } from "@/schemas/sort-bins.schema";
 
@@ -42,6 +46,7 @@ export interface BinModeDraft {
   isChaosMode: boolean;
   chaosBinSize: number | null;
   skipSaving: boolean;
+  isResortMode: boolean;
 }
 
 export interface ChaosConfig {
@@ -66,6 +71,75 @@ export interface AlphabetPassState {
   from: string | undefined;
   to: string | undefined;
   isLastPass: boolean;
+}
+
+export interface PresetWorkflowStepMove {
+  workflow: PresetWorkflow;
+  step: PresetWorkflowStep;
+}
+
+export interface PresetStageMoveDialogProps {
+  move: PresetWorkflowStepMove | null;
+  onClose: () => void;
+}
+
+export interface ActivePresetWorkflowState {
+  workflow: PresetWorkflow | null;
+  step: PresetWorkflowStep | null;
+  stageNumber: number;
+  stageCount: number;
+  previousStep: PresetWorkflowStep | null;
+  nextStep: PresetWorkflowStep | null;
+  label: string;
+}
+
+export type PresetPickerItem =
+  | {
+      kind: "preset";
+      guid: string;
+      name: string;
+      preset: BinSet;
+    }
+  | {
+      kind: "workflow";
+      guid: string;
+      name: string;
+      workflow: PresetWorkflow;
+    };
+
+export interface PresetWorkflowStageCardProps {
+  workflow: PresetWorkflow;
+  control: Control<PresetWorkflowStagesFormValues>;
+  index: number;
+  stageCount: number;
+  isDirty: boolean;
+  onSwitch: (move: PresetWorkflowStepMove) => void;
+  onMove: (from: number, to: number) => void;
+  onRemove: (index: number) => void;
+}
+
+export interface PresetWorkflowRenameDialogProps {
+  workflow: PresetWorkflow;
+  open: boolean;
+  onClose: () => void;
+}
+
+export interface BinRuleTransferDialogProps {
+  source: BinConfig;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface SortTestButtonProps {
+  disabled: boolean;
+}
+
+export interface SortTestGroupCheckListProps {
+  check: SortTestGroupCheck;
+}
+
+export interface MobilePresetListProps {
+  onPresetChosen: () => void;
 }
 
 export interface AlphabetPassDialogProps {
@@ -140,6 +214,7 @@ export interface BinCardProps {
   overflowSources?: number[];
   disabled?: boolean;
   onClick: () => void;
+  className?: string;
 }
 
 export interface ConditionRowProps {

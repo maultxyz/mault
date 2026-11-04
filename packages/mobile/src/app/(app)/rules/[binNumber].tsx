@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, Switch, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
@@ -18,7 +19,8 @@ import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { binSchema } from "@/features/rules/lib/bin-schema";
 import { emptyRules, modeLocksBinRules, overflowSourcesFor, overflowTargetsFor } from "@/features/rules/lib/rules";
-import { binSetMode } from "@magic-vault/shared";
+import { binSetMode, type BinConfig } from "@magic-vault/shared";
+import { binSaveInputWithRules } from "@/features/rules/lib/bin-rule-transfer";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { BinFormValues } from "@/lib/interfaces/forms";
@@ -33,6 +35,7 @@ export default function BinEditorScreen() {
   const { gameGuid, activeSet, bins, fieldDefinitions, freeformOptions } = useRulesData();
   const bin = bins.find((b) => b.binNumber === binNumber);
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [catchAllError, setCatchAllError] = useState(false);
 
   const serverValues = useMemo<BinFormValues | undefined>(
@@ -88,6 +91,35 @@ export default function BinEditorScreen() {
     },
   });
 
+  const transfer = useMutation({
+    mutationFn: async ({ target, move }: { target: BinConfig; move: boolean }) => {
+      if (!bin) return;
+      await saveBinConfig(binSaveInputWithRules(target, bin.rules, gameGuid));
+      if (move) await saveBinConfig(binSaveInputWithRules(bin, emptyRules(), gameGuid));
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["bin-sets"] }),
+  });
+  const canTransferRules = !!bin && !rulesLocked && mode !== "auto-assign" && bin.rules.conditions.length > 0;
+  const binName = (target: BinConfig) =>
+    target.isCatchAll
+      ? t("rules.transfer.catchAllBin", { number: target.binNumber })
+      : t("rules.bin", { number: target.binNumber });
+  const chooseTransferTarget = (value: string) => {
+    setTransferOpen(false);
+    const target = bins.find((candidate) => candidate.binNumber === Number(value));
+    if (!target) return;
+    const hasRules = target.rules.conditions.length > 0 || !!target.pickList;
+    Alert.alert(
+      t("rules.transfer.confirmTitle", { bin: binName(target) }),
+      hasRules ? t("rules.transfer.replaceWarning", { bin: binName(target) }) : t("rules.transfer.confirmDescription"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        { text: t("rules.transfer.copy"), onPress: () => transfer.mutate({ target, move: false }) },
+        { text: t("rules.transfer.move"), onPress: () => transfer.mutate({ target, move: true }) },
+      ],
+    );
+  };
+
   usePreventRemove(isDirty && !save.isPending, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("common.discardDescription"), [
       { text: t("common.keepEditing"), style: "cancel" },
@@ -115,7 +147,7 @@ export default function BinEditorScreen() {
           <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />
         ) : null}
         {pickList ? <Callout tone="info" title={t("rules.pickListNotice")} /> : null}
-        {save.isError ? <Callout tone="destructive" title={t("rules.saveFailed")} /> : null}
+        {save.isError || transfer.isError ? <Callout tone="destructive" title={t("rules.saveFailed")} /> : null}
 
         {isScanOnly ? <Callout tone="info" title={t("rules.scanOnlyLocked")} /> : null}
 
@@ -157,7 +189,20 @@ export default function BinEditorScreen() {
         {!isScanOnly ? (
           <View style={{ gap: SPACING.md }}>
             <View style={{ gap: 2 }}>
-              <SectionHeader title={isCatchAll ? t("rules.overrideLabel") : t("rules.rulesLabel")} />
+              <SectionHeader
+                title={isCatchAll ? t("rules.overrideLabel") : t("rules.rulesLabel")}
+                action={
+                  canTransferRules ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      label={t("rules.transfer.button")}
+                      disabled={isDirty || transfer.isPending}
+                      onPress={() => setTransferOpen(true)}
+                    />
+                  ) : null
+                }
+              />
               <AppText size="sm" tone="secondary">
                 {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
               </AppText>
@@ -242,6 +287,16 @@ export default function BinEditorScreen() {
           setOverflowOpen(false);
         }}
         onClose={() => setOverflowOpen(false)}
+      />
+      <OptionSheet
+        visible={transferOpen}
+        title={t("rules.transfer.title")}
+        options={bins
+          .filter((target) => target.binNumber !== binNumber)
+          .map((target) => ({ value: String(target.binNumber), label: binName(target) }))}
+        selected={[]}
+        onSelect={chooseTransferTarget}
+        onClose={() => setTransferOpen(false)}
       />
       <SaveBar
         visible={isDirty && !readOnly}

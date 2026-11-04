@@ -55,6 +55,10 @@ export function setChaosMode(guid: string, config: ChaosConfigInput): Promise<Bi
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/chaos`, config));
 }
 
+export function setResortMode(guid: string, isResortMode: boolean): Promise<BinSet[]> {
+  return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/resort-mode`, { isResortMode }));
+}
+
 export function setSkipSaving(guid: string, skipSaving: boolean): Promise<BinSet[]> {
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/skip-saving`, { skipSaving }));
 }

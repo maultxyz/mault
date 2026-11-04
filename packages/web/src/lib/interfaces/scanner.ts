@@ -6,6 +6,8 @@ import type {
   DesktopDocumentScanDriver,
   BinConfig,
   CardCondition,
+  FoilNudgeFirmwareLimits,
+  CardTag,
   CardFilters,
   CommLogEntry,
   EmptyBinOptions,
@@ -185,6 +187,9 @@ export interface ScannedCardsContextValue {
   showJamToast: (options: JamToastOptions) => void;
   removeCard: (scanId: string) => void;
   removeCards: (scanIds: string[]) => Promise<boolean>;
+  moveCardsToCollection: (
+    input: MoveCardsToCollectionInput,
+  ) => Promise<number | null>;
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;
@@ -193,6 +198,7 @@ export interface ScannedCardsContextValue {
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
   setCardLanguage: (scanId: string, language: string) => void;
+  setCardsTags: (scanIds: string[], tags: CardTag[], enabled: boolean) => void;
   clearCards: () => void;
 }
 
@@ -266,6 +272,7 @@ export interface SerialContextValue {
   sensorBlockedModule: number | null;
   reopenSensorBlockedToast: () => void;
   firmwareVersion: string | null;
+  foilNudgeFirmwareLimits: FoilNudgeFirmwareLimits | null;
   board: SerialBoardType | null;
   hasWifi: boolean;
   deviceId: string | null;
@@ -297,6 +304,7 @@ export interface SerialContextValue {
     command: object,
     timeoutMs?: number,
   ) => Promise<SerialRequestResult>;
+  runWhenIdle: <T>(task: () => Promise<T>) => Promise<T | null>;
   subscribe: (listener: SerialMessageListener) => () => void;
   registerPreTestHook: (fn: PreTestHook) => () => void;
   getCommLog: () => CommLogEntry[];
@@ -765,6 +773,7 @@ export interface ScanAttemptOutcome extends ScanAttemptResult {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
+  dewarpedCardImage: ImageData | null;
 }
 
 export interface ScanOutcome {
@@ -773,6 +782,7 @@ export interface ScanOutcome {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
+  dewarpedCardImage: ImageData | null;
   matched: MatchedScanDetails | null;
   noMatch: UnmatchedScanDetails | null;
 }
@@ -1377,4 +1387,10 @@ export interface ScanImageImportRowProps {
 export interface ScanImageCanvas {
   canvas: HTMLCanvasElement;
   imageContour: CardContour;
+}
+
+export interface MoveCardsToCollectionInput {
+  sourceCollectionGuid: string;
+  targetCollectionGuid: string;
+  scanIds: string[];
 }

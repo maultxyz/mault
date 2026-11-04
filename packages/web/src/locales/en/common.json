@@ -198,6 +198,8 @@
       "ctrl": "Ctrl",
       "left": "←",
       "right": "→",
+      "up": "↑",
+      "down": "↓",
       "escape": "Esc",
       "enter": "Enter",
       "delete": "Del"
@@ -207,7 +209,8 @@
       "navigation": "Navigation",
       "scanner": "Scanner",
       "cardDetail": "Card details",
-      "intake": "Intake"
+      "intake": "Intake",
+      "foilLabeling": "Foil labelling"
     },
     "actions": {
       "showShortcuts": "Show keyboard shortcuts",
@@ -241,9 +244,18 @@
       "cardClose": "Close the card, or cancel correcting",
       "cardRemove": "Remove the card (from its box when opened from Storage)",
       "reviewStart": "Start reviewing cards one by one",
-      "reviewAccept": "While reviewing: card looks right, go to next",
+      "reviewAccept": "While reviewing: accept the highlighted match, go to next",
+      "reviewPreviousMatch": "While reviewing: highlight the previous similar match",
+      "reviewNextMatch": "While reviewing: highlight the next similar match",
+      "reviewCycleFoil": "While reviewing: cycle through the foil types",
+      "reviewCycleCondition": "While reviewing: cycle through the conditions",
+      "reviewCycleLanguage": "While reviewing: cycle through the languages",
       "goSortingRules": "Go to sorting rules",
       "intakeOpenScanner": "Open the scanner for this intake",
+      "foilLabelFoil": "While labelling foils: mark as foil",
+      "foilLabelNotFoil": "While labelling foils: mark as not foil",
+      "foilLabelSkip": "While labelling foils: skip this card",
+      "foilLabelBack": "While labelling foils: go back to the previous card",
       "scanFlatbedCard": "Scan the card on the flatbed"
     }
   },

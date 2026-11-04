@@ -1,15 +1,9 @@
 import { useStations } from "@/features/scanner/api/use-stations";
-import type { StationPanelLayout } from "@/lib/interfaces/stations";
+import type { StationPanelsProps } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
 import { useLayoutEffect } from "react";
 
-export function StationPanels({
-  layout,
-  size,
-}: {
-  layout: StationPanelLayout;
-  size: number;
-}) {
+export function StationPanels({ layout, size, overlay }: StationPanelsProps) {
   const { stations, activeStationId, getPanelElement, attachPanels } =
     useStations();
 
@@ -32,11 +26,11 @@ export function StationPanels({
               const el = getPanelElement(station.id);
               if (node && el.parentNode !== node) node.appendChild(el);
             }}
-            inert={!isActive}
+            inert={!isActive || !!overlay}
             data-active-station={isActive || undefined}
             aria-hidden={!isActive}
             className={cn(
-              "absolute inset-0 p-2 gap-2 bg-sidebar/70",
+              "absolute inset-0 isolate p-2 gap-2 bg-sidebar/70",
               layout === "horizontal"
                 ? "flex flex-col overflow-y-auto overflow-x-hidden"
                 : "flex items-stretch overflow-hidden",
@@ -45,6 +39,7 @@ export function StationPanels({
           />
         );
       })}
+      {overlay && <div className="absolute inset-0 z-10">{overlay}</div>}
     </div>
   );
 }

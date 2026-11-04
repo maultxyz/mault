@@ -616,17 +616,27 @@ export async function findCardMatchesByOcr(
   params: Omit<CardTextMatchParams, "readout">,
   trace?: OcrRegionTrace[],
 ): Promise<CardTextMatchResult> {
-  const { primary, fallback } = await ocrRegions(buffer, regions, trace);
+  const {
+    primary,
+    fallback,
+    regions: readRegions,
+  } = await ocrRegions(buffer, regions, trace);
   const readout = mergeReadouts(primary, fallback);
+  const withReadRegions = (result: CardTextMatchResult) => ({
+    ...result,
+    ocr: { ...result.ocr, regions: readRegions },
+  });
   if (
     resolveCardSearchForGame(params.gameKey, params.lang)?.adapter
       .ocrMatchesByPrintedSetAndNumber
   ) {
-    return withoutDistantUnconfirmedMatch(
-      await findCardMatchesByPrintedSetAndNumber(jwtClaims, {
-        ...params,
-        readout,
-      }),
+    return withReadRegions(
+      withoutDistantUnconfirmedMatch(
+        await findCardMatchesByPrintedSetAndNumber(jwtClaims, {
+          ...params,
+          readout,
+        }),
+      ),
     );
   }
   const nameCandidates = [
@@ -638,7 +648,9 @@ export async function findCardMatchesByOcr(
       all.findIndex((other) => other.name === candidate.name) === index,
   );
   if (nameCandidates.length === 0) {
-    return findCardMatchesByText(jwtClaims, { ...params, readout });
+    return withReadRegions(
+      await findCardMatchesByText(jwtClaims, { ...params, readout }),
+    );
   }
 
   const results = await Promise.all(
@@ -653,14 +665,16 @@ export async function findCardMatchesByOcr(
   const closest = results.reduce((best, candidate) =>
     isCloserTextMatch(candidate.result, best.result) ? candidate : best,
   );
-  return withoutDistantUnconfirmedMatch({
-    ...closest.result,
-    ocr: {
-      ...closest.result.ocr,
-      readout,
-      usedFallback: closest.fromFallback,
-    },
-  });
+  return withReadRegions(
+    withoutDistantUnconfirmedMatch({
+      ...closest.result,
+      ocr: {
+        ...closest.result.ocr,
+        readout,
+        usedFallback: closest.fromFallback,
+      },
+    }),
+  );
 }
 
 export async function attachMatchedCards<T extends CardMatchSearchResult>(

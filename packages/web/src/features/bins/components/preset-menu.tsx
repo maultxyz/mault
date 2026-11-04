@@ -40,14 +40,19 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { binSetMode } from "@magic-vault/shared";
+import { useActivePresetWorkflow } from "@/features/bins/api/use-active-preset-workflow";
+import { usePresetPicker } from "@/features/bins/api/use-preset-picker";
+import { PresetPickerBadge } from "@/features/bins/components/preset-picker-badge";
 
 export function PresetMenu() {
   const { t } = useTranslation("bins");
   const navigate = useNavigate();
   const { activeOrg } = useOrg();
   const { activeCollection } = useCollections();
-  const { sets, activateSet, selectedSet, isActivating, isPresetMutating } =
-    useBinConfigs();
+  const { sets, selectedSet, isPresetMutating } = useBinConfigs();
+  const picker = usePresetPicker();
+  const activeWorkflow = useActivePresetWorkflow().workflow;
+  const isActivating = picker.isChoosing;
   const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });
   const [openDialog, setOpenDialog] = useState<PresetDialog | null>(null);
   const {
@@ -65,12 +70,13 @@ export function PresetMenu() {
     return <Skeleton className="h-6 w-36 rounded-md" />;
   }
 
-  const matchingSets = sets.filter((set) => matchesSearch(set.name));
+  const matchingItems = picker.items.filter((item) => matchesSearch(item.name));
+  const hasItems = picker.items.length > 0;
   const selectedMode = binSetMode(selectedSet);
   const activateFirstMatch = () => {
-    const firstMatch = matchingSets[0];
+    const firstMatch = matchingItems[0];
     if (!firstMatch || isActivating) return;
-    activateSet(firstMatch.guid);
+    picker.choose(firstMatch);
     closeMenu();
   };
 
@@ -96,9 +102,14 @@ export function PresetMenu() {
                 )}
               </span>
               <span className="truncate font-semibold text-foreground">
-                {selectedSet?.name ?? t("presetSelector.selectSetPlaceholder")}
+                {picker.activeLabel ??
+                  t("presetSelector.selectSetPlaceholder")}
               </span>
-              {selectedMode !== "rules" && (
+              {activeWorkflow ? (
+                <Badge variant="outline" className="shrink-0">
+                  {t("presetWorkflows.badge")}
+                </Badge>
+              ) : selectedMode !== "rules" && (
                 <Badge variant="outline" className="shrink-0">
                   {t(`presetSelector.modeBadges.${selectedMode}`)}
                 </Badge>
@@ -117,7 +128,7 @@ export function PresetMenu() {
             <DropdownMenuLabel>
               {t("presetSelector.sortingLogic")}
             </DropdownMenuLabel>
-            {sets.length > 0 && (
+            {hasItems && (
               <MenuSearchField
                 inputRef={searchInputRef}
                 value={searchQuery}
@@ -126,28 +137,24 @@ export function PresetMenu() {
                 placeholder={t("presetSelector.searchPlaceholder")}
               />
             )}
-            {sets.length > 0 && matchingSets.length === 0 && (
+            {hasItems && matchingItems.length === 0 && (
               <p className="px-2 py-1.5 text-xs text-foreground/70">
                 {t("presetSelector.noMatchingSets")}
               </p>
             )}
             <ScrollArea className={MENU_SCROLL_LIST_CLASS}>
-              {matchingSets.map((set) => (
+              {matchingItems.map((item) => (
                 <DropdownMenuItem
-                  key={set.guid}
+                  key={item.guid}
                   disabled={isActivating}
-                  onClick={() => activateSet(set.guid)}
+                  onClick={() => picker.choose(item)}
                 >
-                  <span className="flex-1 truncate">{set.name}</span>
-                  {binSetMode(set) !== "rules" && (
-                    <Badge variant="outline" className="shrink-0">
-                      {t(`presetSelector.modeBadges.${binSetMode(set)}`)}
-                    </Badge>
-                  )}
+                  <span className="flex-1 truncate">{item.name}</span>
+                  <PresetPickerBadge item={item} />
                   <IconCheck
                     size={14}
                     className={
-                      set.guid === selectedSet?.guid
+                      picker.isSelected(item)
                         ? "shrink-0 text-primary"
                         : "invisible shrink-0"
                     }

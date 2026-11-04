@@ -1,10 +1,11 @@
-import type { OcrReadout } from "@magic-vault/shared";
+import type { OcrReadRegion, OcrReadout } from "@magic-vault/shared";
 import type { InferenceSession } from "onnxruntime-node";
 import type { OcrBox } from "./ocr-calibration";
 
 export interface OcrRegionReadouts {
   primary: OcrReadout;
   fallback: OcrReadout;
+  regions: OcrReadRegion[];
 }
 
 export interface OcrRectangle {

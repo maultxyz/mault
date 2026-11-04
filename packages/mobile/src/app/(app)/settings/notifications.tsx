@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, Switch, View } from "react-native";
 import {
+  changedDiscordPingRoles,
   DEFAULT_ORG_SETTINGS,
   discordSettingsDraftFormSchema,
   type DiscordSettingsDraftFormValues,
@@ -35,6 +36,7 @@ import {
 import {
   changedDiscordChannels,
   channelLabel,
+  roleLabel,
   toDiscordSettingsDraft,
 } from "@/features/integrations/lib/discord-settings";
 import { billingQueryOptions } from "@/features/org/api/billing";
@@ -79,6 +81,8 @@ export default function NotificationsSettingsScreen() {
     resetOptions: { keepDirtyValues: true },
   });
   const overrides = form.watch("overrides");
+  const scanChannelId = form.watch("scanChannelId");
+  const errorChannelId = form.watch("errorChannelId");
 
   const data = integration.data;
   const guild = data?.guild ?? null;
@@ -137,7 +141,8 @@ export default function NotificationsSettingsScreen() {
     setSaveError(false);
     const jobs: Promise<unknown>[] = [];
     const defaults = changedDiscordChannels(values, draft);
-    if (defaults) jobs.push(setDiscordChannel(defaults));
+    const pingRoles = changedDiscordPingRoles(values, draft);
+    if (defaults || pingRoles) jobs.push(setDiscordChannel({ ...defaults, ...pingRoles }));
     for (const [collectionGuid, next] of Object.entries(draft.overrides)) {
       const current = values.overrides[collectionGuid];
       if (!current) continue;
@@ -194,6 +199,21 @@ export default function NotificationsSettingsScreen() {
         selected: [] as string[],
       };
     }
+    if (picker.kind === "scan-role" || picker.kind === "error-role") {
+      return {
+        title:
+          picker.kind === "scan-role"
+            ? t("settings.discord.channelSettings.scanRole")
+            : t("settings.discord.channelSettings.errorRole"),
+        options: [
+          { value: "", label: t("settings.discord.roles.none") },
+          ...roles
+            .filter((role) => role.canPing)
+            .map((role) => ({ value: role.id, label: `@${role.name}` })),
+        ],
+        selected: [form.getValues(picker.kind === "scan-role" ? "scanRoleId" : "errorRoleId") ?? ""],
+      };
+    }
     if (picker.kind === "add-channel") {
       return {
         title: t("settings.discord.overrides.pickChannel"),
@@ -227,6 +247,12 @@ export default function NotificationsSettingsScreen() {
     }
     if (active.kind === "add-channel") {
       addOverride.mutate({ collectionGuid: active.collectionGuid, scanChannelId: value });
+      return;
+    }
+    if (active.kind === "scan-role" || active.kind === "error-role") {
+      form.setValue(active.kind === "scan-role" ? "scanRoleId" : "errorRoleId", value === "" ? null : value, {
+        shouldDirty: true,
+      });
       return;
     }
     const key = active.kind === "scan" ? "scanChannelId" : "errorChannelId";
@@ -337,6 +363,19 @@ export default function NotificationsSettingsScreen() {
           />
           <Controller
             control={form.control}
+            name="scanRoleId"
+            render={({ field }) => (
+              <SelectField
+                label={t("settings.discord.channelSettings.scanRole")}
+                value={roleLabel(roles, field.value, t)}
+                placeholder={t("settings.discord.roles.none")}
+                disabled={!canManage || !scanChannelId}
+                onPress={() => setPicker({ kind: "scan-role" })}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
             name="errorChannelId"
             render={({ field }) => (
               <SelectField
@@ -348,6 +387,22 @@ export default function NotificationsSettingsScreen() {
               />
             )}
           />
+          <Controller
+            control={form.control}
+            name="errorRoleId"
+            render={({ field }) => (
+              <SelectField
+                label={t("settings.discord.channelSettings.errorRole")}
+                value={roleLabel(roles, field.value, t)}
+                placeholder={t("settings.discord.roles.none")}
+                disabled={!canManage || !errorChannelId}
+                onPress={() => setPicker({ kind: "error-role" })}
+              />
+            )}
+          />
+          <AppText size="xs" tone="secondary">
+            {t("settings.discord.channelSettings.roleHint")}
+          </AppText>
 
           <SectionHeader title={t("settings.discord.overrides.heading")} />
           <AppText size="xs" tone="secondary">

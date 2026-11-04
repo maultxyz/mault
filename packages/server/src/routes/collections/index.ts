@@ -13,6 +13,7 @@ import { collectionCardDiagnosticsRoute } from "./cards-diagnostics";
 import { collectionCardImageRoute } from "./cards-image";
 import { editCollectionCardRoute } from "./cards-edit";
 import { acceptReviewCollectionCardsRoute } from "./cards-accept-review";
+import { setCollectionCardTagsRoute } from "./cards-tags";
 import { exportCollectionCardsRoute } from "./cards-export";
 import { collectionCardIdsRoute } from "./cards-ids";
 import { collectionCardCopiesRoute } from "./cards-copies";
@@ -22,6 +23,7 @@ import { setCollectionCardsConditionRoute } from "./cards-set-condition";
 import { setCollectionCardsFoilTypeRoute } from "./cards-set-foil";
 import { collectionCardPositionRoute } from "./cards-position";
 import { removeBulkCollectionCardsRoute } from "./cards-remove-bulk";
+import { moveCollectionCardsToCollectionRoute } from "./cards-move-to-collection";
 import { collectionCardsCountRoute } from "./cards-count";
 import { collectionCardsSummaryRoute } from "./cards-summary";
 import { checkCollectionNameRoute } from "./check-name";
@@ -65,8 +67,10 @@ const router = new Hono<AppEnv>()
   .route("/", collectionCardOriginRoute)
   .route("/", editCollectionCardRoute)
   .route("/", acceptReviewCollectionCardsRoute)
+  .route("/", setCollectionCardTagsRoute)
   .route("/", clearCollectionCardsRoute)
   .route("/", removeBulkCollectionCardsRoute)
+  .route("/", moveCollectionCardsToCollectionRoute)
   .route("/", markCollectionCardsDownloadedRoute)
   .route("/", setCollectionCardsConditionRoute)
   .route("/", setCollectionCardsFoilTypeRoute)

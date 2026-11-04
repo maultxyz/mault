@@ -23,6 +23,13 @@
       "title": "Reduce module count?",
       "description": "Dropping to {{count}} modules will remove the sorting rules and calibration data for modules and bins beyond that count, across every bin preset.",
       "confirm": "Change Module Count"
+    },
+    "detect": {
+      "button": "Detect",
+      "found": "Found {{count}} module from the wired IR sensors.",
+      "found_other": "Found {{count}} modules from the wired IR sensors.",
+      "noneFound": "No IR sensors found. Check that module 1's sensor is wired.",
+      "failed": "Couldn't read the IR sensors from the sorter."
     }
   },
   "channelLayoutUpgrade": {

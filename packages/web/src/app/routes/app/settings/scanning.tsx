@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CorrectionAutoCloseSetting } from "@/features/scanner/components/correction-auto-close-setting";
 import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
@@ -20,6 +21,7 @@ export default function SettingsScanningPage() {
   const { t } = useTranslation("settings");
   const draft = useOrgSettingsDraft();
   const disabled = draft.isLoading || draft.isSaving;
+  const isMobile = useIsMobile();
   const correctionBinPrompt = useWatch({
     control: draft.control,
     name: "correctionBinPrompt",
@@ -66,6 +68,28 @@ export default function SettingsScanningPage() {
           />
         </label>
       </SettingsSection>
+      {!isMobile && (
+        <SettingsSection
+          heading={t("foilDetection.heading")}
+          badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}
+          description={t("foilDetection.description")}
+        >
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-sm">{t("foilDetection.toggleLabel")}</span>
+            <Controller
+              control={draft.control}
+              name="foilDetectionEnabled"
+              render={({ field }) => (
+                <Switch
+                  checked={field.value}
+                  disabled={disabled}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          </label>
+        </SettingsSection>
+      )}
       <SettingsSection
         heading={t("correctionAutoClose.heading")}
         description={t("correctionAutoClose.description")}

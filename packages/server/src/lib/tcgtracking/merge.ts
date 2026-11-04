@@ -13,12 +13,14 @@ import type {
   CardSearchAdapter,
   FetchOneResult,
   SyncSourceCard,
+  SyncSourceCardDetail,
 } from "../interfaces/card-search";
 import type {
   TcgtrackingCatalogEntry,
   TcgtrackingFallbackData,
   TcgtrackingGameConfig,
   TcgtrackingPrimaryCard,
+  TcgtrackingPrimarySet,
   TcgtrackingProduct,
 } from "../interfaces/tcgtracking";
 import {
@@ -45,6 +47,8 @@ interface MergeContext {
   catalog: TcgtrackingCatalogEntry[];
   productsById: Map<number, TcgtrackingCatalogEntry>;
   productsByPrimaryCardId: Map<string, TcgtrackingCatalogEntry>;
+  productsBySetId: Map<number, TcgtrackingProduct[]>;
+  productNumberKeys: Map<number, string | null>;
 }
 
 function toPrimaryCard(
@@ -79,8 +83,46 @@ function isRecentSet(entry: TcgtrackingCatalogEntry): boolean {
   );
 }
 
-function productNumberKey(product: TcgtrackingProduct): string | null {
-  return product.number ? collectorNumberKey(product.number) : null;
+function productsBySetIdOf(
+  catalog: TcgtrackingCatalogEntry[],
+): Map<number, TcgtrackingProduct[]> {
+  const productsBySetId = new Map<number, TcgtrackingProduct[]>();
+  for (const { product, set } of catalog) {
+    productsBySetId.set(set.id, [...(productsBySetId.get(set.id) ?? []), product]);
+  }
+  return productsBySetId;
+}
+
+function productNumberKeysOf(
+  config: TcgtrackingGameConfig,
+  catalog: TcgtrackingCatalogEntry[],
+  productsBySetId: Map<number, TcgtrackingProduct[]>,
+): Map<number, string | null> {
+  return new Map(
+    catalog.map(({ product, set }) => [
+      product.id,
+      config.productNumberKeyOf
+        ? config.productNumberKeyOf(product, productsBySetId.get(set.id) ?? [])
+        : product.number
+          ? collectorNumberKey(product.number)
+          : null,
+    ]),
+  );
+}
+
+function setsAlignedByName(
+  catalog: TcgtrackingCatalogEntry[],
+  primaries: TcgtrackingPrimaryCard[],
+): Map<number, string> {
+  const primarySetCodeByName = new Map(
+    primaries.map((primary) => [cardNameKey(primary.card.setName), primary.card.set]),
+  );
+  const aligned = new Map<number, string>();
+  for (const { set } of catalog) {
+    const setCode = primarySetCodeByName.get(cardNameKey(set.name));
+    if (setCode) aligned.set(set.id, setCode);
+  }
+  return aligned;
 }
 
 function primaryKey(
@@ -97,7 +139,9 @@ function alignSets(
   config: TcgtrackingGameConfig,
   catalog: TcgtrackingCatalogEntry[],
   primaries: TcgtrackingPrimaryCard[],
+  productNumberKeys: Map<number, string | null>,
 ): Map<number, string> {
+  if (config.alignsSetsByName) return setsAlignedByName(catalog, primaries);
   const setsByPair = new Map<string, Set<string>>();
   for (const primary of primaries) {
     if (!primary.numberKey) continue;
@@ -110,7 +154,7 @@ function alignSets(
   const sharedByGroup = new Map<number, Map<string, number>>();
   const pairCountByGroup = new Map<number, number>();
   for (const { product, set } of catalog) {
-    const number = productNumberKey(product);
+    const number = productNumberKeys.get(product.id);
     if (!number) continue;
     pairCountByGroup.set(set.id, (pairCountByGroup.get(set.id) ?? 0) + 1);
     const primarySets = setsByPair.get(
@@ -141,8 +185,9 @@ function productKey(
   config: TcgtrackingGameConfig,
   entry: TcgtrackingCatalogEntry,
   alignedSets: Map<number, string>,
+  productNumberKeys: Map<number, string | null>,
 ): string | null {
-  const number = productNumberKey(entry.product);
+  const number = productNumberKeys.get(entry.product.id);
   if (!number) return null;
   if (config.numbering !== "per-set") return number;
   const setCode = alignedSets.get(entry.set.id);
@@ -193,8 +238,19 @@ function pickByKey(
     : null;
 }
 
-function stampProductId(card: SyncSourceCard, productId: number): SyncSourceCard {
+function stampProductId<T extends SyncSourceCardDetail>(
+  card: T,
+  productId: number,
+  context: MergeContext,
+): T {
   const fallbackImageUrl = tcgtrackingCardImage(productId).normal;
+  const entry = context.productsById.get(productId);
+  const finishProducts = entry
+    ? (context.config.finishProductsOf?.(
+        entry.product,
+        context.productsBySetId.get(entry.set.id) ?? [],
+      ) ?? [])
+    : [];
   return {
     ...card,
     imageUrl: card.imageUrl ?? fallbackImageUrl,
@@ -202,8 +258,17 @@ function stampProductId(card: SyncSourceCard, productId: number): SyncSourceCard
     data: JSON.stringify({
       ...JSON.parse(card.data),
       tcgtrackingProductId: productId,
+      ...(finishProducts.length ? { tcgtrackingFinishProducts: finishProducts } : {}),
     }),
   };
+}
+
+function storedPrimarySetOf(
+  data: TcgtrackingFallbackData | undefined,
+): TcgtrackingPrimarySet | undefined {
+  return data?.primarySetCode
+    ? { code: data.primarySetCode, name: data.primarySetName }
+    : undefined;
 }
 
 async function loadStoredFallbacks(
@@ -268,12 +333,15 @@ async function loadContext(
     const primaryId = config.primaryCardIdOf?.(entry.product);
     if (primaryId) productsByPrimaryCardId.set(primaryId, entry);
   }
+  const productsBySetId = productsBySetIdOf(catalog);
   return {
     config,
     adapter,
     catalog,
     productsById: new Map(catalog.map((entry) => [entry.product.id, entry])),
     productsByPrimaryCardId,
+    productsBySetId,
+    productNumberKeys: productNumberKeysOf(config, catalog, productsBySetId),
   };
 }
 
@@ -297,14 +365,23 @@ export async function mergeTcgtrackingCatalog(
   );
   const alignedSets =
     config.numbering === "per-set"
-      ? alignSets(config, catalog, knownPrimaries)
+      ? alignSets(config, catalog, knownPrimaries, context.productNumberKeys)
       : new Map<number, string>();
 
   const productsByKey = new Map<string, TcgtrackingCatalogEntry[]>();
   for (const entry of catalog) {
-    const key = productKey(config, entry, alignedSets);
+    const key = productKey(config, entry, alignedSets, context.productNumberKeys);
     if (key) productsByKey.set(key, [...(productsByKey.get(key) ?? []), entry]);
   }
+  const primarySetNameByCode = new Map(
+    knownPrimaries.map((primary) => [primary.card.set, primary.card.setName]),
+  );
+  const primarySetOf = (
+    entry: TcgtrackingCatalogEntry,
+  ): TcgtrackingPrimarySet | undefined => {
+    const code = alignedSets.get(entry.set.id);
+    return code ? { code, name: primarySetNameByCode.get(code) || undefined } : undefined;
+  };
   const primaryCountByKey = new Map<string, number>();
   const primaryIdByKey = new Map<string, string>();
   const primaryBaseNames = new Set<string>();
@@ -356,7 +433,7 @@ export async function mergeTcgtrackingCatalog(
     if (key) {
       linkedPrimaryCountByKey.set(key, (linkedPrimaryCountByKey.get(key) ?? 0) + 1);
     }
-    return stampProductId(card, product.id);
+    return stampProductId(card, product.id, context);
   });
 
   const isMissingFromPrimary = (entry: TcgtrackingCatalogEntry): boolean => {
@@ -373,7 +450,7 @@ export async function mergeTcgtrackingCatalog(
     if (config.numbering === "name-only") {
       return isRecentSet(entry) && !primaryBaseNames.has(baseName);
     }
-    const key = productKey(config, entry, alignedSets);
+    const key = productKey(config, entry, alignedSets, context.productNumberKeys);
     if (config.numbering === "global") {
       if (!key) return false;
       const primaryCount = primaryCountByKey.get(key) ?? 0;
@@ -388,7 +465,7 @@ export async function mergeTcgtrackingCatalog(
       return isRecentSet(entry) && !primaryBaseNames.has(baseName);
     }
     const isPastPrimarySet =
-      Number(productNumberKey(entry.product)) >
+      Number(context.productNumberKeys.get(entry.product.id)) >
       (primaryHighestNumberBySet.get(alignedSet) ?? Infinity);
     return (
       !!key &&
@@ -401,11 +478,7 @@ export async function mergeTcgtrackingCatalog(
   const fallbacks = catalog
     .filter(isMissingFromPrimary)
     .map((entry) =>
-      toTcgtrackingFallbackSyncCard(
-        entry,
-        alignedSets.get(entry.set.id),
-        config,
-      ),
+      toTcgtrackingFallbackSyncCard(entry, primarySetOf(entry), config),
     );
   const fallbackIds = new Set(fallbacks.map((card) => card.id));
 
@@ -414,14 +487,14 @@ export async function mergeTcgtrackingCatalog(
     if (fallbackIds.has(cardId)) continue;
     const entry = context.productsById.get(data.product.id);
     if (!entry) continue;
-    const key = productKey(config, entry, alignedSets);
+    const key = productKey(config, entry, alignedSets, context.productNumberKeys);
     const supersededByCardId =
       cardIdByProductId.get(data.product.id) ??
       (key ? primaryIdByKey.get(key) : undefined) ??
       "primary";
     const card = toTcgtrackingFallbackSyncCard(
       entry,
-      data.primarySetCode,
+      storedPrimarySetOf(data),
       config,
     );
     superseded.push({
@@ -456,7 +529,7 @@ export async function fetchOneWithTcgtracking(
           existingProductId(context, primary))) ||
       (await loadStoredProductId(gameKey, lang, id));
     if (!linked) return result;
-    const { id: _id, ...card } = stampProductId({ ...result.card, id }, linked);
+    const { id: _id, ...card } = stampProductId({ ...result.card, id }, linked, context);
     return { ...result, card };
   }
 
@@ -467,7 +540,7 @@ export async function fetchOneWithTcgtracking(
   const stored = (await loadStoredFallbacks(gameKey, lang, id)).get(id);
   const fallback = toTcgtrackingFallbackSyncCard(
     entry,
-    stored?.primarySetCode,
+    storedPrimarySetOf(stored),
     context.config,
   );
   const { id: _id, ...card } = stored?.supersededByCardId

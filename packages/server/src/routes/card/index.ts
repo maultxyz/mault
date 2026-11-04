@@ -11,6 +11,7 @@ import { searchCardRoute } from "./search";
 import { setPrintingsRoute } from "./set-printings";
 import { cardSetsRoute } from "./sets";
 import { sampleCardRoute } from "./sample";
+import { randomSampleCardsRoute } from "./random-sample";
 
 const router = new Hono<AppEnv>()
   .route("/", searchByImageRoute)
@@ -20,6 +21,7 @@ const router = new Hono<AppEnv>()
   .route("/", cardSetsRoute)
   .route("/", setPrintingsRoute)
   .route("/", sampleCardRoute)
+  .route("/", randomSampleCardsRoute)
   .route("/", searchCardRoute)
   .route("/", searchCardByIdRoute)
   .route("/", imageProxyRoute)

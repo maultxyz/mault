@@ -1,5 +1,6 @@
 import type {
   CardCondition,
+  CollectionCardPosition,
   ExportAdapter,
   PlayingCard,
   PlayingCardWithDistance,
@@ -36,6 +37,7 @@ export interface CardUpdateBody {
 export interface CardCorrectionSearchProps {
   collectionGuid: string;
   initialQuery: string;
+  inline?: boolean;
   disabled?: boolean;
   onSelect: (card: PlayingCard) => void;
 }
@@ -120,4 +122,16 @@ export interface PricePaidFieldProps {
   value: number | null;
   onChange: (value: number | null) => void;
   error?: string;
+}
+
+export interface CardDetailPrefetchTarget {
+  collectionGuid: string;
+  reviewMode: boolean;
+  storageGuid?: string;
+}
+
+export interface CardDetailPrefetchStep {
+  collectionGuid: string;
+  position: CollectionCardPosition;
+  nextScanId: string | null;
 }

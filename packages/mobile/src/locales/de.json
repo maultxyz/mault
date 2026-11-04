@@ -750,7 +750,7 @@
       "noBin": "Kein Fach",
       "status": "Status",
       "needsReview": "Zu prüfen",
-      "showDownloaded": "Heruntergeladene anzeigen",
+      "hideDownloaded": "Heruntergeladene ausblenden",
       "reset": "Zurücksetzen"
     },
     "sort": {
@@ -796,7 +796,6 @@
     "acceptNext": "Sieht richtig aus",
     "acceptFinish": "Sieht richtig aus",
     "reviewProgress": "Prüfe {{index}} von {{total}}",
-    "reviewed": "Geprüft",
     "similarMatches": "Ähnliche Übereinstimmungen",
     "similarMatchesHint": "Mehrere ähnliche Treffer. Tippe auf die richtige Version.",
     "thisScan": "Dieser Scan",
@@ -936,7 +935,9 @@
       "repackSaveFirst": "Speichere, um zu Repacks zu wechseln, und richte dann die Pack-Plätze ein.",
       "alphabetHint": "Nach dem Speichern zeigt der Regeln-Tab, welche Buchstaben jeder Behälter bekommt, und du kannst zum nächsten Durchgang wechseln.",
       "skipSaving": "Karten nicht speichern",
-      "skipSavingDescription": "Karten werden wie gewohnt erkannt und sortiert, aber nichts wird zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit."
+      "skipSavingDescription": "Karten werden wie gewohnt erkannt und sortiert, aber nichts wird zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit.",
+      "resort": "Gespeicherte Karten neu sortieren",
+      "resortDescription": "Jeder Scan verschiebt ein Exemplar, das schon in dieser Sammlung ist, in sein neues Fach, statt ein weiteres hinzuzufügen. Das Exemplar behält Foil und Zustand und verlässt seinen bisherigen Lagerort. Karten, die noch nicht in der Sammlung sind, werden wie gewohnt hinzugefügt."
     },
     "modes": {
       "rules": {
@@ -985,6 +986,36 @@
       "addSlot": "Platz hinzufügen",
       "multiplePacksLabel": "Mehrere Pakete pro Fach",
       "multiplePacksDescription": "Wenn ein Fach ein Paket fertig hat, beginnt es darauf ein neues und macht weiter, bis das Fach voll ist. Ein Fach beginnt ein neues Paket nur, wenn das ganze Paket noch hineinpasst, damit kein Paket unvollständig bleibt."
+    },
+    "transfer": {
+      "button": "Kopieren oder verschieben",
+      "title": "Regeln kopieren oder verschieben nach",
+      "catchAllBin": "Fach {{number}} (Auffangfach)",
+      "confirmTitle": "Regeln nach {{bin}}",
+      "confirmDescription": "Beim Kopieren bleiben die Regeln auch in diesem Fach. Beim Verschieben werden sie hier entfernt.",
+      "replaceWarning": "{{bin}} hat bereits Regeln. Sie werden ersetzt.",
+      "copy": "Kopieren",
+      "move": "Verschieben"
+    },
+    "stages": {
+      "badge": "Mehrstufig",
+      "missingPreset": "Gelöschte Vorlage",
+      "pageTitle": "Stufen",
+      "pageDescription": "Alle Stufen dieser mehrstufigen Vorlage in ihrer Reihenfolge. Tippe auf eine Stufe, um zu ihr zu wechseln. Stufen fügst du in der Web-App hinzu und änderst sie dort.",
+      "noWorkflowTitle": "Keine mehrstufige Vorlage aktiv",
+      "noWorkflowDescription": "Wähle eine mehrstufige Vorlage, um ihre Stufen zu sehen.",
+      "viewStages": "Alle Stufen",
+      "stageHeading": "Stufe {{number}}",
+      "current": "Aktuell",
+      "resort": "Neu sortieren",
+      "confirmMoveTitle": "Zu {{name}} wechseln?",
+      "confirmMoveDescription": "Leere vorher alle Fächer und lege bei Bedarf Lagerorte fest. Lege dann die Karten für {{name}} in den Einzug. Fächer, in denen noch Karten liegen, werden als geleert markiert.",
+      "confirm": "Fächer sind leer",
+      "switchFailed": "Stufe konnte nicht gewechselt werden",
+      "stageOf": "Stufe {{number}} von {{count}}",
+      "previousStage": "Vorherige Stufe",
+      "nextStage": "Nächste Stufe",
+      "lastStage": "Letzte Stufe"
     },
     "alphabet": {
       "needBins": "Die alphabetische Sortierung braucht mindestens einen Behälter neben dem Sammelbehälter.",
@@ -1130,7 +1161,14 @@
       "description": "Wie viele physische Sortiermodule verbaut sind. Ändert die Anzahl der verfügbaren Fächer sowie die Abschnitte unten.",
       "reduceTitle": "Modulanzahl verringern?",
       "reduceDescription": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Fach-Voreinstellungen.",
-      "reduceConfirm": "Modulanzahl ändern"
+      "reduceConfirm": "Modulanzahl ändern",
+      "detect": {
+        "button": "Erkennen",
+        "found_one": "{{count}} Modul anhand der angeschlossenen IR-Sensoren erkannt.",
+        "found_other": "{{count}} Module anhand der angeschlossenen IR-Sensoren erkannt.",
+        "noneFound": "Keine IR-Sensoren gefunden. Prüfe, ob der Sensor von Modul 1 angeschlossen ist.",
+        "failed": "Die IR-Sensoren konnten nicht vom Sortierer gelesen werden."
+      }
     },
     "bins": {
       "label": "Fach-Konfiguration",
@@ -1245,8 +1283,11 @@
       "startFailed": "Die Prüfung konnte nicht gestartet werden"
     },
     "moveToLocation": "In Lagerort verschieben",
+    "moveToCollection": "In Sammlung verschieben",
+    "moveToCollectionFailed": "Karten konnten nicht verschoben werden",
     "moveToOtherLocation": "In anderen Lagerort verschieben",
-    "searchLocations": "Lagerorte suchen"
+    "searchLocations": "Lagerorte suchen",
+    "searchCollections": "Sammlungen suchen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -1549,6 +1590,9 @@
         "none": "Nicht posten",
         "sameScan": "Wie jeder Scan",
         "sameError": "Wie Fehler",
+        "scanRole": "Rolle bei Scans pingen",
+        "errorRole": "Rolle bei Fehlern pingen",
+        "roleHint": "Wähle eine Rolle, die bei jedem Beitrag erwähnt wird, auch in Kanälen von Sammlungsüberschreibungen. Der Bot muss die Rolle erwähnen können.",
         "saved": "Kanal gespeichert.",
         "saveFailed": "Der Kanal konnte nicht gespeichert werden."
       },
@@ -1884,5 +1928,15 @@
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
     "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
     "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
+  },
+  "cardTags": {
+    "title": "Markierungen",
+    "edit": "Markierungen bearbeiten",
+    "saveFailed": "Die Markierung konnte nicht geändert werden",
+    "names": {
+      "downloaded": "Heruntergeladen",
+      "reviewed": "Geprüft",
+      "corrected": "Korrigiert"
+    }
   }
 }

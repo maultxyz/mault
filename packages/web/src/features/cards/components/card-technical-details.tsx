@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DetailSection } from "@/features/cards/components/detail-section";
-import { loadCardDiagnostics } from "@/features/collections/api/collections";
+import { cardDiagnosticsQueryOptions } from "@/features/collections/api/collections";
 import { useCardDetailCollection } from "@/features/cards/api/use-card-detail-scope";
 import type {
   CardTechnicalDetailsProps,
@@ -36,13 +36,9 @@ export function CardTechnicalDetails({
   const collection = useCardDetailCollection();
   const guid = collection?.guid;
 
-  const { data: diagnostics, isLoading } = useQuery({
-    queryKey: ["collection-card-diagnostics", guid, scanId],
-    queryFn: () =>
-      loadCardDiagnostics(guid!, scanId).then((r) => r.data ?? null),
-    enabled: !!guid,
-    staleTime: Infinity,
-  });
+  const { data: diagnostics, isLoading } = useQuery(
+    cardDiagnosticsQueryOptions(guid, scanId),
+  );
 
   const cardJson = JSON.stringify(card, null, 2);
   const yesNo = (value: boolean) =>
@@ -96,6 +92,21 @@ export function CardTechnicalDetails({
               {diagnostics.detectedColor !== undefined && (
                 <Row label={t("technicalDetails.detectedColor")}>
                   {diagnostics.detectedColor ?? t("technicalDetails.noColor")}
+                </Row>
+              )}
+              {typeof diagnostics.foilDetection?.foilScore === "number" && (
+                <Row label={t("technicalDetails.foilDetection")}>
+                  {t(
+                    diagnostics.foilDetection.isFoilDetected
+                      ? "technicalDetails.foilDetected"
+                      : "technicalDetails.foilNotDetected",
+                    {
+                      method: t(
+                        `technicalDetails.foilMethod.${diagnostics.foilDetection.method ?? "rainbow"}`,
+                      ),
+                      score: diagnostics.foilDetection.foilScore.toFixed(2),
+                    },
+                  )}
                 </Row>
               )}
             </>

@@ -275,7 +275,26 @@ export function AutoAssignPanel() {
         description={t("skipSavingPanel.description")}
         checked={effectiveMode.skipSaving}
         disabled={disableToggles}
-        onCheckedChange={(checked) => stageMode({ skipSaving: checked })}
+        onCheckedChange={(checked) =>
+          stageMode({
+            skipSaving: checked,
+            ...(checked ? { isResortMode: false } : {}),
+          })
+        }
+      />
+
+      <SortingModeToggleRow
+        className="border-t pt-2"
+        label={t("resortPanel.heading")}
+        description={t("resortPanel.description")}
+        checked={effectiveMode.isResortMode}
+        disabled={disableToggles}
+        onCheckedChange={(checked) =>
+          stageMode({
+            isResortMode: checked,
+            ...(checked ? { skipSaving: false } : {}),
+          })
+        }
       />
 
       <SaveBar

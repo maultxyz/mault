@@ -13,12 +13,15 @@ export interface OcrRegion {
 
 export type OcrReadout = Record<OcrField, string>;
 
-export interface OcrRegionTrace {
+export interface OcrReadRegion {
   field: OcrField;
   fallback: boolean;
   anchored: boolean;
-  anchorText: string | null;
   box: { x0: number; y0: number; x1: number; y1: number };
+}
+
+export interface OcrRegionTrace extends OcrReadRegion {
+  anchorText: string | null;
   imageDataUrl: string;
   text: string;
 }
@@ -29,6 +32,7 @@ export interface OcrDiagnostics {
   nameScore: number | null;
   printingConfirmed?: boolean;
   usedFallback?: boolean;
+  regions?: OcrReadRegion[];
 }
 
 export interface ColorBarBox {

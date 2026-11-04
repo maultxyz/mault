@@ -1,7 +1,12 @@
 import { toCardCondition, type ApiScannedCard } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { cardPriceValueSql } from "../card-price-sql";
+import {
+  cardPriceValueSql,
+  storedCardPriceDetailsSql,
+} from "../card-price-sql";
+import { ADAPTERS_BY_GAME_KEY } from "../card-search/resolve";
+import { purchaseLinksForProduct } from "../card-search/purchase-links";
 import { cardCatalogJoinSql } from "../card-catalog-sql";
 import { CC_ALIAS_SQL_COLUMNS } from "../constants/card-prices";
 import { CATALOG_CC_ALIAS_COLUMNS } from "../constants/saved-cards";
@@ -13,6 +18,7 @@ import type {
   PublicApiCursorPage,
   PublicApiLocationCardFilters,
   PublicApiLocationCursor,
+  MarketplaceProducts,
 } from "../interfaces/public-api";
 import {
   encodeCursor,
@@ -54,6 +60,13 @@ async function selectCards(
       ${cardPriceValueSql("priceFoil", CC_ALIAS_SQL_COLUMNS)} AS price_usd_foil,
       ${cardPriceValueSql("priceEur", CC_ALIAS_SQL_COLUMNS)} AS price_eur,
       ${cardPriceValueSql("priceEurFoil", CC_ALIAS_SQL_COLUMNS)} AS price_eur_foil,
+      ${storedCardPriceDetailsSql(CC_ALIAS_SQL_COLUMNS)} AS stored_price_details,
+      jsonb_build_object(
+        'cardmarketPrice', cc.card -> 'cardmarketPrice',
+        'cardmarketPriceFoil', cc.card -> 'cardmarketPriceFoil',
+        'cardKingdomPrice', cc.card -> 'cardKingdomPrice',
+        'cardKingdomPriceFoil', cc.card -> 'cardKingdomPriceFoil'
+      ) AS saved_price_details,
       col.guid::text AS collection_guid, col.name AS collection_name,
       COALESCE(cc.card_lang, col.lang) AS lang,
       g.key AS game,
@@ -87,7 +100,57 @@ function formatPrice(value: number | string | null): string | null {
   return Number.isFinite(price) ? price.toFixed(2) : null;
 }
 
+function marketplaceProducts(row: PublicApiCardRow): MarketplaceProducts {
+  const details = {
+    ...row.saved_price_details,
+    ...row.stored_price_details,
+  };
+  const cardKingdomFinishes = row.is_foil
+    ? [details.cardKingdomPriceFoil, details.cardKingdomPrice]
+    : [details.cardKingdomPrice, details.cardKingdomPriceFoil];
+  const cardKingdom = cardKingdomFinishes.find(
+    (price) => price?.productId != null,
+  );
+  const cardmarketProductId =
+    details.cardmarketPrice?.productId ??
+    details.cardmarketPriceFoil?.productId;
+  return {
+    cardmarketProductId: toProductId(
+      cardmarketProductId != null ? String(cardmarketProductId) : null,
+    ),
+    cardkingdomProductId: toProductId(
+      cardKingdom?.productId != null ? String(cardKingdom.productId) : null,
+    ),
+    cardKingdomUrl:
+      cardKingdom?.url ??
+      cardKingdomFinishes.find((price) => price?.url)?.url ??
+      null,
+  };
+}
+
+function toApiPurchaseUris(
+  row: PublicApiCardRow,
+  tcgplayerProductId: number | null,
+  cardKingdomUrl: string | null,
+): ApiScannedCard["purchase_uris"] {
+  const adapter = row.game ? ADAPTERS_BY_GAME_KEY[row.game] : undefined;
+  const links = adapter
+    ? purchaseLinksForProduct(adapter, {
+        name: row.name,
+        tcgplayerProductId,
+        cardKingdomUrl,
+      })
+    : {};
+  return {
+    tcgplayer: links.tcgplayer ?? null,
+    cardmarket: links.cardmarket ?? null,
+    cardkingdom: links.cardkingdom ?? null,
+  };
+}
+
 export function toApiScannedCard(row: PublicApiCardRow): ApiScannedCard {
+  const tcgplayerProductId = toProductId(row.tcgplayer_product_id);
+  const products = marketplaceProducts(row);
   return {
     object: "scanned_card",
     id: row.scan_id,
@@ -97,7 +160,9 @@ export function toApiScannedCard(row: PublicApiCardRow): ApiScannedCard {
     set_name: row.set_name,
     collector_number: row.collector_number,
     rarity: row.rarity,
-    tcgplayer_product_id: toProductId(row.tcgplayer_product_id),
+    tcgplayer_product_id: tcgplayerProductId,
+    cardmarket_product_id: products.cardmarketProductId,
+    cardkingdom_product_id: products.cardkingdomProductId,
     lang: row.lang,
     game: row.game,
     finish: row.is_foil ? "foil" : "nonfoil",
@@ -109,6 +174,11 @@ export function toApiScannedCard(row: PublicApiCardRow): ApiScannedCard {
       eur: formatPrice(row.price_eur),
       eur_foil: formatPrice(row.price_eur_foil),
     },
+    purchase_uris: toApiPurchaseUris(
+      row,
+      tcgplayerProductId,
+      products.cardKingdomUrl,
+    ),
     location:
       row.location_guid && row.location_name
         ? {

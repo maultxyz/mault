@@ -215,6 +215,7 @@ export const binSets = pgTable(
     isChaosMode: boolean("is_chaos_mode").notNull().default(false),
     chaosBinSize: integer("chaos_bin_size"),
     skipSaving: boolean("skip_saving").notNull().default(false),
+    isResortMode: boolean("is_resort_mode").notNull().default(false),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -223,6 +224,59 @@ export const binSets = pgTable(
   (table) => [
     unique("bin_sets_guid_idx").on(table.guid),
     index("bin_sets_org_game_idx").on(table.orgId, table.gameId),
+
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const presetWorkflows = pgTable(
+  "preset_workflows",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    name: text("name").notNull(),
+    gameId: integer("game_id").references(() => games.id),
+    isActive: boolean("is_active").notNull().default(false),
+    activeStepGuid: uuid("active_step_guid"),
+    orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("preset_workflows_guid_idx").on(table.guid),
+    index("preset_workflows_org_game_idx").on(table.orgId, table.gameId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const presetWorkflowSteps = pgTable(
+  "preset_workflow_steps",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    workflowId: integer("workflow_id")
+      .notNull()
+      .references(() => presetWorkflows.id),
+    position: integer("position").notNull().default(0),
+    presetGuid: uuid("preset_guid").notNull(),
+    isResortMode: boolean("is_resort_mode").notNull().default(true),
+    orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("preset_workflow_steps_guid_idx").on(table.guid),
+    index("preset_workflow_steps_workflow_idx").on(table.workflowId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -1082,6 +1136,9 @@ export const orgSettings = pgTable(
       .notNull()
       .default(true),
     ocrEnabled: boolean("ocr_enabled").notNull().default(false),
+    foilDetectionEnabled: boolean("foil_detection_enabled")
+      .notNull()
+      .default(false),
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),
@@ -1104,6 +1161,8 @@ export const orgSettings = pgTable(
     discordScanThreadId: text("discord_scan_thread_id"),
     discordErrorChannelId: text("discord_error_channel_id"),
     discordErrorThreadId: text("discord_error_thread_id"),
+    discordScanRoleId: text("discord_scan_role_id"),
+    discordErrorRoleId: text("discord_error_role_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -1320,6 +1379,34 @@ export const platformSyncApiKeys = pgTable(
   (table) => [
     unique("platform_sync_api_keys_guid_idx").on(table.guid),
     unique("platform_sync_api_keys_hash_idx").on(table.keyHash),
+    crudPolicy({
+      role: authenticatedRole,
+      read: false,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const platformFoilLabels = pgTable(
+  "platform_foil_labels",
+  {
+    id: serial().primaryKey(),
+    scanId: uuid("scan_id").notNull(),
+    orgId: text("org_id").notNull(),
+    gameKey: text("game_key"),
+    cardId: text("card_id").notNull(),
+    cardLang: text("card_lang"),
+    capturedImageKey: text("captured_image_key"),
+    isFoil: boolean("is_foil").notNull(),
+    savedIsFoil: boolean("saved_is_foil").notNull(),
+    savedFoilType: text("saved_foil_type"),
+    foilScore: doublePrecision("foil_score"),
+    labelledByUserId: text("labelled_by_user_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("platform_foil_labels_scan_id_idx").on(table.scanId),
     crudPolicy({
       role: authenticatedRole,
       read: false,

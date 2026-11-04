@@ -19,6 +19,7 @@ import {
   IconMusic,
   IconRestore,
   IconRotate360,
+  IconSparkles,
   IconUserScan,
 } from "@tabler/icons-react";
 
@@ -112,6 +113,12 @@ export const ADMIN_SECTIONS = [
     adminOnly: false,
   },
   {
+    path: "foil-labels",
+    icon: IconSparkles,
+    labelKey: "sections.foilLabels",
+    adminOnly: true,
+  },
+  {
     path: "hardware",
     icon: IconRotate360,
     labelKey: "sections.hardware",
@@ -149,3 +156,7 @@ export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormVa
 
 export const BROWSER_EMBED_TIMEOUT_MS = 60_000;
 export const BROWSER_EMBED_WORKER_MAX = 2;
+
+export const FOIL_LABELS_PATH = "/app/admin/foil-labels";
+export const FOIL_LABEL_QUEUE_REFILL_THRESHOLD = 10;
+export const FOIL_LABEL_PREFETCH_COUNT = 3;

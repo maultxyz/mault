@@ -125,6 +125,19 @@ export interface ScanRegionEditorProps {
   onChange: (region: ScanRegion) => void;
 }
 
+export type DetectModuleCountOutcome =
+  | { kind: "found"; count: number }
+  | { kind: "noneFound" }
+  | { kind: "failed" };
+
+export interface DetectModuleCountState {
+  isSupported: boolean;
+  isDetecting: boolean;
+  canDetect: boolean;
+  outcome: DetectModuleCountOutcome | null;
+  detect: () => Promise<void>;
+}
+
 export interface LayoutDraft {
   moduleCount: number;
   savedModuleCount: number;

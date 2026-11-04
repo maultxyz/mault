@@ -6,6 +6,7 @@ import {
   setChaosMode,
   setRepackConfig,
   setScanOnly,
+  setResortMode,
   setSkipSaving,
 } from "@/features/rules/api/bin-sets";
 import { emptyRules } from "@/features/rules/lib/rules";
@@ -110,6 +111,9 @@ export async function applyMode(
 
   if (values.skipSaving !== baseline.skipSaving) {
     latest = await setSkipSaving(set.guid, values.skipSaving);
+  }
+  if (values.isResortMode !== baseline.isResortMode) {
+    latest = await setResortMode(set.guid, values.isResortMode);
   }
   return latest;
 }

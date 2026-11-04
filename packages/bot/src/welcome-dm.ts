@@ -25,14 +25,29 @@ function buildWelcomeEmbed(guildName: string) {
     );
 }
 
-export async function sendWelcomeDm(member: GuildMember) {
-  if (member.user.bot || !WELCOME_GUILD_IDS.has(member.guild.id)) return;
+export function isWelcomeGuild(guildId: string) {
+  return WELCOME_GUILD_IDS.has(guildId);
+}
+
+export async function deliverWelcomeDm(member: GuildMember): Promise<boolean> {
   try {
     await member.send({ embeds: [buildWelcomeEmbed(member.guild.name)] });
+    console.log(`[bot] Sent the welcome DM to ${member.user.id} in ${member.guild.id}`);
+    return true;
   } catch (err) {
     console.warn(
       `[bot] Couldn't send the welcome DM to ${member.user.id} in ${member.guild.id}:`,
       err instanceof Error ? err.message : err,
     );
+    return false;
   }
+}
+
+export async function sendWelcomeDm(member: GuildMember) {
+  const sendsInGuild = isWelcomeGuild(member.guild.id);
+  console.log(
+    `[bot] Member ${member.user.id} joined ${member.guild.id} (bot: ${member.user.bot}, welcome server: ${sendsInGuild})`,
+  );
+  if (member.user.bot || !sendsInGuild) return;
+  await deliverWelcomeDm(member);
 }

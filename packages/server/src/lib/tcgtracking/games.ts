@@ -3,9 +3,22 @@ import {
   POKEMON_BASIC_ENERGY_PREFIX_PATTERN,
   TCGTRACKING_MTG_COLOR_LETTERS,
 } from "../constants/tcgtracking";
+import {
+  sorceryComparableProductName,
+  sorceryFoilProducts,
+  sorceryPrimaryArtworkKey,
+  sorceryProductArtworkKey,
+} from "../adapters/sorcery/tcgplayer-products";
 import type { GundamCard } from "../interfaces/gundam";
+import type { SorceryCard } from "../interfaces/sorcery";
 import type { TcgtrackingGameConfig } from "../interfaces/tcgtracking";
 import { collectorNumberKey } from "./keys";
+import {
+  gundamPrimaryShape,
+  onePiecePrimaryShape,
+  pokemonPrimaryShape,
+  riftboundPrimaryShape,
+} from "./primary-shapes";
 
 function gundamRarityKey(rarity: string | null | undefined): string {
   return (rarity ?? "").replace(/\s+/g, "").toUpperCase();
@@ -25,7 +38,8 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
   onepiece: {
     numbering: "global",
     isBasePrinting: (card) => card.id === card.collectorNumber,
-    primaryShapedFieldsOf: ({ name }) => ({ card_name: name }),
+    primaryShapedFieldsOf: onePiecePrimaryShape,
+    normalizesFallbackThroughPrimaryAdapter: true,
   },
   gundam: {
     numbering: "global",
@@ -43,7 +57,8 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
     },
     comparableProductName: (name) =>
       name.replace(GUNDAM_PRODUCT_CARD_NUMBER_TAG_PATTERN, ""),
-    primaryShapedFieldsOf: ({ name }) => ({ name }),
+    primaryShapedFieldsOf: gundamPrimaryShape,
+    normalizesFallbackThroughPrimaryAdapter: true,
   },
   fab: {
     numbering: "global",
@@ -53,10 +68,8 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
     numbering: "per-set",
     comparableProductName: (name) =>
       name.replace(POKEMON_BASIC_ENERGY_PREFIX_PATTERN, ""),
-    primaryShapedFieldsOf: ({ name, collectorNumber }) => ({
-      name,
-      localId: collectorNumber,
-    }),
+    primaryShapedFieldsOf: pokemonPrimaryShape,
+    normalizesFallbackThroughPrimaryAdapter: true,
   },
   lorcana: {
     numbering: "per-set",
@@ -67,10 +80,8 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
   },
   riftbound: {
     numbering: "per-set",
-    primaryShapedFieldsOf: ({ name, collectorNumber }) => ({
-      name,
-      collector_number: collectorNumber,
-    }),
+    primaryShapedFieldsOf: riftboundPrimaryShape,
+    normalizesFallbackThroughPrimaryAdapter: true,
   },
   swu: {
     numbering: "per-set",
@@ -93,5 +104,14 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
   yugioh: {
     numbering: "name-only",
     primaryShapedFieldsOf: ({ name }) => ({ name }),
+  },
+  sorcery: {
+    numbering: "per-set",
+    fallbacks: false,
+    alignsSetsByName: true,
+    numberKeyOf: (card) => sorceryPrimaryArtworkKey(card.raw as SorceryCard),
+    productNumberKeyOf: sorceryProductArtworkKey,
+    finishProductsOf: sorceryFoilProducts,
+    comparableProductName: sorceryComparableProductName,
   },
 };
