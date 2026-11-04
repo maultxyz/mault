@@ -15,7 +15,6 @@ import type {
   ScanDetectionDiagnostics,
   ScanMatchSource,
   ScanRegion,
-  FoilDetection,
 } from "@magic-vault/shared";
 import type { CardMatchSearchResult } from "./card-search";
 import type { SorterLink } from "../pi-scan/sorter-link";
@@ -45,8 +44,6 @@ export interface PiScanRunContext {
   matchesNeeded: number;
   matchAllLanguages: boolean;
   ocrEnabled: boolean;
-  foilDetectionEnabled: boolean;
-  foilTypes: string[];
   cardThickness: number | null;
   fieldDefinitions: FieldMeta[];
   gameGuid: string;
@@ -103,7 +100,6 @@ export interface PiScanFrameMatch {
   colorVariantUncertain: boolean;
   detection: ScanDetectionDiagnostics;
   detectedColor: string | null;
-  foilDetection: FoilDetection | null;
 }
 
 export interface PiScanStartInput {

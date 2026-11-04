@@ -4,12 +4,6 @@ import type {
   FoilNudgeMeasurement,
 } from "./foil-nudge.interface";
 
-export interface FoilFeatures {
-  lowerHueSpread: number;
-  lowerStronglyColoredShare: number;
-  lowerStrongHueCount: number;
-}
-
 export type FoilDetectionMethod = "rainbow" | "nudge";
 
 export interface FoilDetection {
