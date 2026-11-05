@@ -74,6 +74,7 @@ export function CardDatabaseManager() {
       action={
         <Input
           placeholder={t("cardDatabase.searchPlaceholder")}
+          aria-label={t("cardDatabase.searchLabel")}
           value={cardSearchInput}
           onChange={(e) => handleSearchInput(e.target.value)}
           className="h-7 text-xs max-w-48"
@@ -88,7 +89,7 @@ export function CardDatabaseManager() {
             </p>
           )}
           {cardsQuery.isError && (
-            <p className="text-sm text-destructive text-center py-6">
+            <p role="alert" className="text-sm text-destructive text-center py-6">
               {t("cardDatabase.loadError")}
             </p>
           )}
@@ -113,6 +114,7 @@ export function CardDatabaseManager() {
                 disabled={revectorizingIds.has(card.cardId)}
                 onClick={() => handleRevectorize(card.cardId, card.name)}
                 title={t("cardDatabase.revectorizeTitle")}
+                aria-label={t("cardDatabase.revectorizeTitle")}
               >
                 <IconRefresh
                   className={

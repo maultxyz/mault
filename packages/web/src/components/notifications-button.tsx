@@ -14,7 +14,11 @@ export function NotificationsButton() {
         <Button
           variant="ghost"
           size="icon-lg"
-          aria-label={t("alerts.tray.trigger")}
+          aria-label={
+            count > 0
+              ? t("a11y.notificationsWithCount", { count })
+              : t("alerts.tray.trigger")
+          }
           className="relative"
         >
           <IconBell />

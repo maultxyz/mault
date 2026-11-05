@@ -33,7 +33,10 @@ export function MonitorCardGrid({
         <CardTileSkeletonGrid count={12} />
       )}
       {status === "error" && (
-        <div className="flex items-center justify-center h-32 text-destructive text-sm gap-2">
+        <div
+          role="alert"
+          className="flex items-center justify-center h-32 text-destructive text-sm gap-2"
+        >
           <IconWifiOff size={16} />
           {t("monitorPage.connectFailed")}
         </div>

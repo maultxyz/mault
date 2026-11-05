@@ -470,6 +470,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
           render={({ field }) => (
             <Switch
               id="bin-disabled"
+              aria-label={t("binConfigPanel.disabledLabel")}
               checked={field.value}
               onCheckedChange={field.onChange}
             />
@@ -632,6 +633,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
           render={({ field }) => (
             <Switch
               id="bin-override"
+              aria-label={t("binConfigPanel.overrideLabel")}
               checked={field.value}
               onCheckedChange={field.onChange}
             />
@@ -748,6 +750,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
           control={
             <Switch
               id="bin-low-match"
+              aria-label={t("binConfigPanel.lowMatchLabel")}
               checked={field.value != null}
               onCheckedChange={(checked) =>
                 field.onChange(checked ? DEFAULT_CATCH_ALL_MATCH_PERCENT : null)

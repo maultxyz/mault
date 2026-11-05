@@ -28,7 +28,7 @@ export default function GeneralSettingsScreen() {
     >
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.appearance.heading")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -50,6 +50,7 @@ export default function GeneralSettingsScreen() {
                       accessibilityRole="radio"
                       accessibilityLabel={color.name}
                       accessibilityState={{ selected }}
+                      hitSlop={4}
                       onPress={() => field.onChange(color.name)}
                       style={{
                         width: 36,
@@ -83,7 +84,7 @@ export default function GeneralSettingsScreen() {
       </Surface>
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.leaderboard.heading")}
           </AppText>
           <AppText size="xs" tone="secondary">

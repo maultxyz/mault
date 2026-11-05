@@ -14,6 +14,7 @@ export function SectionNav({
 }: SectionNavProps) {
   return (
     <nav
+      aria-label={title}
       className={cn(
         "flex items-center gap-1 p-2 border-b bg-sidebar/70 overflow-x-auto shrink-0",
         "lg:flex-col lg:gap-0.5 lg:items-stretch lg:min-h-0 lg:h-full lg:overflow-x-visible lg:overflow-y-auto lg:border-b-0 lg:border-r",
@@ -33,6 +34,8 @@ export function SectionNav({
         item.disabled ? (
           <span
             key={item.to}
+            role="link"
+            tabIndex={0}
             aria-disabled="true"
             className={cn(
               sidebarItemClassName({ isActive: false }),

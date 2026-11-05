@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import Svg, { Defs, Mask, Rect } from "react-native-svg";
 import { getDefaultCardContour } from "@magic-vault/shared";
@@ -14,6 +15,7 @@ import {
 import type { ScanRegionOverlayProps } from "@/lib/interfaces/ui";
 
 export function ScanRegionOverlay({ region, frameAspect, strokeColor }: ScanRegionOverlayProps) {
+  const { t } = useTranslation();
   const colors = useTheme();
   const [size, setSize] = useState({ width: 0, height: 0 });
   const { width, height } = size;
@@ -39,6 +41,9 @@ export function ScanRegionOverlay({ region, frameAspect, strokeColor }: ScanRegi
 
   return (
     <View
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel={t("scan.cameraPreview")}
       pointerEvents="none"
       style={StyleSheet.absoluteFill}
       onLayout={(event) => setSize(event.nativeEvent.layout)}

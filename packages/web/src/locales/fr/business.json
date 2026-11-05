@@ -20,6 +20,7 @@
     "completed": "Terminé"
   },
   "table": {
+    "status": "Statut",
     "card": "Carte",
     "set": "Édition",
     "condition": "État",
@@ -222,6 +223,7 @@
     "staffSignature": "Signature du vendeur"
   },
   "orders": {
+    "pickCopy": "Marquer {{name}} comme prélevée",
     "printing": "{{setName}} ({{set}}) n° {{number}}",
     "removeLastCopyTitle": "Annuler la préparation ?",
     "removeLastCopyDescription": "C'est le dernier exemplaire de {{name}} et la seule carte restante, donc le retirer annule la préparation.",

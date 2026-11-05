@@ -356,5 +356,40 @@
       "business": "Business",
       "legacyBusiness": "Business (legacy)"
     }
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "close": "Close",
+    "clear": "Clear",
+    "openOptions": "Show options",
+    "remove": "Remove",
+    "copy": "Copy to clipboard",
+    "retry": "Retry",
+    "removeCondition": "Remove condition",
+    "removeGroup": "Remove group",
+    "removeMember": "Remove {{name}}",
+    "cancelInvite": "Cancel invite for {{email}}",
+    "removeItem": "Remove {{name}}",
+    "resizePanel": "Resize panel",
+    "notifications": "Notifications",
+    "closeNotification": "Close notification",
+    "notificationsWithCount_one": "Notifications, {{count}} unread",
+    "notificationsWithCount_other": "Notifications, {{count}} unread",
+    "watching": "Watching",
+    "watchersCount_one": "{{count}} person watching",
+    "watchersCount_other": "{{count}} people watching",
+    "details": "Details",
+    "liveSession": "Scanning live",
+    "mainNavigation": "Main",
+    "settingsNavigation": "Settings",
+    "selected": "Selected",
+    "loading": "Loading",
+    "live": "Live",
+    "notLive": "Not live",
+    "severity": {
+      "info": "Info:",
+      "warning": "Warning:",
+      "danger": "Error:"
+    }
   }
 }

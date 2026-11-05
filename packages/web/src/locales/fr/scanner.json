@@ -1,4 +1,13 @@
 {
+  "a11y": {
+    "cameraPreview": "Aperçu de la caméra du scanner",
+    "showLastSearchImage": "Afficher la dernière image de recherche",
+    "qrCameraPreview": "Vue de la caméra pour scanner le code QR",
+    "binsNeedingEmptying": "Bacs à vider",
+    "corrected": "Corrigée",
+    "sent": "Envoyé",
+    "received": "Reçu"
+  },
   "camera": {
     "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
     "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse.",

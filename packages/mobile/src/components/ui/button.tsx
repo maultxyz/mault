@@ -3,7 +3,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
-import { BUTTON_HEIGHTS, DISABLED_OPACITY } from "@/lib/constants/ui";
+import { BUTTON_HEIGHTS, DISABLED_OPACITY, MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { ButtonProps } from "@/lib/interfaces/ui";
 
 export function Button({
@@ -15,13 +15,14 @@ export function Button({
   disabled = false,
   size = "md",
   style,
+  accessibilityLabel,
   accessibilityHint,
 }: ButtonProps) {
   const colors = useTheme();
   const palette = {
     primary: { bg: colors.primary, pressed: colors.primaryPressed, fg: colors.primaryForeground, border: "transparent" },
     secondary: { bg: colors.background, pressed: colors.muted, fg: colors.foreground, border: colors.border },
-    destructive: { bg: colors.destructiveTint, pressed: colors.destructiveMuted, fg: colors.destructive, border: "transparent" },
+    destructive: { bg: colors.destructiveTint, pressed: colors.destructiveMuted, fg: colors.destructiveForeground, border: "transparent" },
     ghost: { bg: "transparent", pressed: colors.muted, fg: colors.foreground, border: "transparent" },
   }[variant];
   const inactive = disabled || loading;
@@ -29,10 +30,11 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: inactive, busy: loading }}
       disabled={inactive}
+      hitSlop={size === "sm" ? (MIN_TOUCH_TARGET - BUTTON_HEIGHTS.sm) / 2 : undefined}
       onPress={onPress}
       style={({ pressed }) => [
         {

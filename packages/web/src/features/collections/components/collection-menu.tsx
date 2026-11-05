@@ -123,7 +123,11 @@ export function CollectionMenu() {
                 <CollectionGameBadge collection={activeCollection} />
               )}
               {activeIsLockedByOther && (
-                <IconLock className="size-3 shrink-0 text-warning-foreground" />
+                <IconLock
+                  role="img"
+                  aria-label={t("switcher.lockedByOther")}
+                  className="size-3 shrink-0 text-warning-foreground"
+                />
               )}
               <IconSelector className="size-3.5 text-foreground/70" />
             </Button>
@@ -167,6 +171,8 @@ export function CollectionMenu() {
                     {lockedByOther && (
                       <IconLock
                         size={12}
+                        role="img"
+                        aria-label={t("switcher.lockedByOther")}
                         className="shrink-0 text-foreground/70"
                       />
                     )}
@@ -181,6 +187,9 @@ export function CollectionMenu() {
                           : "invisible shrink-0"
                       }
                     />
+                    {collection.guid === activeCollection?.guid && (
+                      <span className="sr-only">{t("page.activeBadge")}</span>
+                    )}
                   </DropdownMenuItem>
                 );
               })}

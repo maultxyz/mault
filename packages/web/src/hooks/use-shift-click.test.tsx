@@ -7,7 +7,7 @@ import { useShiftClick } from "@/hooks/use-shift-click";
 function SelectBox({ onToggle }: { onToggle: (shiftKey: boolean) => void }) {
   const { onMouseDown, consumeShift } = useShiftClick();
   return (
-    <span onMouseDown={onMouseDown}>
+    <span role="presentation" onMouseDown={onMouseDown}>
       <Checkbox
         aria-label="select card"
         onCheckedChange={() => onToggle(consumeShift())}

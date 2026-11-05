@@ -10,6 +10,7 @@ export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps
     <Pressable
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
+      hitSlop={{ top: 4, bottom: 4 }}
       onPress={onPress}
       style={({ pressed }) => ({
         flexDirection: "row",

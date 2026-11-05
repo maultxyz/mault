@@ -14,11 +14,15 @@ import { Link } from "react-router-dom";
 
 export function SettingsMobileMenu() {
   const { t } = useTranslation("settings");
+  const { t: tCommon } = useTranslation("common");
   const sections = useSettingsSections();
   const { planLockFor } = usePlanLockedPath();
 
   return (
-    <nav className={MOBILE_LIST_CLASS}>
+    <nav
+      aria-label={tCommon("a11y.settingsNavigation")}
+      className={MOBILE_LIST_CLASS}
+    >
       {sections.map((section) => {
         const path = `${SETTINGS_PATHS.root}/${section.path}`;
         const lock = planLockFor(path);
@@ -27,6 +31,9 @@ export function SettingsMobileMenu() {
             key={section.path}
             to={path}
             aria-disabled={lock?.isDisabled ? true : undefined}
+            onClick={
+              lock?.isDisabled ? (event) => event.preventDefault() : undefined
+            }
             className={cn(
               MOBILE_LIST_ROW_CLASS,
               lock?.isDisabled && "pointer-events-none opacity-50",

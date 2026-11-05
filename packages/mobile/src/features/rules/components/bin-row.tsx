@@ -19,11 +19,21 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
   const hiddenCount = chips.length - shownChips.length;
   const hasTags = bin.isCatchAll || bin.isDisabled || !!bin.pickList || sources.length > 0 || bin.overflowBin != null;
   const empty = chips.length === 0 && !hasTags;
+  const accessibilityLabel = [
+    t("rules.bin", { number: bin.binNumber }),
+    bin.isCatchAll ? t("rules.catchAll") : null,
+    bin.isDisabled ? t("rules.disabled") : null,
+    bin.pickList && !summary ? t("rules.pickList") : null,
+    summary ?? (empty ? t("rules.noRulesTapToAdd") : chips.join(", ")),
+    bin.overflowBin != null && !summary ? t("rules.overflowsTo", { bin: t("rules.bin", { number: bin.overflowBin }) }) : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t("rules.bin", { number: bin.binNumber })}
+      accessibilityLabel={accessibilityLabel}
       onPress={onPress}
       style={({ pressed }) => ({
         flexDirection: "row",

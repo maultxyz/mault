@@ -54,6 +54,7 @@ export function FeederTestPanel({
             <Field orientation="horizontal">
               <Switch
                 id={runUntilStoppedId}
+                aria-label={t("feederTest.runUntilStoppedLabel")}
                 checked={field.value}
                 disabled={isRunning}
                 onCheckedChange={field.onChange}
@@ -117,7 +118,10 @@ export function FeederTestPanel({
             </Button>
           )}
           {(isRunning || cardsSent > 0) && (
-            <span className="text-xs tabular-nums text-foreground/70">
+            <span
+              role="status"
+              className="text-xs tabular-nums text-foreground/70"
+            >
               {progress}
             </span>
           )}

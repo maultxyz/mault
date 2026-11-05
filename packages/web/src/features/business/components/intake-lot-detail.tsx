@@ -427,7 +427,11 @@ export function IntakeLotDetail({
                       </TableHead>
                     </>
                   )}
-                  {canRemove && <TableHead className="w-8" />}
+                  {canRemove && (
+                    <TableHead className="w-8">
+                      <span className="sr-only">{t("table.actions")}</span>
+                    </TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -460,7 +464,21 @@ export function IntakeLotDetail({
                       </TableCell>
                     )}
                     <TableCell className="max-w-64 truncate font-medium">
-                      {entry.card.name}
+                      <button
+                        type="button"
+                        className="max-w-full truncate rounded-sm text-left align-bottom hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenCard(entry.scanId, false);
+                        }}
+                      >
+                        {entry.card.name}
+                      </button>
+                      {entry.belowMinimum && (
+                        <span className="sr-only">
+                          {`, ${t("intake.belowMinimum.rowTitle")}`}
+                        </span>
+                      )}
                       {entry.isFoil && (
                         <span className="ml-1.5 text-xs text-foreground/70">
                           {t("table.foil")}

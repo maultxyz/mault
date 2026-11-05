@@ -78,6 +78,7 @@ export function OrgPickerModal() {
             className="flex gap-2"
           >
             <Input
+              aria-label={t("organizationNamePlaceholder")}
               placeholder={t("organizationNamePlaceholder")}
               {...form.register("name")}
               autoFocus

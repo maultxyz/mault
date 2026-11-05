@@ -2,6 +2,7 @@ import { MobileStoragePickList } from "@/features/storage/components/mobile-stor
 import { StoragePickListTable } from "@/features/storage/components/storage-pick-list-table";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { StorageCheckListProps } from "@/lib/interfaces/storage";
+import { useId } from "react";
 
 export function StorageCheckList({
   rows,
@@ -13,6 +14,7 @@ export function StorageCheckList({
   onCheckedChange,
 }: StorageCheckListProps) {
   const isMobile = useIsMobile();
+  const progressLabelId = useId();
   const percentChecked =
     total > 0 ? Math.round((checkedCount / total) * 100) : 0;
   const rowsProps = { rows, showLocation, checkLabel, onCheckedChange };
@@ -20,11 +22,15 @@ export function StorageCheckList({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <span className="shrink-0 text-xs tabular-nums text-foreground/70">
+        <span
+          id={progressLabelId}
+          className="shrink-0 text-xs tabular-nums text-foreground/70"
+        >
           {progressLabel}
         </span>
         <div
           role="progressbar"
+          aria-labelledby={progressLabelId}
           aria-valuemin={0}
           aria-valuemax={total}
           aria-valuenow={checkedCount}

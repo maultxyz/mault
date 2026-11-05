@@ -35,6 +35,7 @@ import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useScanSession } from "@/features/scanner/api/use-scan-session";
+import { useScanResultAnnouncements } from "@/features/scanner/api/use-scan-result-announcements";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { BinBadge } from "@/features/scanner/components/bin-badge";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
@@ -109,6 +110,7 @@ export default function ScanScreen() {
     return frame;
   }, [photoOutput]);
   const session = useScanSession({ capture });
+  useScanResultAnnouncements(session.feed);
   const { data: cardSets } = useQuery({
     ...cardSetsQueryOptions(collection?.guid ?? null),
     enabled: !!collection?.guid && (setPickerOpen || session.forcedSetCodes.length > 0),

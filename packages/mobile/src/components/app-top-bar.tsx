@@ -20,6 +20,7 @@ import {
   TOP_BAR_BRAND_MARK_SCALE,
   TOP_BAR_BRAND_SIZE,
   TOP_BAR_HEIGHT,
+  MIN_TOUCH_TARGET,
   TOP_BAR_INITIAL_SIZE,
   TOP_BAR_SWITCHER_HEIGHT,
 } from "@/lib/constants/ui";
@@ -31,6 +32,7 @@ function TopBarSwitcher({ initial, label, badge, accessibilityLabel, onPress }: 
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      hitSlop={{ top: (MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2, bottom: (MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2 }}
       onPress={onPress}
       style={({ pressed }) => ({
         flexDirection: "row",
@@ -119,6 +121,7 @@ export function AppTopBar() {
         }}
       >
         <Image
+          accessible={false}
           source={BRAND_MARK}
           style={{
             width: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
@@ -145,7 +148,8 @@ export function AppTopBar() {
       </View>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={t("alerts.title")}
+        accessibilityLabel={alerts.length > 0 ? `${t("alerts.title")}, ${alerts.length}` : t("alerts.title")}
+        hitSlop={(MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2}
         onPress={() => setOpenSheet("alerts")}
         style={({ pressed }) => ({
           width: TOP_BAR_SWITCHER_HEIGHT,

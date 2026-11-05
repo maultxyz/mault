@@ -102,6 +102,7 @@ export function AutoAssignPanel() {
             }
           >
             <SelectTrigger
+              aria-label={t("autoAssignPanel.fieldPlaceholder")}
               className="w-full overflow-hidden"
               disabled={disableToggles}
             >

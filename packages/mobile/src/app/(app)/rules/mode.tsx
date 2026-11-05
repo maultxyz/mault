@@ -201,6 +201,7 @@ export default function SortingModeScreen() {
                   <ListRow
                     title={t("rules.mode.chaosBinSize")}
                     subtitle={t("rules.mode.chaosBinSizeDescription")}
+                    rightIsInteractive
                     right={
                       <Input
                         compact

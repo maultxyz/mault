@@ -6,6 +6,7 @@ export function BrandIcon(props: ComponentProps<"svg">) {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 235 217"
       fill="none"
+      aria-hidden
       {...props}
     >
       <path

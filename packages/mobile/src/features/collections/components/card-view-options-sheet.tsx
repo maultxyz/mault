@@ -47,8 +47,8 @@ export function CardViewOptionsSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           maxHeight: "85%",
           backgroundColor: colors.background,
@@ -66,7 +66,7 @@ export function CardViewOptionsSheet({
           <View style={{ width: 36, height: 4, borderRadius: RADIUS.full, backgroundColor: colors.border }} />
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
-          <AppText size="lg" heading weight="bold" style={{ flex: 1 }}>
+          <AppText size="lg" heading weight="bold" accessibilityRole="header" style={{ flex: 1 }}>
             {t("collection.viewOptions")}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />

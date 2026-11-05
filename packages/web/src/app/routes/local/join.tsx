@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   Card,
   CardContent,
@@ -51,13 +52,19 @@ export default function AuthJoinPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="flex min-h-screen items-center justify-center bg-muted p-4 outline-none"
+    >
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            {orgName ? t("local.joinTitleWithOrg", { org: orgName }) : t("local.joinTitle")}
+            <h1>
+              {orgName ? t("local.joinTitleWithOrg", { org: orgName }) : t("local.joinTitle")}
+            </h1>
           </CardTitle>
-          <CardDescription>
+          <CardDescription role="status">
             {!token
               ? t("local.joinInvalid")
               : error
@@ -88,6 +95,6 @@ export default function AuthJoinPage() {
           </CardContent>
         )}
       </Card>
-    </div>
+    </main>
   );
 }

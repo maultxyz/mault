@@ -28,7 +28,7 @@ import {
   isValidBinHeight,
   UNLIMITED_BIN_HEIGHT,
 } from "@magic-vault/shared";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 function parseCustomHeight(text: string): number | null {
@@ -55,6 +55,7 @@ function CustomBinHeightInput({
   const { t } = useTranslation("calibration");
   const [text, setText] = useState(() => initialCustomText(height));
   const [syncedHeight, setSyncedHeight] = useState(height);
+  const hintId = useId();
   if (height !== syncedHeight) {
     setSyncedHeight(height);
     if (parseCustomHeight(text) !== height) setText(initialCustomText(height));
@@ -77,6 +78,7 @@ function CustomBinHeightInput({
             bin: binNumber,
           })}
           aria-invalid={value == null}
+          aria-describedby={hintId}
           onChange={(event) => {
             const next = event.target.value;
             setText(next);
@@ -91,6 +93,7 @@ function CustomBinHeightInput({
         </InputGroupAddon>
       </InputGroup>
       <span
+        id={hintId}
         className={cn(
           "text-2xs",
           value == null ? "text-destructive" : "text-foreground/70",
@@ -137,7 +140,10 @@ export function BinSizeSelect({
           onChange(binNumber, preset.height);
         }}
       >
-        <SelectTrigger className="h-8 w-full text-xs">
+        <SelectTrigger
+          aria-label={t("binConfigurations.binSizeLabel", { bin: binNumber })}
+          className="h-8 w-full text-xs"
+        >
           <SelectValue>{t(`binConfigurations.presets.${option}`)}</SelectValue>
         </SelectTrigger>
         <SelectContent>

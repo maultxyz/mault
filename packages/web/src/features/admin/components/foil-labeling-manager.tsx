@@ -204,7 +204,7 @@ export function FoilLabelingManager() {
                     </figcaption>
                   </figure>
                 )}
-                <dl className="flex flex-col gap-1 text-xs">
+                <dl aria-live="polite" className="flex flex-col gap-1 text-xs">
                   <dt className="text-sm font-medium">
                     {current.cardName ?? t("foilLabels.unknownCard")}
                   </dt>

@@ -50,8 +50,8 @@ export function ScanRemovalQueueSheet({ visible, removal, collectionName, onClos
         onRequestClose={onClose}
         statusBarTranslucent
       >
-        <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-        <View
+        <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+        <View accessibilityViewIsModal onAccessibilityEscape={onClose}
           style={{
             maxHeight: "80%",
             backgroundColor: colors.background,
@@ -78,7 +78,7 @@ export function ScanRemovalQueueSheet({ visible, removal, collectionName, onClos
             }}
           >
             <View style={{ flex: 1, minWidth: 0 }}>
-              <AppText size="lg" heading weight="bold" numberOfLines={1}>
+              <AppText size="lg" heading weight="bold" accessibilityRole="header" numberOfLines={1}>
                 {t("scan.removal.title", { collection: collectionName })}
               </AppText>
               <AppText size="sm" tone="secondary">

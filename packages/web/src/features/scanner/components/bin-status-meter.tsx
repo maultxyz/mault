@@ -115,7 +115,11 @@ export function BinStatusMeter() {
               </span>
               {summary.needsEmptying > 0 && (
                 <span className="flex shrink-0 items-center gap-0.5 font-medium text-warning-foreground">
-                  <IconAlertTriangle className="size-3.5" />
+                  <IconAlertTriangle
+                    className="size-3.5"
+                    role="img"
+                    aria-label={t("a11y.binsNeedingEmptying")}
+                  />
                   {summary.needsEmptying}
                 </span>
               )}

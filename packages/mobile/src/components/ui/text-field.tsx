@@ -1,4 +1,5 @@
-import { TextInput, View } from "react-native";
+import { useEffect } from "react";
+import { AccessibilityInfo, Platform, TextInput, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
 import { FONT_FAMILY, FONT_SIZE, RADIUS, SPACING } from "@/lib/constants/theme";
@@ -7,6 +8,9 @@ import type { TextFieldProps } from "@/lib/interfaces/ui";
 
 export function TextField({ label, error, autoComplete, multiline, ...props }: TextFieldProps) {
   const colors = useTheme();
+  useEffect(() => {
+    if (error && Platform.OS === "ios") AccessibilityInfo.announceForAccessibility(error);
+  }, [error]);
   return (
     <View style={{ gap: SPACING.xs + 2 }}>
       <AppText size="xs" weight="medium">
@@ -15,13 +19,14 @@ export function TextField({ label, error, autoComplete, multiline, ...props }: T
       <TextInput
         {...props}
         accessibilityLabel={label}
+        accessibilityHint={error}
         autoComplete={autoComplete}
         multiline={multiline}
         placeholderTextColor={colors.mutedForeground}
         style={{
           ...(multiline
             ? { minHeight: MULTILINE_INPUT_MIN_HEIGHT, paddingVertical: SPACING.sm, textAlignVertical: "top" }
-            : { height: INPUT_HEIGHT }),
+            : { minHeight: INPUT_HEIGHT }),
           borderRadius: RADIUS.md,
           borderWidth: 1,
           borderColor: error ? colors.destructive : colors.input,
@@ -33,7 +38,7 @@ export function TextField({ label, error, autoComplete, multiline, ...props }: T
         }}
       />
       {error ? (
-        <AppText size="xs" style={{ color: colors.destructive }}>
+        <AppText size="xs" accessibilityLiveRegion="polite" style={{ color: colors.destructive }}>
           {error}
         </AppText>
       ) : null}

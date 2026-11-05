@@ -23,6 +23,7 @@ export function TourHelpButton({
         <TooltipTrigger
           render={
             <Button
+              aria-label={tooltip}
               variant="outline"
               size="icon"
               className={cn(className)}

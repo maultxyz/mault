@@ -116,6 +116,7 @@ export default function IntakePage() {
     if (isGridReviewing) {
       return (
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <h1 className="sr-only">{tCommon("nav.intake")}</h1>
           <ReviewGrid
             cards={reviewGridPage.data?.cards ?? []}
             total={reviewGridPage.data?.total ?? 0}
@@ -214,8 +215,14 @@ export default function IntakePage() {
     );
   }
 
+  const showsLotHeading =
+    !!selectedGuid && !(openScanId && selectedLot) && !isGridReviewing;
+
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
+      {!showsLotHeading && (
+        <h1 className="sr-only">{tCommon("nav.intake")}</h1>
+      )}
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
           <BusinessViewSwitch value={BUSINESS_INTAKE_VIEW} />

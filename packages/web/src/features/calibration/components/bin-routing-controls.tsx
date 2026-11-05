@@ -47,6 +47,13 @@ export function BinRoutingControls({
         </Button>
       }
     >
+      <p role="status" className="sr-only">
+        {activeBin !== null
+          ? t("binRoutingControls.binActive", { bin: activeBin })
+          : isSampleRunning
+            ? t("binRoutingControls.running")
+            : ""}
+      </p>
       <div className="flex flex-wrap items-center gap-2">
         <Button
           variant={isSampleRunning ? "outline-selected" : "outline"}
@@ -60,7 +67,7 @@ export function BinRoutingControls({
               : t("binRoutingControls.running")
             : t("binRoutingControls.sampleRun")}
         </Button>
-        <div className="bg-border w-px self-stretch" />
+        <div aria-hidden className="bg-border w-px self-stretch" />
         {bins.map((bin) => (
           <Button
             key={bin}

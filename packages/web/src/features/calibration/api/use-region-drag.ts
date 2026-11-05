@@ -1,8 +1,12 @@
-import { clampRegion } from "@/features/calibration/lib/scan-region-geometry";
+import {
+  clampRegion,
+  nudgeRegionByKey,
+} from "@/features/calibration/lib/scan-region-geometry";
 import type { CameraSource } from "@/lib/interfaces/scanner";
 import type { ScanRegion } from "@magic-vault/shared";
 import {
   useRef,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
@@ -101,7 +105,20 @@ export function useRegionDrag({
     dragStateRef.current = null;
   };
 
+  const handleBoxKeyDown = (e: ReactKeyboardEvent<HTMLElement>) => {
+    const next = nudgeRegionByKey(
+      regionRef.current,
+      e.key,
+      e.shiftKey,
+      cameraSource,
+    );
+    if (!next) return;
+    e.preventDefault();
+    onRegionChange(next);
+  };
+
   return {
+    handleBoxKeyDown,
     handleBoxPointerDown,
     handleResizePointerDown,
     handlePointerMove,

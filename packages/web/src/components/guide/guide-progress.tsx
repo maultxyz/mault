@@ -9,9 +9,16 @@ export function GuideProgress({ label, done, total }: GuideProgressProps) {
         <span>{label}</span>
         <span>{pct}%</span>
       </div>
-      <div className="h-1 overflow-hidden rounded-full bg-border">
+      <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        className="h-1 overflow-hidden rounded-full bg-border"
+      >
         <div
-          className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+          className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out motion-reduce:transition-none"
           style={{ width: `${pct}%` }}
         />
       </div>

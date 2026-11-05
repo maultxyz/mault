@@ -56,7 +56,7 @@ export function PricingPlanCard({
           )}
         </p>
         {yearlySavings != null && (
-          <p className="mt-1 text-sm font-medium text-success">
+          <p className="mt-1 text-sm font-medium text-success-foreground">
             {t("pricing.yearlySavings", { percent: yearlySavings })}
           </p>
         )}

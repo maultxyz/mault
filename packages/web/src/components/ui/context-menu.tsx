@@ -75,7 +75,7 @@ function ContextMenuItem({
       data-slot="context-menu-item"
       data-inset={inset}
       data-variant={variant}
-      className={cn(CONTEXT_MENU_ITEM_CLASS, className)}
+      className={cn(CONTEXT_MENU_ITEM_CLASS, "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring", className)}
       {...props}
     />
   );
@@ -97,7 +97,7 @@ function ContextMenuSubTrigger({
     <ContextMenuPrimitive.SubmenuTrigger
       data-slot="context-menu-sub-trigger"
       data-inset={inset}
-      className={cn(CONTEXT_MENU_ITEM_CLASS, "data-popup-open:bg-accent", className)}
+      className={cn(CONTEXT_MENU_ITEM_CLASS, "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring", "data-popup-open:bg-accent", className)}
       {...props}
     >
       {children}

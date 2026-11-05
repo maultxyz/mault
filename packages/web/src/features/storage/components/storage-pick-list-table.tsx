@@ -55,7 +55,7 @@ export function StoragePickListTable({
                 className="hover:bg-transparent"
               >
                 <TableCell>
-                  <IconAlertTriangle className="size-4 text-warning" />
+                  <IconAlertTriangle className="size-4 text-warning-foreground" />
                 </TableCell>
                 {showLocation && (
                   <TableCell className="text-xs text-foreground/70">

@@ -34,6 +34,7 @@ export function PlanLimitInput({
       <label className="flex items-center gap-1.5 text-2xs text-foreground/70">
         <Switch
           size="sm"
+          aria-label={`${t("plans.unlimited")}: ${label}`}
           checked={isUnlimited}
           onCheckedChange={(checked) => onChange(checked ? null : fallback)}
         />

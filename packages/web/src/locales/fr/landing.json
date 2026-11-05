@@ -20,6 +20,8 @@
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
     "seeFeatures": "Découvrir les fonctionnalités",
     "liveSort": "Tri en direct",
+    "pauseDemo": "Mettre la démo en pause",
+    "playDemo": "Lancer la démo",
     "sortedCount_one": "{{count}} carte triée",
     "sortedCount_other": "{{count}} cartes triées",
     "nextUp": "Suivante",
@@ -93,7 +95,10 @@
       "ruleMatches_one": "{{count}} carte va dans le bac {{bin}}",
       "ruleMatches_other": "{{count}} cartes vont dans le bac {{bin}}",
       "collectionValue": "Valeur de la collection",
-      "valueHistory": "Valeur sur les 30 derniers jours"
+      "valueHistory": "Valeur sur les 30 derniers jours",
+      "ruleField": "Champ",
+      "ruleOperator": "Opérateur",
+      "ruleValue": "Valeur"
     },
     "more": {
       "heading": "Et bien plus encore",

@@ -30,7 +30,7 @@ export function ModuleCard({ module, state, firmwareVersion }: ModuleCardProps) 
   return (
     <Surface style={{ gap: SPACING.xl }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {t("calibration.moduleLabel", { module })}
         </AppText>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>

@@ -47,6 +47,7 @@ export function PhaseVideo({ video }: PhaseVideoProps) {
                   : "outline"
               }
               className="text-sm"
+              aria-pressed={chapter.key === activeChapter?.key}
               onClick={() => {
                 setActiveChapter(chapter);
                 setAutoplay(true);

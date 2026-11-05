@@ -178,6 +178,7 @@ export function ScanRegionCalibrationPanel({
         : null;
 
   const {
+    handleBoxKeyDown,
     handleBoxPointerDown,
     handleResizePointerDown,
     handlePointerMove,
@@ -393,14 +394,17 @@ export function ScanRegionCalibrationPanel({
                 className="absolute inset-0 w-full h-full pointer-events-none"
               />
               {box && (
-                <div
-                  className="absolute rounded-xl border-[6px] border-dashed border-muted-foreground/70 cursor-move touch-none select-none"
+                <button
+                  type="button"
+                  aria-label={t("scanRegionCalibrationPanel.regionKeyboardLabel")}
+                  className="absolute rounded-xl border-[6px] border-dashed border-muted-foreground/70 cursor-move touch-none select-none outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   style={{
                     left: `${box.left * 100}%`,
                     top: `${box.top * 100}%`,
                     width: `${box.width * 100}%`,
                     height: `${box.height * 100}%`,
                   }}
+                  onKeyDown={handleBoxKeyDown}
                   onPointerDown={handleBoxPointerDown}
                   onPointerMove={handlePointerMove}
                   onPointerUp={handlePointerUp}
@@ -410,7 +414,7 @@ export function ScanRegionCalibrationPanel({
                     className="absolute -right-2.5 -bottom-2.5 size-5 rounded-full bg-muted-foreground border-2 border-background cursor-nwse-resize touch-none"
                     onPointerDown={handleResizePointerDown}
                   />
-                </div>
+                </button>
               )}
             </div>
             {cameraSource === "phone"
@@ -513,6 +517,7 @@ export function ScanRegionCalibrationPanel({
                 <Skeleton className="h-4 w-7 rounded-full" />
               ) : (
                 <Switch
+                  aria-label={t("scanRegionCalibrationPanel.flipCameraLabel")}
                   checked={flipCamera}
                   onCheckedChange={onFlipCameraChange}
                 />
@@ -532,6 +537,9 @@ export function ScanRegionCalibrationPanel({
                 <Skeleton className="h-4 w-7 rounded-full" />
               ) : (
                 <Switch
+                  aria-label={t(
+                    "scanRegionCalibrationPanel.checkBothOrientationsLabel",
+                  )}
                   checked={checkBothOrientations}
                   onCheckedChange={onCheckBothOrientationsChange}
                 />
@@ -555,7 +563,10 @@ export function ScanRegionCalibrationPanel({
                 setExecutionProvider(value as OnnxExecutionProviderPreference)
               }
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger
+                className="w-full"
+                aria-label={t("scanRegionCalibrationPanel.executionProviderLabel")}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

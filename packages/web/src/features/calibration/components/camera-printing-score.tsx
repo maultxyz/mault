@@ -189,6 +189,7 @@ export function CameraPrintingScore({
                       }
                     >
                       <ComboboxInput
+                        aria-label={t("cameraPrintingScore.setLabel")}
                         className="w-full"
                         placeholder={
                           setsQuery.isLoading
@@ -239,6 +240,7 @@ export function CameraPrintingScore({
                       ) => a?.id === b?.id}
                     >
                       <ComboboxInput
+                        aria-label={t("cameraPrintingScore.cardLabel")}
                         className="w-full"
                         placeholder={
                           printingsQuery.isLoading
@@ -272,7 +274,7 @@ export function CameraPrintingScore({
                 />
               </div>
               {(formState.errors.setCode || formState.errors.cardId) && (
-                <p className="text-2xs text-destructive">
+                <p role="alert" className="text-2xs text-destructive">
                   {t("cameraPrintingScore.fieldsRequired")}
                 </p>
               )}
@@ -299,6 +301,13 @@ export function CameraPrintingScore({
               {result && !result.found && (
                 <Callout variant="warning">{t("cameraPrintingScore.notSynced")}</Callout>
               )}
+              <p role="status" className="sr-only">
+                {result && card
+                  ? t(`cameraPrintingScore.verdict.${result.verdict}`, {
+                      threshold,
+                    })
+                  : ""}
+              </p>
               {result && card && (
                 <div className="flex items-start gap-2">
                   {card.image?.small && (

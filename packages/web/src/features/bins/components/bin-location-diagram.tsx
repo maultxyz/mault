@@ -19,6 +19,7 @@ function BinCell({
   const { t } = useTranslation("bins");
   return (
     <div
+      aria-current={active ? "location" : undefined}
       className={cn(
         "flex flex-col items-center justify-center px-4 py-2 text-xs font-semibold",
         active

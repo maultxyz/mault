@@ -6,6 +6,7 @@ import { DiscordBotSetup } from "@/features/discord-bot/components/setup";
 import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
 import { PublicNav } from "@/components/public-nav";
 import { usePageMeta } from "@/hooks/use-page-meta";
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { useTranslation } from "react-i18next";
 
 export default function DiscordBotPage() {
@@ -20,7 +21,7 @@ export default function DiscordBotPage() {
     <div className="relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
       <BlueprintBackdrop />
       <PublicNav containerClassName="max-w-4xl" />
-      <main className="flex-1">
+      <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
         <DiscordBotHero />
         <DiscordBotSetup step="01" />
         <DiscordBotCommands step="02" />

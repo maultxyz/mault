@@ -331,7 +331,11 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                 </TableHead>
                 <TableHead className="text-right">{t("table.price")}</TableHead>
                 <TableHead>{t("table.orderRef")}</TableHead>
-                {canAct && <TableHead className="w-10" />}
+                {canAct && (
+                  <TableHead className="w-10">
+                    <span className="sr-only">{t("table.actions")}</span>
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -431,7 +435,9 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                           <Checkbox
                             checked={pickedSet.has(entry.scanId)}
                             disabled={!canAct}
-                            aria-label={t("orders.markPicked")}
+                            aria-label={t("orders.pickCopy", {
+                              name: entry.card.name,
+                            })}
                             onCheckedChange={(checked) =>
                               togglePick(entry.scanId, checked === true)
                             }

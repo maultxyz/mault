@@ -158,7 +158,7 @@ export default function CollectionScreen() {
   const tileWidth = (width - CARD_GRID_GUTTER * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
   const alertCount = stream.unmatchedCount + stream.errors.length;
   const statusColor =
-    stream.status === "connected" ? colors.success : stream.status === "error" ? colors.destructive : colors.warning;
+    stream.status === "connected" ? colors.successStrong : stream.status === "error" ? colors.destructive : colors.warningStrong;
 
   const openCard = (scanId: string) => router.push({ pathname: "/card/[scanId]", params: { scanId, guid } });
 

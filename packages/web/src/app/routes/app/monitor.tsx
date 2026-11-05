@@ -15,7 +15,7 @@ import { useParams } from "react-router-dom";
 import { useCollectionLocks } from "@/lib/app-stream";
 
 export default function MonitorPage() {
-  const { t } = useTranslation("scanner");
+  const { t } = useTranslation(["scanner", "common"]);
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
   const session = useSessionMonitor(collectionGuid);
   const cardsSource = useMemo(
@@ -56,31 +56,38 @@ export default function MonitorPage() {
   );
 
   return (
-    <SessionMonitorView
-      session={session}
-      cardsSource={cardsSource}
-      header={header}
-      toolbarLeading={
-        collectionGuid ? (
-          <>
-            {isMobile && !isActive && (
-              <Button
-                variant="outline"
-                disabled={isActivating}
-                onClick={() => activateCollection(collectionGuid)}
-              >
-                <IconPlayerPlay />
-                {t("monitorPage.setActive")}
-              </Button>
-            )}
-            <ShareMonitorLinkDialog collectionGuid={collectionGuid} />
-          </>
-        ) : undefined
-      }
-      binCount={computeBinCount(moduleCount)}
-      showBinLocation
-      backHref={isMobile ? "/app/monitor" : COLLECTIONS_PATH}
-      canEditCards={isActive}
-    />
+    <>
+      {!isMobile && (
+        <h1 className="sr-only">
+          {monitoredCollectionName ?? t("common:nav.collections")}
+        </h1>
+      )}
+      <SessionMonitorView
+        session={session}
+        cardsSource={cardsSource}
+        header={header}
+        toolbarLeading={
+          collectionGuid ? (
+            <>
+              {isMobile && !isActive && (
+                <Button
+                  variant="outline"
+                  disabled={isActivating}
+                  onClick={() => activateCollection(collectionGuid)}
+                >
+                  <IconPlayerPlay />
+                  {t("monitorPage.setActive")}
+                </Button>
+              )}
+              <ShareMonitorLinkDialog collectionGuid={collectionGuid} />
+            </>
+          ) : undefined
+        }
+        binCount={computeBinCount(moduleCount)}
+        showBinLocation
+        backHref={isMobile ? "/app/monitor" : COLLECTIONS_PATH}
+        canEditCards={isActive}
+      />
+    </>
   );
 }

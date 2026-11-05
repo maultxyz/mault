@@ -1,5 +1,6 @@
 {
   "switcher": {
+    "lockedByOther": "In use by someone else",
     "label": "Collection",
     "sessionReleased": "Session released",
     "releaseFailed": "Failed to release session",

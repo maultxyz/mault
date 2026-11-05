@@ -64,6 +64,7 @@ export function MobilePageHeader({
       {children && (
         <div
           aria-hidden={collapsed || undefined}
+          inert={collapsed || undefined}
           className={cn(
             "grid transition-[grid-template-rows,margin,opacity] duration-200 motion-reduce:transition-none",
             collapsed ? "-mt-2.5 grid-rows-[0fr] opacity-0" : "grid-rows-[1fr]",

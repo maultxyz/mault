@@ -51,8 +51,8 @@ export function ScannerControlsSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           backgroundColor: colors.background,
           borderTopLeftRadius: RADIUS.xl,
@@ -77,7 +77,7 @@ export function ScannerControlsSheet({
             paddingVertical: SPACING.md,
           }}
         >
-          <AppText size="lg" heading weight="bold" style={{ flex: 1 }}>
+          <AppText size="lg" heading weight="bold" accessibilityRole="header" style={{ flex: 1 }}>
             {t("scan.controls.title")}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />

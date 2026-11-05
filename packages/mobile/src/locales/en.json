@@ -14,7 +14,10 @@
     "discardTitle": "Discard changes?",
     "discardDescription": "Your changes to this bin haven't been saved.",
     "keepEditing": "Keep editing",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "decreaseBy": "Decrease by {{step}}",
+    "increaseBy": "Increase by {{step}}",
+    "changesSaved": "Changes saved"
   },
   "tabs": {
     "collections": "Collections",
@@ -100,6 +103,8 @@
   "cards": {
     "bin": "Bin {{number}}",
     "needsReview": "Needs review",
+    "reviewed": "Reviewed",
+    "cardActions": "Card actions",
     "quantity_one": "{{count}} copy",
     "quantity_other": "{{count}} copies"
   },
@@ -573,6 +578,7 @@
     "sorterNotReadyDescription": "Connect your sorter to feed and route cards. You can still scan cards by hand.",
     "openSorter": "Connect sorter",
     "modelErrorTitle": "Couldn't load the card recognition models",
+    "cameraPreview": "Camera preview",
     "phase": {
       "idle": "Idle",
       "loading-models": "Loading models",

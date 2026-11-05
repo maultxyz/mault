@@ -1,4 +1,13 @@
 {
+  "a11y": {
+    "cameraPreview": "Scanner camera preview",
+    "showLastSearchImage": "Show last search image",
+    "qrCameraPreview": "Camera view for scanning the QR code",
+    "binsNeedingEmptying": "Bins to empty",
+    "corrected": "Corrected",
+    "sent": "Sent",
+    "received": "Received"
+  },
   "camera": {
     "permissionDenied": "Camera permission denied. Please allow camera access and try again.",
     "allInUse": "Every connected camera is already used by another sorter. Plug in another camera for this sorter.",

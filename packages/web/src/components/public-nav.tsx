@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { IconBrandDiscord, IconMenu2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { SkipLink } from "@/components/skip-link";
 import { Link, useLocation } from "react-router-dom";
 import { PUBLIC_NAV_PAGES } from "@/lib/constants/nav";
 
@@ -76,6 +77,7 @@ export function PublicNav({
 
   return (
     <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
+      <SkipLink />
       <div
         className={cn(
           "mx-auto flex h-14 items-center justify-between px-4",

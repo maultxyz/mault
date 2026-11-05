@@ -109,6 +109,7 @@ export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
         </p>
         <Input
           autoFocus
+          aria-label={t("scannerControls.setSearchPlaceholder")}
           placeholder={t("scannerControls.setSearchPlaceholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}

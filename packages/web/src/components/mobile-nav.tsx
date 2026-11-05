@@ -54,9 +54,11 @@ function MobileNavTab({
   lockTag,
   disabled,
 }: MobileNavTabProps) {
+  const { t } = useTranslation("common");
   return (
     <Link
       to={to}
+      onClick={disabled ? (event) => event.preventDefault() : undefined}
       aria-current={active ? "page" : undefined}
       aria-disabled={disabled ? true : undefined}
       aria-label={lockTag ? `${label}, ${lockTag}` : undefined}
@@ -68,6 +70,7 @@ function MobileNavTab({
     >
       <TabIcon icon={icon} dot={badge} active={active} />
       {label}
+      {badge && <span className="sr-only">{t("a11y.liveSession")}</span>}
       {lockTag && <span className="text-2xs leading-none">{lockTag}</span>}
     </Link>
   );
@@ -91,7 +94,10 @@ export function MobileNav() {
   );
 
   return (
-    <nav className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-5 bg-sidebar pb-[env(safe-area-inset-bottom)]">
+    <nav
+      aria-label={t("a11y.mainNavigation")}
+      className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-5 bg-sidebar pb-[env(safe-area-inset-bottom)]"
+    >
       <MobileNavTab
         to={MOBILE_HOME_PATH}
         icon={<IconHome size={22} />}

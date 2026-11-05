@@ -59,6 +59,9 @@
     }
   },
   "cardImageVectors": {
+    "gameLabel": "Spiel",
+    "languageLabel": "Sprache",
+    "progressLabel": "Synchronisierungsfortschritt",
     "heading": "Kartenbild-Vektoren",
     "syncStatus": {
       "idle": "Inaktiv",
@@ -94,6 +97,7 @@
     "empty": "Keine Einträge"
   },
   "cardDatabase": {
+    "searchLabel": "Karten suchen",
     "heading": "Kartendatenbank",
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
@@ -103,6 +107,7 @@
     "empty": "Keine Karten gefunden"
   },
   "syncCardById": {
+    "cardIdLabel": "Karten-ID",
     "heading": "Karte per ID synchronisieren",
     "description": "Ruft eine einzelne Karte ab und vektorisiert sie, fügt sie bei Bedarf neu zur Datenbank hinzu",
     "cardIdPlaceholder": "Karten-ID...",
@@ -156,6 +161,7 @@
     "neverUsed": "Nie verwendet"
   },
   "dumpDatabase": {
+    "scopeLabel": "Bereich",
     "heading": "Kartendatenbank leeren",
     "description": "Löscht Kartenbild-Vektoren dauerhaft, für ein Spiel oder alle",
     "scopePlaceholder": "Bereich auswählen...",
@@ -351,6 +357,7 @@
     }
   },
   "deletedItems": {
+    "typeLabel": "Elementtyp",
     "heading": "Gelöschte Elemente",
     "description": "Alles, was in einer Organisation gelöscht wurde, außer gescannten Karten. Beim Wiederherstellen wird ein Element genau so zurückgesetzt, wie es war.",
     "searchPlaceholder": "Nach Name oder Organisation suchen",
@@ -384,6 +391,7 @@
     }
   },
   "unmatchedRetry": {
+    "photoFilterLabel": "Fotofilter",
     "heading": "Nicht erkannte Scans",
     "description": "Die neuesten nicht erkannten Scans aus allen Organisationen. Ein erneuter Versuch führt den aktuellen Kartenabgleich mit den gespeicherten Daten jedes Scans aus und zeigt, was jetzt erkannt würde. Es wird nichts gespeichert oder geändert. Ein einzelner Scan wird wie beim Live-Scannen geprüft: Ist der Bildabgleich unsicher, läuft zusätzlich OCR auf dem gespeicherten Foto. Alle erneut versuchen wiederholt nur den Bildabgleich, damit die OCR für Live-Scans nicht ausgebremst wird.",
     "searchPlaceholder": "Nach Organisation, Sammlung oder Karte suchen",

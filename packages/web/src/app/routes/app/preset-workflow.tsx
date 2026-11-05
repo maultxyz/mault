@@ -98,7 +98,10 @@ function PresetWorkflowContent() {
           value={null}
           onValueChange={(presetGuid) => presetGuid && draft.addStage(presetGuid)}
         >
-          <SelectTrigger className="w-full md:w-72">
+          <SelectTrigger
+            className="w-full md:w-72"
+            aria-label={t("presetWorkflows.addStage")}
+          >
             <SelectValue>{t("presetWorkflows.addStage")}</SelectValue>
           </SelectTrigger>
           <SelectContent>

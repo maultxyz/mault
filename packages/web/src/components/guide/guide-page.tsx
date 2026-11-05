@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicNav } from "@/components/public-nav";
@@ -12,7 +13,7 @@ export function GuidePage({ footer, children }: GuidePageProps) {
       <BlueprintBackdrop />
       <PublicAnnouncementBanner />
       <PublicNav containerClassName="max-w-4xl" />
-      <main className="flex-1">{children}</main>
+      <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">{children}</main>
       {footer}
     </div>
   );

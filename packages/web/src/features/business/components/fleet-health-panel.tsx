@@ -100,8 +100,20 @@ export function FleetHealthPanel() {
                       : device.cardsSinceService.toLocaleString()}
                   </span>
                 </div>
-                {progress !== null && (
-                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                {progress !== null && interval && (
+                  <div
+                    role="progressbar"
+                    aria-label={t("fleet.sinceService")}
+                    aria-valuemin={0}
+                    aria-valuemax={interval}
+                    aria-valuenow={Math.min(device.cardsSinceService, interval)}
+                    aria-valuetext={
+                      device.serviceDue
+                        ? `${device.cardsSinceService.toLocaleString()} / ${interval.toLocaleString()}, ${t("fleet.types.maintenance")}`
+                        : `${device.cardsSinceService.toLocaleString()} / ${interval.toLocaleString()}`
+                    }
+                    className="h-1.5 overflow-hidden rounded-full bg-muted"
+                  >
                     <div
                       className={cn(
                         "h-full rounded-full",

@@ -162,6 +162,7 @@ export default function BinEditorScreen() {
                   title={t("rules.catchAllLabel")}
                   subtitle={t("rules.catchAllDescription")}
                   disabled={readOnly}
+                  rightIsInteractive
                   right={
                     <Switch
                       accessibilityLabel={t("rules.catchAllLabel")}
@@ -250,6 +251,7 @@ export default function BinEditorScreen() {
                     title={t("rules.disabledLabel")}
                     subtitle={t("rules.disabledDescription")}
                     disabled={readOnly}
+                    rightIsInteractive
                     right={
                       <Switch
                         accessibilityLabel={t("rules.disabledLabel")}

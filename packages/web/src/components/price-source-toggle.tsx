@@ -15,6 +15,7 @@ export function PriceSourceToggle({ value, onChange }: PriceSourceToggleProps) {
             key={source}
             type="button"
             onClick={() => onChange(source)}
+            aria-pressed={isSelected}
             className={cn(
               "flex flex-col items-center gap-1 rounded-lg border p-3 w-36 transition-all",
               isSelected

@@ -47,7 +47,7 @@ function GuideTocList({ entries, onNavigate }: GuideTocListProps) {
                     {entry.done}/{entry.total}
                   </span>
                   {complete ? (
-                    <IconCircleCheckFilled className="size-4 text-success" />
+                    <IconCircleCheckFilled className="size-4 text-success-foreground" />
                   ) : (
                     <span className="h-1.5 w-12 overflow-hidden rounded-full bg-secondary sm:w-16">
                       <span

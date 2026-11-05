@@ -16,6 +16,7 @@ export function DiscordRoleSelect({
   onChange,
   isSelectable = (role) => role.canPing,
   disabled,
+  "aria-label": ariaLabel,
 }: DiscordRoleSelectProps) {
   const { t } = useTranslation("integrations");
   return (
@@ -26,7 +27,7 @@ export function DiscordRoleSelect({
         onChange(!next || next === NO_DISCORD_ROLE ? null : next)
       }
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full" aria-label={ariaLabel}>
         <SelectValue>
           {value ? (
             <DiscordRoleLabel

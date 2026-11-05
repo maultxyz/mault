@@ -31,6 +31,7 @@ export function CardImageViewer({
               {t("cardDetailPanel.showOcrRegions")}
               <Switch
                 size="sm"
+                aria-label={t("cardDetailPanel.showOcrRegions")}
                 checked={showOcrRegions}
                 onCheckedChange={onShowOcrRegionsChange}
               />

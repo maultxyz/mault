@@ -1,4 +1,5 @@
 export const BUTTON_HEIGHTS = { sm: 34, md: 44, lg: 52 } as const;
+export const MIN_TOUCH_TARGET = 44;
 export const TOP_BAR_HEIGHT = 44;
 export const TOP_BAR_BRAND_SIZE = 26;
 export const TOP_BAR_BRAND_MARK_SCALE = 1.6;

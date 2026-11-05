@@ -49,9 +49,11 @@ function ComboboxTrigger({
 }
 
 function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
+  const { t } = useTranslation("common")
   return (
     <ComboboxPrimitive.Clear
       data-slot="combobox-clear"
+      aria-label={t("a11y.clear")}
       render={<InputGroupButton variant="ghost" size="icon-xs" />}
       className={cn(className)}
       {...props}
@@ -73,6 +75,7 @@ function ComboboxInput({
   showTrigger?: boolean
   showClear?: boolean
 }) {
+  const { t } = useTranslation("common")
   const isMobile = useIsMobile()
   if (isMobile) {
     return (
@@ -108,6 +111,7 @@ function ComboboxInput({
             size="icon-xs"
             variant="ghost"
             render={<ComboboxTrigger />}
+            aria-label={t("a11y.openOptions")}
             data-slot="input-group-button"
             className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
             disabled={disabled}
@@ -285,7 +289,7 @@ function ComboboxChips({
     <ComboboxPrimitive.Chips
       data-slot="combobox-chips"
       className={cn(
-        "flex min-h-6 flex-wrap items-center gap-1 rounded-lg border border-input bg-background bg-clip-padding px-2 py-0.5 text-control transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30 has-aria-invalid:border-destructive has-aria-invalid:ring-2 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40",
+        "flex min-h-6 flex-wrap items-center gap-1 rounded-lg border border-input bg-background bg-clip-padding px-2 py-0.5 text-control transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-2 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40",
         className
       )}
       {...props}
@@ -301,6 +305,7 @@ function ComboboxChip({
 }: ComboboxPrimitive.Chip.Props & {
   showRemove?: boolean
 }) {
+  const { t } = useTranslation("common")
   return (
     <ComboboxPrimitive.Chip
       data-slot="combobox-chip"
@@ -313,6 +318,7 @@ function ComboboxChip({
       {children}
       {showRemove && (
         <ComboboxPrimitive.ChipRemove
+          aria-label={t("a11y.remove")}
           render={<Button variant="ghost" size="icon-xs" />}
           className="-ml-1 opacity-50 hover:opacity-100"
           data-slot="combobox-chip-remove"

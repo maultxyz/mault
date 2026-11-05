@@ -1,4 +1,13 @@
 {
+  "a11y": {
+    "cameraPreview": "Kameravorschau des Scanners",
+    "showLastSearchImage": "Letztes Suchbild anzeigen",
+    "qrCameraPreview": "Kameraansicht zum Scannen des QR-Codes",
+    "binsNeedingEmptying": "Zu leerende Fächer",
+    "corrected": "Korrigiert",
+    "sent": "Gesendet",
+    "received": "Empfangen"
+  },
   "camera": {
     "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut.",
     "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an.",

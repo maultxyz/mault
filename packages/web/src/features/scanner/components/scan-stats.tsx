@@ -245,6 +245,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                   <button
                     key={r.key}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => toggleRarity(r.key)}
                     className={cn(
                       "flex items-center justify-between text-xs rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
@@ -280,6 +281,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                   <button
                     key={c.key}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => toggleColor(c.key)}
                     className={cn(
                       "flex items-center justify-between text-xs rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
@@ -316,6 +318,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 <button
                   key={s.code}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => toggleSet(s.code)}
                   className={cn(
                     "flex items-center justify-between text-xs gap-2 rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
@@ -370,6 +373,7 @@ function StatCard({
   action?: React.ReactNode;
   children?: React.ReactNode;
 }) {
+  const { t } = useTranslation("scanner");
   return (
     <div className={`p-2 ${className ?? ""}`}>
       <div className="flex items-center gap-1.5">
@@ -378,6 +382,10 @@ function StatCard({
         </p>
         {indicator !== undefined && (
           <span
+            role="img"
+            aria-label={
+              indicator ? t("scannerPip.sorting") : t("scannerPip.paused")
+            }
             className={`size-1.5 rounded-full shrink-0 ${indicator ? "bg-success animate-pulse" : "bg-muted-foreground/40"}`}
           />
         )}

@@ -20,7 +20,10 @@ export function ModuleCountStepper() {
           value={String(displayCount)}
           onValueChange={(value) => stage(Number(value))}
         >
-          <SelectTrigger className="w-40">
+          <SelectTrigger
+            className="w-40"
+            aria-label={t("moduleCountStepper.label")}
+          >
             <SelectValue>
               {t("moduleCountStepper.value", { count: displayCount })}
             </SelectValue>

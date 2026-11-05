@@ -46,6 +46,7 @@ import { State } from "react-native-ble-plx";
 import { ensureBlePermissions } from "@/features/sorter/lib/ble-permissions";
 import { BleTransport, getBleManager, settledBleState } from "@/features/sorter/lib/ble-transport";
 import { CloudTransport } from "@/features/sorter/lib/cloud-transport";
+import { useSorterPhaseAnnouncements } from "@/features/sorter/api/use-sorter-phase-announcements";
 import { SorterLink } from "@/features/sorter/lib/sorter-link";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
@@ -98,6 +99,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
   const [phase, setPhase] = useState<SorterPhase>("idle");
+  useSorterPhaseAnnouncements(phase);
   const [error, setError] = useState<SorterError | null>(null);
   const [notice, setNotice] = useState<SorterNotice | null>(null);
   const [sensorNote, setSensorNote] = useState<SensorNote | null>(null);

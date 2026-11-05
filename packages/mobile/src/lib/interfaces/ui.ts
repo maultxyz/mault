@@ -34,6 +34,7 @@ export interface ButtonProps {
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
   style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
   accessibilityHint?: string;
 }
 
@@ -46,6 +47,7 @@ export interface TextFieldProps {
   placeholder?: string;
   secureTextEntry?: boolean;
   autoComplete?: "email" | "password" | "name" | "off" | "new-password";
+  textContentType?: "emailAddress" | "password" | "newPassword" | "name" | "none";
   keyboardType?: "default" | "email-address" | "decimal-pad" | "number-pad";
   editable?: boolean;
   autoCapitalize?: "none" | "sentences" | "words";
@@ -96,6 +98,7 @@ export interface ListRowProps {
   value?: string;
   tone?: "default" | "destructive";
   right?: ReactNode;
+  rightIsInteractive?: boolean;
   onPress?: () => void;
   disabled?: boolean;
   selected?: boolean;
@@ -284,6 +287,7 @@ export interface SelectFieldProps {
   label?: string;
   value: string | null;
   placeholder: string;
+  accessibilityLabel?: string;
   onPress: () => void;
   disabled?: boolean;
 }
@@ -332,6 +336,7 @@ export interface SliderProps {
   step?: number;
   disabled?: boolean;
   accessibilityLabel: string;
+  accessibilityValueText?: string;
   onValueChange: (value: number) => void;
 }
 

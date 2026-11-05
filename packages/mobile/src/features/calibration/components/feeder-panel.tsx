@@ -104,7 +104,7 @@ export function FeederPanel({ state, firmwareVersion }: FeederPanelProps) {
   return (
     <Surface style={{ gap: SPACING.xl }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {t("calibration.feeder.heading")}
         </AppText>
         <Button

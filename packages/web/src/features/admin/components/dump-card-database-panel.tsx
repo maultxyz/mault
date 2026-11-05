@@ -55,7 +55,10 @@ export function DumpCardDatabasePanel() {
             value={dumpGameKey}
             onValueChange={(value) => setDumpGameKey(value ?? "__all__")}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger
+              className="w-48"
+              aria-label={t("dumpDatabase.scopeLabel")}
+            >
               <SelectValue placeholder={t("dumpDatabase.scopePlaceholder")}>
                 {dumpGameKey === "__all__"
                   ? t("dumpDatabase.allGames")

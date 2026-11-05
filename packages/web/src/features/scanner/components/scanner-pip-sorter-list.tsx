@@ -32,11 +32,17 @@ function ScannerPipSorterRow({ station, index }: StationIdentityProps) {
         variant={isSelected ? "selected" : "ghost"}
         className="w-full justify-start"
         aria-pressed={isSelected}
-        aria-label={showLabel}
         title={attention ? attentionLabel(attention) : showLabel}
         onClick={() => setActiveStation(station.id)}
       >
         <StationStatusDot status={status} />
+        {!attention && (
+          <span className="sr-only">
+            {summary?.isRunning
+              ? t("scannerPip.sorting")
+              : t("scannerPip.paused")}
+          </span>
+        )}
         <span className="min-w-0 flex-1 truncate text-left">{name}</span>
         <span
           className={cn(

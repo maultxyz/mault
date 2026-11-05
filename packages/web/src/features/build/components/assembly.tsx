@@ -108,6 +108,7 @@ export function BuildAssembly() {
                     {hasVideos && (
                       <IconVideo
                         className="size-4"
+                        role="img"
                         aria-label={t("assembly.hasVideoAria")}
                       />
                     )}

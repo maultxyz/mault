@@ -23,6 +23,7 @@ function ReviewQueueRow({
   isRemoved,
   onOpen,
 }: ReviewQueueRowProps) {
+  const { t } = useTranslation("cards");
   const rowRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -42,11 +43,23 @@ function ReviewQueueRow({
       )}
     >
       {isRemoved ? (
-        <IconTrash className="size-4 shrink-0 text-foreground/70" />
+        <IconTrash
+          role="img"
+          aria-label={t("reviewQueue.statusRemoved")}
+          className="size-4 shrink-0 text-foreground/70"
+        />
       ) : isReviewed ? (
-        <IconCircleCheckFilled className="size-4 shrink-0 text-success" />
+        <IconCircleCheckFilled
+          role="img"
+          aria-label={t("technicalDetails.reviewed")}
+          className="size-4 shrink-0 text-success-foreground"
+        />
       ) : (
-        <IconCircleDashed className="size-4 shrink-0 text-foreground/70" />
+        <IconCircleDashed
+          role="img"
+          aria-label={t("reviewQueue.statusPending")}
+          className="size-4 shrink-0 text-foreground/70"
+        />
       )}
       <div className="aspect-[2.5/3.5] w-7 shrink-0 overflow-hidden rounded-sm bg-muted">
         {entry.card.image?.small && (
@@ -101,7 +114,7 @@ export function ReviewQueueList({
           <h2 className="truncate text-sm font-semibold">
             {t("reviewQueue.title")}
           </h2>
-          <p className="text-xs tabular-nums text-foreground/70">
+          <p role="status" className="text-xs tabular-nums text-foreground/70">
             {isPending
               ? " "
               : t("reviewQueue.progress", {

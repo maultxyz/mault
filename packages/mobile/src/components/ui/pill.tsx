@@ -23,7 +23,7 @@ export function Pill({ label, tone = "neutral", icon }: PillProps) {
         flexDirection: "row",
         alignItems: "center",
         alignSelf: "flex-start",
-        height: 20,
+        minHeight: 20,
         gap: SPACING.xs,
         paddingHorizontal: SPACING.sm,
         borderRadius: RADIUS.sm,

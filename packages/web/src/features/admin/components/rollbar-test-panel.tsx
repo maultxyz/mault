@@ -15,8 +15,7 @@ export function RollbarTestPanel() {
   });
 
   function handleTestClient() {
-    var a = null;
-    a!.hello();
+    (null as unknown as { hello: () => void }).hello();
     toast.success(t("rollbarTest.toasts.clientSent"));
   }
 

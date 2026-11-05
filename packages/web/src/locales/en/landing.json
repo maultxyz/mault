@@ -20,6 +20,8 @@
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",
     "seeFeatures": "Explore features",
     "liveSort": "Live sort",
+    "pauseDemo": "Pause demo",
+    "playDemo": "Play demo",
     "sortedCount_one": "{{count}} card sorted",
     "sortedCount_other": "{{count}} cards sorted",
     "nextUp": "Next up",
@@ -93,7 +95,10 @@
       "ruleMatches_one": "{{count}} card goes to Bin {{bin}}",
       "ruleMatches_other": "{{count}} cards go to Bin {{bin}}",
       "collectionValue": "Collection value",
-      "valueHistory": "Value over the last 30 days"
+      "valueHistory": "Value over the last 30 days",
+      "ruleField": "Field",
+      "ruleOperator": "Operator",
+      "ruleValue": "Value"
     },
     "more": {
       "heading": "And a whole lot more",

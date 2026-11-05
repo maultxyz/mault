@@ -9,6 +9,7 @@ import { NO_DISCORD_GUILD } from "@/lib/constants/admin";
 import type { DiscordGuildSelectProps } from "@/lib/interfaces/admin";
 
 export function DiscordGuildSelect({
+  id,
   value,
   guilds,
   emptyLabel,
@@ -35,7 +36,7 @@ export function DiscordGuildSelect({
         onChange(!next || next === NO_DISCORD_GUILD ? null : next)
       }
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger id={id} className="w-full">
         <SelectValue>{value ? label(value) : emptyLabel}</SelectValue>
       </SelectTrigger>
       <SelectContent>

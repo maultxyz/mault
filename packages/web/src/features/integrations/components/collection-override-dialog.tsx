@@ -105,6 +105,7 @@ export function CollectionOverrideDialog({
                   }
                 >
                   <ComboboxInput
+                    aria-label={t("overrides.collection")}
                     placeholder={t("overrideDialog.collectionPlaceholder")}
                   />
                   <ComboboxContent>
@@ -131,6 +132,7 @@ export function CollectionOverrideDialog({
                 name="scanChannelId"
                 render={({ field }) => (
                   <DiscordChannelSelect
+                    aria-label={t("channelSettings.scan")}
                     value={field.value}
                     channels={channels}
                     emptyLabel={t("channelSettings.sameScan")}
@@ -146,6 +148,7 @@ export function CollectionOverrideDialog({
                 name="errorChannelId"
                 render={({ field }) => (
                   <DiscordChannelSelect
+                    aria-label={t("channelSettings.error")}
                     value={field.value}
                     channels={channels}
                     emptyLabel={t("channelSettings.sameError")}

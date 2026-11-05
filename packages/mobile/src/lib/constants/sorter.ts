@@ -1,5 +1,5 @@
 import type { SorterLinkOpenFailure } from "@magic-vault/shared";
-import type { SorterErrorCode } from "@/lib/interfaces/sorter";
+import type { SorterErrorCode, SorterPhase } from "@/lib/interfaces/sorter";
 
 export const FEEDER_RESPONSE_TIMEOUT_MS = 10_000;
 export const BLE_DISCOVERY_TIMEOUT_MS = 15_000;
@@ -30,3 +30,4 @@ export const SORTER_ERROR_BY_OPEN_FAILURE: Record<SorterLinkOpenFailure, SorterE
   inUse: "sorter-in-use",
   failed: "connect-failed",
 };
+export const ANNOUNCED_SORTER_PHASES: SorterPhase[] = ["ready", "idle", "error"];

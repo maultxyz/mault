@@ -123,7 +123,7 @@ export function SoundRuleDialog({
                 name="clipGuid"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label={t("ruleDialog.clip")}>
                       <SelectValue
                         placeholder={t("ruleDialog.clipPlaceholder")}
                       >

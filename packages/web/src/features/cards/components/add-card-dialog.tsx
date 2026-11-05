@@ -12,7 +12,7 @@ import { CardSearchPicker } from "@/features/cards/components/card-search-picker
 import { useCollections } from "@/features/collections/api/use-collections";
 import type { AddCardDialogProps } from "@/lib/interfaces/cards";
 import type { PlayingCard } from "@magic-vault/shared";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function AddCardDialog({
@@ -26,6 +26,7 @@ export function AddCardDialog({
   const { collections, activeCollection } = useCollections();
   const { addCard, isAdding } = useAddManualCard();
   const [pickedGuid, setPickedGuid] = useState<string | null>(null);
+  const collectionSelectId = useId();
   const targetGuid =
     collectionGuid ??
     pickedGuid ??
@@ -56,12 +57,12 @@ export function AddCardDialog({
       <div className="flex min-h-0 flex-1 flex-col gap-3">
         {!collectionGuid && (
           <div className="flex flex-col gap-1.5">
-            <Label>{t("addCard.collection")}</Label>
+            <Label htmlFor={collectionSelectId}>{t("addCard.collection")}</Label>
             <Select
               value={targetGuid ?? null}
               onValueChange={(value) => setPickedGuid(value as string)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id={collectionSelectId} className="w-full">
                 <SelectValue>{collectionName(targetGuid)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
