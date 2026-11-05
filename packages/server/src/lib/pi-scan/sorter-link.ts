@@ -14,6 +14,15 @@ export class SorterLink {
   private receivedReply = false;
   private closed = false;
   jamModule: number | null = null;
+  firmwareVersion: string | null = null;
+  private fedListener: ((reply: Record<string, unknown>) => void) | null = null;
+
+  onFed(listener: (reply: Record<string, unknown>) => void): () => void {
+    this.fedListener = listener;
+    return () => {
+      this.fedListener = null;
+    };
+  }
 
   constructor(private port: SorterPort) {
     port.on("data", this.onData);
@@ -44,6 +53,7 @@ export class SorterLink {
         continue;
       }
       if (isUnsolicitedSerialMessage(line)) {
+        if (line.event === "fed") this.fedListener?.(line);
         if (line.error === "jam") {
           const module = Number(line.module);
           if (Number.isFinite(module) && module !== 1) this.jamModule = module;
@@ -63,6 +73,7 @@ export class SorterLink {
       this.pending.delete(key);
       clearTimeout(waiter.timer);
       this.receivedReply = true;
+      if (typeof line.version === "string") this.firmwareVersion = line.version;
       waiter.resolve(line);
     }
   }
@@ -105,6 +116,7 @@ export class SorterLink {
       waiter.reject(error);
     }
     this.pending.clear();
+    this.fedListener = null;
     this.port.off("data", this.onData);
     this.port.off("error", this.onError);
     this.port.off("close", this.onClose);

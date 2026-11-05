@@ -242,6 +242,10 @@ export class PiControllerHub {
       }
       const sequence = replySeq(payload);
       if (sequence === null) {
+        if (payload.event === "fed") {
+          if (this.active?.payload.route) this.active.client.receive(payload);
+          continue;
+        }
         for (const client of this.clients) client.receive(payload);
         continue;
       }

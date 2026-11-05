@@ -40,6 +40,7 @@ export interface PiScanRunContext {
   region: ScanRegion;
   settleMs: number;
   feedRetryCount: number;
+  pipelinedFeed: boolean;
   checkBothOrientations: boolean;
   flipCamera: boolean;
   matchesNeeded: number;
@@ -104,6 +105,11 @@ export interface PiScanFrameMatch {
   detection: ScanDetectionDiagnostics;
   detectedColor: string | null;
   foilDetection: FoilDetection | null;
+}
+
+export interface PiScanPipelineOptions {
+  enabled: () => boolean;
+  onFed: (reply: Record<string, unknown>) => void;
 }
 
 export interface PiScanStartInput {
