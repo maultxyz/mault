@@ -974,10 +974,6 @@ export interface InferenceWorkerScope {
   postMessage(message: InferenceWorkerMessage, transfer?: Transferable[]): void;
 }
 
-export interface NavigatorWithWebGpu extends Navigator {
-  gpu?: { requestAdapter(): Promise<unknown> };
-}
-
 export interface PendingInferenceRun {
   resolve: (outputs: VisionModelOutputs) => void;
   reject: (error: Error) => void;

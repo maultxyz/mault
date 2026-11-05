@@ -3,7 +3,6 @@ import type {
   InferenceWorkerRequest,
   InferenceWorkerRunRequest,
   InferenceWorkerScope,
-  NavigatorWithWebGpu,
   OnnxExecutionProviderPreference,
 } from "@/lib/interfaces/scanner";
 import { INFERENCE_WASM_MAX_THREADS } from "@/lib/constants/scanner";
@@ -34,10 +33,9 @@ function errorMessage(error: unknown, fallback: string): string {
 }
 
 async function webgpuAdapterIsAvailable(): Promise<boolean> {
-  const gpu = (navigator as NavigatorWithWebGpu).gpu;
-  if (!gpu) return false;
+  if (!("gpu" in navigator)) return false;
   try {
-    return !!(await gpu.requestAdapter());
+    return !!(await navigator.gpu.requestAdapter());
   } catch {
     return false;
   }
