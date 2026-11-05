@@ -111,6 +111,23 @@
     "reverseSpeedLabel": "Rückrollgeschwindigkeit",
     "off": "Aus"
   },
+  "feederTest": {
+    "heading": "Zuführungstest",
+    "description": "Karten ohne Scan direkt ins untere Fach zuführen. Lass den Test laufen und passe die Zuführung auf der Seite „Servos & Zuführung“ an: Änderungen gelten ab der nächsten Karte und bleiben ungespeichert, bis du speicherst.",
+    "runUntilStoppedLabel": "Zuführen bis zum Stopp",
+    "cardsToSendLabel": "Anzahl Karten",
+    "start": "Zuführung starten",
+    "stop": "Stopp",
+    "stopping": "Stoppt nach dieser Karte",
+    "progress": "Gesendete Karten: {{count}}",
+    "progressOfTotal": "Gesendete Karten: {{count}} von {{total}}",
+    "toasts": {
+      "completed": "Zuführungstest abgeschlossen. Gesendete Karten: {{count}}",
+      "stopped": "Zuführungstest gestoppt. Gesendete Karten: {{count}}",
+      "hopperEmpty": "Zuführbehälter ist leer. Gesendete Karten: {{count}}",
+      "failed": "Zuführungstest wegen eines Fehlers gestoppt. Gesendete Karten: {{count}}"
+    }
+  },
   "irSensorPanel": {
     "label": "IR-Sensoren",
     "tooltip": "Infrarotsensoren, die erkennen, wann eine Karte im Zuführpfad jedes Moduls vorhanden ist",

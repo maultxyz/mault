@@ -3,6 +3,10 @@ import { API_KEY_NAME_MAX_LENGTH } from "../constants/api-keys.constant";
 import { SYNC_API_KEY_PERMISSIONS } from "../constants/sync-api-keys.constant";
 import { CARD_CONDITIONS } from "../constants/card-condition.constant";
 import {
+  FEEDER_TEST_MAX_CARD_COUNT,
+  FEEDER_TEST_MIN_CARD_COUNT,
+} from "../constants/feeder-test.constant";
+import {
   ORGANIZATION_NAME_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   WEBHOOK_FORM_URL_PATTERN,
@@ -239,4 +243,13 @@ export const storagePickListFormSchema = z.object({
   decklist: z
     .string()
     .refine((decklist) => storagePickListEntries(decklist).length > 0, formValidationMessage("decklistRequired")),
+});
+
+export const feederTestFormSchema = z.object({
+  runUntilStopped: z.boolean(),
+  cardsToSend: z
+    .number(formValidationMessage("wholeNumber"))
+    .int(formValidationMessage("wholeNumber"))
+    .min(FEEDER_TEST_MIN_CARD_COUNT, formValidationMessage("atLeast", { min: FEEDER_TEST_MIN_CARD_COUNT }))
+    .max(FEEDER_TEST_MAX_CARD_COUNT, formValidationMessage("atMost", { max: FEEDER_TEST_MAX_CARD_COUNT })),
 });

@@ -1122,6 +1122,24 @@
       "reverseSpeedLabel": "Roll Back Speed",
       "off": "Off"
     },
+    "feederTest": {
+      "heading": "Feeder test",
+      "description": "Feed cards straight to the bottom bin without scanning, using the saved feeder settings.",
+      "runUntilStoppedLabel": "Feed until stopped",
+      "cardsToSendLabel": "Cards to send",
+      "start": "Start feeding",
+      "stop": "Stop",
+      "stopping": "Stopping after this card",
+      "progress": "Cards sent: {{count}}",
+      "progressOfTotal": "Cards sent: {{count}} of {{total}}",
+      "results": {
+        "completed": "Feeder test finished. Cards sent: {{count}}",
+        "stopped": "Feeder test stopped. Cards sent: {{count}}",
+        "hopperEmpty": "Hopper is empty. Cards sent: {{count}}",
+        "feedFailed": "Feeder test stopped on an error. Cards sent: {{count}}",
+        "routeFailed": "Feeder test stopped on an error. Cards sent: {{count}}"
+      }
+    },
     "runTest": "Run Test",
     "testing": "Testing…",
     "feed": "Feed",

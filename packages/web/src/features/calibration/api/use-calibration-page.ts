@@ -13,6 +13,7 @@ import { useDevice } from "@/features/calibration/api/use-device";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
+import { useFeederTest } from "@/features/calibration/api/use-feeder-test";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import { useOfflineCalibration } from "@/features/calibration/api/use-offline-calibration";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
@@ -316,6 +317,13 @@ export function useCalibrationPage() {
       onDevice.feeder = true;
     }
   }, [sendAndAwaitReply]);
+
+  const feederTest = useFeederTest({
+    moduleCount,
+    feedRetryCount: feederFeedRetryCountValue,
+    applyDraftsToDevice,
+  });
+  const isFeederTestRunning = feederTest.isRunning;
 
   const restoreSavedOnDevice = useCallback(async () => {
     const onDevice = draftsOnDeviceRef.current;
@@ -625,13 +633,14 @@ export function useCalibrationPage() {
     (value: number) => {
       if (!canCalibrate) return;
       setFeederDraftField("speed", value);
+      if (isFeederTestRunning) return;
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, previewSpeed, setFeederDraftField],
+    [canCalibrate, isFeederTestRunning, previewSpeed, setFeederDraftField],
   );
 
   const moveFeederStopPulse = useCallback(
@@ -663,13 +672,14 @@ export function useCalibrationPage() {
     (value: number) => {
       if (!canCalibrate) return;
       moveFeederStopPulse(value);
+      if (isFeederTestRunning) return;
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, previewSpeed, moveFeederStopPulse],
+    [canCalibrate, isFeederTestRunning, previewSpeed, moveFeederStopPulse],
   );
 
   const handleResetFeederStopPulse = useCallback(
@@ -701,13 +711,14 @@ export function useCalibrationPage() {
     (value: number) => {
       if (!canCalibrate) return;
       setFeederDraftField("reverseSpeed", value);
+      if (isFeederTestRunning) return;
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, previewSpeed, setFeederDraftField],
+    [canCalibrate, isFeederTestRunning, previewSpeed, setFeederDraftField],
   );
 
   const handleFeederReverseDurationChange = useCallback(
@@ -1079,6 +1090,7 @@ export function useCalibrationPage() {
     handleFeederReverseDurationChange,
     handleFeederFeedRetryCountChange,
     handleFeederSelectContinuous,
+    feederTest,
     scanRegion,
     captureSettleDelayMs,
     matchesNeeded,

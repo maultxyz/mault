@@ -1122,6 +1122,24 @@
       "reverseSpeedLabel": "Rückrollgeschwindigkeit",
       "off": "Aus"
     },
+    "feederTest": {
+      "heading": "Zuführungstest",
+      "description": "Karten ohne Scan direkt ins untere Fach zuführen, mit den gespeicherten Zuführungseinstellungen.",
+      "runUntilStoppedLabel": "Zuführen bis zum Stopp",
+      "cardsToSendLabel": "Anzahl Karten",
+      "start": "Zuführung starten",
+      "stop": "Stopp",
+      "stopping": "Stoppt nach dieser Karte",
+      "progress": "Gesendete Karten: {{count}}",
+      "progressOfTotal": "Gesendete Karten: {{count}} von {{total}}",
+      "results": {
+        "completed": "Zuführungstest abgeschlossen. Gesendete Karten: {{count}}",
+        "stopped": "Zuführungstest gestoppt. Gesendete Karten: {{count}}",
+        "hopperEmpty": "Zuführbehälter ist leer. Gesendete Karten: {{count}}",
+        "feedFailed": "Zuführungstest wegen eines Fehlers gestoppt. Gesendete Karten: {{count}}",
+        "routeFailed": "Zuführungstest wegen eines Fehlers gestoppt. Gesendete Karten: {{count}}"
+      }
+    },
     "runTest": "Test ausführen",
     "testing": "Wird getestet…",
     "feed": "Zuführen",

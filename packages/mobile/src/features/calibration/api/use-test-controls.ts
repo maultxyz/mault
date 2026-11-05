@@ -4,10 +4,13 @@ import { useTranslation } from "react-i18next";
 import {
   computeBinCount,
   createDefaultBinRoutes,
+  DEFAULT_FEEDER_CALIBRATION,
   DEFAULT_MODULE_COUNT,
   type BinRoute,
   type SerialReply,
 } from "@magic-vault/shared";
+import { feederConfigQueryOptions } from "@/features/calibration/api/calibration-configs";
+import { useFeederTest } from "@/features/calibration/api/use-feeder-test";
 import { binRoutesQueryOptions } from "@/features/devices/api/devices";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { CALIBRATION_STEP_SETTLE_MS, IR_MONITOR_INTERVAL_MS, IR_READ_TIMEOUT_MS } from "@/lib/constants/calibration";
@@ -28,6 +31,11 @@ export function useTestControls(): TestControls {
   const modules = Array.from({ length: moduleCount }, (_, i) => i + 1);
   const binCount = computeBinCount(moduleCount);
   const { data: routes } = useQuery(binRoutesQueryOptions(sorter.device?.guid ?? null));
+  const { data: feederConfig } = useQuery(feederConfigQueryOptions(sorter.device?.guid ?? null));
+  const feederTest = useFeederTest({
+    moduleCount,
+    feedRetryCount: (feederConfig ?? DEFAULT_FEEDER_CALIBRATION).feedRetryCount,
+  });
   const [irStates, setIrStates] = useState<boolean[] | null>(null);
   const [hopperHasCards, setHopperHasCards] = useState<boolean | null>(null);
   const [irMonitoring, setIrMonitoring] = useState(false);
@@ -137,5 +145,6 @@ export function useTestControls(): TestControls {
     testBin,
     sampleRun,
     resetToNeutral,
+    feederTest,
   };
 }
