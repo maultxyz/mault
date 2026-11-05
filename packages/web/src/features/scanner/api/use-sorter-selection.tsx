@@ -9,7 +9,9 @@ import {
   useMemo,
   useRef,
   useState,
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
 } from "react";
 
 const SorterSelectionContext =
@@ -22,17 +24,26 @@ export function SorterSelectionProvider({ children }: { children: ReactNode }) {
   const [runningKeys, setRunningKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const pausersRef = useRef(new Map<string, () => void>());
+  const [resumableKeys, setResumableKeys] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const controlsRef = useRef(new Map<string, SorterControl>());
 
-  const setRunning = useCallback((key: string, running: boolean) => {
-    setRunningKeys((prev) => {
-      if (prev.has(key) === running) return prev;
-      const next = new Set(prev);
-      if (running) next.add(key);
-      else next.delete(key);
-      return next;
-    });
-  }, []);
+  const setKeyMembership = useCallback(
+    (
+      update: Dispatch<SetStateAction<ReadonlySet<string>>>,
+      key: string,
+      isMember: boolean,
+    ) =>
+      update((prev) => {
+        if (prev.has(key) === isMember) return prev;
+        const next = new Set(prev);
+        if (isMember) next.add(key);
+        else next.delete(key);
+        return next;
+      }),
+    [],
+  );
 
   const toggleSelected = useCallback((key: string) => {
     setSelectedKeys((prev) => {
@@ -51,41 +62,54 @@ export function SorterSelectionProvider({ children }: { children: ReactNode }) {
   const clearSelected = useCallback(() => setSelectedKeys(new Set()), []);
 
   const registerSorterControl = useCallback(
-    (key: string, { isRunning, pause }: SorterControl) => {
-      pausersRef.current.set(key, pause);
-      setRunning(key, isRunning);
+    (key: string, control: SorterControl) => {
+      controlsRef.current.set(key, control);
+      setKeyMembership(setRunningKeys, key, control.isRunning);
+      setKeyMembership(setResumableKeys, key, control.canResume);
       return () => {
-        if (pausersRef.current.get(key) === pause) {
-          pausersRef.current.delete(key);
+        if (controlsRef.current.get(key) === control) {
+          controlsRef.current.delete(key);
         }
-        setRunning(key, false);
+        setKeyMembership(setRunningKeys, key, false);
+        setKeyMembership(setResumableKeys, key, false);
       };
     },
-    [setRunning],
+    [setKeyMembership],
   );
 
   const pauseSorters = useCallback((keys: Iterable<string>) => {
-    for (const key of keys) pausersRef.current.get(key)?.();
+    for (const key of keys) controlsRef.current.get(key)?.pause();
+  }, []);
+
+  const resumeSorters = useCallback((keys: Iterable<string>) => {
+    for (const key of keys) {
+      const control = controlsRef.current.get(key);
+      if (control?.canResume) control.resume();
+    }
   }, []);
 
   const value = useMemo(
     () => ({
       selectedKeys,
       runningKeys,
+      resumableKeys,
       toggleSelected,
       setSelected,
       clearSelected,
       registerSorterControl,
       pauseSorters,
+      resumeSorters,
     }),
     [
       selectedKeys,
       runningKeys,
+      resumableKeys,
       toggleSelected,
       setSelected,
       clearSelected,
       registerSorterControl,
       pauseSorters,
+      resumeSorters,
     ],
   );
 

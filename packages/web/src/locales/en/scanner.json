@@ -21,7 +21,8 @@
     "noCollection": "No collection",
     "minimize": "Minimize to the side",
     "expand": "Show scanner preview",
-    "hide": "Hide until you return to MAULT"
+    "hide": "Hide until you return to MAULT",
+    "showSorter": "Show {{name}}"
   },
   "piScan": {
     "preview": "Live view of the sorter",
@@ -596,7 +597,8 @@
         "sorters": "Sorters",
         "connected": "Connected",
         "sorting": "Sorting now",
-        "offline": "Offline"
+        "offline": "Offline",
+        "attention": "Needs attention"
       },
       "searchPlaceholder": "Search sorters...",
       "noSearchResultsTitle": "No matching sorters",
@@ -633,7 +635,17 @@
       "deleteConfirm": {
         "title": "Delete {{name}}?",
         "description": "This removes the sorter and everything saved for it: its calibration, bin routes, bin heights, feeder settings and their change history. Scanned cards and collections are kept. If you plug it in again, it shows up as a new, uncalibrated sorter."
-      }
+      },
+      "start": "Start",
+      "pauseAll": "Pause all",
+      "resumeAll": "Resume all",
+      "resumeSelected": "Resume ({{count}})",
+      "sessionCount_one": "{{count}} this session",
+      "sessionCount_other": "{{count}} this session"
+    },
+    "cpuInferenceLimitReached": {
+      "title": "WASM runs one sorter at a time",
+      "description": "Card recognition on the CPU (WASM) keeps up with one sorter. Switch the AI Detection Backend to WebGPU on the Camera calibration page to run more sorters at once."
     },
     "hardCapReached": {
       "title": "Up to {{max}} sorters at a time",
@@ -642,6 +654,35 @@
     "limitReached": {
       "title": "Your plan's sorter limit is reached",
       "description": "Your plan runs a limited number of sorters at a time. Disconnect another sorter, or upgrade your plan in Settings to run more at once."
+    },
+    "attention": {
+      "needsAttention": "Needs attention",
+      "count_one": "{{count}} needs attention",
+      "count_other": "{{count}} need attention",
+      "goToNext": "Go to next sorter needing attention",
+      "reasons": {
+        "jam": "Jam at module {{module}}",
+        "hopperEmpty": "Hopper is empty",
+        "feederError": "Feeder error",
+        "noCardDetected": "No card reached the scanner",
+        "sorterNotResponding": "Sorter isn't responding",
+        "routingFailed": "A card couldn't be routed",
+        "binLimit": "Bin {{bins}} is full",
+        "binLimitUnknown": "A bin is full",
+        "binsFull_one": "Bin {{bins}} is full",
+        "binsFull_other": "Bins {{bins}} are full",
+        "packsComplete": "All packs are complete",
+        "saveFailed": "A scan couldn't be saved",
+        "scanLimit": "Daily scan limit reached",
+        "sorterLimit": "Sorter limit reached",
+        "collectionLocked": "Collection is locked",
+        "scannerError": "Camera error"
+      },
+      "fixes": {
+        "resume": "Resume",
+        "emptyBin": "Empty bin",
+        "openSorter": "Open sorter"
+      }
     }
   },
   "watchPage": {
@@ -1021,6 +1062,11 @@
       "pause": "Pause scanning"
     },
     "form": {
+      "style": "Card style",
+      "styles": {
+        "illustrated": "Illustrated",
+        "plain": "Plain"
+      },
       "title": "New control card",
       "description": "Pick what the card changes. Anything left on No change stays as it is.",
       "cardTitle": "Label",
@@ -1048,14 +1094,52 @@
     "tile": {
       "defaultTitle": "Control card",
       "qrAlt": "Control card QR code",
-      "remove": "Remove card"
+      "remove": "Remove card",
+      "illustratedAlt": "Illustrated control card"
     },
     "page": {
       "back": "Back to scanner",
       "title": "Control cards",
       "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
       "print": "Print",
-      "printTip": "Print on cardstock at 100% scale with margins on Default. Each page holds 9 cards. Cut along the borders and keep the QR code flat and free of glare."
+      "printTip": "Print on Letter cardstock at 100% scale (Actual size) with margins set to None. Each page holds 9 cards. Cut along the corner marks and keep the QR code flat and free of glare."
+    },
+    "illustrated": {
+      "typeLines": {
+        "sorcery": "Sorcery",
+        "instant": "Instant",
+        "enchantment": "Enchantment",
+        "artifact": "Artifact",
+        "creature": "Creature"
+      },
+      "names": {
+        "collection": "Portal to {{name}}",
+        "preset": "Rite of {{name}}",
+        "foil": "{{type}} Shimmer",
+        "notFoil": "Not Foil",
+        "set": "Seeker of {{name}}",
+        "anySet": "Wanderer of Every Set",
+        "condition": "Appraiser of {{condition}}",
+        "autoFeedOn": "Auto Feed the Swarm",
+        "autoFeedOff": "Autofeed Blocker",
+        "duplicatesOn": "Angelic Duplicates",
+        "duplicatesOff": "Duplicate Blocker",
+        "pause": "Sorter's Respite"
+      },
+      "rules": {
+        "collection": "Target Mault instance now sorts into the {{name}} collection.",
+        "preset": "Target Mault instance now follows the {{name}} rule preset.",
+        "foil": "Change target Foil Setting in target Mault instance to “{{type}}”.",
+        "notFoil": "Change target Foil Setting in target Mault instance to “Not Foil”.",
+        "set": "Target Mault instance only searches {{name}} for matches.",
+        "anySet": "Target Mault instance searches every set for matches.",
+        "condition": "Set the condition of target Mault instance to {{condition}}.",
+        "autoFeedOn": "Set your Auto Feed to true.",
+        "autoFeedOff": "Turn auto feed off on target Mault instance.",
+        "duplicatesOn": "Target Mault instance allows duplicates.",
+        "duplicatesOff": "Target Mault instance loses the ability to scan duplicates.",
+        "pause": "Tap target Mault instance. It doesn't untap until you resume scanning."
+      }
     }
   }
 }

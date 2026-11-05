@@ -471,7 +471,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   );
 
   const notifySorterLimit = useCallback(() => {
-    showSorterLimitToast(toast, t, stationsRef.current.sorterLimitIsHardCap);
+    showSorterLimitToast(toast, t, stationsRef.current.sorterLimitReason);
   }, [toast, t]);
 
   const exceedsSorterLimit = useCallback(() => {

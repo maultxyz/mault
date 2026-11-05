@@ -11,7 +11,7 @@ import {
 } from "../../lib/constants/announcements";
 import type { DeployAnnouncementInput } from "../../lib/interfaces/announcements";
 import { emitDeployNotice } from "../../lib/deploy-notice";
-import { invalidatePublicAnnouncements } from "../../lib/public-announcements";
+import { invalidateAnnouncementsCache } from "../../lib/public-announcements";
 import { requireDeployKey, type AppEnv } from "../../middleware/auth";
 import { parseAnnouncementLink, toAnnouncement } from "./shared";
 
@@ -64,7 +64,7 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
         .returning();
       return inserted;
     });
-    invalidatePublicAnnouncements();
+    invalidateAnnouncementsCache();
     emitDeployNotice({ guid: row.guid!, message: row.message });
     return c.json({ success: true, data: toAnnouncement(row) });
   })
@@ -79,7 +79,7 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
         ),
       )
       .returning({ id: announcements.id });
-    invalidatePublicAnnouncements();
+    invalidateAnnouncementsCache();
     emitDeployNotice(null);
     return c.json({ success: true, data: { removed: removed.length } });
   });

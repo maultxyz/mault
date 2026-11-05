@@ -86,7 +86,7 @@ import { usePiHost } from "@/hooks/use-pi-host";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { useStations } from "@/features/scanner/api/use-stations";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { BinCorrectionDialog } from "@/features/scanner/components/bin-correction-dialog";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
@@ -97,8 +97,10 @@ import type {
   LastRoutedBin,
   MoveCardsToCollectionInput,
   PendingBinCard,
+  JamToastOptions,
   ScannedCardsContextValue,
 } from "@/lib/interfaces/scanner";
+import type { StationAttention } from "@/lib/interfaces/stations";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { generateScanId } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -107,6 +109,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -141,7 +144,10 @@ export function ScannedCardsProvider({
     null,
   );
   const [fullBinCount, setFullBinCount] = useState(0);
+  const lastBinLimitBinRef = useRef<BinConfig | null>(null);
+  const lastFullBinsRef = useRef<number[] | null>(null);
   const setFullBins = useCallback((bins: number[] | null) => {
+    if (bins) lastFullBinsRef.current = bins;
     setFullBinsState(bins);
     setFullBinCount((count) =>
       bins == null ? 0 : count === 0 ? bins.length : count,
@@ -175,9 +181,10 @@ export function ScannedCardsProvider({
   const { activeOrg } = useOrg();
   const activeOrgIdRef = useRef(activeOrg?.id);
   const { saveCard, saveUnmatched } = usePendingScanSaves();
-  const { sorterLimitIsHardCap } = useStations();
-  const sorterLimitIsHardCapRef = useRef(sorterLimitIsHardCap);
-  sorterLimitIsHardCapRef.current = sorterLimitIsHardCap;
+  const { sorterLimitReason, reportStationAttention } = useStations();
+  const { station: currentStation } = useStation();
+  const sorterLimitReasonRef = useRef(sorterLimitReason);
+  sorterLimitReasonRef.current = sorterLimitReason;
   const queryClient = useQueryClient();
   const { data: orgSettings } = useQuery(
     orgSettingsQueryOptions(activeOrg?.id),
@@ -299,6 +306,8 @@ export function ScannedCardsProvider({
     isFeedHalted,
     clearFeedHalt,
     pause,
+    pauseForAttention,
+    attention: feedAttention,
     triggerAutoFeed,
     registerCardArrivedHook,
     registerPauseHook,
@@ -310,7 +319,46 @@ export function ScannedCardsProvider({
     deviceGuidRef,
     feedRetryCountRef,
   });
-  const showJamToast = useJamToast(resume);
+  const showJamToastMessage = useJamToast(resume);
+  const showJamToast = useCallback(
+    (options: JamToastOptions) => {
+      pauseForAttention({ kind: "jam", module: options.module });
+      showJamToastMessage(options);
+    },
+    [pauseForAttention, showJamToastMessage],
+  );
+  const pauseForRoutingFailure = useCallback(
+    () => pauseForAttention({ kind: "routingFailed" }),
+    [pauseForAttention],
+  );
+  const [scannerErrorMessage, setScannerErrorMessage] = useState<string | null>(
+    null,
+  );
+  const [scannerErrorRaisedAt, setScannerErrorRaisedAt] = useState(0);
+  const reportScannerError = useCallback((message: string | null) => {
+    setScannerErrorMessage(message);
+    if (message !== null) setScannerErrorRaisedAt(Date.now());
+  }, []);
+  const attention = useMemo<StationAttention | null>(
+    () =>
+      feedAttention ??
+      (scannerErrorMessage !== null
+        ? {
+            kind: "scannerError",
+            detail: scannerErrorMessage || undefined,
+            raisedAt: scannerErrorRaisedAt,
+          }
+        : null),
+    [feedAttention, scannerErrorMessage, scannerErrorRaisedAt],
+  );
+  useEffect(
+    () => reportStationAttention(currentStation.id, attention),
+    [reportStationAttention, currentStation.id, attention],
+  );
+  useEffect(
+    () => () => reportStationAttention(currentStation.id, null),
+    [reportStationAttention, currentStation.id],
+  );
   useDeployScanPause(
     scannerRunning && (orgSettings?.pauseScanningOnDeploy ?? true),
     pause,
@@ -490,13 +538,12 @@ export function ScannedCardsProvider({
   const pauseForCompletePacks = useCallback(() => {
     const set = selectedSetRef.current;
     if (!set) return;
-    pause();
-    setFullBins(
-      getRepackPackBins(binConfigsRef.current, set)
-        .map((bin) => bin.binNumber)
-        .sort((a, b) => a - b),
-    );
-  }, [pause, setFullBins]);
+    const packBins = getRepackPackBins(binConfigsRef.current, set)
+      .map((bin) => bin.binNumber)
+      .sort((a, b) => a - b);
+    pauseForAttention({ kind: "packsComplete", binNumbers: packBins });
+    setFullBins(packBins);
+  }, [pauseForAttention, setFullBins]);
 
   const tracksBinContents = useCallback(
     () =>
@@ -683,12 +730,17 @@ export function ScannedCardsProvider({
           pauseForCompletePacks();
           return;
         }
-        pause();
         if (decision.reason === "all-chaos-bins-full") {
-          setFullBins(
-            getChaosBins(binConfigsRef.current).map((bin) => bin.binNumber),
+          const chaosBins = getChaosBins(binConfigsRef.current).map(
+            (bin) => bin.binNumber,
           );
+          pauseForAttention({ kind: "binsFull", binNumbers: chaosBins });
+          setFullBins(chaosBins);
         } else {
+          pauseForAttention({
+            kind: "binLimit",
+            binNumbers: decision.bin ? [decision.bin.binNumber] : [],
+          });
           setBinLimitBin(decision.bin ?? null);
         }
         return;
@@ -773,7 +825,7 @@ export function ScannedCardsProvider({
           deviceGuid: deviceGuidRef.current,
           isAutoFeedEnabled,
           isPipelinedFeedEnabled,
-          pause,
+          pause: pauseForRoutingFailure,
           triggerAutoFeed,
           onJam: showJamToast,
         });
@@ -794,9 +846,11 @@ export function ScannedCardsProvider({
         )
           .then((result) => {
             if (result.success) return;
-            pause();
+            pauseForAttention({
+              kind: result.sorterLimitReached ? "sorterLimit" : "scanLimit",
+            });
             if (result.sorterLimitReached) {
-              showSorterLimitToast(toast, t, sorterLimitIsHardCapRef.current);
+              showSorterLimitToast(toast, t, sorterLimitReasonRef.current);
               return;
             }
             toast.error(t("scannedCards.scanLimitReached.title"), {
@@ -837,13 +891,25 @@ export function ScannedCardsProvider({
                 : old,
             );
           }
-          pause();
+          pauseForAttention({
+            kind: result.binLimitReached
+              ? "binLimit"
+              : result.sorterLimitReached
+                ? "sorterLimit"
+                : result.scanLimitReached
+                  ? "scanLimit"
+                  : "collectionLocked",
+            binNumbers:
+              result.binLimitReached && matchedBin
+                ? [matchedBin.binNumber]
+                : undefined,
+          });
           if (result.binLimitReached) {
             setBinLimitBin(matchedBin ?? null);
             return;
           }
           if (result.sorterLimitReached) {
-            showSorterLimitToast(toast, t, sorterLimitIsHardCapRef.current);
+            showSorterLimitToast(toast, t, sorterLimitReasonRef.current);
             return;
           }
           const key = result.scanLimitReached
@@ -855,7 +921,7 @@ export function ScannedCardsProvider({
         })
         .catch((err) => {
           console.error("Failed to persist card:", err);
-          pause();
+          pauseForAttention({ kind: "saveFailed", detail: card.name });
           toast.error(t("scannedCards.saveFailed.title"), {
             description: t("scannedCards.saveFailed.description", {
               name: card.name,
@@ -885,7 +951,8 @@ export function ScannedCardsProvider({
       tracksBinContents,
       isAutoFeedEnabled,
       isPipelinedFeedEnabled,
-      pause,
+      pauseForRoutingFailure,
+      pauseForAttention,
       triggerAutoFeed,
       showJamToast,
       trackPendingBinCard,
@@ -912,6 +979,26 @@ export function ScannedCardsProvider({
   );
 
   const dismissBinLimit = useCallback(() => setBinLimitBin(null), []);
+
+  useEffect(() => {
+    if (binLimitBin) lastBinLimitBinRef.current = binLimitBin;
+  }, [binLimitBin]);
+
+  const reopenAttention = useCallback(() => {
+    if (!attention) return;
+    if (attention.kind === "binLimit") {
+      const [binNumber] = attention.binNumbers ?? [];
+      const bin =
+        binConfigsRef.current.find((config) => config.binNumber === binNumber) ??
+        lastBinLimitBinRef.current;
+      if (bin) setBinLimitBin(bin);
+      return;
+    }
+    if (attention.kind === "binsFull" || attention.kind === "packsComplete") {
+      const bins = lastFullBinsRef.current ?? attention.binNumbers ?? null;
+      if (bins?.length) setFullBins(bins);
+    }
+  }, [attention, setFullBins]);
 
   const emptyNextFullBin = useCallback(
     async (options: EmptyBinOptions): Promise<boolean> => {
@@ -949,7 +1036,7 @@ export function ScannedCardsProvider({
         deviceGuid: deviceGuidRef.current,
         isAutoFeedEnabled,
         isPipelinedFeedEnabled,
-        pause,
+        pause: pauseForRoutingFailure,
         triggerAutoFeed,
         onJam: showJamToast,
       });
@@ -960,7 +1047,7 @@ export function ScannedCardsProvider({
       resolveRoute,
       isAutoFeedEnabled,
       isPipelinedFeedEnabled,
-      pause,
+      pauseForRoutingFailure,
       triggerAutoFeed,
       showJamToast,
     ],
@@ -993,7 +1080,7 @@ export function ScannedCardsProvider({
 
       const catchAll = getCatchAllBin(binConfigsRef.current);
       if (catchAll && isBinFullLocally(catchAll.binNumber)) {
-        pause();
+        pauseForAttention({ kind: "binLimit", binNumbers: [catchAll.binNumber] });
         setBinLimitBin(catchAll);
         return;
       }
@@ -1035,13 +1122,19 @@ export function ScannedCardsProvider({
         .then((result) => {
           if (result.success) return;
           dropRecord();
-          pause();
+          pauseForAttention({
+            kind: result.binLimitReached ? "binLimit" : "saveFailed",
+            binNumbers:
+              result.binLimitReached && catchAll
+                ? [catchAll.binNumber]
+                : undefined,
+          });
           if (result.binLimitReached) setBinLimitBin(catchAll ?? null);
         })
         .catch((err) => {
           console.error("Failed to persist unmatched card:", err);
           dropRecord();
-          pause();
+          pauseForAttention({ kind: "saveFailed" });
           toast.error(t("scannedCards.saveFailedUnmatched.title"), {
             description: t("scannedCards.saveFailedUnmatched.description"),
             duration: Infinity,
@@ -1057,7 +1150,7 @@ export function ScannedCardsProvider({
     [
       toast,
       sendCatchAllBin,
-      pause,
+      pauseForAttention,
       isBinFullLocally,
       t,
       saveUnmatched,
@@ -1552,6 +1645,11 @@ export function ScannedCardsProvider({
         registerPauseHook,
         registerResumeHook,
         pause,
+        pauseForAttention,
+        resume,
+        attention,
+        reopenAttention,
+        reportScannerError,
         isFeedHalted,
         clearFeedHalt,
         showJamToast,

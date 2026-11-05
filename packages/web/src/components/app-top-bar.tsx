@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/features/account/components/user-menu";
 import { PresetMenu } from "@/features/bins/components/preset-menu";
 import { CollectionMenu } from "@/features/collections/components/collection-menu";
+import { StationAttentionButton } from "@/features/scanner/components/station-attention-button";
 import { StationMenu } from "@/features/scanner/components/station-menu";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 
@@ -23,6 +24,7 @@ export function AppTopBar() {
         <OrgSwitcher />
         <BreadcrumbSeparator />
         <StationMenu />
+        <StationAttentionButton />
         <BreadcrumbSeparator />
         <CollectionMenu />
         <BreadcrumbSeparator />

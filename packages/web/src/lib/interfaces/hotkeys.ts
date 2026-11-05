@@ -22,6 +22,7 @@ export type HotkeyId =
   | "goCalibrate"
   | "goSettings"
   | "goAdmin"
+  | "goNextSorterNeedingAttention"
   | "scanPauseResume"
   | "scanNow"
   | "scanFeed"

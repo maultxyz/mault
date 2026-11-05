@@ -225,6 +225,7 @@
       "goCalibrate": "Aller au réglage du trieur",
       "goSettings": "Aller aux paramètres",
       "goAdmin": "Aller à l'administration",
+      "goNextSorterNeedingAttention": "Aller à la prochaine trieuse à vérifier",
       "scanPauseResume": "Mettre en pause ou reprendre le scan",
       "scanNow": "Scanner maintenant",
       "scanFeed": "Charger la carte suivante",

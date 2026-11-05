@@ -23,6 +23,7 @@ import type { StationOverviewGridProps } from "@/lib/interfaces/stations";
 import {
   IconDevices,
   IconPlayerPause,
+  IconPlayerPlay,
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
@@ -39,9 +40,11 @@ export function StationOverviewGrid({
   const {
     selectedKeys,
     runningKeys,
+    resumableKeys,
     setSelected,
     clearSelected,
     pauseSorters,
+    resumeSorters,
   } = useSorterSelection();
   const deleteDevices = useDeleteDevices();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -66,6 +69,7 @@ export function StationOverviewGrid({
   const allVisibleSelected =
     visibleKeys.length > 0 && visibleKeys.every((key) => selectedKeys.has(key));
   const selectedRunning = selected.filter((key) => runningKeys.has(key));
+  const selectedResumable = selected.filter((key) => resumableKeys.has(key));
   const selectedOffline = offlineDevices.filter((device) =>
     selectedKeys.has(device.guid),
   );
@@ -187,6 +191,17 @@ export function StationOverviewGrid({
                 <IconPlayerPause />
                 {t("stations.overview.pauseSelected", {
                   count: selectedRunning.length,
+                })}
+              </Button>
+              <Button
+                variant="ghost"
+                className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                disabled={selectedResumable.length === 0}
+                onClick={() => resumeSorters(selectedResumable)}
+              >
+                <IconPlayerPlay />
+                {t("stations.overview.resumeSelected", {
+                  count: selectedResumable.length,
                 })}
               </Button>
               <Button

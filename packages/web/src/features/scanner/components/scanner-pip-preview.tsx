@@ -4,7 +4,9 @@ import { useCollectionCardsSummary } from "@/features/collections/api/use-collec
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { useDesktopPipDrag } from "@/features/scanner/api/use-desktop-pip-drag";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { ScannerPipSorterList } from "@/features/scanner/components/scanner-pip-sorter-list";
 import { StationStatusDot } from "@/features/scanner/components/station-status-dot";
+import type { StationStatus } from "@/lib/interfaces/stations";
 import type { ScannerPipPreviewProps } from "@/lib/interfaces/scanner";
 import { formatElapsed } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -22,7 +24,7 @@ export function ScannerPipPreview({
   const { t } = useTranslation("scanner");
   const { stream, cameraSource } = useCameraContext();
   const device = useDevice();
-  const { elapsedMs, isTimerActive } = useScannedCards();
+  const { elapsedMs, isTimerActive, attention } = useScannedCards();
   const { activeCollection } = useCollections();
   const { totalCount } = useCollectionCardsSummary();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -41,9 +43,17 @@ export function ScannerPipPreview({
     };
   }, [showsVideo, stream]);
 
-  const statusLabel = isTimerActive
-    ? t("scannerPip.sorting")
-    : t("scannerPip.paused");
+  const status: StationStatus = attention
+    ? "attention"
+    : isTimerActive
+      ? "sorting"
+      : "paused";
+  const statusLabel = {
+    sorting: t("scannerPip.sorting"),
+    paused: t("scannerPip.paused"),
+    attention: t("stations.attention.needsAttention"),
+    offline: t("stations.overview.offline"),
+  }[status];
 
   return (
     <div
@@ -98,7 +108,7 @@ export function ScannerPipPreview({
             {t("scannerPip.returnToScanner")}
           </div>
           <span className="absolute top-2 left-2 flex items-center gap-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
-            <StationStatusDot status={isTimerActive ? "sorting" : "paused"} />
+            <StationStatusDot status={status} />
             {statusLabel}
           </span>
         </div>
@@ -113,6 +123,7 @@ export function ScannerPipPreview({
         </div>
       </button>
       {controls}
+      <ScannerPipSorterList />
       <button
         type="button"
         onClick={action.onClick}

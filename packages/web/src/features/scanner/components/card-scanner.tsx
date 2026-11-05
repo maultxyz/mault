@@ -33,6 +33,7 @@ import { useRole } from "@/hooks/use-role";
 import {
   PAUSE_WHEN_HIDDEN_STATUSES,
   SESSION_TIMER_RUNNING_STATUSES,
+  STATION_ATTENTION_FIXES,
 } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import type {
@@ -87,6 +88,10 @@ export function CardScanner({
     registerPauseHook,
     registerResumeHook,
     pause,
+    pauseForAttention,
+    reportScannerError,
+    attention,
+    reopenAttention,
     isFeedHalted,
     clearFeedHalt,
     showJamToast,
@@ -111,7 +116,7 @@ export function CardScanner({
     connectAnotherSorter,
     connectAnotherSorterCloud,
     canConnectAnotherSorter,
-    sorterLimitIsHardCap,
+    sorterLimitReason,
   } = useStations();
   const {
     isConnected,
@@ -319,6 +324,26 @@ export function CardScanner({
 
   useSupportPrompt(status);
 
+  useEffect(() => {
+    reportScannerError(status === "error" ? errorMessage : null);
+  }, [status, errorMessage, reportScannerError]);
+  useEffect(() => () => reportScannerError(null), [reportScannerError]);
+
+  const wasActiveStationRef = useRef(isActive);
+  useEffect(() => {
+    const becameActive = isActive && !wasActiveStationRef.current;
+    wasActiveStationRef.current = isActive;
+    if (
+      becameActive &&
+      attention &&
+      STATION_ATTENTION_FIXES[attention.kind] === "emptyBin" &&
+      !binLimitReached &&
+      !fullBins
+    ) {
+      reopenAttention();
+    }
+  }, [isActive, attention, binLimitReached, fullBins, reopenAttention]);
+
   const statusRef = useRef(status);
   statusRef.current = status;
 
@@ -389,7 +414,7 @@ export function CardScanner({
       try {
         const parsed = JSON.parse(response) as Record<string, unknown>;
         if (parsed.empty && !ignoreIrSensors) {
-          pause();
+          pauseForAttention({ kind: "hopperEmpty" });
           toast.error(t("feederEmpty.title"), {
             description: t("feederEmpty.description"),
             duration: Infinity,
@@ -416,7 +441,7 @@ export function CardScanner({
             deviceGuid: device?.guid,
           });
         } else if (parsed.detected === false && !ignoreIrSensors) {
-          pause();
+          pauseForAttention({ kind: "noCardDetected" });
           toast.error(t("cardScanner.noCardDetected.title"), {
             description: t("cardScanner.noCardDetected.description"),
           });
@@ -453,7 +478,7 @@ export function CardScanner({
     prepareDevice,
     sendRequest,
     handleCardArrived,
-    pause,
+    pauseForAttention,
     t,
     activeCollection?.guid,
     device?.guid,
@@ -867,7 +892,7 @@ export function CardScanner({
             onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
             onConnectAnotherCloud={connectAnotherSorterCloud}
             canConnectAnotherSorter={canConnectAnotherSorter}
-            sorterLimitIsHardCap={sorterLimitIsHardCap}
+            sorterLimitReason={sorterLimitReason}
             onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
             isReady={isReady}
             isClearingDevice={isClearingDevice}

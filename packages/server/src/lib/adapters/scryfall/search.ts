@@ -70,6 +70,8 @@ export const scryfallAdapter: CardSearchAdapter = {
   )}))`,
   excludedFromMatchingSql: sql`(data->>'digital') = 'true'`,
   foilPrintingVariants: scryfallFoilPrintingVariants,
+  sourceListsNonFoilPrinting: (card) =>
+    (card.raw as ScryfallApiCard | undefined)?.finishes?.includes("nonfoil") ?? false,
   tcgplayer: {
     categoryId: 1,
     foilTypeOfVariant: (variant) =>
