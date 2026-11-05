@@ -111,61 +111,25 @@ export function AppTopBar() {
         paddingHorizontal: SPACING.sm + 2,
       }}
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t("alerts.title")}
-        onPress={() => setOpenSheet("alerts")}
-        style={({ pressed }) => ({
+      <View
+        style={{
           width: TOP_BAR_BRAND_SIZE,
           height: TOP_BAR_BRAND_SIZE,
           borderRadius: RADIUS.md,
-          backgroundColor: pressed ? colors.primaryPressed : colors.primary,
+          overflow: "hidden",
+          backgroundColor: colors.primary,
           alignItems: "center",
           justifyContent: "center",
-        })}
+        }}
       >
-        <View
+        <Image
+          source={BRAND_MARK}
           style={{
-            width: TOP_BAR_BRAND_SIZE,
-            height: TOP_BAR_BRAND_SIZE,
-            borderRadius: RADIUS.md,
-            overflow: "hidden",
-            alignItems: "center",
-            justifyContent: "center",
+            width: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
+            height: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
           }}
-        >
-          <Image
-            source={BRAND_MARK}
-            style={{
-              width: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
-              height: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
-            }}
-          />
-        </View>
-        {alerts.length > 0 ? (
-          <View
-            pointerEvents="none"
-            style={{
-              position: "absolute",
-              top: -4,
-              right: -4,
-              minWidth: 16,
-              height: 16,
-              paddingHorizontal: 3,
-              borderRadius: RADIUS.full,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: colors.destructiveStrong,
-              borderWidth: 2,
-              borderColor: colors.shell,
-            }}
-          >
-            <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, fontSize: 10, lineHeight: 12 }}>
-              {alerts.length > ALERT_BADGE_MAX ? `${ALERT_BADGE_MAX}+` : String(alerts.length)}
-            </AppText>
-          </View>
-        ) : null}
-      </Pressable>
+        />
+      </View>
       <View style={{ width: 1, height: 16, marginHorizontal: SPACING.xs, backgroundColor: colors.border }} />
       <View style={{ flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
         <TopBarSwitcher
@@ -183,6 +147,44 @@ export function AppTopBar() {
           onPress={() => setOpenSheet("collections")}
         />
       </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t("alerts.title")}
+        onPress={() => setOpenSheet("alerts")}
+        style={({ pressed }) => ({
+          width: TOP_BAR_SWITCHER_HEIGHT,
+          height: TOP_BAR_SWITCHER_HEIGHT,
+          borderRadius: RADIUS.md,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: pressed ? colors.shellAccent : "transparent",
+        })}
+      >
+        <Icon name="bell" size={20} color={colors.foreground} />
+        {alerts.length > 0 ? (
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              minWidth: 16,
+              height: 16,
+              paddingHorizontal: 3,
+              borderRadius: RADIUS.full,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: colors.destructiveStrong,
+              borderWidth: 2,
+              borderColor: colors.shell,
+            }}
+          >
+            <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, fontSize: 10, lineHeight: 12 }}>
+              {alerts.length > ALERT_BADGE_MAX ? `${ALERT_BADGE_MAX}+` : String(alerts.length)}
+            </AppText>
+          </View>
+        ) : null}
+      </Pressable>
       <AlertsSheet visible={openSheet === "alerts"} alerts={alerts} onClose={closeSheet} />
       <OptionSheet
         visible={openSheet === "organizations"}
