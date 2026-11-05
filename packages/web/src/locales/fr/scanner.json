@@ -501,6 +501,10 @@
     "collapse": "Masquer les niveaux",
     "cellTitle": "Le bac {{bin}} est plein à {{percent}} %"
   },
+  "autoAssignControl": {
+    "summary": "{{claimed}} bacs sur {{total}} attribués par {{field}}",
+    "stopFirst": "Arrêtez le scanner avant de réinitialiser les bacs détectés automatiquement."
+  },
   "alphabetPassControl": {
     "range": "Tri de {{from}} à {{to}}",
     "stopFirst": "Arrêtez le scanner avant de passer aux lettres suivantes."

@@ -501,6 +501,10 @@
     "collapse": "Füllstände ausblenden",
     "cellTitle": "Fach {{bin}} ist zu {{percent}} % voll"
   },
+  "autoAssignControl": {
+    "summary": "{{claimed}} von {{total}} Fächern nach {{field}} belegt",
+    "stopFirst": "Stoppe den Scanner, bevor du die automatisch erkannten Fächer zurücksetzt."
+  },
   "alphabetPassControl": {
     "range": "Sortiert {{from}} bis {{to}}",
     "stopFirst": "Stoppe den Scanner, bevor du zu den nächsten Buchstaben wechselst."

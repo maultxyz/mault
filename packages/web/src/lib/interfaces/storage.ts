@@ -31,11 +31,17 @@ export interface StorageLocationSelectProps {
   invalid?: boolean;
 }
 
+export interface ResetAutoAssignToggleProps {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}
+
 export interface EmptyAllBinsDialogProps {
   open: boolean;
   bins: { binNumber: number; count: number }[];
   preferLocation: boolean;
   collectionGuid: string | undefined;
+  canResetAutoAssignedRules: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: (options: EmptyAllBinsOptions) => Promise<boolean>;
 }

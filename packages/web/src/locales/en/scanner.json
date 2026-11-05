@@ -501,6 +501,10 @@
     "collapse": "Hide bin levels",
     "cellTitle": "Bin {{bin}} is {{percent}}% full"
   },
+  "autoAssignControl": {
+    "summary": "{{claimed}} of {{total}} bins claimed by {{field}}",
+    "stopFirst": "Stop the scanner before resetting the auto-detected bins."
+  },
   "alphabetPassControl": {
     "range": "Sorting {{from}} to {{to}}",
     "stopFirst": "Stop the scanner before moving to the next letters."

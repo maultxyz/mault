@@ -1,6 +1,7 @@
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
+import { AutoAssignControl } from "@/features/scanner/components/auto-assign-control";
 import { PresetStageControl } from "@/features/scanner/components/preset-stage-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { LazyCardScanner } from "@/features/scanner/components/lazy-card-scanner";
@@ -37,6 +38,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         <div className="flex flex-col gap-4 shrink-0 overflow-y-auto">
           {unmatchedPanel}
           <BinStatusMeter />
+          <AutoAssignControl />
           <AlphabetPassControl />
           <PresetStageControl />
         </div>
@@ -60,6 +62,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
       />
       {unmatchedPanel}
       <BinStatusMeter />
+      <AutoAssignControl />
       <AlphabetPassControl />
       <PresetStageControl />
       <ScanStats scrollable={false} />

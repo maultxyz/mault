@@ -125,6 +125,8 @@
     "title": "Alle Fächer leeren",
     "description_one": "Markiert alle Fächer als geleert. Wähle, wohin die {{count}} Karte gekommen ist, damit du sie später wiederfindest.",
     "description_other": "Markiert alle Fächer als geleert. Wähle, wohin die {{count}} Karten gekommen sind, damit du sie später wiederfindest.",
+    "resetAutoAssign": "Automatisch erkannte Sortierregeln löschen",
+    "resetAutoAssignDescription": "Die Fächer lernen ab den nächsten Scans neue Werte.",
     "perBin": "Für jedes Fach einen Lagerort wählen",
     "binLabel_one": "Fach {{bin}} · {{count}} Karte",
     "binLabel_other": "Fach {{bin}} · {{count}} Karten",
