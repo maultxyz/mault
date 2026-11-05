@@ -39,6 +39,7 @@ export type EmptyBinLocationFormValues = z.infer<typeof emptyBinLocationSchema>;
 export const emptyAllBinsSchema = z
   .object({
     perBin: z.boolean(),
+    resetAutoAssignedRules: z.boolean(),
     all: binLocationChoiceSchema,
     bins: z.array(
       binLocationChoiceSchema.extend({ binNumber: z.number().int() }),

@@ -125,6 +125,8 @@
     "title": "Vider tous les bacs",
     "description_one": "Marque tous les bacs comme vidés. Choisis où la carte est rangée pour la retrouver plus tard.",
     "description_other": "Marque tous les bacs comme vidés. Choisis où les {{count}} cartes sont rangées pour les retrouver plus tard.",
+    "resetAutoAssign": "Effacer les règles de tri détectées automatiquement",
+    "resetAutoAssignDescription": "Les bacs apprennent de nouvelles valeurs dès les prochains scans.",
     "perBin": "Choisir un emplacement pour chaque bac",
     "binLabel_one": "Bac {{bin}} · {{count}} carte",
     "binLabel_other": "Bac {{bin}} · {{count}} cartes",

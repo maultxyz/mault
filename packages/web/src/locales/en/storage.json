@@ -125,6 +125,8 @@
     "title": "Empty all bins",
     "description_one": "Mark every bin as emptied. Pick where the {{count}} card went so you can find it later.",
     "description_other": "Mark every bin as emptied. Pick where the {{count}} cards went so you can find them later.",
+    "resetAutoAssign": "Clear auto-detected sorting rules",
+    "resetAutoAssignDescription": "Bins learn new values from the next scans.",
     "perBin": "Choose a location for each bin",
     "binLabel_one": "Bin {{bin}} · {{count}} card",
     "binLabel_other": "Bin {{bin}} · {{count}} cards",

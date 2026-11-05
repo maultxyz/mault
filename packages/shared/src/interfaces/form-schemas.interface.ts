@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import type {
   updateNameFormSchema,
+  feederTestFormSchema,
   changeEmailFormSchema,
   changePasswordFormSchema,
   createCollectionFormSchema,
@@ -43,3 +44,4 @@ export type SoundClipNameFormValues = z.infer<typeof soundClipNameFormSchema>;
 export type DiscordChannelsDraft =
   DiscordSettingsDraftFormValues["overrides"][string];
 export type StoragePickListFormValues = z.infer<typeof storagePickListFormSchema>;
+export type FeederTestFormValues = z.infer<typeof feederTestFormSchema>;

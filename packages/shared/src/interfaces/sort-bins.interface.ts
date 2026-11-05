@@ -196,6 +196,7 @@ export interface EmptyAllBinLocation {
 export interface EmptyAllBinsOptions {
   collectionGuid?: string;
   locations?: EmptyAllBinLocation[];
+  resetAutoAssignedRules?: boolean;
 }
 
 export interface EmptyAllBinsInput extends EmptyAllBinsOptions {

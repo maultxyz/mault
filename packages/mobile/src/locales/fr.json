@@ -1122,6 +1122,24 @@
       "reverseSpeedLabel": "Vitesse de recul",
       "off": "Désactivé"
     },
+    "feederTest": {
+      "heading": "Test du chargeur",
+      "description": "Envoyez des cartes directement dans le bac du bas sans les scanner, avec les réglages enregistrés du chargeur.",
+      "runUntilStoppedLabel": "Alimenter jusqu'à l'arrêt",
+      "cardsToSendLabel": "Cartes à envoyer",
+      "start": "Démarrer l'alimentation",
+      "stop": "Arrêter",
+      "stopping": "Arrêt après cette carte",
+      "progress": "Cartes envoyées : {{count}}",
+      "progressOfTotal": "Cartes envoyées : {{count}} sur {{total}}",
+      "results": {
+        "completed": "Test du chargeur terminé. Cartes envoyées : {{count}}",
+        "stopped": "Test du chargeur arrêté. Cartes envoyées : {{count}}",
+        "hopperEmpty": "La trémie est vide. Cartes envoyées : {{count}}",
+        "feedFailed": "Test du chargeur arrêté sur une erreur. Cartes envoyées : {{count}}",
+        "routeFailed": "Test du chargeur arrêté sur une erreur. Cartes envoyées : {{count}}"
+      }
+    },
     "runTest": "Lancer le test",
     "testing": "Test en cours…",
     "feed": "Alimenter",

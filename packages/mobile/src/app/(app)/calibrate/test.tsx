@@ -9,6 +9,7 @@ import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { Surface } from "@/components/ui/surface";
 import { useTestControls } from "@/features/calibration/api/use-test-controls";
+import { FeederTestPanel } from "@/features/calibration/components/feeder-test-panel";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { SPACING } from "@/lib/constants/theme";
 
@@ -17,7 +18,8 @@ export default function CalibrationTestScreen() {
   const sorter = useSorter();
   const test = useTestControls();
   const bins = Array.from({ length: test.binCount }, (_, i) => i + 1);
-  const busy = test.activeBin !== null || test.isSampleRunning;
+  const isRoutingTestRunning = test.activeBin !== null || test.isSampleRunning;
+  const busy = isRoutingTestRunning || test.feederTest.isRunning;
 
   return (
     <Screen
@@ -136,6 +138,8 @@ export default function CalibrationTestScreen() {
           ))}
         </View>
       </Surface>
+
+      <FeederTestPanel feederTest={test.feederTest} isBlockedByRoutingTest={isRoutingTestRunning} />
     </Screen>
   );
 }
