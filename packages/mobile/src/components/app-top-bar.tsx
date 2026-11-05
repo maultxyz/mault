@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, Pressable, View } from "react-native";
-import { gameAbbreviation } from "@magic-vault/shared";
+import { collectionGameLabel } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -95,11 +95,7 @@ export function AppTopBar() {
   const alerts = useAppAlerts();
   const [openSheet, setOpenSheet] = useState<AppTopBarSheet | null>(null);
   const closeSheet = () => setOpenSheet(null);
-  const collectionBadge = activeCollection
-    ? [activeCollection.game ? gameAbbreviation(activeCollection.game.key) : null, activeCollection.lang.toUpperCase()]
-        .filter(Boolean)
-        .join(" · ")
-    : undefined;
+  const collectionBadge = activeCollection ? collectionGameLabel(activeCollection) : undefined;
 
   return (
     <View
@@ -200,7 +196,11 @@ export function AppTopBar() {
       <OptionSheet
         visible={openSheet === "collections"}
         title={t("scan.chooseCollection")}
-        options={(collections ?? []).map((collection) => ({ value: collection.guid, label: collection.name }))}
+        options={(collections ?? []).map((collection) => ({
+          value: collection.guid,
+          label: collection.name,
+          badge: collectionGameLabel(collection),
+        }))}
         selected={activeCollection ? [activeCollection.guid] : []}
         onSelect={(guid) => {
           closeSheet();

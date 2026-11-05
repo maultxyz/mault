@@ -401,7 +401,10 @@
       "saved": "Liste de tri enregistrée",
       "saveFailed": "Impossible d'enregistrer la liste de tri",
       "resetFailed": "Impossible de réinitialiser la liste de tri"
-    }
+    },
+    "importEmpty": "Aucune carte trouvée dans ce fichier. Vérifiez que la première ligne contient des noms de colonnes comme Product Name et Quantity.",
+    "importSkipped_one": "{{count}} ligne sans nom de carte a été ignorée.",
+    "importSkipped_other": "{{count}} lignes sans nom de carte ont été ignorées."
   },
   "page": {
     "title": "Règles de tri",

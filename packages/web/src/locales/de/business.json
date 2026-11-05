@@ -257,7 +257,6 @@
     "namePlaceholder": "Bestellungen von Montag",
     "contents": "Zu ziehende Karten",
     "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "chooseFile": "Datei wählen",
     "preview": "{{source}}: {{lines}} Zeilen, {{quantity}} Karten.",
     "previewEmpty": "Keine Karten gefunden. Prüfe, ob die erste Zeile Spaltennamen wie Product Name und Quantity enthält.",
     "previewSkipped_one": "{{count}} Zeile ohne Kartennamen wurde übersprungen.",

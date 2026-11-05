@@ -123,7 +123,8 @@
     "delete": "Supprimer",
     "save": "Enregistrer",
     "create": "Créer",
-    "search": "Rechercher"
+    "search": "Rechercher",
+    "chooseFile": "Choisir un fichier"
   },
   "unsavedChanges": {
     "message": "Vous avez des modifications non enregistrées",

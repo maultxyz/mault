@@ -123,7 +123,8 @@
     "delete": "Delete",
     "save": "Save",
     "create": "Create",
-    "search": "Search"
+    "search": "Search",
+    "chooseFile": "Choose file"
   },
   "unsavedChanges": {
     "message": "You have unsaved changes",

@@ -1,3 +1,4 @@
+import { CardListFileButton } from "@/components/card-list-file-button";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -6,16 +7,16 @@ import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { createOrder } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business";
-import { ORDER_IMPORT_ACCEPT } from "@/lib/constants/business";
 import type { OrderImportDialogProps } from "@/lib/interfaces/business";
+import type { CardListFile } from "@/lib/interfaces/card-list-import";
 import {
   orderImportSchema,
   type OrderImportFormValues,
 } from "@/schemas/business.schema";
 import { parseOrderImport } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconFileUpload, IconLoader2 } from "@tabler/icons-react";
-import { useEffect, useMemo, useRef } from "react";
+import { IconLoader2 } from "@tabler/icons-react";
+import { useEffect, useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -26,7 +27,6 @@ export function OrderImportDialog({
 }: OrderImportDialogProps) {
   const { t } = useTranslation("business");
   const run = useBusinessAction();
-  const fileRef = useRef<HTMLInputElement>(null);
   const form = useForm<OrderImportFormValues>({
     resolver: zodResolver(orderImportSchema),
     defaultValues: { name: "", text: "" },
@@ -41,14 +41,13 @@ export function OrderImportDialog({
   const parsed = useMemo(() => parseOrderImport(text ?? ""), [text]);
   const quantity = parsed.lines.reduce((sum, line) => sum + line.quantity, 0);
 
-  const readFile = async (file: File | undefined) => {
-    if (!file) return;
-    form.setValue("text", await file.text(), {
+  const readFile = ({ text: fileText, fileName }: CardListFile) => {
+    form.setValue("text", fileText, {
       shouldDirty: true,
       shouldValidate: true,
     });
     if (!form.getValues("name")) {
-      form.setValue("name", file.name.replace(/\.[^.]+$/, ""), {
+      form.setValue("name", fileName.replace(/\.[^.]+$/, ""), {
         shouldDirty: true,
         shouldValidate: true,
       });
@@ -130,14 +129,7 @@ export function OrderImportDialog({
                 <FieldLabel htmlFor="order-text">
                   {t("orders.contents")}
                 </FieldLabel>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => fileRef.current?.click()}
-                >
-                  <IconFileUpload />
-                  {t("orders.chooseFile")}
-                </Button>
+                <CardListFileButton onFileRead={readFile} />
               </div>
               <Textarea
                 {...field}
@@ -150,16 +142,6 @@ export function OrderImportDialog({
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
-        />
-        <input
-          ref={fileRef}
-          type="file"
-          accept={ORDER_IMPORT_ACCEPT}
-          className="hidden"
-          onChange={(e) => {
-            void readFile(e.target.files?.[0]);
-            e.target.value = "";
-          }}
         />
         {text?.trim() && (
           <Callout variant={parsed.lines.length > 0 ? "info" : "warning"}>

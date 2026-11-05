@@ -8,7 +8,7 @@ import {
   binSetMode,
   CARD_CONDITIONS,
   DEFAULT_SCAN_REGION,
-  gameAbbreviation,
+  collectionGameLabel,
   isCardCondition,
   listScannerControlActions,
 } from "@magic-vault/shared";
@@ -75,11 +75,7 @@ export default function ScanScreen() {
   const orgId = useActiveOrgId();
   const { data: collections } = useQuery(collectionsQueryOptions(orgId));
   const collection = collections?.find((c) => c.isActive) ?? null;
-  const collectionLabel = collection
-    ? [collection.name, collection.game ? gameAbbreviation(collection.game.key) : null, collection.lang.toUpperCase()]
-        .filter(Boolean)
-        .join(" · ")
-    : null;
+  const collectionLabel = collection ? `${collection.name} · ${collectionGameLabel(collection)}` : null;
   const foilTypes = collection?.game?.foilTypes ?? [];
   const { sets: presets, activeSet } = useRulesData();
   const activePreset = activeSet?.isActive ? activeSet : null;
@@ -466,7 +462,7 @@ export default function ScanScreen() {
       <OptionSheet
         visible={collectionPickerOpen}
         title={t("scan.chooseCollection")}
-        options={(collections ?? []).map((c) => ({ value: c.guid, label: c.name }))}
+        options={(collections ?? []).map((c) => ({ value: c.guid, label: c.name, badge: collectionGameLabel(c) }))}
         selected={collection ? [collection.guid] : []}
         onSelect={(guid) => {
           setCollectionPickerOpen(false);

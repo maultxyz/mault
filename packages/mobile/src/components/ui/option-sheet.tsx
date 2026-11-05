@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { Pill } from "@/components/ui/pill";
 import { SearchInput } from "@/components/ui/search-input";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
@@ -93,6 +94,7 @@ export function OptionSheet({
               <ListRow
                 key={option.value}
                 title={option.label}
+                right={option.badge ? <Pill label={option.badge} /> : undefined}
                 selected={selected.includes(option.value)}
                 onPress={() => select(option.value)}
               />

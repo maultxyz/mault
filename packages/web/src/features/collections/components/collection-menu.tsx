@@ -1,5 +1,4 @@
 import { MenuSearchField } from "@/components/menu-search-field";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useActiveCollectionSessionActions } from "@/features/collections/api/use-active-collection-session-actions";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { CollectionGameBadge } from "@/features/collections/components/collection-game-badge";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { gamesQueryOptions } from "@/features/games/api/games";
@@ -37,7 +37,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { gameAbbreviation } from "@magic-vault/shared";
 
 export function CollectionMenu() {
   const { t } = useTranslation(["collections", "common"]);
@@ -121,11 +120,7 @@ export function CollectionMenu() {
                 {activeCollection?.name ?? t("switcher.noCollectionSelected")}
               </span>
               {activeCollection && (
-                <Badge variant="outline" className="shrink-0 tabular-nums">
-                  {activeCollection.game
-                    ? `${gameAbbreviation(activeCollection.game.key)} · ${activeCollection.lang.toUpperCase()}`
-                    : activeCollection.lang.toUpperCase()}
-                </Badge>
+                <CollectionGameBadge collection={activeCollection} />
               )}
               {activeIsLockedByOther && (
                 <IconLock className="size-3 shrink-0 text-warning-foreground" />
@@ -168,6 +163,7 @@ export function CollectionMenu() {
                     onClick={() => activateCollection(collection.guid)}
                   >
                     <span className="flex-1 truncate">{collection.name}</span>
+                    <CollectionGameBadge collection={collection} />
                     {lockedByOther && (
                       <IconLock
                         size={12}

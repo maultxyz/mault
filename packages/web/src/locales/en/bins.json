@@ -401,7 +401,10 @@
       "saved": "Pick list saved",
       "saveFailed": "Couldn't save the pick list",
       "resetFailed": "Couldn't reset the pick list"
-    }
+    },
+    "importEmpty": "No cards found in that file. Check that the first row has column names like Product Name and Quantity.",
+    "importSkipped_one": "{{count}} row without a card name was skipped.",
+    "importSkipped_other": "{{count}} rows without a card name were skipped."
   },
   "page": {
     "title": "Sorting rules",

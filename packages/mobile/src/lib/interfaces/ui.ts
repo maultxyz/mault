@@ -266,6 +266,7 @@ export interface ShutterButtonProps {
 export interface OptionItem {
   value: string;
   label: string;
+  badge?: string;
 }
 
 export interface OptionSheetProps {
