@@ -8,8 +8,6 @@ import { ReviewQueuePanel } from "@/features/cards/components/collection-review-
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
-import { useCollections } from "@/features/collections/api/use-collections";
-import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
 import { AutoAssignControl } from "@/features/scanner/components/auto-assign-control";
 import { PresetStageControl } from "@/features/scanner/components/preset-stage-control";
@@ -19,7 +17,7 @@ import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { ScannerMainContent } from "@/features/scanner/components/scanner-main-content";
 import { StationPanels } from "@/features/scanner/components/station-panels";
 import { usePiHost } from "@/hooks/use-pi-host";
-import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
+import { ActiveCollectionUnmatchedCardsPanel } from "@/features/scanner/components/active-collection-unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import type { StationPanelLayout } from "@/lib/interfaces/stations";
@@ -48,12 +46,19 @@ function ScannerPanels({
   return (
     <div
       className={cn(
-        "shrink-0 p-2 bg-sidebar/70",
+        "shrink-0 p-2 bg-sidebar/70 flex flex-col gap-2 overflow-y-auto",
         layout === "horizontal" ? "h-full" : "w-full",
       )}
       style={layout === "horizontal" ? { width: size } : { height: size }}
     >
-      {overlay || <ScanningBlockedWhileImpersonating />}
+      {overlay || (
+        <>
+          <div className="flex-1 min-h-0">
+            <ScanningBlockedWhileImpersonating />
+          </div>
+          <ActiveCollectionUnmatchedCardsPanel />
+        </>
+      )}
     </div>
   );
 }
@@ -61,13 +66,6 @@ function ScannerPanels({
 function MobileScanner() {
   const { t } = useTranslation("scanner");
   const { isImpersonating } = useImpersonation();
-  const {
-    unmatchedCards,
-    unmatchedCount,
-    removeUnmatchedCard,
-    removeAllUnmatchedCards,
-  } = useScannedCards();
-  const { activeCollection } = useCollections();
   const { totalCount } = useCollectionCardsSummary();
   const piHost = usePiHost();
 
@@ -86,14 +84,7 @@ function MobileScanner() {
         ) : (
           <CardScanner className="flex-1 min-h-0" />
         )}
-        <UnmatchedCardsPanel
-          canIdentify
-          cards={unmatchedCards}
-          total={unmatchedCount}
-          collectionGuid={activeCollection?.guid}
-          onRemove={removeUnmatchedCard}
-          onRemoveAll={removeAllUnmatchedCards}
-        />
+        <ActiveCollectionUnmatchedCardsPanel />
         <BinStatusMeter />
         <AutoAssignControl />
         <AlphabetPassControl />
