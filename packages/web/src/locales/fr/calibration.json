@@ -169,7 +169,7 @@
     "checkBothOrientationsLabel": "Vérifier les deux sens",
     "checkBothOrientationsDescription": "Compare aussi la carte tournée de 180°, afin que les cartes insérées à l'envers soient quand même identifiées. Désactivez cette option si toutes vos cartes sont insérées dans le même sens pour accélérer chaque scan.",
     "executionProviderLabel": "Moteur de détection IA",
-    "executionProviderDescription": "Le moteur qui exécute les modèles de détection et de correspondance des cartes dans ton navigateur. WASM est l'option par défaut et fonctionne partout, mais ne gère qu'une trieuse à la fois. WebGPU peut être plus rapide sur certains GPU, gère plusieurs trieuses à la fois, et bascule sur WASM s'il ne démarre pas.",
+    "executionProviderDescription": "Le moteur qui exécute le modèle de correspondance des cartes dans ton navigateur (la détection des cartes tourne toujours sur WASM, où elle est plus rapide). WASM est l'option par défaut et fonctionne partout, mais ne gère qu'une trieuse à la fois. WebGPU peut être plus rapide sur certains GPU, gère plusieurs trieuses à la fois, et bascule sur WASM s'il ne démarre pas.",
     "executionProviderWebGpu": "WebGPU",
     "executionProviderWasm": "WASM (par défaut)",
     "usePhoneAsCamera": "Utiliser le téléphone comme caméra",

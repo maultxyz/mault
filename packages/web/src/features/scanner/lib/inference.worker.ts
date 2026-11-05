@@ -6,10 +6,16 @@ import type {
   NavigatorWithWebGpu,
   OnnxExecutionProviderPreference,
 } from "@/lib/interfaces/scanner";
+import { INFERENCE_WASM_MAX_THREADS } from "@/lib/constants/scanner";
 import { IMAGENET_MEAN, IMAGENET_STD, rgbaToChw } from "@magic-vault/shared";
 import * as ort from "onnxruntime-web/webgpu";
+import ortWasmModuleUrl from "onnxruntime-web/ort-wasm-simd-threaded.asyncify.mjs?url";
+import ortWasmBinaryUrl from "onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm?url";
 
-ort.env.wasm.numThreads = 1;
+ort.env.wasm.wasmPaths = { mjs: ortWasmModuleUrl, wasm: ortWasmBinaryUrl };
+ort.env.wasm.numThreads = globalThis.crossOriginIsolated
+  ? Math.min(INFERENCE_WASM_MAX_THREADS, navigator.hardwareConcurrency || 1)
+  : 1;
 ort.env.wasm.proxy = false;
 
 const scope = globalThis as unknown as InferenceWorkerScope;
@@ -43,15 +49,11 @@ async function createSession(
   executionProvider: OnnxExecutionProviderPreference;
   webgpuFailureMessage: string | null;
 }> {
-  const sessionOptions = {
-    graphOptimizationLevel: request.runOptions.graphOptimizationLevel,
-  };
   let webgpuFailureMessage: string | null = null;
   if (request.executionProvider === "webgpu") {
     if (await webgpuAdapterIsAvailable()) {
       try {
         session = await ort.InferenceSession.create(request.modelBuffer, {
-          ...sessionOptions,
           executionProviders: ["webgpu"],
         });
         return { executionProvider: "webgpu", webgpuFailureMessage: null };
@@ -64,7 +66,6 @@ async function createSession(
     }
   }
   session = await ort.InferenceSession.create(request.modelBuffer, {
-    ...sessionOptions,
     executionProviders: ["wasm"],
   });
   return { executionProvider: "wasm", webgpuFailureMessage };

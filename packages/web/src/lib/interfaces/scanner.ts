@@ -910,14 +910,8 @@ export interface RouteCardToBinParams {
 
 export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
 
-export type InferenceGraphOptimizationLevel =
-  | "disabled"
-  | "basic"
-  | "extended"
-  | "all";
-
 export interface VisionModelRunOptions {
-  graphOptimizationLevel?: InferenceGraphOptimizationLevel;
+  alwaysRunOnCpu?: boolean;
 }
 
 export interface VisionModelOutputs {
@@ -929,7 +923,6 @@ export interface InferenceWorkerInitRequest {
   type: "init";
   modelBuffer: ArrayBuffer;
   executionProvider: OnnxExecutionProviderPreference;
-  runOptions: VisionModelRunOptions;
 }
 
 export interface InferenceWorkerRunRequest {

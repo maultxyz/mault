@@ -169,7 +169,7 @@
     "checkBothOrientationsLabel": "Check Both Directions",
     "checkBothOrientationsDescription": "Also match the card rotated 180°, so cards fed upside down are still identified. Turn off if all your cards are fed the same way up to make each scan faster.",
     "executionProviderLabel": "AI Detection Backend",
-    "executionProviderDescription": "Which backend runs the card-detection and matching models in your browser. WASM is the default and works everywhere, but runs one sorter at a time. WebGPU can be faster on some GPUs, runs several sorters at once, and falls back to WASM if it fails to start.",
+    "executionProviderDescription": "Which backend runs the card-matching model in your browser (card detection always runs on WASM, where it is faster). WASM is the default and works everywhere, but runs one sorter at a time. WebGPU can be faster on some GPUs, runs several sorters at once, and falls back to WASM if it fails to start.",
     "executionProviderWebGpu": "WebGPU",
     "executionProviderWasm": "WASM (default)",
     "usePhoneAsCamera": "Use Phone as Camera",

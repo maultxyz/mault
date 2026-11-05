@@ -150,6 +150,7 @@ export const SCANNER_CAMERA_FRAME_RATE = 15;
 export const SCANNER_BACKGROUND_PREVIEW_INTERVAL_MS = 1000;
 export const SCANNER_PREVIEW_FRAME_TOLERANCE_MS = 8;
 export const CPU_INFERENCE_MAX_CONNECTED_SORTERS = 1;
+export const INFERENCE_WASM_MAX_THREADS = 4;
 export const INFERENCE_WORKERS_PER_MODEL: Record<
   OnnxExecutionProviderPreference,
   number

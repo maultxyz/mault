@@ -33,7 +33,7 @@ export async function detectCardCorners(
     "detector",
     CORNER_DETECTOR_MODEL,
     toDetectorInput(canvas),
-    { graphOptimizationLevel: "disabled" },
+    { alwaysRunOnCpu: true },
   );
 
   const detection = parseCornerDetection(

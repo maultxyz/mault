@@ -169,7 +169,7 @@
     "checkBothOrientationsLabel": "Beide Richtungen prüfen",
     "checkBothOrientationsDescription": "Gleicht die Karte zusätzlich um 180° gedreht ab, damit auch verkehrt herum eingezogene Karten erkannt werden. Deaktivieren, wenn alle Karten gleich ausgerichtet eingezogen werden, um jeden Scan zu beschleunigen.",
     "executionProviderLabel": "KI-Erkennungs-Backend",
-    "executionProviderDescription": "Welches Backend die Modelle für Kartenerkennung und Abgleich in deinem Browser ausführt. WASM ist die Standardeinstellung und funktioniert überall, betreibt aber jeweils nur einen Sortierer. WebGPU kann auf manchen GPUs schneller sein, betreibt mehrere Sortierer gleichzeitig und fällt auf WASM zurück, wenn es nicht startet.",
+    "executionProviderDescription": "Welches Backend das Modell für den Kartenabgleich in deinem Browser ausführt (die Kartenerkennung läuft immer auf WASM, weil sie dort schneller ist). WASM ist die Standardeinstellung und funktioniert überall, betreibt aber jeweils nur einen Sortierer. WebGPU kann auf manchen GPUs schneller sein, betreibt mehrere Sortierer gleichzeitig und fällt auf WASM zurück, wenn es nicht startet.",
     "executionProviderWebGpu": "WebGPU",
     "executionProviderWasm": "WASM (Standard)",
     "usePhoneAsCamera": "Telefon als Kamera verwenden",

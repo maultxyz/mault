@@ -150,7 +150,6 @@ class InferenceWorker {
   constructor(
     modelBuffer: ArrayBuffer,
     executionProvider: OnnxExecutionProviderPreference,
-    runOptions: VisionModelRunOptions,
   ) {
     this.worker = new Worker(new URL("./inference.worker.ts", import.meta.url), {
       type: "module",
@@ -169,7 +168,6 @@ class InferenceWorker {
       type: "init",
       modelBuffer,
       executionProvider,
-      runOptions,
     };
     this.worker.postMessage(request, [modelBuffer]);
   }
@@ -260,13 +258,13 @@ class InferenceWorkerPool {
   private readonly idleWorkers: InferenceWorker[] = [];
   private readonly waitingRuns: InferenceWorkerWaiter<InferenceWorker>[] = [];
   private readonly model: PinnedModel;
-  private readonly runOptions: VisionModelRunOptions;
+  private readonly alwaysRunOnCpu: boolean;
   private startingWorkerCount = 0;
   private retired = false;
 
   constructor(model: PinnedModel, runOptions: VisionModelRunOptions) {
     this.model = model;
-    this.runOptions = runOptions;
+    this.alwaysRunOnCpu = runOptions.alwaysRunOnCpu ?? false;
   }
 
   async run(imageData: ImageData): Promise<VisionModelOutputs> {
@@ -291,7 +289,9 @@ class InferenceWorkerPool {
     if (runtimeFailure) return Promise.reject(runtimeFailure);
     const idleWorker = this.idleWorkers.pop();
     if (idleWorker) return Promise.resolve(idleWorker);
-    const executionProvider = getEffectiveExecutionProvider();
+    const executionProvider = this.alwaysRunOnCpu
+      ? "wasm"
+      : getEffectiveExecutionProvider();
     const workerLimit = INFERENCE_WORKERS_PER_MODEL[executionProvider];
     if (this.workers.size + this.startingWorkerCount < workerLimit) {
       return this.startWorker(executionProvider);
@@ -308,7 +308,7 @@ class InferenceWorkerPool {
     let worker: InferenceWorker | null = null;
     try {
       const modelBuffer = (await loadModelBuffer(this.model)).slice(0);
-      worker = new InferenceWorker(modelBuffer, executionProvider, this.runOptions);
+      worker = new InferenceWorker(modelBuffer, executionProvider);
       await worker.ready;
       this.workers.add(worker);
       return worker;
