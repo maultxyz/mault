@@ -55,6 +55,7 @@ export function PlatformDiscordChannelFields({
           name={`${channelKey}.channelId`}
           render={({ field }) => (
             <DiscordChannelSelect
+              aria-label={t("discordChannels.channel")}
               value={field.value}
               channels={guild?.channels ?? []}
               emptyLabel={

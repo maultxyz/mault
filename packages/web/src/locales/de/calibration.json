@@ -74,7 +74,10 @@
     "customHeightLabel": "Benutzerdefinierte Fachhöhe für Fach {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "Etwa {{count}} Karten bei {{thickness}} mm pro Karte",
-    "customHeightInvalid": "{{min}} bis {{max}} mm eingeben"
+    "customHeightInvalid": "{{min}} bis {{max}} mm eingeben",
+    "binSizeLabel": "Größe von Fach {{bin}}",
+    "bottomModuleSelect": "Modul für Fach {{bin}}",
+    "bottomBinSelect": "Unteres Fach an Modul {{module}}"
   },
   "binRoutingControls": {
     "label": "Fach-Routing",
@@ -188,6 +191,7 @@
     "executionProviderLabel": "KI-Erkennungs-Backend",
     "executionProviderDescription": "Welches Backend das Modell für den Kartenabgleich in deinem Browser ausführt (die Kartenerkennung läuft immer auf WASM, weil sie dort schneller ist). WASM ist die Standardeinstellung und funktioniert überall, betreibt aber jeweils nur einen Sortierer. WebGPU kann auf manchen GPUs schneller sein, betreibt mehrere Sortierer gleichzeitig und fällt auf WASM zurück, wenn es nicht startet.",
     "executionProviderWebGpu": "WebGPU",
+    "regionKeyboardLabel": "Scanbereich. Verschiebe ihn mit den Pfeiltasten und ändere seine Größe mit Plus und Minus. Halte die Umschalttaste gedrückt für größere Schritte.",
     "executionProviderWasm": "WASM (Standard)",
     "usePhoneAsCamera": "Telefon als Kamera verwenden",
     "phoneCameraConnected": "Telefonkamera verbunden",

@@ -42,6 +42,7 @@ import {
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { announcePolitely } from "@/lib/live-announcer";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { recordPickListFound } from "@/features/bins/api/use-pick-list";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
@@ -770,6 +771,11 @@ export function ScannedCardsProvider({
       };
 
       recordSupportPromptScan();
+      announcePolitely(
+        record.binNumber != null
+          ? t("a11y.scanRoutedToBin", { name: card.name, binNumber: record.binNumber })
+          : card.name,
+      );
       if (record.binNumber != null) {
         setLastRoutedBin({ binNumber: record.binNumber, at: record.scannedAt });
       }

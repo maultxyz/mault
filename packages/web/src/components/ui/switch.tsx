@@ -1,16 +1,23 @@
 import { Switch as SwitchPrimitive } from "@base-ui/react/switch"
 
+import { useLabelledByHiddenInput } from "@/hooks/use-labelled-by-hidden-input"
 import { cn } from "@/lib/utils"
 
 function Switch({
   className,
   size = "default",
+  ref,
   ...props
 }: SwitchPrimitive.Root.Props & {
   size?: "sm" | "default"
 }) {
+  const controlRef = useLabelledByHiddenInput<HTMLElement>(
+    ref,
+    Boolean(props["aria-label"] || props["aria-labelledby"])
+  )
   return (
     <SwitchPrimitive.Root
+      ref={controlRef}
       data-slot="switch"
       data-size={size}
       className={cn(

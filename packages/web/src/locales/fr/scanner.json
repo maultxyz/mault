@@ -6,7 +6,8 @@
     "binsNeedingEmptying": "Bacs à vider",
     "corrected": "Corrigée",
     "sent": "Envoyé",
-    "received": "Reçu"
+    "received": "Reçu",
+    "scanRoutedToBin": "{{name}}, bac {{binNumber}}"
   },
   "camera": {
     "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",

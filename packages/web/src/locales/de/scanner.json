@@ -6,7 +6,8 @@
     "binsNeedingEmptying": "Zu leerende Fächer",
     "corrected": "Korrigiert",
     "sent": "Gesendet",
-    "received": "Empfangen"
+    "received": "Empfangen",
+    "scanRoutedToBin": "{{name}}, Fach {{binNumber}}"
   },
   "camera": {
     "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut.",

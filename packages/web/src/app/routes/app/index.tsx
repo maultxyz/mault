@@ -130,6 +130,9 @@ export default function App() {
     size: scannerHeight,
     isDragging: isResizingHeight,
     onPointerDown: onHeightPointerDown,
+    onKeyDown: onHeightKeyDown,
+    valueMin: scannerHeightMin,
+    valueMax: scannerHeightMax,
   } = useResizablePanel({
     axis: "height",
     defaultSize: 384,
@@ -142,6 +145,9 @@ export default function App() {
     size: scannerWidth,
     isDragging: isResizingWidth,
     onPointerDown: onWidthPointerDown,
+    onKeyDown: onWidthKeyDown,
+    valueMin: scannerWidthMin,
+    valueMax: scannerWidthMax,
   } = useResizablePanel({
     axis: "width",
     defaultSize: 340,
@@ -163,6 +169,10 @@ export default function App() {
           orientation="horizontal"
           isDragging={isResizingHeight}
           onPointerDown={onHeightPointerDown}
+          onKeyDown={onHeightKeyDown}
+          valueNow={scannerHeight}
+          valueMin={scannerHeightMin}
+          valueMax={scannerHeightMax}
         />
         <section className="flex-1 min-h-0 overflow-y-auto @container flex flex-col">
           <ScannerMainContent />
@@ -179,6 +189,10 @@ export default function App() {
         orientation="vertical"
         isDragging={isResizingWidth}
         onPointerDown={onWidthPointerDown}
+        onKeyDown={onWidthKeyDown}
+        valueNow={scannerWidth}
+        valueMin={scannerWidthMin}
+        valueMax={scannerWidthMax}
       />
       <section className="flex-1 min-w-0 overflow-y-auto h-full @container flex flex-col">
         <ScannerMainContent />

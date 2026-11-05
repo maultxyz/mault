@@ -74,7 +74,10 @@
     "customHeightLabel": "Custom bin height for bin {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "About {{count}} cards at {{thickness}} mm each",
-    "customHeightInvalid": "Enter {{min}} to {{max}} mm"
+    "customHeightInvalid": "Enter {{min}} to {{max}} mm",
+    "binSizeLabel": "Size of bin {{bin}}",
+    "bottomModuleSelect": "Module for bin {{bin}}",
+    "bottomBinSelect": "Bottom bin on module {{module}}"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
@@ -188,6 +191,7 @@
     "executionProviderLabel": "AI Detection Backend",
     "executionProviderDescription": "Which backend runs the card-matching model in your browser (card detection always runs on WASM, where it is faster). WASM is the default and works everywhere, but runs one sorter at a time. WebGPU can be faster on some GPUs, runs several sorters at once, and falls back to WASM if it fails to start.",
     "executionProviderWebGpu": "WebGPU",
+    "regionKeyboardLabel": "Scan region. Use the arrow keys to move it and the plus and minus keys to resize it. Hold Shift for bigger steps.",
     "executionProviderWasm": "WASM (default)",
     "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",

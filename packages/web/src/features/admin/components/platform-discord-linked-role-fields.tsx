@@ -48,6 +48,7 @@ export function PlatformDiscordLinkedRoleFields({
           name="roleId"
           render={({ field }) => (
             <DiscordRoleSelect
+              aria-label={t("discordChannels.linkedRole.role")}
               value={field.value}
               roles={guild?.roles ?? []}
               isSelectable={(role) => role.canAssign}

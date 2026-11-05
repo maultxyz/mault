@@ -97,7 +97,10 @@
     "noFields": "Aucun champ correspondant",
     "selectPlaceholder": "Sélectionner...",
     "valuePlaceholder": "Valeur...",
-    "freeformMultiPlaceholder": "Valeurs séparées par des virgules..."
+    "freeformMultiPlaceholder": "Valeurs séparées par des virgules...",
+    "fieldLabel": "Champ",
+    "operatorLabel": "Opérateur",
+    "valueLabel": "Valeur"
   },
   "ruleGroupEditor": {
     "emptyState": "Aucune condition. Ajoute une condition ou un groupe pour commencer.",
@@ -325,6 +328,7 @@
     "anyMustMatch": "Une de ces conditions",
     "cardValue": "Cette carte : {{value}}",
     "noValue": "rien",
+    "resultAnnouncement": "{{name}} va dans {{bin}}",
     "reasons": {
       "rules": "Les règles du bac {{bin}} correspondent à cette carte, et c'est le premier bac qui correspond.",
       "override": "Le bac {{bin}} est prioritaire et ses règles correspondent, il l'emporte donc sur les autres bacs.",

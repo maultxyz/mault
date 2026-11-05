@@ -6,7 +6,8 @@
     "binsNeedingEmptying": "Bins to empty",
     "corrected": "Corrected",
     "sent": "Sent",
-    "received": "Received"
+    "received": "Received",
+    "scanRoutedToBin": "{{name}}, Bin {{binNumber}}"
   },
   "camera": {
     "permissionDenied": "Camera permission denied. Please allow camera access and try again.",

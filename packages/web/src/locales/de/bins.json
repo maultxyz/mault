@@ -97,7 +97,10 @@
     "noFields": "Keine passenden Felder",
     "selectPlaceholder": "Auswählen...",
     "valuePlaceholder": "Wert...",
-    "freeformMultiPlaceholder": "Werte, durch Komma getrennt..."
+    "freeformMultiPlaceholder": "Werte, durch Komma getrennt...",
+    "fieldLabel": "Feld",
+    "operatorLabel": "Operator",
+    "valueLabel": "Wert"
   },
   "ruleGroupEditor": {
     "emptyState": "Keine Bedingungen. Füge eine Bedingung oder Gruppe hinzu, um zu beginnen.",
@@ -325,6 +328,7 @@
     "anyMustMatch": "Eine davon",
     "cardValue": "Diese Karte: {{value}}",
     "noValue": "nichts",
+    "resultAnnouncement": "{{name}} kommt in {{bin}}",
     "reasons": {
       "rules": "Die Regeln von Fach {{bin}} passen auf diese Karte, und es ist das erste Fach, das passt.",
       "override": "Fach {{bin}} hat Vorrang und seine Regeln passen, daher gewinnt es gegen andere passende Fächer.",

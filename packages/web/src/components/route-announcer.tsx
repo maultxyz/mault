@@ -2,6 +2,7 @@ import {
   ROUTE_HEADING_SELECTOR,
   ROUTE_HEADING_WAIT_MS,
 } from "@/lib/constants/a11y";
+import { useLiveAnnouncement } from "@/lib/live-announcer";
 import { setPageHeading } from "@/lib/page-heading-store";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -14,6 +15,7 @@ export function RouteAnnouncer() {
   const { pathname } = useLocation();
   const [announcement, setAnnouncement] = useState("");
   const isFirstRender = useRef(true);
+  const liveAnnouncement = useLiveAnnouncement();
 
   useEffect(() => {
     const announceOnNavigation = !isFirstRender.current;
@@ -46,8 +48,13 @@ export function RouteAnnouncer() {
   }, [pathname]);
 
   return (
-    <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-      {announcement}
-    </div>
+    <>
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {liveAnnouncement}
+      </div>
+    </>
   );
 }

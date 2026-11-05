@@ -71,9 +71,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Fragment, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 
 export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   const { t } = useTranslation("business");
+  const DetailHeading = useIsMobile() ? "h2" : "h1";
   const { format } = usePriceSource();
   const { access } = useBusinessAccess();
   const run = useBusinessAction();
@@ -181,9 +183,9 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
       <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
         <div className="mr-auto min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="truncate font-heading text-lg font-semibold">
+            <DetailHeading className="truncate font-heading text-lg font-semibold">
               {order.name}
-            </h1>
+            </DetailHeading>
             <StatusBadge status={order.status} />
           </div>
           <p className="text-xs text-foreground/70">
