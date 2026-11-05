@@ -60,7 +60,9 @@
   "supportedGames": {
     "heading": "Trie facilement n'importe quel JCC que tu aimes",
     "cardsIndexed_one": "{{formatted}} carte indexée",
-    "cardsIndexed_other": "{{formatted}} cartes indexées"
+    "cardsIndexed_other": "{{formatted}} cartes indexées",
+    "pauseHint": "Appuyez sur Espace pour mettre en pause la liste défilante.",
+    "pausedHint": "En pause. Appuyez sur Espace pour reprendre la liste défilante."
   },
   "features": {
     "eyebrow": "Fonctionnalités",

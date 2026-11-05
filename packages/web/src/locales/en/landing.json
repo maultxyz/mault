@@ -60,7 +60,9 @@
   "supportedGames": {
     "heading": "Easily sorts any TCG you love",
     "cardsIndexed_one": "{{formatted}} card indexed",
-    "cardsIndexed_other": "{{formatted}} cards indexed"
+    "cardsIndexed_other": "{{formatted}} cards indexed",
+    "pauseHint": "Press Space to pause the scrolling list.",
+    "pausedHint": "Paused. Press Space to resume the scrolling list."
   },
   "features": {
     "eyebrow": "Features",

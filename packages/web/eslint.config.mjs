@@ -59,6 +59,10 @@ export default tseslint.config(
           ],
         },
       ],
+      "jsx-a11y/no-noninteractive-tabindex": [
+        "error",
+        { tags: [], roles: ["tabpanel", "marquee"], allowExpressionValues: true },
+      ],
       "jsx-a11y/no-noninteractive-element-interactions": [
         "error",
         { handlers: ["onClick", "onMouseDown", "onMouseUp", "onKeyPress"] },

@@ -60,7 +60,9 @@
   "supportedGames": {
     "heading": "Sortiert jedes Sammelkartenspiel, das du liebst",
     "cardsIndexed_one": "{{formatted}} Karte indexiert",
-    "cardsIndexed_other": "{{formatted}} Karten indexiert"
+    "cardsIndexed_other": "{{formatted}} Karten indexiert",
+    "pauseHint": "Drücke die Leertaste, um die laufende Liste anzuhalten.",
+    "pausedHint": "Angehalten. Drücke die Leertaste, um die laufende Liste fortzusetzen."
   },
   "features": {
     "eyebrow": "Funktionen",

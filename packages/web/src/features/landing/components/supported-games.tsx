@@ -4,6 +4,8 @@ import {
   GAMES_MARQUEE_SECONDS_PER_ITEM,
 } from "@/lib/constants/landing";
 import type { PublicGame } from "@magic-vault/shared";
+import { cn } from "@/lib/utils";
+import { useId, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 function repeatToFill(games: PublicGame[]): PublicGame[] {
@@ -15,10 +17,18 @@ function repeatToFill(games: PublicGame[]): PublicGame[] {
 export function LandingSupportedGames() {
   const { t, i18n } = useTranslation("landing");
   const games = usePublicGames();
+  const [isPaused, setIsPaused] = useState(false);
+  const pauseHintId = useId();
 
   if (games !== null && games.length === 0) return null;
 
   const items = games ? repeatToFill(games) : [];
+
+  const togglePauseOnSpace = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key !== " " || event.target !== event.currentTarget) return;
+    event.preventDefault();
+    setIsPaused((paused) => !paused);
+  };
 
   const renderRow = (hidden: boolean) => (
     <ul
@@ -44,8 +54,12 @@ export function LandingSupportedGames() {
 
   return (
     <section
+      role="marquee"
       aria-label={t("supportedGames.heading")}
-      className="overflow-hidden border-y bg-card py-4 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+      aria-describedby={games ? pauseHintId : undefined}
+      tabIndex={games ? 0 : undefined}
+      onKeyDown={togglePauseOnSpace}
+      className="overflow-hidden border-y bg-card py-4 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
     >
       {games === null ? (
         <div className="flex justify-center gap-10">
@@ -58,7 +72,10 @@ export function LandingSupportedGames() {
         </div>
       ) : (
         <div
-          className="flex w-max animate-marquee hover:[animation-play-state:paused] motion-reduce:animate-none"
+          className={cn(
+            "flex w-max animate-marquee hover:[animation-play-state:paused] motion-reduce:animate-none",
+            isPaused && "[animation-play-state:paused]",
+          )}
           style={{
             ["--marquee-duration" as string]: `${items.length * GAMES_MARQUEE_SECONDS_PER_ITEM}s`,
           }}
@@ -66,6 +83,13 @@ export function LandingSupportedGames() {
           {renderRow(false)}
           {renderRow(true)}
         </div>
+      )}
+      {games && (
+        <p id={pauseHintId} className="sr-only" aria-live="polite">
+          {isPaused
+            ? t("supportedGames.pausedHint")
+            : t("supportedGames.pauseHint")}
+        </p>
       )}
     </section>
   );
