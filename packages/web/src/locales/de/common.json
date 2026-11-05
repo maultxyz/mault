@@ -103,7 +103,8 @@
     "exitButton": "Imitation beenden",
     "hardwareBlocked": "Sortierer und Kameras können nicht verbunden werden, während du einen Benutzer imitierst.",
     "scanningBlockedTitle": "Scannen ist während der Benutzer-Imitation deaktiviert",
-    "scanningBlockedDescription": "Beende die Imitation, um Karten zu scannen, einen Sortierer zu verbinden oder eine Kamera zu verwenden."
+    "scanningBlockedDescription": "Beende die Imitation, um Karten zu scannen, einen Sortierer zu verbinden oder eine Kamera zu verwenden.",
+    "calibrationReadOnly": "Die Kalibrierung ist während der Imitation schreibgeschützt. Beende die Imitation, um sie zu ändern oder einen Sortierer zu verbinden."
   },
   "theme": {
     "toggle": "Design umschalten",

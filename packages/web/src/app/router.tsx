@@ -373,7 +373,6 @@ export const routes: RouteObject[] = [
                       },
                       {
                         path: "/app/calibrate",
-                        element: <BlockedWhileImpersonatingGuard />,
                         children: [
                           {
                             element: <CalibrateLayout />,

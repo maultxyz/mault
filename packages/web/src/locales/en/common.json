@@ -103,7 +103,8 @@
     "exitButton": "Exit Impersonation",
     "hardwareBlocked": "Sorters and cameras can't be connected while impersonating a user.",
     "scanningBlockedTitle": "Scanning is disabled while impersonating",
-    "scanningBlockedDescription": "Exit impersonation to scan cards, connect a sorter or use a camera."
+    "scanningBlockedDescription": "Exit impersonation to scan cards, connect a sorter or use a camera.",
+    "calibrationReadOnly": "Calibration is read-only while impersonating. Exit impersonation to change it or connect a sorter."
   },
   "theme": {
     "toggle": "Toggle theme",
