@@ -1,0 +1,57 @@
+{
+  "title": "Valider les correspondances",
+  "description": "Aide la communauté à améliorer la reconnaissance des cartes : compare les scans récents avec la carte associée. Chaque scan demande {{required}} vérifications. Les réponses ne modifient jamais une collection.",
+  "counts": "Tu en as vérifié {{yours}} · {{community}} vérifications de la communauté jusqu'ici",
+  "sessionCounts": "Cette session : {{correct}} justes, {{incorrect}} fausses, {{badScan}} mauvais scans",
+  "scanPhoto": "Photo du scan",
+  "scanPhotoAlt": "Photo du scan à comparer avec {{name}}",
+  "matchedCard": "Carte associée",
+  "matchedCardAlt": "Image du catalogue de {{name}}",
+  "unknownCard": "Carte inconnue",
+  "matchedByEmbedding": "Associée par l'image",
+  "matchedByOcr": "Associée par le texte du nom",
+  "lowConfidence": "Confiance faible",
+  "scannedAt": "Scannée le {{date}}",
+  "decisions": {
+    "correct": "Marquée juste",
+    "incorrect": "Marquée fausse",
+    "skipped": "Ignorée",
+    "badScan": "Marquée mauvais scan"
+  },
+  "actions": {
+    "correct": "Juste",
+    "incorrect": "Fausse",
+    "badScan": "Mauvais scan",
+    "skip": "Ignorer",
+    "back": "Retour",
+    "refresh": "Actualiser"
+  },
+  "empty": {
+    "title": "Plus rien à vérifier",
+    "description": "Tu as vérifié chaque scan ouvert, ou ignoré le reste. Actualise pour recharger les scans ignorés."
+  },
+  "toasts": {
+    "saveError": "Impossible d'enregistrer ta réponse. Réessaie ce scan."
+  },
+  "reviewProgress": "{{count}} sur {{required}} vérifications",
+  "views": {
+    "review": "Vérifier",
+    "scans": "Tous les scans"
+  },
+  "statuses": {
+    "inProgress": "À vérifier",
+    "correct": "Juste",
+    "incorrect": "Fausse",
+    "badScan": "Mauvais scan",
+    "disputed": "Contestée"
+  },
+  "tallies": "{{correct}} justes · {{incorrect}} fausses · {{badScan}} mauvais scan",
+  "yourVerdict": "Ta réponse : {{verdict}}",
+  "scans": {
+    "listLabel": "Scans à valider",
+    "empty": {
+      "title": "Aucun scan à valider",
+      "description": "Il n'y a aucun scan avec photo dans cette semaine de validation."
+    }
+  }
+}

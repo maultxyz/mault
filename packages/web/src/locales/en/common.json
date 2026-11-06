@@ -1,5 +1,11 @@
 {
+  "matchValidationProgress": {
+    "label": "Community scan validation progress",
+    "valueText": "{{done}} of {{total}} reviews done",
+    "percent": "{{percent}}%"
+  },
   "nav": {
+    "validateMatches": "Validate matches",
     "scanner": "Sort",
     "collections": "Collections",
     "scan": "Link camera",
@@ -213,6 +219,7 @@
       "scanner": "Scanner",
       "cardDetail": "Card details",
       "intake": "Intake",
+      "matchValidation": "Validating matches",
       "foilLabeling": "Foil labelling"
     },
     "actions": {
@@ -259,6 +266,11 @@
       "foilLabelFoil": "While labelling foils: mark as foil",
       "foilLabelNotFoil": "While labelling foils: mark as not foil",
       "foilLabelSkip": "While labelling foils: skip this card",
+      "matchValidationCorrect": "While validating matches: mark the match correct",
+      "matchValidationIncorrect": "While validating matches: mark the match wrong",
+      "matchValidationBadScan": "While validating matches: mark the photo as a bad scan",
+      "matchValidationSkip": "While validating matches: skip this scan",
+      "matchValidationBack": "While validating matches: go back to the previous scan",
       "foilLabelBack": "While labelling foils: go back to the previous card"
     }
   },

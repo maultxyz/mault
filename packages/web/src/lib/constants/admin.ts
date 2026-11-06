@@ -158,5 +158,3 @@ export const BROWSER_EMBED_TIMEOUT_MS = 60_000;
 export const BROWSER_EMBED_WORKER_MAX = 2;
 
 export const FOIL_LABELS_PATH = "/app/admin/foil-labels";
-export const FOIL_LABEL_QUEUE_REFILL_THRESHOLD = 10;
-export const FOIL_LABEL_PREFETCH_COUNT = 3;

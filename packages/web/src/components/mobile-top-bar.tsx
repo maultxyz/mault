@@ -1,5 +1,6 @@
 import { BrandBadge } from "@/components/brand-badge";
 import { NotificationsButton } from "@/components/notifications-button";
+import { ValidateMatchesButton } from "@/components/validate-matches-button";
 import { CollectionMenu } from "@/features/collections/components/collection-menu";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 
@@ -15,6 +16,7 @@ export function MobileTopBar() {
         </span>
         <CollectionMenu />
       </div>
+      <ValidateMatchesButton iconOnly />
       <NotificationsButton />
     </header>
   );

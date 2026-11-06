@@ -1,0 +1,57 @@
+{
+  "title": "Validate matches",
+  "description": "Help the community improve card recognition: check recent scans against the card they were matched to. Each scan needs {{required}} reviews. Answers never change anyone's collection.",
+  "counts": "You've checked {{yours}} · {{community}} checks from the community so far",
+  "sessionCounts": "This session: {{correct}} correct, {{incorrect}} wrong, {{badScan}} bad scans",
+  "scanPhoto": "Scan photo",
+  "scanPhotoAlt": "Scan photo to compare with {{name}}",
+  "matchedCard": "Matched card",
+  "matchedCardAlt": "Catalog image of {{name}}",
+  "unknownCard": "Unknown card",
+  "matchedByEmbedding": "Matched by image",
+  "matchedByOcr": "Matched by name text",
+  "lowConfidence": "Low confidence",
+  "scannedAt": "Scanned {{date}}",
+  "decisions": {
+    "correct": "Marked correct",
+    "incorrect": "Marked wrong",
+    "skipped": "Skipped",
+    "badScan": "Marked bad scan"
+  },
+  "actions": {
+    "correct": "Correct",
+    "incorrect": "Wrong",
+    "badScan": "Bad scan",
+    "skip": "Skip",
+    "back": "Back",
+    "refresh": "Refresh"
+  },
+  "empty": {
+    "title": "Nothing left to check",
+    "description": "You've checked every open scan, or skipped the rest. Refresh to load skipped scans again."
+  },
+  "toasts": {
+    "saveError": "Couldn't save your answer. Try that scan again."
+  },
+  "reviewProgress": "{{count}} of {{required}} reviews",
+  "views": {
+    "review": "Review",
+    "scans": "All scans"
+  },
+  "statuses": {
+    "inProgress": "Needs reviews",
+    "correct": "Correct",
+    "incorrect": "Wrong",
+    "badScan": "Bad scan",
+    "disputed": "Disputed"
+  },
+  "tallies": "{{correct}} correct · {{incorrect}} wrong · {{badScan}} bad scan",
+  "yourVerdict": "Your answer: {{verdict}}",
+  "scans": {
+    "listLabel": "Scans needing validation",
+    "empty": {
+      "title": "No scans to validate",
+      "description": "There are no scans with a photo in this validation week."
+    }
+  }
+}
