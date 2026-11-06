@@ -33,6 +33,7 @@ import {
   DEFAULT_CHANNEL_LAYOUT,
   isFirmwareFeatureSupported,
   toSetLightCommand,
+  assertLightWarningReply,
   type ModuleConfig,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
@@ -325,7 +326,12 @@ export function DeviceCalibrationSyncProvider({
       const version = firmwareVersionRef.current;
       if (!target) return;
       if (version && !isFirmwareFeatureSupported(version, "lighting")) return;
-      await request(toSetLightCommand(target));
+      const warningsSupported = isFirmwareFeatureSupported(version, "lightingWarnings");
+      const { line } = await request(toSetLightCommand(target, { warningsSupported }));
+      if (warningsSupported) {
+        if (!line) throw new Error("Lighting warning settings acknowledgement missing");
+        assertLightWarningReply(line, target);
+      }
     });
   }, [registerPreTestHook, request]);
 

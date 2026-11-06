@@ -635,13 +635,13 @@
     "previewUnavailable": "Verbinde den Sortierer und lass ihn den Selbsttest bestehen, um Änderungen am Streifen zu sehen. Bearbeiten und Speichern geht trotzdem.",
     "strip": {
       "heading": "Lichtstreifen",
-      "description": "LEDs 1 bis 3 beleuchten die Karte beim Scannen. LEDs 0 und 4 sind ausser bei Feiern fuer die Foil-Erkennung reserviert. Aenderungen erscheinen sofort und bleiben nach dem Speichern erhalten."
+      "description": "Fuenf LEDs: diffuse mittlere LEDs 1 bis 3 fuer normales Licht; offene LEDs 0 und 4 fuer Foil-Erkennung. Warnungen und Feiern nutzen alle fuenf. Normale Farbe und Helligkeit hier waehlen. Vorschau sofort, dauerhaft nach Speichern."
     },
     "modeLabel": "Modus",
     "modes": {
       "off": {
         "label": "Aus",
-        "description": "Der Streifen bleibt dunkel, ausser bei Feiern."
+        "description": "Normales Licht bleibt dunkel. Aktivierte Warnungen und Feiern koennen den Streifen weiter beleuchten."
       },
       "white": {
         "label": "Weiß",
@@ -661,9 +661,9 @@
     "brightnessValue": "{{percent}} %",
     "celebration": {
       "heading": "Feier für wertvolle Karten",
-      "description": "Rot, Gruen und Blau wandern ueber alle fuenf LEDs, wenn eine neue Karte den Mindestwert erreicht. Dauer pro Sortierer gespeichert, Standard 500 ms. Vor der naechsten Karte wird das Hauptlicht wiederhergestellt. Fuer einstellbare Dauer Firmware neu flashen.",
-      "duration": "Dauer der Feier (ms)",
-      "invalidDuration": "Gib eine ganze Zahl von 100 bis 3000 ms ein.",
+      "description": "Je eine LED blinkt: 0, 1, 2, 3, 4, 3, 2, 1, 0, abwechselnd gruen, rot und blau. Bei neu gescannten Karten ab dem Mindestwert. Automatische Feiern per Schalter deaktivieren. Vor dem naechsten Einzug kehrt normales Licht zurueck. Neues Lauflicht ab Firmware 2.12.0.",
+      "duration": "Dauer der Feier (Sekunden)",
+      "invalidDuration": "Gib 0,1 bis 3 Sekunden ein.",
       "previewFailed": "Feiertest fehlgeschlagen. Warnungen loeschen und Firmware fuer einstellbare Dauer aktualisieren.",
       "enabled": "Automatische Feier aktivieren",
       "threshold": "Mindestkartenwert ({{currency}})",
@@ -673,16 +673,22 @@
     },
     "alerts": {
       "heading": "Warnungen",
-      "description": "Fehler- und Leerhopper-Lichtsignale sind in der aktualisierten Firmware deaktiviert. Website-Warnungen und Fehlermeldungen bleiben aktiv. Feiern ersetzen kurzzeitig das normale Licht.",
-      "jam": "Kartenstau: Meldung auf der Website ohne Lichtwechsel.",
-      "empty": "Leerer Einzug: Meldung auf der Website ohne Lichtwechsel.",
-      "value": "Rot, Gruen und Blau wandern ueber alle fuenf LEDs: Feier fuer eine wertvolle Karte mit eingestellter Dauer.",
+      "description": "Warnungen wechseln mit dem normalen mittleren Licht, solange ein gemeldeter Fehler besteht, und enden bei freiem Sensor. Alle Zeiten in Sekunden, pro Sortierer gespeichert. Standard: 3 Sekunden Warnung, 5 Sekunden normales Licht. Blockaden haben Vorrang vor leerem Einzug und Feiern. Sicherheitspruefungen bleiben auch ohne Warnlicht aktiv. Ab Firmware 2.12.0.",
+      "enabled": "Warnlichter aktivieren",
+      "lightEmptyWarningSeconds": "Gelbe Warnung bei leerem Einzug (Sekunden)",
+      "lightBlockedWarningSeconds": "Rote Warnung bei blockiertem Modul (Sekunden)",
+      "lightNormalSeconds": "Normales diffuses Licht zwischen Warnungen (Sekunden)",
+      "invalidSeconds": "Gib eine ganze Zahl von 1 bis 300 Sekunden ein.",
+      "jam": "Blockiertes Modul: alle fuenf LEDs leuchten fuer die eingestellte Warnzeit rot.",
+      "empty": "Leerer Einzug: alle fuenf LEDs leuchten fuer die eingestellte Warnzeit gelb.",
+      "value": "Feiern laufen von LED 0 bis 4 und zurueck zu 0 mit gruenen, roten und blauen Blitzen.",
       "testCelebration": "Feier testen",
       "clear": "Warnung beenden"
     },
     "toasts": {
       "saved": "Lichteinstellungen gespeichert.",
-      "saveFailed": "Lichteinstellungen konnten nicht gespeichert werden."
+      "saveFailed": "Lichteinstellungen konnten nicht gespeichert werden.",
+      "previewFailed": "Lichteinstellungen nicht bestaetigt. Verbindung, gueltige Zeitwerte und Firmware pruefen."
     }
   }
 }

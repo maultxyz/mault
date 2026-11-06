@@ -130,7 +130,7 @@ test("direction sequence lights the diffused middle, LED 0 and LED 4 separately 
   assert.deepEqual(steps.map((step) => `${step.id}:${step.lighting.lightMode}:${step.lighting.lightBrightness}:${step.lighting.ledMask ?? "all"}`),
     ["ambient:off:12:14", "whiteBright:white:12:14", "diffuse:white:32:14", "led0:white:32:1", "led4:white:32:16", "led0Repeat:white:32:1", "led4Repeat:white:32:16"]);
   const command = { setLight: { mode: "white", brightness: 32 } };
-  assert.deepEqual(withFoilLedMask(command, 16), { setLight: { mode: "white", brightness: 32, leds: 16 } });
+  assert.deepEqual(withFoilLedMask(command, 16), { setLight: { mode: "white", brightness: 32, leds: 16, suppressWarnings: true } });
   assert.equal(withFoilLedMask(command, undefined), command);
   const settings = steps[4].lighting;
   assertFoilLightingReply('{"status":"ok","lightMode":"white","lightAlert":"none","brightness":32,"leds":16}', settings);

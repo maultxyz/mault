@@ -7,6 +7,9 @@ import {
   isLightMode,
   isPriceSource,
   isValueCelebrationDuration,
+  isLightTimerSeconds,
+  LIGHT_TIMER_MIN_SECONDS,
+  LIGHT_TIMER_MAX_SECONDS,
   LIGHT_BRIGHTNESS_MAX,
   maxModulesForLayout,
   type ChannelLayout,
@@ -53,7 +56,19 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       valueCelebrationThreshold?: number;
       valueCelebrationPriceSource?: PriceSource;
       valueCelebrationDurationMs?: number;
+      lightWarningsEnabled?: boolean;
+      lightEmptyWarningSeconds?: number;
+      lightBlockedWarningSeconds?: number;
+      lightNormalSeconds?: number;
     }>();
+    if ("lightWarningsEnabled" in body && typeof body.lightWarningsEnabled !== "boolean") {
+      return c.json({ success: false, message: "Lighting warnings enabled must be a boolean." }, 400);
+    }
+    for (const key of ["lightEmptyWarningSeconds", "lightBlockedWarningSeconds", "lightNormalSeconds"] as const) {
+      if (key in body && !isLightTimerSeconds(body[key])) {
+        return c.json({ success: false, message: `${key} must be an integer from ${LIGHT_TIMER_MIN_SECONDS} to ${LIGHT_TIMER_MAX_SECONDS} seconds.` }, 400);
+      }
+    }
     if ("valueCelebrationEnabled" in body && typeof body.valueCelebrationEnabled !== "boolean") {
       return c.json({ success: false, message: "Celebration enabled must be a boolean." }, 400);
     }
@@ -189,6 +204,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
           valueCelebrationThreshold: body.valueCelebrationThreshold ?? device.valueCelebrationThreshold,
           valueCelebrationPriceSource: body.valueCelebrationPriceSource ?? device.valueCelebrationPriceSource,
           valueCelebrationDurationMs: body.valueCelebrationDurationMs ?? device.valueCelebrationDurationMs,
+          lightWarningsEnabled: body.lightWarningsEnabled ?? device.lightWarningsEnabled,
+          lightEmptyWarningSeconds: body.lightEmptyWarningSeconds ?? device.lightEmptyWarningSeconds,
+          lightBlockedWarningSeconds: body.lightBlockedWarningSeconds ?? device.lightBlockedWarningSeconds,
+          lightNormalSeconds: body.lightNormalSeconds ?? device.lightNormalSeconds,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null
               ? Math.min(

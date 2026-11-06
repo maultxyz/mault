@@ -22,6 +22,8 @@ import {
   LIGHT_MODES,
   VALUE_CELEBRATION_DURATION_MIN_MS,
   VALUE_CELEBRATION_DURATION_MAX_MS,
+  LIGHT_TIMER_MIN_SECONDS,
+  LIGHT_TIMER_MAX_SECONDS,
 } from "@magic-vault/shared";
 import { IconConfetti, IconInfoCircle, IconX } from "@tabler/icons-react";
 import { Controller, useWatch } from "react-hook-form";
@@ -38,6 +40,7 @@ export function LightingPanel({
   const { t } = useTranslation("calibration");
   const mode = useWatch({ control, name: "lightMode" });
   const celebrationEnabled = useWatch({ control, name: "valueCelebrationEnabled" });
+  const warningsEnabled = useWatch({ control, name: "lightWarningsEnabled" });
   const { source, format } = usePriceSource();
 
   return (
@@ -192,13 +195,14 @@ export function LightingPanel({
                   <Input
                     id="value-celebration-duration"
                     type="number"
-                    min={VALUE_CELEBRATION_DURATION_MIN_MS}
-                    max={VALUE_CELEBRATION_DURATION_MAX_MS}
-                    step={1}
-                    value={Number.isNaN(field.value) ? "" : field.value}
+                    min={VALUE_CELEBRATION_DURATION_MIN_MS / 1000}
+                    max={VALUE_CELEBRATION_DURATION_MAX_MS / 1000}
+                    step={0.1}
+                    disabled={!celebrationEnabled}
+                    value={Number.isNaN(field.value) ? "" : field.value / 1000}
                     onBlur={field.onBlur}
                     ref={field.ref}
-                    onChange={(event) => field.onChange(event.target.valueAsNumber)}
+                    onChange={(event) => field.onChange(Math.round(event.target.valueAsNumber * 1000))}
                     aria-invalid={!!fieldState.error}
                     className="sm:w-64"
                   />
@@ -215,6 +219,33 @@ export function LightingPanel({
         heading={t("lights.alerts.heading")}
         description={t("lights.alerts.description")}
       >
+        <FirmwareFeatureGate feature="lightingWarnings">
+          {isLoaded ? (
+            <div className="flex flex-col gap-4">
+              <Controller control={control} name="lightWarningsEnabled" render={({ field }) => (
+                <div className="flex items-center gap-2">
+                  <Switch id="light-warnings-enabled" checked={field.value} onCheckedChange={(checked) => {
+                    field.onChange(checked);
+                    onPreview();
+                  }} />
+                  <Label htmlFor="light-warnings-enabled">{t("lights.alerts.enabled")}</Label>
+                </div>
+              )} />
+              {(["lightEmptyWarningSeconds", "lightBlockedWarningSeconds", "lightNormalSeconds"] as const).map((name) => (
+                <Controller key={name} control={control} name={name} render={({ field, fieldState }) => (
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor={name}>{t(`lights.alerts.${name}`)}</Label>
+                    <Input id={name} type="number" min={LIGHT_TIMER_MIN_SECONDS} max={LIGHT_TIMER_MAX_SECONDS} step={1}
+                      disabled={!warningsEnabled} value={Number.isNaN(field.value) ? "" : field.value}
+                      onBlur={field.onBlur} ref={field.ref} aria-invalid={!!fieldState.error}
+                      onChange={(event) => { field.onChange(event.target.valueAsNumber); onPreview(); }} className="sm:w-64" />
+                    {fieldState.error && <p className="text-xs text-destructive">{t("lights.alerts.invalidSeconds")}</p>}
+                  </div>
+                )} />
+              ))}
+            </div>
+          ) : <Skeleton className="h-20 w-full" />}
+        </FirmwareFeatureGate>
         <ul className="flex flex-col gap-1 text-sm">
           <li>{t("lights.alerts.jam")}</li>
           <li>{t("lights.alerts.empty")}</li>

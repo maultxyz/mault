@@ -635,13 +635,13 @@
     "previewUnavailable": "Connect the sorter and pass its self-test to preview changes on the strip. You can still edit and save.",
     "strip": {
       "heading": "Light strip",
-      "description": "LEDs 1 to 3 light the card while it is scanned. LEDs 0 and 4 are reserved for foil detection, except during celebrations. Changes show right away and are kept once you save."
+      "description": "Five LEDs: diffused center LEDs 1 to 3 provide normal lighting; exposed LEDs 0 and 4 are for foil detection. Warnings and celebrations can use all five. Choose normal color and brightness here. Changes preview immediately and are kept with Save."
     },
     "modeLabel": "Mode",
     "modes": {
       "off": {
         "label": "Off",
-        "description": "The strip stays dark, except for celebrations."
+        "description": "Normal lighting stays dark. Enabled warnings and celebrations can still light the strip."
       },
       "white": {
         "label": "White",
@@ -661,9 +661,9 @@
     "brightnessValue": "{{percent}}%",
     "celebration": {
       "heading": "Valuable-card celebration",
-      "description": "Rotate red, green and blue across all five LEDs when a newly scanned card meets the minimum value. Duration is saved per sorter, default 500 ms. Qualifying routes restore main lighting before feeding the next card. Reflash firmware to use adjustable timing.",
-      "duration": "Celebration duration (ms)",
-      "invalidDuration": "Enter a whole number from 100 to 3000 ms.",
+      "description": "One LED flashes at a time: 0, 1, 2, 3, 4, 3, 2, 1, 0, alternating green, red and blue. Runs when a newly scanned card meets the minimum value. Disable automatic celebrations with the switch. Normal lighting returns before the next feed. The new sweep requires firmware 2.12.0.",
+      "duration": "Celebration duration (seconds)",
+      "invalidDuration": "Enter 0.1 to 3 seconds.",
       "previewFailed": "Celebration test failed. Clear sorter alerts and update firmware for adjustable timing.",
       "enabled": "Enable automatic celebration",
       "threshold": "Minimum card value ({{currency}})",
@@ -673,16 +673,22 @@
     },
     "alerts": {
       "heading": "Alerts",
-      "description": "Error and empty-hopper lighting is disabled in the updated firmware. Website warnings and sorter error reporting remain active. Celebrations still temporarily override normal lighting.",
-      "jam": "Card jam: reported in the website without changing the lighting.",
-      "empty": "Empty hopper: reported in the website without changing the lighting.",
-      "value": "Moving red, green and blue across all five LEDs: a valuable-card celebration for the configured duration.",
+      "description": "Warnings alternate with your normal center-LED lighting while a reported fault persists, stopping when its sensor clears. All times are seconds and saved per sorter. Defaults: 3 seconds warning, 5 seconds normal. Blockages take priority over an empty hopper and celebrations. Safety checks remain active when lighting warnings are disabled. Requires firmware 2.12.0.",
+      "enabled": "Enable warning lights",
+      "lightEmptyWarningSeconds": "Hopper-empty amber warning (seconds)",
+      "lightBlockedWarningSeconds": "Blocked-module red warning (seconds)",
+      "lightNormalSeconds": "Normal diffused lighting between warnings (seconds)",
+      "invalidSeconds": "Enter a whole number from 1 to 300 seconds.",
+      "jam": "Blocked module: all five LEDs turn red for the configured warning time.",
+      "empty": "Empty hopper: all five LEDs turn amber for the configured warning time.",
+      "value": "Celebrations sweep from LED 0 to 4 and back to 0 with green, red and blue flashes.",
       "testCelebration": "Test celebration",
       "clear": "Clear alert"
     },
     "toasts": {
       "saved": "Light settings saved.",
-      "saveFailed": "Couldn't save the light settings."
+      "saveFailed": "Couldn't save the light settings.",
+      "previewFailed": "Lighting settings could not be confirmed. Check the sorter connection, valid timer values and firmware."
     }
   }
 }

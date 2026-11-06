@@ -22,7 +22,7 @@ export function foilCaptureSteps(brightness: number) {
 
 export function withFoilLedMask<T extends { setLight: object }>(command: T, ledMask: number | undefined) {
   if (ledMask === undefined) return command;
-  return { ...command, setLight: { ...command.setLight, leds: ledMask } };
+  return { ...command, setLight: { ...command.setLight, leds: ledMask, suppressWarnings: true } };
 }
 
 export function assertFoilLightingReply(line: string, settings: FoilLighting) {

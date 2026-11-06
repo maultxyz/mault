@@ -6,6 +6,7 @@ export type FirmwareFeature =
   | "storedCalibration"
   | "paddleOpenDelay"
   | "wifiRemote"
-  | "lighting";
+  | "lighting"
+  | "lightingWarnings";
 
 export type SerialResetReason = (typeof SERIAL_RESET_REASONS)[number];

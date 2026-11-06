@@ -1,4 +1,5 @@
 #if LED_STRIP_SUPPORTED
+#include "lighting-state.h"
 constexpr uint16_t LED_COUNT = 5;
 constexpr uint8_t LED_FULL_MASK = (1 << LED_COUNT) - 1;
 constexpr uint8_t LED_MAIN_MASK = 0b01110;
@@ -15,9 +16,23 @@ const char* stripAlert = "none";
 unsigned long stripAlertStartedAt = 0;
 unsigned long stripLastFrameAt = 0;
 unsigned long stripCelebrationDurationMs = VALUE_CELEBRATION_DEFAULT_MS;
+LightWarningCycle stripWarnings;
+bool stripWarningsSuppressed = false;
+LightWarning stripRenderedWarning = LightWarning::None;
 
 void setStripAlert(const char* alert) {
+  if (strcmp(alert, "empty") == 0) {
+    stripWarnings.empty = true;
+    updateLedStrip();
+    return;
+  }
+  if (strcmp(alert, "jam") == 0) {
+    stripWarnings.blocked = true;
+    updateLedStrip();
+    return;
+  }
   if (strcmp(alert, "value") != 0) return;
+  if (!stripWarningsSuppressed && stripWarnings.enabled && (stripWarnings.empty || stripWarnings.blocked)) return;
   stripAlert = alert;
   stripAlertStartedAt = millis();
   stripLastFrameAt = millis() - 100;
@@ -25,6 +40,12 @@ void setStripAlert(const char* alert) {
 }
 
 void clearStripAlert(const char* alert) {
+  if (strcmp(alert, "empty") == 0) stripWarnings.empty = false;
+  if (strcmp(alert, "jam") == 0) stripWarnings.blocked = false;
+  if (strcmp(alert, "value") != 0) {
+    updateLedStrip();
+    return;
+  }
   if (strcmp(stripAlert, alert) != 0) return;
   stripAlert = "none";
   renderLedStrip();
@@ -39,6 +60,19 @@ void printLightState(Print& reply) {
   reply.print(stripBrightness);
   reply.print(F(",\"leds\":"));
   reply.print(stripLedMask);
+  reply.print(F(",\"warnings\":{\"enabled\":"));
+  reply.print(stripWarnings.enabled ? F("true") : F("false"));
+  reply.print(F(",\"emptySeconds\":"));
+  reply.print(stripWarnings.emptyMs / 1000);
+  reply.print(F(",\"blockedSeconds\":"));
+  reply.print(stripWarnings.blockedMs / 1000);
+  reply.print(F(",\"normalSeconds\":"));
+  reply.print(stripWarnings.normalMs / 1000);
+  reply.print(F("},\"warningsSuppressed\":"));
+  reply.print(stripWarningsSuppressed ? F("true") : F("false"));
+  reply.print(F(",\"warningActive\":"));
+  reply.print(!stripWarningsSuppressed && stripWarnings.enabled && (stripWarnings.empty || stripWarnings.blocked)
+    ? F("true") : F("false"));
   if (strcmp(stripAlert, "value") == 0) {
     reply.print(F(",\"durationMs\":"));
     reply.print(stripCelebrationDurationMs);
@@ -60,17 +94,47 @@ void initLedStrip() {
 }
 
 void updateLedStrip() {
-  if (strcmp(stripAlert, "none") != 0) {
+  if (stripWarnings.empty && hopperHasCards()) stripWarnings.empty = false;
+  if (stripWarnings.blocked && findBlockedModule() == 0) stripWarnings.blocked = false;
+  const LightWarning warning = stripWarnings.update(millis());
+  const LightWarning visibleWarning = stripWarningsSuppressed ? LightWarning::None : warning;
+  const bool warningActive = !stripWarningsSuppressed && stripWarnings.enabled &&
+    (stripWarnings.empty || stripWarnings.blocked);
+  if (warningActive) {
+    const char* nextAlert = visibleWarning == LightWarning::Blocked ? "jam" :
+      visibleWarning == LightWarning::Empty ? "empty" : "none";
+    if (strcmp(stripAlert, nextAlert) != 0 || stripRenderedWarning != visibleWarning) {
+      stripAlert = nextAlert;
+      stripRenderedWarning = visibleWarning;
+      if (visibleWarning == LightWarning::None) {
+        renderLedStrip();
+      } else {
+        fill_solid(stripLeds, LED_COUNT, visibleWarning == LightWarning::Blocked ? CRGB::Red : CRGB(255, 160, 0));
+        FastLED.setBrightness(stripBrightness);
+        FastLED.show();
+      }
+    }
+    return;
+  }
+  if (strcmp(stripAlert, "jam") == 0 || strcmp(stripAlert, "empty") == 0 ||
+      stripRenderedWarning != LightWarning::None) {
+    stripAlert = "none";
+    stripRenderedWarning = LightWarning::None;
+    renderLedStrip();
+  }
+  if (strcmp(stripAlert, "value") == 0) {
     unsigned long elapsed = millis() - stripAlertStartedAt;
     if (strcmp(stripAlert, "value") == 0 && elapsed >= stripCelebrationDurationMs) {
       stripAlert = "none";
       renderLedStrip();
     } else {
-      if (millis() - stripLastFrameAt < 100) return;
+      if (millis() - stripLastFrameAt < 5) return;
       stripLastFrameAt = millis();
-      const CRGB colors[] = {CRGB::Red, CRGB::Green, CRGB::Blue};
-      for (uint16_t i = 0; i < LED_COUNT; i++) {
-        stripLeds[i] = colors[(i + elapsed / 100) % 3];
+      const CRGB colors[] = {CRGB::Green, CRGB::Red, CRGB::Blue};
+      const uint8_t step = celebrationStep(elapsed, stripCelebrationDurationMs);
+      fill_solid(stripLeds, LED_COUNT, CRGB::Black);
+      if ((elapsed * 9 % stripCelebrationDurationMs) * 5 < stripCelebrationDurationMs * 4) {
+        stripLeds[celebrationLed(step)] = colors[step % 3];
       }
       FastLED.setBrightness(stripBrightness);
       FastLED.show();
@@ -96,6 +160,8 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
   uint8_t ledMask = LED_MAIN_MASK;
   unsigned long durationMs = VALUE_CELEBRATION_DEFAULT_MS;
   CRGB color = stripColor;
+  LightWarningCycle nextWarnings = stripWarnings;
+  bool suppressWarnings = false;
 
   if (request.is<const char*>()) {
     mode = request.as<const char*>();
@@ -105,6 +171,31 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
       return;
     }
     mode = request["mode"].as<const char*>();
+    if (!request["suppressWarnings"].isNull()) {
+      if (!request["suppressWarnings"].is<bool>()) {
+        reply.println(F("{\"error\":\"suppressWarnings must be a boolean\"}"));
+        return;
+      }
+      suppressWarnings = request["suppressWarnings"].as<bool>();
+    }
+    if (!request["warnings"].isNull()) {
+      JsonVariantConst warnings = request["warnings"];
+      if (!warnings.is<JsonObjectConst>() || !warnings["enabled"].is<bool>()) {
+        reply.println(F("{\"error\":\"warnings requires enabled and all three timers\"}"));
+        return;
+      }
+      for (const char* field : {"emptySeconds", "blockedSeconds", "normalSeconds"}) {
+        if (!warnings[field].is<unsigned long>() || warnings[field].as<unsigned long>() < 1 ||
+            warnings[field].as<unsigned long>() > 300) {
+          reply.println(F("{\"error\":\"warning timers must be integers from 1 to 300 seconds\"}"));
+          return;
+        }
+      }
+      nextWarnings.enabled = warnings["enabled"].as<bool>();
+      nextWarnings.emptyMs = warnings["emptySeconds"].as<unsigned long>() * 1000;
+      nextWarnings.blockedMs = warnings["blockedSeconds"].as<unsigned long>() * 1000;
+      nextWarnings.normalMs = warnings["normalSeconds"].as<unsigned long>() * 1000;
+    }
     if (!request["durationMs"].isNull()) {
       if (!request["durationMs"].is<unsigned long>() ||
         request["durationMs"].as<unsigned long>() < VALUE_CELEBRATION_MIN_MS ||
@@ -181,10 +272,26 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
   stripColor = color;
   stripBrightness = brightness;
   stripLedMask = ledMask;
+  const bool warningsChanged = stripWarnings.enabled != nextWarnings.enabled ||
+    stripWarnings.emptyMs != nextWarnings.emptyMs || stripWarnings.blockedMs != nextWarnings.blockedMs ||
+    stripWarnings.normalMs != nextWarnings.normalMs;
+  stripWarnings = nextWarnings;
+  if (warningsChanged) {
+    stripWarnings.selected = LightWarning::None;
+    stripWarnings.startedAt = millis();
+  }
+  stripWarningsSuppressed = suppressWarnings;
   if ((doc["clearAlert"] | false) && strcmp(stripAlert, "value") != 0) {
+    stripWarnings.empty = false;
+    stripWarnings.blocked = false;
     stripAlert = "none";
   }
-  if (strcmp(stripAlert, "none") == 0) renderLedStrip();
+  stripRenderedWarning = LightWarning::None;
+  if (strcmp(stripAlert, "value") != 0) {
+    stripAlert = "none";
+    renderLedStrip();
+  }
+  updateLedStrip();
   printLightState(reply);
 }
 #else

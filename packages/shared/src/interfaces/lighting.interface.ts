@@ -16,4 +16,11 @@ export interface ValueCelebrationSettings {
   valueCelebrationDurationMs: number;
 }
 
-export interface LightingDraft extends LightSettings, ValueCelebrationSettings {}
+export interface LightWarningSettings {
+  lightWarningsEnabled: boolean;
+  lightEmptyWarningSeconds: number;
+  lightBlockedWarningSeconds: number;
+  lightNormalSeconds: number;
+}
+
+export interface LightingDraft extends LightSettings, ValueCelebrationSettings, LightWarningSettings {}

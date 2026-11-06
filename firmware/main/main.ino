@@ -27,7 +27,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.11.0"
+#define FIRMWARE_VERSION "2.12.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -348,7 +348,12 @@ void waitMs(unsigned long ms) {
   while (millis() - start < ms) {
     feedWatchdog();
     if (commandInProgress) pumpInput();
-    unsigned long left = ms - (millis() - start);
+#if LED_STRIP_SUPPORTED
+    updateLedStrip();
+#endif
+    unsigned long elapsed = millis() - start;
+    if (elapsed >= ms) break;
+    unsigned long left = ms - elapsed;
     delay(left < 50 ? left : 50);
   }
   feedWatchdog();
@@ -1386,6 +1391,7 @@ void runCommand(char* json, Print& reply) {
       reply.print(F(" sensor is blocked - clear the device before testing\",\"module\":"));
       reply.print(blockedModule);
       reply.println(F("}"));
+      setStripAlert("jam");
       return;
     }
 

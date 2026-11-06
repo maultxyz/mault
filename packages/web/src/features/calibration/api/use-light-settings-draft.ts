@@ -16,11 +16,13 @@ import {
   DEFAULT_LIGHT_COLOR,
   DEFAULT_LIGHT_MODE,
   DEFAULT_VALUE_CELEBRATION_DURATION_MS,
+  DEFAULT_LIGHT_WARNING_SECONDS,
+  DEFAULT_LIGHT_NORMAL_SECONDS,
+  assertLightWarningReply,
   confirmedValueCelebrationDuration,
   isFirmwareFeatureSupported,
   toValueCelebrationCommand,
   toSetLightCommand,
-  type LightSettings,
   type LightingDraft,
 } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,9 +50,14 @@ export function useLightSettingsDraft() {
       valueCelebrationThreshold: device?.valueCelebrationThreshold ?? 0,
       valueCelebrationPriceSource: source,
       valueCelebrationDurationMs: device?.valueCelebrationDurationMs ?? DEFAULT_VALUE_CELEBRATION_DURATION_MS,
+      lightWarningsEnabled: device?.lightWarningsEnabled ?? true,
+      lightEmptyWarningSeconds: device?.lightEmptyWarningSeconds ?? DEFAULT_LIGHT_WARNING_SECONDS,
+      lightBlockedWarningSeconds: device?.lightBlockedWarningSeconds ?? DEFAULT_LIGHT_WARNING_SECONDS,
+      lightNormalSeconds: device?.lightNormalSeconds ?? DEFAULT_LIGHT_NORMAL_SECONDS,
     }),
     [device?.lightMode, device?.lightColor, device?.lightBrightness,
-      device?.valueCelebrationEnabled, device?.valueCelebrationThreshold, device?.valueCelebrationDurationMs, source],
+      device?.valueCelebrationEnabled, device?.valueCelebrationThreshold, device?.valueCelebrationDurationMs,
+      device?.lightWarningsEnabled, device?.lightEmptyWarningSeconds, device?.lightBlockedWarningSeconds, device?.lightNormalSeconds, source],
   );
 
   const form = useForm<LightingDraft>({
@@ -63,20 +70,33 @@ export function useLightSettingsDraft() {
     isReady && isFirmwareFeatureSupported(firmwareVersion, "lighting");
 
   const sendLights = useCallback(
-    (settings: LightSettings, options?: { clearAlert?: boolean }) => {
+    async (settings: LightingDraft, options?: { clearAlert?: boolean }) => {
       if (!canControl) return;
-      void sendRequest(toSetLightCommand(settings, options));
+      const warningsSupported = isFirmwareFeatureSupported(firmwareVersion, "lightingWarnings");
+      const { sent, line } = await sendRequest(toSetLightCommand(settings, { ...options, warningsSupported }));
+      if (!sent || !line) throw new Error("Lighting acknowledgement missing");
+      if (warningsSupported) assertLightWarningReply(line, settings);
     },
-    [canControl, sendRequest],
+    [canControl, sendRequest, firmwareVersion],
   );
+
+  const previewLights = useCallback((settings: LightingDraft, options?: { clearAlert?: boolean }) => {
+    void sendLights(settings, options).catch((cause: unknown) => {
+      console.error("Lighting preview failed:", cause);
+      toast.error(t("lights.toasts.previewFailed"));
+    });
+  }, [sendLights, toast, t]);
 
   const schedulePreview = useCallback(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(
-      () => sendLights(form.getValues()),
+      () => {
+        const draft = lightSettingsSchema.safeParse(form.getValues());
+        if (draft.success) previewLights(draft.data);
+      },
       CALIBRATION_PREVIEW_DEBOUNCE_MS,
     );
-  }, [sendLights, form]);
+  }, [previewLights, form]);
 
   useEffect(
     () => () => {
@@ -97,7 +117,7 @@ export function useLightSettingsDraft() {
           old?.map((d) => (d.guid === savedDevice.guid ? savedDevice : d)),
       );
       form.reset(draft);
-      sendLights(draft);
+      previewLights(draft);
       toast.success(t("lights.toasts.saved"));
     } catch {
       toast.error(t("lights.toasts.saveFailed"));
@@ -106,7 +126,7 @@ export function useLightSettingsDraft() {
 
   const discard = () => {
     form.reset(values, DISCARD_RESET_OPTIONS);
-    sendLights(values);
+    previewLights(values);
   };
 
   return {
@@ -129,7 +149,14 @@ export function useLightSettingsDraft() {
         toast.error(t("lights.celebration.previewFailed"));
       }
     },
-    clearAlert: () => sendLights(form.getValues(), { clearAlert: true }),
+    clearAlert: () => {
+      const draft = lightSettingsSchema.safeParse(form.getValues());
+      if (!draft.success) {
+        toast.error(t("lights.toasts.previewFailed"));
+        return;
+      }
+      previewLights(draft.data, { clearAlert: true });
+    },
     save: () => void form.handleSubmit(save)(),
     discard,
   };

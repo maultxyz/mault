@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { confirmedValueCelebrationDuration, isValueCelebrationDuration, toSetLightCommand, toValueCelebrationCommand } from "../../shared/src/lighting.ts";
+import { assertLightWarningReply, confirmedValueCelebrationDuration, isLightTimerSeconds, isValueCelebrationDuration, toSetLightCommand, toValueCelebrationCommand } from "../../shared/src/lighting.ts";
+import { isFirmwareFeatureSupported } from "../../shared/src/constants/firmware.constant.ts";
+import { lightSettingsSchema } from "../src/schemas/light-settings.schema.ts";
 import { withFoilLedMask } from "../src/features/calibration/lib/foil-capture-sequence.ts";
 
 test("normal lighting always selects the diffused middle LEDs", () => {
@@ -12,6 +14,41 @@ test("normal lighting always selects the diffused middle LEDs", () => {
     if (lightMode === "custom") {
       assert.deepEqual(command.setLight, { mode: "custom", brightness: 48, leds: 14, r: 18, g: 52, b: 86 });
     }
+  }
+});
+
+test("warning configuration validates seconds and checks the firmware echo", () => {
+  const settings = { lightMode: "white" as const, lightColor: "#ffffff", lightBrightness: 160,
+    lightWarningsEnabled: true, lightEmptyWarningSeconds: 3, lightBlockedWarningSeconds: 4, lightNormalSeconds: 5 };
+  const warnings = { enabled: true, emptySeconds: 3, blockedSeconds: 4, normalSeconds: 5 };
+  assert.deepEqual(toSetLightCommand(settings, { warningsSupported: true }).setLight.warnings, warnings);
+  assert.equal(toSetLightCommand(settings).setLight.warnings, undefined);
+  assert.doesNotThrow(() => assertLightWarningReply(JSON.stringify({ status: "ok", warnings }), settings));
+  assert.throws(() => assertLightWarningReply('{"status":"ok"}', settings));
+  for (const key of ["enabled", "emptySeconds", "blockedSeconds", "normalSeconds"] as const) {
+    assert.throws(() => assertLightWarningReply(JSON.stringify({ status: "ok", warnings: { ...warnings, [key]: null } }), settings));
+  }
+  for (const value of [1, 3, 300]) assert.equal(isLightTimerSeconds(value), true);
+  for (const value of [0, -1, 301, 1.5, NaN, Infinity, "3", null]) {
+    assert.equal(isLightTimerSeconds(value), false);
+    if (typeof value !== "number") continue;
+    for (const key of ["lightEmptyWarningSeconds", "lightBlockedWarningSeconds", "lightNormalSeconds"] as const) {
+      assert.throws(() => toSetLightCommand({ ...settings, [key]: value }, { warningsSupported: true }));
+    }
+  }
+  assert.equal(isFirmwareFeatureSupported("2.11.0", "lightingWarnings"), false);
+  assert.equal(isFirmwareFeatureSupported("2.12.0", "lightingWarnings"), true);
+  assert.equal(confirmedValueCelebrationDuration('{"status":"ok","lightAlert":"none","warningActive":true}', 500), null);
+});
+
+test("shipping lighting draft requires valid warning timers and a celebration toggle", () => {
+  const draft = { lightMode: "white", lightColor: "#ffffff", lightBrightness: 160,
+    lightWarningsEnabled: true, lightEmptyWarningSeconds: 3, lightBlockedWarningSeconds: 3, lightNormalSeconds: 5,
+    valueCelebrationEnabled: false, valueCelebrationThreshold: 0, valueCelebrationPriceSource: "tcgplayer",
+    valueCelebrationDurationMs: 500 };
+  assert.equal(lightSettingsSchema.safeParse(draft).success, true);
+  for (const key of ["lightEmptyWarningSeconds", "lightBlockedWarningSeconds", "lightNormalSeconds"] as const) {
+    for (const value of [0, 301, 1.5, NaN]) assert.equal(lightSettingsSchema.safeParse({ ...draft, [key]: value }).success, false);
   }
 });
 

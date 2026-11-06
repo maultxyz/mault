@@ -597,8 +597,8 @@ Drives the WS2812B strip (5 LEDs) on `LED_PIN`: GPIO 18 on the ESP32-S3,
 ```
 `mode` is `white`, `auto` (same color as white), `off`, `custom` (needs
 `r`, `g` and `b`), `foil` (a white light chasing around the strip) or
-`value` (red/green/blue colours rotating across all five LEDs, leaving the mode
-alone). White and auto use neutral RGB 255/255/255, not a blue-biased white.
+`value` (one LED at a time sweeps 0,1,2,3,4,3,2,1,0, cycling green/red/blue
+with a dark gap between flashes, leaving the mode alone). White and auto use neutral RGB 255/255/255, not a blue-biased white.
 For `value`, an object request can set `durationMs` to an integer from 100 to
 3000 (default 500). For example:
 `{"setLight":{"mode":"value","durationMs":500}}`.
@@ -607,27 +607,50 @@ The scanner requires this acknowledgement, waits for that duration plus a
 150 ms margin, and confirms restoration of main lighting before feeding again.
 Older firmware without the duration echo pauses scanning rather than assuming
 the shorter animation completed. `brightness` and the color channels are integers from 0 to 255;
-`brightness` defaults to the current one (160 at boot). `clearAlert`
-is retained for compatibility. Jam and empty-hopper conditions no longer set
-lighting alerts or change the current illumination; their error replies and
-events remain unchanged.
+`brightness` defaults to the current one (160 at boot).
 
 An object request may also set `leds`, a bitmask of the LEDs to light
 (bit 0 is LED 0, 31 is all five), for directional foil experiments: for
 example `{"setLight": {"mode": "white", "brightness": 32, "leds": 16}}` lights
 only LED 4, and `"leds": 14` lights LEDs 1 to 3. Any request without `leds` resets
-to LEDs 1 to 3, the main diffused lighting. Jam and empty-hopper conditions
-leave lighting unchanged. Value celebrations are
-the exception: all five LEDs rotate colours, then restore the previous lighting.
+to LEDs 1 to 3, the main diffused lighting. Warnings use all five LEDs.
+Value celebrations sweep all five LEDs, then restore the previous lighting.
 Otherwise LEDs 0 and 4 are reserved for directional foil detection; the optional `foil` animation alternates those
 two LEDs with the middle LEDs off. Firmware without this field
 ignores it and replies without `leds`.
 → `{"status":"ok","lightMode":"white","lightAlert":"none","brightness":160,"leds":14}`
 
-Only `value` overrides lighting, for its configured duration. Jam and empty
-events still report sorter faults, but do not set `lightAlert` or interrupt
-calibration lighting. Older firmware may still flash red/yellow for these
-conditions; reflash to disable those light signals.
+#### Timed warnings (lighting release 2.??.0)
+
+The placeholder above names the shipping lighting release; the compiled version
+and feature minimum are numeric `2.12.0`. Older versions retain their existing
+lighting behavior; clients omit warning configuration unless this feature is supported.
+
+```json
+{"setLight":{"mode":"white","brightness":160,"warnings":{"enabled":true,"emptySeconds":3,"blockedSeconds":3,"normalSeconds":5}}}
+```
+
+All three timers are required integers from 1 to 300 **seconds**. Defaults are
+3 seconds for each warning and 5 seconds for normal lighting. A reported empty
+hopper lights all LEDs amber; a reported blocked module lights them red. Warning
+and normal-light intervals repeat until the relevant sensor clears. Blockage
+takes priority over empty and over celebrations, including during normal-light
+intervals. Disabling warnings changes lighting only, never fault reports or safety.
+The normal interval uses the configured mode, color, brightness and main LED mask.
+
+Replies echo the full `warnings` object, `warningsSuppressed` and `warningActive`.
+`lightAlert` is `empty`/`jam` during the colored interval and `none` during normal
+lighting. A value request is not started while a warning is active; clients check
+`warningActive` even when `lightAlert` is `none`.
+
+The Capture Lab sends `"suppressWarnings":true` inside `setLight` for diagnostic
+frames. This hides warning lighting without losing fault state; the ordinary
+restoration command resumes warnings. Every non-value request defaults suppression
+to false. `clearAlert:true` clears latched warning indications, not physical faults;
+an existing or new sensor fault can be reported again. Settings live in the device
+record and are re-sent on connect, not stored in EEPROM.
+
+Native state tests: `g++ -std=c++11 -Wall -Wextra -Werror firmware/tests/lighting-state.test.cpp -o lighting-test`, then run `lighting-test`.
 
 ### `readIR`
 ```json

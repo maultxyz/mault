@@ -23,6 +23,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   paddleOpenDelay: "2.6.0",
   wifiRemote: "2.10.0",
   lighting: "2.11.0",
+  lightingWarnings: "2.12.0",
 };
 
 export function isFirmwareFeatureSupported(

@@ -31,6 +31,10 @@ export function toDevice(row: {
   valueCelebrationThreshold: number;
   valueCelebrationPriceSource: string;
   valueCelebrationDurationMs: number;
+  lightWarningsEnabled: boolean;
+  lightEmptyWarningSeconds: number;
+  lightBlockedWarningSeconds: number;
+  lightNormalSeconds: number;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -58,6 +62,10 @@ export function toDevice(row: {
     valueCelebrationThreshold: row.valueCelebrationThreshold,
     valueCelebrationPriceSource: toPriceSource(row.valueCelebrationPriceSource),
     valueCelebrationDurationMs: row.valueCelebrationDurationMs,
+    lightWarningsEnabled: row.lightWarningsEnabled,
+    lightEmptyWarningSeconds: row.lightEmptyWarningSeconds,
+    lightBlockedWarningSeconds: row.lightBlockedWarningSeconds,
+    lightNormalSeconds: row.lightNormalSeconds,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

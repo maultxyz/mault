@@ -635,13 +635,13 @@
     "previewUnavailable": "Connecte le trieur et fais-lui passer l'autotest pour prévisualiser les changements sur le ruban. Tu peux quand même modifier et enregistrer.",
     "strip": {
       "heading": "Ruban lumineux",
-      "description": "Les LED 1 a 3 eclairent la carte pendant le scan. Les LED 0 et 4 sont reservees a la detection foil, sauf pendant les celebrations. Les changements sont immediats et conserves apres enregistrement."
+      "description": "Cinq LED : LED centrales diffuses 1 a 3 pour l'eclairage normal; LED exposees 0 et 4 pour la detection foil. Alertes et celebrations utilisent les cinq. Choisissez couleur et luminosite normales ici. Apercu immediat, conservation avec Enregistrer."
     },
     "modeLabel": "Mode",
     "modes": {
       "off": {
         "label": "Éteint",
-        "description": "Le ruban reste eteint, sauf pendant les celebrations."
+        "description": "L'eclairage normal reste eteint. Les alertes et celebrations activees peuvent toujours allumer le ruban."
       },
       "white": {
         "label": "Blanc",
@@ -661,9 +661,9 @@
     "brightnessValue": "{{percent}} %",
     "celebration": {
       "heading": "Célébration des cartes de valeur",
-      "description": "Rouge, vert et bleu defilent sur les cinq LED lorsqu'une nouvelle carte atteint la valeur minimale. Duree enregistree par trieur, 500 ms par defaut. L'eclairage principal est retabli avant la carte suivante. Reflashez le firmware pour la duree reglable.",
-      "duration": "Duree de celebration (ms)",
-      "invalidDuration": "Saisissez un entier de 100 a 3000 ms.",
+      "description": "Une LED clignote a la fois : 0, 1, 2, 3, 4, 3, 2, 1, 0, alternant vert, rouge et bleu. Pour les nouvelles cartes atteignant la valeur minimale. Desactivez les celebrations automatiques avec l'interrupteur. Retour a l'eclairage normal avant la carte suivante. Nouveau balayage avec firmware 2.12.0.",
+      "duration": "Duree de celebration (secondes)",
+      "invalidDuration": "Saisissez de 0,1 a 3 secondes.",
       "previewFailed": "Echec du test. Effacez les alertes et mettez a jour le firmware pour la duree reglable.",
       "enabled": "Activer la célébration automatique",
       "threshold": "Valeur minimale ({{currency}})",
@@ -673,16 +673,22 @@
     },
     "alerts": {
       "heading": "Alertes",
-      "description": "Les signaux lumineux d'erreur et de chargeur vide sont desactives dans le firmware actualise. Les avertissements du site et les erreurs restent actifs. Les celebrations remplacent temporairement l'eclairage normal.",
-      "jam": "Carte coincee : avertissement sur le site sans changer l'eclairage.",
-      "empty": "Chargeur vide : avertissement sur le site sans changer l'eclairage.",
-      "value": "Rouge, vert et bleu defilent sur les cinq LED pour celebrer une carte de valeur pendant la duree configuree.",
+      "description": "Les alertes alternent avec l'eclairage central normal tant qu'un defaut signale persiste, puis cessent lorsque le capteur se libere. Durees en secondes, enregistrees par trieur. Par defaut : 3 secondes d'alerte, 5 secondes normales. Blocages prioritaires sur chargeur vide et celebrations. La securite reste active sans alertes lumineuses. Firmware 2.12.0 requis.",
+      "enabled": "Activer les alertes lumineuses",
+      "lightEmptyWarningSeconds": "Alerte ambree de chargeur vide (secondes)",
+      "lightBlockedWarningSeconds": "Alerte rouge de module bloque (secondes)",
+      "lightNormalSeconds": "Eclairage diffus normal entre alertes (secondes)",
+      "invalidSeconds": "Saisissez un entier de 1 a 300 secondes.",
+      "jam": "Module bloque : les cinq LED deviennent rouges pendant la duree configuree.",
+      "empty": "Chargeur vide : les cinq LED deviennent ambrees pendant la duree configuree.",
+      "value": "Les celebrations vont de la LED 0 a 4 puis reviennent a 0 avec des flashs verts, rouges et bleus.",
       "testCelebration": "Tester la célébration",
       "clear": "Arrêter l'alerte"
     },
     "toasts": {
       "saved": "Réglages d'éclairage enregistrés.",
-      "saveFailed": "Impossible d'enregistrer les réglages d'éclairage."
+      "saveFailed": "Impossible d'enregistrer les réglages d'éclairage.",
+      "previewFailed": "Reglages lumineux non confirmes. Verifiez la connexion, les durees et le firmware."
     }
   }
 }

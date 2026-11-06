@@ -5,6 +5,8 @@ import {
   PRICE_SOURCES,
   VALUE_CELEBRATION_DURATION_MIN_MS,
   VALUE_CELEBRATION_DURATION_MAX_MS,
+  LIGHT_TIMER_MIN_SECONDS,
+  LIGHT_TIMER_MAX_SECONDS,
 } from "@magic-vault/shared";
 import { z } from "zod";
 
@@ -16,4 +18,8 @@ export const lightSettingsSchema = z.object({
   valueCelebrationThreshold: z.number().min(0),
   valueCelebrationPriceSource: z.enum(PRICE_SOURCES),
   valueCelebrationDurationMs: z.number().int().min(VALUE_CELEBRATION_DURATION_MIN_MS).max(VALUE_CELEBRATION_DURATION_MAX_MS),
+  lightWarningsEnabled: z.boolean(),
+  lightEmptyWarningSeconds: z.number().int().min(LIGHT_TIMER_MIN_SECONDS).max(LIGHT_TIMER_MAX_SECONDS),
+  lightBlockedWarningSeconds: z.number().int().min(LIGHT_TIMER_MIN_SECONDS).max(LIGHT_TIMER_MAX_SECONDS),
+  lightNormalSeconds: z.number().int().min(LIGHT_TIMER_MIN_SECONDS).max(LIGHT_TIMER_MAX_SECONDS),
 });
