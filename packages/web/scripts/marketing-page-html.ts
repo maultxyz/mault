@@ -17,10 +17,15 @@ interface PrerenderedPages {
 
 const RENDER_PAGES_SCRIPT = `
 const [entryUrl, ...paths] = process.argv.slice(1);
-const prerender = await import(entryUrl);
-const pages = {};
-for (const path of paths) pages[path] = await prerender.renderMarketingPage(path);
-process.stdout.write(JSON.stringify({ envSignature: prerender.prerenderEnvSignature(), pages }));
+try {
+  const prerender = await import(entryUrl);
+  const pages = {};
+  for (const path of paths) pages[path] = await prerender.renderMarketingPage(path);
+  process.stdout.write(JSON.stringify({ envSignature: prerender.prerenderEnvSignature(), pages }));
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}
 `;
 
 async function prerenderPages(
