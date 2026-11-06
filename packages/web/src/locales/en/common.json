@@ -180,7 +180,8 @@
       "selfHost": "Self-host",
       "discordBot": "Discord Bot",
       "download": "Download",
-      "shop": "Shop"
+      "shop": "Shop",
+      "makerWorld": "MakerWorld"
     },
     "discordAriaLabel": "Join the Discord",
     "menuAriaLabel": "Menu",
