@@ -1415,6 +1415,39 @@ export const platformFoilLabels = pgTable(
   ],
 ).enableRLS();
 
+export const platformMatchValidations = pgTable(
+  "platform_match_validations",
+  {
+    id: serial().primaryKey(),
+    scanId: uuid("scan_id").notNull(),
+    orgId: text("org_id").notNull(),
+    gameKey: text("game_key"),
+    cardId: text("card_id").notNull(),
+    cardLang: text("card_lang"),
+    capturedImageKey: text("captured_image_key"),
+    isCorrectMatch: boolean("is_correct_match"),
+    isBadScan: boolean("is_bad_scan").notNull().default(false),
+    matchedBy: text("matched_by"),
+    lowConfidenceMatch: boolean("low_confidence_match").notNull(),
+    validatedByUserId: text("validated_by_user_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("platform_match_validations_scan_user_idx").on(
+      table.scanId,
+      table.validatedByUserId,
+    ),
+    index("platform_match_validations_scan_idx").on(table.scanId),
+    index("platform_match_validations_user_idx").on(table.validatedByUserId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: false,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const platformUserRoles = pgTable("platform_user_roles", {
   userId: text("user_id").primaryKey(),
   role: text("role").notNull().default("user"),

@@ -22,6 +22,7 @@ import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
+import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
 import { lazy, Suspense, useEffect } from "react";
 import {
   type RouteObject,
@@ -93,6 +94,9 @@ const CollectionViewPage = lazy(
   () => import("@/app/routes/app/collection-view"),
 );
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
+const ValidateMatchesPage = lazy(
+  () => import("@/app/routes/app/validate-matches"),
+);
 const PresetWorkflowPage = lazy(
   () => import("@/app/routes/app/preset-workflow"),
 );
@@ -629,6 +633,10 @@ export const routes: RouteObject[] = [
               {
                 path: CONTROL_CARDS_PATH,
                 element: <ControlCardsPage />,
+              },
+              {
+                path: MATCH_VALIDATIONS_PATH,
+                element: <ValidateMatchesPage />,
               },
               {
                 path: STATS_PATH,

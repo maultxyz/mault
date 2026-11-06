@@ -40,6 +40,7 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "cardDetail",
   "intake",
   "foilLabeling",
+  "matchValidation",
 ];
 
 export const ADMIN_ONLY_HOTKEY_GROUPS: HotkeyGroup[] = ["foilLabeling"];
@@ -95,6 +96,14 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   foilLabelNotFoil: { group: "foilLabeling", keys: [{ key: "n" }] },
   foilLabelSkip: { group: "foilLabeling", keys: [{ key: "s" }] },
   foilLabelBack: { group: "foilLabeling", keys: [{ key: "arrowleft" }] },
+  matchValidationCorrect: { group: "matchValidation", keys: [{ key: "c" }] },
+  matchValidationIncorrect: { group: "matchValidation", keys: [{ key: "w" }] },
+  matchValidationBadScan: { group: "matchValidation", keys: [{ key: "b" }] },
+  matchValidationSkip: { group: "matchValidation", keys: [{ key: "s" }] },
+  matchValidationBack: {
+    group: "matchValidation",
+    keys: [{ key: "arrowleft" }],
+  },
 };
 
 export const HOTKEY_ROUTES = {

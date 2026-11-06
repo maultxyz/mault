@@ -1,5 +1,4 @@
 import type {
-  AdminFoilLabelQueueItem,
   AdminUnmatchedOcrResult,
   AdminUnmatchedRetryResult,
   AdminUnmatchedScan,
@@ -228,9 +227,4 @@ export interface DeletedItemsRequest {
   type: DeletedItemType | null;
 }
 
-export type FoilLabelDecision = "foil" | "notFoil" | "skipped";
-
-export interface FoilLabelHistoryEntry {
-  item: AdminFoilLabelQueueItem;
-  decision: FoilLabelDecision;
-}
+export type FoilLabelDecision = "foil" | "notFoil";

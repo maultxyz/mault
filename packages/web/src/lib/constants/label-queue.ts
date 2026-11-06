@@ -1,0 +1,2 @@
+export const LABEL_QUEUE_REFILL_THRESHOLD = 10;
+export const LABEL_QUEUE_PREFETCH_COUNT = 3;
