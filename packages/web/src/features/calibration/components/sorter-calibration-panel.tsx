@@ -63,6 +63,7 @@ export function SorterCalibrationPanel({
           </Label>
           <Switch
             id="sorter-drawer-raw"
+            aria-label={t("moduleCalibrationGrid.rawPulseToggleLabel")}
             checked={showRaw}
             onCheckedChange={setShowRaw}
           />

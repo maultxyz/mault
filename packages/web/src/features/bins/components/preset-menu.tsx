@@ -147,6 +147,7 @@ export function PresetMenu() {
                 <DropdownMenuItem
                   key={item.guid}
                   disabled={isActivating}
+                  aria-current={picker.isSelected(item) || undefined}
                   onClick={() => picker.choose(item)}
                 >
                   <span className="flex-1 truncate">{item.name}</span>

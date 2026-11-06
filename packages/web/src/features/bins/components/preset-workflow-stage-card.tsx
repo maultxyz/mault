@@ -66,7 +66,12 @@ export function PresetWorkflowStageCard({
               value={field.value}
               onValueChange={(presetGuid) => presetGuid && field.onChange(presetGuid)}
             >
-              <SelectTrigger className="w-full max-w-72 min-w-0 flex-1">
+              <SelectTrigger
+                className="w-full max-w-72 min-w-0 flex-1"
+                aria-label={t("presetWorkflows.stageHeading", {
+                  number: index + 1,
+                })}
+              >
                 <SelectValue>
                   {preset?.name ?? t("presetWorkflows.missingPreset")}
                 </SelectValue>
@@ -90,7 +95,11 @@ export function PresetWorkflowStageCard({
             name={`stages.${index}.isResortMode`}
             render={({ field }) => (
               <label className="flex items-center gap-1.5 text-control">
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("presetWorkflows.resort")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
                 {t("presetWorkflows.resort")}
               </label>
             )}

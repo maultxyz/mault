@@ -59,7 +59,10 @@ export function SyncCardByIdPanel() {
             setSyncCardLang(source?.languages[0] ?? "en");
           }}
         >
-          <SelectTrigger className="w-40">
+          <SelectTrigger
+            className="w-40"
+            aria-label={t("cardImageVectors.gameLabel")}
+          >
             <SelectValue
               placeholder={t("cardImageVectors.selectGamePlaceholder")}
             >
@@ -79,7 +82,10 @@ export function SyncCardByIdPanel() {
             value={syncCardLang}
             onValueChange={(value) => setSyncCardLang(value ?? "en")}
           >
-            <SelectTrigger className="w-32">
+            <SelectTrigger
+              className="w-32"
+              aria-label={t("cardImageVectors.languageLabel")}
+            >
               <SelectValue
                 placeholder={t("cardImageVectors.languagePlaceholder")}
               >
@@ -97,6 +103,7 @@ export function SyncCardByIdPanel() {
         )}
         <Input
           placeholder={t("syncCardById.cardIdPlaceholder")}
+          aria-label={t("syncCardById.cardIdLabel")}
           value={syncCardIdInput}
           onChange={(e) => setSyncCardIdInput(e.target.value)}
         />

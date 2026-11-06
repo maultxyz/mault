@@ -23,7 +23,7 @@ export default function ScanningSettingsScreen() {
   const section = (heading: string, description: string, badge?: string) => (
     <View>
       <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {heading}
         </AppText>
         {badge ? <Pill label={badge} /> : null}

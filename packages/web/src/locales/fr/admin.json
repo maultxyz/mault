@@ -59,6 +59,9 @@
     }
   },
   "cardImageVectors": {
+    "gameLabel": "Jeu",
+    "languageLabel": "Langue",
+    "progressLabel": "Progression de la synchronisation",
     "heading": "Vecteurs d'image des cartes",
     "syncStatus": {
       "idle": "Inactif",
@@ -94,6 +97,7 @@
     "empty": "Aucun journal"
   },
   "cardDatabase": {
+    "searchLabel": "Rechercher des cartes",
     "heading": "Base de données de cartes",
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
@@ -103,6 +107,7 @@
     "empty": "Aucune carte trouvée"
   },
   "syncCardById": {
+    "cardIdLabel": "ID de la carte",
     "heading": "Synchroniser une carte par ID",
     "description": "Récupère et vectorise une seule carte, en l'ajoutant si elle n'est pas encore dans la base de données",
     "cardIdPlaceholder": "ID de la carte...",
@@ -156,6 +161,7 @@
     "neverUsed": "Jamais utilisée"
   },
   "dumpDatabase": {
+    "scopeLabel": "Portée",
     "heading": "Vider la base de données de cartes",
     "description": "Supprime définitivement les vecteurs d'image des cartes, pour un jeu ou pour tous",
     "scopePlaceholder": "Sélectionner une portée...",
@@ -351,6 +357,7 @@
     }
   },
   "deletedItems": {
+    "typeLabel": "Type d'élément",
     "heading": "Éléments supprimés",
     "description": "Tout ce qui a été supprimé dans une organisation, sauf les cartes scannées. La restauration remet un élément exactement dans son état d'origine.",
     "searchPlaceholder": "Rechercher par nom ou organisation",
@@ -384,6 +391,7 @@
     }
   },
   "unmatchedRetry": {
+    "photoFilterLabel": "Filtre photo",
     "heading": "Scans non reconnus",
     "description": "Les scans non reconnus les plus récents de toutes les organisations. Réessayer lance la reconnaissance actuelle sur les données enregistrées de chaque scan et montre ce qui serait reconnu maintenant. Rien n'est enregistré ni modifié. Réessayer un seul scan suit le scan en direct : si la reconnaissance par image est incertaine, l'OCR est aussi lancée sur la photo enregistrée. Tout réessayer ne refait que la reconnaissance par image, pour ne pas ralentir l'OCR des scans en direct.",
     "searchPlaceholder": "Rechercher par organisation, collection ou carte",

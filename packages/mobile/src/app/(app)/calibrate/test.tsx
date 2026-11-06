@@ -30,7 +30,7 @@ export default function CalibrationTestScreen() {
 
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("calibration.ir.label")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -94,7 +94,7 @@ export default function CalibrationTestScreen() {
 
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("calibration.routing.label")}
           </AppText>
           <AppText size="xs" tone="secondary">

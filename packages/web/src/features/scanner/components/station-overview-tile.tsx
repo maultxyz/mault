@@ -128,6 +128,7 @@ export function StationOverviewTile() {
         showsVideo ? (
           <video
             ref={videoRef}
+            aria-hidden
             autoPlay
             muted
             playsInline

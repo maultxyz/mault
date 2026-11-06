@@ -28,6 +28,7 @@ export function PrimaryColorPicker({
               key={color.name}
               type="button"
               title={color.name}
+              aria-pressed={isSelected}
               onClick={() => onChange(color.name)}
               className={cn(
                 "size-7 rounded-md shrink-0 transition-all ring-offset-background",

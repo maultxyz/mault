@@ -12,6 +12,7 @@ export function QuickAction({ icon, label, onPress, disabled = false }: QuickAct
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => ({

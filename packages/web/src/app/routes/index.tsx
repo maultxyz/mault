@@ -11,6 +11,7 @@ import { PublicAnnouncementBanner } from "@/components/public-announcement-banne
 import { PublicNav } from "@/components/public-nav";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { useTranslation } from "react-i18next";
 
 export default function LandingPage() {
@@ -27,7 +28,7 @@ export default function LandingPage() {
       <SpiderWeb corner="top-right" withSpider className="size-28 max-md:size-16" />
       <PublicAnnouncementBanner />
       <PublicNav />
-      <main className="flex-1">
+      <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
         <LandingHero />
         <LandingSupportedGames />
         <LandingFeatures step="01" />

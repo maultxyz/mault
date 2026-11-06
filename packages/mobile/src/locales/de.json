@@ -14,7 +14,10 @@
     "discardTitle": "Änderungen verwerfen?",
     "discardDescription": "Deine Änderungen an diesem Fach wurden nicht gespeichert.",
     "keepEditing": "Weiter bearbeiten",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "decreaseBy": "Um {{step}} verringern",
+    "increaseBy": "Um {{step}} erhöhen",
+    "changesSaved": "Änderungen gespeichert"
   },
   "tabs": {
     "collections": "Sammlungen",
@@ -100,6 +103,8 @@
   "cards": {
     "bin": "Fach {{number}}",
     "needsReview": "Zu prüfen",
+    "reviewed": "Geprüft",
+    "cardActions": "Kartenaktionen",
     "quantity_one": "{{count}} Exemplar",
     "quantity_other": "{{count}} Exemplare"
   },
@@ -573,6 +578,7 @@
     "sorterNotReadyDescription": "Verbinde deinen Sortierer, um Karten einzuziehen und einzusortieren. Du kannst Karten weiterhin von Hand scannen.",
     "openSorter": "Sortierer verbinden",
     "modelErrorTitle": "Die Kartenerkennungsmodelle konnten nicht geladen werden",
+    "cameraPreview": "Kameravorschau",
     "phase": {
       "idle": "Inaktiv",
       "loading-models": "Lade Modelle",

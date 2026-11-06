@@ -35,15 +35,19 @@ export function SaveBar({
 
   return createPortal(
     <div
-      role="status"
+      role="region"
+      aria-label={t("unsavedChanges.message")}
       className={cn(
         "fixed inset-x-0 z-50 mx-auto flex w-fit items-center gap-3 rounded-lg bg-popover px-1 pl-2 py-1 text-xs shadow-popover ring-1 ring-border animate-in fade-in-0 slide-in-from-bottom-4 duration-150 motion-reduce:animate-none",
         isMobile && piHost ? MOBILE_SAVE_BAR_CLASS : "bottom-8",
         className,
       )}
     >
-      <span className="text-foreground/70">
+      <span role="status" className="text-foreground/70">
         {t("unsavedChanges.message")}
+        {isSaving && (
+          <span className="sr-only">{t("unsavedChanges.saving")}</span>
+        )}
       </span>
       <div className="flex gap-1.5">
         <Button

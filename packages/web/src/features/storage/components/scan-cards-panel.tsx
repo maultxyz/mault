@@ -116,19 +116,21 @@ export function ScanCardsPanel({ source, mode }: ScanCardsPanelProps) {
         {isScanning ? <IconLoader2 className="animate-spin" /> : <IconCamera />}
         {t("pickList.scan.scanCard")}
       </Button>
-      {result ? (
-        <Callout
-          key={result.resultId}
-          variant={SCAN_CARDS_RESULT_VARIANTS[result.kind]}
-          className="animate-in fade-in motion-reduce:animate-none"
-        >
-          {resultTitle(result)}
-        </Callout>
-      ) : (
-        <p className="text-xs text-foreground/70">
-          {mode === "verify" ? t("verify.scan.hint") : t("pickList.scan.hint")}
-        </p>
-      )}
+      <div role="status">
+        {result ? (
+          <Callout
+            key={result.resultId}
+            variant={SCAN_CARDS_RESULT_VARIANTS[result.kind]}
+            className="animate-in fade-in motion-reduce:animate-none"
+          >
+            {resultTitle(result)}
+          </Callout>
+        ) : (
+          <p className="text-xs text-foreground/70">
+            {mode === "verify" ? t("verify.scan.hint") : t("pickList.scan.hint")}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

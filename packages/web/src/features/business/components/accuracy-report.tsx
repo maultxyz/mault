@@ -145,7 +145,9 @@ export function AccuracyReportView({
                     <TableHead className="text-right">{t("accuracy.checked")}</TableHead>
                     <TableHead className="text-right">{t("accuracy.estimate")}</TableHead>
                     <TableHead>{t("accuracy.range")}</TableHead>
-                    <TableHead />
+                    <TableHead>
+                      <span className="sr-only">{t("table.status")}</span>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -155,7 +157,18 @@ export function AccuracyReportView({
                       className="cursor-pointer"
                       onClick={() => onCheckChange(check.guid)}
                     >
-                      <TableCell>{formatDateTime(check.createdAt)}</TableCell>
+                      <TableCell>
+                        <button
+                          type="button"
+                          className="rounded-sm text-left hover:underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onCheckChange(check.guid);
+                          }}
+                        >
+                          {formatDateTime(check.createdAt)}
+                        </button>
+                      </TableCell>
                       <TableCell className="max-w-40 truncate">
                         {check.createdByName ?? "-"}
                       </TableCell>

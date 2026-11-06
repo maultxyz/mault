@@ -15,6 +15,7 @@ export function ListRow({
   value,
   tone = "default",
   right,
+  rightIsInteractive = false,
   onPress,
   disabled = false,
   selected,
@@ -24,6 +25,7 @@ export function ListRow({
   const destructive = tone === "destructive";
   return (
     <Pressable
+      accessible={!rightIsInteractive}
       accessibilityRole={onPress ? "button" : undefined}
       accessibilityState={{ disabled, selected: selected ?? undefined }}
       disabled={!onPress || disabled}

@@ -22,6 +22,7 @@ export function CardDisplayOptions({
         <ButtonGroup className="w-full">
           <Button
             variant={viewMode === "grid" ? "outline-selected" : "outline"}
+            aria-pressed={viewMode === "grid"}
             className="flex-1"
             onClick={() => onViewModeChange("grid")}
           >
@@ -30,6 +31,7 @@ export function CardDisplayOptions({
           </Button>
           <Button
             variant={viewMode === "list" ? "outline-selected" : "outline"}
+            aria-pressed={viewMode === "list"}
             className="flex-1"
             onClick={() => onViewModeChange("list")}
           >
@@ -43,11 +45,15 @@ export function CardDisplayOptions({
           <span className="text-xs text-foreground/70">
             {t("cardToolbar.cardSize")}
           </span>
-          <ButtonGroup className="w-full">
+          <ButtonGroup
+            className="w-full"
+            aria-label={t("cardToolbar.cardSize")}
+          >
             {CARD_GRID_DENSITIES.map((option) => (
               <Button
                 key={option}
                 variant={density === option ? "outline-selected" : "outline"}
+                aria-pressed={density === option}
                 className="flex-1 capitalize"
                 onClick={() => onDensityChange(option)}
               >
@@ -61,6 +67,7 @@ export function CardDisplayOptions({
         <label className="flex items-center justify-between gap-3">
           <span className="text-sm">{t("cardToolbar.groupDuplicates")}</span>
           <Switch
+            aria-label={t("cardToolbar.groupDuplicates")}
             checked={groupDuplicates}
             onCheckedChange={onGroupDuplicatesChange}
           />

@@ -79,7 +79,14 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 
 function buildSteps(
@@ -106,6 +113,8 @@ function buildSteps(
 
 export function DeviceSetupWizard() {
   const { t } = useTranslation("calibration");
+  const feederStopSliderLabelId = useId();
+  const feederSpeedSliderLabelId = useId();
   const toast = useStationToast();
   const { isOpen, isOffline, close } = useSetupWizard();
   const device = useDevice();
@@ -547,7 +556,10 @@ export function DeviceSetupWizard() {
                   value={String(moduleCount.displayCount)}
                   onValueChange={(value) => moduleCount.stage(Number(value))}
                 >
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger
+                    className="w-40"
+                    aria-label={t("moduleCountStepper.label")}
+                  >
                     <SelectValue>
                       {t("moduleCountStepper.value", {
                         count: moduleCount.displayCount,
@@ -675,7 +687,11 @@ export function DeviceSetupWizard() {
                 >
                   <IconMinus />
                 </Button>
+                <span id={feederStopSliderLabelId} className="sr-only">
+                  {t("setupWizard.feederStop.pulseLabel")}
+                </span>
                 <Slider
+                  aria-labelledby={feederStopSliderLabelId}
                   min={SERVO_PULSE_CENTER - FEEDER_STOP_PULSE_SLIDER_RANGE}
                   max={SERVO_PULSE_CENTER + FEEDER_STOP_PULSE_SLIDER_RANGE}
                   step={1}
@@ -708,7 +724,11 @@ export function DeviceSetupWizard() {
               })}
               hint={t("setupWizard.feeder.hint")}
             >
+              <span id={feederSpeedSliderLabelId} className="sr-only">
+                {t("setupWizard.feeder.speedLabel")}
+              </span>
               <Slider
+                aria-labelledby={feederSpeedSliderLabelId}
                 min={-100}
                 max={100}
                 step={1}
@@ -786,7 +806,7 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
         <span className="font-medium">{label}</span>
         <span className="text-xs text-foreground/70">{hint}</span>
       </span>
-      <span className="text-xs text-foreground/70">
+      <span aria-live="polite" className="text-xs text-foreground/70">
         {present
           ? t("setupWizard.irSensors.present")
           : t("setupWizard.irSensors.clear")}
@@ -794,6 +814,7 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
       {seen ? (
         <IconCircleCheck size={18}
           className="shrink-0 text-primary"
+          role="img"
           aria-label={t("setupWizard.irSensors.verified")}
         />
       ) : (
@@ -834,6 +855,7 @@ function ServoStep({
   onChange,
 }: SetupServoStepProps) {
   const { t } = useTranslation("calibration");
+  const positionSliderLabelId = useId();
   const positions = SETUP_SERVO_POSITIONS.filter((p) => p.servo === servo);
   const currentIndex = positions.findIndex((p) => p.calKey === currentKey);
   const nudge = (delta: number) =>
@@ -896,7 +918,11 @@ function ServoStep({
           >
             <IconMinus />
           </Button>
+          <span id={positionSliderLabelId} className="sr-only">
+            {t("setupWizard.positionLabel")}
+          </span>
           <Slider
+            aria-labelledby={positionSliderLabelId}
             min={SERVO_PULSE_MIN}
             max={SERVO_PULSE_MAX}
             step={1}

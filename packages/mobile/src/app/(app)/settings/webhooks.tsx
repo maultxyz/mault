@@ -145,7 +145,7 @@ export default function WebhooksSettingsScreen() {
 
       {secret ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.webhooks.secretTitle")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -166,7 +166,7 @@ export default function WebhooksSettingsScreen() {
       {editing ? (
         <Surface style={{ gap: SPACING.md }}>
           <View>
-            <AppText heading weight="semibold">
+            <AppText heading weight="semibold" accessibilityRole="header">
               {editing === "new" ? t("settings.webhooks.addTitle") : t("settings.webhooks.editTitle")}
             </AppText>
             <AppText size="xs" tone="secondary">

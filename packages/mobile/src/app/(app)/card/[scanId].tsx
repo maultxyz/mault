@@ -455,7 +455,7 @@ export default function CardDetailScreen() {
                   </AppText>
                   <View style={imageFrame}>
                     {capturedUrl ? (
-                      <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" />
+                      <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" accessibilityLabel={t("cardDetail.capturedScan")} />
                     ) : (
                       <Skeleton height="100%" radius={0} />
                     )}
@@ -471,6 +471,7 @@ export default function CardDetailScreen() {
                 <View style={imageFrame}>
                   {card ? (
                     <Image
+                      accessibilityLabel={card.name}
                       source={{ uri: absoluteUrl(card.image?.normal ?? card.image?.small) ?? undefined }}
                       style={{ flex: 1 }}
                       contentFit="cover"

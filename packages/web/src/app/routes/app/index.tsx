@@ -64,7 +64,7 @@ function ScannerPanels({
 }
 
 function MobileScanner() {
-  const { t } = useTranslation("scanner");
+  const { t } = useTranslation(["scanner", "common"]);
   const { isImpersonating } = useImpersonation();
   const { totalCount } = useCollectionCardsSummary();
   const piHost = usePiHost();
@@ -76,6 +76,7 @@ function MobileScanner() {
         piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
       )}
     >
+      <h1 className="sr-only">{t("common:nav.scanner")}</h1>
       <div className="p-2 size-full bg-sidebar flex flex-col gap-2">
         {isImpersonating ? (
           <div className="flex-1 min-h-0">
@@ -117,6 +118,7 @@ function MobileScanner() {
 }
 
 export default function App() {
+  const { t } = useTranslation("common");
   const isMobile = useIsMobile();
   const { activeOrg } = useOrg();
   const { data: orgSettings } = useQuery(
@@ -128,6 +130,9 @@ export default function App() {
     size: scannerHeight,
     isDragging: isResizingHeight,
     onPointerDown: onHeightPointerDown,
+    onKeyDown: onHeightKeyDown,
+    valueMin: scannerHeightMin,
+    valueMax: scannerHeightMax,
   } = useResizablePanel({
     axis: "height",
     defaultSize: 384,
@@ -140,6 +145,9 @@ export default function App() {
     size: scannerWidth,
     isDragging: isResizingWidth,
     onPointerDown: onWidthPointerDown,
+    onKeyDown: onWidthKeyDown,
+    valueMin: scannerWidthMin,
+    valueMax: scannerWidthMax,
   } = useResizablePanel({
     axis: "width",
     defaultSize: 340,
@@ -155,11 +163,16 @@ export default function App() {
   if (isVertical) {
     return (
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <h1 className="sr-only">{t("nav.scanner")}</h1>
         <ScannerPanels layout="vertical" size={scannerHeight} />
         <ResizeHandle
           orientation="horizontal"
           isDragging={isResizingHeight}
           onPointerDown={onHeightPointerDown}
+          onKeyDown={onHeightKeyDown}
+          valueNow={scannerHeight}
+          valueMin={scannerHeightMin}
+          valueMax={scannerHeightMax}
         />
         <section className="flex-1 min-h-0 overflow-y-auto @container flex flex-col">
           <ScannerMainContent />
@@ -170,11 +183,16 @@ export default function App() {
 
   return (
     <div className="flex flex-1 min-h-0 overflow-hidden">
+      <h1 className="sr-only">{t("nav.scanner")}</h1>
       <ScannerPanels layout="horizontal" size={scannerWidth} />
       <ResizeHandle
         orientation="vertical"
         isDragging={isResizingWidth}
         onPointerDown={onWidthPointerDown}
+        onKeyDown={onWidthKeyDown}
+        valueNow={scannerWidth}
+        valueMin={scannerWidthMin}
+        valueMax={scannerWidthMax}
       />
       <section className="flex-1 min-w-0 overflow-y-auto h-full @container flex flex-col">
         <ScannerMainContent />

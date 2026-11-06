@@ -123,7 +123,8 @@
     "delete": "Löschen",
     "save": "Speichern",
     "create": "Erstellen",
-    "search": "Suchen"
+    "search": "Suchen",
+    "chooseFile": "Datei wählen"
   },
   "unsavedChanges": {
     "message": "Du hast ungespeicherte Änderungen",
@@ -354,6 +355,41 @@
       "enthusiast": "Enthusiast",
       "business": "Business",
       "legacyBusiness": "Business (Legacy)"
+    }
+  },
+  "a11y": {
+    "skipToContent": "Zum Hauptinhalt springen",
+    "close": "Schließen",
+    "clear": "Leeren",
+    "openOptions": "Optionen anzeigen",
+    "remove": "Entfernen",
+    "copy": "In die Zwischenablage kopieren",
+    "retry": "Erneut versuchen",
+    "removeCondition": "Bedingung entfernen",
+    "removeGroup": "Gruppe entfernen",
+    "removeMember": "{{name}} entfernen",
+    "cancelInvite": "Einladung für {{email}} zurückziehen",
+    "removeItem": "{{name}} entfernen",
+    "resizePanel": "Bereichsgröße ändern",
+    "notifications": "Benachrichtigungen",
+    "closeNotification": "Benachrichtigung schließen",
+    "notificationsWithCount_one": "Benachrichtigungen, {{count}} ungelesen",
+    "notificationsWithCount_other": "Benachrichtigungen, {{count}} ungelesen",
+    "watching": "Schauen zu",
+    "watchersCount_one": "{{count}} Person schaut zu",
+    "watchersCount_other": "{{count}} Personen schauen zu",
+    "details": "Details",
+    "liveSession": "Scan läuft live",
+    "mainNavigation": "Haupt",
+    "settingsNavigation": "Einstellungen",
+    "selected": "Ausgewählt",
+    "loading": "Wird geladen",
+    "live": "Live",
+    "notLive": "Nicht live",
+    "severity": {
+      "info": "Hinweis:",
+      "warning": "Warnung:",
+      "danger": "Fehler:"
     }
   }
 }

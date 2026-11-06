@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, Pressable, View } from "react-native";
-import { gameAbbreviation } from "@magic-vault/shared";
+import { collectionGameLabel } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -20,6 +20,7 @@ import {
   TOP_BAR_BRAND_MARK_SCALE,
   TOP_BAR_BRAND_SIZE,
   TOP_BAR_HEIGHT,
+  MIN_TOUCH_TARGET,
   TOP_BAR_INITIAL_SIZE,
   TOP_BAR_SWITCHER_HEIGHT,
 } from "@/lib/constants/ui";
@@ -31,6 +32,7 @@ function TopBarSwitcher({ initial, label, badge, accessibilityLabel, onPress }: 
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      hitSlop={{ top: (MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2, bottom: (MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2 }}
       onPress={onPress}
       style={({ pressed }) => ({
         flexDirection: "row",
@@ -95,11 +97,7 @@ export function AppTopBar() {
   const alerts = useAppAlerts();
   const [openSheet, setOpenSheet] = useState<AppTopBarSheet | null>(null);
   const closeSheet = () => setOpenSheet(null);
-  const collectionBadge = activeCollection
-    ? [activeCollection.game ? gameAbbreviation(activeCollection.game.key) : null, activeCollection.lang.toUpperCase()]
-        .filter(Boolean)
-        .join(" · ")
-    : undefined;
+  const collectionBadge = activeCollection ? collectionGameLabel(activeCollection) : undefined;
 
   return (
     <View
@@ -111,61 +109,26 @@ export function AppTopBar() {
         paddingHorizontal: SPACING.sm + 2,
       }}
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t("alerts.title")}
-        onPress={() => setOpenSheet("alerts")}
-        style={({ pressed }) => ({
+      <View
+        style={{
           width: TOP_BAR_BRAND_SIZE,
           height: TOP_BAR_BRAND_SIZE,
           borderRadius: RADIUS.md,
-          backgroundColor: pressed ? colors.primaryPressed : colors.primary,
+          overflow: "hidden",
+          backgroundColor: colors.primary,
           alignItems: "center",
           justifyContent: "center",
-        })}
+        }}
       >
-        <View
+        <Image
+          accessible={false}
+          source={BRAND_MARK}
           style={{
-            width: TOP_BAR_BRAND_SIZE,
-            height: TOP_BAR_BRAND_SIZE,
-            borderRadius: RADIUS.md,
-            overflow: "hidden",
-            alignItems: "center",
-            justifyContent: "center",
+            width: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
+            height: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
           }}
-        >
-          <Image
-            source={BRAND_MARK}
-            style={{
-              width: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
-              height: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
-            }}
-          />
-        </View>
-        {alerts.length > 0 ? (
-          <View
-            pointerEvents="none"
-            style={{
-              position: "absolute",
-              top: -4,
-              right: -4,
-              minWidth: 16,
-              height: 16,
-              paddingHorizontal: 3,
-              borderRadius: RADIUS.full,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: colors.destructiveStrong,
-              borderWidth: 2,
-              borderColor: colors.shell,
-            }}
-          >
-            <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, fontSize: 10, lineHeight: 12 }}>
-              {alerts.length > ALERT_BADGE_MAX ? `${ALERT_BADGE_MAX}+` : String(alerts.length)}
-            </AppText>
-          </View>
-        ) : null}
-      </Pressable>
+        />
+      </View>
       <View style={{ width: 1, height: 16, marginHorizontal: SPACING.xs, backgroundColor: colors.border }} />
       <View style={{ flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
         <TopBarSwitcher
@@ -183,6 +146,45 @@ export function AppTopBar() {
           onPress={() => setOpenSheet("collections")}
         />
       </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={alerts.length > 0 ? `${t("alerts.title")}, ${alerts.length}` : t("alerts.title")}
+        hitSlop={(MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2}
+        onPress={() => setOpenSheet("alerts")}
+        style={({ pressed }) => ({
+          width: TOP_BAR_SWITCHER_HEIGHT,
+          height: TOP_BAR_SWITCHER_HEIGHT,
+          borderRadius: RADIUS.md,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: pressed ? colors.shellAccent : "transparent",
+        })}
+      >
+        <Icon name="bell" size={20} color={colors.foreground} />
+        {alerts.length > 0 ? (
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              minWidth: 16,
+              height: 16,
+              paddingHorizontal: 3,
+              borderRadius: RADIUS.full,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: colors.destructiveStrong,
+              borderWidth: 2,
+              borderColor: colors.shell,
+            }}
+          >
+            <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, fontSize: 10, lineHeight: 12 }}>
+              {alerts.length > ALERT_BADGE_MAX ? `${ALERT_BADGE_MAX}+` : String(alerts.length)}
+            </AppText>
+          </View>
+        ) : null}
+      </Pressable>
       <AlertsSheet visible={openSheet === "alerts"} alerts={alerts} onClose={closeSheet} />
       <OptionSheet
         visible={openSheet === "organizations"}
@@ -198,7 +200,11 @@ export function AppTopBar() {
       <OptionSheet
         visible={openSheet === "collections"}
         title={t("scan.chooseCollection")}
-        options={(collections ?? []).map((collection) => ({ value: collection.guid, label: collection.name }))}
+        options={(collections ?? []).map((collection) => ({
+          value: collection.guid,
+          label: collection.name,
+          badge: collectionGameLabel(collection),
+        }))}
         selected={activeCollection ? [activeCollection.guid] : []}
         onSelect={(guid) => {
           closeSheet();

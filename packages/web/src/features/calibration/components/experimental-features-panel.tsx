@@ -28,6 +28,7 @@ export function ExperimentalFeaturesPanel({
           </span>
           {isLoaded ? (
             <Switch
+              aria-label={t("experimentalFeatures.pipelinedFeedLabel")}
               checked={values.pipelinedFeed}
               onCheckedChange={(checked) => onChange("pipelinedFeed", checked)}
             />

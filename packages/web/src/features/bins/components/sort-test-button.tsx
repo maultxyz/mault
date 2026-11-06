@@ -147,6 +147,17 @@ export function SortTestButton({ disabled }: SortTestButtonProps) {
         footerClassName="flex-col-reverse md:flex-row"
       >
         <div className="min-h-0 flex-1 overflow-y-auto">
+          <p role="status" className="sr-only">
+            {!draw.isPending && card && explanation
+              ? t("sortTest.resultAnnouncement", {
+                  name: card.name,
+                  bin:
+                    explanation.binNumber != null
+                      ? binLabel(explanation.binNumber)
+                      : t("sortTest.noBin"),
+                })
+              : ""}
+          </p>
           {!gameKey ? (
             <EmptyState
               icon={IconCards}
@@ -217,10 +228,11 @@ export function SortTestButton({ disabled }: SortTestButtonProps) {
                           <button
                             type="button"
                             className="flex items-center gap-2 px-3 py-2 text-left"
+                            aria-expanded={isExpanded}
                             onClick={() => toggleBin(binCheck.binNumber)}
                           >
                             {binCheck.matched ? (
-                              <IconCheck className="size-4 shrink-0 text-success" />
+                              <IconCheck className="size-4 shrink-0 text-success-foreground" />
                             ) : (
                               <IconX className="size-4 shrink-0 text-destructive" />
                             )}

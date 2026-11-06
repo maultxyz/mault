@@ -88,7 +88,7 @@ export function ReviewGrid({
           <h2 className="truncate text-base font-semibold">
             {t("reviewGrid.title")}
           </h2>
-          <p className="text-xs tabular-nums text-foreground/70">
+          <p role="status" className="text-xs tabular-nums text-foreground/70">
             {isLoading
               ? " "
               : t("reviewGrid.remaining", { count: remaining })}

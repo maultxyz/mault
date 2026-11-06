@@ -81,6 +81,7 @@ export function FeederCalibrationPanel({
         <div className="flex items-center justify-end">
           <button
             type="button"
+            aria-expanded={showAdvanced}
             onClick={() => setShowAdvanced((v) => !v)}
             className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
           >

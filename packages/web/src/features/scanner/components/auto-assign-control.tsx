@@ -66,7 +66,10 @@ export function AutoAssignControl() {
       </div>
       {isTimerActive ? (
         <Tooltip>
-          <TooltipTrigger render={<div />}>{resetButton}</TooltipTrigger>
+          <TooltipTrigger render={<div />}>
+            {resetButton}
+            <span className="sr-only">{t("autoAssignControl.stopFirst")}</span>
+          </TooltipTrigger>
           <TooltipContent>{t("autoAssignControl.stopFirst")}</TooltipContent>
         </Tooltip>
       ) : (

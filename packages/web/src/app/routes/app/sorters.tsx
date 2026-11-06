@@ -134,6 +134,7 @@ export default function SortersPage() {
               <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
               <Input
                 type="search"
+                aria-label={t("stations.overview.searchPlaceholder")}
                 placeholder={t("stations.overview.searchPlaceholder")}
                 data-hotkey-search
                 value={searchQuery}

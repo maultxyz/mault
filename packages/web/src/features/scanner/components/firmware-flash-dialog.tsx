@@ -23,7 +23,7 @@ import {
   IconCircleCheck,
   IconLoader2,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function FirmwareFlashDialog({
@@ -54,6 +54,7 @@ export function FirmwareFlashDialog({
   onStart: (firmwareUrl: string) => Promise<FlashEsp32Result | null>;
 }) {
   const { t } = useTranslation("scanner");
+  const versionSelectId = useId();
   const [state, setState] = useState<FirmwareFlashState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const flashLogRef = useStickToBottom(flashLog);
@@ -152,14 +153,16 @@ export function FirmwareFlashDialog({
       {state === "idle" && (
         <div className="flex flex-col gap-3">
           <Field>
-            <FieldLabel>{t("serial.flash.version.label")}</FieldLabel>
+            <FieldLabel htmlFor={versionSelectId}>
+              {t("serial.flash.version.label")}
+            </FieldLabel>
             <Select
               value={selectedOption.key}
               onValueChange={(optionKey) => {
                 if (optionKey) setSelectedOptionKey(optionKey);
               }}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id={versionSelectId} className="w-full">
                 <SelectValue>{optionLabel(selectedOption)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -186,7 +189,14 @@ export function FirmwareFlashDialog({
             <IconLoader2 className="size-3.5 shrink-0 animate-spin" />
             <span>{t("serial.update.flashing")}</span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-secondary/50">
+          <div
+            role="progressbar"
+            aria-label={t("serial.update.flashing")}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={pct}
+            className="h-1.5 overflow-hidden rounded-full bg-secondary/50"
+          >
             <div
               className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
               style={{ width: `${pct}%` }}
@@ -208,14 +218,17 @@ export function FirmwareFlashDialog({
       )}
 
       {state === "success" && (
-        <div className="flex items-center gap-2 text-sm text-success-foreground">
+        <div
+          role="status"
+          className="flex items-center gap-2 text-sm text-success-foreground"
+        >
           <IconCircleCheck className="size-4 shrink-0" />
           <span>{successMessage}</span>
         </div>
       )}
 
       {state === "error" && (
-        <div className="flex flex-col gap-1">
+        <div role="alert" className="flex flex-col gap-1">
           <div className="flex items-center gap-2 text-sm font-medium text-destructive">
             <IconAlertTriangle className="size-4 shrink-0" />
             <span>{t("serial.update.errorTitle")}</span>

@@ -145,13 +145,14 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
               onDeleted={() => select(null)}
             />
           ) : (
-            !isLoading && (
-              <EmptyState
-                icon={IconTruckDelivery}
-                title={t("orders.pickTitle")}
-                description={t("orders.pickDescription")}
-              />
-            )
+            <h1 className="sr-only">{t("views.picks")}</h1>
+          )}
+          {!selectedGuid && !isLoading && (
+            <EmptyState
+              icon={IconTruckDelivery}
+              title={t("orders.pickTitle")}
+              description={t("orders.pickDescription")}
+            />
           )}
         </section>
       </div>

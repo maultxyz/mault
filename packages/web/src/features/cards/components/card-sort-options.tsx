@@ -30,6 +30,7 @@ function SortOption({
     <button
       ref={ref}
       type="button"
+      aria-pressed={active}
       onClick={onSelect}
       className={cn(
         "flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs text-left transition-colors max-md:min-h-12 max-md:px-3 max-md:text-base",

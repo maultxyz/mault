@@ -37,7 +37,7 @@ export default function CalibrationConnectionScreen() {
       >
         {draft.saveError ? <Callout tone="destructive" title={t("calibration.saveFailed")} /> : null}
         <Surface style={{ gap: SPACING.xl }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("calibration.connection.title")}
           </AppText>
           <SwitchRow
@@ -55,7 +55,7 @@ export default function CalibrationConnectionScreen() {
         </Surface>
         <Surface style={{ gap: SPACING.xl }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-            <AppText heading weight="semibold">
+            <AppText heading weight="semibold" accessibilityRole="header">
               {t("calibration.connection.experimentalTitle")}
             </AppText>
             <Pill label={t("calibration.connection.experimentalBadge")} />

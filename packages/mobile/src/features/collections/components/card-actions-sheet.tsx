@@ -77,8 +77,8 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
   return (
     <>
       <Modal visible={!!entry && picker == null} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-        <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-        <View
+        <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+        <View accessibilityViewIsModal onAccessibilityEscape={onClose}
           style={{
             backgroundColor: colors.background,
             borderTopLeftRadius: RADIUS.xl,
@@ -96,7 +96,7 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
           </View>
           <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <AppText size="lg" heading weight="bold" numberOfLines={1}>
+              <AppText size="lg" heading weight="bold" accessibilityRole="header" numberOfLines={1}>
                 {entry?.card.name ?? ""}
               </AppText>
               {scanIds.length > 1 ? (

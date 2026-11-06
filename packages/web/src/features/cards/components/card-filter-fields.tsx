@@ -3,6 +3,7 @@ import { Slider } from "@/components/ui/slider";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
 import { IconDownload, IconHelpCircle, IconX } from "@tabler/icons-react";
+import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
 import type { CardFilterFieldsProps } from "@/lib/interfaces/cards";
@@ -27,6 +28,7 @@ export function CardFilterFields({
 }: CardFilterFieldsProps) {
   const { t } = useTranslation("cards");
   const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
+  const minMatchLabelId = useId();
 
   return (
     <div className="flex flex-col gap-3">
@@ -43,6 +45,7 @@ export function CardFilterFields({
                 <button
                   key={color.key}
                   type="button"
+                  aria-pressed={active}
                   onClick={() =>
                     onFiltersChange({
                       ...activeFilters,
@@ -87,6 +90,7 @@ export function CardFilterFields({
                 <button
                   key={rarity.key}
                   type="button"
+                  aria-pressed={active}
                   onClick={() =>
                     onFiltersChange({
                       ...activeFilters,
@@ -126,6 +130,7 @@ export function CardFilterFields({
                 <button
                   key={foilType.key}
                   type="button"
+                  aria-pressed={active}
                   onClick={() =>
                     onFiltersChange({
                       ...activeFilters,
@@ -160,6 +165,8 @@ export function CardFilterFields({
                 <button
                   key={bin}
                   type="button"
+                  aria-pressed={active}
+                  aria-label={t("scannedCardItem.bin", { number: bin })}
                   onClick={() =>
                     onFiltersChange({
                       ...activeFilters,
@@ -180,6 +187,8 @@ export function CardFilterFields({
             })}
             <button
               type="button"
+              aria-pressed={activeFilters.bins.includes(null)}
+              aria-label={t("cardFilterPopover.unassigned")}
               onClick={() =>
                 onFiltersChange({
                   ...activeFilters,
@@ -203,12 +212,13 @@ export function CardFilterFields({
 
       <div>
         <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground flex items-center justify-between">
-          <span>{t("cardFilterPopover.minMatch")}</span>
+          <span id={minMatchLabelId}>{t("cardFilterPopover.minMatch")}</span>
           <span className="text-foreground font-semibold">
             {activeFilters.minMatchPercent}%
           </span>
         </p>
         <Slider
+          aria-labelledby={minMatchLabelId}
           min={0}
           max={100}
           step={1}
@@ -228,6 +238,7 @@ export function CardFilterFields({
         </p>
         <button
           type="button"
+          aria-pressed={activeFilters.needsAttention}
           onClick={() =>
             onFiltersChange({
               ...activeFilters,
@@ -253,6 +264,7 @@ export function CardFilterFields({
         </p>
         <button
           type="button"
+          aria-pressed={activeFilters.hideDownloaded}
           onClick={() =>
             onFiltersChange({
               ...activeFilters,
@@ -282,6 +294,7 @@ export function CardFilterFields({
               <button
                 key={setCode}
                 type="button"
+                aria-label={t("common:a11y.removeItem", { name: setCode })}
                 onClick={() =>
                   onFiltersChange({
                     ...activeFilters,

@@ -34,6 +34,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 function StationMenuItem({ station, index, isActive }: StationMenuItemProps) {
+  const { t } = useTranslation("scanner");
   const { setActiveStation, stationAttention } = useStations();
   const { runningKeys } = useSorterSelection();
   const name = useStationName(station, index);
@@ -49,6 +50,13 @@ function StationMenuItem({ station, index, isActive }: StationMenuItemProps) {
       <StationStatusDot status={status} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate">{name}</span>
+        {!attention && (
+          <span className="sr-only">
+            {status === "sorting"
+              ? t("scannerPip.sorting")
+              : t("scannerPip.paused")}
+          </span>
+        )}
         {attention && (
           <span className="truncate text-2xs text-destructive">
             {attentionLabel(attention)}
@@ -127,6 +135,13 @@ export function StationMenu() {
                 />
               )}
             </span>
+            {stationIdsNeedingAttention.length > 0 && (
+              <span className="sr-only">
+                {t("stations.attention.count", {
+                  count: stationIdsNeedingAttention.length,
+                })}
+              </span>
+            )}
             <span
               className={cn(
                 "truncate font-semibold",

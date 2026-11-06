@@ -56,7 +56,6 @@ export function ScannerPip() {
       <button
         type="button"
         onClick={() => setMinimized(false)}
-        aria-label={t("scannerPip.expand")}
         title={t("scannerPip.expand")}
         className="fixed bottom-8 right-0 z-50 flex items-center gap-2 rounded-l-lg border border-r-0 bg-background py-2 pr-2.5 pl-1.5 text-sm font-medium text-foreground shadow-xl transition-[padding] hover:pl-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
@@ -70,7 +69,7 @@ export function ScannerPip() {
                 : "paused"
           }
         />
-        <span className="sr-only">{statusLabel}</span>
+        <span className="sr-only">{`${t("scannerPip.expand")}: ${statusLabel}`}</span>
         <span className="tabular-nums">{totalCount}</span>
       </button>
     );

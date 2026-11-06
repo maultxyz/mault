@@ -905,10 +905,9 @@ export function CardGrid() {
 
       {selectedIds.size > 0 && (
         <div
-          role="status"
           className="sticky bottom-4 z-50 mx-auto mb-4 flex w-fit shrink-0 items-center gap-3 rounded-lg bg-foreground px-1.5 pl-3 py-1.5 text-xs text-background shadow-2xl ring-1 ring-foreground/20 animate-in fade-in-0 slide-in-from-bottom-4 duration-150"
         >
-          <span className="font-medium">
+          <span role="status" className="font-medium">
             {t("cardGrid.cardsSelected", { count: selectedIds.size })}
           </span>
           <div className="flex gap-2">

@@ -116,7 +116,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
             >
               <IconChevronLeft />
             </Button>
-            <p className="text-xs tabular-nums text-foreground/70">
+            <p role="status" className="text-xs tabular-nums text-foreground/70">
               {t("accuracy.position", {
                 current: current + 1,
                 total: check.samples.length,
@@ -179,6 +179,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
               <Button
                 variant={sample.result === "incorrect" ? "destructive" : "outline-destructive"}
                 className="flex-1"
+                aria-pressed={sample.result === "incorrect"}
                 disabled={pending}
                 onClick={() => void record("incorrect")}
               >
@@ -188,6 +189,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
               <Button
                 variant={sample.result === "correct" ? "default" : "outline"}
                 className="flex-1"
+                aria-pressed={sample.result === "correct"}
                 disabled={pending}
                 onClick={() => void record("correct")}
               >

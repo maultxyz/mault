@@ -29,8 +29,8 @@ export function ExportSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           backgroundColor: colors.background,
           borderTopLeftRadius: RADIUS.xl,
@@ -48,7 +48,7 @@ export function ExportSheet({
           <View style={{ width: 36, height: 4, borderRadius: RADIUS.full, backgroundColor: colors.border }} />
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER }}>
-          <AppText size="lg" heading weight="bold" numberOfLines={1} style={{ flex: 1 }}>
+          <AppText size="lg" heading weight="bold" accessibilityRole="header" numberOfLines={1} style={{ flex: 1 }}>
             {title}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />

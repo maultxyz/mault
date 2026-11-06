@@ -84,12 +84,16 @@ export function MobileMonitorActivity({
                         entry.card.image?.normal ||
                         ""
                       }
-                      alt={entry.card.name}
+                      alt=""
                       loading="lazy"
                       className="h-full w-full object-cover"
                     />
                     {entry.isFoil && (
-                      <span className="absolute top-0.5 left-0.5 rounded-full bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300 p-0.5">
+                      <span
+                        role="img"
+                        aria-label={t("scanRemoval.foil")}
+                        className="absolute top-0.5 left-0.5 rounded-full bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300 p-0.5"
+                      >
                         <IconSparkles className="size-2 text-white" />
                       </span>
                     )}

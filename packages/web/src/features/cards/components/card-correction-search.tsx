@@ -91,6 +91,7 @@ export function CardCorrectionSearch({
         <div className="relative flex-1">
           <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-foreground/70" />
           <Input
+            aria-label={t("cardPicker.searchLabel")}
             placeholder={t("cardPicker.searchPlaceholder")}
             value={query}
             onChange={(e) => handleInputChange(e.target.value)}

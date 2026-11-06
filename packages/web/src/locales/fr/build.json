@@ -614,5 +614,29 @@
       "optionalPlate": "Plaques Back et Front (optionnelles)"
     },
     "xray": "Rayons X"
+  },
+  "imageAlt": {
+    "printPart": "Rendu du modèle 3D : {{part}}",
+    "breakoutBaseSupport": "Support de base pour carte d'extension",
+    "photos": {
+      "baseModule": "Un cadre de module de tri violet imprimé en 3D : une boîte ouverte avec quatre tenons sur le dessus et des pattes sur les côtés pour assembler les modules.",
+      "baseModuleAssembled": "Un cadre de module jaune bas à côté d'un grand module jaune posé sur un support de base violet, pour montrer comment les cadres imprimés s'emboîtent.",
+      "finishedSorter": "Le trieur terminé : une tour noire de modules de tri empilés avec le magasin de cartes en haut, entourée de bacs blancs contenant des cartes triées.",
+      "bottomPaddleDisassembled": "Les pièces du volet inférieur posées sur un tapis de découpe : une longue plaque de volet rose, un adaptateur de palonnier de servo, un petit bras de liaison et deux vis.",
+      "bottomPaddleAssembled": "Le volet inférieur assemblé : le bras de liaison est vissé entre la charnière du volet et l'adaptateur de palonnier.",
+      "bottomPaddleAttached": "Le volet inférieur monté sur une plaque de module rose, son bras de liaison relié à un micro-servo SG90 bleu, les câbles du servo partant sur le côté.",
+      "sidePaddlesDisassembled": "Les pièces des volets latéraux : deux longues plaques de volet roses, deux bras de liaison, un adaptateur de palonnier à deux branches et quatre vis.",
+      "sidePaddlesAssembled": "Les deux volets latéraux reliés par leurs bras à l'adaptateur de palonnier central, formant une seule tringlerie.",
+      "sidePaddlesAttached": "La tringlerie des volets latéraux montée sur la plaque du module et entraînée par un micro-servo bleu, ses câbles formant une boucle en haut.",
+      "pusherDisassembled": "Les pièces du poussoir : deux bras de poussoir en L, deux bras de liaison droits, un adaptateur de palonnier triangulaire et cinq vis.",
+      "pusherAssembled": "Le poussoir assemblé : les deux bras en L sont reliés par les bras droits à l'adaptateur de palonnier triangulaire.",
+      "pusherAttached": "Une plaque de module avec les trois mécanismes en place : les bras du poussoir, la tringlerie des volets latéraux et le volet inférieur, chacun relié à un micro-servo bleu.",
+      "rollerORings": "Le rouleau d'alimentation noir imprimé en 3D avec six joints toriques en caoutchouc dans ses rainures, trois près de chaque extrémité.",
+      "feederServoMounted": "Le cadre blanc du module d'alimentation avec un servo bleu monté sur le dessus, qui entraîne le rouleau à joints toriques à l'intérieur.",
+      "newHopper": "Le magasin de cartes noir : un cadre rectangulaire ouvert avec une vis à ressort en haut et le rouleau à joints toriques le long du bord inférieur.",
+      "feederRiser": "Le rehausseur d'alimentation noir vu de dessus, avec le rouleau à joints toriques au milieu, un capteur IR à côté et le servo sur un côté.",
+      "sorterIrSensorMounted": "Une carte de capteur IR fixée à la verticale dans son support sur la plaque de module rose, à côté des servos et des tringleries.",
+      "feederIrSensorMounted": "Dans le boîtier d'alimentation noir, une carte de capteur IR bleue se trouve juste sous le rouleau à joints toriques, orientée vers les cartes."
+    }
   }
 }

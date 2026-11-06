@@ -62,6 +62,7 @@ import { Link, Navigate, useSearchParams } from "react-router-dom";
 
 function DesktopStoragePage() {
   const { t } = useTranslation("storage");
+  const { t: tCommon } = useTranslation("common");
   const { isMutating, create, rename, remove } = useStorageLocations({
     withList: false,
   });
@@ -197,8 +198,17 @@ function DesktopStoragePage() {
     openCard(guid, scanId, false);
   };
 
+  const showsLocationHeading =
+    !!selected &&
+    !isSearching &&
+    !(isCardOpen && openScanId) &&
+    !isGridReviewing;
+
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
+      {!showsLocationHeading && (
+        <h1 className="sr-only">{tCommon("nav.storage")}</h1>
+      )}
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         {isOneByOneReviewing && selected ? (
           <section className="col-span-4 flex h-full flex-col overflow-hidden border-r lg:col-span-3">

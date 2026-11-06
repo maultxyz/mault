@@ -15,7 +15,7 @@ import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconDownload, IconSparkles } from "@tabler/icons-react";
-import { DEFAULT_CARD_CONDITION } from "@magic-vault/shared";
+import { DEFAULT_CARD_CONDITION, rarityLabel } from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -75,6 +75,8 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 showReviewStatus ? "left-6" : "left-1",
               )}
               title={foilType ?? t("foil")}
+              role="img"
+              aria-label={foilType ?? t("foil")}
             >
               <IconSparkles className="size-3 text-white" />
             </div>
@@ -157,6 +159,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
       </button>
       {onToggleSelect && (
         <span
+          role="presentation"
           className="absolute top-2 right-2 z-30 flex size-6 items-center justify-center rounded-md bg-background/80 shadow-sm backdrop-blur-sm"
           onMouseDown={onSelectMouseDown}
           onClick={(e) => {
@@ -176,6 +179,8 @@ export const ScannedCardItem = memo(function ScannedCardItem({
       <div className="flex flex-row flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-1 pb-1">
         <div className="flex min-w-0 flex-row items-center gap-1.5">
           <div
+            role="img"
+            aria-label={rarityLabel(card.rarity)}
             className="size-3 rounded-full shrink-0"
             style={{ backgroundColor: raritySwatch(card.rarity).bg }}
           />
@@ -189,7 +194,12 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             #{card.collectorNumber}
           </p>
           {isDownloaded && (
-            <span className="shrink-0" title={t("downloaded")}>
+            <span
+              className="shrink-0"
+              title={t("downloaded")}
+              role="img"
+              aria-label={t("downloaded")}
+            >
               <IconDownload className="size-3 text-foreground/70 shrink-0" />
             </span>
           )}

@@ -15,6 +15,7 @@ export function DiscordChannelSelect({
   emptyLabel,
   disabled,
   onChange,
+  "aria-label": ariaLabel,
 }: DiscordChannelSelectProps) {
   return (
     <Select
@@ -24,7 +25,7 @@ export function DiscordChannelSelect({
         onChange(!next || next === NO_DISCORD_CHANNEL ? null : next)
       }
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full" aria-label={ariaLabel}>
         <SelectValue>
           {value ? (
             <DiscordChannelLabel

@@ -19,6 +19,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { EditingStagePresetBanner } from "@/features/bins/components/editing-stage-preset-banner";
 import { MultiStageRulesRedirect } from "@/features/bins/components/multi-stage-rules-redirect";
 import { SORTING_RULES_PRESET_PARAM } from "@/lib/constants/bins";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
 function BinsHelpTour({ className }: { className?: string }) {
@@ -31,6 +32,7 @@ function BinsHelpTour({ className }: { className?: string }) {
 }
 
 export default function BinsPage() {
+  const { t } = useTranslation("common");
   const [searchParams] = useSearchParams();
   const editingPresetGuid = searchParams.get(SORTING_RULES_PRESET_PARAM);
   const isMobile = useIsMobile();
@@ -39,6 +41,7 @@ export default function BinsPage() {
     <MobileBins />
   ) : (
     <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
+      <h1 className="sr-only">{t("nav.sortingRules")}</h1>
       <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
         <AutoAssignPanel />
         <BinList />

@@ -137,7 +137,7 @@ export function NotificationRuleDialog({
                 name="channelId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label={t("ruleDialog.channel")}>
                       <SelectValue
                         placeholder={t("ruleDialog.channelPlaceholder")}
                       >
@@ -179,6 +179,7 @@ export function NotificationRuleDialog({
               name="roleId"
               render={({ field }) => (
                 <DiscordRoleSelect
+                  aria-label={t("ruleDialog.role")}
                   value={field.value}
                   roles={roles}
                   onChange={field.onChange}

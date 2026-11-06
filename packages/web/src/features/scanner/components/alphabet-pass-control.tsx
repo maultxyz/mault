@@ -132,7 +132,12 @@ export function AlphabetPassControl() {
       </div>
       {isTimerActive ? (
         <Tooltip>
-          <TooltipTrigger render={<div />}>{controls}</TooltipTrigger>
+          <TooltipTrigger render={<div />}>
+            {controls}
+            <span className="sr-only">
+              {t("alphabetPassControl.stopFirst")}
+            </span>
+          </TooltipTrigger>
           <TooltipContent>{t("alphabetPassControl.stopFirst")}</TooltipContent>
         </Tooltip>
       ) : (

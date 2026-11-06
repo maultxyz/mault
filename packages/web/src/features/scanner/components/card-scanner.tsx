@@ -719,9 +719,14 @@ export function CardScanner({
         className={cn("relative isolate overflow-hidden bg-black", className)}
       >
         <video ref={videoRef} className="hidden" playsInline muted />
-        <canvas ref={displayCanvasRef} className="absolute" />
+        <canvas
+          ref={displayCanvasRef}
+          aria-label={t("a11y.cameraPreview")}
+          className="absolute"
+        />
         <canvas
           ref={overlayCanvasRef}
+          aria-hidden
           className="absolute z-20 pointer-events-none"
         />
         {renderChrome({
@@ -830,6 +835,7 @@ export function CardScanner({
           )}
           <canvas
             ref={displayCanvasRef}
+            aria-label={t("a11y.cameraPreview")}
             className={cn(
               "absolute",
               piRemote && "hidden",
@@ -838,6 +844,7 @@ export function CardScanner({
           />
           <canvas
             ref={overlayCanvasRef}
+            aria-hidden
             className={cn(
               "absolute z-20 pointer-events-none",
               piRemote && "hidden",
@@ -846,7 +853,9 @@ export function CardScanner({
           />
           {isAdmin && debugImageUrl && (
             <Tooltip>
-              <TooltipTrigger className="absolute bottom-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
+              <TooltipTrigger
+                aria-label={t("a11y.showLastSearchImage")}
+                className="absolute bottom-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
                 <IconEye size={16} />
               </TooltipTrigger>
               <TooltipContent

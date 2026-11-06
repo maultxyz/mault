@@ -20,6 +20,7 @@
     "completed": "Fertig"
   },
   "table": {
+    "status": "Status",
     "card": "Karte",
     "set": "Set",
     "condition": "Zustand",
@@ -222,6 +223,7 @@
     "staffSignature": "Unterschrift Mitarbeiter"
   },
   "orders": {
+    "pickCopy": "{{name}} als gepickt markieren",
     "printing": "{{setName}} ({{set}}) Nr. {{number}}",
     "removeLastCopyTitle": "Pick abbrechen?",
     "removeLastCopyDescription": "Das ist das letzte Exemplar von {{name}} und die einzige verbleibende Karte. Wenn du es entfernst, wird der Pick abgebrochen.",
@@ -257,7 +259,6 @@
     "namePlaceholder": "Bestellungen von Montag",
     "contents": "Zu ziehende Karten",
     "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "chooseFile": "Datei wählen",
     "preview": "{{source}}: {{lines}} Zeilen, {{quantity}} Karten.",
     "previewEmpty": "Keine Karten gefunden. Prüfe, ob die erste Zeile Spaltennamen wie Product Name und Quantity enthält.",
     "previewSkipped_one": "{{count}} Zeile ohne Kartennamen wurde übersprungen.",

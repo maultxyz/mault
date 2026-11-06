@@ -34,6 +34,7 @@ function DemoConditionRow({
   onChange,
   onRemove,
 }: DemoRuleConditionRowProps) {
+  const { t } = useTranslation(["landing", "common"]);
   return (
     <div className="flex items-center gap-1.5 sm:flex-wrap">
       <Select
@@ -47,7 +48,10 @@ function DemoConditionRow({
           })
         }
       >
-        <SelectTrigger className="min-w-0 flex-1 max-sm:px-3 sm:min-w-24 sm:flex-none">
+        <SelectTrigger
+          className="min-w-0 flex-1 max-sm:px-3 sm:min-w-24 sm:flex-none"
+          aria-label={t("landing:features.demo.ruleField")}
+        >
           <SelectValue>{condition.field}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -65,7 +69,10 @@ function DemoConditionRow({
           onChange({ ...condition, operator: operator as DemoRuleOperator })
         }
       >
-        <SelectTrigger className="shrink-0 max-sm:px-3 sm:min-w-20">
+        <SelectTrigger
+          className="shrink-0 max-sm:px-3 sm:min-w-20"
+          aria-label={t("landing:features.demo.ruleOperator")}
+        >
           <SelectValue>{condition.operator}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -80,7 +87,10 @@ function DemoConditionRow({
         value={condition.value}
         onValueChange={(value) => value && onChange({ ...condition, value })}
       >
-        <SelectTrigger className="min-w-0 flex-1 max-sm:px-3 sm:min-w-24">
+        <SelectTrigger
+          className="min-w-0 flex-1 max-sm:px-3 sm:min-w-24"
+          aria-label={t("landing:features.demo.ruleValue")}
+        >
           <SelectValue>{condition.value}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -98,6 +108,7 @@ function DemoConditionRow({
         className="shrink-0 max-sm:size-8"
         disabled={!canRemove}
         onClick={onRemove}
+        aria-label={t("common:a11y.removeCondition")}
       >
         <IconX />
       </Button>
@@ -164,7 +175,7 @@ export function DemoRuleBuilder() {
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-3">
-        <p className="flex items-center gap-1.5 text-sm font-medium">
+        <p role="status" className="flex items-center gap-1.5 text-sm font-medium">
           <IconArrowDown className="size-4 text-primary" />
           {tLanding("features.demo.ruleMatches", {
             count: matchingCardIds.size,

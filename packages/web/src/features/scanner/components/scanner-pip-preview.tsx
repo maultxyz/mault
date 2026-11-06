@@ -90,6 +90,7 @@ export function ScannerPipPreview({
             {showsVideo ? (
               <video
                 ref={videoRef}
+                aria-hidden
                 muted
                 playsInline
                 className={cn(

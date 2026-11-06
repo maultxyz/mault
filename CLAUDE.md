@@ -35,7 +35,20 @@ For every change (feature, fix, copy, setting, API):
 3. Put logic both apps need in `shared` instead of duplicating it. Serial reply matching, the busy guard and the route queue live in `shared`'s `SerialSession` (web `use-serial` and mobile `SorterLink` wrap it); both `CloudTransport`s extend `SorterLinkConnection`.
 4. Add every new string to all locales on every surface: web `locales/{en,de,fr}/*.json` and mobile `locales/{en,de,fr}.json`, with identical keys.
 5. Keep server and API changes compatible with mobile app versions already in the stores (store releases lag web deploys).
-6. End with a per-surface summary: changed, unaffected, or not done.
+6. Meet WCAG 2.2 AA (the ADA target) on every surface; see Accessibility. A change that isn't accessible isn't done.
+7. End with a per-surface summary: changed, unaffected, or not done.
+
+## Accessibility (WCAG 2.2 AA, required for every change)
+
+- Web lint runs `eslint-plugin-jsx-a11y` (strict) in Build Check; fix findings, never disable rules. `autoFocus` is only for the first field of a dialog or popover and single-form auth pages.
+- Every control has an accessible name: icon-only `Button`s (including `TooltipTrigger` renders, tooltips don't name their trigger) take `aria-label`; `SelectTrigger`, `Switch`, `Checkbox`, `Slider` and inputs get a visible `Label`/`FieldLabel` via `htmlFor`/wrapping, or `aria-label`. Generic names (close, clear, remove, copy, retry) live in web `common:a11y.*`. Mobile `Pressable`s set `accessibilityRole`, `accessibilityLabel` and `accessibilityState`; `Button` takes `accessibilityLabel` when its label is a symbol.
+- Use native elements (`button`, `a`, `Link`) for anything clickable; a mouse-only wrapper around a keyboard-operable control (shift-click capture) is `role="presentation"`. Never nest interactive elements: put a `Link` in `Button`'s `render` instead of inside it.
+- Every routed page has exactly one `h1`: `RouteAnnouncer` reads `#main-content h1` to announce navigation and prefix the document title. Layouts render `SkipLink` and `<main id={MAIN_CONTENT_ID} tabIndex={-1}>`; never nest another `main`. Mobile headings use `accessibilityRole="header"`.
+- Status changes that appear without focus moving (scan results, sorter state, save results, errors) are announced through a polite live region (`role="status"`) or toasts; errors use `role="alert"`. Mobile uses `accessibilityLiveRegion`/`AccessibilityInfo.announceForAccessibility`.
+- Never convey state by color alone: pair it with text or an icon that has a label. Text contrast is 4.5:1 and icons or borders that carry meaning 3:1 in both themes: status text and icons use the `*-foreground` shades (web `text-success-foreground`, mobile `colors.successForeground`), never the bare `success`/`warning` fills, which fail on light backgrounds.
+- Informative images get an `alt` (cards: the card name) and decorative ones `alt=""`/`aria-hidden`; mobile images set `accessibilityLabel` or `accessible={false}`. Charts and canvases have a text alternative (summary or table).
+- Drag and drop, hover-only and gesture-only actions need a keyboard or single-tap alternative. Timeouts (auto-close timers) must be pausable or extendable.
+- Motion respects reduced motion (the global `prefers-reduced-motion` rule plus `motion-reduce:` on custom animations); never block zoom or disable font scaling (`allowFontScaling={false}`/`maxFontSizeMultiplier` are banned on mobile).
 
 ## Architecture
 

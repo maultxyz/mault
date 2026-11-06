@@ -19,7 +19,7 @@ export function Input({ editable = true, compact = false, ...props }: InputProps
         minWidth: 96,
         width: compact ? 96 : undefined,
         textAlign: compact ? "right" : "left",
-        height: INPUT_HEIGHT,
+        minHeight: INPUT_HEIGHT,
         borderRadius: RADIUS.md,
         borderWidth: 1,
         borderColor: colors.input,

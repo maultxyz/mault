@@ -125,6 +125,7 @@ export function MobileMonitorCards({
             )}
             <Button
               variant="ghost"
+              aria-pressed={filters.needsAttention}
               className={cn(
                 MOBILE_FILTER_CHIP_CLASS,
                 filters.needsAttention

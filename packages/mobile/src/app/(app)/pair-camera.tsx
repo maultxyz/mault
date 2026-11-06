@@ -53,6 +53,9 @@ export default function PairCameraScreen() {
         />
       ) : device ? (
         <View
+          accessible
+          accessibilityRole="image"
+          accessibilityLabel={t("scan.cameraPreview")}
           style={{
             width: "100%",
             aspectRatio: 1,

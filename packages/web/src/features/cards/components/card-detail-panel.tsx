@@ -106,7 +106,14 @@ import {
 } from "@/features/cards/lib/ocr-read-regions";
 import { nextCycledOption } from "@/features/cards/lib/cycle-option";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type {
   CardCorrectionOptions,
@@ -342,6 +349,9 @@ export function CardDetailPanel({
   const foilTriggerRef = useRef<HTMLButtonElement>(null);
   const conditionTriggerRef = useRef<HTMLButtonElement>(null);
   const languageTriggerRef = useRef<HTMLButtonElement>(null);
+  const foilSelectId = useId();
+  const conditionSelectId = useId();
+  const languageSelectId = useId();
   const conditionPrice = selectedCard
     ? priceOf(
         selectedCard,
@@ -647,7 +657,7 @@ export function CardDetailPanel({
   const scanAttributeControls = (
     <div className="flex flex-wrap gap-6 items-start max-md:grid max-md:grid-cols-2 max-md:gap-3">
       <div className="flex flex-col gap-1.5">
-        <Label>
+        <Label htmlFor={foilSelectId}>
           {t("foil")}
           {reviewMode && !isMobile && <HotkeyHint id="reviewCycleFoil" />}
         </Label>
@@ -663,7 +673,11 @@ export function CardDetailPanel({
             if (!open) foilTriggerRef.current?.blur();
           }}
         >
-          <SelectTrigger ref={foilTriggerRef} className="w-40 max-md:w-full">
+          <SelectTrigger
+            id={foilSelectId}
+            ref={foilTriggerRef}
+            className="w-40 max-md:w-full"
+          >
             <SelectValue placeholder={t("foilNone")} />
           </SelectTrigger>
           <SelectContent>
@@ -677,7 +691,7 @@ export function CardDetailPanel({
         </Select>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label>
+        <Label htmlFor={conditionSelectId}>
           {t("condition.label")}
           {reviewMode && !isMobile && <HotkeyHint id="reviewCycleCondition" />}
         </Label>
@@ -694,6 +708,7 @@ export function CardDetailPanel({
           }}
         >
           <SelectTrigger
+            id={conditionSelectId}
             ref={conditionTriggerRef}
             className="w-40 max-md:w-full"
           >
@@ -725,7 +740,7 @@ export function CardDetailPanel({
           )}
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label>
+        <Label htmlFor={languageSelectId}>
           {t("language")}
           {reviewMode && !isMobile && <HotkeyHint id="reviewCycleLanguage" />}
         </Label>
@@ -740,6 +755,7 @@ export function CardDetailPanel({
           }}
         >
           <SelectTrigger
+            id={languageSelectId}
             ref={languageTriggerRef}
             className="w-40 max-md:w-full"
           >

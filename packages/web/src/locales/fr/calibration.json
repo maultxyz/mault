@@ -74,7 +74,10 @@
     "customHeightLabel": "Hauteur personnalisée du bac {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "Environ {{count}} cartes à {{thickness}} mm chacune",
-    "customHeightInvalid": "Saisissez entre {{min}} et {{max}} mm"
+    "customHeightInvalid": "Saisissez entre {{min}} et {{max}} mm",
+    "binSizeLabel": "Taille du bac {{bin}}",
+    "bottomModuleSelect": "Module du bac {{bin}}",
+    "bottomBinSelect": "Bac inférieur du module {{module}}"
   },
   "binRoutingControls": {
     "label": "Routage des bacs",
@@ -188,6 +191,7 @@
     "executionProviderLabel": "Moteur de détection IA",
     "executionProviderDescription": "Le moteur qui exécute le modèle de correspondance des cartes dans ton navigateur (la détection des cartes tourne toujours sur WASM, où elle est plus rapide). WASM est l'option par défaut et fonctionne partout, mais ne gère qu'une trieuse à la fois. WebGPU peut être plus rapide sur certains GPU, gère plusieurs trieuses à la fois, et bascule sur WASM s'il ne démarre pas.",
     "executionProviderWebGpu": "WebGPU",
+    "regionKeyboardLabel": "Zone de scan. Déplace-la avec les touches fléchées et redimensionne-la avec les touches plus et moins. Maintiens Maj pour des pas plus grands.",
     "executionProviderWasm": "WASM (par défaut)",
     "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
     "phoneCameraConnected": "Caméra du téléphone connectée",

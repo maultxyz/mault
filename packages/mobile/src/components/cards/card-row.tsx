@@ -26,7 +26,16 @@ export function CardRow({
     <Pressable
       accessibilityRole={checked !== undefined ? "checkbox" : onPress ? "button" : undefined}
       accessibilityState={checked !== undefined ? { checked } : undefined}
-      accessibilityLabel={[name, subtitle, price].filter(Boolean).join(", ")}
+      accessibilityLabel={[
+        name,
+        subtitle,
+        price,
+        quantity && quantity > 1 ? t("cards.quantity", { count: quantity }) : null,
+        binNumber != null ? t("cards.bin", { number: binNumber }) : null,
+        lowConfidence ? t("cards.needsReview") : null,
+      ]
+        .filter(Boolean)
+        .join(", ")}
       disabled={!onPress}
       onPress={onPress}
       style={({ pressed }) => ({

@@ -57,7 +57,7 @@ export default function AccountScreen() {
           </AppText>
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <AppText size="lg" heading weight="bold" numberOfLines={1}>
+          <AppText size="lg" heading weight="bold" numberOfLines={1} accessibilityRole="header">
             {user?.name || user?.email}
           </AppText>
           {user?.name && user.email ? (

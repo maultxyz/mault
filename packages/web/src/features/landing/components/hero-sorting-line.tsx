@@ -1,4 +1,5 @@
 import { FoilOverlay } from "@/components/foil-overlay";
+import { Button } from "@/components/ui/button";
 import { ViewfinderCorners } from "@/features/landing/components/viewfinder-corners";
 import { DEMO_SCANNED_CARDS } from "@/features/landing/lib/demo-cards";
 import { HeroScanReadout } from "@/features/landing/components/hero-scan-readout";
@@ -12,8 +13,13 @@ import {
   HERO_SORT_INTERVAL_MS,
 } from "@/lib/constants/landing";
 import { CATCH_ALL_BIN } from "@/lib/constants/scanner";
+import { prefersReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { IconChevronRight } from "@tabler/icons-react";
+import {
+  IconChevronRight,
+  IconPlayerPause,
+  IconPlayerPlay,
+} from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { HeroStationLabelProps } from "@/lib/interfaces/landing";
@@ -38,14 +44,20 @@ export function HeroSortingLine() {
   const { t } = useTranslation("landing");
   const { t: tBins } = useTranslation("bins");
   const [tick, setTick] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
+    if (prefersReducedMotion()) setIsPaused(true);
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
     const id = window.setInterval(
       () => setTick((n) => n + 1),
       HERO_SORT_INTERVAL_MS,
     );
     return () => window.clearInterval(id);
-  }, []);
+  }, [isPaused]);
 
   const total = DEMO_SCANNED_CARDS.length;
   const current = DEMO_SCANNED_CARDS[tick % total];
@@ -134,13 +146,28 @@ export function HeroSortingLine() {
           </span>
           {t("hero.liveSort")}
         </p>
-        <p className="font-heading text-2xs tracking-wide text-foreground/70 tabular-nums">
-          {t("hero.sortedCount", { count: sortedCount })}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <p className="font-heading text-2xs tracking-wide text-foreground/70 tabular-nums">
+            {t("hero.sortedCount", { count: sortedCount })}
+          </p>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="-my-1.5"
+            aria-label={isPaused ? t("hero.playDemo") : t("hero.pauseDemo")}
+            onClick={() => setIsPaused((paused) => !paused)}
+          >
+            {isPaused ? <IconPlayerPlay /> : <IconPlayerPause />}
+          </Button>
+        </div>
         <span
           key={tick}
           style={{ animationDuration: `${HERO_SORT_INTERVAL_MS}ms` }}
-          className="absolute -bottom-px left-0 h-px w-full origin-left bg-primary animate-[wrapped-progress_linear_both] motion-reduce:hidden"
+          className={cn(
+            "absolute -bottom-px left-0 h-px w-full origin-left bg-primary animate-[wrapped-progress_linear_both] motion-reduce:hidden",
+            isPaused && "hidden",
+          )}
         />
       </div>
 

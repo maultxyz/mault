@@ -1,4 +1,5 @@
-import { Pressable, View } from "react-native";
+import { useEffect } from "react";
+import { AccessibilityInfo, Platform, Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
@@ -14,9 +15,14 @@ export function CameraNotice({ tone, title, description, actionLabel, onAction }
     destructive: { color: colors.destructive, icon: "error" },
   } as const;
   const { color, icon } = accent[tone];
+  const announcement = [title, description].filter(Boolean).join(". ");
+  useEffect(() => {
+    if (Platform.OS === "ios") AccessibilityInfo.announceForAccessibility(announcement);
+  }, [announcement]);
   return (
     <View
       accessibilityRole={tone === "destructive" || tone === "warning" ? "alert" : undefined}
+      accessibilityLiveRegion="polite"
       style={{
         flexDirection: "row",
         alignItems: "center",

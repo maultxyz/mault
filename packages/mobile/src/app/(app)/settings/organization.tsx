@@ -111,7 +111,7 @@ export default function OrganizationSettingsScreen() {
 
       {canManage && details.data?.canRename ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.org.renameHeading", { name: org?.name ?? "" })}
           </AppText>
           <Controller
@@ -143,7 +143,7 @@ export default function OrganizationSettingsScreen() {
       ) : null}
 
       <Surface style={{ gap: SPACING.sm }}>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {t("settings.org.membersHeading")}
         </AppText>
         {details.data && !details.data.canManageMembers ? (
@@ -172,7 +172,7 @@ export default function OrganizationSettingsScreen() {
 
       {canManage ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.org.inviteMemberHeading")}
           </AppText>
           {memberLimitReached ? (
@@ -191,6 +191,7 @@ export default function OrganizationSettingsScreen() {
                 autoCapitalize="none"
                 keyboardType="email-address"
                 autoComplete="email"
+                textContentType="emailAddress"
                 error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
@@ -228,11 +229,13 @@ export default function OrganizationSettingsScreen() {
                     key={invitation.id}
                     title={invitation.email}
                     subtitle={t(`settings.org.roles.${invitation.role}`)}
+                    rightIsInteractive
                     right={
                       <Button
                         size="sm"
                         variant="ghost"
                         label={t("settings.org.cancelInvite")}
+                        accessibilityLabel={`${t("settings.org.cancelInvite")}, ${invitation.email}`}
                         onPress={() => void run(() => cancelInvitation(invitation.id))}
                       />
                     }
@@ -246,7 +249,7 @@ export default function OrganizationSettingsScreen() {
 
       {role === "owner" ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.org.dangerZoneHeading")}
           </AppText>
           <AppText size="xs" tone="secondary">

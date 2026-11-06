@@ -38,6 +38,9 @@ import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation } from "react-router-dom";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
+import { RouteAnnouncer } from "@/components/route-announcer";
+import { SkipLink } from "@/components/skip-link";
 
 export default function AppLayout() {
   const { t } = useTranslation("common");
@@ -49,6 +52,8 @@ export default function AppLayout() {
 
   return (
     <AppProviders>
+      <SkipLink />
+      <RouteAnnouncer />
       {isMobile ? (
         <div
           className={cn(
@@ -69,8 +74,10 @@ export default function AppLayout() {
           <AlertStack />
           <PiScanStatusBar />
           <main
+            id={MAIN_CONTENT_ID}
+            tabIndex={-1}
             className={cn(
-              "relative flex-1 min-h-0 overflow-hidden flex flex-col",
+              "relative flex-1 min-h-0 overflow-hidden flex flex-col outline-none",
               isFramed && MOBILE_FRAMED_PANEL_CLASS,
               isImmersive && MOBILE_IMMERSIVE_PANEL_CLASS,
             )}
@@ -88,7 +95,11 @@ export default function AppLayout() {
           <AppTopBar />
           <div className="relative flex flex-row flex-1 min-h-0 overflow-hidden pr-1.5">
             <AppNav />
-            <main className="relative flex-1 min-w-0 overflow-hidden flex flex-col rounded-lg border bg-background/70 shadow-xs dark:bg-background/60">
+            <main
+              id={MAIN_CONTENT_ID}
+              tabIndex={-1}
+              className="relative flex-1 min-w-0 overflow-hidden flex flex-col rounded-lg border bg-background/70 shadow-xs outline-none dark:bg-background/60"
+            >
               <ImpersonationBanner />
               <PlanPreviewBanner />
               <AlertStack />
@@ -102,7 +113,7 @@ export default function AppLayout() {
           <ScannerPip />
           <DesktopScannerPip />
           <AppHotkeys />
-          <div className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
+          <footer className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
             <StatusFooter />
             <div className="ml-auto flex items-center gap-3 shrink-0">
               <KeyboardShortcutsButton />
@@ -134,7 +145,7 @@ export default function AppLayout() {
                 <EnvBanner />
               </div>
             </div>
-          </div>
+          </footer>
         </div>
       )}
     </AppProviders>

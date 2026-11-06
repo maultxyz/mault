@@ -123,7 +123,8 @@
     "delete": "Supprimer",
     "save": "Enregistrer",
     "create": "Créer",
-    "search": "Rechercher"
+    "search": "Rechercher",
+    "chooseFile": "Choisir un fichier"
   },
   "unsavedChanges": {
     "message": "Vous avez des modifications non enregistrées",
@@ -354,6 +355,41 @@
       "enthusiast": "Passionné",
       "business": "Entreprise",
       "legacyBusiness": "Business (ancienne offre)"
+    }
+  },
+  "a11y": {
+    "skipToContent": "Aller au contenu principal",
+    "close": "Fermer",
+    "clear": "Effacer",
+    "openOptions": "Afficher les options",
+    "remove": "Retirer",
+    "copy": "Copier dans le presse-papiers",
+    "retry": "Réessayer",
+    "removeCondition": "Retirer la condition",
+    "removeGroup": "Retirer le groupe",
+    "removeMember": "Retirer {{name}}",
+    "cancelInvite": "Annuler l'invitation de {{email}}",
+    "removeItem": "Retirer {{name}}",
+    "resizePanel": "Redimensionner le panneau",
+    "notifications": "Notifications",
+    "closeNotification": "Fermer la notification",
+    "notificationsWithCount_one": "Notifications, {{count}} non lue",
+    "notificationsWithCount_other": "Notifications, {{count}} non lues",
+    "watching": "Spectateurs",
+    "watchersCount_one": "{{count}} personne regarde",
+    "watchersCount_other": "{{count}} personnes regardent",
+    "details": "Détails",
+    "liveSession": "Scan en direct",
+    "mainNavigation": "Principale",
+    "settingsNavigation": "Paramètres",
+    "selected": "Sélectionné",
+    "loading": "Chargement",
+    "live": "En direct",
+    "notLive": "Hors ligne",
+    "severity": {
+      "info": "Info :",
+      "warning": "Avertissement :",
+      "danger": "Erreur :"
     }
   }
 }

@@ -104,15 +104,23 @@ export function ScannerOverlay({
 
   if (region === "status-strip") {
     if (fullOverlay) return null;
-    return renderStatusPill() ?? <StatusPill placement={pillPlacement} />;
+    return (
+      <div role="status" aria-live="polite">
+        {renderStatusPill() ?? <StatusPill placement={pillPlacement} />}
+      </div>
+    );
   }
 
   if (fullOverlay) return fullOverlay;
 
   return (
     <>
-      {handScanActive && lastRoutedBin && (
-        <div className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center">
+      <div
+        role="status"
+        aria-live="polite"
+        className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center"
+      >
+        {handScanActive && lastRoutedBin && (
           <div
             key={lastRoutedBin.at}
             className="flex flex-col items-center rounded-lg border border-primary bg-primary px-4 py-2 text-primary-foreground shadow-lg animate-in fade-in zoom-in-95 motion-reduce:animate-none"
@@ -126,9 +134,13 @@ export function ScannerOverlay({
               })}
             </span>
           </div>
+        )}
+      </div>
+      {region === "all" && (
+        <div role="status" aria-live="polite">
+          {renderStatusPill()}
         </div>
       )}
-      {region === "all" && renderStatusPill()}
     </>
   );
 
@@ -317,6 +329,7 @@ export function ScannerOverlay({
           <StatusPill placement={pillPlacement} variant="error">
             <span className="flex-1">{errorMessage}</span>
             <Button
+              aria-label={t("common:a11y.retry")}
               variant="outline"
               size="icon"
               onClick={onRetryError}

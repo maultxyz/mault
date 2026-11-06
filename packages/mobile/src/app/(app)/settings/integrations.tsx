@@ -70,7 +70,7 @@ export default function ApiKeysSettingsScreen() {
 
       {rawKey ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.apiKeys.revealTitle")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -91,7 +91,7 @@ export default function ApiKeysSettingsScreen() {
       {creating ? (
         <Surface style={{ gap: SPACING.md }}>
           <View>
-            <AppText heading weight="semibold">
+            <AppText heading weight="semibold" accessibilityRole="header">
               {t("settings.apiKeys.createTitle")}
             </AppText>
             <AppText size="xs" tone="secondary">
@@ -154,12 +154,14 @@ export default function ApiKeysSettingsScreen() {
                   ? t("settings.apiKeys.lastUsed", { date: formatShortDate(key.lastUsedAt, i18n.language) })
                   : t("settings.apiKeys.neverUsed"),
               ].join(" · ")}
+              rightIsInteractive
               right={
                 canManage ? (
                   <Button
                     size="sm"
                     variant="destructive"
                     label={t("settings.apiKeys.revoke")}
+                    accessibilityLabel={`${t("settings.apiKeys.revoke")}, ${key.name}`}
                     loading={revoke.isPending && revoke.variables === key.guid}
                     onPress={() =>
                       Alert.alert(t("settings.apiKeys.revokeConfirmTitle"), t("settings.apiKeys.revokeConfirmDescription"), [

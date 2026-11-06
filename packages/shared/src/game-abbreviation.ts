@@ -9,3 +9,11 @@ export function gameAbbreviation(gameKey: string): string {
     gameKey.slice(0, GAME_ABBREVIATION_FALLBACK_LENGTH).toUpperCase()
   );
 }
+
+export function collectionGameLabel(collection: {
+  game?: { key: string } | null;
+  lang: string;
+}): string {
+  const lang = collection.lang.toUpperCase();
+  return collection.game ? `${gameAbbreviation(collection.game.key)} · ${lang}` : lang;
+}

@@ -33,7 +33,7 @@ export function FeederTestPanel({ feederTest, isBlockedByRoutingTest }: FeederTe
   return (
     <Surface style={{ gap: SPACING.md }}>
       <View>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {t("calibration.feederTest.heading")}
         </AppText>
         <AppText size="xs" tone="secondary">

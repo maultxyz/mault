@@ -20,6 +20,8 @@
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
     "seeFeatures": "Découvrir les fonctionnalités",
     "liveSort": "Tri en direct",
+    "pauseDemo": "Mettre la démo en pause",
+    "playDemo": "Lancer la démo",
     "sortedCount_one": "{{count}} carte triée",
     "sortedCount_other": "{{count}} cartes triées",
     "nextUp": "Suivante",
@@ -58,7 +60,9 @@
   "supportedGames": {
     "heading": "Trie facilement n'importe quel JCC que tu aimes",
     "cardsIndexed_one": "{{formatted}} carte indexée",
-    "cardsIndexed_other": "{{formatted}} cartes indexées"
+    "cardsIndexed_other": "{{formatted}} cartes indexées",
+    "pauseHint": "Appuyez sur Espace pour mettre en pause la liste défilante.",
+    "pausedHint": "En pause. Appuyez sur Espace pour reprendre la liste défilante."
   },
   "features": {
     "eyebrow": "Fonctionnalités",
@@ -93,7 +97,10 @@
       "ruleMatches_one": "{{count}} carte va dans le bac {{bin}}",
       "ruleMatches_other": "{{count}} cartes vont dans le bac {{bin}}",
       "collectionValue": "Valeur de la collection",
-      "valueHistory": "Valeur sur les 30 derniers jours"
+      "valueHistory": "Valeur sur les 30 derniers jours",
+      "ruleField": "Champ",
+      "ruleOperator": "Opérateur",
+      "ruleValue": "Valeur"
     },
     "more": {
       "heading": "Et bien plus encore",

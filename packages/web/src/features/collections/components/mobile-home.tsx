@@ -175,6 +175,7 @@ export function MobileHome() {
             {sorted.length >= MOBILE_HOME_SEARCH_MIN_COLLECTIONS && (
               <MobileSearchInput
                 placeholder={t("monitorSessions.searchPlaceholder")}
+                aria-label={t("monitorSessions.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

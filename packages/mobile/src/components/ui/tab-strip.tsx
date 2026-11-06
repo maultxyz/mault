@@ -23,12 +23,13 @@ export function TabStrip<T extends string>({ items, value, onChange }: TabStripP
             key={item.value}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
+            hitSlop={{ top: 2, bottom: 2 }}
             onPress={() => onChange(item.value)}
             style={{
               flexDirection: "row",
               alignItems: "center",
               gap: 6,
-              height: 40,
+              minHeight: 40,
               paddingHorizontal: SPACING.sm,
               marginBottom: -1,
               borderBottomWidth: 2,

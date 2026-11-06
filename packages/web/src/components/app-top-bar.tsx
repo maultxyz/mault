@@ -1,5 +1,6 @@
-import { BrandAlertTrigger } from "@/components/brand-alert-trigger";
+import { BrandBadge } from "@/components/brand-badge";
 import { LanguageSwitcherIcon } from "@/components/language-switcher";
+import { NotificationsButton } from "@/components/notifications-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/features/account/components/user-menu";
 import { PresetMenu } from "@/features/bins/components/preset-menu";
@@ -19,7 +20,7 @@ function BreadcrumbSeparator() {
 export function AppTopBar() {
   return (
     <header className="relative flex h-9 shrink-0 items-center gap-1 px-1.5">
-      <BrandAlertTrigger />
+      <BrandBadge />
       <div className="ml-8.25 flex min-w-0 flex-1 items-center gap-1">
         <OrgSwitcher />
         <BreadcrumbSeparator />
@@ -33,6 +34,7 @@ export function AppTopBar() {
       <div className="ml-auto flex shrink-0 items-center gap-0.5 **:data-[slot=button]:hover:bg-sidebar-accent **:data-[slot=button]:aria-expanded:bg-sidebar-accent">
         <LanguageSwitcherIcon />
         <ThemeToggle />
+        <NotificationsButton />
         <UserMenu />
       </div>
     </header>

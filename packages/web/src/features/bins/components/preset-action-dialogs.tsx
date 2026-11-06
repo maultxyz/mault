@@ -420,7 +420,10 @@ export function PresetActionDialogs({
                     value={field.value || null}
                     onValueChange={(value) => field.onChange(value ?? "")}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                      className="w-full"
+                      aria-label={t("presetWorkflows.firstStageLabel")}
+                    >
                       <SelectValue>
                         {sets.find((preset) => preset.guid === field.value)
                           ?.name ?? t("presetWorkflows.choosePreset")}

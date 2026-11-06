@@ -21,7 +21,7 @@ export function MobileStoragePickList({
             key={`missing-${row.line.name}`}
             className={cn(MOBILE_LIST_ROW_CLASS, "active:bg-transparent")}
           >
-            <IconAlertTriangle className="size-4 shrink-0 text-warning" />
+            <IconAlertTriangle className="size-4 shrink-0 text-warning-foreground" />
             <span className="min-w-0 flex-1">
               <span className="block truncate font-semibold">
                 {row.line.name}

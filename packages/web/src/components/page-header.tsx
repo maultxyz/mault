@@ -3,6 +3,7 @@ import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import type { PageHeaderProps } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
 import { IconArrowLeft } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 export function PageHeader({
@@ -14,6 +15,8 @@ export function PageHeader({
   tabs,
   children,
 }: PageHeaderProps) {
+  const { t } = useTranslation("common");
+  const backButtonLabel = backLabel ?? t("mobileMenu.back");
   return (
     <div
       className={cn(
@@ -29,8 +32,8 @@ export function PageHeader({
                 variant="ghost"
                 size="icon"
                 className="shrink-0"
-                aria-label={backLabel}
-                title={backLabel}
+                aria-label={backButtonLabel}
+                title={backButtonLabel}
                 nativeButton={false}
                 render={<Link to={backTo} />}
               >

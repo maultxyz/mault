@@ -116,6 +116,7 @@ export interface AdminScriptCommandProps {
 }
 
 export interface DiscordGuildSelectProps {
+  id?: string;
   value: string | null;
   guilds: PlatformDiscordGuildSummary[];
   emptyLabel: string;

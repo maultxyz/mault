@@ -39,6 +39,7 @@ export default function SettingsScanningPage() {
             name="sessionWrappedEnabled"
             render={({ field }) => (
               <Switch
+                aria-label={t("sessionWrapped.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}
@@ -58,6 +59,7 @@ export default function SettingsScanningPage() {
             name="ocrEnabled"
             render={({ field }) => (
               <Switch
+                aria-label={t("ocr.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}
@@ -79,6 +81,7 @@ export default function SettingsScanningPage() {
               name="foilDetectionEnabled"
               render={({ field }) => (
                 <Switch
+                  aria-label={t("foilDetection.toggleLabel")}
                   checked={field.value}
                   disabled={disabled}
                   onCheckedChange={field.onChange}
@@ -107,6 +110,7 @@ export default function SettingsScanningPage() {
               name="correctionBinPrompt"
               render={({ field }) => (
                 <Switch
+                  aria-label={t("correctionAutoClose.promptToggleLabel")}
                   checked={field.value}
                   disabled={disabled}
                   onCheckedChange={field.onChange}
@@ -154,6 +158,7 @@ export default function SettingsScanningPage() {
             name="pauseScanningOnDeploy"
             render={({ field }) => (
               <Switch
+                aria-label={t("deployPause.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}

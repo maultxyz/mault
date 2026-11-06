@@ -28,9 +28,17 @@ export function SortTestGroupCheckList({ check }: SortTestGroupCheckListProps) {
         "condition" in item ? (
           <div key={item.condition.id ?? index} className="flex items-start gap-1.5">
             {item.passed ? (
-              <IconCheck className="mt-0.5 size-3.5 shrink-0 text-success" />
+              <IconCheck
+                role="img"
+                aria-label={t("sortTest.matched")}
+                className="mt-0.5 size-3.5 shrink-0 text-success-foreground"
+              />
             ) : (
-              <IconX className="mt-0.5 size-3.5 shrink-0 text-destructive" />
+              <IconX
+                role="img"
+                aria-label={t("sortTest.notMatched")}
+                className="mt-0.5 size-3.5 shrink-0 text-destructive"
+              />
             )}
             <div className="flex min-w-0 flex-col">
               <span className="text-xs">

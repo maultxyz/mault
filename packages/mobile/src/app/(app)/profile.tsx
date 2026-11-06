@@ -196,6 +196,7 @@ export default function ProfileScreen() {
                   onBlur={field.onBlur}
                   onChangeText={field.onChange}
                   autoComplete="name"
+                  textContentType="name"
                   autoCapitalize="words"
                   error={translateFormErrorMessage(t, fieldState.error?.message)}
                 />
@@ -218,6 +219,7 @@ export default function ProfileScreen() {
                     onBlur={field.onBlur}
                     onChangeText={field.onChange}
                     autoComplete="email"
+                    textContentType="emailAddress"
                     keyboardType="email-address"
                     autoCapitalize="none"
                     error={fieldState.error ? (translateFormErrorMessage(t, fieldState.error.message) ?? t("account.profile.email.updateFailed")) : undefined}
@@ -245,6 +247,7 @@ export default function ProfileScreen() {
                     onChangeText={field.onChange}
                     secureTextEntry
                     autoComplete="password"
+                    textContentType="password"
                     autoCapitalize="none"
                     error={translateFormErrorMessage(t, fieldState.error?.message)}
                   />
@@ -261,6 +264,7 @@ export default function ProfileScreen() {
                     onChangeText={field.onChange}
                     secureTextEntry
                     autoComplete="new-password"
+                    textContentType="newPassword"
                     autoCapitalize="none"
                     error={translateFormErrorMessage(t, fieldState.error?.message)}
                   />
@@ -277,6 +281,7 @@ export default function ProfileScreen() {
                     onChangeText={field.onChange}
                     secureTextEntry
                     autoComplete="new-password"
+                    textContentType="newPassword"
                     autoCapitalize="none"
                     error={translateFormErrorMessage(t, fieldState.error?.message)}
                   />

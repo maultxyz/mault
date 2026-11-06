@@ -14,7 +14,10 @@
     "discardTitle": "Annuler les modifications ?",
     "discardDescription": "Tes modifications de ce bac n'ont pas été enregistrées.",
     "keepEditing": "Continuer la modification",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "decreaseBy": "Diminuer de {{step}}",
+    "increaseBy": "Augmenter de {{step}}",
+    "changesSaved": "Modifications enregistrées"
   },
   "tabs": {
     "collections": "Collections",
@@ -100,6 +103,8 @@
   "cards": {
     "bin": "Bac {{number}}",
     "needsReview": "À vérifier",
+    "reviewed": "Vérifiée",
+    "cardActions": "Actions sur la carte",
     "quantity_one": "{{count}} exemplaire",
     "quantity_other": "{{count}} exemplaires"
   },
@@ -573,6 +578,7 @@
     "sorterNotReadyDescription": "Connecte ton trieur pour charger et trier les cartes. Tu peux toujours scanner des cartes à la main.",
     "openSorter": "Connecter la trieuse",
     "modelErrorTitle": "Impossible de charger les modèles de reconnaissance des cartes",
+    "cameraPreview": "Aperçu de la caméra",
     "phase": {
       "idle": "Inactif",
       "loading-models": "Chargement des modèles",

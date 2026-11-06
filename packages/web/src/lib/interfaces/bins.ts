@@ -250,6 +250,12 @@ export interface BinPickListFieldsProps {
   savedPickList?: PickList | null;
 }
 
+export interface PickListImport {
+  decklist: string;
+  entryCount: number;
+  skippedRows: number;
+}
+
 export interface PickListProgressProps {
   binGuid: string;
   pickList: PickList;

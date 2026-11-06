@@ -66,6 +66,7 @@ export function useFirmwareVersionAlert(): {
         <Button
           variant="outline"
           className={ALERT_BANNER_ACTION_CLASS}
+          nativeButton={false}
           render={
             <a href={FIRMWARE_RELEASES_URL} target="_blank" rel="noreferrer" />
           }

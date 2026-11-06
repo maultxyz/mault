@@ -33,7 +33,10 @@ export function PlanPreviewSection() {
             )
           }
         >
-          <SelectTrigger className="w-40">
+          <SelectTrigger
+            className="w-40"
+            aria-label={t("plans.preview.heading")}
+          >
             <SelectValue>{labelFor(selectedValue)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
