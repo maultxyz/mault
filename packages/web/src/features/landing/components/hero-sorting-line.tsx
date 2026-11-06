@@ -44,7 +44,11 @@ export function HeroSortingLine() {
   const { t } = useTranslation("landing");
   const { t: tBins } = useTranslation("bins");
   const [tick, setTick] = useState(0);
-  const [isPaused, setIsPaused] = useState(prefersReducedMotion);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) setIsPaused(true);
+  }, []);
 
   useEffect(() => {
     if (isPaused) return;
