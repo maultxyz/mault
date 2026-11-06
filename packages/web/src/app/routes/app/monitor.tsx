@@ -25,8 +25,11 @@ export default function MonitorPage() {
   const { locks, currentUserId } = useCollectionLocks();
   const moduleCount = useModuleCount();
   const isMobile = useIsMobile();
-  const { activeCollection, activateCollection, isActivating } =
+  const { collections, activeCollection, activateCollection, isActivating } =
     useCollections();
+  const monitoredCollectionName = collections.find(
+    (collection) => collection.guid === collectionGuid,
+  )?.name;
   const isActive =
     !!collectionGuid && activeCollection?.guid === collectionGuid;
 

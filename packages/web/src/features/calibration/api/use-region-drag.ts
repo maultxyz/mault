@@ -27,7 +27,7 @@ export function useRegionDrag({
 }) {
   const dragStateRef = useRef<RegionDragState | null>(null);
 
-  const handleBoxPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+  const handleBoxPointerDown = (e: ReactPointerEvent<HTMLElement>) => {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     dragStateRef.current = {
@@ -39,7 +39,7 @@ export function useRegionDrag({
     };
   };
 
-  const handleResizePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+  const handleResizePointerDown = (e: ReactPointerEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -60,7 +60,7 @@ export function useRegionDrag({
     };
   };
 
-  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+  const handlePointerMove = (e: ReactPointerEvent<HTMLElement>) => {
     const drag = dragStateRef.current;
     const frame = frameRef.current;
     if (!drag || !frame) return;
