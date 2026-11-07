@@ -296,97 +296,93 @@ code {
   --font-heading: "JetBrains Mono Variable", monospace;
 }
 
-@keyframes loading-viewfinder-lock {
-  0%,
+.loading-logo path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: loading-logo-hop 1.8s cubic-bezier(0.45, 0, 0.3, 1) infinite both;
+  animation-delay: var(--loading-logo-offset, 0ms);
+}
+
+.loading-logo path:nth-child(2) {
+  animation-delay: calc(var(--loading-logo-offset, 0ms) + 110ms);
+}
+
+.loading-logo path:nth-child(3) {
+  transform-origin: 50% 50%;
+  animation-name: loading-logo-flip;
+  animation-delay: calc(var(--loading-logo-offset, 0ms) + 220ms);
+}
+
+@keyframes loading-logo-hop {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1, 1);
+  }
+  8% {
+    transform: translateY(0) rotate(0deg) scale(1.1, 0.85);
+  }
+  20% {
+    transform: translateY(-30%) rotate(-4deg) scale(0.9, 1.12);
+  }
+  30% {
+    transform: translateY(-36%) rotate(3deg) scale(1, 1);
+  }
+  40% {
+    transform: translateY(0) rotate(0deg) scale(1.14, 0.82);
+  }
   48% {
-    opacity: 0.55;
-    transform: translate(0, 0);
+    transform: translateY(0) rotate(0deg) scale(0.95, 1.06);
   }
   56%,
-  84% {
-    opacity: 1;
-    transform: translate(var(--lock-x), var(--lock-y));
-  }
   100% {
-    opacity: 0.55;
-    transform: translate(0, 0);
+    transform: translateY(0) rotate(0deg) scale(1, 1);
   }
 }
 
-@keyframes loading-scan-beam {
+@keyframes loading-logo-flip {
   0% {
-    transform: translateY(-100%);
-    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(1, 1);
   }
-  5% {
-    opacity: 1;
+  6% {
+    transform: translateY(0) rotate(0deg) scale(1.12, 0.86);
   }
-  48% {
-    transform: translateY(8rem);
-    opacity: 1;
+  15% {
+    transform: translateY(-28%) rotate(0deg) scale(0.92, 1.1);
   }
-  54%,
-  100% {
-    transform: translateY(8rem);
-    opacity: 0;
+  23% {
+    transform: translateY(0) rotate(0deg) scale(1.14, 0.84);
   }
-}
-
-@keyframes loading-card-recognized {
-  0%,
-  50% {
-    transform: scale(1);
+  30% {
+    transform: translateY(-24%) rotate(0deg) scale(0.92, 1.1);
   }
-  57% {
-    transform: scale(1.05);
-  }
-  64%,
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes loading-recognized-pop {
-  0%,
-  52% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.25);
-    opacity: 1;
-  }
-  66%,
-  86% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  94%,
-  100% {
-    transform: scale(0);
-    opacity: 0;
-  }
-}
-
-@keyframes loading-hero-float {
-  0%,
-  100% {
-    transform: translateY(0);
+  40% {
+    transform: translateY(-62%) rotate(-180deg) scale(1, 1);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-12%) rotate(-360deg) scale(1, 1);
+  }
+  55% {
+    transform: translateY(0) rotate(-360deg) scale(1.16, 0.8);
+  }
+  63% {
+    transform: translateY(0) rotate(-360deg) scale(0.95, 1.06);
+  }
+  71%,
+  100% {
+    transform: translateY(0) rotate(-360deg) scale(1, 1);
   }
 }
 
-@keyframes loading-hero-shadow {
+@keyframes loading-logo-shadow {
   0%,
+  6%,
+  56%,
   100% {
-    transform: scale(1);
+    transform: scaleX(1);
     opacity: 0.9;
   }
-  50% {
-    transform: scale(0.75);
-    opacity: 0.5;
+  32% {
+    transform: scaleX(0.7);
+    opacity: 0.45;
   }
 }
 
