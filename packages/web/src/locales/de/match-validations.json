@@ -53,5 +53,12 @@
       "title": "Keine Scans zu prüfen",
       "description": "In dieser Prüfwoche gibt es keine Scans mit Foto."
     }
+  },
+  "summary": {
+    "label": "Fortschritt der Prüfung",
+    "topValidatorOrgs": "Organisationen mit den meisten Prüfungen",
+    "anonymousOrg": "Anonyme Organisation",
+    "reviewCount_one": "{{count}} Prüfung",
+    "reviewCount_other": "{{count}} Prüfungen"
   }
 }

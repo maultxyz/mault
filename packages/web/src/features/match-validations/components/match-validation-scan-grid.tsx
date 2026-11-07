@@ -3,14 +3,17 @@ import { ListPagination } from "@/components/list-pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { matchValidationScansQueryOptions } from "@/features/match-validations/api/match-validations";
 import { MatchValidationScanTile } from "@/features/match-validations/components/match-validation-scan-tile";
+import { MatchValidationSummary } from "@/features/match-validations/components/match-validation-summary";
 import { MATCH_VALIDATION_SCANS_PAGE_SIZE } from "@/lib/constants/match-validations";
 import { toServerPagination } from "@/lib/pagination";
 import { IconCards } from "@tabler/icons-react";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function MatchValidationScanGrid() {
+  const isMobile = useIsMobile();
   const { t } = useTranslation("matchValidations");
   const [page, setPage] = useState(1);
   const { data, isPending } = useQuery(matchValidationScansQueryOptions(page));
@@ -38,6 +41,9 @@ export function MatchValidationScanGrid() {
 
   return (
     <div className="flex flex-col gap-4">
+      {isMobile && (
+        <MatchValidationSummary className="sticky top-0 z-10 bg-background py-2" />
+      )}
       <ul
         aria-label={t("scans.listLabel")}
         className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"

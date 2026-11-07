@@ -53,5 +53,12 @@
       "title": "No scans to validate",
       "description": "There are no scans with a photo in this validation week."
     }
+  },
+  "summary": {
+    "label": "Validation progress",
+    "topValidatorOrgs": "Top validating organizations",
+    "anonymousOrg": "Anonymous organization",
+    "reviewCount_one": "{{count}} review",
+    "reviewCount_other": "{{count}} reviews"
   }
 }

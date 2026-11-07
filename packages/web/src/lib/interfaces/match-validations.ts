@@ -6,8 +6,13 @@ export interface ReviewProgressProps {
   reviewCount: number;
 }
 
+export interface MatchValidationSummaryProps {
+  className?: string;
+}
+
 export interface MatchValidationProgressProps {
   className?: string;
+  showsReviewCounts?: boolean;
 }
 
 export interface ValidateMatchesButtonProps {

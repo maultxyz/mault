@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 
 export function MatchValidationProgress({
   className,
+  showsReviewCounts = false,
 }: MatchValidationProgressProps) {
   const { t } = useTranslation("common");
   const { data: progress } = useQuery(matchValidationProgressQueryOptions);
@@ -35,7 +36,12 @@ export function MatchValidationProgress({
         />
       </div>
       <span aria-hidden className="shrink-0 text-xs tabular-nums text-foreground/70">
-        {t("matchValidationProgress.percent", { percent })}
+        {showsReviewCounts
+          ? t("matchValidationProgress.valueText", {
+              done: progress.reviewCount,
+              total: reviewsNeeded,
+            })
+          : t("matchValidationProgress.percent", { percent })}
       </span>
     </div>
   );

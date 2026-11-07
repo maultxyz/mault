@@ -27,54 +27,44 @@ import {
 } from "../../lib/constants/match-validations";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import type {
-  MatchValidationCountsRow,
-  MatchValidationProgressRow,
   MatchValidationScanRow,
-  MatchValidationTotalRow,
   MatchValidationQueueRow,
 } from "../../lib/interfaces/match-validations";
+import {
+  loadMatchValidationCandidates,
+  loadMatchValidationTopOrgs,
+  loadMatchValidationVotes,
+  scanIdArraySql,
+} from "../../lib/match-validations";
+import { pickMatchValidationQueue } from "../../lib/match-validation-queue";
 import { parsePageParams } from "../../lib/paging";
 import { hydrateSavedCards } from "../../lib/saved-cards";
 import { resolveScanImageUrl } from "../../lib/scan-images";
-import { requireAuth, type AppEnv } from "../../middleware/auth";
-
-const reviewCountSql = sql`(SELECT count(*)::int FROM platform_match_validations v WHERE v.scan_id = cc.guid)`;
-
-const scansInValidationSql = sql`
-  cc.scanned_at >= ${MATCH_VALIDATION_SCANNED_FROM}::timestamp
-  AND cc.scanned_at < ${MATCH_VALIDATION_SCANNED_BEFORE}::timestamp
-  AND cc.is_reviewed = false
-  AND (cc.captured_image_key IS NOT NULL OR cc.captured_image_data_url IS NOT NULL)
-`;
-
-function scansOpenToUserSql(userId: string) {
-  return sql`
-    ${scansInValidationSql}
-    AND NOT EXISTS (
-      SELECT 1 FROM platform_match_validations v
-      WHERE v.scan_id = cc.guid AND v.validated_by_user_id = ${userId}
-    )
-    AND ${reviewCountSql} < ${MATCH_VALIDATION_REVIEWS_REQUIRED}
-  `;
-}
+import {
+  findOrgMembership,
+  requireAuth,
+  type AppEnv,
+} from "../../middleware/auth";
 
 const matchValidationProgressCache = createCachedValue(
   async (): Promise<MatchValidationProgress> => {
-    const progressResult = await db.execute(sql`
-      SELECT
-        count(*)::int AS scan_count,
-        COALESCE(sum(LEAST(review_count, ${MATCH_VALIDATION_REVIEWS_REQUIRED})), 0)::int AS review_count
-      FROM (
-        SELECT ${reviewCountSql} AS review_count
-        FROM collection_cards cc
-        JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
-        WHERE ${scansInValidationSql}
-      ) scans
-    `);
-    const progress = progressResult.rows[0] as unknown as MatchValidationProgressRow;
+    const [candidates, votes, topValidatorOrgs] = await Promise.all([
+      loadMatchValidationCandidates(),
+      loadMatchValidationVotes(null),
+      loadMatchValidationTopOrgs(),
+    ]);
     return {
-      scanCount: progress.scan_count,
-      reviewCount: progress.review_count,
+      scanCount: candidates.length,
+      topValidatorOrgs,
+      reviewCount: candidates.reduce(
+        (sum, candidate) =>
+          sum +
+          Math.min(
+            votes.byScanId.get(candidate.scanId)?.review_count ?? 0,
+            MATCH_VALIDATION_REVIEWS_REQUIRED,
+          ),
+        0,
+      ),
     };
   },
 );
@@ -89,62 +79,46 @@ const router = new Hono<AppEnv>()
   .get("/scans", requireAuth, async (c) => {
     const userId = c.get("userId");
     const { page: requestedPage, pageSize } = parsePageParams(c);
-    const totalResult = await db.execute(sql`
-      SELECT count(*)::int AS total
-      FROM collection_cards cc
-      JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
-      WHERE ${scansInValidationSql}
-    `);
-    const { total } = totalResult.rows[0] as unknown as MatchValidationTotalRow;
+    const [candidates, votes] = await Promise.all([
+      loadMatchValidationCandidates(),
+      loadMatchValidationVotes(userId),
+    ]);
+    const total = candidates.length;
     const pageCount = Math.max(Math.ceil(total / pageSize), 1);
     const page = Math.min(requestedPage ?? 1, pageCount);
-    const scansResult = await db.execute(sql`
-      SELECT
-        cc.guid::text AS scan_id,
-        cc.card_name,
-        cc.card_set AS set_code,
-        COALESCE(cat.set_name, cc.card_set_name) AS set_name,
-        cc.card_collector_number AS collector_number,
-        cc.scanned_at,
-        cc.captured_image_key,
-        CASE WHEN cc.captured_image_key IS NULL THEN cc.captured_image_data_url END AS captured_image_data_url,
-        COALESCE(cat.image_small, cc.card_image_small) AS catalog_image_url,
-        COALESCE(votes.correct_count, 0) AS correct_count,
-        COALESCE(votes.incorrect_count, 0) AS incorrect_count,
-        COALESCE(votes.bad_scan_count, 0) AS bad_scan_count,
-        votes.your_verdict
-      FROM collection_cards cc
-      JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
-      LEFT JOIN games g ON g.id = col.game_id
-      ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`col.lang` }, CC_ALIAS_SQL_COLUMNS)}
-      LEFT JOIN LATERAL (
-        SELECT
-          (count(*) FILTER (WHERE v.is_correct_match AND NOT v.is_bad_scan))::int AS correct_count,
-          (count(*) FILTER (WHERE NOT v.is_correct_match AND NOT v.is_bad_scan))::int AS incorrect_count,
-          (count(*) FILTER (WHERE v.is_bad_scan))::int AS bad_scan_count,
-          max(
-            CASE
-              WHEN v.validated_by_user_id <> ${userId} THEN NULL
-              WHEN v.is_bad_scan THEN 'badScan'
-              WHEN v.is_correct_match THEN 'correct'
-              ELSE 'incorrect'
-            END
-          ) AS your_verdict
-        FROM platform_match_validations v
-        WHERE v.scan_id = cc.guid
-      ) votes ON true
-      WHERE ${scansInValidationSql}
-      ORDER BY cc.scanned_at DESC, cc.id DESC
-      LIMIT ${pageSize}
-      OFFSET ${(page - 1) * pageSize}
-    `);
-    const rows = scansResult.rows as unknown as MatchValidationScanRow[];
+    const pageScanIds = candidates
+      .slice((page - 1) * pageSize, page * pageSize)
+      .map((candidate) => candidate.scanId);
+    const scansResult = pageScanIds.length
+      ? await db.execute(sql`
+          SELECT
+            cc.guid::text AS scan_id,
+            cc.card_name,
+            cc.card_set AS set_code,
+            COALESCE(cat.set_name, cc.card_set_name) AS set_name,
+            cc.card_collector_number AS collector_number,
+            cc.scanned_at,
+            cc.captured_image_key,
+            CASE WHEN cc.captured_image_key IS NULL THEN cc.captured_image_data_url END AS captured_image_data_url,
+            COALESCE(cat.image_small, cc.card_image_small) AS catalog_image_url
+          FROM collection_cards cc
+          JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
+          LEFT JOIN games g ON g.id = col.game_id
+          ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`col.lang` }, CC_ALIAS_SQL_COLUMNS)}
+          WHERE cc.guid = ANY(${scanIdArraySql(pageScanIds)})
+        `)
+      : { rows: [] };
+    const rowsByScanId = new Map(
+      (scansResult.rows as unknown as MatchValidationScanRow[]).map((row) => [row.scan_id, row]),
+    );
+    const rows = pageScanIds.flatMap((scanId) => rowsByScanId.get(scanId) ?? []);
     const items: MatchValidationScan[] = await Promise.all(
       rows.map(async (row) => {
+        const scanVotes = votes.byScanId.get(row.scan_id);
         const verdictCounts = {
-          correctCount: row.correct_count,
-          incorrectCount: row.incorrect_count,
-          badScanCount: row.bad_scan_count,
+          correctCount: scanVotes?.correct_count ?? 0,
+          incorrectCount: scanVotes?.incorrect_count ?? 0,
+          badScanCount: scanVotes?.bad_scan_count ?? 0,
         };
         return {
           scanId: row.scan_id,
@@ -160,7 +134,7 @@ const router = new Hono<AppEnv>()
             })) ?? null,
           catalogImageUrl: row.catalog_image_url,
           ...verdictCounts,
-          yourVerdict: row.your_verdict,
+          yourVerdict: scanVotes?.your_verdict ?? null,
           status: matchValidationStatus(verdictCounts),
         };
       }),
@@ -169,38 +143,45 @@ const router = new Hono<AppEnv>()
   })
   .get("/queue", requireAuth, async (c) => {
     const userId = c.get("userId");
-    const openToUserSql = scansOpenToUserSql(userId);
-    const queueResult = await db.execute(sql`
-      SELECT
-        cc.guid::text AS scan_id,
-        g.key AS game_key,
-        cc.card_name,
-        cc.card_set AS set_code,
-        COALESCE(cat.set_name, cc.card_set_name) AS set_name,
-        cc.card_collector_number AS collector_number,
-        cc.diagnostics ->> 'matchedBy' AS matched_by,
-        cc.low_confidence_match,
-        cc.scanned_at,
-        cc.captured_image_key,
-        CASE WHEN cc.captured_image_key IS NULL THEN cc.captured_image_data_url END AS captured_image_data_url,
-        COALESCE(cat.image_small, cc.card_image_small) AS catalog_image_url,
-        cc.card,
-        col.lang AS collection_lang,
-        CASE WHEN jsonb_typeof(cc.diagnostics -> 'ocr' -> 'regions') = 'array'
-          THEN cc.diagnostics -> 'ocr' -> 'regions' END AS ocr_regions,
-        ${reviewCountSql} AS review_count
-      FROM collection_cards cc
-      JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
-      LEFT JOIN games g ON g.id = col.game_id
-      ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`col.lang` }, CC_ALIAS_SQL_COLUMNS)}
-      WHERE ${openToUserSql}
-      ORDER BY
-        review_count DESC,
-        cc.low_confidence_match DESC,
-        cc.scanned_at DESC
-      LIMIT ${MATCH_VALIDATION_QUEUE_LIMIT}
-    `);
-    const rows = queueResult.rows as unknown as MatchValidationQueueRow[];
+    const [candidates, votes] = await Promise.all([
+      loadMatchValidationCandidates(),
+      loadMatchValidationVotes(userId),
+    ]);
+    const queueScanIds = pickMatchValidationQueue(
+      candidates,
+      votes,
+      MATCH_VALIDATION_QUEUE_LIMIT,
+    ).map((candidate) => candidate.scanId);
+    const queueResult = queueScanIds.length
+      ? await db.execute(sql`
+          SELECT
+            cc.guid::text AS scan_id,
+            g.key AS game_key,
+            cc.card_name,
+            cc.card_set AS set_code,
+            COALESCE(cat.set_name, cc.card_set_name) AS set_name,
+            cc.card_collector_number AS collector_number,
+            cc.diagnostics ->> 'matchedBy' AS matched_by,
+            cc.low_confidence_match,
+            cc.scanned_at,
+            cc.captured_image_key,
+            CASE WHEN cc.captured_image_key IS NULL THEN cc.captured_image_data_url END AS captured_image_data_url,
+            COALESCE(cat.image_small, cc.card_image_small) AS catalog_image_url,
+            cc.card,
+            col.lang AS collection_lang,
+            CASE WHEN jsonb_typeof(cc.diagnostics -> 'ocr' -> 'regions') = 'array'
+              THEN cc.diagnostics -> 'ocr' -> 'regions' END AS ocr_regions
+          FROM collection_cards cc
+          JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
+          LEFT JOIN games g ON g.id = col.game_id
+          ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`col.lang` }, CC_ALIAS_SQL_COLUMNS)}
+          WHERE cc.guid = ANY(${scanIdArraySql(queueScanIds)}) AND cc.is_reviewed = false
+        `)
+      : { rows: [] };
+    const queueRowsByScanId = new Map(
+      (queueResult.rows as unknown as MatchValidationQueueRow[]).map((row) => [row.scan_id, row]),
+    );
+    const rows = queueScanIds.flatMap((scanId) => queueRowsByScanId.get(scanId) ?? []);
     const catalogCards = await hydrateSavedCards(
       rows.map((row) => ({
         gameKey: row.game_key,
@@ -209,14 +190,6 @@ const router = new Hono<AppEnv>()
       })),
       { includeRaw: false },
     );
-
-    const countsResult = await db.execute(sql`
-      SELECT
-        (SELECT count(*)::int FROM platform_match_validations
-          WHERE validated_by_user_id = ${userId}) AS validated_by_you,
-        (SELECT count(*)::int FROM platform_match_validations) AS validated_by_community
-    `);
-    const counts = countsResult.rows[0] as unknown as MatchValidationCountsRow;
 
     const data: MatchValidationQueue = {
       items: await Promise.all(
@@ -238,12 +211,12 @@ const router = new Hono<AppEnv>()
           catalogImageUrl:
             catalogCards[index]?.image?.normal ?? row.catalog_image_url,
           ocrRegions: row.ocr_regions,
-          reviewCount: row.review_count,
+          reviewCount: votes.byScanId.get(row.scan_id)?.review_count ?? 0,
         })),
       ),
       counts: {
-        validatedByYou: counts.validated_by_you,
-        validatedByCommunity: counts.validated_by_community,
+        validatedByYou: votes.validatedByYou,
+        validatedByCommunity: votes.validatedByCommunity,
       },
     };
     return c.json({ success: true, data });
@@ -303,11 +276,18 @@ const router = new Hono<AppEnv>()
       );
     }
 
+    const validatedByUserId = c.get("userId");
+    const requestedOrgId = c.req.header("X-Org-Id");
+    const validatorOrgId =
+      requestedOrgId && (await findOrgMembership(validatedByUserId, requestedOrgId))
+        ? requestedOrgId
+        : null;
     const validation = {
       ...scan,
       isCorrectMatch: verdict === "badScan" ? null : verdict === "correct",
       isBadScan: verdict === "badScan",
-      validatedByUserId: c.get("userId"),
+      validatedByUserId,
+      validatorOrgId,
     };
     await db
       .insert(platformMatchValidations)

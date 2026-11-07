@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { ViewTabs } from "@/components/view-tabs";
 import { MatchValidationQueue } from "@/features/match-validations/components/match-validation-queue";
 import { MatchValidationScanGrid } from "@/features/match-validations/components/match-validation-scan-grid";
+import { MatchValidationSummary } from "@/features/match-validations/components/match-validation-summary";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   MATCH_VALIDATION_REVIEW_VIEW,
@@ -71,10 +72,16 @@ export default function ValidateMatchesPage() {
             title={t("title")}
             description={description}
             tabs={viewSwitch}
-          />
+          >
+            {view !== MATCH_VALIDATION_REVIEW_VIEW && (
+              <MatchValidationSummary className="pb-1" />
+            )}
+          </PageHeader>
         )}
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:p-6">
-          {isMobile && <MatchValidationProgress />}
+          {isMobile && view === MATCH_VALIDATION_REVIEW_VIEW && (
+            <MatchValidationProgress />
+          )}
           {isMobile && viewSwitch}
           {view === MATCH_VALIDATION_REVIEW_VIEW ? (
             <MatchValidationQueue />

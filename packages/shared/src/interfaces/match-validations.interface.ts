@@ -27,9 +27,16 @@ export interface MatchValidationQueue {
   counts: MatchValidationCounts;
 }
 
+export interface MatchValidationTopOrg {
+  name: string | null;
+  reviewCount: number;
+  isAnonymous: boolean;
+}
+
 export interface MatchValidationProgress {
   scanCount: number;
   reviewCount: number;
+  topValidatorOrgs?: MatchValidationTopOrg[];
 }
 
 export type MatchValidationVerdict = "correct" | "incorrect" | "badScan";
