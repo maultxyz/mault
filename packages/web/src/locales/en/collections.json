@@ -65,7 +65,8 @@
       "heading": "Overview"
     },
     "liveView": "Live view",
-    "printControlCard": "Print control card"
+    "printControlCard": "Print control card",
+    "viewStats": "Stats"
   },
   "editDialog": {
     "title": "Edit Collection",

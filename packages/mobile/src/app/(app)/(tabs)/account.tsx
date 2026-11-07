@@ -40,7 +40,7 @@ export default function AccountScreen() {
   const switchOrg = useSwitchOrg();
 
   return (
-    <Screen header={<PageHeader title={t("tabs.account")} />}>
+    <Screen header={<PageHeader title={t("tabs.more")} />}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
         <View
           style={{
@@ -116,13 +116,17 @@ export default function AccountScreen() {
         )}
       </View>
       <ListGroup>
+        <ListRow icon="sorter" title={t("tabs.sorter")} onPress={() => router.push("/sorter")} />
+        <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
+        <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
+      </ListGroup>
+      <ListGroup>
         <ListRow
           icon="adjust"
           title={t("settings.title")}
           subtitle={t("settings.entrySubtitle")}
           onPress={() => router.push("/settings")}
         />
-        <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
         <ListRow
           icon="account"
           title={t("account.settingsRow")}

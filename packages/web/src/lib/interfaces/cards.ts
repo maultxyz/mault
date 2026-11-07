@@ -611,3 +611,14 @@ export interface ScanImageUrls {
   capturedImageUrl?: string;
   capturedBackImageUrl?: string;
 }
+
+export interface UseCardDetailMoveActionsOptions {
+  scanId: string | undefined;
+  collectionGuid: string | undefined;
+  canEdit: boolean;
+  onMovedToCollection: () => void;
+}
+
+export type CardDetailMoveTarget = "location" | "collection";
+
+export type CardDetailAttributePicker = "foil" | "condition" | "language";

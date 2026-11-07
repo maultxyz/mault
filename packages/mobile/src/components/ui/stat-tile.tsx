@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import type { StatTileProps } from "@/lib/interfaces/ui";
 
 export function StatTile({ label, value, hint }: StatTileProps) {
@@ -11,15 +11,13 @@ export function StatTile({ label, value, hint }: StatTileProps) {
       accessible
       accessibilityLabel={`${label}: ${value}`}
       style={{
-        flexGrow: 1,
-        flexBasis: "45%",
+        width: "50%",
         minWidth: 0,
         padding: SPACING.md,
         gap: 2,
-        borderRadius: RADIUS.md,
-        borderWidth: 1,
+        borderRightWidth: 1,
+        borderBottomWidth: 1,
         borderColor: colors.border,
-        backgroundColor: colors.card,
       }}
     >
       <AppText size="xs" tone="secondary">

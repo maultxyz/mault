@@ -15,6 +15,7 @@ import {
   type CardTag,
   cardFoilTypeOptions,
   DEFAULT_CARD_CONDITION,
+  DEFAULT_CARD_LANGUAGE,
   isCardLanguage,
   scanLanguage,
   type CardCondition,
@@ -25,6 +26,7 @@ import {
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
@@ -39,7 +41,7 @@ import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
-import type { MatchesOpenState } from "@/lib/interfaces/cards";
+import type { CardDetailSheet, MatchesOpenState } from "@/lib/interfaces/cards";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
@@ -47,6 +49,7 @@ import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { PricePaidField } from "@/features/cards/components/price-paid-field";
 import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import {
+  cachedCollectionCardPosition,
   cardScanOriginQueryOptions,
   setCollectionCardTags,
   collectionCardQueryOptions,
@@ -68,6 +71,7 @@ import {
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
+import { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
@@ -91,7 +95,10 @@ export default function CardDetailScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const position = useQuery(collectionCardQueryOptions(guid, scanId, reviewMode && !storageReview));
+  const position = useQuery({
+    ...collectionCardQueryOptions(guid, scanId, reviewMode && !storageReview),
+    placeholderData: reviewMode ? undefined : () => cachedCollectionCardPosition(queryClient, guid, scanId),
+  });
   const storageContext = useQuery(storageLocationCardContextQueryOptions(storageGuid ?? "", scanId, storageReview));
   const image = useQuery(scanImageQueryOptions(guid, scanId));
   const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
@@ -104,7 +111,7 @@ export default function CardDetailScreen() {
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
   const [matchesOpenState, setMatchesOpenState] = useState<MatchesOpenState | null>(null);
-  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | "location" | "collection" | "tags" | null>(null);
+  const [sheet, setSheet] = useState<CardDetailSheet | null>(null);
   const billing = useQuery(billingQueryOptions(activeOrgId));
   const canMoveToLocation = !!billing.data && billing.data.storage !== false;
   const locations = useQuery(storageLocationsQueryOptions(activeOrgId, canMoveToLocation));
@@ -241,6 +248,24 @@ export default function CardDetailScreen() {
     onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
   });
 
+  const canShowMoveToLocation = canMoveToLocation && moveTargets.length > 0;
+  const actionMenuOptions = entry
+    ? [
+        { value: "foil", label: t("cardDetail.foil"), badge: draftFoil ?? t("cardDetail.foilNone") },
+        { value: "condition", label: t("cardDetail.condition"), badge: t(`cardDetail.conditions.${draftCondition}`) },
+        { value: "language", label: t("cardDetail.language"), badge: LANGUAGE_LABELS[draftLanguage] ?? draftLanguage },
+        ...(canShowMoveToLocation
+          ? [
+              {
+                value: "location",
+                label: storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation"),
+              },
+            ]
+          : []),
+        ...(targetCollections.length > 0 ? [{ value: "collection", label: t("storage.moveToCollection") }] : []),
+      ]
+    : [];
+
   usePreventRemove(isDirty && !saveDraft.isPending, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("cardDetail.discardDescription"), [
       { text: t("common.keepEditing"), style: "cancel" },
@@ -351,6 +376,13 @@ export default function CardDetailScreen() {
               ? t("cardDetail.reviewProgress", { index: position.data.index + 1, total: position.data.total })
               : card?.typeLine
         }
+        titleAccessory={
+          !editing && price != null ? (
+            <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+              {pricing.format(price)}
+            </AppText>
+          ) : null
+        }
         onBack={editing ? () => setEditing(false) : () => router.back()}
         actions={
           !editing && entry ? (
@@ -358,7 +390,11 @@ export default function CardDetailScreen() {
               {reviewMode ? (
                 <IconButton icon="layout" accessibilityLabel={t("reviewGrid.layoutGrid")} onPress={showReviewGrid} />
               ) : null}
+              {reviewMode ? null : (
+                <IconButton icon="edit" accessibilityLabel={t("cardDetail.correctCard")} onPress={() => setEditing(true)} />
+              )}
               <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+              <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
             </View>
           ) : null
         }
@@ -384,12 +420,13 @@ export default function CardDetailScreen() {
           <>
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
-                {price != null ? (
-                  <AppText size="2xl" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
-                    {pricing.format(price)}
-                  </AppText>
-                ) : null}
                 {draftFoil ? <Pill tone="info" label={draftFoil} /> : null}
+                {draftCondition !== DEFAULT_CARD_CONDITION ? (
+                  <Pill tone="neutral" label={t(`cardDetail.conditions.${draftCondition}`)} />
+                ) : null}
+                {card && draftLanguage !== (card.lang || DEFAULT_CARD_LANGUAGE) ? (
+                  <Pill tone="neutral" label={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage} />
+                ) : null}
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
                 <Pressable
                   accessibilityRole="button"
@@ -476,7 +513,7 @@ export default function CardDetailScreen() {
                       <Image
                         source={{ uri: capturedUrl }}
                         style={{ flex: 1 }}
-                        contentFit="contain"
+                        contentFit="fill"
                         accessibilityLabel={
                           showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
                         }
@@ -522,9 +559,33 @@ export default function CardDetailScreen() {
               </View>
             ) : null}
 
+            {storage.data ? (
+              <Pressable
+                accessibilityRole="link"
+                onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } })}
+                style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}
+              >
+                <Icon name="storage" size={14} color={colors.primaryText} />
+                <AppText tone="primary">
+                  {t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
+                </AppText>
+              </Pressable>
+            ) : null}
+
             {card ? (
+              <CollapsibleSection title={t("cardDetail.details")} initiallyOpen>
+                <CardDetailsList card={card} binNumber={entry?.binNumber} />
+              </CollapsibleSection>
+            ) : position.isPending ? (
               <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.prices")} />
+                <Skeleton height={16} width="60%" />
+                <Skeleton height={16} width="45%" />
+                <Skeleton height={16} width="55%" />
+              </View>
+            ) : null}
+
+            {card ? (
+              <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
                 <CardPriceDetails
                   card={card}
                   isFoil={draftFoil != null}
@@ -543,58 +604,11 @@ export default function CardDetailScreen() {
                     }
                   />
                 ) : null}
-              </View>
-            ) : null}
-
-            {card ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.details")} />
-                <CardDetailsList card={card} binNumber={entry?.binNumber} />
-                {entry && !reviewMode ? scanAttributeRows : null}
-                {storage.data ? (
-                  <Pressable
-                    accessibilityRole="link"
-                    onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } })}
-                    style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs, marginTop: SPACING.xs }}
-                  >
-                    <Icon name="storage" size={14} color={colors.primaryText} />
-                    <AppText tone="primary">
-                      {t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
-                    </AppText>
-                  </Pressable>
-                ) : null}
-                {entry && ((canMoveToLocation && moveTargets.length > 0) || targetCollections.length > 0) ? (
-                  <ListGroup>
-                    {canMoveToLocation && moveTargets.length > 0 ? (
-                      <ListRow
-                        icon="transfer"
-                        title={storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation")}
-                        disabled={moveToLocation.isPending}
-                        onPress={() => setSheet("location")}
-                      />
-                    ) : null}
-                    {targetCollections.length > 0 ? (
-                      <ListRow
-                        icon="collections"
-                        title={t("storage.moveToCollection")}
-                        disabled={moveToCollection.isPending}
-                        onPress={() => setSheet("collection")}
-                      />
-                    ) : null}
-                  </ListGroup>
-                ) : null}
-              </View>
-            ) : position.isPending ? (
-              <View style={{ gap: SPACING.sm }}>
-                <Skeleton height={16} width="60%" />
-                <Skeleton height={16} width="45%" />
-                <Skeleton height={16} width="55%" />
-              </View>
+              </CollapsibleSection>
             ) : null}
 
             {hasScanOrigin || entry?.binNumber != null ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.thisScan")} />
+              <CollapsibleSection title={t("cardDetail.thisScan")}>
                 {origin.data && hasScanOrigin ? (
                   <ListGroup>
                     {origin.data.scannedAt ? (
@@ -628,14 +642,14 @@ export default function CardDetailScreen() {
                     <BinLocationDiagram binNumber={entry.binNumber} />
                   </View>
                 ) : null}
-              </View>
+              </CollapsibleSection>
             ) : null}
 
           </>
         )}
       </ScrollView>
 
-      {!editing && entry && !isDirty ? (
+      {!editing && entry && !isDirty && (reviewMode || canConfirm) ? (
         <View
           style={{
             flexDirection: "row",
@@ -648,37 +662,24 @@ export default function CardDetailScreen() {
           }}
         >
           {reviewMode ? (
-            <>
-              <Button
-                style={{ flex: 1 }}
-                icon="check"
-                label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
-                loading={markCorrect.isPending}
-                onPress={() => void acceptInReview()}
-              />
-            </>
+            <Button
+              style={{ flex: 1 }}
+              icon="check"
+              label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
+              loading={markCorrect.isPending}
+              onPress={() => void acceptInReview()}
+            />
           ) : (
-            <>
-              {canConfirm ? (
-                <Button
-                  style={{ flex: 1 }}
-                  variant="secondary"
-                  icon="check"
-                  label={t("cardDetail.markCorrect")}
-                  loading={markCorrect.isPending}
-                  onPress={() => {
-                    setMatchesOpenState({ scanId, isOpen: false });
-                    markCorrect.mutate("confirm");
-                  }}
-                />
-              ) : null}
-              <Button
-                style={{ flex: 1 }}
-                icon="edit"
-                label={t("cardDetail.correctCard")}
-                onPress={() => setEditing(true)}
-              />
-            </>
+            <Button
+              style={{ flex: 1 }}
+              icon="check"
+              label={t("cardDetail.markCorrect")}
+              loading={markCorrect.isPending}
+              onPress={() => {
+                setMatchesOpenState({ scanId, isOpen: false });
+                markCorrect.mutate("confirm");
+              }}
+            />
           )}
         </View>
       ) : null}
@@ -690,6 +691,14 @@ export default function CardDetailScreen() {
         onDiscard={() => form.reset()}
       />
 
+      <OptionSheet
+        visible={sheet === "actions"}
+        title={card?.name ?? t("cardDetail.actions")}
+        options={actionMenuOptions}
+        selected={[]}
+        onSelect={(value) => setSheet(CARD_DETAIL_MENU_SHEETS.find((menuSheet) => menuSheet === value) ?? null)}
+        onClose={() => setSheet(null)}
+      />
       <OptionSheet
         visible={sheet === "foil"}
         title={t("cardDetail.foil")}

@@ -20,6 +20,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ButtonGroup } from "@/components/ui/button-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useCardAcquisitionCost } from "@/features/business/api/use-business";
@@ -42,6 +54,8 @@ import { CapturedImageThumb } from "@/features/cards/components/captured-image-t
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
 import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
+import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
+import { useCardDetailMoveActions } from "@/features/cards/api/use-card-detail-move-actions";
 import { CardScanOriginList } from "@/features/cards/components/card-scan-origin-list";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
@@ -77,6 +91,7 @@ import {
   CARD_LANGUAGES,
   cardFoilTypeOptions,
   DEFAULT_CARD_CONDITION,
+  DEFAULT_CARD_LANGUAGE,
   isCardLanguage,
   OCR_REGIONS_BY_GAME_KEY,
   scanLanguage,
@@ -93,14 +108,19 @@ import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useScanDraft } from "@/features/cards/api/use-scan-draft";
 import {
+  IconBox,
   IconCheck,
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
   IconChevronDown,
   IconDots,
+  IconFolders,
+  IconLanguage,
   IconLayoutGrid,
   IconPencil,
+  IconRosette,
+  IconSparkles,
   IconSwitchHorizontal,
   IconTrash,
   IconX,
@@ -126,6 +146,8 @@ import {
 import { useTranslation } from "react-i18next";
 import type {
   CardCorrectionOptions,
+  CardDetailAttributePicker,
+  CardDetailMoveTarget,
   CardDetailPanelProps,
 } from "@/lib/interfaces/cards";
 
@@ -164,6 +186,11 @@ export function CardDetailPanel({
   const isMobile = useIsMobile();
   const inCardDrawer = useContext(CardDrawerContext);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [attributePicker, setAttributePicker] =
+    useState<CardDetailAttributePicker | null>(null);
+  const [moveTarget, setMoveTarget] = useState<CardDetailMoveTarget | null>(
+    null,
+  );
   const [editing, setEditing] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [showOcrRegions, setShowOcrRegions] = usePersistedFlag(
@@ -197,6 +224,12 @@ export function CardDetailPanel({
     (lowConfidenceMatch || !!alternativeMatches?.length) &&
     !wasCorrected;
   const collection = useCardDetailCollection();
+  const moveActions = useCardDetailMoveActions({
+    scanId,
+    collectionGuid: collection?.guid,
+    canEdit: !extraActions,
+    onMovedToCollection: onClose,
+  });
   const foilOptions = useFoilOptions();
   const { data: scanOrigin } = useQuery({
     ...cardScanOriginQueryOptions(collection?.guid, scanId ?? ""),
@@ -824,6 +857,7 @@ export function CardDetailPanel({
 
   const cardName =
     selectedCard?.name ?? t("cardDetailPanel.cardDetailsFallback");
+  const headerPrice = editing ? null : conditionPrice;
   const typeLine = selectedCard?.typeLine ?? "";
 
   return (
@@ -889,9 +923,14 @@ export function CardDetailPanel({
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
-                <h2 className="font-semibold text-base truncate max-md:basis-full max-md:whitespace-normal max-md:line-clamp-2">
+                <h2 className="font-semibold text-base truncate max-md:whitespace-normal max-md:line-clamp-2">
                   {cardName}
                 </h2>
+                {headerPrice != null && (
+                  <span className="shrink-0 text-base font-semibold tabular-nums">
+                    {format(headerPrice)}
+                  </span>
+                )}
                 {!(reviewMode && !isMobile) &&
                   total != null &&
                   currentIndex != null && (
@@ -920,6 +959,23 @@ export function CardDetailPanel({
                     </Badge>
                   )
                 )}
+                {scanId && currentFoilType && (
+                  <Badge variant="secondary" className="shrink-0">
+                    {currentFoilType}
+                  </Badge>
+                )}
+                {scanId && currentCondition !== DEFAULT_CARD_CONDITION && (
+                  <Badge variant="secondary" className="shrink-0">
+                    {t(`condition.names.${currentCondition}`)}
+                  </Badge>
+                )}
+                {scanId &&
+                  currentLanguage !==
+                    (selectedCard?.lang || DEFAULT_CARD_LANGUAGE) && (
+                    <Badge variant="secondary" className="shrink-0">
+                      {LANGUAGE_LABELS[currentLanguage] ?? currentLanguage}
+                    </Badge>
+                  )}
                 {copyCount != null && copyCount > 1 && (
                   <Badge variant="secondary" className="shrink-0">
                     {t("cardDetailPanel.copyOf", {
@@ -945,6 +1001,111 @@ export function CardDetailPanel({
               >
                 <IconDots />
               </Button>
+            )}
+            {!inCardDrawer && currentCard && !editing && scanId && (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="-mt-1 -mr-2 shrink-0"
+                      aria-label={t("cardDetailPanel.actions")}
+                    />
+                  }
+                >
+                  <IconDots />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <IconSparkles />
+                      {t("foil")}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={currentFoilType ?? "none"}
+                        onValueChange={(value: string) =>
+                          scanDraft.setFoilType(value === "none" ? null : value)
+                        }
+                      >
+                        <DropdownMenuRadioItem value="none">
+                          {t("foilNone")}
+                        </DropdownMenuRadioItem>
+                        {cardFoilOptions.map((type) => (
+                          <DropdownMenuRadioItem key={type} value={type}>
+                            {type}
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <IconRosette />
+                      {t("condition.label")}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={currentCondition}
+                        onValueChange={(value: string) => {
+                          if (isCardCondition(value)) {
+                            scanDraft.setCondition(value);
+                          }
+                        }}
+                      >
+                        {CARD_CONDITIONS.map((option) => (
+                          <DropdownMenuRadioItem key={option} value={option}>
+                            {t(`condition.names.${option}`)}
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <IconLanguage />
+                      {t("language")}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="max-h-80 overflow-y-auto">
+                      <DropdownMenuRadioGroup
+                        value={currentLanguage}
+                        onValueChange={(value: string) =>
+                          scanDraft.setLanguage(value)
+                        }
+                      >
+                        {languageOptions.map((option) => (
+                          <DropdownMenuRadioItem key={option} value={option}>
+                            {LANGUAGE_LABELS[option] ?? option}
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  {(moveActions.canMoveToLocation ||
+                    moveActions.canMoveToCollection) && (
+                    <DropdownMenuSeparator />
+                  )}
+                  {moveActions.canMoveToLocation && (
+                    <DropdownMenuItem
+                      disabled={moveActions.isMoving}
+                      onClick={() => setMoveTarget("location")}
+                    >
+                      <IconBox />
+                      {t("cardDetailPanel.moveToLocation")}
+                    </DropdownMenuItem>
+                  )}
+                  {moveActions.canMoveToCollection && (
+                    <DropdownMenuItem
+                      disabled={moveActions.isMoving}
+                      onClick={() => setMoveTarget("collection")}
+                    >
+                      <IconFolders />
+                      {t("cardDetailPanel.moveToCollection")}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
           {currentCard && !editing ? (
@@ -995,6 +1156,17 @@ export function CardDetailPanel({
 
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
+                    <DetailSection title={t("cardDetailPanel.details")}>
+                      <div className="flex flex-col gap-4">
+                        <CardDetailsList card={selectedCard} />
+                        {selectedCard.text && (
+                          <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
+                            {selectedCard.text}
+                          </p>
+                        )}
+                      </div>
+                    </DetailSection>
+
                     <DetailSection title={t("cardDetailPanel.prices")}>
                       <div className="flex flex-col gap-4">
                         <CardPriceDetails
@@ -1034,18 +1206,6 @@ export function CardDetailPanel({
                             )}
                           </Field>
                         )}
-                      </div>
-                    </DetailSection>
-
-                    <DetailSection title={t("cardDetailPanel.details")}>
-                      <div className="flex flex-col gap-4">
-                        <CardDetailsList card={selectedCard} />
-                        {selectedCard.text && (
-                          <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
-                            {selectedCard.text}
-                          </p>
-                        )}
-                        {!reviewMode && scanAttributeControls}
                       </div>
                     </DetailSection>
 
@@ -1250,6 +1410,50 @@ export function CardDetailPanel({
                 ? () => requestAnimationFrame(focusCorrectionSearch)
                 : startEditing,
             },
+            ...(scanId
+              ? [
+                  {
+                    key: "foil",
+                    label: `${t("foil")}: ${currentFoilType ?? t("foilNone")}`,
+                    icon: <IconSparkles />,
+                    onSelect: () => setAttributePicker("foil"),
+                  },
+                  {
+                    key: "condition",
+                    label: `${t("condition.label")}: ${t(`condition.names.${currentCondition}`)}`,
+                    icon: <IconRosette />,
+                    onSelect: () => setAttributePicker("condition"),
+                  },
+                  {
+                    key: "language",
+                    label: `${t("language")}: ${LANGUAGE_LABELS[currentLanguage] ?? currentLanguage}`,
+                    icon: <IconLanguage />,
+                    onSelect: () => setAttributePicker("language"),
+                  },
+                ]
+              : []),
+            ...(moveActions.canMoveToLocation
+              ? [
+                  {
+                    key: "move-to-location",
+                    label: t("cardDetailPanel.moveToLocation"),
+                    icon: <IconBox />,
+                    disabled: moveActions.isMoving,
+                    onSelect: () => setMoveTarget("location"),
+                  },
+                ]
+              : []),
+            ...(moveActions.canMoveToCollection
+              ? [
+                  {
+                    key: "move-to-collection",
+                    label: t("cardDetailPanel.moveToCollection"),
+                    icon: <IconFolders />,
+                    disabled: moveActions.isMoving,
+                    onSelect: () => setMoveTarget("collection"),
+                  },
+                ]
+              : []),
             ...(reviewMode && onShowReviewGrid
               ? [
                   {
@@ -1275,6 +1479,62 @@ export function CardDetailPanel({
                 ]
               : []),
           ]}
+        />
+      )}
+      {inCardDrawer && (
+        <CardDetailActionsSheet
+          open={attributePicker != null}
+          onOpenChange={(open) => {
+            if (!open) setAttributePicker(null);
+          }}
+          title={
+            attributePicker === "foil"
+              ? t("foil")
+              : attributePicker === "condition"
+                ? t("condition.label")
+                : t("language")
+          }
+          actions={
+            attributePicker === "foil"
+              ? [null, ...cardFoilOptions].map((type) => ({
+                  key: type ?? "none",
+                  label: type ?? t("foilNone"),
+                  icon: type === currentFoilType ? <IconCheck /> : null,
+                  onSelect: () => scanDraft.setFoilType(type),
+                }))
+              : attributePicker === "condition"
+                ? CARD_CONDITIONS.map((option) => ({
+                    key: option,
+                    label: t(`condition.names.${option}`),
+                    icon: option === currentCondition ? <IconCheck /> : null,
+                    onSelect: () => scanDraft.setCondition(option),
+                  }))
+                : languageOptions.map((option) => ({
+                    key: option,
+                    label: LANGUAGE_LABELS[option] ?? option,
+                    icon: option === currentLanguage ? <IconCheck /> : null,
+                    onSelect: () => scanDraft.setLanguage(option),
+                  }))
+          }
+        />
+      )}
+      {scanId && (
+        <MoveToLocationDialog
+          open={moveTarget != null}
+          count={1}
+          excludedLocationGuid={moveActions.storageLocationGuid}
+          isMoving={moveActions.isMoving}
+          showLocations={moveTarget !== "collection"}
+          sourceCollectionGuid={collection?.guid}
+          onOpenChange={(open) => {
+            if (!open) setMoveTarget(null);
+          }}
+          onMove={moveActions.moveToLocation}
+          onMoveToCollection={
+            moveTarget === "collection"
+              ? moveActions.moveToCollection
+              : undefined
+          }
         />
       )}
       {onRemove && (

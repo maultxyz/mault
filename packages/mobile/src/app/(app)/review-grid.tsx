@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { SegmentedControl } from "@/components/ui/segmented-control";
+import { TabStrip } from "@/components/ui/tab-strip";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   acceptReviewCards,
@@ -107,14 +107,16 @@ export default function ReviewGridScreen() {
         }
         ListHeaderComponent={
           <View style={{ gap: SPACING.md, paddingTop: SPACING.lg }}>
-            <SegmentedControl<ReviewLayout>
-              options={[
-                { value: "grid", label: t("reviewGrid.layoutGrid") },
-                { value: "single", label: t("reviewGrid.layoutOneByOne") },
-              ]}
-              value="grid"
-              onChange={switchLayout}
-            />
+            <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
+              <TabStrip<ReviewLayout>
+                items={[
+                  { value: "grid", label: t("reviewGrid.layoutGrid") },
+                  { value: "single", label: t("reviewGrid.layoutOneByOne") },
+                ]}
+                value="grid"
+                onChange={switchLayout}
+              />
+            </View>
             {visibleCards.length > 0 ? (
               <Button
                 icon="checkAll"

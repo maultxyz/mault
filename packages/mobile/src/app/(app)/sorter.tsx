@@ -113,6 +113,7 @@ export default function SorterScreen() {
               subtitle={t("calibration.entrySubtitle")}
               onPress={() => router.push("/calibrate")}
             />
+            <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
             <ListRow
               icon="refresh"
               title={t("sorter.neutral")}

@@ -219,6 +219,7 @@ export default function SoundsSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sounds.title")}
+      isLoading={clips.isLoading || rulesQuery.isLoading}
       isDirty={form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}

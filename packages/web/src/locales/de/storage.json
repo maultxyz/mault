@@ -70,9 +70,7 @@
     "heading": "Lager",
     "value": "{{name}} · #{{position}}",
     "remove": "Aus Box entfernen",
-    "move": "Verschieben",
-    "store": "In Lagerort verschieben",
-    "notStored": "Keinem Lagerort zugeordnet"
+    "move": "Verschieben"
   },
   "toasts": {
     "failed": "Lagerorte konnten nicht aktualisiert werden",

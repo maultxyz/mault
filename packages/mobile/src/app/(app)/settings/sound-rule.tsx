@@ -9,6 +9,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
@@ -128,63 +129,69 @@ export default function SoundRuleScreen() {
           />
         }
       >
-        <AppText size="sm" tone="secondary">
-          {t("settings.sounds.ruleDialog.description")}
-        </AppText>
-        {error ? <Callout tone="destructive" title={error} /> : null}
-        <Controller
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <TextField
-              label={t("settings.sounds.ruleDialog.name")}
-              value={field.value}
-              onBlur={field.onBlur}
-              onChangeText={field.onChange}
+        {rules.isLoading || clips.isLoading ? (
+          <PageSkeleton />
+        ) : (
+          <>
+            <AppText size="sm" tone="secondary">
+              {t("settings.sounds.ruleDialog.description")}
+            </AppText>
+            {error ? <Callout tone="destructive" title={error} /> : null}
+            <Controller
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <TextField
+                  label={t("settings.sounds.ruleDialog.name")}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                />
+              )}
             />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="clipGuid"
-          render={({ field }) => (
-            <SelectField
-              label={t("settings.sounds.ruleDialog.clip")}
-              value={clips.data?.find((clip) => clip.guid === field.value)?.name ?? null}
-              placeholder={t("settings.sounds.ruleDialog.clipPlaceholder")}
-              onPress={() => setClipOpen(true)}
+            <Controller
+              control={form.control}
+              name="clipGuid"
+              render={({ field }) => (
+                <SelectField
+                  label={t("settings.sounds.ruleDialog.clip")}
+                  value={clips.data?.find((clip) => clip.guid === field.value)?.name ?? null}
+                  placeholder={t("settings.sounds.ruleDialog.clipPlaceholder")}
+                  onPress={() => setClipOpen(true)}
+                />
+              )}
             />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="isEnabled"
-          render={({ field }) => (
-            <SwitchRow title={t("settings.sounds.ruleDialog.enabled")} value={field.value} onValueChange={field.onChange} />
-          )}
-        />
-        <SectionHeader title={t("settings.sounds.ruleDialog.conditions")} />
-        <Controller
-          control={form.control}
-          name="rules"
-          render={({ field }) => (
-            <RuleGroupEditor
-              group={field.value}
-              onChange={field.onChange}
-              fieldDefinitions={fieldDefinitions}
-              freeformOptions={freeformOptions}
+            <Controller
+              control={form.control}
+              name="isEnabled"
+              render={({ field }) => (
+                <SwitchRow title={t("settings.sounds.ruleDialog.enabled")} value={field.value} onValueChange={field.onChange} />
+              )}
             />
-          )}
-        />
-        {existing ? (
-          <Button
-            variant="ghost"
-            icon="trash"
-            label={t("settings.sounds.rules.delete", { name: existing.name })}
-            loading={remove.isPending}
-            onPress={confirmDelete}
-          />
-        ) : null}
+            <SectionHeader title={t("settings.sounds.ruleDialog.conditions")} />
+            <Controller
+              control={form.control}
+              name="rules"
+              render={({ field }) => (
+                <RuleGroupEditor
+                  group={field.value}
+                  onChange={field.onChange}
+                  fieldDefinitions={fieldDefinitions}
+                  freeformOptions={freeformOptions}
+                />
+              )}
+            />
+            {existing ? (
+              <Button
+                variant="ghost"
+                icon="trash"
+                label={t("settings.sounds.rules.delete", { name: existing.name })}
+                loading={remove.isPending}
+                onPress={confirmDelete}
+              />
+            ) : null}
+          </>
+        )}
       </Screen>
       <SaveBar
         visible={isDirty || !existing}

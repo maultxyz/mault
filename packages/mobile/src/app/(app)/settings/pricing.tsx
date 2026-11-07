@@ -18,6 +18,7 @@ export default function PricingSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.pricing.title")}
+      isLoading={draft.isLoading}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}

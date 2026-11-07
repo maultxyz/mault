@@ -19,7 +19,7 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { LIST_END_THRESHOLD, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
-import { SPACING } from "@/lib/constants/theme";
+import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { absoluteUrl } from "@/lib/url";
 
 export default function StorageScreen() {
@@ -69,7 +69,7 @@ export default function StorageScreen() {
       }
     >
       <FlatList
-        style={{ marginHorizontal: -SPACING.sm }}
+        style={{ marginHorizontal: -SCREEN_GUTTER }}
         data={query ? [] : list}
         keyExtractor={(location) => location.guid}
         contentContainerStyle={{ paddingBottom: SPACING.xxl }}
@@ -88,7 +88,7 @@ export default function StorageScreen() {
           />
         }
         ListHeaderComponent={
-          <View style={{ gap: SPACING.lg, paddingHorizontal: SPACING.sm, paddingBottom: SPACING.lg }}>
+          <View style={{ gap: SPACING.lg, paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.lg }}>
             {locked ? (
               <Callout
                 tone="info"
@@ -118,17 +118,20 @@ export default function StorageScreen() {
         }
         ListEmptyComponent={
           query ? null : locations.isPending ? (
-            <View style={{ gap: SPACING.sm, paddingHorizontal: SPACING.sm }}>
+            <View style={{ gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER }}>
               <Skeleton height={52} />
               <Skeleton height={52} />
             </View>
           ) : (
-            <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
+            <View style={{ paddingHorizontal: SCREEN_GUTTER }}>
+              <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
+            </View>
           )
         }
         ListFooterComponent={
           locations.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
         }
+        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.border }} />}
         renderItem={({ item: location }) => (
           <ListRow
             icon="storage"

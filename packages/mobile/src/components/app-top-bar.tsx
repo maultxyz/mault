@@ -1,15 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, Pressable, View } from "react-native";
-import { collectionGameLabel } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { collectionsQueryOptions } from "@/features/collections/api/collections";
-import { useActivateCollection } from "@/features/collections/api/use-activate-collection";
 import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
 import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
+import { ValidateMatchesTopBarButton } from "@/features/match-validations/components/validate-matches-top-bar-button";
 import { useActiveOrg, useSwitchOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { useSession } from "@/lib/auth/session";
@@ -26,7 +23,7 @@ import {
 } from "@/lib/constants/ui";
 import type { AppTopBarSheet, TopBarSwitcherProps } from "@/lib/interfaces/ui";
 
-function TopBarSwitcher({ initial, label, badge, accessibilityLabel, onPress }: TopBarSwitcherProps) {
+function TopBarSwitcher({ initial, label, accessibilityLabel, onPress }: TopBarSwitcherProps) {
   const colors = useTheme();
   return (
     <Pressable
@@ -63,22 +60,6 @@ function TopBarSwitcher({ initial, label, badge, accessibilityLabel, onPress }: 
       <AppText weight="semibold" numberOfLines={1} style={{ flexShrink: 1 }}>
         {label}
       </AppText>
-      {badge ? (
-        <View
-          style={{
-            height: 20,
-            paddingHorizontal: SPACING.xs + 2,
-            borderRadius: RADIUS.sm,
-            borderWidth: 1,
-            borderColor: colors.border,
-            justifyContent: "center",
-          }}
-        >
-          <AppText size="2xs" weight="medium" style={{ lineHeight: 14 }}>
-            {badge}
-          </AppText>
-        </View>
-      ) : null}
       <Icon name="selector" size={14} color={colors.foregroundSecondary} />
     </Pressable>
   );
@@ -91,13 +72,10 @@ export function AppTopBar() {
   const org = useActiveOrg();
   const orgId = org?.id ?? null;
   const switchOrg = useSwitchOrg();
-  const { data: collections } = useQuery(collectionsQueryOptions(orgId));
-  const activeCollection = collections?.find((collection) => collection.isActive) ?? null;
-  const activateCollection = useActivateCollection(orgId);
+  const hasSeveralOrganizations = organizations.length > 1;
   const alerts = useAppAlerts();
   const [openSheet, setOpenSheet] = useState<AppTopBarSheet | null>(null);
   const closeSheet = () => setOpenSheet(null);
-  const collectionBadge = activeCollection ? collectionGameLabel(activeCollection) : undefined;
 
   return (
     <View
@@ -129,23 +107,20 @@ export function AppTopBar() {
           }}
         />
       </View>
-      <View style={{ width: 1, height: 16, marginHorizontal: SPACING.xs, backgroundColor: colors.border }} />
+      {hasSeveralOrganizations ? (
+        <View style={{ width: 1, height: 16, marginHorizontal: SPACING.xs, backgroundColor: colors.border }} />
+      ) : null}
       <View style={{ flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
-        <TopBarSwitcher
-          initial={(org?.name ?? "?").charAt(0).toUpperCase()}
-          label={org?.name ?? t("account.organizations")}
-          accessibilityLabel={t("account.organizations")}
-          onPress={() => setOpenSheet("organizations")}
-        />
-        <AppText tone="secondary">/</AppText>
-        <TopBarSwitcher
-          initial={(activeCollection?.name ?? "?").charAt(0).toUpperCase()}
-          label={activeCollection?.name ?? t("scan.noCollectionTitle")}
-          badge={collectionBadge}
-          accessibilityLabel={t("scan.chooseCollection")}
-          onPress={() => setOpenSheet("collections")}
-        />
+        {hasSeveralOrganizations ? (
+          <TopBarSwitcher
+            initial={(org?.name ?? "?").charAt(0).toUpperCase()}
+            label={org?.name ?? t("account.organizations")}
+            accessibilityLabel={t("account.organizations")}
+            onPress={() => setOpenSheet("organizations")}
+          />
+        ) : null}
       </View>
+      <ValidateMatchesTopBarButton />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={alerts.length > 0 ? `${t("alerts.title")}, ${alerts.length}` : t("alerts.title")}
@@ -194,21 +169,6 @@ export function AppTopBar() {
         onSelect={(nextOrgId) => {
           closeSheet();
           switchOrg(nextOrgId);
-        }}
-        onClose={closeSheet}
-      />
-      <OptionSheet
-        visible={openSheet === "collections"}
-        title={t("scan.chooseCollection")}
-        options={(collections ?? []).map((collection) => ({
-          value: collection.guid,
-          label: collection.name,
-          badge: collectionGameLabel(collection),
-        }))}
-        selected={activeCollection ? [activeCollection.guid] : []}
-        onSelect={(guid) => {
-          closeSheet();
-          if (guid !== activeCollection?.guid) activateCollection.mutate(guid);
         }}
         onClose={closeSheet}
       />

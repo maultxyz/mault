@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "react-native-reanimated";
 import { isOutlineSettled, stepOutline, type OutlineAnimationState } from "@magic-vault/shared";
+import { LIVE_OUTLINE_SMOOTHING_MS } from "@/lib/constants/scanner";
 import type { LiveCorners, SmoothedCorners } from "@/lib/interfaces/scanner";
 
 export function useSmoothedCorners(target: LiveCorners | null): SmoothedCorners | null {
@@ -17,7 +18,7 @@ export function useSmoothedCorners(target: LiveCorners | null): SmoothedCorners 
     const step = (now: number) => {
       const dt = lastTime ? now - lastTime : 16;
       lastTime = now;
-      const next = stepOutline(stateRef.current, goal, dt, reduceMotion);
+      const next = stepOutline(stateRef.current, goal, dt, reduceMotion, LIVE_OUTLINE_SMOOTHING_MS);
       const settled = isOutlineSettled(next, goal);
       stateRef.current = settled ? { contour: goal, opacity: goal ? 1 : 0 } : next;
       const { contour, opacity } = stateRef.current;

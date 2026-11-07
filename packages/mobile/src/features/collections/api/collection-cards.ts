@@ -1,4 +1,10 @@
-import { infiniteQueryOptions, keepPreviousData, queryOptions, type QueryClient } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  keepPreviousData,
+  queryOptions,
+  type InfiniteData,
+  type QueryClient,
+} from "@tanstack/react-query";
 import {
   EMPTY_CARD_FILTERS,
   type SetCardTagsRequest,
@@ -72,6 +78,23 @@ export const reviewQueueQueryOptions = (guid: string) =>
         apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${cardsParams("", 0, true)}`),
       ).then((page) => ({ total: page.totalEntries, firstScanId: page.items[0]?.scanId ?? null })),
   });
+
+export function cachedCollectionCardPosition(
+  queryClient: QueryClient,
+  guid: string,
+  scanId: string,
+): CollectionCardPosition | undefined {
+  const lists = queryClient.getQueriesData<InfiniteData<CollectionCardsPage>>({
+    queryKey: ["collection-cards", guid, "list"],
+  });
+  for (const [, data] of lists) {
+    const entry = data?.pages.flatMap((page) => page.items).find((item) => item.scanId === scanId);
+    if (entry) {
+      return { entry, index: 0, total: 0, prevScanId: null, nextScanId: null, copyIndex: 0, copyCount: entry.quantity };
+    }
+  }
+  return undefined;
+}
 
 export function updateCollectionCard(guid: string, scanId: string, body: CardUpdateBody): Promise<unknown> {
   return unwrap(apiPut<Result<unknown>>(`/api/collections/${guid}/cards/${scanId}`, body));

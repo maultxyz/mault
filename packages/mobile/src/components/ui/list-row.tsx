@@ -3,7 +3,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { IconBadge } from "@/components/ui/icon-badge";
 import { useTheme } from "@/hooks/use-theme";
-import { SPACING } from "@/lib/constants/theme";
+import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, LIST_ROW_ICON_SIZE, LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { ListRowProps } from "@/lib/interfaces/ui";
 
@@ -35,7 +35,7 @@ export function ListRow({
         alignItems: "center",
         gap: SPACING.md,
         minHeight: LIST_ROW_MIN_HEIGHT,
-        paddingHorizontal: SPACING.md,
+        paddingHorizontal: SCREEN_GUTTER,
         paddingVertical: SPACING.sm,
         backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : "transparent",
         opacity: disabled ? DISABLED_OPACITY : 1,

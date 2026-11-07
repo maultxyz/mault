@@ -112,7 +112,7 @@ export function ConditionSheet({
     }
     if (options && !freeform && !count) {
       return (
-        <View style={{ marginHorizontal: -SPACING.sm }}>
+        <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
           {sortedOptions.map((option) => (
             <ListRow
               key={option.value}
@@ -210,7 +210,7 @@ export function ConditionSheet({
                   accessibilityLabel={t("rules.searchFields")}
                 />
               </View>
-              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER - SPACING.sm }}>
+              <ScrollView keyboardShouldPersistTaps="handled">
                 {shownFields.map((field) => (
                   <ListRow
                     key={field.field}
@@ -220,7 +220,7 @@ export function ConditionSheet({
                   />
                 ))}
                 {shownFields.length === 0 ? (
-                  <AppText tone="secondary" style={{ padding: SPACING.sm }}>
+                  <AppText tone="secondary" style={{ paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.sm }}>
                     {t("rules.noFieldMatches")}
                   </AppText>
                 ) : null}
@@ -233,7 +233,7 @@ export function ConditionSheet({
                 style={{ flexShrink: 1 }}
                 contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.lg, paddingBottom: SPACING.lg }}
               >
-                <View style={{ marginHorizontal: -SPACING.sm }}>
+                <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
                   <ListRow title={t("rules.field")} value={meta?.label ?? draft.field} onPress={() => setStep("field")} />
                 </View>
                 {meta ? (

@@ -39,7 +39,7 @@ export function ReviewGridTile({ card, accepting, onAccept, onCorrect }: ReviewG
           </AppText>
           <View style={imageFrame}>
             {capturedUrl ? (
-              <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="contain" accessibilityLabel={t("cardDetail.capturedScan")} />
+              <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" accessibilityLabel={t("cardDetail.capturedScan")} />
             ) : image.isPending ? (
               <Skeleton height="100%" radius={0} />
             ) : (
