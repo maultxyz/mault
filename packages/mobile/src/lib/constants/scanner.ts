@@ -48,6 +48,10 @@ export const SCAN_REGION_VIRTUAL_HEIGHT = 1000;
 export const SVG_MASK_SHOW = "#ffffff";
 export const SVG_MASK_HIDE = "#000000";
 export const LIVE_DETECTION_INTERVAL_MS = 300;
+export const LIVE_OUTLINE_SMOOTHING_MS = 160;
+export const MOBILE_HAND_SCAN_STABLE_TICKS = 2;
+export const LIVE_OUTLINE_DEADBAND_RATIO = 0.012;
+export const LIVE_OUTLINE_MISSES_BEFORE_HIDE = 2;
 export const LIVE_CORNERS_SUPPORTED = Platform.OS === "android";
 export const LIVE_DETECTION_PAUSED_PHASES: ScannerPhase[] = ["loading-models", "capturing", "identifying", "error"];
 

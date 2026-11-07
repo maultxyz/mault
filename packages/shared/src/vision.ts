@@ -516,11 +516,12 @@ export function stepOutline(
   target: CardContour | null,
   dtMs: number,
   reduceMotion: boolean,
+  smoothingMs: number = OUTLINE_SMOOTHING_MS,
 ): OutlineAnimationState {
   if (reduceMotion) {
     return { contour: target ?? state.contour, opacity: target ? 1 : 0 };
   }
-  const move = 1 - Math.exp(-dtMs / OUTLINE_SMOOTHING_MS);
+  const move = 1 - Math.exp(-dtMs / smoothingMs);
   const fade = 1 - Math.exp(-dtMs / OUTLINE_FADE_MS);
   const contour = target
     ? state.contour && state.opacity > OUTLINE_SNAP_OPACITY

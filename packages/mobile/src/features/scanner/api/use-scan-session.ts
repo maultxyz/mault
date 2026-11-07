@@ -736,7 +736,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       return;
     }
     setPhase("capturing");
-    await delay(device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS);
+    if (ctx.sorter.isReady) await delay(device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS);
     setPhase("identifying");
     const gameKey = ctx.collection.game?.key ?? "";
     try {
