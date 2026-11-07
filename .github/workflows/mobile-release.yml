@@ -101,6 +101,7 @@ jobs:
       - name: Build
         working-directory: packages/mobile
         run: |
+          cp eas.example.json eas.json
           eas build --platform "$PLATFORM" --profile "$PROFILE" --non-interactive --json > "$RUNNER_TEMP/eas-builds.json"
 
       # Only after the builds succeed: a failed run leaves no version bump.

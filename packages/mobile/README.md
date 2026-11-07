@@ -37,12 +37,13 @@ On EAS, set these as EAS environment variables, because the root `.env` isn't up
 ```bash
 pnpm install
 cd packages/mobile
+cp eas.example.json eas.json               # once, eas.json is gitignored
 eas init                                   # once, links the EAS project
 pnpm build:ios:dev                         # development build, install it from the link EAS prints
 pnpm start                                 # Metro for the dev build
 ```
 
-Release builds: `pnpm build:ios:preview` (ad hoc install on registered devices) and `pnpm build:ios:prod` followed by `pnpm submit:ios`.
+Release builds: `pnpm build:ios:preview` (ad hoc install on registered devices) and `pnpm build:ios:prod` followed by `pnpm submit:ios`. `eas.json` holds your own store details (`submit.production.ios`: `appleId`, `ascAppId`, `appleTeamId`) and is never committed, so forks can't submit to the published apps; `mobile-release.yml` builds from `eas.example.json` and never submits.
 
 Without an Apple Developer Program membership, `pnpm build:ios:sim` makes an iOS Simulator build (no signing, no Apple account). Drag the downloaded `.app` onto a simulator on a Mac, or run `eas build:run -p ios --latest`. The simulator has no camera or Bluetooth, so scanning and sorter connections can't be tested there.
 
