@@ -118,11 +118,11 @@ export function GameEditor({ game }: GameEditorProps) {
           <IconArrowLeft />
           {t("gameForm.back")}
         </Button>
-        <h1 className="font-heading text-lg font-semibold">
+        <h2 className="font-heading text-lg font-semibold">
           {game
             ? t("gameForm.editTitle", { name: game.name })
             : t("gameForm.newTitle")}
-        </h1>
+        </h2>
       </div>
 
       <FormProvider {...form}>
@@ -144,7 +144,10 @@ export function GameEditor({ game }: GameEditorProps) {
                         onValueChange={field.onChange}
                         disabled={!!game}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger
+                          className="w-full"
+                          aria-label={t("gameForm.keyLabel")}
+                        >
                           <SelectValue
                             placeholder={t("gameForm.keyPlaceholder")}
                           >

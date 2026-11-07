@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   Card,
   CardContent,
@@ -35,11 +36,17 @@ export default function AuthForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="flex min-h-screen items-center justify-center bg-muted p-4 outline-none"
+    >
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>{t("local.forgotPasswordTitle")}</CardTitle>
-          <CardDescription>
+          <CardTitle>
+            <h1>{t("local.forgotPasswordTitle")}</h1>
+          </CardTitle>
+          <CardDescription role="status">
             {sent
               ? t("local.forgotPasswordSent")
               : t("local.forgotPasswordDescription")}
@@ -85,6 +92,6 @@ export default function AuthForgotPasswordPage() {
           </button>
         </CardFooter>
       </Card>
-    </div>
+    </main>
   );
 }

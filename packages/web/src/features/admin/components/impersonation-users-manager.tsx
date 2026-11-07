@@ -88,6 +88,7 @@ export function ImpersonationUsersManager() {
         <>
           <Input
             placeholder={t("impersonationUsersManager.searchPlaceholder")}
+            aria-label={t("impersonationUsersManager.searchPlaceholder")}
             value={searchInput}
             onChange={(e) => handleSearchInput(e.target.value)}
             className="h-7 text-xs max-w-56"
@@ -96,6 +97,7 @@ export function ImpersonationUsersManager() {
             <TooltipTrigger
               render={
                 <Button
+                  aria-label={t("impersonationUsersManager.viewAuditLog")}
                   variant="outline"
                   size="icon"
                   className="size-7"

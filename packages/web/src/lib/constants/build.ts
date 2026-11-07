@@ -201,3 +201,24 @@ export const DEFAULT_BUILD_SETUP: BuildSetupState = {
   moduleCount: DEFAULT_MODULES,
   usingKit: false,
 };
+
+export const BUILD_STEP_IMAGE_ALT_KEYS: Record<string, string> = {
+  "/instructions/base_module.jpg": "imageAlt.photos.baseModule",
+  "/instructions/base_module_assembled.jpg": "imageAlt.photos.baseModuleAssembled",
+  "/instructions/v5.jpg": "imageAlt.photos.finishedSorter",
+  "/instructions/bottom_paddle_disassembled.jpg": "imageAlt.photos.bottomPaddleDisassembled",
+  "/instructions/bottom_paddle_assembled.jpg": "imageAlt.photos.bottomPaddleAssembled",
+  "/instructions/bottom_paddle_attached.jpg": "imageAlt.photos.bottomPaddleAttached",
+  "/instructions/side_paddles_disassembled.jpg": "imageAlt.photos.sidePaddlesDisassembled",
+  "/instructions/side_paddles_assembled.jpg": "imageAlt.photos.sidePaddlesAssembled",
+  "/instructions/side_paddles_attached.jpg": "imageAlt.photos.sidePaddlesAttached",
+  "/instructions/pusher_disassembled.jpg": "imageAlt.photos.pusherDisassembled",
+  "/instructions/pusher_assembled.jpg": "imageAlt.photos.pusherAssembled",
+  "/instructions/pusher_attached.jpg": "imageAlt.photos.pusherAttached",
+  "/instructions/roller_o_rings_mounted.jpg": "imageAlt.photos.rollerORings",
+  "/instructions/feeder_servo_mounted.jpg": "imageAlt.photos.feederServoMounted",
+  "/instructions/new_hopper.JPG": "imageAlt.photos.newHopper",
+  "/instructions/feeder_riser.JPG": "imageAlt.photos.feederRiser",
+  "/instructions/sorter_ir_sensor_mounted.jpg": "imageAlt.photos.sorterIrSensorMounted",
+  "/instructions/feeder_ir_sensor_mounted.jpg": "imageAlt.photos.feederIrSensorMounted",
+};

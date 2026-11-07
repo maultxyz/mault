@@ -2,7 +2,7 @@ import { Pressable } from "react-native";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
-import { DISABLED_OPACITY, PAGE_HEADER_ICON_BUTTON_SIZE } from "@/lib/constants/ui";
+import { DISABLED_OPACITY, MIN_TOUCH_TARGET, PAGE_HEADER_ICON_BUTTON_SIZE } from "@/lib/constants/ui";
 import type { IconButtonProps } from "@/lib/interfaces/ui";
 
 export function IconButton({
@@ -27,7 +27,7 @@ export function IconButton({
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled, selected }}
       disabled={disabled}
-      hitSlop={SPACING.xs}
+      hitSlop={Math.max(SPACING.xs, (MIN_TOUCH_TARGET - size) / 2)}
       onPress={onPress}
       style={({ pressed }) => ({
         width: size,

@@ -20,6 +20,7 @@ import {
 } from "@/features/scanner/api/use-stations";
 import { StationOverviewTile } from "@/features/scanner/components/station-overview-tile";
 import { StationPanel } from "@/features/scanner/components/station-panel";
+import { StationSummaryReporter } from "@/features/scanner/components/station-summary-reporter";
 import type { StationState } from "@/lib/interfaces/stations";
 import { useMemo } from "react";
 import { createPortal } from "react-dom";
@@ -73,6 +74,9 @@ export function StationScope({
                                   <SetupWizardProvider>
                                     {isActive && children}
                                     {isActive && <DeviceSetupWizard />}
+                                    {connectedStationIds.has(station.id) && (
+                                      <StationSummaryReporter />
+                                    )}
                                     {panelLayout &&
                                       showsPanel &&
                                       createPortal(

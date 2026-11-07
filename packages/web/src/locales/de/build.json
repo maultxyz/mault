@@ -614,5 +614,29 @@
       "optionalPlate": "Back- und Front-Platte (optional)"
     },
     "xray": "Röntgenblick"
+  },
+  "imageAlt": {
+    "printPart": "3D-Modellansicht: {{part}}",
+    "breakoutBaseSupport": "Breakout-Basisstütze",
+    "photos": {
+      "baseModule": "Ein einzelner lila 3D-gedruckter Sortiermodulrahmen: ein offener Kasten mit vier Zapfen oben und Laschen an den Seiten zum Verbinden der Module.",
+      "baseModuleAssembled": "Ein flacher gelber Modulrahmen neben einem hohen gelben Modul, das auf einer lila Basisstütze steht. Zu sehen ist, wie die gedruckten Rahmen zusammenpassen.",
+      "finishedSorter": "Der fertige Sortierer: ein schwarzer Turm aus gestapelten Sortiermodulen mit dem Kartenmagazin oben, umgeben von weißen Fächern mit sortierten Karten.",
+      "bottomPaddleDisassembled": "Die Teile der unteren Klappe auf einer Schneidematte: eine lange pinke Klappenplatte, ein Servohorn-Adapter, ein kurzer Verbindungsarm und zwei Schrauben.",
+      "bottomPaddleAssembled": "Die zusammengebaute untere Klappe: Der Verbindungsarm ist zwischen den Scharnierhalter der Klappe und den Servohorn-Adapter geschraubt.",
+      "bottomPaddleAttached": "Die untere Klappe auf einer pinken Modulplatte montiert. Ihr Verbindungsarm ist mit einem blauen SG90-Mikroservo verbunden, die Servokabel führen zur Seite.",
+      "sidePaddlesDisassembled": "Die Teile der Seitenklappen: zwei lange pinke Klappenplatten, zwei Verbindungsarme, ein beidseitiger Servohorn-Adapter und vier Schrauben.",
+      "sidePaddlesAssembled": "Beide Seitenklappen sind über ihre Verbindungsarme mit dem mittleren Servohorn-Adapter zu einem Gestänge verbunden.",
+      "sidePaddlesAttached": "Das Seitenklappen-Gestänge auf der Modulplatte montiert und von einem blauen Mikroservo angetrieben. Die Kabel sind oben in einer Schlaufe verlegt.",
+      "pusherDisassembled": "Die Teile des Schiebers: zwei L-förmige Schieberarme, zwei gerade Verbindungsarme, ein dreieckiger Servohorn-Adapter und fünf Schrauben.",
+      "pusherAssembled": "Der zusammengebaute Schieber: Beide L-förmigen Arme sind über die geraden Arme mit dem dreieckigen Servohorn-Adapter verbunden.",
+      "pusherAttached": "Eine Modulplatte mit allen drei Mechaniken: Schieberarme, Seitenklappen-Gestänge und untere Klappe, jeweils mit einem blauen Mikroservo verbunden.",
+      "rollerORings": "Die schwarze 3D-gedruckte Zuführrolle mit sechs Gummi-O-Ringen in ihren Rillen, je drei nahe jedem Ende.",
+      "feederServoMounted": "Der weiße Rahmen des Zuführmoduls mit einem oben montierten blauen Servo, der die O-Ring-Rolle im Rahmen antreibt.",
+      "newHopper": "Das schwarze Kartenmagazin: ein offener rechteckiger Rahmen mit einer gefederten Schraube oben und der O-Ring-Rolle an der Unterkante.",
+      "feederRiser": "Der schwarze Zuführsockel von oben, mit der O-Ring-Rolle in der Mitte, einem IR-Sensor daneben und dem Servo an einer Seite.",
+      "sorterIrSensorMounted": "Eine IR-Sensorplatine steht aufrecht in ihrer Halterung auf der pinken Modulplatte, neben den Servos und Gestängen.",
+      "feederIrSensorMounted": "Im schwarzen Zuführgehäuse sitzt eine blaue IR-Sensorplatine direkt unter der O-Ring-Rolle und zeigt nach oben zu den Karten."
+    }
   }
 }

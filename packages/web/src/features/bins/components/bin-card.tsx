@@ -57,6 +57,7 @@ export function BinCard({
   return (
     <Button
       variant={active ? "selected" : "ghost"}
+      aria-pressed={active}
       className={cn(
         "h-auto p-2 flex flex-col justify-start text-start w-full whitespace-normal max-md:h-auto max-md:gap-1 max-md:p-3 max-md:[&_p]:text-sm",
         className,

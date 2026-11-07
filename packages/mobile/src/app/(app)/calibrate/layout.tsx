@@ -68,7 +68,7 @@ export default function CalibrationLayoutScreen() {
         {draft.saveError ? <Callout tone="destructive" title={t("calibration.layoutSaveFailed")} /> : null}
 
         <Surface style={{ gap: SPACING.sm }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("calibration.moduleCount.label")}
           </AppText>
           <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
@@ -108,7 +108,7 @@ export default function CalibrationLayoutScreen() {
 
         <View style={{ gap: SPACING.sm }}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            <AppText heading weight="semibold">
+            <AppText heading weight="semibold" accessibilityRole="header">
               {t("calibration.bins.label")}
             </AppText>
             <Button

@@ -49,6 +49,7 @@ export function OrderList({
           <Button
             key={order.guid}
             variant={order.guid === selectedGuid ? "selected" : "ghost"}
+            aria-current={order.guid === selectedGuid || undefined}
             className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start max-md:h-auto max-md:gap-1 max-md:p-3"
             onClick={() => onSelect(order.guid)}
           >

@@ -90,7 +90,11 @@ export function ChangePasswordForm() {
               <span className="text-sm text-foreground/70">
                 {t("password.revokeOtherSessions")}
               </span>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch
+                aria-label={t("password.revokeOtherSessions")}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
             </label>
           )}
         />

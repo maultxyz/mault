@@ -16,14 +16,17 @@ import {
 } from "@/features/storage/api/storage-locations";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { ReviewGrid } from "@/features/cards/components/review-grid";
+import { ReviewQueueList } from "@/features/cards/components/review-queue-panel";
+import { useStorageReviewQueue } from "@/features/storage/api/use-storage-review-queue";
 import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import { useQuery } from "@tanstack/react-query";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
+import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
-import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
+import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationList } from "@/features/storage/components/storage-location-list";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
@@ -39,6 +42,7 @@ import {
   STORAGE_PAGE_SEARCH_PARAM,
   LEGACY_STORAGE_PICKS_VIEW,
   LEGACY_STORAGE_VIEW_PARAM,
+  STORAGE_PICK_LIST_PATH,
   STORAGE_REVIEW_SEARCH_PARAM,
 } from "@/lib/constants/storage";
 import { ORDER_PARAM, picksPath } from "@/lib/constants/business";
@@ -48,15 +52,17 @@ import {
   IconBox,
   IconEdit,
   IconListCheck,
+  IconListSearch,
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 
 function DesktopStoragePage() {
   const { t } = useTranslation("storage");
+  const { t: tCommon } = useTranslation("common");
   const { isMutating, create, rename, remove } = useStorageLocations({
     withList: false,
   });
@@ -93,6 +99,7 @@ function DesktopStoragePage() {
   const selected =
     locations.find((l) => l.guid === selectedGuid) ??
     (selectedLocation?.guid === selectedGuid ? selectedLocation : undefined);
+  const cardQuery = useStorageLocationCardQuery(selected?.guid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
   const reviewParam = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM);
   const isReviewing = reviewParam === "1";
@@ -104,11 +111,13 @@ function DesktopStoragePage() {
     !openScanId &&
     reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
   const [reviewLayout, setReviewLayout] = useReviewLayout();
+  const isOneByOneReviewing = isCardOpen && isReviewing;
+  const reviewQueue = useStorageReviewQueue(
+    selected?.guid,
+    isOneByOneReviewing,
+  );
   const reviewGridPage = useQuery(
-    storageLocationUnreviewedCardsQueryOptions(
-      selected?.guid,
-      isGridReviewing,
-    ),
+    storageLocationUnreviewedCardsQueryOptions(selected?.guid, isGridReviewing),
   );
 
   const select = useCallback(
@@ -189,50 +198,102 @@ function DesktopStoragePage() {
     openCard(guid, scanId, false);
   };
 
+  const showsLocationHeading =
+    !!selected &&
+    !isSearching &&
+    !(isCardOpen && openScanId) &&
+    !isGridReviewing;
+
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
+      {!showsLocationHeading && (
+        <h1 className="sr-only">{tCommon("nav.storage")}</h1>
+      )}
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
-        <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          {!isLocked && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setCreateOpen(true)}
-              disabled={isMutating}
-            >
-              <IconPlus />
-              {t("page.newLocation")}
-            </Button>
-          )}
-          {!isLoading && hasLocations && (
-            <Input
-              type="search"
-              placeholder={t("search.placeholder")}
-              aria-label={t("search.placeholder")}
-              data-hotkey-search
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-none"
+        {isOneByOneReviewing && selected ? (
+          <section className="col-span-4 flex h-full flex-col overflow-hidden border-r lg:col-span-3">
+            <ReviewQueueList
+              cards={reviewQueue.cards}
+              totalCards={reviewQueue.totalCards}
+              isPending={reviewQueue.isPending}
+              isError={reviewQueue.isError}
+              currentScanId={openScanId}
+              reviewedScanIds={reviewQueue.reviewedScanIds}
+              removedScanIds={reviewQueue.removedScanIds}
+              onOpen={(scanId) => openCard(selected.guid, scanId, true)}
+              onExit={closeCard}
             />
-          )}
-          <StorageLocationList
-            locations={locations}
-            pagination={pagination}
-            selectedGuid={isSearching ? undefined : selected?.guid}
-            isLoading={isLoading}
-            onSelect={openLocation}
-          />
-        </section>
+          </section>
+        ) : (
+          <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
+            {!isLoading && hasLocations ? (
+              <div className="flex items-center gap-1.5">
+                <Input
+                  type="search"
+                  placeholder={t("search.placeholder")}
+                  aria-label={t("search.placeholder")}
+                  data-hotkey-search
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="min-w-0 flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("pickList.open")}
+                  title={t("pickList.open")}
+                  nativeButton={false}
+                  render={<Link to={STORAGE_PICK_LIST_PATH} />}
+                >
+                  <IconListSearch />
+                </Button>
+                {!isLocked && (
+                  <Button
+                    size="icon"
+                    aria-label={t("page.newLocation")}
+                    title={t("page.newLocation")}
+                    onClick={() => setCreateOpen(true)}
+                    disabled={isMutating}
+                  >
+                    <IconPlus />
+                  </Button>
+                )}
+              </div>
+            ) : (
+              !isLoading &&
+              !isLocked && (
+                <Button
+                  className="w-full"
+                  onClick={() => setCreateOpen(true)}
+                  disabled={isMutating}
+                >
+                  <IconPlus />
+                  {t("page.newLocation")}
+                </Button>
+              )
+            )}
+            <StorageLocationList
+              locations={locations}
+              pagination={pagination}
+              selectedGuid={isSearching ? undefined : selected?.guid}
+              isLoading={isLoading}
+              onSelect={openLocation}
+            />
+          </section>
+        )}
 
         {isCardOpen && selected && openScanId ? (
           <section className="col-span-8 flex min-h-0 flex-col overflow-hidden lg:col-span-9">
             <StorageCardDetail
               location={selected}
+              cardsQuery={cardQuery.cardsQuery}
               scanId={openScanId}
               reviewMode={isReviewing}
               onNavigate={(scanId) => openCard(selected.guid, scanId)}
               onShowReviewGrid={openReviewGrid}
               onClose={closeCard}
+              onReviewed={reviewQueue.markReviewed}
+              onRemoved={reviewQueue.markRemoved}
             />
           </section>
         ) : isGridReviewing && selected ? (
@@ -350,8 +411,9 @@ function DesktopStoragePage() {
               )
             ) : (
               selected && (
-                <StorageLocationCards
+                <StorageLocationContent
                   location={selected}
+                  cardQuery={cardQuery}
                   onOpenCard={(entry) =>
                     openStoredCard(entry.locationGuid, entry.scanId)
                   }
@@ -413,9 +475,7 @@ export default function StoragePage() {
   if (
     searchParams.get(LEGACY_STORAGE_VIEW_PARAM) === LEGACY_STORAGE_PICKS_VIEW
   ) {
-    return (
-      <Navigate to={picksPath(searchParams.get(ORDER_PARAM))} replace />
-    );
+    return <Navigate to={picksPath(searchParams.get(ORDER_PARAM))} replace />;
   }
   if (isMobile) return <MobileStorage />;
   return <DesktopStoragePage />;

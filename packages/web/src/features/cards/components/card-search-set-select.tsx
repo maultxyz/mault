@@ -51,7 +51,10 @@ export function CardSearchSetSelect({
           onChange(nextValue ?? CARD_SEARCH_ALL_SETS)
         }
       >
-        <SelectTrigger className="w-40 shrink-0">
+        <SelectTrigger
+          className="w-40 shrink-0"
+          aria-label={t("cardDetailPanel.set")}
+        >
           <SelectValue placeholder={t("cardPicker.allSets")}>
             {setOptions.find((set) => set.code === value)?.name}
           </SelectValue>
@@ -80,6 +83,7 @@ export function CardSearchSetSelect({
       }
     >
       <ComboboxInput
+        aria-label={t("cardDetailPanel.set")}
         placeholder={t("cardPicker.allSets")}
         className="w-56 shrink-0"
       />

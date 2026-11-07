@@ -20,6 +20,7 @@
     "completed": "Finished"
   },
   "table": {
+    "status": "Status",
     "card": "Card",
     "set": "Set",
     "condition": "Condition",
@@ -222,6 +223,7 @@
     "staffSignature": "Staff signature"
   },
   "orders": {
+    "pickCopy": "Mark {{name}} as picked",
     "printing": "{{setName}} ({{set}}) #{{number}}",
     "removeLastCopyTitle": "Cancel the pick?",
     "removeLastCopyDescription": "This is the last copy of {{name}} on the pick and the only card left, so removing it cancels the pick.",
@@ -257,7 +259,6 @@
     "namePlaceholder": "Monday's orders",
     "contents": "Cards to pull",
     "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "chooseFile": "Choose file",
     "preview": "{{source}}: {{lines}} lines, {{quantity}} cards.",
     "previewEmpty": "No cards found. Check that the first row has column names like Product Name and Quantity.",
     "previewSkipped_one": "{{count}} row without a card name was skipped.",

@@ -9,113 +9,39 @@ import {
   saveAdminFoilLabel,
 } from "@/features/admin/api/foil-labels";
 import { useHotkeys } from "@/hooks/use-hotkeys";
-import {
-  FOIL_LABEL_PREFETCH_COUNT,
-  FOIL_LABEL_QUEUE_REFILL_THRESHOLD,
-} from "@/lib/constants/admin";
-import type {
-  FoilLabelDecision,
-  FoilLabelHistoryEntry,
-} from "@/lib/interfaces/admin";
-import { toast } from "@/lib/toast";
+import { useLabelQueue } from "@/hooks/use-label-queue";
 import {
   IconArrowLeft,
   IconPlayerSkipForward,
   IconSparkles,
   IconSquare,
 } from "@tabler/icons-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import type { FoilLabelDecision } from "@/lib/interfaces/admin";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 export function FoilLabelingManager() {
   const { t } = useTranslation("admin");
   const queueQuery = useQuery(adminFoilLabelQueueQueryOptions);
-  const { refetch: refetchQueue, isFetching: isFetchingQueue, dataUpdatedAt: queueFetchedAt } = queueQuery;
-  const [history, setHistory] = useState<FoilLabelHistoryEntry[]>([]);
-  const [cursor, setCursor] = useState<number | null>(null);
-  const [pendingSaveCount, setPendingSaveCount] = useState(0);
-  const [lastLabelSavedAt, setLastLabelSavedAt] = useState(0);
-
-  const forgetFailedLabel = (scanId: string, message?: string) => {
-    setHistory((entries) => entries.filter((entry) => entry.item.scanId !== scanId));
-    setCursor(null);
-    toast.error(message || t("foilLabels.toasts.saveError"));
-  };
-
-  const saveMutation = useMutation({
-    mutationFn: saveAdminFoilLabel,
-    onMutate: () => setPendingSaveCount((count) => count + 1),
-    onSettled: () => setPendingSaveCount((count) => count - 1),
-    onSuccess: (result, request) => {
-      if (!result.success) {
-        forgetFailedLabel(request.scanId, result.message);
-        return;
-      }
-      setLastLabelSavedAt(Date.now());
-    },
-    onError: (_error, request) => forgetFailedLabel(request.scanId),
-  });
-
-  const decidedScanIds = useMemo(
-    () => new Set(history.map((entry) => entry.item.scanId)),
-    [history],
-  );
-  const upcoming = useMemo(
-    () =>
-      (queueQuery.data?.items ?? []).filter(
-        (item) => !decidedScanIds.has(item.scanId),
-      ),
-    [queueQuery.data, decidedScanIds],
-  );
-  const revisiting = cursor === null ? null : history[cursor];
-  const current = revisiting?.item ?? upcoming[0] ?? null;
-
-  const needsRefill =
-    upcoming.length < FOIL_LABEL_QUEUE_REFILL_THRESHOLD &&
-    lastLabelSavedAt > queueFetchedAt;
-  useEffect(() => {
-    if (needsRefill && !isFetchingQueue) void refetchQueue();
-  }, [needsRefill, isFetchingQueue, refetchQueue]);
-  const isLoadingMore =
-    !current && (needsRefill || pendingSaveCount > 0 || isFetchingQueue);
-
-  useEffect(() => {
-    for (const item of upcoming.slice(1, 1 + FOIL_LABEL_PREFETCH_COUNT)) {
-      if (item.capturedImageUrl) new Image().src = item.capturedImageUrl;
-    }
-  }, [upcoming]);
+  const { refetch: refetchQueue, isFetching: isFetchingQueue } = queueQuery;
+  const { current, revisiting, history, decide, skip, goBack, canGoBack, isLoadingMore } =
+    useLabelQueue({
+      items: queueQuery.data?.items,
+      isFetchingQueue,
+      queueFetchedAt: queueQuery.dataUpdatedAt,
+      refetchQueue,
+      saveLabel: (item, decision: FoilLabelDecision) =>
+        saveAdminFoilLabel({ scanId: item.scanId, isFoil: decision === "foil" }),
+      saveErrorMessage: t("foilLabels.toasts.saveError"),
+    });
 
   const sessionFoilCount = history.filter((entry) => entry.decision === "foil").length;
   const sessionNotFoilCount = history.filter((entry) => entry.decision === "notFoil").length;
 
-  const decide = (decision: FoilLabelDecision) => {
-    if (!current) return;
-    const index = cursor ?? history.length;
-    const nextCursor = cursor !== null && cursor + 1 < history.length ? cursor + 1 : null;
-    if (decision === "skipped" && revisiting) {
-      setCursor(nextCursor);
-      return;
-    }
-    setHistory((entries) => {
-      const next = [...entries];
-      next[index] = { item: current, decision };
-      return next;
-    });
-    setCursor(nextCursor);
-    if (decision === "skipped") return;
-    saveMutation.mutate({ scanId: current.scanId, isFoil: decision === "foil" });
-  };
-
-  const goBack = () => {
-    const index = (cursor ?? history.length) - 1;
-    if (index >= 0) setCursor(index);
-  };
-
   useHotkeys({
     foilLabelFoil: () => decide("foil"),
     foilLabelNotFoil: () => decide("notFoil"),
-    foilLabelSkip: () => decide("skipped"),
+    foilLabelSkip: skip,
     foilLabelBack: goBack,
   });
 
@@ -204,7 +130,7 @@ export function FoilLabelingManager() {
                     </figcaption>
                   </figure>
                 )}
-                <dl className="flex flex-col gap-1 text-xs">
+                <dl aria-live="polite" className="flex flex-col gap-1 text-xs">
                   <dt className="text-sm font-medium">
                     {current.cardName ?? t("foilLabels.unknownCard")}
                   </dt>
@@ -253,14 +179,14 @@ export function FoilLabelingManager() {
                 {t("foilLabels.actions.notFoil")}
                 <HotkeyHint id="foilLabelNotFoil" />
               </Button>
-              <Button variant="ghost" onClick={() => decide("skipped")}>
+              <Button variant="ghost" onClick={skip}>
                 <IconPlayerSkipForward />
                 {t("foilLabels.actions.skip")}
                 <HotkeyHint id="foilLabelSkip" />
               </Button>
               <Button
                 variant="ghost"
-                disabled={(cursor ?? history.length) === 0}
+                disabled={!canGoBack}
                 onClick={goBack}
               >
                 <IconArrowLeft />

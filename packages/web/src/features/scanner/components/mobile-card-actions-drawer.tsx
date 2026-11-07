@@ -133,6 +133,7 @@ function MobileCardActionsBody({
             <Button
               key={option ?? "none"}
               variant={currentFoil === option ? "outline-selected" : "outline"}
+              aria-pressed={currentFoil === option}
               onClick={run(() => setFoil(option))}
             >
               {option ?? t("cardContextMenu.nonFoil")}
@@ -152,6 +153,7 @@ function MobileCardActionsBody({
               variant={
                 currentCondition === option ? "outline-selected" : "outline"
               }
+              aria-pressed={currentCondition === option}
               onClick={run(() => setCondition(option))}
             >
               {option}

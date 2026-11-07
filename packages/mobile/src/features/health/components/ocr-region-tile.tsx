@@ -55,7 +55,7 @@ export function OcrRegionTile({ gameKey, name, lang, regions, width }: OcrRegion
       >
         {sample.isLoading ? <Skeleton height="100%" /> : null}
         {imageUrl ? (
-          <Image source={{ uri: imageUrl }} contentFit="fill" style={{ position: "absolute", inset: 0 }} />
+          <Image accessible={false} source={{ uri: imageUrl }} contentFit="fill" style={{ position: "absolute", inset: 0 }} />
         ) : null}
         {regions.map((region, i) => (
           <View

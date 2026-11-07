@@ -15,7 +15,7 @@ import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconDownload, IconSparkles } from "@tabler/icons-react";
-import { DEFAULT_CARD_CONDITION } from "@magic-vault/shared";
+import { DEFAULT_CARD_CONDITION, rarityLabel } from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -75,12 +75,14 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 showReviewStatus ? "left-6" : "left-1",
               )}
               title={foilType ?? t("foil")}
+              role="img"
+              aria-label={foilType ?? t("foil")}
             >
               <IconSparkles className="size-3 text-white" />
             </div>
           )}
-          <div className="absolute bottom-1 left-1 right-1 flex gap-1 items-center justify-between z-20">
-            <div className="flex gap-1 items-center min-w-0">
+          <div className="absolute bottom-1 left-1 right-1 z-20 flex flex-wrap-reverse items-center justify-between gap-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-1">
               <Tooltip>
                 <TooltipTrigger
                   render={
@@ -125,13 +127,13 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             {storageLocation ? (
               <StorageLocationBadge
                 location={storageLocation}
-                className="shadow-md"
+                className="ml-auto shadow-md"
               />
             ) : showBinLocation ? (
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <Badge variant="secondary" className="shadow-md">
+                    <Badge variant="secondary" className="ml-auto shadow-md">
                       {t("scannedCardItem.bin", { number: binNumber })}
                     </Badge>
                   }
@@ -141,7 +143,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 </TooltipContent>
               </Tooltip>
             ) : (
-              <Badge variant="secondary" className="shadow-md">
+              <Badge variant="secondary" className="ml-auto shadow-md">
                 {t("scannedCardItem.bin", { number: binNumber })}
               </Badge>
             )}
@@ -157,6 +159,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
       </button>
       {onToggleSelect && (
         <span
+          role="presentation"
           className="absolute top-2 right-2 z-30 flex size-6 items-center justify-center rounded-md bg-background/80 shadow-sm backdrop-blur-sm"
           onMouseDown={onSelectMouseDown}
           onClick={(e) => {
@@ -169,15 +172,15 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             checked={isSelected}
             aria-label={t("scannedCardTable.selectRow", { name: card.name })}
             onClick={(e) => e.stopPropagation()}
-            onCheckedChange={() =>
-              onToggleSelect({ shiftKey: consumeShift() })
-            }
+            onCheckedChange={() => onToggleSelect({ shiftKey: consumeShift() })}
           />
         </span>
       )}
-      <div className="flex flex-row justify-between items-center gap-2 px-1 pb-1">
-        <div className="flex min-w-0 flex-row items-center gap-2">
+      <div className="flex flex-row flex-wrap items-center justify-between gap-x-2 gap-y-0.5 px-1 pb-1">
+        <div className="flex min-w-0 flex-row items-center gap-1.5">
           <div
+            role="img"
+            aria-label={rarityLabel(card.rarity)}
             className="size-3 rounded-full shrink-0"
             style={{ backgroundColor: raritySwatch(card.rarity).bg }}
           />
@@ -187,11 +190,16 @@ export const ScannedCardItem = memo(function ScannedCardItem({
           >
             {card.set}
           </p>
-          <p className="shrink-0 text-xs text-foreground/70">
+          <p className="min-w-0 truncate text-xs text-foreground/70">
             #{card.collectorNumber}
           </p>
           {isDownloaded && (
-            <span className="shrink-0" title={t("downloaded")}>
+            <span
+              className="shrink-0"
+              title={t("downloaded")}
+              role="img"
+              aria-label={t("downloaded")}
+            >
               <IconDownload className="size-3 text-foreground/70 shrink-0" />
             </span>
           )}

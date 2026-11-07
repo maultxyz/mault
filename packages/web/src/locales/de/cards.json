@@ -16,7 +16,8 @@
     "allSetsCount": "Alle Editionen ({{count}})",
     "noMatchingSets": "Keine passenden Editionen",
     "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
-    "noCardsFound": "Keine Karten gefunden"
+    "noCardsFound": "Keine Karten gefunden",
+    "searchLabel": "Karten suchen"
   },
   "priceTable": {
     "heading": "TCGplayer",
@@ -362,7 +363,9 @@
     "exit": "Prüfung beenden",
     "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden.",
     "notShown_one": "{{count}} weitere Karte wird hier nicht angezeigt.",
-    "notShown_other": "{{count}} weitere Karten werden hier nicht angezeigt."
+    "notShown_other": "{{count}} weitere Karten werden hier nicht angezeigt.",
+    "statusRemoved": "Entfernt",
+    "statusPending": "Noch nicht geprüft"
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -492,6 +495,7 @@
   "cardTags": {
     "title": "Markierungen",
     "edit": "Markierungen bearbeiten",
+    "editWithTags": "Markierungen bearbeiten: {{tags}}",
     "bulkAdd": "Markierung hinzufügen",
     "bulkRemove": "Markierung entfernen",
     "names": {

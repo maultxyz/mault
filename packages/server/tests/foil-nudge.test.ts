@@ -120,13 +120,13 @@ test("an overall exposure and white balance shift is not counted as a change", (
     return [red * 1.2, green * 1.15, blue * 1.1];
   });
   assert.ok(measureFoilNudgeChange(before, brighter).meanCellChange < 0.01);
-  assert.equal(detectFoilFromNudges(before, { left: brighter, right: brighter }, "mtg")?.isFoilDetected, false);
+  assert.equal(detectFoilFromNudges(before, { left: brighter, right: brighter })?.isFoilDetected, false);
 });
 
 test("a sheen that only changes on one side is still detected as foil", () => {
   const before = cardImage(withSheenAt(60, 90));
   const after = cardImage(withSheenAt(140, 90));
-  const detection = detectFoilFromNudges(before, { left: cardImage(withSheenAt(60, 90)), right: after }, "mtg");
+  const detection = detectFoilFromNudges(before, { left: cardImage(withSheenAt(60, 90)), right: after });
   assert.equal(detection?.method, "nudge");
   assert.equal(detection?.isFoilDetected, true);
   assert.ok((detection?.nudgeChange?.changedCellShare ?? 0) > 0.1);
@@ -160,11 +160,9 @@ test("a second photo that comes out upside down is turned back before comparing"
   const upsideDown = cardImage((x, y) => artwork(WIDTH - 1 - x, HEIGHT - 1 - y));
   assert.ok(measureFoilNudgeChange(before, upsideDown).meanCellChange > 0.05);
   assert.equal(measureAlignedFoilNudgeChange(before, upsideDown).meanCellChange, 0);
-  assert.equal(detectFoilFromNudges(before, { left: upsideDown }, "mtg")?.isFoilDetected, false);
+  assert.equal(detectFoilFromNudges(before, { left: upsideDown })?.isFoilDetected, false);
 });
 
-test("games without foil detection get no nudge result", () => {
-  const image = cardImage(artwork);
-  assert.equal(detectFoilFromNudges(image, { left: image }, "pokemon"), null);
-  assert.equal(detectFoilFromNudges(image, {}, "mtg"), null);
+test("no usable photo after a nudge gives no result", () => {
+  assert.equal(detectFoilFromNudges(cardImage(artwork), {}), null);
 });

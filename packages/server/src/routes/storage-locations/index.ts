@@ -5,7 +5,9 @@ import {
   STORAGE_MOVE_CARDS_MAX,
   STORAGE_SEARCH_QUERY_MAX_LENGTH,
   STORAGE_SEARCH_RESULT_LIMIT,
+  normalizePickListEntries,
   storageLocationCsvExportRequestSchema,
+  storagePickListRequestSchema,
   toCardCondition,
   type FieldMeta,
   type PagedList,
@@ -14,6 +16,9 @@ import {
   type StorageLocationCard,
   type StorageLocationCardContext,
   type StorageLocationCardPage,
+  type StorageLocationCardsSummary,
+  type StorageRemoveCardsResult,
+  SORTABLE_FIELD_TYPES,
   type StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
@@ -42,11 +47,20 @@ import { emitToSession } from "../../lib/session-stream";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import { buildCardExport, csvResponse } from "../../lib/card-export";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { parseScanIds } from "../collections/cards-query";
+import { parseCardsQuery, parseScanIds } from "../collections/cards-query";
+import { loadOrgPricing } from "../../lib/price-source";
 import {
-  countStoredCards,
   findLocationId,
-  findStoredCardNeighbor,
+  loadLocationCardStats,
+  loadLocationFieldDefinitions,
+  loadStoredCardIdsPage,
+  loadStoredCardNavigation,
+  loadStoredCardsByRowIds,
+  loadStoragePickList,
+  loadStorageVerifyCards,
+  removeCardsFromLocations,
+  selectLocatedCards,
+  toLocatedCards,
   loadStorageLocationExportCards,
   loadStorageLocationExportSummary,
   loadLocations,
@@ -54,12 +68,19 @@ import {
   orderedLocationGuids,
   parseLocationName,
   selectStoredCards,
-  storedCardOrderKey,
   storedCardPosition,
   storedCardsWhere,
   toStoredCards,
   visibleAcquisitionCost,
 } from "./shared";
+
+function parseStoredCardsQuery(params: Record<string, string | undefined>) {
+  return {
+    ...parseCardsQuery(params),
+    grouped: false,
+    unreviewed: params.unreviewedOnly === "true",
+  };
+}
 
 const router = new Hono<AppEnv>()
   .get("/", requireAuth, requireOrg, async (c) => {
@@ -96,46 +117,12 @@ const router = new Hono<AppEnv>()
       .slice(0, STORAGE_SEARCH_QUERY_MAX_LENGTH)
       .toLowerCase();
     if (!query) return c.json({ success: true, data: [] });
-    const { rows, canViewCosts } = await authQuery(
-      c.get("jwtClaims"),
-      async (tx) => ({
-        canViewCosts: await canViewCardCosts(tx, orgId, c.get("orgRole")),
-        rows: await tx
-          .select({
-            scanId: collectionCards.guid,
-            position: collectionCards.locationPosition,
-            card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
-            isFoil: collectionCards.isFoil,
-            foilType: collectionCards.foilType,
-            condition: collectionCards.condition,
-            language: collectionCards.language,
-            lowConfidenceMatch: collectionCards.lowConfidenceMatch,
-            hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
-            corrected: collectionCards.isCorrected,
-            reviewed: collectionCards.isReviewed,
-            acquisitionCost: collectionCards.acquisitionCost,
-            acquisitionCurrency: collectionCards.acquisitionCurrency,
-            collectionGuid: collections.guid,
-            collectionName: collections.name,
-            collectionLang: collections.lang,
-            gameKey: games.key,
-            locationGuid: storageLocations.guid,
-            locationName: storageLocations.name,
-          })
-          .from(collectionCards)
-          .innerJoin(
-            storageLocations,
-            eq(storageLocations.id, collectionCards.locationId),
-          )
-          .innerJoin(
-            collections,
-            eq(collections.id, collectionCards.collectionId),
-          )
-          .leftJoin(games, eq(games.id, collections.gameId))
+    const data = await authQuery(c.get("jwtClaims"), async (tx) =>
+      toLocatedCards(
+        await selectLocatedCards(tx)
           .where(
             and(
               eq(storageLocations.orgId, orgId),
-              eq(storageLocations.isDeleted, false),
               eq(collections.isDeleted, false),
               sql`strpos(lower(${collectionCards.cardName}), ${query}) > 0`,
             ),
@@ -146,35 +133,52 @@ const router = new Hono<AppEnv>()
             asc(collectionCards.locationPosition),
           )
           .limit(STORAGE_SEARCH_RESULT_LIMIT),
-      }),
+        await canViewCardCosts(tx, orgId, c.get("orgRole")),
+      ),
     );
-    const cards = await hydrateSavedCards(
-      rows.map((r) => ({
-        gameKey: r.gameKey,
-        lang: r.collectionLang,
-        card: r.card,
-      })),
-      { includeRaw: false },
-    );
-    const data: StorageLocationSearchResult[] = rows.map((r, i) => ({
-      scanId: r.scanId!,
-      position: r.position ?? 0,
-      card: cards[i],
-      isFoil: r.isFoil,
-      foilType: r.foilType,
-      condition: toCardCondition(r.condition),
-      language: r.language,
-      lowConfidenceMatch: r.lowConfidenceMatch,
-      hasAlternatives: r.hasAlternatives,
-      corrected: r.corrected,
-      reviewed: r.reviewed,
-      ...visibleAcquisitionCost(r, canViewCosts),
-      collectionGuid: r.collectionGuid!,
-      collectionName: r.collectionName,
-      locationGuid: r.locationGuid!,
-      locationName: r.locationName,
-    }));
     return c.json({ success: true, data });
+  })
+  .post("/pick-list", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const input = storagePickListRequestSchema.safeParse(
+      await c.req.json().catch(() => ({})),
+    );
+    if (!input.success) {
+      return c.json({ success: false, message: "Invalid pick list." }, 400);
+    }
+    const entries = normalizePickListEntries(input.data.entries);
+    const data = await authQuery(c.get("jwtClaims"), async (tx) =>
+      loadStoragePickList(
+        tx,
+        orgId,
+        entries,
+        await canViewCardCosts(tx, orgId, c.get("orgRole")),
+      ),
+    );
+    return c.json({ success: true, data });
+  })
+  .post("/remove-cards", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const scanIds = parseScanIds(
+      await c.req.json<{ scanIds?: unknown }>().catch(() => ({})),
+    );
+    if (!scanIds) {
+      return c.json({ success: false, message: "Invalid cards." }, 400);
+    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isStorageAllowed(tx, orgId))) {
+        return {
+          success: false,
+          message: STORAGE_UPGRADE_MESSAGE,
+          upgradeRequired: true,
+        };
+      }
+      const data: StorageRemoveCardsResult = {
+        removed: await removeCardsFromLocations(tx, orgId, scanIds),
+      };
+      return { success: true, data };
+    });
+    return c.json(result);
   })
   .get("/:guid", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
@@ -317,28 +321,23 @@ const router = new Hono<AppEnv>()
       Number.parseInt(c.req.query("page") ?? "", 10) || 1,
       1,
     );
-    const reviewFilter =
-      c.req.query("unreviewedOnly") === "true"
-        ? eq(collectionCards.isReviewed, false)
-        : undefined;
+    const query = parseStoredCardsQuery(c.req.query());
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
         return { success: false, message: "Storage location not found." };
       }
-      const total = await countStoredCards(tx, locationId, reviewFilter);
-      const page = Math.min(
+      const { rowIds, total, page } = await loadStoredCardIdsPage(
+        tx,
+        locationId,
+        query,
+        query.sort ? await loadLocationFieldDefinitions(tx, locationId) : [],
+        pageSize,
         requestedPage,
-        Math.max(Math.ceil(total / pageSize), 1),
       );
-      const rows = await selectStoredCards(tx)
-        .where(storedCardsWhere(locationId, reviewFilter))
-        .orderBy(asc(storedCardPosition), asc(collectionCards.id))
-        .limit(pageSize)
-        .offset((page - 1) * pageSize);
       const data: StorageLocationCardPage = {
         cards: await toStoredCards(
-          rows,
+          await loadStoredCardsByRowIds(tx, rowIds),
           await canViewCardCosts(tx, orgId, c.get("orgRole")),
         ),
         total,
@@ -377,10 +376,7 @@ const router = new Hono<AppEnv>()
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const scanId = c.req.param("scanId");
-    const reviewFilter =
-      c.req.query("unreviewedOnly") === "true"
-        ? eq(collectionCards.isReviewed, false)
-        : undefined;
+    const query = parseStoredCardsQuery(c.req.query());
     if (!UUID_PATTERN.test(scanId)) {
       return c.json({ success: false, message: "Invalid card id." }, 400);
     }
@@ -393,7 +389,15 @@ const router = new Hono<AppEnv>()
         .where(storedCardsWhere(locationId, eq(collectionCards.guid, scanId)))
         .limit(1);
       if (!current) return { success: true, data: null };
-      const currentKey = sql`(${Number(current.position)}::int, ${current.rowId}::int)`;
+      const navigation = await loadStoredCardNavigation(
+        tx,
+        locationId,
+        query,
+        query.sort ? await loadLocationFieldDefinitions(tx, locationId) : [],
+        scanId,
+        query.unreviewed === true,
+      );
+      if (!navigation) return { success: true, data: null };
       const data: StorageLocationCardContext = {
         card: (
           await toStoredCards(
@@ -401,26 +405,46 @@ const router = new Hono<AppEnv>()
             await canViewCardCosts(tx, orgId, c.get("orgRole")),
           )
         )[0],
-        index: await countStoredCards(
+        ...navigation,
+      };
+      return { success: true, data };
+    });
+    return c.json(result);
+  })
+  .get("/:guid/cards/verify", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const locationId = await findLocationId(tx, orgId, guid);
+      if (locationId === null) {
+        return { success: false, message: "Storage location not found." };
+      }
+      const data: StorageLocationSearchResult[] = await loadStorageVerifyCards(
+        tx,
+        locationId,
+        await canViewCardCosts(tx, orgId, c.get("orgRole")),
+      );
+      return { success: true, data };
+    });
+    return c.json(result);
+  })
+  .get("/:guid/cards/summary", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const locationId = await findLocationId(tx, orgId, guid);
+      if (locationId === null) {
+        return { success: false, message: "Storage location not found." };
+      }
+      const data: StorageLocationCardsSummary = {
+        stats: await loadLocationCardStats(
           tx,
           locationId,
-          sql`${storedCardOrderKey} < ${currentKey}`,
+          await loadOrgPricing(tx, orgId),
         ),
-        total: await countStoredCards(tx, locationId),
-        previous: await findStoredCardNeighbor(
-          tx,
-          locationId,
-          "previous",
-          currentKey,
-          reviewFilter,
-        ),
-        next: await findStoredCardNeighbor(
-          tx,
-          locationId,
-          "next",
-          currentKey,
-          reviewFilter,
-        ),
+        sortableFields: (
+          await loadLocationFieldDefinitions(tx, locationId)
+        ).filter((field) => SORTABLE_FIELD_TYPES.includes(field.type)),
       };
       return { success: true, data };
     });

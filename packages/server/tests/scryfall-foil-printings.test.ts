@@ -5,6 +5,7 @@ import {
   scryfallFoilPrintingVariants,
   scryfallFoilTreatment,
 } from "../src/lib/adapters/scryfall/foil-printings";
+import { scryfallAdapter } from "../src/lib/adapters/scryfall/search";
 
 function printing(raw: Record<string, unknown>): PlayingCard {
   return {
@@ -46,4 +47,13 @@ test("foil printings: same artwork needs the same set and illustration", () => {
   assert.equal(isSameArtwork(regular, surge), true);
   assert.equal(isSameArtwork(regular, printing({ illustration_id: "art-2" })), false);
   assert.equal(isSameArtwork(regular, printing({ set: "pip" })), false);
+});
+
+test("Scryfall finishes decide whether a printing has a nonfoil copy", () => {
+  const { sourceListsNonFoilPrinting } = scryfallAdapter;
+  assert.equal(sourceListsNonFoilPrinting?.(traditional), true);
+  assert.equal(sourceListsNonFoilPrinting?.(regular), true);
+  assert.equal(sourceListsNonFoilPrinting?.(surge), false);
+  assert.equal(sourceListsNonFoilPrinting?.(etched), false);
+  assert.equal(sourceListsNonFoilPrinting?.({} as PlayingCard), false);
 });

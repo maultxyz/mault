@@ -30,10 +30,11 @@ export function SegmentedControl<T extends string>({
             key={option.value}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
+            hitSlop={{ top: 4, bottom: 4 }}
             onPress={() => onChange(option.value)}
             style={{
               flex: 1,
-              height: 36,
+              minHeight: 36,
               alignItems: "center",
               justifyContent: "center",
               borderRadius: RADIUS.sm,

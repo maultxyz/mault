@@ -496,6 +496,7 @@ export default function CardDetailScreen() {
                 <View style={imageFrame}>
                   {card ? (
                     <Image
+                      accessibilityLabel={card.name}
                       source={{ uri: absoluteUrl(card.image?.normal ?? card.image?.small) ?? undefined }}
                       style={{ flex: 1 }}
                       contentFit="cover"

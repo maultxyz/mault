@@ -137,7 +137,10 @@ export function RepackPanel() {
               <span className="flex items-center gap-1.5">
                 <FieldLabel>{t("repackPanel.uniqueByLabel")}</FieldLabel>
                 <Tooltip>
-                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                  <TooltipTrigger
+                    aria-label={t("repackPanel.uniqueByDescription")}
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
                     <IconInfoCircle className="size-3.5" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
@@ -205,7 +208,10 @@ export function RepackPanel() {
               <span className="flex items-center gap-1.5">
                 <FieldLabel>{t("repackPanel.multiplePacksLabel")}</FieldLabel>
                 <Tooltip>
-                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                  <TooltipTrigger
+                    aria-label={t("repackPanel.multiplePacksDescription")}
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
                     <IconInfoCircle className="size-3.5" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
@@ -233,7 +239,10 @@ export function RepackPanel() {
                 <span className="flex items-center gap-1.5">
                   <FieldLabel>{t("repackPanel.siftLabel")}</FieldLabel>
                   <Tooltip>
-                    <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                    <TooltipTrigger
+                      aria-label={t("repackPanel.siftDescription")}
+                      className="text-foreground/70 hover:text-foreground transition-colors"
+                    >
                       <IconInfoCircle className="size-3.5" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
@@ -297,6 +306,7 @@ export function RepackPanel() {
                           />
                         </Field>
                         <Button
+                          aria-label={t("common:a11y.remove")}
                           type="button"
                           variant="ghost"
                           size="icon"

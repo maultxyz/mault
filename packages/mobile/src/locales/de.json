@@ -14,7 +14,10 @@
     "discardTitle": "Änderungen verwerfen?",
     "discardDescription": "Deine Änderungen an diesem Fach wurden nicht gespeichert.",
     "keepEditing": "Weiter bearbeiten",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "decreaseBy": "Um {{step}} verringern",
+    "increaseBy": "Um {{step}} erhöhen",
+    "changesSaved": "Änderungen gespeichert"
   },
   "tabs": {
     "collections": "Sammlungen",
@@ -100,6 +103,8 @@
   "cards": {
     "bin": "Fach {{number}}",
     "needsReview": "Zu prüfen",
+    "reviewed": "Geprüft",
+    "cardActions": "Kartenaktionen",
     "quantity_one": "{{count}} Exemplar",
     "quantity_other": "{{count}} Exemplare"
   },
@@ -573,6 +578,7 @@
     "sorterNotReadyDescription": "Verbinde deinen Sortierer, um Karten einzuziehen und einzusortieren. Du kannst Karten weiterhin von Hand scannen.",
     "openSorter": "Sortierer verbinden",
     "modelErrorTitle": "Die Kartenerkennungsmodelle konnten nicht geladen werden",
+    "cameraPreview": "Kameravorschau",
     "phase": {
       "idle": "Inaktiv",
       "loading-models": "Lade Modelle",
@@ -766,7 +772,12 @@
       "removeTitle_other": "{{count}} Exemplare entfernen?"
     },
     "viewOptions": "Ansichtsoptionen",
-    "display": "Anzeige"
+    "display": "Anzeige",
+    "layout": "Layout",
+    "viewModes": {
+      "list": "Liste",
+      "grid": "Raster"
+    }
   },
   "cardDetail": {
     "pricePaid": "Kaufpreis ({{currency}})",
@@ -1121,6 +1132,24 @@
       "reverseSpeedLabel": "Rückrollgeschwindigkeit",
       "off": "Aus"
     },
+    "feederTest": {
+      "heading": "Zuführungstest",
+      "description": "Karten ohne Scan direkt ins untere Fach zuführen, mit den gespeicherten Zuführungseinstellungen.",
+      "runUntilStoppedLabel": "Zuführen bis zum Stopp",
+      "cardsToSendLabel": "Anzahl Karten",
+      "start": "Zuführung starten",
+      "stop": "Stopp",
+      "stopping": "Stoppt nach dieser Karte",
+      "progress": "Gesendete Karten: {{count}}",
+      "progressOfTotal": "Gesendete Karten: {{count}} von {{total}}",
+      "results": {
+        "completed": "Zuführungstest abgeschlossen. Gesendete Karten: {{count}}",
+        "stopped": "Zuführungstest gestoppt. Gesendete Karten: {{count}}",
+        "hopperEmpty": "Zuführbehälter ist leer. Gesendete Karten: {{count}}",
+        "feedFailed": "Zuführungstest wegen eines Fehlers gestoppt. Gesendete Karten: {{count}}",
+        "routeFailed": "Zuführungstest wegen eines Fehlers gestoppt. Gesendete Karten: {{count}}"
+      }
+    },
     "runTest": "Test ausführen",
     "testing": "Wird getestet…",
     "feed": "Zuführen",
@@ -1276,6 +1305,9 @@
     "location": "Lager",
     "removeFromLocation": "Aus Lagerort entfernen",
     "noCardsTitle": "Dieser Lagerort ist leer",
+    "searchCardsPlaceholder": "Karten in diesem Lagerort suchen",
+    "positionOrder": "Platz in der Box",
+    "noMatchingCards": "Keine Karten passen zu deiner Suche oder deinen Filtern",
     "businessOnly": "Lagerorte sind nicht in deinem Plan enthalten.",
     "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
     "lockedWithLocations": "Du kannst deine Lagerorte und die Karten darin weiter ansehen und durchsuchen. Änderungen brauchen einen Plan mit Lagerorten.",
@@ -1291,7 +1323,73 @@
     "moveToCollectionFailed": "Karten konnten nicht verschoben werden",
     "moveToOtherLocation": "In anderen Lagerort verschieben",
     "searchLocations": "Lagerorte suchen",
-    "searchCollections": "Sammlungen suchen"
+    "searchCollections": "Sammlungen suchen",
+    "pickList": {
+      "open": "Pickliste",
+      "title": "Pickliste",
+      "description": "Füge eine Deckliste ein, um zu sehen, wo jede Karte gelagert ist, und hake die Karten beim Heraussuchen ab.",
+      "decklistLabel": "Herauszusuchende Karten",
+      "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+      "decklistHint": "Eine Karte pro Zeile. Anzahlen, Set-Codes und Abschnittsüberschriften sind erlaubt.",
+      "findCards": "Karten finden",
+      "editList": "Liste bearbeiten",
+      "clear": "Liste leeren",
+      "progress": "{{picked}} von {{total}} herausgesucht",
+      "emptyTitle": "Keine dieser Karten ist gelagert",
+      "emptyDescription": "Nur Karten in einem Lagerort erscheinen auf einer Pickliste.",
+      "loadFailed": "Die Pickliste konnte nicht geladen werden.",
+      "finish": "Herausgesuchte aus Lagerorten entfernen",
+      "finishTitle_one": "{{count}} herausgesuchte Karte aus ihrem Lagerort entfernen?",
+      "finishTitle_other": "{{count}} herausgesuchte Karten aus ihren Lagerorten entfernen?",
+      "finishDescription": "Sie bleiben in deiner Sammlung. Die Pickliste wird danach geleert.",
+      "finishConfirm": "Entfernen",
+      "scan": {
+        "button": "Zum Abhaken scannen",
+        "noMatch": "Keine Karte erkannt. Versuche es erneut mit der ganzen Karte im Bild.",
+        "notOnList": "{{name}} ist nicht mehr auf deiner Pickliste.",
+        "picked": "{{name}} aus {{location}}, Platz {{position}} herausgesucht",
+        "failed": "Scannen fehlgeschlagen. Versuche es erneut.",
+        "title": "Zum Abhaken scannen",
+        "hint": "Halte eine Karte in den Rahmen und tippe auf den Auslöser.",
+        "done": "Fertig",
+        "remaining": "Noch {{count}} herauszusuchen",
+        "loadingModels": "Scanner wird vorbereitet",
+        "alreadyPicked": "Alle Exemplare von {{name}} auf deiner Pickliste sind bereits herausgesucht."
+      },
+      "finishFailed": "Die herausgesuchten Karten konnten nicht entfernt werden. Versuche es erneut.",
+      "notStored": "Nicht gelagert",
+      "missingCount_one": "{{count}} Exemplar nicht gelagert",
+      "missingCount_other": "{{count}} Exemplare nicht gelagert",
+      "moreActions": "Weitere Aktionen",
+      "picked": "Herausgesucht"
+    },
+    "verify": {
+      "tabs": {
+        "cards": "Karten",
+        "verify": "Prüfen"
+      },
+      "description": "Scanne die Karten an diesem Lagerort, um zu prüfen, ob alles da ist, was hier sein sollte.",
+      "progress": "{{verified}} von {{total}} geprüft",
+      "verified": "Geprüft",
+      "startOver": "Neu beginnen",
+      "emptyTitle": "Nichts zu prüfen",
+      "emptyDescription": "An diesem Lagerort sind noch keine Karten gelagert.",
+      "loadFailed": "Die Karten dieses Lagerorts konnten nicht geladen werden.",
+      "truncated": "Nur die ersten {{max}} Karten an diesem Lagerort können geprüft werden.",
+      "complete": "Alle Karten an diesem Lagerort sind geprüft.",
+      "notInLocationTitle": "Gescannt, aber nicht hier gelagert",
+      "notInLocationDescription": "Diese Karten sind nicht an diesem Lagerort erfasst. Lege sie an ihren Platz zurück oder verschiebe sie hierher.",
+      "scan": {
+        "button": "Zum Prüfen scannen",
+        "stop": "Scannen beenden",
+        "verified": "{{name}} geprüft, Platz {{position}}",
+        "alreadyVerified": "Alle Exemplare von {{name}} an diesem Lagerort sind bereits geprüft.",
+        "notInLocation": "{{name}} ist nicht an diesem Lagerort gelagert.",
+        "hint": "Halte eine Karte von diesem Lagerort in den Rahmen und tippe auf den Auslöser.",
+        "title": "Karten prüfen",
+        "remaining": "Noch {{count}} zu prüfen"
+      }
+    }
   },
   "settings": {
     "title": "Einstellungen",
@@ -1354,14 +1452,7 @@
     "ocr": {
       "heading": "Texterkennung (OCR)",
       "description": "Wenn ein Scan nicht sicher erkannt wird, werden Kartenname und Set-Zeile gelesen, um die Karte zu finden. Gilt für alle Scanner dieser Organisation, bei Spielen mit eingerichteten Textbereichen.",
-      "toggleLabel": "OCR-Texterkennung aktivieren",
-      "badge": "Beta"
-    },
-    "ocrBetaDialog": {
-      "title": "OCR-Texterkennung (Beta)",
-      "description": "Wenn ein Scan nicht sicher erkannt wird, liest diese Funktion den Kartennamen und die Set-Zeile, um die Karte zu finden oder die richtige Druckversion zu wählen. Sichere Treffer überspringen das, die Scangeschwindigkeit bleibt also gleich. Die Funktion ist noch in der Beta und kann Text falsch lesen. Schalte sie wieder aus, wenn die Treffer schlechter werden.",
-      "confirm": "OCR aktivieren",
-      "cancel": "Abbrechen"
+      "toggleLabel": "OCR-Texterkennung aktivieren"
     },
     "correctionAutoClose": {
       "heading": "Hinweis nach Kartenkorrektur",
@@ -1926,6 +2017,7 @@
     "customerNameRequired": "Gib den Namen der Kundin oder des Kunden ein.",
     "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
     "orderLinesRequired": "Lass mindestens eine Karte in der Pickliste.",
+    "decklistRequired": "Gib mindestens eine Karte ein, eine pro Zeile.",
     "cardCountRequired": "Gib eine Kartenanzahl ein.",
     "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
     "commandRequired": "Gib einen Befehl ein.",

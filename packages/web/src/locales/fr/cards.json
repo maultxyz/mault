@@ -16,7 +16,8 @@
     "allSetsCount": "Tous les sets ({{count}})",
     "noMatchingSets": "Aucun set correspondant",
     "startTyping": "Commence à taper pour rechercher des cartes",
-    "noCardsFound": "Aucune carte trouvée"
+    "noCardsFound": "Aucune carte trouvée",
+    "searchLabel": "Rechercher des cartes"
   },
   "priceTable": {
     "heading": "TCGplayer",
@@ -362,7 +363,9 @@
     "exit": "Quitter la vérification",
     "loadFailed": "Impossible de charger les cartes à vérifier.",
     "notShown_one": "{{count}} carte de plus n'est pas affichée ici.",
-    "notShown_other": "{{count}} cartes de plus ne sont pas affichées ici."
+    "notShown_other": "{{count}} cartes de plus ne sont pas affichées ici.",
+    "statusRemoved": "Retirée",
+    "statusPending": "Pas encore vérifiée"
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -492,6 +495,7 @@
   "cardTags": {
     "title": "Étiquettes",
     "edit": "Modifier les étiquettes",
+    "editWithTags": "Modifier les étiquettes : {{tags}}",
     "bulkAdd": "Ajouter l'étiquette",
     "bulkRemove": "Retirer l'étiquette",
     "names": {

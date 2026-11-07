@@ -188,6 +188,7 @@ export function UnmatchedRetryManager() {
             pagination.setPage(1);
           }}
           placeholder={t("unmatchedRetry.searchPlaceholder")}
+          aria-label={t("unmatchedRetry.searchPlaceholder")}
           data-hotkey-search
         />
         <Select
@@ -197,7 +198,10 @@ export function UnmatchedRetryManager() {
             pagination.setPage(1);
           }}
         >
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger
+            className="w-full sm:w-48"
+            aria-label={t("unmatchedRetry.photoFilterLabel")}
+          >
             <SelectValue>
               {t(`unmatchedRetry.photoFilters.${photoFilter}`)}
             </SelectValue>
@@ -213,7 +217,7 @@ export function UnmatchedRetryManager() {
       </div>
 
       {(goodResults.length > 0 || badCount > 0) && (
-        <p className="text-sm text-foreground/70">
+        <p role="status" className="text-sm text-foreground/70">
           {t("unmatchedRetry.summary", {
             retried: goodResults.length,
             matched: matchedCount,

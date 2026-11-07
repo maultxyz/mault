@@ -19,8 +19,8 @@ export function SessionScansSheet({ visible, entries, collectionGuid, onClose }:
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           maxHeight: "80%",
           backgroundColor: colors.background,
@@ -47,7 +47,7 @@ export function SessionScansSheet({ visible, entries, collectionGuid, onClose }:
           }}
         >
           <View style={{ flex: 1 }}>
-            <AppText size="lg" heading weight="bold">
+            <AppText size="lg" heading weight="bold" accessibilityRole="header">
               {t("scan.sessionScans.title")}
             </AppText>
             <AppText size="sm" tone="secondary">

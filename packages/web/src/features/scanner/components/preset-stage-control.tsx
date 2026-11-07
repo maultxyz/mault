@@ -84,7 +84,10 @@ export function PresetStageControl() {
       </div>
       {isTimerActive ? (
         <Tooltip>
-          <TooltipTrigger render={<div />}>{controls}</TooltipTrigger>
+          <TooltipTrigger render={<div />}>
+            {controls}
+            <span className="sr-only">{t("presetWorkflows.stopFirst")}</span>
+          </TooltipTrigger>
           <TooltipContent>{t("presetWorkflows.stopFirst")}</TooltipContent>
         </Tooltip>
       ) : (

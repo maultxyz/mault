@@ -114,27 +114,35 @@ async function snapshotOrg(orgId: string): Promise<void> {
   );
 }
 
-async function snapshotBusinessOrgs(): Promise<void> {
+async function snapshotBusinessOrgs(): Promise<boolean> {
   const result = await db.execute(sql`
     SELECT org_id FROM ${intakeLots} WHERE is_deleted = false
     UNION SELECT org_id FROM ${fulfilmentOrders} WHERE is_deleted = false
     UNION SELECT org_id FROM ${orgInventorySnapshots}
     EXCEPT SELECT org_id FROM ${orgInventorySnapshots} WHERE day = ${today()}
   `);
+  let everyOrgSnapshotted = true;
   for (const row of result.rows as { org_id: string }[]) {
     try {
       await snapshotOrg(row.org_id);
     } catch (err) {
+      everyOrgSnapshotted = false;
       console.error("[inventory] Snapshot failed for org", row.org_id, err);
     }
   }
+  return everyOrgSnapshotted;
 }
 
 export function startInventorySnapshots(): void {
+  let lastCompletedSnapshotDay: string | null = null;
   const run = () => {
-    snapshotBusinessOrgs().catch((err) =>
-      console.error("[inventory] Snapshot run failed:", err),
-    );
+    const snapshotDay = today();
+    if (lastCompletedSnapshotDay === snapshotDay) return;
+    snapshotBusinessOrgs()
+      .then((everyOrgSnapshotted) => {
+        if (everyOrgSnapshotted) lastCompletedSnapshotDay = snapshotDay;
+      })
+      .catch((err) => console.error("[inventory] Snapshot run failed:", err));
   };
   setTimeout(run, INVENTORY_SNAPSHOT_STARTUP_DELAY_MS).unref();
   setInterval(run, INVENTORY_SNAPSHOT_INTERVAL_MS).unref();

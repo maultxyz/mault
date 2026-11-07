@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BaseProviders } from "@/app/providers";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,11 @@ function IntakeReceipt() {
   const money = (value: number | null) => (value == null ? "-" : format(value));
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="min-h-dvh bg-background text-foreground outline-none"
+    >
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6 print:p-0">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -155,7 +160,7 @@ function IntakeReceipt() {
           <div className="border-t pt-1">{t("receipt.staffSignature")}</div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

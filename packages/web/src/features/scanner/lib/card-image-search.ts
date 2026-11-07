@@ -10,7 +10,6 @@ import {
 } from "@/features/scanner/lib/card-detection";
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectColorBar } from "@/features/scanner/lib/color-bar";
-import { detectFoil } from "@/features/scanner/lib/foil-detection";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
@@ -193,7 +192,6 @@ async function toAttemptOutcome(
   collectionGuid: string | undefined,
   colorBarRegion: ColorBarRegion | undefined,
   readColorBarFromScan: boolean,
-  foilDetectionGameKey: string | null,
   context: Pick<
     ScanAttemptOutcome,
     | "detectedContour"
@@ -224,16 +222,11 @@ async function toAttemptOutcome(
   );
   const topDistance =
     best.result.data?.[0]?.distance ?? best.result.nearestDistance ?? null;
-  const foilDetection =
-    foilDetectionGameKey && resolved.card
-      ? detectFoil(best.canvas, foilDetectionGameKey)
-      : null;
   return {
     ...resolved,
     ...context,
     lowConfidenceMatch: context.lowConfidenceMatch || colorVariantUncertain,
     detectedColor,
-    foilDetection,
     debugImageUrl: best.canvas.toDataURL("image/jpeg", 0.8),
     search: best.result.diagnostics ?? null,
     orientation: best.orientation,
@@ -250,7 +243,6 @@ async function searchCardImage(
   ocrEnabled: boolean | undefined,
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
-  foilDetectionGameKey: string | null,
 ): Promise<ScanAttemptOutcome> {
   const created: HTMLCanvasElement[] = [];
   try {
@@ -263,7 +255,6 @@ async function searchCardImage(
       ocrEnabled,
       checkBothOrientations,
       colorBarRegion,
-      foilDetectionGameKey,
     );
   } finally {
     releaseCanvases(created, [canvas]);
@@ -279,7 +270,6 @@ async function runCardImageSearch(
   ocrEnabled: boolean | undefined,
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
-  foilDetectionGameKey: string | null,
 ): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
   let fallbackReason = "card not detected";
@@ -338,7 +328,6 @@ async function runCardImageSearch(
         collectionGuid,
         colorBarRegion,
         true,
-        foilDetectionGameKey,
         {
           detectedContour: corners.contour,
           dewarpedCardImage: readCanvasPixels(dewarpedCanvas),
@@ -375,7 +364,7 @@ async function runCardImageSearch(
   created.push(best.canvas);
   if (best.alternate) created.push(best.alternate.canvas);
 
-  return toAttemptOutcome(best, collectionGuid, colorBarRegion, false, foilDetectionGameKey, {
+  return toAttemptOutcome(best, collectionGuid, colorBarRegion, false, {
     detectedContour: null,
     dewarpedCardImage: null,
     vectorizedOn: "server",
@@ -391,8 +380,13 @@ function toScanOutcome(
   attempts: ScanAttemptOutcome[],
   matchesNeeded: number,
 ): ScanOutcome {
-  const { card, debugImageUrl, detectedContour, vectorizedOn, dewarpedCardImage } =
-    outcome;
+  const {
+    card,
+    debugImageUrl,
+    detectedContour,
+    vectorizedOn,
+    dewarpedCardImage,
+  } = outcome;
   return {
     card,
     alternativeMatches: card ? outcome.alternativeMatches : [],
@@ -413,7 +407,6 @@ export async function searchCardImageWithConsensus(
   matchesNeeded: number,
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
-  foilDetectionGameKey: string | null,
 ): Promise<ScanOutcome> {
   const attempts: ScanAttemptOutcome[] = [];
   const attempt = async () => {
@@ -425,7 +418,6 @@ export async function searchCardImageWithConsensus(
       ocrEnabled,
       checkBothOrientations,
       colorBarRegion,
-      foilDetectionGameKey,
     );
     attempts.push(outcome);
     return outcome;

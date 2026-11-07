@@ -49,7 +49,7 @@ export default function CalibrationScanRegionScreen() {
 
         <Surface style={{ gap: SPACING.md }}>
           <View>
-            <AppText heading weight="semibold">
+            <AppText heading weight="semibold" accessibilityRole="header">
               {t("calibration.scanRegion.heading")}
             </AppText>
             <AppText size="xs" tone="secondary">

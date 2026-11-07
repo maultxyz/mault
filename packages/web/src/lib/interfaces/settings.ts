@@ -23,12 +23,6 @@ export interface PriceSourceToggleProps {
   onChange: (priceSource: PriceSource) => void;
 }
 
-export interface OcrToggleProps {
-  checked: boolean;
-  disabled?: boolean;
-  onCheckedChange: (checked: boolean) => void;
-}
-
 export interface CorrectionAutoCloseSettingProps {
   value: number | null;
   disabled?: boolean;

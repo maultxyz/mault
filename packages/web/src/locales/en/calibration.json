@@ -74,7 +74,10 @@
     "customHeightLabel": "Custom bin height for bin {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "About {{count}} cards at {{thickness}} mm each",
-    "customHeightInvalid": "Enter {{min}} to {{max}} mm"
+    "customHeightInvalid": "Enter {{min}} to {{max}} mm",
+    "binSizeLabel": "Size of bin {{bin}}",
+    "bottomModuleSelect": "Module for bin {{bin}}",
+    "bottomBinSelect": "Bottom bin on module {{module}}"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
@@ -110,6 +113,23 @@
     "reverseDurationDescription": "Once a card reaches module 1, spin the roller backward this long so the next card in the hopper is pulled back instead of creeping forward into a double feed. 0 turns it off.",
     "reverseSpeedLabel": "Roll Back Speed",
     "off": "Off"
+  },
+  "feederTest": {
+    "heading": "Feeder test",
+    "description": "Feed cards straight to the bottom bin without scanning. Leave it running and adjust the feeder on the Servos & feeder page: changes apply from the next card and stay unsaved until you save.",
+    "runUntilStoppedLabel": "Feed until stopped",
+    "cardsToSendLabel": "Cards to send",
+    "start": "Start feeding",
+    "stop": "Stop",
+    "stopping": "Stopping after this card",
+    "progress": "Cards sent: {{count}}",
+    "progressOfTotal": "Cards sent: {{count}} of {{total}}",
+    "toasts": {
+      "completed": "Feeder test finished. Cards sent: {{count}}",
+      "stopped": "Feeder test stopped. Cards sent: {{count}}",
+      "hopperEmpty": "Hopper is empty. Cards sent: {{count}}",
+      "failed": "Feeder test stopped on an error. Cards sent: {{count}}"
+    }
   },
   "irSensorPanel": {
     "label": "IR Sensors",
@@ -169,8 +189,9 @@
     "checkBothOrientationsLabel": "Check Both Directions",
     "checkBothOrientationsDescription": "Also match the card rotated 180°, so cards fed upside down are still identified. Turn off if all your cards are fed the same way up to make each scan faster.",
     "executionProviderLabel": "AI Detection Backend",
-    "executionProviderDescription": "Which backend runs the card-detection and matching models in your browser. WASM is the default and works everywhere. WebGPU can be faster on some GPUs, and falls back to WASM if it fails to start.",
+    "executionProviderDescription": "Which backend runs the card-matching model in your browser (card detection always runs on WASM, where it is faster). WASM is the default and works everywhere, but runs one sorter at a time. WebGPU can be faster on some GPUs, runs several sorters at once, and falls back to WASM if it fails to start.",
     "executionProviderWebGpu": "WebGPU",
+    "regionKeyboardLabel": "Scan region. Use the arrow keys to move it and the plus and minus keys to resize it. Hold Shift for bigger steps.",
     "executionProviderWasm": "WASM (default)",
     "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",

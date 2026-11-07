@@ -108,3 +108,7 @@ export interface ScanningPillProps {
 export interface ReleaseSessionButtonProps {
   guid: string;
 }
+
+export interface CollectionGameBadgeProps {
+  collection: Pick<Collection, "game" | "lang">;
+}

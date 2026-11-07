@@ -74,7 +74,10 @@
     "customHeightLabel": "Benutzerdefinierte Fachhöhe für Fach {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "Etwa {{count}} Karten bei {{thickness}} mm pro Karte",
-    "customHeightInvalid": "{{min}} bis {{max}} mm eingeben"
+    "customHeightInvalid": "{{min}} bis {{max}} mm eingeben",
+    "binSizeLabel": "Größe von Fach {{bin}}",
+    "bottomModuleSelect": "Modul für Fach {{bin}}",
+    "bottomBinSelect": "Unteres Fach an Modul {{module}}"
   },
   "binRoutingControls": {
     "label": "Fach-Routing",
@@ -110,6 +113,23 @@
     "reverseDurationDescription": "Sobald eine Karte Modul 1 erreicht, dreht die Rolle so lange rückwärts, damit die nächste Karte im Magazin zurückgezogen wird, statt nachzurutschen und doppelt eingezogen zu werden. 0 schaltet es aus.",
     "reverseSpeedLabel": "Rückrollgeschwindigkeit",
     "off": "Aus"
+  },
+  "feederTest": {
+    "heading": "Zuführungstest",
+    "description": "Karten ohne Scan direkt ins untere Fach zuführen. Lass den Test laufen und passe die Zuführung auf der Seite „Servos & Zuführung“ an: Änderungen gelten ab der nächsten Karte und bleiben ungespeichert, bis du speicherst.",
+    "runUntilStoppedLabel": "Zuführen bis zum Stopp",
+    "cardsToSendLabel": "Anzahl Karten",
+    "start": "Zuführung starten",
+    "stop": "Stopp",
+    "stopping": "Stoppt nach dieser Karte",
+    "progress": "Gesendete Karten: {{count}}",
+    "progressOfTotal": "Gesendete Karten: {{count}} von {{total}}",
+    "toasts": {
+      "completed": "Zuführungstest abgeschlossen. Gesendete Karten: {{count}}",
+      "stopped": "Zuführungstest gestoppt. Gesendete Karten: {{count}}",
+      "hopperEmpty": "Zuführbehälter ist leer. Gesendete Karten: {{count}}",
+      "failed": "Zuführungstest wegen eines Fehlers gestoppt. Gesendete Karten: {{count}}"
+    }
   },
   "irSensorPanel": {
     "label": "IR-Sensoren",
@@ -169,8 +189,9 @@
     "checkBothOrientationsLabel": "Beide Richtungen prüfen",
     "checkBothOrientationsDescription": "Gleicht die Karte zusätzlich um 180° gedreht ab, damit auch verkehrt herum eingezogene Karten erkannt werden. Deaktivieren, wenn alle Karten gleich ausgerichtet eingezogen werden, um jeden Scan zu beschleunigen.",
     "executionProviderLabel": "KI-Erkennungs-Backend",
-    "executionProviderDescription": "Welches Backend die Modelle für Kartenerkennung und Abgleich in deinem Browser ausführt. WASM ist die Standardeinstellung und funktioniert überall. WebGPU kann auf manchen GPUs schneller sein und fällt auf WASM zurück, wenn es nicht startet.",
+    "executionProviderDescription": "Welches Backend das Modell für den Kartenabgleich in deinem Browser ausführt (die Kartenerkennung läuft immer auf WASM, weil sie dort schneller ist). WASM ist die Standardeinstellung und funktioniert überall, betreibt aber jeweils nur einen Sortierer. WebGPU kann auf manchen GPUs schneller sein, betreibt mehrere Sortierer gleichzeitig und fällt auf WASM zurück, wenn es nicht startet.",
     "executionProviderWebGpu": "WebGPU",
+    "regionKeyboardLabel": "Scanbereich. Verschiebe ihn mit den Pfeiltasten und ändere seine Größe mit Plus und Minus. Halte die Umschalttaste gedrückt für größere Schritte.",
     "executionProviderWasm": "WASM (Standard)",
     "usePhoneAsCamera": "Telefon als Kamera verwenden",
     "phoneCameraConnected": "Telefonkamera verbunden",

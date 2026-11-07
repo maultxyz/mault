@@ -159,9 +159,9 @@ export function ConditionSheet({
 
   return (
     <Modal visible={!!condition} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}>
-        <View
+        <View accessibilityViewIsModal onAccessibilityEscape={onClose}
           style={{
             maxHeight: windowHeight * CONDITION_SHEET_MAX_HEIGHT_RATIO,
             minHeight: Math.min(windowHeight * 0.5, 420),
@@ -191,7 +191,7 @@ export function ConditionSheet({
             {step === "field" && !isNew ? (
               <IconButton icon="back" size={36} accessibilityLabel={t("common.back")} onPress={() => setStep("details")} />
             ) : null}
-            <AppText size="lg" heading weight="bold" style={{ flex: 1 }}>
+            <AppText size="lg" heading weight="bold" accessibilityRole="header" style={{ flex: 1 }}>
               {title}
             </AppText>
             {onRemove && step === "details" ? (

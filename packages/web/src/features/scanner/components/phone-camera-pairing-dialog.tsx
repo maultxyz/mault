@@ -80,7 +80,7 @@ export function PhoneCameraPairingDialog({
           {status === "connected" && (
             <IconDeviceMobile className="size-3.5 text-primary" />
           )}
-          <span>
+          <span role="status" aria-live="polite">
             {(status === "waiting" || status === "idle") &&
               t("phoneCamera.statusWaiting")}
             {status === "connected" && t("phoneCamera.statusConnected")}

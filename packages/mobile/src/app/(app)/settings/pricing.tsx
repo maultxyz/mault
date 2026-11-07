@@ -26,7 +26,7 @@ export default function PricingSettingsScreen() {
     >
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.pricing.heading")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -54,7 +54,7 @@ export default function PricingSettingsScreen() {
       </Surface>
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.conditionPricing.heading")}
           </AppText>
           <AppText size="xs" tone="secondary">

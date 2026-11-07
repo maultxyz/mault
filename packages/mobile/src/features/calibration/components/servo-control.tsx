@@ -52,6 +52,7 @@ export function ServoControl({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t(servo.name === "pusher" ? "calibration.testServoPusher" : "calibration.testServoGate")}
+          accessibilityState={{ disabled: !canCalibrate || !calibration, busy: isTesting }}
           disabled={!canCalibrate || !calibration}
           onPress={() => onTest(module, servo.name)}
           hitSlop={SPACING.sm}

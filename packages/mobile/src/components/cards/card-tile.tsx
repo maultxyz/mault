@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
@@ -20,13 +21,26 @@ export const CardTile = memo(function CardTile({
   onPress,
   onLongPress,
 }: CardTileProps) {
+  const { t } = useTranslation();
   const colors = useTheme();
   const awaitingReview = flagged && !corrected;
+  const accessibilityLabel = [
+    name,
+    caption,
+    quantity && quantity > 1 ? t("cards.quantity", { count: quantity }) : null,
+    flagged ? (corrected ? t("cards.reviewed") : t("cards.needsReview")) : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
   return (
     <Pressable
       accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={`${name}, ${caption}`}
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ selected, disabled }}
+      accessibilityActions={onLongPress ? [{ name: "longpress", label: t("cards.cardActions") }] : undefined}
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === "longpress") onLongPress?.();
+      }}
       disabled={disabled || !onPress}
       onPress={onPress}
       onLongPress={onLongPress}

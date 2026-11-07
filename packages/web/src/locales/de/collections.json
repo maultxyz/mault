@@ -1,5 +1,6 @@
 {
   "switcher": {
+    "lockedByOther": "Wird von jemand anderem verwendet",
     "label": "Sammlung",
     "sessionReleased": "Sitzung freigegeben",
     "releaseFailed": "Sitzung konnte nicht freigegeben werden",

@@ -59,6 +59,9 @@
     }
   },
   "cardImageVectors": {
+    "gameLabel": "Game",
+    "languageLabel": "Language",
+    "progressLabel": "Sync progress",
     "heading": "Card Image Vectors",
     "syncStatus": {
       "idle": "Idle",
@@ -94,6 +97,7 @@
     "empty": "No Logs"
   },
   "cardDatabase": {
+    "searchLabel": "Search cards",
     "heading": "Card Database",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
@@ -103,6 +107,7 @@
     "empty": "No cards found"
   },
   "syncCardById": {
+    "cardIdLabel": "Card ID",
     "heading": "Sync Card by ID",
     "description": "Fetch and vectorize a single card, adding it if it isn't in the database yet",
     "cardIdPlaceholder": "Card ID...",
@@ -156,6 +161,7 @@
     "neverUsed": "Never used"
   },
   "dumpDatabase": {
+    "scopeLabel": "Scope",
     "heading": "Dump Card Database",
     "description": "Permanently delete card image vectors, for one game or all of them",
     "scopePlaceholder": "Select scope...",
@@ -362,6 +368,7 @@
     }
   },
   "deletedItems": {
+    "typeLabel": "Item type",
     "heading": "Deleted items",
     "description": "Everything deleted in any organization, except scanned cards. Restoring puts an item back exactly as it was.",
     "searchPlaceholder": "Search by name or organization",
@@ -395,6 +402,7 @@
     }
   },
   "unmatchedRetry": {
+    "photoFilterLabel": "Photo filter",
     "heading": "Unmatched scans",
     "description": "The most recent unmatched scans across all organizations. Retry runs today's card matching on each scan's saved data and shows what it would match now. Nothing is saved or changed. Retrying a single scan follows live scanning: if the image match is unsure, it also runs OCR on the saved photo. Retry all only re-runs the image match, so it doesn't hold up OCR for live scans.",
     "searchPlaceholder": "Search by organization, collection or card",

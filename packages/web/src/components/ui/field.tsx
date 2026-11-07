@@ -1,10 +1,11 @@
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { useMemo } from "react";
+import { useContext, useId, useMemo } from "react";
 
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { FieldControlContext } from "@/lib/field-control-context";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -76,14 +77,23 @@ function Field({
   orientation = "vertical",
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
+  const errorId = useId();
+  const dataInvalid = (props as { "data-invalid"?: unknown })["data-invalid"];
+  const isInvalid = dataInvalid === true || dataInvalid === "true";
+  const fieldControl = useMemo(
+    () => ({ isInvalid, errorId }),
+    [isInvalid, errorId],
+  );
   return (
-    <div
-      role="group"
-      data-slot="field"
-      data-orientation={orientation}
-      className={cn(fieldVariants({ orientation }), className)}
-      {...props}
-    />
+    <FieldControlContext.Provider value={fieldControl}>
+      <div
+        role="group"
+        data-slot="field"
+        data-orientation={orientation}
+        className={cn(fieldVariants({ orientation }), className)}
+        {...props}
+      />
+    </FieldControlContext.Provider>
   );
 }
 
@@ -184,6 +194,7 @@ function FieldError({
   errors?: Array<{ message?: string } | undefined>;
 }) {
   const { t } = useTranslation("common");
+  const fieldControl = useContext(FieldControlContext);
   const content = useMemo(() => {
     if (children) {
       return children;
@@ -222,6 +233,7 @@ function FieldError({
   return (
     <div
       role="alert"
+      id={fieldControl?.errorId}
       data-slot="field-error"
       className={cn("text-xs/relaxed font-normal text-destructive", className)}
       {...props}

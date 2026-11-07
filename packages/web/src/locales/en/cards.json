@@ -16,7 +16,8 @@
     "allSetsCount": "All sets ({{count}})",
     "noMatchingSets": "No matching sets",
     "startTyping": "Start typing to search for cards",
-    "noCardsFound": "No cards found"
+    "noCardsFound": "No cards found",
+    "searchLabel": "Search cards"
   },
   "priceTable": {
     "heading": "TCGplayer",
@@ -362,7 +363,9 @@
     "exit": "Exit review",
     "loadFailed": "Couldn't load the cards to review.",
     "notShown_one": "{{count}} more card isn't shown here.",
-    "notShown_other": "{{count}} more cards aren't shown here."
+    "notShown_other": "{{count}} more cards aren't shown here.",
+    "statusRemoved": "Removed",
+    "statusPending": "Not reviewed yet"
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -492,6 +495,7 @@
   "cardTags": {
     "title": "Tags",
     "edit": "Edit tags",
+    "editWithTags": "Edit tags: {{tags}}",
     "bulkAdd": "Add tag",
     "bulkRemove": "Remove tag",
     "names": {

@@ -1,5 +1,11 @@
 {
+  "matchValidationProgress": {
+    "label": "Community scan validation progress",
+    "valueText": "{{done}} of {{total}} reviews done",
+    "percent": "{{percent}}%"
+  },
   "nav": {
+    "validateMatches": "Validate matches",
     "scanner": "Sort",
     "collections": "Collections",
     "scan": "Link camera",
@@ -103,7 +109,8 @@
     "exitButton": "Exit Impersonation",
     "hardwareBlocked": "Sorters and cameras can't be connected while impersonating a user.",
     "scanningBlockedTitle": "Scanning is disabled while impersonating",
-    "scanningBlockedDescription": "Exit impersonation to scan cards, connect a sorter or use a camera."
+    "scanningBlockedDescription": "Exit impersonation to scan cards, connect a sorter or use a camera.",
+    "calibrationReadOnly": "Calibration is read-only while impersonating. Exit impersonation to change it or connect a sorter."
   },
   "theme": {
     "toggle": "Toggle theme",
@@ -122,7 +129,8 @@
     "delete": "Delete",
     "save": "Save",
     "create": "Create",
-    "search": "Search"
+    "search": "Search",
+    "chooseFile": "Choose file"
   },
   "unsavedChanges": {
     "message": "You have unsaved changes",
@@ -178,7 +186,8 @@
       "selfHost": "Self-host",
       "discordBot": "Discord Bot",
       "download": "Download",
-      "shop": "Shop"
+      "shop": "Shop",
+      "makerWorld": "MakerWorld"
     },
     "discordAriaLabel": "Join the Discord",
     "menuAriaLabel": "Menu",
@@ -210,6 +219,7 @@
       "scanner": "Scanner",
       "cardDetail": "Card details",
       "intake": "Intake",
+      "matchValidation": "Validating matches",
       "foilLabeling": "Foil labelling"
     },
     "actions": {
@@ -225,6 +235,7 @@
       "goCalibrate": "Go to sorter setup",
       "goSettings": "Go to settings",
       "goAdmin": "Go to admin",
+      "goNextSorterNeedingAttention": "Go to next sorter needing attention",
       "scanPauseResume": "Pause or resume scanning",
       "scanNow": "Scan now",
       "scanFeed": "Feed next card",
@@ -255,6 +266,11 @@
       "foilLabelFoil": "While labelling foils: mark as foil",
       "foilLabelNotFoil": "While labelling foils: mark as not foil",
       "foilLabelSkip": "While labelling foils: skip this card",
+      "matchValidationCorrect": "While validating matches: mark the match correct",
+      "matchValidationIncorrect": "While validating matches: mark the match wrong",
+      "matchValidationBadScan": "While validating matches: mark the photo as a bad scan",
+      "matchValidationSkip": "While validating matches: skip this scan",
+      "matchValidationBack": "While validating matches: go back to the previous scan",
       "foilLabelBack": "While labelling foils: go back to the previous card",
       "scanFlatbedCard": "Scan the card on the flatbed"
     }
@@ -326,6 +342,7 @@
     "customerNameRequired": "Enter the customer's name.",
     "orderTextRequired": "Paste an order or choose a file.",
     "orderLinesRequired": "Keep at least one card on the pick.",
+    "decklistRequired": "Enter at least one card, one per line.",
     "cardCountRequired": "Enter a number of cards.",
     "storageLocationRequired": "Choose where the cards went.",
     "commandRequired": "Enter a command.",
@@ -352,6 +369,41 @@
       "enthusiast": "Enthusiast",
       "business": "Business",
       "legacyBusiness": "Business (legacy)"
+    }
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "close": "Close",
+    "clear": "Clear",
+    "openOptions": "Show options",
+    "remove": "Remove",
+    "copy": "Copy to clipboard",
+    "retry": "Retry",
+    "removeCondition": "Remove condition",
+    "removeGroup": "Remove group",
+    "removeMember": "Remove {{name}}",
+    "cancelInvite": "Cancel invite for {{email}}",
+    "removeItem": "Remove {{name}}",
+    "resizePanel": "Resize panel",
+    "notifications": "Notifications",
+    "closeNotification": "Close notification",
+    "notificationsWithCount_one": "Notifications, {{count}} unread",
+    "notificationsWithCount_other": "Notifications, {{count}} unread",
+    "watching": "Watching",
+    "watchersCount_one": "{{count}} person watching",
+    "watchersCount_other": "{{count}} people watching",
+    "details": "Details",
+    "liveSession": "Scanning live",
+    "mainNavigation": "Main",
+    "settingsNavigation": "Settings",
+    "selected": "Selected",
+    "loading": "Loading",
+    "live": "Live",
+    "notLive": "Not live",
+    "severity": {
+      "info": "Info:",
+      "warning": "Warning:",
+      "danger": "Error:"
     }
   }
 }

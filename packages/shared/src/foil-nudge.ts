@@ -11,7 +11,6 @@ import {
   FOIL_NUDGE_PUSHER_PULSE_OFFSET,
   FOIL_NUDGE_SAMPLES_PER_CELL_SIDE,
 } from "./constants/foil-nudge.constant";
-import { supportsFoilDetection } from "./foil-detection";
 import { rotateRgba180 } from "./vision";
 import type { FoilDetection } from "./interfaces/foil-detection.interface";
 import type {
@@ -192,9 +191,7 @@ export function measureAlignedFoilNudgeChange(
 export function detectFoilFromNudges(
   before: RgbaImage,
   afterByDirection: Partial<Record<FoilNudgeDirection, RgbaImage>>,
-  gameKey: string | null | undefined,
 ): FoilDetection | null {
-  if (!supportsFoilDetection(gameKey)) return null;
   const nudgeChangesByDirection: Partial<Record<FoilNudgeDirection, FoilNudgeMeasurement>> = {};
   for (const direction of FOIL_NUDGE_DIRECTIONS) {
     const after = afterByDirection[direction];

@@ -67,6 +67,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useNavigate } from "react-router-dom";
 
 export function IntakeLotDetail({
@@ -76,6 +77,7 @@ export function IntakeLotDetail({
   onOpenReviewGrid,
 }: IntakeLotDetailProps) {
   const { t } = useTranslation("business");
+  const DetailHeading = useIsMobile() ? "h2" : "h1";
   const { format } = usePriceSource();
   const navigate = useNavigate();
   const { access, settings } = useBusinessAccess();
@@ -173,9 +175,9 @@ export function IntakeLotDetail({
       <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
         <div className="mr-auto min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="truncate font-heading text-lg font-semibold">
+            <DetailHeading className="truncate font-heading text-lg font-semibold">
               {lot.customerName}
-            </h1>
+            </DetailHeading>
             <StatusBadge status={lot.status} />
             {lot.collectionGameName && (
               <Badge variant="outline">{lot.collectionGameName}</Badge>
@@ -427,7 +429,11 @@ export function IntakeLotDetail({
                       </TableHead>
                     </>
                   )}
-                  {canRemove && <TableHead className="w-8" />}
+                  {canRemove && (
+                    <TableHead className="w-8">
+                      <span className="sr-only">{t("table.actions")}</span>
+                    </TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -460,7 +466,21 @@ export function IntakeLotDetail({
                       </TableCell>
                     )}
                     <TableCell className="max-w-64 truncate font-medium">
-                      {entry.card.name}
+                      <button
+                        type="button"
+                        className="max-w-full truncate rounded-sm text-left align-bottom hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenCard(entry.scanId, false);
+                        }}
+                      >
+                        {entry.card.name}
+                      </button>
+                      {entry.belowMinimum && (
+                        <span className="sr-only">
+                          {`, ${t("intake.belowMinimum.rowTitle")}`}
+                        </span>
+                      )}
                       {entry.isFoil && (
                         <span className="ml-1.5 text-xs text-foreground/70">
                           {t("table.foil")}

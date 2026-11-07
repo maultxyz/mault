@@ -71,6 +71,7 @@ export function PresetSelector() {
           }
         >
           <ComboboxInput
+            aria-label={t("presetSelector.sortingLogic")}
             className="flex-1 overflow-hidden"
             placeholder={t("presetSelector.selectSetPlaceholder")}
             disabled={isActivating}
@@ -101,10 +102,10 @@ export function PresetSelector() {
                 variant="outline"
                 size="icon"
                 disabled={!activeCollection}
+                aria-label={t("presetSelector.editSortingLogic")}
+                render={<Link to={SORTING_RULES_PATH} />}
               >
-                <Link to={SORTING_RULES_PATH}>
-                  <IconEdit />
-                </Link>
+                <IconEdit />
               </Button>
             }
           ></TooltipTrigger>
@@ -117,6 +118,7 @@ export function PresetSelector() {
             <TooltipTrigger
               render={
                 <Button
+                  aria-label={t("autoAssignPanel.reset")}
                   variant="outline"
                   size="icon"
                   disabled={!selectedSet || isPresetMutating}

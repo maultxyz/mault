@@ -79,6 +79,7 @@ export function CollectionTile({
       <div className="pointer-events-none absolute inset-x-2 top-2 flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
           <span
+            role="presentation"
             className="pointer-events-auto flex size-6 items-center justify-center rounded-md bg-background/80 shadow-sm backdrop-blur-sm"
             onMouseDown={onSelectMouseDown}
             onClick={(e) => {

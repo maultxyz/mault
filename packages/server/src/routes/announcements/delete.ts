@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { announcements } from "../../db/schema";
-import { invalidatePublicAnnouncements } from "../../lib/public-announcements";
+import { invalidateAnnouncementsCache } from "../../lib/public-announcements";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 
 export const deleteAnnouncementRoute = new Hono<AppEnv>().delete(
@@ -24,7 +24,7 @@ export const deleteAnnouncementRoute = new Hono<AppEnv>().delete(
       .update(announcements)
       .set({ isDeleted: true })
       .where(eq(announcements.id, target.id));
-    invalidatePublicAnnouncements();
+    invalidateAnnouncementsCache();
     return c.json({ success: true, data: null });
   },
 );

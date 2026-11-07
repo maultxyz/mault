@@ -1,15 +1,23 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type {
   CardStorageLocation,
+  CollectionCardsQuery,
   PagedList,
   Result,
   StorageLocation,
   StorageLocationCardContext,
   StorageLocationCardPage,
+  StorageLocationCardsSummary,
   StorageLocationExportSummary,
   StorageLocationSearchResult,
+  PickListEntryInput,
+  StoragePickList,
+  StorageRemoveCardsResult,
 } from "@magic-vault/shared";
+import { STORAGE_CARDS_PAGE_SIZE_MAX } from "@magic-vault/shared";
+import { cardsQueryParams } from "@/features/collections/api/collection-cards";
 import { pageRequestParams } from "@/lib/api/page-request";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import type { PageRequest } from "@/lib/interfaces/pagination";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
@@ -25,8 +33,13 @@ export const storageLocationKeys = {
     [...storageLocationKeys.root(), "cards", guid] as const,
   cardPages: (guid: string | undefined) =>
     [...storageLocationKeys.cards(guid), "page"] as const,
-  cardPage: (guid: string | undefined, page: number) =>
-    [...storageLocationKeys.cardPages(guid), page] as const,
+  cardPage: (
+    guid: string | undefined,
+    query: CollectionCardsQuery,
+    page: number,
+  ) => [...storageLocationKeys.cardPages(guid), query, page] as const,
+  summary: (guid: string | undefined) =>
+    [...storageLocationKeys.cards(guid), "summary"] as const,
   unreviewedCards: (guid: string | undefined) =>
     [...storageLocationKeys.cards(guid), "unreviewed"] as const,
   cardContexts: (guid: string | undefined) =>
@@ -35,14 +48,61 @@ export const storageLocationKeys = {
     guid: string | undefined,
     scanId: string | undefined,
     unreviewedOnly: boolean,
-  ) => [...storageLocationKeys.cardContexts(guid), scanId, unreviewedOnly] as const,
+    query: CollectionCardsQuery,
+  ) =>
+    [
+      ...storageLocationKeys.cardContexts(guid),
+      scanId,
+      unreviewedOnly,
+      query,
+    ] as const,
   export: (guid: string | undefined) =>
     [...storageLocationKeys.root(), "export", guid] as const,
   card: (scanId: string | undefined) =>
     [...storageLocationKeys.root(), "card", scanId] as const,
   search: (query: string) =>
     [...storageLocationKeys.root(), "search", query] as const,
+  pickList: (orgId: string | undefined, entries: PickListEntryInput[]) =>
+    [...storageLocationKeys.root(), "pick-list", orgId, entries] as const,
+  verifyCards: (guid: string | undefined) =>
+    [...storageLocationKeys.root(), "verify-cards", guid] as const,
 };
+
+export const storageVerifyCardsQueryOptions = (guid: string | undefined) =>
+  queryOptions({
+    queryKey: storageLocationKeys.verifyCards(guid),
+    queryFn: () =>
+      apiGet<Result<StorageLocationSearchResult[]>>(
+        `/api/storage-locations/${guid}/cards/verify`,
+      ).then((r) => {
+        if (!r.success || !r.data) throw new Error(r.message);
+        return r.data;
+      }),
+    enabled: !!guid,
+  });
+
+export const storagePickListQueryOptions = (
+  orgId: string | undefined,
+  entries: PickListEntryInput[],
+) =>
+  queryOptions({
+    queryKey: storageLocationKeys.pickList(orgId, entries),
+    queryFn: () =>
+      apiPost<Result<StoragePickList>>("/api/storage-locations/pick-list", {
+        entries,
+      }).then((r) => {
+        if (!r.success || !r.data) throw new Error(r.message);
+        return r.data;
+      }),
+    enabled: !!orgId && entries.length > 0,
+    placeholderData: keepPreviousData,
+  });
+
+export function removeCardsFromStorageLocations(
+  scanIds: string[],
+): Promise<Result<StorageRemoveCardsResult>> {
+  return apiPost("/api/storage-locations/remove-cards", { scanIds });
+}
 
 export const storageSearchQueryOptions = (query: string) =>
   queryOptions({
@@ -91,17 +151,30 @@ export const storageLocationQueryOptions = (guid: string | undefined) =>
 
 export const storageLocationCardPageQueryOptions = (
   guid: string | undefined,
+  query: CollectionCardsQuery,
   page: number,
 ) =>
   queryOptions({
-    queryKey: storageLocationKeys.cardPage(guid, page),
+    queryKey: storageLocationKeys.cardPage(guid, query, page),
     queryFn: () =>
       apiGet<Result<StorageLocationCardPage>>(
-        `/api/storage-locations/${guid}/cards/page?page=${page}`,
+        `/api/storage-locations/${guid}/cards/page?${cardsQueryParams(query, { page: String(page) })}`,
       ).then((r) => r.data ?? null),
     enabled: !!guid,
     placeholderData: (previous) => previous,
   });
+
+export function fetchStorageUnreviewedCardsPage(
+  guid: string,
+  page: number,
+): Promise<StorageLocationCardPage> {
+  return apiGet<Result<StorageLocationCardPage>>(
+    `/api/storage-locations/${guid}/cards/page?page=${page}&limit=${STORAGE_CARDS_PAGE_SIZE_MAX}&unreviewedOnly=true`,
+  ).then((r) => {
+    if (!r.success || !r.data) throw new Error(r.message);
+    return r.data;
+  });
+}
 
 export const storageLocationUnreviewedCardsQueryOptions = (
   guid: string | undefined,
@@ -120,14 +193,35 @@ export const storageLocationCardContextQueryOptions = (
   guid: string | undefined,
   scanId: string | undefined,
   unreviewedOnly: boolean,
+  query: CollectionCardsQuery = ALL_CARDS_QUERY,
 ) =>
   queryOptions({
-    queryKey: storageLocationKeys.cardContext(guid, scanId, unreviewedOnly),
+    queryKey: storageLocationKeys.cardContext(
+      guid,
+      scanId,
+      unreviewedOnly,
+      query,
+    ),
     queryFn: () =>
       apiGet<Result<StorageLocationCardContext | null>>(
-        `/api/storage-locations/${guid}/cards/${scanId}/context${unreviewedOnly ? "?unreviewedOnly=true" : ""}`,
+        `/api/storage-locations/${guid}/cards/${scanId}/context?${cardsQueryParams(
+          query,
+          unreviewedOnly ? { unreviewedOnly: "true" } : {},
+        )}`,
       ).then((r) => r.data ?? null),
     enabled: !!guid && !!scanId,
+  });
+
+export const storageLocationCardsSummaryQueryOptions = (
+  guid: string | undefined,
+) =>
+  queryOptions({
+    queryKey: storageLocationKeys.summary(guid),
+    queryFn: () =>
+      apiGet<Result<StorageLocationCardsSummary>>(
+        `/api/storage-locations/${guid}/cards/summary`,
+      ).then((r) => r.data ?? null),
+    enabled: !!guid,
   });
 
 export function fetchNextUnreviewedStorageCard(
@@ -209,8 +303,6 @@ export function removeCardFromStorageLocation(
   return apiDelete(`/api/storage-locations/${guid}/cards/${scanId}`);
 }
 
-export function deleteStorageLocation(
-  guid: string,
-): Promise<Result<null>> {
+export function deleteStorageLocation(guid: string): Promise<Result<null>> {
   return apiDelete(`/api/storage-locations/${guid}`);
 }

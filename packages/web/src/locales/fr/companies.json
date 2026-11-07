@@ -18,6 +18,7 @@
     "deleteWarning": "Supprime définitivement « {{name}} » et toutes ses données.",
     "deleteOrganization": "Supprimer l'organisation",
     "roleOwner": "Propriétaire",
+    "memberRoleLabel": "Rôle de {{name}}",
     "removeMemberTitle": "Retirer le membre",
     "removeMemberDescription": "Retirer « {{name}} » de cette organisation ? Il perdra immédiatement l'accès.",
     "deleteOrgDescription": "Supprime définitivement « {{name}} » et toutes ses données. Cette action est irréversible.",

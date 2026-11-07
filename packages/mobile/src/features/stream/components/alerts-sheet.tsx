@@ -13,12 +13,12 @@ export function AlertsSheet({ visible, alerts, onClose }: AlertsSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
-  const toneColor = { info: colors.info, warning: colors.warning, danger: colors.destructive };
+  const toneColor = { info: colors.infoForeground, warning: colors.warningForeground, danger: colors.destructiveForeground };
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           maxHeight: "75%",
           backgroundColor: colors.background,
@@ -37,7 +37,7 @@ export function AlertsSheet({ visible, alerts, onClose }: AlertsSheetProps) {
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
           <View style={{ flex: 1 }}>
-            <AppText size="lg" heading weight="bold">
+            <AppText size="lg" heading weight="bold" accessibilityRole="header">
               {t("alerts.title")}
             </AppText>
             <AppText size="xs" tone="secondary">

@@ -60,7 +60,11 @@
       "priceNow": "Prix actuel",
       "purchasePrice": "Prix d'achat",
       "actions": "Actions"
-    }
+    },
+    "searchPlaceholder": "Rechercher des cartes dans cet emplacement",
+    "positionOrder": "Place dans la boîte",
+    "noMatchesTitle": "Aucune carte ne correspond",
+    "noMatchesDescription": "Essayez une autre recherche ou réinitialisez les filtres."
   },
   "cardLocation": {
     "heading": "Rangement",
@@ -73,6 +77,7 @@
   "toasts": {
     "failed": "Impossible de mettre à jour les emplacements",
     "cardRemoved": "Carte retirée de son emplacement",
+    "cardRemovedFromCollection": "Carte retirée de son emplacement et de la collection",
     "correctFailed": "Impossible de corriger la carte",
     "cardsMoved_one": "1 carte rangée en stockage",
     "cardsMoved_other": "{{count}} cartes rangées en stockage",
@@ -83,8 +88,11 @@
   "removeDialog": {
     "title": "Retirer {{name}} de {{location}} ?",
     "thisCard": "cette carte",
-    "description": "À utiliser quand vous avez sorti la carte, par exemple parce que vous l'avez vendue ou mise dans un deck. Elle reste dans votre collection, et sa place dans la boîte reste vide.",
-    "confirm": "Retirer"
+    "description": "À utiliser quand vous avez sorti la carte de la boîte. Sa place dans la boîte reste vide.",
+    "confirm": "Retirer",
+    "choiceDescription": "Retirez-la seulement de l'emplacement si vous l'avez déplacée, par exemple dans un deck. Retirez-la aussi de {{collection}} si elle est partie pour de bon, par exemple parce que vous l'avez vendue. Sa place dans la boîte reste vide dans les deux cas.",
+    "removeFromLocation": "Retirer de l'emplacement",
+    "removeFromLocationAndCollection": "Retirer de l'emplacement et de la collection"
   },
   "search": {
     "placeholder": "Rechercher des cartes dans tous les emplacements",
@@ -117,6 +125,8 @@
     "title": "Vider tous les bacs",
     "description_one": "Marque tous les bacs comme vidés. Choisis où la carte est rangée pour la retrouver plus tard.",
     "description_other": "Marque tous les bacs comme vidés. Choisis où les {{count}} cartes sont rangées pour les retrouver plus tard.",
+    "resetAutoAssign": "Effacer les règles de tri détectées automatiquement",
+    "resetAutoAssignDescription": "Les bacs apprennent de nouvelles valeurs dès les prochains scans.",
     "perBin": "Choisir un emplacement pour chaque bac",
     "binLabel_one": "Bac {{bin}} · {{count}} carte",
     "binLabel_other": "Bac {{bin}} · {{count}} cartes",
@@ -136,5 +146,73 @@
     "collectionsGroup": "Collections",
     "cancel": "Annuler",
     "confirm": "Déplacer"
+  },
+  "pickList": {
+    "open": "Liste de collecte",
+    "title": "Liste de collecte",
+    "description": "Collez une decklist pour voir où chaque carte est rangée, puis cochez les cartes à mesure que vous les sortez.",
+    "decklistLabel": "Cartes à sortir",
+    "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+    "decklistHint": "Une carte par ligne. Les quantités, codes d'extension et titres de section sont acceptés.",
+    "findCards": "Trouver les cartes",
+    "editList": "Modifier la liste",
+    "clear": "Vider la liste",
+    "progress": "{{picked}} sur {{total}} sorties",
+    "emptyTitle": "Aucune de ces cartes n'est rangée",
+    "emptyDescription": "Seules les cartes rangées dans un emplacement apparaissent sur une liste de collecte.",
+    "loadFailed": "La liste de collecte n'a pas pu être chargée.",
+    "finish": "Retirer les cartes sorties de leurs emplacements",
+    "finishTitle_one": "Retirer {{count}} carte sortie de son emplacement ?",
+    "finishTitle_other": "Retirer {{count}} cartes sorties de leurs emplacements ?",
+    "finishDescription": "Elles restent dans votre collection. La liste de collecte est ensuite vidée.",
+    "finishConfirm": "Retirer",
+    "scan": {
+      "button": "Scanner pour cocher",
+      "noMatch": "Aucune carte reconnue. Réessayez avec toute la carte visible.",
+      "notOnList": "{{name}} ne reste pas sur votre liste de collecte.",
+      "picked": "{{name}} sortie de {{location}}, place {{position}}",
+      "failed": "Le scan a échoué. Réessayez.",
+      "hint": "Tenez une carte devant la caméra et appuyez sur Scanner la carte.",
+      "scanCard": "Scanner la carte",
+      "cameraFailed": "La caméra n'a pas pu démarrer. Vérifiez que ce navigateur est autorisé à l'utiliser.",
+      "stop": "Arrêter le scan",
+      "alreadyPicked": "Tous les exemplaires de {{name}} de votre liste de collecte sont déjà sortis."
+    },
+    "toasts": {
+      "removed_one": "{{count}} carte retirée de son emplacement",
+      "removed_other": "{{count}} cartes retirées de leurs emplacements"
+    },
+    "notStored": "Non rangée",
+    "missingCount_one": "{{count}} exemplaire non rangé",
+    "missingCount_other": "{{count}} exemplaires non rangés",
+    "moreActions": "Plus d'actions",
+    "picked": "Sortie",
+    "back": "Retour aux emplacements"
+  },
+  "verify": {
+    "tabs": {
+      "label": "Vue de l'emplacement",
+      "cards": "Cartes",
+      "verify": "Vérifier"
+    },
+    "description": "Scannez les cartes de cet emplacement pour vérifier que tout ce qui doit s'y trouver y est.",
+    "progress": "{{verified}} sur {{total}} vérifiées",
+    "verified": "Vérifiée",
+    "startOver": "Recommencer",
+    "emptyTitle": "Rien à vérifier",
+    "emptyDescription": "Aucune carte n'est encore rangée dans cet emplacement.",
+    "loadFailed": "Les cartes de cet emplacement n'ont pas pu être chargées.",
+    "truncated": "Seules les {{max}} premières cartes de cet emplacement peuvent être vérifiées.",
+    "complete": "Toutes les cartes de cet emplacement sont vérifiées.",
+    "notInLocationTitle": "Scannées mais pas rangées ici",
+    "notInLocationDescription": "Ces cartes ne sont pas enregistrées dans cet emplacement. Remettez-les à leur place ou déplacez-les ici.",
+    "scan": {
+      "button": "Scanner pour vérifier",
+      "stop": "Arrêter le scan",
+      "verified": "{{name}} vérifiée, place {{position}}",
+      "alreadyVerified": "Tous les exemplaires de {{name}} dans cet emplacement sont déjà vérifiés.",
+      "notInLocation": "{{name}} n'est pas rangée dans cet emplacement.",
+      "hint": "Tenez une carte de cet emplacement devant la caméra et appuyez sur Scanner la carte."
+    }
   }
 }

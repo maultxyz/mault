@@ -20,6 +20,8 @@
     "title": "Jede Karte,<br></br><highlight>schön dort, wo sie hingehört.</highlight>",
     "seeFeatures": "Funktionen ansehen",
     "liveSort": "Live-Sortierung",
+    "pauseDemo": "Demo pausieren",
+    "playDemo": "Demo abspielen",
     "sortedCount_one": "{{count}} Karte sortiert",
     "sortedCount_other": "{{count}} Karten sortiert",
     "nextUp": "Als Nächstes",
@@ -58,7 +60,9 @@
   "supportedGames": {
     "heading": "Sortiert jedes Sammelkartenspiel, das du liebst",
     "cardsIndexed_one": "{{formatted}} Karte indexiert",
-    "cardsIndexed_other": "{{formatted}} Karten indexiert"
+    "cardsIndexed_other": "{{formatted}} Karten indexiert",
+    "pauseHint": "Drücke die Leertaste, um die laufende Liste anzuhalten.",
+    "pausedHint": "Angehalten. Drücke die Leertaste, um die laufende Liste fortzusetzen."
   },
   "features": {
     "eyebrow": "Funktionen",
@@ -93,7 +97,10 @@
       "ruleMatches_one": "{{count}} Karte kommt in Fach {{bin}}",
       "ruleMatches_other": "{{count}} Karten kommen in Fach {{bin}}",
       "collectionValue": "Sammlungswert",
-      "valueHistory": "Wert in den letzten 30 Tagen"
+      "valueHistory": "Wert in den letzten 30 Tagen",
+      "ruleField": "Feld",
+      "ruleOperator": "Operator",
+      "ruleValue": "Wert"
     },
     "more": {
       "heading": "Und noch viel mehr",

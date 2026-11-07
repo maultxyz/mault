@@ -127,12 +127,14 @@ export function EmptyCollectionDialog({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>{t("emptyChoice.locationLabel")}</FieldLabel>
+                <FieldLabel htmlFor="empty-collection-location">
+                  {t("emptyChoice.locationLabel")}
+                </FieldLabel>
                 <Select
                   value={field.value || null}
                   onValueChange={(value) => field.onChange(value ?? "")}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="empty-collection-location" className="w-full">
                     <SelectValue placeholder={t("emptyChoice.placeholder")}>
                       {field.value ? optionLabel(field.value) : undefined}
                     </SelectValue>

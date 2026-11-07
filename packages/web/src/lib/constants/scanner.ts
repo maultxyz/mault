@@ -1,4 +1,9 @@
-import type { StationStatus } from "@/lib/interfaces/stations";
+import type {
+  SorterLimitReason,
+  StationAttentionFix,
+  StationAttentionKind,
+  StationStatus,
+} from "@/lib/interfaces/stations";
 import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
@@ -13,8 +18,10 @@ import type {
   FeederCardSetup,
   FlatbedPlacement,
   FlatbedScanStep,
+  OnnxExecutionProviderPreference,
   ScannerConnectionState,
 } from "@/lib/interfaces/scanner";
+import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconArrowBarToDown,
   IconBolt,
@@ -132,6 +139,7 @@ export const SCAN_RATE_REFRESH_MS = 5_000;
 export const BIN_LEVEL_WARNING_PERCENT = 70;
 export const BIN_LEVEL_FULL_PERCENT = 90;
 
+export const SCANNER_PATH = "/app";
 export const SORTERS_OVERVIEW_PATH = "/app/sorters";
 
 export const CORRECTION_AUTO_CLOSE_TICK_MS = 100;
@@ -141,6 +149,23 @@ export const CORRECTION_TIMER_CIRCUMFERENCE =
   2 * Math.PI * CORRECTION_TIMER_RADIUS;
 
 export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
+export const SCANNER_CAMERA_FRAME_RATE = 15;
+export const SCANNER_BACKGROUND_PREVIEW_INTERVAL_MS = 1000;
+export const SCANNER_PREVIEW_FRAME_TOLERANCE_MS = 8;
+export const CPU_INFERENCE_MAX_CONNECTED_SORTERS = 1;
+export const INFERENCE_WASM_MAX_THREADS = 4;
+export const INFERENCE_WORKERS_PER_MODEL: Record<
+  OnnxExecutionProviderPreference,
+  number
+> = {
+  webgpu: MAX_CONNECTED_SORTERS,
+  wasm: 1,
+};
+export const SORTER_LIMIT_MESSAGE_KEYS: Record<SorterLimitReason, string> = {
+  plan: "stations.limitReached",
+  hardCap: "stations.hardCapReached",
+  cpuInference: "stations.cpuInferenceLimitReached",
+};
 
 export const HAND_SCAN_REARM_FINGERPRINT_DIFF = 0.08;
 export const HAND_SCAN_FINGERPRINT_SIZE = 16;
@@ -154,7 +179,6 @@ export const HAND_SCAN_TRACKING_STATUSES: ScannerStatus[] = [
 
 export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
   "scanning",
-  "paused",
   "settling",
 ];
 
@@ -272,12 +296,36 @@ export const STANDALONE_DOCUMENT_FEED_STATUSES: readonly ScannerStatus[] = [
 
 export const STATION_STATUS_BADGE_VARIANTS: Record<
   StationStatus,
-  "success" | "warning" | "outline"
+  "success" | "warning" | "destructive" | "outline"
 > = {
   sorting: "success",
   paused: "warning",
+  attention: "destructive",
   offline: "outline",
 };
+
+export const STATION_ATTENTION_FIXES: Record<
+  StationAttentionKind,
+  StationAttentionFix
+> = {
+  jam: "resume",
+  hopperEmpty: "resume",
+  feederError: "resume",
+  noCardDetected: "resume",
+  sorterNotResponding: "resume",
+  routingFailed: "resume",
+  saveFailed: "resume",
+  binLimit: "emptyBin",
+  binsFull: "emptyBin",
+  packsComplete: "emptyBin",
+  scanLimit: "openSorter",
+  sorterLimit: "openSorter",
+  collectionLocked: "openSorter",
+  scannerError: "openSorter",
+};
+
+export const STATION_TILE_ATTENTION_CLASS =
+  "border-destructive ring-1 ring-destructive";
 
 export const SORTERS_GRID_CLASS =
   "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";

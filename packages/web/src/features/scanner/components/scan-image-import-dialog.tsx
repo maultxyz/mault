@@ -35,10 +35,10 @@ function ScanImageImportRow({ item, isRunning }: ScanImageImportRowProps) {
   return (
     <li className="flex items-center gap-2 px-3 py-1.5 text-sm">
       {item.status === "matched" && (
-        <IconCircleCheck className="size-4 shrink-0 text-success" />
+        <IconCircleCheck className="size-4 shrink-0 text-success-foreground" />
       )}
       {item.status === "unmatched" && (
-        <IconQuestionMark className="size-4 shrink-0 text-warning" />
+        <IconQuestionMark className="size-4 shrink-0 text-warning-foreground" />
       )}
       {item.status === "failed" && (
         <IconAlertTriangle className="size-4 shrink-0 text-destructive" />
@@ -161,7 +161,7 @@ export function ScanImageImportDialog({
         {hasItems && (
           <>
             <div className="flex flex-col gap-1">
-              <p className="text-sm font-medium">
+              <p role="status" aria-live="polite" className="text-sm font-medium">
                 {t("importScans.progress", {
                   done: processedCount,
                   total: items.length,

@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import type { ScanMode, ScannerPauseReason, ScannerPhase, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
+import type { CardScanNoticeKind } from "@/lib/interfaces/storage";
 
 export const BIN_DATA_RETRY_MS = 5000;
 export const CAPTURE_TARGET_RESOLUTION = { width: 1080, height: 1920 } as const;
@@ -62,3 +63,11 @@ export const SCAN_REMOVAL_NOTICE_TONES = {
   "lookup-failed": "destructive",
   removed: "success",
 } as const satisfies Record<ScanRemovalNoticeKind, string>;
+
+export const CARD_SCAN_NOTICE_TONES = {
+  checked: "success",
+  "already-checked": "info",
+  "not-listed": "warning",
+  "no-match": "info",
+  failed: "destructive",
+} as const satisfies Record<CardScanNoticeKind, string>;

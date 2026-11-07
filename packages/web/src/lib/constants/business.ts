@@ -35,7 +35,6 @@ export const FLEET_REFETCH_MS = 15_000;
 export const BUSINESS_LIST_SKELETON_COUNT = 5;
 export const ACTIVITY_ALL_FILTER = "all";
 
-export const ORDER_IMPORT_ACCEPT = ".csv,.tsv,.txt,text/csv,text/plain";
 export const ORDER_PULL_SHEET_HEADERS = [
   "Location",
   "Position",

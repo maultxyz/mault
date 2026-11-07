@@ -28,7 +28,11 @@ export function CardToolbar({
         <IconButton
           icon="filter"
           size={36}
-          accessibilityLabel={t("collection.viewOptions")}
+          accessibilityLabel={
+            activeSortAndFilterCount > 0
+              ? `${t("collection.viewOptions")}, ${activeSortAndFilterCount}`
+              : t("collection.viewOptions")
+          }
           onPress={onOpenViewOptions}
         />
         {activeSortAndFilterCount > 0 ? (

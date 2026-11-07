@@ -19,9 +19,10 @@ import { useImpersonation } from "@/hooks/use-impersonation";
 import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
-import { STORAGE_PATH } from "@/lib/constants/storage";
+import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
+import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
 import { lazy, Suspense, useEffect } from "react";
 import {
   type RouteObject,
@@ -93,6 +94,9 @@ const CollectionViewPage = lazy(
   () => import("@/app/routes/app/collection-view"),
 );
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
+const ValidateMatchesPage = lazy(
+  () => import("@/app/routes/app/validate-matches"),
+);
 const PresetWorkflowPage = lazy(
   () => import("@/app/routes/app/preset-workflow"),
 );
@@ -169,6 +173,9 @@ const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
+const StoragePickListPage = lazy(
+  () => import("@/app/routes/app/storage-pick-list"),
+);
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
@@ -370,7 +377,6 @@ export const routes: RouteObject[] = [
                       },
                       {
                         path: "/app/calibrate",
-                        element: <BlockedWhileImpersonatingGuard />,
                         children: [
                           {
                             element: <CalibrateLayout />,
@@ -551,6 +557,10 @@ export const routes: RouteObject[] = [
                 element: <StoragePage />,
               },
               {
+                path: STORAGE_PICK_LIST_PATH,
+                element: <StoragePickListPage />,
+              },
+              {
                 path: ORDERS_PATH,
                 element: <Navigate to={INTAKE_PATH} replace />,
               },
@@ -623,6 +633,10 @@ export const routes: RouteObject[] = [
               {
                 path: CONTROL_CARDS_PATH,
                 element: <ControlCardsPage />,
+              },
+              {
+                path: MATCH_VALIDATIONS_PATH,
+                element: <ValidateMatchesPage />,
               },
               {
                 path: STATS_PATH,

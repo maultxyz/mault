@@ -102,6 +102,7 @@ export function CardLookup() {
           <Input
             type="search"
             placeholder={t("cardLookup.searchPlaceholder")}
+            aria-label={t("cardLookup.searchPlaceholder")}
             value={query}
             disabled={!game}
             onChange={(e) => {

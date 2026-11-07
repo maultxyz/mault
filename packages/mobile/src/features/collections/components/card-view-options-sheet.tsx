@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { FilterChip } from "@/features/collections/components/filter-chip";
 import { useTheme } from "@/hooks/use-theme";
+import { CARD_VIEW_MODES } from "@/lib/constants/collections";
 import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { CardViewOptionsSheetProps } from "@/lib/interfaces/collections";
 
@@ -17,6 +18,8 @@ function toggle<T>(list: T[], value: T): T[] {
 
 export function CardViewOptionsSheet({
   visible,
+  viewMode,
+  onViewModeChange,
   grouped,
   onGroupedChange,
   sortOptions,
@@ -31,7 +34,7 @@ export function CardViewOptionsSheet({
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
-  const bins = Array.from({ length: binCount }, (_, i) => i + 1);
+  const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
 
   const section = (title: string, children: ReactNode) => (
     <View style={{ gap: SPACING.sm }}>
@@ -44,8 +47,8 @@ export function CardViewOptionsSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           maxHeight: "85%",
           backgroundColor: colors.background,
@@ -63,20 +66,35 @@ export function CardViewOptionsSheet({
           <View style={{ width: 36, height: 4, borderRadius: RADIUS.full, backgroundColor: colors.border }} />
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
-          <AppText size="lg" heading weight="bold" style={{ flex: 1 }}>
+          <AppText size="lg" heading weight="bold" accessibilityRole="header" style={{ flex: 1 }}>
             {t("collection.viewOptions")}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.xl, paddingBottom: SPACING.lg }}>
-          {section(t("collection.display"), [
-            <FilterChip
-              key="grouped"
-              label={t("collection.groupDuplicates")}
-              selected={grouped}
-              onPress={() => onGroupedChange(!grouped)}
-            />,
-          ])}
+          {onViewModeChange
+            ? section(
+                t("collection.layout"),
+                CARD_VIEW_MODES.map((mode) => (
+                  <FilterChip
+                    key={mode}
+                    label={t(`collection.viewModes.${mode}`)}
+                    selected={viewMode === mode}
+                    onPress={() => onViewModeChange(mode)}
+                  />
+                )),
+              )
+            : null}
+          {onGroupedChange
+            ? section(t("collection.display"), [
+                <FilterChip
+                  key="grouped"
+                  label={t("collection.groupDuplicates")}
+                  selected={!!grouped}
+                  onPress={() => onGroupedChange(!grouped)}
+                />,
+              ])
+            : null}
           {section(
             t("collection.sort.title"),
             sortOptions.map((option) => (
@@ -129,25 +147,28 @@ export function CardViewOptionsSheet({
                 )),
               )
             : null}
-          {section(
-            t("collection.filters.bin"),
-            [
-              ...bins.map((bin) => (
+          {binCount == null
+            ? null
+            : section(
+              t("collection.filters.bin"),
+              [
+                ...bins.map((bin) => (
+                  <FilterChip
+                    key={bin}
+                    label={String(bin)}
+                    selected={filters.bins.includes(bin)}
+                    onPress={() => onChange({ ...filters, bins: toggle<number | null>(filters.bins, bin) })}
+                  />
+                )),
                 <FilterChip
-                  key={bin}
-                  label={String(bin)}
-                  selected={filters.bins.includes(bin)}
-                  onPress={() => onChange({ ...filters, bins: toggle<number | null>(filters.bins, bin) })}
-                />
-              )),
-              <FilterChip
-                key="none"
-                label={t("collection.filters.noBin")}
-                selected={filters.bins.includes(null)}
-                onPress={() => onChange({ ...filters, bins: toggle<number | null>(filters.bins, null) })}
-              />,
-            ],
-          )}
+                  key="none"
+                  label={t("collection.filters.noBin")}
+                  selected={filters.bins.includes(null)}
+                  onPress={() => onChange({ ...filters, bins: toggle<number | null>(filters.bins, null) })}
+                />,
+              ],
+            )
+          }
           {section(t("collection.filters.status"), [
             <FilterChip
               key="review"

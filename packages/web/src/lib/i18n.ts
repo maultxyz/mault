@@ -6,6 +6,7 @@ import type { SupportedLanguage } from "@/lib/interfaces/languages";
 
 const NAMESPACE_FILE_NAMES: Record<string, string> = {
   discordBot: "discord-bot",
+  matchValidations: "match-validations",
 };
 
 const localeModules = import.meta.glob<{ default: Record<string, unknown> }>(

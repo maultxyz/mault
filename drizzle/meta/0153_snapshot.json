@@ -1,5 +1,5 @@
 {
-  "id": "e895346c-8e35-40d9-9514-3fc2d51ee546",
+  "id": "cb76e419-d4c6-4d05-8d7a-7b391ce9ead1",
   "prevId": "cae193e1-8c58-4c64-8c94-73149e1901f0",
   "version": "7",
   "dialect": "postgresql",
@@ -2499,18 +2499,6 @@
         },
         "captured_image_key": {
           "name": "captured_image_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "captured_back_image_data_url": {
-          "name": "captured_back_image_data_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "captured_back_image_key": {
-          "name": "captured_back_image_key",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -6489,6 +6477,177 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
+    "public.platform_match_validations": {
+      "name": "platform_match_validations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "scan_id": {
+          "name": "scan_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "game_key": {
+          "name": "game_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "card_id": {
+          "name": "card_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "card_lang": {
+          "name": "card_lang",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "captured_image_key": {
+          "name": "captured_image_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_correct_match": {
+          "name": "is_correct_match",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "matched_by": {
+          "name": "matched_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "low_confidence_match": {
+          "name": "low_confidence_match",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "validated_by_user_id": {
+          "name": "validated_by_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "platform_match_validations_scan_idx": {
+          "name": "platform_match_validations_scan_idx",
+          "columns": [
+            {
+              "expression": "scan_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "platform_match_validations_user_idx": {
+          "name": "platform_match_validations_user_idx",
+          "columns": [
+            {
+              "expression": "validated_by_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "platform_match_validations_scan_user_idx": {
+          "name": "platform_match_validations_scan_user_idx",
+          "nullsNotDistinct": false,
+          "columns": [
+            "scan_id",
+            "validated_by_user_id"
+          ]
+        }
+      },
+      "policies": {
+        "crud-authenticated-policy-select": {
+          "name": "crud-authenticated-policy-select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "false"
+        },
+        "crud-authenticated-policy-insert": {
+          "name": "crud-authenticated-policy-insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "false"
+        },
+        "crud-authenticated-policy-update": {
+          "name": "crud-authenticated-policy-update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "false",
+          "withCheck": "false"
+        },
+        "crud-authenticated-policy-delete": {
+          "name": "crud-authenticated-policy-delete",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "false"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
     "public.platform_stats_settings": {
       "name": "platform_stats_settings",
       "schema": "",
@@ -8028,18 +8187,6 @@
         },
         "captured_image_key": {
           "name": "captured_image_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "captured_back_image_data_url": {
-          "name": "captured_back_image_data_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "captured_back_image_key": {
-          "name": "captured_back_image_key",
           "type": "text",
           "primaryKey": false,
           "notNull": false

@@ -1,0 +1,57 @@
+{
+  "title": "Treffer prüfen",
+  "description": "Hilf der Community, die Kartenerkennung zu verbessern: Vergleiche aktuelle Scans mit der zugeordneten Karte. Jeder Scan braucht {{required}} Prüfungen. Die Antworten ändern nie eine Sammlung.",
+  "counts": "Du hast {{yours}} geprüft · bisher {{community}} Prüfungen aus der Community",
+  "sessionCounts": "Diese Sitzung: {{correct}} richtig, {{incorrect}} falsch, {{badScan}} schlechte Scans",
+  "scanPhoto": "Scanfoto",
+  "scanPhotoAlt": "Scanfoto zum Vergleich mit {{name}}",
+  "matchedCard": "Zugeordnete Karte",
+  "matchedCardAlt": "Katalogbild von {{name}}",
+  "unknownCard": "Unbekannte Karte",
+  "matchedByEmbedding": "Über das Bild zugeordnet",
+  "matchedByOcr": "Über den Namenstext zugeordnet",
+  "lowConfidence": "Geringe Sicherheit",
+  "scannedAt": "Gescannt {{date}}",
+  "decisions": {
+    "correct": "Als richtig markiert",
+    "incorrect": "Als falsch markiert",
+    "skipped": "Übersprungen",
+    "badScan": "Als schlechter Scan markiert"
+  },
+  "actions": {
+    "correct": "Richtig",
+    "incorrect": "Falsch",
+    "badScan": "Schlechter Scan",
+    "skip": "Überspringen",
+    "back": "Zurück",
+    "refresh": "Aktualisieren"
+  },
+  "empty": {
+    "title": "Nichts mehr zu prüfen",
+    "description": "Du hast jeden offenen Scan geprüft oder den Rest übersprungen. Aktualisiere, um übersprungene Scans erneut zu laden."
+  },
+  "toasts": {
+    "saveError": "Deine Antwort konnte nicht gespeichert werden. Versuche diesen Scan erneut."
+  },
+  "reviewProgress": "{{count}} von {{required}} Prüfungen",
+  "views": {
+    "review": "Prüfen",
+    "scans": "Alle Scans"
+  },
+  "statuses": {
+    "inProgress": "Braucht Prüfungen",
+    "correct": "Richtig",
+    "incorrect": "Falsch",
+    "badScan": "Schlechter Scan",
+    "disputed": "Uneinig"
+  },
+  "tallies": "{{correct}} richtig · {{incorrect}} falsch · {{badScan}} schlechter Scan",
+  "yourVerdict": "Deine Antwort: {{verdict}}",
+  "scans": {
+    "listLabel": "Scans, die geprüft werden müssen",
+    "empty": {
+      "title": "Keine Scans zu prüfen",
+      "description": "In dieser Prüfwoche gibt es keine Scans mit Foto."
+    }
+  }
+}

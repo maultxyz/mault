@@ -12,6 +12,7 @@ export function MobileScanNotice({
   const Icon = tone === "neutral" ? IconInfoCircle : IconAlertTriangle;
   return (
     <div
+      role={tone === "error" ? "alert" : undefined}
       className={cn(
         MOBILE_SCAN_PANEL_CLASS,
         "flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none",

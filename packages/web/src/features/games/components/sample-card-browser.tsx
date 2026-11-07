@@ -145,6 +145,7 @@ export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {
             }
           }}
           placeholder={t("fieldMapping.queryPlaceholder")}
+          aria-label={t("fieldMapping.queryPlaceholder")}
         />
         <Button
           type="button"

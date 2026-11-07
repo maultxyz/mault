@@ -1,5 +1,11 @@
 {
+  "matchValidationProgress": {
+    "label": "Progression de la validation communautaire",
+    "valueText": "{{done}} sur {{total}} vérifications faites",
+    "percent": "{{percent}} %"
+  },
   "nav": {
+    "validateMatches": "Valider les correspondances",
     "scanner": "Trier",
     "collections": "Collections",
     "scan": "Lier la caméra",
@@ -103,7 +109,8 @@
     "exitButton": "Quitter l'emprunt d'identité",
     "hardwareBlocked": "Impossible de connecter des trieurs ou des caméras pendant l'emprunt d'identité d'un utilisateur.",
     "scanningBlockedTitle": "La numérisation est désactivée pendant l'emprunt d'identité",
-    "scanningBlockedDescription": "Quitte l'emprunt d'identité pour numériser des cartes, connecter un trieur ou utiliser une caméra."
+    "scanningBlockedDescription": "Quitte l'emprunt d'identité pour numériser des cartes, connecter un trieur ou utiliser une caméra.",
+    "calibrationReadOnly": "La calibration est en lecture seule pendant l'emprunt d'identité. Quitte l'emprunt d'identité pour la modifier ou connecter un trieur."
   },
   "theme": {
     "toggle": "Changer de thème",
@@ -122,7 +129,8 @@
     "delete": "Supprimer",
     "save": "Enregistrer",
     "create": "Créer",
-    "search": "Rechercher"
+    "search": "Rechercher",
+    "chooseFile": "Choisir un fichier"
   },
   "unsavedChanges": {
     "message": "Vous avez des modifications non enregistrées",
@@ -178,7 +186,8 @@
       "selfHost": "Auto-hébergement",
       "discordBot": "Bot Discord",
       "download": "Télécharger",
-      "shop": "Boutique"
+      "shop": "Boutique",
+      "makerWorld": "MakerWorld"
     },
     "discordAriaLabel": "Rejoindre le Discord",
     "menuAriaLabel": "Menu",
@@ -210,6 +219,7 @@
       "scanner": "Scanner",
       "cardDetail": "Détails de la carte",
       "intake": "Rachat",
+      "matchValidation": "Validation des correspondances",
       "foilLabeling": "Étiquetage des foils"
     },
     "actions": {
@@ -225,6 +235,7 @@
       "goCalibrate": "Aller au réglage du trieur",
       "goSettings": "Aller aux paramètres",
       "goAdmin": "Aller à l'administration",
+      "goNextSorterNeedingAttention": "Aller à la prochaine trieuse à vérifier",
       "scanPauseResume": "Mettre en pause ou reprendre le scan",
       "scanNow": "Scanner maintenant",
       "scanFeed": "Charger la carte suivante",
@@ -255,6 +266,11 @@
       "foilLabelFoil": "Pendant l'étiquetage : marquer comme foil",
       "foilLabelNotFoil": "Pendant l'étiquetage : marquer comme non foil",
       "foilLabelSkip": "Pendant l'étiquetage : passer cette carte",
+      "matchValidationCorrect": "Pendant la validation : marquer la correspondance juste",
+      "matchValidationIncorrect": "Pendant la validation : marquer la correspondance fausse",
+      "matchValidationBadScan": "Pendant la validation : marquer la photo comme mauvais scan",
+      "matchValidationSkip": "Pendant la validation : ignorer ce scan",
+      "matchValidationBack": "Pendant la validation : revenir au scan précédent",
       "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente",
       "scanFlatbedCard": "Numériser la carte sur le scanner à plat"
     }
@@ -326,6 +342,7 @@
     "customerNameRequired": "Saisis le nom du client.",
     "orderTextRequired": "Colle une commande ou choisis un fichier.",
     "orderLinesRequired": "Garde au moins une carte dans la liste.",
+    "decklistRequired": "Saisissez au moins une carte, une par ligne.",
     "cardCountRequired": "Saisis un nombre de cartes.",
     "storageLocationRequired": "Choisis où sont allées les cartes.",
     "commandRequired": "Saisis une commande.",
@@ -352,6 +369,41 @@
       "enthusiast": "Passionné",
       "business": "Entreprise",
       "legacyBusiness": "Business (ancienne offre)"
+    }
+  },
+  "a11y": {
+    "skipToContent": "Aller au contenu principal",
+    "close": "Fermer",
+    "clear": "Effacer",
+    "openOptions": "Afficher les options",
+    "remove": "Retirer",
+    "copy": "Copier dans le presse-papiers",
+    "retry": "Réessayer",
+    "removeCondition": "Retirer la condition",
+    "removeGroup": "Retirer le groupe",
+    "removeMember": "Retirer {{name}}",
+    "cancelInvite": "Annuler l'invitation de {{email}}",
+    "removeItem": "Retirer {{name}}",
+    "resizePanel": "Redimensionner le panneau",
+    "notifications": "Notifications",
+    "closeNotification": "Fermer la notification",
+    "notificationsWithCount_one": "Notifications, {{count}} non lue",
+    "notificationsWithCount_other": "Notifications, {{count}} non lues",
+    "watching": "Spectateurs",
+    "watchersCount_one": "{{count}} personne regarde",
+    "watchersCount_other": "{{count}} personnes regardent",
+    "details": "Détails",
+    "liveSession": "Scan en direct",
+    "mainNavigation": "Principale",
+    "settingsNavigation": "Paramètres",
+    "selected": "Sélectionné",
+    "loading": "Chargement",
+    "live": "En direct",
+    "notLive": "Hors ligne",
+    "severity": {
+      "info": "Info :",
+      "warning": "Avertissement :",
+      "danger": "Erreur :"
     }
   }
 }

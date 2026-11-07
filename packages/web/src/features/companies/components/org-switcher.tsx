@@ -177,6 +177,7 @@ export function OrgSwitcher() {
             />
           )}
           <Input
+            aria-label={t("organizationNamePlaceholder")}
             placeholder={t("organizationNamePlaceholder")}
             {...form.register("name")}
             autoFocus

@@ -48,9 +48,11 @@ import { useTranslation } from "react-i18next";
 function NumericConditionInput({
   value,
   onChange,
+  ariaLabel,
 }: {
   value: string | number;
   onChange: (value: string | number) => void;
+  ariaLabel: string;
 }) {
   const [draftText, setDraftText] = useState(() =>
     value === "" ? "" : String(value),
@@ -61,6 +63,7 @@ function NumericConditionInput({
   return (
     <Input
       type="number"
+      aria-label={ariaLabel}
       step="any"
       placeholder="0"
       max={CONDITION_NUMERIC_MAX}
@@ -79,16 +82,19 @@ function FreeformMultiInput({
   value,
   onChange,
   placeholder,
+  ariaLabel,
 }: {
   value: string[];
   onChange: (value: string[]) => void;
   placeholder: string;
+  ariaLabel: string;
 }) {
   const [text, setText] = useState(() => value.join(", "));
 
   return (
     <Input
       type="text"
+      aria-label={ariaLabel}
       placeholder={placeholder}
       className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
       value={text}
@@ -233,6 +239,7 @@ export function ConditionRow({
       return (
         <Input
           type="number"
+          aria-label={t("conditionRow.valueLabel")}
           min={0}
           step={1}
           placeholder="0"
@@ -263,6 +270,7 @@ export function ConditionRow({
           value={arrValue}
           onChange={handleValueChange}
           placeholder={t("conditionRow.freeformMultiPlaceholder")}
+          ariaLabel={t("conditionRow.valueLabel")}
         />
       );
     }
@@ -285,6 +293,7 @@ export function ConditionRow({
           onValueChange={(val) => handleValueChange(val as string)}
         >
           <SelectTrigger
+            aria-label={t("conditionRow.valueLabel")}
             className={cn("min-w-24 flex-1", CONDITION_SELECT_TRIGGER_CLASS)}
           >
             <SelectValue placeholder={t("conditionRow.selectPlaceholder")}>
@@ -312,6 +321,7 @@ export function ConditionRow({
           key={`${condition.field}:${condition.operator}`}
           value={Array.isArray(condition.value) ? "" : condition.value}
           onChange={handleValueChange}
+          ariaLabel={t("conditionRow.valueLabel")}
         />
       );
     }
@@ -319,6 +329,7 @@ export function ConditionRow({
     return (
       <Input
         type="text"
+        aria-label={t("conditionRow.valueLabel")}
         placeholder={t("conditionRow.valuePlaceholder")}
         maxLength={CONDITION_STRING_MAX_LENGTH}
         className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
@@ -345,6 +356,7 @@ export function ConditionRow({
         }
       >
         <ComboboxInput
+          aria-label={t("conditionRow.fieldLabel")}
           className={cn("min-w-28", CONDITION_FIELD_CLASS)}
           placeholder={t("conditionRow.selectPlaceholder")}
         />
@@ -368,6 +380,7 @@ export function ConditionRow({
           }
         >
           <SelectTrigger
+            aria-label={t("conditionRow.operatorLabel")}
             className={cn("min-w-28", CONDITION_SELECT_TRIGGER_CLASS)}
           >
             <SelectValue>
@@ -391,6 +404,7 @@ export function ConditionRow({
       {renderValueInput()}
 
       <Button
+        aria-label={t("common:a11y.removeCondition")}
         type="button"
         variant="ghost"
         size="icon"

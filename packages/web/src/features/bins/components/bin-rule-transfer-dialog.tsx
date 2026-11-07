@@ -124,7 +124,10 @@ export function BinRuleTransferDialog({
                   field.onChange(value == null ? null : Number(value))
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger
+                  className="w-full"
+                  aria-label={t("binRuleTransfer.targetLabel")}
+                >
                   <SelectValue>
                     {field.value == null
                       ? t("binRuleTransfer.chooseBin")

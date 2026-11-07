@@ -30,7 +30,10 @@ import type {
   ScannerConnectionState,
   ScannerStatusBarProps,
 } from "@/lib/interfaces/scanner";
-import { SCANNER_CONNECTION_DOT_CLASS } from "@/lib/constants/scanner";
+import {
+  SCANNER_CONNECTION_DOT_CLASS,
+  SORTER_LIMIT_MESSAGE_KEYS,
+} from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 import { CameraMenuItems } from "@/features/scanner/components/camera-menu-items";
@@ -99,7 +102,7 @@ export function ScannerStatusBar({
   onConnectAnotherBluetooth,
   onConnectAnotherCloud,
   canConnectAnotherSorter,
-  sorterLimitIsHardCap,
+  sorterLimitReason,
   onUpgrade,
   handScan,
   onHandScanChange,
@@ -238,10 +241,10 @@ export function ScannerStatusBar({
                   )}
                   <WifiSorterMenuItems onSelect={onConnectAnotherCloud} />
                 </>
-              ) : sorterLimitIsHardCap ? (
+              ) : sorterLimitReason !== "plan" ? (
                 <DropdownMenuItem disabled>
                   <IconPlus />
-                  {t("stations.hardCapReached.title", {
+                  {t(`${SORTER_LIMIT_MESSAGE_KEYS[sorterLimitReason]}.title`, {
                     max: MAX_CONNECTED_SORTERS,
                   })}
                 </DropdownMenuItem>

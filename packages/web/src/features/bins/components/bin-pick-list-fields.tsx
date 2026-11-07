@@ -1,3 +1,5 @@
+import { CardListFileButton } from "@/components/card-list-file-button";
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
@@ -8,12 +10,17 @@ import {
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { PickListProgress } from "@/features/bins/components/pick-list-progress";
-import type { BinPickListFieldsProps } from "@/lib/interfaces/bins";
+import { pickListImportFromCardList } from "@/features/bins/lib/pick-list-import";
+import type {
+  BinPickListFieldsProps,
+  PickListImport,
+} from "@/lib/interfaces/bins";
 import {
   parseDecklist,
   PICK_LIST_MAX_ENTRIES,
   type PickListMode,
 } from "@magic-vault/shared";
+import { useState } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -25,6 +32,7 @@ export function BinPickListFields({
   const { t } = useTranslation("bins");
   const pickList = useWatch({ control, name: "pickList" });
   const parsedCount = parseDecklist(pickList?.decklist ?? "").length;
+  const [lastImport, setLastImport] = useState<PickListImport | null>(null);
 
   const modeItems: { key: PickListMode; label: string }[] = [
     { key: "until_found", label: t("pickList.modes.untilFound") },
@@ -71,12 +79,23 @@ export function BinPickListFields({
               <FieldLabel htmlFor="bin-pick-list-decklist">
                 {t("pickList.decklistLabel")}
               </FieldLabel>
-              <span className="text-xs text-foreground/70">
-                {t("pickList.cardCount", {
-                  count: parsedCount,
-                  max: PICK_LIST_MAX_ENTRIES,
-                })}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-foreground/70">
+                  {t("pickList.cardCount", {
+                    count: parsedCount,
+                    max: PICK_LIST_MAX_ENTRIES,
+                  })}
+                </span>
+                <CardListFileButton
+                  onFileRead={({ text }) => {
+                    const imported = pickListImportFromCardList(text);
+                    setLastImport(imported);
+                    if (imported.entryCount > 0) {
+                      field.onChange(imported.decklist);
+                    }
+                  }}
+                />
+              </div>
             </div>
             <Textarea
               id="bin-pick-list-decklist"
@@ -84,7 +103,21 @@ export function BinPickListFields({
               className="font-mono"
               placeholder={t("pickList.decklistPlaceholder")}
               {...field}
+              onChange={(event) => {
+                setLastImport(null);
+                field.onChange(event);
+              }}
             />
+            {lastImport &&
+              (lastImport.entryCount === 0 || lastImport.skippedRows > 0) && (
+                <Callout variant="warning">
+                  {lastImport.entryCount === 0
+                    ? t("pickList.importEmpty")
+                    : t("pickList.importSkipped", {
+                        count: lastImport.skippedRows,
+                      })}
+                </Callout>
+              )}
             <FieldDescription>{t("pickList.decklistHint")}</FieldDescription>
             {fieldState.error && <FieldError errors={[fieldState.error]} />}
           </Field>

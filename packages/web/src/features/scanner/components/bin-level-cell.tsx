@@ -23,7 +23,6 @@ export function BinLevelCell({
     <button
       type="button"
       onClick={() => onEmpty(level.binNumber)}
-      aria-label={t("binStatusMeter.emptyAction", { bin: level.binNumber })}
       className={cn(
         "group/bin relative flex min-w-0 cursor-pointer items-center gap-1 overflow-hidden px-2 py-1 text-left transition-colors hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset",
         className,
@@ -68,12 +67,14 @@ export function BinLevelCell({
       {status === "full" && (
         <IconAlertOctagon
           className="relative size-3.5 shrink-0 text-destructive"
+          role="img"
           aria-label={t("binStatusMeter.full")}
         />
       )}
       {status === "warning" && (
         <IconAlertTriangle
           className="relative size-3.5 shrink-0 text-warning-foreground"
+          role="img"
           aria-label={t("binStatusMeter.nearlyFull")}
         />
       )}
@@ -84,6 +85,9 @@ export function BinLevelCell({
             /{level.capacity}
           </span>
         )}
+      </span>
+      <span className="sr-only">
+        {t("binStatusMeter.emptyAction", { bin: level.binNumber })}
       </span>
     </button>
   );

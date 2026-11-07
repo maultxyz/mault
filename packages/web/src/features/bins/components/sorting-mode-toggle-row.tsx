@@ -76,7 +76,10 @@ export function SortingModeToggleRow({
         <span className="text-xs font-medium">{label}</span>
         {badge}
         <Tooltip>
-          <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+          <TooltipTrigger
+            aria-label={description}
+            className="text-foreground/70 hover:text-foreground transition-colors"
+          >
             <IconInfoCircle className="size-3.5" />
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">{description}</TooltipContent>

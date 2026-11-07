@@ -115,7 +115,9 @@ export function AppLoadingScreen({
       <div className="relative flex flex-col items-center">
         <ScanningCard />
         <LoadingQuip />
-        <span className="sr-only">{t("loadingGate.loadingVault")}</span>
+        <span role="status" className="sr-only">
+          {t("loadingGate.loadingVault")}
+        </span>
       </div>
     </div>
   );

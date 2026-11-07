@@ -14,7 +14,12 @@ import { ConnectSorterMenuOptions } from "@/features/scanner/components/connect-
 import { StationOverviewGrid } from "@/features/scanner/components/station-overview-grid";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import {
+  IconPlayerPause,
+  IconPlayerPlay,
+  IconPlus,
+  IconSearch,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,14 +27,28 @@ export default function SortersPage() {
   const { t } = useTranslation("scanner");
   const [searchQuery, setSearchQuery] = useState("");
   const overview = useSorterOverview(searchQuery);
-  const { selectedKeys } = useSorterSelection();
+  const {
+    selectedKeys,
+    runningKeys,
+    resumableKeys,
+    pauseSorters,
+    resumeSorters,
+  } = useSorterSelection();
   const {
     isLoading,
     connectedSorters,
     offlineDevices,
     sortingCount,
+    attentionCount,
     totalCount,
   } = overview;
+  const connectedKeys = connectedSorters.map((sorter) => sorter.selectionKey);
+  const runningConnectedKeys = connectedKeys.filter((key) =>
+    runningKeys.has(key),
+  );
+  const resumableConnectedKeys = connectedKeys.filter((key) =>
+    resumableKeys.has(key),
+  );
 
   const stats = [
     {
@@ -46,6 +65,11 @@ export default function SortersPage() {
       key: "sorting",
       label: t("stations.overview.stats.sorting"),
       value: sortingCount.toLocaleString(),
+    },
+    {
+      key: "attention",
+      label: t("stations.overview.stats.attention"),
+      value: attentionCount.toLocaleString(),
     },
     {
       key: "offline",
@@ -65,15 +89,37 @@ export default function SortersPage() {
         title={t("stations.overview.title")}
         description={t("stations.overview.description")}
         actions={
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button />}>
-              <IconPlus />
-              {t("stations.connect")}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <ConnectSorterMenuOptions />
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex gap-1.5">
+            {connectedKeys.length > 1 && (
+              <>
+                <Button
+                  variant="outline"
+                  disabled={runningConnectedKeys.length === 0}
+                  onClick={() => pauseSorters(runningConnectedKeys)}
+                >
+                  <IconPlayerPause />
+                  {t("stations.overview.pauseAll")}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={resumableConnectedKeys.length === 0}
+                  onClick={() => resumeSorters(resumableConnectedKeys)}
+                >
+                  <IconPlayerPlay />
+                  {t("stations.overview.resumeAll")}
+                </Button>
+              </>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button />}>
+                <IconPlus />
+                {t("stations.connect")}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <ConnectSorterMenuOptions />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         }
       >
         {!isLoading && totalCount > 0 && (
@@ -82,12 +128,13 @@ export default function SortersPage() {
               heading={t("stations.overview.stats.heading")}
               tiles={stats}
               live={sortingCount > 0}
-              gridClassName="grid-cols-2 sm:grid-cols-4"
+              gridClassName="grid-cols-2 sm:grid-cols-5"
             />
             <div className="relative">
               <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
               <Input
                 type="search"
+                aria-label={t("stations.overview.searchPlaceholder")}
                 placeholder={t("stations.overview.searchPlaceholder")}
                 data-hotkey-search
                 value={searchQuery}

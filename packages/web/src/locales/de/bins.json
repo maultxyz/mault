@@ -97,7 +97,10 @@
     "noFields": "Keine passenden Felder",
     "selectPlaceholder": "Auswählen...",
     "valuePlaceholder": "Wert...",
-    "freeformMultiPlaceholder": "Werte, durch Komma getrennt..."
+    "freeformMultiPlaceholder": "Werte, durch Komma getrennt...",
+    "fieldLabel": "Feld",
+    "operatorLabel": "Operator",
+    "valueLabel": "Wert"
   },
   "ruleGroupEditor": {
     "emptyState": "Keine Bedingungen. Füge eine Bedingung oder Gruppe hinzu, um zu beginnen.",
@@ -325,6 +328,7 @@
     "anyMustMatch": "Eine davon",
     "cardValue": "Diese Karte: {{value}}",
     "noValue": "nichts",
+    "resultAnnouncement": "{{name}} kommt in {{bin}}",
     "reasons": {
       "rules": "Die Regeln von Fach {{bin}} passen auf diese Karte, und es ist das erste Fach, das passt.",
       "override": "Fach {{bin}} hat Vorrang und seine Regeln passen, daher gewinnt es gegen andere passende Fächer.",
@@ -401,7 +405,10 @@
       "saved": "Pickliste gespeichert",
       "saveFailed": "Pickliste konnte nicht gespeichert werden",
       "resetFailed": "Pickliste konnte nicht zurückgesetzt werden"
-    }
+    },
+    "importEmpty": "Keine Karten in dieser Datei gefunden. Prüfe, ob die erste Zeile Spaltennamen wie Product Name und Quantity enthält.",
+    "importSkipped_one": "{{count}} Zeile ohne Kartennamen wurde übersprungen.",
+    "importSkipped_other": "{{count}} Zeilen ohne Kartennamen wurden übersprungen."
   },
   "page": {
     "title": "Sortierregeln",

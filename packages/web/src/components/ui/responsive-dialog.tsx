@@ -32,6 +32,7 @@ interface DynamicDialogProps {
   onOpenChange?: (open: boolean) => void;
   dismissible?: boolean;
   onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
+  initialFocusRef?: React.RefObject<HTMLElement | null>;
 }
 
 export function DynamicDialog({
@@ -46,6 +47,7 @@ export function DynamicDialog({
   onOpenChange,
   dismissible = true,
   onKeyDown,
+  initialFocusRef,
 }: DynamicDialogProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -69,7 +71,18 @@ export function DynamicDialog({
         dismissible={dismissible}
       >
         {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
-        <DrawerContent className={className} onKeyDown={onKeyDown}>
+        <DrawerContent
+          className={className}
+          onKeyDown={onKeyDown}
+          onOpenAutoFocus={
+            initialFocusRef
+              ? (event) => {
+                  event.preventDefault();
+                  initialFocusRef.current?.focus();
+                }
+              : undefined
+          }
+        >
           <DrawerHeader className="py-0">
             <DrawerTitle className="text-start">{title}</DrawerTitle>
             {description && (
@@ -98,6 +111,7 @@ export function DynamicDialog({
         className={cn("flex max-h-[calc(100dvh-2rem)] flex-col", className)}
         showCloseButton={dismissible}
         onKeyDown={onKeyDown}
+        initialFocus={initialFocusRef}
       >
         <DialogHeader className="flex-none">
           <DialogTitle>{title}</DialogTitle>

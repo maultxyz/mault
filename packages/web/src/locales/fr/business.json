@@ -20,6 +20,7 @@
     "completed": "Terminé"
   },
   "table": {
+    "status": "Statut",
     "card": "Carte",
     "set": "Édition",
     "condition": "État",
@@ -222,6 +223,7 @@
     "staffSignature": "Signature du vendeur"
   },
   "orders": {
+    "pickCopy": "Marquer {{name}} comme prélevée",
     "printing": "{{setName}} ({{set}}) n° {{number}}",
     "removeLastCopyTitle": "Annuler la préparation ?",
     "removeLastCopyDescription": "C'est le dernier exemplaire de {{name}} et la seule carte restante, donc le retirer annule la préparation.",
@@ -257,7 +259,6 @@
     "namePlaceholder": "Commandes de lundi",
     "contents": "Cartes à sortir",
     "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "chooseFile": "Choisir un fichier",
     "preview": "{{source}} : {{lines}} lignes, {{quantity}} cartes.",
     "previewEmpty": "Aucune carte trouvée. Vérifiez que la première ligne contient des noms de colonnes comme Product Name et Quantity.",
     "previewSkipped_one": "{{count}} ligne sans nom de carte a été ignorée.",

@@ -68,7 +68,7 @@ code {
   --muted-foreground: #656f7d;
   --accent: #f0f1f3;
   --accent-foreground: #292d34;
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.55 0.235 27.325);
   --destructive-foreground: oklch(100% 0.00011 271.152);
   --border: #e3e5ea;
   --input: var(--border);
@@ -514,10 +514,9 @@ code {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
-    @apply font-sans bg-background text-foreground;
     @apply font-sans bg-background text-foreground;
   }
   html {
@@ -548,5 +547,13 @@ code {
 @media (prefers-reduced-motion: reduce) {
   .feature-spotlight-number {
     animation: none;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

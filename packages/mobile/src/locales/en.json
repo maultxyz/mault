@@ -14,7 +14,10 @@
     "discardTitle": "Discard changes?",
     "discardDescription": "Your changes to this bin haven't been saved.",
     "keepEditing": "Keep editing",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "decreaseBy": "Decrease by {{step}}",
+    "increaseBy": "Increase by {{step}}",
+    "changesSaved": "Changes saved"
   },
   "tabs": {
     "collections": "Collections",
@@ -100,6 +103,8 @@
   "cards": {
     "bin": "Bin {{number}}",
     "needsReview": "Needs review",
+    "reviewed": "Reviewed",
+    "cardActions": "Card actions",
     "quantity_one": "{{count}} copy",
     "quantity_other": "{{count}} copies"
   },
@@ -573,6 +578,7 @@
     "sorterNotReadyDescription": "Connect your sorter to feed and route cards. You can still scan cards by hand.",
     "openSorter": "Connect sorter",
     "modelErrorTitle": "Couldn't load the card recognition models",
+    "cameraPreview": "Camera preview",
     "phase": {
       "idle": "Idle",
       "loading-models": "Loading models",
@@ -766,7 +772,12 @@
       "removeTitle_other": "Remove {{count}} copies?"
     },
     "viewOptions": "View options",
-    "display": "Display"
+    "display": "Display",
+    "layout": "Layout",
+    "viewModes": {
+      "list": "List",
+      "grid": "Grid"
+    }
   },
   "cardDetail": {
     "pricePaid": "Price paid ({{currency}})",
@@ -1121,6 +1132,24 @@
       "reverseSpeedLabel": "Roll Back Speed",
       "off": "Off"
     },
+    "feederTest": {
+      "heading": "Feeder test",
+      "description": "Feed cards straight to the bottom bin without scanning, using the saved feeder settings.",
+      "runUntilStoppedLabel": "Feed until stopped",
+      "cardsToSendLabel": "Cards to send",
+      "start": "Start feeding",
+      "stop": "Stop",
+      "stopping": "Stopping after this card",
+      "progress": "Cards sent: {{count}}",
+      "progressOfTotal": "Cards sent: {{count}} of {{total}}",
+      "results": {
+        "completed": "Feeder test finished. Cards sent: {{count}}",
+        "stopped": "Feeder test stopped. Cards sent: {{count}}",
+        "hopperEmpty": "Hopper is empty. Cards sent: {{count}}",
+        "feedFailed": "Feeder test stopped on an error. Cards sent: {{count}}",
+        "routeFailed": "Feeder test stopped on an error. Cards sent: {{count}}"
+      }
+    },
     "runTest": "Run Test",
     "testing": "Testing…",
     "feed": "Feed",
@@ -1276,6 +1305,9 @@
     "location": "Storage",
     "removeFromLocation": "Remove from location",
     "noCardsTitle": "This location is empty",
+    "searchCardsPlaceholder": "Search cards in this location",
+    "positionOrder": "Position in the box",
+    "noMatchingCards": "No cards match your search or filters",
     "businessOnly": "Storage locations aren't included in your plan.",
     "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
     "lockedWithLocations": "You can still view and search your locations and the cards in them. Changing anything needs a plan that includes storage.",
@@ -1291,7 +1323,73 @@
     "moveToCollectionFailed": "Couldn't move the cards",
     "moveToOtherLocation": "Move to another location",
     "searchLocations": "Search locations",
-    "searchCollections": "Search collections"
+    "searchCollections": "Search collections",
+    "pickList": {
+      "open": "Pick list",
+      "title": "Pick list",
+      "description": "Paste a decklist to see where each card is stored, then tick cards off as you pull them.",
+      "decklistLabel": "Cards to pull",
+      "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+      "decklistHint": "One card per line. Quantities, set codes and section headers are fine.",
+      "findCards": "Find cards",
+      "editList": "Edit list",
+      "clear": "Clear list",
+      "progress": "{{picked}} of {{total}} picked",
+      "emptyTitle": "None of these cards are stored",
+      "emptyDescription": "Only cards in a storage location show up on a pick list.",
+      "loadFailed": "The pick list couldn't be loaded.",
+      "finish": "Remove picked from locations",
+      "finishTitle_one": "Remove {{count}} picked card from its location?",
+      "finishTitle_other": "Remove {{count}} picked cards from their locations?",
+      "finishDescription": "They stay in your collection. The pick list is cleared afterwards.",
+      "finishConfirm": "Remove",
+      "scan": {
+        "button": "Scan to pick",
+        "noMatch": "No card recognized. Try again with the whole card in view.",
+        "notOnList": "{{name}} isn't left on your pick list.",
+        "picked": "Picked {{name}} from {{location}}, position {{position}}",
+        "failed": "Scanning failed. Try again.",
+        "title": "Scan to pick",
+        "hint": "Hold one card in the frame and tap the shutter.",
+        "done": "Done",
+        "remaining": "{{count}} left to pick",
+        "loadingModels": "Preparing the scanner",
+        "alreadyPicked": "Every copy of {{name}} on your pick list is already picked."
+      },
+      "finishFailed": "The picked cards couldn't be removed. Try again.",
+      "notStored": "Not stored",
+      "missingCount_one": "{{count}} copy not stored",
+      "missingCount_other": "{{count}} copies not stored",
+      "moreActions": "More actions",
+      "picked": "Picked"
+    },
+    "verify": {
+      "tabs": {
+        "cards": "Cards",
+        "verify": "Verify"
+      },
+      "description": "Scan the cards in this location to check everything that should be here is.",
+      "progress": "{{verified}} of {{total}} verified",
+      "verified": "Verified",
+      "startOver": "Start over",
+      "emptyTitle": "Nothing to verify",
+      "emptyDescription": "This location has no cards stored in it yet.",
+      "loadFailed": "This location's cards couldn't be loaded.",
+      "truncated": "Only the first {{max}} cards in this location can be verified.",
+      "complete": "Every card in this location is verified.",
+      "notInLocationTitle": "Scanned but not stored here",
+      "notInLocationDescription": "These cards aren't recorded in this location. Put them where they belong, or move them here.",
+      "scan": {
+        "button": "Scan to verify",
+        "stop": "Stop scanning",
+        "verified": "Verified {{name}}, position {{position}}",
+        "alreadyVerified": "Every copy of {{name}} in this location is already verified.",
+        "notInLocation": "{{name}} isn't stored in this location.",
+        "hint": "Hold one card from this location in the frame and tap the shutter.",
+        "title": "Verify cards",
+        "remaining": "{{count}} left to verify"
+      }
+    }
   },
   "settings": {
     "title": "Settings",
@@ -1354,14 +1452,7 @@
     "ocr": {
       "heading": "Text recognition (OCR)",
       "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
-      "toggleLabel": "Enable OCR text matching",
-      "badge": "Beta"
-    },
-    "ocrBetaDialog": {
-      "title": "OCR text matching (beta)",
-      "description": "When a scan isn't a confident match, this reads the card's name and set line to find the card or pick the right printing. Confident matches skip it, so scanning speed is unchanged. It's still in beta and can misread text. Turn it back off if it seems to be making matches worse.",
-      "confirm": "Enable OCR",
-      "cancel": "Cancel"
+      "toggleLabel": "Enable OCR text matching"
     },
     "correctionAutoClose": {
       "heading": "Card correction prompt",
@@ -1926,6 +2017,7 @@
     "customerNameRequired": "Enter the customer's name.",
     "orderTextRequired": "Paste an order or choose a file.",
     "orderLinesRequired": "Keep at least one card on the pick.",
+    "decklistRequired": "Enter at least one card, one per line.",
     "cardCountRequired": "Enter a number of cards.",
     "storageLocationRequired": "Choose where the cards went.",
     "commandRequired": "Enter a command.",

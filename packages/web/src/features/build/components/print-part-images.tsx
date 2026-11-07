@@ -2,8 +2,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { printPartImagesStore } from "@/features/build/lib/print-part-images-store";
 import type { PrintPartImagesProps } from "@/lib/interfaces/build";
 import { useSyncExternalStore } from "react";
+import { useTranslation } from "react-i18next";
 
 export function PrintPartImages({ parts }: PrintPartImagesProps) {
+  const { t } = useTranslation("build");
   const { status, images } = useSyncExternalStore(
     printPartImagesStore.subscribe,
     printPartImagesStore.getSnapshot,
@@ -37,7 +39,12 @@ export function PrintPartImages({ parts }: PrintPartImagesProps) {
         <img
           key={part}
           src={src}
-          alt=""
+          alt={t("imageAlt.printPart", {
+            part:
+              part === "baseSupportBreakout"
+                ? t("imageAlt.breakoutBaseSupport")
+                : t(`printModel.parts.${part}`),
+          })}
           className="aspect-square w-full max-w-32 rounded-md border bg-muted/40 object-contain sm:max-w-40"
         />
       ))}

@@ -49,7 +49,7 @@ export default function BillingSettingsScreen() {
         <Skeleton height={240} />
       ) : (
         <Surface style={{ gap: SPACING.lg }}>
-          <AppText size="lg" heading weight="bold">
+          <AppText size="lg" heading weight="bold" accessibilityRole="header">
             {t(`settings.billing.plan.${billing.isLegacyPlan ? LEGACY_BUSINESS_PLAN : billing.plan}`)}
           </AppText>
           {billing.isLegacyPlan ? <Callout tone="info" title={t("settings.billing.legacyPlanNote")} /> : null}

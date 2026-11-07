@@ -4,6 +4,7 @@ import {
   CAMERA_BUSY_RETRY_DELAYS_MS,
   CAMERA_IDEAL_HEIGHT,
   CAMERA_IDEAL_WIDTH,
+  SCANNER_CAMERA_FRAME_RATE,
 } from "@/lib/constants/scanner";
 import type { CameraTrackCapabilities } from "@/lib/interfaces/scanner";
 import type { StationState } from "@/lib/interfaces/stations";
@@ -44,6 +45,7 @@ export async function acquireStream(
       ...source,
       width: { ideal: CAMERA_IDEAL_WIDTH },
       height: { ideal: CAMERA_IDEAL_HEIGHT },
+      frameRate: { ideal: SCANNER_CAMERA_FRAME_RATE },
       zoom: true,
     } as MediaTrackConstraints,
   });

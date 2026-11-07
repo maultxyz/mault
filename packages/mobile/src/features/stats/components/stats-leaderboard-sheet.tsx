@@ -29,8 +29,8 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           maxHeight: "85%",
           backgroundColor: colors.background,
@@ -49,7 +49,7 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
         </View>
         <View style={{ flexDirection: "row", alignItems: "flex-start", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
           <View style={{ flex: 1, gap: 2 }}>
-            <AppText size="lg" heading weight="bold">
+            <AppText size="lg" heading weight="bold" accessibilityRole="header">
               {t("stats.leaderboard.title")}
             </AppText>
             <AppText size="sm" tone="secondary">

@@ -68,6 +68,7 @@ export interface CardSearchAdapter {
   excludedFromMatchingSql?: SQL;
   ocrMatchesByPrintedSetAndNumber?: boolean;
   foilPrintingVariants?: FoilPrintingVariants;
+  sourceListsNonFoilPrinting?(card: PlayingCard): boolean;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;
   cardkingdom?: CardKingdomPricing;
