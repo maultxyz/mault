@@ -1,5 +1,9 @@
 import { defineConfig } from "tsup";
 
+const desktopChannel = process.env.MAULT_DESKTOP_CHANNEL ?? "production";
+const baseAppId = process.env.MAULT_DESKTOP_APP_ID ?? "";
+const appUserModelId = baseAppId && desktopChannel === "development" ? `${baseAppId}.dev` : baseAppId;
+
 export default defineConfig({
   entry: {
     main: "src/main.ts",
@@ -13,9 +17,8 @@ export default defineConfig({
   clean: true,
   publicDir: "static",
   define: {
-    "process.env.MAULT_DESKTOP_CHANNEL": JSON.stringify(
-      process.env.MAULT_DESKTOP_CHANNEL ?? "production",
-    ),
+    "process.env.MAULT_DESKTOP_CHANNEL": JSON.stringify(desktopChannel),
+    "process.env.MAULT_DESKTOP_APP_USER_MODEL_ID": JSON.stringify(appUserModelId),
   },
   external: ["electron", /^@koromix\//],
   noExternal: [/^(?!electron$|@koromix\/).*/],

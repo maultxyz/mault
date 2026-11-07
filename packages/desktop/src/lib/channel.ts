@@ -9,3 +9,4 @@ function readBuildChannel(): DesktopChannel {
 
 export const DESKTOP_CHANNEL = readBuildChannel();
 export const CHANNEL_SETTINGS = DESKTOP_CHANNEL_SETTINGS[DESKTOP_CHANNEL];
+export const APP_USER_MODEL_ID = process.env.MAULT_DESKTOP_APP_USER_MODEL_ID || undefined;

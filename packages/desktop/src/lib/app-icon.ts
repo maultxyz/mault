@@ -1,6 +1,6 @@
 import type { BrowserWindow } from "electron";
 import path from "path";
-import { CHANNEL_SETTINGS } from "./channel";
+import { APP_USER_MODEL_ID, CHANNEL_SETTINGS } from "./channel";
 
 export function appIconPath(): string {
   const extension = process.platform === "win32" ? "ico" : "png";
@@ -8,9 +8,9 @@ export function appIconPath(): string {
 }
 
 export function applyTaskbarIcon(window: BrowserWindow) {
-  if (process.platform !== "win32") return;
+  if (process.platform !== "win32" || !APP_USER_MODEL_ID) return;
   window.setAppDetails({
-    appId: CHANNEL_SETTINGS.appUserModelId,
+    appId: APP_USER_MODEL_ID,
     appIconPath: appIconPath(),
     appIconIndex: 0,
   });

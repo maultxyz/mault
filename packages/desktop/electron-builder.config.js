@@ -1,8 +1,6 @@
-const RELEASE_DOWNLOAD_BASE_URL = "https://github.com/dishwasher-detergent/mault/releases/download";
-
 const CHANNELS = {
   production: {
-    appId: "xyz.mault.desktop",
+    appIdSuffix: "",
     productName: "MAULT",
     packageName: "mault-desktop",
     artifactPrefix: "MAULT",
@@ -11,7 +9,7 @@ const CHANNELS = {
     updateChannel: "latest",
   },
   development: {
-    appId: "xyz.mault.desktop.dev",
+    appIdSuffix: ".dev",
     productName: "MAULT Dev",
     packageName: "mault-desktop-dev",
     artifactPrefix: "MAULT-Dev",
@@ -25,8 +23,18 @@ const channelName = process.env.MAULT_DESKTOP_CHANNEL ?? "production";
 const channel = CHANNELS[channelName];
 if (!channel) throw new Error(`Unknown desktop channel: ${channelName}`);
 
+const baseAppId = process.env.MAULT_DESKTOP_APP_ID;
+if (!baseAppId) {
+  throw new Error("Set MAULT_DESKTOP_APP_ID to your own reverse-domain app ID before packaging.");
+}
+
+const releaseRepository = process.env.MAULT_DESKTOP_RELEASE_REPOSITORY ?? process.env.GITHUB_REPOSITORY;
+if (!releaseRepository) {
+  throw new Error("Set MAULT_DESKTOP_RELEASE_REPOSITORY (owner/repo) so the update feed points at your own releases.");
+}
+
 module.exports = {
-  appId: channel.appId,
+  appId: `${baseAppId}${channel.appIdSuffix}`,
   productName: channel.productName,
   extraMetadata: {
     name: channel.packageName,
@@ -67,7 +75,7 @@ module.exports = {
   },
   publish: {
     provider: "generic",
-    url: `${RELEASE_DOWNLOAD_BASE_URL}/${channel.releaseTag}`,
+    url: `https://github.com/${releaseRepository}/releases/download/${channel.releaseTag}`,
     channel: channel.updateChannel,
   },
 };
