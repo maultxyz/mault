@@ -209,15 +209,25 @@ class Camera:
         except subprocess.TimeoutExpired:
             proc.kill()
 
-    def set_focus(self, mode: str, lens_position: float | None) -> None:
+    def set_focus(self, mode: str, lens_position: float | None) -> int | None:
         device = self.device
         if device is None or not self.healthy():
             raise RuntimeError(self.error or "camera is not running")
         if mode == "auto":
             self._set_control("focus_automatic_continuous=1")
             return
+        if mode == "lock":
+            self._set_control("focus_automatic_continuous=0")
+            proc = subprocess.run(
+                ["v4l2-ctl", "-d", device, "--get-ctrl=focus_absolute"],
+                capture_output=True, text=True, check=False,
+            )
+            match = re.search(r"focus_absolute:\s*(-?\d+)", proc.stdout)
+            if proc.returncode != 0 or match is None:
+                raise RuntimeError("could not read webcam focus position")
+            return int(match.group(1))
         if mode != "manual":
-            raise ValueError("mode must be auto or manual")
+            raise ValueError("mode must be auto, manual, or lock")
         if lens_position is None:
             raise ValueError("lensPosition is required for manual focus")
         if self.focus is not None and not (
@@ -225,9 +235,10 @@ class Camera:
         ):
             raise ValueError("lensPosition is outside the webcam focus range")
         value = int(round(lens_position))
-        self._set_control(
-            f"focus_automatic_continuous=0,focus_absolute={value}"
-        )
+        # The driver rejects focus_absolute while autofocus is still active,
+        # even when both controls are supplied in one v4l2-ctl invocation.
+        self._set_control("focus_automatic_continuous=0")
+        self._set_control(f"focus_absolute={value}")
 
     def _set_control(self, control: str) -> None:
         device = self.device
@@ -355,14 +366,17 @@ class Handler(BaseHTTPRequestHandler):
         try:
             body = json.loads(self.rfile.read(length) or b"{}")
             lens = body.get("lensPosition")
-            CAMERA.set_focus(
+            position = CAMERA.set_focus(
                 str(body.get("mode", "")),
                 None if lens is None else float(lens),
             )
         except (ValueError, RuntimeError, json.JSONDecodeError) as exc:
             self._send(400, str(exc).encode(), "text/plain")
             return
-        self._send(204, b"", "text/plain")
+        if position is not None:
+            self._send(200, json.dumps({"lensPosition": position}).encode(), "application/json")
+        else:
+            self._send(204, b"", "text/plain")
 
     def log_message(self, fmt: str, *args) -> None:
         print("[camera-ctl]", fmt % args)

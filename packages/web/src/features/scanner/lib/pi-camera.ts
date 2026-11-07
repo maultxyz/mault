@@ -10,7 +10,7 @@ import {
 import type { CameraRange, PiCameraHealth } from "@/lib/interfaces/scanner";
 import { usesHostHardware } from "@/lib/host";
 import { isPiHost, loadPiHost } from "@/lib/pi-host";
-import { applyFocus, manualFocusRange } from "./camera-focus";
+import { applyFocus, currentFocusDistance, manualFocusRange } from "./camera-focus";
 
 const piRelayTracks = new WeakSet<MediaStreamTrack>();
 const piRelayCanvases = new WeakMap<MediaStream, HTMLCanvasElement>();
@@ -298,4 +298,25 @@ export async function applyTrackFocus(
     return;
   }
   await applyFocus(track, value);
+}
+
+// The Pi preview is a canvas track; only the helper knows the lens position.
+export async function lockTrackFocus(
+  track: MediaStreamTrack | undefined,
+  fallback: number,
+): Promise<number> {
+  if (!browserMustUsePiCamera() && !(track && isPiRelayTrack(track))) {
+    return (track && currentFocusDistance(track)) ?? fallback;
+  }
+  const response = await fetch(`${API_BASE}${PI_CAMERA_BASE}/focus`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
+    body: JSON.stringify({ mode: "lock" }),
+  });
+  if (!response.ok) throw new Error("Could not lock camera focus");
+  const body = await response.json() as { lensPosition?: number };
+  if (typeof body.lensPosition !== "number" || !Number.isFinite(body.lensPosition)) {
+    throw new Error("Camera did not return a focus position");
+  }
+  return body.lensPosition;
 }

@@ -109,12 +109,11 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
               : null;
           setFocusRange(range);
           setFocusDistanceState(savedFocus);
-          if (savedFocus !== null) {
-            if (!mediaStream) await applyPiFocus(savedFocus).catch(() => {});
-            else {
-              const track = mediaStream.getVideoTracks()[0];
-              if (track) await applyTrackFocus(track, savedFocus).catch(() => {});
-            }
+          // Apply auto as well: the camera may retain manual mode across starts.
+          if (!mediaStream) await applyPiFocus(savedFocus).catch(() => {});
+          else {
+            const track = mediaStream.getVideoTracks()[0];
+            if (track) await applyTrackFocus(track, savedFocus).catch(() => {});
           }
           return;
         }
