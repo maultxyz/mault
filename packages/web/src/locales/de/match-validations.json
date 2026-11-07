@@ -60,5 +60,17 @@
     "anonymousOrg": "Anonyme Organisation",
     "reviewCount_one": "{{count}} Prüfung",
     "reviewCount_other": "{{count}} Prüfungen"
+  },
+  "guide": {
+    "open": "So prüfst du einen Treffer",
+    "title": "So prüfst du einen Treffer",
+    "intro": "Vergleiche das Scanfoto mit der Karte, die erkannt wurde. Achte auf den Namen, das Setsymbol, die Sammlernummer und das Artwork.",
+    "done": "Verstanden",
+    "items": {
+      "correct": "Das Foto zeigt dieselbe Karte im selben Druck: gleicher Name, gleiches Setsymbol, gleiche Sammlernummer und gleiches Artwork. Kleine Unterschiede bei Farbe oder Licht sind in Ordnung.",
+      "incorrect": "Das Foto zeigt eine andere Karte oder dieselbe Karte aus einem anderen Set oder Druck, etwa mit anderem Setsymbol, anderer Sammlernummer, anderem Rahmen oder anderem Artwork.",
+      "badScan": "Du kannst nicht erkennen, welche Karte es ist, weil das Foto unscharf oder abgeschnitten ist, stark spiegelt, mehrere Karten oder gar keine Karte zeigt.",
+      "skip": "Nicht sicher? Überspringe den Scan, dann prüft ihn jemand anderes."
+    }
   }
 }

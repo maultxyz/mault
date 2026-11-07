@@ -2,6 +2,7 @@ import { MatchValidationProgress } from "@/components/match-validation-progress"
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { ViewTabs } from "@/components/view-tabs";
+import { MatchValidationGuideButton } from "@/features/match-validations/components/match-validation-guide-button";
 import { MatchValidationQueue } from "@/features/match-validations/components/match-validation-queue";
 import { MatchValidationScanGrid } from "@/features/match-validations/components/match-validation-scan-grid";
 import { MatchValidationSummary } from "@/features/match-validations/components/match-validation-summary";
@@ -29,6 +30,8 @@ export default function ValidateMatchesPage() {
   const description = t("description", {
     required: MATCH_VALIDATION_REVIEWS_REQUIRED,
   });
+
+  const guideButton = <MatchValidationGuideButton />;
 
   const viewSwitch = (
     <ViewTabs<MatchValidationView>
@@ -59,7 +62,11 @@ export default function ValidateMatchesPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {isMobile && (
-        <MobilePageHeader title={t("title")} subtitle={description} />
+        <MobilePageHeader
+          title={t("title")}
+          subtitle={description}
+          actions={guideButton}
+        />
       )}
       <div
         className={cn(
@@ -72,6 +79,7 @@ export default function ValidateMatchesPage() {
             title={t("title")}
             description={description}
             tabs={viewSwitch}
+            actions={guideButton}
           >
             {view !== MATCH_VALIDATION_REVIEW_VIEW && (
               <MatchValidationSummary className="pb-1" />

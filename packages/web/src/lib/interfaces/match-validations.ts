@@ -1,3 +1,5 @@
+import type { HotkeyId } from "@/lib/interfaces/hotkeys";
+import type { Icon } from "@tabler/icons-react";
 import type { MatchValidationScan } from "@magic-vault/shared";
 
 export type MatchValidationView = "review" | "scans";
@@ -21,4 +23,10 @@ export interface ValidateMatchesButtonProps {
 
 export interface MatchValidationScanTileProps {
   scan: MatchValidationScan;
+}
+
+export interface MatchValidationGuideItem {
+  key: "correct" | "incorrect" | "badScan" | "skip";
+  icon: Icon;
+  hotkey: HotkeyId;
 }

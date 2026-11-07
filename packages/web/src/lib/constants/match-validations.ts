@@ -1,4 +1,13 @@
-import type { MatchValidationView } from "@/lib/interfaces/match-validations";
+import type {
+  MatchValidationGuideItem,
+  MatchValidationView,
+} from "@/lib/interfaces/match-validations";
+import {
+  IconCircleCheck,
+  IconCircleX,
+  IconPhotoOff,
+  IconPlayerSkipForward,
+} from "@tabler/icons-react";
 import type { MatchValidationStatus } from "@magic-vault/shared";
 
 export const MATCH_VALIDATIONS_PATH = "/app/validate-matches";
@@ -19,3 +28,10 @@ export const MATCH_VALIDATION_STATUS_BADGE_VARIANTS: Record<
   badScan: "warning",
   disputed: "info",
 };
+
+export const MATCH_VALIDATION_GUIDE_ITEMS: MatchValidationGuideItem[] = [
+  { key: "correct", icon: IconCircleCheck, hotkey: "matchValidationCorrect" },
+  { key: "incorrect", icon: IconCircleX, hotkey: "matchValidationIncorrect" },
+  { key: "badScan", icon: IconPhotoOff, hotkey: "matchValidationBadScan" },
+  { key: "skip", icon: IconPlayerSkipForward, hotkey: "matchValidationSkip" },
+];
