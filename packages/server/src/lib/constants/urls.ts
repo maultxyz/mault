@@ -45,7 +45,9 @@ export const CARDKINGDOM_PRICELIST_URL =
   "https://api.cardkingdom.com/api/v2/pricelist";
 export const CARDKINGDOM_SITE_URL = "https://www.cardkingdom.com/";
 export const TCGPLAYER_SITE_URL = "https://www.tcgplayer.com";
-export const CARDMARKET_SITE_URL = "https://www.cardmarket.com/en";
+export const CARDMARKET_SITE_ORIGIN = "https://www.cardmarket.com";
+export const CARDMARKET_SITE_DEFAULT_LANGUAGE = "en";
+export const CARDMARKET_SITE_LANGUAGES = ["en", "fr", "de", "es", "it"];
 export const YUGIOH_DEFAULT_URL =
   "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 
