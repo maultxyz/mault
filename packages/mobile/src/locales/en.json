@@ -2126,6 +2126,14 @@
     "savePartialTitle_one": "Added {{count}} card",
     "savePartialTitle_other": "Added {{count}} cards",
     "savePartialDescription_one": "{{count}} card couldn't be saved. Try adding it again.",
-    "savePartialDescription_other": "{{count}} cards couldn't be saved. Try adding them again."
+    "savePartialDescription_other": "{{count}} cards couldn't be saved. Try adding them again.",
+    "modeAdd": "Add",
+    "modeRemove": "Remove",
+    "removeCard": "Remove card {{number}}",
+    "reviewRemoval_one": "Review {{count}} card to remove",
+    "reviewRemoval_other": "Review {{count}} cards to remove",
+    "removalLookupFailedTitle_one": "Couldn't look up {{count}} card",
+    "removalLookupFailedTitle_other": "Couldn't look up {{count}} cards",
+    "removalLookupFailedDescription": "Check your connection and try again."
   }
 }

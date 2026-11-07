@@ -358,7 +358,12 @@ export default function ScanScreen() {
                   variant="camera"
                   size={SHUTTER_SIZE - SPACING.sm}
                   accessibilityLabel={t("batchScan.open")}
-                  onPress={() => router.push("/batch-scan")}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/batch-scan",
+                      params: { mode: session.removal.isEnabled ? "remove" : "add" },
+                    })
+                  }
                 />
               ) : null}
             </View>

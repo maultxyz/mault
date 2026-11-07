@@ -1,5 +1,5 @@
 import { useKeepAwake } from "expo-keep-awake";
-import { router, useIsFocused } from "expo-router";
+import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useBatchScan } from "@/features/scanner/api/use-batch-scan";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { BatchScanCorrectionSheet } from "@/features/scanner/components/batch-scan-correction-sheet";
@@ -19,6 +20,7 @@ import { BatchScanPhoto } from "@/features/scanner/components/batch-scan-photo";
 import { BatchScanRow } from "@/features/scanner/components/batch-scan-row";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
+import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
 import { captureFrame } from "@/features/scanner/lib/frame";
 import { warmScanModels } from "@/features/scanner/lib/inference";
@@ -26,6 +28,7 @@ import { useAppState } from "@/hooks/use-app-state";
 import { useTheme } from "@/hooks/use-theme";
 import { BATCH_CAPTURE_TARGET_RESOLUTION, BATCH_WORKING_LONG_SIDE } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import type { BatchScanMode } from "@/lib/interfaces/scanner";
 
 export default function BatchScanScreen() {
   useKeepAwake();
@@ -38,11 +41,14 @@ export default function BatchScanScreen() {
   const camera = useCameraChoice();
   const device = camera.device;
   const photoOutput = usePhotoOutput({ targetResolution: BATCH_CAPTURE_TARGET_RESOLUTION, qualityPrioritization: "balanced" });
-  const batch = useBatchScan();
+  const { mode: initialMode } = useLocalSearchParams<{ mode?: BatchScanMode }>();
+  const batch = useBatchScan(initialMode === "remove" ? "remove" : "add");
   const [modelsReady, setModelsReady] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [correctingKey, setCorrectingKey] = useState<string | null>(null);
+  const [removalReviewOpen, setRemovalReviewOpen] = useState(false);
+  const isRemoveMode = batch.mode === "remove";
   const correcting = batch.cards.find((card) => card.key === correctingKey) ?? null;
   const isReviewing = !!batch.photo;
   const active = focused && appState === "active" && permission.hasPermission && !!device && !isReviewing;
@@ -79,6 +85,36 @@ export default function BatchScanScreen() {
     router.back();
   };
 
+  const reviewRemoval = async () => {
+    const failedLookups = await batch.queueCardsForRemoval();
+    if (failedLookups > 0) {
+      Alert.alert(
+        t("batchScan.removalLookupFailedTitle", { count: failedLookups }),
+        t("batchScan.removalLookupFailedDescription"),
+      );
+      return;
+    }
+    setRemovalReviewOpen(true);
+  };
+
+  const finishRemoval = (removedCount: number) => {
+    Alert.alert(t("scan.removal.notice.removed", { count: removedCount }), batch.collection?.name);
+    router.back();
+  };
+
+  const modeControl = (
+    <View style={{ alignSelf: "stretch" }} pointerEvents={batch.isSaving || batch.isQueueingRemoval ? "none" : "auto"}>
+      <SegmentedControl
+        options={[
+          { value: "add", label: t("batchScan.modeAdd") },
+          { value: "remove", label: t("batchScan.modeRemove") },
+        ]}
+        value={batch.mode}
+        onChange={batch.setMode}
+      />
+    </View>
+  );
+
   const progressText = batch.progress
     ? batch.progress.stage === "finding"
       ? t("batchScan.finding", { done: batch.progress.done, total: batch.progress.total })
@@ -98,6 +134,7 @@ export default function BatchScanScreen() {
         />
         <ScrollView contentContainerStyle={{ paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg }}>
           <View style={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.sm }}>
+            {modeControl}
             <BatchScanPhoto photo={batch.photo} cards={batch.cards} />
             {progressText ? (
               <AppText size="sm" tone="secondary" accessibilityLiveRegion="polite">
@@ -116,6 +153,7 @@ export default function BatchScanScreen() {
                   <BatchScanRow
                     index={index}
                     card={card}
+                    isRemoveMode={isRemoveMode}
                     onToggleIncluded={() => batch.toggleIncluded(card.key)}
                     onCorrect={() => setCorrectingKey(card.key)}
                   />
@@ -140,17 +178,29 @@ export default function BatchScanScreen() {
             variant="secondary"
             icon="camera"
             label={t("batchScan.retake")}
-            disabled={batch.isSaving}
+            disabled={batch.isSaving || batch.isQueueingRemoval}
             onPress={batch.reset}
           />
-          <Button
-            style={{ flex: 1 }}
-            icon="plus"
-            label={t("batchScan.addCards", { count: includedCount })}
-            loading={batch.isSaving}
-            disabled={isProcessing || includedCount === 0}
-            onPress={() => void saveCards()}
-          />
+          {isRemoveMode ? (
+            <Button
+              style={{ flex: 1 }}
+              variant="destructive"
+              icon="trash"
+              label={t("batchScan.reviewRemoval", { count: batch.removableCount })}
+              loading={batch.isQueueingRemoval}
+              disabled={isProcessing || batch.removableCount === 0}
+              onPress={() => void reviewRemoval()}
+            />
+          ) : (
+            <Button
+              style={{ flex: 1 }}
+              icon="plus"
+              label={t("batchScan.addCards", { count: includedCount })}
+              loading={batch.isSaving}
+              disabled={isProcessing || includedCount === 0}
+              onPress={() => void saveCards()}
+            />
+          )}
         </View>
         {batch.collection ? (
           <BatchScanCorrectionSheet
@@ -161,6 +211,15 @@ export default function BatchScanScreen() {
               setCorrectingKey(null);
             }}
             onClose={() => setCorrectingKey(null)}
+          />
+        ) : null}
+        {batch.collection ? (
+          <ScanRemovalQueueSheet
+            visible={removalReviewOpen}
+            removal={batch.removal}
+            collectionName={batch.collection.name}
+            onClose={() => setRemovalReviewOpen(false)}
+            onRemoved={finishRemoval}
           />
         ) : null}
       </View>
@@ -206,7 +265,17 @@ export default function BatchScanScreen() {
       >
         <IconButton icon="back" variant="camera" accessibilityLabel={t("common.back")} onPress={() => router.back()} />
         <View style={{ flex: 1, minWidth: 0, alignItems: "flex-start" }}>
-          <CameraChip icon="multiCard" label={batch.collection?.name ?? t("batchScan.title")} />
+          <CameraChip
+            icon="multiCard"
+            dotColor={isRemoveMode ? colors.destructive : undefined}
+            label={
+              batch.collection
+                ? isRemoveMode
+                  ? t("scan.removal.title", { collection: batch.collection.name })
+                  : batch.collection.name
+                : t("batchScan.title")
+            }
+          />
         </View>
       </View>
 
@@ -229,6 +298,7 @@ export default function BatchScanScreen() {
             {modelsReady ? t("batchScan.hint") : t("batchScan.loadingModels")}
           </AppText>
         )}
+        {modeControl}
         <ShutterButton
           running={isCapturing}
           icon="camera"

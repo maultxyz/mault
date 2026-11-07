@@ -12,13 +12,20 @@ import {
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { imageToJpegTempFile } from "@/features/scanner/lib/frame";
 import { findCardsInFrame, identifyCardInFrame } from "@/features/scanner/lib/multi-card";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { BATCH_PHOTO_JPEG_QUALITY } from "@/lib/constants/scanner";
-import type { BatchScanCard, BatchScanPhotoInfo, BatchScanProgress, CapturedFrame } from "@/lib/interfaces/scanner";
+import type {
+  BatchScanCard,
+  BatchScanMode,
+  BatchScanPhotoInfo,
+  BatchScanProgress,
+  CapturedFrame,
+} from "@/lib/interfaces/scanner";
 
-export function useBatchScan() {
+export function useBatchScan(initialMode: BatchScanMode) {
   const orgId = useActiveOrgId();
   const { collection } = useScanTarget();
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
@@ -27,6 +34,9 @@ export function useBatchScan() {
   const [cards, setCards] = useState<BatchScanCard[]>([]);
   const [progress, setProgress] = useState<BatchScanProgress | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [mode, setMode] = useState(initialMode);
+  const [isQueueingRemoval, setIsQueueingRemoval] = useState(false);
+  const removal = useScanRemoval({ collectionGuid: collection?.guid ?? null, binConfigs: [] });
   const runIdRef = useRef(0);
 
   const updateCard = (key: string, change: Partial<BatchScanCard>) =>
@@ -94,6 +104,26 @@ export function useBatchScan() {
   const correctCard = (key: string, correctedCard: PlayingCard) =>
     updateCard(key, { correctedCard, included: true });
 
+  const matchedScansToRemove = cards.flatMap((card) => {
+    const matchedCard = card.correctedCard ?? card.outcome?.card;
+    if (!card.included || !matchedCard) return [];
+    return [
+      {
+        matchedCard: { ...matchedCard, distance: card.outcome?.card?.distance ?? 0 },
+        alternativeMatches: card.correctedCard ? [] : (card.outcome?.alternativeMatches ?? []),
+      },
+    ];
+  });
+
+  const queueCardsForRemoval = async (): Promise<number> => {
+    setIsQueueingRemoval(true);
+    try {
+      return await removal.replaceQueueWithMatchedScans(matchedScansToRemove);
+    } finally {
+      setIsQueueingRemoval(false);
+    }
+  };
+
   const save = async (): Promise<{ saved: number; failed: number }> => {
     if (!collection) return { saved: 0, failed: 0 };
     setIsSaving(true);
@@ -147,6 +177,12 @@ export function useBatchScan() {
     cards,
     progress,
     isSaving,
+    mode,
+    setMode,
+    removal,
+    removableCount: matchedScansToRemove.length,
+    isQueueingRemoval,
+    queueCardsForRemoval,
     processPhoto,
     reset,
     toggleIncluded,

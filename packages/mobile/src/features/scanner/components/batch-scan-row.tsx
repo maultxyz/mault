@@ -13,7 +13,7 @@ import { MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { BatchScanRowProps } from "@/lib/interfaces/scanner";
 import { absoluteUrl } from "@/lib/url";
 
-export function BatchScanRow({ index, card, onToggleIncluded, onCorrect }: BatchScanRowProps) {
+export function BatchScanRow({ index, card, isRemoveMode, onToggleIncluded, onCorrect }: BatchScanRowProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const matchedCard = card.correctedCard ?? card.outcome?.card ?? null;
@@ -27,13 +27,13 @@ export function BatchScanRow({ index, card, onToggleIncluded, onCorrect }: Batch
   const subtitle = matchedCard
     ? [matchedCard.setName, matchedCard.collectorNumber ? `#${matchedCard.collectorNumber}` : null].filter(Boolean).join(" · ")
     : null;
-  const canInclude = !isWorking && card.status !== "failed";
+  const canInclude = !isWorking && card.status !== "failed" && (!isRemoveMode || !!matchedCard);
 
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.sm }}>
       <Pressable
         accessibilityRole="checkbox"
-        accessibilityLabel={t("batchScan.includeCard", { number: index + 1 })}
+        accessibilityLabel={t(isRemoveMode ? "batchScan.removeCard" : "batchScan.includeCard", { number: index + 1 })}
         accessibilityState={{ checked: card.included && canInclude, disabled: !canInclude }}
         disabled={!canInclude}
         onPress={onToggleIncluded}

@@ -2126,6 +2126,14 @@
     "savePartialTitle_one": "{{count}} Karte hinzugefügt",
     "savePartialTitle_other": "{{count}} Karten hinzugefügt",
     "savePartialDescription_one": "{{count}} Karte konnte nicht gespeichert werden. Versuch es noch einmal.",
-    "savePartialDescription_other": "{{count}} Karten konnten nicht gespeichert werden. Versuch es noch einmal."
+    "savePartialDescription_other": "{{count}} Karten konnten nicht gespeichert werden. Versuch es noch einmal.",
+    "modeAdd": "Hinzufügen",
+    "modeRemove": "Entfernen",
+    "removeCard": "Karte {{number}} entfernen",
+    "reviewRemoval_one": "{{count}} Karte zum Entfernen prüfen",
+    "reviewRemoval_other": "{{count}} Karten zum Entfernen prüfen",
+    "removalLookupFailedTitle_one": "{{count}} Karte konnte nicht nachgeschlagen werden",
+    "removalLookupFailedTitle_other": "{{count}} Karten konnten nicht nachgeschlagen werden",
+    "removalLookupFailedDescription": "Prüfe deine Verbindung und versuch es noch einmal."
   }
 }

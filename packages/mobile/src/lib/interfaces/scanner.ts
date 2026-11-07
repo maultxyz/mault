@@ -204,6 +204,11 @@ export interface ScanRemovalInputs {
   binConfigs: BinConfig[];
 }
 
+export interface ScanRemovalMatchedScan {
+  matchedCard: PlayingCardWithDistance;
+  alternativeMatches: PlayingCardWithDistance[];
+}
+
 export interface ScanRemovalValue {
   isEnabled: boolean;
   setIsEnabled: (value: boolean) => void;
@@ -215,6 +220,7 @@ export interface ScanRemovalValue {
     matchedCard: PlayingCardWithDistance,
     alternativeMatches: PlayingCardWithDistance[],
   ) => Promise<boolean>;
+  replaceQueueWithMatchedScans: (matchedScans: ScanRemovalMatchedScan[]) => Promise<number>;
   showNoMatchNotice: () => void;
   notice: ScanRemovalNotice | null;
   selectCopyForEntry: (entryId: string, scanId: string) => void;
@@ -228,6 +234,7 @@ export interface ScanRemovalQueueSheetProps {
   removal: ScanRemovalValue;
   collectionName: string;
   onClose: () => void;
+  onRemoved?: (removedCount: number) => void;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -334,6 +341,7 @@ export type FeedCommand = Extract<SerialCommand, "feeder" | "auto-feed">;
 export type SorterEventDetails = Omit<SerialEventReport, "collectionGuid" | "deviceGuid">;
 
 export type BatchScanCardStatus = "pending" | "identifying" | "done" | "failed";
+export type BatchScanMode = "add" | "remove";
 
 export interface BatchScanCard {
   key: string;
@@ -364,6 +372,7 @@ export interface BatchScanPhotoProps {
 export interface BatchScanRowProps {
   index: number;
   card: BatchScanCard;
+  isRemoveMode: boolean;
   onToggleIncluded: () => void;
   onCorrect: () => void;
 }
