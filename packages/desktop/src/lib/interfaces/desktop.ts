@@ -12,7 +12,6 @@ export type DesktopChannel = "production" | "development";
 
 export interface DesktopChannelSettings {
   appUrl: string;
-  appUserModelId: string;
   iconBaseName: string;
 }
 

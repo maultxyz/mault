@@ -105,11 +105,24 @@ jobs:
       # installer is unsigned and SmartScreen warns on first run.
       # MAULT_DESKTOP_CHANNEL is read by both tsup (app URL, app ID, icon) and
       # electron-builder.config.js (installer name, app ID, update feed).
+      # The app ID is a repository variable so forks never ship under ours, and
+      # the update feed follows GITHUB_REPOSITORY.
+      - name: Check app ID
+        shell: bash
+        env:
+          MAULT_DESKTOP_APP_ID: ${{ vars.DESKTOP_APP_ID }}
+        run: |
+          if [ -z "$MAULT_DESKTOP_APP_ID" ]; then
+            echo "::error::Set the DESKTOP_APP_ID variable (your own reverse-domain app ID) in the production GitHub environment."
+            exit 1
+          fi
+
       - name: Build
         working-directory: packages/desktop
         shell: bash
         env:
           MAULT_DESKTOP_CHANNEL: ${{ needs.version.outputs.channel }}
+          MAULT_DESKTOP_APP_ID: ${{ vars.DESKTOP_APP_ID }}
           WIN_CSC_LINK: ${{ secrets.DESKTOP_WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.DESKTOP_WIN_CSC_KEY_PASSWORD }}
         run: pnpm dist --publish never

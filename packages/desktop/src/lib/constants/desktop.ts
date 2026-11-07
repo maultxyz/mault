@@ -8,12 +8,10 @@ import type {
 export const DESKTOP_CHANNEL_SETTINGS: Record<DesktopChannel, DesktopChannelSettings> = {
   production: {
     appUrl: "https://mault.xyz",
-    appUserModelId: "xyz.mault.desktop",
     iconBaseName: "app-icon",
   },
   development: {
     appUrl: "https://dev.mault.xyz",
-    appUserModelId: "xyz.mault.desktop.dev",
     iconBaseName: "app-icon-development",
   },
 };
