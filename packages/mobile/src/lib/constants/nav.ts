@@ -7,7 +7,7 @@ export const TAB_ICONS: Record<string, IconName> = {
   account: "menu",
 };
 
-export const FULL_BLEED_ROUTE_PATTERN = /^\/(desktop-camera\/|storage-card-scan$)/;
+export const FULL_BLEED_ROUTE_PATTERN = /^\/(desktop-camera\/|storage-card-scan$|batch-scan$)/;
 export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "(tabs)",
   "card/[scanId]",
@@ -16,5 +16,6 @@ export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "collection-rename",
   "storage-name",
   "storage-card-scan",
+  "batch-scan",
   "desktop-camera/[guid]",
 ]);

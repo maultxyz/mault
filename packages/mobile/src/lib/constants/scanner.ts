@@ -75,3 +75,8 @@ export const CARD_SCAN_NOTICE_TONES = {
   "no-match": "info",
   failed: "destructive",
 } as const satisfies Record<CardScanNoticeKind, string>;
+export const BATCH_CAPTURE_TARGET_RESOLUTION = { width: 3024, height: 4032 } as const;
+export const BATCH_WORKING_LONG_SIDE = 2560;
+export const BATCH_PHOTO_JPEG_QUALITY = 70;
+export const BATCH_SCAN_LABEL_RADIUS = 10;
+export const BATCH_SCAN_THUMBNAIL_WIDTH = 44;

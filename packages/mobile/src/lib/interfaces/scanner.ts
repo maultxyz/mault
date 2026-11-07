@@ -5,6 +5,7 @@ import type {
   CardContour,
   CardSearchResult,
   MatchedScanDetails,
+  PlayingCard,
   PlayingCardWithDistance,
   RgbaImage,
   ScanAttemptResult,
@@ -331,3 +332,45 @@ export interface RoutedCardTarget {
 export type FeedCommand = Extract<SerialCommand, "feeder" | "auto-feed">;
 
 export type SorterEventDetails = Omit<SerialEventReport, "collectionGuid" | "deviceGuid">;
+
+export type BatchScanCardStatus = "pending" | "identifying" | "done" | "failed";
+
+export interface BatchScanCard {
+  key: string;
+  contour: CardContour;
+  status: BatchScanCardStatus;
+  outcome: IdentifyOutcome | null;
+  correctedCard: PlayingCard | null;
+  included: boolean;
+}
+
+export interface BatchScanProgress {
+  stage: "finding" | "identifying";
+  done: number;
+  total: number;
+}
+
+export interface BatchScanPhotoInfo {
+  uri: string;
+  width: number;
+  height: number;
+}
+
+export interface BatchScanPhotoProps {
+  photo: BatchScanPhotoInfo;
+  cards: BatchScanCard[];
+}
+
+export interface BatchScanRowProps {
+  index: number;
+  card: BatchScanCard;
+  onToggleIncluded: () => void;
+  onCorrect: () => void;
+}
+
+export interface BatchScanCorrectionSheetProps {
+  card: BatchScanCard | null;
+  collectionGuid: string;
+  onSelect: (card: PlayingCard) => void;
+  onClose: () => void;
+}

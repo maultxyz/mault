@@ -2094,5 +2094,38 @@
       "valueText": "{{done}} von {{total}} Prüfungen erledigt",
       "percent": "{{percent}} %"
     }
+  },
+  "batchScan": {
+    "open": "Viele Karten mit einem Foto scannen",
+    "title": "Fotoscan",
+    "hint": "Lege die Karten flach und ohne Überlappung auf eine einfarbige Fläche und mach ein Foto.",
+    "loadingModels": "Erkennungsmodelle werden geladen",
+    "takePhoto": "Foto aufnehmen",
+    "captureFailed": "Das Foto konnte nicht aufgenommen werden. Versuch es noch einmal.",
+    "photoAlt_one": "Foto mit {{count}} gefundenen Karte",
+    "photoAlt_other": "Foto mit {{count}} gefundenen Karten",
+    "finding": "Karten werden gesucht ({{done}} von {{total}} Bereichen geprüft)",
+    "identifyingProgress": "Karte {{done}} von {{total}} wird erkannt",
+    "found_one": "{{count}} Karte gefunden. Entferne das Häkchen bei unerwünschten Karten und tippe auf eine Karte, um sie zu korrigieren.",
+    "found_other": "{{count}} Karten gefunden. Entferne das Häkchen bei unerwünschten Karten und tippe auf eine Karte, um sie zu korrigieren.",
+    "noneFoundTitle": "Keine Karten gefunden",
+    "noneFoundDescription": "Lege die Karten so, dass sie sich nicht berühren, nutze einen einfarbigen Hintergrund und achte darauf, dass jede Karte ganz im Bild ist.",
+    "identifying": "Wird erkannt",
+    "failed": "Diese Karte konnte nicht erkannt werden",
+    "noMatch": "Kein Treffer",
+    "includeCard": "Karte {{number}} hinzufügen",
+    "correctHint": "Richtige Karte auswählen",
+    "corrected": "Ausgewählt",
+    "lowConfidence": "Bitte prüfen",
+    "pickCard": "Karte auswählen",
+    "retake": "Neu aufnehmen",
+    "addCards_one": "{{count}} Karte hinzufügen",
+    "addCards_other": "{{count}} Karten hinzufügen",
+    "savedTitle_one": "{{count}} Karte hinzugefügt",
+    "savedTitle_other": "{{count}} Karten hinzugefügt",
+    "savePartialTitle_one": "{{count}} Karte hinzugefügt",
+    "savePartialTitle_other": "{{count}} Karten hinzugefügt",
+    "savePartialDescription_one": "{{count}} Karte konnte nicht gespeichert werden. Versuch es noch einmal.",
+    "savePartialDescription_other": "{{count}} Karten konnten nicht gespeichert werden. Versuch es noch einmal."
   }
 }

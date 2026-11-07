@@ -2094,5 +2094,38 @@
       "valueText": "{{done}} sur {{total}} vérifications faites",
       "percent": "{{percent}} %"
     }
+  },
+  "batchScan": {
+    "open": "Scanner plusieurs cartes avec une photo",
+    "title": "Scan photo",
+    "hint": "Posez les cartes à plat sur une surface unie sans qu'elles se chevauchent, puis prenez une photo.",
+    "loadingModels": "Chargement des modèles de reconnaissance",
+    "takePhoto": "Prendre une photo",
+    "captureFailed": "Impossible de prendre la photo. Réessayez.",
+    "photoAlt_one": "Photo avec {{count}} carte trouvée",
+    "photoAlt_other": "Photo avec {{count}} cartes trouvées",
+    "finding": "Recherche des cartes ({{done}} zones sur {{total}} vérifiées)",
+    "identifyingProgress": "Identification de la carte {{done}} sur {{total}}",
+    "found_one": "{{count}} carte trouvée. Décochez celles que vous ne voulez pas et touchez une carte pour la corriger.",
+    "found_other": "{{count}} cartes trouvées. Décochez celles que vous ne voulez pas et touchez une carte pour la corriger.",
+    "noneFoundTitle": "Aucune carte trouvée",
+    "noneFoundDescription": "Écartez les cartes pour qu'elles ne se touchent pas, utilisez un fond uni et vérifiez que chaque carte est entièrement dans la photo.",
+    "identifying": "Identification",
+    "failed": "Impossible d'identifier cette carte",
+    "noMatch": "Aucune correspondance",
+    "includeCard": "Ajouter la carte {{number}}",
+    "correctHint": "Choisir la bonne carte",
+    "corrected": "Choisie",
+    "lowConfidence": "À vérifier",
+    "pickCard": "Choisir la carte",
+    "retake": "Reprendre",
+    "addCards_one": "Ajouter {{count}} carte",
+    "addCards_other": "Ajouter {{count}} cartes",
+    "savedTitle_one": "{{count}} carte ajoutée",
+    "savedTitle_other": "{{count}} cartes ajoutées",
+    "savePartialTitle_one": "{{count}} carte ajoutée",
+    "savePartialTitle_other": "{{count}} cartes ajoutées",
+    "savePartialDescription_one": "{{count}} carte n'a pas pu être enregistrée. Réessayez de l'ajouter.",
+    "savePartialDescription_other": "{{count}} cartes n'ont pas pu être enregistrées. Réessayez de les ajouter."
   }
 }

@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
-import { useIsFocused } from "expo-router";
+import { router, useIsFocused } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
 import {
   binSetMode,
   CARD_CONDITIONS,
-  DEFAULT_SCAN_REGION,
   collectionGameLabel,
   isCardCondition,
   listScannerControlActions,
@@ -38,7 +37,6 @@ import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { BinBadge } from "@/features/scanner/components/bin-badge";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
-import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
 import { ScanOptionsSheet } from "@/features/scanner/components/scan-options-sheet";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ScannerControlsSheet } from "@/features/scanner/components/scanner-controls-sheet";
@@ -51,7 +49,6 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import {
   ANY_SET_OPTION,
-  CAMERA_ASPECT_RATIO,
   CAPTURE_TARGET_RESOLUTION,
   CARD_SET_PICKER_LIMIT,
   LIVE_DETECTION_PAUSED_PHASES,
@@ -96,13 +93,7 @@ export default function ScanScreen() {
     targetResolution: CAPTURE_TARGET_RESOLUTION,
     qualityPrioritization: "speed",
   });
-  const [frameAspect, setFrameAspect] = useState(CAMERA_ASPECT_RATIO);
-  const capture = useCallback(async () => {
-    const frame = await captureFrame(photoOutput);
-    const { width, height } = frame.pixels;
-    if (width > 0 && height > 0) setFrameAspect(Math.min(width, height) / Math.max(width, height));
-    return frame;
-  }, [photoOutput]);
+  const capture = useCallback(() => captureFrame(photoOutput), [photoOutput]);
   const session = useScanSession({ capture });
   useScanResultAnnouncements(session.feed);
   const { data: cardSets } = useQuery({
@@ -281,10 +272,12 @@ export default function ScanScreen() {
         </View>
       )}
       {device ? (
-        <ScanRegionOverlay
-          region={sorter.device?.scanRegion ?? DEFAULT_SCAN_REGION}
-          frameAspect={frameAspect}
-          strokeColor={working ? colors.success : colors.onCamera}
+        <View
+          accessible
+          accessibilityRole="image"
+          accessibilityLabel={t("scan.cameraPreview")}
+          pointerEvents="none"
+          style={StyleSheet.absoluteFill}
         />
       ) : null}
       {device ? <DetectedOutline corners={liveCorners} color={colors.primary} /> : null}
@@ -358,7 +351,17 @@ export default function ScanScreen() {
         >
           {notice}
           <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
-            <View pointerEvents="none" style={{ flex: 1 }} />
+            <View pointerEvents="box-none" style={{ flex: 1, alignItems: "flex-start" }}>
+              {collection && !sorter.isConnected && !session.isRunning ? (
+                <IconButton
+                  icon="multiCard"
+                  variant="camera"
+                  size={SHUTTER_SIZE - SPACING.sm}
+                  accessibilityLabel={t("batchScan.open")}
+                  onPress={() => router.push("/batch-scan")}
+                />
+              ) : null}
+            </View>
             {sorterDriven ? (
               <ShutterButton
                 running={session.isRunning}

@@ -46,6 +46,7 @@ import IconHome from "@tabler/icons-react-native/IconHome";
 import IconHelpCircle from "@tabler/icons-react-native/IconHelpCircle";
 import IconInfoCircle from "@tabler/icons-react-native/IconInfoCircle";
 import IconLayoutGrid from "@tabler/icons-react-native/IconLayoutGrid";
+import IconCards from "@tabler/icons-react-native/IconCards";
 import IconLogout from "@tabler/icons-react-native/IconLogout";
 import IconPencil from "@tabler/icons-react-native/IconPencil";
 import IconPlayerPause from "@tabler/icons-react-native/IconPlayerPause";
@@ -71,6 +72,7 @@ export const ICONS = {
   adjust: IconAdjustments,
   connection: IconPlugConnected,
   layout: IconLayoutGrid,
+  multiCard: IconCards,
   test: IconTestPipe,
   arrowDown: IconArrowDown,
   back: IconChevronLeft,

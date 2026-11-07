@@ -2094,5 +2094,38 @@
       "valueText": "{{done}} of {{total}} reviews done",
       "percent": "{{percent}}%"
     }
+  },
+  "batchScan": {
+    "open": "Scan many cards from one photo",
+    "title": "Photo scan",
+    "hint": "Lay the cards flat on a plain surface without overlapping, then take one photo.",
+    "loadingModels": "Loading recognition models",
+    "takePhoto": "Take photo",
+    "captureFailed": "Couldn't take the photo. Try again.",
+    "photoAlt_one": "Photo with {{count}} card found",
+    "photoAlt_other": "Photo with {{count}} cards found",
+    "finding": "Finding cards ({{done}} of {{total}} areas checked)",
+    "identifyingProgress": "Identifying card {{done}} of {{total}}",
+    "found_one": "{{count}} card found. Untick any you don't want and tap a card to fix it.",
+    "found_other": "{{count}} cards found. Untick any you don't want and tap a card to fix it.",
+    "noneFoundTitle": "No cards found",
+    "noneFoundDescription": "Spread the cards out so they don't touch, use a plain background, and make sure the whole of each card is in the photo.",
+    "identifying": "Identifying",
+    "failed": "Couldn't identify this card",
+    "noMatch": "No match",
+    "includeCard": "Add card {{number}}",
+    "correctHint": "Pick the right card",
+    "corrected": "Picked",
+    "lowConfidence": "Check this",
+    "pickCard": "Pick the card",
+    "retake": "Retake",
+    "addCards_one": "Add {{count}} card",
+    "addCards_other": "Add {{count}} cards",
+    "savedTitle_one": "Added {{count}} card",
+    "savedTitle_other": "Added {{count}} cards",
+    "savePartialTitle_one": "Added {{count}} card",
+    "savePartialTitle_other": "Added {{count}} cards",
+    "savePartialDescription_one": "{{count}} card couldn't be saved. Try adding it again.",
+    "savePartialDescription_other": "{{count}} cards couldn't be saved. Try adding them again."
   }
 }

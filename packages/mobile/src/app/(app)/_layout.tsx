@@ -64,6 +64,7 @@ export default function AppLayout() {
           <Stack.Screen name="collection-rename" options={{ presentation: "modal", contentStyle: modalStyle }} />
           <Stack.Screen name="storage-name" options={{ presentation: "modal", contentStyle: modalStyle }} />
           <Stack.Screen name="storage-pick-list" />
+          <Stack.Screen name="batch-scan" options={{ contentStyle: { backgroundColor: colors.background } }} />
           <Stack.Screen
             name="storage-card-scan"
             options={{ contentStyle: { backgroundColor: colors.background } }}
