@@ -10,6 +10,9 @@ import { CollectionMenu } from "@/features/collections/components/collection-men
 import { StationAttentionButton } from "@/features/scanner/components/station-attention-button";
 import { StationMenu } from "@/features/scanner/components/station-menu";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
+import { useDesktopTitleBar } from "@/hooks/use-desktop-title-bar";
+import { DESKTOP_TITLE_BAR_CLASS } from "@/lib/constants/ui";
+import { cn } from "@/lib/utils";
 
 function BreadcrumbSeparator() {
   return (
@@ -20,8 +23,14 @@ function BreadcrumbSeparator() {
 }
 
 export function AppTopBar() {
+  const isDesktopTitleBar = useDesktopTitleBar();
   return (
-    <header className="relative flex h-9 shrink-0 items-center gap-1 px-1.5">
+    <header
+      className={cn(
+        "relative flex h-9 shrink-0 items-center gap-1 px-1.5",
+        isDesktopTitleBar && DESKTOP_TITLE_BAR_CLASS,
+      )}
+    >
       <BrandBadge />
       <div className="ml-8.25 flex min-w-0 flex-1 items-center gap-1">
         <OrgSwitcher />

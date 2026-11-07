@@ -7,6 +7,9 @@ import {
   ELECTRON_USER_AGENT_TOKENS,
   MAIN_WINDOW_MIN_SIZE,
   MAIN_WINDOW_SIZE,
+  TITLE_BAR_HEIGHT_PX,
+  TITLE_BAR_OVERLAY_COLOR,
+  TITLE_BAR_SYMBOL_COLORS,
   WINDOW_BACKGROUND,
 } from "./lib/constants/desktop";
 import { loadDevelopmentEnv } from "./lib/development-env";
@@ -33,6 +36,14 @@ function createMainWindow() {
     icon: appIconPath(),
     show: false,
     autoHideMenuBar: true,
+    titleBarStyle: "hidden",
+    titleBarOverlay: {
+      color: TITLE_BAR_OVERLAY_COLOR,
+      symbolColor: nativeTheme.shouldUseDarkColors
+        ? TITLE_BAR_SYMBOL_COLORS.dark
+        : TITLE_BAR_SYMBOL_COLORS.light,
+      height: TITLE_BAR_HEIGHT_PX,
+    },
     backgroundColor: nativeTheme.shouldUseDarkColors
       ? WINDOW_BACKGROUND.dark
       : WINDOW_BACKGROUND.light,

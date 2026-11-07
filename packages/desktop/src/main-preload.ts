@@ -25,6 +25,7 @@ const bridge: DesktopBridge = {
   },
   showMainWindow: () => ipcRenderer.send(WINDOW_STATE_CHANNELS.showMain),
   movePipWindowBy: (offset) => ipcRenderer.send(WINDOW_STATE_CHANNELS.movePip, offset),
+  setTitleBarTheme: (theme) => ipcRenderer.send(WINDOW_STATE_CHANNELS.titleBarTheme, theme),
   onScannerCommand: (listener) => {
     const handler = (_event: IpcRendererEvent, command: DesktopScannerCommand) =>
       listener(command);
