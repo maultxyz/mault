@@ -68,8 +68,6 @@ export interface MatchValidationScan extends MatchValidationVerdictCounts {
   setCode: string | null;
   setName: string | null;
   collectorNumber: string | null;
-  scannedAt: string;
-  capturedImageUrl: string | null;
   catalogImageUrl: string | null;
   yourVerdict: MatchValidationVerdict | null;
   status: MatchValidationStatus;

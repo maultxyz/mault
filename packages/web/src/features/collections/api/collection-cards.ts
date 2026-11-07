@@ -10,7 +10,10 @@ import type {
   CollectionCardsSummary,
   Result,
 } from "@magic-vault/shared";
-import { UNMATCHED_PAGE_SIZE } from "@magic-vault/shared";
+import {
+  COLLECTION_CARDS_PAGE_SIZE,
+  UNMATCHED_PAGE_SIZE,
+} from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { loadUnmatchedCards } from "@/features/collections/api/collections";
 
@@ -63,15 +66,16 @@ export const unmatchedCardsKeys = {
 export const unmatchedCardsPageQueryOptions = (
   guid: string | undefined,
   page: number,
+  pageSize: number = UNMATCHED_PAGE_SIZE,
 ) =>
   queryOptions({
-    queryKey: unmatchedCardsKeys.page(guid, page),
+    queryKey: [...unmatchedCardsKeys.page(guid, page), pageSize] as const,
     queryFn: () =>
       unwrap(
         loadUnmatchedCards(
           guid!,
-          UNMATCHED_PAGE_SIZE,
-          (page - 1) * UNMATCHED_PAGE_SIZE,
+          pageSize,
+          (page - 1) * pageSize,
         ),
       ),
     enabled: !!guid,
@@ -117,13 +121,14 @@ export const collectionCardsPageQueryOptions = (
   guid: string | undefined,
   query: CollectionCardsQuery,
   page: number,
+  pageSize: number = COLLECTION_CARDS_PAGE_SIZE,
 ) =>
   queryOptions({
-    queryKey: collectionCardsKeys.page(guid, query, page),
+    queryKey: [...collectionCardsKeys.page(guid, query, page), pageSize] as const,
     queryFn: () =>
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
-          `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(page) })}`,
+          `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(page), limit: String(pageSize) })}`,
         ),
       ),
     enabled: !!guid,

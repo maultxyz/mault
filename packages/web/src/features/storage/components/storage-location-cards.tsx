@@ -14,6 +14,7 @@ import type { StorageLocationCardsProps } from "@/lib/interfaces/storage";
 import { IconCards, IconFilterOff } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef } from "react";
+import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
@@ -30,11 +31,13 @@ export function StorageLocationCards({
     Number(searchParams.get(STORAGE_PAGE_SEARCH_PARAM)) || 1,
     1,
   );
+  const preferredPageSize = usePageSize();
   const { data, isPending, isPlaceholderData } = useQuery(
     storageLocationCardPageQueryOptions(
       location.guid,
       cardQuery.cardsQuery,
       requestedPage,
+      preferredPageSize,
     ),
   );
   const entries = useMemo(
@@ -65,6 +68,11 @@ export function StorageLocationCards({
       { replace: true },
     );
   }, [cardQuery.cardsQuery, setSearchParams]);
+
+  const changePageSize = (nextPageSize: number) => {
+    setPageSize(nextPageSize);
+    goToPage(1);
+  };
 
   const goToPage = (next: number) => {
     setSearchParams(
@@ -101,6 +109,21 @@ export function StorageLocationCards({
         density={density}
         onDensityChange={setDensity}
       />
+      {!isLoading && entries.length > 0 && (
+        <ListPagination
+          alignsEnd
+          pagination={{
+            page,
+            pageCount,
+            setPage: goToPage,
+            from: start + 1,
+            to: start + entries.length,
+            total,
+          }}
+          pageSize={preferredPageSize}
+          onPageSizeChange={changePageSize}
+        />
+      )}
       {isLoading ? (
         <ListSkeleton />
       ) : entries.length === 0 ? (
@@ -121,6 +144,7 @@ export function StorageLocationCards({
       )}
       {!isLoading && entries.length > 0 && (
         <ListPagination
+          alignsEnd
           pagination={{
             page,
             pageCount,
@@ -129,6 +153,8 @@ export function StorageLocationCards({
             to: start + entries.length,
             total,
           }}
+          pageSize={preferredPageSize}
+          onPageSizeChange={changePageSize}
         />
       )}
     </div>

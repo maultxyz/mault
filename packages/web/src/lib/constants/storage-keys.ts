@@ -31,6 +31,7 @@ export const PENDING_INVITE_STORAGE_KEY = "pendingInviteToken";
 export const LOCAL_AUTH_TOKEN_STORAGE_KEY = "localAuthToken";
 export const LANGUAGE_STORAGE_KEY = "language";
 export const DISMISSED_ALERTS_STORAGE_KEY = "magic-vault:dismissed-alerts";
+export const PAGE_SIZE_STORAGE_KEY = "magic-vault:page-size";
 export const MATCH_VALIDATION_GUIDE_SEEN_STORAGE_KEY = "magic-vault:match-validation-guide-seen";
 
 export const CARD_VIEW_MODE_STORAGE_KEY = "magic-vault:card-view-mode";

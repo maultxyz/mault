@@ -1,5 +1,5 @@
 export interface CachedValue<T> {
-  get(maxAgeMs: number): Promise<T>;
+  get(maxAgeMs: number, options?: { servesStaleWhileRefreshing?: boolean }): Promise<T>;
   invalidate(): void;
 }
 

@@ -46,3 +46,8 @@ export interface ReviewCountBarProps {
   scanCount: number;
   isTotal?: boolean;
 }
+
+export interface ScanThumbnailProps {
+  scanId: string;
+  alt: string;
+}

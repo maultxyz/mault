@@ -295,7 +295,9 @@
     "label": "Seitennavigation",
     "pageNumber": "Seite {{page}}",
     "goToPage": "Gehe zu Seite",
-    "range": "{{from}}-{{to}} von {{total}}"
+    "range": "{{from}}-{{to}} von {{total}}",
+    "pageSize": "Einträge pro Seite",
+    "perPage": "{{count}} pro Seite"
   },
   "guide": {
     "contents": "Inhalt",

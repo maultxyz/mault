@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { matchValidationScansQueryOptions } from "@/features/match-validations/api/match-validations";
 import { MatchValidationScanTile } from "@/features/match-validations/components/match-validation-scan-tile";
 import { MatchValidationSummary } from "@/features/match-validations/components/match-validation-summary";
-import { MATCH_VALIDATION_SCANS_PAGE_SIZE } from "@/lib/constants/match-validations";
+import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import type { MatchValidationGameFilterProps } from "@/lib/interfaces/match-validations";
 import { toServerPagination } from "@/lib/pagination";
 import { IconCards } from "@tabler/icons-react";
@@ -17,13 +17,18 @@ export function MatchValidationScanGrid({ gameKey }: MatchValidationGameFilterPr
   const isMobile = useIsMobile();
   const { t } = useTranslation("matchValidations");
   const [page, setPage] = useState(1);
-  const { data, isPending } = useQuery(matchValidationScansQueryOptions(page, gameKey));
+  const pageSize = usePageSize();
+  const changePageSize = (nextPageSize: number) => {
+    setPageSize(nextPageSize);
+    setPage(1);
+  };
+  const { data, isPending } = useQuery(matchValidationScansQueryOptions(page, gameKey, pageSize));
   const pagination = toServerPagination(data, setPage);
 
   if (isPending) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {Array.from({ length: MATCH_VALIDATION_SCANS_PAGE_SIZE }, (_, index) => (
+        {Array.from({ length: pageSize }, (_, index) => (
           <Skeleton key={index} className="aspect-square w-full rounded-lg" />
         ))}
       </div>
@@ -45,6 +50,12 @@ export function MatchValidationScanGrid({ gameKey }: MatchValidationGameFilterPr
       {isMobile && (
         <MatchValidationSummary className="sticky top-0 z-10 bg-background py-2" />
       )}
+      <ListPagination
+        pagination={pagination}
+        alignsEnd
+        pageSize={pageSize}
+        onPageSizeChange={changePageSize}
+      />
       <ul
         aria-label={t("scans.listLabel")}
         className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
@@ -53,7 +64,12 @@ export function MatchValidationScanGrid({ gameKey }: MatchValidationGameFilterPr
           <MatchValidationScanTile key={scan.scanId} scan={scan} />
         ))}
       </ul>
-      <ListPagination pagination={pagination} />
+      <ListPagination
+        pagination={pagination}
+        alignsEnd
+        pageSize={pageSize}
+        onPageSizeChange={changePageSize}
+      />
     </div>
   );
 }

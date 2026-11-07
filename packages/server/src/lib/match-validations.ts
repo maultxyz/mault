@@ -62,10 +62,21 @@ const candidatesCache = createCachedValue(async (): Promise<MatchValidationCandi
 });
 
 export function loadMatchValidationCandidates(): Promise<MatchValidationCandidate[]> {
-  return candidatesCache.get(MATCH_VALIDATION_CANDIDATES_MAX_AGE_MS);
+  return candidatesCache.get(MATCH_VALIDATION_CANDIDATES_MAX_AGE_MS, {
+    servesStaleWhileRefreshing: true,
+  });
 }
 
-export async function loadMatchValidationVotes(userId: string | null): Promise<MatchValidationVotes> {
+export async function isMatchValidationCandidate(scanId: string): Promise<boolean> {
+  return (await loadMatchValidationCandidates()).some(
+    (candidate) => candidate.scanId === scanId,
+  );
+}
+
+export async function loadMatchValidationVotes(
+  userId: string | null,
+  onlyScanIds?: string[],
+): Promise<MatchValidationVotes> {
   const result = await db.execute(sql`
     SELECT
       v.scan_id::text AS scan_id,
@@ -82,6 +93,7 @@ export async function loadMatchValidationVotes(userId: string | null): Promise<M
         END
       ) AS your_verdict
     FROM platform_match_validations v
+    ${onlyScanIds ? sql`WHERE v.scan_id = ANY(${scanIdArraySql(onlyScanIds)})` : sql``}
     GROUP BY v.scan_id
   `);
   const rows = result.rows as unknown as MatchValidationVoteRow[];

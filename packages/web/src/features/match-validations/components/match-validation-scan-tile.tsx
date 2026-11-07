@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { ScanThumbnail } from "@/features/match-validations/components/scan-thumbnail";
 import { MATCH_VALIDATION_STATUS_BADGE_VARIANTS } from "@/lib/constants/match-validations";
 import type { MatchValidationScanTileProps } from "@/lib/interfaces/match-validations";
 import { useTranslation } from "react-i18next";
@@ -11,14 +12,10 @@ export function MatchValidationScanTile({ scan }: MatchValidationScanTileProps) 
     <li className="flex flex-col gap-2 rounded-lg p-2 ring-1 ring-border">
       <div className="grid grid-cols-2 gap-1.5">
         <div className="aspect-[2.5/3.5] overflow-hidden rounded-md bg-muted">
-          {scan.capturedImageUrl && (
-            <img
-              loading="lazy"
-              src={scan.capturedImageUrl}
-              alt={t("scanPhotoAlt", { name: cardName })}
-              className="h-full w-full object-fill"
-            />
-          )}
+          <ScanThumbnail
+            scanId={scan.scanId}
+            alt={t("scanPhotoAlt", { name: cardName })}
+          />
         </div>
         <div className="aspect-[2.5/3.5] overflow-hidden rounded-md bg-muted">
           {scan.catalogImageUrl && (

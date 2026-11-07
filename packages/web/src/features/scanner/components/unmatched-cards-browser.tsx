@@ -11,7 +11,7 @@ import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
 import type { UnmatchedCardsBrowserProps } from "@/lib/interfaces/scanner";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
-import { UNMATCHED_PAGE_SIZE } from "@magic-vault/shared";
+import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import {
   IconArrowLeft,
   IconChecks,
@@ -35,22 +35,27 @@ export function UnmatchedCardsBrowser({
   const { t } = useTranslation("scanner");
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const pageSize = usePageSize();
+  const changePageSize = (nextPageSize: number) => {
+    setPageSize(nextPageSize);
+    setPage(1);
+  };
   const [isRemoveAllDialogOpen, setIsRemoveAllDialogOpen] = useState(false);
   const [isRemovingAll, setIsRemovingAll] = useState(false);
   const { data, isPending } = useQuery({
-    ...unmatchedCardsPageQueryOptions(collectionGuid, page),
+    ...unmatchedCardsPageQueryOptions(collectionGuid, page, pageSize),
     enabled: openIndex == null,
   });
 
   const cards = data?.cards ?? [];
   const total = data?.total ?? 0;
-  const pageCount = Math.max(1, Math.ceil(total / UNMATCHED_PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
   if (data && page > pageCount) setPage(pageCount);
-  const pageStart = (page - 1) * UNMATCHED_PAGE_SIZE;
+  const pageStart = (page - 1) * pageSize;
 
   const closeDetail = () => {
     if (openIndex != null) {
-      setPage(Math.floor(openIndex / UNMATCHED_PAGE_SIZE) + 1);
+      setPage(Math.floor(openIndex / pageSize) + 1);
     }
     setOpenIndex(null);
   };
@@ -141,6 +146,20 @@ export function UnmatchedCardsBrowser({
         />
       ) : (
         <div className="flex-1 p-2">
+          <ListPagination
+            alignsEnd
+            className="pb-2"
+            pagination={{
+              page,
+              pageCount,
+              setPage,
+              from: pageStart + 1,
+              to: pageStart + cards.length,
+              total,
+            }}
+            pageSize={pageSize}
+            onPageSizeChange={changePageSize}
+          />
           <div className={CARD_GRID_CLASS}>
             {cards.map((entry, i) => (
               <UnmatchedCardTile
@@ -151,8 +170,18 @@ export function UnmatchedCardsBrowser({
             ))}
           </div>
           <ListPagination
+            alignsEnd
             className="pt-4"
-            pagination={{ page, pageCount, setPage }}
+            pagination={{
+              page,
+              pageCount,
+              setPage,
+              from: pageStart + 1,
+              to: pageStart + cards.length,
+              total,
+            }}
+            pageSize={pageSize}
+            onPageSizeChange={changePageSize}
           />
         </div>
       )}

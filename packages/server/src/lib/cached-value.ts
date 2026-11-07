@@ -7,8 +7,14 @@ export function createCachedValue<T>(
   let inFlight: Promise<T> | null = null;
 
   return {
-    get(maxAgeMs) {
+    get(maxAgeMs, options) {
       if (cached && Date.now() - cached.computedAt < maxAgeMs) {
+        return Promise.resolve(cached.value);
+      }
+      if (cached && options?.servesStaleWhileRefreshing) {
+        if (!inFlight) void this.get(0).catch((error: unknown) => {
+          console.error("Refreshing a cached value failed:", error);
+        });
         return Promise.resolve(cached.value);
       }
       if (inFlight) return inFlight;

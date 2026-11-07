@@ -10,6 +10,7 @@ import {
 } from "@magic-vault/shared";
 import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { Hono } from "hono";
+import sharp from "sharp";
 import { db } from "../../db";
 import {
   collectionCards,
@@ -24,13 +25,18 @@ import {
   MATCH_VALIDATION_QUEUE_LIMIT,
   MATCH_VALIDATION_SCANNED_BEFORE,
   MATCH_VALIDATION_SCANNED_FROM,
+  MATCH_VALIDATION_THUMBNAIL_CACHE_SECONDS,
+  MATCH_VALIDATION_THUMBNAIL_QUALITY,
+  MATCH_VALIDATION_THUMBNAIL_WIDTH_PX,
 } from "../../lib/constants/match-validations";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import type {
   MatchValidationScanRow,
   MatchValidationQueueRow,
+  MatchValidationThumbnailRow,
 } from "../../lib/interfaces/match-validations";
 import {
+  isMatchValidationCandidate,
   loadMatchValidationCandidates,
   loadMatchValidationTopOrgs,
   loadMatchValidationVotes,
@@ -44,7 +50,7 @@ import {
 } from "../../lib/match-validation-queue";
 import { parsePageParams } from "../../lib/paging";
 import { hydrateSavedCards } from "../../lib/saved-cards";
-import { resolveScanImageUrl } from "../../lib/scan-images";
+import { loadScanImage, resolveScanImageUrl } from "../../lib/scan-images";
 import {
   findOrgMembership,
   requireAuth,
@@ -77,42 +83,41 @@ const router = new Hono<AppEnv>()
   .get("/scans", requireAuth, async (c) => {
     const userId = c.get("userId");
     const { page: requestedPage, pageSize } = parsePageParams(c);
-    const [allCandidates, votes] = await Promise.all([
-      loadMatchValidationCandidates(),
-      loadMatchValidationVotes(userId),
-    ]);
-    const candidates = candidatesForGame(allCandidates, c.req.query("game"));
+    const candidates = candidatesForGame(
+      await loadMatchValidationCandidates(),
+      c.req.query("game"),
+    );
     const total = candidates.length;
     const pageCount = Math.max(Math.ceil(total / pageSize), 1);
     const page = Math.min(requestedPage ?? 1, pageCount);
     const pageScanIds = candidates
       .slice((page - 1) * pageSize, page * pageSize)
       .map((candidate) => candidate.scanId);
-    const scansResult = pageScanIds.length
-      ? await db.execute(sql`
+    if (pageScanIds.length === 0) {
+      return c.json({ success: true, data: { items: [], total, page, pageSize } });
+    }
+    const [scansResult, votes] = await Promise.all([
+      db.execute(sql`
           SELECT
             cc.guid::text AS scan_id,
             cc.card_name,
             cc.card_set AS set_code,
             COALESCE(cat.set_name, cc.card_set_name) AS set_name,
             cc.card_collector_number AS collector_number,
-            cc.scanned_at,
-            cc.captured_image_key,
-            CASE WHEN cc.captured_image_key IS NULL THEN cc.captured_image_data_url END AS captured_image_data_url,
             COALESCE(cat.image_small, cc.card_image_small) AS catalog_image_url
           FROM collection_cards cc
           JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
           LEFT JOIN games g ON g.id = col.game_id
           ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`col.lang` }, CC_ALIAS_SQL_COLUMNS)}
           WHERE cc.guid = ANY(${scanIdArraySql(pageScanIds)})
-        `)
-      : { rows: [] };
+        `),
+      loadMatchValidationVotes(userId, pageScanIds),
+    ]);
     const rowsByScanId = new Map(
       (scansResult.rows as unknown as MatchValidationScanRow[]).map((row) => [row.scan_id, row]),
     );
     const rows = pageScanIds.flatMap((scanId) => rowsByScanId.get(scanId) ?? []);
-    const items: MatchValidationScan[] = await Promise.all(
-      rows.map(async (row) => {
+    const items: MatchValidationScan[] = rows.map((row) => {
         const scanVotes = votes.byScanId.get(row.scan_id);
         const verdictCounts = {
           correctCount: scanVotes?.correct_count ?? 0,
@@ -125,20 +130,46 @@ const router = new Hono<AppEnv>()
           setCode: row.set_code,
           setName: row.set_name,
           collectorNumber: row.collector_number,
-          scannedAt: new Date(row.scanned_at).toISOString(),
-          capturedImageUrl:
-            (await resolveScanImageUrl({
-              capturedImageKey: row.captured_image_key,
-              capturedImageDataUrl: row.captured_image_data_url,
-            })) ?? null,
           catalogImageUrl: row.catalog_image_url,
           ...verdictCounts,
           yourVerdict: scanVotes?.your_verdict ?? null,
           status: matchValidationStatus(verdictCounts),
         };
-      }),
-    );
+      });
     return c.json({ success: true, data: { items, total, page, pageSize } });
+  })
+  .get("/scans/:scanId/thumbnail", requireAuth, async (c) => {
+    const scanId = c.req.param("scanId");
+    if (!UUID_PATTERN.test(scanId) || !(await isMatchValidationCandidate(scanId))) {
+      return c.json({ success: false, message: "Scan not found." }, 404);
+    }
+    const imageResult = await db.execute(sql`
+      SELECT
+        cc.captured_image_key,
+        CASE WHEN cc.captured_image_key IS NULL THEN cc.captured_image_data_url END AS captured_image_data_url
+      FROM collection_cards cc
+      WHERE cc.guid = ${scanId}
+      LIMIT 1
+    `);
+    const row = imageResult.rows[0] as unknown as MatchValidationThumbnailRow | undefined;
+    const image = row
+      ? await loadScanImage({
+          capturedImageKey: row.captured_image_key,
+          capturedImageDataUrl: row.captured_image_data_url,
+        })
+      : null;
+    if (!image) {
+      return c.json({ success: false, message: "Scan photo not found." }, 404);
+    }
+    const thumbnail = await sharp(image)
+      .rotate()
+      .resize({ width: MATCH_VALIDATION_THUMBNAIL_WIDTH_PX, withoutEnlargement: true })
+      .webp({ quality: MATCH_VALIDATION_THUMBNAIL_QUALITY })
+      .toBuffer();
+    return c.body(new Uint8Array(thumbnail), 200, {
+      "Content-Type": "image/webp",
+      "Cache-Control": `private, max-age=${MATCH_VALIDATION_THUMBNAIL_CACHE_SECONDS}, immutable`,
+    });
   })
   .get("/queue", requireAuth, async (c) => {
     const userId = c.get("userId");

@@ -29,10 +29,12 @@ export interface MatchValidationScanRow {
   set_code: string | null;
   set_name: string | null;
   collector_number: string | null;
-  scanned_at: Date;
+  catalog_image_url: string | null;
+}
+
+export interface MatchValidationThumbnailRow {
   captured_image_key: string | null;
   captured_image_data_url: string | null;
-  catalog_image_url: string | null;
 }
 
 export interface MatchValidationCandidate {

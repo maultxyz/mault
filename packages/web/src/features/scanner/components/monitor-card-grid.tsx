@@ -20,6 +20,9 @@ export function MonitorCardGrid({
   viewMode,
   groupDuplicates,
   page,
+  pageSize,
+  preferredPageSize,
+  onPageSizeChange,
   pageCount,
   onPageChange,
   showBinLocation,
@@ -29,6 +32,20 @@ export function MonitorCardGrid({
 
   return (
     <>
+      <ListPagination
+        alignsEnd
+        className="px-4 pt-4"
+        pagination={{
+          page: page + 1,
+          pageCount,
+          setPage: (nextPage) => onPageChange(nextPage - 1),
+          from: page * pageSize + 1,
+          to: page * pageSize + entries.length,
+          total: matchingCount,
+        }}
+        pageSize={preferredPageSize}
+        onPageSizeChange={onPageSizeChange}
+      />
       {isLoading && entries.length === 0 && (
         <CardTileSkeletonGrid count={12} />
       )}
@@ -95,12 +112,18 @@ export function MonitorCardGrid({
         </div>
       )}
       <ListPagination
+        alignsEnd
         className="px-4 pb-4"
         pagination={{
           page: page + 1,
           pageCount,
           setPage: (nextPage) => onPageChange(nextPage - 1),
+          from: page * pageSize + 1,
+          to: page * pageSize + entries.length,
+          total: matchingCount,
         }}
+        pageSize={preferredPageSize}
+        onPageSizeChange={onPageSizeChange}
       />
     </>
   );

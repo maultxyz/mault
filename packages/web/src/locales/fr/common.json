@@ -295,7 +295,9 @@
     "label": "Pagination",
     "pageNumber": "Page {{page}}",
     "goToPage": "Aller à la page",
-    "range": "{{from}}-{{to}} sur {{total}}"
+    "range": "{{from}}-{{to}} sur {{total}}",
+    "pageSize": "Éléments par page",
+    "perPage": "{{count}} par page"
   },
   "guide": {
     "contents": "Sommaire",

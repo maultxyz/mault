@@ -97,6 +97,7 @@ import {
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import { useTranslation } from "react-i18next";
 import {
   Link,
@@ -211,6 +212,11 @@ export function CardGrid() {
     );
   }, [navigate, basePath, setReviewLayout]);
   const [page, setPage] = useState(0);
+  const pageSize = usePageSize();
+  const changePageSize = (nextPageSize: number) => {
+    setPageSize(nextPageSize);
+    setPage(0);
+  };
   const {
     viewMode,
     handleViewModeChange,
@@ -284,7 +290,7 @@ export function CardGrid() {
   useEffect(() => () => reviewQueueStore.stop(), []);
 
   const { data: pageData, isPending: pagePending } = useQuery(
-    collectionCardsPageQueryOptions(collectionGuid, cardsQuery, page),
+    collectionCardsPageQueryOptions(collectionGuid, cardsQuery, page, pageSize),
   );
   const pagedCards = pageData?.items ?? [];
   const totalCards = pageData?.totalCards ?? 0;
@@ -296,6 +302,12 @@ export function CardGrid() {
     ? Math.max(1, Math.ceil(pageData.totalEntries / pageData.pageSize))
     : 1;
   const clampedPage = Math.min(page, pageCount - 1);
+  const firstEntryIndex = clampedPage * (pageData?.pageSize ?? 0);
+  const entryRange = {
+    from: firstEntryIndex + 1,
+    to: firstEntryIndex + pagedCards.length,
+    total: pageData?.totalEntries ?? 0,
+  };
 
   useEffect(() => {
     if (page !== clampedPage) setPage(clampedPage);
@@ -829,6 +841,18 @@ export function CardGrid() {
         />
       )}
       <div className="p-2 flex-1">
+        <ListPagination
+          alignsEnd
+          className="pb-2"
+          pagination={{
+            page: clampedPage + 1,
+            pageCount,
+            setPage: (nextPage) => setPage(nextPage - 1),
+            ...entryRange,
+          }}
+          pageSize={pageSize}
+          onPageSizeChange={changePageSize}
+        />
         {viewMode === "list" ? (
           <div className="rounded-lg border">
             <ScannedCardTable
@@ -901,12 +925,16 @@ export function CardGrid() {
           </div>
         )}
         <ListPagination
+          alignsEnd
           className="pt-4"
           pagination={{
             page: clampedPage + 1,
             pageCount,
             setPage: (nextPage) => setPage(nextPage - 1),
+            ...entryRange,
           }}
+          pageSize={pageSize}
+          onPageSizeChange={changePageSize}
         />
       </div>
 

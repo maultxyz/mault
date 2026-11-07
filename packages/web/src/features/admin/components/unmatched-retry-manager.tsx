@@ -237,6 +237,7 @@ export function UnmatchedRetryManager() {
         />
       ) : (
         <>
+          <ListPagination alignsEnd pagination={pagination} />
           <div className="divide-y rounded-lg border">
             {pagination.pageItems.map((scan) => {
               const result = results[scan.scanId];
@@ -346,7 +347,7 @@ export function UnmatchedRetryManager() {
               );
             })}
           </div>
-          <ListPagination pagination={pagination} />
+          <ListPagination alignsEnd pagination={pagination} />
         </>
       )}
 
