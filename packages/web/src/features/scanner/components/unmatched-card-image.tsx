@@ -3,8 +3,13 @@ import { cn } from "@/lib/utils";
 import { IconPhotoOff } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
-export function UnmatchedCardImage({ entry, className }: UnmatchedCardImageProps) {
+export function UnmatchedCardImage({
+  entry,
+  className,
+  showsBackSide = false,
+}: UnmatchedCardImageProps) {
   const { t } = useTranslation("scanner");
+  const imageUrl = showsBackSide ? entry.capturedBackImageUrl : entry.capturedImageUrl;
   return (
     <div
       className={cn(
@@ -12,12 +17,16 @@ export function UnmatchedCardImage({ entry, className }: UnmatchedCardImageProps
         className,
       )}
     >
-      {entry.capturedImageUrl ? (
+      {imageUrl ? (
         <img
           loading="lazy"
-          src={entry.capturedImageUrl}
-          alt={t("unmatchedCardsPanel.imageAlt")}
-          className="h-full w-full object-fill"
+          src={imageUrl}
+          alt={
+            showsBackSide
+              ? t("unmatchedCardsPanel.backSideAlt")
+              : t("unmatchedCardsPanel.imageAlt")
+          }
+          className="h-full w-full object-contain"
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center">

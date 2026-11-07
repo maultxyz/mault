@@ -31,7 +31,8 @@ public sealed record PageMessage(
     string FilePath,
     string PaperSource,
     double ScanWidthMm,
-    double ScanHeightMm);
+    double ScanHeightMm,
+    string? OtherSideFilePath = null);
 
 public sealed record SessionReadyMessage(string Type);
 

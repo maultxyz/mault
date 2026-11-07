@@ -34,6 +34,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       scanId,
       scannedAt,
       capturedImageUrl,
+      capturedBackImageUrl,
       binNumber,
       vectorizedOn,
       diagnostics,
@@ -53,6 +54,10 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
     const storedImage = await storeScanImage(
       { orgId, collectionGuid: guid, scanId, kind: "unmatched" },
       capturedImageUrl,
+    );
+    const storedBackImage = await storeScanImage(
+      { orgId, collectionGuid: guid, scanId, kind: "unmatched", side: "back" },
+      capturedBackImageUrl,
     );
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -95,6 +100,8 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
             collectionId: collection.id,
             capturedImageDataUrl: storedImage.dataUrl,
             capturedImageKey: storedImage.key,
+            capturedBackImageDataUrl: storedBackImage.dataUrl,
+            capturedBackImageKey: storedBackImage.key,
             scannedAt: new Date(scannedAt),
             binNumber: binNumber ?? null,
             binEmptiedAt: lateSaveBinEmptiedAtSql(
@@ -121,7 +128,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
           } as UnmatchedCard,
         };
       });
-      if (!result.success) deleteScanImages([storedImage.key]);
+      if (!result.success) deleteScanImages([storedImage.key, storedBackImage.key]);
       if (result.success) {
         void recordUnmatchedScan(
           orgId,
@@ -138,7 +145,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       }
       return c.json(result);
     } catch (err) {
-      deleteScanImages([storedImage.key]);
+      deleteScanImages([storedImage.key, storedBackImage.key]);
       return databaseErrorResponse(c, err);
     }
   },

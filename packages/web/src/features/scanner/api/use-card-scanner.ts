@@ -22,6 +22,10 @@ import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-c
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import { drawScanImageFile } from "@/features/scanner/lib/scan-image-file";
 import {
+  orientDocumentScanImages,
+  scanPageImageDataUrl,
+} from "@/features/scanner/lib/scan-page-card-image";
+import {
   HAND_SCAN_REARM_FINGERPRINT_DIFF,
   HAND_SCAN_TRACKING_STATUSES,
   SCANNABLE_STATUSES,
@@ -34,6 +38,7 @@ import {
   observeContainerResize,
 } from "@/features/scanner/lib/canvas-fit";
 import { scanLog } from "@/lib/scan-log";
+import type { DocumentScanSavedImages } from "@/lib/interfaces/scanner";
 import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   type ColorBarRegion,
@@ -122,7 +127,7 @@ export function useCardScanner({
     startPhonePairing,
     stopPhonePairing,
     requestPhoneCapture,
-    takeDocumentScannerPage,
+    takeDocumentScannerPages,
   } = useCameraContext();
   const { activeCollection } = useCollections();
   const { forceSetCodes: preferredSetCodes } = useScannedCards();
@@ -206,8 +211,9 @@ export function useCardScanner({
   const [duplicateCard, setDuplicateCard] =
     useState<PlayingCardWithDistance | null>(null);
   const [debugImageUrl, setDebugImageUrl] = useState<string | null>(null);
-  const debugImageUrlRef = useRef<string | null>(null);
+  const capturedImageUrlRef = useRef<string | null>(null);
   const vectorizedOnRef = useRef<ScanVectorizeSource | undefined>(undefined);
+  const capturedBackImageUrlRef = useRef<string | undefined>(undefined);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
   const { data: orgSettings } = useQuery(
     orgSettingsQueryOptions(activeOrg?.id),
@@ -299,7 +305,10 @@ export function useCardScanner({
       checkDuplicate: boolean,
       contour: CardContour | null | undefined,
       fromLiveVideo: boolean,
+      documentScanImages?: DocumentScanSavedImages,
     ) => {
+      const isDocumentScan = !!documentScanImages;
+      const { savedImageUrl, capturedBackImageUrl: scannedBackImageUrl } = documentScanImages ?? {};
       const canvas = displayCanvasRef.current;
       if (!canvas) {
         isCapturingRef.current = false;
@@ -335,12 +344,19 @@ export function useCardScanner({
           },
           ocrEnabledRef.current,
           matchesNeededRef.current,
-          checkBothOrientationsRef.current,
+          isDocumentScan || checkBothOrientationsRef.current,
           colorBarRegionRef.current,
           foilDetectionGameKeyRef.current,
         );
         setDebugImageUrl(debugImageUrl);
-        debugImageUrlRef.current = debugImageUrl;
+        const { capturedImageUrl, capturedBackImageUrl } = await orientDocumentScanImages(
+          savedImageUrl,
+          scannedBackImageUrl,
+          matched ? debugImageUrl : null,
+          debugImageUrl,
+        );
+        capturedImageUrlRef.current = capturedImageUrl;
+        capturedBackImageUrlRef.current = capturedBackImageUrl;
         vectorizedOnRef.current = vectorizedOn;
 
         outlineAnimator.cancel();
@@ -383,7 +399,7 @@ export function useCardScanner({
                 : null;
             onSearchResultsRef.current?.(
               [card, ...alternativeMatches],
-              debugImageUrl,
+              capturedImageUrl,
               vectorizedOn,
               matched && foilDetection
                 ? {
@@ -391,15 +407,17 @@ export function useCardScanner({
                     diagnostics: { ...matched.diagnostics, foilDetection },
                   }
                 : (matched ?? undefined),
+              capturedBackImageUrl,
             );
             if (!pausedMidSearch) updateStatus("scanning");
           }
         } else {
           playDingSound();
           onNoMatchRef.current?.(
-            debugImageUrl,
+            capturedImageUrl,
             vectorizedOn,
             noMatch ?? undefined,
+            capturedBackImageUrl,
           );
           if (!pausedMidSearch) updateStatus("no-match");
         }
@@ -616,8 +634,10 @@ export function useCardScanner({
     if (duplicateCard) {
       onSearchResultsRef.current?.(
         [duplicateCard],
-        debugImageUrlRef.current ?? undefined,
+        capturedImageUrlRef.current ?? undefined,
         vectorizedOnRef.current,
+        undefined,
+        capturedBackImageUrlRef.current,
       );
       setDuplicateCard(null);
       updateStatus("scanning");
@@ -697,13 +717,17 @@ export function useCardScanner({
 
   const captureDocumentScannerPageThenSearch = useCallback(
     async (checkDuplicate: boolean) => {
-      const page = takeDocumentScannerPage();
-      if (!page) {
+      const pages = takeDocumentScannerPages();
+      if (!pages) {
         isCapturingRef.current = false;
         handleErrorRef.current(t("scanEngine.documentScannerNoPage"));
         return;
       }
-      const source = await drawScanImageFile(page).catch(() => null);
+      const savedImageUrl = await scanPageImageDataUrl(pages.face);
+      const capturedBackImageUrl = pages.otherSide
+        ? await scanPageImageDataUrl(pages.otherSide)
+        : undefined;
+      const source = await drawScanImageFile(pages.face).catch(() => null);
       if (!source) {
         isCapturingRef.current = false;
         handleErrorRef.current(t("scanEngine.documentScannerPageUnreadable"));
@@ -716,9 +740,12 @@ export function useCardScanner({
         source.imageContour,
       );
       releaseCanvases([source.canvas]);
-      await performCapture(checkDuplicate, contour, false);
+      await performCapture(checkDuplicate, contour, false, {
+        savedImageUrl,
+        capturedBackImageUrl,
+      });
     },
-    [takeDocumentScannerPage, showStillImage, performCapture, t],
+    [takeDocumentScannerPages, showStillImage, performCapture, t],
   );
 
   const capturePhonePhotoThenSearch = useCallback(

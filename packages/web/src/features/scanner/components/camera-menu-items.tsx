@@ -7,7 +7,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import type { CameraMenuItemsProps } from "@/lib/interfaces/scanner";
-import { IconDeviceMobile, IconScan } from "@tabler/icons-react";
+import {
+  IconDeviceMobile,
+  IconRotateClockwise2,
+  IconScan,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function CameraMenuItems({
@@ -22,6 +26,8 @@ export function CameraMenuItems({
   onCameraDisconnect,
   onCameraSelect,
   onCalibrateFlatbed,
+  isFeederSelected,
+  onSetUpFeederCard,
   onOpenPhonePairing,
 }: CameraMenuItemsProps) {
   const { t } = useTranslation("scanner");
@@ -80,6 +86,12 @@ export function CameraMenuItems({
             <DropdownMenuItem onClick={onCalibrateFlatbed}>
               <IconScan />
               {t("scannerMenu.setFlatbedCardPosition")}
+            </DropdownMenuItem>
+          )}
+          {isFeederSelected && (
+            <DropdownMenuItem onClick={onSetUpFeederCard}>
+              <IconRotateClockwise2 />
+              {t("scannerMenu.setUpFeederCard")}
             </DropdownMenuItem>
           )}
         </>

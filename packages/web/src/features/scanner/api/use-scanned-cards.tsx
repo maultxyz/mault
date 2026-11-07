@@ -655,6 +655,7 @@ export function ScannedCardsProvider({
       alternativeMatches?: PlayingCardWithDistance[],
       vectorizedOn?: ScanVectorizeSource,
       details?: MatchedScanDetails,
+      capturedBackImageUrl?: string,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -712,6 +713,7 @@ export function ScannedCardsProvider({
         scannedAt: Date.now(),
         binNumber: matchedBin?.binNumber,
         capturedImageUrl,
+        capturedBackImageUrl,
         alternativeMatches: alternativeMatches?.length
           ? alternativeMatches
           : undefined,
@@ -989,6 +991,7 @@ export function ScannedCardsProvider({
       capturedImageUrl?: string,
       vectorizedOn?: ScanVectorizeSource,
       details?: UnmatchedScanDetails,
+      capturedBackImageUrl?: string,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -1005,6 +1008,7 @@ export function ScannedCardsProvider({
       const record: UnmatchedCard = {
         scanId: generateScanId(),
         capturedImageUrl,
+        capturedBackImageUrl,
         scannedAt: Date.now(),
         binNumber: catchAll?.binNumber,
         vectorizedOn,

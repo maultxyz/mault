@@ -1072,6 +1072,13 @@
       "when": 1793749379323,
       "tag": "0152_platform_foil_labels",
       "breakpoints": true
+    },
+    {
+      "idx": 153,
+      "version": "7",
+      "when": 1793993191810,
+      "tag": "0153_furry_blacklash",
+      "breakpoints": true
     }
   ]
 }

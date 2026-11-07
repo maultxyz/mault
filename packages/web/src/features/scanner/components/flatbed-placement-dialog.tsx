@@ -39,7 +39,6 @@ export function FlatbedPlacementDialog({
     previewFlatbedGlass,
     flatbedPlacement,
     saveFlatbedPlacement,
-    documentScannerDriver,
   } = useCameraContext();
   const [preview, setPreview] = useState<FlatbedPreview | null>(null);
   const [draftPlacement, setDraftPlacement] = useState<FlatbedPlacement | null>(null);
@@ -65,7 +64,7 @@ export function FlatbedPlacementDialog({
       const result = await previewFlatbedGlass();
       if (result.type === "error") {
         setErrorMessage(
-          documentScanErrorMessage(tCards, result.reason, documentScannerDriver),
+          documentScanErrorMessage(tCards, result.reason),
         );
         return;
       }

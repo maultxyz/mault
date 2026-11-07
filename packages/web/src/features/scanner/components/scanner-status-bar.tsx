@@ -72,6 +72,8 @@ export function ScannerStatusBar({
   documentScannerOptions,
   isFlatbedSelected,
   onCalibrateFlatbed,
+  isFeederSelected,
+  onSetUpFeederCard,
   selectedCameraId,
   phonePairingStatus,
   scanningBlocked,
@@ -150,6 +152,8 @@ export function ScannerStatusBar({
             onCameraDisconnect={onCameraDisconnect}
             onCameraSelect={onCameraSelect}
             onCalibrateFlatbed={onCalibrateFlatbed}
+            isFeederSelected={isFeederSelected}
+            onSetUpFeederCard={onSetUpFeederCard}
             onOpenPhonePairing={onOpenPhonePairing}
           />
         </DropdownMenuContent>

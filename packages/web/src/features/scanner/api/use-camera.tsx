@@ -19,6 +19,7 @@ import {
 } from "@/features/scanner/lib/pi-camera";
 import {
   DOCUMENT_SCANNERS_QUERY_KEY,
+  FEEDER_CARD_DEFAULT_SETUP,
   FLATBED_DEFAULT_PLACEMENT,
   PI_CAMERA_DEVICE_ID,
 } from "@/lib/constants/scanner";
@@ -30,6 +31,13 @@ import {
   isDocumentScannerCameraId,
   requireDocumentScannerSessionBridge,
 } from "@/features/scanner/lib/document-scan-bridge";
+import { cropScanPageToCard } from "@/features/scanner/lib/scan-page-card-crop";
+import {
+  feederCardRotationDegrees,
+  loadFeederCardSetup,
+  rotateScanPage,
+  storeFeederCardSetup,
+} from "@/features/scanner/lib/feeder-card-setup";
 import {
   cropFlatbedPage,
   flatbedScanHeightMm,
@@ -57,7 +65,10 @@ import type {
   CameraSource,
   CameraStatus,
   DocumentScannerOption,
+  DocumentScannerPages,
   DocumentScannerSessionState,
+  FeederCardSetup,
+  FeederCardSetupTestScan,
   FlatbedPlacement,
 } from "@/lib/interfaces/scanner";
 import {
@@ -93,7 +104,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const documentScannerSessionRef = useRef<DocumentScannerSessionState | null>(
     null,
   );
-  const documentScannerPageRef = useRef<File | null>(null);
+  const documentScannerPageRef = useRef<DocumentScannerPages | null>(null);
   const { data: documentScannerList } = useQuery({
     queryKey: DOCUMENT_SCANNERS_QUERY_KEY,
     queryFn: () =>
@@ -129,6 +140,18 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       : null;
   const flatbedPlacementRef = useRef(flatbedPlacement);
   flatbedPlacementRef.current = flatbedPlacement;
+  const [feederSetupsByScanner, setFeederSetupsByScanner] = useState<
+    Record<string, FeederCardSetup>
+  >({});
+  const feederCardSetup = useMemo(
+    () =>
+      selectedScannerKey
+        ? (feederSetupsByScanner[selectedScannerKey] ?? loadFeederCardSetup(selectedScannerKey))
+        : FEEDER_CARD_DEFAULT_SETUP,
+    [selectedScannerKey, feederSetupsByScanner],
+  );
+  const feederCardSetupRef = useRef(feederCardSetup);
+  feederCardSetupRef.current = feederCardSetup;
   const { activeCollection } = useCollections();
   const { station, isLive } = useStation();
   const stationsCtx = useStations();
@@ -213,11 +236,72 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     [documentScannerBridge],
   );
 
+  const captureFeederCard = useCallback(
+    async (
+      setup: FeederCardSetup,
+    ): Promise<{ result: DesktopDocumentScannerFeedResult; pages: DocumentScannerPages | null }> => {
+      const { result, page } = await captureDocumentScannerPage({
+        kind: "feeder",
+        sheetSide: setup.sheetSide,
+      });
+      if (!page || result.type !== "page") return { result, pages: null };
+      const rotationDegrees = feederCardRotationDegrees(setup);
+      try {
+        const otherSidePage = result.otherSide
+          ? new File([result.otherSide.imageBytes.slice()], result.otherSide.fileName, {
+              type: result.otherSide.mimeType,
+            })
+          : null;
+        return {
+          result,
+          pages: {
+            face: await rotateScanPage(await cropScanPageToCard(page), rotationDegrees),
+            otherSide: otherSidePage
+              ? await rotateScanPage(await cropScanPageToCard(otherSidePage), rotationDegrees)
+              : null,
+          },
+        };
+      } catch (error) {
+        console.error("[camera] rotating the feeder scan failed:", error);
+        return {
+          result: { type: "error", reason: "unknown", message: String(error) },
+          pages: null,
+        };
+      }
+    },
+    [captureDocumentScannerPage],
+  );
+
   const feedDocumentScannerCard = useCallback(async () => {
-    const { result, page } = await captureDocumentScannerPage({ kind: "feeder" });
-    if (page) documentScannerPageRef.current = page;
+    const { result, pages } = await captureFeederCard(feederCardSetupRef.current);
+    if (pages) documentScannerPageRef.current = pages;
     return result;
-  }, [captureDocumentScannerPage]);
+  }, [captureFeederCard]);
+
+  const testFeederCardSetup = useCallback(
+    async (setup: FeederCardSetup): Promise<FeederCardSetupTestScan> => {
+      const { result, page } = await captureDocumentScannerPage({
+        kind: "feeder",
+        sheetSide: setup.sheetSide,
+      });
+      if (result.type === "error") return { type: "error", reason: result.reason };
+      if (!page) return { type: "error", reason: "unknown" };
+      return { type: "page", unrotatedPage: await cropScanPageToCard(page), scannedWith: setup };
+    },
+    [captureDocumentScannerPage],
+  );
+
+  const saveFeederCardSetup = useCallback(
+    (setup: FeederCardSetup) => {
+      if (!selectedScannerKey) return;
+      storeFeederCardSetup(selectedScannerKey, setup);
+      setFeederSetupsByScanner((previous) => ({
+        ...previous,
+        [selectedScannerKey]: setup,
+      }));
+    },
+    [selectedScannerKey],
+  );
 
   const scanFlatbedCard = useCallback(async (): Promise<DesktopDocumentScannerFeedResult> => {
     const placement = flatbedPlacementRef.current ?? FLATBED_DEFAULT_PLACEMENT;
@@ -227,9 +311,12 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     });
     if (!page || result.type !== "page") return result;
     try {
-      documentScannerPageRef.current = result.scanWidthMm
-        ? await cropFlatbedPage(page, result.scanWidthMm, placement)
-        : page;
+      documentScannerPageRef.current = {
+        face: result.scanWidthMm
+          ? await cropFlatbedPage(page, result.scanWidthMm, placement)
+          : page,
+        otherSide: null,
+      };
     } catch (error) {
       console.error("[camera] cropping the flatbed scan failed:", error);
       return { type: "error", reason: "unknown", message: String(error) };
@@ -254,10 +341,10 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     [selectedScannerKey],
   );
 
-  const takeDocumentScannerPage = useCallback(() => {
-    const page = documentScannerPageRef.current;
+  const takeDocumentScannerPages = useCallback(() => {
+    const pages = documentScannerPageRef.current;
     documentScannerPageRef.current = null;
-    return page;
+    return pages;
   }, []);
 
   const startCamera = useCallback(
@@ -498,14 +585,16 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         sendPhoneScanRegion,
         documentScannerOptions,
         documentScannerMode,
-        documentScannerDriver: selectedDocumentScanner?.driver ?? null,
         isSimulatedDocumentScanner,
         feedDocumentScannerCard,
         scanFlatbedCard,
         previewFlatbedGlass,
         flatbedPlacement,
         saveFlatbedPlacement,
-        takeDocumentScannerPage,
+        feederCardSetup,
+        saveFeederCardSetup,
+        testFeederCardSetup,
+        takeDocumentScannerPages,
       }}
     >
       {children}

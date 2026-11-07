@@ -8,7 +8,25 @@ import type {
   DocumentScannerOption,
   DocumentScannerSessionBridge,
 } from "@/lib/interfaces/scanner";
-import type { DesktopDocumentScanner } from "@magic-vault/shared";
+import { DESKTOP_DOCUMENT_SCAN_DRIVERS } from "@magic-vault/shared";
+import type {
+  DesktopDocumentScanner,
+  DesktopDocumentScannerList,
+} from "@magic-vault/shared";
+
+function listWiaDocumentScanners(
+  listDocumentScanners: () => Promise<DesktopDocumentScannerList>,
+) {
+  return async (): Promise<DesktopDocumentScannerList> => {
+    const scannerList = await listDocumentScanners();
+    return {
+      ...scannerList,
+      scanners: scannerList.scanners.filter((scanner) =>
+        DESKTOP_DOCUMENT_SCAN_DRIVERS.includes(scanner.driver),
+      ),
+    };
+  };
+}
 
 export function getDocumentScanBridge(): DocumentScanBridge | null {
   const desktop = window.maultDesktop;
@@ -23,7 +41,7 @@ export function getDocumentScanBridge(): DocumentScanBridge | null {
     return null;
   }
   return {
-    listDocumentScanners: desktop.listDocumentScanners,
+    listDocumentScanners: listWiaDocumentScanners(desktop.listDocumentScanners),
     getDocumentScanFolder: desktop.getDocumentScanFolder,
     chooseDocumentScanFolder: desktop.chooseDocumentScanFolder,
     startDocumentScan: desktop.startDocumentScan,
@@ -54,7 +72,7 @@ export function getDocumentScannerSessionBridge(): DocumentScannerSessionBridge 
     return null;
   }
   return {
-    listDocumentScanners: desktop.listDocumentScanners,
+    listDocumentScanners: listWiaDocumentScanners(desktop.listDocumentScanners),
     openDocumentScannerSession: desktop.openDocumentScannerSession,
     feedDocumentScannerCard: desktop.feedDocumentScannerCard,
     closeDocumentScannerSession: desktop.closeDocumentScannerSession,

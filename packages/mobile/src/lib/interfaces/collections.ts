@@ -3,6 +3,7 @@ import type { StatsBreakdown } from "@/lib/interfaces/stats";
 
 export interface ScanImageResponse {
   capturedImageUrl: string | null;
+  capturedBackImageUrl?: string | null;
 }
 
 export type CollectionTab = "cards" | "activity";

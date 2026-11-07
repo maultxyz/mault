@@ -3,6 +3,11 @@ import { HotkeyHint } from "@/components/hotkey-hint";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CardSearchPicker } from "@/features/cards/components/card-search-picker";
 import { unmatchedCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { invalidateUnmatchedCards } from "@/features/collections/lib/card-page-cache";
@@ -19,6 +24,7 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconPlayerSkipForward,
+  IconSwitchHorizontal,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
@@ -38,6 +44,7 @@ export function UnmatchedCardDetail({
   const queryClient = useQueryClient();
   const { identifyUnmatchedCard } = useScannedCards();
   const [isBusy, setIsBusy] = useState(false);
+  const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
   const page = Math.floor(index / UNMATCHED_PAGE_SIZE) + 1;
   const { data, isPlaceholderData } = useQuery(
     unmatchedCardsPageQueryOptions(collectionGuid, page),
@@ -48,6 +55,11 @@ export function UnmatchedCardDetail({
     ? (data.cards[index % UNMATCHED_PAGE_SIZE] ?? null)
     : null;
   const isDone = isCurrent && index >= total;
+  const showsBackSide =
+    !!entry?.capturedBackImageUrl && backSideScanId === entry.scanId;
+  const toggleSideLabel = showsBackSide
+    ? t("unmatchedCardsPanel.showFrontSide")
+    : t("unmatchedCardsPanel.showBackSide");
   const hasPrev = index > 0 && total > 0;
   const hasNext = !!entry && index + 1 < total;
 
@@ -175,8 +187,36 @@ export function UnmatchedCardDetail({
 
             <div className="flex flex-col gap-6 @2xl:flex-row">
               <div className="flex w-full flex-none flex-col gap-3 @2xl:w-64">
+                {entry.capturedBackImageUrl && (
+                  <div className="flex w-48 items-center justify-between gap-1.5 @2xl:w-full">
+                    <p className="text-xs text-foreground/70">
+                      {showsBackSide
+                        ? t("unmatchedCardsPanel.backSide")
+                        : t("unmatchedCardsPanel.frontSide")}
+                    </p>
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={toggleSideLabel}
+                            aria-pressed={showsBackSide}
+                            onClick={() =>
+                              setBackSideScanId(showsBackSide ? null : entry.scanId)
+                            }
+                          >
+                            <IconSwitchHorizontal />
+                          </Button>
+                        }
+                      />
+                      <TooltipContent>{toggleSideLabel}</TooltipContent>
+                    </Tooltip>
+                  </div>
+                )}
                 <UnmatchedCardImage
                   entry={entry}
+                  showsBackSide={showsBackSide}
                   className="w-48 rounded-lg @2xl:w-full"
                 />
                 {entry.diagnostics ? (

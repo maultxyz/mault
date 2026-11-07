@@ -116,10 +116,7 @@ export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>
 export const scanImageQueryOptions = (guid: string, scanId: string) =>
   queryOptions({
     queryKey: ["collection-card-image", guid, scanId] as const,
-    queryFn: () =>
-      unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)).then(
-        (data) => data.capturedImageUrl,
-      ),
+    queryFn: () => unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)),
     staleTime: SCAN_IMAGE_STALE_MS,
   });
 

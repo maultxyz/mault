@@ -366,7 +366,8 @@
       "feeder": "Einzug",
       "flatbed": "Flachbett"
     },
-    "setFlatbedCardPosition": "Kartenposition auf dem Glas festlegen"
+    "setFlatbedCardPosition": "Kartenposition auf dem Glas festlegen",
+    "setUpFeederCard": "Kartenseite und Ausrichtung"
   },
   "ocrBetaDialog": {
     "title": "OCR-Texterkennung (Beta)",
@@ -429,6 +430,11 @@
     "heading_one": "{{count}} nicht erkannte Karte",
     "heading_other": "{{count}} nicht erkannte Karten",
     "imageAlt": "Nicht erkannte Karte",
+    "frontSide": "Vorderseite",
+    "backSide": "Rückseite",
+    "backSideAlt": "Gescannte Rückseite der Karte",
+    "showBackSide": "Rückseite zeigen",
+    "showFrontSide": "Vorderseite zeigen",
     "noImage": "Kein Bild aufgenommen",
     "reasons": {
       "too_far": "Kein naher Treffer",
@@ -1075,12 +1081,54 @@
     }
   },
   "documentScannerFeed": {
+    "scanFailed": "Der Dokumentenscanner konnte die Karte nicht scannen",
     "cardDidNotArrive": "Die gescannte Karte ist nicht im Sorter angekommen. Räume den Weg zwischen Scanner und Modul 1 frei und lege die Karte wieder in den Scanner.",
     "moduleOneNotEmpty": "In Modul 1 liegt bereits eine Karte. Entferne sie, bevor du über den Dokumentenscanner einziehst.",
     "moveFlatbedCard": {
       "title": "Karte in den Sorter legen",
       "description": "Nimm die gescannte Karte vom Glas und lege sie in Modul 1. Lege dann die nächste Karte auf das Glas."
     }
+  },
+  "feederCardSetup": {
+    "title": "Kartenseite und Ausrichtung",
+    "description": "Lege fest, auf welcher Seite des Blatts die Vorderseite der Karte liegt und wie die Karte aus dem Scanner kommt.",
+    "sheetSide": {
+      "label": "Gescannte Seite",
+      "options": {
+        "front": "Vorderseite des Blatts",
+        "back": "Rückseite des Blatts"
+      },
+      "hint": "Zeigt der Testscan die Rückseite deiner Karte, wechsle die Seite."
+    },
+    "feedEdge": {
+      "label": "Karte wird eingezogen",
+      "options": {
+        "short": "Kurze Kante zuerst",
+        "long": "Lange Kante zuerst"
+      },
+      "hints": {
+        "short": "Die Karte kommt aufrecht oder auf dem Kopf heraus.",
+        "long": "Die Karte kommt seitlich heraus, deshalb dreht die App sie aufrecht."
+      }
+    },
+    "cardTop": {
+      "label": "Oberkante der Karte",
+      "options": {
+        "upright": "Aufrecht",
+        "upside-down": "Auf dem Kopf"
+      }
+    },
+    "testInstructions": "Lege eine Karte in den Einzug und starte einen Testscan. Der Testscan wird nur hier angezeigt und nicht gespeichert.",
+    "testScan": "Testscan",
+    "testAgain": "Erneut scannen",
+    "testScanning": "Wird gescannt...",
+    "testResultHint": "So sehen gescannte Karten aus. Die Karte sollte aufrecht stehen und ihre Vorderseite zeigen.",
+    "testPreviewAlt": "Testscan der Karte",
+    "testFailed": "Der Testscan konnte nicht angezeigt werden.",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "testOutdated": "Scanne erneut, um die andere Seite des Blatts zu sehen.",
+    "noTestScanYet": "Starte einen Testscan, um die Karte in der Vorschau zu sehen."
   },
   "flatbed": {
     "instruction": {

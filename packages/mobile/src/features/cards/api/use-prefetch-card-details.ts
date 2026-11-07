@@ -89,7 +89,7 @@ export function usePrefetchCardDetails(firstScanId: string | null | undefined, t
           ...(entry.alternativeMatches ?? []).map((alternative) => alternative.image?.normal || alternative.image?.small),
         ]);
         void fetchRecentQueryData(queryClient, scanImageQueryOptions(step.collectionGuid, scanId))
-          .then((capturedImageUrl) => prefetchImages([capturedImageUrl]))
+          .then((images) => prefetchImages([images?.capturedImageUrl, images?.capturedBackImageUrl]))
           .catch(() => undefined);
       },
     });

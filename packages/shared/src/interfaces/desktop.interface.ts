@@ -33,7 +33,7 @@ export interface DesktopWindowOffset {
   y: number;
 }
 
-export type DesktopDocumentScanDriver = "twain" | "wia";
+export type DesktopDocumentScanDriver = "wia";
 
 export interface DesktopDocumentScanner {
   scannerId: string;
@@ -106,8 +106,19 @@ export interface DesktopDocumentScannerSessionRequest {
 
 export type DesktopDocumentScannerPaperSource = "feeder" | "flatbed";
 
+export type DesktopDocumentScannerSheetSide = "front" | "back";
+
+export interface DesktopDocumentScannerSheetImage {
+  fileName: string;
+  mimeType: string;
+  imageBytes: Uint8Array;
+}
+
 export type DesktopDocumentScannerCaptureRequest =
-  | { kind: "feeder" }
+  | {
+      kind: "feeder";
+      sheetSide?: DesktopDocumentScannerSheetSide;
+    }
   | { kind: "flatbed"; scanHeightMm: number }
   | { kind: "flatbed-preview" };
 
@@ -120,6 +131,7 @@ export type DesktopDocumentScannerFeedResult =
       paperSource?: DesktopDocumentScannerPaperSource;
       scanWidthMm?: number;
       scanHeightMm?: number;
+      otherSide?: DesktopDocumentScannerSheetImage;
     }
   | {
       type: "error";

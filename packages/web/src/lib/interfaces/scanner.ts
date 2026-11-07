@@ -3,7 +3,6 @@ import type { AppToast } from "@/lib/interfaces/toast";
 import type { CardViewMode, ReviewSession } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
-  DesktopDocumentScanDriver,
   BinConfig,
   CardCondition,
   FoilNudgeFirmwareLimits,
@@ -40,6 +39,7 @@ import type {
   DesktopDocumentScanErrorReason,
   DesktopDocumentScanner,
   DesktopDocumentScannerFeedResult,
+  DesktopDocumentScannerSheetSide,
   DesktopDocumentScanRequest,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
@@ -113,14 +113,45 @@ export interface CameraContextValue {
   sendPhoneScanRegion: (region: ScanRegion) => void;
   documentScannerOptions: DocumentScannerOption[];
   documentScannerMode: DocumentScannerMode | null;
-  documentScannerDriver: DesktopDocumentScanDriver | null;
   isSimulatedDocumentScanner: boolean;
   feedDocumentScannerCard: () => Promise<DesktopDocumentScannerFeedResult>;
   scanFlatbedCard: () => Promise<DesktopDocumentScannerFeedResult>;
   previewFlatbedGlass: () => Promise<DesktopDocumentScannerFeedResult>;
   flatbedPlacement: FlatbedPlacement | null;
   saveFlatbedPlacement: (placement: FlatbedPlacement) => void;
-  takeDocumentScannerPage: () => File | null;
+  feederCardSetup: FeederCardSetup;
+  saveFeederCardSetup: (setup: FeederCardSetup) => void;
+  testFeederCardSetup: (setup: FeederCardSetup) => Promise<FeederCardSetupTestScan>;
+  takeDocumentScannerPages: () => DocumentScannerPages | null;
+}
+
+export interface DocumentScanSavedImages {
+  savedImageUrl?: string;
+  capturedBackImageUrl?: string;
+}
+
+export interface ScanPageCardBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export interface ScanPageEdgeLine {
+  slope: number;
+  intercept: number;
+}
+
+export interface ScanPageCardEdges {
+  left: ScanPageEdgeLine;
+  right: ScanPageEdgeLine;
+  top: ScanPageEdgeLine;
+  bottom: ScanPageEdgeLine;
+}
+
+export interface DocumentScannerPages {
+  face: File;
+  otherSide: File | null;
 }
 
 export interface MatchScope {
@@ -154,11 +185,13 @@ export interface ScannedCardsContextValue {
     alternativeMatches?: PlayingCardWithDistance[],
     vectorizedOn?: ScanVectorizeSource,
     details?: MatchedScanDetails,
+    capturedBackImageUrl?: string,
   ) => void;
   addUnmatchedCard: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
+    capturedBackImageUrl?: string,
   ) => void;
   removeUnmatchedCard: (scanId: string) => Promise<boolean>;
   removeAllUnmatchedCards: () => Promise<boolean>;
@@ -328,11 +361,14 @@ export interface ScannerControlsProps {
   onFeed: () => void;
   onClearDevice: () => void;
   sessionFeed?: boolean;
+  standaloneFeeder?: boolean;
+  canFeedStandalone?: boolean;
   sessionLive?: boolean;
   onStop?: () => void;
   onAutoFeedChange?: (enabled: boolean) => void;
   flatbedScan?: FlatbedScanFlow;
   onCalibrateFlatbed?: () => void;
+  onSetUpFeederCard?: () => void;
 }
 
 export interface ScannerControlButtonProps {
@@ -356,6 +392,8 @@ export interface CameraMenuItemsProps {
   onCameraDisconnect: () => void;
   onCameraSelect: (deviceId: string) => void;
   onCalibrateFlatbed: () => void;
+  isFeederSelected: boolean;
+  onSetUpFeederCard: () => void;
   onOpenPhonePairing: () => void;
 }
 
@@ -851,6 +889,7 @@ export interface UnmatchedCardTileProps {
 export interface UnmatchedCardImageProps {
   entry: UnmatchedCard;
   className?: string;
+  showsBackSide?: boolean;
 }
 
 export interface ForcedSetPickerProps {
@@ -985,6 +1024,8 @@ export interface ScannerStatusBarProps {
   documentScannerOptions: DocumentScannerOption[];
   isFlatbedSelected: boolean;
   onCalibrateFlatbed: () => void;
+  isFeederSelected: boolean;
+  onSetUpFeederCard: () => void;
   selectedCameraId: string | null;
   phonePairingStatus: PhoneCameraCaptureStatus;
   scanningBlocked: boolean;
@@ -1304,6 +1345,32 @@ export interface FlatbedPlacementDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+export type FeederCardRotationDegrees = 0 | 90 | 180 | 270;
+
+export type FeederCardTop = "upright" | "upside-down";
+
+export type FeederCardFeedEdge = "short" | "long";
+
+export interface FeederCardSetup {
+  sheetSide: DesktopDocumentScannerSheetSide;
+  feedEdge: FeederCardFeedEdge;
+  cardTop: FeederCardTop;
+}
+
+export interface FeederCardSetupTestPage {
+  unrotatedPage: File;
+  scannedWith: FeederCardSetup;
+}
+
+export type FeederCardSetupTestScan =
+  | ({ type: "page" } & FeederCardSetupTestPage)
+  | { type: "error"; reason: DesktopDocumentScanErrorReason };
+
+export interface FeederCardSetupDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 export interface FlatbedPlacementEditorProps {
   imageUrl: string;
   glassWidthMm: number;
@@ -1328,6 +1395,17 @@ export interface DocumentScannerFeedParams {
   onFlatbedPageScanned: () => void;
   cardDidNotArriveMessage: string;
   moduleOneNotEmptyMessage: string;
+}
+
+export interface StandaloneDocumentFeederOptions {
+  isEnabled: boolean;
+  isAutoFeedEnabled: boolean;
+  scannerStatus: ScannerStatus;
+  feedDocumentScannerCard: () => Promise<DesktopDocumentScannerFeedResult>;
+  discardDocumentScannerPage: () => void;
+  onCardReady: () => void;
+  onHopperEmpty: () => void;
+  onFeedFailed: (reason: DesktopDocumentScanErrorReason) => void;
 }
 
 export type DocumentScanBridge = Required<
@@ -1394,3 +1472,5 @@ export interface MoveCardsToCollectionInput {
   targetCollectionGuid: string;
   scanIds: string[];
 }
+
+export type QuarterTurns = 0 | 1 | 2 | 3;

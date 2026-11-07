@@ -25,4 +25,5 @@ export interface MoveResortedCardInput {
   scannedByUserId: string;
   scannedByDeviceId: number | null;
   capturedImage: StoredScanImage | null;
+  capturedBackImage: StoredScanImage | null;
 }

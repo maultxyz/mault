@@ -97,7 +97,13 @@ function parseSessionRequest(value: unknown): DesktopDocumentScannerSessionReque
 function parseCaptureRequest(value: unknown): DesktopDocumentScannerCaptureRequest | null {
   if (value === undefined) return { kind: "feeder" };
   const request = (value ?? {}) as Record<string, unknown>;
-  if (request.kind === "feeder" || request.kind === "flatbed-preview") return { kind: request.kind };
+  if (request.kind === "feeder") {
+    return {
+      kind: "feeder",
+      sheetSide: request.sheetSide === "back" ? "back" : "front",
+    };
+  }
+  if (request.kind === "flatbed-preview") return { kind: request.kind };
   if (
     request.kind === "flatbed" &&
     typeof request.scanHeightMm === "number" &&

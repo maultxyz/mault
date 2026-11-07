@@ -366,7 +366,8 @@
       "feeder": "Feeder",
       "flatbed": "Flatbed"
     },
-    "setFlatbedCardPosition": "Set card position on glass"
+    "setFlatbedCardPosition": "Set card position on glass",
+    "setUpFeederCard": "Card side and orientation"
   },
   "ocrBetaDialog": {
     "title": "OCR text matching (beta)",
@@ -429,6 +430,11 @@
     "heading_one": "{{count}} Unmatched Card",
     "heading_other": "{{count}} Unmatched Cards",
     "imageAlt": "Unrecognized card",
+    "frontSide": "Front side",
+    "backSide": "Back side",
+    "backSideAlt": "Scanned back side of the card",
+    "showBackSide": "Show back side",
+    "showFrontSide": "Show front side",
     "noImage": "No image captured",
     "reasons": {
       "too_far": "No close match",
@@ -1075,12 +1081,54 @@
     }
   },
   "documentScannerFeed": {
+    "scanFailed": "The document scanner couldn't scan the card",
     "cardDidNotArrive": "The scanned card didn't reach the sorter. Clear the path between the scanner and module 1, then put the card back in the scanner.",
     "moduleOneNotEmpty": "There is already a card in module 1. Remove it before feeding from the document scanner.",
     "moveFlatbedCard": {
       "title": "Move the card into the sorter",
       "description": "Take the scanned card off the glass and put it in module 1, then place the next card on the glass."
     }
+  },
+  "feederCardSetup": {
+    "title": "Card side and orientation",
+    "description": "Tell the app which side of the sheet has the card face and how the card comes out of the scanner.",
+    "sheetSide": {
+      "label": "Scanned side",
+      "options": {
+        "front": "Front of the sheet",
+        "back": "Back of the sheet"
+      },
+      "hint": "If the test scan shows the back of your card, switch the side."
+    },
+    "feedEdge": {
+      "label": "Card goes in",
+      "options": {
+        "short": "Short edge first",
+        "long": "Long edge first"
+      },
+      "hints": {
+        "short": "The card comes out upright or upside down.",
+        "long": "The card comes out sideways, so the app turns it upright."
+      }
+    },
+    "cardTop": {
+      "label": "Card top",
+      "options": {
+        "upright": "Upright",
+        "upside-down": "Upside down"
+      }
+    },
+    "testInstructions": "Put one card in the feeder and run a test scan. The test scan is only shown here, not saved.",
+    "testScan": "Test scan",
+    "testAgain": "Scan again",
+    "testScanning": "Scanning...",
+    "testResultHint": "This is how scanned cards will look. The card should be upright and show its face.",
+    "testPreviewAlt": "Test scan of the card",
+    "testFailed": "Couldn't show the test scan.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "testOutdated": "Scan again to see the other side of the sheet.",
+    "noTestScanYet": "Run a test scan to preview the card."
   },
   "flatbed": {
     "instruction": {

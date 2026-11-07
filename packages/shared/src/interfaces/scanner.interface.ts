@@ -74,11 +74,13 @@ export interface CardScannerProps {
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
     details?: MatchedScanDetails,
+    capturedBackImageUrl?: string,
   ) => void;
   onNoMatch?: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
+    capturedBackImageUrl?: string,
   ) => void;
   onControlCode?: (command: ScannerControlCommand | null) => void;
   checkFoilByNudge?: CheckFoilByNudge;
@@ -97,6 +99,7 @@ export interface ScannedCard {
   scannedAt: number;
   binNumber?: number;
   capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
   alternativeMatches?: PlayingCardWithDistance[];
   isFoil?: boolean;
   foilType?: string;
@@ -176,6 +179,7 @@ export interface UnmatchedScanDetails {
 export interface UnmatchedCard {
   scanId: string;
   capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
   scannedAt: number;
   binNumber?: number;
   vectorizedOn?: ScanVectorizeSource;

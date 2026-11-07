@@ -44,6 +44,7 @@ import {
   IconPlayerPause,
   IconPlayerPlay,
   IconRosette,
+  IconRotateClockwise2,
   IconSparkles,
   IconStackPop,
 } from "@tabler/icons-react";
@@ -101,11 +102,14 @@ export function ScannerControls({
   onFeed,
   onClearDevice,
   sessionFeed = false,
+  standaloneFeeder = false,
+  canFeedStandalone = false,
   sessionLive = false,
   onStop,
   onAutoFeedChange,
   flatbedScan,
   onCalibrateFlatbed,
+  onSetUpFeederCard,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -136,7 +140,10 @@ export function ScannerControls({
   const { isActive } = useStation();
   const { panelsDocked } = useStations();
   const isMobile = useIsMobile();
-  const canFeed = (sessionFeed || (isConnected && isReady)) && !isFeeding;
+  const canFeed = standaloneFeeder
+    ? canFeedStandalone
+    : (sessionFeed || (isConnected && isReady)) && !isFeeding;
+  const showsFeedControls = isConnected || sessionFeed || standaloneFeeder;
   const canClearDevice =
     !sessionLive && isConnected && isReady && !isClearingDevice;
   const { retractCard, isRetracting, retractLockedReason } = useRetractCard();
@@ -172,7 +179,9 @@ export function ScannerControls({
       scanNow: canForceScan && !sessionFeed ? onForceScan : undefined,
       scanFeed: canFeed && !flatbedScan ? onFeed : undefined,
       scanToggleAutoFeed:
-        (isConnected || sessionLive) && !flatbedScan ? toggleAutoFeed : undefined,
+        (isConnected || sessionLive || standaloneFeeder) && !flatbedScan
+          ? toggleAutoFeed
+          : undefined,
       scanCycleFoil: cycleFoilType,
       scanPickSet: () => setSetPickerOpen(true),
       scanClearDevice: sessionLive
@@ -254,7 +263,15 @@ export function ScannerControls({
                 <IconBorderCorners />
               </ScannerControlButton>
             )}
-            {(isConnected || sessionFeed) && (
+            {onSetUpFeederCard && (
+              <ScannerControlButton
+                tooltip={t("scannerMenu.setUpFeederCard")}
+                onClick={onSetUpFeederCard}
+              >
+                <IconRotateClockwise2 />
+              </ScannerControlButton>
+            )}
+            {showsFeedControls && (
               <>
                 {!flatbedScan && (
                   <>
@@ -268,7 +285,7 @@ export function ScannerControls({
                       }
                       hotkey="scanFeed"
                       onClick={onFeed}
-                      disabled={(!isReady && !sessionFeed) || isFeeding}
+                      disabled={!canFeed}
                     >
                       {isFeeding ? (
                         <IconLoader2 className="animate-spin" />
@@ -290,37 +307,43 @@ export function ScannerControls({
                     </ScannerControlButton>
                   </>
                 )}
-                <ScannerControlButton
-                  tooltip={t(
-                    sessionLive
-                      ? "scannerControls.stopPiScan"
-                      : "scannerControls.clearDeviceTooltip",
-                  )}
-                  hotkey="scanClearDevice"
-                  onClick={sessionLive ? (onStop ?? onClearDevice) : onClearDevice}
-                  disabled={!sessionLive && !canClearDevice}
-                >
-                  {isClearingDevice ? (
-                    <IconLoader2 className="animate-spin" />
-                  ) : (
-                    <IconArrowBarToDown />
-                  )}
-                </ScannerControlButton>
-                {!sessionLive && (
-                  <ScannerControlButton
-                    tooltip={
-                      retractLockedReason ??
-                      t("scannerControls.retractCardTooltip")
-                    }
-                    onClick={() => void retractCard()}
-                    disabled={!canRetractCard}
-                  >
-                    {isRetracting ? (
-                      <IconLoader2 className="animate-spin" />
-                    ) : (
-                      <IconArrowBarToUp />
+                {(isConnected || sessionFeed) && (
+                  <>
+                    <ScannerControlButton
+                      tooltip={t(
+                        sessionLive
+                          ? "scannerControls.stopPiScan"
+                          : "scannerControls.clearDeviceTooltip",
+                      )}
+                      hotkey="scanClearDevice"
+                      onClick={
+                        sessionLive ? (onStop ?? onClearDevice) : onClearDevice
+                      }
+                      disabled={!sessionLive && !canClearDevice}
+                    >
+                      {isClearingDevice ? (
+                        <IconLoader2 className="animate-spin" />
+                      ) : (
+                        <IconArrowBarToDown />
+                      )}
+                    </ScannerControlButton>
+                    {!sessionLive && (
+                      <ScannerControlButton
+                        tooltip={
+                          retractLockedReason ??
+                          t("scannerControls.retractCardTooltip")
+                        }
+                        onClick={() => void retractCard()}
+                        disabled={!canRetractCard}
+                      >
+                        {isRetracting ? (
+                          <IconLoader2 className="animate-spin" />
+                        ) : (
+                          <IconArrowBarToUp />
+                        )}
+                      </ScannerControlButton>
                     )}
-                  </ScannerControlButton>
+                  </>
                 )}
               </>
             )}

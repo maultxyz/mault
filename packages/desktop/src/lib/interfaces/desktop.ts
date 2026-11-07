@@ -95,6 +95,7 @@ export type ScannerHelperMessage =
       paperSource?: string;
       scanWidthMm?: number;
       scanHeightMm?: number;
+      otherSideFilePath?: string | null;
     }
   | { type: "error"; reason: DesktopDocumentScanErrorReason; message: string }
   | { type: "finished"; pageCount: number };

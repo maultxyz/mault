@@ -22,7 +22,4 @@ export const DESKTOP_SCANNER_ICONS: readonly DesktopScannerIcon[] = [
 
 export const DESKTOP_PIP_FRAME_NAME = "mault-scanner-pip";
 
-export const DESKTOP_DOCUMENT_SCAN_DRIVERS: readonly DesktopDocumentScanDriver[] = [
-  "twain",
-  "wia",
-];
+export const DESKTOP_DOCUMENT_SCAN_DRIVERS: readonly DesktopDocumentScanDriver[] = ["wia"];

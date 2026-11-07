@@ -34,7 +34,7 @@ export function fakeDocumentScanners(): DesktopDocumentScanner[] {
         {
           scannerId: FAKE_SCANNER_ID,
           name: FAKE_SCANNER_NAME,
-          driver: "twain",
+          driver: "wia",
           hasFeeder: true,
           hasFlatbed: true,
           isSimulated: true,
@@ -83,7 +83,7 @@ function openFakeSession(
 function helperCommandFor(request: DesktopDocumentScannerCaptureRequest): string {
   if (request.kind === "flatbed") return `flatbed ${request.scanHeightMm.toFixed(1)}`;
   if (request.kind === "flatbed-preview") return "preview";
-  return "feed";
+  return `feed ${request.sheetSide ?? "front"}`;
 }
 
 async function openHelperBackedSession(
@@ -122,11 +122,25 @@ async function openHelperBackedSession(
       return { type: "error", reason: "unknown", message: `Unexpected helper reply: ${message.type}` };
     }
     const filePath = path.resolve(message.filePath);
-    if (path.dirname(filePath) !== outputDirectory) {
+    const otherSideFilePath = message.otherSideFilePath
+      ? path.resolve(message.otherSideFilePath)
+      : null;
+    if (
+      path.dirname(filePath) !== outputDirectory ||
+      (otherSideFilePath && path.dirname(otherSideFilePath) !== outputDirectory)
+    ) {
       return { type: "error", reason: "unknown", message: "Scanner helper wrote outside its folder" };
     }
     const imageBytes = new Uint8Array(await readFile(filePath));
     await unlink(filePath);
+    const otherSide = otherSideFilePath
+      ? {
+          fileName: path.basename(otherSideFilePath),
+          mimeType: "image/jpeg",
+          imageBytes: new Uint8Array(await readFile(otherSideFilePath)),
+        }
+      : undefined;
+    if (otherSideFilePath) await unlink(otherSideFilePath);
     return {
       type: "page",
       fileName: path.basename(filePath),
@@ -135,6 +149,7 @@ async function openHelperBackedSession(
       paperSource: message.paperSource === "flatbed" ? "flatbed" : "feeder",
       scanWidthMm: message.scanWidthMm,
       scanHeightMm: message.scanHeightMm,
+      otherSide,
     };
   };
 

@@ -10,6 +10,7 @@ import {
 import { runtimeEnv } from "@/lib/runtime-env";
 import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
 import type {
+  FeederCardSetup,
   FlatbedPlacement,
   FlatbedScanStep,
   ScannerConnectionState,
@@ -240,6 +241,33 @@ export const FLATBED_COUNTDOWN_TICK_MS = 250;
 export const FLATBED_IDLE_STEPS: readonly FlatbedScanStep[] = [
   "place-card",
   "done",
+];
+export const FEEDER_CARD_SHEET_SIDES = ["front", "back"] as const;
+export const FEEDER_CARD_FEED_EDGES = ["short", "long"] as const;
+export const FEEDER_CARD_TOPS = ["upright", "upside-down"] as const;
+export const FEEDER_CARD_DEFAULT_SETUP: FeederCardSetup = {
+  sheetSide: "front",
+  feedEdge: "short",
+  cardTop: "upright",
+};
+export const FEEDER_CARD_ROTATED_PAGE_QUALITY = 0.92;
+export const FEEDER_CARD_SETUP_FORM_ID = "feeder-card-setup-form";
+export const SCAN_PAGE_CARD_IMAGE_QUALITY = 0.8;
+export const SCAN_PAGE_CARD_DARK_LUMINANCE = 150;
+export const SCAN_PAGE_CARD_MIN_DARK_LINE_RATIO = 0.05;
+export const SCAN_PAGE_CARD_EDGE_MIN_DARK_PIXELS = 1;
+export const SCAN_PAGE_CARD_CROP_MARGIN_PX = 6;
+export const SCAN_PAGE_CARD_ANALYSIS_MAX_DIMENSION_PX = 1600;
+export const SCAN_PAGE_CARD_EDGE_SAMPLE_INSET_RATIO = 0.15;
+export const SCAN_PAGE_CARD_EDGE_MIN_SAMPLES = 10;
+export const SCAN_PAGE_CARD_EDGE_OUTLIER_PX = 2;
+export const SCAN_PAGE_SAVED_IMAGE_MAX_DIMENSION_PX = 1200;
+export const SCAN_PAGE_SAVED_IMAGE_QUALITY = 0.85;
+export const SCAN_PAGE_ORIENTATION_SAMPLE_WIDTH_PX = 24;
+export const SCAN_PAGE_ORIENTATION_SAMPLE_HEIGHT_PX = 34;
+export const STANDALONE_DOCUMENT_FEED_STATUSES: readonly ScannerStatus[] = [
+  "scanning",
+  "no-match",
 ];
 
 export const STATION_STATUS_BADGE_VARIANTS: Record<

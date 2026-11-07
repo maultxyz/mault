@@ -21,12 +21,9 @@ public sealed record ScanArguments(Driver Driver, string ScannerId, string Scann
 
     public static Driver ParseDriver(string driverName) => driverName switch
     {
-        "twain" => Driver.Twain,
         "wia" => Driver.Wia,
         _ => throw new ArgumentException($"Unsupported driver: {driverName}"),
     };
-
-    public static string DriverName(Driver driver) => driver == Driver.Twain ? "twain" : "wia";
 
     private static string Require(IReadOnlyDictionary<string, string> values, string name) =>
         values.TryGetValue(name, out var value) && value.Length > 0

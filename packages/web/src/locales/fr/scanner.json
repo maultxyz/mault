@@ -366,7 +366,8 @@
       "feeder": "Chargeur",
       "flatbed": "À plat"
     },
-    "setFlatbedCardPosition": "Définir la position de la carte sur la vitre"
+    "setFlatbedCardPosition": "Définir la position de la carte sur la vitre",
+    "setUpFeederCard": "Face et orientation de la carte"
   },
   "ocrBetaDialog": {
     "title": "Correspondance de texte OCR (bêta)",
@@ -429,6 +430,11 @@
     "heading_one": "{{count}} carte non reconnue",
     "heading_other": "{{count}} cartes non reconnues",
     "imageAlt": "Carte non reconnue",
+    "frontSide": "Recto",
+    "backSide": "Verso",
+    "backSideAlt": "Verso numérisé de la carte",
+    "showBackSide": "Afficher le verso",
+    "showFrontSide": "Afficher le recto",
     "noImage": "Aucune image capturée",
     "reasons": {
       "too_far": "Aucune correspondance proche",
@@ -1075,12 +1081,54 @@
     }
   },
   "documentScannerFeed": {
+    "scanFailed": "Le scanner de documents n'a pas pu numériser la carte",
     "cardDidNotArrive": "La carte numérisée n'est pas arrivée dans le trieur. Dégagez le passage entre le scanner et le module 1, puis remettez la carte dans le scanner.",
     "moduleOneNotEmpty": "Une carte se trouve déjà dans le module 1. Retirez-la avant de charger depuis le scanner de documents.",
     "moveFlatbedCard": {
       "title": "Placez la carte dans le trieur",
       "description": "Retirez la carte numérisée de la vitre et placez-la dans le module 1, puis posez la carte suivante sur la vitre."
     }
+  },
+  "feederCardSetup": {
+    "title": "Face et orientation de la carte",
+    "description": "Indiquez de quel côté de la feuille se trouve la face de la carte et comment la carte sort du scanner.",
+    "sheetSide": {
+      "label": "Côté numérisé",
+      "options": {
+        "front": "Recto de la feuille",
+        "back": "Verso de la feuille"
+      },
+      "hint": "Si la numérisation de test montre le dos de votre carte, changez de côté."
+    },
+    "feedEdge": {
+      "label": "Entrée de la carte",
+      "options": {
+        "short": "Petit côté en premier",
+        "long": "Grand côté en premier"
+      },
+      "hints": {
+        "short": "La carte sort droite ou à l'envers.",
+        "long": "La carte sort de côté, l'application la redresse donc."
+      }
+    },
+    "cardTop": {
+      "label": "Haut de la carte",
+      "options": {
+        "upright": "Droite",
+        "upside-down": "À l'envers"
+      }
+    },
+    "testInstructions": "Placez une carte dans le chargeur et lancez une numérisation de test. Elle est seulement affichée ici, pas enregistrée.",
+    "testScan": "Numérisation de test",
+    "testAgain": "Numériser à nouveau",
+    "testScanning": "Numérisation...",
+    "testResultHint": "Voici l'aspect des cartes numérisées. La carte doit être droite et montrer sa face.",
+    "testPreviewAlt": "Numérisation de test de la carte",
+    "testFailed": "Impossible d'afficher la numérisation de test.",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "testOutdated": "Numérisez à nouveau pour voir l'autre côté de la feuille.",
+    "noTestScanYet": "Lancez une numérisation de test pour prévisualiser la carte."
   },
   "flatbed": {
     "instruction": {

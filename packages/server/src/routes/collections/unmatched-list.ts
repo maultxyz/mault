@@ -7,7 +7,10 @@ import { and, count, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { unmatchedCards } from "../../db/schema";
-import { resolveScanImageUrl } from "../../lib/scan-images";
+import {
+  resolveBackScanImageUrl,
+  resolveScanImageUrl,
+} from "../../lib/scan-images";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toUnmatchedCard } from "./shared";
 
@@ -55,6 +58,8 @@ export const listUnmatchedCardsRoute = new Hono<AppEnv>().get(
           guid: unmatchedCards.guid,
           capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
           capturedImageKey: unmatchedCards.capturedImageKey,
+          capturedBackImageDataUrl: unmatchedCards.capturedBackImageDataUrl,
+          capturedBackImageKey: unmatchedCards.capturedBackImageKey,
           scannedAt: unmatchedCards.scannedAt,
           binNumber: unmatchedCards.binNumber,
           diagnostics: unmatchedCards.diagnostics,
@@ -72,6 +77,7 @@ export const listUnmatchedCardsRoute = new Hono<AppEnv>().get(
             toUnmatchedCard({
               ...row,
               capturedImageUrl: await resolveScanImageUrl(row),
+              capturedBackImageUrl: await resolveBackScanImageUrl(row),
             }),
           ),
         ),
