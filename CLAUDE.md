@@ -166,7 +166,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 
 - Loads the hosted web app, never a bundled copy. The web app talks to it only through the feature-detected `window.maultDesktop` bridge (`DesktopBridge` in `shared`).
 - Build channel `MAULT_DESKTOP_CHANNEL` (`production` from master, `development` from dev) is baked in by tsup (`lib/channel.ts`: app URL, Windows app ID, icon) and read by `electron-builder.config.js` (app ID, name, update feed `desktop-latest`/`desktop-dev`). MAULT Dev installs next to MAULT and loads dev.mault.xyz; keep the two configs' channel lists in step.
-- Publishing identity is never committed, so forks can't collide with the real apps: desktop app ID from `MAULT_DESKTOP_APP_ID` (GitHub var `DESKTOP_APP_ID`, `.dev` appended on the dev channel), update feed from `GITHUB_REPOSITORY` (or `MAULT_DESKTOP_RELEASE_REPOSITORY`); mobile `MOBILE_IOS_BUNDLE_ID`/`MOBILE_ANDROID_PACKAGE` (EAS env vars), `EAS_PROJECT_ID` and `MOBILE_ASC_APP_ID` have no defaults.
+- Publishing identity is never committed, so forks can't collide with the real apps: desktop app ID from `MAULT_DESKTOP_APP_ID` (GitHub var `DESKTOP_APP_ID`, `.dev` appended on the dev channel), update feed from `GITHUB_REPOSITORY` (or `MAULT_DESKTOP_RELEASE_REPOSITORY`); mobile `MOBILE_IOS_BUNDLE_ID`/`MOBILE_ANDROID_PACKAGE` (EAS env vars) and `EAS_PROJECT_ID` have no defaults.
 - Thumbnail buttons: no calls until shortly after the main window is first shown, and never pass `flags: ["enabled"]`.
 - The main window hides the native title bar (`titleBarOverlay`): the web `AppTopBar` is the drag region and reserves the window controls' width through `env(titlebar-area-*)` (`useDesktopTitleBar`), and buttons, links and inputs in it must stay `no-drag`.
 - Serial permissions only allow ports picked through `device-picker.ts`; the permission handler receives Chromium's snake_case object, not the picker's.
@@ -204,7 +204,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 
 - `deploy.yml` builds GHCR images; Coolify pulls `:latest` (master) or `:dev`. Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`.
 - Web `VITE_*` config is runtime: read it through `runtimeEnv()`, never `import.meta.env.VITE_*` (no build args). The bundled firmware's version is the server reading `FIRMWARE_VERSION` from `firmware/main/main.ino` (copied into the server image; dev deploys write the dev version into it; `LATEST_FIRMWARE_VERSION` is only a fallback) through `/public/version` (`useLatestFirmwareVersion`); a change triggers the same refresh prompt as a new app version.
-- Mobile, desktop and firmware have their own release workflows and versions. Mobile `MOBILE_*` values must be set as EAS environment variables. Firmware versions are bumped by the release workflow.
+- Mobile, desktop and firmware have their own release workflows and versions. `mobile-release.yml` only builds; store submission is manual. Mobile `MOBILE_*` values must be set as EAS environment variables. Firmware versions are bumped by the release workflow.
 
 ## Web conventions
 
