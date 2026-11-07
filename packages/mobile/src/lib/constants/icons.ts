@@ -8,6 +8,7 @@ import IconArrowsSplit2 from "@tabler/icons-react-native/IconArrowsSplit2";
 import IconBell from "@tabler/icons-react-native/IconBell";
 import IconClock from "@tabler/icons-react-native/IconClock";
 import IconArrowsShuffle from "@tabler/icons-react-native/IconArrowsShuffle";
+import IconSwitchHorizontal from "@tabler/icons-react-native/IconSwitchHorizontal";
 import IconLanguage from "@tabler/icons-react-native/IconLanguage";
 import IconHeartbeat from "@tabler/icons-react-native/IconHeartbeat";
 import IconDeviceDesktop from "@tabler/icons-react-native/IconDeviceDesktop";
@@ -74,6 +75,7 @@ export const ICONS = {
   back: IconChevronLeft,
   bell: IconBell,
   shuffle: IconArrowsShuffle,
+  switchSides: IconSwitchHorizontal,
   language: IconLanguage,
   health: IconHeartbeat,
   desktop: IconDeviceDesktop,

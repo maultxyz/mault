@@ -105,6 +105,7 @@ export function toScannedCard(row: {
 export function toUnmatchedCard(row: {
   guid: string | null;
   capturedImageUrl: string | undefined;
+  capturedBackImageUrl?: string;
   scannedAt: Date;
   binNumber: number | null;
   diagnostics?: unknown;
@@ -112,6 +113,7 @@ export function toUnmatchedCard(row: {
   return {
     scanId: row.guid!,
     capturedImageUrl: row.capturedImageUrl,
+    capturedBackImageUrl: row.capturedBackImageUrl,
     scannedAt: row.scannedAt.getTime(),
     binNumber: row.binNumber ?? undefined,
     diagnostics:

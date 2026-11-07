@@ -15,6 +15,9 @@ import {
 import { runtimeEnv } from "@/lib/runtime-env";
 import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
 import type {
+  FeederCardSetup,
+  FlatbedPlacement,
+  FlatbedScanStep,
   OnnxExecutionProviderPreference,
   ScannerConnectionState,
 } from "@/lib/interfaces/scanner";
@@ -236,6 +239,60 @@ export const SCAN_IMAGE_IMPORT_PADDING_RATIO = 0.08;
 export const SCAN_IMAGE_IMPORT_PADDING_COLOR = "#808080";
 export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
 export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;
+export const DOCUMENT_SCANNERS_QUERY_KEY = ["desktop", "document-scanners"] as const;
+export const DOCUMENT_SCAN_FOLDER_QUERY_KEY = ["desktop", "document-scan-folder"] as const;
+export const DOCUMENT_SCANNER_CAMERA_ID_PREFIX = "document-scanner:";
+export const DOCUMENT_SCANNER_CARD_ARRIVAL_TIMEOUT_MS = 4000;
+export const DOCUMENT_SCANNER_FLATBED_CARD_ARRIVAL_TIMEOUT_MS = 30000;
+export const DOCUMENT_SCANNER_CARD_ARRIVAL_POLL_MS = 150;
+export const DOCUMENT_SCANNER_IGNORED_IR_DROP_WAIT_MS = 1500;
+export const DOCUMENT_SCANNER_MODES = ["feeder", "flatbed"] as const;
+export const FLATBED_DEFAULT_PLACEMENT: FlatbedPlacement = {
+  leftMm: 0,
+  topMm: 0,
+  widthMm: 70,
+  heightMm: 95,
+};
+export const FLATBED_SCAN_MARGIN_MM = 4;
+export const FLATBED_DEFAULT_GLASS_WIDTH_MM = 216;
+export const FLATBED_MIN_PLACEMENT_MM = 40;
+export const FLATBED_DETECTION_MAX_DIMENSION_PX = 600;
+export const FLATBED_DETECTION_DARK_LUMINANCE = 200;
+export const FLATBED_DETECTION_MIN_DARK_PIXELS_PER_LINE = 3;
+export const FLATBED_DETECTION_PADDING_MM = 2;
+export const FLATBED_CROPPED_PAGE_QUALITY = 0.92;
+export const FLATBED_COUNTDOWN_TICK_MS = 250;
+export const FLATBED_IDLE_STEPS: readonly FlatbedScanStep[] = [
+  "place-card",
+  "done",
+];
+export const FEEDER_CARD_SHEET_SIDES = ["front", "back"] as const;
+export const FEEDER_CARD_FEED_EDGES = ["short", "long"] as const;
+export const FEEDER_CARD_TOPS = ["upright", "upside-down"] as const;
+export const FEEDER_CARD_DEFAULT_SETUP: FeederCardSetup = {
+  sheetSide: "front",
+  feedEdge: "short",
+  cardTop: "upright",
+};
+export const FEEDER_CARD_ROTATED_PAGE_QUALITY = 0.92;
+export const FEEDER_CARD_SETUP_FORM_ID = "feeder-card-setup-form";
+export const SCAN_PAGE_CARD_IMAGE_QUALITY = 0.8;
+export const SCAN_PAGE_CARD_DARK_LUMINANCE = 150;
+export const SCAN_PAGE_CARD_MIN_DARK_LINE_RATIO = 0.05;
+export const SCAN_PAGE_CARD_EDGE_MIN_DARK_PIXELS = 1;
+export const SCAN_PAGE_CARD_CROP_MARGIN_PX = 6;
+export const SCAN_PAGE_CARD_ANALYSIS_MAX_DIMENSION_PX = 1600;
+export const SCAN_PAGE_CARD_EDGE_SAMPLE_INSET_RATIO = 0.15;
+export const SCAN_PAGE_CARD_EDGE_MIN_SAMPLES = 10;
+export const SCAN_PAGE_CARD_EDGE_OUTLIER_PX = 2;
+export const SCAN_PAGE_SAVED_IMAGE_MAX_DIMENSION_PX = 1200;
+export const SCAN_PAGE_SAVED_IMAGE_QUALITY = 0.85;
+export const SCAN_PAGE_ORIENTATION_SAMPLE_WIDTH_PX = 24;
+export const SCAN_PAGE_ORIENTATION_SAMPLE_HEIGHT_PX = 34;
+export const STANDALONE_DOCUMENT_FEED_STATUSES: readonly ScannerStatus[] = [
+  "scanning",
+  "no-match",
+];
 
 export const STATION_STATUS_BADGE_VARIANTS: Record<
   StationStatus,
@@ -272,6 +329,12 @@ export const STATION_TILE_ATTENTION_CLASS =
 
 export const SORTERS_GRID_CLASS =
   "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
+export const FLATBED_OVERRIDDEN_STATUSES: ScannerStatus[] = [
+  "error",
+  "duplicate",
+  "no-match",
+];
 
 export const SCAN_STATS_SUMMARY_SEPARATOR = " · ";
 

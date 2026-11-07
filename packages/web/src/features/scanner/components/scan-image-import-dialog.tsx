@@ -1,6 +1,7 @@
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
+import { DocumentScanPanel } from "@/features/scanner/components/document-scan-panel";
 import { SCAN_IMAGE_IMPORT_ACCEPT } from "@/lib/constants/scanner";
 import type {
   ScanImageImportDialogProps,
@@ -65,6 +66,7 @@ export function ScanImageImportDialog({
   open,
   onOpenChange,
   scanImageImport,
+  documentScan,
 }: ScanImageImportDialogProps) {
   const { t } = useTranslation("cards");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,9 +79,10 @@ export function ScanImageImportDialog({
   const countByStatus = (status: ScanImageImportItem["status"]) =>
     items.filter((item) => item.status === status).length;
   const hasItems = items.length > 0;
+  const isDocumentScanActive = !!documentScan.activeScan;
 
   const chooseFiles = (files: FileList | null | undefined) => {
-    if (!files || isRunning) return;
+    if (!files || isRunning || isDocumentScanActive) return;
     importFiles(Array.from(files));
   };
 
@@ -92,7 +95,7 @@ export function ScanImageImportDialog({
       className="sm:max-w-xl data-[vaul-drawer-direction=bottom]:max-h-[90dvh]"
       footer={
         <>
-          {isRunning ? (
+          {isRunning && !isDocumentScanActive ? (
             <Button variant="outline" onClick={stop}>
               {t("importScans.stop")}
             </Button>
@@ -101,7 +104,7 @@ export function ScanImageImportDialog({
               {t("importScans.close")}
             </Button>
           )}
-          {hasItems && !isRunning && (
+          {hasItems && !isRunning && !isDocumentScanActive && (
             <Button onClick={() => fileInputRef.current?.click()}>
               <IconPhotoUp />
               {t("importScans.importMore")}
@@ -122,6 +125,12 @@ export function ScanImageImportDialog({
             event.target.value = "";
           }}
         />
+        {documentScan.isSupported && (
+          <DocumentScanPanel
+            documentScan={documentScan}
+            isImportRunning={isRunning}
+          />
+        )}
         {!hasItems && (
           <>
             <Callout variant="info">{t("importScans.tip")}</Callout>

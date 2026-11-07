@@ -106,6 +106,7 @@ export type PublicApiCardWriteResult =
 
 export interface PublicApiDeletedCard {
   imageKey: string | null;
+  backImageKey: string | null;
   collectionGuid: string;
 }
 

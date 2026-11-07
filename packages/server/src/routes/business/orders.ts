@@ -298,6 +298,7 @@ export const ordersRoute = new Hono<AppEnv>()
                 cc.card_collector_number AS collector_number,
                 cc.is_foil, cc.condition, cc.acquisition_cost,
                 cc.acquisition_currency, cc.captured_image_key AS image_key,
+                cc.captured_back_image_key AS back_image_key,
                 col.guid::text AS collection_guid, col.name AS collection_name
             `)
           ).rows as unknown as SoldCardRow[])
@@ -328,7 +329,7 @@ export const ordersRoute = new Hono<AppEnv>()
         );
       }
       for (const card of sold) {
-        imageKeys.push(card.image_key);
+        imageKeys.push(card.image_key, card.back_image_key);
         const list = removedByCollection.get(card.collection_guid) ?? [];
         list.push(card.scan_id);
         removedByCollection.set(card.collection_guid, list);

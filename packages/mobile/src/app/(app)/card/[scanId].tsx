@@ -127,7 +127,11 @@ export default function CardDetailScreen() {
   const collection = collections.data?.find((c) => c.guid === guid);
   const gameFoilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
   const card = entry?.card;
-  const capturedUrl = absoluteUrl(image.data);
+  const frontCapturedUrl = absoluteUrl(image.data?.capturedImageUrl);
+  const capturedBackUrl = absoluteUrl(image.data?.capturedBackImageUrl);
+  const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
+  const showsCapturedBackSide = !!capturedBackUrl && backSideScanId === scanId;
+  const capturedUrl = showsCapturedBackSide ? capturedBackUrl : frontCapturedUrl;
   const showCaptured = image.isPending || !!capturedUrl;
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
@@ -450,12 +454,33 @@ export default function CardDetailScreen() {
             <View style={{ flexDirection: "row", gap: SPACING.md, alignItems: "flex-start" }}>
               {showCaptured ? (
                 <View style={{ flex: 1, gap: 6 }}>
-                  <AppText size="xs" tone="secondary">
-                    {t("cardDetail.capturedScan")}
-                  </AppText>
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+                    <AppText size="xs" tone="secondary">
+                      {showsCapturedBackSide ? t("cardDetail.capturedBackSide") : t("cardDetail.capturedScan")}
+                    </AppText>
+                    {capturedBackUrl ? (
+                      <IconButton
+                        icon="switchSides"
+                        variant="plain"
+                        size={32}
+                        selected={showsCapturedBackSide}
+                        accessibilityLabel={
+                          showsCapturedBackSide ? t("cardDetail.showFrontSide") : t("cardDetail.showBackSide")
+                        }
+                        onPress={() => setBackSideScanId(showsCapturedBackSide ? null : scanId)}
+                      />
+                    ) : null}
+                  </View>
                   <View style={imageFrame}>
                     {capturedUrl ? (
-                      <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" accessibilityLabel={t("cardDetail.capturedScan")} />
+                      <Image
+                        source={{ uri: capturedUrl }}
+                        style={{ flex: 1 }}
+                        contentFit="contain"
+                        accessibilityLabel={
+                          showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
+                        }
+                      />
                     ) : (
                       <Skeleton height="100%" radius={0} />
                     )}

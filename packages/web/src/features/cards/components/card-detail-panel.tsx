@@ -14,6 +14,11 @@ import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Label } from "@/components/ui/label";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -29,7 +34,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import { useScanImage } from "@/features/cards/api/use-scan-image";
+import {
+  useScanBackImage,
+  useScanImage,
+} from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
@@ -93,6 +101,7 @@ import {
   IconDots,
   IconLayoutGrid,
   IconPencil,
+  IconSwitchHorizontal,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
@@ -255,6 +264,16 @@ export function CardDetailPanel({
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useScanImage(collection?.guid, scanId);
+  const { data: capturedBackImageUrl } = useScanBackImage(collection?.guid, scanId);
+  const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
+  const showsCapturedBackSide = !!capturedBackImageUrl && backSideScanId === scanId;
+  const shownCapturedImageUrl = showsCapturedBackSide
+    ? capturedBackImageUrl
+    : capturedImageUrl;
+  const shownOcrRegionsVisible = ocrRegionsVisible && !showsCapturedBackSide;
+  const toggleCapturedSideLabel = showsCapturedBackSide
+    ? t("cardDetailPanel.showFrontSide")
+    : t("cardDetailPanel.showBackSide");
   const showCapturedImageSlot =
     !!scanId && (isCapturedImageLoading || !!capturedImageUrl);
   const { data: scanDiagnostics } = useQuery({
@@ -467,10 +486,14 @@ export function CardDetailPanel({
     HOTKEY_PRIORITY_OVERRIDE,
   );
 
-  const capturedImage = capturedImageUrl ? (
+  const capturedImage = shownCapturedImageUrl ? (
     <CapturedImageThumb
-      src={capturedImageUrl}
-      alt={t("cardPicker.scannedAlt")}
+      src={shownCapturedImageUrl}
+      alt={
+        showsCapturedBackSide
+          ? t("cardDetailPanel.capturedBackSideAlt")
+          : t("cardPicker.scannedAlt")
+      }
     />
   ) : (
     <Skeleton className="h-full w-full rounded-none" />
@@ -482,13 +505,37 @@ export function CardDetailPanel({
     <>
       {showCapturedImageSlot && (
         <figure className="flex min-w-0 flex-col gap-1.5">
-          <figcaption className="text-xs text-foreground/70">
-            {t("cardDetailPanel.capturedScan")}
-          </figcaption>
+          <div className={cn("flex items-center justify-between gap-1.5", imageWidthClass)}>
+            <figcaption className="text-xs text-foreground/70">
+              {showsCapturedBackSide
+                ? t("cardDetailPanel.capturedBackSide")
+                : t("cardDetailPanel.capturedScan")}
+            </figcaption>
+            {capturedBackImageUrl && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={toggleCapturedSideLabel}
+                      aria-pressed={showsCapturedBackSide}
+                      onClick={() =>
+                        setBackSideScanId(showsCapturedBackSide ? null : (scanId ?? null))
+                      }
+                    >
+                      <IconSwitchHorizontal />
+                    </Button>
+                  }
+                />
+                <TooltipContent>{toggleCapturedSideLabel}</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => setViewerOpen(true)}
-            disabled={!capturedImageUrl}
+            disabled={!shownCapturedImageUrl}
             aria-label={t("cardDetailPanel.enlargeImage")}
             title={t("cardDetailPanel.enlargeImage")}
             className={cn(
@@ -497,11 +544,11 @@ export function CardDetailPanel({
             )}
           >
             {capturedImage}
-            {ocrRegionsVisible && capturedImageUrl && (
+            {shownOcrRegionsVisible && capturedImageUrl && (
               <OcrRegionOverlay regions={readOcrRegions} />
             )}
           </button>
-          {ocrRegionsVisible && capturedImageUrl && (
+          {shownOcrRegionsVisible && capturedImageUrl && (
             <OcrRegionCrops
               src={capturedImageUrl}
               regions={readOcrRegions}
@@ -781,12 +828,12 @@ export function CardDetailPanel({
 
   return (
     <div className="flex h-full overflow-x-hidden">
-      {capturedImageUrl && (
+      {shownCapturedImageUrl && (
         <CardImageViewer
           open={viewerOpen}
           onOpenChange={setViewerOpen}
-          capturedImageUrl={capturedImageUrl}
-          showOcrRegions={ocrRegionsVisible}
+          capturedImageUrl={shownCapturedImageUrl}
+          showOcrRegions={shownOcrRegionsVisible}
           onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}
           ocrRegions={readOcrRegions}
         />

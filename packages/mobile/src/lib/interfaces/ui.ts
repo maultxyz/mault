@@ -371,6 +371,7 @@ export interface IconButtonProps {
   variant?: "neutral" | "primary" | "plain" | "camera";
   size?: number;
   disabled?: boolean;
+  selected?: boolean;
 }
 
 export interface QuickActionProps {

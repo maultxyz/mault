@@ -163,8 +163,9 @@ export function ScannedCardsProvider({
   feedRetryCountRef.current = feederConfig.feedRetryCount;
   const pipelinedFeedRef = useRef(device?.pipelinedFeed ?? false);
   pipelinedFeedRef.current = device?.pipelinedFeed ?? false;
+  const hasCustomFeedSourceRef = useRef<() => boolean>(() => false);
   const isPipelinedFeedEnabled = useCallback(
-    () => pipelinedFeedRef.current,
+    () => pipelinedFeedRef.current && !hasCustomFeedSourceRef.current(),
     [],
   );
   const { sendRoute, sendRequest, isConnected, isReady } =
@@ -311,6 +312,9 @@ export function ScannedCardsProvider({
     attention: feedAttention,
     triggerAutoFeed,
     registerCardArrivedHook,
+    registerFeedSource,
+    hasCustomFeedSource,
+    feedOneCard,
     registerPauseHook,
     resume,
     registerResumeHook,
@@ -320,6 +324,7 @@ export function ScannedCardsProvider({
     deviceGuidRef,
     feedRetryCountRef,
   });
+  hasCustomFeedSourceRef.current = hasCustomFeedSource;
   const showJamToastMessage = useJamToast(resume);
   const showJamToast = useCallback(
     (options: JamToastOptions) => {
@@ -698,6 +703,7 @@ export function ScannedCardsProvider({
       alternativeMatches?: PlayingCardWithDistance[],
       vectorizedOn?: ScanVectorizeSource,
       details?: MatchedScanDetails,
+      capturedBackImageUrl?: string,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -760,6 +766,7 @@ export function ScannedCardsProvider({
         scannedAt: Date.now(),
         binNumber: matchedBin?.binNumber,
         capturedImageUrl,
+        capturedBackImageUrl,
         alternativeMatches: alternativeMatches?.length
           ? alternativeMatches
           : undefined,
@@ -1077,6 +1084,7 @@ export function ScannedCardsProvider({
       capturedImageUrl?: string,
       vectorizedOn?: ScanVectorizeSource,
       details?: UnmatchedScanDetails,
+      capturedBackImageUrl?: string,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -1093,6 +1101,7 @@ export function ScannedCardsProvider({
       const record: UnmatchedCard = {
         scanId: generateScanId(),
         capturedImageUrl,
+        capturedBackImageUrl,
         scannedAt: Date.now(),
         binNumber: catchAll?.binNumber,
         vectorizedOn,
@@ -1648,6 +1657,8 @@ export function ScannedCardsProvider({
         setForceSetCodesAfterCollectionSwitch,
         setScanCondition,
         registerCardArrivedHook,
+        registerFeedSource,
+        feedOneCard,
         registerPauseHook,
         registerResumeHook,
         pause,

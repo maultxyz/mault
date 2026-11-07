@@ -271,7 +271,8 @@
       "matchValidationBadScan": "Beim Prüfen von Treffern: Foto als schlechten Scan markieren",
       "matchValidationSkip": "Beim Prüfen von Treffern: diesen Scan überspringen",
       "matchValidationBack": "Beim Prüfen von Treffern: zum vorherigen Scan zurück",
-      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte"
+      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte",
+      "scanFlatbedCard": "Karte auf dem Flachbett scannen"
     }
   },
   "mobileMenu": {

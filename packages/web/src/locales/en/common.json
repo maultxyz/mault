@@ -271,7 +271,8 @@
       "matchValidationBadScan": "While validating matches: mark the photo as a bad scan",
       "matchValidationSkip": "While validating matches: skip this scan",
       "matchValidationBack": "While validating matches: go back to the previous scan",
-      "foilLabelBack": "While labelling foils: go back to the previous card"
+      "foilLabelBack": "While labelling foils: go back to the previous card",
+      "scanFlatbedCard": "Scan the card on the flatbed"
     }
   },
   "mobileMenu": {

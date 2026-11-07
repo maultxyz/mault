@@ -271,7 +271,8 @@
       "matchValidationBadScan": "Pendant la validation : marquer la photo comme mauvais scan",
       "matchValidationSkip": "Pendant la validation : ignorer ce scan",
       "matchValidationBack": "Pendant la validation : revenir au scan précédent",
-      "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente"
+      "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente",
+      "scanFlatbedCard": "Numériser la carte sur le scanner à plat"
     }
   },
   "mobileMenu": {

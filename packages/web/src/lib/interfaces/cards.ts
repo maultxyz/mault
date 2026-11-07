@@ -606,3 +606,8 @@ export interface ReviewQueueRowProps {
   isRemoved: boolean;
   onOpen: () => void;
 }
+
+export interface ScanImageUrls {
+  capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
+}

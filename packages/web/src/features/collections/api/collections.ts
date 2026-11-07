@@ -1,3 +1,4 @@
+import type { ScanImageUrls } from "@/lib/interfaces/cards";
 import {
   apiDelete,
   apiGet,
@@ -80,8 +81,8 @@ export async function deleteCollection(guid: string): Promise<Result<Collection[
 export async function loadCardImage(
   guid: string,
   scanId: string,
-): Promise<Result<{ capturedImageUrl?: string }>> {
-  return apiGet<Result<{ capturedImageUrl?: string }>>(
+): Promise<Result<ScanImageUrls>> {
+  return apiGet<Result<ScanImageUrls>>(
     `/api/collections/${guid}/cards/${scanId}/image`,
   );
 }

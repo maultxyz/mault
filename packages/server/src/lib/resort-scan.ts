@@ -59,6 +59,7 @@ export async function moveResortedCard(
     scannedByUserId,
     scannedByDeviceId,
     capturedImage,
+    capturedBackImage,
   }: MoveResortedCardInput,
 ): Promise<void> {
   await tx
@@ -76,6 +77,8 @@ export async function moveResortedCard(
         ? {
             capturedImageDataUrl: capturedImage.dataUrl,
             capturedImageKey: capturedImage.key,
+            capturedBackImageDataUrl: capturedBackImage?.dataUrl ?? null,
+            capturedBackImageKey: capturedBackImage?.key ?? null,
           }
         : {}),
       updatedAt: new Date(),

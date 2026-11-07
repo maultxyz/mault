@@ -12,6 +12,7 @@ export function IconButton({
   variant = "neutral",
   size = PAGE_HEADER_ICON_BUTTON_SIZE,
   disabled = false,
+  selected,
 }: IconButtonProps) {
   const colors = useTheme();
   const palette = {
@@ -24,7 +25,7 @@ export function IconButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled, selected }}
       disabled={disabled}
       hitSlop={Math.max(SPACING.xs, (MIN_TOUCH_TARGET - size) / 2)}
       onPress={onPress}

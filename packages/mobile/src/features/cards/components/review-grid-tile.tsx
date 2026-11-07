@@ -19,7 +19,7 @@ export function ReviewGridTile({ card, accepting, onAccept, onCorrect }: ReviewG
   const { t } = useTranslation();
   const colors = useTheme();
   const image = useQuery(scanImageQueryOptions(card.collectionGuid, card.scanId));
-  const capturedUrl = absoluteUrl(image.data);
+  const capturedUrl = absoluteUrl(image.data?.capturedImageUrl);
   const matchedUrl = absoluteUrl(card.card.image?.normal ?? card.card.image?.small);
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
@@ -39,7 +39,7 @@ export function ReviewGridTile({ card, accepting, onAccept, onCorrect }: ReviewG
           </AppText>
           <View style={imageFrame}>
             {capturedUrl ? (
-              <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" accessibilityLabel={t("cardDetail.capturedScan")} />
+              <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="contain" accessibilityLabel={t("cardDetail.capturedScan")} />
             ) : image.isPending ? (
               <Skeleton height="100%" radius={0} />
             ) : (

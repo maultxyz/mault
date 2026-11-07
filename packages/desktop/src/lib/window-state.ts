@@ -1,4 +1,5 @@
 import type { DesktopWindowOffset, DesktopWindowState } from "@magic-vault/shared";
+import { appIconPath } from "./app-icon";
 import {
   BrowserWindow,
   ipcMain,
@@ -130,6 +131,7 @@ export function pipWindowOptions(opener: BrowserWindow | null): BrowserWindowCon
     minWidth: PIP_WINDOW_MIN_SIZE.width,
     minHeight: PIP_WINDOW_MIN_SIZE.height,
     title: "MAULT",
+    icon: appIconPath(),
     frame: false,
     alwaysOnTop: true,
     skipTaskbar: true,
