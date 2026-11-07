@@ -96,29 +96,13 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # Non-interactive iOS submission needs the App Store Connect app id,
-      # which lives in a repo variable rather than the committed eas.json.
-      - name: Configure store submission
-        if: env.IS_DEV != 'true'
-        working-directory: packages/mobile
-        env:
-          ASC_APP_ID: ${{ vars.MOBILE_ASC_APP_ID }}
-        run: |
-          if [ "$PLATFORM" != "android" ] && [ -z "$ASC_APP_ID" ]; then
-            echo "::error::Set the MOBILE_ASC_APP_ID variable (App Store Connect > App Information > Apple ID) to submit iOS builds."
-            exit 1
-          fi
-          if [ -n "$ASC_APP_ID" ]; then
-            jq --arg id "$ASC_APP_ID" '.submit.production.ios.ascAppId = $id' eas.json > eas.json.tmp
-            mv eas.json.tmp eas.json
-          fi
-
-      - name: Build${{ github.ref_name != 'dev' && ' and submit' || '' }}
+      # Store submission is manual: download the .aab/.ipa from the build page
+      # and upload it in the Play Console or with eas submit.
+      - name: Build
         working-directory: packages/mobile
         run: |
-          ARGS=(--platform "$PLATFORM" --profile "$PROFILE" --non-interactive)
-          if [ "$IS_DEV" != "true" ]; then ARGS+=(--auto-submit); fi
-          eas build "${ARGS[@]}"
+          cp eas.example.json eas.json
+          eas build --platform "$PLATFORM" --profile "$PROFILE" --non-interactive --json > "$RUNNER_TEMP/eas-builds.json"
 
       # Only after the builds succeed: a failed run leaves no version bump.
       - name: Commit and tag mobile version
@@ -127,7 +111,6 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git checkout -- packages/mobile/eas.json
           git add packages/mobile/package.json
           git commit -m "chore(release): mobile v$VERSION [skip ci]"
           git tag "mobile-v$VERSION"
@@ -142,9 +125,10 @@ jobs:
             echo ""
             echo "- Platform: $PLATFORM"
             echo "- EAS profile: $PROFILE"
-            if [ "$IS_DEV" = "true" ]; then
-              echo "- Install links: https://expo.dev (Builds, preview profile)"
-            else
-              echo "- iOS goes to TestFlight, Android to the Play internal track. Promote to the stores from App Store Connect and the Play Console."
+            echo ""
+            jq -r '.[] | "- \(.platform): [build page](https://expo.dev/accounts/\(.project.ownerAccount.name)/projects/\(.project.slug)/builds/\(.id)), [download](\(.artifacts.buildUrl))"' "$RUNNER_TEMP/eas-builds.json"
+            if [ "$IS_DEV" != "true" ]; then
+              echo ""
+              echo "Submit manually: upload the Android .aab in the Play Console, and run \`eas submit --platform ios --id <build id>\` (or use Transporter) for iOS."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
