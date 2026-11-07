@@ -8,9 +8,11 @@ import {
   COLLECTIONS_PATH,
   monitorCollectionPath,
 } from "@/lib/constants/collections";
+import { STATS_COLLECTION_PARAM, STATS_PATH } from "@/lib/constants/stats";
 import {
   IconAlbum,
   IconArrowLeft,
+  IconChartBar,
   IconHeartRateMonitor,
   IconPlayerPlay,
 } from "@tabler/icons-react";
@@ -80,6 +82,17 @@ export default function CollectionViewPage() {
           <h1 className="truncate text-sm font-medium">{collection.name}</h1>
           <p className="text-xs text-foreground/70">{t("view.subtitle")}</p>
         </div>
+        <Button
+          variant="outline"
+          render={
+            <Link
+              to={`${STATS_PATH}?${new URLSearchParams({ [STATS_COLLECTION_PARAM]: collection.guid })}`}
+            >
+              <IconChartBar />
+              {t("page.viewStats")}
+            </Link>
+          }
+        />
         <Button
           variant="outline"
           render={

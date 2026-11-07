@@ -6,6 +6,7 @@ import { AppText } from "@/components/ui/app-text";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
@@ -22,7 +23,8 @@ export function ScanOptionsSheet({
   onAllowDuplicatesChange,
   handScan,
   onHandScanChange,
-  collectionName,
+  removeMode,
+  onRemoveModeChange,
   presetName,
   showPreset,
   cameraName,
@@ -31,7 +33,6 @@ export function ScanOptionsSheet({
   showFoilType,
   setName,
   conditionName,
-  onChooseCollection,
   onChoosePreset,
   onChooseCamera,
   onChooseFoilType,
@@ -79,44 +80,11 @@ export function ScanOptionsSheet({
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.lg }}>
-          <View style={{ gap: SPACING.sm }}>
-            {LIVE_CORNERS_SUPPORTED && !sorter.isConnected ? (
-              <SwitchRow
-                title={t("scan.options.handScan")}
-                description={t("scan.options.handScanDescription")}
-                value={handScan}
-                onValueChange={onHandScanChange}
-              />
-            ) : null}
-            <SwitchRow
-              title={t("scan.options.autoFeed")}
-              description={t("scan.options.autoFeedDescription")}
-              value={autoFeed}
-              onValueChange={onAutoFeedChange}
-            />
-            <SwitchRow
-              title={t("scan.options.allowDuplicates")}
-              description={t("scan.options.allowDuplicatesDescription")}
-              value={allowDuplicates}
-              onValueChange={onAllowDuplicatesChange}
-            />
-          </View>
           <ListGroup>
-            <ListRow
-              icon="collections"
-              title={t("scan.options.collection")}
-              value={collectionName ?? t("scan.chooseCollection")}
-              disabled={running}
-              onPress={onChooseCollection}
-            />
-            {showPreset ? (
-              <ListRow
-                icon="rules"
-                title={t("scan.options.preset")}
-                value={presetName ?? t("rules.choosePreset")}
-                disabled={running}
-                onPress={onChoosePreset}
-              />
+            <ListRow icon="filter" title={t("scan.options.set")} value={setName} onPress={onChooseSet} />
+            <ListRow icon="condition" title={t("scan.options.condition")} value={conditionName} onPress={onChooseCondition} />
+            {showFoilType ? (
+              <ListRow icon="sparkles" title={t("scan.options.foilType")} value={foilTypeName} onPress={onChooseFoilType} />
             ) : null}
             {showCamera ? (
               <ListRow
@@ -128,27 +96,60 @@ export function ScanOptionsSheet({
               />
             ) : null}
           </ListGroup>
-          <ListGroup>
-            {showFoilType ? (
-              <ListRow icon="sparkles" title={t("scan.options.foilType")} value={foilTypeName} onPress={onChooseFoilType} />
+          <View style={{ gap: SPACING.sm }}>
+            {LIVE_CORNERS_SUPPORTED && !sorter.isConnected ? (
+              <SwitchRow
+                title={t("scan.options.handScan")}
+                description={t("scan.options.handScanDescription")}
+                value={handScan}
+                onValueChange={onHandScanChange}
+              />
             ) : null}
-            <ListRow icon="filter" title={t("scan.options.set")} value={setName} onPress={onChooseSet} />
-            <ListRow
-              icon="condition"
-              title={t("scan.options.condition")}
-              value={conditionName}
-              onPress={onChooseCondition}
+            <SwitchRow
+              title={t("scan.options.removeMode")}
+              description={t("scan.options.removeModeDescription")}
+              value={removeMode}
+              onValueChange={onRemoveModeChange}
             />
-          </ListGroup>
+            <SwitchRow
+              title={t("scan.options.allowDuplicates")}
+              description={t("scan.options.allowDuplicatesDescription")}
+              value={allowDuplicates}
+              onValueChange={onAllowDuplicatesChange}
+            />
+          </View>
+          <View style={{ gap: SPACING.sm }}>
+            <SectionHeader title={t("scan.controls.sorter")} />
+            {sorter.isConnected ? (
+              <SwitchRow
+                title={t("scan.options.autoFeed")}
+                description={t("scan.options.autoFeedDescription")}
+                value={autoFeed}
+                onValueChange={onAutoFeedChange}
+              />
+            ) : null}
+            <ListGroup>
+              {showPreset ? (
+                <ListRow
+                  icon="rules"
+                  title={t("scan.options.preset")}
+                  value={presetName ?? t("rules.choosePreset")}
+                  disabled={running}
+                  onPress={onChoosePreset}
+                />
+              ) : null}
+              <ListRow
+                icon="sorter"
+                title={t("scan.controls.sorter")}
+                subtitle={t("scan.controls.sorterDescription")}
+                onPress={() => {
+                  onClose();
+                  router.push("/sorter");
+                }}
+              />
+            </ListGroup>
+          </View>
           <ListGroup>
-            <ListRow
-              icon="sorter"
-              title={t("scan.controls.sorter")}
-              onPress={() => {
-                onClose();
-                router.push("/sorter");
-              }}
-            />
             <ListRow
               icon="desktop"
               title={t("scan.options.pairDesktop")}

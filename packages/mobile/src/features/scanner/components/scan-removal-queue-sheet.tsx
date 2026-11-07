@@ -14,7 +14,13 @@ import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/th
 import type { ScanRemovalQueueSheetProps } from "@/lib/interfaces/scanner";
 import { absoluteUrl } from "@/lib/url";
 
-export function ScanRemovalQueueSheet({ visible, removal, collectionName, onClose }: ScanRemovalQueueSheetProps) {
+export function ScanRemovalQueueSheet({
+  visible,
+  removal,
+  collectionName,
+  onClose,
+  onRemoved,
+}: ScanRemovalQueueSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
@@ -34,7 +40,10 @@ export function ScanRemovalQueueSheet({ visible, removal, collectionName, onClos
           onPress: () => {
             void removal
               .removeQueuedCopies()
-              .then(onClose)
+              .then(() => {
+                onClose();
+                onRemoved?.(removableCount);
+              })
               .catch(() => Alert.alert(t("scan.removal.removeFailed")));
           },
         },

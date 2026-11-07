@@ -70,9 +70,7 @@
     "heading": "Rangement",
     "value": "{{name}} · #{{position}}",
     "remove": "Retirer de la boîte",
-    "move": "Déplacer",
-    "store": "Déplacer vers un emplacement",
-    "notStored": "Dans aucun emplacement de rangement"
+    "move": "Déplacer"
   },
   "toasts": {
     "failed": "Impossible de mettre à jour les emplacements",

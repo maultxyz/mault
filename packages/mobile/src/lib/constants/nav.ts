@@ -1,11 +1,28 @@
 import type { IconName } from "@/lib/interfaces/ui";
 
 export const TAB_ICONS: Record<string, IconName> = {
-  index: "home",
+  index: "collections",
   scan: "scan",
   storage: "storage",
-  rules: "rules",
-  account: "account",
+  account: "menu",
 };
 
-export const FULL_BLEED_ROUTE_PATTERN = /^\/(desktop-camera\/|storage-card-scan$)/;
+export const MODAL_ROUTE_PATTERN = /^\/(card\/|unmatched-card$|collection-new$|collection-rename$|storage-name$)/;
+export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
+  "(tabs)",
+  "card/[scanId]",
+  "unmatched-card",
+  "collection-new",
+  "collection-rename",
+  "storage-name",
+  "storage-card-scan",
+  "batch-scan",
+  "desktop-camera/[guid]",
+]);
+
+export const ANDROID_TAB_SYMBOLS = {
+  index: "collections_bookmark",
+  scan: "document_scanner",
+  storage: "inventory_2",
+  account: "menu",
+} as const;

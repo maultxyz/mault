@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { SegmentedControl } from "@/components/ui/segmented-control";
+import { TabStrip } from "@/components/ui/tab-strip";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   acceptReviewCards,
@@ -19,7 +19,7 @@ import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
 import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import { REVIEW_GRID_WIDE_MIN_WIDTH } from "@/lib/constants/cards";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { ReviewLayout } from "@/lib/interfaces/cards";
 import { saveReviewLayout } from "@/lib/review-layout";
 
@@ -107,14 +107,16 @@ export default function ReviewGridScreen() {
         }
         ListHeaderComponent={
           <View style={{ gap: SPACING.md, paddingTop: SPACING.lg }}>
-            <SegmentedControl<ReviewLayout>
-              options={[
-                { value: "grid", label: t("reviewGrid.layoutGrid") },
-                { value: "single", label: t("reviewGrid.layoutOneByOne") },
-              ]}
-              value="grid"
-              onChange={switchLayout}
-            />
+            <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
+              <TabStrip<ReviewLayout>
+                items={[
+                  { value: "grid", label: t("reviewGrid.layoutGrid") },
+                  { value: "single", label: t("reviewGrid.layoutOneByOne") },
+                ]}
+                value="grid"
+                onChange={switchLayout}
+              />
+            </View>
             {visibleCards.length > 0 ? (
               <Button
                 icon="checkAll"
@@ -133,7 +135,7 @@ export default function ReviewGridScreen() {
           review.isPending || isWaitingForMore ? (
             <View style={{ gap: SPACING.md }}>
               {Array.from({ length: 2 }).map((_, index) => (
-                <Skeleton key={index} width={tileWidth} height={tileWidth * 0.85} radius={RADIUS.lg} />
+                <Skeleton key={index} width={tileWidth} height={tileWidth * 0.85} radius={CARD_ART_RADIUS} />
               ))}
             </View>
           ) : review.isError ? null : (

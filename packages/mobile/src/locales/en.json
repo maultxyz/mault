@@ -3,6 +3,7 @@
     "name": "Mault"
   },
   "common": {
+    "selected": "selected",
     "show": "Show",
     "hide": "Hide",
     "back": "Back",
@@ -24,12 +25,10 @@
     "scan": "Scan",
     "sorter": "Sorter",
     "stats": "Stats",
-    "account": "Account",
-    "home": "Home",
-    "rules": "Rules",
     "storage": "Storage",
     "upgradeYourPlan": "Upgrade your plan",
-    "upgradeShort": "Upgrade"
+    "upgradeShort": "Upgrade",
+    "more": "More"
   },
   "auth": {
     "tagline": "Scan, sort and track your cards from your phone.",
@@ -51,12 +50,9 @@
   },
   "collections": {
     "title": "Collection",
-    "active": "Active",
-    "makeActive": "Make active",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
     "loadFailed": "Couldn't load your collections",
-    "activateFailed": "Couldn't switch the active collection",
     "cardsLoadFailed": "Couldn't load cards",
     "emptyTitle": "No collections yet",
     "emptyDescription": "Permanently removes all cards from \"{{name}}\", but keeps the collection itself. This cannot be undone.",
@@ -98,7 +94,10 @@
     "revokeLinks": "Revoke shared links",
     "revokeLinksTitle": "Revoke shared links?",
     "revokeLinksDescription": "Anyone with a link to this collection's live view loses access.",
-    "shareLinkFailed": "Couldn't update the live view link"
+    "shareLinkFailed": "Couldn't update the live view link",
+    "scanTarget": "Scanning here",
+    "scanInto": "Scan into this collection",
+    "scan": "Scan"
   },
   "cards": {
     "bin": "Bin {{number}}",
@@ -109,21 +108,7 @@
     "quantity_other": "{{count}} copies"
   },
   "monitor": {
-    "title": "Live session",
-    "open": "Live view",
-    "recent": "Recent scans",
-    "scanError": "Scan error",
-    "viewers_one": "{{count}} viewer",
-    "viewers_other": "{{count}} viewers",
-    "unmatched_one": "{{count}} unmatched",
-    "unmatched_other": "{{count}} unmatched",
-    "emptyTitle": "Waiting for scans",
-    "emptyDescription": "Cards appear here as soon as any sorter scans them into this collection.",
-    "status": {
-      "connecting": "Connecting",
-      "connected": "Live",
-      "error": "Reconnecting"
-    }
+    "scanError": "Scan error"
   },
   "stats": {
     "title": "Stats",
@@ -162,7 +147,8 @@
       "foils": "Foils",
       "shareHint": "{{percent}}% of cards",
       "needsReview": "Needs review",
-      "correctedHint": "{{count}} reviewed"
+      "correctedHint": "{{count}} reviewed",
+      "heading": "Overview"
     },
     "activity": {
       "title": "Scanning activity",
@@ -571,11 +557,9 @@
     "cameraPermissionDescription": "Mault uses the camera to identify cards as they pass through your sorter.",
     "cameraPermissionSettings": "Turn on camera access for Mault in Settings.",
     "noCamera": "No camera available",
-    "noCollectionTitle": "No active collection",
+    "noCollectionTitle": "No collection chosen",
     "noCollectionDescription": "Choose the collection scans should go into.",
     "chooseCollection": "Choose collection",
-    "sorterNotReadyTitle": "Sorter not connected",
-    "sorterNotReadyDescription": "Connect your sorter to feed and route cards. You can still scan cards by hand.",
     "openSorter": "Connect sorter",
     "modelErrorTitle": "Couldn't load the card recognition models",
     "cameraPreview": "Camera preview",
@@ -636,7 +620,6 @@
       },
       "pairDesktop": "Use as a desktop camera",
       "pairDesktopDescription": "Scan the QR code shown on your computer",
-      "collection": "Collection",
       "preset": "Rule preset",
       "chooseCamera": "Choose a camera",
       "foilType": "Foil type",
@@ -646,7 +629,9 @@
       "setCount_one": "{{count}} set",
       "setCount_other": "{{count}} sets",
       "searchSets": "Search sets",
-      "condition": "Condition"
+      "condition": "Condition",
+      "removeMode": "Remove cards",
+      "removeModeDescription": "Queue scanned cards for removal from this collection instead of adding them"
     },
     "emptyBin": {
       "action": "Mark empty",
@@ -676,10 +661,6 @@
         "removed_one": "Removed 1 card",
         "removed_other": "Removed {{count}} cards"
       },
-      "modes": {
-        "add": "Add cards",
-        "remove": "Remove cards"
-      },
       "binChip": "Removed cards go to {{bin}}",
       "binPickerTitle": "Removed cards go to",
       "binOption": "Bin {{number}}",
@@ -704,31 +685,9 @@
     }
   },
   "home": {
-    "greeting": "Hi, {{name}}",
-    "greetingNoName": "Welcome back",
-    "totalValue": "Total value",
-    "collectionCount_one": "{{count}} collection",
-    "collectionCount_other": "{{count}} collections",
-    "scannedToday": "Scanned today",
-    "thisWeek": "This week",
-    "collections": "Collections",
-    "activityTitle": "Scan activity",
-    "activityPoint_one": "{{date}} · {{count}} scan",
-    "activityPoint_other": "{{date}} · {{count}} scans",
-    "today": "Today",
-    "seeAllStats": "See all stats",
-    "mostValuable": "Most valuable",
-    "recentlyScanned": "Recently scanned",
-    "allCollections": "All collections",
     "searchPlaceholder": "Search collections",
     "noSearchResultsTitle": "No collections found",
     "noSearchResultsDescription": "Try a different name.",
-    "actions": {
-      "scan": "Scan",
-      "newCollection": "New",
-      "sorter": "Sorter",
-      "stats": "Stats"
-    },
     "live": {
       "yourSession": "Your session",
       "scanning": "Scanning",
@@ -736,8 +695,6 @@
     }
   },
   "collection": {
-    "tabCards": "Cards",
-    "tabActivity": "Activity",
     "value": "Value",
     "cards": "Cards",
     "cardsCount_one": "{{count}} card",
@@ -746,7 +703,6 @@
     "searchPlaceholder": "Search cards",
     "noCardsYet": "No cards scanned yet",
     "noMatches": "No cards match your search",
-    "review": "Review {{count}}",
     "groupDuplicates": "Group duplicates",
     "filters": {
       "colors": "Colors",
@@ -777,7 +733,10 @@
     "viewModes": {
       "list": "List",
       "grid": "Grid"
-    }
+    },
+    "viewStats": "View stats",
+    "reviewBadge_one": "{{count}} to review",
+    "reviewBadge_other": "{{count}} to review"
   },
   "cardDetail": {
     "pricePaid": "Price paid ({{currency}})",
@@ -840,7 +799,9 @@
       "scannedBy": "By",
       "sorter": "Sorter",
       "deletedSorter": "{{name}} (deleted)"
-    }
+    },
+    "name": "Name",
+    "actions": "Card actions"
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -2034,5 +1995,146 @@
       "reviewed": "Reviewed",
       "corrected": "Corrected"
     }
+  },
+  "unmatchedCards": {
+    "title": "Unmatched cards",
+    "count_one": "{{count}} card",
+    "count_other": "{{count}} cards",
+    "hint": "These scans didn't match a card. Tap one to pick the right card, or remove it.",
+    "emptyTitle": "No unmatched cards",
+    "emptyDescription": "Every scan in this collection matched a card.",
+    "loadFailed": "Couldn't load unmatched cards",
+    "identifyScan": "Identify the scan from {{scannedAt}}",
+    "identifyTitle": "Identify card",
+    "searchHint": "Search for the card in this photo. Picking one adds it to the collection.",
+    "notFound": "This scan is no longer unmatched",
+    "identifyFailed": "Couldn't add the card",
+    "remove": "Remove scan",
+    "removeTitle": "Remove this scan?",
+    "removeDescription": "The photo is deleted and the card isn't added to the collection.",
+    "removeFailed": "Couldn't remove the scan",
+    "removeAll": "Remove all",
+    "removeAllTitle_one": "Remove {{count}} unmatched scan?",
+    "removeAllTitle_other": "Remove {{count}} unmatched scans?",
+    "removeAllDescription": "The photos are deleted and none of these cards are added to the collection.",
+    "badge_one": "{{count}} unmatched",
+    "badge_other": "{{count}} unmatched"
+  },
+  "matchValidations": {
+    "title": "Validate matches",
+    "description": "Help the community improve card recognition: check recent scans against the card they were matched to. Each scan needs {{required}} reviews. Answers never change anyone's collection.",
+    "counts": "You've checked {{yours}} · {{community}} checks from the community so far",
+    "sessionCounts": "This session: {{correct}} correct, {{incorrect}} wrong, {{badScan}} bad scans",
+    "scanPhoto": "Scan photo",
+    "scanPhotoAlt": "Scan photo to compare with {{name}}",
+    "matchedCard": "Matched card",
+    "matchedCardAlt": "Catalog image of {{name}}",
+    "unknownCard": "Unknown card",
+    "matchedByEmbedding": "Matched by image",
+    "matchedByOcr": "Matched by name text",
+    "lowConfidence": "Low confidence",
+    "scannedAt": "Scanned {{date}}",
+    "decisions": {
+      "correct": "Marked correct",
+      "incorrect": "Marked wrong",
+      "skipped": "Skipped",
+      "badScan": "Marked bad scan"
+    },
+    "actions": {
+      "correct": "Correct",
+      "incorrect": "Wrong",
+      "badScan": "Bad scan",
+      "skip": "Skip",
+      "back": "Back",
+      "refresh": "Refresh"
+    },
+    "empty": {
+      "title": "Nothing left to check",
+      "description": "You've checked every open scan, or skipped the rest. Refresh to load skipped scans again."
+    },
+    "reviewProgress": "{{count}} of {{required}} reviews",
+    "views": {
+      "review": "Review",
+      "scans": "All scans"
+    },
+    "statuses": {
+      "inProgress": "Needs reviews",
+      "correct": "Correct",
+      "incorrect": "Wrong",
+      "badScan": "Bad scan",
+      "disputed": "Disputed"
+    },
+    "tallies": "{{correct}} correct · {{incorrect}} wrong · {{badScan}} bad scan",
+    "yourVerdict": "Your answer: {{verdict}}",
+    "scans": {
+      "listLabel": "Scans needing validation",
+      "empty": {
+        "title": "No scans to validate",
+        "description": "There are no scans with a photo in this validation week."
+      }
+    },
+    "guide": {
+      "open": "How to check a match",
+      "title": "How to check a match",
+      "intro": "Compare the scan photo with the card it was matched to. Look at the name, the set symbol, the collector number and the artwork.",
+      "done": "Got it",
+      "items": {
+        "correct": "The photo shows the same card in the same printing: same name, set symbol, collector number and art. Small differences in colour or lighting are fine.",
+        "incorrect": "The photo shows a different card, or the same card from another set or printing, such as a different set symbol, collector number, frame or art.",
+        "badScan": "You can't tell which card it is because the photo is blurry, cut off, covered in glare, shows more than one card or shows no card at all.",
+        "skip": "Not sure? Skip it and someone else will check it."
+      }
+    },
+    "gameFilter": {
+      "label": "TCG",
+      "all": "All TCGs"
+    },
+    "saveError": "Couldn't save your answer. Try that scan again.",
+    "progress": {
+      "label": "Community scan validation progress",
+      "valueText": "{{done}} of {{total}} reviews done",
+      "percent": "{{percent}}%"
+    }
+  },
+  "batchScan": {
+    "open": "Scan many cards from one photo",
+    "title": "Photo scan",
+    "hint": "Lay the cards flat on a plain surface without overlapping, then take one photo.",
+    "loadingModels": "Loading recognition models",
+    "takePhoto": "Take photo",
+    "captureFailed": "Couldn't take the photo. Try again.",
+    "photoAlt_one": "Photo with {{count}} card found",
+    "photoAlt_other": "Photo with {{count}} cards found",
+    "finding": "Finding cards ({{done}} of {{total}} areas checked)",
+    "identifyingProgress": "Identifying card {{done}} of {{total}}",
+    "found_one": "{{count}} card found. Untick any you don't want and tap a card to fix it.",
+    "found_other": "{{count}} cards found. Untick any you don't want and tap a card to fix it.",
+    "noneFoundTitle": "No cards found",
+    "noneFoundDescription": "Spread the cards out so they don't touch, use a plain background, and make sure the whole of each card is in the photo.",
+    "identifying": "Identifying",
+    "failed": "Couldn't identify this card",
+    "noMatch": "No match",
+    "includeCard": "Add card {{number}}",
+    "correctHint": "Pick the right card",
+    "corrected": "Picked",
+    "lowConfidence": "Check this",
+    "pickCard": "Pick the card",
+    "retake": "Retake",
+    "addCards_one": "Add {{count}} card",
+    "addCards_other": "Add {{count}} cards",
+    "savedTitle_one": "Added {{count}} card",
+    "savedTitle_other": "Added {{count}} cards",
+    "savePartialTitle_one": "Added {{count}} card",
+    "savePartialTitle_other": "Added {{count}} cards",
+    "savePartialDescription_one": "{{count}} card couldn't be saved. Try adding it again.",
+    "savePartialDescription_other": "{{count}} cards couldn't be saved. Try adding them again.",
+    "modeAdd": "Add",
+    "modeRemove": "Remove",
+    "removeCard": "Remove card {{number}}",
+    "reviewRemoval_one": "Review {{count}} card to remove",
+    "reviewRemoval_other": "Review {{count}} cards to remove",
+    "removalLookupFailedTitle_one": "Couldn't look up {{count}} card",
+    "removalLookupFailedTitle_other": "Couldn't look up {{count}} cards",
+    "removalLookupFailedDescription": "Check your connection and try again."
   }
 }

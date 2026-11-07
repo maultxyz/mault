@@ -3,6 +3,7 @@
     "name": "Mault"
   },
   "common": {
+    "selected": "sélectionné",
     "show": "Afficher",
     "hide": "Masquer",
     "back": "Retour",
@@ -24,12 +25,10 @@
     "scan": "Scanner",
     "sorter": "Trieuse",
     "stats": "Statistiques",
-    "account": "Compte",
-    "home": "Accueil",
-    "rules": "Règles",
     "storage": "Rangement",
     "upgradeYourPlan": "Changez d'offre",
-    "upgradeShort": "Changer"
+    "upgradeShort": "Changer",
+    "more": "Plus"
   },
   "auth": {
     "tagline": "Scanne, trie et suis tes cartes depuis ton téléphone.",
@@ -51,12 +50,9 @@
   },
   "collections": {
     "title": "Collection",
-    "active": "Active",
-    "makeActive": "Activer",
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
     "loadFailed": "Impossible de charger tes collections",
-    "activateFailed": "Impossible de changer la collection active",
     "cardsLoadFailed": "Impossible de charger les cartes",
     "emptyTitle": "Pas encore de collections",
     "emptyDescription": "Retire définitivement toutes les cartes de « {{name}} », mais conserve la collection elle-même. Cette action est irréversible.",
@@ -98,7 +94,10 @@
     "revokeLinks": "Révoquer les liens partagés",
     "revokeLinksTitle": "Révoquer les liens partagés ?",
     "revokeLinksDescription": "Toute personne disposant d'un lien vers la vue en direct de cette collection perd l'accès.",
-    "shareLinkFailed": "Impossible de mettre à jour le lien de la vue en direct"
+    "shareLinkFailed": "Impossible de mettre à jour le lien de la vue en direct",
+    "scanTarget": "Scans ajoutés ici",
+    "scanInto": "Scanner dans cette collection",
+    "scan": "Scanner"
   },
   "cards": {
     "bin": "Bac {{number}}",
@@ -109,21 +108,7 @@
     "quantity_other": "{{count}} exemplaires"
   },
   "monitor": {
-    "title": "Session en direct",
-    "open": "Vue en direct",
-    "recent": "Scans récents",
-    "scanError": "Erreur de scan",
-    "viewers_one": "{{count}} spectateur",
-    "viewers_other": "{{count}} spectateurs",
-    "unmatched_one": "{{count}} non reconnue",
-    "unmatched_other": "{{count}} non reconnues",
-    "emptyTitle": "En attente de scans",
-    "emptyDescription": "Les cartes apparaissent ici dès qu'un trieur les scanne dans cette collection.",
-    "status": {
-      "connecting": "Connexion",
-      "connected": "En direct",
-      "error": "Reconnexion"
-    }
+    "scanError": "Erreur de scan"
   },
   "stats": {
     "title": "Statistiques",
@@ -162,7 +147,8 @@
       "foils": "Foils",
       "shareHint": "{{percent}} % des cartes",
       "needsReview": "À vérifier",
-      "correctedHint": "{{count}} vérifiées"
+      "correctedHint": "{{count}} vérifiées",
+      "heading": "Aperçu"
     },
     "activity": {
       "title": "Activité de scan",
@@ -571,11 +557,9 @@
     "cameraPermissionDescription": "Mault utilise la caméra pour identifier les cartes qui passent dans ton trieur.",
     "cameraPermissionSettings": "Active l'accès à la caméra pour Mault dans les Réglages.",
     "noCamera": "Aucune caméra disponible",
-    "noCollectionTitle": "Aucune collection active",
+    "noCollectionTitle": "Aucune collection choisie",
     "noCollectionDescription": "Choisis la collection dans laquelle scanner.",
     "chooseCollection": "Choisir une collection",
-    "sorterNotReadyTitle": "Trieuse non connectée",
-    "sorterNotReadyDescription": "Connecte ton trieur pour charger et trier les cartes. Tu peux toujours scanner des cartes à la main.",
     "openSorter": "Connecter la trieuse",
     "modelErrorTitle": "Impossible de charger les modèles de reconnaissance des cartes",
     "cameraPreview": "Aperçu de la caméra",
@@ -636,7 +620,6 @@
       },
       "pairDesktop": "Utiliser comme caméra d'ordinateur",
       "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur",
-      "collection": "Collection",
       "preset": "Préréglage de règles",
       "chooseCamera": "Choisir une caméra",
       "foilType": "Type de foil",
@@ -646,7 +629,9 @@
       "setCount_one": "{{count}} extension",
       "setCount_other": "{{count}} extensions",
       "searchSets": "Rechercher une extension",
-      "condition": "État"
+      "condition": "État",
+      "removeMode": "Retirer des cartes",
+      "removeModeDescription": "Mettre les cartes scannées en file pour les retirer de cette collection au lieu de les ajouter"
     },
     "emptyBin": {
       "action": "Marquer comme vide",
@@ -676,10 +661,6 @@
         "removed_one": "1 carte retirée",
         "removed_other": "{{count}} cartes retirées"
       },
-      "modes": {
-        "add": "Ajouter des cartes",
-        "remove": "Retirer des cartes"
-      },
       "binChip": "Les cartes retirées vont dans {{bin}}",
       "binPickerTitle": "Les cartes retirées vont dans",
       "binOption": "Bac {{number}}",
@@ -704,31 +685,9 @@
     }
   },
   "home": {
-    "greeting": "Bonjour, {{name}}",
-    "greetingNoName": "Bon retour",
-    "totalValue": "Valeur totale",
-    "collectionCount_one": "{{count}} collection",
-    "collectionCount_other": "{{count}} collections",
-    "scannedToday": "Scannées aujourd'hui",
-    "thisWeek": "Cette semaine",
-    "collections": "Collections",
-    "activityTitle": "Activité de scan",
-    "activityPoint_one": "{{date}} · {{count}} scan",
-    "activityPoint_other": "{{date}} · {{count}} scans",
-    "today": "Aujourd'hui",
-    "seeAllStats": "Toutes les statistiques",
-    "mostValuable": "Les plus chères",
-    "recentlyScanned": "Scannées récemment",
-    "allCollections": "Toutes les collections",
     "searchPlaceholder": "Rechercher des collections",
     "noSearchResultsTitle": "Aucune collection trouvée",
     "noSearchResultsDescription": "Essaie un autre nom.",
-    "actions": {
-      "scan": "Scanner",
-      "newCollection": "Nouveau",
-      "sorter": "Trieuse",
-      "stats": "Statistiques"
-    },
     "live": {
       "yourSession": "Ta session",
       "scanning": "Scan en cours",
@@ -736,8 +695,6 @@
     }
   },
   "collection": {
-    "tabCards": "Cartes",
-    "tabActivity": "Activité",
     "value": "Valeur",
     "cards": "Cartes",
     "cardsCount_one": "{{count}} carte",
@@ -746,7 +703,6 @@
     "searchPlaceholder": "Rechercher des cartes",
     "noCardsYet": "Aucune carte scannée pour le moment",
     "noMatches": "Aucune carte ne correspond à ta recherche",
-    "review": "Vérifier {{count}}",
     "groupDuplicates": "Grouper les doublons",
     "filters": {
       "colors": "Couleurs",
@@ -777,7 +733,10 @@
     "viewModes": {
       "list": "Liste",
       "grid": "Grille"
-    }
+    },
+    "viewStats": "Voir les statistiques",
+    "reviewBadge_one": "{{count}} à vérifier",
+    "reviewBadge_other": "{{count}} à vérifier"
   },
   "cardDetail": {
     "pricePaid": "Prix payé ({{currency}})",
@@ -840,7 +799,9 @@
       "scannedBy": "Par",
       "sorter": "Trieur",
       "deletedSorter": "{{name}} (supprimé)"
-    }
+    },
+    "name": "Nom",
+    "actions": "Actions de la carte"
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -2034,5 +1995,146 @@
       "reviewed": "Vérifiée",
       "corrected": "Corrigée"
     }
+  },
+  "unmatchedCards": {
+    "title": "Cartes non reconnues",
+    "count_one": "{{count}} carte",
+    "count_other": "{{count}} cartes",
+    "hint": "Ces scans ne correspondent à aucune carte. Touchez-en un pour choisir la bonne carte, ou supprimez-le.",
+    "emptyTitle": "Aucune carte non reconnue",
+    "emptyDescription": "Chaque scan de cette collection correspond à une carte.",
+    "loadFailed": "Impossible de charger les cartes non reconnues",
+    "identifyScan": "Identifier le scan du {{scannedAt}}",
+    "identifyTitle": "Identifier la carte",
+    "searchHint": "Recherchez la carte de cette photo. La choisir l'ajoute à la collection.",
+    "notFound": "Ce scan n'est plus non reconnu",
+    "identifyFailed": "Impossible d'ajouter la carte",
+    "remove": "Supprimer le scan",
+    "removeTitle": "Supprimer ce scan ?",
+    "removeDescription": "La photo est supprimée et la carte n'est pas ajoutée à la collection.",
+    "removeFailed": "Impossible de supprimer le scan",
+    "removeAll": "Tout supprimer",
+    "removeAllTitle_one": "Supprimer {{count}} scan non reconnu ?",
+    "removeAllTitle_other": "Supprimer {{count}} scans non reconnus ?",
+    "removeAllDescription": "Les photos sont supprimées et aucune de ces cartes n'est ajoutée à la collection.",
+    "badge_one": "{{count}} non reconnue",
+    "badge_other": "{{count}} non reconnues"
+  },
+  "matchValidations": {
+    "title": "Valider les correspondances",
+    "description": "Aide la communauté à améliorer la reconnaissance des cartes : compare les scans récents avec la carte associée. Chaque scan demande {{required}} vérifications. Les réponses ne modifient jamais une collection.",
+    "counts": "Tu en as vérifié {{yours}} · {{community}} vérifications de la communauté jusqu'ici",
+    "sessionCounts": "Cette session : {{correct}} justes, {{incorrect}} fausses, {{badScan}} mauvais scans",
+    "scanPhoto": "Photo du scan",
+    "scanPhotoAlt": "Photo du scan à comparer avec {{name}}",
+    "matchedCard": "Carte associée",
+    "matchedCardAlt": "Image du catalogue de {{name}}",
+    "unknownCard": "Carte inconnue",
+    "matchedByEmbedding": "Associée par l'image",
+    "matchedByOcr": "Associée par le texte du nom",
+    "lowConfidence": "Confiance faible",
+    "scannedAt": "Scannée le {{date}}",
+    "decisions": {
+      "correct": "Marquée juste",
+      "incorrect": "Marquée fausse",
+      "skipped": "Ignorée",
+      "badScan": "Marquée mauvais scan"
+    },
+    "actions": {
+      "correct": "Juste",
+      "incorrect": "Fausse",
+      "badScan": "Mauvais scan",
+      "skip": "Ignorer",
+      "back": "Retour",
+      "refresh": "Actualiser"
+    },
+    "empty": {
+      "title": "Plus rien à vérifier",
+      "description": "Tu as vérifié chaque scan ouvert, ou ignoré le reste. Actualise pour recharger les scans ignorés."
+    },
+    "reviewProgress": "{{count}} sur {{required}} vérifications",
+    "views": {
+      "review": "Vérifier",
+      "scans": "Tous les scans"
+    },
+    "statuses": {
+      "inProgress": "À vérifier",
+      "correct": "Juste",
+      "incorrect": "Fausse",
+      "badScan": "Mauvais scan",
+      "disputed": "Contestée"
+    },
+    "tallies": "{{correct}} justes · {{incorrect}} fausses · {{badScan}} mauvais scan",
+    "yourVerdict": "Ta réponse : {{verdict}}",
+    "scans": {
+      "listLabel": "Scans à valider",
+      "empty": {
+        "title": "Aucun scan à valider",
+        "description": "Il n'y a aucun scan avec photo dans cette semaine de validation."
+      }
+    },
+    "guide": {
+      "open": "Comment vérifier une correspondance",
+      "title": "Comment vérifier une correspondance",
+      "intro": "Comparez la photo du scan avec la carte reconnue. Regardez le nom, le symbole d'extension, le numéro de collection et l'illustration.",
+      "done": "Compris",
+      "items": {
+        "correct": "La photo montre la même carte dans la même impression : même nom, même symbole d'extension, même numéro de collection et même illustration. De légères différences de couleur ou d'éclairage ne posent pas de problème.",
+        "incorrect": "La photo montre une autre carte, ou la même carte d'une autre extension ou impression, par exemple avec un autre symbole d'extension, numéro de collection, cadre ou illustration.",
+        "badScan": "Impossible de savoir de quelle carte il s'agit : la photo est floue, coupée, couverte de reflets, montre plusieurs cartes ou aucune carte.",
+        "skip": "Vous n'êtes pas sûr ? Passez ce scan, quelqu'un d'autre le vérifiera."
+      }
+    },
+    "gameFilter": {
+      "label": "JCC",
+      "all": "Tous les JCC"
+    },
+    "saveError": "Impossible d'enregistrer ta réponse. Réessaie ce scan.",
+    "progress": {
+      "label": "Progression de la validation communautaire",
+      "valueText": "{{done}} sur {{total}} vérifications faites",
+      "percent": "{{percent}} %"
+    }
+  },
+  "batchScan": {
+    "open": "Scanner plusieurs cartes avec une photo",
+    "title": "Scan photo",
+    "hint": "Posez les cartes à plat sur une surface unie sans qu'elles se chevauchent, puis prenez une photo.",
+    "loadingModels": "Chargement des modèles de reconnaissance",
+    "takePhoto": "Prendre une photo",
+    "captureFailed": "Impossible de prendre la photo. Réessayez.",
+    "photoAlt_one": "Photo avec {{count}} carte trouvée",
+    "photoAlt_other": "Photo avec {{count}} cartes trouvées",
+    "finding": "Recherche des cartes ({{done}} zones sur {{total}} vérifiées)",
+    "identifyingProgress": "Identification de la carte {{done}} sur {{total}}",
+    "found_one": "{{count}} carte trouvée. Décochez celles que vous ne voulez pas et touchez une carte pour la corriger.",
+    "found_other": "{{count}} cartes trouvées. Décochez celles que vous ne voulez pas et touchez une carte pour la corriger.",
+    "noneFoundTitle": "Aucune carte trouvée",
+    "noneFoundDescription": "Écartez les cartes pour qu'elles ne se touchent pas, utilisez un fond uni et vérifiez que chaque carte est entièrement dans la photo.",
+    "identifying": "Identification",
+    "failed": "Impossible d'identifier cette carte",
+    "noMatch": "Aucune correspondance",
+    "includeCard": "Ajouter la carte {{number}}",
+    "correctHint": "Choisir la bonne carte",
+    "corrected": "Choisie",
+    "lowConfidence": "À vérifier",
+    "pickCard": "Choisir la carte",
+    "retake": "Reprendre",
+    "addCards_one": "Ajouter {{count}} carte",
+    "addCards_other": "Ajouter {{count}} cartes",
+    "savedTitle_one": "{{count}} carte ajoutée",
+    "savedTitle_other": "{{count}} cartes ajoutées",
+    "savePartialTitle_one": "{{count}} carte ajoutée",
+    "savePartialTitle_other": "{{count}} cartes ajoutées",
+    "savePartialDescription_one": "{{count}} carte n'a pas pu être enregistrée. Réessayez de l'ajouter.",
+    "savePartialDescription_other": "{{count}} cartes n'ont pas pu être enregistrées. Réessayez de les ajouter.",
+    "modeAdd": "Ajouter",
+    "modeRemove": "Retirer",
+    "removeCard": "Retirer la carte {{number}}",
+    "reviewRemoval_one": "Vérifier {{count}} carte à retirer",
+    "reviewRemoval_other": "Vérifier {{count}} cartes à retirer",
+    "removalLookupFailedTitle_one": "Impossible de rechercher {{count}} carte",
+    "removalLookupFailedTitle_other": "Impossible de rechercher {{count}} cartes",
+    "removalLookupFailedDescription": "Vérifiez votre connexion et réessayez."
   }
 }

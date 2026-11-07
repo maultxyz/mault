@@ -40,6 +40,7 @@ export interface SettingsPageProps {
   isDirty: boolean;
   isSaving: boolean;
   saveError: boolean;
+  isLoading?: boolean;
   onSave: () => void;
   onDiscard: () => void;
   children: ReactNode;

@@ -19,7 +19,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { defaultValueFor, isConditionComplete, isMultiValue, needsValue, sortFields } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
 import { CONDITION_SHEET_MAX_HEIGHT_RATIO, NUMERIC_INPUT_PATTERN } from "@/lib/constants/rules";
-import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { ConditionSheetProps, ConditionSheetStep } from "@/lib/interfaces/rules";
 
 export function ConditionSheet({
@@ -112,7 +112,7 @@ export function ConditionSheet({
     }
     if (options && !freeform && !count) {
       return (
-        <View style={{ marginHorizontal: -SPACING.sm }}>
+        <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
           {sortedOptions.map((option) => (
             <ListRow
               key={option.value}
@@ -210,7 +210,7 @@ export function ConditionSheet({
                   accessibilityLabel={t("rules.searchFields")}
                 />
               </View>
-              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER - SPACING.sm }}>
+              <ScrollView keyboardShouldPersistTaps="handled">
                 {shownFields.map((field) => (
                   <ListRow
                     key={field.field}
@@ -220,7 +220,7 @@ export function ConditionSheet({
                   />
                 ))}
                 {shownFields.length === 0 ? (
-                  <AppText tone="secondary" style={{ padding: SPACING.sm }}>
+                  <AppText tone="secondary" style={{ paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.sm }}>
                     {t("rules.noFieldMatches")}
                   </AppText>
                 ) : null}
@@ -233,7 +233,7 @@ export function ConditionSheet({
                 style={{ flexShrink: 1 }}
                 contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.lg, paddingBottom: SPACING.lg }}
               >
-                <View style={{ marginHorizontal: -SPACING.sm }}>
+                <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
                   <ListRow title={t("rules.field")} value={meta?.label ?? draft.field} onPress={() => setStep("field")} />
                 </View>
                 {meta ? (
@@ -254,7 +254,7 @@ export function ConditionSheet({
                               paddingHorizontal: SPACING.md + 2,
                               height: 34,
                               justifyContent: "center",
-                              borderRadius: RADIUS.md,
+                              borderRadius: CONTROL_RADIUS,
                               borderWidth: 1,
                               borderColor: active ? colors.primarySelected : colors.border,
                               backgroundColor: active ? colors.primarySelected : pressed ? colors.muted : colors.background,

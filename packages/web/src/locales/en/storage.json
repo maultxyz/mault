@@ -70,9 +70,7 @@
     "heading": "Storage",
     "value": "{{name}} · #{{position}}",
     "remove": "Remove from box",
-    "move": "Move",
-    "store": "Move to location",
-    "notStored": "Not in a storage location"
+    "move": "Move"
   },
   "toasts": {
     "failed": "Couldn't update storage locations",

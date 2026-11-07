@@ -89,7 +89,10 @@
     },
     "copyOf": "Exemplar {{index}} von {{count}}",
     "moreOptions": "Mehr",
-    "actions": "Kartenaktionen"
+    "actions": "Kartenaktionen",
+    "name": "Name",
+    "moveToLocation": "In Lagerort verschieben",
+    "moveToCollection": "In Sammlung verschieben"
   },
   "cardFilterPopover": {
     "color": "Farbe",

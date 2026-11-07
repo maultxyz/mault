@@ -2,7 +2,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_PADDING_HORIZONTAL, CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, INPUT_HEIGHT } from "@/lib/constants/ui";
 import type { SelectFieldProps } from "@/lib/interfaces/ui";
 
@@ -26,8 +26,8 @@ export function SelectField({ label, value, placeholder, accessibilityLabel, onP
           flexDirection: "row",
           alignItems: "center",
           gap: SPACING.xs,
-          paddingHorizontal: SPACING.md,
-          borderRadius: RADIUS.md,
+          paddingHorizontal: CONTROL_PADDING_HORIZONTAL,
+          borderRadius: CONTROL_RADIUS,
           borderWidth: 1,
           borderColor: colors.input,
           backgroundColor: pressed ? colors.muted : colors.inputBackground,

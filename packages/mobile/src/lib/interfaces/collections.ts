@@ -1,4 +1,5 @@
-import type { CardFilters, GroupedScannedCard } from "@magic-vault/shared";
+import type { UseQueryResult } from "@tanstack/react-query";
+import type { CardFilters, Collection, GroupedScannedCard } from "@magic-vault/shared";
 import type { StatsBreakdown } from "@/lib/interfaces/stats";
 
 export interface ScanImageResponse {
@@ -6,18 +7,21 @@ export interface ScanImageResponse {
   capturedBackImageUrl?: string | null;
 }
 
-export type CollectionTab = "cards" | "activity";
 
 export interface CardToolbarProps {
+  search: string;
+  onSearchChange: (search: string) => void;
+  searchPlaceholder: string;
+  searchAccessibilityLabel: string;
   activeSortAndFilterCount: number;
-  needsReview: boolean;
   onOpenViewOptions: () => void;
-  onToggleNeedsReview: () => void;
 }
 
 export interface CardSortOption {
-  value: string;
+  key: string;
   label: string;
+  selected: boolean;
+  sortKeyOnPress: string;
 }
 
 export type CardViewMode = "grid" | "list";
@@ -29,7 +33,6 @@ export interface CardViewOptionsSheetProps {
   grouped?: boolean;
   onGroupedChange?: (grouped: boolean) => void;
   sortOptions: CardSortOption[];
-  selectedSort: string;
   onSortChange: (sort: string) => void;
   filters: CardFilters;
   breakdown: StatsBreakdown | null;
@@ -60,4 +63,11 @@ export interface FilterChipProps {
   selected: boolean;
   swatch?: string;
   onPress: () => void;
+}
+
+export interface ScanTarget {
+  collection: Collection | null;
+  collections: Collection[];
+  collectionsQuery: UseQueryResult<Collection[]>;
+  setScanTargetGuid: (collectionGuid: string) => void;
 }

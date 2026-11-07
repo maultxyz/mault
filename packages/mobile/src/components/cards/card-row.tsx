@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/icon";
 import { Pill } from "@/components/ui/pill";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_THUMB_HEIGHT, CARD_THUMB_WIDTH } from "@/lib/constants/collections";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_THUMBNAIL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardRowProps } from "@/lib/interfaces/ui";
 
 export function CardRow({
@@ -54,7 +54,7 @@ export function CardRow({
           style={{
             width: 22,
             height: 22,
-            borderRadius: RADIUS.sm,
+            borderRadius: CARD_THUMBNAIL_RADIUS,
             borderWidth: 1,
             borderColor: checked ? colors.primary : colors.border,
             backgroundColor: checked ? colors.primary : "transparent",
@@ -68,7 +68,7 @@ export function CardRow({
       {imageUrl ? (
         <Image
           source={{ uri: imageUrl }}
-          style={{ width: CARD_THUMB_WIDTH, height: CARD_THUMB_HEIGHT, borderRadius: RADIUS.sm }}
+          style={{ width: CARD_THUMB_WIDTH, height: CARD_THUMB_HEIGHT, borderRadius: CARD_THUMBNAIL_RADIUS }}
           contentFit="cover"
           transition={0}
         />
@@ -77,7 +77,7 @@ export function CardRow({
           style={{
             width: CARD_THUMB_WIDTH,
             height: CARD_THUMB_HEIGHT,
-            borderRadius: RADIUS.sm,
+            borderRadius: CARD_THUMBNAIL_RADIUS,
             backgroundColor: colors.muted,
           }}
         />

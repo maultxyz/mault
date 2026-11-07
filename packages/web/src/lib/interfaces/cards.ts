@@ -1,6 +1,7 @@
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type {
   CardCondition,
+  CardSortDirection,
   CardTag,
   CardScanOrigin,
   CardFilters,
@@ -18,7 +19,7 @@ import type {
   ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
-import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import type { KeyboardEvent, MouseEvent, ReactNode, Ref } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 
 export interface CardSearchPickerProps {
@@ -48,6 +49,15 @@ export interface CardSearchSetSelectProps {
 export interface CardSearchLanguageSelectProps {
   value: string;
   onChange: (language: string) => void;
+}
+
+export interface CardSortOptionProps {
+  label: string;
+  directionLabel?: string;
+  direction?: CardSortDirection | null;
+  active: boolean;
+  onSelect: () => void;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 export interface CardSortOptionsProps {
@@ -611,3 +621,14 @@ export interface ScanImageUrls {
   capturedImageUrl?: string;
   capturedBackImageUrl?: string;
 }
+
+export interface UseCardDetailMoveActionsOptions {
+  scanId: string | undefined;
+  collectionGuid: string | undefined;
+  canEdit: boolean;
+  onMovedToCollection: () => void;
+}
+
+export type CardDetailMoveTarget = "location" | "collection";
+
+export type CardDetailAttributePicker = "foil" | "condition" | "language";

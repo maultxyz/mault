@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
 import { useActiveOrg } from "@/hooks/use-org";
 import type { SettingsPageProps } from "@/lib/interfaces/settings";
 
-export function SettingsPage({ title, isDirty, isSaving, saveError, onSave, onDiscard, children }: SettingsPageProps) {
+export function SettingsPage({ title, isDirty, isSaving, saveError, isLoading = false, onSave, onDiscard, children }: SettingsPageProps) {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const org = useActiveOrg();
@@ -29,7 +30,7 @@ export function SettingsPage({ title, isDirty, isSaving, saveError, onSave, onDi
     <View style={{ flex: 1 }}>
       <Screen header={<PageHeader title={title} subtitle={org?.name} onBack={() => router.back()} />}>
         {saveError ? <Callout tone="destructive" title={t("settings.draft.saveFailed")} /> : null}
-        {children}
+        {isLoading ? <PageSkeleton /> : children}
       </Screen>
       <SaveBar visible={isDirty} saving={isSaving} onSave={onSave} onDiscard={onDiscard} />
     </View>
