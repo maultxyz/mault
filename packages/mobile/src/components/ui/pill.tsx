@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { BADGE_RADIUS, SPACING } from "@/lib/constants/theme";
 import { PILL_MIN_HEIGHT, PILL_STATUS_LETTER_SPACING } from "@/lib/constants/ui";
 import type { PillProps } from "@/lib/interfaces/ui";
 
@@ -26,7 +26,7 @@ export function Pill({ label, tone = "neutral", icon }: PillProps) {
         minHeight: PILL_MIN_HEIGHT,
         gap: SPACING.xs,
         paddingHorizontal: SPACING.sm,
-        borderRadius: RADIUS.sm,
+        borderRadius: BADGE_RADIUS,
         borderWidth: 1,
         backgroundColor: palette.bg,
         borderColor: palette.border,

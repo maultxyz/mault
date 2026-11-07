@@ -6,7 +6,7 @@ import { MATCH_VALIDATION_REVIEWS_REQUIRED } from "@magic-vault/shared";
 import { Icon } from "@/components/ui/icon";
 import { matchValidationProgressQueryOptions } from "@/features/match-validations/api/match-validations";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS } from "@/lib/constants/theme";
 import { MIN_TOUCH_TARGET, TOP_BAR_SWITCHER_HEIGHT } from "@/lib/constants/ui";
 import { TOP_BAR_PROGRESS_WIDTH } from "@/lib/constants/match-validations";
 
@@ -30,7 +30,7 @@ export function ValidateMatchesTopBarButton() {
       style={({ pressed }) => ({
         width: TOP_BAR_SWITCHER_HEIGHT,
         height: TOP_BAR_SWITCHER_HEIGHT,
-        borderRadius: RADIUS.md,
+        borderRadius: CONTROL_RADIUS,
         alignItems: "center",
         justifyContent: "center",
         gap: 3,

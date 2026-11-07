@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { BATCH_SCAN_THUMBNAIL_WIDTH } from "@/lib/constants/scanner";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_THUMBNAIL_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { BatchScanRowProps } from "@/lib/interfaces/scanner";
 import { absoluteUrl } from "@/lib/url";
@@ -41,7 +41,7 @@ export function BatchScanRow({ index, card, isRemoveMode, onToggleIncluded, onCo
         style={{
           width: 24,
           height: 24,
-          borderRadius: RADIUS.sm,
+          borderRadius: CARD_THUMBNAIL_RADIUS,
           borderWidth: 1.5,
           borderColor: card.included && canInclude ? colors.primary : colors.foregroundSecondary,
           backgroundColor: card.included && canInclude ? colors.primary : "transparent",
@@ -67,7 +67,7 @@ export function BatchScanRow({ index, card, isRemoveMode, onToggleIncluded, onCo
           style={{
             width: BATCH_SCAN_THUMBNAIL_WIDTH,
             aspectRatio: CARD_ASPECT_RATIO,
-            borderRadius: RADIUS.sm,
+            borderRadius: CARD_THUMBNAIL_RADIUS,
             overflow: "hidden",
             backgroundColor: colors.muted,
           }}

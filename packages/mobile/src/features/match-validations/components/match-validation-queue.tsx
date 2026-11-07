@@ -19,7 +19,7 @@ import {
 import { useLabelQueue } from "@/features/match-validations/api/use-label-queue";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
 import { formatDateTime } from "@/lib/dates";
 import type { MatchValidationGameFilterProps } from "@/lib/interfaces/match-validations";
@@ -59,7 +59,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
   const imageFrame = {
     flex: 1,
     aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: RADIUS.lg,
+    borderRadius: CARD_ART_RADIUS,
     overflow: "hidden" as const,
     borderWidth: 1,
     borderColor: colors.border,
@@ -72,10 +72,10 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
         {queueQuery.isPending || isLoadingMore ? (
           <View style={{ flexDirection: "row", gap: SPACING.md }}>
             <View style={{ flex: 1, aspectRatio: CARD_ASPECT_RATIO }}>
-              <Skeleton height="100%" radius={RADIUS.lg} />
+              <Skeleton height="100%" radius={CARD_ART_RADIUS} />
             </View>
             <View style={{ flex: 1, aspectRatio: CARD_ASPECT_RATIO }}>
-              <Skeleton height="100%" radius={RADIUS.lg} />
+              <Skeleton height="100%" radius={CARD_ART_RADIUS} />
             </View>
           </View>
         ) : !current ? (

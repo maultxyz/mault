@@ -125,6 +125,23 @@ export interface PageHeaderProps {
   actions?: ReactNode;
   tabs?: ReactNode;
   children?: ReactNode;
+  rendersInsideReactNativeModal?: boolean;
+}
+
+export interface HeaderActionsStore {
+  getActions: () => ReactNode;
+  setActions: (actions: ReactNode) => void;
+  subscribe: (listener: () => void) => () => void;
+}
+
+export interface HeaderActionsSlotProps {
+  store: HeaderActionsStore;
+}
+
+export interface NativeStackHeaderProps {
+  title: string;
+  onBack: () => void;
+  actions: ReactNode;
 }
 
 export interface ListGroupProps {
@@ -389,11 +406,6 @@ export interface CollapsibleSectionProps {
   title: string;
   children: ReactNode;
   initiallyOpen?: boolean;
-}
-
-export interface PanelClipProps {
-  children: ReactNode;
-  backgroundColor?: string;
 }
 
 export interface ListSkeletonProps {

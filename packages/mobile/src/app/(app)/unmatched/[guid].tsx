@@ -24,7 +24,7 @@ import {
   CARD_GRID_GUTTER,
   LIST_END_THRESHOLD,
 } from "@/lib/constants/collections";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
 import { formatDateTime } from "@/lib/dates";
 import { absoluteUrl } from "@/lib/url";
 
@@ -101,7 +101,7 @@ export default function UnmatchedCardsScreen() {
           unmatched.isPending ? (
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
               {Array.from({ length: 6 }).map((_, index) => (
-                <Skeleton key={index} width={tileWidth} height={tileWidth / CARD_ASPECT_RATIO} radius={RADIUS.lg} />
+                <Skeleton key={index} width={tileWidth} height={tileWidth / CARD_ASPECT_RATIO} radius={CARD_ART_RADIUS} />
               ))}
             </View>
           ) : unmatched.isError ? null : (
@@ -130,7 +130,7 @@ export default function UnmatchedCardsScreen() {
               <View
                 style={{
                   aspectRatio: CARD_ASPECT_RATIO,
-                  borderRadius: RADIUS.lg,
+                  borderRadius: CARD_ART_RADIUS,
                   overflow: "hidden",
                   borderWidth: 1,
                   borderColor: colors.border,

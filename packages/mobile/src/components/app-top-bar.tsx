@@ -12,7 +12,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { useSession } from "@/lib/auth/session";
 import { BRAND_MARK } from "@/lib/constants/brand";
 import { ALERT_BADGE_MAX } from "@/lib/constants/stream";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { BADGE_RADIUS, CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import {
   TOP_BAR_BRAND_MARK_SCALE,
   TOP_BAR_BRAND_SIZE,
@@ -39,7 +39,7 @@ function TopBarSwitcher({ initial, label, accessibilityLabel, onPress }: TopBarS
         minWidth: 0,
         height: TOP_BAR_SWITCHER_HEIGHT,
         paddingHorizontal: SPACING.xs,
-        borderRadius: RADIUS.md,
+        borderRadius: CONTROL_RADIUS,
         backgroundColor: pressed ? colors.shellAccent : "transparent",
       })}
     >
@@ -47,7 +47,7 @@ function TopBarSwitcher({ initial, label, accessibilityLabel, onPress }: TopBarS
         style={{
           width: TOP_BAR_INITIAL_SIZE,
           height: TOP_BAR_INITIAL_SIZE,
-          borderRadius: RADIUS.sm,
+          borderRadius: BADGE_RADIUS,
           backgroundColor: colors.foreground,
           alignItems: "center",
           justifyContent: "center",
@@ -129,7 +129,7 @@ export function AppTopBar() {
         style={({ pressed }) => ({
           width: TOP_BAR_SWITCHER_HEIGHT,
           height: TOP_BAR_SWITCHER_HEIGHT,
-          borderRadius: RADIUS.md,
+          borderRadius: CONTROL_RADIUS,
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: pressed ? colors.shellAccent : "transparent",

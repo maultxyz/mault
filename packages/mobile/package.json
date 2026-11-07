@@ -21,8 +21,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@expo-google-fonts/figtree": "^0.4.1",
+    "@expo-google-fonts/jetbrains-mono": "^0.4.1",
+    "@expo/ui": "~58.0.27",
     "@expo/vector-icons": "^15.0.2",
     "@hookform/resolvers": "^5.2.2",
     "@magic-vault/shared": "workspace:*",
@@ -47,6 +48,7 @@
     "expo-splash-screen": "~58.0.9",
     "expo-sqlite": "~58.0.13",
     "expo-status-bar": "~58.0.3",
+    "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.6",
     "i18next": "^26.3.6",
     "jsqr": "1.4.0",

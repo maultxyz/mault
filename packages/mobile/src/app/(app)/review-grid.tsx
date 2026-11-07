@@ -19,7 +19,7 @@ import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
 import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import { REVIEW_GRID_WIDE_MIN_WIDTH } from "@/lib/constants/cards";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { ReviewLayout } from "@/lib/interfaces/cards";
 import { saveReviewLayout } from "@/lib/review-layout";
 
@@ -135,7 +135,7 @@ export default function ReviewGridScreen() {
           review.isPending || isWaitingForMore ? (
             <View style={{ gap: SPACING.md }}>
               {Array.from({ length: 2 }).map((_, index) => (
-                <Skeleton key={index} width={tileWidth} height={tileWidth * 0.85} radius={RADIUS.lg} />
+                <Skeleton key={index} width={tileWidth} height={tileWidth * 0.85} radius={CARD_ART_RADIUS} />
               ))}
             </View>
           ) : review.isError ? null : (

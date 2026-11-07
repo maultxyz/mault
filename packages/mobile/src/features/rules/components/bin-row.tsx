@@ -6,7 +6,7 @@ import { Pill } from "@/components/ui/pill";
 import { overflowSourcesFor, ruleChips } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
 import { BIN_ROW_MAX_CHIPS } from "@/lib/constants/rules";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, ICON_BADGE_SIZE } from "@/lib/constants/ui";
 import type { BinRowProps } from "@/lib/interfaces/rules";
 
@@ -92,7 +92,7 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
                   maxWidth: "100%",
                   paddingHorizontal: SPACING.sm + 2,
                   paddingVertical: 3,
-                  borderRadius: RADIUS.md,
+                  borderRadius: CONTROL_RADIUS,
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}

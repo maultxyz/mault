@@ -56,7 +56,7 @@ import type { CardViewMode } from "@/lib/interfaces/collections";
 import { readKv, writeKv } from "@/lib/storage/kv";
 import { STORAGE_LOCATION_TABS } from "@/lib/constants/storage";
 import type { StorageLocationTab } from "@/lib/interfaces/storage";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
 import { readReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
@@ -208,7 +208,7 @@ export default function StorageLocationScreen() {
               style={({ pressed }) => ({
                 width: 32,
                 height: 32,
-                borderRadius: RADIUS.md,
+                borderRadius: CONTROL_RADIUS,
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: pressed ? colors.muted : "transparent",

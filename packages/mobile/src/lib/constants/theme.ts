@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import type { ThemeColors } from "@/lib/interfaces/theme";
 
 export const LIGHT_COLORS: ThemeColors = {
@@ -102,13 +103,16 @@ export const DARK_COLORS: ThemeColors = {
   popoverShadow: "rgba(0, 0, 0, 0.5)",
 };
 
-export const RADIUS = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 18,
-  full: 999,
-} as const;
+export const RADIUS = Platform.select({
+  ios: { sm: 6, md: 12, lg: 20, xl: 28, full: 999 },
+  default: { sm: 4, md: 12, lg: 16, xl: 28, full: 999 },
+});
+
+export const CONTROL_RADIUS = RADIUS.full;
+export const BADGE_RADIUS = RADIUS.full;
+export const CARD_ART_RADIUS = 12;
+export const CARD_THUMBNAIL_RADIUS = 4;
+export const CONTROL_PADDING_HORIZONTAL = 16;
 
 export const SPACING = {
   xs: 4,

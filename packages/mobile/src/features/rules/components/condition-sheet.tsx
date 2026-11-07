@@ -19,7 +19,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { defaultValueFor, isConditionComplete, isMultiValue, needsValue, sortFields } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
 import { CONDITION_SHEET_MAX_HEIGHT_RATIO, NUMERIC_INPUT_PATTERN } from "@/lib/constants/rules";
-import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { ConditionSheetProps, ConditionSheetStep } from "@/lib/interfaces/rules";
 
 export function ConditionSheet({
@@ -254,7 +254,7 @@ export function ConditionSheet({
                               paddingHorizontal: SPACING.md + 2,
                               height: 34,
                               justifyContent: "center",
-                              borderRadius: RADIUS.md,
+                              borderRadius: CONTROL_RADIUS,
                               borderWidth: 1,
                               borderColor: active ? colors.primarySelected : colors.border,
                               backgroundColor: active ? colors.primarySelected : pressed ? colors.muted : colors.background,

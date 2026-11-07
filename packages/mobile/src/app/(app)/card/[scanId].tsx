@@ -75,7 +75,7 @@ import { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -353,7 +353,7 @@ export default function CardDetailScreen() {
 
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: RADIUS.lg,
+    borderRadius: CARD_ART_RADIUS,
     overflow: "hidden" as const,
     borderWidth: 1,
     borderColor: colors.border,
