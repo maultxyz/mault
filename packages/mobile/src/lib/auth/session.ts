@@ -20,6 +20,8 @@ import type { Result } from "@magic-vault/shared";
 import { readKv, writeKv } from "@/lib/storage/kv";
 import { delay } from "@/lib/delay";
 import { readSecure, writeSecure } from "@/lib/storage/secure";
+import { posthog } from "@/lib/posthog";
+import { posthogLog } from "@/lib/posthog-logs";
 
 const backend = AUTH_PROVIDER === "local" ? localBackend : neonBackend;
 
@@ -32,6 +34,7 @@ let snapshot: SessionSnapshot = {
 let sessionToken: string | null = null;
 let cachedJwt: CachedJwt | null = null;
 let pendingJwt: Promise<string | null> | null = null;
+let identifiedUserId: string | null = null;
 const listeners = new Set<() => void>();
 
 function setSnapshot(next: Partial<SessionSnapshot>): void {
@@ -100,6 +103,18 @@ function pickActiveOrg(orgs: UserOrganization[]): string | null {
   return orgs[0]?.id ?? null;
 }
 
+function identifyUser(user: SessionUser): void {
+  if (identifiedUserId === user.id) return;
+  posthog?.identify(user.id, {
+    $set: {
+      role: user.role,
+      ...(user.name ? { name: user.name } : {}),
+      ...(user.email ? { email: user.email } : {}),
+    },
+  });
+  identifiedUserId = user.id;
+}
+
 async function loadProfile(): Promise<boolean> {
   const token = await getAccessToken();
   if (!token) return false;
@@ -112,10 +127,13 @@ async function loadProfile(): Promise<boolean> {
   const activeOrgId = pickActiveOrg(orgs);
   writeKv(ACTIVE_ORG_KEY, activeOrgId);
   setSnapshot({ status: "signed-in", user, organizations: orgs, activeOrgId });
+  identifyUser(user);
   return true;
 }
 
 function clearLocalSession(): void {
+  posthog?.reset();
+  identifiedUserId = null;
   sessionToken = null;
   cachedJwt = null;
   void writeSecure(SESSION_TOKEN_KEY, null).catch((error: unknown) =>
@@ -132,7 +150,13 @@ export async function restoreSession(): Promise<void> {
   }
   for (let attempt = 0; ; attempt++) {
     try {
-      if (!(await loadProfile())) clearLocalSession();
+      if (await loadProfile()) {
+        posthogLog.info("authenticated_session_restored", {
+          organization_count: snapshot.organizations.length,
+        });
+      } else {
+        clearLocalSession();
+      }
       return;
     } catch (error) {
       console.warn("Session restore failed, retrying", error);
@@ -160,7 +184,12 @@ async function startSession(
     return { error: "storage" };
   }
   try {
-    if (await loadProfile()) return {};
+    if (await loadProfile()) {
+      posthogLog.info("authenticated_session_started", {
+        organization_count: snapshot.organizations.length,
+      });
+      return {};
+    }
   } catch {
     clearLocalSession();
     return { error: "network" };
@@ -175,6 +204,7 @@ export async function signIn(email: string, password: string): Promise<SignInRes
 
 export async function signOut(): Promise<void> {
   const token = sessionToken;
+  if (token) posthogLog.info("authenticated_session_ended");
   clearLocalSession();
   if (token) await backend.signOut(token);
 }

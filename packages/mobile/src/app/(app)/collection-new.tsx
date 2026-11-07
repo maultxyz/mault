@@ -24,6 +24,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { upgradeRequiredMessage } from "@/lib/api/upgrade-required-error";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
+import { posthog } from "@/lib/posthog";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { createCollectionFormSchema, type CreateCollectionFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -69,7 +70,12 @@ export default function NewCollectionScreen() {
   const { setScanTargetGuid } = useScanTarget();
   const create = useMutation({
     mutationFn: createCollection,
-    onSuccess: (next) => {
+    onSuccess: (next, values) => {
+      posthog?.capture("collection_created", {
+        game_guid: values.gameGuid,
+        language: values.lang,
+        matches_all_languages: values.matchAllLanguages,
+      });
       queryClient.setQueryData(collectionsQueryOptions(orgId).queryKey, next);
       const createdCollection = next.find((collection) => collection.isActive);
       if (createdCollection) setScanTargetGuid(createdCollection.guid);

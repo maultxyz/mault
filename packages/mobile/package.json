@@ -53,6 +53,7 @@
     "i18next": "^26.3.6",
     "jsqr": "1.4.0",
     "onnxruntime-react-native": "1.24.3",
+    "posthog-react-native": "^4.0.0",
     "react": "19.3.0",
     "react-hook-form": "^7.71.1",
     "react-i18next": "^17.0.11",

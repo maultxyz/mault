@@ -9,6 +9,7 @@ import { TextField } from "@/components/ui/text-field";
 import { signInSchema } from "@/features/account/lib/auth-schemas";
 import { signIn } from "@/lib/auth/session";
 import { SPACING } from "@/lib/constants/theme";
+import { posthog } from "@/lib/posthog";
 import type { SignInValues } from "@/lib/interfaces/forms";
 
 export function SignInForm() {
@@ -22,7 +23,11 @@ export function SignInForm() {
   const onSubmit = handleSubmit(async (values) => {
     setError(null);
     const result = await signIn(values.email, values.password);
-    if (result.error) setError(t(`auth.errors.${result.error}`, { defaultValue: result.error }));
+    if (result.error) {
+      setError(t(`auth.errors.${result.error}`, { defaultValue: result.error }));
+      return;
+    }
+    posthog?.capture("user_signed_in");
   });
 
   return (

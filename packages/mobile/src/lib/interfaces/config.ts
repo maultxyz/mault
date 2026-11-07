@@ -5,4 +5,6 @@ export interface AppExtraConfig {
   webUrl: string;
   authProvider: string;
   neonAuthUrl: string;
+  posthogProjectToken: string;
+  posthogHost: string;
 }

@@ -13,6 +13,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { storageLocationNameFormSchema, type StorageLocationNameFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
+import { posthog } from "@/lib/posthog";
 
 export default function StorageNameScreen() {
   const { guid, name } = useLocalSearchParams<{ guid?: string; name?: string }>();
@@ -28,6 +29,7 @@ export default function StorageNameScreen() {
     mutationFn: (values: StorageLocationNameFormValues) =>
       editing ? renameStorageLocation(guid, values.name.trim()) : createStorageLocation(values.name.trim()),
     onSuccess: () => {
+      posthog?.capture(editing ? "storage_location_renamed" : "storage_location_created");
       void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
       router.back();
     },

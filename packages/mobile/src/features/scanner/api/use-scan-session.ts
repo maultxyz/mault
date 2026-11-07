@@ -71,6 +71,7 @@ import {
   SESSION_FEED_LIMIT,
 } from "@/lib/constants/scanner";
 import { HAND_SCAN_KEY } from "@/lib/constants/storage-keys";
+import { posthog } from "@/lib/posthog";
 import { readKv, writeKv } from "@/lib/storage/kv";
 import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/sorter";
 import type {
@@ -490,8 +491,14 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   );
 
   const handleSaveResult = useCallback(
-    (result: CardSaveResult, binNumber: number | undefined) => {
-      if (result.success) return;
+    (result: CardSaveResult, binNumber: number | undefined, matchStatus: "matched" | "unmatched") => {
+      if (result.success) {
+        posthog?.capture("card_scanned", {
+          match_status: matchStatus,
+          routed_to_bin: binNumber != null,
+        });
+        return;
+      }
       if (result.binLimitReached) pauseForFullBins(binNumber != null ? [binNumber] : []);
       else if (result.sorterLimitReached) pause("sorter-limit");
       else if (result.scanLimitReached) pause("scan-limit");
@@ -588,7 +595,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
           deviceGuid: ctx.sorter.device?.guid,
           record: { ...record, diagnostics: outcome.matched?.diagnostics },
         })
-        .then((result) => handleSaveResult(result, record.binNumber))
+        .then((result) => handleSaveResult(result, record.binNumber, "matched"))
         .catch(() => pause("save-failed"));
     },
     [
@@ -646,7 +653,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
             embedding: outcome.noMatch?.embedding ?? undefined,
           },
         })
-        .then((result) => handleSaveResult(result, catchAll?.binNumber))
+        .then((result) => handleSaveResult(result, catchAll?.binNumber, "unmatched"))
         .catch(() => pause("save-failed"));
     },
     [continueAfterCard, countInBin, handleSaveResult, isBinFull, pause, pauseForFullBins, pushFeed, sendToBin],

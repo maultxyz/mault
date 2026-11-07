@@ -2,11 +2,13 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const rootEnvPath = resolve(__dirname, "../../.env");
-if (existsSync(rootEnvPath)) {
-  try {
-    process.loadEnvFile(rootEnvPath);
-  } catch {}
+const envPaths = [resolve(__dirname, "../../.env"), resolve(__dirname, ".env")];
+for (const envPath of envPaths) {
+  if (existsSync(envPath)) {
+    try {
+      process.loadEnvFile(envPath);
+    } catch {}
+  }
 }
 
 const env = (key: string, fallback = ""): string =>
@@ -72,6 +74,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     webUrl: env("MOBILE_WEB_URL", "https://mault.xyz"),
     authProvider: env("MOBILE_AUTH_PROVIDER", env("AUTH_PROVIDER", "neon")),
     neonAuthUrl: env("MOBILE_NEON_AUTH_URL", env("VITE_NEON_AUTH_URL")),
+    posthogProjectToken: env("POSTHOG_PROJECT_TOKEN"),
+    posthogHost: env("POSTHOG_HOST"),
     ...(easProjectId ? { eas: { projectId: easProjectId } } : {}),
   },
 });

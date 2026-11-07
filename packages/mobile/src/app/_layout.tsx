@@ -3,6 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { DarkTheme, DefaultTheme, SplashScreen, Stack, ThemeProvider } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { PostHogProvider } from "posthog-react-native";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -16,6 +17,7 @@ import { applyThemePreference, readThemePreference } from "@/lib/appearance";
 import { restoreSession, useSession } from "@/lib/auth/session";
 import { FONT_ASSETS } from "@/lib/constants/fonts";
 import { queryClient } from "@/lib/query-client";
+import { posthog } from "@/lib/posthog";
 
 void SplashScreen.preventAutoHideAsync();
 applyThemePreference(readThemePreference());
@@ -66,7 +68,7 @@ export default function RootLayout() {
     void restoreSession();
   }, []);
 
-  return (
+  const content = (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
@@ -83,4 +85,6 @@ export default function RootLayout() {
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
+
+  return posthog ? <PostHogProvider client={posthog}>{content}</PostHogProvider> : content;
 }

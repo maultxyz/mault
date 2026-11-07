@@ -23,6 +23,7 @@ import { CARD_ART_RADIUS, RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants
 import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
 import { formatDateTime } from "@/lib/dates";
 import type { MatchValidationGameFilterProps } from "@/lib/interfaces/match-validations";
+import { posthog } from "@/lib/posthog";
 import { absoluteUrl } from "@/lib/url";
 
 export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps) {
@@ -41,6 +42,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
       saveLabel: async (item, verdict) => {
         const result = await saveMatchValidation({ scanId: item.scanId, verdict });
         if (result.success) {
+          posthog?.capture("match_validation_submitted", { verdict });
           void queryClient.invalidateQueries({ queryKey: matchValidationProgressQueryOptions.queryKey });
           void queryClient.invalidateQueries({ queryKey: MATCH_VALIDATION_SCANS_QUERY_KEY });
         }

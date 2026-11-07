@@ -9,3 +9,4 @@ expo-env.d.ts
 .env*.local
 eas.json
 google-service-account.json
+.env
