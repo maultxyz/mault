@@ -20,6 +20,7 @@ import {
   fingerprintDistance,
 } from "@/features/scanner/lib/hand-scan";
 import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-code";
+import { useFoilDetectionGameKey } from "@/features/scanner/api/use-foil-detection-game-key";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import { drawScanImageFile } from "@/features/scanner/lib/scan-image-file";
 import {
