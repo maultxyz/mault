@@ -119,6 +119,10 @@
         root.classList.add(theme);
         root.style.colorScheme = theme;
         if (/^\/app(\/|$)/.test(location.pathname)) root.dataset.boot = "app";
+        root.style.setProperty(
+          "--loading-logo-offset",
+          -Math.round(performance.now() % 1800) + "ms"
+        );
       })();
     </script>
     <style>
@@ -174,6 +178,86 @@
       [data-boot="app"] .boot-shell-tagline {
         display: none;
       }
+      .loading-logo path {
+        transform-box: fill-box;
+        transform-origin: 50% 100%;
+        animation: loading-logo-hop 1.8s cubic-bezier(0.45, 0, 0.3, 1) infinite both;
+        animation-delay: var(--loading-logo-offset, 0ms);
+      }
+
+      .loading-logo path:nth-child(2) {
+        animation-delay: calc(var(--loading-logo-offset, 0ms) + 110ms);
+      }
+
+      .loading-logo path:nth-child(3) {
+        transform-origin: 50% 50%;
+        animation-name: loading-logo-flip;
+        animation-delay: calc(var(--loading-logo-offset, 0ms) + 220ms);
+      }
+
+      @keyframes loading-logo-hop {
+        0% {
+          transform: translateY(0) rotate(0deg) scale(1, 1);
+        }
+        8% {
+          transform: translateY(0) rotate(0deg) scale(1.1, 0.85);
+        }
+        20% {
+          transform: translateY(-30%) rotate(-4deg) scale(0.9, 1.12);
+        }
+        30% {
+          transform: translateY(-36%) rotate(3deg) scale(1, 1);
+        }
+        40% {
+          transform: translateY(0) rotate(0deg) scale(1.14, 0.82);
+        }
+        48% {
+          transform: translateY(0) rotate(0deg) scale(0.95, 1.06);
+        }
+        56%,
+        100% {
+          transform: translateY(0) rotate(0deg) scale(1, 1);
+        }
+      }
+
+      @keyframes loading-logo-flip {
+        0% {
+          transform: translateY(0) rotate(0deg) scale(1, 1);
+        }
+        6% {
+          transform: translateY(0) rotate(0deg) scale(1.12, 0.86);
+        }
+        15% {
+          transform: translateY(-28%) rotate(0deg) scale(0.92, 1.1);
+        }
+        23% {
+          transform: translateY(0) rotate(0deg) scale(1.14, 0.84);
+        }
+        30% {
+          transform: translateY(-24%) rotate(0deg) scale(0.92, 1.1);
+        }
+        40% {
+          transform: translateY(-62%) rotate(-180deg) scale(1, 1);
+        }
+        50% {
+          transform: translateY(-12%) rotate(-360deg) scale(1, 1);
+        }
+        55% {
+          transform: translateY(0) rotate(-360deg) scale(1.16, 0.8);
+        }
+        63% {
+          transform: translateY(0) rotate(-360deg) scale(0.95, 1.06);
+        }
+        71%,
+        100% {
+          transform: translateY(0) rotate(-360deg) scale(1, 1);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .loading-logo path {
+          animation: none;
+        }
+      }
     </style>
     <script>
       // ?perf=1 load diagnostics (public/perf-overlay.js). Recorders start
@@ -222,8 +306,10 @@
     <div id="root"></div>
     <div class="boot-shell" aria-hidden="true">
       <span class="boot-shell-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 235 217" fill="none">
-          <path fill="currentColor" d="M78.567 70.705c9.79-16.958 31.474-22.768 48.431-12.978a3.545 3.545 0 0 1 1.298 4.844l-48 83.138c-9.79 16.958-31.474 22.768-48.432 12.977a3.545 3.545 0 0 1-1.297-4.843zM131.841 70.705c9.791-16.958 31.475-22.768 48.432-12.978a3.545 3.545 0 0 1 1.298 4.844l-48 83.138c-9.79 16.958-31.474 22.768-48.432 12.977a3.545 3.545 0 0 1-1.297-4.843zM162.526 109.705c9.791-16.958 31.474-22.768 48.432-12.978a3.545 3.545 0 0 1 1.298 4.843l-25.41 44.011c-9.79 16.958-31.474 22.768-48.432 12.978a3.546 3.546 0 0 1-1.298-4.844z" />
+        <svg class="loading-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 235 217" fill="none" overflow="visible">
+          <path fill="currentColor" d="M78.567 70.705c9.79-16.958 31.474-22.768 48.431-12.978a3.545 3.545 0 0 1 1.298 4.844l-48 83.138c-9.79 16.958-31.474 22.768-48.432 12.977a3.545 3.545 0 0 1-1.297-4.843z" />
+          <path fill="currentColor" d="M131.841 70.705c9.791-16.958 31.475-22.768 48.432-12.978a3.545 3.545 0 0 1 1.298 4.844l-48 83.138c-9.79 16.958-31.474 22.768-48.432 12.977a3.545 3.545 0 0 1-1.297-4.843z" />
+          <path fill="currentColor" d="M162.526 109.705c9.791-16.958 31.474-22.768 48.432-12.978a3.545 3.545 0 0 1 1.298 4.843l-25.41 44.011c-9.79 16.958-31.474 22.768-48.432 12.978a3.546 3.546 0 0 1-1.298-4.844z" />
         </svg>
       </span>
       <span class="boot-shell-tagline">MAULT · Automated trading card sorting</span>
