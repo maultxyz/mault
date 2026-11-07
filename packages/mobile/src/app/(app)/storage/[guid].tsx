@@ -97,7 +97,7 @@ export default function StorageLocationScreen() {
     () => (summary.data && summary.data.stats.totalCount > 0 ? toStatsBreakdown(summary.data.stats) : null),
     [summary.data],
   );
-  const sortOptions = cardSortOptions(summary.data?.sortableFields ?? [], t("storage.positionOrder"), t);
+  const sortOptions = cardSortOptions(summary.data?.sortableFields ?? [], t("storage.positionOrder"), sort, t);
   const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
   const isQueryActive = !!debouncedSearch || activeSortAndFilterCount > 0 || filters.needsAttention;
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.cards) ?? [], [cards.data]);
@@ -343,7 +343,6 @@ export default function StorageLocationScreen() {
         viewMode={viewMode}
         onViewModeChange={changeViewMode}
         sortOptions={sortOptions}
-        selectedSort={sort ?? DEFAULT_CARD_SORT}
         onSortChange={(value) => setSort(value === DEFAULT_CARD_SORT ? null : value)}
         filters={filters}
         breakdown={breakdown}

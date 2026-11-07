@@ -23,7 +23,6 @@ export function CardViewOptionsSheet({
   grouped,
   onGroupedChange,
   sortOptions,
-  selectedSort,
   onSortChange,
   filters,
   breakdown,
@@ -99,10 +98,10 @@ export function CardViewOptionsSheet({
             t("collection.sort.title"),
             sortOptions.map((option) => (
               <FilterChip
-                key={option.value}
+                key={option.key}
                 label={option.label}
-                selected={option.value === selectedSort}
-                onPress={() => onSortChange(option.value)}
+                selected={option.selected}
+                onPress={() => onSortChange(option.sortKeyOnPress)}
               />
             )),
           )}

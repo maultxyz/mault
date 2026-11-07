@@ -132,7 +132,7 @@ export default function CollectionScreen() {
   const breakdown = useMemo(() => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats) : null), [stats]);
   const binCount = computeBinCount(sorter.device?.moduleCount ?? DEFAULT_MODULE_COUNT);
   const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
-  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), t);
+  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), sort, t);
   const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
 
   const shareLink = useMutation({
@@ -337,7 +337,6 @@ export default function CollectionScreen() {
         grouped={grouped}
         onGroupedChange={setGrouped}
         sortOptions={sortOptions}
-        selectedSort={sort ?? "scan-desc"}
         onSortChange={(value) => setSort(value === "scan-desc" ? null : value)}
         filters={filters}
         breakdown={breakdown}

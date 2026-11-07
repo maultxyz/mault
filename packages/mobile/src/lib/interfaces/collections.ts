@@ -18,8 +18,10 @@ export interface CardToolbarProps {
 }
 
 export interface CardSortOption {
-  value: string;
+  key: string;
   label: string;
+  selected: boolean;
+  sortKeyOnPress: string;
 }
 
 export type CardViewMode = "grid" | "list";
@@ -31,7 +33,6 @@ export interface CardViewOptionsSheetProps {
   grouped?: boolean;
   onGroupedChange?: (grouped: boolean) => void;
   sortOptions: CardSortOption[];
-  selectedSort: string;
   onSortChange: (sort: string) => void;
   filters: CardFilters;
   breakdown: StatsBreakdown | null;
