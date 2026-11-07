@@ -1,7 +1,9 @@
 import type { CardPurchaseLinks, PlayingCard } from "@magic-vault/shared";
 import {
   CARDKINGDOM_SITE_URL,
-  CARDMARKET_SITE_URL,
+  CARDMARKET_SITE_DEFAULT_LANGUAGE,
+  CARDMARKET_SITE_LANGUAGES,
+  CARDMARKET_SITE_ORIGIN,
   TCGPLAYER_SITE_URL,
 } from "../constants/urls";
 import type { CardSearchAdapter } from "../interfaces/card-search";
@@ -21,11 +23,19 @@ function tcgplayerLink(
 
 function cardmarketLink(
   adapter: CardSearchAdapter,
+  product: PurchaseLinkProduct,
   searchName: string,
 ): string | undefined {
   const gamePath = adapter.cardmarket?.siteGamePath;
   if (!gamePath) return undefined;
-  return `${CARDMARKET_SITE_URL}/${gamePath}/Products/Search?searchString=${searchName}`;
+  const siteLanguage = CARDMARKET_SITE_LANGUAGES.includes(product.language ?? "")
+    ? product.language
+    : CARDMARKET_SITE_DEFAULT_LANGUAGE;
+  const siteUrl = `${CARDMARKET_SITE_ORIGIN}/${siteLanguage}/${gamePath}/Products`;
+  const productId = product.cardmarketProductId;
+  return productId != null && Number.isInteger(productId) && productId > 0
+    ? `${siteUrl}?idProduct=${productId}`
+    : `${siteUrl}/Search?searchString=${searchName}`;
 }
 
 function cardKingdomLink(
@@ -48,7 +58,7 @@ export function purchaseLinksForProduct(
   const searchName = encodeURIComponent(product.name);
   const links: CardPurchaseLinks = {
     tcgplayer: tcgplayerLink(adapter, product, searchName),
-    cardmarket: cardmarketLink(adapter, searchName),
+    cardmarket: cardmarketLink(adapter, product, searchName),
     cardkingdom: cardKingdomLink(adapter, product, searchName),
   };
   return Object.fromEntries(
@@ -66,9 +76,16 @@ export function purchaseLinksFor(
         ? adapter.tcgplayer?.productIdFromRaw?.(card)
         : undefined),
   );
+  const cardmarketProductId = Number(
+    card.raw != null ? adapter.cardmarket?.productIdFromRaw?.(card) : undefined,
+  );
   return purchaseLinksForProduct(adapter, {
     name: card.name,
     tcgplayerProductId: Number.isFinite(productId) ? productId : null,
+    cardmarketProductId: Number.isFinite(cardmarketProductId)
+      ? cardmarketProductId
+      : null,
+    language: card.lang,
     cardKingdomUrl:
       card.cardKingdomPrice?.url ?? card.cardKingdomPriceFoil?.url ?? null,
   });
