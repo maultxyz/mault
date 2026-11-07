@@ -14,7 +14,7 @@ export function BatchScanCorrectionSheet({ card, collectionGuid, onSelect, onClo
   return (
     <Modal visible={!!card} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: colors.background }}>
-        <PageHeader title={t("batchScan.pickCard")} subtitle={currentName || null} onBack={onClose} />
+        <PageHeader rendersInsideReactNativeModal title={t("batchScan.pickCard")} subtitle={currentName || null} onBack={onClose} />
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: SCREEN_GUTTER, paddingBottom: SPACING.xxl }}

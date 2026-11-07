@@ -23,7 +23,7 @@ import { usePanelWidth } from "@/hooks/use-panel-width";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { UNMATCHED_PHOTO_WIDTH_FRACTION } from "@/lib/constants/cards";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { formatDateTime } from "@/lib/dates";
 import { absoluteUrl } from "@/lib/url";
 
@@ -91,7 +91,7 @@ export default function UnmatchedCardScreen() {
               style={{
                 width: photoWidth,
                 aspectRatio: CARD_ASPECT_RATIO,
-                borderRadius: RADIUS.lg,
+                borderRadius: CARD_ART_RADIUS,
                 overflow: "hidden",
                 borderWidth: 1,
                 borderColor: colors.border,

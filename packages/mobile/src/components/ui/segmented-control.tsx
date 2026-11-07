@@ -1,7 +1,6 @@
-import { Pressable, View } from "react-native";
-import { AppText } from "@/components/ui/app-text";
+import { Host, SegmentedButton, SingleChoiceSegmentedButtonRow, Text } from "@expo/ui/jetpack-compose";
+import { fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { SegmentedControlProps } from "@/lib/interfaces/ui";
 
 export function SegmentedControl<T extends string>({
@@ -11,47 +10,33 @@ export function SegmentedControl<T extends string>({
 }: SegmentedControlProps<T>) {
   const colors = useTheme();
   return (
-    <View
-      accessibilityRole="tablist"
-      style={{
-        flexDirection: "row",
-        padding: 4,
-        borderRadius: RADIUS.md,
-        borderWidth: 1,
-        borderColor: colors.border,
-        backgroundColor: colors.background,
-        gap: SPACING.xs,
-      }}
-    >
-      {options.map((option) => {
-        const selected = option.value === value;
-        return (
-          <Pressable
-            key={option.value}
-            accessibilityRole="tab"
-            accessibilityState={{ selected }}
-            hitSlop={{ top: 4, bottom: 4 }}
-            onPress={() => onChange(option.value)}
-            style={{
-              flex: 1,
-              minHeight: 36,
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: RADIUS.sm,
-              paddingHorizontal: SPACING.sm,
-              backgroundColor: selected ? colors.primarySelected : "transparent",
-            }}
-          >
-            <AppText
-              weight="semibold"
-              numberOfLines={1}
-              style={{ color: selected ? colors.primaryText : colors.foregroundSecondary }}
+    <Host matchContents={{ vertical: true }} style={{ alignSelf: "stretch" }}>
+      <SingleChoiceSegmentedButtonRow modifiers={[fillMaxWidth()]}>
+        {options.map((option) => {
+          const selected = option.value === value;
+          return (
+            <SegmentedButton
+              key={option.value}
+              selected={selected}
+              onClick={() => onChange(option.value)}
+              colors={{
+                activeContainerColor: colors.primarySelected,
+                activeContentColor: colors.primaryText,
+                activeBorderColor: colors.border,
+                inactiveContainerColor: "transparent",
+                inactiveContentColor: colors.foreground,
+                inactiveBorderColor: colors.border,
+              }}
             >
-              {option.label}
-            </AppText>
-          </Pressable>
-        );
-      })}
-    </View>
+              <SegmentedButton.Label>
+                <Text maxLines={1} overflow="ellipsis" color={selected ? colors.primaryText : colors.foreground}>
+                  {option.label}
+                </Text>
+              </SegmentedButton.Label>
+            </SegmentedButton>
+          );
+        })}
+      </SingleChoiceSegmentedButtonRow>
+    </Host>
   );
 }

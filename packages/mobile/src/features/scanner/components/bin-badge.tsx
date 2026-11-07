@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
 import type { BinBadgeProps } from "@/lib/interfaces/ui";
 
 export function BinBadge({ binNumber }: BinBadgeProps) {
@@ -17,7 +17,7 @@ export function BinBadge({ binNumber }: BinBadgeProps) {
         alignItems: "center",
         paddingHorizontal: SPACING.lg,
         paddingVertical: SPACING.sm,
-        borderRadius: RADIUS.md,
+        borderRadius: CONTROL_RADIUS,
         backgroundColor: colors.primary,
       }}
     >

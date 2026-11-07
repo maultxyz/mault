@@ -51,7 +51,7 @@ import {
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/collections";
 import { WEB_URL } from "@/lib/constants/config";
-import { FLOATING_BUTTON_SHADOW, RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, FLOATING_BUTTON_SHADOW, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
 import { readReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
@@ -281,7 +281,7 @@ export default function CollectionScreen() {
           cards.isPending ? (
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
               {Array.from({ length: 9 }).map((_, i) => (
-                <Skeleton key={i} width={tileWidth} height={tileWidth / CARD_ASPECT_RATIO} radius={RADIUS.lg} />
+                <Skeleton key={i} width={tileWidth} height={tileWidth / CARD_ASPECT_RATIO} radius={CARD_ART_RADIUS} />
               ))}
             </View>
           ) : (
