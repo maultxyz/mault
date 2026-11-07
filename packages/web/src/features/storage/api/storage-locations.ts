@@ -37,7 +37,8 @@ export const storageLocationKeys = {
     guid: string | undefined,
     query: CollectionCardsQuery,
     page: number,
-  ) => [...storageLocationKeys.cardPages(guid), query, page] as const,
+    pageSize: number,
+  ) => [...storageLocationKeys.cardPages(guid), query, page, pageSize] as const,
   summary: (guid: string | undefined) =>
     [...storageLocationKeys.cards(guid), "summary"] as const,
   unreviewedCards: (guid: string | undefined) =>
@@ -153,12 +154,13 @@ export const storageLocationCardPageQueryOptions = (
   guid: string | undefined,
   query: CollectionCardsQuery,
   page: number,
+  pageSize: number,
 ) =>
   queryOptions({
-    queryKey: storageLocationKeys.cardPage(guid, query, page),
+    queryKey: storageLocationKeys.cardPage(guid, query, page, pageSize),
     queryFn: () =>
       apiGet<Result<StorageLocationCardPage>>(
-        `/api/storage-locations/${guid}/cards/page?${cardsQueryParams(query, { page: String(page) })}`,
+        `/api/storage-locations/${guid}/cards/page?${cardsQueryParams(query, { page: String(page), limit: String(pageSize) })}`,
       ).then((r) => r.data ?? null),
     enabled: !!guid,
     placeholderData: (previous) => previous,

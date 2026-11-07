@@ -53,5 +53,29 @@
       "title": "Aucun scan à valider",
       "description": "Il n'y a aucun scan avec photo dans cette semaine de validation."
     }
+  },
+  "summary": {
+    "label": "Progression de la validation",
+    "topValidatorOrgs": "Organisations les plus actives en validation",
+    "anonymousOrg": "Organisation anonyme",
+    "reviewCount_one": "{{count}} vérification",
+    "reviewCount_other": "{{count}} vérifications",
+    "total": "Total"
+  },
+  "guide": {
+    "open": "Comment vérifier une correspondance",
+    "title": "Comment vérifier une correspondance",
+    "intro": "Comparez la photo du scan avec la carte reconnue. Regardez le nom, le symbole d'extension, le numéro de collection et l'illustration.",
+    "done": "Compris",
+    "items": {
+      "correct": "La photo montre la même carte dans la même impression : même nom, même symbole d'extension, même numéro de collection et même illustration. De légères différences de couleur ou d'éclairage ne posent pas de problème.",
+      "incorrect": "La photo montre une autre carte, ou la même carte d'une autre extension ou impression, par exemple avec un autre symbole d'extension, numéro de collection, cadre ou illustration.",
+      "badScan": "Impossible de savoir de quelle carte il s'agit : la photo est floue, coupée, couverte de reflets, montre plusieurs cartes ou aucune carte.",
+      "skip": "Vous n'êtes pas sûr ? Passez ce scan, quelqu'un d'autre le vérifiera."
+    }
+  },
+  "gameFilter": {
+    "label": "JCC",
+    "all": "Tous les JCC"
   }
 }

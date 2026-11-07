@@ -1434,6 +1434,7 @@ export const platformMatchValidations = pgTable(
     matchedBy: text("matched_by"),
     lowConfidenceMatch: boolean("low_confidence_match").notNull(),
     validatedByUserId: text("validated_by_user_id").notNull(),
+    validatorOrgId: text("validator_org_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

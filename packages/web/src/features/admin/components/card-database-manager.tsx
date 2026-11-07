@@ -82,6 +82,22 @@ export function CardDatabaseManager() {
       }
     >
       <div className="flex h-80 flex-col overflow-hidden rounded-lg border">
+        {cardsQuery.data && (
+          <ListPagination
+            alignsEnd
+            className="border-b px-4 py-2"
+            pagination={{
+              page: cardPage,
+              pageCount: totalPages,
+              setPage: setCardPage,
+              from: (cardPage - 1) * cardsQuery.data.limit + 1,
+              to:
+                (cardPage - 1) * cardsQuery.data.limit +
+                cardsQuery.data.cards.length,
+              total: cardsQuery.data.total,
+            }}
+          />
+        )}
         <div className="divide-y min-h-0 overflow-y-auto">
           {cardsQuery.isLoading && (
             <p className="text-sm text-foreground/70 text-center py-6">
@@ -133,6 +149,7 @@ export function CardDatabaseManager() {
 
         {cardsQuery.data && (
           <ListPagination
+            alignsEnd
             className="border-t px-4 py-2"
             pagination={{
               page: cardPage,

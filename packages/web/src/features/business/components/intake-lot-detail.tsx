@@ -393,6 +393,10 @@ export function IntakeLotDetail({
               </div>
             </div>
           )}
+          <ListPagination
+            alignsEnd
+            pagination={toServerPagination(cardsPageData, setCardsPage)}
+          />
           <div className="overflow-hidden rounded-lg border">
             <Table>
               <TableHeader>
@@ -535,6 +539,7 @@ export function IntakeLotDetail({
             </Table>
           </div>
           <ListPagination
+            alignsEnd
             pagination={toServerPagination(cardsPageData, setCardsPage)}
           />
         </div>

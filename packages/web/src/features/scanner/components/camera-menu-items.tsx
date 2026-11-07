@@ -6,6 +6,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useCameraContext } from "@/features/scanner/api/use-camera";
 import type { CameraMenuItemsProps } from "@/lib/interfaces/scanner";
 import {
   IconDeviceMobile,
@@ -31,32 +32,44 @@ export function CameraMenuItems({
   onOpenPhonePairing,
 }: CameraMenuItemsProps) {
   const { t } = useTranslation("scanner");
+  const { camerasInUseElsewhere } = useCameraContext();
+  const isWebcamSelected = cameras.some(
+    (camera) => camera.deviceId === selectedCameraId,
+  );
+  const listsWebcams =
+    camerasInUseElsewhere.length > 0 ||
+    (cameras.length > 0 &&
+      (cameras.length > 1 || !isCameraActive || !isWebcamSelected));
+  const webcamLabel = (camera: MediaDeviceInfo, index: number) =>
+    camera.label || t("scannerMenu.cameraFallbackLabel", { index: index + 1 });
 
   return (
     <>
-      {isCameraActive ? (
+      {listsWebcams && (
         <>
-          {cameras.length > 1 && (
-            <>
-              {cameras.map((cam, i) => (
-                <DropdownMenuCheckboxItem
-                  key={cam.deviceId}
-                  checked={cam.deviceId === selectedCameraId}
-                  onCheckedChange={() => onCameraSelect(cam.deviceId)}
-                >
-                  {cam.label ||
-                    t("scannerMenu.cameraFallbackLabel", {
-                      index: i + 1,
-                    })}
-                </DropdownMenuCheckboxItem>
-              ))}
-              <DropdownMenuSeparator />
-            </>
-          )}
-          <DropdownMenuItem variant="destructive" onClick={onCameraDisconnect}>
-            {t("disconnect")}
-          </DropdownMenuItem>
+          {cameras.map((cam, i) => (
+            <DropdownMenuCheckboxItem
+              key={cam.deviceId}
+              disabled={scanningBlocked}
+              checked={cam.deviceId === selectedCameraId}
+              onCheckedChange={() => onCameraSelect(cam.deviceId)}
+            >
+              {webcamLabel(cam, i)}
+            </DropdownMenuCheckboxItem>
+          ))}
+          {camerasInUseElsewhere.map((cam, i) => (
+            <DropdownMenuCheckboxItem key={cam.deviceId} disabled checked={false}>
+              {webcamLabel(cam, cameras.length + i)}
+              <Badge variant="outline">{t("scannerMenu.cameraInUseElsewhere")}</Badge>
+            </DropdownMenuCheckboxItem>
+          ))}
+          <DropdownMenuSeparator />
         </>
+      )}
+      {isCameraActive ? (
+        <DropdownMenuItem variant="destructive" onClick={onCameraDisconnect}>
+          {t("disconnect")}
+        </DropdownMenuItem>
       ) : (
         <DropdownMenuItem disabled={scanningBlocked} onClick={onCameraConnect}>
           {t("connect")}

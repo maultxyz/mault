@@ -53,5 +53,29 @@
       "title": "No scans to validate",
       "description": "There are no scans with a photo in this validation week."
     }
+  },
+  "summary": {
+    "label": "Validation progress",
+    "topValidatorOrgs": "Top validating organizations",
+    "anonymousOrg": "Anonymous organization",
+    "reviewCount_one": "{{count}} review",
+    "reviewCount_other": "{{count}} reviews",
+    "total": "Total"
+  },
+  "guide": {
+    "open": "How to check a match",
+    "title": "How to check a match",
+    "intro": "Compare the scan photo with the card it was matched to. Look at the name, the set symbol, the collector number and the artwork.",
+    "done": "Got it",
+    "items": {
+      "correct": "The photo shows the same card in the same printing: same name, set symbol, collector number and art. Small differences in colour or lighting are fine.",
+      "incorrect": "The photo shows a different card, or the same card from another set or printing, such as a different set symbol, collector number, frame or art.",
+      "badScan": "You can't tell which card it is because the photo is blurry, cut off, covered in glare, shows more than one card or shows no card at all.",
+      "skip": "Not sure? Skip it and someone else will check it."
+    }
+  },
+  "gameFilter": {
+    "label": "TCG",
+    "all": "All TCGs"
   }
 }

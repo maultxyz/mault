@@ -121,6 +121,7 @@ export function DeletedItemsManager() {
         />
       ) : (
         <>
+          <ListPagination alignsEnd pagination={pagination} />
           <div className="divide-y rounded-lg border">
             {pagination.pageItems.map((item) => {
               const restoring =
@@ -171,7 +172,7 @@ export function DeletedItemsManager() {
               );
             })}
           </div>
-          <ListPagination pagination={pagination} />
+          <ListPagination alignsEnd pagination={pagination} />
         </>
       )}
     </SettingsSection>

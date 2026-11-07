@@ -1,5 +1,6 @@
 import {
   COLLECTION_CARDS_PAGE_SIZE,
+  pageSizeFromQuery,
   type CollectionCardsCount,
   type CollectionCardsPage,
   type CollectionCardsSummary,
@@ -27,6 +28,7 @@ export async function readCardsPage(
 ): Promise<CollectionCardsPage | null> {
   const query = parseCardsQuery(params);
   const page = parsePage(params.page);
+  const pageSize = pageSizeFromQuery(params.limit, COLLECTION_CARDS_PAGE_SIZE);
   const result = await run(async (tx) => {
     const collection = await findCardsCollection(tx, guid, orgId);
     if (!collection) return null;
@@ -35,7 +37,7 @@ export async function readCardsPage(
       collection,
       query,
       page,
-      COLLECTION_CARDS_PAGE_SIZE,
+      pageSize,
     );
     return { gameKey: collection.gameKey, lang: collection.lang, data };
   });
@@ -49,7 +51,7 @@ export async function readCardsPage(
     ...result.data,
     items,
     page,
-    pageSize: COLLECTION_CARDS_PAGE_SIZE,
+    pageSize,
   };
 }
 

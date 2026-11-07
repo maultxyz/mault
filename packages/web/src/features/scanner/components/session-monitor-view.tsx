@@ -138,6 +138,9 @@ export function SessionMonitorView({
               viewMode={cards.viewMode}
               groupDuplicates={cards.groupDuplicates}
               page={cards.page}
+              pageSize={cards.pageSize}
+              preferredPageSize={cards.preferredPageSize}
+              onPageSizeChange={cards.setPageSize}
               pageCount={cards.pageCount}
               onPageChange={cards.setPage}
               showBinLocation={showBinLocation}

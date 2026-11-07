@@ -104,6 +104,7 @@ export interface CameraContextValue {
   focusRange: CameraRange | null;
   focusDistance: number | null;
   cameras: MediaDeviceInfo[];
+  camerasInUseElsewhere: MediaDeviceInfo[];
   selectedCameraId: string | null;
   setFocusDistance: (value: number | null) => void;
   selectCamera: (deviceId: string) => void;
@@ -570,6 +571,9 @@ export interface MonitorCardGridProps {
   viewMode: CardViewMode;
   groupDuplicates: boolean;
   page: number;
+  pageSize: number;
+  preferredPageSize: number;
+  onPageSizeChange: (pageSize: number) => void;
   pageCount: number;
   onPageChange: (page: number) => void;
   showBinLocation: boolean;
@@ -604,6 +608,9 @@ export interface MonitorCardsState {
   entries: GroupedScannedCard[];
   isLoading: boolean;
   page: number;
+  pageSize: number;
+  preferredPageSize: number;
+  setPageSize: (pageSize: number) => void;
   pageCount: number;
   setPage: (page: number) => void;
   stats: ScanStats | null;

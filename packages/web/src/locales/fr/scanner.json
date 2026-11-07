@@ -351,6 +351,7 @@
   "scannerMenu": {
     "camera": "Caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
+    "cameraInUseElsewhere": "Utilisée par une autre station",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
     "autoFeed": "Alimentation auto",
@@ -592,6 +593,7 @@
   "connect": "Connecter",
   "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
   "requestingCameraAccess": "Demande d'accès à la caméra…",
+  "cameraConnecting": "Connexion à la caméra…",
   "cardCount_one": "{{count}} carte",
   "cardCount_other": "{{count}} cartes",
   "isScanningTooltip": "{{name}} est en train de scanner",

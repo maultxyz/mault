@@ -17,6 +17,7 @@ import {
 } from "@/features/match-validations/api/match-validations";
 import { ReviewProgress } from "@/features/match-validations/components/review-progress";
 import { useHotkeys } from "@/hooks/use-hotkeys";
+import type { MatchValidationGameFilterProps } from "@/lib/interfaces/match-validations";
 import { useLabelQueue } from "@/hooks/use-label-queue";
 import {
   IconArrowLeft,
@@ -32,10 +33,10 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
-export function MatchValidationQueue() {
+export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps) {
   const { t, i18n } = useTranslation("matchValidations");
   const queryClient = useQueryClient();
-  const queueQuery = useQuery(matchValidationQueueQueryOptions);
+  const queueQuery = useQuery(matchValidationQueueQueryOptions(gameKey));
   const { refetch: refetchQueue, isFetching: isFetchingQueue } = queueQuery;
   const {
     current,

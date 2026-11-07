@@ -51,6 +51,7 @@ export * from "./interfaces/sorter-link.interface";
 export * from "./constants/bin-correction.constant";
 export * from "./constants/desktop.constant";
 export * from "./constants/collection-cards.constant";
+export * from "./page-size";
 export * from "./constants/firmware.constant";
 export * from "./constants/module-configs.constant";
 export * from "./constants/monitor-links.constant";

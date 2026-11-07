@@ -2,10 +2,14 @@ import { MatchValidationProgress } from "@/components/match-validation-progress"
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { ViewTabs } from "@/components/view-tabs";
+import { MatchValidationGuideButton } from "@/features/match-validations/components/match-validation-guide-button";
+import { MatchValidationGameSelect } from "@/features/match-validations/components/match-validation-game-select";
 import { MatchValidationQueue } from "@/features/match-validations/components/match-validation-queue";
 import { MatchValidationScanGrid } from "@/features/match-validations/components/match-validation-scan-grid";
+import { MatchValidationSummary } from "@/features/match-validations/components/match-validation-summary";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
+  MATCH_VALIDATION_GAME_PARAM,
   MATCH_VALIDATION_REVIEW_VIEW,
   MATCH_VALIDATION_VIEW_PARAM,
   MATCH_VALIDATION_VIEWS,
@@ -28,6 +32,22 @@ export default function ValidateMatchesPage() {
   const description = t("description", {
     required: MATCH_VALIDATION_REVIEWS_REQUIRED,
   });
+
+  const gameKey = params.get(MATCH_VALIDATION_GAME_PARAM);
+  const changeGameKey = (nextGameKey: string | null) =>
+    setParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        if (nextGameKey) next.set(MATCH_VALIDATION_GAME_PARAM, nextGameKey);
+        else next.delete(MATCH_VALIDATION_GAME_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
+  const gameSelect = (
+    <MatchValidationGameSelect gameKey={gameKey} onGameKeyChange={changeGameKey} />
+  );
+  const guideButton = <MatchValidationGuideButton />;
 
   const viewSwitch = (
     <ViewTabs<MatchValidationView>
@@ -58,7 +78,11 @@ export default function ValidateMatchesPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {isMobile && (
-        <MobilePageHeader title={t("title")} subtitle={description} />
+        <MobilePageHeader
+          title={t("title")}
+          subtitle={description}
+          actions={guideButton}
+        />
       )}
       <div
         className={cn(
@@ -71,15 +95,28 @@ export default function ValidateMatchesPage() {
             title={t("title")}
             description={description}
             tabs={viewSwitch}
-          />
+            actions={
+              <>
+                {gameSelect}
+                {guideButton}
+              </>
+            }
+          >
+            {view !== MATCH_VALIDATION_REVIEW_VIEW && (
+              <MatchValidationSummary className="pb-1" />
+            )}
+          </PageHeader>
         )}
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:p-6">
-          {isMobile && <MatchValidationProgress />}
+          {isMobile && view === MATCH_VALIDATION_REVIEW_VIEW && (
+            <MatchValidationProgress />
+          )}
           {isMobile && viewSwitch}
+          {isMobile && gameSelect}
           {view === MATCH_VALIDATION_REVIEW_VIEW ? (
-            <MatchValidationQueue />
+            <MatchValidationQueue key={gameKey} gameKey={gameKey} />
           ) : (
-            <MatchValidationScanGrid />
+            <MatchValidationScanGrid key={gameKey} gameKey={gameKey} />
           )}
         </div>
       </div>

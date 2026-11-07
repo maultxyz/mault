@@ -2,6 +2,7 @@ import type {
   DesktopDocumentScanDriver,
   DesktopScannerCommand,
   DesktopScannerIcon,
+  DesktopTitleBarTheme,
 } from "../interfaces/desktop.interface";
 
 export const DESKTOP_SCANNER_COMMANDS: readonly DesktopScannerCommand[] = [
@@ -19,6 +20,8 @@ export const DESKTOP_SCANNER_ICONS: readonly DesktopScannerIcon[] = [
   "auto-feed-off",
   "clear-device",
 ];
+
+export const DESKTOP_TITLE_BAR_THEMES: readonly DesktopTitleBarTheme[] = ["light", "dark"];
 
 export const DESKTOP_PIP_FRAME_NAME = "mault-scanner-pip";
 

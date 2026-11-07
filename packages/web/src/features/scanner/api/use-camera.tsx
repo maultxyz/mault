@@ -54,6 +54,7 @@ import {
   acquireFreeStream,
   camerasHeldByOtherStations,
   stopMediaStream,
+  waitForTrackSetup,
 } from "@/features/scanner/lib/camera-stream";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHost } from "@/hooks/use-pi-host";
@@ -97,8 +98,31 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   );
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const mediaDevices = navigator.mediaDevices;
+    if (browserMustUsePiCamera() || !mediaDevices?.enumerateDevices) return;
+    const refreshWebcams = () =>
+      void mediaDevices
+        .enumerateDevices()
+        .then((devices) => {
+          const webcams = devices.filter(
+            (device) => device.kind === "videoinput" && device.deviceId,
+          );
+          setCameras((previous) =>
+            previous.some((camera) => camera.deviceId === PI_CAMERA_DEVICE_ID)
+              ? previous
+              : webcams,
+          );
+        })
+        .catch(() => {});
+    refreshWebcams();
+    mediaDevices.addEventListener("devicechange", refreshWebcams);
+    return () => mediaDevices.removeEventListener("devicechange", refreshWebcams);
+  }, []);
   const [cameraSource, setCameraSource] = useState<CameraSource>("local");
   const streamRef = useRef<MediaStream | null>(null);
+  const cameraStartAttemptRef = useRef(0);
   const queryClient = useQueryClient();
   const documentScannerBridge = useMemo(getDocumentScannerSessionBridge, []);
   const documentScannerSessionRef = useRef<DocumentScannerSessionState | null>(
@@ -175,6 +199,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
 
   const openDocumentScanner = useCallback(
     async (cameraId: string) => {
+      const attempt = ++cameraStartAttemptRef.current;
       setStatus("requesting");
       setErrorMessage("");
       setCameraSource("document-scanner");
@@ -202,11 +227,16 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
             driver: scanner.driver,
           },
         });
+        if (attempt !== cameraStartAttemptRef.current) {
+          bridge.closeDocumentScannerSession(session.sessionId);
+          return;
+        }
         documentScannerSessionRef.current = session;
         documentScannerPageRef.current = null;
         stationsRef.current.setStationCamera(stationId, cameraId);
         setStatus("ready");
       } catch (err) {
+        if (attempt !== cameraStartAttemptRef.current) return;
         console.error("[camera] document scanner failed to open:", err);
         setErrorMessage(t("camera.documentScannerUnavailable"));
         setStatus("error");
@@ -349,15 +379,19 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
 
   const startCamera = useCallback(
     async (deviceId?: string) => {
+      console.warn("[camera] start", { deviceId, stationId });
       if (isDocumentScannerCameraId(deviceId)) {
         if (deviceId) await openDocumentScanner(deviceId);
         return;
       }
+      const attempt = ++cameraStartAttemptRef.current;
+      const isSuperseded = () => attempt !== cameraStartAttemptRef.current;
       setStatus("requesting");
       setErrorMessage("");
       try {
         await loadPiHost();
         const health = await readPiCameraHealth();
+        if (isSuperseded()) return;
         const usePi = health.status === "ready" || browserMustUsePiCamera();
         if (usePi) {
           if (health.status !== "ready") {
@@ -368,6 +402,10 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           const mediaStream = isMobile && browserMustUsePiCamera()
             ? null
             : await acquirePiRelayStream();
+          if (isSuperseded()) {
+            stopMediaStream(mediaStream);
+            return;
+          }
           streamRef.current = mediaStream;
           setStream(mediaStream);
           setStatus("ready");
@@ -400,6 +438,10 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           otherStationCameraIds(),
           isMobile,
         );
+        if (isSuperseded()) {
+          stopMediaStream(mediaStream);
+          return;
+        }
         if (!mediaStream) {
           setErrorMessage(t("camera.allInUse"));
           setStatus("error");
@@ -420,13 +462,17 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           setFocusRange(range);
           setFocusDistanceState(savedFocus);
           if (savedFocus !== null) {
-            await applyTrackFocus(track, savedFocus).catch(() => {});
+            void waitForTrackSetup(track)
+              .then(() => applyTrackFocus(track, savedFocus))
+              .catch(() => {});
           }
         }
 
         const devices = await navigator.mediaDevices.enumerateDevices();
         setCameras(devices.filter((d) => d.kind === "videoinput"));
       } catch (err) {
+        if (isSuperseded()) return;
+        console.error("[camera] starting the camera failed:", err);
         const msg =
           err instanceof DOMException && err.name === "NotAllowedError"
             ? t("camera.permissionDenied")
@@ -481,6 +527,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     if (cameraSource === "phone") {
       stopPhonePairingInternal();
     }
+    cameraStartAttemptRef.current += 1;
     closeDocumentScannerSession();
     releaseLocalStream();
     setCameraSource("local");
@@ -513,7 +560,9 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
 
   const selectCamera = useCallback(
     async (deviceId: string) => {
-      if (otherStationCameraIds().has(deviceId)) return;
+      const heldByOtherStations = otherStationCameraIds();
+      console.warn("[camera] select", { deviceId, heldByOtherStations: [...heldByOtherStations] });
+      if (heldByOtherStations.has(deviceId)) return;
       stopCamera();
       await startCamera(deviceId);
     },
@@ -526,6 +575,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     void startCamera(stationCameraIdRef.current ?? undefined);
 
     return () => {
+      cameraStartAttemptRef.current += 1;
       closeDocumentScannerSession();
       releaseLocalStream();
       setStatus("idle");
@@ -553,13 +603,16 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   }, [station.cameraId, selectedCameraId, status, cameraSource, selectCamera]);
 
   const { stations, isStationLive } = stationsCtx;
-  const availableCameras = useMemo(() => {
+  const { availableCameras, camerasInUseElsewhere } = useMemo(() => {
     const taken = camerasHeldByOtherStations(
       stations,
       isStationLive,
       stationId,
     );
-    return cameras.filter((c) => !taken.has(c.deviceId));
+    return {
+      availableCameras: cameras.filter((c) => !taken.has(c.deviceId)),
+      camerasInUseElsewhere: cameras.filter((c) => taken.has(c.deviceId)),
+    };
   }, [cameras, stations, isStationLive, stationId]);
 
   return (
@@ -571,6 +624,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         focusRange,
         focusDistance,
         cameras: availableCameras,
+        camerasInUseElsewhere,
         selectedCameraId,
         setFocusDistance,
         selectCamera,

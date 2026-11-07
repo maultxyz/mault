@@ -27,9 +27,24 @@ export interface MatchValidationQueue {
   counts: MatchValidationCounts;
 }
 
+export interface MatchValidationTopOrg {
+  name: string | null;
+  reviewCount: number;
+  isAnonymous: boolean;
+}
+
+export interface MatchValidationGameProgress {
+  gameKey: string;
+  gameName: string;
+  scanCount: number;
+  reviewCount: number;
+}
+
 export interface MatchValidationProgress {
   scanCount: number;
   reviewCount: number;
+  games?: MatchValidationGameProgress[];
+  topValidatorOrgs?: MatchValidationTopOrg[];
 }
 
 export type MatchValidationVerdict = "correct" | "incorrect" | "badScan";
@@ -53,8 +68,6 @@ export interface MatchValidationScan extends MatchValidationVerdictCounts {
   setCode: string | null;
   setName: string | null;
   collectorNumber: string | null;
-  scannedAt: string;
-  capturedImageUrl: string | null;
   catalogImageUrl: string | null;
   yourVerdict: MatchValidationVerdict | null;
   status: MatchValidationStatus;

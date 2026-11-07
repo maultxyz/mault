@@ -21,11 +21,6 @@ export interface MatchValidationQueueRow {
   card: PlayingCard;
   collection_lang: string;
   ocr_regions: OcrReadRegion[] | null;
-  review_count: number;
-}
-
-export interface MatchValidationTotalRow {
-  total: number;
 }
 
 export interface MatchValidationScanRow {
@@ -34,22 +29,45 @@ export interface MatchValidationScanRow {
   set_code: string | null;
   set_name: string | null;
   collector_number: string | null;
-  scanned_at: Date;
+  catalog_image_url: string | null;
+}
+
+export interface MatchValidationThumbnailRow {
   captured_image_key: string | null;
   captured_image_data_url: string | null;
-  catalog_image_url: string | null;
+}
+
+export interface MatchValidationCandidate {
+  scanId: string;
+  lowConfidenceMatch: boolean;
+  gameKey: string | null;
+  gameName: string | null;
+}
+
+export interface MatchValidationCandidateRow {
+  scan_id: string;
+  low_confidence_match: boolean;
+  game_key: string | null;
+  game_name: string | null;
+}
+
+export interface MatchValidationVoteRow {
+  scan_id: string;
+  review_count: number;
   correct_count: number;
   incorrect_count: number;
   bad_scan_count: number;
   your_verdict: MatchValidationVerdict | null;
 }
 
-export interface MatchValidationProgressRow {
-  scan_count: number;
+export interface MatchValidationValidatorOrgRow {
+  validator_org_id: string | null;
+  user_id: string;
   review_count: number;
 }
 
-export interface MatchValidationCountsRow {
-  validated_by_you: number;
-  validated_by_community: number;
+export interface MatchValidationVotes {
+  byScanId: Map<string, MatchValidationVoteRow>;
+  validatedByYou: number;
+  validatedByCommunity: number;
 }

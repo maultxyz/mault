@@ -28,6 +28,8 @@ export interface DesktopWindowState {
   background: boolean;
 }
 
+export type DesktopTitleBarTheme = "light" | "dark";
+
 export interface DesktopWindowOffset {
   x: number;
   y: number;
@@ -146,6 +148,7 @@ export interface DesktopBridge {
   onWindowState: (listener: (state: DesktopWindowState) => void) => () => void;
   showMainWindow: () => void;
   movePipWindowBy: (offset: DesktopWindowOffset) => void;
+  setTitleBarTheme?: (theme: DesktopTitleBarTheme) => void;
   onScannerCommand: (listener: (command: DesktopScannerCommand) => void) => () => void;
   listDocumentScanners?: () => Promise<DesktopDocumentScannerList>;
   getDocumentScanFolder?: () => Promise<string | null>;
