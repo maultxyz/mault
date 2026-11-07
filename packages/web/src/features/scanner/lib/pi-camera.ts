@@ -67,6 +67,8 @@ export async function readPiCameraHealth(): Promise<PiCameraHealth> {
       return { status: response.status === 404 ? "absent" : "down" };
     }
     const body = (await response.json()) as {
+      focusMode?: "auto" | "manual";
+      lensPosition?: number;
       label?: string;
       width?: number;
       height?: number;
@@ -84,6 +86,8 @@ export async function readPiCameraHealth(): Promise<PiCameraHealth> {
         : null;
     return {
       status: "ready",
+      focusMode: body.focusMode,
+      lensPosition: typeof body.lensPosition === "number" ? body.lensPosition : undefined,
       label: body.label || PI_CAMERA_LABEL,
       width: body.width || PI_CAMERA_WIDTH,
       height: body.height || PI_CAMERA_HEIGHT,

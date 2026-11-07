@@ -40,6 +40,8 @@ function sameState(left: PiScanSessionState, right: PiScanSessionState) {
     left.stopping === right.stopping &&
     left.activity === right.activity &&
     left.autoFeed === right.autoFeed &&
+    left.foilType === right.foilType &&
+    JSON.stringify(left.preferredSetCodes) === JSON.stringify(right.preferredSetCodes) &&
     left.startedAt === right.startedAt &&
     left.pausedMs === right.pausedMs &&
     left.pausedAt === right.pausedAt &&

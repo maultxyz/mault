@@ -77,6 +77,7 @@ import {
 } from "@/features/collections/lib/card-page-cache";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { usePiScanSettings } from "@/features/scanner/api/use-pi-scan-settings";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
 import { useDeployScanPause } from "@/features/scanner/api/use-deploy-pause";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
@@ -519,6 +520,14 @@ export function ScannedCardsProvider({
     forceFoilTypeRef.current = foilType;
     setForceFoilTypeState(foilType);
   }, []);
+
+  const piScanSettings = usePiScanSettings({
+    collectionGuid: activeCollection?.guid,
+    foilType: forceFoilType,
+    preferredSetCodes: forceSetCodes,
+    setFoilType: setForceFoilType,
+    setPreferredSetCodes: setForceSetCodes,
+  });
 
   const setForceSetCodesAfterCollectionSwitch = useCallback(
     (setCodes: string[]) => {
@@ -1533,8 +1542,8 @@ export function ScannedCardsProvider({
         unmatchedCount,
         isLoading,
         autoFeed,
-        forceFoilType,
-        forceSetCodes,
+        forceFoilType: piScanSettings.foilType,
+        forceSetCodes: piScanSettings.preferredSetCodes,
         scanCondition,
         elapsedMs,
         isTimerActive,
@@ -1544,8 +1553,8 @@ export function ScannedCardsProvider({
         setScannerRunning,
         resetSessionStats,
         setAutoFeed,
-        setForceFoilType,
-        setForceSetCodes,
+        setForceFoilType: piScanSettings.setFoilType,
+        setForceSetCodes: piScanSettings.setPreferredSetCodes,
         setForceSetCodesAfterCollectionSwitch,
         setScanCondition,
         registerCardArrivedHook,

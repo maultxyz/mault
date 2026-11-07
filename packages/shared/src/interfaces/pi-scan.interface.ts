@@ -14,6 +14,8 @@ export interface PiScanSessionSight {
 }
 
 export interface PiScanSessionState {
+  foilType?: string | null;
+  preferredSetCodes?: string[];
   phase: PiScanSessionPhase;
   collectionGuid: string | null;
   message: string | null;

@@ -10,7 +10,6 @@ import {
 } from "@/features/scanner/api/pi-scan-session";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { useStation } from "@/features/scanner/api/use-stations";
 import { usePiHostState } from "@/hooks/use-pi-host";
 import { readPiCameraHealth } from "@/features/scanner/lib/pi-camera";
 import {
@@ -34,12 +33,10 @@ export function usePiScanSession() {
   const { autoFeed, forceFoilType, forceSetCodes } = useScannedCards();
   const { disconnect } = useSerial();
   const { piSorter } = usePiHostState();
-  const { isActive } = useStation();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
   const [cameraReady, setCameraReady] = useState(false);
   const [starting, setStarting] = useState(false);
   const collectionGuid = activeCollection?.guid;
-  const sessionLive = piScanHoldsPort(state);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,14 +47,6 @@ export function usePiScanSession() {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (!sessionLive || !isActive) return;
-    void updatePiScanSettings({
-      foilType: forceFoilType,
-      preferredSetCodes: forceSetCodes,
-    }).catch(() => {});
-  }, [sessionLive, isActive, forceFoilType, forceSetCodes]);
 
   const start = useCallback(async () => {
     if (!collectionGuid) {

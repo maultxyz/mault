@@ -43,6 +43,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 const CameraContext = createContext<CameraContextValue | null>(null);
 
@@ -99,22 +100,11 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           setSelectedCameraId(PI_CAMERA_DEVICE_ID);
           stationsRef.current.setStationCamera(stationId, PI_CAMERA_DEVICE_ID);
           const range = health.focus;
-          const saved = loadSavedFocus(PI_CAMERA_DEVICE_ID);
-          const savedFocus =
-            range &&
-            saved !== null &&
-            saved >= range.min &&
-            saved <= range.max
-              ? saved
-              : null;
+          // Pi focus belongs to the shared camera, not this browser's storage.
           setFocusRange(range);
-          setFocusDistanceState(savedFocus);
-          // Apply auto as well: the camera may retain manual mode across starts.
-          if (!mediaStream) await applyPiFocus(savedFocus).catch(() => {});
-          else {
-            const track = mediaStream.getVideoTracks()[0];
-            if (track) await applyTrackFocus(track, savedFocus).catch(() => {});
-          }
+          setFocusDistanceState(
+            health.focusMode === "manual" ? health.lensPosition ?? null : null,
+          );
           return;
         }
 
@@ -164,13 +154,13 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   );
 
   const setFocusDistance = useCallback((value: number | null) => {
-    if (browserMustUsePiCamera()) {
-      void applyPiFocus(value).catch(() => {});
-      saveFocus(PI_CAMERA_DEVICE_ID, value);
-      setFocusDistanceState(value);
+    const track = streamRef.current?.getVideoTracks()[0];
+    if (browserMustUsePiCamera() || (track && isPiRelayTrack(track))) {
+      void applyPiFocus(value).then(() => {
+        setFocusDistanceState(value);
+      }).catch(() => toast.error(t("cameraAccessError")));
       return;
     }
-    const track = streamRef.current?.getVideoTracks()[0];
     if (!track) return;
     void applyTrackFocus(track, value).catch(() => {});
     saveFocus(
@@ -180,7 +170,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       value,
     );
     setFocusDistanceState(value);
-  }, []);
+  }, [t]);
 
   const {
     status: phonePairingStatus,

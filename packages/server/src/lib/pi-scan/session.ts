@@ -162,6 +162,8 @@ function publicState(session: PiScanLive | undefined): PiScanSessionState {
         ? new Date(session.pauseStartedAt).toISOString()
         : null,
     autoFeed: session.autoFeed,
+    foilType: session.foilType,
+    preferredSetCodes: [...session.preferredSetCodes],
   };
 }
 

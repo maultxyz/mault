@@ -63,6 +63,8 @@ export interface CameraRange {
 }
 
 export interface PiCameraReady {
+  focusMode?: "auto" | "manual";
+  lensPosition?: number;
   status: "ready";
   label: string;
   width: number;
