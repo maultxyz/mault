@@ -11,6 +11,7 @@ export function Button({
   onPress,
   variant = "primary",
   icon,
+  iconOnly = false,
   loading = false,
   disabled = false,
   size = "md",
@@ -21,7 +22,7 @@ export function Button({
   const colors = useTheme();
   const palette = {
     primary: { bg: colors.primary, pressed: colors.primaryPressed, fg: colors.primaryForeground, border: "transparent" },
-    secondary: { bg: colors.background, pressed: colors.muted, fg: colors.foreground, border: colors.border },
+    secondary: { bg: colors.tonal, pressed: colors.tonalPressed, fg: colors.foreground, border: "transparent" },
     destructive: { bg: colors.destructiveTint, pressed: colors.destructiveMuted, fg: colors.destructiveForeground, border: "transparent" },
     ghost: { bg: "transparent", pressed: colors.muted, fg: colors.foreground, border: "transparent" },
   }[variant];
@@ -55,11 +56,13 @@ export function Button({
         {loading ? (
           <ActivityIndicator size="small" color={palette.fg} />
         ) : icon ? (
-          <Icon name={icon} size={16} color={palette.fg} />
+          <Icon name={icon} size={iconOnly ? 20 : 16} color={palette.fg} />
         ) : null}
-        <AppText size={size === "lg" ? "base" : "sm"} weight="semibold" style={{ color: palette.fg }}>
-          {label}
-        </AppText>
+        {iconOnly ? null : (
+          <AppText size={size === "lg" ? "base" : "sm"} weight="semibold" style={{ color: palette.fg }}>
+            {label}
+          </AppText>
+        )}
       </View>
     </Pressable>
   );

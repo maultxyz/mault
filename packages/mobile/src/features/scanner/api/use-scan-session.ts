@@ -44,11 +44,8 @@ import {
   binHeightsQueryOptions,
   feederConfigQueryOptions,
 } from "@/features/calibration/api/calibration-configs";
-import {
-  collectionsQueryOptions,
-  releaseScanLock,
-  setActiveCollection,
-} from "@/features/collections/api/collections";
+import { releaseScanLock } from "@/features/collections/api/collections";
+import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { binRoutesQueryOptions, binSetsQueryOptions } from "@/features/devices/api/devices";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
@@ -98,7 +95,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const orgId = useActiveOrgId();
   const sorter = useSorter();
   const { saveCard, saveUnmatched } = usePendingSaves();
-  const { data: collections } = useQuery(collectionsQueryOptions(orgId));
+  const { collection, collections, setScanTargetGuid } = useScanTarget();
   const { data: binSets } = useQuery(binSetsQueryOptions(orgId));
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
@@ -120,7 +117,6 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const [handScan, setHandScanState] = useState(() => readKv(HAND_SCAN_KEY) === "true");
   const handScanActive = handScan && LIVE_CORNERS_SUPPORTED && !sorter.isReady;
 
-  const collection = collections?.find((c) => c.isActive) ?? null;
   const set = useMemo(() => {
     const forGame = (binSets ?? []).filter(
       (s) => (s.game?.guid ?? undefined) === (collection?.game?.guid ?? undefined),
@@ -700,10 +696,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         }
       }
       try {
-        if (switchesCollection && command.collectionGuid) {
-          const nextCollections = await setActiveCollection(command.collectionGuid);
-          queryClient.setQueryData(collectionsQueryOptions(ctx.orgId).queryKey, nextCollections);
-        }
+        if (switchesCollection && command.collectionGuid) setScanTargetGuid(command.collectionGuid);
         const preset = ctx.binSets?.find((binSet) => binSet.guid === command.presetGuid);
         if (preset && !preset.isActive) {
           const nextBinSets = await activateBinSet(preset.guid);
@@ -726,6 +719,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       setForcedFoilType,
       setForcedSetCodes,
       setScanCondition,
+      setScanTargetGuid,
     ],
   );
 

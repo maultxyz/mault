@@ -11,10 +11,6 @@ export const collectionsQueryOptions = (orgId: string | null) =>
     staleTime: QUERY_STALE_MS,
   });
 
-export function setActiveCollection(guid: string): Promise<Collection[]> {
-  return unwrap(apiPut<Result<Collection[]>>(`/api/collections/${guid}/active`));
-}
-
 export function createCollection(values: CreateCollectionFormValues): Promise<Collection[]> {
   return unwrap(apiPost<Result<Collection[]>>("/api/collections", values));
 }

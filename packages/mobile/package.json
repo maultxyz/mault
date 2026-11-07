@@ -15,7 +15,9 @@
     "build:ios:prod": "eas build --platform ios --profile production",
     "build:android:dev": "eas build --platform android --profile development",
     "build:android:preview": "eas build --platform android --profile preview",
-    "submit:ios": "eas submit --platform ios",
+    "build:android:prod": "eas build --platform android --profile production",
+    "submit:ios": "eas submit --platform ios --profile production --latest",
+    "submit:android": "eas submit --platform android --profile production --latest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

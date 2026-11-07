@@ -7,6 +7,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { PanelClip } from "@/components/ui/panel-clip";
 import { useShellPanelStyle } from "@/hooks/use-shell-panel-style";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS } from "@/lib/constants/theme";
@@ -30,6 +31,9 @@ export default function TabsLayout() {
   const isStorageLocked = isStorageNotInPlan && !billing?.storageLocationCount;
   return (
     <Tabs
+      screenLayout={({ route, children }) => (
+        <PanelClip backgroundColor={route.name === "scan" ? colors.camera : undefined}>{children}</PanelClip>
+      )}
       screenOptions={({ route }) => ({
         headerShown: false,
         sceneStyle: route.name === "scan" ? { ...panelStyle, backgroundColor: colors.camera } : panelStyle,
@@ -69,9 +73,8 @@ export default function TabsLayout() {
         ),
       })}
     >
-      <Tabs.Screen name="index" options={{ title: t("tabs.home") }} />
+      <Tabs.Screen name="index" options={{ title: t("tabs.collections") }} />
       <Tabs.Screen name="scan" options={{ title: t("tabs.scan") }} />
-      <Tabs.Screen name="rules" options={{ title: t("tabs.rules") }} />
       <Tabs.Screen
         name="storage"
         options={
@@ -98,7 +101,7 @@ export default function TabsLayout() {
           },
         }}
       />
-      <Tabs.Screen name="account" options={{ title: t("tabs.account") }} />
+      <Tabs.Screen name="account" options={{ title: t("tabs.more") }} />
     </Tabs>
   );
 }

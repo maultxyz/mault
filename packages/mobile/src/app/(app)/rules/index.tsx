@@ -35,7 +35,7 @@ export default function RulesScreen() {
     <Screen
       refreshing={data.isRefetching}
       onRefresh={data.refetch}
-      header={<PageHeader title={t("rules.title")} subtitle={collection?.game?.name ?? collection?.name} />}
+      header={<PageHeader title={t("rules.title")} subtitle={collection?.game?.name ?? collection?.name} onBack={() => router.back()} />}
     >
       {data.isError ? <Callout tone="destructive" title={t("rules.loadFailed")} /> : null}
       {picker.isError ? <Callout tone="destructive" title={t("rules.activateFailed")} /> : null}

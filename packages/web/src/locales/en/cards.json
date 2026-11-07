@@ -89,7 +89,10 @@
     },
     "copyOf": "Copy {{index}} of {{count}}",
     "moreOptions": "More",
-    "actions": "Card actions"
+    "actions": "Card actions",
+    "name": "Name",
+    "moveToLocation": "Move to location",
+    "moveToCollection": "Move to collection"
   },
   "cardFilterPopover": {
     "color": "Color",

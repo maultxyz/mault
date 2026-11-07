@@ -65,7 +65,8 @@
       "heading": "Übersicht"
     },
     "liveView": "Live-Ansicht",
-    "printControlCard": "Steuerkarte drucken"
+    "printControlCard": "Steuerkarte drucken",
+    "viewStats": "Statistiken"
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",

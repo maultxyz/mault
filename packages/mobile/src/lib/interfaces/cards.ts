@@ -1,3 +1,4 @@
+import type { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import type {
   CardCondition,
   CollectionCardPosition,
@@ -46,6 +47,10 @@ export interface CardCorrection {
   correct: (entry: ScannedCard, card: PlayingCard) => Promise<void>;
   isPending: boolean;
 }
+
+export type CardDetailMenuSheet = (typeof CARD_DETAIL_MENU_SHEETS)[number];
+
+export type CardDetailSheet = CardDetailMenuSheet | "actions" | "tags";
 
 export interface MatchesOpenState {
   scanId: string;

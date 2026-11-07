@@ -14,13 +14,11 @@ import {
 } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { CardTile } from "@/components/cards/card-tile";
-import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { SearchInput } from "@/components/ui/search-input";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -157,8 +155,29 @@ export default function StorageLocationScreen() {
     },
   });
 
+  const hasCards = !!location && location.cardCount > 0;
+  const menuOptions = [
+    ...(hasCards && !isStorageLocked ? [{ value: "review", label: t("storage.review.start") }] : []),
+    ...(hasCards ? [{ value: "export", label: t("export.button") }] : []),
+    ...(isStorageLocked
+      ? []
+      : [
+          { value: "rename", label: t("storage.rename") },
+          { value: "delete", label: t("storage.delete") },
+        ]),
+  ];
+
   const runAction = (action: string) => {
     setMenuOpen(false);
+    if (action === "review") {
+      void startReview();
+      return;
+    }
+    if (action === "export") {
+      runExport.reset();
+      setExportOpen(true);
+      return;
+    }
     if (action === "rename") {
       router.push({ pathname: "/storage-name", params: { guid, name: location?.name ?? "" } });
       return;
@@ -180,7 +199,7 @@ export default function StorageLocationScreen() {
           }
           onBack={() => router.back()}
           actions={
-            isStorageLocked ? null : (
+            menuOptions.length === 0 ? null : (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t("storage.actions")}
@@ -199,13 +218,14 @@ export default function StorageLocationScreen() {
             </Pressable>
             )
           }
-        >
-          <TabStrip<StorageLocationTab>
-            value={tab}
-            onChange={setTab}
-            items={STORAGE_LOCATION_TABS.map((value) => ({ value, label: t(`storage.verify.tabs.${value}`) }))}
-          />
-        </PageHeader>
+          tabs={
+            <TabStrip<StorageLocationTab>
+              value={tab}
+              onChange={setTab}
+              items={STORAGE_LOCATION_TABS.map((value) => ({ value, label: t(`storage.verify.tabs.${value}`) }))}
+            />
+          }
+        />
       }
     >
       {tab === "verify" && location ? (
@@ -240,38 +260,15 @@ export default function StorageLocationScreen() {
             <View style={{ gap: SPACING.lg, paddingHorizontal: SPACING.sm, paddingBottom: SPACING.lg }}>
               {remove.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
               {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
-              {location && location.cardCount > 0 ? (
-                <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-                  {isStorageLocked ? null : (
-                    <Button style={{ flex: 1 }} icon="check" label={t("storage.review.start")} onPress={() => void startReview()} />
-                  )}
-                  <Button
-                    style={{ flex: 1 }}
-                    variant="secondary"
-                    icon="upload"
-                    label={t("export.button")}
-                    onPress={() => {
-                      runExport.reset();
-                      setExportOpen(true);
-                    }}
-                  />
-                </View>
-              ) : null}
-              {location && location.cardCount > 0 ? (
-                <View style={{ gap: SPACING.md }}>
-                  <SearchInput
-                    value={search}
-                    onChangeText={setSearch}
-                    placeholder={t("storage.searchCardsPlaceholder")}
-                    accessibilityLabel={t("storage.searchCardsPlaceholder")}
-                  />
-                  <CardToolbar
-                    activeSortAndFilterCount={activeSortAndFilterCount}
-                    needsReview={filters.needsAttention}
-                    onOpenViewOptions={() => setViewOptionsOpen(true)}
-                    onToggleNeedsReview={() => setFilters((value) => ({ ...value, needsAttention: !value.needsAttention }))}
-                  />
-                </View>
+              {hasCards ? (
+                <CardToolbar
+                  search={search}
+                  onSearchChange={setSearch}
+                  searchPlaceholder={t("storage.searchCardsPlaceholder")}
+                  searchAccessibilityLabel={t("storage.searchCardsPlaceholder")}
+                  activeSortAndFilterCount={activeSortAndFilterCount}
+                  onOpenViewOptions={() => setViewOptionsOpen(true)}
+                />
               ) : null}
             </View>
           }
@@ -356,10 +353,7 @@ export default function StorageLocationScreen() {
       <OptionSheet
         visible={menuOpen}
         title={location?.name ?? t("storage.actions")}
-        options={[
-          { value: "rename", label: t("storage.rename") },
-          { value: "delete", label: t("storage.delete") },
-        ]}
+        options={menuOptions}
         selected={[]}
         onSelect={runAction}
         onClose={() => setMenuOpen(false)}

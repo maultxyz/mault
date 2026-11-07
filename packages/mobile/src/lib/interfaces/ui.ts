@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { StyleProp, TextProps, ViewStyle } from "react-native";
-import type { CommLogEntry, OrgOverviewCard, OrgOverviewDay, PlayingCard, ScanRegion } from "@magic-vault/shared";
+import type { CommLogEntry, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners, MonitorState } from "@/lib/interfaces/scanner";
 import type { FontSize, StatusTone } from "@/lib/interfaces/theme";
@@ -30,6 +30,7 @@ export interface ButtonProps {
   onPress?: () => void;
   variant?: ButtonVariant;
   icon?: IconName;
+  iconOnly?: boolean;
   loading?: boolean;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
@@ -117,15 +118,24 @@ export interface ScreenProps {
 
 export interface PageHeaderProps {
   title: string;
+  titleAccessory?: ReactNode;
   subtitle?: string | null;
   subtitleAccessory?: ReactNode;
   onBack?: () => void;
   actions?: ReactNode;
+  tabs?: ReactNode;
   children?: ReactNode;
 }
 
 export interface ListGroupProps {
   children: ReactNode;
+}
+
+export interface PillButtonProps {
+  label: string;
+  tone?: PillProps["tone"];
+  icon?: IconName;
+  onPress: () => void;
 }
 
 export interface PillProps {
@@ -143,6 +153,11 @@ export interface SegmentedControlProps<T extends string> {
 export interface SectionHeaderProps {
   title: string;
   action?: ReactNode;
+}
+
+export interface StatGroupProps {
+  heading?: string;
+  children: ReactNode;
 }
 
 export interface StatTileProps {
@@ -183,21 +198,6 @@ export interface CardTileProps {
   onLongPress?: () => void;
 }
 
-export interface HomeStatTileProps {
-  label: string;
-  value: string;
-}
-
-export interface ActivityChartProps {
-  days: OrgOverviewDay[];
-}
-
-export interface CardStripProps {
-  title: string;
-  cards: OrgOverviewCard[];
-  onOpen: (card: OrgOverviewCard) => void;
-}
-
 export interface TabStripItem<T extends string> {
   value: T;
   label: string;
@@ -208,13 +208,14 @@ export interface TabStripProps<T extends string> {
   items: TabStripItem<T>[];
   value: T;
   onChange: (value: T) => void;
+  inline?: boolean;
 }
 
 export interface HomeCollectionRowProps {
   name: string;
   subtitle: string;
   value?: string | null;
-  isActive: boolean;
+  isScanTarget: boolean;
   isLive?: boolean;
   onPress: () => void;
 }
@@ -229,15 +230,6 @@ export interface DetailRowProps {
   value: string;
 }
 
-export interface HomeHeroProps {
-  value: string | null;
-  summary: string | null;
-}
-
-export interface CollectionActivityProps {
-  state: MonitorState;
-  onOpen: (scanId: string) => void;
-}
 
 export interface BinBadgeProps {
   binNumber: number;
@@ -374,22 +366,14 @@ export interface IconButtonProps {
   selected?: boolean;
 }
 
-export interface QuickActionProps {
-  icon: IconName;
-  label: string;
-  onPress: () => void;
-  disabled?: boolean;
-}
-
 export interface TopBarSwitcherProps {
   initial: string;
   label: string;
-  badge?: string;
   accessibilityLabel: string;
   onPress: () => void;
 }
 
-export type AppTopBarSheet = "alerts" | "organizations" | "collections";
+export type AppTopBarSheet = "alerts" | "organizations";
 
 export interface PickerCardProps {
   icon: IconName;
@@ -399,4 +383,24 @@ export interface PickerCardProps {
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
+}
+
+export interface CollapsibleSectionProps {
+  title: string;
+  children: ReactNode;
+  initiallyOpen?: boolean;
+}
+
+export interface PanelClipProps {
+  children: ReactNode;
+  backgroundColor?: string;
+}
+
+export interface ListSkeletonProps {
+  rows?: number;
+  withIcon?: boolean;
+}
+
+export interface PageSkeletonProps {
+  sections?: number;
 }

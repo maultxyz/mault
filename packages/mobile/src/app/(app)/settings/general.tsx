@@ -20,6 +20,7 @@ export default function GeneralSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.general.title")}
+      isLoading={draft.isLoading}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}

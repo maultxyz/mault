@@ -65,7 +65,8 @@
       "heading": "Aperçu"
     },
     "liveView": "Vue en direct",
-    "printControlCard": "Imprimer une carte de contrôle"
+    "printControlCard": "Imprimer une carte de contrôle",
+    "viewStats": "Statistiques"
   },
   "editDialog": {
     "title": "Modifier la collection",

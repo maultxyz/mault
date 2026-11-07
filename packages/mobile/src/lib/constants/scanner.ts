@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import type { ScanMode, ScannerPauseReason, ScannerPhase, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
+import type { ScannerPauseReason, ScannerPhase, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
 import type { CardScanNoticeKind } from "@/lib/interfaces/storage";
 
 export const BIN_DATA_RETRY_MS = 5000;
@@ -56,7 +56,7 @@ export const ANY_SET_OPTION = "any";
 export const CARD_SET_PICKER_LIMIT = 100;
 
 export const SCAN_REMOVAL_NOTICE_DURATION_MS = 3000;
-export const SCAN_MODES: readonly ScanMode[] = ["add", "remove"];
+export const QUIET_SCANNER_PHASES: readonly ScannerPhase[] = ["idle", "ready"];
 
 export const SCAN_REMOVAL_NOTICE_TONES = {
   "no-match": "info",

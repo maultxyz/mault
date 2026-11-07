@@ -11,6 +11,7 @@ import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SelectField } from "@/components/ui/select-field";
@@ -107,198 +108,204 @@ export default function OrganizationSettingsScreen() {
       onRefresh={() => void details.refetch()}
       header={<PageHeader title={t("settings.sections.organization.title")} subtitle={org?.name} onBack={() => router.back()} />}
     >
-      {error || details.isError ? <Callout tone="destructive" title={t("settings.org.failed")} /> : null}
+      {details.isLoading ? (
+        <PageSkeleton />
+      ) : (
+        <>
+          {error || details.isError ? <Callout tone="destructive" title={t("settings.org.failed")} /> : null}
 
-      {canManage && details.data?.canRename ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.org.renameHeading", { name: org?.name ?? "" })}
-          </AppText>
-          <Controller
-            control={renameForm.control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("settings.org.nameLabel")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                error={translateFormErrorMessage(t, fieldState.error?.message)}
+          {canManage && details.data?.canRename ? (
+            <Surface style={{ gap: SPACING.md }}>
+              <AppText heading weight="semibold" accessibilityRole="header">
+                {t("settings.org.renameHeading", { name: org?.name ?? "" })}
+              </AppText>
+              <Controller
+                control={renameForm.control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <TextField
+                    label={t("settings.org.nameLabel")}
+                    value={field.value}
+                    onBlur={field.onBlur}
+                    onChangeText={field.onChange}
+                    error={translateFormErrorMessage(t, fieldState.error?.message)}
+                  />
+                )}
               />
-            )}
-          />
-          <Button
-            label={t("settings.org.rename")}
-            disabled={!renameForm.formState.isDirty}
-            loading={mutate.isPending}
-            onPress={renameForm.handleSubmit((values) =>
-              run(async () => {
-                await renameOrganization(orgId ?? "", values.name.trim());
-                renameForm.reset({ name: values.name.trim() });
-                await refreshOrganizations();
-              }),
-            )}
-          />
-        </Surface>
-      ) : null}
-
-      <Surface style={{ gap: SPACING.sm }}>
-        <AppText heading weight="semibold" accessibilityRole="header">
-          {t("settings.org.membersHeading")}
-        </AppText>
-        {details.data && !details.data.canManageMembers ? (
-          <AppText size="xs" tone="secondary">
-            {t("settings.org.membersUnavailable")}
-          </AppText>
-        ) : (
-          <ListGroup>
-            {(details.data?.members ?? []).map((member) => {
-              const isSelf = member.userId === user?.id;
-              const editable = canManage && !isSelf && member.role !== "owner";
-              return (
-                <ListRow
-                  key={member.id}
-                  icon="account"
-                  title={member.name || member.email}
-                  subtitle={isSelf ? `${member.email} · ${t("settings.org.you")}` : member.email}
-                  value={t(`settings.org.roles.${member.role}`)}
-                  onPress={editable ? () => setRoleSheet(member) : undefined}
-                />
-              );
-            })}
-          </ListGroup>
-        )}
-      </Surface>
-
-      {canManage ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.org.inviteMemberHeading")}
-          </AppText>
-          {memberLimitReached ? (
-            <Callout tone="info" title={t("settings.org.memberLimitReached", { count: memberLimit })} />
+              <Button
+                label={t("settings.org.rename")}
+                disabled={!renameForm.formState.isDirty}
+                loading={mutate.isPending}
+                onPress={renameForm.handleSubmit((values) =>
+                  run(async () => {
+                    await renameOrganization(orgId ?? "", values.name.trim());
+                    renameForm.reset({ name: values.name.trim() });
+                    await refreshOrganizations();
+                  }),
+                )}
+              />
+            </Surface>
           ) : null}
-          <Controller
-            control={inviteForm.control}
-            name="email"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("settings.org.emailLabel")}
-                placeholder={t("settings.org.emailPlaceholder")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                autoComplete="email"
-                textContentType="emailAddress"
-                error={translateFormErrorMessage(t, fieldState.error?.message)}
-              />
-            )}
-          />
-          <SelectField
-            label={t("settings.org.role")}
-            value={t(`settings.org.roles.${inviteRole}`)}
-            placeholder={t("settings.org.role")}
-            onPress={() => setInviteRoleOpen(true)}
-          />
-          <Button
-            icon="plus"
-            label={t("settings.org.invite")}
-            loading={mutate.isPending}
-            disabled={memberLimitReached}
-            onPress={inviteForm.handleSubmit((values) =>
-              run(async () => {
-                await inviteMember(orgId ?? "", values.email.trim(), values.role);
-                inviteForm.reset({ email: "", role: values.role });
-              }),
-            )}
-          />
-          <View style={{ gap: SPACING.xs }}>
-            <AppText size="xs" tone="secondary">
-              {t("settings.org.pendingInvites")}
+
+          <Surface style={{ gap: SPACING.sm }}>
+            <AppText heading weight="semibold" accessibilityRole="header">
+              {t("settings.org.membersHeading")}
             </AppText>
-            {(details.data?.invitations ?? []).length === 0 ? (
+            {details.data && !details.data.canManageMembers ? (
               <AppText size="xs" tone="secondary">
-                {t("settings.org.noInvites")}
+                {t("settings.org.membersUnavailable")}
               </AppText>
             ) : (
               <ListGroup>
-                {(details.data?.invitations ?? []).map((invitation) => (
-                  <ListRow
-                    key={invitation.id}
-                    title={invitation.email}
-                    subtitle={t(`settings.org.roles.${invitation.role}`)}
-                    rightIsInteractive
-                    right={
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        label={t("settings.org.cancelInvite")}
-                        accessibilityLabel={`${t("settings.org.cancelInvite")}, ${invitation.email}`}
-                        onPress={() => void run(() => cancelInvitation(invitation.id))}
-                      />
-                    }
-                  />
-                ))}
+                {(details.data?.members ?? []).map((member) => {
+                  const isSelf = member.userId === user?.id;
+                  const editable = canManage && !isSelf && member.role !== "owner";
+                  return (
+                    <ListRow
+                      key={member.id}
+                      icon="account"
+                      title={member.name || member.email}
+                      subtitle={isSelf ? `${member.email} · ${t("settings.org.you")}` : member.email}
+                      value={t(`settings.org.roles.${member.role}`)}
+                      onPress={editable ? () => setRoleSheet(member) : undefined}
+                    />
+                  );
+                })}
               </ListGroup>
             )}
-          </View>
-        </Surface>
-      ) : null}
+          </Surface>
 
-      {role === "owner" ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.org.dangerZoneHeading")}
-          </AppText>
-          <AppText size="xs" tone="secondary">
-            {subscriptionBlocksDelete
-              ? t("settings.org.cancelSubscriptionFirst")
-              : t("settings.org.deleteWarning", { name: org?.name ?? "" })}
-          </AppText>
-          <Button
-            variant="destructive"
-            icon="trash"
-            label={t("settings.org.deleteOrganization")}
-            disabled={subscriptionBlocksDelete}
-            onPress={confirmDelete}
+          {canManage ? (
+            <Surface style={{ gap: SPACING.md }}>
+              <AppText heading weight="semibold" accessibilityRole="header">
+                {t("settings.org.inviteMemberHeading")}
+              </AppText>
+              {memberLimitReached ? (
+                <Callout tone="info" title={t("settings.org.memberLimitReached", { count: memberLimit })} />
+              ) : null}
+              <Controller
+                control={inviteForm.control}
+                name="email"
+                render={({ field, fieldState }) => (
+                  <TextField
+                    label={t("settings.org.emailLabel")}
+                    placeholder={t("settings.org.emailPlaceholder")}
+                    value={field.value}
+                    onBlur={field.onBlur}
+                    onChangeText={field.onChange}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    autoComplete="email"
+                    textContentType="emailAddress"
+                    error={translateFormErrorMessage(t, fieldState.error?.message)}
+                  />
+                )}
+              />
+              <SelectField
+                label={t("settings.org.role")}
+                value={t(`settings.org.roles.${inviteRole}`)}
+                placeholder={t("settings.org.role")}
+                onPress={() => setInviteRoleOpen(true)}
+              />
+              <Button
+                icon="plus"
+                label={t("settings.org.invite")}
+                loading={mutate.isPending}
+                disabled={memberLimitReached}
+                onPress={inviteForm.handleSubmit((values) =>
+                  run(async () => {
+                    await inviteMember(orgId ?? "", values.email.trim(), values.role);
+                    inviteForm.reset({ email: "", role: values.role });
+                  }),
+                )}
+              />
+              <View style={{ gap: SPACING.xs }}>
+                <AppText size="xs" tone="secondary">
+                  {t("settings.org.pendingInvites")}
+                </AppText>
+                {(details.data?.invitations ?? []).length === 0 ? (
+                  <AppText size="xs" tone="secondary">
+                    {t("settings.org.noInvites")}
+                  </AppText>
+                ) : (
+                  <ListGroup>
+                    {(details.data?.invitations ?? []).map((invitation) => (
+                      <ListRow
+                        key={invitation.id}
+                        title={invitation.email}
+                        subtitle={t(`settings.org.roles.${invitation.role}`)}
+                        rightIsInteractive
+                        right={
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            label={t("settings.org.cancelInvite")}
+                            accessibilityLabel={`${t("settings.org.cancelInvite")}, ${invitation.email}`}
+                            onPress={() => void run(() => cancelInvitation(invitation.id))}
+                          />
+                        }
+                      />
+                    ))}
+                  </ListGroup>
+                )}
+              </View>
+            </Surface>
+          ) : null}
+
+          {role === "owner" ? (
+            <Surface style={{ gap: SPACING.md }}>
+              <AppText heading weight="semibold" accessibilityRole="header">
+                {t("settings.org.dangerZoneHeading")}
+              </AppText>
+              <AppText size="xs" tone="secondary">
+                {subscriptionBlocksDelete
+                  ? t("settings.org.cancelSubscriptionFirst")
+                  : t("settings.org.deleteWarning", { name: org?.name ?? "" })}
+              </AppText>
+              <Button
+                variant="destructive"
+                icon="trash"
+                label={t("settings.org.deleteOrganization")}
+                disabled={subscriptionBlocksDelete}
+                onPress={confirmDelete}
+              />
+            </Surface>
+          ) : null}
+
+          <OptionSheet
+            visible={roleSheet !== null}
+            title={roleSheet ? roleSheet.name || roleSheet.email : t("settings.org.changeRole")}
+            options={[
+              { value: "admin", label: t("settings.org.roles.admin") },
+              { value: "member", label: t("settings.org.roles.member") },
+              { value: "remove", label: t("settings.org.remove") },
+            ]}
+            selected={roleSheet ? [roleSheet.role] : []}
+            onSelect={(value) => {
+              const member = roleSheet;
+              setRoleSheet(null);
+              if (!member) return;
+              if (value === "remove") confirmRemove(member);
+              else if (value !== member.role) void run(() => updateMemberRole(orgId ?? "", member.id, value as OrgRole));
+            }}
+            onClose={() => setRoleSheet(null)}
           />
-        </Surface>
-      ) : null}
-
-      <OptionSheet
-        visible={roleSheet !== null}
-        title={roleSheet ? roleSheet.name || roleSheet.email : t("settings.org.changeRole")}
-        options={[
-          { value: "admin", label: t("settings.org.roles.admin") },
-          { value: "member", label: t("settings.org.roles.member") },
-          { value: "remove", label: t("settings.org.remove") },
-        ]}
-        selected={roleSheet ? [roleSheet.role] : []}
-        onSelect={(value) => {
-          const member = roleSheet;
-          setRoleSheet(null);
-          if (!member) return;
-          if (value === "remove") confirmRemove(member);
-          else if (value !== member.role) void run(() => updateMemberRole(orgId ?? "", member.id, value as OrgRole));
-        }}
-        onClose={() => setRoleSheet(null)}
-      />
-      <OptionSheet
-        visible={inviteRoleOpen}
-        title={t("settings.org.role")}
-        options={[
-          { value: "member", label: t("settings.org.roles.member") },
-          { value: "admin", label: t("settings.org.roles.admin") },
-        ]}
-        selected={[inviteRole]}
-        onSelect={(value) => {
-          setInviteRoleOpen(false);
-          inviteForm.setValue("role", value as OrganizationInviteFormValues["role"]);
-        }}
-        onClose={() => setInviteRoleOpen(false)}
-      />
+          <OptionSheet
+            visible={inviteRoleOpen}
+            title={t("settings.org.role")}
+            options={[
+              { value: "member", label: t("settings.org.roles.member") },
+              { value: "admin", label: t("settings.org.roles.admin") },
+            ]}
+            selected={[inviteRole]}
+            onSelect={(value) => {
+              setInviteRoleOpen(false);
+              inviteForm.setValue("role", value as OrganizationInviteFormValues["role"]);
+            }}
+            onClose={() => setInviteRoleOpen(false)}
+          />
+        </>
+      )}
     </Screen>
   );
 }

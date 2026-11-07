@@ -38,6 +38,7 @@ import IconCircleCheck from "@tabler/icons-react-native/IconCircleCheck";
 import IconCircleX from "@tabler/icons-react-native/IconCircleX";
 import IconCpu from "@tabler/icons-react-native/IconCpu";
 import IconDots from "@tabler/icons-react-native/IconDots";
+import IconMenu2 from "@tabler/icons-react-native/IconMenu2";
 import IconExternalLink from "@tabler/icons-react-native/IconExternalLink";
 import IconEye from "@tabler/icons-react-native/IconEye";
 import IconHeartRateMonitor from "@tabler/icons-react-native/IconHeartRateMonitor";
@@ -107,6 +108,7 @@ export const ICONS = {
   info: IconInfoCircle,
   live: IconBroadcast,
   logout: IconLogout,
+  menu: IconMenu2,
   monitor: IconHeartRateMonitor,
   more: IconDots,
   edit: IconPencil,

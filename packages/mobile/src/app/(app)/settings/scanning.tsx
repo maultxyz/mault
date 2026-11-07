@@ -37,6 +37,7 @@ export default function ScanningSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.scanning.title")}
+      isLoading={draft.isLoading}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}

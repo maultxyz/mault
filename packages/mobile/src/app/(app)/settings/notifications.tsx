@@ -287,6 +287,7 @@ export default function NotificationsSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.notifications.title")}
+      isLoading={integration.isLoading || rules.isLoading || settings.isLoading}
       isDirty={form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}

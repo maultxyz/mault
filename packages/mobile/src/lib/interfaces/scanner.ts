@@ -191,8 +191,6 @@ export interface ScanSessionValue extends ScanSessionState {
 
 export type ScanRemovalNoticeKind = "no-match" | "lookup-failed" | "removed";
 
-export type ScanMode = "add" | "remove";
-
 export interface ScanRemovalNotice {
   noticeId: string;
   kind: ScanRemovalNoticeKind;
@@ -282,7 +280,8 @@ export interface ScanOptionsSheetProps {
   onAllowDuplicatesChange: (value: boolean) => void;
   handScan: boolean;
   onHandScanChange: (value: boolean) => void;
-  collectionName: string | null;
+  removeMode: boolean;
+  onRemoveModeChange: (value: boolean) => void;
   presetName: string | null;
   showPreset: boolean;
   cameraName: string | null;
@@ -291,7 +290,6 @@ export interface ScanOptionsSheetProps {
   showFoilType: boolean;
   setName: string;
   conditionName: string;
-  onChooseCollection: () => void;
   onChoosePreset: () => void;
   onChooseCamera: () => void;
   onChooseFoilType: () => void;

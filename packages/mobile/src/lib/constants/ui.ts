@@ -22,7 +22,6 @@ export const SLIDER_THUMB_SIZE = 24;
 export const SLIDER_TRACK_HEIGHT = 4;
 export const SLIDER_HIT_HEIGHT = 40;
 export const ICON_BADGE_SIZE = 40;
-export const QUICK_ACTION_SIZE = 32;
 
 export const GRADIENT_BURST_SIZE = 360;
 export const GRADIENT_BURST_CENTER = 32;
@@ -38,3 +37,5 @@ export const SHUTTER_SIZE = 48;
 export const SHUTTER_ICON_SIZE = 20;
 export const LOCKED_TAB_OPACITY = 0.5;
 export const MULTILINE_INPUT_MIN_HEIGHT = 200;
+export const LIST_SKELETON_TITLE_WIDTHS = ["55%", "45%", "35%"] as const;
+export const PILL_MIN_HEIGHT = 20;
