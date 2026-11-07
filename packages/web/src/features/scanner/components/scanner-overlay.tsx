@@ -362,7 +362,7 @@ export function ScannerOverlay({
       case "requesting-camera":
         return (
           <StatusPill placement={pillPlacement} variant="loading">
-            <IconCameraSpark className="size-3.5 shrink-0" />
+            <IconLoader2 className="size-3.5 animate-spin shrink-0" />
             <span>{t("requestingCameraAccess")}</span>
           </StatusPill>
         );

@@ -104,6 +104,7 @@ export interface CameraContextValue {
   focusRange: CameraRange | null;
   focusDistance: number | null;
   cameras: MediaDeviceInfo[];
+  camerasInUseElsewhere: MediaDeviceInfo[];
   selectedCameraId: string | null;
   setFocusDistance: (value: number | null) => void;
   selectCamera: (deviceId: string) => void;

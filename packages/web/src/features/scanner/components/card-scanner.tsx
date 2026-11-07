@@ -30,6 +30,7 @@ import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-ca
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
 import { ScannerStatusBar } from "@/features/scanner/components/scanner-status-bar";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
+import { CameraConnectingOverlay } from "@/features/scanner/components/camera-connecting-overlay";
 import { PiCameraPreview } from "@/features/scanner/components/pi-camera-preview";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
@@ -878,6 +879,7 @@ export function CardScanner({
           aria-hidden
           className="absolute z-20 pointer-events-none"
         />
+        <CameraConnectingOverlay />
         {renderChrome({
           status,
           errorMessage,
@@ -1019,6 +1021,7 @@ export function CardScanner({
               previewRotated && cameraSource === "local" && "rotate-90",
             )}
           />
+          <CameraConnectingOverlay />
           {isAdmin && debugImageUrl && (
             <Tooltip>
               <TooltipTrigger
