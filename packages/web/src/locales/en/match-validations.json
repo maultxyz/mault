@@ -59,7 +59,8 @@
     "topValidatorOrgs": "Top validating organizations",
     "anonymousOrg": "Anonymous organization",
     "reviewCount_one": "{{count}} review",
-    "reviewCount_other": "{{count}} reviews"
+    "reviewCount_other": "{{count}} reviews",
+    "total": "Total"
   },
   "guide": {
     "open": "How to check a match",
@@ -72,5 +73,9 @@
       "badScan": "You can't tell which card it is because the photo is blurry, cut off, covered in glare, shows more than one card or shows no card at all.",
       "skip": "Not sure? Skip it and someone else will check it."
     }
+  },
+  "gameFilter": {
+    "label": "TCG",
+    "all": "All TCGs"
   }
 }

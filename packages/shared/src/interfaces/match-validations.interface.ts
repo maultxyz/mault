@@ -33,9 +33,17 @@ export interface MatchValidationTopOrg {
   isAnonymous: boolean;
 }
 
+export interface MatchValidationGameProgress {
+  gameKey: string;
+  gameName: string;
+  scanCount: number;
+  reviewCount: number;
+}
+
 export interface MatchValidationProgress {
   scanCount: number;
   reviewCount: number;
+  games?: MatchValidationGameProgress[];
   topValidatorOrgs?: MatchValidationTopOrg[];
 }
 

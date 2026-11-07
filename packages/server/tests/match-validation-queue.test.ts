@@ -4,7 +4,10 @@ import type {
   MatchValidationVoteRow,
   MatchValidationVotes,
 } from "../src/lib/interfaces/match-validations";
-import { pickMatchValidationQueue } from "../src/lib/match-validation-queue";
+import {
+  gameProgressOf,
+  pickMatchValidationQueue,
+} from "../src/lib/match-validation-queue";
 
 function votesFor(rows: Partial<MatchValidationVoteRow>[]): MatchValidationVotes {
   const byScanId = new Map(
@@ -23,14 +26,14 @@ function votesFor(rows: Partial<MatchValidationVoteRow>[]): MatchValidationVotes
   return { byScanId, validatedByYou: 0, validatedByCommunity: 0 };
 }
 
-test("the match validation queue skips finished and already-voted scans and puts half-reviewed ones first", () => {
+test("the match validation queue skips finished and already-voted scans and puts low confidence matches first, then half-reviewed ones", () => {
   const candidates = [
-    { scanId: "newest", lowConfidenceMatch: false },
-    { scanId: "low-confidence", lowConfidenceMatch: true },
-    { scanId: "one-review", lowConfidenceMatch: false },
-    { scanId: "finished", lowConfidenceMatch: true },
-    { scanId: "you-voted", lowConfidenceMatch: true },
-    { scanId: "oldest", lowConfidenceMatch: false },
+    { scanId: "newest", lowConfidenceMatch: false, gameKey: "mtg", gameName: "Magic" },
+    { scanId: "low-confidence", lowConfidenceMatch: true, gameKey: "mtg", gameName: "Magic" },
+    { scanId: "one-review", lowConfidenceMatch: false, gameKey: "mtg", gameName: "Magic" },
+    { scanId: "finished", lowConfidenceMatch: true, gameKey: "mtg", gameName: "Magic" },
+    { scanId: "you-voted", lowConfidenceMatch: true, gameKey: "mtg", gameName: "Magic" },
+    { scanId: "oldest", lowConfidenceMatch: false, gameKey: "mtg", gameName: "Magic" },
   ];
   const votes = votesFor([
     { scan_id: "one-review", review_count: 1 },
@@ -39,6 +42,22 @@ test("the match validation queue skips finished and already-voted scans and puts
   ]);
   assert.deepEqual(
     pickMatchValidationQueue(candidates, votes, 3).map((candidate) => candidate.scanId),
-    ["one-review", "low-confidence", "newest"],
+    ["low-confidence", "one-review", "newest"],
   );
+});
+
+test("match validation progress is broken down by game, capping each scan at the reviews it needs", () => {
+  const candidates = [
+    { scanId: "magic-1", lowConfidenceMatch: false, gameKey: "mtg", gameName: "Magic" },
+    { scanId: "magic-2", lowConfidenceMatch: false, gameKey: "mtg", gameName: "Magic" },
+    { scanId: "lorcana-1", lowConfidenceMatch: false, gameKey: "lorcana", gameName: "Lorcana" },
+  ];
+  const votes = votesFor([
+    { scan_id: "magic-1", review_count: 5 },
+    { scan_id: "lorcana-1", review_count: 1 },
+  ]);
+  assert.deepEqual(gameProgressOf(candidates, votes), [
+    { gameKey: "lorcana", gameName: "Lorcana", scanCount: 1, reviewCount: 1 },
+    { gameKey: "mtg", gameName: "Magic", scanCount: 2, reviewCount: 2 },
+  ]);
 });

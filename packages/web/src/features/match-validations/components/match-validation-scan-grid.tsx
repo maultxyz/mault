@@ -5,6 +5,7 @@ import { matchValidationScansQueryOptions } from "@/features/match-validations/a
 import { MatchValidationScanTile } from "@/features/match-validations/components/match-validation-scan-tile";
 import { MatchValidationSummary } from "@/features/match-validations/components/match-validation-summary";
 import { MATCH_VALIDATION_SCANS_PAGE_SIZE } from "@/lib/constants/match-validations";
+import type { MatchValidationGameFilterProps } from "@/lib/interfaces/match-validations";
 import { toServerPagination } from "@/lib/pagination";
 import { IconCards } from "@tabler/icons-react";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -12,11 +13,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function MatchValidationScanGrid() {
+export function MatchValidationScanGrid({ gameKey }: MatchValidationGameFilterProps) {
   const isMobile = useIsMobile();
   const { t } = useTranslation("matchValidations");
   const [page, setPage] = useState(1);
-  const { data, isPending } = useQuery(matchValidationScansQueryOptions(page));
+  const { data, isPending } = useQuery(matchValidationScansQueryOptions(page, gameKey));
   const pagination = toServerPagination(data, setPage);
 
   if (isPending) {

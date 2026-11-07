@@ -14,7 +14,6 @@ export interface MatchValidationSummaryProps {
 
 export interface MatchValidationProgressProps {
   className?: string;
-  showsReviewCounts?: boolean;
 }
 
 export interface ValidateMatchesButtonProps {
@@ -29,4 +28,21 @@ export interface MatchValidationGuideItem {
   key: "correct" | "incorrect" | "badScan" | "skip";
   icon: Icon;
   hotkey: HotkeyId;
+}
+
+export interface MatchValidationGameFilterProps {
+  gameKey: string | null;
+}
+
+export interface MatchValidationGameSelectProps {
+  gameKey: string | null;
+  onGameKeyChange: (gameKey: string | null) => void;
+  className?: string;
+}
+
+export interface ReviewCountBarProps {
+  label: string;
+  reviewCount: number;
+  scanCount: number;
+  isTotal?: boolean;
 }

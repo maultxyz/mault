@@ -1,5 +1,5 @@
-import { MatchValidationProgress } from "@/components/match-validation-progress";
 import { matchValidationProgressQueryOptions } from "@/features/match-validations/api/match-validations";
+import { ReviewCountBar } from "@/features/match-validations/components/review-count-bar";
 import type { MatchValidationSummaryProps } from "@/lib/interfaces/match-validations";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +15,24 @@ export function MatchValidationSummary({ className }: MatchValidationSummaryProp
       aria-label={t("summary.label")}
       className={cn("flex flex-col gap-2", className)}
     >
-      <MatchValidationProgress showsReviewCounts />
+      {progress && progress.scanCount > 0 && (
+        <div className="flex flex-col gap-1">
+          {(progress.games ?? []).map((game) => (
+            <ReviewCountBar
+              key={game.gameKey}
+              label={game.gameName}
+              reviewCount={game.reviewCount}
+              scanCount={game.scanCount}
+            />
+          ))}
+          <ReviewCountBar
+            label={t("summary.total")}
+            reviewCount={progress.reviewCount}
+            scanCount={progress.scanCount}
+            isTotal
+          />
+        </div>
+      )}
       {topValidatorOrgs.length > 0 && (
         <div className="flex flex-col gap-1">
           <h2 className="text-xs font-medium">{t("summary.topValidatorOrgs")}</h2>

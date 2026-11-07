@@ -38,11 +38,15 @@ export interface MatchValidationScanRow {
 export interface MatchValidationCandidate {
   scanId: string;
   lowConfidenceMatch: boolean;
+  gameKey: string | null;
+  gameName: string | null;
 }
 
 export interface MatchValidationCandidateRow {
   scan_id: string;
   low_confidence_match: boolean;
+  game_key: string | null;
+  game_name: string | null;
 }
 
 export interface MatchValidationVoteRow {

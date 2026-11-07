@@ -36,7 +36,12 @@ import {
   loadMatchValidationVotes,
   scanIdArraySql,
 } from "../../lib/match-validations";
-import { pickMatchValidationQueue } from "../../lib/match-validation-queue";
+import {
+  candidatesForGame,
+  gameProgressOf,
+  pickMatchValidationQueue,
+  reviewProgressOf,
+} from "../../lib/match-validation-queue";
 import { parsePageParams } from "../../lib/paging";
 import { hydrateSavedCards } from "../../lib/saved-cards";
 import { resolveScanImageUrl } from "../../lib/scan-images";
@@ -55,16 +60,9 @@ const matchValidationProgressCache = createCachedValue(
     ]);
     return {
       scanCount: candidates.length,
+      reviewCount: reviewProgressOf(candidates, votes),
+      games: gameProgressOf(candidates, votes),
       topValidatorOrgs,
-      reviewCount: candidates.reduce(
-        (sum, candidate) =>
-          sum +
-          Math.min(
-            votes.byScanId.get(candidate.scanId)?.review_count ?? 0,
-            MATCH_VALIDATION_REVIEWS_REQUIRED,
-          ),
-        0,
-      ),
     };
   },
 );
@@ -79,10 +77,11 @@ const router = new Hono<AppEnv>()
   .get("/scans", requireAuth, async (c) => {
     const userId = c.get("userId");
     const { page: requestedPage, pageSize } = parsePageParams(c);
-    const [candidates, votes] = await Promise.all([
+    const [allCandidates, votes] = await Promise.all([
       loadMatchValidationCandidates(),
       loadMatchValidationVotes(userId),
     ]);
+    const candidates = candidatesForGame(allCandidates, c.req.query("game"));
     const total = candidates.length;
     const pageCount = Math.max(Math.ceil(total / pageSize), 1);
     const page = Math.min(requestedPage ?? 1, pageCount);
@@ -148,7 +147,7 @@ const router = new Hono<AppEnv>()
       loadMatchValidationVotes(userId),
     ]);
     const queueScanIds = pickMatchValidationQueue(
-      candidates,
+      candidatesForGame(candidates, c.req.query("game")),
       votes,
       MATCH_VALIDATION_QUEUE_LIMIT,
     ).map((candidate) => candidate.scanId);

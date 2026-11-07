@@ -13,6 +13,8 @@ import type { MatchValidationStatus } from "@magic-vault/shared";
 export const MATCH_VALIDATIONS_PATH = "/app/validate-matches";
 
 export const MATCH_VALIDATION_VIEW_PARAM = "view";
+export const MATCH_VALIDATION_GAME_PARAM = "game";
+export const MATCH_VALIDATION_ALL_GAMES = "all";
 export const MATCH_VALIDATION_REVIEW_VIEW: MatchValidationView = "review";
 export const MATCH_VALIDATION_VIEWS: MatchValidationView[] = ["review", "scans"];
 

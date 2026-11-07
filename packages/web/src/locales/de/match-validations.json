@@ -59,7 +59,8 @@
     "topValidatorOrgs": "Organisationen mit den meisten Prüfungen",
     "anonymousOrg": "Anonyme Organisation",
     "reviewCount_one": "{{count}} Prüfung",
-    "reviewCount_other": "{{count}} Prüfungen"
+    "reviewCount_other": "{{count}} Prüfungen",
+    "total": "Gesamt"
   },
   "guide": {
     "open": "So prüfst du einen Treffer",
@@ -72,5 +73,9 @@
       "badScan": "Du kannst nicht erkennen, welche Karte es ist, weil das Foto unscharf oder abgeschnitten ist, stark spiegelt, mehrere Karten oder gar keine Karte zeigt.",
       "skip": "Nicht sicher? Überspringe den Scan, dann prüft ihn jemand anderes."
     }
+  },
+  "gameFilter": {
+    "label": "TCG",
+    "all": "Alle TCGs"
   }
 }

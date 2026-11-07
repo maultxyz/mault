@@ -11,6 +11,7 @@ import {
   MATCH_VALIDATION_CANDIDATES_MAX_AGE_MS,
   MATCH_VALIDATION_SCANNED_BEFORE,
   MATCH_VALIDATION_SCANNED_FROM,
+  MATCH_VALIDATION_SCANS_PER_GAME,
 } from "./constants/match-validations";
 import type {
   MatchValidationCandidate,
@@ -29,15 +30,34 @@ export const scansInValidationSql = sql`
 
 const candidatesCache = createCachedValue(async (): Promise<MatchValidationCandidate[]> => {
   const result = await db.execute(sql`
-    SELECT cc.guid::text AS scan_id, cc.low_confidence_match
-    FROM collection_cards cc
-    JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
-    WHERE ${scansInValidationSql}
-    ORDER BY cc.scanned_at DESC, cc.id DESC
+    WITH ranked AS (
+      SELECT
+        cc.guid::text AS scan_id,
+        cc.low_confidence_match,
+        g.key AS game_key,
+        g.name AS game_name,
+        row_number() OVER (
+          PARTITION BY g.key
+          ORDER BY
+            EXISTS (SELECT 1 FROM platform_match_validations v WHERE v.scan_id = cc.guid) DESC,
+            cc.low_confidence_match DESC,
+            md5(cc.guid::text)
+        ) AS game_rank
+      FROM collection_cards cc
+      JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
+      LEFT JOIN games g ON g.id = col.game_id
+      WHERE ${scansInValidationSql}
+    )
+    SELECT scan_id, low_confidence_match, game_key, game_name
+    FROM ranked
+    WHERE game_rank <= ${MATCH_VALIDATION_SCANS_PER_GAME}
+    ORDER BY game_rank, game_key
   `);
   return (result.rows as unknown as MatchValidationCandidateRow[]).map((row) => ({
     scanId: row.scan_id,
     lowConfidenceMatch: row.low_confidence_match,
+    gameKey: row.game_key,
+    gameName: row.game_name,
   }));
 });
 
