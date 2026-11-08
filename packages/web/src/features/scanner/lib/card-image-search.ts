@@ -40,6 +40,7 @@ import {
   resolveCardSearchMatches,
   toScanMatchDetails,
   type CardContour,
+  type CardTextSearchResult,
   type ColorBarRegion,
   type ScanDetectionDiagnostics,
 } from "@magic-vault/shared";
@@ -71,11 +72,14 @@ function buildSearchFormData(
 async function searchBothOrientations(
   canvas: HTMLCanvasElement,
   checkBothOrientations: boolean,
-  search: (canvas: HTMLCanvasElement) => Promise<OrientedSearch>,
+  search: (
+    canvas: HTMLCanvasElement,
+    orientation: OrientedCandidate["orientation"],
+  ) => Promise<OrientedSearch>,
 ): Promise<OrientedSearchPick> {
   if (!checkBothOrientations)
     return {
-      ...(await search(canvas)),
+      ...(await search(canvas, "upright")),
       canvas,
       orientation: "upright",
       alternate: null,
@@ -83,14 +87,14 @@ async function searchBothOrientations(
 
   const rotatedCanvas = rotateCanvas180(canvas);
   const [upright, rotated] = await Promise.all([
-    search(canvas).then(
+    search(canvas, "upright").then(
       (found): OrientedCandidate => ({
         ...found,
         canvas,
         orientation: "upright",
       }),
     ),
-    search(rotatedCanvas).then(
+    search(rotatedCanvas, "rotated").then(
       (found): OrientedCandidate => ({
         ...found,
         canvas: rotatedCanvas,
@@ -102,64 +106,49 @@ async function searchBothOrientations(
   return pickBetterOrientation(upright, rotated);
 }
 
-async function searchByCardText(
-  frame: HTMLCanvasElement,
-  contour: CardContour,
-  best: OrientedSearchPick,
+async function searchOrientationText(
+  uprightOcrCrop: HTMLCanvasElement,
+  orientation: OrientedCandidate["orientation"],
+  embedding: number[],
   scope: MatchScope,
-): Promise<TextSearchOutcome> {
-  const uprightCrop = dewarpCard(
-    frame,
-    contour,
-    OCR_CROP_WIDTH,
-    OCR_CROP_HEIGHT,
-  );
-  const crops = [uprightCrop];
+  created: HTMLCanvasElement[],
+): Promise<CardTextSearchResult | null> {
+  const crop =
+    orientation === "rotated"
+      ? rotateCanvas180(uprightOcrCrop)
+      : uprightOcrCrop;
+  if (crop !== uprightOcrCrop) created.push(crop);
   try {
-    const options = [best, best.alternate].filter(
-      (option): option is OrientedCandidate & { embedding: number[] } =>
-        !!option?.embedding,
+    const result = await searchByText(
+      buildSearchFormData(embedding, scope, await canvasToBlob(crop)),
     );
-    const results = await Promise.all(
-      options.map(async (option) => {
-        const crop =
-          option.orientation === "rotated"
-            ? rotateCanvas180(uprightCrop)
-            : uprightCrop;
-        crops.push(crop);
-        try {
-          const formData = buildSearchFormData(
-            option.embedding,
-            scope,
-            await canvasToBlob(crop),
-          );
-          const ocrGameKey = option.result.data?.[0]?.gameKey;
-          if (ocrGameKey) formData.append("ocrGameKey", ocrGameKey);
-          const result = await searchByText(formData);
-          scanLog(
-            `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasCardMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
-          );
-          return result;
-        } catch (err) {
-          console.error("[scanner] text search failed:", err);
-          return null;
-        }
-      }),
+    scanLog(
+      `[scanner] OCR (${orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasCardMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
     );
-    let bestIndex = 0;
-    results.forEach((result, index) => {
-      if (isStrongerTextMatch(result, results[bestIndex])) bestIndex = index;
-    });
-    const result = results[bestIndex];
-    const ocr = result?.ocr ?? results.find((r) => r?.ocr)?.ocr ?? null;
-    if (!result || !hasCardMatch(result)) return { pick: null, ocr };
-    return {
-      pick: { ...options[bestIndex], result, alternate: null },
-      ocr,
-    };
-  } finally {
-    releaseCanvases(crops);
+    return result;
+  } catch (err) {
+    console.error("[scanner] text search failed:", err);
+    return null;
   }
+}
+
+function pickTextSearch(best: OrientedSearchPick): TextSearchOutcome | null {
+  const options = [best, best.alternate].filter(
+    (option): option is OrientedCandidate => option?.textResult !== undefined,
+  );
+  if (options.length === 0) return null;
+  const results = options.map((option) => option.textResult ?? null);
+  let bestIndex = 0;
+  results.forEach((result, index) => {
+    if (isStrongerTextMatch(result, results[bestIndex])) bestIndex = index;
+  });
+  const result = results[bestIndex];
+  const ocr = result?.ocr ?? results.find((r) => r?.ocr)?.ocr ?? null;
+  if (!result || !hasCardMatch(result)) return { pick: null, ocr };
+  return {
+    pick: { ...options[bestIndex], result, alternate: null },
+    ocr,
+  };
 }
 
 function readCanvasPixels(canvas: HTMLCanvasElement): ImageData | null {
@@ -304,15 +293,29 @@ async function runCardImageSearch(
     };
     if (dewarpedCanvas) {
       created.push(dewarpedCanvas);
+      const uprightOcrCrop =
+        ocrEnabled && corners.contour
+          ? dewarpCard(frame, corners.contour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT)
+          : null;
+      if (uprightOcrCrop) created.push(uprightOcrCrop);
       const best = await searchBothOrientations(
         dewarpedCanvas,
         checkBothOrientations,
-        async (oriented) => {
+        async (oriented, orientation) => {
           const embedding = await embedCanvas(oriented);
-          const result = await searchByVector(
-            buildSearchFormData(embedding, scope),
-          );
-          return { result, embedding };
+          const [result, textResult] = await Promise.all([
+            searchByVector(buildSearchFormData(embedding, scope)),
+            uprightOcrCrop
+              ? searchOrientationText(
+                  uprightOcrCrop,
+                  orientation,
+                  embedding,
+                  scope,
+                  created,
+                )
+              : undefined,
+          ]);
+          return { result, embedding, textResult };
         },
       );
       created.push(best.canvas);
@@ -321,10 +324,7 @@ async function runCardImageSearch(
       scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
-      const text =
-        ocrEnabled && corners.contour
-          ? await searchByCardText(frame, corners.contour, best, scope)
-          : null;
+      const text = pickTextSearch(best);
       const textPick =
         text?.pick && prefersTextMatch(best.result, text.ocr)
           ? text.pick

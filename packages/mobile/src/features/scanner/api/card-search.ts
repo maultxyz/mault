@@ -28,10 +28,8 @@ export function searchByText(
   embedding: number[],
   scope: MatchScope,
   imageUri: string,
-  ocrGameKey?: string,
 ): Promise<CardTextSearchResult> {
   const form = scopeForm(embedding, scope);
-  if (ocrGameKey) form.append("ocrGameKey", ocrGameKey);
   form.append("image", { uri: imageUri, name: "card.jpg", type: "image/jpeg" } as unknown as Blob);
   return apiPostForm<CardTextSearchResult>("/api/cards/by-text", form);
 }

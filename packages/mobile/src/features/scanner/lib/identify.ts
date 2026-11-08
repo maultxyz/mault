@@ -17,7 +17,7 @@ import {
   preferDetectedColor,
   resolveCardSearchMatches,
   rotateRgba180,
-  type CardContour,
+  type CardTextSearchResult,
   type CornerDetection,
   type ScanDetectionDiagnostics,
   type ScanRegion,
@@ -55,15 +55,34 @@ async function detectWithRetry(
   return { frame, detection };
 }
 
+async function searchOrientationText(
+  uprightOcrCrop: CapturedFrame["pixels"],
+  orientation: OrientedPick["orientation"],
+  embedding: number[],
+  scope: MatchScope,
+): Promise<CardTextSearchResult | null> {
+  const crop = orientation === "rotated" ? rotateRgba180(uprightOcrCrop) : uprightOcrCrop;
+  try {
+    const uri = await writeJpegTempFile(crop, OCR_IMAGE_JPEG_QUALITY);
+    return await searchByText(embedding, scope, uri);
+  } catch {
+    return null;
+  }
+}
+
 async function searchOriented(
   pixels: CapturedFrame["pixels"],
   scope: MatchScope,
   checkBothOrientations: boolean,
+  uprightOcrCrop: CapturedFrame["pixels"] | null,
 ): Promise<OrientedPick> {
   const search = async (oriented: CapturedFrame["pixels"], orientation: OrientedPick["orientation"]) => {
     const embedding = await embedCard(oriented);
-    const result = await searchByVector(embedding, scope);
-    return { pixels: oriented, orientation, embedding, result, alternate: null } satisfies OrientedPick;
+    const [result, textResult] = await Promise.all([
+      searchByVector(embedding, scope),
+      uprightOcrCrop ? searchOrientationText(uprightOcrCrop, orientation, embedding, scope) : undefined,
+    ]);
+    return { pixels: oriented, orientation, embedding, result, textResult, alternate: null } satisfies OrientedPick;
   };
   if (!checkBothOrientations) return search(pixels, "upright");
 
@@ -74,25 +93,12 @@ async function searchOriented(
   return pickBetterOrientation(upright, rotated);
 }
 
-async function searchByCardText(
-  frame: CapturedFrame,
-  contour: CardContour,
-  best: OrientedPick,
-  scope: MatchScope,
-): Promise<{ pick: OrientedPick | null; ocr: ScanAttempt["ocr"] }> {
-  const upright = dewarpRgba(frame.pixels, contour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT);
-  const options = [best, best.alternate].filter((option): option is OrientedPick => !!option);
-  const results = await Promise.all(
-    options.map(async (option) => {
-      const crop = option.orientation === "rotated" ? rotateRgba180(upright) : upright;
-      try {
-        const uri = await writeJpegTempFile(crop, OCR_IMAGE_JPEG_QUALITY);
-        return await searchByText(option.embedding, scope, uri, option.result.data?.[0]?.gameKey);
-      } catch {
-        return null;
-      }
-    }),
+function pickTextSearch(best: OrientedPick): { pick: OrientedPick | null; ocr: ScanAttempt["ocr"] } | null {
+  const options = [best, best.alternate].filter(
+    (option): option is OrientedPick => option?.textResult !== undefined,
   );
+  if (options.length === 0) return null;
+  const results = options.map((option) => option.textResult ?? null);
   let bestIndex = 0;
   results.forEach((result, index) => {
     if (isStrongerTextMatch(result, results[bestIndex])) bestIndex = index;
@@ -122,11 +128,12 @@ async function attemptOnce(
   }
 
   const dewarped = dewarpRgba(frame.pixels, contour, DEWARP_OUTPUT_SIZE);
-  const best = await searchOriented(dewarped, options.scope, options.checkBothOrientations);
-  const text =
+  const uprightOcrCrop =
     options.ocrEnabled && corners.contour
-      ? await searchByCardText(frame, corners.contour, best, options.scope)
+      ? dewarpRgba(frame.pixels, corners.contour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT)
       : null;
+  const best = await searchOriented(dewarped, options.scope, options.checkBothOrientations, uprightOcrCrop);
+  const text = pickTextSearch(best);
   const textPick = text?.pick && prefersTextMatch(best.result, text.ocr) ? text.pick : null;
   const pick = textPick ?? best;
 

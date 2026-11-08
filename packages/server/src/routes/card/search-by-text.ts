@@ -4,7 +4,8 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
 import {
-  matchScopeForGame,
+  findBestMatchAcrossGames,
+  matchScopesForGames,
   parseMatchGameKeys,
   tagWithGame,
 } from "../../lib/card-search/match-games";
@@ -14,6 +15,7 @@ import { scanLog } from "../../lib/scan-log";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   attachMatchedCards,
+  findCardMatches,
   findCardMatchesByOcr,
   parsePreferredSetCodes,
   parseEmbeddingField,
@@ -50,15 +52,21 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
         400,
       );
     }
-    const ocrGameKey =
-      typeof body["ocrGameKey"] === "string" ? body["ocrGameKey"] : null;
-    const matchesOtherGame =
-      !!ocrGameKey &&
-      ocrGameKey !== collectionScope.gameKey &&
-      parseMatchGameKeys(body["matchGameKeys"]).includes(ocrGameKey);
-    const resolved = matchesOtherGame
-      ? matchScopeForGame(ocrGameKey)
-      : collectionScope;
+    const matchGameKeys = parseMatchGameKeys(body["matchGameKeys"]);
+    const scopes = matchScopesForGames(collectionScope, matchGameKeys);
+    const resolved =
+      scopes.length > 1
+        ? (
+            await findBestMatchAcrossGames(scopes, (matchScope) =>
+              findCardMatches({
+                ...matchScope,
+                embeddings: { embedding },
+                skipsUnloadedIndex:
+                  matchScope.gameKey !== collectionScope.gameKey,
+              }),
+            )
+          ).scope
+        : collectionScope;
     const { gameKey, lang } = resolved;
 
     const settings = await authQuery(c.get("jwtClaims"), (tx) =>
@@ -98,11 +106,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
         `[ocr] game=${gameKey} lang=${lang} name=${JSON.stringify(readout.name)} setLine=${JSON.stringify(readout.setLine)} number=${JSON.stringify(readout.number)} closestName=${result.ocr.matchedName ? `${JSON.stringify(result.ocr.matchedName)} (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} ${result.ocr.usedFallback ? " fallback" : ""} -> ${result.data ? `matched ${result.data[0].cardId} at ${result.data[0].distance.toFixed(3)}` : "no match"}`,
       );
       const attached = await attachMatchedCards(result, gameKey, lang);
-      return c.json(
-        parseMatchGameKeys(body["matchGameKeys"]).length > 0
-          ? tagWithGame(attached, gameKey)
-          : attached,
-      );
+      return c.json(scopes.length > 1 ? tagWithGame(attached, gameKey) : attached);
     } catch (err) {
       console.error(err);
       return c.json({ success: false, message: "Text search failed." }, 500);

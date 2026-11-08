@@ -4,6 +4,7 @@ import type {
   CardCondition,
   CardContour,
   CardSearchResult,
+  CardTextSearchResult,
   MatchedScanDetails,
   PlayingCard,
   PlayingCardWithDistance,
@@ -40,6 +41,7 @@ export interface OrientedPick {
   orientation: Orientation;
   embedding: number[];
   result: CardSearchResult;
+  textResult?: CardTextSearchResult | null;
   alternate: OrientedPick | null;
 }
 
