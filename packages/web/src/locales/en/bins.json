@@ -309,8 +309,10 @@
   },
   "sortTest": {
     "button": "Test with a random card",
+    "cardButton": "Test sorting rules",
     "title": "Test sort",
     "description": "A random card from the database runs through {{name}}, the same way the scanner would sort it. Nothing is saved and the sorter doesn't move.",
+    "cardDescription": "This card runs through {{name}}, the same way the scanner would sort it now. Nothing is saved and the sorter doesn't move.",
     "nextCard": "Next card",
     "close": "Close",
     "noBin": "No bin",
@@ -329,6 +331,8 @@
     "cardValue": "This card: {{value}}",
     "noValue": "nothing",
     "resultAnnouncement": "{{name}} goes to {{bin}}",
+    "scannedTo": "When it was scanned, this card also went to {{bin}}.",
+    "scannedElsewhere": "When it was scanned, this card went to {{scanned}}, not {{tested}}. The preset may have changed since then, or a full bin, overflow or pick list sent it elsewhere. This test doesn't look at how full the bins are.",
     "reasons": {
       "rules": "Bin {{bin}}'s rules match this card, and it's the first bin that does.",
       "override": "Bin {{bin}} is an override bin and its rules match, so it wins over other matching bins.",

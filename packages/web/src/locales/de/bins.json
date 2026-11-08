@@ -309,8 +309,10 @@
   },
   "sortTest": {
     "button": "Mit zufälliger Karte testen",
+    "cardButton": "Sortierregeln testen",
     "title": "Sortierung testen",
     "description": "Eine zufällige Karte aus der Datenbank läuft durch {{name}}, so wie der Scanner sie sortieren würde. Nichts wird gespeichert und der Sortierer bewegt sich nicht.",
+    "cardDescription": "Diese Karte durchläuft {{name}} so, wie der Scanner sie jetzt sortieren würde. Es wird nichts gespeichert und der Sortierer bewegt sich nicht.",
     "nextCard": "Nächste Karte",
     "close": "Schließen",
     "noBin": "Kein Fach",
@@ -329,6 +331,8 @@
     "cardValue": "Diese Karte: {{value}}",
     "noValue": "nichts",
     "resultAnnouncement": "{{name}} kommt in {{bin}}",
+    "scannedTo": "Beim Scannen kam diese Karte ebenfalls in {{bin}}.",
+    "scannedElsewhere": "Beim Scannen kam diese Karte in {{scanned}}, nicht in {{tested}}. Das Preset hat sich seitdem vielleicht geändert, oder ein volles Fach, ein Überlauf oder eine Suchliste hat sie umgeleitet. Dieser Test berücksichtigt nicht, wie voll die Fächer sind.",
     "reasons": {
       "rules": "Die Regeln von Fach {{bin}} passen auf diese Karte, und es ist das erste Fach, das passt.",
       "override": "Fach {{bin}} hat Vorrang und seine Regeln passen, daher gewinnt es gegen andere passende Fächer.",
