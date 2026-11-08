@@ -136,7 +136,9 @@
     "downloadedHidden_one": "1 downloaded card is hidden by the downloaded filter.",
     "downloadedHidden_other": "{{count}} downloaded cards are hidden by the downloaded filter.",
     "moveToLocation": "Move",
-    "exporting": "Exporting"
+    "exporting": "Exporting",
+    "pendingScanSaving": "Saving",
+    "pendingScanSavingName": "Saving {{name}}"
   },
   "cardSelectDialog": {
     "defaultTitle": "Select Card",

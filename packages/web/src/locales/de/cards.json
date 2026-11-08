@@ -136,7 +136,9 @@
     "downloadedHidden_one": "1 heruntergeladene Karte wird vom Download-Filter ausgeblendet.",
     "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet.",
     "moveToLocation": "Verschieben",
-    "exporting": "Wird exportiert"
+    "exporting": "Wird exportiert",
+    "pendingScanSaving": "Wird gespeichert",
+    "pendingScanSavingName": "{{name}} wird gespeichert"
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
