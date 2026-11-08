@@ -367,6 +367,9 @@
     "clearDevice": "Vider l'appareil",
     "retractCard": "Retirer la carte",
     "resetToNeutral": "Remettre au neutre",
+    "saveScansToFolder": "Enregistrer les scans dans un dossier",
+    "savingScansToFolder": "Scans enregistrés dans {{folder}}",
+    "stopSavingScansToFolder": "Ne plus enregistrer les scans dans un dossier",
     "sorter": "Trieur",
     "connectionStates": {
       "connected": "Connecté",
@@ -1178,6 +1181,7 @@
     "scanFailed": "Le scanner de documents n'a pas pu numériser la carte",
     "cardDidNotArrive": "La carte numérisée n'est pas arrivée dans le trieur. Dégagez le passage entre le scanner et le module 1, puis remettez la carte dans le scanner.",
     "moduleOneNotEmpty": "Une carte se trouve déjà dans le module 1. Retirez-la avant de charger depuis le scanner de documents.",
+    "archiveFailed": "Impossible d'enregistrer le scan dans {{folder}}",
     "moveFlatbedCard": {
       "title": "Placez la carte dans le trieur",
       "description": "Retirez la carte numérisée de la vitre et placez-la dans le module 1, puis posez la carte suivante sur la vitre."

@@ -109,6 +109,10 @@ export interface StoredDocumentScanFolder {
   folderPath: string;
 }
 
+export interface StoredDocumentScanArchiveFolder {
+  folderPath: string;
+}
+
 export interface DocumentScannerSession {
   sessionId: string;
   webContents: WebContents;

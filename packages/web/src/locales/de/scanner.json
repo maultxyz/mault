@@ -367,6 +367,9 @@
     "clearDevice": "Gerät leeren",
     "retractCard": "Karte zurückziehen",
     "resetToNeutral": "In Neutralstellung bringen",
+    "saveScansToFolder": "Scans in einem Ordner speichern",
+    "savingScansToFolder": "Scans werden in {{folder}} gespeichert",
+    "stopSavingScansToFolder": "Scans nicht mehr in einem Ordner speichern",
     "sorter": "Sortierer",
     "connectionStates": {
       "connected": "Verbunden",
@@ -1178,6 +1181,7 @@
     "scanFailed": "Der Dokumentenscanner konnte die Karte nicht scannen",
     "cardDidNotArrive": "Die gescannte Karte ist nicht im Sorter angekommen. Räume den Weg zwischen Scanner und Modul 1 frei und lege die Karte wieder in den Scanner.",
     "moduleOneNotEmpty": "In Modul 1 liegt bereits eine Karte. Entferne sie, bevor du über den Dokumentenscanner einziehst.",
+    "archiveFailed": "Der Scan konnte nicht in {{folder}} gespeichert werden",
     "moveFlatbedCard": {
       "title": "Karte in den Sorter legen",
       "description": "Nimm die gescannte Karte vom Glas und lege sie in Modul 1. Lege dann die nächste Karte auf das Glas."

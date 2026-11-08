@@ -21,6 +21,7 @@ import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
 import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
 import { useFoilNudgeCheck } from "@/features/scanner/api/use-foil-nudge-check";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useDocumentScanArchive } from "@/features/scanner/api/use-document-scan-archive";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
@@ -205,6 +206,7 @@ export function CardScanner({
     ),
   );
   const checkFoilByNudge = useFoilNudgeCheck();
+  const archiveDocumentScan = useDocumentScanArchive();
   const {
     status,
     errorMessage,
@@ -246,7 +248,7 @@ export function CardScanner({
       }
       if (cards.length > 0) {
         recordScanOutcome(true);
-        addCard(
+        const placement = addCard(
           cards[0],
           capturedImageUrl,
           cards.slice(1),
@@ -254,6 +256,11 @@ export function CardScanner({
           details,
           capturedBackImageUrl,
         );
+        archiveDocumentScan(placement, {
+          cardName: cards[0].name,
+          frontImageUrl: capturedImageUrl,
+          backImageUrl: capturedBackImageUrl,
+        });
       }
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details, capturedBackImageUrl) => {
@@ -262,7 +269,17 @@ export function CardScanner({
         return;
       }
       recordScanOutcome(false);
-      addUnmatchedCard(capturedImageUrl, vectorizedOn, details, capturedBackImageUrl);
+      const placement = addUnmatchedCard(
+        capturedImageUrl,
+        vectorizedOn,
+        details,
+        capturedBackImageUrl,
+      );
+      archiveDocumentScan(placement, {
+        cardName: null,
+        frontImageUrl: capturedImageUrl,
+        backImageUrl: capturedBackImageUrl,
+      });
     },
     rotated: previewRotated,
     onControlCode: (command) => void applyControlCode(command),

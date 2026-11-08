@@ -7,9 +7,13 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
+import { useDocumentScanArchiveFolder } from "@/features/scanner/api/use-document-scan-archive";
+import { folderDisplayName } from "@/features/scanner/lib/document-scan-bridge";
 import type { CameraMenuItemsProps } from "@/lib/interfaces/scanner";
 import {
   IconDeviceMobile,
+  IconFolder,
+  IconFolderOff,
   IconRotateClockwise2,
   IconScan,
 } from "@tabler/icons-react";
@@ -33,6 +37,11 @@ export function CameraMenuItems({
 }: CameraMenuItemsProps) {
   const { t } = useTranslation("scanner");
   const { camerasInUseElsewhere } = useCameraContext();
+  const { isArchiveSupported, archiveFolder, chooseArchiveFolder, clearArchiveFolder } =
+    useDocumentScanArchiveFolder();
+  const isDocumentScannerSelected = documentScannerOptions.some(
+    (option) => option.cameraId === selectedCameraId,
+  );
   const isWebcamSelected = cameras.some(
     (camera) => camera.deviceId === selectedCameraId,
   );
@@ -106,6 +115,27 @@ export function CameraMenuItems({
               <IconRotateClockwise2 />
               {t("scannerMenu.setUpFeederCard")}
             </DropdownMenuItem>
+          )}
+          {isDocumentScannerSelected && isArchiveSupported && (
+            <>
+              <DropdownMenuItem
+                title={archiveFolder ?? undefined}
+                onClick={() => void chooseArchiveFolder()}
+              >
+                <IconFolder />
+                {archiveFolder
+                  ? t("scannerMenu.savingScansToFolder", {
+                      folder: folderDisplayName(archiveFolder),
+                    })
+                  : t("scannerMenu.saveScansToFolder")}
+              </DropdownMenuItem>
+              {archiveFolder && (
+                <DropdownMenuItem onClick={() => void clearArchiveFolder()}>
+                  <IconFolderOff />
+                  {t("scannerMenu.stopSavingScansToFolder")}
+                </DropdownMenuItem>
+              )}
+            </>
           )}
         </>
       )}

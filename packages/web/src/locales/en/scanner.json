@@ -367,6 +367,9 @@
     "clearDevice": "Clear device",
     "retractCard": "Retract card",
     "resetToNeutral": "Reset to neutral",
+    "saveScansToFolder": "Save scans to a folder",
+    "savingScansToFolder": "Saving scans to {{folder}}",
+    "stopSavingScansToFolder": "Stop saving scans to a folder",
     "sorter": "Sorter",
     "connectionStates": {
       "connected": "Connected",
@@ -1178,6 +1181,7 @@
     "scanFailed": "The document scanner couldn't scan the card",
     "cardDidNotArrive": "The scanned card didn't reach the sorter. Clear the path between the scanner and module 1, then put the card back in the scanner.",
     "moduleOneNotEmpty": "There is already a card in module 1. Remove it before feeding from the document scanner.",
+    "archiveFailed": "Couldn't save the scan to {{folder}}",
     "moveFlatbedCard": {
       "title": "Move the card into the sorter",
       "description": "Take the scanned card off the glass and put it in module 1, then place the next card on the glass."
