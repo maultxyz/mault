@@ -30,7 +30,10 @@ import {
   OCR_NAME_MIN_SIMILARITY,
   OCR_PRINTED_NUMBER_CANDIDATE_LIMIT,
 } from "../../lib/constants/ocr";
-import { cardMatchSegments } from "../../lib/card-match-index";
+import {
+  cardMatchSegments,
+  loadedCardMatchSegments,
+} from "../../lib/card-match-index";
 import {
   closestPrintingInSets,
   faceDistance,
@@ -152,13 +155,17 @@ function isPreferredSetCode(setCode: string, preferredSetCodes: string[] = []) {
 export async function findCardMatches({
   embeddings,
   preferredSetCodes = [],
+  skipsUnloadedIndex = false,
   ...scope
 }: CollectionMatchScope & {
   embeddings: CardSearchEmbeddings;
   preferredSetCodes?: string[];
+  skipsUnloadedIndex?: boolean;
 }): Promise<CardMatchSearchResult> {
   const { gameKey, lang } = scope;
-  const segments = await cardMatchSegments(scope);
+  const segments = skipsUnloadedIndex
+    ? loadedCardMatchSegments(scope)
+    : await cardMatchSegments(scope);
   const query = normalizedEmbedding(embeddings.embedding);
   const nearest = nearestCardFaces(
     segments,

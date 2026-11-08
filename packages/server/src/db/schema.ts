@@ -216,6 +216,7 @@ export const binSets = pgTable(
     chaosBinSize: integer("chaos_bin_size"),
     skipSaving: boolean("skip_saving").notNull().default(false),
     isResortMode: boolean("is_resort_mode").notNull().default(false),
+    matchGameKeys: text("match_game_keys").array().notNull().default(sql`'{}'::text[]`),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),

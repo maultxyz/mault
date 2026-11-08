@@ -8,6 +8,7 @@ export interface SearchCardMatch {
   distance: number;
   confidence: number;
   lang?: string;
+  gameKey?: string;
   card?: PlayingCard;
 }
 

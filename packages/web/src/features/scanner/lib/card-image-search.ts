@@ -51,6 +51,8 @@ function appendMatchScope(formData: FormData, scope: MatchScope): void {
       "preferredSetCodes",
       JSON.stringify(scope.preferredSetCodes),
     );
+  if (scope.matchGameKeys?.length)
+    formData.append("matchGameKeys", JSON.stringify(scope.matchGameKeys));
 }
 
 function buildSearchFormData(
@@ -125,13 +127,14 @@ async function searchByCardText(
             : uprightCrop;
         crops.push(crop);
         try {
-          const result = await searchByText(
-            buildSearchFormData(
-              option.embedding,
-              scope,
-              await canvasToBlob(crop),
-            ),
+          const formData = buildSearchFormData(
+            option.embedding,
+            scope,
+            await canvasToBlob(crop),
           );
+          const ocrGameKey = option.result.data?.[0]?.gameKey;
+          if (ocrGameKey) formData.append("ocrGameKey", ocrGameKey);
+          const result = await searchByText(formData);
           scanLog(
             `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasCardMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
           );
@@ -211,7 +214,14 @@ async function toAttemptOutcome(
     await resolveCardSearchMatches(
       best.result,
       async (match) =>
-        (await getCardById(match.cardId, collectionGuid, match.lang)).data,
+        (
+          await getCardById(
+            match.cardId,
+            collectionGuid,
+            match.lang,
+            match.gameKey,
+          )
+        ).data,
     ),
     {
       gameHasColorBar: !!colorBarRegion,

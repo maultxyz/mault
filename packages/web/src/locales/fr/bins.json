@@ -143,7 +143,8 @@
       "auto-assign": "Tri automatique",
       "repack": "Repacks",
       "alphabet": "Tri alphabétique",
-      "chaos": "Tri chaos"
+      "chaos": "Tri chaos",
+      "game-sort": "Par jeu"
     }
   },
   "useBinConfigs": {
@@ -165,10 +166,18 @@
       "skipSavingFailed": "Impossible de mettre à jour l'enregistrement",
       "resortModeFailed": "Impossible de mettre à jour le retri",
       "cardsStored_one": "{{count}} carte rangée",
-      "cardsStored_other": "{{count}} cartes rangées"
+      "cardsStored_other": "{{count}} cartes rangées",
+      "matchGamesFailed": "Impossible de mettre à jour les jeux"
     }
   },
   "binsPage": {},
+  "gameSortPanel": {
+    "heading": "Trier par jeu",
+    "description": "Identifie chaque carte parmi ce jeu et les jeux choisis, puis attribue un bac à chaque jeu. Les cartes sont triées mais pas enregistrées, vous pouvez ensuite scanner chaque pile dans sa propre collection.",
+    "gamesLabel": "Reconnaître aussi les cartes de",
+    "pickGames": "Choisissez au moins un autre jeu. En attendant, seules les cartes de ce jeu sont reconnues.",
+    "hint": "Les cartes non reconnues vont dans le bac fourre-tout. Chaque jeu ajouté ralentit un peu les scans."
+  },
   "autoAssignPanel": {
     "heading": "Détection automatique",
     "description": "Apprend les affectations de bacs pendant le scan : dès qu'une nouvelle valeur apparaît pour le champ ci-dessous, elle occupe le prochain bac libre. Les répétitions y sont ensuite dirigées automatiquement, et une fois tous les bacs occupés, les nouvelles valeurs vont au fourre-tout.",
@@ -380,7 +389,8 @@
     "nonFoilOption": "Non foil",
     "marketValueUsd": "Valeur marchande (USD)",
     "marketValueEur": "Valeur marchande (EUR)",
-    "collectorNumber": "Numéro de collection (numérique)"
+    "collectorNumber": "Numéro de collection (numérique)",
+    "game": "Jeu"
   },
   "pickList": {
     "modeLabel": "Quand une carte est trouvée",

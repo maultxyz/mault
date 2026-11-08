@@ -12,4 +12,5 @@ export interface ScanRuleFieldLabels {
   collectorNumber: string;
   foilOption: string;
   nonFoilOption: string;
+  game?: string;
 }

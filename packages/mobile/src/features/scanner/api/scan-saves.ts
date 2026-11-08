@@ -5,6 +5,7 @@ import {
   isRetryableScanSaveStatus,
   SCAN_SAVE_ACCEPTED_STATUSES,
   throwIfMemberSeatLimit,
+  type SortOnlyScanRequest,
 } from "@magic-vault/shared";
 import type { CardSaveResult, PendingScanSave } from "@/lib/interfaces/scanner";
 
@@ -17,6 +18,25 @@ export async function sendScanSave(save: PendingScanSave, isRetry: boolean): Pro
   });
   handleForbidden(res);
   await trackMemberSeatLimit(res, save.orgId);
+  await throwIfMemberSeatLimit(res);
+  if (res.ok || SCAN_SAVE_ACCEPTED_STATUSES.includes(res.status)) {
+    return (await res.json()) as CardSaveResult;
+  }
+  throw new ApiStatusError(res.status);
+}
+
+export async function recordSortOnlyScan(
+  collectionGuid: string,
+  request: SortOnlyScanRequest,
+  orgId: string | null,
+): Promise<CardSaveResult> {
+  const res = await fetch(`${API_BASE}/api/collections/${collectionGuid}/cards/sorted`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await getAuthHeaders(orgId)) },
+    body: JSON.stringify(request),
+  });
+  handleForbidden(res);
+  await trackMemberSeatLimit(res, orgId);
   await throwIfMemberSeatLimit(res);
   if (res.ok || SCAN_SAVE_ACCEPTED_STATUSES.includes(res.status)) {
     return (await res.json()) as CardSaveResult;

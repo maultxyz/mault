@@ -163,6 +163,7 @@ export interface DocumentScannerPages {
 export interface MatchScope {
   collectionGuid?: string;
   preferredSetCodes?: string[];
+  matchGameKeys?: string[];
 }
 
 export interface ScannedCardsContextValue {

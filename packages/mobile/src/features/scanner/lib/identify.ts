@@ -87,7 +87,7 @@ async function searchByCardText(
       const crop = option.orientation === "rotated" ? rotateRgba180(upright) : upright;
       try {
         const uri = await writeJpegTempFile(crop, OCR_IMAGE_JPEG_QUALITY);
-        return await searchByText(option.embedding, scope, uri);
+        return await searchByText(option.embedding, scope, uri, option.result.data?.[0]?.gameKey);
       } catch {
         return null;
       }
@@ -137,7 +137,7 @@ async function attemptOnce(
   const matchedBy = text?.pick ? "ocr" : "embedding";
   const { colorVariantUncertain, ...resolved } = preferDetectedColor(
     await resolveCardSearchMatches(pick.result, (match) =>
-      getCardById(match.cardId, options.scope.collectionGuid, match.lang),
+      getCardById(match.cardId, options.scope.collectionGuid, match.lang, match.gameKey),
     ),
     {
       gameHasColorBar: !!region,

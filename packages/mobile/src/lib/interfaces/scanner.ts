@@ -32,6 +32,7 @@ export type Orientation = "upright" | "rotated";
 export interface MatchScope {
   collectionGuid: string;
   preferredSetCodes?: string[];
+  matchGameKeys?: string[];
 }
 
 export interface OrientedPick {

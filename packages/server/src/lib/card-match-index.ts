@@ -1,7 +1,8 @@
 import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db";
-import { collections, games } from "../db/schema";
+import { binSets, collections, games } from "../db/schema";
+import { matchScopeForGame } from "./card-search/match-games";
 import { resolveCardSearchForGame } from "./card-search/resolve";
 import {
   cardMatchSegmentBytes,
@@ -223,11 +224,7 @@ function revalidateSegmentInBackground(entry: CardMatchSegmentEntry) {
     .catch(logReloadFailure(entry));
 }
 
-async function cardMatchSegment(
-  gameKey: string,
-  lang: string,
-  isWarmup: boolean,
-): Promise<CardMatchSegment> {
+function segmentEntry(gameKey: string, lang: string): CardMatchSegmentEntry {
   const key = `${gameKey}:${lang}`;
   let entry = segmentEntries.get(key);
   if (!entry) {
@@ -243,6 +240,15 @@ async function cardMatchSegment(
     };
     segmentEntries.set(key, entry);
   }
+  return entry;
+}
+
+async function cardMatchSegment(
+  gameKey: string,
+  lang: string,
+  isWarmup: boolean,
+): Promise<CardMatchSegment> {
+  const entry = segmentEntry(gameKey, lang);
   if (!isWarmup) entry.lastUsedAt = Date.now();
   if (entry.segment) {
     revalidateSegmentInBackground(entry);
@@ -279,6 +285,31 @@ export function cardMatchSegments(
   return segmentsForScope(scope, false);
 }
 
+export function loadedCardMatchSegments({
+  gameKey,
+  lang,
+}: CollectionMatchScope): CardMatchSegment[] {
+  const entry = segmentEntry(gameKey, lang);
+  entry.lastUsedAt = Date.now();
+  if (entry.segment) {
+    revalidateSegmentInBackground(entry);
+    return [entry.segment];
+  }
+  reloadSegment(entry).catch(logReloadFailure(entry));
+  return [];
+}
+
+export function warmCardMatchSegments(scopes: CollectionMatchScope[]): void {
+  for (const scope of scopes) {
+    segmentsForScope(scope, true).catch((err) =>
+      console.error(
+        `[card-match-index] warmup of ${scope.gameKey}/${scope.lang} failed:`,
+        err,
+      ),
+    );
+  }
+}
+
 export function invalidateCardMatchIndex(gameKey?: string): void {
   for (const entry of segmentEntries.values()) {
     if (gameKey === undefined || entry.gameKey === gameKey) {
@@ -299,6 +330,13 @@ async function warmCardMatchIndex(): Promise<void> {
     .where(and(eq(collections.isDeleted, false), eq(games.isDeleted, false)));
   for (const scope of scopes) {
     await segmentsForScope(scope, true);
+  }
+  const presetMatchGames = await db
+    .selectDistinct({ gameKey: sql<string>`unnest(${binSets.matchGameKeys})` })
+    .from(binSets)
+    .where(and(eq(binSets.isActive, true), eq(binSets.isDeleted, false)));
+  for (const { gameKey } of presetMatchGames) {
+    await segmentsForScope(matchScopeForGame(gameKey), true);
   }
 }
 

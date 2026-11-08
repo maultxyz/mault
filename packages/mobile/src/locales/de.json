@@ -913,7 +913,10 @@
       "skipSaving": "Karten nicht speichern",
       "skipSavingDescription": "Karten werden wie gewohnt erkannt und sortiert, aber nichts wird zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit.",
       "resort": "Gespeicherte Karten neu sortieren",
-      "resortDescription": "Jeder Scan verschiebt ein Exemplar, das schon in dieser Sammlung ist, in sein neues Fach, statt ein weiteres hinzuzufügen. Das Exemplar behält Foil und Zustand und verlässt seinen bisherigen Lagerort. Karten, die noch nicht in der Sammlung sind, werden wie gewohnt hinzugefügt."
+      "resortDescription": "Jeder Scan verschiebt ein Exemplar, das schon in dieser Sammlung ist, in sein neues Fach, statt ein weiteres hinzuzufügen. Das Exemplar behält Foil und Zustand und verlässt seinen bisherigen Lagerort. Karten, die noch nicht in der Sammlung sind, werden wie gewohnt hinzugefügt.",
+      "matchGames": "Auch Karten erkennen aus",
+      "matchGamesEmpty": "Wähle mindestens ein weiteres Spiel. Bis dahin werden nur Karten dieses Spiels erkannt.",
+      "matchGamesHint": "Nicht erkannte Karten kommen in das Auffangfach. Jedes weitere Spiel macht Scans etwas langsamer."
     },
     "modes": {
       "rules": {
@@ -927,6 +930,10 @@
       "auto-assign": {
         "title": "Automatisch sortieren",
         "description": "Jeder neue Wert eines Feldes belegt beim Scannen den nächsten freien Behälter"
+      },
+      "game-sort": {
+        "title": "Nach Spiel sortieren",
+        "description": "Jedes Spiel bekommt ein eigenes Fach. Die Karten werden sortiert, aber nicht gespeichert."
       },
       "repack": {
         "title": "Repacks bauen",

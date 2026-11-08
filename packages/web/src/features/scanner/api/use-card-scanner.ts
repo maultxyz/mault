@@ -1,3 +1,4 @@
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -66,6 +67,7 @@ import {
   type ScanRegion,
   type ScannerStatus,
   type ScanVectorizeSource,
+  presetMatchGameKeys,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -136,6 +138,9 @@ export function useCardScanner({
   } = useCameraContext();
   const { activeCollection } = useCollections();
   const { forceSetCodes: preferredSetCodes } = useScannedCards();
+  const { selectedSet: activePreset } = useBinConfigs();
+  const matchGameKeysRef = useRef<string[]>([]);
+  matchGameKeysRef.current = presetMatchGameKeys(activePreset);
   const { activeOrg } = useOrg();
   const device = useDevice();
   const { isActive: isActiveStation } = useStation();
@@ -351,6 +356,7 @@ export function useCardScanner({
           {
             collectionGuid: activeCollectionGuidRef.current,
             preferredSetCodes: preferredSetCodesRef.current,
+            matchGameKeys: matchGameKeysRef.current,
           },
           ocrEnabledRef.current,
           matchesNeededRef.current,

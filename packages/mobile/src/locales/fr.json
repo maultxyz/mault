@@ -913,7 +913,10 @@
       "skipSaving": "Ne pas enregistrer les cartes",
       "skipSavingDescription": "Les cartes sont identifiées et triées comme d'habitude, mais rien n'est ajouté à la collection. Les scans comptent toujours dans ta limite quotidienne.",
       "resort": "Retrier les cartes enregistrées",
-      "resortDescription": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude."
+      "resortDescription": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude.",
+      "matchGames": "Reconnaître aussi les cartes de",
+      "matchGamesEmpty": "Choisissez au moins un autre jeu. En attendant, seules les cartes de ce jeu sont reconnues.",
+      "matchGamesHint": "Les cartes non reconnues vont dans le bac fourre-tout. Chaque jeu ajouté ralentit un peu les scans."
     },
     "modes": {
       "rules": {
@@ -927,6 +930,10 @@
       "auto-assign": {
         "title": "Tri automatique",
         "description": "Chaque nouvelle valeur d'un champ prend le prochain bac libre pendant le scan"
+      },
+      "game-sort": {
+        "title": "Trier par jeu",
+        "description": "Chaque jeu a son propre bac. Les cartes sont triées mais pas enregistrées."
       },
       "repack": {
         "title": "Créer des repacks",

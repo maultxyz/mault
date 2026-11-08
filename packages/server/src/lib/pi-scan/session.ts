@@ -1,7 +1,7 @@
 import { routeLoadedPiCard } from "./route-card";
 import { waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   scanFoilType,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
@@ -30,6 +30,9 @@ import {
   reservePickListBins,
   toRuleCard,
   withScanRuleFields,
+  isCardFromOtherGame,
+  presetMatchGameKeys,
+  presetMatchedGameOptions,
   type CornerDetection,
   type BinConfig,
   type BinDirection,
@@ -88,6 +91,12 @@ import {
 import { loadBinContents } from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadSets } from "../../routes/bins/shared";
+import {
+  findBestMatchAcrossGames,
+  matchScopesForGames,
+  tagWithGame,
+} from "../card-search/match-games";
+import type { CollectionMatchScope } from "../interfaces/card-search";
 import { grabSettledCameraFrame } from "./camera";
 import {
   pickBetterOrientation,
@@ -366,11 +375,22 @@ async function prepareContext(
 
     const foilTypes =
       (collection.foilTypes as string[] | null) ?? active.game?.foilTypes ?? [];
+    const matchGameKeys = presetMatchGameKeys(active);
+    const matchedGames =
+      matchGameKeys.length > 0
+        ? await tx
+            .select({ key: games.key, name: games.name })
+            .from(games)
+            .where(inArray(games.key, [collection.gameKey, ...matchGameKeys]))
+        : [];
     const fieldDefinitions = withScanRuleFields(
       (collection.fieldDefinitions as FieldMeta[] | null) ??
         active.game?.fieldDefinitions ??
         [],
       foilTypes,
+      collection.gameKey,
+      undefined,
+      presetMatchedGameOptions(active, matchedGames),
     );
     const trackContents = active.isRepackMode || hasMaxCopiesBins(active.bins);
     const windows = trackContents
@@ -462,6 +482,25 @@ async function rememberAutoAssign(
   }
 }
 
+function piMatchScopes(context: PiScanRunContext): CollectionMatchScope[] {
+  return matchScopesForGames(
+    {
+      gameKey: context.gameKey,
+      lang: context.lang,
+      matchAllLanguages: context.matchAllLanguages,
+    },
+    presetMatchGameKeys(context.set),
+  );
+}
+
+function piScopeForMatchedGame(
+  context: PiScanRunContext,
+  gameKey: string | undefined,
+): CollectionMatchScope {
+  const scopes = piMatchScopes(context);
+  return scopes.find((scope) => scope.gameKey === gameKey) ?? scopes[0];
+}
+
 async function searchOrientation(
   session: PiScanLive,
   context: PiScanRunContext,
@@ -469,17 +508,20 @@ async function searchOrientation(
   orientation: "upright" | "rotated",
 ) {
   const embeddings = await vectorizeCardImage(image);
-  const result = await attachMatchedCards(
-    await findCardMatches({
-      gameKey: context.gameKey,
-      lang: context.lang,
-      matchAllLanguages: context.matchAllLanguages,
-      embeddings,
-      preferredSetCodes: session.preferredSetCodes,
-    }),
-    context.gameKey,
-    context.lang,
+  const scopes = piMatchScopes(context);
+  const { result: nearest, scope } = await findBestMatchAcrossGames(
+    scopes,
+    (matchScope) =>
+      findCardMatches({
+        ...matchScope,
+        embeddings,
+        preferredSetCodes: session.preferredSetCodes,
+        skipsUnloadedIndex: matchScope.gameKey !== context.gameKey,
+      }),
   );
+  const attached = await attachMatchedCards(nearest, scope.gameKey, scope.lang);
+  const result =
+    scopes.length > 1 ? tagWithGame(attached, scope.gameKey) : attached;
   return {
     image,
     orientation,
@@ -543,7 +585,11 @@ async function matchFrame(
   let ocr: OcrDiagnostics | null = null;
   let matchedBy: ScanMatchSource = "embedding";
   let lowConfidenceFromOcr = false;
-  const regions = OCR_REGIONS_BY_GAME_KEY[context.gameKey] ?? [];
+  const ocrScope = piScopeForMatchedGame(
+    context,
+    best.result.data?.[0]?.gameKey,
+  );
+  const regions = OCR_REGIONS_BY_GAME_KEY[ocrScope.gameKey] ?? [];
   const embeddingMatched = hasCardMatch(best.result);
   if (
     context.ocrEnabled &&
@@ -573,9 +619,7 @@ async function matchFrame(
             ),
             regions,
             {
-              gameKey: context.gameKey,
-              lang: context.lang,
-              matchAllLanguages: context.matchAllLanguages,
+              ...ocrScope,
               embeddings: { embedding: option.embedding },
               preferredSetCodes: session.preferredSetCodes,
             },
@@ -595,14 +639,23 @@ async function matchFrame(
     if (text && hasCardMatch(text)) {
       best = {
         ...options[bestIndex],
-        result: await attachMatchedCards(text, context.gameKey, context.lang),
+        result:
+          piMatchScopes(context).length > 1
+            ? tagWithGame(
+                await attachMatchedCards(text, ocrScope.gameKey, ocrScope.lang),
+                ocrScope.gameKey,
+              )
+            : await attachMatchedCards(text, ocrScope.gameKey, ocrScope.lang),
       };
       matchedBy = "ocr";
       lowConfidenceFromOcr = !embeddingMatched;
     }
   }
 
-  const colorRegion = COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey];
+  const colorRegion =
+    COLOR_BAR_REGIONS_BY_GAME_KEY[
+      piScopeForMatchedGame(context, best.result.data?.[0]?.gameKey).gameKey
+    ];
   const detectedColor =
     colorRegion && corners.contour
       ? detectColorBarRgba(
@@ -984,11 +1037,13 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           ocr: matched.ocr,
           detectedColor: matched.detectedColor,
         };
+        const sortsWithoutSaving =
+          context.set.skipSaving || isCardFromOtherGame(card, context.gameKey);
         const saved = await saveThroughCollectionRoute(
           session.accessToken,
           session.orgId,
           session.collectionGuid,
-          context.set.skipSaving ? "cards/sorted" : "cards",
+          sortsWithoutSaving ? "cards/sorted" : "cards",
           {
             hasAlternatives: alternatives.length > 0,
             scanId,
@@ -1018,7 +1073,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           binNumber: chosen.binNumber,
           scannedAt,
           card: ruleCard,
-          unsaved: context.set.skipSaving,
+          unsaved: sortsWithoutSaving,
         });
         session.cardsScanned += 1;
         console.log(`[pi-scan] ${card.name} -> bin ${chosen.binNumber}`);

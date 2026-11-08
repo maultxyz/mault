@@ -3,6 +3,11 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
+import {
+  matchScopeForGame,
+  parseMatchGameKeys,
+  tagWithGame,
+} from "../../lib/card-search/match-games";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
 import { scanLog } from "../../lib/scan-log";
@@ -35,16 +40,25 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: "No embedding provided." }, 400);
     }
 
-    const resolved = await resolveGameKeyAndLang(
+    const collectionScope = await resolveGameKeyAndLang(
       c.get("jwtClaims"),
       collectionGuid,
     );
-    if (!resolved) {
+    if (!collectionScope) {
       return c.json(
         { success: false, message: "No game configured for this collection." },
         400,
       );
     }
+    const ocrGameKey =
+      typeof body["ocrGameKey"] === "string" ? body["ocrGameKey"] : null;
+    const matchesOtherGame =
+      !!ocrGameKey &&
+      ocrGameKey !== collectionScope.gameKey &&
+      parseMatchGameKeys(body["matchGameKeys"]).includes(ocrGameKey);
+    const resolved = matchesOtherGame
+      ? matchScopeForGame(ocrGameKey)
+      : collectionScope;
     const { gameKey, lang } = resolved;
 
     const settings = await authQuery(c.get("jwtClaims"), (tx) =>
@@ -83,7 +97,12 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
       scanLog(
         `[ocr] game=${gameKey} lang=${lang} name=${JSON.stringify(readout.name)} setLine=${JSON.stringify(readout.setLine)} number=${JSON.stringify(readout.number)} closestName=${result.ocr.matchedName ? `${JSON.stringify(result.ocr.matchedName)} (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} ${result.ocr.usedFallback ? " fallback" : ""} -> ${result.data ? `matched ${result.data[0].cardId} at ${result.data[0].distance.toFixed(3)}` : "no match"}`,
       );
-      return c.json(await attachMatchedCards(result, gameKey, lang));
+      const attached = await attachMatchedCards(result, gameKey, lang);
+      return c.json(
+        parseMatchGameKeys(body["matchGameKeys"]).length > 0
+          ? tagWithGame(attached, gameKey)
+          : attached,
+      );
     } catch (err) {
       console.error(err);
       return c.json({ success: false, message: "Text search failed." }, 500);

@@ -49,6 +49,7 @@ export interface BinModeDraft {
   chaosBinSize: number | null;
   skipSaving: boolean;
   isResortMode: boolean;
+  matchGameKeys: string[];
 }
 
 export interface ChaosConfig {
