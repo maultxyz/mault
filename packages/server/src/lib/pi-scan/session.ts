@@ -106,6 +106,7 @@ import {
   consensusAttemptLimit,
   consensusMissReason,
   hasCardMatch,
+  needsTextSearch,
   prefersTextMatch,
   routeForBin,
 } from "@magic-vault/shared";
@@ -403,7 +404,7 @@ async function prepareContext(
       : [];
     const settings = await tx.query.orgSettings.findFirst({
       where: eq(orgSettings.orgId, session.orgId),
-      columns: { ocrEnabled: true },
+      columns: { ocrEnabled: true, highAccuracyScans: true },
     });
     const feeder = await tx.query.feederConfigs.findFirst({
       where: eq(feederConfigs.deviceId, device.id),
@@ -442,6 +443,7 @@ async function prepareContext(
       matchesNeeded: device.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
       matchAllLanguages: collection.matchAllLanguages,
       ocrEnabled: settings?.ocrEnabled === true,
+      highAccuracyScans: settings?.highAccuracyScans === true,
       cardThickness: collection.cardThickness,
       fieldDefinitions,
       set: active,
@@ -594,7 +596,8 @@ async function matchFrame(
   if (
     context.ocrEnabled &&
     corners.contour &&
-    regions.length > 0
+    regions.length > 0 &&
+    (context.highAccuracyScans || needsTextSearch(best.result))
   ) {
     const ocrCrop = dewarpRgba(
       source,
@@ -610,7 +613,6 @@ async function matchFrame(
       options.map(async (option) => {
         try {
           return await findCardMatchesByOcr(
-            session.jwtClaims,
             await rgbaToJpeg(
               option.orientation === "rotated"
                 ? rotateRgba180(ocrCrop)

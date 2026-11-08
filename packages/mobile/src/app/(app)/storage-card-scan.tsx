@@ -15,6 +15,7 @@ import {
   findCardForScan,
   OCR_REGIONS_BY_GAME_KEY,
   scanCheckCollectionGuid,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -112,7 +113,7 @@ export default function StorageCardScanScreen() {
           scope: { collectionGuid: scanCollectionGuid },
           matchesNeeded: DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
-          ocrEnabled: !!orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+          ocrMode: scanOcrMode(orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
           colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
         },
         DEFAULT_SCAN_REGION,

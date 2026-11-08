@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "high_accuracy_scans" boolean DEFAULT false NOT NULL;

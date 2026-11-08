@@ -44,6 +44,7 @@ export interface PiScanRunContext {
   matchesNeeded: number;
   matchAllLanguages: boolean;
   ocrEnabled: boolean;
+  highAccuracyScans: boolean;
   cardThickness: number | null;
   fieldDefinitions: FieldMeta[];
   gameGuid: string;

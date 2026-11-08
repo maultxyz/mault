@@ -68,6 +68,8 @@ import {
   type ScannerStatus,
   type ScanVectorizeSource,
   presetMatchGameKeys,
+  scanOcrMode,
+  type ScanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -235,8 +237,8 @@ export function useCardScanner({
   const ocrSupported =
     (OCR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""]?.length ?? 0) >
     0;
-  const ocrEnabledRef = useRef(false);
-  ocrEnabledRef.current = !!orgSettings?.ocrEnabled && ocrSupported;
+  const ocrModeRef = useRef<ScanOcrMode>("off");
+  ocrModeRef.current = scanOcrMode(orgSettings, ocrSupported);
   const foilDetectionGameKey = useFoilDetectionGameKey(activeCollection?.game?.key);
   const foilDetectionGameKeyRef = useRef(foilDetectionGameKey);
   foilDetectionGameKeyRef.current = foilDetectionGameKey;
@@ -358,7 +360,7 @@ export function useCardScanner({
             preferredSetCodes: preferredSetCodesRef.current,
             matchGameKeys: matchGameKeysRef.current,
           },
-          ocrEnabledRef.current,
+          ocrModeRef.current,
           matchesNeededRef.current,
           isDocumentScan || checkBothOrientationsRef.current,
           colorBarRegionRef.current,

@@ -2,6 +2,7 @@ export interface CardMatchSourceRow {
   cardId: string;
   name: string;
   setCode: string;
+  collectorNumber: string | null;
   rarePrinting: boolean;
   embedding: Float32Array;
   backEmbedding: Float32Array | null;
@@ -13,6 +14,7 @@ export interface CardMatchSegment {
   cardIds: string[];
   names: string[];
   setCodes: string[];
+  collectorNumbers: (string | null)[];
   rarePrinting: Uint8Array;
   frontEmbeddings: Float32Array;
   backEmbeddings: Float32Array;
@@ -44,6 +46,7 @@ export interface CardMatchSegmentEntry {
   segment: CardMatchSegment | null;
   signature: string | null;
   loading: Promise<void> | null;
+  queuedForBackgroundLoad: boolean;
   reloadRequested: boolean;
   checkedAt: number;
   lastUsedAt: number;
@@ -58,4 +61,23 @@ export interface CardMatchSegmentSignature {
 export interface LoadedCardMatchSegment {
   segment: CardMatchSegment;
   signature: string;
+}
+
+export interface CardNameTrigramIndex {
+  names: string[];
+  rowsByName: number[][];
+  offsets: Int32Array;
+  trigramIds: Int32Array;
+}
+
+export interface CardNameMatch {
+  segment: CardMatchSegment;
+  row: number;
+  score: number;
+}
+
+export interface OcrCandidateRow {
+  segment: CardMatchSegment;
+  row: number;
+  distance: number;
 }

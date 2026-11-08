@@ -92,7 +92,6 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
 
     try {
       const result = await findCardMatchesByOcr(
-        c.get("jwtClaims"),
         Buffer.from(await file.arrayBuffer()),
         regions,
         {

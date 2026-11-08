@@ -1141,6 +1141,7 @@ export const orgSettings = pgTable(
       .notNull()
       .default(true),
     ocrEnabled: boolean("ocr_enabled").notNull().default(false),
+    highAccuracyScans: boolean("high_accuracy_scans").notNull().default(false),
     foilDetectionEnabled: boolean("foil_detection_enabled")
       .notNull()
       .default(false),

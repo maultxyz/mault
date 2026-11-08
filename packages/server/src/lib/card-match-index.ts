@@ -104,11 +104,12 @@ async function loadSegment(
       card_id: string;
       name: string;
       set_code: string;
+      collector_number: string | null;
       rare_printing: boolean;
       embedding: string;
       back_embedding: string | null;
     }>(sql`
-      SELECT card_id, name, set_code,
+      SELECT card_id, name, set_code, collector_number,
         coalesce(${rarePrintingSql}, false) AS rare_printing,
         encode(vector_send(embedding), 'base64') AS embedding,
         encode(vector_send(back_embedding), 'base64') AS back_embedding
@@ -123,6 +124,7 @@ async function loadSegment(
         cardId: row.card_id,
         name: row.name,
         setCode: row.set_code,
+        collectorNumber: row.collector_number,
         rarePrinting: row.rare_printing === true,
         embedding: decodeVector(row.embedding)!,
         backEmbedding: decodeVector(row.back_embedding),
@@ -234,6 +236,7 @@ function segmentEntry(gameKey: string, lang: string): CardMatchSegmentEntry {
       segment: null,
       signature: null,
       loading: null,
+      queuedForBackgroundLoad: false,
       reloadRequested: false,
       checkedAt: 0,
       lastUsedAt: 0,
@@ -285,6 +288,19 @@ export function cardMatchSegments(
   return segmentsForScope(scope, false);
 }
 
+let backgroundLoads: Promise<void> = Promise.resolve();
+
+function loadInBackground(entry: CardMatchSegmentEntry): void {
+  if (entry.segment || entry.loading || entry.queuedForBackgroundLoad) return;
+  entry.queuedForBackgroundLoad = true;
+  backgroundLoads = backgroundLoads
+    .then(() => (entry.segment ? undefined : reloadSegment(entry)))
+    .catch(logReloadFailure(entry))
+    .finally(() => {
+      entry.queuedForBackgroundLoad = false;
+    });
+}
+
 export function loadedCardMatchSegments({
   gameKey,
   lang,
@@ -295,18 +311,13 @@ export function loadedCardMatchSegments({
     revalidateSegmentInBackground(entry);
     return [entry.segment];
   }
-  reloadSegment(entry).catch(logReloadFailure(entry));
+  loadInBackground(entry);
   return [];
 }
 
 export function warmCardMatchSegments(scopes: CollectionMatchScope[]): void {
-  for (const scope of scopes) {
-    segmentsForScope(scope, true).catch((err) =>
-      console.error(
-        `[card-match-index] warmup of ${scope.gameKey}/${scope.lang} failed:`,
-        err,
-      ),
-    );
+  for (const { gameKey, lang } of scopes) {
+    loadInBackground(segmentEntry(gameKey, lang));
   }
 }
 
@@ -335,9 +346,9 @@ async function warmCardMatchIndex(): Promise<void> {
     .selectDistinct({ gameKey: sql<string>`unnest(${binSets.matchGameKeys})` })
     .from(binSets)
     .where(and(eq(binSets.isActive, true), eq(binSets.isDeleted, false)));
-  for (const { gameKey } of presetMatchGames) {
-    await segmentsForScope(matchScopeForGame(gameKey), true);
-  }
+  warmCardMatchSegments(
+    presetMatchGames.map(({ gameKey }) => matchScopeForGame(gameKey)),
+  );
 }
 
 export function startCardMatchIndexWarmup(): void {

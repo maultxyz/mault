@@ -58,3 +58,5 @@ export interface OrientedSearchCandidate {
 export type LookupMatchedCard = (
   match: SearchCardMatch,
 ) => Promise<PlayingCard | null | undefined>;
+
+export type ScanOcrMode = "off" | "when-unsure" | "every-scan";

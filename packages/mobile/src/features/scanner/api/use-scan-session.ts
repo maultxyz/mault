@@ -42,6 +42,7 @@ import {
   type ScannedCard,
   type ScannerControlCommand,
   type ScanRoutingContext,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import {
   binHeightsQueryOptions,
@@ -779,7 +780,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
           },
           matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
-          ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+          ocrMode: scanOcrMode(ctx.orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
           colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
         },
         device?.scanRegion ?? DEFAULT_SCAN_REGION,

@@ -12,6 +12,7 @@ import type {
   ResolvedCardSearchMatches,
   ScanAttemptResult,
   ScanMatchDetails,
+  ScanOcrMode,
 } from "./interfaces/scan-identify.interface";
 import type {
   ScanAttemptDiagnostic,
@@ -31,6 +32,14 @@ export function needsTextSearch(result: CardSearchResult): boolean {
     runnerUp != null &&
     runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
   );
+}
+
+export function scanOcrMode(
+  settings: { ocrEnabled: boolean; highAccuracyScans?: boolean } | null | undefined,
+  gameSupportsOcr: boolean,
+): ScanOcrMode {
+  if (!settings?.ocrEnabled || !gameSupportsOcr) return "off";
+  return settings.highAccuracyScans ? "every-scan" : "when-unsure";
 }
 
 export function prefersTextMatch(

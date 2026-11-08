@@ -22,6 +22,7 @@ import {
   type ScanDetectionDiagnostics,
   type ScanRegion,
   toScanMatchDetails,
+  needsTextSearch,
 } from "@magic-vault/shared";
 import { getCardById, searchByText, searchByVector } from "@/features/scanner/api/card-search";
 import {
@@ -34,6 +35,7 @@ import type {
   IdentifyOutcome,
   MatchScope,
   OrientedPick,
+  ReadOrientationText,
   ScanAttempt,
 } from "@/lib/interfaces/scanner";
 import { encodeJpegDataUrl, writeJpegTempFile } from "./frame";
@@ -74,13 +76,13 @@ async function searchOriented(
   pixels: CapturedFrame["pixels"],
   scope: MatchScope,
   checkBothOrientations: boolean,
-  uprightOcrCrop: CapturedFrame["pixels"] | null,
+  readTextWithImage: ReadOrientationText | null,
 ): Promise<OrientedPick> {
   const search = async (oriented: CapturedFrame["pixels"], orientation: OrientedPick["orientation"]) => {
     const embedding = await embedCard(oriented);
     const [result, textResult] = await Promise.all([
       searchByVector(embedding, scope),
-      uprightOcrCrop ? searchOrientationText(uprightOcrCrop, orientation, embedding, scope) : undefined,
+      readTextWithImage ? readTextWithImage(orientation, embedding) : undefined,
     ]);
     return { pixels: oriented, orientation, embedding, result, textResult, alternate: null } satisfies OrientedPick;
   };
@@ -91,6 +93,18 @@ async function searchOriented(
     search(rotateRgba180(pixels), "rotated"),
   ]);
   return pickBetterOrientation(upright, rotated);
+}
+
+async function withTextSearch(best: OrientedPick, readText: ReadOrientationText): Promise<OrientedPick> {
+  const withText = async (option: OrientedPick) => ({
+    ...option,
+    textResult: await readText(option.orientation, option.embedding),
+  });
+  const [upright, alternate] = await Promise.all([
+    withText(best),
+    best.alternate ? withText(best.alternate) : null,
+  ]);
+  return { ...upright, alternate };
 }
 
 function pickTextSearch(best: OrientedPick): { pick: OrientedPick | null; ocr: ScanAttempt["ocr"] } | null {
@@ -128,11 +142,23 @@ async function attemptOnce(
   }
 
   const dewarped = dewarpRgba(frame.pixels, contour, DEWARP_OUTPUT_SIZE);
-  const uprightOcrCrop =
-    options.ocrEnabled && corners.contour
-      ? dewarpRgba(frame.pixels, corners.contour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT)
-      : null;
-  const best = await searchOriented(dewarped, options.scope, options.checkBothOrientations, uprightOcrCrop);
+  const cardContour = corners.contour;
+  let uprightOcrCrop: CapturedFrame["pixels"] | null = null;
+  const readText: ReadOrientationText = (orientation, embedding) => {
+    if (!cardContour) return Promise.resolve(null);
+    uprightOcrCrop ??= dewarpRgba(frame.pixels, cardContour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT);
+    return searchOrientationText(uprightOcrCrop, orientation, embedding, options.scope);
+  };
+  const imageBest = await searchOriented(
+    dewarped,
+    options.scope,
+    options.checkBothOrientations,
+    options.ocrMode === "every-scan" && cardContour ? readText : null,
+  );
+  const best =
+    options.ocrMode === "when-unsure" && cardContour && needsTextSearch(imageBest.result)
+      ? await withTextSearch(imageBest, readText)
+      : imageBest;
   const text = pickTextSearch(best);
   const textPick = text?.pick && prefersTextMatch(best.result, text.ocr) ? text.pick : null;
   const pick = textPick ?? best;

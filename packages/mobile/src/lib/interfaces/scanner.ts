@@ -10,6 +10,7 @@ import type {
   PlayingCardWithDistance,
   RgbaImage,
   ScanAttemptResult,
+  ScanOcrMode,
   ScanRegion,
   ScannedCard,
   ScannerControlCommand,
@@ -54,7 +55,7 @@ export interface IdentifyOptions {
   scope: MatchScope;
   matchesNeeded: number;
   checkBothOrientations: boolean;
-  ocrEnabled: boolean;
+  ocrMode: ScanOcrMode;
   colorBarRegionKey: string | null;
   minSharpness?: number;
 }
@@ -386,3 +387,8 @@ export interface BatchScanCorrectionSheetProps {
   onSelect: (card: PlayingCard) => void;
   onClose: () => void;
 }
+
+export type ReadOrientationText = (
+  orientation: OrientedPick["orientation"],
+  embedding: number[],
+) => Promise<CardTextSearchResult | null>;

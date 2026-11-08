@@ -1419,8 +1419,10 @@
     },
     "ocr": {
       "heading": "Texterkennung (OCR)",
-      "description": "Liest bei jedem Scan Kartenname und Set-Zeile. So wird die Karte gefunden, wenn der Bildabgleich unsicher ist, und ein sicherer Bildabgleich korrigiert, wenn Set und Nummer einen anderen Druck bestätigen. Gilt für alle Scanner dieser Organisation, bei Spielen mit eingerichteten Textbereichen.",
-      "toggleLabel": "OCR-Texterkennung aktivieren"
+      "description": "Wenn ein Scan nicht sicher erkannt wird, werden Kartenname und Set-Zeile gelesen, um die Karte zu finden. Gilt für alle Scanner dieser Organisation, bei Spielen mit eingerichteten Textbereichen.",
+      "toggleLabel": "OCR-Texterkennung aktivieren",
+      "highAccuracyToggleLabel": "Genauere Scans",
+      "highAccuracyDescription": "Liest den Text auf jeder Karte, nicht nur bei unsicheren Treffern, damit Set und Nummer einen sicheren, aber falschen Treffer korrigieren können. Scans dauern etwas länger."
     },
     "correctionAutoClose": {
       "heading": "Hinweis nach Kartenkorrektur",

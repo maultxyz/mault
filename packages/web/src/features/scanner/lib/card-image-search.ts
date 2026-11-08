@@ -42,6 +42,7 @@ import {
   type CardContour,
   type CardTextSearchResult,
   type ColorBarRegion,
+  type ScanOcrMode,
   type ScanDetectionDiagnostics,
 } from "@magic-vault/shared";
 
@@ -130,6 +131,24 @@ async function searchOrientationText(
     console.error("[scanner] text search failed:", err);
     return null;
   }
+}
+
+async function withTextSearch(
+  best: OrientedSearchPick,
+  readText: (
+    orientation: OrientedCandidate["orientation"],
+    embedding: number[],
+  ) => Promise<CardTextSearchResult | null>,
+): Promise<OrientedSearchPick> {
+  const withText = async <T extends OrientedCandidate>(option: T) =>
+    option.embedding
+      ? { ...option, textResult: await readText(option.orientation, option.embedding) }
+      : option;
+  const [upright, alternate] = await Promise.all([
+    withText(best),
+    best.alternate ? withText(best.alternate) : null,
+  ]);
+  return { ...upright, alternate };
 }
 
 function pickTextSearch(best: OrientedSearchPick): TextSearchOutcome | null {
@@ -240,7 +259,7 @@ async function searchCardImage(
   refreshFrame: () => void,
   contour: CardContour | null | undefined,
   scope: MatchScope,
-  ocrEnabled: boolean | undefined,
+  ocrMode: ScanOcrMode,
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
 ): Promise<ScanAttemptOutcome> {
@@ -252,7 +271,7 @@ async function searchCardImage(
       refreshFrame,
       contour,
       scope,
-      ocrEnabled,
+      ocrMode,
       checkBothOrientations,
       colorBarRegion,
     );
@@ -267,7 +286,7 @@ async function runCardImageSearch(
   refreshFrame: () => void,
   contour: CardContour | null | undefined,
   scope: MatchScope,
-  ocrEnabled: boolean | undefined,
+  ocrMode: ScanOcrMode,
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
 ): Promise<ScanAttemptOutcome> {
@@ -293,33 +312,50 @@ async function runCardImageSearch(
     };
     if (dewarpedCanvas) {
       created.push(dewarpedCanvas);
-      const uprightOcrCrop =
-        ocrEnabled && corners.contour
-          ? dewarpCard(frame, corners.contour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT)
-          : null;
-      if (uprightOcrCrop) created.push(uprightOcrCrop);
-      const best = await searchBothOrientations(
+      const cardContour = corners.contour;
+      let uprightOcrCrop: HTMLCanvasElement | null = null;
+      const ocrCrop = () => {
+        if (!uprightOcrCrop && cardContour) {
+          uprightOcrCrop = dewarpCard(
+            frame,
+            cardContour,
+            OCR_CROP_WIDTH,
+            OCR_CROP_HEIGHT,
+          );
+          created.push(uprightOcrCrop);
+        }
+        return uprightOcrCrop;
+      };
+      const readText = (
+        orientation: OrientedCandidate["orientation"],
+        embedding: number[],
+      ) => {
+        const crop = ocrCrop();
+        return crop
+          ? searchOrientationText(crop, orientation, embedding, scope, created)
+          : Promise.resolve(null);
+      };
+      const readsTextWithImage = ocrMode === "every-scan" && !!cardContour;
+      const imageBest = await searchBothOrientations(
         dewarpedCanvas,
         checkBothOrientations,
         async (oriented, orientation) => {
           const embedding = await embedCanvas(oriented);
           const [result, textResult] = await Promise.all([
             searchByVector(buildSearchFormData(embedding, scope)),
-            uprightOcrCrop
-              ? searchOrientationText(
-                  uprightOcrCrop,
-                  orientation,
-                  embedding,
-                  scope,
-                  created,
-                )
-              : undefined,
+            readsTextWithImage ? readText(orientation, embedding) : undefined,
           ]);
           return { result, embedding, textResult };
         },
       );
-      created.push(best.canvas);
-      if (best.alternate) created.push(best.alternate.canvas);
+      created.push(imageBest.canvas);
+      if (imageBest.alternate) created.push(imageBest.alternate.canvas);
+      const best =
+        ocrMode === "when-unsure" &&
+        cardContour &&
+        needsTextSearch(imageBest.result)
+          ? await withTextSearch(imageBest, readText)
+          : imageBest;
 
       scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
@@ -418,7 +454,7 @@ export async function searchCardImageWithConsensus(
   refreshFrame: () => void,
   contour: CardContour | null | undefined,
   scope: MatchScope,
-  ocrEnabled: boolean | undefined,
+  ocrMode: ScanOcrMode,
   matchesNeeded: number,
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
@@ -430,7 +466,7 @@ export async function searchCardImageWithConsensus(
       refreshFrame,
       contour,
       scope,
-      ocrEnabled,
+      ocrMode,
       checkBothOrientations,
       colorBarRegion,
     );

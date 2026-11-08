@@ -18,6 +18,7 @@ export default function ScanningSettingsScreen() {
   const draft = useOrgSettingsDraft();
   const disabled = draft.isLoading || draft.isSaving;
   const correctionBinPrompt = useWatch({ control: draft.control, name: "correctionBinPrompt" });
+  const ocrEnabled = useWatch({ control: draft.control, name: "ocrEnabled" });
   const [secondsOpen, setSecondsOpen] = useState(false);
 
   const section = (heading: string, description: string, badge?: string) => (
@@ -64,6 +65,19 @@ export default function ScanningSettingsScreen() {
               title={t("settings.ocr.toggleLabel")}
               value={field.value}
               disabled={disabled}
+              onValueChange={field.onChange}
+            />
+          )}
+        />
+        <Controller
+          control={draft.control}
+          name="highAccuracyScans"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("settings.ocr.highAccuracyToggleLabel")}
+              description={t("settings.ocr.highAccuracyDescription")}
+              value={field.value}
+              disabled={disabled || !ocrEnabled}
               onValueChange={field.onChange}
             />
           )}
