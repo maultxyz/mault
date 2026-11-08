@@ -36,6 +36,7 @@ import {
   pickBetterOrientation,
   pickConsensus,
   preferDetectedColor,
+  prefersTextMatch,
   resolveCardSearchMatches,
   toScanMatchDetails,
   type CardContour,
@@ -320,21 +321,25 @@ async function runCardImageSearch(
       scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
-      const runOcr =
-        !!ocrEnabled && !!corners.contour && needsTextSearch(best.result);
-      if (ocrEnabled) {
-        scanLog(
-          runOcr
-            ? `[scanner] OCR running (embedding unsure: ${best.result.diagnostics?.reason ?? "close alternatives"})`
-            : "[scanner] OCR skipped (confident embedding match)",
-        );
-      }
       const text =
-        runOcr && corners.contour
+        ocrEnabled && corners.contour
           ? await searchByCardText(frame, corners.contour, best, scope)
           : null;
+      const textPick =
+        text?.pick && prefersTextMatch(best.result, text.ocr)
+          ? text.pick
+          : null;
+      if (text) {
+        scanLog(
+          textPick
+            ? `[scanner] OCR match used (${needsTextSearch(best.result) ? "embedding unsure" : "printing confirmed"})`
+            : text.pick
+              ? "[scanner] OCR match ignored (confident embedding match, printing not confirmed)"
+              : "[scanner] OCR found no match",
+        );
+      }
       return toAttemptOutcome(
-        text?.pick ?? best,
+        textPick ?? best,
         collectionGuid,
         colorBarRegion,
         true,
@@ -344,8 +349,8 @@ async function runCardImageSearch(
           vectorizedOn: "web",
           detection,
           ocr: text?.ocr ?? null,
-          lowConfidenceMatch: !!text?.pick && !hasCardMatch(best.result),
-          matchedBy: text?.pick ? "ocr" : "embedding",
+          lowConfidenceMatch: !!textPick && !hasCardMatch(best.result),
+          matchedBy: textPick ? "ocr" : "embedding",
         },
       );
     }

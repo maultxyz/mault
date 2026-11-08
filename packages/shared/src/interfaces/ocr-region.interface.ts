@@ -9,6 +9,7 @@ export interface OcrRegion {
   multiline?: boolean;
   fallback?: boolean;
   ignoredLineTexts?: string[];
+  anchorLinePattern?: string;
 }
 
 export type OcrReadout = Record<OcrField, string>;

@@ -5,7 +5,7 @@ import {
   CONSENSUS_RETRY_BUDGET,
   DEWARP_OUTPUT_SIZE,
   hasCardMatch,
-  needsTextSearch,
+  prefersTextMatch,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   detectColorBarRgba,
@@ -124,17 +124,18 @@ async function attemptOnce(
   const dewarped = dewarpRgba(frame.pixels, contour, DEWARP_OUTPUT_SIZE);
   const best = await searchOriented(dewarped, options.scope, options.checkBothOrientations);
   const text =
-    options.ocrEnabled && corners.contour && needsTextSearch(best.result)
+    options.ocrEnabled && corners.contour
       ? await searchByCardText(frame, corners.contour, best, options.scope)
       : null;
-  const pick = text?.pick ?? best;
+  const textPick = text?.pick && prefersTextMatch(best.result, text.ocr) ? text.pick : null;
+  const pick = textPick ?? best;
 
   const region = options.colorBarRegionKey
     ? COLOR_BAR_REGIONS_BY_GAME_KEY[options.colorBarRegionKey]
     : undefined;
   const detectedColor =
     region && corners.contour ? detectColorBarRgba(pick.pixels, region) : null;
-  const matchedBy = text?.pick ? "ocr" : "embedding";
+  const matchedBy = textPick ? "ocr" : "embedding";
   const { colorVariantUncertain, ...resolved } = preferDetectedColor(
     await resolveCardSearchMatches(pick.result, (match) =>
       getCardById(match.cardId, options.scope.collectionGuid, match.lang, match.gameKey),
@@ -157,7 +158,7 @@ async function attemptOnce(
     topDistance: pick.result.data?.[0]?.distance ?? pick.result.nearestDistance ?? null,
     ocr: text?.ocr ?? null,
     matchedBy,
-    lowConfidenceMatch: (!!text?.pick && !hasCardMatch(best.result)) || colorVariantUncertain,
+    lowConfidenceMatch: (!!textPick && !hasCardMatch(best.result)) || colorVariantUncertain,
     detectedColor,
   };
 }

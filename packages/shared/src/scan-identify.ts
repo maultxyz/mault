@@ -33,6 +33,13 @@ export function needsTextSearch(result: CardSearchResult): boolean {
   );
 }
 
+export function prefersTextMatch(
+  imageResult: CardSearchResult,
+  textOcr: { printingConfirmed?: boolean } | null | undefined,
+): boolean {
+  return needsTextSearch(imageResult) || !!textOcr?.printingConfirmed;
+}
+
 export function pickBetterOrientation<T extends OrientedSearchCandidate>(
   upright: T,
   rotated: T,

@@ -106,7 +106,7 @@ import {
   consensusAttemptLimit,
   consensusMissReason,
   hasCardMatch,
-  needsTextSearch,
+  prefersTextMatch,
   routeForBin,
 } from "@magic-vault/shared";
 import {
@@ -594,8 +594,7 @@ async function matchFrame(
   if (
     context.ocrEnabled &&
     corners.contour &&
-    regions.length > 0 &&
-    needsTextSearch(best.result)
+    regions.length > 0
   ) {
     const ocrCrop = dewarpRgba(
       source,
@@ -636,7 +635,7 @@ async function matchFrame(
     });
     const text = texts[bestIndex];
     ocr = text?.ocr ?? texts.find((item) => item?.ocr)?.ocr ?? null;
-    if (text && hasCardMatch(text)) {
+    if (text && hasCardMatch(text) && prefersTextMatch(best.result, text.ocr)) {
       best = {
         ...options[bestIndex],
         result:

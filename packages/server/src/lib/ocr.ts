@@ -23,8 +23,8 @@ import type {
   OcrTextBox,
 } from "./interfaces/ocr";
 import {
+  acceptsLineText,
   anchorRegion,
-  isIgnoredLine,
   lineText,
   regionBox,
 } from "./ocr-anchor";
@@ -106,7 +106,7 @@ async function readRectangleText(
   region: OcrRegion,
 ): Promise<string> {
   const lines = toPageLines(await readTextBoxes(buffer, rectangle)).filter(
-    (line) => !isIgnoredLine(region, lineText(line)),
+    (line) => acceptsLineText(region, lineText(line)),
   );
   if (lines.length > 0) {
     return region.multiline
@@ -123,7 +123,7 @@ async function readRectangleText(
   const single = await recognizeRectangle(buffer, rectangle);
   return single &&
     single.confidence >= OCR_MIN_LINE_CONFIDENCE &&
-    !isIgnoredLine(region, single.text)
+    acceptsLineText(region, single.text)
     ? single.text
     : "";
 }
