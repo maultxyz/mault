@@ -182,14 +182,16 @@ export default function StorageCardScanScreen() {
         </View>
       ) : device ? (
         <>
-          <Camera
-            style={StyleSheet.absoluteFill}
-            device={device}
-            isActive={active}
-            outputs={[photoOutput]}
-            resizeMode="cover"
-            enableNativeTapToFocusGesture
-          />
+          {focused ? (
+            <Camera
+              style={StyleSheet.absoluteFill}
+              device={device}
+              isActive={active}
+              outputs={[photoOutput]}
+              resizeMode="cover"
+              enableNativeTapToFocusGesture
+            />
+          ) : null}
           <ScanRegionOverlay
             region={DEFAULT_SCAN_REGION}
             frameAspect={frameAspect}
