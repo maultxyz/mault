@@ -1,14 +1,12 @@
 import {
   CARD_DETECTION_RETRY_INTERVAL_MS,
   CARD_DETECTION_RETRY_TIMEOUT_MS,
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   CONSENSUS_RETRY_BUDGET,
   DEWARP_OUTPUT_SIZE,
   hasCardMatch,
   prefersTextMatch,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
-  detectColorBarRgba,
   detectCardStampRgba,
   detectPrintedFoilMarkerRgba,
   PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY,
@@ -17,7 +15,6 @@ import {
   isStrongerTextMatch,
   pickBetterOrientation,
   pickConsensus,
-  preferDetectedColor,
   resolveCardSearchMatches,
   rotateRgba180,
   type CardContour,
@@ -173,21 +170,9 @@ async function attemptOnce(
   const textPick = text?.pick && prefersTextMatch(best.result, text.ocr) ? text.pick : null;
   const pick = textPick ?? best;
 
-  const region = options.colorBarRegionKey
-    ? COLOR_BAR_REGIONS_BY_GAME_KEY[options.colorBarRegionKey]
-    : undefined;
-  const detectedColor =
-    region && corners.contour ? detectColorBarRgba(pick.pixels, region) : null;
   const matchedBy = textPick ? "ocr" : "embedding";
-  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
-    await resolveCardSearchMatches(pick.result, (match) =>
-      getCardById(match.cardId, options.scope.collectionGuid, match.lang, match.gameKey),
-    ),
-    {
-      gameHasColorBar: !!region,
-      detectedColor,
-      printingConfirmed: matchedBy === "ocr" && !!text?.ocr?.printingConfirmed,
-    },
+  const resolved = await resolveCardSearchMatches(pick.result, (match) =>
+    getCardById(match.cardId, options.scope.collectionGuid, match.lang, match.gameKey),
   );
 
   return {
@@ -201,8 +186,7 @@ async function attemptOnce(
     topDistance: pick.result.data?.[0]?.distance ?? pick.result.nearestDistance ?? null,
     ocr: text?.ocr ?? null,
     matchedBy,
-    lowConfidenceMatch: (!!textPick && !hasCardMatch(best.result)) || colorVariantUncertain,
-    detectedColor,
+    lowConfidenceMatch: !!textPick && !hasCardMatch(best.result),
     printingMarks: pick.result.printingMarks ?? null,
     stampDetection:
       corners.contour && resolved.card?.stamps?.length

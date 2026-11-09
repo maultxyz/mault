@@ -36,14 +36,3 @@ export interface OcrDiagnostics {
   regions?: OcrReadRegion[];
   printedPromo?: boolean | null;
 }
-
-export interface ColorBarBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-export interface ColorBarRegion extends ColorBarBox {
-  whiteReference: ColorBarBox;
-}

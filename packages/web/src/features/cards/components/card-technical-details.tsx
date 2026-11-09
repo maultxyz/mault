@@ -91,11 +91,6 @@ export function CardTechnicalDetails({
                   `technicalDetails.orientationValue.${diagnostics.orientation}`,
                 )}
               </Row>
-              {diagnostics.detectedColor !== undefined && (
-                <Row label={t("technicalDetails.detectedColor")}>
-                  {diagnostics.detectedColor ?? t("technicalDetails.noColor")}
-                </Row>
-              )}
               {diagnostics.printingMarks && (
                 <Row label={t("technicalDetails.printingMarks")}>
                   {diagnostics.printingMarks.skipped

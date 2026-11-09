@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import { useCallback, useRef, useState } from "react";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_SCAN_REGION,
   OCR_REGIONS_BY_GAME_KEY,
@@ -76,7 +75,6 @@ export function useBatchScan(initialMode: BatchScanMode) {
         matchesNeeded: 1,
         checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
         ocrMode: scanOcrMode(orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
-        colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
         gameKey: gameKey || null,
       };
       for (const [index, card] of found.entries()) {

@@ -56,7 +56,6 @@ export interface IdentifyOptions {
   matchesNeeded: number;
   checkBothOrientations: boolean;
   ocrMode: ScanOcrMode;
-  colorBarRegionKey: string | null;
   gameKey: string | null;
   minSharpness?: number;
 }

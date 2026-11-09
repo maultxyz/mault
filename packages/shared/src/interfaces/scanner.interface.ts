@@ -166,7 +166,6 @@ export interface MatchedScanDiagnostics {
   attempts: ScanAttemptDiagnostic[];
   candidates: MatchCandidateDiagnostic[];
   ocr: OcrDiagnostics | null;
-  detectedColor?: string | null;
   foilDetection?: FoilDetection | null;
   stampDetection?: StampDetection | null;
   printedFoilMarker?: PrintedFoilMarkerDetection | null;

@@ -12,7 +12,6 @@ import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectStamp } from "@/features/scanner/lib/card-stamp";
 import { detectPrintedFoilMarker } from "@/features/scanner/lib/printed-foil-marker";
 import { printingMarksSampler } from "@/features/scanner/lib/printing-marks";
-import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
@@ -38,15 +37,12 @@ import {
   OCR_CROP_WIDTH,
   pickBetterOrientation,
   pickConsensus,
-  preferDetectedColor,
   prefersTextMatch,
   resolveCardSearchMatches,
   toScanMatchDetails,
   type CardContour,
   type CardTextSearchResult,
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   type PrintingMarksPayload,
-  type ColorBarRegion,
   type ScanOcrMode,
   type ScanDetectionDiagnostics,
 } from "@magic-vault/shared";
@@ -215,8 +211,7 @@ function buildImageSearchFormData(blob: Blob, scope: MatchScope): FormData {
 async function toAttemptOutcome(
   best: OrientedSearchPick,
   collectionGuid: string | undefined,
-  colorBarRegion: ColorBarRegion | undefined,
-  readColorBarFromScan: boolean,
+  scanWasDewarped: boolean,
   context: Pick<
     ScanAttemptOutcome,
     | "detectedContour"
@@ -229,40 +224,27 @@ async function toAttemptOutcome(
     | "printedFoilMarker"
   >,
 ): Promise<ScanAttemptOutcome> {
-  const detectedColor =
-    colorBarRegion && readColorBarFromScan
-      ? detectColorBar(best.canvas, colorBarRegion)
-      : null;
-  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
-    await resolveCardSearchMatches(
-      best.result,
-      async (match) =>
-        (
-          await getCardById(
-            match.cardId,
-            collectionGuid,
-            match.lang,
-            match.gameKey,
-          )
-        ).data,
-    ),
-    {
-      gameHasColorBar: !!colorBarRegion,
-      detectedColor,
-      printingConfirmed:
-        context.matchedBy === "ocr" && !!context.ocr?.printingConfirmed,
-    },
+  const resolved = await resolveCardSearchMatches(
+    best.result,
+    async (match) =>
+      (
+        await getCardById(
+          match.cardId,
+          collectionGuid,
+          match.lang,
+          match.gameKey,
+        )
+      ).data,
   );
   const topDistance =
     best.result.data?.[0]?.distance ?? best.result.nearestDistance ?? null;
-  const stampDetection = readColorBarFromScan
+  const stampDetection = scanWasDewarped
     ? detectStamp(best.canvas, resolved.card)
     : null;
   return {
     ...resolved,
     ...context,
-    lowConfidenceMatch: context.lowConfidenceMatch || colorVariantUncertain,
-    detectedColor,
+    lowConfidenceMatch: context.lowConfidenceMatch,
     stampDetection,
     printingMarks: best.result.printingMarks ?? null,
     debugImageUrl: best.canvas.toDataURL("image/jpeg", 0.8),
@@ -310,9 +292,6 @@ async function runCardImageSearch(
   gameKey: string | undefined,
 ): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
-  const colorBarRegion = gameKey
-    ? COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey]
-    : undefined;
   let fallbackReason = "card not detected";
   let detection: ScanDetectionDiagnostics = {
     cardDetected: false,
@@ -414,7 +393,7 @@ async function runCardImageSearch(
         pick.orientation,
         gameKey,
       );
-      return toAttemptOutcome(pick, collectionGuid, colorBarRegion, true, {
+      return toAttemptOutcome(pick, collectionGuid, true, {
         printedFoilMarker,
         detectedContour: corners.contour,
         dewarpedCardImage: readCanvasPixels(dewarpedCanvas),
@@ -450,7 +429,7 @@ async function runCardImageSearch(
   created.push(best.canvas);
   if (best.alternate) created.push(best.alternate.canvas);
 
-  return toAttemptOutcome(best, collectionGuid, colorBarRegion, false, {
+  return toAttemptOutcome(best, collectionGuid, false, {
     printedFoilMarker: null,
     detectedContour: null,
     dewarpedCardImage: null,

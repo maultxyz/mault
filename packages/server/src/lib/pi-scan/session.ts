@@ -4,7 +4,6 @@ import { randomUUID } from "node:crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   resolveScanFoilType,
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_FEEDER_CALIBRATION,
   feedWithRetries,
@@ -14,7 +13,6 @@ import {
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   OCR_REGIONS_BY_GAME_KEY,
-  detectColorBarRgba,
   detectCardStampRgba,
   detectedStampOf,
   contourHomography,
@@ -115,7 +113,6 @@ import { grabSettledCameraFrame } from "./camera";
 import {
   pickBetterOrientation,
   resolveCardSearchMatches,
-  preferDetectedColor,
   pickConsensus,
   consensusAttemptLimit,
   consensusMissReason,
@@ -691,24 +688,9 @@ async function matchFrame(
     }
   }
 
-  const colorRegion =
-    COLOR_BAR_REGIONS_BY_GAME_KEY[
-      piScopeForMatchedGame(context, best.result.data?.[0]?.gameKey).gameKey
-    ];
-  const detectedColor =
-    colorRegion && corners.contour
-      ? detectColorBarRgba(
-          best.orientation === "rotated" ? rotateRgba180(upright) : upright,
-          colorRegion,
-        )
-      : null;
-  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
-    await resolveCardSearchMatches(best.result, async () => null),
-    {
-      gameHasColorBar: !!colorRegion,
-      detectedColor,
-      printingConfirmed: matchedBy === "ocr" && !!ocr?.printingConfirmed,
-    },
+  const resolved = await resolveCardSearchMatches(
+    best.result,
+    async () => null,
   );
 
   const stampDetection =
@@ -737,9 +719,7 @@ async function matchFrame(
     ocr,
     matchedBy,
     lowConfidenceFromOcr,
-    colorVariantUncertain,
     detection,
-    detectedColor,
     stampDetection,
     printedFoilMarker,
   };
@@ -1115,7 +1095,6 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           attempts: identified.attempts,
           candidates: matched.resolved.candidates,
           ocr: matched.ocr,
-          detectedColor: matched.detectedColor,
           stampDetection: matched.stampDetection,
           printedFoilMarker: matched.printedFoilMarker,
           printingMarks: matched.result.printingMarks ?? null,
@@ -1140,7 +1119,6 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             alternativeMatches: alternatives,
             lowConfidenceMatch:
               matched.lowConfidenceFromOcr ||
-              matched.colorVariantUncertain ||
               lowMatchBin?.binNumber === chosen.binNumber,
             diagnostics,
             vectorizedOn: "server",
