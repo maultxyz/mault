@@ -239,14 +239,16 @@ export default function BatchScanScreen() {
           />
         </View>
       ) : device ? (
-        <Camera
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={active}
-          outputs={[photoOutput]}
-          resizeMode="cover"
-          enableNativeTapToFocusGesture
-        />
+        focused ? (
+          <Camera
+            style={StyleSheet.absoluteFill}
+            device={device}
+            isActive={active}
+            outputs={[photoOutput]}
+            resizeMode="cover"
+            enableNativeTapToFocusGesture
+          />
+        ) : null
       ) : (
         <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
           <EmptyState icon="camera" title={t("scan.noCamera")} />

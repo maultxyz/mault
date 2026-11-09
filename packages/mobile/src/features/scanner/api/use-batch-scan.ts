@@ -8,6 +8,7 @@ import {
   OCR_REGIONS_BY_GAME_KEY,
   type PlayingCard,
   type ScannedCard,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
@@ -72,7 +73,7 @@ export function useBatchScan(initialMode: BatchScanMode) {
         scope: { collectionGuid: collection.guid },
         matchesNeeded: 1,
         checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
-        ocrEnabled: !!orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+        ocrMode: scanOcrMode(orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
         colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
       };
       for (const [index, card] of found.entries()) {
@@ -88,7 +89,7 @@ export function useBatchScan(initialMode: BatchScanMode) {
       }
       if (isCurrentRun()) setProgress(null);
     },
-    [collection, orgSettings?.ocrEnabled],
+    [collection, orgSettings],
   );
 
   const reset = useCallback(() => {

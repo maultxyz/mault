@@ -22,3 +22,5 @@ export const REVIEW_GRID_CLASS =
 
 
 export const NEW_CARD_ANIMATION_WINDOW_MS = 5_000;
+
+export const PENDING_SCAN_CARD_SAVED_RETENTION_MS = 30_000;

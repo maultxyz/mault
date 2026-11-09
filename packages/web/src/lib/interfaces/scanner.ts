@@ -41,6 +41,7 @@ import type {
   DesktopDocumentScannerFeedResult,
   DesktopDocumentScannerSheetSide,
   DesktopDocumentScanRequest,
+  CardTextSearchResult,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
 import type {
@@ -163,6 +164,7 @@ export interface DocumentScannerPages {
 export interface MatchScope {
   collectionGuid?: string;
   preferredSetCodes?: string[];
+  matchGameKeys?: string[];
 }
 
 export interface ScannedCardsContextValue {
@@ -808,6 +810,7 @@ export interface UnmatchedDiagnosticsDetailsProps {
 export interface OrientedSearch {
   result: CardSearchResult;
   embedding: number[] | null;
+  textResult?: CardTextSearchResult | null;
 }
 
 export interface OrientedCandidate extends OrientedSearch {

@@ -4,11 +4,13 @@ import type {
   CardCondition,
   CardContour,
   CardSearchResult,
+  CardTextSearchResult,
   MatchedScanDetails,
   PlayingCard,
   PlayingCardWithDistance,
   RgbaImage,
   ScanAttemptResult,
+  ScanOcrMode,
   ScanRegion,
   ScannedCard,
   ScannerControlCommand,
@@ -32,6 +34,7 @@ export type Orientation = "upright" | "rotated";
 export interface MatchScope {
   collectionGuid: string;
   preferredSetCodes?: string[];
+  matchGameKeys?: string[];
 }
 
 export interface OrientedPick {
@@ -39,6 +42,7 @@ export interface OrientedPick {
   orientation: Orientation;
   embedding: number[];
   result: CardSearchResult;
+  textResult?: CardTextSearchResult | null;
   alternate: OrientedPick | null;
 }
 
@@ -51,7 +55,7 @@ export interface IdentifyOptions {
   scope: MatchScope;
   matchesNeeded: number;
   checkBothOrientations: boolean;
-  ocrEnabled: boolean;
+  ocrMode: ScanOcrMode;
   colorBarRegionKey: string | null;
   minSharpness?: number;
 }
@@ -383,3 +387,8 @@ export interface BatchScanCorrectionSheetProps {
   onSelect: (card: PlayingCard) => void;
   onClose: () => void;
 }
+
+export type ReadOrientationText = (
+  orientation: OrientedPick["orientation"],
+  embedding: number[],
+) => Promise<CardTextSearchResult | null>;

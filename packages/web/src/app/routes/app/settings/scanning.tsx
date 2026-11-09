@@ -21,6 +21,7 @@ export default function SettingsScanningPage() {
   const draft = useOrgSettingsDraft();
   const disabled = draft.isLoading || draft.isSaving;
   const isMobile = useIsMobile();
+  const ocrEnabled = useWatch({ control: draft.control, name: "ocrEnabled" });
   const correctionBinPrompt = useWatch({
     control: draft.control,
     name: "correctionBinPrompt",
@@ -52,21 +53,45 @@ export default function SettingsScanningPage() {
         heading={t("ocr.heading")}
         description={t("ocr.description")}
       >
-        <label className="flex items-center justify-between gap-3">
-          <span className="text-sm">{t("ocr.toggleLabel")}</span>
-          <Controller
-            control={draft.control}
-            name="ocrEnabled"
-            render={({ field }) => (
-              <Switch
-                aria-label={t("ocr.toggleLabel")}
-                checked={field.value}
-                disabled={disabled}
-                onCheckedChange={field.onChange}
-              />
-            )}
-          />
-        </label>
+        <div className="flex flex-col gap-3">
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-sm">{t("ocr.toggleLabel")}</span>
+            <Controller
+              control={draft.control}
+              name="ocrEnabled"
+              render={({ field }) => (
+                <Switch
+                  aria-label={t("ocr.toggleLabel")}
+                  checked={field.value}
+                  disabled={disabled}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          </label>
+          <label className="flex items-center justify-between gap-3">
+            <span className="flex flex-col gap-0.5">
+              <span className="text-sm">
+                {t("ocr.highAccuracyToggleLabel")}
+              </span>
+              <span className="text-2xs text-foreground/70">
+                {t("ocr.highAccuracyDescription")}
+              </span>
+            </span>
+            <Controller
+              control={draft.control}
+              name="highAccuracyScans"
+              render={({ field }) => (
+                <Switch
+                  aria-label={t("ocr.highAccuracyToggleLabel")}
+                  checked={field.value}
+                  disabled={disabled || !ocrEnabled}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          </label>
+        </div>
       </SettingsSection>
       {!isMobile && (
         <SettingsSection

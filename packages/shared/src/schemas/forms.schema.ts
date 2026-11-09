@@ -193,6 +193,7 @@ export const orgSettingsDraftFormSchema = z.object({
   ),
   sessionWrappedEnabled: z.boolean(),
   ocrEnabled: z.boolean(),
+  highAccuracyScans: z.boolean(),
   foilDetectionEnabled: z.boolean(),
   correctionBinPrompt: z.boolean(),
   pauseScanningOnDeploy: z.boolean(),

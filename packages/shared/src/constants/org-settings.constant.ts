@@ -9,6 +9,7 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   discordScanUseThreads: true,
   sessionWrappedEnabled: true,
   ocrEnabled: false,
+  highAccuracyScans: false,
   foilDetectionEnabled: false,
   correctionBinPrompt: true,
   pauseScanningOnDeploy: true,

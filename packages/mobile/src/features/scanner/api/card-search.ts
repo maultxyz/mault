@@ -13,6 +13,9 @@ function scopeForm(embedding: number[], scope: MatchScope): FormData {
   if (scope.preferredSetCodes?.length) {
     form.append("preferredSetCodes", JSON.stringify(scope.preferredSetCodes));
   }
+  if (scope.matchGameKeys?.length) {
+    form.append("matchGameKeys", JSON.stringify(scope.matchGameKeys));
+  }
   form.append("embedding", JSON.stringify(embedding));
   return form;
 }
@@ -35,9 +38,11 @@ export async function getCardById(
   id: string,
   collectionGuid: string,
   lang?: string,
+  gameKey?: string,
 ): Promise<PlayingCard | null> {
   const params = new URLSearchParams({ collectionGuid });
   if (lang) params.set("lang", lang);
+  if (gameKey) params.set("gameKey", gameKey);
   const result = await apiGet<Result<PlayingCard>>(`/api/cards/search/${id}?${params.toString()}`);
   return result.data ?? null;
 }

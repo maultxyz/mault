@@ -49,3 +49,4 @@ export const OCR_SEARCH_MARGIN_Y = 0.05;
 export const OCR_MIN_LINE_CONFIDENCE = 0.5;
 export const OCR_ANCHOR_HEIGHT_WEIGHT = 0.5;
 export const OCR_ANCHOR_MIN_LINE_HEIGHT_RATIO = 0.3;
+export const OCR_DETECTION_BAND_PADDING_Y = 0.02;

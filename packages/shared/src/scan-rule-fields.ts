@@ -8,6 +8,8 @@ import {
   SCAN_RULE_FOIL_TYPE_FIELD,
   SCAN_RULE_FOIL_TYPE_OPERATORS,
   SCAN_RULE_FOIL_VALUE,
+  SCAN_RULE_GAME_FIELD,
+  SCAN_RULE_GAME_OPERATORS,
   SCAN_RULE_MARKET_VALUE_EUR_FIELD,
   SCAN_RULE_MARKET_VALUE_USD_FIELD,
   SCAN_RULE_MATCH_PERCENT_FIELD,
@@ -23,6 +25,7 @@ import type {
 import type {
   ConditionField,
   FieldMeta,
+  FieldOption,
 } from "./interfaces/sort-bins.interface";
 import type { PlayingCard } from "./interfaces/card.interface";
 import { cardPriceFor } from "./price-source";
@@ -59,6 +62,7 @@ export function scanRuleFieldDefinitions(
   foilTypes: string[],
   gameKey?: string | null,
   labels: ScanRuleFieldLabels = DEFAULT_SCAN_RULE_FIELD_LABELS,
+  matchedGameOptions: FieldOption[] = [],
 ): FieldMeta[] {
   const fields: FieldMeta[] = [
     {
@@ -113,6 +117,16 @@ export function scanRuleFieldDefinitions(
       operators: SCAN_RULE_COLLECTOR_NUMBER_OPERATORS,
     });
   }
+  if (matchedGameOptions.length > 1) {
+    fields.push({
+      field: SCAN_RULE_GAME_FIELD,
+      label: labels.game ?? DEFAULT_SCAN_RULE_FIELD_LABELS.game,
+      type: "enum",
+      path: `${SCAN_RULE_ROOT}.game`,
+      operators: SCAN_RULE_GAME_OPERATORS,
+      options: matchedGameOptions,
+    });
+  }
   return fields;
 }
 
@@ -121,11 +135,17 @@ export function withScanRuleFields(
   foilTypes: string[],
   gameKey?: string | null,
   labels?: ScanRuleFieldLabels,
+  matchedGameOptions: FieldOption[] = [],
 ): FieldMeta[] {
   const taken = new Set(fieldDefinitions.map((f) => f.field));
   return [
     ...fieldDefinitions,
-    ...scanRuleFieldDefinitions(foilTypes, gameKey, labels).filter(
+    ...scanRuleFieldDefinitions(
+      foilTypes,
+      gameKey,
+      labels,
+      matchedGameOptions,
+    ).filter(
       (f) => !taken.has(f.field),
     ),
   ];
@@ -149,6 +169,7 @@ export function toRuleCard<T extends object>(card: T, scan: ScanRuleState): T {
         "cardmarket",
       ),
       collectorNumber: cardCollectorNumber(card),
+      game: (card as { gameKey?: unknown }).gameKey ?? "",
     },
   };
 }

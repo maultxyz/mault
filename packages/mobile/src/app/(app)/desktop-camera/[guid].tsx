@@ -99,14 +99,16 @@ export default function DesktopCameraScreen() {
         </View>
       ) : device ? (
         <>
-          <Camera
-            style={StyleSheet.absoluteFill}
-            device={device}
-            isActive={active}
-            outputs={[photoOutput]}
-            resizeMode="cover"
-            enableNativeTapToFocusGesture
-          />
+          {focused ? (
+            <Camera
+              style={StyleSheet.absoluteFill}
+              device={device}
+              isActive={active}
+              outputs={[photoOutput]}
+              resizeMode="cover"
+              enableNativeTapToFocusGesture
+            />
+          ) : null}
           <ScanRegionOverlay
             region={responder.scanRegion ?? sorter.device?.scanRegion ?? DEFAULT_SCAN_REGION}
             frameAspect={frameAspect}

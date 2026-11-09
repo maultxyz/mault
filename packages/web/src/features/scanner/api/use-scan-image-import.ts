@@ -27,6 +27,7 @@ import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   OCR_REGIONS_BY_GAME_KEY,
   scanFoilType,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -61,7 +62,7 @@ export function useScanImageImport(
     saveCard,
     saveUnmatched,
     orgId: activeOrg?.id ?? null,
-    ocrEnabled: !!orgSettings?.ocrEnabled && isOcrSupported,
+    ocrMode: scanOcrMode(orgSettings, isOcrSupported),
     colorBarRegion: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey],
   };
   const latestRef = useRef(latest);
@@ -91,7 +92,7 @@ export function useScanImageImport(
       item: ScanImageImportItem,
       file: File,
     ): Promise<boolean> => {
-      const { t, saveCard, saveUnmatched, orgId, ocrEnabled, colorBarRegion } =
+      const { t, saveCard, saveUnmatched, orgId, ocrMode, colorBarRegion } =
         latestRef.current;
       updateItem(item.id, { status: "identifying" });
       let sourceCanvas: HTMLCanvasElement | null = null;
@@ -112,7 +113,7 @@ export function useScanImageImport(
           () => {},
           source.imageContour,
           { collectionGuid: targetCollectionGuid },
-          ocrEnabled,
+          ocrMode,
           SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
           SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
           colorBarRegion,

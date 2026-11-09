@@ -257,15 +257,17 @@ export default function ScanScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {device ? (
-        <Camera
-          ref={cameraRef}
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={focused && appState === "active"}
-          outputs={[photoOutput]}
-          resizeMode="cover"
-          enableNativeTapToFocusGesture
-        />
+        focused ? (
+          <Camera
+            ref={cameraRef}
+            style={StyleSheet.absoluteFill}
+            device={device}
+            isActive={focused && appState === "active"}
+            outputs={[photoOutput]}
+            resizeMode="cover"
+            enableNativeTapToFocusGesture
+          />
+        ) : null
       ) : (
         <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
           <EmptyState icon="camera" title={t("scan.noCamera")} />

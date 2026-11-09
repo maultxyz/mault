@@ -27,6 +27,7 @@ function sourceRow(
     cardId,
     name: cardId,
     setCode: "set",
+    collectorNumber: null,
     rarePrinting: false,
     embedding,
     backEmbedding: null,

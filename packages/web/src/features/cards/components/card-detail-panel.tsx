@@ -14,6 +14,8 @@ import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { CardSortTestButton } from "@/features/bins/components/card-sort-test-button";
 import {
   Tooltip,
   TooltipContent,
@@ -224,6 +226,14 @@ export function CardDetailPanel({
     (lowConfidenceMatch || !!alternativeMatches?.length) &&
     !wasCorrected;
   const collection = useCardDetailCollection();
+  const { selectedSet: activePreset, gameKey: activePresetGameKey } =
+    useBinConfigs();
+  const canTestSort =
+    !!scanId &&
+    !!currentCard &&
+    !!activePreset &&
+    !!collection?.game?.key &&
+    collection.game.key === activePresetGameKey;
   const moveActions = useCardDetailMoveActions({
     scanId,
     collectionGuid: collection?.guid,
@@ -1217,7 +1227,7 @@ export function CardDetailPanel({
                       />
                     )}
 
-                    {(hasScanOrigin || binNumber != null) && (
+                    {(hasScanOrigin || binNumber != null || canTestSort) && (
                       <DetailSection title={t("cardDetailPanel.thisScan")}>
                         <div className="flex flex-col gap-4">
                           {scanOrigin && hasScanOrigin && (
@@ -1232,6 +1242,16 @@ export function CardDetailPanel({
                                   inverted={false}
                                 />
                               </div>
+                            </div>
+                          )}
+                          {canTestSort && currentCard && (
+                            <div className="flex">
+                              <CardSortTestButton
+                                card={currentCard}
+                                isFoil={isFoil}
+                                foilType={foilType}
+                                scannedBinNumber={binNumber}
+                              />
                             </div>
                           )}
                         </div>

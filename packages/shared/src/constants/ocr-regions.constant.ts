@@ -16,6 +16,8 @@ const POKEMON_CARD_TYPE_HEADER_TEXTS = [
   "Special Energy",
 ];
 
+const POKEMON_COLLECTOR_NUMBER_LINE_PATTERN = String.raw`\d\s*/\s*\d|[A-Z]{2,}\s*\d{2,}`;
+
 export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
   mtg: [
     {
@@ -65,6 +67,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.949,
       width: 0.188,
       height: 0.017,
+      anchorLinePattern: POKEMON_COLLECTOR_NUMBER_LINE_PATTERN,
     },
     {
       field: "number",
@@ -73,6 +76,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       width: 0.174,
       height: 0.033,
       fallback: true,
+      anchorLinePattern: POKEMON_COLLECTOR_NUMBER_LINE_PATTERN,
     },
   ],
   pokemonjp: [

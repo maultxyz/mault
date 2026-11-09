@@ -913,7 +913,10 @@
       "skipSaving": "Don't save cards",
       "skipSavingDescription": "Cards are identified and sorted as usual, but nothing is added to the collection. Scans still count toward your daily limit.",
       "resort": "Re-sort saved cards",
-      "resortDescription": "Each scan moves a copy that is already in this collection into its new bin instead of adding another copy. The copy keeps its foil and condition and leaves its old storage location. Cards not in the collection yet are added as usual."
+      "resortDescription": "Each scan moves a copy that is already in this collection into its new bin instead of adding another copy. The copy keeps its foil and condition and leaves its old storage location. Cards not in the collection yet are added as usual.",
+      "matchGames": "Also identify cards from",
+      "matchGamesEmpty": "Pick at least one other game. Until you do, only this game's cards are recognized.",
+      "matchGamesHint": "Cards that aren't recognized go to the catch-all. Each extra game makes scans a little slower."
     },
     "modes": {
       "rules": {
@@ -927,6 +930,10 @@
       "auto-assign": {
         "title": "Auto-detect sorting",
         "description": "Each new value of a field claims the next open bin as you scan"
+      },
+      "game-sort": {
+        "title": "Sort by game",
+        "description": "Each game gets its own bin. Cards are sorted but not saved."
       },
       "repack": {
         "title": "Build repacks",
@@ -1413,7 +1420,9 @@
     "ocr": {
       "heading": "Text recognition (OCR)",
       "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
-      "toggleLabel": "Enable OCR text matching"
+      "toggleLabel": "Enable OCR text matching",
+      "highAccuracyToggleLabel": "Higher accuracy scans",
+      "highAccuracyDescription": "Read the text on every card, not only uncertain ones, so the set and number can correct a confident but wrong match. Scans take a little longer."
     },
     "correctionAutoClose": {
       "heading": "Card correction prompt",

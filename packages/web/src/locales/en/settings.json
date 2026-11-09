@@ -55,7 +55,9 @@
   "ocr": {
     "heading": "Text recognition (OCR)",
     "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
-    "toggleLabel": "Enable OCR text matching"
+    "toggleLabel": "Enable OCR text matching",
+    "highAccuracyToggleLabel": "Higher accuracy scans",
+    "highAccuracyDescription": "Read the text on every card, not only uncertain ones, so the set and number can correct a confident but wrong match. Scans take a little longer."
   },
   "foilDetection": {
     "heading": "Foil detection",

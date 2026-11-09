@@ -102,6 +102,7 @@ export interface PlayingCard {
   isFallbackData?: boolean;
   cmc?: number;
   lang?: string;
+  gameKey?: string;
   raw?: unknown;
 }
 

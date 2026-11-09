@@ -136,7 +136,9 @@
     "downloadedHidden_one": "1 carte téléchargée est masquée par le filtre des téléchargements.",
     "downloadedHidden_other": "{{count}} cartes téléchargées sont masquées par le filtre des téléchargements.",
     "moveToLocation": "Déplacer",
-    "exporting": "Export en cours"
+    "exporting": "Export en cours",
+    "pendingScanSaving": "Enregistrement",
+    "pendingScanSavingName": "Enregistrement de {{name}}"
   },
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",

@@ -1,7 +1,8 @@
 import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db";
-import { collections, games } from "../db/schema";
+import { binSets, collections, games } from "../db/schema";
+import { matchScopeForGame } from "./card-search/match-games";
 import { resolveCardSearchForGame } from "./card-search/resolve";
 import {
   cardMatchSegmentBytes,
@@ -103,11 +104,12 @@ async function loadSegment(
       card_id: string;
       name: string;
       set_code: string;
+      collector_number: string | null;
       rare_printing: boolean;
       embedding: string;
       back_embedding: string | null;
     }>(sql`
-      SELECT card_id, name, set_code,
+      SELECT card_id, name, set_code, collector_number,
         coalesce(${rarePrintingSql}, false) AS rare_printing,
         encode(vector_send(embedding), 'base64') AS embedding,
         encode(vector_send(back_embedding), 'base64') AS back_embedding
@@ -122,6 +124,7 @@ async function loadSegment(
         cardId: row.card_id,
         name: row.name,
         setCode: row.set_code,
+        collectorNumber: row.collector_number,
         rarePrinting: row.rare_printing === true,
         embedding: decodeVector(row.embedding)!,
         backEmbedding: decodeVector(row.back_embedding),
@@ -223,11 +226,7 @@ function revalidateSegmentInBackground(entry: CardMatchSegmentEntry) {
     .catch(logReloadFailure(entry));
 }
 
-async function cardMatchSegment(
-  gameKey: string,
-  lang: string,
-  isWarmup: boolean,
-): Promise<CardMatchSegment> {
+function segmentEntry(gameKey: string, lang: string): CardMatchSegmentEntry {
   const key = `${gameKey}:${lang}`;
   let entry = segmentEntries.get(key);
   if (!entry) {
@@ -237,12 +236,22 @@ async function cardMatchSegment(
       segment: null,
       signature: null,
       loading: null,
+      queuedForBackgroundLoad: false,
       reloadRequested: false,
       checkedAt: 0,
       lastUsedAt: 0,
     };
     segmentEntries.set(key, entry);
   }
+  return entry;
+}
+
+async function cardMatchSegment(
+  gameKey: string,
+  lang: string,
+  isWarmup: boolean,
+): Promise<CardMatchSegment> {
+  const entry = segmentEntry(gameKey, lang);
   if (!isWarmup) entry.lastUsedAt = Date.now();
   if (entry.segment) {
     revalidateSegmentInBackground(entry);
@@ -279,6 +288,39 @@ export function cardMatchSegments(
   return segmentsForScope(scope, false);
 }
 
+let backgroundLoads: Promise<void> = Promise.resolve();
+
+function loadInBackground(entry: CardMatchSegmentEntry): void {
+  if (entry.segment || entry.loading || entry.queuedForBackgroundLoad) return;
+  entry.queuedForBackgroundLoad = true;
+  backgroundLoads = backgroundLoads
+    .then(() => (entry.segment ? undefined : reloadSegment(entry)))
+    .catch(logReloadFailure(entry))
+    .finally(() => {
+      entry.queuedForBackgroundLoad = false;
+    });
+}
+
+export function loadedCardMatchSegments({
+  gameKey,
+  lang,
+}: CollectionMatchScope): CardMatchSegment[] {
+  const entry = segmentEntry(gameKey, lang);
+  entry.lastUsedAt = Date.now();
+  if (entry.segment) {
+    revalidateSegmentInBackground(entry);
+    return [entry.segment];
+  }
+  loadInBackground(entry);
+  return [];
+}
+
+export function warmCardMatchSegments(scopes: CollectionMatchScope[]): void {
+  for (const { gameKey, lang } of scopes) {
+    loadInBackground(segmentEntry(gameKey, lang));
+  }
+}
+
 export function invalidateCardMatchIndex(gameKey?: string): void {
   for (const entry of segmentEntries.values()) {
     if (gameKey === undefined || entry.gameKey === gameKey) {
@@ -300,6 +342,13 @@ async function warmCardMatchIndex(): Promise<void> {
   for (const scope of scopes) {
     await segmentsForScope(scope, true);
   }
+  const presetMatchGames = await db
+    .selectDistinct({ gameKey: sql<string>`unnest(${binSets.matchGameKeys})` })
+    .from(binSets)
+    .where(and(eq(binSets.isActive, true), eq(binSets.isDeleted, false)));
+  warmCardMatchSegments(
+    presetMatchGames.map(({ gameKey }) => matchScopeForGame(gameKey)),
+  );
 }
 
 export function startCardMatchIndexWarmup(): void {

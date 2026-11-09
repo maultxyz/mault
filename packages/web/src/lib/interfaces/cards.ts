@@ -165,6 +165,20 @@ export interface AddManualCardInput {
   addsToIntakeLot?: boolean;
 }
 
+export type PendingScanCardStatus = "saving" | "saved";
+
+export interface PendingScanCard {
+  scanId: string;
+  collectionGuid: string;
+  card: PlayingCardWithDistance;
+  status: PendingScanCardStatus;
+  savedAt?: number;
+}
+
+export interface PendingScanCardItemProps {
+  card: PlayingCardWithDistance;
+}
+
 export interface CardToolbarProps {
   leading?: ReactNode;
   onAddCard?: () => void;

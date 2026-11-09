@@ -37,6 +37,7 @@ import {
   UNMATCHED_PREVIEW_COUNT,
   withCardTags,
   type CardTag,
+  isCardFromOtherGame,
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
@@ -844,7 +845,10 @@ export function ScannedCardsProvider({
         });
       }
 
-      if (selectedSetRef.current?.skipSaving) {
+      if (
+        selectedSetRef.current?.skipSaving ||
+        isCardFromOtherGame(card, collection.game?.key)
+      ) {
         recordSortOnlyScan(
           collection.guid,
           {

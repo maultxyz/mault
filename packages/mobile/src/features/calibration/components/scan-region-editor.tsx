@@ -59,7 +59,7 @@ export function ScanRegionEditor({ region, onChange }: ScanRegionEditorProps) {
         backgroundColor: colors.camera,
       }}
     >
-      {device ? (
+      {device && focused ? (
         <Camera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}

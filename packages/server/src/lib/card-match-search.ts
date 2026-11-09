@@ -51,6 +51,7 @@ export function createCardMatchSegmentBuilder(
   const cardIds: string[] = [];
   const names: string[] = [];
   const setCodes: string[] = [];
+  const collectorNumbers: (string | null)[] = [];
   let rarePrinting = new Uint8Array(expectedRows);
   let frontEmbeddings = new Float32Array(expectedRows * MILO_EMBEDDING_DIM);
   let backEmbeddings = new Float32Array(
@@ -65,6 +66,7 @@ export function createCardMatchSegmentBuilder(
       cardIds.push(row.cardId);
       names.push(row.name);
       setCodes.push(row.setCode);
+      collectorNumbers.push(row.collectorNumber);
       rarePrinting = withCapacity(rarePrinting, rowIndex + 1);
       rarePrinting[rowIndex] = row.rarePrinting ? 1 : 0;
       frontEmbeddings = withCapacity(
@@ -97,6 +99,7 @@ export function createCardMatchSegmentBuilder(
         cardIds,
         names,
         setCodes,
+        collectorNumbers,
         rarePrinting: rarePrinting.subarray(0, rowCount),
         frontEmbeddings: frontEmbeddings.subarray(
           0,
@@ -182,6 +185,17 @@ function closestFaceOfRow(
   return backDistance < frontDistance
     ? { segment, row, isBackFace: true, distance: backDistance }
     : { segment, row, isBackFace: false, distance: frontDistance };
+}
+
+export function cardRowDistance(
+  segment: CardMatchSegment,
+  row: number,
+  query: Float32Array,
+): number {
+  return Math.min(
+    cosineDistance(segment.frontEmbeddings, row * MILO_EMBEDDING_DIM, query),
+    backFaceDistance(segment, row, query),
+  );
 }
 
 export function nearestCardFaces(

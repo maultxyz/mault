@@ -11,6 +11,7 @@ export const SCAN_RULE_MATCH_PERCENT_FIELD = "matchPercent";
 export const SCAN_RULE_MARKET_VALUE_USD_FIELD = "marketValueUsd";
 export const SCAN_RULE_MARKET_VALUE_EUR_FIELD = "marketValueEur";
 export const SCAN_RULE_COLLECTOR_NUMBER_FIELD = "collectorNumberValue";
+export const SCAN_RULE_GAME_FIELD = "scanGame";
 
 export const SCAN_RULE_FOIL_VALUE = "foil";
 export const SCAN_RULE_NON_FOIL_VALUE = "nonfoil";
@@ -22,6 +23,8 @@ export const SCAN_RULE_FOIL_OPERATORS: {
   { value: "equals", label: "is" },
   { value: "not_equals", label: "is not" },
 ];
+
+export const SCAN_RULE_GAME_OPERATORS = SCAN_RULE_FOIL_OPERATORS;
 
 export const SCAN_RULE_FOIL_TYPE_OPERATORS: {
   value: ConditionOperator;
@@ -63,6 +66,7 @@ export const DEFAULT_SCAN_RULE_FIELD_LABELS = {
   collectorNumber: "Collector number (numeric)",
   foilOption: "Foil",
   nonFoilOption: "Non-foil",
+  game: "Game",
 };
 
 export const SCAN_RULE_FIELDS: ConditionField[] = [
@@ -72,4 +76,5 @@ export const SCAN_RULE_FIELDS: ConditionField[] = [
   SCAN_RULE_MARKET_VALUE_USD_FIELD,
   SCAN_RULE_MARKET_VALUE_EUR_FIELD,
   SCAN_RULE_COLLECTOR_NUMBER_FIELD,
+  SCAN_RULE_GAME_FIELD,
 ];

@@ -49,7 +49,9 @@
   "ocr": {
     "heading": "Texterkennung (OCR)",
     "description": "Wenn ein Scan nicht sicher erkannt wird, werden Kartenname und Set-Zeile gelesen, um die Karte zu finden. Gilt für alle Scanner dieser Organisation, bei Spielen mit eingerichteten Textbereichen.",
-    "toggleLabel": "OCR-Texterkennung aktivieren"
+    "toggleLabel": "OCR-Texterkennung aktivieren",
+    "highAccuracyToggleLabel": "Genauere Scans",
+    "highAccuracyDescription": "Liest den Text auf jeder Karte, nicht nur bei unsicheren Treffern, damit Set und Nummer einen sicheren, aber falschen Treffer korrigieren können. Scans dauern etwas länger."
   },
   "foilDetection": {
     "heading": "Foil-Erkennung",

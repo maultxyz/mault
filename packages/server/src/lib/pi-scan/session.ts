@@ -1,7 +1,7 @@
 import { routeLoadedPiCard } from "./route-card";
 import { waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   scanFoilType,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
@@ -30,6 +30,9 @@ import {
   reservePickListBins,
   toRuleCard,
   withScanRuleFields,
+  isCardFromOtherGame,
+  presetMatchGameKeys,
+  presetMatchedGameOptions,
   type CornerDetection,
   type BinConfig,
   type BinDirection,
@@ -88,6 +91,12 @@ import {
 import { loadBinContents } from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadSets } from "../../routes/bins/shared";
+import {
+  findBestMatchAcrossGames,
+  matchScopesForGames,
+  tagWithGame,
+} from "../card-search/match-games";
+import type { CollectionMatchScope } from "../interfaces/card-search";
 import { grabSettledCameraFrame } from "./camera";
 import {
   pickBetterOrientation,
@@ -98,6 +107,7 @@ import {
   consensusMissReason,
   hasCardMatch,
   needsTextSearch,
+  prefersTextMatch,
   routeForBin,
 } from "@magic-vault/shared";
 import {
@@ -366,11 +376,22 @@ async function prepareContext(
 
     const foilTypes =
       (collection.foilTypes as string[] | null) ?? active.game?.foilTypes ?? [];
+    const matchGameKeys = presetMatchGameKeys(active);
+    const matchedGames =
+      matchGameKeys.length > 0
+        ? await tx
+            .select({ key: games.key, name: games.name })
+            .from(games)
+            .where(inArray(games.key, [collection.gameKey, ...matchGameKeys]))
+        : [];
     const fieldDefinitions = withScanRuleFields(
       (collection.fieldDefinitions as FieldMeta[] | null) ??
         active.game?.fieldDefinitions ??
         [],
       foilTypes,
+      collection.gameKey,
+      undefined,
+      presetMatchedGameOptions(active, matchedGames),
     );
     const trackContents = active.isRepackMode || hasMaxCopiesBins(active.bins);
     const windows = trackContents
@@ -383,7 +404,7 @@ async function prepareContext(
       : [];
     const settings = await tx.query.orgSettings.findFirst({
       where: eq(orgSettings.orgId, session.orgId),
-      columns: { ocrEnabled: true },
+      columns: { ocrEnabled: true, highAccuracyScans: true },
     });
     const feeder = await tx.query.feederConfigs.findFirst({
       where: eq(feederConfigs.deviceId, device.id),
@@ -422,6 +443,7 @@ async function prepareContext(
       matchesNeeded: device.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
       matchAllLanguages: collection.matchAllLanguages,
       ocrEnabled: settings?.ocrEnabled === true,
+      highAccuracyScans: settings?.highAccuracyScans === true,
       cardThickness: collection.cardThickness,
       fieldDefinitions,
       set: active,
@@ -462,6 +484,25 @@ async function rememberAutoAssign(
   }
 }
 
+function piMatchScopes(context: PiScanRunContext): CollectionMatchScope[] {
+  return matchScopesForGames(
+    {
+      gameKey: context.gameKey,
+      lang: context.lang,
+      matchAllLanguages: context.matchAllLanguages,
+    },
+    presetMatchGameKeys(context.set),
+  );
+}
+
+function piScopeForMatchedGame(
+  context: PiScanRunContext,
+  gameKey: string | undefined,
+): CollectionMatchScope {
+  const scopes = piMatchScopes(context);
+  return scopes.find((scope) => scope.gameKey === gameKey) ?? scopes[0];
+}
+
 async function searchOrientation(
   session: PiScanLive,
   context: PiScanRunContext,
@@ -469,17 +510,20 @@ async function searchOrientation(
   orientation: "upright" | "rotated",
 ) {
   const embeddings = await vectorizeCardImage(image);
-  const result = await attachMatchedCards(
-    await findCardMatches({
-      gameKey: context.gameKey,
-      lang: context.lang,
-      matchAllLanguages: context.matchAllLanguages,
-      embeddings,
-      preferredSetCodes: session.preferredSetCodes,
-    }),
-    context.gameKey,
-    context.lang,
+  const scopes = piMatchScopes(context);
+  const { result: nearest, scope } = await findBestMatchAcrossGames(
+    scopes,
+    (matchScope) =>
+      findCardMatches({
+        ...matchScope,
+        embeddings,
+        preferredSetCodes: session.preferredSetCodes,
+        skipsUnloadedIndex: matchScope.gameKey !== context.gameKey,
+      }),
   );
+  const attached = await attachMatchedCards(nearest, scope.gameKey, scope.lang);
+  const result =
+    scopes.length > 1 ? tagWithGame(attached, scope.gameKey) : attached;
   return {
     image,
     orientation,
@@ -543,13 +587,17 @@ async function matchFrame(
   let ocr: OcrDiagnostics | null = null;
   let matchedBy: ScanMatchSource = "embedding";
   let lowConfidenceFromOcr = false;
-  const regions = OCR_REGIONS_BY_GAME_KEY[context.gameKey] ?? [];
+  const ocrScope = piScopeForMatchedGame(
+    context,
+    best.result.data?.[0]?.gameKey,
+  );
+  const regions = OCR_REGIONS_BY_GAME_KEY[ocrScope.gameKey] ?? [];
   const embeddingMatched = hasCardMatch(best.result);
   if (
     context.ocrEnabled &&
     corners.contour &&
     regions.length > 0 &&
-    needsTextSearch(best.result)
+    (context.highAccuracyScans || needsTextSearch(best.result))
   ) {
     const ocrCrop = dewarpRgba(
       source,
@@ -565,7 +613,6 @@ async function matchFrame(
       options.map(async (option) => {
         try {
           return await findCardMatchesByOcr(
-            session.jwtClaims,
             await rgbaToJpeg(
               option.orientation === "rotated"
                 ? rotateRgba180(ocrCrop)
@@ -573,9 +620,7 @@ async function matchFrame(
             ),
             regions,
             {
-              gameKey: context.gameKey,
-              lang: context.lang,
-              matchAllLanguages: context.matchAllLanguages,
+              ...ocrScope,
               embeddings: { embedding: option.embedding },
               preferredSetCodes: session.preferredSetCodes,
             },
@@ -592,17 +637,26 @@ async function matchFrame(
     });
     const text = texts[bestIndex];
     ocr = text?.ocr ?? texts.find((item) => item?.ocr)?.ocr ?? null;
-    if (text && hasCardMatch(text)) {
+    if (text && hasCardMatch(text) && prefersTextMatch(best.result, text.ocr)) {
       best = {
         ...options[bestIndex],
-        result: await attachMatchedCards(text, context.gameKey, context.lang),
+        result:
+          piMatchScopes(context).length > 1
+            ? tagWithGame(
+                await attachMatchedCards(text, ocrScope.gameKey, ocrScope.lang),
+                ocrScope.gameKey,
+              )
+            : await attachMatchedCards(text, ocrScope.gameKey, ocrScope.lang),
       };
       matchedBy = "ocr";
       lowConfidenceFromOcr = !embeddingMatched;
     }
   }
 
-  const colorRegion = COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey];
+  const colorRegion =
+    COLOR_BAR_REGIONS_BY_GAME_KEY[
+      piScopeForMatchedGame(context, best.result.data?.[0]?.gameKey).gameKey
+    ];
   const detectedColor =
     colorRegion && corners.contour
       ? detectColorBarRgba(
@@ -984,11 +1038,13 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           ocr: matched.ocr,
           detectedColor: matched.detectedColor,
         };
+        const sortsWithoutSaving =
+          context.set.skipSaving || isCardFromOtherGame(card, context.gameKey);
         const saved = await saveThroughCollectionRoute(
           session.accessToken,
           session.orgId,
           session.collectionGuid,
-          context.set.skipSaving ? "cards/sorted" : "cards",
+          sortsWithoutSaving ? "cards/sorted" : "cards",
           {
             hasAlternatives: alternatives.length > 0,
             scanId,
@@ -1018,7 +1074,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           binNumber: chosen.binNumber,
           scannedAt,
           card: ruleCard,
-          unsaved: context.set.skipSaving,
+          unsaved: sortsWithoutSaving,
         });
         session.cardsScanned += 1;
         console.log(`[pi-scan] ${card.name} -> bin ${chosen.binNumber}`);

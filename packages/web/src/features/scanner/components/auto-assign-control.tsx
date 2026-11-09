@@ -18,7 +18,7 @@ export function AutoAssignControl() {
   const {
     selectedSet,
     configs,
-    fieldDefinitions,
+    ruleFieldDefinitions,
     isPresetMutating,
     resetAutoAssign,
   } = useBinConfigs();
@@ -31,7 +31,8 @@ export function AutoAssignControl() {
   if (!autoAssignField) return null;
 
   const fieldLabel =
-    fieldDefinitions.find((field) => field.field === autoAssignField)?.label ??
+    ruleFieldDefinitions.find((field) => field.field === autoAssignField)
+      ?.label ??
     autoAssignField;
   const assignableBins = configs.filter((config) => !config.isCatchAll);
   const claimedBinCount = assignableBins.filter(
