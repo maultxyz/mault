@@ -1,7 +1,13 @@
-import { MEMBER_SEAT_LIMIT_ERROR_CODE, MEMBER_SEAT_LIMIT_HTTP_STATUS, type MemberSeatLimitErrorBody } from "@magic-vault/shared";
+import {
+  MEMBER_SEAT_LIMIT_ERROR_CODE,
+  MEMBER_SEAT_LIMIT_HTTP_STATUS,
+  PLAN_PREVIEW_HEADER,
+  type MemberSeatLimitErrorBody,
+} from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import { lockOrgForMemberSeatLimit } from "@/lib/api/member-seat-lock";
 import { UpgradeRequiredError } from "@/lib/api/upgrade-required-error";
+import { getPlanPreviewForSignedInAdmin } from "@/lib/auth/plan-preview";
 import { getAccessToken, getActiveOrgId, signOut } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
 import type { ApiRequestOptions, RequestAuth } from "@/lib/interfaces/api";
@@ -17,9 +23,11 @@ export function resolveRequestOrgId(orgId?: string | null): string | null {
 export async function getAuthHeaders(orgId?: string | null): Promise<Record<string, string>> {
   const auth = await getRequestAuth();
   const org = orgId === undefined ? auth.orgId : orgId;
+  const planPreview = getPlanPreviewForSignedInAdmin();
   return {
     ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
     ...(org ? { "X-Org-Id": org } : {}),
+    ...(planPreview ? { [PLAN_PREVIEW_HEADER]: planPreview } : {}),
   };
 }
 

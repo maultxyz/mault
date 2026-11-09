@@ -1,8 +1,10 @@
-import type { ConditionOperator, FieldType } from "@magic-vault/shared";
+import type { ConditionOperator, FieldType } from "../interfaces/sort-bins.interface";
 
-export const FIELD_TYPES: FieldType[] = ["string", "numeric", "enum", "set"];
+export const GAME_KEY_PATTERN = /^[a-z0-9-]+$/;
 
-export const DEFAULT_OPERATORS_BY_TYPE: Record<
+export const GAME_FIELD_TYPES: readonly FieldType[] = ["string", "numeric", "enum", "set"];
+
+export const DEFAULT_OPERATORS_BY_FIELD_TYPE: Record<
   FieldType,
   { value: ConditionOperator; label: string }[]
 > = {

@@ -122,6 +122,7 @@ const CalibrateCalibrationPage = lazy(
   () => import("@/app/routes/app/calibrate/calibration"),
 );
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
+const AdminIndexPage = lazy(() => import("@/app/routes/app/admin/index"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGameEditorPage = lazy(
   () => import("@/app/routes/app/admin/game-editor"),
@@ -443,7 +444,7 @@ export const routes: RouteObject[] = [
                         children: [
                           {
                             index: true,
-                            element: <Navigate to="cards" replace />,
+                            element: <AdminIndexPage />,
                           },
                           {
                             path: "cards",

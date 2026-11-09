@@ -2186,5 +2186,567 @@
     "removalLookupFailedTitle_one": "Impossible de rechercher {{count}} carte",
     "removalLookupFailedTitle_other": "Impossible de rechercher {{count}} cartes",
     "removalLookupFailedDescription": "Vérifiez votre connexion et réessayez."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Outils de la plateforme pour l'équipe.",
+    "entrySubtitle": "Cartes, utilisateurs, offres et plus",
+    "sections": {
+      "cards": {
+        "title": "Cartes et jeux",
+        "subtitle": "Base de cartes, synchronisation et jeux"
+      },
+      "users": {
+        "title": "Utilisateurs",
+        "subtitle": "Rechercher des utilisateurs et l'historique d'usurpation"
+      },
+      "plans": {
+        "title": "Offres",
+        "subtitle": "Limites, fonctionnalités et tarifs des offres"
+      },
+      "discord": {
+        "title": "Discord",
+        "subtitle": "Salons et annonces"
+      },
+      "sounds": {
+        "title": "Sons",
+        "subtitle": "Sons intégrés du scanner"
+      },
+      "deleted": {
+        "title": "Éléments supprimés",
+        "subtitle": "Restaurer les éléments supprimés"
+      }
+    },
+    "deleted": {
+      "description": "Tout ce qui a été supprimé dans une organisation, sauf les cartes scannées. La restauration remet un élément exactement dans son état d'origine.",
+      "searchPlaceholder": "Rechercher par nom ou organisation",
+      "typeLabel": "Type d'élément",
+      "allTypes": "Tous les types",
+      "empty": "Rien n'a été supprimé",
+      "restore": "Restaurer",
+      "global": "Global",
+      "lastUpdated": "Dernière modification {{date}}",
+      "types": {
+        "collection": "Collection",
+        "binSet": "Préréglage de bacs",
+        "presetWorkflow": "Préréglage en plusieurs étapes",
+        "bin": "Bac",
+        "device": "Trieuse",
+        "binRoute": "Route de bac",
+        "binHeight": "Hauteur de bac",
+        "moduleConfig": "Calibration de module",
+        "storageLocation": "Emplacement de stockage",
+        "soundClip": "Clip sonore",
+        "soundRule": "Règle sonore",
+        "notificationRule": "Règle de notification",
+        "game": "Jeu",
+        "announcement": "Annonce",
+        "intakeLot": "Rachat",
+        "fulfilmentOrder": "Commande",
+        "accuracyCheck": "Contrôle"
+      },
+      "restored": "{{name}} restauré",
+      "restoreError": "Impossible de restaurer cet élément",
+      "count_one": "{{count}} élément supprimé",
+      "count_other": "{{count}} éléments supprimés",
+      "restoreItem": "Restaurer {{name}}",
+      "loadError": "Impossible de charger les éléments supprimés",
+      "noMatches": "Aucun élément supprimé ne correspond",
+      "loadingMore": "Chargement d'autres éléments supprimés"
+    },
+    "users": {
+      "subtitle": "Retrouve des comptes et consulte les sessions d'emprunt d'identité.",
+      "viewAsUserOnWebTitle": "Voir l'application comme un utilisateur se fait sur le web",
+      "viewAsUserOnWebDescription": "Recherche ici un compte et ses organisations. Pour voir l'application comme cet utilisateur, ouvre Admin > Utilisateurs sur le web.",
+      "searchPlaceholder": "Rechercher par nom, email ou organisation",
+      "startTyping": "Saisis un nom, un email ou une organisation pour rechercher.",
+      "searchFailed": "Impossible de rechercher les utilisateurs.",
+      "empty": "Aucun utilisateur trouvé",
+      "noOrgs": "Aucune organisation",
+      "adminBadge": "Admin",
+      "moderatorBadge": "Modérateur",
+      "tabs": {
+        "search": "Utilisateurs",
+        "audit": "Journal d'audit"
+      },
+      "audit": {
+        "unknownUser": "Utilisateur inconnu",
+        "loadFailed": "Impossible de charger le journal d'audit.",
+        "empty": "Aucune session d'emprunt d'identité pour l'instant",
+        "entryLabel": "{{admin}} → {{target}}",
+        "startedAndEnded": "Démarrée le {{started}}, terminée le {{ended}}",
+        "startedOnly": "Démarrée le {{started}}",
+        "active": "Active"
+      }
+    },
+    "plans": {
+      "billingDisabled": "La facturation est désactivée sur ce serveur, chaque organisation a donc toutes les fonctionnalités sans limite. Ces réglages s'appliquent une fois la facturation activée.",
+      "saveFailed": "Impossible d'enregistrer les réglages des offres",
+      "featuresDescription": "Quelles offres peuvent utiliser chaque fonctionnalité. Les fonctionnalités sont définies dans le code, une nouvelle apparaît ici une fois développée.",
+      "limitsDescription": "Combien une organisation peut avoir de chaque élément selon son offre. Active Illimité pour retirer une limite.",
+      "restoreDefaults": "Rétablir les valeurs par défaut",
+      "unlimited": "Illimité",
+      "features": {
+        "chaosSort": {
+          "label": "Tri en vrac",
+          "description": "Remplir les bacs dans l'ordre, sans règles. Le désactiver empêche seulement d'autres préréglages de l'activer."
+        },
+        "storage": {
+          "label": "Emplacements de rangement",
+          "description": "Créer des emplacements et y enregistrer des bacs. Les emplacements existants restent visibles dans tous les cas."
+        },
+        "apiAccess": {
+          "label": "Accès API",
+          "description": "Créer des clés API d'organisation et lire les cartes et les emplacements via l'API publique. Révoquer une clé existante reste toujours possible."
+        },
+        "businessTools": {
+          "label": "Achat et vente",
+          "description": "Rachats avec offres de rachat, import et expédition des commandes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
+        },
+        "repacks": {
+          "label": "Repacks",
+          "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux déjà en mode repack continuent de fonctionner."
+        },
+        "customSounds": {
+          "label": "Sons personnalisés",
+          "description": "Importer des clips sonores personnalisés pour les règles sonores. Le désactiver bloque seulement les nouveaux imports. Les clips déjà importés continuent d'être joués."
+        },
+        "fleetHealth": {
+          "label": "Santé du parc",
+          "description": "Le panneau de santé de la page Trieuses : état, cartes depuis le dernier entretien, historique des alertes et intervalles d'entretien. Les alertes de bourrage et de déconnexion restent enregistrées et envoyées dans tous les cas."
+        }
+      },
+      "limits": {
+        "dailyScans": {
+          "label": "Scans par jour",
+          "description": "Cartes scannées par organisation et par jour UTC."
+        },
+        "connectedSorters": {
+          "label": "Trieuses connectées",
+          "description": "Trieuses connectées en même temps. Chaque offre est aussi plafonnée au maximum du serveur."
+        },
+        "soundRules": {
+          "label": "Règles sonores",
+          "description": "Règles sonores tous jeux confondus. Vérifié uniquement à l'ajout d'une règle."
+        },
+        "notificationRules": {
+          "label": "Règles de notification",
+          "description": "Règles de notification Discord tous jeux confondus. Vérifié uniquement à l'ajout d'une règle."
+        },
+        "organizations": {
+          "label": "Organisations possédées",
+          "description": "Organisations qu'un utilisateur peut posséder. L'application vérifie à la création d'une organisation, d'après l'offre de l'organisation ouverte."
+        },
+        "membersPerOrg": {
+          "label": "Membres par organisation",
+          "description": "Membres par organisation, comptés propriétaires d'abord, puis par date d'arrivée. Les membres au-delà de la limite sont bloqués jusqu'à ce que l'offre soit améliorée ou que des membres soient retirés."
+        },
+        "collections": {
+          "label": "Collections",
+          "description": "Collections par organisation. Vérifié uniquement à la création d'une collection."
+        }
+      },
+      "pricingMode": {
+        "heading": "Mode de tarification",
+        "saved": "Mode de tarification mis à jour.",
+        "saveFailed": "Impossible de mettre à jour le mode de tarification.",
+        "legacy": {
+          "badge": "Anciens tarifs",
+          "description": "Seules les offres Gratuite et Business d'origine sont en vente, aux anciens prix Business. Les nouveaux abonnés Business obtiennent l'offre Business historique.",
+          "switch": "Passer aux nouveaux tarifs",
+          "confirmTitle": "Passer aux nouveaux tarifs ?",
+          "confirmDescription": "Passionné et la nouvelle offre Business sont mises en vente immédiatement, avec les prix STRIPE_PRICE_ID_ENTHUSIAST et STRIPE_PRICE_ID_BUSINESS. Les abonnés Business actuels conservent leur offre, désormais indiquée comme historique."
+        },
+        "tiered": {
+          "badge": "Nouveaux tarifs",
+          "description": "Les offres Gratuite, Passionné et Business sont en vente. Les abonnés à l'offre Business d'origine la conservent comme offre historique.",
+          "switch": "Revenir aux anciens tarifs",
+          "confirmTitle": "Revenir aux anciens tarifs ?",
+          "confirmDescription": "Passionné et la nouvelle offre Business ne sont plus vendues, et le paiement Business repasse aux anciens prix. Les personnes déjà abonnées à une nouvelle offre la conservent."
+        }
+      },
+      "preview": {
+        "heading": "Prévisualiser une offre",
+        "description": "Vois l'application comme une organisation avec une autre offre : les limites, les fonctions verrouillées et la facturation suivent l'offre choisie. Ne concerne que tes propres requêtes dans cette application.",
+        "off": "Désactivé",
+        "selectLabel": "Offre à prévisualiser",
+        "activeTitle": "Aperçu de l'offre {{plan}}",
+        "activeDescription": "Tes propres requêtes dans cette application suivent cette offre jusqu'à ce que tu arrêtes l'aperçu ou fermes l'application.",
+        "stop": "Arrêter l'aperçu"
+      },
+      "subtitle": "Limites, fonctionnalités, tarifs et aperçu des offres.",
+      "loadFailed": "Impossible de charger les réglages des offres.",
+      "editorHeading": "Réglages des offres",
+      "editorDescription": "Choisis une offre pour modifier ses fonctionnalités et ses limites. Les modifications de toutes les offres sont enregistrées ensemble.",
+      "editedPlanLabel": "Offre à modifier",
+      "restoreDefaultsHint": "Rétablit les valeurs par défaut de toutes les offres. Rien n'est enregistré avant que tu touches Enregistrer.",
+      "featuresHeading": "Fonctionnalités : {{plan}}",
+      "limitsHeading": "Limites : {{plan}}",
+      "unlimitedFor": "{{limit}} illimité",
+      "discardDescription": "Tes modifications des réglages des offres n'ont pas été enregistrées."
+    },
+    "discord": {
+      "server": "Serveur",
+      "channel": "Salon",
+      "noServer": "Aucun serveur",
+      "noChannel": "Aucun salon",
+      "loadingGuild": "Chargement du serveur...",
+      "botUnreachable": "Le bot Discord est injoignable, les serveurs et salons ne peuvent donc pas être listés pour le moment.",
+      "loadFailed": "Impossible de charger les paramètres Discord.",
+      "retry": "Réessayer",
+      "saved": "Paramètres Discord enregistrés.",
+      "opensInBrowser": "S'ouvre dans ton navigateur",
+      "channels": {
+        "stats": {
+          "heading": "Statistiques de la plateforme",
+          "description": "Où les statistiques de la plateforme sont publiées, et quels chiffres chaque publication inclut. Laisse le salon vide pour ne plus publier les statistiques."
+        },
+        "donations": {
+          "heading": "Dons",
+          "description": "Où chaque don Buy Me a Coffee est publié. Laisse vide pour ne plus publier les dons."
+        },
+        "pricing": {
+          "heading": "Mises à jour des prix",
+          "description": "Où un résumé est publié chaque fois que la synchronisation des prix récupère de nouveaux prix. Laisse vide pour ne plus publier les mises à jour des prix."
+        }
+      },
+      "priceSyncCommand": "Les prix sont récupérés quand cette commande s'exécute. Ajoute-la comme tâche planifiée dans Coolify sur l'application serveur, toutes les quelques heures. Elle ne télécharge que ce qui a changé.",
+      "donationsLink": "Ouvrir la page Buy Me a Coffee",
+      "stats": {
+        "statsDescription": "Les chiffres à inclure dans chaque publication, toutes organisations confondues.",
+        "keys": {
+          "scannedCards": {
+            "label": "Cartes scannées",
+            "description": "Chaque scan enregistré, reconnu ou non. Supprimer des cartes ne le fait pas baisser."
+          },
+          "scansLast24Hours": {
+            "label": "Scans des dernières 24 heures",
+            "description": "Scans enregistrés dans les 24 heures précédant la publication."
+          },
+          "devices": {
+            "label": "Appareils calibrés",
+            "description": "Trieuses calibrées : au moins un module enregistré avec des valeurs de servo différentes des valeurs par défaut. Les appareils supprimés sont exclus."
+          },
+          "users": {
+            "label": "Utilisateurs",
+            "description": "Comptes inscrits."
+          },
+          "organizations": {
+            "label": "Organisations",
+            "description": "Organisations existantes."
+          },
+          "collections": {
+            "label": "Collections",
+            "description": "Collections de toutes les organisations, hors collections supprimées."
+          }
+        },
+        "scheduleDescription": "Les publications sont envoyées quand cette commande s'exécute. Ajoute-la comme tâche planifiée dans Coolify sur l'application serveur, avec le cron de ton choix.",
+        "postNow": "Publier maintenant",
+        "lastPosted": "Dernière publication le {{date}}.",
+        "neverPosted": "Pas encore publié.",
+        "saveBeforePosting": "Enregistre tes modifications avant de publier.",
+        "posted": "Statistiques publiées sur Discord.",
+        "postFailed": "Impossible de publier les statistiques."
+      },
+      "linkedRole": {
+        "heading": "Rôle des comptes liés",
+        "description": "Les membres de ce serveur qui lient leur compte Mault avec /link-account reçoivent ce rôle, et le perdent s'ils le dissocient. Le bot a besoin de la permission Gérer les rôles, et son propre rôle doit être placé au-dessus de celui-ci.",
+        "role": "Rôle",
+        "noRole": "Aucun rôle"
+      },
+      "announcements": {
+        "heading": "Annonces",
+        "description": "Diffuse un message à tous les utilisateurs de l'application. Il s'affiche en bannière et reste dans le tiroir de notifications de chacun jusqu'à ce que tu le désactives.",
+        "add": "Ajouter une annonce",
+        "editTitle": "Modifier l'annonce",
+        "editHint": "Ouvre l'annonce pour la modifier ou la supprimer",
+        "formDescription": "Affichée à chaque utilisateur connecté jusqu'à sa désactivation.",
+        "active": "Active",
+        "inactive": "Inactive",
+        "onLandingPage": "Sur la page d'accueil",
+        "empty": "Aucune annonce pour le moment.",
+        "loadFailed": "Impossible de charger les annonces.",
+        "notFound": "Cette annonce n'existe plus.",
+        "severity": {
+          "info": "Info",
+          "warning": "Avertissement",
+          "danger": "Danger"
+        },
+        "schedule": {
+          "starts": "Débute {{date}}",
+          "ends": "Se termine {{date}}",
+          "startsAndEnds": "Du {{start}} au {{end}}"
+        },
+        "severityLabel": "Gravité",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Une maintenance planifiée aura lieu vendredi à 22h UTC.",
+        "linkLabel": "Lien (facultatif)",
+        "linkPlaceholder": "https://example.com/changelog",
+        "startsAtLabel": "Début",
+        "endsAtLabel": "Fin",
+        "dateTimePlaceholder": "AAAA-MM-JJ HH:MM",
+        "scheduleHint": "Les heures suivent le fuseau horaire de ton téléphone, au format AAAA-MM-JJ HH:MM. Laisse l'un des deux champs vide pour ne pas borner ce côté. L'interrupteur Active reste prioritaire dans tous les cas.",
+        "showOnLandingLabel": "Afficher sur la page d'accueil",
+        "showOnLandingDescription": "Affiche aussi cette bannière aux visiteurs non connectés sur les pages publiques d'accueil et du guide de montage.",
+        "fixErrors": "Corrige d'abord les champs signalés.",
+        "createFailed": "Impossible de créer l'annonce.",
+        "updateFailed": "Impossible d'enregistrer l'annonce.",
+        "delete": "Supprimer l'annonce",
+        "deleteTitle": "Supprimer l'annonce ?",
+        "deleteConfirm": "Elle disparaîtra immédiatement du tiroir de notifications de tout le monde.",
+        "deleteFailed": "Impossible de supprimer l'annonce.",
+        "validation": {
+          "invalidLink": "Saisis une URL http(s) valide.",
+          "invalidDateTime": "Saisis une date et une heure au format AAAA-MM-JJ HH:MM.",
+          "endAfterStart": "L'heure de fin doit être après l'heure de début."
+        }
+      }
+    },
+    "sounds": {
+      "heading": "Clips sonores système",
+      "description": "Des clips que chaque organisation peut utiliser dans ses règles sonores. Les organisations peuvent les écouter, mais pas les renommer ni les supprimer.",
+      "empty": "Aucun clip sonore système pour le moment.",
+      "loadFailed": "Impossible de charger les clips sonores système.",
+      "retry": "Réessayer",
+      "uploadHint": "MP3, WAV, OGG, WebM, M4A ou AAC, 1 Mo maximum.",
+      "delete": "Supprimer",
+      "deleteConfirm": "Toutes les organisations perdent ce clip, et les règles qui le jouent ne joueront plus de son.",
+      "deleted": "Clip sonore supprimé."
+    },
+    "planPreviewChip": "Aperçu : {{plan}}",
+    "cards": {
+      "cancel": "Annuler",
+      "typeToConfirm": "Saisis « {{text}} » pour confirmer",
+      "tabs": {
+        "stats": "Stats",
+        "games": "Jeux",
+        "sync": "Synchro",
+        "database": "Cartes",
+        "keys": "Clés"
+      },
+      "stats": {
+        "description": "Activité de scan à l'échelle de l'application, toutes organisations confondues, et si chaque scan a été vectorisé sur le serveur ou dans le navigateur. Une personne est comptée comme scannant tant qu'elle a enregistré un scan au cours des {{minutes}} dernières minutes.",
+        "unknownValue": "Indisponible",
+        "percentValue": "{{percent}}%",
+        "loadFailed": "Impossible de charger les stats de scan",
+        "active": {
+          "heading": "Scan en cours",
+          "scanners": "Personnes qui scannent",
+          "sessions": "Collections en cours de scan",
+          "orgs": "Organisations",
+          "connectedSorters": "Trieurs connectés",
+          "recentScans": "Scans, {{minutes}} dernières min"
+        },
+        "allTime": {
+          "heading": "Depuis le début",
+          "totalScanned": "Total scanné",
+          "matched": "Trouvés",
+          "unidentified": "Non identifiés",
+          "matchRate": "Taux de correspondance",
+          "averageMatchPercent": "Confiance moy.",
+          "corrected": "Corrigés",
+          "multipleMatches": "Correspondances multiples"
+        },
+        "vectorize": {
+          "heading": "Source de vectorisation des scans",
+          "server": "Serveur",
+          "web": "Web",
+          "percentOfTotal": "{{percent}}% des scans"
+        }
+      },
+      "games": {
+        "description": "Configure quels jeux de cartes à collectionner peuvent être scannés et comment leurs cartes sont associées aux règles des bacs.",
+        "addGame": "Ajouter un jeu",
+        "loadFailed": "Impossible de charger les jeux",
+        "empty": "Aucun jeu configuré pour le moment",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "fieldCount_one": "{{count}} champ",
+        "fieldCount_other": "{{count}} champs",
+        "createSuccess": "{{name}} créé",
+        "updateSuccess": "{{name}} enregistré",
+        "deleteSuccess": "Jeu supprimé",
+        "createFailed": "Échec de la création du jeu",
+        "updateFailed": "Échec de la mise à jour du jeu",
+        "deleteFailed": "Échec de la suppression du jeu",
+        "deleteTitle": "Supprimer le jeu",
+        "deleteDescription": "Supprimer « {{name}} » ? Les collections utilisant ce jeu conserveront leurs cartes scannées, mais aucune nouvelle carte ne pourra y être associée.",
+        "deleteButton": "Supprimer"
+      },
+      "gameForm": {
+        "newTitle": "Nouveau jeu",
+        "editTitle": "Modifier {{name}}",
+        "notFound": "Ce jeu n'existe pas ou a été supprimé.",
+        "backToGames": "Retour aux jeux",
+        "discardDescription": "Les modifications de ce jeu n'ont pas été enregistrées.",
+        "generalHeading": "Général",
+        "generalDescription": "La source de cartes utilisée par ce jeu et son affichage.",
+        "physicalHeading": "Cartes",
+        "physicalDescription": "Propriétés physiques des cartes, utilisées pour les options foil et pour savoir quand un bac est plein.",
+        "keyLabel": "Clé",
+        "keyPlaceholder": "Sélectionner un jeu",
+        "nameLabel": "Nom",
+        "namePlaceholder": "Pokémon",
+        "apiDocsUrlLabel": "URL de la documentation de l'API",
+        "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
+        "activeDescription": "Les jeux inactifs ne peuvent pas être choisis pour de nouvelles collections.",
+        "cardThicknessLabel": "Épaisseur de carte (mm)",
+        "cardThicknessPlaceholder": "ex. 0.3",
+        "cardThicknessDescription": "Utilisée avec la hauteur calibrée de chaque bac (définie dans Réglage du trieur) pour déterminer automatiquement quand un bac est plein.",
+        "validation": {
+          "required": "Obligatoire",
+          "keyFormat": "Lettres minuscules, chiffres et tirets uniquement",
+          "keyTaken": "Un jeu avec cette clé existe déjà",
+          "urlFormat": "Saisis une URL valide",
+          "minFields": "Ajoute au moins un champ",
+          "thicknessPositive": "Saisis un nombre supérieur à 0"
+        }
+      },
+      "fields": {
+        "heading": "Champs",
+        "description": "Définis quels champs les règles des bacs, le tri et les notifications peuvent utiliser pour ce jeu.",
+        "empty": "Pas encore de champs. Ajoute-en au moins un pour pouvoir filtrer les règles des bacs.",
+        "addField": "Ajouter un champ",
+        "untitled": "Champ {{position}}",
+        "removeLabel": "Supprimer le champ {{name}}",
+        "keyLabel": "Clé",
+        "keyPlaceholder": "rarity",
+        "labelLabel": "Libellé",
+        "labelPlaceholder": "Rareté",
+        "typeLabel": "Type",
+        "pathLabel": "Chemin de donnée",
+        "pathPlaceholder": "prices.usd",
+        "optionsLabel": "Options",
+        "optionsPlaceholder": "commune, rare"
+      },
+      "fieldTypes": {
+        "string": "Texte",
+        "numeric": "Numérique",
+        "enum": "Énumération",
+        "set": "Ensemble"
+      },
+      "sync": {
+        "heading": "Vecteurs d'image des cartes",
+        "status": {
+          "idle": "Inactif",
+          "running": "En cours",
+          "completed": "Terminé",
+          "failed": "Échoué",
+          "cancelled": "Annulé"
+        },
+        "statusLabel": "Statut de la synchro : {{status}}",
+        "statusAnnouncement": "Synchro des cartes : {{status}}",
+        "runningFor": "Synchronisation de {{source}}",
+        "loadFailed": "Impossible de charger le statut de la synchro",
+        "startFailed": "Impossible de lancer la synchro",
+        "cancelFailed": "Impossible d'annuler la synchro",
+        "browserJobRunning": "Cette synchro vectorise les cartes dans un navigateur sur l'ordinateur hôte. Garde cette page ouverte.",
+        "cancelling": "Annulation...",
+        "starting": "Démarrage...",
+        "startButton": "Démarrer la synchro",
+        "gameLabel": "Jeu",
+        "gamePlaceholder": "Sélectionner un jeu...",
+        "languageLabel": "Langue",
+        "languagePlaceholder": "Langue...",
+        "forceResyncLabel": "Forcer la resynchronisation complète",
+        "concurrencyLabel": "Cartes à la fois",
+        "concurrencyDescription": "Vectorise ce nombre d'images de cartes en même temps. Les téléchargements restent espacés.",
+        "progressLabel": "Progression de la synchronisation",
+        "progressCount": "{{done}} / {{total}}",
+        "savedCount": "{{count}} enregistrées",
+        "vectorizedCount": "{{count}} vectorisées",
+        "queuedCount": "{{count}} en attente",
+        "skippedCount": "{{count}} ignorées",
+        "etaRemaining": "~{{duration}} restant",
+        "errorsCount_one": "{{count}} erreur",
+        "errorsCount_other": "{{count}} erreurs",
+        "printingMarksLabel": "Progression des marques d'impression",
+        "printingMarksCount": "Marques d'impression : {{done}} / {{total}} cartes lues",
+        "logHeading": "Journal",
+        "logDescription_one": "Entrée la plus récente en premier.",
+        "logDescription_other": "{{count}} dernières entrées, les plus récentes en premier.",
+        "logEmpty": "Aucun journal"
+      },
+      "syncCardById": {
+        "heading": "Synchroniser une carte par ID",
+        "description": "Récupère et vectorise une seule carte, en l'ajoutant si elle n'est pas encore dans la base de données",
+        "cardIdLabel": "ID de la carte",
+        "cardIdPlaceholder": "ID de la carte...",
+        "syncButton": "Synchroniser",
+        "syncing": "Synchronisation...",
+        "failed": "Échec de la synchronisation de la carte {{id}}"
+      },
+      "database": {
+        "heading": "Base de données de cartes",
+        "cardCount_one": "{{count}} carte",
+        "cardCount_other": "{{count}} cartes",
+        "searchLabel": "Rechercher des cartes",
+        "searchPlaceholder": "Rechercher par nom...",
+        "loadFailed": "Échec du chargement des cartes",
+        "empty": "Aucune carte trouvée",
+        "revectorizeLabel": "Revectoriser {{name}}",
+        "revectorizeFailed": "Échec de la revectorisation de {{name}}",
+        "previousPage": "Page précédente",
+        "nextPage": "Page suivante",
+        "pageStatus": "Page {{page}} sur {{pageCount}}"
+      },
+      "dump": {
+        "heading": "Vider la base de données de cartes",
+        "description": "Supprime définitivement les vecteurs d'image des cartes, pour un jeu ou pour tous",
+        "scopeLabel": "Portée",
+        "scopePlaceholder": "Sélectionner une portée...",
+        "allGames": "Tous les jeux",
+        "dumpButton": "Vider",
+        "confirmTitle": "Vider la base de données de cartes",
+        "confirmAll": "Cette action supprimera définitivement tous les vecteurs d'image des cartes et ne peut pas être annulée. Es-tu sûr(e) ?",
+        "confirmScoped": "Cette action supprimera définitivement tous les vecteurs d'image des cartes « {{scope}} » et ne peut pas être annulée. Es-tu sûr(e) ?",
+        "failed": "Échec de la suppression de la base de données",
+        "syncRunning": "Tu ne peux pas vider la base pendant qu'une synchro est en cours."
+      },
+      "syncApiKeys": {
+        "description": "Des clés qui permettent aux scripts et planificateurs de lancer des synchronisations de la base de cartes sans connexion. Chaque clé ne fait que ce que ses autorisations permettent.",
+        "create": "Créer une clé",
+        "createTitle": "Créer une clé d'API de synchronisation",
+        "createDescription": "Choisis ce que cette clé peut faire. Les autorisations ne peuvent pas être modifiées ensuite : révoque la clé et recrée-la.",
+        "nameLabel": "Nom",
+        "namePlaceholder": "Synchro nocturne",
+        "permissionsLabel": "Autorisations",
+        "empty": "Aucune clé d'API de synchronisation",
+        "loadFailed": "Impossible de charger les clés d'API de synchronisation.",
+        "createFailed": "Impossible de créer la clé d'API de synchronisation.",
+        "revoke": "Révoquer",
+        "revoked": "Clé d'API de synchronisation révoquée",
+        "revokeFailed": "Impossible de révoquer la clé d'API de synchronisation.",
+        "revokeConfirmDescription": "Tout ce qui utilise cette clé cesse de fonctionner immédiatement. Cette action est irréversible.",
+        "revealTitle": "Copie ta clé d'API de synchronisation",
+        "revealDescription": "La clé n'est affichée qu'une seule fois. Conserve-la en lieu sûr.",
+        "revealDone": "Terminé",
+        "exampleLabel": "Lancer une synchro avec :",
+        "createdBy": "Créée par {{name}} le {{date}}",
+        "lastUsed": "Dernière utilisation {{date}}",
+        "neverUsed": "Jamais utilisée",
+        "permissions": {
+          "sync_start": {
+            "label": "Lancer une synchro",
+            "description": "Lance une synchronisation normale d'un jeu. Les cartes inchangées sont ignorées."
+          },
+          "sync_force": {
+            "label": "Resynchro forcée",
+            "description": "Lance une synchronisation qui retélécharge et revectorise toutes les cartes, même inchangées."
+          },
+          "sync_card": {
+            "label": "Synchroniser une carte",
+            "description": "Récupère et vectorise une carte à partir de son ID."
+          },
+          "sync_cancel": {
+            "label": "Annuler la synchro",
+            "description": "Arrête la synchronisation en cours."
+          }
+        },
+        "revokeConfirmTitle": "Révoquer « {{name}} » ?",
+        "revokeLabel": "Révoquer {{name}}",
+        "share": "Partager la clé"
+      }
+    }
   }
 }

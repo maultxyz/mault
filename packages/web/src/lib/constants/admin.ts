@@ -75,6 +75,8 @@ export const UNMATCHED_PHOTO_FILTERS: UnmatchedPhotoFilter[] = [
 
 export const BAD_PHOTO_MARKS_STORAGE_KEY = "admin-unmatched-bad-photos";
 
+export const ADMIN_PATH = "/app/admin";
+
 export const ADMIN_SECTIONS = [
   {
     path: "cards",
@@ -133,12 +135,6 @@ export const ADMIN_SECTIONS = [
 ] as const;
 
 export const NO_DISCORD_GUILD = "none";
-
-export const PLATFORM_STATS_SCRIPT_COMMAND =
-  "node packages/server/dist/scripts/post-platform-stats.js";
-
-export const PRICE_SYNC_SCRIPT_COMMAND =
-  "node packages/server/dist/scripts/sync-prices.js";
 
 export const EMPTY_PLATFORM_STATS_FORM: PlatformStatsFormValues = {
   stats: [],

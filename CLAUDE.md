@@ -176,6 +176,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - ONNX runs on the CPU provider only so embeddings match the fp32 vectors from web and server.
 - Sorters connect over BLE or the Wi-Fi relay, never USB. Android needs `ensureBlePermissions` first.
 - No in-app account creation (App Store would then require in-app deletion).
+- Admin is native for staff (`useRole`, every screen in `AdminGate`, admin-only parts hidden like web): cards and games, users (search and audit only), plans, Discord, sounds, deleted items. Foil labels, hardware, developer, unmatched retry and impersonation stay web-only; a change to a shared admin area must land on both. Plan preview is in memory only (`lib/auth/plan-preview.ts`, sent as `X-Plan-Preview` by the API client, shown by the top bar chip). Game key pattern, field operators, script commands and `DONATE_URL` live in `shared`.
 
 ### Desktop (`packages/desktop`)
 

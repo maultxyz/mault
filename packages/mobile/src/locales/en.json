@@ -2186,5 +2186,567 @@
     "removalLookupFailedTitle_one": "Couldn't look up {{count}} card",
     "removalLookupFailedTitle_other": "Couldn't look up {{count}} cards",
     "removalLookupFailedDescription": "Check your connection and try again."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Platform tools for staff.",
+    "entrySubtitle": "Cards, users, plans and more",
+    "sections": {
+      "cards": {
+        "title": "Cards & games",
+        "subtitle": "Card database, sync and games"
+      },
+      "users": {
+        "title": "Users",
+        "subtitle": "Look up users and impersonation history"
+      },
+      "plans": {
+        "title": "Plans",
+        "subtitle": "Plan limits, features and pricing"
+      },
+      "discord": {
+        "title": "Discord",
+        "subtitle": "Channels and announcements"
+      },
+      "sounds": {
+        "title": "Sounds",
+        "subtitle": "Built-in scanner sound clips"
+      },
+      "deleted": {
+        "title": "Deleted items",
+        "subtitle": "Restore deleted items"
+      }
+    },
+    "deleted": {
+      "description": "Everything deleted in any organization, except scanned cards. Restoring puts an item back exactly as it was.",
+      "searchPlaceholder": "Search by name or organization",
+      "typeLabel": "Item type",
+      "allTypes": "All types",
+      "empty": "Nothing has been deleted",
+      "restore": "Restore",
+      "global": "Global",
+      "lastUpdated": "Last changed {{date}}",
+      "types": {
+        "collection": "Collection",
+        "binSet": "Bin preset",
+        "presetWorkflow": "Multi-stage preset",
+        "bin": "Bin",
+        "device": "Sorter",
+        "binRoute": "Bin route",
+        "binHeight": "Bin height",
+        "moduleConfig": "Module calibration",
+        "storageLocation": "Storage location",
+        "soundClip": "Sound clip",
+        "soundRule": "Sound rule",
+        "notificationRule": "Notification rule",
+        "game": "Game",
+        "announcement": "Announcement",
+        "intakeLot": "Intake lot",
+        "fulfilmentOrder": "Order",
+        "accuracyCheck": "Spot check"
+      },
+      "restored": "Restored {{name}}",
+      "restoreError": "Couldn't restore that item",
+      "count_one": "{{count}} deleted item",
+      "count_other": "{{count}} deleted items",
+      "restoreItem": "Restore {{name}}",
+      "loadError": "Couldn't load deleted items",
+      "noMatches": "No deleted items match",
+      "loadingMore": "Loading more deleted items"
+    },
+    "users": {
+      "subtitle": "Look up accounts and review impersonation sessions.",
+      "viewAsUserOnWebTitle": "Viewing the app as a user is on the web app",
+      "viewAsUserOnWebDescription": "Search here to look up an account and its organizations. To see the app as that user, open Admin > Users on the web.",
+      "searchPlaceholder": "Search by name, email or organization",
+      "startTyping": "Type a name, email or organization to search.",
+      "searchFailed": "Couldn't search users.",
+      "empty": "No users found",
+      "noOrgs": "No organizations",
+      "adminBadge": "Admin",
+      "moderatorBadge": "Moderator",
+      "tabs": {
+        "search": "Users",
+        "audit": "Audit log"
+      },
+      "audit": {
+        "unknownUser": "Unknown user",
+        "loadFailed": "Couldn't load the audit log.",
+        "empty": "No impersonation sessions yet",
+        "entryLabel": "{{admin}} → {{target}}",
+        "startedAndEnded": "Started {{started}}, ended {{ended}}",
+        "startedOnly": "Started {{started}}",
+        "active": "Active"
+      }
+    },
+    "plans": {
+      "billingDisabled": "Billing is turned off on this server, so every organization gets every feature with no limits. These settings take effect once billing is on.",
+      "saveFailed": "Couldn't save plan settings",
+      "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",
+      "limitsDescription": "How much of each thing an organization on each plan can have. Turn on Unlimited to remove a limit.",
+      "restoreDefaults": "Restore defaults",
+      "unlimited": "Unlimited",
+      "features": {
+        "chaosSort": {
+          "label": "Chaos sort",
+          "description": "Fill bins in order, ignoring rules. Turning it off only stops new presets from switching it on."
+        },
+        "storage": {
+          "label": "Storage locations",
+          "description": "Create locations and record bins into them. Existing locations stay viewable either way."
+        },
+        "apiAccess": {
+          "label": "API access",
+          "description": "Create organization API keys and read cards and storage locations through the public API. Revoking existing keys always works."
+        },
+        "businessTools": {
+          "label": "Buy and sell",
+          "description": "Intake lots with buylist offers, order import and fulfilment, cost and margin reports, and spot checks. Existing records stay viewable either way."
+        },
+        "repacks": {
+          "label": "Repacks",
+          "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already in repack mode keep working."
+        },
+        "customSounds": {
+          "label": "Custom sounds",
+          "description": "Upload custom sound clips for sound rules. Turning it off only stops new uploads. Clips already uploaded keep playing."
+        },
+        "fleetHealth": {
+          "label": "Fleet health",
+          "description": "The sorter health panel on the Sorters page: status, cards since service, alert history and service intervals. Jam and offline alerts are still recorded and sent either way."
+        }
+      },
+      "limits": {
+        "dailyScans": {
+          "label": "Daily scans",
+          "description": "Cards scanned per organization per UTC day."
+        },
+        "connectedSorters": {
+          "label": "Connected sorters",
+          "description": "Sorters connected at once. Every plan is also capped at the server's hard maximum."
+        },
+        "soundRules": {
+          "label": "Sound rules",
+          "description": "Sound rules across all games. Only checked when adding a rule."
+        },
+        "notificationRules": {
+          "label": "Notification rules",
+          "description": "Discord notification rules across all games. Only checked when adding a rule."
+        },
+        "organizations": {
+          "label": "Owned organizations",
+          "description": "Organizations a user may own. Checked in the app against the plan of the organization the user has open when creating a new one."
+        },
+        "membersPerOrg": {
+          "label": "Members per organization",
+          "description": "Members per organization, counted owners first, then by join date. Members past the limit are locked out until the plan is upgraded or members are removed."
+        },
+        "collections": {
+          "label": "Collections",
+          "description": "Collections per organization. Only checked when creating a collection."
+        }
+      },
+      "pricingMode": {
+        "heading": "Pricing mode",
+        "saved": "Pricing mode updated.",
+        "saveFailed": "Couldn't update the pricing mode.",
+        "legacy": {
+          "badge": "Old pricing",
+          "description": "Only Free and the original Business plan are on sale, at the legacy Business prices. New Business subscribers get the legacy Business tier.",
+          "switch": "Switch to new pricing",
+          "confirmTitle": "Switch to the new pricing?",
+          "confirmDescription": "Enthusiast and the new Business plan go on sale right away, using the STRIPE_PRICE_ID_ENTHUSIAST and STRIPE_PRICE_ID_BUSINESS prices. Current Business subscribers keep their plan and start seeing it labelled as legacy."
+        },
+        "tiered": {
+          "badge": "New pricing",
+          "description": "Free, Enthusiast and Business are on sale. Existing subscribers to the original Business plan keep it as the legacy tier.",
+          "switch": "Switch back to old pricing",
+          "confirmTitle": "Switch back to the old pricing?",
+          "confirmDescription": "Enthusiast and the new Business plan stop being sold, and Business checkout goes back to the legacy prices. People who already subscribed to a new plan keep it."
+        }
+      },
+      "preview": {
+        "heading": "Preview a plan",
+        "description": "See the app as an organization on another plan would: limits, locked features and the billing screen all follow the plan you pick. Only affects your own requests in this app.",
+        "off": "Off",
+        "selectLabel": "Preview plan",
+        "activeTitle": "Previewing {{plan}}",
+        "activeDescription": "Your own requests in this app follow this plan until you stop the preview or close the app.",
+        "stop": "Stop preview"
+      },
+      "subtitle": "Plan limits, features, pricing and preview.",
+      "loadFailed": "Couldn't load plan settings.",
+      "editorHeading": "Plan settings",
+      "editorDescription": "Pick a plan to edit its features and limits. Changes to every plan are saved together.",
+      "editedPlanLabel": "Plan to edit",
+      "restoreDefaultsHint": "Resets every plan to the built-in defaults. Nothing is saved until you tap Save.",
+      "featuresHeading": "Features: {{plan}}",
+      "limitsHeading": "Limits: {{plan}}",
+      "unlimitedFor": "Unlimited {{limit}}",
+      "discardDescription": "Your changes to the plan settings haven't been saved."
+    },
+    "discord": {
+      "server": "Server",
+      "channel": "Channel",
+      "noServer": "No server",
+      "noChannel": "No channel",
+      "loadingGuild": "Loading server...",
+      "botUnreachable": "The Discord bot isn't reachable, so servers and channels can't be listed right now.",
+      "loadFailed": "Couldn't load the Discord settings.",
+      "retry": "Try again",
+      "saved": "Discord settings saved.",
+      "opensInBrowser": "Opens in your browser",
+      "channels": {
+        "stats": {
+          "heading": "Platform stats",
+          "description": "Where the platform stats are posted, and which numbers each post includes. Leave the channel empty to stop posting stats."
+        },
+        "donations": {
+          "heading": "Donations",
+          "description": "Where each Buy Me a Coffee donation is posted. Leave it empty to stop posting donations."
+        },
+        "pricing": {
+          "heading": "Price updates",
+          "description": "Where a summary is posted whenever the price sync pulls new prices. Leave it empty to stop posting price updates."
+        }
+      },
+      "priceSyncCommand": "Prices are pulled when this command runs. Add it as a scheduled task in Coolify on the server app, every few hours. It only downloads what changed upstream.",
+      "donationsLink": "Open the Buy Me a Coffee page",
+      "stats": {
+        "statsDescription": "Which numbers to include in each post, across every organization.",
+        "keys": {
+          "scannedCards": {
+            "label": "Scanned cards",
+            "description": "Every scan ever saved, matched or not. Deleting cards doesn't lower it."
+          },
+          "scansLast24Hours": {
+            "label": "Scans in the last 24 hours",
+            "description": "Scans saved in the 24 hours before the post."
+          },
+          "devices": {
+            "label": "Calibrated devices",
+            "description": "Calibrated sorters: at least one module saved with servo values other than the defaults. Deleted ones are excluded."
+          },
+          "users": {
+            "label": "Users",
+            "description": "Accounts that have signed up."
+          },
+          "organizations": {
+            "label": "Organizations",
+            "description": "Organizations that exist."
+          },
+          "collections": {
+            "label": "Collections",
+            "description": "Collections across every organization, excluding deleted ones."
+          }
+        },
+        "scheduleDescription": "Posts are sent when this command runs. Add it as a scheduled task in Coolify on the server app, with whatever cron you want.",
+        "postNow": "Post now",
+        "lastPosted": "Last posted {{date}}.",
+        "neverPosted": "Not posted yet.",
+        "saveBeforePosting": "Save your changes before posting.",
+        "posted": "Stats posted to Discord.",
+        "postFailed": "Couldn't post the stats."
+      },
+      "linkedRole": {
+        "heading": "Linked account role",
+        "description": "Members of this server who link their Mault account with /link-account get this role, and lose it when they unlink. The bot needs Manage Roles, and its own role must sit above this one.",
+        "role": "Role",
+        "noRole": "No role"
+      },
+      "announcements": {
+        "heading": "Announcements",
+        "description": "Broadcast a message to everyone using the app. It shows as a banner and stays in each viewer's notification tray until you deactivate it.",
+        "add": "Add announcement",
+        "editTitle": "Edit announcement",
+        "editHint": "Opens the announcement to edit or delete it",
+        "formDescription": "Shown to every signed-in user until deactivated.",
+        "active": "Active",
+        "inactive": "Inactive",
+        "onLandingPage": "On landing page",
+        "empty": "No announcements yet.",
+        "loadFailed": "Couldn't load the announcements.",
+        "notFound": "This announcement no longer exists.",
+        "severity": {
+          "info": "Info",
+          "warning": "Warning",
+          "danger": "Danger"
+        },
+        "schedule": {
+          "starts": "Starts {{date}}",
+          "ends": "Ends {{date}}",
+          "startsAndEnds": "{{start}} to {{end}}"
+        },
+        "severityLabel": "Severity",
+        "messageLabel": "Message",
+        "messagePlaceholder": "We'll be doing scheduled maintenance Friday at 10pm UTC.",
+        "linkLabel": "Link (optional)",
+        "linkPlaceholder": "https://example.com/changelog",
+        "startsAtLabel": "Starts at",
+        "endsAtLabel": "Ends at",
+        "dateTimePlaceholder": "YYYY-MM-DD HH:MM",
+        "scheduleHint": "Times use your phone's time zone, written as YYYY-MM-DD HH:MM. Leave either blank for no start or end bound. The Active switch still overrides both.",
+        "showOnLandingLabel": "Show on landing page",
+        "showOnLandingDescription": "Also shows this banner to signed-out visitors on the public landing and build guide pages.",
+        "fixErrors": "Fix the highlighted fields first.",
+        "createFailed": "Couldn't create the announcement.",
+        "updateFailed": "Couldn't save the announcement.",
+        "delete": "Delete announcement",
+        "deleteTitle": "Delete announcement?",
+        "deleteConfirm": "It will disappear from everyone's notification tray immediately.",
+        "deleteFailed": "Couldn't delete the announcement.",
+        "validation": {
+          "invalidLink": "Enter a valid http(s) URL.",
+          "invalidDateTime": "Enter a date and time as YYYY-MM-DD HH:MM.",
+          "endAfterStart": "The end time must be after the start time."
+        }
+      }
+    },
+    "sounds": {
+      "heading": "System sound clips",
+      "description": "Clips every organization can use in its sound rules. Organizations can play them but can't rename or delete them.",
+      "empty": "No system sound clips yet.",
+      "loadFailed": "Couldn't load the system sound clips.",
+      "retry": "Try again",
+      "uploadHint": "MP3, WAV, OGG, WebM, M4A or AAC, up to 1 MB.",
+      "delete": "Delete",
+      "deleteConfirm": "Every organization loses this clip, and rules that play it stop playing a sound.",
+      "deleted": "Sound clip deleted."
+    },
+    "planPreviewChip": "Previewing {{plan}}",
+    "cards": {
+      "cancel": "Cancel",
+      "typeToConfirm": "Type \"{{text}}\" to confirm",
+      "tabs": {
+        "stats": "Stats",
+        "games": "Games",
+        "sync": "Sync",
+        "database": "Cards",
+        "keys": "Keys"
+      },
+      "stats": {
+        "description": "App-wide scan activity across every organization, and whether each scan was vectorized on the server or in the browser. Someone counts as actively scanning while they've saved a scan in the last {{minutes}} minutes.",
+        "unknownValue": "Not available",
+        "percentValue": "{{percent}}%",
+        "loadFailed": "Couldn't load scan stats",
+        "active": {
+          "heading": "Active scanning",
+          "scanners": "People scanning",
+          "sessions": "Collections being scanned",
+          "orgs": "Organizations",
+          "connectedSorters": "Connected sorters",
+          "recentScans": "Scans, last {{minutes}} min"
+        },
+        "allTime": {
+          "heading": "All time",
+          "totalScanned": "Total scanned",
+          "matched": "Matched",
+          "unidentified": "Unidentified",
+          "matchRate": "Match rate",
+          "averageMatchPercent": "Avg. match confidence",
+          "corrected": "Corrected",
+          "multipleMatches": "Multiple matches"
+        },
+        "vectorize": {
+          "heading": "Scan vectorization source",
+          "server": "Server",
+          "web": "Web",
+          "percentOfTotal": "{{percent}}% of scans"
+        }
+      },
+      "games": {
+        "description": "Configure which trading card games can be scanned into and how their cards are matched against bin rules.",
+        "addGame": "Add game",
+        "loadFailed": "Couldn't load games",
+        "empty": "No games configured yet",
+        "active": "Active",
+        "inactive": "Inactive",
+        "fieldCount_one": "{{count}} field",
+        "fieldCount_other": "{{count}} fields",
+        "createSuccess": "Created {{name}}",
+        "updateSuccess": "Saved {{name}}",
+        "deleteSuccess": "Game deleted",
+        "createFailed": "Failed to create game",
+        "updateFailed": "Failed to update game",
+        "deleteFailed": "Failed to delete game",
+        "deleteTitle": "Delete game",
+        "deleteDescription": "Delete \"{{name}}\"? Collections using this game will keep their scanned cards, but no new cards can be matched against it.",
+        "deleteButton": "Delete"
+      },
+      "gameForm": {
+        "newTitle": "New game",
+        "editTitle": "Edit {{name}}",
+        "notFound": "This game doesn't exist or was deleted.",
+        "backToGames": "Back to games",
+        "discardDescription": "Your changes to this game haven't been saved.",
+        "generalHeading": "General",
+        "generalDescription": "Which card source this game uses and how it's listed.",
+        "physicalHeading": "Cards",
+        "physicalDescription": "Physical card properties, used for foil options and working out when a bin is full.",
+        "keyLabel": "Key",
+        "keyPlaceholder": "Select a game",
+        "nameLabel": "Name",
+        "namePlaceholder": "Pokémon",
+        "apiDocsUrlLabel": "API documentation URL",
+        "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
+        "activeDescription": "Inactive games can't be picked for new collections.",
+        "cardThicknessLabel": "Card thickness (mm)",
+        "cardThicknessPlaceholder": "e.g. 0.3",
+        "cardThicknessDescription": "Used with each bin's calibrated height (set in Sorter setup) to automatically work out when a bin is full.",
+        "validation": {
+          "required": "Required",
+          "keyFormat": "Lowercase letters, numbers, and hyphens only",
+          "keyTaken": "A game with this key already exists",
+          "urlFormat": "Enter a valid URL",
+          "minFields": "Add at least one field",
+          "thicknessPositive": "Enter a number greater than 0"
+        }
+      },
+      "fields": {
+        "heading": "Fields",
+        "description": "Define which fields bin rules, sorting and notifications can use for this game.",
+        "empty": "No fields yet. Add at least one for bin rules to filter on.",
+        "addField": "Add field",
+        "untitled": "Field {{position}}",
+        "removeLabel": "Remove field {{name}}",
+        "keyLabel": "Key",
+        "keyPlaceholder": "rarity",
+        "labelLabel": "Label",
+        "labelPlaceholder": "Rarity",
+        "typeLabel": "Type",
+        "pathLabel": "Data path",
+        "pathPlaceholder": "prices.usd",
+        "optionsLabel": "Options",
+        "optionsPlaceholder": "common, rare"
+      },
+      "fieldTypes": {
+        "string": "String",
+        "numeric": "Numeric",
+        "enum": "Enum",
+        "set": "Set"
+      },
+      "sync": {
+        "heading": "Card Image Vectors",
+        "status": {
+          "idle": "Idle",
+          "running": "Running",
+          "completed": "Completed",
+          "failed": "Failed",
+          "cancelled": "Cancelled"
+        },
+        "statusLabel": "Sync status: {{status}}",
+        "statusAnnouncement": "Card sync {{status}}",
+        "runningFor": "Syncing {{source}}",
+        "loadFailed": "Couldn't load the sync status",
+        "startFailed": "Couldn't start the sync",
+        "cancelFailed": "Couldn't cancel the sync",
+        "browserJobRunning": "This sync is vectorizing cards in a browser on the host computer. Keep that page open.",
+        "cancelling": "Cancelling...",
+        "starting": "Starting...",
+        "startButton": "Start Sync",
+        "gameLabel": "Game",
+        "gamePlaceholder": "Select a game...",
+        "languageLabel": "Language",
+        "languagePlaceholder": "Language...",
+        "forceResyncLabel": "Force full resync",
+        "concurrencyLabel": "Cards at a time",
+        "concurrencyDescription": "Vectorizes this many card images at once. Downloads still start a short time apart.",
+        "progressLabel": "Sync progress",
+        "progressCount": "{{done}} / {{total}}",
+        "savedCount": "{{count}} saved",
+        "vectorizedCount": "{{count}} vectorized",
+        "queuedCount": "{{count}} queued",
+        "skippedCount": "{{count}} skipped",
+        "etaRemaining": "~{{duration}} remaining",
+        "errorsCount_one": "{{count}} error",
+        "errorsCount_other": "{{count}} errors",
+        "printingMarksLabel": "Printing marks progress",
+        "printingMarksCount": "Printing marks: {{done}} / {{total}} cards read",
+        "logHeading": "Log",
+        "logDescription_one": "Newest entry first.",
+        "logDescription_other": "Last {{count}} entries, newest first.",
+        "logEmpty": "No Logs"
+      },
+      "syncCardById": {
+        "heading": "Sync Card by ID",
+        "description": "Fetch and vectorize a single card, adding it if it isn't in the database yet",
+        "cardIdLabel": "Card ID",
+        "cardIdPlaceholder": "Card ID...",
+        "syncButton": "Sync",
+        "syncing": "Syncing...",
+        "failed": "Failed to sync card {{id}}"
+      },
+      "database": {
+        "heading": "Card Database",
+        "cardCount_one": "{{count}} card",
+        "cardCount_other": "{{count}} cards",
+        "searchLabel": "Search cards",
+        "searchPlaceholder": "Search by name...",
+        "loadFailed": "Failed to load cards",
+        "empty": "No cards found",
+        "revectorizeLabel": "Re-vectorize {{name}}",
+        "revectorizeFailed": "Failed to re-vectorize {{name}}",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "pageStatus": "Page {{page}} of {{pageCount}}"
+      },
+      "dump": {
+        "heading": "Dump Card Database",
+        "description": "Permanently delete card image vectors, for one game or all of them",
+        "scopeLabel": "Scope",
+        "scopePlaceholder": "Select scope...",
+        "allGames": "All games",
+        "dumpButton": "Dump",
+        "confirmTitle": "Dump card database",
+        "confirmAll": "This will permanently delete all card image vectors and cannot be undone. Are you sure?",
+        "confirmScoped": "This will permanently delete all \"{{scope}}\" card image vectors and cannot be undone. Are you sure?",
+        "failed": "Failed to dump database",
+        "syncRunning": "You can't dump the database while a sync is running."
+      },
+      "syncApiKeys": {
+        "description": "Keys that let scripts and schedulers start card database syncs without signing in. Each key only does what its permissions allow.",
+        "create": "Create key",
+        "createTitle": "Create sync API key",
+        "createDescription": "Pick what this key may do. You can't change permissions later, so revoke and recreate the key instead.",
+        "nameLabel": "Name",
+        "namePlaceholder": "Nightly sync",
+        "permissionsLabel": "Permissions",
+        "empty": "No sync API keys yet",
+        "loadFailed": "Couldn't load sync API keys.",
+        "createFailed": "Couldn't create the sync API key.",
+        "revoke": "Revoke",
+        "revoked": "Sync API key revoked",
+        "revokeFailed": "Couldn't revoke the sync API key.",
+        "revokeConfirmDescription": "Anything using this key stops working right away. This can't be undone.",
+        "revealTitle": "Copy your sync API key",
+        "revealDescription": "This is the only time the key is shown. Store it somewhere safe.",
+        "revealDone": "Done",
+        "exampleLabel": "Start a sync with it:",
+        "createdBy": "Created by {{name}} on {{date}}",
+        "lastUsed": "Last used {{date}}",
+        "neverUsed": "Never used",
+        "permissions": {
+          "sync_start": {
+            "label": "Start sync",
+            "description": "Start a regular sync of a game. Unchanged cards are skipped."
+          },
+          "sync_force": {
+            "label": "Force resync",
+            "description": "Start a sync that downloads and re-vectorizes every card, even unchanged ones."
+          },
+          "sync_card": {
+            "label": "Sync single cards",
+            "description": "Fetch and vectorize one card by its ID."
+          },
+          "sync_cancel": {
+            "label": "Cancel sync",
+            "description": "Stop the sync that is running."
+          }
+        },
+        "revokeConfirmTitle": "Revoke \"{{name}}\"?",
+        "revokeLabel": "Revoke {{name}}",
+        "share": "Share key"
+      }
+    }
   }
 }

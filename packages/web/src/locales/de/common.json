@@ -406,7 +406,8 @@
       "info": "Hinweis:",
       "warning": "Warnung:",
       "danger": "Fehler:"
-    }
+    },
+    "adminNavigation": "Admin-Navigation"
   },
   "shareLink": {
     "expiryLabel": "Link läuft ab nach",

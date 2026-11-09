@@ -78,6 +78,7 @@ export const MOBILE_SORTER_PATH = "/app/sorter";
 export const MOBILE_ACCOUNT_PATH = "/app/me";
 export const MOBILE_ACCOUNT_TAB_PATHS = [
   MOBILE_ACCOUNT_PATH,
+  "/app/admin",
   "/app/account",
   "/app/health",
   SETTINGS_PATHS.root,
