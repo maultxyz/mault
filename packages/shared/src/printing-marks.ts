@@ -498,12 +498,13 @@ export function printingMarkEvidence(
     reference,
   ) => alignToReference(scan, reference),
 ): number {
-  if (first === "absent" && second === "absent") return 0;
+  if (first === "absent") {
+    return second && second !== "absent"
+      ? -presenceEvidence(align(second))
+      : 0;
+  }
   if (second === "absent") {
     return first ? presenceEvidence(align(first)) : 0;
-  }
-  if (first === "absent") {
-    return second ? -presenceEvidence(align(second)) : 0;
   }
   if (!first || !second) return 0;
   return pairwiseEvidence(

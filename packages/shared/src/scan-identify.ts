@@ -1,9 +1,6 @@
 import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
 import type { CardSearchResult } from "./interfaces/api.interface";
-import type {
-  PlayingCard,
-  PlayingCardWithDistance,
-} from "./interfaces/card.interface";
+import type { PlayingCardWithDistance } from "./interfaces/card.interface";
 import type {
   LookupMatchedCard,
   OrientedSearchCandidate,
