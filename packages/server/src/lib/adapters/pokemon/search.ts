@@ -9,6 +9,7 @@ import {
   pokemonFinishProducts,
   pokemonFoilOnlyFoilType,
   pokemonTcgplayerProductId,
+  pokemonListsNonFoilPrinting,
 } from "./finishes";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT } from "../../constants/pokemon";
@@ -116,6 +117,8 @@ export const pokemonAdapter: CardSearchAdapter = {
   excludedFromMatchingSql: sql`(data->>'image') LIKE '%/tcgp/%'`,
   printedSetTotalSql: sql`CASE WHEN data->'set'->'cardCount'->>'official' ~ '^[0-9]+$' THEN (data->'set'->'cardCount'->>'official')::int END`,
   printingMarkGroups: pokemonPrintingMarkGroups,
+  sourceListsNonFoilPrinting: (card) =>
+    pokemonListsNonFoilPrinting(card.raw as PokemonCardDetail),
   tcgplayer: {
     categoryId: 3,
     foilTypeOfVariant: (variant) =>

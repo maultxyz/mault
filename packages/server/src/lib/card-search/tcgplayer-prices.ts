@@ -153,20 +153,19 @@ function stampPricesFor(
   return Object.keys(pricesByStamp).length > 0 ? pricesByStamp : undefined;
 }
 
-function foilOnlyFoilTypeOf(
-  pricing: TcgplayerPricing,
-  productIds: number[],
+export function foilOnlyFoilTypeOf(
+  pricing: Pick<TcgplayerPricing, "foilTypeOfVariant">,
+  catalogedSkuVariants: ReadonlySet<string>,
   subTypes: TcgplayerSubTypes,
-  rangeOf: (productId: number, subTypes: string[]) => PlayingCardPriceRange | undefined,
 ): string | undefined {
   const nonFoilSubTypes = subTypes.price.filter(
     (subType) => !subTypes.priceFoil.includes(subType),
   );
-  if (productIds.some((productId) => rangeOf(productId, nonFoilSubTypes))) {
+  if (nonFoilSubTypes.some((subType) => catalogedSkuVariants.has(subType))) {
     return undefined;
   }
   const foilSubType = subTypes.priceFoil.find((subType) =>
-    productIds.some((productId) => rangeOf(productId, [subType])),
+    catalogedSkuVariants.has(subType),
   );
   if (!foilSubType) return undefined;
   return pricing.foilTypeOfVariant?.(foilSubType) ?? foilSubType;
@@ -244,7 +243,12 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       ),
     );
   const conditionPricesByKey = new Map<string, CardConditionPrices>();
+  const skuVariantsByProductLanguage = new Map<string, Set<string>>();
   for (const row of skuRows) {
+    const productLanguageKey = `${row.productId}:${row.language}`;
+    const variants = skuVariantsByProductLanguage.get(productLanguageKey) ?? new Set<string>();
+    variants.add(row.variant);
+    skuVariantsByProductLanguage.set(productLanguageKey, variants);
     const entries = CARD_CONDITIONS.flatMap((condition) => {
       const price = row[TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS[condition]];
       return price == null ? [] : [[condition, price] as const];
@@ -300,7 +304,15 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
         conditionPricesFor(subTypes.priceFoil) ?? card.priceFoilByCondition,
       foilOnlyFoilType:
         card.foilOnlyFoilType ??
-        foilOnlyFoilTypeOf(pricing, cardProductIds, subTypes, rangeOf),
+        foilOnlyFoilTypeOf(
+          pricing,
+          new Set(
+            cardProductIds.flatMap((productId) => [
+              ...(skuVariantsByProductLanguage.get(`${productId}:${languageCode}`) ?? []),
+            ]),
+          ),
+          subTypes,
+        ),
     };
   });
 }
