@@ -762,7 +762,17 @@
     },
     "viewStats": "Voir les statistiques",
     "reviewBadge_one": "{{count}} à vérifier",
-    "reviewBadge_other": "{{count}} à vérifier"
+    "reviewBadge_other": "{{count}} à vérifier",
+    "scanTimeline": "Chronologie des scans",
+    "scanTimelineOptions": {
+      "off": "Désactivée",
+      "day": "Par jour",
+      "hour": "Par heure"
+    },
+    "scanTimelineSortNote": "La chronologie affiche toujours les scans les plus récents en premier.",
+    "scanTimelineBlockCount_one": "{{count}} carte",
+    "scanTimelineBlockCount_other": "{{count}} cartes",
+    "loadingMoreCards": "Chargement de cartes supplémentaires"
   },
   "cardDetail": {
     "pricePaid": "Prix payé ({{currency}})",

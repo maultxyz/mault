@@ -9,12 +9,19 @@ import type {
   CollectionCardsQuery,
   CollectionCardsSummary,
   Result,
+  ScanTimelineBuckets,
+  ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import {
   COLLECTION_CARDS_PAGE_SIZE,
+  SCAN_TIMELINE_PAGE_SIZE,
   UNMATCHED_PAGE_SIZE,
 } from "@magic-vault/shared";
-import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  keepPreviousData,
+  queryOptions,
+} from "@tanstack/react-query";
 import { loadUnmatchedCards } from "@/features/collections/api/collections";
 
 export function cardsQueryParams(
@@ -55,6 +62,21 @@ export const collectionCardsKeys = {
   ) => [...collectionCardsKeys.all(guid), "position", scanId, query] as const,
   binCounts: (guid: string | undefined, bins: BinWindow[]) =>
     [...collectionCardsKeys.all(guid), "bin-counts", bins] as const,
+  scanTimelineCards: (guid: string | undefined, query: CollectionCardsQuery) =>
+    [...collectionCardsKeys.all(guid), "scan-timeline-cards", query] as const,
+  scanTimelineBuckets: (
+    guid: string | undefined,
+    query: CollectionCardsQuery,
+    grouping: ScanTimelineGrouping,
+    timeZone: string,
+  ) =>
+    [
+      ...collectionCardsKeys.all(guid),
+      "scan-timeline-buckets",
+      query,
+      grouping,
+      timeZone,
+    ] as const,
 };
 
 export const unmatchedCardsKeys = {
@@ -129,6 +151,49 @@ export const collectionCardsPageQueryOptions = (
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
           `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(page), limit: String(pageSize) })}`,
+        ),
+      ),
+    enabled: !!guid,
+    placeholderData: keepPreviousData,
+  });
+
+export const scanTimelineCardsQueryOptions = (
+  guid: string | undefined,
+  query: CollectionCardsQuery,
+) =>
+  infiniteQueryOptions({
+    queryKey: collectionCardsKeys.scanTimelineCards(guid, query),
+    queryFn: ({ pageParam }) =>
+      unwrap(
+        apiGet<Result<CollectionCardsPage>>(
+          `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(pageParam), limit: String(SCAN_TIMELINE_PAGE_SIZE) })}`,
+        ),
+      ),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      (lastPage.page + 1) * lastPage.pageSize < lastPage.totalEntries
+        ? lastPage.page + 1
+        : undefined,
+    enabled: !!guid,
+  });
+
+export const scanTimelineBucketsQueryOptions = (
+  guid: string | undefined,
+  query: CollectionCardsQuery,
+  grouping: ScanTimelineGrouping,
+  timeZone: string,
+) =>
+  queryOptions({
+    queryKey: collectionCardsKeys.scanTimelineBuckets(
+      guid,
+      query,
+      grouping,
+      timeZone,
+    ),
+    queryFn: () =>
+      unwrap(
+        apiGet<Result<ScanTimelineBuckets>>(
+          `/api/collections/${guid}/cards/scan-timeline?${cardsQueryParams(query, { grouping, timeZone })}`,
         ),
       ),
     enabled: !!guid,

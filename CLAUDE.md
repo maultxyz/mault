@@ -104,7 +104,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 
 ### Prices
 
-- `scripts/sync-prices.ts` runs on an external schedule only. tcgcsv: at most one pull per 20 h, check `last-updated.txt` first, 1 request/s, `CARD_API_USER_AGENT` on every outgoing request, never from request paths.
+- `scripts/sync-prices.ts` runs on a schedule only: the hosted instance runs it daily from `price-sync.yml` on a GitHub runner against `DATABASE_URL` (with `DISCORD_WEBHOOK_URL` set it posts its summary to that webhook through `postDiscordWebhook`, else to the platform pricing channel through the bot), self-hosters from cron or Coolify. Pull guards are stored in the database, so they hold across runners. tcgcsv: at most one pull per 20 h, check `last-updated.txt` first, 1 request/s, `CARD_API_USER_AGENT` on every outgoing request, never from request paths.
 - Never read `card.price` for display or totals: use `cardPriceFor`/`formatPrice` (web `usePriceSource().priceOf`) or server `loadOrgPricing`. SQL totals take the org's `OrgPricing`. Currencies never mix.
 - TCGplayer prices below NM come from the condition's SKU market price (`priceByCondition`/`priceFoilByCondition`, per finish in `finishPrices`) when synced, else the NM price times the org's condition multiplier; `cardPriceFor` and `tcgplayerHeadlinePrices` own that choice. SQL totals still use multipliers only.
 - `collection_cards.card` keeps the prices it was saved with: that is the scan-time price (`pricesAtScan`, added on read), so never refresh prices inside it.
@@ -148,6 +148,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - The retired Business plan is the `legacyBusiness` tier (migration 0138, `STRIPE_PRICE_ID_LEGACY_BUSINESS*`): never sold, unknown Stripe prices fall back to it, and the API reports it as `plan: "business"` with `isLegacyPlan` so store app versions still show Business. While the admin "old pricing" mode is on (`platform_billing_settings`, default on), only Business is sold, at the legacy prices (falling back to `STRIPE_PRICE_ID_BUSINESS`), and `isLegacyPlan` stays false; read prices through `findPlanPriceId`, never the env vars.
 - Paid tiers (`PAID_PLAN_KEYS`) map to Stripe prices through `PLAN_PRICE_ID_ENV`; the webhook derives the plan from the price ID, and tier switches go through the portal (checkout refuses an org that already has a subscription).
 - In-process server state (locks, leases, sorter links, rate limits) is per process.
+- The collection scan timeline (web and mobile) loads cards newest-scan first through the normal `/cards` paging and block totals from `GET /collections/:guid/cards/scan-timeline`, which buckets `scanned_at` in the IANA zone the client sends; clients key cards with `shared` `scanTimelineBucketKey` (local `Date` getters), so they must send `deviceTimeZone()` or blocks and totals won't line up.
 - Single-card changes emit `collections_changed` through the throttled `emitCollectionCardsChanged`; web card queries refresh through the throttled `invalidateCollectionCards`.
 - Every connected sorter is a station (a tab) plus one idle standby. Background stations stay laid out (never `display: none`) so their scanners keep sorting.
 

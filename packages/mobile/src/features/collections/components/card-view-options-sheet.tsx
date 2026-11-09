@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { FilterChip } from "@/features/collections/components/filter-chip";
 import { useTheme } from "@/hooks/use-theme";
-import { CARD_VIEW_MODES } from "@/lib/constants/collections";
+import { CARD_VIEW_MODES, COLLECTION_SCAN_TIMELINE_OPTIONS } from "@/lib/constants/collections";
 import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { CardViewOptionsSheetProps } from "@/lib/interfaces/collections";
 
@@ -22,6 +22,8 @@ export function CardViewOptionsSheet({
   onViewModeChange,
   grouped,
   onGroupedChange,
+  scanTimeline,
+  onScanTimelineChange,
   sortOptions,
   onSortChange,
   filters,
@@ -33,6 +35,7 @@ export function CardViewOptionsSheet({
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
+  const scanTimelineIsOn = !!scanTimeline && scanTimeline !== "off";
   const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
 
   const section = (title: string, children: ReactNode) => (
@@ -84,7 +87,20 @@ export function CardViewOptionsSheet({
                 )),
               )
             : null}
-          {onGroupedChange
+          {onScanTimelineChange
+            ? section(
+                t("collection.scanTimeline"),
+                COLLECTION_SCAN_TIMELINE_OPTIONS.map((option) => (
+                  <FilterChip
+                    key={option}
+                    label={t(`collection.scanTimelineOptions.${option}`)}
+                    selected={(scanTimeline ?? "off") === option}
+                    onPress={() => onScanTimelineChange(option)}
+                  />
+                )),
+              )
+            : null}
+          {onGroupedChange && !scanTimelineIsOn
             ? section(t("collection.display"), [
                 <FilterChip
                   key="grouped"
@@ -94,16 +110,27 @@ export function CardViewOptionsSheet({
                 />,
               ])
             : null}
-          {section(
-            t("collection.sort.title"),
-            sortOptions.map((option) => (
-              <FilterChip
-                key={option.key}
-                label={option.label}
-                selected={option.selected}
-                onPress={() => onSortChange(option.sortKeyOnPress)}
-              />
-            )),
+          {scanTimelineIsOn ? (
+            <View style={{ gap: SPACING.sm }}>
+              <AppText size="sm" weight="semibold">
+                {t("collection.sort.title")}
+              </AppText>
+              <AppText size="sm" tone="secondary">
+                {t("collection.scanTimelineSortNote")}
+              </AppText>
+            </View>
+          ) : (
+            section(
+              t("collection.sort.title"),
+              sortOptions.map((option) => (
+                <FilterChip
+                  key={option.key}
+                  label={option.label}
+                  selected={option.selected}
+                  onPress={() => onSortChange(option.sortKeyOnPress)}
+                />
+              )),
+            )
           )}
           {breakdown && breakdown.colors.length > 0
             ? section(

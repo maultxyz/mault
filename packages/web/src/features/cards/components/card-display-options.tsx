@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Switch } from "@/components/ui/switch";
-import { CARD_GRID_DENSITIES } from "@/lib/constants/card-grid";
+import {
+  CARD_GRID_DENSITIES,
+  CARD_SCAN_TIMELINE_OPTIONS,
+} from "@/lib/constants/card-grid";
 import type { CardDisplayOptionsProps } from "@/lib/interfaces/cards";
 import { IconLayoutGrid, IconLayoutList } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +16,8 @@ export function CardDisplayOptions({
   onDensityChange,
   groupDuplicates,
   onGroupDuplicatesChange,
+  scanTimeline,
+  onScanTimelineChange,
 }: CardDisplayOptionsProps) {
   const { t } = useTranslation("cards");
 
@@ -40,6 +45,29 @@ export function CardDisplayOptions({
           </Button>
         </ButtonGroup>
       )}
+      {scanTimeline && onScanTimelineChange && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs text-foreground/70">
+            {t("cardToolbar.scanTimeline")}
+          </span>
+          <ButtonGroup
+            className="w-full"
+            aria-label={t("cardToolbar.scanTimeline")}
+          >
+            {CARD_SCAN_TIMELINE_OPTIONS.map((option) => (
+              <Button
+                key={option}
+                variant={scanTimeline === option ? "outline-selected" : "outline"}
+                aria-pressed={scanTimeline === option}
+                className="flex-1"
+                onClick={() => onScanTimelineChange(option)}
+              >
+                {t(`cardToolbar.scanTimelineOptions.${option}`)}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </div>
+      )}
       {viewMode !== "list" && density && onDensityChange && (
         <div className="flex flex-col gap-1.5">
           <span className="text-xs text-foreground/70">
@@ -63,7 +91,9 @@ export function CardDisplayOptions({
           </ButtonGroup>
         </div>
       )}
-      {groupDuplicates !== undefined && onGroupDuplicatesChange && (
+      {groupDuplicates !== undefined &&
+        onGroupDuplicatesChange &&
+        (scanTimeline ?? "off") === "off" && (
         <label className="flex items-center justify-between gap-3">
           <span className="text-sm">{t("cardToolbar.groupDuplicates")}</span>
           <Switch

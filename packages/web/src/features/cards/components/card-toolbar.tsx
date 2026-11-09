@@ -54,6 +54,8 @@ export function CardToolbar({
   onDensityChange,
   groupDuplicates,
   onGroupDuplicatesChange,
+  scanTimeline,
+  onScanTimelineChange,
   leading,
   onAddCard,
   onImportScans,
@@ -108,6 +110,8 @@ export function CardToolbar({
           onDensityChange={onDensityChange}
           groupDuplicates={groupDuplicates}
           onGroupDuplicatesChange={onGroupDuplicatesChange}
+          scanTimeline={scanTimeline}
+          onScanTimelineChange={onScanTimelineChange}
         />
         {hasMoreActions && (
           <DropdownMenu>

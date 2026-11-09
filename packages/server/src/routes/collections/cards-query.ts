@@ -10,6 +10,8 @@ import {
   type GroupedScannedCard,
   type OrgPricing,
   type ScannedCard,
+  type ScanTimelineBucket,
+  type ScanTimelineGrouping,
   SORTABLE_FIELD_TYPES,
 } from "@magic-vault/shared";
 import { and, eq, sql, type SQL } from "drizzle-orm";
@@ -700,6 +702,30 @@ export async function loadCardsCount(
     WHERE cc.collection_id = ${collection.id} AND (${filter})
   `);
   return (result.rows[0] as unknown as { total_count: number }).total_count;
+}
+
+export async function loadScanTimelineBuckets(
+  tx: Transaction,
+  collection: { id: number; gameKey: string | null; lang: string },
+  filter: SQL,
+  usesCatalog: boolean,
+  grouping: ScanTimelineGrouping,
+  timeZone: string,
+): Promise<ScanTimelineBucket[]> {
+  const bucketKeyFormat = grouping === "day" ? "YYYY-MM-DD" : 'YYYY-MM-DD"T"HH24';
+  const result = await tx.execute(sql`
+    SELECT
+      to_char((cc.scanned_at AT TIME ZONE 'UTC') AT TIME ZONE ${timeZone}, ${bucketKeyFormat}) AS bucket_key,
+      count(*)::int AS card_count
+    FROM collection_cards cc
+    ${usesCatalog ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+    WHERE cc.collection_id = ${collection.id} AND (${filter})
+    GROUP BY 1
+    ORDER BY 1 DESC
+  `);
+  return (
+    result.rows as unknown as { bucket_key: string; card_count: number }[]
+  ).map((row) => ({ bucketKey: row.bucket_key, cardCount: row.card_count }));
 }
 
 export async function loadCardStats(
