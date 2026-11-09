@@ -21,18 +21,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ButtonGroup } from "@/components/ui/button-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useCardAcquisitionCost } from "@/features/business/api/use-business";
@@ -1075,111 +1063,6 @@ export function CardDetailPanel({
                 <IconDots />
               </Button>
             )}
-            {!inCardDrawer && currentCard && !editing && scanId && (
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="-mt-1 -mr-2 shrink-0"
-                      aria-label={t("cardDetailPanel.actions")}
-                    />
-                  }
-                >
-                  <IconDots />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <IconSparkles />
-                      {t("foil")}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuRadioGroup
-                        value={currentFoilType ?? "none"}
-                        onValueChange={(value: string) =>
-                          scanDraft.setFoilType(value === "none" ? null : value)
-                        }
-                      >
-                        <DropdownMenuRadioItem value="none">
-                          {t("foilNone")}
-                        </DropdownMenuRadioItem>
-                        {cardFoilOptions.map((type) => (
-                          <DropdownMenuRadioItem key={type} value={type}>
-                            {type}
-                          </DropdownMenuRadioItem>
-                        ))}
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <IconRosette />
-                      {t("condition.label")}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuRadioGroup
-                        value={currentCondition}
-                        onValueChange={(value: string) => {
-                          if (isCardCondition(value)) {
-                            scanDraft.setCondition(value);
-                          }
-                        }}
-                      >
-                        {CARD_CONDITIONS.map((option) => (
-                          <DropdownMenuRadioItem key={option} value={option}>
-                            {t(`condition.names.${option}`)}
-                          </DropdownMenuRadioItem>
-                        ))}
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <IconLanguage />
-                      {t("language")}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent className="max-h-80 overflow-y-auto">
-                      <DropdownMenuRadioGroup
-                        value={currentLanguage}
-                        onValueChange={(value: string) =>
-                          scanDraft.setLanguage(value)
-                        }
-                      >
-                        {languageOptions.map((option) => (
-                          <DropdownMenuRadioItem key={option} value={option}>
-                            {LANGUAGE_LABELS[option] ?? option}
-                          </DropdownMenuRadioItem>
-                        ))}
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                  {(moveActions.canMoveToLocation ||
-                    moveActions.canMoveToCollection) && (
-                    <DropdownMenuSeparator />
-                  )}
-                  {moveActions.canMoveToLocation && (
-                    <DropdownMenuItem
-                      disabled={moveActions.isMoving}
-                      onClick={() => setMoveTarget("location")}
-                    >
-                      <IconBox />
-                      {t("cardDetailPanel.moveToLocation")}
-                    </DropdownMenuItem>
-                  )}
-                  {moveActions.canMoveToCollection && (
-                    <DropdownMenuItem
-                      disabled={moveActions.isMoving}
-                      onClick={() => setMoveTarget("collection")}
-                    >
-                      <IconFolders />
-                      {t("cardDetailPanel.moveToCollection")}
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
           </div>
           {currentCard && !editing ? (
             <>
@@ -1240,10 +1123,7 @@ export function CardDetailPanel({
                       </div>
                     </DetailSection>
 
-                    {!reviewMode &&
-                      scanId &&
-                      !extraActions &&
-                      scanAttributeControls}
+                    {!reviewMode && scanId && scanAttributeControls}
 
                     <DetailSection title={t("cardDetailPanel.prices")}>
                       <div className="flex flex-col gap-4">
@@ -1287,6 +1167,35 @@ export function CardDetailPanel({
                         )}
                       </div>
                     </DetailSection>
+
+                    {!inCardDrawer &&
+                      !editing &&
+                      scanId &&
+                      (moveActions.canMoveToLocation ||
+                        moveActions.canMoveToCollection) && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {moveActions.canMoveToLocation && (
+                            <Button
+                              variant="outline"
+                              disabled={moveActions.isMoving}
+                              onClick={() => setMoveTarget("location")}
+                            >
+                              <IconBox />
+                              {t("cardDetailPanel.moveToLocation")}
+                            </Button>
+                          )}
+                          {moveActions.canMoveToCollection && (
+                            <Button
+                              variant="outline"
+                              disabled={moveActions.isMoving}
+                              onClick={() => setMoveTarget("collection")}
+                            >
+                              <IconFolders />
+                              {t("cardDetailPanel.moveToCollection")}
+                            </Button>
+                          )}
+                        </div>
+                      )}
 
                     {scanId && (
                       <CardStorageLocationSection
