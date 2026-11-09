@@ -260,6 +260,10 @@
           "servoExtensionCables": {
             "part": "Servo extension cables",
             "notes": "Only needed for more than 3 sorting modules, where the stock servo leads won't reach the servo driver board"
+          },
+          "feederBearings": {
+            "part": "Ball bearings",
+            "notes": "For the bearing version of the feeder base, so the roller spins more smoothly"
           }
         }
       }

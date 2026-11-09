@@ -387,6 +387,14 @@ export const GROUPS: BomGroup[] = [
         notes: (t) => t("bom.groups.optional.items.servoExtensionCables.notes"),
         buyUrl: "https://amzn.to/4isXpgp",
       },
+      {
+        key: "feeder-bearings",
+        qty: () => "2",
+        name: "Feeder roller ball bearings",
+        part: (t) => t("bom.groups.optional.items.feederBearings.part"),
+        notes: (t) => t("bom.groups.optional.items.feederBearings.notes"),
+        buyUrl: "https://link.amazon/B08efhD2u",
+      },
     ],
   },
 ];

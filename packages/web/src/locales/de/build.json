@@ -260,6 +260,10 @@
           "servoExtensionCables": {
             "part": "Servo-Verlängerungskabel",
             "notes": "Nur bei mehr als 3 Sortiermodulen nötig, wenn die Servokabel ab Werk nicht bis zur Servotreiberplatine reichen"
+          },
+          "feederBearings": {
+            "part": "Kugellager",
+            "notes": "Für die Variante des Einzugssockels mit Lager, damit sich die Rolle leichter dreht"
           }
         }
       }

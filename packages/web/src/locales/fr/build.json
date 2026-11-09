@@ -260,6 +260,10 @@
           "servoExtensionCables": {
             "part": "Rallonges de servo",
             "notes": "Nécessaires uniquement au-delà de 3 modules de tri, quand les câbles d'origine des servos n'atteignent pas la carte pilote des servos"
+          },
+          "feederBearings": {
+            "part": "Roulements à billes",
+            "notes": "Pour la version de la base du chargeur avec roulements, afin que le rouleau tourne plus librement"
           }
         }
       }
