@@ -4,10 +4,7 @@ import {
   SYNC_VECTORIZE_CONCURRENCY_MAX,
   type SyncState,
 } from "@magic-vault/shared";
-import type {
-  DeletedItemTypeFilter,
-  UnmatchedPhotoFilter,
-} from "@/lib/interfaces/admin";
+import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
 import type { PlatformDiscordLinkedRoleFormValues } from "@/schemas/platform-discord-linked-role.schema";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
@@ -19,7 +16,6 @@ import {
   IconMusic,
   IconRestore,
   IconRotate360,
-  IconSparkles,
   IconUserScan,
 } from "@tabler/icons-react";
 
@@ -67,14 +63,6 @@ export const DELETED_ITEM_TYPE_FILTERS: DeletedItemTypeFilter[] = [
   ...DELETED_ITEM_TYPES,
 ];
 
-export const UNMATCHED_PHOTO_FILTERS: UnmatchedPhotoFilter[] = [
-  "all",
-  "good",
-  "bad",
-];
-
-export const BAD_PHOTO_MARKS_STORAGE_KEY = "admin-unmatched-bad-photos";
-
 export const ADMIN_PATH = "/app/admin";
 export const API_USAGE_QUERY_KEY = ["admin", "api-usage"] as const;
 
@@ -116,12 +104,6 @@ export const ADMIN_SECTIONS = [
     adminOnly: false,
   },
   {
-    path: "foil-labels",
-    icon: IconSparkles,
-    labelKey: "sections.foilLabels",
-    adminOnly: true,
-  },
-  {
     path: "hardware",
     icon: IconRotate360,
     labelKey: "sections.hardware",
@@ -154,4 +136,3 @@ export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormVa
 export const BROWSER_EMBED_TIMEOUT_MS = 60_000;
 export const BROWSER_EMBED_WORKER_MAX = 2;
 
-export const FOIL_LABELS_PATH = "/app/admin/foil-labels";

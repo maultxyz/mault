@@ -1,7 +1,4 @@
 import type {
-  AdminUnmatchedOcrResult,
-  AdminUnmatchedRetryResult,
-  AdminUnmatchedScan,
   DeletedItemType,
   PlatformDiscordChannelKey,
   PlatformDiscordGuildSummary,
@@ -14,8 +11,6 @@ import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import type { UseFormReturn } from "react-hook-form";
 
 export type DeletedItemTypeFilter = DeletedItemType | "all";
-
-export type UnmatchedPhotoFilter = "all" | "bad" | "good";
 
 export interface AdminCard {
   id: number;
@@ -123,41 +118,6 @@ export interface DiscordGuildSelectProps {
   onChange: (guildId: string | null) => void;
 }
 
-export interface UnmatchedRetryResultProps {
-  result: AdminUnmatchedRetryResult;
-}
-
-export interface UnmatchedScanDetailDialogProps {
-  scan: AdminUnmatchedScan | null;
-  result: AdminUnmatchedRetryResult | undefined;
-  isRetrying: boolean;
-  onRetry: (scanId: string) => void;
-  isBadPhoto: boolean;
-  onToggleBadPhoto: (scanId: string) => void;
-  ocrResult: AdminUnmatchedOcrResult | undefined;
-  isRunningOcr: boolean;
-  onRunOcr: (scanId: string) => void;
-  onPrevious: (() => void) | null;
-  onNext: (() => void) | null;
-  onClose: () => void;
-}
-
-export interface BadPhotoMarks {
-  isBad: (scanId: string) => boolean;
-  toggle: (scanId: string) => void;
-}
-
-export interface UnmatchedOcrPanelProps {
-  result: AdminUnmatchedOcrResult | undefined;
-  isRunning: boolean;
-  canRun: boolean;
-  onRun: () => void;
-}
-
-export interface UnmatchedOcrOverlayProps {
-  result: AdminUnmatchedOcrResult | undefined;
-}
-
 export interface LoadedSyncCanvas {
   cardId: string;
   canvas: HTMLCanvasElement;
@@ -227,4 +187,3 @@ export interface DeletedItemsRequest {
   type: DeletedItemType | null;
 }
 
-export type FoilLabelDecision = "foil" | "notFoil";
