@@ -8,7 +8,6 @@ import {
   PI_CAMERA_WIDTH,
 } from "@/lib/constants/scanner";
 import type { CameraRange, PiCameraHealth } from "@/lib/interfaces/scanner";
-import { usesHostHardware } from "@/lib/host";
 import { isPiHost, loadPiHost } from "@/lib/pi-host";
 import { applyFocus, currentFocusDistance, manualFocusRange } from "./camera-focus";
 
@@ -53,7 +52,9 @@ export function focusRangeForTrack(
 }
 
 export function browserMustUsePiCamera(): boolean {
-  return isPiHost() && usesHostHardware();
+  // Every Pi-hosted session uses the helper, including localhost Chromium.
+  // A helper outage must not fall back to browser ownership of the USB camera.
+  return isPiHost();
 }
 
 export async function readPiCameraHealth(): Promise<PiCameraHealth> {
@@ -304,7 +305,7 @@ export async function applyTrackFocus(
   await applyFocus(track, value);
 }
 
-// The Pi preview is a canvas track; only the helper knows the lens position.
+// The Pi preview is a canvas track; the helper must apply manual focus.
 export async function lockTrackFocus(
   track: MediaStreamTrack | undefined,
   fallback: number,

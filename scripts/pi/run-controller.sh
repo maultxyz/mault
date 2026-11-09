@@ -10,6 +10,7 @@ case "${sorter_mode,,}" in
   1|true|on) ;;
   *) exit 0 ;;
 esac
+sorter_board="${PI_SORTER_BOARD:-raspberry-pi}"
 umask 077
 mkdir -p "$ROOT/.pi-controller"
 cd "$ROOT/.pi-controller"
@@ -17,4 +18,5 @@ export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
 exec /usr/bin/python3 -m scripts.pi.controller.server \
   --socket "${PI_CONTROLLER_SOCKET:-$ROOT/.pi-controller/controller.sock}" \
   --config "${PI_CONTROLLER_CONFIG:-$ROOT/.pi-controller/calibration.json}" \
+  --board "$sorter_board" \
   --enable-motion

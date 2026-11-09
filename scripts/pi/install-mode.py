@@ -4,6 +4,14 @@ import re
 import shlex
 from pathlib import Path
 
+try:
+    from scripts.pi.controller.hardware import BOARDS
+except ModuleNotFoundError as error:
+    if error.name != "scripts":
+        raise
+    # Direct execution from outside the checkout puts scripts/pi on sys.path.
+    from controller.hardware import BOARDS
+
 
 def read_settings(path):
     settings = {}
@@ -17,9 +25,10 @@ def read_settings(path):
 def configure(path, choose=input):
     settings = read_settings(path)
     selection = settings.get("PI_SORTER", os.environ.get("PI_SORTER", "")).strip().lower()
-    if not selection:
+    prompted_for_mode = not selection
+    if prompted_for_mode:
         print("How will this sorter be controlled?")
-        print("  1) This Raspberry Pi directly, using GPIO and I2C")
+        print("  1) This board directly, using GPIO and I2C")
         print("  2) A USB-connected Arduino or ESP32")
         while True:
             try:
@@ -34,6 +43,23 @@ def configure(path, choose=input):
     builtin = selection in ("1", "true", "on")
     updates = dict(PI_HOST="1", PI_SORTER="1" if builtin else "0")
     if builtin:
+        board = settings.get("PI_SORTER_BOARD") or os.environ.get("PI_SORTER_BOARD", "")
+        if not board and prompted_for_mode:
+            print("Which board is wired directly to the sorter?")
+            print("  1) Raspberry Pi")
+            print("  2) Orange Pi Zero 4")
+            while True:
+                try:
+                    choice = choose("Select 1 or 2 [1]: ").strip()
+                except EOFError as error:
+                    raise ValueError("Set PI_SORTER_BOARD=raspberry-pi or orange-pi-zero4.") from error
+                if choice in ("", "1", "2"):
+                    board = "orange-pi-zero4" if choice == "2" else "raspberry-pi"
+                    break
+        board = board or "raspberry-pi"
+        if board not in BOARDS:
+            raise ValueError("PI_SORTER_BOARD must be raspberry-pi or orange-pi-zero4")
+        updates["PI_SORTER_BOARD"] = board
         updates["PI_CONTROLLER_SOCKET"] = settings.get("PI_CONTROLLER_SOCKET") or str(path.parent / ".pi-controller/controller.sock")
         updates["PI_CONTROLLER_CONFIG"] = settings.get("PI_CONTROLLER_CONFIG") or str(path.parent / ".pi-controller/calibration.json")
     for key in ("PI_CONTROLLER_SOCKET", "PI_CONTROLLER_CONFIG"):
@@ -63,10 +89,14 @@ def configure(path, choose=input):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Select Pi sorter hardware on first install")
     parser.add_argument("--env", type=Path, required=True)
-    parser.add_argument("--print-mode", action="store_true")
+    output = parser.add_mutually_exclusive_group()
+    output.add_argument("--print-mode", action="store_true")
+    output.add_argument("--print-board", action="store_true")
     arguments = parser.parse_args()
     if arguments.print_mode:
         value = read_settings(arguments.env).get("PI_SORTER", "0").lower()
         print("gpio" if value in ("1", "true", "on") else "usb")
+    elif arguments.print_board:
+        print(read_settings(arguments.env).get("PI_SORTER_BOARD") or "raspberry-pi")
     else:
         configure(arguments.env.resolve())

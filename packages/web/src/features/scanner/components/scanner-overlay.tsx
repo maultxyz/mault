@@ -150,6 +150,13 @@ export function ScannerOverlay({
     }
 
     if (!isCameraActive && !sessionLive) {
+      if (!onConnectCamera) {
+        return (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 p-4 text-center text-sm">
+            {t("camera.piUnavailable")}
+          </div>
+        );
+      }
       return (
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
           <div className="flex flex-col items-center gap-3 text-center max-w-56">

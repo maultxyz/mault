@@ -3,7 +3,7 @@ import asyncio
 import json
 
 from .core import Controller
-from .hardware import Hardware
+from .hardware import BOARDS, Hardware
 
 
 async def run(arguments):
@@ -16,7 +16,7 @@ async def run(arguments):
     if not arguments.run:
         print("Preview only. No hardware accessed. Use --run after clearing all cards and hands.")
         return
-    hardware = Hardware()
+    hardware = Hardware(board=arguments.board)
     try:
         controller = Controller(hardware, arguments.config, "bench-test")
 
@@ -34,6 +34,7 @@ async def run(arguments):
 def main():
     parser = argparse.ArgumentParser(description="Calibrated, attended sorter self-test")
     parser.add_argument("--config", required=True)
+    parser.add_argument("--board", choices=BOARDS, default="raspberry-pi")
     parser.add_argument("--run", action="store_true", help="move all modules and briefly run the feeder")
     arguments = parser.parse_args()
     asyncio.run(run(arguments))

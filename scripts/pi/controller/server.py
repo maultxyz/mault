@@ -9,7 +9,7 @@ import signal
 from pathlib import Path
 
 from .core import Controller
-from .hardware import Hardware
+from .hardware import BOARDS, Hardware
 
 
 class ControllerServer:
@@ -93,7 +93,7 @@ async def serve(arguments):
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     lock = path.with_suffix(".lock").open("w")
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    hardware = Hardware(chip=arguments.gpio_chip)
+    hardware = Hardware(chip=arguments.gpio_chip, board=arguments.board)
     try:
         machine_id = Path("/etc/machine-id").read_text().strip()
         device_id = hashlib.sha256((machine_id + ":mault-pi-controller").encode()).hexdigest()[:12]
@@ -120,9 +120,10 @@ async def serve(arguments):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Pi 5 sorter GPIO/I2C controller")
+    parser = argparse.ArgumentParser(description="Native sorter GPIO/I2C controller")
     parser.add_argument("--socket", required=True)
     parser.add_argument("--config", required=True)
+    parser.add_argument("--board", choices=BOARDS, default="raspberry-pi")
     parser.add_argument("--gpio-chip", type=int)
     parser.add_argument("--enable-motion", action="store_true",
                         help="acknowledge that connected clients can move the sorter")

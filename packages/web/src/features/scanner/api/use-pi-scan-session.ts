@@ -22,6 +22,7 @@ import {
 import { toast } from "@/lib/toast";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
+import { PI_CAMERA_HEALTH_RETRY_MS } from "@/lib/constants/scanner";
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -32,21 +33,28 @@ export function usePiScanSession() {
   const { activeCollection } = useCollections();
   const { autoFeed, forceFoilType, forceSetCodes } = useScannedCards();
   const { disconnect } = useSerial();
-  const { piSorter } = usePiHostState();
+  const { piHost, piSorter } = usePiHostState();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
   const [cameraReady, setCameraReady] = useState(false);
   const [starting, setStarting] = useState(false);
   const collectionGuid = activeCollection?.guid;
 
   useEffect(() => {
+    if (!piHost) return;
     let cancelled = false;
-    void readPiCameraHealth().then((health) => {
-      if (!cancelled) setCameraReady(health.status === "ready");
-    });
+    let retry: ReturnType<typeof setTimeout> | undefined;
+    async function checkCamera() {
+      const health = await readPiCameraHealth();
+      if (cancelled) return;
+      if (health.status === "ready") setCameraReady(true);
+      else retry = setTimeout(() => void checkCamera(), PI_CAMERA_HEALTH_RETRY_MS);
+    }
+    void checkCamera();
     return () => {
       cancelled = true;
+      clearTimeout(retry);
     };
-  }, []);
+  }, [piHost]);
 
   const start = useCallback(async () => {
     if (!collectionGuid) {

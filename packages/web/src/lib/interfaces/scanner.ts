@@ -352,7 +352,7 @@ export interface ScannerOverlayProps {
   hasPhonePhoto: boolean;
   dailyLimitReached: boolean;
   onRetryError: () => void;
-  onConnectCamera: () => void;
+  onConnectCamera?: () => void;
   onOpenPhonePairing: () => void;
   onConnectScanner: () => void;
   onConnectScannerBluetooth: () => void;
@@ -961,7 +961,7 @@ export interface ScannerStatusBarProps {
   selectedCameraId: string | null;
   phonePairingStatus: PhoneCameraCaptureStatus;
   scanningBlocked: boolean;
-  onCameraConnect: () => void;
+  onCameraConnect?: () => void;
   onCameraDisconnect: () => void;
   onCameraSelect: (deviceId: string) => void;
   onOpenPhonePairing: () => void;

@@ -151,7 +151,7 @@ export function CardScanner({
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const piScan = usePiScanSession();
-  const setPiAutoFeed = piScan.setAutoFeed;
+  const { setAutoFeed: setPiAutoFeed, startOrResume: startPiScan } = piScan;
   const changeAutoFeed = useCallback(
     (enabled: boolean) => {
       setAutoFeed(enabled);
@@ -179,7 +179,7 @@ export function CardScanner({
   const {
     status,
     errorMessage,
-    isCameraActive,
+    isCameraActive: isBrowserCameraActive,
     debugImageUrl,
     videoRef,
     displayCanvasRef,
@@ -234,6 +234,7 @@ export function CardScanner({
     autoCapture: handScanActive,
     skipDuplicateCheck: isRemoveModeActive,
   });
+  const isCameraActive = piRemote ? piScan.cameraReady : isBrowserCameraActive;
   const piScanLive =
     piScan.state.phase === "running" || piScan.state.phase === "paused";
   const displayStatus: ScannerStatus = piScanLive
@@ -295,13 +296,14 @@ export function CardScanner({
   const heldCardArrivalRef = useRef(false);
 
   const handleCardArrived = useCallback(() => {
+    if (piRemote) return;
     if (document.hidden || isFeedHalted()) {
       heldCardArrivalRef.current = true;
       return;
     }
     if (status === "paused") handleResume();
     captureCard();
-  }, [status, handleResume, captureCard, isFeedHalted]);
+  }, [piRemote, status, handleResume, captureCard, isFeedHalted]);
 
   const handleResumeClick = useCallback(() => {
     handleResume();
@@ -351,6 +353,7 @@ export function CardScanner({
   }, [isReady, resetToNeutral]);
 
   const handleFeed = useCallback(async () => {
+    if (piRemote) return;
     if (!isReady) return;
     setIsFeeding(true);
     try {
@@ -448,6 +451,7 @@ export function CardScanner({
   }, [
     toast,
     isReady,
+    piRemote,
     ignoreIrSensors,
     feederConfig.feedRetryCount,
     prepareDevice,
@@ -499,6 +503,7 @@ export function CardScanner({
   }, [isReady, ignoreIrSensors, sendRequest]);
 
   const handleForceScanClick = useCallback(async () => {
+    if (piRemote) return;
     if (await isModuleOneEmpty()) {
       toast.error(t("cardScanner.noCardDetected.title"), {
         description: t("cardScanner.noCardDetected.description"),
@@ -506,7 +511,7 @@ export function CardScanner({
       return;
     }
     handleForceScan();
-  }, [toast, isModuleOneEmpty, handleForceScan, t]);
+  }, [piRemote, toast, isModuleOneEmpty, handleForceScan, t]);
 
   useEffect(() => {
     return registerCardArrivedHook(handleCardArrived);
@@ -517,7 +522,11 @@ export function CardScanner({
   }, [registerPauseHook, handlePause]);
 
   const handleResumeScanning = useCallback(async () => {
-    if (!(await prepareDevice())) return;
+    if (piScan.cameraReady) {
+      startPiScan();
+      return;
+    }
+    if (piRemote || !(await prepareDevice())) return;
     clearFeedHalt();
     if (heldCardArrivalRef.current && (await isModuleOneEmpty())) {
       heldCardArrivalRef.current = false;
@@ -529,6 +538,9 @@ export function CardScanner({
     handleResume();
     if (autoFeed) void handleFeed();
   }, [
+    piRemote,
+    piScan.cameraReady,
+    startPiScan,
     prepareDevice,
     clearFeedHalt,
     isModuleOneEmpty,
@@ -540,7 +552,7 @@ export function CardScanner({
 
   useDesktopScannerControls({
     status,
-    enabled: isActive && !piScan.cameraReady,
+    enabled: isActive && !piRemote && !piScan.cameraReady,
     isConnected,
     isReady,
     autoFeed,
@@ -599,11 +611,7 @@ export function CardScanner({
       isClearingDevice={isClearingDevice}
       onForceScan={handleForceScanClick}
       onPause={piScan.cameraReady ? () => void piScan.pause() : pause}
-      onResume={
-        piScan.cameraReady
-          ? () => void piScan.startOrResume()
-          : handleResumeScanning
-      }
+      onResume={handleResumeScanning}
       onFeed={
         piScan.cameraReady
           ? () => {
@@ -770,7 +778,7 @@ export function CardScanner({
     hasPhonePhoto,
     dailyLimitReached: isAtScanLimit,
     onRetryError: handleRetryError,
-    onConnectCamera: handleRetryError,
+    onConnectCamera: piRemote ? undefined : handleRetryError,
     onOpenPhonePairing: handleOpenPhonePairing,
     onConnectScanner: connect,
     onConnectScannerBluetooth: connectBluetooth,
@@ -869,7 +877,7 @@ export function CardScanner({
             selectedCameraId={selectedCameraId}
             phonePairingStatus={phonePairingStatus}
             scanningBlocked={scanningBlocked}
-            onCameraConnect={handleRetryError}
+            onCameraConnect={piRemote ? undefined : handleRetryError}
             onCameraDisconnect={handleStopCamera}
             onCameraSelect={selectCamera}
             onOpenPhonePairing={handleOpenPhonePairing}

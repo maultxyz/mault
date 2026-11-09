@@ -117,64 +117,68 @@ export function ScannerStatusBar({
       ? "connected"
       : "connecting";
 
+  const cameraPill = (
+    <ConnectionStatusPill
+      label={t("scannerMenu.camera")}
+      stateLabel={t(`scannerMenu.connectionStates.${cameraState}`)}
+      state={cameraState}
+      icon={<IconCameraSpark />}
+      data-tour="camera-status"
+    />
+  );
+
   return (
     <div className="pointer-events-none absolute inset-x-2 top-2 z-40 flex flex-wrap gap-1.5 *:pointer-events-auto">
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <ConnectionStatusPill
-              label={t("scannerMenu.camera")}
-              stateLabel={t(`scannerMenu.connectionStates.${cameraState}`)}
-              state={cameraState}
-              icon={<IconCameraSpark />}
-              data-tour="camera-status"
-            />
-          }
-        />
-        <DropdownMenuContent align="start" className="w-56">
-          {isCameraActive ? (
-            <>
-              {cameras.length > 1 && (
-                <>
-                  {cameras.map((cam, i) => (
-                    <DropdownMenuCheckboxItem
-                      key={cam.deviceId}
-                      checked={cam.deviceId === selectedCameraId}
-                      onCheckedChange={() => onCameraSelect(cam.deviceId)}
-                    >
-                      {cam.label ||
-                        t("scannerMenu.cameraFallbackLabel", {
-                          index: i + 1,
-                        })}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                </>
-              )}
+      {onCameraConnect ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger render={cameraPill} />
+          <DropdownMenuContent align="start" className="w-56">
+            {isCameraActive ? (
+              <>
+                {cameras.length > 1 && (
+                  <>
+                    {cameras.map((cam, i) => (
+                      <DropdownMenuCheckboxItem
+                        key={cam.deviceId}
+                        checked={cam.deviceId === selectedCameraId}
+                        onCheckedChange={() => onCameraSelect(cam.deviceId)}
+                      >
+                        {cam.label ||
+                          t("scannerMenu.cameraFallbackLabel", {
+                            index: i + 1,
+                          })}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={onCameraDisconnect}
+                >
+                  {t("disconnect")}
+                </DropdownMenuItem>
+              </>
+            ) : (
               <DropdownMenuItem
-                variant="destructive"
-                onClick={onCameraDisconnect}
+                disabled={scanningBlocked}
+                onClick={onCameraConnect}
               >
-                {t("disconnect")}
+                {t("connect")}
               </DropdownMenuItem>
-            </>
-          ) : (
-            <DropdownMenuItem
-              disabled={scanningBlocked}
-              onClick={onCameraConnect}
-            >
-              {t("connect")}
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onOpenPhonePairing}>
+              <IconDeviceMobile />
+              {phonePairingStatus === "connected"
+                ? t("scannerMenu.phoneCameraConnected")
+                : t("usePhoneAsCamera")}
             </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onOpenPhonePairing}>
-            <IconDeviceMobile />
-            {phonePairingStatus === "connected"
-              ? t("scannerMenu.phoneCameraConnected")
-              : t("usePhoneAsCamera")}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        cameraPill
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger
           render={

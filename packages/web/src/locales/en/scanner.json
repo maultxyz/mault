@@ -2,7 +2,7 @@
   "camera": {
     "permissionDenied": "Camera permission denied. Please allow camera access and try again.",
     "allInUse": "Every connected camera is already used by another sorter. Plug in another camera for this sorter.",
-    "piUnavailable": "The webcam on the Raspberry Pi is not available."
+    "piUnavailable": "The sorter camera is unavailable."
   },
   "scanEngine": {
     "searchFailed": "Failed to search card",

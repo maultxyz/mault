@@ -259,7 +259,9 @@ class Camera:
             match = re.search(r"focus_absolute:\s*(-?\d+)", proc.stdout)
             if proc.returncode != 0 or match is None:
                 raise RuntimeError("could not read webcam focus position")
-            return int(match.group(1))
+            position = int(match.group(1))
+            self._write_manual_position(position, position)
+            return position
         if mode != "manual":
             raise ValueError("mode must be auto, manual, or lock")
         if lens_position is None:
@@ -271,7 +273,19 @@ class Camera:
         value = int(round(lens_position))
         # The driver rejects focus_absolute while autofocus is still active,
         # even when both controls are supplied in one v4l2-ctl invocation.
+        previous = self.focus_settings()["lensPosition"]
         self._set_control("focus_automatic_continuous=0")
+        self._write_manual_position(value, previous)
+
+    def _write_manual_position(self, value: int, previous: int) -> None:
+        # Some UVC cameras keep the last manual value cached during autofocus.
+        # Repeating it can be ignored even though autofocus moved the lens.
+        # A one-step write forces the requested manual position to reach hardware.
+        if value == previous and self.focus:
+            step = self.focus["step"]
+            adjacent = value + step if value + step <= self.focus["max"] else value - step
+            if self.focus["min"] <= adjacent <= self.focus["max"] and adjacent != value:
+                self._set_control(f"focus_absolute={adjacent}")
         self._set_control(f"focus_absolute={value}")
 
     def _set_control(self, control: str) -> None:

@@ -1,6 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 
+INSTALL_HEADLESS=1
+if [[ "$#" -gt 1 ]]; then
+  echo "Usage: $0 [--desktop | --headless]" >&2
+  exit 1
+fi
+case "${1:-}" in
+  --headless) INSTALL_HEADLESS=1 ;;
+  --desktop) INSTALL_HEADLESS=0 ;;
+  --help|-h)
+    echo "Usage: $0 [--desktop | --headless]"
+    echo "Headless by default. Use --desktop to create optional shortcuts in a graphical session."
+    exit 0 ;;
+  "") ;;
+  *) echo "Unknown argument: $1" >&2; exit 1 ;;
+esac
+
 # Dockerfiles own the application toolchain pins. Use Python so this also
 # works on a fresh Pi before Node or pnpm has been installed.
 pi_docker_toolchain() {
@@ -115,13 +131,36 @@ fi
 
 python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env"
 sorter_mode="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-mode)"
-if [[ "$sorter_mode" == gpio ]]; then
+sorter_board="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-board)"
+if [[ "$sorter_mode" == gpio && "$sorter_board" == raspberry-pi ]]; then
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-lgpio python3-smbus raspi-config
   sudo raspi-config nonint do_i2c 0
   if [[ ! -e /dev/i2c-1 ]]; then
     echo "[install] I2C enabled. Reboot the Pi, then rerun this installer." >&2
     exit 1
   fi
+fi
+if [[ "$sorter_mode" == gpio && "$sorter_board" == orange-pi-zero4 ]]; then
+  python3 -c 'from scripts.pi.controller.hardware import require_zero4; require_zero4()'
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-libgpiod python3-smbus
+  if ! python3 -c 'import gpiod; from gpiod.line import Bias, Direction, Value; assert callable(gpiod.request_lines)'; then
+    echo "[install] Orange Pi Zero 4 requires libgpiod v2 Python bindings from the system packages." >&2
+    exit 1
+  fi
+  sudo groupadd -f gpio
+  sudo groupadd -f i2c
+  sudo tee /etc/udev/rules.d/70-mault-zero4.rules >/dev/null <<'RULES'
+SUBSYSTEM=="gpio", KERNEL=="gpiochip*", KERNELS=="2000000.pinctrl", GROUP="gpio", MODE="0660"
+SUBSYSTEM=="i2c-dev", KERNEL=="i2c-*", KERNELS=="2510000.twi", GROUP="i2c", MODE="0660"
+RULES
+  sudo udevadm control --reload-rules
+  sudo udevadm trigger --action=change --subsystem-match=gpio --parent-match=/sys/bus/platform/devices/2000000.pinctrl
+  if [[ -e /sys/bus/platform/devices/2510000.twi ]]; then
+    sudo udevadm trigger --action=change --subsystem-match=i2c-dev --parent-match=/sys/bus/platform/devices/2510000.twi
+  else
+    echo "[install] Zero 4 header TWI0 needs the i2c0 boot overlay. Enable it separately and reboot before hardware tests."
+  fi
+  sudo udevadm settle
 fi
 
 PASSWORD="$(python3 - << 'PY'
@@ -164,9 +203,11 @@ set +a
 pnpm --filter @magic-vault/server db:migrate-local
 
 echo "[install] Enabling user services"
-required_groups=(dialout)
+required_groups=(video)
 if [[ "$sorter_mode" == gpio ]]; then
-  required_groups=(gpio i2c)
+  required_groups+=(gpio i2c)
+else
+  required_groups+=(dialout)
 fi
 hardware_groups_active=1
 for group in "${required_groups[@]}"; do
@@ -190,7 +231,7 @@ elif systemctl --user cat mault-controller.service >/dev/null 2>&1; then
   systemctl --user disable --now mault-controller.service
 fi
 if [[ "$hardware_groups_active" -eq 0 ]]; then
-  echo "[install] Restarting user services so they can open the sorter"
+  echo "[install] Restarting user services to apply hardware group permissions"
   sudo systemctl restart "user@$(id -u).service"
   pi_ensure_user_bus
 fi
@@ -199,21 +240,8 @@ if ! systemctl --user enable --now mault-camera.service mault-api.service mault-
   exit 1
 fi
 
-if ! {
-  gdbus call --session \
-    --dest org.freedesktop.impl.portal.PermissionStore \
-    --object-path /org/freedesktop/impl/portal/PermissionStore \
-    --method org.freedesktop.impl.portal.PermissionStore.SetPermission \
-    devices true camera '' "['yes']" >/dev/null \
-    && gdbus call --session \
-      --dest org.freedesktop.impl.portal.PermissionStore \
-      --object-path /org/freedesktop/impl/portal/PermissionStore \
-      --method org.freedesktop.impl.portal.PermissionStore.SetPermission \
-      devices true camera chromium "['yes']" >/dev/null
-}; then
-  echo "[install] Could not pre-allow the camera. Chromium will ask the first time it opens."
-fi
-
+# Desktop shortcuts are optional; camera access never uses a desktop portal.
+if [[ "$INSTALL_HEADLESS" -eq 0 && -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
 DESKTOP="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
 mkdir -p "$DESKTOP"
 for action in Start Stop; do
@@ -242,6 +270,8 @@ done
 gio set "$DESKTOP/Start MAULT.desktop" metadata::trusted true 2>/dev/null || true
 gio set "$DESKTOP/Stop MAULT.desktop" metadata::trusted true 2>/dev/null || true
 
+fi
+
 for _ in $(seq 1 60); do
   if curl -sf http://127.0.0.1:8080/ >/dev/null; then
     break
@@ -253,6 +283,11 @@ if ! curl -sf http://127.0.0.1:8080/ >/dev/null; then
   echo "[install] The web app did not come up on port 8080." >&2
   systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
   exit 1
+fi
+
+if ! curl -fs --max-time 5 http://127.0.0.1:8765/health >/dev/null; then
+  echo "[install] The web app is ready, but the USB webcam is not ready yet."
+  echo "[install] Check the webcam connection and mault-camera.service; browsers retry automatically."
 fi
 
 echo "[install] Ready."

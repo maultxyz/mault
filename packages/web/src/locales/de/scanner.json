@@ -2,7 +2,7 @@
   "camera": {
     "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut.",
     "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an.",
-    "piUnavailable": "Die Webcam am Raspberry Pi ist nicht verfügbar."
+    "piUnavailable": "Die Kamera am Sortierer ist nicht verfügbar."
   },
   "scanEngine": {
     "searchFailed": "Kartensuche fehlgeschlagen",

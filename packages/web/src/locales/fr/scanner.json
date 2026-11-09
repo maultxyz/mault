@@ -2,7 +2,7 @@
   "camera": {
     "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
     "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse.",
-    "piUnavailable": "La webcam du Raspberry Pi n'est pas disponible."
+    "piUnavailable": "La caméra du trieur est indisponible."
   },
   "scanEngine": {
     "searchFailed": "Échec de la recherche de la carte",
