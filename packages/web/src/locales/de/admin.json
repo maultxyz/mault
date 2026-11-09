@@ -598,5 +598,26 @@
       "saveError": "Die Kennzeichnung konnte nicht gespeichert werden. Versuche diese Karte erneut."
     },
     "nudgeScore": "Änderung beim Anstoßen {{score}}"
+  },
+  "apiUsage": {
+    "heading": "API-Nutzung",
+    "description": "Anfragen pro API-Schlüssel und pro öffentlicher Route, damit du Polling erkennst. Die Zahlen werden etwa einmal pro Minute gespeichert, solange die Datenbank wach ist, daher können die neuesten Anfragen etwas verzögert erscheinen.",
+    "daysLabel": "Zeitraum",
+    "dayOption_one": "Letzter {{count}} Tag",
+    "dayOption_other": "Letzte {{count}} Tage",
+    "apiKeysHeading": "API-Schlüssel",
+    "publicRoutesHeading": "Öffentliche Routen",
+    "columns": {
+      "organization": "Organisation",
+      "apiKey": "API-Schlüssel",
+      "endpoint": "Endpunkt",
+      "requests": "Anfragen",
+      "rateLimited": "Begrenzt",
+      "lastRequest": "Letzte Anfrage"
+    },
+    "revoked": "Widerrufen",
+    "emptyApiKeys": "Keine Anfragen mit API-Schlüssel in diesem Zeitraum.",
+    "emptyPublicRoutes": "Keine Anfragen an öffentliche Routen in diesem Zeitraum.",
+    "loadError": "Die API-Nutzung konnte nicht geladen werden."
   }
 }

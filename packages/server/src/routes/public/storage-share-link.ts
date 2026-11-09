@@ -10,6 +10,11 @@ import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import type { StorageShareLinkClaims } from "../../lib/interfaces/share-tokens";
 import { loadOrgPricing } from "../../lib/price-source";
 import { pricesForShareLink } from "../../lib/share-link-pricing";
+import { shareLinkRateLimit } from "../../lib/share-link-rate-limit";
+import {
+  sharedStorageReadsCache,
+  sharedStorageReadsKey,
+} from "../../lib/shared-storage-reads-cache";
 import { verifyStorageShareLink } from "../../lib/storage-share-links";
 import type { AppEnv } from "../../middleware/auth";
 import { parseCardsQuery } from "../collections/cards-query";
@@ -29,6 +34,8 @@ async function claimsFor(
 }
 
 export const publicStorageShareLinkRoute = new Hono<AppEnv>()
+  .use("/storage-share-link", shareLinkRateLimit)
+  .use("/storage-share-link/*", shareLinkRateLimit)
   .get("/storage-share-link", async (c) => {
     const claims = await claimsFor(c);
     if (!claims) {
@@ -36,6 +43,16 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
         { success: false, message: MONITOR_LINK_INVALID_MESSAGE },
         401,
       );
+    }
+    const cacheKey = sharedStorageReadsKey(
+      claims.locationGuid,
+      claims.showsPrices,
+      "info",
+      {},
+    );
+    const cachedInfo = sharedStorageReadsCache.get(cacheKey);
+    if (cachedInfo) {
+      return c.json({ success: true, message: "Valid share link.", data: cachedInfo });
     }
     const data = await db.transaction(async (tx) => {
       const pricing = await loadOrgPricing(tx, claims.orgId);
@@ -52,6 +69,7 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
       };
       return info;
     });
+    sharedStorageReadsCache.set(cacheKey, data);
     return c.json({ success: true, message: "Valid share link.", data });
   })
   .get("/storage-share-link/cards", async (c) => {
@@ -74,6 +92,14 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
       Number.parseInt(c.req.query("page") ?? "", 10) || 1,
       1,
     );
+    const cacheKey = sharedStorageReadsKey(
+      claims.locationGuid,
+      claims.showsPrices,
+      "cards",
+      c.req.query(),
+    );
+    const cachedPage = sharedStorageReadsCache.get(cacheKey);
+    if (cachedPage) return c.json({ success: true, data: cachedPage });
     const query = {
       ...parseCardsQuery(c.req.query()),
       grouped: false,
@@ -111,5 +137,6 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
       };
       return pricesForShareLink(sharedPage, claims.showsPrices);
     });
+    sharedStorageReadsCache.set(cacheKey, data);
     return c.json({ success: true, data });
   });

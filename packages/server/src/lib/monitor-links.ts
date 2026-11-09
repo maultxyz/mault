@@ -1,7 +1,17 @@
 import { db } from "../db";
 import { MONITOR_LINK_ISSUER } from "./constants/auth";
 import type { MonitorLinkClaims } from "./interfaces/monitor-links";
+import {
+  SHARE_LINK_CACHE_MAX_ENTRIES,
+  SHARE_LINK_CLAIMS_CACHE_TTL_MS,
+} from "./constants/api-keys";
 import { signShareToken, verifyShareToken } from "./share-tokens";
+import { createTtlCache } from "./ttl-cache";
+
+const verifiedMonitorLinks = createTtlCache<MonitorLinkClaims>({
+  ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
+  maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
+});
 
 const openStreams = new Map<string, Set<() => void>>();
 
@@ -23,6 +33,22 @@ export function signMonitorLink(
 }
 
 export async function verifyMonitorLink(
+  token: string,
+): Promise<MonitorLinkClaims | null> {
+  const cached = verifiedMonitorLinks.get(token);
+  if (cached) return cached;
+  const claims = await loadMonitorLinkClaims(token);
+  if (claims) verifiedMonitorLinks.set(token, claims);
+  return claims;
+}
+
+export function forgetVerifiedMonitorLinks(collectionGuid: string): void {
+  verifiedMonitorLinks.deleteWhere(
+    (token) => verifiedMonitorLinks.get(token)?.collectionGuid === collectionGuid,
+  );
+}
+
+async function loadMonitorLinkClaims(
   token: string,
 ): Promise<MonitorLinkClaims | null> {
   const verified = await verifyShareToken(MONITOR_LINK_ISSUER, token);

@@ -10,6 +10,7 @@ import { authQuery } from "../../db";
 import { collections } from "../../db/schema";
 import {
   closeMonitorLinkStreams,
+  forgetVerifiedMonitorLinks,
   signMonitorLink,
 } from "../../lib/monitor-links";
 import { isShareTokenConfigured } from "../../lib/share-tokens";
@@ -84,5 +85,6 @@ export const monitorLinkRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Collection not found." }, 404);
     }
     closeMonitorLinkStreams(guid);
+    forgetVerifiedMonitorLinks(guid);
     return c.json({ success: true, message: "Revoked monitor links." });
   });

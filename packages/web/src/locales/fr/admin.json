@@ -598,5 +598,26 @@
       "saveError": "Impossible d'enregistrer l'étiquette. Réessayez cette carte."
     },
     "nudgeScore": "Variation au déplacement {{score}}"
+  },
+  "apiUsage": {
+    "heading": "Utilisation de l'API",
+    "description": "Requêtes par clé d'API et par route publique, pour repérer les interrogations répétées. Les compteurs sont enregistrés environ une fois par minute tant que la base de données est active, donc les requêtes les plus récentes peuvent mettre un peu de temps à apparaître.",
+    "daysLabel": "Période",
+    "dayOption_one": "Dernier {{count}} jour",
+    "dayOption_other": "{{count}} derniers jours",
+    "apiKeysHeading": "Clés d'API",
+    "publicRoutesHeading": "Routes publiques",
+    "columns": {
+      "organization": "Organisation",
+      "apiKey": "Clé d'API",
+      "endpoint": "Point d'accès",
+      "requests": "Requêtes",
+      "rateLimited": "Limitées",
+      "lastRequest": "Dernière requête"
+    },
+    "revoked": "Révoquée",
+    "emptyApiKeys": "Aucune requête avec une clé d'API sur cette période.",
+    "emptyPublicRoutes": "Aucune requête vers une route publique sur cette période.",
+    "loadError": "Impossible de charger l'utilisation de l'API."
   }
 }

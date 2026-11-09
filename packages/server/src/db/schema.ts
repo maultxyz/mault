@@ -1498,6 +1498,37 @@ export const platformUserRoles = pgTable("platform_user_roles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const apiKeyUsageDaily = pgTable(
+  "api_key_usage_daily",
+  {
+    apiKeyId: integer("api_key_id")
+      .notNull()
+      .references(() => orgApiKeys.id),
+    orgId: text("org_id").notNull(),
+    endpoint: text("endpoint").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    requestCount: integer("request_count").notNull().default(0),
+    rateLimitedCount: integer("rate_limited_count").notNull().default(0),
+    lastRequestAt: timestamp("last_request_at").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.apiKeyId, table.endpoint, table.day] }),
+    index("api_key_usage_daily_day_idx").on(table.day),
+  ],
+);
+
+export const publicRouteUsageDaily = pgTable(
+  "public_route_usage_daily",
+  {
+    endpoint: text("endpoint").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    requestCount: integer("request_count").notNull().default(0),
+    rateLimitedCount: integer("rate_limited_count").notNull().default(0),
+    lastRequestAt: timestamp("last_request_at").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.endpoint, table.day] })],
+);
+
 export const scanStats = pgTable(
   "scan_stats",
   {

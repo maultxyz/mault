@@ -598,5 +598,26 @@
       "saveError": "Couldn't save the label. Try that card again."
     },
     "nudgeScore": "Nudge change {{score}}"
+  },
+  "apiUsage": {
+    "heading": "API usage",
+    "description": "Requests per API key and per public route, so you can spot polling. Counts are written about once a minute while the database is awake, so the newest requests can take a little while to show.",
+    "daysLabel": "Period",
+    "dayOption_one": "Last {{count}} day",
+    "dayOption_other": "Last {{count}} days",
+    "apiKeysHeading": "API keys",
+    "publicRoutesHeading": "Public routes",
+    "columns": {
+      "organization": "Organization",
+      "apiKey": "API key",
+      "endpoint": "Endpoint",
+      "requests": "Requests",
+      "rateLimited": "Rate limited",
+      "lastRequest": "Last request"
+    },
+    "revoked": "Revoked",
+    "emptyApiKeys": "No API key requests in this period.",
+    "emptyPublicRoutes": "No public route requests in this period.",
+    "loadError": "Couldn't load API usage."
   }
 }

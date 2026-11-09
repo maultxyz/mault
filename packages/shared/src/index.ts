@@ -101,6 +101,8 @@ export * from "./constants/stats.constant";
 export * from "./constants/sync.constant";
 export * from "./constants/games.constant";
 export * from "./constants/links.constant";
+export * from "./constants/api-usage.constant";
+export * from "./interfaces/api-usage.interface";
 
 export * from "./evaluate-bin";
 export * from "./vision";

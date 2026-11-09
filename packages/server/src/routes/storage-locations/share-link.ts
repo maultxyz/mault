@@ -13,7 +13,11 @@ import {
   isStorageAllowed,
   STORAGE_UPGRADE_MESSAGE,
 } from "../../lib/storage-access";
-import { signStorageShareLink } from "../../lib/storage-share-links";
+import { forgetSharedStorageReads } from "../../lib/shared-storage-reads-cache";
+import {
+  forgetVerifiedStorageShareLinks,
+  signStorageShareLink,
+} from "../../lib/storage-share-links";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const storageShareLinkRoute = new Hono<AppEnv>()
@@ -92,5 +96,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
     if (updated.length === 0) {
       return c.json({ success: false, message: "Storage location not found." });
     }
+    forgetVerifiedStorageShareLinks(guid);
+    forgetSharedStorageReads(guid);
     return c.json({ success: true, message: "Revoked share links." });
   });

@@ -76,6 +76,7 @@ export const UNMATCHED_PHOTO_FILTERS: UnmatchedPhotoFilter[] = [
 export const BAD_PHOTO_MARKS_STORAGE_KEY = "admin-unmatched-bad-photos";
 
 export const ADMIN_PATH = "/app/admin";
+export const API_USAGE_QUERY_KEY = ["admin", "api-usage"] as const;
 
 export const ADMIN_SECTIONS = [
   {

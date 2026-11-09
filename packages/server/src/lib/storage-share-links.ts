@@ -1,7 +1,17 @@
 import { db } from "../db";
 import { STORAGE_SHARE_LINK_ISSUER } from "./constants/auth";
 import type { StorageShareLinkClaims } from "./interfaces/share-tokens";
+import {
+  SHARE_LINK_CACHE_MAX_ENTRIES,
+  SHARE_LINK_CLAIMS_CACHE_TTL_MS,
+} from "./constants/api-keys";
 import { signShareToken, verifyShareToken } from "./share-tokens";
+import { createTtlCache } from "./ttl-cache";
+
+const verifiedStorageShareLinks = createTtlCache<StorageShareLinkClaims>({
+  ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
+  maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
+});
 
 export function signStorageShareLink(
   locationGuid: string,
@@ -21,6 +31,22 @@ export function signStorageShareLink(
 }
 
 export async function verifyStorageShareLink(
+  token: string,
+): Promise<StorageShareLinkClaims | null> {
+  const cached = verifiedStorageShareLinks.get(token);
+  if (cached) return cached;
+  const claims = await loadStorageShareLinkClaims(token);
+  if (claims) verifiedStorageShareLinks.set(token, claims);
+  return claims;
+}
+
+export function forgetVerifiedStorageShareLinks(locationGuid: string): void {
+  verifiedStorageShareLinks.deleteWhere(
+    (token) => verifiedStorageShareLinks.get(token)?.locationGuid === locationGuid,
+  );
+}
+
+async function loadStorageShareLinkClaims(
   token: string,
 ): Promise<StorageShareLinkClaims | null> {
   const verified = await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, token);

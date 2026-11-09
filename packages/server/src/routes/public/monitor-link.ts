@@ -4,6 +4,7 @@ import { db } from "../../db";
 import { verifyMonitorLink } from "../../lib/monitor-links";
 import { loadOrgPricing } from "../../lib/price-source";
 import { pricesForShareLink } from "../../lib/share-link-pricing";
+import { shareLinkRateLimit } from "../../lib/share-link-rate-limit";
 import type { MonitorLinkClaims } from "../../lib/interfaces/monitor-links";
 import type { AppEnv } from "../../middleware/auth";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
@@ -19,6 +20,8 @@ async function claimsFor(c: Context<AppEnv>): Promise<MonitorLinkClaims | null> 
 }
 
 export const publicMonitorLinkRoute = new Hono<AppEnv>()
+  .use("/monitor-link", shareLinkRateLimit)
+  .use("/monitor-link/*", shareLinkRateLimit)
   .get("/monitor-link", async (c) => {
     const claims = await claimsFor(c);
     if (!claims) {
