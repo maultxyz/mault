@@ -32,6 +32,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
           discordScanUseThreads: row?.discordScanUseThreads ?? true,
           sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
           ocrEnabled: row?.ocrEnabled ?? false,
+          highAccuracyScans: row?.highAccuracyScans ?? false,
           foilDetectionEnabled: row?.foilDetectionEnabled ?? false,
           correctionBinPrompt: row?.correctionBinPrompt ?? true,
           pauseScanningOnDeploy: row?.pauseScanningOnDeploy ?? true,

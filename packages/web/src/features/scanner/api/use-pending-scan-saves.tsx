@@ -1,3 +1,4 @@
+import { pendingScanCardsStore } from "@/features/cards/lib/pending-scan-cards-store";
 import {
   addCollectionCard,
   addUnmatchedCard,
@@ -140,13 +141,28 @@ export function PendingScanSavesProvider({
   );
 
   const saveCard = useCallback(
-    (save: CardScanSave) =>
-      submit({
-        ...save,
-        kind: "card",
-        scanId: save.record.scanId,
-        queuedAt: Date.now(),
-      }) as Promise<CardSaveResult>,
+    async (save: CardScanSave) => {
+      const { scanId, card } = save.record;
+      pendingScanCardsStore.add({
+        scanId,
+        collectionGuid: save.collectionGuid,
+        card,
+      });
+      try {
+        const result = (await submit({
+          ...save,
+          kind: "card",
+          scanId,
+          queuedAt: Date.now(),
+        })) as CardSaveResult;
+        if (result.success) pendingScanCardsStore.markSaved(scanId);
+        else pendingScanCardsStore.remove(scanId);
+        return result;
+      } catch (err) {
+        pendingScanCardsStore.remove(scanId);
+        throw err;
+      }
+    },
     [submit],
   );
 

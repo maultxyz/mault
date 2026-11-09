@@ -212,5 +212,17 @@
       "notInLocation": "{{name}} ist nicht an diesem Lagerort gelagert.",
       "hint": "Halte eine Karte von diesem Lagerort vor die Kamera und drücke auf Karte scannen."
     }
+  },
+  "shareLink": {
+    "trigger": "Lagerort teilen",
+    "title": "Lagerort teilen",
+    "description": "Jeder mit diesem Link oder QR-Code kann die Karten an diesem Lagerort ohne Anmeldung sehen. Ändern kann er nichts.",
+    "revoked": "Alle geteilten Links für diesen Lagerort funktionieren nicht mehr."
+  },
+  "sharedPage": {
+    "readOnly": "Nur Ansicht",
+    "invalidTitle": "Dieser Link funktioniert nicht mehr",
+    "invalidDescription": "Er ist möglicherweise abgelaufen oder wurde widerrufen. Bitte die Person, die ihn geteilt hat, um einen neuen Link.",
+    "empty": "An diesem Lagerort sind noch keine Karten."
   }
 }

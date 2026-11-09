@@ -27,6 +27,8 @@ import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { PendingScanCardItem } from "@/features/cards/components/pending-scan-card-item";
+import { usePendingScanCards } from "@/features/cards/api/use-pending-scan-cards";
 import { useDocumentScan } from "@/features/scanner/api/use-document-scan";
 import { useScanImageImport } from "@/features/scanner/api/use-scan-image-import";
 import { ScanImageImportDialog } from "@/features/scanner/components/scan-image-import-dialog";
@@ -289,7 +291,11 @@ export function CardGrid() {
   ]);
   useEffect(() => () => reviewQueueStore.stop(), []);
 
-  const { data: pageData, isPending: pagePending } = useQuery(
+  const {
+    data: pageData,
+    isPending: pagePending,
+    dataUpdatedAt: cardListUpdatedAt,
+  } = useQuery(
     collectionCardsPageQueryOptions(collectionGuid, cardsQuery, page, pageSize),
   );
   const pagedCards = pageData?.items ?? [];
@@ -308,6 +314,13 @@ export function CardGrid() {
     to: firstEntryIndex + pagedCards.length,
     total: pageData?.totalEntries ?? 0,
   };
+
+  const pendingScanCards = usePendingScanCards(
+    collectionGuid,
+    cardListUpdatedAt,
+  );
+  const visiblePendingScanCards =
+    viewMode === "grid" && clampedPage === 0 ? pendingScanCards : [];
 
   useEffect(() => {
     if (page !== clampedPage) setPage(clampedPage);
@@ -649,7 +662,7 @@ export function CardGrid() {
     </>
   );
 
-  if (totalCount === 0) {
+  if (totalCount === 0 && visiblePendingScanCards.length === 0) {
     return (
       <>
         <NoGameBanner />
@@ -724,6 +737,7 @@ export function CardGrid() {
         storageLocation={openEntry.storageLocation}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
+        stamp={openEntry.stamp}
         condition={openEntry.condition}
         language={openEntry.language}
         binNumber={openEntry.binNumber}
@@ -816,7 +830,7 @@ export function CardGrid() {
           onGroupDuplicatesChange={handleGroupDuplicatesChange}
         />
       </div>
-      {totalCards === 0 && (
+      {totalCards === 0 && visiblePendingScanCards.length === 0 && (
         <EmptyState
           className="flex-1"
           title={t("cardGrid.noCardsMatchFilters")}
@@ -883,6 +897,12 @@ export function CardGrid() {
           </div>
         ) : (
           <div className={CARD_GRID_DENSITY_CLASS[density]}>
+            {visiblePendingScanCards.map((pendingScanCard) => (
+              <PendingScanCardItem
+                key={`pending-${pendingScanCard.scanId}`}
+                card={pendingScanCard.card}
+              />
+            ))}
             {pagedCards.map((entry) => {
               const item = (
                 <ScannedCardItem

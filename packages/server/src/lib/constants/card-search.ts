@@ -133,3 +133,11 @@ export const CARD_MATCH_INDEX_EVICTION_MIN_IDLE_MS = 10 * 60_000;
 export const CARD_VECTOR_INDEX_M = 32;
 export const CARD_VECTOR_INDEX_EF_CONSTRUCTION = 200;
 export const RANDOM_SAMPLE_CANDIDATE_MULTIPLIER = 5;
+
+export const MATCH_GAME_DEFAULT_LANG = "en";
+
+export const MATCH_GAME_LANG_BY_GAME_KEY: Record<string, string> = {
+  pokemonjp: "ja",
+};
+
+export const MATCH_GAME_KEYS_MAX = 12;

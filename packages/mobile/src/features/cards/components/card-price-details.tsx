@@ -11,12 +11,17 @@ import { PRICE_TABLE_COLUMN_WIDTH } from "@/lib/constants/cards";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardPriceDetailsProps, PriceSourceSection } from "@/lib/interfaces/cards";
 
-export function CardPriceDetails({ card, isFoil, foilType, condition }: CardPriceDetailsProps) {
+export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: CardPriceDetailsProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const { source } = usePricing();
   const [open, setOpen] = useState(false);
-  const { isConditionPrice, ...tcgplayerHeadline } = tcgplayerHeadlinePrices(card, foilType, condition);
+  const { isConditionPrice, ...tcgplayerHeadline } = tcgplayerHeadlinePrices(
+    card,
+    foilType,
+    condition,
+    stamp,
+  );
 
   const sections: PriceSourceSection[] = [
     {

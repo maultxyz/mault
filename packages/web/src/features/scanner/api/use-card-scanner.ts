@@ -1,3 +1,4 @@
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -45,8 +46,6 @@ import type {
   VideoPreviewLoop,
 } from "@/lib/interfaces/scanner";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
-  type ColorBarRegion,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
@@ -66,6 +65,9 @@ import {
   type ScanRegion,
   type ScannerStatus,
   type ScanVectorizeSource,
+  presetMatchGameKeys,
+  scanOcrMode,
+  type ScanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -136,6 +138,9 @@ export function useCardScanner({
   } = useCameraContext();
   const { activeCollection } = useCollections();
   const { forceSetCodes: preferredSetCodes } = useScannedCards();
+  const { selectedSet: activePreset } = useBinConfigs();
+  const matchGameKeysRef = useRef<string[]>([]);
+  matchGameKeysRef.current = presetMatchGameKeys(activePreset);
   const { activeOrg } = useOrg();
   const device = useDevice();
   const { isActive: isActiveStation } = useStation();
@@ -191,9 +196,8 @@ export function useCardScanner({
   const preferredSetCodesRef = useRef(preferredSetCodes);
   preferredSetCodesRef.current = preferredSetCodes;
 
-  const colorBarRegionRef = useRef<ColorBarRegion | undefined>(undefined);
-  colorBarRegionRef.current =
-    COLOR_BAR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""];
+  const gameKeyRef = useRef<string | undefined>(undefined);
+  gameKeyRef.current = activeCollection?.game?.key;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -230,8 +234,8 @@ export function useCardScanner({
   const ocrSupported =
     (OCR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""]?.length ?? 0) >
     0;
-  const ocrEnabledRef = useRef(false);
-  ocrEnabledRef.current = !!orgSettings?.ocrEnabled && ocrSupported;
+  const ocrModeRef = useRef<ScanOcrMode>("off");
+  ocrModeRef.current = scanOcrMode(orgSettings, ocrSupported);
   const foilDetectionGameKey = useFoilDetectionGameKey(activeCollection?.game?.key);
   const foilDetectionGameKeyRef = useRef(foilDetectionGameKey);
   foilDetectionGameKeyRef.current = foilDetectionGameKey;
@@ -351,11 +355,12 @@ export function useCardScanner({
           {
             collectionGuid: activeCollectionGuidRef.current,
             preferredSetCodes: preferredSetCodesRef.current,
+            matchGameKeys: matchGameKeysRef.current,
           },
-          ocrEnabledRef.current,
+          ocrModeRef.current,
           matchesNeededRef.current,
           isDocumentScan || checkBothOrientationsRef.current,
-          colorBarRegionRef.current,
+          gameKeyRef.current,
         );
         setDebugImageUrl(debugImageUrl);
         const { capturedImageUrl, capturedBackImageUrl } = await orientDocumentScanImages(

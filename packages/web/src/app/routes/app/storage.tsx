@@ -26,6 +26,7 @@ import { useStorageLocations } from "@/features/storage/api/use-storage-location
 import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
+import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
 import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationList } from "@/features/storage/components/storage-location-list";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
@@ -54,6 +55,7 @@ import {
   IconListCheck,
   IconListSearch,
   IconPlus,
+  IconShare,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
@@ -353,6 +355,19 @@ function DesktopStoragePage() {
                 )}
                 {!isLocked && (
                   <>
+                    <ShareStorageLinkDialog
+                      locationGuid={selected.guid}
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          aria-label={t("shareLink.trigger")}
+                          title={t("shareLink.trigger")}
+                        >
+                          <IconShare />
+                        </Button>
+                      }
+                    />
                     <Button
                       variant="outline"
                       size="icon"

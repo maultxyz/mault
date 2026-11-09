@@ -64,7 +64,9 @@ export default function PairCameraScreen() {
             backgroundColor: colors.camera,
           }}
         >
-          <Camera style={StyleSheet.absoluteFill} device={device} isActive={active} outputs={scanner.outputs} resizeMode="cover" />
+          {focused ? (
+            <Camera style={StyleSheet.absoluteFill} device={device} isActive={active} outputs={scanner.outputs} resizeMode="cover" />
+          ) : null}
           <View
             pointerEvents="none"
             style={{

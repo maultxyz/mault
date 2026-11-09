@@ -1,5 +1,4 @@
 import type {
-  ColorBarRegion,
   OcrRegion,
 } from "../interfaces/ocr-region.interface";
 
@@ -15,6 +14,8 @@ const POKEMON_CARD_TYPE_HEADER_TEXTS = [
   "Basic Energy",
   "Special Energy",
 ];
+
+const POKEMON_COLLECTOR_NUMBER_LINE_PATTERN = String.raw`\d\s*/\s*\d|[A-Z]{2,}\s*\d{2,}`;
 
 export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
   mtg: [
@@ -65,6 +66,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.949,
       width: 0.188,
       height: 0.017,
+      anchorLinePattern: POKEMON_COLLECTOR_NUMBER_LINE_PATTERN,
     },
     {
       field: "number",
@@ -73,6 +75,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       width: 0.174,
       height: 0.033,
       fallback: true,
+      anchorLinePattern: POKEMON_COLLECTOR_NUMBER_LINE_PATTERN,
     },
   ],
   pokemonjp: [
@@ -194,7 +197,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       field: "setLine",
       x: 0.052,
       y: 0.961,
-      width: 0.214,
+      width: 0.3,
       height: 0.015,
     },
     {
@@ -260,16 +263,6 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       fallback: true,
     },
   ],
-};
-
-export const COLOR_BAR_REGIONS_BY_GAME_KEY: Record<string, ColorBarRegion> = {
-  fab: {
-    x: 0.25,
-    y: 0.025,
-    width: 0.5,
-    height: 0.045,
-    whiteReference: { x: 0.3, y: 0.088, width: 0.4, height: 0.014 },
-  },
 };
 
 export const DISTANCE_THRESHOLD = 0.4;

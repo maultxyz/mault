@@ -5,6 +5,7 @@ import type {
 } from "@magic-vault/shared";
 import sharp from "sharp";
 import {
+  OCR_DETECTION_BAND_PADDING_Y,
   OCR_MIN_LINE_CONFIDENCE,
   PADDLE_OCR_SAME_LINE_MAX_GAP_RATIO,
   PADDLE_OCR_SAME_LINE_MIN_OVERLAP,
@@ -23,10 +24,11 @@ import type {
   OcrTextBox,
 } from "./interfaces/ocr";
 import {
+  acceptsLineText,
   anchorRegion,
-  isIgnoredLine,
   lineText,
   regionBox,
+  searchWindow,
 } from "./ocr-anchor";
 import { readTextBoxes, recognizeRectangle } from "./paddle-ocr";
 
@@ -106,7 +108,7 @@ async function readRectangleText(
   region: OcrRegion,
 ): Promise<string> {
   const lines = toPageLines(await readTextBoxes(buffer, rectangle)).filter(
-    (line) => !isIgnoredLine(region, lineText(line)),
+    (line) => acceptsLineText(region, lineText(line)),
   );
   if (lines.length > 0) {
     return region.multiline
@@ -123,7 +125,7 @@ async function readRectangleText(
   const single = await recognizeRectangle(buffer, rectangle);
   return single &&
     single.confidence >= OCR_MIN_LINE_CONFIDENCE &&
-    !isIgnoredLine(region, single.text)
+    acceptsLineText(region, single.text)
     ? single.text
     : "";
 }
@@ -136,6 +138,39 @@ function locateRegion(
   return anchor
     ? { box: anchor.box, anchored: true, anchorText: anchor.text }
     : { box: regionBox(region), anchored: false, anchorText: null };
+}
+
+function regionBands(regions: OcrRegion[]): OcrBox[] {
+  const windows = regions
+    .map(searchWindow)
+    .sort((a, b) => a.y0 - b.y0);
+  const bands: OcrBox[] = [];
+  for (const window of windows) {
+    const y0 = Math.max(0, window.y0 - OCR_DETECTION_BAND_PADDING_Y);
+    const y1 = Math.min(1, window.y1 + OCR_DETECTION_BAND_PADDING_Y);
+    const last = bands[bands.length - 1];
+    if (last && y0 <= last.y1) {
+      last.y1 = Math.max(last.y1, y1);
+    } else {
+      bands.push({ x0: 0, y0, x1: 1, y1 });
+    }
+  }
+  return bands;
+}
+
+async function readRegionBandTextBoxes(
+  buffer: Buffer,
+  regions: OcrRegion[],
+  width: number,
+  height: number,
+): Promise<OcrTextBox[]> {
+  const boxes: OcrTextBox[] = [];
+  for (const band of regionBands(regions)) {
+    const rectangle = boxRectangle(band, width, height, 0, 0);
+    if (rectangle.width <= 0 || rectangle.height <= 0) continue;
+    boxes.push(...(await readTextBoxes(buffer, rectangle)));
+  }
+  return boxes;
 }
 
 function emptyReadout(): OcrReadout {
@@ -156,7 +191,9 @@ async function readRegions(
 
   const { width = 0, height = 0 } = await sharp(buffer).metadata();
   if (width === 0 || height === 0) return readouts;
-  const lines = toPageLines(await readTextBoxes(buffer));
+  const lines = toPageLines(
+    await readRegionBandTextBoxes(buffer, regions, width, height),
+  );
 
   for (const region of regions) {
     const { box, anchored, anchorText } = locateRegion(region, lines);

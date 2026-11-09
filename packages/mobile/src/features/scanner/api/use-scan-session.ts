@@ -23,13 +23,16 @@ import {
   isFeedTimeoutReply,
   isScanFillingLastRepackPack,
   OCR_REGIONS_BY_GAME_KEY,
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   resolveScanBin,
   SERIAL_JAM_ERROR,
   type SerialReply,
-  scanFoilType,
+  resolveScanFoilType,
+  detectedStampOf,
   toRuleCard,
   withScanRuleFields,
+  isCardFromOtherGame,
+  presetMatchGameKeys,
+  presetMatchedGameOptions,
   type AutoAssignTarget,
   type BinConfig,
   type BinContentCard,
@@ -39,6 +42,7 @@ import {
   type ScannedCard,
   type ScannerControlCommand,
   type ScanRoutingContext,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import {
   binHeightsQueryOptions,
@@ -51,6 +55,8 @@ import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { fetchBinContents, fetchBinCounts } from "@/features/scanner/api/bin-counts";
 import { activateBinSet, emptyBins, markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
+import { gamesQueryOptions } from "@/features/games/api/games";
+import { recordSortOnlyScan } from "@/features/scanner/api/scan-saves";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
@@ -129,10 +135,17 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     : Math.max(0, ...(set?.bins ?? []).map((bin) => bin.binNumber));
   const configs = useMemo(() => (binCount ? configsFromSet(set, binCount) : []), [set, binCount]);
   const removal = useScanRemoval({ collectionGuid: collection?.guid ?? null, binConfigs: configs });
+  const { data: games = [] } = useQuery(gamesQueryOptions);
   const fieldDefinitions = useMemo(
     () =>
-      withScanRuleFields(collection?.game?.fieldDefinitions ?? [], collection?.game?.foilTypes ?? []),
-    [collection?.game?.fieldDefinitions, collection?.game?.foilTypes],
+      withScanRuleFields(
+        collection?.game?.fieldDefinitions ?? [],
+        collection?.game?.foilTypes ?? [],
+        collection?.game?.key,
+        undefined,
+        presetMatchedGameOptions(set, games),
+      ),
+    [collection?.game?.fieldDefinitions, collection?.game?.foilTypes, collection?.game?.key, set, games],
   );
   const playSoundForCard = useSoundRulePlayer(collection?.game?.guid, fieldDefinitions);
   const needsBinContents = !!set?.isRepackMode || hasMaxCopiesBins(configs);
@@ -515,8 +528,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         pause("bin-data-unavailable");
         return;
       }
-      const forcedFoil = scanFoilType(card, forcedFoilTypeRef.current);
-      const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil });
+      const forcedFoil = resolveScanFoilType(
+        card,
+        forcedFoilTypeRef.current,
+        null,
+        ctx.collection.game?.foilTypes ?? [],
+        outcome.matched?.diagnostics.printedFoilMarker,
+      );
+      const stamp = detectedStampOf(outcome.matched?.diagnostics.stampDetection);
+      const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil, stamp });
       const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;
       const routingContext: ScanRoutingContext = {
         binSet: ctx.set,
@@ -549,6 +569,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         vectorizedOn: "web",
         isFoil: forcedFoil != null || undefined,
         foilType: forcedFoil ?? undefined,
+        stamp: stamp ?? undefined,
         condition: scanConditionRef.current,
       };
       if (record.binNumber != null) {
@@ -581,13 +602,29 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber, card.name);
       else if (!filledPack) continueAfterCard();
 
-      void ctx
-        .saveCard({
-          orgId: ctx.orgId,
-          collectionGuid: ctx.collection.guid,
-          deviceGuid: ctx.sorter.device?.guid,
-          record: { ...record, diagnostics: outcome.matched?.diagnostics },
-        })
+      const sortsWithoutSaving =
+        !!ctx.set?.skipSaving || isCardFromOtherGame(card, ctx.collection.game?.key);
+      void (
+        sortsWithoutSaving
+          ? recordSortOnlyScan(
+              ctx.collection.guid,
+              {
+                scanId: record.scanId,
+                card,
+                scannedAt: record.scannedAt,
+                hasAlternatives: !!record.alternativeMatches?.length,
+                vectorizedOn: record.vectorizedOn,
+                deviceGuid: ctx.sorter.device?.guid,
+              },
+              ctx.orgId,
+            )
+          : ctx.saveCard({
+              orgId: ctx.orgId,
+              collectionGuid: ctx.collection.guid,
+              deviceGuid: ctx.sorter.device?.guid,
+              record: { ...record, diagnostics: outcome.matched?.diagnostics },
+            })
+      )
         .then((result) => handleSaveResult(result, record.binNumber))
         .catch(() => pause("save-failed"));
     },
@@ -744,11 +781,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const outcome = await identifyCard(
         async () => (captured.frame = await ctx.capture()),
         {
-          scope: { collectionGuid: ctx.collection.guid, preferredSetCodes: forcedSetCodesRef.current },
+          scope: {
+            collectionGuid: ctx.collection.guid,
+            preferredSetCodes: forcedSetCodesRef.current,
+            matchGameKeys: presetMatchGameKeys(ctx.set),
+          },
           matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
-          ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
-          colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
+          ocrMode: scanOcrMode(ctx.orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
+          gameKey: gameKey || null,
         },
         device?.scanRegion ?? DEFAULT_SCAN_REGION,
       );

@@ -121,6 +121,7 @@ export const storageLocationNameFormSchema = z.object({
 
 export const scanDraftFormSchema = z.object({
   foilType: z.string().nullable(),
+  stamp: z.string().nullable(),
   condition: z.enum(CARD_CONDITIONS as [CardCondition, ...CardCondition[]]),
   language: z.string().min(1),
   acquisitionCost: z
@@ -193,6 +194,7 @@ export const orgSettingsDraftFormSchema = z.object({
   ),
   sessionWrappedEnabled: z.boolean(),
   ocrEnabled: z.boolean(),
+  highAccuracyScans: z.boolean(),
   foilDetectionEnabled: z.boolean(),
   correctionBinPrompt: z.boolean(),
   pauseScanningOnDeploy: z.boolean(),

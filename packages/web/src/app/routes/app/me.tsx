@@ -19,6 +19,8 @@ import {
   THEME_OPTIONS,
 } from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { ADMIN_PATH } from "@/lib/constants/admin";
+import { useRole } from "@/hooks/use-role";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { INTAKE_PATH } from "@/lib/constants/business";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
@@ -26,6 +28,7 @@ import type { ThemeOption } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
 import {
   IconActivityHeartbeat,
+  IconDatabaseCog,
   IconBrandDiscord,
   IconBuilding,
   IconCash,
@@ -45,6 +48,7 @@ export default function MePage() {
   const { t: tCompanies } = useTranslation("companies");
   const { t: tSettings } = useTranslation("settings");
   const { t: tHealth } = useTranslation("health");
+  const { isStaff } = useRole();
   const isMobile = useIsMobile();
   const { data } = useAuthSession();
   const { orgs, activeOrg, setActiveOrg } = useOrg();
@@ -153,6 +157,13 @@ export default function MePage() {
               label={tHealth("title")}
               to="/app/health"
             />
+            {isStaff && (
+              <MobileListRow
+                icon={<IconDatabaseCog />}
+                label={t("nav.admin")}
+                to={ADMIN_PATH}
+              />
+            )}
           </div>
 
           <MobileSection title={t("mobileMenu.theme")}>

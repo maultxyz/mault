@@ -6,6 +6,23 @@ import IconAlertTriangle from "@tabler/icons-react-native/IconAlertTriangle";
 import IconArrowDown from "@tabler/icons-react-native/IconArrowDown";
 import IconArrowsSplit2 from "@tabler/icons-react-native/IconArrowsSplit2";
 import IconBell from "@tabler/icons-react-native/IconBell";
+import IconSend from "@tabler/icons-react-native/IconSend";
+import IconDatabaseCog from "@tabler/icons-react-native/IconDatabaseCog";
+import IconCreditCard from "@tabler/icons-react-native/IconCreditCard";
+import IconRestore from "@tabler/icons-react-native/IconRestore";
+import IconKey from "@tabler/icons-react-native/IconKey";
+import IconUserScan from "@tabler/icons-react-native/IconUserScan";
+import IconSpeakerphone from "@tabler/icons-react-native/IconSpeakerphone";
+import IconHash from "@tabler/icons-react-native/IconHash";
+import IconCopy from "@tabler/icons-react-native/IconCopy";
+import IconDatabase from "@tabler/icons-react-native/IconDatabase";
+import IconDownload from "@tabler/icons-react-native/IconDownload";
+import IconUsers from "@tabler/icons-react-native/IconUsers";
+import IconDeviceGamepad2 from "@tabler/icons-react-native/IconDeviceGamepad2";
+import IconShare from "@tabler/icons-react-native/IconShare";
+import IconBolt from "@tabler/icons-react-native/IconBolt";
+import IconBoltOff from "@tabler/icons-react-native/IconBoltOff";
+import IconStar from "@tabler/icons-react-native/IconStar";
 import IconClock from "@tabler/icons-react-native/IconClock";
 import IconArrowsShuffle from "@tabler/icons-react-native/IconArrowsShuffle";
 import IconSwitchHorizontal from "@tabler/icons-react-native/IconSwitchHorizontal";
@@ -93,6 +110,9 @@ export const ICONS = {
   wifi: IconWifi,
   discord: IconBrandDiscord,
   camera: IconCamera,
+  share: IconShare,
+  torchOn: IconBolt,
+  torchOff: IconBoltOff,
   check: IconCheck,
   checkAll: IconChecks,
   chevron: IconChevronRight,
@@ -125,6 +145,7 @@ export const ICONS = {
   filter: IconFilter,
   condition: IconShieldCheck,
   sparkles: IconSparkles,
+  stamp: IconStar,
   selfTest: IconChecks,
   sorter: IconCpu,
   stats: IconChartBar,
@@ -135,6 +156,19 @@ export const ICONS = {
   trophy: IconTrophy,
   viewers: IconEye,
   warning: IconAlertTriangle,
+  admin: IconDatabaseCog,
+  plans: IconCreditCard,
+  restore: IconRestore,
+  key: IconKey,
+  impersonate: IconUserScan,
+  announcement: IconSpeakerphone,
+  channel: IconHash,
+  copy: IconCopy,
+  database: IconDatabase,
+  download: IconDownload,
+  users: IconUsers,
+  game: IconDeviceGamepad2,
+  send: IconSend,
 } as const;
 
 export const ICON_STROKE_WIDTH = 2;

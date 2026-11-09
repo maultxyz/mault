@@ -6,15 +6,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Camera, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
+import { Camera, type CameraRef, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   findCardForScan,
   OCR_REGIONS_BY_GAME_KEY,
   scanCheckCollectionGuid,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
+import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
+import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
@@ -47,7 +50,9 @@ export default function StorageCardScanScreen() {
   const appState = useAppState();
   const permission = useCameraPermission();
   const camera = useCameraChoice();
+  const cameraRef = useRef<CameraRef>(null);
   const device = camera.device;
+  const torch = useCameraTorch(device, cameraRef);
   const orgId = useActiveOrgId();
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { data: collections } = useQuery(collectionsQueryOptions(orgId));
@@ -112,8 +117,8 @@ export default function StorageCardScanScreen() {
           scope: { collectionGuid: scanCollectionGuid },
           matchesNeeded: DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
-          ocrEnabled: !!orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
-          colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
+          ocrMode: scanOcrMode(orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
+          gameKey: gameKey || null,
         },
         DEFAULT_SCAN_REGION,
       );
@@ -182,14 +187,18 @@ export default function StorageCardScanScreen() {
         </View>
       ) : device ? (
         <>
-          <Camera
-            style={StyleSheet.absoluteFill}
-            device={device}
-            isActive={active}
-            outputs={[photoOutput]}
-            resizeMode="cover"
-            enableNativeTapToFocusGesture
-          />
+          {focused ? (
+            <Camera
+              ref={cameraRef}
+              style={StyleSheet.absoluteFill}
+              device={device}
+              isActive={active}
+              outputs={[photoOutput]}
+              resizeMode="cover"
+              enableNativeTapToFocusGesture
+              onStarted={torch.onCameraStarted}
+            />
+          ) : null}
           <ScanRegionOverlay
             region={DEFAULT_SCAN_REGION}
             frameAspect={frameAspect}
@@ -221,7 +230,9 @@ export default function StorageCardScanScreen() {
                 : t("storage.pickList.scan.remaining", { count: remaining })
             }
           />
+          <TorchToggle torch={torch} />
         </View>
+        <TorchBrightness torch={torch} />
       </View>
 
       <View

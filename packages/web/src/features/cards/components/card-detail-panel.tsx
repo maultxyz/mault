@@ -10,28 +10,17 @@ import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { DeleteDialog } from "@/components/delete-dialog";
-import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { CardSortTestButton } from "@/features/bins/components/card-sort-test-button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ButtonGroup } from "@/components/ui/button-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useCardAcquisitionCost } from "@/features/business/api/use-business";
@@ -101,6 +90,8 @@ import {
   type CardCondition,
   type PlayingCard,
   type PlayingCardWithDistance,
+  cardStampOptionsFor,
+  printingMarkRegionsFor,
 } from "@magic-vault/shared";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { usePersistedFlag } from "@/hooks/use-persisted-state";
@@ -121,6 +112,7 @@ import {
   IconPencil,
   IconRosette,
   IconSparkles,
+  IconStar,
   IconSwitchHorizontal,
   IconTrash,
   IconX,
@@ -164,6 +156,7 @@ export function CardDetailPanel({
   storageLocation,
   isFoil = false,
   foilType,
+  stamp,
   condition,
   language,
   binNumber,
@@ -215,6 +208,7 @@ export function CardDetailPanel({
     confirmCard,
     markCardReviewed,
     setCardFoilType,
+    setCardStamp,
     setCardCondition,
     setCardLanguage,
   } = useCardDetailActions();
@@ -224,6 +218,14 @@ export function CardDetailPanel({
     (lowConfidenceMatch || !!alternativeMatches?.length) &&
     !wasCorrected;
   const collection = useCardDetailCollection();
+  const { selectedSet: activePreset, gameKey: activePresetGameKey } =
+    useBinConfigs();
+  const canTestSort =
+    !!scanId &&
+    !!currentCard &&
+    !!activePreset &&
+    !!collection?.game?.key &&
+    collection.game.key === activePresetGameKey;
   const moveActions = useCardDetailMoveActions({
     scanId,
     collectionGuid: collection?.guid,
@@ -244,15 +246,18 @@ export function CardDetailPanel({
   const scanDraft = useScanDraft({
     scanId,
     savedFoilType: foilType ?? (isFoil ? t("foil") : null),
+    savedStamp: stamp ?? null,
     savedCondition: toCardCondition(condition),
     savedLanguage: scanLanguage({ language, card: currentCard ?? {} }),
     savedAcquisitionCost: acquisitionCost?.cost ?? null,
     setCardFoilType,
+    setCardStamp,
     setCardCondition,
     setCardLanguage,
     setCardAcquisitionCost: saveCardAcquisitionCost,
   });
   const currentFoilType = scanDraft.foilType;
+  const currentStamp = scanDraft.stamp;
   const currentCondition = scanDraft.condition;
   const currentLanguage = scanDraft.language;
   const languageOptions: string[] = isCardLanguage(currentLanguage)
@@ -297,9 +302,13 @@ export function CardDetailPanel({
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useScanImage(collection?.guid, scanId);
-  const { data: capturedBackImageUrl } = useScanBackImage(collection?.guid, scanId);
+  const { data: capturedBackImageUrl } = useScanBackImage(
+    collection?.guid,
+    scanId,
+  );
   const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
-  const showsCapturedBackSide = !!capturedBackImageUrl && backSideScanId === scanId;
+  const showsCapturedBackSide =
+    !!capturedBackImageUrl && backSideScanId === scanId;
   const shownCapturedImageUrl = showsCapturedBackSide
     ? capturedBackImageUrl
     : capturedImageUrl;
@@ -391,6 +400,10 @@ export function CardDetailPanel({
 
   const selectedCard =
     candidates.find((c) => c.id === selectedId) ?? currentCard;
+  const printingMarks = printingMarkRegionsFor(
+    collection?.game?.key,
+    selectedCard,
+  );
   const hasMultipleCandidates = candidates.length > 1;
   const isMatchChosen = isReviewed || wasCorrected;
   const isViewing = !!currentCard && !editing;
@@ -402,12 +415,13 @@ export function CardDetailPanel({
   const conditionTriggerRef = useRef<HTMLButtonElement>(null);
   const languageTriggerRef = useRef<HTMLButtonElement>(null);
   const foilSelectId = useId();
+  const stampSelectId = useId();
   const conditionSelectId = useId();
   const languageSelectId = useId();
   const conditionPrice = selectedCard
     ? priceOf(
         selectedCard,
-        { isFoil: draftIsFoil, foilType: currentFoilType },
+        { isFoil: draftIsFoil, foilType: currentFoilType, stamp: currentStamp },
         currentCondition,
       )
     : null;
@@ -416,7 +430,7 @@ export function CardDetailPanel({
     !!selectedCard &&
     tcgplayerConditionPriceFor(
       selectedCard,
-      { isFoil: draftIsFoil, foilType: currentFoilType },
+      { isFoil: draftIsFoil, foilType: currentFoilType, stamp: currentStamp },
       currentCondition,
     ) != null;
   const cardFoilOptions = cardFoilTypeOptions(
@@ -424,6 +438,7 @@ export function CardDetailPanel({
     selectedCard,
     currentFoilType,
   );
+  const cardStampOptions = cardStampOptionsFor(selectedCard, currentStamp);
   const conditionHandler = (value: CardCondition) =>
     isViewing && scanId ? () => scanDraft.setCondition(value) : undefined;
 
@@ -538,7 +553,12 @@ export function CardDetailPanel({
     <>
       {showCapturedImageSlot && (
         <figure className="flex min-w-0 flex-col gap-1.5">
-          <div className={cn("flex items-center justify-between gap-1.5", imageWidthClass)}>
+          <div
+            className={cn(
+              "flex items-center justify-between gap-1.5",
+              imageWidthClass,
+            )}
+          >
             <figcaption className="text-xs text-foreground/70">
               {showsCapturedBackSide
                 ? t("cardDetailPanel.capturedBackSide")
@@ -554,7 +574,9 @@ export function CardDetailPanel({
                       aria-label={toggleCapturedSideLabel}
                       aria-pressed={showsCapturedBackSide}
                       onClick={() =>
-                        setBackSideScanId(showsCapturedBackSide ? null : (scanId ?? null))
+                        setBackSideScanId(
+                          showsCapturedBackSide ? null : (scanId ?? null),
+                        )
                       }
                     >
                       <IconSwitchHorizontal />
@@ -578,13 +600,17 @@ export function CardDetailPanel({
           >
             {capturedImage}
             {shownOcrRegionsVisible && capturedImageUrl && (
-              <OcrRegionOverlay regions={readOcrRegions} />
+              <OcrRegionOverlay
+                regions={readOcrRegions}
+                printingMarks={printingMarks}
+              />
             )}
           </button>
           {shownOcrRegionsVisible && capturedImageUrl && (
             <OcrRegionCrops
               src={capturedImageUrl}
               regions={readOcrRegions}
+              printingMarks={printingMarks}
               className={cn(imageWidthClass, "mt-1.5")}
             />
           )}
@@ -607,14 +633,17 @@ export function CardDetailPanel({
             alt={selectedCard?.name}
             className="w-full h-full object-cover"
           />
-          {draftIsFoil && <FoilOverlay />}
           {ocrRegionsVisible && selectedCard?.image?.normal && (
-            <OcrRegionOverlay regions={fixedOcrRegions} />
+            <OcrRegionOverlay
+              regions={fixedOcrRegions}
+              printingMarks={printingMarks}
+            />
           )}
         </div>
         {ocrRegionsVisible && selectedCard?.image?.normal && (
           <OcrRegionCrops
             regions={fixedOcrRegions}
+            printingMarks={printingMarks}
             src={selectedCard.image.normal}
             className={cn(imageWidthClass, "mt-1.5")}
           />
@@ -770,6 +799,32 @@ export function CardDetailPanel({
           </SelectContent>
         </Select>
       </div>
+      {cardStampOptions.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={stampSelectId}>{t("stamp")}</Label>
+          <Select
+            value={currentStamp ?? "none"}
+            onValueChange={(value) => {
+              if (scanId) {
+                scanDraft.setStamp(value === "none" ? null : value);
+              }
+            }}
+            disabled={!scanId}
+          >
+            <SelectTrigger id={stampSelectId} className="w-40 max-md:w-full">
+              <SelectValue placeholder={t("stampNone")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{t("stampNone")}</SelectItem>
+              {cardStampOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={conditionSelectId}>
           {t("condition.label")}
@@ -870,6 +925,7 @@ export function CardDetailPanel({
           showOcrRegions={shownOcrRegionsVisible}
           onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}
           ocrRegions={readOcrRegions}
+          printingMarks={printingMarks}
         />
       )}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
@@ -964,6 +1020,11 @@ export function CardDetailPanel({
                     {currentFoilType}
                   </Badge>
                 )}
+                {scanId && currentStamp && (
+                  <Badge variant="secondary" className="shrink-0">
+                    {currentStamp}
+                  </Badge>
+                )}
                 {scanId && currentCondition !== DEFAULT_CARD_CONDITION && (
                   <Badge variant="secondary" className="shrink-0">
                     {t(`condition.names.${currentCondition}`)}
@@ -1002,111 +1063,6 @@ export function CardDetailPanel({
                 <IconDots />
               </Button>
             )}
-            {!inCardDrawer && currentCard && !editing && scanId && (
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="-mt-1 -mr-2 shrink-0"
-                      aria-label={t("cardDetailPanel.actions")}
-                    />
-                  }
-                >
-                  <IconDots />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <IconSparkles />
-                      {t("foil")}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuRadioGroup
-                        value={currentFoilType ?? "none"}
-                        onValueChange={(value: string) =>
-                          scanDraft.setFoilType(value === "none" ? null : value)
-                        }
-                      >
-                        <DropdownMenuRadioItem value="none">
-                          {t("foilNone")}
-                        </DropdownMenuRadioItem>
-                        {cardFoilOptions.map((type) => (
-                          <DropdownMenuRadioItem key={type} value={type}>
-                            {type}
-                          </DropdownMenuRadioItem>
-                        ))}
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <IconRosette />
-                      {t("condition.label")}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuRadioGroup
-                        value={currentCondition}
-                        onValueChange={(value: string) => {
-                          if (isCardCondition(value)) {
-                            scanDraft.setCondition(value);
-                          }
-                        }}
-                      >
-                        {CARD_CONDITIONS.map((option) => (
-                          <DropdownMenuRadioItem key={option} value={option}>
-                            {t(`condition.names.${option}`)}
-                          </DropdownMenuRadioItem>
-                        ))}
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <IconLanguage />
-                      {t("language")}
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent className="max-h-80 overflow-y-auto">
-                      <DropdownMenuRadioGroup
-                        value={currentLanguage}
-                        onValueChange={(value: string) =>
-                          scanDraft.setLanguage(value)
-                        }
-                      >
-                        {languageOptions.map((option) => (
-                          <DropdownMenuRadioItem key={option} value={option}>
-                            {LANGUAGE_LABELS[option] ?? option}
-                          </DropdownMenuRadioItem>
-                        ))}
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                  {(moveActions.canMoveToLocation ||
-                    moveActions.canMoveToCollection) && (
-                    <DropdownMenuSeparator />
-                  )}
-                  {moveActions.canMoveToLocation && (
-                    <DropdownMenuItem
-                      disabled={moveActions.isMoving}
-                      onClick={() => setMoveTarget("location")}
-                    >
-                      <IconBox />
-                      {t("cardDetailPanel.moveToLocation")}
-                    </DropdownMenuItem>
-                  )}
-                  {moveActions.canMoveToCollection && (
-                    <DropdownMenuItem
-                      disabled={moveActions.isMoving}
-                      onClick={() => setMoveTarget("collection")}
-                    >
-                      <IconFolders />
-                      {t("cardDetailPanel.moveToCollection")}
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
           </div>
           {currentCard && !editing ? (
             <>
@@ -1125,8 +1081,8 @@ export function CardDetailPanel({
                       className={cn(
                         "grid gap-4",
                         showCapturedImageSlot
-                          ? "grid-cols-2 max-w-3xl"
-                          : "max-w-sm",
+                          ? "grid-cols-2 max-w-xl"
+                          : "max-w-2xs",
                       )}
                     >
                       {cardImages}
@@ -1167,12 +1123,15 @@ export function CardDetailPanel({
                       </div>
                     </DetailSection>
 
+                    {!reviewMode && scanId && scanAttributeControls}
+
                     <DetailSection title={t("cardDetailPanel.prices")}>
                       <div className="flex flex-col gap-4">
                         <CardPriceDetails
                           card={selectedCard}
                           isFoil={draftIsFoil}
                           foilType={currentFoilType}
+                          stamp={currentStamp}
                           condition={currentCondition}
                         />
                         <CardPurchaseLinks card={selectedCard} />
@@ -1209,6 +1168,35 @@ export function CardDetailPanel({
                       </div>
                     </DetailSection>
 
+                    {!inCardDrawer &&
+                      !editing &&
+                      scanId &&
+                      (moveActions.canMoveToLocation ||
+                        moveActions.canMoveToCollection) && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {moveActions.canMoveToLocation && (
+                            <Button
+                              variant="outline"
+                              disabled={moveActions.isMoving}
+                              onClick={() => setMoveTarget("location")}
+                            >
+                              <IconBox />
+                              {t("cardDetailPanel.moveToLocation")}
+                            </Button>
+                          )}
+                          {moveActions.canMoveToCollection && (
+                            <Button
+                              variant="outline"
+                              disabled={moveActions.isMoving}
+                              onClick={() => setMoveTarget("collection")}
+                            >
+                              <IconFolders />
+                              {t("cardDetailPanel.moveToCollection")}
+                            </Button>
+                          )}
+                        </div>
+                      )}
+
                     {scanId && (
                       <CardStorageLocationSection
                         scanId={scanId}
@@ -1217,7 +1205,7 @@ export function CardDetailPanel({
                       />
                     )}
 
-                    {(hasScanOrigin || binNumber != null) && (
+                    {(hasScanOrigin || binNumber != null || canTestSort) && (
                       <DetailSection title={t("cardDetailPanel.thisScan")}>
                         <div className="flex flex-col gap-4">
                           {scanOrigin && hasScanOrigin && (
@@ -1232,6 +1220,16 @@ export function CardDetailPanel({
                                   inverted={false}
                                 />
                               </div>
+                            </div>
+                          )}
+                          {canTestSort && currentCard && (
+                            <div className="flex">
+                              <CardSortTestButton
+                                card={currentCard}
+                                isFoil={isFoil}
+                                foilType={foilType}
+                                scannedBinNumber={binNumber}
+                              />
                             </div>
                           )}
                         </div>
@@ -1418,6 +1416,16 @@ export function CardDetailPanel({
                     icon: <IconSparkles />,
                     onSelect: () => setAttributePicker("foil"),
                   },
+                  ...(cardStampOptions.length > 0
+                    ? [
+                        {
+                          key: "stamp",
+                          label: `${t("stamp")}: ${currentStamp ?? t("stampNone")}`,
+                          icon: <IconStar />,
+                          onSelect: () => setAttributePicker("stamp"),
+                        },
+                      ]
+                    : []),
                   {
                     key: "condition",
                     label: `${t("condition.label")}: ${t(`condition.names.${currentCondition}`)}`,
@@ -1490,9 +1498,11 @@ export function CardDetailPanel({
           title={
             attributePicker === "foil"
               ? t("foil")
-              : attributePicker === "condition"
-                ? t("condition.label")
-                : t("language")
+              : attributePicker === "stamp"
+                ? t("stamp")
+                : attributePicker === "condition"
+                  ? t("condition.label")
+                  : t("language")
           }
           actions={
             attributePicker === "foil"
@@ -1502,19 +1512,26 @@ export function CardDetailPanel({
                   icon: type === currentFoilType ? <IconCheck /> : null,
                   onSelect: () => scanDraft.setFoilType(type),
                 }))
-              : attributePicker === "condition"
-                ? CARD_CONDITIONS.map((option) => ({
-                    key: option,
-                    label: t(`condition.names.${option}`),
-                    icon: option === currentCondition ? <IconCheck /> : null,
-                    onSelect: () => scanDraft.setCondition(option),
+              : attributePicker === "stamp"
+                ? [null, ...cardStampOptions].map((option) => ({
+                    key: option ?? "none",
+                    label: option ?? t("stampNone"),
+                    icon: option === currentStamp ? <IconCheck /> : null,
+                    onSelect: () => scanDraft.setStamp(option),
                   }))
-                : languageOptions.map((option) => ({
-                    key: option,
-                    label: LANGUAGE_LABELS[option] ?? option,
-                    icon: option === currentLanguage ? <IconCheck /> : null,
-                    onSelect: () => scanDraft.setLanguage(option),
-                  }))
+                : attributePicker === "condition"
+                  ? CARD_CONDITIONS.map((option) => ({
+                      key: option,
+                      label: t(`condition.names.${option}`),
+                      icon: option === currentCondition ? <IconCheck /> : null,
+                      onSelect: () => scanDraft.setCondition(option),
+                    }))
+                  : languageOptions.map((option) => ({
+                      key: option,
+                      label: LANGUAGE_LABELS[option] ?? option,
+                      icon: option === currentLanguage ? <IconCheck /> : null,
+                      onSelect: () => scanDraft.setLanguage(option),
+                    }))
           }
         />
       )}

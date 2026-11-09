@@ -2,11 +2,10 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, Share, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, RefreshControl, View } from "react-native";
 import {
   computeBinCount,
   DEFAULT_MODULE_COUNT,
-  DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
   EMPTY_CARD_FILTERS,
   type CardFilters,
   type GroupedScannedCard,
@@ -23,9 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   collectionCardsQueryOptions,
   collectionCardsSummaryQueryOptions,
-  createMonitorLink,
   reviewQueueQueryOptions,
-  revokeMonitorLinks,
 } from "@/features/collections/api/collection-cards";
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
@@ -50,7 +47,6 @@ import {
   LIST_END_THRESHOLD,
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/collections";
-import { WEB_URL } from "@/lib/constants/config";
 import { CARD_ART_RADIUS, FLOATING_BUTTON_SHADOW, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
 import { readReviewLayout } from "@/lib/review-layout";
@@ -112,12 +108,7 @@ export default function CollectionScreen() {
         { text: t("collections.emptyConfirm"), style: "destructive", onPress: () => empty.mutate() },
       ]);
     } else if (action === "share") {
-      shareLink.mutate();
-    } else if (action === "revoke") {
-      Alert.alert(t("collections.revokeLinksTitle"), t("collections.revokeLinksDescription"), [
-        { text: t("collections.cancel"), style: "cancel" },
-        { text: t("collections.revokeLinks"), style: "destructive", onPress: () => revokeLinks.mutate() },
-      ]);
+      router.push({ pathname: "/share-link", params: { kind: "collection", guid } });
     } else if (action === "delete") {
       Alert.alert(t("collections.delete"), t("collections.deleteDescription", { name }), [
         { text: t("collections.cancel"), style: "cancel" },
@@ -135,14 +126,6 @@ export default function CollectionScreen() {
   const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), sort, t);
   const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
 
-  const shareLink = useMutation({
-    mutationFn: () => createMonitorLink(guid, DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
-    onSuccess: (link) => {
-      const url = `${WEB_URL}/watch/${guid}?t=${encodeURIComponent(link.token)}`;
-      void Share.share({ message: url, url });
-    },
-  });
-  const revokeLinks = useMutation({ mutationFn: () => revokeMonitorLinks(guid) });
   const hasPricing = !!stats && stats.priceableCount > 0;
   const tileWidth = (width - CARD_GRID_GUTTER * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
   const headerSummary = [
@@ -229,7 +212,6 @@ export default function CollectionScreen() {
         title={collection?.name ?? t("collections.actions")}
         options={[
           { value: "share", label: t("collections.shareLink") },
-          { value: "revoke", label: t("collections.revokeLinks") },
           { value: "rename", label: t("collections.rename") },
           { value: "empty", label: t("collections.empty") },
           { value: "delete", label: t("collections.delete") },
@@ -272,9 +254,6 @@ export default function CollectionScreen() {
               <Callout key={`${index}-${message}`} tone="destructive" title={t("monitor.scanError")} description={message} />
             ))}
             {cards.isError ? <Callout tone="destructive" title={t("collections.cardsLoadFailed")} /> : null}
-            {shareLink.isError || revokeLinks.isError ? (
-              <Callout tone="destructive" title={t("collections.shareLinkFailed")} />
-            ) : null}
           </View>
         }
         ListEmptyComponent={

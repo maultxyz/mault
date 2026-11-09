@@ -212,5 +212,17 @@
       "notInLocation": "{{name}} isn't stored in this location.",
       "hint": "Hold one card from this location in front of the camera and press Scan card."
     }
+  },
+  "shareLink": {
+    "trigger": "Share location",
+    "title": "Share storage location",
+    "description": "Anyone with this link or QR code can see the cards in this location without logging in. They can't change anything.",
+    "revoked": "Every shared link for this location has stopped working."
+  },
+  "sharedPage": {
+    "readOnly": "Read-only view",
+    "invalidTitle": "This link doesn't work anymore",
+    "invalidDescription": "It may have expired or been revoked. Ask the person who shared it for a new link.",
+    "empty": "This location has no cards yet."
   }
 }

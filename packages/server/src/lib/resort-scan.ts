@@ -28,6 +28,7 @@ export async function findCardToResort(
       id: collectionCards.id,
       isFoil: collectionCards.isFoil,
       foilType: collectionCards.foilType,
+      stamp: collectionCards.stamp,
       condition: collectionCards.condition,
       hasCapturedImage: sql<boolean>`(${collectionCards.capturedImageKey} IS NOT NULL OR ${collectionCards.capturedImageDataUrl} IS NOT NULL)`,
     })

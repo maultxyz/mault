@@ -31,6 +31,9 @@ import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
+import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
+import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { useScanSession } from "@/features/scanner/api/use-scan-session";
 import { useScanResultAnnouncements } from "@/features/scanner/api/use-scan-result-announcements";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
@@ -135,6 +138,7 @@ export default function ScanScreen() {
     : "";
   const working = RUNNING_PHASES.includes(session.phase);
   const cameraRef = useRef<CameraRef>(null);
+  const torch = useCameraTorch(device, cameraRef);
   const liveCorners = useLiveCorners(
     cameraRef,
     focused && appState === "active" && !!device && permission.hasPermission && !session.modelError,
@@ -257,15 +261,18 @@ export default function ScanScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {device ? (
-        <Camera
-          ref={cameraRef}
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={focused && appState === "active"}
-          outputs={[photoOutput]}
-          resizeMode="cover"
-          enableNativeTapToFocusGesture
-        />
+        focused ? (
+          <Camera
+            ref={cameraRef}
+            style={StyleSheet.absoluteFill}
+            device={device}
+            isActive={focused && appState === "active"}
+            outputs={[photoOutput]}
+            resizeMode="cover"
+            enableNativeTapToFocusGesture
+            onStarted={torch.onCameraStarted}
+          />
+        ) : null
       ) : (
         <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
@@ -294,6 +301,7 @@ export default function ScanScreen() {
               onPress={session.isRunning ? undefined : () => setCollectionPickerOpen(true)}
             />
           </View>
+          <TorchToggle torch={torch} />
           <IconButton
             icon="more"
             variant="camera"
@@ -302,6 +310,7 @@ export default function ScanScreen() {
             onPress={() => setOptionsOpen(true)}
           />
         </View>
+        <TorchBrightness torch={torch} />
         {showPhaseChip || session.sessionCount > 0 ? (
           <View pointerEvents="box-none" style={{ flexDirection: "row", gap: SPACING.sm }}>
             {showPhaseChip ? (

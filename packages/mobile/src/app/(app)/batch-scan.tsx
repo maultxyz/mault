@@ -1,11 +1,11 @@
 import { useKeepAwake } from "expo-keep-awake";
 import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Camera, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
+import { Camera, type CameraRef, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -15,6 +15,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useBatchScan } from "@/features/scanner/api/use-batch-scan";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
+import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
+import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { BatchScanCorrectionSheet } from "@/features/scanner/components/batch-scan-correction-sheet";
 import { BatchScanPhoto } from "@/features/scanner/components/batch-scan-photo";
 import { BatchScanRow } from "@/features/scanner/components/batch-scan-row";
@@ -39,7 +42,9 @@ export default function BatchScanScreen() {
   const appState = useAppState();
   const permission = useCameraPermission();
   const camera = useCameraChoice();
+  const cameraRef = useRef<CameraRef>(null);
   const device = camera.device;
+  const torch = useCameraTorch(device, cameraRef);
   const photoOutput = usePhotoOutput({ targetResolution: BATCH_CAPTURE_TARGET_RESOLUTION, qualityPrioritization: "balanced" });
   const { mode: initialMode } = useLocalSearchParams<{ mode?: BatchScanMode }>();
   const batch = useBatchScan(initialMode === "remove" ? "remove" : "add");
@@ -239,14 +244,18 @@ export default function BatchScanScreen() {
           />
         </View>
       ) : device ? (
-        <Camera
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={active}
-          outputs={[photoOutput]}
-          resizeMode="cover"
-          enableNativeTapToFocusGesture
-        />
+        focused ? (
+          <Camera
+            ref={cameraRef}
+            style={StyleSheet.absoluteFill}
+            device={device}
+            isActive={active}
+            outputs={[photoOutput]}
+            resizeMode="cover"
+            enableNativeTapToFocusGesture
+            onStarted={torch.onCameraStarted}
+          />
+        ) : null
       ) : (
         <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
@@ -277,6 +286,10 @@ export default function BatchScanScreen() {
             }
           />
         </View>
+        <TorchToggle torch={torch} />
+      </View>
+      <View pointerEvents="box-none" style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SPACING.sm }}>
+        <TorchBrightness torch={torch} />
       </View>
 
       <View

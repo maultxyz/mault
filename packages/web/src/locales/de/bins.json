@@ -143,7 +143,8 @@
       "auto-assign": "Automatisch",
       "repack": "Repacks",
       "alphabet": "Alphabetisch",
-      "chaos": "Chaos-Sortierung"
+      "chaos": "Chaos-Sortierung",
+      "game-sort": "Nach Spiel"
     }
   },
   "useBinConfigs": {
@@ -165,10 +166,18 @@
       "skipSavingFailed": "Speichern konnte nicht aktualisiert werden",
       "resortModeFailed": "Neusortierung konnte nicht aktualisiert werden",
       "cardsStored_one": "{{count}} Karte eingelagert",
-      "cardsStored_other": "{{count}} Karten eingelagert"
+      "cardsStored_other": "{{count}} Karten eingelagert",
+      "matchGamesFailed": "Spiele konnten nicht aktualisiert werden"
     }
   },
   "binsPage": {},
+  "gameSortPanel": {
+    "heading": "Nach Spiel sortieren",
+    "description": "Erkennt jede Karte anhand dieses Spiels und der ausgewählten Spiele und gibt jedem Spiel ein eigenes Fach. Die Karten werden sortiert, aber nicht gespeichert, sodass du jeden Stapel danach in eine eigene Sammlung scannen kannst.",
+    "gamesLabel": "Auch Karten erkennen aus",
+    "pickGames": "Wähle mindestens ein weiteres Spiel. Bis dahin werden nur Karten dieses Spiels erkannt.",
+    "hint": "Nicht erkannte Karten kommen in das Auffangfach. Jedes weitere Spiel macht Scans etwas langsamer."
+  },
   "autoAssignPanel": {
     "heading": "Automatische Erkennung",
     "description": "Lernt Fachzuweisungen beim Scannen: Sobald ein neuer Wert für das Feld unten auftaucht, belegt er das nächste freie Fach. Wiederholungen werden automatisch dorthin geleitet, und sobald alle Fächer belegt sind, gehen neue Werte ins Auffangfach.",
@@ -309,8 +318,10 @@
   },
   "sortTest": {
     "button": "Mit zufälliger Karte testen",
+    "cardButton": "Sortierregeln testen",
     "title": "Sortierung testen",
     "description": "Eine zufällige Karte aus der Datenbank läuft durch {{name}}, so wie der Scanner sie sortieren würde. Nichts wird gespeichert und der Sortierer bewegt sich nicht.",
+    "cardDescription": "Diese Karte durchläuft {{name}} so, wie der Scanner sie jetzt sortieren würde. Es wird nichts gespeichert und der Sortierer bewegt sich nicht.",
     "nextCard": "Nächste Karte",
     "close": "Schließen",
     "noBin": "Kein Fach",
@@ -329,6 +340,8 @@
     "cardValue": "Diese Karte: {{value}}",
     "noValue": "nichts",
     "resultAnnouncement": "{{name}} kommt in {{bin}}",
+    "scannedTo": "Beim Scannen kam diese Karte ebenfalls in {{bin}}.",
+    "scannedElsewhere": "Beim Scannen kam diese Karte in {{scanned}}, nicht in {{tested}}. Das Preset hat sich seitdem vielleicht geändert, oder ein volles Fach, ein Überlauf oder eine Suchliste hat sie umgeleitet. Dieser Test berücksichtigt nicht, wie voll die Fächer sind.",
     "reasons": {
       "rules": "Die Regeln von Fach {{bin}} passen auf diese Karte, und es ist das erste Fach, das passt.",
       "override": "Fach {{bin}} hat Vorrang und seine Regeln passen, daher gewinnt es gegen andere passende Fächer.",
@@ -376,7 +389,9 @@
     "nonFoilOption": "Nicht-Foil",
     "marketValueUsd": "Marktwert (USD)",
     "marketValueEur": "Marktwert (EUR)",
-    "collectorNumber": "Sammlernummer (numerisch)"
+    "collectorNumber": "Sammlernummer (numerisch)",
+    "game": "Spiel",
+    "stamp": "Stempel"
   },
   "pickList": {
     "modeLabel": "Wenn eine Karte gefunden wird",

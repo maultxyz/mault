@@ -1,10 +1,11 @@
-import type { BinConfig, BinSet } from "@magic-vault/shared";
+import { SCAN_RULE_GAME_FIELD, type BinConfig, type BinSet } from "@magic-vault/shared";
 import {
   saveBinConfig,
   setAlphabetConfig,
   setAutoAssignField,
   setChaosMode,
   setRepackConfig,
+  setMatchGames,
   setScanOnly,
   setResortMode,
   setSkipSaving,
@@ -20,6 +21,9 @@ function chaosSize(values: ModeFormValues): number | null {
 async function turnOff(set: BinSet, mode: BinSetMode): Promise<BinSet[] | null> {
   switch (mode) {
     case "auto-assign":
+      return setAutoAssignField(set.guid, null);
+    case "game-sort":
+      await setMatchGames(set.guid, []);
       return setAutoAssignField(set.guid, null);
     case "scan-only":
       return setScanOnly(set.guid, { enabled: false });
@@ -68,6 +72,12 @@ export async function applyMode(
       if (modeChanged || values.autoAssignField !== baseline.autoAssignField) {
         latest = await setAutoAssignField(set.guid, values.autoAssignField);
       }
+      break;
+    case "game-sort":
+      if (modeChanged || values.matchGameKeys.join() !== baseline.matchGameKeys.join()) {
+        latest = await setMatchGames(set.guid, values.matchGameKeys);
+      }
+      if (modeChanged) latest = await setAutoAssignField(set.guid, SCAN_RULE_GAME_FIELD);
       break;
     case "scan-only":
       if (

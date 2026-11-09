@@ -14,6 +14,7 @@ import {
   cardTagsSetOn,
   type CardTag,
   cardFoilTypeOptions,
+  cardStampOptionsFor,
   DEFAULT_CARD_CONDITION,
   DEFAULT_CARD_LANGUAGE,
   isCardLanguage,
@@ -33,6 +34,7 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { SelectField } from "@/components/ui/select-field";
 import { Pill } from "@/components/ui/pill";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -71,7 +73,7 @@ import {
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
-import { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
+import { CARD_DETAIL_MENU_SHEETS, SCAN_ATTRIBUTE_FIELD_WIDTH } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
@@ -160,6 +162,7 @@ export default function CardDetailScreen() {
       entry
         ? {
             foilType: entry.foilType ?? (entry.isFoil ? gameFoilOptions[0] : null),
+            stamp: entry.stamp ?? null,
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
             language: scanLanguage(entry),
             acquisitionCost: acquisitionCost.data?.cost ?? null,
@@ -174,23 +177,26 @@ export default function CardDetailScreen() {
   });
   const { isDirty, errors } = form.formState;
   const draftFoil = form.watch("foilType");
+  const draftStamp = form.watch("stamp");
   const draftCondition = form.watch("condition") as CardCondition;
   const draftLanguage = form.watch("language");
   const languageOptions: string[] =
     !draftLanguage || isCardLanguage(draftLanguage) ? [...CARD_LANGUAGES] : [draftLanguage, ...CARD_LANGUAGES];
   const price = card
-    ? pricing.priceOf(card, { isFoil: draftFoil != null, foilType: draftFoil }, draftCondition)
+    ? pricing.priceOf(card, { isFoil: draftFoil != null, foilType: draftFoil, stamp: draftStamp }, draftCondition)
     : null;
   const foilOptions = cardFoilTypeOptions(gameFoilOptions, card, draftFoil);
+  const stampOptions = cardStampOptionsFor(card, draftStamp);
 
   const saveDraft = useMutation({
     mutationFn: async (values: ScanDraftFormValues) => {
       const { dirtyFields } = form.formState;
-      if (dirtyFields.foilType || dirtyFields.condition || dirtyFields.language) {
+      if (dirtyFields.foilType || dirtyFields.stamp || dirtyFields.condition || dirtyFields.language) {
         await updateCollectionCard(guid, scanId, {
           isFoil: values.foilType != null,
           foilType: values.foilType,
           condition: values.condition as CardCondition,
+          ...(dirtyFields.stamp ? { stamp: values.stamp } : {}),
           ...(dirtyFields.language ? { language: values.language } : {}),
         });
       }
@@ -251,9 +257,6 @@ export default function CardDetailScreen() {
   const canShowMoveToLocation = canMoveToLocation && moveTargets.length > 0;
   const actionMenuOptions = entry
     ? [
-        { value: "foil", label: t("cardDetail.foil"), badge: draftFoil ?? t("cardDetail.foilNone") },
-        { value: "condition", label: t("cardDetail.condition"), badge: t(`cardDetail.conditions.${draftCondition}`) },
-        { value: "language", label: t("cardDetail.language"), badge: LANGUAGE_LABELS[draftLanguage] ?? draftLanguage },
         ...(canShowMoveToLocation
           ? [
               {
@@ -328,27 +331,43 @@ export default function CardDetailScreen() {
       { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
     ]);
 
-  const scanAttributeRows = (
-    <ListGroup>
-      <ListRow
-        icon="sparkles"
-        title={t("cardDetail.foil")}
-        value={draftFoil ?? t("cardDetail.foilNone")}
-        onPress={() => setSheet("foil")}
-      />
-      <ListRow
-        icon="condition"
-        title={t("cardDetail.condition")}
-        value={t(`cardDetail.conditions.${draftCondition}`)}
-        onPress={() => setSheet("condition")}
-      />
-      <ListRow
-        icon="language"
-        title={t("cardDetail.language")}
-        value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
-        onPress={() => setSheet("language")}
-      />
-    </ListGroup>
+  const scanAttributeFields = (
+    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.md }}>
+      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
+        <SelectField
+          label={t("cardDetail.foil")}
+          value={draftFoil ?? t("cardDetail.foilNone")}
+          placeholder={t("cardDetail.foilNone")}
+          onPress={() => setSheet("foil")}
+        />
+      </View>
+      {stampOptions.length > 0 ? (
+        <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
+          <SelectField
+            label={t("cardDetail.stamp")}
+            value={draftStamp ?? t("cardDetail.stampNone")}
+            placeholder={t("cardDetail.stampNone")}
+            onPress={() => setSheet("stamp")}
+          />
+        </View>
+      ) : null}
+      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
+        <SelectField
+          label={t("cardDetail.condition")}
+          value={t(`cardDetail.conditions.${draftCondition}`)}
+          placeholder={t(`cardDetail.conditions.${DEFAULT_CARD_CONDITION}`)}
+          onPress={() => setSheet("condition")}
+        />
+      </View>
+      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
+        <SelectField
+          label={t("cardDetail.language")}
+          value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
+          placeholder={LANGUAGE_LABELS[DEFAULT_CARD_LANGUAGE] ?? DEFAULT_CARD_LANGUAGE}
+          onPress={() => setSheet("language")}
+        />
+      </View>
+    </View>
   );
 
   const imageFrame = {
@@ -394,7 +413,9 @@ export default function CardDetailScreen() {
                 <IconButton icon="edit" accessibilityLabel={t("cardDetail.correctCard")} onPress={() => setEditing(true)} />
               )}
               <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
-              <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
+              {actionMenuOptions.length > 0 ? (
+                <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
+              ) : null}
             </View>
           ) : null
         }
@@ -420,13 +441,6 @@ export default function CardDetailScreen() {
           <>
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
-                {draftFoil ? <Pill tone="info" label={draftFoil} /> : null}
-                {draftCondition !== DEFAULT_CARD_CONDITION ? (
-                  <Pill tone="neutral" label={t(`cardDetail.conditions.${draftCondition}`)} />
-                ) : null}
-                {card && draftLanguage !== (card.lang || DEFAULT_CARD_LANGUAGE) ? (
-                  <Pill tone="neutral" label={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage} />
-                ) : null}
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
                 <Pressable
                   accessibilityRole="button"
@@ -555,7 +569,7 @@ export default function CardDetailScreen() {
                   disabled={correction.isPending}
                   onSelect={(selected) => void applyCorrection(selected)}
                 />
-                {scanAttributeRows}
+                {scanAttributeFields}
               </View>
             ) : null}
 
@@ -584,12 +598,15 @@ export default function CardDetailScreen() {
               </View>
             ) : null}
 
+            {entry && !reviewMode ? scanAttributeFields : null}
+
             {card ? (
               <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
                 <CardPriceDetails
                   card={card}
                   isFoil={draftFoil != null}
                   foilType={draftFoil}
+                  stamp={draftStamp}
                   condition={draftCondition}
                 />
                 <CardPurchaseLinks card={card} />
@@ -709,6 +726,20 @@ export default function CardDetailScreen() {
         selected={[draftFoil ?? ""]}
         onSelect={(value) => {
           form.setValue("foilType", value === "" ? null : value, { shouldDirty: true });
+          setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "stamp"}
+        title={t("cardDetail.stamp")}
+        options={[
+          { value: "", label: t("cardDetail.stampNone") },
+          ...stampOptions.map((option) => ({ value: option, label: option })),
+        ]}
+        selected={[draftStamp ?? ""]}
+        onSelect={(value) => {
+          form.setValue("stamp", value === "" ? null : value, { shouldDirty: true });
           setSheet(null);
         }}
         onClose={() => setSheet(null)}

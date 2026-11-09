@@ -12,4 +12,5 @@ export interface MonitorLinkInfo {
   expiresAt: string;
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;
+  showsPrices: boolean;
 }

@@ -11,10 +11,10 @@ import type {
   ScanCardsSource,
 } from "@/lib/interfaces/storage";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   findCardForScan,
   OCR_REGIONS_BY_GAME_KEY,
   scanCheckCollectionGuid,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
@@ -63,11 +63,13 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
         drawFrame,
         null,
         { collectionGuid: scanCollectionGuid },
-        !!orgSettings?.ocrEnabled &&
+        scanOcrMode(
+          orgSettings,
           (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+        ),
         SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
         SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
-        COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey],
+        gameKey || undefined,
       );
       if (!outcome.card) {
         showResult({ kind: "no-match" });

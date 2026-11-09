@@ -245,6 +245,11 @@ export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
 export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;
 export const DOCUMENT_SCANNERS_QUERY_KEY = ["desktop", "document-scanners"] as const;
 export const DOCUMENT_SCAN_FOLDER_QUERY_KEY = ["desktop", "document-scan-folder"] as const;
+export const DOCUMENT_SCAN_ARCHIVE_FOLDER_QUERY_KEY = [
+  "desktop",
+  "document-scan-archive-folder",
+] as const;
+export const DOCUMENT_SCAN_ARCHIVE_FAILED_TOAST_ID = "document-scan-archive-failed";
 export const DOCUMENT_SCANNER_CAMERA_ID_PREFIX = "document-scanner:";
 export const DOCUMENT_SCANNER_CARD_ARRIVAL_TIMEOUT_MS = 4000;
 export const DOCUMENT_SCANNER_FLATBED_CARD_ARRIVAL_TIMEOUT_MS = 30000;

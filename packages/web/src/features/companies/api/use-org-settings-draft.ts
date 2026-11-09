@@ -26,6 +26,7 @@ function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftFormValues {
     priceSource: settings.priceSource,
     sessionWrappedEnabled: settings.sessionWrappedEnabled,
     ocrEnabled: settings.ocrEnabled,
+    highAccuracyScans: settings.highAccuracyScans,
     foilDetectionEnabled: settings.foilDetectionEnabled,
     correctionBinPrompt: settings.correctionBinPrompt,
     pauseScanningOnDeploy: settings.pauseScanningOnDeploy,

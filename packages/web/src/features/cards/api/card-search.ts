@@ -55,10 +55,12 @@ export async function getCardById(
   id: string,
   collectionGuid?: string,
   lang?: string,
+  gameKey?: string,
 ): Promise<Result<PlayingCard>> {
   const params = new URLSearchParams();
   if (collectionGuid) params.set("collectionGuid", collectionGuid);
   if (lang) params.set("lang", lang);
+  if (gameKey) params.set("gameKey", gameKey);
   const query = params.size > 0 ? `?${params}` : "";
   return apiGet<Result<PlayingCard>>(`/api/cards/search/${id}${query}`);
 }

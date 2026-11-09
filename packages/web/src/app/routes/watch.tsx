@@ -5,8 +5,8 @@ import { SessionMonitorView } from "@/features/scanner/components/session-monito
 import { PriceSourceProvider } from "@/hooks/use-price-source";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
-import { WATCH_TOKEN_PARAM } from "@/lib/constants/nav";
 import {
+  SHARE_LINK_TOKEN_PARAM,
   DEFAULT_ORG_PRICING,
   toConditionMultipliers,
   type OrgPricing,
@@ -23,7 +23,7 @@ export default function WatchPage() {
   const { t } = useTranslation("scanner");
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get(WATCH_TOKEN_PARAM);
+  const token = searchParams.get(SHARE_LINK_TOKEN_PARAM);
   const [link, setLink] = useState<WatchLinkState>({ status: "checking" });
   const [checkCount, setCheckCount] = useState(0);
   const isMobile = useIsMobile();

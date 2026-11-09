@@ -9,9 +9,14 @@ import type {
   SearchCardMatch,
   SearchNoMatchReason,
 } from "@magic-vault/shared";
-import { CLOSE_MATCH_DELTA, DISTANCE_THRESHOLD } from "@magic-vault/shared";
+import {
+  CLOSE_MATCH_DELTA,
+  DISTANCE_THRESHOLD,
+  PRINTING_MARK_MAX_LEADER_DISTANCE_GAP,
+  PRINTING_MARK_REORDER_MARGIN,
+  type PrintingMarkScanGrids,
+} from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
-import { authQuery } from "../../db";
 import { resolveCardSearchForGame } from "../../lib/card-search/resolve";
 import { searchCardsByIds } from "../../lib/card-search/stored-cards";
 import {
@@ -30,13 +35,23 @@ import {
   OCR_NAME_MIN_SIMILARITY,
   OCR_PRINTED_NUMBER_CANDIDATE_LIMIT,
 } from "../../lib/constants/ocr";
-import { cardMatchSegments } from "../../lib/card-match-index";
 import {
+  cardMatchSegments,
+  loadedCardMatchSegments,
+} from "../../lib/card-match-index";
+import {
+  cardRowDistance,
   closestPrintingInSets,
+  printingMarkGroupsOfRow,
   faceDistance,
   nearestCardFaces,
   normalizedEmbedding,
 } from "../../lib/card-match-search";
+import { cardsWithSimilarName } from "../../lib/card-name-trigrams";
+import type {
+  CardFaceMatch,
+  OcrCandidateRow,
+} from "../../lib/interfaces/card-match-index";
 import type {
   CardMatchCandidate,
   CardMatchSearchResult,
@@ -45,8 +60,10 @@ import type {
   CollectionMatchScope,
 } from "../../lib/interfaces/card-search";
 import { ocrRegions } from "../../lib/ocr";
+import { scanGridsFromImageBuffer } from "../../lib/printing-marks/scan";
+import { printingMarkReferencesFor } from "../../lib/printing-marks/references";
+import { rankByPrintingMarks } from "../../lib/printing-marks/ranking";
 import { stripLeadingZeros } from "../../lib/ocr-calibration/match";
-import { pgTextArray } from "../../lib/sql-arrays";
 
 export function normalizeForMatch(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -104,13 +121,19 @@ export function cardDistanceSql(embeddingStr: string): SQL {
   return sql`LEAST(embedding <=> ${embeddingStr}::vector(128), back_embedding <=> ${embeddingStr}::vector(128))`;
 }
 
-export function langFilter({ lang, matchAllLanguages }: CollectionMatchScope): SQL {
+export function langFilter({
+  lang,
+  matchAllLanguages,
+}: CollectionMatchScope): SQL {
   return matchAllLanguages ? sql`` : sql`AND lang = ${lang}`;
 }
 
-export function matchingExclusionFilter({ gameKey, lang }: CollectionMatchScope): SQL {
-  const excludedFromMatchingSql =
-    resolveCardSearchForGame(gameKey, lang)?.adapter.excludedFromMatchingSql;
+export function matchingExclusionFilter({
+  gameKey,
+  lang,
+}: CollectionMatchScope): SQL {
+  const excludedFromMatchingSql = resolveCardSearchForGame(gameKey, lang)
+    ?.adapter.excludedFromMatchingSql;
   return excludedFromMatchingSql
     ? sql`AND NOT coalesce(${excludedFromMatchingSql}, false)`
     : sql``;
@@ -134,7 +157,9 @@ function parseSetCodeList(value: unknown): string[] {
   }
 }
 
-export function parsePreferredSetCodes(body: Record<string, unknown>): string[] {
+export function parsePreferredSetCodes(
+  body: Record<string, unknown>,
+): string[] {
   const legacySetCode = trimmedSetCode(body["preferredSetCode"]);
   return [
     ...new Set([
@@ -149,16 +174,48 @@ function isPreferredSetCode(setCode: string, preferredSetCodes: string[] = []) {
   return preferredSetCodes.some((code) => code.toLowerCase() === wanted);
 }
 
+async function rankFacesByPrintingMarks(
+  gameKey: string,
+  grids: PrintingMarkScanGrids | null | undefined,
+  faces: CardFaceMatch[],
+) {
+  const [leader] = faces;
+  const contenders = leader
+    ? faces.filter(
+        (face) =>
+          face.segment.names[face.row] === leader.segment.names[leader.row] &&
+          face.distance - leader.distance <=
+            PRINTING_MARK_MAX_LEADER_DISTANCE_GAP,
+      )
+    : [];
+  return rankByPrintingMarks(
+    grids,
+    grids && contenders.length > 1
+      ? await printingMarkReferencesFor(gameKey)
+      : null,
+    contenders.map((face) => ({
+      cardId: face.segment.cardIds[face.row],
+      groups: printingMarkGroupsOfRow(face.segment, face.row),
+    })),
+  );
+}
+
 export async function findCardMatches({
   embeddings,
   preferredSetCodes = [],
+  skipsUnloadedIndex = false,
+  printingMarkGrids,
   ...scope
 }: CollectionMatchScope & {
   embeddings: CardSearchEmbeddings;
   preferredSetCodes?: string[];
+  skipsUnloadedIndex?: boolean;
+  printingMarkGrids?: PrintingMarkScanGrids | null;
 }): Promise<CardMatchSearchResult> {
   const { gameKey, lang } = scope;
-  const segments = await cardMatchSegments(scope);
+  const segments = skipsUnloadedIndex
+    ? loadedCardMatchSegments(scope)
+    : await cardMatchSegments(scope);
   const query = normalizedEmbedding(embeddings.embedding);
   const nearest = nearestCardFaces(
     segments,
@@ -248,25 +305,46 @@ export async function findCardMatches({
           match.leaderDistance <= DUPLICATE_PRINTING_MAX_DISTANCE,
       )
     : undefined;
-  const ranked = regularMatch
+  const markRanking = await rankFacesByPrintingMarks(
+    gameKey,
+    printingMarkGrids,
+    nearest,
+  );
+  const markWinner = markRanking.winnerCardId
+    ? matches.find((match) => match.cardId === markRanking.winnerCardId)
+    : undefined;
+  const marksRejectRegular =
+    !!regularMatch &&
+    (markRanking.evidenceByCardId.get(regularMatch.cardId) ?? 0) <=
+      -PRINTING_MARK_REORDER_MARGIN;
+  const promoted =
+    markWinner ?? (marksRejectRegular ? undefined : regularMatch);
+  const ranked = promoted
     ? [
         {
           ...rows[0],
-          id: regularMatch.cardId,
-          cardId: regularMatch.cardId,
-          lang: regularMatch.lang,
-          setCode: regularMatch.setCode,
-          distance: regularMatch.distance,
+          id: promoted.cardId,
+          cardId: promoted.cardId,
+          lang: promoted.lang,
+          setCode: promoted.setCode,
+          distance: promoted.distance,
         },
-        ...rows.filter((row) => row.cardId !== regularMatch.cardId),
+        ...rows.filter((row) => row.cardId !== promoted.cardId),
       ]
     : rows;
 
   const [leader] = ranked;
-  const leaderSegment = segments.find((segment) => segment.lang === leader.lang);
+  const leaderSegment = segments.find(
+    (segment) => segment.lang === leader.lang,
+  );
   const preferred =
     preferredSetCodes.length > 0 && leaderSegment
-      ? closestPrintingInSets(leaderSegment, leader.name, preferredSetCodes, query)
+      ? closestPrintingInSets(
+          leaderSegment,
+          leader.name,
+          preferredSetCodes,
+          query,
+        )
       : null;
   const accepted = preferred
     ? [
@@ -295,6 +373,7 @@ export async function findCardMatches({
     success: true,
     data: matchList.length > 0 ? matchList : null,
     nearestDistance,
+    printingMarks: markRanking.diagnostics,
   };
 }
 
@@ -362,6 +441,32 @@ function matchesCollectorNumber(
   return !!digits && numberCandidates.includes(stripLeadingZeros(digits));
 }
 
+export function printedSetTotalCandidates(text: string): number[] {
+  return [
+    ...new Set(
+      [...text.matchAll(/\d\s*\/\s*(\d+)/g)].map((match) => Number(match[1])),
+    ),
+  ];
+}
+
+function matchesPrintedSetTotal(
+  printedSetTotal: number,
+  readSetTotals: number[],
+): boolean {
+  return printedSetTotal > 0 && readSetTotals.includes(printedSetTotal);
+}
+
+function contradictsPrintedSetTotal(
+  printedSetTotal: number,
+  readSetTotals: number[],
+): boolean {
+  return (
+    printedSetTotal > 0 &&
+    readSetTotals.length > 0 &&
+    !readSetTotals.includes(printedSetTotal)
+  );
+}
+
 function isLeadingPrintingConfirmed(
   printings: { setCode: string; setLineMatch: boolean; numberMatch: boolean }[],
 ): boolean {
@@ -374,11 +479,19 @@ function isLeadingPrintingConfirmed(
   );
 }
 
-export async function findCardMatchesByText(
-  jwtClaims: string,
-  { embeddings, readout, preferredSetCodes, ...scope }: CardTextMatchParams,
-): Promise<CardTextMatchResult> {
-  const { gameKey } = scope;
+function leadingCollectorNumber(collectorNumber: string | null): string | null {
+  const digits = collectorNumber?.match(/[0-9]+/)?.[0];
+  return digits ? digits.replace(/^0+(?=[0-9])/, "") : null;
+}
+
+export async function findCardMatchesByText({
+  embeddings,
+  readout,
+  preferredSetCodes,
+  printedPromo = null,
+  printingMarkGrids,
+  ...scope
+}: CardTextMatchParams): Promise<CardTextMatchResult> {
   const nameQueries = ocrNameQueries(readout.name);
   const noMatch: CardTextMatchResult = {
     message: "No card matched the text on the card.",
@@ -389,109 +502,145 @@ export async function findCardMatchesByText(
   };
   if (nameQueries.length === 0) return noMatch;
 
-  const embeddingStr = vectorLiteral(embeddings.embedding)!;
+  const segments = await cardMatchSegments(scope);
+  const query = normalizedEmbedding(embeddings.embedding);
   const setLineTokens = extractOcrTokens(readout.setLine);
   const numberCandidates = ocrNumberCandidates(
     readout.number || readout.setLine,
   );
+  const readSetTotals = printedSetTotalCandidates(
+    readout.number || readout.setLine,
+  );
 
-  return authQuery(jwtClaims, async (tx) => {
-    await tx.execute(
-      sql.raw(
-        `SET LOCAL pg_trgm.similarity_threshold = ${OCR_NAME_MIN_SIMILARITY}`,
-      ),
-    );
-    let rows: Record<string, unknown>[] = [];
-    for (const nameQuery of nameQueries) {
-      const result = await tx.execute(sql`
-        SELECT
-          card_id,
-          lang,
-          name,
-          set_code,
-          collector_number,
-          similarity(name, ${nameQuery}) AS name_score,
-          ${cardDistanceSql(embeddingStr)} AS distance
-        FROM cards
-        WHERE game_key = ${gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)} AND name % ${nameQuery}
-        ORDER BY name_score DESC, distance ASC
-        LIMIT ${OCR_NAME_CANDIDATE_LIMIT}
-      `);
-      if (
-        result.rows.length > 0 &&
-        (rows.length === 0 ||
-          (result.rows[0].name_score as number) >
-            (rows[0].name_score as number))
-      ) {
-        rows = result.rows;
-      }
-    }
-    if (rows.length === 0) return noMatch;
-
-    const matchedName = rows[0].name as string;
-    const nameScore = rows[0].name_score as number;
-
-    const printings = rows
-      .filter((row) => row.name === matchedName)
-      .map((row) => ({
-        id: row.card_id as string,
-        cardId: row.card_id as string,
-        lang: row.lang as string,
-        setCode: row.set_code as string,
-        distance: row.distance as number,
-        setLineMatch: matchesSetLine(row.set_code as string, setLineTokens),
-        numberMatch: matchesCollectorNumber(
-          row.collector_number as string | null,
-          numberCandidates,
-        ),
-        isPreferredSet: isPreferredSetCode(
-          row.set_code as string,
-          preferredSetCodes,
-        ),
+  let rows: (OcrCandidateRow & { score: number })[] = [];
+  for (const nameQuery of nameQueries) {
+    const matches = cardsWithSimilarName(
+      segments,
+      nameQuery,
+      OCR_NAME_MIN_SIMILARITY,
+    )
+      .map((match) => ({
+        ...match,
+        distance: cardRowDistance(match.segment, match.row, query),
       }))
-      .sort(
-        (a, b) =>
-          Number(b.isPreferredSet) - Number(a.isPreferredSet) ||
-          Number(b.setLineMatch) - Number(a.setLineMatch) ||
-          Number(b.numberMatch) - Number(a.numberMatch) ||
-          a.distance - b.distance,
-      );
+      .sort((a, b) => b.score - a.score || a.distance - b.distance)
+      .slice(0, OCR_NAME_CANDIDATE_LIMIT);
+    if (
+      matches.length > 0 &&
+      (rows.length === 0 || matches[0].score > rows[0].score)
+    ) {
+      rows = matches;
+    }
+  }
+  if (rows.length === 0) return noMatch;
 
-    const ocr: OcrDiagnostics = {
-      readout,
-      matchedName,
-      nameScore,
-      printingConfirmed: isLeadingPrintingConfirmed(printings),
-    };
+  const nameOf = ({ segment, row }: OcrCandidateRow) => segment.names[row];
+  const matchedName = nameOf(rows[0]);
+  const nameScore = rows[0].score;
 
-    const data: SearchCardMatch[] = withConfidence(
-      printings.slice(0, CARD_MATCH_LIMIT),
-    ).map(({ id, cardId, lang, distance, confidence }) => ({
-      id,
-      cardId,
-      lang,
+  const textRankedPrintings = rows
+    .filter((candidate) => nameOf(candidate) === matchedName)
+    .map(({ segment, row, distance }) => ({
+      id: segment.cardIds[row],
+      cardId: segment.cardIds[row],
+      lang: segment.lang,
+      setCode: segment.setCodes[row],
       distance,
-      confidence,
-    }));
+      setLineMatch: matchesSetLine(segment.setCodes[row], setLineTokens),
+      setTotalMatch: matchesPrintedSetTotal(
+        segment.printedSetTotals[row],
+        readSetTotals,
+      ),
+      numberMatch:
+        matchesCollectorNumber(segment.collectorNumbers[row], numberCandidates) &&
+        !contradictsPrintedSetTotal(segment.printedSetTotals[row], readSetTotals),
+      isPreferredSet: isPreferredSetCode(
+        segment.setCodes[row],
+        preferredSetCodes,
+      ),
+      matchesPrintedPromo:
+        printedPromo == null ||
+        (segment.promoPrinting[row] === 1) === printedPromo,
+      printingMarkGroups: printingMarkGroupsOfRow(segment, row),
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.isPreferredSet) - Number(a.isPreferredSet) ||
+        Number(b.matchesPrintedPromo) - Number(a.matchesPrintedPromo) ||
+        Number(b.setLineMatch) - Number(a.setLineMatch) ||
+        Number(b.numberMatch) - Number(a.numberMatch) ||
+        Number(b.setTotalMatch) - Number(a.setTotalMatch) ||
+        a.distance - b.distance,
+    );
+  const [textLeader] = textRankedPrintings;
+  const contenders = textRankedPrintings.filter(
+    (printing) =>
+      printing.isPreferredSet === textLeader.isPreferredSet &&
+      printing.matchesPrintedPromo === textLeader.matchesPrintedPromo &&
+      printing.numberMatch === textLeader.numberMatch &&
+      printing.setTotalMatch === textLeader.setTotalMatch,
+  );
+  const markRanking = rankByPrintingMarks(
+    printingMarkGrids,
+    printingMarkGrids && contenders.length > 1
+      ? await printingMarkReferencesFor(scope.gameKey)
+      : null,
+    contenders.map((printing) => ({
+      cardId: printing.cardId,
+      groups: printing.printingMarkGroups,
+    })),
+  );
+  const markWinner = textRankedPrintings.find(
+    (printing) => printing.cardId === markRanking.winnerCardId,
+  );
+  const printings = markWinner
+    ? [
+        markWinner,
+        ...textRankedPrintings.filter((printing) => printing !== markWinner),
+      ]
+    : textRankedPrintings;
 
-    return {
-      message: "Matched card by the text on the card.",
-      success: true,
-      data,
-      nearestDistance: printings[0].distance,
-      ocr,
-    };
-  });
+  const ocr: OcrDiagnostics = {
+    readout,
+    matchedName,
+    nameScore,
+    printingConfirmed:
+      isLeadingPrintingConfirmed(printings) ||
+      markRanking.diagnostics.confirmed,
+  };
+
+  const data: SearchCardMatch[] = withConfidence(
+    printings.slice(0, CARD_MATCH_LIMIT),
+  ).map(({ id, cardId, lang, distance, confidence }) => ({
+    id,
+    cardId,
+    lang,
+    distance,
+    confidence,
+  }));
+
+  return {
+    message: "Matched card by the text on the card.",
+    success: true,
+    data,
+    nearestDistance: printings[0].distance,
+    ocr,
+    printingMarks: markRanking.diagnostics,
+  };
 }
 
-async function findCardMatchesByPrintedSetAndNumber(
-  jwtClaims: string,
-  { embeddings, readout, preferredSetCodes, ...scope }: CardTextMatchParams,
-): Promise<CardTextMatchResult> {
+async function findCardMatchesByPrintedSetAndNumber({
+  embeddings,
+  readout,
+  preferredSetCodes,
+  ...scope
+}: CardTextMatchParams): Promise<CardTextMatchResult> {
   const printedText = [readout.setLine, readout.number]
     .filter(Boolean)
     .join("\n");
-  const numberCandidates = printedCollectorNumberCandidates(printedText);
+  const numberCandidates = new Set(
+    printedCollectorNumberCandidates(printedText),
+  );
   const noMatch: CardTextMatchResult = {
     message: "No card matched the set code and number on the card.",
     success: true,
@@ -499,40 +648,40 @@ async function findCardMatchesByPrintedSetAndNumber(
     nearestDistance: null,
     ocr: { readout, matchedName: null, nameScore: null },
   };
-  if (numberCandidates.length === 0) return noMatch;
+  if (numberCandidates.size === 0) return noMatch;
 
-  const embeddingStr = vectorLiteral(embeddings.embedding)!;
+  const segments = await cardMatchSegments(scope);
+  const query = normalizedEmbedding(embeddings.embedding);
   const printedTokens = extractOcrTokens(printedText);
-  const rows = await authQuery(jwtClaims, async (tx) => {
-    const result = await tx.execute(sql`
-      SELECT
-        card_id,
-        lang,
-        set_code,
-        ${cardDistanceSql(embeddingStr)} AS distance
-      FROM cards
-      WHERE game_key = ${scope.gameKey} ${langFilter(scope)} ${matchingExclusionFilter(scope)}
-        AND regexp_replace(substring(collector_number from '[0-9]+'), '^0+(?=[0-9])', '')
-          = ANY(${pgTextArray(numberCandidates)}::text[])
-      ORDER BY distance ASC
-      LIMIT ${OCR_PRINTED_NUMBER_CANDIDATE_LIMIT}
-    `);
-    return result.rows;
-  });
+  const rows: OcrCandidateRow[] = [];
+  for (const segment of segments) {
+    segment.collectorNumbers.forEach((collectorNumber, row) => {
+      const number = leadingCollectorNumber(collectorNumber);
+      if (number && numberCandidates.has(number)) {
+        rows.push({
+          segment,
+          row,
+          distance: cardRowDistance(segment, row, query),
+        });
+      }
+    });
+  }
   if (rows.length === 0) return noMatch;
 
   const printings = rows
-    .map((row) => ({
-      id: row.card_id as string,
-      cardId: row.card_id as string,
-      lang: row.lang as string,
-      distance: row.distance as number,
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, OCR_PRINTED_NUMBER_CANDIDATE_LIMIT)
+    .map(({ segment, row, distance }) => ({
+      id: segment.cardIds[row],
+      cardId: segment.cardIds[row],
+      lang: segment.lang,
+      distance,
       setCodeMatchLength: printedSetCodeMatchLength(
-        row.set_code as string,
+        segment.setCodes[row],
         printedTokens,
       ),
       isPreferredSet: isPreferredSetCode(
-        row.set_code as string,
+        segment.setCodes[row],
         preferredSetCodes,
       ),
     }))
@@ -610,29 +759,32 @@ function isCloserTextMatch(
 }
 
 export async function findCardMatchesByOcr(
-  jwtClaims: string,
   buffer: Buffer,
   regions: OcrRegion[],
   params: Omit<CardTextMatchParams, "readout">,
   trace?: OcrRegionTrace[],
 ): Promise<CardTextMatchResult> {
-  const {
-    primary,
-    fallback,
-    regions: readRegions,
-  } = await ocrRegions(buffer, regions, trace);
+  const [{ primary, fallback, regions: readRegions }, printingMarkGrids] =
+    await Promise.all([
+      ocrRegions(buffer, regions, trace),
+      params.printingMarkGrids ??
+        scanGridsFromImageBuffer(params.gameKey, buffer),
+    ]);
   const readout = mergeReadouts(primary, fallback);
+  const adapter = resolveCardSearchForGame(
+    params.gameKey,
+    params.lang,
+  )?.adapter;
+  const printedPromo =
+    adapter?.readPrintedPromoMarker?.(readout.setLine) ?? null;
   const withReadRegions = (result: CardTextMatchResult) => ({
     ...result,
-    ocr: { ...result.ocr, regions: readRegions },
+    ocr: { ...result.ocr, regions: readRegions, printedPromo },
   });
-  if (
-    resolveCardSearchForGame(params.gameKey, params.lang)?.adapter
-      .ocrMatchesByPrintedSetAndNumber
-  ) {
+  if (adapter?.ocrMatchesByPrintedSetAndNumber) {
     return withReadRegions(
       withoutDistantUnconfirmedMatch(
-        await findCardMatchesByPrintedSetAndNumber(jwtClaims, {
+        await findCardMatchesByPrintedSetAndNumber({
           ...params,
           readout,
         }),
@@ -647,17 +799,18 @@ export async function findCardMatchesByOcr(
       candidate.name &&
       all.findIndex((other) => other.name === candidate.name) === index,
   );
+  const textParams = { ...params, printedPromo, printingMarkGrids };
   if (nameCandidates.length === 0) {
     return withReadRegions(
-      await findCardMatchesByText(jwtClaims, { ...params, readout }),
+      await findCardMatchesByText({ ...textParams, readout }),
     );
   }
 
   const results = await Promise.all(
     nameCandidates.map(async ({ name, fromFallback }) => ({
       fromFallback,
-      result: await findCardMatchesByText(jwtClaims, {
-        ...params,
+      result: await findCardMatchesByText({
+        ...textParams,
         readout: { ...readout, name },
       }),
     })),

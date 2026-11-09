@@ -6,6 +6,7 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridAttributes,
   ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
@@ -19,9 +20,18 @@ export interface ReviewGridData {
 
 export interface ReviewGridTileProps {
   card: ReviewGridCard;
+  attributes: ReviewGridAttributes;
   accepting: boolean;
   onAccept: () => void;
   onCorrect: () => void;
+  onPickAttribute: (field: ReviewGridAttributeField) => void;
+}
+
+export type ReviewGridAttributeField = keyof ReviewGridAttributes;
+
+export interface ReviewGridAttributePicker {
+  card: ReviewGridCard;
+  field: ReviewGridAttributeField;
 }
 
 export interface CardUpdateBody {
@@ -31,6 +41,7 @@ export interface CardUpdateBody {
   reviewed?: boolean;
   isFoil?: boolean;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: CardCondition;
   language?: string;
 }
@@ -76,6 +87,7 @@ export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil: boolean;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: CardCondition | null;
 }
 

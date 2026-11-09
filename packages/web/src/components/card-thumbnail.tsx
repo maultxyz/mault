@@ -1,8 +1,7 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import type { CardThumbnailProps } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 
-export function CardThumbnail({ image, isFoil, className }: CardThumbnailProps) {
+export function CardThumbnail({ image, className }: CardThumbnailProps) {
   return (
     <span
       className={cn(
@@ -18,7 +17,6 @@ export function CardThumbnail({ image, isFoil, className }: CardThumbnailProps) 
           className="absolute inset-0 size-full object-cover"
         />
       )}
-      {isFoil && <FoilOverlay />}
     </span>
   );
 }

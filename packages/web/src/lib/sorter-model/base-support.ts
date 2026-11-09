@@ -65,9 +65,10 @@ export function baseSupportBlocks(
           : height === 3
             ? "baseSupportTall"
             : "baseSupportShort";
-      return Array.from({ length: height }, () => ({
+      return Array.from({ length: height }, (_, levelInPiece) => ({
         part,
         alt: index % 2 === 1,
+        levelInPiece,
       }));
     }),
   );

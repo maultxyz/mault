@@ -57,6 +57,10 @@ export const DOCUMENT_SCAN_CHANNELS = {
   openSession: "document-scan:open-session",
   feedCard: "document-scan:feed-card",
   closeSession: "document-scan:close-session",
+  getArchiveFolder: "document-scan:get-archive-folder",
+  chooseArchiveFolder: "document-scan:choose-archive-folder",
+  clearArchiveFolder: "document-scan:clear-archive-folder",
+  archive: "document-scan:archive",
 } as const;
 
 export const SCANNER_HELPER_SESSION_READY_TIMEOUT_MS = 30_000;
@@ -74,6 +78,17 @@ export const SCANNER_HELPER_LIST_TIMEOUT_MS = 30_000;
 export const SCANNER_HELPER_STOP_TIMEOUT_MS = 10_000;
 export const DOCUMENT_SCAN_TEMP_PREFIX = "mault-document-scan-";
 export const DOCUMENT_SCAN_FOLDER_FILE = "document-scan-folder.json";
+export const DOCUMENT_SCAN_ARCHIVE_FOLDER_FILE = "document-scan-archive-folder.json";
+export const DOCUMENT_SCAN_ARCHIVE_MAX_IMAGES = 2;
+export const DOCUMENT_SCAN_ARCHIVE_MAX_NAME_LENGTH = 120;
+export const DOCUMENT_SCAN_ARCHIVE_UNNAMED_FOLDER = "collection";
+export const DOCUMENT_SCAN_ARCHIVE_INVALID_NAME_CHARACTERS = /[<>:"/\\|?*\u0000-\u001f]/g;
+export const DOCUMENT_SCAN_ARCHIVE_RESERVED_NAMES = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i;
+export const DOCUMENT_SCAN_ARCHIVE_EXTENSIONS: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+};
 export const DOCUMENT_SCAN_FOLDER_SETTLE_POLL_MS = 500;
 export const DOCUMENT_SCAN_FOLDER_SETTLE_TIMEOUT_MS = 30_000;
 export const DOCUMENT_SCAN_MAX_IMAGE_BYTES = 50 * 1024 * 1024;

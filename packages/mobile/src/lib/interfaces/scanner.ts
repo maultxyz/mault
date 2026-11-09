@@ -4,11 +4,13 @@ import type {
   CardCondition,
   CardContour,
   CardSearchResult,
+  CardTextSearchResult,
   MatchedScanDetails,
   PlayingCard,
   PlayingCardWithDistance,
   RgbaImage,
   ScanAttemptResult,
+  ScanOcrMode,
   ScanRegion,
   ScannedCard,
   ScannerControlCommand,
@@ -32,6 +34,7 @@ export type Orientation = "upright" | "rotated";
 export interface MatchScope {
   collectionGuid: string;
   preferredSetCodes?: string[];
+  matchGameKeys?: string[];
 }
 
 export interface OrientedPick {
@@ -39,6 +42,7 @@ export interface OrientedPick {
   orientation: Orientation;
   embedding: number[];
   result: CardSearchResult;
+  textResult?: CardTextSearchResult | null;
   alternate: OrientedPick | null;
 }
 
@@ -51,8 +55,8 @@ export interface IdentifyOptions {
   scope: MatchScope;
   matchesNeeded: number;
   checkBothOrientations: boolean;
-  ocrEnabled: boolean;
-  colorBarRegionKey: string | null;
+  ocrMode: ScanOcrMode;
+  gameKey: string | null;
   minSharpness?: number;
 }
 
@@ -382,4 +386,23 @@ export interface BatchScanCorrectionSheetProps {
   collectionGuid: string;
   onSelect: (card: PlayingCard) => void;
   onClose: () => void;
+}
+
+export type ReadOrientationText = (
+  orientation: OrientedPick["orientation"],
+  embedding: number[],
+) => Promise<CardTextSearchResult | null>;
+
+export interface CameraTorch {
+  hasTorch: boolean;
+  isOn: boolean;
+  supportsStrength: boolean;
+  strengthPercent: number;
+  toggle: () => void;
+  setStrengthPercent: (percent: number) => void;
+  onCameraStarted: () => void;
+}
+
+export interface TorchControlProps {
+  torch: CameraTorch;
 }

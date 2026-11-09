@@ -82,6 +82,17 @@
     "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
     "ocrFallback": "{{field}} (Ausweichbereich)",
     "ocrFixedBox": "{{field}} (feste Box)",
+    "printingMarks": {
+      "title": "Druckmerkmale",
+      "setSymbol": "Set-Symbol",
+      "artStamp": "Promo-Stempel",
+      "listIcon": "The-List-Symbol",
+      "pitch": "Pitch-Punkte",
+      "editionMarker": "Editionsmarkierung",
+      "setCodeAndRegulationMark": "Set-Code und Regulierungszeichen",
+      "firstEditionStamp": "1st-Edition-Stempel",
+      "foilMarker": "Foil-Stern"
+    },
     "ocrFields": {
       "name": "Name",
       "setLine": "Setzeile",
@@ -136,7 +147,9 @@
     "downloadedHidden_one": "1 heruntergeladene Karte wird vom Download-Filter ausgeblendet.",
     "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet.",
     "moveToLocation": "Verschieben",
-    "exporting": "Wird exportiert"
+    "exporting": "Wird exportiert",
+    "pendingScanSaving": "Wird gespeichert",
+    "pendingScanSavingName": "{{name}} wird gespeichert"
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
@@ -269,6 +282,8 @@
   },
   "foil": "Foil",
   "foilNone": "Kein Foil",
+  "stamp": "Stempel",
+  "stampNone": "Kein Stempel",
   "language": "Sprache",
   "downloaded": "Heruntergeladen",
   "technicalDetails": {
@@ -318,11 +333,25 @@
     "copyJson": "JSON kopieren",
     "copied": "Karten-JSON kopiert.",
     "copyFailed": "Karten-JSON konnte nicht kopiert werden.",
-    "detectedColor": "Erkannter Farbbalken",
     "foilDetection": "Foil-Erkennung",
     "foilDetected": "Foil ({{method}} {{score}})",
     "foilNotDetected": "Kein Foil ({{method}} {{score}})",
-    "noColor": "Keiner",
+    "printingMarks": "Druckmerkmale",
+    "printingMarksChanged": "Druck geändert (Beleg {{evidence}})",
+    "printingMarksKept": "Druck beibehalten (bester Beleg {{evidence}})",
+    "printingMarksSkipped": {
+      "noScanAreas": "Nicht geprüft: keine Merkmalsbereiche aus dem Scan",
+      "noReferences": "Nicht geprüft: noch keine Referenzen für dieses Spiel",
+      "singlePrinting": "Nicht nötig: keine ähnlichen Drucke"
+    },
+    "printedFoilMarker": "Foil-Stern",
+    "printedFoilMarkerValue": {
+      "star": "Stern gefunden (Foil)",
+      "dot": "Punkt gefunden (kein Foil)",
+      "none": "Nicht gefunden"
+    },
+    "stampDetection": "Stempelerkennung",
+    "noStampDetected": "Kein Stempel gefunden",
     "foilMethod": {
       "rainbow": "Regenbogenwert",
       "nudge": "Änderung beim Anstoßen"

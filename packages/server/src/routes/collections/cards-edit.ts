@@ -31,6 +31,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
       binNumber,
       isFoil,
       foilType,
+      stamp,
       condition,
       language,
       confirmed,
@@ -42,6 +43,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
       binNumber?: number;
       isFoil?: boolean;
       foilType?: string | null;
+      stamp?: string | null;
       condition?: CardCondition;
       language?: string;
     }>();
@@ -65,6 +67,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             binNumber: true,
             isFoil: true,
             foilType: true,
+            stamp: true,
             condition: true,
             language: true,
             isCorrected: true,
@@ -112,6 +115,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         }
         if (isFoil !== undefined) updates.isFoil = isFoil;
         if (foilType !== undefined) updates.foilType = foilType;
+        if (stamp !== undefined) updates.stamp = stamp;
         if (condition !== undefined) updates.condition = condition;
         if (language !== undefined) updates.language = language;
         else if (card !== undefined) updates.language = pickedCardLanguage(card);
@@ -144,6 +148,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             binNumber: binNumber !== undefined ? binNumber : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
             foilType: foilType !== undefined ? foilType : existing.foilType,
+            stamp: stamp !== undefined ? stamp : existing.stamp,
             condition: condition ?? existing.condition,
             language:
               language ??

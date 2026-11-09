@@ -24,9 +24,10 @@ import type {
 import { scanLog } from "@/lib/scan-log";
 import { generateScanId } from "@/lib/utils";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   OCR_REGIONS_BY_GAME_KEY,
-  scanFoilType,
+  resolveScanFoilType,
+  detectedStampOf,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -61,8 +62,9 @@ export function useScanImageImport(
     saveCard,
     saveUnmatched,
     orgId: activeOrg?.id ?? null,
-    ocrEnabled: !!orgSettings?.ocrEnabled && isOcrSupported,
-    colorBarRegion: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey],
+    ocrMode: scanOcrMode(orgSettings, isOcrSupported),
+    gameKey: gameKey || undefined,
+    gameFoilTypes: targetGame?.foilTypes ?? [],
   };
   const latestRef = useRef(latest);
   latestRef.current = latest;
@@ -91,8 +93,15 @@ export function useScanImageImport(
       item: ScanImageImportItem,
       file: File,
     ): Promise<boolean> => {
-      const { t, saveCard, saveUnmatched, orgId, ocrEnabled, colorBarRegion } =
-        latestRef.current;
+      const {
+        t,
+        saveCard,
+        saveUnmatched,
+        orgId,
+        ocrMode,
+        gameKey: targetGameKey,
+        gameFoilTypes,
+      } = latestRef.current;
       updateItem(item.id, { status: "identifying" });
       let sourceCanvas: HTMLCanvasElement | null = null;
       try {
@@ -112,10 +121,10 @@ export function useScanImageImport(
           () => {},
           source.imageContour,
           { collectionGuid: targetCollectionGuid },
-          ocrEnabled,
+          ocrMode,
           SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
           SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
-          colorBarRegion,
+          targetGameKey,
         );
         const scanTarget = {
           orgId,
@@ -128,7 +137,13 @@ export function useScanImageImport(
           scanLog(
             `[scan-import] ${file.name} matched ${outcome.card.name} (${outcome.card.id})`,
           );
-          const foilType = scanFoilType(outcome.card, null);
+          const foilType = resolveScanFoilType(
+            outcome.card,
+            null,
+            null,
+            gameFoilTypes,
+            outcome.matched?.diagnostics.printedFoilMarker,
+          );
           const result = await saveCard({
             ...scanTarget,
             record: {
@@ -136,6 +151,9 @@ export function useScanImageImport(
               card: outcome.card,
               isFoil: foilType != null || undefined,
               foilType: foilType ?? undefined,
+              stamp:
+                detectedStampOf(outcome.matched?.diagnostics.stampDetection) ??
+                undefined,
               scannedAt,
               capturedImageUrl: outcome.debugImageUrl,
               alternativeMatches: outcome.alternativeMatches.length

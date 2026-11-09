@@ -7,6 +7,7 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
 import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
 import { ValidateMatchesTopBarButton } from "@/features/match-validations/components/validate-matches-top-bar-button";
+import { PlanPreviewTopBarChip } from "@/features/admin/components/plan-preview-top-bar-chip";
 import { useActiveOrg, useSwitchOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { useSession } from "@/lib/auth/session";
@@ -120,6 +121,7 @@ export function AppTopBar() {
           />
         ) : null}
       </View>
+      <PlanPreviewTopBarChip />
       <ValidateMatchesTopBarButton />
       <Pressable
         accessibilityRole="button"

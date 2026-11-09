@@ -449,7 +449,6 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                           <div className="flex items-center gap-2.5">
                             <CardThumbnail
                               image={entry.card.image}
-                              isFoil={entry.isFoil}
                               className="w-10"
                             />
                             <div className="min-w-0">

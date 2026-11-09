@@ -1,78 +1,77 @@
-import * as jose from "jose";
 import { db } from "../db";
 import { MONITOR_LINK_ISSUER } from "./constants/auth";
 import type { MonitorLinkClaims } from "./interfaces/monitor-links";
-import { ONE_DAY_MS } from "./constants/timing";
+import {
+  SHARE_LINK_CACHE_MAX_ENTRIES,
+  SHARE_LINK_CLAIMS_CACHE_TTL_MS,
+} from "./constants/api-keys";
+import { signShareToken, verifyShareToken } from "./share-tokens";
+import { createTtlCache } from "./ttl-cache";
+
+const verifiedMonitorLinks = createTtlCache<MonitorLinkClaims>({
+  ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
+  maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
+});
 
 const openStreams = new Map<string, Set<() => void>>();
 
-function monitorLinkSecret(): Uint8Array | null {
-  const secret = process.env.MONITOR_LINK_SECRET;
-  return secret ? new TextEncoder().encode(secret) : null;
-}
-
-export function isMonitorLinkConfigured(): boolean {
-  return monitorLinkSecret() !== null;
-}
-
-export async function signMonitorLink(
+export function signMonitorLink(
   collectionGuid: string,
   orgId: string,
   version: number,
   expiresInDays: number,
-): Promise<{ token: string; expiresAt: Date }> {
-  const secret = monitorLinkSecret();
-  if (!secret) throw new Error("MONITOR_LINK_SECRET is not configured.");
-  const expiresAt = new Date(Date.now() + expiresInDays * ONE_DAY_MS);
-  const token = await new jose.SignJWT({ org: orgId, ver: version })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuer(MONITOR_LINK_ISSUER)
-    .setSubject(collectionGuid)
-    .setIssuedAt()
-    .setExpirationTime(Math.floor(expiresAt.getTime() / 1000))
-    .sign(secret);
-  return { token, expiresAt };
+  showsPrices: boolean,
+) {
+  return signShareToken({
+    issuer: MONITOR_LINK_ISSUER,
+    subjectGuid: collectionGuid,
+    orgId,
+    version,
+    expiresInDays,
+    showsPrices,
+  });
 }
 
 export async function verifyMonitorLink(
   token: string,
 ): Promise<MonitorLinkClaims | null> {
-  const secret = monitorLinkSecret();
-  if (!secret) return null;
-  try {
-    const { payload } = await jose.jwtVerify(token, secret, {
-      issuer: MONITOR_LINK_ISSUER,
-      algorithms: ["HS256"],
-    });
-    if (
-      typeof payload.sub !== "string" ||
-      typeof payload.org !== "string" ||
-      typeof payload.ver !== "number" ||
-      typeof payload.exp !== "number"
-    ) {
-      return null;
-    }
-    const collection = await db.query.collections.findFirst({
-      where: (t, { eq, and }) =>
-        and(
-          eq(t.guid, payload.sub!),
-          eq(t.orgId, payload.org as string),
-          eq(t.isDeleted, false),
-        ),
-      columns: { name: true, monitorLinkVersion: true },
-    });
-    if (!collection || collection.monitorLinkVersion !== payload.ver) {
-      return null;
-    }
-    return {
-      collectionGuid: payload.sub,
-      orgId: payload.org,
-      collectionName: collection.name,
-      expiresAt: new Date(payload.exp * 1000),
-    };
-  } catch {
+  const cached = verifiedMonitorLinks.get(token);
+  if (cached) return cached;
+  const claims = await loadMonitorLinkClaims(token);
+  if (claims) verifiedMonitorLinks.set(token, claims);
+  return claims;
+}
+
+export function forgetVerifiedMonitorLinks(collectionGuid: string): void {
+  verifiedMonitorLinks.deleteWhere(
+    (token) => verifiedMonitorLinks.get(token)?.collectionGuid === collectionGuid,
+  );
+}
+
+async function loadMonitorLinkClaims(
+  token: string,
+): Promise<MonitorLinkClaims | null> {
+  const verified = await verifyShareToken(MONITOR_LINK_ISSUER, token);
+  if (!verified) return null;
+  const collection = await db.query.collections.findFirst({
+    where: (t, { eq, and }) =>
+      and(
+        eq(t.guid, verified.subjectGuid),
+        eq(t.orgId, verified.orgId),
+        eq(t.isDeleted, false),
+      ),
+    columns: { name: true, monitorLinkVersion: true },
+  });
+  if (!collection || collection.monitorLinkVersion !== verified.version) {
     return null;
   }
+  return {
+    collectionGuid: verified.subjectGuid,
+    orgId: verified.orgId,
+    collectionName: collection.name,
+    expiresAt: verified.expiresAt,
+    showsPrices: verified.showsPrices,
+  };
 }
 
 export function trackMonitorLinkStream(

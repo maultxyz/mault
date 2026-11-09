@@ -20,6 +20,7 @@ import {
   type SetCardTagsRequest,
   type ReviewAcceptRequest,
   type ReviewAcceptResult,
+  type ReviewGridAttributeUpdate,
   SCAN_SAVE_ACCEPTED_STATUSES,
   throwIfMemberSeatLimit,
   type ScannedCard,
@@ -175,6 +176,17 @@ export async function updateCollectionCard(
   });
 }
 
+export async function updateCollectionCardAttributes(
+  guid: string,
+  scanId: string,
+  update: ReviewGridAttributeUpdate,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    update,
+  );
+}
+
 export async function setCollectionCardBin(
   guid: string,
   scanId: string,
@@ -232,6 +244,16 @@ export async function setCollectionCardLanguage(
 ): Promise<Result<ScannedCard>> {
   return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
     language,
+  });
+}
+
+export async function setCollectionCardStamp(
+  guid: string,
+  scanId: string,
+  stamp: string | null,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
+    stamp,
   });
 }
 

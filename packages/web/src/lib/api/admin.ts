@@ -6,6 +6,7 @@ import type {
 } from "@/lib/interfaces/admin";
 import type {
   ActiveScanSession,
+  ApiUsageReport,
   ActiveScanningStats,
   AdminUserSummary,
   ImpersonationAuditEntry,
@@ -190,4 +191,12 @@ export async function getActiveScanSessions(): Promise<
   return apiGet<Result<ActiveScanSession[]>>(
     "/api/admin/active-scanning/sessions",
   );
+}
+
+export async function getApiUsageReport(days: number): Promise<ApiUsageReport> {
+  const result = await apiGet<Result<ApiUsageReport>>(
+    `/api/admin/api-usage?days=${days}`,
+  );
+  if (!result.success || !result.data) throw new Error(result.message);
+  return result.data;
 }

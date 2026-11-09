@@ -82,6 +82,17 @@
     "noOcrRegions": "Ce jeu n'a pas de zones OCR.",
     "ocrFallback": "{{field}} (zone de secours)",
     "ocrFixedBox": "{{field}} (zone fixe)",
+    "printingMarks": {
+      "title": "Marques d'impression",
+      "setSymbol": "Symbole d'extension",
+      "artStamp": "Tampon promo",
+      "listIcon": "Icône The List",
+      "pitch": "Points de pitch",
+      "editionMarker": "Marque d'édition",
+      "setCodeAndRegulationMark": "Code d'extension et marque de régulation",
+      "firstEditionStamp": "Tampon 1st Edition",
+      "foilMarker": "Étoile foil"
+    },
     "ocrFields": {
       "name": "Nom",
       "setLine": "Ligne d'extension",
@@ -136,7 +147,9 @@
     "downloadedHidden_one": "1 carte téléchargée est masquée par le filtre des téléchargements.",
     "downloadedHidden_other": "{{count}} cartes téléchargées sont masquées par le filtre des téléchargements.",
     "moveToLocation": "Déplacer",
-    "exporting": "Export en cours"
+    "exporting": "Export en cours",
+    "pendingScanSaving": "Enregistrement",
+    "pendingScanSavingName": "Enregistrement de {{name}}"
   },
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",
@@ -269,6 +282,8 @@
   },
   "foil": "Foil",
   "foilNone": "Non foil",
+  "stamp": "Tampon",
+  "stampNone": "Sans tampon",
   "language": "Langue",
   "downloaded": "Téléchargée",
   "technicalDetails": {
@@ -318,11 +333,25 @@
     "copyJson": "Copier le JSON",
     "copied": "JSON de la carte copié.",
     "copyFailed": "Impossible de copier le JSON de la carte.",
-    "detectedColor": "Barre de couleur détectée",
     "foilDetection": "Détection des foils",
     "foilDetected": "Foil ({{method}} {{score}})",
     "foilNotDetected": "Pas foil ({{method}} {{score}})",
-    "noColor": "Aucune",
+    "printingMarks": "Marques d'impression",
+    "printingMarksChanged": "Impression modifiée (indice {{evidence}})",
+    "printingMarksKept": "Impression conservée (meilleur indice {{evidence}})",
+    "printingMarksSkipped": {
+      "noScanAreas": "Non vérifié : aucune zone de marque issue du scan",
+      "noReferences": "Non vérifié : pas encore de références pour ce jeu",
+      "singlePrinting": "Inutile : aucune impression similaire"
+    },
+    "printedFoilMarker": "Étoile foil",
+    "printedFoilMarkerValue": {
+      "star": "Étoile trouvée (foil)",
+      "dot": "Point trouvé (non foil)",
+      "none": "Introuvable"
+    },
+    "stampDetection": "Détection de tampon",
+    "noStampDetected": "Aucun tampon trouvé",
     "foilMethod": {
       "rainbow": "score arc-en-ciel",
       "nudge": "variation au déplacement"

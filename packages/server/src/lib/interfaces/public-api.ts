@@ -57,6 +57,7 @@ export interface PublicApiCardRow {
   is_foil: boolean;
   condition: string;
   foil_type: string | null;
+  stamp: string | null;
   needs_review: boolean;
   is_reviewed: boolean;
   name: string;
@@ -114,4 +115,21 @@ export interface MarketplaceProducts {
   cardmarketProductId: number | null;
   cardkingdomProductId: number | null;
   cardKingdomUrl: string | null;
+}
+
+export interface RateLimiterConfig {
+  requests: number;
+  windowMs: number;
+  sweepSize: number;
+}
+
+export interface TtlCacheConfig {
+  ttlMs: number;
+  maxEntries: number;
+}
+
+export interface TtlCache<V> {
+  get(key: string): V | undefined;
+  set(key: string, value: V): void;
+  deleteWhere(shouldDelete: (key: string) => boolean): void;
 }

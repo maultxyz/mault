@@ -13,3 +13,6 @@ export const DEFAULT_PLATFORM_STAT_KEYS = [
   "users",
   "organizations",
 ] as const;
+
+export const PLATFORM_STATS_SCRIPT_COMMAND =
+  "node packages/server/dist/scripts/post-platform-stats.js";

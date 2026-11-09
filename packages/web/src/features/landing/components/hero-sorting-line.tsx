@@ -1,4 +1,3 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import { Button } from "@/components/ui/button";
 import { ViewfinderCorners } from "@/features/landing/components/viewfinder-corners";
 import { DEMO_SCANNED_CARDS } from "@/features/landing/lib/demo-cards";
@@ -219,7 +218,6 @@ export function HeroSortingLine() {
                   alt={current.card.name}
                   className="size-full object-cover"
                 />
-                {current.isFoil && <FoilOverlay />}
                 <div className="absolute inset-x-0 top-0 z-20 h-0.5 bg-primary shadow-[0_0_12px_2px] shadow-primary/70 animate-[hero-scan-sweep_1.1s_ease-in-out_both] motion-reduce:hidden" />
               </div>
             </div>

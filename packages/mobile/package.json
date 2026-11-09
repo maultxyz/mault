@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/mobile",
-  "version": "1.0.154",
+  "version": "1.0.155",
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
@@ -53,6 +53,7 @@
     "i18next": "^26.3.6",
     "jsqr": "1.4.0",
     "onnxruntime-react-native": "1.24.3",
+    "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-hook-form": "^7.71.1",
     "react-i18next": "^17.0.11",
@@ -72,6 +73,7 @@
   },
   "devDependencies": {
     "@types/node": "^26",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "typescript": "^5"
   }

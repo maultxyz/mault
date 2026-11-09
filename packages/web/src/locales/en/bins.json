@@ -143,7 +143,8 @@
       "auto-assign": "Auto-detect",
       "repack": "Repacks",
       "alphabet": "Alphabetical",
-      "chaos": "Chaos sort"
+      "chaos": "Chaos sort",
+      "game-sort": "By game"
     }
   },
   "useBinConfigs": {
@@ -165,10 +166,18 @@
       "skipSavingFailed": "Failed to update saving",
       "resortModeFailed": "Failed to update re-sort",
       "cardsStored_one": "Stored {{count}} card",
-      "cardsStored_other": "Stored {{count}} cards"
+      "cardsStored_other": "Stored {{count}} cards",
+      "matchGamesFailed": "Failed to update games"
     }
   },
   "binsPage": {},
+  "gameSortPanel": {
+    "heading": "Sort by game",
+    "description": "Identifies each card against this game and the games you pick, then gives each game its own bin. Cards are sorted but not saved, so you can scan each pile into its own collection afterwards.",
+    "gamesLabel": "Also identify cards from",
+    "pickGames": "Pick at least one other game. Until you do, only this game's cards are recognized.",
+    "hint": "Cards that aren't recognized go to the catch-all. Each extra game makes scans a little slower."
+  },
   "autoAssignPanel": {
     "heading": "Auto-detect sorting",
     "description": "Learns bin assignments as you scan: the first time a new value appears for the field below, it claims the next open bin. Repeats route back automatically, and once every bin is taken, new values fall to the catch-all.",
@@ -309,8 +318,10 @@
   },
   "sortTest": {
     "button": "Test with a random card",
+    "cardButton": "Test sorting rules",
     "title": "Test sort",
     "description": "A random card from the database runs through {{name}}, the same way the scanner would sort it. Nothing is saved and the sorter doesn't move.",
+    "cardDescription": "This card runs through {{name}}, the same way the scanner would sort it now. Nothing is saved and the sorter doesn't move.",
     "nextCard": "Next card",
     "close": "Close",
     "noBin": "No bin",
@@ -329,6 +340,8 @@
     "cardValue": "This card: {{value}}",
     "noValue": "nothing",
     "resultAnnouncement": "{{name}} goes to {{bin}}",
+    "scannedTo": "When it was scanned, this card also went to {{bin}}.",
+    "scannedElsewhere": "When it was scanned, this card went to {{scanned}}, not {{tested}}. The preset may have changed since then, or a full bin, overflow or pick list sent it elsewhere. This test doesn't look at how full the bins are.",
     "reasons": {
       "rules": "Bin {{bin}}'s rules match this card, and it's the first bin that does.",
       "override": "Bin {{bin}} is an override bin and its rules match, so it wins over other matching bins.",
@@ -376,7 +389,9 @@
     "nonFoilOption": "Non-foil",
     "marketValueUsd": "Market value (USD)",
     "marketValueEur": "Market value (EUR)",
-    "collectorNumber": "Collector number (numeric)"
+    "collectorNumber": "Collector number (numeric)",
+    "game": "Game",
+    "stamp": "Stamp"
   },
   "pickList": {
     "modeLabel": "When a card is found",

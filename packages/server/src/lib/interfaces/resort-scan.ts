@@ -12,6 +12,7 @@ export interface CardToResort {
   id: number;
   isFoil: boolean;
   foilType: string | null;
+  stamp: string | null;
   condition: string;
   hasCapturedImage: boolean;
 }

@@ -2,9 +2,11 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import occtImportJs from "occt-import-js";
+import { pruneStepOccurrences } from "./prune-step-occurrences.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const STEP_PATH = path.resolve(here, "../../../3d model/Card Sorter.step");
+const CAMERA_MOUNT_STEP_PATH = path.resolve(here, "../../../3d model/Camera Mount.step");
 const OUT_PATH = path.resolve(here, "../public/models/card-sorter.glb");
 
 const TESSELLATION = {
@@ -19,15 +21,16 @@ const DEFAULT_COLOR = [0.92, 0.92, 0.9];
 const FEEDER_EXCLUDED = new Set([
   "tube",
   "wall",
-  "roller new",
   "roller horn",
   "feeder base flat with bearing",
   "roller horn snug",
   "roller horn loose",
   "roller horn mg90s",
+  "roller bearings",
+  "hopper extension",
 ]);
 
-const FEEDER_ROLLER = "roller";
+const FEEDER_ROLLER = "roller new";
 
 const BASE_EXCLUDED = new Set([
   "module pin",
@@ -43,6 +46,15 @@ const BASE_EXCLUDED = new Set([
   "card sleeve xl",
   "card sleeve xxl",
   "back plate feeder",
+  "back cover",
+  "back cover bottom",
+  "weight new",
+  "esp32 base module",
+  "esp breakout back plate",
+  "base panel finger hole",
+  "base panel esp",
+  "base mault",
+  "all in one board",
 ]);
 
 const MODULE_EXCLUDED = new Set([
@@ -51,12 +63,19 @@ const MODULE_EXCLUDED = new Set([
   "wire holder",
   "left card pusher",
   "right card pusher",
+  "camera mount",
+  "sides paddle horn no spline",
+  "shroud slim",
+  "staging platform",
 ]);
+const UNUSED_ASSEMBLIES = new Set(["folding_wings_all_pip_c0.25_detent v1"]);
 const TOP_PARTS = new Set(["shroud", "camera mount"]);
 const PLATFORM_PARTS = new Set(["platform"]);
 
 const BASE_ROLES = {
   "base module#9": "baseBlock",
+  "base module tall open#0": "baseBlockTall",
+  "base panel#0": "baseBlockTall",
   "base arduino#0": "groundFeeder",
   "back plate#0": "groundFeeder",
   "arduino back plate#0": "groundFeeder",
@@ -71,8 +90,7 @@ const BASE_ROLES = {
   "generic base wing left#0": "groundEnd",
   "card base wing end#0": "groundEnd",
   "front plate#0": "groundEnd",
-  "#0": "groundEnd",
-  "#1": "groundEnd",
+  "card sleeve end#0": "groundEnd",
   "card sleeve sm#0": "sleeves",
   "card sleeve sm#1": "sleeves",
 };
@@ -85,11 +103,12 @@ const PRINT_PARTS = {
   "back plate": "optionalPlate",
   "arduino back plate": "optionalPlate",
   "front plate": "optionalPlate",
-  "": "endBinPlate",
+  "card sleeve end": "endBinPlate",
 };
 
 const BASE_PRINT_PARTS = {
   baseBlock: "baseSupport",
+  baseBlockTall: "baseSupportTall",
   groundFeeder: "circuitBoardPlate",
   groundFirst: "servoControllerPlate",
   groundMiddle: "genericPlate",
@@ -123,6 +142,22 @@ function colorKey(color) {
 
 function isExcluded(name, excluded) {
   return excluded.has(name) || / (snug|loose)/.test(name);
+}
+
+function boundsMinimum(meshes) {
+  const minimum = [Infinity, Infinity, Infinity];
+  for (const mesh of meshes) {
+    const positions = mesh.attributes.position.array;
+    for (let i = 0; i < positions.length; i++) minimum[i % 3] = Math.min(minimum[i % 3], positions[i]);
+  }
+  return minimum;
+}
+
+function translateMeshes(meshes, offset) {
+  for (const mesh of meshes) {
+    const positions = mesh.attributes.position.array;
+    for (let i = 0; i < positions.length; i++) positions[i] += offset[i % 3];
+  }
 }
 
 function groupByColor(meshes) {
@@ -304,8 +339,18 @@ class GlbBuilder {
 }
 
 const occt = await occtImportJs();
-const result = occt.ReadStepFile(new Uint8Array(readFileSync(STEP_PATH)), TESSELLATION);
+const prunedStep = pruneStepOccurrences(
+  readFileSync(STEP_PATH, "latin1"),
+  (name) =>
+    UNUSED_ASSEMBLIES.has(name) ||
+    [FEEDER_EXCLUDED, BASE_EXCLUDED, MODULE_EXCLUDED].some((excluded) => isExcluded(name, excluded)),
+);
+const result = occt.ReadStepFile(new Uint8Array(Buffer.from(prunedStep, "latin1")), TESSELLATION);
 if (!result.success) throw new Error("Could not read the STEP file");
+const cameraMountResult = occt.ReadStepFile(new Uint8Array(readFileSync(CAMERA_MOUNT_STEP_PATH)), TESSELLATION);
+if (!cameraMountResult.success) throw new Error("Could not read the camera mount STEP file");
+const cameraMount = cameraMountResult.meshes.filter((mesh) => mesh.name === "camera mount");
+if (!cameraMount.length) throw new Error("Missing part: camera mount");
 
 const nodeMeshes = (node) => node.meshes.map((index) => result.meshes[index]);
 const searchNode = (node, name) =>
@@ -335,9 +380,15 @@ for (const mesh of baseMeshes) {
 }
 const missingBase = [...new Set(Object.values(BASE_ROLES))].filter((role) => !baseRoles.has(role));
 if (missingBase.length) throw new Error(`Missing base parts: ${missingBase.join(", ")}`);
+const shortBlockMinimum = boundsMinimum(baseRoles.get("baseBlock"));
+const tallBlockMinimum = boundsMinimum(baseRoles.get("baseBlockTall"));
+translateMeshes(
+  baseRoles.get("baseBlockTall"),
+  shortBlockMinimum.map((value, axis) => value - tallBlockMinimum[axis]),
+);
 const templateMeshes = nodeMeshes(findNode("sorting module")).filter((m) => !isExcluded(m.name, MODULE_EXCLUDED));
 
-const top = [];
+const top = [...cameraMount];
 const frame = [];
 const platform = [];
 const servos = [];

@@ -1,12 +1,5 @@
 import {
   CARD_PRESENCE_THRESHOLD,
-  COLOR_BAR_HUE_RANGES,
-  COLOR_BAR_MAX_RUNNER_UP_RATIO,
-  COLOR_BAR_MIN_BRIGHTNESS,
-  COLOR_BAR_MIN_ROW_SHARE,
-  COLOR_BAR_MIN_SATURATION,
-  COLOR_BAR_MIN_WHITE_BRIGHTNESS,
-  COLOR_BAR_WHITE_REFERENCE_PERCENTILE,
   MIN_CORNER_DISTANCE_SQ,
   MIN_USABLE_QUAD_AREA,
   MTG_CARD_ASPECT_RATIO,
@@ -19,8 +12,6 @@ import {
   OUTLINE_SNAP_OPACITY,
 } from "./constants/scanner.constant";
 import type {
-  ColorBarBox,
-  ColorBarRegion,
 } from "./interfaces/ocr-region.interface";
 import type {
   CardContour,
@@ -372,116 +363,6 @@ export function getDefaultCardContour(
     bottomRight: { x: left + boxW, y: top + boxH },
     bottomLeft: { x: left, y: top + boxH },
   };
-}
-
-function hueOf(r: number, g: number, b: number): number | null {
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const delta = max - min;
-  if (max < COLOR_BAR_MIN_BRIGHTNESS || delta / max < COLOR_BAR_MIN_SATURATION)
-    return null;
-  let hue: number;
-  if (max === r) hue = ((g - b) / delta) % 6;
-  else if (max === g) hue = (b - r) / delta + 2;
-  else hue = (r - g) / delta + 4;
-  return (hue * 60 + 360) % 360;
-}
-
-function colorForHue(hue: number): string | null {
-  for (const [color, ranges] of Object.entries(COLOR_BAR_HUE_RANGES)) {
-    if (ranges.some(([from, to]) => hue >= from && hue < to)) return color;
-  }
-  return null;
-}
-
-function pixelBounds(image: RgbaImage, box: ColorBarBox) {
-  const left = Math.round(box.x * image.width);
-  const top = Math.round(box.y * image.height);
-  return {
-    left,
-    top,
-    right: Math.min(
-      left + Math.max(1, Math.round(box.width * image.width)),
-      image.width,
-    ),
-    bottom: Math.min(
-      top + Math.max(1, Math.round(box.height * image.height)),
-      image.height,
-    ),
-  };
-}
-
-function whiteBalanceGains(
-  image: RgbaImage,
-  box: ColorBarBox,
-): [number, number, number] {
-  const [ro, go, bo] = channelOffsets(image);
-  const { left, top, right, bottom } = pixelBounds(image, box);
-  const pixels: [number, number, number][] = [];
-  for (let y = top; y < bottom; y++) {
-    for (let x = left; x < right; x++) {
-      const o = (y * image.width + x) * 4;
-      pixels.push([image.data[o + ro], image.data[o + go], image.data[o + bo]]);
-    }
-  }
-  if (pixels.length === 0) return [1, 1, 1];
-  pixels.sort((a, b) => a[0] + a[1] + a[2] - (b[0] + b[1] + b[2]));
-  const brightest = pixels.slice(
-    Math.floor(pixels.length * COLOR_BAR_WHITE_REFERENCE_PERCENTILE),
-  );
-  const mean = [0, 1, 2].map(
-    (channel) =>
-      brightest.reduce((sum, pixel) => sum + pixel[channel], 0) /
-      brightest.length,
-  );
-  if (Math.max(...mean) < COLOR_BAR_MIN_WHITE_BRIGHTNESS) return [1, 1, 1];
-  const gray = (mean[0] + mean[1] + mean[2]) / 3;
-  return [
-    gray / Math.max(mean[0], 1),
-    gray / Math.max(mean[1], 1),
-    gray / Math.max(mean[2], 1),
-  ];
-}
-
-export function detectColorBarRgba(
-  image: RgbaImage,
-  region: ColorBarRegion,
-): string | null {
-  const [ro, go, bo] = channelOffsets(image);
-  const [redGain, greenGain, blueGain] = whiteBalanceGains(
-    image,
-    region.whiteReference,
-  );
-  const { left, top, right, bottom } = pixelBounds(image, region);
-  const rowWidth = right - left;
-  const bestRowShareByColor: Record<string, number> = {};
-  for (let y = top; y < bottom; y++) {
-    const rowVotes: Record<string, number> = {};
-    for (let x = left; x < right; x++) {
-      const o = (y * image.width + x) * 4;
-      const hue = hueOf(
-        image.data[o + ro] * redGain,
-        image.data[o + go] * greenGain,
-        image.data[o + bo] * blueGain,
-      );
-      if (hue === null) continue;
-      const color = colorForHue(hue);
-      if (color) rowVotes[color] = (rowVotes[color] ?? 0) + 1;
-    }
-    for (const [color, votes] of Object.entries(rowVotes)) {
-      bestRowShareByColor[color] = Math.max(
-        bestRowShareByColor[color] ?? 0,
-        votes / rowWidth,
-      );
-    }
-  }
-  const [best, runnerUp] = Object.entries(bestRowShareByColor).sort(
-    (a, b) => b[1] - a[1],
-  );
-  if (!best || best[1] < COLOR_BAR_MIN_ROW_SHARE) return null;
-  if (runnerUp && runnerUp[1] > best[1] * COLOR_BAR_MAX_RUNNER_UP_RATIO)
-    return null;
-  return best[0];
 }
 
 export function maxCornerShift(a: CardContour, b: CardContour): number {

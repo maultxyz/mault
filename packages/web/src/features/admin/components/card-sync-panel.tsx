@@ -306,6 +306,41 @@ export function CardSyncPanel() {
             )}
           </div>
         )}
+
+        {!!syncState.printingMarksTotal && (
+          <div className="flex flex-col gap-1.5">
+            <div
+              role="progressbar"
+              aria-label={t("cardImageVectors.printingMarksLabel")}
+              aria-valuemin={0}
+              aria-valuemax={syncState.printingMarksTotal}
+              aria-valuenow={syncState.printingMarksDone ?? 0}
+              className="h-2 rounded-full bg-muted overflow-hidden"
+            >
+              <div
+                className="h-full bg-foreground transition-all duration-300"
+                style={{
+                  width: `${Math.min(100, ((syncState.printingMarksDone ?? 0) / syncState.printingMarksTotal) * 100)}%`,
+                }}
+              />
+            </div>
+            <div className="flex gap-4 text-xs text-foreground/70 tabular-nums">
+              <span>
+                {t("cardImageVectors.printingMarksCount", {
+                  done: syncState.printingMarksDone ?? 0,
+                  total: syncState.printingMarksTotal,
+                })}
+              </span>
+              {!!syncState.printingMarksFailed && (
+                <span className="text-destructive">
+                  {t("cardImageVectors.errorsCount", {
+                    count: syncState.printingMarksFailed,
+                  })}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded-lg border overflow-hidden">

@@ -1,5 +1,4 @@
 import { useLongPress } from "@/hooks/use-long-press";
-import { FoilOverlay } from "@/components/foil-overlay";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { MobileCardTileProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
@@ -48,7 +47,6 @@ export const MobileCardTile = memo(function MobileCardTile({
           draggable={false}
           className="h-full w-full object-cover"
         />
-        {entry.isFoil && <FoilOverlay />}
         {flagged && (
           <span
             role="img"

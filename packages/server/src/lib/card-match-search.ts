@@ -1,4 +1,12 @@
 import {
+  printingRegionsOf,
+  type PrintingMarkGroups,
+} from "@magic-vault/shared";
+import {
+  PRINTING_MARK_GROUP_ABSENT,
+  PRINTING_MARK_GROUP_UNKNOWN,
+} from "./constants/printing-marks";
+import {
   CARD_MATCH_INDEX_ESTIMATED_ROW_TEXT_BYTES,
   MILO_EMBEDDING_DIM,
 } from "./constants/card-search";
@@ -51,11 +59,19 @@ export function createCardMatchSegmentBuilder(
   const cardIds: string[] = [];
   const names: string[] = [];
   const setCodes: string[] = [];
+  const collectorNumbers: (string | null)[] = [];
   let rarePrinting = new Uint8Array(expectedRows);
-  let frontEmbeddings = new Float32Array(expectedRows * MILO_EMBEDDING_DIM);
-  let backEmbeddings = new Float32Array(
-    expectedBackFaces * MILO_EMBEDDING_DIM,
+  let promoPrinting = new Uint8Array(expectedRows);
+  let printedSetTotals = new Int32Array(expectedRows);
+  const printingMarkRegionKeys = printingRegionsOf(gameKey).map(
+    (region) => region.key,
   );
+  const regionCount = printingMarkRegionKeys.length;
+  const printingMarkGroupKeys: string[] = [];
+  const groupIdByKey = new Map<string, number>();
+  let printingMarkGroupIds = new Int32Array(expectedRows * regionCount);
+  let frontEmbeddings = new Float32Array(expectedRows * MILO_EMBEDDING_DIM);
+  let backEmbeddings = new Float32Array(expectedBackFaces * MILO_EMBEDDING_DIM);
   let backFaceIndexByRow = new Int32Array(expectedRows);
   let backFaceCount = 0;
 
@@ -65,8 +81,34 @@ export function createCardMatchSegmentBuilder(
       cardIds.push(row.cardId);
       names.push(row.name);
       setCodes.push(row.setCode);
+      collectorNumbers.push(row.collectorNumber);
       rarePrinting = withCapacity(rarePrinting, rowIndex + 1);
       rarePrinting[rowIndex] = row.rarePrinting ? 1 : 0;
+      promoPrinting = withCapacity(promoPrinting, rowIndex + 1);
+      promoPrinting[rowIndex] = row.promoPrinting ? 1 : 0;
+      printedSetTotals = withCapacity(printedSetTotals, rowIndex + 1);
+      printedSetTotals[rowIndex] = row.printedSetTotal ?? 0;
+      printingMarkGroupIds = withCapacity(
+        printingMarkGroupIds,
+        (rowIndex + 1) * regionCount,
+      );
+      printingMarkRegionKeys.forEach((regionKey, regionIndex) => {
+        let groupId = PRINTING_MARK_GROUP_UNKNOWN;
+        if (row.printingMarkGroups) {
+          const groupKey =
+            row.printingMarkGroups[regionKey as keyof PrintingMarkGroups];
+          if (!groupKey) groupId = PRINTING_MARK_GROUP_ABSENT;
+          else {
+            groupId =
+              groupIdByKey.get(groupKey) ?? printingMarkGroupKeys.length;
+            if (groupId === printingMarkGroupKeys.length) {
+              groupIdByKey.set(groupKey, groupId);
+              printingMarkGroupKeys.push(groupKey);
+            }
+          }
+        }
+        printingMarkGroupIds[rowIndex * regionCount + regionIndex] = groupId;
+      });
       frontEmbeddings = withCapacity(
         frontEmbeddings,
         (rowIndex + 1) * MILO_EMBEDDING_DIM,
@@ -97,7 +139,16 @@ export function createCardMatchSegmentBuilder(
         cardIds,
         names,
         setCodes,
+        collectorNumbers,
         rarePrinting: rarePrinting.subarray(0, rowCount),
+        promoPrinting: promoPrinting.subarray(0, rowCount),
+        printedSetTotals: printedSetTotals.subarray(0, rowCount),
+        printingMarkRegionKeys,
+        printingMarkGroupKeys,
+        printingMarkGroupIds: printingMarkGroupIds.subarray(
+          0,
+          rowCount * regionCount,
+        ),
         frontEmbeddings: frontEmbeddings.subarray(
           0,
           rowCount * MILO_EMBEDDING_DIM,
@@ -131,6 +182,9 @@ export function cardMatchSegmentBytes(segment: CardMatchSegment): number {
     segment.backEmbeddings.byteLength +
     segment.backFaceIndexByRow.byteLength +
     segment.rarePrinting.byteLength +
+    segment.promoPrinting.byteLength +
+    segment.printedSetTotals.byteLength +
+    segment.printingMarkGroupIds.byteLength +
     segment.cardIds.length * CARD_MATCH_INDEX_ESTIMATED_ROW_TEXT_BYTES
   );
 }
@@ -184,6 +238,17 @@ function closestFaceOfRow(
     : { segment, row, isBackFace: false, distance: frontDistance };
 }
 
+export function cardRowDistance(
+  segment: CardMatchSegment,
+  row: number,
+  query: Float32Array,
+): number {
+  return Math.min(
+    cosineDistance(segment.frontEmbeddings, row * MILO_EMBEDDING_DIM, query),
+    backFaceDistance(segment, row, query),
+  );
+}
+
 export function nearestCardFaces(
   segments: CardMatchSegment[],
   query: Float32Array,
@@ -193,7 +258,11 @@ export function nearestCardFaces(
   for (const segment of segments) {
     for (let row = 0; row < segment.cardIds.length; row++) {
       const distance = Math.min(
-        cosineDistance(segment.frontEmbeddings, row * MILO_EMBEDDING_DIM, query),
+        cosineDistance(
+          segment.frontEmbeddings,
+          row * MILO_EMBEDDING_DIM,
+          query,
+        ),
         backFaceDistance(segment, row, query),
       );
       if (nearest.length === limit && distance >= nearest[limit - 1].distance) {
@@ -223,7 +292,10 @@ function faceEmbedding(face: CardFaceMatch): Float32Array {
   );
 }
 
-export function faceDistance(face: CardFaceMatch, other: CardFaceMatch): number {
+export function faceDistance(
+  face: CardFaceMatch,
+  other: CardFaceMatch,
+): number {
   return cosineDistance(faceEmbedding(face), 0, faceEmbedding(other));
 }
 
@@ -246,4 +318,24 @@ export function closestPrintingInSets(
     if (!closest || face.distance < closest.distance) closest = face;
   }
   return closest;
+}
+
+export function printingMarkGroupsOfRow(
+  segment: CardMatchSegment,
+  row: number,
+): PrintingMarkGroups | null {
+  const regionCount = segment.printingMarkRegionKeys.length;
+  if (regionCount === 0) return null;
+  const groups: PrintingMarkGroups = {};
+  for (let regionIndex = 0; regionIndex < regionCount; regionIndex++) {
+    const groupId =
+      segment.printingMarkGroupIds[row * regionCount + regionIndex];
+    if (groupId === PRINTING_MARK_GROUP_UNKNOWN) return null;
+    if (groupId >= 0) {
+      groups[
+        segment.printingMarkRegionKeys[regionIndex] as keyof PrintingMarkGroups
+      ] = segment.printingMarkGroupKeys[groupId];
+    }
+  }
+  return groups;
 }

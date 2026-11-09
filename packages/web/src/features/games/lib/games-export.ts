@@ -1,4 +1,4 @@
-import { DEFAULT_OPERATORS_BY_TYPE } from "@/lib/constants/field-operators";
+import { DEFAULT_OPERATORS_BY_FIELD_TYPE } from "@magic-vault/shared";
 import { GAMES_EXPORT_FORMAT_VERSION } from "@/lib/constants/games";
 import type { GamesImportPlan } from "@/lib/interfaces/games";
 import {
@@ -44,7 +44,7 @@ export function toGameInput(game: ExportedGame): GameInput {
       label: f.label,
       type: f.type,
       path: f.path,
-      operators: DEFAULT_OPERATORS_BY_TYPE[f.type],
+      operators: DEFAULT_OPERATORS_BY_FIELD_TYPE[f.type],
       ...(f.options?.length ? { options: f.options } : {}),
     })),
   };

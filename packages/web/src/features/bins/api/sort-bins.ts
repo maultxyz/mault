@@ -138,6 +138,15 @@ export async function setSkipSaving(
   });
 }
 
+export async function setMatchGames(
+  guid: string,
+  gameKeys: string[],
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/match-games`, {
+    gameKeys,
+  });
+}
+
 export async function setResortMode(
   guid: string,
   isResortMode: boolean,
