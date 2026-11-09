@@ -192,8 +192,8 @@
             "part": "M3 nut",
             "notes": "Paired with the base panel M3×6 screws"
           },
-          "m3Washer": {
-            "part": "M3 washer",
+          "m10Washer": {
+            "part": "M10 washer",
             "notes": "Used with the M3×8 screws that mount the hopper roller"
           },
           "m3x8Screw": {
@@ -493,7 +493,7 @@
             "note": "Same as the feeder roller, these give it grip on the card face."
           },
           "mountHopperRoller": {
-            "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M3 washers.",
+            "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M10 washers.",
             "note": "The roller should be stiff once mounted. It should not free-roll."
           },
           "calibrateHopperRoller": {

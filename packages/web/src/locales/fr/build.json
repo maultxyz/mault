@@ -192,8 +192,8 @@
             "part": "Écrou M3",
             "notes": "Associé aux vis M3×6 des panneaux de base"
           },
-          "m3Washer": {
-            "part": "Rondelle M3",
+          "m10Washer": {
+            "part": "Rondelle M10",
             "notes": "Utilisée avec les vis M3×8 qui fixent le rouleau de la trémie"
           },
           "m3x8Screw": {
@@ -493,7 +493,7 @@
             "note": "Comme pour le rouleau du chargeur, ils lui donnent de l'adhérence sur la carte."
           },
           "mountHopperRoller": {
-            "text": "Installe le rouleau de la trémie sur la trémie avec 2 vis M3×8 et 2 rondelles M3.",
+            "text": "Installe le rouleau de la trémie sur la trémie avec 2 vis M3×8 et 2 rondelles M10.",
             "note": "Le rouleau doit être rigide une fois monté, il ne doit pas tourner librement."
           },
           "calibrateHopperRoller": {

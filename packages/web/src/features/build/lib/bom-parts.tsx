@@ -242,12 +242,12 @@ export const GROUPS: BomGroup[] = [
         buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
-        key: "m3-washer",
+        key: "m10-washer",
         qty: () => "2",
-        name: "M3 washer",
-        part: (t) => t("bom.groups.fasteners.items.m3Washer.part"),
-        notes: (t) => t("bom.groups.fasteners.items.m3Washer.notes"),
-        buyUrl: "https://amzn.to/3VfNwJN",
+        name: "M10 washer",
+        part: (t) => t("bom.groups.fasteners.items.m10Washer.part"),
+        notes: (t) => t("bom.groups.fasteners.items.m10Washer.notes"),
+        buyUrl: "https://link.amazon/B0h61W2hh",
       },
       {
         key: "m3x8-screw",
