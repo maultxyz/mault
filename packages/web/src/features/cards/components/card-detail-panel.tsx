@@ -1198,8 +1198,8 @@ export function CardDetailPanel({
                       className={cn(
                         "grid gap-4",
                         showCapturedImageSlot
-                          ? "grid-cols-2 max-w-3xl"
-                          : "max-w-sm",
+                          ? "grid-cols-2 max-w-xl"
+                          : "max-w-2xs",
                       )}
                     >
                       {cardImages}
@@ -1229,10 +1229,6 @@ export function CardDetailPanel({
 
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
-                    {!reviewMode &&
-                      scanId &&
-                      !extraActions &&
-                      scanAttributeControls}
                     <DetailSection title={t("cardDetailPanel.details")}>
                       <div className="flex flex-col gap-4">
                         <CardDetailsList card={selectedCard} />
@@ -1243,6 +1239,11 @@ export function CardDetailPanel({
                         )}
                       </div>
                     </DetailSection>
+
+                    {!reviewMode &&
+                      scanId &&
+                      !extraActions &&
+                      scanAttributeControls}
 
                     <DetailSection title={t("cardDetailPanel.prices")}>
                       <div className="flex flex-col gap-4">

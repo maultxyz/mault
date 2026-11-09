@@ -465,8 +465,6 @@ export default function CardDetailScreen() {
               </View>
             ) : null}
 
-            {entry && !reviewMode ? scanAttributeFields : null}
-
             {candidates.length > 1 ? (
               <View style={{ gap: SPACING.sm }}>
                 <Pressable
@@ -599,6 +597,8 @@ export default function CardDetailScreen() {
                 <Skeleton height={16} width="55%" />
               </View>
             ) : null}
+
+            {entry && !reviewMode ? scanAttributeFields : null}
 
             {card ? (
               <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
