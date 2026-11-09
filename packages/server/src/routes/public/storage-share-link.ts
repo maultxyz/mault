@@ -16,6 +16,7 @@ import {
   sharedStorageReadsKey,
 } from "../../lib/shared-storage-reads-cache";
 import { verifyStorageShareLink } from "../../lib/storage-share-links";
+import { createPublicCardHoldsRoute } from "./card-holds";
 import type { AppEnv } from "../../middleware/auth";
 import { parseCardsQuery } from "../collections/cards-query";
 import {
@@ -36,6 +37,22 @@ async function claimsFor(
 export const publicStorageShareLinkRoute = new Hono<AppEnv>()
   .use("/storage-share-link", shareLinkRateLimit)
   .use("/storage-share-link/*", shareLinkRateLimit)
+  .route(
+    "/storage-share-link",
+    createPublicCardHoldsRoute(async (c) => {
+      const claims = await claimsFor(c);
+      return claims
+        ? {
+            scope: {
+              kind: "storage",
+              orgId: claims.orgId,
+              locationId: claims.locationId,
+            },
+            holdMinutes: claims.holdMinutes,
+          }
+        : null;
+    }),
+  )
   .get("/storage-share-link", async (c) => {
     const claims = await claimsFor(c);
     if (!claims) {
@@ -50,9 +67,19 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
       "info",
       {},
     );
-    const cachedInfo = sharedStorageReadsCache.get(cacheKey);
+    const tokenInfo = {
+      expiresAt: claims.expiresAt.toISOString(),
+      holdMinutes: claims.holdMinutes,
+    };
+    const cachedInfo = sharedStorageReadsCache.get(cacheKey) as
+      | StorageShareLinkInfo
+      | undefined;
     if (cachedInfo) {
-      return c.json({ success: true, message: "Valid share link.", data: cachedInfo });
+      return c.json({
+        success: true,
+        message: "Valid share link.",
+        data: { ...cachedInfo, ...tokenInfo },
+      });
     }
     const data = await db.transaction(async (tx) => {
       const pricing = await loadOrgPricing(tx, claims.orgId);
@@ -60,7 +87,7 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
       const info: StorageShareLinkInfo = {
         locationGuid: claims.locationGuid,
         locationName: claims.locationName,
-        expiresAt: claims.expiresAt.toISOString(),
+        ...tokenInfo,
         cardCount: stats.totalCount,
         totalValue: claims.showsPrices ? stats.totalValue : 0,
         priceSource: pricing.source,

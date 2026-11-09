@@ -4,7 +4,10 @@ import {
   createStorageShareLink,
   revokeStorageShareLinks,
 } from "@/features/storage/api/storage-share-links";
-import type { ShareStorageLinkDialogProps } from "@/lib/interfaces/share-links";
+import type {
+  ShareLinkOptions,
+  ShareStorageLinkDialogProps,
+} from "@/lib/interfaces/share-links";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -15,8 +18,13 @@ export function ShareStorageLinkDialog({
   const { t } = useTranslation("storage");
 
   const createLink = useCallback(
-    async (expiresInDays: number, showPrices: boolean) => {
-      const result = await createStorageShareLink(locationGuid, expiresInDays, showPrices);
+    async ({ expiresInDays, showPrices, holdMinutes }: ShareLinkOptions) => {
+      const result = await createStorageShareLink(
+        locationGuid,
+        expiresInDays,
+        showPrices,
+        holdMinutes,
+      );
       if (!result.success || !result.data) throw new Error(result.message);
       return {
         url: buildStorageShareLinkUrl(locationGuid, result.data.token),

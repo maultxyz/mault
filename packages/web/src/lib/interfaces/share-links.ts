@@ -6,12 +6,18 @@ export interface CreatedShareLink {
   expiresAt: string;
 }
 
+export interface ShareLinkOptions {
+  expiresInDays: number;
+  showPrices: boolean;
+  holdMinutes: number | null;
+}
+
 export interface ShareLinkDialogProps {
   title: string;
   description: string;
   trigger: ReactElement;
   revokedMessage: string;
-  createLink: (expiresInDays: number, showPrices: boolean) => Promise<CreatedShareLink>;
+  createLink: (options: ShareLinkOptions) => Promise<CreatedShareLink>;
   revokeLinks: () => Promise<void>;
 }
 

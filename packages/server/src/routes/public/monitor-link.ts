@@ -8,6 +8,7 @@ import { shareLinkRateLimit } from "../../lib/share-link-rate-limit";
 import type { MonitorLinkClaims } from "../../lib/interfaces/monitor-links";
 import type { AppEnv } from "../../middleware/auth";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
+import { createPublicCardHoldsRoute } from "./card-holds";
 import {
   readCardsCount,
   readCardsPage,
@@ -22,6 +23,22 @@ async function claimsFor(c: Context<AppEnv>): Promise<MonitorLinkClaims | null> 
 export const publicMonitorLinkRoute = new Hono<AppEnv>()
   .use("/monitor-link", shareLinkRateLimit)
   .use("/monitor-link/*", shareLinkRateLimit)
+  .route(
+    "/monitor-link",
+    createPublicCardHoldsRoute(async (c) => {
+      const claims = await claimsFor(c);
+      return claims
+        ? {
+            scope: {
+              kind: "collection",
+              orgId: claims.orgId,
+              collectionId: claims.collectionId,
+            },
+            holdMinutes: claims.holdMinutes,
+          }
+        : null;
+    }),
+  )
   .get("/monitor-link", async (c) => {
     const claims = await claimsFor(c);
     if (!claims) {
@@ -38,6 +55,7 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
         priceSource: pricing.source,
         conditionMultipliers: pricing.conditionMultipliers,
         showsPrices: claims.showsPrices,
+        holdMinutes: claims.holdMinutes,
       } satisfies MonitorLinkInfo,
     });
   })

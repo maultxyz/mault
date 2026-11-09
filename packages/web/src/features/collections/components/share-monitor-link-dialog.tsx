@@ -10,6 +10,7 @@ import type { ShareMonitorLinkDialogProps } from "@/lib/interfaces/collections";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { IconShare } from "@tabler/icons-react";
+import type { ShareLinkOptions } from "@/lib/interfaces/share-links";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -20,8 +21,13 @@ export function ShareMonitorLinkDialog({
   const isMobile = useIsMobile();
 
   const createLink = useCallback(
-    async (expiresInDays: number, showPrices: boolean) => {
-      const result = await createMonitorLink(collectionGuid, expiresInDays, showPrices);
+    async ({ expiresInDays, showPrices, holdMinutes }: ShareLinkOptions) => {
+      const result = await createMonitorLink(
+        collectionGuid,
+        expiresInDays,
+        showPrices,
+        holdMinutes,
+      );
       if (!result.success || !result.data) throw new Error(result.message);
       return {
         url: buildMonitorLinkUrl(collectionGuid, result.data.token),

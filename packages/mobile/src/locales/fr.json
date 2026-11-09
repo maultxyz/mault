@@ -119,7 +119,14 @@
     "revokeFailed": "Impossible de révoquer les liens partagés.",
     "cancel": "Annuler",
     "showPrices": "Afficher les prix",
-    "showPricesDescription": "Désactive pour masquer les prix des cartes et les totaux à toute personne utilisant ce lien."
+    "showPricesDescription": "Désactive pour masquer les prix des cartes et les totaux à toute personne utilisant ce lien.",
+    "allowHolds": "Autoriser les réservations",
+    "allowHoldsDescription": "Les personnes qui utilisent ce lien peuvent réserver des cartes à leur nom. Les réservations expirent d'elles-mêmes sauf si tu les approuves.",
+    "holdLengthLabel": "Durée des réservations",
+    "holdLengthMinutes_one": "{{count}} minute",
+    "holdLengthMinutes_other": "{{count}} minutes",
+    "holdLengthHours_one": "{{count}} heure",
+    "holdLengthHours_other": "{{count}} heures"
   },
   "cards": {
     "bin": "Bac {{number}}",
@@ -2758,5 +2765,25 @@
         "share": "Partager la clé"
       }
     }
+  },
+  "cardHolds": {
+    "title": "Réservations",
+    "description": "Cartes réservées via tes liens de partage. Approuve une réservation pour la garder jusqu'à ce que tu la libères.",
+    "approve": "Approuver",
+    "approveFor": "Approuver {{name}}",
+    "release": "Libérer",
+    "releaseFor": "Libérer {{name}}",
+    "approvedToast": "Réservation de {{name}} approuvée.",
+    "released": "Réservation de {{name}} libérée.",
+    "approveFailed": "Impossible d'approuver la réservation.",
+    "releaseFailed": "Impossible de libérer la réservation.",
+    "loadFailed": "Impossible de charger les réservations.",
+    "empty": "Aucune carte réservée",
+    "emptyDescription": "Active Autoriser les réservations en créant un lien de partage pour que d'autres puissent réserver des cartes.",
+    "heldUntil": "jusqu'à {{time}}",
+    "approved": "Approuvée",
+    "heldBy": "Réservée par {{name}}",
+    "awaitingApproval": "En attente d'approbation",
+    "foil": "Foil"
   }
 }

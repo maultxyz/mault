@@ -15,10 +15,11 @@ export function createMonitorLink(
   collectionGuid: string,
   expiresInDays: number,
   showPrices = DEFAULT_SHARE_LINK_SHOWS_PRICES,
+  holdMinutes: number | null = null,
 ): Promise<Result<MonitorLink>> {
   return apiPost<Result<MonitorLink>>(
     `/api/collections/${collectionGuid}/monitor-link`,
-    { expiresInDays, showPrices },
+    { expiresInDays, showPrices, holdMinutes },
   );
 }
 

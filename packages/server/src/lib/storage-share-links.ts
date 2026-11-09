@@ -19,6 +19,7 @@ export function signStorageShareLink(
   version: number,
   expiresInDays: number,
   showsPrices: boolean,
+  holdMinutes: number | null,
 ) {
   return signShareToken({
     issuer: STORAGE_SHARE_LINK_ISSUER,
@@ -27,6 +28,7 @@ export function signStorageShareLink(
     version,
     expiresInDays,
     showsPrices,
+    holdMinutes,
   });
 }
 
@@ -68,5 +70,6 @@ async function loadStorageShareLinkClaims(
     locationName: location.name,
     expiresAt: verified.expiresAt,
     showsPrices: verified.showsPrices,
+    holdMinutes: verified.holdMinutes,
   };
 }

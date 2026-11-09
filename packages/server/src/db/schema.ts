@@ -862,6 +862,35 @@ export const webhookDeliveries = pgTable(
   ],
 ).enableRLS();
 
+export const cardHolds = pgTable(
+  "card_holds",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    collectionCardId: integer("collection_card_id")
+      .notNull()
+      .references(() => collectionCards.id, { onDelete: "cascade" }),
+    guestName: text("guest_name").notNull(),
+    guestNote: text("guest_note"),
+    guestKeyHash: text("guest_key_hash").notNull(),
+    shareLinkKind: text("share_link_kind").notNull(),
+    expiresAt: timestamp("expires_at"),
+    approvedAt: timestamp("approved_at"),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("card_holds_guid_idx").on(table.guid),
+    uniqueIndex("card_holds_card_idx").on(table.collectionCardId),
+    index("card_holds_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const fulfilmentOrders = pgTable(
   "fulfilment_orders",
   {

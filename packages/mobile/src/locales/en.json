@@ -119,7 +119,14 @@
     "revokeFailed": "Couldn't revoke the shared links.",
     "cancel": "Cancel",
     "showPrices": "Show prices",
-    "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link."
+    "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link.",
+    "allowHolds": "Allow holds",
+    "allowHoldsDescription": "Let people using this link put cards on hold by name. Holds end on their own unless you approve them.",
+    "holdLengthLabel": "Holds last",
+    "holdLengthMinutes_one": "{{count}} minute",
+    "holdLengthMinutes_other": "{{count}} minutes",
+    "holdLengthHours_one": "{{count}} hour",
+    "holdLengthHours_other": "{{count}} hours"
   },
   "cards": {
     "bin": "Bin {{number}}",
@@ -2758,5 +2765,25 @@
         "share": "Share key"
       }
     }
+  },
+  "cardHolds": {
+    "title": "Holds",
+    "description": "Cards people put on hold from your share links. Approve a hold to keep it until you release it.",
+    "approve": "Approve",
+    "approveFor": "Approve {{name}}",
+    "release": "Release",
+    "releaseFor": "Release {{name}}",
+    "approvedToast": "Approved the hold on {{name}}.",
+    "released": "Released the hold on {{name}}.",
+    "approveFailed": "Couldn't approve the hold.",
+    "releaseFailed": "Couldn't release the hold.",
+    "loadFailed": "Couldn't load holds.",
+    "empty": "No cards on hold",
+    "emptyDescription": "Turn on Allow holds when you create a share link so people can hold cards.",
+    "heldUntil": "until {{time}}",
+    "approved": "Approved",
+    "heldBy": "Held by {{name}}",
+    "awaitingApproval": "Awaiting approval",
+    "foil": "Foil"
   }
 }

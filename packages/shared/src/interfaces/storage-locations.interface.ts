@@ -152,6 +152,7 @@ export interface StorageShareLinkInfo {
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;
   showsPrices: boolean;
+  holdMinutes: number | null;
 }
 
 export type SharedStorageCard = Pick<

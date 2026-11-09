@@ -5,6 +5,7 @@ export interface ShareTokenSignInput {
   version: number;
   expiresInDays: number;
   showsPrices: boolean;
+  holdMinutes: number | null;
 }
 
 export interface SignedShareToken {
@@ -18,6 +19,7 @@ export interface VerifiedShareToken {
   version: number;
   expiresAt: Date;
   showsPrices: boolean;
+  holdMinutes: number | null;
 }
 
 export interface StorageShareLinkClaims {
@@ -27,4 +29,11 @@ export interface StorageShareLinkClaims {
   locationName: string;
   expiresAt: Date;
   showsPrices: boolean;
+  holdMinutes: number | null;
+}
+
+export interface ShareLinkRequestBody {
+  expiresInDays?: number;
+  showPrices?: unknown;
+  holdMinutes?: unknown;
 }

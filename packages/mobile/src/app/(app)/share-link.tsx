@@ -27,7 +27,10 @@ import { QR_CODE_MAX_SIZE } from "@/lib/constants/share-links";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { CreatedShareLink, ShareLinkKind } from "@/lib/interfaces/share-links";
 import {
+  CARD_HOLD_MINUTES,
+  DEFAULT_CARD_HOLD_MINUTES,
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  DEFAULT_SHARE_LINK_ALLOWS_HOLDS,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
 } from "@magic-vault/shared";
@@ -40,15 +43,18 @@ export default function ShareLinkScreen() {
   const isStorage = kind === "storage";
   const [expiresInDays, setExpiresInDays] = useState<number>(DEFAULT_MONITOR_LINK_EXPIRY_DAYS);
   const [showsPrices, setShowsPrices] = useState(DEFAULT_SHARE_LINK_SHOWS_PRICES);
+  const [allowsHolds, setAllowsHolds] = useState(DEFAULT_SHARE_LINK_ALLOWS_HOLDS);
+  const [holdMinutes, setHoldMinutes] = useState<number>(DEFAULT_CARD_HOLD_MINUTES);
+  const linkHoldMinutes = allowsHolds ? holdMinutes : null;
   const [link, setLink] = useState<CreatedShareLink | null>(null);
 
   const create = useMutation({
     mutationFn: async (): Promise<CreatedShareLink> => {
       if (isStorage) {
-        const created = await createStorageShareLink(guid, expiresInDays, showsPrices);
+        const created = await createStorageShareLink(guid, expiresInDays, showsPrices, linkHoldMinutes);
         return { url: buildStorageShareLinkUrl(guid, created.token), expiresAt: created.expiresAt };
       }
-      const created = await createMonitorLink(guid, expiresInDays, showsPrices);
+      const created = await createMonitorLink(guid, expiresInDays, showsPrices, linkHoldMinutes);
       return { url: buildMonitorLinkUrl(guid, created.token), expiresAt: created.expiresAt };
     },
     onSuccess: (created) => {
@@ -104,6 +110,30 @@ export default function ShareLinkScreen() {
           value={showsPrices}
           onValueChange={setShowsPrices}
         />
+        <SwitchRow
+          title={t("shareLink.allowHolds")}
+          description={t("shareLink.allowHoldsDescription")}
+          value={allowsHolds}
+          onValueChange={setAllowsHolds}
+        />
+        {allowsHolds ? (
+          <View style={{ gap: SPACING.sm }}>
+            <AppText weight="semibold" accessibilityRole="header">
+              {t("shareLink.holdLengthLabel")}
+            </AppText>
+            <SegmentedControl
+              options={CARD_HOLD_MINUTES.map((minutes) => ({
+                value: String(minutes),
+                label:
+                  minutes < 60
+                    ? t("shareLink.holdLengthMinutes", { count: minutes })
+                    : t("shareLink.holdLengthHours", { count: minutes / 60 }),
+              }))}
+              value={String(holdMinutes)}
+              onChange={(value) => setHoldMinutes(Number(value))}
+            />
+          </View>
+        ) : null}
         {link ? (
           <View style={{ alignItems: "center", gap: SPACING.md }}>
             <QrCode

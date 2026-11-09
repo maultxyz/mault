@@ -11,6 +11,10 @@ import {
   PASSWORD_MIN_LENGTH,
   WEBHOOK_FORM_URL_PATTERN,
 } from "../constants/form-validation.constant";
+import {
+  CARD_HOLD_GUEST_NAME_MAX_LENGTH,
+  CARD_HOLD_GUEST_NOTE_MAX_LENGTH,
+} from "../constants/monitor-links.constant";
 import { NOTIFICATION_RULE_NAME_MAX_LENGTH } from "../constants/integrations.constant";
 import { PRICE_SOURCES } from "../constants/price-source.constant";
 import { SET_NAME_MAX_LENGTH } from "../constants/sort-bins.constant";
@@ -254,4 +258,19 @@ export const feederTestFormSchema = z.object({
     .int(formValidationMessage("wholeNumber"))
     .min(FEEDER_TEST_MIN_CARD_COUNT, formValidationMessage("atLeast", { min: FEEDER_TEST_MIN_CARD_COUNT }))
     .max(FEEDER_TEST_MAX_CARD_COUNT, formValidationMessage("atMost", { max: FEEDER_TEST_MAX_CARD_COUNT })),
+});
+
+export const cardHoldRequestFormSchema = z.object({
+  guestName: nameSchema(CARD_HOLD_GUEST_NAME_MAX_LENGTH),
+  guestNote: z
+    .string()
+    .trim()
+    .max(
+      CARD_HOLD_GUEST_NOTE_MAX_LENGTH,
+      formValidationMessage("nameTooLong", { max: CARD_HOLD_GUEST_NOTE_MAX_LENGTH }),
+    ),
+});
+
+export const cardHoldRequestSchema = cardHoldRequestFormSchema.extend({
+  scanId: z.uuid(),
 });

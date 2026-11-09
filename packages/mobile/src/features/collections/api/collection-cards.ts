@@ -189,8 +189,15 @@ export function fetchCollectionCardCopies(guid: string, cardIds: string[]): Prom
   return unwrap(apiGet<Result<ScannedCard[]>>(`/api/collections/${guid}/cards/copies?${params.toString()}`));
 }
 
-export function createMonitorLink(guid: string, expiresInDays: number, showPrices: boolean): Promise<MonitorLink> {
-  return unwrap(apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays, showPrices }));
+export function createMonitorLink(
+  guid: string,
+  expiresInDays: number,
+  showPrices: boolean,
+  holdMinutes: number | null,
+): Promise<MonitorLink> {
+  return unwrap(
+    apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays, showPrices, holdMinutes }),
+  );
 }
 
 export function revokeMonitorLinks(guid: string): Promise<unknown> {

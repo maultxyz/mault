@@ -28,13 +28,16 @@ import {
 } from "@/schemas/monitor-link.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  CARD_HOLD_MINUTES,
+  DEFAULT_CARD_HOLD_MINUTES,
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  DEFAULT_SHARE_LINK_ALLOWS_HOLDS,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
 } from "@magic-vault/shared";
 import { IconCopy, IconLoader2 } from "@tabler/icons-react";
 import { useCallback, useId, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 export function ShareLinkDialog({
@@ -51,6 +54,9 @@ export function ShareLinkDialog({
   const linkInputId = useId();
   const showPricesId = useId();
   const showPricesDescriptionId = useId();
+  const allowHoldsId = useId();
+  const allowHoldsDescriptionId = useId();
+  const holdLengthSelectId = useId();
   const [open, setOpen] = useState(false);
   const [link, setLink] = useState<CreatedShareLink | null>(null);
   const [isRevoking, setIsRevoking] = useState(false);
@@ -61,8 +67,11 @@ export function ShareLinkDialog({
     defaultValues: {
       expiresInDays: String(DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
       showPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
+      allowHolds: DEFAULT_SHARE_LINK_ALLOWS_HOLDS,
+      holdMinutes: String(DEFAULT_CARD_HOLD_MINUTES),
     },
   });
+  const allowsHolds = useWatch({ control: form.control, name: "allowHolds" });
 
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
@@ -79,7 +88,11 @@ export function ShareLinkDialog({
     async (values: MonitorLinkFormValues) => {
       try {
         setLink(
-          await createLink(Number(values.expiresInDays), values.showPrices),
+          await createLink({
+            expiresInDays: Number(values.expiresInDays),
+            showPrices: values.showPrices,
+            holdMinutes: values.allowHolds ? Number(values.holdMinutes) : null,
+          }),
         );
       } catch {
         toast.error(t("shareLink.createFailed"));
@@ -112,6 +125,10 @@ export function ShareLinkDialog({
 
   const expiryLabel = (days: number) =>
     t("shareLink.expiryOption", { count: days });
+  const holdLengthLabel = (minutes: number) =>
+    minutes < 60
+      ? t("shareLink.holdLengthMinutes", { count: minutes })
+      : t("shareLink.holdLengthHours", { count: minutes / 60 });
   const isSubmitting = form.formState.isSubmitting;
 
   return (
@@ -193,6 +210,53 @@ export function ShareLinkDialog({
             </Field>
           )}
         />
+        <Controller
+          name="allowHolds"
+          control={form.control}
+          render={({ field }) => (
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor={allowHoldsId}>
+                  {t("shareLink.allowHolds")}
+                </FieldLabel>
+                <FieldDescription id={allowHoldsDescriptionId}>
+                  {t("shareLink.allowHoldsDescription")}
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id={allowHoldsId}
+                aria-describedby={allowHoldsDescriptionId}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </Field>
+          )}
+        />
+        {allowsHolds && (
+          <Controller
+            name="holdMinutes"
+            control={form.control}
+            render={({ field }) => (
+              <Field>
+                <FieldLabel htmlFor={holdLengthSelectId}>
+                  {t("shareLink.holdLengthLabel")}
+                </FieldLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger id={holdLengthSelectId}>
+                    <SelectValue>{holdLengthLabel(Number(field.value))}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CARD_HOLD_MINUTES.map((minutes) => (
+                      <SelectItem key={minutes} value={String(minutes)}>
+                        {holdLengthLabel(minutes)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
+        )}
         {link && (
           <>
             {qrCodeDataUrl && (
