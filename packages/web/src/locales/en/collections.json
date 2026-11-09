@@ -96,21 +96,7 @@
     "trigger": "Share",
     "title": "Share live view",
     "description": "Anyone with this link can watch this collection's scanning session without logging in. They can't change anything.",
-    "expiryLabel": "Link expires after",
-    "expiryOption_one": "{{count}} day",
-    "expiryOption_other": "{{count}} days",
-    "create": "Create link",
-    "createAnother": "Create new link",
-    "linkLabel": "Link",
-    "copy": "Copy link",
-    "copied": "Link copied.",
-    "copyFailed": "Couldn't copy the link. Select it and copy it manually.",
-    "expiresAt": "Expires {{date}}",
-    "createFailed": "Couldn't create a share link.",
-    "revokeAll": "Revoke all links",
-    "revoked": "Every shared link for this collection has stopped working.",
-    "revokeFailed": "Couldn't revoke the shared links.",
-    "close": "Close"
+    "revoked": "Every shared link for this collection has stopped working."
   },
   "selection": {
     "select": "Select {{name}}",

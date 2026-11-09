@@ -91,13 +91,35 @@
     "actions": "Collection actions",
     "cancel": "Cancel",
     "shareLink": "Share live view link",
-    "revokeLinks": "Revoke shared links",
-    "revokeLinksTitle": "Revoke shared links?",
-    "revokeLinksDescription": "Anyone with a link to this collection's live view loses access.",
-    "shareLinkFailed": "Couldn't update the live view link",
     "scanTarget": "Scanning here",
     "scanInto": "Scan into this collection",
     "scan": "Scan"
+  },
+  "shareLink": {
+    "collectionTitle": "Share live view",
+    "collectionDescription": "Anyone with this link or QR code can watch this collection's scanning session without logging in. They can't change anything.",
+    "storageTitle": "Share storage location",
+    "storageDescription": "Anyone with this link or QR code can see the cards in this location without logging in. They can't change anything.",
+    "expiryLabel": "Link expires after",
+    "expiryOption_one": "{{count}} day",
+    "expiryOption_other": "{{count}} days",
+    "create": "Create link",
+    "createAnother": "Create new link",
+    "created": "Link created. The QR code and Share button are below.",
+    "createFailed": "Couldn't create a share link.",
+    "share": "Share link",
+    "qrLabel": "QR code for this link. Scan it with a phone camera to open the link.",
+    "qrHint": "Scan to open",
+    "expiresAt": "Expires {{date}}",
+    "revokeAll": "Revoke all links",
+    "revokeTitle": "Revoke all links?",
+    "collectionRevokeDescription": "Anyone with a link to this collection's live view loses access.",
+    "storageRevokeDescription": "Anyone with a link to this location loses access.",
+    "revoked": "Every shared link has stopped working.",
+    "revokeFailed": "Couldn't revoke the shared links.",
+    "cancel": "Cancel",
+    "showPrices": "Show prices",
+    "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link."
   },
   "cards": {
     "bin": "Bin {{number}}",
@@ -1363,7 +1385,8 @@
         "title": "Verify cards",
         "remaining": "{{count}} left to verify"
       }
-    }
+    },
+    "share": "Share location"
   },
   "settings": {
     "title": "Settings",

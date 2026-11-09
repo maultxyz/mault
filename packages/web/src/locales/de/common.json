@@ -407,5 +407,25 @@
       "warning": "Warnung:",
       "danger": "Fehler:"
     }
+  },
+  "shareLink": {
+    "expiryLabel": "Link läuft ab nach",
+    "expiryOption_one": "{{count}} Tag",
+    "expiryOption_other": "{{count}} Tagen",
+    "create": "Link erstellen",
+    "createAnother": "Neuen Link erstellen",
+    "linkLabel": "Link",
+    "copy": "Link kopieren",
+    "copied": "Link kopiert.",
+    "copyFailed": "Der Link konnte nicht kopiert werden. Markiere ihn und kopiere ihn manuell.",
+    "expiresAt": "Läuft ab am {{date}}",
+    "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
+    "revokeAll": "Alle Links widerrufen",
+    "revokeFailed": "Die geteilten Links konnten nicht widerrufen werden.",
+    "close": "Schließen",
+    "qrAlt": "QR-Code für diesen Link. Scanne ihn mit einer Handykamera, um den Link zu öffnen.",
+    "qrHint": "Zum Öffnen scannen",
+    "showPrices": "Preise anzeigen",
+    "showPricesDescription": "Ausschalten, um Kartenpreise und Summen für alle mit diesem Link auszublenden."
   }
 }

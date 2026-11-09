@@ -3,6 +3,7 @@ import { Hono, type Context } from "hono";
 import { db } from "../../db";
 import { verifyMonitorLink } from "../../lib/monitor-links";
 import { loadOrgPricing } from "../../lib/price-source";
+import { pricesForShareLink } from "../../lib/share-link-pricing";
 import type { MonitorLinkClaims } from "../../lib/interfaces/monitor-links";
 import type { AppEnv } from "../../middleware/auth";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
@@ -33,6 +34,7 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
         expiresAt: claims.expiresAt.toISOString(),
         priceSource: pricing.source,
         conditionMultipliers: pricing.conditionMultipliers,
+        showsPrices: claims.showsPrices,
       } satisfies MonitorLinkInfo,
     });
   })
@@ -50,7 +52,10 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
     if (!data) {
       return c.json({ success: false, message: "Collection not found." });
     }
-    return c.json({ success: true, data });
+    return c.json({
+      success: true,
+      data: pricesForShareLink(data, claims.showsPrices),
+    });
   })
   .get("/monitor-link/cards/count", async (c) => {
     const claims = await claimsFor(c);
@@ -66,7 +71,10 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
     if (!data) {
       return c.json({ success: false, message: "Collection not found." });
     }
-    return c.json({ success: true, data });
+    return c.json({
+      success: true,
+      data: pricesForShareLink(data, claims.showsPrices),
+    });
   })
   .get("/monitor-link/cards/summary", async (c) => {
     const claims = await claimsFor(c);
@@ -82,5 +90,8 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
     if (!data) {
       return c.json({ success: false, message: "Collection not found." });
     }
-    return c.json({ success: true, data });
+    return c.json({
+      success: true,
+      data: pricesForShareLink(data, claims.showsPrices),
+    });
   });

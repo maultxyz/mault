@@ -3,4 +3,5 @@ export interface MonitorLinkClaims {
   orgId: string;
   collectionName: string;
   expiresAt: Date;
+  showsPrices: boolean;
 }

@@ -91,13 +91,35 @@
     "actions": "Sammlungsaktionen",
     "cancel": "Abbrechen",
     "shareLink": "Link zur Live-Ansicht teilen",
-    "revokeLinks": "Geteilte Links widerrufen",
-    "revokeLinksTitle": "Geteilte Links widerrufen?",
-    "revokeLinksDescription": "Alle mit einem Link zur Live-Ansicht dieser Sammlung verlieren den Zugriff.",
-    "shareLinkFailed": "Der Link zur Live-Ansicht konnte nicht aktualisiert werden",
     "scanTarget": "Hier wird gescannt",
     "scanInto": "In diese Sammlung scannen",
     "scan": "Scannen"
+  },
+  "shareLink": {
+    "collectionTitle": "Live-Ansicht teilen",
+    "collectionDescription": "Jeder mit diesem Link oder QR-Code kann die Scan-Sitzung dieser Sammlung ohne Anmeldung ansehen. Ändern kann er nichts.",
+    "storageTitle": "Lagerort teilen",
+    "storageDescription": "Jeder mit diesem Link oder QR-Code kann die Karten an diesem Lagerort ohne Anmeldung sehen. Ändern kann er nichts.",
+    "expiryLabel": "Link läuft ab nach",
+    "expiryOption_one": "{{count}} Tag",
+    "expiryOption_other": "{{count}} Tagen",
+    "create": "Link erstellen",
+    "createAnother": "Neuen Link erstellen",
+    "created": "Link erstellt. QR-Code und Teilen-Taste findest du unten.",
+    "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
+    "share": "Link teilen",
+    "qrLabel": "QR-Code für diesen Link. Scanne ihn mit einer Handykamera, um den Link zu öffnen.",
+    "qrHint": "Zum Öffnen scannen",
+    "expiresAt": "Läuft ab am {{date}}",
+    "revokeAll": "Alle Links widerrufen",
+    "revokeTitle": "Alle Links widerrufen?",
+    "collectionRevokeDescription": "Jeder mit einem Link zur Live-Ansicht dieser Sammlung verliert den Zugriff.",
+    "storageRevokeDescription": "Jeder mit einem Link zu diesem Lagerort verliert den Zugriff.",
+    "revoked": "Alle geteilten Links funktionieren nicht mehr.",
+    "revokeFailed": "Die geteilten Links konnten nicht widerrufen werden.",
+    "cancel": "Abbrechen",
+    "showPrices": "Preise anzeigen",
+    "showPricesDescription": "Ausschalten, um Kartenpreise und Summen für alle mit diesem Link auszublenden."
   },
   "cards": {
     "bin": "Fach {{number}}",
@@ -1363,7 +1385,8 @@
         "title": "Karten prüfen",
         "remaining": "Noch {{count}} zu prüfen"
       }
-    }
+    },
+    "share": "Lagerort teilen"
   },
   "settings": {
     "title": "Einstellungen",

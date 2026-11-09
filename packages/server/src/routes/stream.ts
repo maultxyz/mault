@@ -41,6 +41,7 @@ import {
   type AppEnv,
 } from "../middleware/auth";
 import { loadSessionInit } from "./session-init";
+import { pricesForShareLink } from "../lib/share-link-pricing";
 
 async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
   const claims = await verifyMonitorLink(shareToken);
@@ -54,7 +55,12 @@ async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
       stream.onAbort(resolve);
     });
     const write = (event: string, data: unknown) => {
-      stream.writeSSE({ event, data: JSON.stringify(data) }).catch(() => {});
+      stream
+        .writeSSE({
+          event,
+          data: JSON.stringify(pricesForShareLink(data, claims.showsPrices)),
+        })
+        .catch(() => {});
     };
     const sessionWrite = (event: string, data: unknown) => {
       if (event === "viewers_updated") return;

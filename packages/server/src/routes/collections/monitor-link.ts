@@ -1,5 +1,6 @@
 import {
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
   type MonitorLink,
 } from "@magic-vault/shared";
@@ -9,14 +10,14 @@ import { authQuery } from "../../db";
 import { collections } from "../../db/schema";
 import {
   closeMonitorLinkStreams,
-  isMonitorLinkConfigured,
   signMonitorLink,
 } from "../../lib/monitor-links";
+import { isShareTokenConfigured } from "../../lib/share-tokens";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const monitorLinkRoute = new Hono<AppEnv>()
   .post("/:guid/monitor-link", requireAuth, requireOrg, async (c) => {
-    if (!isMonitorLinkConfigured()) {
+    if (!isShareTokenConfigured()) {
       return c.json(
         { success: false, message: "Monitor links are not configured." },
         503,
@@ -25,8 +26,8 @@ export const monitorLinkRoute = new Hono<AppEnv>()
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const body = await c.req
-      .json<{ expiresInDays?: number }>()
-      .catch(() => ({}) as { expiresInDays?: number });
+      .json<{ expiresInDays?: number; showPrices?: unknown }>()
+      .catch(() => ({}) as { expiresInDays?: number; showPrices?: unknown });
     const expiresInDays =
       body.expiresInDays ?? DEFAULT_MONITOR_LINK_EXPIRY_DAYS;
     if (
@@ -34,6 +35,10 @@ export const monitorLinkRoute = new Hono<AppEnv>()
     ) {
       return c.json({ success: false, message: "Invalid expiry." }, 400);
     }
+    if (body.showPrices !== undefined && typeof body.showPrices !== "boolean") {
+      return c.json({ success: false, message: "Invalid price visibility." }, 400);
+    }
+    const showsPrices = body.showPrices ?? DEFAULT_SHARE_LINK_SHOWS_PRICES;
     const collection = await authQuery(c.get("jwtClaims"), (tx) =>
       tx.query.collections.findFirst({
         where: (t, { eq, and }) =>
@@ -49,6 +54,7 @@ export const monitorLinkRoute = new Hono<AppEnv>()
       orgId,
       collection.monitorLinkVersion,
       expiresInDays,
+      showsPrices,
     );
     return c.json({
       success: true,

@@ -1,8 +1,9 @@
 import type { PlayingCardWithDistance } from "./card.interface";
-import type { CardCondition } from "./card-condition.interface";
+import type { CardCondition, ConditionMultipliers } from "./card-condition.interface";
 import type { CardStatsAggregate } from "./collection-cards.interface";
 import type { FieldMeta } from "./sort-bins.interface";
 import type { PickListEntry, PickListEntryInput } from "./pick-list.interface";
+import type { PriceSource } from "./price-source.interface";
 
 export interface StorageLocation {
   guid: string;
@@ -135,4 +136,32 @@ export interface EmptyBinOptions {
 export interface StorageLocationExportSummary {
   gameKeys: (string | null)[];
   scanIds: string[];
+}
+
+export interface StorageShareLink {
+  token: string;
+  expiresAt: string;
+}
+
+export interface StorageShareLinkInfo {
+  locationGuid: string;
+  locationName: string;
+  expiresAt: string;
+  cardCount: number;
+  totalValue: number;
+  priceSource: PriceSource;
+  conditionMultipliers: ConditionMultipliers;
+  showsPrices: boolean;
+}
+
+export type SharedStorageCard = Pick<
+  StorageLocationCard,
+  "scanId" | "position" | "card" | "isFoil" | "foilType" | "stamp" | "condition" | "language"
+>;
+
+export interface SharedStorageCardPage {
+  cards: SharedStorageCard[];
+  total: number;
+  page: number;
+  pageSize: number;
 }

@@ -91,13 +91,35 @@
     "actions": "Actions de la collection",
     "cancel": "Annuler",
     "shareLink": "Partager le lien de la vue en direct",
-    "revokeLinks": "Révoquer les liens partagés",
-    "revokeLinksTitle": "Révoquer les liens partagés ?",
-    "revokeLinksDescription": "Toute personne disposant d'un lien vers la vue en direct de cette collection perd l'accès.",
-    "shareLinkFailed": "Impossible de mettre à jour le lien de la vue en direct",
     "scanTarget": "Scans ajoutés ici",
     "scanInto": "Scanner dans cette collection",
     "scan": "Scanner"
+  },
+  "shareLink": {
+    "collectionTitle": "Partager la vue en direct",
+    "collectionDescription": "Toute personne disposant de ce lien ou de ce code QR peut suivre la session de scan de cette collection sans se connecter. Elle ne peut rien modifier.",
+    "storageTitle": "Partager l'emplacement de stockage",
+    "storageDescription": "Toute personne disposant de ce lien ou de ce code QR peut voir les cartes de cet emplacement sans se connecter. Elle ne peut rien modifier.",
+    "expiryLabel": "Le lien expire après",
+    "expiryOption_one": "{{count}} jour",
+    "expiryOption_other": "{{count}} jours",
+    "create": "Créer le lien",
+    "createAnother": "Créer un nouveau lien",
+    "created": "Lien créé. Le code QR et le bouton Partager sont plus bas.",
+    "createFailed": "Impossible de créer le lien de partage.",
+    "share": "Partager le lien",
+    "qrLabel": "Code QR de ce lien. Scanne-le avec l'appareil photo d'un téléphone pour ouvrir le lien.",
+    "qrHint": "Scanner pour ouvrir",
+    "expiresAt": "Expire le {{date}}",
+    "revokeAll": "Révoquer tous les liens",
+    "revokeTitle": "Révoquer tous les liens ?",
+    "collectionRevokeDescription": "Toute personne disposant d'un lien vers la vue en direct de cette collection perd l'accès.",
+    "storageRevokeDescription": "Toute personne disposant d'un lien vers cet emplacement perd l'accès.",
+    "revoked": "Tous les liens partagés ne fonctionnent plus.",
+    "revokeFailed": "Impossible de révoquer les liens partagés.",
+    "cancel": "Annuler",
+    "showPrices": "Afficher les prix",
+    "showPricesDescription": "Désactive pour masquer les prix des cartes et les totaux à toute personne utilisant ce lien."
   },
   "cards": {
     "bin": "Bac {{number}}",
@@ -1363,7 +1385,8 @@
         "title": "Vérifier les cartes",
         "remaining": "Encore {{count}} à vérifier"
       }
-    }
+    },
+    "share": "Partager l'emplacement"
   },
   "settings": {
     "title": "Paramètres",

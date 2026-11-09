@@ -1,3 +1,4 @@
+import { SHARED_STORAGE_PATH_PREFIX } from "@magic-vault/shared";
 import {
   MOBILE_ACCOUNT_PATH,
   MOBILE_SCAN_PAIR_PATH,
@@ -51,6 +52,12 @@ const WatchPage = lazy(
   withNamespaces(
     () => import("@/app/routes/watch"),
     ["common", "scanner", "cards", "collections"],
+  ),
+);
+const SharedStoragePage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/shared-storage"),
+    ["common", "storage", "cards"],
   ),
 );
 const AuthPage = lazy(
@@ -291,6 +298,10 @@ export const routes: RouteObject[] = [
       {
         path: "/watch/:collectionGuid",
         element: <WatchPage />,
+      },
+      {
+        path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
+        element: <SharedStoragePage />,
       },
       {
         path: MARKETING_PAGE_PATHS.privacy,

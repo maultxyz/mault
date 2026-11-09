@@ -561,6 +561,7 @@ export const storageLocations = pgTable(
     guid: uuid("guid").defaultRandom(),
     name: text("name").notNull(),
     orgId: text("org_id").notNull(),
+    shareLinkVersion: integer("share_link_version").notNull().default(0),
     isDeleted: boolean("is_deleted").notNull().default(false),
     lastUsedAt: timestamp("last_used_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
