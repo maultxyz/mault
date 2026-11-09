@@ -3,11 +3,14 @@ import {
   PRINTED_FOIL_MARKER_DOT_MAX_HEIGHT_RATIO,
   PRINTED_FOIL_MARKER_DOT_MAX_WIDTH_RATIO,
   PRINTED_FOIL_MARKER_LANGUAGE_GAP_RATIO,
+  PRINTED_FOIL_MARKER_LINE_MIN_VERTICAL_OVERLAP,
   PRINTED_FOIL_MARKER_MAX_LINE_HEIGHT,
   PRINTED_FOIL_MARKER_MIN_COMPONENT_AREA_PX,
   PRINTED_FOIL_MARKER_MIN_LINE_HEIGHT_PX,
-  PRINTED_FOIL_MARKER_MIN_ROW_TEXT_SHARE,
   PRINTED_FOIL_MARKER_MIN_SET_CODE_GLYPHS,
+  PRINTED_FOIL_MARKER_SPLIT_GLYPH_MAX_GAP_PX,
+  PRINTED_FOIL_MARKER_SPLIT_GLYPH_MAX_JOINED_WIDTH_RATIO,
+  PRINTED_FOIL_MARKER_SPLIT_GLYPH_MAX_PIECE_WIDTH_RATIO,
   PRINTED_FOIL_MARKER_STAR_GRID_SIZE,
   PRINTED_FOIL_MARKER_STAR_MIN_HEIGHT_RATIO,
   PRINTED_FOIL_MARKER_STAR_MIN_SHAPE_SCORE,
@@ -17,7 +20,6 @@ import type {
   PrintedFoilMarker,
   PrintedFoilMarkerDetection,
   TextComponent,
-  TextRun,
 } from "./interfaces/printed-foil-marker.interface";
 import type { RgbaImage } from "./interfaces/vision-model.interface";
 
@@ -42,32 +44,18 @@ function median(values: number[]): number {
   return sorted[Math.floor(sorted.length / 2)] ?? 0;
 }
 
-function runsOf(flags: boolean[]): TextRun[] {
-  const runs: TextRun[] = [];
-  let start = -1;
-  flags.forEach((flag, index) => {
-    if (flag && start < 0) start = index;
-    if (!flag && start >= 0) {
-      runs.push({ start, end: index });
-      start = -1;
-    }
-  });
-  if (start >= 0) runs.push({ start, end: flags.length });
-  return runs;
-}
-
 function componentsIn(
   isText: (x: number, y: number) => boolean,
   width: number,
-  line: TextRun,
+  height: number,
 ): TextComponent[] {
-  const seen = new Set<number>();
+  const seen = new Uint8Array(width * height);
   const components: TextComponent[] = [];
-  for (let startY = line.start; startY < line.end; startY++) {
+  for (let startY = 0; startY < height; startY++) {
     for (let startX = 0; startX < width; startX++) {
       const startKey = startY * width + startX;
-      if (seen.has(startKey) || !isText(startX, startY)) continue;
-      seen.add(startKey);
+      if (seen[startKey] || !isText(startX, startY)) continue;
+      seen[startKey] = 1;
       const pixels: [number, number][] = [];
       const stack: [number, number][] = [[startX, startY]];
       while (stack.length > 0) {
@@ -83,12 +71,12 @@ function componentsIn(
           if (
             nx >= 0 &&
             nx < width &&
-            ny >= line.start &&
-            ny < line.end &&
-            !seen.has(key) &&
+            ny >= 0 &&
+            ny < height &&
+            !seen[key] &&
             isText(nx, ny)
           ) {
-            seen.add(key);
+            seen[key] = 1;
             stack.push([nx, ny]);
           }
         }
@@ -103,7 +91,42 @@ function componentsIn(
       });
     }
   }
-  return mergeOverlappingColumns(components.sort((a, b) => a.left - b.left));
+  return components;
+}
+
+function sharesTextLine(
+  component: TextComponent,
+  line: { top: number; bottom: number },
+): boolean {
+  const overlap =
+    Math.min(component.bottom, line.bottom) - Math.max(component.top, line.top);
+  const shorter = Math.min(
+    component.bottom - component.top,
+    line.bottom - line.top,
+  );
+  return overlap >= PRINTED_FOIL_MARKER_LINE_MIN_VERTICAL_OVERLAP * shorter;
+}
+
+function textLinesOf(components: TextComponent[]): TextComponent[][] {
+  const lines: { top: number; bottom: number; glyphs: TextComponent[] }[] = [];
+  const byCenter = [...components].sort(
+    (a, b) => a.top + a.bottom - (b.top + b.bottom),
+  );
+  for (const component of byCenter) {
+    const line = lines.find((candidate) => sharesTextLine(component, candidate));
+    if (line) {
+      line.top = Math.min(line.top, component.top);
+      line.bottom = Math.max(line.bottom, component.bottom);
+      line.glyphs.push(component);
+    } else {
+      lines.push({
+        top: component.top,
+        bottom: component.bottom,
+        glyphs: [component],
+      });
+    }
+  }
+  return lines.map((line) => line.glyphs);
 }
 
 function mergeOverlappingColumns(components: TextComponent[]): TextComponent[] {
@@ -120,6 +143,39 @@ function mergeOverlappingColumns(components: TextComponent[]): TextComponent[] {
     }
   }
   return merged;
+}
+
+function joinSplitGlyphs(
+  glyphs: TextComponent[],
+  lineHeight: number,
+): TextComponent[] {
+  const widthOf = (glyph: TextComponent) => glyph.right - glyph.left;
+  const isFragment = (glyph: TextComponent) =>
+    widthOf(glyph) <=
+    PRINTED_FOIL_MARKER_SPLIT_GLYPH_MAX_PIECE_WIDTH_RATIO * lineHeight;
+  const joined: TextComponent[] = [];
+  for (const glyph of glyphs) {
+    const last = joined[joined.length - 1];
+    if (
+      last &&
+      isFragment(last) &&
+      isFragment(glyph) &&
+      glyph.left - last.right <= PRINTED_FOIL_MARKER_SPLIT_GLYPH_MAX_GAP_PX &&
+      glyph.right - last.left <=
+        PRINTED_FOIL_MARKER_SPLIT_GLYPH_MAX_JOINED_WIDTH_RATIO * lineHeight
+    ) {
+      joined[joined.length - 1] = {
+        left: last.left,
+        right: glyph.right,
+        top: Math.min(last.top, glyph.top),
+        bottom: Math.max(last.bottom, glyph.bottom),
+        pixels: [...last.pixels, ...glyph.pixels],
+      };
+    } else {
+      joined.push(glyph);
+    }
+  }
+  return joined;
 }
 
 function starMask(size: number): number[] {
@@ -248,22 +304,23 @@ export function detectPrintedFoilMarkerRgba(
   );
   const isText = (x: number, y: number) => textMask[y * width + x];
 
-  const rowHasText = Array.from({ length: height }, (_, y) => {
-    let count = 0;
-    for (let x = 0; x < width; x++) if (isText(x, y)) count++;
-    return count / width >= PRINTED_FOIL_MARKER_MIN_ROW_TEXT_SHARE;
-  });
   const maxLineHeight = PRINTED_FOIL_MARKER_MAX_LINE_HEIGHT * image.height;
-  const lines = runsOf(rowHasText).filter(
-    (line) =>
-      line.end - line.start >= PRINTED_FOIL_MARKER_MIN_LINE_HEIGHT_PX &&
-      line.end - line.start <= maxLineHeight,
-  );
+  const minGlyphs = PRINTED_FOIL_MARKER_MIN_SET_CODE_GLYPHS + 3;
+  const lines = textLinesOf(componentsIn(isText, width, height))
+    .map((line) => mergeOverlappingColumns(line.sort((a, b) => a.left - b.left)))
+    .filter((line) => {
+      if (line.length < minGlyphs) return false;
+      const lineHeight = median(line.map((glyph) => glyph.bottom - glyph.top));
+      return (
+        lineHeight >= PRINTED_FOIL_MARKER_MIN_LINE_HEIGHT_PX &&
+        lineHeight <= maxLineHeight
+      );
+    });
   const setLine = lines[lines.length - 1];
   if (!setLine) return NOT_FOUND;
-  const lineHeight = setLine.end - setLine.start;
+  const lineHeight = median(setLine.map((glyph) => glyph.bottom - glyph.top));
+  const glyphs = joinSplitGlyphs(setLine, lineHeight);
 
-  const glyphs = componentsIn(isText, width, setLine);
   const languageGap = lineHeight * PRINTED_FOIL_MARKER_LANGUAGE_GAP_RATIO;
   const languageEnd = glyphs.findIndex(
     (glyph, index) =>

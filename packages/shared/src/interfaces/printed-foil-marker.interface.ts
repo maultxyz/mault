@@ -14,11 +14,6 @@ export interface PrintedFoilMarkerBand {
   height: number;
 }
 
-export interface TextRun {
-  start: number;
-  end: number;
-}
-
 export interface TextComponent {
   left: number;
   right: number;

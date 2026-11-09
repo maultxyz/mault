@@ -60,10 +60,14 @@ function star(image: RgbaImage, left: number, top: number, size: number) {
   }
 }
 
-function collectorLine(marker: "star" | "dot"): RgbaImage {
+function collectorLine(
+  marker: "star" | "dot",
+  { upperLineReachesSetLine = false, splitLanguageLetter = false } = {},
+): RgbaImage {
   const image = blankCard();
   for (let letter = 0; letter < 6; letter++)
     block(image, 30 + letter * 10, 826, 8, 9);
+  if (upperLineReachesSetLine) block(image, 100, 826, 8, SET_LINE_TOP - 826);
   let x = 30;
   for (let letter = 0; letter < 3; letter++, x += 10) {
     block(image, x, SET_LINE_TOP, 8, LINE_HEIGHT);
@@ -77,7 +81,12 @@ function collectorLine(marker: "star" | "dot"): RgbaImage {
     x += 8;
   }
   for (let letter = 0; letter < 2; letter++, x += 10) {
-    block(image, x, SET_LINE_TOP, 8, LINE_HEIGHT);
+    if (splitLanguageLetter && letter === 1) {
+      block(image, x, SET_LINE_TOP, 3, LINE_HEIGHT);
+      block(image, x + 4, SET_LINE_TOP, 4, LINE_HEIGHT);
+    } else {
+      block(image, x, SET_LINE_TOP, 8, LINE_HEIGHT);
+    }
   }
   block(image, x + 14, SET_LINE_TOP, 30, LINE_HEIGHT);
   return image;
@@ -94,6 +103,33 @@ test("the MTG collector line dot is read as a non-foil marker", () => {
   assert.equal(
     detectPrintedFoilMarkerRgba(collectorLine("dot"), "mtg").marker,
     "dot",
+  );
+});
+
+test("the star is found when the line above nearly touches the set line", () => {
+  assert.equal(
+    detectPrintedFoilMarkerRgba(
+      collectorLine("star", { upperLineReachesSetLine: true }),
+      "mtg",
+    ).marker,
+    "star",
+  );
+});
+
+test("a language letter split into pieces is still read as one letter", () => {
+  assert.equal(
+    detectPrintedFoilMarkerRgba(
+      collectorLine("dot", { splitLanguageLetter: true }),
+      "mtg",
+    ).marker,
+    "dot",
+  );
+  assert.equal(
+    detectPrintedFoilMarkerRgba(
+      collectorLine("star", { splitLanguageLetter: true }),
+      "mtg",
+    ).marker,
+    "star",
   );
 });
 
