@@ -1,4 +1,3 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -128,7 +127,6 @@ export function ScannedCardTable({
                     loading="lazy"
                     className="h-full w-full object-cover"
                   />
-                  {row.isFoil && <FoilOverlay />}
                 </div>
               </TableCell>
               <TableCell className="max-w-64">

@@ -1,4 +1,3 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -95,7 +94,6 @@ function DemoStorageTable({
                       alt=""
                       className="absolute inset-0 size-full object-cover"
                     />
-                    {entry.isFoil && <FoilOverlay />}
                   </div>
                 </TableCell>
                 <TableCell className="w-full max-w-0 truncate font-medium">

@@ -102,10 +102,7 @@ export function StoragePickListTable({
                   {row.entry.position}
                 </TableCell>
                 <TableCell>
-                  <CardThumbnail
-                    image={row.entry.card.image}
-                    isFoil={row.entry.isFoil}
-                  />
+                  <CardThumbnail image={row.entry.card.image} />
                 </TableCell>
                 <TableCell
                   className={cn(

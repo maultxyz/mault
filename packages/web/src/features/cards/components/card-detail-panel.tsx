@@ -10,7 +10,6 @@ import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { DeleteDialog } from "@/components/delete-dialog";
-import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
@@ -646,7 +645,6 @@ export function CardDetailPanel({
             alt={selectedCard?.name}
             className="w-full h-full object-cover"
           />
-          {draftIsFoil && <FoilOverlay />}
           {ocrRegionsVisible && selectedCard?.image?.normal && (
             <OcrRegionOverlay
               regions={fixedOcrRegions}

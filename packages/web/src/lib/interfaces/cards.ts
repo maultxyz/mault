@@ -576,7 +576,6 @@ export interface OpenScanOptions {
 
 export interface CardThumbnailProps {
   image: PlayingCardImage | null | undefined;
-  isFoil?: boolean;
   className?: string;
 }
 
