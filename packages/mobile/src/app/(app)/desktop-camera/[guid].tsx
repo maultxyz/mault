@@ -6,13 +6,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Camera, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
+import { Camera, type CameraRef, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
 import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
+import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
+import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { usePhoneCameraResponder } from "@/features/scanner/api/use-phone-camera-responder";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
@@ -36,7 +39,9 @@ export default function DesktopCameraScreen() {
   const sorter = useSorter();
   const permission = useCameraPermission();
   const camera = useCameraChoice();
+  const cameraRef = useRef<CameraRef>(null);
   const device = camera.device;
+  const torch = useCameraTorch(device, cameraRef);
   const { data: collections } = useQuery(collectionsQueryOptions(useActiveOrgId()));
   const collection = collections?.find((c) => c.guid === guid);
   const photoOutput = usePhotoOutput({ targetResolution: CAPTURE_TARGET_RESOLUTION, qualityPrioritization: "speed" });
@@ -101,12 +106,14 @@ export default function DesktopCameraScreen() {
         <>
           {focused ? (
             <Camera
+              ref={cameraRef}
               style={StyleSheet.absoluteFill}
               device={device}
               isActive={active}
               outputs={[photoOutput]}
               resizeMode="cover"
               enableNativeTapToFocusGesture
+              onStarted={torch.onCameraStarted}
             />
           ) : null}
           <ScanRegionOverlay
@@ -136,7 +143,9 @@ export default function DesktopCameraScreen() {
             />
           </View>
           <CameraChip dotColor={responder.connected ? colors.success : colors.warning} label={status} />
+          <TorchToggle torch={torch} />
         </View>
+        <TorchBrightness torch={torch} />
       </View>
 
       <View

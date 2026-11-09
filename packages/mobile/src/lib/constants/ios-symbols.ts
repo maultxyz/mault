@@ -30,6 +30,8 @@ export const IOS_SYMBOLS: Record<IconName, IosSymbolName> = {
   wifi: "wifi",
   discord: "bubble.left.and.bubble.right",
   camera: "camera",
+  torchOn: "bolt.fill",
+  torchOff: "bolt.slash.fill",
   check: "checkmark",
   checkAll: "checklist",
   chevron: "chevron.right",

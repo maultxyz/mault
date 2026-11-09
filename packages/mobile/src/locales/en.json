@@ -440,6 +440,10 @@
     "rollbackOffDescription": "Set \"Roll Back After Feed\" in feeder calibration to retract cards."
   },
   "scan": {
+    "torch": {
+      "label": "Flash",
+      "brightness": "Flash brightness"
+    },
     "start": "Start",
     "resume": "Resume",
     "pause": {

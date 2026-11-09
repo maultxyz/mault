@@ -167,6 +167,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 ### Mobile app (`packages/mobile`)
 
 - Captured photos go through `resizeAsync` before reading pixels (iOS orientation).
+- Camera screens control the torch through `useCameraTorch` (VisionCamera controller calls, re-applied on the camera's `onStarted` because a session restart turns it off); brightness only shows where `device.supportsTorchStrength`, and beam width has no public iOS API.
 - Built for hand-scanning first: the app scans into a phone-local target (`useScanTarget`, stored per org) and never calls `set-active`, so it can't redirect the desktop sorter's active collection; sorter-only UI (rules, bins) lives under More/Sorter, not in the tab bar.
 - `AppTabs` (`NativeTabs`) owns the top inset and `AppTopBar` so pushed screens animate over them, and the `(app)` layout only draws the shell (gradient, top bar) for `MemberSeatLocked`. Screens fill the window, so width math uses `usePanelWidth`; `screenLayout` wraps stack routes outside `UNFRAMED_STACK_ROUTE_NAMES` in `useShellPanelStyle`.
 - Queries default to a 30 s `staleTime` (`QUERY_STALE_MS`). Screens never render an empty form or list while loading: use `PageSkeleton`/`ListSkeleton` (or `SettingsPage`'s `isLoading`), and seed detail screens from list caches as `placeholderData` (card detail uses `cachedCollectionCardPosition`).

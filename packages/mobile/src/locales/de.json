@@ -440,6 +440,10 @@
     "rollbackOffDescription": "Stelle \"Nach dem Einzug zurückrollen\" in der Kalibrierung der Zuführung ein, um Karten zurückzuziehen."
   },
   "scan": {
+    "torch": {
+      "label": "Blitz",
+      "brightness": "Blitzhelligkeit"
+    },
     "start": "Start",
     "resume": "Fortsetzen",
     "pause": {

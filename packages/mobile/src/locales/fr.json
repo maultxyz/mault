@@ -440,6 +440,10 @@
     "rollbackOffDescription": "Définissez « Recul après l'alimentation » dans l'étalonnage de l'alimentation pour retirer des cartes."
   },
   "scan": {
+    "torch": {
+      "label": "Flash",
+      "brightness": "Luminosité du flash"
+    },
     "start": "Démarrer",
     "resume": "Reprendre",
     "pause": {

@@ -6,6 +6,8 @@ import IconAlertTriangle from "@tabler/icons-react-native/IconAlertTriangle";
 import IconArrowDown from "@tabler/icons-react-native/IconArrowDown";
 import IconArrowsSplit2 from "@tabler/icons-react-native/IconArrowsSplit2";
 import IconBell from "@tabler/icons-react-native/IconBell";
+import IconBolt from "@tabler/icons-react-native/IconBolt";
+import IconBoltOff from "@tabler/icons-react-native/IconBoltOff";
 import IconStar from "@tabler/icons-react-native/IconStar";
 import IconClock from "@tabler/icons-react-native/IconClock";
 import IconArrowsShuffle from "@tabler/icons-react-native/IconArrowsShuffle";
@@ -94,6 +96,8 @@ export const ICONS = {
   wifi: IconWifi,
   discord: IconBrandDiscord,
   camera: IconCamera,
+  torchOn: IconBolt,
+  torchOff: IconBoltOff,
   check: IconCheck,
   checkAll: IconChecks,
   chevron: IconChevronRight,
