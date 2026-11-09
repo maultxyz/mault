@@ -18,8 +18,6 @@ export const SIDEBAR_SELECTED_ITEM_CLASS =
 export const SIDEBAR_EXPANDED_ITEM_CLASS =
   "w-full justify-start gap-2 px-2 border-0";
 
-export const WATCH_ROUTE_PREFIX = "/watch";
-export const WATCH_TOKEN_PARAM = "t";
 
 export const MOBILE_NAV_TAB_CLASS =
   "flex h-14 flex-col items-center justify-center gap-0.5 text-2xs leading-tight font-medium transition-colors active:bg-sidebar-accent";
@@ -80,6 +78,7 @@ export const MOBILE_SORTER_PATH = "/app/sorter";
 export const MOBILE_ACCOUNT_PATH = "/app/me";
 export const MOBILE_ACCOUNT_TAB_PATHS = [
   MOBILE_ACCOUNT_PATH,
+  "/app/admin",
   "/app/account",
   "/app/health",
   SETTINGS_PATHS.root,

@@ -1121,6 +1121,20 @@
       "when": 1794176941096,
       "tag": "0159_pretty_proudstar",
       "breakpoints": true
+    },
+    {
+      "idx": 160,
+      "version": "7",
+      "when": 1794195009891,
+      "tag": "0160_legal_maggott",
+      "breakpoints": true
+    },
+    {
+      "idx": 161,
+      "version": "7",
+      "when": 1794202519642,
+      "tag": "0161_fuzzy_human_cannonball",
+      "breakpoints": true
     }
   ]
 }

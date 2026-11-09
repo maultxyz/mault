@@ -56,6 +56,7 @@ import { loadPlanConfig } from "./lib/plan-config";
 import { startWebhookDeliveryWorker } from "./lib/webhooks/queue";
 import { startDeviceOfflineAlerts } from "./lib/device-alerts";
 import { startInventorySnapshots } from "./lib/inventory";
+import { startApiUsageFlushing } from "./lib/api-usage";
 import { startCardMatchIndexWarmup } from "./lib/card-match-index";
 
 const app = new Hono<AppEnv>();
@@ -132,6 +133,7 @@ loadPlanConfig();
 startWebhookDeliveryWorker();
 startDeviceOfflineAlerts();
 startInventorySnapshots();
+startApiUsageFlushing();
 startCardMatchIndexWarmup();
 
 const server = serve(

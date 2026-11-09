@@ -1,3 +1,4 @@
+import { SHARED_STORAGE_PATH_PREFIX } from "@magic-vault/shared";
 import {
   MOBILE_ACCOUNT_PATH,
   MOBILE_SCAN_PAIR_PATH,
@@ -51,6 +52,12 @@ const WatchPage = lazy(
   withNamespaces(
     () => import("@/app/routes/watch"),
     ["common", "scanner", "cards", "collections"],
+  ),
+);
+const SharedStoragePage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/shared-storage"),
+    ["common", "storage", "cards"],
   ),
 );
 const AuthPage = lazy(
@@ -115,6 +122,7 @@ const CalibrateCalibrationPage = lazy(
   () => import("@/app/routes/app/calibrate/calibration"),
 );
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
+const AdminIndexPage = lazy(() => import("@/app/routes/app/admin/index"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGameEditorPage = lazy(
   () => import("@/app/routes/app/admin/game-editor"),
@@ -125,9 +133,6 @@ const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
 const AdminSoundsPage = lazy(() => import("@/app/routes/app/admin/sounds"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
 const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
-const AdminFoilLabelsPage = lazy(
-  () => import("@/app/routes/app/admin/foil-labels"),
-);
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
@@ -293,6 +298,10 @@ export const routes: RouteObject[] = [
         element: <WatchPage />,
       },
       {
+        path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
+        element: <SharedStoragePage />,
+      },
+      {
         path: MARKETING_PAGE_PATHS.privacy,
         element: <MarketingRoute path={MARKETING_PAGE_PATHS.privacy} />,
       },
@@ -432,7 +441,7 @@ export const routes: RouteObject[] = [
                         children: [
                           {
                             index: true,
-                            element: <Navigate to="cards" replace />,
+                            element: <AdminIndexPage />,
                           },
                           {
                             path: "cards",
@@ -460,10 +469,6 @@ export const routes: RouteObject[] = [
                               {
                                 path: "plans",
                                 element: <AdminPlansPage />,
-                              },
-                              {
-                                path: "foil-labels",
-                                element: <AdminFoilLabelsPage />,
                               },
                             ],
                           },

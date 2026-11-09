@@ -212,5 +212,17 @@
       "notInLocation": "{{name}} n'est pas rangée dans cet emplacement.",
       "hint": "Tenez une carte de cet emplacement devant la caméra et appuyez sur Scanner la carte."
     }
+  },
+  "shareLink": {
+    "trigger": "Partager l'emplacement",
+    "title": "Partager l'emplacement de stockage",
+    "description": "Toute personne disposant de ce lien ou de ce code QR peut voir les cartes de cet emplacement sans se connecter. Elle ne peut rien modifier.",
+    "revoked": "Tous les liens partagés de cet emplacement ne fonctionnent plus."
+  },
+  "sharedPage": {
+    "readOnly": "Lecture seule",
+    "invalidTitle": "Ce lien ne fonctionne plus",
+    "invalidDescription": "Il a peut-être expiré ou été révoqué. Demande un nouveau lien à la personne qui l'a partagé.",
+    "empty": "Cet emplacement ne contient encore aucune carte."
   }
 }

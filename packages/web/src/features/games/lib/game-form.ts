@@ -1,4 +1,4 @@
-import { DEFAULT_OPERATORS_BY_TYPE } from "@/lib/constants/field-operators";
+import { DEFAULT_OPERATORS_BY_FIELD_TYPE } from "@magic-vault/shared";
 import type { GameFormValues } from "@/schemas/games.schema";
 import type {
   FieldMeta,
@@ -66,7 +66,7 @@ export function toFieldDefinitions(
       label: f.label.trim(),
       type: f.type,
       path: f.path.trim(),
-      operators: DEFAULT_OPERATORS_BY_TYPE[f.type],
+      operators: DEFAULT_OPERATORS_BY_FIELD_TYPE[f.type],
       ...(options?.length ? { options } : {}),
     };
   });

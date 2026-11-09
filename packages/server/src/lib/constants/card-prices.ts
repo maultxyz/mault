@@ -25,6 +25,14 @@ export const CARD_PRICE_DETAIL_KEYS = [
   "foilOnlyFoilType",
 ] as const;
 
+export const SHARE_LINK_HIDDEN_PRICE_KEYS: ReadonlySet<string> = new Set([
+  ...Object.keys(CARD_PRICE_COLUMNS),
+  ...CARD_PRICE_DETAIL_KEYS.filter((key) => key !== "foilOnlyFoilType"),
+  "pricesAtScan",
+  "acquisitionCost",
+  "acquisitionCurrency",
+]);
+
 export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;
 export const CARD_PRICE_REFRESH_PROGRESS_LOG_EVERY_BATCHES = 20;
 

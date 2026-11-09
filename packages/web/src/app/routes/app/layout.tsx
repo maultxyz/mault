@@ -1,3 +1,4 @@
+import { DONATE_URL } from "@magic-vault/shared";
 import { AppProviders } from "@/app/providers";
 import { AppHotkeys } from "@/components/app-hotkeys";
 import { AppNav } from "@/components/app-nav";
@@ -23,7 +24,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { DONATE_URL } from "@/lib/constants/links";
 import {
   MOBILE_FRAMED_PANEL_CLASS,
   MOBILE_FRAMED_SHELL_CLASS,
@@ -69,7 +69,8 @@ export default function AppLayout() {
             className="top-[env(safe-area-inset-top)] size-14"
           />
           {isFramed && <MobileTopBar />}
-          <ImpersonationBanner />
+          <ImpersonationBanner />
+
           <PlanPreviewBanner />
           <AlertStack />
           <PiScanStatusBar />
@@ -100,7 +101,8 @@ export default function AppLayout() {
               tabIndex={-1}
               className="relative flex-1 min-w-0 overflow-hidden flex flex-col rounded-lg border bg-background/70 shadow-xs outline-none dark:bg-background/60"
             >
-              <ImpersonationBanner />
+              <ImpersonationBanner />
+
               <PlanPreviewBanner />
               <AlertStack />
               <PiScanStatusBar />

@@ -91,13 +91,35 @@
     "actions": "Sammlungsaktionen",
     "cancel": "Abbrechen",
     "shareLink": "Link zur Live-Ansicht teilen",
-    "revokeLinks": "Geteilte Links widerrufen",
-    "revokeLinksTitle": "Geteilte Links widerrufen?",
-    "revokeLinksDescription": "Alle mit einem Link zur Live-Ansicht dieser Sammlung verlieren den Zugriff.",
-    "shareLinkFailed": "Der Link zur Live-Ansicht konnte nicht aktualisiert werden",
     "scanTarget": "Hier wird gescannt",
     "scanInto": "In diese Sammlung scannen",
     "scan": "Scannen"
+  },
+  "shareLink": {
+    "collectionTitle": "Live-Ansicht teilen",
+    "collectionDescription": "Jeder mit diesem Link oder QR-Code kann die Scan-Sitzung dieser Sammlung ohne Anmeldung ansehen. Ändern kann er nichts.",
+    "storageTitle": "Lagerort teilen",
+    "storageDescription": "Jeder mit diesem Link oder QR-Code kann die Karten an diesem Lagerort ohne Anmeldung sehen. Ändern kann er nichts.",
+    "expiryLabel": "Link läuft ab nach",
+    "expiryOption_one": "{{count}} Tag",
+    "expiryOption_other": "{{count}} Tagen",
+    "create": "Link erstellen",
+    "createAnother": "Neuen Link erstellen",
+    "created": "Link erstellt. QR-Code und Teilen-Taste findest du unten.",
+    "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
+    "share": "Link teilen",
+    "qrLabel": "QR-Code für diesen Link. Scanne ihn mit einer Handykamera, um den Link zu öffnen.",
+    "qrHint": "Zum Öffnen scannen",
+    "expiresAt": "Läuft ab am {{date}}",
+    "revokeAll": "Alle Links widerrufen",
+    "revokeTitle": "Alle Links widerrufen?",
+    "collectionRevokeDescription": "Jeder mit einem Link zur Live-Ansicht dieser Sammlung verliert den Zugriff.",
+    "storageRevokeDescription": "Jeder mit einem Link zu diesem Lagerort verliert den Zugriff.",
+    "revoked": "Alle geteilten Links funktionieren nicht mehr.",
+    "revokeFailed": "Die geteilten Links konnten nicht widerrufen werden.",
+    "cancel": "Abbrechen",
+    "showPrices": "Preise anzeigen",
+    "showPricesDescription": "Ausschalten, um Kartenpreise und Summen für alle mit diesem Link auszublenden."
   },
   "cards": {
     "bin": "Fach {{number}}",
@@ -440,6 +462,10 @@
     "rollbackOffDescription": "Stelle \"Nach dem Einzug zurückrollen\" in der Kalibrierung der Zuführung ein, um Karten zurückzuziehen."
   },
   "scan": {
+    "torch": {
+      "label": "Blitz",
+      "brightness": "Blitzhelligkeit"
+    },
     "start": "Start",
     "resume": "Fortsetzen",
     "pause": {
@@ -1359,7 +1385,8 @@
         "title": "Karten prüfen",
         "remaining": "Noch {{count}} zu prüfen"
       }
-    }
+    },
+    "share": "Lagerort teilen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -2159,5 +2186,567 @@
     "removalLookupFailedTitle_one": "{{count}} Karte konnte nicht nachgeschlagen werden",
     "removalLookupFailedTitle_other": "{{count}} Karten konnten nicht nachgeschlagen werden",
     "removalLookupFailedDescription": "Prüfe deine Verbindung und versuch es noch einmal."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Plattform-Werkzeuge für das Team.",
+    "entrySubtitle": "Karten, Nutzer, Tarife und mehr",
+    "sections": {
+      "cards": {
+        "title": "Karten & Spiele",
+        "subtitle": "Kartendatenbank, Synchronisierung und Spiele"
+      },
+      "users": {
+        "title": "Nutzer",
+        "subtitle": "Nutzer suchen und Verlauf der Nutzeransichten"
+      },
+      "plans": {
+        "title": "Tarife",
+        "subtitle": "Tariflimits, Funktionen und Preise"
+      },
+      "discord": {
+        "title": "Discord",
+        "subtitle": "Kanäle und Ankündigungen"
+      },
+      "sounds": {
+        "title": "Töne",
+        "subtitle": "Eingebaute Scanner-Töne"
+      },
+      "deleted": {
+        "title": "Gelöschte Elemente",
+        "subtitle": "Gelöschte Elemente wiederherstellen"
+      }
+    },
+    "deleted": {
+      "description": "Alles, was in einer Organisation gelöscht wurde, außer gescannten Karten. Beim Wiederherstellen wird ein Element genau so zurückgesetzt, wie es war.",
+      "searchPlaceholder": "Nach Name oder Organisation suchen",
+      "typeLabel": "Elementtyp",
+      "allTypes": "Alle Typen",
+      "empty": "Es wurde nichts gelöscht",
+      "restore": "Wiederherstellen",
+      "global": "Global",
+      "lastUpdated": "Zuletzt geändert {{date}}",
+      "types": {
+        "collection": "Sammlung",
+        "binSet": "Fach-Vorlage",
+        "presetWorkflow": "Mehrstufige Vorlage",
+        "bin": "Fach",
+        "device": "Sortierer",
+        "binRoute": "Fach-Route",
+        "binHeight": "Fachhöhe",
+        "moduleConfig": "Modulkalibrierung",
+        "storageLocation": "Lagerort",
+        "soundClip": "Soundclip",
+        "soundRule": "Sound-Regel",
+        "notificationRule": "Benachrichtigungsregel",
+        "game": "Spiel",
+        "announcement": "Ankündigung",
+        "intakeLot": "Ankauf",
+        "fulfilmentOrder": "Bestellung",
+        "accuracyCheck": "Stichprobe"
+      },
+      "restored": "{{name}} wiederhergestellt",
+      "restoreError": "Das Element konnte nicht wiederhergestellt werden",
+      "count_one": "{{count}} gelöschtes Element",
+      "count_other": "{{count}} gelöschte Elemente",
+      "restoreItem": "{{name}} wiederherstellen",
+      "loadError": "Gelöschte Elemente konnten nicht geladen werden",
+      "noMatches": "Keine gelöschten Elemente gefunden",
+      "loadingMore": "Weitere gelöschte Elemente werden geladen"
+    },
+    "users": {
+      "subtitle": "Konten nachschlagen und Imitationssitzungen prüfen.",
+      "viewAsUserOnWebTitle": "Die App als Nutzer ansehen geht in der Web-App",
+      "viewAsUserOnWebDescription": "Hier kannst du ein Konto und seine Organisationen nachschlagen. Um die App aus Sicht dieses Nutzers zu sehen, öffne im Web Admin > Nutzer.",
+      "searchPlaceholder": "Nach Name, E-Mail oder Organisation suchen",
+      "startTyping": "Gib einen Namen, eine E-Mail oder eine Organisation ein, um zu suchen.",
+      "searchFailed": "Die Nutzersuche ist fehlgeschlagen.",
+      "empty": "Keine Nutzer gefunden",
+      "noOrgs": "Keine Organisationen",
+      "adminBadge": "Admin",
+      "moderatorBadge": "Moderator",
+      "tabs": {
+        "search": "Nutzer",
+        "audit": "Protokoll"
+      },
+      "audit": {
+        "unknownUser": "Unbekannter Nutzer",
+        "loadFailed": "Das Protokoll konnte nicht geladen werden.",
+        "empty": "Noch keine Imitationssitzungen",
+        "entryLabel": "{{admin}} → {{target}}",
+        "startedAndEnded": "Gestartet {{started}}, beendet {{ended}}",
+        "startedOnly": "Gestartet {{started}}",
+        "active": "Aktiv"
+      }
+    },
+    "plans": {
+      "billingDisabled": "Die Abrechnung ist auf diesem Server ausgeschaltet, daher bekommt jede Organisation alle Funktionen ohne Limits. Diese Einstellungen greifen, sobald die Abrechnung aktiv ist.",
+      "saveFailed": "Tarifeinstellungen konnten nicht gespeichert werden",
+      "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",
+      "limitsDescription": "Wie viel eine Organisation in jedem Tarif von jedem haben kann. Aktiviere Unbegrenzt, um ein Limit aufzuheben.",
+      "restoreDefaults": "Standardwerte wiederherstellen",
+      "unlimited": "Unbegrenzt",
+      "features": {
+        "chaosSort": {
+          "label": "Chaotisches Sortieren",
+          "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Presets es einschalten."
+        },
+        "storage": {
+          "label": "Lagerorte",
+          "description": "Lagerorte anlegen und Fächer darin erfassen. Bestehende Lagerorte bleiben in jedem Fall sichtbar."
+        },
+        "apiAccess": {
+          "label": "API-Zugriff",
+          "description": "Organisations-API-Schlüssel anlegen und Karten und Lagerorte über die öffentliche API lesen. Bestehende Schlüssel lassen sich immer widerrufen."
+        },
+        "businessTools": {
+          "label": "Kaufen und Verkaufen",
+          "description": "Ankäufe mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
+        },
+        "repacks": {
+          "label": "Repacks",
+          "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+        },
+        "customSounds": {
+          "label": "Eigene Sounds",
+          "description": "Eigene Soundclips für Soundregeln hochladen. Ausschalten verhindert nur neue Uploads. Bereits hochgeladene Clips werden weiter abgespielt."
+        },
+        "fleetHealth": {
+          "label": "Flottenzustand",
+          "description": "Das Zustandspanel auf der Sortierer-Seite: Status, Karten seit der letzten Wartung, Alarmverlauf und Wartungsintervalle. Stau- und Offline-Alarme werden in jedem Fall weiter erfasst und gesendet."
+        }
+      },
+      "limits": {
+        "dailyScans": {
+          "label": "Scans pro Tag",
+          "description": "Gescannte Karten pro Organisation und UTC-Tag."
+        },
+        "connectedSorters": {
+          "label": "Verbundene Sortierer",
+          "description": "Gleichzeitig verbundene Sortierer. Jeder Tarif ist zusätzlich durch das feste Maximum des Servers begrenzt."
+        },
+        "soundRules": {
+          "label": "Soundregeln",
+          "description": "Soundregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
+        },
+        "notificationRules": {
+          "label": "Benachrichtigungsregeln",
+          "description": "Discord-Benachrichtigungsregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
+        },
+        "organizations": {
+          "label": "Eigene Organisationen",
+          "description": "Organisationen, die ein Nutzer besitzen darf. Die App prüft beim Anlegen einer neuen Organisation gegen den Tarif der gerade geöffneten Organisation."
+        },
+        "membersPerOrg": {
+          "label": "Mitglieder pro Organisation",
+          "description": "Mitglieder pro Organisation, Inhaber zuerst, dann nach Beitrittsdatum gezählt. Mitglieder über dem Limit sind gesperrt, bis der Tarif erhöht oder Mitglieder entfernt werden."
+        },
+        "collections": {
+          "label": "Sammlungen",
+          "description": "Sammlungen pro Organisation. Wird nur beim Anlegen einer Sammlung geprüft."
+        }
+      },
+      "pricingMode": {
+        "heading": "Preismodell",
+        "saved": "Preismodell aktualisiert.",
+        "saveFailed": "Das Preismodell konnte nicht aktualisiert werden.",
+        "legacy": {
+          "badge": "Alte Preise",
+          "description": "Nur Free und der ursprüngliche Business-Tarif werden zu den alten Business-Preisen verkauft. Neue Business-Abonnenten erhalten den Legacy-Business-Tarif.",
+          "switch": "Zu neuen Preisen wechseln",
+          "confirmTitle": "Zu den neuen Preisen wechseln?",
+          "confirmDescription": "Enthusiast und der neue Business-Tarif sind sofort erhältlich, mit den Preisen aus STRIPE_PRICE_ID_ENTHUSIAST und STRIPE_PRICE_ID_BUSINESS. Bestehende Business-Abonnenten behalten ihren Tarif und sehen ihn künftig als Legacy gekennzeichnet."
+        },
+        "tiered": {
+          "badge": "Neue Preise",
+          "description": "Free, Enthusiast und Business sind erhältlich. Bestehende Abonnenten des ursprünglichen Business-Tarifs behalten ihn als Legacy-Tarif.",
+          "switch": "Zu alten Preisen zurückwechseln",
+          "confirmTitle": "Zu den alten Preisen zurückwechseln?",
+          "confirmDescription": "Enthusiast und der neue Business-Tarif werden nicht mehr verkauft, und der Business-Checkout nutzt wieder die alten Preise. Wer bereits einen neuen Tarif abonniert hat, behält ihn."
+        }
+      },
+      "preview": {
+        "heading": "Tarif in der Vorschau ansehen",
+        "description": "Sieh die App so, wie eine Organisation mit einem anderen Tarif sie sieht: Limits, gesperrte Funktionen und die Abrechnung folgen dem gewählten Tarif. Betrifft nur deine eigenen Anfragen in dieser App.",
+        "off": "Aus",
+        "selectLabel": "Vorschau-Tarif",
+        "activeTitle": "Vorschau von {{plan}}",
+        "activeDescription": "Deine eigenen Anfragen in dieser App folgen diesem Tarif, bis du die Vorschau beendest oder die App schließt.",
+        "stop": "Vorschau beenden"
+      },
+      "subtitle": "Tariflimits, Funktionen, Preise und Vorschau.",
+      "loadFailed": "Die Tarifeinstellungen konnten nicht geladen werden.",
+      "editorHeading": "Tarifeinstellungen",
+      "editorDescription": "Wähle einen Tarif, um seine Funktionen und Limits zu bearbeiten. Änderungen an allen Tarifen werden zusammen gespeichert.",
+      "editedPlanLabel": "Tarif bearbeiten",
+      "restoreDefaultsHint": "Setzt alle Tarife auf die eingebauten Standardwerte zurück. Gespeichert wird erst, wenn du auf Speichern tippst.",
+      "featuresHeading": "Funktionen: {{plan}}",
+      "limitsHeading": "Limits: {{plan}}",
+      "unlimitedFor": "{{limit}} unbegrenzt",
+      "discardDescription": "Deine Änderungen an den Tarifeinstellungen wurden nicht gespeichert."
+    },
+    "discord": {
+      "server": "Server",
+      "channel": "Kanal",
+      "noServer": "Kein Server",
+      "noChannel": "Kein Kanal",
+      "loadingGuild": "Server wird geladen...",
+      "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Server und Kanäle gerade nicht aufgelistet werden.",
+      "loadFailed": "Die Discord-Einstellungen konnten nicht geladen werden.",
+      "retry": "Erneut versuchen",
+      "saved": "Discord-Einstellungen gespeichert.",
+      "opensInBrowser": "Öffnet sich in deinem Browser",
+      "channels": {
+        "stats": {
+          "heading": "Plattform-Statistiken",
+          "description": "Wohin die Plattform-Statistiken gepostet werden und welche Zahlen jeder Beitrag enthält. Lass den Kanal leer, um keine Statistiken mehr zu posten."
+        },
+        "donations": {
+          "heading": "Spenden",
+          "description": "Wohin jede Buy Me a Coffee-Spende gepostet wird. Lass ihn leer, um keine Spenden mehr zu posten."
+        },
+        "pricing": {
+          "heading": "Preisaktualisierungen",
+          "description": "Wohin eine Zusammenfassung gepostet wird, wenn die Preissynchronisierung neue Preise abruft. Lass ihn leer, um keine Preisaktualisierungen mehr zu posten."
+        }
+      },
+      "priceSyncCommand": "Preise werden abgerufen, wenn dieser Befehl läuft. Lege ihn in Coolify als geplante Aufgabe in der Server-App an, alle paar Stunden. Er lädt nur herunter, was sich geändert hat.",
+      "donationsLink": "Buy Me a Coffee-Seite öffnen",
+      "stats": {
+        "statsDescription": "Welche Zahlen jeder Beitrag enthält, über alle Organisationen hinweg.",
+        "keys": {
+          "scannedCards": {
+            "label": "Gescannte Karten",
+            "description": "Jeder jemals gespeicherte Scan, erkannt oder nicht. Gelöschte Karten senken den Wert nicht."
+          },
+          "scansLast24Hours": {
+            "label": "Scans der letzten 24 Stunden",
+            "description": "Scans, die in den 24 Stunden vor dem Beitrag gespeichert wurden."
+          },
+          "devices": {
+            "label": "Kalibrierte Geräte",
+            "description": "Kalibrierte Sortierer: mindestens ein Modul mit gespeicherten Servowerten, die von den Standardwerten abweichen. Gelöschte zählen nicht."
+          },
+          "users": {
+            "label": "Benutzer",
+            "description": "Registrierte Konten."
+          },
+          "organizations": {
+            "label": "Organisationen",
+            "description": "Bestehende Organisationen."
+          },
+          "collections": {
+            "label": "Sammlungen",
+            "description": "Sammlungen aller Organisationen, ohne gelöschte."
+          }
+        },
+        "scheduleDescription": "Beiträge werden gesendet, wenn dieser Befehl läuft. Lege ihn in Coolify als geplante Aufgabe in der Server-App an, mit beliebigem Cron.",
+        "postNow": "Jetzt posten",
+        "lastPosted": "Zuletzt gepostet am {{date}}.",
+        "neverPosted": "Noch nicht gepostet.",
+        "saveBeforePosting": "Speichere deine Änderungen vor dem Posten.",
+        "posted": "Statistiken auf Discord gepostet.",
+        "postFailed": "Die Statistiken konnten nicht gepostet werden."
+      },
+      "linkedRole": {
+        "heading": "Rolle für verknüpfte Konten",
+        "description": "Mitglieder dieses Servers, die ihr Mault-Konto mit /link-account verknüpfen, erhalten diese Rolle und verlieren sie beim Trennen wieder. Der Bot braucht die Berechtigung „Rollen verwalten“, und seine eigene Rolle muss über dieser stehen.",
+        "role": "Rolle",
+        "noRole": "Keine Rolle"
+      },
+      "announcements": {
+        "heading": "Ankündigungen",
+        "description": "Sende eine Nachricht an alle App-Nutzer. Sie erscheint als Banner und bleibt im Benachrichtigungsfach jedes Nutzers, bis du sie deaktivierst.",
+        "add": "Ankündigung hinzufügen",
+        "editTitle": "Ankündigung bearbeiten",
+        "editHint": "Öffnet die Ankündigung zum Bearbeiten oder Löschen",
+        "formDescription": "Wird jedem angemeldeten Nutzer angezeigt, bis sie deaktiviert wird.",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "onLandingPage": "Auf Startseite",
+        "empty": "Noch keine Ankündigungen.",
+        "loadFailed": "Die Ankündigungen konnten nicht geladen werden.",
+        "notFound": "Diese Ankündigung gibt es nicht mehr.",
+        "severity": {
+          "info": "Info",
+          "warning": "Warnung",
+          "danger": "Gefahr"
+        },
+        "schedule": {
+          "starts": "Beginnt {{date}}",
+          "ends": "Endet {{date}}",
+          "startsAndEnds": "{{start}} bis {{end}}"
+        },
+        "severityLabel": "Schweregrad",
+        "messageLabel": "Nachricht",
+        "messagePlaceholder": "Am Freitag um 22 Uhr UTC führen wir planmäßige Wartungsarbeiten durch.",
+        "linkLabel": "Link (optional)",
+        "linkPlaceholder": "https://example.com/changelog",
+        "startsAtLabel": "Beginnt am",
+        "endsAtLabel": "Endet am",
+        "dateTimePlaceholder": "JJJJ-MM-TT HH:MM",
+        "scheduleHint": "Zeiten gelten in der Zeitzone deines Telefons, im Format JJJJ-MM-TT HH:MM. Lass ein Feld leer, um diese Seite nicht zu begrenzen. Der Aktiv-Schalter setzt sich in jedem Fall durch.",
+        "showOnLandingLabel": "Auf Startseite anzeigen",
+        "showOnLandingDescription": "Zeigt dieses Banner auch abgemeldeten Besuchern auf den öffentlichen Startseiten- und Bauanleitungsseiten.",
+        "fixErrors": "Korrigiere zuerst die markierten Felder.",
+        "createFailed": "Die Ankündigung konnte nicht erstellt werden.",
+        "updateFailed": "Die Ankündigung konnte nicht gespeichert werden.",
+        "delete": "Ankündigung löschen",
+        "deleteTitle": "Ankündigung löschen?",
+        "deleteConfirm": "Sie verschwindet sofort aus dem Benachrichtigungsfach aller Nutzer.",
+        "deleteFailed": "Die Ankündigung konnte nicht gelöscht werden.",
+        "validation": {
+          "invalidLink": "Gib eine gültige http(s)-URL ein.",
+          "invalidDateTime": "Gib Datum und Uhrzeit im Format JJJJ-MM-TT HH:MM ein.",
+          "endAfterStart": "Die Endzeit muss nach der Startzeit liegen."
+        }
+      }
+    },
+    "sounds": {
+      "heading": "System-Soundclips",
+      "description": "Clips, die jede Organisation in ihren Sound-Regeln verwenden kann. Organisationen können sie abspielen, aber nicht umbenennen oder löschen.",
+      "empty": "Noch keine System-Soundclips.",
+      "loadFailed": "Die System-Soundclips konnten nicht geladen werden.",
+      "retry": "Erneut versuchen",
+      "uploadHint": "MP3, WAV, OGG, WebM, M4A oder AAC, bis 1 MB.",
+      "delete": "Löschen",
+      "deleteConfirm": "Alle Organisationen verlieren diesen Clip, und Regeln, die ihn abspielen, spielen dann keinen Sound mehr.",
+      "deleted": "Soundclip gelöscht."
+    },
+    "planPreviewChip": "Vorschau: {{plan}}",
+    "cards": {
+      "cancel": "Abbrechen",
+      "typeToConfirm": "Gib „{{text}}“ ein, um zu bestätigen",
+      "tabs": {
+        "stats": "Statistiken",
+        "games": "Spiele",
+        "sync": "Sync",
+        "database": "Karten",
+        "keys": "Schlüssel"
+      },
+      "stats": {
+        "description": "App-weite Scan-Aktivität über alle Organisationen hinweg und ob jeder Scan auf dem Server oder im Browser vektorisiert wurde. Jemand gilt als aktiv scannend, solange in den letzten {{minutes}} Minuten ein Scan gespeichert wurde.",
+        "unknownValue": "Nicht verfügbar",
+        "percentValue": "{{percent}}%",
+        "loadFailed": "Scan-Statistiken konnten nicht geladen werden",
+        "active": {
+          "heading": "Aktives Scannen",
+          "scanners": "Scannende Personen",
+          "sessions": "Gescannte Sammlungen",
+          "orgs": "Organisationen",
+          "connectedSorters": "Verbundene Sortierer",
+          "recentScans": "Scans, letzte {{minutes}} Min."
+        },
+        "allTime": {
+          "heading": "Gesamt",
+          "totalScanned": "Gesamt gescannt",
+          "matched": "Erkannt",
+          "unidentified": "Nicht erkannt",
+          "matchRate": "Erkennungsrate",
+          "averageMatchPercent": "Ø Trefferzuversicht",
+          "corrected": "Korrigiert",
+          "multipleMatches": "Mehrere Treffer"
+        },
+        "vectorize": {
+          "heading": "Vektorisierungsquelle beim Scannen",
+          "server": "Server",
+          "web": "Web",
+          "percentOfTotal": "{{percent}}% der Scans"
+        }
+      },
+      "games": {
+        "description": "Lege fest, welche Trading Card Games gescannt werden können und wie ihre Karten mit Fach-Regeln abgeglichen werden.",
+        "addGame": "Spiel hinzufügen",
+        "loadFailed": "Spiele konnten nicht geladen werden",
+        "empty": "Noch keine Spiele konfiguriert",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "fieldCount_one": "{{count}} Feld",
+        "fieldCount_other": "{{count}} Felder",
+        "createSuccess": "{{name}} erstellt",
+        "updateSuccess": "{{name}} gespeichert",
+        "deleteSuccess": "Spiel gelöscht",
+        "createFailed": "Spiel konnte nicht erstellt werden",
+        "updateFailed": "Spiel konnte nicht aktualisiert werden",
+        "deleteFailed": "Spiel konnte nicht gelöscht werden",
+        "deleteTitle": "Spiel löschen",
+        "deleteDescription": "„{{name}}“ löschen? Sammlungen, die dieses Spiel verwenden, behalten ihre gescannten Karten, aber es können keine neuen Karten mehr damit abgeglichen werden.",
+        "deleteButton": "Löschen"
+      },
+      "gameForm": {
+        "newTitle": "Neues Spiel",
+        "editTitle": "{{name}} bearbeiten",
+        "notFound": "Dieses Spiel existiert nicht oder wurde gelöscht.",
+        "backToGames": "Zurück zu den Spielen",
+        "discardDescription": "Deine Änderungen an diesem Spiel wurden nicht gespeichert.",
+        "generalHeading": "Allgemein",
+        "generalDescription": "Welche Kartenquelle dieses Spiel nutzt und wie es angezeigt wird.",
+        "physicalHeading": "Karten",
+        "physicalDescription": "Physische Karteneigenschaften, genutzt für Foil-Optionen und um zu bestimmen, wann ein Fach voll ist.",
+        "keyLabel": "Schlüssel",
+        "keyPlaceholder": "Spiel auswählen",
+        "nameLabel": "Name",
+        "namePlaceholder": "Pokémon",
+        "apiDocsUrlLabel": "URL der API-Dokumentation",
+        "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
+        "activeDescription": "Inaktive Spiele können für neue Sammlungen nicht ausgewählt werden.",
+        "cardThicknessLabel": "Kartenstärke (mm)",
+        "cardThicknessPlaceholder": "z. B. 0.3",
+        "cardThicknessDescription": "Wird zusammen mit der kalibrierten Höhe jedes Fachs (unter Sortierer einrichten festgelegt) verwendet, um automatisch zu bestimmen, wann ein Fach voll ist.",
+        "validation": {
+          "required": "Erforderlich",
+          "keyFormat": "Nur Kleinbuchstaben, Zahlen und Bindestriche",
+          "keyTaken": "Ein Spiel mit diesem Schlüssel existiert bereits",
+          "urlFormat": "Gib eine gültige URL ein",
+          "minFields": "Mindestens ein Feld hinzufügen",
+          "thicknessPositive": "Gib eine Zahl größer als 0 ein"
+        }
+      },
+      "fields": {
+        "heading": "Felder",
+        "description": "Lege fest, welche Felder Fach-Regeln, Sortierung und Benachrichtigungen für dieses Spiel nutzen können.",
+        "empty": "Noch keine Felder. Füge mindestens eines hinzu, damit Fach-Regeln filtern können.",
+        "addField": "Feld hinzufügen",
+        "untitled": "Feld {{position}}",
+        "removeLabel": "Feld {{name}} entfernen",
+        "keyLabel": "Schlüssel",
+        "keyPlaceholder": "rarity",
+        "labelLabel": "Beschriftung",
+        "labelPlaceholder": "Seltenheit",
+        "typeLabel": "Typ",
+        "pathLabel": "Datenpfad",
+        "pathPlaceholder": "prices.usd",
+        "optionsLabel": "Optionen",
+        "optionsPlaceholder": "common, rare"
+      },
+      "fieldTypes": {
+        "string": "Text",
+        "numeric": "Numerisch",
+        "enum": "Enum",
+        "set": "Menge"
+      },
+      "sync": {
+        "heading": "Kartenbild-Vektoren",
+        "status": {
+          "idle": "Inaktiv",
+          "running": "Läuft",
+          "completed": "Abgeschlossen",
+          "failed": "Fehlgeschlagen",
+          "cancelled": "Abgebrochen"
+        },
+        "statusLabel": "Sync-Status: {{status}}",
+        "statusAnnouncement": "Karten-Sync: {{status}}",
+        "runningFor": "Synchronisiere {{source}}",
+        "loadFailed": "Der Sync-Status konnte nicht geladen werden",
+        "startFailed": "Der Sync konnte nicht gestartet werden",
+        "cancelFailed": "Der Sync konnte nicht abgebrochen werden",
+        "browserJobRunning": "Dieser Sync vektorisiert Karten in einem Browser auf dem Host-Computer. Lass diese Seite geöffnet.",
+        "cancelling": "Wird abgebrochen...",
+        "starting": "Wird gestartet...",
+        "startButton": "Sync starten",
+        "gameLabel": "Spiel",
+        "gamePlaceholder": "Spiel auswählen...",
+        "languageLabel": "Sprache",
+        "languagePlaceholder": "Sprache...",
+        "forceResyncLabel": "Vollständige Neusynchronisierung erzwingen",
+        "concurrencyLabel": "Karten gleichzeitig",
+        "concurrencyDescription": "Vektorisiert so viele Kartenbilder gleichzeitig. Downloads starten weiterhin mit kurzem Abstand.",
+        "progressLabel": "Synchronisierungsfortschritt",
+        "progressCount": "{{done}} / {{total}}",
+        "savedCount": "{{count}} gespeichert",
+        "vectorizedCount": "{{count}} vektorisiert",
+        "queuedCount": "{{count}} in Warteschlange",
+        "skippedCount": "{{count}} übersprungen",
+        "etaRemaining": "noch ~{{duration}}",
+        "errorsCount_one": "{{count}} Fehler",
+        "errorsCount_other": "{{count}} Fehler",
+        "printingMarksLabel": "Fortschritt der Druckmerkmale",
+        "printingMarksCount": "Druckmerkmale: {{done}} / {{total}} Karten gelesen",
+        "logHeading": "Protokoll",
+        "logDescription_one": "Neuester Eintrag zuerst.",
+        "logDescription_other": "Letzte {{count}} Einträge, neueste zuerst.",
+        "logEmpty": "Keine Einträge"
+      },
+      "syncCardById": {
+        "heading": "Karte per ID synchronisieren",
+        "description": "Ruft eine einzelne Karte ab und vektorisiert sie, fügt sie bei Bedarf neu zur Datenbank hinzu",
+        "cardIdLabel": "Karten-ID",
+        "cardIdPlaceholder": "Karten-ID...",
+        "syncButton": "Synchronisieren",
+        "syncing": "Wird synchronisiert...",
+        "failed": "Synchronisierung der Karte {{id}} fehlgeschlagen"
+      },
+      "database": {
+        "heading": "Kartendatenbank",
+        "cardCount_one": "{{count}} Karte",
+        "cardCount_other": "{{count}} Karten",
+        "searchLabel": "Karten suchen",
+        "searchPlaceholder": "Nach Name suchen...",
+        "loadFailed": "Karten konnten nicht geladen werden",
+        "empty": "Keine Karten gefunden",
+        "revectorizeLabel": "{{name}} neu vektorisieren",
+        "revectorizeFailed": "Neu-Vektorisierung von {{name}} fehlgeschlagen",
+        "previousPage": "Vorherige Seite",
+        "nextPage": "Nächste Seite",
+        "pageStatus": "Seite {{page}} von {{pageCount}}"
+      },
+      "dump": {
+        "heading": "Kartendatenbank leeren",
+        "description": "Löscht Kartenbild-Vektoren dauerhaft, für ein Spiel oder alle",
+        "scopeLabel": "Bereich",
+        "scopePlaceholder": "Bereich auswählen...",
+        "allGames": "Alle Spiele",
+        "dumpButton": "Leeren",
+        "confirmTitle": "Kartendatenbank leeren",
+        "confirmAll": "Dadurch werden alle Kartenbild-Vektoren dauerhaft gelöscht, das kann nicht rückgängig gemacht werden. Bist du sicher?",
+        "confirmScoped": "Dadurch werden alle Kartenbild-Vektoren für „{{scope}}“ dauerhaft gelöscht, das kann nicht rückgängig gemacht werden. Bist du sicher?",
+        "failed": "Datenbank konnte nicht geleert werden",
+        "syncRunning": "Während ein Sync läuft, kannst du die Datenbank nicht leeren."
+      },
+      "syncApiKeys": {
+        "description": "Schlüssel, mit denen Skripte und Zeitpläne Kartendatenbank-Syncs ohne Anmeldung starten können. Jeder Schlüssel darf nur, was seine Berechtigungen erlauben.",
+        "create": "Schlüssel erstellen",
+        "createTitle": "Sync-API-Schlüssel erstellen",
+        "createDescription": "Wähle, was dieser Schlüssel darf. Berechtigungen lassen sich später nicht ändern, widerrufe den Schlüssel stattdessen und erstelle ihn neu.",
+        "nameLabel": "Name",
+        "namePlaceholder": "Nächtlicher Sync",
+        "permissionsLabel": "Berechtigungen",
+        "empty": "Noch keine Sync-API-Schlüssel",
+        "loadFailed": "Sync-API-Schlüssel konnten nicht geladen werden.",
+        "createFailed": "Der Sync-API-Schlüssel konnte nicht erstellt werden.",
+        "revoke": "Widerrufen",
+        "revoked": "Sync-API-Schlüssel widerrufen",
+        "revokeFailed": "Der Sync-API-Schlüssel konnte nicht widerrufen werden.",
+        "revokeConfirmDescription": "Alles, was diesen Schlüssel nutzt, funktioniert sofort nicht mehr. Das lässt sich nicht rückgängig machen.",
+        "revealTitle": "Kopiere deinen Sync-API-Schlüssel",
+        "revealDescription": "Der Schlüssel wird nur dieses eine Mal angezeigt. Bewahre ihn sicher auf.",
+        "revealDone": "Fertig",
+        "exampleLabel": "Damit einen Sync starten:",
+        "createdBy": "Erstellt von {{name}} am {{date}}",
+        "lastUsed": "Zuletzt verwendet {{date}}",
+        "neverUsed": "Nie verwendet",
+        "permissions": {
+          "sync_start": {
+            "label": "Sync starten",
+            "description": "Startet einen normalen Sync eines Spiels. Unveränderte Karten werden übersprungen."
+          },
+          "sync_force": {
+            "label": "Erzwungener Neu-Sync",
+            "description": "Startet einen Sync, der jede Karte neu herunterlädt und vektorisiert, auch unveränderte."
+          },
+          "sync_card": {
+            "label": "Einzelne Karten synchronisieren",
+            "description": "Lädt und vektorisiert eine Karte anhand ihrer ID."
+          },
+          "sync_cancel": {
+            "label": "Sync abbrechen",
+            "description": "Stoppt den laufenden Sync."
+          }
+        },
+        "revokeConfirmTitle": "„{{name}}“ widerrufen?",
+        "revokeLabel": "{{name}} widerrufen",
+        "share": "Schlüssel teilen"
+      }
+    }
   }
 }

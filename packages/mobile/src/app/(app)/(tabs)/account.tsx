@@ -12,6 +12,7 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { useRole } from "@/hooks/use-role";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useLanguagePreference } from "@/hooks/use-language-preference";
@@ -29,6 +30,7 @@ import { getInitials } from "@/lib/initials";
 
 export default function AccountScreen() {
   const { t } = useTranslation();
+  const { isStaff } = useRole();
   const colors = useTheme();
   const queryClient = useQueryClient();
   const { user, organizations, activeOrgId } = useSession();
@@ -134,6 +136,9 @@ export default function AccountScreen() {
           onPress={() => router.push("/profile")}
         />
         <ListRow icon="health" title={t("health.title")} subtitle={t("health.subtitle")} onPress={() => router.push("/health")} />
+        {isStaff ? (
+          <ListRow icon="admin" title={t("admin.title")} subtitle={t("admin.entrySubtitle")} onPress={() => router.push("/admin")} />
+        ) : null}
       </ListGroup>
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("account.appearance")} />

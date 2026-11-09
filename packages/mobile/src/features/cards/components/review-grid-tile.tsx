@@ -6,21 +6,27 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Pill } from "@/components/ui/pill";
+import { SelectField } from "@/components/ui/select-field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
 import { scanImageQueryOptions } from "@/features/collections/api/collection-cards";
 import { useTheme } from "@/hooks/use-theme";
+import { SCAN_ATTRIBUTE_FIELD_WIDTH } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { ReviewGridTileProps } from "@/lib/interfaces/cards";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { absoluteUrl } from "@/lib/url";
+import { cardStampOptionsFor } from "@magic-vault/shared";
 
-export function ReviewGridTile({ card, accepting, onAccept, onCorrect }: ReviewGridTileProps) {
+export function ReviewGridTile({ card, attributes, accepting, onAccept, onCorrect, onPickAttribute }: ReviewGridTileProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const image = useQuery(scanImageQueryOptions(card.collectionGuid, card.scanId));
   const capturedUrl = absoluteUrl(image.data?.capturedImageUrl);
   const matchedUrl = absoluteUrl(card.card.image?.normal ?? card.card.image?.small);
+  const hasStamps = cardStampOptionsFor(card.card, attributes.stamp).length > 0;
+  const attributeFieldStyle = { width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 } as const;
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
     borderRadius: RADIUS.md,
@@ -73,6 +79,42 @@ export function ReviewGridTile({ card, accepting, onAccept, onCorrect }: ReviewG
           </AppText>
         </View>
         {card.lowConfidenceMatch || card.hasAlternatives ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
+      </View>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
+        <View style={attributeFieldStyle}>
+          <SelectField
+            label={t("cardDetail.foil")}
+            value={attributes.foilType ?? t("cardDetail.foilNone")}
+            placeholder={t("cardDetail.foilNone")}
+            onPress={() => onPickAttribute("foilType")}
+          />
+        </View>
+        {hasStamps ? (
+          <View style={attributeFieldStyle}>
+            <SelectField
+              label={t("cardDetail.stamp")}
+              value={attributes.stamp ?? t("cardDetail.stampNone")}
+              placeholder={t("cardDetail.stampNone")}
+              onPress={() => onPickAttribute("stamp")}
+            />
+          </View>
+        ) : null}
+        <View style={attributeFieldStyle}>
+          <SelectField
+            label={t("cardDetail.condition")}
+            value={t(`cardDetail.conditions.${attributes.condition}`)}
+            placeholder={t(`cardDetail.conditions.${attributes.condition}`)}
+            onPress={() => onPickAttribute("condition")}
+          />
+        </View>
+        <View style={attributeFieldStyle}>
+          <SelectField
+            label={t("cardDetail.language")}
+            value={LANGUAGE_LABELS[attributes.language] ?? attributes.language}
+            placeholder={attributes.language}
+            onPress={() => onPickAttribute("language")}
+          />
+        </View>
       </View>
       <View style={{ flexDirection: "row", gap: SPACING.sm }}>
         <Button
