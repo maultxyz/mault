@@ -14,7 +14,7 @@ CREATE TABLE "printing_mark_references" (
 ALTER TABLE "printing_mark_references" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 ALTER TABLE "cards" ADD COLUMN "printing_mark_groups" jsonb;--> statement-breakpoint
 ALTER TABLE "cards" ADD COLUMN "printing_mark_version" smallint;--> statement-breakpoint
-ALTER TABLE "collection_cards" ADD COLUMN "stamp" text;--> statement-breakpoint
+ALTER TABLE "collection_cards" ADD COLUMN IF NOT EXISTS "stamp" text;--> statement-breakpoint
 CREATE POLICY "crud-authenticated-policy-select" ON "printing_mark_references" AS PERMISSIVE FOR SELECT TO "authenticated" USING (true);--> statement-breakpoint
 CREATE POLICY "crud-authenticated-policy-insert" ON "printing_mark_references" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK (false);--> statement-breakpoint
 CREATE POLICY "crud-authenticated-policy-update" ON "printing_mark_references" AS PERMISSIVE FOR UPDATE TO "authenticated" USING (false) WITH CHECK (false);--> statement-breakpoint
