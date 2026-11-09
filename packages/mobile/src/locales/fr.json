@@ -774,6 +774,8 @@
     "similarMatchesHint": "Plusieurs correspondances proches. Touche la bonne version.",
     "thisScan": "Ce scan",
     "foilNone": "Non foil",
+    "stamp": "Tampon",
+    "stampNone": "Sans tampon",
     "condition": "Condition",
     "language": "Langue",
     "allLanguages": "Toutes les langues",
@@ -1885,9 +1887,10 @@
     "pausedDuringSync": "Suspendu pendant une synchronisation de la base de données",
     "ocrRegions": {
       "heading": "Zones OCR",
-      "description": "Où le texte est lu sur les cartes de chaque jeu quand l'OCR est activé, affiché sur une carte d'exemple de la base. Les cadres pleins sont lus en premier ; les zones de repli en pointillés ne sont lues que si le premier passage ne trouve pas la carte.",
+      "description": "Où le texte est lu sur les cartes de chaque jeu quand l'OCR est activé, affiché sur une carte d'exemple de la base. Les cadres pleins sont lus en premier ; les zones de repli en pointillés ne sont lues que si le premier passage ne trouve pas la carte. Les marques d'impression sont comparées à l'image de catalogue de chaque impression pour distinguer les impressions d'une même carte.",
       "fallback": "repli",
       "multiline": "multiligne",
+      "printingMark": "marque d'impression",
       "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %",
       "anotherCard": "Afficher une autre carte",
       "sample": "{{name}} · {{set}} #{{number}}"
@@ -1911,6 +1914,17 @@
       "lastUpdated": "Mis à jour le {{date}}",
       "inactive": "Inactive",
       "empty": "Aucun jeu configuré pour le moment"
+    },
+    "printingMarks": {
+      "title": "Marques d'impression",
+      "setSymbol": "Symbole d'extension",
+      "artStamp": "Tampon promo",
+      "listIcon": "Icône The List",
+      "pitch": "Points de pitch",
+      "editionMarker": "Marque d'édition",
+      "setCodeAndRegulationMark": "Code d'extension et marque de régulation",
+      "firstEditionStamp": "Tampon 1st Edition",
+      "foilMarker": "Étoile foil"
     },
     "ocrFields": {
       "name": "Nom",

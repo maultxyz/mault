@@ -9,7 +9,13 @@ import type {
   SearchCardMatch,
   SearchNoMatchReason,
 } from "@magic-vault/shared";
-import { CLOSE_MATCH_DELTA, DISTANCE_THRESHOLD } from "@magic-vault/shared";
+import {
+  CLOSE_MATCH_DELTA,
+  DISTANCE_THRESHOLD,
+  PRINTING_MARK_MAX_LEADER_DISTANCE_GAP,
+  PRINTING_MARK_REORDER_MARGIN,
+  type PrintingMarkScanGrids,
+} from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import { resolveCardSearchForGame } from "../../lib/card-search/resolve";
 import { searchCardsByIds } from "../../lib/card-search/stored-cards";
@@ -36,12 +42,16 @@ import {
 import {
   cardRowDistance,
   closestPrintingInSets,
+  printingMarkGroupsOfRow,
   faceDistance,
   nearestCardFaces,
   normalizedEmbedding,
 } from "../../lib/card-match-search";
 import { cardsWithSimilarName } from "../../lib/card-name-trigrams";
-import type { OcrCandidateRow } from "../../lib/interfaces/card-match-index";
+import type {
+  CardFaceMatch,
+  OcrCandidateRow,
+} from "../../lib/interfaces/card-match-index";
 import type {
   CardMatchCandidate,
   CardMatchSearchResult,
@@ -50,6 +60,9 @@ import type {
   CollectionMatchScope,
 } from "../../lib/interfaces/card-search";
 import { ocrRegions } from "../../lib/ocr";
+import { scanGridsFromImageBuffer } from "../../lib/printing-marks/scan";
+import { printingMarkReferencesFor } from "../../lib/printing-marks/references";
+import { rankByPrintingMarks } from "../../lib/printing-marks/ranking";
 import { stripLeadingZeros } from "../../lib/ocr-calibration/match";
 
 export function normalizeForMatch(text: string): string {
@@ -108,13 +121,19 @@ export function cardDistanceSql(embeddingStr: string): SQL {
   return sql`LEAST(embedding <=> ${embeddingStr}::vector(128), back_embedding <=> ${embeddingStr}::vector(128))`;
 }
 
-export function langFilter({ lang, matchAllLanguages }: CollectionMatchScope): SQL {
+export function langFilter({
+  lang,
+  matchAllLanguages,
+}: CollectionMatchScope): SQL {
   return matchAllLanguages ? sql`` : sql`AND lang = ${lang}`;
 }
 
-export function matchingExclusionFilter({ gameKey, lang }: CollectionMatchScope): SQL {
-  const excludedFromMatchingSql =
-    resolveCardSearchForGame(gameKey, lang)?.adapter.excludedFromMatchingSql;
+export function matchingExclusionFilter({
+  gameKey,
+  lang,
+}: CollectionMatchScope): SQL {
+  const excludedFromMatchingSql = resolveCardSearchForGame(gameKey, lang)
+    ?.adapter.excludedFromMatchingSql;
   return excludedFromMatchingSql
     ? sql`AND NOT coalesce(${excludedFromMatchingSql}, false)`
     : sql``;
@@ -138,7 +157,9 @@ function parseSetCodeList(value: unknown): string[] {
   }
 }
 
-export function parsePreferredSetCodes(body: Record<string, unknown>): string[] {
+export function parsePreferredSetCodes(
+  body: Record<string, unknown>,
+): string[] {
   const legacySetCode = trimmedSetCode(body["preferredSetCode"]);
   return [
     ...new Set([
@@ -153,15 +174,43 @@ function isPreferredSetCode(setCode: string, preferredSetCodes: string[] = []) {
   return preferredSetCodes.some((code) => code.toLowerCase() === wanted);
 }
 
+async function rankFacesByPrintingMarks(
+  gameKey: string,
+  grids: PrintingMarkScanGrids | null | undefined,
+  faces: CardFaceMatch[],
+) {
+  const [leader] = faces;
+  const contenders = leader
+    ? faces.filter(
+        (face) =>
+          face.segment.names[face.row] === leader.segment.names[leader.row] &&
+          face.distance - leader.distance <=
+            PRINTING_MARK_MAX_LEADER_DISTANCE_GAP,
+      )
+    : [];
+  return rankByPrintingMarks(
+    grids,
+    grids && contenders.length > 1
+      ? await printingMarkReferencesFor(gameKey)
+      : null,
+    contenders.map((face) => ({
+      cardId: face.segment.cardIds[face.row],
+      groups: printingMarkGroupsOfRow(face.segment, face.row),
+    })),
+  );
+}
+
 export async function findCardMatches({
   embeddings,
   preferredSetCodes = [],
   skipsUnloadedIndex = false,
+  printingMarkGrids,
   ...scope
 }: CollectionMatchScope & {
   embeddings: CardSearchEmbeddings;
   preferredSetCodes?: string[];
   skipsUnloadedIndex?: boolean;
+  printingMarkGrids?: PrintingMarkScanGrids | null;
 }): Promise<CardMatchSearchResult> {
   const { gameKey, lang } = scope;
   const segments = skipsUnloadedIndex
@@ -256,25 +305,46 @@ export async function findCardMatches({
           match.leaderDistance <= DUPLICATE_PRINTING_MAX_DISTANCE,
       )
     : undefined;
-  const ranked = regularMatch
+  const markRanking = await rankFacesByPrintingMarks(
+    gameKey,
+    printingMarkGrids,
+    nearest,
+  );
+  const markWinner = markRanking.winnerCardId
+    ? matches.find((match) => match.cardId === markRanking.winnerCardId)
+    : undefined;
+  const marksRejectRegular =
+    !!regularMatch &&
+    (markRanking.evidenceByCardId.get(regularMatch.cardId) ?? 0) <=
+      -PRINTING_MARK_REORDER_MARGIN;
+  const promoted =
+    markWinner ?? (marksRejectRegular ? undefined : regularMatch);
+  const ranked = promoted
     ? [
         {
           ...rows[0],
-          id: regularMatch.cardId,
-          cardId: regularMatch.cardId,
-          lang: regularMatch.lang,
-          setCode: regularMatch.setCode,
-          distance: regularMatch.distance,
+          id: promoted.cardId,
+          cardId: promoted.cardId,
+          lang: promoted.lang,
+          setCode: promoted.setCode,
+          distance: promoted.distance,
         },
-        ...rows.filter((row) => row.cardId !== regularMatch.cardId),
+        ...rows.filter((row) => row.cardId !== promoted.cardId),
       ]
     : rows;
 
   const [leader] = ranked;
-  const leaderSegment = segments.find((segment) => segment.lang === leader.lang);
+  const leaderSegment = segments.find(
+    (segment) => segment.lang === leader.lang,
+  );
   const preferred =
     preferredSetCodes.length > 0 && leaderSegment
-      ? closestPrintingInSets(leaderSegment, leader.name, preferredSetCodes, query)
+      ? closestPrintingInSets(
+          leaderSegment,
+          leader.name,
+          preferredSetCodes,
+          query,
+        )
       : null;
   const accepted = preferred
     ? [
@@ -303,6 +373,7 @@ export async function findCardMatches({
     success: true,
     data: matchList.length > 0 ? matchList : null,
     nearestDistance,
+    printingMarks: markRanking.diagnostics,
   };
 }
 
@@ -370,6 +441,32 @@ function matchesCollectorNumber(
   return !!digits && numberCandidates.includes(stripLeadingZeros(digits));
 }
 
+export function printedSetTotalCandidates(text: string): number[] {
+  return [
+    ...new Set(
+      [...text.matchAll(/\d\s*\/\s*(\d+)/g)].map((match) => Number(match[1])),
+    ),
+  ];
+}
+
+function matchesPrintedSetTotal(
+  printedSetTotal: number,
+  readSetTotals: number[],
+): boolean {
+  return printedSetTotal > 0 && readSetTotals.includes(printedSetTotal);
+}
+
+function contradictsPrintedSetTotal(
+  printedSetTotal: number,
+  readSetTotals: number[],
+): boolean {
+  return (
+    printedSetTotal > 0 &&
+    readSetTotals.length > 0 &&
+    !readSetTotals.includes(printedSetTotal)
+  );
+}
+
 function isLeadingPrintingConfirmed(
   printings: { setCode: string; setLineMatch: boolean; numberMatch: boolean }[],
 ): boolean {
@@ -391,6 +488,8 @@ export async function findCardMatchesByText({
   embeddings,
   readout,
   preferredSetCodes,
+  printedPromo = null,
+  printingMarkGrids,
   ...scope
 }: CardTextMatchParams): Promise<CardTextMatchResult> {
   const nameQueries = ocrNameQueries(readout.name);
@@ -407,6 +506,9 @@ export async function findCardMatchesByText({
   const query = normalizedEmbedding(embeddings.embedding);
   const setLineTokens = extractOcrTokens(readout.setLine);
   const numberCandidates = ocrNumberCandidates(
+    readout.number || readout.setLine,
+  );
+  const readSetTotals = printedSetTotalCandidates(
     readout.number || readout.setLine,
   );
 
@@ -436,7 +538,7 @@ export async function findCardMatchesByText({
   const matchedName = nameOf(rows[0]);
   const nameScore = rows[0].score;
 
-  const printings = rows
+  const textRankedPrintings = rows
     .filter((candidate) => nameOf(candidate) === matchedName)
     .map(({ segment, row, distance }) => ({
       id: segment.cardIds[row],
@@ -445,28 +547,66 @@ export async function findCardMatchesByText({
       setCode: segment.setCodes[row],
       distance,
       setLineMatch: matchesSetLine(segment.setCodes[row], setLineTokens),
-      numberMatch: matchesCollectorNumber(
-        segment.collectorNumbers[row],
-        numberCandidates,
+      setTotalMatch: matchesPrintedSetTotal(
+        segment.printedSetTotals[row],
+        readSetTotals,
       ),
+      numberMatch:
+        matchesCollectorNumber(segment.collectorNumbers[row], numberCandidates) &&
+        !contradictsPrintedSetTotal(segment.printedSetTotals[row], readSetTotals),
       isPreferredSet: isPreferredSetCode(
         segment.setCodes[row],
         preferredSetCodes,
       ),
+      matchesPrintedPromo:
+        printedPromo == null ||
+        (segment.promoPrinting[row] === 1) === printedPromo,
+      printingMarkGroups: printingMarkGroupsOfRow(segment, row),
     }))
     .sort(
       (a, b) =>
         Number(b.isPreferredSet) - Number(a.isPreferredSet) ||
+        Number(b.matchesPrintedPromo) - Number(a.matchesPrintedPromo) ||
         Number(b.setLineMatch) - Number(a.setLineMatch) ||
         Number(b.numberMatch) - Number(a.numberMatch) ||
+        Number(b.setTotalMatch) - Number(a.setTotalMatch) ||
         a.distance - b.distance,
     );
+  const [textLeader] = textRankedPrintings;
+  const contenders = textRankedPrintings.filter(
+    (printing) =>
+      printing.isPreferredSet === textLeader.isPreferredSet &&
+      printing.matchesPrintedPromo === textLeader.matchesPrintedPromo &&
+      printing.numberMatch === textLeader.numberMatch &&
+      printing.setTotalMatch === textLeader.setTotalMatch,
+  );
+  const markRanking = rankByPrintingMarks(
+    printingMarkGrids,
+    printingMarkGrids && contenders.length > 1
+      ? await printingMarkReferencesFor(scope.gameKey)
+      : null,
+    contenders.map((printing) => ({
+      cardId: printing.cardId,
+      groups: printing.printingMarkGroups,
+    })),
+  );
+  const markWinner = textRankedPrintings.find(
+    (printing) => printing.cardId === markRanking.winnerCardId,
+  );
+  const printings = markWinner
+    ? [
+        markWinner,
+        ...textRankedPrintings.filter((printing) => printing !== markWinner),
+      ]
+    : textRankedPrintings;
 
   const ocr: OcrDiagnostics = {
     readout,
     matchedName,
     nameScore,
-    printingConfirmed: isLeadingPrintingConfirmed(printings),
+    printingConfirmed:
+      isLeadingPrintingConfirmed(printings) ||
+      markRanking.diagnostics.confirmed,
   };
 
   const data: SearchCardMatch[] = withConfidence(
@@ -485,6 +625,7 @@ export async function findCardMatchesByText({
     data,
     nearestDistance: printings[0].distance,
     ocr,
+    printingMarks: markRanking.diagnostics,
   };
 }
 
@@ -517,7 +658,11 @@ async function findCardMatchesByPrintedSetAndNumber({
     segment.collectorNumbers.forEach((collectorNumber, row) => {
       const number = leadingCollectorNumber(collectorNumber);
       if (number && numberCandidates.has(number)) {
-        rows.push({ segment, row, distance: cardRowDistance(segment, row, query) });
+        rows.push({
+          segment,
+          row,
+          distance: cardRowDistance(segment, row, query),
+        });
       }
     });
   }
@@ -619,20 +764,24 @@ export async function findCardMatchesByOcr(
   params: Omit<CardTextMatchParams, "readout">,
   trace?: OcrRegionTrace[],
 ): Promise<CardTextMatchResult> {
-  const {
-    primary,
-    fallback,
-    regions: readRegions,
-  } = await ocrRegions(buffer, regions, trace);
+  const [{ primary, fallback, regions: readRegions }, printingMarkGrids] =
+    await Promise.all([
+      ocrRegions(buffer, regions, trace),
+      params.printingMarkGrids ??
+        scanGridsFromImageBuffer(params.gameKey, buffer),
+    ]);
   const readout = mergeReadouts(primary, fallback);
+  const adapter = resolveCardSearchForGame(
+    params.gameKey,
+    params.lang,
+  )?.adapter;
+  const printedPromo =
+    adapter?.readPrintedPromoMarker?.(readout.setLine) ?? null;
   const withReadRegions = (result: CardTextMatchResult) => ({
     ...result,
-    ocr: { ...result.ocr, regions: readRegions },
+    ocr: { ...result.ocr, regions: readRegions, printedPromo },
   });
-  if (
-    resolveCardSearchForGame(params.gameKey, params.lang)?.adapter
-      .ocrMatchesByPrintedSetAndNumber
-  ) {
+  if (adapter?.ocrMatchesByPrintedSetAndNumber) {
     return withReadRegions(
       withoutDistantUnconfirmedMatch(
         await findCardMatchesByPrintedSetAndNumber({
@@ -650,9 +799,10 @@ export async function findCardMatchesByOcr(
       candidate.name &&
       all.findIndex((other) => other.name === candidate.name) === index,
   );
+  const textParams = { ...params, printedPromo, printingMarkGrids };
   if (nameCandidates.length === 0) {
     return withReadRegions(
-      await findCardMatchesByText({ ...params, readout }),
+      await findCardMatchesByText({ ...textParams, readout }),
     );
   }
 
@@ -660,7 +810,7 @@ export async function findCardMatchesByOcr(
     nameCandidates.map(async ({ name, fromFallback }) => ({
       fromFallback,
       result: await findCardMatchesByText({
-        ...params,
+        ...textParams,
         readout: { ...readout, name },
       }),
     })),

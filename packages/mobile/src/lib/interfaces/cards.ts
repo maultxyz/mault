@@ -31,6 +31,7 @@ export interface CardUpdateBody {
   reviewed?: boolean;
   isFoil?: boolean;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: CardCondition;
   language?: string;
 }
@@ -76,6 +77,7 @@ export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil: boolean;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: CardCondition | null;
 }
 

@@ -45,6 +45,13 @@ const bridge: DesktopBridge = {
     ipcRenderer.invoke(DOCUMENT_SCAN_CHANNELS.feedCard, sessionId, request),
   closeDocumentScannerSession: (sessionId) =>
     ipcRenderer.send(DOCUMENT_SCAN_CHANNELS.closeSession, sessionId),
+  getDocumentScanArchiveFolder: () =>
+    ipcRenderer.invoke(DOCUMENT_SCAN_CHANNELS.getArchiveFolder),
+  chooseDocumentScanArchiveFolder: () =>
+    ipcRenderer.invoke(DOCUMENT_SCAN_CHANNELS.chooseArchiveFolder),
+  clearDocumentScanArchiveFolder: () =>
+    ipcRenderer.invoke(DOCUMENT_SCAN_CHANNELS.clearArchiveFolder),
+  archiveDocumentScan: (request) => ipcRenderer.invoke(DOCUMENT_SCAN_CHANNELS.archive, request),
   onDocumentScanEvent: (listener) => {
     const handler = (_event: IpcRendererEvent, scanEvent: DesktopDocumentScanEvent) =>
       listener(scanEvent);

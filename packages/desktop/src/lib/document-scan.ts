@@ -24,6 +24,13 @@ import {
   DOCUMENT_SCAN_TEMP_PREFIX,
 } from "./constants/desktop";
 import {
+  archiveDocumentScan,
+  chooseDocumentScanArchiveFolder,
+  clearDocumentScanArchiveFolder,
+  parseArchiveRequest,
+  readDocumentScanArchiveFolder,
+} from "./document-scan-archive";
+import {
   chooseDocumentScanFolder,
   documentScanImageMimeType,
   readDocumentScanFolder,
@@ -296,6 +303,26 @@ export function registerDocumentScanIpc() {
   ipcMain.handle(DOCUMENT_SCAN_CHANNELS.chooseFolder, (event) => {
     assertAppOrigin(event);
     return chooseDocumentScanFolder(event.sender);
+  });
+
+  ipcMain.handle(DOCUMENT_SCAN_CHANNELS.getArchiveFolder, (event) => {
+    assertAppOrigin(event);
+    return readDocumentScanArchiveFolder();
+  });
+
+  ipcMain.handle(DOCUMENT_SCAN_CHANNELS.chooseArchiveFolder, (event) => {
+    assertAppOrigin(event);
+    return chooseDocumentScanArchiveFolder(event.sender);
+  });
+
+  ipcMain.handle(DOCUMENT_SCAN_CHANNELS.clearArchiveFolder, (event) => {
+    assertAppOrigin(event);
+    return clearDocumentScanArchiveFolder();
+  });
+
+  ipcMain.handle(DOCUMENT_SCAN_CHANNELS.archive, (event, value: unknown) => {
+    assertAppOrigin(event);
+    return archiveDocumentScan(parseArchiveRequest(value));
   });
 
   ipcMain.handle(DOCUMENT_SCAN_CHANNELS.start, async (event, value: unknown) => {

@@ -9,6 +9,7 @@ import {
 } from "../../constants/card-search";
 import { FLESHCUBE_RETRY_DELAY_MS } from "../../constants/timing";
 import { FAB_DEFAULT_URL } from "../../constants/urls";
+import { fabPrintingMarkGroups } from "../../printing-marks/groups";
 import type {
   FabCard,
   FabPrinting,
@@ -145,6 +146,7 @@ export const fabAdapter: CardSearchAdapter = {
     const printing = card.cardPrintings.find((p) => p.uniqueId === id);
     return printing ? normalizeFabPrinting(card, printing) : null;
   },
+  printingMarkGroups: fabPrintingMarkGroups,
   tcgplayer: {
     categoryId: 62,
     productIdFromRaw: (card) =>

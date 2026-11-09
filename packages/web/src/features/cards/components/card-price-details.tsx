@@ -137,6 +137,7 @@ export function CardPriceDetails({
   card,
   isFoil = false,
   foilType,
+  stamp,
   condition,
   className,
 }: CardPriceDetailsProps) {
@@ -149,6 +150,7 @@ export function CardPriceDetails({
     card,
     foilType,
     condition,
+    stamp,
   );
 
   const sections: PriceSourceSection[] = [

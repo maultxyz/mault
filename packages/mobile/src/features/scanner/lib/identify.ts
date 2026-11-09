@@ -1,23 +1,27 @@
 import {
   CARD_DETECTION_RETRY_INTERVAL_MS,
   CARD_DETECTION_RETRY_TIMEOUT_MS,
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   CONSENSUS_RETRY_BUDGET,
   DEWARP_OUTPUT_SIZE,
   hasCardMatch,
   prefersTextMatch,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
-  detectColorBarRgba,
+  detectCardStampRgba,
+  detectPrintedFoilMarkerRgba,
+  PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY,
   dewarpRgba,
   getDefaultCardContour,
   isStrongerTextMatch,
   pickBetterOrientation,
   pickConsensus,
-  preferDetectedColor,
   resolveCardSearchMatches,
   rotateRgba180,
+  type CardContour,
   type CardTextSearchResult,
+  type PrintingMarksPayload,
+  type ScanOrientation,
+  printingMarksPayload,
   type CornerDetection,
   type ScanDetectionDiagnostics,
   type ScanRegion,
@@ -77,11 +81,12 @@ async function searchOriented(
   scope: MatchScope,
   checkBothOrientations: boolean,
   readTextWithImage: ReadOrientationText | null,
+  printingMarksFor: (orientation: ScanOrientation) => PrintingMarksPayload | null,
 ): Promise<OrientedPick> {
   const search = async (oriented: CapturedFrame["pixels"], orientation: OrientedPick["orientation"]) => {
     const embedding = await embedCard(oriented);
     const [result, textResult] = await Promise.all([
-      searchByVector(embedding, scope),
+      searchByVector(embedding, scope, printingMarksFor(orientation)),
       readTextWithImage ? readTextWithImage(orientation, embedding) : undefined,
     ]);
     return { pixels: oriented, orientation, embedding, result, textResult, alternate: null } satisfies OrientedPick;
@@ -144,16 +149,18 @@ async function attemptOnce(
   const dewarped = dewarpRgba(frame.pixels, contour, DEWARP_OUTPUT_SIZE);
   const cardContour = corners.contour;
   let uprightOcrCrop: CapturedFrame["pixels"] | null = null;
+  const ocrCrop = (contourForCrop: CardContour) =>
+    (uprightOcrCrop ??= dewarpRgba(frame.pixels, contourForCrop, OCR_CROP_WIDTH, OCR_CROP_HEIGHT));
   const readText: ReadOrientationText = (orientation, embedding) => {
     if (!cardContour) return Promise.resolve(null);
-    uprightOcrCrop ??= dewarpRgba(frame.pixels, cardContour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT);
-    return searchOrientationText(uprightOcrCrop, orientation, embedding, options.scope);
+    return searchOrientationText(ocrCrop(cardContour), orientation, embedding, options.scope);
   };
   const imageBest = await searchOriented(
     dewarped,
     options.scope,
     options.checkBothOrientations,
     options.ocrMode === "every-scan" && cardContour ? readText : null,
+    (orientation) => printingMarksPayload(frame.pixels, cardContour, options.gameKey, orientation),
   );
   const best =
     options.ocrMode === "when-unsure" && cardContour && needsTextSearch(imageBest.result)
@@ -163,21 +170,9 @@ async function attemptOnce(
   const textPick = text?.pick && prefersTextMatch(best.result, text.ocr) ? text.pick : null;
   const pick = textPick ?? best;
 
-  const region = options.colorBarRegionKey
-    ? COLOR_BAR_REGIONS_BY_GAME_KEY[options.colorBarRegionKey]
-    : undefined;
-  const detectedColor =
-    region && corners.contour ? detectColorBarRgba(pick.pixels, region) : null;
   const matchedBy = textPick ? "ocr" : "embedding";
-  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
-    await resolveCardSearchMatches(pick.result, (match) =>
-      getCardById(match.cardId, options.scope.collectionGuid, match.lang, match.gameKey),
-    ),
-    {
-      gameHasColorBar: !!region,
-      detectedColor,
-      printingConfirmed: matchedBy === "ocr" && !!text?.ocr?.printingConfirmed,
-    },
+  const resolved = await resolveCardSearchMatches(pick.result, (match) =>
+    getCardById(match.cardId, options.scope.collectionGuid, match.lang, match.gameKey),
   );
 
   return {
@@ -191,8 +186,19 @@ async function attemptOnce(
     topDistance: pick.result.data?.[0]?.distance ?? pick.result.nearestDistance ?? null,
     ocr: text?.ocr ?? null,
     matchedBy,
-    lowConfidenceMatch: (!!textPick && !hasCardMatch(best.result)) || colorVariantUncertain,
-    detectedColor,
+    lowConfidenceMatch: !!textPick && !hasCardMatch(best.result),
+    printingMarks: pick.result.printingMarks ?? null,
+    stampDetection:
+      corners.contour && resolved.card?.stamps?.length
+        ? detectCardStampRgba(pick.pixels, resolved.card)
+        : null,
+    printedFoilMarker:
+      cardContour && options.gameKey && PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY[options.gameKey]
+        ? detectPrintedFoilMarkerRgba(
+            pick.orientation === "rotated" ? rotateRgba180(ocrCrop(cardContour)) : ocrCrop(cardContour),
+            options.gameKey,
+          )
+        : null,
   };
 }
 

@@ -129,10 +129,7 @@ export function StorageCardList({
                     </TableCell>
                   )}
                   <TableCell>
-                    <CardThumbnail
-                      image={entry.card.image}
-                      isFoil={entry.isFoil}
-                    />
+                    <CardThumbnail image={entry.card.image} />
                   </TableCell>
                   <TableCell className="max-w-48 font-medium">
                     <div className="flex min-w-0 items-center gap-1.5">

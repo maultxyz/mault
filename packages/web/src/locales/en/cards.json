@@ -82,6 +82,17 @@
     "noOcrRegions": "This game has no OCR regions.",
     "ocrFallback": "{{field}} (fallback)",
     "ocrFixedBox": "{{field}} (fixed box)",
+    "printingMarks": {
+      "title": "Printing marks",
+      "setSymbol": "Set symbol",
+      "artStamp": "Promo stamp",
+      "listIcon": "The List icon",
+      "pitch": "Pitch dots",
+      "editionMarker": "Edition marker",
+      "setCodeAndRegulationMark": "Set code and regulation mark",
+      "firstEditionStamp": "1st Edition stamp",
+      "foilMarker": "Foil star"
+    },
     "ocrFields": {
       "name": "Name",
       "setLine": "Set line",
@@ -271,6 +282,8 @@
   },
   "foil": "Foil",
   "foilNone": "Not foil",
+  "stamp": "Stamp",
+  "stampNone": "No stamp",
   "language": "Language",
   "downloaded": "Downloaded",
   "technicalDetails": {
@@ -320,11 +333,25 @@
     "copyJson": "Copy JSON",
     "copied": "Card JSON copied.",
     "copyFailed": "Couldn't copy the card JSON.",
-    "detectedColor": "Detected color bar",
     "foilDetection": "Foil detection",
     "foilDetected": "Foil ({{method}} {{score}})",
     "foilNotDetected": "Not foil ({{method}} {{score}})",
-    "noColor": "None",
+    "printingMarks": "Printing marks",
+    "printingMarksChanged": "Changed the printing (evidence {{evidence}})",
+    "printingMarksKept": "Kept the printing (best evidence {{evidence}})",
+    "printingMarksSkipped": {
+      "noScanAreas": "Not checked: no mark areas from the scan",
+      "noReferences": "Not checked: no references for this game yet",
+      "singlePrinting": "Not needed: no look-alike printings"
+    },
+    "printedFoilMarker": "Foil star",
+    "printedFoilMarkerValue": {
+      "star": "Star found (foil)",
+      "dot": "Dot found (not foil)",
+      "none": "Not found"
+    },
+    "stampDetection": "Stamp detection",
+    "noStampDetected": "No stamp found",
     "foilMethod": {
       "rainbow": "rainbow score",
       "nudge": "nudge change"

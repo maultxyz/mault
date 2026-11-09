@@ -1,4 +1,3 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
@@ -73,7 +72,6 @@ export function MobileSessionScansSheet({
                           className="absolute inset-0 size-full object-cover"
                         />
                       )}
-                      {entry.isFoil && <FoilOverlay />}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-semibold">

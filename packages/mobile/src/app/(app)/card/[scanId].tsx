@@ -14,6 +14,7 @@ import {
   cardTagsSetOn,
   type CardTag,
   cardFoilTypeOptions,
+  cardStampOptionsFor,
   DEFAULT_CARD_CONDITION,
   DEFAULT_CARD_LANGUAGE,
   isCardLanguage,
@@ -160,6 +161,7 @@ export default function CardDetailScreen() {
       entry
         ? {
             foilType: entry.foilType ?? (entry.isFoil ? gameFoilOptions[0] : null),
+            stamp: entry.stamp ?? null,
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
             language: scanLanguage(entry),
             acquisitionCost: acquisitionCost.data?.cost ?? null,
@@ -174,23 +176,26 @@ export default function CardDetailScreen() {
   });
   const { isDirty, errors } = form.formState;
   const draftFoil = form.watch("foilType");
+  const draftStamp = form.watch("stamp");
   const draftCondition = form.watch("condition") as CardCondition;
   const draftLanguage = form.watch("language");
   const languageOptions: string[] =
     !draftLanguage || isCardLanguage(draftLanguage) ? [...CARD_LANGUAGES] : [draftLanguage, ...CARD_LANGUAGES];
   const price = card
-    ? pricing.priceOf(card, { isFoil: draftFoil != null, foilType: draftFoil }, draftCondition)
+    ? pricing.priceOf(card, { isFoil: draftFoil != null, foilType: draftFoil, stamp: draftStamp }, draftCondition)
     : null;
   const foilOptions = cardFoilTypeOptions(gameFoilOptions, card, draftFoil);
+  const stampOptions = cardStampOptionsFor(card, draftStamp);
 
   const saveDraft = useMutation({
     mutationFn: async (values: ScanDraftFormValues) => {
       const { dirtyFields } = form.formState;
-      if (dirtyFields.foilType || dirtyFields.condition || dirtyFields.language) {
+      if (dirtyFields.foilType || dirtyFields.stamp || dirtyFields.condition || dirtyFields.language) {
         await updateCollectionCard(guid, scanId, {
           isFoil: values.foilType != null,
           foilType: values.foilType,
           condition: values.condition as CardCondition,
+          ...(dirtyFields.stamp ? { stamp: values.stamp } : {}),
           ...(dirtyFields.language ? { language: values.language } : {}),
         });
       }
@@ -252,6 +257,9 @@ export default function CardDetailScreen() {
   const actionMenuOptions = entry
     ? [
         { value: "foil", label: t("cardDetail.foil"), badge: draftFoil ?? t("cardDetail.foilNone") },
+        ...(stampOptions.length > 0
+          ? [{ value: "stamp", label: t("cardDetail.stamp"), badge: draftStamp ?? t("cardDetail.stampNone") }]
+          : []),
         { value: "condition", label: t("cardDetail.condition"), badge: t(`cardDetail.conditions.${draftCondition}`) },
         { value: "language", label: t("cardDetail.language"), badge: LANGUAGE_LABELS[draftLanguage] ?? draftLanguage },
         ...(canShowMoveToLocation
@@ -336,6 +344,14 @@ export default function CardDetailScreen() {
         value={draftFoil ?? t("cardDetail.foilNone")}
         onPress={() => setSheet("foil")}
       />
+      {stampOptions.length > 0 ? (
+        <ListRow
+          icon="stamp"
+          title={t("cardDetail.stamp")}
+          value={draftStamp ?? t("cardDetail.stampNone")}
+          onPress={() => setSheet("stamp")}
+        />
+      ) : null}
       <ListRow
         icon="condition"
         title={t("cardDetail.condition")}
@@ -421,6 +437,7 @@ export default function CardDetailScreen() {
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {draftFoil ? <Pill tone="info" label={draftFoil} /> : null}
+                {draftStamp ? <Pill tone="neutral" label={draftStamp} /> : null}
                 {draftCondition !== DEFAULT_CARD_CONDITION ? (
                   <Pill tone="neutral" label={t(`cardDetail.conditions.${draftCondition}`)} />
                 ) : null}
@@ -590,6 +607,7 @@ export default function CardDetailScreen() {
                   card={card}
                   isFoil={draftFoil != null}
                   foilType={draftFoil}
+                  stamp={draftStamp}
                   condition={draftCondition}
                 />
                 <CardPurchaseLinks card={card} />
@@ -709,6 +727,20 @@ export default function CardDetailScreen() {
         selected={[draftFoil ?? ""]}
         onSelect={(value) => {
           form.setValue("foilType", value === "" ? null : value, { shouldDirty: true });
+          setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "stamp"}
+        title={t("cardDetail.stamp")}
+        options={[
+          { value: "", label: t("cardDetail.stampNone") },
+          ...stampOptions.map((option) => ({ value: option, label: option })),
+        ]}
+        selected={[draftStamp ?? ""]}
+        onSelect={(value) => {
+          form.setValue("stamp", value === "" ? null : value, { shouldDirty: true });
           setSheet(null);
         }}
         onClose={() => setSheet(null)}

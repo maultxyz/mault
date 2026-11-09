@@ -1,3 +1,6 @@
+import type { StampDetection } from "./card-stamps.interface";
+import type { PrintedFoilMarkerDetection } from "./printed-foil-marker.interface";
+import type { PrintingMarkMatch } from "./printing-regions.interface";
 import type {
   CardSearchDiagnostics,
   SearchNoMatchReason,
@@ -103,6 +106,7 @@ export interface ScannedCard {
   alternativeMatches?: PlayingCardWithDistance[];
   isFoil?: boolean;
   foilType?: string;
+  stamp?: string;
   condition?: CardCondition;
   language?: string;
   isDownloaded?: boolean;
@@ -162,8 +166,10 @@ export interface MatchedScanDiagnostics {
   attempts: ScanAttemptDiagnostic[];
   candidates: MatchCandidateDiagnostic[];
   ocr: OcrDiagnostics | null;
-  detectedColor?: string | null;
   foilDetection?: FoilDetection | null;
+  stampDetection?: StampDetection | null;
+  printedFoilMarker?: PrintedFoilMarkerDetection | null;
+  printingMarks?: PrintingMarkMatch | null;
 }
 
 export interface MatchedScanDetails {

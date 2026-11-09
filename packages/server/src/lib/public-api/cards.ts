@@ -40,7 +40,7 @@ async function selectCards(
     sql` AND `,
   );
   const result = await tx.execute(sql`
-    SELECT cc.id, cc.guid::text AS scan_id, cc.card_id, cc.is_foil, cc.foil_type,
+    SELECT cc.id, cc.guid::text AS scan_id, cc.card_id, cc.is_foil, cc.foil_type, cc.stamp,
       cc.condition,
       ((cc.low_confidence_match OR cc.has_alternative_matches) AND NOT cc.is_corrected) AS needs_review,
       cc.is_reviewed,
@@ -167,6 +167,7 @@ export function toApiScannedCard(row: PublicApiCardRow): ApiScannedCard {
     game: row.game,
     finish: row.is_foil ? "foil" : "nonfoil",
     foil_type: row.is_foil ? row.foil_type : null,
+    stamp: row.stamp,
     condition: toCardCondition(row.condition),
     prices: {
       usd: formatPrice(row.price_usd),

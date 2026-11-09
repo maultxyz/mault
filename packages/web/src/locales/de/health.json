@@ -12,9 +12,10 @@
   "pausedDuringSync": "Pausiert, während eine Datenbanksynchronisierung läuft",
   "ocrRegions": {
     "heading": "OCR-Bereiche",
-    "description": "Wo auf den Karten jedes Spiels Text gelesen wird, wenn OCR aktiv ist, gezeigt auf einer Beispielkarte aus der Datenbank. Durchgezogene Rahmen werden zuerst gelesen, gestrichelte Ausweichbereiche nur, wenn der erste Durchgang die Karte nicht findet.",
+    "description": "Wo auf den Karten jedes Spiels Text gelesen wird, wenn OCR aktiv ist, gezeigt auf einer Beispielkarte aus der Datenbank. Durchgezogene Rahmen werden zuerst gelesen, gestrichelte Ausweichbereiche nur, wenn der erste Durchgang die Karte nicht findet. Druckmerkmale werden mit dem Katalogbild jedes Drucks verglichen, um Drucke derselben Karte zu unterscheiden.",
     "fallback": "Ausweichbereich",
     "multiline": "mehrzeilig",
+    "printingMark": "Druckmerkmal",
     "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %",
     "anotherCard": "Andere Karte zeigen",
     "sample": "{{name}} · {{set}} #{{number}}"

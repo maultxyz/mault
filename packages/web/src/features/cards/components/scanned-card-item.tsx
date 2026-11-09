@@ -6,7 +6,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { FoilOverlay } from "@/components/foil-overlay";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
@@ -154,7 +153,6 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             alt={card.name}
             className="w-full h-full object-cover"
           />
-          {isFoil && <FoilOverlay />}
         </div>
       </button>
       {onToggleSelect && (

@@ -2,6 +2,7 @@ import type {
   CardSearchResult,
   CardTextSearchResult,
   PlayingCard,
+  PrintingMarksPayload,
   Result,
 } from "@magic-vault/shared";
 import { apiGet, apiPostForm } from "@/lib/api/client";
@@ -20,8 +21,17 @@ function scopeForm(embedding: number[], scope: MatchScope): FormData {
   return form;
 }
 
-export function searchByVector(embedding: number[], scope: MatchScope): Promise<CardSearchResult> {
-  return apiPostForm<CardSearchResult>("/api/cards/by-vector", scopeForm(embedding, scope));
+export function searchByVector(
+  embedding: number[],
+  scope: MatchScope,
+  printingMarks: PrintingMarksPayload | null,
+): Promise<CardSearchResult> {
+  const form = scopeForm(embedding, scope);
+  if (printingMarks) {
+    form.append("printingMarks", printingMarks.encoded);
+    form.append("printingMarksGameKey", printingMarks.gameKey);
+  }
+  return apiPostForm<CardSearchResult>("/api/cards/by-vector", form);
 }
 
 export function searchByText(

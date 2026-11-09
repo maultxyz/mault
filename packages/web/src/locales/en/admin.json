@@ -90,7 +90,9 @@
     "queuedCount": "{{count}} queued",
     "skippedCount": "{{count}} skipped",
     "etaRemaining": "~{{duration}} remaining",
-    "errorsCount": "{{count}} errors"
+    "errorsCount": "{{count}} errors",
+    "printingMarksLabel": "Printing marks progress",
+    "printingMarksCount": "Printing marks: {{done}} / {{total}} cards read"
   },
   "log": {
     "heading": "Log",

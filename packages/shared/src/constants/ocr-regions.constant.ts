@@ -1,5 +1,4 @@
 import type {
-  ColorBarRegion,
   OcrRegion,
 } from "../interfaces/ocr-region.interface";
 
@@ -198,7 +197,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       field: "setLine",
       x: 0.052,
       y: 0.961,
-      width: 0.214,
+      width: 0.3,
       height: 0.015,
     },
     {
@@ -264,16 +263,6 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       fallback: true,
     },
   ],
-};
-
-export const COLOR_BAR_REGIONS_BY_GAME_KEY: Record<string, ColorBarRegion> = {
-  fab: {
-    x: 0.25,
-    y: 0.025,
-    width: 0.5,
-    height: 0.045,
-    whiteReference: { x: 0.3, y: 0.088, width: 0.4, height: 0.014 },
-  },
 };
 
 export const DISTANCE_THRESHOLD = 0.4;

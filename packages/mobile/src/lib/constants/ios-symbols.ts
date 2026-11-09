@@ -62,6 +62,7 @@ export const IOS_SYMBOLS: Record<IconName, IosSymbolName> = {
   filter: "line.3.horizontal.decrease",
   condition: "checkmark.shield",
   sparkles: "sparkles",
+  stamp: "star.circle",
   selfTest: "checklist",
   sorter: "cpu",
   stats: "chart.bar",

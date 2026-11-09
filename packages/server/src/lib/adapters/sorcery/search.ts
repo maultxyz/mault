@@ -64,6 +64,10 @@ function tcgtrackingFinishProductsOf(card: PlayingCard): TcgtrackingFinishProduc
 export const sorceryAdapter: CardSearchAdapter = {
   defaultUrl: SORCERY_DEFAULT_URL,
   normalizeStored: (raw) => normalizeSorceryCard(raw as SorceryCard),
+  sourceListsNonFoilPrinting: (card) =>
+    (card.raw as Partial<SorceryCard> | undefined)?.printings?.some(
+      (printing) => printing.meta.finish === SORCERY_STANDARD_FINISH,
+    ) ?? false,
   tcgplayer: {
     categoryId: SORCERY_TCGPLAYER_CATEGORY_ID,
     subTypes: () => SORCERY_TCGPLAYER_SUBTYPES,

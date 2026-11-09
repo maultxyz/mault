@@ -90,7 +90,9 @@
     "queuedCount": "{{count}} en attente",
     "skippedCount": "{{count}} ignorées",
     "etaRemaining": "~{{duration}} restant",
-    "errorsCount": "{{count}} erreurs"
+    "errorsCount": "{{count}} erreurs",
+    "printingMarksLabel": "Progression des marques d'impression",
+    "printingMarksCount": "Marques d'impression : {{done}} / {{total}} cartes lues"
   },
   "log": {
     "heading": "Journal",

@@ -1,6 +1,7 @@
 export interface ScanRuleState {
   isFoil?: boolean;
   foilType?: string | null;
+  stamp?: string | null;
 }
 
 export interface ScanRuleFieldLabels {
@@ -13,4 +14,5 @@ export interface ScanRuleFieldLabels {
   foilOption: string;
   nonFoilOption: string;
   game?: string;
+  stamp?: string;
 }

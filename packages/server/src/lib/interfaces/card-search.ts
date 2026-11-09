@@ -4,6 +4,9 @@ import type {
   OcrDiagnostics,
   OcrReadout,
   PlayingCard,
+  PrintingMarkGroups,
+  PrintingMarkMatch,
+  PrintingMarkScanGrids,
   SearchCardMatch,
 } from "@magic-vault/shared";
 import type { SQL } from "drizzle-orm";
@@ -35,11 +38,19 @@ export interface TcgplayerFinishProduct {
   subTypes: string[];
 }
 
+export interface TcgplayerStampProduct {
+  stamp: string;
+  isFoil: boolean;
+  productId: number;
+  subTypes: string[];
+}
+
 export interface TcgplayerPricing {
   categoryId: number;
   foilTypeOfVariant?(variantWithoutEdition: string): string;
   subTypes(card: PlayingCard): TcgplayerSubTypes;
   finishProducts?(card: PlayingCard): TcgplayerFinishProduct[];
+  stampProducts?(card: PlayingCard): TcgplayerStampProduct[];
   productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
   productMatch?(card: PlayingCard): TcgplayerProductMatch | null;
 }
@@ -65,8 +76,12 @@ export interface CardSearchAdapter {
   urlForLang?(lang: string): string;
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
   rarePrintingSql?: SQL;
+  promoPrintingSql?: SQL;
+  printedSetTotalSql?: SQL;
   excludedFromMatchingSql?: SQL;
   ocrMatchesByPrintedSetAndNumber?: boolean;
+  readPrintedPromoMarker?(setLine: string): boolean | null;
+  printingMarkGroups?(card: PlayingCard): PrintingMarkGroups;
   foilPrintingVariants?: FoilPrintingVariants;
   sourceListsNonFoilPrinting?(card: PlayingCard): boolean;
   tcgplayer?: TcgplayerPricing;
@@ -94,6 +109,7 @@ export interface SyncSourceCard {
   name: string;
   setCode: string;
   imageUrl: string | undefined;
+  printingMarkImageUrl?: string;
   fallbackImageUrl?: string;
   backImageUrl?: string;
   data: string;
@@ -138,6 +154,7 @@ export interface CardMatchSearchResult {
   data: SearchCardMatch[] | null;
   nearestDistance: number | null;
   diagnostics?: CardSearchDiagnostics;
+  printingMarks?: PrintingMarkMatch | null;
 }
 
 export interface CardTextMatchParams {
@@ -147,6 +164,8 @@ export interface CardTextMatchParams {
   embeddings: CardSearchEmbeddings;
   readout: OcrReadout;
   preferredSetCodes?: string[];
+  printedPromo?: boolean | null;
+  printingMarkGrids?: PrintingMarkScanGrids | null;
 }
 
 export interface CardTextMatchResult extends CardMatchSearchResult {

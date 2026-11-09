@@ -3,6 +3,7 @@ import {
   DOCUMENT_SCANNER_MODES,
 } from "@/lib/constants/scanner";
 import type {
+  DocumentScanArchiveBridge,
   DocumentScanBridge,
   DocumentScannerMode,
   DocumentScannerOption,
@@ -10,6 +11,8 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { DESKTOP_DOCUMENT_SCAN_DRIVERS } from "@magic-vault/shared";
 import type {
+  DesktopDocumentScanArchiveImage,
+  DesktopDocumentScanArchiveSide,
   DesktopDocumentScanner,
   DesktopDocumentScannerList,
 } from "@magic-vault/shared";
@@ -117,4 +120,34 @@ export function documentScannerOptionsFor(
 
 export function isDocumentScannerCameraId(cameraId: string | null | undefined): boolean {
   return !!cameraId?.startsWith(DOCUMENT_SCANNER_CAMERA_ID_PREFIX);
+}
+
+export function getDocumentScanArchiveBridge(): DocumentScanArchiveBridge | null {
+  const desktop = window.maultDesktop;
+  if (
+    !desktop?.getDocumentScanArchiveFolder ||
+    !desktop.chooseDocumentScanArchiveFolder ||
+    !desktop.clearDocumentScanArchiveFolder ||
+    !desktop.archiveDocumentScan
+  ) {
+    return null;
+  }
+  return {
+    getDocumentScanArchiveFolder: desktop.getDocumentScanArchiveFolder,
+    chooseDocumentScanArchiveFolder: desktop.chooseDocumentScanArchiveFolder,
+    clearDocumentScanArchiveFolder: desktop.clearDocumentScanArchiveFolder,
+    archiveDocumentScan: desktop.archiveDocumentScan,
+  };
+}
+
+export function folderDisplayName(folderPath: string): string {
+  return folderPath.split(/[\\/]/).filter(Boolean).pop() ?? folderPath;
+}
+
+export async function documentScanArchiveImage(
+  side: DesktopDocumentScanArchiveSide,
+  imageUrl: string,
+): Promise<DesktopDocumentScanArchiveImage> {
+  const blob = await (await fetch(imageUrl)).blob();
+  return { side, mimeType: blob.type, imageBytes: new Uint8Array(await blob.arrayBuffer()) };
 }

@@ -5,6 +5,7 @@ import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
   CardCondition,
+  DesktopDocumentScanArchiveRequest,
   FoilNudgeFirmwareLimits,
   CardTag,
   CardFilters,
@@ -194,13 +195,13 @@ export interface ScannedCardsContextValue {
     vectorizedOn?: ScanVectorizeSource,
     details?: MatchedScanDetails,
     capturedBackImageUrl?: string,
-  ) => void;
+  ) => ScanPlacement | null;
   addUnmatchedCard: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
     capturedBackImageUrl?: string,
-  ) => void;
+  ) => ScanPlacement | null;
   removeUnmatchedCard: (scanId: string) => Promise<boolean>;
   removeAllUnmatchedCards: () => Promise<boolean>;
   identifyUnmatchedCard: (
@@ -244,6 +245,7 @@ export interface ScannedCardsContextValue {
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
   setCardLanguage: (scanId: string, language: string) => void;
+  setCardStamp: (scanId: string, stamp: string | null) => void;
   setCardsTags: (scanIds: string[], tags: CardTag[], enabled: boolean) => void;
   clearCards: () => void;
 }
@@ -1578,3 +1580,22 @@ export interface MoveCardsToCollectionInput {
 }
 
 export type QuarterTurns = 0 | 1 | 2 | 3;
+
+export interface ScanPlacement {
+  scanId: string;
+  collectionName: string;
+  binNumber: number | null;
+}
+
+export interface DocumentScanArchiveBridge {
+  getDocumentScanArchiveFolder: () => Promise<string | null>;
+  chooseDocumentScanArchiveFolder: () => Promise<string | null>;
+  clearDocumentScanArchiveFolder: () => Promise<void>;
+  archiveDocumentScan: (request: DesktopDocumentScanArchiveRequest) => Promise<void>;
+}
+
+export interface DocumentScanArchiveImages {
+  cardName: string | null;
+  frontImageUrl: string | undefined;
+  backImageUrl: string | undefined;
+}

@@ -29,6 +29,7 @@ function sourceRow(
     setCode: "set",
     collectorNumber: null,
     rarePrinting: false,
+    promoPrinting: false,
     embedding,
     backEmbedding: null,
     ...overrides,

@@ -30,7 +30,6 @@ export function MobileStorageCardList({
           >
             <CardThumbnail
               image={entry.card.image}
-              isFoil={entry.isFoil}
               className="w-10 rounded-sm"
             />
             <span className="min-w-0 flex-1">

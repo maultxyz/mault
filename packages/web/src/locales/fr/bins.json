@@ -390,7 +390,8 @@
     "marketValueUsd": "Valeur marchande (USD)",
     "marketValueEur": "Valeur marchande (EUR)",
     "collectorNumber": "Numéro de collection (numérique)",
-    "game": "Jeu"
+    "game": "Jeu",
+    "stamp": "Tampon"
   },
   "pickList": {
     "modeLabel": "Quand une carte est trouvée",

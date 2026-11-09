@@ -1,12 +1,7 @@
 import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
 import type { CardSearchResult } from "./interfaces/api.interface";
+import type { PlayingCardWithDistance } from "./interfaces/card.interface";
 import type {
-  PlayingCard,
-  PlayingCardWithDistance,
-} from "./interfaces/card.interface";
-import type {
-  ColorResolvedMatches,
-  DetectedColorEvidence,
   LookupMatchedCard,
   OrientedSearchCandidate,
   ResolvedCardSearchMatches,
@@ -112,42 +107,6 @@ export async function resolveCardSearchMatches(
   return { card, alternativeMatches, noMatchReason: null, candidates };
 }
 
-function sameColors(a: PlayingCard, b: PlayingCard): boolean {
-  const colorsOf = (card: PlayingCard) =>
-    [...(card.colorIdentity ?? [])].sort().join(",");
-  return colorsOf(a) === colorsOf(b);
-}
-
-export function preferDetectedColor<T extends ResolvedCardSearchMatches>(
-  resolved: T,
-  { gameHasColorBar, detectedColor, printingConfirmed }: DetectedColorEvidence,
-): ColorResolvedMatches<T> {
-  const { card } = resolved;
-  if (!gameHasColorBar || !card)
-    return { ...resolved, colorVariantUncertain: false };
-  const all = [card, ...resolved.alternativeMatches];
-  const colorVariants = all.filter((other) => other.name === card.name);
-  if (!colorVariants.some((other) => !sameColors(other, card)))
-    return { ...resolved, colorVariantUncertain: false };
-  if (printingConfirmed) {
-    return {
-      ...resolved,
-      colorVariantUncertain:
-        detectedColor !== null && !card.colorIdentity?.includes(detectedColor),
-    };
-  }
-  const preferred = detectedColor
-    ? colorVariants.find((other) => other.colorIdentity?.includes(detectedColor))
-    : undefined;
-  if (!preferred) return { ...resolved, colorVariantUncertain: true };
-  return {
-    ...resolved,
-    card: preferred,
-    alternativeMatches: all.filter((other) => other !== preferred),
-    colorVariantUncertain: false,
-  };
-}
-
 function toAttemptDiagnostics(
   attempts: ScanAttemptResult[],
 ): ScanAttemptDiagnostic[] {
@@ -178,7 +137,9 @@ export function toScanMatchDetails(
           attempts: toAttemptDiagnostics(attempts),
           candidates: attempt.candidates,
           ocr: attempt.ocr,
-          detectedColor: attempt.detectedColor,
+          stampDetection: attempt.stampDetection ?? null,
+          printedFoilMarker: attempt.printedFoilMarker ?? null,
+          printingMarks: attempt.printingMarks ?? null,
         },
       },
       noMatch: null,

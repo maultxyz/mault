@@ -11,10 +11,12 @@ import {
 export function useScanDraft({
   scanId,
   savedFoilType,
+  savedStamp,
   savedCondition,
   savedLanguage,
   savedAcquisitionCost,
   setCardFoilType,
+  setCardStamp,
   setCardCondition,
   setCardLanguage,
   setCardAcquisitionCost,
@@ -22,11 +24,12 @@ export function useScanDraft({
   const values = useMemo<ScanDraftFormValues>(
     () => ({
       foilType: savedFoilType,
+      stamp: savedStamp,
       condition: savedCondition,
       language: savedLanguage,
       acquisitionCost: savedAcquisitionCost,
     }),
-    [savedFoilType, savedCondition, savedLanguage, savedAcquisitionCost],
+    [savedFoilType, savedStamp, savedCondition, savedLanguage, savedAcquisitionCost],
   );
   const form = useForm<ScanDraftFormValues>({
     resolver: zodResolver(scanDraftFormSchema),
@@ -50,6 +53,9 @@ export function useScanDraft({
         if (dirtyFields.foilType) {
           setCardFoilType(scanId, draft.foilType);
         }
+        if (dirtyFields.stamp) {
+          setCardStamp(scanId, draft.stamp);
+        }
         if (dirtyFields.condition) {
           setCardCondition(scanId, draft.condition);
         }
@@ -66,6 +72,7 @@ export function useScanDraft({
       scanId,
       dirtyFields,
       setCardFoilType,
+      setCardStamp,
       setCardCondition,
       setCardLanguage,
       setCardAcquisitionCost,
@@ -91,6 +98,7 @@ export function useScanDraft({
 
   return {
     foilType: form.watch("foilType"),
+    stamp: form.watch("stamp"),
     condition: form.watch("condition"),
     language: form.watch("language"),
     acquisitionCost: form.watch("acquisitionCost"),
@@ -99,6 +107,8 @@ export function useScanDraft({
     isSaving: form.formState.isSubmitting,
     setFoilType: (foilType: string | null) =>
       form.setValue("foilType", foilType, { shouldDirty: true }),
+    setStamp: (stamp: string | null) =>
+      form.setValue("stamp", stamp, { shouldDirty: true }),
     setCondition: (condition: ScanDraftFormValues["condition"]) =>
       form.setValue("condition", condition, { shouldDirty: true }),
     setLanguage: (language: string) =>

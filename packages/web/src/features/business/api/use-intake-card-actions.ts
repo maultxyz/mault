@@ -5,6 +5,7 @@ import {
   markCollectionCardReviewed,
   setCollectionCardCondition,
   setCollectionCardLanguage,
+  setCollectionCardStamp,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -54,6 +55,8 @@ export function useIntakeCardActions(
       run((guid) =>
         setCollectionCardFoilType(guid, scanId, foilType != null, foilType),
       ),
+    setCardStamp: (scanId, stamp) =>
+      run((guid) => setCollectionCardStamp(guid, scanId, stamp)),
     setCardCondition: (scanId, condition) =>
       run((guid) => setCollectionCardCondition(guid, scanId, condition)),
     setCardLanguage: (scanId, language) =>

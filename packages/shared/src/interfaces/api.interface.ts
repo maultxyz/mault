@@ -1,5 +1,6 @@
 import type { PlayingCard } from "./card.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
+import type { PrintingMarkMatch } from "./printing-regions.interface";
 import type { Result } from "./result.interface";
 
 export interface SearchCardMatch {
@@ -37,6 +38,7 @@ export interface CardSearchDiagnostics {
 export interface CardSearchResult extends Result<SearchCardMatch[] | null> {
   nearestDistance?: number | null;
   diagnostics?: CardSearchDiagnostics;
+  printingMarks?: PrintingMarkMatch | null;
 }
 
 export interface CardTextSearchResult extends CardSearchResult {
@@ -67,6 +69,9 @@ export interface SyncState {
   vectorizeOn: SyncVectorizeOn;
   acceptingWork: boolean;
   concurrency?: number;
+  printingMarksTotal?: number;
+  printingMarksDone?: number;
+  printingMarksFailed?: number;
 }
 
 export interface BrowserSyncWorkCard {

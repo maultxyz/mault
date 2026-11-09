@@ -27,6 +27,7 @@ export interface StorageLocationCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  stamp: string | null;
   condition: CardCondition;
   language: string | null;
   lowConfidenceMatch: boolean;
@@ -116,6 +117,7 @@ export interface StorageLocationExportCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  stamp: string | null;
   condition: CardCondition;
   language: string | null;
 }

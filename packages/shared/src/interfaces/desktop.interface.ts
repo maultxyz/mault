@@ -141,6 +141,22 @@ export type DesktopDocumentScannerFeedResult =
       message?: string;
     };
 
+export type DesktopDocumentScanArchiveSide = "front" | "back";
+
+export interface DesktopDocumentScanArchiveImage {
+  side: DesktopDocumentScanArchiveSide;
+  mimeType: string;
+  imageBytes: Uint8Array;
+}
+
+export interface DesktopDocumentScanArchiveRequest {
+  scanId: string;
+  collectionName: string;
+  binNumber: number | null;
+  cardName: string | null;
+  images: DesktopDocumentScanArchiveImage[];
+}
+
 export interface DesktopBridge {
   setScannerButtons: (buttons: DesktopScannerButton[] | null) => void;
   notify: (notification: DesktopNotification) => void;
@@ -166,4 +182,8 @@ export interface DesktopBridge {
     request?: DesktopDocumentScannerCaptureRequest,
   ) => Promise<DesktopDocumentScannerFeedResult>;
   closeDocumentScannerSession?: (sessionId: string) => void;
+  getDocumentScanArchiveFolder?: () => Promise<string | null>;
+  chooseDocumentScanArchiveFolder?: () => Promise<string | null>;
+  clearDocumentScanArchiveFolder?: () => Promise<void>;
+  archiveDocumentScan?: (request: DesktopDocumentScanArchiveRequest) => Promise<void>;
 }

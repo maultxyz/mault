@@ -34,15 +34,5 @@ export interface OcrDiagnostics {
   printingConfirmed?: boolean;
   usedFallback?: boolean;
   regions?: OcrReadRegion[];
-}
-
-export interface ColorBarBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-export interface ColorBarRegion extends ColorBarBox {
-  whiteReference: ColorBarBox;
+  printedPromo?: boolean | null;
 }
