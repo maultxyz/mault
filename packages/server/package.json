@@ -13,6 +13,7 @@
     "db:migrate-local": "tsx scripts/migrate-local.ts",
     "resync:all": "tsx --env-file ../../.env scripts/resync-all.ts",
     "sync:prices": "tsx --env-file ../../.env scripts/sync-prices.ts",
+    "sync:catalogs": "tsx --env-file ../../.env scripts/sync-card-catalogs.ts",
     "post:platform-stats": "tsx --env-file ../../.env scripts/post-platform-stats.ts",
     "migrate:scan-images": "tsx --env-file ../../.env scripts/migrate-scan-images.ts",
     "backfill:collector-numbers": "tsx --env-file ../../.env scripts/backfill-collector-numbers.ts",

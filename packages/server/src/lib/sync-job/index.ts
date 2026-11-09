@@ -205,6 +205,10 @@ export function startSync(
   child.send(startMessage);
 }
 
+export function isSyncWorkerRunning(): boolean {
+  return currentWorker !== null;
+}
+
 export function cancelSync(): void {
   if (currentWorker && getState().status === "running") {
     currentWorker.send({ type: "cancel" });

@@ -1,0 +1,89 @@
+name: Card Catalog Sync
+
+on:
+  # Nightly at 08:23 UTC (about 2 to 3 AM America/Chicago), off the top of
+  # the hour since GitHub delays or drops scheduled runs when load peaks at :00.
+  schedule:
+    - cron: "23 8 * * *"
+  workflow_dispatch:
+    inputs:
+      games:
+        description: Comma-separated game keys to sync (blank syncs every game)
+        type: string
+        default: ""
+      languages:
+        description: Comma-separated languages to sync (blank syncs every language each game offers)
+        type: string
+        default: ""
+      force:
+        description: Force resync (rewrites every card)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: card-catalog-sync
+  cancel-in-progress: false
+
+# The sync runs on the runner itself, not on the server: the same sync worker
+# the admin page starts, writing straight to the production database. The
+# server's in-memory match index picks the changes up through its periodic
+# signature check.
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    environment:
+      name: production
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      CARD_API_USER_AGENT: ${{ vars.CARD_API_USER_AGENT }}
+      COLLECTORVISION_CACHE: ${{ github.workspace }}/.cache/collectorvision
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
+      VECTORIZE_CONCURRENCY: 4
+    steps:
+      - name: Check secrets
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Set the DATABASE_URL secret in the production environment."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install server dependencies
+        run: pnpm install --frozen-lockfile --filter @magic-vault/server...
+
+      # The embedding and OCR models are pinned by sha256 in the model
+      # registry, so the cache only changes when a pin does.
+      - name: Cache models
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/collectorvision
+            .cache/huggingface
+          key: models-${{ hashFiles('packages/server/src/lib/models/**') }}
+
+      - name: Sync card catalogs
+        env:
+          GAMES: ${{ inputs.games }}
+          LANGUAGES: ${{ inputs.languages }}
+          FORCE_RESYNC: ${{ inputs.force && 'true' || 'false' }}
+        run: |
+          ARGS=()
+          if [ -n "$GAMES" ]; then ARGS+=("--games=$GAMES"); fi
+          if [ -n "$LANGUAGES" ]; then ARGS+=("--languages=$LANGUAGES"); fi
+          if [ "$FORCE_RESYNC" = "true" ]; then ARGS+=("--force"); fi
+          pnpm --filter @magic-vault/server exec tsx scripts/sync-card-catalogs.ts "${ARGS[@]}"

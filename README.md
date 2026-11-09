@@ -228,6 +228,12 @@ Docker Compose, with `crontab -e` (replace `/opt/mault` with your `docker-compos
 
 Coolify: see step 5 under [Coolify](#coolify). Outside Docker: `pnpm --filter @magic-vault/server build`, then schedule the command from the repo root with the `.env` values in its environment.
 
+## Card catalogs
+
+`pnpm --filter @magic-vault/server sync:catalogs` runs the card sync (the same worker the admin page starts) in its own process against `DATABASE_URL`, one game and language after another, so the server does none of the work. `--games=mtg,pokemon` and `--languages=en` limit it, `--force` force-resyncs. A running server picks the new cards up within a minute.
+
+`.github/workflows/card-catalog-sync.yml` runs it nightly on a GitHub runner. It needs the `DATABASE_URL` secret in the `production` environment and, optionally, a `CARD_API_USER_AGENT` variable. Run it by hand to limit it to some games or languages.
+
 ## Deployment
 
 Four images, built from the repo root and published by CI (`.github/workflows/deploy.yml`) to `ghcr.io/dishwasher-detergent/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`:
