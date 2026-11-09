@@ -18,6 +18,12 @@ export const PUBLIC_API_EXPOSED_HEADERS = [
 export const PUBLIC_API_RATE_LIMIT_REQUESTS = 60;
 export const PUBLIC_API_RATE_LIMIT_WINDOW_MS = 60_000;
 export const PUBLIC_API_RATE_LIMIT_SWEEP_SIZE = 1000;
+export const SHARE_LINK_RATE_LIMIT_REQUESTS = 120;
+export const SHARE_LINK_RATE_LIMIT_WINDOW_MS = 60_000;
+export const SHARE_LINK_CLAIMS_CACHE_TTL_MS = 30_000;
+export const SHARED_STORAGE_READS_CACHE_TTL_MS = 60_000;
+export const SHARE_LINK_CACHE_MAX_ENTRIES = 2000;
+export const SHARE_LINK_RATE_LIMITED_MESSAGE = "Too many requests for this link. Slow down and retry.";
 export const PUBLIC_API_CARD_NOT_FOUND = "No card found with that id.";
 export const PUBLIC_API_LOCATION_NOT_FOUND = "No location found with that id.";
 export const PUBLIC_API_READ_ONLY_KEY =
@@ -33,3 +39,8 @@ export const ORG_API_KEY_COLUMNS = {
   createdAt: orgApiKeys.createdAt,
   lastUsedAt: orgApiKeys.lastUsedAt,
 };
+export const API_USAGE_FLUSH_INTERVAL_MS = 60_000;
+export const API_USAGE_RETENTION_DAYS = 90;
+export const API_USAGE_REPORT_ROW_LIMIT = 200;
+export const API_USAGE_ID_SEGMENT_PATTERN = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|\d+(?:\.\d+)*|[A-Za-z0-9_-]{24,})$/i;
+export const MONITOR_LINK_STREAM_USAGE_ENDPOINT = "GET /stream?share";

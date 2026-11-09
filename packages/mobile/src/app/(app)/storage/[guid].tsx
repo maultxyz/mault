@@ -162,6 +162,7 @@ export default function StorageLocationScreen() {
     ...(isStorageLocked
       ? []
       : [
+          { value: "share", label: t("storage.share") },
           { value: "rename", label: t("storage.rename") },
           { value: "delete", label: t("storage.delete") },
         ]),
@@ -176,6 +177,10 @@ export default function StorageLocationScreen() {
     if (action === "export") {
       runExport.reset();
       setExportOpen(true);
+      return;
+    }
+    if (action === "share") {
+      router.push({ pathname: "/share-link", params: { kind: "storage", guid } });
       return;
     }
     if (action === "rename") {

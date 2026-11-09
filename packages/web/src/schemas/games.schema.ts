@@ -1,4 +1,4 @@
-import { GAME_KEY_PATTERN } from "@/lib/constants/games";
+import { GAME_KEY_PATTERN } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 import { z } from "zod";
 

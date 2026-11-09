@@ -416,3 +416,9 @@ export interface ListSkeletonProps {
 export interface PageSkeletonProps {
   sections?: number;
 }
+
+export interface QrCodeProps {
+  value: string;
+  size: number;
+  accessibilityLabel: string;
+}

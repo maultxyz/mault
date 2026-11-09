@@ -41,8 +41,15 @@ import {
   type AppEnv,
 } from "../middleware/auth";
 import { loadSessionInit } from "./session-init";
+import { pricesForShareLink } from "../lib/share-link-pricing";
+import { rejectWhenShareLinkRateLimited } from "../lib/share-link-rate-limit";
+import { recordPublicRouteUsage } from "../lib/api-usage";
+import { MONITOR_LINK_STREAM_USAGE_ENDPOINT } from "../lib/constants/api-keys";
 
 async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
+  const rateLimited = rejectWhenShareLinkRateLimited(c, shareToken);
+  recordPublicRouteUsage(MONITOR_LINK_STREAM_USAGE_ENDPOINT, !!rateLimited);
+  if (rateLimited) return rateLimited;
   const claims = await verifyMonitorLink(shareToken);
   if (!claims) return c.json({ success: false, message: "Unauthorized" }, 401);
   const { collectionGuid: guid, orgId } = claims;
@@ -54,7 +61,12 @@ async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
       stream.onAbort(resolve);
     });
     const write = (event: string, data: unknown) => {
-      stream.writeSSE({ event, data: JSON.stringify(data) }).catch(() => {});
+      stream
+        .writeSSE({
+          event,
+          data: JSON.stringify(pricesForShareLink(data, claims.showsPrices)),
+        })
+        .catch(() => {});
     };
     const sessionWrite = (event: string, data: unknown) => {
       if (event === "viewers_updated") return;

@@ -66,7 +66,7 @@ export function useActiveCollectionSessionActions(): ActiveCollectionSessionActi
           description: created.url,
         });
       } else {
-        toast.error(t("shareMonitorLink.createFailed"));
+        toast.error(t("common:shareLink.createFailed"));
       }
     } finally {
       setIsSharing(false);

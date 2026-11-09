@@ -392,3 +392,17 @@ export type ReadOrientationText = (
   orientation: OrientedPick["orientation"],
   embedding: number[],
 ) => Promise<CardTextSearchResult | null>;
+
+export interface CameraTorch {
+  hasTorch: boolean;
+  isOn: boolean;
+  supportsStrength: boolean;
+  strengthPercent: number;
+  toggle: () => void;
+  setStrengthPercent: (percent: number) => void;
+  onCameraStarted: () => void;
+}
+
+export interface TorchControlProps {
+  torch: CameraTorch;
+}

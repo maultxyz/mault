@@ -68,11 +68,15 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - Local auth (own-auth): `getOwnAuth()` stays lazy because `auth/local.ts` is imported in Neon mode too and `createOwnAuth()` throws in production without `OWN_AUTH_TOKEN_PEPPER`. `LocalEmailProvider.send()` must never throw (own-auth calls it for every invite and reset); invite links are captured per request through AsyncLocalStorage because own-auth only returns raw tokens when `exposeRawTokens` is set. Local API keys are personal (no `organisationId`), so they map onto a normal `{ sub }` session. The first account on a fresh local instance becomes platform admin. Password-reset responses stay generic (no account enumeration).
 - The active org lives in localStorage for both providers: own-auth has no active org, and Neon's cached session lags `organization.setActive`.
 
+- Share links (collection live view at `/watch`, storage location at `/shared/storage`) are HS256 JWTs from `lib/share-tokens.ts` signed with `MONITOR_LINK_SECRET`, one issuer per kind so tokens never cross over, revoked by bumping the row's `monitor_link_version`/`share_link_version`. Their `/public/*-link` reads use plain `db` and return only `SharedStorageCard` fields (no collection names, costs or review state). Price visibility is the token's `prices` claim (missing means shown, for older links): when off, every public read and the guest SSE stream go through `pricesForShareLink`, which strips `SHARE_LINK_HIDDEN_PRICE_KEYS` and zeroes stats, so never hide prices only in the UI. Web and mobile show the link as a QR code (`ShareLinkDialog`, mobile `share-link` modal); paths and the `t` param live in `shared`.
+
 ### Public API & webhooks
 
 - Defined once in `shared` (`schemas/public-api.schema.ts`, `PUBLIC_API_ENDPOINTS`); a new endpoint needs a registry entry, schemas and a handler in `routes/v1/index.ts`, then regenerate `openapi.json`.
 - API-key queries run through `apiKeyQuery(orgId, ...)`; a `/v1` query on a new table needs a migration grant and an `api-service-policy-*` policy.
 - `/v1` responses follow Scryfall conventions (`object`, snake_case, list envelope), not the app's `{ success, data }`.
+- `/v1` is limited per key (in-process `createRateLimiter`). Unauthenticated `/public/*` has no per-IP limit because no proxy restores the client IP (everyone would share one bucket): share links are limited per token (`shareLinkRateLimit`, also the guest SSE), their claims are cached 30 s and shared storage reads 60 s, revoking clears those caches in-process (other processes lag up to the TTL). Public metrics and games are cached 24 h with `Cache-Control`.
+- Usage logging (`lib/api-usage.ts`) counts `/v1` requests per key and endpoint (ids normalized, counted by key hash before lookup so rate-limited calls stay cheap) and `/public/*` per route in memory, and flushes only while the pool already holds connections, so it never wakes Neon. 90-day retention; web Admin > Developer > API usage. Org purges delete `api_key_usage_daily` before `org_api_keys`.
 - Sync API keys (`mvsync_`, `platform_sync_api_keys`) are platform-level, not org keys: admins manage them under `/admin/sync-api-keys`, `/sync-api` routes check `SYNC_API_KEY_PERMISSIONS` per action, and both they and `/admin/sync` start syncs through `lib/sync-job/start-request.ts`.
 - `emit*Webhook` only enqueues; deliveries use `safeLookup` and no redirects. A new event needs `WEBHOOK_EVENTS`, an `emit*` in `lib/webhooks/events.ts` and translations.
 
@@ -167,12 +171,14 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 ### Mobile app (`packages/mobile`)
 
 - Captured photos go through `resizeAsync` before reading pixels (iOS orientation).
+- Camera screens control the torch through `useCameraTorch` (VisionCamera controller calls, re-applied on the camera's `onStarted` because a session restart turns it off); brightness only shows where `device.supportsTorchStrength`, and beam width has no public iOS API.
 - Built for hand-scanning first: the app scans into a phone-local target (`useScanTarget`, stored per org) and never calls `set-active`, so it can't redirect the desktop sorter's active collection; sorter-only UI (rules, bins) lives under More/Sorter, not in the tab bar.
 - `AppTabs` (`NativeTabs`) owns the top inset and `AppTopBar` so pushed screens animate over them, and the `(app)` layout only draws the shell (gradient, top bar) for `MemberSeatLocked`. Screens fill the window, so width math uses `usePanelWidth`; `screenLayout` wraps stack routes outside `UNFRAMED_STACK_ROUTE_NAMES` in `useShellPanelStyle`.
 - Queries default to a 30 s `staleTime` (`QUERY_STALE_MS`). Screens never render an empty form or list while loading: use `PageSkeleton`/`ListSkeleton` (or `SettingsPage`'s `isLoading`), and seed detail screens from list caches as `placeholderData` (card detail uses `cachedCollectionCardPosition`).
 - ONNX runs on the CPU provider only so embeddings match the fp32 vectors from web and server.
 - Sorters connect over BLE or the Wi-Fi relay, never USB. Android needs `ensureBlePermissions` first.
 - No in-app account creation (App Store would then require in-app deletion).
+- Admin is native for staff (`useRole`, every screen in `AdminGate`, admin-only parts hidden like web): cards and games, users (search and audit only), plans, Discord, sounds, deleted items. Hardware, developer and impersonation stay web-only (foil labels and unmatched retry were removed from admin); a change to a shared admin area must land on both. Plan preview is in memory only (`lib/auth/plan-preview.ts`, sent as `X-Plan-Preview` by the API client, shown by the top bar chip). Game key pattern, field operators, script commands and `DONATE_URL` live in `shared`.
 
 ### Desktop (`packages/desktop`)
 

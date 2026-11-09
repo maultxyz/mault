@@ -11,3 +11,4 @@ export const HAND_SCAN_KEY = "mault.hand-scan";
 export const REVIEW_LAYOUT_KEY = "mault.review-layout";
 export const SCAN_TARGET_COLLECTIONS_KEY = "mault.scan-target-collections";
 export const MATCH_VALIDATION_GUIDE_SEEN_KEY = "mault.match-validation-guide-seen";
+export const TORCH_STRENGTH_PERCENT_KEY = "mault.torch-strength-percent";

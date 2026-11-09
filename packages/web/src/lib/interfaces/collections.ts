@@ -22,11 +22,6 @@ export interface ShareMonitorLinkDialogProps {
   collectionGuid: string;
 }
 
-export interface CreatedMonitorLink {
-  url: string;
-  expiresAt: string;
-}
-
 export type WatchLinkState =
   | { status: "checking" }
   | { status: "invalid" }

@@ -7,8 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { IconDeviceMobile, IconLoader2 } from "@tabler/icons-react";
-import QRCode from "qrcode";
-import { useEffect, useState } from "react";
+import { useQrCodeDataUrl } from "@/hooks/use-qr-code-data-url";
 import { useTranslation } from "react-i18next";
 import type { PhoneCameraPairingDialogProps } from "@/lib/interfaces/scanner";
 
@@ -21,25 +20,8 @@ export function PhoneCameraPairingDialog({
   onDisconnect,
 }: PhoneCameraPairingDialogProps) {
   const { t } = useTranslation("scanner");
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const qrDataUrl = useQrCodeDataUrl(pairingUrl);
 
-  useEffect(() => {
-    if (!pairingUrl) {
-      setQrDataUrl(null);
-      return;
-    }
-    let cancelled = false;
-    QRCode.toDataURL(pairingUrl, { margin: 1, width: 220 })
-      .then((url) => {
-        if (!cancelled) setQrDataUrl(url);
-      })
-      .catch(() => {
-        if (!cancelled) setQrDataUrl(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [pairingUrl]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

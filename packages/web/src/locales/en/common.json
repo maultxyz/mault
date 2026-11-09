@@ -406,6 +406,27 @@
       "info": "Info:",
       "warning": "Warning:",
       "danger": "Error:"
-    }
+    },
+    "adminNavigation": "Admin navigation"
+  },
+  "shareLink": {
+    "expiryLabel": "Link expires after",
+    "expiryOption_one": "{{count}} day",
+    "expiryOption_other": "{{count}} days",
+    "create": "Create link",
+    "createAnother": "Create new link",
+    "linkLabel": "Link",
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "copyFailed": "Couldn't copy the link. Select it and copy it manually.",
+    "expiresAt": "Expires {{date}}",
+    "createFailed": "Couldn't create a share link.",
+    "revokeAll": "Revoke all links",
+    "revokeFailed": "Couldn't revoke the shared links.",
+    "close": "Close",
+    "qrAlt": "QR code for this link. Scan it with a phone camera to open the link.",
+    "qrHint": "Scan to open",
+    "showPrices": "Show prices",
+    "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link."
   }
 }

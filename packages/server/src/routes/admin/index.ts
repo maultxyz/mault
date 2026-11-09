@@ -1,3 +1,4 @@
+import { apiUsageRoute } from "./api-usage";
 import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { activeScanningRoute } from "./active-scanning";
@@ -47,6 +48,7 @@ const router = new Hono<AppEnv>()
   .route("/", deletedItemsRoute)
   .route("/", systemSoundClipsRoute)
   .route("/", unmatchedRetryRoute)
-  .route("/", foilLabelsRoute);
+  .route("/", foilLabelsRoute)
+  .route("/", apiUsageRoute);
 
 export { router as adminRouter };

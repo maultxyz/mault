@@ -96,21 +96,7 @@
     "trigger": "Partager",
     "title": "Partager la vue en direct",
     "description": "Toute personne disposant de ce lien peut suivre la session de scan de cette collection sans se connecter. Elle ne peut rien modifier.",
-    "expiryLabel": "Le lien expire après",
-    "expiryOption_one": "{{count}} jour",
-    "expiryOption_other": "{{count}} jours",
-    "create": "Créer le lien",
-    "createAnother": "Créer un nouveau lien",
-    "linkLabel": "Lien",
-    "copy": "Copier le lien",
-    "copied": "Lien copié.",
-    "copyFailed": "Impossible de copier le lien. Sélectionne-le et copie-le manuellement.",
-    "expiresAt": "Expire le {{date}}",
-    "createFailed": "Impossible de créer le lien de partage.",
-    "revokeAll": "Révoquer tous les liens",
-    "revoked": "Tous les liens partagés de cette collection ne fonctionnent plus.",
-    "revokeFailed": "Impossible de révoquer les liens partagés.",
-    "close": "Fermer"
+    "revoked": "Tous les liens partagés de cette collection ne fonctionnent plus."
   },
   "selection": {
     "select": "Sélectionner {{name}}",

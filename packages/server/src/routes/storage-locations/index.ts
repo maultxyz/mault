@@ -47,6 +47,7 @@ import { emitToSession } from "../../lib/session-stream";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import { buildCardExport, csvResponse } from "../../lib/card-export";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { storageShareLinkRoute } from "./share-link";
 import { parseCardsQuery, parseScanIds } from "../collections/cards-query";
 import { loadOrgPricing } from "../../lib/price-source";
 import {
@@ -740,6 +741,7 @@ const router = new Hono<AppEnv>()
       return { success: true, data: null };
     });
     return c.json(result);
-  });
+  })
+  .route("/", storageShareLinkRoute);
 
 export { router as storageLocationsRouter };
