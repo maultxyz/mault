@@ -12,9 +12,9 @@ on:
         type: string
         default: ""
       languages:
-        description: Comma-separated languages to sync (blank syncs every language each game offers)
+        description: Comma-separated languages to sync (all syncs every language each game offers)
         type: string
-        default: ""
+        default: en
       force:
         description: Force resync (rewrites every card)
         type: boolean
@@ -79,12 +79,12 @@ jobs:
       - name: Sync card catalogs
         env:
           GAMES: ${{ inputs.games }}
-          LANGUAGES: ${{ inputs.languages }}
+          LANGUAGES: ${{ inputs.languages || 'en' }}
           FORCE_RESYNC: ${{ inputs.force && 'true' || 'false' }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_CATALOG_SYNC_WEBHOOK_URL || secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
         run: |
           ARGS=()
           if [ -n "$GAMES" ]; then ARGS+=("--games=$GAMES"); fi
-          if [ -n "$LANGUAGES" ]; then ARGS+=("--languages=$LANGUAGES"); fi
+          if [ "$LANGUAGES" != "all" ]; then ARGS+=("--languages=$LANGUAGES"); fi
           if [ "$FORCE_RESYNC" = "true" ]; then ARGS+=("--force"); fi
           pnpm --filter @magic-vault/server exec tsx scripts/sync-card-catalogs.ts "${ARGS[@]}"
