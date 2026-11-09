@@ -1229,6 +1229,10 @@ export function CardDetailPanel({
 
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
+                    {!reviewMode &&
+                      scanId &&
+                      !extraActions &&
+                      scanAttributeControls}
                     <DetailSection title={t("cardDetailPanel.details")}>
                       <div className="flex flex-col gap-4">
                         <CardDetailsList card={selectedCard} />

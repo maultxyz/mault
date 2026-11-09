@@ -16,6 +16,7 @@ import type {
   PlayingCardImage,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridAttributes,
   ReviewGridCard,
   ScannedCard,
   PrintingMarkRegion,
@@ -492,8 +493,16 @@ export interface ReviewGridProps {
 
 export interface ReviewGridTileProps {
   card: ReviewGridCard;
+  attributes: ReviewGridAttributes;
+  onAttributesChange: (attributes: ReviewGridAttributes) => void;
   onAccept: () => void;
   onCorrect: () => void;
+}
+
+export interface ReviewGridAttributeFieldsProps {
+  card: ReviewGridCard;
+  attributes: ReviewGridAttributes;
+  onChange: (attributes: ReviewGridAttributes) => void;
 }
 
 export interface ReviewGridCorrectionDialogProps {

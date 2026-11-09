@@ -16,6 +16,11 @@ const gridCard = (overrides: Partial<ReviewGridCard>): ReviewGridCard => ({
   lowConfidenceMatch: false,
   hasAlternatives: false,
   corrected: false,
+  isFoil: false,
+  foilType: null,
+  stamp: null,
+  condition: "NM",
+  language: null,
   ...overrides,
 });
 

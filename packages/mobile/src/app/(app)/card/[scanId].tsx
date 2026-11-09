@@ -34,6 +34,7 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { SelectField } from "@/components/ui/select-field";
 import { Pill } from "@/components/ui/pill";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -72,7 +73,7 @@ import {
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
-import { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
+import { CARD_DETAIL_MENU_SHEETS, SCAN_ATTRIBUTE_FIELD_WIDTH } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
@@ -256,12 +257,6 @@ export default function CardDetailScreen() {
   const canShowMoveToLocation = canMoveToLocation && moveTargets.length > 0;
   const actionMenuOptions = entry
     ? [
-        { value: "foil", label: t("cardDetail.foil"), badge: draftFoil ?? t("cardDetail.foilNone") },
-        ...(stampOptions.length > 0
-          ? [{ value: "stamp", label: t("cardDetail.stamp"), badge: draftStamp ?? t("cardDetail.stampNone") }]
-          : []),
-        { value: "condition", label: t("cardDetail.condition"), badge: t(`cardDetail.conditions.${draftCondition}`) },
-        { value: "language", label: t("cardDetail.language"), badge: LANGUAGE_LABELS[draftLanguage] ?? draftLanguage },
         ...(canShowMoveToLocation
           ? [
               {
@@ -336,35 +331,43 @@ export default function CardDetailScreen() {
       { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
     ]);
 
-  const scanAttributeRows = (
-    <ListGroup>
-      <ListRow
-        icon="sparkles"
-        title={t("cardDetail.foil")}
-        value={draftFoil ?? t("cardDetail.foilNone")}
-        onPress={() => setSheet("foil")}
-      />
-      {stampOptions.length > 0 ? (
-        <ListRow
-          icon="stamp"
-          title={t("cardDetail.stamp")}
-          value={draftStamp ?? t("cardDetail.stampNone")}
-          onPress={() => setSheet("stamp")}
+  const scanAttributeFields = (
+    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.md }}>
+      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
+        <SelectField
+          label={t("cardDetail.foil")}
+          value={draftFoil ?? t("cardDetail.foilNone")}
+          placeholder={t("cardDetail.foilNone")}
+          onPress={() => setSheet("foil")}
         />
+      </View>
+      {stampOptions.length > 0 ? (
+        <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
+          <SelectField
+            label={t("cardDetail.stamp")}
+            value={draftStamp ?? t("cardDetail.stampNone")}
+            placeholder={t("cardDetail.stampNone")}
+            onPress={() => setSheet("stamp")}
+          />
+        </View>
       ) : null}
-      <ListRow
-        icon="condition"
-        title={t("cardDetail.condition")}
-        value={t(`cardDetail.conditions.${draftCondition}`)}
-        onPress={() => setSheet("condition")}
-      />
-      <ListRow
-        icon="language"
-        title={t("cardDetail.language")}
-        value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
-        onPress={() => setSheet("language")}
-      />
-    </ListGroup>
+      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
+        <SelectField
+          label={t("cardDetail.condition")}
+          value={t(`cardDetail.conditions.${draftCondition}`)}
+          placeholder={t(`cardDetail.conditions.${DEFAULT_CARD_CONDITION}`)}
+          onPress={() => setSheet("condition")}
+        />
+      </View>
+      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
+        <SelectField
+          label={t("cardDetail.language")}
+          value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
+          placeholder={LANGUAGE_LABELS[DEFAULT_CARD_LANGUAGE] ?? DEFAULT_CARD_LANGUAGE}
+          onPress={() => setSheet("language")}
+        />
+      </View>
+    </View>
   );
 
   const imageFrame = {
@@ -410,7 +413,9 @@ export default function CardDetailScreen() {
                 <IconButton icon="edit" accessibilityLabel={t("cardDetail.correctCard")} onPress={() => setEditing(true)} />
               )}
               <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
-              <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
+              {actionMenuOptions.length > 0 ? (
+                <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
+              ) : null}
             </View>
           ) : null
         }
@@ -436,14 +441,6 @@ export default function CardDetailScreen() {
           <>
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
-                {draftFoil ? <Pill tone="info" label={draftFoil} /> : null}
-                {draftStamp ? <Pill tone="neutral" label={draftStamp} /> : null}
-                {draftCondition !== DEFAULT_CARD_CONDITION ? (
-                  <Pill tone="neutral" label={t(`cardDetail.conditions.${draftCondition}`)} />
-                ) : null}
-                {card && draftLanguage !== (card.lang || DEFAULT_CARD_LANGUAGE) ? (
-                  <Pill tone="neutral" label={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage} />
-                ) : null}
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
                 <Pressable
                   accessibilityRole="button"
@@ -467,6 +464,8 @@ export default function CardDetailScreen() {
                 </Pressable>
               </View>
             ) : null}
+
+            {entry && !reviewMode ? scanAttributeFields : null}
 
             {candidates.length > 1 ? (
               <View style={{ gap: SPACING.sm }}>
@@ -572,7 +571,7 @@ export default function CardDetailScreen() {
                   disabled={correction.isPending}
                   onSelect={(selected) => void applyCorrection(selected)}
                 />
-                {scanAttributeRows}
+                {scanAttributeFields}
               </View>
             ) : null}
 
