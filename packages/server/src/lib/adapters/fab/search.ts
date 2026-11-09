@@ -3,6 +3,7 @@ import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import {
   CARD_API_HEADERS,
+  FAB_FALLBACK_TCGPLAYER_SUBTYPES,
   FAB_STANDARD_FOILING,
   FAB_TCGPLAYER_EDITION_PREFIXES,
   FAB_TCGPLAYER_FOIL_NAMES,
@@ -150,9 +151,10 @@ export const fabAdapter: CardSearchAdapter = {
   tcgplayer: {
     categoryId: 62,
     productIdFromRaw: (card) =>
-      (card.raw as { printing: FabPrinting }).printing.tcgplayer_product_id,
+      (card.raw as { printing?: FabPrinting }).printing?.tcgplayer_product_id,
     subTypes: (card) => {
-      const { printing } = card.raw as { printing: FabPrinting };
+      const { printing } = card.raw as { printing?: FabPrinting };
+      if (!printing) return FAB_FALLBACK_TCGPLAYER_SUBTYPES;
       const foil = FAB_TCGPLAYER_FOIL_NAMES[printing.foiling] ?? "Normal";
       const edition = FAB_TCGPLAYER_EDITION_PREFIXES[printing.edition];
       const subTypes = edition ? [`${edition}${foil}`, foil] : [foil];

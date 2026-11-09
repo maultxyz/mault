@@ -97,6 +97,18 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
   U: "Unlimited Edition ",
 };
 
+export const FAB_FALLBACK_TCGPLAYER_SUBTYPES = {
+  price: ["Normal", "1st Edition Normal", "Unlimited Edition Normal"],
+  priceFoil: [
+    "Rainbow Foil",
+    "Cold Foil",
+    "1st Edition Rainbow Foil",
+    "1st Edition Cold Foil",
+    "Unlimited Edition Rainbow Foil",
+    "Unlimited Edition Cold Foil",
+  ],
+};
+
 export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
   1: "Common",
   2: "Uncommon",
