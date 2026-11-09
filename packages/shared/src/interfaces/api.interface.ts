@@ -72,6 +72,10 @@ export interface SyncState {
   printingMarksTotal?: number;
   printingMarksDone?: number;
   printingMarksFailed?: number;
+  newCards?: number;
+  updatedCards?: number;
+  newCardNames?: string[];
+  fatalError?: string;
 }
 
 export interface BrowserSyncWorkCard {

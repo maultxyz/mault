@@ -1,6 +1,12 @@
 import "../src/lib/console-timestamps";
 import { pool } from "../src/db";
 import {
+  buildCatalogSyncReport,
+  postCatalogSyncReport,
+} from "../src/lib/catalog-sync-report";
+import { CATALOG_SYNC_REPORT_ERROR_SAMPLE_LIMIT } from "../src/lib/constants/sync";
+import type { CatalogSyncResult } from "../src/lib/interfaces/catalog-sync-report";
+import {
   getStatus,
   isSyncWorkerRunning,
   startSync,
@@ -58,27 +64,98 @@ async function main(): Promise<number> {
     return 1;
   }
 
+  let cardErrorSamples: string[] = [];
   subscribeSSE((event, data) => {
-    if (event === "log") log(`  ${(data as { line: string }).line}`);
+    if (event !== "log") return;
+    const line = (data as { line: string }).line;
+    log(`  ${line}`);
+    if (
+      line.startsWith("Error") &&
+      cardErrorSamples.length < CATALOG_SYNC_REPORT_ERROR_SAMPLE_LIMIT
+    ) {
+      cardErrorSamples.push(line);
+    }
   });
 
-  const completed: string[] = [];
-  const failed: string[] = [];
+  const results: CatalogSyncResult[] = [];
   for (const { gameKey, lang } of catalogs) {
     const label = `${gameKey} (${lang})`;
     log(`Starting ${forceResync ? "force resync" : "sync"} of ${label}`);
-    startSync(undefined, gameKey, lang, forceResync);
-    await waitForSyncWorkerToStop();
+    cardErrorSamples = [];
+    const startedAt = Date.now();
+    let startError: string | null = null;
+    try {
+      startSync(undefined, gameKey, lang, forceResync);
+      await waitForSyncWorkerToStop();
+    } catch (err) {
+      startError = err instanceof Error ? err.message : String(err);
+    }
     const status = getStatus();
+    const succeeded = startError === null && status.status === "completed";
     log(
-      `${label}: ${status.status}, ${status.processed}/${status.total} processed, ${status.skipped} skipped, ${status.errors} errors`,
+      `${label}: ${succeeded ? status.status : "failed"}, ${status.processed}/${status.total} processed, ${status.skipped} skipped, ${status.errors} errors`,
     );
-    (status.status === "completed" ? completed : failed).push(label);
+    if (!succeeded) {
+      console.log(
+        `::warning::Catalog sync failed for ${label}: ${startError ?? status.fatalError ?? "unknown error"}`,
+      );
+    }
+    results.push({
+      gameKey,
+      lang,
+      succeeded,
+      totalCards: status.total,
+      newCards: status.newCards ?? 0,
+      updatedCards: status.updatedCards ?? 0,
+      newCardNames: status.newCardNames ?? [],
+      cardErrors: status.errors,
+      cardErrorSamples,
+      fatalError: succeeded
+        ? null
+        : (startError ?? status.fatalError ?? `ended with status ${status.status}`),
+      durationMs: Date.now() - startedAt,
+    });
   }
 
-  log(`Completed: ${completed.join(", ") || "none"}`);
-  log(`Failed: ${failed.join(", ") || "none"}`);
-  return failed.length > 0 ? 1 : 0;
+  const failedLabels = results
+    .filter((result) => !result.succeeded)
+    .map((result) => `${result.gameKey} (${result.lang})`);
+  const completedLabels = results
+    .filter((result) => result.succeeded)
+    .map((result) => `${result.gameKey} (${result.lang})`);
+  log(`Completed: ${completedLabels.join(", ") || "none"}`);
+  log(`Failed: ${failedLabels.join(", ") || "none"}`);
+
+  await reportToDiscord(results);
+  return 0;
+}
+
+async function reportToDiscord(results: CatalogSyncResult[]): Promise<void> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (!webhookUrl) {
+    log("DISCORD_WEBHOOK_URL isn't set, skipping the Discord report.");
+    return;
+  }
+  const { GITHUB_SERVER_URL, GITHUB_REPOSITORY, GITHUB_RUN_ID } = process.env;
+  const runUrl =
+    GITHUB_SERVER_URL && GITHUB_REPOSITORY && GITHUB_RUN_ID
+      ? `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}`
+      : undefined;
+  try {
+    await postCatalogSyncReport(
+      webhookUrl,
+      buildCatalogSyncReport(results, {
+        runUrl,
+        forceResync,
+        timestamp: new Date().toISOString(),
+      }),
+    );
+    log("Posted the sync report to Discord.");
+  } catch (err) {
+    console.log(
+      `::warning::Discord report failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 }
 
 main()

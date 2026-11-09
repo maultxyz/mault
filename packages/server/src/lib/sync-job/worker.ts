@@ -9,6 +9,7 @@ import { cardImageVectors } from "../../db/schema";
 import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
 import {
   SYNC_DATA_REFRESH_BATCH_SIZE,
+  SYNC_NEW_CARD_NAME_LIMIT,
   SYNC_REINDEX_MIN_CHANGED_FRACTION,
 } from "../constants/sync";
 import { toPortraitCardImage } from "../card-image";
@@ -525,7 +526,12 @@ async function runSync(
     recentlyUpdated.has(card.id);
 
   if (vectorizeOn === "browser") {
-    await refreshStoredData(source, lang, cards.filter(isAlreadyVectorized));
+    const refreshedInBrowserMode = await refreshStoredData(
+      source,
+      lang,
+      cards.filter(isAlreadyVectorized),
+    );
+    patchState({ updatedCards: refreshedInBrowserMode });
     if (isCancelled()) {
       emitCancelledDone();
       return;
@@ -581,6 +587,10 @@ async function runSync(
     lang,
     cards.filter(isAlreadyVectorized),
   );
+  let newCardCount = 0;
+  let updatedCardCount = refreshed;
+  const newCardNames: string[] = [];
+  patchState({ newCards: 0, updatedCards: updatedCardCount, newCardNames: [] });
   if (isCancelled()) {
     emitCancelledDone();
     return;
@@ -649,9 +659,22 @@ async function runSync(
         if (marks) countedMarkCardIds.add(batchCards[index].id);
       });
       for (const c of batchCards) {
+        if (existingSet.has(c.id)) {
+          updatedCardCount++;
+        } else {
+          newCardCount++;
+          if (newCardNames.length < SYNC_NEW_CARD_NAME_LIMIT) {
+            newCardNames.push(c.setCode ? `${c.name} (${c.setCode})` : c.name);
+          }
+        }
         existingSet.add(c.id);
         if (c.backImageUrl) vectorizedBacks.add(c.id);
       }
+      patchState({
+        newCards: newCardCount,
+        updatedCards: updatedCardCount,
+        newCardNames: [...newCardNames],
+      });
       incrementCounters({ processed: batchCards.length });
       const syncState = getState();
       addLog(
@@ -852,8 +875,8 @@ process.on("message", (msg: ParentToWorkerMessage) => {
     )
       .then(() => exitAfterFlush(0))
       .catch((err) => {
-        patchState({ status: "failed" });
         const errMsg = errorMessage(err);
+        patchState({ status: "failed", fatalError: errMsg });
         addLog(`Fatal error: ${errMsg}`);
         emitEvent("error", { message: errMsg });
         exitAfterFlush(1);

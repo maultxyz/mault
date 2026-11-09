@@ -81,6 +81,7 @@ jobs:
           GAMES: ${{ inputs.games }}
           LANGUAGES: ${{ inputs.languages }}
           FORCE_RESYNC: ${{ inputs.force && 'true' || 'false' }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_CATALOG_SYNC_WEBHOOK_URL || secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
         run: |
           ARGS=()
           if [ -n "$GAMES" ]; then ARGS+=("--games=$GAMES"); fi
