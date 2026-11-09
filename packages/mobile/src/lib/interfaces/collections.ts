@@ -1,5 +1,10 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { CardFilters, Collection, GroupedScannedCard } from "@magic-vault/shared";
+import type {
+  CardFilters,
+  Collection,
+  GroupedScannedCard,
+  ScanTimelineGrouping,
+} from "@magic-vault/shared";
 import type { StatsBreakdown } from "@/lib/interfaces/stats";
 
 export interface ScanImageResponse {
@@ -32,6 +37,8 @@ export interface CardViewOptionsSheetProps {
   onViewModeChange?: (mode: CardViewMode) => void;
   grouped?: boolean;
   onGroupedChange?: (grouped: boolean) => void;
+  scanTimeline?: CollectionScanTimeline;
+  onScanTimelineChange?: (scanTimeline: CollectionScanTimeline) => void;
   sortOptions: CardSortOption[];
   onSortChange: (sort: string) => void;
   filters: CardFilters;
@@ -71,3 +78,9 @@ export interface ScanTarget {
   collectionsQuery: UseQueryResult<Collection[]>;
   setScanTargetGuid: (collectionGuid: string) => void;
 }
+
+export type CollectionScanTimeline = "off" | ScanTimelineGrouping;
+
+export type ScanTimelineListRow =
+  | { kind: "header"; key: string; bucketKey: string; cardCount: number }
+  | { kind: "cards"; key: string; cards: GroupedScannedCard[] };

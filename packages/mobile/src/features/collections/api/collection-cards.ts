@@ -18,6 +18,8 @@ import {
   type CollectionCardsSummary,
   type Result,
   type ScannedCard,
+  type ScanTimelineBuckets,
+  type ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import { WEB_URL } from "@/lib/constants/config";
@@ -52,6 +54,24 @@ export const collectionCardsQueryOptions = (guid: string, query: CollectionCards
     initialPageParam: 0,
     getNextPageParam: (last) =>
       (last.page + 1) * last.pageSize < last.totalEntries ? last.page + 1 : undefined,
+  });
+
+export const scanTimelineBucketsQueryOptions = (
+  guid: string,
+  query: CollectionCardsQuery,
+  grouping: ScanTimelineGrouping,
+  timeZone: string,
+) =>
+  queryOptions({
+    queryKey: ["collection-cards", guid, "scan-timeline-buckets", query, grouping, timeZone] as const,
+    queryFn: () => {
+      const params = new URLSearchParams(collectionCardsQueryParams(query, 0));
+      params.delete("page");
+      params.set("grouping", grouping);
+      params.set("timeZone", timeZone);
+      return unwrap(apiGet<Result<ScanTimelineBuckets>>(`/api/collections/${guid}/cards/scan-timeline?${params}`));
+    },
+    placeholderData: keepPreviousData,
   });
 
 export const collectionCardsSummaryQueryOptions = (guid: string) =>

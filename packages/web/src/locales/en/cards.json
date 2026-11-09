@@ -189,7 +189,14 @@
     "displayHeading": "Display",
     "cardSize": "Card size",
     "moreActions": "More actions",
-    "reviewCount": "Review {{count}}"
+    "reviewCount": "Review {{count}}",
+    "scanTimeline": "Scan timeline",
+    "scanTimelineOptions": {
+      "off": "Off",
+      "day": "By day",
+      "hour": "By hour"
+    },
+    "scanTimelineSortNote": "The scan timeline always shows the newest scans first."
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
@@ -535,5 +542,12 @@
       "reviewed": "Reviewed",
       "corrected": "Corrected"
     }
+  },
+  "scanTimeline": {
+    "blockCardCount_one": "{{count}} card",
+    "blockCardCount_other": "{{count}} cards",
+    "loadedOfTotal": "Showing {{loaded}} of {{total}} cards",
+    "loadMore": "Load more cards",
+    "selectBlock": "Select cards scanned {{period}}"
   }
 }

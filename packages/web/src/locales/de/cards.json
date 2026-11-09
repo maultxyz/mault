@@ -189,7 +189,14 @@
     "displayHeading": "Anzeige",
     "cardSize": "Kartengröße",
     "moreActions": "Weitere Aktionen",
-    "reviewCount": "Prüfen ({{count}})"
+    "reviewCount": "Prüfen ({{count}})",
+    "scanTimeline": "Scan-Zeitachse",
+    "scanTimelineOptions": {
+      "off": "Aus",
+      "day": "Nach Tag",
+      "hour": "Nach Stunde"
+    },
+    "scanTimelineSortNote": "Die Scan-Zeitachse zeigt immer die neuesten Scans zuerst."
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
@@ -535,5 +542,12 @@
       "reviewed": "Geprüft",
       "corrected": "Korrigiert"
     }
+  },
+  "scanTimeline": {
+    "blockCardCount_one": "{{count}} Karte",
+    "blockCardCount_other": "{{count}} Karten",
+    "loadedOfTotal": "{{loaded}} von {{total}} Karten angezeigt",
+    "loadMore": "Weitere Karten laden",
+    "selectBlock": "Karten auswählen, gescannt am {{period}}"
   }
 }

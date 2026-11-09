@@ -19,6 +19,8 @@ import type {
   ReviewGridAttributes,
   ReviewGridCard,
   ScannedCard,
+  ScanTimelineBlock,
+  ScanTimelineGrouping,
   PrintingMarkRegion,
 } from "@magic-vault/shared";
 import type { KeyboardEvent, MouseEvent, ReactNode, Ref } from "react";
@@ -152,6 +154,8 @@ export interface PriceSourceSection {
 
 export type CardViewMode = "grid" | "list";
 
+export type CardScanTimeline = "off" | ScanTimelineGrouping;
+
 export type CardGridDensity = "compact" | "comfortable" | "large";
 
 export interface AddCardDialogProps {
@@ -215,6 +219,8 @@ export interface CardToolbarProps {
   onDensityChange?: (density: CardGridDensity) => void;
   groupDuplicates: boolean;
   onGroupDuplicatesChange: (grouped: boolean) => void;
+  scanTimeline?: CardScanTimeline;
+  onScanTimelineChange?: (scanTimeline: CardScanTimeline) => void;
 }
 
 export interface StorageDeleteWarningProps {
@@ -528,6 +534,8 @@ export interface CardDisplayOptionsProps {
   onDensityChange?: (density: CardGridDensity) => void;
   groupDuplicates?: boolean;
   onGroupDuplicatesChange?: (grouped: boolean) => void;
+  scanTimeline?: CardScanTimeline;
+  onScanTimelineChange?: (scanTimeline: CardScanTimeline) => void;
 }
 
 export interface CardViewOptionsDrawerProps
@@ -673,3 +681,18 @@ export type CardDetailAttributePicker =
   | "stamp"
   | "condition"
   | "language";
+
+export interface CardScanTimelineProps {
+  blocks: ScanTimelineBlock<GroupedScannedCard>[];
+  grouping: ScanTimelineGrouping;
+  loadedCardCount: number;
+  totalCardCount: number;
+  hasMoreCards: boolean;
+  isLoadingMoreCards: boolean;
+  onLoadMoreCards: () => void;
+  selectedScanIds: Set<string>;
+  onToggleBlockSelect?: (block: ScanTimelineBlock<GroupedScannedCard>) => void;
+  renderBlockCards: (
+    block: ScanTimelineBlock<GroupedScannedCard>,
+  ) => ReactNode;
+}

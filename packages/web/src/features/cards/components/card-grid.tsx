@@ -55,7 +55,10 @@ import {
   collectionCardsPageQueryOptions,
   collectionCardsCountQueryOptions,
   loadCollectionCardIds,
+  scanTimelineBucketsQueryOptions,
+  scanTimelineCardsQueryOptions,
 } from "@/features/collections/api/collection-cards";
+import { CardScanTimeline } from "@/features/cards/components/card-scan-timeline";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useStoredCardCount } from "@/features/collections/api/use-stored-card-count";
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
@@ -95,9 +98,17 @@ import {
   CARD_CONDITIONS,
   CARD_TAGS,
   computeBinCount,
+  deviceTimeZone,
+  groupCardsByScanTime,
   toReviewGridCard,
+  type GroupedScannedCard,
+  type ScanTimelineBlock,
 } from "@magic-vault/shared";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import { useTranslation } from "react-i18next";
@@ -224,18 +235,21 @@ export function CardGrid() {
     handleViewModeChange,
     groupDuplicates,
     handleGroupDuplicatesChange,
+    scanTimeline,
+    handleScanTimelineChange,
   } = useCardViewPreferences();
+  const scanTimelineGrouping = scanTimeline === "off" ? null : scanTimeline;
   const [density, handleDensityChange] = useCardGridDensity();
 
   const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
   const cardsQuery = useMemo(
     () => ({
       search: debouncedSearch.toLowerCase().trim(),
-      sort: sortKey,
+      sort: scanTimelineGrouping ? null : sortKey,
       filters,
-      grouped: groupDuplicates,
+      grouped: scanTimelineGrouping ? false : groupDuplicates,
     }),
-    [debouncedSearch, sortKey, filters, groupDuplicates],
+    [debouncedSearch, sortKey, filters, groupDuplicates, scanTimelineGrouping],
   );
   const reviewQuery = useMemo(
     () => ({ ...cardsQuery, unreviewed: true }),
@@ -291,14 +305,61 @@ export function CardGrid() {
   ]);
   useEffect(() => () => reviewQueueStore.stop(), []);
 
-  const {
-    data: pageData,
-    isPending: pagePending,
-    dataUpdatedAt: cardListUpdatedAt,
-  } = useQuery(
-    collectionCardsPageQueryOptions(collectionGuid, cardsQuery, page, pageSize),
+  const pageQuery = useQuery({
+    ...collectionCardsPageQueryOptions(
+      collectionGuid,
+      cardsQuery,
+      page,
+      pageSize,
+    ),
+    enabled: !!collectionGuid && !scanTimelineGrouping,
+  });
+  const scanTimelineTimeZone = useMemo(() => deviceTimeZone(), []);
+  const scanTimelineCardsQuery = useInfiniteQuery({
+    ...scanTimelineCardsQueryOptions(collectionGuid, cardsQuery),
+    enabled: !!collectionGuid && !!scanTimelineGrouping,
+  });
+  const scanTimelineBucketsQuery = useQuery({
+    ...scanTimelineBucketsQueryOptions(
+      collectionGuid,
+      cardsQuery,
+      scanTimelineGrouping ?? "day",
+      scanTimelineTimeZone,
+    ),
+    enabled: !!collectionGuid && !!scanTimelineGrouping,
+  });
+  const scanTimelinePages = scanTimelineCardsQuery.data?.pages;
+  const pageData = scanTimelineGrouping
+    ? scanTimelinePages?.[0]
+    : pageQuery.data;
+  const pagePending = scanTimelineGrouping
+    ? scanTimelineCardsQuery.isPending
+    : pageQuery.isPending;
+  const cardListUpdatedAt = scanTimelineGrouping
+    ? scanTimelineCardsQuery.dataUpdatedAt
+    : pageQuery.dataUpdatedAt;
+  const pagedCards = useMemo(
+    () =>
+      scanTimelineGrouping
+        ? (scanTimelinePages ?? []).flatMap((timelinePage) => timelinePage.items)
+        : (pageQuery.data?.items ?? []),
+    [scanTimelineGrouping, scanTimelinePages, pageQuery.data],
   );
-  const pagedCards = pageData?.items ?? [];
+  const scanTimelineBlocks = useMemo(
+    () =>
+      scanTimelineGrouping
+        ? groupCardsByScanTime(
+            pagedCards,
+            scanTimelineGrouping,
+            scanTimelineBucketsQuery.data?.buckets,
+          )
+        : [],
+    [scanTimelineGrouping, pagedCards, scanTimelineBucketsQuery.data],
+  );
+  const { fetchNextPage: fetchNextScanTimelinePage } = scanTimelineCardsQuery;
+  const loadMoreScanTimelineCards = useCallback(() => {
+    void fetchNextScanTimelinePage();
+  }, [fetchNextScanTimelinePage]);
   const totalCards = pageData?.totalCards ?? 0;
   const hiddenDownloadedCount = useHiddenDownloadedCount(
     cardsQuery,
@@ -320,7 +381,9 @@ export function CardGrid() {
     cardListUpdatedAt,
   );
   const visiblePendingScanCards =
-    viewMode === "grid" && clampedPage === 0 ? pendingScanCards : [];
+    viewMode === "grid" && clampedPage === 0 && !scanTimelineGrouping
+      ? pendingScanCards
+      : [];
 
   useEffect(() => {
     if (page !== clampedPage) setPage(clampedPage);
@@ -447,6 +510,12 @@ export function CardGrid() {
       });
     },
     [pagedCards, toggleSelect],
+  );
+
+  const toggleScanTimelineBlockSelect = useCallback(
+    (block: ScanTimelineBlock<GroupedScannedCard>) =>
+      toggleSelect(block.cards.flatMap((entry) => entry.scanIds)),
+    [toggleSelect],
   );
 
   const togglePageSelect = useCallback(() => {
@@ -793,6 +862,80 @@ export function CardGrid() {
     );
   }
 
+  const toCardTableRow = (entry: GroupedScannedCard) => ({
+    scanId: entry.scanId,
+    scanIds: entry.scanIds,
+    card: entry.card,
+    binNumber: entry.binNumber,
+    quantity: entry.quantity,
+    isFoil: entry.isFoil,
+    foilType: entry.foilType,
+    condition: entry.condition,
+    isDownloaded: entry.isDownloaded,
+    hasAlternatives: !!entry.alternativeMatches?.length,
+    lowConfidenceMatch: entry.lowConfidenceMatch,
+    wasCorrected: entry.corrected,
+    isReviewed: entry.reviewed,
+    storageLocation: entry.storageLocation,
+    isSelected: entry.scanIds.every((id) => selectedIds.has(id)),
+  });
+
+  const renderCardGridItem = (entry: GroupedScannedCard) => {
+    const item = (
+      <ScannedCardItem
+        key={entry.scanId}
+        card={entry.card}
+        scannedAt={entry.scannedAt}
+        onOpen={() => setOpenScanId(entry.scanId)}
+        binNumber={entry.binNumber}
+        isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+        onToggleSelect={(options) =>
+          handleSelect(entry.scanId, options)
+        }
+        hasAlternatives={!!entry.alternativeMatches?.length}
+        lowConfidenceMatch={entry.lowConfidenceMatch}
+        wasCorrected={entry.corrected}
+        isReviewed={entry.reviewed}
+        storageLocation={entry.storageLocation}
+        isFoil={entry.isFoil}
+        foilType={entry.foilType}
+        condition={entry.condition}
+        isDownloaded={entry.isDownloaded}
+        quantity={entry.quantity}
+      />
+    );
+    if (readOnly) return item;
+    return (
+      <CardContextMenu
+        key={entry.scanId}
+        entry={entry}
+        isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+        onOpen={() => setOpenScanId(entry.scanId)}
+        onToggleSelect={() =>
+          handleSelect(entry.scanId, { shiftKey: false })
+        }
+      >
+        {item}
+      </CardContextMenu>
+    );
+  };
+
+  const renderCardList = (entries: GroupedScannedCard[]) => (
+    <div className="rounded-lg border">
+      <ScannedCardTable
+        rows={entries.map(toCardTableRow)}
+        showQuantity={groupDuplicates && !scanTimelineGrouping}
+        onOpen={(row) => setOpenScanId(row.scanId)}
+        onToggleSelect={(row, options) => handleSelect(row.scanId, options)}
+        onTogglePageSelect={
+          scanTimelineGrouping
+            ? () => toggleSelect(entries.flatMap((entry) => entry.scanIds))
+            : togglePageSelect
+        }
+      />
+    </div>
+  );
+
   return (
     <>
       <NoGameBanner />
@@ -828,6 +971,8 @@ export function CardGrid() {
           onDensityChange={handleDensityChange}
           groupDuplicates={groupDuplicates}
           onGroupDuplicatesChange={handleGroupDuplicatesChange}
+          scanTimeline={scanTimeline}
+          onScanTimelineChange={handleScanTimelineChange}
         />
       </div>
       {totalCards === 0 && visiblePendingScanCards.length === 0 && (
@@ -855,107 +1000,68 @@ export function CardGrid() {
         />
       )}
       <div className="p-2 flex-1">
-        <ListPagination
-          alignsEnd
-          className="pb-2"
-          pagination={{
-            page: clampedPage + 1,
-            pageCount,
-            setPage: (nextPage) => setPage(nextPage - 1),
-            ...entryRange,
-          }}
-          pageSize={pageSize}
-          onPageSizeChange={changePageSize}
-        />
-        {viewMode === "list" ? (
-          <div className="rounded-lg border">
-            <ScannedCardTable
-              rows={pagedCards.map((entry) => ({
-                scanId: entry.scanId,
-                scanIds: entry.scanIds,
-                card: entry.card,
-                binNumber: entry.binNumber,
-                quantity: entry.quantity,
-                isFoil: entry.isFoil,
-                foilType: entry.foilType,
-                condition: entry.condition,
-                isDownloaded: entry.isDownloaded,
-                hasAlternatives: !!entry.alternativeMatches?.length,
-                lowConfidenceMatch: entry.lowConfidenceMatch,
-                wasCorrected: entry.corrected,
-                isReviewed: entry.reviewed,
-                storageLocation: entry.storageLocation,
-                isSelected: entry.scanIds.every((id) => selectedIds.has(id)),
-              }))}
-              showQuantity={groupDuplicates}
-              onOpen={(row) => setOpenScanId(row.scanId)}
-              onToggleSelect={(row, options) =>
-                handleSelect(row.scanId, options)
-              }
-              onTogglePageSelect={togglePageSelect}
-            />
-          </div>
+        {scanTimelineGrouping ? (
+          <CardScanTimeline
+            blocks={scanTimelineBlocks}
+            grouping={scanTimelineGrouping}
+            loadedCardCount={pagedCards.length}
+            totalCardCount={pageData?.totalEntries ?? 0}
+            hasMoreCards={scanTimelineCardsQuery.hasNextPage}
+            isLoadingMoreCards={scanTimelineCardsQuery.isFetchingNextPage}
+            onLoadMoreCards={loadMoreScanTimelineCards}
+            selectedScanIds={selectedIds}
+            onToggleBlockSelect={toggleScanTimelineBlockSelect}
+            renderBlockCards={(timelineBlock) =>
+              viewMode === "list" ? (
+                renderCardList(timelineBlock.cards)
+              ) : (
+                <div className={CARD_GRID_DENSITY_CLASS[density]}>
+                  {timelineBlock.cards.map(renderCardGridItem)}
+                </div>
+              )
+            }
+          />
         ) : (
-          <div className={CARD_GRID_DENSITY_CLASS[density]}>
-            {visiblePendingScanCards.map((pendingScanCard) => (
-              <PendingScanCardItem
-                key={`pending-${pendingScanCard.scanId}`}
-                card={pendingScanCard.card}
-              />
-            ))}
-            {pagedCards.map((entry) => {
-              const item = (
-                <ScannedCardItem
-                  key={entry.scanId}
-                  card={entry.card}
-                  scannedAt={entry.scannedAt}
-                  onOpen={() => setOpenScanId(entry.scanId)}
-                  binNumber={entry.binNumber}
-                  isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                  onToggleSelect={(options) =>
-                    handleSelect(entry.scanId, options)
-                  }
-                  hasAlternatives={!!entry.alternativeMatches?.length}
-                  lowConfidenceMatch={entry.lowConfidenceMatch}
-                  wasCorrected={entry.corrected}
-                  isReviewed={entry.reviewed}
-                  storageLocation={entry.storageLocation}
-                  isFoil={entry.isFoil}
-                  foilType={entry.foilType}
-                  condition={entry.condition}
-                  isDownloaded={entry.isDownloaded}
-                  quantity={entry.quantity}
-                />
-              );
-              if (readOnly) return item;
-              return (
-                <CardContextMenu
-                  key={entry.scanId}
-                  entry={entry}
-                  isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                  onOpen={() => setOpenScanId(entry.scanId)}
-                  onToggleSelect={() =>
-                    handleSelect(entry.scanId, { shiftKey: false })
-                  }
-                >
-                  {item}
-                </CardContextMenu>
-              );
-            })}
-          </div>
+          <>
+            <ListPagination
+              alignsEnd
+              className="pb-2"
+              pagination={{
+                page: clampedPage + 1,
+                pageCount,
+                setPage: (nextPage) => setPage(nextPage - 1),
+                ...entryRange,
+              }}
+              pageSize={pageSize}
+              onPageSizeChange={changePageSize}
+            />
+            {viewMode === "list" ? (
+              renderCardList(pagedCards)
+            ) : (
+              <div className={CARD_GRID_DENSITY_CLASS[density]}>
+                {visiblePendingScanCards.map((pendingScanCard) => (
+                  <PendingScanCardItem
+                    key={`pending-${pendingScanCard.scanId}`}
+                    card={pendingScanCard.card}
+                  />
+                ))}
+                {pagedCards.map(renderCardGridItem)}
+              </div>
+            )}
+            <ListPagination
+              alignsEnd
+              className="pt-4"
+              pagination={{
+                page: clampedPage + 1,
+                pageCount,
+                setPage: (nextPage) => setPage(nextPage - 1),
+                ...entryRange,
+              }}
+              pageSize={pageSize}
+              onPageSizeChange={changePageSize}
+            />
+          </>
         )}
-        <ListPagination
-          alignsEnd
-          className="pt-4"
-          pagination={{
-            page: clampedPage + 1,
-            pageCount,
-            setPage: (nextPage) => setPage(nextPage - 1),
-            ...entryRange,
-          }}
-          pageSize={pageSize}
-          onPageSizeChange={changePageSize}
-        />
       </div>
 
       {selectedIds.size > 0 && (

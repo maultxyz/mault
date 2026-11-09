@@ -1,4 +1,4 @@
-import type { CardGridDensity } from "@/lib/interfaces/cards";
+import type { CardGridDensity, CardScanTimeline } from "@/lib/interfaces/cards";
 
 export const CARD_GRID_DENSITIES: CardGridDensity[] = [
   "compact",
@@ -16,6 +16,14 @@ export const CARD_GRID_DENSITY_CLASS: Record<CardGridDensity, string> = {
 };
 
 export const CARD_GRID_CLASS = CARD_GRID_DENSITY_CLASS.comfortable;
+
+export const CARD_SCAN_TIMELINE_OPTIONS: CardScanTimeline[] = [
+  "off",
+  "day",
+  "hour",
+];
+
+export const CARD_SCAN_TIMELINE_LOAD_AHEAD_MARGIN = "800px";
 
 export const REVIEW_GRID_CLASS =
   "grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3";

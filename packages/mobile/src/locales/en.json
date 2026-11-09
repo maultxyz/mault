@@ -762,7 +762,17 @@
     },
     "viewStats": "View stats",
     "reviewBadge_one": "{{count}} to review",
-    "reviewBadge_other": "{{count}} to review"
+    "reviewBadge_other": "{{count}} to review",
+    "scanTimeline": "Scan timeline",
+    "scanTimelineOptions": {
+      "off": "Off",
+      "day": "By day",
+      "hour": "By hour"
+    },
+    "scanTimelineSortNote": "The scan timeline always shows the newest scans first.",
+    "scanTimelineBlockCount_one": "{{count}} card",
+    "scanTimelineBlockCount_other": "{{count}} cards",
+    "loadingMoreCards": "Loading more cards"
   },
   "cardDetail": {
     "pricePaid": "Price paid ({{currency}})",

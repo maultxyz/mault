@@ -40,6 +40,7 @@ export const STORAGE_CARD_VIEW_MODE_STORAGE_KEY =
 export const CARD_REVIEW_LAYOUT_STORAGE_KEY = "magic-vault:card-review-layout";
 export const CARD_GROUP_DUPLICATES_STORAGE_KEY =
   "magic-vault:card-group-duplicates";
+export const CARD_SCAN_TIMELINE_STORAGE_KEY = "magic-vault:card-scan-timeline";
 
 export const DEVICE_PREFS_STORAGE_KEY_PREFIX = "magic-vault:device-prefs:";
 
