@@ -18,6 +18,7 @@ export function CardScanTimeline({
   isLoadingMoreCards,
   onLoadMoreCards,
   selectedScanIds,
+  stickyHeaderTopOffset,
   onToggleBlockSelect,
   renderBlockCards,
 }: CardScanTimelineProps) {
@@ -52,27 +53,34 @@ export function CardScanTimeline({
             aria-labelledby={headingId}
             className="flex flex-col gap-2"
           >
-            <div className="flex items-center gap-2 border-b pb-1.5">
-              {onToggleBlockSelect && (
-                <Checkbox
-                  aria-label={t("scanTimeline.selectBlock", { period: label })}
-                  checked={
-                    blockScanIds.length > 0 &&
-                    selectedInBlock === blockScanIds.length
-                  }
-                  indeterminate={
-                    selectedInBlock > 0 &&
-                    selectedInBlock < blockScanIds.length
-                  }
-                  onCheckedChange={() => onToggleBlockSelect(block)}
-                />
-              )}
-              <h2 id={headingId} className="text-sm font-semibold">
-                {label}
-              </h2>
-              <span className="text-xs text-foreground/70">
-                {t("scanTimeline.blockCardCount", { count: block.cardCount })}
-              </span>
+            <div
+              className="sticky z-40 flex items-center gap-3 bg-background/80 py-1.5 backdrop-blur-2xl"
+              style={{ top: stickyHeaderTopOffset }}
+            >
+              <div aria-hidden className="h-px flex-1 bg-border" />
+              <div className="flex min-w-0 items-center gap-2 rounded-full bg-secondary px-3 py-1 text-secondary-foreground">
+                {onToggleBlockSelect && (
+                  <Checkbox
+                    aria-label={t("scanTimeline.selectBlock", { period: label })}
+                    checked={
+                      blockScanIds.length > 0 &&
+                      selectedInBlock === blockScanIds.length
+                    }
+                    indeterminate={
+                      selectedInBlock > 0 &&
+                      selectedInBlock < blockScanIds.length
+                    }
+                    onCheckedChange={() => onToggleBlockSelect(block)}
+                  />
+                )}
+                <h2 id={headingId} className="truncate text-xs font-semibold">
+                  {label}
+                </h2>
+                <span className="shrink-0 text-xs text-secondary-foreground/70">
+                  {t("scanTimeline.blockCardCount", { count: block.cardCount })}
+                </span>
+              </div>
+              <div aria-hidden className="h-px flex-1 bg-border" />
             </div>
             {renderBlockCards(block)}
           </section>

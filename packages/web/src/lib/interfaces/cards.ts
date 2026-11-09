@@ -691,6 +691,7 @@ export interface CardScanTimelineProps {
   isLoadingMoreCards: boolean;
   onLoadMoreCards: () => void;
   selectedScanIds: Set<string>;
+  stickyHeaderTopOffset: number;
   onToggleBlockSelect?: (block: ScanTimelineBlock<GroupedScannedCard>) => void;
   renderBlockCards: (
     block: ScanTimelineBlock<GroupedScannedCard>,

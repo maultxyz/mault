@@ -10,6 +10,9 @@ export const CARD_GRID_GAP_Y = 20;
 export const CARD_GRID_GUTTER = 16;
 
 export const CARD_VIEW_MODES: readonly CardViewMode[] = ["list", "grid"];
+export const SCAN_TIMELINE_LIST_HEADER_OFFSET = 1;
+export const SCAN_TIMELINE_HEADER_BLUR_TINT = "systemThinMaterial";
+export const SCAN_TIMELINE_HEADER_BLUR_INTENSITY = 80;
 export const COLLECTION_SCAN_TIMELINE_KEY = "mault:collection-scan-timeline";
 export const COLLECTION_SCAN_TIMELINE_OPTIONS: readonly CollectionScanTimeline[] = ["off", "day", "hour"];
 export const STORAGE_CARD_VIEW_MODE_KEY = "mault:storage-card-view-mode";

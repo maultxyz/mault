@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
+import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Alert, FlatList, RefreshControl, View } from "react-native";
 import {
@@ -53,9 +54,12 @@ import {
   CARD_GRID_GUTTER,
   COLLECTION_SCAN_TIMELINE_KEY,
   LIST_END_THRESHOLD,
+  SCAN_TIMELINE_HEADER_BLUR_INTENSITY,
+  SCAN_TIMELINE_HEADER_BLUR_TINT,
+  SCAN_TIMELINE_LIST_HEADER_OFFSET,
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/collections";
-import { CARD_ART_RADIUS, FLOATING_BUTTON_SHADOW, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { BADGE_RADIUS, CARD_ART_RADIUS, FLOATING_BUTTON_SHADOW, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
 import type { CollectionScanTimeline, ScanTimelineListRow } from "@/lib/interfaces/collections";
 import { readReviewLayout } from "@/lib/review-layout";
@@ -157,6 +161,13 @@ export default function CollectionScreen() {
           )
         : [],
     [items, scanTimelineGrouping, scanTimelineBuckets.data],
+  );
+  const scanTimelineStickyHeaderIndices = useMemo(
+    () =>
+      scanTimelineRows.flatMap((row, index) =>
+        row.kind === "header" ? [index + SCAN_TIMELINE_LIST_HEADER_OFFSET] : [],
+      ),
+    [scanTimelineRows],
   );
   const stats = summary.data?.all;
   const breakdown = useMemo(() => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats) : null), [stats]);
@@ -347,16 +358,41 @@ export default function CollectionScreen() {
           data={scanTimelineRows}
           keyExtractor={(row) => row.key}
           {...sharedListProps}
+          stickyHeaderIndices={scanTimelineStickyHeaderIndices}
           renderItem={({ item: row }) =>
             row.kind === "header" ? (
-              <View style={{ flexDirection: "row", alignItems: "baseline", gap: SPACING.sm, paddingTop: SPACING.sm }}>
-                <AppText size="sm" weight="semibold" accessibilityRole="header" style={{ flexShrink: 1 }}>
-                  {formatScanTimelineBucketLabel(row.bucketKey, scanTimelineGrouping, i18n.language)}
-                </AppText>
-                <AppText size="xs" tone="secondary">
-                  {t("collection.scanTimelineBlockCount", { count: row.cardCount })}
-                </AppText>
-              </View>
+              <BlurView
+                tint={SCAN_TIMELINE_HEADER_BLUR_TINT}
+                intensity={SCAN_TIMELINE_HEADER_BLUR_INTENSITY}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: SPACING.md,
+                  paddingVertical: SPACING.sm,
+                }}
+              >
+                <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: SPACING.sm,
+                    flexShrink: 1,
+                    paddingHorizontal: SPACING.md,
+                    paddingVertical: SPACING.xs,
+                    borderRadius: BADGE_RADIUS,
+                    backgroundColor: colors.tonal,
+                  }}
+                >
+                  <AppText size="xs" weight="semibold" accessibilityRole="header" numberOfLines={1} style={{ flexShrink: 1 }}>
+                    {formatScanTimelineBucketLabel(row.bucketKey, scanTimelineGrouping, i18n.language)}
+                  </AppText>
+                  <AppText size="xs" tone="secondary">
+                    {t("collection.scanTimelineBlockCount", { count: row.cardCount })}
+                  </AppText>
+                </View>
+                <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+              </BlurView>
             ) : (
               <View style={{ flexDirection: "row", gap: CARD_GRID_GAP_X }}>
                 {row.cards.map(renderCardTile)}

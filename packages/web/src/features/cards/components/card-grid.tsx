@@ -72,6 +72,7 @@ import {
 import { collectionViewPath } from "@/lib/constants/collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useElementHeight } from "@/hooks/use-element-height";
 import { BULK_TAG_ACTIONS } from "@/lib/constants/card-tags";
 import {
   CARD_GRID_CLASS,
@@ -239,6 +240,10 @@ export function CardGrid() {
     handleScanTimelineChange,
   } = useCardViewPreferences();
   const scanTimelineGrouping = scanTimeline === "off" ? null : scanTimeline;
+  const [toolbarElement, setToolbarElement] = useState<HTMLDivElement | null>(
+    null,
+  );
+  const toolbarHeight = useElementHeight(toolbarElement);
   const [density, handleDensityChange] = useCardGridDensity();
 
   const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
@@ -939,7 +944,10 @@ export function CardGrid() {
   return (
     <>
       <NoGameBanner />
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
+      <div
+        ref={setToolbarElement}
+        className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b"
+      >
         <CardToolbar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -1010,6 +1018,7 @@ export function CardGrid() {
             isLoadingMoreCards={scanTimelineCardsQuery.isFetchingNextPage}
             onLoadMoreCards={loadMoreScanTimelineCards}
             selectedScanIds={selectedIds}
+            stickyHeaderTopOffset={toolbarHeight}
             onToggleBlockSelect={toggleScanTimelineBlockSelect}
             renderBlockCards={(timelineBlock) =>
               viewMode === "list" ? (
