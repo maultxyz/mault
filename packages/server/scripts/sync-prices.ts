@@ -6,6 +6,7 @@ import { syncCardKingdomPrices } from "../src/lib/cardkingdom-price-sync";
 import { syncCardmarketPrices } from "../src/lib/cardmarket-price-sync";
 import {
   buildPriceSyncEmbed,
+  postDiscordWebhook,
   sendPlatformDiscordNotification,
 } from "../src/lib/discord";
 import type { PriceSyncSummary } from "../src/lib/interfaces/discord";
@@ -27,6 +28,21 @@ const syncCardKingdom = adapterEntriesForGameKeys(gameKeys).some(
 );
 
 async function notifyDiscord(summary: PriceSyncSummary): Promise<void> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (webhookUrl) {
+    try {
+      await postDiscordWebhook(webhookUrl, {
+        allowed_mentions: { parse: [] },
+        embeds: [buildPriceSyncEmbed(summary)],
+      });
+      log("Posted price update to Discord.");
+    } catch (err) {
+      console.log(
+        `::warning::Discord price update failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+    return;
+  }
   try {
     const outcome = await sendPlatformDiscordNotification(
       "pricing",

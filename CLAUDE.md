@@ -102,7 +102,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 
 ### Prices
 
-- `scripts/sync-prices.ts` runs on an external schedule only. tcgcsv: at most one pull per 20 h, check `last-updated.txt` first, 1 request/s, `CARD_API_USER_AGENT` on every outgoing request, never from request paths.
+- `scripts/sync-prices.ts` runs on a schedule only: the hosted instance runs it daily from `price-sync.yml` on a GitHub runner against `DATABASE_URL` (with `DISCORD_WEBHOOK_URL` set it posts its summary to that webhook through `postDiscordWebhook`, else to the platform pricing channel through the bot), self-hosters from cron or Coolify. Pull guards are stored in the database, so they hold across runners. tcgcsv: at most one pull per 20 h, check `last-updated.txt` first, 1 request/s, `CARD_API_USER_AGENT` on every outgoing request, never from request paths.
 - Never read `card.price` for display or totals: use `cardPriceFor`/`formatPrice` (web `usePriceSource().priceOf`) or server `loadOrgPricing`. SQL totals take the org's `OrgPricing`. Currencies never mix.
 - TCGplayer prices below NM come from the condition's SKU market price (`priceByCondition`/`priceFoilByCondition`, per finish in `finishPrices`) when synced, else the NM price times the org's condition multiplier; `cardPriceFor` and `tcgplayerHeadlinePrices` own that choice. SQL totals still use multipliers only.
 - `collection_cards.card` keeps the prices it was saved with: that is the scan-time price (`pricesAtScan`, added on read), so never refresh prices inside it.

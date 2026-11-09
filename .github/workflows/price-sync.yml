@@ -1,0 +1,86 @@
+name: Price Sync
+
+on:
+  # Daily at 04:17 UTC, off the top of the hour since GitHub delays or drops
+  # scheduled runs when load peaks at :00. Never schedule this more than once a
+  # day: tcgcsv blocks installs that poll it harder, and the TCGplayer and Card
+  # Kingdom steps skip any run within 20 hours of their last pull anyway.
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+    inputs:
+      games:
+        description: Comma-separated game keys to sync (blank syncs every game)
+        type: string
+        default: ""
+      force:
+        description: Force a full re-download from every source (use sparingly)
+        type: boolean
+        default: false
+      refresh_only:
+        description: Only rebuild card prices from the stored source prices (no downloads)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: price-sync
+  cancel-in-progress: false
+
+# The sync runs on the runner itself, not on the server: the same script the
+# server image ships, writing straight to the production database. The pull
+# guards live in the database, so they hold across runners. The Discord post
+# goes to a webhook, like the card catalog sync's report.
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment:
+      name: production
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      CARD_API_USER_AGENT: ${{ vars.CARD_API_USER_AGENT }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_PRICE_SYNC_WEBHOOK_URL || secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+    steps:
+      - name: Check secrets
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Set the DATABASE_URL secret in the production environment."
+            exit 1
+          fi
+          if [ -z "$CARD_API_USER_AGENT" ]; then
+            echo "::error::Set the CARD_API_USER_AGENT variable in the production environment."
+            exit 1
+          fi
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "::warning::Neither DISCORD_PRICE_SYNC_WEBHOOK_URL nor DISCORD_DEPLOY_WEBHOOK_URL is set, so the price update won't be posted to Discord."
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install server dependencies
+        run: pnpm install --frozen-lockfile --filter @magic-vault/server...
+
+      - name: Sync prices
+        env:
+          GAMES: ${{ inputs.games }}
+          FORCE: ${{ inputs.force && 'true' || 'false' }}
+          REFRESH_ONLY: ${{ inputs.refresh_only && 'true' || 'false' }}
+        run: |
+          ARGS=()
+          if [ -n "$GAMES" ]; then ARGS+=("--games=$GAMES"); fi
+          if [ "$FORCE" = "true" ]; then ARGS+=("--force"); fi
+          if [ "$REFRESH_ONLY" = "true" ]; then ARGS+=("--refresh-only"); fi
+          pnpm --filter @magic-vault/server exec tsx scripts/sync-prices.ts "${ARGS[@]}"

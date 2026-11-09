@@ -11,6 +11,11 @@ export type DiscordEmbed = {
   fields?: { name: string; value: string; inline?: boolean }[];
 };
 
+export interface DiscordWebhookPayload {
+  allowed_mentions: { parse: [] };
+  embeds: DiscordEmbed[];
+}
+
 export type DiscordNotificationKind = "scan" | "error";
 
 export type DiscordMemberRoleAction = "add" | "remove";
