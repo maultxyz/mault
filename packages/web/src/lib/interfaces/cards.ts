@@ -18,6 +18,7 @@ import type {
   PriceSource,
   ReviewGridCard,
   ScannedCard,
+  PrintingMarkRegion,
 } from "@magic-vault/shared";
 import type { KeyboardEvent, MouseEvent, ReactNode, Ref } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
@@ -89,6 +90,7 @@ export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil?: boolean;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: CardCondition | null;
   className?: string;
 }
@@ -114,6 +116,7 @@ export interface CardImageViewerProps {
   showOcrRegions: boolean;
   onShowOcrRegionsChange?: (show: boolean) => void;
   ocrRegions?: OcrOverlayRegion[];
+  printingMarks?: PrintingMarkRegion[];
 }
 
 export interface PriceTableRow {
@@ -388,12 +391,20 @@ export interface OcrOverlayRegion extends OcrRegion {
 export interface OcrRegionOverlayProps {
   showLabels?: boolean;
   regions?: OcrOverlayRegion[];
+  printingMarks?: PrintingMarkRegion[];
 }
 
 export interface OcrRegionCropsProps {
   src: string;
   className?: string;
   regions?: OcrOverlayRegion[];
+  printingMarks?: PrintingMarkRegion[];
+}
+
+export interface RegionCropProps {
+  src: string;
+  label: string;
+  region: Pick<OcrRegion, "x" | "y" | "width" | "height">;
 }
 
 export interface CardDetailActions {
@@ -401,6 +412,7 @@ export interface CardDetailActions {
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
+  setCardStamp: (scanId: string, stamp: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardLanguage: (scanId: string, language: string) => void;
   setCardTags: (scanId: string, tags: CardTag[], enabled: boolean) => void;
@@ -409,10 +421,12 @@ export interface CardDetailActions {
 export interface ScanDraftOptions {
   scanId?: string;
   savedFoilType: string | null;
+  savedStamp: string | null;
   savedCondition: CardCondition;
   savedLanguage: string;
   savedAcquisitionCost: number | null;
   setCardFoilType: CardDetailActions["setCardFoilType"];
+  setCardStamp: CardDetailActions["setCardStamp"];
   setCardCondition: CardDetailActions["setCardCondition"];
   setCardLanguage: CardDetailActions["setCardLanguage"];
   setCardAcquisitionCost: (scanId: string, cost: number | null) => void;
@@ -443,6 +457,7 @@ export interface CardDetailPanelProps {
   isDownloaded?: boolean;
   isFoil?: boolean;
   foilType?: string;
+  stamp?: string;
   condition?: CardCondition;
   language?: string;
   binNumber?: number;
@@ -645,4 +660,8 @@ export interface UseCardDetailMoveActionsOptions {
 
 export type CardDetailMoveTarget = "location" | "collection";
 
-export type CardDetailAttributePicker = "foil" | "condition" | "language";
+export type CardDetailAttributePicker =
+  | "foil"
+  | "stamp"
+  | "condition"
+  | "language";

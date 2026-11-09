@@ -2,6 +2,7 @@ import {
   CARD_CONDITIONS,
   type CardConditionPrices,
   type CardFinishPrices,
+  type CardStampPrices,
   type PlayingCard,
   type PlayingCardPriceRange,
 } from "@magic-vault/shared";
@@ -16,6 +17,7 @@ import type {
   CardSearchAdapter,
   TcgplayerFinishProduct,
   TcgplayerPricing,
+  TcgplayerStampProduct,
   TcgplayerSubTypes,
 } from "../interfaces/card-search";
 import { median } from "../statistics";
@@ -124,6 +126,33 @@ function finishPricesFor(
   return entries.length > 0 ? Object.fromEntries(entries) : undefined;
 }
 
+function stampPricesFor(
+  stamps: TcgplayerStampProduct[],
+  rangeOf: (productId: number, subTypes: string[]) => PlayingCardPriceRange | undefined,
+  conditionPricesOf: (productId: number, subTypes: string[]) => CardConditionPrices | undefined,
+): Record<string, CardStampPrices> | undefined {
+  const pricesByStamp: Record<string, CardStampPrices> = {};
+  for (const stampProduct of stamps) {
+    const range = rangeOf(stampProduct.productId, stampProduct.subTypes);
+    const marketPrice = range?.market ?? range?.mid ?? null;
+    if (marketPrice == null) continue;
+    const conditionPrices = conditionPricesOf(
+      stampProduct.productId,
+      stampProduct.subTypes,
+    );
+    const prices = pricesByStamp[stampProduct.stamp] ?? {};
+    if (stampProduct.isFoil) {
+      prices.priceFoil = marketPrice;
+      if (conditionPrices) prices.priceFoilByCondition = conditionPrices;
+    } else {
+      prices.price = marketPrice;
+      if (conditionPrices) prices.priceByCondition = conditionPrices;
+    }
+    pricesByStamp[stampProduct.stamp] = prices;
+  }
+  return Object.keys(pricesByStamp).length > 0 ? pricesByStamp : undefined;
+}
+
 function foilOnlyFoilTypeOf(
   pricing: TcgplayerPricing,
   productIds: number[],
@@ -165,10 +194,14 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
   const finishProductsByCard = cards.map(
     (card) => pricing.finishProducts?.(card) ?? [],
   );
+  const stampProductsByCard = cards.map(
+    (card) => pricing.stampProducts?.(card) ?? [],
+  );
   const productIds = [
     ...new Set([
       ...productIdsByCard.flat(),
       ...finishProductsByCard.flat().map((finish) => finish.productId),
+      ...stampProductsByCard.flat().map((stamp) => stamp.productId),
     ]),
   ];
   if (productIds.length === 0) return cards;
@@ -232,7 +265,8 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
         .map((subType) => conditionPricesByKey.get(`${productId}:${subType}:${languageCode}`))
         .find((prices) => prices != null);
     const finishPrices = finishPricesFor(finishProductsByCard[i], rangeOf, conditionPricesOf);
-    if (cardProductIds.length === 0 && !finishPrices) return card;
+    const stampPrices = stampPricesFor(stampProductsByCard[i], rangeOf, conditionPricesOf);
+    if (cardProductIds.length === 0 && !finishPrices && !stampPrices) return card;
 
     const rangeFor = (subTypes: string[]) =>
       combineRanges(
@@ -260,6 +294,7 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       priceRange: range ?? card.priceRange,
       priceRangeFoil: rangeFoil ?? card.priceRangeFoil,
       finishPrices: finishPrices ?? card.finishPrices,
+      stampPrices: stampPrices ?? card.stampPrices,
       priceByCondition: conditionPricesFor(subTypes.price) ?? card.priceByCondition,
       priceFoilByCondition:
         conditionPricesFor(subTypes.priceFoil) ?? card.priceFoilByCondition,

@@ -29,3 +29,18 @@ test("a detected foil uses the card's finish family, then the game's", () => {
 test("a detected foil in a game without finishes is saved as plain foil", () => {
   assert.equal(resolveScanFoilType(card, null, detectedFoil, []), "Foil");
 });
+
+test("a printed foil star counts as a detected foil", () => {
+  assert.equal(
+    resolveScanFoilType(card, null, null, ["Traditional"], { marker: "star" }),
+    "Traditional",
+  );
+  assert.equal(
+    resolveScanFoilType(card, null, notFoil, ["Traditional"], { marker: "dot" }),
+    null,
+  );
+  assert.equal(
+    resolveScanFoilType(card, "Etched", null, ["Traditional"], { marker: "star" }),
+    "Etched",
+  );
+});

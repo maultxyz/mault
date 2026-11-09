@@ -1,6 +1,9 @@
 import { CARD_SEARCH_FIELDS } from "../lib/constants/collections";
 import type { CardPriceDetails } from "../lib/interfaces/card-prices";
-import { REPACK_UNIQUE_BY_PRINTING } from "@magic-vault/shared";
+import {
+  REPACK_UNIQUE_BY_PRINTING,
+  type PrintingMarkGroups,
+} from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
@@ -15,7 +18,9 @@ import {
   pgRole,
   pgTable,
   primaryKey,
+  real,
   serial,
+  smallint,
   text,
   timestamp,
   unique,
@@ -92,6 +97,8 @@ export const cardImageVectors = pgTable(
     colorIdentity: jsonb("color_identity").$type<string[]>(),
     searchText: text("search_text"),
     imageSmall: text("image_small"),
+    printingMarkGroups: jsonb("printing_mark_groups").$type<PrintingMarkGroups>(),
+    printingMarkVersion: smallint("printing_mark_version"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -116,6 +123,33 @@ export const cardImageVectors = pgTable(
       modify: false,
     }),
     apiServiceRead(sql`true`),
+  ],
+).enableRLS();
+
+export const printingMarkReferences = pgTable(
+  "printing_mark_references",
+  {
+    id: serial().primaryKey(),
+    gameKey: text("game_key").notNull(),
+    regionKey: text("region_key").notNull(),
+    groupKey: text("group_key").notNull(),
+    cardCount: integer("card_count").notNull(),
+    sums: real("sums").array().notNull(),
+    squares: real("squares").array().notNull(),
+    version: smallint("version").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("printing_mark_references_group_idx").on(
+      table.gameKey,
+      table.regionKey,
+      table.groupKey,
+    ),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
   ],
 ).enableRLS();
 
@@ -667,6 +701,7 @@ export const collectionCards = pgTable(
     capturedBackImageKey: text("captured_back_image_key"),
     isFoil: boolean("is_foil").notNull().default(false),
     foilType: text("foil_type"),
+    stamp: text("stamp"),
     condition: text("condition").notNull().default("NM"),
     language: text("language"),
     isDownloaded: boolean("is_downloaded").notNull().default(false),

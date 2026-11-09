@@ -1,4 +1,7 @@
-import type { CardSearchEmbeddings } from "@magic-vault/shared";
+import {
+  decodePrintingMarkGrids,
+  type CardSearchEmbeddings,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
 import {
   findBestMatchAcrossGames,
@@ -49,6 +52,10 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
       parseMatchGameKeys(body["matchGameKeys"]),
     );
     const preferredSetCodes = parsePreferredSetCodes(body);
+    const printingMarksGameKey =
+      typeof body["printingMarksGameKey"] === "string"
+        ? body["printingMarksGameKey"]
+        : null;
 
     try {
       const { result, scope } = await findBestMatchAcrossGames(
@@ -59,6 +66,13 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
             embeddings,
             preferredSetCodes,
             skipsUnloadedIndex: matchScope.gameKey !== resolved.gameKey,
+            printingMarkGrids:
+              matchScope.gameKey === printingMarksGameKey
+                ? decodePrintingMarkGrids(
+                    body["printingMarks"],
+                    matchScope.gameKey,
+                  )
+                : null,
           }),
       );
       const attached = await attachMatchedCards(

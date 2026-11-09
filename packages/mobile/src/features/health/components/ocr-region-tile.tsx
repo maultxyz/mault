@@ -1,3 +1,4 @@
+import { printingMarkRegionsFor } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { useState } from "react";
@@ -24,6 +25,7 @@ export function OcrRegionTile({ gameKey, name, lang, regions, width }: OcrRegion
   const sample = useQuery(sampleCardQueryOptions(gameKey, lang, sampleIndex));
   const card = sample.data;
   const imageUrl = absoluteUrl(card?.image?.normal ?? card?.image?.small);
+  const printingMarks = printingMarkRegionsFor(gameKey, card);
 
   return (
     <View style={{ width, gap: SPACING.sm }}>
@@ -74,6 +76,22 @@ export function OcrRegionTile({ gameKey, name, lang, regions, width }: OcrRegion
             }}
           />
         ))}
+        {printingMarks.map((mark) => (
+          <View
+            key={mark.key}
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              left: `${mark.x * 100}%`,
+              top: `${mark.y * 100}%`,
+              width: `${mark.width * 100}%`,
+              height: `${mark.height * 100}%`,
+              borderWidth: 1,
+              borderColor: colors.infoStrong,
+              backgroundColor: `${colors.info}1a`,
+            }}
+          />
+        ))}
       </View>
       {card ? (
         <AppText size="2xs" tone="secondary" numberOfLines={1}>
@@ -98,6 +116,21 @@ export function OcrRegionTile({ gameKey, name, lang, regions, width }: OcrRegion
                 y: percent(region.y),
                 width: percent(region.width),
                 height: percent(region.height),
+              })}
+            </AppText>
+          </View>
+        ))}
+        {printingMarks.map((mark) => (
+          <View key={mark.key}>
+            <AppText size="2xs" weight="medium">
+              {`${t(`health.printingMarks.${mark.key}`)} · ${t("health.ocrRegions.printingMark")}`}
+            </AppText>
+            <AppText size="2xs" tone="secondary">
+              {t("health.ocrRegions.coords", {
+                x: percent(mark.x),
+                y: percent(mark.y),
+                width: percent(mark.width),
+                height: percent(mark.height),
               })}
             </AppText>
           </View>

@@ -737,6 +737,7 @@ export function CardGrid() {
         storageLocation={openEntry.storageLocation}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
+        stamp={openEntry.stamp}
         condition={openEntry.condition}
         language={openEntry.language}
         binNumber={openEntry.binNumber}

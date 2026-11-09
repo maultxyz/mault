@@ -1755,6 +1755,13 @@
               "null"
             ]
           },
+          "stamp": {
+            "description": "The printed stamp on this copy, such as 1st Edition, when recorded.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "condition": {
             "type": "string",
             "enum": [
@@ -1829,6 +1836,7 @@
           "game",
           "finish",
           "foil_type",
+          "stamp",
           "condition",
           "prices",
           "purchase_uris",

@@ -15,6 +15,8 @@ import type {
   ScanDetectionDiagnostics,
   ScanMatchSource,
   ScanRegion,
+  StampDetection,
+  PrintedFoilMarkerDetection,
 } from "@magic-vault/shared";
 import type { CardMatchSearchResult } from "./card-search";
 import type { SorterLink } from "../pi-scan/sorter-link";
@@ -47,6 +49,7 @@ export interface PiScanRunContext {
   highAccuracyScans: boolean;
   cardThickness: number | null;
   fieldDefinitions: FieldMeta[];
+  foilTypes: string[];
   gameGuid: string;
   set: BinSet;
   configs: BinConfig[];
@@ -101,6 +104,8 @@ export interface PiScanFrameMatch {
   colorVariantUncertain: boolean;
   detection: ScanDetectionDiagnostics;
   detectedColor: string | null;
+  stampDetection: StampDetection | null;
+  printedFoilMarker: PrintedFoilMarkerDetection | null;
 }
 
 export interface PiScanStartInput {

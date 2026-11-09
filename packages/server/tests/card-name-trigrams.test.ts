@@ -21,6 +21,7 @@ test("similar names return every printing above the threshold", () => {
     setCode: "set",
     collectorNumber: null,
     rarePrinting: false,
+    promoPrinting: false,
     embedding,
     backEmbedding: null,
   });

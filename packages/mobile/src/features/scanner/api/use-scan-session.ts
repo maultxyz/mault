@@ -27,7 +27,8 @@ import {
   resolveScanBin,
   SERIAL_JAM_ERROR,
   type SerialReply,
-  scanFoilType,
+  resolveScanFoilType,
+  detectedStampOf,
   toRuleCard,
   withScanRuleFields,
   isCardFromOtherGame,
@@ -528,8 +529,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         pause("bin-data-unavailable");
         return;
       }
-      const forcedFoil = scanFoilType(card, forcedFoilTypeRef.current);
-      const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil });
+      const forcedFoil = resolveScanFoilType(
+        card,
+        forcedFoilTypeRef.current,
+        null,
+        ctx.collection.game?.foilTypes ?? [],
+        outcome.matched?.diagnostics.printedFoilMarker,
+      );
+      const stamp = detectedStampOf(outcome.matched?.diagnostics.stampDetection);
+      const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil, stamp });
       const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;
       const routingContext: ScanRoutingContext = {
         binSet: ctx.set,
@@ -562,6 +570,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         vectorizedOn: "web",
         isFoil: forcedFoil != null || undefined,
         foilType: forcedFoil ?? undefined,
+        stamp: stamp ?? undefined,
         condition: scanConditionRef.current,
       };
       if (record.binNumber != null) {
@@ -782,6 +791,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
           checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
           ocrMode: scanOcrMode(ctx.orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
           colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
+          gameKey: gameKey || null,
         },
         device?.scanRegion ?? DEFAULT_SCAN_REGION,
       );

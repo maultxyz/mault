@@ -774,6 +774,8 @@
     "similarMatchesHint": "Mehrere ähnliche Treffer. Tippe auf die richtige Version.",
     "thisScan": "Dieser Scan",
     "foilNone": "Kein Foil",
+    "stamp": "Stempel",
+    "stampNone": "Kein Stempel",
     "condition": "Bedingung",
     "language": "Sprache",
     "allLanguages": "Alle Sprachen",
@@ -1885,9 +1887,10 @@
     "pausedDuringSync": "Pausiert, während eine Datenbanksynchronisierung läuft",
     "ocrRegions": {
       "heading": "OCR-Bereiche",
-      "description": "Wo auf den Karten jedes Spiels Text gelesen wird, wenn OCR aktiv ist, gezeigt auf einer Beispielkarte aus der Datenbank. Durchgezogene Rahmen werden zuerst gelesen, gestrichelte Ausweichbereiche nur, wenn der erste Durchgang die Karte nicht findet.",
+      "description": "Wo auf den Karten jedes Spiels Text gelesen wird, wenn OCR aktiv ist, gezeigt auf einer Beispielkarte aus der Datenbank. Durchgezogene Rahmen werden zuerst gelesen, gestrichelte Ausweichbereiche nur, wenn der erste Durchgang die Karte nicht findet. Druckmerkmale werden mit dem Katalogbild jedes Drucks verglichen, um Drucke derselben Karte zu unterscheiden.",
       "fallback": "Ausweichbereich",
       "multiline": "mehrzeilig",
+      "printingMark": "Druckmerkmal",
       "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %",
       "anotherCard": "Andere Karte zeigen",
       "sample": "{{name}} · {{set}} #{{number}}"
@@ -1911,6 +1914,17 @@
       "lastUpdated": "Aktualisiert am {{date}}",
       "inactive": "Inaktiv",
       "empty": "Noch keine Spiele konfiguriert"
+    },
+    "printingMarks": {
+      "title": "Druckmerkmale",
+      "setSymbol": "Set-Symbol",
+      "artStamp": "Promo-Stempel",
+      "listIcon": "The-List-Symbol",
+      "pitch": "Pitch-Punkte",
+      "editionMarker": "Editionsmarkierung",
+      "setCodeAndRegulationMark": "Set-Code und Regulierungszeichen",
+      "firstEditionStamp": "1st-Edition-Stempel",
+      "foilMarker": "Foil-Stern"
     },
     "ocrFields": {
       "name": "Name",

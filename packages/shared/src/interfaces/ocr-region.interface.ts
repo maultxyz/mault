@@ -34,6 +34,7 @@ export interface OcrDiagnostics {
   printingConfirmed?: boolean;
   usedFallback?: boolean;
   regions?: OcrReadRegion[];
+  printedPromo?: boolean | null;
 }
 
 export interface ColorBarBox {

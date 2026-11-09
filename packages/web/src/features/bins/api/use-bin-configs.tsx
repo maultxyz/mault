@@ -192,6 +192,7 @@ export function BinConfigsProvider({
           foilOption: t("scanRuleFields.foilOption"),
           nonFoilOption: t("scanRuleFields.nonFoilOption"),
           game: t("scanRuleFields.game"),
+          stamp: t("scanRuleFields.stamp"),
         },
         matchedGameOptions,
       ),

@@ -33,6 +33,7 @@ import {
   getRepackPackBins,
   hasMaxCopiesBins,
   resolveScanFoilType,
+  detectedStampOf,
   toRuleCard,
   UNMATCHED_PREVIEW_COUNT,
   withCardTags,
@@ -65,6 +66,7 @@ import {
   setCollectionCardBin,
   setCollectionCardsCondition,
   setCollectionCardLanguage,
+  setCollectionCardStamp,
   setCollectionCardsFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -728,10 +730,13 @@ export function ScannedCardsProvider({
         forceFoilTypeRef.current,
         details?.diagnostics.foilDetection,
         collection.game?.foilTypes ?? [],
+        details?.diagnostics.printedFoilMarker,
       );
+      const stamp = detectedStampOf(details?.diagnostics.stampDetection);
       const ruleCard = toRuleCard(card, {
         isFoil: forcedFoilType != null,
         foilType: forcedFoilType,
+        stamp,
       });
       const decision = resolveScanBin(ruleCard, scanRoutingContext());
       if (decision.action === "pause") {
@@ -774,6 +779,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forcedFoilType != null || undefined,
         foilType: forcedFoilType ?? undefined,
+        stamp: stamp ?? undefined,
         condition: scanConditionRef.current,
         lowConfidenceMatch: details?.lowConfidenceMatch || isLowMatch || undefined,
         vectorizedOn,
@@ -1592,6 +1598,25 @@ export function ScannedCardsProvider({
     [setCardsCondition],
   );
 
+  const setCardStamp = useCallback(
+    (scanId: string, stamp: string | null) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({ ...entry, stamp: stamp ?? undefined }),
+      );
+      setCollectionCardStamp(collection.guid, scanId, stamp)
+        .catch((err) => console.error("Failed to update stamp:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
   const setCardLanguage = useCallback(
     (scanId: string, language: string) => {
       const collection = activeCollectionRef.current;
@@ -1713,6 +1738,7 @@ export function ScannedCardsProvider({
         setCardCondition,
         setCardsCondition,
         setCardLanguage,
+        setCardStamp,
         setCardsTags,
         clearCards,
       }}

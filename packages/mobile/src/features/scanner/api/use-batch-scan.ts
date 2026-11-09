@@ -7,6 +7,8 @@ import {
   DEFAULT_SCAN_REGION,
   OCR_REGIONS_BY_GAME_KEY,
   type PlayingCard,
+  resolveScanFoilType,
+  detectedStampOf,
   type ScannedCard,
   scanOcrMode,
 } from "@magic-vault/shared";
@@ -75,6 +77,7 @@ export function useBatchScan(initialMode: BatchScanMode) {
         checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
         ocrMode: scanOcrMode(orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
         colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
+        gameKey: gameKey || null,
       };
       for (const [index, card] of found.entries()) {
         if (!isCurrentRun()) return;
@@ -136,6 +139,13 @@ export function useBatchScan(initialMode: BatchScanMode) {
         const outcome = card.outcome;
         const matchedCard = card.correctedCard ?? outcome?.card ?? null;
         if (matchedCard) {
+          const foilType = resolveScanFoilType(
+            matchedCard,
+            null,
+            null,
+            collection.game?.foilTypes ?? [],
+            outcome?.matched?.diagnostics.printedFoilMarker,
+          );
           const record: ScannedCard = {
             scanId,
             card: { ...matchedCard, distance: outcome?.card?.distance ?? 0, confidence: outcome?.card?.confidence ?? 1 },
@@ -146,6 +156,11 @@ export function useBatchScan(initialMode: BatchScanMode) {
             lowConfidenceMatch: (!card.correctedCard && outcome?.matched?.lowConfidenceMatch) || undefined,
             corrected: card.correctedCard ? true : undefined,
             vectorizedOn: "web",
+            isFoil: foilType != null || undefined,
+            foilType: foilType ?? undefined,
+            stamp: card.correctedCard
+              ? undefined
+              : (detectedStampOf(outcome?.matched?.diagnostics.stampDetection) ?? undefined),
           };
           return saveCard({
             orgId,

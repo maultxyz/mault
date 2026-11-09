@@ -235,6 +235,16 @@ export async function setCollectionCardLanguage(
   });
 }
 
+export async function setCollectionCardStamp(
+  guid: string,
+  scanId: string,
+  stamp: string | null,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
+    stamp,
+  });
+}
+
 export async function fetchCollectionCardCopies(
   guid: string,
   cardIds: string[],

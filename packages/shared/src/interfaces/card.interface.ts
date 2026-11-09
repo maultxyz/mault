@@ -58,9 +58,17 @@ export type CardFinishPrices = Partial<
   >
 >;
 
+export type CardStampPrices = Partial<
+  Pick<
+    PlayingCard,
+    "price" | "priceFoil" | "priceByCondition" | "priceFoilByCondition"
+  >
+>;
+
 export interface CardFinish {
   isFoil?: boolean | null;
   foilType?: string | null;
+  stamp?: string | null;
 }
 
 export interface PlayingCard {
@@ -96,6 +104,8 @@ export interface PlayingCard {
   foilTypes?: string[];
   foilOnlyFoilType?: string;
   finishPrices?: Record<string, CardFinishPrices>;
+  stamps?: string[];
+  stampPrices?: Record<string, CardStampPrices>;
   purchaseLinks?: CardPurchaseLinks;
   sourceUrl?: string;
   tcgplayerId?: string;

@@ -390,7 +390,8 @@
     "marketValueUsd": "Market value (USD)",
     "marketValueEur": "Market value (EUR)",
     "collectorNumber": "Collector number (numeric)",
-    "game": "Game"
+    "game": "Game",
+    "stamp": "Stamp"
   },
   "pickList": {
     "modeLabel": "When a card is found",

@@ -3,15 +3,43 @@ import { MTG_ASPECT_RATIO } from "@/lib/constants/scanner";
 import type {
   OcrOverlayRegion,
   OcrRegionCropsProps,
+  RegionCropProps,
 } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
+function RegionCrop({ src, label, region }: RegionCropProps) {
+  return (
+    <figure className="flex flex-col gap-1.5">
+      <figcaption className="text-xs font-medium">{label}</figcaption>
+      <div
+        className="relative w-full overflow-hidden rounded-md border bg-muted"
+        style={{
+          aspectRatio: `${(region.width * MTG_ASPECT_RATIO) / region.height}`,
+        }}
+      >
+        <img
+          src={src}
+          alt={label}
+          className="absolute max-w-none object-fill"
+          style={{
+            width: `${100 / region.width}%`,
+            height: `${100 / region.height}%`,
+            left: `${(-region.x / region.width) * 100}%`,
+            top: `${(-region.y / region.height) * 100}%`,
+          }}
+        />
+      </div>
+    </figure>
+  );
+}
+
 export function OcrRegionCrops({
   src,
   className,
   regions: regionsOverride,
+  printingMarks = [],
 }: OcrRegionCropsProps) {
   const { t } = useTranslation("cards");
   const collection = useCardDetailCollection();
@@ -20,7 +48,7 @@ export function OcrRegionCrops({
     regionsOverride ??
     (gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : []);
 
-  if (regions.length === 0) {
+  if (regions.length === 0 && printingMarks.length === 0) {
     return (
       <p className="text-xs text-foreground/70">
         {t("cardDetailPanel.noOcrRegions")}
@@ -28,40 +56,37 @@ export function OcrRegionCrops({
     );
   }
 
+  const regionLabel = (region: OcrOverlayRegion) => {
+    const field = t(`cardDetailPanel.ocrFields.${region.field}`);
+    if (region.fallback) return t("cardDetailPanel.ocrFallback", { field });
+    if (region.anchored === false) {
+      return t("cardDetailPanel.ocrFixedBox", { field });
+    }
+    return field;
+  };
+
   return (
     <div className={cn("flex flex-col gap-3", className)}>
       {regions.map((region, i) => (
-        <figure key={`${region.field}-${i}`} className="flex flex-col gap-1.5">
-          <figcaption className="text-xs font-medium">
-            {region.fallback
-              ? t("cardDetailPanel.ocrFallback", {
-                  field: t(`cardDetailPanel.ocrFields.${region.field}`),
-                })
-              : region.anchored === false
-                ? t("cardDetailPanel.ocrFixedBox", {
-                    field: t(`cardDetailPanel.ocrFields.${region.field}`),
-                  })
-                : t(`cardDetailPanel.ocrFields.${region.field}`)}
-          </figcaption>
-          <div
-            className="relative w-full overflow-hidden rounded-md border bg-muted"
-            style={{
-              aspectRatio: `${(region.width * MTG_ASPECT_RATIO) / region.height}`,
-            }}
-          >
-            <img
-              src={src}
-              alt={t(`cardDetailPanel.ocrFields.${region.field}`)}
-              className="absolute max-w-none object-fill"
-              style={{
-                width: `${100 / region.width}%`,
-                height: `${100 / region.height}%`,
-                left: `${(-region.x / region.width) * 100}%`,
-                top: `${(-region.y / region.height) * 100}%`,
-              }}
-            />
-          </div>
-        </figure>
+        <RegionCrop
+          key={`${region.field}-${i}`}
+          src={src}
+          label={regionLabel(region)}
+          region={region}
+        />
+      ))}
+      {printingMarks.length > 0 && (
+        <p className="text-xs text-foreground/70">
+          {t("cardDetailPanel.printingMarks.title")}
+        </p>
+      )}
+      {printingMarks.map((mark) => (
+        <RegionCrop
+          key={mark.key}
+          src={src}
+          label={t(`cardDetailPanel.printingMarks.${mark.key}`)}
+          region={mark}
+        />
       ))}
     </div>
   );

@@ -774,6 +774,8 @@
     "similarMatchesHint": "Several close matches. Tap the right version.",
     "thisScan": "This scan",
     "foilNone": "Not foil",
+    "stamp": "Stamp",
+    "stampNone": "No stamp",
     "condition": "Condition",
     "language": "Language",
     "allLanguages": "All languages",
@@ -1885,9 +1887,10 @@
     "pausedDuringSync": "Paused while a database sync is running",
     "ocrRegions": {
       "heading": "OCR regions",
-      "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card.",
+      "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card. Printing marks are compared against each printing's catalog image to tell printings of the same card apart.",
       "fallback": "fallback",
       "multiline": "multiline",
+      "printingMark": "printing mark",
       "coords": "x {{x}}%, y {{y}}%, {{width}} × {{height}}%",
       "anotherCard": "Show another card",
       "sample": "{{name}} · {{set}} #{{number}}"
@@ -1911,6 +1914,17 @@
       "lastUpdated": "Updated {{date}}",
       "inactive": "Inactive",
       "empty": "No games configured yet"
+    },
+    "printingMarks": {
+      "title": "Printing marks",
+      "setSymbol": "Set symbol",
+      "artStamp": "Promo stamp",
+      "listIcon": "The List icon",
+      "pitch": "Pitch dots",
+      "editionMarker": "Edition marker",
+      "setCodeAndRegulationMark": "Set code and regulation mark",
+      "firstEditionStamp": "1st Edition stamp",
+      "foilMarker": "Foil star"
     },
     "ocrFields": {
       "name": "Name",

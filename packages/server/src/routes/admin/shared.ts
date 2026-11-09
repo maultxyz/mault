@@ -8,18 +8,52 @@ import { publicGamesCache } from "../../lib/public-games";
 import { vectorizeCardImage } from "../../lib/vectorize";
 import { storedCollectorNumber } from "../../lib/card-search/collector-number";
 import { catalogColumnsFor } from "../../lib/card-catalog";
+import {
+  addToPrintingMarkBatch,
+  persistPrintingMarkBatch,
+  printingMarkColumns,
+  readCatalogPrintingMarks,
+} from "../../lib/printing-marks/catalog";
+import { PRINTING_MARK_VERSION } from "../../lib/constants/printing-marks";
+import type {
+  CatalogPrintingMarks,
+  PrintingMarkBatch,
+} from "../../lib/interfaces/printing-marks";
+
+async function fetchPortraitImage(
+  url: string,
+  headers: Record<string, string>,
+): Promise<Buffer | null> {
+  const imageRes = await fetch(url, { headers });
+  if (!imageRes.ok) return null;
+  return toPortraitCardImage(Buffer.from(await imageRes.arrayBuffer()));
+}
 
 async function embedImageUrl(
   url: string,
   headers: Record<string, string>,
 ): Promise<number[] | null> {
-  const imageRes = await fetch(url, { headers });
-  if (!imageRes.ok) return null;
-  const buffer = await toPortraitCardImage(
-    Buffer.from(await imageRes.arrayBuffer()),
-  );
+  const buffer = await fetchPortraitImage(url, headers);
+  if (!buffer) return null;
   const { embedding } = await vectorizeCardImage(buffer);
   return embedding;
+}
+
+async function embedFrontImageUrl(
+  gameKey: string,
+  lang: string,
+  cardId: string,
+  data: unknown,
+  url: string,
+  headers: Record<string, string>,
+): Promise<{ embedding: number[]; marks: CatalogPrintingMarks | null } | null> {
+  const buffer = await fetchPortraitImage(url, headers);
+  if (!buffer) return null;
+  const [{ embedding }, marks] = await Promise.all([
+    vectorizeCardImage(buffer),
+    readCatalogPrintingMarks(gameKey, lang, cardId, data, buffer),
+  ]);
+  return { embedding, marks };
 }
 
 export async function syncOneCard(
@@ -57,12 +91,27 @@ export async function syncOneCard(
     };
   }
 
-  const embedding =
-    (await embedImageUrl(card.imageUrl, source.fetchHeaders)) ??
+  const data: unknown = JSON.parse(card.data);
+  const front =
+    (await embedFrontImageUrl(
+      gameKey,
+      lang,
+      cardId,
+      data,
+      card.imageUrl,
+      source.fetchHeaders,
+    )) ??
     (card.fallbackImageUrl && card.fallbackImageUrl !== card.imageUrl
-      ? await embedImageUrl(card.fallbackImageUrl, source.fetchHeaders)
+      ? await embedFrontImageUrl(
+          gameKey,
+          lang,
+          cardId,
+          data,
+          card.fallbackImageUrl,
+          source.fetchHeaders,
+        )
       : null);
-  if (!embedding) {
+  if (!front) {
     return {
       success: false,
       message: `Failed to download card image (GET ${card.imageUrl})`,
@@ -72,41 +121,56 @@ export async function syncOneCard(
   const backEmbedding = card.backImageUrl
     ? await embedImageUrl(card.backImageUrl, source.fetchHeaders)
     : null;
-  const data: unknown = JSON.parse(card.data);
   const collectorNumber = storedCollectorNumber(gameKey, lang, cardId, data);
   const catalog = catalogColumnsFor(gameKey, lang, cardId, data);
 
-  await db
-    .insert(cardImageVectors)
-    .values({
-      cardId,
-      gameKey,
-      lang,
-      name: card.name,
-      setCode: card.setCode,
-      collectorNumber,
-      embedding,
-      backEmbedding,
-      data: sql`${card.data}::jsonb`,
-      ...catalog,
-    })
-    .onConflictDoUpdate({
-      target: [
-        cardImageVectors.gameKey,
-        cardImageVectors.lang,
-        cardImageVectors.cardId,
-      ],
-      set: {
+  const markColumns = printingMarkColumns(gameKey, front.marks);
+  await db.transaction(async (tx) => {
+    const existing = await tx
+      .select({ version: cardImageVectors.printingMarkVersion })
+      .from(cardImageVectors)
+      .where(
+        sql`${cardImageVectors.gameKey} = ${gameKey} AND ${cardImageVectors.lang} = ${lang} AND ${cardImageVectors.cardId} = ${cardId}`,
+      );
+    const markBatch: PrintingMarkBatch = new Map();
+    if (existing[0]?.version !== PRINTING_MARK_VERSION) {
+      addToPrintingMarkBatch(markBatch, front.marks);
+    }
+    await tx
+      .insert(cardImageVectors)
+      .values({
+        cardId,
+        gameKey,
+        lang,
         name: card.name,
         setCode: card.setCode,
         collectorNumber,
-        embedding,
+        embedding: front.embedding,
         backEmbedding,
         data: sql`${card.data}::jsonb`,
         ...catalog,
-        updatedAt: new Date(),
-      },
-    });
+        ...markColumns,
+      })
+      .onConflictDoUpdate({
+        target: [
+          cardImageVectors.gameKey,
+          cardImageVectors.lang,
+          cardImageVectors.cardId,
+        ],
+        set: {
+          name: card.name,
+          setCode: card.setCode,
+          collectorNumber,
+          embedding: front.embedding,
+          backEmbedding,
+          data: sql`${card.data}::jsonb`,
+          ...catalog,
+          ...markColumns,
+          updatedAt: new Date(),
+        },
+      });
+    await persistPrintingMarkBatch(tx, gameKey, markBatch);
+  });
   publicGamesCache.invalidate();
   invalidateCardMatchIndex(gameKey);
 

@@ -6,6 +6,7 @@ import IconAlertTriangle from "@tabler/icons-react-native/IconAlertTriangle";
 import IconArrowDown from "@tabler/icons-react-native/IconArrowDown";
 import IconArrowsSplit2 from "@tabler/icons-react-native/IconArrowsSplit2";
 import IconBell from "@tabler/icons-react-native/IconBell";
+import IconStar from "@tabler/icons-react-native/IconStar";
 import IconClock from "@tabler/icons-react-native/IconClock";
 import IconArrowsShuffle from "@tabler/icons-react-native/IconArrowsShuffle";
 import IconSwitchHorizontal from "@tabler/icons-react-native/IconSwitchHorizontal";
@@ -125,6 +126,7 @@ export const ICONS = {
   filter: IconFilter,
   condition: IconShieldCheck,
   sparkles: IconSparkles,
+  stamp: IconStar,
   selfTest: IconChecks,
   sorter: IconCpu,
   stats: IconChartBar,

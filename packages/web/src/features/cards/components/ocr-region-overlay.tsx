@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 export function OcrRegionOverlay({
   showLabels = false,
   regions: regionsOverride,
+  printingMarks = [],
 }: OcrRegionOverlayProps) {
   const { t } = useTranslation("cards");
   const collection = useCardDetailCollection();
@@ -18,7 +19,7 @@ export function OcrRegionOverlay({
     regionsOverride ??
     (gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : []);
 
-  if (regions.length === 0) return null;
+  if (regions.length === 0 && printingMarks.length === 0) return null;
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -60,6 +61,24 @@ export function OcrRegionOverlay({
           </div>
         );
       })}
+      {printingMarks.map((mark) => (
+        <div
+          key={mark.key}
+          className="absolute border border-info-strong bg-info/10"
+          style={{
+            left: `${mark.x * 100}%`,
+            top: `${mark.y * 100}%`,
+            width: `${mark.width * 100}%`,
+            height: `${mark.height * 100}%`,
+          }}
+        >
+          {showLabels && (
+            <span className="absolute left-0 top-full mt-px whitespace-nowrap rounded-sm bg-info-strong px-1 text-2xs font-medium leading-tight text-white">
+              {t(`cardDetailPanel.printingMarks.${mark.key}`)}
+            </span>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

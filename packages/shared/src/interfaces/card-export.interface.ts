@@ -32,13 +32,14 @@ export interface GroupedEntry {
   quantity: number;
   isFoil: boolean;
   foilType?: string;
+  stamp?: string;
   condition: CardCondition;
   language: string;
 }
 
 export type GroupBy = "card" | "card-foil";
 
-export type ExportableCard = Pick<ScannedCard, "card" | "isFoil" | "foilType" | "condition" | "language">;
+export type ExportableCard = Pick<ScannedCard, "card" | "isFoil" | "foilType" | "stamp" | "condition" | "language">;
 
 export interface ExportAdapter {
   key: string;

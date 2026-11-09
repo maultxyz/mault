@@ -103,6 +103,8 @@ import {
   type CardCondition,
   type PlayingCard,
   type PlayingCardWithDistance,
+  cardStampOptionsFor,
+  printingMarkRegionsFor,
 } from "@magic-vault/shared";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { usePersistedFlag } from "@/hooks/use-persisted-state";
@@ -123,6 +125,7 @@ import {
   IconPencil,
   IconRosette,
   IconSparkles,
+  IconStar,
   IconSwitchHorizontal,
   IconTrash,
   IconX,
@@ -166,6 +169,7 @@ export function CardDetailPanel({
   storageLocation,
   isFoil = false,
   foilType,
+  stamp,
   condition,
   language,
   binNumber,
@@ -217,6 +221,7 @@ export function CardDetailPanel({
     confirmCard,
     markCardReviewed,
     setCardFoilType,
+    setCardStamp,
     setCardCondition,
     setCardLanguage,
   } = useCardDetailActions();
@@ -254,15 +259,18 @@ export function CardDetailPanel({
   const scanDraft = useScanDraft({
     scanId,
     savedFoilType: foilType ?? (isFoil ? t("foil") : null),
+    savedStamp: stamp ?? null,
     savedCondition: toCardCondition(condition),
     savedLanguage: scanLanguage({ language, card: currentCard ?? {} }),
     savedAcquisitionCost: acquisitionCost?.cost ?? null,
     setCardFoilType,
+    setCardStamp,
     setCardCondition,
     setCardLanguage,
     setCardAcquisitionCost: saveCardAcquisitionCost,
   });
   const currentFoilType = scanDraft.foilType;
+  const currentStamp = scanDraft.stamp;
   const currentCondition = scanDraft.condition;
   const currentLanguage = scanDraft.language;
   const languageOptions: string[] = isCardLanguage(currentLanguage)
@@ -307,9 +315,13 @@ export function CardDetailPanel({
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useScanImage(collection?.guid, scanId);
-  const { data: capturedBackImageUrl } = useScanBackImage(collection?.guid, scanId);
+  const { data: capturedBackImageUrl } = useScanBackImage(
+    collection?.guid,
+    scanId,
+  );
   const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
-  const showsCapturedBackSide = !!capturedBackImageUrl && backSideScanId === scanId;
+  const showsCapturedBackSide =
+    !!capturedBackImageUrl && backSideScanId === scanId;
   const shownCapturedImageUrl = showsCapturedBackSide
     ? capturedBackImageUrl
     : capturedImageUrl;
@@ -401,6 +413,10 @@ export function CardDetailPanel({
 
   const selectedCard =
     candidates.find((c) => c.id === selectedId) ?? currentCard;
+  const printingMarks = printingMarkRegionsFor(
+    collection?.game?.key,
+    selectedCard,
+  );
   const hasMultipleCandidates = candidates.length > 1;
   const isMatchChosen = isReviewed || wasCorrected;
   const isViewing = !!currentCard && !editing;
@@ -412,12 +428,13 @@ export function CardDetailPanel({
   const conditionTriggerRef = useRef<HTMLButtonElement>(null);
   const languageTriggerRef = useRef<HTMLButtonElement>(null);
   const foilSelectId = useId();
+  const stampSelectId = useId();
   const conditionSelectId = useId();
   const languageSelectId = useId();
   const conditionPrice = selectedCard
     ? priceOf(
         selectedCard,
-        { isFoil: draftIsFoil, foilType: currentFoilType },
+        { isFoil: draftIsFoil, foilType: currentFoilType, stamp: currentStamp },
         currentCondition,
       )
     : null;
@@ -426,7 +443,7 @@ export function CardDetailPanel({
     !!selectedCard &&
     tcgplayerConditionPriceFor(
       selectedCard,
-      { isFoil: draftIsFoil, foilType: currentFoilType },
+      { isFoil: draftIsFoil, foilType: currentFoilType, stamp: currentStamp },
       currentCondition,
     ) != null;
   const cardFoilOptions = cardFoilTypeOptions(
@@ -434,6 +451,7 @@ export function CardDetailPanel({
     selectedCard,
     currentFoilType,
   );
+  const cardStampOptions = cardStampOptionsFor(selectedCard, currentStamp);
   const conditionHandler = (value: CardCondition) =>
     isViewing && scanId ? () => scanDraft.setCondition(value) : undefined;
 
@@ -548,7 +566,12 @@ export function CardDetailPanel({
     <>
       {showCapturedImageSlot && (
         <figure className="flex min-w-0 flex-col gap-1.5">
-          <div className={cn("flex items-center justify-between gap-1.5", imageWidthClass)}>
+          <div
+            className={cn(
+              "flex items-center justify-between gap-1.5",
+              imageWidthClass,
+            )}
+          >
             <figcaption className="text-xs text-foreground/70">
               {showsCapturedBackSide
                 ? t("cardDetailPanel.capturedBackSide")
@@ -564,7 +587,9 @@ export function CardDetailPanel({
                       aria-label={toggleCapturedSideLabel}
                       aria-pressed={showsCapturedBackSide}
                       onClick={() =>
-                        setBackSideScanId(showsCapturedBackSide ? null : (scanId ?? null))
+                        setBackSideScanId(
+                          showsCapturedBackSide ? null : (scanId ?? null),
+                        )
                       }
                     >
                       <IconSwitchHorizontal />
@@ -588,13 +613,17 @@ export function CardDetailPanel({
           >
             {capturedImage}
             {shownOcrRegionsVisible && capturedImageUrl && (
-              <OcrRegionOverlay regions={readOcrRegions} />
+              <OcrRegionOverlay
+                regions={readOcrRegions}
+                printingMarks={printingMarks}
+              />
             )}
           </button>
           {shownOcrRegionsVisible && capturedImageUrl && (
             <OcrRegionCrops
               src={capturedImageUrl}
               regions={readOcrRegions}
+              printingMarks={printingMarks}
               className={cn(imageWidthClass, "mt-1.5")}
             />
           )}
@@ -619,12 +648,16 @@ export function CardDetailPanel({
           />
           {draftIsFoil && <FoilOverlay />}
           {ocrRegionsVisible && selectedCard?.image?.normal && (
-            <OcrRegionOverlay regions={fixedOcrRegions} />
+            <OcrRegionOverlay
+              regions={fixedOcrRegions}
+              printingMarks={printingMarks}
+            />
           )}
         </div>
         {ocrRegionsVisible && selectedCard?.image?.normal && (
           <OcrRegionCrops
             regions={fixedOcrRegions}
+            printingMarks={printingMarks}
             src={selectedCard.image.normal}
             className={cn(imageWidthClass, "mt-1.5")}
           />
@@ -780,6 +813,32 @@ export function CardDetailPanel({
           </SelectContent>
         </Select>
       </div>
+      {cardStampOptions.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={stampSelectId}>{t("stamp")}</Label>
+          <Select
+            value={currentStamp ?? "none"}
+            onValueChange={(value) => {
+              if (scanId) {
+                scanDraft.setStamp(value === "none" ? null : value);
+              }
+            }}
+            disabled={!scanId}
+          >
+            <SelectTrigger id={stampSelectId} className="w-40 max-md:w-full">
+              <SelectValue placeholder={t("stampNone")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{t("stampNone")}</SelectItem>
+              {cardStampOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={conditionSelectId}>
           {t("condition.label")}
@@ -880,6 +939,7 @@ export function CardDetailPanel({
           showOcrRegions={shownOcrRegionsVisible}
           onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}
           ocrRegions={readOcrRegions}
+          printingMarks={printingMarks}
         />
       )}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
@@ -972,6 +1032,11 @@ export function CardDetailPanel({
                 {scanId && currentFoilType && (
                   <Badge variant="secondary" className="shrink-0">
                     {currentFoilType}
+                  </Badge>
+                )}
+                {scanId && currentStamp && (
+                  <Badge variant="secondary" className="shrink-0">
+                    {currentStamp}
                   </Badge>
                 )}
                 {scanId && currentCondition !== DEFAULT_CARD_CONDITION && (
@@ -1183,6 +1248,7 @@ export function CardDetailPanel({
                           card={selectedCard}
                           isFoil={draftIsFoil}
                           foilType={currentFoilType}
+                          stamp={currentStamp}
                           condition={currentCondition}
                         />
                         <CardPurchaseLinks card={selectedCard} />
@@ -1438,6 +1504,16 @@ export function CardDetailPanel({
                     icon: <IconSparkles />,
                     onSelect: () => setAttributePicker("foil"),
                   },
+                  ...(cardStampOptions.length > 0
+                    ? [
+                        {
+                          key: "stamp",
+                          label: `${t("stamp")}: ${currentStamp ?? t("stampNone")}`,
+                          icon: <IconStar />,
+                          onSelect: () => setAttributePicker("stamp"),
+                        },
+                      ]
+                    : []),
                   {
                     key: "condition",
                     label: `${t("condition.label")}: ${t(`condition.names.${currentCondition}`)}`,
@@ -1510,9 +1586,11 @@ export function CardDetailPanel({
           title={
             attributePicker === "foil"
               ? t("foil")
-              : attributePicker === "condition"
-                ? t("condition.label")
-                : t("language")
+              : attributePicker === "stamp"
+                ? t("stamp")
+                : attributePicker === "condition"
+                  ? t("condition.label")
+                  : t("language")
           }
           actions={
             attributePicker === "foil"
@@ -1522,19 +1600,26 @@ export function CardDetailPanel({
                   icon: type === currentFoilType ? <IconCheck /> : null,
                   onSelect: () => scanDraft.setFoilType(type),
                 }))
-              : attributePicker === "condition"
-                ? CARD_CONDITIONS.map((option) => ({
-                    key: option,
-                    label: t(`condition.names.${option}`),
-                    icon: option === currentCondition ? <IconCheck /> : null,
-                    onSelect: () => scanDraft.setCondition(option),
+              : attributePicker === "stamp"
+                ? [null, ...cardStampOptions].map((option) => ({
+                    key: option ?? "none",
+                    label: option ?? t("stampNone"),
+                    icon: option === currentStamp ? <IconCheck /> : null,
+                    onSelect: () => scanDraft.setStamp(option),
                   }))
-                : languageOptions.map((option) => ({
-                    key: option,
-                    label: LANGUAGE_LABELS[option] ?? option,
-                    icon: option === currentLanguage ? <IconCheck /> : null,
-                    onSelect: () => scanDraft.setLanguage(option),
-                  }))
+                : attributePicker === "condition"
+                  ? CARD_CONDITIONS.map((option) => ({
+                      key: option,
+                      label: t(`condition.names.${option}`),
+                      icon: option === currentCondition ? <IconCheck /> : null,
+                      onSelect: () => scanDraft.setCondition(option),
+                    }))
+                  : languageOptions.map((option) => ({
+                      key: option,
+                      label: LANGUAGE_LABELS[option] ?? option,
+                      icon: option === currentLanguage ? <IconCheck /> : null,
+                      onSelect: () => scanDraft.setLanguage(option),
+                    }))
           }
         />
       )}

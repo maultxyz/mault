@@ -19,6 +19,7 @@ export function CardImageViewer({
   showOcrRegions,
   onShowOcrRegionsChange,
   ocrRegions,
+  printingMarks,
 }: CardImageViewerProps) {
   const { t } = useTranslation("cards");
 
@@ -51,13 +52,18 @@ export function CardImageViewer({
               alt={t("cardPicker.scannedAlt")}
             />
             {showOcrRegions && (
-              <OcrRegionOverlay showLabels regions={ocrRegions} />
+              <OcrRegionOverlay
+                showLabels
+                regions={ocrRegions}
+                printingMarks={printingMarks}
+              />
             )}
           </div>
           {showOcrRegions && (
             <OcrRegionCrops
               src={capturedImageUrl}
               regions={ocrRegions}
+              printingMarks={printingMarks}
               className="min-w-0 md:w-80 md:shrink-0 md:max-h-[min(75dvh,36rem)] md:overflow-y-auto"
             />
           )}

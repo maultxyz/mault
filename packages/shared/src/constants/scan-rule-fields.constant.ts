@@ -1,3 +1,4 @@
+import { FIRST_EDITION_STAMP } from "./card-stamps.constant";
 import type {
   ConditionField,
   ConditionOperator,
@@ -12,6 +13,7 @@ export const SCAN_RULE_MARKET_VALUE_USD_FIELD = "marketValueUsd";
 export const SCAN_RULE_MARKET_VALUE_EUR_FIELD = "marketValueEur";
 export const SCAN_RULE_COLLECTOR_NUMBER_FIELD = "collectorNumberValue";
 export const SCAN_RULE_GAME_FIELD = "scanGame";
+export const SCAN_RULE_STAMP_FIELD = "scanStamp";
 
 export const SCAN_RULE_FOIL_VALUE = "foil";
 export const SCAN_RULE_NON_FOIL_VALUE = "nonfoil";
@@ -57,6 +59,10 @@ export const SCAN_RULE_COLLECTOR_NUMBER_OPERATORS: {
 
 export const SCAN_RULE_COLLECTOR_NUMBER_GAME_KEYS: string[] = ["mtg"];
 
+export const SCAN_RULE_STAMP_OPTIONS_BY_GAME_KEY: Record<string, string[]> = {
+  pokemon: [FIRST_EDITION_STAMP],
+};
+
 export const DEFAULT_SCAN_RULE_FIELD_LABELS = {
   foil: "Foil",
   foilType: "Foil type",
@@ -67,6 +73,7 @@ export const DEFAULT_SCAN_RULE_FIELD_LABELS = {
   foilOption: "Foil",
   nonFoilOption: "Non-foil",
   game: "Game",
+  stamp: "Stamp",
 };
 
 export const SCAN_RULE_FIELDS: ConditionField[] = [
@@ -77,4 +84,5 @@ export const SCAN_RULE_FIELDS: ConditionField[] = [
   SCAN_RULE_MARKET_VALUE_EUR_FIELD,
   SCAN_RULE_COLLECTOR_NUMBER_FIELD,
   SCAN_RULE_GAME_FIELD,
+  SCAN_RULE_STAMP_FIELD,
 ];

@@ -12,9 +12,10 @@
   "pausedDuringSync": "Paused while a database sync is running",
   "ocrRegions": {
     "heading": "OCR regions",
-    "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card.",
+    "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card. Printing marks are compared against each printing's catalog image to tell printings of the same card apart.",
     "fallback": "fallback",
     "multiline": "multiline",
+    "printingMark": "printing mark",
     "coords": "x {{x}}%, y {{y}}%, {{width}} × {{height}}%",
     "anotherCard": "Show another card",
     "sample": "{{name}} · {{set}} #{{number}}"

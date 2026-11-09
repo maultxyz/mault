@@ -115,6 +115,7 @@ export default function StorageCardScanScreen() {
           checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
           ocrMode: scanOcrMode(orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
           colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
+          gameKey: gameKey || null,
         },
         DEFAULT_SCAN_REGION,
       );

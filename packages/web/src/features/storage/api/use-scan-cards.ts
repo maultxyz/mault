@@ -11,7 +11,6 @@ import type {
   ScanCardsSource,
 } from "@/lib/interfaces/storage";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   findCardForScan,
   OCR_REGIONS_BY_GAME_KEY,
   scanCheckCollectionGuid,
@@ -70,7 +69,7 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
         ),
         SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
         SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
-        COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey],
+        gameKey || undefined,
       );
       if (!outcome.card) {
         showResult({ kind: "no-match" });

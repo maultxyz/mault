@@ -1,3 +1,6 @@
+import type { StampDetection } from "./card-stamps.interface";
+import type { PrintedFoilMarkerDetection } from "./printed-foil-marker.interface";
+import type { PrintingMarkMatch } from "./printing-regions.interface";
 import type {
   CardSearchDiagnostics,
   CardSearchResult,
@@ -44,6 +47,9 @@ export interface ScanAttemptResult extends ResolvedCardSearchMatches {
   lowConfidenceMatch: boolean;
   matchedBy: ScanMatchSource;
   detectedColor: string | null;
+  stampDetection?: StampDetection | null;
+  printedFoilMarker?: PrintedFoilMarkerDetection | null;
+  printingMarks?: PrintingMarkMatch | null;
 }
 
 export interface ScanMatchDetails {

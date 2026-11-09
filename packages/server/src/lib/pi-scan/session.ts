@@ -3,7 +3,7 @@ import { waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import {
-  scanFoilType,
+  resolveScanFoilType,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_FEEDER_CALIBRATION,
@@ -15,6 +15,12 @@ import {
   OCR_CROP_WIDTH,
   OCR_REGIONS_BY_GAME_KEY,
   detectColorBarRgba,
+  detectCardStampRgba,
+  detectedStampOf,
+  contourHomography,
+  scanPrintingMarkGrids,
+  detectPrintedFoilMarkerRgba,
+  PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY,
   dewarpRgba,
   getDefaultCardContour,
   rotateRgba180,
@@ -51,10 +57,18 @@ import {
   type ScanAttemptDiagnostic,
   type UnmatchedReason,
   type UnmatchedScanDiagnostics,
+  type CardContour,
+  type RgbaImage,
+  type ScanOrientation,
 } from "@magic-vault/shared";
 import { authQuery } from "../../db";
 import { piUpdateRunning } from "../pi-update";
-import { collections, feederConfigs, games, orgSettings } from "../../db/schema";
+import {
+  collections,
+  feederConfigs,
+  games,
+  orgSettings,
+} from "../../db/schema";
 import type {
   PiScanBinCard,
   PiScanFrameMatch,
@@ -446,6 +460,7 @@ async function prepareContext(
       highAccuracyScans: settings?.highAccuracyScans === true,
       cardThickness: collection.cardThickness,
       fieldDefinitions,
+      foilTypes,
       set: active,
       configs: isRulesMode(active)
         ? reservePickListBins(sourceBins.map((bin) => ({ ...bin })))
@@ -468,7 +483,10 @@ async function rememberAutoAssign(
   const target = context.configs.find((bin) => bin.binNumber === binNumber);
   if (!target) return;
   target.rules = rules;
-  context.pickConfigs = applyAutoAssignTarget(context.pickConfigs, { binNumber, rules });
+  context.pickConfigs = applyAutoAssignTarget(context.pickConfigs, {
+    binNumber,
+    rules,
+  });
   try {
     const saved = await saveBinThroughRoute(
       session.accessToken,
@@ -508,8 +526,17 @@ async function searchOrientation(
   context: PiScanRunContext,
   image: Buffer,
   orientation: "upright" | "rotated",
+  markSource: { source: RgbaImage; contour: CardContour } | null,
 ) {
   const embeddings = await vectorizeCardImage(image);
+  const printingMarkGrids = markSource
+    ? scanPrintingMarkGrids(
+        markSource.source,
+        contourHomography(markSource.contour),
+        context.gameKey,
+        orientation,
+      )
+    : null;
   const scopes = piMatchScopes(context);
   const { result: nearest, scope } = await findBestMatchAcrossGames(
     scopes,
@@ -519,6 +546,8 @@ async function searchOrientation(
         embeddings,
         preferredSetCodes: session.preferredSetCodes,
         skipsUnloadedIndex: matchScope.gameKey !== context.gameKey,
+        printingMarkGrids:
+          matchScope.gameKey === context.gameKey ? printingMarkGrids : null,
       }),
   );
   const attached = await attachMatchedCards(nearest, scope.gameKey, scope.lang);
@@ -569,19 +598,28 @@ async function matchFrame(
         : `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`),
   };
 
+  const markSource = corners.contour
+    ? { source, contour: corners.contour }
+    : null;
   let best: Awaited<ReturnType<typeof searchOrientation>>;
   let alternate: typeof best | null = null;
   if (context.checkBothOrientations) {
     const rotatedImage = await rgbaToJpeg(rotateRgba180(upright));
     const [uprightHit, rotated] = await Promise.all([
-      searchOrientation(session, context, uprightImage, "upright"),
-      searchOrientation(session, context, rotatedImage, "rotated"),
+      searchOrientation(session, context, uprightImage, "upright", markSource),
+      searchOrientation(session, context, rotatedImage, "rotated", markSource),
     ]);
     const picked = pickBetterOrientation(uprightHit, rotated);
     best = picked;
     alternate = picked.alternate;
   } else {
-    best = await searchOrientation(session, context, uprightImage, "upright");
+    best = await searchOrientation(
+      session,
+      context,
+      uprightImage,
+      "upright",
+      markSource,
+    );
   }
 
   let ocr: OcrDiagnostics | null = null;
@@ -673,6 +711,26 @@ async function matchFrame(
     },
   );
 
+  const stampDetection =
+    corners.contour && resolved.card?.stamps?.length
+      ? detectCardStampRgba(
+          best.orientation === "rotated" ? rotateRgba180(upright) : upright,
+          resolved.card,
+        )
+      : null;
+
+  const markerGameKey = piScopeForMatchedGame(
+    context,
+    best.result.data?.[0]?.gameKey,
+  ).gameKey;
+  const printedFoilMarker =
+    corners.contour && PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY[markerGameKey]
+      ? detectPrintedFoilMarkerRgba(
+          orientedOcrCrop(source, corners.contour, best.orientation),
+          markerGameKey,
+        )
+      : null;
+
   return {
     ...best,
     resolved,
@@ -682,7 +740,18 @@ async function matchFrame(
     colorVariantUncertain,
     detection,
     detectedColor,
+    stampDetection,
+    printedFoilMarker,
   };
+}
+
+function orientedOcrCrop(
+  source: RgbaImage,
+  contour: CardContour,
+  orientation: ScanOrientation,
+): RgbaImage {
+  const crop = dewarpRgba(source, contour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT);
+  return orientation === "rotated" ? rotateRgba180(crop) : crop;
 }
 
 function attemptDiagnostic(matched: PiScanFrameMatch): ScanAttemptDiagnostic {
@@ -753,7 +822,9 @@ async function matchUntilConsensus(
 }
 
 function fail(session: PiScanLive, message: string) {
-  console.error(`[pi-scan] failed while ${session.activity ?? "scanning"}: ${message}`);
+  console.error(
+    `[pi-scan] failed while ${session.activity ?? "scanning"}: ${message}`,
+  );
   session.phase = "error";
   session.message = message;
   session.stopRequested = true;
@@ -945,11 +1016,19 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         continue;
       }
 
-      const foilType = scanFoilType(card, session.foilType);
+      const foilType = resolveScanFoilType(
+        card,
+        session.foilType,
+        null,
+        context.foilTypes,
+        matched.printedFoilMarker,
+      );
+      const stamp = detectedStampOf(matched.stampDetection);
       while (!session.stopRequested) {
         const ruleCard = toRuleCard(card, {
           isFoil: foilType != null,
           foilType,
+          stamp,
         });
         const countInBin = (bin: BinConfig) =>
           context.counts.get(bin.binNumber) ?? 0;
@@ -1037,6 +1116,9 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           candidates: matched.resolved.candidates,
           ocr: matched.ocr,
           detectedColor: matched.detectedColor,
+          stampDetection: matched.stampDetection,
+          printedFoilMarker: matched.printedFoilMarker,
+          printingMarks: matched.result.printingMarks ?? null,
         };
         const sortsWithoutSaving =
           context.set.skipSaving || isCardFromOtherGame(card, context.gameKey);
@@ -1054,6 +1136,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             capturedImageUrl: imageUrl,
             isFoil: foilType != null,
             foilType: foilType ?? undefined,
+            stamp: stamp ?? undefined,
             alternativeMatches: alternatives,
             lowConfidenceMatch:
               matched.lowConfidenceFromOcr ||
@@ -1101,8 +1184,12 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
   } finally {
     if (session.phase === "error") {
       try {
-        const stopped = await link.command({ feederStop: true }, PI_SCAN_STATUS_TIMEOUT_MS);
-        if (stopped.error || stopped.status !== "ok") throw new Error("Feeder stop was not confirmed.");
+        const stopped = await link.command(
+          { feederStop: true },
+          PI_SCAN_STATUS_TIMEOUT_MS,
+        );
+        if (stopped.error || stopped.status !== "ok")
+          throw new Error("Feeder stop was not confirmed.");
       } catch {
         session.message = `${session.message ?? "The scan failed."} Feeder stop unconfirmed.`;
         console.error(`[pi-scan] ${session.message}`);

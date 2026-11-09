@@ -9,6 +9,9 @@ import {
   extractCardImage,
 } from "@/features/scanner/lib/card-detection";
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
+import { detectStamp } from "@/features/scanner/lib/card-stamp";
+import { detectPrintedFoilMarker } from "@/features/scanner/lib/printed-foil-marker";
+import { printingMarksSampler } from "@/features/scanner/lib/printing-marks";
 import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
@@ -41,6 +44,8 @@ import {
   toScanMatchDetails,
   type CardContour,
   type CardTextSearchResult,
+  COLOR_BAR_REGIONS_BY_GAME_KEY,
+  type PrintingMarksPayload,
   type ColorBarRegion,
   type ScanOcrMode,
   type ScanDetectionDiagnostics,
@@ -62,11 +67,16 @@ function buildSearchFormData(
   embedding: number[],
   scope: MatchScope,
   image?: Blob,
+  printingMarks?: PrintingMarksPayload | null,
 ): FormData {
   const formData = new FormData();
   if (image) formData.append("image", image, "card.jpg");
   appendMatchScope(formData, scope);
   formData.append("embedding", JSON.stringify(embedding));
+  if (printingMarks) {
+    formData.append("printingMarks", printingMarks.encoded);
+    formData.append("printingMarksGameKey", printingMarks.gameKey);
+  }
   return formData;
 }
 
@@ -142,7 +152,10 @@ async function withTextSearch(
 ): Promise<OrientedSearchPick> {
   const withText = async <T extends OrientedCandidate>(option: T) =>
     option.embedding
-      ? { ...option, textResult: await readText(option.orientation, option.embedding) }
+      ? {
+          ...option,
+          textResult: await readText(option.orientation, option.embedding),
+        }
       : option;
   const [upright, alternate] = await Promise.all([
     withText(best),
@@ -213,6 +226,7 @@ async function toAttemptOutcome(
     | "lowConfidenceMatch"
     | "matchedBy"
     | "dewarpedCardImage"
+    | "printedFoilMarker"
   >,
 ): Promise<ScanAttemptOutcome> {
   const detectedColor =
@@ -241,11 +255,16 @@ async function toAttemptOutcome(
   );
   const topDistance =
     best.result.data?.[0]?.distance ?? best.result.nearestDistance ?? null;
+  const stampDetection = readColorBarFromScan
+    ? detectStamp(best.canvas, resolved.card)
+    : null;
   return {
     ...resolved,
     ...context,
     lowConfidenceMatch: context.lowConfidenceMatch || colorVariantUncertain,
     detectedColor,
+    stampDetection,
+    printingMarks: best.result.printingMarks ?? null,
     debugImageUrl: best.canvas.toDataURL("image/jpeg", 0.8),
     search: best.result.diagnostics ?? null,
     orientation: best.orientation,
@@ -261,7 +280,7 @@ async function searchCardImage(
   scope: MatchScope,
   ocrMode: ScanOcrMode,
   checkBothOrientations: boolean,
-  colorBarRegion: ColorBarRegion | undefined,
+  gameKey: string | undefined,
 ): Promise<ScanAttemptOutcome> {
   const created: HTMLCanvasElement[] = [];
   try {
@@ -273,7 +292,7 @@ async function searchCardImage(
       scope,
       ocrMode,
       checkBothOrientations,
-      colorBarRegion,
+      gameKey,
     );
   } finally {
     releaseCanvases(created, [canvas]);
@@ -288,9 +307,12 @@ async function runCardImageSearch(
   scope: MatchScope,
   ocrMode: ScanOcrMode,
   checkBothOrientations: boolean,
-  colorBarRegion: ColorBarRegion | undefined,
+  gameKey: string | undefined,
 ): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
+  const colorBarRegion = gameKey
+    ? COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey]
+    : undefined;
   let fallbackReason = "card not detected";
   let detection: ScanDetectionDiagnostics = {
     cardDetected: false,
@@ -335,6 +357,11 @@ async function runCardImageSearch(
           ? searchOrientationText(crop, orientation, embedding, scope, created)
           : Promise.resolve(null);
       };
+      const printingMarksFor = printingMarksSampler(
+        frame,
+        cardContour,
+        gameKey,
+      );
       const readsTextWithImage = ocrMode === "every-scan" && !!cardContour;
       const imageBest = await searchBothOrientations(
         dewarpedCanvas,
@@ -342,7 +369,14 @@ async function runCardImageSearch(
         async (oriented, orientation) => {
           const embedding = await embedCanvas(oriented);
           const [result, textResult] = await Promise.all([
-            searchByVector(buildSearchFormData(embedding, scope)),
+            searchByVector(
+              buildSearchFormData(
+                embedding,
+                scope,
+                undefined,
+                printingMarksFor(orientation),
+              ),
+            ),
             readsTextWithImage ? readText(orientation, embedding) : undefined,
           ]);
           return { result, embedding, textResult };
@@ -374,21 +408,22 @@ async function runCardImageSearch(
               : "[scanner] OCR found no match",
         );
       }
-      return toAttemptOutcome(
-        textPick ?? best,
-        collectionGuid,
-        colorBarRegion,
-        true,
-        {
-          detectedContour: corners.contour,
-          dewarpedCardImage: readCanvasPixels(dewarpedCanvas),
-          vectorizedOn: "web",
-          detection,
-          ocr: text?.ocr ?? null,
-          lowConfidenceMatch: !!textPick && !hasCardMatch(best.result),
-          matchedBy: textPick ? "ocr" : "embedding",
-        },
+      const pick = textPick ?? best;
+      const printedFoilMarker = detectPrintedFoilMarker(
+        ocrCrop,
+        pick.orientation,
+        gameKey,
       );
+      return toAttemptOutcome(pick, collectionGuid, colorBarRegion, true, {
+        printedFoilMarker,
+        detectedContour: corners.contour,
+        dewarpedCardImage: readCanvasPixels(dewarpedCanvas),
+        vectorizedOn: "web",
+        detection,
+        ocr: text?.ocr ?? null,
+        lowConfidenceMatch: !!textPick && !hasCardMatch(best.result),
+        matchedBy: textPick ? "ocr" : "embedding",
+      });
     }
     fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
   } catch (err) {
@@ -416,6 +451,7 @@ async function runCardImageSearch(
   if (best.alternate) created.push(best.alternate.canvas);
 
   return toAttemptOutcome(best, collectionGuid, colorBarRegion, false, {
+    printedFoilMarker: null,
     detectedContour: null,
     dewarpedCardImage: null,
     vectorizedOn: "server",
@@ -457,7 +493,7 @@ export async function searchCardImageWithConsensus(
   ocrMode: ScanOcrMode,
   matchesNeeded: number,
   checkBothOrientations: boolean,
-  colorBarRegion: ColorBarRegion | undefined,
+  gameKey: string | undefined,
 ): Promise<ScanOutcome> {
   const attempts: ScanAttemptOutcome[] = [];
   const attempt = async () => {
@@ -468,7 +504,7 @@ export async function searchCardImageWithConsensus(
       scope,
       ocrMode,
       checkBothOrientations,
-      colorBarRegion,
+      gameKey,
     );
     attempts.push(outcome);
     return outcome;

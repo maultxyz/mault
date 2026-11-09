@@ -198,7 +198,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       field: "setLine",
       x: 0.052,
       y: 0.961,
-      width: 0.214,
+      width: 0.3,
       height: 0.015,
     },
     {

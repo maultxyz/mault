@@ -1,4 +1,7 @@
 import { setImmediate as yieldToEventLoop } from "node:timers/promises";
+import type { PrintingMarkGroups } from "@magic-vault/shared";
+import { PRINTING_MARK_VERSION } from "./constants/printing-marks";
+import { invalidatePrintingMarkReferences } from "./printing-marks/references";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { binSets, collections, games } from "../db/schema";
@@ -65,18 +68,25 @@ async function loadSegmentSignature(
     back_face_count: number;
     last_updated: string;
     last_id: number;
+    printing_mark_count: number;
   }>(sql`
     SELECT count(*)::int AS row_count,
       count(back_embedding)::int AS back_face_count,
+      count(*) FILTER (WHERE printing_mark_version = ${PRINTING_MARK_VERSION})::int AS printing_mark_count,
       coalesce(max(updated_at)::text, '') AS last_updated,
       coalesce(max(id), 0) AS last_id
     FROM cards
     WHERE game_key = ${gameKey} AND lang = ${lang}
   `);
-  const { row_count, back_face_count, last_updated, last_id } =
-    result.rows[0];
+  const {
+    row_count,
+    back_face_count,
+    last_updated,
+    last_id,
+    printing_mark_count,
+  } = result.rows[0];
   return {
-    value: `${row_count}|${back_face_count}|${last_updated}|${last_id}`,
+    value: `${row_count}|${back_face_count}|${last_updated}|${last_id}|${printing_mark_count}`,
     rowCount: row_count,
     backFaceCount: back_face_count,
   };
@@ -90,6 +100,8 @@ async function loadSegment(
   const signature = await loadSegmentSignature(gameKey, lang);
   const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
   const rarePrintingSql = adapter?.rarePrintingSql ?? sql`false`;
+  const promoPrintingSql = adapter?.promoPrintingSql ?? sql`false`;
+  const printedSetTotalSql = adapter?.printedSetTotalSql ?? sql`NULL`;
   const exclusionFilter = adapter?.excludedFromMatchingSql
     ? sql`AND NOT coalesce(${adapter.excludedFromMatchingSql}, false)`
     : sql``;
@@ -106,11 +118,18 @@ async function loadSegment(
       set_code: string;
       collector_number: string | null;
       rare_printing: boolean;
+      promo_printing: boolean;
+      printed_set_total: number | null;
+      printing_mark_groups: PrintingMarkGroups | null;
       embedding: string;
       back_embedding: string | null;
     }>(sql`
       SELECT card_id, name, set_code, collector_number,
         coalesce(${rarePrintingSql}, false) AS rare_printing,
+        coalesce(${promoPrintingSql}, false) AS promo_printing,
+        (${printedSetTotalSql})::int AS printed_set_total,
+        CASE WHEN printing_mark_version = ${PRINTING_MARK_VERSION}
+          THEN printing_mark_groups END AS printing_mark_groups,
         encode(vector_send(embedding), 'base64') AS embedding,
         encode(vector_send(back_embedding), 'base64') AS back_embedding
       FROM cards
@@ -126,6 +145,9 @@ async function loadSegment(
         setCode: row.set_code,
         collectorNumber: row.collector_number,
         rarePrinting: row.rare_printing === true,
+        promoPrinting: row.promo_printing === true,
+        printedSetTotal: row.printed_set_total,
+        printingMarkGroups: row.printing_mark_groups,
         embedding: decodeVector(row.embedding)!,
         backEmbedding: decodeVector(row.back_embedding),
       });
@@ -322,6 +344,7 @@ export function warmCardMatchSegments(scopes: CollectionMatchScope[]): void {
 }
 
 export function invalidateCardMatchIndex(gameKey?: string): void {
+  invalidatePrintingMarkReferences(gameKey);
   for (const entry of segmentEntries.values()) {
     if (gameKey === undefined || entry.gameKey === gameKey) {
       reloadSegment(entry).catch(logReloadFailure(entry));

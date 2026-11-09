@@ -46,8 +46,6 @@ import type {
   VideoPreviewLoop,
 } from "@/lib/interfaces/scanner";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
-  type ColorBarRegion,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
@@ -198,9 +196,8 @@ export function useCardScanner({
   const preferredSetCodesRef = useRef(preferredSetCodes);
   preferredSetCodesRef.current = preferredSetCodes;
 
-  const colorBarRegionRef = useRef<ColorBarRegion | undefined>(undefined);
-  colorBarRegionRef.current =
-    COLOR_BAR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""];
+  const gameKeyRef = useRef<string | undefined>(undefined);
+  gameKeyRef.current = activeCollection?.game?.key;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -363,7 +360,7 @@ export function useCardScanner({
           ocrModeRef.current,
           matchesNeededRef.current,
           isDocumentScan || checkBothOrientationsRef.current,
-          colorBarRegionRef.current,
+          gameKeyRef.current,
         );
         setDebugImageUrl(debugImageUrl);
         const { capturedImageUrl, capturedBackImageUrl } = await orientDocumentScanImages(
