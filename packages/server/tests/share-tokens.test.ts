@@ -15,12 +15,14 @@ test("a storage share token verifies with its own issuer", async () => {
     version: 3,
     expiresInDays: 7,
     showsPrices: false,
+    holdMinutes: 60,
   });
   const verified = await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, token);
   assert.equal(verified?.subjectGuid, "location-guid");
   assert.equal(verified?.orgId, "org-1");
   assert.equal(verified?.version, 3);
   assert.equal(verified?.showsPrices, false);
+  assert.equal(verified?.holdMinutes, 60);
   assert.equal(verified?.expiresAt.getTime(), Math.floor(expiresAt.getTime() / 1000) * 1000);
 });
 
@@ -32,6 +34,7 @@ test("a collection monitor token is rejected as a storage share token and the re
     version: 0,
     expiresInDays: 1,
     showsPrices: true,
+    holdMinutes: null,
   });
   const storage = await signShareToken({
     issuer: STORAGE_SHARE_LINK_ISSUER,
@@ -40,6 +43,7 @@ test("a collection monitor token is rejected as a storage share token and the re
     version: 0,
     expiresInDays: 1,
     showsPrices: true,
+    holdMinutes: null,
   });
   assert.equal(await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, monitor.token), null);
   assert.equal(await verifyShareToken(MONITOR_LINK_ISSUER, storage.token), null);
@@ -53,6 +57,7 @@ test("a tampered token is rejected", async () => {
     version: 0,
     expiresInDays: 1,
     showsPrices: true,
+    holdMinutes: null,
   });
   const tampered = `${token.slice(0, -2)}${token.endsWith("AA") ? "BB" : "AA"}`;
   assert.equal(await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, tampered), null);
@@ -68,6 +73,19 @@ test("links created before price visibility existed keep showing prices", async 
     .sign(new TextEncoder().encode(process.env.MONITOR_LINK_SECRET));
   const verified = await verifyShareToken(MONITOR_LINK_ISSUER, token);
   assert.equal(verified?.showsPrices, true);
+  assert.equal(verified?.holdMinutes, null);
+});
+
+test("a hold length outside the allowed list turns holds off", async () => {
+  const token = await new jose.SignJWT({ org: "org-1", ver: 0, holds: 7 })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(STORAGE_SHARE_LINK_ISSUER)
+    .setSubject("location-guid")
+    .setIssuedAt()
+    .setExpirationTime("1d")
+    .sign(new TextEncoder().encode(process.env.MONITOR_LINK_SECRET));
+  const verified = await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, token);
+  assert.equal(verified?.holdMinutes, null);
 });
 
 test("hiding prices strips every price field from nested cards and zeroes stats", () => {

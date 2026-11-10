@@ -1,9 +1,11 @@
 import { Badge } from "@/components/ui/badge";
+import { CardHoldsProvider } from "@/features/card-holds/components/card-holds-provider";
 import { verifyMonitorLink } from "@/features/collections/api/monitor-links";
 import { useSharedSessionMonitor } from "@/features/scanner/api/use-shared-session-monitor";
 import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { cn } from "@/lib/utils";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   SHARE_LINK_TOKEN_PARAM,
@@ -21,6 +23,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 export default function WatchPage() {
   const { t } = useTranslation("scanner");
+  const { t: tCommon } = useTranslation("common");
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
   const [searchParams] = useSearchParams();
   const token = searchParams.get(SHARE_LINK_TOKEN_PARAM);
@@ -117,16 +120,29 @@ export default function WatchPage() {
             </h1>
           )}
           <Badge variant="secondary">{t("watchPage.liveBadge")}</Badge>
-          <p className="ml-auto hidden text-xs text-foreground/70 sm:block">
-            {t("watchPage.readOnly")}
+          <p
+            className={cn(
+              "ml-auto text-xs text-foreground/70",
+              link.info.holdMinutes === null && "hidden sm:block",
+            )}
+          >
+            {link.info.holdMinutes !== null
+              ? tCommon("cardHolds.browseHint")
+              : t("watchPage.readOnly")}
           </p>
         </header>
         <div className="flex min-h-0 flex-1 flex-col">
-          <SessionMonitorView
-            session={session}
-            cardsSource={cardsSource}
-            showBinLocation={false}
-          />
+          <CardHoldsProvider
+            kind="collection"
+            token={token ?? ""}
+            holdMinutes={link.info.holdMinutes ?? null}
+          >
+            <SessionMonitorView
+              session={session}
+              cardsSource={cardsSource}
+              showBinLocation={false}
+            />
+          </CardHoldsProvider>
         </div>
       </main>
       </PriceSourceProvider>

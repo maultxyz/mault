@@ -1,3 +1,4 @@
+import { CardHoldBadge } from "@/features/card-holds/components/card-hold-badge";
 import { useLongPress } from "@/hooks/use-long-press";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { MobileCardTileProps } from "@/lib/interfaces/scanner";
@@ -67,6 +68,10 @@ export const MobileCardTile = memo(function MobileCardTile({
             )}
           </span>
         )}
+        <CardHoldBadge
+          scanIds={entry.scanIds}
+          className="absolute bottom-1 left-1 shadow-md"
+        />
         {entry.quantity > 1 && (
           <span className="absolute top-1 right-1 rounded-sm bg-background/90 px-1 text-2xs font-semibold leading-4 text-foreground shadow backdrop-blur">
             ×{entry.quantity}

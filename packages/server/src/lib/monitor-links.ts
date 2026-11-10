@@ -21,6 +21,7 @@ export function signMonitorLink(
   version: number,
   expiresInDays: number,
   showsPrices: boolean,
+  holdMinutes: number | null,
 ) {
   return signShareToken({
     issuer: MONITOR_LINK_ISSUER,
@@ -29,6 +30,7 @@ export function signMonitorLink(
     version,
     expiresInDays,
     showsPrices,
+    holdMinutes,
   });
 }
 
@@ -60,17 +62,19 @@ async function loadMonitorLinkClaims(
         eq(t.orgId, verified.orgId),
         eq(t.isDeleted, false),
       ),
-    columns: { name: true, monitorLinkVersion: true },
+    columns: { id: true, name: true, monitorLinkVersion: true },
   });
   if (!collection || collection.monitorLinkVersion !== verified.version) {
     return null;
   }
   return {
     collectionGuid: verified.subjectGuid,
+    collectionId: collection.id,
     orgId: verified.orgId,
     collectionName: collection.name,
     expiresAt: verified.expiresAt,
     showsPrices: verified.showsPrices,
+    holdMinutes: verified.holdMinutes,
   };
 }
 

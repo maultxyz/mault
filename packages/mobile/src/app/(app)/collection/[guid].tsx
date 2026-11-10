@@ -142,6 +142,8 @@ export default function CollectionScreen() {
       ]);
     } else if (action === "share") {
       router.push({ pathname: "/share-link", params: { kind: "collection", guid } });
+    } else if (action === "holds") {
+      router.push({ pathname: "/card-holds", params: { kind: "collection", guid } });
     } else if (action === "delete") {
       Alert.alert(t("collections.delete"), t("collections.deleteDescription", { name }), [
         { text: t("collections.cancel"), style: "cancel" },
@@ -343,6 +345,7 @@ export default function CollectionScreen() {
         title={collection?.name ?? t("collections.actions")}
         options={[
           { value: "share", label: t("collections.shareLink") },
+          { value: "holds", label: t("cardHolds.title") },
           { value: "rename", label: t("collections.rename") },
           { value: "empty", label: t("collections.empty") },
           { value: "delete", label: t("collections.delete") },

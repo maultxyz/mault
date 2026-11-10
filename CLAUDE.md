@@ -69,6 +69,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - The active org lives in localStorage for both providers: own-auth has no active org, and Neon's cached session lags `organization.setActive`.
 
 - Share links (collection live view at `/watch`, storage location at `/shared/storage`) are HS256 JWTs from `lib/share-tokens.ts` signed with `MONITOR_LINK_SECRET`, one issuer per kind so tokens never cross over, revoked by bumping the row's `monitor_link_version`/`share_link_version`. Their `/public/*-link` reads use plain `db` and return only `SharedStorageCard` fields (no collection names, costs or review state). Price visibility is the token's `prices` claim (missing means shown, for older links): when off, every public read and the guest SSE stream go through `pricesForShareLink`, which strips `SHARE_LINK_HIDDEN_PRICE_KEYS` and zeroes stats, so never hide prices only in the UI. Web and mobile show the link as a QR code (`ShareLinkDialog`, mobile `share-link` modal); paths and the `t` param live in `shared`.
+- Card holds: a share link allows guest holds only when its token carries the `holds` claim (minutes from `CARD_HOLD_MINUTES`; missing means off, so older links and store app versions never allow them). Guests are anonymous: a random browser key sent as `X-Hold-Key` is stored hashed and is the only way to release their own hold. `card_holds` keys on `collection_cards.id` (re-sort rewrites the guid) with cascade delete, one hold per card; expiry is checked at read time and expired rows are pruned on the next hold write, never by a timer. Public hold reads are never cached (unlike shared storage pages), and every hold change emits `card_holds_changed` to the org.
 
 ### Public API & webhooks
 
@@ -111,7 +112,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 
 ### Soft deletes
 
-- Hard-deleted only: `collection_cards`, unmatched scan photos, `cards`, `webhook_endpoints`, whole-org purges. Everything else sets `is_deleted`.
+- Hard-deleted only: `collection_cards`, unmatched scan photos, `cards`, `webhook_endpoints`, `card_holds`, whole-org purges. Everything else sets `is_deleted`.
 - Audit tables have no foreign keys: their rows are permanent.
 - Every read, count, limit check and lookup filters `is_deleted = false` (including `with:` blocks and raw SQL); fix-up writes don't. Uniqueness uses partial indexes on live rows; upserts set `isDeleted: false`.
 - A new soft-deletable table needs the column, filtered reads, `DELETED_ITEM_TYPES` and `routes/admin/deleted-items-sources.ts`.

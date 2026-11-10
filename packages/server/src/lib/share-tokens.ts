@@ -1,3 +1,4 @@
+import { CARD_HOLD_MINUTES } from "@magic-vault/shared";
 import * as jose from "jose";
 import { ONE_DAY_MS } from "./constants/timing";
 import type {
@@ -22,11 +23,17 @@ export async function signShareToken({
   version,
   expiresInDays,
   showsPrices,
+  holdMinutes,
 }: ShareTokenSignInput): Promise<SignedShareToken> {
   const secret = shareTokenSecret();
   if (!secret) throw new Error("MONITOR_LINK_SECRET is not configured.");
   const expiresAt = new Date(Date.now() + expiresInDays * ONE_DAY_MS);
-  const token = await new jose.SignJWT({ org: orgId, ver: version, prices: showsPrices })
+  const token = await new jose.SignJWT({
+    org: orgId,
+    ver: version,
+    prices: showsPrices,
+    ...(holdMinutes === null ? {} : { holds: holdMinutes }),
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(issuer)
     .setSubject(subjectGuid)
@@ -61,8 +68,16 @@ export async function verifyShareToken(
       version: payload.ver,
       expiresAt: new Date(payload.exp * 1000),
       showsPrices: payload.prices !== false,
+      holdMinutes: holdMinutesFromClaim(payload.holds),
     };
   } catch {
     return null;
   }
+}
+
+function holdMinutesFromClaim(claim: unknown): number | null {
+  return typeof claim === "number" &&
+    (CARD_HOLD_MINUTES as readonly number[]).includes(claim)
+    ? claim
+    : null;
 }

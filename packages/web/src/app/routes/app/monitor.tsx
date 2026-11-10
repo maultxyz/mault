@@ -2,6 +2,12 @@ import { COLLECTIONS_PATH } from "@/lib/constants/collections";
 import { Button } from "@/components/ui/button";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useCollections } from "@/features/collections/api/use-collections";
+import {
+  MOBILE_COUNT_BUTTON_CLASS,
+  MOBILE_ICON_BUTTON_CLASS,
+} from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
+import { CardHoldsButton } from "@/features/card-holds/components/card-holds-button";
 import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
@@ -82,6 +88,14 @@ export default function MonitorPage() {
                   {t("monitorPage.setActive")}
                 </Button>
               )}
+              <CardHoldsButton
+                scope={{ kind: "collection", guid: collectionGuid }}
+                className={
+                  isMobile
+                    ? cn(MOBILE_ICON_BUTTON_CLASS, MOBILE_COUNT_BUTTON_CLASS)
+                    : undefined
+                }
+              />
               <ShareMonitorLinkDialog collectionGuid={collectionGuid} />
             </>
           ) : undefined

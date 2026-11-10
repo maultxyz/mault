@@ -119,7 +119,14 @@
     "revokeFailed": "Die geteilten Links konnten nicht widerrufen werden.",
     "cancel": "Abbrechen",
     "showPrices": "Preise anzeigen",
-    "showPricesDescription": "Ausschalten, um Kartenpreise und Summen für alle mit diesem Link auszublenden."
+    "showPricesDescription": "Ausschalten, um Kartenpreise und Summen für alle mit diesem Link auszublenden.",
+    "allowHolds": "Reservierungen erlauben",
+    "allowHoldsDescription": "Personen mit diesem Link können Karten mit ihrem Namen reservieren. Reservierungen enden von selbst, außer du bestätigst sie.",
+    "holdLengthLabel": "Reservierungen gelten",
+    "holdLengthMinutes_one": "{{count}} Minute",
+    "holdLengthMinutes_other": "{{count}} Minuten",
+    "holdLengthHours_one": "{{count}} Stunde",
+    "holdLengthHours_other": "{{count}} Stunden"
   },
   "cards": {
     "bin": "Fach {{number}}",
@@ -2758,5 +2765,25 @@
         "share": "Schlüssel teilen"
       }
     }
+  },
+  "cardHolds": {
+    "title": "Reservierungen",
+    "description": "Karten, die über deine Freigabelinks reserviert wurden. Bestätige eine Reservierung, damit sie bleibt, bis du sie freigibst.",
+    "approve": "Bestätigen",
+    "approveFor": "{{name}} bestätigen",
+    "release": "Freigeben",
+    "releaseFor": "{{name}} freigeben",
+    "approvedToast": "Reservierung für {{name}} bestätigt.",
+    "released": "Reservierung für {{name}} freigegeben.",
+    "approveFailed": "Die Reservierung konnte nicht bestätigt werden.",
+    "releaseFailed": "Die Reservierung konnte nicht freigegeben werden.",
+    "loadFailed": "Reservierungen konnten nicht geladen werden.",
+    "empty": "Keine Karten reserviert",
+    "emptyDescription": "Schalte beim Erstellen eines Freigabelinks Reservierungen erlauben ein, damit andere Karten reservieren können.",
+    "heldUntil": "bis {{time}}",
+    "approved": "Bestätigt",
+    "heldBy": "Reserviert von {{name}}",
+    "awaitingApproval": "Wartet auf Bestätigung",
+    "foil": "Foil"
   }
 }

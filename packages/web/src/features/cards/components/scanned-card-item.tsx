@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
+import { CardHoldBadge } from "@/features/card-holds/components/card-hold-badge";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
 import { useShiftClick } from "@/hooks/use-shift-click";
@@ -37,6 +38,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   quantity = 1,
   showBinLocation = true,
   storageLocation,
+  scanIds,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
   const [isNew] = useState(
@@ -60,6 +62,12 @@ export const ScannedCardItem = memo(function ScannedCardItem({
     >
       <button type="button" className="w-full cursor-pointer" onClick={onOpen}>
         <div className="aspect-[2.5/3.5] rounded-md overflow-hidden relative">
+          {scanIds && (
+            <CardHoldBadge
+              scanIds={scanIds}
+              className="absolute top-1 right-1 z-20 shadow-md"
+            />
+          )}
           <ReviewStatusIcon
             hasAlternatives={hasAlternatives}
             lowConfidenceMatch={lowConfidenceMatch}

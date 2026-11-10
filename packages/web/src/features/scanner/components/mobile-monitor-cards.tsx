@@ -19,6 +19,8 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardViewOptionsDrawer } from "@/features/cards/components/card-view-options-drawer";
 import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
+import { toCardHoldTarget } from "@/features/card-holds/lib/hold-for-scans";
+import { useCardHoldsContext } from "@/lib/card-holds-context";
 import { MobileCardTile } from "@/features/scanner/components/mobile-card-tile";
 import type { MobileMonitorCardsProps } from "@/lib/interfaces/scanner";
 import {
@@ -38,6 +40,7 @@ export function MobileMonitorCards({
   onStartReview,
 }: MobileMonitorCardsProps) {
   const { t } = useTranslation("scanner");
+  const cardHolds = useCardHoldsContext();
   const {
     searchQuery,
     setSearchQuery,
@@ -197,7 +200,11 @@ export function MobileMonitorCards({
             <MobileCardTile
               key={entry.scanId}
               entry={entry}
-              onOpen={() => setOpenScanId(entry.scanId)}
+              onOpen={() =>
+                !canEditCards && cardHolds
+                  ? cardHolds.openHoldDialog(toCardHoldTarget(entry))
+                  : setOpenScanId(entry.scanId)
+              }
               onLongPress={
                 canEditCards ? () => setActionsEntry(entry) : undefined
               }

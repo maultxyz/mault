@@ -10,10 +10,15 @@ import type {
   AppStreamContextValue,
 } from "@/lib/interfaces/collections";
 import {
+  CARD_HOLDS_CHANGED_EVENT,
   DEPLOY_STATUS_EVENT,
+  type CardHoldsChangedEvent,
   type DeployNotice,
   type SyncState,
 } from "@magic-vault/shared";
+import { CARD_HOLDS_QUERY_KEY } from "@/lib/constants/share-links";
+import i18n from "@/lib/i18n";
+import { toast } from "@/lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -166,6 +171,20 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
             }
             return { ...prev, [guid]: viewers };
           });
+        });
+        es.addEventListener(CARD_HOLDS_CHANGED_EVENT, (e) => {
+          const changed = JSON.parse(
+            (e as MessageEvent).data,
+          ) as CardHoldsChangedEvent;
+          queryClient.invalidateQueries({ queryKey: [CARD_HOLDS_QUERY_KEY] });
+          if (changed.createdHold) {
+            toast.info(
+              i18n.t("common:cardHolds.newHoldToast", {
+                guestName: changed.createdHold.guestName,
+                cardName: changed.createdHold.cardName,
+              }),
+            );
+          }
         });
         es.addEventListener("collections_changed", () => {
           queryClient.invalidateQueries({
