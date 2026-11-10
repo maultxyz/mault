@@ -1,5 +1,5 @@
 import type { PiScanRouteJson } from "../interfaces/pi-scan";
-import type { BinConfig, PickList } from "@magic-vault/shared";
+import { buildScanSaveRequest, type BinConfig, type PickList } from "@magic-vault/shared";
 import type { Hono } from "hono";
 import { collectionsRouter } from "../../routes/collections";
 import { sortBinsRouter } from "../../routes/bins";
@@ -31,7 +31,7 @@ export async function saveThroughCollectionRoute(
   orgId: string,
   collectionGuid: string,
   kind: "cards" | "unmatched" | "cards/sorted",
-  body: unknown,
+  body: { scanId: string; [key: string]: unknown },
 ): Promise<{ success: boolean; message: string }> {
   if (!token) {
     return { success: false, message: "The scan is not signed in." };
@@ -42,7 +42,7 @@ export async function saveThroughCollectionRoute(
     "POST",
     token,
     orgId,
-    body,
+    buildScanSaveRequest(body),
   );
   if (!result.ok) {
     return {
