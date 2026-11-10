@@ -1,12 +1,14 @@
-import posthog from "posthog-js";
-import "posthog-js/dist/exception-autocapture";
 import { POSTHOG_DEFAULT_HOST } from "@/lib/constants/error-reporting";
 import { runtimeEnv } from "@/lib/runtime-env";
 
 const posthogProjectApiKey = runtimeEnv("VITE_POSTHOG_PROJECT_API_KEY");
 
-if (posthogProjectApiKey) {
-  posthog.init(posthogProjectApiKey, {
+async function loadPosthog(projectApiKey: string) {
+  const [{ default: posthog }] = await Promise.all([
+    import("posthog-js"),
+    import("posthog-js/dist/exception-autocapture"),
+  ]);
+  posthog.init(projectApiKey, {
     api_host: runtimeEnv("VITE_POSTHOG_HOST") || POSTHOG_DEFAULT_HOST,
     persistence: "memory",
     autocapture: false,
@@ -28,9 +30,16 @@ if (posthogProjectApiKey) {
     environment: runtimeEnv("VITE_APP_ENV"),
     app_version: __APP_VERSION__,
   });
+  return posthog;
 }
 
+const posthogClient = posthogProjectApiKey
+  ? loadPosthog(posthogProjectApiKey).catch((error: unknown) => {
+      console.error("[error-reporting] PostHog failed to load:", error);
+      return null;
+    })
+  : null;
+
 export function reportClientError(error: unknown) {
-  if (!posthogProjectApiKey) return;
-  posthog.captureException(error);
+  void posthogClient?.then((posthog) => posthog?.captureException(error));
 }
