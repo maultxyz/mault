@@ -40,13 +40,10 @@ import {
   type CardSearchDiagnostics,
   type FieldMeta,
   type MatchedScanDiagnostics,
-  type OcrDiagnostics,
   type ScanDetectionDiagnostics,
-  type ScanMatchSource,
   type PiScanSessionStartBody,
   type PiScanSessionStartCode,
   type PiScanSessionState,
-  isStrongerTextMatch,
   type PlayingCardWithDistance,
   type ScanAttemptDiagnostic,
   type UnmatchedReason,
@@ -93,14 +90,11 @@ import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadSets } from "../../routes/bins/shared";
 import { grabSettledCameraFrame } from "./camera";
 import {
-  pickBetterOrientation,
   resolveCardSearchMatches,
+  identifyScanImage,
+  identifyScanWithConsensus,
   preferDetectedColor,
-  pickConsensus,
-  consensusAttemptLimit,
   consensusMissReason,
-  hasCardMatch,
-  needsTextSearch,
   routeForBin,
 } from "@magic-vault/shared";
 import {
@@ -536,82 +530,59 @@ async function matchFrame(
         : `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`),
   };
 
-  let best: Awaited<ReturnType<typeof searchOrientation>>;
-  let alternate: typeof best | null = null;
-  if (context.checkBothOrientations) {
-    const rotatedImage = await rgbaToJpeg(rotateRgba180(upright));
-    const [uprightHit, rotated] = await Promise.all([
-      searchOrientation(session, context, uprightImage, "upright"),
-      searchOrientation(session, context, rotatedImage, "rotated"),
-    ]);
-    const picked = pickBetterOrientation(uprightHit, rotated);
-    best = picked;
-    alternate = picked.alternate;
-  } else {
-    best = await searchOrientation(session, context, uprightImage, "upright");
-  }
-
-  let ocr: OcrDiagnostics | null = null;
-  let matchedBy: ScanMatchSource = "embedding";
-  let lowConfidenceFromOcr = false;
   const regions = OCR_REGIONS_BY_GAME_KEY[context.gameKey] ?? [];
-  const embeddingMatched = hasCardMatch(best.result);
-  if (
-    context.ocrEnabled &&
-    corners.contour &&
-    regions.length > 0 &&
-    needsTextSearch(best.result)
-  ) {
-    const ocrCrop = dewarpRgba(
-      source,
-      corners.contour,
-      OCR_CROP_WIDTH,
-      OCR_CROP_HEIGHT,
-    );
-    const options = [best, alternate].filter(
-      (option): option is NonNullable<typeof best> & { embedding: number[] } =>
-        !!option?.embedding,
-    );
-    const texts = await Promise.all(
-      options.map(async (option) => {
-        try {
-          return await findCardMatchesByOcr(
-            session.jwtClaims,
-            await rgbaToJpeg(
-              option.orientation === "rotated"
-                ? rotateRgba180(ocrCrop)
-                : ocrCrop,
-            ),
-            regions,
-            {
-              gameKey: context.gameKey,
-              lang: context.lang,
-              matchAllLanguages: context.matchAllLanguages,
-              embeddings: { embedding: option.embedding },
-              preferredSetCodes: session.preferredSetCodes,
-            },
-          );
-        } catch (err) {
-          console.error("[pi-scan] text search failed:", err);
-          return null;
-        }
-      }),
-    );
-    let bestIndex = 0;
-    texts.forEach((result, index) => {
-      if (isStrongerTextMatch(result, texts[bestIndex])) bestIndex = index;
-    });
-    const text = texts[bestIndex];
-    ocr = text?.ocr ?? texts.find((item) => item?.ocr)?.ocr ?? null;
-    if (text && hasCardMatch(text)) {
-      best = {
-        ...options[bestIndex],
-        result: await attachMatchedCards(text, context.gameKey, context.lang),
-      };
-      matchedBy = "ocr";
-      lowConfidenceFromOcr = !embeddingMatched;
-    }
-  }
+  const identified = await identifyScanImage({
+    checkBothOrientations: context.checkBothOrientations,
+    ocrEnabled: context.ocrEnabled && !!corners.contour && regions.length > 0,
+    search: async (orientation) =>
+      searchOrientation(
+        session,
+        context,
+        orientation === "rotated"
+          ? await rgbaToJpeg(rotateRgba180(upright))
+          : uprightImage,
+        orientation,
+      ),
+    readText: async (candidate) => {
+      if (!corners.contour || !candidate.embedding) return null;
+      const crop = dewarpRgba(
+        source,
+        corners.contour,
+        OCR_CROP_WIDTH,
+        OCR_CROP_HEIGHT,
+      );
+      try {
+        const text = await findCardMatchesByOcr(
+          session.jwtClaims,
+          await rgbaToJpeg(
+            candidate.orientation === "rotated" ? rotateRgba180(crop) : crop,
+          ),
+          regions,
+          {
+            gameKey: context.gameKey,
+            lang: context.lang,
+            matchAllLanguages: context.matchAllLanguages,
+            embeddings: { embedding: candidate.embedding },
+            preferredSetCodes: session.preferredSetCodes,
+          },
+        );
+        return {
+          ...candidate,
+          result: await attachMatchedCards(text, context.gameKey, context.lang),
+          ocr: text.ocr ?? null,
+        };
+      } catch (error) {
+        console.error("[pi-scan] text search failed:", error);
+        return null;
+      }
+    },
+  });
+  const best = identified.pick;
+  const {
+    ocr,
+    matchedBy,
+    lowConfidenceMatch: lowConfidenceFromOcr,
+  } = identified;
 
   const colorRegion = COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey];
   const detectedColor =
@@ -675,43 +646,16 @@ async function matchUntilConsensus(
   attempts: ScanAttemptDiagnostic[];
   card: PlayingCardWithDistance | null;
 }> {
-  const take = async () =>
-    matchFrame(session, context, await grabSettledCameraFrame());
-  if (context.matchesNeeded <= 1) {
-    const matched = await take();
-    return {
-      matched,
-      attempts: [attemptDiagnostic(matched)],
-      card: matched.resolved.card,
-    };
-  }
-
-  const maxAttempts = consensusAttemptLimit(context.matchesNeeded);
-  const attempts: ScanAttemptDiagnostic[] = [];
-  const frames: PiScanFrameMatch[] = [];
-  let last: PiScanFrameMatch | null = null;
-  for (let index = 0; index < maxAttempts; index += 1) {
-    const matched = await take();
-    last = matched;
-    attempts.push(attemptDiagnostic(matched));
-    frames.push(matched);
-    const agreed = pickConsensus(
-      frames.map((frame) => ({
-        matched: frame,
-        card: frame.resolved.card,
-      })),
-      context.matchesNeeded,
-    );
-    if (agreed) {
-      return { matched: agreed.matched, attempts, card: agreed.card };
-    }
-  }
-
-  if (!last) {
-    const matched = await take();
-    return { matched, attempts: [attemptDiagnostic(matched)], card: null };
-  }
-  return { matched: last, attempts, card: null };
+  const outcome = await identifyScanWithConsensus(
+    async () => matchFrame(session, context, await grabSettledCameraFrame()),
+    (attempt) => attempt.resolved.card,
+    context.matchesNeeded,
+  );
+  return {
+    matched: outcome.attempt,
+    attempts: outcome.attempts.map(attemptDiagnostic),
+    card: outcome.card,
+  };
 }
 
 function fail(session: PiScanLive, message: string) {

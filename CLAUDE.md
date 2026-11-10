@@ -164,6 +164,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 
 ### Pi scanning
 
+- Browser, mobile and Pi identify through shared `identifyScanImage`/`identifyScanWithConsensus`; keep environment-specific image IO in adapters.
 - `PI_SORTER=1` selects the built-in GPIO/I2C controller over its private Unix socket and authenticated `/pi-sorter` bridge; USB stays on `/pi-serial` with exclusive ownership. Pi browser clients share one server-owned physical connection with remapped reply sequences. Scans reserve mutation access; competing motion/configuration commands get busy, not queued stale motion. Automatic browser attachment must never move servos or run the self-test; calibration is checkout-local under `.pi-controller/`.
 - The Linux API service sets `API_HOST=127.0.0.1`; Pi hosts also default to loopback when unset. Remote clients use port 8080 through the existing HTTP/WebSocket `/api` proxy. Keep the default `0.0.0.0` for non-Pi deployments unless explicitly configured.
 - Install and update service units through `scripts/pi/install-services.mjs`, which renders the actual checkout path and escapes systemd path specifiers and command arguments. Do not copy the `~/mault` unit templates directly; Linux installs can use a different directory.
