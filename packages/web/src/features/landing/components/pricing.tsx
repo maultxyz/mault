@@ -21,9 +21,8 @@ import {
 } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function LandingPricing({ step }: MarketingStepProps) {
+export function LandingPricing() {
   const { t } = useTranslation("landing");
   const pricing = usePublicPricing();
   const plans = pricing?.plans ?? DEFAULT_PUBLIC_PLAN_CONFIG;
@@ -53,17 +52,16 @@ export function LandingPricing({ step }: MarketingStepProps) {
     );
 
   return (
-    <section id="pricing" className="border-t">
+    <section id="pricing" className="scroll-mt-14">
       <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         <MarketingSectionHeader
-          step={step}
           eyebrow={t("pricing.eyebrow")}
           heading={t("pricing.heading")}
           subtitle={t("pricing.subtitle")}
         />
 
         {hasYearly && (
-          <div className="mt-10 flex">
+          <div className="mt-10 flex justify-center">
             <ButtonGroup aria-label={t("pricing.intervals.label")}>
               {BILLING_INTERVALS.map((value) => (
                 <Button
@@ -86,11 +84,10 @@ export function LandingPricing({ step }: MarketingStepProps) {
             hasYearly ? "mt-6" : "mt-10",
           )}
         >
-          {visiblePlans.map((plan, index) => (
+          {visiblePlans.map((plan) => (
             <PricingPlanCard
               key={plan}
               plan={plan}
-              lead={`${step}.${String(index + 1).padStart(2, "0")}`}
               settings={plans[plan]}
               maxConnectedSorters={maxConnectedSorters}
               prices={plan === "free" ? null : (planPrices?.[plan] ?? null)}

@@ -515,7 +515,7 @@
       "stopWatching": "Überwachung beenden",
       "stopping": "Wird gestoppt...",
       "errors": {
-        "scanner_helper_missing": "Die Scanner-Komponente fehlt in dieser Installation. Installiere die MAULT Desktop-App neu.",
+        "scanner_helper_missing": "Die Scanner-Komponente fehlt in dieser Installation. Installiere die Mault Desktop-App neu.",
         "scanner_busy": "Der Scanner ist belegt. Schließe andere Scan-Programme und versuche es erneut.",
         "scanner_offline": "Der Scanner ist nicht erreichbar. Prüfe, ob er eingeschaltet und verbunden ist.",
         "paper_jam": "Papierstau. Räume den Einzug frei und scanne die restlichen Karten.",

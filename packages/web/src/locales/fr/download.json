@@ -1,17 +1,17 @@
 {
   "meta": {
-    "title": "Télécharger l'application de bureau | MAULT",
-    "description": "Télécharge l'application de bureau MAULT pour Windows et Linux. Le scan continue en arrière-plan, avec un aperçu flottant, des contrôles dans la barre des tâches et des notifications de bureau."
+    "title": "Télécharger l'application de bureau | Mault",
+    "description": "Télécharge l'application de bureau Mault pour Windows et Linux. Le scan continue en arrière-plan, avec un aperçu flottant, des contrôles dans la barre des tâches et des notifications de bureau."
   },
   "hero": {
     "eyebrow": "Application de bureau",
     "title": "Continue à trier pendant que tu fais autre chose",
-    "description": "L'application de bureau MAULT, c'est l'application web complète dans sa propre fenêtre. Le scan continue quand elle est réduite ou cachée par d'autres applications, et un aperçu flottant garde la trieuse en vue.",
+    "description": "L'application de bureau Mault, c'est l'application web complète dans sa propre fenêtre. Le scan continue quand elle est réduite ou cachée par d'autres applications, et un aperçu flottant garde la trieuse en vue.",
     "downloadFor": "Télécharger pour {{platform}}",
     "otherPlatforms": "Autres plateformes",
     "choosePlatform": "Choisis ta plateforme",
     "alreadyInstalled": "Tu utilises déjà l'application de bureau. Elle se met à jour toute seule, il n'y a donc rien à télécharger.",
-    "note": "Gratuite, se connecte avec ton compte MAULT existant et installe ses mises à jour toute seule."
+    "note": "Gratuite, se connecte avec ton compte Mault existant et installe ses mises à jour toute seule."
   },
   "platforms": {
     "eyebrow": "Téléchargement",
@@ -45,7 +45,7 @@
       },
       {
         "title": "Aperçu flottant",
-        "description": "Quand MAULT passe en arrière-plan, une petite fenêtre toujours au premier plan affiche la caméra, l'état, le nombre de cartes et le chrono, avec lecture, pause, alimentation auto et tout éjecter."
+        "description": "Quand Mault passe en arrière-plan, une petite fenêtre toujours au premier plan affiche la caméra, l'état, le nombre de cartes et le chrono, avec lecture, pause, alimentation auto et tout éjecter."
       },
       {
         "title": "Contrôles dans la barre des tâches",
@@ -57,7 +57,7 @@
       },
       {
         "title": "Toujours à jour",
-        "description": "L'application charge toujours la dernière version de MAULT et installe les mises à jour de bureau en arrière-plan."
+        "description": "L'application charge toujours la dernière version de Mault et installe les mises à jour de bureau en arrière-plan."
       }
     ]
   },
@@ -68,7 +68,7 @@
     "items": {
       "windows": {
         "title": "Windows",
-        "body": "Lance MAULT-windows.exe. Si Windows SmartScreen indique qu'il a protégé ton PC, choisis Informations complémentaires, puis Exécuter quand même. MAULT s'ouvre une fois l'installation terminée et ajoute un raccourci au menu Démarrer."
+        "body": "Lance MAULT-windows.exe. Si Windows SmartScreen indique qu'il a protégé ton PC, choisis Informations complémentaires, puis Exécuter quand même. Mault s'ouvre une fois l'installation terminée et ajoute un raccourci au menu Démarrer."
       },
       "linux": {
         "title": "Linux",

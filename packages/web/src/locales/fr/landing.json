@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "MAULT : trieuse et scanner automatique de cartes à collectionner",
+    "title": "Mault : trieuse et scanner automatique de cartes à collectionner",
     "description": "Scanne et trie automatiquement tes cartes Magic: The Gathering et autres jeux de cartes. Construis une trieuse open source, définis tes règles de bacs et suis la valeur de ta collection."
   },
   "nav": {
@@ -47,7 +47,8 @@
       "set": "Édition",
       "price": "Prix",
       "route": "Destination"
-    }
+    },
+    "subtitle": "Mault scanne chaque carte, la reconnaît en un instant et la dépose dans le bon bac, puis garde la trace de son emplacement et de sa valeur."
   },
   "stats": {
     "items": {

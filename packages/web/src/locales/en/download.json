@@ -1,17 +1,17 @@
 {
   "meta": {
-    "title": "Download the Desktop App | MAULT",
-    "description": "Download the MAULT desktop app for Windows and Linux. Scanning keeps running in the background, with a floating preview, taskbar controls and desktop notifications."
+    "title": "Download the Desktop App | Mault",
+    "description": "Download the Mault desktop app for Windows and Linux. Scanning keeps running in the background, with a floating preview, taskbar controls and desktop notifications."
   },
   "hero": {
     "eyebrow": "Desktop app",
     "title": "Keep sorting while you do something else",
-    "description": "The MAULT desktop app is the full web app in its own window. Scanning keeps running when it is minimized or behind other apps, and a floating preview keeps the sorter in view.",
+    "description": "The Mault desktop app is the full web app in its own window. Scanning keeps running when it is minimized or behind other apps, and a floating preview keeps the sorter in view.",
     "downloadFor": "Download for {{platform}}",
     "otherPlatforms": "Other platforms",
     "choosePlatform": "Choose your platform",
     "alreadyInstalled": "You are already using the desktop app. It keeps itself up to date, so there is nothing to download.",
-    "note": "Free, signs in with your existing MAULT account, and installs updates on its own."
+    "note": "Free, signs in with your existing Mault account, and installs updates on its own."
   },
   "platforms": {
     "eyebrow": "Download",
@@ -45,7 +45,7 @@
       },
       {
         "title": "Floating preview",
-        "description": "When MAULT goes into the background, a small always-on-top window shows the camera, status, card count and timer, with play, pause, auto-feed and drop all controls."
+        "description": "When Mault goes into the background, a small always-on-top window shows the camera, status, card count and timer, with play, pause, auto-feed and drop all controls."
       },
       {
         "title": "Taskbar controls",
@@ -57,7 +57,7 @@
       },
       {
         "title": "Always up to date",
-        "description": "The app always loads the latest MAULT and installs desktop updates in the background."
+        "description": "The app always loads the latest Mault and installs desktop updates in the background."
       }
     ]
   },
@@ -68,7 +68,7 @@
     "items": {
       "windows": {
         "title": "Windows",
-        "body": "Run MAULT-windows.exe. If Windows SmartScreen says it protected your PC, choose More info, then Run anyway. MAULT opens when it finishes and adds a Start menu shortcut."
+        "body": "Run MAULT-windows.exe. If Windows SmartScreen says it protected your PC, choose More info, then Run anyway. Mault opens when it finishes and adds a Start menu shortcut."
       },
       "linux": {
         "title": "Linux",

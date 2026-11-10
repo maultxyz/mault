@@ -60,7 +60,7 @@ export function documentScannerKey(scanner: DesktopDocumentScanner): string {
 export function requireBridge(
   bridge: DocumentScanBridge | null,
 ): DocumentScanBridge {
-  if (!bridge) throw new Error("Document scanning needs the MAULT desktop app");
+  if (!bridge) throw new Error("Document scanning needs the Mault desktop app");
   return bridge;
 }
 
@@ -85,7 +85,7 @@ export function getDocumentScannerSessionBridge(): DocumentScannerSessionBridge 
 export function requireDocumentScannerSessionBridge(
   bridge: DocumentScannerSessionBridge | null,
 ): DocumentScannerSessionBridge {
-  if (!bridge) throw new Error("Document scanners need the MAULT desktop app");
+  if (!bridge) throw new Error("Document scanners need the Mault desktop app");
   return bridge;
 }
 

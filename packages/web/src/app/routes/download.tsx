@@ -3,7 +3,7 @@ import { GuideFooter } from "@/components/guide-footer";
 import { DownloadHero } from "@/features/download/components/hero";
 import { DownloadInstall } from "@/features/download/components/install";
 import { DownloadPlatforms } from "@/features/download/components/platforms";
-import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
+import { PublicBackdrop } from "@/components/public-backdrop";
 import { PublicNav } from "@/components/public-nav";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { DOWNLOAD_PATH } from "@/lib/constants/download";
@@ -19,14 +19,14 @@ export default function DownloadPage() {
   });
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
-      <BlueprintBackdrop />
-      <PublicNav containerClassName="max-w-4xl" />
+    <div className="relative isolate flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
+      <PublicBackdrop />
+      <PublicNav />
       <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
         <DownloadHero />
-        <DownloadPlatforms step="01" />
-        <DownloadFeatures step="02" />
-        <DownloadInstall step="03" />
+        <DownloadPlatforms />
+        <DownloadFeatures />
+        <DownloadInstall />
       </main>
       <GuideFooter showSignInLink />
     </div>

@@ -47,7 +47,7 @@ export function BuildBom() {
   const channelsUsed = moduleCount * 3 + 1;
 
   return (
-    <section id="parts" className="mx-auto max-w-4xl scroll-mt-14 px-4 py-10">
+    <section id="parts" className="mx-auto max-w-6xl scroll-mt-14 px-4 py-12 md:py-16">
       <GuideSectionHeader
         id="parts"
         step="02"

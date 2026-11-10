@@ -515,7 +515,7 @@
       "stopWatching": "Stop watching",
       "stopping": "Stopping...",
       "errors": {
-        "scanner_helper_missing": "The scanner component is missing from this install. Reinstall the MAULT desktop app.",
+        "scanner_helper_missing": "The scanner component is missing from this install. Reinstall the Mault desktop app.",
         "scanner_busy": "The scanner is busy. Close other scanning apps and try again.",
         "scanner_offline": "Can't reach the scanner. Check that it is on and connected.",
         "paper_jam": "Paper jam. Clear the feeder, then scan the remaining cards.",

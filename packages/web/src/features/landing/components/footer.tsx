@@ -14,7 +14,6 @@ export function LandingFooter() {
 
   return (
     <MarketingFooter
-      wide
       links={[
         { label: t("nav.features"), href: "#features" },
         { label: t("nav.openSource"), href: "#open-source" },

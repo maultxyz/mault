@@ -32,7 +32,7 @@ function createMainWindow() {
     ...MAIN_WINDOW_SIZE,
     minWidth: MAIN_WINDOW_MIN_SIZE.width,
     minHeight: MAIN_WINDOW_MIN_SIZE.height,
-    title: "MAULT",
+    title: "Mault",
     icon: appIconPath(),
     show: false,
     autoHideMenuBar: true,

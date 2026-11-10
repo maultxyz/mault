@@ -1,18 +1,12 @@
 import { BrandMark } from "@/components/brand-mark";
 import { MARKETING_FOOTER_LINK_CLASS } from "@/lib/constants/landing";
 import type { MarketingFooterProps } from "@/lib/interfaces/marketing-footer";
-import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
-export function MarketingFooter({ links, end, wide }: MarketingFooterProps) {
+export function MarketingFooter({ links, end }: MarketingFooterProps) {
   return (
     <footer className="border-t">
-      <div
-        className={cn(
-          "mx-auto flex flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row",
-          wide ? "max-w-6xl" : "max-w-4xl",
-        )}
-      >
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
         <BrandMark />
 
         <nav className="flex flex-col items-center gap-2 text-sm text-foreground/70 sm:flex-row sm:gap-5">

@@ -149,7 +149,7 @@ export function pipWindowOptions(opener: BrowserWindow | null): BrowserWindowCon
     y: y + height - PIP_WINDOW_SIZE.height - PIP_WINDOW_MARGIN,
     minWidth: PIP_WINDOW_MIN_SIZE.width,
     minHeight: PIP_WINDOW_MIN_SIZE.height,
-    title: "MAULT",
+    title: "Mault",
     icon: appIconPath(),
     frame: false,
     alwaysOnTop: true,

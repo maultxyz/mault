@@ -26,7 +26,7 @@ jobs:
       artifact-prefix: ${{ steps.channel.outputs.artifact-prefix }}
     steps:
       # master publishes the production app (desktop-latest); dev publishes the
-      # separately installed MAULT Dev app (desktop-dev) that loads dev.mault.xyz.
+      # separately installed Mault Dev app (desktop-dev) that loads dev.mault.xyz.
       - name: Pick channel
         id: channel
         run: |
@@ -170,14 +170,14 @@ jobs:
           if [ "$CHANNEL" = "development" ]; then
             gh release create "$RELEASE_TAG" installers/* \
               --target "${{ github.sha }}" \
-              --title "MAULT Desktop Dev v$VERSION" \
-              --notes "Development build of the MAULT desktop app from ${{ github.sha }}. It installs as MAULT Dev next to the production app and loads dev.mault.xyz." \
+              --title "Mault Desktop Dev v$VERSION" \
+              --notes "Development build of the Mault desktop app from ${{ github.sha }}. It installs as Mault Dev next to the production app and loads dev.mault.xyz." \
               --prerelease \
               --latest=false
           else
             gh release create "$RELEASE_TAG" installers/* \
-              --title "MAULT Desktop v$VERSION" \
-              --notes "MAULT desktop app v$VERSION." \
+              --title "Mault Desktop v$VERSION" \
+              --notes "Mault desktop app v$VERSION." \
               --latest=false
           fi
 

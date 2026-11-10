@@ -53,7 +53,7 @@ const trackedWebContents = new WeakSet<WebContents>();
 
 function assertAppOrigin(event: IpcMainInvokeEvent | IpcMainEvent) {
   if (!isAppOrigin(event.senderFrame?.origin)) {
-    throw new Error("Document scanning is only available to the MAULT app");
+    throw new Error("Document scanning is only available to the Mault app");
   }
 }
 

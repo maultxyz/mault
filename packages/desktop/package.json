@@ -2,7 +2,7 @@
   "name": "@magic-vault/desktop",
   "version": "1.0.2",
   "private": true,
-  "description": "MAULT desktop app",
+  "description": "Mault desktop app",
   "author": "Mault LLC",
   "main": "dist/main.js",
   "scripts": {

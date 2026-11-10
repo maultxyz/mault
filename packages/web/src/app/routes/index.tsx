@@ -1,4 +1,3 @@
-import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
 import { SpiderWeb } from "@/components/halloween-decor";
 import { LandingCta } from "@/features/landing/components/cta";
 import { LandingFeatures } from "@/features/landing/components/features";
@@ -7,6 +6,7 @@ import { LandingHero } from "@/features/landing/components/hero";
 import { LandingOpenSource } from "@/features/landing/components/open-source";
 import { LandingPricing } from "@/features/landing/components/pricing";
 import { LandingSupportedGames } from "@/features/landing/components/supported-games";
+import { PublicBackdrop } from "@/components/public-backdrop";
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicNav } from "@/components/public-nav";
 import { usePageMeta } from "@/hooks/use-page-meta";
@@ -23,17 +23,17 @@ export default function LandingPage() {
   });
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
-      <BlueprintBackdrop />
+    <div className="relative isolate flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
+      <PublicBackdrop />
       <SpiderWeb corner="top-right" withSpider className="size-28 max-md:size-16" />
       <PublicAnnouncementBanner />
       <PublicNav />
       <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
         <LandingHero />
         <LandingSupportedGames />
-        <LandingFeatures step="01" />
-        <LandingOpenSource step="02" />
-        {AUTH_PROVIDER !== "local" && <LandingPricing step="03" />}
+        <LandingFeatures />
+        <LandingOpenSource />
+        {AUTH_PROVIDER !== "local" && <LandingPricing />}
         <LandingCta />
       </main>
       <LandingFooter />

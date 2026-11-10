@@ -30,8 +30,8 @@ export default defineConfig({
       includeAssets: ["icon/apple-touch-icon.png"],
       manifest: {
         id: "/",
-        name: "MAULT",
-        short_name: "MAULT",
+        name: "Mault",
+        short_name: "Mault",
         description: "Automated trading card sorting and inventory.",
         start_url: "/app",
         scope: "/",

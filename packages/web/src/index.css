@@ -457,21 +457,6 @@ code {
   animation: marquee var(--marquee-duration, 40s) linear infinite;
 }
 
-.bg-blueprint {
-  background-image:
-    linear-gradient(
-      to right,
-      color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 40px 40px;
-}
-
 @layer base {
   * {
     @apply border-border outline-ring;
@@ -484,30 +469,21 @@ code {
   }
 }
 
-.feature-spotlight-number {
-  -webkit-text-stroke: 1.5px color-mix(in oklab, var(--primary) 55%, transparent);
+.public-glow {
+  background: radial-gradient(
+    ellipse 50% 55% at 50% 0%,
+    color-mix(in oklab, var(--primary) 12%, transparent),
+    transparent 70%
+  );
 }
 
-@keyframes feature-spotlight-number-drift {
-  from {
-    transform: translateY(24px);
-  }
-  to {
-    transform: translateY(-24px);
-  }
-}
-
-@supports (animation-timeline: view()) {
-  .feature-spotlight-number {
-    animation: feature-spotlight-number-drift linear both;
-    animation-timeline: view();
-  }
+.landing-frame {
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 24px 48px -24px var(--shadow-color);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .feature-spotlight-number {
-    animation: none;
-  }
   *,
   ::before,
   ::after {

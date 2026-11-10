@@ -186,7 +186,7 @@ export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
   "settling",
 ];
 
-export const DOCUMENT_TITLE_BASE = "MAULT";
+export const DOCUMENT_TITLE_BASE = "Mault";
 
 export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
 

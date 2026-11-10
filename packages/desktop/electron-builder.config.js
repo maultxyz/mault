@@ -54,8 +54,8 @@ module.exports = {
     entitlements: "build/entitlements.mac.plist",
     entitlementsInherit: "build/entitlements.mac.plist",
     extendInfo: {
-      NSCameraUsageDescription: "MAULT uses the camera to scan your cards.",
-      NSBluetoothAlwaysUsageDescription: "MAULT uses Bluetooth to connect to your card sorter.",
+      NSCameraUsageDescription: "Mault uses the camera to scan your cards.",
+      NSBluetoothAlwaysUsageDescription: "Mault uses Bluetooth to connect to your card sorter.",
     },
   },
   win: {
