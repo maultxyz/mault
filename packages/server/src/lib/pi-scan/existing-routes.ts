@@ -1,11 +1,21 @@
-import { buildScanSaveRequest, type BinConfig, type PickList } from "@magic-vault/shared";
+import {
+  buildScanSaveRequest,
+  type BinConfig,
+  type PickList,
+} from "@magic-vault/shared";
 import type { Hono } from "hono";
 import { collectionsRouter } from "../../routes/collections";
 import { sortBinsRouter } from "../../routes/bins";
 import type { AppEnv } from "../../middleware/auth";
 import { SERVER_SCAN_ACTOR } from "../constants/scan-actor";
 import type { ServerScanActor } from "../interfaces/scan-actor";
-import type { PiScanRouteJson } from "../interfaces/pi-scan";
+import type {
+  PiScanRouteJson,
+  PiScanSaveOptions,
+  PiScanSaveResult,
+  SendPendingPiScanSave,
+} from "../interfaces/pi-scan";
+import { recoverPiScanSaves, submitPiScanSave } from "./pending-saves";
 
 async function callJson(
   router: Hono<AppEnv>,
@@ -23,7 +33,9 @@ async function callJson(
     },
     { [SERVER_SCAN_ACTOR]: actor },
   );
-  const payload = (await response.json()) as PiScanRouteJson;
+  const payload = (await response
+    .json()
+    .catch(() => ({ success: false }))) as PiScanRouteJson;
   return {
     ok: response.ok && payload.success !== false,
     body: payload,
@@ -31,23 +43,68 @@ async function callJson(
   };
 }
 
+function scanSaveSender(): SendPendingPiScanSave {
+  return async (save, isRetry) => {
+    const result = await callJson(
+      collectionsRouter,
+      `/${save.collectionGuid}/${save.kind}`,
+      "POST",
+      { userId: save.userId, orgId: save.orgId },
+      buildScanSaveRequest(save.body, { isRetry }),
+    );
+    return {
+      success: result.ok,
+      message: result.body.message ?? "The card could not be saved.",
+      status: result.status,
+    };
+  };
+}
+
 export async function saveThroughCollectionRoute(
-  actor: ServerScanActor,
+  orgId: string,
   collectionGuid: string,
   kind: "cards" | "unmatched" | "cards/sorted",
   body: { scanId: string; [key: string]: unknown },
-): Promise<{ success: boolean; message: string }> {
-  const result = await callJson(
-    collectionsRouter,
-    `/${collectionGuid}/${kind}`,
-    "POST",
-    actor,
-    buildScanSaveRequest(body),
+  options: PiScanSaveOptions,
+): Promise<PiScanSaveResult> {
+  if (kind === "cards/sorted") {
+    const result = await callJson(
+      collectionsRouter,
+      `/${collectionGuid}/${kind}`,
+      "POST",
+      { userId: options.userId, orgId },
+      buildScanSaveRequest(body),
+    );
+    return {
+      success: result.ok,
+      message: result.body.message ?? "The card could not be saved.",
+      status: result.status,
+    };
+  }
+  return submitPiScanSave(
+    {
+      orgId,
+      userId: options.userId,
+      collectionGuid,
+      kind,
+      body,
+      queuedAt: Date.now(),
+    },
+    scanSaveSender(),
+    options.stopping,
   );
-  return {
-    success: result.ok,
-    message: result.body.message ?? (result.ok ? "" : "The card could not be saved."),
-  };
+}
+
+export function recoverSessionScanSaves(
+  orgId: string,
+  options: PiScanSaveOptions,
+) {
+  return recoverPiScanSaves(
+    orgId,
+    options.userId,
+    scanSaveSender(),
+    options.stopping,
+  );
 }
 
 export async function recordPickFound(

@@ -51,7 +51,12 @@ import {
 } from "@magic-vault/shared";
 import { authQuery } from "../../db";
 import { piUpdateRunning } from "../pi-update";
-import { collections, feederConfigs, games, orgSettings } from "../../db/schema";
+import {
+  collections,
+  feederConfigs,
+  games,
+  orgSettings,
+} from "../../db/schema";
 import type {
   PiScanBinCard,
   PiScanFrameMatch,
@@ -101,6 +106,7 @@ import {
   recordPickFound,
   saveBinThroughRoute,
   saveThroughCollectionRoute,
+  recoverSessionScanSaves,
 } from "./existing-routes";
 import { SorterLink } from "./sorter-link";
 
@@ -451,7 +457,10 @@ async function rememberAutoAssign(
   const target = context.configs.find((bin) => bin.binNumber === binNumber);
   if (!target) return;
   target.rules = rules;
-  context.pickConfigs = applyAutoAssignTarget(context.pickConfigs, { binNumber, rules });
+  context.pickConfigs = applyAutoAssignTarget(context.pickConfigs, {
+    binNumber,
+    rules,
+  });
   try {
     const saved = await saveBinThroughRoute(
       { userId: session.userId, orgId: session.orgId },
@@ -658,7 +667,9 @@ async function matchUntilConsensus(
 }
 
 function fail(session: PiScanLive, message: string) {
-  console.error(`[pi-scan] failed while ${session.activity ?? "scanning"}: ${message}`);
+  console.error(
+    `[pi-scan] failed while ${session.activity ?? "scanning"}: ${message}`,
+  );
   session.phase = "error";
   session.message = message;
   session.stopRequested = true;
@@ -685,6 +696,10 @@ function showCard(
 ) {
   session.activity = "routing";
   session.current = { name, binNumber, matched };
+}
+
+function saveOptions(session: PiScanLive) {
+  return { userId: session.userId, stopping: () => session.stopRequested };
 }
 
 function savedCard(session: PiScanLive, hasPending = false) {
@@ -805,7 +820,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       }
 
       const identified =
-        prefetched?.identified ?? await matchUntilConsensus(session, context);
+        prefetched?.identified ?? (await matchUntilConsensus(session, context));
       const matched = identified.matched;
       const card = identified.card;
       const imageUrl = jpegDataUrl(matched.image);
@@ -853,7 +868,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             attempts: identified.attempts,
           };
           const saved = await saveThroughCollectionRoute(
-            { userId: session.userId, orgId: session.orgId },
+            session.orgId,
             session.collectionGuid,
             "unmatched",
             {
@@ -866,6 +881,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
               embedding: matched.embedding,
               deviceGuid: context.deviceGuid,
             },
+            saveOptions(session),
           );
           if (!saved.success) {
             fail(session, saved.message);
@@ -982,7 +998,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           foilDetection: matched.foilDetection,
         };
         const saved = await saveThroughCollectionRoute(
-          { userId: session.userId, orgId: session.orgId },
+          session.orgId,
           session.collectionGuid,
           context.set.skipSaving ? "cards/sorted" : "cards",
           {
@@ -1003,6 +1019,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             vectorizedOn: "server",
             deviceGuid: context.deviceGuid,
           },
+          saveOptions(session),
         );
         if (!saved.success) {
           fail(session, saved.message);
@@ -1045,8 +1062,12 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
     await prefetch.discard();
     if (session.phase === "error") {
       try {
-        const stopped = await link.command({ feederStop: true }, PI_SCAN_STATUS_TIMEOUT_MS);
-        if (stopped.error || stopped.status !== "ok") throw new Error("Feeder stop was not confirmed.");
+        const stopped = await link.command(
+          { feederStop: true },
+          PI_SCAN_STATUS_TIMEOUT_MS,
+        );
+        if (stopped.error || stopped.status !== "ok")
+          throw new Error("Feeder stop was not confirmed.");
       } catch {
         session.message = `${session.message ?? "The scan failed."} Feeder stop unconfirmed.`;
         console.error(`[pi-scan] ${session.message}`);
@@ -1072,6 +1093,12 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
 }
 
 async function arm(session: PiScanLive) {
+  const recovered = await recoverSessionScanSaves(
+    session.orgId,
+    saveOptions(session),
+  );
+  if (!recovered.success)
+    throw new PiScanStartError(recovered.message, "invalid");
   const displayName = await getUserDisplayName(session.userId);
   if (await piUpdateRunning())
     throw new PiScanStartError("A system update is running.", "busy");
@@ -1215,15 +1242,10 @@ export async function startPiScanSession(
   }
   if (existing) await existing.done;
 
-  const session = createSession(
-    input.orgId,
-    input.userId,
-    input.jwtClaims,
-    {
-      ...input.body,
-      collectionGuid,
-    },
-  );
+  const session = createSession(input.orgId, input.userId, input.jwtClaims, {
+    ...input.body,
+    collectionGuid,
+  });
   sessions.set(input.orgId, session);
   try {
     await arm(session);

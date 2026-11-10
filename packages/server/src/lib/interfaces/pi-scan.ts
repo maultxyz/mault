@@ -142,3 +142,28 @@ export type PiScanRecoveryState = Pick<
   | "context"
   | "message"
 >;
+
+export interface PendingPiScanSave {
+  orgId: string;
+  userId: string;
+  collectionGuid: string;
+  kind: "cards" | "unmatched";
+  body: { scanId: string; [key: string]: unknown };
+  queuedAt: number;
+}
+
+export interface PiScanSaveOptions {
+  userId: string;
+  stopping: () => boolean;
+}
+
+export interface PiScanSaveResult {
+  success: boolean;
+  message: string;
+  status?: number;
+}
+
+export type SendPendingPiScanSave = (
+  save: PendingPiScanSave,
+  isRetry: boolean,
+) => Promise<PiScanSaveResult>;
