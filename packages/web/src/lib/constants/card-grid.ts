@@ -34,3 +34,9 @@ export const NEW_CARD_ANIMATION_WINDOW_MS = 5_000;
 export const PENDING_SCAN_CARD_SAVED_RETENTION_MS = 30_000;
 
 export const REVIEW_GRID_NO_SELECTION_VALUE = "none";
+
+export const SELECTION_ACTION_BAR_BUTTON_CLASS =
+  "text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15";
+
+export const SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS =
+  "bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90";

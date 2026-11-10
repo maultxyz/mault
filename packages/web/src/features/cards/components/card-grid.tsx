@@ -1,6 +1,7 @@
 import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { useHiddenDownloadedCount } from "@/features/cards/api/use-hidden-downloaded-count";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { SelectionActionBar } from "@/components/selection-action-bar";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
@@ -77,12 +78,11 @@ import { BULK_TAG_ACTIONS } from "@/lib/constants/card-tags";
 import {
   CARD_GRID_CLASS,
   CARD_GRID_DENSITY_CLASS,
+  SELECTION_ACTION_BAR_BUTTON_CLASS,
+  SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS,
 } from "@/lib/constants/card-grid";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
-import type {
-  OpenScanOptions,
-  SelectToggleOptions,
-} from "@/lib/interfaces/cards";
+import type { OpenScanOptions } from "@/lib/interfaces/cards";
 import {
   IconAlbum,
   IconBox,
@@ -110,7 +110,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import { useTranslation } from "react-i18next";
 import {
@@ -120,6 +120,11 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useHotkeys } from "@/hooks/use-hotkeys";
+import { useScanSelection } from "@/hooks/use-scan-selection";
+import {
+  groupedCardKey,
+  groupedCardScanIds,
+} from "@/features/cards/lib/grouped-card-selection";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
 import { reviewQueueStore } from "@/features/cards/lib/review-queue-store";
@@ -191,7 +196,6 @@ export function CardGrid() {
     isPending: summaryPending,
   } = useCollectionCardsSummary();
 
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { scanId: openScanId } = useParams<{ scanId?: string }>();
   const [searchParams] = useSearchParams();
@@ -350,6 +354,19 @@ export function CardGrid() {
         : (pageQuery.data?.items ?? []),
     [scanTimelineGrouping, scanTimelinePages, pageQuery.data],
   );
+  const {
+    selectedIds,
+    setSelectedIds,
+    toggleIds: toggleSelect,
+    selectItem: handleSelect,
+    togglePage: togglePageSelect,
+    isItemSelected,
+    clearSelection,
+  } = useScanSelection({
+    pageItems: pagedCards,
+    keyOf: groupedCardKey,
+    scanIdsOf: groupedCardScanIds,
+  });
   const scanTimelineBlocks = useMemo(
     () =>
       scanTimelineGrouping
@@ -465,57 +482,8 @@ export function CardGrid() {
         ? startReview
         : undefined,
     clearSelection:
-      selectedIds.size > 0 ? () => setSelectedIds(new Set()) : undefined,
+      selectedIds.size > 0 ? clearSelection : undefined,
   });
-
-  const toggleSelect = useCallback((scanIds: string[]) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      const allSelected = scanIds.every((id) => next.has(id));
-      for (const id of scanIds) {
-        if (allSelected) next.delete(id);
-        else next.add(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const selectAnchorRef = useRef<string | null>(null);
-
-  const handleSelect = useCallback(
-    (scanId: string, { shiftKey }: SelectToggleOptions) => {
-      const index = pagedCards.findIndex((entry) => entry.scanId === scanId);
-      const entry = pagedCards[index];
-      if (!entry) return;
-      const anchorIndex = selectAnchorRef.current
-        ? pagedCards.findIndex(
-            (candidate) => candidate.scanId === selectAnchorRef.current,
-          )
-        : -1;
-      selectAnchorRef.current = scanId;
-
-      if (!shiftKey || anchorIndex === -1 || anchorIndex === index) {
-        toggleSelect(entry.scanIds);
-        return;
-      }
-
-      const [from, to] =
-        anchorIndex < index ? [anchorIndex, index] : [index, anchorIndex];
-      const rangeIds = pagedCards
-        .slice(from, to + 1)
-        .flatMap((candidate) => candidate.scanIds);
-      setSelectedIds((prev) => {
-        const select = !entry.scanIds.every((id) => prev.has(id));
-        const next = new Set(prev);
-        for (const id of rangeIds) {
-          if (select) next.add(id);
-          else next.delete(id);
-        }
-        return next;
-      });
-    },
-    [pagedCards, toggleSelect],
-  );
 
   const toggleScanTimelineBlockSelect = useCallback(
     (block: ScanTimelineBlock<GroupedScannedCard>) =>
@@ -523,25 +491,10 @@ export function CardGrid() {
     [toggleSelect],
   );
 
-  const togglePageSelect = useCallback(() => {
-    const pageIds = pagedCards.flatMap((entry) => entry.scanIds);
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      const pageSelected = pageIds.every((id) => next.has(id));
-      for (const id of pageIds) {
-        if (pageSelected) next.delete(id);
-        else next.add(id);
-      }
-      return next;
-    });
-  }, [pagedCards]);
-
   const allSelected =
     totalCards > 0 &&
     selectedIds.size >= totalCards &&
-    pagedCards.every((entry) =>
-      entry.scanIds.every((id) => selectedIds.has(id)),
-    );
+    pagedCards.every(isItemSelected);
 
   const toggleSelectAll = useCallback(async () => {
     if (allSelected || !collectionGuid) {
@@ -554,7 +507,7 @@ export function CardGrid() {
     } catch (err) {
       console.error("Failed to select all cards:", err);
     }
-  }, [allSelected, collectionGuid, cardsQuery]);
+  }, [allSelected, collectionGuid, cardsQuery, setSelectedIds]);
 
   const gameKey = viewedCollection?.game?.key;
   const exportAdapters = useMemo(
@@ -645,7 +598,7 @@ export function CardGrid() {
       if (moved) setSelectedIds(new Set());
       return moved;
     },
-    [moveToCollection, selectedIds],
+    [moveToCollection, selectedIds, setSelectedIds],
   );
 
   const handleDeleteExported = useCallback(() => {
@@ -656,12 +609,12 @@ export function CardGrid() {
       for (const id of exportedScanIds) next.delete(id);
       return next;
     });
-  }, [exportedScanIds, removeCards]);
+  }, [exportedScanIds, removeCards, setSelectedIds]);
 
   const handleBulkDelete = useCallback(() => {
     removeCards(Array.from(selectedIds));
     setSelectedIds(new Set());
-  }, [removeCards, selectedIds]);
+  }, [removeCards, selectedIds, setSelectedIds]);
 
   const handleClearSession = useCallback(async () => {
     clearCards();
@@ -882,7 +835,7 @@ export function CardGrid() {
     wasCorrected: entry.corrected,
     isReviewed: entry.reviewed,
     storageLocation: entry.storageLocation,
-    isSelected: entry.scanIds.every((id) => selectedIds.has(id)),
+    isSelected: isItemSelected(entry),
   });
 
   const renderCardGridItem = (entry: GroupedScannedCard) => {
@@ -893,7 +846,7 @@ export function CardGrid() {
         scannedAt={entry.scannedAt}
         onOpen={() => setOpenScanId(entry.scanId)}
         binNumber={entry.binNumber}
-        isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+        isSelected={isItemSelected(entry)}
         onToggleSelect={(options) =>
           handleSelect(entry.scanId, options)
         }
@@ -914,7 +867,7 @@ export function CardGrid() {
       <CardContextMenu
         key={entry.scanId}
         entry={entry}
-        isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+        isSelected={isItemSelected(entry)}
         onOpen={() => setOpenScanId(entry.scanId)}
         onToggleSelect={() =>
           handleSelect(entry.scanId, { shiftKey: false })
@@ -1074,164 +1027,153 @@ export function CardGrid() {
       </div>
 
       {selectedIds.size > 0 && (
-        <div
-          className="sticky bottom-4 z-50 mx-auto mb-4 flex w-fit shrink-0 items-center gap-3 rounded-lg bg-foreground px-1.5 pl-3 py-1.5 text-xs text-background shadow-2xl ring-1 ring-foreground/20 animate-in fade-in-0 slide-in-from-bottom-4 duration-150"
+        <SelectionActionBar
+          selectedCount={selectedIds.size}
+          onClear={clearSelection}
         >
-          <span role="status" className="font-medium">
-            {t("cardGrid.cardsSelected", { count: selectedIds.size })}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-              onClick={() => setSelectedIds(new Set())}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  disabled={exportingSelected || exportAdapters.length === 0}
+                  className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                />
+              }
             >
-              {t("cardGrid.clear")}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    disabled={exportingSelected || exportAdapters.length === 0}
-                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                  />
-                }
-              >
-                {exportingSelected ? (
-                  <IconLoader2 className="animate-spin motion-reduce:animate-none" />
-                ) : (
-                  <IconDownload />
-                )}
-                {exportingSelected ? t("cardGrid.exporting") : t("cardGrid.export")}
-                <IconChevronDown />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="top">
-                {exportAdapters.map((adapter) => (
+              {exportingSelected ? (
+                <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+              ) : (
+                <IconDownload />
+              )}
+              {exportingSelected ? t("cardGrid.exporting") : t("cardGrid.export")}
+              <IconChevronDown />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" side="top">
+              {exportAdapters.map((adapter) => (
+                <DropdownMenuItem
+                  key={adapter.key}
+                  onClick={() => handleExportSelected(adapter)}
+                >
+                  {adapter.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {!readOnly && (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                    />
+                  }
+                >
+                  <IconSparkles />
+                  {t("cardContextMenu.foil")}
+                  <IconChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" side="top">
                   <DropdownMenuItem
-                    key={adapter.key}
-                    onClick={() => handleExportSelected(adapter)}
-                  >
-                    {adapter.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {!readOnly && (
-              <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                      />
+                    onClick={() =>
+                      setCardsFoilType(Array.from(selectedIds), null)
                     }
                   >
-                    <IconSparkles />
-                    {t("cardContextMenu.foil")}
-                    <IconChevronDown />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" side="top">
+                    {t("cardContextMenu.nonFoil")}
+                  </DropdownMenuItem>
+                  {foilOptions.map((option) => (
                     <DropdownMenuItem
+                      key={option}
                       onClick={() =>
-                        setCardsFoilType(Array.from(selectedIds), null)
+                        setCardsFoilType(Array.from(selectedIds), option)
                       }
                     >
-                      {t("cardContextMenu.nonFoil")}
+                      {option}
                     </DropdownMenuItem>
-                    {foilOptions.map((option) => (
-                      <DropdownMenuItem
-                        key={option}
-                        onClick={() =>
-                          setCardsFoilType(Array.from(selectedIds), option)
-                        }
-                      >
-                        {option}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                      />
-                    }
-                  >
-                    <IconRosette />
-                    {t("condition.setSelected")}
-                    <IconChevronDown />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" side="top">
-                    {CARD_CONDITIONS.map((option) => (
-                      <DropdownMenuItem
-                        key={option}
-                        onClick={() =>
-                          setCardsCondition(Array.from(selectedIds), option)
-                        }
-                      >
-                        {t(`condition.names.${option}`)}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                      />
-                    }
-                  >
-                    <IconTag />
-                    {t("cardTags.title")}
-                    <IconChevronDown />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" side="top">
-                    {BULK_TAG_ACTIONS.map(({ enabled, labelKey }, index) => (
-                      <DropdownMenuGroup key={labelKey}>
-                        {index > 0 && <DropdownMenuSeparator />}
-                        <DropdownMenuLabel>{t(labelKey)}</DropdownMenuLabel>
-                        {CARD_TAGS.map((tag) => (
-                          <DropdownMenuItem
-                            key={tag}
-                            onClick={() =>
-                              setCardsTags(Array.from(selectedIds), [tag], enabled)
-                            }
-                          >
-                            {t(`cardTags.names.${tag}`)}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                {(!storageLocked || moveTargetCollections.length > 0) && (
-                  <Button
-                    variant="ghost"
-                    disabled={isMoving || isMovingToCollection}
-                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                    onClick={() => setMoveSelectedOpen(true)}
-                  >
-                    <IconBox />
-                    {t("cardGrid.moveToLocation")}
-                  </Button>
-                )}
-                <Button
-                  variant="destructive"
-                  className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
-                  onClick={() => setConfirmOpen(true)}
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                    />
+                  }
                 >
-                  {t("cardGrid.delete")}
+                  <IconRosette />
+                  {t("condition.setSelected")}
+                  <IconChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" side="top">
+                  {CARD_CONDITIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option}
+                      onClick={() =>
+                        setCardsCondition(Array.from(selectedIds), option)
+                      }
+                    >
+                      {t(`condition.names.${option}`)}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                    />
+                  }
+                >
+                  <IconTag />
+                  {t("cardTags.title")}
+                  <IconChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" side="top">
+                  {BULK_TAG_ACTIONS.map(({ enabled, labelKey }, index) => (
+                    <DropdownMenuGroup key={labelKey}>
+                      {index > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuLabel>{t(labelKey)}</DropdownMenuLabel>
+                      {CARD_TAGS.map((tag) => (
+                        <DropdownMenuItem
+                          key={tag}
+                          onClick={() =>
+                            setCardsTags(Array.from(selectedIds), [tag], enabled)
+                          }
+                        >
+                          {t(`cardTags.names.${tag}`)}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuGroup>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {(!storageLocked || moveTargetCollections.length > 0) && (
+                <Button
+                  variant="ghost"
+                  disabled={isMoving || isMovingToCollection}
+                  className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                  onClick={() => setMoveSelectedOpen(true)}
+                >
+                  <IconBox />
+                  {t("cardGrid.moveToLocation")}
                 </Button>
-              </>
-            )}
-          </div>
-        </div>
+              )}
+              <Button
+                variant="destructive"
+                className={SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS}
+                onClick={() => setConfirmOpen(true)}
+              >
+                {t("cardGrid.delete")}
+              </Button>
+            </>
+          )}
+        </SelectionActionBar>
       )}
 
       {addCardDialog}

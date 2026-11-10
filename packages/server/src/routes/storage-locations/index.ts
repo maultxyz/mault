@@ -16,6 +16,7 @@ import {
   type StorageLocationCard,
   type StorageLocationCardContext,
   type StorageLocationCardPage,
+  type StorageLocationCardReference,
   type StorageLocationCardsSummary,
   type StorageRemoveCardsResult,
   SORTABLE_FIELD_TYPES,
@@ -55,6 +56,7 @@ import {
   loadLocationCardStats,
   loadLocationFieldDefinitions,
   loadStoredCardIdsPage,
+  loadStoredCardReferences,
   loadStoredCardNavigation,
   loadStoredCardsByRowIds,
   loadStoragePickList,
@@ -349,6 +351,26 @@ const router = new Hono<AppEnv>()
     });
     return c.json(result);
   })
+  .get("/:guid/cards/ids", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const query = parseStoredCardsQuery(c.req.query());
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const locationId = await findLocationId(tx, orgId, guid);
+      if (locationId === null) {
+        return { success: false, message: "Storage location not found." };
+      }
+      const data: StorageLocationCardReference[] =
+        await loadStoredCardReferences(
+          tx,
+          locationId,
+          query,
+          query.sort ? await loadLocationFieldDefinitions(tx, locationId) : [],
+        );
+      return { success: true, data };
+    });
+    return c.json(result);
+  })
   .get("/:guid/cards/next-unreviewed", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
@@ -497,7 +519,13 @@ const router = new Hono<AppEnv>()
         columns: { id: true, name: true },
       });
       if (!location) return null;
-      const cards = await loadStorageLocationExportCards(tx, location.id);
+      const locationCards = await loadStorageLocationExportCards(tx, location.id);
+      const selectedScanIds = input.data.scanIds
+        ? new Set(input.data.scanIds)
+        : null;
+      const cards = selectedScanIds
+        ? locationCards.filter((card) => selectedScanIds.has(card.scanId))
+        : locationCards;
       const gameKeys = [...new Set(cards.map((card) => card.gameKey))];
       const singleGameKey = gameKeys.length === 1 ? gameKeys[0] : null;
       const game = singleGameKey

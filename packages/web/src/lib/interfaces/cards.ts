@@ -304,6 +304,18 @@ export interface ScannedCardTableProps {
   onTogglePageSelect?: () => void;
 }
 
+export interface SelectionActionBarProps {
+  selectedCount: number;
+  onClear: () => void;
+  children: ReactNode;
+}
+
+export interface ScanSelectionOptions<Item> {
+  pageItems: Item[];
+  keyOf: (item: Item) => string;
+  scanIdsOf: (item: Item) => string[];
+}
+
 export interface SelectToggleOptions {
   shiftKey: boolean;
 }

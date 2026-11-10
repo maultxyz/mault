@@ -1,5 +1,6 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type {
+  StorageLocationCardReference,
   CardStorageLocation,
   CollectionCardsQuery,
   PagedList,
@@ -165,6 +166,18 @@ export const storageLocationCardPageQueryOptions = (
     enabled: !!guid,
     placeholderData: (previous) => previous,
   });
+
+export function loadStorageLocationCardReferences(
+  guid: string,
+  query: CollectionCardsQuery,
+): Promise<StorageLocationCardReference[]> {
+  return apiGet<Result<StorageLocationCardReference[]>>(
+    `/api/storage-locations/${guid}/cards/ids?${cardsQueryParams(query)}`,
+  ).then((r) => {
+    if (!r.success || !r.data) throw new Error(r.message);
+    return r.data;
+  });
+}
 
 export function fetchStorageUnreviewedCardsPage(
   guid: string,

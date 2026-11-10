@@ -92,6 +92,10 @@
     "removeFromLocation": "Aus Lagerort entfernen",
     "removeFromLocationAndCollection": "Aus Lagerort und Sammlung entfernen"
   },
+  "bulkRemoveDialog": {
+    "title_one": "{{count}} Karte aus {{location}} entfernen?",
+    "title_other": "{{count}} Karten aus {{location}} entfernen?"
+  },
   "search": {
     "placeholder": "Karten in allen Lagerorten suchen",
     "openLocation": "Diesen Lagerort anzeigen",
