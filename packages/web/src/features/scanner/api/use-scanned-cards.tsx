@@ -138,9 +138,7 @@ export function ScannedCardsProvider({
     emptyBin,
   } = useBinConfigs();
   const [binLimitBin, setBinLimitBin] = useState<BinConfig | null>(null);
-  const [fullBins, setFullBinsState] = useState<number[] | null>(
-    null,
-  );
+  const [fullBins, setFullBinsState] = useState<number[] | null>(null);
   const [fullBinCount, setFullBinCount] = useState(0);
   const setFullBins = useCallback((bins: number[] | null) => {
     setFullBinsState(bins);
@@ -521,8 +519,15 @@ export function ScannedCardsProvider({
     setForceFoilTypeState(foilType);
   }, []);
 
+  const setLocalScanCondition = useCallback((condition: CardCondition) => {
+    scanConditionRef.current = condition;
+    setScanConditionState(condition);
+  }, []);
+
   const piScanSettings = usePiScanSettings({
     collectionGuid: activeCollection?.guid,
+    condition: scanCondition,
+    setCondition: setLocalScanCondition,
     foilType: forceFoilType,
     preferredSetCodes: forceSetCodes,
     setFoilType: setForceFoilType,
@@ -535,11 +540,6 @@ export function ScannedCardsProvider({
     },
     [],
   );
-
-  const setScanCondition = useCallback((condition: CardCondition) => {
-    scanConditionRef.current = condition;
-    setScanConditionState(condition);
-  }, []);
 
   useEffect(() => {
     const prev = prevCollectionGuidRef.current;
@@ -585,13 +585,20 @@ export function ScannedCardsProvider({
 
   const activeCollectionGuid = activeCollection?.guid;
   const piHost = usePiHost();
-  const piSession = useSessionMonitor(piHost ? activeCollectionGuid : undefined);
+  const piSession = useSessionMonitor(
+    piHost ? activeCollectionGuid : undefined,
+  );
   useEffect(() => {
     if (!piHost) return;
     setUnmatchedCards(piSession.unmatchedCards);
     setUnmatchedCount(piSession.unmatchedCount);
     setIsLoading(piSession.status === "connecting");
-  }, [piHost, piSession.unmatchedCards, piSession.unmatchedCount, piSession.status]);
+  }, [
+    piHost,
+    piSession.unmatchedCards,
+    piSession.unmatchedCount,
+    piSession.status,
+  ]);
 
   useEffect(() => {
     if (piHost) return;
@@ -933,10 +940,7 @@ export function ScannedCardsProvider({
     [fullBins, emptyBin],
   );
 
-  const dismissFullBins = useCallback(
-    () => setFullBins(null),
-    [setFullBins],
-  );
+  const dismissFullBins = useCallback(() => setFullBins(null), [setFullBins]);
 
   const routeToBin = useCallback(
     (binNumber: number, failedKey: string, cardName?: string) => {
@@ -1430,12 +1434,11 @@ export function ScannedCardsProvider({
           : entry,
       );
       if (!collection) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        scanIdSet,
-        (entry) => ({ ...entry, isFoil, foilType: foilType ?? undefined }),
-      );
+      updateInCardPages(queryClient, collection.guid, scanIdSet, (entry) => ({
+        ...entry,
+        isFoil,
+        foilType: foilType ?? undefined,
+      }));
       setCollectionCardsFoilType(collection.guid, scanIds, foilType)
         .catch((err) => console.error("Failed to update foil status:", err))
         .finally(
@@ -1544,7 +1547,7 @@ export function ScannedCardsProvider({
         autoFeed,
         forceFoilType: piScanSettings.foilType,
         forceSetCodes: piScanSettings.preferredSetCodes,
-        scanCondition,
+        scanCondition: piScanSettings.condition ?? scanCondition,
         elapsedMs,
         isTimerActive,
         recentScanTimes,
@@ -1556,7 +1559,7 @@ export function ScannedCardsProvider({
         setForceFoilType: piScanSettings.setFoilType,
         setForceSetCodes: piScanSettings.setPreferredSetCodes,
         setForceSetCodesAfterCollectionSwitch,
-        setScanCondition,
+        setScanCondition: piScanSettings.setCondition,
         registerCardArrivedHook,
         registerPauseHook,
         registerResumeHook,

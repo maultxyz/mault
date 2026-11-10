@@ -941,7 +941,10 @@ export interface PhoneCameraPairingDialogProps {
   onDisconnect: () => void;
 }
 
-export type ScannerConnectionState = "connected" | "connecting" | "disconnected";
+export type ScannerConnectionState =
+  | "connected"
+  | "connecting"
+  | "disconnected";
 
 export interface ConnectionStatusPillProps
   extends ComponentProps<"button"> {
@@ -1199,4 +1202,14 @@ export interface MoveCardsToCollectionInput {
   sourceCollectionGuid: string;
   targetCollectionGuid: string;
   scanIds: string[];
+}
+
+export interface PiScanSettingsOptions {
+  collectionGuid: string | undefined;
+  condition?: CardCondition;
+  setCondition?: (value: CardCondition) => void;
+  foilType: string | null;
+  preferredSetCodes: string[];
+  setFoilType: (value: string | null) => void;
+  setPreferredSetCodes: (value: string[]) => void;
 }

@@ -1,3 +1,5 @@
+import type { CardCondition } from "./card-condition.interface";
+
 export type PiScanSessionPhase =
   | "idle"
   | "running"
@@ -14,6 +16,7 @@ export interface PiScanSessionSight {
 }
 
 export interface PiScanSessionState {
+  condition?: CardCondition;
   foilType?: string | null;
   preferredSetCodes?: string[];
   phase: PiScanSessionPhase;
@@ -31,6 +34,7 @@ export interface PiScanSessionState {
 }
 
 export interface PiScanSessionStartBody {
+  condition?: CardCondition;
   collectionGuid: string;
   foilType?: string | null;
   preferredSetCodes?: string[];
@@ -38,6 +42,7 @@ export interface PiScanSessionStartBody {
 }
 
 export interface PiScanSessionSettingsBody {
+  condition?: CardCondition;
   foilType?: string | null;
   preferredSetCodes?: string[];
   autoFeed?: boolean;

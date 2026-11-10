@@ -66,19 +66,26 @@ export const piScanRouter = new Hono<AppEnv>()
     }
     return c.json({ success: true, data: state });
   })
-  .post("/settings", requireAuth, requireOrg, rejectWhileImpersonating, async (c) => {
-    const body = await c.req.json<PiScanSessionSettingsBody>();
-    const state = updatePiScanSettings(
-      c.get("orgId"),
-      body.foilType,
-      body.preferredSetCodes,
-      body.autoFeed,
-    );
-    if (!state) {
-      return c.json({ success: false, message: "No scan is running." }, 409);
-    }
-    return c.json({ success: true, data: state });
-  })
+  .post(
+    "/settings",
+    requireAuth,
+    requireOrg,
+    rejectWhileImpersonating,
+    async (c) => {
+      const body = await c.req.json<PiScanSessionSettingsBody>();
+      const state = updatePiScanSettings(
+        c.get("orgId"),
+        body.foilType,
+        body.preferredSetCodes,
+        body.autoFeed,
+        body.condition,
+      );
+      if (!state) {
+        return c.json({ success: false, message: "No scan is running." }, 409);
+      }
+      return c.json({ success: true, data: state });
+    },
+  )
   .post("/feed", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
     const state = requestPiScanFeed(c.get("orgId"));
     if (!state) {
@@ -86,13 +93,22 @@ export const piScanRouter = new Hono<AppEnv>()
     }
     return c.json({ success: true, data: state });
   })
-  .post("/reset-stats", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
-    const state = resetPiScanSessionStats(c.get("orgId"));
-    if (!state) {
-      return c.json({ success: false, message: "No scan session to reset." }, 409);
-    }
-    return c.json({ success: true, data: state });
-  })
+  .post(
+    "/reset-stats",
+    requireAuth,
+    requireOrg,
+    rejectWhileImpersonating,
+    (c) => {
+      const state = resetPiScanSessionStats(c.get("orgId"));
+      if (!state) {
+        return c.json(
+          { success: false, message: "No scan session to reset." },
+          409,
+        );
+      }
+      return c.json({ success: true, data: state });
+    },
+  )
   .delete("/", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
     return c.json({ success: true, data: stopPiScanSession(c.get("orgId")) });
   });

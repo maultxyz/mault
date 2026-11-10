@@ -1,5 +1,6 @@
 import type {
   PickList,
+  CardCondition,
   ResolvedCardSearchMatches,
   BinConfig,
   BinRoute,
@@ -71,6 +72,7 @@ export interface PiScanLive {
   activity: PiScanSessionActivity | null;
   current: PiScanSessionSight | null;
   lastCard: PiScanSessionSight | null;
+  condition: CardCondition;
   foilType: string | null;
   preferredSetCodes: string[];
   autoFeed: boolean;

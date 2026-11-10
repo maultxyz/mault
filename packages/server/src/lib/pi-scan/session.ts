@@ -6,6 +6,8 @@ import { and, eq, sql } from "drizzle-orm";
 import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_CARD_CONDITION,
+  toCardCondition,
   DEFAULT_FEEDER_CALIBRATION,
   feedWithRetries,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
@@ -162,6 +164,7 @@ function publicState(session: PiScanLive | undefined): PiScanSessionState {
         ? new Date(session.pauseStartedAt).toISOString()
         : null,
     autoFeed: session.autoFeed,
+    condition: session.condition,
     foilType: session.foilType,
     preferredSetCodes: [...session.preferredSetCodes],
   };
@@ -1008,6 +1011,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             scannedAt,
             binNumber: chosen.binNumber,
             capturedImageUrl: imageUrl,
+            condition: session.condition,
             isFoil: foilType != null,
             foilType: foilType ?? undefined,
             alternativeMatches: alternatives,
@@ -1195,6 +1199,7 @@ function createSession(
     activity: null,
     current: null,
     lastCard: null,
+    condition: toCardCondition(body.condition ?? DEFAULT_CARD_CONDITION),
     foilType: body.foilType ?? null,
     preferredSetCodes: cleanSetCodes(body.preferredSetCodes),
     autoFeed: body.autoFeed !== false,
@@ -1305,11 +1310,13 @@ export function updatePiScanSettings(
   foilType: string | null | undefined,
   preferredSetCodes: string[] | undefined,
   autoFeed?: boolean,
+  condition?: unknown,
 ): PiScanSessionState | null {
   const session = sessions.get(orgId);
   if (!session || (session.phase !== "running" && session.phase !== "paused")) {
     return null;
   }
+  if (condition !== undefined) session.condition = toCardCondition(condition);
   if (foilType !== undefined) session.foilType = foilType;
   if (preferredSetCodes !== undefined) {
     session.preferredSetCodes = cleanSetCodes(preferredSetCodes);

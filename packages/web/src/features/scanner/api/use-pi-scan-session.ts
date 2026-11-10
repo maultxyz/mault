@@ -31,7 +31,8 @@ function sleep(ms: number): Promise<void> {
 export function usePiScanSession() {
   const { t } = useTranslation("scanner");
   const { activeCollection } = useCollections();
-  const { autoFeed, forceFoilType, forceSetCodes } = useScannedCards();
+  const { autoFeed, forceFoilType, forceSetCodes, scanCondition } =
+    useScannedCards();
   const { disconnect } = useSerial();
   const { piHost, piSorter } = usePiHostState();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
@@ -69,6 +70,7 @@ export function usePiScanSession() {
       if (!piSorter) await disconnect();
       let result = await startPiScanSession({
         collectionGuid,
+        condition: scanCondition,
         foilType: forceFoilType,
         preferredSetCodes: forceSetCodes,
         autoFeed,
@@ -77,6 +79,7 @@ export function usePiScanSession() {
         await sleep(400);
         result = await startPiScanSession({
           collectionGuid,
+          condition: scanCondition,
           foilType: forceFoilType,
           preferredSetCodes: forceSetCodes,
           autoFeed,
@@ -98,6 +101,7 @@ export function usePiScanSession() {
     piSorter,
     forceFoilType,
     forceSetCodes,
+    scanCondition,
     t,
   ]);
 
