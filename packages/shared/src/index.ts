@@ -164,3 +164,5 @@ export * from "./constants/card-tags.constant";
 export * from "./interfaces/card-tags.interface";
 export * from "./schemas/card-tags.schema";
 export * from "./card-tags";
+
+export * from "./serial-route";

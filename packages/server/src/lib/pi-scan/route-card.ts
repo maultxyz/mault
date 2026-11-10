@@ -1,4 +1,8 @@
-import { isFirmwareFeatureSupported, type BinRoute } from "@magic-vault/shared";
+import {
+  requestSorterRoute,
+  isFirmwareFeatureSupported,
+  type BinRoute,
+} from "@magic-vault/shared";
 import {
   PI_SCAN_FEED_TIMEOUT_MS,
   PI_SCAN_ROUTE_TIMEOUT_MS,
@@ -14,13 +18,6 @@ export async function routeLoadedPiCard(
   route: BinRoute,
   pipeline?: PiScanPipelineOptions,
 ): Promise<void> {
-  const sensors = await link.command(
-    { readIR: true },
-    PI_SCAN_STATUS_TIMEOUT_MS,
-  );
-  if (sensors.error || !Array.isArray(sensors.ir) || sensors.ir[0] !== true) {
-    throw new Error("No card detected at module 1.");
-  }
   const feedNext =
     !!pipeline?.enabled() &&
     isFirmwareFeatureSupported(link.firmwareVersion, "pipelinedFeed");
@@ -41,16 +38,16 @@ export async function routeLoadedPiCard(
     : timeout;
   let reply: Record<string, unknown>;
   try {
-    reply = await link.command(
-      {
-        route: {
-          module: route.module,
-          direction: route.direction,
-          ...(feedNext ? { feedNext: true } : {}),
-        },
-      },
+    const result = await requestSorterRoute(
+      (command, timeout) => link.command(command, timeout),
+      route,
+      { feedNext, requireLoadedCard: true },
       commandTimeout,
+      PI_SCAN_STATUS_TIMEOUT_MS,
     );
+    if (result?.noLoadedCard) throw new Error("No card detected at module 1.");
+    if (!result) throw new Error("The sorter did not confirm routing.");
+    reply = result;
   } finally {
     unsubscribe();
   }
