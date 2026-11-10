@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   buildCardMatchSegment,
   closestPrintingInSets,
+  closestRegularPrinting,
   faceDistance,
   nearestCardFaces,
   normalizedEmbedding,
@@ -123,4 +124,23 @@ test("keyed cache shares in-flight loads and never caches null", async () => {
   await cache.get("missing", loadNull);
   await cache.get("missing", loadNull);
   assert.equal(nullLoads, 2);
+});
+
+test("the closest regular printing is found across the whole index, skipping promos and other names", () => {
+  const segment = buildCardMatchSegment("mtg", "en", [
+    sourceRow("promo", axisEmbedding(0), { name: "Plains", rarePrinting: true }),
+    sourceRow("other-card", axisEmbedding(0, 0.1), { name: "Island" }),
+    sourceRow("far-regular", axisEmbedding(3), { name: "Plains" }),
+    sourceRow("near-regular", axisEmbedding(0, 0.9), { name: "Plains" }),
+  ]);
+  const closest = closestRegularPrinting(
+    [segment],
+    "Plains",
+    normalizedEmbedding(axisEmbedding(0)),
+  );
+  assert.equal(closest && segment.cardIds[closest.row], "near-regular");
+  assert.equal(
+    closestRegularPrinting([segment], "Swamp", normalizedEmbedding(axisEmbedding(0))),
+    null,
+  );
 });

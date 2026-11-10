@@ -1470,6 +1470,12 @@
       "highAccuracyToggleLabel": "Genauere Scans",
       "highAccuracyDescription": "Liest den Text auf jeder Karte, nicht nur bei unsicheren Treffern, damit Set und Nummer einen sicheren, aber falschen Treffer korrigieren können. Scans dauern etwas länger."
     },
+    "foilDetection": {
+      "heading": "Foil-Erkennung",
+      "description": "Markiert einen Scan automatisch als Foil. Nur für Drucke, die es als Foil und Nicht-Foil gibt, und nur solange die Foil-Einstellung des Scanners aus ist.",
+      "starToggleLabel": "Magic-Foil-Stern lesen",
+      "starToggleDescription": "Markiert Magic-Karten als Foil, wenn die Sammlerzeile den ★ zeigt, der auf Foils gedruckt ist. Funktioniert auf jedem Gerät und kostet keine Zeit."
+    },
     "correctionAutoClose": {
       "heading": "Hinweis nach Kartenkorrektur",
       "promptToggleLabel": "Fragen, ob korrigierte Karten umgelegt werden",

@@ -74,6 +74,10 @@ export const scryfallAdapter: CardSearchAdapter = {
   foilPrintingVariants: scryfallFoilPrintingVariants,
   sourceListsNonFoilPrinting: (card) =>
     (card.raw as ScryfallApiCard | undefined)?.finishes?.includes("nonfoil") ?? false,
+  sourceListsOnlyNonFoilPrinting: (card) => {
+    const finishes = (card.raw as ScryfallApiCard | undefined)?.finishes;
+    return !!finishes && finishes.length > 0 && finishes.every((finish) => finish === "nonfoil");
+  },
   tcgplayer: {
     categoryId: 1,
     foilTypeOfVariant: (variant) =>

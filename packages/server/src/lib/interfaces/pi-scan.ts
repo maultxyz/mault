@@ -46,6 +46,7 @@ export interface PiScanRunContext {
   matchesNeeded: number;
   matchAllLanguages: boolean;
   ocrEnabled: boolean;
+  isFoilStarDetectionEnabled: boolean;
   highAccuracyScans: boolean;
   cardThickness: number | null;
   fieldDefinitions: FieldMeta[];

@@ -11,6 +11,7 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   ocrEnabled: false,
   highAccuracyScans: false,
   foilDetectionEnabled: false,
+  foilStarDetectionEnabled: false,
   correctionBinPrompt: true,
   pauseScanningOnDeploy: true,
   leaderboardOptIn: false,

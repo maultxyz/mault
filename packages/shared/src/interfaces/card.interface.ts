@@ -103,6 +103,7 @@ export interface PlayingCard {
   pricesAtScan?: CardPricesAtScan;
   foilTypes?: string[];
   foilOnlyFoilType?: string;
+  hasNoFoilPrinting?: boolean;
   finishPrices?: Record<string, CardFinishPrices>;
   stamps?: string[];
   stampPrices?: Record<string, CardStampPrices>;

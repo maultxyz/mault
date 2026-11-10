@@ -1470,6 +1470,12 @@
       "highAccuracyToggleLabel": "Scans plus précis",
       "highAccuracyDescription": "Lit le texte de chaque carte, pas seulement des correspondances incertaines, pour que l'extension et le numéro corrigent une correspondance sûre mais fausse. Les scans prennent un peu plus de temps."
     },
+    "foilDetection": {
+      "heading": "Détection des foils",
+      "description": "Marque automatiquement un scan comme foil. Uniquement pour les impressions qui existent en foil et en non-foil, et seulement quand le réglage foil du scanner est désactivé.",
+      "starToggleLabel": "Lire l'étoile foil de Magic",
+      "starToggleDescription": "Marque les cartes Magic comme foil quand la ligne de collection montre l'étoile ★ imprimée sur les foils. Fonctionne sur tous les appareils, sans temps supplémentaire."
+    },
     "correctionAutoClose": {
       "heading": "Invite après correction",
       "promptToggleLabel": "Me demander de déplacer les cartes corrigées",

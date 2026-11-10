@@ -528,13 +528,16 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         pause("bin-data-unavailable");
         return;
       }
-      const forcedFoil = resolveScanFoilType(
+      const forcedFoil = resolveScanFoilType({
         card,
-        forcedFoilTypeRef.current,
-        null,
-        ctx.collection.game?.foilTypes ?? [],
-        outcome.matched?.diagnostics.printedFoilMarker,
-      );
+        sessionFoilType: forcedFoilTypeRef.current,
+        foilDetection: null,
+        fallbackFoilTypes: ctx.collection.game?.foilTypes ?? [],
+        gameKey: ctx.collection.game?.key,
+        printedFoilMarker: outcome.matched?.diagnostics.printedFoilMarker,
+        isNudgeFoilDetectionEnabled: false,
+        isFoilStarDetectionEnabled: ctx.orgSettings?.foilStarDetectionEnabled ?? false,
+      });
       const stamp = detectedStampOf(outcome.matched?.diagnostics.stampDetection);
       const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil, stamp });
       const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;

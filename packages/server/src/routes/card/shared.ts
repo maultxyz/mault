@@ -20,6 +20,11 @@ import { sql, type SQL } from "drizzle-orm";
 import { resolveCardSearchForGame } from "../../lib/card-search/resolve";
 import { searchCardsByIds } from "../../lib/card-search/stored-cards";
 import {
+  regularPrintingAmongMatches,
+  compareTextRankedPrintings,
+  readsLetteredCollectorNumber,
+} from "../../lib/card-search/regular-printing-preference";
+import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
   MATCH_MAX_DISTANCE_RATIO,
@@ -42,6 +47,7 @@ import {
 import {
   cardRowDistance,
   closestPrintingInSets,
+  closestRegularPrinting,
   printingMarkGroupsOfRow,
   faceDistance,
   nearestCardFaces,
@@ -50,6 +56,7 @@ import {
 import { cardsWithSimilarName } from "../../lib/card-name-trigrams";
 import type {
   CardFaceMatch,
+  CardMatchSegment,
   OcrCandidateRow,
 } from "../../lib/interfaces/card-match-index";
 import type {
@@ -200,6 +207,30 @@ async function rankFacesByPrintingMarks(
   );
 }
 
+function regularPrintingOf(
+  matches: CardMatchCandidate[],
+  segments: CardMatchSegment[],
+  query: Float32Array,
+  leaderFace: CardFaceMatch | undefined,
+): CardMatchCandidate | undefined {
+  const [leader] = matches;
+  if (!leader?.rarePrinting || !leaderFace) return undefined;
+  const amongMatches = regularPrintingAmongMatches(matches);
+  if (amongMatches) return amongMatches;
+  const face = closestRegularPrinting(segments, leader.name, query);
+  return face
+    ? {
+        cardId: face.segment.cardIds[face.row],
+        lang: face.segment.lang,
+        name: face.segment.names[face.row],
+        setCode: face.segment.setCodes[face.row],
+        rarePrinting: false,
+        distance: face.distance,
+        leaderDistance: faceDistance(face, leaderFace),
+      }
+    : undefined;
+}
+
 export async function findCardMatches({
   embeddings,
   preferredSetCodes = [],
@@ -296,15 +327,7 @@ export async function findCardMatches({
     };
   }
 
-  const topMatch = matches[0];
-  const regularMatch = topMatch?.rarePrinting
-    ? matches.find(
-        (match) =>
-          !match.rarePrinting &&
-          match.name === topMatch.name &&
-          match.leaderDistance <= DUPLICATE_PRINTING_MAX_DISTANCE,
-      )
-    : undefined;
+  const regularMatch = regularPrintingOf(matches, segments, query, nearest[0]);
   const markRanking = await rankFacesByPrintingMarks(
     gameKey,
     printingMarkGrids,
@@ -551,6 +574,10 @@ export async function findCardMatchesByText({
         segment.printedSetTotals[row],
         readSetTotals,
       ),
+      letteredNumberMatch: readsLetteredCollectorNumber(
+        segment.collectorNumbers[row],
+        readout.number || readout.setLine,
+      ),
       numberMatch:
         matchesCollectorNumber(segment.collectorNumbers[row], numberCandidates) &&
         !contradictsPrintedSetTotal(segment.printedSetTotals[row], readSetTotals),
@@ -561,22 +588,16 @@ export async function findCardMatchesByText({
       matchesPrintedPromo:
         printedPromo == null ||
         (segment.promoPrinting[row] === 1) === printedPromo,
+      rarePrinting: segment.rarePrinting[row] === 1,
       printingMarkGroups: printingMarkGroupsOfRow(segment, row),
     }))
-    .sort(
-      (a, b) =>
-        Number(b.isPreferredSet) - Number(a.isPreferredSet) ||
-        Number(b.matchesPrintedPromo) - Number(a.matchesPrintedPromo) ||
-        Number(b.setLineMatch) - Number(a.setLineMatch) ||
-        Number(b.numberMatch) - Number(a.numberMatch) ||
-        Number(b.setTotalMatch) - Number(a.setTotalMatch) ||
-        a.distance - b.distance,
-    );
+    .sort(compareTextRankedPrintings);
   const [textLeader] = textRankedPrintings;
   const contenders = textRankedPrintings.filter(
     (printing) =>
       printing.isPreferredSet === textLeader.isPreferredSet &&
       printing.matchesPrintedPromo === textLeader.matchesPrintedPromo &&
+      printing.letteredNumberMatch === textLeader.letteredNumberMatch &&
       printing.numberMatch === textLeader.numberMatch &&
       printing.setTotalMatch === textLeader.setTotalMatch,
   );

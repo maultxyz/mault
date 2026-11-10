@@ -55,8 +55,11 @@
   },
   "foilDetection": {
     "heading": "Foil-Erkennung",
-    "description": "Markiert einen Scan als Foil, wenn die Karte nach Foil aussieht, in jedem Spiel. Mit verbundenem Sortierer und aktueller Firmware stößt der Schieber die Karte leicht in beide Richtungen an, ohne die Seitenklappe zu öffnen, und Fotos zeigen, ob sich ihr Glanz ändert. Das dauert etwa eine Sekunde pro Karte. Ohne verbundenen Sortierer oder mit älterer Firmware werden Karten nicht geprüft. Nur für Karten, die es auch als Nicht-Foil gibt, und nur solange die Foil-Einstellung des Scanners aus ist.",
+    "description": "Markiert einen Scan automatisch als Foil. Nur für Drucke, die es als Foil und Nicht-Foil gibt, und nur solange die Foil-Einstellung des Scanners aus ist.",
+    "starToggleLabel": "Magic-Foil-Stern lesen",
+    "starToggleDescription": "Markiert Magic-Karten als Foil, wenn die Sammlerzeile den ★ zeigt, der auf Foils gedruckt ist. Funktioniert auf jedem Gerät und kostet keine Zeit.",
     "toggleLabel": "Foils durch Anstoßen der Karte erkennen",
+    "nudgeToggleDescription": "Für jedes Spiel, mit verbundenem Sortierer und aktueller Firmware: Der Schieber stößt die Karte leicht in beide Richtungen an, ohne die Seitenklappe zu öffnen, und Fotos zeigen, ob sich ihr Glanz ändert. Dauert etwa eine Sekunde pro Karte.",
     "badge": "Experimentell"
   },
   "draft": {

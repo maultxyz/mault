@@ -60,8 +60,24 @@ function star(image: RgbaImage, left: number, top: number, size: number) {
   }
 }
 
+function ellipse(
+  image: RgbaImage,
+  left: number,
+  top: number,
+  width: number,
+  height: number,
+) {
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const dx = (x + 0.5 - width / 2) / (width / 2);
+      const dy = (y + 0.5 - height / 2) / (height / 2);
+      if (dx * dx + dy * dy <= 1) paint(image, left + x, top + y);
+    }
+  }
+}
+
 function collectorLine(
-  marker: "star" | "dot",
+  marker: "star" | "dot" | "blurredBlob",
   { upperLineReachesSetLine = false, splitLanguageLetter = false } = {},
 ): RgbaImage {
   const image = blankCard();
@@ -76,6 +92,9 @@ function collectorLine(
   if (marker === "star") {
     star(image, x, SET_LINE_TOP, LINE_HEIGHT);
     x += LINE_HEIGHT + 4;
+  } else if (marker === "blurredBlob") {
+    ellipse(image, x, SET_LINE_TOP - 1, 20, 13);
+    x += 24;
   } else {
     block(image, x, SET_LINE_TOP + 4, 4, 4);
     x += 8;
@@ -103,6 +122,13 @@ test("the MTG collector line dot is read as a non-foil marker", () => {
   assert.equal(
     detectPrintedFoilMarkerRgba(collectorLine("dot"), "mtg").marker,
     "dot",
+  );
+});
+
+test("a blurred blob much wider than a letter is never read as a star", () => {
+  assert.notEqual(
+    detectPrintedFoilMarkerRgba(collectorLine("blurredBlob"), "mtg").marker,
+    "star",
   );
 });
 

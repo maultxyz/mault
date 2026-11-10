@@ -29,6 +29,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       ocrEnabled?: boolean;
       highAccuracyScans?: boolean;
       foilDetectionEnabled?: boolean;
+      foilStarDetectionEnabled?: boolean;
       correctionBinPrompt?: boolean;
       pauseScanningOnDeploy?: boolean;
       leaderboardOptIn?: boolean;
@@ -102,6 +103,10 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           "foilDetectionEnabled" in body
             ? (body.foilDetectionEnabled ?? false)
             : (existing?.foilDetectionEnabled ?? false),
+        foilStarDetectionEnabled:
+          "foilStarDetectionEnabled" in body
+            ? (body.foilStarDetectionEnabled ?? false)
+            : (existing?.foilStarDetectionEnabled ?? false),
         correctionBinPrompt:
           "correctionBinPrompt" in body
             ? (body.correctionBinPrompt ?? true)
@@ -150,6 +155,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           ocrEnabled: merged.ocrEnabled,
           highAccuracyScans: merged.highAccuracyScans,
           foilDetectionEnabled: merged.foilDetectionEnabled,
+          foilStarDetectionEnabled: merged.foilStarDetectionEnabled,
           correctionBinPrompt: merged.correctionBinPrompt,
           pauseScanningOnDeploy: merged.pauseScanningOnDeploy,
           leaderboardOptIn: merged.leaderboardOptIn,

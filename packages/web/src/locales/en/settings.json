@@ -61,8 +61,11 @@
   },
   "foilDetection": {
     "heading": "Foil detection",
-    "description": "Mark a scan as foil when the card looks foil, for every game. With a connected sorter on current firmware, the pusher nudges the card slightly each way without opening the side paddle, and photos show whether its shine changes, which adds about a second per card. Without a connected sorter or on older firmware, cards aren't checked. Only used for cards that also come in non-foil, and only while the scanner's foil setting is off.",
+    "description": "Mark a scan as foil automatically. Only used for printings that come in both foil and non-foil, and only while the scanner's foil setting is off.",
+    "starToggleLabel": "Read the Magic foil star",
+    "starToggleDescription": "Mark Magic cards as foil when the collector line shows the ★ printed on foils. Works on every device and adds no time.",
     "toggleLabel": "Detect foils by nudging the card",
+    "nudgeToggleDescription": "For every game, with a connected sorter on current firmware: the pusher nudges the card slightly each way without opening the side paddle, and photos show whether its shine changes. Adds about a second per card.",
     "badge": "Experimental"
   },
   "draft": {

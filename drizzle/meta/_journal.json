@@ -1142,6 +1142,13 @@
       "when": 1794253245637,
       "tag": "0162_card_holds",
       "breakpoints": true
+    },
+    {
+      "idx": 163,
+      "version": "7",
+      "when": 1794279020044,
+      "tag": "0163_foil_star_detection",
+      "breakpoints": true
     }
   ]
 }

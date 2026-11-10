@@ -65,6 +65,7 @@ export function useScanImageImport(
     ocrMode: scanOcrMode(orgSettings, isOcrSupported),
     gameKey: gameKey || undefined,
     gameFoilTypes: targetGame?.foilTypes ?? [],
+    isFoilStarDetectionEnabled: orgSettings?.foilStarDetectionEnabled ?? false,
   };
   const latestRef = useRef(latest);
   latestRef.current = latest;
@@ -101,6 +102,7 @@ export function useScanImageImport(
         ocrMode,
         gameKey: targetGameKey,
         gameFoilTypes,
+        isFoilStarDetectionEnabled,
       } = latestRef.current;
       updateItem(item.id, { status: "identifying" });
       let sourceCanvas: HTMLCanvasElement | null = null;
@@ -137,13 +139,16 @@ export function useScanImageImport(
           scanLog(
             `[scan-import] ${file.name} matched ${outcome.card.name} (${outcome.card.id})`,
           );
-          const foilType = resolveScanFoilType(
-            outcome.card,
-            null,
-            null,
-            gameFoilTypes,
-            outcome.matched?.diagnostics.printedFoilMarker,
-          );
+          const foilType = resolveScanFoilType({
+            card: outcome.card,
+            sessionFoilType: null,
+            foilDetection: null,
+            fallbackFoilTypes: gameFoilTypes,
+            gameKey: targetGameKey,
+            printedFoilMarker: outcome.matched?.diagnostics.printedFoilMarker,
+            isNudgeFoilDetectionEnabled: false,
+            isFoilStarDetectionEnabled,
+          });
           const result = await saveCard({
             ...scanTarget,
             record: {

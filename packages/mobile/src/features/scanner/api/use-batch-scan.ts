@@ -137,13 +137,16 @@ export function useBatchScan(initialMode: BatchScanMode) {
         const outcome = card.outcome;
         const matchedCard = card.correctedCard ?? outcome?.card ?? null;
         if (matchedCard) {
-          const foilType = resolveScanFoilType(
-            matchedCard,
-            null,
-            null,
-            collection.game?.foilTypes ?? [],
-            outcome?.matched?.diagnostics.printedFoilMarker,
-          );
+          const foilType = resolveScanFoilType({
+            card: matchedCard,
+            sessionFoilType: null,
+            foilDetection: null,
+            fallbackFoilTypes: collection.game?.foilTypes ?? [],
+            gameKey: collection.game?.key,
+            printedFoilMarker: outcome?.matched?.diagnostics.printedFoilMarker,
+            isNudgeFoilDetectionEnabled: false,
+            isFoilStarDetectionEnabled: orgSettings?.foilStarDetectionEnabled ?? false,
+          });
           const record: ScannedCard = {
             scanId,
             card: { ...matchedCard, distance: outcome?.card?.distance ?? 0, confidence: outcome?.card?.confidence ?? 1 },

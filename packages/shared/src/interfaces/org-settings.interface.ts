@@ -10,6 +10,7 @@ export interface OrgSettings {
   ocrEnabled: boolean;
   highAccuracyScans: boolean;
   foilDetectionEnabled: boolean;
+  foilStarDetectionEnabled: boolean;
   correctionBinPrompt: boolean;
   pauseScanningOnDeploy: boolean;
   leaderboardOptIn: boolean;

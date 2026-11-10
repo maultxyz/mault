@@ -415,7 +415,11 @@ async function prepareContext(
       : [];
     const settings = await tx.query.orgSettings.findFirst({
       where: eq(orgSettings.orgId, session.orgId),
-      columns: { ocrEnabled: true, highAccuracyScans: true },
+      columns: {
+        ocrEnabled: true,
+        highAccuracyScans: true,
+        foilStarDetectionEnabled: true,
+      },
     });
     const feeder = await tx.query.feederConfigs.findFirst({
       where: eq(feederConfigs.deviceId, device.id),
@@ -455,6 +459,7 @@ async function prepareContext(
       matchAllLanguages: collection.matchAllLanguages,
       ocrEnabled: settings?.ocrEnabled === true,
       highAccuracyScans: settings?.highAccuracyScans === true,
+      isFoilStarDetectionEnabled: settings?.foilStarDetectionEnabled === true,
       cardThickness: collection.cardThickness,
       fieldDefinitions,
       foilTypes,
@@ -996,13 +1001,16 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         continue;
       }
 
-      const foilType = resolveScanFoilType(
+      const foilType = resolveScanFoilType({
         card,
-        session.foilType,
-        null,
-        context.foilTypes,
-        matched.printedFoilMarker,
-      );
+        sessionFoilType: session.foilType,
+        foilDetection: null,
+        fallbackFoilTypes: context.foilTypes,
+        gameKey: context.gameKey,
+        printedFoilMarker: matched.printedFoilMarker,
+        isNudgeFoilDetectionEnabled: false,
+        isFoilStarDetectionEnabled: context.isFoilStarDetectionEnabled,
+      });
       const stamp = detectedStampOf(matched.stampDetection);
       while (!session.stopRequested) {
         const ruleCard = toRuleCard(card, {

@@ -84,6 +84,7 @@ export interface CardSearchAdapter {
   printingMarkGroups?(card: PlayingCard): PrintingMarkGroups;
   foilPrintingVariants?: FoilPrintingVariants;
   sourceListsNonFoilPrinting?(card: PlayingCard): boolean;
+  sourceListsOnlyNonFoilPrinting?(card: PlayingCard): boolean;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;
   cardkingdom?: CardKingdomPricing;
@@ -136,6 +137,17 @@ export interface SyncSource {
     signal?: AbortSignal,
   ): Promise<SyncSourceCard[]>;
   fetchOne(id: string, baseUrl: string, lang?: string): Promise<FetchOneResult>;
+}
+
+export interface TextRankedPrintingEvidence {
+  isPreferredSet: boolean;
+  matchesPrintedPromo: boolean;
+  setLineMatch: boolean;
+  letteredNumberMatch: boolean;
+  numberMatch: boolean;
+  setTotalMatch: boolean;
+  rarePrinting: boolean;
+  distance: number;
 }
 
 export interface CardMatchCandidate {

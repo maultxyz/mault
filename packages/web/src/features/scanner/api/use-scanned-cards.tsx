@@ -197,6 +197,12 @@ export function ScannedCardsProvider({
   );
   const correctionBinPromptRef = useRef(true);
   correctionBinPromptRef.current = orgSettings?.correctionBinPrompt ?? true;
+  const isNudgeFoilDetectionEnabledRef = useRef(false);
+  isNudgeFoilDetectionEnabledRef.current =
+    orgSettings?.foilDetectionEnabled ?? false;
+  const isFoilStarDetectionEnabledRef = useRef(false);
+  isFoilStarDetectionEnabledRef.current =
+    orgSettings?.foilStarDetectionEnabled ?? false;
 
   useEffect(() => {
     locksRef.current = locks;
@@ -725,13 +731,16 @@ export function ScannedCardsProvider({
         return null;
       }
 
-      const forcedFoilType = resolveScanFoilType(
+      const forcedFoilType = resolveScanFoilType({
         card,
-        forceFoilTypeRef.current,
-        details?.diagnostics.foilDetection,
-        collection.game?.foilTypes ?? [],
-        details?.diagnostics.printedFoilMarker,
-      );
+        sessionFoilType: forceFoilTypeRef.current,
+        foilDetection: details?.diagnostics.foilDetection,
+        fallbackFoilTypes: collection.game?.foilTypes ?? [],
+        gameKey: collection.game?.key,
+        printedFoilMarker: details?.diagnostics.printedFoilMarker,
+        isNudgeFoilDetectionEnabled: isNudgeFoilDetectionEnabledRef.current,
+        isFoilStarDetectionEnabled: isFoilStarDetectionEnabledRef.current,
+      });
       const stamp = detectedStampOf(details?.diagnostics.stampDetection);
       const ruleCard = toRuleCard(card, {
         isFoil: forcedFoilType != null,

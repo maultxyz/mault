@@ -1470,6 +1470,12 @@
       "highAccuracyToggleLabel": "Higher accuracy scans",
       "highAccuracyDescription": "Read the text on every card, not only uncertain ones, so the set and number can correct a confident but wrong match. Scans take a little longer."
     },
+    "foilDetection": {
+      "heading": "Foil detection",
+      "description": "Mark a scan as foil automatically. Only used for printings that come in both foil and non-foil, and only while the scanner's foil setting is off.",
+      "starToggleLabel": "Read the Magic foil star",
+      "starToggleDescription": "Mark Magic cards as foil when the collector line shows the ★ printed on foils. Works on every device and adds no time."
+    },
     "correctionAutoClose": {
       "heading": "Card correction prompt",
       "promptToggleLabel": "Ask me to move corrected cards",

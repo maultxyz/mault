@@ -28,6 +28,7 @@ function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftFormValues {
     ocrEnabled: settings.ocrEnabled,
     highAccuracyScans: settings.highAccuracyScans,
     foilDetectionEnabled: settings.foilDetectionEnabled,
+    foilStarDetectionEnabled: settings.foilStarDetectionEnabled,
     correctionBinPrompt: settings.correctionBinPrompt,
     pauseScanningOnDeploy: settings.pauseScanningOnDeploy,
     leaderboardOptIn: settings.leaderboardOptIn,

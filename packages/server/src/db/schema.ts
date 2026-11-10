@@ -1210,6 +1210,9 @@ export const orgSettings = pgTable(
     foilDetectionEnabled: boolean("foil_detection_enabled")
       .notNull()
       .default(false),
+    foilStarDetectionEnabled: boolean("foil_star_detection_enabled")
+      .notNull()
+      .default(false),
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),

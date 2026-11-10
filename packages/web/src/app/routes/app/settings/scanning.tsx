@@ -19,8 +19,8 @@ import { Link } from "react-router-dom";
 export default function SettingsScanningPage() {
   const { t } = useTranslation("settings");
   const draft = useOrgSettingsDraft();
-  const disabled = draft.isLoading || draft.isSaving;
   const isMobile = useIsMobile();
+  const disabled = draft.isLoading || draft.isSaving;
   const ocrEnabled = useWatch({ control: draft.control, name: "ocrEnabled" });
   const correctionBinPrompt = useWatch({
     control: draft.control,
@@ -93,20 +93,27 @@ export default function SettingsScanningPage() {
           </label>
         </div>
       </SettingsSection>
-      {!isMobile && (
-        <SettingsSection
-          heading={t("foilDetection.heading")}
-          badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}
-          description={t("foilDetection.description")}
-        >
+      <SettingsSection
+        heading={t("foilDetection.heading")}
+        badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}
+        description={t("foilDetection.description")}
+      >
+        <div className="flex flex-col gap-3">
           <label className="flex items-center justify-between gap-3">
-            <span className="text-sm">{t("foilDetection.toggleLabel")}</span>
+            <span className="flex flex-col gap-0.5">
+              <span className="text-sm">
+                {t("foilDetection.starToggleLabel")}
+              </span>
+              <span className="text-2xs text-foreground/70">
+                {t("foilDetection.starToggleDescription")}
+              </span>
+            </span>
             <Controller
               control={draft.control}
-              name="foilDetectionEnabled"
+              name="foilStarDetectionEnabled"
               render={({ field }) => (
                 <Switch
-                  aria-label={t("foilDetection.toggleLabel")}
+                  aria-label={t("foilDetection.starToggleLabel")}
                   checked={field.value}
                   disabled={disabled}
                   onCheckedChange={field.onChange}
@@ -114,8 +121,32 @@ export default function SettingsScanningPage() {
               )}
             />
           </label>
-        </SettingsSection>
-      )}
+          {!isMobile && (
+            <label className="flex items-center justify-between gap-3">
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm">
+                  {t("foilDetection.toggleLabel")}
+                </span>
+                <span className="text-2xs text-foreground/70">
+                  {t("foilDetection.nudgeToggleDescription")}
+                </span>
+              </span>
+              <Controller
+                control={draft.control}
+                name="foilDetectionEnabled"
+                render={({ field }) => (
+                  <Switch
+                    aria-label={t("foilDetection.toggleLabel")}
+                    checked={field.value}
+                    disabled={disabled}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+            </label>
+          )}
+        </div>
+      </SettingsSection>
       <SettingsSection
         heading={t("correctionAutoClose.heading")}
         description={t("correctionAutoClose.description")}

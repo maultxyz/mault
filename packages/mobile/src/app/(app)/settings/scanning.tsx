@@ -84,6 +84,22 @@ export default function ScanningSettingsScreen() {
         />
       </Surface>
       <Surface style={{ gap: SPACING.md }}>
+        {section(t("settings.foilDetection.heading"), t("settings.foilDetection.description"))}
+        <Controller
+          control={draft.control}
+          name="foilStarDetectionEnabled"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("settings.foilDetection.starToggleLabel")}
+              description={t("settings.foilDetection.starToggleDescription")}
+              value={field.value}
+              disabled={disabled}
+              onValueChange={field.onChange}
+            />
+          )}
+        />
+      </Surface>
+      <Surface style={{ gap: SPACING.md }}>
         {section(t("settings.correctionAutoClose.heading"), t("settings.correctionAutoClose.description"))}
         <Controller
           control={draft.control}

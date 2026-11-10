@@ -116,6 +116,8 @@ export async function applyCardPrices<T extends PlayingCard>(
       foilOnlyFoilType: adapter.sourceListsNonFoilPrinting?.(pricedCard)
         ? undefined
         : pricedCard.foilOnlyFoilType,
+      hasNoFoilPrinting:
+        adapter.sourceListsOnlyNonFoilPrinting?.(pricedCard) || undefined,
       purchaseLinks: purchaseLinksFor(adapter, pricedCard),
     };
   });

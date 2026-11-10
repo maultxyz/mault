@@ -11,6 +11,8 @@ import {
 import { FLESHCUBE_RETRY_DELAY_MS } from "../../constants/timing";
 import { FAB_DEFAULT_URL } from "../../constants/urls";
 import { fabPrintingMarkGroups } from "../../printing-marks/groups";
+import { fabFoilPrintingVariants } from "./foil-printings";
+import { sql } from "drizzle-orm";
 import type {
   FabCard,
   FabPrinting,
@@ -147,7 +149,9 @@ export const fabAdapter: CardSearchAdapter = {
     const printing = card.cardPrintings.find((p) => p.uniqueId === id);
     return printing ? normalizeFabPrinting(card, printing) : null;
   },
+  rarePrintingSql: sql`EXISTS (SELECT 1 FROM jsonb_array_elements(data->'cardPrintings') AS own_printing WHERE own_printing->>'uniqueId' = card_id AND own_printing->>'foiling' <> ${FAB_STANDARD_FOILING})`,
   printingMarkGroups: fabPrintingMarkGroups,
+  foilPrintingVariants: fabFoilPrintingVariants,
   tcgplayer: {
     categoryId: 62,
     productIdFromRaw: (card) =>

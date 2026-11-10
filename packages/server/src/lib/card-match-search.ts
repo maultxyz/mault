@@ -320,6 +320,24 @@ export function closestPrintingInSets(
   return closest;
 }
 
+export function closestRegularPrinting(
+  segments: CardMatchSegment[],
+  name: string,
+  query: Float32Array,
+): CardFaceMatch | null {
+  let closest: CardFaceMatch | null = null;
+  for (const segment of segments) {
+    for (let row = 0; row < segment.cardIds.length; row++) {
+      if (segment.names[row] !== name || segment.rarePrinting[row] === 1) {
+        continue;
+      }
+      const face = closestFaceOfRow(segment, row, query);
+      if (!closest || face.distance < closest.distance) closest = face;
+    }
+  }
+  return closest;
+}
+
 export function printingMarkGroupsOfRow(
   segment: CardMatchSegment,
   row: number,
