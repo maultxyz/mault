@@ -1,20 +1,23 @@
-import { isPiHost } from "@/lib/pi-host";
 import {
   saveDevice,
   writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
-import type {
-  ModuleCountConfigContextValue,
-} from "@/lib/interfaces/calibration";
+import type { ModuleCountConfigContextValue } from "@/lib/interfaces/calibration";
 import {
   DEFAULT_CHANNEL_LAYOUT,
   DEFAULT_MODULE_COUNT,
   maxModulesForLayout,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 
 const ModuleCountConfigContext =
@@ -35,7 +38,10 @@ export function ModuleCountConfigProvider({
   const channelLayout = device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
   const options = useMemo(
     () =>
-      Array.from({ length: maxModulesForLayout(channelLayout) }, (_, i) => i + 1),
+      Array.from(
+        { length: maxModulesForLayout(channelLayout) },
+        (_, i) => i + 1,
+      ),
     [channelLayout],
   );
 
@@ -53,7 +59,6 @@ export function ModuleCountConfigProvider({
   const commit = useCallback(async () => {
     if (pending == null) return;
     if (!device) {
-      if (isPiHost()) throw new Error("Sorter settings have not loaded.");
       return;
     }
     setIsSaving(true);
