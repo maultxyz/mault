@@ -2,9 +2,9 @@ name: Price Sync
 
 on:
   # Daily at 04:17 UTC, off the top of the hour since GitHub delays or drops
-  # scheduled runs when load peaks at :00. Never schedule this more than once a
-  # day: tcgcsv blocks installs that poll it harder, and the TCGplayer and Card
-  # Kingdom steps skip any run within 20 hours of their last pull anyway.
+  # scheduled runs when load peaks at :00. Once a day is enough: TCGplayer
+  # prices only re-download sets TCGTracking reports as changed, and the Card
+  # Kingdom step skips any run within 20 hours of its last pull anyway.
   schedule:
     - cron: "17 4 * * *"
   workflow_dispatch:

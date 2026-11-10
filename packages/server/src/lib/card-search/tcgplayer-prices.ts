@@ -85,14 +85,11 @@ function combineRanges(
   ranges: PlayingCardPriceRange[],
 ): PlayingCardPriceRange | undefined {
   if (ranges.length <= 1) return ranges[0];
-  const present = (key: "low" | "mid" | "high" | "market") =>
+  const present = (key: "low" | "market") =>
     ranges.flatMap((r) => (r[key] != null ? [r[key]] : []));
   const lows = present("low");
-  const highs = present("high");
   return {
     low: lows.length ? Math.min(...lows) : null,
-    mid: median(present("mid")),
-    high: highs.length ? Math.max(...highs) : null,
     market: median(present("market")),
     printings: ranges.length,
   };
@@ -116,7 +113,7 @@ function finishPricesFor(
 ): Record<string, CardFinishPrices> | undefined {
   const entries = finishes.flatMap((finish) => {
     const range = rangeOf(finish.productId, finish.subTypes);
-    const priceFoil = range?.market ?? range?.mid ?? null;
+    const priceFoil = range?.market ?? range?.low ?? null;
     if (priceFoil == null) return [];
     const priceFoilByCondition = conditionPricesOf(finish.productId, finish.subTypes);
     return [
@@ -134,7 +131,7 @@ function stampPricesFor(
   const pricesByStamp: Record<string, CardStampPrices> = {};
   for (const stampProduct of stamps) {
     const range = rangeOf(stampProduct.productId, stampProduct.subTypes);
-    const marketPrice = range?.market ?? range?.mid ?? null;
+    const marketPrice = range?.market ?? range?.low ?? null;
     if (marketPrice == null) continue;
     const conditionPrices = conditionPricesOf(
       stampProduct.productId,
@@ -210,8 +207,6 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       productId: tcgplayerPrices.productId,
       subType: tcgplayerPrices.subType,
       low: tcgplayerPrices.lowPrice,
-      mid: tcgplayerPrices.midPrice,
-      high: tcgplayerPrices.highPrice,
       market: tcgplayerPrices.marketPrice,
     })
     .from(tcgplayerPrices)
@@ -222,16 +217,16 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       ),
     );
   const ranges = new Map<string, PlayingCardPriceRange>(
-    rows.map(({ productId, subType, low, mid, high, market }) => [
+    rows.map(({ productId, subType, low, market }) => [
       `${productId}:${subType}`,
-      { low, mid, high, market },
+      { low, market },
     ]),
   );
 
   const rangeOf = (productId: number, subTypes: string[]) =>
     subTypes
       .map((subType) => ranges.get(`${productId}:${subType}`))
-      .find((r) => r?.market != null || r?.mid != null);
+      .find((r) => r?.market != null || r?.low != null);
 
   const skuRows = await db
     .select()
@@ -289,10 +284,10 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
     const rangeFoil = rangeFor(subTypes.priceFoil);
     return {
       ...card,
-      price: range?.market ?? range?.mid ?? card.price,
+      price: range?.market ?? range?.low ?? card.price,
       priceFoil:
         rangeFoil?.market ??
-        rangeFoil?.mid ??
+        rangeFoil?.low ??
         medianFinishPrice(finishPrices) ??
         card.priceFoil,
       priceRange: range ?? card.priceRange,

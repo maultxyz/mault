@@ -212,9 +212,9 @@ These target whatever `DATABASE_URL` points at. Read `CONTRIBUTING.md` before sh
 
 ## Prices
 
-`node packages/server/dist/scripts/sync-prices.js` pulls TCGplayer prices (via tcgcsv), TCGplayer SKU ids for the TCGplayer CSV export (via TCGTracking), Cardmarket and Card Kingdom, downloading only what changed. Nothing runs it automatically.
+`node packages/server/dist/scripts/sync-prices.js` pulls TCGplayer prices and SKU ids for the TCGplayer CSV export (via TCGTracking), Cardmarket and Card Kingdom, downloading only what changed. Nothing runs it automatically.
 
-- **Once a day, never more often.** tcgcsv blocks installs that poll it harder; the TCGplayer step also skips any run within 20 hours of its last pull.
+- **Once a day is enough.** TCGplayer prices only re-download sets TCGTracking reports as changed, and the Card Kingdom step skips any run within 20 hours of its last pull.
 - **No automatic retries.** A failed run waits for the next daily run.
 - **First run:** after your first game sync, run it once by hand. Cards have no price until then. `--force` re-downloads everything; use it sparingly.
 - **Only some games:** `--games=mtg` (comma-separated game keys) limits every source and the price refresh to those games; Card Kingdom only runs when a listed game uses it.

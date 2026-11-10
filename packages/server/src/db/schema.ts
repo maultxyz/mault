@@ -1643,10 +1643,7 @@ export const tcgplayerPrices = pgTable(
     subType: text("sub_type").notNull(),
     categoryId: integer("category_id").notNull(),
     lowPrice: doublePrecision("low_price"),
-    midPrice: doublePrecision("mid_price"),
-    highPrice: doublePrecision("high_price"),
     marketPrice: doublePrecision("market_price"),
-    directLowPrice: doublePrecision("direct_low_price"),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [primaryKey({ columns: [table.productId, table.subType] })],
@@ -1706,6 +1703,18 @@ export const tcgplayerSkuSets = pgTable(
     productsModified: text("products_modified"),
     skusModified: text("skus_modified"),
     skuCount: integer("sku_count"),
+    syncedAt: timestamp("synced_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.categoryId, table.setId] })],
+);
+
+export const tcgplayerPriceSets = pgTable(
+  "tcgplayer_price_sets",
+  {
+    categoryId: integer("category_id").notNull(),
+    setId: integer("set_id").notNull(),
+    productsModified: text("products_modified"),
+    pricingModified: text("pricing_modified"),
     syncedAt: timestamp("synced_at").defaultNow().notNull(),
   },
   (table) => [primaryKey({ columns: [table.categoryId, table.setId] })],

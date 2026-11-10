@@ -163,7 +163,7 @@ export const GUNDAM_PRODUCT_CARD_NUMBER_TAG_PATTERN = /\s*\([A-Z]+\d*-\d+\)/g;
 export const POKEMON_BASIC_ENERGY_PREFIX_PATTERN = /^Basic\s+(?=.*\bEnergy\b)/i;
 
 export const TCGPLAYER_SKU_UPSERT_BATCH_SIZE = 1000;
-export const TCGPLAYER_SKU_PROGRESS_LOG_EVERY_SETS = 50;
+export const TCGTRACKING_PROGRESS_LOG_EVERY_SETS = 50;
 export const TCGPLAYER_SKU_CONDITION_COLUMNS = {
   NM: "nearMintSkuId",
   LP: "lightlyPlayedSkuId",

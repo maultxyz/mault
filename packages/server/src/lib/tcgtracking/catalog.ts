@@ -17,6 +17,8 @@ import type {
   TcgtrackingProduct,
   TcgtrackingProductLookup,
   TcgtrackingSet,
+  TcgtrackingSetPricing,
+  TcgtrackingSetPricingResponse,
   TcgtrackingSetSkusResponse,
   TcgtrackingSku,
 } from "../interfaces/tcgtracking";
@@ -105,6 +107,33 @@ export async function fetchTcgtrackingSetSkus(
       })),
     ]),
   );
+}
+
+export async function fetchTcgtrackingSetPricing(
+  categoryId: number,
+  setId: number,
+): Promise<TcgtrackingSetPricing> {
+  const { prices } = await getJson<TcgtrackingSetPricingResponse>(
+    `/${categoryId}/sets/${setId}/pricing`,
+  );
+  const entries = Object.entries(prices ?? {}).flatMap(([productId, sources]) => {
+    const id = Number(productId);
+    return Number.isInteger(id) && id > 0 ? [[id, sources.tcg] as const] : [];
+  });
+  return {
+    productIds: entries.map(([productId]) => productId),
+    prices: entries.flatMap(([productId, subTypes]) =>
+      Array.isArray(subTypes) || !subTypes
+        ? []
+        : Object.entries(subTypes).flatMap(([subType, point]) => {
+            const lowPrice = point.low ?? null;
+            const marketPrice = point.market ?? null;
+            return lowPrice == null && marketPrice == null
+              ? []
+              : [{ productId, subType, lowPrice, marketPrice }];
+          }),
+    ),
+  };
 }
 
 export async function fetchTcgtrackingProductEntry(

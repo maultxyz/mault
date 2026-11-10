@@ -35,29 +35,25 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
       },
       table: {
         heading: t("priceTable.heading"),
-        columns: [t("priceTable.low"), t("priceTable.mid"), t("priceTable.market"), t("priceTable.high")],
+        columns: [t("priceTable.low"), t("priceTable.market")],
         rows: [
           {
             label: t("priceTable.regular"),
             values: [
               card.priceRange?.low ?? null,
-              card.priceRange?.mid ?? null,
               card.priceRange?.market ?? card.price,
-              card.priceRange?.high ?? null,
             ],
           },
           {
             label: t("priceTable.foil"),
             values: [
               card.priceRangeFoil?.low ?? null,
-              card.priceRangeFoil?.mid ?? null,
               card.priceRangeFoil?.market ?? card.priceFoil,
-              card.priceRangeFoil?.high ?? null,
             ],
           },
         ],
         printings: Math.max(card.priceRange?.printings ?? 1, card.priceRangeFoil?.printings ?? 1),
-        highlightColumn: 2,
+        highlightColumn: 1,
         format: formatUsd,
       },
     },

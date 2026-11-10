@@ -74,7 +74,7 @@ async function run(): Promise<boolean> {
   try {
     log("TCGplayer: starting.");
     const tcgplayer = await syncTcgplayerPrices({ force, gameKeys, log });
-    ok &&= tcgplayer.failedGroups === 0;
+    ok &&= tcgplayer.failedSets === 0;
     pulled ||= tcgplayer.prices > 0 || tcgplayer.products > 0;
     sources.TCGplayer =
       tcgplayer.prices > 0 || tcgplayer.products > 0
@@ -82,9 +82,9 @@ async function run(): Promise<boolean> {
             status: "updated",
             prices: tcgplayer.prices,
             products: tcgplayer.products,
-            failures: tcgplayer.failedGroups,
+            failures: tcgplayer.failedSets,
           }
-        : tcgplayer.failedGroups > 0
+        : tcgplayer.failedSets > 0
           ? { status: "failed" }
           : { status: "unchanged" };
   } catch (err) {
