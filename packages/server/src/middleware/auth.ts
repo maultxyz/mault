@@ -1,3 +1,5 @@
+import { SERVER_SCAN_ACTOR } from "../lib/constants/scan-actor";
+import type { ServerScanBindings } from "../lib/interfaces/scan-actor";
 import { timingSafeEqual } from "node:crypto";
 import { createMiddleware } from "hono/factory";
 import * as jose from "jose";
@@ -35,7 +37,7 @@ export type AppVariables = {
   orgRole: OrgRole;
   impersonatedBy: string | null;
 };
-export type AppEnv = { Variables: AppVariables };
+export type AppEnv = { Variables: AppVariables; Bindings: ServerScanBindings };
 
 const userRoleCache = createKeyedCache<string>(
   AUTH_LOOKUP_CACHE_TTL_MS,
@@ -134,13 +136,17 @@ export async function getUserDisplayName(userId: string): Promise<string> {
 }
 
 export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
+  const actor = c.env?.[SERVER_SCAN_ACTOR];
   const authHeader = c.req.header("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+  if (
+    (actor && c.req.header("X-Org-Id") !== actor.orgId) ||
+    (!actor && !authHeader?.startsWith("Bearer "))
+  ) {
     return c.json({ success: false, message: "Unauthorized" }, 401);
   }
-  const token = authHeader.slice(7);
+  const token = authHeader?.slice(7) ?? "";
 
-  const impersonation = await verifyImpersonationToken(token);
+  const impersonation = actor ? null : await verifyImpersonationToken(token);
   if (impersonation) {
     const role = await getUserRole(impersonation.sub);
     c.set(
@@ -154,7 +160,7 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
     return;
   }
 
-  const payload = await verifyToken(token);
+  const payload = actor ? { sub: actor.userId } : await verifyToken(token);
   if (!payload?.sub)
     return c.json({ success: false, message: "Unauthorized" }, 401);
   const role = await getUserRole(payload.sub);

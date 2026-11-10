@@ -65,7 +65,6 @@ export interface PiScanLive {
   orgId: string;
   userId: string;
   jwtClaims: string;
-  accessToken: string;
   collectionGuid: string;
   message: string | null;
   cardsScanned: number;
@@ -116,7 +115,6 @@ export interface PiScanStartInput {
   orgId: string;
   userId: string;
   jwtClaims: string;
-  accessToken: string;
   body: PiScanSessionStartBody;
 }
 

@@ -454,8 +454,7 @@ async function rememberAutoAssign(
   context.pickConfigs = applyAutoAssignTarget(context.pickConfigs, { binNumber, rules });
   try {
     const saved = await saveBinThroughRoute(
-      session.accessToken,
-      session.orgId,
+      { userId: session.userId, orgId: session.orgId },
       context.gameGuid,
       target,
     );
@@ -854,8 +853,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             attempts: identified.attempts,
           };
           const saved = await saveThroughCollectionRoute(
-            session.accessToken,
-            session.orgId,
+            { userId: session.userId, orgId: session.orgId },
             session.collectionGuid,
             "unmatched",
             {
@@ -956,8 +954,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           );
           try {
             const pickList = await recordPickFound(
-              session.accessToken,
-              session.orgId,
+              { userId: session.userId, orgId: session.orgId },
               chosen.guid,
               decision.pickListMatch.entry.name,
             );
@@ -985,8 +982,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           foilDetection: matched.foilDetection,
         };
         const saved = await saveThroughCollectionRoute(
-          session.accessToken,
-          session.orgId,
+          { userId: session.userId, orgId: session.orgId },
           session.collectionGuid,
           context.set.skipSaving ? "cards/sorted" : "cards",
           {
@@ -1155,7 +1151,6 @@ function createSession(
   orgId: string,
   userId: string,
   jwtClaims: string,
-  accessToken: string,
   body: PiScanSessionStartBody,
 ): PiScanLive {
   let resolveDone: () => void = () => {};
@@ -1167,7 +1162,6 @@ function createSession(
     orgId,
     userId,
     jwtClaims,
-    accessToken,
     collectionGuid: body.collectionGuid,
     message: null,
     cardsScanned: 0,
@@ -1225,7 +1219,6 @@ export async function startPiScanSession(
     input.orgId,
     input.userId,
     input.jwtClaims,
-    input.accessToken,
     {
       ...input.body,
       collectionGuid,
