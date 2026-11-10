@@ -92,6 +92,10 @@
     "removeFromLocation": "Remove from location",
     "removeFromLocationAndCollection": "Remove from location and collection"
   },
+  "bulkRemoveDialog": {
+    "title_one": "Remove {{count}} card from {{location}}?",
+    "title_other": "Remove {{count}} cards from {{location}}?"
+  },
   "search": {
     "placeholder": "Search cards in every location",
     "openLocation": "Show this location",

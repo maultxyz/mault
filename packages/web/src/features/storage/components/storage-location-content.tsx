@@ -49,7 +49,7 @@ export function StorageLocationContent(props: StorageLocationCardsProps) {
           location={props.location}
         />
       ) : (
-        <StorageLocationCards {...props} />
+        <StorageLocationCards key={props.location.guid} {...props} />
       )}
     </div>
   );

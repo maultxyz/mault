@@ -1,5 +1,6 @@
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import { useRemoveCardFromLocation } from "@/features/storage/api/use-storage-lo
 import { MobileStorageCardList } from "@/features/storage/components/mobile-storage-card-list";
 import { RemoveFromLocationDialog } from "@/features/storage/components/remove-from-location-dialog";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { StorageCardListProps } from "@/lib/interfaces/storage";
 import {
@@ -27,13 +29,23 @@ export function StorageCardList({
   entries,
   onOpenLocation,
   onOpenCard,
+  isSelected,
+  onToggleSelect,
+  onTogglePageSelect,
 }: StorageCardListProps) {
   const { t } = useTranslation("storage");
+  const { t: tCards } = useTranslation("cards");
   const { priceOf, priceAtScanOf, format } = usePriceSource();
   const { removeCard, isRemoving } = useRemoveCardFromLocation();
   const [pendingRemoval, setPendingRemoval] =
     useState<StorageLocationSearchResult | null>(null);
   const isMobile = useIsMobile();
+  const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
+  const selectedOnPageCount = isSelected
+    ? entries.filter((entry) => isSelected(entry)).length
+    : 0;
+  const isPageSelected =
+    entries.length > 0 && selectedOnPageCount === entries.length;
 
   if (isMobile) {
     return (
@@ -41,6 +53,8 @@ export function StorageCardList({
         entries={entries}
         onOpenLocation={onOpenLocation}
         onOpenCard={onOpenCard}
+        isSelected={isSelected}
+        onToggleSelect={onToggleSelect}
       />
     );
   }
@@ -51,6 +65,18 @@ export function StorageCardList({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              {onToggleSelect && (
+                <TableHead className="w-8">
+                  {onTogglePageSelect && (
+                    <Checkbox
+                      aria-label={tCards("scannedCardTable.selectPage")}
+                      checked={isPageSelected}
+                      indeterminate={selectedOnPageCount > 0 && !isPageSelected}
+                      onCheckedChange={onTogglePageSelect}
+                    />
+                  )}
+                </TableHead>
+              )}
               {onOpenLocation ? (
                 <TableHead>{t("cards.columns.location")}</TableHead>
               ) : (
@@ -100,9 +126,26 @@ export function StorageCardList({
               return (
                 <TableRow
                   key={entry.scanId}
+                  data-state={isSelected?.(entry) ? "selected" : undefined}
                   className="cursor-pointer"
                   onClick={() => onOpenCard(entry)}
                 >
+                  {onToggleSelect && (
+                    <TableCell
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={onSelectMouseDown}
+                    >
+                      <Checkbox
+                        aria-label={tCards("scannedCardTable.selectRow", {
+                          name: entry.card.name,
+                        })}
+                        checked={!!isSelected?.(entry)}
+                        onCheckedChange={() =>
+                          onToggleSelect(entry, { shiftKey: consumeShift() })
+                        }
+                      />
+                    </TableCell>
+                  )}
                   {onOpenLocation ? (
                     <TableCell>
                       <Button

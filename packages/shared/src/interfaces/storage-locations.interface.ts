@@ -39,6 +39,11 @@ export interface StorageLocationCard {
   acquisitionCurrency: string | null;
 }
 
+export interface StorageLocationCardReference {
+  scanId: string;
+  collectionGuid: string;
+}
+
 export interface StorageLocationCardPage {
   cards: StorageLocationCard[];
   total: number;

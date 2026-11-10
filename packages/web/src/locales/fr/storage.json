@@ -92,6 +92,10 @@
     "removeFromLocation": "Retirer de l'emplacement",
     "removeFromLocationAndCollection": "Retirer de l'emplacement et de la collection"
   },
+  "bulkRemoveDialog": {
+    "title_one": "Retirer {{count}} carte de {{location}} ?",
+    "title_other": "Retirer {{count}} cartes de {{location}} ?"
+  },
   "search": {
     "placeholder": "Rechercher des cartes dans tous les emplacements",
     "openLocation": "Afficher cet emplacement",

@@ -1,32 +1,32 @@
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
-import { testServerRollbar } from "@/lib/api/admin";
+import { testServerErrorReporting } from "@/lib/api/admin";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 
-export function RollbarTestPanel() {
+export function ErrorReportingTestPanel() {
   const { t } = useTranslation("admin");
 
   const testServerMutation = useMutation({
-    mutationFn: testServerRollbar,
+    mutationFn: testServerErrorReporting,
     onSuccess: (result) => toast.success(result.message),
-    onError: () => toast.error(t("rollbarTest.toasts.serverError")),
+    onError: () => toast.error(t("errorReportingTest.toasts.serverError")),
   });
 
   function handleTestClient() {
     (null as unknown as { hello: () => void }).hello();
-    toast.success(t("rollbarTest.toasts.clientSent"));
+    toast.success(t("errorReportingTest.toasts.clientSent"));
   }
 
   return (
     <SettingsSection
-      heading={t("rollbarTest.heading")}
-      description={t("rollbarTest.description")}
+      heading={t("errorReportingTest.heading")}
+      description={t("errorReportingTest.description")}
     >
       <div className="flex flex-wrap items-center gap-1.5">
         <Button variant="outline" onClick={handleTestClient}>
-          {t("rollbarTest.testClientButton")}
+          {t("errorReportingTest.testClientButton")}
         </Button>
         <Button
           variant="outline"
@@ -34,8 +34,8 @@ export function RollbarTestPanel() {
           onClick={() => testServerMutation.mutate()}
         >
           {testServerMutation.isPending
-            ? t("rollbarTest.testingButton")
-            : t("rollbarTest.testServerButton")}
+            ? t("errorReportingTest.testingButton")
+            : t("errorReportingTest.testServerButton")}
         </Button>
       </div>
     </SettingsSection>

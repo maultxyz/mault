@@ -240,15 +240,15 @@
     "webLabel": "Web",
     "percentOfTotal": "{{percent}}% of scans"
   },
-  "rollbarTest": {
-    "heading": "Test Rollbar",
-    "description": "Send a test error to Rollbar from the client and/or the server to confirm error reporting is wired up",
+  "errorReportingTest": {
+    "heading": "Test PostHog",
+    "description": "Send a test error to PostHog from the client and/or the server to confirm error reporting is wired up",
     "testClientButton": "Test Client",
     "testServerButton": "Test Server",
     "testingButton": "Sending...",
     "toasts": {
-      "clientSent": "Sent test error to Rollbar (client).",
-      "serverError": "Failed to send test error to Rollbar (server)"
+      "clientSent": "Sent test error to PostHog (client).",
+      "serverError": "Failed to send test error to PostHog (server)"
     }
   },
   "impersonationAuditDrawer": {

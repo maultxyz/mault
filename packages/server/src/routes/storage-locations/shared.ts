@@ -13,6 +13,7 @@ import {
   type StoragePickList,
   type StorageLocation,
   type StorageLocationCard,
+  type StorageLocationCardReference,
   type StorageLocationExportCard,
   type StorageLocationExportSummary,
 } from "@magic-vault/shared";
@@ -422,6 +423,22 @@ export async function loadStoredCardIdsPage(
     total,
     page,
   };
+}
+
+export async function loadStoredCardReferences(
+  tx: Transaction,
+  locationId: number,
+  query: CollectionCardsQuery,
+  fieldDefinitions: FieldMeta[],
+): Promise<StorageLocationCardReference[]> {
+  const result = await tx.execute(sql`
+    WITH ${storedCardsRankedCte(locationId, query, fieldDefinitions)}
+    SELECT guid::text AS scan_id, collection_guid::text AS collection_guid
+    FROM ranked ORDER BY rn
+  `);
+  return (
+    result.rows as unknown as { scan_id: string; collection_guid: string }[]
+  ).map((row) => ({ scanId: row.scan_id, collectionGuid: row.collection_guid }));
 }
 
 export async function loadStoredCardsByRowIds(
