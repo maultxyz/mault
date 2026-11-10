@@ -311,8 +311,8 @@ jobs:
           tags: |
             ${{ steps.images.outputs.web }}:v${{ steps.appversion.outputs.version }}
             ${{ steps.images.outputs.web }}:sha-${{ github.sha }}
-          # The image is public, so deployment config (Neon URLs, Rollbar
-          # token, app env) comes from the container's environment in Coolify
+          # The image is public, so deployment config (Neon URLs, PostHog
+          # key, app env) comes from the container's environment in Coolify
           # at start-up instead.
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web

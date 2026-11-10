@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { getOwnAuth } from "../../auth/own-auth-instance";
-import { rollbar } from "../../lib/rollbar";
+import { reportServerError } from "../../lib/error-reporting";
 import type { AppEnv } from "../../middleware/auth";
 
 export const forgotPasswordRoute = new Hono<AppEnv>().post("/forgot-password", async (c) => {
@@ -10,7 +10,7 @@ export const forgotPasswordRoute = new Hono<AppEnv>().post("/forgot-password", a
       .requestPasswordReset({ email })
       .catch((err) => {
         console.error("[local-auth] password reset request failed:", err);
-        rollbar.error(err instanceof Error ? err : String(err));
+        reportServerError(err);
       });
   }
   return c.json({

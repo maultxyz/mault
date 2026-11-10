@@ -48,7 +48,7 @@ import { storageLocationsRouter } from "./routes/storage-locations";
 import { streamRoute } from "./routes/stream";
 import { publicApiRouter } from "./routes/v1";
 import { webhooksRouter } from "./routes/webhooks";
-import { rollbar } from "./lib/rollbar";
+import { reportServerError } from "./lib/error-reporting";
 import {
   PUBLIC_API_EXPOSED_HEADERS,
   PUBLIC_API_PATH_PREFIX,
@@ -127,7 +127,11 @@ app.route(SYNC_API_PATH, syncApiRouter);
 
 app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);
-  rollbar.error(err, { url: c.req.url, method: c.req.method });
+  reportServerError(
+    err,
+    { url: c.req.url, method: c.req.method },
+    c.get("userId"),
+  );
   return c.json({ success: false, message: "Internal server error." }, 500);
 });
 
