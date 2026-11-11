@@ -2,7 +2,7 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
+import { AccessibilityInfo, FlatList, RefreshControl, View } from "react-native";
 import type { DeletedItem } from "@magic-vault/shared";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SelectField } from "@/components/ui/select-field";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { deletedItemsQueryOptions, restoreDeletedItem } from "@/features/admin/api/deleted-items";
 import { AdminGate } from "@/features/admin/components/admin-gate";
 import { DeletedItemRow } from "@/features/admin/components/deleted-item-row";
@@ -133,11 +134,7 @@ function DeletedItemsScreen() {
         }
         ListFooterComponent={
           deletedItems.isFetchingNextPage ? (
-            <ActivityIndicator
-              style={{ margin: SPACING.lg }}
-              color={colors.primaryText}
-              accessibilityLabel={t("admin.deleted.loadingMore")}
-            />
+            <ListLoadingFooter accessibilityLabel={t("admin.deleted.loadingMore")} />
           ) : undefined
         }
         renderItem={({ item }) => (

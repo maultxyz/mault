@@ -1,22 +1,21 @@
-import { OCR_FIXED_REGION_PADDING_OF_CARD_WIDTH } from "@/lib/constants/cards";
-import { MTG_ASPECT_RATIO } from "@/lib/constants/scanner";
-import type { OcrOverlayRegion } from "@/lib/interfaces/cards";
-import type { OcrReadRegion, OcrRegion } from "@magic-vault/shared";
+import { OCR_FIXED_REGION_PADDING_OF_CARD_WIDTH } from "./constants/ocr-regions.constant";
+import { MTG_CARD_ASPECT_RATIO } from "./constants/vision-model.constant";
+import type { OcrOverlayRegion, OcrReadRegion, OcrRegion } from "./interfaces/ocr-region.interface";
 
 function padEqually<Region extends OcrRegion>(region: Region): Region {
   const paddingInCardWidths = Math.max(
     0,
     Math.min(
       OCR_FIXED_REGION_PADDING_OF_CARD_WIDTH,
-      region.height / MTG_ASPECT_RATIO,
+      region.height / MTG_CARD_ASPECT_RATIO,
       region.x,
       1 - region.x - region.width,
-      region.y / MTG_ASPECT_RATIO,
-      (1 - region.y - region.height) / MTG_ASPECT_RATIO,
+      region.y / MTG_CARD_ASPECT_RATIO,
+      (1 - region.y - region.height) / MTG_CARD_ASPECT_RATIO,
     ),
   );
   const paddingX = paddingInCardWidths;
-  const paddingY = paddingInCardWidths * MTG_ASPECT_RATIO;
+  const paddingY = paddingInCardWidths * MTG_CARD_ASPECT_RATIO;
   return {
     ...region,
     x: region.x - paddingX,
@@ -30,16 +29,12 @@ export function padFixedOcrRegions(regions: OcrRegion[]): OcrOverlayRegion[] {
   return regions.map(padEqually);
 }
 
-export function toOcrOverlayRegions(
-  readRegions: OcrReadRegion[],
-  fixedRegions: OcrRegion[],
-): OcrOverlayRegion[] {
+export function toOcrOverlayRegions(readRegions: OcrReadRegion[], fixedRegions: OcrRegion[]): OcrOverlayRegion[] {
   const unusedFixedRegions = [...fixedRegions];
   return readRegions.map((region) => {
     if (!region.anchored) {
       const fixedIndex = unusedFixedRegions.findIndex(
-        (fixed) =>
-          fixed.field === region.field && !!fixed.fallback === region.fallback,
+        (fixed) => fixed.field === region.field && !!fixed.fallback === region.fallback,
       );
       if (fixedIndex !== -1) {
         const [fixed] = unusedFixedRegions.splice(fixedIndex, 1);

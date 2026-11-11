@@ -8,7 +8,7 @@ import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay
 import {
   padFixedOcrRegions,
   toOcrOverlayRegions,
-} from "@/features/cards/lib/ocr-read-regions";
+} from "@magic-vault/shared";
 import {
   MATCH_VALIDATION_SCANS_QUERY_KEY,
   matchValidationProgressQueryOptions,

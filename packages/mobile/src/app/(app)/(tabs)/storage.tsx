@@ -2,7 +2,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import { CardRow } from "@/components/cards/card-row";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { storageLocationsPageQueryOptions, storageSearchQueryOptions } from "@/features/storage/api/storage";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -129,7 +130,7 @@ export default function StorageScreen() {
           )
         }
         ListFooterComponent={
-          locations.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
+          locations.isFetchingNextPage ? <ListLoadingFooter /> : undefined
         }
         ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.border }} />}
         renderItem={({ item: location }) => (

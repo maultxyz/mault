@@ -439,3 +439,12 @@ export interface SheetProps extends SheetContentProps {
   visible: boolean;
   onClose: () => void;
 }
+
+export interface ListLoadingFooterProps {
+  accessibilityLabel?: string;
+}
+
+export interface BrandIconProps {
+  size: number;
+  color: string;
+}

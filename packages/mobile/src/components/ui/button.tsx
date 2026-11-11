@@ -1,9 +1,11 @@
 import { Button as MaterialButton, FilledTonalButton, Host, TextButton } from "@expo/ui/jetpack-compose";
 import { fillMaxSize, semantics } from "@expo/ui/jetpack-compose/modifiers";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
+import { LoadingLogo } from "@/components/ui/loading-logo";
 import { useTheme } from "@/hooks/use-theme";
+import { LOADING_LOGO_INLINE_SIZE } from "@/lib/constants/loading";
 import { SPACING } from "@/lib/constants/theme";
 import { BUTTON_HEIGHTS, DISABLED_OPACITY } from "@/lib/constants/ui";
 import type { ButtonProps } from "@/lib/interfaces/ui";
@@ -69,7 +71,7 @@ export function Button({
         style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs + 2, flexShrink: 1 }}
       >
         {loading ? (
-          <ActivityIndicator size="small" color={appearance.content} />
+          <LoadingLogo size={LOADING_LOGO_INLINE_SIZE} color={appearance.content} />
         ) : icon ? (
           <Icon name={icon} size={iconOnly ? 20 : 16} color={appearance.content} />
         ) : null}

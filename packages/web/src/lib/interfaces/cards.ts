@@ -11,6 +11,7 @@ import type {
   CollectionCardsQuery,
   FieldMeta,
   GroupedScannedCard,
+  OcrOverlayRegion,
   OcrRegion,
   PlayingCard,
   PlayingCardImage,
@@ -401,10 +402,6 @@ export interface CardFiltersContextValue {
 export interface CapturedImageThumbProps {
   src: string;
   alt: string;
-}
-
-export interface OcrOverlayRegion extends OcrRegion {
-  anchored?: boolean;
 }
 
 export interface OcrRegionOverlayProps {

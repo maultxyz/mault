@@ -124,7 +124,7 @@ import {
 import {
   padFixedOcrRegions,
   toOcrOverlayRegions,
-} from "@/features/cards/lib/ocr-read-regions";
+} from "@magic-vault/shared";
 import { nextCycledOption } from "@/features/cards/lib/cycle-option";
 import { useQuery } from "@tanstack/react-query";
 import {

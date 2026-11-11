@@ -2,13 +2,14 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
+import { Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
   clearUnmatchedCards,
   invalidateUnmatchedCards,
@@ -114,7 +115,7 @@ export default function UnmatchedCardsScreen() {
         }
         ListFooterComponent={
           unmatched.isFetchingNextPage ? (
-            <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} />
+            <ListLoadingFooter />
           ) : undefined
         }
         renderItem={({ item }) => {

@@ -3,6 +3,7 @@
     "name": "Mault"
   },
   "common": {
+    "loading": "Chargement",
     "selected": "sélectionné",
     "show": "Afficher",
     "hide": "Masquer",

@@ -2,10 +2,11 @@ import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Image, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { BrandIcon } from "@/components/ui/brand-icon";
 import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
 import { pendingTradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
@@ -14,11 +15,10 @@ import { PlanPreviewTopBarChip } from "@/features/admin/components/plan-preview-
 import { useActiveOrg, useSwitchOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { useSession } from "@/lib/auth/session";
-import { BRAND_MARK } from "@/lib/constants/brand";
 import { ALERT_BADGE_MAX } from "@/lib/constants/stream";
 import { BADGE_RADIUS, CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import {
-  TOP_BAR_BRAND_MARK_SCALE,
+  TOP_BAR_BRAND_ICON_SIZE,
   TOP_BAR_BRAND_SIZE,
   TOP_BAR_HEIGHT,
   MIN_TOUCH_TARGET,
@@ -104,14 +104,7 @@ export function AppTopBar() {
           justifyContent: "center",
         }}
       >
-        <Image
-          accessible={false}
-          source={BRAND_MARK}
-          style={{
-            width: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
-            height: TOP_BAR_BRAND_SIZE * TOP_BAR_BRAND_MARK_SCALE,
-          }}
-        />
+        <BrandIcon size={TOP_BAR_BRAND_ICON_SIZE} color={colors.primaryForeground} />
       </View>
       {hasSeveralOrganizations ? (
         <View style={{ width: 1, height: 16, marginHorizontal: SPACING.xs, backgroundColor: colors.border }} />

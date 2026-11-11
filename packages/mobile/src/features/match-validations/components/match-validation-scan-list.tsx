@@ -1,11 +1,12 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
   authHeadersQueryOptions,
   matchValidationScansQueryOptions,
@@ -122,7 +123,7 @@ export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterPr
         )
       }
       ListFooterComponent={
-        scans.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
+        scans.isFetchingNextPage ? <ListLoadingFooter /> : undefined
       }
       renderItem={({ item }) => <MatchValidationScanRow scan={item} authHeaders={authHeaders} />}
     />

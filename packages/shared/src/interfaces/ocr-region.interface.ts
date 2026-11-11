@@ -37,3 +37,7 @@ export interface OcrDiagnostics {
   printedPromo?: boolean | null;
   scopedToPrintedLanguage?: string | null;
 }
+
+export interface OcrOverlayRegion extends OcrRegion {
+  anchored?: boolean;
+}

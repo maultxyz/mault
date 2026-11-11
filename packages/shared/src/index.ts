@@ -54,6 +54,7 @@ export * from "./interfaces/sorter-link.interface";
 
 export * from "./constants/bin-correction.constant";
 export * from "./constants/desktop.constant";
+export * from "./constants/brand.constant";
 export * from "./constants/collection-cards.constant";
 export * from "./page-size";
 export * from "./card-sort";
@@ -130,6 +131,7 @@ export * from "./constants/printing-regions.constant";
 export * from "./constants/printed-foil-marker.constant";
 export * from "./printed-foil-marker";
 export * from "./printing-marks";
+export * from "./ocr-overlay-regions";
 export * from "./foil-nudge";
 export * from "./match-validations";
 export * from "./card-condition";

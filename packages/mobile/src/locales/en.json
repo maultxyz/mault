@@ -3,6 +3,7 @@
     "name": "Mault"
   },
   "common": {
+    "loading": "Loading",
     "selected": "selected",
     "show": "Show",
     "hide": "Hide",

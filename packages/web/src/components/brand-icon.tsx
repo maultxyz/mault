@@ -1,7 +1,7 @@
 import {
   BRAND_ICON_STROKE_PATHS,
   BRAND_ICON_VIEW_BOX,
-} from "@/lib/constants/brand";
+} from "@magic-vault/shared";
 import type { ComponentProps } from "react";
 
 export function BrandIcon(props: ComponentProps<"svg">) {

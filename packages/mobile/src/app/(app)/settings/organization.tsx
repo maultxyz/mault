@@ -14,8 +14,8 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SelectField } from "@/components/ui/select-field";
-import { Surface } from "@/components/ui/surface";
 import { TextField } from "@/components/ui/text-field";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import {
@@ -115,10 +115,8 @@ export default function OrganizationSettingsScreen() {
           {error || details.isError ? <Callout tone="destructive" title={t("settings.org.failed")} /> : null}
 
           {canManage && details.data?.canRename ? (
-            <Surface style={{ gap: SPACING.md }}>
-              <AppText heading weight="semibold" accessibilityRole="header">
-                {t("settings.org.renameHeading", { name: org?.name ?? "" })}
-              </AppText>
+            <View style={{ gap: SPACING.md }}>
+              <SectionHeader title={t("settings.org.renameHeading", { name: org?.name ?? "" })} />
               <Controller
                 control={renameForm.control}
                 name="name"
@@ -144,13 +142,11 @@ export default function OrganizationSettingsScreen() {
                   }),
                 )}
               />
-            </Surface>
+            </View>
           ) : null}
 
-          <Surface style={{ gap: SPACING.sm }}>
-            <AppText heading weight="semibold" accessibilityRole="header">
-              {t("settings.org.membersHeading")}
-            </AppText>
+          <View style={{ gap: SPACING.sm }}>
+            <SectionHeader title={t("settings.org.membersHeading")} />
             {details.data && !details.data.canManageMembers ? (
               <AppText size="xs" tone="secondary">
                 {t("settings.org.membersUnavailable")}
@@ -173,13 +169,11 @@ export default function OrganizationSettingsScreen() {
                 })}
               </ListGroup>
             )}
-          </Surface>
+          </View>
 
           {canManage ? (
-            <Surface style={{ gap: SPACING.md }}>
-              <AppText heading weight="semibold" accessibilityRole="header">
-                {t("settings.org.inviteMemberHeading")}
-              </AppText>
+            <View style={{ gap: SPACING.md }}>
+              <SectionHeader title={t("settings.org.inviteMemberHeading")} />
               {memberLimitReached ? (
                 <Callout tone="info" title={t("settings.org.memberLimitReached", { count: memberLimit })} />
               ) : null}
@@ -249,14 +243,12 @@ export default function OrganizationSettingsScreen() {
                   </ListGroup>
                 )}
               </View>
-            </Surface>
+            </View>
           ) : null}
 
           {role === "owner" ? (
-            <Surface style={{ gap: SPACING.md }}>
-              <AppText heading weight="semibold" accessibilityRole="header">
-                {t("settings.org.dangerZoneHeading")}
-              </AppText>
+            <View style={{ gap: SPACING.md }}>
+              <SectionHeader title={t("settings.org.dangerZoneHeading")} />
               <AppText size="xs" tone="secondary">
                 {subscriptionBlocksDelete
                   ? t("settings.org.cancelSubscriptionFirst")
@@ -269,7 +261,7 @@ export default function OrganizationSettingsScreen() {
                 disabled={subscriptionBlocksDelete}
                 onPress={confirmDelete}
               />
-            </Surface>
+            </View>
           ) : null}
 
           <OptionSheet

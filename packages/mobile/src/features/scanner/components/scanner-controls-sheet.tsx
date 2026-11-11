@@ -1,14 +1,14 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator } from "react-native";
 import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { Sheet } from "@/components/ui/sheet";
+import { LoadingLogo } from "@/components/ui/loading-logo";
+import { LOADING_LOGO_INLINE_SIZE } from "@/lib/constants/loading";
 import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
-import { useTheme } from "@/hooks/use-theme";
 import { SPACING } from "@/lib/constants/theme";
 import type { ScannerControlAction, ScannerControlsSheetProps } from "@/lib/interfaces/scanner";
 
@@ -22,7 +22,6 @@ export function ScannerControlsSheet({
   onClose,
 }: ScannerControlsSheetProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const sorter = useSorter();
   const retract = useRetractCard();
   const [busy, setBusy] = useState<ScannerControlAction | null>(null);
@@ -44,7 +43,7 @@ export function ScannerControlsSheet({
   };
 
   const spinner = (action: ScannerControlAction) =>
-    busy === action ? <ActivityIndicator size="small" color={colors.foregroundSecondary} /> : undefined;
+    busy === action ? <LoadingLogo size={LOADING_LOGO_INLINE_SIZE} /> : undefined;
 
   return (
     <Sheet visible={visible} onClose={onClose} title={t("scan.controls.title")} contentContainerStyle={{ gap: SPACING.md }}>

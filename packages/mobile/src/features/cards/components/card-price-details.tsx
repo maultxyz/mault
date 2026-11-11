@@ -221,10 +221,15 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                         </AppText>
                       ))}
                     </View>
-                    {rows.map((row) => (
+                    {rows.map((row, rowIndex) => (
                       <View
                         key={row.label}
-                        style={{ flexDirection: "row", paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: colors.border }}
+                        style={{
+                          flexDirection: "row",
+                          paddingVertical: 6,
+                          borderTopWidth: rowIndex > 0 ? 1 : 0,
+                          borderTopColor: colors.border,
+                        }}
                       >
                         <AppText size="xs" tone="secondary" style={{ width: PRICE_TABLE_COLUMN_WIDTH }}>
                           {row.label}

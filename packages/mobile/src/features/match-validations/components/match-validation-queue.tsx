@@ -3,13 +3,20 @@ import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MATCH_VALIDATION_REVIEWS_REQUIRED, type MatchValidationVerdict } from "@magic-vault/shared";
+import {
+  MATCH_VALIDATION_REVIEWS_REQUIRED,
+  type MatchValidationVerdict,
+  OCR_REGIONS_BY_GAME_KEY,
+  padFixedOcrRegions,
+  toOcrOverlayRegions,
+} from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { Pill } from "@/components/ui/pill";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
 import {
   MATCH_VALIDATION_SCANS_QUERY_KEY,
   matchValidationProgressQueryOptions,
@@ -55,6 +62,11 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
   const cardName = current?.cardName ?? t("matchValidations.unknownCard");
   const scanUrl = absoluteUrl(current?.capturedImageUrl);
   const catalogUrl = absoluteUrl(current?.catalogImageUrl);
+  const gameOcrRegions = OCR_REGIONS_BY_GAME_KEY[current?.gameKey ?? ""] ?? [];
+  const fixedOcrRegions = padFixedOcrRegions(gameOcrRegions);
+  const scanOcrRegions = current?.ocrRegions?.length
+    ? toOcrOverlayRegions(current.ocrRegions, gameOcrRegions)
+    : fixedOcrRegions;
   const verdictButtonStyle = { flex: 1, paddingHorizontal: SPACING.xs };
   const imageFrame = {
     flex: 1,
@@ -116,6 +128,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
                       accessibilityLabel={t("matchValidations.scanPhotoAlt", { name: cardName })}
                     />
                   ) : null}
+                  <OcrRegionOverlay regions={scanOcrRegions} />
                 </View>
               </View>
               <View style={{ flex: 1, gap: 6 }}>
@@ -132,6 +145,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
                       accessibilityLabel={t("matchValidations.matchedCardAlt", { name: cardName })}
                     />
                   ) : null}
+                  <OcrRegionOverlay regions={fixedOcrRegions} />
                 </View>
               </View>
             </View>

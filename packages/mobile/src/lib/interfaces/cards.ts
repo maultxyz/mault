@@ -3,6 +3,7 @@ import type {
   CardCondition,
   CollectionCardPosition,
   ExportAdapter,
+  OcrOverlayRegion,
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
@@ -151,4 +152,8 @@ export interface CardDetailPrefetchStep {
   collectionGuid: string;
   position: CollectionCardPosition;
   nextScanId: string | null;
+}
+
+export interface OcrRegionOverlayProps {
+  regions: OcrOverlayRegion[];
 }

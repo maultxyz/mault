@@ -2,7 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
+import { Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
 import {
   allExportAdapters,
   DEFAULT_CARD_SORT,
@@ -22,6 +22,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
   deleteStorageLocation,
   downloadStorageLocationCsv,
@@ -291,7 +292,7 @@ export default function StorageLocationScreen() {
             )
           }
           ListFooterComponent={
-            cards.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
+            cards.isFetchingNextPage ? <ListLoadingFooter /> : undefined
           }
           renderItem={({ item: entry }) => {
             const value = pricing.priceOf(
