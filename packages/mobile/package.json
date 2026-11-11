@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/mobile",
-  "version": "1.0.155",
+  "version": "1.0.156",
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
