@@ -1,4 +1,4 @@
-export type OcrField = "name" | "setLine" | "number";
+export type OcrField = "name" | "setLine" | "number" | "language";
 
 export interface OcrRegion {
   field: OcrField;
@@ -35,4 +35,5 @@ export interface OcrDiagnostics {
   usedFallback?: boolean;
   regions?: OcrReadRegion[];
   printedPromo?: boolean | null;
+  scopedToPrintedLanguage?: string | null;
 }

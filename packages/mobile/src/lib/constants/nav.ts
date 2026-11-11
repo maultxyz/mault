@@ -7,13 +7,13 @@ export const TAB_ICONS: Record<string, IconName> = {
   account: "menu",
 };
 
-export const MODAL_ROUTE_PATTERN = /^\/(card\/|unmatched-card$|collection-new$|collection-rename$|storage-name$|share-link$)/;
+export const MODAL_ROUTE_PATTERN = /^\/(card\/|unmatched-card$|collection-new$|collection-edit$|storage-name$|share-link$)/;
 export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "(tabs)",
   "card/[scanId]",
   "unmatched-card",
   "collection-new",
-  "collection-rename",
+  "collection-edit",
   "storage-name",
   "share-link",
   "storage-card-scan",

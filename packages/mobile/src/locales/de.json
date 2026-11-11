@@ -76,10 +76,10 @@
     "createFailed": "Die Sammlung konnte nicht erstellt werden",
     "limitReached_one": "Dein Plan enthält {{count}} Sammlung. Führe im Web ein Upgrade deines Plans durch, um mehr zu erstellen.",
     "limitReached_other": "Dein Plan enthält {{count}} Sammlungen. Führe im Web ein Upgrade deines Plans durch, um mehr zu erstellen.",
-    "rename": "Umbenennen",
-    "renameTitle": "Sammlung umbenennen",
-    "renameDescription": "Benenne diese Sammlung um.",
-    "renameFailed": "Die Sammlung konnte nicht umbenannt werden",
+    "edit": "Bearbeiten",
+    "editTitle": "Sammlung bearbeiten",
+    "editDescription": "Ändere den Namen und die Scan-Sprache dieser Sammlung.",
+    "editFailed": "Die Sammlung konnte nicht gespeichert werden",
     "save": "Speichern",
     "empty": "Sammlung leeren",
     "emptyConfirm": "Leeren",
@@ -1977,7 +1977,8 @@
     "ocrFields": {
       "name": "Name",
       "setLine": "Set-Zeile",
-      "number": "Nummer"
+      "number": "Nummer",
+      "language": "Sprache"
     }
   },
   "export": {

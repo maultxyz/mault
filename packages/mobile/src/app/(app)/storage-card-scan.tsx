@@ -14,6 +14,7 @@ import {
   findCardForScan,
   OCR_REGIONS_BY_GAME_KEY,
   scanCheckCollectionGuid,
+  readsPrintedLanguageEveryScan,
   scanOcrMode,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
@@ -108,7 +109,8 @@ export default function StorageCardScanScreen() {
 
   const scan = async () => {
     if (!scanCollectionGuid) return;
-    const gameKey = collections?.find((collection) => collection.guid === scanCollectionGuid)?.game?.key ?? "";
+    const scanCollection = collections?.find((collection) => collection.guid === scanCollectionGuid);
+    const gameKey = scanCollection?.game?.key ?? "";
     setIsIdentifying(true);
     try {
       const outcome = await identifyCard(
@@ -117,7 +119,11 @@ export default function StorageCardScanScreen() {
           scope: { collectionGuid: scanCollectionGuid },
           matchesNeeded: DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
-          ocrMode: scanOcrMode(orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
+          ocrMode: scanOcrMode(
+            orgSettings,
+            (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+            readsPrintedLanguageEveryScan(scanCollection, gameKey),
+          ),
           gameKey: gameKey || null,
         },
         DEFAULT_SCAN_REGION,

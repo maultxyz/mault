@@ -13,6 +13,7 @@ import {
   type CardScanOrigin,
   type Collection,
   type CreateCollectionFormValues,
+  type EditCollectionFormValues,
   type IdentifyUnmatchedCardRequest,
   type MatchedScanDiagnostics,
   type MoveCardsToCollectionResult,
@@ -55,9 +56,9 @@ export async function createCollection(
 
 export async function updateCollection(
   guid: string,
-  name: string,
+  values: EditCollectionFormValues,
 ): Promise<Result<Collection[]>> {
-  return apiPut<Result<Collection[]>>(`/api/collections/${guid}`, { name });
+  return apiPut<Result<Collection[]>>(`/api/collections/${guid}`, values);
 }
 
 export async function checkCollectionName(

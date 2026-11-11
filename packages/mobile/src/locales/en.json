@@ -76,10 +76,10 @@
     "createFailed": "Couldn't create the collection",
     "limitReached_one": "Your plan includes {{count}} collection. Upgrade your plan on the web to create more.",
     "limitReached_other": "Your plan includes {{count}} collections. Upgrade your plan on the web to create more.",
-    "rename": "Rename",
-    "renameTitle": "Rename collection",
-    "renameDescription": "Rename this collection.",
-    "renameFailed": "Couldn't rename the collection",
+    "edit": "Edit",
+    "editTitle": "Edit collection",
+    "editDescription": "Change this collection's name and scan language.",
+    "editFailed": "Couldn't save the collection",
     "save": "Save",
     "empty": "Empty collection",
     "emptyConfirm": "Empty",
@@ -1977,7 +1977,8 @@
     "ocrFields": {
       "name": "Name",
       "setLine": "Set line",
-      "number": "Number"
+      "number": "Number",
+      "language": "Language"
     }
   },
   "export": {

@@ -94,7 +94,8 @@
     "ocrFields": {
       "name": "Nom",
       "setLine": "Ligne d'extension",
-      "number": "Numéro"
+      "number": "Numéro",
+      "language": "Langue"
     },
     "copyOf": "Exemplaire {{index}} sur {{count}}",
     "moreOptions": "Plus",

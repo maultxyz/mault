@@ -9,6 +9,7 @@ import {
   resolveScanFoilType,
   detectedStampOf,
   type ScannedCard,
+  readsPrintedLanguageEveryScan,
   scanOcrMode,
 } from "@magic-vault/shared";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
@@ -74,7 +75,11 @@ export function useBatchScan(initialMode: BatchScanMode) {
         scope: { collectionGuid: collection.guid },
         matchesNeeded: 1,
         checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
-        ocrMode: scanOcrMode(orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
+        ocrMode: scanOcrMode(
+          orgSettings,
+          (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+          readsPrintedLanguageEveryScan(collection, gameKey),
+        ),
         gameKey: gameKey || null,
       };
       for (const [index, card] of found.entries()) {

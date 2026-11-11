@@ -61,7 +61,7 @@ export default function AppLayout() {
           <Stack.Screen name="stats" />
           <Stack.Screen name="validate-matches" />
           <Stack.Screen name="collection-new" options={modalOptions} />
-          <Stack.Screen name="collection-rename" options={modalOptions} />
+          <Stack.Screen name="collection-edit" options={modalOptions} />
           <Stack.Screen name="storage-name" options={modalOptions} />
           <Stack.Screen name="share-link" options={modalOptions} />
           <Stack.Screen name="card-holds" options={modalOptions} />

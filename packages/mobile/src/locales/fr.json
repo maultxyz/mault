@@ -76,10 +76,10 @@
     "createFailed": "Impossible de créer la collection",
     "limitReached_one": "Ton offre inclut {{count}} collection. Passe à une offre supérieure sur le web pour en créer plus.",
     "limitReached_other": "Ton offre inclut {{count}} collections. Passe à une offre supérieure sur le web pour en créer plus.",
-    "rename": "Renommer",
-    "renameTitle": "Renommer la collection",
-    "renameDescription": "Renomme cette collection.",
-    "renameFailed": "Impossible de renommer la collection",
+    "edit": "Modifier",
+    "editTitle": "Modifier la collection",
+    "editDescription": "Modifie le nom et la langue de scan de cette collection.",
+    "editFailed": "Impossible d'enregistrer la collection",
     "save": "Enregistrer",
     "empty": "Vider la collection",
     "emptyConfirm": "Vider",
@@ -1977,7 +1977,8 @@
     "ocrFields": {
       "name": "Nom",
       "setLine": "Ligne d'extension",
-      "number": "Numéro"
+      "number": "Numéro",
+      "language": "Langue"
     }
   },
   "export": {

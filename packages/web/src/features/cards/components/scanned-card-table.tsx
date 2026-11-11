@@ -28,6 +28,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { raritySwatch } from "@/lib/card-swatches";
 import { rarityLabel } from "@magic-vault/shared";
+import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 
 export function ScannedCardTable({
   rows,
@@ -101,6 +102,10 @@ export function ScannedCardTable({
             <TableRow
               key={row.scanId}
               data-state={row.isSelected ? "selected" : undefined}
+              {...modifierClickSelectHandlers(
+                onToggleSelect &&
+                  ((shiftKey) => onToggleSelect(row, { shiftKey })),
+              )}
               onClick={onOpen ? () => onOpen(row) : undefined}
               className={cn(onOpen && "cursor-pointer")}
             >

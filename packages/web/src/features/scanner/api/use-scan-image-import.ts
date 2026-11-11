@@ -27,6 +27,7 @@ import {
   OCR_REGIONS_BY_GAME_KEY,
   resolveScanFoilType,
   detectedStampOf,
+  readsPrintedLanguageEveryScan,
   scanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -52,9 +53,10 @@ export function useScanImageImport(
   const stopRequestedRef = useRef(false);
   const queueRef = useRef<QueuedScanImage[]>([]);
 
-  const targetGame = collections.find(
+  const targetCollection = collections.find(
     (collection) => collection.guid === collectionGuid,
-  )?.game;
+  );
+  const targetGame = targetCollection?.game;
   const gameKey = targetGame?.key ?? "";
   const isOcrSupported = (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0;
   const latest = {
@@ -62,7 +64,11 @@ export function useScanImageImport(
     saveCard,
     saveUnmatched,
     orgId: activeOrg?.id ?? null,
-    ocrMode: scanOcrMode(orgSettings, isOcrSupported),
+    ocrMode: scanOcrMode(
+      orgSettings,
+      isOcrSupported,
+      readsPrintedLanguageEveryScan(targetCollection, gameKey),
+    ),
     gameKey: gameKey || undefined,
     gameFoilTypes: targetGame?.foilTypes ?? [],
     isFoilStarDetectionEnabled: orgSettings?.foilStarDetectionEnabled ?? false,

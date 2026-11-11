@@ -5,4 +5,5 @@ export interface CachedValue<T> {
 
 export interface KeyedCache<T> {
   get(key: string, load: () => Promise<T>): Promise<T>;
+  clear(): void;
 }

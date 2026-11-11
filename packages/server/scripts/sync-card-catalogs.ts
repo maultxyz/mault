@@ -1,4 +1,6 @@
 import "../src/lib/console-timestamps";
+import { appendFile, readdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { pool } from "../src/db";
 import {
   buildCatalogSyncReport,
@@ -7,6 +9,7 @@ import {
 import { CATALOG_SYNC_REPORT_ERROR_SAMPLE_LIMIT } from "../src/lib/constants/sync";
 import type { CatalogSyncResult } from "../src/lib/interfaces/catalog-sync-report";
 import {
+  cancelSync,
   getStatus,
   isSyncWorkerRunning,
   startSync,
@@ -28,16 +31,89 @@ function listArgument(name: string): string[] | undefined {
   return values && values.length > 0 ? values : undefined;
 }
 
+function valueArgument(name: string): string | undefined {
+  return process.argv
+    .find((arg) => arg.startsWith(`--${name}=`))
+    ?.slice(`--${name}=`.length)
+    .trim() || undefined;
+}
+
 const forceResync = process.argv.includes("--force");
+const listsCatalogsOnly = process.argv.includes("--list-catalogs");
 const requestedGameKeys = listArgument("games");
 const requestedLanguages = listArgument("languages");
+const resultsFilePath = valueArgument("results-file");
+const reportFromResultsDirectory = valueArgument("report-from-results");
+const stopAfterMinutes = Number(valueArgument("stop-after-minutes") ?? "0");
+const stopsAtTimeLimit = Number.isFinite(stopAfterMinutes) && stopAfterMinutes > 0;
+const scriptStartedAt = Date.now();
+const TIME_LIMIT_MESSAGE =
+  "Stopped at the time limit; the next run continues where this one left off.";
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function waitForSyncWorkerToStop(): Promise<void> {
-  while (isSyncWorkerRunning()) await sleep(STATUS_POLL_MS);
+function timeLimitReached(): boolean {
+  return (
+    stopsAtTimeLimit &&
+    Date.now() - scriptStartedAt >= stopAfterMinutes * 60_000
+  );
+}
+
+async function waitForSyncWorkerToStopOrTimeLimit(): Promise<boolean> {
+  let stoppedAtTimeLimit = false;
+  while (isSyncWorkerRunning()) {
+    if (!stoppedAtTimeLimit && timeLimitReached()) {
+      log(`Reached the ${stopAfterMinutes} minute limit, stopping the sync.`);
+      stoppedAtTimeLimit = true;
+      cancelSync();
+    }
+    await sleep(STATUS_POLL_MS);
+  }
+  return stoppedAtTimeLimit;
+}
+
+async function writeCatalogsOutput(
+  catalogs: { gameKey: string; lang: string }[],
+): Promise<void> {
+  const line = `catalogs=${JSON.stringify(catalogs)}\n`;
+  const outputPath = process.env.GITHUB_OUTPUT;
+  if (outputPath) await appendFile(outputPath, line);
+  else process.stdout.write(line);
+}
+
+async function readResultsDirectory(
+  directory: string,
+): Promise<CatalogSyncResult[]> {
+  const entries = await readdir(directory, { recursive: true });
+  const resultFiles = entries.filter((entry) => entry.endsWith(".json"));
+  const results: CatalogSyncResult[] = [];
+  for (const file of resultFiles) {
+    const parsed = JSON.parse(
+      await readFile(path.join(directory, file), "utf8"),
+    ) as CatalogSyncResult[];
+    results.push(...parsed);
+  }
+  return results;
+}
+
+function missingCatalogResult(catalog: {
+  gameKey: string;
+  lang: string;
+}): CatalogSyncResult {
+  return {
+    ...catalog,
+    succeeded: false,
+    totalCards: 0,
+    newCards: 0,
+    updatedCards: 0,
+    newCardNames: [],
+    cardErrors: 0,
+    cardErrorSamples: [],
+    fatalError: "The sync job ended without reporting a result.",
+    durationMs: 0,
+  };
 }
 
 async function main(): Promise<number> {
@@ -64,6 +140,26 @@ async function main(): Promise<number> {
     return 1;
   }
 
+  if (listsCatalogsOnly) {
+    await writeCatalogsOutput(catalogs);
+    return 0;
+  }
+
+  if (reportFromResultsDirectory) {
+    const reported = await readResultsDirectory(reportFromResultsDirectory);
+    const reportedKeys = new Set(
+      reported.map((result) => `${result.gameKey}:${result.lang}`),
+    );
+    const results = [
+      ...reported,
+      ...catalogs
+        .filter((catalog) => !reportedKeys.has(`${catalog.gameKey}:${catalog.lang}`))
+        .map(missingCatalogResult),
+    ];
+    await reportToDiscord(results);
+    return 0;
+  }
+
   let cardErrorSamples: string[] = [];
   subscribeSSE((event, data) => {
     if (event !== "log") return;
@@ -80,13 +176,21 @@ async function main(): Promise<number> {
   const results: CatalogSyncResult[] = [];
   for (const { gameKey, lang } of catalogs) {
     const label = `${gameKey} (${lang})`;
+    if (timeLimitReached()) {
+      results.push({
+        ...missingCatalogResult({ gameKey, lang }),
+        fatalError: TIME_LIMIT_MESSAGE,
+      });
+      continue;
+    }
     log(`Starting ${forceResync ? "force resync" : "sync"} of ${label}`);
     cardErrorSamples = [];
     const startedAt = Date.now();
     let startError: string | null = null;
+    let stoppedAtTimeLimit = false;
     try {
       startSync(undefined, gameKey, lang, forceResync);
-      await waitForSyncWorkerToStop();
+      stoppedAtTimeLimit = await waitForSyncWorkerToStopOrTimeLimit();
     } catch (err) {
       startError = err instanceof Error ? err.message : String(err);
     }
@@ -97,7 +201,7 @@ async function main(): Promise<number> {
     );
     if (!succeeded) {
       console.log(
-        `::warning::Catalog sync failed for ${label}: ${startError ?? status.fatalError ?? "unknown error"}`,
+        `::warning::Catalog sync failed for ${label}: ${stoppedAtTimeLimit ? TIME_LIMIT_MESSAGE : (startError ?? status.fatalError ?? "unknown error")}`,
       );
     }
     results.push({
@@ -112,7 +216,9 @@ async function main(): Promise<number> {
       cardErrorSamples,
       fatalError: succeeded
         ? null
-        : (startError ?? status.fatalError ?? `ended with status ${status.status}`),
+        : stoppedAtTimeLimit
+          ? TIME_LIMIT_MESSAGE
+          : (startError ?? status.fatalError ?? `ended with status ${status.status}`),
       durationMs: Date.now() - startedAt,
     });
   }
@@ -126,7 +232,12 @@ async function main(): Promise<number> {
   log(`Completed: ${completedLabels.join(", ") || "none"}`);
   log(`Failed: ${failedLabels.join(", ") || "none"}`);
 
-  await reportToDiscord(results);
+  if (resultsFilePath) {
+    await writeFile(resultsFilePath, JSON.stringify(results));
+    log(`Wrote results to ${resultsFilePath}.`);
+  } else {
+    await reportToDiscord(results);
+  }
   return 0;
 }
 

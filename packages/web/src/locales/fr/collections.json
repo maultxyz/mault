@@ -70,7 +70,7 @@
   },
   "editDialog": {
     "title": "Modifier la collection",
-    "description": "Renomme cette collection.",
+    "description": "Modifie le nom et la langue de scan de cette collection.",
     "submit": "Enregistrer"
   },
   "deleteDialog": {

@@ -94,8 +94,8 @@ export const createCollectionFormSchema = z.object({
   matchAllLanguages: z.boolean(),
 });
 
-export const renameCollectionFormSchema = z.object({
-  name: nameSchema(SET_NAME_MAX_LENGTH),
+export const editCollectionFormSchema = createCollectionFormSchema.omit({
+  gameGuid: true,
 });
 
 export const organizationNameFormSchema = z.object({

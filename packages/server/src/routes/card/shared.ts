@@ -14,6 +14,7 @@ import {
   DISTANCE_THRESHOLD,
   PRINTING_MARK_MAX_LEADER_DISTANCE_GAP,
   PRINTING_MARK_REORDER_MARGIN,
+  readPrintedLanguage,
   type PrintingMarkScanGrids,
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
@@ -42,6 +43,7 @@ import {
 } from "../../lib/constants/ocr";
 import {
   cardMatchSegments,
+  gameHasCardsInLanguage,
   loadedCardMatchSegments,
 } from "../../lib/card-match-index";
 import {
@@ -764,6 +766,7 @@ function mergeReadouts(primary: OcrReadout, fallback: OcrReadout): OcrReadout {
     name: merge("name"),
     setLine: merge("setLine"),
     number: merge("number"),
+    language: merge("language"),
   };
 }
 
@@ -792,21 +795,39 @@ export async function findCardMatchesByOcr(
         scanGridsFromImageBuffer(params.gameKey, buffer),
     ]);
   const readout = mergeReadouts(primary, fallback);
+  const scopedToPrintedLanguage = await printedLanguageScope(params, readout);
+  const scopedParams = scopedToPrintedLanguage
+    ? { ...params, lang: scopedToPrintedLanguage, matchAllLanguages: false }
+    : params;
   const adapter = resolveCardSearchForGame(
     params.gameKey,
     params.lang,
   )?.adapter;
   const printedPromo =
     adapter?.readPrintedPromoMarker?.(readout.setLine) ?? null;
-  const withReadRegions = (result: CardTextMatchResult) => ({
-    ...result,
-    ocr: { ...result.ocr, regions: readRegions, printedPromo },
-  });
+  const withReadRegions = async (
+    result: CardTextMatchResult,
+  ): Promise<CardTextMatchResult> => {
+    const ocr = {
+      ...result.ocr,
+      regions: readRegions,
+      printedPromo,
+      scopedToPrintedLanguage,
+    };
+    if (!scopedToPrintedLanguage || result.data) return { ...result, ocr };
+    const imageMatchInPrintedLanguage = await findCardMatches({
+      ...scopedParams,
+      printingMarkGrids,
+    });
+    return imageMatchInPrintedLanguage.data
+      ? { ...imageMatchInPrintedLanguage, ocr }
+      : { ...result, ocr };
+  };
   if (adapter?.ocrMatchesByPrintedSetAndNumber) {
     return withReadRegions(
       withoutDistantUnconfirmedMatch(
         await findCardMatchesByPrintedSetAndNumber({
-          ...params,
+          ...scopedParams,
           readout,
         }),
       ),
@@ -820,7 +841,7 @@ export async function findCardMatchesByOcr(
       candidate.name &&
       all.findIndex((other) => other.name === candidate.name) === index,
   );
-  const textParams = { ...params, printedPromo, printingMarkGrids };
+  const textParams = { ...scopedParams, printedPromo, printingMarkGrids };
   if (nameCandidates.length === 0) {
     return withReadRegions(
       await findCardMatchesByText({ ...textParams, readout }),
@@ -849,6 +870,18 @@ export async function findCardMatchesByOcr(
       },
     }),
   );
+}
+
+async function printedLanguageScope(
+  { gameKey, matchAllLanguages }: Omit<CardTextMatchParams, "readout">,
+  readout: OcrReadout,
+): Promise<string | null> {
+  if (!matchAllLanguages) return null;
+  const printedLanguage = readPrintedLanguage(gameKey, readout.language);
+  if (!printedLanguage) return null;
+  return (await gameHasCardsInLanguage(gameKey, printedLanguage))
+    ? printedLanguage
+    : null;
 }
 
 export async function attachMatchedCards<T extends CardMatchSearchResult>(

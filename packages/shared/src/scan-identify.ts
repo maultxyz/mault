@@ -1,3 +1,4 @@
+import { gameReadsPrintedLanguage } from "./card-language";
 import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
 import type { CardSearchResult } from "./interfaces/api.interface";
 import type { PlayingCardWithDistance } from "./interfaces/card.interface";
@@ -32,16 +33,42 @@ export function needsTextSearch(result: CardSearchResult): boolean {
 export function scanOcrMode(
   settings: { ocrEnabled: boolean; highAccuracyScans?: boolean } | null | undefined,
   gameSupportsOcr: boolean,
+  readsPrintedLanguageEveryScan = false,
 ): ScanOcrMode {
   if (!settings?.ocrEnabled || !gameSupportsOcr) return "off";
-  return settings.highAccuracyScans ? "every-scan" : "when-unsure";
+  return settings.highAccuracyScans || readsPrintedLanguageEveryScan
+    ? "every-scan"
+    : "when-unsure";
+}
+
+export function readsPrintedLanguageEveryScan(
+  collection: { matchAllLanguages?: boolean } | null | undefined,
+  gameKey: string | null | undefined,
+): boolean {
+  return !!collection?.matchAllLanguages && !!gameKey && gameReadsPrintedLanguage(gameKey);
+}
+
+function imageMatchIsInOtherLanguage(
+  imageResult: CardSearchResult,
+  printedLanguage: string | null | undefined,
+): boolean {
+  const leader = imageResult.data?.[0];
+  if (!printedLanguage || !leader) return false;
+  return (leader.lang ?? leader.card?.lang) !== printedLanguage;
 }
 
 export function prefersTextMatch(
   imageResult: CardSearchResult,
-  textOcr: { printingConfirmed?: boolean } | null | undefined,
+  textOcr:
+    | { printingConfirmed?: boolean; scopedToPrintedLanguage?: string | null }
+    | null
+    | undefined,
 ): boolean {
-  return needsTextSearch(imageResult) || !!textOcr?.printingConfirmed;
+  return (
+    needsTextSearch(imageResult) ||
+    !!textOcr?.printingConfirmed ||
+    imageMatchIsInOtherLanguage(imageResult, textOcr?.scopedToPrintedLanguage)
+  );
 }
 
 export function pickBetterOrientation<T extends OrientedSearchCandidate>(

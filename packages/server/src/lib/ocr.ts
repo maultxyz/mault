@@ -174,7 +174,7 @@ async function readRegionBandTextBoxes(
 }
 
 function emptyReadout(): OcrReadout {
-  return { name: "", setLine: "", number: "" };
+  return { name: "", setLine: "", number: "", language: "" };
 }
 
 async function readRegions(

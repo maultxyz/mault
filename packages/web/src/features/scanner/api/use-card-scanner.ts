@@ -66,6 +66,7 @@ import {
   type ScannerStatus,
   type ScanVectorizeSource,
   presetMatchGameKeys,
+  readsPrintedLanguageEveryScan,
   scanOcrMode,
   type ScanOcrMode,
 } from "@magic-vault/shared";
@@ -235,7 +236,11 @@ export function useCardScanner({
     (OCR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""]?.length ?? 0) >
     0;
   const ocrModeRef = useRef<ScanOcrMode>("off");
-  ocrModeRef.current = scanOcrMode(orgSettings, ocrSupported);
+  ocrModeRef.current = scanOcrMode(
+    orgSettings,
+    ocrSupported,
+    readsPrintedLanguageEveryScan(activeCollection, activeCollection?.game?.key),
+  );
   const foilDetectionGameKey = useFoilDetectionGameKey(activeCollection?.game?.key);
   const foilDetectionGameKeyRef = useRef(foilDetectionGameKey);
   foilDetectionGameKeyRef.current = foilDetectionGameKey;
