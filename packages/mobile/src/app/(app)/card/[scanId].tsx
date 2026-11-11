@@ -713,7 +713,7 @@ export default function CardDetailScreen() {
 
       <OptionSheet
         visible={sheet === "actions"}
-        title={card?.name ?? t("cardDetail.actions")}
+        title={t("cardDetail.actions")}
         options={actionMenuOptions}
         selected={[]}
         onSelect={(value) => setSheet(CARD_DETAIL_MENU_SHEETS.find((menuSheet) => menuSheet === value) ?? null)}
