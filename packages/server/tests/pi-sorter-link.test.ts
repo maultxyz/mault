@@ -82,6 +82,23 @@ test("Pi sorter rejects pending work immediately on disconnect", async () => {
   await assert.rejects(link.command({ feeder: true }, 1000), /closed/);
 });
 
+test("Pi retains a feed event without completing the pending route", async () => {
+  const { port, link } = connection();
+  const feeds: Record<string, unknown>[] = [];
+  const unsubscribe = link.onFed((reply) => feeds.push(reply));
+  const pending = link.command({ route: { module: 2, direction: "left", feedNext: true } }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
+  const feed = { event: "fed", detected: true, empty: false };
+  port.reply(feed);
+  assert.deepEqual(feeds, [feed]);
+  port.reply({ seq: port.writes[0].seq, status: "routed", fedNext: true });
+  assert.equal((await pending).fedNext, true);
+  unsubscribe();
+  port.reply(feed);
+  assert.equal(feeds.length, 1);
+  link.close();
+});
+
 test("a reply and reboot banner in one chunk immediately close the restarted sorter", async () => {
   const { port, link } = connection();
   const pending = link.command({ getStatus: true }, 1000);
