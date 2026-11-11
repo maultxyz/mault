@@ -69,6 +69,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useNavigate } from "react-router-dom";
+import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 
 export function IntakeLotDetail({
   guid,
@@ -453,6 +454,15 @@ export function IntakeLotDetail({
                       "cursor-pointer",
                       entry.belowMinimum &&
                         "text-foreground/70 [&>td:not(:first-child):not(:last-child)]:line-through",
+                    )}
+                    {...modifierClickSelectHandlers(
+                      canRemove
+                        ? () =>
+                            toggleSelected(
+                              entry.scanId,
+                              !selected.has(entry.scanId),
+                            )
+                        : undefined,
                     )}
                     onClick={() => onOpenCard(entry.scanId, false)}
                   >

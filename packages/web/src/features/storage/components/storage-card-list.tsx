@@ -24,6 +24,7 @@ import {
 import { IconBox, IconBoxOff } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 
 export function StorageCardList({
   entries,
@@ -128,6 +129,10 @@ export function StorageCardList({
                   key={entry.scanId}
                   data-state={isSelected?.(entry) ? "selected" : undefined}
                   className="cursor-pointer"
+                  {...modifierClickSelectHandlers(
+                    onToggleSelect &&
+                      ((shiftKey) => onToggleSelect(entry, { shiftKey })),
+                  )}
                   onClick={() => onOpenCard(entry)}
                 >
                   {onToggleSelect && (

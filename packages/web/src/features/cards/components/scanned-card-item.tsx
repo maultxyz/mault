@@ -13,6 +13,7 @@ import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
 import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconDownload, IconSparkles } from "@tabler/icons-react";
 import { DEFAULT_CARD_CONDITION, rarityLabel } from "@magic-vault/shared";
@@ -53,6 +54,9 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   const showReviewStatus = hasAlternatives || lowConfidenceMatch || isReviewed;
   return (
     <div
+      {...modifierClickSelectHandlers(
+        onToggleSelect && ((shiftKey) => onToggleSelect({ shiftKey })),
+      )}
       className={cn(
         "relative rounded-lg p-1 bg-muted border transition-shadow",
         isNew &&
