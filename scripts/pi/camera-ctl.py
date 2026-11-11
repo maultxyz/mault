@@ -22,6 +22,7 @@ HOST = "127.0.0.1"
 PORT = 8765
 SIZES = ((1920, 1080), (1280, 720), (640, 480))
 FRAME_INTERVAL_S = 0.1
+FOCUS_STARTUP_SETTLE_S = 2
 FOCUS_STATE_PATH = Path.home() / ".local/state/mault/camera-focus.json"
 
 
@@ -231,6 +232,9 @@ class Camera:
             return
         saved = json.loads(FOCUS_STATE_PATH.read_text())
         self.set_focus(saved["mode"], saved.get("lensPosition"))
+        if saved["mode"] == "manual":
+            time.sleep(FOCUS_STARTUP_SETTLE_S)
+            self.set_focus("manual", saved.get("lensPosition"))
 
     def set_focus(self, mode: str, lens_position: float | None) -> int | None:
         with self.focus_lock:
@@ -273,9 +277,8 @@ class Camera:
         value = int(round(lens_position))
         # The driver rejects focus_absolute while autofocus is still active,
         # even when both controls are supplied in one v4l2-ctl invocation.
-        previous = self.focus_settings()["lensPosition"]
         self._set_control("focus_automatic_continuous=0")
-        self._write_manual_position(value, previous)
+        self._write_manual_position(value, value)
 
     def _write_manual_position(self, value: int, previous: int) -> None:
         # Some UVC cameras keep the last manual value cached during autofocus.
