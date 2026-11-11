@@ -392,6 +392,10 @@ export interface TopBarSwitcherProps {
 
 export type AppTopBarSheet = "alerts" | "organizations";
 
+export interface AppTopBarProps {
+  opensNotificationsFromWidgetLink?: boolean;
+}
+
 export interface PickerCardProps {
   icon: IconName;
   label: string;

@@ -2949,5 +2949,19 @@
     "scanButton": "Scanner la carte",
     "scanNoMatch": "Carte non reconnue. Réessayez.",
     "scanFailed": "Échec du scan. Réessayez."
+  },
+  "widgets": {
+    "collectionValueTitle": "Valeur de la collection",
+    "scansToday_one": "{{count}} scan aujourd'hui",
+    "scansToday_other": "{{count}} scans aujourd'hui",
+    "scansThisWeek_one": "{{count}} cette semaine",
+    "scansThisWeek_other": "{{count}} cette semaine",
+    "signedOut": "Ouvre Mault et connecte-toi pour voir ce widget.",
+    "notificationsCount_one": "{{count}} notification",
+    "notificationsCount_other": "{{count}} notifications",
+    "tradeOffersCount_one": "{{count}} offre d'échange",
+    "tradeOffersCount_other": "{{count}} offres d'échange",
+    "alertsCount_one": "{{count}} alerte",
+    "alertsCount_other": "{{count}} alertes"
   }
 }

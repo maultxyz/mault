@@ -2949,5 +2949,19 @@
     "scanButton": "Scan card",
     "scanNoMatch": "Couldn't recognise that card. Try again.",
     "scanFailed": "Scanning failed. Try again."
+  },
+  "widgets": {
+    "collectionValueTitle": "Collection value",
+    "scansToday_one": "{{count}} scan today",
+    "scansToday_other": "{{count}} scans today",
+    "scansThisWeek_one": "{{count}} this week",
+    "scansThisWeek_other": "{{count}} this week",
+    "signedOut": "Open Mault and sign in to see this widget.",
+    "notificationsCount_one": "{{count}} notification",
+    "notificationsCount_other": "{{count}} notifications",
+    "tradeOffersCount_one": "{{count}} trade offer",
+    "tradeOffersCount_other": "{{count}} trade offers",
+    "alertsCount_one": "{{count}} alert",
+    "alertsCount_other": "{{count}} alerts"
   }
 }
