@@ -16,7 +16,6 @@ import {
   cardFoilTypeOptions,
   cardStampOptionsFor,
   DEFAULT_CARD_CONDITION,
-  DEFAULT_CARD_LANGUAGE,
   isCardLanguage,
   scanLanguage,
   type CardCondition,
@@ -34,7 +33,6 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { SelectField } from "@/components/ui/select-field";
 import { Pill } from "@/components/ui/pill";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -44,6 +42,7 @@ import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-d
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import type { CardDetailSheet, MatchesOpenState } from "@/lib/interfaces/cards";
+import type { IconName } from "@/lib/interfaces/ui";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
@@ -73,7 +72,7 @@ import {
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
-import { CARD_DETAIL_MENU_SHEETS, SCAN_ATTRIBUTE_FIELD_WIDTH } from "@/lib/constants/cards";
+import { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
@@ -323,44 +322,24 @@ export default function CardDetailScreen() {
       { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
     ]);
 
-  const scanAttributeFields = (
-    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.md }}>
-      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
-        <SelectField
-          label={t("cardDetail.foil")}
-          value={draftFoil ?? t("cardDetail.foilNone")}
-          placeholder={t("cardDetail.foilNone")}
-          onPress={() => setSheet("foil")}
-        />
-      </View>
-      {stampOptions.length > 0 ? (
-        <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
-          <SelectField
-            label={t("cardDetail.stamp")}
-            value={draftStamp ?? t("cardDetail.stampNone")}
-            placeholder={t("cardDetail.stampNone")}
-            onPress={() => setSheet("stamp")}
-          />
-        </View>
-      ) : null}
-      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
-        <SelectField
-          label={t("cardDetail.condition")}
-          value={t(`cardDetail.conditions.${draftCondition}`)}
-          placeholder={t(`cardDetail.conditions.${DEFAULT_CARD_CONDITION}`)}
-          onPress={() => setSheet("condition")}
-        />
-      </View>
-      <View style={{ width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 }}>
-        <SelectField
-          label={t("cardDetail.language")}
-          value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
-          placeholder={LANGUAGE_LABELS[DEFAULT_CARD_LANGUAGE] ?? DEFAULT_CARD_LANGUAGE}
-          onPress={() => setSheet("language")}
-        />
-      </View>
-    </View>
+  const attributePill = (icon: IconName, fieldLabel: string, value: string, menuSheet: CardDetailSheet) => (
+    <Pressable
+      key={menuSheet}
+      accessibilityRole="button"
+      accessibilityLabel={`${fieldLabel}: ${value}`}
+      onPress={() => setSheet(menuSheet)}
+    >
+      <Pill icon={icon} label={value} />
+    </Pressable>
   );
+  const scanAttributePills = [
+    attributePill("sparkles", t("cardDetail.foil"), draftFoil ?? t("cardDetail.foilNone"), "foil"),
+    ...(stampOptions.length > 0
+      ? [attributePill("stamp", t("cardDetail.stamp"), draftStamp ?? t("cardDetail.stampNone"), "stamp")]
+      : []),
+    attributePill("condition", t("cardDetail.condition"), t(`cardDetail.conditions.${draftCondition}`), "condition"),
+    attributePill("language", t("cardDetail.language"), LANGUAGE_LABELS[draftLanguage] ?? draftLanguage, "language"),
+  ];
 
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
@@ -432,6 +411,24 @@ export default function CardDetailScreen() {
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
+                {storage.data ? (
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel={t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
+                    onPress={() => {
+                      router.back();
+                      router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
+                    }}
+                  >
+                    <Pill
+                      icon="storage"
+                      label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
+                    />
+                  </Pressable>
+                ) : entry.binNumber != null ? (
+                  <Pill icon="sorter" label={t("cards.bin", { number: entry.binNumber })} />
+                ) : null}
+                {scanAttributePills}
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={t("cardTags.edit")}
@@ -559,24 +556,7 @@ export default function CardDetailScreen() {
                   disabled={correction.isPending}
                   onSelect={(selected) => void applyCorrection(selected)}
                 />
-                {scanAttributeFields}
               </View>
-            ) : null}
-
-            {storage.data ? (
-              <Pressable
-                accessibilityRole="link"
-                onPress={() => {
-                  router.back();
-                  router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
-                }}
-                style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}
-              >
-                <Icon name="storage" size={14} color={colors.primaryText} />
-                <AppText tone="primary">
-                  {t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
-                </AppText>
-              </Pressable>
             ) : null}
 
             {card ? (
@@ -590,8 +570,6 @@ export default function CardDetailScreen() {
                 <Skeleton height={16} width="55%" />
               </View>
             ) : null}
-
-            {entry && !reviewMode ? scanAttributeFields : null}
 
             {card ? (
               <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
