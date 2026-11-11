@@ -1,4 +1,7 @@
-import { SHARED_STORAGE_PATH_PREFIX } from "@magic-vault/shared";
+import {
+  SHARED_STORAGE_PATH_PREFIX,
+  SHOP_CATALOG_PATH_PREFIX,
+} from "@magic-vault/shared";
 import {
   MOBILE_ACCOUNT_PATH,
   MOBILE_SCAN_PAIR_PATH,
@@ -58,6 +61,12 @@ const SharedStoragePage = lazy(
   withNamespaces(
     () => import("@/app/routes/shared-storage"),
     ["common", "storage", "cards"],
+  ),
+);
+const ShopCatalogPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/shop-catalog"),
+    ["common", "business", "cards"],
   ),
 );
 const AuthPage = lazy(
@@ -300,6 +309,10 @@ export const routes: RouteObject[] = [
       {
         path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
         element: <SharedStoragePage />,
+      },
+      {
+        path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,
+        element: <ShopCatalogPage />,
       },
       {
         path: MARKETING_PAGE_PATHS.privacy,

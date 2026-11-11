@@ -37,3 +37,23 @@ export interface ShareLinkRequestBody {
   showPrices?: unknown;
   holdMinutes?: unknown;
 }
+
+export type RevocableShareTokenSignInput = Pick<
+  ShareTokenSignInput,
+  "issuer" | "subjectGuid" | "orgId" | "version"
+>;
+
+export type VerifiedRevocableShareToken = Pick<
+  VerifiedShareToken,
+  "subjectGuid" | "orgId" | "version"
+>;
+
+export interface ShopCatalogClaims {
+  catalogGuid: string;
+  catalogId: number;
+  orgId: string;
+  name: string;
+  collectionIds: number[];
+  storageLocationIds: number[];
+  showsPrices: boolean;
+}

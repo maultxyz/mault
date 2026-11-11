@@ -384,7 +384,8 @@
       "announcement": "Annonce",
       "intakeLot": "Rachat",
       "fulfilmentOrder": "Commande",
-      "accuracyCheck": "Contrôle"
+      "accuracyCheck": "Contrôle",
+      "shopCatalog": "Catalogue boutique"
     },
     "toasts": {
       "restored": "{{name}} restauré",

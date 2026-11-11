@@ -350,7 +350,8 @@
     "commandRequired": "Saisis une commande.",
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
-    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
+    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie.",
+    "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement."
   },
   "memberSeatLock": {
     "title": "Cette organisation dépasse sa limite de membres",

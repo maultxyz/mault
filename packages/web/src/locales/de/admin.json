@@ -384,7 +384,8 @@
       "announcement": "Ankündigung",
       "intakeLot": "Ankauf",
       "fulfilmentOrder": "Bestellung",
-      "accuracyCheck": "Stichprobe"
+      "accuracyCheck": "Stichprobe",
+      "shopCatalog": "Shop-Katalog"
     },
     "toasts": {
       "restored": "{{name}} wiederhergestellt",
