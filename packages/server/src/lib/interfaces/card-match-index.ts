@@ -15,22 +15,36 @@ export interface CardMatchSourceRow {
 export interface CardMatchSegment {
   gameKey: string;
   lang: string;
-  cardIds: string[];
-  names: string[];
-  setCodes: string[];
-  collectorNumbers: (string | null)[];
+  rowCount: number;
+  cardIdReferenceByRow: Int32Array;
+  cardIdUuidBytes: Uint8Array;
+  cardIdTextBlob: string;
+  cardIdTextOffsets: Int32Array;
+  nameTable: string[];
+  nameIndexByRow: Int32Array;
+  setCodeTable: string[];
+  setCodeIndexByRow: Int32Array;
+  collectorNumberTable: string[];
+  collectorNumberIndexByRow: Int32Array;
+  textBytes: number;
   rarePrinting: Uint8Array;
   promoPrinting: Uint8Array;
   printedSetTotals: Int32Array;
   printingMarkRegionKeys: string[];
   printingMarkGroupKeys: string[];
   printingMarkGroupIds: Int32Array;
-  frontEmbeddings: Float32Array;
-  backEmbeddings: Float32Array;
+  frontEmbeddings: Int8Array;
+  frontEmbeddingScales: Float32Array;
+  backEmbeddings: Int8Array;
+  backEmbeddingScales: Float32Array;
   backFaceIndexByRow: Int32Array;
 }
 
-export type GrowableTypedArray = Float32Array | Int32Array | Uint8Array;
+export type GrowableTypedArray =
+  | Float32Array
+  | Int32Array
+  | Int8Array
+  | Uint8Array;
 
 export interface CardMatchSegmentCapacity {
   expectedRows: number;
@@ -74,7 +88,8 @@ export interface LoadedCardMatchSegment {
 
 export interface CardNameTrigramIndex {
   names: string[];
-  rowsByName: number[][];
+  rowOffsetsByName: Int32Array;
+  rowsInNameOrder: Int32Array;
   offsets: Int32Array;
   trigramIds: Int32Array;
 }

@@ -161,7 +161,7 @@ async function loadSegment(
 
   const segment = builder.finish();
   console.log(
-    `[card-match-index] loaded ${gameKey}/${lang}: ${segment.cardIds.length} cards, ${Math.round(cardMatchSegmentBytes(segment) / 1024 / 1024)} MB in ${Date.now() - startedAt}ms`,
+    `[card-match-index] loaded ${gameKey}/${lang}: ${segment.rowCount} cards, ${Math.round(cardMatchSegmentBytes(segment) / 1024 / 1024)} MB in ${Date.now() - startedAt}ms`,
   );
   return { segment, signature: signature.value };
 }
