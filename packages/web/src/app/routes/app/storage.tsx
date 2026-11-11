@@ -26,7 +26,6 @@ import { useStorageLocations } from "@/features/storage/api/use-storage-location
 import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
-import { CardHoldsButton } from "@/features/card-holds/components/card-holds-button";
 import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
 import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationList } from "@/features/storage/components/storage-location-list";
@@ -356,7 +355,6 @@ function DesktopStoragePage() {
                 )}
                 {!isLocked && (
                   <>
-                    <CardHoldsButton scope={{ kind: "storage", guid: selected.guid }} />
                     <ShareStorageLinkDialog
                       locationGuid={selected.guid}
                       trigger={

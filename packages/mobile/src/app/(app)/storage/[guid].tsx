@@ -163,7 +163,6 @@ export default function StorageLocationScreen() {
       ? []
       : [
           { value: "share", label: t("storage.share") },
-          { value: "holds", label: t("cardHolds.title") },
           { value: "rename", label: t("storage.rename") },
           { value: "delete", label: t("storage.delete") },
         ]),
@@ -182,10 +181,6 @@ export default function StorageLocationScreen() {
     }
     if (action === "share") {
       router.push({ pathname: "/share-link", params: { kind: "storage", guid } });
-      return;
-    }
-    if (action === "holds") {
-      router.push({ pathname: "/card-holds", params: { kind: "storage", guid } });
       return;
     }
     if (action === "rename") {

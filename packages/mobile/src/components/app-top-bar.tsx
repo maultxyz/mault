@@ -1,3 +1,5 @@
+import { router } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, Pressable, View } from "react-native";
@@ -5,6 +7,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
+import { pendingTradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
 import { ValidateMatchesTopBarButton } from "@/features/match-validations/components/validate-matches-top-bar-button";
 import { PlanPreviewTopBarChip } from "@/features/admin/components/plan-preview-top-bar-chip";
@@ -75,6 +78,8 @@ export function AppTopBar() {
   const switchOrg = useSwitchOrg();
   const hasSeveralOrganizations = organizations.length > 1;
   const alerts = useAppAlerts();
+  const { data: tradeOffers = [] } = useQuery(pendingTradeOffersQueryOptions(orgId));
+  const notificationCount = alerts.length + tradeOffers.length;
   const [openSheet, setOpenSheet] = useState<AppTopBarSheet | null>(null);
   const closeSheet = () => setOpenSheet(null);
 
@@ -125,7 +130,7 @@ export function AppTopBar() {
       <ValidateMatchesTopBarButton />
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={alerts.length > 0 ? `${t("alerts.title")}, ${alerts.length}` : t("alerts.title")}
+        accessibilityLabel={notificationCount > 0 ? `${t("alerts.title")}, ${notificationCount}` : t("alerts.title")}
         hitSlop={(MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2}
         onPress={() => setOpenSheet("alerts")}
         style={({ pressed }) => ({
@@ -138,7 +143,7 @@ export function AppTopBar() {
         })}
       >
         <Icon name="bell" size={20} color={colors.foreground} />
-        {alerts.length > 0 ? (
+        {notificationCount > 0 ? (
           <View
             pointerEvents="none"
             style={{
@@ -157,12 +162,21 @@ export function AppTopBar() {
             }}
           >
             <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, fontSize: 10, lineHeight: 12 }}>
-              {alerts.length > ALERT_BADGE_MAX ? `${ALERT_BADGE_MAX}+` : String(alerts.length)}
+              {notificationCount > ALERT_BADGE_MAX ? `${ALERT_BADGE_MAX}+` : String(notificationCount)}
             </AppText>
           </View>
         ) : null}
       </Pressable>
-      <AlertsSheet visible={openSheet === "alerts"} alerts={alerts} onClose={closeSheet} />
+      <AlertsSheet
+        visible={openSheet === "alerts"}
+        alerts={alerts}
+        tradeOffers={tradeOffers}
+        onOpenTradeOffer={(guid) => {
+          closeSheet();
+          router.push({ pathname: "/trade-offer/[guid]", params: { guid } });
+        }}
+        onClose={closeSheet}
+      />
       <OptionSheet
         visible={openSheet === "organizations"}
         title={t("account.organizations")}

@@ -107,7 +107,6 @@ export function MonitorCardGrid({
               condition={entry.condition}
               quantity={entry.quantity}
               showBinLocation={showBinLocation}
-              scanIds={entry.scanIds}
             />
           ))}
         </div>

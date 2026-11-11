@@ -7,7 +7,10 @@ export const PUBLIC_CARD_PARAM = "card";
 export const PUBLIC_CARDS_SOURCE_PATHS = {
   catalog: "shop-catalog",
   watch: "monitor-link/browse",
+  storage: "storage-share-link/browse",
 } as const;
 export const PUBLIC_CARDS_QUERY_KEY = "public-cards";
 export const PUBLIC_CARD_FOIL_GRADIENT_CLASS =
   "bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300";
+export const PUBLIC_TRADE_OFFER_PARAM = "trade";
+export const PUBLIC_TRADE_OFFER_PARAM_VALUE = "1";

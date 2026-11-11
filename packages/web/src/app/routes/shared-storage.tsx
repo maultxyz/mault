@@ -1,14 +1,11 @@
-import { Badge } from "@/components/ui/badge";
-import { CardHoldsProvider } from "@/features/card-holds/components/card-holds-provider";
 import { verifyStorageShareLink } from "@/features/storage/api/storage-share-links";
-import { SharedStorageCards } from "@/features/storage/components/shared-storage-cards";
+import { StorageCardBrowser } from "@/features/public-cards/components/storage-card-browser";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import type { SharedStorageLinkState } from "@/lib/interfaces/share-links";
 import { publicQueryClient } from "@/lib/query-client";
 import {
   SHARE_LINK_TOKEN_PARAM,
-  formatPrice,
   toConditionMultipliers,
   type OrgPricing,
 } from "@magic-vault/shared";
@@ -20,7 +17,6 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 export default function SharedStoragePage() {
   const { t } = useTranslation("storage");
-  const { t: tCommon } = useTranslation("common");
   const { locationGuid } = useParams<{ locationGuid: string }>();
   const [searchParams] = useSearchParams();
   const token = searchParams.get(SHARE_LINK_TOKEN_PARAM);
@@ -97,39 +93,11 @@ export default function SharedStoragePage() {
   return (
     <QueryClientProvider client={publicQueryClient}>
       <PriceSourceProvider value={pricing}>
-        <main
-          id={MAIN_CONTENT_ID}
-          tabIndex={-1}
-          className="flex min-h-dvh flex-col bg-background outline-none"
-        >
-          <header className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b px-4 py-3">
-            <h1 className="truncate text-sm font-semibold">
-              {linkInfo.locationName}
-            </h1>
-            <Badge variant="secondary">
-              {linkInfo.holdMinutes !== null
-                ? tCommon("cardHolds.holdsOpenBadge")
-                : t("sharedPage.readOnly")}
-            </Badge>
-            <p className="w-full text-xs text-foreground/70 sm:ml-auto sm:w-auto">
-              {linkInfo.showsPrices
-                ? t("page.summary", {
-                    count: linkInfo.cardCount,
-                    value: formatPrice(linkInfo.totalValue, pricing.source),
-                  })
-                : t("page.cardCount", { count: linkInfo.cardCount })}
-            </p>
-          </header>
-          <div className="flex-1 p-4">
-            <CardHoldsProvider
-              kind="storage"
-              token={token}
-              holdMinutes={linkInfo.holdMinutes ?? null}
-            >
-              <SharedStorageCards token={token} cardCount={linkInfo.cardCount} />
-            </CardHoldsProvider>
-          </div>
-        </main>
+          <StorageCardBrowser
+            token={token}
+            locationName={linkInfo.locationName}
+            purpose={linkInfo.purpose}
+          />
       </PriceSourceProvider>
     </QueryClientProvider>
   );

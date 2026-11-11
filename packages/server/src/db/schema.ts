@@ -862,27 +862,30 @@ export const webhookDeliveries = pgTable(
   ],
 ).enableRLS();
 
-export const cardHolds = pgTable(
-  "card_holds",
+export const tradeOffers = pgTable(
+  "trade_offers",
   {
     id: serial().primaryKey(),
     guid: uuid("guid").defaultRandom().notNull(),
-    collectionCardId: integer("collection_card_id")
-      .notNull()
-      .references(() => collectionCards.id, { onDelete: "cascade" }),
+    orgId: text("org_id").notNull(),
+    linkKind: text("link_kind").notNull(),
+    collectionId: integer("collection_id"),
+    storageLocationId: integer("storage_location_id"),
     guestName: text("guest_name").notNull(),
+    guestContact: text("guest_contact").notNull(),
     guestNote: text("guest_note"),
     guestKeyHash: text("guest_key_hash").notNull(),
-    shareLinkKind: text("share_link_kind").notNull(),
-    expiresAt: timestamp("expires_at"),
-    approvedAt: timestamp("approved_at"),
-    orgId: text("org_id").notNull(),
+    wantedCards: jsonb("wanted_cards").notNull(),
+    offeredCards: jsonb("offered_cards").notNull(),
+    status: text("status").notNull().default("pending"),
+    respondedAt: timestamp("responded_at"),
+    respondedByUserId: text("responded_by_user_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("card_holds_guid_idx").on(table.guid),
-    uniqueIndex("card_holds_card_idx").on(table.collectionCardId),
-    index("card_holds_org_idx").on(table.orgId),
+    unique("trade_offers_guid_idx").on(table.guid),
+    index("trade_offers_org_status_idx").on(table.orgId, table.status),
+    index("trade_offers_guest_idx").on(table.guestKeyHash),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

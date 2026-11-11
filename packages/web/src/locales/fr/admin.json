@@ -299,6 +299,10 @@
       "fleetHealth": {
         "label": "Santé du parc",
         "description": "Le panneau de santé de la page Trieuses : état, cartes depuis le dernier entretien, historique des alertes et intervalles d'entretien. Les alertes de bourrage et de déconnexion restent enregistrées et envoyées dans tous les cas."
+      },
+      "longShareLinks": {
+        "label": "Liens de suivi plus longs",
+        "description": "Les liens de suivi peuvent durer 1, 7 ou 30 jours. Sans cela, ils durent 1 heure. Les liens d'échange durent toujours 1 heure."
       }
     },
     "limits": {

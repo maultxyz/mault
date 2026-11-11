@@ -297,7 +297,8 @@
       "fleetHealth": "Flottenzustand: sieh Status, Karten seit der letzten Wartung und Alarmverlauf jedes Sortierers und lege Wartungsintervalle fest",
       "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
       "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
-      "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen"
+      "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen",
+      "longShareLinks": "Monitor-Links bis 30 Tage: Teile eine Live-Ansicht einer Sammlung tagelang statt eine Stunde"
     },
     "compare": {
       "heading": "Alle Funktionen im Vergleich",
@@ -330,7 +331,8 @@
         "fleetHealth": "Flottenzustand",
         "storage": "Lagerorte",
         "apiAccess": "API-Zugriff",
-        "businessTools": "An- und Verkauf"
+        "businessTools": "An- und Verkauf",
+        "longShareLinks": "Monitor-Links bis 30 Tage"
       }
     }
   },

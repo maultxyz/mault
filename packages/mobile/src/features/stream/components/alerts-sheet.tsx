@@ -9,7 +9,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { AlertsSheetProps } from "@/lib/interfaces/stream";
 
-export function AlertsSheet({ visible, alerts, onClose }: AlertsSheetProps) {
+export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, onClose }: AlertsSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
@@ -47,7 +47,45 @@ export function AlertsSheet({ visible, alerts, onClose }: AlertsSheetProps) {
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.sm, paddingBottom: SPACING.md }}>
-          {alerts.length === 0 ? (
+          {tradeOffers.length > 0 ? (
+            <View style={{ gap: SPACING.sm }}>
+              <AppText size="sm" weight="semibold" accessibilityRole="header">
+                {t("tradeOffers.trayHeading")}
+              </AppText>
+              {tradeOffers.map((offer) => (
+                <Pressable
+                  key={offer.guid}
+                  accessibilityRole="button"
+                  accessibilityHint={t("tradeOffers.review")}
+                  onPress={() => onOpenTradeOffer(offer.guid)}
+                  style={{
+                    flexDirection: "row",
+                    gap: SPACING.sm,
+                    padding: SPACING.md,
+                    borderRadius: RADIUS.md,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    backgroundColor: colors.card,
+                  }}
+                >
+                  <Icon name="transfer" size={18} color={colors.infoForeground} />
+                  <View style={{ flex: 1, gap: SPACING.xs }}>
+                    <AppText size="sm">
+                      {t("tradeOffers.trayMessage", {
+                        name: offer.guestName,
+                        wanted: offer.wanted.length,
+                        offered: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
+                      })}
+                    </AppText>
+                    <AppText size="xs" weight="semibold" tone="primary">
+                      {t("tradeOffers.review")}
+                    </AppText>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+          {alerts.length === 0 && tradeOffers.length === 0 ? (
             <AppText size="sm" tone="secondary" style={{ textAlign: "center", paddingVertical: SPACING.xl }}>
               {t("alerts.empty")}
             </AppText>

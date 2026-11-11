@@ -120,13 +120,13 @@
     "cancel": "Annuler",
     "showPrices": "Afficher les prix",
     "showPricesDescription": "Désactive pour masquer les prix des cartes et les totaux à toute personne utilisant ce lien.",
-    "allowHolds": "Autoriser les réservations",
-    "allowHoldsDescription": "Les personnes qui utilisent ce lien peuvent réserver des cartes à leur nom. Les réservations expirent d'elles-mêmes sauf si tu les approuves.",
-    "holdLengthLabel": "Durée des réservations",
-    "holdLengthMinutes_one": "{{count}} minute",
-    "holdLengthMinutes_other": "{{count}} minutes",
-    "holdLengthHours_one": "{{count}} heure",
-    "holdLengthHours_other": "{{count}} heures"
+    "typeLabel": "Type de lien",
+    "monitorType": "Suivi",
+    "tradeType": "Échange",
+    "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
+    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
+    "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
+    "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours."
   },
   "cards": {
     "bin": "Bac {{number}}",
@@ -1591,7 +1591,8 @@
           "fleetHealth": "État de la flotte",
           "storage": "Emplacements de rangement",
           "apiAccess": "Accès API",
-          "businessTools": "Achat et vente"
+          "businessTools": "Achat et vente",
+          "longShareLinks": "Liens de suivi jusqu'à 30 jours"
         },
         "unlimited": "Illimité",
         "included": "Inclus",
@@ -2122,7 +2123,9 @@
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
     "controlCardActionRequired": "Choisis au moins une chose que la carte modifie.",
-    "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement."
+    "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
+    "contactRequired": "Indique comment te joindre.",
+    "textTooLong": "Reste sous {{max}} caractères."
   },
   "cardTags": {
     "title": "Étiquettes",
@@ -2403,6 +2406,10 @@
         "fleetHealth": {
           "label": "Santé du parc",
           "description": "Le panneau de santé de la page Trieuses : état, cartes depuis le dernier entretien, historique des alertes et intervalles d'entretien. Les alertes de bourrage et de déconnexion restent enregistrées et envoyées dans tous les cas."
+        },
+        "longShareLinks": {
+          "label": "Liens de suivi plus longs",
+          "description": "Les liens de suivi peuvent durer 1, 7 ou 30 jours. Sans cela, ils durent 1 heure. Les liens d'échange durent toujours 1 heure."
         }
       },
       "limits": {
@@ -2838,24 +2845,38 @@
       }
     }
   },
-  "cardHolds": {
-    "title": "Réservations",
-    "description": "Cartes réservées via tes liens de partage. Approuve une réservation pour la garder jusqu'à ce que tu la libères.",
-    "approve": "Approuver",
-    "approveFor": "Approuver {{name}}",
-    "release": "Libérer",
-    "releaseFor": "Libérer {{name}}",
-    "approvedToast": "Réservation de {{name}} approuvée.",
-    "released": "Réservation de {{name}} libérée.",
-    "approveFailed": "Impossible d'approuver la réservation.",
-    "releaseFailed": "Impossible de libérer la réservation.",
-    "loadFailed": "Impossible de charger les réservations.",
-    "empty": "Aucune carte réservée",
-    "emptyDescription": "Active Autoriser les réservations en créant un lien de partage pour que d'autres puissent réserver des cartes.",
-    "heldUntil": "jusqu'à {{time}}",
-    "approved": "Approuvée",
-    "heldBy": "Réservée par {{name}}",
-    "awaitingApproval": "En attente d'approbation",
-    "foil": "Foil"
+  "tradeOffers": {
+    "trayHeading": "Offres d'échange",
+    "trayMessage": "{{name}} veut {{wanted}} contre {{offered}} des siennes",
+    "review": "Voir",
+    "foil": "Foil",
+    "accepted": "Offre d'échange acceptée",
+    "declined": "Offre d'échange refusée",
+    "declineTitle": "Refuser cette offre d'échange ?",
+    "declineDescription": "La personne verra sur son lien que vous avez refusé.",
+    "cancel": "Annuler",
+    "decline": "Refuser",
+    "accept": "Accepter",
+    "title": "Offre d'échange",
+    "reviewTitle": "Offre de {{name}}",
+    "respondFailed": "Impossible de répondre à l'offre.",
+    "answered": "Cette offre a déjà reçu une réponse.",
+    "reviewDescription": "Envoyée depuis {{source}} le {{date}}",
+    "unknownSource": "un lien partagé",
+    "contact": "Contact",
+    "theyWant_one": "Demande {{count}} carte",
+    "theyWant_other": "Demande {{count}} cartes",
+    "theyOffer_one": "Propose {{count}} carte",
+    "theyOffer_other": "Propose {{count}} cartes",
+    "acceptTitle": "Accepter cette offre d'échange ?",
+    "acceptRemovesCards_one": "Cela retire la carte demandée ({{count}}) de votre collection.",
+    "acceptRemovesCards_other": "Cela retire les {{count}} cartes demandées de votre collection.",
+    "theyGetValue": "Ils reçoivent",
+    "youGetValue": "Vous recevez",
+    "youGainValue": "Leur offre vaut {{amount}} de plus que ce qu'ils demandent.",
+    "youLoseValue": "Leur offre vaut {{amount}} de moins que ce qu'ils demandent.",
+    "evenValue": "Les deux côtés ont la même valeur.",
+    "missingPrices": "Certaines cartes n'ont pas de prix, les totaux peuvent donc être bas.",
+    "noPrice": "Sans prix"
   }
 }

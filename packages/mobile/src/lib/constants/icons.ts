@@ -1,5 +1,4 @@
 import IconAdjustments from "@tabler/icons-react-native/IconAdjustments";
-import IconHandStop from "@tabler/icons-react-native/IconHandStop";
 import IconPhotoOff from "@tabler/icons-react-native/IconPhotoOff";
 import IconAlbum from "@tabler/icons-react-native/IconAlbum";
 import IconAlertCircle from "@tabler/icons-react-native/IconAlertCircle";
@@ -86,7 +85,6 @@ import IconUserCircle from "@tabler/icons-react-native/IconUserCircle";
 import IconX from "@tabler/icons-react-native/IconX";
 
 export const ICONS = {
-  hold: IconHandStop,
   account: IconUserCircle,
   clock: IconClock,
   adjust: IconAdjustments,

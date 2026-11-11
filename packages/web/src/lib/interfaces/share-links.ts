@@ -1,4 +1,4 @@
-import type { SharedStorageCard, StorageShareLinkInfo } from "@magic-vault/shared";
+import type { ShareLinkPurpose, StorageShareLinkInfo } from "@magic-vault/shared";
 import type { ReactElement } from "react";
 
 export interface CreatedShareLink {
@@ -7,9 +7,9 @@ export interface CreatedShareLink {
 }
 
 export interface ShareLinkOptions {
+  purpose: ShareLinkPurpose;
   expiresInDays: number;
   showPrices: boolean;
-  holdMinutes: number | null;
 }
 
 export interface ShareLinkDialogProps {
@@ -31,11 +31,4 @@ export type SharedStorageLinkState =
   | { status: "invalid" }
   | { status: "valid"; info: StorageShareLinkInfo };
 
-export interface SharedStorageCardTileProps {
-  entry: SharedStorageCard;
-}
 
-export interface SharedStorageCardsProps {
-  token: string;
-  cardCount: number;
-}

@@ -1,4 +1,3 @@
-import { CardHoldsProvider } from "@/features/card-holds/components/card-holds-provider";
 import { verifyMonitorLink } from "@/features/collections/api/monitor-links";
 import { useSharedSessionMonitor } from "@/features/scanner/api/use-shared-session-monitor";
 import { WatchCardBrowser } from "@/features/public-cards/components/watch-card-browser";
@@ -95,19 +94,13 @@ export default function WatchPage() {
   return (
     <QueryClientProvider client={publicQueryClient}>
       <PriceSourceProvider value={pricing}>
-        <CardHoldsProvider
-          kind="collection"
-          token={token ?? ""}
-          holdMinutes={link.info.holdMinutes ?? null}
-        >
           <WatchCardBrowser
             token={token ?? ""}
             collectionGuid={collectionGuid ?? ""}
             collectionName={link.info.collectionName}
-            holdMinutes={link.info.holdMinutes ?? null}
+            purpose={link.info.purpose}
             session={session}
           />
-        </CardHoldsProvider>
       </PriceSourceProvider>
     </QueryClientProvider>
   );

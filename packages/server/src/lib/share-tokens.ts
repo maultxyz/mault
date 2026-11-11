@@ -1,6 +1,5 @@
-import { CARD_HOLD_MINUTES } from "@magic-vault/shared";
 import * as jose from "jose";
-import { ONE_DAY_MS } from "./constants/timing";
+import { ONE_MINUTE_MS } from "./constants/timing";
 import type {
   RevocableShareTokenSignInput,
   ShareTokenSignInput,
@@ -23,18 +22,18 @@ export async function signShareToken({
   subjectGuid,
   orgId,
   version,
-  expiresInDays,
+  expiresInMinutes,
   showsPrices,
-  holdMinutes,
+  purpose,
 }: ShareTokenSignInput): Promise<SignedShareToken> {
   const secret = shareTokenSecret();
   if (!secret) throw new Error("MONITOR_LINK_SECRET is not configured.");
-  const expiresAt = new Date(Date.now() + expiresInDays * ONE_DAY_MS);
+  const expiresAt = new Date(Date.now() + expiresInMinutes * ONE_MINUTE_MS);
   const token = await new jose.SignJWT({
     org: orgId,
     ver: version,
     prices: showsPrices,
-    ...(holdMinutes === null ? {} : { holds: holdMinutes }),
+    ...(purpose === "trade" ? { purpose } : {}),
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(issuer)
@@ -60,7 +59,8 @@ export async function verifyShareToken(
       typeof payload.sub !== "string" ||
       typeof payload.org !== "string" ||
       typeof payload.ver !== "number" ||
-      typeof payload.exp !== "number"
+      typeof payload.exp !== "number" ||
+      typeof payload.iat !== "number"
     ) {
       return null;
     }
@@ -69,19 +69,13 @@ export async function verifyShareToken(
       orgId: payload.org,
       version: payload.ver,
       expiresAt: new Date(payload.exp * 1000),
+      issuedAt: new Date(payload.iat * 1000),
       showsPrices: payload.prices !== false,
-      holdMinutes: holdMinutesFromClaim(payload.holds),
+      purpose: payload.purpose === "trade" ? "trade" : "view",
     };
   } catch {
     return null;
   }
-}
-
-function holdMinutesFromClaim(claim: unknown): number | null {
-  return typeof claim === "number" &&
-    (CARD_HOLD_MINUTES as readonly number[]).includes(claim)
-    ? claim
-    : null;
 }
 
 export async function signRevocableShareToken({

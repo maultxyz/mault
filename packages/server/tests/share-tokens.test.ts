@@ -22,16 +22,16 @@ test("a storage share token verifies with its own issuer", async () => {
     subjectGuid: "location-guid",
     orgId: "org-1",
     version: 3,
-    expiresInDays: 7,
+    expiresInMinutes: 7 * 24 * 60,
     showsPrices: false,
-    holdMinutes: 60,
+    purpose: "trade",
   });
   const verified = await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, token);
   assert.equal(verified?.subjectGuid, "location-guid");
   assert.equal(verified?.orgId, "org-1");
   assert.equal(verified?.version, 3);
   assert.equal(verified?.showsPrices, false);
-  assert.equal(verified?.holdMinutes, 60);
+  assert.equal(verified?.purpose, "trade");
   assert.equal(verified?.expiresAt.getTime(), Math.floor(expiresAt.getTime() / 1000) * 1000);
 });
 
@@ -41,18 +41,18 @@ test("a collection monitor token is rejected as a storage share token and the re
     subjectGuid: "collection-guid",
     orgId: "org-1",
     version: 0,
-    expiresInDays: 1,
+    expiresInMinutes: 24 * 60,
     showsPrices: true,
-    holdMinutes: null,
+    purpose: "view",
   });
   const storage = await signShareToken({
     issuer: STORAGE_SHARE_LINK_ISSUER,
     subjectGuid: "location-guid",
     orgId: "org-1",
     version: 0,
-    expiresInDays: 1,
+    expiresInMinutes: 24 * 60,
     showsPrices: true,
-    holdMinutes: null,
+    purpose: "view",
   });
   assert.equal(await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, monitor.token), null);
   assert.equal(await verifyShareToken(MONITOR_LINK_ISSUER, storage.token), null);
@@ -64,9 +64,9 @@ test("a tampered token is rejected", async () => {
     subjectGuid: "location-guid",
     orgId: "org-1",
     version: 0,
-    expiresInDays: 1,
+    expiresInMinutes: 24 * 60,
     showsPrices: true,
-    holdMinutes: null,
+    purpose: "view",
   });
   const tampered = `${token.slice(0, -2)}${token.endsWith("AA") ? "BB" : "AA"}`;
   assert.equal(await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, tampered), null);
@@ -82,11 +82,11 @@ test("links created before price visibility existed keep showing prices", async 
     .sign(new TextEncoder().encode(process.env.MONITOR_LINK_SECRET));
   const verified = await verifyShareToken(MONITOR_LINK_ISSUER, token);
   assert.equal(verified?.showsPrices, true);
-  assert.equal(verified?.holdMinutes, null);
+  assert.equal(verified?.purpose, "view");
 });
 
-test("a hold length outside the allowed list turns holds off", async () => {
-  const token = await new jose.SignJWT({ org: "org-1", ver: 0, holds: 7 })
+test("an old link that allowed holds opens as a monitor link", async () => {
+  const token = await new jose.SignJWT({ org: "org-1", ver: 0, holds: 60 })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(STORAGE_SHARE_LINK_ISSUER)
     .setSubject("location-guid")
@@ -94,7 +94,7 @@ test("a hold length outside the allowed list turns holds off", async () => {
     .setExpirationTime("1d")
     .sign(new TextEncoder().encode(process.env.MONITOR_LINK_SECRET));
   const verified = await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, token);
-  assert.equal(verified?.holdMinutes, null);
+  assert.equal(verified?.purpose, "view");
 });
 
 test("hiding prices strips every price field from nested cards and zeroes stats", () => {
@@ -166,9 +166,9 @@ test("a storage share token is rejected as a shop catalog token", async () => {
     subjectGuid: "location-guid",
     orgId: "org-1",
     version: 0,
-    expiresInDays: 7,
+    expiresInMinutes: 7 * 24 * 60,
     showsPrices: true,
-    holdMinutes: null,
+    purpose: "view",
   });
   assert.equal(await verifyRevocableShareToken(SHOP_CATALOG_ISSUER, token), null);
 });

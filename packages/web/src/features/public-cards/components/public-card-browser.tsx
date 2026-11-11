@@ -5,6 +5,9 @@ import {
   publicCardsFacetsQueryOptions,
   publicCardsPageQueryOptions,
 } from "@/features/public-cards/api/public-cards";
+import { TradeOfferHeaderButton } from "@/features/trade-offers/components/trade-offer-header-button";
+import { TradeOfferPage } from "@/features/trade-offers/components/trade-offer-page";
+import { TradeOfferProvider } from "@/features/trade-offers/components/trade-offer-provider";
 import { PublicCardDetailView } from "@/features/public-cards/components/public-card-detail";
 import { PublicCardFilterPanel } from "@/features/public-cards/components/public-card-filter-panel";
 import { PublicCardResults } from "@/features/public-cards/components/public-card-results";
@@ -17,6 +20,8 @@ import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   ALL_PUBLIC_CARD_GAMES,
   PUBLIC_CARD_PARAM,
+  PUBLIC_TRADE_OFFER_PARAM,
+  PUBLIC_TRADE_OFFER_PARAM_VALUE,
 } from "@/lib/constants/public-cards";
 import { applyPrimaryColorName } from "@/lib/primary-color";
 import { cn } from "@/lib/utils";
@@ -34,7 +39,7 @@ import {
 } from "@magic-vault/shared";
 import { IconAdjustmentsHorizontal, IconSearch } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -45,6 +50,7 @@ export function PublicCardBrowser({
   titleBadge,
   headerNote,
   sidebarTop,
+  tradeOfferLink,
 }: PublicCardBrowserProps) {
   const { t } = useTranslation("cards");
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -87,8 +93,30 @@ export function PublicCardBrowser({
   const activeFilterCount = countActivePublicCardFilters(appliedFilters, gameKey);
   const [searchParams, setSearchParams] = useSearchParams();
   const openScanId = searchParams.get(PUBLIC_CARD_PARAM);
+  const showsTradeOffer =
+    !!tradeOfferLink && searchParams.get(PUBLIC_TRADE_OFFER_PARAM) === PUBLIC_TRADE_OFFER_PARAM_VALUE;
   const listScrollTop = useRef(0);
   const lastOpenedScanId = useRef<string | null>(null);
+  const restoresListScroll = useRef(false);
+
+  const openTradeOffer = useCallback(() => {
+    if (!searchParams.get(PUBLIC_CARD_PARAM)) {
+      listScrollTop.current = resultsRef.current?.scrollTop ?? 0;
+      restoresListScroll.current = true;
+    }
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set(PUBLIC_TRADE_OFFER_PARAM, PUBLIC_TRADE_OFFER_PARAM_VALUE);
+      next.delete(PUBLIC_CARD_PARAM);
+      return next;
+    });
+  }, [searchParams, setSearchParams]);
+  const closeTradeOffer = () =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.delete(PUBLIC_TRADE_OFFER_PARAM);
+      return next;
+    });
 
   const openCard = (scanId: string) => {
     listScrollTop.current = resultsRef.current?.scrollTop ?? 0;
@@ -108,8 +136,19 @@ export function PublicCardBrowser({
 
   const leaveCardForResults = () => {
     lastOpenedScanId.current = null;
-    closeCard();
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.delete(PUBLIC_CARD_PARAM);
+      next.delete(PUBLIC_TRADE_OFFER_PARAM);
+      return next;
+    });
   };
+
+  useLayoutEffect(() => {
+    if (openScanId || showsTradeOffer || !restoresListScroll.current) return;
+    restoresListScroll.current = false;
+    resultsRef.current?.scrollTo({ top: listScrollTop.current });
+  }, [openScanId, showsTradeOffer]);
 
   useLayoutEffect(() => {
     const scanId = lastOpenedScanId.current;
@@ -124,7 +163,7 @@ export function PublicCardBrowser({
   const changeFilters = (next: PublicCardFilters) => {
     setFilters(next);
     setRequestedPage(1);
-    if (openScanId) leaveCardForResults();
+    if (openScanId || showsTradeOffer) leaveCardForResults();
   };
   const changeGameKey = (next: string) => {
     setGameKey(next);
@@ -133,7 +172,7 @@ export function PublicCardBrowser({
       finish: filters.finish,
     });
     setRequestedPage(1);
-    if (openScanId) leaveCardForResults();
+    if (openScanId || showsTradeOffer) leaveCardForResults();
   };
   const clearFilters = () => {
     setGameKey(ALL_PUBLIC_CARD_GAMES);
@@ -141,7 +180,7 @@ export function PublicCardBrowser({
     setMinPriceInput("");
     setMaxPriceInput("");
     setRequestedPage(1);
-    if (openScanId) leaveCardForResults();
+    if (openScanId || showsTradeOffer) leaveCardForResults();
   };
   const filterPanel = (
     <PublicCardFilterPanel
@@ -154,7 +193,7 @@ export function PublicCardBrowser({
       onSortChange={(next) => {
         setSort(next);
         setRequestedPage(1);
-        if (openScanId) leaveCardForResults();
+        if (openScanId || showsTradeOffer) leaveCardForResults();
       }}
       filters={filters}
       onFiltersChange={changeFilters}
@@ -172,7 +211,7 @@ export function PublicCardBrowser({
     />
   );
 
-  return (
+  const page = (
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
@@ -211,12 +250,13 @@ export function PublicCardBrowser({
             onChange={(event) => {
               setSearch(event.target.value);
               setRequestedPage(1);
-              if (openScanId) leaveCardForResults();
+              if (openScanId || showsTradeOffer) leaveCardForResults();
             }}
             className="h-10 rounded-lg pl-9 md:text-sm max-md:h-11"
           />
         </div>
         <div className="flex items-center gap-1.5 md:justify-end">
+          <TradeOfferHeaderButton />
           <Button
             variant={activeFilterCount > 0 ? "selected" : "outline"}
             className="flex-1 md:hidden"
@@ -229,7 +269,7 @@ export function PublicCardBrowser({
           </Button>
         </div>
       </header>
-      <div className={cn("flex min-h-0 flex-1", openScanId && "hidden")}>
+      <div className={cn("flex min-h-0 flex-1", (openScanId || showsTradeOffer) && "hidden")}>
         <aside className="hidden w-64 shrink-0 overflow-y-auto border-r bg-sidebar/70 p-4 md:flex md:flex-col md:gap-5 lg:w-72">
           {sidebarTop}
           {filterPanel}
@@ -248,7 +288,18 @@ export function PublicCardBrowser({
           />
         </div>
       </div>
-      {openScanId && (
+      {tradeOfferLink && (
+        <div className={cn("min-h-0 flex-1 overflow-y-auto", !showsTradeOffer && "hidden")}>
+          <TradeOfferPage
+            link={tradeOfferLink}
+            sourceName={title}
+            defaultGameKey={info.games[0]?.key ?? null}
+            isVisible={showsTradeOffer}
+            onBack={closeTradeOffer}
+          />
+        </div>
+      )}
+      {openScanId && !showsTradeOffer && (
         <div key={openScanId} className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-6xl">
             <PublicCardDetailView
@@ -273,5 +324,13 @@ export function PublicCardBrowser({
         {filterPanel}
       </DynamicDialog>
     </main>
+  );
+
+  return tradeOfferLink ? (
+    <TradeOfferProvider onOpenComposer={openTradeOffer}>
+      {page}
+    </TradeOfferProvider>
+  ) : (
+    page
   );
 }

@@ -1177,6 +1177,20 @@
       "when": 1794360974945,
       "tag": "0167_shop_catalog_public",
       "breakpoints": true
+    },
+    {
+      "idx": 168,
+      "version": "7",
+      "when": 1794361459055,
+      "tag": "0168_trade_offers",
+      "breakpoints": true
+    },
+    {
+      "idx": 169,
+      "version": "7",
+      "when": 1794362469614,
+      "tag": "0169_remove_card_holds",
+      "breakpoints": true
     }
   ]
 }

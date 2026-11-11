@@ -120,13 +120,13 @@
     "cancel": "Cancel",
     "showPrices": "Show prices",
     "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link.",
-    "allowHolds": "Allow holds",
-    "allowHoldsDescription": "Let people using this link put cards on hold by name. Holds end on their own unless you approve them.",
-    "holdLengthLabel": "Holds last",
-    "holdLengthMinutes_one": "{{count}} minute",
-    "holdLengthMinutes_other": "{{count}} minutes",
-    "holdLengthHours_one": "{{count}} hour",
-    "holdLengthHours_other": "{{count}} hours"
+    "typeLabel": "Link type",
+    "monitorType": "Monitor",
+    "tradeType": "Trade",
+    "monitorTypeDescription": "A view of the cards, live while you scan. Visitors can't send offers.",
+    "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
+    "tradeOneHourNote": "Trade links last 1 hour.",
+    "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days."
   },
   "cards": {
     "bin": "Bin {{number}}",
@@ -1591,7 +1591,8 @@
           "fleetHealth": "Fleet health",
           "storage": "Storage locations",
           "apiAccess": "API access",
-          "businessTools": "Buy and sell"
+          "businessTools": "Buy and sell",
+          "longShareLinks": "Monitor links up to 30 days"
         },
         "unlimited": "Unlimited",
         "included": "Included",
@@ -2122,7 +2123,9 @@
     "verificationCodeLength": "Enter the {{length}}-digit code.",
     "verificationCodeNumeric": "The code can only contain numbers.",
     "controlCardActionRequired": "Pick at least one thing for the card to change.",
-    "catalogSourcesRequired": "Pick at least one collection or storage location."
+    "catalogSourcesRequired": "Pick at least one collection or storage location.",
+    "contactRequired": "Add a way to reach you.",
+    "textTooLong": "Keep this under {{max}} characters."
   },
   "cardTags": {
     "title": "Tags",
@@ -2403,6 +2406,10 @@
         "fleetHealth": {
           "label": "Fleet health",
           "description": "The sorter health panel on the Sorters page: status, cards since service, alert history and service intervals. Jam and offline alerts are still recorded and sent either way."
+        },
+        "longShareLinks": {
+          "label": "Longer monitor links",
+          "description": "Monitor links can last 1, 7 or 30 days. Without it they last 1 hour. Trade links always last 1 hour."
         }
       },
       "limits": {
@@ -2838,24 +2845,38 @@
       }
     }
   },
-  "cardHolds": {
-    "title": "Holds",
-    "description": "Cards people put on hold from your share links. Approve a hold to keep it until you release it.",
-    "approve": "Approve",
-    "approveFor": "Approve {{name}}",
-    "release": "Release",
-    "releaseFor": "Release {{name}}",
-    "approvedToast": "Approved the hold on {{name}}.",
-    "released": "Released the hold on {{name}}.",
-    "approveFailed": "Couldn't approve the hold.",
-    "releaseFailed": "Couldn't release the hold.",
-    "loadFailed": "Couldn't load holds.",
-    "empty": "No cards on hold",
-    "emptyDescription": "Turn on Allow holds when you create a share link so people can hold cards.",
-    "heldUntil": "until {{time}}",
-    "approved": "Approved",
-    "heldBy": "Held by {{name}}",
-    "awaitingApproval": "Awaiting approval",
-    "foil": "Foil"
+  "tradeOffers": {
+    "trayHeading": "Trade offers",
+    "trayMessage": "{{name}} wants {{wanted}} for {{offered}} of theirs",
+    "review": "Review",
+    "foil": "Foil",
+    "accepted": "Trade offer accepted",
+    "declined": "Trade offer declined",
+    "declineTitle": "Decline this trade offer?",
+    "declineDescription": "They'll see that you declined on their link.",
+    "cancel": "Cancel",
+    "decline": "Decline",
+    "accept": "Accept",
+    "title": "Trade offer",
+    "reviewTitle": "Offer from {{name}}",
+    "respondFailed": "Couldn't answer the trade offer.",
+    "answered": "This trade offer was already answered.",
+    "reviewDescription": "Sent from {{source}} on {{date}}",
+    "unknownSource": "a shared link",
+    "contact": "Contact",
+    "theyWant_one": "They want {{count}} card",
+    "theyWant_other": "They want {{count}} cards",
+    "theyOffer_one": "They offer {{count}} card",
+    "theyOffer_other": "They offer {{count}} cards",
+    "acceptTitle": "Accept this trade offer?",
+    "acceptRemovesCards_one": "This removes the {{count}} card they want from your collection.",
+    "acceptRemovesCards_other": "This removes the {{count}} cards they want from your collection.",
+    "theyGetValue": "They get",
+    "youGetValue": "You get",
+    "youGainValue": "Their offer is worth {{amount}} more than what they're asking for.",
+    "youLoseValue": "Their offer is worth {{amount}} less than what they're asking for.",
+    "evenValue": "Both sides are worth the same.",
+    "missingPrices": "Some cards have no price, so the totals may be low.",
+    "noPrice": "No price"
   }
 }

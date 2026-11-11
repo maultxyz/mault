@@ -2,7 +2,6 @@ import {
   SHARE_LINK_TOKEN_PARAM,
   SHOP_CATALOG_PATH_PREFIX,
   SHOP_PHOTO_UPLOAD_FIELD,
-  type BusinessSettingsResponse,
   type Result,
   type ShopCatalog,
   type ShopCatalogInput,
@@ -13,17 +12,6 @@ import { apiDelete, apiGet, apiPost, apiPostForm, apiPut, unwrap } from "@/lib/a
 import type { ShopPhotoUpload } from "@/lib/interfaces/shop-catalogs";
 import { WEB_URL } from "@/lib/constants/config";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
-
-export const businessAccessQueryOptions = (orgId: string | null) =>
-  queryOptions({
-    queryKey: ["business", "settings", orgId] as const,
-    queryFn: () =>
-      unwrap(apiGet<Result<BusinessSettingsResponse>>("/api/business/settings")).then(
-        (response) => response.access,
-      ),
-    enabled: !!orgId,
-    staleTime: QUERY_STALE_MS,
-  });
 
 export const shopCatalogsQueryOptions = (orgId: string | null, enabled: boolean) =>
   queryOptions({

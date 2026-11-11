@@ -1,4 +1,3 @@
-import { CardHoldBadge } from "@/features/card-holds/components/card-hold-badge";
 import { PublicCardBadges } from "@/features/public-cards/components/public-card-badges";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -32,10 +31,6 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
       className="flex cursor-pointer flex-col rounded-lg border bg-muted p-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span className="relative block aspect-[2.5/3.5] overflow-hidden rounded-md">
-        <CardHoldBadge
-          scanIds={[entry.scanId]}
-          className="absolute top-1 right-1 z-20 shadow-md"
-        />
         {entry.isFoil && (
           <span
             className={cn(

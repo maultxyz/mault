@@ -1,4 +1,5 @@
 import type {
+  ShareLinkPurpose,
   PublicCard,
   PublicCardBrowseInfo,
   PublicCardFacets,
@@ -7,6 +8,7 @@ import type {
   PublicCardSort,
 } from "@magic-vault/shared";
 import type { ScanStats, SessionMonitorState } from "@/lib/interfaces/scanner";
+import type { TradeOfferLink } from "@/lib/interfaces/trade-offers";
 import type { ReactNode } from "react";
 
 export interface PublicCardsRequest {
@@ -30,6 +32,7 @@ export interface PublicCardBrowserProps {
   titleBadge?: ReactNode;
   headerNote?: ReactNode;
   sidebarTop?: ReactNode;
+  tradeOfferLink?: TradeOfferLink;
 }
 
 export interface PublicCardResultsProps {
@@ -100,7 +103,7 @@ export interface WatchCardBrowserProps {
   token: string;
   collectionGuid: string;
   collectionName: string;
-  holdMinutes: number | null;
+  purpose: ShareLinkPurpose;
   session: SessionMonitorState;
 }
 
@@ -108,4 +111,10 @@ export interface WatchLiveSidebarProps {
   session: SessionMonitorState;
   stats: ScanStats | null;
   cardCount: number;
+}
+
+export interface StorageCardBrowserProps {
+  token: string;
+  locationName: string;
+  purpose: ShareLinkPurpose;
 }

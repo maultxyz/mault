@@ -1,4 +1,9 @@
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { billingQueryOptions } from "@/features/billing/api/billing";
+import { useOrg } from "@/features/companies/api/use-organization";
+import { useQuery } from "@tanstack/react-query";
 import {
   Field,
   FieldContent,
@@ -28,10 +33,8 @@ import {
 } from "@/schemas/monitor-link.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  CARD_HOLD_MINUTES,
-  DEFAULT_CARD_HOLD_MINUTES,
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
-  DEFAULT_SHARE_LINK_ALLOWS_HOLDS,
+  DEFAULT_SHARE_LINK_PURPOSE,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
 } from "@magic-vault/shared";
@@ -54,9 +57,6 @@ export function ShareLinkDialog({
   const linkInputId = useId();
   const showPricesId = useId();
   const showPricesDescriptionId = useId();
-  const allowHoldsId = useId();
-  const allowHoldsDescriptionId = useId();
-  const holdLengthSelectId = useId();
   const [open, setOpen] = useState(false);
   const [link, setLink] = useState<CreatedShareLink | null>(null);
   const [isRevoking, setIsRevoking] = useState(false);
@@ -65,13 +65,15 @@ export function ShareLinkDialog({
   const form = useForm<MonitorLinkFormValues>({
     resolver: zodResolver(monitorLinkSchema),
     defaultValues: {
+      purpose: DEFAULT_SHARE_LINK_PURPOSE,
       expiresInDays: String(DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
       showPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
-      allowHolds: DEFAULT_SHARE_LINK_ALLOWS_HOLDS,
-      holdMinutes: String(DEFAULT_CARD_HOLD_MINUTES),
     },
   });
-  const allowsHolds = useWatch({ control: form.control, name: "allowHolds" });
+  const purpose = useWatch({ control: form.control, name: "purpose" });
+  const { activeOrg } = useOrg();
+  const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
+  const isOneHourLink = purpose === "trade" || billing?.longShareLinks === false;
 
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
@@ -89,9 +91,9 @@ export function ShareLinkDialog({
       try {
         setLink(
           await createLink({
+            purpose: values.purpose,
             expiresInDays: Number(values.expiresInDays),
             showPrices: values.showPrices,
-            holdMinutes: values.allowHolds ? Number(values.holdMinutes) : null,
           }),
         );
       } catch {
@@ -125,10 +127,6 @@ export function ShareLinkDialog({
 
   const expiryLabel = (days: number) =>
     t("shareLink.expiryOption", { count: days });
-  const holdLengthLabel = (minutes: number) =>
-    minutes < 60
-      ? t("shareLink.holdLengthMinutes", { count: minutes })
-      : t("shareLink.holdLengthHours", { count: minutes / 60 });
   const isSubmitting = form.formState.isSubmitting;
 
   return (
@@ -166,28 +164,62 @@ export function ShareLinkDialog({
         className="flex flex-col gap-4"
       >
         <Controller
-          name="expiresInDays"
+          name="purpose"
           control={form.control}
           render={({ field }) => (
             <Field>
-              <FieldLabel htmlFor={expirySelectId}>
-                {t("shareLink.expiryLabel")}
-              </FieldLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={expirySelectId}>
-                  <SelectValue>{expiryLabel(Number(field.value))}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {MONITOR_LINK_EXPIRY_DAYS.map((days) => (
-                    <SelectItem key={days} value={String(days)}>
-                      {expiryLabel(days)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <p className="text-control font-medium" aria-hidden>
+                {t("shareLink.typeLabel")}
+              </p>
+              <ResponsiveSegmented
+                label={t("shareLink.typeLabel")}
+                value={field.value}
+                onChange={field.onChange}
+                items={[
+                  { key: "view", label: t("shareLink.monitorType") },
+                  { key: "trade", label: t("shareLink.tradeType") },
+                ]}
+              />
+              <FieldDescription>
+                {field.value === "trade"
+                  ? t("shareLink.tradeTypeDescription")
+                  : t("shareLink.monitorTypeDescription")}
+              </FieldDescription>
             </Field>
           )}
         />
+        {isOneHourLink && (
+          <Callout variant="info">
+            {purpose === "trade"
+              ? t("shareLink.tradeOneHourNote")
+              : t("shareLink.monitorOneHourNote")}
+          </Callout>
+        )}
+        {!isOneHourLink && (
+          <Controller
+            name="expiresInDays"
+            control={form.control}
+            render={({ field }) => (
+              <Field>
+                <FieldLabel htmlFor={expirySelectId}>
+                  {t("shareLink.expiryLabel")}
+                </FieldLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger id={expirySelectId}>
+                    <SelectValue>{expiryLabel(Number(field.value))}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONITOR_LINK_EXPIRY_DAYS.map((days) => (
+                      <SelectItem key={days} value={String(days)}>
+                        {expiryLabel(days)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
+        )}
         <Controller
           name="showPrices"
           control={form.control}
@@ -210,53 +242,6 @@ export function ShareLinkDialog({
             </Field>
           )}
         />
-        <Controller
-          name="allowHolds"
-          control={form.control}
-          render={({ field }) => (
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor={allowHoldsId}>
-                  {t("shareLink.allowHolds")}
-                </FieldLabel>
-                <FieldDescription id={allowHoldsDescriptionId}>
-                  {t("shareLink.allowHoldsDescription")}
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id={allowHoldsId}
-                aria-describedby={allowHoldsDescriptionId}
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </Field>
-          )}
-        />
-        {allowsHolds && (
-          <Controller
-            name="holdMinutes"
-            control={form.control}
-            render={({ field }) => (
-              <Field>
-                <FieldLabel htmlFor={holdLengthSelectId}>
-                  {t("shareLink.holdLengthLabel")}
-                </FieldLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={holdLengthSelectId}>
-                    <SelectValue>{holdLengthLabel(Number(field.value))}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CARD_HOLD_MINUTES.map((minutes) => (
-                      <SelectItem key={minutes} value={String(minutes)}>
-                        {holdLengthLabel(minutes)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-        )}
         {link && (
           <>
             {qrCodeDataUrl && (

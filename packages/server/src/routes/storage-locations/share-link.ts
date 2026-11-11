@@ -1,5 +1,4 @@
 import {
-  CARD_HOLD_MINUTES,
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
@@ -9,6 +8,11 @@ import { and, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { storageLocations } from "../../db/schema";
+import {
+  allowsLongShareLinks,
+  parseShareLinkPurpose,
+  shareLinkExpiresInMinutes,
+} from "../../lib/share-link-policy";
 import { isShareTokenConfigured } from "../../lib/share-tokens";
 import {
   isStorageAllowed,
@@ -46,13 +50,10 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid price visibility." }, 400);
     }
     const showsPrices = body.showPrices ?? DEFAULT_SHARE_LINK_SHOWS_PRICES;
-    if (
-      body.holdMinutes != null &&
-      !(CARD_HOLD_MINUTES as readonly number[]).includes(body.holdMinutes as number)
-    ) {
-      return c.json({ success: false, message: "Invalid hold length." }, 400);
+    const purpose = parseShareLinkPurpose(body.purpose);
+    if (!purpose) {
+      return c.json({ success: false, message: "Invalid link type." }, 400);
     }
-    const holdMinutes = (body.holdMinutes as number | null | undefined) ?? null;
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await isStorageAllowed(tx, orgId))) {
         return {
@@ -69,13 +70,14 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
       if (!location) {
         return { success: false, message: "Storage location not found." };
       }
+      const allowsLongLinks = await allowsLongShareLinks(tx, orgId);
       const { token, expiresAt } = await signStorageShareLink(
         guid,
         orgId,
         location.shareLinkVersion,
-        expiresInDays,
+        shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
         showsPrices,
-        holdMinutes,
+        purpose,
       );
       const data: StorageShareLink = {
         token,

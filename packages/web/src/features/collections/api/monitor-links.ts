@@ -1,4 +1,5 @@
 import {
+  DEFAULT_SHARE_LINK_PURPOSE,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   SHARE_LINK_TOKEN_PARAM,
   WATCH_PATH_PREFIX,
@@ -8,6 +9,7 @@ import type {
   MonitorLink,
   MonitorLinkInfo,
   Result,
+  ShareLinkPurpose,
 } from "@magic-vault/shared";
 import { API_BASE } from "@/lib/constants/api";
 
@@ -15,11 +17,11 @@ export function createMonitorLink(
   collectionGuid: string,
   expiresInDays: number,
   showPrices = DEFAULT_SHARE_LINK_SHOWS_PRICES,
-  holdMinutes: number | null = null,
+  purpose: ShareLinkPurpose = DEFAULT_SHARE_LINK_PURPOSE,
 ): Promise<Result<MonitorLink>> {
   return apiPost<Result<MonitorLink>>(
     `/api/collections/${collectionGuid}/monitor-link`,
-    { expiresInDays, showPrices, holdMinutes },
+    { expiresInDays, showPrices, purpose },
   );
 }
 

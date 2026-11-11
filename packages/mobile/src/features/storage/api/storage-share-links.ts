@@ -2,6 +2,7 @@ import {
   SHARED_STORAGE_PATH_PREFIX,
   SHARE_LINK_TOKEN_PARAM,
   type Result,
+  type ShareLinkPurpose,
   type StorageShareLink,
 } from "@magic-vault/shared";
 import { apiPost, unwrap } from "@/lib/api/client";
@@ -11,13 +12,13 @@ export function createStorageShareLink(
   locationGuid: string,
   expiresInDays: number,
   showPrices: boolean,
-  holdMinutes: number | null,
+  purpose: ShareLinkPurpose,
 ): Promise<StorageShareLink> {
   return unwrap(
     apiPost<Result<StorageShareLink>>(`/api/storage-locations/${locationGuid}/share-link`, {
       expiresInDays,
       showPrices,
-      holdMinutes,
+      purpose,
     }),
   );
 }

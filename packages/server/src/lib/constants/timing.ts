@@ -1,4 +1,6 @@
-export const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+export const ONE_MINUTE_MS = 60 * 1000;
+export const MINUTES_PER_DAY = 24 * 60;
+export const ONE_DAY_MS = MINUTES_PER_DAY * ONE_MINUTE_MS;
 export const CARD_API_TIMEOUT_MS = 10_000;
 export const DEVICE_LEASE_TTL_MS = 60_000;
 export const DEVICE_OFFLINE_ALERT_WINDOW_MS = 10 * 60_000;

@@ -18,12 +18,12 @@ export function ShareStorageLinkDialog({
   const { t } = useTranslation("storage");
 
   const createLink = useCallback(
-    async ({ expiresInDays, showPrices, holdMinutes }: ShareLinkOptions) => {
+    async ({ purpose, expiresInDays, showPrices }: ShareLinkOptions) => {
       const result = await createStorageShareLink(
         locationGuid,
         expiresInDays,
         showPrices,
-        holdMinutes,
+        purpose,
       );
       if (!result.success || !result.data) throw new Error(result.message);
       return {

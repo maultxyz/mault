@@ -1,3 +1,4 @@
+import type { ShareLinkPurpose } from "@magic-vault/shared";
 export interface MonitorLinkClaims {
   collectionGuid: string;
   collectionId: number;
@@ -5,5 +6,5 @@ export interface MonitorLinkClaims {
   collectionName: string;
   expiresAt: Date;
   showsPrices: boolean;
-  holdMinutes: number | null;
+  purpose: ShareLinkPurpose;
 }

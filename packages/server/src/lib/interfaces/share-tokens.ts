@@ -1,11 +1,12 @@
+import type { ShareLinkPurpose } from "@magic-vault/shared";
 export interface ShareTokenSignInput {
   issuer: string;
   subjectGuid: string;
   orgId: string;
   version: number;
-  expiresInDays: number;
+  expiresInMinutes: number;
   showsPrices: boolean;
-  holdMinutes: number | null;
+  purpose: ShareLinkPurpose;
 }
 
 export interface SignedShareToken {
@@ -18,8 +19,9 @@ export interface VerifiedShareToken {
   orgId: string;
   version: number;
   expiresAt: Date;
+  issuedAt: Date;
   showsPrices: boolean;
-  holdMinutes: number | null;
+  purpose: ShareLinkPurpose;
 }
 
 export interface StorageShareLinkClaims {
@@ -29,13 +31,13 @@ export interface StorageShareLinkClaims {
   locationName: string;
   expiresAt: Date;
   showsPrices: boolean;
-  holdMinutes: number | null;
+  purpose: ShareLinkPurpose;
 }
 
 export interface ShareLinkRequestBody {
   expiresInDays?: number;
   showPrices?: unknown;
-  holdMinutes?: unknown;
+  purpose?: unknown;
 }
 
 export type RevocableShareTokenSignInput = Pick<
@@ -56,4 +58,8 @@ export interface ShopCatalogClaims {
   collectionIds: number[];
   storageLocationIds: number[];
   showsPrices: boolean;
+}
+
+export interface ShareLinkLifetime {
+  expiresAt: Date;
 }

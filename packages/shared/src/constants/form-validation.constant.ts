@@ -37,6 +37,8 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "cardCountRequired",
   "storageLocationRequired",
   "catalogSourcesRequired",
+  "contactRequired",
+  "textTooLong",
   "commandRequired",
   "verificationCodeLength",
   "verificationCodeNumeric",

@@ -31,7 +31,8 @@
       "fleetHealth": "Flottenzustand",
       "storage": "Lagerorte",
       "apiAccess": "API-Zugriff",
-      "businessTools": "Ankauf und Verkauf"
+      "businessTools": "Ankauf und Verkauf",
+      "longShareLinks": "Monitor-Links bis 30 Tage"
     },
     "unlimited": "Unbegrenzt",
     "included": "Enthalten",

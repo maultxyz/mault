@@ -12,9 +12,7 @@ import { SessionStatsPanel } from "@/features/scanner/components/session-stats-p
 import { UnmatchedCardsBrowser } from "@/features/scanner/components/unmatched-cards-browser";
 import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
-import { toCardHoldTarget } from "@/features/card-holds/lib/hold-for-scans";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { useCardHoldsContext } from "@/lib/card-holds-context";
 import type { SessionMonitorViewProps } from "@/lib/interfaces/scanner";
 import { useCallback } from "react";
 
@@ -46,15 +44,6 @@ export function SessionMonitorView({
   const handleCloseCard = useCallback(
     () => setOpenScanId(null),
     [setOpenScanId],
-  );
-  const cardHolds = useCardHoldsContext();
-  const entries = cards.entries;
-  const handleOpenHold = useCallback(
-    (scanId: string) => {
-      const entry = entries.find((candidate) => candidate.scanId === scanId);
-      if (entry) cardHolds?.openHoldDialog(toCardHoldTarget(entry));
-    },
-    [cardHolds, entries],
   );
 
   if (isMobile) {
@@ -155,13 +144,7 @@ export function SessionMonitorView({
               pageCount={cards.pageCount}
               onPageChange={cards.setPage}
               showBinLocation={showBinLocation}
-              onOpenCard={
-                canEditCards
-                  ? handleOpenCard
-                  : cardHolds
-                    ? handleOpenHold
-                    : undefined
-              }
+              onOpenCard={canEditCards ? handleOpenCard : undefined}
             />
           </>
         )}

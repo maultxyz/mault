@@ -10,7 +10,7 @@ import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { useCardHoldsContext } from "@/lib/card-holds-context";
+import { useTradeOfferContext } from "@/lib/trade-offer-context";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { PublicCardDetailViewProps } from "@/lib/interfaces/public-cards";
 import {
@@ -20,8 +20,8 @@ import {
 } from "@magic-vault/shared";
 import {
   IconArrowLeft,
+  IconArrowsExchange,
   IconCards,
-  IconHandStop,
   IconSwitchHorizontal,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -35,9 +35,8 @@ export function PublicCardDetailView({
 }: PublicCardDetailViewProps) {
   const { t } = useTranslation("cards");
   const { t: tCards } = useTranslation("cards");
-  const { t: tCommon } = useTranslation("common");
   const { priceOf, format } = usePriceSource();
-  const cardHolds = useCardHoldsContext();
+  const tradeOffer = useTradeOfferContext();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -80,7 +79,6 @@ export function PublicCardDetailView({
   }
 
   const { card } = detail;
-  const hold = cardHolds?.holdFor([detail.scanId]);
   const price = priceOf(
     card,
     { isFoil: detail.isFoil, foilType: detail.foilType ?? undefined },
@@ -215,27 +213,17 @@ export function PublicCardDetailView({
           {card.typeLine && (
             <p className="truncate text-sm text-foreground/70">{card.typeLine}</p>
           )}
-          {cardHolds && (
+          {tradeOffer && (
             <Button
-              variant="outline"
-              className="mt-2"
-              disabled={hold !== undefined && !hold.isMine}
-              onClick={() =>
-                cardHolds.openHoldDialog({
-                  scanIds: [detail.scanId],
-                  card,
-                  isFoil: detail.isFoil,
-                  foilType: detail.foilType ?? undefined,
-                  condition: detail.condition,
-                })
-              }
+              variant={tradeOffer.isWanted(detail.scanId) ? "selected" : "outline"}
+              className="mt-2 mr-1.5"
+              aria-pressed={tradeOffer.isWanted(detail.scanId)}
+              onClick={() => tradeOffer.toggleWanted(detail)}
             >
-              <IconHandStop />
-              {hold?.isMine
-                ? tCommon("cardHolds.manageHold")
-                : hold
-                  ? tCommon("cardHolds.onHoldBadge")
-                  : tCommon("cardHolds.hold")}
+              <IconArrowsExchange />
+              {tradeOffer.isWanted(detail.scanId)
+                ? t("tradeOffers.inTradeOffer")
+                : t("tradeOffers.addToTradeOffer")}
             </Button>
           )}
         </div>
