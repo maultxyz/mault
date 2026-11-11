@@ -891,6 +891,36 @@ export const cardHolds = pgTable(
   ],
 ).enableRLS();
 
+export const shopCatalogs = pgTable(
+  "shop_catalogs",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    name: text("name").notNull(),
+    orgId: text("org_id").notNull(),
+    collectionIds: integer("collection_ids").array().notNull().default(sql`'{}'::integer[]`),
+    storageLocationIds: integer("storage_location_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::integer[]`),
+    showsPrices: boolean("shows_prices").notNull().default(true),
+    isPublic: boolean("is_public").notNull().default(false),
+    shareLinkVersion: integer("share_link_version").notNull().default(0),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("shop_catalogs_guid_idx").on(table.guid),
+    index("shop_catalogs_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const fulfilmentOrders = pgTable(
   "fulfilment_orders",
   {
@@ -1198,6 +1228,8 @@ export const orgSettings = pgTable(
     guid: uuid("guid").defaultRandom(),
     orgId: text("org_id").notNull(),
     primaryColor: text("primary_color"),
+    shopPhotoKey: text("shop_photo_key"),
+    shopPhotoDataUrl: text("shop_photo_data_url"),
     scannerLayout: text("scanner_layout"),
     discordNotifyOnScan: boolean("discord_notify_on_scan")
       .notNull()

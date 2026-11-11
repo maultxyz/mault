@@ -16,4 +16,5 @@ export const DELETED_ITEM_TYPES = [
   "intakeLot",
   "fulfilmentOrder",
   "accuracyCheck",
+  "shopCatalog",
 ] as const;

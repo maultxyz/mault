@@ -1,11 +1,8 @@
-import { Badge } from "@/components/ui/badge";
 import { CardHoldsProvider } from "@/features/card-holds/components/card-holds-provider";
 import { verifyMonitorLink } from "@/features/collections/api/monitor-links";
 import { useSharedSessionMonitor } from "@/features/scanner/api/use-shared-session-monitor";
-import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
+import { WatchCardBrowser } from "@/features/public-cards/components/watch-card-browser";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
-import { useIsMobile } from "@/hooks/use-is-mobile";
-import { cn } from "@/lib/utils";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   SHARE_LINK_TOKEN_PARAM,
@@ -23,13 +20,11 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 export default function WatchPage() {
   const { t } = useTranslation("scanner");
-  const { t: tCommon } = useTranslation("common");
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
   const [searchParams] = useSearchParams();
   const token = searchParams.get(SHARE_LINK_TOKEN_PARAM);
   const [link, setLink] = useState<WatchLinkState>({ status: "checking" });
   const [checkCount, setCheckCount] = useState(0);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!token || !collectionGuid) {
@@ -57,10 +52,6 @@ export default function WatchPage() {
   const session = useSharedSessionMonitor(
     link.status === "valid" ? collectionGuid : undefined,
     token,
-  );
-  const cardsSource = useMemo(
-    () => ({ collectionGuid: collectionGuid ?? "", shareToken: token }),
-    [collectionGuid, token],
   );
   const linkInfo = link.status === "valid" ? link.info : undefined;
   const pricing = useMemo<OrgPricing>(
@@ -104,47 +95,19 @@ export default function WatchPage() {
   return (
     <QueryClientProvider client={publicQueryClient}>
       <PriceSourceProvider value={pricing}>
-      <main
-        id={MAIN_CONTENT_ID}
-        tabIndex={-1}
-        className="flex h-dvh flex-col bg-background outline-none"
-      >
-        <header className="flex items-center gap-2 border-b px-3 py-2">
-          {isMobile ? (
-            <p className="truncate text-sm font-semibold">
-              {link.info.collectionName}
-            </p>
-          ) : (
-            <h1 className="truncate text-sm font-semibold">
-              {link.info.collectionName}
-            </h1>
-          )}
-          <Badge variant="secondary">{t("watchPage.liveBadge")}</Badge>
-          <p
-            className={cn(
-              "ml-auto text-xs text-foreground/70",
-              link.info.holdMinutes === null && "hidden sm:block",
-            )}
-          >
-            {link.info.holdMinutes !== null
-              ? tCommon("cardHolds.browseHint")
-              : t("watchPage.readOnly")}
-          </p>
-        </header>
-        <div className="flex min-h-0 flex-1 flex-col">
-          <CardHoldsProvider
-            kind="collection"
+        <CardHoldsProvider
+          kind="collection"
+          token={token ?? ""}
+          holdMinutes={link.info.holdMinutes ?? null}
+        >
+          <WatchCardBrowser
             token={token ?? ""}
+            collectionGuid={collectionGuid ?? ""}
+            collectionName={link.info.collectionName}
             holdMinutes={link.info.holdMinutes ?? null}
-          >
-            <SessionMonitorView
-              session={session}
-              cardsSource={cardsSource}
-              showBinLocation={false}
-            />
-          </CardHoldsProvider>
-        </div>
-      </main>
+            session={session}
+          />
+        </CardHoldsProvider>
       </PriceSourceProvider>
     </QueryClientProvider>
   );

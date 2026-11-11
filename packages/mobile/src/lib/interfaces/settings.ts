@@ -30,7 +30,8 @@ export interface SettingsSectionLink {
     | "/settings/sounds"
     | "/settings/notifications"
     | "/settings/webhooks"
-    | "/settings/integrations";
+    | "/settings/integrations"
+    | "/settings/shop-catalogs";
   key: string;
   icon: IconName;
 }

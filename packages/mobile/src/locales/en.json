@@ -1445,6 +1445,10 @@
       "webhooks": {
         "title": "Webhooks",
         "description": "Post scan and storage events to your own server"
+      },
+      "shopCatalogs": {
+        "title": "Shop catalogs",
+        "description": "Let customers browse your stock on a tablet or website"
       }
     },
     "appearance": {
@@ -1875,6 +1879,67 @@
         "save": "Save",
         "saveFailed": "Couldn't save the sound rule."
       }
+    },
+    "shopCatalogs": {
+      "heading": "Shop catalogs",
+      "description": "Let customers browse your stock on a store tablet or your website. Each catalog shows the cards in the collections and storage locations you pick, through a link that keeps working until you reset it.",
+      "add": "New catalog",
+      "addTitle": "New shop catalog",
+      "editTitle": "Edit shop catalog",
+      "dialogDescription": "Pick what customers can browse. Changes show on the catalog within a minute.",
+      "save": "Save catalog",
+      "nameLabel": "Name",
+      "namePlaceholder": "In-store singles",
+      "showPrices": "Show prices",
+      "showPricesDescription": "Turn off to hide card prices from anyone browsing this catalog.",
+      "collectionsLabel": "Collections",
+      "storageLocationsLabel": "Storage locations",
+      "noSources": "Nothing to pick yet.",
+      "inventoryNote": "Cards in open or cancelled intake lots never show.",
+      "empty": "No shop catalogs yet",
+      "loadFailed": "Couldn't load shop catalogs.",
+      "upgrade": "Shop catalogs are part of the Business plan.",
+      "pricesHidden": "Prices hidden",
+      "noLiveSources": "Its collections and locations were deleted",
+      "showLink": "Link",
+      "edit": "Edit",
+      "delete": "Delete",
+      "created": "Shop catalog created",
+      "saved": "Shop catalog saved",
+      "deleted": "Shop catalog deleted",
+      "deleteConfirmTitle": "Delete this shop catalog?",
+      "deleteConfirmDescription": "Its link stops working right away. Your cards stay where they are.",
+      "linkTitle": "Link to {{name}}",
+      "linkDescription": "Open this link on a store tablet, or put it on your website. Anyone with it can browse the catalog.",
+      "linkNeverExpires": "This link doesn't expire. Reset it to stop the old one from working.",
+      "linksNotConfigured": "Share links aren't set up on this server.",
+      "resetLink": "Reset link",
+      "resetLinkConfirmTitle": "Reset this catalog's link?",
+      "resetLinkConfirmDescription": "The current link and QR code stop working. Update any tablet or website that uses it.",
+      "linkReset": "Link reset. The old link no longer works.",
+      "managersOnly": "Only owners and admins can manage shop catalogs.",
+      "cancel": "Cancel",
+      "close": "Close",
+      "actions": "Catalog actions",
+      "photo": {
+        "heading": "Shop photo",
+        "description": "Shown at the top of every shop catalog. JPEG, PNG or WebP, up to 10 MB.",
+        "upload": "Upload photo",
+        "replace": "Replace",
+        "remove": "Remove",
+        "previewAlt": "Current shop photo",
+        "uploaded": "Shop photo updated",
+        "uploadFailed": "Couldn't upload the shop photo.",
+        "removed": "Shop photo removed",
+        "wrongType": "Upload a JPEG, PNG or WebP photo.",
+        "tooLarge": "That photo is too large. Upload one under 10 MB.",
+        "removeConfirmTitle": "Remove the shop photo?",
+        "removeConfirmDescription": "Your catalogs will show without a photo."
+      },
+      "isPublic": "Public",
+      "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link.",
+      "publicBadge": "Public",
+      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
     }
   },
   "binCorrection": {
@@ -2056,7 +2121,8 @@
     "commandRequired": "Enter a command.",
     "verificationCodeLength": "Enter the {{length}}-digit code.",
     "verificationCodeNumeric": "The code can only contain numbers.",
-    "controlCardActionRequired": "Pick at least one thing for the card to change."
+    "controlCardActionRequired": "Pick at least one thing for the card to change.",
+    "catalogSourcesRequired": "Pick at least one collection or storage location."
   },
   "cardTags": {
     "title": "Tags",
@@ -2265,7 +2331,8 @@
         "announcement": "Announcement",
         "intakeLot": "Intake lot",
         "fulfilmentOrder": "Order",
-        "accuracyCheck": "Spot check"
+        "accuracyCheck": "Spot check",
+        "shopCatalog": "Shop catalog"
       },
       "restored": "Restored {{name}}",
       "restoreError": "Couldn't restore that item",

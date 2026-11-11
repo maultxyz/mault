@@ -36,6 +36,7 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "decklistRequired",
   "cardCountRequired",
   "storageLocationRequired",
+  "catalogSourcesRequired",
   "commandRequired",
   "verificationCodeLength",
   "verificationCodeNumeric",

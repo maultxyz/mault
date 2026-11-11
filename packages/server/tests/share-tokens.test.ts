@@ -1,9 +1,18 @@
 import assert from "node:assert/strict";
 import * as jose from "jose";
 import { test } from "node:test";
-import { MONITOR_LINK_ISSUER, STORAGE_SHARE_LINK_ISSUER } from "../src/lib/constants/auth";
+import {
+  MONITOR_LINK_ISSUER,
+  SHOP_CATALOG_ISSUER,
+  STORAGE_SHARE_LINK_ISSUER,
+} from "../src/lib/constants/auth";
 import { withoutPrices } from "../src/lib/share-link-pricing";
-import { signShareToken, verifyShareToken } from "../src/lib/share-tokens";
+import {
+  signRevocableShareToken,
+  signShareToken,
+  verifyRevocableShareToken,
+  verifyShareToken,
+} from "../src/lib/share-tokens";
 
 process.env.MONITOR_LINK_SECRET = "test-share-token-secret";
 
@@ -131,4 +140,35 @@ test("hiding prices strips every price field from nested cards and zeroes stats"
     mostValuable: null,
     sets: [{ code: "LEA", name: "Alpha", count: 2, value: 0 }],
   });
+});
+
+test("a shop catalog token never expires and verifies only with its own issuer", async () => {
+  const token = await signRevocableShareToken({
+    issuer: SHOP_CATALOG_ISSUER,
+    subjectGuid: "catalog-guid",
+    orgId: "org-1",
+    version: 2,
+  });
+  const payload = jose.decodeJwt(token);
+  assert.equal(payload.exp, undefined);
+  assert.deepEqual(await verifyRevocableShareToken(SHOP_CATALOG_ISSUER, token), {
+    subjectGuid: "catalog-guid",
+    orgId: "org-1",
+    version: 2,
+  });
+  assert.equal(await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, token), null);
+  assert.equal(await verifyShareToken(MONITOR_LINK_ISSUER, token), null);
+});
+
+test("a storage share token is rejected as a shop catalog token", async () => {
+  const { token } = await signShareToken({
+    issuer: STORAGE_SHARE_LINK_ISSUER,
+    subjectGuid: "location-guid",
+    orgId: "org-1",
+    version: 0,
+    expiresInDays: 7,
+    showsPrices: true,
+    holdMinutes: null,
+  });
+  assert.equal(await verifyRevocableShareToken(SHOP_CATALOG_ISSUER, token), null);
 });

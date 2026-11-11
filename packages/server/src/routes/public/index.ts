@@ -8,6 +8,7 @@ import { healthRoute } from "./health";
 import { publicMetricsRoute } from "./metrics";
 import { publicMonitorLinkRoute } from "./monitor-link";
 import { pricingRoute } from "./pricing";
+import { publicShopCatalogRoute } from "./shop-catalog";
 import { publicStorageShareLinkRoute } from "./storage-share-link";
 import { versionRoute } from "./version";
 import { webhookBuyMeACoffeeRoute } from "./webhook-buymeacoffee";
@@ -27,6 +28,7 @@ const router = new Hono<AppEnv>()
   .route("/", publicMetricsRoute)
   .route("/", publicMonitorLinkRoute)
   .route("/", publicStorageShareLinkRoute)
+  .route("/", publicShopCatalogRoute)
   .route("/", pricingRoute)
   .route("/", healthRoute)
   .route("/", webhookBuyMeACoffeeRoute)

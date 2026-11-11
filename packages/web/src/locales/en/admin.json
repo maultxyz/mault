@@ -395,7 +395,8 @@
       "announcement": "Announcement",
       "intakeLot": "Intake lot",
       "fulfilmentOrder": "Order",
-      "accuracyCheck": "Spot check"
+      "accuracyCheck": "Spot check",
+      "shopCatalog": "Shop catalog"
     },
     "toasts": {
       "restored": "Restored {{name}}",

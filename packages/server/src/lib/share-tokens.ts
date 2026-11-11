@@ -2,8 +2,10 @@ import { CARD_HOLD_MINUTES } from "@magic-vault/shared";
 import * as jose from "jose";
 import { ONE_DAY_MS } from "./constants/timing";
 import type {
+  RevocableShareTokenSignInput,
   ShareTokenSignInput,
   SignedShareToken,
+  VerifiedRevocableShareToken,
   VerifiedShareToken,
 } from "./interfaces/share-tokens";
 
@@ -80,4 +82,47 @@ function holdMinutesFromClaim(claim: unknown): number | null {
     (CARD_HOLD_MINUTES as readonly number[]).includes(claim)
     ? claim
     : null;
+}
+
+export async function signRevocableShareToken({
+  issuer,
+  subjectGuid,
+  orgId,
+  version,
+}: RevocableShareTokenSignInput): Promise<string> {
+  const secret = shareTokenSecret();
+  if (!secret) throw new Error("MONITOR_LINK_SECRET is not configured.");
+  return new jose.SignJWT({ org: orgId, ver: version })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(issuer)
+    .setSubject(subjectGuid)
+    .sign(secret);
+}
+
+export async function verifyRevocableShareToken(
+  issuer: string,
+  token: string,
+): Promise<VerifiedRevocableShareToken | null> {
+  const secret = shareTokenSecret();
+  if (!secret) return null;
+  try {
+    const { payload } = await jose.jwtVerify(token, secret, {
+      issuer,
+      algorithms: ["HS256"],
+    });
+    if (
+      typeof payload.sub !== "string" ||
+      typeof payload.org !== "string" ||
+      typeof payload.ver !== "number"
+    ) {
+      return null;
+    }
+    return {
+      subjectGuid: payload.sub,
+      orgId: payload.org,
+      version: payload.ver,
+    };
+  } catch {
+    return null;
+  }
 }

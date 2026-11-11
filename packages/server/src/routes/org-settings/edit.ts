@@ -10,6 +10,7 @@ import {
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { invalidateLeaderboardCache } from "../../lib/leaderboard";
+import { forgetShopCatalogReadsForOrg } from "../../lib/shop-catalogs";
 import { orgSettings } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -167,6 +168,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       };
     });
     if ("leaderboardOptIn" in body) invalidateLeaderboardCache();
+    forgetShopCatalogReadsForOrg(orgId);
     return c.json(result);
   },
 );

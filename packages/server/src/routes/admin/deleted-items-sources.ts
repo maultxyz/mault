@@ -21,6 +21,7 @@ import {
   notificationRules,
   presetWorkflows,
   soundClips,
+  shopCatalogs,
   soundRules,
   storageLocations,
 } from "../../db/schema";
@@ -701,6 +702,37 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
             ),
           )
           .returning({ orgId: accuracyChecks.orgId });
+        return row ? restored(row.orgId) : NOT_FOUND;
+      },
+    },
+    shopCatalog: {
+      async list() {
+        const rows = await db
+          .select({
+            guid: shopCatalogs.guid,
+            name: shopCatalogs.name,
+            orgId: shopCatalogs.orgId,
+            updatedAt: shopCatalogs.updatedAt,
+          })
+          .from(shopCatalogs)
+          .where(eq(shopCatalogs.isDeleted, true));
+        return rows.map((r) => ({
+          type: "shopCatalog",
+          guid: r.guid,
+          name: r.name,
+          detail: null,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const [row] = await tx
+          .update(shopCatalogs)
+          .set({ isDeleted: false })
+          .where(
+            and(eq(shopCatalogs.guid, guid), eq(shopCatalogs.isDeleted, true)),
+          )
+          .returning({ orgId: shopCatalogs.orgId });
         return row ? restored(row.orgId) : NOT_FOUND;
       },
     },

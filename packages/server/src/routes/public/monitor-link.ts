@@ -3,17 +3,14 @@ import { Hono, type Context } from "hono";
 import { db } from "../../db";
 import { verifyMonitorLink } from "../../lib/monitor-links";
 import { loadOrgPricing } from "../../lib/price-source";
-import { pricesForShareLink } from "../../lib/share-link-pricing";
 import { shareLinkRateLimit } from "../../lib/share-link-rate-limit";
 import type { MonitorLinkClaims } from "../../lib/interfaces/monitor-links";
 import type { AppEnv } from "../../middleware/auth";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import { createPublicCardHoldsRoute } from "./card-holds";
-import {
-  readCardsCount,
-  readCardsPage,
-  readCardsSummary,
-} from "../collections/cards-read";
+import { createPublicCardBrowseRoute } from "./card-browse";
+import { readCardsSummary } from "../collections/cards-read";
+import { pricesForShareLink } from "../../lib/share-link-pricing";
 
 async function claimsFor(c: Context<AppEnv>): Promise<MonitorLinkClaims | null> {
   const token = c.req.query("token");
@@ -39,6 +36,25 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
         : null;
     }),
   )
+  .route(
+    "/monitor-link/browse",
+    createPublicCardBrowseRoute({
+      readsCache: null,
+      resolveScope: async (c) => {
+        const claims = await claimsFor(c);
+        return claims
+          ? {
+              orgId: claims.orgId,
+              collectionIds: [claims.collectionId],
+              storageLocationIds: [],
+              inventoryOnly: false,
+              showsPrices: claims.showsPrices,
+              readsCacheKey: null,
+            }
+          : null;
+      },
+    }),
+  )
   .get("/monitor-link", async (c) => {
     const claims = await claimsFor(c);
     if (!claims) {
@@ -57,44 +73,6 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
         showsPrices: claims.showsPrices,
         holdMinutes: claims.holdMinutes,
       } satisfies MonitorLinkInfo,
-    });
-  })
-  .get("/monitor-link/cards", async (c) => {
-    const claims = await claimsFor(c);
-    if (!claims) {
-      return c.json({ success: false, message: MONITOR_LINK_INVALID_MESSAGE }, 401);
-    }
-    const data = await readCardsPage(
-      (fn) => db.transaction(fn),
-      claims.collectionGuid,
-      claims.orgId,
-      c.req.query(),
-    );
-    if (!data) {
-      return c.json({ success: false, message: "Collection not found." });
-    }
-    return c.json({
-      success: true,
-      data: pricesForShareLink(data, claims.showsPrices),
-    });
-  })
-  .get("/monitor-link/cards/count", async (c) => {
-    const claims = await claimsFor(c);
-    if (!claims) {
-      return c.json({ success: false, message: MONITOR_LINK_INVALID_MESSAGE }, 401);
-    }
-    const data = await readCardsCount(
-      (fn) => db.transaction(fn),
-      claims.collectionGuid,
-      claims.orgId,
-      c.req.query(),
-    );
-    if (!data) {
-      return c.json({ success: false, message: "Collection not found." });
-    }
-    return c.json({
-      success: true,
-      data: pricesForShareLink(data, claims.showsPrices),
     });
   })
   .get("/monitor-link/cards/summary", async (c) => {
