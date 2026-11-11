@@ -71,6 +71,13 @@ export default function AppLayout() {
             name="storage-card-scan"
             options={{ contentStyle: { backgroundColor: colors.background } }}
           />
+          <Stack.Screen name="trade/index" />
+          <Stack.Screen name="trade/browse" />
+          <Stack.Screen name="trade/collection" />
+          <Stack.Screen
+            name="trade/scan"
+            options={{ contentStyle: { backgroundColor: colors.background } }}
+          />
           <Stack.Screen
             name="desktop-camera/[guid]"
             options={{ gestureEnabled: false, contentStyle: { backgroundColor: colors.background } }}

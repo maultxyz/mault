@@ -199,6 +199,7 @@ export * from "./interfaces/card-tags.interface";
 export * from "./schemas/card-tags.schema";
 export * from "./schemas/public-cards.schema";
 export * from "./schemas/trade-offers.schema";
+export * from "./share-link-url";
 export * from "./interfaces/trade-offers.interface";
 export * from "./constants/trade-offers.constant";
 export * from "./card-tags";

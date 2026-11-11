@@ -17,6 +17,7 @@ export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "storage-name",
   "share-link",
   "storage-card-scan",
+  "trade/scan",
   "batch-scan",
   "desktop-camera/[guid]",
 ]);

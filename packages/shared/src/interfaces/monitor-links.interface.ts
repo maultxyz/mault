@@ -18,3 +18,9 @@ export interface MonitorLinkInfo {
   showsPrices: boolean;
   purpose: ShareLinkPurpose;
 }
+
+export interface ParsedShareLinkUrl {
+  kind: "collection" | "storage";
+  guid: string;
+  token: string;
+}
