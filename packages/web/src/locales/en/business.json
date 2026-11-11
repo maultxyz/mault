@@ -563,6 +563,10 @@
       "removeFailed": "Couldn't remove the shop photo.",
       "wrongType": "Upload a JPEG, PNG or WebP photo.",
       "tooLarge": "That photo is too large. Upload one under 10 MB."
-    }
+    },
+    "isPublic": "Public",
+    "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link. Turn off to require the private link.",
+    "publicBadge": "Public",
+    "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
   }
 }

@@ -563,6 +563,10 @@
       "removeFailed": "Impossible de supprimer la photo de la boutique.",
       "wrongType": "Importez une photo JPEG, PNG ou WebP.",
       "tooLarge": "Cette photo est trop lourde. Importez-en une de moins de 10 Mo."
-    }
+    },
+    "isPublic": "Public",
+    "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé. Désactivez pour exiger le lien privé.",
+    "publicBadge": "Public",
+    "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
   }
 }

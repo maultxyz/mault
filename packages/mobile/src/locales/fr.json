@@ -1935,7 +1935,11 @@
         "tooLarge": "Cette photo est trop lourde. Importez-en une de moins de 10 Mo.",
         "removeConfirmTitle": "Supprimer la photo de la boutique ?",
         "removeConfirmDescription": "Vos catalogues s'afficheront sans photo."
-      }
+      },
+      "isPublic": "Public",
+      "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé.",
+      "publicBadge": "Public",
+      "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
     }
   },
   "binCorrection": {

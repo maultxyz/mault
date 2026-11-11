@@ -17,6 +17,7 @@ import type { ShopCatalogDialogProps } from "@/lib/interfaces/shop-catalogs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
+  DEFAULT_SHOP_CATALOG_IS_PUBLIC,
   shopCatalogFormSchema,
   type ShopCatalogFormValues,
 } from "@magic-vault/shared";
@@ -39,6 +40,8 @@ export function ShopCatalogDialog({
   const nameId = useId();
   const showPricesId = useId();
   const showPricesDescriptionId = useId();
+  const isPublicId = useId();
+  const isPublicDescriptionId = useId();
   const { data: collections = [] } = useQuery({
     ...collectionsQueryOptions,
     enabled: open,
@@ -52,6 +55,7 @@ export function ShopCatalogDialog({
     defaultValues: {
       name: "",
       showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
+      isPublic: DEFAULT_SHOP_CATALOG_IS_PUBLIC,
       collectionGuids: [],
       storageLocationGuids: [],
     },
@@ -63,6 +67,7 @@ export function ShopCatalogDialog({
     form.reset({
       name: catalog?.name ?? "",
       showsPrices: catalog?.showsPrices ?? DEFAULT_SHARE_LINK_SHOWS_PRICES,
+      isPublic: catalog?.isPublic ?? DEFAULT_SHOP_CATALOG_IS_PUBLIC,
       collectionGuids: catalog?.collections.map((source) => source.guid) ?? [],
       storageLocationGuids:
         catalog?.storageLocations.map((source) => source.guid) ?? [],
@@ -113,6 +118,26 @@ export function ShopCatalogDialog({
               <Switch
                 id={showPricesId}
                 aria-describedby={showPricesDescriptionId}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </Field>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="isPublic"
+          render={({ field }) => (
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor={isPublicId}>{t("shopCatalogs.isPublic")}</FieldLabel>
+                <FieldDescription id={isPublicDescriptionId}>
+                  {t("shopCatalogs.isPublicDescription")}
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id={isPublicId}
+                aria-describedby={isPublicDescriptionId}
                 checked={field.value}
                 onCheckedChange={field.onChange}
               />

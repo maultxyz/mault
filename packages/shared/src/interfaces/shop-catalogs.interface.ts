@@ -9,6 +9,7 @@ export interface ShopCatalog {
   guid: string;
   name: string;
   showsPrices: boolean;
+  isPublic: boolean;
   collections: ShopCatalogSource[];
   storageLocations: ShopCatalogSource[];
   linkToken: string | null;
@@ -18,6 +19,7 @@ export interface ShopCatalog {
 export interface ShopCatalogInput {
   name: string;
   showsPrices: boolean;
+  isPublic: boolean;
   collectionGuids: string[];
   storageLocationGuids: string[];
 }

@@ -27,7 +27,11 @@ import {
 import { cardCatalogJoinSql } from "./card-catalog-sql";
 import { cardPricesJoinSql, joinedScannedCardPriceSql } from "./card-price-sql";
 import { CC_ALIAS_SQL_COLUMNS } from "./constants/card-prices";
-import { PUBLIC_CARD_JOINS, PUBLIC_CARD_LANGUAGE } from "./constants/public-cards";
+import {
+  PUBLIC_CARD_JOINS,
+  PUBLIC_CARD_LANGUAGE,
+  PUBLIC_CARD_LINK_QUERY_PARAMS,
+} from "./constants/public-cards";
 import {
   INVENTORY_CARD_FILTER,
   STORED_CARD_CATALOG_SCOPE,
@@ -342,7 +346,7 @@ export function publicCardReadsKey(
 ): string | null {
   if (!scope.readsCacheKey) return null;
   const parameters = Object.entries(query)
-    .filter(([name]) => name !== "token")
+    .filter(([name]) => !PUBLIC_CARD_LINK_QUERY_PARAMS.includes(name))
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([name, value]) => `${name}=${value}`)
     .join("&");

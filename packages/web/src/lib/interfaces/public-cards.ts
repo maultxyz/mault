@@ -20,7 +20,7 @@ export interface PublicCardsRequest {
 
 export interface PublicCardsSource {
   basePath: string;
-  token: string;
+  linkParams: Record<string, string>;
 }
 
 export interface PublicCardBrowserProps {

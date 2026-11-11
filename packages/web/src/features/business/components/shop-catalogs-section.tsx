@@ -98,6 +98,9 @@ export function ShopCatalogsSection() {
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <div className="flex min-w-0 items-center gap-2">
                     <p className="truncate font-medium">{catalog.name}</p>
+                    {catalog.isPublic && (
+                      <Badge variant="info">{t("shopCatalogs.publicBadge")}</Badge>
+                    )}
                     {!catalog.showsPrices && (
                       <Badge variant="outline">{t("shopCatalogs.pricesHidden")}</Badge>
                     )}

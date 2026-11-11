@@ -49,8 +49,11 @@ export function deleteShopCatalog(guid: string): Promise<unknown> {
   return unwrap(apiDelete<Result<unknown>>(`/api/business/shop-catalogs/${guid}`));
 }
 
-export function buildShopCatalogUrl(catalogGuid: string, token: string): string {
-  return `${WEB_URL}${SHOP_CATALOG_PATH_PREFIX}/${catalogGuid}?${SHARE_LINK_TOKEN_PARAM}=${encodeURIComponent(token)}`;
+export function buildShopCatalogUrl(catalog: ShopCatalog): string | null {
+  const base = `${WEB_URL}${SHOP_CATALOG_PATH_PREFIX}/${catalog.guid}`;
+  if (catalog.isPublic) return base;
+  if (!catalog.linkToken) return null;
+  return `${base}?${SHARE_LINK_TOKEN_PARAM}=${encodeURIComponent(catalog.linkToken)}`;
 }
 
 export const shopPhotoQueryOptions = (orgId: string | null, enabled: boolean) =>

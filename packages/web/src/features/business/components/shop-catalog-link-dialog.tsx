@@ -21,8 +21,7 @@ export function ShopCatalogLinkDialog({
   const { t: tCommon } = useTranslation("common");
   const linkInputId = useId();
   const [confirmsReset, setConfirmsReset] = useState(false);
-  const url =
-    catalog?.linkToken ? buildShopCatalogUrl(catalog.guid, catalog.linkToken) : null;
+  const url = catalog ? buildShopCatalogUrl(catalog) : null;
   const qrCodeDataUrl = useQrCodeDataUrl(url);
 
   return (
@@ -34,15 +33,17 @@ export function ShopCatalogLinkDialog({
         description={t("shopCatalogs.linkDescription")}
         footer={
           <>
-            <Button
-              variant="outline"
-              className="text-destructive md:mr-auto"
-              disabled={!url || isResetting}
-              onClick={() => setConfirmsReset(true)}
-            >
-              {isResetting && <IconLoader2 className="animate-spin" />}
-              {t("shopCatalogs.resetLink")}
-            </Button>
+            {!catalog?.isPublic && (
+              <Button
+                variant="outline"
+                className="text-destructive md:mr-auto"
+                disabled={!catalog?.linkToken || isResetting}
+                onClick={() => setConfirmsReset(true)}
+              >
+                {isResetting && <IconLoader2 className="animate-spin" />}
+                {t("shopCatalogs.resetLink")}
+              </Button>
+            )}
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               {tCommon("shareLink.close")}
             </Button>
@@ -101,7 +102,9 @@ export function ShopCatalogLinkDialog({
                 </Button>
               </div>
               <p className="text-xs text-foreground/70">
-                {t("shopCatalogs.linkNeverExpires")}
+                {catalog?.isPublic
+                  ? t("shopCatalogs.publicLinkNote")
+                  : t("shopCatalogs.linkNeverExpires")}
               </p>
             </Field>
           </div>

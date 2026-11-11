@@ -1170,6 +1170,13 @@
       "when": 1794359081336,
       "tag": "0166_shop_photo",
       "breakpoints": true
+    },
+    {
+      "idx": 167,
+      "version": "7",
+      "when": 1794360974945,
+      "tag": "0167_shop_catalog_public",
+      "breakpoints": true
     }
   ]
 }

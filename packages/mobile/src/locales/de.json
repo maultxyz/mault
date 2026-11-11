@@ -1935,7 +1935,11 @@
         "tooLarge": "Das Foto ist zu groß. Lade eines unter 10 MB hoch.",
         "removeConfirmTitle": "Shop-Foto entfernen?",
         "removeConfirmDescription": "Deine Kataloge werden ohne Foto angezeigt."
-      }
+      },
+      "isPublic": "Öffentlich",
+      "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link.",
+      "publicBadge": "Öffentlich",
+      "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen."
     }
   },
   "binCorrection": {

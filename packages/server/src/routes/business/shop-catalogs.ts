@@ -62,6 +62,7 @@ async function toShopCatalog(
     guid: row.guid,
     name: row.name,
     showsPrices: row.showsPrices,
+    isPublic: row.isPublic,
     collections: toShopCatalogSources(sources.collections),
     storageLocations: toShopCatalogSources(sources.storageLocations),
     linkToken: await shopCatalogLinkToken(
@@ -236,6 +237,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
           orgId,
           name: input.data.name,
           showsPrices: input.data.showsPrices,
+          isPublic: input.data.isPublic,
           ...sourceIds,
         })
         .returning();
@@ -270,6 +272,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
         .set({
           name: input.data.name,
           showsPrices: input.data.showsPrices,
+          isPublic: input.data.isPublic,
           ...sourceIds,
           updatedAt: new Date(),
         })

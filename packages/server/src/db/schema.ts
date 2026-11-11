@@ -904,6 +904,7 @@ export const shopCatalogs = pgTable(
       .notNull()
       .default(sql`'{}'::integer[]`),
     showsPrices: boolean("shows_prices").notNull().default(true),
+    isPublic: boolean("is_public").notNull().default(false),
     shareLinkVersion: integer("share_link_version").notNull().default(0),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),

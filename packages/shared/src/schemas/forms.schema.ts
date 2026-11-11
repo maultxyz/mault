@@ -127,6 +127,7 @@ export const shopCatalogFormSchema = z
   .object({
     name: nameSchema(SHOP_CATALOG_NAME_MAX_LENGTH),
     showsPrices: z.boolean(),
+    isPublic: z.boolean(),
     collectionGuids: z.array(z.string()).max(SHOP_CATALOG_SOURCES_MAX),
     storageLocationGuids: z.array(z.string()).max(SHOP_CATALOG_SOURCES_MAX),
   })

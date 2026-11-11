@@ -21,11 +21,11 @@ export function WatchCardBrowser({
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
   const source = useMemo(
-    () => ({ basePath: PUBLIC_CARDS_SOURCE_PATHS.watch, token }),
+    () => ({ basePath: PUBLIC_CARDS_SOURCE_PATHS.watch, linkParams: { token } }),
     [token],
   );
   const { data: info } = useQuery(publicCardsInfoQueryOptions(source));
-  const live = useLivePublicCards(source, collectionGuid, session.cardsVersion);
+  const live = useLivePublicCards(source, token, collectionGuid, session.cardsVersion);
 
   if (!info) {
     return (

@@ -1,8 +1,10 @@
 import { PublicCardBrowser } from "@/features/public-cards/components/public-card-browser";
-import { publicShopCatalogQueryOptions } from "@/features/business/api/shop-catalogs";
+import {
+  publicShopCatalogQueryOptions,
+  shopCatalogSource,
+} from "@/features/business/api/shop-catalogs";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
-import { PUBLIC_CARDS_SOURCE_PATHS } from "@/lib/constants/public-cards";
 import { publicQueryClient } from "@/lib/query-client";
 import {
   SHARE_LINK_TOKEN_PARAM,
@@ -19,10 +21,14 @@ function ShopCatalogContent() {
   const { t } = useTranslation("business");
   const { catalogGuid } = useParams<{ catalogGuid: string }>();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get(SHARE_LINK_TOKEN_PARAM) ?? "";
+  const token = searchParams.get(SHARE_LINK_TOKEN_PARAM);
+  const source = useMemo(
+    () => shopCatalogSource(catalogGuid ?? "", token),
+    [catalogGuid, token],
+  );
   const { data: info, isPending } = useQuery({
-    ...publicShopCatalogQueryOptions(token),
-    enabled: !!token,
+    ...publicShopCatalogQueryOptions(source),
+    enabled: !!catalogGuid,
   });
   const validInfo = info?.catalogGuid === catalogGuid ? info : undefined;
   const pricing = useMemo<OrgPricing | null>(
@@ -49,7 +55,7 @@ function ShopCatalogContent() {
         tabIndex={-1}
         className="flex h-dvh flex-col items-center justify-center gap-3 bg-background p-6 text-center outline-none"
       >
-        {token && isPending ? (
+        {catalogGuid && isPending ? (
           <IconLoader2
             className="size-6 animate-spin text-foreground/70"
             aria-label={t("shopCatalogs.public.loading")}
@@ -72,7 +78,7 @@ function ShopCatalogContent() {
   return (
     <PriceSourceProvider value={pricing}>
       <PublicCardBrowser
-        source={{ basePath: PUBLIC_CARDS_SOURCE_PATHS.catalog, token }}
+        source={source}
         title={validInfo.name}
         info={validInfo}
       />

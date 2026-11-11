@@ -1935,7 +1935,11 @@
         "tooLarge": "That photo is too large. Upload one under 10 MB.",
         "removeConfirmTitle": "Remove the shop photo?",
         "removeConfirmDescription": "Your catalogs will show without a photo."
-      }
+      },
+      "isPublic": "Public",
+      "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link.",
+      "publicBadge": "Public",
+      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
     }
   },
   "binCorrection": {

@@ -9,13 +9,14 @@ import { useEffect, useMemo, useRef } from "react";
 
 export function useLivePublicCards(
   source: PublicCardsSource,
+  token: string,
   collectionGuid: string,
   cardsVersion: number,
 ) {
   const queryClient = useQueryClient();
   const monitorSource = useMemo(
-    () => ({ collectionGuid, shareToken: source.token }),
-    [collectionGuid, source.token],
+    () => ({ collectionGuid, shareToken: token }),
+    [collectionGuid, token],
   );
   const { data: summary } = useQuery(
     monitorCardsSummaryQueryOptions(monitorSource, ALL_CARDS_QUERY),
@@ -28,14 +29,14 @@ export function useLivePublicCards(
       () => {
         lastRefreshAt.current = Date.now();
         void queryClient.invalidateQueries({
-          queryKey: publicCardsKeys.root(source.basePath, source.token),
+          queryKey: publicCardsKeys.root(source),
         });
         void queryClient.invalidateQueries({ queryKey: monitorCardsKey(monitorSource) });
       },
       Math.max(0, MONITOR_REFRESH_THROTTLE_MS - (Date.now() - lastRefreshAt.current)),
     );
     return () => clearTimeout(timer);
-  }, [cardsVersion, queryClient, source.basePath, source.token, monitorSource]);
+  }, [cardsVersion, queryClient, source, monitorSource]);
 
   return {
     stats: summary ? toScanStats(summary.all) : null,

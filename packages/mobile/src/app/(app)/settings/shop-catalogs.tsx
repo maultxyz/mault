@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, Share, View } from "react-native";
 import {
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
+  DEFAULT_SHOP_CATALOG_IS_PUBLIC,
   SHOP_PHOTO_MAX_UPLOAD_BYTES,
   SHOP_PHOTO_MIME_TYPES,
   shopCatalogFormSchema,
@@ -74,13 +75,14 @@ export default function ShopCatalogsSettingsScreen() {
     defaultValues: {
       name: "",
       showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
+      isPublic: DEFAULT_SHOP_CATALOG_IS_PUBLIC,
       collectionGuids: [],
       storageLocationGuids: [],
     },
   });
   const catalogs = list.data ?? [];
   const linkCatalog = catalogs.find((catalog) => catalog.guid === linkGuid) ?? null;
-  const linkUrl = linkCatalog?.linkToken ? buildShopCatalogUrl(linkCatalog.guid, linkCatalog.linkToken) : null;
+  const linkUrl = linkCatalog ? buildShopCatalogUrl(linkCatalog) : null;
 
   const invalidate = () => void queryClient.invalidateQueries({ queryKey: ["business", "shop-catalogs", orgId] });
   const succeed = (text: string) => {
@@ -162,10 +164,17 @@ export default function ShopCatalogsSettingsScreen() {
     setLinkGuid(null);
     form.reset(
       target === "new"
-        ? { name: "", showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES, collectionGuids: [], storageLocationGuids: [] }
+        ? {
+            name: "",
+            showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
+            isPublic: DEFAULT_SHOP_CATALOG_IS_PUBLIC,
+            collectionGuids: [],
+            storageLocationGuids: [],
+          }
         : {
             name: target.name,
             showsPrices: target.showsPrices,
+            isPublic: target.isPublic,
             collectionGuids: target.collections.map((source) => source.guid),
             storageLocationGuids: target.storageLocations.map((source) => source.guid),
           },
@@ -315,7 +324,9 @@ export default function ShopCatalogsSettingsScreen() {
                     {linkUrl}
                   </AppText>
                   <AppText size="xs" tone="secondary" style={{ textAlign: "center" }}>
-                    {t("settings.shopCatalogs.linkNeverExpires")}
+                    {linkCatalog.isPublic
+                      ? t("settings.shopCatalogs.publicLinkNote")
+                      : t("settings.shopCatalogs.linkNeverExpires")}
                   </AppText>
                   <View style={{ flexDirection: "row", gap: SPACING.sm, alignSelf: "stretch" }}>
                     <Button style={{ flex: 1 }} variant="ghost" label={t("settings.shopCatalogs.close")} onPress={() => setLinkGuid(null)} />
@@ -366,6 +377,18 @@ export default function ShopCatalogsSettingsScreen() {
                   <SwitchRow
                     title={t("settings.shopCatalogs.showPrices")}
                     description={t("settings.shopCatalogs.showPricesDescription")}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="isPublic"
+                render={({ field }) => (
+                  <SwitchRow
+                    title={t("settings.shopCatalogs.isPublic")}
+                    description={t("settings.shopCatalogs.isPublicDescription")}
                     value={field.value}
                     onValueChange={field.onChange}
                   />
@@ -436,6 +459,7 @@ export default function ShopCatalogsSettingsScreen() {
                   title={catalog.name}
                   subtitle={[
                     sourceSummary(catalog),
+                    catalog.isPublic ? t("settings.shopCatalogs.publicBadge") : null,
                     catalog.showsPrices ? null : t("settings.shopCatalogs.pricesHidden"),
                   ]
                     .filter(Boolean)
@@ -452,7 +476,9 @@ export default function ShopCatalogsSettingsScreen() {
             options={[
               { value: "link", label: t("settings.shopCatalogs.showLink") },
               ...(locked ? [] : [{ value: "edit", label: t("settings.shopCatalogs.edit") }]),
-              { value: "reset", label: t("settings.shopCatalogs.resetLink") },
+              ...(actionsFor?.isPublic
+                ? []
+                : [{ value: "reset", label: t("settings.shopCatalogs.resetLink") }]),
               { value: "delete", label: t("settings.shopCatalogs.delete") },
             ]}
             selected={[]}

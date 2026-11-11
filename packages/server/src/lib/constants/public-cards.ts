@@ -7,3 +7,4 @@ export const PUBLIC_CARD_JOINS = sql`JOIN collections col ON col.id = cc.collect
 export const PUBLIC_CARD_LANGUAGE = sql`COALESCE(cc.language, cc.card_lang, col.lang)`;
 
 export const PUBLIC_CARD_NOT_FOUND_MESSAGE = "This card is no longer available on this link.";
+export const PUBLIC_CARD_LINK_QUERY_PARAMS = ["token", "catalog"];

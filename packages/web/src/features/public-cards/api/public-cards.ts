@@ -12,15 +12,15 @@ import type {
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
 export const publicCardsKeys = {
-  root: (basePath: string, token: string) => [PUBLIC_CARDS_QUERY_KEY, basePath, token] as const,
-  info: (basePath: string, token: string) =>
-    [...publicCardsKeys.root(basePath, token), "info"] as const,
+  root: (source: PublicCardsSource) =>
+    [PUBLIC_CARDS_QUERY_KEY, source.basePath, source.linkParams] as const,
+  info: (source: PublicCardsSource) => [...publicCardsKeys.root(source), "info"] as const,
   facets: (source: PublicCardsSource, gameKey: string | null) =>
-    [...publicCardsKeys.root(source.basePath, source.token), "facets", gameKey] as const,
+    [...publicCardsKeys.root(source), "facets", gameKey] as const,
   cards: (source: PublicCardsSource, request: PublicCardsRequest) =>
-    [...publicCardsKeys.root(source.basePath, source.token), "cards", request] as const,
+    [...publicCardsKeys.root(source), "cards", request] as const,
   card: (source: PublicCardsSource, scanId: string) =>
-    [...publicCardsKeys.root(source.basePath, source.token), "card", scanId] as const,
+    [...publicCardsKeys.root(source), "card", scanId] as const,
 };
 
 export async function fetchPublicCards<T>(
@@ -36,12 +36,12 @@ export async function fetchPublicCards<T>(
 
 export const publicCardsInfoQueryOptions = (source: PublicCardsSource) =>
   queryOptions({
-    queryKey: publicCardsKeys.info(source.basePath, source.token),
+    queryKey: publicCardsKeys.info(source),
     queryFn: () =>
       fetchPublicCards<PublicCardBrowseInfo>(
         source.basePath,
         "",
-        new URLSearchParams({ token: source.token }),
+        new URLSearchParams(source.linkParams),
       ),
     retry: false,
   });
@@ -56,7 +56,7 @@ export const publicCardsFacetsQueryOptions = (
       fetchPublicCards<PublicCardFacets>(
         source.basePath,
         "/facets",
-        new URLSearchParams({ token: source.token, ...(gameKey ? { game: gameKey } : {}) }),
+        new URLSearchParams({ ...source.linkParams, ...(gameKey ? { game: gameKey } : {}) }),
       ),
     placeholderData: keepPreviousData,
   });
@@ -72,7 +72,7 @@ export const publicCardsPageQueryOptions = (
         source.basePath,
         "/cards",
         new URLSearchParams({
-          token: source.token,
+          ...source.linkParams,
           page: String(request.page),
           limit: String(request.pageSize),
           sort: request.sort,
@@ -93,7 +93,7 @@ export const publicCardDetailQueryOptions = (source: PublicCardsSource, scanId: 
       fetchPublicCards<PublicCardDetail>(
         source.basePath,
         `/cards/${encodeURIComponent(scanId)}`,
-        new URLSearchParams({ token: source.token }),
+        new URLSearchParams(source.linkParams),
       ),
     retry: false,
   });

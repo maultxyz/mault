@@ -1,8 +1,10 @@
 import { apiDelete, apiGet, apiPost, apiPostForm, apiPut } from "@/lib/api/client";
 import { fetchPublicCards, publicCardsKeys } from "@/features/public-cards/api/public-cards";
 import { PUBLIC_CARDS_SOURCE_PATHS } from "@/lib/constants/public-cards";
+import type { PublicCardsSource } from "@/lib/interfaces/public-cards";
 import {
   SHARE_LINK_TOKEN_PARAM,
+  SHOP_CATALOG_GUID_PARAM,
   SHOP_CATALOG_PATH_PREFIX,
   SHOP_PHOTO_UPLOAD_FIELD,
   type Result,
@@ -55,22 +57,35 @@ export function deleteShopCatalog(guid: string): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/business/shop-catalogs/${guid}`);
 }
 
-export function buildShopCatalogUrl(catalogGuid: string, token: string): string {
-  const params = new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: token });
-  return `${window.location.origin}${SHOP_CATALOG_PATH_PREFIX}/${catalogGuid}?${params}`;
+export function buildShopCatalogUrl(catalog: ShopCatalog): string | null {
+  const base = `${window.location.origin}${SHOP_CATALOG_PATH_PREFIX}/${catalog.guid}`;
+  if (catalog.isPublic) return base;
+  if (!catalog.linkToken) return null;
+  const params = new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: catalog.linkToken });
+  return `${base}?${params}`;
 }
 
-export const publicShopCatalogQueryOptions = (token: string) =>
+export const publicShopCatalogQueryOptions = (source: PublicCardsSource) =>
   queryOptions({
-    queryKey: publicCardsKeys.info(PUBLIC_CARDS_SOURCE_PATHS.catalog, token),
+    queryKey: publicCardsKeys.info(source),
     queryFn: () =>
       fetchPublicCards<ShopCatalogInfo>(
-        PUBLIC_CARDS_SOURCE_PATHS.catalog,
+        source.basePath,
         "",
-        new URLSearchParams({ token }),
+        new URLSearchParams(source.linkParams),
       ),
     retry: false,
   });
+
+export function shopCatalogSource(
+  catalogGuid: string,
+  token: string | null,
+): PublicCardsSource {
+  return {
+    basePath: PUBLIC_CARDS_SOURCE_PATHS.catalog,
+    linkParams: token ? { token } : { [SHOP_CATALOG_GUID_PARAM]: catalogGuid },
+  };
+}
 
 export const shopPhotoQueryOptions = (orgId: string | undefined) =>
   queryOptions({

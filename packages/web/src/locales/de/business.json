@@ -563,6 +563,10 @@
       "removeFailed": "Shop-Foto konnte nicht entfernt werden.",
       "wrongType": "Lade ein JPEG-, PNG- oder WebP-Foto hoch.",
       "tooLarge": "Das Foto ist zu groß. Lade eines unter 10 MB hoch."
-    }
+    },
+    "isPublic": "Öffentlich",
+    "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link. Ausschalten, um den privaten Link zu verlangen.",
+    "publicBadge": "Öffentlich",
+    "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen."
   }
 }
