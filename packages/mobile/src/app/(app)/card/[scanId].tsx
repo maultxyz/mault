@@ -402,7 +402,7 @@ export default function CardDetailScreen() {
             </AppText>
           ) : null
         }
-        onBack={editing ? () => setEditing(false) : () => router.back()}
+        onBack={editing ? () => setEditing(false) : undefined}
         actions={
           !editing && entry ? (
             <View style={{ flexDirection: "row", gap: SPACING.sm }}>
@@ -576,7 +576,10 @@ export default function CardDetailScreen() {
             {storage.data ? (
               <Pressable
                 accessibilityRole="link"
-                onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } })}
+                onPress={() => {
+                  router.back();
+                  router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
+                }}
                 style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}
               >
                 <Icon name="storage" size={14} color={colors.primaryText} />

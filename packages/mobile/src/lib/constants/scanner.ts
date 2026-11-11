@@ -83,3 +83,4 @@ export const TORCH_MIN_STRENGTH_PERCENT = 10;
 export const TORCH_STRENGTH_STEP_PERCENT = 10;
 export const LIVE_FRAME_TARGET_RESOLUTION = { width: 480, height: 640 } as const;
 export const LIVE_FRAME_TIMEOUT_MS = 1500;
+export const BATCH_SCAN_CORRECTION_SHEET_MAX_HEIGHT_RATIO = 0.9;

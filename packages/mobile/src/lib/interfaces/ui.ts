@@ -125,7 +125,6 @@ export interface PageHeaderProps {
   actions?: ReactNode;
   tabs?: ReactNode;
   children?: ReactNode;
-  rendersInsideReactNativeModal?: boolean;
 }
 
 export interface HeaderActionsStore {
@@ -140,7 +139,6 @@ export interface HeaderActionsSlotProps {
 
 export interface NativeStackHeaderProps {
   title: string;
-  onBack: () => void;
   actions: ReactNode;
 }
 

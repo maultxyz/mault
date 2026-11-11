@@ -78,7 +78,6 @@ export default function UnmatchedCardScreen() {
       <PageHeader
         title={t("unmatchedCards.identifyTitle")}
         subtitle={scan ? formatDateTime(scan.scannedAt, i18n.language) : null}
-        onBack={() => router.back()}
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"

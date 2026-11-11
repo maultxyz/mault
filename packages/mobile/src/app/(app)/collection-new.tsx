@@ -87,7 +87,7 @@ export default function NewCollectionScreen() {
   const errors = form.formState.errors;
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <PageHeader title={t("collections.new")} subtitle={t("collections.createDescription")} onBack={() => router.back()} />
+      <PageHeader title={t("collections.new")} subtitle={t("collections.createDescription")} />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
         {collectionLimitReached ? (
           <Callout tone="info" title={t("collections.limitReached", { count: collectionLimit })} />

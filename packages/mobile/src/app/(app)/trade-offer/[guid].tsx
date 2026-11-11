@@ -103,7 +103,6 @@ export default function TradeOfferScreen() {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
         title={offer ? t("tradeOffers.reviewTitle", { name: offer.guestName }) : t("tradeOffers.title")}
-        onBack={() => router.back()}
       />
       <ScrollView contentContainerStyle={{ padding: SCREEN_GUTTER, gap: SPACING.lg }}>
         {respond.isError ? <Callout tone="destructive" title={t("tradeOffers.respondFailed")} /> : null}

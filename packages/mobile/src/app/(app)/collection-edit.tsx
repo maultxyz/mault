@@ -66,7 +66,7 @@ export default function EditCollectionScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <PageHeader title={t("collections.editTitle")} subtitle={t("collections.editDescription")} onBack={() => router.back()} />
+      <PageHeader title={t("collections.editTitle")} subtitle={t("collections.editDescription")} />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
         {save.isError ? <Callout tone="destructive" title={t("collections.editFailed")} /> : null}
         <Controller

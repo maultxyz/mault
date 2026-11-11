@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, ScrollView, Share, View } from "react-native";
@@ -87,7 +87,6 @@ export default function ShareLinkScreen() {
       <PageHeader
         title={isStorage ? t("shareLink.storageTitle") : t("shareLink.collectionTitle")}
         subtitle={isStorage ? t("shareLink.storageDescription") : t("shareLink.collectionDescription")}
-        onBack={() => router.back()}
       />
       <ScrollView contentContainerStyle={{ padding: SCREEN_GUTTER, gap: SPACING.xl }}>
         {create.isError ? <Callout tone="destructive" title={t("shareLink.createFailed")} /> : null}

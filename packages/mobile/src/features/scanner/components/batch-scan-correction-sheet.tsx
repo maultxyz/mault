@@ -1,29 +1,24 @@
 import { useTranslation } from "react-i18next";
-import { Modal, Platform, ScrollView, View } from "react-native";
-import { PageHeader } from "@/components/ui/page-header";
+import { Sheet } from "@/components/ui/sheet";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
-import { useTheme } from "@/hooks/use-theme";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { BATCH_SCAN_CORRECTION_SHEET_MAX_HEIGHT_RATIO } from "@/lib/constants/scanner";
 import type { BatchScanCorrectionSheetProps } from "@/lib/interfaces/scanner";
 
 export function BatchScanCorrectionSheet({ card, collectionGuid, onSelect, onClose }: BatchScanCorrectionSheetProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const currentName = card?.correctedCard?.name ?? card?.outcome?.card?.name ?? "";
 
   return (
-    <Modal visible={!!card} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: colors.background }}>
-        <PageHeader rendersInsideReactNativeModal title={t("batchScan.pickCard")} subtitle={currentName || null} onBack={Platform.OS === "ios" ? undefined : onClose} />
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: SCREEN_GUTTER, paddingBottom: SPACING.xxl }}
-        >
-          {card ? (
-            <CardCorrectionSearch key={card.key} collectionGuid={collectionGuid} initialQuery={currentName} onSelect={onSelect} />
-          ) : null}
-        </ScrollView>
-      </View>
-    </Modal>
+    <Sheet
+      visible={!!card}
+      onClose={onClose}
+      title={t("batchScan.pickCard")}
+      description={currentName || null}
+      maxHeightRatio={BATCH_SCAN_CORRECTION_SHEET_MAX_HEIGHT_RATIO}
+    >
+      {card ? (
+        <CardCorrectionSearch key={card.key} collectionGuid={collectionGuid} initialQuery={currentName} onSelect={onSelect} />
+      ) : null}
+    </Sheet>
   );
 }
