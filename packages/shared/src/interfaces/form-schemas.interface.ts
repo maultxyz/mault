@@ -5,7 +5,7 @@ import type {
   changeEmailFormSchema,
   changePasswordFormSchema,
   createCollectionFormSchema,
-  renameCollectionFormSchema,
+  editCollectionFormSchema,
   organizationNameFormSchema,
   organizationInviteFormSchema,
   orgApiKeyFormSchema,
@@ -26,7 +26,7 @@ export type UpdateNameFormValues = z.infer<typeof updateNameFormSchema>;
 export type ChangeEmailFormValues = z.infer<typeof changeEmailFormSchema>;
 export type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>;
 export type CreateCollectionFormValues = z.infer<typeof createCollectionFormSchema>;
-export type RenameCollectionFormValues = z.infer<typeof renameCollectionFormSchema>;
+export type EditCollectionFormValues = z.infer<typeof editCollectionFormSchema>;
 export type OrganizationNameFormValues = z.infer<typeof organizationNameFormSchema>;
 export type OrganizationInviteFormValues = z.infer<typeof organizationInviteFormSchema>;
 export type OrgApiKeyFormValues = z.infer<typeof orgApiKeyFormSchema>;

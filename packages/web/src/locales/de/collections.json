@@ -70,7 +70,7 @@
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",
-    "description": "Benenne diese Sammlung um.",
+    "description": "Ändere den Namen und die Scan-Sprache dieser Sammlung.",
     "submit": "Speichern"
   },
   "deleteDialog": {

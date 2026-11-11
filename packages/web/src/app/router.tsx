@@ -432,95 +432,95 @@ export const routes: RouteObject[] = [
                     path: LEGACY_REPORTS_PATH,
                     element: <Navigate to={STATS_PATH} replace />,
                   },
+                ],
+              },
+              {
+                element: <StaffGuard />,
+                children: [
                   {
-                    element: <StaffGuard />,
+                    path: "/app/admin",
+                    element: <AdminLayout />,
                     children: [
                       {
-                        path: "/app/admin",
-                        element: <AdminLayout />,
+                        index: true,
+                        element: <AdminIndexPage />,
+                      },
+                      {
+                        path: "cards",
+                        element: <AdminCardsPage />,
+                      },
+                      {
+                        path: "cards/games/new",
+                        element: <AdminGameEditorPage />,
+                      },
+                      {
+                        path: "cards/games/:guid",
+                        element: <AdminGameEditorPage />,
+                      },
+                      {
+                        path: "games",
+                        element: <Navigate to="../cards" replace />,
+                      },
+                      {
+                        path: "users",
+                        element: <AdminUsersPage />,
+                      },
+                      {
+                        element: <AdminGuard />,
                         children: [
                           {
-                            index: true,
-                            element: <AdminIndexPage />,
+                            path: "plans",
+                            element: <AdminPlansPage />,
                           },
+                        ],
+                      },
+                      {
+                        path: "discord",
+                        element: <AdminDiscordPage />,
+                      },
+                      {
+                        path: "sounds",
+                        element: <AdminSoundsPage />,
+                      },
+                      {
+                        path: "discord-channels",
+                        element: <Navigate to="../discord" replace />,
+                      },
+                      {
+                        path: "announcements",
+                        element: <Navigate to="../discord" replace />,
+                      },
+                      {
+                        path: "deleted",
+                        element: <AdminDeletedPage />,
+                      },
+                      {
+                        path: "unmatched",
+                        element: <Navigate to="../deleted" replace />,
+                      },
+                      {
+                        element: <AdminGuard />,
+                        children: [
                           {
-                            path: "cards",
-                            element: <AdminCardsPage />,
+                            path: "hardware",
+                            element: <AdminHardwarePage />,
                           },
+                        ],
+                      },
+                      {
+                        path: "servos",
+                        element: <Navigate to="../hardware" replace />,
+                      },
+                      {
+                        path: "device",
+                        element: <Navigate to="../hardware" replace />,
+                      },
+                      {
+                        element: <AdminGuard />,
+                        children: [
                           {
-                            path: "cards/games/new",
-                            element: <AdminGameEditorPage />,
-                          },
-                          {
-                            path: "cards/games/:guid",
-                            element: <AdminGameEditorPage />,
-                          },
-                          {
-                            path: "games",
-                            element: <Navigate to="../cards" replace />,
-                          },
-                          {
-                            path: "users",
-                            element: <AdminUsersPage />,
-                          },
-                          {
-                            element: <AdminGuard />,
-                            children: [
-                              {
-                                path: "plans",
-                                element: <AdminPlansPage />,
-                              },
-                            ],
-                          },
-                          {
-                            path: "discord",
-                            element: <AdminDiscordPage />,
-                          },
-                          {
-                            path: "sounds",
-                            element: <AdminSoundsPage />,
-                          },
-                          {
-                            path: "discord-channels",
-                            element: <Navigate to="../discord" replace />,
-                          },
-                          {
-                            path: "announcements",
-                            element: <Navigate to="../discord" replace />,
-                          },
-                          {
-                            path: "deleted",
-                            element: <AdminDeletedPage />,
-                          },
-                          {
-                            path: "unmatched",
-                            element: <Navigate to="../deleted" replace />,
-                          },
-                          {
-                            element: <AdminGuard />,
-                            children: [
-                              {
-                                path: "hardware",
-                                element: <AdminHardwarePage />,
-                              },
-                            ],
-                          },
-                          {
-                            path: "servos",
-                            element: <Navigate to="../hardware" replace />,
-                          },
-                          {
-                            path: "device",
-                            element: <Navigate to="../hardware" replace />,
-                          },
-                          {
-                            element: <AdminGuard />,
-                            children: [
-                              {
-                                path: "developer",
-                                element: <AdminDeveloperPage />,
-                              },
-                            ],
+                            path: "developer",
+                            element: <AdminDeveloperPage />,
                           },
                         ],
                       },

@@ -133,8 +133,8 @@ export default function CollectionScreen() {
   const runAction = (action: string) => {
     setActionsOpen(false);
     const name = collection?.name ?? "";
-    if (action === "rename") {
-      router.push({ pathname: "/collection-rename", params: { guid } });
+    if (action === "edit") {
+      router.push({ pathname: "/collection-edit", params: { guid } });
     } else if (action === "empty") {
       Alert.alert(t("collections.empty"), t("collections.emptyDescription", { name }), [
         { text: t("collections.cancel"), style: "cancel" },
@@ -346,7 +346,7 @@ export default function CollectionScreen() {
         options={[
           { value: "share", label: t("collections.shareLink") },
           { value: "holds", label: t("cardHolds.title") },
-          { value: "rename", label: t("collections.rename") },
+          { value: "edit", label: t("collections.edit") },
           { value: "empty", label: t("collections.empty") },
           { value: "delete", label: t("collections.delete") },
         ]}

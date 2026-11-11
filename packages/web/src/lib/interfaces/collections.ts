@@ -1,5 +1,6 @@
 import type {
   CreateCollectionFormValues,
+  EditCollectionFormValues,
   MonitorLinkInfo,
   Collection,
   DeployNotice,
@@ -34,7 +35,10 @@ export interface CollectionsContextValue {
   isActivating: boolean;
   isMutating: boolean;
   createCollection: (values: CreateCollectionFormValues) => Promise<boolean>;
-  updateCollection: (guid: string, name: string) => Promise<void>;
+  updateCollection: (
+    guid: string,
+    values: EditCollectionFormValues,
+  ) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
   deleteCollection: (guid: string) => Promise<void>;
   emptyCollection: (guid: string) => Promise<void>;
@@ -44,6 +48,11 @@ export interface CreateCollectionDialogProps {
   trigger?: (ctx: { disabled: boolean; noGames: boolean }) => ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+}
+
+export interface EditCollectionDialogProps {
+  collection: Collection | null;
+  onClose: () => void;
 }
 
 export interface ActiveCollectionSessionActions {
