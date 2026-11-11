@@ -42,6 +42,7 @@ import {
   type ScannedCard,
   type ScannerControlCommand,
   type ScanRoutingContext,
+  readsPrintedLanguageEveryScan,
   scanOcrMode,
 } from "@magic-vault/shared";
 import {
@@ -791,7 +792,11 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
           },
           matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
-          ocrMode: scanOcrMode(ctx.orgSettings, (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0),
+          ocrMode: scanOcrMode(
+            ctx.orgSettings,
+            (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+            readsPrintedLanguageEveryScan(ctx.collection, gameKey),
+          ),
           gameKey: gameKey || null,
         },
         device?.scanRegion ?? DEFAULT_SCAN_REGION,

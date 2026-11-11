@@ -15,6 +15,47 @@ const POKEMON_CARD_TYPE_HEADER_TEXTS = [
   "Special Energy",
 ];
 
+export const PRINTED_LANGUAGE_CODES_BY_GAME_KEY: Record<
+  string,
+  Record<string, string>
+> = {
+  mtg: {
+    EN: "en",
+    SP: "es",
+    FR: "fr",
+    DE: "de",
+    IT: "it",
+    PT: "pt",
+    JP: "ja",
+    KR: "ko",
+    RU: "ru",
+    CS: "zhs",
+    CT: "zht",
+    PH: "ph",
+  },
+  pokemon: {
+    EN: "en",
+    FR: "fr",
+    DE: "de",
+    IT: "it",
+    ES: "es",
+    PT: "pt",
+    NL: "nl",
+  },
+  lorcana: {
+    EN: "en",
+    DE: "de",
+    FR: "fr",
+    IT: "it",
+    JA: "ja",
+  },
+};
+
+function printedLanguageLinePattern(gameKey: string): string {
+  const codes = Object.keys(PRINTED_LANGUAGE_CODES_BY_GAME_KEY[gameKey] ?? {});
+  return String.raw`\b(?:${codes.join("|")})\b`;
+}
+
 const POKEMON_COLLECTOR_NUMBER_LINE_PATTERN = String.raw`\d\s*/\s*\d|[A-Z]{2,}\s*\d{2,}`;
 
 export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
@@ -40,6 +81,14 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.934,
       width: 0.112,
       height: 0.018,
+    },
+    {
+      field: "language",
+      x: 0.063,
+      y: 0.952,
+      width: 0.2,
+      height: 0.018,
+      anchorLinePattern: printedLanguageLinePattern("mtg"),
     },
   ],
   pokemon: [
@@ -76,6 +125,14 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.033,
       fallback: true,
       anchorLinePattern: POKEMON_COLLECTOR_NUMBER_LINE_PATTERN,
+    },
+    {
+      field: "language",
+      x: 0.049,
+      y: 0.947,
+      width: 0.25,
+      height: 0.02,
+      anchorLinePattern: printedLanguageLinePattern("pokemon"),
     },
   ],
   pokemonjp: [
@@ -143,6 +200,14 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.964,
       width: 0.095,
       height: 0.018,
+    },
+    {
+      field: "language",
+      x: 0.034,
+      y: 0.964,
+      width: 0.25,
+      height: 0.018,
+      anchorLinePattern: printedLanguageLinePattern("lorcana"),
     },
   ],
   onepiece: [

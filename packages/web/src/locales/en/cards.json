@@ -94,7 +94,8 @@
     "ocrFields": {
       "name": "Name",
       "setLine": "Set line",
-      "number": "Number"
+      "number": "Number",
+      "language": "Language"
     },
     "copyOf": "Copy {{index}} of {{count}}",
     "moreOptions": "More",

@@ -118,6 +118,7 @@ import {
   consensusMissReason,
   hasCardMatch,
   needsTextSearch,
+  readsPrintedLanguageEveryScan,
   prefersTextMatch,
   routeForBin,
 } from "@magic-vault/shared";
@@ -637,7 +638,9 @@ async function matchFrame(
     context.ocrEnabled &&
     corners.contour &&
     regions.length > 0 &&
-    (context.highAccuracyScans || needsTextSearch(best.result))
+    (context.highAccuracyScans ||
+      readsPrintedLanguageEveryScan(ocrScope, ocrScope.gameKey) ||
+      needsTextSearch(best.result))
   ) {
     const ocrCrop = dewarpRgba(
       source,

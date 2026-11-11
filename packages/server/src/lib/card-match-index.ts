@@ -292,6 +292,13 @@ async function langsOfGame(gameKey: string): Promise<string[]> {
   });
 }
 
+export async function gameHasCardsInLanguage(
+  gameKey: string,
+  lang: string,
+): Promise<boolean> {
+  return (await langsOfGame(gameKey)).includes(lang);
+}
+
 async function segmentsForScope(
   { gameKey, lang, matchAllLanguages }: CollectionMatchScope,
   isWarmup: boolean,

@@ -1977,7 +1977,8 @@
     "ocrFields": {
       "name": "Name",
       "setLine": "Set-Zeile",
-      "number": "Nummer"
+      "number": "Nummer",
+      "language": "Sprache"
     }
   },
   "export": {
