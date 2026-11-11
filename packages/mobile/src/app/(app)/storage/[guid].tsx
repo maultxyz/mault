@@ -79,7 +79,7 @@ export default function StorageLocationScreen() {
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
   const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<CardViewMode>(() =>
-    readKv(STORAGE_CARD_VIEW_MODE_KEY) === "grid" ? "grid" : "list",
+    readKv(STORAGE_CARD_VIEW_MODE_KEY) === "list" ? "list" : "grid",
   );
   const [listWidth, setListWidth] = useState(0);
   const isGrid = viewMode === "grid";
