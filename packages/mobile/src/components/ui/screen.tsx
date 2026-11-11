@@ -21,6 +21,7 @@ export function Screen({
       {header}
       {scroll ? (
         <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             paddingHorizontal: padding,

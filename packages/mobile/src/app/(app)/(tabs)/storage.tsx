@@ -70,6 +70,7 @@ export default function StorageScreen() {
       }
     >
       <FlatList
+        contentInsetAdjustmentBehavior="automatic"
         style={{ marginHorizontal: -SCREEN_GUTTER }}
         data={query ? [] : list}
         keyExtractor={(location) => location.guid}
