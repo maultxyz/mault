@@ -41,6 +41,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { CAMERA_ASPECT_RATIO, CAPTURE_TARGET_RESOLUTION, CARD_SCAN_NOTICE_TONES } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { CardScanNotice } from "@/lib/interfaces/storage";
+import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 
 export default function StorageCardScanScreen() {
   useKeepAwake();
@@ -48,6 +49,7 @@ export default function StorageCardScanScreen() {
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
+  const cameraMounted = useCameraMountReady(focused);
   const appState = useAppState();
   const permission = useCameraPermission();
   const camera = useCameraChoice();
@@ -85,7 +87,7 @@ export default function StorageCardScanScreen() {
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [notice, setNotice] = useState<CardScanNotice | null>(null);
   const noticeId = useRef(0);
-  const active = focused && appState === "active" && permission.hasPermission && !!device;
+  const active = cameraMounted && appState === "active" && permission.hasPermission && !!device;
   const scanCollectionGuid = scanCheckCollectionGuid(source.cards, source.checkedScanIds);
   const remaining = source.cards.length - source.checkedCount;
 
@@ -193,7 +195,7 @@ export default function StorageCardScanScreen() {
         </View>
       ) : device ? (
         <>
-          {focused ? (
+          {cameraMounted ? (
             <Camera
               ref={cameraRef}
               style={StyleSheet.absoluteFill}

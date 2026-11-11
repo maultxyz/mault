@@ -65,11 +65,13 @@ import {
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { SHUTTER_SIZE } from "@/lib/constants/ui";
+import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 
 export default function ScanScreen() {
   const { t } = useTranslation();
   const colors = useTheme();
   const focused = useIsFocused();
+  const cameraMounted = useCameraMountReady(focused);
   const appState = useAppState();
   const sorter = useSorter();
   const orgId = useActiveOrgId();
@@ -144,7 +146,7 @@ export default function ScanScreen() {
   const { liveFrameOutput, grabLiveFrame } = useLiveFrameSource(cameraRef);
   const liveCorners = useLiveCorners(
     grabLiveFrame,
-    focused && appState === "active" && !!device && permission.hasPermission && !session.modelError,
+    cameraMounted && appState === "active" && !!device && permission.hasPermission && !session.modelError,
     LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
     session.trackLiveCorners,
   );
@@ -264,12 +266,12 @@ export default function ScanScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {device ? (
-        focused ? (
+        cameraMounted ? (
           <Camera
             ref={cameraRef}
             style={StyleSheet.absoluteFill}
             device={device}
-            isActive={focused && appState === "active"}
+            isActive={cameraMounted && appState === "active"}
             outputs={liveFrameOutput ? [photoOutput, liveFrameOutput] : [photoOutput]}
             resizeMode="cover"
             enableNativeTapToFocusGesture

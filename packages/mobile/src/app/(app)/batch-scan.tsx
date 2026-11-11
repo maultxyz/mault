@@ -32,6 +32,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { BATCH_CAPTURE_TARGET_RESOLUTION, BATCH_WORKING_LONG_SIDE } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { BatchScanMode } from "@/lib/interfaces/scanner";
+import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 
 export default function BatchScanScreen() {
   useKeepAwake();
@@ -39,6 +40,7 @@ export default function BatchScanScreen() {
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
+  const cameraMounted = useCameraMountReady(focused);
   const appState = useAppState();
   const permission = useCameraPermission();
   const camera = useCameraChoice();
@@ -56,7 +58,7 @@ export default function BatchScanScreen() {
   const isRemoveMode = batch.mode === "remove";
   const correcting = batch.cards.find((card) => card.key === correctingKey) ?? null;
   const isReviewing = !!batch.photo;
-  const active = focused && appState === "active" && permission.hasPermission && !!device && !isReviewing;
+  const active = cameraMounted && appState === "active" && permission.hasPermission && !!device && !isReviewing;
   const isProcessing = !!batch.progress;
   const includedCount = batch.cards.filter(
     (card) => card.included && (card.status === "done" || !!card.correctedCard),
@@ -244,7 +246,7 @@ export default function BatchScanScreen() {
           />
         </View>
       ) : device ? (
-        focused ? (
+        cameraMounted ? (
           <Camera
             ref={cameraRef}
             style={StyleSheet.absoluteFill}
