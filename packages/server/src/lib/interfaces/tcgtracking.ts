@@ -106,7 +106,9 @@ export interface TcgtrackingGameConfig {
 
 export interface TcgtrackingPrimaryCard {
   id: string;
-  card: PlayingCard;
+  card: Pick<PlayingCard, "set" | "setName">;
+  productId: number | null;
+  isBasePrinting: boolean;
   numberKey: string | null;
   nameKey: string;
   baseNameKey: string;
