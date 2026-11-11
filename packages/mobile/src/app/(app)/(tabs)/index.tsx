@@ -11,7 +11,9 @@ import { ListGroup } from "@/components/ui/list-group";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
+import { OptionSheet } from "@/components/ui/option-sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCollectionActions } from "@/features/collections/api/use-collection-actions";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { orgOverviewQueryOptions } from "@/features/home/api/overview";
 import { HomeCollectionRow } from "@/features/home/components/home-collection-row";
@@ -21,6 +23,7 @@ import { usePricing } from "@/hooks/use-pricing";
 import { useSession } from "@/lib/auth/session";
 import { COLLECTION_SEARCH_MIN_COUNT } from "@/lib/constants/collections";
 import { SPACING } from "@/lib/constants/theme";
+import type { CollectionActionTarget } from "@/lib/interfaces/collections";
 
 export default function CollectionsScreen() {
   const { t } = useTranslation();
@@ -33,6 +36,8 @@ export default function CollectionsScreen() {
   const isScreenFocused = useIsFocused();
   const overview = useQuery(orgOverviewQueryOptions(orgId, isScreenFocused));
   const scanTargetGuid = scanTarget?.guid;
+  const collectionActions = useCollectionActions({ includesScanInto: true });
+  const [actionsCollection, setActionsCollection] = useState<CollectionActionTarget | null>(null);
 
   const sorted = useMemo(
     () =>
@@ -85,6 +90,12 @@ export default function CollectionsScreen() {
       }
     >
       {collectionsQuery.isError ? <Callout tone="destructive" title={t("collections.loadFailed")} /> : null}
+      {collectionActions.empty.isError || collectionActions.remove.isError ? (
+        <Callout
+          tone="destructive"
+          title={collectionActions.empty.isError ? t("collections.emptyFailed") : t("collections.deleteFailed")}
+        />
+      ) : null}
 
       {collectionsQuery.isPending ? (
         <View style={{ gap: SPACING.sm }}>
@@ -125,11 +136,25 @@ export default function CollectionsScreen() {
                   .filter(Boolean)
                   .join(" · ")}
                 onPress={() => router.push({ pathname: "/collection/[guid]", params: { guid: collection.guid } })}
+                onLongPress={() => setActionsCollection({ guid: collection.guid, name: collection.name })}
+                longPressLabel={t("collections.actions")}
               />
             );
           })}
         </ListGroup>
       )}
+      <OptionSheet
+        visible={actionsCollection !== null}
+        title={actionsCollection?.name ?? t("collections.actions")}
+        options={collectionActions.options}
+        selected={[]}
+        onSelect={(action) => {
+          const collection = actionsCollection;
+          setActionsCollection(null);
+          if (collection) collectionActions.runAction(collection, action);
+        }}
+        onClose={() => setActionsCollection(null)}
+      />
     </Screen>
   );
 }

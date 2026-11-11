@@ -26,7 +26,7 @@ import { usePanelWidth } from "@/hooks/use-panel-width";
 import { useTheme } from "@/hooks/use-theme";
 import { formatDateTime } from "@/lib/dates";
 import { QR_CODE_MAX_SIZE } from "@/lib/constants/share-links";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { CreatedShareLink, ShareLinkKind } from "@/lib/interfaces/share-links";
 import {
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
@@ -139,38 +139,53 @@ export default function ShareLinkScreen() {
           onValueChange={setShowsPrices}
         />
         {link ? (
-          <View style={{ alignItems: "center", gap: SPACING.md }}>
-            <QrCode
-              value={link.url}
-              size={Math.min(panelWidth - SCREEN_GUTTER * 2, QR_CODE_MAX_SIZE)}
-              accessibilityLabel={t("shareLink.qrLabel")}
-            />
-            <AppText size="xs" tone="secondary">
-              {t("shareLink.qrHint")}
-            </AppText>
-            <AppText selectable size="sm" style={{ textAlign: "center" }}>
-              {link.url}
-            </AppText>
-            <AppText size="xs" tone="secondary">
-              {t("shareLink.expiresAt", { date: formatDateTime(link.expiresAt, i18n.language) })}
-            </AppText>
-            <Button
-              size="lg"
-              icon="share"
-              label={t("shareLink.share")}
-              style={{ alignSelf: "stretch" }}
-              onPress={() => void Share.share({ message: link.url, url: link.url })}
-            />
+          <View style={{ gap: SPACING.md }}>
+            <View style={{ alignItems: "center", gap: SPACING.xs }}>
+              <QrCode
+                value={link.url}
+                size={Math.min(panelWidth - SCREEN_GUTTER * 2, QR_CODE_MAX_SIZE)}
+                accessibilityLabel={t("shareLink.qrLabel")}
+              />
+              <AppText size="xs" tone="secondary">
+                {t("shareLink.qrHint")}
+              </AppText>
+            </View>
+            <View
+              style={{
+                borderRadius: CONTROL_RADIUS,
+                borderWidth: 1,
+                borderColor: colors.input,
+                backgroundColor: colors.inputBackground,
+                paddingHorizontal: SPACING.md,
+                paddingVertical: SPACING.sm,
+                gap: 2,
+              }}
+            >
+              <AppText selectable size="sm" numberOfLines={1} ellipsizeMode="middle">
+                {link.url}
+              </AppText>
+              <AppText size="xs" tone="secondary">
+                {t("shareLink.expiresAt", { date: formatDateTime(link.expiresAt, i18n.language) })}
+              </AppText>
+            </View>
           </View>
         ) : null}
-        <Button
-          size="lg"
-          variant={link ? "secondary" : "primary"}
-          label={link ? t("shareLink.createAnother") : t("shareLink.create")}
-          loading={create.isPending}
-          onPress={() => create.mutate()}
-        />
-        <Button variant="destructive" label={t("shareLink.revokeAll")} loading={revoke.isPending} onPress={confirmRevoke} />
+        <View style={{ gap: SPACING.sm }}>
+          {link ? (
+            <Button
+              icon="share"
+              label={t("shareLink.share")}
+              onPress={() => void Share.share({ message: link.url, url: link.url })}
+            />
+          ) : null}
+          <Button
+            variant={link ? "secondary" : "primary"}
+            label={link ? t("shareLink.createAnother") : t("shareLink.create")}
+            loading={create.isPending}
+            onPress={() => create.mutate()}
+          />
+          <Button variant="destructive" label={t("shareLink.revokeAll")} loading={revoke.isPending} onPress={confirmRevoke} />
+        </View>
       </ScrollView>
     </View>
   );

@@ -101,6 +101,8 @@ export interface ListRowProps {
   right?: ReactNode;
   rightIsInteractive?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
+  longPressLabel?: string;
   disabled?: boolean;
   selected?: boolean;
   subtitleNumberOfLines?: number;
@@ -234,6 +236,8 @@ export interface HomeCollectionRowProps {
   isScanTarget: boolean;
   isLive?: boolean;
   onPress: () => void;
+  onLongPress?: () => void;
+  longPressLabel?: string;
 }
 
 export interface CardDetailsListProps {

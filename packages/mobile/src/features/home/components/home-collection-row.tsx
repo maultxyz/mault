@@ -1,18 +1,21 @@
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { IconBadge } from "@/components/ui/icon-badge";
+import { longPressProps } from "@/lib/long-press";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { HomeCollectionRowProps } from "@/lib/interfaces/ui";
 
-export function HomeCollectionRow({ name, subtitle, value, isScanTarget, isLive = false, onPress }: HomeCollectionRowProps) {
+export function HomeCollectionRow({ name, subtitle, value, isScanTarget, isLive = false, onPress, onLongPress, longPressLabel }: HomeCollectionRowProps) {
   const colors = useTheme();
+  const longPressHandlers = longPressProps(onLongPress, longPressLabel);
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={name}
       onPress={onPress}
+      {...longPressHandlers}
       style={({ pressed }) => ({
         flexDirection: "row",
         alignItems: "center",

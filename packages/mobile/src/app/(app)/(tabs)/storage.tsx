@@ -11,16 +11,19 @@ import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
+import { OptionSheet } from "@/components/ui/option-sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { storageLocationsPageQueryOptions, storageSearchQueryOptions } from "@/features/storage/api/storage";
+import { useStorageLocationActions } from "@/features/storage/api/use-storage-location-actions";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { LIST_END_THRESHOLD, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import type { StorageLocationActionTarget } from "@/lib/interfaces/storage";
 import { absoluteUrl } from "@/lib/url";
 
 export default function StorageScreen() {
@@ -34,6 +37,8 @@ export default function StorageScreen() {
   const results = useQuery(storageSearchQueryOptions(query));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const locked = billing?.storage === false;
+  const locationActions = useStorageLocationActions();
+  const [actionsLocation, setActionsLocation] = useState<StorageLocationActionTarget | null>(null);
   const list = useMemo(() => locations.data?.pages.flatMap((page) => page.items) ?? [], [locations.data]);
 
   return (
@@ -91,7 +96,7 @@ export default function StorageScreen() {
           />
         }
         ListHeaderComponent={
-          locked || locations.isError || query ? (
+          locked || locations.isError || locationActions.remove.isError || query ? (
             <View style={{ gap: SPACING.lg, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.lg }}>
               {locked ? (
                 <Callout
@@ -100,7 +105,9 @@ export default function StorageScreen() {
                   description={list.length > 0 ? t("storage.lockedWithLocations") : t("storage.locked")}
                 />
               ) : null}
-              {locations.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
+              {locations.isError || locationActions.remove.isError ? (
+                <Callout tone="destructive" title={t("storage.actionFailed")} />
+              ) : null}
               {query ? (
                 results.data && results.data.length === 0 ? (
                   <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
@@ -142,8 +149,22 @@ export default function StorageScreen() {
             title={location.name}
             subtitle={t("storage.summary", { count: location.cardCount, value: pricing.format(location.totalValue) })}
             onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: location.guid } })}
+            onLongPress={locked ? undefined : () => setActionsLocation({ guid: location.guid, name: location.name })}
+            longPressLabel={t("storage.actions")}
           />
         )}
+      />
+      <OptionSheet
+        visible={actionsLocation !== null}
+        title={actionsLocation?.name ?? t("storage.actions")}
+        options={locationActions.options}
+        selected={[]}
+        onSelect={(action) => {
+          const location = actionsLocation;
+          setActionsLocation(null);
+          if (location) locationActions.runAction(location, action);
+        }}
+        onClose={() => setActionsLocation(null)}
       />
     </Screen>
   );
