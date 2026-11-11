@@ -114,6 +114,7 @@ export interface ScreenProps {
   onRefresh?: () => void;
   edges?: ("top" | "bottom")[];
   header?: ReactNode;
+  contentStartsWithList?: boolean;
 }
 
 export interface PageHeaderProps {

@@ -39,6 +39,7 @@ export default function StorageScreen() {
   return (
     <Screen
       scroll={false}
+      contentStartsWithList
       header={
         <PageHeader
           title={t("storage.title")}
@@ -90,42 +91,44 @@ export default function StorageScreen() {
           />
         }
         ListHeaderComponent={
-          <View style={{ gap: SPACING.lg, paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.lg }}>
-            {locked ? (
-              <Callout
-                tone="info"
-                title={t("storage.businessOnly")}
-                description={list.length > 0 ? t("storage.lockedWithLocations") : t("storage.locked")}
-              />
-            ) : null}
-            {locations.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
-            {query ? (
-              results.data && results.data.length === 0 ? (
-                <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
-              ) : (
-                <View style={{ marginHorizontal: -SPACING.sm }}>
-                  {(results.data ?? []).map((entry) => (
-                    <CardRow
-                      key={entry.scanId}
-                      name={entry.card.name}
-                      subtitle={`${entry.locationName} · ${t("storage.position", { position: entry.position })}`}
-                      imageUrl={absoluteUrl(entry.card.image?.small)}
-                      onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: entry.locationGuid } })}
-                    />
-                  ))}
-                </View>
-              )
-            ) : null}
-          </View>
+          locked || locations.isError || query ? (
+            <View style={{ gap: SPACING.lg, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.lg }}>
+              {locked ? (
+                <Callout
+                  tone="info"
+                  title={t("storage.businessOnly")}
+                  description={list.length > 0 ? t("storage.lockedWithLocations") : t("storage.locked")}
+                />
+              ) : null}
+              {locations.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
+              {query ? (
+                results.data && results.data.length === 0 ? (
+                  <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
+                ) : (
+                  <View style={{ marginHorizontal: -SPACING.sm }}>
+                    {(results.data ?? []).map((entry) => (
+                      <CardRow
+                        key={entry.scanId}
+                        name={entry.card.name}
+                        subtitle={`${entry.locationName} · ${t("storage.position", { position: entry.position })}`}
+                        imageUrl={absoluteUrl(entry.card.image?.small)}
+                        onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: entry.locationGuid } })}
+                      />
+                    ))}
+                  </View>
+                )
+              ) : null}
+            </View>
+          ) : undefined
         }
         ListEmptyComponent={
-          query ? null : locations.isPending ? (
-            <View style={{ gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER }}>
+          query ? undefined : locations.isPending ? (
+            <View style={{ gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER }}>
               <Skeleton height={52} />
               <Skeleton height={52} />
             </View>
           ) : (
-            <View style={{ paddingHorizontal: SCREEN_GUTTER }}>
+            <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER }}>
               <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
             </View>
           )
