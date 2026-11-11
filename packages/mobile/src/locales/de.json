@@ -783,6 +783,8 @@
     "loadingMoreCards": "Weitere Karten werden geladen"
   },
   "cardDetail": {
+    "noCollectionsToMoveTo": "Es gibt keine andere Sammlung für dieses Spiel, in die die Karte verschoben werden kann.",
+    "noLocationsToMoveTo": "Es gibt keinen anderen Lagerort, an den die Karte verschoben werden kann.",
     "pricePaid": "Kaufpreis ({{currency}})",
     "pricePaidEmpty": "Nicht festgelegt",
     "fallbackTitle": "Kartendetails",

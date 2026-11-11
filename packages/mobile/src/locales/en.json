@@ -783,6 +783,8 @@
     "loadingMoreCards": "Loading more cards"
   },
   "cardDetail": {
+    "noCollectionsToMoveTo": "There's no other collection for this game to move the card to.",
+    "noLocationsToMoveTo": "There's no other storage location to move the card to.",
     "pricePaid": "Price paid ({{currency}})",
     "pricePaidEmpty": "Not set",
     "fallbackTitle": "Card details",

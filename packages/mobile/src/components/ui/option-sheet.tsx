@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
+import { AppText } from "@/components/ui/app-text";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { Pill } from "@/components/ui/pill";
@@ -17,6 +18,7 @@ export function OptionSheet({
   onClose,
   searchPlaceholder,
   maxVisibleOptions,
+  emptyMessage,
 }: OptionSheetProps) {
   const [query, setQuery] = useState("");
   const visibleOptions = useMemo(() => {
@@ -38,7 +40,7 @@ export function OptionSheet({
   };
   return (
     <Sheet visible={visible} onClose={close} title={title} scrollable={false}>
-      {searchPlaceholder ? (
+      {searchPlaceholder && options.length > 0 ? (
         <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.sm }}>
           <SearchInput
             value={query}
@@ -53,6 +55,11 @@ export function OptionSheet({
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER }}
       >
+        {options.length === 0 && emptyMessage ? (
+          <AppText tone="secondary" style={{ paddingBottom: SPACING.md }}>
+            {emptyMessage}
+          </AppText>
+        ) : null}
         <ListGroup>
           {visibleOptions.map((option) => (
             <ListRow

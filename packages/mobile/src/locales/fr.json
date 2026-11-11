@@ -783,6 +783,8 @@
     "loadingMoreCards": "Chargement de cartes supplémentaires"
   },
   "cardDetail": {
+    "noCollectionsToMoveTo": "Aucune autre collection de ce jeu vers laquelle déplacer la carte.",
+    "noLocationsToMoveTo": "Aucun autre emplacement de rangement vers lequel déplacer la carte.",
     "pricePaid": "Prix payé ({{currency}})",
     "pricePaidEmpty": "Non défini",
     "fallbackTitle": "Détails de la carte",

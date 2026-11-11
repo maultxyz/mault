@@ -288,6 +288,7 @@ export interface OptionSheetProps {
   onClose: () => void;
   searchPlaceholder?: string;
   maxVisibleOptions?: number;
+  emptyMessage?: string;
 }
 
 export interface SelectFieldProps {

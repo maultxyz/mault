@@ -254,20 +254,12 @@ export default function CardDetailScreen() {
     onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
   });
 
-  const canShowMoveToLocation = canMoveToLocation && moveTargets.length > 0;
-  const actionMenuOptions = entry
-    ? [
-        ...(canShowMoveToLocation
-          ? [
-              {
-                value: "location",
-                label: storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation"),
-              },
-            ]
-          : []),
-        ...(targetCollections.length > 0 ? [{ value: "collection", label: t("storage.moveToCollection") }] : []),
-      ]
-    : [];
+  const actionMenuOptions = [
+    { value: "collection", label: t("storage.moveToCollection") },
+    ...(canMoveToLocation
+      ? [{ value: "location", label: storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation") }]
+      : []),
+  ];
 
   usePreventRemove(isDirty && !saveDraft.isPending, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("cardDetail.discardDescription"), [
@@ -413,9 +405,7 @@ export default function CardDetailScreen() {
                 <IconButton icon="edit" accessibilityLabel={t("cardDetail.correctCard")} onPress={() => setEditing(true)} />
               )}
               <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
-              {actionMenuOptions.length > 0 ? (
-                <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
-              ) : null}
+              <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
             </View>
           ) : null
         }
@@ -784,6 +774,7 @@ export default function CardDetailScreen() {
       <OptionSheet
         visible={sheet === "collection"}
         title={t("storage.moveToCollection")}
+        emptyMessage={t("cardDetail.noCollectionsToMoveTo")}
         options={targetCollections.map((target) => ({ value: target.guid, label: target.name }))}
         selected={[]}
         searchPlaceholder={t("storage.searchCollections")}
@@ -796,6 +787,7 @@ export default function CardDetailScreen() {
       <OptionSheet
         visible={sheet === "location"}
         title={t("storage.moveToLocation")}
+        emptyMessage={t("cardDetail.noLocationsToMoveTo")}
         options={moveTargets.map((location) => ({ value: location.guid, label: location.name }))}
         selected={[]}
         searchPlaceholder={t("storage.searchLocations")}
