@@ -154,7 +154,7 @@ export default function BatchScanScreen() {
           ) : (
             <View>
               {batch.cards.map((card, index) => (
-                <View key={card.key} style={index > 0 ? { borderTopWidth: 1, borderTopColor: colors.border } : undefined}>
+                <View key={card.key}>
                   <BatchScanRow
                     index={index}
                     card={card}

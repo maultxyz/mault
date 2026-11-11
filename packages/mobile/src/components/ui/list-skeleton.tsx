@@ -1,18 +1,15 @@
 import { Fragment } from "react";
 import { View } from "react-native";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { LIST_ROW_ICON_SIZE, LIST_ROW_MIN_HEIGHT, LIST_SKELETON_TITLE_WIDTHS } from "@/lib/constants/ui";
 import type { ListSkeletonProps } from "@/lib/interfaces/ui";
 
 export function ListSkeleton({ rows = 3, withIcon = true }: ListSkeletonProps) {
-  const colors = useTheme();
   return (
     <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
       {Array.from({ length: rows }).map((_, index) => (
         <Fragment key={index}>
-          {index > 0 ? <View style={{ height: 1, backgroundColor: colors.border }} /> : null}
           <View
             style={{
               flexDirection: "row",

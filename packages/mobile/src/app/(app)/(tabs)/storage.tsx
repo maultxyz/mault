@@ -136,7 +136,6 @@ export default function StorageScreen() {
         ListFooterComponent={
           locations.isFetchingNextPage ? <ListLoadingFooter /> : undefined
         }
-        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.border }} />}
         renderItem={({ item: location }) => (
           <ListRow
             icon="storage"

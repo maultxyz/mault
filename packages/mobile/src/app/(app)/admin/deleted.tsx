@@ -82,7 +82,6 @@ function DeletedItemsScreen() {
         keyExtractor={(item) => `${item.type}-${item.guid}`}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingBottom: SPACING.xxl }}
-        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.border }} />}
         onEndReachedThreshold={LIST_END_THRESHOLD}
         onEndReached={() => {
           if (deletedItems.hasNextPage && !deletedItems.isFetchingNextPage) void deletedItems.fetchNextPage();
