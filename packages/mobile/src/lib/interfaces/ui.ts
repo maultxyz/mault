@@ -309,6 +309,10 @@ export interface SwitchRowProps {
   disabled?: boolean;
 }
 
+export interface SwitchControlProps {
+  value: boolean;
+}
+
 export interface SaveBarProps {
   visible: boolean;
   saving: boolean;
