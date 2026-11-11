@@ -180,13 +180,14 @@ export function startSync(
     }
   });
 
-  child.on("close", (code) => {
+  child.on("close", (code, signal) => {
     currentWorker = null;
     publicGamesCache.invalidate();
     invalidateCardMatchIndex(gameKey);
     rejectPendingWork("Sync worker stopped.");
     if (reachedTerminalStatus) return;
-    const msg = `Sync worker exited unexpectedly (code ${code ?? "unknown"}).`;
+    const reason = signal ? `signal ${signal}` : `code ${code ?? "unknown"}`;
+    const msg = `Sync worker exited unexpectedly (${reason}).`;
     patchState({ status: "failed" });
     addLog(`Fatal error: ${msg}`);
     emitEvent("error", { message: msg });
