@@ -83,7 +83,7 @@ export default function ShareLinkScreen() {
     );
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
         title={isStorage ? t("shareLink.storageTitle") : t("shareLink.collectionTitle")}
         subtitle={isStorage ? t("shareLink.storageDescription") : t("shareLink.collectionDescription")}

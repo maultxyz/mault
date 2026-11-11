@@ -74,7 +74,7 @@ export default function UnmatchedCardScreen() {
   const isBusy = identify.isPending || remove.isPending;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
         title={t("unmatchedCards.identifyTitle")}
         subtitle={scan ? formatDateTime(scan.scannedAt, i18n.language) : null}

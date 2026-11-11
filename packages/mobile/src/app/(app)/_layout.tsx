@@ -21,7 +21,7 @@ export default function AppLayout() {
     headerShown: false,
     sheetAllowedDetents: [1],
     sheetGrabberVisible: true,
-    contentStyle: modalStyle,
+    contentStyle: { ...modalStyle, bottom: 0 },
   };
   const showsShellChrome = !!seatLock;
 

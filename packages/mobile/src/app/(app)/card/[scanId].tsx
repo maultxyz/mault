@@ -351,7 +351,7 @@ export default function CardDetailScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
         title={editing ? t("cardDetail.correctCard") : (card?.name ?? t("cardDetail.fallbackTitle"))}
         subtitle={
