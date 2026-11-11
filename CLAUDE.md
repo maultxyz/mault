@@ -101,7 +101,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - Moving cards to another collection (`POST /collections/:guid/cards/move-to-collection`, and the intake transfer) is same-game only, clears `bin_number` and keeps the storage location, intake lot and scan-time data.
 - SQL over many collection rows reads the generated `card_*` columns, never `cc.card ->> ...`; catalog fields (set name, rarity, colors, search text, image) come from `cards` columns via `cardCatalogJoinSql` with `CATALOG_CC_ALIAS_COLUMNS` falling back to the `card_*` columns. Sync fills those `cards` columns through `catalogColumnsFor`. Long lists page on the server.
 
-- Nightly card sync runs on a GitHub runner (`card-catalog-sync.yml` -> `scripts/sync-card-catalogs.ts`, the same forked worker against `DATABASE_URL`), so the server never sees it as a sync job: its admin status, sync lock and match index reload don't apply, and only the match index's 60 s signature check picks the changes up.
+- Nightly card sync runs on a GitHub runner (`card-catalog-sync.yml` -> `scripts/sync-card-catalogs.ts`, the same forked worker against `DATABASE_URL`; one matrix job per game and language, each stopping at `--stop-after-minutes` and resuming next run since existing cards are skipped, with one combined Discord report from the jobs' result artifacts), so the server never sees it as a sync job: its admin status, sync lock and match index reload don't apply, and only the match index's 60 s signature check picks the changes up.
 
 ### Prices
 

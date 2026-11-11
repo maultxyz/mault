@@ -143,7 +143,7 @@ export const scryfallSyncSource: SyncSource = {
     "it",
     "pt",
     "ja",
-    "lo",
+    "ko",
     "ru",
     "zhs",
     "zht",
