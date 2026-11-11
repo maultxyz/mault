@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
-import type { CameraRef } from "react-native-vision-camera";
+import { useEffect, useRef, useState } from "react";
+import type { Image } from "react-native-nitro-image";
 import { maxCornerShift } from "@magic-vault/shared";
 import { detectCornersInImage } from "@/features/scanner/lib/inference";
 import {
-  LIVE_CORNERS_SUPPORTED,
   LIVE_DETECTION_INTERVAL_MS,
   LIVE_OUTLINE_DEADBAND_RATIO,
   LIVE_OUTLINE_MISSES_BEFORE_HIDE,
@@ -11,7 +10,7 @@ import {
 import type { LiveCorners } from "@/lib/interfaces/scanner";
 
 export function useLiveCorners(
-  cameraRef: RefObject<CameraRef | null>,
+  grabLiveFrame: () => Promise<Image>,
   active: boolean,
   paused: boolean,
   onDetection?: (corners: LiveCorners | null) => void,
@@ -24,10 +23,9 @@ export function useLiveCorners(
   pausedRef.current = paused;
   const onDetectionRef = useRef(onDetection);
   onDetectionRef.current = onDetection;
-  const supported = LIVE_CORNERS_SUPPORTED;
 
   useEffect(() => {
-    if (!active || !supported) {
+    if (!active) {
       shownRef.current = null;
       missCountRef.current = 0;
       setCorners(null);
@@ -57,11 +55,9 @@ export function useLiveCorners(
     };
     let cancelled = false;
     const interval = setInterval(() => {
-      const camera = cameraRef.current;
-      if (busyRef.current || pausedRef.current || !camera) return;
+      if (busyRef.current || pausedRef.current) return;
       busyRef.current = true;
-      void camera
-        .takeSnapshot()
+      void grabLiveFrame()
         .then(async (image) => {
           if (pausedRef.current) return;
           const detection = await detectCornersInImage(image, image.width, image.height);
@@ -86,7 +82,7 @@ export function useLiveCorners(
       cancelled = true;
       clearInterval(interval);
     };
-  }, [cameraRef, active, supported]);
+  }, [grabLiveFrame, active]);
 
   return corners;
 }

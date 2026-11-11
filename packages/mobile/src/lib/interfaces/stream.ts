@@ -1,3 +1,4 @@
+import type { TradeOffer } from "@magic-vault/shared";
 import type { AnnouncementSeverity, DeployNotice } from "@magic-vault/shared";
 
 export interface ScanLockInfo {
@@ -22,6 +23,8 @@ export interface AppAlert {
 export interface AlertsSheetProps {
   visible: boolean;
   alerts: AppAlert[];
+  tradeOffers: TradeOffer[];
+  onOpenTradeOffer: (guid: string) => void;
   onClose: () => void;
 }
 

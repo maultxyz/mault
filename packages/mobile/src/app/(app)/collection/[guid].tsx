@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, View } from "react-native";
+import { Alert, FlatList, RefreshControl, View } from "react-native";
 import {
   computeBinCount,
   DEFAULT_MODULE_COUNT,
@@ -25,6 +25,7 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PillButton } from "@/components/ui/pill-button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
   collectionCardsQueryOptions,
   collectionCardsSummaryQueryOptions,
@@ -142,8 +143,6 @@ export default function CollectionScreen() {
       ]);
     } else if (action === "share") {
       router.push({ pathname: "/share-link", params: { kind: "collection", guid } });
-    } else if (action === "holds") {
-      router.push({ pathname: "/card-holds", params: { kind: "collection", guid } });
     } else if (action === "delete") {
       Alert.alert(t("collections.delete"), t("collections.deleteDescription", { name }), [
         { text: t("collections.cancel"), style: "cancel" },
@@ -278,11 +277,7 @@ export default function CollectionScreen() {
       />
     ),
     ListFooterComponent: cards.isFetchingNextPage ? (
-      <ActivityIndicator
-        style={{ margin: SPACING.lg }}
-        color={colors.primaryText}
-        accessibilityLabel={t("collection.loadingMoreCards")}
-      />
+      <ListLoadingFooter accessibilityLabel={t("collection.loadingMoreCards")} />
     ) : undefined,
   };
 
@@ -345,7 +340,6 @@ export default function CollectionScreen() {
         title={collection?.name ?? t("collections.actions")}
         options={[
           { value: "share", label: t("collections.shareLink") },
-          { value: "holds", label: t("cardHolds.title") },
           { value: "edit", label: t("collections.edit") },
           { value: "empty", label: t("collections.empty") },
           { value: "delete", label: t("collections.delete") },

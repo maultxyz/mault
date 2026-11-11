@@ -28,7 +28,7 @@ function parseCardScanTimeline(stored: string | null): CardScanTimeline {
 }
 
 function parseStorageCardViewMode(stored: string | null): CardViewMode {
-  return stored === "grid" ? "grid" : "list";
+  return stored === "list" ? "list" : "grid";
 }
 
 function parseReviewLayout(stored: string | null): ReviewLayout {

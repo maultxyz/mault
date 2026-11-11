@@ -7,7 +7,7 @@ export const TAB_ICONS: Record<string, IconName> = {
   account: "menu",
 };
 
-export const MODAL_ROUTE_PATTERN = /^\/(card\/|unmatched-card$|collection-new$|collection-edit$|storage-name$|share-link$)/;
+export const SHEET_ROUTE_PATTERN = /^\/(card\/|trade-offer\/|unmatched-card$|collection-new$|collection-edit$|storage-name$|share-link$)/;
 export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "(tabs)",
   "card/[scanId]",
@@ -16,7 +16,9 @@ export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "collection-edit",
   "storage-name",
   "share-link",
+  "trade-offer/[guid]",
   "storage-card-scan",
+  "trade/scan",
   "batch-scan",
   "desktop-camera/[guid]",
 ]);

@@ -1,31 +1,19 @@
-import {
-  STORAGE_CARDS_PAGE_SIZE,
-  STORAGE_CARDS_PAGE_SIZE_MAX,
-  type SharedStorageCardPage,
-  type StorageShareLinkInfo,
-} from "@magic-vault/shared";
+import type { StorageShareLinkInfo } from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
 import { db } from "../../db";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import type { StorageShareLinkClaims } from "../../lib/interfaces/share-tokens";
 import { loadOrgPricing } from "../../lib/price-source";
-import { pricesForShareLink } from "../../lib/share-link-pricing";
 import { shareLinkRateLimit } from "../../lib/share-link-rate-limit";
 import {
   sharedStorageReadsCache,
   sharedStorageReadsKey,
 } from "../../lib/shared-storage-reads-cache";
 import { verifyStorageShareLink } from "../../lib/storage-share-links";
-import { createPublicCardHoldsRoute } from "./card-holds";
+import { createPublicCardBrowseRoute } from "./card-browse";
+import { createPublicTradeOffersRoute } from "./trade-offers";
 import type { AppEnv } from "../../middleware/auth";
-import { parseCardsQuery } from "../collections/cards-query";
-import {
-  loadLocationCardStats,
-  loadLocationFieldDefinitions,
-  loadStoredCardIdsPage,
-  loadStoredCardsByRowIds,
-  toStoredCards,
-} from "../storage-locations/shared";
+import { loadLocationCardStats } from "../storage-locations/shared";
 
 async function claimsFor(
   c: Context<AppEnv>,
@@ -39,18 +27,37 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
   .use("/storage-share-link/*", shareLinkRateLimit)
   .route(
     "/storage-share-link",
-    createPublicCardHoldsRoute(async (c) => {
+    createPublicTradeOffersRoute(async (c) => {
       const claims = await claimsFor(c);
       return claims
         ? {
+            allowsTradeOffers: claims.purpose === "trade",
             scope: {
               kind: "storage",
               orgId: claims.orgId,
               locationId: claims.locationId,
             },
-            holdMinutes: claims.holdMinutes,
           }
         : null;
+    }),
+  )
+  .route(
+    "/storage-share-link/browse",
+    createPublicCardBrowseRoute({
+      readsCache: null,
+      resolveScope: async (c) => {
+        const claims = await claimsFor(c);
+        return claims
+          ? {
+              orgId: claims.orgId,
+              collectionIds: [],
+              storageLocationIds: [claims.locationId],
+              inventoryOnly: false,
+              showsPrices: claims.showsPrices,
+              readsCacheKey: null,
+            }
+          : null;
+      },
     }),
   )
   .get("/storage-share-link", async (c) => {
@@ -69,7 +76,7 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
     );
     const tokenInfo = {
       expiresAt: claims.expiresAt.toISOString(),
-      holdMinutes: claims.holdMinutes,
+      purpose: claims.purpose,
     };
     const cachedInfo = sharedStorageReadsCache.get(cacheKey) as
       | StorageShareLinkInfo
@@ -98,72 +105,4 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
     });
     sharedStorageReadsCache.set(cacheKey, data);
     return c.json({ success: true, message: "Valid share link.", data });
-  })
-  .get("/storage-share-link/cards", async (c) => {
-    const claims = await claimsFor(c);
-    if (!claims) {
-      return c.json(
-        { success: false, message: MONITOR_LINK_INVALID_MESSAGE },
-        401,
-      );
-    }
-    const pageSize = Math.min(
-      Math.max(
-        Number.parseInt(c.req.query("limit") ?? "", 10) ||
-          STORAGE_CARDS_PAGE_SIZE,
-        1,
-      ),
-      STORAGE_CARDS_PAGE_SIZE_MAX,
-    );
-    const requestedPage = Math.max(
-      Number.parseInt(c.req.query("page") ?? "", 10) || 1,
-      1,
-    );
-    const cacheKey = sharedStorageReadsKey(
-      claims.locationGuid,
-      claims.showsPrices,
-      "cards",
-      c.req.query(),
-    );
-    const cachedPage = sharedStorageReadsCache.get(cacheKey);
-    if (cachedPage) return c.json({ success: true, data: cachedPage });
-    const query = {
-      ...parseCardsQuery(c.req.query()),
-      grouped: false,
-      unreviewed: false,
-    };
-    const data = await db.transaction(async (tx) => {
-      const { rowIds, total, page } = await loadStoredCardIdsPage(
-        tx,
-        claims.locationId,
-        query,
-        query.sort
-          ? await loadLocationFieldDefinitions(tx, claims.locationId)
-          : [],
-        pageSize,
-        requestedPage,
-      );
-      const storedCards = await toStoredCards(
-        await loadStoredCardsByRowIds(tx, rowIds),
-        false,
-      );
-      const sharedPage: SharedStorageCardPage = {
-        cards: storedCards.map((stored) => ({
-          scanId: stored.scanId,
-          position: stored.position,
-          card: stored.card,
-          isFoil: stored.isFoil,
-          foilType: stored.foilType,
-          stamp: stored.stamp,
-          condition: stored.condition,
-          language: stored.language,
-        })),
-        total,
-        page,
-        pageSize,
-      };
-      return pricesForShareLink(sharedPage, claims.showsPrices);
-    });
-    sharedStorageReadsCache.set(cacheKey, data);
-    return c.json({ success: true, data });
   });

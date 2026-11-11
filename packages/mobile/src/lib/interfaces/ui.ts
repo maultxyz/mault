@@ -114,6 +114,7 @@ export interface ScreenProps {
   onRefresh?: () => void;
   edges?: ("top" | "bottom")[];
   header?: ReactNode;
+  contentStartsWithList?: boolean;
 }
 
 export interface PageHeaderProps {
@@ -125,7 +126,6 @@ export interface PageHeaderProps {
   actions?: ReactNode;
   tabs?: ReactNode;
   children?: ReactNode;
-  rendersInsideReactNativeModal?: boolean;
 }
 
 export interface HeaderActionsStore {
@@ -140,7 +140,6 @@ export interface HeaderActionsSlotProps {
 
 export interface NativeStackHeaderProps {
   title: string;
-  onBack: () => void;
   actions: ReactNode;
 }
 
@@ -290,6 +289,7 @@ export interface OptionSheetProps {
   onClose: () => void;
   searchPlaceholder?: string;
   maxVisibleOptions?: number;
+  emptyMessage?: string;
 }
 
 export interface SelectFieldProps {
@@ -421,4 +421,30 @@ export interface QrCodeProps {
   value: string;
   size: number;
   accessibilityLabel: string;
+}
+
+export interface SheetContentProps {
+  title: string;
+  description?: string | null;
+  headerLeading?: ReactNode;
+  headerAction?: ReactNode;
+  footer?: ReactNode;
+  scrollable?: boolean;
+  maxHeightRatio?: number;
+  contentContainerStyle?: StyleProp<ViewStyle>;
+  children: ReactNode;
+}
+
+export interface SheetProps extends SheetContentProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+export interface ListLoadingFooterProps {
+  accessibilityLabel?: string;
+}
+
+export interface BrandIconProps {
+  size: number;
+  color: string;
 }

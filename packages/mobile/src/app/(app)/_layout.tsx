@@ -16,7 +16,13 @@ export default function AppLayout() {
   const seatLock = useMemberSeatLock(useActiveOrgId());
   const panelStyle = useShellPanelStyle(insets.bottom);
   const modalStyle = { backgroundColor: colors.background };
-  const modalOptions = { presentation: "modal" as const, headerShown: true, contentStyle: modalStyle };
+  const sheetOptions = {
+    presentation: "formSheet" as const,
+    headerShown: false,
+    sheetAllowedDetents: [1],
+    sheetGrabberVisible: true,
+    contentStyle: modalStyle,
+  };
   const showsShellChrome = !!seatLock;
 
   return (
@@ -49,10 +55,10 @@ export default function AppLayout() {
         >
           <Stack.Screen name="(tabs)" options={{ contentStyle: { backgroundColor: "transparent" } }} />
           <Stack.Screen name="collection/[guid]" />
-          <Stack.Screen name="card/[scanId]" options={modalOptions} />
+          <Stack.Screen name="card/[scanId]" options={sheetOptions} />
           <Stack.Screen name="review-grid" />
           <Stack.Screen name="unmatched/[guid]" />
-          <Stack.Screen name="unmatched-card" options={modalOptions} />
+          <Stack.Screen name="unmatched-card" options={sheetOptions} />
           <Stack.Screen name="rules/index" />
           <Stack.Screen name="rules/[binNumber]" />
           <Stack.Screen name="rules/mode" />
@@ -60,15 +66,22 @@ export default function AppLayout() {
           <Stack.Screen name="rules/stages" />
           <Stack.Screen name="stats" />
           <Stack.Screen name="validate-matches" />
-          <Stack.Screen name="collection-new" options={modalOptions} />
-          <Stack.Screen name="collection-edit" options={modalOptions} />
-          <Stack.Screen name="storage-name" options={modalOptions} />
-          <Stack.Screen name="share-link" options={modalOptions} />
-          <Stack.Screen name="card-holds" options={modalOptions} />
+          <Stack.Screen name="collection-new" options={sheetOptions} />
+          <Stack.Screen name="collection-edit" options={sheetOptions} />
+          <Stack.Screen name="storage-name" options={sheetOptions} />
+          <Stack.Screen name="share-link" options={sheetOptions} />
+          <Stack.Screen name="trade-offer/[guid]" options={sheetOptions} />
           <Stack.Screen name="storage-pick-list" />
           <Stack.Screen name="batch-scan" options={{ contentStyle: { backgroundColor: colors.background } }} />
           <Stack.Screen
             name="storage-card-scan"
+            options={{ contentStyle: { backgroundColor: colors.background } }}
+          />
+          <Stack.Screen name="trade/index" />
+          <Stack.Screen name="trade/browse" />
+          <Stack.Screen name="trade/collection" />
+          <Stack.Screen
+            name="trade/scan"
             options={{ contentStyle: { backgroundColor: colors.background } }}
           />
           <Stack.Screen

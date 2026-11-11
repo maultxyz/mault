@@ -297,7 +297,8 @@
       "fleetHealth": "Santé du parc : consultez l'état de chaque trieuse, les cartes depuis le dernier entretien et l'historique des alertes, et définissez les intervalles d'entretien",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
       "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
-      "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges"
+      "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges",
+      "longShareLinks": "Liens de suivi jusqu'à 30 jours : partagez une vue en direct d'une collection pendant des jours au lieu d'une heure"
     },
     "compare": {
       "heading": "Comparer toutes les fonctionnalités",
@@ -330,7 +331,8 @@
         "fleetHealth": "Santé du parc",
         "storage": "Emplacements de rangement",
         "apiAccess": "Accès API",
-        "businessTools": "Achat et vente"
+        "businessTools": "Achat et vente",
+        "longShareLinks": "Liens de suivi jusqu'à 30 jours"
       }
     }
   },

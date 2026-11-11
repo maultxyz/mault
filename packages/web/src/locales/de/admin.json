@@ -299,6 +299,10 @@
       "fleetHealth": {
         "label": "Flottenzustand",
         "description": "Das Zustandspanel auf der Sortierer-Seite: Status, Karten seit der letzten Wartung, Alarmverlauf und Wartungsintervalle. Stau- und Offline-Alarme werden in jedem Fall weiter erfasst und gesendet."
+      },
+      "longShareLinks": {
+        "label": "Längere Monitor-Links",
+        "description": "Monitor-Links können 1, 7 oder 30 Tage gelten. Ohne diese Funktion gelten sie 1 Stunde. Tausch-Links gelten immer 1 Stunde."
       }
     },
     "limits": {

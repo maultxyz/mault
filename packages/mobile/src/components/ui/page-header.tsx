@@ -1,19 +1,23 @@
+import { usePathname } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { IconButton } from "@/components/ui/icon-button";
 import { NativeStackHeader } from "@/components/ui/native-stack-header";
 import { useTheme } from "@/hooks/use-theme";
+import { SHEET_ROUTE_PATTERN } from "@/lib/constants/nav";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { IOS_SHEET_TOP_PADDING } from "@/lib/constants/ui";
 import type { PageHeaderProps } from "@/lib/interfaces/ui";
 
-export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory, onBack, actions, tabs, children, rendersInsideReactNativeModal = false }: PageHeaderProps) {
+export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory, onBack, actions, tabs, children }: PageHeaderProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const actionRow = actions ? <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>{actions}</View> : null;
 
-  const usesNativeHeader = !!onBack && !rendersInsideReactNativeModal;
-  const nativeHeader = usesNativeHeader ? <NativeStackHeader title={title} onBack={onBack} actions={actionRow} /> : null;
+  const isPresentedAsSheet = SHEET_ROUTE_PATTERN.test(usePathname());
+  const usesNativeHeader = !!onBack && !isPresentedAsSheet;
+  const nativeHeader = usesNativeHeader ? <NativeStackHeader title={title} actions={actionRow} /> : null;
   if (usesNativeHeader && !subtitle && !titleAccessory && !tabs && !children) return nativeHeader;
 
   return (
@@ -21,7 +25,7 @@ export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory,
       style={{
         gap: SPACING.sm + 2,
         paddingHorizontal: SCREEN_GUTTER,
-        paddingTop: SPACING.sm + 2,
+        paddingTop: isPresentedAsSheet && Platform.OS === "ios" ? IOS_SHEET_TOP_PADDING : SPACING.sm + 2,
         paddingBottom: tabs ? 0 : SPACING.sm + 2,
         borderBottomWidth: tabs ? 0 : 1,
         borderBottomColor: colors.border,

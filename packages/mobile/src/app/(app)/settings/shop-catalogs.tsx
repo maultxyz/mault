@@ -32,7 +32,6 @@ import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import {
   buildShopCatalogUrl,
-  businessAccessQueryOptions,
   createShopCatalog,
   deleteShopCatalog,
   removeShopPhoto,
@@ -42,6 +41,7 @@ import {
   updateShopCatalog,
   uploadShopPhoto,
 } from "@/features/business/api/shop-catalogs";
+import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
 import { useActiveOrg } from "@/hooks/use-org";

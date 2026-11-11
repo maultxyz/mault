@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, ScrollView, Share, View } from "react-native";
@@ -20,6 +20,8 @@ import {
   createStorageShareLink,
   revokeStorageShareLinks,
 } from "@/features/storage/api/storage-share-links";
+import { billingQueryOptions } from "@/features/org/api/billing";
+import { useActiveOrgId } from "@/hooks/use-org";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import { useTheme } from "@/hooks/use-theme";
 import { formatDateTime } from "@/lib/dates";
@@ -27,12 +29,11 @@ import { QR_CODE_MAX_SIZE } from "@/lib/constants/share-links";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { CreatedShareLink, ShareLinkKind } from "@/lib/interfaces/share-links";
 import {
-  CARD_HOLD_MINUTES,
-  DEFAULT_CARD_HOLD_MINUTES,
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
-  DEFAULT_SHARE_LINK_ALLOWS_HOLDS,
+  DEFAULT_SHARE_LINK_PURPOSE,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
+  type ShareLinkPurpose,
 } from "@magic-vault/shared";
 
 export default function ShareLinkScreen() {
@@ -43,18 +44,19 @@ export default function ShareLinkScreen() {
   const isStorage = kind === "storage";
   const [expiresInDays, setExpiresInDays] = useState<number>(DEFAULT_MONITOR_LINK_EXPIRY_DAYS);
   const [showsPrices, setShowsPrices] = useState(DEFAULT_SHARE_LINK_SHOWS_PRICES);
-  const [allowsHolds, setAllowsHolds] = useState(DEFAULT_SHARE_LINK_ALLOWS_HOLDS);
-  const [holdMinutes, setHoldMinutes] = useState<number>(DEFAULT_CARD_HOLD_MINUTES);
-  const linkHoldMinutes = allowsHolds ? holdMinutes : null;
+  const [purpose, setPurpose] = useState<ShareLinkPurpose>(DEFAULT_SHARE_LINK_PURPOSE);
   const [link, setLink] = useState<CreatedShareLink | null>(null);
+  const orgId = useActiveOrgId();
+  const { data: billing } = useQuery(billingQueryOptions(orgId));
+  const isOneHourLink = purpose === "trade" || billing?.longShareLinks === false;
 
   const create = useMutation({
     mutationFn: async (): Promise<CreatedShareLink> => {
       if (isStorage) {
-        const created = await createStorageShareLink(guid, expiresInDays, showsPrices, linkHoldMinutes);
+        const created = await createStorageShareLink(guid, expiresInDays, showsPrices, purpose);
         return { url: buildStorageShareLinkUrl(guid, created.token), expiresAt: created.expiresAt };
       }
-      const created = await createMonitorLink(guid, expiresInDays, showsPrices, linkHoldMinutes);
+      const created = await createMonitorLink(guid, expiresInDays, showsPrices, purpose);
       return { url: buildMonitorLinkUrl(guid, created.token), expiresAt: created.expiresAt };
     },
     onSuccess: (created) => {
@@ -85,12 +87,37 @@ export default function ShareLinkScreen() {
       <PageHeader
         title={isStorage ? t("shareLink.storageTitle") : t("shareLink.collectionTitle")}
         subtitle={isStorage ? t("shareLink.storageDescription") : t("shareLink.collectionDescription")}
-        onBack={() => router.back()}
       />
       <ScrollView contentContainerStyle={{ padding: SCREEN_GUTTER, gap: SPACING.xl }}>
         {create.isError ? <Callout tone="destructive" title={t("shareLink.createFailed")} /> : null}
         {revoke.isError ? <Callout tone="destructive" title={t("shareLink.revokeFailed")} /> : null}
         {revoke.isSuccess && !link ? <Callout tone="success" title={t("shareLink.revoked")} /> : null}
+        <View style={{ gap: SPACING.sm }}>
+          <AppText weight="semibold" accessibilityRole="header">
+            {t("shareLink.typeLabel")}
+          </AppText>
+          <SegmentedControl
+            options={[
+              { value: "view", label: t("shareLink.monitorType") },
+              { value: "trade", label: t("shareLink.tradeType") },
+            ]}
+            value={purpose}
+            onChange={(value) => {
+              setPurpose(value as ShareLinkPurpose);
+              setLink(null);
+            }}
+          />
+          <AppText size="xs" tone="secondary">
+            {purpose === "trade" ? t("shareLink.tradeTypeDescription") : t("shareLink.monitorTypeDescription")}
+          </AppText>
+        </View>
+        {isOneHourLink ? (
+          <Callout
+            tone="info"
+            title={purpose === "trade" ? t("shareLink.tradeOneHourNote") : t("shareLink.monitorOneHourNote")}
+          />
+        ) : null}
+        {isOneHourLink ? null : (
         <View style={{ gap: SPACING.sm }}>
           <AppText weight="semibold" accessibilityRole="header">
             {t("shareLink.expiryLabel")}
@@ -104,36 +131,13 @@ export default function ShareLinkScreen() {
             onChange={(value) => setExpiresInDays(Number(value))}
           />
         </View>
+        )}
         <SwitchRow
           title={t("shareLink.showPrices")}
           description={t("shareLink.showPricesDescription")}
           value={showsPrices}
           onValueChange={setShowsPrices}
         />
-        <SwitchRow
-          title={t("shareLink.allowHolds")}
-          description={t("shareLink.allowHoldsDescription")}
-          value={allowsHolds}
-          onValueChange={setAllowsHolds}
-        />
-        {allowsHolds ? (
-          <View style={{ gap: SPACING.sm }}>
-            <AppText weight="semibold" accessibilityRole="header">
-              {t("shareLink.holdLengthLabel")}
-            </AppText>
-            <SegmentedControl
-              options={CARD_HOLD_MINUTES.map((minutes) => ({
-                value: String(minutes),
-                label:
-                  minutes < 60
-                    ? t("shareLink.holdLengthMinutes", { count: minutes })
-                    : t("shareLink.holdLengthHours", { count: minutes / 60 }),
-              }))}
-              value={String(holdMinutes)}
-              onChange={(value) => setHoldMinutes(Number(value))}
-            />
-          </View>
-        ) : null}
         {link ? (
           <View style={{ alignItems: "center", gap: SPACING.md }}>
             <QrCode

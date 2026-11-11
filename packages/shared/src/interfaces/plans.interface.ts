@@ -70,6 +70,7 @@ export interface BillingStatus {
   storageLocationCount?: number;
   apiAccess?: boolean;
   businessTools?: boolean;
+  longShareLinks?: boolean;
 }
 
 export type BillingPlanTableRow =

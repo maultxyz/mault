@@ -11,7 +11,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "@/hooks/use-theme";
 import { IOS_SYMBOLS } from "@/lib/constants/ios-symbols";
-import { DISABLED_OPACITY, IOS_ICON_BUTTON_STYLES, PAGE_HEADER_ICON_BUTTON_SIZE } from "@/lib/constants/ui";
+import { IOS_ICON_BUTTON_STYLES, PAGE_HEADER_ICON_BUTTON_SIZE } from "@/lib/constants/ui";
 import type { IconButtonProps } from "@/lib/interfaces/ui";
 
 export function IconButton({
@@ -32,7 +32,7 @@ export function IconButton({
   }[variant];
 
   return (
-    <Host style={{ width: size, height: size, opacity: disabled ? DISABLED_OPACITY : 1 }}>
+    <Host alignment="center" style={{ width: size, height: size }}>
       <SwiftUIButton
         onPress={disabled ? undefined : onPress}
         modifiers={[

@@ -57,6 +57,7 @@ export default function CollectionsScreen() {
 
   return (
     <Screen
+      contentStartsWithList={!collectionsQuery.isError && !collectionsQuery.isPending && filtered.length > 0}
       refreshing={collectionsQuery.isRefetching || overview.isRefetching}
       onRefresh={() => {
         void collectionsQuery.refetch();

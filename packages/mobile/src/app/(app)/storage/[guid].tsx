@@ -2,7 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
+import { Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
 import {
   allExportAdapters,
   DEFAULT_CARD_SORT,
@@ -22,6 +22,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
   deleteStorageLocation,
   downloadStorageLocationCsv,
@@ -78,7 +79,7 @@ export default function StorageLocationScreen() {
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
   const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<CardViewMode>(() =>
-    readKv(STORAGE_CARD_VIEW_MODE_KEY) === "grid" ? "grid" : "list",
+    readKv(STORAGE_CARD_VIEW_MODE_KEY) === "list" ? "list" : "grid",
   );
   const [listWidth, setListWidth] = useState(0);
   const isGrid = viewMode === "grid";
@@ -163,7 +164,6 @@ export default function StorageLocationScreen() {
       ? []
       : [
           { value: "share", label: t("storage.share") },
-          { value: "holds", label: t("cardHolds.title") },
           { value: "rename", label: t("storage.rename") },
           { value: "delete", label: t("storage.delete") },
         ]),
@@ -182,10 +182,6 @@ export default function StorageLocationScreen() {
     }
     if (action === "share") {
       router.push({ pathname: "/share-link", params: { kind: "storage", guid } });
-      return;
-    }
-    if (action === "holds") {
-      router.push({ pathname: "/card-holds", params: { kind: "storage", guid } });
       return;
     }
     if (action === "rename") {
@@ -296,7 +292,7 @@ export default function StorageLocationScreen() {
             )
           }
           ListFooterComponent={
-            cards.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
+            cards.isFetchingNextPage ? <ListLoadingFooter /> : undefined
           }
           renderItem={({ item: entry }) => {
             const value = pricing.priceOf(

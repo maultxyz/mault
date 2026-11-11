@@ -5,6 +5,7 @@ import { PublicCardBrowser } from "@/features/public-cards/components/public-car
 import { WatchLiveSidebar } from "@/features/public-cards/components/watch-live-sidebar";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { PUBLIC_CARDS_SOURCE_PATHS } from "@/lib/constants/public-cards";
+import { TRADE_OFFER_LINK_PATHS } from "@/lib/constants/trade-offers";
 import type { WatchCardBrowserProps } from "@/lib/interfaces/public-cards";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +16,7 @@ export function WatchCardBrowser({
   token,
   collectionGuid,
   collectionName,
-  holdMinutes,
+  purpose,
   session,
 }: WatchCardBrowserProps) {
   const { t } = useTranslation("scanner");
@@ -49,7 +50,10 @@ export function WatchCardBrowser({
       info={info}
       titleBadge={<Badge variant="secondary">{t("watchPage.liveBadge")}</Badge>}
       headerNote={
-        holdMinutes !== null ? tCards("publicBrowse.holdHint") : t("watchPage.readOnly")
+        purpose === "trade" ? tCards("publicBrowse.tradeHint") : t("watchPage.readOnly")
+      }
+      tradeOfferLink={
+        purpose === "trade" ? { basePath: TRADE_OFFER_LINK_PATHS.collection, token } : undefined
       }
       sidebarTop={
         <WatchLiveSidebar session={session} stats={live.stats} cardCount={live.cardCount} />

@@ -1,7 +1,9 @@
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { IconBadge } from "@/components/ui/icon-badge";
+import { LoadingLogo } from "@/components/ui/loading-logo";
+import { LOADING_LOGO_INLINE_SIZE } from "@/lib/constants/loading";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY } from "@/lib/constants/ui";
@@ -37,7 +39,7 @@ export function PickerCard({ icon, label, value, placeholder, onPress, disabled 
           {value ?? placeholder}
         </AppText>
       </View>
-      {loading ? <ActivityIndicator size="small" color={colors.foregroundSecondary} /> : <Icon name="expand" size={18} color={colors.foreground} />}
+      {loading ? <LoadingLogo size={LOADING_LOGO_INLINE_SIZE} /> : <Icon name="expand" size={18} color={colors.foreground} />}
     </Pressable>
   );
 }

@@ -4,7 +4,10 @@ import {
   cardsWithSimilarName,
   nameSimilarity,
 } from "../src/lib/card-name-trigrams";
-import { buildCardMatchSegment } from "../src/lib/card-match-search";
+import {
+  buildCardMatchSegment,
+  cardIdOfRow,
+} from "../src/lib/card-match-search";
 
 test("name similarity matches pg_trgm similarity()", () => {
   assert.equal(nameSimilarity("word", "word"), 1);
@@ -32,7 +35,7 @@ test("similar names return every printing above the threshold", () => {
   ]);
   const matches = cardsWithSimilarName([segment], "Lightnig Bolt", 0.45);
   assert.deepEqual(
-    matches.map((match) => segment.cardIds[match.row]).sort(),
+    matches.map((match) => cardIdOfRow(segment, match.row)).sort(),
     ["a", "b"],
   );
 });

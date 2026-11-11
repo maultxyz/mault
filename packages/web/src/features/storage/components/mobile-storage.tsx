@@ -21,7 +21,6 @@ import { useStorageLocations } from "@/features/storage/api/use-storage-location
 import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
-import { CardHoldsButton } from "@/features/card-holds/components/card-holds-button";
 import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
 import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
@@ -31,7 +30,6 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePriceSource } from "@/hooks/use-price-source";
 import {
   MOBILE_CIRCLE_BUTTON_CLASS,
-  MOBILE_COUNT_BUTTON_CLASS,
   MOBILE_LIST_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
   MOBILE_PAGE_BODY_CLASS,
@@ -213,11 +211,6 @@ export function MobileStorage() {
           actions={
             !isLocked && (
               <>
-                <CardHoldsButton
-                  scope={{ kind: "storage", guid: selected.guid }}
-                  buttonVariant="ghost"
-                  className={cn(MOBILE_CIRCLE_BUTTON_CLASS, MOBILE_COUNT_BUTTON_CLASS)}
-                />
                 <ShareStorageLinkDialog
                   locationGuid={selected.guid}
                   trigger={

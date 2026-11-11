@@ -47,8 +47,12 @@ import {
   loadedCardMatchSegments,
 } from "../../lib/card-match-index";
 import {
+  cardIdOfRow,
   cardRowDistance,
   closestPrintingInSets,
+  collectorNumberOfRow,
+  nameOfRow,
+  setCodeOfRow,
   closestRegularPrinting,
   printingMarkGroupsOfRow,
   faceDistance,
@@ -192,7 +196,7 @@ async function rankFacesByPrintingMarks(
   const contenders = leader
     ? faces.filter(
         (face) =>
-          face.segment.names[face.row] === leader.segment.names[leader.row] &&
+          nameOfRow(face.segment, face.row) === nameOfRow(leader.segment, leader.row) &&
           face.distance - leader.distance <=
             PRINTING_MARK_MAX_LEADER_DISTANCE_GAP,
       )
@@ -203,7 +207,7 @@ async function rankFacesByPrintingMarks(
       ? await printingMarkReferencesFor(gameKey)
       : null,
     contenders.map((face) => ({
-      cardId: face.segment.cardIds[face.row],
+      cardId: cardIdOfRow(face.segment, face.row),
       groups: printingMarkGroupsOfRow(face.segment, face.row),
     })),
   );
@@ -222,10 +226,10 @@ function regularPrintingOf(
   const face = closestRegularPrinting(segments, leader.name, query);
   return face
     ? {
-        cardId: face.segment.cardIds[face.row],
+        cardId: cardIdOfRow(face.segment, face.row),
         lang: face.segment.lang,
-        name: face.segment.names[face.row],
-        setCode: face.segment.setCodes[face.row],
+        name: nameOfRow(face.segment, face.row),
+        setCode: setCodeOfRow(face.segment, face.row),
         rarePrinting: false,
         distance: face.distance,
         leaderDistance: faceDistance(face, leaderFace),
@@ -256,10 +260,10 @@ export async function findCardMatches({
     CARD_MATCH_RUNNER_UP_SEARCH_LIMIT,
   );
   const matches: CardMatchCandidate[] = nearest.map((face) => ({
-    cardId: face.segment.cardIds[face.row],
+    cardId: cardIdOfRow(face.segment, face.row),
     lang: face.segment.lang,
-    name: face.segment.names[face.row],
-    setCode: face.segment.setCodes[face.row],
+    name: nameOfRow(face.segment, face.row),
+    setCode: setCodeOfRow(face.segment, face.row),
     rarePrinting: face.segment.rarePrinting[face.row] === 1,
     distance: face.distance,
     leaderDistance: faceDistance(face, nearest[0]),
@@ -375,8 +379,8 @@ export async function findCardMatches({
     ? [
         {
           ...leader,
-          id: preferred.segment.cardIds[preferred.row],
-          cardId: preferred.segment.cardIds[preferred.row],
+          id: cardIdOfRow(preferred.segment, preferred.row),
+          cardId: cardIdOfRow(preferred.segment, preferred.row),
           distance: preferred.distance,
         },
         ...ranked.filter((row) => row.name !== leader.name),
@@ -559,32 +563,32 @@ export async function findCardMatchesByText({
   }
   if (rows.length === 0) return noMatch;
 
-  const nameOf = ({ segment, row }: OcrCandidateRow) => segment.names[row];
+  const nameOf = ({ segment, row }: OcrCandidateRow) => nameOfRow(segment, row);
   const matchedName = nameOf(rows[0]);
   const nameScore = rows[0].score;
 
   const textRankedPrintings = rows
     .filter((candidate) => nameOf(candidate) === matchedName)
     .map(({ segment, row, distance }) => ({
-      id: segment.cardIds[row],
-      cardId: segment.cardIds[row],
+      id: cardIdOfRow(segment, row),
+      cardId: cardIdOfRow(segment, row),
       lang: segment.lang,
-      setCode: segment.setCodes[row],
+      setCode: setCodeOfRow(segment, row),
       distance,
-      setLineMatch: matchesSetLine(segment.setCodes[row], setLineTokens),
+      setLineMatch: matchesSetLine(setCodeOfRow(segment, row), setLineTokens),
       setTotalMatch: matchesPrintedSetTotal(
         segment.printedSetTotals[row],
         readSetTotals,
       ),
       letteredNumberMatch: readsLetteredCollectorNumber(
-        segment.collectorNumbers[row],
+        collectorNumberOfRow(segment, row),
         readout.number || readout.setLine,
       ),
       numberMatch:
-        matchesCollectorNumber(segment.collectorNumbers[row], numberCandidates) &&
+        matchesCollectorNumber(collectorNumberOfRow(segment, row), numberCandidates) &&
         !contradictsPrintedSetTotal(segment.printedSetTotals[row], readSetTotals),
       isPreferredSet: isPreferredSetCode(
-        segment.setCodes[row],
+        setCodeOfRow(segment, row),
         preferredSetCodes,
       ),
       matchesPrintedPromo:
@@ -678,8 +682,8 @@ async function findCardMatchesByPrintedSetAndNumber({
   const printedTokens = extractOcrTokens(printedText);
   const rows: OcrCandidateRow[] = [];
   for (const segment of segments) {
-    segment.collectorNumbers.forEach((collectorNumber, row) => {
-      const number = leadingCollectorNumber(collectorNumber);
+    for (let row = 0; row < segment.rowCount; row++) {
+      const number = leadingCollectorNumber(collectorNumberOfRow(segment, row));
       if (number && numberCandidates.has(number)) {
         rows.push({
           segment,
@@ -687,7 +691,7 @@ async function findCardMatchesByPrintedSetAndNumber({
           distance: cardRowDistance(segment, row, query),
         });
       }
-    });
+    }
   }
   if (rows.length === 0) return noMatch;
 
@@ -695,16 +699,16 @@ async function findCardMatchesByPrintedSetAndNumber({
     .sort((a, b) => a.distance - b.distance)
     .slice(0, OCR_PRINTED_NUMBER_CANDIDATE_LIMIT)
     .map(({ segment, row, distance }) => ({
-      id: segment.cardIds[row],
-      cardId: segment.cardIds[row],
+      id: cardIdOfRow(segment, row),
+      cardId: cardIdOfRow(segment, row),
       lang: segment.lang,
       distance,
       setCodeMatchLength: printedSetCodeMatchLength(
-        segment.setCodes[row],
+        setCodeOfRow(segment, row),
         printedTokens,
       ),
       isPreferredSet: isPreferredSetCode(
-        segment.setCodes[row],
+        setCodeOfRow(segment, row),
         preferredSetCodes,
       ),
     }))

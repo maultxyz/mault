@@ -310,6 +310,10 @@
       "fleetHealth": {
         "label": "Fleet health",
         "description": "The sorter health panel on the Sorters page: status, cards since service, alert history and service intervals. Jam and offline alerts are still recorded and sent either way."
+      },
+      "longShareLinks": {
+        "label": "Longer monitor links",
+        "description": "Monitor links can last 1, 7 or 30 days. Without it they last 1 hour. Trade links always last 1 hour."
       }
     },
     "limits": {

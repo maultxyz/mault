@@ -14,7 +14,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import { CardHoldBadge } from "@/features/card-holds/components/card-hold-badge";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
 import { useShiftClick } from "@/hooks/use-shift-click";
@@ -151,7 +150,6 @@ export function ScannedCardTable({
                   ) : (
                     <span className="truncate font-medium">{card.name}</span>
                   )}
-                  <CardHoldBadge scanIds={row.scanIds} className="shrink-0" />
                   <ReviewStatusIcon
                     hasAlternatives={row.hasAlternatives}
                     lowConfidenceMatch={row.lowConfidenceMatch}

@@ -1,4 +1,4 @@
-import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
+import type { CameraDevice, CameraFrameOutput, CameraOutput } from "react-native-vision-camera";
 import type {
   BinConfig,
   CardCondition,
@@ -405,4 +405,9 @@ export interface CameraTorch {
 
 export interface TorchControlProps {
   torch: CameraTorch;
+}
+
+export interface LiveFrameSource {
+  liveFrameOutput: CameraFrameOutput | null;
+  grabLiveFrame: () => Promise<Image>;
 }

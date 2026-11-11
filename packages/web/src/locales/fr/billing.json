@@ -31,7 +31,8 @@
       "fleetHealth": "État de la flotte",
       "storage": "Emplacements de rangement",
       "apiAccess": "Accès API",
-      "businessTools": "Achat et vente"
+      "businessTools": "Achat et vente",
+      "longShareLinks": "Liens de suivi jusqu'à 30 jours"
     },
     "unlimited": "Illimité",
     "included": "Inclus",

@@ -1,14 +1,14 @@
 import { priceChangeSinceScan, tcgplayerHeadlinePrices } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { formatEur, formatUsd } from "@/features/cards/lib/price-format";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { PRICE_TABLE_COLUMN_WIDTH } from "@/lib/constants/cards";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import type { CardPriceDetailsProps, PriceSourceSection } from "@/lib/interfaces/cards";
 
 export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: CardPriceDetailsProps) {
@@ -134,11 +134,27 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
   if (!hasAnyPrice) return null;
   const ordered = [...sections.filter((s) => s.source === source), ...sections.filter((s) => s.source !== source)];
 
+  const headlineRows = ordered.filter(({ headline }) => headline.price != null || headline.foilPrice != null);
+  const detailTables = ordered
+    .map(({ source: key, table }) => {
+      const finishColumns = table.rows
+        .map((row, rowIndex) => ({ label: row.label, rowIndex }))
+        .filter(({ rowIndex }) => table.rows[rowIndex].values.some((value) => value != null));
+      const metricRows = table.columns
+        .map((metric, metricIndex) => ({
+          metric,
+          metricIndex,
+          values: finishColumns.map(({ rowIndex }) => table.rows[rowIndex].values[metricIndex] ?? null),
+        }))
+        .filter(({ values }) => values.some((value) => value != null));
+      return { key, table, finishColumns, metricRows };
+    })
+    .filter(({ metricRows }) => metricRows.length > 0);
+
   return (
-    <View style={{ gap: SPACING.sm }}>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
-        {ordered.map(({ source: key, headline }) => {
-          if (headline.price == null && headline.foilPrice == null) return null;
+    <View style={{ gap: SPACING.md }}>
+      <View>
+        {headlineRows.map(({ source: key, headline }, index) => {
           const showFoil = isFoil && headline.foilPrice != null;
           const main = showFoil ? headline.foilPrice : headline.price;
           const secondary = showFoil ? headline.price : headline.foilPrice;
@@ -148,42 +164,41 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
             <View
               key={key}
               style={{
-                flexGrow: 1,
-                flexBasis: "45%",
-                gap: 2,
-                paddingHorizontal: SPACING.md,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: SPACING.md,
                 paddingVertical: SPACING.sm + 2,
-                borderRadius: RADIUS.md,
-                borderWidth: 1,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
+                borderTopWidth: index > 0 ? 1 : 0,
+                borderTopColor: colors.border,
               }}
             >
-              <AppText size="xs" tone="secondary" numberOfLines={1}>
-                {headline.label}
-              </AppText>
-              <AppText size="base" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+              <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                <AppText size="sm" weight="medium">
+                  {headline.label}
+                </AppText>
+                {secondary != null ? (
+                  <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                    {t(showFoil ? "priceTable.nonFoilPrice" : "priceTable.foilPrice", {
+                      price: headline.format(secondary),
+                    })}
+                  </AppText>
+                ) : null}
+                {mainAtScan != null && changeSinceScan ? (
+                  <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                    {t("priceTable.priceAtScan", { price: headline.format(mainAtScan) })}{" "}
+                    <AppText
+                      size="xs"
+                      weight="medium"
+                      tone={changeSinceScan.direction === "up" ? "success" : "destructive"}
+                    >
+                      {changeSinceScan.percentLabel}
+                    </AppText>
+                  </AppText>
+                ) : null}
+              </View>
+              <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
                 {main != null ? headline.format(main) : t("priceTable.noPrice")}
               </AppText>
-              {secondary != null ? (
-                <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
-                  {t(showFoil ? "priceTable.nonFoilPrice" : "priceTable.foilPrice", {
-                    price: headline.format(secondary),
-                  })}
-                </AppText>
-              ) : null}
-              {mainAtScan != null && changeSinceScan ? (
-                <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
-                  {t("priceTable.priceAtScan", { price: headline.format(mainAtScan) })}{" "}
-                  <AppText
-                    size="xs"
-                    weight="medium"
-                    tone={changeSinceScan.direction === "up" ? "success" : "destructive"}
-                  >
-                    {changeSinceScan.percentLabel}
-                  </AppText>
-                </AppText>
-              ) : null}
             </View>
           );
         })}
@@ -202,57 +217,54 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
         </AppText>
       </Pressable>
 
-      {open ? (
-        <View style={{ gap: SPACING.md, padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card }}>
-          {ordered.map(({ source: key, table }) => {
-            const rows = table.rows.filter((row) => row.values.some((value) => value != null));
-            if (rows.length === 0) return null;
-            return (
-              <View key={key} style={{ gap: SPACING.xs }}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View>
-                    <View style={{ flexDirection: "row", borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: 6 }}>
-                      <AppText size="xs" tone="secondary" style={{ width: PRICE_TABLE_COLUMN_WIDTH }}>
-                        {table.heading}
-                      </AppText>
-                      {table.columns.map((column) => (
-                        <AppText key={column} size="xs" tone="secondary" style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right" }}>
-                          {column}
-                        </AppText>
-                      ))}
-                    </View>
-                    {rows.map((row) => (
-                      <View
-                        key={row.label}
-                        style={{ flexDirection: "row", paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: colors.border }}
-                      >
-                        <AppText size="xs" tone="secondary" style={{ width: PRICE_TABLE_COLUMN_WIDTH }}>
-                          {row.label}
-                        </AppText>
-                        {row.values.map((value, index) => (
-                          <AppText
-                            key={table.columns[index]}
-                            size="xs"
-                            weight={index === table.highlightColumn ? "semibold" : "regular"}
-                            style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right", fontVariant: ["tabular-nums"] }}
-                          >
-                            {value != null ? table.format(value) : t("priceTable.noPrice")}
-                          </AppText>
-                        ))}
-                      </View>
-                    ))}
-                  </View>
-                </ScrollView>
-                {table.printings > 1 ? (
-                  <AppText size="2xs" tone="secondary">
-                    {t("priceTable.acrossPrintings", { count: table.printings })}
+      {open
+        ? detailTables.map(({ key, table, finishColumns, metricRows }) => (
+            <View key={key} style={{ gap: SPACING.xs }}>
+              <View style={{ flexDirection: "row", alignItems: "flex-end", gap: SPACING.sm, paddingBottom: SPACING.xs }}>
+                <AppText size="sm" weight="semibold" accessibilityRole="header" style={{ flex: 1, minWidth: 0 }}>
+                  {table.heading}
+                </AppText>
+                {finishColumns.map(({ label }) => (
+                  <AppText key={label} size="xs" tone="secondary" style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right" }}>
+                    {label}
                   </AppText>
-                ) : null}
+                ))}
               </View>
-            );
-          })}
-        </View>
-      ) : null}
+              {metricRows.map(({ metric, metricIndex, values }) => (
+                <View
+                  key={metric}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: SPACING.sm,
+                    paddingVertical: SPACING.xs + 2,
+                    borderTopWidth: 1,
+                    borderTopColor: colors.border,
+                  }}
+                >
+                  <AppText size="sm" tone="secondary" style={{ flex: 1, minWidth: 0 }}>
+                    {metric}
+                  </AppText>
+                  {values.map((value, valueIndex) => (
+                    <AppText
+                      key={finishColumns[valueIndex].label}
+                      size="sm"
+                      weight={metricIndex === table.highlightColumn ? "semibold" : "regular"}
+                      style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right", fontVariant: ["tabular-nums"] }}
+                    >
+                      {value != null ? table.format(value) : t("priceTable.noPrice")}
+                    </AppText>
+                  ))}
+                </View>
+              ))}
+              {table.printings > 1 ? (
+                <AppText size="2xs" tone="secondary">
+                  {t("priceTable.acrossPrintings", { count: table.printings })}
+                </AppText>
+              ) : null}
+            </View>
+          ))
+        : null}
     </View>
   );
 }

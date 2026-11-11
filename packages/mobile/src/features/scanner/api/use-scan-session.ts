@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   applyAutoAssignTarget,
@@ -12,7 +13,9 @@ import {
   DEFAULT_FEEDER_CALIBRATION,
   feedWithRetries,
   findScannerControlCommandProblem,
+  isScannerControlCode,
   parseScannerControlCode,
+  parseShareLinkUrl,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
@@ -63,7 +66,7 @@ import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
 import { identifyCard } from "@/features/scanner/lib/identify";
-import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-code";
+import { readScannerQrText } from "@/features/scanner/lib/scanner-control-code";
 import { warmScanModels } from "@/features/scanner/lib/inference";
 import { reportSerialEvent } from "@/features/sorter/api/serial-events";
 import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
@@ -73,7 +76,6 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BIN_DATA_RETRY_MS,
   CONTROL_CARD_NOTICE_DURATION_MS,
-  LIVE_CORNERS_SUPPORTED,
   SESSION_FEED_IMAGE_LIMIT,
   SESSION_FEED_LIMIT,
 } from "@/lib/constants/scanner";
@@ -122,7 +124,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const [autoFeed, setAutoFeedState] = useState(true);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
   const [handScan, setHandScanState] = useState(() => readKv(HAND_SCAN_KEY) === "true");
-  const handScanActive = handScan && LIVE_CORNERS_SUPPORTED && !sorter.isReady;
+  const handScanActive = handScan && !sorter.isReady;
 
   const set = useMemo(() => {
     const forGame = (binSets ?? []).filter(
@@ -801,7 +803,14 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         },
         device?.scanRegion ?? DEFAULT_SCAN_REGION,
       );
-      const controlCode = !outcome.card && captured.frame ? await readScannerControlCode(captured.frame) : null;
+      const qrText = !outcome.card && captured.frame ? await readScannerQrText(captured.frame) : null;
+      const tradeLink = qrText ? parseShareLinkUrl(qrText) : null;
+      if (tradeLink) {
+        pause("user");
+        router.push({ pathname: "/trade", params: { ...tradeLink } });
+        return;
+      }
+      const controlCode = qrText && isScannerControlCode(qrText) ? qrText : null;
       if (controlCode) {
         await applyControlCode(parseScannerControlCode(controlCode));
         if (!runningRef.current && phaseRef.current !== "paused") setPhase("ready");

@@ -1,12 +1,14 @@
 import { useCardDetailCollection } from "@/features/cards/api/use-card-detail-scope";
 import { MTG_ASPECT_RATIO } from "@/lib/constants/scanner";
 import type {
-  OcrOverlayRegion,
   OcrRegionCropsProps,
   RegionCropProps,
 } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
-import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
+import {
+  OCR_REGIONS_BY_GAME_KEY,
+  type OcrOverlayRegion,
+} from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function RegionCrop({ src, label, region }: RegionCropProps) {

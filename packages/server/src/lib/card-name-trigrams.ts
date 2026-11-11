@@ -39,13 +39,19 @@ const indexBySegment = new WeakMap<CardMatchSegment, CardNameTrigramIndex>();
 function nameTrigramIndex(segment: CardMatchSegment): CardNameTrigramIndex {
   const cached = indexBySegment.get(segment);
   if (cached) return cached;
-  const rowsByName = new Map<string, number[]>();
-  segment.names.forEach((name, row) => {
-    const rows = rowsByName.get(name);
-    if (rows) rows.push(row);
-    else rowsByName.set(name, [row]);
-  });
-  const names = [...rowsByName.keys()];
+  const names = segment.nameTable;
+  const rowOffsetsByName = new Int32Array(names.length + 1);
+  for (let row = 0; row < segment.rowCount; row++) {
+    rowOffsetsByName[segment.nameIndexByRow[row] + 1]++;
+  }
+  for (let nameIndex = 0; nameIndex < names.length; nameIndex++) {
+    rowOffsetsByName[nameIndex + 1] += rowOffsetsByName[nameIndex];
+  }
+  const rowsInNameOrder = new Int32Array(segment.rowCount);
+  const nextSlotByName = rowOffsetsByName.slice(0, names.length);
+  for (let row = 0; row < segment.rowCount; row++) {
+    rowsInNameOrder[nextSlotByName[segment.nameIndexByRow[row]]++] = row;
+  }
   const offsets = new Int32Array(names.length + 1);
   const ids: number[] = [];
   names.forEach((name, index) => {
@@ -54,7 +60,8 @@ function nameTrigramIndex(segment: CardMatchSegment): CardNameTrigramIndex {
   });
   const index: CardNameTrigramIndex = {
     names,
-    rowsByName: names.map((name) => rowsByName.get(name)!),
+    rowOffsetsByName,
+    rowsInNameOrder,
     offsets,
     trigramIds: Int32Array.from(ids),
   };
@@ -87,8 +94,12 @@ export function cardsWithSimilarName(
       if (shared === 0) continue;
       const score = shared / (queryTrigrams.length + (end - start) - shared);
       if (score < minSimilarity) continue;
-      for (const row of index.rowsByName[nameIndex]) {
-        matches.push({ segment, row, score });
+      for (
+        let slot = index.rowOffsetsByName[nameIndex];
+        slot < index.rowOffsetsByName[nameIndex + 1];
+        slot++
+      ) {
+        matches.push({ segment, row: index.rowsInNameOrder[slot], score });
       }
     }
   }

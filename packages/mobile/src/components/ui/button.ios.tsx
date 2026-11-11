@@ -3,7 +3,6 @@ import {
   HStack,
   Host,
   Image,
-  ProgressView,
   Text as SwiftUIText,
 } from "@expo/ui/swift-ui";
 import {
@@ -16,15 +15,17 @@ import {
   foregroundStyle,
   frame,
   lineLimit,
+  opacity,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { LoadingLogo } from "@/components/ui/loading-logo";
 import { useTheme } from "@/hooks/use-theme";
 import { IOS_SYMBOLS } from "@/lib/constants/ios-symbols";
 import { SPACING } from "@/lib/constants/theme";
 import {
   BUTTON_HEIGHTS,
-  DISABLED_OPACITY,
   IOS_BUTTON_CONTROL_SIZES,
   IOS_BUTTON_ICON_SIZE,
   IOS_BUTTON_LABEL_FONT_SIZES,
@@ -54,18 +55,18 @@ export function Button({
   }[variant];
   const inactive = disabled || loading;
   const hasLeadingGlyph = loading || !!icon;
+  const [nativeContentHeight, setNativeContentHeight] = useState(0);
 
   return (
     <View
       style={[
         {
-          minHeight: BUTTON_HEIGHTS[size],
+          minHeight: Math.max(BUTTON_HEIGHTS[size], nativeContentHeight),
           paddingHorizontal: size === "sm" ? SPACING.md + 2 : SPACING.xl,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
           gap: SPACING.xs + 2,
-          opacity: inactive ? DISABLED_OPACITY : 1,
         },
         style,
       ]}
@@ -83,7 +84,13 @@ export function Button({
           </Text>
         )}
       </View>
-      <Host style={StyleSheet.absoluteFill}>
+      <Host
+        alignment="center"
+        style={StyleSheet.absoluteFill}
+        onLayoutContent={({ nativeEvent }) =>
+          setNativeContentHeight((current) => Math.max(current, Math.ceil(nativeEvent.height)))
+        }
+      >
         <SwiftUIButton
           role={variant === "destructive" ? "destructive" : "default"}
           onPress={inactive ? undefined : onPress}
@@ -105,7 +112,7 @@ export function Button({
             ]}
           >
             {loading ? (
-              <ProgressView />
+              <Image systemName={IOS_SYMBOLS[icon ?? "refresh"]} size={IOS_BUTTON_ICON_SIZE} modifiers={[opacity(0)]} />
             ) : icon ? (
               <Image systemName={IOS_SYMBOLS[icon]} size={IOS_BUTTON_ICON_SIZE} />
             ) : (
@@ -115,6 +122,30 @@ export function Button({
           </HStack>
         </SwiftUIButton>
       </Host>
+      {loading ? (
+        <View
+          pointerEvents="none"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              paddingHorizontal: size === "sm" ? SPACING.md + 2 : SPACING.xl,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: SPACING.xs + 2,
+            },
+          ]}
+        >
+          <LoadingLogo size={IOS_BUTTON_ICON_SIZE} color={appearance.foregroundColor} />
+          {iconOnly ? null : (
+            <Text numberOfLines={1} style={{ fontSize: IOS_BUTTON_LABEL_FONT_SIZES[size], fontWeight: "600", opacity: 0 }}>
+              {label}
+            </Text>
+          )}
+        </View>
+      ) : null}
     </View>
   );
 }

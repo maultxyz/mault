@@ -1,3 +1,4 @@
+import type { ShareLinkPurpose } from "./monitor-links.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
 import type { CardCondition, ConditionMultipliers } from "./card-condition.interface";
 import type { CardStatsAggregate } from "./collection-cards.interface";
@@ -157,7 +158,7 @@ export interface StorageShareLinkInfo {
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;
   showsPrices: boolean;
-  holdMinutes: number | null;
+  purpose: ShareLinkPurpose;
 }
 
 export type SharedStorageCard = Pick<
@@ -165,9 +166,3 @@ export type SharedStorageCard = Pick<
   "scanId" | "position" | "card" | "isFoil" | "foilType" | "stamp" | "condition" | "language"
 >;
 
-export interface SharedStorageCardPage {
-  cards: SharedStorageCard[];
-  total: number;
-  page: number;
-  pageSize: number;
-}

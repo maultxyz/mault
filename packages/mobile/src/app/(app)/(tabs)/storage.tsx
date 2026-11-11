@@ -2,7 +2,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import { CardRow } from "@/components/cards/card-row";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { storageLocationsPageQueryOptions, storageSearchQueryOptions } from "@/features/storage/api/storage";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -38,6 +39,7 @@ export default function StorageScreen() {
   return (
     <Screen
       scroll={false}
+      contentStartsWithList
       header={
         <PageHeader
           title={t("storage.title")}
@@ -69,6 +71,7 @@ export default function StorageScreen() {
       }
     >
       <FlatList
+        contentInsetAdjustmentBehavior="automatic"
         style={{ marginHorizontal: -SCREEN_GUTTER }}
         data={query ? [] : list}
         keyExtractor={(location) => location.guid}
@@ -88,48 +91,50 @@ export default function StorageScreen() {
           />
         }
         ListHeaderComponent={
-          <View style={{ gap: SPACING.lg, paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.lg }}>
-            {locked ? (
-              <Callout
-                tone="info"
-                title={t("storage.businessOnly")}
-                description={list.length > 0 ? t("storage.lockedWithLocations") : t("storage.locked")}
-              />
-            ) : null}
-            {locations.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
-            {query ? (
-              results.data && results.data.length === 0 ? (
-                <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
-              ) : (
-                <View style={{ marginHorizontal: -SPACING.sm }}>
-                  {(results.data ?? []).map((entry) => (
-                    <CardRow
-                      key={entry.scanId}
-                      name={entry.card.name}
-                      subtitle={`${entry.locationName} · ${t("storage.position", { position: entry.position })}`}
-                      imageUrl={absoluteUrl(entry.card.image?.small)}
-                      onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: entry.locationGuid } })}
-                    />
-                  ))}
-                </View>
-              )
-            ) : null}
-          </View>
+          locked || locations.isError || query ? (
+            <View style={{ gap: SPACING.lg, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.lg }}>
+              {locked ? (
+                <Callout
+                  tone="info"
+                  title={t("storage.businessOnly")}
+                  description={list.length > 0 ? t("storage.lockedWithLocations") : t("storage.locked")}
+                />
+              ) : null}
+              {locations.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
+              {query ? (
+                results.data && results.data.length === 0 ? (
+                  <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
+                ) : (
+                  <View style={{ marginHorizontal: -SPACING.sm }}>
+                    {(results.data ?? []).map((entry) => (
+                      <CardRow
+                        key={entry.scanId}
+                        name={entry.card.name}
+                        subtitle={`${entry.locationName} · ${t("storage.position", { position: entry.position })}`}
+                        imageUrl={absoluteUrl(entry.card.image?.small)}
+                        onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: entry.locationGuid } })}
+                      />
+                    ))}
+                  </View>
+                )
+              ) : null}
+            </View>
+          ) : undefined
         }
         ListEmptyComponent={
-          query ? null : locations.isPending ? (
-            <View style={{ gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER }}>
+          query ? undefined : locations.isPending ? (
+            <View style={{ gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER }}>
               <Skeleton height={52} />
               <Skeleton height={52} />
             </View>
           ) : (
-            <View style={{ paddingHorizontal: SCREEN_GUTTER }}>
+            <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER }}>
               <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
             </View>
           )
         }
         ListFooterComponent={
-          locations.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
+          locations.isFetchingNextPage ? <ListLoadingFooter /> : undefined
         }
         ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.border }} />}
         renderItem={({ item: location }) => (

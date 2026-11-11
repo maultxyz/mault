@@ -1,17 +1,15 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Modal, Pressable, ScrollView, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
-import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { Sheet } from "@/components/ui/sheet";
+import { LoadingLogo } from "@/components/ui/loading-logo";
+import { LOADING_LOGO_INLINE_SIZE } from "@/lib/constants/loading";
 import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
-import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import type { ScannerControlAction, ScannerControlsSheetProps } from "@/lib/interfaces/scanner";
 
 export function ScannerControlsSheet({
@@ -24,8 +22,6 @@ export function ScannerControlsSheet({
   onClose,
 }: ScannerControlsSheetProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
-  const insets = useSafeAreaInsets();
   const sorter = useSorter();
   const retract = useRetractCard();
   const [busy, setBusy] = useState<ScannerControlAction | null>(null);
@@ -47,106 +43,72 @@ export function ScannerControlsSheet({
   };
 
   const spinner = (action: ScannerControlAction) =>
-    busy === action ? <ActivityIndicator size="small" color={colors.foregroundSecondary} /> : undefined;
+    busy === action ? <LoadingLogo size={LOADING_LOGO_INLINE_SIZE} /> : undefined;
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
-        style={{
-          backgroundColor: colors.background,
-          borderTopLeftRadius: RADIUS.xl,
-          borderTopRightRadius: RADIUS.xl,
-          borderWidth: 1,
-          borderBottomWidth: 0,
-          borderColor: colors.border,
-          ...SHEET_SHADOW,
-          shadowColor: colors.popoverShadow,
-          paddingBottom: insets.bottom + SPACING.md,
-        }}
-      >
-        <View style={{ alignItems: "center", paddingTop: SPACING.sm }}>
-          <View style={{ width: 36, height: 4, borderRadius: RADIUS.full, backgroundColor: colors.border }} />
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: SPACING.sm,
-            paddingHorizontal: SCREEN_GUTTER,
-            paddingVertical: SPACING.md,
+    <Sheet visible={visible} onClose={onClose} title={t("scan.controls.title")} contentContainerStyle={{ gap: SPACING.md }}>
+      {running ? <Callout tone="info" title={t("scan.controls.pausedHint")} /> : null}
+      {failed ? <Callout tone="destructive" title={t("scan.controls.failed")} /> : null}
+      <ListGroup>
+        <ListRow
+          icon="scan"
+          title={t("scan.controls.scanNow")}
+          subtitle={t("scan.controls.scanNowDescription")}
+          disabled={running || !canScan || busy !== null}
+          right={spinner("scan")}
+          onPress={() => {
+            onScanNow();
+            onClose();
           }}
-        >
-          <AppText size="lg" heading weight="bold" accessibilityRole="header" style={{ flex: 1 }}>
-            {t("scan.controls.title")}
-          </AppText>
-          <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
-        </View>
-        <ScrollView style={{ maxHeight: "80%" }} contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}>
-          {running ? <Callout tone="info" title={t("scan.controls.pausedHint")} /> : null}
-          {failed ? <Callout tone="destructive" title={t("scan.controls.failed")} /> : null}
-          <ListGroup>
-            <ListRow
-              icon="scan"
-              title={t("scan.controls.scanNow")}
-              subtitle={t("scan.controls.scanNowDescription")}
-              disabled={running || !canScan || busy !== null}
-              right={spinner("scan")}
-              onPress={() => {
-                onScanNow();
-                onClose();
-              }}
-            />
-            <ListRow
-              icon="play"
-              title={t("scan.controls.feed")}
-              subtitle={t("scan.controls.feedDescription")}
-              disabled={feedDisabled || !canScan}
-              right={spinner("feed")}
-              onPress={() => void run("feed", onFeedOne, true)}
-            />
-            <ListRow
-              icon="arrowDown"
-              title={t("scan.controls.drop")}
-              subtitle={t("scan.controls.dropDescription")}
-              disabled={sorterActionsDisabled}
-              right={spinner("drop")}
-              onPress={() => void run("drop", sorter.clearDevice)}
-            />
-            <ListRow
-              icon="arrowUp"
-              title={t("scan.controls.retract")}
-              subtitle={retract.retractLockedReason ?? t("scan.controls.retractDescription")}
-              disabled={sorterActionsDisabled || retract.retractLockedReason !== null}
-              right={spinner("retract")}
-              onPress={() => void run("retract", () => retract.retractCard())}
-            />
-            <ListRow
-              icon="refresh"
-              title={t("scan.controls.neutral")}
-              subtitle={t("scan.controls.neutralDescription")}
-              disabled={sorterActionsDisabled}
-              right={spinner("neutral")}
-              onPress={() =>
-                void run("neutral", async () => {
-                  if (!(await sorter.sendNeutral())) throw new Error("neutral");
-                })
-              }
-            />
-          </ListGroup>
-          <ListGroup>
-            <ListRow
-              icon="sorter"
-              title={t("scan.controls.sorter")}
-              subtitle={t("scan.controls.sorterDescription")}
-              onPress={() => {
-                onClose();
-                router.push("/sorter");
-              }}
-            />
-          </ListGroup>
-        </ScrollView>
-      </View>
-    </Modal>
+        />
+        <ListRow
+          icon="play"
+          title={t("scan.controls.feed")}
+          subtitle={t("scan.controls.feedDescription")}
+          disabled={feedDisabled || !canScan}
+          right={spinner("feed")}
+          onPress={() => void run("feed", onFeedOne, true)}
+        />
+        <ListRow
+          icon="arrowDown"
+          title={t("scan.controls.drop")}
+          subtitle={t("scan.controls.dropDescription")}
+          disabled={sorterActionsDisabled}
+          right={spinner("drop")}
+          onPress={() => void run("drop", sorter.clearDevice)}
+        />
+        <ListRow
+          icon="arrowUp"
+          title={t("scan.controls.retract")}
+          subtitle={retract.retractLockedReason ?? t("scan.controls.retractDescription")}
+          disabled={sorterActionsDisabled || retract.retractLockedReason !== null}
+          right={spinner("retract")}
+          onPress={() => void run("retract", () => retract.retractCard())}
+        />
+        <ListRow
+          icon="refresh"
+          title={t("scan.controls.neutral")}
+          subtitle={t("scan.controls.neutralDescription")}
+          disabled={sorterActionsDisabled}
+          right={spinner("neutral")}
+          onPress={() =>
+            void run("neutral", async () => {
+              if (!(await sorter.sendNeutral())) throw new Error("neutral");
+            })
+          }
+        />
+      </ListGroup>
+      <ListGroup>
+        <ListRow
+          icon="sorter"
+          title={t("scan.controls.sorter")}
+          subtitle={t("scan.controls.sorterDescription")}
+          onPress={() => {
+            onClose();
+            router.push("/sorter");
+          }}
+        />
+      </ListGroup>
+    </Sheet>
   );
 }

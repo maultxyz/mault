@@ -12,6 +12,7 @@ import {
   type CollectionCardPosition,
   type CollectionCardsQuery,
   type MonitorLink,
+  type ShareLinkPurpose,
   SHARE_LINK_TOKEN_PARAM,
   WATCH_PATH_PREFIX,
   type CollectionCardsPage,
@@ -193,10 +194,10 @@ export function createMonitorLink(
   guid: string,
   expiresInDays: number,
   showPrices: boolean,
-  holdMinutes: number | null,
+  purpose: ShareLinkPurpose,
 ): Promise<MonitorLink> {
   return unwrap(
-    apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays, showPrices, holdMinutes }),
+    apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays, showPrices, purpose }),
   );
 }
 
