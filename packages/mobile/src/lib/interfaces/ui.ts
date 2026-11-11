@@ -422,3 +422,20 @@ export interface QrCodeProps {
   size: number;
   accessibilityLabel: string;
 }
+
+export interface SheetContentProps {
+  title: string;
+  description?: string | null;
+  headerLeading?: ReactNode;
+  headerAction?: ReactNode;
+  footer?: ReactNode;
+  scrollable?: boolean;
+  maxHeightRatio?: number;
+  contentContainerStyle?: StyleProp<ViewStyle>;
+  children: ReactNode;
+}
+
+export interface SheetProps extends SheetContentProps {
+  visible: boolean;
+  onClose: () => void;
+}

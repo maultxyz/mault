@@ -32,7 +32,7 @@ export function IconButton({
   }[variant];
 
   return (
-    <Host style={{ width: size, height: size, opacity: disabled ? DISABLED_OPACITY : 1 }}>
+    <Host alignment="center" style={{ width: size, height: size, opacity: disabled ? DISABLED_OPACITY : 1 }}>
       <SwiftUIButton
         onPress={disabled ? undefined : onPress}
         modifiers={[

@@ -1,14 +1,11 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Modal, Pressable, ScrollView, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppText } from "@/components/ui/app-text";
+import { ScrollView, View } from "react-native";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { Pill } from "@/components/ui/pill";
 import { SearchInput } from "@/components/ui/search-input";
-import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
+import { Sheet } from "@/components/ui/sheet";
+import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { OptionSheetProps } from "@/lib/interfaces/ui";
 
 export function OptionSheet({
@@ -21,9 +18,6 @@ export function OptionSheet({
   searchPlaceholder,
   maxVisibleOptions,
 }: OptionSheetProps) {
-  const { t } = useTranslation();
-  const colors = useTheme();
-  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
   const visibleOptions = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -43,65 +37,34 @@ export function OptionSheet({
     onSelect(value);
   };
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={close} statusBarTranslucent>
-      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={close} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View accessibilityViewIsModal onAccessibilityEscape={close}
-        style={{
-          maxHeight: "75%",
-          backgroundColor: colors.background,
-          borderTopLeftRadius: RADIUS.xl,
-          borderTopRightRadius: RADIUS.xl,
-          borderWidth: 1,
-          borderBottomWidth: 0,
-          borderColor: colors.border,
-          ...SHEET_SHADOW,
-          shadowColor: colors.popoverShadow,
-          paddingBottom: insets.bottom + SPACING.md,
-        }}
+    <Sheet visible={visible} onClose={close} title={title} scrollable={false}>
+      {searchPlaceholder ? (
+        <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.sm }}>
+          <SearchInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder={searchPlaceholder}
+            accessibilityLabel={searchPlaceholder}
+          />
+        </View>
+      ) : null}
+      <ScrollView
+        style={{ flexShrink: 1 }}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER }}
       >
-        <View style={{ alignItems: "center", paddingTop: SPACING.sm }}>
-          <View style={{ width: 36, height: 4, borderRadius: RADIUS.full, backgroundColor: colors.border }} />
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingHorizontal: SCREEN_GUTTER,
-            paddingVertical: SPACING.md,
-          }}
-        >
-          <AppText size="base" heading weight="semibold" accessibilityRole="header" style={{ flexShrink: 1 }}>
-            {title}
-          </AppText>
-        </View>
-        {searchPlaceholder ? (
-          <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.sm }}>
-            <SearchInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder={searchPlaceholder}
-              accessibilityLabel={searchPlaceholder}
+        <ListGroup>
+          {visibleOptions.map((option) => (
+            <ListRow
+              key={option.value}
+              title={option.label}
+              right={option.badge ? <Pill label={option.badge} /> : undefined}
+              selected={selected.includes(option.value)}
+              onPress={() => select(option.value)}
             />
-          </View>
-        ) : null}
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER }}
-        >
-          <ListGroup>
-            {visibleOptions.map((option) => (
-              <ListRow
-                key={option.value}
-                title={option.label}
-                right={option.badge ? <Pill label={option.badge} /> : undefined}
-                selected={selected.includes(option.value)}
-                onPress={() => select(option.value)}
-              />
-            ))}
-          </ListGroup>
-        </ScrollView>
-      </View>
-    </Modal>
+          ))}
+        </ListGroup>
+      </ScrollView>
+    </Sheet>
   );
 }

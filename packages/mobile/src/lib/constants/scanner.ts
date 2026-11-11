@@ -1,4 +1,3 @@
-import { Platform } from "react-native";
 import type { ScannerPauseReason, ScannerPhase, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
 import type { CardScanNoticeKind } from "@/lib/interfaces/storage";
 
@@ -52,7 +51,6 @@ export const LIVE_OUTLINE_SMOOTHING_MS = 160;
 export const MOBILE_HAND_SCAN_STABLE_TICKS = 2;
 export const LIVE_OUTLINE_DEADBAND_RATIO = 0.012;
 export const LIVE_OUTLINE_MISSES_BEFORE_HIDE = 2;
-export const LIVE_CORNERS_SUPPORTED = Platform.OS === "android";
 export const LIVE_DETECTION_PAUSED_PHASES: ScannerPhase[] = ["loading-models", "capturing", "identifying", "error"];
 
 export const NOT_FOIL_OPTION = "none";
@@ -83,3 +81,5 @@ export const BATCH_SCAN_THUMBNAIL_WIDTH = 44;
 export const TORCH_DEFAULT_STRENGTH_PERCENT = 100;
 export const TORCH_MIN_STRENGTH_PERCENT = 10;
 export const TORCH_STRENGTH_STEP_PERCENT = 10;
+export const LIVE_FRAME_TARGET_RESOLUTION = { width: 480, height: 640 } as const;
+export const LIVE_FRAME_TIMEOUT_MS = 1500;

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Modal, ScrollView, View } from "react-native";
+import { Modal, Platform, ScrollView, View } from "react-native";
 import { PageHeader } from "@/components/ui/page-header";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { useTheme } from "@/hooks/use-theme";
@@ -14,7 +14,7 @@ export function BatchScanCorrectionSheet({ card, collectionGuid, onSelect, onClo
   return (
     <Modal visible={!!card} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: colors.background }}>
-        <PageHeader rendersInsideReactNativeModal title={t("batchScan.pickCard")} subtitle={currentName || null} onBack={onClose} />
+        <PageHeader rendersInsideReactNativeModal title={t("batchScan.pickCard")} subtitle={currentName || null} onBack={Platform.OS === "ios" ? undefined : onClose} />
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: SCREEN_GUTTER, paddingBottom: SPACING.xxl }}

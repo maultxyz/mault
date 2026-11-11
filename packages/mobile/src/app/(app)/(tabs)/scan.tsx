@@ -4,6 +4,7 @@ import { router, useIsFocused } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   binSetMode,
   CARD_CONDITIONS,
@@ -30,6 +31,7 @@ import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
+import { useLiveFrameSource } from "@/features/scanner/api/use-live-frame-source";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
@@ -139,8 +141,9 @@ export default function ScanScreen() {
   const working = RUNNING_PHASES.includes(session.phase);
   const cameraRef = useRef<CameraRef>(null);
   const torch = useCameraTorch(device, cameraRef);
+  const { liveFrameOutput, grabLiveFrame } = useLiveFrameSource(cameraRef);
   const liveCorners = useLiveCorners(
-    cameraRef,
+    grabLiveFrame,
     focused && appState === "active" && !!device && permission.hasPermission && !session.modelError,
     LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
     session.trackLiveCorners,
@@ -267,7 +270,7 @@ export default function ScanScreen() {
             style={StyleSheet.absoluteFill}
             device={device}
             isActive={focused && appState === "active"}
-            outputs={[photoOutput]}
+            outputs={liveFrameOutput ? [photoOutput, liveFrameOutput] : [photoOutput]}
             resizeMode="cover"
             enableNativeTapToFocusGesture
             onStarted={torch.onCameraStarted}
@@ -353,7 +356,11 @@ export default function ScanScreen() {
         ) : null}
       </View>
 
-      <View pointerEvents="box-none" style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
+      <SafeAreaView
+        edges={["bottom"]}
+        pointerEvents="box-none"
+        style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
+      >
         <View
           pointerEvents="box-none"
           style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.lg, gap: SPACING.md }}
@@ -410,7 +417,7 @@ export default function ScanScreen() {
             </View>
           </View>
         </View>
-      </View>
+      </SafeAreaView>
       <ScanOptionsSheet
         visible={optionsOpen}
         running={session.isRunning}

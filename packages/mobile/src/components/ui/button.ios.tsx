@@ -18,6 +18,7 @@ import {
   lineLimit,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTheme } from "@/hooks/use-theme";
 import { IOS_SYMBOLS } from "@/lib/constants/ios-symbols";
@@ -54,12 +55,13 @@ export function Button({
   }[variant];
   const inactive = disabled || loading;
   const hasLeadingGlyph = loading || !!icon;
+  const [nativeContentHeight, setNativeContentHeight] = useState(0);
 
   return (
     <View
       style={[
         {
-          minHeight: BUTTON_HEIGHTS[size],
+          minHeight: Math.max(BUTTON_HEIGHTS[size], nativeContentHeight),
           paddingHorizontal: size === "sm" ? SPACING.md + 2 : SPACING.xl,
           flexDirection: "row",
           alignItems: "center",
@@ -83,7 +85,13 @@ export function Button({
           </Text>
         )}
       </View>
-      <Host style={StyleSheet.absoluteFill}>
+      <Host
+        alignment="center"
+        style={StyleSheet.absoluteFill}
+        onLayoutContent={({ nativeEvent }) =>
+          setNativeContentHeight((current) => Math.max(current, Math.ceil(nativeEvent.height)))
+        }
+      >
         <SwiftUIButton
           role={variant === "destructive" ? "destructive" : "default"}
           onPress={inactive ? undefined : onPress}

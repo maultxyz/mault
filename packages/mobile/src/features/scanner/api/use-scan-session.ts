@@ -76,7 +76,6 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BIN_DATA_RETRY_MS,
   CONTROL_CARD_NOTICE_DURATION_MS,
-  LIVE_CORNERS_SUPPORTED,
   SESSION_FEED_IMAGE_LIMIT,
   SESSION_FEED_LIMIT,
 } from "@/lib/constants/scanner";
@@ -125,7 +124,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const [autoFeed, setAutoFeedState] = useState(true);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
   const [handScan, setHandScanState] = useState(() => readKv(HAND_SCAN_KEY) === "true");
-  const handScanActive = handScan && LIVE_CORNERS_SUPPORTED && !sorter.isReady;
+  const handScanActive = handScan && !sorter.isReady;
 
   const set = useMemo(() => {
     const forGame = (binSets ?? []).filter(
