@@ -319,7 +319,8 @@ export interface SwitchControlProps {
 
 export interface PinnedActionsLayoutProps {
   children: ReactNode;
-  actions: ReactNode;
+  actions?: ReactNode;
+  actionsDirection?: "row" | "column";
 }
 
 export interface SaveBarProps {

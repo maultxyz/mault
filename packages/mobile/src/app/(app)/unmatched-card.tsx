@@ -3,14 +3,14 @@ import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, View } from "react-native";
 import type { PlayingCard } from "@magic-vault/shared";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import {
@@ -33,7 +33,6 @@ export default function UnmatchedCardScreen() {
   const colors = useTheme();
   const queryClient = useQueryClient();
   const width = usePanelWidth();
-  const insets = useSafeAreaInsets();
   const unmatched = useInfiniteQuery(unmatchedCardsQueryOptions(guid));
   const cards = unmatched.data?.pages.flatMap((page) => page.cards) ?? [];
   const index = cards.findIndex((card) => card.scanId === scanId);
@@ -79,9 +78,19 @@ export default function UnmatchedCardScreen() {
         title={t("unmatchedCards.identifyTitle")}
         subtitle={scan ? formatDateTime(scan.scannedAt, i18n.language) : null}
       />
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}
+      <PinnedActionsLayout
+        actions={
+          scan ? (
+            <Button
+              variant="destructive"
+              icon="trash"
+              label={t("unmatchedCards.remove")}
+              loading={remove.isPending}
+              disabled={identify.isPending}
+              onPress={confirmRemove}
+            />
+          ) : null
+        }
       >
         {!scan && !unmatched.isPending ? <Callout tone="warning" title={t("unmatchedCards.notFound")} /> : null}
         {scan || unmatched.isPending ? (
@@ -134,27 +143,7 @@ export default function UnmatchedCardScreen() {
             />
           </View>
         ) : null}
-      </ScrollView>
-      {scan ? (
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            paddingHorizontal: SCREEN_GUTTER,
-            paddingTop: SPACING.md,
-            paddingBottom: SPACING.md + insets.bottom,
-          }}
-        >
-          <Button
-            variant="destructive"
-            icon="trash"
-            label={t("unmatchedCards.remove")}
-            loading={remove.isPending}
-            disabled={identify.isPending}
-            onPress={confirmRemove}
-          />
-        </View>
-      ) : null}
+      </PinnedActionsLayout>
     </View>
   );
 }

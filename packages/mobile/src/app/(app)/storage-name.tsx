@@ -3,14 +3,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { TextField } from "@/components/ui/text-field";
 import { createStorageLocation, renameStorageLocation } from "@/features/storage/api/storage";
 import { useTheme } from "@/hooks/use-theme";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { storageLocationNameFormSchema, type StorageLocationNameFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
@@ -34,9 +34,18 @@ export default function StorageNameScreen() {
   });
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader title={editing ? t("storage.rename") : t("storage.newLocation")} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, gap: SPACING.xl }}>
+      <PinnedActionsLayout
+        actions={
+          <Button
+            size="lg"
+            label={editing ? t("storage.save") : t("storage.create")}
+            loading={save.isPending}
+            onPress={form.handleSubmit((values) => save.mutate(values))}
+          />
+        }
+      >
         {save.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
         <Controller
           control={form.control}
@@ -53,13 +62,7 @@ export default function StorageNameScreen() {
             />
           )}
         />
-        <Button
-          size="lg"
-          label={editing ? t("storage.save") : t("storage.create")}
-          loading={save.isPending}
-          onPress={form.handleSubmit((values) => save.mutate(values))}
-        />
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </PinnedActionsLayout>
+    </View>
   );
 }
