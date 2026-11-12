@@ -15,6 +15,8 @@ import { syncGameFoilTypesFromTcgplayer } from "../src/lib/tcgplayer-foil-types"
 import { syncTcgplayerSkus } from "../src/lib/tcgplayer-sku-sync";
 
 const log = (msg: string) => console.log(`[sync-prices] ${msg}`);
+const warnPartialFailure = (msg: string) =>
+  console.log(`::warning::[sync-prices] ${msg}`);
 const force = process.argv.includes("--force");
 const refreshOnly = process.argv.includes("--refresh-only");
 const gameKeys = process.argv
@@ -74,7 +76,9 @@ async function run(): Promise<boolean> {
   try {
     log("TCGplayer: starting.");
     const tcgplayer = await syncTcgplayerPrices({ force, gameKeys, log });
-    ok &&= tcgplayer.failedSets === 0;
+    if (tcgplayer.failedSets > 0) {
+      warnPartialFailure(`TCGplayer: ${tcgplayer.failedSets} sets failed.`);
+    }
     pulled ||= tcgplayer.prices > 0 || tcgplayer.products > 0;
     sources.TCGplayer =
       tcgplayer.prices > 0 || tcgplayer.products > 0
@@ -95,7 +99,9 @@ async function run(): Promise<boolean> {
   try {
     log("TCGplayer SKUs: starting.");
     const skus = await syncTcgplayerSkus({ force, gameKeys, log });
-    ok &&= skus.failedSets === 0;
+    if (skus.failedSets > 0) {
+      warnPartialFailure(`TCGplayer SKUs: ${skus.failedSets} sets failed.`);
+    }
     pulled ||= skus.sets > 0;
     log(
       skus.skipped
@@ -110,7 +116,9 @@ async function run(): Promise<boolean> {
   try {
     log("Cardmarket: starting.");
     const cardmarket = await syncCardmarketPrices({ force, gameKeys, log });
-    ok &&= cardmarket.failedGames === 0;
+    if (cardmarket.failedGames > 0) {
+      warnPartialFailure(`Cardmarket: ${cardmarket.failedGames} games failed.`);
+    }
     pulled ||= cardmarket.prices > 0 || cardmarket.products > 0;
     sources.Cardmarket =
       cardmarket.prices > 0 || cardmarket.products > 0
