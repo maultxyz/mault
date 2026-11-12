@@ -211,6 +211,7 @@ function publicState(session: PiScanLive | undefined): PiScanSessionState {
     removalBinNumber: session.removalBinNumber,
     removalEntries: session.removalEntries,
     removalBusy: session.removalBusy,
+    pendingSave: session.pendingSave,
     soundEvents: session.soundEvents.filter(
       (event) => event.at > Date.now() - 10_000,
     ),
@@ -992,14 +993,42 @@ async function processMatched(
     },
     persist: async (decision) => {
       if (decision.action !== "route" || !decision.bin) return;
-      const saved = await saveThroughCollectionRoute(
-        session.orgId,
-        session.collectionGuid,
-        decision.persistence.kind,
-        { ...decision.persistence.record, deviceGuid: context.deviceGuid },
-        saveOptions(session),
-      );
-      if (!saved.success) throw new Error(saved.message);
+      const collectionGuid = session.collectionGuid;
+      const publishesPendingSave = decision.persistence.kind === "cards";
+      const publishPendingSave = (status: "saving" | "saved" | "failed") => {
+        session.pendingSave = {
+          updatedAt: Math.max(
+            Date.now(),
+            (session.pendingSave?.updatedAt ?? 0) + 1,
+          ),
+          orgId: session.orgId,
+          collectionGuid,
+          scanId,
+          status,
+          card: {
+            id: card.id,
+            name: card.name,
+            set: card.set,
+            collectorNumber: card.collectorNumber,
+          },
+        };
+        emitToOrg(session.orgId, "pi_scan_pending_save", session.pendingSave);
+      };
+      if (publishesPendingSave) publishPendingSave("saving");
+      try {
+        const saved = await saveThroughCollectionRoute(
+          session.orgId,
+          collectionGuid,
+          decision.persistence.kind,
+          { ...decision.persistence.record, deviceGuid: context.deviceGuid },
+          saveOptions(session),
+        );
+        if (!saved.success) throw new Error(saved.message);
+        if (publishesPendingSave) publishPendingSave("saved");
+      } catch (error) {
+        if (publishesPendingSave) publishPendingSave("failed");
+        throw error;
+      }
       const update = decision.pickListUpdate;
       if (update) {
         const pickList = await recordPickFound(
@@ -1633,6 +1662,7 @@ function createSession(
     resolveDone = resolve;
   });
   return {
+    pendingSave: null,
     configurationVersion: 0,
     allowDuplicates: body.allowDuplicates !== false,
     lastCardId: null,

@@ -14,6 +14,7 @@ import type {
   FieldMeta,
   OcrDiagnostics,
   PiScanSessionActivity,
+  PiScanPendingSave,
   PiScanSessionPhase,
   PiScanSessionSight,
   PiScanSessionStartBody,
@@ -80,6 +81,7 @@ export interface PiScanRunContext extends PiScanSorterConfiguration {
 }
 
 export interface PiScanLive {
+  pendingSave: PiScanPendingSave | null;
   configurationVersion: number;
   allowDuplicates: boolean;
   lastCardId: string | null;

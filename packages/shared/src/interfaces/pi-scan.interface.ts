@@ -16,7 +16,22 @@ export interface PiScanSessionSight {
   matched: boolean;
 }
 
+export interface PiScanPendingSave {
+  updatedAt: number;
+  orgId: string;
+  collectionGuid: string;
+  scanId: string;
+  status: "saving" | "saved" | "failed";
+  card: {
+    id: string;
+    name: string;
+    set: string;
+    collectorNumber: string;
+  };
+}
+
 export interface PiScanSessionState {
+  pendingSave?: PiScanPendingSave | null;
   allowDuplicates?: boolean;
   removalEnabled?: boolean;
   removalBinNumber?: number | null;

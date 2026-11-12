@@ -1,3 +1,6 @@
+import { useOrg } from "@/features/companies/api/use-organization";
+import { createPiScanPendingSaveObserver } from "@/features/scanner/lib/pi-scan-pending-save";
+import type { PiScanPendingSave } from "@magic-vault/shared";
 import { usePiHost } from "@/hooks/use-pi-host";
 import { usePiScanSound } from "@/features/sounds/api/use-pi-scan-sound";
 import { Button } from "@/components/ui/button";
@@ -19,7 +22,7 @@ import {
   takePiScanAnnouncement,
 } from "@/features/scanner/lib/pi-scan-store";
 import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
-import { useCollectionStream } from "@/lib/app-stream";
+import { useAppStreamSource, useCollectionStream } from "@/lib/app-stream";
 import { PI_SCAN_CARD_EVENTS } from "@/lib/constants/scanner";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -29,7 +32,7 @@ import {
   IconPlayerPlay,
   IconPlayerStop,
 } from "@tabler/icons-react";
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
@@ -41,6 +44,40 @@ export function PiScanStatusBar() {
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
   const piHost = usePiHost();
   usePiScanSound(state, piHost);
+  const { activeOrg } = useOrg();
+  const appStream = useAppStreamSource();
+  const pendingSaveObserver = useMemo(
+    () =>
+      createPiScanPendingSaveObserver(activeOrg?.id ?? null, (guid) => {
+        void invalidateCollectionCards(queryClient, guid);
+      }),
+    [activeOrg?.id, queryClient],
+  );
+  useEffect(() => () => pendingSaveObserver.clear(), [pendingSaveObserver]);
+  useEffect(() => {
+    if (
+      !piHost ||
+      (!state.pendingSave &&
+        state.phase !== "running" &&
+        state.phase !== "paused")
+    ) {
+      pendingSaveObserver.clear();
+      return;
+    }
+    if (state.pendingSave) pendingSaveObserver.apply(state.pendingSave);
+  }, [pendingSaveObserver, piHost, state.pendingSave, state.phase]);
+  useEffect(() => {
+    if (!piHost || !appStream) return;
+    const receive = (event: Event) => {
+      try {
+        pendingSaveObserver.apply(
+          JSON.parse((event as MessageEvent).data) as PiScanPendingSave,
+        );
+      } catch {}
+    };
+    appStream.addEventListener("pi_scan_pending_save", receive);
+    return () => appStream.removeEventListener("pi_scan_pending_save", receive);
+  }, [pendingSaveObserver, piHost, appStream]);
   const { collections } = useCollections();
   const { station } = useStation();
   const { claimStationCollection } = useStations();

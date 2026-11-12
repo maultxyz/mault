@@ -94,3 +94,26 @@ it("a delayed poll from the previous organization cannot replace new state", asy
   expect(getPiScanState().phase).toBe("paused");
   unsubscribe();
 });
+
+it("publishes pending-save-only transitions and clears them on organization reset", () => {
+  resetPiScanScope("org-a");
+  const original = { ...IDLE_PI_SCAN_SESSION, collectionGuid: "collection" };
+  applyPiScanState(original);
+  const pending = {
+    orgId: "org-a",
+    collectionGuid: "collection",
+    scanId: "scan",
+    status: "saving" as const,
+    updatedAt: 1,
+    card: { id: "card", name: "Card", set: "set", collectorNumber: "1" },
+  };
+  applyPiScanState({ ...original, pendingSave: pending });
+  expect(getPiScanState().pendingSave?.status).toBe("saving");
+  applyPiScanState({
+    ...original,
+    pendingSave: { ...pending, status: "saved", updatedAt: 2 },
+  });
+  expect(getPiScanState().pendingSave?.status).toBe("saved");
+  resetPiScanScope("org-b");
+  expect(getPiScanState().pendingSave).toBeUndefined();
+});

@@ -37,6 +37,7 @@ function sameState(left: PiScanSessionState, right: PiScanSessionState) {
     JSON.stringify(left.removalEntries) ===
       JSON.stringify(right.removalEntries) &&
     JSON.stringify(left.soundEvents) === JSON.stringify(right.soundEvents) &&
+    JSON.stringify(left.pendingSave) === JSON.stringify(right.pendingSave) &&
     left.allowDuplicates === right.allowDuplicates &&
     left.removalEnabled === right.removalEnabled &&
     left.removalBusy === right.removalBusy &&
