@@ -37,6 +37,66 @@ drizzle/      Generated SQL migrations (see Database changes below)
 
 Branch off `master` and open pull requests against `master`.
 
+## Shared scanning features and Pi host
+
+Scanning runs in the web app, native mobile app and a headless Pi host.
+In `piHost` mode, the API process owns the camera and sorter and continues
+scanning after a browser closes. The web app controls and observes that
+session. A decision implemented only in a React hook will not run on the
+headless host, even when camera and serial tunnels are available.
+
+Keep applicable scan decisions in `packages/shared` and platform effects
+in adapters. Use the existing implementation points:
+
+| Responsibility | Implementation |
+| --- | --- |
+| Control-card, removal, duplicate and foil workflow ordering | `packages/shared/src/scan-workflow.ts`, `runScanWorkflow` |
+| Route, save and completion stages | `runScanDisposition` in the same file |
+| Matched/unmatched routing plans, save mode and completion decisions | `packages/shared/src/scan-plan.ts` and its shared helpers |
+| Identification, OCR selection and consensus policy | `packages/shared/src/scan-identify.ts` |
+| Browser camera, UI and adapter effects | `packages/web/src/features/scanner/` |
+| Native capture, UI and adapter effects | `packages/mobile/src/features/scanner/` |
+| Headless session, host inference and hardware effects | `packages/server/src/lib/pi-scan/`; built-in GPIO transport in `scripts/pi/controller/` |
+
+For example, a feature that pauses for a particular card condition should
+pass the setting and card data into a shared decision. Each adapter then
+handles the pause and reports its state. The browser renders the prompt;
+the host holds its session and publishes state that another browser can
+observe on reconnect. The condition has one implementation.
+
+For every scan feature or behavior change:
+
+1. Assess web, mobile web, native mobile and headless `piHost`. Distinguish
+   shared behavior from UI presentation and hardware capability.
+2. Extend the shared workflow, plan or helper that owns the decision.
+   Keep DOM, React, Node, camera and transport APIs out of `packages/shared`.
+   Add adapter capabilities when platform effects are needed; do not copy
+   a browser algorithm into the Pi session.
+3. Carry new settings, defaults and inputs through shared types/schemas,
+   persistence and each applicable runtime's scan context. A browser form
+   alone does not configure the host. Define when a running session adopts
+   the setting and check that reconnecting clients retain host state.
+4. Keep host execution independent of an open browser. Publish required
+   session state through the existing org-scoped snapshots/events and
+   preserve authentication, hardware ownership and route/save ordering.
+   Explicitly describe effects that require an observing browser, such as
+   browser audio playback.
+5. Add or update meaningful tests for the shared decision and affected
+   adapters. Cover headless execution, settings propagation, pause/stop
+   and reconnect where affected. When transport or motion changes, assess
+   both USB serial and `PI_SORTER=1` GPIO control. Shared workflow/plan tests
+   live in `packages/server/tests/`, alongside Pi adapter tests; web adapter
+   tests live beside their implementation. Run the relevant checks from
+   the repository commands in `CLAUDE.md` and report hardware tests separately.
+6. State which runtimes changed, are unaffected or remain unsupported, with
+   the reason and validation performed. A platform-specific driver or new
+   hardware capability may need an adapter; document the gap explicitly.
+
+Ordinary UI and API features should continue to work through the existing
+web app and shared server routes. This checklist is a development and review
+requirement, not an automatic guarantee of future parity. Changes to shared
+source still require updating and rebuilding deployed applications.
+
 ## `packages/shared`
 
 Framework-agnostic types, constants, and the `evaluate-bin` rule engine
