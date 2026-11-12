@@ -12,7 +12,7 @@ import { useRevokeShareLink } from "@/features/share-links/api/use-revoke-share-
 import { ShareLinkList } from "@/features/share-links/components/share-link-list";
 import { revokeStorageShareLinks } from "@/features/storage/api/storage-share-links";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { SCREEN_GUTTER } from "@/lib/constants/theme";
 import type { SubjectShareLinksProps } from "@/lib/interfaces/share-links";
 
 export function SubjectShareLinks({ kind, subjectGuid, onSelect, onNew, showsCreatedInListNotice }: SubjectShareLinksProps) {

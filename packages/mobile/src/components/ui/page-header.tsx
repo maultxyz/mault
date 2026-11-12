@@ -29,6 +29,9 @@ export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory,
       }}
     >
       {nativeHeader}
+      {title == null && !subtitle && !titleAccessory && !usesNativeHeader ? (
+        <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>{actionRow}</View>
+      ) : (
       <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md, minHeight: usesNativeHeader ? 0 : 40 }}>
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
           <View style={{ flexDirection: "row", alignItems: "flex-start", gap: SPACING.sm }}>

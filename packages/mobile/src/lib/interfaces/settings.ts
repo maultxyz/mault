@@ -36,14 +36,27 @@ export interface SettingsSectionLink {
   icon: IconName;
 }
 
+export interface SettingsSectionProps {
+  title: string;
+  description?: string;
+  badge?: string;
+  children: ReactNode;
+}
+
 export interface SettingsPageProps {
   title: string;
-  isDirty: boolean;
-  isSaving: boolean;
-  saveError: boolean;
+  subtitle?: string | null;
+  isDirty?: boolean;
+  isSaving?: boolean;
+  saveError?: boolean;
   isLoading?: boolean;
-  onSave: () => void;
-  onDiscard: () => void;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+  onSave?: () => void;
+  onDiscard?: () => void;
+  isSaveBarVisible?: boolean;
+  onSaveBarDiscard?: () => void;
+  isLeavingWithoutGuard?: boolean;
   children: ReactNode;
 }
 
@@ -70,6 +83,18 @@ export interface OrgDetails {
   invitations: OrgInvitation[];
   canManageMembers: boolean;
   canRename: boolean;
+}
+
+export interface ShopCatalogSourceSwitchesProps {
+  options: { guid: string; name: string }[];
+  value: string[];
+  onChange: (next: string[]) => void;
+  emptyLabel: string;
+}
+
+export interface SettingsNotice {
+  tone: "success" | "destructive";
+  text: string;
 }
 
 export interface NeonFullOrganization {

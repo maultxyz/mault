@@ -12,19 +12,17 @@ import {
   type DiscordSettingsDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { SectionHeader } from "@/components/ui/section-header";
-import { SelectField } from "@/components/ui/select-field";
-import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import {
   discordIntegrationQueryOptions,
+  deleteNotificationRule,
   generateDiscordLinkCode,
   notificationRuleCountQueryOptions,
   notificationRulesQueryOptions,
@@ -70,6 +68,8 @@ export default function NotificationsSettingsScreen() {
   const [now, setNow] = useState(() => Date.now());
   const [message, setMessage] = useState<{ tone: "success" | "destructive" | "info"; text: string } | null>(null);
   const [saveError, setSaveError] = useState(false);
+  const [overrideActions, setOverrideActions] = useState<string | null>(null);
+  const [ruleActions, setRuleActions] = useState<{ guid: string; name: string } | null>(null);
 
   const values = useMemo(
     () => toDiscordSettingsDraft(integration.data, rules.data ?? [], settings.data),
@@ -123,6 +123,13 @@ export default function NotificationsSettingsScreen() {
     onSuccess: () => setMessage({ tone: "success", text: t("settings.discord.channelSettings.saved") }),
     onError: () => setMessage({ tone: "destructive", text: t("settings.discord.channelSettings.saveFailed") }),
     onSettled: refreshIntegration,
+  });
+  const removeRule = useMutation({
+    mutationFn: deleteNotificationRule,
+    onError: () => setMessage({ tone: "destructive", text: t("settings.discord.rules.saveFailed") }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["notification-rules", orgId] });
+    },
   });
   const test = useMutation({
     mutationFn: sendTestNotification,
@@ -275,6 +282,28 @@ export default function NotificationsSettingsScreen() {
       { text: t("settings.discord.bot.unlink"), style: "destructive", onPress: () => unlink.mutate() },
     ]);
 
+  const runOverrideAction = (action: string) => {
+    const collectionGuid = overrideActions;
+    setOverrideActions(null);
+    if (!collectionGuid) return;
+    if (action === "scan" || action === "error") setPicker({ kind: action, collectionGuid });
+    else if (action === "remove") removeOverride(collectionGuid);
+  };
+
+  const runRuleAction = (action: string) => {
+    const rule = ruleActions;
+    setRuleActions(null);
+    if (!rule) return;
+    if (action === "edit") {
+      router.push({ pathname: "/settings/notification-rule", params: { guid: rule.guid } });
+    } else if (action === "delete") {
+      Alert.alert(t("settings.discord.rules.delete", { name: rule.name }), undefined, [
+        { text: t("settings.discord.ruleDialog.cancel"), style: "cancel" },
+        { text: t("settings.webhooks.delete"), style: "destructive", onPress: () => removeRule.mutate(rule.guid) },
+      ]);
+    }
+  };
+
   const collectionName = (guid: string) =>
     data?.collections.find((c) => c.guid === guid)?.name ??
     collections.data?.find((c) => c.guid === guid)?.name ??
@@ -284,10 +313,14 @@ export default function NotificationsSettingsScreen() {
     ([, override]) => override.scanChannelId != null || override.errorChannelId != null,
   );
 
+  const noChannelLabel = t("settings.discord.channelSettings.none");
+
   return (
     <SettingsPage
       title={t("settings.sections.notifications.title")}
       isLoading={integration.isLoading || rules.isLoading || settings.isLoading}
+      refreshing={integration.isRefetching}
+      onRefresh={() => void integration.refetch()}
       isDirty={form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}
@@ -300,18 +333,34 @@ export default function NotificationsSettingsScreen() {
       {integration.isError ? <Callout tone="destructive" title={t("settings.discord.channelSettings.saveFailed")} /> : null}
       {message ? <Callout tone={message.tone} title={message.text} /> : null}
 
-      <Surface style={{ gap: SPACING.md }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-          <AppText heading weight="semibold" accessibilityRole="header" style={{ flex: 1 }}>
-            {t("settings.discord.bot.heading")}
-          </AppText>
-          <AppText size="xs" weight="semibold" style={{ color: linked ? colors.successForeground : colors.foreground }}>
-            {linked ? t("settings.discord.discord.statusLinked") : t("settings.discord.discord.statusNotLinked")}
-          </AppText>
-        </View>
-        <AppText size="xs" tone="secondary">
-          {guild ? t("settings.discord.discord.connectedTo", { server: guild.name }) : t("settings.discord.bot.description")}
-        </AppText>
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("settings.discord.bot.heading")} />
+        <ListGroup>
+          <ListRow
+            icon="discord"
+            title={linked ? t("settings.discord.discord.statusLinked") : t("settings.discord.discord.statusNotLinked")}
+            subtitle={guild ? t("settings.discord.discord.connectedTo", { server: guild.name }) : t("settings.discord.bot.description")}
+            subtitleNumberOfLines={4}
+          />
+          {canManage ? (
+            linked ? (
+              <ListRow
+                icon="trash"
+                tone="destructive"
+                title={t("settings.discord.bot.unlink")}
+                disabled={unlink.isPending}
+                onPress={confirmUnlink}
+              />
+            ) : (
+              <ListRow
+                icon="plus"
+                title={generate.isPending ? t("settings.discord.bot.generating") : t("settings.discord.bot.generateButton")}
+                disabled={generate.isPending}
+                onPress={() => generate.mutate()}
+              />
+            )
+          ) : null}
+        </ListGroup>
         {linked && data && !data.botReachable ? <Callout tone="warning" title={t("settings.discord.discord.botUnreachable")} /> : null}
         {linked && data?.botReachable && !guild ? <Callout tone="warning" title={t("settings.discord.discord.botNotInServer")} /> : null}
         {linkCode ? (
@@ -324,241 +373,209 @@ export default function NotificationsSettingsScreen() {
                 {`/link ${linkCode.code}`}
               </AppText>
             </View>
-            <AppText size="xs" tone="secondary">
+            <AppText size="xs" tone="secondary" accessibilityLiveRegion="polite">
               {t("settings.discord.bot.expiresIn", { seconds: secondsLeft })}
             </AppText>
           </View>
         ) : null}
-        {canManage ? (
-          linked ? (
-            <Button variant="secondary" label={t("settings.discord.bot.unlink")} loading={unlink.isPending} onPress={confirmUnlink} />
-          ) : (
-            <Button
-              icon="discord"
-              label={generate.isPending ? t("settings.discord.bot.generating") : t("settings.discord.bot.generateButton")}
-              loading={generate.isPending}
-              onPress={() => generate.mutate()}
-            />
-          )
-        ) : null}
-      </Surface>
+      </View>
 
       {ready ? (
         <>
-          <SectionHeader title={t("settings.discord.channelSettings.heading")} />
-          <AppText size="xs" tone="secondary">
-            {t("settings.discord.channelSettings.description")}
-          </AppText>
-          <Controller
-            control={form.control}
-            name="scanChannelId"
-            render={({ field }) => (
-              <SelectField
-                label={t("settings.discord.channelSettings.scan")}
-                value={channelLabel(channels, field.value, t, t("settings.discord.channelSettings.none"))}
-                placeholder={t("settings.discord.channelSettings.none")}
+          <View style={{ gap: SPACING.sm }}>
+            <SectionHeader title={t("settings.discord.channelSettings.heading")} />
+            <AppText size="xs" tone="secondary">
+              {t("settings.discord.channelSettings.description")}
+            </AppText>
+            <ListGroup>
+              <ListRow
+                title={t("settings.discord.channelSettings.scan")}
+                value={channelLabel(channels, scanChannelId, t, noChannelLabel)}
                 disabled={!canManage}
                 onPress={() => setPicker({ kind: "scan", collectionGuid: null })}
               />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="scanRoleId"
-            render={({ field }) => (
-              <SelectField
-                label={t("settings.discord.channelSettings.scanRole")}
-                value={roleLabel(roles, field.value, t)}
-                placeholder={t("settings.discord.roles.none")}
-                disabled={!canManage || !scanChannelId}
-                onPress={() => setPicker({ kind: "scan-role" })}
+              <Controller
+                control={form.control}
+                name="scanRoleId"
+                render={({ field }) => (
+                  <ListRow
+                    title={t("settings.discord.channelSettings.scanRole")}
+                    value={roleLabel(roles, field.value, t)}
+                    disabled={!canManage || !scanChannelId}
+                    onPress={() => setPicker({ kind: "scan-role" })}
+                  />
+                )}
               />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="errorChannelId"
-            render={({ field }) => (
-              <SelectField
-                label={t("settings.discord.channelSettings.error")}
-                value={channelLabel(channels, field.value, t, t("settings.discord.channelSettings.none"))}
-                placeholder={t("settings.discord.channelSettings.none")}
+              <ListRow
+                title={t("settings.discord.channelSettings.error")}
+                value={channelLabel(channels, errorChannelId, t, noChannelLabel)}
                 disabled={!canManage}
                 onPress={() => setPicker({ kind: "error", collectionGuid: null })}
               />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="errorRoleId"
-            render={({ field }) => (
-              <SelectField
-                label={t("settings.discord.channelSettings.errorRole")}
-                value={roleLabel(roles, field.value, t)}
-                placeholder={t("settings.discord.roles.none")}
-                disabled={!canManage || !errorChannelId}
-                onPress={() => setPicker({ kind: "error-role" })}
+              <Controller
+                control={form.control}
+                name="errorRoleId"
+                render={({ field }) => (
+                  <ListRow
+                    title={t("settings.discord.channelSettings.errorRole")}
+                    value={roleLabel(roles, field.value, t)}
+                    disabled={!canManage || !errorChannelId}
+                    onPress={() => setPicker({ kind: "error-role" })}
+                  />
+                )}
               />
-            )}
-          />
-          <AppText size="xs" tone="secondary">
-            {t("settings.discord.channelSettings.roleHint")}
-          </AppText>
-
-          <SectionHeader title={t("settings.discord.overrides.heading")} />
-          <AppText size="xs" tone="secondary">
-            {t("settings.discord.overrides.description")}
-          </AppText>
-          {visibleOverrides.length === 0 ? (
-            <AppText size="sm" tone="secondary">
-              {t("settings.discord.overrides.empty")}
+            </ListGroup>
+            <AppText size="xs" tone="secondary">
+              {t("settings.discord.channelSettings.roleHint")}
             </AppText>
-          ) : (
-            visibleOverrides.map(([collectionGuid, override]) => (
-              <Surface key={collectionGuid} style={{ gap: SPACING.sm }}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-                  <AppText weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
-                    {collectionName(collectionGuid)}
-                  </AppText>
-                  {canManage ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      icon="trash"
-                      label={t("cardDetail.remove")}
-                      accessibilityHint={t("settings.discord.overrides.remove", { name: collectionName(collectionGuid) })}
-                      onPress={() => removeOverride(collectionGuid)}
-                    />
-                  ) : null}
-                </View>
-                <SelectField
-                  label={t("settings.discord.channelSettings.scan")}
-                  value={channelLabel(channels, override.scanChannelId, t, t("settings.discord.channelSettings.sameScan"))}
-                  placeholder={t("settings.discord.channelSettings.sameScan")}
-                  disabled={!canManage}
-                  onPress={() => setPicker({ kind: "scan", collectionGuid })}
-                />
-                <SelectField
-                  label={t("settings.discord.channelSettings.error")}
-                  value={channelLabel(channels, override.errorChannelId, t, t("settings.discord.channelSettings.sameError"))}
-                  placeholder={t("settings.discord.channelSettings.sameError")}
-                  disabled={!canManage}
-                  onPress={() => setPicker({ kind: "error", collectionGuid })}
-                />
-              </Surface>
-            ))
-          )}
-          {canManage ? (
-            <Button
-              variant="secondary"
-              icon="plus"
-              label={t("settings.discord.overrides.add")}
-              loading={addOverride.isPending}
-              onPress={() => setPicker({ kind: "add-collection" })}
-            />
-          ) : null}
+          </View>
 
-          <SectionHeader title={t("settings.discord.rules.heading")} />
-          <AppText size="xs" tone="secondary">
-            {t("settings.discord.rules.description")}
-          </AppText>
-          {atRuleLimit && ruleLimit !== null ? (
-            <Callout tone="info" title={t("settings.discord.rules.limitReached", { count: ruleLimit })} />
-          ) : null}
-          {!gameGuid ? (
-            <Callout tone="info" title={t("settings.discord.rules.needsGame")} />
-          ) : rules.data && rules.data.length === 0 ? (
-            <EmptyState icon="bell" title={t("settings.discord.rules.empty")} />
-          ) : (
+          <View style={{ gap: SPACING.sm }}>
+            <SectionHeader title={t("settings.discord.overrides.heading")} />
+            <AppText size="xs" tone="secondary">
+              {t("settings.discord.overrides.description")}
+            </AppText>
+            {visibleOverrides.length === 0 ? <EmptyState icon="discord" title={t("settings.discord.overrides.empty")} /> : null}
             <ListGroup>
-              {(rules.data ?? []).map((rule) => {
-                const role = roles.find((r) => r.id === rule.roleId);
-                const target = rule.channelId
-                  ? `${t("settings.discord.rules.postsTo")} ${channelLabel(channels, rule.channelId, t, "")}${role ? ` ${t("settings.discord.rules.andPings")} @${role.name}` : ""}`
-                  : t("settings.discord.rules.noChannel");
+              {visibleOverrides.map(([collectionGuid, override]) => {
+                const name = collectionName(collectionGuid);
                 return (
-                  <Controller
-                    key={rule.guid}
-                    control={form.control}
-                    name={`ruleEnabled.${rule.guid}`}
-                    render={({ field }) => (
-                      <ListRow
-                        title={rule.name}
-                        subtitle={target}
-                        disabled={!canManage}
-                        onPress={() => router.push({ pathname: "/settings/notification-rule", params: { guid: rule.guid } })}
-                        rightIsInteractive
-                        right={
-                          <Switch
-                            accessibilityLabel={`${t("settings.discord.rules.enabled")}, ${rule.name}`}
-                            value={field.value ?? rule.isEnabled}
-                            disabled={!canManage || !rule.channelId}
-                            onValueChange={field.onChange}
-                            trackColor={{ true: colors.primary, false: colors.muted }}
-                          />
-                        }
-                      />
-                    )}
+                  <ListRow
+                    key={collectionGuid}
+                    title={name}
+                    subtitle={[
+                      `${t("settings.discord.channelSettings.scan")}: ${channelLabel(channels, override.scanChannelId, t, t("settings.discord.channelSettings.sameScan"))}`,
+                      `${t("settings.discord.channelSettings.error")}: ${channelLabel(channels, override.errorChannelId, t, t("settings.discord.channelSettings.sameError"))}`,
+                    ].join("\n")}
+                    subtitleNumberOfLines={2}
+                    disabled={!canManage}
+                    onPress={() => setOverrideActions(collectionGuid)}
+                    onLongPress={canManage ? () => setOverrideActions(collectionGuid) : undefined}
+                    longPressLabel={canManage ? t("settings.discord.overrides.remove", { name }) : undefined}
                   />
                 );
               })}
+              {canManage ? (
+                <ListRow
+                  icon="plus"
+                  title={t("settings.discord.overrides.add")}
+                  disabled={addOverride.isPending}
+                  onPress={() => setPicker({ kind: "add-collection" })}
+                />
+              ) : null}
             </ListGroup>
-          )}
-          {canManage && gameGuid ? (
-            <Button
-              variant="secondary"
-              icon="plus"
-              label={t("settings.discord.rules.add")}
-              disabled={atRuleLimit}
-              onPress={() => router.push("/settings/notification-rule")}
-            />
-          ) : null}
+          </View>
 
-          <SectionHeader title={t("settings.discord.notificationsHeading")} />
-          <Controller
-            control={form.control}
-            name="discordNotifyOnScan"
-            render={({ field }) => (
-              <SwitchRow
-                title={t("settings.discord.notifications.notifyToggleLabel")}
-                description={t("settings.discord.notifications.notifyToggleDescription")}
-                value={field.value}
-                disabled={!canManage}
-                onValueChange={field.onChange}
-              />
+          <View style={{ gap: SPACING.sm }}>
+            <SectionHeader title={t("settings.discord.rules.heading")} />
+            <AppText size="xs" tone="secondary">
+              {t("settings.discord.rules.description")}
+            </AppText>
+            {atRuleLimit && ruleLimit !== null ? (
+              <Callout tone="info" title={t("settings.discord.rules.limitReached", { count: ruleLimit })} />
+            ) : null}
+            {!gameGuid ? (
+              <Callout tone="info" title={t("settings.discord.rules.needsGame")} />
+            ) : (
+              <>
+                {rules.data && rules.data.length === 0 ? <EmptyState icon="bell" title={t("settings.discord.rules.empty")} /> : null}
+                <ListGroup>
+                  {(rules.data ?? []).map((rule) => {
+                    const role = roles.find((r) => r.id === rule.roleId);
+                    const target = rule.channelId
+                      ? `${t("settings.discord.rules.postsTo")} ${channelLabel(channels, rule.channelId, t, "")}${role ? ` ${t("settings.discord.rules.andPings")} @${role.name}` : ""}`
+                      : t("settings.discord.rules.noChannel");
+                    return (
+                      <Controller
+                        key={rule.guid}
+                        control={form.control}
+                        name={`ruleEnabled.${rule.guid}`}
+                        render={({ field }) => (
+                          <ListRow
+                            title={rule.name}
+                            subtitle={target}
+                            subtitleNumberOfLines={2}
+                            disabled={!canManage}
+                            onPress={() => router.push({ pathname: "/settings/notification-rule", params: { guid: rule.guid } })}
+                            onLongPress={canManage ? () => setRuleActions({ guid: rule.guid, name: rule.name }) : undefined}
+                            longPressLabel={canManage ? t("settings.discord.rules.edit", { name: rule.name }) : undefined}
+                            rightIsInteractive
+                            right={
+                              <Switch
+                                accessibilityLabel={`${t("settings.discord.rules.enabled")}, ${rule.name}`}
+                                value={field.value ?? rule.isEnabled}
+                                disabled={!canManage || !rule.channelId}
+                                onValueChange={field.onChange}
+                                trackColor={{ true: colors.primary, false: colors.muted }}
+                              />
+                            }
+                          />
+                        )}
+                      />
+                    );
+                  })}
+                  {canManage ? (
+                    <ListRow
+                      icon="plus"
+                      title={t("settings.discord.rules.add")}
+                      disabled={atRuleLimit}
+                      onPress={() => router.push("/settings/notification-rule")}
+                    />
+                  ) : null}
+                </ListGroup>
+              </>
             )}
-          />
-          <Controller
-            control={form.control}
-            name="discordScanUseThreads"
-            render={({ field }) => (
-              <SwitchRow
-                title={t("settings.discord.notifications.threadToggleLabel")}
-                description={t("settings.discord.notifications.threadToggleDescription")}
-                value={field.value ?? DEFAULT_ORG_SETTINGS.discordScanUseThreads}
-                disabled={!canManage}
-                onValueChange={field.onChange}
-              />
-            )}
-          />
+          </View>
+
+          <View style={{ gap: SPACING.sm }}>
+            <SectionHeader title={t("settings.discord.notificationsHeading")} />
+            <Controller
+              control={form.control}
+              name="discordNotifyOnScan"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("settings.discord.notifications.notifyToggleLabel")}
+                  description={t("settings.discord.notifications.notifyToggleDescription")}
+                  value={field.value}
+                  disabled={!canManage}
+                  onValueChange={field.onChange}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="discordScanUseThreads"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("settings.discord.notifications.threadToggleLabel")}
+                  description={t("settings.discord.notifications.threadToggleDescription")}
+                  value={field.value ?? DEFAULT_ORG_SETTINGS.discordScanUseThreads}
+                  disabled={!canManage}
+                  onValueChange={field.onChange}
+                />
+              )}
+            />
+          </View>
         </>
       ) : null}
 
-      <SectionHeader title={t("settings.discord.notifications.heading")} />
-      <AppText size="xs" tone="secondary">
-        {ready ? t("settings.discord.notifications.testHintReady") : t("settings.discord.notifications.testHintNotLinked")}
-      </AppText>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
-        {NOTIFICATION_TEST_TYPES.map((type: NotificationTestType) => (
-          <Button
-            key={type}
-            size="sm"
-            variant="secondary"
-            label={test.isPending && test.variables === type ? t("settings.discord.notifications.sending") : t(`settings.discord.notifications.testTypes.${type}`)}
-            disabled={!ready || test.isPending}
-            onPress={() => test.mutate(type)}
-          />
-        ))}
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("settings.discord.notifications.heading")} />
+        <AppText size="xs" tone="secondary">
+          {ready ? t("settings.discord.notifications.testHintReady") : t("settings.discord.notifications.testHintNotLinked")}
+        </AppText>
+        <ListGroup>
+          {NOTIFICATION_TEST_TYPES.map((type: NotificationTestType) => (
+            <ListRow
+              key={type}
+              icon="send"
+              title={t(`settings.discord.notifications.testTypes.${type}`)}
+              value={test.isPending && test.variables === type ? t("settings.discord.notifications.sending") : undefined}
+              disabled={!ready || test.isPending}
+              onPress={() => test.mutate(type)}
+            />
+          ))}
+        </ListGroup>
       </View>
 
       <OptionSheet
@@ -568,6 +585,29 @@ export default function NotificationsSettingsScreen() {
         selected={pickerConfig?.selected ?? []}
         onSelect={onPick}
         onClose={() => setPicker(null)}
+      />
+      <OptionSheet
+        visible={overrideActions !== null}
+        title={overrideActions ? collectionName(overrideActions) : ""}
+        options={[
+          { value: "scan", label: t("settings.discord.channelSettings.scan") },
+          { value: "error", label: t("settings.discord.channelSettings.error") },
+          { value: "remove", label: t("settings.discord.overrides.remove", { name: overrideActions ? collectionName(overrideActions) : "" }) },
+        ]}
+        selected={[]}
+        onSelect={runOverrideAction}
+        onClose={() => setOverrideActions(null)}
+      />
+      <OptionSheet
+        visible={ruleActions !== null}
+        title={ruleActions?.name ?? ""}
+        options={[
+          { value: "edit", label: t("settings.discord.rules.edit", { name: ruleActions?.name ?? "" }) },
+          { value: "delete", label: t("settings.discord.rules.delete", { name: ruleActions?.name ?? "" }) },
+        ]}
+        selected={[]}
+        onSelect={runRuleAction}
+        onClose={() => setRuleActions(null)}
       />
     </SettingsPage>
   );

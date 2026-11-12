@@ -70,6 +70,12 @@ export default function AppLayout() {
           <Stack.Screen name="collection-edit" options={sheetOptions} />
           <Stack.Screen name="storage-name" options={sheetOptions} />
           <Stack.Screen name="share-link" options={sheetOptions} />
+          <Stack.Screen name="settings/invite-member" options={sheetOptions} />
+          <Stack.Screen name="settings/webhook-edit" options={sheetOptions} />
+          <Stack.Screen name="settings/api-key-new" options={sheetOptions} />
+          <Stack.Screen name="settings/shop-catalog-edit" options={sheetOptions} />
+          <Stack.Screen name="settings/shop-catalog-link" options={sheetOptions} />
+          <Stack.Screen name="settings/sound-clip-name" options={sheetOptions} />
           <Stack.Screen name="trade-offer/[guid]" options={sheetOptions} />
           <Stack.Screen name="storage-pick-list" />
           <Stack.Screen name="batch-scan" options={{ contentStyle: { backgroundColor: colors.background } }} />
