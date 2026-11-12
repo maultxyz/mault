@@ -238,7 +238,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 
 - `deploy.yml` builds GHCR images; Coolify pulls `:latest` (master) or `:dev`. Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`.
 - Web `VITE_*` config is runtime: read it through `runtimeEnv()`, never `import.meta.env.VITE_*` (no build args). The bundled firmware's version is the server reading `FIRMWARE_VERSION` from `firmware/main/main.ino` (copied into the server image; dev deploys write the dev version into it; `LATEST_FIRMWARE_VERSION` is only a fallback) through `/public/version` (`useLatestFirmwareVersion`); a change triggers the same refresh prompt as a new app version.
-- Mobile, desktop and firmware have their own release workflows and versions. `mobile-release.yml` submits master builds to App Store Connect and the chosen Play track (store keys stored on EAS, the ASC app id from the `IOS_ASC_APP_ID` GitHub variable, never committed); dev builds are never submitted. Mobile `MOBILE_*` values must be set as EAS environment variables. Firmware versions are bumped by the release workflow.
+- Mobile, desktop and firmware have their own release workflows and versions. `mobile-release.yml` only builds (and bumps the version on master); store submission is manual (`pnpm submit:ios`/`submit:android` or `eas submit --id`). Mobile `MOBILE_*` values must be set as EAS environment variables. Firmware versions are bumped by the release workflow.
 
 ## Web conventions
 

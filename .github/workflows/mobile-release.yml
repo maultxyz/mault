@@ -13,15 +13,6 @@ on:
         type: choice
         options: [patch, minor, major]
         default: patch
-      submit:
-        description: Submit master builds to App Store Connect and Google Play (dev builds are never submitted)
-        type: boolean
-        default: true
-      android_track:
-        description: Google Play track for the Android submission
-        type: choice
-        options: [internal, alpha, beta, production]
-        default: internal
 
 permissions:
   contents: write
@@ -42,11 +33,8 @@ jobs:
       PROFILE: ${{ github.ref_name == 'dev' && 'preview' || 'production' }}
       PLATFORM: ${{ inputs.platform }}
       EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
-      SUBMIT: ${{ github.ref_name == 'master' && inputs.submit }}
-      ANDROID_TRACK: ${{ inputs.android_track }}
-      IOS_ASC_APP_ID: ${{ vars.IOS_ASC_APP_ID }}
     steps:
-      # master builds go to the stores, dev builds are internal install links.
+      # master builds are for the stores, dev builds are internal install links.
       # Anything else would ship unreleased code, so it's refused.
       - name: Check branch
         run: |
@@ -56,10 +44,6 @@ jobs:
           fi
           if [ -z "$EAS_PROJECT_ID" ]; then
             echo "::error::Set the EAS_PROJECT_ID variable in this GitHub environment (expo.dev > project > Project ID)."
-            exit 1
-          fi
-          if [ "$SUBMIT" = "true" ] && [ "$PLATFORM" != "android" ] && [ -z "$IOS_ASC_APP_ID" ]; then
-            echo "::error::Set the IOS_ASC_APP_ID variable in this GitHub environment (App Store Connect > App Information > Apple ID), or run with submit off."
             exit 1
           fi
 
@@ -132,25 +116,6 @@ jobs:
           git push origin "HEAD:${{ github.ref_name }}"
           git push origin "mobile-v$VERSION"
 
-      # After the version commit: the builds already carry the new version, so
-      # a failed submission is retried with eas submit, not a new release.
-      # Store credentials (App Store Connect API key, Play service account) are
-      # the ones stored on EAS for this project; only the app's ASC id is needed
-      # here, and it comes from GitHub, never the committed eas.example.json.
-      - name: Submit to stores
-        if: env.SUBMIT == 'true'
-        working-directory: packages/mobile
-        run: |
-          jq \
-            --arg ascAppId "$IOS_ASC_APP_ID" \
-            --arg track "$ANDROID_TRACK" \
-            '.submit.production.ios = { ascAppId: $ascAppId }
-            | .submit.production.android = { track: $track, releaseStatus: "completed" }' \
-            eas.example.json > eas.json
-          jq -r '.[] | "\(.platform | ascii_downcase) \(.id)"' "$RUNNER_TEMP/eas-builds.json" | while read -r BUILD_PLATFORM BUILD_ID; do
-            eas submit --platform "$BUILD_PLATFORM" --profile production --id "$BUILD_ID" --non-interactive --wait
-          done
-
       - name: Summary
         run: |
           {
@@ -160,11 +125,8 @@ jobs:
             echo "- EAS profile: $PROFILE"
             echo ""
             jq -r '.[] | "- \(.platform): [build page](https://expo.dev/accounts/\(.project.ownerAccount.name)/projects/\(.project.slug)/builds/\(.id)), [download](\(.artifacts.buildUrl))"' "$RUNNER_TEMP/eas-builds.json"
-            if [ "$SUBMIT" = "true" ]; then
+            if [ "$IS_DEV" != "true" ]; then
               echo ""
-              echo "Submitted to the stores: iOS to App Store Connect (TestFlight, send it for review there), Android to the Google Play \`$ANDROID_TRACK\` track."
-            elif [ "$IS_DEV" != "true" ]; then
-              echo ""
-              echo "Not submitted: run \`eas submit --platform <ios|android> --profile production --id <build id>\`."
+              echo "Submit manually: \`eas submit --platform <ios|android> --profile production --id <build id>\`."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
