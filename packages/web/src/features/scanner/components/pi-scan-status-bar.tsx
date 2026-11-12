@@ -13,7 +13,7 @@ import {
   resumePiScanSession,
   stopPiScanSession,
 } from "@/features/scanner/api/pi-scan-session";
-import { useStation, useStations } from "@/features/scanner/api/use-stations";
+import { useStations } from "@/features/scanner/api/use-stations";
 import { PiCameraPreview } from "@/features/scanner/components/pi-camera-preview";
 import {
   applyPiScanState,
@@ -79,8 +79,8 @@ export function PiScanStatusBar() {
     return () => appStream.removeEventListener("pi_scan_pending_save", receive);
   }, [pendingSaveObserver, piHost, appStream]);
   const { collections } = useCollections();
-  const { station } = useStation();
-  const { claimStationCollection } = useStations();
+  const { stations, claimStationCollection } = useStations();
+  const hostStationId = stations[0]?.id;
   const sessionLive = piScanHoldsPort(state);
   const watchGuid = sessionLive
     ? (state.collectionGuid ?? undefined)
@@ -101,15 +101,21 @@ export function PiScanStatusBar() {
   }, [state, t]);
 
   useEffect(() => {
-    if (!sessionLive || !state.collectionGuid) {
+    if (!sessionLive || !state.collectionGuid || !hostStationId) {
       followed.current = null;
       return;
     }
-    if (followed.current === state.collectionGuid) return;
-    if (claimStationCollection(station.id, state.collectionGuid)) {
-      followed.current = state.collectionGuid;
+    const followKey = `${hostStationId}:${state.collectionGuid}`;
+    if (followed.current === followKey) return;
+    if (claimStationCollection(hostStationId, state.collectionGuid)) {
+      followed.current = followKey;
     }
-  }, [sessionLive, state.collectionGuid, claimStationCollection, station.id]);
+  }, [
+    sessionLive,
+    state.collectionGuid,
+    claimStationCollection,
+    hostStationId,
+  ]);
 
   useEffect(() => {
     if (!eventSource || !watchGuid) return;
