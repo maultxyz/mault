@@ -8,6 +8,7 @@ import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { OrgThemeProvider } from "@/components/org-theme-provider";
+import { ToastProvider } from "@/components/ui/toast-provider";
 import { PendingSavesProvider } from "@/features/scanner/api/use-pending-saves";
 import { SorterProvider } from "@/features/sorter/api/use-sorter";
 import { AppStreamProvider } from "@/features/stream/api/use-app-stream";
@@ -76,7 +77,9 @@ export default function RootLayout() {
             <SorterProvider>
               <AppStreamProvider>
                 <PendingSavesProvider>
-                  <RootNavigator />
+                  <ToastProvider>
+                    <RootNavigator />
+                  </ToastProvider>
                 </PendingSavesProvider>
               </AppStreamProvider>
             </SorterProvider>

@@ -1,4 +1,4 @@
-import type { ScannerPauseReason, ScannerPhase, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
+import type { ScannerPauseReason, ScannerPhase, ScannerTip, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
 import type { CardScanNoticeKind } from "@/lib/interfaces/storage";
 
 export const BIN_DATA_RETRY_MS = 5000;
@@ -85,3 +85,13 @@ export const LIVE_FRAME_TARGET_RESOLUTION = { width: 480, height: 640 } as const
 export const LIVE_FRAME_TIMEOUT_MS = 1500;
 export const BATCH_SCAN_CORRECTION_SHEET_MAX_HEIGHT_RATIO = 0.9;
 export const CAMERA_MOUNT_SETTLE_MS = 400;
+
+export const SCAN_SAVED_STATUS_MS = 3000;
+
+export const ANNOUNCED_SCANNER_PHASES: ScannerPhase[] = ["idle", "ready", "paused", "error"];
+
+export const SCANNER_TIPS: ScannerTip[] = [
+  { key: "holdCard", icon: "camera" },
+  { key: "qrCode", icon: "qrCode" },
+  { key: "sorter", icon: "sorter" },
+];

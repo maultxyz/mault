@@ -1,6 +1,7 @@
 import type { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import type {
   CardCondition,
+  CardTag,
   CollectionCardPosition,
   ExportAdapter,
   OcrOverlayRegion,
@@ -167,4 +168,10 @@ export interface SkeletonTextLineProps {
   fontSize: number;
   lineHeight: number;
   width: number | `${number}%`;
+}
+
+export interface CardTagToggle {
+  tag: CardTag;
+  enabled: boolean;
+  isUndo?: boolean;
 }

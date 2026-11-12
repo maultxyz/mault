@@ -740,6 +740,47 @@
         "duplicatesOff": "Ignorer les doublons",
         "pause": "Mettre le scan en pause"
       }
+    },
+    "tips": {
+      "title": "Conseils de scan",
+      "open": "Conseils de scan",
+      "done": "Compris",
+      "holdCard": {
+        "title": "Tenez une carte dans le cadre",
+        "description": "Gardez toute la carte dans le champ de la caméra et tenez-la immobile. Activez Détection auto des cartes dans les options de scan pour scanner sans appuyer sur le bouton."
+      },
+      "qrCode": {
+        "title": "Visez un QR code pour l'ouvrir",
+        "description": "Les liens partagés de collection, de rangement et d'échange s'ouvrent dans l'app. Un code d'association de caméra de bureau connecte ce téléphone comme caméra du trieur."
+      },
+      "sorter": {
+        "title": "Connectez un trieur pour l'alimentation automatique",
+        "description": "Avec un trieur connecté en Bluetooth ou en Wi-Fi, appuyez sur Démarrer et les cartes sont chargées, scannées et triées dans les bacs automatiquement."
+      }
+    },
+    "status": {
+      "modes": {
+        "sorter": "Trieur",
+        "handScan": "Scan à la main",
+        "scanOnce": "Scan unique",
+        "removing": "Retrait"
+      },
+      "saved": "{{name}} enregistrée"
+    },
+    "unmatchedRecovery": {
+      "title": "Carte non identifiée",
+      "description": "Elle a été enregistrée comme non identifiée. Réessayez ou cherchez-la par nom.",
+      "retry": "Réessayer",
+      "searchByName": "Chercher par nom",
+      "skip": "Ignorer"
+    },
+    "liveActivity": {
+      "title": "Scanner Mault",
+      "scanning": "Scan en cours",
+      "scannedCount_one": "{{count}} scannée",
+      "scannedCount_other": "{{count}} scannées",
+      "lastCard": "Dernière : {{name}}",
+      "noCardYet": "Aucune carte pour l'instant"
     }
   },
   "home": {
@@ -3008,5 +3049,40 @@
     "loadMore": "Charger plus",
     "invalid": "Ce lien ne fonctionne pas",
     "invalidDescription": "Il a peut-être expiré ou été révoqué. Demandez-en un nouveau au propriétaire."
+  },
+  "listRow": {
+    "moreActions": "Plus d'actions"
+  },
+  "search": {
+    "title": "Recherche",
+    "open": "Tout rechercher",
+    "placeholder": "Rechercher des cartes, collections, emplacements et réglages",
+    "promptTitle": "Tout rechercher",
+    "promptDescription": "Trouvez une carte dans n'importe quelle collection, une collection, un emplacement de stockage ou un réglage.",
+    "emptyTitle": "Aucun résultat",
+    "emptyDescription": "Essayez un autre nom ou une autre orthographe.",
+    "loadFailed": "Impossible de rechercher vos cartes. Tirez vers le bas pour réessayer.",
+    "foil": "Foil",
+    "locationPosition": "{{location}}, emplacement {{position}}",
+    "resultsCount_one": "{{count}} résultat",
+    "resultsCount_other": "{{count}} résultats",
+    "sections": {
+      "cards": "Cartes",
+      "collections": "Collections",
+      "locations": "Emplacements de stockage",
+      "settings": "Réglages"
+    }
+  },
+  "recovery": {
+    "undo": "Annuler",
+    "retry": "Réessayer",
+    "restored": "Restauré",
+    "undoFailed": "Impossible d'annuler",
+    "cardsRemoved_one": "Carte retirée",
+    "cardsRemoved_other": "{{count}} cartes retirées",
+    "tagAdded": "{{tag}} ajouté",
+    "tagRemoved": "{{tag}} retiré",
+    "movedTo": "Déplacé vers {{name}}",
+    "cardsLoadFailed": "Impossible de charger ces cartes"
   }
 }

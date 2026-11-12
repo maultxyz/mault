@@ -740,6 +740,47 @@
         "duplicatesOff": "Skip duplicates",
         "pause": "Pause scanning"
       }
+    },
+    "tips": {
+      "title": "Scanning tips",
+      "open": "Scanning tips",
+      "done": "Got it",
+      "holdCard": {
+        "title": "Hold a card in the frame",
+        "description": "Keep the whole card inside the camera view and hold it still. Turn on Auto-detect cards in Scan options to scan without pressing the button."
+      },
+      "qrCode": {
+        "title": "Point at a QR code to open it",
+        "description": "Shared collection, storage and trade links open in the app. A desktop camera pairing code connects this phone as the sorter's camera."
+      },
+      "sorter": {
+        "title": "Connect a sorter for auto-feed",
+        "description": "With a sorter connected over Bluetooth or Wi-Fi, press Start and cards are fed, scanned and sorted into bins automatically."
+      }
+    },
+    "status": {
+      "modes": {
+        "sorter": "Sorter",
+        "handScan": "Hand scan",
+        "scanOnce": "Scan one",
+        "removing": "Removing"
+      },
+      "saved": "Saved {{name}}"
+    },
+    "unmatchedRecovery": {
+      "title": "Couldn't identify that card",
+      "description": "It was saved as unmatched. Try again or find it by name.",
+      "retry": "Retry",
+      "searchByName": "Search by name",
+      "skip": "Skip"
+    },
+    "liveActivity": {
+      "title": "Mault scanner",
+      "scanning": "Scanning",
+      "scannedCount_one": "{{count}} scanned",
+      "scannedCount_other": "{{count}} scanned",
+      "lastCard": "Last: {{name}}",
+      "noCardYet": "No cards yet"
     }
   },
   "home": {
@@ -3008,5 +3049,40 @@
     "loadMore": "Load more",
     "invalid": "This link doesn't work",
     "invalidDescription": "It may have expired or been revoked. Ask the owner for a new one."
+  },
+  "listRow": {
+    "moreActions": "More actions"
+  },
+  "search": {
+    "title": "Search",
+    "open": "Search everything",
+    "placeholder": "Search cards, collections, locations and settings",
+    "promptTitle": "Search everything",
+    "promptDescription": "Find a card in any collection, a collection, a storage location or a setting.",
+    "emptyTitle": "Nothing found",
+    "emptyDescription": "Try a different name or spelling.",
+    "loadFailed": "Couldn't search your cards. Pull down to try again.",
+    "foil": "Foil",
+    "locationPosition": "{{location}}, slot {{position}}",
+    "resultsCount_one": "{{count}} result",
+    "resultsCount_other": "{{count}} results",
+    "sections": {
+      "cards": "Cards",
+      "collections": "Collections",
+      "locations": "Storage locations",
+      "settings": "Settings"
+    }
+  },
+  "recovery": {
+    "undo": "Undo",
+    "retry": "Retry",
+    "restored": "Restored",
+    "undoFailed": "Couldn't undo that",
+    "cardsRemoved_one": "Card removed",
+    "cardsRemoved_other": "{{count}} cards removed",
+    "tagAdded": "{{tag}} added",
+    "tagRemoved": "{{tag}} removed",
+    "movedTo": "Moved to {{name}}",
+    "cardsLoadFailed": "Couldn't load these cards"
   }
 }

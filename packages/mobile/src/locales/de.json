@@ -740,6 +740,47 @@
         "duplicatesOff": "Duplikate überspringen",
         "pause": "Scan pausieren"
       }
+    },
+    "tips": {
+      "title": "Tipps zum Scannen",
+      "open": "Tipps zum Scannen",
+      "done": "Verstanden",
+      "holdCard": {
+        "title": "Karte in den Rahmen halten",
+        "description": "Halte die ganze Karte ruhig im Kamerabild. Schalte in den Scan-Optionen Karten automatisch erkennen ein, um ohne Tippen auf den Auslöser zu scannen."
+      },
+      "qrCode": {
+        "title": "Auf einen QR-Code richten, um ihn zu öffnen",
+        "description": "Geteilte Sammlungs-, Lager- und Tauschlinks öffnen sich in der App. Ein Kopplungscode für die Desktop-Kamera verbindet dieses Handy als Kamera des Sortierers."
+      },
+      "sorter": {
+        "title": "Sortierer für automatisches Einziehen verbinden",
+        "description": "Ist ein Sortierer über Bluetooth oder WLAN verbunden, tippe auf Start, und Karten werden automatisch eingezogen, gescannt und in Fächer sortiert."
+      }
+    },
+    "status": {
+      "modes": {
+        "sorter": "Sortierer",
+        "handScan": "Handscan",
+        "scanOnce": "Einzelscan",
+        "removing": "Entfernen"
+      },
+      "saved": "{{name}} gespeichert"
+    },
+    "unmatchedRecovery": {
+      "title": "Karte nicht erkannt",
+      "description": "Sie wurde als nicht erkannt gespeichert. Versuche es erneut oder suche sie nach Namen.",
+      "retry": "Erneut versuchen",
+      "searchByName": "Nach Namen suchen",
+      "skip": "Überspringen"
+    },
+    "liveActivity": {
+      "title": "Mault Scanner",
+      "scanning": "Scannt",
+      "scannedCount_one": "{{count}} gescannt",
+      "scannedCount_other": "{{count}} gescannt",
+      "lastCard": "Zuletzt: {{name}}",
+      "noCardYet": "Noch keine Karten"
     }
   },
   "home": {
@@ -3008,5 +3049,40 @@
     "loadMore": "Mehr laden",
     "invalid": "Dieser Link funktioniert nicht",
     "invalidDescription": "Er ist vielleicht abgelaufen oder wurde widerrufen. Bitte den Besitzer um einen neuen."
+  },
+  "listRow": {
+    "moreActions": "Weitere Aktionen"
+  },
+  "search": {
+    "title": "Suche",
+    "open": "Alles durchsuchen",
+    "placeholder": "Karten, Sammlungen, Lagerorte und Einstellungen suchen",
+    "promptTitle": "Alles durchsuchen",
+    "promptDescription": "Finde eine Karte in jeder Sammlung, eine Sammlung, einen Lagerort oder eine Einstellung.",
+    "emptyTitle": "Nichts gefunden",
+    "emptyDescription": "Versuche einen anderen Namen oder eine andere Schreibweise.",
+    "loadFailed": "Deine Karten konnten nicht durchsucht werden. Zum erneuten Versuchen nach unten ziehen.",
+    "foil": "Foil",
+    "locationPosition": "{{location}}, Platz {{position}}",
+    "resultsCount_one": "{{count}} Ergebnis",
+    "resultsCount_other": "{{count}} Ergebnisse",
+    "sections": {
+      "cards": "Karten",
+      "collections": "Sammlungen",
+      "locations": "Lagerorte",
+      "settings": "Einstellungen"
+    }
+  },
+  "recovery": {
+    "undo": "Rückgängig",
+    "retry": "Erneut versuchen",
+    "restored": "Wiederhergestellt",
+    "undoFailed": "Konnte nicht rückgängig gemacht werden",
+    "cardsRemoved_one": "Karte entfernt",
+    "cardsRemoved_other": "{{count}} Karten entfernt",
+    "tagAdded": "{{tag}} hinzugefügt",
+    "tagRemoved": "{{tag}} entfernt",
+    "movedTo": "Verschoben nach {{name}}",
+    "cardsLoadFailed": "Die Karten konnten nicht geladen werden"
   }
 }

@@ -23,6 +23,7 @@ import type {
   UnmatchedScanDetails,
 } from "@magic-vault/shared";
 import type { Image } from "react-native-nitro-image";
+import type { IconName } from "@/lib/interfaces/ui";
 
 export interface CapturedFrame {
   image: Image;
@@ -106,6 +107,28 @@ export type ScannerPauseReason =
 export interface ControlCardNotice {
   noticeId: string;
   command: ScannerControlCommand;
+}
+
+export interface ScannerTip {
+  key: "holdCard" | "qrCode" | "sorter";
+  icon: IconName;
+}
+
+export interface ScanTipsSheetProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+export interface UnmatchedScanNoticeProps {
+  canRetry: boolean;
+  onRetry: () => void;
+  onSearchByName: () => void;
+  onSkip: () => void;
+}
+
+export interface UnmatchedScanRecovery {
+  scanId: string;
+  collectionGuid: string;
 }
 
 export interface ScanFeedEntry {

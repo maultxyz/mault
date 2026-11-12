@@ -205,3 +205,6 @@ export * from "./share-link-url";
 export * from "./interfaces/trade-offers.interface";
 export * from "./constants/trade-offers.constant";
 export * from "./card-tags";
+export * from "./constants/owned-card-search.constant";
+export * from "./interfaces/owned-card-search.interface";
+export * from "./owned-card-search";

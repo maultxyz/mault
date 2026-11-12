@@ -39,12 +39,16 @@ import { TorchBrightness } from "@/features/scanner/components/torch-brightness"
 import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { useScanSession } from "@/features/scanner/api/use-scan-session";
 import { useScanResultAnnouncements } from "@/features/scanner/api/use-scan-result-announcements";
+import { useScanLiveActivity } from "@/features/scanner/api/use-scan-live-activity";
+import { useScanStatusAnnouncements } from "@/features/scanner/api/use-scan-status-announcements";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { BinBadge } from "@/features/scanner/components/bin-badge";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
 import { ScanOptionsSheet } from "@/features/scanner/components/scan-options-sheet";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
+import { ScanTipsSheet } from "@/features/scanner/components/scan-tips-sheet";
+import { UnmatchedScanNotice } from "@/features/scanner/components/unmatched-scan-notice";
 import { ScannerControlsSheet } from "@/features/scanner/components/scanner-controls-sheet";
 import { SessionScansSheet } from "@/features/scanner/components/session-scans-sheet";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
@@ -61,13 +65,16 @@ import {
   NOT_FOIL_OPTION,
   PAUSE_TONES,
   RUNNING_PHASES,
-  QUIET_SCANNER_PHASES,
   SCAN_REMOVAL_NOTICE_TONES,
+  SCAN_SAVED_STATUS_MS,
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { SHUTTER_SIZE } from "@/lib/constants/ui";
 import { SCANNER_QR_REPEAT_MS } from "@/lib/constants/phone-camera";
 import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
+import { SCAN_TIPS_SEEN_KEY } from "@/lib/constants/storage-keys";
+import type { UnmatchedScanRecovery } from "@/lib/interfaces/scanner";
+import { readKv, writeKv } from "@/lib/storage/kv";
 
 export default function ScanScreen() {
   const { t } = useTranslation();
@@ -176,6 +183,56 @@ export default function ScanScreen() {
     },
   });
   const lastBin = sorter.isReady ? undefined : session.feed[0]?.binNumber;
+  const [tipsOpen, setTipsOpen] = useState(() => readKv(SCAN_TIPS_SEEN_KEY) !== "true");
+  const closeTips = () => {
+    setTipsOpen(false);
+    writeKv(SCAN_TIPS_SEEN_KEY, "true");
+  };
+  const [unmatchedRecovery, setUnmatchedRecovery] = useState<UnmatchedScanRecovery | null>(null);
+  const [savedCardName, setSavedCardName] = useState<string | null>(null);
+  const latestFeedEntry = session.feed[0];
+  const handledFeedScanIdRef = useRef(latestFeedEntry?.scanId);
+  useEffect(() => {
+    if (!latestFeedEntry || latestFeedEntry.scanId === handledFeedScanIdRef.current) return;
+    handledFeedScanIdRef.current = latestFeedEntry.scanId;
+    if (latestFeedEntry.card) {
+      setUnmatchedRecovery(null);
+      setSavedCardName(latestFeedEntry.card.name);
+      return;
+    }
+    if (!sorter.isReady && collection) {
+      setUnmatchedRecovery({ scanId: latestFeedEntry.scanId, collectionGuid: collection.guid });
+    }
+  }, [latestFeedEntry, sorter.isReady, collection]);
+  useEffect(() => {
+    if (!savedCardName) return;
+    const timer = setTimeout(() => setSavedCardName(null), SCAN_SAVED_STATUS_MS);
+    return () => clearTimeout(timer);
+  }, [savedCardName, latestFeedEntry?.scanId]);
+  useEffect(() => {
+    if (!focused) setUnmatchedRecovery(null);
+  }, [focused]);
+  const scanModeLabel = sorter.isReady
+    ? t("scan.status.modes.sorter")
+    : session.removal.isActive
+      ? t("scan.status.modes.removing")
+      : session.handScanActive
+        ? t("scan.status.modes.handScan")
+        : t("scan.status.modes.scanOnce");
+  const statusText = [
+    scanModeLabel,
+    collection?.name ?? t("scan.chooseCollection"),
+    savedCardName ? t("scan.status.saved", { name: savedCardName }) : t(`scan.phase.${session.phase}`),
+  ].join(" · ");
+  useScanStatusAnnouncements(session.phase, statusText);
+  useScanLiveActivity({
+    isActive: session.isRunning && focused,
+    phase: session.phase,
+    collectionName: collection?.name ?? null,
+    sessionCount: session.sessionCount,
+    lastCardName: session.feed.find((entry) => entry.card)?.card?.name ?? null,
+    lastBinNumber: session.feed[0]?.binNumber ?? null,
+  });
   const [sessionOpen, setSessionOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [removalQueueOpen, setRemovalQueueOpen] = useState(false);
@@ -198,7 +255,6 @@ export default function ScanScreen() {
     session.removal.setIsEnabled(isRemoveMode);
     if (isRemoveMode) session.setHandScan(true);
   };
-  const showPhaseChip = !QUIET_SCANNER_PHASES.includes(session.phase);
   const sorterDriven = sorter.isReady || session.handScanActive;
   const canScanOnce = !!collection && !session.modelError && session.phase !== "loading-models";
   const phaseColor =
@@ -277,6 +333,21 @@ export default function ScanScreen() {
         ? { actionLabel: t("scan.emptyBin.action"), onAction: confirmMarkFullBinsEmpty }
         : {})}
     />
+  ) : unmatchedRecovery ? (
+    <UnmatchedScanNotice
+      canRetry={!sorterDriven && canScanOnce && !RUNNING_PHASES.includes(session.phase)}
+      onRetry={() => {
+        setUnmatchedRecovery(null);
+        session.scanOnce();
+      }}
+      onSearchByName={() => {
+        const recovery = unmatchedRecovery;
+        setUnmatchedRecovery(null);
+        if (session.isRunning) session.pause();
+        router.push({ pathname: "/unmatched-card", params: { guid: recovery.collectionGuid, scanId: recovery.scanId } });
+      }}
+      onSkip={() => setUnmatchedRecovery(null)}
+    />
   ) : removalNotice ? (
     <CameraNotice
       key={removalNotice.noticeId}
@@ -333,6 +404,13 @@ export default function ScanScreen() {
           </View>
           <TorchToggle torch={torch} />
           <IconButton
+            icon="help"
+            variant="camera"
+            size={36}
+            accessibilityLabel={t("scan.tips.open")}
+            onPress={() => setTipsOpen(true)}
+          />
+          <IconButton
             icon="more"
             variant="camera"
             size={36}
@@ -341,22 +419,18 @@ export default function ScanScreen() {
           />
         </View>
         <TorchBrightness torch={torch} />
-        {showPhaseChip || session.sessionCount > 0 ? (
-          <View pointerEvents="box-none" style={{ flexDirection: "row", gap: SPACING.sm }}>
-            {showPhaseChip ? (
-              <View style={{ flexShrink: 1, minWidth: 0 }}>
-                <CameraChip dotColor={phaseColor} label={t(`scan.phase.${session.phase}`)} />
-              </View>
-            ) : null}
-            {session.sessionCount > 0 ? (
-              <CameraChip
-                icon="check"
-                label={t("scan.sessionChip", { count: session.sessionCount })}
-                onPress={() => setSessionOpen(true)}
-              />
-            ) : null}
+        <View pointerEvents="box-none" style={{ flexDirection: "row", gap: SPACING.sm }}>
+          <View accessibilityLiveRegion="polite" style={{ flexShrink: 1, minWidth: 0 }}>
+            <CameraChip dotColor={phaseColor} label={statusText} />
           </View>
-        ) : null}
+          {session.sessionCount > 0 ? (
+            <CameraChip
+              icon="check"
+              label={t("scan.sessionChip", { count: session.sessionCount })}
+              onPress={() => setSessionOpen(true)}
+            />
+          ) : null}
+        </View>
         {showRemovalChip && collection ? (
           <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
             <CameraChip
@@ -445,6 +519,7 @@ export default function ScanScreen() {
           </View>
         </View>
       </SafeAreaView>
+      <ScanTipsSheet visible={tipsOpen && focused} onClose={closeTips} />
       <ScanOptionsSheet
         visible={optionsOpen}
         running={session.isRunning}

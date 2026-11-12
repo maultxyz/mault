@@ -19,6 +19,7 @@ export const CardTile = memo(function CardTile({
   selected = false,
   disabled = false,
   onPress,
+  onPressIn,
   onLongPress,
 }: CardTileProps) {
   const { t } = useTranslation();
@@ -43,6 +44,7 @@ export const CardTile = memo(function CardTile({
       }}
       disabled={disabled || !onPress}
       onPress={onPress}
+      onPressIn={onPressIn}
       onLongPress={onLongPress}
       style={({ pressed }) => ({ flex: 1, minWidth: 0, gap: 6, transform: [{ scale: pressed ? 0.97 : 1 }] })}
     >

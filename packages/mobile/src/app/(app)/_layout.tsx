@@ -84,6 +84,7 @@ export default function AppLayout() {
             options={{ contentStyle: { backgroundColor: colors.background } }}
           />
           <Stack.Screen name="shared-link" />
+          <Stack.Screen name="search" />
           <Stack.Screen name="trade/index" />
           <Stack.Screen name="trade/browse" />
           <Stack.Screen name="trade/collection" />

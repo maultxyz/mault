@@ -4,6 +4,7 @@ import { addCollectionRoute } from "./add";
 import { addCollectionCardRoute } from "./cards-add";
 import { addManualCollectionCardRoute } from "./cards-manual-add";
 import { sortOnlyScanRoute } from "./cards-sort-only";
+import { searchOwnedCardsRoute } from "./cards-search";
 import { collectionCardBinsRoute } from "./cards-bins";
 import { clearCollectionCardsRoute } from "./cards-clear";
 import { deleteCollectionCardRoute } from "./cards-delete";
@@ -44,6 +45,7 @@ import { identifyUnmatchedCardRoute } from "./unmatched-identify";
 import { listUnmatchedCardsRoute } from "./unmatched-list";
 
 const router = new Hono<AppEnv>()
+  .route("/", searchOwnedCardsRoute)
   .route("/", listCollectionsRoute)
   .route("/", locksRoute)
   .route("/", checkCollectionNameRoute)
