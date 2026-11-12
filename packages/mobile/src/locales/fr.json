@@ -2165,6 +2165,8 @@
     "badge_other": "{{count}} non reconnues"
   },
   "matchValidations": {
+    "ocrFallback": "{{field}} (zone de secours)",
+    "ocrFixedBox": "{{field}} (zone fixe)",
     "title": "Valider les correspondances",
     "description": "Aide la communauté à améliorer la reconnaissance des cartes : compare les scans récents avec la carte associée. Chaque scan demande {{required}} vérifications. Les réponses ne modifient jamais une collection.",
     "counts": "Tu en as vérifié {{yours}} · {{community}} vérifications de la communauté jusqu'ici",

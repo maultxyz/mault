@@ -2165,6 +2165,8 @@
     "badge_other": "{{count}} unmatched"
   },
   "matchValidations": {
+    "ocrFallback": "{{field}} (fallback)",
+    "ocrFixedBox": "{{field}} (fixed box)",
     "title": "Validate matches",
     "description": "Help the community improve card recognition: check recent scans against the card they were matched to. Each scan needs {{required}} reviews. Answers never change anyone's collection.",
     "counts": "You've checked {{yours}} · {{community}} checks from the community so far",

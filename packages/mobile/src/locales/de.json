@@ -2165,6 +2165,8 @@
     "badge_other": "{{count}} nicht erkannt"
   },
   "matchValidations": {
+    "ocrFallback": "{{field}} (Ausweichbereich)",
+    "ocrFixedBox": "{{field}} (feste Box)",
     "title": "Treffer prüfen",
     "description": "Hilf der Community, die Kartenerkennung zu verbessern: Vergleiche aktuelle Scans mit der zugeordneten Karte. Jeder Scan braucht {{required}} Prüfungen. Die Antworten ändern nie eine Sammlung.",
     "counts": "Du hast {{yours}} geprüft · bisher {{community}} Prüfungen aus der Community",

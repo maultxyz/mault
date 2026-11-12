@@ -16,7 +16,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { Pill } from "@/components/ui/pill";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
+import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import {
   MATCH_VALIDATION_SCANS_QUERY_KEY,
   matchValidationProgressQueryOptions,
@@ -128,8 +128,8 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
                       accessibilityLabel={t("matchValidations.scanPhotoAlt", { name: cardName })}
                     />
                   ) : null}
-                  <OcrRegionOverlay regions={scanOcrRegions} />
                 </View>
+                {scanUrl ? <OcrRegionCrops imageUrl={scanUrl} regions={scanOcrRegions} /> : null}
               </View>
               <View style={{ flex: 1, gap: 6 }}>
                 <AppText size="xs" tone="secondary">
@@ -145,8 +145,8 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
                       accessibilityLabel={t("matchValidations.matchedCardAlt", { name: cardName })}
                     />
                   ) : null}
-                  <OcrRegionOverlay regions={fixedOcrRegions} />
                 </View>
+                {catalogUrl ? <OcrRegionCrops imageUrl={catalogUrl} regions={fixedOcrRegions} /> : null}
               </View>
             </View>
 

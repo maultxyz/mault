@@ -154,6 +154,7 @@ export interface CardDetailPrefetchStep {
   nextScanId: string | null;
 }
 
-export interface OcrRegionOverlayProps {
+export interface OcrRegionCropsProps {
+  imageUrl: string;
   regions: OcrOverlayRegion[];
 }
