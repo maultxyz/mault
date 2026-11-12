@@ -2980,7 +2980,21 @@
     "tradeOffersCount_one": "{{count}} trade offer",
     "tradeOffersCount_other": "{{count}} trade offers",
     "alertsCount_one": "{{count}} alert",
-    "alertsCount_other": "{{count}} alerts"
+    "alertsCount_other": "{{count}} alerts",
+    "scanner": {
+      "title": "Scanners",
+      "idle": "No scanners running",
+      "scanning_one": "Scanning now",
+      "scanning_other": "{{count}} scanners running",
+      "scannerLine": "{{name}} · {{collection}}",
+      "unknownCollection": "a collection",
+      "more_one": "+{{count}} more",
+      "more_other": "+{{count}} more",
+      "unknown": "Status unknown",
+      "openToRefresh": "Open Mault to refresh.",
+      "lastScan": "Last: {{card}} at {{time}}",
+      "updated": "Updated {{time}}"
+    }
   },
   "sharedLink": {
     "title": "Shared cards",

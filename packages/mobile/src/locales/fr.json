@@ -2980,7 +2980,21 @@
     "tradeOffersCount_one": "{{count}} offre d'échange",
     "tradeOffersCount_other": "{{count}} offres d'échange",
     "alertsCount_one": "{{count}} alerte",
-    "alertsCount_other": "{{count}} alertes"
+    "alertsCount_other": "{{count}} alertes",
+    "scanner": {
+      "title": "Scanners",
+      "idle": "Aucun scanner actif",
+      "scanning_one": "Scan en cours",
+      "scanning_other": "{{count}} scanners actifs",
+      "scannerLine": "{{name}} · {{collection}}",
+      "unknownCollection": "une collection",
+      "more_one": "+{{count}} autre",
+      "more_other": "+{{count}} autres",
+      "unknown": "Statut inconnu",
+      "openToRefresh": "Ouvrez Mault pour actualiser.",
+      "lastScan": "Dernier : {{card}} à {{time}}",
+      "updated": "Mis à jour à {{time}}"
+    }
   },
   "sharedLink": {
     "title": "Cartes partagées",

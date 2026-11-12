@@ -2980,7 +2980,21 @@
     "tradeOffersCount_one": "{{count}} Tauschangebot",
     "tradeOffersCount_other": "{{count}} Tauschangebote",
     "alertsCount_one": "{{count}} Hinweis",
-    "alertsCount_other": "{{count}} Hinweise"
+    "alertsCount_other": "{{count}} Hinweise",
+    "scanner": {
+      "title": "Scanner",
+      "idle": "Kein Scanner aktiv",
+      "scanning_one": "Scannt gerade",
+      "scanning_other": "{{count}} Scanner aktiv",
+      "scannerLine": "{{name}} · {{collection}}",
+      "unknownCollection": "eine Sammlung",
+      "more_one": "+{{count}} weiterer",
+      "more_other": "+{{count}} weitere",
+      "unknown": "Status unbekannt",
+      "openToRefresh": "Öffne Mault zum Aktualisieren.",
+      "lastScan": "Zuletzt: {{card}} um {{time}}",
+      "updated": "Aktualisiert {{time}}"
+    }
   },
   "sharedLink": {
     "title": "Geteilte Karten",
