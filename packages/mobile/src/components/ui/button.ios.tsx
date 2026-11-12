@@ -54,6 +54,7 @@ export function Button({
     ghost: { tintColor: colors.primaryText, foregroundColor: colors.foreground },
   }[variant];
   const inactive = disabled || loading;
+  const labelColor = disabled && !loading ? colors.foregroundSecondary : appearance.foregroundColor;
   const hasLeadingGlyph = loading || !!icon;
   const [nativeContentHeight, setNativeContentHeight] = useState(0);
 
@@ -108,7 +109,7 @@ export function Button({
             spacing={SPACING.xs + 2}
             modifiers={[
               frame({ maxWidth: Number.POSITIVE_INFINITY }),
-              foregroundStyle(appearance.foregroundColor),
+              foregroundStyle(labelColor),
             ]}
           >
             {loading ? (
