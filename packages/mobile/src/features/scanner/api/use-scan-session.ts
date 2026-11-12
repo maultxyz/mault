@@ -804,10 +804,10 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         device?.scanRegion ?? DEFAULT_SCAN_REGION,
       );
       const qrText = !outcome.card && captured.frame ? await readScannerQrText(captured.frame) : null;
-      const tradeLink = qrText ? parseShareLinkUrl(qrText) : null;
-      if (tradeLink) {
+      const shareLink = qrText ? parseShareLinkUrl(qrText) : null;
+      if (shareLink) {
         pause("user");
-        router.push({ pathname: "/trade", params: { ...tradeLink } });
+        router.push({ pathname: "/shared-link", params: { ...shareLink } });
         return;
       }
       const controlCode = qrText && isScannerControlCode(qrText) ? qrText : null;

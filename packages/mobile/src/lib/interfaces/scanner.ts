@@ -6,6 +6,7 @@ import type {
   CardSearchResult,
   CardTextSearchResult,
   MatchedScanDetails,
+  ParsedShareLinkUrl,
   PlayingCard,
   PlayingCardWithDistance,
   RgbaImage,
@@ -337,7 +338,17 @@ export interface PhoneCameraResponder {
   scanRegion: ScanRegion | null;
 }
 
-export interface QrScanner {
+export type ScannerQrLink =
+  | { kind: "share-link"; shareLink: ParsedShareLinkUrl }
+  | { kind: "desktop-camera"; collectionGuid: string };
+
+export interface ScannerQrWatcherOptions {
+  active: boolean;
+  onQrLink: (qrLink: ScannerQrLink) => void;
+  grabLiveFrame: () => Promise<Image>;
+}
+
+export interface ScannerQrWatcher {
   outputs: CameraOutput[];
 }
 

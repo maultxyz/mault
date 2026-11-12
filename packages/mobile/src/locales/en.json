@@ -678,8 +678,6 @@
         "front": "Front",
         "external": "External"
       },
-      "pairDesktop": "Use as a desktop camera",
-      "pairDesktopDescription": "Scan the QR code shown on your computer",
       "preset": "Rule preset",
       "chooseCamera": "Choose a camera",
       "foilType": "Foil type",
@@ -2092,16 +2090,6 @@
     "learnMore": "Learn more",
     "firmwareMissing": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning."
   },
-  "pairing": {
-    "title": "Scan to link",
-    "subtitle": "Use this phone as a scanner camera",
-    "hint": "On your computer, open the scanner and choose Use Phone as Camera, then point this phone at the QR code.",
-    "invalidTitle": "That isn't a camera link",
-    "invalidDescription": "Scan the QR code from Use Phone as Camera on your computer's scanner page.",
-    "paste": "Paste link instead",
-    "linkLabel": "Pairing link",
-    "connect": "Connect"
-  },
   "phoneCamera": {
     "title": "Use Phone as Camera",
     "ready": "Camera ready",
@@ -2993,5 +2981,18 @@
     "tradeOffersCount_other": "{{count}} trade offers",
     "alertsCount_one": "{{count}} alert",
     "alertsCount_other": "{{count}} alerts"
+  },
+  "sharedLink": {
+    "title": "Shared cards",
+    "collectionSubtitle_one": "Shared collection · {{count}} card",
+    "collectionSubtitle_other": "Shared collection · {{count}} cards",
+    "storageSubtitle_one": "Shared storage location · {{count}} card",
+    "storageSubtitle_other": "Shared storage location · {{count}} cards",
+    "search": "Search these cards",
+    "empty": "No cards found",
+    "loadFailed": "Couldn't load these cards",
+    "loadMore": "Load more",
+    "invalid": "This link doesn't work",
+    "invalidDescription": "It may have expired or been revoked. Ask the owner for a new one."
   }
 }

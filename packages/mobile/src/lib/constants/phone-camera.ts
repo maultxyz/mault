@@ -10,6 +10,8 @@ export const QR_SCAN_INTERVAL_MS = 800;
 
 export const QR_DECODE_LONG_SIDE = 720;
 
+export const SCANNER_QR_REPEAT_MS = 5000;
+
 export const QR_OBJECT_TYPES: ScannedObjectType[] = ["qr"];
 
 export const CAPTURE_FLASH_MS = 250;

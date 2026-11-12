@@ -32,6 +32,7 @@ import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
 import { useLiveFrameSource } from "@/features/scanner/api/use-live-frame-source";
+import { useScannerQrWatcher } from "@/features/scanner/api/use-scanner-qr-watcher";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
@@ -65,6 +66,7 @@ import {
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { SHUTTER_SIZE } from "@/lib/constants/ui";
+import { SCANNER_QR_REPEAT_MS } from "@/lib/constants/phone-camera";
 import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 
 export default function ScanScreen() {
@@ -150,6 +152,29 @@ export default function ScanScreen() {
     LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
     session.trackLiveCorners,
   );
+  const lastQrLinkRef = useRef<{ linkKey: string; seenAt: number } | null>(null);
+  const scannerQr = useScannerQrWatcher({
+    active:
+      cameraMounted &&
+      appState === "active" &&
+      !!device &&
+      permission.hasPermission &&
+      !working &&
+      !LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
+    grabLiveFrame,
+    onQrLink: (qrLink) => {
+      const linkKey = JSON.stringify(qrLink);
+      const last = lastQrLinkRef.current;
+      if (last && last.linkKey === linkKey && Date.now() - last.seenAt < SCANNER_QR_REPEAT_MS) return;
+      lastQrLinkRef.current = { linkKey, seenAt: Date.now() };
+      if (session.isRunning) session.pause();
+      if (qrLink.kind === "share-link") {
+        router.push({ pathname: "/shared-link", params: { ...qrLink.shareLink } });
+      } else {
+        router.push({ pathname: "/desktop-camera/[guid]", params: { guid: qrLink.collectionGuid } });
+      }
+    },
+  });
   const lastBin = sorter.isReady ? undefined : session.feed[0]?.binNumber;
   const [sessionOpen, setSessionOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
@@ -272,7 +297,7 @@ export default function ScanScreen() {
             style={StyleSheet.absoluteFill}
             device={device}
             isActive={cameraMounted && appState === "active"}
-            outputs={liveFrameOutput ? [photoOutput, liveFrameOutput] : [photoOutput]}
+            outputs={[photoOutput, ...(liveFrameOutput ? [liveFrameOutput] : []), ...scannerQr.outputs]}
             resizeMode="cover"
             enableNativeTapToFocusGesture
             onStarted={torch.onCameraStarted}

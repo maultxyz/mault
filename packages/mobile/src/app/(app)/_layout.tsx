@@ -77,6 +77,7 @@ export default function AppLayout() {
             name="storage-card-scan"
             options={{ contentStyle: { backgroundColor: colors.background } }}
           />
+          <Stack.Screen name="shared-link" />
           <Stack.Screen name="trade/index" />
           <Stack.Screen name="trade/browse" />
           <Stack.Screen name="trade/collection" />

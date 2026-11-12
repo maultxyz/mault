@@ -678,8 +678,6 @@
         "front": "Vorderseite",
         "external": "Extern"
       },
-      "pairDesktop": "Als Desktop-Kamera nutzen",
-      "pairDesktopDescription": "QR-Code auf deinem Computer scannen",
       "preset": "Regel-Preset",
       "chooseCamera": "Kamera auswählen",
       "foilType": "Foil-Typ",
@@ -2092,16 +2090,6 @@
     "learnMore": "Mehr erfahren",
     "firmwareMissing": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren."
   },
-  "pairing": {
-    "title": "Zum Verbinden scannen",
-    "subtitle": "Dieses Telefon als Scanner-Kamera verwenden",
-    "hint": "Öffne auf deinem Computer den Scanner, wähle Telefon als Kamera verwenden und richte dieses Telefon auf den QR-Code.",
-    "invalidTitle": "Das ist kein Kamera-Link",
-    "invalidDescription": "Scanne den QR-Code von Telefon als Kamera verwenden auf der Scanner-Seite deines Computers.",
-    "paste": "Stattdessen Link einfügen",
-    "linkLabel": "Kopplungslink",
-    "connect": "Verbinden"
-  },
   "phoneCamera": {
     "title": "Telefon als Kamera verwenden",
     "ready": "Kamera bereit",
@@ -2993,5 +2981,18 @@
     "tradeOffersCount_other": "{{count}} Tauschangebote",
     "alertsCount_one": "{{count}} Hinweis",
     "alertsCount_other": "{{count}} Hinweise"
+  },
+  "sharedLink": {
+    "title": "Geteilte Karten",
+    "collectionSubtitle_one": "Geteilte Sammlung · {{count}} Karte",
+    "collectionSubtitle_other": "Geteilte Sammlung · {{count}} Karten",
+    "storageSubtitle_one": "Geteilter Lagerort · {{count}} Karte",
+    "storageSubtitle_other": "Geteilter Lagerort · {{count}} Karten",
+    "search": "Diese Karten durchsuchen",
+    "empty": "Keine Karten gefunden",
+    "loadFailed": "Die Karten konnten nicht geladen werden",
+    "loadMore": "Mehr laden",
+    "invalid": "Dieser Link funktioniert nicht",
+    "invalidDescription": "Er ist vielleicht abgelaufen oder wurde widerrufen. Bitte den Besitzer um einen neuen."
   }
 }

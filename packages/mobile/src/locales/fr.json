@@ -678,8 +678,6 @@
         "front": "Avant",
         "external": "Externe"
       },
-      "pairDesktop": "Utiliser comme caméra d'ordinateur",
-      "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur",
       "preset": "Préréglage de règles",
       "chooseCamera": "Choisir une caméra",
       "foilType": "Type de foil",
@@ -2092,16 +2090,6 @@
     "learnMore": "En savoir plus",
     "firmwareMissing": "Le firmware de ton trieur ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan."
   },
-  "pairing": {
-    "title": "Scanner pour associer",
-    "subtitle": "Utiliser ce téléphone comme caméra du scanner",
-    "hint": "Sur ton ordinateur, ouvre le scanner et choisis Utiliser le téléphone comme caméra, puis vise le code QR avec ce téléphone.",
-    "invalidTitle": "Ce n'est pas un lien de caméra",
-    "invalidDescription": "Scanne le code QR de Utiliser le téléphone comme caméra sur la page du scanner de ton ordinateur.",
-    "paste": "Coller le lien à la place",
-    "linkLabel": "Lien d'association",
-    "connect": "Connecter"
-  },
   "phoneCamera": {
     "title": "Utiliser le téléphone comme caméra",
     "ready": "Caméra prête",
@@ -2993,5 +2981,18 @@
     "tradeOffersCount_other": "{{count}} offres d'échange",
     "alertsCount_one": "{{count}} alerte",
     "alertsCount_other": "{{count}} alertes"
+  },
+  "sharedLink": {
+    "title": "Cartes partagées",
+    "collectionSubtitle_one": "Collection partagée · {{count}} carte",
+    "collectionSubtitle_other": "Collection partagée · {{count}} cartes",
+    "storageSubtitle_one": "Emplacement partagé · {{count}} carte",
+    "storageSubtitle_other": "Emplacement partagé · {{count}} cartes",
+    "search": "Rechercher dans ces cartes",
+    "empty": "Aucune carte trouvée",
+    "loadFailed": "Impossible de charger ces cartes",
+    "loadMore": "Charger plus",
+    "invalid": "Ce lien ne fonctionne pas",
+    "invalidDescription": "Il a peut-être expiré ou été révoqué. Demandez-en un nouveau au propriétaire."
   }
 }
