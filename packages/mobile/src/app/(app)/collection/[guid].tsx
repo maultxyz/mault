@@ -1,9 +1,9 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
-import { Alert, FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import {
   computeBinCount,
   DEFAULT_MODULE_COUNT,
@@ -36,7 +36,8 @@ import { toScanTimelineListRows } from "@/features/collections/lib/scan-timeline
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
-import { collectionsQueryOptions, deleteCollection, emptyCollection } from "@/features/collections/api/collections";
+import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { useCollectionActions } from "@/features/collections/api/use-collection-actions";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { useSessionStream } from "@/features/monitor/api/use-session-stream";
 import { useSorter } from "@/features/sorter/api/use-sorter";
@@ -72,7 +73,6 @@ export default function CollectionScreen() {
   const { t, i18n } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
-  const queryClient = useQueryClient();
   const width = usePanelWidth();
   const [search, setSearch] = useState("");
   const debounced = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
@@ -114,41 +114,11 @@ export default function CollectionScreen() {
   const stream = useSessionStream(guid);
   const { setScanTargetGuid } = useScanTarget();
   const [actionsOpen, setActionsOpen] = useState(false);
-  const empty = useMutation({
-    mutationFn: () => emptyCollection(guid),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
-      void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
-      void queryClient.invalidateQueries({ queryKey: collectionsOptions.queryKey });
-    },
-  });
-  const remove = useMutation({
-    mutationFn: () => deleteCollection(guid),
-    onSuccess: (next) => {
-      queryClient.setQueryData(collectionsOptions.queryKey, next);
-      void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
-      void queryClient.invalidateQueries({ queryKey: ["billing"] });
-      router.back();
-    },
-  });
+  const collectionActions = useCollectionActions({ onDeleted: () => router.back(), shareLinkCountGuid: guid });
+  const { empty, remove } = collectionActions;
   const runAction = (action: string) => {
     setActionsOpen(false);
-    const name = collection?.name ?? "";
-    if (action === "edit") {
-      router.push({ pathname: "/collection-edit", params: { guid } });
-    } else if (action === "empty") {
-      Alert.alert(t("collections.empty"), t("collections.emptyDescription", { name }), [
-        { text: t("collections.cancel"), style: "cancel" },
-        { text: t("collections.emptyConfirm"), style: "destructive", onPress: () => empty.mutate() },
-      ]);
-    } else if (action === "share") {
-      router.push({ pathname: "/share-link", params: { kind: "collection", guid } });
-    } else if (action === "delete") {
-      Alert.alert(t("collections.delete"), t("collections.deleteDescription", { name }), [
-        { text: t("collections.cancel"), style: "cancel" },
-        { text: t("collections.deleteConfirm"), style: "destructive", onPress: () => remove.mutate() },
-      ]);
-    }
+    collectionActions.runAction({ guid, name: collection?.name ?? "" }, action);
   };
 
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.items) ?? [], [cards.data]);
@@ -338,12 +308,7 @@ export default function CollectionScreen() {
       <OptionSheet
         visible={actionsOpen}
         title={collection?.name ?? t("collections.actions")}
-        options={[
-          { value: "share", label: t("collections.shareLink") },
-          { value: "edit", label: t("collections.edit") },
-          { value: "empty", label: t("collections.empty") },
-          { value: "delete", label: t("collections.delete") },
-        ]}
+        options={collectionActions.options}
         selected={[]}
         onSelect={runAction}
         onClose={() => setActionsOpen(false)}

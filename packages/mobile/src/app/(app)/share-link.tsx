@@ -1,177 +1,68 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, ScrollView, Share, View } from "react-native";
-import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
-import { Callout } from "@/components/ui/callout";
+import { AccessibilityInfo, View } from "react-native";
 import { PageHeader } from "@/components/ui/page-header";
-import { QrCode } from "@/components/ui/qr-code";
-import { SegmentedControl } from "@/components/ui/segmented-control";
-import { SwitchRow } from "@/components/ui/switch-row";
-import {
-  buildMonitorLinkUrl,
-  createMonitorLink,
-  revokeMonitorLinks,
-} from "@/features/collections/api/collection-cards";
-import {
-  buildStorageShareLinkUrl,
-  createStorageShareLink,
-  revokeStorageShareLinks,
-} from "@/features/storage/api/storage-share-links";
-import { billingQueryOptions } from "@/features/org/api/billing";
-import { useActiveOrgId } from "@/hooks/use-org";
-import { usePanelWidth } from "@/hooks/use-panel-width";
+import { ExistingShareLink } from "@/features/share-links/components/existing-share-link";
+import { NewShareLinkForm } from "@/features/share-links/components/new-share-link-form";
+import { SubjectShareLinks } from "@/features/share-links/components/subject-share-links";
 import { useTheme } from "@/hooks/use-theme";
-import { formatDateTime } from "@/lib/dates";
-import { QR_CODE_MAX_SIZE } from "@/lib/constants/share-links";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CreatedShareLink, ShareLinkKind } from "@/lib/interfaces/share-links";
-import {
-  DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
-  DEFAULT_SHARE_LINK_PURPOSE,
-  DEFAULT_SHARE_LINK_SHOWS_PRICES,
-  MONITOR_LINK_EXPIRY_DAYS,
-  type ShareLinkPurpose,
-} from "@magic-vault/shared";
+import type { ShareLinkKind, ShareLinkSheetView } from "@/lib/interfaces/share-links";
 
 export default function ShareLinkScreen() {
   const { kind, guid } = useLocalSearchParams<{ kind: ShareLinkKind; guid: string }>();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const colors = useTheme();
-  const panelWidth = usePanelWidth();
+  const [view, setView] = useState<ShareLinkSheetView>({ name: "links" });
+  const [createdWithoutLink, setCreatedWithoutLink] = useState(false);
   const isStorage = kind === "storage";
-  const [expiresInDays, setExpiresInDays] = useState<number>(DEFAULT_MONITOR_LINK_EXPIRY_DAYS);
-  const [showsPrices, setShowsPrices] = useState(DEFAULT_SHARE_LINK_SHOWS_PRICES);
-  const [purpose, setPurpose] = useState<ShareLinkPurpose>(DEFAULT_SHARE_LINK_PURPOSE);
-  const [link, setLink] = useState<CreatedShareLink | null>(null);
-  const orgId = useActiveOrgId();
-  const { data: billing } = useQuery(billingQueryOptions(orgId));
-  const isOneHourLink = purpose === "trade" || billing?.longShareLinks === false;
 
-  const create = useMutation({
-    mutationFn: async (): Promise<CreatedShareLink> => {
-      if (isStorage) {
-        const created = await createStorageShareLink(guid, expiresInDays, showsPrices, purpose);
-        return { url: buildStorageShareLinkUrl(guid, created.token), expiresAt: created.expiresAt };
-      }
-      const created = await createMonitorLink(guid, expiresInDays, showsPrices, purpose);
-      return { url: buildMonitorLinkUrl(guid, created.token), expiresAt: created.expiresAt };
-    },
-    onSuccess: (created) => {
-      setLink(created);
-      AccessibilityInfo.announceForAccessibility(t("shareLink.created"));
-    },
-  });
-  const revoke = useMutation({
-    mutationFn: () => (isStorage ? revokeStorageShareLinks(guid) : revokeMonitorLinks(guid)),
-    onSuccess: () => {
-      setLink(null);
-      AccessibilityInfo.announceForAccessibility(t("shareLink.revoked"));
-    },
-  });
+  const show = (next: ShareLinkSheetView, announcement: string) => {
+    setView(next);
+    AccessibilityInfo.announceForAccessibility(announcement);
+  };
+  const showLinks = () => show({ name: "links" }, t("shareLinks.viewAnnouncements.links"));
 
-  const confirmRevoke = () =>
-    Alert.alert(
-      t("shareLink.revokeTitle"),
-      isStorage ? t("shareLink.storageRevokeDescription") : t("shareLink.collectionRevokeDescription"),
-      [
-        { text: t("shareLink.cancel"), style: "cancel" },
-        { text: t("shareLink.revokeAll"), style: "destructive", onPress: () => revoke.mutate() },
-      ],
-    );
+  const header =
+    view.name === "link"
+      ? { title: t("shareLinks.linkTitle"), subtitle: t("shareLinks.detailDescription") }
+      : view.name === "new"
+        ? { title: t("shareLinks.newLinkTitle"), subtitle: isStorage ? t("shareLink.storageDescription") : t("shareLink.collectionDescription") }
+        : { title: isStorage ? t("shareLink.storageTitle") : t("shareLink.collectionTitle"), subtitle: t("shareLinks.subjectDescription") };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <PageHeader
-        title={isStorage ? t("shareLink.storageTitle") : t("shareLink.collectionTitle")}
-        subtitle={isStorage ? t("shareLink.storageDescription") : t("shareLink.collectionDescription")}
-      />
-      <ScrollView contentContainerStyle={{ padding: SCREEN_GUTTER, gap: SPACING.xl }}>
-        {create.isError ? <Callout tone="destructive" title={t("shareLink.createFailed")} /> : null}
-        {revoke.isError ? <Callout tone="destructive" title={t("shareLink.revokeFailed")} /> : null}
-        {revoke.isSuccess && !link ? <Callout tone="success" title={t("shareLink.revoked")} /> : null}
-        <View style={{ gap: SPACING.sm }}>
-          <AppText weight="semibold" accessibilityRole="header">
-            {t("shareLink.typeLabel")}
-          </AppText>
-          <SegmentedControl
-            options={[
-              { value: "view", label: t("shareLink.monitorType") },
-              { value: "trade", label: t("shareLink.tradeType") },
-            ]}
-            value={purpose}
-            onChange={(value) => {
-              setPurpose(value as ShareLinkPurpose);
-              setLink(null);
-            }}
-          />
-          <AppText size="xs" tone="secondary">
-            {purpose === "trade" ? t("shareLink.tradeTypeDescription") : t("shareLink.monitorTypeDescription")}
-          </AppText>
-        </View>
-        {isOneHourLink ? (
-          <Callout
-            tone="info"
-            title={purpose === "trade" ? t("shareLink.tradeOneHourNote") : t("shareLink.monitorOneHourNote")}
-          />
-        ) : null}
-        {isOneHourLink ? null : (
-        <View style={{ gap: SPACING.sm }}>
-          <AppText weight="semibold" accessibilityRole="header">
-            {t("shareLink.expiryLabel")}
-          </AppText>
-          <SegmentedControl
-            options={MONITOR_LINK_EXPIRY_DAYS.map((days) => ({
-              value: String(days),
-              label: t("shareLink.expiryOption", { count: days }),
-            }))}
-            value={String(expiresInDays)}
-            onChange={(value) => setExpiresInDays(Number(value))}
-          />
-        </View>
-        )}
-        <SwitchRow
-          title={t("shareLink.showPrices")}
-          description={t("shareLink.showPricesDescription")}
-          value={showsPrices}
-          onValueChange={setShowsPrices}
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
+      <PageHeader title={header.title} subtitle={header.subtitle} />
+      {view.name === "link" ? (
+        <ExistingShareLink linkGuid={view.linkGuid} subjectGuid={guid} onClose={showLinks} />
+      ) : view.name === "new" ? (
+        <NewShareLinkForm
+          kind={kind}
+          subjectGuid={guid}
+          onBack={showLinks}
+          onCreated={(createdLinkGuid) => {
+            if (createdLinkGuid) {
+              show({ name: "link", linkGuid: createdLinkGuid }, t("shareLink.created"));
+            } else {
+              setCreatedWithoutLink(true);
+              showLinks();
+            }
+          }}
         />
-        {link ? (
-          <View style={{ alignItems: "center", gap: SPACING.md }}>
-            <QrCode
-              value={link.url}
-              size={Math.min(panelWidth - SCREEN_GUTTER * 2, QR_CODE_MAX_SIZE)}
-              accessibilityLabel={t("shareLink.qrLabel")}
-            />
-            <AppText size="xs" tone="secondary">
-              {t("shareLink.qrHint")}
-            </AppText>
-            <AppText selectable size="sm" style={{ textAlign: "center" }}>
-              {link.url}
-            </AppText>
-            <AppText size="xs" tone="secondary">
-              {t("shareLink.expiresAt", { date: formatDateTime(link.expiresAt, i18n.language) })}
-            </AppText>
-            <Button
-              size="lg"
-              icon="share"
-              label={t("shareLink.share")}
-              style={{ alignSelf: "stretch" }}
-              onPress={() => void Share.share({ message: link.url, url: link.url })}
-            />
-          </View>
-        ) : null}
-        <Button
-          size="lg"
-          variant={link ? "secondary" : "primary"}
-          label={link ? t("shareLink.createAnother") : t("shareLink.create")}
-          loading={create.isPending}
-          onPress={() => create.mutate()}
+      ) : (
+        <SubjectShareLinks
+          kind={kind}
+          subjectGuid={guid}
+          showsCreatedInListNotice={createdWithoutLink}
+          onSelect={(selectedLinkGuid) =>
+            show({ name: "link", linkGuid: selectedLinkGuid }, t("shareLinks.viewAnnouncements.link"))
+          }
+          onNew={() => {
+            setCreatedWithoutLink(false);
+            show({ name: "new" }, t("shareLinks.viewAnnouncements.new"));
+          }}
         />
-        <Button variant="destructive" label={t("shareLink.revokeAll")} loading={revoke.isPending} onPress={confirmRevoke} />
-      </ScrollView>
+      )}
     </View>
   );
 }

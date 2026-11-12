@@ -101,6 +101,8 @@ export interface ListRowProps {
   right?: ReactNode;
   rightIsInteractive?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
+  longPressLabel?: string;
   disabled?: boolean;
   selected?: boolean;
   subtitleNumberOfLines?: number;
@@ -118,7 +120,7 @@ export interface ScreenProps {
 }
 
 export interface PageHeaderProps {
-  title: string;
+  title?: string;
   titleAccessory?: ReactNode;
   subtitle?: string | null;
   subtitleAccessory?: ReactNode;
@@ -234,6 +236,8 @@ export interface HomeCollectionRowProps {
   isScanTarget: boolean;
   isLive?: boolean;
   onPress: () => void;
+  onLongPress?: () => void;
+  longPressLabel?: string;
 }
 
 export interface CardDetailsListProps {
@@ -307,6 +311,15 @@ export interface SwitchRowProps {
   value: boolean;
   onValueChange: (value: boolean) => void;
   disabled?: boolean;
+}
+
+export interface SwitchControlProps {
+  value: boolean;
+}
+
+export interface PinnedActionsLayoutProps {
+  children: ReactNode;
+  actions: ReactNode;
 }
 
 export interface SaveBarProps {
@@ -391,6 +404,10 @@ export interface TopBarSwitcherProps {
 }
 
 export type AppTopBarSheet = "alerts" | "organizations";
+
+export interface AppTopBarProps {
+  opensNotificationsFromWidgetLink?: boolean;
+}
 
 export interface PickerCardProps {
   icon: IconName;

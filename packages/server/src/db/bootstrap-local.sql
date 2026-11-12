@@ -47,7 +47,7 @@ DECLARE
     'bin_set_audit', 'bin_route_audit', 'bin_height_audit', 'module_config_audit', 'feeder_config_audit',
     'devices', 'sound_clips', 'sound_rules', 'notification_rules',
     'storage_locations', 'org_api_keys', 'webhook_endpoints',
-    'intake_lots', 'fulfilment_orders', 'card_sales', 'org_activity_log', 'accuracy_checks', 'shop_catalogs', 'trade_offers'
+    'intake_lots', 'fulfilment_orders', 'card_sales', 'org_activity_log', 'accuracy_checks', 'shop_catalogs', 'trade_offers', 'share_links'
   ];
   tbl text;
 BEGIN

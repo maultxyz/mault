@@ -23,7 +23,7 @@ export function AppTabs() {
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: colors.background }}>
-      <AppTopBar />
+      <AppTopBar opensNotificationsFromWidgetLink />
       <NativeTabs
         unstable_nativeProps={{ colorScheme: colorScheme === "dark" ? "dark" : "light" }}
         tintColor={colors.primaryText}

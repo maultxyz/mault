@@ -894,6 +894,36 @@ export const tradeOffers = pgTable(
   ],
 ).enableRLS();
 
+export const shareLinks = pgTable(
+  "share_links",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    linkKind: text("link_kind").notNull(),
+    collectionId: integer("collection_id"),
+    storageLocationId: integer("storage_location_id"),
+    subjectGuid: uuid("subject_guid").notNull(),
+    subjectVersion: integer("subject_version").notNull(),
+    purpose: text("purpose").notNull(),
+    showsPrices: boolean("shows_prices").notNull(),
+    issuedAt: timestamp("issued_at").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdByUserId: text("created_by_user_id").notNull(),
+    revokedAt: timestamp("revoked_at"),
+  },
+  (table) => [
+    unique("share_links_guid_idx").on(table.guid),
+    index("share_links_org_expires_idx").on(table.orgId, table.expiresAt),
+    index("share_links_subject_idx").on(table.subjectGuid),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const shopCatalogs = pgTable(
   "shop_catalogs",
   {

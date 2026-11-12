@@ -1,0 +1,18 @@
+{
+  "activeLinks": "Active links",
+  "dialogEmpty": "No active links yet. Create one to share this.",
+  "loadFailed": "Couldn't load your share links.",
+  "pricesHidden": "Prices hidden",
+  "created": "Created {{date}}",
+  "expires": "Expires {{date}}",
+  "showQr": "Show QR code for the link created {{date}}",
+  "revoke": "Revoke",
+  "revoked": "Link revoked.",
+  "revokeFailed": "Couldn't revoke the link.",
+  "newLink": "New link",
+  "linkHeading": "Link",
+  "back": "Back",
+  "backToLinks": "Back to links",
+  "pricesShown": "Prices shown",
+  "revokeLabel": "Revoke the link created {{date}}"
+}

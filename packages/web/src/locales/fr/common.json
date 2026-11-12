@@ -413,11 +413,12 @@
     "adminNavigation": "Navigation de l'administration"
   },
   "shareLink": {
+    "triggerWithCount_one": "{{label}} ({{count}} lien actif)",
+    "triggerWithCount_other": "{{label}} ({{count}} liens actifs)",
     "expiryLabel": "Le lien expire après",
     "expiryOption_one": "{{count}} jour",
     "expiryOption_other": "{{count}} jours",
     "create": "Créer le lien",
-    "createAnother": "Créer un nouveau lien",
     "linkLabel": "Lien",
     "copy": "Copier le lien",
     "copied": "Lien copié.",

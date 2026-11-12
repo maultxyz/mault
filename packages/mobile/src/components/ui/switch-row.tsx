@@ -1,14 +1,19 @@
-import { Switch, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
-import { useTheme } from "@/hooks/use-theme";
+import { SwitchControl } from "@/components/ui/switch-control";
 import { SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY } from "@/lib/constants/ui";
 import type { SwitchRowProps } from "@/lib/interfaces/ui";
 
 export function SwitchRow({ title, description, value, onValueChange, disabled = false }: SwitchRowProps) {
-  const colors = useTheme();
   return (
-    <View
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityLabel={title}
+      accessibilityHint={description}
+      accessibilityState={{ checked: value, disabled }}
+      disabled={disabled}
+      onPress={() => onValueChange(!value)}
       style={{
         flexDirection: "row",
         alignItems: "center",
@@ -24,15 +29,7 @@ export function SwitchRow({ title, description, value, onValueChange, disabled =
           </AppText>
         ) : null}
       </View>
-      <Switch
-        accessibilityLabel={title}
-        value={value}
-        onValueChange={onValueChange}
-        disabled={disabled}
-        trackColor={{ false: colors.muted, true: colors.primary }}
-        thumbColor={colors.background}
-        ios_backgroundColor={colors.muted}
-      />
-    </View>
+      <SwitchControl value={value} />
+    </Pressable>
   );
 }

@@ -14,11 +14,13 @@ import { useQrScanner } from "@/features/scanner/api/use-qr-scanner";
 import { useAppState } from "@/hooks/use-app-state";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 
 export default function PairCameraScreen() {
   const { t } = useTranslation();
   const colors = useTheme();
   const focused = useIsFocused();
+  const cameraMounted = useCameraMountReady(focused);
   const appState = useAppState();
   const permission = useCameraPermission();
   const device = useCameraDevice("back");
@@ -26,7 +28,7 @@ export default function PairCameraScreen() {
   const [pasting, setPasting] = useState(false);
   const [link, setLink] = useState("");
   const handledRef = useRef(false);
-  const active = focused && appState === "active" && permission.hasPermission && !!device;
+  const active = cameraMounted && appState === "active" && permission.hasPermission && !!device;
 
   const openLink = useCallback((text: string) => {
     if (handledRef.current) return;
@@ -64,7 +66,7 @@ export default function PairCameraScreen() {
             backgroundColor: colors.camera,
           }}
         >
-          {focused ? (
+          {cameraMounted ? (
             <Camera style={StyleSheet.absoluteFill} device={device} isActive={active} outputs={scanner.outputs} resizeMode="cover" />
           ) : null}
           <View

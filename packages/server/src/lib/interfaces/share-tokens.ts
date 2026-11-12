@@ -1,17 +1,37 @@
-import type { ShareLinkPurpose } from "@magic-vault/shared";
+import type { ShareLinkKind, ShareLinkPurpose } from "@magic-vault/shared";
 export interface ShareTokenSignInput {
   issuer: string;
+  linkGuid: string;
   subjectGuid: string;
   orgId: string;
   version: number;
-  expiresInMinutes: number;
+  issuedAt: Date;
+  expiresAt: Date;
   showsPrices: boolean;
   purpose: ShareLinkPurpose;
 }
 
-export interface SignedShareToken {
+export interface IssueShareLinkInput {
+  orgId: string;
+  kind: ShareLinkKind;
+  subjectId: number;
+  subjectGuid: string;
+  subjectVersion: number;
+  purpose: ShareLinkPurpose;
+  showsPrices: boolean;
+  expiresInMinutes: number;
+  createdByUserId: string;
+}
+
+export interface IssuedShareLink {
+  guid: string;
   token: string;
   expiresAt: Date;
+}
+
+export interface RevokedShareLink {
+  kind: ShareLinkKind;
+  subjectGuid: string;
 }
 
 export interface VerifiedShareToken {
@@ -22,6 +42,7 @@ export interface VerifiedShareToken {
   issuedAt: Date;
   showsPrices: boolean;
   purpose: ShareLinkPurpose;
+  linkGuid: string | null;
 }
 
 export interface StorageShareLinkClaims {

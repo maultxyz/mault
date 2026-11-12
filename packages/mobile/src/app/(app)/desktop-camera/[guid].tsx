@@ -27,6 +27,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { CAPTURE_FLASH_MS, PHONE_CAMERA_JPEG_QUALITY } from "@/lib/constants/phone-camera";
 import { CAMERA_ASPECT_RATIO, CAPTURE_TARGET_RESOLUTION } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 
 export default function DesktopCameraScreen() {
   useKeepAwake();
@@ -35,6 +36,7 @@ export default function DesktopCameraScreen() {
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
+  const cameraMounted = useCameraMountReady(focused);
   const appState = useAppState();
   const sorter = useSorter();
   const permission = useCameraPermission();
@@ -48,7 +50,7 @@ export default function DesktopCameraScreen() {
   const [flash, setFlash] = useState(false);
   const [frameAspect, setFrameAspect] = useState(CAMERA_ASPECT_RATIO);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const active = focused && appState === "active" && permission.hasPermission && !!device;
+  const active = cameraMounted && appState === "active" && permission.hasPermission && !!device;
 
   const capture = useCallback(async () => {
     const frame = await captureFrame(photoOutput);
@@ -104,7 +106,7 @@ export default function DesktopCameraScreen() {
         </View>
       ) : device ? (
         <>
-          {focused ? (
+          {cameraMounted ? (
             <Camera
               ref={cameraRef}
               style={StyleSheet.absoluteFill}

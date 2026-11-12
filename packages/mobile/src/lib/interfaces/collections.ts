@@ -84,3 +84,14 @@ export type CollectionScanTimeline = "off" | ScanTimelineGrouping;
 export type ScanTimelineListRow =
   | { kind: "header"; key: string; bucketKey: string; cardCount: number }
   | { kind: "cards"; key: string; cards: GroupedScannedCard[] };
+
+export interface CollectionActionTarget {
+  guid: string;
+  name: string;
+}
+
+export interface CollectionActionsOptions {
+  includesScanInto?: boolean;
+  shareLinkCountGuid?: string | null;
+  onDeleted?: () => void;
+}

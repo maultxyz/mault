@@ -63,6 +63,29 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     ["expo-build-properties", { ios: { deploymentTarget: "16.4" } }],
+    [
+      "expo-widgets",
+      {
+        widgets: [
+          {
+            name: "CollectionValue",
+            displayName: "Collection value",
+            description: "Your collection's total value and card count.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
+            },
+          },
+          {
+            name: "Notifications",
+            displayName: "Notifications",
+            description: "Pending trade offers and alerts.",
+            ios: {
+              supportedFamilies: ["systemSmall", "accessoryCircular", "accessoryRectangular", "accessoryInline"],
+            },
+          },
+        ],
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,

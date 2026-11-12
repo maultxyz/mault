@@ -11,8 +11,8 @@ import { collections } from "../../db/schema";
 import {
   closeMonitorLinkStreams,
   forgetVerifiedMonitorLinks,
-  signMonitorLink,
 } from "../../lib/monitor-links";
+import { issueShareLink, revokeShareLinksForSubject } from "../../lib/share-links";
 import {
   allowsLongShareLinks,
   parseShareLinkPurpose,
@@ -50,39 +50,46 @@ export const monitorLinkRoute = new Hono<AppEnv>()
     if (!purpose) {
       return c.json({ success: false, message: "Invalid link type." }, 400);
     }
-    const { collection, allowsLongLinks } = await authQuery(
-      c.get("jwtClaims"),
-      async (tx) => ({
-        collection: await tx.query.collections.findFirst({
-          where: (t, { eq, and }) =>
-            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { monitorLinkVersion: true },
-        }),
-        allowsLongLinks: await allowsLongShareLinks(tx, orgId),
-      }),
-    );
-    if (!collection) {
+    const link = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const collection = await tx.query.collections.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+        columns: { id: true, monitorLinkVersion: true },
+      });
+      if (!collection) return null;
+      const allowsLongLinks = await allowsLongShareLinks(tx, orgId);
+      return issueShareLink(tx, {
+        orgId,
+        kind: "collection",
+        subjectId: collection.id,
+        subjectGuid: guid,
+        subjectVersion: collection.monitorLinkVersion,
+        purpose,
+        showsPrices,
+        expiresInMinutes: shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
+        createdByUserId: c.get("userId"),
+      });
+    });
+    if (!link) {
       return c.json({ success: false, message: "Collection not found." }, 404);
     }
-    const { token, expiresAt } = await signMonitorLink(
-      guid,
-      orgId,
-      collection.monitorLinkVersion,
-      shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
-      showsPrices,
-      purpose,
-    );
+    const { guid: linkGuid, token, expiresAt } = link;
     return c.json({
       success: true,
       message: "Created monitor link.",
-      data: { token, expiresAt: expiresAt.toISOString() } satisfies MonitorLink,
+      data: {
+        guid: linkGuid,
+        token,
+        expiresAt: expiresAt.toISOString(),
+      } satisfies MonitorLink,
     });
   })
   .post("/:guid/monitor-link/revoke", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    const updated = await authQuery(c.get("jwtClaims"), (tx) =>
-      tx
+    const updated = await authQuery(c.get("jwtClaims"), async (tx) => {
+      await revokeShareLinksForSubject(tx, orgId, guid);
+      return tx
         .update(collections)
         .set({
           monitorLinkVersion: sql`${collections.monitorLinkVersion} + 1`,
@@ -94,8 +101,8 @@ export const monitorLinkRoute = new Hono<AppEnv>()
             eq(collections.isDeleted, false),
           ),
         )
-        .returning({ id: collections.id }),
-    );
+        .returning({ id: collections.id });
+    });
     if (updated.length === 0) {
       return c.json({ success: false, message: "Collection not found." }, 404);
     }

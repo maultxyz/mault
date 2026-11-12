@@ -1,9 +1,7 @@
 import * as jose from "jose";
-import { ONE_MINUTE_MS } from "./constants/timing";
 import type {
   RevocableShareTokenSignInput,
   ShareTokenSignInput,
-  SignedShareToken,
   VerifiedRevocableShareToken,
   VerifiedShareToken,
 } from "./interfaces/share-tokens";
@@ -19,17 +17,18 @@ export function isShareTokenConfigured(): boolean {
 
 export async function signShareToken({
   issuer,
+  linkGuid,
   subjectGuid,
   orgId,
   version,
-  expiresInMinutes,
+  issuedAt,
+  expiresAt,
   showsPrices,
   purpose,
-}: ShareTokenSignInput): Promise<SignedShareToken> {
+}: ShareTokenSignInput): Promise<string> {
   const secret = shareTokenSecret();
   if (!secret) throw new Error("MONITOR_LINK_SECRET is not configured.");
-  const expiresAt = new Date(Date.now() + expiresInMinutes * ONE_MINUTE_MS);
-  const token = await new jose.SignJWT({
+  return new jose.SignJWT({
     org: orgId,
     ver: version,
     prices: showsPrices,
@@ -38,10 +37,10 @@ export async function signShareToken({
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(issuer)
     .setSubject(subjectGuid)
-    .setIssuedAt()
+    .setJti(linkGuid)
+    .setIssuedAt(Math.floor(issuedAt.getTime() / 1000))
     .setExpirationTime(Math.floor(expiresAt.getTime() / 1000))
     .sign(secret);
-  return { token, expiresAt };
 }
 
 export async function verifyShareToken(
@@ -72,6 +71,7 @@ export async function verifyShareToken(
       issuedAt: new Date(payload.iat * 1000),
       showsPrices: payload.prices !== false,
       purpose: payload.purpose === "trade" ? "trade" : "view",
+      linkGuid: typeof payload.jti === "string" ? payload.jti : null,
     };
   } catch {
     return null;
