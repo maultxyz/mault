@@ -11,7 +11,7 @@ import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { PageLoading } from "@/components/ui/page-loading";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -109,7 +109,7 @@ export default function OrganizationSettingsScreen() {
       header={<PageHeader title={t("settings.sections.organization.title")} subtitle={org?.name} onBack={() => router.back()} />}
     >
       {details.isLoading ? (
-        <PageSkeleton />
+        <PageLoading />
       ) : (
         <>
           {error || details.isError ? <Callout tone="destructive" title={t("settings.org.failed")} /> : null}
