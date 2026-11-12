@@ -258,6 +258,12 @@ export interface LiveCorners {
   frameHeight: number;
 }
 
+export interface CoverTransform {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+}
+
 export interface SmoothedCorners extends LiveCorners {
   opacity: number;
 }

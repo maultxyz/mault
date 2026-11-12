@@ -2,7 +2,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useSmoothedCorners } from "@/features/scanner/api/use-smoothed-corners";
-import { roundedContourPath } from "@/features/scanner/lib/outline-path";
+import { coverTransform, roundedContourPath } from "@/features/scanner/lib/outline-path";
 import type { DetectedOutlineProps } from "@/lib/interfaces/ui";
 
 export function DetectedOutline({ corners: target, color }: DetectedOutlineProps) {
@@ -14,7 +14,7 @@ export function DetectedOutline({ corners: target, color }: DetectedOutlineProps
   const radius = Math.max(4, Math.round(shortSide * 0.0148));
   const path =
     width > 0 && corners
-      ? roundedContourPath(corners.contour, width / corners.frameWidth, height / corners.frameHeight, radius)
+      ? roundedContourPath(corners.contour, coverTransform(corners.frameWidth, corners.frameHeight, width, height), radius)
       : null;
 
   return (
