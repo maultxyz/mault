@@ -8,3 +8,4 @@ export const SHARE_LINK_PURPOSES = ["view", "trade"] as const;
 export const DEFAULT_SHARE_LINK_PURPOSE = "view";
 export const SHARE_LINK_GUEST_KEY_MIN_LENGTH = 16;
 export const SHARE_LINK_GUEST_KEY_MAX_LENGTH = 128;
+export const SHARE_LINK_KINDS = ["collection", "storage"] as const;

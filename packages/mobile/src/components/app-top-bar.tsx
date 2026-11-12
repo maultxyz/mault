@@ -1,6 +1,6 @@
-import { router } from "expo-router";
+import { router, useGlobalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -25,7 +25,8 @@ import {
   TOP_BAR_INITIAL_SIZE,
   TOP_BAR_SWITCHER_HEIGHT,
 } from "@/lib/constants/ui";
-import type { AppTopBarSheet, TopBarSwitcherProps } from "@/lib/interfaces/ui";
+import { OPEN_NOTIFICATIONS_LINK_PARAM } from "@/lib/constants/widgets";
+import type { AppTopBarProps, AppTopBarSheet, TopBarSwitcherProps } from "@/lib/interfaces/ui";
 
 function TopBarSwitcher({ initial, label, accessibilityLabel, onPress }: TopBarSwitcherProps) {
   const colors = useTheme();
@@ -69,7 +70,7 @@ function TopBarSwitcher({ initial, label, accessibilityLabel, onPress }: TopBarS
   );
 }
 
-export function AppTopBar() {
+export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBarProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const { organizations } = useSession();
@@ -82,6 +83,13 @@ export function AppTopBar() {
   const notificationCount = alerts.length + tradeOffers.length;
   const [openSheet, setOpenSheet] = useState<AppTopBarSheet | null>(null);
   const closeSheet = () => setOpenSheet(null);
+  const openNotificationsFromLink = useGlobalSearchParams()[OPEN_NOTIFICATIONS_LINK_PARAM];
+
+  useEffect(() => {
+    if (!opensNotificationsFromWidgetLink || !openNotificationsFromLink) return;
+    setOpenSheet("alerts");
+    router.setParams({ [OPEN_NOTIFICATIONS_LINK_PARAM]: undefined });
+  }, [opensNotificationsFromWidgetLink, openNotificationsFromLink]);
 
   return (
     <View

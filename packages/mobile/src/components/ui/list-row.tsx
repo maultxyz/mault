@@ -2,6 +2,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { IconBadge } from "@/components/ui/icon-badge";
+import { longPressProps } from "@/lib/long-press";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, LIST_ROW_ICON_SIZE, LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
@@ -17,19 +18,23 @@ export function ListRow({
   right,
   rightIsInteractive = false,
   onPress,
+  onLongPress,
+  longPressLabel,
   disabled = false,
   selected,
   subtitleNumberOfLines = 2,
 }: ListRowProps) {
   const colors = useTheme();
   const destructive = tone === "destructive";
+  const longPressHandlers = longPressProps(onLongPress, longPressLabel);
   return (
     <Pressable
       accessible={!rightIsInteractive}
       accessibilityRole={onPress ? "button" : undefined}
       accessibilityState={{ disabled, selected: selected ?? undefined }}
-      disabled={!onPress || disabled}
+      disabled={(!onPress && !onLongPress) || disabled}
       onPress={onPress}
+      {...longPressHandlers}
       style={({ pressed }) => ({
         flexDirection: "row",
         alignItems: "center",

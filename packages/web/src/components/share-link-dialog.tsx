@@ -1,30 +1,15 @@
-import { Callout } from "@/components/callout";
+import { ShareLinkDetails } from "@/components/share-link-details";
+import { ShareLinkForm } from "@/components/share-link-form";
 import { Button } from "@/components/ui/button";
-import { ResponsiveSegmented } from "@/components/responsive-segmented";
-import { billingQueryOptions } from "@/features/billing/api/billing";
-import { useOrg } from "@/features/companies/api/use-organization";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { useQrCodeDataUrl } from "@/hooks/use-qr-code-data-url";
-import { copyWithToast } from "@/lib/clipboard";
+import { useShareLinks } from "@/features/share-links/api/use-share-links";
+import { ShareLinkList } from "@/features/share-links/components/share-link-list";
+import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
+import { SHARE_LINKS_QUERY_KEY } from "@/lib/constants/share-links";
 import type {
-  CreatedShareLink,
+  ShareLinkDetailsData,
   ShareLinkDialogProps,
+  ShareLinkDialogView,
 } from "@/lib/interfaces/share-links";
 import { toast } from "@/lib/toast";
 import {
@@ -36,98 +21,196 @@ import {
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
   DEFAULT_SHARE_LINK_PURPOSE,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
-  MONITOR_LINK_EXPIRY_DAYS,
+  type OrgShareLink,
 } from "@magic-vault/shared";
-import { IconCopy, IconLoader2 } from "@tabler/icons-react";
-import { useCallback, useId, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { IconLoader2, IconPlus } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useId, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
+const FORM_DEFAULT_VALUES: MonitorLinkFormValues = {
+  purpose: DEFAULT_SHARE_LINK_PURPOSE,
+  expiresInDays: String(DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
+  showPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
+};
+
+function detailsOf(link: OrgShareLink): ShareLinkDetailsData {
+  return {
+    guid: link.guid,
+    url: shareLinkUrl(link),
+    expiresAt: link.expiresAt,
+    purpose: link.purpose,
+    showsPrices: link.showsPrices,
+  };
+}
+
 export function ShareLinkDialog({
+  subjectGuid,
   title,
   description,
-  trigger,
+  renderTrigger,
   revokedMessage,
   createLink,
   revokeLinks,
 }: ShareLinkDialogProps) {
-  const { t, i18n } = useTranslation("common");
+  const { t } = useTranslation("common");
+  const { t: tShareLinks } = useTranslation("share-links");
   const formId = useId();
-  const expirySelectId = useId();
-  const linkInputId = useId();
-  const showPricesId = useId();
-  const showPricesDescriptionId = useId();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const viewChangedRef = useRef(false);
   const [open, setOpen] = useState(false);
-  const [link, setLink] = useState<CreatedShareLink | null>(null);
-  const [isRevoking, setIsRevoking] = useState(false);
-  const qrCodeDataUrl = useQrCodeDataUrl(link?.url);
+  const [view, setView] = useState<ShareLinkDialogView>("links");
+  const [details, setDetails] = useState<ShareLinkDetailsData | null>(null);
+  const [isRevokingAll, setIsRevokingAll] = useState(false);
+  const queryClient = useQueryClient();
+  const { links, revoke } = useShareLinks(subjectGuid);
 
   const form = useForm<MonitorLinkFormValues>({
     resolver: zodResolver(monitorLinkSchema),
-    defaultValues: {
-      purpose: DEFAULT_SHARE_LINK_PURPOSE,
-      expiresInDays: String(DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
-      showPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
-    },
+    defaultValues: FORM_DEFAULT_VALUES,
   });
-  const purpose = useWatch({ control: form.control, name: "purpose" });
-  const { activeOrg } = useOrg();
-  const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
-  const isOneHourLink = purpose === "trade" || billing?.longShareLinks === false;
 
-  const handleOpenChange = useCallback(
-    (isOpen: boolean) => {
-      setOpen(isOpen);
-      if (!isOpen) {
-        setLink(null);
-        form.reset();
-      }
-    },
-    [form],
-  );
+  useEffect(() => {
+    if (!viewChangedRef.current) return;
+    headingRef.current?.focus();
+  }, [view]);
 
-  const handleCreate = useCallback(
-    async (values: MonitorLinkFormValues) => {
-      try {
-        setLink(
-          await createLink({
-            purpose: values.purpose,
-            expiresInDays: Number(values.expiresInDays),
-            showPrices: values.showPrices,
-          }),
-        );
-      } catch {
-        toast.error(t("shareLink.createFailed"));
-      }
-    },
-    [createLink, t],
-  );
+  const showView = (nextView: ShareLinkDialogView) => {
+    viewChangedRef.current = true;
+    setView(nextView);
+  };
 
-  const handleCopy = useCallback(async () => {
-    if (!link) return;
-    await copyWithToast(
-      link.url,
-      t("shareLink.copied"),
-      t("shareLink.copyFailed"),
-    );
-  }, [link, t]);
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      viewChangedRef.current = false;
+      setView("links");
+      setDetails(null);
+      form.reset(FORM_DEFAULT_VALUES);
+    }
+  };
 
-  const handleRevoke = useCallback(async () => {
-    setIsRevoking(true);
+  const startNewLink = () => {
+    form.reset(FORM_DEFAULT_VALUES);
+    showView("new");
+  };
+
+  const showLink = (link: OrgShareLink) => {
+    setDetails(detailsOf(link));
+    showView("link");
+  };
+
+  const handleCreate = async (values: MonitorLinkFormValues) => {
+    try {
+      const created = await createLink({
+        purpose: values.purpose,
+        expiresInDays: Number(values.expiresInDays),
+        showPrices: values.showPrices,
+      });
+      void queryClient.invalidateQueries({ queryKey: SHARE_LINKS_QUERY_KEY });
+      setDetails({
+        guid: created.guid,
+        url: created.url,
+        expiresAt: created.expiresAt,
+        purpose: values.purpose,
+        showsPrices: values.showPrices,
+      });
+      showView("link");
+    } catch {
+      toast.error(t("shareLink.createFailed"));
+    }
+  };
+
+  const handleRevokeAll = async () => {
+    setIsRevokingAll(true);
     try {
       await revokeLinks();
-      setLink(null);
+      await queryClient.invalidateQueries({ queryKey: SHARE_LINKS_QUERY_KEY });
       toast.success(revokedMessage);
+      setDetails(null);
+      showView("links");
     } catch {
       toast.error(t("shareLink.revokeFailed"));
     } finally {
-      setIsRevoking(false);
+      setIsRevokingAll(false);
     }
-  }, [revokeLinks, revokedMessage, t]);
+  };
 
-  const expiryLabel = (days: number) =>
-    t("shareLink.expiryOption", { count: days });
+  const handleRevokeShownLink = () => {
+    if (!details?.guid) return;
+    revoke.mutate(details.guid, {
+      onSuccess: () => {
+        setDetails(null);
+        showView("links");
+      },
+    });
+  };
+
   const isSubmitting = form.formState.isSubmitting;
+  const isRevokingShownLink =
+    revoke.isPending && !!details?.guid && revoke.variables === details.guid;
+  const viewHeading =
+    view === "new"
+      ? tShareLinks("newLink")
+      : view === "link"
+        ? tShareLinks("linkHeading")
+        : tShareLinks("activeLinks");
+
+  const newLinkButton = (
+    <Button type="button" onClick={startNewLink}>
+      <IconPlus />
+      {tShareLinks("newLink")}
+    </Button>
+  );
+
+  const footer =
+    view === "new" ? (
+      <>
+        <Button variant="outline" onClick={() => showView("links")}>
+          {tShareLinks("back")}
+        </Button>
+        <Button type="submit" form={formId} disabled={isSubmitting}>
+          {isSubmitting && <IconLoader2 className="animate-spin" />}
+          {t("shareLink.create")}
+        </Button>
+      </>
+    ) : view === "link" ? (
+      <>
+        {details?.guid && (
+          <Button
+            variant="outline"
+            className="text-destructive md:mr-auto"
+            onClick={handleRevokeShownLink}
+            disabled={isRevokingShownLink}
+          >
+            {isRevokingShownLink && <IconLoader2 className="animate-spin" />}
+            {tShareLinks("revoke")}
+          </Button>
+        )}
+        <Button variant="outline" onClick={() => showView("links")}>
+          {tShareLinks("backToLinks")}
+        </Button>
+      </>
+    ) : (
+      <>
+        {links.length > 0 && (
+          <Button
+            variant="outline"
+            className="text-destructive md:mr-auto"
+            onClick={handleRevokeAll}
+            disabled={isRevokingAll}
+          >
+            {isRevokingAll && <IconLoader2 className="animate-spin" />}
+            {t("shareLink.revokeAll")}
+          </Button>
+        )}
+        <Button variant="outline" onClick={() => handleOpenChange(false)}>
+          {t("shareLink.close")}
+        </Button>
+        {links.length > 0 && newLinkButton}
+      </>
+    );
 
   return (
     <DynamicDialog
@@ -135,160 +218,32 @@ export function ShareLinkDialog({
       onOpenChange={handleOpenChange}
       title={title}
       description={description}
-      trigger={trigger}
-      footer={
-        <>
-          <Button
-            variant="outline"
-            className="text-destructive md:mr-auto"
-            onClick={handleRevoke}
-            disabled={isRevoking}
-          >
-            {isRevoking && <IconLoader2 className="size-4 animate-spin" />}
-            {t("shareLink.revokeAll")}
-          </Button>
-          <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            {t("shareLink.close")}
-          </Button>
-          <Button type="submit" form={formId} disabled={isSubmitting}>
-            {isSubmitting && <IconLoader2 className="size-4 animate-spin" />}
-            {link ? t("shareLink.createAnother") : t("shareLink.create")}
-          </Button>
-        </>
-      }
+      trigger={renderTrigger(links.length)}
+      footer={footer}
       footerClassName="flex-col-reverse md:flex-row"
     >
-      <form
-        id={formId}
-        onSubmit={form.handleSubmit(handleCreate)}
-        className="flex flex-col gap-4"
-      >
-        <Controller
-          name="purpose"
-          control={form.control}
-          render={({ field }) => (
-            <Field>
-              <p className="text-control font-medium" aria-hidden>
-                {t("shareLink.typeLabel")}
-              </p>
-              <ResponsiveSegmented
-                label={t("shareLink.typeLabel")}
-                value={field.value}
-                onChange={field.onChange}
-                items={[
-                  { key: "view", label: t("shareLink.monitorType") },
-                  { key: "trade", label: t("shareLink.tradeType") },
-                ]}
-              />
-              <FieldDescription>
-                {field.value === "trade"
-                  ? t("shareLink.tradeTypeDescription")
-                  : t("shareLink.monitorTypeDescription")}
-              </FieldDescription>
-            </Field>
+      <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1">
+        <div className="flex flex-col gap-3 py-0.5">
+          <h3
+            ref={headingRef}
+            tabIndex={-1}
+            className="text-control font-medium outline-none"
+          >
+            {viewHeading}
+          </h3>
+          {view === "links" && (
+            <ShareLinkList
+              subjectGuid={subjectGuid}
+              onShowQr={showLink}
+              emptyAction={newLinkButton}
+            />
           )}
-        />
-        {isOneHourLink && (
-          <Callout variant="info">
-            {purpose === "trade"
-              ? t("shareLink.tradeOneHourNote")
-              : t("shareLink.monitorOneHourNote")}
-          </Callout>
-        )}
-        {!isOneHourLink && (
-          <Controller
-            name="expiresInDays"
-            control={form.control}
-            render={({ field }) => (
-              <Field>
-                <FieldLabel htmlFor={expirySelectId}>
-                  {t("shareLink.expiryLabel")}
-                </FieldLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={expirySelectId}>
-                    <SelectValue>{expiryLabel(Number(field.value))}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MONITOR_LINK_EXPIRY_DAYS.map((days) => (
-                      <SelectItem key={days} value={String(days)}>
-                        {expiryLabel(days)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-        )}
-        <Controller
-          name="showPrices"
-          control={form.control}
-          render={({ field }) => (
-            <Field orientation="horizontal">
-              <FieldContent>
-                <FieldLabel htmlFor={showPricesId}>
-                  {t("shareLink.showPrices")}
-                </FieldLabel>
-                <FieldDescription id={showPricesDescriptionId}>
-                  {t("shareLink.showPricesDescription")}
-                </FieldDescription>
-              </FieldContent>
-              <Switch
-                id={showPricesId}
-                aria-describedby={showPricesDescriptionId}
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </Field>
+          {view === "new" && (
+            <ShareLinkForm formId={formId} form={form} onSubmit={handleCreate} />
           )}
-        />
-        {link && (
-          <>
-            {qrCodeDataUrl && (
-              <figure className="flex flex-col items-center gap-1.5 animate-in fade-in motion-reduce:animate-none">
-                <img
-                  src={qrCodeDataUrl}
-                  alt={t("shareLink.qrAlt")}
-                  className="size-44 rounded-lg ring-1 ring-border"
-                />
-                <figcaption className="text-xs text-foreground/70">
-                  {t("shareLink.qrHint")}
-                </figcaption>
-              </figure>
-            )}
-            <Field>
-              <FieldLabel htmlFor={linkInputId}>
-                {t("shareLink.linkLabel")}
-              </FieldLabel>
-              <div className="flex gap-1.5">
-                <Input
-                  id={linkInputId}
-                  readOnly
-                  value={link.url}
-                  onFocus={(event) => event.currentTarget.select()}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handleCopy}
-                  aria-label={t("shareLink.copy")}
-                >
-                  <IconCopy />
-                </Button>
-              </div>
-              <p className="text-xs text-foreground/70">
-                {t("shareLink.expiresAt", {
-                  date: new Date(link.expiresAt).toLocaleString(i18n.language, {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }),
-                })}
-              </p>
-            </Field>
-          </>
-        )}
-      </form>
+          {view === "link" && details && <ShareLinkDetails details={details} />}
+        </div>
+      </div>
     </DynamicDialog>
   );
 }

@@ -26,6 +26,7 @@ import { useStorageLocations } from "@/features/storage/api/use-storage-location
 import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
+import { ShareLinkTriggerButton } from "@/components/share-link-trigger-button";
 import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
 import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationList } from "@/features/storage/components/storage-location-list";
@@ -45,7 +46,9 @@ import {
   LEGACY_STORAGE_VIEW_PARAM,
   STORAGE_PICK_LIST_PATH,
   STORAGE_REVIEW_SEARCH_PARAM,
+  STORAGE_TOOLBAR_TOP_CSS_VARIABLE,
 } from "@/lib/constants/storage";
+import { useElementHeight } from "@/hooks/use-element-height";
 import { ORDER_PARAM, picksPath } from "@/lib/constants/business";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { toast } from "@/lib/toast";
@@ -55,10 +58,9 @@ import {
   IconListCheck,
   IconListSearch,
   IconPlus,
-  IconShare,
   IconTrash,
 } from "@tabler/icons-react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 
@@ -78,6 +80,9 @@ function DesktopStoragePage() {
   const [addCardOpen, setAddCardOpen] = useState(false);
   const { collections } = useCollections();
   const [searchQuery, setSearchQuery] = useState("");
+  const [locationHeaderElement, setLocationHeaderElement] =
+    useState<HTMLDivElement | null>(null);
+  const locationHeaderHeight = useElementHeight(locationHeaderElement);
   const debouncedQuery = useDebouncedValue(
     searchQuery.trim(),
     SEARCH_DEBOUNCE_MS,
@@ -313,9 +318,18 @@ function DesktopStoragePage() {
             />
           </section>
         ) : (
-          <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 lg:col-span-9">
+          <section
+            className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 lg:col-span-9"
+            style={
+              {
+                [STORAGE_TOOLBAR_TOP_CSS_VARIABLE]: `calc(${locationHeaderHeight}px - 1rem)`,
+              } as CSSProperties
+            }
+          >
             {selected && !isSearching && (
-              <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
+              <div
+                ref={setLocationHeaderElement}
+                className="sticky -top-4 z-50 -mx-4 -mt-4 flex items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
                 <div className="mr-auto min-w-0">
                   <h1 className="truncate font-heading text-lg font-semibold">
                     {selected.name}
@@ -357,16 +371,15 @@ function DesktopStoragePage() {
                   <>
                     <ShareStorageLinkDialog
                       locationGuid={selected.guid}
-                      trigger={
-                        <Button
+                      renderTrigger={(activeLinkCount) => (
+                        <ShareLinkTriggerButton
                           variant="outline"
                           size="icon"
-                          aria-label={t("shareLink.trigger")}
-                          title={t("shareLink.trigger")}
-                        >
-                          <IconShare />
-                        </Button>
-                      }
+                          label={t("shareLink.trigger")}
+                          activeLinkCount={activeLinkCount}
+                          showsTitle
+                        />
+                      )}
                     />
                     <Button
                       variant="outline"

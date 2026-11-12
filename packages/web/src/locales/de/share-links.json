@@ -1,0 +1,18 @@
+{
+  "activeLinks": "Aktive Links",
+  "dialogEmpty": "Noch keine aktiven Links. Erstelle einen, um dies zu teilen.",
+  "loadFailed": "Deine Freigabelinks konnten nicht geladen werden.",
+  "pricesHidden": "Preise ausgeblendet",
+  "created": "Erstellt am {{date}}",
+  "expires": "Läuft ab am {{date}}",
+  "showQr": "QR-Code für den am {{date}} erstellten Link anzeigen",
+  "revoke": "Widerrufen",
+  "revoked": "Link widerrufen.",
+  "revokeFailed": "Der Link konnte nicht widerrufen werden.",
+  "newLink": "Neuer Link",
+  "linkHeading": "Link",
+  "back": "Zurück",
+  "backToLinks": "Zurück zu den Links",
+  "pricesShown": "Preise sichtbar",
+  "revokeLabel": "Den am {{date}} erstellten Link widerrufen"
+}

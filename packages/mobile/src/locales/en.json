@@ -92,6 +92,8 @@
     "actions": "Collection actions",
     "cancel": "Cancel",
     "shareLink": "Share live view link",
+    "shareLinkWithCount_one": "Share live view link ({{count}} active)",
+    "shareLinkWithCount_other": "Share live view link ({{count}} active)",
     "scanTarget": "Scanning here",
     "scanInto": "Scan into this collection",
     "scan": "Scan"
@@ -105,7 +107,6 @@
     "expiryOption_one": "{{count}} day",
     "expiryOption_other": "{{count}} days",
     "create": "Create link",
-    "createAnother": "Create new link",
     "created": "Link created. The QR code and Share button are below.",
     "createFailed": "Couldn't create a share link.",
     "share": "Share link",
@@ -128,6 +129,31 @@
     "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
     "tradeOneHourNote": "Trade links last 1 hour.",
     "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days."
+  },
+  "shareLinks": {
+    "detailDescription": "Anyone with this link or QR code can open it without logging in.",
+    "pricesShown": "Prices shown",
+    "pricesHidden": "Prices hidden",
+    "loadFailed": "Couldn't load share links.",
+    "notFound": "This link has expired or was revoked.",
+    "revoke": "Revoke link",
+    "revokeTitle": "Revoke this link?",
+    "revokeDescription": "Anyone using this link loses access. Other links stay active.",
+    "revoked": "Link revoked.",
+    "revokeFailed": "Couldn't revoke the link.",
+    "linkTitle": "Share link",
+    "backToLinks": "Back to links",
+    "newLink": "New link",
+    "newLinkTitle": "New share link",
+    "subjectDescription": "Links that still work for this item. Tap one to show its QR code, or long press to revoke it.",
+    "subjectEmptyTitle": "No active links",
+    "subjectEmptyDescription": "Create a link to share this with anyone, no login needed.",
+    "createdInList": "Link created. It's in the list below.",
+    "viewAnnouncements": {
+      "links": "Showing active links",
+      "new": "Showing new link form",
+      "link": "Showing link and QR code"
+    }
   },
   "cards": {
     "bin": "Bin {{number}}",
@@ -1406,7 +1432,9 @@
         "remaining": "{{count}} left to verify"
       }
     },
-    "share": "Share location"
+    "share": "Share location",
+    "shareWithCount_one": "Share location ({{count}} active)",
+    "shareWithCount_other": "Share location ({{count}} active)"
   },
   "settings": {
     "title": "Settings",
@@ -2165,6 +2193,8 @@
     "badge_other": "{{count}} unmatched"
   },
   "matchValidations": {
+    "ocrFallback": "{{field}} (fallback)",
+    "ocrFixedBox": "{{field}} (fixed box)",
     "title": "Validate matches",
     "description": "Help the community improve card recognition: check recent scans against the card they were matched to. Each scan needs {{required}} reviews. Answers never change anyone's collection.",
     "counts": "You've checked {{yours}} · {{community}} checks from the community so far",
@@ -2949,5 +2979,19 @@
     "scanButton": "Scan card",
     "scanNoMatch": "Couldn't recognise that card. Try again.",
     "scanFailed": "Scanning failed. Try again."
+  },
+  "widgets": {
+    "collectionValueTitle": "Collection value",
+    "scansToday_one": "{{count}} scan today",
+    "scansToday_other": "{{count}} scans today",
+    "scansThisWeek_one": "{{count}} this week",
+    "scansThisWeek_other": "{{count}} this week",
+    "signedOut": "Open Mault and sign in to see this widget.",
+    "notificationsCount_one": "{{count}} notification",
+    "notificationsCount_other": "{{count}} notifications",
+    "tradeOffersCount_one": "{{count}} trade offer",
+    "tradeOffersCount_other": "{{count}} trade offers",
+    "alertsCount_one": "{{count}} alert",
+    "alertsCount_other": "{{count}} alerts"
   }
 }

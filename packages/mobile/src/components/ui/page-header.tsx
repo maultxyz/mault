@@ -17,7 +17,7 @@ export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory,
 
   const isPresentedAsSheet = SHEET_ROUTE_PATTERN.test(usePathname());
   const usesNativeHeader = !!onBack && !isPresentedAsSheet;
-  const nativeHeader = usesNativeHeader ? <NativeStackHeader title={title} actions={actionRow} /> : null;
+  const nativeHeader = usesNativeHeader ? <NativeStackHeader title={title ?? ""} actions={actionRow} /> : null;
   if (usesNativeHeader && !subtitle && !titleAccessory && !tabs && !children) return nativeHeader;
 
   return (
@@ -38,6 +38,9 @@ export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory,
           {actionRow}
         </View>
       ) : null}
+      {title == null && !subtitle && !titleAccessory && !onBack ? (
+        <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>{actionRow}</View>
+      ) : (
       <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md, minHeight: usesNativeHeader ? 0 : 40 }}>
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
           <View style={{ flexDirection: "row", alignItems: "flex-start", gap: SPACING.sm }}>
@@ -61,6 +64,7 @@ export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory,
         </View>
         {onBack ? null : actionRow}
       </View>
+      )}
       {children}
       {tabs ? <View style={{ marginHorizontal: -SCREEN_GUTTER }}>{tabs}</View> : null}
     </View>

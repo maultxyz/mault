@@ -31,3 +31,4 @@ export const STORAGE_LOCATION_VIEWS: readonly StorageLocationView[] = [
   "cards",
   "verify",
 ];
+export const STORAGE_TOOLBAR_TOP_CSS_VARIABLE = "--storage-toolbar-top";

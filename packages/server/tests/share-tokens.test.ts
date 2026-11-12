@@ -17,12 +17,15 @@ import {
 process.env.MONITOR_LINK_SECRET = "test-share-token-secret";
 
 test("a storage share token verifies with its own issuer", async () => {
-  const { token, expiresAt } = await signShareToken({
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60_000);
+  const token = await signShareToken({
     issuer: STORAGE_SHARE_LINK_ISSUER,
     subjectGuid: "location-guid",
     orgId: "org-1",
     version: 3,
-    expiresInMinutes: 7 * 24 * 60,
+    linkGuid: "link-guid",
+    issuedAt: new Date(),
+    expiresAt,
     showsPrices: false,
     purpose: "trade",
   });
@@ -41,7 +44,9 @@ test("a collection monitor token is rejected as a storage share token and the re
     subjectGuid: "collection-guid",
     orgId: "org-1",
     version: 0,
-    expiresInMinutes: 24 * 60,
+    linkGuid: "link-guid",
+    issuedAt: new Date(),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60_000),
     showsPrices: true,
     purpose: "view",
   });
@@ -50,21 +55,25 @@ test("a collection monitor token is rejected as a storage share token and the re
     subjectGuid: "location-guid",
     orgId: "org-1",
     version: 0,
-    expiresInMinutes: 24 * 60,
+    linkGuid: "link-guid",
+    issuedAt: new Date(),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60_000),
     showsPrices: true,
     purpose: "view",
   });
-  assert.equal(await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, monitor.token), null);
-  assert.equal(await verifyShareToken(MONITOR_LINK_ISSUER, storage.token), null);
+  assert.equal(await verifyShareToken(STORAGE_SHARE_LINK_ISSUER, monitor), null);
+  assert.equal(await verifyShareToken(MONITOR_LINK_ISSUER, storage), null);
 });
 
 test("a tampered token is rejected", async () => {
-  const { token } = await signShareToken({
+  const token = await signShareToken({
     issuer: STORAGE_SHARE_LINK_ISSUER,
     subjectGuid: "location-guid",
     orgId: "org-1",
     version: 0,
-    expiresInMinutes: 24 * 60,
+    linkGuid: "link-guid",
+    issuedAt: new Date(),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60_000),
     showsPrices: true,
     purpose: "view",
   });
@@ -161,14 +170,47 @@ test("a shop catalog token never expires and verifies only with its own issuer",
 });
 
 test("a storage share token is rejected as a shop catalog token", async () => {
-  const { token } = await signShareToken({
+  const token = await signShareToken({
     issuer: STORAGE_SHARE_LINK_ISSUER,
     subjectGuid: "location-guid",
     orgId: "org-1",
     version: 0,
-    expiresInMinutes: 7 * 24 * 60,
+    linkGuid: "link-guid",
+    issuedAt: new Date(),
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60_000),
     showsPrices: true,
     purpose: "view",
   });
   assert.equal(await verifyRevocableShareToken(SHOP_CATALOG_ISSUER, token), null);
+});
+
+test("a share token carries its link id and signs the same token again from the same row", async () => {
+  const input = {
+    issuer: MONITOR_LINK_ISSUER,
+    linkGuid: "5d0c6c1e-8a59-4ad4-9d5b-0f4b8d6a7f10",
+    subjectGuid: "collection-guid",
+    orgId: "org-1",
+    version: 1,
+    issuedAt: new Date("2026-11-01T10:00:00Z"),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60_000),
+    showsPrices: true,
+    purpose: "view" as const,
+  };
+  const token = await signShareToken(input);
+  assert.equal(await signShareToken({ ...input }), token);
+  const verified = await verifyShareToken(MONITOR_LINK_ISSUER, token);
+  assert.equal(verified?.linkGuid, input.linkGuid);
+  assert.equal(verified?.issuedAt.getTime(), input.issuedAt.getTime());
+});
+
+test("links created before individual revocation have no link id", async () => {
+  const token = await new jose.SignJWT({ org: "org-1", ver: 0 })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(MONITOR_LINK_ISSUER)
+    .setSubject("collection-guid")
+    .setIssuedAt()
+    .setExpirationTime("1h")
+    .sign(new TextEncoder().encode(process.env.MONITOR_LINK_SECRET));
+  const verified = await verifyShareToken(MONITOR_LINK_ISSUER, token);
+  assert.equal(verified?.linkGuid, null);
 });

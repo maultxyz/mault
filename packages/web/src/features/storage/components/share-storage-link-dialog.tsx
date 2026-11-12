@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 export function ShareStorageLinkDialog({
   locationGuid,
-  trigger,
+  renderTrigger,
 }: ShareStorageLinkDialogProps) {
   const { t } = useTranslation("storage");
 
@@ -27,6 +27,7 @@ export function ShareStorageLinkDialog({
       );
       if (!result.success || !result.data) throw new Error(result.message);
       return {
+        guid: result.data.guid,
         url: buildStorageShareLinkUrl(locationGuid, result.data.token),
         expiresAt: result.data.expiresAt,
       };
@@ -41,12 +42,13 @@ export function ShareStorageLinkDialog({
 
   return (
     <ShareLinkDialog
+      subjectGuid={locationGuid}
       title={t("shareLink.title")}
       description={t("shareLink.description")}
       revokedMessage={t("shareLink.revoked")}
       createLink={createLink}
       revokeLinks={revokeLinks}
-      trigger={trigger}
+      renderTrigger={renderTrigger}
     />
   );
 }

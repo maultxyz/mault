@@ -21,6 +21,7 @@ import { useStorageLocations } from "@/features/storage/api/use-storage-location
 import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
+import { ShareLinkTriggerButton } from "@/components/share-link-trigger-button";
 import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
 import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
@@ -51,7 +52,6 @@ import {
   IconListCheck,
   IconListSearch,
   IconPlus,
-  IconShare,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
@@ -213,15 +213,14 @@ export function MobileStorage() {
               <>
                 <ShareStorageLinkDialog
                   locationGuid={selected.guid}
-                  trigger={
-                    <Button
+                  renderTrigger={(activeLinkCount) => (
+                    <ShareLinkTriggerButton
                       variant="ghost"
                       className={MOBILE_CIRCLE_BUTTON_CLASS}
-                      aria-label={t("shareLink.trigger")}
-                    >
-                      <IconShare />
-                    </Button>
-                  }
+                      label={t("shareLink.trigger")}
+                      activeLinkCount={activeLinkCount}
+                    />
+                  )}
                 />
                 <Button
                   variant="ghost"

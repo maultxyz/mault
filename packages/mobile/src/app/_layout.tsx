@@ -11,6 +11,7 @@ import { OrgThemeProvider } from "@/components/org-theme-provider";
 import { PendingSavesProvider } from "@/features/scanner/api/use-pending-saves";
 import { SorterProvider } from "@/features/sorter/api/use-sorter";
 import { AppStreamProvider } from "@/features/stream/api/use-app-stream";
+import { useHomeWidgetSync } from "@/features/widgets/api/use-home-widget-sync";
 import { useTheme } from "@/hooks/use-theme";
 import { applyThemePreference, readThemePreference } from "@/lib/appearance";
 import { restoreSession, useSession } from "@/lib/auth/session";
@@ -27,6 +28,7 @@ function RootNavigator() {
   const base = scheme === "dark" ? DarkTheme : DefaultTheme;
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
   const ready = status !== "loading" && (fontsLoaded || !!fontError);
+  useHomeWidgetSync();
 
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();

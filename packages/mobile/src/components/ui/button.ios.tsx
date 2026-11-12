@@ -88,7 +88,7 @@ export function Button({
         alignment="center"
         style={StyleSheet.absoluteFill}
         onLayoutContent={({ nativeEvent }) =>
-          setNativeContentHeight((current) => Math.max(current, Math.ceil(nativeEvent.height)))
+          setNativeContentHeight(Math.ceil(nativeEvent.height))
         }
       >
         <SwiftUIButton
@@ -107,7 +107,7 @@ export function Button({
           <HStack
             spacing={SPACING.xs + 2}
             modifiers={[
-              frame({ maxWidth: Number.POSITIVE_INFINITY, maxHeight: Number.POSITIVE_INFINITY }),
+              frame({ maxWidth: Number.POSITIVE_INFINITY }),
               foregroundStyle(appearance.foregroundColor),
             ]}
           >

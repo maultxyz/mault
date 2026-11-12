@@ -1,13 +1,15 @@
-import { BottomSheet, Group, Host, RNHostView } from "@expo/ui/swift-ui";
-import { preferredColorScheme, presentationDragIndicator } from "@expo/ui/swift-ui/modifiers";
+import { BottomSheet, Group, Host, Rectangle, RNHostView } from "@expo/ui/swift-ui";
+import { foregroundStyle, preferredColorScheme, presentationDragIndicator } from "@expo/ui/swift-ui/modifiers";
 import { useColorScheme } from "react-native";
 import { SheetContent } from "@/components/ui/sheet-content";
+import { useTheme } from "@/hooks/use-theme";
 import { IOS_SHEET_TOP_PADDING } from "@/lib/constants/ui";
 import type { SheetProps } from "@/lib/interfaces/ui";
 import { useQueuedSheetPresentation } from "@/lib/sheet-presentation";
 
 export function Sheet({ visible, onClose, ...contentProps }: SheetProps) {
   const colorScheme = useColorScheme();
+  const colors = useTheme();
   const { isPresented, onSheetDismissed } = useQueuedSheetPresentation(visible);
   return (
     <Host style={{ position: "absolute", width: 0, height: 0 }}>
@@ -18,6 +20,7 @@ export function Sheet({ visible, onClose, ...contentProps }: SheetProps) {
         }}
         onDismiss={onSheetDismissed}
         fitToContents
+        presentationBackground={<Rectangle modifiers={[foregroundStyle(colors.background)]} />}
       >
         <Group
           modifiers={[

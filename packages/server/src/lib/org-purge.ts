@@ -19,6 +19,7 @@ import {
   fulfilmentOrders,
   shopCatalogs,
   tradeOffers,
+  shareLinks,
   intakeLots,
   moduleConfigAudit,
   moduleConfigs,
@@ -82,6 +83,7 @@ export async function purgeOrgData(
   await tx.delete(cardSales).where(eq(cardSales.orgId, orgId));
   await tx.delete(fulfilmentOrders).where(eq(fulfilmentOrders.orgId, orgId));
   await tx.delete(tradeOffers).where(eq(tradeOffers.orgId, orgId));
+  await tx.delete(shareLinks).where(eq(shareLinks.orgId, orgId));
   await tx.delete(shopCatalogs).where(eq(shopCatalogs.orgId, orgId));
   await tx.delete(orgActivityLog).where(eq(orgActivityLog.orgId, orgId));
   await tx.delete(apiKeyUsageDaily).where(eq(apiKeyUsageDaily.orgId, orgId));

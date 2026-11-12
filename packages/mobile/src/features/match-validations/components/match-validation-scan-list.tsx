@@ -93,7 +93,6 @@ export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterPr
       data={items}
       keyExtractor={(scan) => scan.scanId}
       contentContainerStyle={{ paddingBottom: SPACING.xxl }}
-      ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.border }} />}
       onEndReachedThreshold={LIST_END_THRESHOLD}
       onEndReached={() => {
         if (scans.hasNextPage && !scans.isFetchingNextPage) void scans.fetchNextPage();

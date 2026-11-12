@@ -1,4 +1,3 @@
-import type { ShareLinkPurpose } from "@magic-vault/shared";
 import { db } from "../db";
 import { MONITOR_LINK_ISSUER } from "./constants/auth";
 import type { MonitorLinkClaims } from "./interfaces/monitor-links";
@@ -7,7 +6,8 @@ import {
   SHARE_LINK_CLAIMS_CACHE_TTL_MS,
 } from "./constants/api-keys";
 import { shareLinkLifetime } from "./share-link-policy";
-import { signShareToken, verifyShareToken } from "./share-tokens";
+import { isShareLinkActive } from "./share-links";
+import { verifyShareToken } from "./share-tokens";
 import { createTtlCache } from "./ttl-cache";
 
 const verifiedMonitorLinks = createTtlCache<MonitorLinkClaims>({
@@ -16,25 +16,6 @@ const verifiedMonitorLinks = createTtlCache<MonitorLinkClaims>({
 });
 
 const openStreams = new Map<string, Set<() => void>>();
-
-export function signMonitorLink(
-  collectionGuid: string,
-  orgId: string,
-  version: number,
-  expiresInMinutes: number,
-  showsPrices: boolean,
-  purpose: ShareLinkPurpose,
-) {
-  return signShareToken({
-    issuer: MONITOR_LINK_ISSUER,
-    subjectGuid: collectionGuid,
-    orgId,
-    version,
-    expiresInMinutes,
-    showsPrices,
-    purpose,
-  });
-}
 
 export async function verifyMonitorLink(
   token: string,
@@ -67,6 +48,9 @@ async function loadMonitorLinkClaims(
     columns: { id: true, name: true, monitorLinkVersion: true },
   });
   if (!collection || collection.monitorLinkVersion !== verified.version) {
+    return null;
+  }
+  if (verified.linkGuid && !(await isShareLinkActive(verified.orgId, verified.linkGuid))) {
     return null;
   }
   const lifetime = await shareLinkLifetime(

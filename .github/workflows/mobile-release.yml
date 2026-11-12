@@ -34,7 +34,7 @@ jobs:
       PLATFORM: ${{ inputs.platform }}
       EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
     steps:
-      # master builds go to the stores, dev builds are internal install links.
+      # master builds are for the stores, dev builds are internal install links.
       # Anything else would ship unreleased code, so it's refused.
       - name: Check branch
         run: |
@@ -96,8 +96,6 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # Store submission is manual: download the .aab/.ipa from the build page
-      # and upload it in the Play Console or with eas submit.
       - name: Build
         working-directory: packages/mobile
         run: |
@@ -129,6 +127,6 @@ jobs:
             jq -r '.[] | "- \(.platform): [build page](https://expo.dev/accounts/\(.project.ownerAccount.name)/projects/\(.project.slug)/builds/\(.id)), [download](\(.artifacts.buildUrl))"' "$RUNNER_TEMP/eas-builds.json"
             if [ "$IS_DEV" != "true" ]; then
               echo ""
-              echo "Submit manually: upload the Android .aab in the Play Console, and run \`eas submit --platform ios --id <build id>\` (or use Transporter) for iOS."
+              echo "Submit manually: \`eas submit --platform <ios|android> --profile production --id <build id>\`."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
