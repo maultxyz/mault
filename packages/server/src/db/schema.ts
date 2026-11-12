@@ -1121,6 +1121,28 @@ export const orgInventorySnapshots = pgTable(
   ],
 ).enableRLS();
 
+export const collectionValueSnapshots = pgTable(
+  "collection_value_snapshots",
+  {
+    orgId: text("org_id").notNull(),
+    collectionGuid: uuid("collection_guid").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    cardCount: integer("card_count").notNull().default(0),
+    marketValue: doublePrecision("market_value").notNull().default(0),
+    currency: text("currency").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.collectionGuid, table.day] }),
+    index("collection_value_snapshots_org_day_idx").on(table.orgId, table.day),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const unmatchedCards = pgTable(
   "unmatched_cards",
   {

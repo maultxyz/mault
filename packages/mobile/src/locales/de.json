@@ -3034,7 +3034,45 @@
       "unknown": "Status unbekannt",
       "openToRefresh": "Öffne Mault zum Aktualisieren.",
       "lastScan": "Zuletzt: {{card}} um {{time}}",
-      "updated": "Aktualisiert {{time}}"
+      "updated": "Aktualisiert {{time}}",
+      "progress_one": "{{count}} Karte in diesem Durchlauf · {{rate}}/min",
+      "progress_other": "{{count}} Karten in diesem Durchlauf · {{rate}}/min",
+      "alert": "{{title}} um {{time}}"
+    },
+    "allCollections": "Alle Sammlungen",
+    "asOf": "Stand {{time}}",
+    "value": {
+      "cards": "Karten",
+      "change": "Änderung",
+      "previousYesterday": "{{value}} gestern",
+      "previousOn": "{{value}} am {{date}}",
+      "direction": {
+        "up": "gestiegen um {{change}}, {{percent}}",
+        "down": "gesunken um {{change}}, {{percent}}",
+        "flat": "keine Änderung"
+      }
+    },
+    "totalCards": {
+      "title": "Karten gesamt",
+      "caption": "Karten in deiner Sammlung"
+    },
+    "topCards": {
+      "title": "Top-Karten",
+      "onePerCollection": "Top-Karte jeder Sammlung",
+      "empty": "Noch keine Karten mit Preis."
+    },
+    "cardOfTheDay": {
+      "title": "Karte des Tages",
+      "empty": "Scanne Karten, um eine Karte des Tages zu erhalten."
+    },
+    "review": {
+      "title": "Kartenprüfung",
+      "countCaption": "zu prüfen",
+      "accept": "Annehmen",
+      "later": "Später",
+      "doneTitle": "Alles erledigt",
+      "doneMessage": "Keine Scans müssen geprüft werden.",
+      "moreInApp": "Öffne Mault, um den Rest zu prüfen."
     }
   },
   "sharedLink": {

@@ -3034,7 +3034,45 @@
       "unknown": "Status unknown",
       "openToRefresh": "Open Mault to refresh.",
       "lastScan": "Last: {{card}} at {{time}}",
-      "updated": "Updated {{time}}"
+      "updated": "Updated {{time}}",
+      "progress_one": "{{count}} card this run · {{rate}}/min",
+      "progress_other": "{{count}} cards this run · {{rate}}/min",
+      "alert": "{{title}} at {{time}}"
+    },
+    "allCollections": "All collections",
+    "asOf": "as of {{time}}",
+    "value": {
+      "cards": "Cards",
+      "change": "Change",
+      "previousYesterday": "{{value}} yesterday",
+      "previousOn": "{{value}} on {{date}}",
+      "direction": {
+        "up": "up {{change}}, {{percent}}",
+        "down": "down {{change}}, {{percent}}",
+        "flat": "no change"
+      }
+    },
+    "totalCards": {
+      "title": "Total cards",
+      "caption": "Cards in your collection"
+    },
+    "topCards": {
+      "title": "Top cards",
+      "onePerCollection": "Top card of each collection",
+      "empty": "No priced cards yet."
+    },
+    "cardOfTheDay": {
+      "title": "Card of the day",
+      "empty": "Scan some cards to get a card of the day."
+    },
+    "review": {
+      "title": "Card review",
+      "countCaption": "to review",
+      "accept": "Accept",
+      "later": "Later",
+      "doneTitle": "All caught up",
+      "doneMessage": "No scans need review.",
+      "moreInApp": "Open Mault to review the rest."
     }
   },
   "sharedLink": {

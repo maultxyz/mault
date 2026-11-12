@@ -1198,6 +1198,13 @@
       "when": 1794453633776,
       "tag": "0170_share_links",
       "breakpoints": true
+    },
+    {
+      "idx": 171,
+      "version": "7",
+      "when": 1794525412900,
+      "tag": "0171_collection_value_snapshots",
+      "breakpoints": true
     }
   ]
 }
