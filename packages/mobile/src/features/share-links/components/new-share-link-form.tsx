@@ -51,7 +51,7 @@ export function NewShareLinkForm({ kind, subjectGuid, onCreated, onBack }: NewSh
       actions={
         <>
           <Button label={t("shareLink.create")} loading={create.isPending} onPress={() => create.mutate()} />
-          <Button variant="secondary" icon="arrowLeft" label={t("shareLinks.backToLinks")} onPress={onBack} />
+          <Button variant="secondary" label={t("shareLinks.backToLinks")} onPress={onBack} />
         </>
       }
     >

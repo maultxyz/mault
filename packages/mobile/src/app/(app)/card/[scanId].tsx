@@ -24,6 +24,7 @@ import {
   type ScanDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
+import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
@@ -362,7 +363,6 @@ export default function CardDetailScreen() {
       <PageHeader
         title={editing ? t("cardDetail.correctCard") : undefined}
         subtitle={editing ? card?.name : undefined}
-        onBack={editing ? () => setEditing(false) : undefined}
         actions={
           !editing && entry ? (
             <View style={{ flexDirection: "row", gap: SPACING.sm }}>
@@ -676,12 +676,18 @@ export default function CardDetailScreen() {
         </View>
       ) : null}
 
-      <SaveBar
-        visible={isDirty}
-        saving={saveDraft.isPending}
-        onSave={form.handleSubmit((values) => saveDraft.mutate(values))}
-        onDiscard={() => form.reset()}
-      />
+      {editing ? (
+        <BottomActionBar>
+          <Button variant="secondary" label={t("common.cancel")} onPress={() => setEditing(false)} />
+        </BottomActionBar>
+      ) : (
+        <SaveBar
+          visible={isDirty}
+          saving={saveDraft.isPending}
+          onSave={form.handleSubmit((values) => saveDraft.mutate(values))}
+          onDiscard={() => form.reset()}
+        />
+      )}
 
       <OptionSheet
         visible={sheet === "actions"}

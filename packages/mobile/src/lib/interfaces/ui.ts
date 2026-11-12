@@ -317,6 +317,11 @@ export interface SwitchControlProps {
   value: boolean;
 }
 
+export interface BottomActionBarProps {
+  children: ReactNode;
+  direction?: "row" | "column";
+}
+
 export interface PinnedActionsLayoutProps {
   children: ReactNode;
   actions?: ReactNode;
