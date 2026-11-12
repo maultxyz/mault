@@ -234,20 +234,20 @@ class Controller:
         feed_next = route.get("feedNext") is True
         fed = False
         for preceding in range(1, module):
+            if preceding > 1:
+                await self.wait(25)
             config = self.config["modules"][preceding - 1]
             await self.move(self.channel(preceding, "bottom"), config["bottomOpen"])
-            if not await self.wait_sensor(preceding + 1):
-                await self.recover(preceding)
-                if not await self.wait_sensor(preceding + 1):
-                    await self.neutral()
-                    return dict(error=f"timeout: no card detected at module {preceding + 1}")
-            if preceding == 1 and feed_next and await self.wait_sensor(1, False):
-                await self.wait(300)
+        if module > 1:
+            stuck_module = await self.drop_through_to_module(module)
+            if stuck_module:
+                await self.neutral()
+                return dict(error=f"timeout: no card detected at module {stuck_module + 1}")
+            if feed_next and await self.wait_sensor(1, False):
                 await self.neutral_module(1)
                 await self.wait(200)
                 await emit(dict(event="fed", **await self.feed()))
                 fed = True
-        if module > 1:
             await self.wait(300)
         if direction == "bottom":
             await self.move(self.channel(module, "bottom"), self.config["modules"][module - 1]["bottomOpen"])
@@ -260,6 +260,22 @@ class Controller:
             await emit(dict(event="fed", **await self.feed()))
         return dict(status="routed", module=module, direction=direction,
                     **({"fedNext": True} if feed_next else {}))
+
+    def find_card_before_module(self, module):
+        return next((candidate for candidate in range(module - 1, 0, -1)
+                     if self.hardware.present(candidate)), 0)
+
+    async def drop_through_to_module(self, module):
+        if await self.wait_sensor(module):
+            return 0
+        for _ in range(1, module):
+            stuck = self.find_card_before_module(module)
+            if not stuck:
+                return module - 1
+            await self.recover(stuck)
+            if await self.wait_sensor(module):
+                return 0
+        return self.find_card_before_module(module) or module - 1
 
     async def maintenance(self, emit):
         now = self.clock()

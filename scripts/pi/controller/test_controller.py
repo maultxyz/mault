@@ -171,7 +171,7 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn((8, 295), self.hardware.writes)
         self.assertLess(self.hardware.writes.index((0, 310)), self.hardware.writes.index((3, 310)))
 
-    async def test_pipeline_reports_next_card_before_opening_lower_module(self):
+    async def test_pipeline_reports_next_card_after_arrival_at_target(self):
         self.hardware.sensors[0] = True
 
         def advance(channel, pulse):
@@ -186,7 +186,7 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
 
         async def emit(event):
             self.assertTrue(self.hardware.sensors[0])
-            self.assertFalse(self.hardware.sensors[2])
+            self.assertTrue(self.hardware.sensors[2])
             self.events.append(event)
 
         self.hardware.on_write = advance
@@ -196,6 +196,38 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(response["fedNext"])
         self.assertEqual(response["status"], "routed")
         self.assertTrue(self.hardware.sensors[0])
+
+    async def test_drop_through_does_not_require_intermediate_sensor_arrivals(self):
+        self.hardware.sensors[0] = True
+
+        def arrive(channel, pulse):
+            if (channel, pulse) == (6, 310):
+                self.hardware.sensors[0] = False
+                self.hardware.sensors[3] = True
+
+        self.hardware.on_write = arrive
+        response = await self.command(dict(route=dict(module=4, direction="right")))
+        self.assertEqual(response["status"], "routed")
+        self.assertLess(self.hardware.writes.index((0, 310)), self.hardware.writes.index((3, 310)))
+        self.assertLess(self.hardware.writes.index((3, 310)), self.hardware.writes.index((6, 310)))
+        self.assertFalse(any(self.hardware.sensors[1:3]))
+
+    async def test_drop_through_recovers_the_last_module_with_a_card(self):
+        self.hardware.sensors[0] = True
+
+        def arrive(channel, pulse):
+            if (channel, pulse) == (3, 310):
+                self.hardware.sensors[0] = False
+                self.hardware.sensors[1] = True
+            elif (channel, pulse) == (4, 310):
+                self.hardware.sensors[1] = False
+                self.hardware.sensors[3] = True
+
+        self.hardware.on_write = arrive
+        response = await self.command(dict(route=dict(module=4, direction="left")))
+        self.assertEqual(response["status"], "routed")
+        self.assertIn((4, 310), self.hardware.writes)
+        self.assertNotIn((1, 310), self.hardware.writes)
 
     async def test_route_jam_retries_then_reports_destination(self):
         self.hardware.sensors[0] = True
