@@ -3,6 +3,7 @@ import type { StyleProp, TextProps, ViewStyle } from "react-native";
 import type { CommLogEntry, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners, MonitorState } from "@/lib/interfaces/scanner";
+import type { SwipeRowAction } from "@/lib/interfaces/search";
 import type { FontSize, StatusTone } from "@/lib/interfaces/theme";
 
 export type IconName = keyof typeof ICONS;
@@ -106,6 +107,7 @@ export interface ListRowProps {
   disabled?: boolean;
   selected?: boolean;
   subtitleNumberOfLines?: number;
+  swipeDestructiveAction?: SwipeRowAction;
 }
 
 export interface ScreenProps {
@@ -195,6 +197,7 @@ export interface CardRowProps {
   lowConfidence?: boolean;
   checked?: boolean;
   onPress?: () => void;
+  onPressIn?: () => void;
 }
 
 export interface CommLogProps {
@@ -213,6 +216,7 @@ export interface CardTileProps {
   selected?: boolean;
   disabled?: boolean;
   onPress?: () => void;
+  onPressIn?: () => void;
   onLongPress?: () => void;
 }
 
@@ -236,8 +240,10 @@ export interface HomeCollectionRowProps {
   isScanTarget: boolean;
   isLive?: boolean;
   onPress: () => void;
+  onPressIn?: () => void;
   onLongPress?: () => void;
   longPressLabel?: string;
+  swipeDestructiveAction?: SwipeRowAction;
 }
 
 export interface CardDetailsListProps {
@@ -317,9 +323,15 @@ export interface SwitchControlProps {
   value: boolean;
 }
 
+export interface BottomActionBarProps {
+  children: ReactNode;
+  direction?: "row" | "column";
+}
+
 export interface PinnedActionsLayoutProps {
   children: ReactNode;
-  actions: ReactNode;
+  actions?: ReactNode;
+  actionsDirection?: "row" | "column";
 }
 
 export interface SaveBarProps {
@@ -464,4 +476,26 @@ export interface ListLoadingFooterProps {
 export interface BrandIconProps {
   size: number;
   color: string;
+}
+
+export interface ToastAction {
+  label: string;
+  onPress: () => void;
+}
+
+export interface ToastOptions {
+  message: string;
+  tone?: "default" | "success" | "destructive";
+  action?: ToastAction;
+  durationMs?: number;
+  onExpire?: () => void;
+}
+
+export interface ToastContextValue {
+  showToast: (options: ToastOptions) => void;
+  dismissToast: () => void;
+}
+
+export interface ToastProviderProps {
+  children: ReactNode;
 }

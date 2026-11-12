@@ -1,9 +1,9 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native";
 import {
   computeBinCount,
   DEFAULT_MODULE_COUNT,
@@ -11,7 +11,6 @@ import {
   EMPTY_CARD_FILTERS,
   formatScanTimelineBucketLabel,
   groupCardsByScanTime,
-  isScanTimelineGrouping,
   type CardFilters,
   type GroupedScannedCard,
 } from "@magic-vault/shared";
@@ -24,7 +23,6 @@ import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PillButton } from "@/components/ui/pill-button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
   collectionCardsQueryOptions,
@@ -36,20 +34,31 @@ import { toScanTimelineListRows } from "@/features/collections/lib/scan-timeline
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
+import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useCollectionActions } from "@/features/collections/api/use-collection-actions";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { useSessionStream } from "@/features/monitor/api/use-session-stream";
 import { useSorter } from "@/features/sorter/api/use-sorter";
-import { cardSortOptions, countActiveCardFilters } from "@/features/collections/lib/card-query";
+import {
+  buildCollectionCardsQuery,
+  cardSortOptions,
+  countActiveCardFilters,
+  readStoredCollectionScanTimeline,
+} from "@/features/collections/lib/card-query";
 import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
+import {
+  readCollectionViewMemory,
+  useRecordLastOpenedCollection,
+  writeCollectionViewMemory,
+} from "@/hooks/use-collection-view-memory";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { usePrefetchCollectionCard } from "@/hooks/use-prefetch-collection-card";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import {
-  CARD_ASPECT_RATIO,
   CARD_GRID_COLUMNS,
   CARD_GRID_GAP_X,
   CARD_GRID_GAP_Y,
@@ -61,11 +70,15 @@ import {
   SCAN_TIMELINE_LIST_HEADER_OFFSET,
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/collections";
-import { BADGE_RADIUS, CARD_ART_RADIUS, FLOATING_BUTTON_SHADOW, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import {
+  COLLECTION_SCROLL_EVENT_THROTTLE_MS,
+  COLLECTION_SCROLL_RESTORE_MAX_PAGES,
+} from "@/lib/constants/navigation-memory";
+import { BADGE_RADIUS, FLOATING_BUTTON_SHADOW, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
 import type { CollectionScanTimeline, ScanTimelineListRow } from "@/lib/interfaces/collections";
 import { readReviewLayout } from "@/lib/review-layout";
-import { readKv, writeKv } from "@/lib/storage/kv";
+import { writeKv } from "@/lib/storage/kv";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CollectionScreen() {
@@ -76,17 +89,17 @@ export default function CollectionScreen() {
   const width = usePanelWidth();
   const [search, setSearch] = useState("");
   const debounced = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
-  const collectionsOptions = collectionsQueryOptions(useActiveOrgId());
+  const orgId = useActiveOrgId();
+  const collectionsOptions = collectionsQueryOptions(orgId);
   const { data: collections } = useQuery(collectionsOptions);
   const collection = collections?.find((c) => c.guid === guid);
-  const [grouped, setGrouped] = useState(true);
-  const [sort, setSort] = useState<string | null>(null);
+  const [viewMemory] = useState(() => readCollectionViewMemory(orgId, guid));
+  useRecordLastOpenedCollection(orgId, guid);
+  const [grouped, setGrouped] = useState(viewMemory?.grouped ?? true);
+  const [sort, setSort] = useState<string | null>(viewMemory?.sort ?? null);
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
   const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
-  const [scanTimeline, setScanTimeline] = useState<CollectionScanTimeline>(() => {
-    const stored = readKv(COLLECTION_SCAN_TIMELINE_KEY);
-    return isScanTimelineGrouping(stored) ? stored : "off";
-  });
+  const [scanTimeline, setScanTimeline] = useState<CollectionScanTimeline>(readStoredCollectionScanTimeline);
   const changeScanTimeline = (next: CollectionScanTimeline) => {
     setScanTimeline(next);
     writeKv(COLLECTION_SCAN_TIMELINE_KEY, next);
@@ -94,15 +107,18 @@ export default function CollectionScreen() {
   const scanTimelineGrouping = scanTimeline === "off" ? null : scanTimeline;
   const scanTimelineTimeZone = useMemo(() => deviceTimeZone(), []);
   const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(null);
+  const prefetchCollectionCard = usePrefetchCollectionCard();
+  const listRef = useRef<FlatList<GroupedScannedCard> | FlatList<ScanTimelineListRow> | null>(null);
+  const [initialScrollRestoreOffset] = useState(() =>
+    viewMemory && viewMemory.scrollOffset > 0 && viewMemory.scanTimeline === scanTimeline ? viewMemory.scrollOffset : null,
+  );
+  const scrollOffsetRef = useRef(initialScrollRestoreOffset ?? 0);
+  const pendingScrollRestoreRef = useRef<number | null>(initialScrollRestoreOffset);
+  const pagesFetchedForRestoreRef = useRef(0);
   const sorter = useSorter();
   const cardsQuery = useMemo(
-    () => ({
-      search: debounced,
-      sort: scanTimelineGrouping ? null : sort,
-      filters,
-      grouped: scanTimelineGrouping ? false : grouped,
-    }),
-    [debounced, sort, filters, grouped, scanTimelineGrouping],
+    () => buildCollectionCardsQuery({ search: debounced, sort, filters, grouped, scanTimeline }),
+    [debounced, sort, filters, grouped, scanTimeline],
   );
   const cards = useInfiniteQuery(collectionCardsQueryOptions(guid, cardsQuery));
   const summary = useQuery(collectionCardsSummaryQueryOptions(guid));
@@ -122,6 +138,39 @@ export default function CollectionScreen() {
   };
 
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.items) ?? [], [cards.data]);
+  const isUnfilteredView = !debounced && countActiveCardFilters(filters) === 0;
+  const persistViewMemory = () => {
+    writeCollectionViewMemory(orgId, guid, {
+      grouped,
+      sort,
+      scanTimeline,
+      scrollOffset: isUnfilteredView ? scrollOffsetRef.current : 0,
+    });
+  };
+  const persistViewMemoryRef = useRef(persistViewMemory);
+  persistViewMemoryRef.current = persistViewMemory;
+  useEffect(() => {
+    persistViewMemoryRef.current();
+  }, [grouped, sort, scanTimeline]);
+  useEffect(() => () => persistViewMemoryRef.current(), []);
+  const trackScrollOffset = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollOffsetRef.current = event.nativeEvent.contentOffset.y;
+  };
+  const restoreScrollPosition = (_contentWidth: number, contentHeight: number) => {
+    const targetOffset = pendingScrollRestoreRef.current;
+    if (targetOffset == null || cards.isPending) return;
+    const canLoadMore =
+      cards.hasNextPage && pagesFetchedForRestoreRef.current < COLLECTION_SCROLL_RESTORE_MAX_PAGES;
+    if (contentHeight <= targetOffset && canLoadMore) {
+      if (!cards.isFetchingNextPage) {
+        pagesFetchedForRestoreRef.current += 1;
+        void cards.fetchNextPage();
+      }
+      return;
+    }
+    pendingScrollRestoreRef.current = null;
+    listRef.current?.scrollToOffset({ offset: targetOffset, animated: false });
+  };
   const totalCards = cards.data?.pages[0]?.totalCards ?? collection?.cardCount ?? 0;
   const scanTimelineRows = useMemo(
     () =>
@@ -196,6 +245,7 @@ export default function CollectionScreen() {
           flagged={flagged}
           corrected={!!item.corrected || !!item.reviewed}
           onPress={() => openCard(item.scanId)}
+          onPressIn={() => prefetchCollectionCard(guid, item.scanId)}
           onLongPress={() => setActionsEntry(item)}
         />
       </View>
@@ -210,6 +260,11 @@ export default function CollectionScreen() {
       gap: CARD_GRID_GAP_Y,
     },
     onEndReachedThreshold: LIST_END_THRESHOLD,
+    onScroll: trackScrollOffset,
+    onMomentumScrollEnd: () => persistViewMemory(),
+    onScrollEndDrag: () => persistViewMemory(),
+    scrollEventThrottle: COLLECTION_SCROLL_EVENT_THROTTLE_MS,
+    onContentSizeChange: restoreScrollPosition,
     onEndReached: () => {
       if (cards.hasNextPage && !cards.isFetchingNextPage) void cards.fetchNextPage();
     },
@@ -235,11 +290,7 @@ export default function CollectionScreen() {
       </View>
     ),
     ListEmptyComponent: cards.isPending ? (
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
-        {Array.from({ length: 9 }).map((_, i) => (
-          <Skeleton key={i} width={tileWidth} height={tileWidth / CARD_ASPECT_RATIO} radius={CARD_ART_RADIUS} />
-        ))}
-      </View>
+      <CollectionGridSkeleton tileWidth={tileWidth} />
     ) : (
       <EmptyState
         icon={debounced ? "search" : "collections"}
@@ -317,6 +368,9 @@ export default function CollectionScreen() {
       {scanTimelineGrouping ? (
         <FlatList<ScanTimelineListRow>
           key="scan-timeline"
+          ref={(list) => {
+            listRef.current = list;
+          }}
           data={scanTimelineRows}
           keyExtractor={(row) => row.key}
           {...sharedListProps}
@@ -363,8 +417,11 @@ export default function CollectionScreen() {
           }
         />
       ) : (
-        <FlatList
+        <FlatList<GroupedScannedCard>
           key="cards"
+          ref={(list) => {
+            listRef.current = list;
+          }}
           data={items}
           keyExtractor={(item) => item.scanId}
           numColumns={CARD_GRID_COLUMNS}

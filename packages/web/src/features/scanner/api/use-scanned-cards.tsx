@@ -45,7 +45,11 @@ import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { announcePolitely } from "@/lib/live-announcer";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
-import { recordPickListFound } from "@/features/bins/api/use-pick-list";
+import {
+  recordPickListFound,
+  setBinPickListInCache,
+} from "@/features/bins/api/use-pick-list";
+import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { loadBinContents } from "@/features/collections/api/collection-cards";
@@ -476,7 +480,7 @@ export function ScannedCardsProvider({
   );
 
   const markPickListFound = useCallback(
-    (binNumber: number, name: string, delta: number) => {
+    (binNumber: number, name: string, delta: number, persist = true) => {
       const bin = rawBinConfigsRef.current.find(
         (c) => c.binNumber === binNumber && isPickListBin(c),
       );
@@ -486,7 +490,8 @@ export function ScannedCardsProvider({
       rawBinConfigsRef.current = rawBinConfigsRef.current.map((c) =>
         c.binNumber === binNumber ? { ...c, pickList: next } : c,
       );
-      void recordPickListFound(queryClient, bin.guid, name, delta);
+      if (persist) void recordPickListFound(queryClient, bin.guid, name, delta);
+      else setBinPickListInCache(queryClient, bin.guid, next);
       if (delta > 0 && isPickListComplete(next)) {
         toast.success(t("scannedCards.pickListComplete.title"), {
           description: t("scannedCards.pickListComplete.description", {
@@ -860,7 +865,12 @@ export function ScannedCardsProvider({
           if (decision.action !== "route") return;
           const update = decision.pickListUpdate;
           if (update)
-            markPickListFound(update.binNumber, update.name, update.delta);
+            markPickListFound(
+              update.binNumber,
+              update.name,
+              update.delta,
+              decision.persistence.kind === "cards/sorted",
+            );
         },
         route: async (decision) => {
           const matchedBin = decision.bin;
@@ -999,6 +1009,10 @@ export function ScannedCardsProvider({
             .finally(() => {
               settlePendingBinCard(record.scanId);
               void invalidateCollectionCards(queryClient, collection.guid);
+              if (decision.pickListUpdate)
+                void queryClient.invalidateQueries({
+                  queryKey: binsQueryOptions.queryKey,
+                });
               if (billingQueryKey) {
                 void queryClient.invalidateQueries({
                   queryKey: billingQueryKey,

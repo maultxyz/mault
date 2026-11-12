@@ -35,7 +35,7 @@ export function ExistingShareLink({ linkGuid, subjectGuid, onClose }: ExistingSh
               onPress={() => confirmRevoke(() => revoke.mutate(link.guid))}
             />
           ) : null}
-          <Button variant="secondary" icon="arrowLeft" label={t("shareLinks.backToLinks")} onPress={onClose} />
+          <Button variant="secondary" label={t("shareLinks.backToLinks")} onPress={onClose} />
         </>
       }
     >

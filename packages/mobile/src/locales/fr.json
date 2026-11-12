@@ -678,8 +678,6 @@
         "front": "Avant",
         "external": "Externe"
       },
-      "pairDesktop": "Utiliser comme caméra d'ordinateur",
-      "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur",
       "preset": "Préréglage de règles",
       "chooseCamera": "Choisir une caméra",
       "foilType": "Type de foil",
@@ -742,6 +740,47 @@
         "duplicatesOff": "Ignorer les doublons",
         "pause": "Mettre le scan en pause"
       }
+    },
+    "tips": {
+      "title": "Conseils de scan",
+      "open": "Conseils de scan",
+      "done": "Compris",
+      "holdCard": {
+        "title": "Tenez une carte dans le cadre",
+        "description": "Gardez toute la carte dans le champ de la caméra et tenez-la immobile. Activez Détection auto des cartes dans les options de scan pour scanner sans appuyer sur le bouton."
+      },
+      "qrCode": {
+        "title": "Visez un QR code pour l'ouvrir",
+        "description": "Les liens partagés de collection, de rangement et d'échange s'ouvrent dans l'app. Un code d'association de caméra de bureau connecte ce téléphone comme caméra du trieur."
+      },
+      "sorter": {
+        "title": "Connectez un trieur pour l'alimentation automatique",
+        "description": "Avec un trieur connecté en Bluetooth ou en Wi-Fi, appuyez sur Démarrer et les cartes sont chargées, scannées et triées dans les bacs automatiquement."
+      }
+    },
+    "status": {
+      "modes": {
+        "sorter": "Trieur",
+        "handScan": "Scan à la main",
+        "scanOnce": "Scan unique",
+        "removing": "Retrait"
+      },
+      "saved": "{{name}} enregistrée"
+    },
+    "unmatchedRecovery": {
+      "title": "Carte non identifiée",
+      "description": "Elle a été enregistrée comme non identifiée. Réessayez ou cherchez-la par nom.",
+      "retry": "Réessayer",
+      "searchByName": "Chercher par nom",
+      "skip": "Ignorer"
+    },
+    "liveActivity": {
+      "title": "Scanner Mault",
+      "scanning": "Scan en cours",
+      "scannedCount_one": "{{count}} scannée",
+      "scannedCount_other": "{{count}} scannées",
+      "lastCard": "Dernière : {{name}}",
+      "noCardYet": "Aucune carte pour l'instant"
     }
   },
   "home": {
@@ -2092,16 +2131,6 @@
     "learnMore": "En savoir plus",
     "firmwareMissing": "Le firmware de ton trieur ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan."
   },
-  "pairing": {
-    "title": "Scanner pour associer",
-    "subtitle": "Utiliser ce téléphone comme caméra du scanner",
-    "hint": "Sur ton ordinateur, ouvre le scanner et choisis Utiliser le téléphone comme caméra, puis vise le code QR avec ce téléphone.",
-    "invalidTitle": "Ce n'est pas un lien de caméra",
-    "invalidDescription": "Scanne le code QR de Utiliser le téléphone comme caméra sur la page du scanner de ton ordinateur.",
-    "paste": "Coller le lien à la place",
-    "linkLabel": "Lien d'association",
-    "connect": "Connecter"
-  },
   "phoneCamera": {
     "title": "Utiliser le téléphone comme caméra",
     "ready": "Caméra prête",
@@ -2992,6 +3021,68 @@
     "tradeOffersCount_one": "{{count}} offre d'échange",
     "tradeOffersCount_other": "{{count}} offres d'échange",
     "alertsCount_one": "{{count}} alerte",
-    "alertsCount_other": "{{count}} alertes"
+    "alertsCount_other": "{{count}} alertes",
+    "scanner": {
+      "title": "Scanners",
+      "idle": "Aucun scanner actif",
+      "scanning_one": "Scan en cours",
+      "scanning_other": "{{count}} scanners actifs",
+      "scannerLine": "{{name}} · {{collection}}",
+      "unknownCollection": "une collection",
+      "more_one": "+{{count}} autre",
+      "more_other": "+{{count}} autres",
+      "unknown": "Statut inconnu",
+      "openToRefresh": "Ouvrez Mault pour actualiser.",
+      "lastScan": "Dernier : {{card}} à {{time}}",
+      "updated": "Mis à jour à {{time}}"
+    }
+  },
+  "sharedLink": {
+    "title": "Cartes partagées",
+    "collectionSubtitle_one": "Collection partagée · {{count}} carte",
+    "collectionSubtitle_other": "Collection partagée · {{count}} cartes",
+    "storageSubtitle_one": "Emplacement partagé · {{count}} carte",
+    "storageSubtitle_other": "Emplacement partagé · {{count}} cartes",
+    "search": "Rechercher dans ces cartes",
+    "empty": "Aucune carte trouvée",
+    "loadFailed": "Impossible de charger ces cartes",
+    "loadMore": "Charger plus",
+    "invalid": "Ce lien ne fonctionne pas",
+    "invalidDescription": "Il a peut-être expiré ou été révoqué. Demandez-en un nouveau au propriétaire."
+  },
+  "listRow": {
+    "moreActions": "Plus d'actions"
+  },
+  "search": {
+    "title": "Recherche",
+    "open": "Tout rechercher",
+    "placeholder": "Rechercher des cartes, collections, emplacements et réglages",
+    "promptTitle": "Tout rechercher",
+    "promptDescription": "Trouvez une carte dans n'importe quelle collection, une collection, un emplacement de stockage ou un réglage.",
+    "emptyTitle": "Aucun résultat",
+    "emptyDescription": "Essayez un autre nom ou une autre orthographe.",
+    "loadFailed": "Impossible de rechercher vos cartes. Tirez vers le bas pour réessayer.",
+    "foil": "Foil",
+    "locationPosition": "{{location}}, emplacement {{position}}",
+    "resultsCount_one": "{{count}} résultat",
+    "resultsCount_other": "{{count}} résultats",
+    "sections": {
+      "cards": "Cartes",
+      "collections": "Collections",
+      "locations": "Emplacements de stockage",
+      "settings": "Réglages"
+    }
+  },
+  "recovery": {
+    "undo": "Annuler",
+    "retry": "Réessayer",
+    "restored": "Restauré",
+    "undoFailed": "Impossible d'annuler",
+    "cardsRemoved_one": "Carte retirée",
+    "cardsRemoved_other": "{{count}} cartes retirées",
+    "tagAdded": "{{tag}} ajouté",
+    "tagRemoved": "{{tag}} retiré",
+    "movedTo": "Déplacé vers {{name}}",
+    "cardsLoadFailed": "Impossible de charger ces cartes"
   }
 }

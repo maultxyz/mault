@@ -8,14 +8,9 @@ on:
         type: choice
         options: [all, ios, android]
         default: all
-      bump:
-        description: Version bump (master only; dev builds keep the current version)
-        type: choice
-        options: [patch, minor, major]
-        default: patch
 
 permissions:
-  contents: write
+  contents: read
 
 # Builds run on EAS, and this job waits for them (often 20+ minutes), so it
 # gets its own group instead of holding up web deploys and firmware releases.
@@ -70,51 +65,19 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      # The store version is packages/mobile's own version, separate from the
-      # web/server release version. Build numbers are managed remotely by EAS
-      # (appVersionSource: remote, autoIncrement on production). iOS only
-      # accepts plain X.Y.Z, so dev builds reuse the current version.
-      - name: Compute app version
+      # The store version is packages/mobile's package.json version, changed by hand
+      # (never bumped here). Build numbers are managed remotely by EAS
+      # (appVersionSource: remote, autoIncrement on production).
+      - name: Read app version
         id: version
         working-directory: packages/mobile
-        run: |
-          CURRENT=$(node -p "require('./package.json').version")
-          if [ "$IS_DEV" = "true" ]; then
-            VERSION="$CURRENT"
-          else
-            VERSION=$(node -e '
-              const [major, minor, patch] = process.argv[1].split(".").map(Number);
-              const bump = process.argv[2];
-              console.log(bump === "major" ? `${major + 1}.0.0` : bump === "minor" ? `${major}.${minor + 1}.0` : `${major}.${minor}.${patch + 1}`);
-            ' "$CURRENT" "${{ inputs.bump }}")
-            node -e '
-              const fs = require("fs");
-              const pkg = JSON.parse(fs.readFileSync("package.json", "utf-8"));
-              pkg.version = process.argv[1];
-              fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
-            ' "$VERSION"
-          fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Build
         working-directory: packages/mobile
         run: |
           cp eas.example.json eas.json
           eas build --platform "$PLATFORM" --profile "$PROFILE" --non-interactive --json > "$RUNNER_TEMP/eas-builds.json"
-
-      # Only after the builds succeed: a failed run leaves no version bump.
-      - name: Commit and tag mobile version
-        if: env.IS_DEV != 'true'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add packages/mobile/package.json
-          git commit -m "chore(release): mobile v$VERSION [skip ci]"
-          git tag "mobile-v$VERSION"
-          git pull --rebase origin "${{ github.ref_name }}"
-          git push origin "HEAD:${{ github.ref_name }}"
-          git push origin "mobile-v$VERSION"
 
       - name: Summary
         run: |

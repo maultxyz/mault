@@ -60,7 +60,21 @@ export function prepareMatchedScanPlan(
             deviceGuid: input.deviceGuid,
           },
         }
-      : { kind: "cards", record },
+      : {
+          kind: "cards",
+          record: {
+            ...record,
+            ...(match
+              ? {
+                  pickListUpdate: {
+                    binGuid: match.bin.guid,
+                    name: match.entry.name,
+                    delta: 1 as const,
+                  },
+                }
+              : {}),
+          },
+        },
     binContent:
       record.binNumber == null
         ? null

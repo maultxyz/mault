@@ -46,6 +46,11 @@ import { resolveScanDeviceId } from "../../lib/scan-origin";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 import { toSavedCardSnapshots } from "../../lib/saved-cards";
 import { findCardToResort, moveResortedCard } from "../../lib/resort-scan";
+import {
+  applyScanPickListUpdate,
+  insertScanWithPickList,
+  isScanSavePickListUpdate,
+} from "../../lib/scan-pick-list";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -73,7 +78,10 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       vectorizedOn,
       deviceGuid,
       isRetry,
+      pickListUpdate,
     } = await c.req.json<ScannedCard & ScanSaveRequestFields>();
+    if (pickListUpdate !== undefined && !isScanSavePickListUpdate(pickListUpdate))
+      return c.json({ success: false, message: "Invalid pick-list update." }, 400);
     const condition = toCardCondition(requestedCondition ?? DEFAULT_CARD_CONDITION);
 
     if (
@@ -256,6 +264,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             capturedImage: cardToResort.hasCapturedImage ? null : storedImage,
             capturedBackImage: cardToResort.hasCapturedImage ? null : storedBackImage,
           });
+          await applyScanPickListUpdate(tx, orgId, pickListUpdate);
           if (cardToResort.hasCapturedImage) keepOnlyExistingImage = true;
           await tx
             .update(collections)
@@ -290,9 +299,9 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           card,
           alternativeMatches,
         );
-        await tx
-          .insert(collectionCards)
-          .values({
+        await insertScanWithPickList(
+          tx,
+          {
             guid: scanId,
             collectionId: collection.id,
             cardId: (card as PlayingCardWithDistance).id,
@@ -319,8 +328,9 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             scannedByDeviceId,
             intakeLotId,
             orgId,
-          })
-          .onConflictDoNothing();
+          },
+          pickListUpdate,
+        );
 
         await tx
           .update(collections)

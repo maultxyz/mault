@@ -62,6 +62,7 @@ import IconEye from "@tabler/icons-react-native/IconEye";
 import IconHeartRateMonitor from "@tabler/icons-react-native/IconHeartRateMonitor";
 import IconHome from "@tabler/icons-react-native/IconHome";
 import IconHelpCircle from "@tabler/icons-react-native/IconHelpCircle";
+import IconQrcode from "@tabler/icons-react-native/IconQrcode";
 import IconInfoCircle from "@tabler/icons-react-native/IconInfoCircle";
 import IconLayoutGrid from "@tabler/icons-react-native/IconLayoutGrid";
 import IconCards from "@tabler/icons-react-native/IconCards";
@@ -128,6 +129,7 @@ export const ICONS = {
   external: IconExternalLink,
   group: IconBrackets,
   help: IconHelpCircle,
+  qrCode: IconQrcode,
   home: IconHome,
   info: IconInfoCircle,
   live: IconBroadcast,

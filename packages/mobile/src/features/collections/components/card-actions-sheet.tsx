@@ -7,11 +7,8 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { Sheet } from "@/components/ui/sheet";
-import {
-  invalidateCollectionCards,
-  removeCollectionCards,
-  updateCollectionCard,
-} from "@/features/collections/api/collection-cards";
+import { useDeferredCardRemoval } from "@/features/cards/api/use-deferred-card-removal";
+import { invalidateCollectionCards, updateCollectionCard } from "@/features/collections/api/collection-cards";
 import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { moveCardsToStorageLocation, storageLocationsQueryOptions } from "@/features/storage/api/storage";
@@ -37,11 +34,7 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
     onSettled: () => invalidateCollectionCards(queryClient, collectionGuid),
     onSuccess: onClose,
   });
-  const remove = useMutation({
-    mutationFn: () => removeCollectionCards(collectionGuid, scanIds),
-    onSettled: () => invalidateCollectionCards(queryClient, collectionGuid),
-    onSuccess: onClose,
-  });
+  const removeCardsWithUndo = useDeferredCardRemoval();
 
   const { targetCollections, moveToCollection } = useMoveCardsToCollection({
     sourceCollectionGuid: collectionGuid,
@@ -58,15 +51,10 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
     onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
   });
 
-  const confirmRemove = () =>
-    Alert.alert(
-      t("collection.actions.removeTitle", { count: scanIds.length }),
-      t("cardDetail.removeConfirmDescription"),
-      [
-        { text: t("cardDetail.cancel"), style: "cancel" },
-        { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
-      ],
-    );
+  const removeWithUndo = () => {
+    onClose();
+    removeCardsWithUndo({ collectionGuid, scanIds });
+  };
 
   return (
     <>
@@ -103,7 +91,7 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
               onPress={() => setPicker("collection")}
             />
           ) : null}
-          <ListRow icon="trash" tone="destructive" title={t("cardDetail.remove")} onPress={confirmRemove} />
+          <ListRow icon="trash" tone="destructive" title={t("cardDetail.remove")} onPress={removeWithUndo} />
         </ListGroup>
       </Sheet>
       <OptionSheet

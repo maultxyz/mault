@@ -71,7 +71,11 @@ async function finishPending(
   stopping: () => boolean,
   recovered: boolean,
 ): Promise<PiScanSaveResult> {
-  for (let attempt = 0; !stopping(); attempt++) {
+  for (
+    let attempt = 0;
+    (!recovered && attempt === 0) || !stopping();
+    attempt++
+  ) {
     try {
       const result = await send(save, recovered || attempt > 0);
       if (result.success) {

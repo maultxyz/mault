@@ -4,10 +4,30 @@ import {
   nextCardSortKeyForField,
   SORTABLE_FIELD_TYPES,
   type CardFilters,
+  type CollectionCardsQuery,
   type FieldMeta,
+  isScanTimelineGrouping,
 } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
-import type { CardSortOption } from "@/lib/interfaces/collections";
+import { COLLECTION_SCAN_TIMELINE_KEY } from "@/lib/constants/collections";
+import type { CardSortOption, CollectionCardsQueryInput, CollectionScanTimeline } from "@/lib/interfaces/collections";
+import { readKv } from "@/lib/storage/kv";
+
+export function readStoredCollectionScanTimeline(): CollectionScanTimeline {
+  const stored = readKv(COLLECTION_SCAN_TIMELINE_KEY);
+  return isScanTimelineGrouping(stored) ? stored : "off";
+}
+
+export function buildCollectionCardsQuery({
+  search,
+  sort,
+  filters,
+  grouped,
+  scanTimeline,
+}: CollectionCardsQueryInput): CollectionCardsQuery {
+  const isTimeline = scanTimeline !== "off";
+  return { search, sort: isTimeline ? null : sort, filters, grouped: isTimeline ? false : grouped };
+}
 
 export function countActiveCardFilters(filters: CardFilters): number {
   return (

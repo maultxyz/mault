@@ -6,3 +6,8 @@ export const REVIEW_GRID_WIDE_MIN_WIDTH = 600;
 export const CARD_DETAIL_MENU_SHEETS = ["foil", "stamp", "condition", "language", "location", "collection"] as const;
 export const UNMATCHED_PHOTO_WIDTH_FRACTION = 0.55;
 export const SCAN_ATTRIBUTE_FIELD_WIDTH = "47%";
+
+export const CARD_DETAIL_SKELETON_PILL_WIDTHS = [64, 88, 112, 80] as const;
+export const CARD_DETAIL_SKELETON_DETAIL_ROWS = 4;
+export const CARD_DETAIL_SKELETON_PRICE_ROWS = 2;
+export const CARD_DETAIL_HEADER_ACTION_COUNT = 3;

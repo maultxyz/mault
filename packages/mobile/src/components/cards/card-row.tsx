@@ -19,6 +19,7 @@ export function CardRow({
   lowConfidence,
   checked,
   onPress,
+  onPressIn,
 }: CardRowProps) {
   const { t } = useTranslation();
   const colors = useTheme();
@@ -38,6 +39,7 @@ export function CardRow({
         .join(", ")}
       disabled={!onPress}
       onPress={onPress}
+      onPressIn={onPressIn}
       style={({ pressed }) => ({
         flexDirection: "row",
         alignItems: "center",

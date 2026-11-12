@@ -35,7 +35,15 @@ export function StorageLocationVerify({ location }: StorageLocationVerifyProps) 
       </View>
     );
   }
-  if (verify.isError) return <Callout tone="destructive" title={t("storage.verify.loadFailed")} />;
+  if (verify.isError) {
+    return (
+      <Callout
+        tone="destructive"
+        title={t("storage.verify.loadFailed")}
+        action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={verify.refetch} />}
+      />
+    );
+  }
   if (total === 0) {
     return (
       <EmptyState

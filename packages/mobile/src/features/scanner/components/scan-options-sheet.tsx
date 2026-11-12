@@ -110,18 +110,6 @@ export function ScanOptionsSheet({
           />
         </ListGroup>
       </View>
-      <ListGroup>
-        <ListRow
-          icon="desktop"
-          title={t("scan.options.pairDesktop")}
-          subtitle={t("scan.options.pairDesktopDescription")}
-          disabled={running}
-          onPress={() => {
-            onClose();
-            router.push("/pair-camera");
-          }}
-        />
-      </ListGroup>
     </Sheet>
   );
 }

@@ -14,6 +14,7 @@ import {
 } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { CardTile } from "@/components/cards/card-tile";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
@@ -255,7 +256,36 @@ export default function StorageLocationScreen() {
           }
           ListHeaderComponent={
             <View style={{ gap: SPACING.lg, paddingHorizontal: SPACING.sm, paddingBottom: SPACING.lg }}>
-              {remove.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
+              {remove.isError ? (
+                <Callout
+                  tone="destructive"
+                  title={t("storage.actionFailed")}
+                  action={
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      label={t("recovery.retry")}
+                      loading={remove.isPending}
+                      onPress={() => remove.variables && remove.mutate(remove.variables)}
+                    />
+                  }
+                />
+              ) : null}
+              {cards.isError ? (
+                <Callout
+                  tone="destructive"
+                  title={t("recovery.cardsLoadFailed")}
+                  action={
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      label={t("recovery.retry")}
+                      loading={cards.isRefetching}
+                      onPress={() => void cards.refetch()}
+                    />
+                  }
+                />
+              ) : null}
               {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
             </View>
           }

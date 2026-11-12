@@ -47,6 +47,7 @@ export const IOS_SYMBOLS: Record<IconName, IosSymbolName> = {
   external: "arrow.up.right.square",
   group: "curlybraces",
   help: "questionmark.circle",
+  qrCode: "qrcode",
   home: "house",
   info: "info.circle",
   live: "dot.radiowaves.left.and.right",

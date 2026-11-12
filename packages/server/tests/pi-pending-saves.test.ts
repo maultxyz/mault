@@ -26,7 +26,12 @@ const save = (
   userId,
   collectionGuid: "collection",
   kind: "cards",
-  body: { scanId, card: { id: "card" }, condition: "LP" },
+  body: {
+    scanId,
+    card: { id: "card" },
+    condition: "LP",
+    pickListUpdate: { binGuid: "bin", name: "Card", delta: 1 },
+  },
   queuedAt: 1,
 });
 
@@ -67,7 +72,7 @@ test("stopping preserves private disk state and restart recovers only the matchi
   for (const entry of entries) {
     await submitPiScanSave(
       entry,
-      async () => assert.fail("stopped saves must not send"),
+      async () => ({ success: false, status: 503, message: "offline" }),
       () => true,
     );
   }
@@ -86,6 +91,14 @@ test("stopping preserves private disk state and restart recovers only the matchi
     ]);
     assert.equal((await stat(path)).mode & 0o777, 0o600);
   }
+  const cancelled = await recoverPiScanSaves(
+    "org",
+    "user",
+    async () => assert.fail("cancelled recovery must not send old saves"),
+    () => true,
+  );
+  assert.equal(cancelled.success, false);
+  assert.equal((await readdir(directory)).length, 3);
   const recovered: PendingPiScanSave[] = [];
   assert.equal(
     (
@@ -155,7 +168,7 @@ test("malformed state outside the recovering actor does not block its saves", as
   const directory = await setup(t);
   await submitPiScanSave(
     save(),
-    async () => assert.fail("stopped"),
+    async () => ({ success: false, status: 503, message: "offline" }),
     () => true,
   );
   await writeFile(join(directory, "unrelated.json"), "{bad json");
@@ -172,4 +185,24 @@ test("malformed state outside the recovering actor does not block its saves", as
   assert.equal(result.success, true);
   assert.equal(recovered, 1);
   assert.deepEqual(await readdir(directory), ["unrelated.json"]);
+});
+
+test("stopping after routing still attempts the new save and clears its journal on success", async (t) => {
+  const directory = await setup(t);
+  let attempts = 0;
+  const result = await submitPiScanSave(
+    save(),
+    async (entry, retry) => {
+      attempts++;
+      assert.equal(retry, false);
+      assert.deepEqual(entry.body.pickListUpdate, {
+        binGuid: "bin", name: "Card", delta: 1,
+      });
+      return { success: true, message: "saved" };
+    },
+    () => true,
+  );
+  assert.equal(result.success, true);
+  assert.equal(attempts, 1);
+  assert.deepEqual(await readdir(directory), []);
 });

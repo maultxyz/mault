@@ -49,7 +49,7 @@ export function IconButton({
           size={Math.round(size * 0.45)}
           modifiers={[
             frame({ maxWidth: Number.POSITIVE_INFINITY, maxHeight: Number.POSITIVE_INFINITY }),
-            foregroundStyle(appearance.foregroundColor),
+            foregroundStyle(disabled ? colors.foregroundSecondary : appearance.foregroundColor),
           ]}
         />
       </SwiftUIButton>

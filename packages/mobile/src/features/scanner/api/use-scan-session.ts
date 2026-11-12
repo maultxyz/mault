@@ -505,7 +505,7 @@ export function useScanSession({
   );
 
   const recordPickListFound = useCallback(
-    (configs: BinConfig[], update: ScanPickListUpdate) => {
+    (configs: BinConfig[], update: ScanPickListUpdate, persist = true) => {
       const { orgId: activeOrgId } = latestRef.current;
       const bin = configs.find((item) => item.guid === update.binGuid);
       const updatedPickList = bin?.pickList
@@ -518,6 +518,7 @@ export function useScanSession({
             : c,
         );
       }
+      if (!persist) return;
       void markPickListFound(update.binGuid, {
         name: update.name,
         delta: update.delta,
@@ -730,7 +731,11 @@ export function useScanSession({
         },
         pick: (plan) => {
           if (plan.pickListUpdate)
-            recordPickListFound(configs, plan.pickListUpdate);
+            recordPickListFound(
+              configs,
+              plan.pickListUpdate,
+              plan.persistence.kind === "cards/sorted",
+            );
         },
         route: () => {
           pushFeed({
@@ -774,7 +779,13 @@ export function useScanSession({
                 });
           await saving
             .then((result) => handleSaveResult(result, record.binNumber))
-            .catch(() => pause("save-failed"));
+            .catch(() => pause("save-failed"))
+            .finally(() => {
+              if (plan.pickListUpdate)
+                void queryClient.invalidateQueries({
+                  queryKey: binSetsQueryOptions(ctx.orgId).queryKey,
+                });
+            });
         },
         complete: () => {},
       });
@@ -985,10 +996,10 @@ export function useScanSession({
         readControl: (captured) =>
           captured.frame ? readScannerQrText(captured.frame) : null,
         applyOtherCode: (text) => {
-          const tradeLink = parseShareLinkUrl(text);
-          if (!tradeLink) return false;
+          const shareLink = parseShareLinkUrl(text);
+          if (!shareLink) return false;
           pause("user");
-          router.push({ pathname: "/trade", params: { ...tradeLink } });
+          router.push({ pathname: "/shared-link", params: { ...shareLink } });
           return true;
         },
         applyControl: applyControlCode,

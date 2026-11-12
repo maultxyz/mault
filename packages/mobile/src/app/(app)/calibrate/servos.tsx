@@ -45,7 +45,7 @@ export default function CalibrateScreen() {
         title={t("calibration.title")}
         subtitle={sorter.device?.name ?? t("calibration.subtitle")}
         onBack={() => router.back()}
-        actions={<Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />}
+        subtitleAccessory={<Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />}
       />
       <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}>
         {!sorter.isConnected ? (

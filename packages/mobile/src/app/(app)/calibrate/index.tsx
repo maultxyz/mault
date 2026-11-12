@@ -21,7 +21,7 @@ export default function CalibrationHubScreen() {
           title={t("calibration.title")}
           subtitle={sorter.device?.name ?? t("calibration.hubSubtitle")}
           onBack={() => router.back()}
-          actions={<Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />}
+          subtitleAccessory={<Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />}
         />
       }
     >

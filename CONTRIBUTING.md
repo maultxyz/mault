@@ -1,15 +1,19 @@
 # Contributing to Mault
 
-Thanks for taking a look at contributing. This covers the dev workflow
-for the four workspace packages (`shared`, `server`, `web`, `bot`) and, in
-particular, how to make and ship a database change safely.
+Thanks for taking a look at contributing. This covers the workspace,
+shared scanning across web, native mobile and Pi hosts, and how to make
+and ship a database change safely.
 
 ## Getting set up
 
-Follow the [Getting started](README.md#getting-started) and
-[Setting up Neon](README.md#setting-up-neon) sections in the README
-first — you'll need a Neon project (Postgres + pgvector + Neon Auth) and
-a filled-in `.env` before anything here will run.
+Follow [Getting started](README.md#getting-started) in the README and
+fill in `.env`. Choose local auth with your own Postgres and pgvector,
+or follow [Setting up Neon](README.md#setting-up-neon) for hosted Postgres
+and Neon Auth. See [Raspberry Pi and Orange Pi Zero 4](README.md#raspberry-pi-and-orange-pi-zero-4) for the local-auth
+Pi installer and USB or built-in GPIO sorter modes. Native app setup is
+in [packages/mobile/README.md](packages/mobile/README.md); the Electron
+desktop shell is in `packages/desktop` and starts with the command in
+[CLAUDE.md](CLAUDE.md#commands).
 
 ```bash
 pnpm install
@@ -30,8 +34,12 @@ packages/
 ├── shared/   @magic-vault/shared - types, constants, evaluate-bin rule engine
 ├── server/   @magic-vault/server - Hono API, Drizzle schema/db, auth middleware
 ├── web/      @magic-vault/web    - React SPA (scanner, bins, collections, admin, build guide)
-└── bot/      @magic-vault/bot    - Discord bot (slash commands)
+├── bot/      @magic-vault/bot    - Discord bot (slash commands)
+├── mobile/   @magic-vault/mobile - Expo native app
+├── desktop/  @magic-vault/desktop - Electron desktop shell
+└── api-docs/ @magic-vault/api-docs - Scalar API documentation
 firmware/      Firmware sketch + wire protocol (firmware/PROTOCOL.md)
+scripts/pi/   Pi installer, user services, camera and GPIO controller
 drizzle/      Generated SQL migrations (see Database changes below)
 ```
 
@@ -96,6 +104,26 @@ Ordinary UI and API features should continue to work through the existing
 web app and shared server routes. This checklist is a development and review
 requirement, not an automatic guarantee of future parity. Changes to shared
 source still require updating and rebuilding deployed applications.
+
+Host settings have two adoption paths. Live session settings such as
+duplicate handling, removal, condition, forced foil and auto-feed are
+updated through the host session settings API. Persisted org, device and
+preset settings are loaded when arming or explicitly resuming/refreshing
+the session context; an uninterrupted running loop does not automatically
+adopt every saved setting. Reconnecting clients read authoritative host
+state. Browser audio requires an observing browser and is not replayed.
+
+Browser reconnect preserves an existing API-owned session, including its
+removal queue; API process restart does not restore that session. Durable
+pending inventory saves are retried when the same initiating user starts
+again in the same org. This does not guarantee recovery after every crash:
+physical routing precedes writing the pending-save record. Pick-list
+progress for normal inventory scans commits in the same transaction as the
+card save, with the update carried in the shared plan and pending save.
+Retries do not increment progress twice. Sort-only accounting keeps its
+one-shot save and separate pick update. A restart or failed write can still
+require manual reconciliation of physical cards and inventory.
+Validate these boundaries when changing route/save ordering or recovery.
 
 ## `packages/shared`
 

@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { ScannedCardsProvider, useScannedCards } from "./use-scanned-cards";
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
+import type { PickList, PlayingCardWithDistance } from "@magic-vault/shared";
 
 const mocks = vi.hoisted(() => ({
   collection: {
@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
       binNumber: 1,
       isCatchAll: true,
       lastEmptiedAt: null as number | null,
+      pickList: null as PickList | null,
       rules: { operator: "and", conditions: [] },
     },
   ],
@@ -24,6 +25,7 @@ const mocks = vi.hoisted(() => ({
   save: vi.fn(),
   saveUnmatched: vi.fn(),
   sortOnly: vi.fn(),
+  recordPick: vi.fn(),
   pause: vi.fn(),
   pauseForAttention: vi.fn(),
   reportStationAttention: vi.fn(),
@@ -73,7 +75,8 @@ vi.mock("@/features/bins/api/use-bin-configs", () => ({
   }),
 }));
 vi.mock("@/features/bins/api/use-pick-list", () => ({
-  recordPickListFound: vi.fn(),
+  recordPickListFound: mocks.recordPick,
+  setBinPickListInCache: vi.fn(),
 }));
 vi.mock("@/features/calibration/api/use-feeder-config", () => ({
   useFeederConfig: () => ({ feederConfig: { feedRetryCount: 0 } }),
@@ -176,6 +179,7 @@ beforeEach(() => {
   });
   mocks.configs[0].isCatchAll = true;
   mocks.configs[0].lastEmptiedAt = null;
+  mocks.configs[0].pickList = null;
   mocks.levels[0].capacity = 1;
   mocks.levels[0].count = 0;
   mocks.countsUpdatedAt = 0;
@@ -226,6 +230,30 @@ it("a full destination pauses before routing or persistence", async () => {
   expect(mocks.save).not.toHaveBeenCalled();
 });
 
+it("saves pick progress with the routed card without sending a separate increment", async () => {
+  mocks.selectedSet.scanOnly = false;
+  mocks.configs[0].isCatchAll = false;
+  mocks.configs[0].pickList = {
+    mode: "until_found",
+    entries: [{ name: card.name, quantity: 2, found: 0 }],
+  };
+  let finishRoute: () => void = () => {};
+  mocks.route.mockImplementation(
+    () => new Promise<void>((resolve) => { finishRoute = resolve; }),
+  );
+  const { result } = mount();
+  act(() => result.current.addCard(card));
+  await waitFor(() => expect(mocks.route).toHaveBeenCalledOnce());
+  expect(mocks.save).not.toHaveBeenCalled();
+  expect(mocks.recordPick).not.toHaveBeenCalled();
+  await act(async () => finishRoute());
+  await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+  expect(mocks.save.mock.calls[0][0].record.pickListUpdate).toEqual({
+    binGuid: "bin", name: card.name, delta: 1,
+  });
+  expect(mocks.recordPick).not.toHaveBeenCalled();
+});
+
 it("sort-only scans record the outcome after routing without saving a collection card", async () => {
   mocks.selectedSet.skipSaving = true;
   const { result } = mount();
@@ -233,6 +261,25 @@ it("sort-only scans record the outcome after routing without saving a collection
   await waitFor(() => expect(mocks.sortOnly).toHaveBeenCalledOnce());
   expect(mocks.route).toHaveBeenCalledOnce();
   expect(mocks.save).not.toHaveBeenCalled();
+});
+
+it("retains separate pick accounting for sort-only scans", async () => {
+  mocks.selectedSet.scanOnly = false;
+  mocks.selectedSet.skipSaving = true;
+  mocks.configs[0].isCatchAll = false;
+  mocks.configs[0].pickList = {
+    mode: "until_found",
+    entries: [{ name: card.name, quantity: 2, found: 0 }],
+  };
+  const { result } = mount();
+  act(() => result.current.addCard(card));
+  await waitFor(() => expect(mocks.sortOnly).toHaveBeenCalledOnce());
+  expect(mocks.recordPick).toHaveBeenCalledOnce();
+  expect(mocks.recordPick).toHaveBeenCalledWith(
+    mocks.queryClient, "bin", card.name, 1,
+  );
+  expect(mocks.save).not.toHaveBeenCalled();
+  expect(mocks.sortOnly.mock.calls[0][1]).not.toHaveProperty("pickListUpdate");
 });
 
 it("unmatched scans reserve the catch-all before routing and save afterward", async () => {

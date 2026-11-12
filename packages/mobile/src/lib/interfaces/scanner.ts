@@ -6,6 +6,7 @@ import type {
   CardSearchResult,
   CardTextSearchResult,
   MatchedScanDetails,
+  ParsedShareLinkUrl,
   PlayingCard,
   PlayingCardWithDistance,
   RgbaImage,
@@ -22,6 +23,7 @@ import type {
   UnmatchedScanDetails,
 } from "@magic-vault/shared";
 import type { Image } from "react-native-nitro-image";
+import type { IconName } from "@/lib/interfaces/ui";
 
 export interface CapturedFrame {
   image: Image;
@@ -105,6 +107,28 @@ export type ScannerPauseReason =
 export interface ControlCardNotice {
   noticeId: string;
   command: ScannerControlCommand;
+}
+
+export interface ScannerTip {
+  key: "holdCard" | "qrCode" | "sorter";
+  icon: IconName;
+}
+
+export interface ScanTipsSheetProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+export interface UnmatchedScanNoticeProps {
+  canRetry: boolean;
+  onRetry: () => void;
+  onSearchByName: () => void;
+  onSkip: () => void;
+}
+
+export interface UnmatchedScanRecovery {
+  scanId: string;
+  collectionGuid: string;
 }
 
 export interface ScanFeedEntry {
@@ -258,6 +282,12 @@ export interface LiveCorners {
   frameHeight: number;
 }
 
+export interface CoverTransform {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+}
+
 export interface SmoothedCorners extends LiveCorners {
   opacity: number;
 }
@@ -331,7 +361,17 @@ export interface PhoneCameraResponder {
   scanRegion: ScanRegion | null;
 }
 
-export interface QrScanner {
+export type ScannerQrLink =
+  | { kind: "share-link"; shareLink: ParsedShareLinkUrl }
+  | { kind: "desktop-camera"; collectionGuid: string };
+
+export interface ScannerQrWatcherOptions {
+  active: boolean;
+  onQrLink: (qrLink: ScannerQrLink) => void;
+  grabLiveFrame: () => Promise<Image>;
+}
+
+export interface ScannerQrWatcher {
   outputs: CameraOutput[];
 }
 

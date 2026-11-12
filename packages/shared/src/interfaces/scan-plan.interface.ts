@@ -9,6 +9,7 @@ import type {
 import type {
   MatchedScanDiagnostics,
   ScannedCard,
+  ScanSaveRequestFields,
   ScanVectorizeSource,
   SortOnlyScanRequest,
   UnmatchedCard,
@@ -66,7 +67,7 @@ export interface MatchedScanBinCard extends BinContentCard {
 }
 
 export type MatchedScanPersistence =
-  | { kind: "cards"; record: ScannedCard }
+  | { kind: "cards"; record: ScannedCard & ScanSaveRequestFields }
   | { kind: "cards/sorted"; record: SortOnlyScanRequest };
 
 export type MatchedScanPlan = ScanRoutingDecision & {

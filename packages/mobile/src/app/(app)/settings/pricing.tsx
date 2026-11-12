@@ -6,9 +6,10 @@ import { AppText } from "@/components/ui/app-text";
 import { Input } from "@/components/ui/input";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
-import { Surface } from "@/components/ui/surface";
 import { useOrgSettingsDraft } from "@/features/settings/api/use-org-settings-draft";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { SettingsSection } from "@/features/settings/components/settings-section";
+import { CONDITION_MULTIPLIER_INPUT_WIDTH } from "@/lib/constants/settings";
 import { SPACING } from "@/lib/constants/theme";
 
 export default function PricingSettingsScreen() {
@@ -25,15 +26,7 @@ export default function PricingSettingsScreen() {
       onSave={draft.save}
       onDiscard={draft.discard}
     >
-      <Surface style={{ gap: SPACING.md }}>
-        <View>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.pricing.heading")}
-          </AppText>
-          <AppText size="xs" tone="secondary">
-            {t("settings.pricing.description")}
-          </AppText>
-        </View>
+      <SettingsSection title={t("settings.pricing.heading")} description={t("settings.pricing.description")}>
         <Controller
           control={draft.control}
           name="priceSource"
@@ -52,47 +45,43 @@ export default function PricingSettingsScreen() {
             </ListGroup>
           )}
         />
-      </Surface>
-      <Surface style={{ gap: SPACING.md }}>
-        <View>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.conditionPricing.heading")}
-          </AppText>
-          <AppText size="xs" tone="secondary">
-            {t("settings.conditionPricing.description")}
-          </AppText>
-        </View>
+      </SettingsSection>
+      <SettingsSection title={t("settings.conditionPricing.heading")} description={t("settings.conditionPricing.description")}>
         <Controller
           control={draft.control}
           name="conditionMultipliers"
           render={({ field }) => (
-            <View style={{ gap: SPACING.sm }}>
+            <ListGroup>
               {CARD_CONDITIONS.map((condition) => (
-                <View key={condition} style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
-                  <AppText style={{ flex: 1 }}>{t(`settings.conditions.${condition}`)}</AppText>
-                  <View style={{ width: 96, flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
-                    <Input
-                      accessibilityLabel={t(`settings.conditions.${condition}`)}
-                      keyboardType="number-pad"
-                      maxLength={3}
-                      editable={!disabled && condition !== "NM"}
-                      value={String(field.value[condition])}
-                      onChangeText={(text) => {
-                        const value = Math.min(CONDITION_MULTIPLIER_MAX, Number(text.replace(/\D/g, "") || 0));
-                        field.onChange({ ...field.value, [condition]: value });
-                      }}
-                    />
-                    <AppText tone="secondary">{t("settings.percentSuffix")}</AppText>
-                  </View>
-                </View>
+                <ListRow
+                  key={condition}
+                  title={t(`settings.conditions.${condition}`)}
+                  rightIsInteractive
+                  right={
+                    <View style={{ width: CONDITION_MULTIPLIER_INPUT_WIDTH, flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
+                      <Input
+                        accessibilityLabel={t(`settings.conditions.${condition}`)}
+                        keyboardType="number-pad"
+                        maxLength={3}
+                        editable={!disabled && condition !== "NM"}
+                        value={String(field.value[condition])}
+                        onChangeText={(text) => {
+                          const value = Math.min(CONDITION_MULTIPLIER_MAX, Number(text.replace(/\D/g, "") || 0));
+                          field.onChange({ ...field.value, [condition]: value });
+                        }}
+                      />
+                      <AppText tone="secondary">{t("settings.percentSuffix")}</AppText>
+                    </View>
+                  }
+                />
               ))}
-              <AppText size="xs" tone="secondary">
-                {t("settings.conditionPricing.baseNote")}
-              </AppText>
-            </View>
+            </ListGroup>
           )}
         />
-      </Surface>
+        <AppText size="xs" tone="secondary">
+          {t("settings.conditionPricing.baseNote")}
+        </AppText>
+      </SettingsSection>
     </SettingsPage>
   );
 }

@@ -201,7 +201,14 @@ export interface UnmatchedCardsPage {
   total: number;
 }
 
+export interface ScanSavePickListUpdate {
+  binGuid: string;
+  name: string;
+  delta: 1;
+}
+
 export interface ScanSaveRequestFields {
+  pickListUpdate?: ScanSavePickListUpdate;
   deviceGuid?: string;
   isRetry?: boolean;
 }

@@ -12,6 +12,7 @@ import { randomUUID } from "node:crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   runScanDisposition,
+  applyPickListFound,
   prepareMatchedScanPlan,
   prepareUnmatchedScanPlan,
   scanCompletionPauseReason,
@@ -1030,7 +1031,7 @@ async function processMatched(
         throw error;
       }
       const update = decision.pickListUpdate;
-      if (update) {
+      if (update && decision.persistence.kind === "cards/sorted") {
         const pickList = await recordPickFound(
           { userId: session.userId, orgId: session.orgId },
           update.binGuid,
@@ -1042,6 +1043,16 @@ async function processMatched(
           (bin) => bin.guid === update.binGuid,
         );
         if (listed) listed.pickList = pickList;
+      } else if (update) {
+        const listed = context.pickConfigs.find(
+          (bin) => bin.guid === update.binGuid,
+        );
+        if (listed?.pickList)
+          listed.pickList = applyPickListFound(
+            listed.pickList,
+            update.name,
+            update.delta,
+          );
       }
     },
     complete: async (decision) => {

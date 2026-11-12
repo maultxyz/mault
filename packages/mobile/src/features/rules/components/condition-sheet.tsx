@@ -162,10 +162,10 @@ export function ConditionSheet({
       title={title}
       maxHeightRatio={CONDITION_SHEET_MAX_HEIGHT_RATIO}
       scrollable={false}
-      headerLeading={
+      footer={
         step === "field" && !isNew ? (
-          <IconButton icon="back" size={36} accessibilityLabel={t("common.back")} onPress={() => setStep("details")} />
-        ) : null
+          <Button variant="secondary" label={t("common.back")} onPress={() => setStep("details")} />
+        ) : undefined
       }
       headerAction={
         onRemove && step === "details" ? (

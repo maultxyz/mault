@@ -8,6 +8,7 @@ export const THEME_PREFERENCE_KEY = "mault.theme-preference";
 export const LANGUAGE_PREFERENCE_KEY = "mault.language-preference";
 export const CAMERA_DEVICE_KEY = "mault.camera-device";
 export const HAND_SCAN_KEY = "mault.hand-scan";
+export const SCAN_TIPS_SEEN_KEY = "mault.scan-tips-seen";
 export const REVIEW_LAYOUT_KEY = "mault.review-layout";
 export const SCAN_TARGET_COLLECTIONS_KEY = "mault.scan-target-collections";
 export const MATCH_VALIDATION_GUIDE_SEEN_KEY = "mault.match-validation-guide-seen";

@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { IconBadge } from "@/components/ui/icon-badge";
+import { SwipeRowActions } from "@/components/ui/swipe-row-actions";
 import { longPressProps } from "@/lib/long-press";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
@@ -23,11 +25,13 @@ export function ListRow({
   disabled = false,
   selected,
   subtitleNumberOfLines = 2,
+  swipeDestructiveAction,
 }: ListRowProps) {
+  const { t } = useTranslation();
   const colors = useTheme();
   const destructive = tone === "destructive";
   const longPressHandlers = longPressProps(onLongPress, longPressLabel);
-  return (
+  const row = (
     <Pressable
       accessible={!rightIsInteractive}
       accessibilityRole={onPress ? "button" : undefined}
@@ -68,5 +72,14 @@ export function ListRow({
         <Icon name="chevron" size={16} color={colors.foregroundSecondary} />
       ) : null}
     </Pressable>
+  );
+  if (disabled) return row;
+  return (
+    <SwipeRowActions
+      moreAction={onLongPress ? { label: longPressLabel ?? t("listRow.moreActions"), onPress: onLongPress } : undefined}
+      destructiveAction={swipeDestructiveAction}
+    >
+      {row}
+    </SwipeRowActions>
   );
 }

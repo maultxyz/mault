@@ -129,6 +129,12 @@ test("pick-list plans expose one common progress update", () => {
     context({ scanOnly: false }, { configs: [picked] }),
   );
   assert.equal(plan.record.binNumber, 1);
+  assert.equal(plan.persistence.kind, "cards");
+  assert.deepEqual(plan.persistence.record.pickListUpdate, {
+    binGuid: "bin",
+    name: card.name,
+    delta: 1,
+  });
   assert.deepEqual(plan.pickListUpdate, {
     binGuid: "bin",
     binNumber: 1,

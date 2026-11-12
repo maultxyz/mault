@@ -5,14 +5,13 @@ import { router, useLocalSearchParams, useNavigation, usePreventRemove } from "e
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { AccessibilityInfo, Alert, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
   CARD_TAGS,
   cardTagsSetOn,
-  type CardTag,
   cardFoilTypeOptions,
   cardStampOptionsFor,
   DEFAULT_CARD_CONDITION,
@@ -24,6 +23,7 @@ import {
   type ScanDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
+import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
@@ -38,10 +38,14 @@ import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
+import { useDeferredCardRemoval } from "@/features/cards/api/use-deferred-card-removal";
+import { restoreCardCaches, setCardTagsInCaches, snapshotCardCaches } from "@/features/cards/lib/card-list-cache";
+import { useToast } from "@/components/ui/toast-provider";
 import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
-import type { CardDetailSheet, MatchesOpenState } from "@/lib/interfaces/cards";
+import { CardDetailSkeleton, PricePaidFieldSkeleton } from "@/features/cards/components/card-detail-skeleton";
+import type { CardDetailSheet, CardTagToggle, MatchesOpenState } from "@/lib/interfaces/cards";
 import type { IconName } from "@/lib/interfaces/ui";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
@@ -55,7 +59,6 @@ import {
   setCollectionCardTags,
   collectionCardQueryOptions,
   invalidateCollectionCards,
-  removeCollectionCard,
   scanImageQueryOptions,
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
@@ -66,17 +69,19 @@ import {
   cardStorageLocationQueryOptions,
   fetchFirstUnreviewedStorageCard,
   moveCardsToStorageLocation,
+  removeCardsFromStorageLocations,
   storageLocationCardContextQueryOptions,
   storageLocationsQueryOptions,
 } from "@/features/storage/api/storage";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
-import { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
+import { CARD_DETAIL_HEADER_ACTION_COUNT, CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { PAGE_HEADER_ICON_BUTTON_SIZE, TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
 import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -96,6 +101,7 @@ export default function CardDetailScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const position = useQuery({
     ...collectionCardQueryOptions(guid, scanId, reviewMode && !storageReview),
     placeholderData: reviewMode ? undefined : () => cachedCollectionCardPosition(queryClient, guid, scanId),
@@ -220,37 +226,88 @@ export default function CardDetailScreen() {
     mutationFn: ({ kind, acceptedScanId }: { kind: "confirm" | "review"; acceptedScanId: string }) =>
       updateCollectionCard(guid, acceptedScanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
     onSettled: () => invalidateCollectionCards(queryClient, guid),
-    onError: (error) => Alert.alert(t("cardDetail.saveFailed"), error instanceof Error ? error.message : undefined),
+    onError: (_error, variables) =>
+      showToast({
+        message: t("cardDetail.saveFailed"),
+        tone: "destructive",
+        action: { label: t("recovery.retry"), onPress: () => acceptInBackground.mutate(variables) },
+      }),
   });
 
   const toggleTag = useMutation({
-    mutationFn: (tag: CardTag) =>
-      setCollectionCardTags(guid, { scanIds: [scanId], tags: [tag], enabled: !tagsSet.includes(tag) }),
+    mutationFn: ({ tag, enabled }: CardTagToggle) =>
+      setCollectionCardTags(guid, { scanIds: [scanId], tags: [tag], enabled }),
+    onMutate: async ({ tag, enabled }: CardTagToggle) => {
+      await queryClient.cancelQueries({ queryKey: ["collection-card", guid] });
+      const snapshot = snapshotCardCaches(queryClient, guid);
+      setCardTagsInCaches(queryClient, guid, [scanId], [tag], enabled);
+      return { snapshot };
+    },
+    onSuccess: (_result, toggle) => {
+      if (toggle.isUndo) {
+        AccessibilityInfo.announceForAccessibility(t("recovery.restored"));
+        return;
+      }
+      showToast({
+        message: t(toggle.enabled ? "recovery.tagAdded" : "recovery.tagRemoved", { tag: t(`cardTags.names.${toggle.tag}`) }),
+        durationMs: TOAST_UNDO_DURATION_MS,
+        action: {
+          label: t("recovery.undo"),
+          onPress: () => toggleTag.mutate({ tag: toggle.tag, enabled: !toggle.enabled, isUndo: true }),
+        },
+      });
+    },
+    onError: (_error, toggle, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+      showToast({
+        message: t("cardTags.saveFailed"),
+        tone: "destructive",
+        action: { label: t("recovery.retry"), onPress: () => toggleTag.mutate(toggle) },
+      });
+    },
     onSettled: () => invalidateCollectionCards(queryClient, guid),
-    onError: (error) => Alert.alert(t("cardTags.saveFailed"), error instanceof Error ? error.message : undefined),
   });
 
-  const remove = useMutation({
-    mutationFn: () => removeCollectionCard(guid, scanId),
-    onSuccess: () => {
-      invalidateCollectionCards(queryClient, guid);
-      void queryClient.invalidateQueries({ queryKey: ["collections"] });
-      router.back();
-    },
-  });
+  const removeCardsWithUndo = useDeferredCardRemoval();
 
   const { targetCollections, moveToCollection } = useMoveCardsToCollection({
     sourceCollectionGuid: guid,
     onMoved: () => router.back(),
   });
 
+  const refreshAfterLocationChange = () => {
+    void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
+    invalidateCollectionCards(queryClient, guid);
+  };
+
+  const restoreLocation = useMutation({
+    mutationFn: (previousLocationGuid: string | null) =>
+      previousLocationGuid
+        ? moveCardsToStorageLocation(previousLocationGuid, [scanId])
+        : removeCardsFromStorageLocations([scanId]).then(() => undefined),
+    onSuccess: () => AccessibilityInfo.announceForAccessibility(t("recovery.restored")),
+    onError: () => showToast({ message: t("recovery.undoFailed"), tone: "destructive" }),
+    onSettled: refreshAfterLocationChange,
+  });
+
   const moveToLocation = useMutation({
     mutationFn: (locationGuid: string) => moveCardsToStorageLocation(locationGuid, [scanId]),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
-      invalidateCollectionCards(queryClient, guid);
+    onMutate: () => ({ previousLocationGuid: storage.data?.guid ?? null }),
+    onSuccess: (_result, locationGuid, context) => {
+      refreshAfterLocationChange();
+      const locationName = (locations.data ?? []).find((location) => location.guid === locationGuid)?.name ?? "";
+      showToast({
+        message: t("recovery.movedTo", { name: locationName }),
+        durationMs: TOAST_UNDO_DURATION_MS,
+        action: { label: t("recovery.undo"), onPress: () => restoreLocation.mutate(context.previousLocationGuid) },
+      });
     },
-    onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
+    onError: (_error, locationGuid) =>
+      showToast({
+        message: t("storage.actionFailed"),
+        tone: "destructive",
+        action: { label: t("recovery.retry"), onPress: () => moveToLocation.mutate(locationGuid) },
+      }),
   });
 
   const actionMenuOptions = [
@@ -316,11 +373,10 @@ export default function CardDetailScreen() {
     router.replace({ pathname: "/review-grid", params: storageReview ? { storage: storageGuid } : { guid } });
   };
 
-  const confirmRemove = () =>
-    Alert.alert(t("cardDetail.removeConfirmTitle"), t("cardDetail.removeConfirmDescription"), [
-      { text: t("cardDetail.cancel"), style: "cancel" },
-      { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
-    ]);
+  const removeWithUndo = () => {
+    removeCardsWithUndo({ collectionGuid: guid, scanIds: [scanId] });
+    router.back();
+  };
 
   const attributePill = (icon: IconName, fieldLabel: string, value: string, menuSheet: CardDetailSheet) => (
     <Pressable
@@ -362,7 +418,6 @@ export default function CardDetailScreen() {
       <PageHeader
         title={editing ? t("cardDetail.correctCard") : undefined}
         subtitle={editing ? card?.name : undefined}
-        onBack={editing ? () => setEditing(false) : undefined}
         actions={
           !editing && entry ? (
             <View style={{ flexDirection: "row", gap: SPACING.sm }}>
@@ -372,8 +427,14 @@ export default function CardDetailScreen() {
               {reviewMode ? null : (
                 <IconButton icon="edit" accessibilityLabel={t("cardDetail.correctCard")} onPress={() => setEditing(true)} />
               )}
-              <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+              <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={removeWithUndo} />
               <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
+            </View>
+          ) : !editing && position.isPending ? (
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              {Array.from({ length: CARD_DETAIL_HEADER_ACTION_COUNT }).map((_, index) => (
+                <Skeleton key={index} width={PAGE_HEADER_ICON_BUTTON_SIZE} height={PAGE_HEADER_ICON_BUTTON_SIZE} radius={RADIUS.full} />
+              ))}
             </View>
           ) : null
         }
@@ -382,10 +443,41 @@ export default function CardDetailScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.xl }}
       >
-        {position.isError ? <Callout tone="destructive" title={t("cardDetail.loadFailed")} /> : null}
-        {remove.isError ? <Callout tone="destructive" title={t("cardDetail.removeFailed")} /> : null}
-        {saveDraft.isError || markCorrect.isError ? (
-          <Callout tone="destructive" title={t("cardDetail.saveFailed")} />
+        {position.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("cardDetail.loadFailed")}
+            action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void position.refetch()} />}
+          />
+        ) : null}
+        {saveDraft.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("cardDetail.saveFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                loading={saveDraft.isPending}
+                onPress={form.handleSubmit((values) => saveDraft.mutate(values))}
+              />
+            }
+          />
+        ) : markCorrect.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("cardDetail.saveFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                loading={markCorrect.isPending}
+                onPress={() => markCorrect.variables && markCorrect.mutate(markCorrect.variables)}
+              />
+            }
+          />
         ) : null}
 
         {editing && card ? (
@@ -395,6 +487,8 @@ export default function CardDetailScreen() {
             disabled={correction.isPending}
             onSelect={(selected) => void applyCorrection(selected)}
           />
+        ) : !card && position.isPending ? (
+          <CardDetailSkeleton showsCapturedScan={showCaptured} />
         ) : (
           <>
             <View style={{ gap: SPACING.xs }}>
@@ -567,12 +661,6 @@ export default function CardDetailScreen() {
               <CollapsibleSection title={t("cardDetail.details")} initiallyOpen>
                 <CardDetailsList card={card} binNumber={entry?.binNumber} />
               </CollapsibleSection>
-            ) : position.isPending ? (
-              <View style={{ gap: SPACING.sm }}>
-                <Skeleton height={16} width="60%" />
-                <Skeleton height={16} width="45%" />
-                <Skeleton height={16} width="55%" />
-              </View>
             ) : null}
 
             {card ? (
@@ -595,11 +683,13 @@ export default function CardDetailScreen() {
                       errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
                     }
                   />
+                ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
+                  <PricePaidFieldSkeleton />
                 ) : null}
               </CollapsibleSection>
             ) : null}
 
-            {hasScanOrigin || entry?.binNumber != null ? (
+            {hasScanOrigin || entry?.binNumber != null || (entry && origin.isLoading) ? (
               <CollapsibleSection title={t("cardDetail.thisScan")}>
                 {origin.data && hasScanOrigin ? (
                   <ListGroup>
@@ -676,12 +766,18 @@ export default function CardDetailScreen() {
         </View>
       ) : null}
 
-      <SaveBar
-        visible={isDirty}
-        saving={saveDraft.isPending}
-        onSave={form.handleSubmit((values) => saveDraft.mutate(values))}
-        onDiscard={() => form.reset()}
-      />
+      {editing ? (
+        <BottomActionBar>
+          <Button variant="secondary" label={t("common.cancel")} onPress={() => setEditing(false)} />
+        </BottomActionBar>
+      ) : (
+        <SaveBar
+          visible={isDirty}
+          saving={saveDraft.isPending}
+          onSave={form.handleSubmit((values) => saveDraft.mutate(values))}
+          onDiscard={() => form.reset()}
+        />
+      )}
 
       <OptionSheet
         visible={sheet === "actions"}
@@ -749,7 +845,7 @@ export default function CardDetailScreen() {
         onSelect={(value) => {
           setSheet(null);
           const tag = CARD_TAGS.find((candidate) => candidate === value);
-          if (tag) toggleTag.mutate(tag);
+          if (tag) toggleTag.mutate({ tag, enabled: !tagsSet.includes(tag) });
         }}
         onClose={() => setSheet(null)}
       />

@@ -81,6 +81,14 @@ export interface ScanTarget {
 
 export type CollectionScanTimeline = "off" | ScanTimelineGrouping;
 
+export interface CollectionCardsQueryInput {
+  search: string;
+  sort: string | null;
+  filters: CardFilters;
+  grouped: boolean;
+  scanTimeline: CollectionScanTimeline;
+}
+
 export type ScanTimelineListRow =
   | { kind: "header"; key: string; bucketKey: string; cardCount: number }
   | { kind: "cards"; key: string; cards: GroupedScannedCard[] };
