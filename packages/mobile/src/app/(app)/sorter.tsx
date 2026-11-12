@@ -36,20 +36,21 @@ export default function SorterScreen() {
         <PageHeader
           title={sorter.device?.name ?? t("tabs.sorter")}
           onBack={() => router.back()}
-          subtitle={
-            sorter.firmwareVersion
-              ? t("sorter.firmware", { version: sorter.firmwareVersion, board: sorter.board ?? "?" })
-              : null
-          }
-          actions={
-            <>
-              {busy ? <LoadingLogo size={LOADING_LOGO_INLINE_SIZE} accessibilityLabel={t("common.loading")} /> : null}
-              <Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />
-            </>
-          }
         />
       }
     >
+      <View
+        accessibilityLiveRegion="polite"
+        style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: SPACING.sm }}
+      >
+        <Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />
+        {busy ? <LoadingLogo size={LOADING_LOGO_INLINE_SIZE} accessibilityLabel={t("common.loading")} /> : null}
+        {sorter.firmwareVersion ? (
+          <AppText size="xs" tone="secondary">
+            {t("sorter.firmware", { version: sorter.firmwareVersion, board: sorter.board ?? "?" })}
+          </AppText>
+        ) : null}
+      </View>
       {!connected && !sorter.error ? <AppText tone="secondary">{t("sorter.connectHint")}</AppText> : null}
 
       {sorter.error ? (
