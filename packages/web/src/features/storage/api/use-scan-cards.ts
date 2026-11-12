@@ -1,3 +1,13 @@
+import { assertHardwareAllowedWhileImpersonating } from "@/lib/auth/impersonation";
+import {
+  acquireStream,
+  stopMediaStream,
+} from "@/features/scanner/lib/camera-stream";
+import {
+  acquirePiRelayStream,
+  drawPiRelayFrame,
+} from "@/features/scanner/lib/pi-camera";
+import { loadPiHost } from "@/lib/pi-host";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -18,7 +28,27 @@ import {
   scanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+export async function acquireStorageScanStream(
+  signal?: AbortSignal,
+): Promise<MediaStream> {
+  assertHardwareAllowedWhileImpersonating();
+  const piHost = await loadPiHost();
+  if (signal?.aborted)
+    throw new DOMException("Camera acquisition cancelled", "AbortError");
+  const stream = await (piHost
+    ? acquirePiRelayStream()
+    : acquireStream(undefined, true));
+  if (signal?.aborted) {
+    stopMediaStream(stream);
+    throw new DOMException("Camera acquisition cancelled", "AbortError");
+  }
+  signal?.addEventListener("abort", () => stopMediaStream(stream), {
+    once: true,
+  });
+  return stream;
+}
 
 export function useScanCards(source: ScanCardsSource): ScanCards {
   const { activeOrg } = useOrg();
@@ -36,6 +66,25 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
     source.checkedScanIds,
   );
 
+  const runId = useRef(0);
+  const mounted = useRef(true);
+  const scanning = useRef(false);
+  const scope = `${activeOrg?.id ?? ""}:${scanCollectionGuid ?? ""}`;
+  const latestScope = useRef(scope);
+  latestScope.current = scope;
+
+  useEffect(() => {
+    runId.current++;
+    mounted.current = true;
+    scanning.current = false;
+    setIsScanning(false);
+    return () => {
+      mounted.current = false;
+    };
+  }, [scope]);
+
+  useEffect(() => setResult(null), [activeOrg?.id]);
+
   const showResult = (next: Omit<ScanCardsResult, "resultId">) => {
     resultId.current += 1;
     setResult({ ...next, resultId: resultId.current });
@@ -45,24 +94,41 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
     video: HTMLVideoElement,
     canvas: HTMLCanvasElement,
   ) => {
-    if (!scanCollectionGuid || !video.videoWidth || !video.videoHeight) return;
+    if (!scanCollectionGuid || scanning.current) return;
+    const capturedScope = scope;
+    const capturedStream = video.srcObject;
+    const currentRun = ++runId.current;
+    const isCurrent = () =>
+      mounted.current &&
+      currentRun === runId.current &&
+      latestScope.current === capturedScope &&
+      video.srcObject === capturedStream;
     const drawFrame = () => {
+      if (!isCurrent()) return false;
+      if (drawPiRelayFrame(capturedStream as MediaStream | null, canvas))
+        return true;
+      if (!video.videoWidth || !video.videoHeight) return false;
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext("2d")?.drawImage(video, 0, 0);
+      return true;
     };
     const scanCollection = collections.find(
       (collection) => collection.guid === scanCollectionGuid,
     );
     const gameKey = scanCollection?.game?.key ?? "";
-    drawFrame();
+    if (!drawFrame()) return;
+    scanning.current = true;
     setIsScanning(true);
     try {
       const { searchCardImageWithConsensus } =
         await import("@/features/scanner/lib/card-image-search");
+      if (!isCurrent()) return;
       const outcome = await searchCardImageWithConsensus(
         canvas,
-        drawFrame,
+        () => {
+          drawFrame();
+        },
         null,
         { collectionGuid: scanCollectionGuid },
         scanOcrMode(
@@ -74,6 +140,7 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
         SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
         gameKey || undefined,
       );
+      if (!isCurrent()) return;
       if (!outcome.card) {
         showResult({ kind: "no-match" });
         return;
@@ -98,9 +165,12 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
         position: match.card.position,
       });
     } catch {
-      showResult({ kind: "failed" });
+      if (isCurrent()) showResult({ kind: "failed" });
     } finally {
-      setIsScanning(false);
+      if (currentRun === runId.current) {
+        scanning.current = false;
+        if (mounted.current) setIsScanning(false);
+      }
     }
   };
 
