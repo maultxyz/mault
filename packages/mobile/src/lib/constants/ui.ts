@@ -50,5 +50,7 @@ export const LIST_SKELETON_TITLE_WIDTHS = ["55%", "45%", "35%"] as const;
 export const PILL_MIN_HEIGHT = 20;
 export const SHEET_MAX_HEIGHT_RATIO = 0.85;
 export const IOS_SHEET_TOP_PADDING = 24;
+
+export const SHEET_HEADER_SIDE_MIN_WIDTH = 36;
 export const ANDROID_SHEET_TOP_PADDING = 0;
 export const SHEET_DISMISS_FALLBACK_MS = 1000;

@@ -47,14 +47,28 @@ export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory,
             {usesNativeHeader ? (
               <View style={{ flex: 1 }} />
             ) : (
-              <AppText size="lg" heading weight="semibold" numberOfLines={2} accessibilityRole="header" style={{ flex: 1, minWidth: 0 }}>
+              <AppText
+                size="lg"
+                heading
+                weight="semibold"
+                numberOfLines={2}
+                accessibilityRole="header"
+                style={{ flex: 1, minWidth: 0, textAlign: isPresentedAsSheet ? "center" : "auto" }}
+              >
                 {title}
               </AppText>
             )}
             {titleAccessory}
           </View>
           {subtitle ? (
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: isPresentedAsSheet ? "center" : "flex-start",
+                gap: 6,
+              }}
+            >
               {subtitleAccessory}
               <AppText size="xs" tone="secondary" numberOfLines={1} style={{ flexShrink: 1 }}>
                 {subtitle}
