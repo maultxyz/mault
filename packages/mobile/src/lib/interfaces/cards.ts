@@ -158,3 +158,13 @@ export interface OcrRegionCropsProps {
   imageUrl: string;
   regions: OcrOverlayRegion[];
 }
+
+export interface CardDetailSkeletonProps {
+  showsCapturedScan: boolean;
+}
+
+export interface SkeletonTextLineProps {
+  fontSize: number;
+  lineHeight: number;
+  width: number | `${number}%`;
+}

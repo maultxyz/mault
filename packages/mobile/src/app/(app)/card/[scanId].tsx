@@ -42,6 +42,7 @@ import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
+import { CardDetailSkeleton, PricePaidFieldSkeleton } from "@/features/cards/components/card-detail-skeleton";
 import type { CardDetailSheet, MatchesOpenState } from "@/lib/interfaces/cards";
 import type { IconName } from "@/lib/interfaces/ui";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
@@ -73,11 +74,12 @@ import {
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
-import { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
+import { CARD_DETAIL_HEADER_ACTION_COUNT, CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { PAGE_HEADER_ICON_BUTTON_SIZE } from "@/lib/constants/ui";
 import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -375,6 +377,12 @@ export default function CardDetailScreen() {
               <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
               <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
             </View>
+          ) : !editing && position.isPending ? (
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              {Array.from({ length: CARD_DETAIL_HEADER_ACTION_COUNT }).map((_, index) => (
+                <Skeleton key={index} width={PAGE_HEADER_ICON_BUTTON_SIZE} height={PAGE_HEADER_ICON_BUTTON_SIZE} radius={RADIUS.full} />
+              ))}
+            </View>
           ) : null
         }
       />
@@ -395,6 +403,8 @@ export default function CardDetailScreen() {
             disabled={correction.isPending}
             onSelect={(selected) => void applyCorrection(selected)}
           />
+        ) : !card && position.isPending ? (
+          <CardDetailSkeleton showsCapturedScan={showCaptured} />
         ) : (
           <>
             <View style={{ gap: SPACING.xs }}>
@@ -567,12 +577,6 @@ export default function CardDetailScreen() {
               <CollapsibleSection title={t("cardDetail.details")} initiallyOpen>
                 <CardDetailsList card={card} binNumber={entry?.binNumber} />
               </CollapsibleSection>
-            ) : position.isPending ? (
-              <View style={{ gap: SPACING.sm }}>
-                <Skeleton height={16} width="60%" />
-                <Skeleton height={16} width="45%" />
-                <Skeleton height={16} width="55%" />
-              </View>
             ) : null}
 
             {card ? (
@@ -595,11 +599,13 @@ export default function CardDetailScreen() {
                       errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
                     }
                   />
+                ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
+                  <PricePaidFieldSkeleton />
                 ) : null}
               </CollapsibleSection>
             ) : null}
 
-            {hasScanOrigin || entry?.binNumber != null ? (
+            {hasScanOrigin || entry?.binNumber != null || (entry && origin.isLoading) ? (
               <CollapsibleSection title={t("cardDetail.thisScan")}>
                 {origin.data && hasScanOrigin ? (
                   <ListGroup>
