@@ -42,7 +42,7 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       CARD_API_USER_AGENT: ${{ vars.CARD_API_USER_AGENT }}
-      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_PRICE_SYNC_WEBHOOK_URL || secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_CATALOG_SYNC_WEBHOOK_URL || secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
     steps:
       - name: Check secrets
         run: |
@@ -55,7 +55,7 @@ jobs:
             exit 1
           fi
           if [ -z "$DISCORD_WEBHOOK_URL" ]; then
-            echo "::warning::Neither DISCORD_PRICE_SYNC_WEBHOOK_URL nor DISCORD_DEPLOY_WEBHOOK_URL is set, so the price update won't be posted to Discord."
+            echo "::warning::Neither DISCORD_CATALOG_SYNC_WEBHOOK_URL nor DISCORD_DEPLOY_WEBHOOK_URL is set, so the price update won't be posted to Discord."
           fi
 
       - name: Checkout
