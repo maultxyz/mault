@@ -1,4 +1,4 @@
-import { usePathname } from "expo-router";
+import { useRoutePath } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Platform, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -15,7 +15,7 @@ export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory,
   const colors = useTheme();
   const actionRow = actions ? <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>{actions}</View> : null;
 
-  const isPresentedAsSheet = SHEET_ROUTE_PATTERN.test(usePathname());
+  const isPresentedAsSheet = SHEET_ROUTE_PATTERN.test(useRoutePath().split("?")[0]);
   const usesNativeHeader = !!onBack && !isPresentedAsSheet;
   const nativeHeader = usesNativeHeader ? <NativeStackHeader title={title ?? ""} actions={actionRow} /> : null;
   if (usesNativeHeader && !subtitle && !titleAccessory && !tabs && !children) return nativeHeader;
