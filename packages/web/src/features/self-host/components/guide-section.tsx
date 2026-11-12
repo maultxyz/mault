@@ -19,7 +19,7 @@ export function SelfHostGuideSection({
   return (
     <section
       id={section.key}
-      className="mx-auto max-w-4xl scroll-mt-14 px-4 py-10"
+      className="mx-auto max-w-6xl scroll-mt-14 px-4 py-12 md:py-16"
     >
       <GuideSectionHeader
         id={section.key}

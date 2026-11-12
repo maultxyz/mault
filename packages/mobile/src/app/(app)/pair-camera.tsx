@@ -53,6 +53,9 @@ export default function PairCameraScreen() {
         />
       ) : device ? (
         <View
+          accessible
+          accessibilityRole="image"
+          accessibilityLabel={t("scan.cameraPreview")}
           style={{
             width: "100%",
             aspectRatio: 1,
@@ -61,7 +64,9 @@ export default function PairCameraScreen() {
             backgroundColor: colors.camera,
           }}
         >
-          <Camera style={StyleSheet.absoluteFill} device={device} isActive={active} outputs={scanner.outputs} resizeMode="cover" />
+          {focused ? (
+            <Camera style={StyleSheet.absoluteFill} device={device} isActive={active} outputs={scanner.outputs} resizeMode="cover" />
+          ) : null}
           <View
             pointerEvents="none"
             style={{

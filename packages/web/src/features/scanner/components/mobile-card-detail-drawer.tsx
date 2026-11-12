@@ -132,6 +132,7 @@ function MobileCardDetailBody({
       storageLocation={entry.storageLocation}
       isFoil={entry.isFoil}
       foilType={entry.foilType}
+      stamp={entry.stamp}
       condition={entry.condition}
       language={entry.language}
       binNumber={entry.binNumber}

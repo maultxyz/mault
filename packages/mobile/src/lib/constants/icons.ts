@@ -6,8 +6,27 @@ import IconAlertTriangle from "@tabler/icons-react-native/IconAlertTriangle";
 import IconArrowDown from "@tabler/icons-react-native/IconArrowDown";
 import IconArrowsSplit2 from "@tabler/icons-react-native/IconArrowsSplit2";
 import IconBell from "@tabler/icons-react-native/IconBell";
+import IconSend from "@tabler/icons-react-native/IconSend";
+import IconDatabaseCog from "@tabler/icons-react-native/IconDatabaseCog";
+import IconCreditCard from "@tabler/icons-react-native/IconCreditCard";
+import IconRestore from "@tabler/icons-react-native/IconRestore";
+import IconKey from "@tabler/icons-react-native/IconKey";
+import IconUserScan from "@tabler/icons-react-native/IconUserScan";
+import IconSpeakerphone from "@tabler/icons-react-native/IconSpeakerphone";
+import IconHash from "@tabler/icons-react-native/IconHash";
+import IconCopy from "@tabler/icons-react-native/IconCopy";
+import IconDatabase from "@tabler/icons-react-native/IconDatabase";
+import IconDownload from "@tabler/icons-react-native/IconDownload";
+import IconUsers from "@tabler/icons-react-native/IconUsers";
+import IconDeviceGamepad2 from "@tabler/icons-react-native/IconDeviceGamepad2";
+import IconShare from "@tabler/icons-react-native/IconShare";
+import IconBuildingStore from "@tabler/icons-react-native/IconBuildingStore";
+import IconBolt from "@tabler/icons-react-native/IconBolt";
+import IconBoltOff from "@tabler/icons-react-native/IconBoltOff";
+import IconStar from "@tabler/icons-react-native/IconStar";
 import IconClock from "@tabler/icons-react-native/IconClock";
 import IconArrowsShuffle from "@tabler/icons-react-native/IconArrowsShuffle";
+import IconSwitchHorizontal from "@tabler/icons-react-native/IconSwitchHorizontal";
 import IconLanguage from "@tabler/icons-react-native/IconLanguage";
 import IconHeartbeat from "@tabler/icons-react-native/IconHeartbeat";
 import IconDeviceDesktop from "@tabler/icons-react-native/IconDeviceDesktop";
@@ -37,6 +56,7 @@ import IconCircleCheck from "@tabler/icons-react-native/IconCircleCheck";
 import IconCircleX from "@tabler/icons-react-native/IconCircleX";
 import IconCpu from "@tabler/icons-react-native/IconCpu";
 import IconDots from "@tabler/icons-react-native/IconDots";
+import IconMenu2 from "@tabler/icons-react-native/IconMenu2";
 import IconExternalLink from "@tabler/icons-react-native/IconExternalLink";
 import IconEye from "@tabler/icons-react-native/IconEye";
 import IconHeartRateMonitor from "@tabler/icons-react-native/IconHeartRateMonitor";
@@ -44,6 +64,7 @@ import IconHome from "@tabler/icons-react-native/IconHome";
 import IconHelpCircle from "@tabler/icons-react-native/IconHelpCircle";
 import IconInfoCircle from "@tabler/icons-react-native/IconInfoCircle";
 import IconLayoutGrid from "@tabler/icons-react-native/IconLayoutGrid";
+import IconCards from "@tabler/icons-react-native/IconCards";
 import IconLogout from "@tabler/icons-react-native/IconLogout";
 import IconPencil from "@tabler/icons-react-native/IconPencil";
 import IconPlayerPause from "@tabler/icons-react-native/IconPlayerPause";
@@ -69,11 +90,13 @@ export const ICONS = {
   adjust: IconAdjustments,
   connection: IconPlugConnected,
   layout: IconLayoutGrid,
+  multiCard: IconCards,
   test: IconTestPipe,
   arrowDown: IconArrowDown,
   back: IconChevronLeft,
   bell: IconBell,
   shuffle: IconArrowsShuffle,
+  switchSides: IconSwitchHorizontal,
   language: IconLanguage,
   health: IconHeartbeat,
   desktop: IconDeviceDesktop,
@@ -88,6 +111,10 @@ export const ICONS = {
   wifi: IconWifi,
   discord: IconBrandDiscord,
   camera: IconCamera,
+  share: IconShare,
+  store: IconBuildingStore,
+  torchOn: IconBolt,
+  torchOff: IconBoltOff,
   check: IconCheck,
   checkAll: IconChecks,
   chevron: IconChevronRight,
@@ -105,6 +132,7 @@ export const ICONS = {
   info: IconInfoCircle,
   live: IconBroadcast,
   logout: IconLogout,
+  menu: IconMenu2,
   monitor: IconHeartRateMonitor,
   more: IconDots,
   edit: IconPencil,
@@ -119,6 +147,7 @@ export const ICONS = {
   filter: IconFilter,
   condition: IconShieldCheck,
   sparkles: IconSparkles,
+  stamp: IconStar,
   selfTest: IconChecks,
   sorter: IconCpu,
   stats: IconChartBar,
@@ -129,6 +158,19 @@ export const ICONS = {
   trophy: IconTrophy,
   viewers: IconEye,
   warning: IconAlertTriangle,
+  admin: IconDatabaseCog,
+  plans: IconCreditCard,
+  restore: IconRestore,
+  key: IconKey,
+  impersonate: IconUserScan,
+  announcement: IconSpeakerphone,
+  channel: IconHash,
+  copy: IconCopy,
+  database: IconDatabase,
+  download: IconDownload,
+  users: IconUsers,
+  game: IconDeviceGamepad2,
+  send: IconSend,
 } as const;
 
 export const ICON_STROKE_WIDTH = 2;

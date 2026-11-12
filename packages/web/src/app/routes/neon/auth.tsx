@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BrandMark } from "@/components/brand-mark";
 import { neon } from "@/lib/auth/client";
 import { NEON_SOCIAL_PROVIDERS } from "@/lib/constants/auth";
@@ -5,10 +6,20 @@ import {
   AuthView,
   NeonAuthUIProvider,
 } from "@neondatabase/neon-js/auth/react/ui";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 export default function AuthPage() {
+  const { t } = useTranslation("auth");
   const { path } = useParams();
+  const headingKey =
+    path === "sign-up"
+      ? "local.signUpTitle"
+      : path === "forgot-password"
+        ? "local.forgotPasswordTitle"
+        : path === "reset-password"
+          ? "local.resetPasswordTitle"
+          : "local.signInTitle";
 
   return (
     <NeonAuthUIProvider
@@ -21,7 +32,12 @@ export default function AuthPage() {
       }}
       social={{ providers: [...NEON_SOCIAL_PROVIDERS] }}
     >
-      <div className="bg-muted flex min-h-screen flex-col items-center justify-center gap-6 p-4">
+      <main
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+        className="bg-muted flex min-h-screen flex-col items-center justify-center gap-6 p-4 outline-none"
+      >
+        <h1 className="sr-only">{t(headingKey)}</h1>
         <BrandMark />
         <AuthView
           path={path}
@@ -46,7 +62,7 @@ export default function AuthPage() {
             },
           }}
         />
-      </div>
+      </main>
     </NeonAuthUIProvider>
   );
 }

@@ -67,7 +67,7 @@ export const deleteCardHandler: Handler<ApiKeyEnv> = async (c) => {
   );
   if (!deleted)
     return apiError(c, 404, "not_found", PUBLIC_API_CARD_NOT_FOUND);
-  deleteScanImages([deleted.imageKey]);
+  deleteScanImages([deleted.imageKey, deleted.backImageKey]);
   emitToSession(deleted.collectionGuid, "card_removed", {
     scanId: params.data.id,
   });

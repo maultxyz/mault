@@ -31,6 +31,7 @@ export function ScannerLayoutToggle({ value, onChange }: ScannerLayoutToggleProp
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
+            aria-pressed={isSelected}
             className={cn(
               "flex flex-col items-center gap-1.5 rounded-lg border p-3 w-36 transition-all text-left",
               isSelected

@@ -1,4 +1,3 @@
-import { DeleteDialog } from "@/components/delete-dialog";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
@@ -16,6 +15,7 @@ import {
   useStoredCardActions,
 } from "@/features/storage/api/use-storage-locations";
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
+import { RemoveFromLocationDialog } from "@/features/storage/components/remove-from-location-dialog";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
@@ -28,11 +28,14 @@ import { useTranslation } from "react-i18next";
 
 export function StorageCardDetail({
   location,
+  cardsQuery,
   scanId,
   reviewMode,
   onNavigate,
   onShowReviewGrid,
   onClose,
+  onReviewed,
+  onRemoved,
 }: StorageCardDetailProps) {
   const { t } = useTranslation("cards");
   const { t: tStorage } = useTranslation("storage");
@@ -43,8 +46,14 @@ export function StorageCardDetail({
   const [moveOpen, setMoveOpen] = useState(false);
   const queryClient = useQueryClient();
   const { collections } = useCollections();
+  const navigationQuery = reviewMode ? ALL_CARDS_QUERY : cardsQuery;
   const { data: context, isPending } = useQuery(
-    storageLocationCardContextQueryOptions(location.guid, scanId, reviewMode),
+    storageLocationCardContextQueryOptions(
+      location.guid,
+      scanId,
+      reviewMode,
+      navigationQuery,
+    ),
   );
 
   const stored = context?.card;
@@ -96,6 +105,7 @@ export function StorageCardDetail({
           location.guid,
           neighbor.scanId,
           reviewMode,
+          navigationQuery,
         ),
       );
       void queryClient.prefetchQuery(
@@ -106,7 +116,7 @@ export function StorageCardDetail({
         ),
       );
     }
-  }, [next, previous, location.guid, reviewMode, queryClient]);
+  }, [next, previous, location.guid, reviewMode, navigationQuery, queryClient]);
 
   const loadPrefetchStep = useCallback(
     async (nextScanId: string) => {
@@ -116,6 +126,7 @@ export function StorageCardDetail({
           location.guid,
           nextScanId,
           reviewMode,
+          navigationQuery,
         ),
         reviewMode,
       );
@@ -129,21 +140,29 @@ export function StorageCardDetail({
       );
       return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
     },
-    [queryClient, location.guid, reviewMode],
+    [queryClient, location.guid, reviewMode, navigationQuery],
   );
   usePrefetchDetailCards(nextScanId, true, loadPrefetchStep, reviewMode);
 
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 
   const leaveCard = () => {
-    if (reviewMode) reviewSession.forget(scanId);
+    if (reviewMode) {
+      reviewSession.forget(scanId);
+      onRemoved?.(scanId);
+    }
     if (nextScanId) onNavigate(nextScanId);
     else onClose();
   };
 
-  const removeFromLocation = () => {
+  const removeFromLocation = (alsoRemoveFromCollection: boolean) => {
     setConfirmRemoveOpen(false);
-    void removeCard(location.guid, scanId);
+    void removeCard({
+      locationGuid: location.guid,
+      scanId,
+      collectionGuid: stored.collectionGuid,
+      alsoRemoveFromCollection,
+    });
     leaveCard();
   };
 
@@ -169,6 +188,7 @@ export function StorageCardDetail({
         isDownloaded={scanned.isDownloaded}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
+        stamp={stored.stamp ?? undefined}
         condition={stored.condition}
         language={stored.language ?? undefined}
         binNumber={scanned.binNumber}
@@ -180,6 +200,7 @@ export function StorageCardDetail({
         currentIndex={context.index}
         total={total}
         reviewMode={reviewMode}
+        onReviewed={onReviewed}
         onShowReviewGrid={onShowReviewGrid}
         onReviewComplete={() => {
           toast.success(t("review.complete", { count: total }));
@@ -219,15 +240,12 @@ export function StorageCardDetail({
         onOpenChange={setMoveOpen}
         onMove={moveToLocation}
       />
-      <DeleteDialog
+      <RemoveFromLocationDialog
         open={confirmRemoveOpen}
         onOpenChange={setConfirmRemoveOpen}
-        title={tStorage("removeDialog.title", {
-          name: stored.card.name,
-          location: location.name,
-        })}
-        description={tStorage("removeDialog.description")}
-        confirmLabel={tStorage("removeDialog.confirm")}
+        cardName={stored.card.name}
+        locationName={location.name}
+        collectionName={stored.collectionName}
         focusConfirm
         onConfirm={removeFromLocation}
       />

@@ -7,6 +7,7 @@ import {
 import { sql } from "drizzle-orm";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
 import { scryfallFoilPrintingVariants } from "./foil-printings";
+import { scryfallPrintingMarkGroups } from "../../printing-marks/groups";
 import type {
   ScryfallApiCard,
 } from "../../interfaces/scryfall";
@@ -69,7 +70,14 @@ export const scryfallAdapter: CardSearchAdapter = {
     sql`, `,
   )}))`,
   excludedFromMatchingSql: sql`(data->>'digital') = 'true'`,
+  printingMarkGroups: scryfallPrintingMarkGroups,
   foilPrintingVariants: scryfallFoilPrintingVariants,
+  sourceListsNonFoilPrinting: (card) =>
+    (card.raw as ScryfallApiCard | undefined)?.finishes?.includes("nonfoil") ?? false,
+  sourceListsOnlyNonFoilPrinting: (card) => {
+    const finishes = (card.raw as ScryfallApiCard | undefined)?.finishes;
+    return !!finishes && finishes.length > 0 && finishes.every((finish) => finish === "nonfoil");
+  },
   tcgplayer: {
     categoryId: 1,
     foilTypeOfVariant: (variant) =>

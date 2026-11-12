@@ -30,7 +30,8 @@ export interface SettingsSectionLink {
     | "/settings/sounds"
     | "/settings/notifications"
     | "/settings/webhooks"
-    | "/settings/integrations";
+    | "/settings/integrations"
+    | "/settings/shop-catalogs";
   key: string;
   icon: IconName;
 }
@@ -40,6 +41,7 @@ export interface SettingsPageProps {
   isDirty: boolean;
   isSaving: boolean;
   saveError: boolean;
+  isLoading?: boolean;
   onSave: () => void;
   onDiscard: () => void;
   children: ReactNode;

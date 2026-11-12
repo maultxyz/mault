@@ -15,6 +15,13 @@ function cardImageUrl(
   return uris?.png ?? uris?.large;
 }
 
+function printingMarkImageUrl(
+  raw: Pick<ScryfallBulkCard, "image_uris" | "card_faces">,
+) {
+  const uris = raw.image_uris ?? raw.card_faces?.[0]?.image_uris;
+  return uris?.large ?? uris?.png;
+}
+
 function cardBackImageUrl(
   raw: Pick<ScryfallBulkCard, "image_uris" | "card_faces">,
 ) {
@@ -82,6 +89,7 @@ async function downloadBulkData(
       name: raw.printed_name ?? raw.name,
       setCode: raw.set,
       imageUrl: cardImageUrl(raw),
+      printingMarkImageUrl: printingMarkImageUrl(raw),
       backImageUrl: cardBackImageUrl(raw),
       data: line,
     });
@@ -114,6 +122,7 @@ async function fetchOne(id: string, baseUrl: string) {
       name: raw.name,
       setCode: raw.set,
       imageUrl: cardImageUrl(raw),
+      printingMarkImageUrl: printingMarkImageUrl(raw),
       backImageUrl: cardBackImageUrl(raw),
       data,
     },
@@ -134,7 +143,7 @@ export const scryfallSyncSource: SyncSource = {
     "it",
     "pt",
     "ja",
-    "lo",
+    "ko",
     "ru",
     "zhs",
     "zht",

@@ -16,7 +16,9 @@ export async function runScanWorkflow<Frame, Outcome>(
   const readControl = async (): Promise<ScanWorkflowResult | null> => {
     const text = await adapter.readControl(frame);
     if (!(await active())) return "stopped";
-    if (!text || !isScannerControlCode(text)) return null;
+    if (!text) return null;
+    if (!isScannerControlCode(text))
+      return (await adapter.applyOtherCode?.(text)) ? "control" : null;
     await adapter.applyControl(parseScannerControlCode(text));
     return "control";
   };

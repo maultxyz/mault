@@ -6,6 +6,7 @@ import { syncCardKingdomPrices } from "../src/lib/cardkingdom-price-sync";
 import { syncCardmarketPrices } from "../src/lib/cardmarket-price-sync";
 import {
   buildPriceSyncEmbed,
+  postDiscordWebhook,
   sendPlatformDiscordNotification,
 } from "../src/lib/discord";
 import type { PriceSyncSummary } from "../src/lib/interfaces/discord";
@@ -27,6 +28,21 @@ const syncCardKingdom = adapterEntriesForGameKeys(gameKeys).some(
 );
 
 async function notifyDiscord(summary: PriceSyncSummary): Promise<void> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (webhookUrl) {
+    try {
+      await postDiscordWebhook(webhookUrl, {
+        allowed_mentions: { parse: [] },
+        embeds: [buildPriceSyncEmbed(summary)],
+      });
+      log("Posted price update to Discord.");
+    } catch (err) {
+      console.log(
+        `::warning::Discord price update failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+    return;
+  }
   try {
     const outcome = await sendPlatformDiscordNotification(
       "pricing",
@@ -58,7 +74,7 @@ async function run(): Promise<boolean> {
   try {
     log("TCGplayer: starting.");
     const tcgplayer = await syncTcgplayerPrices({ force, gameKeys, log });
-    ok &&= tcgplayer.failedGroups === 0;
+    ok &&= tcgplayer.failedSets === 0;
     pulled ||= tcgplayer.prices > 0 || tcgplayer.products > 0;
     sources.TCGplayer =
       tcgplayer.prices > 0 || tcgplayer.products > 0
@@ -66,9 +82,9 @@ async function run(): Promise<boolean> {
             status: "updated",
             prices: tcgplayer.prices,
             products: tcgplayer.products,
-            failures: tcgplayer.failedGroups,
+            failures: tcgplayer.failedSets,
           }
-        : tcgplayer.failedGroups > 0
+        : tcgplayer.failedSets > 0
           ? { status: "failed" }
           : { status: "unchanged" };
   } catch (err) {

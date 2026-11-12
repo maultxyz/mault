@@ -32,6 +32,12 @@ export function CardTagsMenu({
   const toggle = (tag: CardTag) =>
     setCardTags(scanId, [tag], !tagsSet.includes(tag));
 
+  const triggerLabel =
+    tagsSet.length === 0
+      ? t("cardTags.edit")
+      : t("cardTags.editWithTags", {
+          tags: tagsSet.map((tag) => t(`cardTags.names.${tag}`)).join(", "),
+        });
   const triggerContent = (
     <>
       {tagsSet.length === 0
@@ -58,7 +64,7 @@ export function CardTagsMenu({
         <Button
           variant="ghost"
           className="shrink-0"
-          aria-label={t("cardTags.edit")}
+          aria-label={triggerLabel}
           onClick={() => setSheetOpen(true)}
         >
           {triggerContent}
@@ -85,7 +91,7 @@ export function CardTagsMenu({
           <Button
             variant="ghost"
             className="shrink-0"
-            aria-label={t("cardTags.edit")}
+            aria-label={triggerLabel}
           />
         }
       >

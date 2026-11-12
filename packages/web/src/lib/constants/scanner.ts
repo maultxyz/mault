@@ -1,4 +1,9 @@
-import type { StationStatus } from "@/lib/interfaces/stations";
+import type {
+  SorterLimitReason,
+  StationAttentionFix,
+  StationAttentionKind,
+  StationStatus,
+} from "@/lib/interfaces/stations";
 import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
@@ -9,7 +14,14 @@ import {
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
 import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
-import type { ScannerConnectionState } from "@/lib/interfaces/scanner";
+import type {
+  FeederCardSetup,
+  FlatbedPlacement,
+  FlatbedScanStep,
+  OnnxExecutionProviderPreference,
+  ScannerConnectionState,
+} from "@/lib/interfaces/scanner";
+import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconArrowBarToDown,
   IconBolt,
@@ -61,6 +73,10 @@ export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
 export const CAMERA_BUSY_RETRY_DELAYS_MS = [150, 400, 800];
+export const CAMERA_FALLBACK_RESOLUTIONS = [
+  { width: 1280, height: 720 },
+  { width: 640, height: 480 },
+];
 export const CAMERA_BUSY_ERROR_NAMES = new Set(["NotReadableError", "AbortError"]);
 export const PI_CAMERA_BASE = "/api/pi-camera";
 export const PI_CAMERA_DEVICE_ID = "pi-webcam";
@@ -127,6 +143,7 @@ export const SCAN_RATE_REFRESH_MS = 5_000;
 export const BIN_LEVEL_WARNING_PERCENT = 70;
 export const BIN_LEVEL_FULL_PERCENT = 90;
 
+export const SCANNER_PATH = "/app";
 export const SORTERS_OVERVIEW_PATH = "/app/sorters";
 
 export const CORRECTION_AUTO_CLOSE_TICK_MS = 100;
@@ -136,6 +153,23 @@ export const CORRECTION_TIMER_CIRCUMFERENCE =
   2 * Math.PI * CORRECTION_TIMER_RADIUS;
 
 export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
+export const SCANNER_CAMERA_FRAME_RATE = 15;
+export const SCANNER_BACKGROUND_PREVIEW_INTERVAL_MS = 1000;
+export const SCANNER_PREVIEW_FRAME_TOLERANCE_MS = 8;
+export const CPU_INFERENCE_MAX_CONNECTED_SORTERS = 1;
+export const INFERENCE_WASM_MAX_THREADS = 4;
+export const INFERENCE_WORKERS_PER_MODEL: Record<
+  OnnxExecutionProviderPreference,
+  number
+> = {
+  webgpu: MAX_CONNECTED_SORTERS,
+  wasm: 1,
+};
+export const SORTER_LIMIT_MESSAGE_KEYS: Record<SorterLimitReason, string> = {
+  plan: "stations.limitReached",
+  hardCap: "stations.hardCapReached",
+  cpuInference: "stations.cpuInferenceLimitReached",
+};
 
 export const HAND_SCAN_REARM_FINGERPRINT_DIFF = 0.08;
 export const HAND_SCAN_FINGERPRINT_SIZE = 16;
@@ -149,11 +183,10 @@ export const HAND_SCAN_TRACKING_STATUSES: ScannerStatus[] = [
 
 export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
   "scanning",
-  "paused",
   "settling",
 ];
 
-export const DOCUMENT_TITLE_BASE = "MAULT";
+export const DOCUMENT_TITLE_BASE = "Mault";
 
 export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
 
@@ -211,18 +244,107 @@ export const SCAN_IMAGE_IMPORT_PADDING_RATIO = 0.08;
 export const SCAN_IMAGE_IMPORT_PADDING_COLOR = "#808080";
 export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
 export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;
+export const DOCUMENT_SCANNERS_QUERY_KEY = ["desktop", "document-scanners"] as const;
+export const DOCUMENT_SCAN_FOLDER_QUERY_KEY = ["desktop", "document-scan-folder"] as const;
+export const DOCUMENT_SCAN_ARCHIVE_FOLDER_QUERY_KEY = [
+  "desktop",
+  "document-scan-archive-folder",
+] as const;
+export const DOCUMENT_SCAN_ARCHIVE_FAILED_TOAST_ID = "document-scan-archive-failed";
+export const DOCUMENT_SCANNER_CAMERA_ID_PREFIX = "document-scanner:";
+export const DOCUMENT_SCANNER_CARD_ARRIVAL_TIMEOUT_MS = 4000;
+export const DOCUMENT_SCANNER_FLATBED_CARD_ARRIVAL_TIMEOUT_MS = 30000;
+export const DOCUMENT_SCANNER_CARD_ARRIVAL_POLL_MS = 150;
+export const DOCUMENT_SCANNER_IGNORED_IR_DROP_WAIT_MS = 1500;
+export const DOCUMENT_SCANNER_MODES = ["feeder", "flatbed"] as const;
+export const FLATBED_DEFAULT_PLACEMENT: FlatbedPlacement = {
+  leftMm: 0,
+  topMm: 0,
+  widthMm: 70,
+  heightMm: 95,
+};
+export const FLATBED_SCAN_MARGIN_MM = 4;
+export const FLATBED_DEFAULT_GLASS_WIDTH_MM = 216;
+export const FLATBED_MIN_PLACEMENT_MM = 40;
+export const FLATBED_DETECTION_MAX_DIMENSION_PX = 600;
+export const FLATBED_DETECTION_DARK_LUMINANCE = 200;
+export const FLATBED_DETECTION_MIN_DARK_PIXELS_PER_LINE = 3;
+export const FLATBED_DETECTION_PADDING_MM = 2;
+export const FLATBED_CROPPED_PAGE_QUALITY = 0.92;
+export const FLATBED_COUNTDOWN_TICK_MS = 250;
+export const FLATBED_IDLE_STEPS: readonly FlatbedScanStep[] = [
+  "place-card",
+  "done",
+];
+export const FEEDER_CARD_SHEET_SIDES = ["front", "back"] as const;
+export const FEEDER_CARD_FEED_EDGES = ["short", "long"] as const;
+export const FEEDER_CARD_TOPS = ["upright", "upside-down"] as const;
+export const FEEDER_CARD_DEFAULT_SETUP: FeederCardSetup = {
+  sheetSide: "front",
+  feedEdge: "short",
+  cardTop: "upright",
+};
+export const FEEDER_CARD_ROTATED_PAGE_QUALITY = 0.92;
+export const FEEDER_CARD_SETUP_FORM_ID = "feeder-card-setup-form";
+export const SCAN_PAGE_CARD_IMAGE_QUALITY = 0.8;
+export const SCAN_PAGE_CARD_DARK_LUMINANCE = 150;
+export const SCAN_PAGE_CARD_MIN_DARK_LINE_RATIO = 0.05;
+export const SCAN_PAGE_CARD_EDGE_MIN_DARK_PIXELS = 1;
+export const SCAN_PAGE_CARD_CROP_MARGIN_PX = 6;
+export const SCAN_PAGE_CARD_ANALYSIS_MAX_DIMENSION_PX = 1600;
+export const SCAN_PAGE_CARD_EDGE_SAMPLE_INSET_RATIO = 0.15;
+export const SCAN_PAGE_CARD_EDGE_MIN_SAMPLES = 10;
+export const SCAN_PAGE_CARD_EDGE_OUTLIER_PX = 2;
+export const SCAN_PAGE_SAVED_IMAGE_MAX_DIMENSION_PX = 1200;
+export const SCAN_PAGE_SAVED_IMAGE_QUALITY = 0.85;
+export const SCAN_PAGE_ORIENTATION_SAMPLE_WIDTH_PX = 24;
+export const SCAN_PAGE_ORIENTATION_SAMPLE_HEIGHT_PX = 34;
+export const STANDALONE_DOCUMENT_FEED_STATUSES: readonly ScannerStatus[] = [
+  "scanning",
+  "no-match",
+];
 
 export const STATION_STATUS_BADGE_VARIANTS: Record<
   StationStatus,
-  "success" | "warning" | "outline"
+  "success" | "warning" | "destructive" | "outline"
 > = {
   sorting: "success",
   paused: "warning",
+  attention: "destructive",
   offline: "outline",
 };
 
+export const STATION_ATTENTION_FIXES: Record<
+  StationAttentionKind,
+  StationAttentionFix
+> = {
+  jam: "resume",
+  hopperEmpty: "resume",
+  feederError: "resume",
+  noCardDetected: "resume",
+  sorterNotResponding: "resume",
+  routingFailed: "resume",
+  saveFailed: "resume",
+  binLimit: "emptyBin",
+  binsFull: "emptyBin",
+  packsComplete: "emptyBin",
+  scanLimit: "openSorter",
+  sorterLimit: "openSorter",
+  collectionLocked: "openSorter",
+  scannerError: "openSorter",
+};
+
+export const STATION_TILE_ATTENTION_CLASS =
+  "border-destructive ring-1 ring-destructive";
+
 export const SORTERS_GRID_CLASS =
   "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
+export const FLATBED_OVERRIDDEN_STATUSES: ScannerStatus[] = [
+  "error",
+  "duplicate",
+  "no-match",
+];
 
 export const SCAN_STATS_SUMMARY_SEPARATOR = " · ";
 

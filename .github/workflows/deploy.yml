@@ -22,6 +22,10 @@ on:
         type: choice
         options: [everything, web-and-server, bot, api-docs]
         default: everything
+      force:
+        description: Deploy every container in the target even when nothing changed since the last release
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -56,8 +60,8 @@ jobs:
           fetch-depth: 0
 
       # Every deploy tags its release commit (vX.Y.Z), so everything after the
-      # latest tag is what's pending. Only a manually picked single target
-      # deploys regardless of what this reports.
+      # latest tag is what's pending. A manually picked single target or the
+      # force input deploys regardless of what this reports.
       - name: Detect pending changes since the last release
         id: changes
         run: |
@@ -102,8 +106,9 @@ jobs:
       # older version, and the two are expected to stay on the same release.
       # "everything" only deploys the containers with changes since the last
       # release tag, which still counts as a full release because the others
-      # already run that code. Picking a single target always deploys it, e.g.
-      # to retry after a failed Coolify webhook. A partial deploy is not a
+      # already run that code. Force makes "everything" deploy every container,
+      # changed or not, and still counts as a full release. Picking a single
+      # target always deploys it, e.g. to retry after a failed Coolify webhook. A partial deploy is not a
       # release: the version gets a -<target>.<sha> suffix and nothing is
       # committed or tagged, since a tag would mark the parts that were left
       # out as deployed.
@@ -111,15 +116,22 @@ jobs:
         id: targets
         env:
           TARGET: ${{ inputs.target || 'everything' }}
+          FORCE: ${{ inputs.force && 'true' || 'false' }}
         run: |
           WEB_SERVER=false
           DOCS=false
           BOT=false
           case "$TARGET" in
             everything)
-              if [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ]; then WEB_SERVER=true; fi
-              DOCS="${{ steps.changes.outputs.docs }}"
-              BOT="${{ steps.changes.outputs.bot }}"
+              if [ "$FORCE" = "true" ]; then
+                WEB_SERVER=true
+                DOCS=true
+                BOT=true
+              else
+                if [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ]; then WEB_SERVER=true; fi
+                DOCS="${{ steps.changes.outputs.docs }}"
+                BOT="${{ steps.changes.outputs.bot }}"
+              fi
               ;;
             web-and-server) WEB_SERVER=true ;;
             api-docs) DOCS=true ;;
@@ -171,6 +183,8 @@ jobs:
           fi
           if [ "${{ steps.targets.outputs.partial }}" = "true" ]; then
             TITLE="$TITLE (${{ steps.targets.outputs.labels }})"
+          elif [ "${{ inputs.force }}" = "true" ]; then
+            TITLE="$TITLE (forced)"
           fi
           if [ -n "${{ steps.changes.outputs.last_tag }}" ]; then
             URL="https://github.com/${{ github.repository }}/compare/${{ steps.changes.outputs.last_tag }}...${{ github.sha }}"
@@ -297,8 +311,8 @@ jobs:
           tags: |
             ${{ steps.images.outputs.web }}:v${{ steps.appversion.outputs.version }}
             ${{ steps.images.outputs.web }}:sha-${{ github.sha }}
-          # The image is public, so deployment config (Neon URLs, Rollbar
-          # token, app env) comes from the container's environment in Coolify
+          # The image is public, so deployment config (Neon URLs, PostHog
+          # key, app env) comes from the container's environment in Coolify
           # at start-up instead.
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web

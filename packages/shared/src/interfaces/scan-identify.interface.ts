@@ -1,10 +1,13 @@
+import type { StampDetection } from "./card-stamps.interface";
+import type { PrintedFoilMarkerDetection } from "./printed-foil-marker.interface";
+import type { PrintingMarkMatch } from "./printing-regions.interface";
 import type {
   CardSearchDiagnostics,
   CardSearchResult,
+  CardTextSearchResult,
   SearchCardMatch,
 } from "./api.interface";
 import type { PlayingCard, PlayingCardWithDistance } from "./card.interface";
-import type { FoilDetection } from "./foil-detection.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
 import type {
   MatchCandidateDiagnostic,
@@ -25,16 +28,6 @@ export interface ResolvedCardSearchMatches {
   candidates: MatchCandidateDiagnostic[];
 }
 
-export interface DetectedColorEvidence {
-  gameHasColorBar: boolean;
-  detectedColor: string | null;
-  printingConfirmed: boolean;
-}
-
-export type ColorResolvedMatches<T extends ResolvedCardSearchMatches> = T & {
-  colorVariantUncertain: boolean;
-};
-
 export interface ScanAttemptResult extends ResolvedCardSearchMatches {
   detection: ScanDetectionDiagnostics;
   search: CardSearchDiagnostics | null;
@@ -44,8 +37,9 @@ export interface ScanAttemptResult extends ResolvedCardSearchMatches {
   ocr: OcrDiagnostics | null;
   lowConfidenceMatch: boolean;
   matchedBy: ScanMatchSource;
-  detectedColor: string | null;
-  foilDetection?: FoilDetection | null;
+  stampDetection?: StampDetection | null;
+  printedFoilMarker?: PrintedFoilMarkerDetection | null;
+  printingMarks?: PrintingMarkMatch | null;
 }
 
 export interface ScanMatchDetails {
@@ -64,11 +58,13 @@ export type LookupMatchedCard = (
 export interface ScanImageCandidate extends OrientedSearchCandidate {
   orientation: ScanOrientation;
   embedding: number[] | null;
+  textResult?: CardTextSearchResult | null;
 }
 
 export interface ScanImageSearchOptions<T extends ScanImageCandidate> {
   checkBothOrientations: boolean;
-  ocrEnabled: boolean;
+  ocrEnabled?: boolean;
+  ocrMode?: ScanOcrMode | ((candidate: T) => ScanOcrMode);
   search: (orientation: ScanOrientation) => Promise<T>;
   readText?: (
     candidate: T,
@@ -88,3 +84,4 @@ export interface ScanConsensusOutcome<T> {
   attempts: T[];
   card: PlayingCardWithDistance | null;
 }
+export type ScanOcrMode = "off" | "when-unsure" | "every-scan";

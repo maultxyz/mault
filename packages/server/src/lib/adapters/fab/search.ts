@@ -3,12 +3,16 @@ import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import {
   CARD_API_HEADERS,
+  FAB_FALLBACK_TCGPLAYER_SUBTYPES,
   FAB_STANDARD_FOILING,
   FAB_TCGPLAYER_EDITION_PREFIXES,
   FAB_TCGPLAYER_FOIL_NAMES,
 } from "../../constants/card-search";
 import { FLESHCUBE_RETRY_DELAY_MS } from "../../constants/timing";
 import { FAB_DEFAULT_URL } from "../../constants/urls";
+import { fabPrintingMarkGroups } from "../../printing-marks/groups";
+import { fabFoilPrintingVariants } from "./foil-printings";
+import { sql } from "drizzle-orm";
 import type {
   FabCard,
   FabPrinting,
@@ -145,12 +149,16 @@ export const fabAdapter: CardSearchAdapter = {
     const printing = card.cardPrintings.find((p) => p.uniqueId === id);
     return printing ? normalizeFabPrinting(card, printing) : null;
   },
+  rarePrintingSql: sql`EXISTS (SELECT 1 FROM jsonb_array_elements(data->'cardPrintings') AS own_printing WHERE own_printing->>'uniqueId' = card_id AND own_printing->>'foiling' <> ${FAB_STANDARD_FOILING})`,
+  printingMarkGroups: fabPrintingMarkGroups,
+  foilPrintingVariants: fabFoilPrintingVariants,
   tcgplayer: {
     categoryId: 62,
     productIdFromRaw: (card) =>
-      (card.raw as { printing: FabPrinting }).printing.tcgplayer_product_id,
+      (card.raw as { printing?: FabPrinting }).printing?.tcgplayer_product_id,
     subTypes: (card) => {
-      const { printing } = card.raw as { printing: FabPrinting };
+      const { printing } = card.raw as { printing?: FabPrinting };
+      if (!printing) return FAB_FALLBACK_TCGPLAYER_SUBTYPES;
       const foil = FAB_TCGPLAYER_FOIL_NAMES[printing.foiling] ?? "Normal";
       const edition = FAB_TCGPLAYER_EDITION_PREFIXES[printing.edition];
       const subTypes = edition ? [`${edition}${foil}`, foil] : [foil];

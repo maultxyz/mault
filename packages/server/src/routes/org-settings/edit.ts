@@ -10,6 +10,7 @@ import {
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { invalidateLeaderboardCache } from "../../lib/leaderboard";
+import { forgetShopCatalogReadsForOrg } from "../../lib/shop-catalogs";
 import { orgSettings } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -27,7 +28,9 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       discordScanUseThreads?: boolean;
       sessionWrappedEnabled?: boolean;
       ocrEnabled?: boolean;
+      highAccuracyScans?: boolean;
       foilDetectionEnabled?: boolean;
+      foilStarDetectionEnabled?: boolean;
       correctionBinPrompt?: boolean;
       pauseScanningOnDeploy?: boolean;
       leaderboardOptIn?: boolean;
@@ -93,10 +96,18 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           "ocrEnabled" in body
             ? (body.ocrEnabled ?? false)
             : (existing?.ocrEnabled ?? false),
+        highAccuracyScans:
+          "highAccuracyScans" in body
+            ? (body.highAccuracyScans ?? false)
+            : (existing?.highAccuracyScans ?? false),
         foilDetectionEnabled:
           "foilDetectionEnabled" in body
             ? (body.foilDetectionEnabled ?? false)
             : (existing?.foilDetectionEnabled ?? false),
+        foilStarDetectionEnabled:
+          "foilStarDetectionEnabled" in body
+            ? (body.foilStarDetectionEnabled ?? false)
+            : (existing?.foilStarDetectionEnabled ?? false),
         correctionBinPrompt:
           "correctionBinPrompt" in body
             ? (body.correctionBinPrompt ?? true)
@@ -143,7 +154,9 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           discordScanUseThreads: merged.discordScanUseThreads,
           sessionWrappedEnabled: merged.sessionWrappedEnabled,
           ocrEnabled: merged.ocrEnabled,
+          highAccuracyScans: merged.highAccuracyScans,
           foilDetectionEnabled: merged.foilDetectionEnabled,
+          foilStarDetectionEnabled: merged.foilStarDetectionEnabled,
           correctionBinPrompt: merged.correctionBinPrompt,
           pauseScanningOnDeploy: merged.pauseScanningOnDeploy,
           leaderboardOptIn: merged.leaderboardOptIn,
@@ -155,6 +168,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       };
     });
     if ("leaderboardOptIn" in body) invalidateLeaderboardCache();
+    forgetShopCatalogReadsForOrg(orgId);
     return c.json(result);
   },
 );

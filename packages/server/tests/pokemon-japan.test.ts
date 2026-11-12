@@ -6,6 +6,7 @@ import {
   extractOcrTokens,
   printedCollectorNumberCandidates,
   printedSetCodeMatchLength,
+  printedSetTotalCandidates,
 } from "../src/routes/card/shared";
 
 function entry(
@@ -96,4 +97,12 @@ test("the longest printed set code wins over a shorter prefix", () => {
   const merged = extractOcrTokens("M6a006/103");
   assert.equal(printedSetCodeMatchLength("m6a", merged), 3);
   assert.equal(printedSetCodeMatchLength("J", tokens), 0);
+});
+
+test("the Pokémon collector line's printed total is read as the set's card count", () => {
+  assert.deepEqual(printedSetTotalCandidates("G SVI EN 015/198"), [198]);
+  assert.deepEqual(printedSetTotalCandidates("201 / 198"), [198]);
+  assert.deepEqual(printedSetTotalCandidates("4/102"), [102]);
+  assert.deepEqual(printedSetTotalCandidates("SVP EN 001"), []);
+  assert.deepEqual(printedSetTotalCandidates("TG01/TG30"), []);
 });

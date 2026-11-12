@@ -12,7 +12,11 @@ import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
-import type { AutoFeedSerial } from "@/lib/interfaces/scanner";
+import type { AutoFeedSerial, FeedSource } from "@/lib/interfaces/scanner";
+import type {
+  StationAttention,
+  StationAttentionDetails,
+} from "@/lib/interfaces/stations";
 
 export function useAutoFeed({
   serialRef,
@@ -30,6 +34,7 @@ export function useAutoFeed({
   const [autoFeed, setAutoFeedState] = useState(true);
   const autoFeedRef = useRef(true);
   const cardArrivedHookRef = useRef<(() => void) | null>(null);
+  const feedSourceRef = useRef<FeedSource | null>(null);
   const pauseHookRef = useRef<(() => void) | null>(null);
   const resumeHookRef = useRef<(() => void) | null>(null);
 
@@ -39,6 +44,7 @@ export function useAutoFeed({
   }, []);
 
   const haltedRef = useRef(false);
+  const [attention, setAttention] = useState<StationAttention | null>(null);
 
   const isAutoFeedEnabled = useCallback(
     () => autoFeedRef.current && !haltedRef.current,
@@ -47,6 +53,7 @@ export function useAutoFeed({
   const isFeedHalted = useCallback(() => haltedRef.current, []);
   const clearFeedHalt = useCallback(() => {
     haltedRef.current = false;
+    setAttention(null);
   }, []);
 
   const pause = useCallback(() => {
@@ -54,8 +61,17 @@ export function useAutoFeed({
     pauseHookRef.current?.();
   }, []);
 
+  const pauseForAttention = useCallback(
+    (details: StationAttentionDetails) => {
+      setAttention({ ...details, raisedAt: Date.now() });
+      pause();
+    },
+    [pause],
+  );
+
   const resume = useCallback(() => {
     haltedRef.current = false;
+    setAttention(null);
     resumeHookRef.current?.();
   }, []);
 
@@ -73,6 +89,23 @@ export function useAutoFeed({
     };
   }, []);
 
+  const registerFeedSource = useCallback((feedSource: FeedSource) => {
+    feedSourceRef.current = feedSource;
+    return () => {
+      if (feedSourceRef.current === feedSource) feedSourceRef.current = null;
+    };
+  }, []);
+
+  const hasCustomFeedSource = useCallback(() => !!feedSourceRef.current, []);
+
+  const feedOneCard = useCallback(
+    () =>
+      feedSourceRef.current
+        ? feedSourceRef.current()
+        : serialRef.current.sendRequest({ feeder: true }, 10000),
+    [serialRef],
+  );
+
   const registerPauseHook = useCallback((fn: () => void) => {
     pauseHookRef.current = fn;
     return () => {
@@ -83,7 +116,7 @@ export function useAutoFeed({
   const handleFeedResult = useCallback(
     (parsed: Record<string, unknown>) => {
       if (parsed.empty && !serialRef.current.ignoreIrSensors) {
-        pause();
+        pauseForAttention({ kind: "hopperEmpty" });
         toast.error(t("feederEmpty.title"), {
           description: t("feederEmpty.description"),
           duration: Infinity,
@@ -97,7 +130,7 @@ export function useAutoFeed({
           deviceGuid: deviceGuidRef.current,
         });
       } else if (parsed.error) {
-        pause();
+        pauseForAttention({ kind: "feederError", detail: String(parsed.error) });
         toast.error(t("feederError.title"), {
           description: String(parsed.error),
           duration: Infinity,
@@ -114,7 +147,7 @@ export function useAutoFeed({
         parsed.detected === false &&
         !serialRef.current.ignoreIrSensors
       ) {
-        pause();
+        pauseForAttention({ kind: "noCardDetected" });
         toast.error(t("cardScanner.noCardDetected.title"), {
           description: t("cardScanner.noCardDetected.description"),
         });
@@ -129,7 +162,7 @@ export function useAutoFeed({
         cardArrivedHookRef.current?.();
       }
     },
-    [toast, t, serialRef, activeCollectionRef, deviceGuidRef, pause],
+    [toast, t, serialRef, activeCollectionRef, deviceGuidRef, pauseForAttention],
   );
 
   const feedRetryCount = useCallback(
@@ -139,12 +172,12 @@ export function useAutoFeed({
 
   const sendAutoFeed = useCallback(async (retryCount: number) => {
     const { sent, line: response } = await feedWithRetries(
-      () => serialRef.current.sendRequest({ feeder: true }, 10000),
+      feedOneCard,
       (result) => (result.sent ? parseSerialReply(result.line) : null),
       retryCount,
     );
     if (!sent) {
-      pause();
+      pauseForAttention({ kind: "sorterNotResponding" });
       toast.error(t("scannedCards.autoFeedFailed.title"), {
         description: t("feederCommandFailedDescription"),
       });
@@ -158,7 +191,7 @@ export function useAutoFeed({
       return;
     }
     if (!response) {
-      pause();
+      pauseForAttention({ kind: "sorterNotResponding" });
       toast.error(t("scannedCards.autoFeedTimeout.title"), {
         description: t("feederTimeoutDescription"),
       });
@@ -174,7 +207,7 @@ export function useAutoFeed({
     try {
       handleFeedResult(JSON.parse(response) as Record<string, unknown>);
     } catch {
-      pause();
+      pauseForAttention({ kind: "sorterNotResponding" });
       toast.error(t("scannedCards.autoFeedError.title"), {
         description: t("feederUnexpectedResponseDescription"),
       });
@@ -189,10 +222,10 @@ export function useAutoFeed({
   }, [
     toast,
     t,
-    serialRef,
+    feedOneCard,
     activeCollectionRef,
     deviceGuidRef,
-    pause,
+    pauseForAttention,
     handleFeedResult,
   ]);
 
@@ -218,8 +251,13 @@ export function useAutoFeed({
     isFeedHalted,
     clearFeedHalt,
     pause,
+    pauseForAttention,
+    attention,
     triggerAutoFeed,
     registerCardArrivedHook,
+    registerFeedSource,
+    hasCustomFeedSource,
+    feedOneCard,
     registerPauseHook,
     resume,
     registerResumeHook,

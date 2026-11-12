@@ -44,7 +44,7 @@ export function BinSizePicker({ binNumber, height, onChange }: BinSizePickerProp
 
   return (
     <View style={{ gap: SPACING.xs }}>
-      <SelectField value={t(`calibration.bins.presets.${key}`)} placeholder={t("calibration.bins.size")} onPress={() => setOpen(true)} />
+      <SelectField accessibilityLabel={t("calibration.bins.size")} value={t(`calibration.bins.presets.${key}`)} placeholder={t("calibration.bins.size")} onPress={() => setOpen(true)} />
       {key === CUSTOM_BIN_SIZE_KEY ? (
         <View style={{ gap: 2 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>

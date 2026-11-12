@@ -1,0 +1,2 @@
+ALTER TABLE "platform_match_validations" ALTER COLUMN "is_correct_match" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "platform_match_validations" ADD COLUMN IF NOT EXISTS "is_bad_scan" boolean DEFAULT false NOT NULL;

@@ -13,6 +13,7 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
 import type * as React from "react";
+import { useTranslation } from "react-i18next";
 
 interface DynamicPopoverProps {
   trigger: React.ReactElement;
@@ -34,6 +35,7 @@ export function DynamicPopover({
   alignOffset,
 }: DynamicPopoverProps) {
   const isMobile = useIsMobile();
+  const { t } = useTranslation("common");
 
   if (isMobile) {
     return (
@@ -41,7 +43,7 @@ export function DynamicPopover({
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>
         <DrawerContent className="min-h-0">
           <DrawerHeader className="sr-only">
-            <DrawerTitle>Details</DrawerTitle>
+            <DrawerTitle>{t("a11y.details")}</DrawerTitle>
           </DrawerHeader>
           <div
             className={cn(

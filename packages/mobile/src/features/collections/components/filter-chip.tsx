@@ -1,7 +1,7 @@
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import type { FilterChipProps } from "@/lib/interfaces/collections";
 
 export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps) {
@@ -10,6 +10,7 @@ export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps
     <Pressable
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
+      hitSlop={{ top: 4, bottom: 4 }}
       onPress={onPress}
       style={({ pressed }) => ({
         flexDirection: "row",
@@ -17,7 +18,7 @@ export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps
         gap: 6,
         height: 36,
         paddingHorizontal: SPACING.md + 2,
-        borderRadius: RADIUS.md,
+        borderRadius: CONTROL_RADIUS,
         borderWidth: 1,
         borderColor: selected ? colors.primarySelected : colors.border,
         backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : colors.background,

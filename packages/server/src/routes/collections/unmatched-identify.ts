@@ -113,6 +113,8 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           binEmptiedAt: unmatched.binEmptiedAt,
           capturedImageDataUrl: unmatched.capturedImageDataUrl,
           capturedImageKey: unmatched.capturedImageKey,
+          capturedBackImageDataUrl: unmatched.capturedBackImageDataUrl,
+          capturedBackImageKey: unmatched.capturedBackImageKey,
           isFoil: isFoil ?? foilType != null,
           foilType: foilType ?? null,
           language: pickedCardLanguage(identified),
@@ -130,6 +132,8 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
             isDeleted: true,
             capturedImageKey: null,
             capturedImageDataUrl: null,
+            capturedBackImageKey: null,
+            capturedBackImageDataUrl: null,
           })
           .where(eq(unmatchedCards.id, unmatched.id));
 

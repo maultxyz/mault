@@ -7,6 +7,7 @@ import {
   IconCheck,
   IconChevronRight,
 } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 export function MobileListRow({
@@ -23,6 +24,7 @@ export function MobileListRow({
   selected,
   disabled = false,
 }: MobileListRowProps) {
+  const { t } = useTranslation("common");
   const interactive = !!(to || href || onClick);
   const content = (
     <>
@@ -53,7 +55,12 @@ export function MobileListRow({
         </span>
       )}
       {trailing}
-      {selected && <IconCheck className="size-4 shrink-0 text-primary" />}
+      {selected && (
+        <>
+          <IconCheck className="size-4 shrink-0 text-primary" />
+          <span className="sr-only">{t("a11y.selected")}</span>
+        </>
+      )}
       {interactive && selected == null && !trailing && !destructive &&
         (href ? (
           <IconArrowUpRight className="size-4 shrink-0 text-foreground/70" />
@@ -67,17 +74,29 @@ export function MobileListRow({
     !interactive && "active:bg-transparent",
     disabled && "pointer-events-none opacity-50",
   );
+  const disabledLinkProps = disabled
+    ? {
+        "aria-disabled": true,
+        onClick: (event: React.MouseEvent) => event.preventDefault(),
+      }
+    : {};
 
   if (to) {
     return (
-      <Link to={to} className={className}>
+      <Link to={to} className={className} {...disabledLinkProps}>
         {content}
       </Link>
     );
   }
   if (href) {
     return (
-      <a href={href} target="_blank" rel="noreferrer" className={className}>
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className={className}
+        {...disabledLinkProps}
+      >
         {content}
       </a>
     );

@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/server",
-  "version": "1.0.192",
+  "version": "1.0.204",
   "private": true,
   "scripts": {
     "dev": "tsx watch --env-file ../../.env src/index.ts",
@@ -13,6 +13,7 @@
     "db:migrate-local": "tsx scripts/migrate-local.ts",
     "resync:all": "tsx --env-file ../../.env scripts/resync-all.ts",
     "sync:prices": "tsx --env-file ../../.env scripts/sync-prices.ts",
+    "sync:catalogs": "tsx --env-file ../../.env scripts/sync-card-catalogs.ts",
     "post:platform-stats": "tsx --env-file ../../.env scripts/post-platform-stats.ts",
     "migrate:scan-images": "tsx --env-file ../../.env scripts/migrate-scan-images.ts",
     "backfill:collector-numbers": "tsx --env-file ../../.env scripts/backfill-collector-numbers.ts",
@@ -39,8 +40,8 @@
     "onnxruntime-node": "^1.21.0",
     "own-auth": "^0.3.12",
     "pg": "^8.16.3",
+    "posthog-node": "^5.64.0",
     "resend": "^6.24.0",
-    "rollbar": "^3.1.0",
     "semver": "^7.8.5",
     "serialport": "12",
     "sharp": "^0.34.1",

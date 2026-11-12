@@ -18,6 +18,7 @@ import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
   computeBinCount,
   type CreateCollectionFormValues,
+  type EditCollectionFormValues,
   createDefaultCatchAllOnlyBins,
   type BinSet,
   type Collection,
@@ -145,8 +146,13 @@ export function CollectionsProvider({
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ guid, name }: { guid: string; name: string }) =>
-      updateCollectionFn(guid, name),
+    mutationFn: ({
+      guid,
+      values,
+    }: {
+      guid: string;
+      values: EditCollectionFormValues;
+    }) => updateCollectionFn(guid, values),
     onSuccess: (r) => {
       if (r.success && r.data) setCollections(r.data);
     },
@@ -193,8 +199,8 @@ export function CollectionsProvider({
   );
 
   const update = useCallback(
-    async (guid: string, name: string) => {
-      await updateMutation.mutateAsync({ guid, name });
+    async (guid: string, values: EditCollectionFormValues) => {
+      await updateMutation.mutateAsync({ guid, values });
     },
     [updateMutation],
   );

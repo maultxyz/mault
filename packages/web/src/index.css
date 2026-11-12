@@ -68,7 +68,7 @@ code {
   --muted-foreground: #656f7d;
   --accent: #f0f1f3;
   --accent-foreground: #292d34;
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.55 0.235 27.325);
   --destructive-foreground: oklch(100% 0.00011 271.152);
   --border: #e3e5ea;
   --input: var(--border);
@@ -296,97 +296,93 @@ code {
   --font-heading: "JetBrains Mono Variable", monospace;
 }
 
-@keyframes loading-viewfinder-lock {
-  0%,
+.loading-logo path {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: loading-logo-hop 1.8s cubic-bezier(0.45, 0, 0.3, 1) infinite both;
+  animation-delay: var(--loading-logo-offset, 0ms);
+}
+
+.loading-logo path:nth-child(2) {
+  animation-delay: calc(var(--loading-logo-offset, 0ms) + 110ms);
+}
+
+.loading-logo path:nth-child(3) {
+  transform-origin: 50% 50%;
+  animation-name: loading-logo-flip;
+  animation-delay: calc(var(--loading-logo-offset, 0ms) + 220ms);
+}
+
+@keyframes loading-logo-hop {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1, 1);
+  }
+  8% {
+    transform: translateY(0) rotate(0deg) scale(1.1, 0.85);
+  }
+  20% {
+    transform: translateY(-30%) rotate(-4deg) scale(0.9, 1.12);
+  }
+  30% {
+    transform: translateY(-36%) rotate(3deg) scale(1, 1);
+  }
+  40% {
+    transform: translateY(0) rotate(0deg) scale(1.14, 0.82);
+  }
   48% {
-    opacity: 0.55;
-    transform: translate(0, 0);
+    transform: translateY(0) rotate(0deg) scale(0.95, 1.06);
   }
   56%,
-  84% {
-    opacity: 1;
-    transform: translate(var(--lock-x), var(--lock-y));
-  }
   100% {
-    opacity: 0.55;
-    transform: translate(0, 0);
+    transform: translateY(0) rotate(0deg) scale(1, 1);
   }
 }
 
-@keyframes loading-scan-beam {
+@keyframes loading-logo-flip {
   0% {
-    transform: translateY(-100%);
-    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(1, 1);
   }
-  5% {
-    opacity: 1;
+  6% {
+    transform: translateY(0) rotate(0deg) scale(1.12, 0.86);
   }
-  48% {
-    transform: translateY(8rem);
-    opacity: 1;
+  15% {
+    transform: translateY(-28%) rotate(0deg) scale(0.92, 1.1);
   }
-  54%,
-  100% {
-    transform: translateY(8rem);
-    opacity: 0;
+  23% {
+    transform: translateY(0) rotate(0deg) scale(1.14, 0.84);
   }
-}
-
-@keyframes loading-card-recognized {
-  0%,
-  50% {
-    transform: scale(1);
+  30% {
+    transform: translateY(-24%) rotate(0deg) scale(0.92, 1.1);
   }
-  57% {
-    transform: scale(1.05);
-  }
-  64%,
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes loading-recognized-pop {
-  0%,
-  52% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.25);
-    opacity: 1;
-  }
-  66%,
-  86% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  94%,
-  100% {
-    transform: scale(0);
-    opacity: 0;
-  }
-}
-
-@keyframes loading-hero-float {
-  0%,
-  100% {
-    transform: translateY(0);
+  40% {
+    transform: translateY(-62%) rotate(-180deg) scale(1, 1);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-12%) rotate(-360deg) scale(1, 1);
+  }
+  55% {
+    transform: translateY(0) rotate(-360deg) scale(1.16, 0.8);
+  }
+  63% {
+    transform: translateY(0) rotate(-360deg) scale(0.95, 1.06);
+  }
+  71%,
+  100% {
+    transform: translateY(0) rotate(-360deg) scale(1, 1);
   }
 }
 
-@keyframes loading-hero-shadow {
+@keyframes loading-logo-shadow {
   0%,
+  6%,
+  56%,
   100% {
-    transform: scale(1);
+    transform: scaleX(1);
     opacity: 0.9;
   }
-  50% {
-    transform: scale(0.75);
-    opacity: 0.5;
+  32% {
+    transform: scaleX(0.7);
+    opacity: 0.45;
   }
 }
 
@@ -448,28 +444,6 @@ code {
   }
 }
 
-@keyframes foil-sheen {
-  0%,
-  100% {
-    background-position: -30% -30%;
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.5;
-  }
-  50% {
-    background-position: 130% 130%;
-    opacity: 0.5;
-  }
-  80% {
-    opacity: 0.5;
-  }
-}
-
-.animate-foil-sheen {
-  animation: foil-sheen 9s ease-in-out infinite;
-}
-
 @keyframes marquee {
   from {
     transform: translateX(0);
@@ -483,41 +457,11 @@ code {
   animation: marquee var(--marquee-duration, 40s) linear infinite;
 }
 
-.bg-blueprint {
-  background-image:
-    linear-gradient(
-      to right,
-      color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 40px 40px;
-}
-
-.bg-foil-sheen {
-  background-image: linear-gradient(
-    115deg,
-    transparent 15%,
-    #ff5ec8 27%,
-    #7afcff 35%,
-    #fffab0 43%,
-    #7afcff 51%,
-    #ff5ec8 59%,
-    transparent 71%,
-    transparent 100%
-  );
-}
-
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
-    @apply font-sans bg-background text-foreground;
     @apply font-sans bg-background text-foreground;
   }
   html {
@@ -525,28 +469,27 @@ code {
   }
 }
 
-.feature-spotlight-number {
-  -webkit-text-stroke: 1.5px color-mix(in oklab, var(--primary) 55%, transparent);
+.public-glow {
+  background: radial-gradient(
+    ellipse 50% 55% at 50% 0%,
+    color-mix(in oklab, var(--primary) 12%, transparent),
+    transparent 70%
+  );
 }
 
-@keyframes feature-spotlight-number-drift {
-  from {
-    transform: translateY(24px);
-  }
-  to {
-    transform: translateY(-24px);
-  }
-}
-
-@supports (animation-timeline: view()) {
-  .feature-spotlight-number {
-    animation: feature-spotlight-number-drift linear both;
-    animation-timeline: view();
-  }
+.landing-frame {
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 24px 48px -24px var(--shadow-color);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .feature-spotlight-number {
-    animation: none;
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

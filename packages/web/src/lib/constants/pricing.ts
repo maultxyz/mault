@@ -15,6 +15,7 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
       storage: false,
       apiAccess: false,
       businessTools: false,
+      longShareLinks: false,
     },
     limits: {
       dailyScans: 50,
@@ -35,6 +36,7 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
       storage: true,
       apiAccess: false,
       businessTools: false,
+      longShareLinks: true,
     },
     limits: {
       dailyScans: 500,
@@ -55,6 +57,7 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
       storage: true,
       apiAccess: true,
       businessTools: true,
+      longShareLinks: true,
     },
     limits: {
       dailyScans: null,
@@ -75,6 +78,7 @@ export const DEFAULT_PUBLIC_PLAN_CONFIG: PlanConfig = {
       storage: true,
       apiAccess: true,
       businessTools: true,
+      longShareLinks: true,
     },
     limits: {
       dailyScans: null,

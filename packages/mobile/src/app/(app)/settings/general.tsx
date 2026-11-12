@@ -10,7 +10,7 @@ import { useOrgSettingsDraft } from "@/features/settings/api/use-org-settings-dr
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { useTheme } from "@/hooks/use-theme";
 import { THEME_COLORS } from "@/lib/constants/settings";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
 
 export default function GeneralSettingsScreen() {
   const { t } = useTranslation();
@@ -20,6 +20,7 @@ export default function GeneralSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.general.title")}
+      isLoading={draft.isLoading}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}
@@ -28,7 +29,7 @@ export default function GeneralSettingsScreen() {
     >
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.appearance.heading")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -50,11 +51,12 @@ export default function GeneralSettingsScreen() {
                       accessibilityRole="radio"
                       accessibilityLabel={color.name}
                       accessibilityState={{ selected }}
+                      hitSlop={4}
                       onPress={() => field.onChange(color.name)}
                       style={{
                         width: 36,
                         height: 36,
-                        borderRadius: RADIUS.md,
+                        borderRadius: CONTROL_RADIUS,
                         backgroundColor: color.value,
                         alignItems: "center",
                         justifyContent: "center",
@@ -83,7 +85,7 @@ export default function GeneralSettingsScreen() {
       </Surface>
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.leaderboard.heading")}
           </AppText>
           <AppText size="xs" tone="secondary">

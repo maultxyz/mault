@@ -67,6 +67,15 @@ test("ordinary QR codes continue through identify and foil refinement", async ()
   assert.deepEqual(scan.events, ["capture", "identify", "foil", "matched"]);
 });
 
+test("a surface can handle a share QR without falling through to unmatched saving", async () => {
+  const scan = workflow({
+    readControl: () => "https://example.com/share",
+    applyOtherCode: () => true,
+  });
+  assert.equal(await scan.run(), "control");
+  assert.deepEqual(scan.events, ["capture"]);
+});
+
 test("removal bypasses duplicate and foil stages for matches and misses", async () => {
   for (const miss of [false, true]) {
     const scan = workflow({

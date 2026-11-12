@@ -25,7 +25,6 @@ export interface PlanBulletsProps {
 
 export interface PricingPlanCardProps {
   plan: PlanKey;
-  lead: string;
   settings: PlanSettings;
   maxConnectedSorters: number;
   prices: PlanIntervalPrices | null;
@@ -68,12 +67,10 @@ export interface LandingFeatureSpotlight {
 
 export interface FeatureSpotlightRowProps {
   spotlight: LandingFeatureSpotlight;
-  numberLabel: string;
   isMirrored: boolean;
 }
 
 export interface FeatureSpotlightStageProps {
-  numberLabel: string;
   isInteractive: boolean;
   children: ReactNode;
 }
@@ -95,7 +92,6 @@ export interface LandingFeatureGroup {
 
 export interface FeatureGroupPanelProps {
   group: LandingFeatureGroup;
-  numberLabel: string;
   isRevealed: boolean;
 }
 

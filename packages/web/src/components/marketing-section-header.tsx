@@ -1,23 +1,21 @@
-import { MarketingRule } from "@/components/marketing-rule";
-import type { MarketingSectionHeaderProps } from "@/lib/interfaces/marketing-rule";
+import type { MarketingSectionHeaderProps } from "@/lib/interfaces/marketing-section-header";
 
 export function MarketingSectionHeader({
-  step,
   eyebrow,
   heading,
   subtitle,
 }: MarketingSectionHeaderProps) {
   return (
-    <div className="flex flex-col gap-6">
-      <MarketingRule lead={step} label={eyebrow} />
-      <div className="flex max-w-3xl flex-col gap-4">
-        <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
-          {heading}
-        </h2>
-        <p className="max-w-2xl text-sm/relaxed text-foreground/70 md:text-base/relaxed">
-          {subtitle}
-        </p>
-      </div>
+    <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
+      <p className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
+        {eyebrow}
+      </p>
+      <h2 className="font-heading text-4xl leading-[1.05] font-semibold tracking-tight text-balance md:text-5xl">
+        {heading}
+      </h2>
+      <p className="max-w-2xl text-base/relaxed text-foreground/70 md:text-lg/relaxed">
+        {subtitle}
+      </p>
     </div>
   );
 }

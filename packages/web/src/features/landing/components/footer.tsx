@@ -1,5 +1,8 @@
+import { DONATE_URL } from "@magic-vault/shared";
 import { MarketingFooter } from "@/components/marketing-footer";
-import { DISCORD_URL, DONATE_URL } from "@/lib/constants/links";
+import {
+  DISCORD_URL,
+} from "@/lib/constants/links";
 import { IconBrandDiscord, IconCoffee } from "@tabler/icons-react";
 import { useCurrentYear } from "@/hooks/use-current-year";
 import { useTranslation } from "react-i18next";
@@ -11,7 +14,6 @@ export function LandingFooter() {
 
   return (
     <MarketingFooter
-      wide
       links={[
         { label: t("nav.features"), href: "#features" },
         { label: t("nav.openSource"), href: "#open-source" },

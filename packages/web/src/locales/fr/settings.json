@@ -50,12 +50,16 @@
     "heading": "Reconnaissance de texte (OCR)",
     "description": "Quand un scan n'est pas une correspondance sûre, le nom et la ligne d'extension de la carte sont lus pour la trouver. S'applique à tous les scanners de cette organisation, pour les jeux dont les zones de texte sont configurées.",
     "toggleLabel": "Activer la correspondance de texte OCR",
-    "badge": "Bêta"
+    "highAccuracyToggleLabel": "Scans plus précis",
+    "highAccuracyDescription": "Lit le texte de chaque carte, pas seulement des correspondances incertaines, pour que l'extension et le numéro corrigent une correspondance sûre mais fausse. Les scans prennent un peu plus de temps."
   },
   "foilDetection": {
     "heading": "Détection des foils",
-    "description": "Marque un scan Magic comme foil quand la carte semble foil. Avec un trieur connecté et un firmware à jour, le poussoir déplace légèrement la carte dans les deux sens sans ouvrir la trappe latérale, et des photos montrent si son reflet change, ce qui ajoute environ une seconde par carte. Sinon, la zone de texte est vérifiée pour un reflet arc-en-ciel. Uniquement pour les cartes qui existent aussi en non-foil, et seulement quand le réglage foil du scanner est désactivé.",
-    "toggleLabel": "Détecter les foils sur la photo du scan",
+    "description": "Marque automatiquement un scan comme foil. Uniquement pour les impressions qui existent en foil et en non-foil, et seulement quand le réglage foil du scanner est désactivé.",
+    "starToggleLabel": "Lire l'étoile foil de Magic",
+    "starToggleDescription": "Marque les cartes Magic comme foil quand la ligne de collection montre l'étoile ★ imprimée sur les foils. Fonctionne sur tous les appareils, sans temps supplémentaire.",
+    "toggleLabel": "Détecter les foils en poussant la carte",
+    "nudgeToggleDescription": "Pour tous les jeux, avec un trieur connecté et un firmware à jour : le poussoir déplace légèrement la carte dans les deux sens sans ouvrir la trappe latérale, et des photos montrent si son reflet change. Ajoute environ une seconde par carte.",
     "badge": "Expérimental"
   },
   "draft": {

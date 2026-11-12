@@ -22,8 +22,16 @@ import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snaps
 import { PlanNotice } from "@/components/plan-notice";
 import { ScanOnlyBinSelect } from "@/features/bins/components/scan-only-bin-select";
 import { SortingModeToggleRow } from "@/features/bins/components/sorting-mode-toggle-row";
-import { CHAOS_BIN_SIZE_MAX, SCAN_ONLY_DEFAULT_BIN } from "@magic-vault/shared";
-import { IconRefresh } from "@tabler/icons-react";
+import {
+  CHAOS_BIN_SIZE_MAX,
+  SCAN_ONLY_DEFAULT_BIN,
+  SCAN_RULE_GAME_FIELD,
+} from "@magic-vault/shared";
+import { IconAlertTriangle, IconRefresh } from "@tabler/icons-react";
+import { Callout } from "@/components/callout";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { gamesQueryOptions } from "@/features/games/api/games";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -35,6 +43,7 @@ export function AutoAssignPanel() {
     fieldDefinitions,
     isPresetMutating,
     resetAutoAssign,
+    gameKey,
     effectiveMode,
     isModeDirty,
     isSavingMode,
@@ -46,16 +55,31 @@ export function AutoAssignPanel() {
   const isMobile = useIsMobile();
   const { activeOrg } = useOrg();
   const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
+  const { data: allGames = [] } = useQuery(gamesQueryOptions);
 
   if (!selectedSet) return null;
 
   const eligibleFields = fieldDefinitions.filter((f) => f.type !== "numeric");
   const isEnabled = !!effectiveMode.autoAssignField;
+  const isGameSort = effectiveMode.autoAssignField === SCAN_RULE_GAME_FIELD;
+  const isFieldAutoAssign = isEnabled && !isGameSort;
+  const otherGames = allGames.filter(
+    (game) => game.isActive && game.key !== gameKey,
+  );
+  const toggleMatchGame = (matchGameKey: string, checked: boolean) =>
+    stageMode({
+      matchGameKeys: checked
+        ? [...effectiveMode.matchGameKeys, matchGameKey]
+        : effectiveMode.matchGameKeys.filter((key) => key !== matchGameKey),
+    });
   const isScanOnly = effectiveMode.scanOnly;
   const isRepackMode = effectiveMode.isRepackMode;
   const isAlphabetMode = effectiveMode.isAlphabetMode;
   const isChaosMode = effectiveMode.isChaosMode;
   const disableToggles = isPresetMutating || isSavingMode;
+  const hasLearnedBins = configs.some(
+    (config) => !config.isCatchAll && config.rules.conditions.length > 0,
+  );
   const chaosLocked = billing?.chaosSort === false && !selectedSet.isChaosMode;
   const repackLocked =
     billing?.repacks === false && !selectedSet.isRepackMode;
@@ -69,11 +93,81 @@ export function AutoAssignPanel() {
       data-tour="auto-assign-panel"
     >
       <SortingModeToggleRow
-        label={t("autoAssignPanel.heading")}
-        description={t("autoAssignPanel.description")}
-        checked={isEnabled}
+        label={t("gameSortPanel.heading")}
+        description={t("gameSortPanel.description")}
+        checked={isGameSort}
         disabled={
           disableToggles ||
+          otherGames.length === 0 ||
+          isFieldAutoAssign ||
+          isScanOnly ||
+          isRepackMode ||
+          isAlphabetMode ||
+          isChaosMode
+        }
+        onCheckedChange={(checked) =>
+          stageMode(
+            checked
+              ? {
+                  autoAssignField: SCAN_RULE_GAME_FIELD,
+                  skipSaving: true,
+                  isResortMode: false,
+                }
+              : { autoAssignField: null, matchGameKeys: [] },
+          )
+        }
+      />
+
+      {isGameSort && (
+        <div className="flex flex-col gap-2">
+          <fieldset className="flex flex-col gap-1.5">
+            <legend className="mb-1.5 text-xs font-medium">
+              {t("gameSortPanel.gamesLabel")}
+            </legend>
+            {otherGames.map((game) => (
+              <Label
+                key={game.key}
+                className="flex items-center gap-2 font-normal"
+              >
+                <Checkbox
+                  checked={effectiveMode.matchGameKeys.includes(game.key)}
+                  disabled={disableToggles}
+                  onCheckedChange={(checked) =>
+                    toggleMatchGame(game.key, checked === true)
+                  }
+                />
+                {game.name}
+              </Label>
+            ))}
+          </fieldset>
+          {effectiveMode.matchGameKeys.length === 0 ? (
+            <Callout variant="warning" icon={IconAlertTriangle}>
+              {t("gameSortPanel.pickGames")}
+            </Callout>
+          ) : (
+            <p className="text-xs text-foreground/70">
+              {t("gameSortPanel.hint")}
+            </p>
+          )}
+          <Button
+            variant="outline"
+            disabled={disableToggles || isModeDirty || !hasLearnedBins}
+            onClick={() => setResetDialogOpen(true)}
+          >
+            <IconRefresh />
+            {t("presetSelector.resetAutoAssign")}
+          </Button>
+        </div>
+      )}
+
+      <SortingModeToggleRow
+        className="border-t pt-2"
+        label={t("autoAssignPanel.heading")}
+        description={t("autoAssignPanel.description")}
+        checked={isFieldAutoAssign}
+        disabled={
+          disableToggles ||
+          isGameSort ||
           eligibleFields.length === 0 ||
           isScanOnly ||
           isRepackMode ||
@@ -87,8 +181,8 @@ export function AutoAssignPanel() {
         }}
       />
 
-      {isEnabled && (
-        <div className="flex items-center gap-2">
+      {isFieldAutoAssign && (
+        <div className="flex flex-col gap-2">
           <FieldLabel className="sr-only">
             {t("autoAssignPanel.fieldPlaceholder")}
           </FieldLabel>
@@ -99,7 +193,8 @@ export function AutoAssignPanel() {
             }
           >
             <SelectTrigger
-              className="flex-1 overflow-hidden"
+              aria-label={t("autoAssignPanel.fieldPlaceholder")}
+              className="w-full overflow-hidden"
               disabled={disableToggles}
             >
               <SelectValue
@@ -116,11 +211,11 @@ export function AutoAssignPanel() {
           </Select>
           <Button
             variant="outline"
-            size="icon"
-            disabled={disableToggles}
+            disabled={disableToggles || isModeDirty || !hasLearnedBins}
             onClick={() => setResetDialogOpen(true)}
           >
             <IconRefresh />
+            {t("presetSelector.resetAutoAssign")}
           </Button>
         </div>
       )}

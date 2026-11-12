@@ -19,6 +19,10 @@ export function CommLogEntries({ entries }: CommLogEntriesProps) {
                 {time}
               </span>
               <span
+                role="img"
+                aria-label={
+                  entry.direction === "sent" ? t("a11y.sent") : t("a11y.received")
+                }
                 className={cn(
                   "shrink-0",
                   entry.direction === "sent"

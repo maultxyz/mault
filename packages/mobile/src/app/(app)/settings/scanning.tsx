@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import { CORRECTION_AUTO_CLOSE_SECONDS_OPTIONS, DEFAULT_CORRECTION_AUTO_CLOSE_SECONDS } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -18,12 +18,13 @@ export default function ScanningSettingsScreen() {
   const draft = useOrgSettingsDraft();
   const disabled = draft.isLoading || draft.isSaving;
   const correctionBinPrompt = useWatch({ control: draft.control, name: "correctionBinPrompt" });
+  const ocrEnabled = useWatch({ control: draft.control, name: "ocrEnabled" });
   const [secondsOpen, setSecondsOpen] = useState(false);
 
   const section = (heading: string, description: string, badge?: string) => (
     <View>
       <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {heading}
         </AppText>
         {badge ? <Pill label={badge} /> : null}
@@ -37,6 +38,7 @@ export default function ScanningSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.scanning.title")}
+      isLoading={draft.isLoading}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}
@@ -54,7 +56,7 @@ export default function ScanningSettingsScreen() {
         />
       </Surface>
       <Surface style={{ gap: SPACING.md }}>
-        {section(t("settings.ocr.heading"), t("settings.ocr.description"), t("settings.ocr.badge"))}
+        {section(t("settings.ocr.heading"), t("settings.ocr.description"))}
         <Controller
           control={draft.control}
           name="ocrEnabled"
@@ -63,16 +65,36 @@ export default function ScanningSettingsScreen() {
               title={t("settings.ocr.toggleLabel")}
               value={field.value}
               disabled={disabled}
-              onValueChange={(next) => {
-                if (!next) {
-                  field.onChange(false);
-                  return;
-                }
-                Alert.alert(t("settings.ocrBetaDialog.title"), t("settings.ocrBetaDialog.description"), [
-                  { text: t("settings.ocrBetaDialog.cancel"), style: "cancel" },
-                  { text: t("settings.ocrBetaDialog.confirm"), onPress: () => field.onChange(true) },
-                ]);
-              }}
+              onValueChange={field.onChange}
+            />
+          )}
+        />
+        <Controller
+          control={draft.control}
+          name="highAccuracyScans"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("settings.ocr.highAccuracyToggleLabel")}
+              description={t("settings.ocr.highAccuracyDescription")}
+              value={field.value}
+              disabled={disabled || !ocrEnabled}
+              onValueChange={field.onChange}
+            />
+          )}
+        />
+      </Surface>
+      <Surface style={{ gap: SPACING.md }}>
+        {section(t("settings.foilDetection.heading"), t("settings.foilDetection.description"))}
+        <Controller
+          control={draft.control}
+          name="foilStarDetectionEnabled"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("settings.foilDetection.starToggleLabel")}
+              description={t("settings.foilDetection.starToggleDescription")}
+              value={field.value}
+              disabled={disabled}
+              onValueChange={field.onChange}
             />
           )}
         />

@@ -30,6 +30,24 @@ vi.mock("@/features/collections/api/use-collections", () => ({
     activeCollection: { guid: "collection", game: { key: "mtg" } },
   }),
 }));
+vi.mock("@/features/bins/api/use-bin-configs", () => ({
+  useBinConfigs: () => ({ selectedSet: null }),
+}));
+vi.mock("./use-stations", () => ({
+  useStation: () => ({ station: { id: "station" }, isActive: true }),
+}));
+vi.mock("../lib/scan-page-card-image", () => ({
+  orientDocumentScanImages: async (
+    front: string | undefined,
+    back: string | undefined,
+    _matched: string | null,
+    fallback: string,
+  ) => ({
+    capturedImageUrl: front ?? fallback,
+    capturedBackImageUrl: back,
+  }),
+  scanPageImageDataUrl: vi.fn(),
+}));
 vi.mock("./use-scanned-cards", () => ({
   useScannedCards: () => ({ forceSetCodes: [] }),
 }));
@@ -118,7 +136,7 @@ it("browser removal skips foil refinement and addition callbacks", async () => {
   );
   expect(save).not.toHaveBeenCalled();
   expect(foil).not.toHaveBeenCalled();
-  expect(mocks.search.mock.calls[0].at(-1)).toBeNull();
+  expect(mocks.search.mock.calls[0].at(-1)).toBe("mtg");
 });
 
 it("browser matched capture refines foil before delivering the scan", async () => {

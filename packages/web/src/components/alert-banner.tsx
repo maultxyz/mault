@@ -19,6 +19,7 @@ export function AlertBanner({
 
   return (
     <div
+      role={alert.severity === "danger" ? "alert" : "status"}
       className={cn(
         "flex items-center justify-center gap-2 border-b px-4 py-1.5 text-xs",
         ALERT_SEVERITY_BANNER_CLASS[alert.severity],
@@ -26,6 +27,7 @@ export function AlertBanner({
       )}
     >
       <Icon className="size-3.5 shrink-0" />
+      <span className="sr-only">{t(`a11y.severity.${alert.severity}`)} </span>
       {alert.link ? (
         <a
           href={alert.link}

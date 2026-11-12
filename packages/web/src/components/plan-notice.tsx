@@ -18,7 +18,7 @@ export function PlanNotice({
       <Link
         to={SETTINGS_PATHS.billing}
         onClick={onLinkClick}
-        className="font-medium text-foreground underline-offset-4 hover:underline"
+        className="font-medium text-foreground underline underline-offset-4"
       >
         {linkLabel ?? t("planLock.link")}
       </Link>

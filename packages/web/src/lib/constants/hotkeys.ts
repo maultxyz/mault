@@ -40,6 +40,7 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "cardDetail",
   "intake",
   "foilLabeling",
+  "matchValidation",
 ];
 
 export const ADMIN_ONLY_HOTKEY_GROUPS: HotkeyGroup[] = ["foilLabeling"];
@@ -61,9 +62,14 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   goCalibrate: { group: "navigation", keys: [{ key: "g" }, { key: "d" }] },
   goSettings: { group: "navigation", keys: [{ key: "g" }, { key: "," }] },
   goAdmin: { group: "navigation", keys: [{ key: "g" }, { key: "a" }] },
+  goNextSorterNeedingAttention: {
+    group: "navigation",
+    keys: [{ key: "g" }, { key: "n" }],
+  },
   scanPauseResume: { group: "scanner", keys: [{ key: " " }] },
   scanNow: { group: "scanner", keys: [{ key: "s" }] },
   scanFeed: { group: "scanner", keys: [{ key: "f" }] },
+  scanFlatbedCard: { group: "scanner", keys: [{ key: " " }] },
   scanToggleAutoFeed: { group: "scanner", keys: [{ key: "a" }] },
   scanClearDevice: { group: "scanner", keys: [{ key: "c", shift: true }] },
   scanCycleFoil: { group: "scanner", keys: [{ key: "f", shift: true }] },
@@ -91,6 +97,14 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   foilLabelNotFoil: { group: "foilLabeling", keys: [{ key: "n" }] },
   foilLabelSkip: { group: "foilLabeling", keys: [{ key: "s" }] },
   foilLabelBack: { group: "foilLabeling", keys: [{ key: "arrowleft" }] },
+  matchValidationCorrect: { group: "matchValidation", keys: [{ key: "a" }] },
+  matchValidationIncorrect: { group: "matchValidation", keys: [{ key: "s" }] },
+  matchValidationBadScan: { group: "matchValidation", keys: [{ key: "d" }] },
+  matchValidationSkip: { group: "matchValidation", keys: [{ key: "f" }] },
+  matchValidationBack: {
+    group: "matchValidation",
+    keys: [{ key: "arrowleft" }],
+  },
 };
 
 export const HOTKEY_ROUTES = {

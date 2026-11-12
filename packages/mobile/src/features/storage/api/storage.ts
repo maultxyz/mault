@@ -1,16 +1,22 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import type {
   CardStorageLocation,
+  CollectionCardsQuery,
   PagedList,
+  PickListEntryInput,
+  StoragePickList,
+  StorageRemoveCardsResult,
   Result,
   StorageLocation,
   StorageLocationCard,
   StorageLocationCardContext,
   StorageLocationCardPage,
+  StorageLocationCardsSummary,
   StorageLocationCsvExportRequest,
   StorageLocationExportSummary,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
+import { collectionCardsQueryParams } from "@/features/collections/api/collection-cards";
 import { apiDelete, apiGet, apiPost, apiPostText, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import { STORAGE_LOCATIONS_PAGE_SIZE } from "@/lib/constants/storage";
 
@@ -45,13 +51,42 @@ export const storageLocationQueryOptions = (guid: string) =>
     queryFn: () => unwrapOr(apiGet<Result<StorageLocation | null>>(`/api/storage-locations/${guid}`), null),
   });
 
-export const storageLocationCardsPageQueryOptions = (guid: string) =>
+export const storageLocationCardsPageQueryOptions = (guid: string, query: CollectionCardsQuery) =>
   infiniteQueryOptions({
-    queryKey: ["storage-locations", "cards-page", guid] as const,
+    queryKey: ["storage-locations", "cards-page", guid, query] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(apiGet<Result<StorageLocationCardPage>>(`/api/storage-locations/${guid}/cards/page?page=${pageParam}`)),
+      unwrap(
+        apiGet<Result<StorageLocationCardPage>>(
+          `/api/storage-locations/${guid}/cards/page?${collectionCardsQueryParams(query, pageParam)}`,
+        ),
+      ),
     initialPageParam: 1,
     getNextPageParam: (last) => (last.page * last.pageSize < last.total ? last.page + 1 : undefined),
+  });
+
+export const storagePickListQueryOptions = (orgId: string | null, entries: PickListEntryInput[]) =>
+  queryOptions({
+    queryKey: ["storage-locations", "pick-list", orgId, entries] as const,
+    queryFn: () => unwrap(apiPost<Result<StoragePickList>>("/api/storage-locations/pick-list", { entries })),
+    enabled: !!orgId && entries.length > 0,
+  });
+
+export const storageVerifyCardsQueryOptions = (guid: string | undefined) =>
+  queryOptions({
+    queryKey: ["storage-locations", "verify-cards", guid] as const,
+    queryFn: () =>
+      unwrap(apiGet<Result<StorageLocationSearchResult[]>>(`/api/storage-locations/${guid}/cards/verify`)),
+    enabled: !!guid,
+  });
+
+export function removeCardsFromStorageLocations(scanIds: string[]): Promise<StorageRemoveCardsResult> {
+  return unwrap(apiPost<Result<StorageRemoveCardsResult>>("/api/storage-locations/remove-cards", { scanIds }));
+}
+
+export const storageLocationCardsSummaryQueryOptions = (guid: string) =>
+  queryOptions({
+    queryKey: ["storage-locations", "cards-summary", guid] as const,
+    queryFn: () => unwrap(apiGet<Result<StorageLocationCardsSummary>>(`/api/storage-locations/${guid}/cards/summary`)),
   });
 
 export const storageLocationCardContextQueryOptions = (guid: string, scanId: string, enabled: boolean) =>

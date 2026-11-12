@@ -19,6 +19,7 @@ export interface ScanPlanInput {
   scanId: string;
   scannedAt: number;
   capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
   vectorizedOn?: ScanVectorizeSource;
   deviceGuid?: string;
 }
@@ -29,6 +30,9 @@ export interface MatchedScanPlanInput extends ScanPlanInput {
   sessionFoilType: string | null;
   foilDetection?: FoilDetection | null;
   fallbackFoilTypes: string[];
+  gameKey?: string | null;
+  isNudgeFoilDetectionEnabled?: boolean;
+  isFoilStarDetectionEnabled?: boolean;
   condition?: CardCondition;
   lowConfidenceMatch?: boolean;
   diagnostics?: MatchedScanDiagnostics;

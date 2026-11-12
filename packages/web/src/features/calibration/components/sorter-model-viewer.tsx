@@ -203,6 +203,7 @@ export default function SorterModelViewer({
         <div className="flex items-center gap-2">
           <Switch
             id="sorter-model-cover"
+            aria-label={t("sorterModel.showCover")}
             checked={showCover}
             onCheckedChange={setShowCover}
           />

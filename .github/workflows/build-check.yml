@@ -30,6 +30,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Lint (web, includes accessibility)
+        run: pnpm --filter @magic-vault/web lint
+
       - name: Test (server)
         run: pnpm --filter @magic-vault/server test
 

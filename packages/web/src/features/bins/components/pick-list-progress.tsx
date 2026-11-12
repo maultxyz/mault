@@ -74,7 +74,7 @@ export function PickListProgress({
               className="flex items-center gap-2 px-2.5 py-1.5 text-sm"
             >
               {complete ? (
-                <IconCircleCheckFilled className="size-4 shrink-0 text-success" />
+                <IconCircleCheckFilled className="size-4 shrink-0 text-success-foreground" />
               ) : (
                 <IconCircleDashed className="size-4 shrink-0 text-foreground/70" />
               )}

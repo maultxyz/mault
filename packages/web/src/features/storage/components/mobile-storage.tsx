@@ -18,9 +18,11 @@ import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import { useQuery } from "@tanstack/react-query";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
+import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
-import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
+import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
+import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
 import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
@@ -37,6 +39,7 @@ import {
 import {
   STORAGE_CARD_SEARCH_PARAM,
   STORAGE_LOCATION_SEARCH_PARAM,
+  STORAGE_PICK_LIST_PATH,
   STORAGE_REVIEW_SEARCH_PARAM,
 } from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
@@ -46,12 +49,14 @@ import {
   IconBox,
   IconEdit,
   IconListCheck,
+  IconListSearch,
   IconPlus,
+  IconShare,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 export function MobileStorage() {
   const { t } = useTranslation("storage");
@@ -73,6 +78,7 @@ export function MobileStorage() {
 
   const selectedGuid = searchParams.get(STORAGE_LOCATION_SEARCH_PARAM);
   const selected = locations.find((l) => l.guid === selectedGuid);
+  const cardQuery = useStorageLocationCardQuery(selected?.guid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
   const [shownScanId, setShownScanId] = useState(openScanId);
   if (openScanId && openScanId !== shownScanId) setShownScanId(openScanId);
@@ -205,6 +211,18 @@ export function MobileStorage() {
           actions={
             !isLocked && (
               <>
+                <ShareStorageLinkDialog
+                  locationGuid={selected.guid}
+                  trigger={
+                    <Button
+                      variant="ghost"
+                      className={MOBILE_CIRCLE_BUTTON_CLASS}
+                      aria-label={t("shareLink.trigger")}
+                    >
+                      <IconShare />
+                    </Button>
+                  }
+                />
                 <Button
                   variant="ghost"
                   className={MOBILE_CIRCLE_BUTTON_CLASS}
@@ -249,8 +267,9 @@ export function MobileStorage() {
           )}
         >
           <div className={MOBILE_PAGE_BODY_CLASS}>
-            <StorageLocationCards
+            <StorageLocationContent
               location={selected}
+              cardQuery={cardQuery}
               onOpenCard={(entry) =>
                 openCard(entry.locationGuid, entry.scanId, false)
               }
@@ -267,6 +286,7 @@ export function MobileStorage() {
               <StorageCardDetail
                 key={shownScanId}
                 location={selected}
+                cardsQuery={cardQuery.cardsQuery}
                 scanId={shownScanId}
                 reviewMode={isReviewing}
                 onNavigate={(scanId) => openCard(selected.guid, scanId)}
@@ -285,16 +305,29 @@ export function MobileStorage() {
       <MobilePageHeader
         title={t("page.title")}
         actions={
-          !isLocked && (
-            <Button
-              className={MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS}
-              aria-label={t("page.newLocation")}
-              disabled={isMutating}
-              onClick={() => setCreateOpen(true)}
-            >
-              <IconPlus />
-            </Button>
-          )
+          <>
+            {locations.length > 0 && (
+              <Button
+                variant="ghost"
+                className={MOBILE_CIRCLE_BUTTON_CLASS}
+                aria-label={t("pickList.open")}
+                nativeButton={false}
+                render={<Link to={STORAGE_PICK_LIST_PATH} />}
+              >
+                <IconListSearch />
+              </Button>
+            )}
+            {!isLocked && (
+              <Button
+                className={MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS}
+                aria-label={t("page.newLocation")}
+                disabled={isMutating}
+                onClick={() => setCreateOpen(true)}
+              >
+                <IconPlus />
+              </Button>
+            )}
+          </>
         }
       >
         {!isLoading && locations.length > 0 && (

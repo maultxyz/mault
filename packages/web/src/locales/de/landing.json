@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "MAULT: Automatischer Sortierer und Scanner für Sammelkarten",
+    "title": "Mault: Automatischer Sortierer und Scanner für Sammelkarten",
     "description": "Scanne und sortiere Magic: The Gathering und andere Sammelkarten automatisch. Baue einen Open-Source-Kartensortierer, lege Fächerregeln fest und kenne den Wert deiner Sammlung."
   },
   "nav": {
@@ -20,6 +20,8 @@
     "title": "Jede Karte,<br></br><highlight>schön dort, wo sie hingehört.</highlight>",
     "seeFeatures": "Funktionen ansehen",
     "liveSort": "Live-Sortierung",
+    "pauseDemo": "Demo pausieren",
+    "playDemo": "Demo abspielen",
     "sortedCount_one": "{{count}} Karte sortiert",
     "sortedCount_other": "{{count}} Karten sortiert",
     "nextUp": "Als Nächstes",
@@ -45,7 +47,8 @@
       "set": "Set",
       "price": "Preis",
       "route": "Ziel"
-    }
+    },
+    "subtitle": "Mault scannt jede Karte, erkennt sie sofort und legt sie ins richtige Fach. Danach weißt du immer, wo sie liegt und was sie wert ist."
   },
   "stats": {
     "items": {
@@ -58,7 +61,9 @@
   "supportedGames": {
     "heading": "Sortiert jedes Sammelkartenspiel, das du liebst",
     "cardsIndexed_one": "{{formatted}} Karte indexiert",
-    "cardsIndexed_other": "{{formatted}} Karten indexiert"
+    "cardsIndexed_other": "{{formatted}} Karten indexiert",
+    "pauseHint": "Drücke die Leertaste, um die laufende Liste anzuhalten.",
+    "pausedHint": "Angehalten. Drücke die Leertaste, um die laufende Liste fortzusetzen."
   },
   "features": {
     "eyebrow": "Funktionen",
@@ -93,7 +98,10 @@
       "ruleMatches_one": "{{count}} Karte kommt in Fach {{bin}}",
       "ruleMatches_other": "{{count}} Karten kommen in Fach {{bin}}",
       "collectionValue": "Sammlungswert",
-      "valueHistory": "Wert in den letzten 30 Tagen"
+      "valueHistory": "Wert in den letzten 30 Tagen",
+      "ruleField": "Feld",
+      "ruleOperator": "Operator",
+      "ruleValue": "Wert"
     },
     "more": {
       "heading": "Und noch viel mehr",
@@ -289,7 +297,8 @@
       "fleetHealth": "Flottenzustand: sieh Status, Karten seit der letzten Wartung und Alarmverlauf jedes Sortierers und lege Wartungsintervalle fest",
       "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
       "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
-      "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen"
+      "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen",
+      "longShareLinks": "Monitor-Links bis 30 Tage: Teile eine Live-Ansicht einer Sammlung tagelang statt eine Stunde"
     },
     "compare": {
       "heading": "Alle Funktionen im Vergleich",
@@ -322,7 +331,8 @@
         "fleetHealth": "Flottenzustand",
         "storage": "Lagerorte",
         "apiAccess": "API-Zugriff",
-        "businessTools": "An- und Verkauf"
+        "businessTools": "An- und Verkauf",
+        "longShareLinks": "Monitor-Links bis 30 Tage"
       }
     }
   },

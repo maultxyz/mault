@@ -8,6 +8,7 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { BinLevelCell } from "@/features/scanner/components/bin-level-cell";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { EmptyAllBinsDialog } from "@/features/storage/components/empty-all-bins-dialog";
+import { ResetAutoAssignToggle } from "@/features/storage/components/reset-auto-assign-toggle";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { summarizeBinLevels } from "@/features/scanner/lib/bin-levels";
 import { buildBinLevelLayout } from "@/lib/bin-machine-layout";
@@ -25,12 +26,14 @@ import { useTranslation } from "react-i18next";
 export function BinStatusMeter() {
   const { t } = useTranslation("scanner");
   const levels = useBinFillLevels();
-  const { configs, emptyBin, emptyAllBins, selectedSet } = useBinConfigs();
+  const { configs, emptyBin, emptyAllBins, selectedSet, sets } =
+    useBinConfigs();
   const { activeCollection } = useCollections();
   const { routes } = useBinRoutes();
   const { lastRoutedBin } = useScannedCards();
   const [confirmBin, setConfirmBin] = useState<number | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
+  const [resetAutoAssignedRules, setResetAutoAssignedRules] = useState(true);
   const [expanded, setExpanded] = usePersistedFlag(
     BIN_LEVELS_EXPANDED_STORAGE_KEY,
   );
@@ -56,6 +59,8 @@ export function BinStatusMeter() {
     [levels],
   );
   const summary = useMemo(() => summarizeBinLevels(levels), [levels]);
+  const canResetAutoAssignedRules = !!sets.find((set) => set.isActive)
+    ?.autoAssignField;
 
   if (levels.length === 0) return null;
 
@@ -110,7 +115,11 @@ export function BinStatusMeter() {
               </span>
               {summary.needsEmptying > 0 && (
                 <span className="flex shrink-0 items-center gap-0.5 font-medium text-warning-foreground">
-                  <IconAlertTriangle className="size-3.5" />
+                  <IconAlertTriangle
+                    className="size-3.5"
+                    role="img"
+                    aria-label={t("a11y.binsNeedingEmptying")}
+                  />
                   {summary.needsEmptying}
                 </span>
               )}
@@ -134,7 +143,10 @@ export function BinStatusMeter() {
             variant="ghost"
             className="mr-1.5"
             disabled={summary.totalCards === 0}
-            onClick={() => setConfirmAll(true)}
+            onClick={() => {
+              setResetAutoAssignedRules(true);
+              setConfirmAll(true);
+            }}
           >
             <IconTrash />
             {t("binStatusMeter.emptyAll")}
@@ -168,6 +180,7 @@ export function BinStatusMeter() {
         bins={levels.filter((level) => level.count > 0)}
         preferLocation={!!selectedSet?.isChaosMode}
         collectionGuid={activeCollection?.guid}
+        canResetAutoAssignedRules={canResetAutoAssignedRules}
         onOpenChange={setConfirmAll}
         onConfirm={(options) =>
           emptyAllBins(
@@ -187,9 +200,19 @@ export function BinStatusMeter() {
         confirmLabel={t("binStatusMeter.emptyAllConfirm")}
         focusConfirm
         onConfirm={() => {
-          void emptyAllBins(levels.map((level) => level.binNumber));
+          void emptyAllBins(levels.map((level) => level.binNumber), {
+            resetAutoAssignedRules:
+              canResetAutoAssignedRules && resetAutoAssignedRules,
+          });
         }}
-      />
+      >
+        {canResetAutoAssignedRules && (
+          <ResetAutoAssignToggle
+            checked={resetAutoAssignedRules}
+            onCheckedChange={setResetAutoAssignedRules}
+          />
+        )}
+      </DeleteDialog>
 
       <EmptyBinToLocationDialog
         binNumber={confirmBin}

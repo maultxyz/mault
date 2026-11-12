@@ -35,6 +35,7 @@ export function DiscordChannelSettings({
               name="scanChannelId"
               render={({ field }) => (
                 <DiscordChannelSelect
+                  aria-label={t("channelSettings.scan")}
                   value={field.value}
                   channels={channels}
                   emptyLabel={t("channelSettings.none")}
@@ -51,6 +52,7 @@ export function DiscordChannelSettings({
               name="scanRoleId"
               render={({ field }) => (
                 <DiscordRoleSelect
+                  aria-label={t("channelSettings.scanRole")}
                   value={field.value}
                   roles={roles}
                   disabled={disabled || !scanChannelId}
@@ -68,6 +70,7 @@ export function DiscordChannelSettings({
               name="errorChannelId"
               render={({ field }) => (
                 <DiscordChannelSelect
+                  aria-label={t("channelSettings.error")}
                   value={field.value}
                   channels={channels}
                   emptyLabel={t("channelSettings.none")}
@@ -84,6 +87,7 @@ export function DiscordChannelSettings({
               name="errorRoleId"
               render={({ field }) => (
                 <DiscordRoleSelect
+                  aria-label={t("channelSettings.errorRole")}
                   value={field.value}
                   roles={roles}
                   disabled={disabled || !errorChannelId}

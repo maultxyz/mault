@@ -18,7 +18,8 @@ export type SorterBaseNode =
   | "groundMiddle"
   | "groundEnd"
   | "sleeves"
-  | "baseBlock";
+  | "baseBlock"
+  | "baseBlockTall";
 
 export type SorterModelRole =
   | "paddleHorn"
@@ -113,6 +114,7 @@ export type SorterPrintPart =
 export interface SorterBaseSupportBlock {
   part: SorterPrintPart;
   alt: boolean;
+  levelInPiece: number;
 }
 
 export interface SorterBaseSupportCounts {

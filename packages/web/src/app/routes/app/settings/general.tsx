@@ -71,6 +71,7 @@ export default function SettingsGeneralPage() {
             name="leaderboardOptIn"
             render={({ field }) => (
               <Switch
+                aria-label={t("leaderboard.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}

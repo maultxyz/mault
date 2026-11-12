@@ -1,0 +1,188 @@
+name: Card Catalog Sync
+
+on:
+  # Nightly at 08:23 UTC (about 2 to 3 AM America/Chicago), off the top of
+  # the hour since GitHub delays or drops scheduled runs when load peaks at :00.
+  schedule:
+    - cron: "23 8 * * *"
+  workflow_dispatch:
+    inputs:
+      games:
+        description: Comma-separated game keys to sync (blank syncs every game)
+        type: string
+        default: ""
+      languages:
+        description: Comma-separated languages to sync (blank syncs every language each game offers)
+        type: string
+        default: ""
+      force:
+        description: Force resync (rewrites every card)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: card-catalog-sync
+  cancel-in-progress: false
+
+# The sync runs on the runners themselves, not on the server: the same sync
+# worker the admin page starts, writing straight to the production database.
+# Each game and language syncs in its own job, so catalogs run in parallel and
+# each gets its own time limit; a catalog stopped at the limit resumes on the
+# next run because existing cards are skipped. The server's in-memory match
+# index picks the changes up through its periodic signature check.
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+    outputs:
+      catalogs: ${{ steps.list.outputs.catalogs }}
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Check secrets
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Set the DATABASE_URL secret in the production environment."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install server dependencies
+        run: pnpm install --frozen-lockfile --filter @magic-vault/server...
+
+      - name: List catalogs
+        id: list
+        env:
+          GAMES: ${{ inputs.games }}
+          LANGUAGES: ${{ inputs.languages }}
+        run: |
+          ARGS=(--list-catalogs)
+          if [ -n "$GAMES" ]; then ARGS+=("--games=$GAMES"); fi
+          if [ -n "$LANGUAGES" ] && [ "$LANGUAGES" != "all" ]; then ARGS+=("--languages=$LANGUAGES"); fi
+          pnpm --filter @magic-vault/server exec tsx scripts/sync-card-catalogs.ts "${ARGS[@]}"
+
+  sync:
+    needs: plan
+    name: sync ${{ matrix.catalog.gameKey }} (${{ matrix.catalog.lang }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    environment:
+      name: production
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        catalog: ${{ fromJSON(needs.plan.outputs.catalogs) }}
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      CARD_API_USER_AGENT: ${{ vars.CARD_API_USER_AGENT }}
+      COLLECTORVISION_CACHE: ${{ github.workspace }}/.cache/collectorvision
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
+      VECTORIZE_CONCURRENCY: 4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install server dependencies
+        run: pnpm install --frozen-lockfile --filter @magic-vault/server...
+
+      # The embedding and OCR models are pinned by sha256 in the model
+      # registry, so the cache only changes when a pin does.
+      - name: Cache models
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/collectorvision
+            .cache/huggingface
+          key: models-${{ hashFiles('packages/server/src/lib/models/**') }}
+
+      # Stops 30 minutes before the job limit so the cards embedded so far are
+      # written and the result still reaches the report.
+      - name: Sync catalog
+        env:
+          GAME_KEY: ${{ matrix.catalog.gameKey }}
+          CATALOG_LANG: ${{ matrix.catalog.lang }}
+          FORCE_RESYNC: ${{ inputs.force && 'true' || 'false' }}
+        run: |
+          ARGS=("--games=$GAME_KEY" "--languages=$CATALOG_LANG" "--stop-after-minutes=300" "--results-file=$RUNNER_TEMP/catalog-sync-result.json")
+          if [ "$FORCE_RESYNC" = "true" ]; then ARGS+=("--force"); fi
+          pnpm --filter @magic-vault/server exec tsx scripts/sync-card-catalogs.ts "${ARGS[@]}"
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-sync-result-${{ matrix.catalog.gameKey }}-${{ matrix.catalog.lang }}
+          path: ${{ runner.temp }}/catalog-sync-result.json
+          if-no-files-found: ignore
+          retention-days: 3
+
+  report:
+    needs: [plan, sync]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install server dependencies
+        run: pnpm install --frozen-lockfile --filter @magic-vault/server...
+
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: catalog-sync-result-*
+          path: ${{ runner.temp }}/catalog-sync-results
+
+      - name: Post report
+        env:
+          GAMES: ${{ inputs.games }}
+          LANGUAGES: ${{ inputs.languages }}
+          FORCE_RESYNC: ${{ inputs.force && 'true' || 'false' }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_CATALOG_SYNC_WEBHOOK_URL || secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/catalog-sync-results"
+          ARGS=("--report-from-results=$RUNNER_TEMP/catalog-sync-results")
+          if [ -n "$GAMES" ]; then ARGS+=("--games=$GAMES"); fi
+          if [ -n "$LANGUAGES" ] && [ "$LANGUAGES" != "all" ]; then ARGS+=("--languages=$LANGUAGES"); fi
+          if [ "$FORCE_RESYNC" = "true" ]; then ARGS+=("--force"); fi
+          pnpm --filter @magic-vault/server exec tsx scripts/sync-card-catalogs.ts "${ARGS[@]}"

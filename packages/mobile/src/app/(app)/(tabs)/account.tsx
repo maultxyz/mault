@@ -12,6 +12,7 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { useRole } from "@/hooks/use-role";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useLanguagePreference } from "@/hooks/use-language-preference";
@@ -29,6 +30,7 @@ import { getInitials } from "@/lib/initials";
 
 export default function AccountScreen() {
   const { t } = useTranslation();
+  const { isStaff } = useRole();
   const colors = useTheme();
   const queryClient = useQueryClient();
   const { user, organizations, activeOrgId } = useSession();
@@ -40,7 +42,7 @@ export default function AccountScreen() {
   const switchOrg = useSwitchOrg();
 
   return (
-    <Screen header={<PageHeader title={t("tabs.account")} />}>
+    <Screen header={<PageHeader title={t("tabs.more")} />}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
         <View
           style={{
@@ -57,7 +59,7 @@ export default function AccountScreen() {
           </AppText>
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <AppText size="lg" heading weight="bold" numberOfLines={1}>
+          <AppText size="lg" heading weight="bold" numberOfLines={1} accessibilityRole="header">
             {user?.name || user?.email}
           </AppText>
           {user?.name && user.email ? (
@@ -116,13 +118,17 @@ export default function AccountScreen() {
         )}
       </View>
       <ListGroup>
+        <ListRow icon="sorter" title={t("tabs.sorter")} onPress={() => router.push("/sorter")} />
+        <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
+        <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
+      </ListGroup>
+      <ListGroup>
         <ListRow
           icon="adjust"
           title={t("settings.title")}
           subtitle={t("settings.entrySubtitle")}
           onPress={() => router.push("/settings")}
         />
-        <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
         <ListRow
           icon="account"
           title={t("account.settingsRow")}
@@ -130,6 +136,9 @@ export default function AccountScreen() {
           onPress={() => router.push("/profile")}
         />
         <ListRow icon="health" title={t("health.title")} subtitle={t("health.subtitle")} onPress={() => router.push("/health")} />
+        {isStaff ? (
+          <ListRow icon="admin" title={t("admin.title")} subtitle={t("admin.entrySubtitle")} onPress={() => router.push("/admin")} />
+        ) : null}
       </ListGroup>
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("account.appearance")} />

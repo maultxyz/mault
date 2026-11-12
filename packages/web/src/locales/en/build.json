@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Build Your Own Trading Card Sorting Machine | MAULT",
-    "description": "Step-by-step guide to building the MAULT card sorter: bill of materials, wiring diagrams, 3D printed parts, firmware and assembly instructions."
+    "title": "Build Your Own Trading Card Sorting Machine | Mault",
+    "description": "Step-by-step guide to building the Mault card sorter: bill of materials, wiring diagrams, 3D printed parts, firmware and assembly instructions."
   },
   "hero": {
     "eyebrow": "Hardware build guide",
@@ -192,8 +192,8 @@
             "part": "M3 nut",
             "notes": "Paired with the base panel M3×6 screws"
           },
-          "m3Washer": {
-            "part": "M3 washer",
+          "m10Washer": {
+            "part": "M10 washer",
             "notes": "Used with the M3×8 screws that mount the hopper roller"
           },
           "m3x8Screw": {
@@ -260,6 +260,10 @@
           "servoExtensionCables": {
             "part": "Servo extension cables",
             "notes": "Only needed for more than 3 sorting modules, where the stock servo leads won't reach the servo driver board"
+          },
+          "feederBearings": {
+            "part": "Ball bearings",
+            "notes": "For the bearing version of the feeder base, so the roller spins more smoothly"
           }
         }
       }
@@ -493,7 +497,7 @@
             "note": "Same as the feeder roller, these give it grip on the card face."
           },
           "mountHopperRoller": {
-            "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M3 washers.",
+            "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M10 washers.",
             "note": "The roller should be stiff once mounted. It should not free-roll."
           },
           "calibrateHopperRoller": {
@@ -614,5 +618,29 @@
       "optionalPlate": "Back and Front Plates (optional)"
     },
     "xray": "X-ray"
+  },
+  "imageAlt": {
+    "printPart": "3D model render of the {{part}}",
+    "breakoutBaseSupport": "Breakout Base Support",
+    "photos": {
+      "baseModule": "A single purple 3D-printed sorting module frame: an open box with four pegs on top and tabs on its sides for joining modules.",
+      "baseModuleAssembled": "A short yellow module frame next to a tall yellow module stacked on a purple base support, showing how the printed frames fit together.",
+      "finishedSorter": "The finished sorter: a black tower of stacked sorting modules with the card hopper on top, surrounded by white bins holding sorted cards.",
+      "bottomPaddleDisassembled": "Bottom paddle parts laid out on a cutting mat: a long pink paddle plate, a servo horn adapter, a short link arm and two screws.",
+      "bottomPaddleAssembled": "The bottom paddle assembled: the link arm is screwed between the paddle's hinge bracket and the servo horn adapter.",
+      "bottomPaddleAttached": "The bottom paddle mounted on a pink module plate, its link arm connected to a blue SG90 micro servo, with the servo cables running off to the side.",
+      "sidePaddlesDisassembled": "Side paddle parts laid out: two long pink paddle plates, two link arms, a double-ended servo horn adapter and four screws.",
+      "sidePaddlesAssembled": "Both side paddles joined by their link arms to the central servo horn adapter, forming one linkage.",
+      "sidePaddlesAttached": "The side paddle linkage mounted on the module plate and driven by a blue micro servo, with its cables looped at the top.",
+      "pusherDisassembled": "Pusher parts laid out: two L-shaped pusher arms, two straight link arms, a triangular servo horn adapter and five screws.",
+      "pusherAssembled": "The pusher assembled: both L-shaped arms are linked through the straight arms to the triangular servo horn adapter.",
+      "pusherAttached": "A module plate with all three mechanisms fitted: the pusher arms, the side paddle linkage and the bottom paddle, each connected to a blue micro servo.",
+      "rollerORings": "The black 3D-printed feeder roller with six rubber O-rings seated in its grooves, three near each end.",
+      "feederServoMounted": "The white feeder module frame with a blue servo mounted on top, driving the O-ring roller inside the frame.",
+      "newHopper": "The black card hopper: an open rectangular frame with a spring-loaded screw at the top and the O-ring roller along its bottom edge.",
+      "feederRiser": "The black feeder riser seen from above, with the O-ring roller across the middle, an IR sensor beside it and the servo at one side.",
+      "sorterIrSensorMounted": "An IR sensor board clipped upright into its holder on the pink module plate, next to the servos and linkages.",
+      "feederIrSensorMounted": "Inside the black feeder housing, a blue IR sensor board sits just below the O-ring roller, facing up toward the cards."
+    }
   }
 }

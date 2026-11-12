@@ -1,5 +1,10 @@
+import type { ShareLinkPurpose } from "./monitor-links.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
-import type { CardCondition } from "./card-condition.interface";
+import type { CardCondition, ConditionMultipliers } from "./card-condition.interface";
+import type { CardStatsAggregate } from "./collection-cards.interface";
+import type { FieldMeta } from "./sort-bins.interface";
+import type { PickListEntry, PickListEntryInput } from "./pick-list.interface";
+import type { PriceSource } from "./price-source.interface";
 
 export interface StorageLocation {
   guid: string;
@@ -24,6 +29,7 @@ export interface StorageLocationCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  stamp: string | null;
   condition: CardCondition;
   language: string | null;
   lowConfidenceMatch: boolean;
@@ -32,6 +38,11 @@ export interface StorageLocationCard {
   reviewed: boolean;
   acquisitionCost: number | null;
   acquisitionCurrency: string | null;
+}
+
+export interface StorageLocationCardReference {
+  scanId: string;
+  collectionGuid: string;
 }
 
 export interface StorageLocationCardPage {
@@ -54,6 +65,57 @@ export interface StorageLocationCardContext {
   next: StorageLocationCardNeighbor | null;
 }
 
+export interface StoragePickListRequest {
+  entries: PickListEntryInput[];
+}
+
+export interface StoragePickListCard extends StorageLocationSearchResult {
+  lineIndex: number;
+}
+
+export interface StoragePickList {
+  lines: PickListEntry[];
+  cards: StoragePickListCard[];
+}
+
+export type StoragePickListRow =
+  | { kind: "card"; entry: StorageLocationSearchResult; isPicked: boolean }
+  | { kind: "missing"; line: PickListEntry; missingCount: number };
+
+export interface StoredStoragePickList {
+  decklist: string;
+  pickedScanIds: string[];
+}
+
+export interface StoredStorageVerify {
+  verifiedScanIds: string[];
+  notInLocationCardNames: string[];
+}
+
+export interface StorageVerifyNameCount {
+  name: string;
+  count: number;
+}
+
+export interface ScanCheckCard {
+  scanId: string;
+  collectionGuid: string;
+  card: { id: string; name: string };
+}
+
+export type ScanCheckMatch<T extends ScanCheckCard> =
+  | { kind: "unchecked"; card: T }
+  | { kind: "already-checked"; card: T };
+
+export interface StorageRemoveCardsResult {
+  removed: number;
+}
+
+export interface StorageLocationCardsSummary {
+  stats: CardStatsAggregate;
+  sortableFields: FieldMeta[];
+}
+
 export interface StorageLocationExportCard {
   scanId: string;
   position: number;
@@ -62,6 +124,7 @@ export interface StorageLocationExportCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  stamp: string | null;
   condition: CardCondition;
   language: string | null;
 }
@@ -80,3 +143,25 @@ export interface StorageLocationExportSummary {
   gameKeys: (string | null)[];
   scanIds: string[];
 }
+
+export interface StorageShareLink {
+  token: string;
+  expiresAt: string;
+}
+
+export interface StorageShareLinkInfo {
+  locationGuid: string;
+  locationName: string;
+  expiresAt: string;
+  cardCount: number;
+  totalValue: number;
+  priceSource: PriceSource;
+  conditionMultipliers: ConditionMultipliers;
+  showsPrices: boolean;
+  purpose: ShareLinkPurpose;
+}
+
+export type SharedStorageCard = Pick<
+  StorageLocationCard,
+  "scanId" | "position" | "card" | "isFoil" | "foilType" | "stamp" | "condition" | "language"
+>;

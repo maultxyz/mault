@@ -12,19 +12,22 @@ export function Screen({
   onRefresh,
   edges = [],
   header,
+  contentStartsWithList = false,
 }: ScreenProps) {
   const colors = useTheme();
   const padding = padded ? SCREEN_GUTTER : 0;
+  const topPadding = contentStartsWithList ? 0 : padding;
   const safeEdges = header ? edges.filter((edge) => edge !== "top") : edges;
   return (
     <SafeAreaView edges={safeEdges} style={{ flex: 1, backgroundColor: colors.background }}>
       {header}
       {scroll ? (
         <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             paddingHorizontal: padding,
-            paddingTop: padding,
+            paddingTop: topPadding,
             paddingBottom: padding + SPACING.xxl,
             gap: SPACING.lg + SPACING.xs,
           }}
@@ -43,7 +46,7 @@ export function Screen({
           {children}
         </ScrollView>
       ) : (
-        <View style={{ flex: 1, paddingHorizontal: padding, paddingTop: padding }}>
+        <View style={{ flex: 1, paddingHorizontal: padding, paddingTop: topPadding }}>
           {children}
         </View>
       )}

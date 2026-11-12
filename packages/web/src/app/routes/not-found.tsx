@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { Button } from "@/components/ui/button";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { SITE_NAME } from "@/lib/constants/seo";
@@ -16,7 +17,11 @@ export default function NotFoundPage() {
   });
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-4 text-center">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="flex min-h-dvh flex-col items-center justify-center gap-4 p-4 text-center outline-none"
+    >
       <IconError404 className="size-16 text-foreground/70" />
       <div className="flex flex-col gap-1">
         <h1 className="font-heading text-lg font-semibold">
@@ -29,6 +34,6 @@ export default function NotFoundPage() {
       <Button nativeButton={false} render={<Link to="/" />}>
         {t("backHome")}
       </Button>
-    </div>
+    </main>
   );
 }

@@ -2,8 +2,10 @@ import {
   setCollectionCardTags,
   confirmCollectionCard,
   markCollectionCardReviewed,
+  removeCollectionCard,
   setCollectionCardCondition,
   setCollectionCardLanguage,
+  setCollectionCardStamp,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -23,12 +25,10 @@ import type { CardDetailActions } from "@/lib/interfaces/cards";
 import type {
   MoveCardsToLocationInput,
   MoveCollectionsToLocationInput,
+  RemoveCardFromLocationInput,
 } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
-import {
-  withCardTags,
-  type CardTag,
-} from "@magic-vault/shared";
+import { withCardTags, type CardTag } from "@magic-vault/shared";
 import type {
   CardCondition,
   PlayingCard,
@@ -57,7 +57,9 @@ export function useStorageLocations({ withList = true } = {}) {
     enabled: listOptions.enabled !== false && !!activeOrg?.id && withList,
   });
   const invalidateAll = () =>
-    void queryClient.invalidateQueries({ queryKey: storageLocationKeys.root() });
+    void queryClient.invalidateQueries({
+      queryKey: storageLocationKeys.root(),
+    });
 
   const applyResult = (result: Result<null>) => {
     if (!result.success) {
@@ -205,25 +207,48 @@ export function useRemoveCardFromLocation() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ guid, scanId }: { guid: string; scanId: string }) =>
-      removeCardFromStorageLocation(guid, scanId),
-    onSuccess: (result) => {
+    mutationFn: ({
+      locationGuid,
+      scanId,
+      collectionGuid,
+      alsoRemoveFromCollection,
+    }: RemoveCardFromLocationInput) => {
+      if (!alsoRemoveFromCollection) {
+        return removeCardFromStorageLocation(locationGuid, scanId);
+      }
+      if (!collectionGuid) {
+        throw new Error(
+          "Removing a card from its collection needs the collection.",
+        );
+      }
+      return removeCollectionCard(collectionGuid, scanId);
+    },
+    onSuccess: (result, { collectionGuid, alsoRemoveFromCollection }) => {
       if (!result.success) {
         toast.error(result.message ?? t("toasts.failed"));
         return;
       }
-      toast.success(t("toasts.cardRemoved"));
+      toast.success(
+        t(
+          alsoRemoveFromCollection
+            ? "toasts.cardRemovedFromCollection"
+            : "toasts.cardRemoved",
+        ),
+      );
       void queryClient.invalidateQueries({
         queryKey: storageLocationKeys.root(),
       });
+      if (alsoRemoveFromCollection && collectionGuid) {
+        void invalidateCollectionCards(queryClient, collectionGuid);
+      }
     },
     onError: () => toast.error(t("toasts.failed")),
   });
 
-  const removeCard = async (guid: string, scanId: string): Promise<boolean> => {
-    const result = await mutation
-      .mutateAsync({ guid, scanId })
-      .catch(() => null);
+  const removeCard = async (
+    input: RemoveCardFromLocationInput,
+  ): Promise<boolean> => {
+    const result = await mutation.mutateAsync(input).catch(() => null);
     return !!result?.success;
   };
 
@@ -446,6 +471,33 @@ export function useSetStoredCardLanguage() {
   };
 }
 
+export function useSetStoredCardStamp() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({
+      entry,
+      stamp,
+    }: {
+      entry: StorageLocationSearchResult;
+      stamp: string | null;
+    }) => setCollectionCardStamp(entry.collectionGuid, entry.scanId, stamp),
+    onMutate: ({ entry, stamp }) => patchStoredCard(queryClient, entry, { stamp }),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, { entry }) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return {
+    setStamp: (entry: StorageLocationSearchResult, stamp: string | null) =>
+      mutation.mutate({ entry, stamp }),
+  };
+}
+
 export function useSetStoredCardTags() {
   const { t } = useTranslation("storage");
   const queryClient = useQueryClient();
@@ -493,6 +545,7 @@ export function useStoredCardActions(
   const { setFoilType } = useSetStoredCardFoilType();
   const { setCondition } = useSetStoredCardCondition();
   const { setLanguage } = useSetStoredCardLanguage();
+  const { setStamp } = useSetStoredCardStamp();
   const { setTags } = useSetStoredCardTags();
 
   return {
@@ -507,6 +560,9 @@ export function useStoredCardActions(
     },
     setCardFoilType: (_scanId, foilType) => {
       if (entry) setFoilType(entry, foilType);
+    },
+    setCardStamp: (_scanId, stamp) => {
+      if (entry) setStamp(entry, stamp);
     },
     setCardCondition: (_scanId, condition) => {
       if (entry) setCondition(entry, condition);

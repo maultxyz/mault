@@ -38,6 +38,7 @@ export function IntakeOfferEditor({ card }: IntakeOfferEditorProps) {
     settings?.buylist ?? DEFAULT_BUYLIST_CONFIG,
   );
   const name = card.card.name;
+  const offerLabel = card.offer != null ? format(card.offer) : "-";
 
   const save = async (offer: number | null) => {
     await saveCardAcquisitionCost(card.scanId, offer);
@@ -57,10 +58,14 @@ export function IntakeOfferEditor({ card }: IntakeOfferEditorProps) {
           <Button
             variant="ghost"
             className="-mr-2 font-medium tabular-nums"
-            aria-label={t("offerEditor.edit", { name })}
+            aria-label={[
+              offerLabel,
+              t("offerEditor.edit", { name }),
+              ...(card.hasManualOffer ? [t("offerEditor.manual")] : []),
+            ].join(", ")}
             title={card.hasManualOffer ? t("offerEditor.manual") : undefined}
           >
-            {card.offer != null ? format(card.offer) : "-"}
+            {offerLabel}
             <IconPencil
               className={card.hasManualOffer ? "text-primary" : "opacity-40"}
             />

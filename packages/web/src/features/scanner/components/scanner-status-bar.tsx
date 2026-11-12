@@ -14,7 +14,6 @@ import {
   IconArrowBarToDown,
   IconArrowBarToUp,
   IconCameraSpark,
-  IconDeviceMobile,
   IconDeviceUsb,
   IconDeviceUsbFilled,
   IconDownload,
@@ -31,9 +30,13 @@ import type {
   ScannerConnectionState,
   ScannerStatusBarProps,
 } from "@/lib/interfaces/scanner";
-import { SCANNER_CONNECTION_DOT_CLASS } from "@/lib/constants/scanner";
+import {
+  SCANNER_CONNECTION_DOT_CLASS,
+  SORTER_LIMIT_MESSAGE_KEYS,
+} from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
+import { CameraMenuItems } from "@/features/scanner/components/camera-menu-items";
 import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 
 function ConnectionStatusPill({
@@ -69,6 +72,11 @@ export function ScannerStatusBar({
   autoFeed,
   allowDuplicates,
   cameras,
+  documentScannerOptions,
+  isFlatbedSelected,
+  onCalibrateFlatbed,
+  isFeederSelected,
+  onSetUpFeederCard,
   selectedCameraId,
   phonePairingStatus,
   scanningBlocked,
@@ -94,7 +102,7 @@ export function ScannerStatusBar({
   onConnectAnotherBluetooth,
   onConnectAnotherCloud,
   canConnectAnotherSorter,
-  sorterLimitIsHardCap,
+  sorterLimitReason,
   onUpgrade,
   handScan,
   onHandScanChange,
@@ -117,67 +125,51 @@ export function ScannerStatusBar({
       ? "connected"
       : "connecting";
 
-  const cameraPill = (
-    <ConnectionStatusPill
-      label={t("scannerMenu.camera")}
-      stateLabel={t(`scannerMenu.connectionStates.${cameraState}`)}
-      state={cameraState}
-      icon={<IconCameraSpark />}
-      data-tour="camera-status"
-    />
-  );
-
   return (
     <div className="pointer-events-none absolute inset-x-2 top-2 z-40 flex flex-wrap gap-1.5 *:pointer-events-auto">
       {onCameraConnect ? (
         <DropdownMenu>
-          <DropdownMenuTrigger render={cameraPill} />
-          <DropdownMenuContent align="start" className="w-56">
-            {isCameraActive ? (
-              <>
-                {cameras.length > 1 && (
-                  <>
-                    {cameras.map((cam, i) => (
-                      <DropdownMenuCheckboxItem
-                        key={cam.deviceId}
-                        checked={cam.deviceId === selectedCameraId}
-                        onCheckedChange={() => onCameraSelect(cam.deviceId)}
-                      >
-                        {cam.label ||
-                          t("scannerMenu.cameraFallbackLabel", {
-                            index: i + 1,
-                          })}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={onCameraDisconnect}
-                >
-                  {t("disconnect")}
-                </DropdownMenuItem>
-              </>
-            ) : (
-              <DropdownMenuItem
-                disabled={scanningBlocked}
-                onClick={onCameraConnect}
-              >
-                {t("connect")}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onOpenPhonePairing}>
-              <IconDeviceMobile />
-              {phonePairingStatus === "connected"
-                ? t("scannerMenu.phoneCameraConnected")
-                : t("usePhoneAsCamera")}
-            </DropdownMenuItem>
+          <DropdownMenuTrigger
+            render={
+              <ConnectionStatusPill
+                label={t("scannerMenu.camera")}
+                stateLabel={t(`scannerMenu.connectionStates.${cameraState}`)}
+                state={cameraState}
+                icon={<IconCameraSpark />}
+                data-tour="camera-status"
+              />
+            }
+          />
+          <DropdownMenuContent
+            align="start"
+            className="w-auto min-w-56 whitespace-nowrap"
+          >
+            <CameraMenuItems
+              isCameraActive={isCameraActive}
+              cameras={cameras}
+              documentScannerOptions={documentScannerOptions}
+              isFlatbedSelected={isFlatbedSelected}
+              selectedCameraId={selectedCameraId}
+              phonePairingStatus={phonePairingStatus}
+              scanningBlocked={scanningBlocked}
+              onCameraConnect={onCameraConnect}
+              onCameraDisconnect={onCameraDisconnect}
+              onCameraSelect={onCameraSelect}
+              onCalibrateFlatbed={onCalibrateFlatbed}
+              isFeederSelected={isFeederSelected}
+              onSetUpFeederCard={onSetUpFeederCard}
+              onOpenPhonePairing={onOpenPhonePairing}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        cameraPill
+        <ConnectionStatusPill
+          label={t("scannerMenu.camera")}
+          stateLabel={t(`scannerMenu.connectionStates.${cameraState}`)}
+          state={cameraState}
+          icon={<IconCameraSpark />}
+          data-tour="camera-status"
+        />
       )}
       <DropdownMenu>
         <DropdownMenuTrigger
@@ -259,10 +251,10 @@ export function ScannerStatusBar({
                   )}
                   <WifiSorterMenuItems onSelect={onConnectAnotherCloud} />
                 </>
-              ) : sorterLimitIsHardCap ? (
+              ) : sorterLimitReason !== "plan" ? (
                 <DropdownMenuItem disabled>
                   <IconPlus />
-                  {t("stations.hardCapReached.title", {
+                  {t(`${SORTER_LIMIT_MESSAGE_KEYS[sorterLimitReason]}.title`, {
                     max: MAX_CONNECTED_SORTERS,
                   })}
                 </DropdownMenuItem>

@@ -12,6 +12,9 @@ if (existsSync(rootEnvPath)) {
 const env = (key: string, fallback = ""): string =>
   process.env[key] ?? fallback;
 
+const optionalEnv = (key: string): string | undefined =>
+  process.env[key] || undefined;
+
 const easProjectId = env("EAS_PROJECT_ID");
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -24,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: "automatic",
   icon: "./assets/icon.png",
   ios: {
-    bundleIdentifier: env("MOBILE_IOS_BUNDLE_ID", "xyz.mault.app"),
+    bundleIdentifier: optionalEnv("MOBILE_IOS_BUNDLE_ID"),
     supportsTablet: true,
     infoPlist: {
       NSCameraUsageDescription:
@@ -35,7 +38,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
-    package: env("MOBILE_ANDROID_PACKAGE", "xyz.mault.app"),
+    package: optionalEnv("MOBILE_ANDROID_PACKAGE"),
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#1447e6",

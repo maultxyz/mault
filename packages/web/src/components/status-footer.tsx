@@ -28,7 +28,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 export function FooterDivider() {
-  return <span className="h-3 w-px bg-border shrink-0" />;
+  return <span aria-hidden className="h-3 w-px bg-border shrink-0" />;
 }
 
 function StatusDot({
@@ -68,6 +68,7 @@ function StatusItem({
       >
         <StatusDot variant={dot} />
         <span className="text-xs text-foreground/70">{label}</span>
+        <span className="sr-only">{tooltip}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -131,6 +132,7 @@ function SyncStatusItem() {
         <span className="text-xs text-foreground/70 tabular-nums shrink-0">
           {countLabel}
         </span>
+        <span className="sr-only">{tooltip}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -207,6 +209,7 @@ function SorterStatusItem() {
       <PopoverTrigger className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition-colors">
         <StatusDot variant={dot} />
         <span className="text-xs text-foreground/70">{label}</span>
+        <span className="sr-only">{statusText}</span>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-96 gap-2">
         <div className="flex items-center justify-between gap-2">
@@ -279,6 +282,7 @@ function HealthStatusItem() {
       >
         <StatusDot variant={dot} />
         <span className="text-xs text-foreground/70">{label}</span>
+        <span className="sr-only">{tooltip}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>

@@ -10,7 +10,7 @@ import {
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -30,6 +30,7 @@ export function DeleteDialog({
 }: DeleteDialogProps) {
   const { t } = useTranslation("common");
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const confirmLabelId = useId();
   const schema = z.object({ input: z.string() }).superRefine((data, ctx) => {
     if (confirm.type === "keyword" && data.input !== "delete") {
       ctx.addIssue({
@@ -111,9 +112,12 @@ export function DeleteDialog({
 
           {confirm.type !== "simple" && (
             <Field className="my-4" data-invalid={!!errors.input}>
-              <p className="text-sm text-foreground/70 mb-1.5">{label}</p>
+              <p id={confirmLabelId} className="text-sm text-foreground/70 mb-1.5">
+                {label}
+              </p>
               <Input
                 {...register("input")}
+                aria-labelledby={confirmLabelId}
                 placeholder={placeholder}
                 autoComplete="off"
                 autoFocus

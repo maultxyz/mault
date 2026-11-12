@@ -97,7 +97,10 @@
     "noFields": "Aucun champ correspondant",
     "selectPlaceholder": "Sélectionner...",
     "valuePlaceholder": "Valeur...",
-    "freeformMultiPlaceholder": "Valeurs séparées par des virgules..."
+    "freeformMultiPlaceholder": "Valeurs séparées par des virgules...",
+    "fieldLabel": "Champ",
+    "operatorLabel": "Opérateur",
+    "valueLabel": "Valeur"
   },
   "ruleGroupEditor": {
     "emptyState": "Aucune condition. Ajoute une condition ou un groupe pour commencer.",
@@ -140,7 +143,8 @@
       "auto-assign": "Tri automatique",
       "repack": "Repacks",
       "alphabet": "Tri alphabétique",
-      "chaos": "Tri chaos"
+      "chaos": "Tri chaos",
+      "game-sort": "Par jeu"
     }
   },
   "useBinConfigs": {
@@ -162,10 +166,18 @@
       "skipSavingFailed": "Impossible de mettre à jour l'enregistrement",
       "resortModeFailed": "Impossible de mettre à jour le retri",
       "cardsStored_one": "{{count}} carte rangée",
-      "cardsStored_other": "{{count}} cartes rangées"
+      "cardsStored_other": "{{count}} cartes rangées",
+      "matchGamesFailed": "Impossible de mettre à jour les jeux"
     }
   },
   "binsPage": {},
+  "gameSortPanel": {
+    "heading": "Trier par jeu",
+    "description": "Identifie chaque carte parmi ce jeu et les jeux choisis, puis attribue un bac à chaque jeu. Les cartes sont triées mais pas enregistrées, vous pouvez ensuite scanner chaque pile dans sa propre collection.",
+    "gamesLabel": "Reconnaître aussi les cartes de",
+    "pickGames": "Choisissez au moins un autre jeu. En attendant, seules les cartes de ce jeu sont reconnues.",
+    "hint": "Les cartes non reconnues vont dans le bac fourre-tout. Chaque jeu ajouté ralentit un peu les scans."
+  },
   "autoAssignPanel": {
     "heading": "Détection automatique",
     "description": "Apprend les affectations de bacs pendant le scan : dès qu'une nouvelle valeur apparaît pour le champ ci-dessous, elle occupe le prochain bac libre. Les répétitions y sont ensuite dirigées automatiquement, et une fois tous les bacs occupés, les nouvelles valeurs vont au fourre-tout.",
@@ -306,8 +318,10 @@
   },
   "sortTest": {
     "button": "Tester avec une carte aléatoire",
+    "cardButton": "Tester les règles de tri",
     "title": "Tester le tri",
     "description": "Une carte aléatoire de la base passe par {{name}}, comme le scanner la trierait. Rien n'est enregistré et la trieuse ne bouge pas.",
+    "cardDescription": "Cette carte passe par {{name}}, comme le scanner la trierait maintenant. Rien n'est enregistré et le trieur ne bouge pas.",
     "nextCard": "Carte suivante",
     "close": "Fermer",
     "noBin": "Aucun bac",
@@ -325,6 +339,9 @@
     "anyMustMatch": "Une de ces conditions",
     "cardValue": "Cette carte : {{value}}",
     "noValue": "rien",
+    "resultAnnouncement": "{{name}} va dans {{bin}}",
+    "scannedTo": "Lors du scan, cette carte est aussi allée dans {{bin}}.",
+    "scannedElsewhere": "Lors du scan, cette carte est allée dans {{scanned}}, pas dans {{tested}}. Le preset a peut-être changé depuis, ou un bac plein, un débordement ou une liste de recherche l'a envoyée ailleurs. Ce test ne tient pas compte du remplissage des bacs.",
     "reasons": {
       "rules": "Les règles du bac {{bin}} correspondent à cette carte, et c'est le premier bac qui correspond.",
       "override": "Le bac {{bin}} est prioritaire et ses règles correspondent, il l'emporte donc sur les autres bacs.",
@@ -372,7 +389,9 @@
     "nonFoilOption": "Non foil",
     "marketValueUsd": "Valeur marchande (USD)",
     "marketValueEur": "Valeur marchande (EUR)",
-    "collectorNumber": "Numéro de collection (numérique)"
+    "collectorNumber": "Numéro de collection (numérique)",
+    "game": "Jeu",
+    "stamp": "Tampon"
   },
   "pickList": {
     "modeLabel": "Quand une carte est trouvée",
@@ -401,7 +420,10 @@
       "saved": "Liste de tri enregistrée",
       "saveFailed": "Impossible d'enregistrer la liste de tri",
       "resetFailed": "Impossible de réinitialiser la liste de tri"
-    }
+    },
+    "importEmpty": "Aucune carte trouvée dans ce fichier. Vérifiez que la première ligne contient des noms de colonnes comme Product Name et Quantity.",
+    "importSkipped_one": "{{count}} ligne sans nom de carte a été ignorée.",
+    "importSkipped_other": "{{count}} lignes sans nom de carte ont été ignorées."
   },
   "page": {
     "title": "Règles de tri",

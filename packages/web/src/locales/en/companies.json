@@ -18,6 +18,7 @@
     "deleteWarning": "Permanently deletes \"{{name}}\" and all its data.",
     "deleteOrganization": "Delete organization",
     "roleOwner": "Owner",
+    "memberRoleLabel": "Role for {{name}}",
     "removeMemberTitle": "Remove member",
     "removeMemberDescription": "Remove \"{{name}}\" from this organization? They will lose access immediately.",
     "deleteOrgDescription": "Permanently deletes \"{{name}}\" and all its data. This cannot be undone.",

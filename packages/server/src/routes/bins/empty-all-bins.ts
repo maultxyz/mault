@@ -15,7 +15,9 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   activeBinSetWhere,
   loadSets,
+  resetAutoAssignBins,
   resolveGameId,
+  snapshotBinSet,
 } from "./shared";
 
 export const emptyAllBinsRoute = new Hono<AppEnv>().post(
@@ -29,6 +31,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       binNumbers = [],
       collectionGuid,
       locations = [],
+      resetAutoAssignedRules = false,
     } = await c.req
       .json<Partial<EmptyAllBinsInput>>()
       .catch((): Partial<EmptyAllBinsInput> => ({}));
@@ -49,6 +52,12 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
     ) {
       return c.json({ success: false, message: "Invalid locations." }, 400);
     }
+    if (typeof resetAutoAssignedRules !== "boolean") {
+      return c.json(
+        { success: false, message: "Invalid resetAutoAssignedRules." },
+        400,
+      );
+    }
     if (locations.length > 0 && !collectionGuid) {
       return c.json(
         { success: false, message: "A collection is required." },
@@ -59,7 +68,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       const gameId = await resolveGameId(tx, gameGuid);
       const activeBinSet = await tx.query.binSets.findFirst({
         where: (t) => activeBinSetWhere(t, orgId, gameId),
-        columns: { id: true },
+        columns: { id: true, guid: true, autoAssignField: true },
         with: {
           bins: {
             where: (bin, { eq }) => eq(bin.isDeleted, false),
@@ -141,6 +150,11 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       }
 
       await markBinsEmptied(tx, orgId, emptiedBinNumbers);
+
+      if (resetAutoAssignedRules && activeBinSet.autoAssignField) {
+        await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
+        await resetAutoAssignBins(tx, activeBinSet.id);
+      }
 
       const sets = await loadSets(tx, orgId);
       return {

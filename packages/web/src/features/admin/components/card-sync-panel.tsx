@@ -18,7 +18,7 @@ import {
   SYNC_VECTORIZE_CONCURRENCY_DEFAULT,
   SYNC_VECTORIZE_CONCURRENCY_OPTIONS,
 } from "@magic-vault/shared";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function CardSyncPanel() {
@@ -40,6 +40,7 @@ export function CardSyncPanel() {
     isCancelling,
   } = useCardSync();
   const logRef = useRef<HTMLDivElement>(null);
+  const concurrencySelectId = useId();
   const [syncGameKey, setSyncGameKey] = useState<string | null>(null);
   const [syncLang, setSyncLang] = useState<string>("en");
   const [forceResync, setForceResync] = useState(false);
@@ -60,6 +61,7 @@ export function CardSyncPanel() {
       heading={t("cardImageVectors.heading")}
       badge={
         <p
+          role="status"
           className="text-xs font-medium"
           style={{ color: SYNC_STATUS_COLORS[syncState.status] }}
         >
@@ -88,7 +90,10 @@ export function CardSyncPanel() {
                   setSyncLang(source?.languages[0] ?? "en");
                 }}
               >
-                <SelectTrigger className="w-56">
+                <SelectTrigger
+                  className="w-56"
+                  aria-label={t("cardImageVectors.gameLabel")}
+                >
                   <SelectValue
                     placeholder={t("cardImageVectors.selectGamePlaceholder")}
                   >
@@ -109,7 +114,10 @@ export function CardSyncPanel() {
                 value={syncLang}
                 onValueChange={(value) => setSyncLang(value ?? "en")}
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger
+                  className="w-32"
+                  aria-label={t("cardImageVectors.languageLabel")}
+                >
                   <SelectValue
                     placeholder={t("cardImageVectors.languagePlaceholder")}
                   >
@@ -192,9 +200,9 @@ export function CardSyncPanel() {
             </label>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm">
+                <label htmlFor={concurrencySelectId} className="text-sm">
                   {t("cardImageVectors.concurrencyLabel")}
-                </span>
+                </label>
                 <Select
                   value={String(concurrency)}
                   onValueChange={(value) => {
@@ -204,7 +212,7 @@ export function CardSyncPanel() {
                     if (next !== undefined) setConcurrency(next);
                   }}
                 >
-                  <SelectTrigger className="w-24">
+                  <SelectTrigger id={concurrencySelectId} className="w-24">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -225,7 +233,14 @@ export function CardSyncPanel() {
 
         {total > 0 && (
           <div className="flex flex-col gap-1.5">
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              role="progressbar"
+              aria-label={t("cardImageVectors.progressLabel")}
+              aria-valuemin={0}
+              aria-valuemax={total}
+              aria-valuenow={done}
+              className="h-2 rounded-full bg-muted overflow-hidden"
+            >
               <div
                 className="h-full bg-foreground transition-all duration-300"
                 style={{ width: `${progress}%` }}
@@ -289,6 +304,41 @@ export function CardSyncPanel() {
                 {syncState.currentCard}
               </p>
             )}
+          </div>
+        )}
+
+        {!!syncState.printingMarksTotal && (
+          <div className="flex flex-col gap-1.5">
+            <div
+              role="progressbar"
+              aria-label={t("cardImageVectors.printingMarksLabel")}
+              aria-valuemin={0}
+              aria-valuemax={syncState.printingMarksTotal}
+              aria-valuenow={syncState.printingMarksDone ?? 0}
+              className="h-2 rounded-full bg-muted overflow-hidden"
+            >
+              <div
+                className="h-full bg-foreground transition-all duration-300"
+                style={{
+                  width: `${Math.min(100, ((syncState.printingMarksDone ?? 0) / syncState.printingMarksTotal) * 100)}%`,
+                }}
+              />
+            </div>
+            <div className="flex gap-4 text-xs text-foreground/70 tabular-nums">
+              <span>
+                {t("cardImageVectors.printingMarksCount", {
+                  done: syncState.printingMarksDone ?? 0,
+                  total: syncState.printingMarksTotal,
+                })}
+              </span>
+              {!!syncState.printingMarksFailed && (
+                <span className="text-destructive">
+                  {t("cardImageVectors.errorsCount", {
+                    count: syncState.printingMarksFailed,
+                  })}
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>

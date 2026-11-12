@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Discord-Bot für deinen Kartensortierer | MAULT",
-    "description": "Füge den MAULT-Bot zu deinem Discord-Server hinzu, um jede sortierte Karte zu posten, bei Problemen Benachrichtigungen zu erhalten und Statistiken mit /stats abzurufen."
+    "title": "Discord-Bot für deinen Kartensortierer | Mault",
+    "description": "Füge den Mault-Bot zu deinem Discord-Server hinzu, um jede sortierte Karte zu posten, bei Problemen Benachrichtigungen zu erhalten und Statistiken mit /stats abzurufen."
   },
   "hero": {
     "eyebrow": "Discord-Integration",

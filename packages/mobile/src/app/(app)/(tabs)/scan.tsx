@@ -4,11 +4,11 @@ import { router, useIsFocused } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   binSetMode,
   CARD_CONDITIONS,
-  DEFAULT_SCAN_REGION,
-  gameAbbreviation,
+  collectionGameLabel,
   isCardCondition,
   listScannerControlActions,
 } from "@magic-vault/shared";
@@ -25,21 +25,23 @@ import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
-import { SegmentedControl } from "@/components/ui/segmented-control";
 import { cardSetsQueryOptions } from "@/features/cards/api/card-sets";
-import { collectionsQueryOptions } from "@/features/collections/api/collections";
-import { useActivateCollection } from "@/features/collections/api/use-activate-collection";
+import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
+import { useLiveFrameSource } from "@/features/scanner/api/use-live-frame-source";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
+import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
+import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { useScanSession } from "@/features/scanner/api/use-scan-session";
+import { useScanResultAnnouncements } from "@/features/scanner/api/use-scan-result-announcements";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { BinBadge } from "@/features/scanner/components/bin-badge";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
-import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
 import { ScanOptionsSheet } from "@/features/scanner/components/scan-options-sheet";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ScannerControlsSheet } from "@/features/scanner/components/scanner-controls-sheet";
@@ -52,19 +54,17 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import {
   ANY_SET_OPTION,
-  CAMERA_ASPECT_RATIO,
   CAPTURE_TARGET_RESOLUTION,
   CARD_SET_PICKER_LIMIT,
   LIVE_DETECTION_PAUSED_PHASES,
   NOT_FOIL_OPTION,
   PAUSE_TONES,
   RUNNING_PHASES,
-  SCAN_MODES,
+  QUIET_SCANNER_PHASES,
   SCAN_REMOVAL_NOTICE_TONES,
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { SHUTTER_SIZE } from "@/lib/constants/ui";
-import type { ScanMode } from "@/lib/interfaces/scanner";
 
 export default function ScanScreen() {
   const { t } = useTranslation();
@@ -73,13 +73,7 @@ export default function ScanScreen() {
   const appState = useAppState();
   const sorter = useSorter();
   const orgId = useActiveOrgId();
-  const { data: collections } = useQuery(collectionsQueryOptions(orgId));
-  const collection = collections?.find((c) => c.isActive) ?? null;
-  const collectionLabel = collection
-    ? [collection.name, collection.game ? gameAbbreviation(collection.game.key) : null, collection.lang.toUpperCase()]
-        .filter(Boolean)
-        .join(" · ")
-    : null;
+  const { collection, collections, setScanTargetGuid } = useScanTarget();
   const foilTypes = collection?.game?.foilTypes ?? [];
   const { sets: presets, activeSet } = useRulesData();
   const activePreset = activeSet?.isActive ? activeSet : null;
@@ -89,7 +83,6 @@ export default function ScanScreen() {
     presetPicker.label && activePresetMode !== "rules"
       ? `${presetPicker.label} · ${t(`rules.modes.${activePresetMode}.title`)}`
       : presetPicker.label;
-  const switchCollection = useActivateCollection(orgId);
   const [collectionPickerOpen, setCollectionPickerOpen] = useState(false);
   const [presetPickerOpen, setPresetPickerOpen] = useState(false);
   const [cameraPickerOpen, setCameraPickerOpen] = useState(false);
@@ -105,14 +98,9 @@ export default function ScanScreen() {
     targetResolution: CAPTURE_TARGET_RESOLUTION,
     qualityPrioritization: "speed",
   });
-  const [frameAspect, setFrameAspect] = useState(CAMERA_ASPECT_RATIO);
-  const capture = useCallback(async () => {
-    const frame = await captureFrame(photoOutput);
-    const { width, height } = frame.pixels;
-    if (width > 0 && height > 0) setFrameAspect(Math.min(width, height) / Math.max(width, height));
-    return frame;
-  }, [photoOutput]);
+  const capture = useCallback(() => captureFrame(photoOutput), [photoOutput]);
   const session = useScanSession({ capture });
+  useScanResultAnnouncements(session.feed);
   const { data: cardSets } = useQuery({
     ...cardSetsQueryOptions(collection?.guid ?? null),
     enabled: !!collection?.guid && (setPickerOpen || session.forcedSetCodes.length > 0),
@@ -142,7 +130,7 @@ export default function ScanScreen() {
         : t("scan.options.setCount", { count: session.forcedSetCodes.length });
   const controlCardDescription = session.controlCardNotice
     ? listScannerControlActions(session.controlCardNotice.command, {
-        collectionName: (guid) => collections?.find((c) => c.guid === guid)?.name ?? guid,
+        collectionName: (guid) => collections.find((c) => c.guid === guid)?.name ?? guid,
         presetName: (guid) => binSets?.find((binSet) => binSet.guid === guid)?.name ?? guid,
         setName: (code) => cardSets?.find((cardSet) => cardSet.code === code)?.name ?? code.toUpperCase(),
         conditionName: (condition) => t(`cardDetail.conditions.${condition}`),
@@ -152,8 +140,10 @@ export default function ScanScreen() {
     : "";
   const working = RUNNING_PHASES.includes(session.phase);
   const cameraRef = useRef<CameraRef>(null);
+  const torch = useCameraTorch(device, cameraRef);
+  const { liveFrameOutput, grabLiveFrame } = useLiveFrameSource(cameraRef);
   const liveCorners = useLiveCorners(
-    cameraRef,
+    grabLiveFrame,
     focused && appState === "active" && !!device && permission.hasPermission && !session.modelError,
     LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
     session.trackLiveCorners,
@@ -177,10 +167,11 @@ export default function ScanScreen() {
   )?.label;
   const showRemovalChip = session.removal.isActive || session.removal.entries.length > 0;
   const removalNotice = session.removal.notice;
-  const changeScanMode = (scanMode: ScanMode) => {
-    session.removal.setIsEnabled(scanMode === "remove");
-    if (scanMode === "remove") session.setHandScan(true);
+  const changeRemoveMode = (isRemoveMode: boolean) => {
+    session.removal.setIsEnabled(isRemoveMode);
+    if (isRemoveMode) session.setHandScan(true);
   };
+  const showPhaseChip = !QUIET_SCANNER_PHASES.includes(session.phase);
   const sorterDriven = sorter.isReady || session.handScanActive;
   const canScanOnce = !!collection && !session.modelError && session.phase !== "loading-models";
   const phaseColor =
@@ -233,8 +224,6 @@ export default function ScanScreen() {
       actionLabel={t("scan.chooseCollection")}
       onAction={() => setCollectionPickerOpen(true)}
     />
-  ) : switchCollection.isError ? (
-    <CameraNotice tone="destructive" title={t("collections.activateFailed")} />
   ) : presetPicker.isError ? (
     <CameraNotice tone="destructive" title={t("rules.activateFailed")} />
   ) : sorter.notice ? (
@@ -270,38 +259,35 @@ export default function ScanScreen() {
         count: removalNotice.removedCount ?? 0,
       })}
     />
-  ) : !sorter.isConnected && !session.handScan && !session.removal.isActive && session.sessionCount === 0 ? (
-    <CameraNotice
-      tone="info"
-      title={t("scan.sorterNotReadyTitle")}
-      description={t("scan.sorterNotReadyDescription")}
-      actionLabel={t("scan.openSorter")}
-      onAction={() => router.push("/sorter")}
-    />
   ) : null;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {device ? (
-        <Camera
-          ref={cameraRef}
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={focused && appState === "active"}
-          outputs={[photoOutput]}
-          resizeMode="cover"
-          enableNativeTapToFocusGesture
-        />
+        focused ? (
+          <Camera
+            ref={cameraRef}
+            style={StyleSheet.absoluteFill}
+            device={device}
+            isActive={focused && appState === "active"}
+            outputs={liveFrameOutput ? [photoOutput, liveFrameOutput] : [photoOutput]}
+            resizeMode="cover"
+            enableNativeTapToFocusGesture
+            onStarted={torch.onCameraStarted}
+          />
+        ) : null
       ) : (
         <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
         </View>
       )}
       {device ? (
-        <ScanRegionOverlay
-          region={sorter.device?.scanRegion ?? DEFAULT_SCAN_REGION}
-          frameAspect={frameAspect}
-          strokeColor={working ? colors.success : colors.onCamera}
+        <View
+          accessible
+          accessibilityRole="image"
+          accessibilityLabel={t("scan.cameraPreview")}
+          pointerEvents="none"
+          style={StyleSheet.absoluteFill}
         />
       ) : null}
       {device ? <DetectedOutline corners={liveCorners} color={colors.primary} /> : null}
@@ -311,15 +297,14 @@ export default function ScanScreen() {
         style={{ paddingTop: SPACING.md, paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}
       >
         <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-          <View style={{ flexShrink: 1, minWidth: 0 }}>
-            <CameraChip dotColor={phaseColor} label={t(`scan.phase.${session.phase}`)} />
+          <View style={{ flex: 1, minWidth: 0, flexDirection: "row" }}>
+            <CameraChip
+              icon="collections"
+              label={collection ? t("scan.scanningInto", { name: collection.name }) : t("scan.chooseCollection")}
+              onPress={session.isRunning ? undefined : () => setCollectionPickerOpen(true)}
+            />
           </View>
-          <CameraChip
-            icon="collections"
-            label={t("scan.sessionChip", { count: session.sessionCount })}
-            onPress={() => setSessionOpen(true)}
-          />
-          <View style={{ flex: 1 }} />
+          <TorchToggle torch={torch} />
           <IconButton
             icon="more"
             variant="camera"
@@ -328,6 +313,23 @@ export default function ScanScreen() {
             onPress={() => setOptionsOpen(true)}
           />
         </View>
+        <TorchBrightness torch={torch} />
+        {showPhaseChip || session.sessionCount > 0 ? (
+          <View pointerEvents="box-none" style={{ flexDirection: "row", gap: SPACING.sm }}>
+            {showPhaseChip ? (
+              <View style={{ flexShrink: 1, minWidth: 0 }}>
+                <CameraChip dotColor={phaseColor} label={t(`scan.phase.${session.phase}`)} />
+              </View>
+            ) : null}
+            {session.sessionCount > 0 ? (
+              <CameraChip
+                icon="check"
+                label={t("scan.sessionChip", { count: session.sessionCount })}
+                onPress={() => setSessionOpen(true)}
+              />
+            ) : null}
+          </View>
+        ) : null}
         {showRemovalChip && collection ? (
           <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
             <CameraChip
@@ -354,27 +356,33 @@ export default function ScanScreen() {
         ) : null}
       </View>
 
-      <View pointerEvents="box-none" style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
+      <SafeAreaView
+        edges={["bottom"]}
+        pointerEvents="box-none"
+        style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
+      >
         <View
           pointerEvents="box-none"
           style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.lg, gap: SPACING.md }}
         >
           {notice}
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: SPACING.md }}>
-            <View style={{ flex: 1 }}>
-              <SegmentedControl<ScanMode>
-                value={session.removal.isEnabled ? "remove" : "add"}
-                onChange={changeScanMode}
-                options={SCAN_MODES.map((scanMode) => ({ value: scanMode, label: t(`scan.removal.modes.${scanMode}`) }))}
-              />
+          <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
+            <View pointerEvents="box-none" style={{ flex: 1, alignItems: "flex-start" }}>
+              {collection && !sorter.isConnected && !session.isRunning ? (
+                <IconButton
+                  icon="multiCard"
+                  variant="camera"
+                  size={SHUTTER_SIZE - SPACING.sm}
+                  accessibilityLabel={t("batchScan.open")}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/batch-scan",
+                      params: { mode: session.removal.isEnabled ? "remove" : "add" },
+                    })
+                  }
+                />
+              ) : null}
             </View>
-            <IconButton
-              icon="adjust"
-              variant="camera"
-              size={SHUTTER_SIZE - SPACING.sm}
-              accessibilityLabel={t("scan.controls.open")}
-              onPress={() => setControlsOpen(true)}
-            />
             {sorterDriven ? (
               <ShutterButton
                 running={session.isRunning}
@@ -396,9 +404,20 @@ export default function ScanScreen() {
                 onPress={session.scanOnce}
               />
             )}
+            <View pointerEvents="box-none" style={{ flex: 1, alignItems: "flex-end" }}>
+              {sorter.isConnected ? (
+                <IconButton
+                  icon="adjust"
+                  variant="camera"
+                  size={SHUTTER_SIZE - SPACING.sm}
+                  accessibilityLabel={t("scan.controls.open")}
+                  onPress={() => setControlsOpen(true)}
+                />
+              ) : null}
+            </View>
           </View>
         </View>
-      </View>
+      </SafeAreaView>
       <ScanOptionsSheet
         visible={optionsOpen}
         running={session.isRunning}
@@ -408,7 +427,8 @@ export default function ScanScreen() {
         onAllowDuplicatesChange={session.setAllowDuplicates}
         handScan={session.handScan}
         onHandScanChange={session.setHandScan}
-        collectionName={collectionLabel}
+        removeMode={session.removal.isEnabled}
+        onRemoveModeChange={changeRemoveMode}
         presetName={presetLabel}
         showPreset={!!collection?.game && presets.length > 0}
         cameraName={selectedCameraIndex >= 0 ? cameraLabel(selectedCameraIndex) : null}
@@ -428,10 +448,6 @@ export default function ScanScreen() {
         onChooseSet={() => {
           setOptionsOpen(false);
           setSetPickerOpen(true);
-        }}
-        onChooseCollection={() => {
-          setOptionsOpen(false);
-          setCollectionPickerOpen(true);
         }}
         onChoosePreset={() => {
           setOptionsOpen(false);
@@ -466,11 +482,11 @@ export default function ScanScreen() {
       <OptionSheet
         visible={collectionPickerOpen}
         title={t("scan.chooseCollection")}
-        options={(collections ?? []).map((c) => ({ value: c.guid, label: c.name }))}
+        options={collections.map((c) => ({ value: c.guid, label: c.name, badge: collectionGameLabel(c) }))}
         selected={collection ? [collection.guid] : []}
         onSelect={(guid) => {
           setCollectionPickerOpen(false);
-          if (guid !== collection?.guid) switchCollection.mutate(guid);
+          setScanTargetGuid(guid);
         }}
         onClose={() => setCollectionPickerOpen(false)}
       />

@@ -1,0 +1,1 @@
+ALTER TABLE "storage_locations" ADD COLUMN "share_link_version" integer DEFAULT 0 NOT NULL;

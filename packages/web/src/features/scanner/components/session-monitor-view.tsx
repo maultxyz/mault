@@ -83,7 +83,7 @@ export function SessionMonitorView({
         <SessionErrorsPanel errors={errors} />
       </aside>
 
-      <main className="col-span-7 md:col-span-7 lg:col-span-8 xl:col-span-9 2xl:col-span-10 overflow-y-auto h-full @container">
+      <div className="col-span-7 md:col-span-7 lg:col-span-8 xl:col-span-9 2xl:col-span-10 overflow-y-auto h-full @container">
         {unmatchedView.isOpen && canEditCards ? (
           <UnmatchedCardsBrowser
             collectionGuid={cardsSource.collectionGuid}
@@ -138,6 +138,9 @@ export function SessionMonitorView({
               viewMode={cards.viewMode}
               groupDuplicates={cards.groupDuplicates}
               page={cards.page}
+              pageSize={cards.pageSize}
+              preferredPageSize={cards.preferredPageSize}
+              onPageSizeChange={cards.setPageSize}
               pageCount={cards.pageCount}
               onPageChange={cards.setPage}
               showBinLocation={showBinLocation}
@@ -145,7 +148,7 @@ export function SessionMonitorView({
             />
           </>
         )}
-      </main>
+      </div>
     </div>
   );
 }

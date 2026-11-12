@@ -26,8 +26,8 @@ Not on the phone yet: calibration, bin/preset editing, repack and auto-assign pr
 | `MOBILE_WEB_URL` | `https://mault.xyz` | Sent as `Origin` to Neon Auth (must be a trusted origin), and used for the sign-up link. |
 | `MOBILE_AUTH_PROVIDER` | `AUTH_PROVIDER`, else `neon` | `neon` or `local`. |
 | `MOBILE_NEON_AUTH_URL` | `VITE_NEON_AUTH_URL` | Neon Auth base URL. |
-| `MOBILE_IOS_BUNDLE_ID` | `xyz.mault.app` | |
-| `MOBILE_ANDROID_PACKAGE` | `xyz.mault.app` | |
+| `MOBILE_IOS_BUNDLE_ID` | | Required to build. No default is committed, so forks can't collide with the published app; pick your own reverse-domain ID. |
+| `MOBILE_ANDROID_PACKAGE` | | Required to build. Same rule as the iOS bundle ID. |
 | `EAS_PROJECT_ID` | | Required for EAS builds; no default is committed. Copy it from expo.dev (project > Project ID) into the root `.env`. |
 
 On EAS, set these as EAS environment variables, because the root `.env` isn't uploaded. `EAS_PROJECT_ID` is the exception: EAS CLI needs it on the machine running `eas build` before it can fetch EAS variables, so it comes from the root `.env` locally and from the `EAS_PROJECT_ID` GitHub environment variable in `mobile-release.yml`.
@@ -37,12 +37,13 @@ On EAS, set these as EAS environment variables, because the root `.env` isn't up
 ```bash
 pnpm install
 cd packages/mobile
+cp eas.example.json eas.json               # once, eas.json is gitignored
 eas init                                   # once, links the EAS project
 pnpm build:ios:dev                         # development build, install it from the link EAS prints
 pnpm start                                 # Metro for the dev build
 ```
 
-Release builds: `pnpm build:ios:preview` (ad hoc install on registered devices) and `pnpm build:ios:prod` followed by `pnpm submit:ios`.
+Release builds: `pnpm build:ios:preview` (ad hoc install on registered devices) and `pnpm build:ios:prod` followed by `pnpm submit:ios`. `eas.json` holds your own store details (`submit.production.ios`: `appleId`, `ascAppId`, `appleTeamId`) and is never committed, so forks can't submit to the published apps; `mobile-release.yml` builds from `eas.example.json` and never submits. Submit with `pnpm submit:android` / `pnpm submit:ios` (latest production build); Android reads the Play service account key from the gitignored `google-service-account.json` next to `eas.json`.
 
 Without an Apple Developer Program membership, `pnpm build:ios:sim` makes an iOS Simulator build (no signing, no Apple account). Drag the downloaded `.app` onto a simulator on a Mac, or run `eas build:run -p ios --latest`. The simulator has no camera or Bluetooth, so scanning and sorter connections can't be tested there.
 

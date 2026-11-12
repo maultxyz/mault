@@ -16,7 +16,8 @@
     "allSetsCount": "Tous les sets ({{count}})",
     "noMatchingSets": "Aucun set correspondant",
     "startTyping": "Commence à taper pour rechercher des cartes",
-    "noCardsFound": "Aucune carte trouvée"
+    "noCardsFound": "Aucune carte trouvée",
+    "searchLabel": "Rechercher des cartes"
   },
   "priceTable": {
     "heading": "TCGplayer",
@@ -39,8 +40,6 @@
     "avg30": "Moy. 30 jours",
     "market": "Marché",
     "low": "Bas",
-    "mid": "Moyen",
-    "high": "Haut",
     "regular": "Normale",
     "foil": "Foil",
     "noPrice": "n/d",
@@ -57,6 +56,10 @@
     "nextCard": "Carte suivante",
     "cardDetailsFallback": "Détails de la carte",
     "capturedScan": "Scan capturé",
+    "capturedBackSide": "Scan capturé (verso)",
+    "capturedBackSideAlt": "Verso numérisé de la carte",
+    "showBackSide": "Afficher le verso",
+    "showFrontSide": "Afficher le recto",
     "matchedCard": "Carte correspondante",
     "enlargeImage": "Cliquer pour agrandir",
     "similarMatches": "Correspondances similaires",
@@ -77,14 +80,29 @@
     "noOcrRegions": "Ce jeu n'a pas de zones OCR.",
     "ocrFallback": "{{field}} (zone de secours)",
     "ocrFixedBox": "{{field}} (zone fixe)",
+    "printingMarks": {
+      "title": "Marques d'impression",
+      "setSymbol": "Symbole d'extension",
+      "artStamp": "Tampon promo",
+      "listIcon": "Icône The List",
+      "pitch": "Points de pitch",
+      "editionMarker": "Marque d'édition",
+      "setCodeAndRegulationMark": "Code d'extension et marque de régulation",
+      "firstEditionStamp": "Tampon 1st Edition",
+      "foilMarker": "Étoile foil"
+    },
     "ocrFields": {
       "name": "Nom",
       "setLine": "Ligne d'extension",
-      "number": "Numéro"
+      "number": "Numéro",
+      "language": "Langue"
     },
     "copyOf": "Exemplaire {{index}} sur {{count}}",
     "moreOptions": "Plus",
-    "actions": "Actions de la carte"
+    "actions": "Actions de la carte",
+    "name": "Nom",
+    "moveToLocation": "Déplacer vers un emplacement",
+    "moveToCollection": "Déplacer vers une collection"
   },
   "cardFilterPopover": {
     "color": "Couleur",
@@ -128,7 +146,9 @@
     "downloadedHidden_one": "1 carte téléchargée est masquée par le filtre des téléchargements.",
     "downloadedHidden_other": "{{count}} cartes téléchargées sont masquées par le filtre des téléchargements.",
     "moveToLocation": "Déplacer",
-    "exporting": "Export en cours"
+    "exporting": "Export en cours",
+    "pendingScanSaving": "Enregistrement",
+    "pendingScanSavingName": "Enregistrement de {{name}}"
   },
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",
@@ -168,7 +188,14 @@
     "displayHeading": "Affichage",
     "cardSize": "Taille des cartes",
     "moreActions": "Plus d'actions",
-    "reviewCount": "Vérifier ({{count}})"
+    "reviewCount": "Vérifier ({{count}})",
+    "scanTimeline": "Chronologie des scans",
+    "scanTimelineOptions": {
+      "off": "Désactivée",
+      "day": "Par jour",
+      "hour": "Par heure"
+    },
+    "scanTimelineSortNote": "La chronologie affiche toujours les scans les plus récents en premier."
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
@@ -261,6 +288,8 @@
   },
   "foil": "Foil",
   "foilNone": "Non foil",
+  "stamp": "Tampon",
+  "stampNone": "Sans tampon",
   "language": "Langue",
   "downloaded": "Téléchargée",
   "technicalDetails": {
@@ -310,11 +339,25 @@
     "copyJson": "Copier le JSON",
     "copied": "JSON de la carte copié.",
     "copyFailed": "Impossible de copier le JSON de la carte.",
-    "detectedColor": "Barre de couleur détectée",
     "foilDetection": "Détection des foils",
     "foilDetected": "Foil ({{method}} {{score}})",
     "foilNotDetected": "Pas foil ({{method}} {{score}})",
-    "noColor": "Aucune",
+    "printingMarks": "Marques d'impression",
+    "printingMarksChanged": "Impression modifiée (indice {{evidence}})",
+    "printingMarksKept": "Impression conservée (meilleur indice {{evidence}})",
+    "printingMarksSkipped": {
+      "noScanAreas": "Non vérifié : aucune zone de marque issue du scan",
+      "noReferences": "Non vérifié : pas encore de références pour ce jeu",
+      "singlePrinting": "Inutile : aucune impression similaire"
+    },
+    "printedFoilMarker": "Étoile foil",
+    "printedFoilMarkerValue": {
+      "star": "Étoile trouvée (foil)",
+      "dot": "Point trouvé (non foil)",
+      "none": "Introuvable"
+    },
+    "stampDetection": "Détection de tampon",
+    "noStampDetected": "Aucun tampon trouvé",
     "foilMethod": {
       "rainbow": "score arc-en-ciel",
       "nudge": "variation au déplacement"
@@ -358,7 +401,9 @@
     "exit": "Quitter la vérification",
     "loadFailed": "Impossible de charger les cartes à vérifier.",
     "notShown_one": "{{count}} carte de plus n'est pas affichée ici.",
-    "notShown_other": "{{count}} cartes de plus ne sont pas affichées ici."
+    "notShown_other": "{{count}} cartes de plus ne sont pas affichées ici.",
+    "statusRemoved": "Retirée",
+    "statusPending": "Pas encore vérifiée"
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -450,11 +495,45 @@
     "close": "Fermer",
     "importMore": "Importer d'autres images",
     "unreadable": "Impossible de lire cette image.",
-    "identifyFailed": "Impossible d'identifier cette image."
+    "identifyFailed": "Impossible d'identifier cette image.",
+    "documentScan": {
+      "title": "Scanner de documents",
+      "scannerLabel": "Scanner",
+      "scannerOption": "{{name}} ({{driver}})",
+      "scan": "Scanner",
+      "refresh": "Actualiser les scanners",
+      "noScanners": "Aucun scanner trouvé. Installez le pilote WIA de votre scanner (PaperStream IP pour les scanners Ricoh fi), puis actualisez.",
+      "folderLabel": "Dossier surveillé",
+      "noFolder": "Choisissez le dossier où votre logiciel de numérisation enregistre les images.",
+      "chooseFolder": "Choisir un dossier",
+      "changeFolder": "Changer de dossier",
+      "watchFolder": "Surveiller le dossier",
+      "scanning": "Numérisation avec {{scanner}}. Les cartes sont importées dès qu'elles sortent du chargeur.",
+      "watching": "Surveillance de {{folder}}. Les nouvelles images sont importées dès leur apparition.",
+      "stopScanner": "Arrêter le scanner",
+      "stopWatching": "Arrêter la surveillance",
+      "stopping": "Arrêt en cours...",
+      "errors": {
+        "scanner_helper_missing": "Le composant scanner manque dans cette installation. Réinstallez l'application de bureau Mault.",
+        "scanner_busy": "Le scanner est occupé. Fermez les autres logiciels de numérisation et réessayez.",
+        "scanner_offline": "Impossible de joindre le scanner. Vérifiez qu'il est allumé et connecté.",
+        "paper_jam": "Bourrage papier. Dégagez le chargeur, puis numérisez les cartes restantes.",
+        "feeder_empty": "Le chargeur est vide. Chargez des cartes et numérisez à nouveau.",
+        "cover_open": "Le capot du scanner est ouvert. Fermez-le et numérisez à nouveau.",
+        "no_feeder": "Ce scanner n'a pas de chargeur de documents. Choisissez un scanner avec chargeur.",
+        "scanner_error": "Le scanner s'est arrêté. Vérifiez s'il y a eu un double engagement ou un bourrage, puis numérisez les cartes restantes.",
+        "folder_missing": "Impossible de lire le dossier surveillé. Choisissez-le à nouveau.",
+        "start_failed": "Impossible de lancer la numérisation. Patientez un instant et réessayez.",
+        "unknown": "Une erreur est survenue pendant la numérisation.",
+        "scanner_in_use": "Le scanner de documents est déjà utilisé. Arrêtez d'abord l'autre numérisation.",
+        "session_closed": "La connexion au scanner de documents a été perdue. Sélectionnez à nouveau le scanner."
+      }
+    }
   },
   "cardTags": {
     "title": "Étiquettes",
     "edit": "Modifier les étiquettes",
+    "editWithTags": "Modifier les étiquettes : {{tags}}",
     "bulkAdd": "Ajouter l'étiquette",
     "bulkRemove": "Retirer l'étiquette",
     "names": {
@@ -462,5 +541,108 @@
       "reviewed": "Vérifiée",
       "corrected": "Corrigée"
     }
+  },
+  "scanTimeline": {
+    "blockCardCount_one": "{{count}} carte",
+    "blockCardCount_other": "{{count}} cartes",
+    "loadedOfTotal": "{{loaded}} cartes affichées sur {{total}}",
+    "loadMore": "Charger plus de cartes",
+    "selectBlock": "Sélectionner les cartes scannées le {{period}}"
+  },
+  "publicBrowse": {
+    "cardCount_one": "{{count}} carte",
+    "cardCount_other": "{{count}} cartes",
+    "resultCount_one": "{{count}} carte trouvée",
+    "resultCount_other": "{{count}} cartes trouvées",
+    "empty": "Aucune carte pour l'instant",
+    "noResults": "Aucune carte ne correspond à votre recherche",
+    "loadFailed": "Impossible de charger les cartes. Réessayez.",
+    "searchPlaceholder": "Rechercher des cartes",
+    "sortLabel": "Trier par",
+    "gameFilter": "Jeu",
+    "allGames": "Tous les jeux",
+    "sorts": {
+      "newest": "Plus récentes",
+      "name": "Nom",
+      "price-desc": "Prix décroissant",
+      "price-asc": "Prix croissant"
+    },
+    "filtersHeading": "Filtres",
+    "filtersWithCount": "Filtres ({{count}})",
+    "clearFilters_one": "Effacer {{count}} filtre",
+    "clearFilters_other": "Effacer {{count}} filtres",
+    "showResults_one": "Voir {{count}} carte",
+    "showResults_other": "Voir {{count}} cartes",
+    "priceFilter": "Prix",
+    "minPrice": "Min",
+    "maxPrice": "Max",
+    "finishFilter": "Finition",
+    "finishAll": "Toutes finitions",
+    "finishFoil": "Foil uniquement",
+    "finishNonFoil": "Non foil uniquement",
+    "foilTypeFilter": "Type de foil",
+    "languageFilter": "Langue",
+    "rarityFilter": "Rareté",
+    "colorFilter": "Couleur",
+    "setFilter": "Extension",
+    "noFilterMatches": "Aucun résultat.",
+    "findSet": "Trouver une extension",
+    "openCard": "Voir {{name}} ({{details}})",
+    "cardNotFound": "Cette carte n'est plus disponible.",
+    "referenceImage": "Image de référence",
+    "backToCards": "Retour aux cartes",
+    "loading": "Chargement des cartes",
+    "tradeHint": "Ouvrez une carte pour l'ajouter à votre offre"
+  },
+  "tradeOffers": {
+    "game": "Jeu",
+    "searchLabel": "Trouver une carte",
+    "searchPlaceholder": "Nom de la carte",
+    "searchResults_one": "{{count}} carte trouvée",
+    "searchResults_other": "{{count}} cartes trouvées",
+    "addOfferedCard": "Ajouter {{name}} à votre offre",
+    "add": "Ajouter",
+    "noSearchResults": "Aucune carte ne correspond à ce nom.",
+    "status": {
+      "pending": "En attente",
+      "accepted": "Acceptée",
+      "declined": "Refusée"
+    },
+    "youWant": "Vous avez demandé",
+    "youOffer": "Vous avez proposé",
+    "title": "Offre d'échange",
+    "send": "Envoyer l'offre",
+    "sent": "Offre envoyée. Vous verrez la réponse ici.",
+    "sendFailed": "Impossible d'envoyer l'offre. Réessayez.",
+    "nameLabel": "Votre nom",
+    "contactLabel": "E-mail, téléphone ou pseudo",
+    "contactPlaceholder": "name@example.com",
+    "noteLabel": "Note (facultatif)",
+    "headerButton_zero": "Offre d'échange",
+    "headerButton_one": "Offre d'échange (1)",
+    "headerButton_other": "Offre d'échange ({{count}})",
+    "inTradeOffer": "Dans votre offre",
+    "addToTradeOffer": "Ajouter à l'offre",
+    "pageDescription": "Choisissez des cartes dans {{source}}, ajoutez celles que vous donnez en échange, puis envoyez. Le propriétaire accepte ou refuse.",
+    "detailsTitle": "Vos coordonnées",
+    "detailsDescription": "Pour que le propriétaire sache qui vous êtes et comment vous joindre.",
+    "getTitle_one": "Vous recevez ({{count}})",
+    "getTitle_other": "Vous recevez ({{count}})",
+    "getDescription": "Cartes de {{source}}",
+    "getEmpty": "Rien pour l'instant. Ouvrez une carte et choisissez Ajouter à l'offre.",
+    "browseCards": "Parcourir les cartes",
+    "addMoreCards": "Ajouter d'autres cartes",
+    "giveTitle_one": "Vous donnez ({{count}})",
+    "giveTitle_other": "Vous donnez ({{count}})",
+    "giveDescription": "Vos cartes, de n'importe quel jeu",
+    "giveEmpty": "Cherchez ci-dessus et ajoutez les cartes que vous proposez.",
+    "summary": "Cartes reçues : {{get}} · Cartes données : {{give}}",
+    "needGet": "Ajoutez une carte voulue pour continuer.",
+    "needGive": "Ajoutez une carte à donner pour continuer.",
+    "quantityFor": "Quantité de {{name}}",
+    "conditionFor": "État de {{name}}",
+    "yourOffers_one": "Vos offres envoyées ({{count}})",
+    "yourOffers_other": "Vos offres envoyées ({{count}})",
+    "noPrice": "Sans prix"
   }
 }

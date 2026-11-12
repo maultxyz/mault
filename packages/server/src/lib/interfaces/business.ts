@@ -73,6 +73,7 @@ export interface SoldCardRow {
   acquisition_cost: number | null;
   acquisition_currency: string | null;
   image_key: string | null;
+  back_image_key: string | null;
   collection_guid: string;
   collection_name: string;
 }

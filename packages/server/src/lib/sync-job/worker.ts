@@ -1,15 +1,23 @@
-import type { SyncState, SyncStatus, SyncVectorizeOn } from "@magic-vault/shared";
+import type {
+  SyncState,
+  SyncStatus,
+  SyncVectorizeOn,
+} from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
 import {
   SYNC_DATA_REFRESH_BATCH_SIZE,
+  SYNC_NEW_CARD_NAME_LIMIT,
   SYNC_REINDEX_MIN_CHANGED_FRACTION,
 } from "../constants/sync";
 import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
-import type { ParentToWorkerMessage, WorkerToParentMessage } from "../interfaces/sync-job";
+import type {
+  ParentToWorkerMessage,
+  WorkerToParentMessage,
+} from "../interfaces/sync-job";
 import {
   cancelBrowserQueue,
   claimBrowserWork,
@@ -21,6 +29,24 @@ import { SYNC_SOURCES } from "./sources";
 import { storedCollectorNumber } from "../card-search/collector-number";
 import { catalogColumnsFor } from "../card-catalog";
 import { rebuildGameVectorIndex } from "../game-vector-index";
+import {
+  addToPrintingMarkBatch,
+  cardIdsWithCurrentPrintingMarks,
+  dropOutdatedPrintingMarkReferences,
+  gameUsesPrintingMarks,
+  persistPrintingMarkBatch,
+  printingMarkColumns,
+  readCatalogPrintingMarks,
+} from "../printing-marks/catalog";
+import {
+  PRINTING_MARK_BACKFILL_UPDATE_BATCH_SIZE,
+  PRINTING_MARK_PROGRESS_LOG_EVERY_CARDS,
+} from "../constants/printing-marks";
+import type {
+  CatalogPrintingMarks,
+  PrintingMarkBatch,
+} from "../interfaces/printing-marks";
+import type { VectorizedFrontFace } from "../interfaces/sync-job";
 
 function errorMessage(err: unknown): string {
   if (!(err instanceof Error)) return String(err);
@@ -120,37 +146,53 @@ function throttleImageFetch(): Promise<void> {
   return thisTurn;
 }
 
-async function embedCardImageUrl(
+async function fetchPortraitCardImage(
   source: SyncSource,
   url: string,
-): Promise<number[]> {
+): Promise<Buffer> {
   await throttleImageFetch();
   const imageRes = await fetch(url, {
     headers: source.fetchHeaders,
     signal: getAbortSignal(),
   });
   if (!imageRes.ok) throw new Error(`Image fetch failed: ${imageRes.status}`);
-  const buffer = await toPortraitCardImage(
-    Buffer.from(await imageRes.arrayBuffer()),
-  );
-  const { embedding } = await vectorizeCardImage(buffer);
-  return embedding;
+  return toPortraitCardImage(Buffer.from(await imageRes.arrayBuffer()));
 }
 
-async function embedFrontFace(
+async function fetchFrontFaceImage(
   source: SyncSource,
   card: SyncSourceCard,
   imageUrl: string,
-): Promise<number[]> {
+): Promise<Buffer> {
   try {
-    return await embedCardImageUrl(source, imageUrl);
+    return await fetchPortraitCardImage(source, imageUrl);
   } catch (err) {
     if (!card.fallbackImageUrl || card.fallbackImageUrl === imageUrl) throw err;
     addLog(
       `Image failed for ${card.name} (${errorMessage(err)}), using the TCGTracking image.`,
     );
-    return embedCardImageUrl(source, card.fallbackImageUrl);
+    return fetchPortraitCardImage(source, card.fallbackImageUrl);
   }
+}
+
+async function vectorizeFrontFace(
+  source: SyncSource,
+  lang: string,
+  card: SyncSourceCard,
+  imageUrl: string,
+): Promise<VectorizedFrontFace> {
+  const buffer = await fetchFrontFaceImage(source, card, imageUrl);
+  const [{ embedding }, marks] = await Promise.all([
+    vectorizeCardImage(buffer),
+    readCatalogPrintingMarks(
+      source.gameKey,
+      lang,
+      card.id,
+      JSON.parse(card.data),
+      buffer,
+    ),
+  ]);
+  return { embedding, marks };
 }
 
 async function embedBackFace(
@@ -159,7 +201,9 @@ async function embedBackFace(
 ): Promise<number[] | null> {
   if (!card.backImageUrl) return null;
   try {
-    return await embedCardImageUrl(source, card.backImageUrl);
+    const buffer = await fetchPortraitCardImage(source, card.backImageUrl);
+    const { embedding } = await vectorizeCardImage(buffer);
+    return embedding;
   } catch (err) {
     addLog(`Back face skipped: ${card.name}: ${errorMessage(err)}`);
     return null;
@@ -241,6 +285,143 @@ async function rebuildVectorIndexIfChurned(
   }
 }
 
+let printingMarkWrites: Promise<unknown> = Promise.resolve();
+
+function oneMarkWriteAtATime<T>(write: () => Promise<T>): Promise<T> {
+  const next = printingMarkWrites.then(write, write);
+  printingMarkWrites = next.catch(() => undefined);
+  return next;
+}
+
+async function storePrintingMarks(
+  source: SyncSource,
+  lang: string,
+  cards: { cardId: string; marks: CatalogPrintingMarks | null }[],
+  batch: PrintingMarkBatch,
+): Promise<void> {
+  const rows = JSON.stringify(
+    cards.map(({ cardId, marks }) => ({
+      card_id: cardId,
+      ...printingMarkColumns(source.gameKey, marks),
+    })),
+  );
+  await db.transaction(async (tx) => {
+    await tx.execute(sql`
+      UPDATE cards AS c
+      SET printing_mark_groups = x."printingMarkGroups",
+        printing_mark_version = x."printingMarkVersion"
+      FROM jsonb_to_recordset(${rows}::jsonb)
+        AS x(card_id text, "printingMarkGroups" jsonb, "printingMarkVersion" smallint)
+      WHERE c.game_key = ${source.gameKey}
+        AND c.lang = ${lang}
+        AND c.card_id = x.card_id
+    `);
+    await persistPrintingMarkBatch(tx, source.gameKey, batch);
+  });
+}
+
+async function backfillPrintingMarks(
+  source: SyncSource,
+  lang: string,
+  cards: SyncSourceCard[],
+): Promise<void> {
+  if (!gameUsesPrintingMarks(source.gameKey)) return;
+  const counted = await cardIdsWithCurrentPrintingMarks(source.gameKey, lang);
+  const pending = cards.filter(
+    (card) => card.imageUrl && !counted.has(card.id),
+  );
+  if (pending.length === 0) return;
+  let stored = 0;
+  let failed = 0;
+  addLog(
+    `Reading printing marks (set symbols, stamps) for ${pending.length} cards...`,
+  );
+  const reportProgress = () => {
+    const progress = {
+      printingMarksTotal: pending.length,
+      printingMarksDone: stored,
+      printingMarksFailed: failed,
+    };
+    patchState(progress);
+    emitEvent("progress", progress);
+  };
+  reportProgress();
+
+  let unsaved: { cardId: string; marks: CatalogPrintingMarks | null }[] = [];
+  const flush = async (force: boolean) => {
+    if (unsaved.length === 0) return;
+    if (!force && unsaved.length < PRINTING_MARK_BACKFILL_UPDATE_BATCH_SIZE) {
+      return;
+    }
+    const cardsToStore = unsaved;
+    unsaved = [];
+    const batch: PrintingMarkBatch = new Map();
+    for (const { marks } of cardsToStore) addToPrintingMarkBatch(batch, marks);
+    try {
+      await oneMarkWriteAtATime(() =>
+        storePrintingMarks(source, lang, cardsToStore, batch),
+      );
+      stored += cardsToStore.length;
+      if (
+        Math.floor(stored / PRINTING_MARK_PROGRESS_LOG_EVERY_CARDS) >
+        Math.floor(
+          (stored - cardsToStore.length) /
+            PRINTING_MARK_PROGRESS_LOG_EVERY_CARDS,
+        )
+      ) {
+        addLog(`Printing marks read for ${stored} of ${pending.length} cards.`);
+      }
+    } catch (err) {
+      failed += cardsToStore.length;
+      addLog(`Error storing printing marks: ${errorMessage(err)}`);
+    }
+    reportProgress();
+  };
+
+  let nextIndex = 0;
+  const worker = async () => {
+    for (;;) {
+      if (isCancelled()) return;
+      const card = pending[nextIndex++];
+      if (!card?.imageUrl) return;
+      try {
+        const buffer = await fetchFrontFaceImage(
+          source,
+          card,
+          card.printingMarkImageUrl ?? card.imageUrl,
+        );
+        unsaved.push({
+          cardId: card.id,
+          marks: await readCatalogPrintingMarks(
+            source.gameKey,
+            lang,
+            card.id,
+            JSON.parse(card.data),
+            buffer,
+          ),
+        });
+        await flush(false);
+      } catch (err) {
+        failed++;
+        if (!isCancelled()) {
+          addLog(`Printing marks skipped: ${card.name}: ${errorMessage(err)}`);
+        }
+      }
+    }
+  };
+  await Promise.all(
+    Array.from(
+      { length: Math.min(VECTORIZE_CONCURRENCY, pending.length) },
+      worker,
+    ),
+  );
+  await flush(true);
+  reportProgress();
+  addLog(
+    `Printing marks read for ${stored} cards${failed > 0 ? ` (${failed} failed)` : ""}.`,
+  );
+}
+
 function emitCancelledDone(): void {
   patchState({ status: "cancelled" });
   addLog("Sync cancelled by user.");
@@ -262,6 +443,7 @@ async function runSync(
 ): Promise<void> {
   const baseUrl = source.defaultUrl;
   addLog(`Using data source: ${baseUrl}`);
+  await dropOutdatedPrintingMarkReferences(source.gameKey);
   if (vectorizeOn === "browser" && forceResync) {
     addLog(
       "Force resync is ignored so this computer only vectorizes cards missing front or back image vectors.",
@@ -344,11 +526,12 @@ async function runSync(
     recentlyUpdated.has(card.id);
 
   if (vectorizeOn === "browser") {
-    await refreshStoredData(
+    const refreshedInBrowserMode = await refreshStoredData(
       source,
       lang,
       cards.filter(isAlreadyVectorized),
     );
+    patchState({ updatedCards: refreshedInBrowserMode });
     if (isCancelled()) {
       emitCancelledDone();
       return;
@@ -359,6 +542,7 @@ async function runSync(
       if (!card.imageUrl || isAlreadyVectorized(card)) alreadyDone++;
       else needed.push(card);
     }
+    const allCards = cards;
     cards = [];
     const outcome = await serveBrowserQueue({
       source,
@@ -373,6 +557,12 @@ async function runSync(
       isCancelled,
     });
     if (outcome === "cancelled" || isCancelled()) {
+      emitCancelledDone();
+      return;
+    }
+    patchState({ acceptingWork: false, queued: 0 });
+    await backfillPrintingMarks(source, lang, allCards);
+    if (isCancelled()) {
       emitCancelledDone();
       return;
     }
@@ -397,6 +587,10 @@ async function runSync(
     lang,
     cards.filter(isAlreadyVectorized),
   );
+  let newCardCount = 0;
+  let updatedCardCount = refreshed;
+  const newCardNames: string[] = [];
+  patchState({ newCards: 0, updatedCards: updatedCardCount, newCardNames: [] });
   if (isCancelled()) {
     emitCancelledDone();
     return;
@@ -406,46 +600,81 @@ async function runSync(
 
   let pendingInserts: (typeof cardImageVectors.$inferInsert)[] = [];
   let pendingCards: SyncSourceCard[] = [];
+  let pendingMarks: (CatalogPrintingMarks | null)[] = [];
+  const countedMarkCardIds = gameUsesPrintingMarks(source.gameKey)
+    ? await cardIdsWithCurrentPrintingMarks(source.gameKey, lang)
+    : new Set<string>();
 
   async function flushInserts(force = false): Promise<void> {
     if (pendingInserts.length === 0) return;
     if (!force && pendingInserts.length < INSERT_BATCH_SIZE) return;
     const batchRows = pendingInserts;
     const batchCards = pendingCards;
+    const batchMarks = pendingMarks;
     pendingInserts = [];
     pendingCards = [];
+    pendingMarks = [];
+    const markBatch: PrintingMarkBatch = new Map();
+    batchCards.forEach((card, index) => {
+      if (!countedMarkCardIds.has(card.id)) {
+        addToPrintingMarkBatch(markBatch, batchMarks[index]);
+      }
+    });
     patchState({ queued: 0 });
     addLog(`Inserting batch of ${batchCards.length} cards...`);
 
     try {
-      await db
-        .insert(cardImageVectors)
-        .values(batchRows)
-        .onConflictDoUpdate({
-          target: [
-            cardImageVectors.gameKey,
-            cardImageVectors.lang,
-            cardImageVectors.cardId,
-          ],
-          set: {
-            name: sql`excluded.name`,
-            setCode: sql`excluded.set_code`,
-            collectorNumber: sql`excluded.collector_number`,
-            embedding: sql`excluded.embedding`,
-            backEmbedding: sql`excluded.back_embedding`,
-            data: sql`excluded.data`,
-            setName: sql`excluded.set_name`,
-            rarity: sql`excluded.rarity`,
-            colorIdentity: sql`excluded.color_identity`,
-            searchText: sql`excluded.search_text`,
-            imageSmall: sql`excluded.image_small`,
-            updatedAt: sql`now()`,
-          },
-        });
+      await oneMarkWriteAtATime(() =>
+        db.transaction(async (tx) => {
+          await tx
+            .insert(cardImageVectors)
+            .values(batchRows)
+            .onConflictDoUpdate({
+              target: [
+                cardImageVectors.gameKey,
+                cardImageVectors.lang,
+                cardImageVectors.cardId,
+              ],
+              set: {
+                name: sql`excluded.name`,
+                setCode: sql`excluded.set_code`,
+                collectorNumber: sql`excluded.collector_number`,
+                embedding: sql`excluded.embedding`,
+                backEmbedding: sql`excluded.back_embedding`,
+                data: sql`excluded.data`,
+                setName: sql`excluded.set_name`,
+                rarity: sql`excluded.rarity`,
+                colorIdentity: sql`excluded.color_identity`,
+                searchText: sql`excluded.search_text`,
+                imageSmall: sql`excluded.image_small`,
+                printingMarkGroups: sql`excluded.printing_mark_groups`,
+                printingMarkVersion: sql`excluded.printing_mark_version`,
+                updatedAt: sql`now()`,
+              },
+            });
+          await persistPrintingMarkBatch(tx, source.gameKey, markBatch);
+        }),
+      );
+      batchMarks.forEach((marks, index) => {
+        if (marks) countedMarkCardIds.add(batchCards[index].id);
+      });
       for (const c of batchCards) {
+        if (existingSet.has(c.id)) {
+          updatedCardCount++;
+        } else {
+          newCardCount++;
+          if (newCardNames.length < SYNC_NEW_CARD_NAME_LIMIT) {
+            newCardNames.push(c.setCode ? `${c.name} (${c.setCode})` : c.name);
+          }
+        }
         existingSet.add(c.id);
         if (c.backImageUrl) vectorizedBacks.add(c.id);
       }
+      patchState({
+        newCards: newCardCount,
+        updatedCards: updatedCardCount,
+        newCardNames: [...newCardNames],
+      });
       incrementCounters({ processed: batchCards.length });
       const syncState = getState();
       addLog(
@@ -480,7 +709,12 @@ async function runSync(
     }
 
     try {
-      const embedding = await embedFrontFace(source, card, card.imageUrl);
+      const { embedding, marks } = await vectorizeFrontFace(
+        source,
+        lang,
+        card,
+        card.imageUrl,
+      );
       const backEmbedding = await embedBackFace(source, card);
       const data: unknown = JSON.parse(card.data);
 
@@ -500,8 +734,10 @@ async function runSync(
         backEmbedding,
         data,
         ...catalogColumnsFor(source.gameKey, lang, card.id, data),
+        ...printingMarkColumns(source.gameKey, marks),
       });
       pendingCards.push(card);
+      pendingMarks.push(marks);
       patchState({ queued: pendingCards.length });
       await flushInserts();
 
@@ -552,6 +788,12 @@ async function runSync(
   await flushInserts(true);
 
   if (cancelled) {
+    emitCancelledDone();
+    return;
+  }
+
+  await backfillPrintingMarks(source, lang, cards);
+  if (isCancelled()) {
     emitCancelledDone();
     return;
   }
@@ -633,8 +875,8 @@ process.on("message", (msg: ParentToWorkerMessage) => {
     )
       .then(() => exitAfterFlush(0))
       .catch((err) => {
-        patchState({ status: "failed" });
         const errMsg = errorMessage(err);
+        patchState({ status: "failed", fatalError: errMsg });
         addLog(`Fatal error: ${errMsg}`);
         emitEvent("error", { message: errMsg });
         exitAfterFlush(1);

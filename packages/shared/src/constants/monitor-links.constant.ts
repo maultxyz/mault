@@ -1,2 +1,10 @@
 export const MONITOR_LINK_EXPIRY_DAYS = [1, 7, 30] as const;
 export const DEFAULT_MONITOR_LINK_EXPIRY_DAYS = 7;
+export const SHARE_LINK_TOKEN_PARAM = "t";
+export const WATCH_PATH_PREFIX = "/watch";
+export const SHARED_STORAGE_PATH_PREFIX = "/shared/storage";
+export const DEFAULT_SHARE_LINK_SHOWS_PRICES = true;
+export const SHARE_LINK_PURPOSES = ["view", "trade"] as const;
+export const DEFAULT_SHARE_LINK_PURPOSE = "view";
+export const SHARE_LINK_GUEST_KEY_MIN_LENGTH = 16;
+export const SHARE_LINK_GUEST_KEY_MAX_LENGTH = 128;

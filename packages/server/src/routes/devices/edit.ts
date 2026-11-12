@@ -10,13 +10,19 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binRoutes, bins, devices, moduleConfigs } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  rejectWhileImpersonating,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import { toDevice } from "./shared";
 
 export const editDeviceRoute = new Hono<AppEnv>().put(
   "/:guid",
   requireAuth,
   requireOrg,
+  rejectWhileImpersonating,
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");

@@ -71,6 +71,10 @@ export async function resolveGameKeyAndLang(
   );
 }
 
+export function clearCollectionMatchScopeCache(): void {
+  collectionMatchScopeCache.clear();
+}
+
 async function loadCollectionMatchScope(
   jwtClaims: string,
   collectionGuid: string,

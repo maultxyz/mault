@@ -1,5 +1,6 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { Button } from "@/components/ui/button";
-import { rollbar } from "@/lib/rollbar";
+import { reportClientError } from "@/lib/error-reporting";
 import { IconBug, IconRefresh } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,7 +14,7 @@ export default function ErrorPage() {
 
   useEffect(() => {
     if (!isRouteErrorResponse(error)) {
-      rollbar.error(error instanceof Error ? error : String(error));
+      reportClientError(error);
     }
   }, [error]);
 
@@ -27,7 +28,11 @@ export default function ErrorPage() {
       : null;
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-4 text-center">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="flex min-h-dvh flex-col items-center justify-center gap-4 p-4 text-center outline-none"
+    >
       <IconBug className="size-16 text-foreground/70" />
       <div className="flex flex-col gap-1">
         <h1 className="font-heading text-lg font-semibold">
@@ -56,6 +61,6 @@ export default function ErrorPage() {
           {t("backHome")}
         </Button>
       </div>
-    </div>
+    </main>
   );
 }

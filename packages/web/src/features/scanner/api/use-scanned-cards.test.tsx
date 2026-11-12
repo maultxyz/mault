@@ -25,6 +25,8 @@ const mocks = vi.hoisted(() => ({
   saveUnmatched: vi.fn(),
   sortOnly: vi.fn(),
   pause: vi.fn(),
+  pauseForAttention: vi.fn(),
+  reportStationAttention: vi.fn(),
   sound: vi.fn(),
   queryClient: {
     setQueryData: vi.fn(),
@@ -111,6 +113,7 @@ vi.mock("./use-pi-scan-settings", () => ({ usePiScanSettings: () => ({}) }));
 vi.mock("./use-auto-feed", () => ({
   useAutoFeed: () => ({
     pause: mocks.pause,
+    pauseForAttention: mocks.pauseForAttention,
     resume: vi.fn(),
     isAutoFeedEnabled: () => false,
     isPipelinedFeedEnabled: () => false,
@@ -142,7 +145,11 @@ vi.mock("./use-serial", () => ({
   }),
 }));
 vi.mock("./use-stations", () => ({
-  useStations: () => ({ sorterLimitIsHardCap: false }),
+  useStations: () => ({
+    sorterLimitReason: null,
+    reportStationAttention: mocks.reportStationAttention,
+  }),
+  useStation: () => ({ station: { id: "station" } }),
 }));
 vi.mock("./use-station-toast", () => ({ useStationToast: () => mocks.toast }));
 vi.mock("../components/bin-correction-dialog", () => ({
@@ -161,6 +168,7 @@ vi.mock("@/lib/app-stream", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.pauseForAttention.mockImplementation(() => mocks.pause());
   Object.assign(mocks.selectedSet, {
     scanOnly: true,
     isRepackMode: false,
@@ -210,6 +218,10 @@ it("a full destination pauses before routing or persistence", async () => {
   const { result } = mount();
   act(() => result.current.addCard(card));
   await waitFor(() => expect(mocks.pause).toHaveBeenCalledOnce());
+  expect(mocks.pauseForAttention).toHaveBeenCalledWith({
+    kind: "binLimit",
+    binNumbers: [1],
+  });
   expect(mocks.route).not.toHaveBeenCalled();
   expect(mocks.save).not.toHaveBeenCalled();
 });
@@ -305,6 +317,10 @@ it("finishing the final repack pauses feeding while routing and saving that card
   act(() => result.current.addCard(card));
   await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
   expect(mocks.pause).toHaveBeenCalled();
+  expect(mocks.pauseForAttention).toHaveBeenCalledWith({
+    kind: "packsComplete",
+    binNumbers: [1],
+  });
   expect(mocks.route).toHaveBeenCalledOnce();
 });
 

@@ -9,9 +9,8 @@ import { PiScanPrefetch } from "./prefetch";
 import { routeLoadedPiCard } from "./route-card";
 import { retainPiScanUnsavedCards, waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   runScanDisposition,
   prepareMatchedScanPlan,
   prepareUnmatchedScanPlan,
@@ -36,8 +35,12 @@ import {
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   OCR_REGIONS_BY_GAME_KEY,
-  detectColorBarRgba,
-  detectFoilRgba,
+  detectCardStampRgba,
+  detectedStampOf,
+  contourHomography,
+  scanPrintingMarkGrids,
+  detectPrintedFoilMarkerRgba,
+  PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY,
   dewarpRgba,
   getDefaultCardContour,
   rotateRgba180,
@@ -50,9 +53,11 @@ import {
   hasMaxCopiesBins,
   isRulesMode,
   reservePickListBins,
-  supportsFoilDetection,
   toRuleCard,
   withScanRuleFields,
+  isCardFromOtherGame,
+  presetMatchGameKeys,
+  presetMatchedGameOptions,
   type CornerDetection,
   type BinConfig,
   type BinDirection,
@@ -67,6 +72,10 @@ import {
   type PlayingCardWithDistance,
   type ScanAttemptDiagnostic,
   type UnmatchedReason,
+  type UnmatchedScanDiagnostics,
+  type CardContour,
+  type RgbaImage,
+  type ScanOrientation,
 } from "@magic-vault/shared";
 import { authQuery, type Transaction } from "../../db";
 import { activateScanCollection, activateScanPreset } from "../scan-targets";
@@ -117,13 +126,20 @@ import {
 } from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadSets } from "../../routes/bins/shared";
+import {
+  findBestMatchAcrossGames,
+  matchScopesForGames,
+  tagWithGame,
+} from "../card-search/match-games";
+import type { CollectionMatchScope } from "../interfaces/card-search";
 import { grabSettledCameraFrame } from "./camera";
 import {
   resolveCardSearchMatches,
   identifyScanImage,
   identifyScanWithConsensus,
-  preferDetectedColor,
   consensusMissReason,
+  readsPrintedLanguageEveryScan,
+  scanOcrMode,
   routeForBin,
 } from "@magic-vault/shared";
 import {
@@ -394,11 +410,22 @@ async function prepareContext(
 
     const foilTypes =
       (collection.foilTypes as string[] | null) ?? active.game?.foilTypes ?? [];
+    const matchGameKeys = presetMatchGameKeys(active);
+    const matchedGames =
+      matchGameKeys.length > 0
+        ? await tx
+            .select({ key: games.key, name: games.name })
+            .from(games)
+            .where(inArray(games.key, [collection.gameKey, ...matchGameKeys]))
+        : [];
     const fieldDefinitions = withScanRuleFields(
       (collection.fieldDefinitions as FieldMeta[] | null) ??
         active.game?.fieldDefinitions ??
         [],
       foilTypes,
+      collection.gameKey,
+      undefined,
+      presetMatchedGameOptions(active, matchedGames),
     );
     const trackContents = active.isRepackMode || hasMaxCopiesBins(active.bins);
     const windows = trackContents
@@ -411,7 +438,12 @@ async function prepareContext(
       : [];
     const settings = await tx.query.orgSettings.findFirst({
       where: eq(orgSettings.orgId, session.orgId),
-      columns: { ocrEnabled: true, foilDetectionEnabled: true },
+      columns: {
+        ocrEnabled: true,
+        highAccuracyScans: true,
+        foilDetectionEnabled: true,
+        foilStarDetectionEnabled: true,
+      },
     });
     const feeder = await tx.query.feederConfigs.findFirst({
       where: eq(feederConfigs.deviceId, device.id),
@@ -477,12 +509,12 @@ async function prepareContext(
       matchesNeeded: device.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
       matchAllLanguages: collection.matchAllLanguages,
       ocrEnabled: settings?.ocrEnabled === true,
-      foilDetectionEnabled:
-        settings?.foilDetectionEnabled === true &&
-        supportsFoilDetection(collection.gameKey),
-      foilTypes,
+      foilDetectionEnabled: settings?.foilDetectionEnabled === true,
+      highAccuracyScans: settings?.highAccuracyScans === true,
+      isFoilStarDetectionEnabled: settings?.foilStarDetectionEnabled === true,
       cardThickness: collection.cardThickness,
       fieldDefinitions,
+      foilTypes,
       set: active,
       configs: isRulesMode(active)
         ? reservePickListBins(sourceBins.map((bin) => ({ ...bin })))
@@ -524,24 +556,57 @@ async function rememberAutoAssign(
   }
 }
 
+function piMatchScopes(context: PiScanRunContext): CollectionMatchScope[] {
+  return matchScopesForGames(
+    {
+      gameKey: context.gameKey,
+      lang: context.lang,
+      matchAllLanguages: context.matchAllLanguages,
+    },
+    presetMatchGameKeys(context.set),
+  );
+}
+
+function piScopeForMatchedGame(
+  context: PiScanRunContext,
+  gameKey: string | undefined,
+): CollectionMatchScope {
+  const scopes = piMatchScopes(context);
+  return scopes.find((scope) => scope.gameKey === gameKey) ?? scopes[0];
+}
+
 async function searchOrientation(
   session: PiScanLive,
   context: PiScanRunContext,
   image: Buffer,
   orientation: "upright" | "rotated",
+  markSource: { source: RgbaImage; contour: CardContour } | null,
 ) {
   const embeddings = await vectorizeCardImage(image);
-  const result = await attachMatchedCards(
-    await findCardMatches({
-      gameKey: context.gameKey,
-      lang: context.lang,
-      matchAllLanguages: context.matchAllLanguages,
-      embeddings,
-      preferredSetCodes: session.preferredSetCodes,
-    }),
-    context.gameKey,
-    context.lang,
+  const printingMarkGrids = markSource
+    ? scanPrintingMarkGrids(
+        markSource.source,
+        contourHomography(markSource.contour),
+        context.gameKey,
+        orientation,
+      )
+    : null;
+  const scopes = piMatchScopes(context);
+  const { result: nearest, scope } = await findBestMatchAcrossGames(
+    scopes,
+    (matchScope) =>
+      findCardMatches({
+        ...matchScope,
+        embeddings,
+        preferredSetCodes: session.preferredSetCodes,
+        skipsUnloadedIndex: matchScope.gameKey !== context.gameKey,
+        printingMarkGrids:
+          matchScope.gameKey === context.gameKey ? printingMarkGrids : null,
+      }),
   );
+  const attached = await attachMatchedCards(nearest, scope.gameKey, scope.lang);
+  const result =
+    scopes.length > 1 ? tagWithGame(attached, scope.gameKey) : attached;
   return {
     image,
     orientation,
@@ -587,10 +652,25 @@ async function matchFrame(
         : `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`),
   };
 
-  const regions = OCR_REGIONS_BY_GAME_KEY[context.gameKey] ?? [];
-  const identified = await identifyScanImage({
+  const markSource = corners.contour
+    ? { source, contour: corners.contour }
+    : null;
+  const identified = await identifyScanImage<
+    Awaited<ReturnType<typeof searchOrientation>>
+  >({
     checkBothOrientations: context.checkBothOrientations,
-    ocrEnabled: context.ocrEnabled && !!corners.contour && regions.length > 0,
+    ocrMode: (candidate) => {
+      const scope = piScopeForMatchedGame(
+        context,
+        candidate.result.data?.[0]?.gameKey,
+      );
+      return scanOcrMode(
+        context,
+        !!corners.contour &&
+          (OCR_REGIONS_BY_GAME_KEY[scope.gameKey]?.length ?? 0) > 0,
+        readsPrintedLanguageEveryScan(scope, scope.gameKey),
+      );
+    },
     search: async (orientation) =>
       searchOrientation(
         session,
@@ -599,34 +679,40 @@ async function matchFrame(
           ? await rgbaToJpeg(rotateRgba180(upright))
           : uprightImage,
         orientation,
+        markSource,
       ),
     readText: async (candidate) => {
       if (!corners.contour || !candidate.embedding) return null;
-      const crop = dewarpRgba(
-        source,
-        corners.contour,
-        OCR_CROP_WIDTH,
-        OCR_CROP_HEIGHT,
+      const scope = piScopeForMatchedGame(
+        context,
+        candidate.result.data?.[0]?.gameKey,
       );
+      const regions = OCR_REGIONS_BY_GAME_KEY[scope.gameKey] ?? [];
+      if (!regions.length) return null;
       try {
-        const text = await findCardMatchesByOcr(
-          session.jwtClaims,
+        const result = await findCardMatchesByOcr(
           await rgbaToJpeg(
-            candidate.orientation === "rotated" ? rotateRgba180(crop) : crop,
+            orientedOcrCrop(source, corners.contour, candidate.orientation),
           ),
           regions,
           {
-            gameKey: context.gameKey,
-            lang: context.lang,
-            matchAllLanguages: context.matchAllLanguages,
+            ...scope,
             embeddings: { embedding: candidate.embedding },
             preferredSetCodes: session.preferredSetCodes,
           },
         );
+        const attached = await attachMatchedCards(
+          result,
+          scope.gameKey,
+          scope.lang,
+        );
         return {
           ...candidate,
-          result: await attachMatchedCards(text, context.gameKey, context.lang),
-          ocr: text.ocr ?? null,
+          result:
+            piMatchScopes(context).length > 1
+              ? tagWithGame(attached, scope.gameKey)
+              : attached,
+          ocr: result.ocr ?? null,
         };
       } catch (error) {
         console.error("[pi-scan] text search failed:", error);
@@ -640,26 +726,29 @@ async function matchFrame(
     matchedBy,
     lowConfidenceMatch: lowConfidenceFromOcr,
   } = identified;
+  const resolved = await resolveCardSearchMatches(
+    best.result,
+    async () => null,
+  );
 
-  const colorRegion = COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey];
-  const detectedColor =
-    colorRegion && corners.contour
-      ? detectColorBarRgba(
+  const stampDetection =
+    corners.contour && resolved.card?.stamps?.length
+      ? detectCardStampRgba(
           best.orientation === "rotated" ? rotateRgba180(upright) : upright,
-          colorRegion,
+          resolved.card,
         )
       : null;
-  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
-    await resolveCardSearchMatches(best.result, async () => null),
-    {
-      gameHasColorBar: !!colorRegion,
-      detectedColor,
-      printingConfirmed: matchedBy === "ocr" && !!ocr?.printingConfirmed,
-    },
-  );
-  const foilDetection =
-    context.foilDetectionEnabled && !session.removalEnabled && resolved.card
-      ? detectFoilRgba(upright, context.gameKey)
+
+  const markerGameKey = piScopeForMatchedGame(
+    context,
+    best.result.data?.[0]?.gameKey,
+  ).gameKey;
+  const printedFoilMarker =
+    corners.contour && PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY[markerGameKey]
+      ? detectPrintedFoilMarkerRgba(
+          orientedOcrCrop(source, corners.contour, best.orientation),
+          markerGameKey,
+        )
       : null;
 
   return {
@@ -668,11 +757,20 @@ async function matchFrame(
     ocr,
     matchedBy,
     lowConfidenceFromOcr,
-    colorVariantUncertain,
     detection,
-    detectedColor,
-    foilDetection,
+    stampDetection,
+    printedFoilMarker,
+    foilDetection: null,
   };
+}
+
+function orientedOcrCrop(
+  source: RgbaImage,
+  contour: CardContour,
+  orientation: ScanOrientation,
+): RgbaImage {
+  const crop = dewarpRgba(source, contour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT);
+  return orientation === "rotated" ? rotateRgba180(crop) : crop;
 }
 
 function attemptDiagnostic(matched: PiScanFrameMatch): ScanAttemptDiagnostic {
@@ -839,7 +937,9 @@ async function processMatched(
     attempts: identified.attempts,
     candidates: matched.resolved.candidates,
     ocr: matched.ocr,
-    detectedColor: matched.detectedColor,
+    stampDetection: matched.stampDetection,
+    printedFoilMarker: matched.printedFoilMarker,
+    printingMarks: matched.result.printingMarks ?? null,
     foilDetection: matched.foilDetection,
   };
   session.lastCardId = card.id;
@@ -856,8 +956,10 @@ async function processMatched(
           sessionFoilType: session.foilType,
           foilDetection: matched.foilDetection,
           fallbackFoilTypes: context.foilTypes,
-          lowConfidenceMatch:
-            matched.lowConfidenceFromOcr || matched.colorVariantUncertain,
+          gameKey: context.gameKey,
+          isNudgeFoilDetectionEnabled: context.foilDetectionEnabled,
+          isFoilStarDetectionEnabled: context.isFoilStarDetectionEnabled,
+          lowConfidenceMatch: matched.lowConfidenceFromOcr,
           diagnostics,
           vectorizedOn: "server",
           deviceGuid: context.deviceGuid,

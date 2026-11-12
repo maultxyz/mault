@@ -60,19 +60,22 @@
       "priceNow": "Price now",
       "purchasePrice": "Purchase price",
       "actions": "Actions"
-    }
+    },
+    "searchPlaceholder": "Search cards in this location",
+    "positionOrder": "Position in the box",
+    "noMatchesTitle": "No cards match",
+    "noMatchesDescription": "Try a different search or clear the filters."
   },
   "cardLocation": {
     "heading": "Storage",
     "value": "{{name}} · #{{position}}",
     "remove": "Remove from box",
-    "move": "Move",
-    "store": "Move to location",
-    "notStored": "Not in a storage location"
+    "move": "Move"
   },
   "toasts": {
     "failed": "Couldn't update storage locations",
     "cardRemoved": "Card removed from its location",
+    "cardRemovedFromCollection": "Card removed from its location and collection",
     "correctFailed": "Couldn't correct the card",
     "cardsMoved_one": "1 card moved to storage",
     "cardsMoved_other": "{{count}} cards moved to storage",
@@ -83,8 +86,15 @@
   "removeDialog": {
     "title": "Remove {{name}} from {{location}}?",
     "thisCard": "this card",
-    "description": "Use this when you've taken the card out, for example because you sold it or put it in a deck. It stays in your collection, and its position in the box is left empty.",
-    "confirm": "Remove"
+    "description": "Use this when you've taken the card out of the box. Its position in the box is left empty.",
+    "confirm": "Remove",
+    "choiceDescription": "Remove it from the location only if you moved it, for example into a deck. Remove it from {{collection}} too if it's gone for good, for example because you sold it. Its position in the box is left empty either way.",
+    "removeFromLocation": "Remove from location",
+    "removeFromLocationAndCollection": "Remove from location and collection"
+  },
+  "bulkRemoveDialog": {
+    "title_one": "Remove {{count}} card from {{location}}?",
+    "title_other": "Remove {{count}} cards from {{location}}?"
   },
   "search": {
     "placeholder": "Search cards in every location",
@@ -117,6 +127,8 @@
     "title": "Empty all bins",
     "description_one": "Mark every bin as emptied. Pick where the {{count}} card went so you can find it later.",
     "description_other": "Mark every bin as emptied. Pick where the {{count}} cards went so you can find them later.",
+    "resetAutoAssign": "Clear auto-detected sorting rules",
+    "resetAutoAssignDescription": "Bins learn new values from the next scans.",
     "perBin": "Choose a location for each bin",
     "binLabel_one": "Bin {{bin}} · {{count}} card",
     "binLabel_other": "Bin {{bin}} · {{count}} cards",
@@ -136,5 +148,85 @@
     "collectionsGroup": "Collections",
     "cancel": "Cancel",
     "confirm": "Move"
+  },
+  "pickList": {
+    "open": "Pick list",
+    "title": "Pick list",
+    "description": "Paste a decklist to see where each card is stored, then tick cards off as you pull them.",
+    "decklistLabel": "Cards to pull",
+    "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+    "decklistHint": "One card per line. Quantities, set codes and section headers are fine.",
+    "findCards": "Find cards",
+    "editList": "Edit list",
+    "clear": "Clear list",
+    "progress": "{{picked}} of {{total}} picked",
+    "emptyTitle": "None of these cards are stored",
+    "emptyDescription": "Only cards in a storage location show up on a pick list.",
+    "loadFailed": "The pick list couldn't be loaded.",
+    "finish": "Remove picked from locations",
+    "finishTitle_one": "Remove {{count}} picked card from its location?",
+    "finishTitle_other": "Remove {{count}} picked cards from their locations?",
+    "finishDescription": "They stay in your collection. The pick list is cleared afterwards.",
+    "finishConfirm": "Remove",
+    "scan": {
+      "button": "Scan to pick",
+      "noMatch": "No card recognized. Try again with the whole card in view.",
+      "notOnList": "{{name}} isn't left on your pick list.",
+      "picked": "Picked {{name}} from {{location}}, position {{position}}",
+      "failed": "Scanning failed. Try again.",
+      "hint": "Hold one card in front of the camera and press Scan card.",
+      "scanCard": "Scan card",
+      "cameraFailed": "The camera couldn't be started. Check that this browser is allowed to use it.",
+      "stop": "Stop scanning",
+      "alreadyPicked": "Every copy of {{name}} on your pick list is already picked."
+    },
+    "toasts": {
+      "removed_one": "Removed {{count}} card from its location",
+      "removed_other": "Removed {{count}} cards from their locations"
+    },
+    "notStored": "Not stored",
+    "missingCount_one": "{{count}} copy not stored",
+    "missingCount_other": "{{count}} copies not stored",
+    "moreActions": "More actions",
+    "picked": "Picked",
+    "back": "Back to locations"
+  },
+  "verify": {
+    "tabs": {
+      "label": "Location view",
+      "cards": "Cards",
+      "verify": "Verify"
+    },
+    "description": "Scan the cards in this location to check everything that should be here is.",
+    "progress": "{{verified}} of {{total}} verified",
+    "verified": "Verified",
+    "startOver": "Start over",
+    "emptyTitle": "Nothing to verify",
+    "emptyDescription": "This location has no cards stored in it yet.",
+    "loadFailed": "This location's cards couldn't be loaded.",
+    "truncated": "Only the first {{max}} cards in this location can be verified.",
+    "complete": "Every card in this location is verified.",
+    "notInLocationTitle": "Scanned but not stored here",
+    "notInLocationDescription": "These cards aren't recorded in this location. Put them where they belong, or move them here.",
+    "scan": {
+      "button": "Scan to verify",
+      "stop": "Stop scanning",
+      "verified": "Verified {{name}}, position {{position}}",
+      "alreadyVerified": "Every copy of {{name}} in this location is already verified.",
+      "notInLocation": "{{name}} isn't stored in this location.",
+      "hint": "Hold one card from this location in front of the camera and press Scan card."
+    }
+  },
+  "shareLink": {
+    "trigger": "Share location",
+    "title": "Share storage location",
+    "description": "Anyone with this link or QR code can see the cards in this location without logging in. They can't change anything.",
+    "revoked": "Every shared link for this location has stopped working."
+  },
+  "sharedPage": {
+    "readOnly": "Read-only view",
+    "invalidTitle": "This link doesn't work anymore",
+    "invalidDescription": "It may have expired or been revoked. Ask the person who shared it for a new link.",
+    "empty": "This location has no cards yet."
   }
 }

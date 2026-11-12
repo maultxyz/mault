@@ -1,5 +1,4 @@
 import { buttonVariants } from "@/components/ui/button";
-import { MarketingRule } from "@/components/marketing-rule";
 import { PlanBullets } from "@/features/landing/components/plan-bullets";
 import type { PricingPlanCardProps } from "@/lib/interfaces/landing";
 import {
@@ -13,7 +12,6 @@ import { Link } from "react-router-dom";
 
 export function PricingPlanCard({
   plan,
-  lead,
   settings,
   maxConnectedSorters,
   prices,
@@ -33,17 +31,18 @@ export function PricingPlanCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-6 rounded-lg border bg-card p-6",
-        emphasized && "border-primary bg-primary/5",
+        "flex flex-col gap-6 rounded-lg p-6",
+        "bg-card",
+        emphasized ? "ring-2 ring-primary" : "ring-1 ring-border",
       )}
     >
       <div>
-        <MarketingRule
-          lead={lead}
-          label={t(`pricing.plans.${plan}.name`)}
-          className={emphasized ? "border-primary/40" : undefined}
-        />
-        <p className="mt-5 font-heading text-3xl font-semibold">
+        <h3
+          className={cn("font-heading text-sm font-semibold", emphasized && "text-primary")}
+        >
+          {t(`pricing.plans.${plan}.name`)}
+        </h3>
+        <p className="mt-4 text-4xl font-heading font-semibold tracking-tight">
           {isFree
             ? t("pricing.plans.free.price")
             : shownPrice
@@ -56,7 +55,7 @@ export function PricingPlanCard({
           )}
         </p>
         {yearlySavings != null && (
-          <p className="mt-1 text-sm font-medium text-success">
+          <p className="mt-1 text-sm font-medium text-success-foreground">
             {t("pricing.yearlySavings", { percent: yearlySavings })}
           </p>
         )}

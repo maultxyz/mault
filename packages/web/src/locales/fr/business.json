@@ -20,6 +20,7 @@
     "completed": "Terminé"
   },
   "table": {
+    "status": "Statut",
     "card": "Carte",
     "set": "Édition",
     "condition": "État",
@@ -222,6 +223,7 @@
     "staffSignature": "Signature du vendeur"
   },
   "orders": {
+    "pickCopy": "Marquer {{name}} comme prélevée",
     "printing": "{{setName}} ({{set}}) n° {{number}}",
     "removeLastCopyTitle": "Annuler la préparation ?",
     "removeLastCopyDescription": "C'est le dernier exemplaire de {{name}} et la seule carte restante, donc le retirer annule la préparation.",
@@ -257,7 +259,6 @@
     "namePlaceholder": "Commandes de lundi",
     "contents": "Cartes à sortir",
     "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "chooseFile": "Choisir un fichier",
     "preview": "{{source}} : {{lines}} lignes, {{quantity}} cartes.",
     "previewEmpty": "Aucune carte trouvée. Vérifiez que la première ligne contient des noms de colonnes comme Product Name et Quantity.",
     "previewSkipped_one": "{{count}} ligne sans nom de carte a été ignorée.",
@@ -372,7 +373,10 @@
       "accuracyCompleted": "Contrôle terminé",
       "deviceServiced": "Trieuse entretenue",
       "businessSettings": "Réglages Business modifiés",
-      "intakeTransferred": "Rachat déplacé"
+      "intakeTransferred": "Rachat déplacé",
+      "catalogCreated": "Catalogue boutique créé",
+      "catalogUpdated": "Catalogue boutique modifié",
+      "catalogDeleted": "Catalogue boutique supprimé"
     },
     "messages": {
       "cardCorrected": "{{from}} corrigée en {{to}}",
@@ -397,7 +401,10 @@
       "accuracyCompleted": "Contrôle terminé sur {{summary}} : {{incorrect}} erreurs sur {{checked}}",
       "deviceServiced": "{{summary}} entretenue",
       "businessSettings": "Réglages Business modifiés",
-      "intakeTransferred": "{{cards}} cartes achetées à {{summary}} déplacées"
+      "intakeTransferred": "{{cards}} cartes achetées à {{summary}} déplacées",
+      "catalogCreated": "A créé le catalogue boutique {{summary}}",
+      "catalogUpdated": "A modifié le catalogue boutique {{summary}}",
+      "catalogDeleted": "A supprimé le catalogue boutique {{summary}}"
     }
   },
   "accuracy": {
@@ -495,5 +502,71 @@
     "move": "Déplacer les cartes",
     "moved_one": "{{count}} carte déplacée",
     "moved_other": "{{count}} cartes déplacées"
+  },
+  "shopCatalogs": {
+    "heading": "Catalogues boutique",
+    "description": "Laissez vos clients parcourir votre stock sur une tablette en boutique ou sur votre site. Chaque catalogue montre les cartes des collections et emplacements choisis, via un lien qui fonctionne jusqu'à ce que vous le réinitialisiez.",
+    "add": "Nouveau catalogue",
+    "addTitle": "Nouveau catalogue boutique",
+    "editTitle": "Modifier le catalogue boutique",
+    "dialogDescription": "Choisissez ce que les clients peuvent parcourir. Les changements apparaissent dans le catalogue en moins d'une minute.",
+    "save": "Enregistrer le catalogue",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Cartes à l'unité en boutique",
+    "showPrices": "Afficher les prix",
+    "showPricesDescription": "Désactivez pour masquer les prix des cartes à toute personne qui parcourt ce catalogue.",
+    "collectionsLabel": "Collections",
+    "storageLocationsLabel": "Emplacements de stockage",
+    "noSources": "Rien à choisir pour l'instant.",
+    "inventoryNote": "Les cartes des rachats ouverts ou annulés n'apparaissent jamais.",
+    "empty": "Aucun catalogue boutique",
+    "loadFailed": "Impossible de charger les catalogues boutique.",
+    "upgrade": "Les catalogues boutique font partie de l'offre Business.",
+    "pricesHidden": "Prix masqués",
+    "noLiveSources": "Ses collections et emplacements ont été supprimés",
+    "showLink": "Lien",
+    "actionsFor": "Actions pour {{name}}",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "created": "Catalogue boutique créé",
+    "saved": "Catalogue boutique enregistré",
+    "saveFailed": "Impossible d'enregistrer le catalogue boutique.",
+    "deleted": "Catalogue boutique supprimé",
+    "deleteFailed": "Impossible de supprimer le catalogue boutique.",
+    "deleteConfirmTitle": "Supprimer ce catalogue boutique ?",
+    "deleteConfirmDescription": "Son lien cesse de fonctionner immédiatement. Vos cartes restent où elles sont.",
+    "linkTitle": "Lien vers {{name}}",
+    "linkDescription": "Ouvrez ce lien sur une tablette en boutique ou ajoutez-le à votre site. Toute personne qui l'a peut parcourir le catalogue.",
+    "linkNeverExpires": "Ce lien n'expire pas. Réinitialisez-le pour que l'ancien ne fonctionne plus.",
+    "linksNotConfigured": "Les liens de partage ne sont pas configurés sur ce serveur.",
+    "openLink": "Ouvrir le catalogue",
+    "resetLink": "Réinitialiser le lien",
+    "resetLinkConfirmTitle": "Réinitialiser le lien de ce catalogue ?",
+    "resetLinkConfirmDescription": "Le lien et le QR code actuels cessent de fonctionner. Mettez à jour chaque tablette ou site qui les utilise.",
+    "linkReset": "Lien réinitialisé. L'ancien lien ne fonctionne plus.",
+    "resetLinkFailed": "Impossible de réinitialiser le lien.",
+    "public": {
+      "loading": "Chargement du catalogue",
+      "invalidTitle": "Ce catalogue n'est pas disponible",
+      "invalidDescription": "Le lien a peut-être été réinitialisé ou supprimé. Demandez-en un nouveau à la boutique."
+    },
+    "photo": {
+      "heading": "Photo de la boutique",
+      "description": "Affichée en haut de chaque catalogue boutique. JPEG, PNG ou WebP, jusqu'à 10 Mo.",
+      "upload": "Importer une photo",
+      "replace": "Remplacer",
+      "remove": "Supprimer la photo de la boutique",
+      "previewAlt": "Photo actuelle de la boutique",
+      "uploaded": "Photo de la boutique mise à jour",
+      "uploadFailed": "Impossible d'importer la photo de la boutique.",
+      "removed": "Photo de la boutique supprimée",
+      "removeFailed": "Impossible de supprimer la photo de la boutique.",
+      "wrongType": "Importez une photo JPEG, PNG ou WebP.",
+      "tooLarge": "Cette photo est trop lourde. Importez-en une de moins de 10 Mo."
+    },
+    "isPublic": "Public",
+    "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé. Désactivez pour exiger le lien privé.",
+    "publicBadge": "Public",
+    "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
   }
 }

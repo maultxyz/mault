@@ -7,6 +7,7 @@ export interface TcgtrackingSet {
   product_count: number;
   published_on: string | null;
   products_modified?: string | null;
+  pricing_modified?: string | null;
   skus_modified?: string | null;
   sku_count?: number | null;
 }
@@ -138,5 +139,33 @@ export interface TcgplayerSkuSyncResult {
   skipped: boolean;
   sets: number;
   skuRows: number;
+  failedSets: number;
+}
+
+export interface TcgtrackingPricePoint {
+  low?: number | null;
+  market?: number | null;
+}
+
+export interface TcgtrackingSetPricingResponse {
+  prices: Record<string, { tcg?: Record<string, TcgtrackingPricePoint> | [] }>;
+}
+
+export interface TcgtrackingProductPrice {
+  productId: number;
+  subType: string;
+  lowPrice: number | null;
+  marketPrice: number | null;
+}
+
+export interface TcgtrackingSetPricing {
+  productIds: number[];
+  prices: TcgtrackingProductPrice[];
+}
+
+export interface TcgplayerPriceSyncResult {
+  skipped: boolean;
+  prices: number;
+  products: number;
   failedSets: number;
 }

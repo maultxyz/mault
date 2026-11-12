@@ -14,6 +14,7 @@ export interface ScanWorkflowAdapter<Frame, Outcome> {
   capture(): Promise<Frame>;
   readControl(frame: Frame): Promise<string | null> | string | null;
   applyControl(command: ScannerControlCommand | null): Promise<void> | void;
+  applyOtherCode?(text: string): Promise<boolean> | boolean;
   identify(frame: Frame): Promise<Outcome>;
   card(outcome: Outcome): PlayingCardWithDistance | null;
   isRemoval(): boolean;
@@ -46,6 +47,8 @@ export interface MatchedScanRecordInput {
   card: PlayingCardWithDistance;
   binNumber?: number;
   capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
+  stamp?: string;
   alternativeMatches?: PlayingCardWithDistance[];
   foilType: string | null;
   condition?: import("./card-condition.interface").CardCondition;

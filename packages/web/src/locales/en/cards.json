@@ -16,7 +16,8 @@
     "allSetsCount": "All sets ({{count}})",
     "noMatchingSets": "No matching sets",
     "startTyping": "Start typing to search for cards",
-    "noCardsFound": "No cards found"
+    "noCardsFound": "No cards found",
+    "searchLabel": "Search cards"
   },
   "priceTable": {
     "heading": "TCGplayer",
@@ -39,8 +40,6 @@
     "avg30": "30-day avg",
     "market": "Market",
     "low": "Low",
-    "mid": "Mid",
-    "high": "High",
     "regular": "Regular",
     "foil": "Foil",
     "noPrice": "n/a",
@@ -57,6 +56,10 @@
     "nextCard": "Next card",
     "cardDetailsFallback": "Card Details",
     "capturedScan": "Captured scan",
+    "capturedBackSide": "Captured scan (back)",
+    "capturedBackSideAlt": "Scanned back side of the card",
+    "showBackSide": "Show back side",
+    "showFrontSide": "Show front side",
     "matchedCard": "Matched card",
     "enlargeImage": "Click to enlarge",
     "similarMatches": "Similar matches",
@@ -77,14 +80,29 @@
     "noOcrRegions": "This game has no OCR regions.",
     "ocrFallback": "{{field}} (fallback)",
     "ocrFixedBox": "{{field}} (fixed box)",
+    "printingMarks": {
+      "title": "Printing marks",
+      "setSymbol": "Set symbol",
+      "artStamp": "Promo stamp",
+      "listIcon": "The List icon",
+      "pitch": "Pitch dots",
+      "editionMarker": "Edition marker",
+      "setCodeAndRegulationMark": "Set code and regulation mark",
+      "firstEditionStamp": "1st Edition stamp",
+      "foilMarker": "Foil star"
+    },
     "ocrFields": {
       "name": "Name",
       "setLine": "Set line",
-      "number": "Number"
+      "number": "Number",
+      "language": "Language"
     },
     "copyOf": "Copy {{index}} of {{count}}",
     "moreOptions": "More",
-    "actions": "Card actions"
+    "actions": "Card actions",
+    "name": "Name",
+    "moveToLocation": "Move to location",
+    "moveToCollection": "Move to collection"
   },
   "cardFilterPopover": {
     "color": "Color",
@@ -128,7 +146,9 @@
     "downloadedHidden_one": "1 downloaded card is hidden by the downloaded filter.",
     "downloadedHidden_other": "{{count}} downloaded cards are hidden by the downloaded filter.",
     "moveToLocation": "Move",
-    "exporting": "Exporting"
+    "exporting": "Exporting",
+    "pendingScanSaving": "Saving",
+    "pendingScanSavingName": "Saving {{name}}"
   },
   "cardSelectDialog": {
     "defaultTitle": "Select Card",
@@ -168,7 +188,14 @@
     "displayHeading": "Display",
     "cardSize": "Card size",
     "moreActions": "More actions",
-    "reviewCount": "Review {{count}}"
+    "reviewCount": "Review {{count}}",
+    "scanTimeline": "Scan timeline",
+    "scanTimelineOptions": {
+      "off": "Off",
+      "day": "By day",
+      "hour": "By hour"
+    },
+    "scanTimelineSortNote": "The scan timeline always shows the newest scans first."
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
@@ -261,6 +288,8 @@
   },
   "foil": "Foil",
   "foilNone": "Not foil",
+  "stamp": "Stamp",
+  "stampNone": "No stamp",
   "language": "Language",
   "downloaded": "Downloaded",
   "technicalDetails": {
@@ -310,11 +339,25 @@
     "copyJson": "Copy JSON",
     "copied": "Card JSON copied.",
     "copyFailed": "Couldn't copy the card JSON.",
-    "detectedColor": "Detected color bar",
     "foilDetection": "Foil detection",
     "foilDetected": "Foil ({{method}} {{score}})",
     "foilNotDetected": "Not foil ({{method}} {{score}})",
-    "noColor": "None",
+    "printingMarks": "Printing marks",
+    "printingMarksChanged": "Changed the printing (evidence {{evidence}})",
+    "printingMarksKept": "Kept the printing (best evidence {{evidence}})",
+    "printingMarksSkipped": {
+      "noScanAreas": "Not checked: no mark areas from the scan",
+      "noReferences": "Not checked: no references for this game yet",
+      "singlePrinting": "Not needed: no look-alike printings"
+    },
+    "printedFoilMarker": "Foil star",
+    "printedFoilMarkerValue": {
+      "star": "Star found (foil)",
+      "dot": "Dot found (not foil)",
+      "none": "Not found"
+    },
+    "stampDetection": "Stamp detection",
+    "noStampDetected": "No stamp found",
     "foilMethod": {
       "rainbow": "rainbow score",
       "nudge": "nudge change"
@@ -358,7 +401,9 @@
     "exit": "Exit review",
     "loadFailed": "Couldn't load the cards to review.",
     "notShown_one": "{{count}} more card isn't shown here.",
-    "notShown_other": "{{count}} more cards aren't shown here."
+    "notShown_other": "{{count}} more cards aren't shown here.",
+    "statusRemoved": "Removed",
+    "statusPending": "Not reviewed yet"
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -450,11 +495,45 @@
     "close": "Close",
     "importMore": "Import more",
     "unreadable": "Couldn't read this image.",
-    "identifyFailed": "Couldn't identify this image."
+    "identifyFailed": "Couldn't identify this image.",
+    "documentScan": {
+      "title": "Document scanner",
+      "scannerLabel": "Scanner",
+      "scannerOption": "{{name}} ({{driver}})",
+      "scan": "Scan",
+      "refresh": "Refresh scanners",
+      "noScanners": "No scanners found. Install your scanner's WIA driver (PaperStream IP for Ricoh fi scanners), then refresh.",
+      "folderLabel": "Watch folder",
+      "noFolder": "Choose the folder your scanning software saves to.",
+      "chooseFolder": "Choose folder",
+      "changeFolder": "Change folder",
+      "watchFolder": "Watch folder",
+      "scanning": "Scanning with {{scanner}}. Cards are imported as they leave the feeder.",
+      "watching": "Watching {{folder}}. New images are imported as they appear.",
+      "stopScanner": "Stop scanner",
+      "stopWatching": "Stop watching",
+      "stopping": "Stopping...",
+      "errors": {
+        "scanner_helper_missing": "The scanner component is missing from this install. Reinstall the Mault desktop app.",
+        "scanner_busy": "The scanner is busy. Close other scanning apps and try again.",
+        "scanner_offline": "Can't reach the scanner. Check that it is on and connected.",
+        "paper_jam": "Paper jam. Clear the feeder, then scan the remaining cards.",
+        "feeder_empty": "The feeder is empty. Load cards and scan again.",
+        "cover_open": "The scanner cover is open. Close it and scan again.",
+        "no_feeder": "This scanner has no document feeder. Choose a scanner with a feeder.",
+        "scanner_error": "The scanner stopped. Check for a double feed or jam, then scan the remaining cards.",
+        "folder_missing": "Can't read the watched folder. Choose it again.",
+        "start_failed": "Couldn't start scanning. Wait a moment and try again.",
+        "unknown": "Something went wrong while scanning.",
+        "scanner_in_use": "The document scanner is already in use. Stop the other scan first.",
+        "session_closed": "The connection to the document scanner was lost. Select the scanner again."
+      }
+    }
   },
   "cardTags": {
     "title": "Tags",
     "edit": "Edit tags",
+    "editWithTags": "Edit tags: {{tags}}",
     "bulkAdd": "Add tag",
     "bulkRemove": "Remove tag",
     "names": {
@@ -462,5 +541,108 @@
       "reviewed": "Reviewed",
       "corrected": "Corrected"
     }
+  },
+  "scanTimeline": {
+    "blockCardCount_one": "{{count}} card",
+    "blockCardCount_other": "{{count}} cards",
+    "loadedOfTotal": "Showing {{loaded}} of {{total}} cards",
+    "loadMore": "Load more cards",
+    "selectBlock": "Select cards scanned {{period}}"
+  },
+  "publicBrowse": {
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
+    "resultCount_one": "{{count}} card found",
+    "resultCount_other": "{{count}} cards found",
+    "empty": "No cards here yet",
+    "noResults": "No cards match your search",
+    "loadFailed": "Couldn't load cards. Try again.",
+    "searchPlaceholder": "Search cards",
+    "sortLabel": "Sort by",
+    "gameFilter": "Game",
+    "allGames": "All games",
+    "sorts": {
+      "newest": "Newest first",
+      "name": "Name",
+      "price-desc": "Price: high to low",
+      "price-asc": "Price: low to high"
+    },
+    "filtersHeading": "Filters",
+    "filtersWithCount": "Filters ({{count}})",
+    "clearFilters_one": "Clear {{count}} filter",
+    "clearFilters_other": "Clear {{count}} filters",
+    "showResults_one": "Show {{count}} card",
+    "showResults_other": "Show {{count}} cards",
+    "priceFilter": "Price",
+    "minPrice": "Min",
+    "maxPrice": "Max",
+    "finishFilter": "Finish",
+    "finishAll": "Any finish",
+    "finishFoil": "Foil only",
+    "finishNonFoil": "Non-foil only",
+    "foilTypeFilter": "Foil type",
+    "languageFilter": "Language",
+    "rarityFilter": "Rarity",
+    "colorFilter": "Color",
+    "setFilter": "Set",
+    "noFilterMatches": "Nothing matches.",
+    "findSet": "Find a set",
+    "openCard": "View {{name}} ({{details}})",
+    "cardNotFound": "This card is no longer available.",
+    "referenceImage": "Reference image",
+    "backToCards": "Back to cards",
+    "loading": "Loading cards",
+    "tradeHint": "Open a card to add it to your trade offer"
+  },
+  "tradeOffers": {
+    "game": "Game",
+    "searchLabel": "Find a card",
+    "searchPlaceholder": "Card name",
+    "searchResults_one": "{{count}} card found",
+    "searchResults_other": "{{count}} cards found",
+    "addOfferedCard": "Add {{name}} to your offer",
+    "add": "Add",
+    "noSearchResults": "No cards match that name.",
+    "status": {
+      "pending": "Waiting",
+      "accepted": "Accepted",
+      "declined": "Declined"
+    },
+    "youWant": "You asked for",
+    "youOffer": "You offered",
+    "title": "Trade offer",
+    "send": "Send trade offer",
+    "sent": "Trade offer sent. You'll see the answer here.",
+    "sendFailed": "Couldn't send the trade offer. Try again.",
+    "nameLabel": "Your name",
+    "contactLabel": "Email, phone or username",
+    "contactPlaceholder": "name@example.com",
+    "noteLabel": "Note (optional)",
+    "headerButton_zero": "Trade offer",
+    "headerButton_one": "Trade offer (1)",
+    "headerButton_other": "Trade offer ({{count}})",
+    "inTradeOffer": "In your trade offer",
+    "addToTradeOffer": "Add to trade offer",
+    "pageDescription": "Pick cards you want from {{source}}, add cards you'll give in return, and send it. The owner accepts or declines.",
+    "detailsTitle": "Your details",
+    "detailsDescription": "So the owner knows who you are and how to reach you.",
+    "getTitle_one": "You get ({{count}})",
+    "getTitle_other": "You get ({{count}})",
+    "getDescription": "Cards from {{source}}",
+    "getEmpty": "Nothing yet. Open a card and choose Add to trade offer.",
+    "browseCards": "Browse cards",
+    "addMoreCards": "Add more cards",
+    "giveTitle_one": "You give ({{count}})",
+    "giveTitle_other": "You give ({{count}})",
+    "giveDescription": "Your cards, from any game",
+    "giveEmpty": "Search above and add the cards you're offering.",
+    "summary": "Cards you get: {{get}} · Cards you give: {{give}}",
+    "needGet": "Add a card you want to continue.",
+    "needGive": "Add a card you're giving to continue.",
+    "quantityFor": "Quantity of {{name}}",
+    "conditionFor": "Condition of {{name}}",
+    "yourOffers_one": "Your sent offers ({{count}})",
+    "yourOffers_other": "Your sent offers ({{count}})",
+    "noPrice": "No price"
   }
 }

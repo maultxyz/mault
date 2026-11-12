@@ -1,6 +1,6 @@
 import { TextInput } from "react-native";
 import { useTheme } from "@/hooks/use-theme";
-import { FONT_FAMILY, FONT_SIZE, RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_PADDING_HORIZONTAL, CONTROL_RADIUS, FONT_FAMILY, FONT_SIZE } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, INPUT_HEIGHT } from "@/lib/constants/ui";
 import type { InputProps } from "@/lib/interfaces/ui";
 
@@ -19,13 +19,13 @@ export function Input({ editable = true, compact = false, ...props }: InputProps
         minWidth: 96,
         width: compact ? 96 : undefined,
         textAlign: compact ? "right" : "left",
-        height: INPUT_HEIGHT,
-        borderRadius: RADIUS.md,
+        minHeight: INPUT_HEIGHT,
+        borderRadius: CONTROL_RADIUS,
         borderWidth: 1,
         borderColor: colors.input,
         backgroundColor: colors.inputBackground,
         color: colors.foreground,
-        paddingHorizontal: SPACING.md,
+        paddingHorizontal: CONTROL_PADDING_HORIZONTAL,
         paddingVertical: 0,
         fontSize: FONT_SIZE.base,
         fontFamily: FONT_FAMILY.regular,

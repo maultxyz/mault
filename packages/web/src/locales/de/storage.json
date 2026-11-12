@@ -60,19 +60,22 @@
       "priceNow": "Aktueller Preis",
       "purchasePrice": "Einkaufspreis",
       "actions": "Aktionen"
-    }
+    },
+    "searchPlaceholder": "Karten in diesem Lagerort suchen",
+    "positionOrder": "Platz in der Box",
+    "noMatchesTitle": "Keine passenden Karten",
+    "noMatchesDescription": "Versuche eine andere Suche oder setze die Filter zurück."
   },
   "cardLocation": {
     "heading": "Lager",
     "value": "{{name}} · #{{position}}",
     "remove": "Aus Box entfernen",
-    "move": "Verschieben",
-    "store": "In Lagerort verschieben",
-    "notStored": "Keinem Lagerort zugeordnet"
+    "move": "Verschieben"
   },
   "toasts": {
     "failed": "Lagerorte konnten nicht aktualisiert werden",
     "cardRemoved": "Karte aus ihrem Lagerort entfernt",
+    "cardRemovedFromCollection": "Karte aus Lagerort und Sammlung entfernt",
     "correctFailed": "Die Karte konnte nicht korrigiert werden",
     "cardsMoved_one": "1 Karte ins Lager verschoben",
     "cardsMoved_other": "{{count}} Karten ins Lager verschoben",
@@ -83,8 +86,15 @@
   "removeDialog": {
     "title": "{{name}} aus {{location}} entfernen?",
     "thisCard": "Diese Karte",
-    "description": "Nutze das, wenn du die Karte herausgenommen hast, zum Beispiel weil du sie verkauft oder in ein Deck gesteckt hast. Sie bleibt in deiner Sammlung, und ihr Platz in der Box bleibt leer.",
-    "confirm": "Entfernen"
+    "description": "Nutze das, wenn du die Karte aus der Box genommen hast. Ihr Platz in der Box bleibt leer.",
+    "confirm": "Entfernen",
+    "choiceDescription": "Entferne sie nur aus dem Lagerort, wenn du sie woanders hingelegt hast, zum Beispiel in ein Deck. Entferne sie auch aus {{collection}}, wenn sie endgültig weg ist, zum Beispiel weil du sie verkauft hast. Ihr Platz in der Box bleibt in beiden Fällen leer.",
+    "removeFromLocation": "Aus Lagerort entfernen",
+    "removeFromLocationAndCollection": "Aus Lagerort und Sammlung entfernen"
+  },
+  "bulkRemoveDialog": {
+    "title_one": "{{count}} Karte aus {{location}} entfernen?",
+    "title_other": "{{count}} Karten aus {{location}} entfernen?"
   },
   "search": {
     "placeholder": "Karten in allen Lagerorten suchen",
@@ -117,6 +127,8 @@
     "title": "Alle Fächer leeren",
     "description_one": "Markiert alle Fächer als geleert. Wähle, wohin die {{count}} Karte gekommen ist, damit du sie später wiederfindest.",
     "description_other": "Markiert alle Fächer als geleert. Wähle, wohin die {{count}} Karten gekommen sind, damit du sie später wiederfindest.",
+    "resetAutoAssign": "Automatisch erkannte Sortierregeln löschen",
+    "resetAutoAssignDescription": "Die Fächer lernen ab den nächsten Scans neue Werte.",
     "perBin": "Für jedes Fach einen Lagerort wählen",
     "binLabel_one": "Fach {{bin}} · {{count}} Karte",
     "binLabel_other": "Fach {{bin}} · {{count}} Karten",
@@ -136,5 +148,85 @@
     "collectionsGroup": "Sammlungen",
     "cancel": "Abbrechen",
     "confirm": "Verschieben"
+  },
+  "pickList": {
+    "open": "Pickliste",
+    "title": "Pickliste",
+    "description": "Füge eine Deckliste ein, um zu sehen, wo jede Karte gelagert ist, und hake die Karten beim Heraussuchen ab.",
+    "decklistLabel": "Herauszusuchende Karten",
+    "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+    "decklistHint": "Eine Karte pro Zeile. Anzahlen, Set-Codes und Abschnittsüberschriften sind erlaubt.",
+    "findCards": "Karten finden",
+    "editList": "Liste bearbeiten",
+    "clear": "Liste leeren",
+    "progress": "{{picked}} von {{total}} herausgesucht",
+    "emptyTitle": "Keine dieser Karten ist gelagert",
+    "emptyDescription": "Nur Karten in einem Lagerort erscheinen auf einer Pickliste.",
+    "loadFailed": "Die Pickliste konnte nicht geladen werden.",
+    "finish": "Herausgesuchte aus Lagerorten entfernen",
+    "finishTitle_one": "{{count}} herausgesuchte Karte aus ihrem Lagerort entfernen?",
+    "finishTitle_other": "{{count}} herausgesuchte Karten aus ihren Lagerorten entfernen?",
+    "finishDescription": "Sie bleiben in deiner Sammlung. Die Pickliste wird danach geleert.",
+    "finishConfirm": "Entfernen",
+    "scan": {
+      "button": "Zum Abhaken scannen",
+      "noMatch": "Keine Karte erkannt. Versuche es erneut mit der ganzen Karte im Bild.",
+      "notOnList": "{{name}} ist nicht mehr auf deiner Pickliste.",
+      "picked": "{{name}} aus {{location}}, Platz {{position}} herausgesucht",
+      "failed": "Scannen fehlgeschlagen. Versuche es erneut.",
+      "hint": "Halte eine Karte vor die Kamera und drücke auf Karte scannen.",
+      "scanCard": "Karte scannen",
+      "cameraFailed": "Die Kamera konnte nicht gestartet werden. Prüfe, ob dieser Browser sie verwenden darf.",
+      "stop": "Scannen beenden",
+      "alreadyPicked": "Alle Exemplare von {{name}} auf deiner Pickliste sind bereits herausgesucht."
+    },
+    "toasts": {
+      "removed_one": "{{count}} Karte aus ihrem Lagerort entfernt",
+      "removed_other": "{{count}} Karten aus ihren Lagerorten entfernt"
+    },
+    "notStored": "Nicht gelagert",
+    "missingCount_one": "{{count}} Exemplar nicht gelagert",
+    "missingCount_other": "{{count}} Exemplare nicht gelagert",
+    "moreActions": "Weitere Aktionen",
+    "picked": "Herausgesucht",
+    "back": "Zurück zu den Lagerorten"
+  },
+  "verify": {
+    "tabs": {
+      "label": "Ansicht des Lagerorts",
+      "cards": "Karten",
+      "verify": "Prüfen"
+    },
+    "description": "Scanne die Karten an diesem Lagerort, um zu prüfen, ob alles da ist, was hier sein sollte.",
+    "progress": "{{verified}} von {{total}} geprüft",
+    "verified": "Geprüft",
+    "startOver": "Neu beginnen",
+    "emptyTitle": "Nichts zu prüfen",
+    "emptyDescription": "An diesem Lagerort sind noch keine Karten gelagert.",
+    "loadFailed": "Die Karten dieses Lagerorts konnten nicht geladen werden.",
+    "truncated": "Nur die ersten {{max}} Karten an diesem Lagerort können geprüft werden.",
+    "complete": "Alle Karten an diesem Lagerort sind geprüft.",
+    "notInLocationTitle": "Gescannt, aber nicht hier gelagert",
+    "notInLocationDescription": "Diese Karten sind nicht an diesem Lagerort erfasst. Lege sie an ihren Platz zurück oder verschiebe sie hierher.",
+    "scan": {
+      "button": "Zum Prüfen scannen",
+      "stop": "Scannen beenden",
+      "verified": "{{name}} geprüft, Platz {{position}}",
+      "alreadyVerified": "Alle Exemplare von {{name}} an diesem Lagerort sind bereits geprüft.",
+      "notInLocation": "{{name}} ist nicht an diesem Lagerort gelagert.",
+      "hint": "Halte eine Karte von diesem Lagerort vor die Kamera und drücke auf Karte scannen."
+    }
+  },
+  "shareLink": {
+    "trigger": "Lagerort teilen",
+    "title": "Lagerort teilen",
+    "description": "Jeder mit diesem Link oder QR-Code kann die Karten an diesem Lagerort ohne Anmeldung sehen. Ändern kann er nichts.",
+    "revoked": "Alle geteilten Links für diesen Lagerort funktionieren nicht mehr."
+  },
+  "sharedPage": {
+    "readOnly": "Nur Ansicht",
+    "invalidTitle": "Dieser Link funktioniert nicht mehr",
+    "invalidDescription": "Er ist möglicherweise abgelaufen oder wurde widerrufen. Bitte die Person, die ihn geteilt hat, um einen neuen Link.",
+    "empty": "An diesem Lagerort sind noch keine Karten."
   }
 }

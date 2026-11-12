@@ -1,5 +1,6 @@
 import {
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
   type MonitorLink,
 } from "@magic-vault/shared";
@@ -9,14 +10,21 @@ import { authQuery } from "../../db";
 import { collections } from "../../db/schema";
 import {
   closeMonitorLinkStreams,
-  isMonitorLinkConfigured,
+  forgetVerifiedMonitorLinks,
   signMonitorLink,
 } from "../../lib/monitor-links";
+import {
+  allowsLongShareLinks,
+  parseShareLinkPurpose,
+  shareLinkExpiresInMinutes,
+} from "../../lib/share-link-policy";
+import { isShareTokenConfigured } from "../../lib/share-tokens";
+import type { ShareLinkRequestBody } from "../../lib/interfaces/share-tokens";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const monitorLinkRoute = new Hono<AppEnv>()
   .post("/:guid/monitor-link", requireAuth, requireOrg, async (c) => {
-    if (!isMonitorLinkConfigured()) {
+    if (!isShareTokenConfigured()) {
       return c.json(
         { success: false, message: "Monitor links are not configured." },
         503,
@@ -25,8 +33,8 @@ export const monitorLinkRoute = new Hono<AppEnv>()
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const body = await c.req
-      .json<{ expiresInDays?: number }>()
-      .catch(() => ({}) as { expiresInDays?: number });
+      .json<ShareLinkRequestBody>()
+      .catch(() => ({}) as ShareLinkRequestBody);
     const expiresInDays =
       body.expiresInDays ?? DEFAULT_MONITOR_LINK_EXPIRY_DAYS;
     if (
@@ -34,11 +42,23 @@ export const monitorLinkRoute = new Hono<AppEnv>()
     ) {
       return c.json({ success: false, message: "Invalid expiry." }, 400);
     }
-    const collection = await authQuery(c.get("jwtClaims"), (tx) =>
-      tx.query.collections.findFirst({
-        where: (t, { eq, and }) =>
-          and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-        columns: { monitorLinkVersion: true },
+    if (body.showPrices !== undefined && typeof body.showPrices !== "boolean") {
+      return c.json({ success: false, message: "Invalid price visibility." }, 400);
+    }
+    const showsPrices = body.showPrices ?? DEFAULT_SHARE_LINK_SHOWS_PRICES;
+    const purpose = parseShareLinkPurpose(body.purpose);
+    if (!purpose) {
+      return c.json({ success: false, message: "Invalid link type." }, 400);
+    }
+    const { collection, allowsLongLinks } = await authQuery(
+      c.get("jwtClaims"),
+      async (tx) => ({
+        collection: await tx.query.collections.findFirst({
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+          columns: { monitorLinkVersion: true },
+        }),
+        allowsLongLinks: await allowsLongShareLinks(tx, orgId),
       }),
     );
     if (!collection) {
@@ -48,7 +68,9 @@ export const monitorLinkRoute = new Hono<AppEnv>()
       guid,
       orgId,
       collection.monitorLinkVersion,
-      expiresInDays,
+      shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
+      showsPrices,
+      purpose,
     );
     return c.json({
       success: true,
@@ -78,5 +100,6 @@ export const monitorLinkRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Collection not found." }, 404);
     }
     closeMonitorLinkStreams(guid);
+    forgetVerifiedMonitorLinks(guid);
     return c.json({ success: true, message: "Revoked monitor links." });
   });

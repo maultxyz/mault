@@ -7,6 +7,7 @@ import type {
   ServoCalibration,
   ChannelLayout,
   ScanRegion,
+  FeederTestFormValues,
 } from "@magic-vault/shared";
 import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
 import type { PrintingScoreFormValues } from "@/schemas/printing-score.schema";
@@ -246,6 +247,27 @@ export interface FeederCalibrationPanelProps {
   onFeedRetryCountChange: (value: number) => void;
   onSelectContinuous: () => void;
   fullWidth?: boolean;
+}
+
+export interface UseFeederTestOptions {
+  moduleCount: number;
+  feedRetryCount: number;
+  applyDraftsToDevice: () => Promise<void>;
+}
+
+export interface FeederTestControls {
+  isRunning: boolean;
+  isStopping: boolean;
+  cardsSent: number;
+  cardsToSend: number | null;
+  canStart: boolean;
+  start: (values: FeederTestFormValues) => Promise<void>;
+  stop: () => void;
+}
+
+export interface FeederTestPanelProps {
+  feederTest: FeederTestControls;
+  isBlockedByRoutingTest: boolean;
 }
 
 export interface StoredCalibration {

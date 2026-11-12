@@ -47,6 +47,10 @@ export interface ScryfallApiCard {
   illustration_id?: string;
   finishes?: string[];
   promo_types?: string[];
+  set_type?: string;
+  frame?: string;
+  border_color?: string;
+  frame_effects?: string[];
   tcgplayer_id?: number;
   cardmarket_id?: number;
 }

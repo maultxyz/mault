@@ -12,9 +12,14 @@ import type {
 } from "@/lib/interfaces/collections";
 import {
   DEPLOY_STATUS_EVENT,
+  TRADE_OFFERS_CHANGED_EVENT,
+  type TradeOffersChangedEvent,
   type DeployNotice,
   type SyncState,
 } from "@magic-vault/shared";
+import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
+import i18n from "@/lib/i18n";
+import { toast } from "@/lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -165,6 +170,19 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
             }
             return { ...prev, [guid]: viewers };
           });
+        });
+        es.addEventListener(TRADE_OFFERS_CHANGED_EVENT, (e) => {
+          const changed = JSON.parse(
+            (e as MessageEvent).data,
+          ) as TradeOffersChangedEvent;
+          queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] });
+          if (changed.createdOffer) {
+            toast.info(
+              i18n.t("common:tradeOffers.newOfferToast", {
+                name: changed.createdOffer.guestName,
+              }),
+            );
+          }
         });
         es.addEventListener("collections_changed", () => {
           queryClient.invalidateQueries({

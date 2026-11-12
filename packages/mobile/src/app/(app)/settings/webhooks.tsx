@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { Surface } from "@/components/ui/surface";
@@ -135,143 +136,149 @@ export default function WebhooksSettingsScreen() {
       onRefresh={() => void list.refetch()}
       header={<PageHeader title={t("settings.webhooks.heading")} subtitle={org?.name} onBack={() => router.back()} />}
     >
-      <AppText size="sm" tone="secondary">
-        {t("settings.webhooks.description")}
-      </AppText>
-      {locked ? <Callout tone="info" title={t("settings.webhooks.upgrade")} /> : null}
-      {!locked && list.data && !canManage ? <Callout tone="info" title={t("settings.webhooks.managersOnly")} /> : null}
-      {list.isError ? <Callout tone="destructive" title={t("settings.webhooks.loadFailed")} /> : null}
-      {message ? <Callout tone={message.tone} title={message.text} /> : null}
-
-      {secret ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
-            {t("settings.webhooks.secretTitle")}
-          </AppText>
-          <AppText size="xs" tone="secondary">
-            {t("settings.webhooks.secretDescription")}
-          </AppText>
-          <View style={{ padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
-            <AppText mono selectable>
-              {secret}
-            </AppText>
-          </View>
-          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-            <Button style={{ flex: 1 }} variant="secondary" label={t("settings.webhooks.share")} onPress={() => void Share.share({ message: secret })} />
-            <Button style={{ flex: 1 }} label={t("settings.apiKeys.revealDone")} onPress={() => setSecret(null)} />
-          </View>
-        </Surface>
-      ) : null}
-
-      {editing ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <View>
-            <AppText heading weight="semibold">
-              {editing === "new" ? t("settings.webhooks.addTitle") : t("settings.webhooks.editTitle")}
-            </AppText>
-            <AppText size="xs" tone="secondary">
-              {t("settings.webhooks.dialogDescription")}
-            </AppText>
-          </View>
-          <Controller
-            control={form.control}
-            name="url"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("settings.webhooks.urlLabel")}
-                placeholder="https://shop.example.com/mault-webhook"
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                error={translateFormErrorMessage(t, fieldState.error?.message)}
-              />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <TextField
-                label={t("settings.webhooks.descriptionLabel")}
-                placeholder={t("settings.webhooks.descriptionPlaceholder")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-              />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="events"
-            render={({ field, fieldState }) => (
-              <View style={{ gap: SPACING.sm }}>
-                <AppText size="sm" weight="medium">
-                  {t("settings.webhooks.eventsLabel")}
-                </AppText>
-                {WEBHOOK_EVENTS.map((event) => (
-                  <SwitchRow
-                    key={event}
-                    title={event}
-                    description={t(`settings.webhooks.events.${event}`)}
-                    value={field.value.includes(event)}
-                    onValueChange={(on) =>
-                      field.onChange(WEBHOOK_EVENTS.filter((e) => (e === event ? on : field.value.includes(e))))
-                    }
-                  />
-                ))}
-                {fieldState.error ? (
-                  <AppText size="xs" style={{ color: colors.destructive }}>
-                    {translateFormErrorMessage(t, fieldState.error.message)}
-                  </AppText>
-                ) : null}
-              </View>
-            )}
-          />
-          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-            <Button style={{ flex: 1 }} variant="ghost" label={t("settings.webhooks.cancel")} onPress={() => setEditing(null)} />
-            <Button
-              style={{ flex: 1 }}
-              label={editing === "new" ? t("settings.webhooks.add") : t("settings.webhooks.save")}
-              loading={save.isPending}
-              onPress={form.handleSubmit((values) => save.mutate(values))}
-            />
-          </View>
-        </Surface>
-      ) : canManage && !locked ? (
-        <Button icon="plus" label={t("settings.webhooks.add")} onPress={() => startEditing("new")} />
-      ) : null}
-
-      {list.data && list.data.endpoints.length === 0 && !editing ? (
-        <EmptyState icon="external" title={t("settings.webhooks.empty")} />
+      {list.isLoading ? (
+        <PageSkeleton />
       ) : (
-        <ListGroup>
-          {(list.data?.endpoints ?? []).map((endpoint) => (
-            <ListRow
-              key={endpoint.guid}
-              icon="external"
-              title={endpoint.description || endpoint.url}
-              subtitle={[endpoint.description ? endpoint.url : null, statusLine(endpoint)].filter(Boolean).join("\n")}
-              tone={endpoint.isEnabled ? "default" : "destructive"}
-              disabled={!canManage}
-              onPress={() => setActionsFor(endpoint)}
-            />
-          ))}
-        </ListGroup>
-      )}
+        <>
+          <AppText size="sm" tone="secondary">
+            {t("settings.webhooks.description")}
+          </AppText>
+          {locked ? <Callout tone="info" title={t("settings.webhooks.upgrade")} /> : null}
+          {!locked && list.data && !canManage ? <Callout tone="info" title={t("settings.webhooks.managersOnly")} /> : null}
+          {list.isError ? <Callout tone="destructive" title={t("settings.webhooks.loadFailed")} /> : null}
+          {message ? <Callout tone={message.tone} title={message.text} /> : null}
 
-      <OptionSheet
-        visible={!!actionsFor}
-        title={actionsFor?.description || actionsFor?.url || t("settings.webhooks.actions")}
-        options={[
-          { value: "test", label: t("settings.webhooks.sendTest") },
-          ...(actionsFor && !actionsFor.isEnabled ? [{ value: "enable", label: t("settings.webhooks.enable") }] : []),
-          { value: "edit", label: t("settings.webhooks.edit") },
-          { value: "delete", label: t("settings.webhooks.delete") },
-        ]}
-        selected={[]}
-        onSelect={runAction}
-        onClose={() => setActionsFor(null)}
-      />
+          {secret ? (
+            <Surface style={{ gap: SPACING.md }}>
+              <AppText heading weight="semibold" accessibilityRole="header">
+                {t("settings.webhooks.secretTitle")}
+              </AppText>
+              <AppText size="xs" tone="secondary">
+                {t("settings.webhooks.secretDescription")}
+              </AppText>
+              <View style={{ padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
+                <AppText mono selectable>
+                  {secret}
+                </AppText>
+              </View>
+              <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+                <Button style={{ flex: 1 }} variant="secondary" label={t("settings.webhooks.share")} onPress={() => void Share.share({ message: secret })} />
+                <Button style={{ flex: 1 }} label={t("settings.apiKeys.revealDone")} onPress={() => setSecret(null)} />
+              </View>
+            </Surface>
+          ) : null}
+
+          {editing ? (
+            <Surface style={{ gap: SPACING.md }}>
+              <View>
+                <AppText heading weight="semibold" accessibilityRole="header">
+                  {editing === "new" ? t("settings.webhooks.addTitle") : t("settings.webhooks.editTitle")}
+                </AppText>
+                <AppText size="xs" tone="secondary">
+                  {t("settings.webhooks.dialogDescription")}
+                </AppText>
+              </View>
+              <Controller
+                control={form.control}
+                name="url"
+                render={({ field, fieldState }) => (
+                  <TextField
+                    label={t("settings.webhooks.urlLabel")}
+                    placeholder="https://shop.example.com/mault-webhook"
+                    value={field.value}
+                    onBlur={field.onBlur}
+                    onChangeText={field.onChange}
+                    error={translateFormErrorMessage(t, fieldState.error?.message)}
+                  />
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <TextField
+                    label={t("settings.webhooks.descriptionLabel")}
+                    placeholder={t("settings.webhooks.descriptionPlaceholder")}
+                    value={field.value}
+                    onBlur={field.onBlur}
+                    onChangeText={field.onChange}
+                  />
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="events"
+                render={({ field, fieldState }) => (
+                  <View style={{ gap: SPACING.sm }}>
+                    <AppText size="sm" weight="medium">
+                      {t("settings.webhooks.eventsLabel")}
+                    </AppText>
+                    {WEBHOOK_EVENTS.map((event) => (
+                      <SwitchRow
+                        key={event}
+                        title={event}
+                        description={t(`settings.webhooks.events.${event}`)}
+                        value={field.value.includes(event)}
+                        onValueChange={(on) =>
+                          field.onChange(WEBHOOK_EVENTS.filter((e) => (e === event ? on : field.value.includes(e))))
+                        }
+                      />
+                    ))}
+                    {fieldState.error ? (
+                      <AppText size="xs" style={{ color: colors.destructive }}>
+                        {translateFormErrorMessage(t, fieldState.error.message)}
+                      </AppText>
+                    ) : null}
+                  </View>
+                )}
+              />
+              <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+                <Button style={{ flex: 1 }} variant="ghost" label={t("settings.webhooks.cancel")} onPress={() => setEditing(null)} />
+                <Button
+                  style={{ flex: 1 }}
+                  label={editing === "new" ? t("settings.webhooks.add") : t("settings.webhooks.save")}
+                  loading={save.isPending}
+                  onPress={form.handleSubmit((values) => save.mutate(values))}
+                />
+              </View>
+            </Surface>
+          ) : canManage && !locked ? (
+            <Button icon="plus" label={t("settings.webhooks.add")} onPress={() => startEditing("new")} />
+          ) : null}
+
+          {list.data && list.data.endpoints.length === 0 && !editing ? (
+            <EmptyState icon="external" title={t("settings.webhooks.empty")} />
+          ) : (
+            <ListGroup>
+              {(list.data?.endpoints ?? []).map((endpoint) => (
+                <ListRow
+                  key={endpoint.guid}
+                  icon="external"
+                  title={endpoint.description || endpoint.url}
+                  subtitle={[endpoint.description ? endpoint.url : null, statusLine(endpoint)].filter(Boolean).join("\n")}
+                  tone={endpoint.isEnabled ? "default" : "destructive"}
+                  disabled={!canManage}
+                  onPress={() => setActionsFor(endpoint)}
+                />
+              ))}
+            </ListGroup>
+          )}
+
+          <OptionSheet
+            visible={!!actionsFor}
+            title={actionsFor?.description || actionsFor?.url || t("settings.webhooks.actions")}
+            options={[
+              { value: "test", label: t("settings.webhooks.sendTest") },
+              ...(actionsFor && !actionsFor.isEnabled ? [{ value: "enable", label: t("settings.webhooks.enable") }] : []),
+              { value: "edit", label: t("settings.webhooks.edit") },
+              { value: "delete", label: t("settings.webhooks.delete") },
+            ]}
+            selected={[]}
+            onSelect={runAction}
+            onClose={() => setActionsFor(null)}
+          />
+        </>
+      )}
     </Screen>
   );
 }

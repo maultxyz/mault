@@ -2,36 +2,38 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { announcements } from "../db/schema";
 import { createCachedValue } from "./cached-value";
-import { PUBLIC_ANNOUNCEMENTS_MAX_AGE_MS } from "./constants/timing";
+import { ANNOUNCEMENTS_CACHE_MAX_AGE_MS } from "./constants/timing";
 
-const landingAnnouncementsCache = createCachedValue(() =>
+type AnnouncementRow = typeof announcements.$inferSelect;
+
+const liveAnnouncementsCache = createCachedValue(() =>
   db
     .select()
     .from(announcements)
     .where(
-      and(
-        eq(announcements.isActive, true),
-        eq(announcements.isDeleted, false),
-        eq(announcements.showOnLanding, true),
-      ),
+      and(eq(announcements.isActive, true), eq(announcements.isDeleted, false)),
     )
     .orderBy(announcements.createdAt),
 );
 
-export async function getPublicAnnouncements(): Promise<
-  (typeof announcements.$inferSelect)[]
-> {
-  const rows = await landingAnnouncementsCache.get(
-    PUBLIC_ANNOUNCEMENTS_MAX_AGE_MS,
-  );
-  const now = Date.now();
-  return rows.filter(
-    (row) =>
-      (!row.startsAt || row.startsAt.getTime() <= now) &&
-      (!row.endsAt || row.endsAt.getTime() >= now),
+function isWithinSchedule(row: AnnouncementRow, now: number): boolean {
+  return (
+    (!row.startsAt || row.startsAt.getTime() <= now) &&
+    (!row.endsAt || row.endsAt.getTime() >= now)
   );
 }
 
-export function invalidatePublicAnnouncements(): void {
-  landingAnnouncementsCache.invalidate();
+export async function getActiveAnnouncements(): Promise<AnnouncementRow[]> {
+  const rows = await liveAnnouncementsCache.get(ANNOUNCEMENTS_CACHE_MAX_AGE_MS);
+  const now = Date.now();
+  return rows.filter((row) => isWithinSchedule(row, now));
+}
+
+export async function getPublicAnnouncements(): Promise<AnnouncementRow[]> {
+  const rows = await getActiveAnnouncements();
+  return rows.filter((row) => row.showOnLanding);
+}
+
+export function invalidateAnnouncementsCache(): void {
+  liveAnnouncementsCache.invalidate();
 }

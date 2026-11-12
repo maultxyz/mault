@@ -238,10 +238,14 @@ export function OrgSettings() {
                   onSubmit={renameForm.handleSubmit(handleRename)}
                   className="flex flex-col gap-2"
                 >
-                  <h3 className="text-sm font-semibold font-heading">
+                  <h3
+                    id="org-rename-heading"
+                    className="text-sm font-semibold font-heading"
+                  >
                     {t("orgSettings.renameHeading", { name: activeOrg.name })}
                   </h3>
                   <Input
+                    aria-labelledby="org-rename-heading"
                     placeholder={activeOrg.name}
                     {...renameForm.register("name")}
                   />
@@ -291,7 +295,12 @@ export function OrgSettings() {
                               role && field.onChange(role as OrgRole)
                             }
                           >
-                            <SelectTrigger className="w-28 shrink-0">
+                            <SelectTrigger
+                              className="w-28 shrink-0"
+                              aria-label={t("orgSettings.memberRoleLabel", {
+                                name: m.user.name || m.user.email,
+                              })}
+                            >
                               <SelectValue>
                                 {ROLE_LABELS[(field.value ?? m.role) as OrgRole]}
                               </SelectValue>
@@ -314,6 +323,7 @@ export function OrgSettings() {
                     )}
                     {isOwner && m.role !== "owner" && (
                       <Button
+                        aria-label={t("common:a11y.removeMember", { name: m.user.name || m.user.email })}
                         variant="ghost"
                         size="icon"
                         onClick={() =>
@@ -350,6 +360,7 @@ export function OrgSettings() {
                 >
                   <Input
                     type="email"
+                    aria-label={t("orgSettings.emailPlaceholder")}
                     placeholder={t("orgSettings.emailPlaceholder")}
                     {...inviteForm.register("email")}
                     className="flex-1"
@@ -362,7 +373,10 @@ export function OrgSettings() {
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-28 shrink-0">
+                        <SelectTrigger
+                          className="w-28 shrink-0"
+                          aria-label={t("invites.roleLabel")}
+                        >
                           <SelectValue>
                             {ROLE_LABELS[field.value as OrgRole]}
                           </SelectValue>
@@ -408,6 +422,7 @@ export function OrgSettings() {
                             {inv.role}
                           </span>
                           <Button
+                            aria-label={t("common:a11y.cancelInvite", { email: inv.email })}
                             variant="ghost"
                             size="icon"
                             onClick={() => handleCancelInvite(inv.id)}

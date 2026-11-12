@@ -1,6 +1,7 @@
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type {
   CardCondition,
+  CardSortDirection,
   CardTag,
   CardScanOrigin,
   CardFilters,
@@ -10,15 +11,20 @@ import type {
   CollectionCardsQuery,
   FieldMeta,
   GroupedScannedCard,
+  OcrOverlayRegion,
   OcrRegion,
   PlayingCard,
   PlayingCardImage,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridAttributes,
   ReviewGridCard,
   ScannedCard,
+  ScanTimelineBlock,
+  ScanTimelineGrouping,
+  PrintingMarkRegion,
 } from "@magic-vault/shared";
-import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import type { KeyboardEvent, MouseEvent, ReactNode, Ref } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 
 export interface CardSearchPickerProps {
@@ -50,10 +56,20 @@ export interface CardSearchLanguageSelectProps {
   onChange: (language: string) => void;
 }
 
+export interface CardSortOptionProps {
+  label: string;
+  directionLabel?: string;
+  direction?: CardSortDirection | null;
+  active: boolean;
+  onSelect: () => void;
+  ref?: Ref<HTMLButtonElement>;
+}
+
 export interface CardSortOptionsProps {
   sortKey: string | null;
   onSortChange: (key: string | null) => void;
   sortableFields: FieldMeta[];
+  defaultSortLabel?: string;
 }
 
 export interface CardDetailsListProps {
@@ -78,6 +94,7 @@ export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil?: boolean;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: CardCondition | null;
   className?: string;
 }
@@ -103,6 +120,7 @@ export interface CardImageViewerProps {
   showOcrRegions: boolean;
   onShowOcrRegionsChange?: (show: boolean) => void;
   ocrRegions?: OcrOverlayRegion[];
+  printingMarks?: PrintingMarkRegion[];
 }
 
 export interface PriceTableRow {
@@ -137,6 +155,8 @@ export interface PriceSourceSection {
 
 export type CardViewMode = "grid" | "list";
 
+export type CardScanTimeline = "off" | ScanTimelineGrouping;
+
 export type CardGridDensity = "compact" | "comfortable" | "large";
 
 export interface AddCardDialogProps {
@@ -152,6 +172,20 @@ export interface AddManualCardInput {
   card: PlayingCard;
   locationGuid?: string;
   addsToIntakeLot?: boolean;
+}
+
+export type PendingScanCardStatus = "saving" | "saved";
+
+export interface PendingScanCard {
+  scanId: string;
+  collectionGuid: string;
+  card: PlayingCardWithDistance;
+  status: PendingScanCardStatus;
+  savedAt?: number;
+}
+
+export interface PendingScanCardItemProps {
+  card: PlayingCardWithDistance;
 }
 
 export interface CardToolbarProps {
@@ -186,6 +220,8 @@ export interface CardToolbarProps {
   onDensityChange?: (density: CardGridDensity) => void;
   groupDuplicates: boolean;
   onGroupDuplicatesChange: (grouped: boolean) => void;
+  scanTimeline?: CardScanTimeline;
+  onScanTimelineChange?: (scanTimeline: CardScanTimeline) => void;
 }
 
 export interface StorageDeleteWarningProps {
@@ -266,6 +302,18 @@ export interface ScannedCardTableProps {
     options: SelectToggleOptions,
   ) => void;
   onTogglePageSelect?: () => void;
+}
+
+export interface SelectionActionBarProps {
+  selectedCount: number;
+  onClear: () => void;
+  children: ReactNode;
+}
+
+export interface ScanSelectionOptions<Item> {
+  pageItems: Item[];
+  keyOf: (item: Item) => string;
+  scanIdsOf: (item: Item) => string[];
 }
 
 export interface SelectToggleOptions {
@@ -356,19 +404,23 @@ export interface CapturedImageThumbProps {
   alt: string;
 }
 
-export interface OcrOverlayRegion extends OcrRegion {
-  anchored?: boolean;
-}
-
 export interface OcrRegionOverlayProps {
   showLabels?: boolean;
   regions?: OcrOverlayRegion[];
+  printingMarks?: PrintingMarkRegion[];
 }
 
 export interface OcrRegionCropsProps {
   src: string;
   className?: string;
   regions?: OcrOverlayRegion[];
+  printingMarks?: PrintingMarkRegion[];
+}
+
+export interface RegionCropProps {
+  src: string;
+  label: string;
+  region: Pick<OcrRegion, "x" | "y" | "width" | "height">;
 }
 
 export interface CardDetailActions {
@@ -376,6 +428,7 @@ export interface CardDetailActions {
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
+  setCardStamp: (scanId: string, stamp: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardLanguage: (scanId: string, language: string) => void;
   setCardTags: (scanId: string, tags: CardTag[], enabled: boolean) => void;
@@ -384,10 +437,12 @@ export interface CardDetailActions {
 export interface ScanDraftOptions {
   scanId?: string;
   savedFoilType: string | null;
+  savedStamp: string | null;
   savedCondition: CardCondition;
   savedLanguage: string;
   savedAcquisitionCost: number | null;
   setCardFoilType: CardDetailActions["setCardFoilType"];
+  setCardStamp: CardDetailActions["setCardStamp"];
   setCardCondition: CardDetailActions["setCardCondition"];
   setCardLanguage: CardDetailActions["setCardLanguage"];
   setCardAcquisitionCost: (scanId: string, cost: number | null) => void;
@@ -418,6 +473,7 @@ export interface CardDetailPanelProps {
   isDownloaded?: boolean;
   isFoil?: boolean;
   foilType?: string;
+  stamp?: string;
   condition?: CardCondition;
   language?: string;
   binNumber?: number;
@@ -452,8 +508,16 @@ export interface ReviewGridProps {
 
 export interface ReviewGridTileProps {
   card: ReviewGridCard;
+  attributes: ReviewGridAttributes;
+  onAttributesChange: (attributes: ReviewGridAttributes) => void;
   onAccept: () => void;
   onCorrect: () => void;
+}
+
+export interface ReviewGridAttributeFieldsProps {
+  card: ReviewGridCard;
+  attributes: ReviewGridAttributes;
+  onChange: (attributes: ReviewGridAttributes) => void;
 }
 
 export interface ReviewGridCorrectionDialogProps {
@@ -479,12 +543,12 @@ export interface CardDisplayOptionsProps {
   onDensityChange?: (density: CardGridDensity) => void;
   groupDuplicates?: boolean;
   onGroupDuplicatesChange?: (grouped: boolean) => void;
+  scanTimeline?: CardScanTimeline;
+  onScanTimelineChange?: (scanTimeline: CardScanTimeline) => void;
 }
 
 export interface CardViewOptionsDrawerProps
-  extends CardSortOptionsProps,
-    CardFilterFieldsProps,
-    CardDisplayOptionsProps {
+  extends CardSortOptionsProps, CardFilterFieldsProps, CardDisplayOptionsProps {
   triggerClassName?: string;
 }
 
@@ -538,7 +602,6 @@ export interface OpenScanOptions {
 
 export interface CardThumbnailProps {
   image: PlayingCardImage | null | undefined;
-  isFoil?: boolean;
   className?: string;
 }
 
@@ -583,10 +646,63 @@ export interface ReviewQueuePanelProps {
   session: ReviewQueueSession;
 }
 
+export interface ReviewQueueEntry {
+  scanId: string;
+  card: PlayingCardWithDistance;
+}
+
+export interface ReviewQueueListProps {
+  cards: ReviewQueueEntry[];
+  totalCards: number;
+  isPending: boolean;
+  isError: boolean;
+  currentScanId: string | null;
+  reviewedScanIds: ReadonlySet<string>;
+  removedScanIds: ReadonlySet<string>;
+  onOpen: (scanId: string) => void;
+  onExit: () => void;
+}
+
 export interface ReviewQueueRowProps {
-  entry: ScannedCard;
+  entry: ReviewQueueEntry;
   isCurrent: boolean;
   isReviewed: boolean;
   isRemoved: boolean;
   onOpen: () => void;
+}
+
+export interface ScanImageUrls {
+  capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
+}
+
+export interface UseCardDetailMoveActionsOptions {
+  scanId: string | undefined;
+  collectionGuid: string | undefined;
+  canEdit: boolean;
+  onMovedToCollection: () => void;
+}
+
+export type CardDetailMoveTarget = "location" | "collection";
+
+export type CardDetailAttributePicker =
+  | "foil"
+  | "stamp"
+  | "condition"
+  | "language";
+
+export interface CardScanTimelineProps {
+  blocks: ScanTimelineBlock<GroupedScannedCard>[];
+  grouping: ScanTimelineGrouping;
+  loadedCardCount: number;
+  totalCardCount: number;
+  hasMoreCards: boolean;
+  isLoadingMoreCards: boolean;
+  onLoadMoreCards: () => void;
+  selectedScanIds: Set<string>;
+  stickyHeaderTopOffset: number;
+  onToggleBlockSelect?: (block: ScanTimelineBlock<GroupedScannedCard>) => void;
+  renderBlockCards: (
+    block: ScanTimelineBlock<GroupedScannedCard>,
+  ) => ReactNode;
 }

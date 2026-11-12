@@ -11,7 +11,7 @@ import {
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
 } from "@/lib/constants/calibration";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY } from "@/lib/constants/ui";
 import type { ServoControlProps } from "@/lib/interfaces/calibration";
 import {
@@ -52,13 +52,14 @@ export function ServoControl({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t(servo.name === "pusher" ? "calibration.testServoPusher" : "calibration.testServoGate")}
+          accessibilityState={{ disabled: !canCalibrate || !calibration, busy: isTesting }}
           disabled={!canCalibrate || !calibration}
           onPress={() => onTest(module, servo.name)}
           hitSlop={SPACING.sm}
           style={({ pressed }) => ({
             width: 28,
             height: 28,
-            borderRadius: RADIUS.md,
+            borderRadius: CONTROL_RADIUS,
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: pressed ? colors.muted : "transparent",

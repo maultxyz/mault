@@ -73,6 +73,7 @@ export function SorterWifiDialog({
           </FieldLabel>
           <Input
             id="sorter-wifi-ssid"
+            aria-invalid={!!errors.ssid}
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}
@@ -86,6 +87,7 @@ export function SorterWifiDialog({
           </FieldLabel>
           <Input
             id="sorter-wifi-password"
+            aria-invalid={!!errors.password}
             type="password"
             autoComplete="off"
             {...form.register("password")}

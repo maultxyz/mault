@@ -39,6 +39,7 @@ export function SignInForm() {
             onBlur={field.onBlur}
             error={fieldState.error ? t("auth.validation.email") : undefined}
             autoComplete="email"
+            textContentType="emailAddress"
             keyboardType="email-address"
             autoCapitalize="none"
             returnKeyType="next"
@@ -56,6 +57,7 @@ export function SignInForm() {
             onBlur={field.onBlur}
             error={fieldState.error ? t("auth.validation.passwordRequired") : undefined}
             autoComplete="password"
+            textContentType="password"
             secureTextEntry
             autoCapitalize="none"
             returnKeyType="go"

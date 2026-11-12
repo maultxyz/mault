@@ -16,7 +16,8 @@
     "allSetsCount": "Alle Editionen ({{count}})",
     "noMatchingSets": "Keine passenden Editionen",
     "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
-    "noCardsFound": "Keine Karten gefunden"
+    "noCardsFound": "Keine Karten gefunden",
+    "searchLabel": "Karten suchen"
   },
   "priceTable": {
     "heading": "TCGplayer",
@@ -39,8 +40,6 @@
     "avg30": "30-Tage-Schnitt",
     "market": "Markt",
     "low": "Niedrig",
-    "mid": "Mittel",
-    "high": "Hoch",
     "regular": "Normal",
     "foil": "Foil",
     "noPrice": "k. A.",
@@ -57,6 +56,10 @@
     "nextCard": "Nächste Karte",
     "cardDetailsFallback": "Kartendetails",
     "capturedScan": "Aufgenommener Scan",
+    "capturedBackSide": "Aufgenommener Scan (Rückseite)",
+    "capturedBackSideAlt": "Gescannte Rückseite der Karte",
+    "showBackSide": "Rückseite zeigen",
+    "showFrontSide": "Vorderseite zeigen",
     "matchedCard": "Übereinstimmende Karte",
     "enlargeImage": "Zum Vergrößern klicken",
     "similarMatches": "Ähnliche Übereinstimmungen",
@@ -77,14 +80,29 @@
     "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
     "ocrFallback": "{{field}} (Ausweichbereich)",
     "ocrFixedBox": "{{field}} (feste Box)",
+    "printingMarks": {
+      "title": "Druckmerkmale",
+      "setSymbol": "Set-Symbol",
+      "artStamp": "Promo-Stempel",
+      "listIcon": "The-List-Symbol",
+      "pitch": "Pitch-Punkte",
+      "editionMarker": "Editionsmarkierung",
+      "setCodeAndRegulationMark": "Set-Code und Regulierungszeichen",
+      "firstEditionStamp": "1st-Edition-Stempel",
+      "foilMarker": "Foil-Stern"
+    },
     "ocrFields": {
       "name": "Name",
       "setLine": "Setzeile",
-      "number": "Nummer"
+      "number": "Nummer",
+      "language": "Sprache"
     },
     "copyOf": "Exemplar {{index}} von {{count}}",
     "moreOptions": "Mehr",
-    "actions": "Kartenaktionen"
+    "actions": "Kartenaktionen",
+    "name": "Name",
+    "moveToLocation": "In Lagerort verschieben",
+    "moveToCollection": "In Sammlung verschieben"
   },
   "cardFilterPopover": {
     "color": "Farbe",
@@ -128,7 +146,9 @@
     "downloadedHidden_one": "1 heruntergeladene Karte wird vom Download-Filter ausgeblendet.",
     "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet.",
     "moveToLocation": "Verschieben",
-    "exporting": "Wird exportiert"
+    "exporting": "Wird exportiert",
+    "pendingScanSaving": "Wird gespeichert",
+    "pendingScanSavingName": "{{name}} wird gespeichert"
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
@@ -168,7 +188,14 @@
     "displayHeading": "Anzeige",
     "cardSize": "Kartengröße",
     "moreActions": "Weitere Aktionen",
-    "reviewCount": "Prüfen ({{count}})"
+    "reviewCount": "Prüfen ({{count}})",
+    "scanTimeline": "Scan-Zeitachse",
+    "scanTimelineOptions": {
+      "off": "Aus",
+      "day": "Nach Tag",
+      "hour": "Nach Stunde"
+    },
+    "scanTimelineSortNote": "Die Scan-Zeitachse zeigt immer die neuesten Scans zuerst."
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
@@ -261,6 +288,8 @@
   },
   "foil": "Foil",
   "foilNone": "Kein Foil",
+  "stamp": "Stempel",
+  "stampNone": "Kein Stempel",
   "language": "Sprache",
   "downloaded": "Heruntergeladen",
   "technicalDetails": {
@@ -310,11 +339,25 @@
     "copyJson": "JSON kopieren",
     "copied": "Karten-JSON kopiert.",
     "copyFailed": "Karten-JSON konnte nicht kopiert werden.",
-    "detectedColor": "Erkannter Farbbalken",
     "foilDetection": "Foil-Erkennung",
     "foilDetected": "Foil ({{method}} {{score}})",
     "foilNotDetected": "Kein Foil ({{method}} {{score}})",
-    "noColor": "Keiner",
+    "printingMarks": "Druckmerkmale",
+    "printingMarksChanged": "Druck geändert (Beleg {{evidence}})",
+    "printingMarksKept": "Druck beibehalten (bester Beleg {{evidence}})",
+    "printingMarksSkipped": {
+      "noScanAreas": "Nicht geprüft: keine Merkmalsbereiche aus dem Scan",
+      "noReferences": "Nicht geprüft: noch keine Referenzen für dieses Spiel",
+      "singlePrinting": "Nicht nötig: keine ähnlichen Drucke"
+    },
+    "printedFoilMarker": "Foil-Stern",
+    "printedFoilMarkerValue": {
+      "star": "Stern gefunden (Foil)",
+      "dot": "Punkt gefunden (kein Foil)",
+      "none": "Nicht gefunden"
+    },
+    "stampDetection": "Stempelerkennung",
+    "noStampDetected": "Kein Stempel gefunden",
     "foilMethod": {
       "rainbow": "Regenbogenwert",
       "nudge": "Änderung beim Anstoßen"
@@ -358,7 +401,9 @@
     "exit": "Prüfung beenden",
     "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden.",
     "notShown_one": "{{count}} weitere Karte wird hier nicht angezeigt.",
-    "notShown_other": "{{count}} weitere Karten werden hier nicht angezeigt."
+    "notShown_other": "{{count}} weitere Karten werden hier nicht angezeigt.",
+    "statusRemoved": "Entfernt",
+    "statusPending": "Noch nicht geprüft"
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -450,11 +495,45 @@
     "close": "Schließen",
     "importMore": "Weitere importieren",
     "unreadable": "Dieses Bild konnte nicht gelesen werden.",
-    "identifyFailed": "Dieses Bild konnte nicht erkannt werden."
+    "identifyFailed": "Dieses Bild konnte nicht erkannt werden.",
+    "documentScan": {
+      "title": "Dokumentenscanner",
+      "scannerLabel": "Scanner",
+      "scannerOption": "{{name}} ({{driver}})",
+      "scan": "Scannen",
+      "refresh": "Scanner aktualisieren",
+      "noScanners": "Keine Scanner gefunden. Installiere den WIA-Treiber deines Scanners (PaperStream IP für Ricoh fi Scanner) und aktualisiere dann.",
+      "folderLabel": "Ordner überwachen",
+      "noFolder": "Wähle den Ordner, in dem deine Scan-Software speichert.",
+      "chooseFolder": "Ordner wählen",
+      "changeFolder": "Ordner ändern",
+      "watchFolder": "Ordner überwachen",
+      "scanning": "Scanne mit {{scanner}}. Karten werden importiert, sobald sie den Einzug verlassen.",
+      "watching": "Überwache {{folder}}. Neue Bilder werden importiert, sobald sie erscheinen.",
+      "stopScanner": "Scanner stoppen",
+      "stopWatching": "Überwachung beenden",
+      "stopping": "Wird gestoppt...",
+      "errors": {
+        "scanner_helper_missing": "Die Scanner-Komponente fehlt in dieser Installation. Installiere die Mault Desktop-App neu.",
+        "scanner_busy": "Der Scanner ist belegt. Schließe andere Scan-Programme und versuche es erneut.",
+        "scanner_offline": "Der Scanner ist nicht erreichbar. Prüfe, ob er eingeschaltet und verbunden ist.",
+        "paper_jam": "Papierstau. Räume den Einzug frei und scanne die restlichen Karten.",
+        "feeder_empty": "Der Einzug ist leer. Lege Karten ein und scanne erneut.",
+        "cover_open": "Die Scannerabdeckung ist offen. Schließe sie und scanne erneut.",
+        "no_feeder": "Dieser Scanner hat keinen Dokumenteneinzug. Wähle einen Scanner mit Einzug.",
+        "scanner_error": "Der Scanner hat angehalten. Prüfe auf Doppeleinzug oder Stau und scanne dann die restlichen Karten.",
+        "folder_missing": "Der überwachte Ordner kann nicht gelesen werden. Wähle ihn erneut.",
+        "start_failed": "Der Scan konnte nicht gestartet werden. Warte kurz und versuche es erneut.",
+        "unknown": "Beim Scannen ist ein Fehler aufgetreten.",
+        "scanner_in_use": "Der Dokumentenscanner wird bereits verwendet. Beende zuerst den anderen Scan.",
+        "session_closed": "Die Verbindung zum Dokumentenscanner wurde getrennt. Wähle den Scanner erneut aus."
+      }
+    }
   },
   "cardTags": {
     "title": "Markierungen",
     "edit": "Markierungen bearbeiten",
+    "editWithTags": "Markierungen bearbeiten: {{tags}}",
     "bulkAdd": "Markierung hinzufügen",
     "bulkRemove": "Markierung entfernen",
     "names": {
@@ -462,5 +541,108 @@
       "reviewed": "Geprüft",
       "corrected": "Korrigiert"
     }
+  },
+  "scanTimeline": {
+    "blockCardCount_one": "{{count}} Karte",
+    "blockCardCount_other": "{{count}} Karten",
+    "loadedOfTotal": "{{loaded}} von {{total}} Karten angezeigt",
+    "loadMore": "Weitere Karten laden",
+    "selectBlock": "Karten auswählen, gescannt am {{period}}"
+  },
+  "publicBrowse": {
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
+    "resultCount_one": "{{count}} Karte gefunden",
+    "resultCount_other": "{{count}} Karten gefunden",
+    "empty": "Hier gibt es noch keine Karten",
+    "noResults": "Keine Karten passen zu deiner Suche",
+    "loadFailed": "Karten konnten nicht geladen werden. Versuch es noch einmal.",
+    "searchPlaceholder": "Karten suchen",
+    "sortLabel": "Sortieren nach",
+    "gameFilter": "Spiel",
+    "allGames": "Alle Spiele",
+    "sorts": {
+      "newest": "Neueste zuerst",
+      "name": "Name",
+      "price-desc": "Preis: absteigend",
+      "price-asc": "Preis: aufsteigend"
+    },
+    "filtersHeading": "Filter",
+    "filtersWithCount": "Filter ({{count}})",
+    "clearFilters_one": "{{count}} Filter löschen",
+    "clearFilters_other": "{{count}} Filter löschen",
+    "showResults_one": "{{count}} Karte anzeigen",
+    "showResults_other": "{{count}} Karten anzeigen",
+    "priceFilter": "Preis",
+    "minPrice": "Min.",
+    "maxPrice": "Max.",
+    "finishFilter": "Ausführung",
+    "finishAll": "Jede Ausführung",
+    "finishFoil": "Nur Foil",
+    "finishNonFoil": "Nur Non-Foil",
+    "foilTypeFilter": "Foil-Art",
+    "languageFilter": "Sprache",
+    "rarityFilter": "Seltenheit",
+    "colorFilter": "Farbe",
+    "setFilter": "Set",
+    "noFilterMatches": "Keine Treffer.",
+    "findSet": "Set suchen",
+    "openCard": "{{name}} ansehen ({{details}})",
+    "cardNotFound": "Diese Karte ist nicht mehr verfügbar.",
+    "referenceImage": "Referenzbild",
+    "backToCards": "Zurück zu den Karten",
+    "loading": "Karten werden geladen",
+    "tradeHint": "Öffne eine Karte, um sie zum Tauschangebot hinzuzufügen"
+  },
+  "tradeOffers": {
+    "game": "Spiel",
+    "searchLabel": "Karte finden",
+    "searchPlaceholder": "Kartenname",
+    "searchResults_one": "{{count}} Karte gefunden",
+    "searchResults_other": "{{count}} Karten gefunden",
+    "addOfferedCard": "{{name}} zu deinem Angebot hinzufügen",
+    "add": "Hinzufügen",
+    "noSearchResults": "Keine Karte passt zu diesem Namen.",
+    "status": {
+      "pending": "Ausstehend",
+      "accepted": "Angenommen",
+      "declined": "Abgelehnt"
+    },
+    "youWant": "Du hast angefragt",
+    "youOffer": "Du hast angeboten",
+    "title": "Tauschangebot",
+    "send": "Tauschangebot senden",
+    "sent": "Tauschangebot gesendet. Die Antwort siehst du hier.",
+    "sendFailed": "Tauschangebot konnte nicht gesendet werden. Versuch es noch einmal.",
+    "nameLabel": "Dein Name",
+    "contactLabel": "E-Mail, Telefon oder Benutzername",
+    "contactPlaceholder": "name@example.com",
+    "noteLabel": "Notiz (optional)",
+    "headerButton_zero": "Tauschangebot",
+    "headerButton_one": "Tauschangebot (1)",
+    "headerButton_other": "Tauschangebot ({{count}})",
+    "inTradeOffer": "Im Tauschangebot",
+    "addToTradeOffer": "Zum Tauschangebot hinzufügen",
+    "pageDescription": "Wähle Karten aus {{source}}, füge Karten hinzu, die du dafür gibst, und sende das Angebot. Der Besitzer nimmt an oder lehnt ab.",
+    "detailsTitle": "Deine Angaben",
+    "detailsDescription": "Damit der Besitzer weiß, wer du bist und wie er dich erreicht.",
+    "getTitle_one": "Du bekommst ({{count}})",
+    "getTitle_other": "Du bekommst ({{count}})",
+    "getDescription": "Karten aus {{source}}",
+    "getEmpty": "Noch nichts. Öffne eine Karte und wähle Zum Tauschangebot hinzufügen.",
+    "browseCards": "Karten ansehen",
+    "addMoreCards": "Weitere Karten hinzufügen",
+    "giveTitle_one": "Du gibst ({{count}})",
+    "giveTitle_other": "Du gibst ({{count}})",
+    "giveDescription": "Deine Karten, aus beliebigen Spielen",
+    "giveEmpty": "Suche oben und füge die Karten hinzu, die du anbietest.",
+    "summary": "Karten, die du bekommst: {{get}} · Karten, die du gibst: {{give}}",
+    "needGet": "Füge eine gewünschte Karte hinzu, um fortzufahren.",
+    "needGive": "Füge eine Karte hinzu, die du gibst, um fortzufahren.",
+    "quantityFor": "Anzahl von {{name}}",
+    "conditionFor": "Zustand von {{name}}",
+    "yourOffers_one": "Deine gesendeten Angebote ({{count}})",
+    "yourOffers_other": "Deine gesendeten Angebote ({{count}})",
+    "noPrice": "Kein Preis"
   }
 }

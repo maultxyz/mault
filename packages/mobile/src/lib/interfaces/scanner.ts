@@ -1,13 +1,16 @@
-import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
+import type { CameraDevice, CameraFrameOutput, CameraOutput } from "react-native-vision-camera";
 import type {
   BinConfig,
   CardCondition,
   CardContour,
   CardSearchResult,
+  CardTextSearchResult,
   MatchedScanDetails,
+  PlayingCard,
   PlayingCardWithDistance,
   RgbaImage,
   ScanAttemptResult,
+  ScanOcrMode,
   ScanRegion,
   ScannedCard,
   ScannerControlCommand,
@@ -31,6 +34,7 @@ export type Orientation = "upright" | "rotated";
 export interface MatchScope {
   collectionGuid: string;
   preferredSetCodes?: string[];
+  matchGameKeys?: string[];
 }
 
 export interface OrientedPick {
@@ -38,6 +42,7 @@ export interface OrientedPick {
   orientation: Orientation;
   embedding: number[];
   result: CardSearchResult;
+  textResult?: CardTextSearchResult | null;
   alternate: OrientedPick | null;
 }
 
@@ -50,8 +55,8 @@ export interface IdentifyOptions {
   scope: MatchScope;
   matchesNeeded: number;
   checkBothOrientations: boolean;
-  ocrEnabled: boolean;
-  colorBarRegionKey: string | null;
+  ocrMode: ScanOcrMode;
+  gameKey: string | null;
   minSharpness?: number;
 }
 
@@ -191,8 +196,6 @@ export interface ScanSessionValue extends ScanSessionState {
 
 export type ScanRemovalNoticeKind = "no-match" | "lookup-failed" | "removed";
 
-export type ScanMode = "add" | "remove";
-
 export interface ScanRemovalNotice {
   noticeId: string;
   kind: ScanRemovalNoticeKind;
@@ -203,6 +206,11 @@ export interface ScanRemovalNotice {
 export interface ScanRemovalInputs {
   collectionGuid: string | null;
   binConfigs: BinConfig[];
+}
+
+export interface ScanRemovalMatchedScan {
+  matchedCard: PlayingCardWithDistance;
+  alternativeMatches: PlayingCardWithDistance[];
 }
 
 export interface ScanRemovalValue {
@@ -216,6 +224,7 @@ export interface ScanRemovalValue {
     matchedCard: PlayingCardWithDistance,
     alternativeMatches: PlayingCardWithDistance[],
   ) => Promise<boolean>;
+  replaceQueueWithMatchedScans: (matchedScans: ScanRemovalMatchedScan[]) => Promise<number>;
   showNoMatchNotice: () => void;
   notice: ScanRemovalNotice | null;
   selectCopyForEntry: (entryId: string, scanId: string) => void;
@@ -229,6 +238,7 @@ export interface ScanRemovalQueueSheetProps {
   removal: ScanRemovalValue;
   collectionName: string;
   onClose: () => void;
+  onRemoved?: (removedCount: number) => void;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -282,7 +292,8 @@ export interface ScanOptionsSheetProps {
   onAllowDuplicatesChange: (value: boolean) => void;
   handScan: boolean;
   onHandScanChange: (value: boolean) => void;
-  collectionName: string | null;
+  removeMode: boolean;
+  onRemoveModeChange: (value: boolean) => void;
   presetName: string | null;
   showPreset: boolean;
   cameraName: string | null;
@@ -291,7 +302,6 @@ export interface ScanOptionsSheetProps {
   showFoilType: boolean;
   setName: string;
   conditionName: string;
-  onChooseCollection: () => void;
   onChoosePreset: () => void;
   onChooseCamera: () => void;
   onChooseFoilType: () => void;
@@ -333,3 +343,71 @@ export interface RoutedCardTarget {
 export type FeedCommand = Extract<SerialCommand, "feeder" | "auto-feed">;
 
 export type SorterEventDetails = Omit<SerialEventReport, "collectionGuid" | "deviceGuid">;
+
+export type BatchScanCardStatus = "pending" | "identifying" | "done" | "failed";
+export type BatchScanMode = "add" | "remove";
+
+export interface BatchScanCard {
+  key: string;
+  contour: CardContour;
+  status: BatchScanCardStatus;
+  outcome: IdentifyOutcome | null;
+  correctedCard: PlayingCard | null;
+  included: boolean;
+}
+
+export interface BatchScanProgress {
+  stage: "finding" | "identifying";
+  done: number;
+  total: number;
+}
+
+export interface BatchScanPhotoInfo {
+  uri: string;
+  width: number;
+  height: number;
+}
+
+export interface BatchScanPhotoProps {
+  photo: BatchScanPhotoInfo;
+  cards: BatchScanCard[];
+}
+
+export interface BatchScanRowProps {
+  index: number;
+  card: BatchScanCard;
+  isRemoveMode: boolean;
+  onToggleIncluded: () => void;
+  onCorrect: () => void;
+}
+
+export interface BatchScanCorrectionSheetProps {
+  card: BatchScanCard | null;
+  collectionGuid: string;
+  onSelect: (card: PlayingCard) => void;
+  onClose: () => void;
+}
+
+export type ReadOrientationText = (
+  orientation: OrientedPick["orientation"],
+  embedding: number[],
+) => Promise<CardTextSearchResult | null>;
+
+export interface CameraTorch {
+  hasTorch: boolean;
+  isOn: boolean;
+  supportsStrength: boolean;
+  strengthPercent: number;
+  toggle: () => void;
+  setStrengthPercent: (percent: number) => void;
+  onCameraStarted: () => void;
+}
+
+export interface TorchControlProps {
+  torch: CameraTorch;
+}
+
+export interface LiveFrameSource {
+  liveFrameOutput: CameraFrameOutput | null;
+  grabLiveFrame: () => Promise<Image>;
+}

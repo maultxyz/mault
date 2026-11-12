@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
-import { SegmentedControl } from "@/components/ui/segmented-control";
+import { TabStrip } from "@/components/ui/tab-strip";
+import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
 import { BarList } from "@/features/stats/components/bar-list";
 import { ColumnChart } from "@/features/stats/components/column-chart";
@@ -42,10 +43,11 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
       title={t("stats.activity.title")}
       description={t(`stats.activity.description.${report.bucket}`)}
       action={
-        <SegmentedControl<StatsActivityMetric>
+        <TabStrip<StatsActivityMetric>
+          inline
           value={metric}
           onChange={setMetric}
-          options={STATS_ACTIVITY_METRICS.map((value) => ({ value, label: t(`stats.activity.metrics.${value}`) }))}
+          items={STATS_ACTIVITY_METRICS.map((value) => ({ value, label: t(`stats.activity.metrics.${value}`) }))}
         />
       }
     >
@@ -77,10 +79,11 @@ function StatsCollectionsSection({ collections, onSelectCollection }: StatsColle
       title={t("stats.compare.title")}
       description={t("stats.compare.description")}
       action={
-        <SegmentedControl<StatsCollectionMetric>
+        <TabStrip<StatsCollectionMetric>
+          inline
           value={metric}
           onChange={setMetric}
-          options={STATS_COLLECTION_METRICS.map((value) => ({ value, label: t(`stats.compare.metrics.${value}`) }))}
+          items={STATS_COLLECTION_METRICS.map((value) => ({ value, label: t(`stats.compare.metrics.${value}`) }))}
         />
       }
     >
@@ -176,7 +179,7 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
 
   return (
     <View style={{ gap: SPACING.xxl }}>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
+      <StatGroup heading={t("stats.tiles.heading")}>
         <StatTile
           label={t("stats.tiles.totalValue")}
           value={pricing.format(totals.totalValue)}
@@ -207,7 +210,7 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
           value={number(totals.needsReviewCount)}
           hint={t("stats.tiles.correctedHint", { count: totals.correctedCount })}
         />
-      </View>
+      </StatGroup>
 
       <StatsActivitySection report={report} />
 

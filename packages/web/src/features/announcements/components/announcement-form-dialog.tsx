@@ -135,7 +135,7 @@ export function AnnouncementFormDialog({
             name="severity"
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger aria-label={t("formDialog.severityLabel")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -152,8 +152,11 @@ export function AnnouncementFormDialog({
         </Field>
 
         <Field data-invalid={!!errors.message}>
-          <FieldLabel>{t("formDialog.messageLabel")}</FieldLabel>
+          <FieldLabel htmlFor="announcement-message">
+            {t("formDialog.messageLabel")}
+          </FieldLabel>
           <Textarea
+            id="announcement-message"
             placeholder={t("formDialog.messagePlaceholder")}
             {...register("message")}
           />
@@ -161,8 +164,11 @@ export function AnnouncementFormDialog({
         </Field>
 
         <Field data-invalid={!!errors.link}>
-          <FieldLabel>{t("formDialog.linkLabel")}</FieldLabel>
+          <FieldLabel htmlFor="announcement-link">
+            {t("formDialog.linkLabel")}
+          </FieldLabel>
           <Input
+            id="announcement-link"
             type="url"
             placeholder={t("formDialog.linkPlaceholder")}
             {...register("link")}
@@ -172,13 +178,25 @@ export function AnnouncementFormDialog({
 
         <div className="grid grid-cols-2 gap-3">
           <Field data-invalid={!!errors.startsAt}>
-            <FieldLabel>{t("formDialog.startsAtLabel")}</FieldLabel>
-            <Input type="datetime-local" {...register("startsAt")} />
+            <FieldLabel htmlFor="announcement-starts-at">
+              {t("formDialog.startsAtLabel")}
+            </FieldLabel>
+            <Input
+              id="announcement-starts-at"
+              type="datetime-local"
+              {...register("startsAt")}
+            />
             <FieldError errors={[errors.startsAt]} />
           </Field>
           <Field data-invalid={!!errors.endsAt}>
-            <FieldLabel>{t("formDialog.endsAtLabel")}</FieldLabel>
-            <Input type="datetime-local" {...register("endsAt")} />
+            <FieldLabel htmlFor="announcement-ends-at">
+              {t("formDialog.endsAtLabel")}
+            </FieldLabel>
+            <Input
+              id="announcement-ends-at"
+              type="datetime-local"
+              {...register("endsAt")}
+            />
             <FieldError errors={[errors.endsAt]} />
           </Field>
         </div>
@@ -192,7 +210,11 @@ export function AnnouncementFormDialog({
             control={control}
             name="isActive"
             render={({ field }) => (
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch
+                aria-label={t("active")}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
             )}
           />
         </Field>
@@ -203,7 +225,11 @@ export function AnnouncementFormDialog({
             control={control}
             name="showOnLanding"
             render={({ field }) => (
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch
+                aria-label={t("formDialog.showOnLandingLabel")}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
             )}
           />
         </Field>

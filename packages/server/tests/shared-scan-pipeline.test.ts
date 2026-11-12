@@ -84,6 +84,62 @@ test("unsuccessful OCR keeps image matches while retaining OCR diagnostics", asy
   assert.equal(outcome.matchedBy, "embedding");
 });
 
+test("high-accuracy scans read OCR on confident images but keep an unconfirmed image printing", async () => {
+  let reads = 0;
+  const outcome = await identifyScanImage({
+    checkBothOrientations: false,
+    ocrMode: "every-scan",
+    search: async (orientation) => candidate(orientation, result("image-card")),
+    readText: async (image) => {
+      reads++;
+      return {
+        ...image,
+        result: result("text-card"),
+        ocr: { printingConfirmed: false } as OcrDiagnostics,
+      };
+    },
+  });
+  assert.equal(reads, 1);
+  assert.equal(outcome.pick.result.data?.[0].cardId, "image-card");
+  assert.equal(outcome.matchedBy, "embedding");
+});
+
+test("printed-language OCR can replace a confident image in another language", async () => {
+  const image = result("english");
+  image.data![0].lang = "en";
+  const outcome = await identifyScanImage({
+    checkBothOrientations: false,
+    ocrMode: "every-scan",
+    search: async (orientation) => candidate(orientation, image),
+    readText: async (captured) => ({
+      ...captured,
+      result: result("german"),
+      ocr: { scopedToPrintedLanguage: "de" } as OcrDiagnostics,
+    }),
+  });
+  assert.equal(outcome.pick.result.data?.[0].cardId, "german");
+  assert.equal(outcome.matchedBy, "ocr");
+});
+
+test("OCR started alongside image search is reused without a second OCR pass", async () => {
+  const outcome = await identifyScanImage({
+    checkBothOrientations: true,
+    ocrMode: "every-scan",
+    search: async (orientation) => ({
+      ...candidate(orientation, result("image")),
+      textResult: {
+        ...result(orientation === "rotated" ? "confirmed" : "unconfirmed"),
+        ocr: { printingConfirmed: orientation === "rotated" } as OcrDiagnostics,
+      },
+    }),
+    readText: async () => {
+      throw new Error("OCR repeated");
+    },
+  });
+  assert.equal(outcome.pick.image, "rotated");
+  assert.equal(outcome.pick.result.data?.[0].cardId, "confirmed");
+});
+
 test("consensus retries and picks the best agreeing frame", async () => {
   const card = (name: string, distance: number) =>
     ({ id: name, name, distance }) as PlayingCardWithDistance;

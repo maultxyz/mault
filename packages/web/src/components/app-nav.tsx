@@ -52,7 +52,7 @@ import {
   IconStarFilled,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 import { PlanLockTag } from "@/components/plan-lock-tag";
@@ -70,12 +70,21 @@ function CollapsedNavItem({
   lockTag,
   external,
 }: NavItemDef) {
+  const { t } = useTranslation("common");
+  const descriptionId = useId();
+  const accessibleLabel = [label, lockTag, badge && t("a11y.liveSession")]
+    .filter(Boolean)
+    .join(", ");
   return (
     <Tooltip>
       <TooltipTrigger
+        aria-label={accessibleLabel}
+        aria-describedby={disabled && tooltip ? descriptionId : undefined}
         render={
           disabled ? (
             <span
+              role="link"
+              tabIndex={0}
               aria-disabled="true"
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon-lg" }),
@@ -110,6 +119,11 @@ function CollapsedNavItem({
           )}
         </span>
       </TooltipTrigger>
+      {disabled && tooltip && (
+        <span id={descriptionId} hidden>
+          {tooltip}
+        </span>
+      )}
       <TooltipContent side="right">
         {lockTag ? (
           <span className="flex items-center gap-1.5">
@@ -134,11 +148,13 @@ function CollapsedNavItemWithSubItems({
   subItems,
 }: NavItemDef & { subItems: NavSubItemDef[] }) {
   const { t } = useTranslation("collections");
+  const { t: tCommon } = useTranslation("common");
   const navigate = useNavigate();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
+        aria-label={label}
         openOnHover
         delay={150}
         closeDelay={100}
@@ -173,7 +189,10 @@ function CollapsedNavItemWithSubItems({
               >
                 <span className="flex-1 truncate">{sub.label}</span>
                 {sub.badge && (
-                  <span className="shrink-0 size-1.5 rounded-full bg-success" />
+                  <>
+                    <span className="shrink-0 size-1.5 rounded-full bg-success" />
+                    <span className="sr-only">{tCommon("a11y.liveSession")}</span>
+                  </>
                 )}
               </DropdownMenuItem>
             ))
@@ -199,6 +218,8 @@ function ExpandedNavItem({
   lockTag,
   external,
 }: NavItemDef) {
+  const { t } = useTranslation("common");
+  const descriptionId = useId();
   const inner = (
     <>
       <span className="relative shrink-0">
@@ -208,6 +229,7 @@ function ExpandedNavItem({
         )}
       </span>
       <span className="truncate">{label}</span>
+      {badge && <span className="sr-only">{t("a11y.liveSession")}</span>}
       {lockTag && <PlanLockTag label={lockTag} className="ml-auto" />}
     </>
   );
@@ -216,8 +238,11 @@ function ExpandedNavItem({
     return (
       <Tooltip>
         <TooltipTrigger
+          aria-describedby={tooltip ? descriptionId : undefined}
           render={
             <span
+              role="link"
+              tabIndex={0}
               aria-disabled="true"
               className={cn(
                 buttonVariants({ variant: "ghost" }),
@@ -229,6 +254,11 @@ function ExpandedNavItem({
         >
           {inner}
         </TooltipTrigger>
+        {tooltip && (
+          <span id={descriptionId} hidden>
+            {tooltip}
+          </span>
+        )}
         <TooltipContent side="right">{tooltip}</TooltipContent>
       </Tooltip>
     );
@@ -275,6 +305,7 @@ function SubItem({
   badge?: boolean;
   onClick?: () => void;
 }) {
+  const { t } = useTranslation("common");
   return (
     <NavLink
       to={to}
@@ -289,7 +320,12 @@ function SubItem({
       }
     >
       <span className="truncate flex-1">{label}</span>
-      {badge && <span className="shrink-0 size-1.5 rounded-full bg-success" />}
+      {badge && (
+        <>
+          <span className="shrink-0 size-1.5 rounded-full bg-success" />
+          <span className="sr-only">{t("a11y.liveSession")}</span>
+        </>
+      )}
     </NavLink>
   );
 }
@@ -419,6 +455,7 @@ export function AppNav() {
       )}
     >
       <nav
+        aria-label={t("a11y.mainNavigation")}
         className={cn(
           "flex flex-col flex-1 gap-0.5 min-h-0 overflow-y-auto",
           expanded ? "items-stretch" : "items-center",
@@ -534,6 +571,7 @@ export function AppNav() {
         )}
         size={expanded ? "default" : "icon-lg"}
         variant="ghost"
+        aria-expanded={expanded}
         title={expanded ? t("nav.collapseSidebar") : t("nav.expandSidebar")}
       >
         {expanded ? (

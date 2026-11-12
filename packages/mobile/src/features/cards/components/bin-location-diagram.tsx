@@ -28,6 +28,8 @@ export function BinLocationDiagram({ binNumber }: BinLocationDiagramProps) {
     return (
       <View
         key={key}
+        accessible
+        accessibilityState={{ selected: active }}
         style={{
           flex: 1,
           alignItems: "center",

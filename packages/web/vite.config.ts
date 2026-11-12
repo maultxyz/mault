@@ -12,6 +12,11 @@ const { version } = JSON.parse(
 
 const BRAND_BLUE = "#1447e6";
 
+const CROSS_ORIGIN_ISOLATION_HEADERS = {
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "Cross-Origin-Embedder-Policy": "credentialless",
+};
+
 export default defineConfig({
   plugins: [
     react(),
@@ -25,8 +30,8 @@ export default defineConfig({
       includeAssets: ["icon/apple-touch-icon.png"],
       manifest: {
         id: "/",
-        name: "MAULT",
-        short_name: "MAULT",
+        name: "Mault",
+        short_name: "Mault",
         description: "Automated trading card sorting and inventory.",
         start_url: "/app",
         scope: "/",
@@ -70,6 +75,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    headers: CROSS_ORIGIN_ISOLATION_HEADERS,
     proxy: {
       "/api": {
         target: "http://localhost:3001",
@@ -82,6 +88,7 @@ export default defineConfig({
   preview: {
     host: "0.0.0.0",
     port: 8080,
+    headers: CROSS_ORIGIN_ISOLATION_HEADERS,
     proxy: {
       "/api": {
         target: "http://127.0.0.1:3001",

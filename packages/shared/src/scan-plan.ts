@@ -1,4 +1,5 @@
 import { buildMatchedScanRecord, resolveScanCard } from "./scan-card";
+import { isCardFromOtherGame } from "./match-games";
 import {
   isScanFillingLastRepackPack,
   resolveUnmatchedScanBin,
@@ -17,11 +18,8 @@ export function prepareMatchedScanPlan(
   input: MatchedScanPlanInput,
   context: ScanPlanContext,
 ): MatchedScanPlan {
-  const { ruleCard, foilType, decision } = resolveScanCard(
-    input.card,
-    input.sessionFoilType,
-    input.foilDetection,
-    input.fallbackFoilTypes,
+  const { ruleCard, foilType, stamp, decision } = resolveScanCard(
+    input,
     context,
   );
   const record = buildMatchedScanRecord({
@@ -30,6 +28,8 @@ export function prepareMatchedScanPlan(
     card: input.card,
     binNumber: decision.bin?.binNumber,
     capturedImageUrl: input.capturedImageUrl,
+    capturedBackImageUrl: input.capturedBackImageUrl,
+    stamp: stamp ?? undefined,
     alternativeMatches: input.alternativeMatches,
     foilType,
     condition: input.condition,
@@ -40,7 +40,9 @@ export function prepareMatchedScanPlan(
     diagnostics: input.diagnostics,
   });
   const match = decision.action === "route" ? decision.pickListMatch : null;
-  const skipSaving = context.binSet?.skipSaving === true;
+  const skipSaving =
+    context.binSet?.skipSaving === true ||
+    isCardFromOtherGame(input.card, input.gameKey);
   return {
     ...decision,
     kind: "matched",
@@ -69,6 +71,7 @@ export function prepareMatchedScanPlan(
             card: ruleCard,
             isFoil: record.isFoil,
             foilType: record.foilType,
+            stamp: record.stamp,
             unsaved: skipSaving,
           },
     pickListUpdate: match
@@ -91,6 +94,7 @@ export function prepareUnmatchedScanPlan(
     scanId: input.scanId,
     scannedAt: input.scannedAt,
     capturedImageUrl: input.capturedImageUrl,
+    capturedBackImageUrl: input.capturedBackImageUrl,
     vectorizedOn: input.vectorizedOn,
     binNumber: decision.bin?.binNumber,
     diagnostics: input.diagnostics,

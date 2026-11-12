@@ -287,6 +287,7 @@ export default function NotificationsSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.notifications.title")}
+      isLoading={integration.isLoading || rules.isLoading || settings.isLoading}
       isDirty={form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}
@@ -301,10 +302,10 @@ export default function NotificationsSettingsScreen() {
 
       <Surface style={{ gap: SPACING.md }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-          <AppText heading weight="semibold" style={{ flex: 1 }}>
+          <AppText heading weight="semibold" accessibilityRole="header" style={{ flex: 1 }}>
             {t("settings.discord.bot.heading")}
           </AppText>
-          <AppText size="xs" weight="semibold" style={{ color: linked ? colors.success : colors.foreground }}>
+          <AppText size="xs" weight="semibold" style={{ color: linked ? colors.successForeground : colors.foreground }}>
             {linked ? t("settings.discord.discord.statusLinked") : t("settings.discord.discord.statusNotLinked")}
           </AppText>
         </View>
@@ -486,9 +487,10 @@ export default function NotificationsSettingsScreen() {
                         subtitle={target}
                         disabled={!canManage}
                         onPress={() => router.push({ pathname: "/settings/notification-rule", params: { guid: rule.guid } })}
+                        rightIsInteractive
                         right={
                           <Switch
-                            accessibilityLabel={t("settings.discord.rules.enabled")}
+                            accessibilityLabel={`${t("settings.discord.rules.enabled")}, ${rule.name}`}
                             value={field.value ?? rule.isEnabled}
                             disabled={!canManage || !rule.channelId}
                             onValueChange={field.onChange}

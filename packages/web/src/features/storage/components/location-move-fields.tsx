@@ -50,7 +50,7 @@ export function LocationMoveFields({
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
-            <FieldLabel>
+            <FieldLabel htmlFor={`${idPrefix}-location`}>
               {hasCollections
                 ? t("moveDialog.targetLabel")
                 : t("emptyDialog.locationLabel")}
@@ -59,7 +59,7 @@ export function LocationMoveFields({
               value={field.value || null}
               onValueChange={(value) => field.onChange(value ?? "")}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id={`${idPrefix}-location`} className="w-full">
                 <SelectValue placeholder={t("emptyDialog.placeholder")}>
                   {field.value ? optionLabel(field.value) : undefined}
                 </SelectValue>

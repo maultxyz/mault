@@ -99,7 +99,7 @@ function MeshBackground({ base, colors }: { base: string; colors: string[] }) {
       style={{ backgroundColor: base }}
     >
       <div
-        className="absolute -inset-1/2 animate-[wrapped-mesh-spin_1s_linear_infinite]"
+        className="absolute -inset-1/2 animate-[wrapped-mesh-spin_1s_linear_infinite] motion-reduce:animate-none"
         style={{
           backgroundImage: meshBackground(colors),
           animationDuration: `${durationS}s`,
@@ -169,7 +169,7 @@ function SlideIcon({ children }: { children: ReactNode }) {
 
 function SlideBody({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-4 text-center animate-[wrapped-pop-in_0.5s_ease-out]">
+    <div className="flex flex-col items-center gap-4 text-center animate-[wrapped-pop-in_0.5s_ease-out] motion-reduce:animate-none">
       {children}
     </div>
   );
@@ -659,6 +659,7 @@ export function SessionSummaryDialog({
           {t("sessionSummaryDialog.includePreviouslyDownloaded")}
           <Switch
             size="sm"
+            aria-label={t("sessionSummaryDialog.includePreviouslyDownloaded")}
             checked={includeDownloaded}
             onCheckedChange={setIncludeDownloaded}
           />
@@ -669,6 +670,9 @@ export function SessionSummaryDialog({
           {t("sessionSummaryDialog.applyGridFilters", { count: gridFilterCount })}
           <Switch
             size="sm"
+            aria-label={t("sessionSummaryDialog.applyGridFilters", {
+              count: gridFilterCount,
+            })}
             checked={applyGridFilters}
             onCheckedChange={setApplyGridFilters}
           />
@@ -678,6 +682,7 @@ export function SessionSummaryDialog({
         {t("sessionSummaryDialog.combineDuplicates")}
         <Switch
           size="sm"
+          aria-label={t("sessionSummaryDialog.combineDuplicates")}
           checked={combineDuplicates}
           onCheckedChange={setCombineDuplicates}
         />
@@ -761,7 +766,7 @@ export function SessionSummaryDialog({
                   {i < clampedIndex && <div className="h-full w-full bg-white" />}
                   {i === clampedIndex && autoAdvance && (
                     <div
-                      className="h-full w-full bg-white origin-left animate-[wrapped-progress_5s_linear_forwards]"
+                      className="h-full w-full bg-white origin-left animate-[wrapped-progress_5s_linear_forwards] motion-reduce:animate-none"
                       style={{
                         animationPlayState: paused ? "paused" : "running",
                         animationDuration: `${WRAPPED_SLIDE_DURATION_MS}ms`,
@@ -799,6 +804,7 @@ export function SessionSummaryDialog({
               <DialogPrimitive.Close
                 render={
                   <Button
+                    aria-label={t("common:a11y.close")}
                     variant="ghost"
                     size="icon"
                     className={

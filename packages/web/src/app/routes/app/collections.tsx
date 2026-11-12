@@ -2,17 +2,13 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  checkCollectionName,
-  collectionsQueryOptions,
-} from "@/features/collections/api/collections";
+import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CollectionTile } from "@/features/collections/components/collection-tile";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
+import { EditCollectionDialog } from "@/features/collections/components/edit-collection-dialog";
 import { EmptyCollectionDialog } from "@/features/collections/components/empty-collection-dialog";
 import type { CollectionTarget } from "@/lib/interfaces/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -28,24 +24,18 @@ import {
 } from "@/lib/constants/collections";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconAlbum,
   IconEraser,
-  IconLoader2,
   IconPlus,
   IconSearch,
   IconTrash,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { createPortal } from "react-dom";
-import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-  renameCollectionFormSchema,
-  type RenameCollectionFormValues,
-} from "@magic-vault/shared";
+import type { Collection } from "@magic-vault/shared";
 
 export default function CollectionsPage() {
   const { t } = useTranslation("collections");
@@ -54,7 +44,6 @@ export default function CollectionsPage() {
     activeCollection,
     isActivating,
     isMutating,
-    updateCollection,
     activateCollection,
     deleteCollection,
     emptyCollection,
@@ -163,10 +152,7 @@ export default function CollectionsPage() {
     },
   ];
 
-  const [editTarget, setEditTarget] = useState<{
-    guid: string;
-    name: string;
-  } | null>(null);
+  const [editTarget, setEditTarget] = useState<Collection | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     guid: string;
     name: string;
@@ -175,45 +161,6 @@ export default function CollectionsPage() {
     guid: string;
     name: string;
   } | null>(null);
-
-  const editForm = useForm({
-    resolver: zodResolver(renameCollectionFormSchema),
-    defaultValues: { name: editTarget?.name ?? "" },
-    mode: "onChange",
-  });
-
-  const editNameValue = editForm.watch("name");
-  const { data: editNameCheck } = useQuery({
-    queryKey: ["collections", "check-name", editNameValue, editTarget?.guid],
-    queryFn: () => checkCollectionName(editNameValue, editTarget?.guid),
-    enabled: !!editTarget && !!editNameValue?.trim(),
-    staleTime: 0,
-  });
-
-  useEffect(() => {
-    if (!editTarget || !editNameValue?.trim()) return;
-    if (
-      editNameCheck?.success &&
-      editNameCheck.data &&
-      !editNameCheck.data.available
-    ) {
-      editForm.setError("name", {
-        type: "taken",
-        message: t("createDialog.duplicateName"),
-      });
-    } else {
-      editForm.clearErrors("name");
-    }
-  }, [editTarget, editNameValue, editNameCheck, editForm, t]);
-
-  const handleEditSubmit = useCallback(
-    async (values: RenameCollectionFormValues) => {
-      if (!editTarget) return;
-      await updateCollection(editTarget.guid, values.name);
-      setEditTarget(null);
-    },
-    [editTarget, updateCollection],
-  );
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
@@ -268,6 +215,7 @@ export default function CollectionsPage() {
               <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
               <Input
                 type="search"
+                aria-label={t("page.searchPlaceholder")}
                 placeholder={t("page.searchPlaceholder")}
                 data-hotkey-search
                 value={searchQuery}
@@ -343,10 +291,7 @@ export default function CollectionsPage() {
                   isActivating={isActivating}
                   isMutating={isMutating}
                   onActivate={() => activateCollection(collection.guid)}
-                  onEdit={() => {
-                    editForm.reset({ name: collection.name });
-                    setEditTarget(target);
-                  }}
+                  onEdit={() => setEditTarget(collection)}
                   onEmpty={() =>
                     setEmptyChoice({ targets: [target], bulk: false })
                   }
@@ -467,58 +412,10 @@ export default function CollectionsPage() {
             else setEmptyTarget(choice.targets[0]);
           }}
         />
-        <DynamicDialog
-          open={!!editTarget}
-          onOpenChange={(open) => {
-            if (!open) setEditTarget(null);
-          }}
-          title={t("editDialog.title")}
-          description={t("editDialog.description")}
-          trigger={<span />}
-          footer={
-            <>
-              <Button variant="outline" onClick={() => setEditTarget(null)}>
-                {t("createDialog.cancel")}
-              </Button>
-              <Button
-                type="submit"
-                form="edit-collection-form"
-                disabled={!editForm.formState.isValid || isMutating}
-              >
-                {isMutating && <IconLoader2 className="size-4 animate-spin" />}
-                {t("editDialog.submit")}
-              </Button>
-            </>
-          }
-          footerClassName="flex-col-reverse md:flex-row"
-        >
-          <form
-            id="edit-collection-form"
-            onSubmit={editForm.handleSubmit(handleEditSubmit)}
-            className="flex flex-col gap-4"
-          >
-            <Controller
-              name="name"
-              control={editForm.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel htmlFor="edit-collection-name">
-                    {t("createDialog.nameLabel")}
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="edit-collection-name"
-                    aria-invalid={fieldState.invalid}
-                    autoFocus
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </form>
-        </DynamicDialog>
+        <EditCollectionDialog
+          collection={editTarget}
+          onClose={() => setEditTarget(null)}
+        />
         <DeleteDialog
           open={!!deleteTarget}
           onOpenChange={handleDeleteOpenChange}

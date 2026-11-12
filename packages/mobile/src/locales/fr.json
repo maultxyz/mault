@@ -3,6 +3,8 @@
     "name": "Mault"
   },
   "common": {
+    "loading": "Chargement",
+    "selected": "sélectionné",
     "show": "Afficher",
     "hide": "Masquer",
     "back": "Retour",
@@ -14,19 +16,20 @@
     "discardTitle": "Annuler les modifications ?",
     "discardDescription": "Tes modifications de ce bac n'ont pas été enregistrées.",
     "keepEditing": "Continuer la modification",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "decreaseBy": "Diminuer de {{step}}",
+    "increaseBy": "Augmenter de {{step}}",
+    "changesSaved": "Modifications enregistrées"
   },
   "tabs": {
     "collections": "Collections",
     "scan": "Scanner",
     "sorter": "Trieuse",
     "stats": "Statistiques",
-    "account": "Compte",
-    "home": "Accueil",
-    "rules": "Règles",
     "storage": "Rangement",
     "upgradeYourPlan": "Changez d'offre",
-    "upgradeShort": "Changer"
+    "upgradeShort": "Changer",
+    "more": "Plus"
   },
   "auth": {
     "tagline": "Scanne, trie et suis tes cartes depuis ton téléphone.",
@@ -48,12 +51,9 @@
   },
   "collections": {
     "title": "Collection",
-    "active": "Active",
-    "makeActive": "Activer",
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
     "loadFailed": "Impossible de charger tes collections",
-    "activateFailed": "Impossible de changer la collection active",
     "cardsLoadFailed": "Impossible de charger les cartes",
     "emptyTitle": "Pas encore de collections",
     "emptyDescription": "Retire définitivement toutes les cartes de « {{name}} », mais conserve la collection elle-même. Cette action est irréversible.",
@@ -77,10 +77,10 @@
     "createFailed": "Impossible de créer la collection",
     "limitReached_one": "Ton offre inclut {{count}} collection. Passe à une offre supérieure sur le web pour en créer plus.",
     "limitReached_other": "Ton offre inclut {{count}} collections. Passe à une offre supérieure sur le web pour en créer plus.",
-    "rename": "Renommer",
-    "renameTitle": "Renommer la collection",
-    "renameDescription": "Renomme cette collection.",
-    "renameFailed": "Impossible de renommer la collection",
+    "edit": "Modifier",
+    "editTitle": "Modifier la collection",
+    "editDescription": "Modifie le nom et la langue de scan de cette collection.",
+    "editFailed": "Impossible d'enregistrer la collection",
     "save": "Enregistrer",
     "empty": "Vider la collection",
     "emptyConfirm": "Vider",
@@ -92,33 +92,53 @@
     "actions": "Actions de la collection",
     "cancel": "Annuler",
     "shareLink": "Partager le lien de la vue en direct",
-    "revokeLinks": "Révoquer les liens partagés",
-    "revokeLinksTitle": "Révoquer les liens partagés ?",
-    "revokeLinksDescription": "Toute personne disposant d'un lien vers la vue en direct de cette collection perd l'accès.",
-    "shareLinkFailed": "Impossible de mettre à jour le lien de la vue en direct"
+    "scanTarget": "Scans ajoutés ici",
+    "scanInto": "Scanner dans cette collection",
+    "scan": "Scanner"
+  },
+  "shareLink": {
+    "collectionTitle": "Partager la vue en direct",
+    "collectionDescription": "Toute personne disposant de ce lien ou de ce code QR peut suivre la session de scan de cette collection sans se connecter. Elle ne peut rien modifier.",
+    "storageTitle": "Partager l'emplacement de stockage",
+    "storageDescription": "Toute personne disposant de ce lien ou de ce code QR peut voir les cartes de cet emplacement sans se connecter. Elle ne peut rien modifier.",
+    "expiryLabel": "Le lien expire après",
+    "expiryOption_one": "{{count}} jour",
+    "expiryOption_other": "{{count}} jours",
+    "create": "Créer le lien",
+    "createAnother": "Créer un nouveau lien",
+    "created": "Lien créé. Le code QR et le bouton Partager sont plus bas.",
+    "createFailed": "Impossible de créer le lien de partage.",
+    "share": "Partager le lien",
+    "qrLabel": "Code QR de ce lien. Scanne-le avec l'appareil photo d'un téléphone pour ouvrir le lien.",
+    "qrHint": "Scanner pour ouvrir",
+    "expiresAt": "Expire le {{date}}",
+    "revokeAll": "Révoquer tous les liens",
+    "revokeTitle": "Révoquer tous les liens ?",
+    "collectionRevokeDescription": "Toute personne disposant d'un lien vers la vue en direct de cette collection perd l'accès.",
+    "storageRevokeDescription": "Toute personne disposant d'un lien vers cet emplacement perd l'accès.",
+    "revoked": "Tous les liens partagés ne fonctionnent plus.",
+    "revokeFailed": "Impossible de révoquer les liens partagés.",
+    "cancel": "Annuler",
+    "showPrices": "Afficher les prix",
+    "showPricesDescription": "Désactive pour masquer les prix des cartes et les totaux à toute personne utilisant ce lien.",
+    "typeLabel": "Type de lien",
+    "monitorType": "Suivi",
+    "tradeType": "Échange",
+    "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
+    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
+    "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
+    "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours."
   },
   "cards": {
     "bin": "Bac {{number}}",
     "needsReview": "À vérifier",
+    "reviewed": "Vérifiée",
+    "cardActions": "Actions sur la carte",
     "quantity_one": "{{count}} exemplaire",
     "quantity_other": "{{count}} exemplaires"
   },
   "monitor": {
-    "title": "Session en direct",
-    "open": "Vue en direct",
-    "recent": "Scans récents",
-    "scanError": "Erreur de scan",
-    "viewers_one": "{{count}} spectateur",
-    "viewers_other": "{{count}} spectateurs",
-    "unmatched_one": "{{count}} non reconnue",
-    "unmatched_other": "{{count}} non reconnues",
-    "emptyTitle": "En attente de scans",
-    "emptyDescription": "Les cartes apparaissent ici dès qu'un trieur les scanne dans cette collection.",
-    "status": {
-      "connecting": "Connexion",
-      "connected": "En direct",
-      "error": "Reconnexion"
-    }
+    "scanError": "Erreur de scan"
   },
   "stats": {
     "title": "Statistiques",
@@ -157,7 +177,8 @@
       "foils": "Foils",
       "shareHint": "{{percent}} % des cartes",
       "needsReview": "À vérifier",
-      "correctedHint": "{{count}} vérifiées"
+      "correctedHint": "{{count}} vérifiées",
+      "heading": "Aperçu"
     },
     "activity": {
       "title": "Activité de scan",
@@ -449,6 +470,10 @@
     "rollbackOffDescription": "Définissez « Recul après l'alimentation » dans l'étalonnage de l'alimentation pour retirer des cartes."
   },
   "scan": {
+    "torch": {
+      "label": "Flash",
+      "brightness": "Luminosité du flash"
+    },
     "start": "Démarrer",
     "resume": "Reprendre",
     "pause": {
@@ -566,13 +591,12 @@
     "cameraPermissionDescription": "Mault utilise la caméra pour identifier les cartes qui passent dans ton trieur.",
     "cameraPermissionSettings": "Active l'accès à la caméra pour Mault dans les Réglages.",
     "noCamera": "Aucune caméra disponible",
-    "noCollectionTitle": "Aucune collection active",
+    "noCollectionTitle": "Aucune collection choisie",
     "noCollectionDescription": "Choisis la collection dans laquelle scanner.",
     "chooseCollection": "Choisir une collection",
-    "sorterNotReadyTitle": "Trieuse non connectée",
-    "sorterNotReadyDescription": "Connecte ton trieur pour charger et trier les cartes. Tu peux toujours scanner des cartes à la main.",
     "openSorter": "Connecter la trieuse",
     "modelErrorTitle": "Impossible de charger les modèles de reconnaissance des cartes",
+    "cameraPreview": "Aperçu de la caméra",
     "phase": {
       "idle": "Inactif",
       "loading-models": "Chargement des modèles",
@@ -630,7 +654,6 @@
       },
       "pairDesktop": "Utiliser comme caméra d'ordinateur",
       "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur",
-      "collection": "Collection",
       "preset": "Préréglage de règles",
       "chooseCamera": "Choisir une caméra",
       "foilType": "Type de foil",
@@ -640,7 +663,9 @@
       "setCount_one": "{{count}} extension",
       "setCount_other": "{{count}} extensions",
       "searchSets": "Rechercher une extension",
-      "condition": "État"
+      "condition": "État",
+      "removeMode": "Retirer des cartes",
+      "removeModeDescription": "Mettre les cartes scannées en file pour les retirer de cette collection au lieu de les ajouter"
     },
     "emptyBin": {
       "action": "Marquer comme vide",
@@ -670,10 +695,6 @@
         "removed_one": "1 carte retirée",
         "removed_other": "{{count}} cartes retirées"
       },
-      "modes": {
-        "add": "Ajouter des cartes",
-        "remove": "Retirer des cartes"
-      },
       "binChip": "Les cartes retirées vont dans {{bin}}",
       "binPickerTitle": "Les cartes retirées vont dans",
       "binOption": "Bac {{number}}",
@@ -698,31 +719,9 @@
     }
   },
   "home": {
-    "greeting": "Bonjour, {{name}}",
-    "greetingNoName": "Bon retour",
-    "totalValue": "Valeur totale",
-    "collectionCount_one": "{{count}} collection",
-    "collectionCount_other": "{{count}} collections",
-    "scannedToday": "Scannées aujourd'hui",
-    "thisWeek": "Cette semaine",
-    "collections": "Collections",
-    "activityTitle": "Activité de scan",
-    "activityPoint_one": "{{date}} · {{count}} scan",
-    "activityPoint_other": "{{date}} · {{count}} scans",
-    "today": "Aujourd'hui",
-    "seeAllStats": "Toutes les statistiques",
-    "mostValuable": "Les plus chères",
-    "recentlyScanned": "Scannées récemment",
-    "allCollections": "Toutes les collections",
     "searchPlaceholder": "Rechercher des collections",
     "noSearchResultsTitle": "Aucune collection trouvée",
     "noSearchResultsDescription": "Essaie un autre nom.",
-    "actions": {
-      "scan": "Scanner",
-      "newCollection": "Nouveau",
-      "sorter": "Trieuse",
-      "stats": "Statistiques"
-    },
     "live": {
       "yourSession": "Ta session",
       "scanning": "Scan en cours",
@@ -730,8 +729,6 @@
     }
   },
   "collection": {
-    "tabCards": "Cartes",
-    "tabActivity": "Activité",
     "value": "Valeur",
     "cards": "Cartes",
     "cardsCount_one": "{{count}} carte",
@@ -740,7 +737,6 @@
     "searchPlaceholder": "Rechercher des cartes",
     "noCardsYet": "Aucune carte scannée pour le moment",
     "noMatches": "Aucune carte ne correspond à ta recherche",
-    "review": "Vérifier {{count}}",
     "groupDuplicates": "Grouper les doublons",
     "filters": {
       "colors": "Couleurs",
@@ -766,13 +762,37 @@
       "removeTitle_other": "Retirer {{count}} exemplaires ?"
     },
     "viewOptions": "Options d'affichage",
-    "display": "Affichage"
+    "display": "Affichage",
+    "layout": "Disposition",
+    "viewModes": {
+      "list": "Liste",
+      "grid": "Grille"
+    },
+    "viewStats": "Voir les statistiques",
+    "reviewBadge_one": "{{count}} à vérifier",
+    "reviewBadge_other": "{{count}} à vérifier",
+    "scanTimeline": "Chronologie des scans",
+    "scanTimelineOptions": {
+      "off": "Désactivée",
+      "day": "Par jour",
+      "hour": "Par heure"
+    },
+    "scanTimelineSortNote": "La chronologie affiche toujours les scans les plus récents en premier.",
+    "scanTimelineBlockCount_one": "{{count}} carte",
+    "scanTimelineBlockCount_other": "{{count}} cartes",
+    "loadingMoreCards": "Chargement de cartes supplémentaires"
   },
   "cardDetail": {
+    "noCollectionsToMoveTo": "Aucune autre collection de ce jeu vers laquelle déplacer la carte.",
+    "noLocationsToMoveTo": "Aucun autre emplacement de rangement vers lequel déplacer la carte.",
     "pricePaid": "Prix payé ({{currency}})",
     "pricePaidEmpty": "Non défini",
     "fallbackTitle": "Détails de la carte",
     "capturedScan": "Scan capturé",
+    "capturedBackSide": "Scan capturé (verso)",
+    "capturedBackSideAlt": "Verso numérisé de la carte",
+    "showBackSide": "Afficher le verso",
+    "showFrontSide": "Afficher le recto",
     "matchedCard": "Carte reconnue",
     "details": "Détails",
     "set": "Extension",
@@ -800,6 +820,8 @@
     "similarMatchesHint": "Plusieurs correspondances proches. Touche la bonne version.",
     "thisScan": "Ce scan",
     "foilNone": "Non foil",
+    "stamp": "Tampon",
+    "stampNone": "Sans tampon",
     "condition": "Condition",
     "language": "Langue",
     "allLanguages": "Toutes les langues",
@@ -825,7 +847,9 @@
       "scannedBy": "Par",
       "sorter": "Trieur",
       "deletedSorter": "{{name}} (supprimé)"
-    }
+    },
+    "name": "Nom",
+    "actions": "Actions de la carte"
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -937,7 +961,10 @@
       "skipSaving": "Ne pas enregistrer les cartes",
       "skipSavingDescription": "Les cartes sont identifiées et triées comme d'habitude, mais rien n'est ajouté à la collection. Les scans comptent toujours dans ta limite quotidienne.",
       "resort": "Retrier les cartes enregistrées",
-      "resortDescription": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude."
+      "resortDescription": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude.",
+      "matchGames": "Reconnaître aussi les cartes de",
+      "matchGamesEmpty": "Choisissez au moins un autre jeu. En attendant, seules les cartes de ce jeu sont reconnues.",
+      "matchGamesHint": "Les cartes non reconnues vont dans le bac fourre-tout. Chaque jeu ajouté ralentit un peu les scans."
     },
     "modes": {
       "rules": {
@@ -951,6 +978,10 @@
       "auto-assign": {
         "title": "Tri automatique",
         "description": "Chaque nouvelle valeur d'un champ prend le prochain bac libre pendant le scan"
+      },
+      "game-sort": {
+        "title": "Trier par jeu",
+        "description": "Chaque jeu a son propre bac. Les cartes sont triées mais pas enregistrées."
       },
       "repack": {
         "title": "Créer des repacks",
@@ -1117,6 +1148,24 @@
       "reverseSpeedLabel": "Vitesse de recul",
       "off": "Désactivé"
     },
+    "feederTest": {
+      "heading": "Test du chargeur",
+      "description": "Envoyez des cartes directement dans le bac du bas sans les scanner, avec les réglages enregistrés du chargeur.",
+      "runUntilStoppedLabel": "Alimenter jusqu'à l'arrêt",
+      "cardsToSendLabel": "Cartes à envoyer",
+      "start": "Démarrer l'alimentation",
+      "stop": "Arrêter",
+      "stopping": "Arrêt après cette carte",
+      "progress": "Cartes envoyées : {{count}}",
+      "progressOfTotal": "Cartes envoyées : {{count}} sur {{total}}",
+      "results": {
+        "completed": "Test du chargeur terminé. Cartes envoyées : {{count}}",
+        "stopped": "Test du chargeur arrêté. Cartes envoyées : {{count}}",
+        "hopperEmpty": "La trémie est vide. Cartes envoyées : {{count}}",
+        "feedFailed": "Test du chargeur arrêté sur une erreur. Cartes envoyées : {{count}}",
+        "routeFailed": "Test du chargeur arrêté sur une erreur. Cartes envoyées : {{count}}"
+      }
+    },
     "runTest": "Lancer le test",
     "testing": "Test en cours…",
     "feed": "Alimenter",
@@ -1272,6 +1321,9 @@
     "location": "Rangement",
     "removeFromLocation": "Retirer de l'emplacement",
     "noCardsTitle": "Cet emplacement est vide",
+    "searchCardsPlaceholder": "Rechercher des cartes dans cet emplacement",
+    "positionOrder": "Place dans la boîte",
+    "noMatchingCards": "Aucune carte ne correspond à votre recherche ou à vos filtres",
     "businessOnly": "Les emplacements de rangement ne sont pas inclus dans ton offre.",
     "locked": "Notez dans quelle boîte va chaque carte, et à quelle place, quand vous videz un bac.",
     "lockedWithLocations": "Tu peux toujours consulter et rechercher tes emplacements et leurs cartes. Toute modification nécessite une offre qui inclut le rangement.",
@@ -1287,7 +1339,74 @@
     "moveToCollectionFailed": "Impossible de déplacer les cartes",
     "moveToOtherLocation": "Déplacer vers un autre emplacement",
     "searchLocations": "Rechercher des emplacements",
-    "searchCollections": "Rechercher des collections"
+    "searchCollections": "Rechercher des collections",
+    "pickList": {
+      "open": "Liste de collecte",
+      "title": "Liste de collecte",
+      "description": "Collez une decklist pour voir où chaque carte est rangée, puis cochez les cartes à mesure que vous les sortez.",
+      "decklistLabel": "Cartes à sortir",
+      "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+      "decklistHint": "Une carte par ligne. Les quantités, codes d'extension et titres de section sont acceptés.",
+      "findCards": "Trouver les cartes",
+      "editList": "Modifier la liste",
+      "clear": "Vider la liste",
+      "progress": "{{picked}} sur {{total}} sorties",
+      "emptyTitle": "Aucune de ces cartes n'est rangée",
+      "emptyDescription": "Seules les cartes rangées dans un emplacement apparaissent sur une liste de collecte.",
+      "loadFailed": "La liste de collecte n'a pas pu être chargée.",
+      "finish": "Retirer les cartes sorties de leurs emplacements",
+      "finishTitle_one": "Retirer {{count}} carte sortie de son emplacement ?",
+      "finishTitle_other": "Retirer {{count}} cartes sorties de leurs emplacements ?",
+      "finishDescription": "Elles restent dans votre collection. La liste de collecte est ensuite vidée.",
+      "finishConfirm": "Retirer",
+      "scan": {
+        "button": "Scanner pour cocher",
+        "noMatch": "Aucune carte reconnue. Réessayez avec toute la carte visible.",
+        "notOnList": "{{name}} ne reste pas sur votre liste de collecte.",
+        "picked": "{{name}} sortie de {{location}}, place {{position}}",
+        "failed": "Le scan a échoué. Réessayez.",
+        "title": "Scanner pour cocher",
+        "hint": "Placez une carte dans le cadre et appuyez sur le déclencheur.",
+        "done": "Terminé",
+        "remaining": "Encore {{count}} à sortir",
+        "loadingModels": "Préparation du scanner",
+        "alreadyPicked": "Tous les exemplaires de {{name}} de votre liste de collecte sont déjà sortis."
+      },
+      "finishFailed": "Les cartes sorties n'ont pas pu être retirées. Réessayez.",
+      "notStored": "Non rangée",
+      "missingCount_one": "{{count}} exemplaire non rangé",
+      "missingCount_other": "{{count}} exemplaires non rangés",
+      "moreActions": "Plus d'actions",
+      "picked": "Sortie"
+    },
+    "verify": {
+      "tabs": {
+        "cards": "Cartes",
+        "verify": "Vérifier"
+      },
+      "description": "Scannez les cartes de cet emplacement pour vérifier que tout ce qui doit s'y trouver y est.",
+      "progress": "{{verified}} sur {{total}} vérifiées",
+      "verified": "Vérifiée",
+      "startOver": "Recommencer",
+      "emptyTitle": "Rien à vérifier",
+      "emptyDescription": "Aucune carte n'est encore rangée dans cet emplacement.",
+      "loadFailed": "Les cartes de cet emplacement n'ont pas pu être chargées.",
+      "truncated": "Seules les {{max}} premières cartes de cet emplacement peuvent être vérifiées.",
+      "complete": "Toutes les cartes de cet emplacement sont vérifiées.",
+      "notInLocationTitle": "Scannées mais pas rangées ici",
+      "notInLocationDescription": "Ces cartes ne sont pas enregistrées dans cet emplacement. Remettez-les à leur place ou déplacez-les ici.",
+      "scan": {
+        "button": "Scanner pour vérifier",
+        "stop": "Arrêter le scan",
+        "verified": "{{name}} vérifiée, place {{position}}",
+        "alreadyVerified": "Tous les exemplaires de {{name}} dans cet emplacement sont déjà vérifiés.",
+        "notInLocation": "{{name}} n'est pas rangée dans cet emplacement.",
+        "hint": "Placez une carte de cet emplacement dans le cadre et appuyez sur le déclencheur.",
+        "title": "Vérifier les cartes",
+        "remaining": "Encore {{count}} à vérifier"
+      }
+    },
+    "share": "Partager l'emplacement"
   },
   "settings": {
     "title": "Paramètres",
@@ -1329,6 +1448,10 @@
       "webhooks": {
         "title": "Webhooks",
         "description": "Envoie les événements de scan et de rangement à ton propre serveur"
+      },
+      "shopCatalogs": {
+        "title": "Catalogues boutique",
+        "description": "Montrer votre stock aux clients sur une tablette ou un site"
       }
     },
     "appearance": {
@@ -1351,13 +1474,14 @@
       "heading": "Reconnaissance de texte (OCR)",
       "description": "Quand un scan n'est pas une correspondance sûre, le nom et la ligne d'extension de la carte sont lus pour la trouver. S'applique à tous les scanners de cette organisation, pour les jeux dont les zones de texte sont configurées.",
       "toggleLabel": "Activer la correspondance de texte OCR",
-      "badge": "Bêta"
+      "highAccuracyToggleLabel": "Scans plus précis",
+      "highAccuracyDescription": "Lit le texte de chaque carte, pas seulement des correspondances incertaines, pour que l'extension et le numéro corrigent une correspondance sûre mais fausse. Les scans prennent un peu plus de temps."
     },
-    "ocrBetaDialog": {
-      "title": "Correspondance de texte OCR (bêta)",
-      "description": "Quand un scan n'est pas une correspondance sûre, cette option lit le nom de la carte et sa ligne d'extension pour trouver la carte ou choisir la bonne impression. Les correspondances sûres l'ignorent, la vitesse de scan reste donc la même. Elle est encore en bêta et peut mal lire le texte. Désactive-la si elle semble dégrader les correspondances.",
-      "confirm": "Activer l'OCR",
-      "cancel": "Annuler"
+    "foilDetection": {
+      "heading": "Détection des foils",
+      "description": "Marque automatiquement un scan comme foil. Uniquement pour les impressions qui existent en foil et en non-foil, et seulement quand le réglage foil du scanner est désactivé.",
+      "starToggleLabel": "Lire l'étoile foil de Magic",
+      "starToggleDescription": "Marque les cartes Magic comme foil quand la ligne de collection montre l'étoile ★ imprimée sur les foils. Fonctionne sur tous les appareils, sans temps supplémentaire."
     },
     "correctionAutoClose": {
       "heading": "Invite après correction",
@@ -1470,7 +1594,8 @@
           "fleetHealth": "État de la flotte",
           "storage": "Emplacements de rangement",
           "apiAccess": "Accès API",
-          "businessTools": "Achat et vente"
+          "businessTools": "Achat et vente",
+          "longShareLinks": "Liens de suivi jusqu'à 30 jours"
         },
         "unlimited": "Illimité",
         "included": "Inclus",
@@ -1758,6 +1883,67 @@
         "save": "Enregistrer",
         "saveFailed": "Impossible d'enregistrer la règle sonore."
       }
+    },
+    "shopCatalogs": {
+      "heading": "Catalogues boutique",
+      "description": "Laissez vos clients parcourir votre stock sur une tablette en boutique ou sur votre site. Chaque catalogue montre les cartes des collections et emplacements choisis, via un lien qui fonctionne jusqu'à ce que vous le réinitialisiez.",
+      "add": "Nouveau catalogue",
+      "addTitle": "Nouveau catalogue boutique",
+      "editTitle": "Modifier le catalogue boutique",
+      "dialogDescription": "Choisissez ce que les clients peuvent parcourir. Les changements apparaissent dans le catalogue en moins d'une minute.",
+      "save": "Enregistrer le catalogue",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Cartes à l'unité en boutique",
+      "showPrices": "Afficher les prix",
+      "showPricesDescription": "Désactivez pour masquer les prix des cartes à toute personne qui parcourt ce catalogue.",
+      "collectionsLabel": "Collections",
+      "storageLocationsLabel": "Emplacements de stockage",
+      "noSources": "Rien à choisir pour l'instant.",
+      "inventoryNote": "Les cartes des rachats ouverts ou annulés n'apparaissent jamais.",
+      "empty": "Aucun catalogue boutique",
+      "loadFailed": "Impossible de charger les catalogues boutique.",
+      "upgrade": "Les catalogues boutique font partie de l'offre Business.",
+      "pricesHidden": "Prix masqués",
+      "noLiveSources": "Ses collections et emplacements ont été supprimés",
+      "showLink": "Lien",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "created": "Catalogue boutique créé",
+      "saved": "Catalogue boutique enregistré",
+      "deleted": "Catalogue boutique supprimé",
+      "deleteConfirmTitle": "Supprimer ce catalogue boutique ?",
+      "deleteConfirmDescription": "Son lien cesse de fonctionner immédiatement. Vos cartes restent où elles sont.",
+      "linkTitle": "Lien vers {{name}}",
+      "linkDescription": "Ouvrez ce lien sur une tablette en boutique ou ajoutez-le à votre site. Toute personne qui l'a peut parcourir le catalogue.",
+      "linkNeverExpires": "Ce lien n'expire pas. Réinitialisez-le pour que l'ancien ne fonctionne plus.",
+      "linksNotConfigured": "Les liens de partage ne sont pas configurés sur ce serveur.",
+      "resetLink": "Réinitialiser le lien",
+      "resetLinkConfirmTitle": "Réinitialiser le lien de ce catalogue ?",
+      "resetLinkConfirmDescription": "Le lien et le QR code actuels cessent de fonctionner. Mettez à jour chaque tablette ou site qui les utilise.",
+      "linkReset": "Lien réinitialisé. L'ancien lien ne fonctionne plus.",
+      "managersOnly": "Seuls les propriétaires et les admins peuvent gérer les catalogues boutique.",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "actions": "Actions du catalogue",
+      "photo": {
+        "heading": "Photo de la boutique",
+        "description": "Affichée en haut de chaque catalogue boutique. JPEG, PNG ou WebP, jusqu'à 10 Mo.",
+        "upload": "Importer une photo",
+        "replace": "Remplacer",
+        "remove": "Supprimer",
+        "previewAlt": "Photo actuelle de la boutique",
+        "uploaded": "Photo de la boutique mise à jour",
+        "uploadFailed": "Impossible d'importer la photo de la boutique.",
+        "removed": "Photo de la boutique supprimée",
+        "wrongType": "Importez une photo JPEG, PNG ou WebP.",
+        "tooLarge": "Cette photo est trop lourde. Importez-en une de moins de 10 Mo.",
+        "removeConfirmTitle": "Supprimer la photo de la boutique ?",
+        "removeConfirmDescription": "Vos catalogues s'afficheront sans photo."
+      },
+      "isPublic": "Public",
+      "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé.",
+      "publicBadge": "Public",
+      "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
     }
   },
   "binCorrection": {
@@ -1799,8 +1985,6 @@
     "avg30": "Moy. 30 jours",
     "market": "Marché",
     "low": "Bas",
-    "mid": "Moyen",
-    "high": "Haut",
     "regular": "Normale",
     "foil": "Foil",
     "noPrice": "n/d",
@@ -1820,9 +2004,10 @@
     "pausedDuringSync": "Suspendu pendant une synchronisation de la base de données",
     "ocrRegions": {
       "heading": "Zones OCR",
-      "description": "Où le texte est lu sur les cartes de chaque jeu quand l'OCR est activé, affiché sur une carte d'exemple de la base. Les cadres pleins sont lus en premier ; les zones de repli en pointillés ne sont lues que si le premier passage ne trouve pas la carte.",
+      "description": "Où le texte est lu sur les cartes de chaque jeu quand l'OCR est activé, affiché sur une carte d'exemple de la base. Les cadres pleins sont lus en premier ; les zones de repli en pointillés ne sont lues que si le premier passage ne trouve pas la carte. Les marques d'impression sont comparées à l'image de catalogue de chaque impression pour distinguer les impressions d'une même carte.",
       "fallback": "repli",
       "multiline": "multiligne",
+      "printingMark": "marque d'impression",
       "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %",
       "anotherCard": "Afficher une autre carte",
       "sample": "{{name}} · {{set}} #{{number}}"
@@ -1847,10 +2032,22 @@
       "inactive": "Inactive",
       "empty": "Aucun jeu configuré pour le moment"
     },
+    "printingMarks": {
+      "title": "Marques d'impression",
+      "setSymbol": "Symbole d'extension",
+      "artStamp": "Tampon promo",
+      "listIcon": "Icône The List",
+      "pitch": "Points de pitch",
+      "editionMarker": "Marque d'édition",
+      "setCodeAndRegulationMark": "Code d'extension et marque de régulation",
+      "firstEditionStamp": "Tampon 1st Edition",
+      "foilMarker": "Étoile foil"
+    },
     "ocrFields": {
       "name": "Nom",
       "setLine": "Ligne d'extension",
-      "number": "Numéro"
+      "number": "Numéro",
+      "language": "Langue"
     }
   },
   "export": {
@@ -1922,12 +2119,16 @@
     "customerNameRequired": "Saisis le nom du client.",
     "orderTextRequired": "Colle une commande ou choisis un fichier.",
     "orderLinesRequired": "Garde au moins une carte dans la liste.",
+    "decklistRequired": "Saisissez au moins une carte, une par ligne.",
     "cardCountRequired": "Saisis un nombre de cartes.",
     "storageLocationRequired": "Choisis où sont allées les cartes.",
     "commandRequired": "Saisis une commande.",
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
-    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
+    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie.",
+    "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
+    "contactRequired": "Indique comment te joindre.",
+    "textTooLong": "Reste sous {{max}} caractères."
   },
   "cardTags": {
     "title": "Étiquettes",
@@ -1938,5 +2139,815 @@
       "reviewed": "Vérifiée",
       "corrected": "Corrigée"
     }
+  },
+  "unmatchedCards": {
+    "title": "Cartes non reconnues",
+    "count_one": "{{count}} carte",
+    "count_other": "{{count}} cartes",
+    "hint": "Ces scans ne correspondent à aucune carte. Touchez-en un pour choisir la bonne carte, ou supprimez-le.",
+    "emptyTitle": "Aucune carte non reconnue",
+    "emptyDescription": "Chaque scan de cette collection correspond à une carte.",
+    "loadFailed": "Impossible de charger les cartes non reconnues",
+    "identifyScan": "Identifier le scan du {{scannedAt}}",
+    "identifyTitle": "Identifier la carte",
+    "searchHint": "Recherchez la carte de cette photo. La choisir l'ajoute à la collection.",
+    "notFound": "Ce scan n'est plus non reconnu",
+    "identifyFailed": "Impossible d'ajouter la carte",
+    "remove": "Supprimer le scan",
+    "removeTitle": "Supprimer ce scan ?",
+    "removeDescription": "La photo est supprimée et la carte n'est pas ajoutée à la collection.",
+    "removeFailed": "Impossible de supprimer le scan",
+    "removeAll": "Tout supprimer",
+    "removeAllTitle_one": "Supprimer {{count}} scan non reconnu ?",
+    "removeAllTitle_other": "Supprimer {{count}} scans non reconnus ?",
+    "removeAllDescription": "Les photos sont supprimées et aucune de ces cartes n'est ajoutée à la collection.",
+    "badge_one": "{{count}} non reconnue",
+    "badge_other": "{{count}} non reconnues"
+  },
+  "matchValidations": {
+    "title": "Valider les correspondances",
+    "description": "Aide la communauté à améliorer la reconnaissance des cartes : compare les scans récents avec la carte associée. Chaque scan demande {{required}} vérifications. Les réponses ne modifient jamais une collection.",
+    "counts": "Tu en as vérifié {{yours}} · {{community}} vérifications de la communauté jusqu'ici",
+    "sessionCounts": "Cette session : {{correct}} justes, {{incorrect}} fausses, {{badScan}} mauvais scans",
+    "scanPhoto": "Photo du scan",
+    "scanPhotoAlt": "Photo du scan à comparer avec {{name}}",
+    "matchedCard": "Carte associée",
+    "matchedCardAlt": "Image du catalogue de {{name}}",
+    "unknownCard": "Carte inconnue",
+    "matchedByEmbedding": "Associée par l'image",
+    "matchedByOcr": "Associée par le texte du nom",
+    "lowConfidence": "Confiance faible",
+    "scannedAt": "Scannée le {{date}}",
+    "decisions": {
+      "correct": "Marquée juste",
+      "incorrect": "Marquée fausse",
+      "skipped": "Ignorée",
+      "badScan": "Marquée mauvais scan"
+    },
+    "actions": {
+      "correct": "Juste",
+      "incorrect": "Fausse",
+      "badScan": "Mauvais scan",
+      "skip": "Ignorer",
+      "back": "Retour",
+      "refresh": "Actualiser"
+    },
+    "empty": {
+      "title": "Plus rien à vérifier",
+      "description": "Tu as vérifié chaque scan ouvert, ou ignoré le reste. Actualise pour recharger les scans ignorés."
+    },
+    "reviewProgress": "{{count}} sur {{required}} vérifications",
+    "views": {
+      "review": "Vérifier",
+      "scans": "Tous les scans"
+    },
+    "statuses": {
+      "inProgress": "À vérifier",
+      "correct": "Juste",
+      "incorrect": "Fausse",
+      "badScan": "Mauvais scan",
+      "disputed": "Contestée"
+    },
+    "tallies": "{{correct}} justes · {{incorrect}} fausses · {{badScan}} mauvais scan",
+    "yourVerdict": "Ta réponse : {{verdict}}",
+    "scans": {
+      "listLabel": "Scans à valider",
+      "empty": {
+        "title": "Aucun scan à valider",
+        "description": "Il n'y a aucun scan avec photo dans cette semaine de validation."
+      }
+    },
+    "guide": {
+      "open": "Comment vérifier une correspondance",
+      "title": "Comment vérifier une correspondance",
+      "intro": "Comparez la photo du scan avec la carte reconnue. Regardez le nom, le symbole d'extension, le numéro de collection et l'illustration.",
+      "done": "Compris",
+      "items": {
+        "correct": "La photo montre la même carte dans la même impression : même nom, même symbole d'extension, même numéro de collection et même illustration. De légères différences de couleur ou d'éclairage ne posent pas de problème.",
+        "incorrect": "La photo montre une autre carte, ou la même carte d'une autre extension ou impression, par exemple avec un autre symbole d'extension, numéro de collection, cadre ou illustration.",
+        "badScan": "Impossible de savoir de quelle carte il s'agit : la photo est floue, coupée, couverte de reflets, montre plusieurs cartes ou aucune carte.",
+        "skip": "Vous n'êtes pas sûr ? Passez ce scan, quelqu'un d'autre le vérifiera."
+      }
+    },
+    "gameFilter": {
+      "label": "JCC",
+      "all": "Tous les JCC"
+    },
+    "saveError": "Impossible d'enregistrer ta réponse. Réessaie ce scan.",
+    "progress": {
+      "label": "Progression de la validation communautaire",
+      "valueText": "{{done}} sur {{total}} vérifications faites",
+      "percent": "{{percent}} %"
+    }
+  },
+  "batchScan": {
+    "open": "Scanner plusieurs cartes avec une photo",
+    "title": "Scan photo",
+    "hint": "Posez les cartes à plat sur une surface unie sans qu'elles se chevauchent, puis prenez une photo.",
+    "loadingModels": "Chargement des modèles de reconnaissance",
+    "takePhoto": "Prendre une photo",
+    "captureFailed": "Impossible de prendre la photo. Réessayez.",
+    "photoAlt_one": "Photo avec {{count}} carte trouvée",
+    "photoAlt_other": "Photo avec {{count}} cartes trouvées",
+    "finding": "Recherche des cartes ({{done}} zones sur {{total}} vérifiées)",
+    "identifyingProgress": "Identification de la carte {{done}} sur {{total}}",
+    "found_one": "{{count}} carte trouvée. Décochez celles que vous ne voulez pas et touchez une carte pour la corriger.",
+    "found_other": "{{count}} cartes trouvées. Décochez celles que vous ne voulez pas et touchez une carte pour la corriger.",
+    "noneFoundTitle": "Aucune carte trouvée",
+    "noneFoundDescription": "Écartez les cartes pour qu'elles ne se touchent pas, utilisez un fond uni et vérifiez que chaque carte est entièrement dans la photo.",
+    "identifying": "Identification",
+    "failed": "Impossible d'identifier cette carte",
+    "noMatch": "Aucune correspondance",
+    "includeCard": "Ajouter la carte {{number}}",
+    "correctHint": "Choisir la bonne carte",
+    "corrected": "Choisie",
+    "lowConfidence": "À vérifier",
+    "pickCard": "Choisir la carte",
+    "retake": "Reprendre",
+    "addCards_one": "Ajouter {{count}} carte",
+    "addCards_other": "Ajouter {{count}} cartes",
+    "savedTitle_one": "{{count}} carte ajoutée",
+    "savedTitle_other": "{{count}} cartes ajoutées",
+    "savePartialTitle_one": "{{count}} carte ajoutée",
+    "savePartialTitle_other": "{{count}} cartes ajoutées",
+    "savePartialDescription_one": "{{count}} carte n'a pas pu être enregistrée. Réessayez de l'ajouter.",
+    "savePartialDescription_other": "{{count}} cartes n'ont pas pu être enregistrées. Réessayez de les ajouter.",
+    "modeAdd": "Ajouter",
+    "modeRemove": "Retirer",
+    "removeCard": "Retirer la carte {{number}}",
+    "reviewRemoval_one": "Vérifier {{count}} carte à retirer",
+    "reviewRemoval_other": "Vérifier {{count}} cartes à retirer",
+    "removalLookupFailedTitle_one": "Impossible de rechercher {{count}} carte",
+    "removalLookupFailedTitle_other": "Impossible de rechercher {{count}} cartes",
+    "removalLookupFailedDescription": "Vérifiez votre connexion et réessayez."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Outils de la plateforme pour l'équipe.",
+    "entrySubtitle": "Cartes, utilisateurs, offres et plus",
+    "sections": {
+      "cards": {
+        "title": "Cartes et jeux",
+        "subtitle": "Base de cartes, synchronisation et jeux"
+      },
+      "users": {
+        "title": "Utilisateurs",
+        "subtitle": "Rechercher des utilisateurs et l'historique d'usurpation"
+      },
+      "plans": {
+        "title": "Offres",
+        "subtitle": "Limites, fonctionnalités et tarifs des offres"
+      },
+      "discord": {
+        "title": "Discord",
+        "subtitle": "Salons et annonces"
+      },
+      "sounds": {
+        "title": "Sons",
+        "subtitle": "Sons intégrés du scanner"
+      },
+      "deleted": {
+        "title": "Éléments supprimés",
+        "subtitle": "Restaurer les éléments supprimés"
+      }
+    },
+    "deleted": {
+      "description": "Tout ce qui a été supprimé dans une organisation, sauf les cartes scannées. La restauration remet un élément exactement dans son état d'origine.",
+      "searchPlaceholder": "Rechercher par nom ou organisation",
+      "typeLabel": "Type d'élément",
+      "allTypes": "Tous les types",
+      "empty": "Rien n'a été supprimé",
+      "restore": "Restaurer",
+      "global": "Global",
+      "lastUpdated": "Dernière modification {{date}}",
+      "types": {
+        "collection": "Collection",
+        "binSet": "Préréglage de bacs",
+        "presetWorkflow": "Préréglage en plusieurs étapes",
+        "bin": "Bac",
+        "device": "Trieuse",
+        "binRoute": "Route de bac",
+        "binHeight": "Hauteur de bac",
+        "moduleConfig": "Calibration de module",
+        "storageLocation": "Emplacement de stockage",
+        "soundClip": "Clip sonore",
+        "soundRule": "Règle sonore",
+        "notificationRule": "Règle de notification",
+        "game": "Jeu",
+        "announcement": "Annonce",
+        "intakeLot": "Rachat",
+        "fulfilmentOrder": "Commande",
+        "accuracyCheck": "Contrôle",
+        "shopCatalog": "Catalogue boutique"
+      },
+      "restored": "{{name}} restauré",
+      "restoreError": "Impossible de restaurer cet élément",
+      "count_one": "{{count}} élément supprimé",
+      "count_other": "{{count}} éléments supprimés",
+      "restoreItem": "Restaurer {{name}}",
+      "loadError": "Impossible de charger les éléments supprimés",
+      "noMatches": "Aucun élément supprimé ne correspond",
+      "loadingMore": "Chargement d'autres éléments supprimés"
+    },
+    "users": {
+      "subtitle": "Retrouve des comptes et consulte les sessions d'emprunt d'identité.",
+      "viewAsUserOnWebTitle": "Voir l'application comme un utilisateur se fait sur le web",
+      "viewAsUserOnWebDescription": "Recherche ici un compte et ses organisations. Pour voir l'application comme cet utilisateur, ouvre Admin > Utilisateurs sur le web.",
+      "searchPlaceholder": "Rechercher par nom, email ou organisation",
+      "startTyping": "Saisis un nom, un email ou une organisation pour rechercher.",
+      "searchFailed": "Impossible de rechercher les utilisateurs.",
+      "empty": "Aucun utilisateur trouvé",
+      "noOrgs": "Aucune organisation",
+      "adminBadge": "Admin",
+      "moderatorBadge": "Modérateur",
+      "tabs": {
+        "search": "Utilisateurs",
+        "audit": "Journal d'audit"
+      },
+      "audit": {
+        "unknownUser": "Utilisateur inconnu",
+        "loadFailed": "Impossible de charger le journal d'audit.",
+        "empty": "Aucune session d'emprunt d'identité pour l'instant",
+        "entryLabel": "{{admin}} → {{target}}",
+        "startedAndEnded": "Démarrée le {{started}}, terminée le {{ended}}",
+        "startedOnly": "Démarrée le {{started}}",
+        "active": "Active"
+      }
+    },
+    "plans": {
+      "billingDisabled": "La facturation est désactivée sur ce serveur, chaque organisation a donc toutes les fonctionnalités sans limite. Ces réglages s'appliquent une fois la facturation activée.",
+      "saveFailed": "Impossible d'enregistrer les réglages des offres",
+      "featuresDescription": "Quelles offres peuvent utiliser chaque fonctionnalité. Les fonctionnalités sont définies dans le code, une nouvelle apparaît ici une fois développée.",
+      "limitsDescription": "Combien une organisation peut avoir de chaque élément selon son offre. Active Illimité pour retirer une limite.",
+      "restoreDefaults": "Rétablir les valeurs par défaut",
+      "unlimited": "Illimité",
+      "features": {
+        "chaosSort": {
+          "label": "Tri en vrac",
+          "description": "Remplir les bacs dans l'ordre, sans règles. Le désactiver empêche seulement d'autres préréglages de l'activer."
+        },
+        "storage": {
+          "label": "Emplacements de rangement",
+          "description": "Créer des emplacements et y enregistrer des bacs. Les emplacements existants restent visibles dans tous les cas."
+        },
+        "apiAccess": {
+          "label": "Accès API",
+          "description": "Créer des clés API d'organisation et lire les cartes et les emplacements via l'API publique. Révoquer une clé existante reste toujours possible."
+        },
+        "businessTools": {
+          "label": "Achat et vente",
+          "description": "Rachats avec offres de rachat, import et expédition des commandes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
+        },
+        "repacks": {
+          "label": "Repacks",
+          "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux déjà en mode repack continuent de fonctionner."
+        },
+        "customSounds": {
+          "label": "Sons personnalisés",
+          "description": "Importer des clips sonores personnalisés pour les règles sonores. Le désactiver bloque seulement les nouveaux imports. Les clips déjà importés continuent d'être joués."
+        },
+        "fleetHealth": {
+          "label": "Santé du parc",
+          "description": "Le panneau de santé de la page Trieuses : état, cartes depuis le dernier entretien, historique des alertes et intervalles d'entretien. Les alertes de bourrage et de déconnexion restent enregistrées et envoyées dans tous les cas."
+        },
+        "longShareLinks": {
+          "label": "Liens de suivi plus longs",
+          "description": "Les liens de suivi peuvent durer 1, 7 ou 30 jours. Sans cela, ils durent 1 heure. Les liens d'échange durent toujours 1 heure."
+        }
+      },
+      "limits": {
+        "dailyScans": {
+          "label": "Scans par jour",
+          "description": "Cartes scannées par organisation et par jour UTC."
+        },
+        "connectedSorters": {
+          "label": "Trieuses connectées",
+          "description": "Trieuses connectées en même temps. Chaque offre est aussi plafonnée au maximum du serveur."
+        },
+        "soundRules": {
+          "label": "Règles sonores",
+          "description": "Règles sonores tous jeux confondus. Vérifié uniquement à l'ajout d'une règle."
+        },
+        "notificationRules": {
+          "label": "Règles de notification",
+          "description": "Règles de notification Discord tous jeux confondus. Vérifié uniquement à l'ajout d'une règle."
+        },
+        "organizations": {
+          "label": "Organisations possédées",
+          "description": "Organisations qu'un utilisateur peut posséder. L'application vérifie à la création d'une organisation, d'après l'offre de l'organisation ouverte."
+        },
+        "membersPerOrg": {
+          "label": "Membres par organisation",
+          "description": "Membres par organisation, comptés propriétaires d'abord, puis par date d'arrivée. Les membres au-delà de la limite sont bloqués jusqu'à ce que l'offre soit améliorée ou que des membres soient retirés."
+        },
+        "collections": {
+          "label": "Collections",
+          "description": "Collections par organisation. Vérifié uniquement à la création d'une collection."
+        }
+      },
+      "pricingMode": {
+        "heading": "Mode de tarification",
+        "saved": "Mode de tarification mis à jour.",
+        "saveFailed": "Impossible de mettre à jour le mode de tarification.",
+        "legacy": {
+          "badge": "Anciens tarifs",
+          "description": "Seules les offres Gratuite et Business d'origine sont en vente, aux anciens prix Business. Les nouveaux abonnés Business obtiennent l'offre Business historique.",
+          "switch": "Passer aux nouveaux tarifs",
+          "confirmTitle": "Passer aux nouveaux tarifs ?",
+          "confirmDescription": "Passionné et la nouvelle offre Business sont mises en vente immédiatement, avec les prix STRIPE_PRICE_ID_ENTHUSIAST et STRIPE_PRICE_ID_BUSINESS. Les abonnés Business actuels conservent leur offre, désormais indiquée comme historique."
+        },
+        "tiered": {
+          "badge": "Nouveaux tarifs",
+          "description": "Les offres Gratuite, Passionné et Business sont en vente. Les abonnés à l'offre Business d'origine la conservent comme offre historique.",
+          "switch": "Revenir aux anciens tarifs",
+          "confirmTitle": "Revenir aux anciens tarifs ?",
+          "confirmDescription": "Passionné et la nouvelle offre Business ne sont plus vendues, et le paiement Business repasse aux anciens prix. Les personnes déjà abonnées à une nouvelle offre la conservent."
+        }
+      },
+      "preview": {
+        "heading": "Prévisualiser une offre",
+        "description": "Vois l'application comme une organisation avec une autre offre : les limites, les fonctions verrouillées et la facturation suivent l'offre choisie. Ne concerne que tes propres requêtes dans cette application.",
+        "off": "Désactivé",
+        "selectLabel": "Offre à prévisualiser",
+        "activeTitle": "Aperçu de l'offre {{plan}}",
+        "activeDescription": "Tes propres requêtes dans cette application suivent cette offre jusqu'à ce que tu arrêtes l'aperçu ou fermes l'application.",
+        "stop": "Arrêter l'aperçu"
+      },
+      "subtitle": "Limites, fonctionnalités, tarifs et aperçu des offres.",
+      "loadFailed": "Impossible de charger les réglages des offres.",
+      "editorHeading": "Réglages des offres",
+      "editorDescription": "Choisis une offre pour modifier ses fonctionnalités et ses limites. Les modifications de toutes les offres sont enregistrées ensemble.",
+      "editedPlanLabel": "Offre à modifier",
+      "restoreDefaultsHint": "Rétablit les valeurs par défaut de toutes les offres. Rien n'est enregistré avant que tu touches Enregistrer.",
+      "featuresHeading": "Fonctionnalités : {{plan}}",
+      "limitsHeading": "Limites : {{plan}}",
+      "unlimitedFor": "{{limit}} illimité",
+      "discardDescription": "Tes modifications des réglages des offres n'ont pas été enregistrées."
+    },
+    "discord": {
+      "server": "Serveur",
+      "channel": "Salon",
+      "noServer": "Aucun serveur",
+      "noChannel": "Aucun salon",
+      "loadingGuild": "Chargement du serveur...",
+      "botUnreachable": "Le bot Discord est injoignable, les serveurs et salons ne peuvent donc pas être listés pour le moment.",
+      "loadFailed": "Impossible de charger les paramètres Discord.",
+      "retry": "Réessayer",
+      "saved": "Paramètres Discord enregistrés.",
+      "opensInBrowser": "S'ouvre dans ton navigateur",
+      "channels": {
+        "stats": {
+          "heading": "Statistiques de la plateforme",
+          "description": "Où les statistiques de la plateforme sont publiées, et quels chiffres chaque publication inclut. Laisse le salon vide pour ne plus publier les statistiques."
+        },
+        "donations": {
+          "heading": "Dons",
+          "description": "Où chaque don Buy Me a Coffee est publié. Laisse vide pour ne plus publier les dons."
+        },
+        "pricing": {
+          "heading": "Mises à jour des prix",
+          "description": "Où un résumé est publié chaque fois que la synchronisation des prix récupère de nouveaux prix. Laisse vide pour ne plus publier les mises à jour des prix."
+        }
+      },
+      "priceSyncCommand": "Les prix sont récupérés quand cette commande s'exécute. Ajoute-la comme tâche planifiée dans Coolify sur l'application serveur, toutes les quelques heures. Elle ne télécharge que ce qui a changé.",
+      "donationsLink": "Ouvrir la page Buy Me a Coffee",
+      "stats": {
+        "statsDescription": "Les chiffres à inclure dans chaque publication, toutes organisations confondues.",
+        "keys": {
+          "scannedCards": {
+            "label": "Cartes scannées",
+            "description": "Chaque scan enregistré, reconnu ou non. Supprimer des cartes ne le fait pas baisser."
+          },
+          "scansLast24Hours": {
+            "label": "Scans des dernières 24 heures",
+            "description": "Scans enregistrés dans les 24 heures précédant la publication."
+          },
+          "devices": {
+            "label": "Appareils calibrés",
+            "description": "Trieuses calibrées : au moins un module enregistré avec des valeurs de servo différentes des valeurs par défaut. Les appareils supprimés sont exclus."
+          },
+          "users": {
+            "label": "Utilisateurs",
+            "description": "Comptes inscrits."
+          },
+          "organizations": {
+            "label": "Organisations",
+            "description": "Organisations existantes."
+          },
+          "collections": {
+            "label": "Collections",
+            "description": "Collections de toutes les organisations, hors collections supprimées."
+          }
+        },
+        "scheduleDescription": "Les publications sont envoyées quand cette commande s'exécute. Ajoute-la comme tâche planifiée dans Coolify sur l'application serveur, avec le cron de ton choix.",
+        "postNow": "Publier maintenant",
+        "lastPosted": "Dernière publication le {{date}}.",
+        "neverPosted": "Pas encore publié.",
+        "saveBeforePosting": "Enregistre tes modifications avant de publier.",
+        "posted": "Statistiques publiées sur Discord.",
+        "postFailed": "Impossible de publier les statistiques."
+      },
+      "linkedRole": {
+        "heading": "Rôle des comptes liés",
+        "description": "Les membres de ce serveur qui lient leur compte Mault avec /link-account reçoivent ce rôle, et le perdent s'ils le dissocient. Le bot a besoin de la permission Gérer les rôles, et son propre rôle doit être placé au-dessus de celui-ci.",
+        "role": "Rôle",
+        "noRole": "Aucun rôle"
+      },
+      "announcements": {
+        "heading": "Annonces",
+        "description": "Diffuse un message à tous les utilisateurs de l'application. Il s'affiche en bannière et reste dans le tiroir de notifications de chacun jusqu'à ce que tu le désactives.",
+        "add": "Ajouter une annonce",
+        "editTitle": "Modifier l'annonce",
+        "editHint": "Ouvre l'annonce pour la modifier ou la supprimer",
+        "formDescription": "Affichée à chaque utilisateur connecté jusqu'à sa désactivation.",
+        "active": "Active",
+        "inactive": "Inactive",
+        "onLandingPage": "Sur la page d'accueil",
+        "empty": "Aucune annonce pour le moment.",
+        "loadFailed": "Impossible de charger les annonces.",
+        "notFound": "Cette annonce n'existe plus.",
+        "severity": {
+          "info": "Info",
+          "warning": "Avertissement",
+          "danger": "Danger"
+        },
+        "schedule": {
+          "starts": "Débute {{date}}",
+          "ends": "Se termine {{date}}",
+          "startsAndEnds": "Du {{start}} au {{end}}"
+        },
+        "severityLabel": "Gravité",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Une maintenance planifiée aura lieu vendredi à 22h UTC.",
+        "linkLabel": "Lien (facultatif)",
+        "linkPlaceholder": "https://example.com/changelog",
+        "startsAtLabel": "Début",
+        "endsAtLabel": "Fin",
+        "dateTimePlaceholder": "AAAA-MM-JJ HH:MM",
+        "scheduleHint": "Les heures suivent le fuseau horaire de ton téléphone, au format AAAA-MM-JJ HH:MM. Laisse l'un des deux champs vide pour ne pas borner ce côté. L'interrupteur Active reste prioritaire dans tous les cas.",
+        "showOnLandingLabel": "Afficher sur la page d'accueil",
+        "showOnLandingDescription": "Affiche aussi cette bannière aux visiteurs non connectés sur les pages publiques d'accueil et du guide de montage.",
+        "fixErrors": "Corrige d'abord les champs signalés.",
+        "createFailed": "Impossible de créer l'annonce.",
+        "updateFailed": "Impossible d'enregistrer l'annonce.",
+        "delete": "Supprimer l'annonce",
+        "deleteTitle": "Supprimer l'annonce ?",
+        "deleteConfirm": "Elle disparaîtra immédiatement du tiroir de notifications de tout le monde.",
+        "deleteFailed": "Impossible de supprimer l'annonce.",
+        "validation": {
+          "invalidLink": "Saisis une URL http(s) valide.",
+          "invalidDateTime": "Saisis une date et une heure au format AAAA-MM-JJ HH:MM.",
+          "endAfterStart": "L'heure de fin doit être après l'heure de début."
+        }
+      }
+    },
+    "sounds": {
+      "heading": "Clips sonores système",
+      "description": "Des clips que chaque organisation peut utiliser dans ses règles sonores. Les organisations peuvent les écouter, mais pas les renommer ni les supprimer.",
+      "empty": "Aucun clip sonore système pour le moment.",
+      "loadFailed": "Impossible de charger les clips sonores système.",
+      "retry": "Réessayer",
+      "uploadHint": "MP3, WAV, OGG, WebM, M4A ou AAC, 1 Mo maximum.",
+      "delete": "Supprimer",
+      "deleteConfirm": "Toutes les organisations perdent ce clip, et les règles qui le jouent ne joueront plus de son.",
+      "deleted": "Clip sonore supprimé."
+    },
+    "planPreviewChip": "Aperçu : {{plan}}",
+    "cards": {
+      "cancel": "Annuler",
+      "typeToConfirm": "Saisis « {{text}} » pour confirmer",
+      "tabs": {
+        "stats": "Stats",
+        "games": "Jeux",
+        "sync": "Synchro",
+        "database": "Cartes",
+        "keys": "Clés"
+      },
+      "stats": {
+        "description": "Activité de scan à l'échelle de l'application, toutes organisations confondues, et si chaque scan a été vectorisé sur le serveur ou dans le navigateur. Une personne est comptée comme scannant tant qu'elle a enregistré un scan au cours des {{minutes}} dernières minutes.",
+        "unknownValue": "Indisponible",
+        "percentValue": "{{percent}}%",
+        "loadFailed": "Impossible de charger les stats de scan",
+        "active": {
+          "heading": "Scan en cours",
+          "scanners": "Personnes qui scannent",
+          "sessions": "Collections en cours de scan",
+          "orgs": "Organisations",
+          "connectedSorters": "Trieurs connectés",
+          "recentScans": "Scans, {{minutes}} dernières min"
+        },
+        "allTime": {
+          "heading": "Depuis le début",
+          "totalScanned": "Total scanné",
+          "matched": "Trouvés",
+          "unidentified": "Non identifiés",
+          "matchRate": "Taux de correspondance",
+          "averageMatchPercent": "Confiance moy.",
+          "corrected": "Corrigés",
+          "multipleMatches": "Correspondances multiples"
+        },
+        "vectorize": {
+          "heading": "Source de vectorisation des scans",
+          "server": "Serveur",
+          "web": "Web",
+          "percentOfTotal": "{{percent}}% des scans"
+        }
+      },
+      "games": {
+        "description": "Configure quels jeux de cartes à collectionner peuvent être scannés et comment leurs cartes sont associées aux règles des bacs.",
+        "addGame": "Ajouter un jeu",
+        "loadFailed": "Impossible de charger les jeux",
+        "empty": "Aucun jeu configuré pour le moment",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "fieldCount_one": "{{count}} champ",
+        "fieldCount_other": "{{count}} champs",
+        "createSuccess": "{{name}} créé",
+        "updateSuccess": "{{name}} enregistré",
+        "deleteSuccess": "Jeu supprimé",
+        "createFailed": "Échec de la création du jeu",
+        "updateFailed": "Échec de la mise à jour du jeu",
+        "deleteFailed": "Échec de la suppression du jeu",
+        "deleteTitle": "Supprimer le jeu",
+        "deleteDescription": "Supprimer « {{name}} » ? Les collections utilisant ce jeu conserveront leurs cartes scannées, mais aucune nouvelle carte ne pourra y être associée.",
+        "deleteButton": "Supprimer"
+      },
+      "gameForm": {
+        "newTitle": "Nouveau jeu",
+        "editTitle": "Modifier {{name}}",
+        "notFound": "Ce jeu n'existe pas ou a été supprimé.",
+        "backToGames": "Retour aux jeux",
+        "discardDescription": "Les modifications de ce jeu n'ont pas été enregistrées.",
+        "generalHeading": "Général",
+        "generalDescription": "La source de cartes utilisée par ce jeu et son affichage.",
+        "physicalHeading": "Cartes",
+        "physicalDescription": "Propriétés physiques des cartes, utilisées pour les options foil et pour savoir quand un bac est plein.",
+        "keyLabel": "Clé",
+        "keyPlaceholder": "Sélectionner un jeu",
+        "nameLabel": "Nom",
+        "namePlaceholder": "Pokémon",
+        "apiDocsUrlLabel": "URL de la documentation de l'API",
+        "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
+        "activeDescription": "Les jeux inactifs ne peuvent pas être choisis pour de nouvelles collections.",
+        "cardThicknessLabel": "Épaisseur de carte (mm)",
+        "cardThicknessPlaceholder": "ex. 0.3",
+        "cardThicknessDescription": "Utilisée avec la hauteur calibrée de chaque bac (définie dans Réglage du trieur) pour déterminer automatiquement quand un bac est plein.",
+        "validation": {
+          "required": "Obligatoire",
+          "keyFormat": "Lettres minuscules, chiffres et tirets uniquement",
+          "keyTaken": "Un jeu avec cette clé existe déjà",
+          "urlFormat": "Saisis une URL valide",
+          "minFields": "Ajoute au moins un champ",
+          "thicknessPositive": "Saisis un nombre supérieur à 0"
+        }
+      },
+      "fields": {
+        "heading": "Champs",
+        "description": "Définis quels champs les règles des bacs, le tri et les notifications peuvent utiliser pour ce jeu.",
+        "empty": "Pas encore de champs. Ajoute-en au moins un pour pouvoir filtrer les règles des bacs.",
+        "addField": "Ajouter un champ",
+        "untitled": "Champ {{position}}",
+        "removeLabel": "Supprimer le champ {{name}}",
+        "keyLabel": "Clé",
+        "keyPlaceholder": "rarity",
+        "labelLabel": "Libellé",
+        "labelPlaceholder": "Rareté",
+        "typeLabel": "Type",
+        "pathLabel": "Chemin de donnée",
+        "pathPlaceholder": "prices.usd",
+        "optionsLabel": "Options",
+        "optionsPlaceholder": "commune, rare"
+      },
+      "fieldTypes": {
+        "string": "Texte",
+        "numeric": "Numérique",
+        "enum": "Énumération",
+        "set": "Ensemble"
+      },
+      "sync": {
+        "heading": "Vecteurs d'image des cartes",
+        "status": {
+          "idle": "Inactif",
+          "running": "En cours",
+          "completed": "Terminé",
+          "failed": "Échoué",
+          "cancelled": "Annulé"
+        },
+        "statusLabel": "Statut de la synchro : {{status}}",
+        "statusAnnouncement": "Synchro des cartes : {{status}}",
+        "runningFor": "Synchronisation de {{source}}",
+        "loadFailed": "Impossible de charger le statut de la synchro",
+        "startFailed": "Impossible de lancer la synchro",
+        "cancelFailed": "Impossible d'annuler la synchro",
+        "browserJobRunning": "Cette synchro vectorise les cartes dans un navigateur sur l'ordinateur hôte. Garde cette page ouverte.",
+        "cancelling": "Annulation...",
+        "starting": "Démarrage...",
+        "startButton": "Démarrer la synchro",
+        "gameLabel": "Jeu",
+        "gamePlaceholder": "Sélectionner un jeu...",
+        "languageLabel": "Langue",
+        "languagePlaceholder": "Langue...",
+        "forceResyncLabel": "Forcer la resynchronisation complète",
+        "concurrencyLabel": "Cartes à la fois",
+        "concurrencyDescription": "Vectorise ce nombre d'images de cartes en même temps. Les téléchargements restent espacés.",
+        "progressLabel": "Progression de la synchronisation",
+        "progressCount": "{{done}} / {{total}}",
+        "savedCount": "{{count}} enregistrées",
+        "vectorizedCount": "{{count}} vectorisées",
+        "queuedCount": "{{count}} en attente",
+        "skippedCount": "{{count}} ignorées",
+        "etaRemaining": "~{{duration}} restant",
+        "errorsCount_one": "{{count}} erreur",
+        "errorsCount_other": "{{count}} erreurs",
+        "printingMarksLabel": "Progression des marques d'impression",
+        "printingMarksCount": "Marques d'impression : {{done}} / {{total}} cartes lues",
+        "logHeading": "Journal",
+        "logDescription_one": "Entrée la plus récente en premier.",
+        "logDescription_other": "{{count}} dernières entrées, les plus récentes en premier.",
+        "logEmpty": "Aucun journal"
+      },
+      "syncCardById": {
+        "heading": "Synchroniser une carte par ID",
+        "description": "Récupère et vectorise une seule carte, en l'ajoutant si elle n'est pas encore dans la base de données",
+        "cardIdLabel": "ID de la carte",
+        "cardIdPlaceholder": "ID de la carte...",
+        "syncButton": "Synchroniser",
+        "syncing": "Synchronisation...",
+        "failed": "Échec de la synchronisation de la carte {{id}}"
+      },
+      "database": {
+        "heading": "Base de données de cartes",
+        "cardCount_one": "{{count}} carte",
+        "cardCount_other": "{{count}} cartes",
+        "searchLabel": "Rechercher des cartes",
+        "searchPlaceholder": "Rechercher par nom...",
+        "loadFailed": "Échec du chargement des cartes",
+        "empty": "Aucune carte trouvée",
+        "revectorizeLabel": "Revectoriser {{name}}",
+        "revectorizeFailed": "Échec de la revectorisation de {{name}}",
+        "previousPage": "Page précédente",
+        "nextPage": "Page suivante",
+        "pageStatus": "Page {{page}} sur {{pageCount}}"
+      },
+      "dump": {
+        "heading": "Vider la base de données de cartes",
+        "description": "Supprime définitivement les vecteurs d'image des cartes, pour un jeu ou pour tous",
+        "scopeLabel": "Portée",
+        "scopePlaceholder": "Sélectionner une portée...",
+        "allGames": "Tous les jeux",
+        "dumpButton": "Vider",
+        "confirmTitle": "Vider la base de données de cartes",
+        "confirmAll": "Cette action supprimera définitivement tous les vecteurs d'image des cartes et ne peut pas être annulée. Es-tu sûr(e) ?",
+        "confirmScoped": "Cette action supprimera définitivement tous les vecteurs d'image des cartes « {{scope}} » et ne peut pas être annulée. Es-tu sûr(e) ?",
+        "failed": "Échec de la suppression de la base de données",
+        "syncRunning": "Tu ne peux pas vider la base pendant qu'une synchro est en cours."
+      },
+      "syncApiKeys": {
+        "description": "Des clés qui permettent aux scripts et planificateurs de lancer des synchronisations de la base de cartes sans connexion. Chaque clé ne fait que ce que ses autorisations permettent.",
+        "create": "Créer une clé",
+        "createTitle": "Créer une clé d'API de synchronisation",
+        "createDescription": "Choisis ce que cette clé peut faire. Les autorisations ne peuvent pas être modifiées ensuite : révoque la clé et recrée-la.",
+        "nameLabel": "Nom",
+        "namePlaceholder": "Synchro nocturne",
+        "permissionsLabel": "Autorisations",
+        "empty": "Aucune clé d'API de synchronisation",
+        "loadFailed": "Impossible de charger les clés d'API de synchronisation.",
+        "createFailed": "Impossible de créer la clé d'API de synchronisation.",
+        "revoke": "Révoquer",
+        "revoked": "Clé d'API de synchronisation révoquée",
+        "revokeFailed": "Impossible de révoquer la clé d'API de synchronisation.",
+        "revokeConfirmDescription": "Tout ce qui utilise cette clé cesse de fonctionner immédiatement. Cette action est irréversible.",
+        "revealTitle": "Copie ta clé d'API de synchronisation",
+        "revealDescription": "La clé n'est affichée qu'une seule fois. Conserve-la en lieu sûr.",
+        "revealDone": "Terminé",
+        "exampleLabel": "Lancer une synchro avec :",
+        "createdBy": "Créée par {{name}} le {{date}}",
+        "lastUsed": "Dernière utilisation {{date}}",
+        "neverUsed": "Jamais utilisée",
+        "permissions": {
+          "sync_start": {
+            "label": "Lancer une synchro",
+            "description": "Lance une synchronisation normale d'un jeu. Les cartes inchangées sont ignorées."
+          },
+          "sync_force": {
+            "label": "Resynchro forcée",
+            "description": "Lance une synchronisation qui retélécharge et revectorise toutes les cartes, même inchangées."
+          },
+          "sync_card": {
+            "label": "Synchroniser une carte",
+            "description": "Récupère et vectorise une carte à partir de son ID."
+          },
+          "sync_cancel": {
+            "label": "Annuler la synchro",
+            "description": "Arrête la synchronisation en cours."
+          }
+        },
+        "revokeConfirmTitle": "Révoquer « {{name}} » ?",
+        "revokeLabel": "Révoquer {{name}}",
+        "share": "Partager la clé"
+      }
+    }
+  },
+  "tradeOffers": {
+    "trayHeading": "Offres d'échange",
+    "trayMessage": "{{name}} veut {{wanted}} contre {{offered}} des siennes",
+    "review": "Voir",
+    "foil": "Foil",
+    "accepted": "Offre d'échange acceptée",
+    "declined": "Offre d'échange refusée",
+    "declineTitle": "Refuser cette offre d'échange ?",
+    "declineDescription": "La personne verra sur son lien que vous avez refusé.",
+    "cancel": "Annuler",
+    "decline": "Refuser",
+    "accept": "Accepter",
+    "title": "Offre d'échange",
+    "reviewTitle": "Offre de {{name}}",
+    "respondFailed": "Impossible de répondre à l'offre.",
+    "answered": "Cette offre a déjà reçu une réponse.",
+    "reviewDescription": "Envoyée depuis {{source}} le {{date}}",
+    "unknownSource": "un lien partagé",
+    "contact": "Contact",
+    "theyWant_one": "Demande {{count}} carte",
+    "theyWant_other": "Demande {{count}} cartes",
+    "theyOffer_one": "Propose {{count}} carte",
+    "theyOffer_other": "Propose {{count}} cartes",
+    "acceptTitle": "Accepter cette offre d'échange ?",
+    "acceptRemovesCards_one": "Cela retire la carte demandée ({{count}}) de votre collection.",
+    "acceptRemovesCards_other": "Cela retire les {{count}} cartes demandées de votre collection.",
+    "theyGetValue": "Ils reçoivent",
+    "youGetValue": "Vous recevez",
+    "youGainValue": "Leur offre vaut {{amount}} de plus que ce qu'ils demandent.",
+    "youLoseValue": "Leur offre vaut {{amount}} de moins que ce qu'ils demandent.",
+    "evenValue": "Les deux côtés ont la même valeur.",
+    "missingPrices": "Certaines cartes n'ont pas de prix, les totaux peuvent donc être bas.",
+    "noPrice": "Sans prix"
+  },
+  "trade": {
+    "title": "Offre d'échange",
+    "description": "Choisissez des cartes dans {{source}}, ajoutez celles que vous donnez en échange, puis envoyez. Le propriétaire accepte ou refuse.",
+    "sent": "Offre envoyée. Le propriétaire vous répondra.",
+    "sendFailed": "Impossible d'envoyer l'offre. Réessayez.",
+    "invalidLink": "Ce lien d'échange n'est pas disponible",
+    "invalidLinkDescription": "Il a peut-être expiré ou été supprimé. Demandez un nouveau lien.",
+    "notTradeLink": "C'est un lien de suivi",
+    "notTradeLinkDescription": "Il montre les cartes mais n'accepte pas d'offres. Demandez un lien d'échange au propriétaire.",
+    "detailsTitle": "Vos coordonnées",
+    "nameLabel": "Votre nom",
+    "contactLabel": "E-mail, téléphone ou pseudo",
+    "noteLabel": "Note (facultatif)",
+    "getTitle_one": "Vous recevez ({{count}})",
+    "getTitle_other": "Vous recevez ({{count}})",
+    "getDescription": "Cartes de {{source}}",
+    "chooseCards": "Choisir des cartes",
+    "addMoreCards": "Ajouter d'autres cartes",
+    "giveTitle_one": "Vous donnez ({{count}})",
+    "giveTitle_other": "Vous donnez ({{count}})",
+    "giveDescription": "Scannez vos cartes ou choisissez-les dans votre collection.",
+    "scanCards": "Scanner",
+    "fromCollection": "Ma collection",
+    "editCardHint": "Modifier la quantité, l'état ou le foil",
+    "foil": "Foil",
+    "removeCard": "Retirer {{name}}",
+    "summary": "Cartes reçues : {{get}} · Cartes données : {{give}}",
+    "needGet": "Ajoutez une carte voulue pour continuer.",
+    "needGive": "Ajoutez une carte à donner pour continuer.",
+    "send": "Envoyer l'offre",
+    "quantityIncrease": "Quantité : {{count}}",
+    "quantityDecrease": "Quantité : {{count}}",
+    "markFoil": "Marquer comme foil",
+    "markNotFoil": "Marquer comme non foil",
+    "conditionOption": "État : {{condition}}",
+    "conditions": {
+      "NM": "Near Mint",
+      "LP": "Lightly Played",
+      "MP": "Moderately Played",
+      "HP": "Heavily Played",
+      "DMG": "Abîmée"
+    },
+    "remove": "Retirer de l'offre",
+    "chooseCardsTitle": "Choisir des cartes",
+    "selectedCount_one": "{{count}} sélectionnée",
+    "selectedCount_other": "{{count}} sélectionnées",
+    "searchLinkCards": "Rechercher dans ces cartes",
+    "noLinkCards": "Aucune carte trouvée",
+    "tapToAdd": "L'ajoute à votre offre",
+    "tapToRemove": "La retire de votre offre",
+    "loadMore": "Charger plus",
+    "done": "Terminé",
+    "chooseCardsHint": "Touchez les cartes que vous voulez.",
+    "fromCollectionTitle": "Depuis votre collection",
+    "givingCount_one": "Vous donnez {{count}}",
+    "givingCount_other": "Vous donnez {{count}}",
+    "collectionLabel": "Collection",
+    "pickCollection": "Choisir une collection",
+    "searchCollection": "Rechercher vos cartes",
+    "added": "{{name}} ajoutée à votre offre",
+    "noCollections": "Vous n'avez pas encore de collection",
+    "noCollectionCards": "Aucune carte trouvée",
+    "scanCollectionLabel": "Reconnaître avec",
+    "scanHint": "Tenez une de vos cartes dans le cadre et touchez le déclencheur pour l'ajouter.",
+    "scanButton": "Scanner la carte",
+    "scanNoMatch": "Carte non reconnue. Réessayez.",
+    "scanFailed": "Échec du scan. Réessayez."
   }
 }

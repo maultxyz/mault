@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   Card,
   CardContent,
@@ -59,10 +60,16 @@ export default function AuthResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="flex min-h-screen items-center justify-center bg-muted p-4 outline-none"
+    >
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>{t("local.resetPasswordTitle")}</CardTitle>
+          <CardTitle>
+            <h1>{t("local.resetPasswordTitle")}</h1>
+          </CardTitle>
           <CardDescription>
             {!token
               ? t("local.resetPasswordInvalid")
@@ -102,7 +109,9 @@ export default function AuthResetPasswordPage() {
                 <FieldError errors={[form.formState.errors.confirmPassword]} />
               </Field>
               {serverError && (
-                <p className="text-sm text-destructive">{serverError}</p>
+                <p role="alert" className="text-sm text-destructive">
+                  {serverError}
+                </p>
               )}
             </form>
           </CardContent>
@@ -123,6 +132,6 @@ export default function AuthResetPasswordPage() {
           </CardFooter>
         )}
       </Card>
-    </div>
+    </main>
   );
 }

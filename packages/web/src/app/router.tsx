@@ -1,4 +1,8 @@
 import {
+  SHARED_STORAGE_PATH_PREFIX,
+  SHOP_CATALOG_PATH_PREFIX,
+} from "@magic-vault/shared";
+import {
   MOBILE_ACCOUNT_PATH,
   MOBILE_SCAN_PAIR_PATH,
   MOBILE_SCAN_PATH,
@@ -19,9 +23,10 @@ import { useImpersonation } from "@/hooks/use-impersonation";
 import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
-import { STORAGE_PATH } from "@/lib/constants/storage";
+import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
+import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
 import { lazy, Suspense, useEffect } from "react";
 import {
   type RouteObject,
@@ -50,6 +55,18 @@ const WatchPage = lazy(
   withNamespaces(
     () => import("@/app/routes/watch"),
     ["common", "scanner", "cards", "collections"],
+  ),
+);
+const SharedStoragePage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/shared-storage"),
+    ["common", "storage", "cards"],
+  ),
+);
+const ShopCatalogPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/shop-catalog"),
+    ["common", "business", "cards"],
   ),
 );
 const AuthPage = lazy(
@@ -93,6 +110,9 @@ const CollectionViewPage = lazy(
   () => import("@/app/routes/app/collection-view"),
 );
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
+const ValidateMatchesPage = lazy(
+  () => import("@/app/routes/app/validate-matches"),
+);
 const PresetWorkflowPage = lazy(
   () => import("@/app/routes/app/preset-workflow"),
 );
@@ -111,6 +131,7 @@ const CalibrateCalibrationPage = lazy(
   () => import("@/app/routes/app/calibrate/calibration"),
 );
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
+const AdminIndexPage = lazy(() => import("@/app/routes/app/admin/index"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGameEditorPage = lazy(
   () => import("@/app/routes/app/admin/game-editor"),
@@ -121,9 +142,6 @@ const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
 const AdminSoundsPage = lazy(() => import("@/app/routes/app/admin/sounds"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
 const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
-const AdminFoilLabelsPage = lazy(
-  () => import("@/app/routes/app/admin/foil-labels"),
-);
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
@@ -169,6 +187,9 @@ const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
+const StoragePickListPage = lazy(
+  () => import("@/app/routes/app/storage-pick-list"),
+);
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
@@ -286,6 +307,14 @@ export const routes: RouteObject[] = [
         element: <WatchPage />,
       },
       {
+        path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
+        element: <SharedStoragePage />,
+      },
+      {
+        path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,
+        element: <ShopCatalogPage />,
+      },
+      {
         path: MARKETING_PAGE_PATHS.privacy,
         element: <MarketingRoute path={MARKETING_PAGE_PATHS.privacy} />,
       },
@@ -370,7 +399,6 @@ export const routes: RouteObject[] = [
                       },
                       {
                         path: "/app/calibrate",
-                        element: <BlockedWhileImpersonatingGuard />,
                         children: [
                           {
                             element: <CalibrateLayout />,
@@ -417,99 +445,95 @@ export const routes: RouteObject[] = [
                     path: LEGACY_REPORTS_PATH,
                     element: <Navigate to={STATS_PATH} replace />,
                   },
+                ],
+              },
+              {
+                element: <StaffGuard />,
+                children: [
                   {
-                    element: <StaffGuard />,
+                    path: "/app/admin",
+                    element: <AdminLayout />,
                     children: [
                       {
-                        path: "/app/admin",
-                        element: <AdminLayout />,
+                        index: true,
+                        element: <AdminIndexPage />,
+                      },
+                      {
+                        path: "cards",
+                        element: <AdminCardsPage />,
+                      },
+                      {
+                        path: "cards/games/new",
+                        element: <AdminGameEditorPage />,
+                      },
+                      {
+                        path: "cards/games/:guid",
+                        element: <AdminGameEditorPage />,
+                      },
+                      {
+                        path: "games",
+                        element: <Navigate to="../cards" replace />,
+                      },
+                      {
+                        path: "users",
+                        element: <AdminUsersPage />,
+                      },
+                      {
+                        element: <AdminGuard />,
                         children: [
                           {
-                            index: true,
-                            element: <Navigate to="cards" replace />,
+                            path: "plans",
+                            element: <AdminPlansPage />,
                           },
+                        ],
+                      },
+                      {
+                        path: "discord",
+                        element: <AdminDiscordPage />,
+                      },
+                      {
+                        path: "sounds",
+                        element: <AdminSoundsPage />,
+                      },
+                      {
+                        path: "discord-channels",
+                        element: <Navigate to="../discord" replace />,
+                      },
+                      {
+                        path: "announcements",
+                        element: <Navigate to="../discord" replace />,
+                      },
+                      {
+                        path: "deleted",
+                        element: <AdminDeletedPage />,
+                      },
+                      {
+                        path: "unmatched",
+                        element: <Navigate to="../deleted" replace />,
+                      },
+                      {
+                        element: <AdminGuard />,
+                        children: [
                           {
-                            path: "cards",
-                            element: <AdminCardsPage />,
+                            path: "hardware",
+                            element: <AdminHardwarePage />,
                           },
+                        ],
+                      },
+                      {
+                        path: "servos",
+                        element: <Navigate to="../hardware" replace />,
+                      },
+                      {
+                        path: "device",
+                        element: <Navigate to="../hardware" replace />,
+                      },
+                      {
+                        element: <AdminGuard />,
+                        children: [
                           {
-                            path: "cards/games/new",
-                            element: <AdminGameEditorPage />,
-                          },
-                          {
-                            path: "cards/games/:guid",
-                            element: <AdminGameEditorPage />,
-                          },
-                          {
-                            path: "games",
-                            element: <Navigate to="../cards" replace />,
-                          },
-                          {
-                            path: "users",
-                            element: <AdminUsersPage />,
-                          },
-                          {
-                            element: <AdminGuard />,
-                            children: [
-                              {
-                                path: "plans",
-                                element: <AdminPlansPage />,
-                              },
-                              {
-                                path: "foil-labels",
-                                element: <AdminFoilLabelsPage />,
-                              },
-                            ],
-                          },
-                          {
-                            path: "discord",
-                            element: <AdminDiscordPage />,
-                          },
-                          {
-                            path: "sounds",
-                            element: <AdminSoundsPage />,
-                          },
-                          {
-                            path: "discord-channels",
-                            element: <Navigate to="../discord" replace />,
-                          },
-                          {
-                            path: "announcements",
-                            element: <Navigate to="../discord" replace />,
-                          },
-                          {
-                            path: "deleted",
-                            element: <AdminDeletedPage />,
-                          },
-                          {
-                            path: "unmatched",
-                            element: <Navigate to="../deleted" replace />,
-                          },
-                          {
-                            element: <AdminGuard />,
-                            children: [
-                              {
-                                path: "hardware",
-                                element: <AdminHardwarePage />,
-                              },
-                            ],
-                          },
-                          {
-                            path: "servos",
-                            element: <Navigate to="../hardware" replace />,
-                          },
-                          {
-                            path: "device",
-                            element: <Navigate to="../hardware" replace />,
-                          },
-                          {
-                            element: <AdminGuard />,
-                            children: [
-                              {
-                                path: "developer",
-                                element: <AdminDeveloperPage />,
-                              },
-                            ],
+                            path: "developer",
+                            element: <AdminDeveloperPage />,
                           },
                         ],
                       },
@@ -549,6 +573,10 @@ export const routes: RouteObject[] = [
               {
                 path: STORAGE_PATH,
                 element: <StoragePage />,
+              },
+              {
+                path: STORAGE_PICK_LIST_PATH,
+                element: <StoragePickListPage />,
               },
               {
                 path: ORDERS_PATH,
@@ -623,6 +651,10 @@ export const routes: RouteObject[] = [
               {
                 path: CONTROL_CARDS_PATH,
                 element: <ControlCardsPage />,
+              },
+              {
+                path: MATCH_VALIDATIONS_PATH,
+                element: <ValidateMatchesPage />,
               },
               {
                 path: STATS_PATH,

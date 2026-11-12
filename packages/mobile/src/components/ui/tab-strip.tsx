@@ -4,15 +4,15 @@ import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { TabStripProps } from "@/lib/interfaces/ui";
 
-export function TabStrip<T extends string>({ items, value, onChange }: TabStripProps<T>) {
+export function TabStrip<T extends string>({ items, value, onChange, inline = false }: TabStripProps<T>) {
   const colors = useTheme();
   return (
     <View
       accessibilityRole="tablist"
       style={{
         flexDirection: "row",
-        paddingHorizontal: SCREEN_GUTTER - SPACING.sm,
-        borderBottomWidth: 1,
+        paddingHorizontal: inline ? 0 : SCREEN_GUTTER - SPACING.sm,
+        borderBottomWidth: inline ? 0 : 1,
         borderBottomColor: colors.border,
       }}
     >
@@ -23,12 +23,13 @@ export function TabStrip<T extends string>({ items, value, onChange }: TabStripP
             key={item.value}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
+            hitSlop={{ top: 2, bottom: 2 }}
             onPress={() => onChange(item.value)}
             style={{
               flexDirection: "row",
               alignItems: "center",
               gap: 6,
-              height: 40,
+              minHeight: 40,
               paddingHorizontal: SPACING.sm,
               marginBottom: -1,
               borderBottomWidth: 2,

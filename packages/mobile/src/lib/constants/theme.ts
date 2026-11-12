@@ -1,9 +1,12 @@
+import { Platform } from "react-native";
 import type { ThemeColors } from "@/lib/interfaces/theme";
 
 export const LIGHT_COLORS: ThemeColors = {
   background: "#ffffff",
   shell: "#f7f8f9",
   shellAccent: "#ecedf0",
+  tonal: "#ecedf0",
+  tonalPressed: "#e3e5ea",
   foreground: "#292d34",
   foregroundSecondary: "rgba(41, 45, 52, 0.7)",
   card: "#ffffff",
@@ -53,6 +56,8 @@ export const DARK_COLORS: ThemeColors = {
   background: "#1e1f21",
   shell: "#18191b",
   shellAccent: "#2a2c30",
+  tonal: "#2a2c30",
+  tonalPressed: "#33353a",
   foreground: "#e3e4e8",
   foregroundSecondary: "rgba(227, 228, 232, 0.7)",
   card: "#25272a",
@@ -98,13 +103,16 @@ export const DARK_COLORS: ThemeColors = {
   popoverShadow: "rgba(0, 0, 0, 0.5)",
 };
 
-export const RADIUS = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 18,
-  full: 999,
-} as const;
+export const RADIUS = Platform.select({
+  ios: { sm: 6, md: 12, lg: 20, xl: 28, full: 999 },
+  default: { sm: 4, md: 12, lg: 16, xl: 28, full: 999 },
+});
+
+export const CONTROL_RADIUS = RADIUS.full;
+export const BADGE_RADIUS = RADIUS.full;
+export const CARD_ART_RADIUS = 12;
+export const CARD_THUMBNAIL_RADIUS = 4;
+export const CONTROL_PADDING_HORIZONTAL = 16;
 
 export const SPACING = {
   xs: 4,
@@ -150,4 +158,11 @@ export const SHEET_SHADOW = {
   shadowOpacity: 1,
   shadowRadius: 12,
   elevation: 16,
+} as const;
+
+export const FLOATING_BUTTON_SHADOW = {
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 1,
+  shadowRadius: 12,
+  elevation: 6,
 } as const;

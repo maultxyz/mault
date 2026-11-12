@@ -8,10 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
-import { usePiHost } from "@/hooks/use-pi-host";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { CorrectionAutoCloseSetting } from "@/features/scanner/components/correction-auto-close-setting";
-import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { IconQrcode } from "@tabler/icons-react";
 import { Controller, useWatch } from "react-hook-form";
@@ -21,9 +20,10 @@ import { Link } from "react-router-dom";
 export default function SettingsScanningPage() {
   const { t } = useTranslation("settings");
   const draft = useOrgSettingsDraft();
-  const disabled = draft.isLoading || draft.isSaving;
   const isMobile = useIsMobile();
   const piHost = usePiHost();
+  const disabled = draft.isLoading || draft.isSaving;
+  const ocrEnabled = useWatch({ control: draft.control, name: "ocrEnabled" });
   const correctionBinPrompt = useWatch({
     control: draft.control,
     name: "correctionBinPrompt",
@@ -42,6 +42,7 @@ export default function SettingsScanningPage() {
             name="sessionWrappedEnabled"
             render={({ field }) => (
               <Switch
+                aria-label={t("sessionWrapped.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}
@@ -52,37 +53,17 @@ export default function SettingsScanningPage() {
       </SettingsSection>
       <SettingsSection
         heading={t("ocr.heading")}
-        badge={<Badge variant="outline">{t("ocr.badge")}</Badge>}
         description={t("ocr.description")}
       >
-        <label className="flex items-center justify-between gap-3">
-          <span className="text-sm">{t("ocr.toggleLabel")}</span>
-          <Controller
-            control={draft.control}
-            name="ocrEnabled"
-            render={({ field }) => (
-              <OcrToggle
-                checked={field.value}
-                disabled={disabled}
-                onCheckedChange={field.onChange}
-              />
-            )}
-          />
-        </label>
-      </SettingsSection>
-      {(!isMobile || piHost) && (
-        <SettingsSection
-          heading={t("foilDetection.heading")}
-          badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}
-          description={t("foilDetection.description")}
-        >
+        <div className="flex flex-col gap-3">
           <label className="flex items-center justify-between gap-3">
-            <span className="text-sm">{t("foilDetection.toggleLabel")}</span>
+            <span className="text-sm">{t("ocr.toggleLabel")}</span>
             <Controller
               control={draft.control}
-              name="foilDetectionEnabled"
+              name="ocrEnabled"
               render={({ field }) => (
                 <Switch
+                  aria-label={t("ocr.toggleLabel")}
                   checked={field.value}
                   disabled={disabled}
                   onCheckedChange={field.onChange}
@@ -90,8 +71,84 @@ export default function SettingsScanningPage() {
               )}
             />
           </label>
-        </SettingsSection>
-      )}
+          <label className="flex items-center justify-between gap-3">
+            <span className="flex flex-col gap-0.5">
+              <span className="text-sm">
+                {t("ocr.highAccuracyToggleLabel")}
+              </span>
+              <span className="text-2xs text-foreground/70">
+                {t("ocr.highAccuracyDescription")}
+              </span>
+            </span>
+            <Controller
+              control={draft.control}
+              name="highAccuracyScans"
+              render={({ field }) => (
+                <Switch
+                  aria-label={t("ocr.highAccuracyToggleLabel")}
+                  checked={field.value}
+                  disabled={disabled || !ocrEnabled}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          </label>
+        </div>
+      </SettingsSection>
+      <SettingsSection
+        heading={t("foilDetection.heading")}
+        badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}
+        description={t("foilDetection.description")}
+      >
+        <div className="flex flex-col gap-3">
+          <label className="flex items-center justify-between gap-3">
+            <span className="flex flex-col gap-0.5">
+              <span className="text-sm">
+                {t("foilDetection.starToggleLabel")}
+              </span>
+              <span className="text-2xs text-foreground/70">
+                {t("foilDetection.starToggleDescription")}
+              </span>
+            </span>
+            <Controller
+              control={draft.control}
+              name="foilStarDetectionEnabled"
+              render={({ field }) => (
+                <Switch
+                  aria-label={t("foilDetection.starToggleLabel")}
+                  checked={field.value}
+                  disabled={disabled}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          </label>
+          {(!isMobile || piHost) && (
+            <label className="flex items-center justify-between gap-3">
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm">
+                  {t("foilDetection.toggleLabel")}
+                </span>
+                <span className="text-2xs text-foreground/70">
+                  {t("foilDetection.nudgeToggleDescription")}
+                </span>
+              </span>
+              <Controller
+                control={draft.control}
+                name="foilDetectionEnabled"
+                render={({ field }) => (
+                  <Switch
+                    aria-label={t("foilDetection.toggleLabel")}
+                    checked={field.value}
+                    disabled={disabled}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+            </label>
+          )}
+        </div>
+      </SettingsSection>
       <SettingsSection
         heading={t("correctionAutoClose.heading")}
         description={t("correctionAutoClose.description")}
@@ -111,6 +168,7 @@ export default function SettingsScanningPage() {
               name="correctionBinPrompt"
               render={({ field }) => (
                 <Switch
+                  aria-label={t("correctionAutoClose.promptToggleLabel")}
                   checked={field.value}
                   disabled={disabled}
                   onCheckedChange={field.onChange}
@@ -158,6 +216,7 @@ export default function SettingsScanningPage() {
             name="pauseScanningOnDeploy"
             render={({ field }) => (
               <Switch
+                aria-label={t("deployPause.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}

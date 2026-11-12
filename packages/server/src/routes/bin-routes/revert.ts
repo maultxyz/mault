@@ -2,13 +2,19 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binRouteAudit, binRoutes } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  rejectWhileImpersonating,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import { buildRoutes } from "./shared";
 
 export const revertBinRouteRoute = new Hono<AppEnv>().post(
   "/history/:entryGuid/revert",
   requireAuth,
   requireOrg,
+  rejectWhileImpersonating,
   async (c) => {
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;

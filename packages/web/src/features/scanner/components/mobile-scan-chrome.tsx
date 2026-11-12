@@ -178,7 +178,9 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             {running && (
               <span className="size-2 shrink-0 rounded-full bg-success animate-pulse motion-reduce:animate-none" />
             )}
-            <span className="truncate">{phaseLabel}</span>
+            <span role="status" aria-live="polite" className="truncate">
+              {phaseLabel}
+            </span>
           </span>
           {isRemoveModeActive ? (
             <button
@@ -216,8 +218,12 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             <IconDots className="size-5" />
           </button>
         </div>
-        {chrome.handScanActive && chrome.lastRoutedBin && (
-          <div className="flex justify-center px-4 pt-3">
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex justify-center px-4 pt-3"
+        >
+          {chrome.handScanActive && chrome.lastRoutedBin && (
             <div
               key={chrome.lastRoutedBin.at}
               className="flex flex-col items-center rounded-lg border border-primary bg-primary px-5 py-2 text-primary-foreground shadow-popover animate-in fade-in zoom-in-95 motion-reduce:animate-none"
@@ -231,11 +237,13 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                 })}
               </span>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="flex flex-col gap-3 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
-          {notice}
+          <div role="status" aria-live="polite">
+            {notice}
+          </div>
           <div className="flex items-center justify-end gap-3">
             <button
               type="button"

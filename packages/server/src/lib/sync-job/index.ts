@@ -131,9 +131,7 @@ export function startSync(
       DB_CONNECTION_TIMEOUT_MS:
         process.env.SYNC_DB_CONNECTION_TIMEOUT_MS ?? "30000",
       VECTORIZE_CONCURRENCY:
-        concurrency?.toString() ??
-        process.env.VECTORIZE_CONCURRENCY ??
-        "10",
+        concurrency?.toString() ?? process.env.VECTORIZE_CONCURRENCY ?? "10",
       SCAN_VECTORIZE_CONCURRENCY:
         concurrency?.toString() ??
         process.env.SYNC_VECTORIZE_CONCURRENCY ??
@@ -188,7 +186,7 @@ export function startSync(
     if (reachedTerminalStatus) return;
     const reason = signal ? `signal ${signal}` : `code ${code ?? "unknown"}`;
     const msg = `Sync worker exited unexpectedly (${reason}).`;
-    patchState({ status: "failed" });
+    patchState({ status: "failed", fatalError: msg });
     addLog(`Fatal error: ${msg}`);
     emitEvent("error", { message: msg });
     notifyFailure(msg);
@@ -204,6 +202,10 @@ export function startSync(
     initialState,
   };
   child.send(startMessage);
+}
+
+export function isSyncWorkerRunning(): boolean {
+  return currentWorker !== null;
 }
 
 export function cancelSync(): void {

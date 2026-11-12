@@ -1,15 +1,21 @@
-export function BrandIcon({ className }: { className?: string }) {
+import {
+  BRAND_ICON_STROKE_PATHS,
+  BRAND_ICON_VIEW_BOX,
+} from "@magic-vault/shared";
+import type { ComponentProps } from "react";
+
+export function BrandIcon(props: ComponentProps<"svg">) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 235 217"
+      viewBox={BRAND_ICON_VIEW_BOX}
       fill="none"
-      className={className}
+      aria-hidden
+      {...props}
     >
-      <path
-        fill="currentColor"
-        d="M78.567 70.705c9.79-16.958 31.474-22.768 48.431-12.978a3.545 3.545 0 0 1 1.298 4.844l-48 83.138c-9.79 16.958-31.474 22.768-48.432 12.977a3.545 3.545 0 0 1-1.297-4.843zM131.841 70.705c9.791-16.958 31.475-22.768 48.432-12.978a3.545 3.545 0 0 1 1.298 4.844l-48 83.138c-9.79 16.958-31.474 22.768-48.432 12.977a3.545 3.545 0 0 1-1.297-4.843zM162.526 109.705c9.791-16.958 31.474-22.768 48.432-12.978a3.545 3.545 0 0 1 1.298 4.843l-25.41 44.011c-9.79 16.958-31.474 22.768-48.432 12.978a3.546 3.546 0 0 1-1.298-4.844z"
-      />
+      {BRAND_ICON_STROKE_PATHS.map((path) => (
+        <path key={path} fill="currentColor" d={path} />
+      ))}
     </svg>
   );
 }

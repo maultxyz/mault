@@ -23,6 +23,8 @@ import { apiKeysRouter } from "./routes/api-keys";
 import { syncApiRouter } from "./routes/sync-api";
 import { billingRouter } from "./routes/billing";
 import { businessRouter } from "./routes/business";
+import { cardHoldsRouter } from "./routes/card-holds";
+import { tradeOffersRouter } from "./routes/trade-offers";
 import { sortBinsRouter } from "./routes/bins";
 import { presetWorkflowsRouter } from "./routes/preset-workflows";
 import { botRouter } from "./routes/bot";
@@ -31,6 +33,7 @@ import { collectionsRouter } from "./routes/collections";
 import { overviewRouter } from "./routes/overview";
 import { statsRouter } from "./routes/stats";
 import { leaderboardRouter } from "./routes/leaderboard";
+import { matchValidationsRouter } from "./routes/match-validations";
 import { devicesRouter } from "./routes/devices";
 import { gamesRouter } from "./routes/games";
 import { impersonationRouter } from "./routes/impersonation";
@@ -46,7 +49,7 @@ import { storageLocationsRouter } from "./routes/storage-locations";
 import { streamRoute } from "./routes/stream";
 import { publicApiRouter } from "./routes/v1";
 import { webhooksRouter } from "./routes/webhooks";
-import { rollbar } from "./lib/rollbar";
+import { reportServerError } from "./lib/error-reporting";
 import {
   PUBLIC_API_EXPOSED_HEADERS,
   PUBLIC_API_PATH_PREFIX,
@@ -55,6 +58,7 @@ import { loadPlanConfig } from "./lib/plan-config";
 import { startWebhookDeliveryWorker } from "./lib/webhooks/queue";
 import { startDeviceOfflineAlerts } from "./lib/device-alerts";
 import { startInventorySnapshots } from "./lib/inventory";
+import { startApiUsageFlushing } from "./lib/api-usage";
 import { startCardMatchIndexWarmup } from "./lib/card-match-index";
 
 const app = new Hono<AppEnv>();
@@ -96,6 +100,7 @@ app.route("/collections", collectionsRouter);
 app.route("/overview", overviewRouter);
 app.route("/stats", statsRouter);
 app.route("/leaderboard", leaderboardRouter);
+app.route("/match-validations", matchValidationsRouter);
 app.route("/devices", devicesRouter);
 app.route("/games", gamesRouter);
 app.route("/announcements", announcementsRouter);
@@ -108,6 +113,8 @@ app.route("/api-keys", apiKeysRouter);
 app.route("/webhooks", webhooksRouter);
 app.route("/billing", billingRouter);
 app.route("/business", businessRouter);
+app.route("/card-holds", cardHoldsRouter);
+app.route("/trade-offers", tradeOffersRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
@@ -123,7 +130,11 @@ app.route(SYNC_API_PATH, syncApiRouter);
 
 app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);
-  rollbar.error(err, { url: c.req.url, method: c.req.method });
+  reportServerError(
+    err,
+    { url: c.req.url, method: c.req.method },
+    c.get("userId"),
+  );
   return c.json({ success: false, message: "Internal server error." }, 500);
 });
 
@@ -131,6 +142,7 @@ loadPlanConfig();
 startWebhookDeliveryWorker();
 startDeviceOfflineAlerts();
 startInventorySnapshots();
+startApiUsageFlushing();
 startCardMatchIndexWarmup();
 
 const server = serve(

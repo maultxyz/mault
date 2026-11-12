@@ -1,14 +1,27 @@
 {
+  "a11y": {
+    "cameraPreview": "Scanner camera preview",
+    "showLastSearchImage": "Show last search image",
+    "qrCameraPreview": "Camera view for scanning the QR code",
+    "binsNeedingEmptying": "Bins to empty",
+    "corrected": "Corrected",
+    "sent": "Sent",
+    "received": "Received",
+    "scanRoutedToBin": "{{name}}, Bin {{binNumber}}"
+  },
   "camera": {
     "permissionDenied": "Camera permission denied. Please allow camera access and try again.",
     "allInUse": "Every connected camera is already used by another sorter. Plug in another camera for this sorter.",
-    "piUnavailable": "The sorter camera is unavailable."
+    "piUnavailable": "The sorter camera is unavailable.",
+    "documentScannerUnavailable": "Couldn't open the document scanner. Check that it is on and not in use by another app."
   },
   "scanEngine": {
     "searchFailed": "Failed to search card",
     "videoStartFailed": "Failed to start video",
     "cameraReinitFailed": "Failed to reinitialize camera",
-    "phoneCaptureFailed": "Phone didn't respond with a photo in time."
+    "phoneCaptureFailed": "Phone didn't respond with a photo in time.",
+    "documentScannerNoPage": "No scanned card to identify. Feed a card from the document scanner first.",
+    "documentScannerPageUnreadable": "Couldn't read the image from the document scanner."
   },
   "sessionLock": {
     "message": "A sorting session is running on this sorter. Pause scanning to make changes here.",
@@ -21,7 +34,8 @@
     "noCollection": "No collection",
     "minimize": "Minimize to the side",
     "expand": "Show scanner preview",
-    "hide": "Hide until you return to MAULT"
+    "hide": "Hide until you return to Mault",
+    "showSorter": "Show {{name}}"
   },
   "piScan": {
     "preview": "Live view of the sorter",
@@ -339,6 +353,7 @@
   "scannerMenu": {
     "camera": "Camera",
     "cameraFallbackLabel": "Camera {{index}}",
+    "cameraInUseElsewhere": "In use by another station",
     "connectUsb": "Connect via USB",
     "connectBluetooth": "Connect via Bluetooth",
     "autoFeed": "Auto-feed",
@@ -354,18 +369,22 @@
     "clearDevice": "Clear device",
     "retractCard": "Retract card",
     "resetToNeutral": "Reset to neutral",
+    "saveScansToFolder": "Save scans to a folder",
+    "savingScansToFolder": "Saving scans to {{folder}}",
+    "stopSavingScansToFolder": "Stop saving scans to a folder",
     "sorter": "Sorter",
     "connectionStates": {
       "connected": "Connected",
       "connecting": "Connecting",
       "disconnected": "Not connected"
-    }
-  },
-  "ocrBetaDialog": {
-    "title": "OCR text matching (beta)",
-    "description": "When a scan isn't a confident match, this reads the card's name and set line to find the card or pick the right printing. Confident matches skip it, so scanning speed is unchanged. It's still in beta and can misread text. Turn it back off if it seems to be making matches worse.",
-    "confirm": "Enable OCR",
-    "cancel": "Cancel"
+    },
+    "documentScanners": "Document scanners",
+    "documentScannerMode": {
+      "feeder": "Feeder",
+      "flatbed": "Flatbed"
+    },
+    "setFlatbedCardPosition": "Set card position on glass",
+    "setUpFeederCard": "Card side and orientation"
   },
   "phoneCamera": {
     "scanDescription": "Scan this QR code on your phone, or open the link, so it can be used as this scanner's camera.",
@@ -412,7 +431,8 @@
     "waitingForPhoneTitle": "Waiting for your phone",
     "showQrCode": "Show QR code",
     "sensorBlocked": "Module {{module}}'s sensor sees a card, so the self-test didn't run.",
-    "resolveSensorBlocked": "Resolve"
+    "resolveSensorBlocked": "Resolve",
+    "documentScannerReady": "Document scanner ready. Load cards into the scanner and start scanning."
   },
   "sessionErrorsPanel": {
     "heading": "Errors"
@@ -421,6 +441,11 @@
     "heading_one": "{{count}} Unmatched Card",
     "heading_other": "{{count}} Unmatched Cards",
     "imageAlt": "Unrecognized card",
+    "frontSide": "Front side",
+    "backSide": "Back side",
+    "backSideAlt": "Scanned back side of the card",
+    "showBackSide": "Show back side",
+    "showFrontSide": "Show front side",
     "noImage": "No image captured",
     "reasons": {
       "too_far": "No close match",
@@ -508,6 +533,10 @@
     "collapse": "Hide bin levels",
     "cellTitle": "Bin {{bin}} is {{percent}}% full"
   },
+  "autoAssignControl": {
+    "summary": "{{claimed}} of {{total}} bins claimed by {{field}}",
+    "stopFirst": "Stop the scanner before resetting the auto-detected bins."
+  },
   "alphabetPassControl": {
     "range": "Sorting {{from}} to {{to}}",
     "stopFirst": "Stop the scanner before moving to the next letters."
@@ -569,6 +598,7 @@
   "connect": "Connect",
   "usePhoneAsCamera": "Use Phone as Camera",
   "requestingCameraAccess": "Requesting camera access…",
+  "cameraConnecting": "Connecting to camera…",
   "cardCount_one": "{{count}} card",
   "cardCount_other": "{{count}} cards",
   "isScanningTooltip": "{{name}} is scanning",
@@ -604,7 +634,8 @@
         "sorters": "Sorters",
         "connected": "Connected",
         "sorting": "Sorting now",
-        "offline": "Offline"
+        "offline": "Offline",
+        "attention": "Needs attention"
       },
       "searchPlaceholder": "Search sorters...",
       "noSearchResultsTitle": "No matching sorters",
@@ -641,7 +672,17 @@
       "deleteConfirm": {
         "title": "Delete {{name}}?",
         "description": "This removes the sorter and everything saved for it: its calibration, bin routes, bin heights, feeder settings and their change history. Scanned cards and collections are kept. If you plug it in again, it shows up as a new, uncalibrated sorter."
-      }
+      },
+      "start": "Start",
+      "pauseAll": "Pause all",
+      "resumeAll": "Resume all",
+      "resumeSelected": "Resume ({{count}})",
+      "sessionCount_one": "{{count}} this session",
+      "sessionCount_other": "{{count}} this session"
+    },
+    "cpuInferenceLimitReached": {
+      "title": "WASM runs one sorter at a time",
+      "description": "Card recognition on the CPU (WASM) keeps up with one sorter. Switch the AI Detection Backend to WebGPU on the Camera calibration page to run more sorters at once."
     },
     "hardCapReached": {
       "title": "Up to {{max}} sorters at a time",
@@ -650,6 +691,35 @@
     "limitReached": {
       "title": "Your plan's sorter limit is reached",
       "description": "Your plan runs a limited number of sorters at a time. Disconnect another sorter, or upgrade your plan in Settings to run more at once."
+    },
+    "attention": {
+      "needsAttention": "Needs attention",
+      "count_one": "{{count}} needs attention",
+      "count_other": "{{count}} need attention",
+      "goToNext": "Go to next sorter needing attention",
+      "reasons": {
+        "jam": "Jam at module {{module}}",
+        "hopperEmpty": "Hopper is empty",
+        "feederError": "Feeder error",
+        "noCardDetected": "No card reached the scanner",
+        "sorterNotResponding": "Sorter isn't responding",
+        "routingFailed": "A card couldn't be routed",
+        "binLimit": "Bin {{bins}} is full",
+        "binLimitUnknown": "A bin is full",
+        "binsFull_one": "Bin {{bins}} is full",
+        "binsFull_other": "Bins {{bins}} are full",
+        "packsComplete": "All packs are complete",
+        "saveFailed": "A scan couldn't be saved",
+        "scanLimit": "Daily scan limit reached",
+        "sorterLimit": "Sorter limit reached",
+        "collectionLocked": "Collection is locked",
+        "scannerError": "Camera error"
+      },
+      "fixes": {
+        "resume": "Resume",
+        "emptyBin": "Empty bin",
+        "openSorter": "Open sorter"
+      }
     }
   },
   "watchPage": {
@@ -1030,6 +1100,11 @@
       "pause": "Pause scanning"
     },
     "form": {
+      "style": "Card style",
+      "styles": {
+        "illustrated": "Illustrated",
+        "plain": "Plain"
+      },
       "title": "New control card",
       "description": "Pick what the card changes. Anything left on No change stays as it is.",
       "cardTitle": "Label",
@@ -1057,14 +1132,138 @@
     "tile": {
       "defaultTitle": "Control card",
       "qrAlt": "Control card QR code",
-      "remove": "Remove card"
+      "remove": "Remove card",
+      "illustratedAlt": "Illustrated control card"
     },
     "page": {
       "back": "Back to scanner",
       "title": "Control cards",
       "description": "Feed one of these through the sorter to switch settings mid-run. It goes where unmatched cards go and is never saved to a collection.",
       "print": "Print",
-      "printTip": "Print on cardstock at 100% scale with margins on Default. Each page holds 9 cards. Cut along the borders and keep the QR code flat and free of glare."
+      "printTip": "Print on Letter cardstock at 100% scale (Actual size) with margins set to None. Each page holds 9 cards. Cut along the corner marks and keep the QR code flat and free of glare."
+    },
+    "illustrated": {
+      "typeLines": {
+        "sorcery": "Sorcery",
+        "instant": "Instant",
+        "enchantment": "Enchantment",
+        "artifact": "Artifact",
+        "creature": "Creature"
+      },
+      "names": {
+        "collection": "Portal to {{name}}",
+        "preset": "Rite of {{name}}",
+        "foil": "{{type}} Shimmer",
+        "notFoil": "Not Foil",
+        "set": "Seeker of {{name}}",
+        "anySet": "Wanderer of Every Set",
+        "condition": "Appraiser of {{condition}}",
+        "autoFeedOn": "Auto Feed the Swarm",
+        "autoFeedOff": "Autofeed Blocker",
+        "duplicatesOn": "Angelic Duplicates",
+        "duplicatesOff": "Duplicate Blocker",
+        "pause": "Sorter's Respite"
+      },
+      "rules": {
+        "collection": "Target Mault instance now sorts into the {{name}} collection.",
+        "preset": "Target Mault instance now follows the {{name}} rule preset.",
+        "foil": "Change target Foil Setting in target Mault instance to “{{type}}”.",
+        "notFoil": "Change target Foil Setting in target Mault instance to “Not Foil”.",
+        "set": "Target Mault instance only searches {{name}} for matches.",
+        "anySet": "Target Mault instance searches every set for matches.",
+        "condition": "Set the condition of target Mault instance to {{condition}}.",
+        "autoFeedOn": "Set your Auto Feed to true.",
+        "autoFeedOff": "Turn auto feed off on target Mault instance.",
+        "duplicatesOn": "Target Mault instance allows duplicates.",
+        "duplicatesOff": "Target Mault instance loses the ability to scan duplicates.",
+        "pause": "Tap target Mault instance. It doesn't untap until you resume scanning."
+      }
+    }
+  },
+  "documentScannerFeed": {
+    "scanFailed": "The document scanner couldn't scan the card",
+    "cardDidNotArrive": "The scanned card didn't reach the sorter. Clear the path between the scanner and module 1, then put the card back in the scanner.",
+    "moduleOneNotEmpty": "There is already a card in module 1. Remove it before feeding from the document scanner.",
+    "archiveFailed": "Couldn't save the scan to {{folder}}",
+    "moveFlatbedCard": {
+      "title": "Move the card into the sorter",
+      "description": "Take the scanned card off the glass and put it in module 1, then place the next card on the glass."
+    }
+  },
+  "feederCardSetup": {
+    "title": "Card side and orientation",
+    "description": "Tell the app which side of the sheet has the card face and how the card comes out of the scanner.",
+    "sheetSide": {
+      "label": "Scanned side",
+      "options": {
+        "front": "Front of the sheet",
+        "back": "Back of the sheet"
+      },
+      "hint": "If the test scan shows the back of your card, switch the side."
+    },
+    "feedEdge": {
+      "label": "Card goes in",
+      "options": {
+        "short": "Short edge first",
+        "long": "Long edge first"
+      },
+      "hints": {
+        "short": "The card comes out upright or upside down.",
+        "long": "The card comes out sideways, so the app turns it upright."
+      }
+    },
+    "cardTop": {
+      "label": "Card top",
+      "options": {
+        "upright": "Upright",
+        "upside-down": "Upside down"
+      }
+    },
+    "testInstructions": "Put one card in the feeder and run a test scan. The test scan is only shown here, not saved.",
+    "testScan": "Test scan",
+    "testAgain": "Scan again",
+    "testScanning": "Scanning...",
+    "testResultHint": "This is how scanned cards will look. The card should be upright and show its face.",
+    "testPreviewAlt": "Test scan of the card",
+    "testFailed": "Couldn't show the test scan.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "testOutdated": "Scan again to see the other side of the sheet.",
+    "noTestScanYet": "Run a test scan to preview the card."
+  },
+  "flatbed": {
+    "instruction": {
+      "place-card": "Place a card face down in the marked spot on the glass, close the lid, then press Scan card.",
+      "scanning": "Scanning the glass...",
+      "moveCard": "Move the card from the glass into module 1 ({{seconds}} s left).",
+      "missed-card": "The card didn't reach module 1. Put it in module 1 and press Continue, or scan it again.",
+      "identifying": "Identifying the card...",
+      "done": "Card sorted. Place the next card on the glass.",
+      "doneWithoutSorter": "Put the card in the bin shown above, then place the next card on the glass."
+    },
+    "scanCard": "Scan card",
+    "scanCardTooltip": "Scan the card on the glass",
+    "scanning": "Scanning...",
+    "identifying": "Identifying...",
+    "continue": "Continue",
+    "continueTooltip": "Sort the scanned card once it is in module 1",
+    "rescan": "Rescan",
+    "cancel": "Cancel",
+    "scanFailed": "Couldn't scan the glass",
+    "calibration": {
+      "title": "Set the card position",
+      "description": "Show the app where you place each card on the flatbed glass.",
+      "instructions": "Put a card face down where you will place every card, for example pushed into the corner by the arrow. Close the lid, then scan the glass.",
+      "scanGlass": "Scan glass",
+      "scanning": "Scanning the glass...",
+      "scanAgain": "Scan again",
+      "dragHint": "Drag a box around the card if the detected box is off.",
+      "boxTooSmall": "The box is too small for a card. Drag a larger box around it.",
+      "save": "Save position",
+      "cancel": "Cancel",
+      "previewAlt": "Scan of the whole flatbed glass",
+      "editorLabel": "Flatbed glass. Drag to mark where the card sits.",
+      "previewFailed": "Couldn't scan the glass. Check that the scanner is on and try again."
     }
   }
 }

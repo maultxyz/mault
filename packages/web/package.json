@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/web",
-  "version": "1.0.192",
+  "version": "1.0.204",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -33,6 +33,7 @@
     "jsqr": "^1.4.0",
     "next-themes": "^0.4.6",
     "onnxruntime-web": "^1.22.0",
+    "posthog-js": "^1.447.6",
     "qrcode": "^1.5.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -40,7 +41,6 @@
     "react-i18next": "^17.0.11",
     "react-joyride": "^3.2.0",
     "react-router-dom": "^7.2.0",
-    "rollbar": "^3.1.0",
     "shadcn": "^4.13.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
@@ -63,6 +63,7 @@
     "@types/web-bluetooth": "^0.0.21",
     "@vitejs/plugin-react": "^4.4.1",
     "eslint": "^10.4.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^26.1.0",
     "occt-import-js": "0.0.23",

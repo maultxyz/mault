@@ -1,12 +1,13 @@
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useStation } from "@/features/scanner/api/use-stations";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
-import { useFoilDetectionGameKey } from "@/features/scanner/api/use-foil-detection-game-key";
 import {
   captureDewarpedCardImage,
   searchCardImageWithConsensus,
@@ -14,11 +15,18 @@ import {
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
 import { createOutlineAnimator } from "@/features/scanner/lib/outline-animator";
+import { startVideoPreviewLoop } from "@/features/scanner/lib/video-preview-loop";
 import {
   contourFingerprint,
   fingerprintDistance,
 } from "@/features/scanner/lib/hand-scan";
 import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-code";
+import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
+import { drawScanImageFile } from "@/features/scanner/lib/scan-image-file";
+import {
+  orientDocumentScanImages,
+  scanPageImageDataUrl,
+} from "@/features/scanner/lib/scan-page-card-image";
 import {
   HAND_SCAN_REARM_FINGERPRINT_DIFF,
   HAND_SCAN_TRACKING_STATUSES,
@@ -31,9 +39,11 @@ import {
   fitCanvasesToContainer,
   observeContainerResize,
 } from "@/features/scanner/lib/canvas-fit";
+import type {
+  DocumentScanSavedImages,
+  VideoPreviewLoop,
+} from "@/lib/interfaces/scanner";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
-  type ColorBarRegion,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
@@ -53,6 +63,10 @@ import {
   type ScanRegion,
   type ScannerStatus,
   type ScanVectorizeSource,
+  presetMatchGameKeys,
+  readsPrintedLanguageEveryScan,
+  scanOcrMode,
+  type ScanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -121,11 +135,18 @@ export function useCardScanner({
     startPhonePairing,
     stopPhonePairing,
     requestPhoneCapture,
+    takeDocumentScannerPages,
   } = useCameraContext();
   const { activeCollection } = useCollections();
   const { forceSetCodes: preferredSetCodes } = useScannedCards();
+  const { selectedSet: activePreset } = useBinConfigs();
+  const matchGameKeysRef = useRef<string[]>([]);
+  matchGameKeysRef.current = presetMatchGameKeys(activePreset);
   const { activeOrg } = useOrg();
   const device = useDevice();
+  const { isActive: isActiveStation } = useStation();
+  const isActiveStationRef = useRef(isActiveStation);
+  isActiveStationRef.current = isActiveStation;
   const { data: billingData } = useQuery(billingQueryOptions(activeOrg?.id));
 
   const isAtScanLimit =
@@ -176,9 +197,8 @@ export function useCardScanner({
   const preferredSetCodesRef = useRef(preferredSetCodes);
   preferredSetCodesRef.current = preferredSetCodes;
 
-  const colorBarRegionRef = useRef<ColorBarRegion | undefined>(undefined);
-  colorBarRegionRef.current =
-    COLOR_BAR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""];
+  const gameKeyRef = useRef<string | undefined>(undefined);
+  gameKeyRef.current = activeCollection?.game?.key;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -186,7 +206,8 @@ export function useCardScanner({
   const [outlineAnimator] = useState(() =>
     createOutlineAnimator(() => overlayCanvasRef.current),
   );
-  const rafRef = useRef<number>(0);
+  const previewLoopRef = useRef<VideoPreviewLoop | null>(null);
+  const liveOutlineShownRef = useRef(false);
 
   const statusRef = useRef<ScannerStatus>("initializing");
   const cameraGenerationRef = useRef(0);
@@ -209,8 +230,9 @@ export function useCardScanner({
   const [duplicateCard, setDuplicateCard] =
     useState<PlayingCardWithDistance | null>(null);
   const [debugImageUrl, setDebugImageUrl] = useState<string | null>(null);
-  const debugImageUrlRef = useRef<string | null>(null);
+  const capturedImageUrlRef = useRef<string | null>(null);
   const vectorizedOnRef = useRef<ScanVectorizeSource | undefined>(undefined);
+  const capturedBackImageUrlRef = useRef<string | undefined>(undefined);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
   const { data: orgSettings } = useQuery(
     orgSettingsQueryOptions(activeOrg?.id),
@@ -218,17 +240,19 @@ export function useCardScanner({
   const ocrSupported =
     (OCR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""]?.length ?? 0) >
     0;
-  const ocrEnabledRef = useRef(false);
-  ocrEnabledRef.current = !!orgSettings?.ocrEnabled && ocrSupported;
-  const foilDetectionGameKey = useFoilDetectionGameKey(
-    activeCollection?.game?.key,
+  const ocrModeRef = useRef<ScanOcrMode>("off");
+  ocrModeRef.current = scanOcrMode(
+    orgSettings,
+    ocrSupported,
+    readsPrintedLanguageEveryScan(
+      activeCollection,
+      activeCollection?.game?.key,
+    ),
   );
-  const foilDetectionGameKeyRef = useRef(foilDetectionGameKey);
-  foilDetectionGameKeyRef.current = foilDetectionGameKey;
-  const [hasPhonePhoto, setHasPhonePhoto] = useState(false);
+  const [hasStillPhoto, setHasStillPhoto] = useState(false);
 
   useEffect(() => {
-    if (cameraSource !== "phone") setHasPhonePhoto(false);
+    if (cameraSource === "local") setHasStillPhoto(false);
   }, [cameraSource]);
 
   const tRef = useRef(t);
@@ -283,6 +307,12 @@ export function useCardScanner({
     );
   }, [cameraSource, phonePairingStatus, updateStatus]);
 
+  useEffect(() => {
+    if (cameraSource === "document-scanner" && cameraStatus === "ready") {
+      updateStatus("paused");
+    }
+  }, [cameraSource, cameraStatus, updateStatus]);
+
   const drawLatestVideoFrame = useCallback(() => {
     const video = videoRef.current;
     const canvas = displayCanvasRef.current;
@@ -298,7 +328,11 @@ export function useCardScanner({
       checkDuplicate: boolean,
       contour: CardContour | null | undefined,
       fromLiveVideo: boolean,
+      documentScanImages?: DocumentScanSavedImages,
     ) => {
+      const isDocumentScan = !!documentScanImages;
+      const { savedImageUrl, capturedBackImageUrl: scannedBackImageUrl } =
+        documentScanImages ?? {};
       const canvas = displayCanvasRef.current;
       const cameraGeneration = cameraGenerationRef.current;
       if (!canvas) {
@@ -310,7 +344,10 @@ export function useCardScanner({
       try {
         await runScanWorkflow({
           controlStage: "before-identify",
-          capture: async () => canvas,
+          capture: async () => {
+            if (fromLiveVideo) drawLatestVideoFrame();
+            return canvas;
+          },
           readControl: readScannerControlCode,
           applyControl: (command) => {
             lastScannedCardIdRef.current = null;
@@ -334,17 +371,22 @@ export function useCardScanner({
               {
                 collectionGuid: activeCollectionGuidRef.current,
                 preferredSetCodes: preferredSetCodesRef.current,
+                matchGameKeys: matchGameKeysRef.current,
               },
-              ocrEnabledRef.current,
+              ocrModeRef.current,
               matchesNeededRef.current,
-              checkBothOrientationsRef.current,
-              colorBarRegionRef.current,
-              isRemovalRef.current?.()
-                ? null
-                : foilDetectionGameKeyRef.current,
+              isDocumentScan || checkBothOrientationsRef.current,
+              gameKeyRef.current,
             );
             setDebugImageUrl(debugImageUrl);
-            debugImageUrlRef.current = debugImageUrl;
+            const images = await orientDocumentScanImages(
+              savedImageUrl,
+              scannedBackImageUrl,
+              matched ? debugImageUrl : null,
+              debugImageUrl,
+            );
+            capturedImageUrlRef.current = images.capturedImageUrl;
+            capturedBackImageUrlRef.current = images.capturedBackImageUrl;
             vectorizedOnRef.current = vectorizedOn;
 
             outlineAnimator.cancel();
@@ -364,6 +406,8 @@ export function useCardScanner({
               card,
               alternativeMatches,
               debugImageUrl,
+              capturedImageUrl: capturedImageUrlRef.current ?? undefined,
+              capturedBackImageUrl: capturedBackImageUrlRef.current,
               vectorizedOn,
               dewarpedCardImage,
               matched,
@@ -398,8 +442,10 @@ export function useCardScanner({
                     () =>
                       captureDewarpedCardImage(canvas, drawLatestVideoFrame),
                     outcome.dewarpedCardImage,
-                    () => cameraGenerationRef.current === cameraGeneration &&
-                      statusRef.current !== "paused" && statusRef.current !== "initializing" &&
+                    () =>
+                      cameraGenerationRef.current === cameraGeneration &&
+                      statusRef.current !== "paused" &&
+                      statusRef.current !== "initializing" &&
                       statusRef.current !== "error",
                   )
                 : null;
@@ -421,18 +467,20 @@ export function useCardScanner({
             lastScannedCardIdRef.current = outcome.card.id;
             onSearchResultsRef.current?.(
               [outcome.card, ...outcome.alternativeMatches],
-              outcome.debugImageUrl,
+              outcome.capturedImageUrl,
               outcome.vectorizedOn,
               outcome.matched ?? undefined,
+              outcome.capturedBackImageUrl,
             );
             if (statusRef.current !== "paused") updateStatus("scanning");
           },
           unmatched: (outcome) => {
             playDingSound();
             onNoMatchRef.current?.(
-              outcome.debugImageUrl,
+              outcome.capturedImageUrl,
               outcome.vectorizedOn,
               outcome.noMatch ?? undefined,
+              outcome.capturedBackImageUrl,
             );
             if (statusRef.current !== "paused") updateStatus("no-match");
           },
@@ -448,23 +496,13 @@ export function useCardScanner({
     [updateStatus, allowDuplicates, drawLatestVideoFrame, outlineAnimator, t],
   );
 
-  const detectionLoop = useCallback(() => {
-    const video = videoRef.current;
-    const displayCanvas = displayCanvasRef.current;
-
-    if (!video || !displayCanvas) return;
-    if (video.readyState < video.HAVE_ENOUGH_DATA) {
-      rafRef.current = requestAnimationFrame(detectionLoop);
-      return;
-    }
-
-    const displayCtx = displayCanvas.getContext("2d");
-    if (!displayCtx) return;
-
-    drawVideoFrame(displayCtx, video, flipCameraRef.current);
-
-    rafRef.current = requestAnimationFrame(detectionLoop);
-  }, []);
+  useEffect(() => {
+    const redrawForVisibility = () => previewLoopRef.current?.drawNow();
+    redrawForVisibility();
+    document.addEventListener("visibilitychange", redrawForVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", redrawForVisibility);
+  }, [isActiveStation]);
 
   useEffect(() => {
     if (!stream) return;
@@ -505,7 +543,18 @@ export function useCardScanner({
         );
 
         updateStatus("paused");
-        rafRef.current = requestAnimationFrame(detectionLoop);
+        previewLoopRef.current = startVideoPreviewLoop({
+          video,
+          drawFrame: () => {
+            const displayCtx = displayCanvasRef.current?.getContext("2d");
+            if (!displayCtx) return false;
+            drawVideoFrame(displayCtx, video, flipCameraRef.current);
+            return true;
+          },
+          isForeground: () =>
+            isActiveStationRef.current &&
+            document.visibilityState === "visible",
+        });
       } catch (err) {
         if (!cancelled) {
           handleErrorRef.current(
@@ -522,8 +571,8 @@ export function useCardScanner({
       cameraGenerationRef.current += 1;
       stopObservingResize();
       outlineAnimator.cancel();
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
+      previewLoopRef.current?.stop();
+      previewLoopRef.current = null;
       if (settleTimeoutRef.current) {
         clearTimeout(settleTimeoutRef.current);
         settleTimeoutRef.current = null;
@@ -531,7 +580,7 @@ export function useCardScanner({
       }
       video.srcObject = null;
     };
-  }, [stream, updateStatus, detectionLoop, outlineAnimator]);
+  }, [stream, updateStatus, outlineAnimator]);
 
   const liveDetectingRef = useRef(false);
   useEffect(() => {
@@ -539,21 +588,33 @@ export function useCardScanner({
 
     const intervalId = setInterval(() => {
       if (liveDetectingRef.current || getOnnxRuntimeFailure()) return;
+      const outlineVisible = stationIsVisible();
+      if (!outlineVisible || statusRef.current === "paused") {
+        clearLiveOutline();
+      }
       if (!isTrackedStatus()) return;
+      if (!outlineVisible && !autoCaptureRef.current) return;
 
       const canvas = displayCanvasRef.current;
       const overlayCanvas = overlayCanvasRef.current;
       if (!canvas || !overlayCanvas || !canvas.width || !canvas.height) return;
+      if (!outlineVisible) drawLatestVideoFrame();
 
       liveDetectingRef.current = true;
       detectCardCorners(canvas)
         .then((detection) => {
           if (!isTrackedStatus()) return;
           if (autoCaptureRef.current) trackHandScan(detection, canvas);
-          if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
+          if (
+            !LIVE_DETECTION_STATUSES.includes(statusRef.current) ||
+            !stationIsVisible()
+          ) {
+            return;
+          }
           outlineAnimator.setTarget(
             detection.cardPresent ? detection.contour : null,
           );
+          liveOutlineShownRef.current = detection.cardPresent;
         })
         .catch((err) => {
           if (!getOnnxRuntimeFailure()) {
@@ -564,6 +625,18 @@ export function useCardScanner({
           liveDetectingRef.current = false;
         });
     }, SCANNER_LIVE_DETECTION_INTERVAL_MS);
+
+    function stationIsVisible() {
+      return (
+        isActiveStationRef.current && document.visibilityState === "visible"
+      );
+    }
+
+    function clearLiveOutline() {
+      if (!liveOutlineShownRef.current) return;
+      liveOutlineShownRef.current = false;
+      outlineAnimator.setTarget(null);
+    }
 
     function isTrackedStatus() {
       return autoCaptureRef.current
@@ -640,92 +713,130 @@ export function useCardScanner({
     }
 
     return () => clearInterval(intervalId);
-  }, [stream, outlineAnimator]);
+  }, [stream, outlineAnimator, drawLatestVideoFrame]);
 
   const handleForceAddDuplicate = useCallback(() => {
     if (duplicateCard) {
       onSearchResultsRef.current?.(
         [duplicateCard],
-        debugImageUrlRef.current ?? undefined,
+        capturedImageUrlRef.current ?? undefined,
         vectorizedOnRef.current,
+        undefined,
+        capturedBackImageUrlRef.current,
       );
       setDuplicateCard(null);
       updateStatus("scanning");
     }
   }, [duplicateCard, updateStatus]);
 
-  const drawImageToCanvas = useCallback(
-    (dataUrl: string): Promise<CardContour | null> => {
-      return new Promise((resolve) => {
-        const canvas = displayCanvasRef.current;
-        if (!canvas) {
-          resolve(null);
-          return;
+  const showStillImage = useCallback(
+    (
+      image: CanvasImageSource,
+      width: number,
+      height: number,
+      contourForImage: CardContour | null,
+    ): CardContour | null => {
+      const canvas = displayCanvasRef.current;
+      if (!canvas) return null;
+      const overlayCanvas = overlayCanvasRef.current;
+
+      canvas.width = width;
+      canvas.height = height;
+      if (overlayCanvas) {
+        overlayCanvas.width = width;
+        overlayCanvas.height = height;
+      }
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      ctx.drawImage(image, 0, 0);
+      setHasStillPhoto(true);
+
+      const contour =
+        contourForImage ??
+        getDefaultCardContour(
+          canvas.width,
+          canvas.height,
+          scanRegionRef.current,
+        );
+
+      outlineAnimator.cancel();
+      const overlayCtx = overlayCanvas?.getContext("2d");
+      if (overlayCanvas && overlayCtx) {
+        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+        drawDetectionOverlay(overlayCtx, {
+          detected: true,
+          contour,
+          confidence: 1,
+        });
+      }
+
+      const container = canvas.parentElement;
+      if (container) {
+        const cw = container.clientWidth;
+        const ch = container.clientHeight;
+        const scale = Math.max(cw / canvas.width, ch / canvas.height);
+        const cssW = Math.round(canvas.width * scale);
+        const cssH = Math.round(canvas.height * scale);
+        for (const el of [canvas, overlayCanvas]) {
+          if (!el) continue;
+          el.style.width = `${cssW}px`;
+          el.style.height = `${cssH}px`;
+          el.style.left = `${(cw - cssW) / 2}px`;
+          el.style.top = `${(ch - cssH) / 2}px`;
         }
-        const img = new Image();
-        img.onload = () => {
-          const overlayCanvas = overlayCanvasRef.current;
+      }
 
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          if (overlayCanvas) {
-            overlayCanvas.width = img.naturalWidth;
-            overlayCanvas.height = img.naturalHeight;
-          }
-
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            resolve(null);
-            return;
-          }
-          ctx.drawImage(img, 0, 0);
-          setHasPhonePhoto(true);
-
-          const contour = getDefaultCardContour(
-            canvas.width,
-            canvas.height,
-            scanRegionRef.current,
-          );
-
-          outlineAnimator.cancel();
-          const overlayCtx = overlayCanvas?.getContext("2d");
-          if (overlayCanvas && overlayCtx) {
-            overlayCtx.clearRect(
-              0,
-              0,
-              overlayCanvas.width,
-              overlayCanvas.height,
-            );
-            drawDetectionOverlay(overlayCtx, {
-              detected: true,
-              contour,
-              confidence: 1,
-            });
-          }
-
-          const container = canvas.parentElement;
-          if (container) {
-            const cw = container.clientWidth;
-            const ch = container.clientHeight;
-            const scale = Math.max(cw / canvas.width, ch / canvas.height);
-            const cssW = Math.round(canvas.width * scale);
-            const cssH = Math.round(canvas.height * scale);
-            for (const el of [canvas, overlayCanvas]) {
-              if (!el) continue;
-              el.style.width = `${cssW}px`;
-              el.style.height = `${cssH}px`;
-              el.style.left = `${(cw - cssW) / 2}px`;
-              el.style.top = `${(ch - cssH) / 2}px`;
-            }
-          }
-
-          resolve(contour);
-        };
-        img.onerror = () => resolve(null);
-        img.src = dataUrl;
-      });
+      return contour;
     },
     [outlineAnimator],
+  );
+
+  const drawImageToCanvas = useCallback(
+    (dataUrl: string): Promise<CardContour | null> =>
+      new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () =>
+          resolve(
+            showStillImage(img, img.naturalWidth, img.naturalHeight, null),
+          );
+        img.onerror = () => resolve(null);
+        img.src = dataUrl;
+      }),
+    [showStillImage],
+  );
+
+  const captureDocumentScannerPageThenSearch = useCallback(
+    async (checkDuplicate: boolean) => {
+      const pages = takeDocumentScannerPages();
+      if (!pages) {
+        isCapturingRef.current = false;
+        handleErrorRef.current(t("scanEngine.documentScannerNoPage"));
+        return;
+      }
+      const savedImageUrl = await scanPageImageDataUrl(pages.face);
+      const capturedBackImageUrl = pages.otherSide
+        ? await scanPageImageDataUrl(pages.otherSide)
+        : undefined;
+      const source = await drawScanImageFile(pages.face).catch(() => null);
+      if (!source) {
+        isCapturingRef.current = false;
+        handleErrorRef.current(t("scanEngine.documentScannerPageUnreadable"));
+        return;
+      }
+      const contour = showStillImage(
+        source.canvas,
+        source.canvas.width,
+        source.canvas.height,
+        source.imageContour,
+      );
+      releaseCanvases([source.canvas]);
+      await performCapture(checkDuplicate, contour, false, {
+        savedImageUrl,
+        capturedBackImageUrl,
+      });
+    },
+    [takeDocumentScannerPages, showStillImage, performCapture, t],
   );
 
   const capturePhonePhotoThenSearch = useCallback(
@@ -760,6 +871,11 @@ export function useCardScanner({
       return;
     }
 
+    if (cameraSource === "document-scanner") {
+      void captureDocumentScannerPageThenSearch(false);
+      return;
+    }
+
     const canvas = displayCanvasRef.current;
     if (!canvas) return;
     performCapture(
@@ -767,7 +883,13 @@ export function useCardScanner({
       getDefaultCardContour(canvas.width, canvas.height, scanRegionRef.current),
       true,
     );
-  }, [updateStatus, performCapture, cameraSource, capturePhonePhotoThenSearch]);
+  }, [
+    updateStatus,
+    performCapture,
+    cameraSource,
+    capturePhonePhotoThenSearch,
+    captureDocumentScannerPageThenSearch,
+  ]);
 
   const captureCard = useCallback(() => {
     if (
@@ -778,6 +900,13 @@ export function useCardScanner({
       return;
 
     isCapturingRef.current = true;
+
+    if (cameraSource === "document-scanner") {
+      updateStatus("searching");
+      void captureDocumentScannerPageThenSearch(true);
+      return;
+    }
+
     updateStatus("settling");
 
     if (cameraSource === "phone") {
@@ -801,7 +930,13 @@ export function useCardScanner({
       updateStatus("searching");
       performCapture(true, contour, true);
     }, captureSettleDelayMsRef.current);
-  }, [updateStatus, performCapture, cameraSource, capturePhonePhotoThenSearch]);
+  }, [
+    updateStatus,
+    performCapture,
+    cameraSource,
+    capturePhonePhotoThenSearch,
+    captureDocumentScannerPageThenSearch,
+  ]);
   captureCardRef.current = captureCard;
 
   const handleSkipDuplicate = useCallback(() => {
@@ -868,7 +1003,7 @@ export function useCardScanner({
     phonePairingUrl,
     startPhonePairing,
     stopPhonePairing,
-    hasPhonePhoto,
+    hasStillPhoto,
     isAtScanLimit,
   };
 }

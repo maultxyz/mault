@@ -6,7 +6,7 @@ import { Pill } from "@/components/ui/pill";
 import { overflowSourcesFor, ruleChips } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
 import { BIN_ROW_MAX_CHIPS } from "@/lib/constants/rules";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, ICON_BADGE_SIZE } from "@/lib/constants/ui";
 import type { BinRowProps } from "@/lib/interfaces/rules";
 
@@ -19,11 +19,21 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
   const hiddenCount = chips.length - shownChips.length;
   const hasTags = bin.isCatchAll || bin.isDisabled || !!bin.pickList || sources.length > 0 || bin.overflowBin != null;
   const empty = chips.length === 0 && !hasTags;
+  const accessibilityLabel = [
+    t("rules.bin", { number: bin.binNumber }),
+    bin.isCatchAll ? t("rules.catchAll") : null,
+    bin.isDisabled ? t("rules.disabled") : null,
+    bin.pickList && !summary ? t("rules.pickList") : null,
+    summary ?? (empty ? t("rules.noRulesTapToAdd") : chips.join(", ")),
+    bin.overflowBin != null && !summary ? t("rules.overflowsTo", { bin: t("rules.bin", { number: bin.overflowBin }) }) : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t("rules.bin", { number: bin.binNumber })}
+      accessibilityLabel={accessibilityLabel}
       onPress={onPress}
       style={({ pressed }) => ({
         flexDirection: "row",
@@ -82,7 +92,7 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
                   maxWidth: "100%",
                   paddingHorizontal: SPACING.sm + 2,
                   paddingVertical: 3,
-                  borderRadius: RADIUS.md,
+                  borderRadius: CONTROL_RADIUS,
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}

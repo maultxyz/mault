@@ -225,6 +225,7 @@ export function ApiKeysManager() {
             {newRawKey}
           </code>
           <Button
+            aria-label={t("common:a11y.copy")}
             type="button"
             variant="outline"
             size="icon"

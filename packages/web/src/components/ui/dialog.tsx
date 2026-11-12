@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile"
 import { DialogPresentationContext } from "@/lib/dialog-presentation-context"
 import type { DialogProps } from "@/lib/interfaces/dialog"
 import { IconX } from "@tabler/icons-react"
+import { useTranslation } from "react-i18next"
 
 function asChildElement(render: unknown, children: React.ReactNode) {
   if (React.isValidElement(render)) {
@@ -24,6 +25,7 @@ function Dialog({
   defaultOpen,
   onOpenChange,
   drawerOnMobile = true,
+  dismissible = true,
   children,
 }: DialogProps) {
   const isMobile = useIsMobile()
@@ -34,6 +36,7 @@ function Dialog({
           open={open}
           defaultOpen={defaultOpen}
           onOpenChange={onOpenChange}
+          dismissible={dismissible}
         >
           {children}
         </DrawerPrimitive.Root>
@@ -47,6 +50,7 @@ function Dialog({
         open={open}
         defaultOpen={defaultOpen}
         onOpenChange={(next) => onOpenChange?.(next)}
+        disablePointerDismissal={!dismissible}
       >
         {children}
       </DialogPrimitive.Root>
@@ -123,6 +127,7 @@ function DialogContent({
   showCloseButton?: boolean
 }) {
   const presentation = React.useContext(DialogPresentationContext)
+  const { t } = useTranslation("common")
   if (presentation === "drawer") {
     return (
       <DrawerContent data-slot="dialog-content">
@@ -157,7 +162,7 @@ function DialogContent({
           >
             <IconX
             />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("a11y.close")}</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Popup>
@@ -183,6 +188,7 @@ function DialogFooter({
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean
 }) {
+  const { t } = useTranslation("common")
   return (
     <div
       data-slot="dialog-footer"
@@ -195,7 +201,7 @@ function DialogFooter({
       {children}
       {showCloseButton && (
         <DialogClose render={<Button variant="outline" />}>
-          Close
+          {t("a11y.close")}
         </DialogClose>
       )}
     </div>

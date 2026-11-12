@@ -15,6 +15,7 @@ import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { checkCollectionName, collectionsQueryOptions, createCollection } from "@/features/collections/api/collections";
+import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { gameLanguagesQueryOptions, gamesQueryOptions } from "@/features/games/api/games";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -65,10 +66,13 @@ export default function NewCollectionScreen() {
     if (languages.length === 1) form.setValue("lang", languages[0], { shouldValidate: true });
   }, [languages, form]);
 
+  const { setScanTargetGuid } = useScanTarget();
   const create = useMutation({
     mutationFn: createCollection,
     onSuccess: (next) => {
       queryClient.setQueryData(collectionsQueryOptions(orgId).queryKey, next);
+      const createdCollection = next.find((collection) => collection.isActive);
+      if (createdCollection) setScanTargetGuid(createdCollection.guid);
       void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
       void queryClient.invalidateQueries({ queryKey: billingQueryOptions(orgId).queryKey });
       router.back();
@@ -83,7 +87,7 @@ export default function NewCollectionScreen() {
   const errors = form.formState.errors;
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <PageHeader title={t("collections.new")} subtitle={t("collections.createDescription")} onBack={() => router.back()} />
+      <PageHeader title={t("collections.new")} subtitle={t("collections.createDescription")} />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
         {collectionLimitReached ? (
           <Callout tone="info" title={t("collections.limitReached", { count: collectionLimit })} />

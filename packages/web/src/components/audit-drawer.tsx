@@ -42,6 +42,7 @@ export function AuditDrawer({
           <DrawerClose asChild>
             <button
               type="button"
+              aria-label={t("a11y.close")}
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
               <IconX size={14} />

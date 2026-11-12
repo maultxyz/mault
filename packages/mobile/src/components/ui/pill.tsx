@@ -2,8 +2,8 @@ import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
-import { PILL_STATUS_LETTER_SPACING } from "@/lib/constants/ui";
+import { BADGE_RADIUS, SPACING } from "@/lib/constants/theme";
+import { PILL_MIN_HEIGHT, PILL_STATUS_LETTER_SPACING } from "@/lib/constants/ui";
 import type { PillProps } from "@/lib/interfaces/ui";
 
 export function Pill({ label, tone = "neutral", icon }: PillProps) {
@@ -23,10 +23,10 @@ export function Pill({ label, tone = "neutral", icon }: PillProps) {
         flexDirection: "row",
         alignItems: "center",
         alignSelf: "flex-start",
-        height: 20,
+        minHeight: PILL_MIN_HEIGHT,
         gap: SPACING.xs,
         paddingHorizontal: SPACING.sm,
-        borderRadius: RADIUS.sm,
+        borderRadius: BADGE_RADIUS,
         borderWidth: 1,
         backgroundColor: palette.bg,
         borderColor: palette.border,

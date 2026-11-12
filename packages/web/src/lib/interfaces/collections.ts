@@ -1,5 +1,6 @@
 import type {
   CreateCollectionFormValues,
+  EditCollectionFormValues,
   MonitorLinkInfo,
   Collection,
   DeployNotice,
@@ -22,11 +23,6 @@ export interface ShareMonitorLinkDialogProps {
   collectionGuid: string;
 }
 
-export interface CreatedMonitorLink {
-  url: string;
-  expiresAt: string;
-}
-
 export type WatchLinkState =
   | { status: "checking" }
   | { status: "invalid" }
@@ -39,7 +35,10 @@ export interface CollectionsContextValue {
   isActivating: boolean;
   isMutating: boolean;
   createCollection: (values: CreateCollectionFormValues) => Promise<boolean>;
-  updateCollection: (guid: string, name: string) => Promise<void>;
+  updateCollection: (
+    guid: string,
+    values: EditCollectionFormValues,
+  ) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
   deleteCollection: (guid: string) => Promise<void>;
   emptyCollection: (guid: string) => Promise<void>;
@@ -49,6 +48,11 @@ export interface CreateCollectionDialogProps {
   trigger?: (ctx: { disabled: boolean; noGames: boolean }) => ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+}
+
+export interface EditCollectionDialogProps {
+  collection: Collection | null;
+  onClose: () => void;
 }
 
 export interface ActiveCollectionSessionActions {
@@ -107,4 +111,8 @@ export interface ScanningPillProps {
 
 export interface ReleaseSessionButtonProps {
   guid: string;
+}
+
+export interface CollectionGameBadgeProps {
+  collection: Pick<Collection, "game" | "lang">;
 }

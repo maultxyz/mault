@@ -54,6 +54,8 @@ export function CardToolbar({
   onDensityChange,
   groupDuplicates,
   onGroupDuplicatesChange,
+  scanTimeline,
+  onScanTimelineChange,
   leading,
   onAddCard,
   onImportScans,
@@ -75,6 +77,7 @@ export function CardToolbar({
           <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
           <Input
             type="search"
+            aria-label={t("cardPicker.searchLabel")}
             placeholder={t("cardToolbar.searchPlaceholder")}
             data-hotkey-search
             value={searchQuery}
@@ -107,6 +110,8 @@ export function CardToolbar({
           onDensityChange={onDensityChange}
           groupDuplicates={groupDuplicates}
           onGroupDuplicatesChange={onGroupDuplicatesChange}
+          scanTimeline={scanTimeline}
+          onScanTimelineChange={onScanTimelineChange}
         />
         {hasMoreActions && (
           <DropdownMenu>

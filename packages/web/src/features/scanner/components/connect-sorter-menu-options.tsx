@@ -1,6 +1,7 @@
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
+import { SORTER_LIMIT_MESSAGE_KEYS } from "@/lib/constants/scanner";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
@@ -13,7 +14,7 @@ export function ConnectSorterMenuOptions() {
     connectAnotherSorter,
     connectAnotherSorterCloud,
     canConnectAnotherSorter,
-    sorterLimitIsHardCap,
+    sorterLimitReason,
   } = useStations();
 
   if (canConnectAnotherSorter) {
@@ -26,10 +27,12 @@ export function ConnectSorterMenuOptions() {
     );
   }
 
-  if (sorterLimitIsHardCap) {
+  if (sorterLimitReason !== "plan") {
     return (
       <DropdownMenuItem disabled>
-        {t("stations.hardCapReached.title", { max: MAX_CONNECTED_SORTERS })}
+        {t(`${SORTER_LIMIT_MESSAGE_KEYS[sorterLimitReason]}.title`, {
+          max: MAX_CONNECTED_SORTERS,
+        })}
       </DropdownMenuItem>
     );
   }

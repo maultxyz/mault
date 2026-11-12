@@ -20,6 +20,7 @@
     "completed": "Fertig"
   },
   "table": {
+    "status": "Status",
     "card": "Karte",
     "set": "Set",
     "condition": "Zustand",
@@ -222,6 +223,7 @@
     "staffSignature": "Unterschrift Mitarbeiter"
   },
   "orders": {
+    "pickCopy": "{{name}} als gepickt markieren",
     "printing": "{{setName}} ({{set}}) Nr. {{number}}",
     "removeLastCopyTitle": "Pick abbrechen?",
     "removeLastCopyDescription": "Das ist das letzte Exemplar von {{name}} und die einzige verbleibende Karte. Wenn du es entfernst, wird der Pick abgebrochen.",
@@ -257,7 +259,6 @@
     "namePlaceholder": "Bestellungen von Montag",
     "contents": "Zu ziehende Karten",
     "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "chooseFile": "Datei wählen",
     "preview": "{{source}}: {{lines}} Zeilen, {{quantity}} Karten.",
     "previewEmpty": "Keine Karten gefunden. Prüfe, ob die erste Zeile Spaltennamen wie Product Name und Quantity enthält.",
     "previewSkipped_one": "{{count}} Zeile ohne Kartennamen wurde übersprungen.",
@@ -372,7 +373,10 @@
       "accuracyCompleted": "Stichprobe abgeschlossen",
       "deviceServiced": "Sortierer gewartet",
       "businessSettings": "Business-Einstellungen geändert",
-      "intakeTransferred": "Ankauf verschoben"
+      "intakeTransferred": "Ankauf verschoben",
+      "catalogCreated": "Shop-Katalog erstellt",
+      "catalogUpdated": "Shop-Katalog geändert",
+      "catalogDeleted": "Shop-Katalog gelöscht"
     },
     "messages": {
       "cardCorrected": "{{from}} zu {{to}} korrigiert",
@@ -397,7 +401,10 @@
       "accuracyCompleted": "Stichprobe für {{summary}} abgeschlossen: {{incorrect}} falsch von {{checked}}",
       "deviceServiced": "{{summary}} gewartet",
       "businessSettings": "Business-Einstellungen geändert",
-      "intakeTransferred": "{{cards}} von {{summary}} gekaufte Karten verschoben"
+      "intakeTransferred": "{{cards}} von {{summary}} gekaufte Karten verschoben",
+      "catalogCreated": "Hat den Shop-Katalog {{summary}} erstellt",
+      "catalogUpdated": "Hat den Shop-Katalog {{summary}} geändert",
+      "catalogDeleted": "Hat den Shop-Katalog {{summary}} gelöscht"
     }
   },
   "accuracy": {
@@ -495,5 +502,71 @@
     "move": "Karten verschieben",
     "moved_one": "{{count}} Karte verschoben",
     "moved_other": "{{count}} Karten verschoben"
+  },
+  "shopCatalogs": {
+    "heading": "Shop-Kataloge",
+    "description": "Lass Kunden deinen Bestand auf einem Tablet im Laden oder auf deiner Website durchsuchen. Jeder Katalog zeigt die Karten aus den gewählten Sammlungen und Lagerorten, über einen Link, der funktioniert, bis du ihn zurücksetzt.",
+    "add": "Neuer Katalog",
+    "addTitle": "Neuer Shop-Katalog",
+    "editTitle": "Shop-Katalog bearbeiten",
+    "dialogDescription": "Wähle, was Kunden durchsuchen können. Änderungen erscheinen innerhalb einer Minute im Katalog.",
+    "save": "Katalog speichern",
+    "nameLabel": "Name",
+    "namePlaceholder": "Einzelkarten im Laden",
+    "showPrices": "Preise anzeigen",
+    "showPricesDescription": "Ausschalten, um Kartenpreise für alle zu verbergen, die diesen Katalog ansehen.",
+    "collectionsLabel": "Sammlungen",
+    "storageLocationsLabel": "Lagerorte",
+    "noSources": "Noch nichts zur Auswahl.",
+    "inventoryNote": "Karten aus offenen oder abgebrochenen Ankäufen werden nie angezeigt.",
+    "empty": "Noch keine Shop-Kataloge",
+    "loadFailed": "Shop-Kataloge konnten nicht geladen werden.",
+    "upgrade": "Shop-Kataloge sind Teil des Business-Tarifs.",
+    "pricesHidden": "Preise verborgen",
+    "noLiveSources": "Seine Sammlungen und Lagerorte wurden gelöscht",
+    "showLink": "Link",
+    "actionsFor": "Aktionen für {{name}}",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "created": "Shop-Katalog erstellt",
+    "saved": "Shop-Katalog gespeichert",
+    "saveFailed": "Shop-Katalog konnte nicht gespeichert werden.",
+    "deleted": "Shop-Katalog gelöscht",
+    "deleteFailed": "Shop-Katalog konnte nicht gelöscht werden.",
+    "deleteConfirmTitle": "Diesen Shop-Katalog löschen?",
+    "deleteConfirmDescription": "Sein Link funktioniert sofort nicht mehr. Deine Karten bleiben, wo sie sind.",
+    "linkTitle": "Link zu {{name}}",
+    "linkDescription": "Öffne diesen Link auf einem Tablet im Laden oder stell ihn auf deine Website. Jeder mit dem Link kann den Katalog durchsuchen.",
+    "linkNeverExpires": "Dieser Link läuft nicht ab. Setze ihn zurück, damit der alte nicht mehr funktioniert.",
+    "linksNotConfigured": "Freigabelinks sind auf diesem Server nicht eingerichtet.",
+    "openLink": "Katalog öffnen",
+    "resetLink": "Link zurücksetzen",
+    "resetLinkConfirmTitle": "Link dieses Katalogs zurücksetzen?",
+    "resetLinkConfirmDescription": "Der aktuelle Link und QR-Code funktionieren nicht mehr. Aktualisiere jedes Tablet und jede Website, die ihn nutzt.",
+    "linkReset": "Link zurückgesetzt. Der alte Link funktioniert nicht mehr.",
+    "resetLinkFailed": "Link konnte nicht zurückgesetzt werden.",
+    "public": {
+      "loading": "Katalog wird geladen",
+      "invalidTitle": "Dieser Katalog ist nicht verfügbar",
+      "invalidDescription": "Der Link wurde vielleicht zurückgesetzt oder entfernt. Frag den Laden nach einem neuen."
+    },
+    "photo": {
+      "heading": "Shop-Foto",
+      "description": "Erscheint oben in jedem Shop-Katalog. JPEG, PNG oder WebP, bis 10 MB.",
+      "upload": "Foto hochladen",
+      "replace": "Ersetzen",
+      "remove": "Shop-Foto entfernen",
+      "previewAlt": "Aktuelles Shop-Foto",
+      "uploaded": "Shop-Foto aktualisiert",
+      "uploadFailed": "Shop-Foto konnte nicht hochgeladen werden.",
+      "removed": "Shop-Foto entfernt",
+      "removeFailed": "Shop-Foto konnte nicht entfernt werden.",
+      "wrongType": "Lade ein JPEG-, PNG- oder WebP-Foto hoch.",
+      "tooLarge": "Das Foto ist zu groß. Lade eines unter 10 MB hoch."
+    },
+    "isPublic": "Öffentlich",
+    "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link. Ausschalten, um den privaten Link zu verlangen.",
+    "publicBadge": "Öffentlich",
+    "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen."
   }
 }

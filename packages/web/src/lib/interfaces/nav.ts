@@ -147,6 +147,8 @@ export interface MobileTabStripProps<T extends string> {
 export interface PageHeaderProps {
   title: string;
   description?: string;
+  backTo?: string;
+  backLabel?: string;
   actions?: ReactNode;
   tabs?: ReactNode;
   children?: ReactNode;

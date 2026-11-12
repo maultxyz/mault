@@ -42,13 +42,18 @@ export interface BinRuleGroup {
 
 export type FieldType = "string" | "numeric" | "enum" | "set";
 
+export interface FieldOption {
+  value: string;
+  label: string;
+}
+
 export interface FieldMeta {
   field: ConditionField;
   label: string;
   type: FieldType;
   path: string;
   operators: { value: ConditionOperator; label: string }[];
-  options?: { value: string; label: string }[];
+  options?: FieldOption[];
 }
 
 export function isRuleGroup(
@@ -107,6 +112,7 @@ export type BinSetMode =
   | "rules"
   | "repack"
   | "auto-assign"
+  | "game-sort"
   | "alphabet"
   | "chaos"
   | "scan-only";
@@ -159,6 +165,7 @@ export interface BinSet {
   chaosBinSize: number | null;
   skipSaving: boolean;
   isResortMode: boolean;
+  matchGameKeys: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -196,6 +203,7 @@ export interface EmptyAllBinLocation {
 export interface EmptyAllBinsOptions {
   collectionGuid?: string;
   locations?: EmptyAllBinLocation[];
+  resetAutoAssignedRules?: boolean;
 }
 
 export interface EmptyAllBinsInput extends EmptyAllBinsOptions {

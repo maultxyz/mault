@@ -52,6 +52,9 @@ export function MobileMonitorCards({
     entries,
     isLoading,
     page,
+    pageSize,
+    preferredPageSize,
+    setPageSize,
     pageCount,
     setPage,
     stats,
@@ -125,6 +128,7 @@ export function MobileMonitorCards({
             )}
             <Button
               variant="ghost"
+              aria-pressed={filters.needsAttention}
               className={cn(
                 MOBILE_FILTER_CHIP_CLASS,
                 filters.needsAttention
@@ -154,6 +158,20 @@ export function MobileMonitorCards({
         </Callout>
       )}
 
+      <ListPagination
+        alignsEnd
+        className="px-4 pt-2"
+        pagination={{
+          page: page + 1,
+          pageCount,
+          setPage: (nextPage) => goToPage(nextPage - 1),
+          from: page * pageSize + 1,
+          to: page * pageSize + entries.length,
+          total: matchingCount,
+        }}
+        pageSize={preferredPageSize}
+        onPageSizeChange={setPageSize}
+      />
       {isLoading && entries.length === 0 ? (
         <div className="grid grid-cols-3 gap-x-3 gap-y-5 px-4 pt-2 pb-4">
           {Array.from({ length: 9 }).map((_, i) => (
@@ -190,12 +208,18 @@ export function MobileMonitorCards({
 
       <div ref={paginationRef}>
         <ListPagination
+          alignsEnd
           className="px-4 pb-8"
           pagination={{
             page: page + 1,
             pageCount,
             setPage: (nextPage) => goToPage(nextPage - 1),
+            from: page * pageSize + 1,
+            to: page * pageSize + entries.length,
+            total: matchingCount,
           }}
+          pageSize={preferredPageSize}
+          onPageSizeChange={setPageSize}
         />
       </div>
       {canEditCards && (

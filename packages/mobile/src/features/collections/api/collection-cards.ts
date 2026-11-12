@@ -1,4 +1,10 @@
-import { infiniteQueryOptions, keepPreviousData, queryOptions, type QueryClient } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  keepPreviousData,
+  queryOptions,
+  type InfiniteData,
+  type QueryClient,
+} from "@tanstack/react-query";
 import {
   EMPTY_CARD_FILTERS,
   type SetCardTagsRequest,
@@ -6,12 +12,18 @@ import {
   type CollectionCardPosition,
   type CollectionCardsQuery,
   type MonitorLink,
+  type ShareLinkPurpose,
+  SHARE_LINK_TOKEN_PARAM,
+  WATCH_PATH_PREFIX,
   type CollectionCardsPage,
   type CollectionCardsSummary,
   type Result,
   type ScannedCard,
+  type ScanTimelineBuckets,
+  type ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
+import { WEB_URL } from "@/lib/constants/config";
 import { SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
@@ -27,7 +39,7 @@ function cardsParams(search: string, page?: number, review = false): string {
   return params.toString();
 }
 
-function queryParams(query: CollectionCardsQuery, page: number): string {
+export function collectionCardsQueryParams(query: CollectionCardsQuery, page: number): string {
   const params = new URLSearchParams({ filters: JSON.stringify(query.filters), page: String(page) });
   if (query.grouped) params.set("grouped", "1");
   if (query.search) params.set("search", query.search);
@@ -39,10 +51,28 @@ export const collectionCardsQueryOptions = (guid: string, query: CollectionCards
   infiniteQueryOptions({
     queryKey: ["collection-cards", guid, "list", query] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${queryParams(query, pageParam)}`)),
+      unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${collectionCardsQueryParams(query, pageParam)}`)),
     initialPageParam: 0,
     getNextPageParam: (last) =>
       (last.page + 1) * last.pageSize < last.totalEntries ? last.page + 1 : undefined,
+  });
+
+export const scanTimelineBucketsQueryOptions = (
+  guid: string,
+  query: CollectionCardsQuery,
+  grouping: ScanTimelineGrouping,
+  timeZone: string,
+) =>
+  queryOptions({
+    queryKey: ["collection-cards", guid, "scan-timeline-buckets", query, grouping, timeZone] as const,
+    queryFn: () => {
+      const params = new URLSearchParams(collectionCardsQueryParams(query, 0));
+      params.delete("page");
+      params.set("grouping", grouping);
+      params.set("timeZone", timeZone);
+      return unwrap(apiGet<Result<ScanTimelineBuckets>>(`/api/collections/${guid}/cards/scan-timeline?${params}`));
+    },
+    placeholderData: keepPreviousData,
   });
 
 export const collectionCardsSummaryQueryOptions = (guid: string) =>
@@ -72,6 +102,23 @@ export const reviewQueueQueryOptions = (guid: string) =>
         apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${cardsParams("", 0, true)}`),
       ).then((page) => ({ total: page.totalEntries, firstScanId: page.items[0]?.scanId ?? null })),
   });
+
+export function cachedCollectionCardPosition(
+  queryClient: QueryClient,
+  guid: string,
+  scanId: string,
+): CollectionCardPosition | undefined {
+  const lists = queryClient.getQueriesData<InfiniteData<CollectionCardsPage>>({
+    queryKey: ["collection-cards", guid, "list"],
+  });
+  for (const [, data] of lists) {
+    const entry = data?.pages.flatMap((page) => page.items).find((item) => item.scanId === scanId);
+    if (entry) {
+      return { entry, index: 0, total: 0, prevScanId: null, nextScanId: null, copyIndex: 0, copyCount: entry.quantity };
+    }
+  }
+  return undefined;
+}
 
 export function updateCollectionCard(guid: string, scanId: string, body: CardUpdateBody): Promise<unknown> {
   return unwrap(apiPut<Result<unknown>>(`/api/collections/${guid}/cards/${scanId}`, body));
@@ -116,10 +163,7 @@ export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>
 export const scanImageQueryOptions = (guid: string, scanId: string) =>
   queryOptions({
     queryKey: ["collection-card-image", guid, scanId] as const,
-    queryFn: () =>
-      unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)).then(
-        (data) => data.capturedImageUrl,
-      ),
+    queryFn: () => unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)),
     staleTime: SCAN_IMAGE_STALE_MS,
   });
 
@@ -146,10 +190,21 @@ export function fetchCollectionCardCopies(guid: string, cardIds: string[]): Prom
   return unwrap(apiGet<Result<ScannedCard[]>>(`/api/collections/${guid}/cards/copies?${params.toString()}`));
 }
 
-export function createMonitorLink(guid: string, expiresInDays: number): Promise<MonitorLink> {
-  return unwrap(apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays }));
+export function createMonitorLink(
+  guid: string,
+  expiresInDays: number,
+  showPrices: boolean,
+  purpose: ShareLinkPurpose,
+): Promise<MonitorLink> {
+  return unwrap(
+    apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays, showPrices, purpose }),
+  );
 }
 
 export function revokeMonitorLinks(guid: string): Promise<unknown> {
   return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/monitor-link/revoke`));
+}
+
+export function buildMonitorLinkUrl(guid: string, token: string): string {
+  return `${WEB_URL}${WATCH_PATH_PREFIX}/${guid}?${SHARE_LINK_TOKEN_PARAM}=${encodeURIComponent(token)}`;
 }

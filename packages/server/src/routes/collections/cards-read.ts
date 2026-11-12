@@ -1,8 +1,11 @@
 import {
   COLLECTION_CARDS_PAGE_SIZE,
+  pageSizeFromQuery,
   type CollectionCardsCount,
   type CollectionCardsPage,
   type CollectionCardsSummary,
+  type ScanTimelineBuckets,
+  isScanTimelineGrouping,
 } from "@magic-vault/shared";
 import type { Transaction } from "../../db";
 import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
@@ -14,6 +17,7 @@ import {
   loadCardsCount,
   loadCardStats,
   loadCardsPage,
+  loadScanTimelineBuckets,
   parseCardsQuery,
   parsePage,
 } from "./cards-query";
@@ -27,6 +31,7 @@ export async function readCardsPage(
 ): Promise<CollectionCardsPage | null> {
   const query = parseCardsQuery(params);
   const page = parsePage(params.page);
+  const pageSize = pageSizeFromQuery(params.limit, COLLECTION_CARDS_PAGE_SIZE);
   const result = await run(async (tx) => {
     const collection = await findCardsCollection(tx, guid, orgId);
     if (!collection) return null;
@@ -35,7 +40,7 @@ export async function readCardsPage(
       collection,
       query,
       page,
-      COLLECTION_CARDS_PAGE_SIZE,
+      pageSize,
     );
     return { gameKey: collection.gameKey, lang: collection.lang, data };
   });
@@ -49,7 +54,7 @@ export async function readCardsPage(
     ...result.data,
     items,
     page,
-    pageSize: COLLECTION_CARDS_PAGE_SIZE,
+    pageSize,
   };
 }
 
@@ -84,6 +89,42 @@ export async function readCardsCount(
         collection,
         cardFilterSql(query),
         cardQueryUsesCatalog(query, collection.fieldDefinitions),
+      ),
+    };
+  });
+}
+
+function isKnownTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function readScanTimelineBuckets(
+  run: TransactionRunner,
+  guid: string,
+  orgId: string,
+  params: Record<string, string>,
+): Promise<ScanTimelineBuckets | "invalid_params" | null> {
+  const { grouping, timeZone } = params;
+  if (!isScanTimelineGrouping(grouping) || !timeZone || !isKnownTimeZone(timeZone)) {
+    return "invalid_params";
+  }
+  const query = parseCardsQuery(params);
+  return run(async (tx) => {
+    const collection = await findCardsCollection(tx, guid, orgId);
+    if (!collection) return null;
+    return {
+      buckets: await loadScanTimelineBuckets(
+        tx,
+        collection,
+        cardFilterSql(query),
+        cardQueryUsesCatalog(query, collection.fieldDefinitions),
+        grouping,
+        timeZone,
       ),
     };
   });

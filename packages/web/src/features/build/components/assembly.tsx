@@ -17,6 +17,7 @@ import { DISCORD_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import { IconVideo } from "@tabler/icons-react";
 import { useMemo } from "react";
+import { BUILD_STEP_IMAGE_ALT_KEYS } from "@/lib/constants/build";
 import { Trans, useTranslation } from "react-i18next";
 
 export function BuildAssembly() {
@@ -30,7 +31,7 @@ export function BuildAssembly() {
   return (
     <section
       id={BUILD_ASSEMBLY_ANCHOR}
-      className="mx-auto max-w-7xl scroll-mt-14 px-4 py-10"
+      className="mx-auto max-w-6xl scroll-mt-14 px-4 py-12 md:py-16"
     >
       <GuideSectionHeader
         id={BUILD_ASSEMBLY_ANCHOR}
@@ -108,6 +109,7 @@ export function BuildAssembly() {
                     {hasVideos && (
                       <IconVideo
                         className="size-4"
+                        role="img"
                         aria-label={t("assembly.hasVideoAria")}
                       />
                     )}
@@ -142,7 +144,11 @@ export function BuildAssembly() {
                                   <img
                                     key={src}
                                     src={src}
-                                    alt=""
+                                    alt={
+                                      BUILD_STEP_IMAGE_ALT_KEYS[src]
+                                        ? t(BUILD_STEP_IMAGE_ALT_KEYS[src])
+                                        : ""
+                                    }
                                     className="w-full max-w-32 rounded-md border sm:max-w-56"
                                   />
                                 ))}

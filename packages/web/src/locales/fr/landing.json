@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "MAULT : trieuse et scanner automatique de cartes à collectionner",
+    "title": "Mault : trieuse et scanner automatique de cartes à collectionner",
     "description": "Scanne et trie automatiquement tes cartes Magic: The Gathering et autres jeux de cartes. Construis une trieuse open source, définis tes règles de bacs et suis la valeur de ta collection."
   },
   "nav": {
@@ -20,6 +20,8 @@
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
     "seeFeatures": "Découvrir les fonctionnalités",
     "liveSort": "Tri en direct",
+    "pauseDemo": "Mettre la démo en pause",
+    "playDemo": "Lancer la démo",
     "sortedCount_one": "{{count}} carte triée",
     "sortedCount_other": "{{count}} cartes triées",
     "nextUp": "Suivante",
@@ -45,7 +47,8 @@
       "set": "Édition",
       "price": "Prix",
       "route": "Destination"
-    }
+    },
+    "subtitle": "Mault scanne chaque carte, la reconnaît en un instant et la dépose dans le bon bac, puis garde la trace de son emplacement et de sa valeur."
   },
   "stats": {
     "items": {
@@ -58,7 +61,9 @@
   "supportedGames": {
     "heading": "Trie facilement n'importe quel JCC que tu aimes",
     "cardsIndexed_one": "{{formatted}} carte indexée",
-    "cardsIndexed_other": "{{formatted}} cartes indexées"
+    "cardsIndexed_other": "{{formatted}} cartes indexées",
+    "pauseHint": "Appuyez sur Espace pour mettre en pause la liste défilante.",
+    "pausedHint": "En pause. Appuyez sur Espace pour reprendre la liste défilante."
   },
   "features": {
     "eyebrow": "Fonctionnalités",
@@ -93,7 +98,10 @@
       "ruleMatches_one": "{{count}} carte va dans le bac {{bin}}",
       "ruleMatches_other": "{{count}} cartes vont dans le bac {{bin}}",
       "collectionValue": "Valeur de la collection",
-      "valueHistory": "Valeur sur les 30 derniers jours"
+      "valueHistory": "Valeur sur les 30 derniers jours",
+      "ruleField": "Champ",
+      "ruleOperator": "Opérateur",
+      "ruleValue": "Valeur"
     },
     "more": {
       "heading": "Et bien plus encore",
@@ -289,7 +297,8 @@
       "fleetHealth": "Santé du parc : consultez l'état de chaque trieuse, les cartes depuis le dernier entretien et l'historique des alertes, et définissez les intervalles d'entretien",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
       "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
-      "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges"
+      "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges",
+      "longShareLinks": "Liens de suivi jusqu'à 30 jours : partagez une vue en direct d'une collection pendant des jours au lieu d'une heure"
     },
     "compare": {
       "heading": "Comparer toutes les fonctionnalités",
@@ -322,7 +331,8 @@
         "fleetHealth": "Santé du parc",
         "storage": "Emplacements de rangement",
         "apiAccess": "Accès API",
-        "businessTools": "Achat et vente"
+        "businessTools": "Achat et vente",
+        "longShareLinks": "Liens de suivi jusqu'à 30 jours"
       }
     }
   },

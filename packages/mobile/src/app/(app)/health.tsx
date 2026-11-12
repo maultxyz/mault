@@ -132,7 +132,7 @@ export default function HealthScreen() {
                     width: 8,
                     height: 8,
                     borderRadius: RADIUS.full,
-                    backgroundColor: check.status === "ok" ? colors.success : colors.destructive,
+                    backgroundColor: check.status === "ok" ? colors.successStrong : colors.destructive,
                   }}
                 />
               }

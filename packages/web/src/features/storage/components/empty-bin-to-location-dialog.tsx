@@ -150,12 +150,14 @@ export function EmptyBinToLocationDialog({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>{t("emptyDialog.locationLabel")}</FieldLabel>
+                    <FieldLabel htmlFor="empty-bin-location">
+                      {t("emptyDialog.locationLabel")}
+                    </FieldLabel>
                     <Select
                       value={field.value || null}
                       onValueChange={(value) => field.onChange(value ?? "")}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger id="empty-bin-location" className="w-full">
                         <SelectValue placeholder={t("emptyDialog.placeholder")}>
                           {field.value ? optionLabel(field.value) : undefined}
                         </SelectValue>

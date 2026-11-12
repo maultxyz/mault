@@ -127,7 +127,11 @@ export function PiScanStatusBar() {
         )}
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-foreground">
+        <p
+          role="status"
+          aria-live="polite"
+          className="truncate font-medium text-foreground"
+        >
           {collection ? `${collection.name} · ${status}` : status}
         </p>
         <p className="text-2xs text-foreground/70">

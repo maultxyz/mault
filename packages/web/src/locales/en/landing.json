@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "MAULT: Automated Trading Card Sorter and Scanner",
+    "title": "Mault: Automated Trading Card Sorter and Scanner",
     "description": "Scan and sort Magic: The Gathering and other trading cards automatically. Build an open-source card sorter, set bin rules, and track your collection's value."
   },
   "nav": {
@@ -20,6 +20,8 @@
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",
     "seeFeatures": "Explore features",
     "liveSort": "Live sort",
+    "pauseDemo": "Pause demo",
+    "playDemo": "Play demo",
     "sortedCount_one": "{{count}} card sorted",
     "sortedCount_other": "{{count}} cards sorted",
     "nextUp": "Next up",
@@ -45,7 +47,8 @@
       "set": "Set",
       "price": "Price",
       "route": "Route"
-    }
+    },
+    "subtitle": "Mault scans every card, recognizes it in an instant and drops it into the right bin, then keeps track of where it lives and what it's worth."
   },
   "stats": {
     "items": {
@@ -58,7 +61,9 @@
   "supportedGames": {
     "heading": "Easily sorts any TCG you love",
     "cardsIndexed_one": "{{formatted}} card indexed",
-    "cardsIndexed_other": "{{formatted}} cards indexed"
+    "cardsIndexed_other": "{{formatted}} cards indexed",
+    "pauseHint": "Press Space to pause the scrolling list.",
+    "pausedHint": "Paused. Press Space to resume the scrolling list."
   },
   "features": {
     "eyebrow": "Features",
@@ -93,7 +98,10 @@
       "ruleMatches_one": "{{count}} card goes to Bin {{bin}}",
       "ruleMatches_other": "{{count}} cards go to Bin {{bin}}",
       "collectionValue": "Collection value",
-      "valueHistory": "Value over the last 30 days"
+      "valueHistory": "Value over the last 30 days",
+      "ruleField": "Field",
+      "ruleOperator": "Operator",
+      "ruleValue": "Value"
     },
     "more": {
       "heading": "And a whole lot more",
@@ -289,7 +297,8 @@
       "fleetHealth": "Fleet health: see every sorter's status, cards since service and alert history, and set service intervals",
       "storage": "Storage locations: record which box every card is in and where, then search across them",
       "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
-      "businessTools": "Buy and sell: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins"
+      "businessTools": "Buy and sell: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins",
+      "longShareLinks": "Monitor links up to 30 days: share a live view of a collection for days instead of an hour"
     },
     "compare": {
       "heading": "Compare every feature",
@@ -322,7 +331,8 @@
         "fleetHealth": "Fleet health",
         "storage": "Storage locations",
         "apiAccess": "API access",
-        "businessTools": "Buy and sell"
+        "businessTools": "Buy and sell",
+        "longShareLinks": "Monitor links up to 30 days"
       }
     }
   },

@@ -1,3 +1,6 @@
+import type { StampDetection } from "./card-stamps.interface";
+import type { PrintedFoilMarkerDetection } from "./printed-foil-marker.interface";
+import type { PrintingMarkMatch } from "./printing-regions.interface";
 import type {
   CardSearchDiagnostics,
   SearchNoMatchReason,
@@ -75,11 +78,13 @@ export interface CardScannerProps {
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
     details?: MatchedScanDetails,
+    capturedBackImageUrl?: string,
   ) => void;
   onNoMatch?: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
+    capturedBackImageUrl?: string,
   ) => void;
   onControlCode?: (command: ScannerControlCommand | null) => void;
   isRemoval?: () => boolean;
@@ -100,9 +105,11 @@ export interface ScannedCard {
   scannedAt: number;
   binNumber?: number;
   capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
   alternativeMatches?: PlayingCardWithDistance[];
   isFoil?: boolean;
   foilType?: string;
+  stamp?: string;
   condition?: CardCondition;
   language?: string;
   isDownloaded?: boolean;
@@ -162,8 +169,10 @@ export interface MatchedScanDiagnostics {
   attempts: ScanAttemptDiagnostic[];
   candidates: MatchCandidateDiagnostic[];
   ocr: OcrDiagnostics | null;
-  detectedColor?: string | null;
   foilDetection?: FoilDetection | null;
+  stampDetection?: StampDetection | null;
+  printedFoilMarker?: PrintedFoilMarkerDetection | null;
+  printingMarks?: PrintingMarkMatch | null;
 }
 
 export interface MatchedScanDetails {
@@ -179,6 +188,7 @@ export interface UnmatchedScanDetails {
 export interface UnmatchedCard {
   scanId: string;
   capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
   scannedAt: number;
   binNumber?: number;
   vectorizedOn?: ScanVectorizeSource;

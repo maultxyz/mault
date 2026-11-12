@@ -1,14 +1,15 @@
 {
   "name": "@magic-vault/desktop",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
-  "description": "MAULT desktop app",
+  "description": "Mault desktop app",
   "author": "Mault LLC",
   "main": "dist/main.js",
   "scripts": {
     "build": "tsup",
     "start": "tsup && electron .",
-    "dist": "tsup && node scripts/stage-koffi.mjs && electron-builder"
+    "scanner-helper": "node scripts/build-scanner-helper.mjs",
+    "dist": "tsup && node scripts/stage-koffi.mjs && node scripts/build-scanner-helper.mjs && electron-builder --config electron-builder.config.js"
   },
   "devDependencies": {
     "@magic-vault/shared": "workspace:*",

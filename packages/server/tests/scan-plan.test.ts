@@ -8,6 +8,7 @@ import {
   type BinSet,
   type PlayingCardWithDistance,
   type ScanPlanContext,
+  type MatchedScanDiagnostics,
 } from "@magic-vault/shared";
 
 const card = {
@@ -29,6 +30,7 @@ const input = {
   sessionFoilType: null,
   fallbackFoilTypes: ["foil"],
   deviceGuid: "device",
+  isNudgeFoilDetectionEnabled: true,
 };
 function context(
   set: Partial<BinSet> = {},
@@ -92,7 +94,7 @@ test("forced and detected finishes use the same rule and save decisions", () => 
     { sessionFoilType: "foil" },
     {
       foilDetection: {
-        method: "rainbow" as const,
+        method: "nudge" as const,
         isFoilDetected: true,
         foilScore: 0.8,
       },
@@ -207,4 +209,69 @@ test("completion pauses only after the final repack slot is filled", () => {
     }),
     "all-packs-complete",
   );
+});
+
+test("cards from another game always use sort-only accounting", () => {
+  const plan = prepareMatchedScanPlan(
+    { ...input, card: { ...card, gameKey: "pokemon" }, gameKey: "mtg" },
+    context(),
+  );
+  assert.equal(plan.persistence.kind, "cards/sorted");
+  assert.equal(plan.binContent?.unsaved, true);
+});
+
+test("shared plans preserve detected stamps, printed foil and both document images", () => {
+  const diagnostics: MatchedScanDiagnostics = {
+    matchedBy: "embedding",
+    vectorizedOn: "server",
+    detection: {
+      cardDetected: true,
+      sharpness: null,
+      confidence: 1,
+      fallbackReason: null,
+    },
+    orientation: "upright",
+    matchesNeeded: 1,
+    attempts: [],
+    candidates: [],
+    ocr: null,
+    stampDetection: { stamp: "1st Edition", score: 1, isStampDetected: true },
+    printedFoilMarker: {
+      marker: "star",
+      glyphHeightRatio: 1,
+      glyphWidthRatio: 1,
+      starShapeScore: 1,
+    },
+  };
+  const plan = prepareMatchedScanPlan(
+    {
+      ...input,
+      diagnostics,
+      capturedImageUrl: "front",
+      capturedBackImageUrl: "back",
+      isNudgeFoilDetectionEnabled: false,
+      isFoilStarDetectionEnabled: true,
+    },
+    context(),
+  );
+  assert.equal(plan.record.stamp, "1st Edition");
+  assert.equal(plan.binContent?.stamp, "1st Edition");
+  assert.equal(plan.record.isFoil, true);
+  assert.equal(plan.record.capturedBackImageUrl, "back");
+  assert.equal(plan.record.capturedImageUrl, "front");
+  const disabled = prepareMatchedScanPlan(
+    {
+      ...input,
+      diagnostics,
+      isNudgeFoilDetectionEnabled: false,
+      isFoilStarDetectionEnabled: false,
+    },
+    context(),
+  );
+  assert.equal(disabled.record.isFoil, undefined);
+  const unmatched = prepareUnmatchedScanPlan(
+    { scanId: "miss", scannedAt: 5, capturedBackImageUrl: "back" },
+    context(),
+  );
+  assert.equal(unmatched.record.capturedBackImageUrl, "back");
 });

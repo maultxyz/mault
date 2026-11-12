@@ -29,6 +29,7 @@ export function PhaseVideo({ video }: PhaseVideoProps) {
           title={t("assembly.videoTitle")}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerPolicy="strict-origin-when-cross-origin"
+          credentialless=""
           allowFullScreen
           loading="lazy"
           className="size-full"
@@ -46,6 +47,7 @@ export function PhaseVideo({ video }: PhaseVideoProps) {
                   : "outline"
               }
               className="text-sm"
+              aria-pressed={chapter.key === activeChapter?.key}
               onClick={() => {
                 setActiveChapter(chapter);
                 setAutoplay(true);

@@ -1,6 +1,7 @@
 import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { useHiddenDownloadedCount } from "@/features/cards/api/use-hidden-downloaded-count";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { SelectionActionBar } from "@/components/selection-action-bar";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,9 @@ import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { PendingScanCardItem } from "@/features/cards/components/pending-scan-card-item";
+import { usePendingScanCards } from "@/features/cards/api/use-pending-scan-cards";
+import { useDocumentScan } from "@/features/scanner/api/use-document-scan";
 import { useScanImageImport } from "@/features/scanner/api/use-scan-image-import";
 import { ScanImageImportDialog } from "@/features/scanner/components/scan-image-import-dialog";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
@@ -52,7 +56,10 @@ import {
   collectionCardsPageQueryOptions,
   collectionCardsCountQueryOptions,
   loadCollectionCardIds,
+  scanTimelineBucketsQueryOptions,
+  scanTimelineCardsQueryOptions,
 } from "@/features/collections/api/collection-cards";
+import { CardScanTimeline } from "@/features/cards/components/card-scan-timeline";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useStoredCardCount } from "@/features/collections/api/use-stored-card-count";
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
@@ -66,16 +73,16 @@ import {
 import { collectionViewPath } from "@/lib/constants/collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useElementHeight } from "@/hooks/use-element-height";
 import { BULK_TAG_ACTIONS } from "@/lib/constants/card-tags";
 import {
   CARD_GRID_CLASS,
   CARD_GRID_DENSITY_CLASS,
+  SELECTION_ACTION_BAR_BUTTON_CLASS,
+  SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS,
 } from "@/lib/constants/card-grid";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
-import type {
-  OpenScanOptions,
-  SelectToggleOptions,
-} from "@/lib/interfaces/cards";
+import type { OpenScanOptions } from "@/lib/interfaces/cards";
 import {
   IconAlbum,
   IconBox,
@@ -92,10 +99,19 @@ import {
   CARD_CONDITIONS,
   CARD_TAGS,
   computeBinCount,
+  deviceTimeZone,
+  groupCardsByScanTime,
   toReviewGridCard,
+  type GroupedScannedCard,
+  type ScanTimelineBlock,
 } from "@magic-vault/shared";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import { useTranslation } from "react-i18next";
 import {
   Link,
@@ -104,6 +120,11 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useHotkeys } from "@/hooks/use-hotkeys";
+import { useScanSelection } from "@/hooks/use-scan-selection";
+import {
+  groupedCardKey,
+  groupedCardScanIds,
+} from "@/features/cards/lib/grouped-card-selection";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
 import { reviewQueueStore } from "@/features/cards/lib/review-queue-store";
@@ -138,6 +159,11 @@ export function CardGrid() {
   const [addCardOpen, setAddCardOpen] = useState(false);
   const [importScansOpen, setImportScansOpen] = useState(false);
   const scanImageImport = useScanImageImport(collectionGuid);
+  const documentScan = useDocumentScan(
+    scanImageImport,
+    collectionGuid,
+    importScansOpen,
+  );
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
     viewedCollection && locks[viewedCollection.guid]?.userId === currentUserId
@@ -170,7 +196,6 @@ export function CardGrid() {
     isPending: summaryPending,
   } = useCollectionCardsSummary();
 
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { scanId: openScanId } = useParams<{ scanId?: string }>();
   const [searchParams] = useSearchParams();
@@ -205,23 +230,35 @@ export function CardGrid() {
     );
   }, [navigate, basePath, setReviewLayout]);
   const [page, setPage] = useState(0);
+  const pageSize = usePageSize();
+  const changePageSize = (nextPageSize: number) => {
+    setPageSize(nextPageSize);
+    setPage(0);
+  };
   const {
     viewMode,
     handleViewModeChange,
     groupDuplicates,
     handleGroupDuplicatesChange,
+    scanTimeline,
+    handleScanTimelineChange,
   } = useCardViewPreferences();
+  const scanTimelineGrouping = scanTimeline === "off" ? null : scanTimeline;
+  const [toolbarElement, setToolbarElement] = useState<HTMLDivElement | null>(
+    null,
+  );
+  const toolbarHeight = useElementHeight(toolbarElement);
   const [density, handleDensityChange] = useCardGridDensity();
 
   const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
   const cardsQuery = useMemo(
     () => ({
       search: debouncedSearch.toLowerCase().trim(),
-      sort: sortKey,
+      sort: scanTimelineGrouping ? null : sortKey,
       filters,
-      grouped: groupDuplicates,
+      grouped: scanTimelineGrouping ? false : groupDuplicates,
     }),
-    [debouncedSearch, sortKey, filters, groupDuplicates],
+    [debouncedSearch, sortKey, filters, groupDuplicates, scanTimelineGrouping],
   );
   const reviewQuery = useMemo(
     () => ({ ...cardsQuery, unreviewed: true }),
@@ -277,10 +314,74 @@ export function CardGrid() {
   ]);
   useEffect(() => () => reviewQueueStore.stop(), []);
 
-  const { data: pageData, isPending: pagePending } = useQuery(
-    collectionCardsPageQueryOptions(collectionGuid, cardsQuery, page),
+  const pageQuery = useQuery({
+    ...collectionCardsPageQueryOptions(
+      collectionGuid,
+      cardsQuery,
+      page,
+      pageSize,
+    ),
+    enabled: !!collectionGuid && !scanTimelineGrouping,
+  });
+  const scanTimelineTimeZone = useMemo(() => deviceTimeZone(), []);
+  const scanTimelineCardsQuery = useInfiniteQuery({
+    ...scanTimelineCardsQueryOptions(collectionGuid, cardsQuery),
+    enabled: !!collectionGuid && !!scanTimelineGrouping,
+  });
+  const scanTimelineBucketsQuery = useQuery({
+    ...scanTimelineBucketsQueryOptions(
+      collectionGuid,
+      cardsQuery,
+      scanTimelineGrouping ?? "day",
+      scanTimelineTimeZone,
+    ),
+    enabled: !!collectionGuid && !!scanTimelineGrouping,
+  });
+  const scanTimelinePages = scanTimelineCardsQuery.data?.pages;
+  const pageData = scanTimelineGrouping
+    ? scanTimelinePages?.[0]
+    : pageQuery.data;
+  const pagePending = scanTimelineGrouping
+    ? scanTimelineCardsQuery.isPending
+    : pageQuery.isPending;
+  const cardListUpdatedAt = scanTimelineGrouping
+    ? scanTimelineCardsQuery.dataUpdatedAt
+    : pageQuery.dataUpdatedAt;
+  const pagedCards = useMemo(
+    () =>
+      scanTimelineGrouping
+        ? (scanTimelinePages ?? []).flatMap((timelinePage) => timelinePage.items)
+        : (pageQuery.data?.items ?? []),
+    [scanTimelineGrouping, scanTimelinePages, pageQuery.data],
   );
-  const pagedCards = pageData?.items ?? [];
+  const {
+    selectedIds,
+    setSelectedIds,
+    toggleIds: toggleSelect,
+    selectItem: handleSelect,
+    togglePage: togglePageSelect,
+    isItemSelected,
+    clearSelection,
+  } = useScanSelection({
+    pageItems: pagedCards,
+    keyOf: groupedCardKey,
+    scanIdsOf: groupedCardScanIds,
+  });
+  const scanTimelineBlocks = useMemo(
+    () =>
+      scanTimelineGrouping
+        ? groupCardsByScanTime(
+            pagedCards,
+            scanTimelineGrouping,
+            scanTimelineBucketsQuery.data?.buckets,
+          )
+        : [],
+    [scanTimelineGrouping, pagedCards, scanTimelineBucketsQuery.data],
+  );
+  const { fetchNextPage: fetchNextScanTimelinePage } = scanTimelineCardsQuery;
+  const loadMoreScanTimelineCards = useCallback(() => {
+    void fetchNextScanTimelinePage();
+  }, [fetchNextScanTimelinePage]);
   const totalCards = pageData?.totalCards ?? 0;
   const hiddenDownloadedCount = useHiddenDownloadedCount(
     cardsQuery,
@@ -290,6 +391,21 @@ export function CardGrid() {
     ? Math.max(1, Math.ceil(pageData.totalEntries / pageData.pageSize))
     : 1;
   const clampedPage = Math.min(page, pageCount - 1);
+  const firstEntryIndex = clampedPage * (pageData?.pageSize ?? 0);
+  const entryRange = {
+    from: firstEntryIndex + 1,
+    to: firstEntryIndex + pagedCards.length,
+    total: pageData?.totalEntries ?? 0,
+  };
+
+  const pendingScanCards = usePendingScanCards(
+    collectionGuid,
+    cardListUpdatedAt,
+  );
+  const visiblePendingScanCards =
+    viewMode === "grid" && clampedPage === 0 && !scanTimelineGrouping
+      ? pendingScanCards
+      : [];
 
   useEffect(() => {
     if (page !== clampedPage) setPage(clampedPage);
@@ -366,77 +482,19 @@ export function CardGrid() {
         ? startReview
         : undefined,
     clearSelection:
-      selectedIds.size > 0 ? () => setSelectedIds(new Set()) : undefined,
+      selectedIds.size > 0 ? clearSelection : undefined,
   });
 
-  const toggleSelect = useCallback((scanIds: string[]) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      const allSelected = scanIds.every((id) => next.has(id));
-      for (const id of scanIds) {
-        if (allSelected) next.delete(id);
-        else next.add(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const selectAnchorRef = useRef<string | null>(null);
-
-  const handleSelect = useCallback(
-    (scanId: string, { shiftKey }: SelectToggleOptions) => {
-      const index = pagedCards.findIndex((entry) => entry.scanId === scanId);
-      const entry = pagedCards[index];
-      if (!entry) return;
-      const anchorIndex = selectAnchorRef.current
-        ? pagedCards.findIndex(
-            (candidate) => candidate.scanId === selectAnchorRef.current,
-          )
-        : -1;
-      selectAnchorRef.current = scanId;
-
-      if (!shiftKey || anchorIndex === -1 || anchorIndex === index) {
-        toggleSelect(entry.scanIds);
-        return;
-      }
-
-      const [from, to] =
-        anchorIndex < index ? [anchorIndex, index] : [index, anchorIndex];
-      const rangeIds = pagedCards
-        .slice(from, to + 1)
-        .flatMap((candidate) => candidate.scanIds);
-      setSelectedIds((prev) => {
-        const select = !entry.scanIds.every((id) => prev.has(id));
-        const next = new Set(prev);
-        for (const id of rangeIds) {
-          if (select) next.add(id);
-          else next.delete(id);
-        }
-        return next;
-      });
-    },
-    [pagedCards, toggleSelect],
+  const toggleScanTimelineBlockSelect = useCallback(
+    (block: ScanTimelineBlock<GroupedScannedCard>) =>
+      toggleSelect(block.cards.flatMap((entry) => entry.scanIds)),
+    [toggleSelect],
   );
-
-  const togglePageSelect = useCallback(() => {
-    const pageIds = pagedCards.flatMap((entry) => entry.scanIds);
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      const pageSelected = pageIds.every((id) => next.has(id));
-      for (const id of pageIds) {
-        if (pageSelected) next.delete(id);
-        else next.add(id);
-      }
-      return next;
-    });
-  }, [pagedCards]);
 
   const allSelected =
     totalCards > 0 &&
     selectedIds.size >= totalCards &&
-    pagedCards.every((entry) =>
-      entry.scanIds.every((id) => selectedIds.has(id)),
-    );
+    pagedCards.every(isItemSelected);
 
   const toggleSelectAll = useCallback(async () => {
     if (allSelected || !collectionGuid) {
@@ -449,7 +507,7 @@ export function CardGrid() {
     } catch (err) {
       console.error("Failed to select all cards:", err);
     }
-  }, [allSelected, collectionGuid, cardsQuery]);
+  }, [allSelected, collectionGuid, cardsQuery, setSelectedIds]);
 
   const gameKey = viewedCollection?.game?.key;
   const exportAdapters = useMemo(
@@ -540,7 +598,7 @@ export function CardGrid() {
       if (moved) setSelectedIds(new Set());
       return moved;
     },
-    [moveToCollection, selectedIds],
+    [moveToCollection, selectedIds, setSelectedIds],
   );
 
   const handleDeleteExported = useCallback(() => {
@@ -551,12 +609,12 @@ export function CardGrid() {
       for (const id of exportedScanIds) next.delete(id);
       return next;
     });
-  }, [exportedScanIds, removeCards]);
+  }, [exportedScanIds, removeCards, setSelectedIds]);
 
   const handleBulkDelete = useCallback(() => {
     removeCards(Array.from(selectedIds));
     setSelectedIds(new Set());
-  }, [removeCards, selectedIds]);
+  }, [removeCards, selectedIds, setSelectedIds]);
 
   const handleClearSession = useCallback(async () => {
     clearCards();
@@ -626,11 +684,12 @@ export function CardGrid() {
         open={importScansOpen}
         onOpenChange={setImportScansOpen}
         scanImageImport={scanImageImport}
+        documentScan={documentScan}
       />
     </>
   );
 
-  if (totalCount === 0) {
+  if (totalCount === 0 && visiblePendingScanCards.length === 0) {
     return (
       <>
         <NoGameBanner />
@@ -705,6 +764,7 @@ export function CardGrid() {
         storageLocation={openEntry.storageLocation}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
+        stamp={openEntry.stamp}
         condition={openEntry.condition}
         language={openEntry.language}
         binNumber={openEntry.binNumber}
@@ -760,10 +820,87 @@ export function CardGrid() {
     );
   }
 
+  const toCardTableRow = (entry: GroupedScannedCard) => ({
+    scanId: entry.scanId,
+    scanIds: entry.scanIds,
+    card: entry.card,
+    binNumber: entry.binNumber,
+    quantity: entry.quantity,
+    isFoil: entry.isFoil,
+    foilType: entry.foilType,
+    condition: entry.condition,
+    isDownloaded: entry.isDownloaded,
+    hasAlternatives: !!entry.alternativeMatches?.length,
+    lowConfidenceMatch: entry.lowConfidenceMatch,
+    wasCorrected: entry.corrected,
+    isReviewed: entry.reviewed,
+    storageLocation: entry.storageLocation,
+    isSelected: isItemSelected(entry),
+  });
+
+  const renderCardGridItem = (entry: GroupedScannedCard) => {
+    const item = (
+      <ScannedCardItem
+        key={entry.scanId}
+        card={entry.card}
+        scannedAt={entry.scannedAt}
+        onOpen={() => setOpenScanId(entry.scanId)}
+        binNumber={entry.binNumber}
+        isSelected={isItemSelected(entry)}
+        onToggleSelect={(options) =>
+          handleSelect(entry.scanId, options)
+        }
+        hasAlternatives={!!entry.alternativeMatches?.length}
+        lowConfidenceMatch={entry.lowConfidenceMatch}
+        wasCorrected={entry.corrected}
+        isReviewed={entry.reviewed}
+        storageLocation={entry.storageLocation}
+        isFoil={entry.isFoil}
+        foilType={entry.foilType}
+        condition={entry.condition}
+        isDownloaded={entry.isDownloaded}
+        quantity={entry.quantity}
+      />
+    );
+    if (readOnly) return item;
+    return (
+      <CardContextMenu
+        key={entry.scanId}
+        entry={entry}
+        isSelected={isItemSelected(entry)}
+        onOpen={() => setOpenScanId(entry.scanId)}
+        onToggleSelect={() =>
+          handleSelect(entry.scanId, { shiftKey: false })
+        }
+      >
+        {item}
+      </CardContextMenu>
+    );
+  };
+
+  const renderCardList = (entries: GroupedScannedCard[]) => (
+    <div className="rounded-lg border">
+      <ScannedCardTable
+        rows={entries.map(toCardTableRow)}
+        showQuantity={groupDuplicates && !scanTimelineGrouping}
+        onOpen={(row) => setOpenScanId(row.scanId)}
+        onToggleSelect={(row, options) => handleSelect(row.scanId, options)}
+        onTogglePageSelect={
+          scanTimelineGrouping
+            ? () => toggleSelect(entries.flatMap((entry) => entry.scanIds))
+            : togglePageSelect
+        }
+      />
+    </div>
+  );
+
   return (
     <>
       <NoGameBanner />
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
+      <div
+        ref={setToolbarElement}
+        className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b"
+      >
         <CardToolbar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -795,9 +932,11 @@ export function CardGrid() {
           onDensityChange={handleDensityChange}
           groupDuplicates={groupDuplicates}
           onGroupDuplicatesChange={handleGroupDuplicatesChange}
+          scanTimeline={scanTimeline}
+          onScanTimelineChange={handleScanTimelineChange}
         />
       </div>
-      {totalCards === 0 && (
+      {totalCards === 0 && visiblePendingScanCards.length === 0 && (
         <EmptyState
           className="flex-1"
           title={t("cardGrid.noCardsMatchFilters")}
@@ -822,247 +961,219 @@ export function CardGrid() {
         />
       )}
       <div className="p-2 flex-1">
-        {viewMode === "list" ? (
-          <div className="rounded-lg border">
-            <ScannedCardTable
-              rows={pagedCards.map((entry) => ({
-                scanId: entry.scanId,
-                scanIds: entry.scanIds,
-                card: entry.card,
-                binNumber: entry.binNumber,
-                quantity: entry.quantity,
-                isFoil: entry.isFoil,
-                foilType: entry.foilType,
-                condition: entry.condition,
-                isDownloaded: entry.isDownloaded,
-                hasAlternatives: !!entry.alternativeMatches?.length,
-                lowConfidenceMatch: entry.lowConfidenceMatch,
-                wasCorrected: entry.corrected,
-                isReviewed: entry.reviewed,
-                storageLocation: entry.storageLocation,
-                isSelected: entry.scanIds.every((id) => selectedIds.has(id)),
-              }))}
-              showQuantity={groupDuplicates}
-              onOpen={(row) => setOpenScanId(row.scanId)}
-              onToggleSelect={(row, options) =>
-                handleSelect(row.scanId, options)
-              }
-              onTogglePageSelect={togglePageSelect}
-            />
-          </div>
+        {scanTimelineGrouping ? (
+          <CardScanTimeline
+            blocks={scanTimelineBlocks}
+            grouping={scanTimelineGrouping}
+            loadedCardCount={pagedCards.length}
+            totalCardCount={pageData?.totalEntries ?? 0}
+            hasMoreCards={scanTimelineCardsQuery.hasNextPage}
+            isLoadingMoreCards={scanTimelineCardsQuery.isFetchingNextPage}
+            onLoadMoreCards={loadMoreScanTimelineCards}
+            selectedScanIds={selectedIds}
+            stickyHeaderTopOffset={toolbarHeight}
+            onToggleBlockSelect={toggleScanTimelineBlockSelect}
+            renderBlockCards={(timelineBlock) =>
+              viewMode === "list" ? (
+                renderCardList(timelineBlock.cards)
+              ) : (
+                <div className={CARD_GRID_DENSITY_CLASS[density]}>
+                  {timelineBlock.cards.map(renderCardGridItem)}
+                </div>
+              )
+            }
+          />
         ) : (
-          <div className={CARD_GRID_DENSITY_CLASS[density]}>
-            {pagedCards.map((entry) => {
-              const item = (
-                <ScannedCardItem
-                  key={entry.scanId}
-                  card={entry.card}
-                  scannedAt={entry.scannedAt}
-                  onOpen={() => setOpenScanId(entry.scanId)}
-                  binNumber={entry.binNumber}
-                  isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                  onToggleSelect={(options) =>
-                    handleSelect(entry.scanId, options)
-                  }
-                  hasAlternatives={!!entry.alternativeMatches?.length}
-                  lowConfidenceMatch={entry.lowConfidenceMatch}
-                  wasCorrected={entry.corrected}
-                  isReviewed={entry.reviewed}
-                  storageLocation={entry.storageLocation}
-                  isFoil={entry.isFoil}
-                  foilType={entry.foilType}
-                  condition={entry.condition}
-                  isDownloaded={entry.isDownloaded}
-                  quantity={entry.quantity}
-                />
-              );
-              if (readOnly) return item;
-              return (
-                <CardContextMenu
-                  key={entry.scanId}
-                  entry={entry}
-                  isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                  onOpen={() => setOpenScanId(entry.scanId)}
-                  onToggleSelect={() =>
-                    handleSelect(entry.scanId, { shiftKey: false })
-                  }
-                >
-                  {item}
-                </CardContextMenu>
-              );
-            })}
-          </div>
+          <>
+            <ListPagination
+              alignsEnd
+              className="pb-2"
+              pagination={{
+                page: clampedPage + 1,
+                pageCount,
+                setPage: (nextPage) => setPage(nextPage - 1),
+                ...entryRange,
+              }}
+              pageSize={pageSize}
+              onPageSizeChange={changePageSize}
+            />
+            {viewMode === "list" ? (
+              renderCardList(pagedCards)
+            ) : (
+              <div className={CARD_GRID_DENSITY_CLASS[density]}>
+                {visiblePendingScanCards.map((pendingScanCard) => (
+                  <PendingScanCardItem
+                    key={`pending-${pendingScanCard.scanId}`}
+                    card={pendingScanCard.card}
+                  />
+                ))}
+                {pagedCards.map(renderCardGridItem)}
+              </div>
+            )}
+            <ListPagination
+              alignsEnd
+              className="pt-4"
+              pagination={{
+                page: clampedPage + 1,
+                pageCount,
+                setPage: (nextPage) => setPage(nextPage - 1),
+                ...entryRange,
+              }}
+              pageSize={pageSize}
+              onPageSizeChange={changePageSize}
+            />
+          </>
         )}
-        <ListPagination
-          className="pt-4"
-          pagination={{
-            page: clampedPage + 1,
-            pageCount,
-            setPage: (nextPage) => setPage(nextPage - 1),
-          }}
-        />
       </div>
 
       {selectedIds.size > 0 && (
-        <div
-          role="status"
-          className="sticky bottom-4 z-50 mx-auto mb-4 flex w-fit shrink-0 items-center gap-3 rounded-lg bg-foreground px-1.5 pl-3 py-1.5 text-xs text-background shadow-2xl ring-1 ring-foreground/20 animate-in fade-in-0 slide-in-from-bottom-4 duration-150"
+        <SelectionActionBar
+          selectedCount={selectedIds.size}
+          onClear={clearSelection}
         >
-          <span className="font-medium">
-            {t("cardGrid.cardsSelected", { count: selectedIds.size })}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-              onClick={() => setSelectedIds(new Set())}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  disabled={exportingSelected || exportAdapters.length === 0}
+                  className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                />
+              }
             >
-              {t("cardGrid.clear")}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    disabled={exportingSelected || exportAdapters.length === 0}
-                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                  />
-                }
-              >
-                {exportingSelected ? (
-                  <IconLoader2 className="animate-spin motion-reduce:animate-none" />
-                ) : (
-                  <IconDownload />
-                )}
-                {exportingSelected ? t("cardGrid.exporting") : t("cardGrid.export")}
-                <IconChevronDown />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="top">
-                {exportAdapters.map((adapter) => (
+              {exportingSelected ? (
+                <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+              ) : (
+                <IconDownload />
+              )}
+              {exportingSelected ? t("cardGrid.exporting") : t("cardGrid.export")}
+              <IconChevronDown />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" side="top">
+              {exportAdapters.map((adapter) => (
+                <DropdownMenuItem
+                  key={adapter.key}
+                  onClick={() => handleExportSelected(adapter)}
+                >
+                  {adapter.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {!readOnly && (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                    />
+                  }
+                >
+                  <IconSparkles />
+                  {t("cardContextMenu.foil")}
+                  <IconChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" side="top">
                   <DropdownMenuItem
-                    key={adapter.key}
-                    onClick={() => handleExportSelected(adapter)}
-                  >
-                    {adapter.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {!readOnly && (
-              <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                      />
+                    onClick={() =>
+                      setCardsFoilType(Array.from(selectedIds), null)
                     }
                   >
-                    <IconSparkles />
-                    {t("cardContextMenu.foil")}
-                    <IconChevronDown />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" side="top">
+                    {t("cardContextMenu.nonFoil")}
+                  </DropdownMenuItem>
+                  {foilOptions.map((option) => (
                     <DropdownMenuItem
+                      key={option}
                       onClick={() =>
-                        setCardsFoilType(Array.from(selectedIds), null)
+                        setCardsFoilType(Array.from(selectedIds), option)
                       }
                     >
-                      {t("cardContextMenu.nonFoil")}
+                      {option}
                     </DropdownMenuItem>
-                    {foilOptions.map((option) => (
-                      <DropdownMenuItem
-                        key={option}
-                        onClick={() =>
-                          setCardsFoilType(Array.from(selectedIds), option)
-                        }
-                      >
-                        {option}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                      />
-                    }
-                  >
-                    <IconRosette />
-                    {t("condition.setSelected")}
-                    <IconChevronDown />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" side="top">
-                    {CARD_CONDITIONS.map((option) => (
-                      <DropdownMenuItem
-                        key={option}
-                        onClick={() =>
-                          setCardsCondition(Array.from(selectedIds), option)
-                        }
-                      >
-                        {t(`condition.names.${option}`)}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                      />
-                    }
-                  >
-                    <IconTag />
-                    {t("cardTags.title")}
-                    <IconChevronDown />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" side="top">
-                    {BULK_TAG_ACTIONS.map(({ enabled, labelKey }, index) => (
-                      <DropdownMenuGroup key={labelKey}>
-                        {index > 0 && <DropdownMenuSeparator />}
-                        <DropdownMenuLabel>{t(labelKey)}</DropdownMenuLabel>
-                        {CARD_TAGS.map((tag) => (
-                          <DropdownMenuItem
-                            key={tag}
-                            onClick={() =>
-                              setCardsTags(Array.from(selectedIds), [tag], enabled)
-                            }
-                          >
-                            {t(`cardTags.names.${tag}`)}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                {(!storageLocked || moveTargetCollections.length > 0) && (
-                  <Button
-                    variant="ghost"
-                    disabled={isMoving || isMovingToCollection}
-                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                    onClick={() => setMoveSelectedOpen(true)}
-                  >
-                    <IconBox />
-                    {t("cardGrid.moveToLocation")}
-                  </Button>
-                )}
-                <Button
-                  variant="destructive"
-                  className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
-                  onClick={() => setConfirmOpen(true)}
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                    />
+                  }
                 >
-                  {t("cardGrid.delete")}
+                  <IconRosette />
+                  {t("condition.setSelected")}
+                  <IconChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" side="top">
+                  {CARD_CONDITIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option}
+                      onClick={() =>
+                        setCardsCondition(Array.from(selectedIds), option)
+                      }
+                    >
+                      {t(`condition.names.${option}`)}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                    />
+                  }
+                >
+                  <IconTag />
+                  {t("cardTags.title")}
+                  <IconChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" side="top">
+                  {BULK_TAG_ACTIONS.map(({ enabled, labelKey }, index) => (
+                    <DropdownMenuGroup key={labelKey}>
+                      {index > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuLabel>{t(labelKey)}</DropdownMenuLabel>
+                      {CARD_TAGS.map((tag) => (
+                        <DropdownMenuItem
+                          key={tag}
+                          onClick={() =>
+                            setCardsTags(Array.from(selectedIds), [tag], enabled)
+                          }
+                        >
+                          {t(`cardTags.names.${tag}`)}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuGroup>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {(!storageLocked || moveTargetCollections.length > 0) && (
+                <Button
+                  variant="ghost"
+                  disabled={isMoving || isMovingToCollection}
+                  className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+                  onClick={() => setMoveSelectedOpen(true)}
+                >
+                  <IconBox />
+                  {t("cardGrid.moveToLocation")}
                 </Button>
-              </>
-            )}
-          </div>
-        </div>
+              )}
+              <Button
+                variant="destructive"
+                className={SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS}
+                onClick={() => setConfirmOpen(true)}
+              >
+                {t("cardGrid.delete")}
+              </Button>
+            </>
+          )}
+        </SelectionActionBar>
       )}
 
       {addCardDialog}

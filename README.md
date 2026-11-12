@@ -219,9 +219,9 @@ These target whatever `DATABASE_URL` points at. Read `CONTRIBUTING.md` before sh
 
 ## Prices
 
-`node packages/server/dist/scripts/sync-prices.js` pulls TCGplayer prices (via tcgcsv), TCGplayer SKU ids for the TCGplayer CSV export (via TCGTracking), Cardmarket and Card Kingdom, downloading only what changed. Nothing runs it automatically.
+`node packages/server/dist/scripts/sync-prices.js` pulls TCGplayer prices and SKU ids for the TCGplayer CSV export (via TCGTracking), Cardmarket and Card Kingdom, downloading only what changed. Nothing runs it automatically.
 
-- **Once a day, never more often.** tcgcsv blocks installs that poll it harder; the TCGplayer step also skips any run within 20 hours of its last pull.
+- **Once a day is enough.** TCGplayer prices only re-download sets TCGTracking reports as changed, and the Card Kingdom step skips any run within 20 hours of its last pull.
 - **No automatic retries.** A failed run waits for the next daily run.
 - **First run:** after your first game sync, run it once by hand. Cards have no price until then. `--force` re-downloads everything; use it sparingly.
 - **Only some games:** `--games=mtg` (comma-separated game keys) limits every source and the price refresh to those games; Card Kingdom only runs when a listed game uses it.
@@ -234,6 +234,12 @@ Docker Compose, with `crontab -e` (replace `/opt/mault` with your `docker-compos
 ```
 
 Coolify: see step 5 under [Coolify](#coolify). Outside Docker: `pnpm --filter @magic-vault/server build`, then schedule the command from the repo root with the `.env` values in its environment.
+
+## Card catalogs
+
+`pnpm --filter @magic-vault/server sync:catalogs` runs the card sync (the same worker the admin page starts) in its own process against `DATABASE_URL`, one game and language after another, so the server does none of the work. `--games=mtg,pokemon` and `--languages=en` limit it, `--force` force-resyncs. A running server picks the new cards up within a minute.
+
+`.github/workflows/card-catalog-sync.yml` runs it nightly on a GitHub runner. It needs the `DATABASE_URL` secret in the `production` environment and, optionally, a `CARD_API_USER_AGENT` variable. Run it by hand to limit it to some games or languages.
 
 ## Deployment
 

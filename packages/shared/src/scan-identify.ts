@@ -1,15 +1,11 @@
 import { consensusAttemptLimit } from "./scan-decisions";
 import { pickConsensus } from "./consensus";
 import { isStrongerTextMatch } from "./text-match";
+import { gameReadsPrintedLanguage } from "./card-language";
 import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
 import type { CardSearchResult } from "./interfaces/api.interface";
+import type { PlayingCardWithDistance } from "./interfaces/card.interface";
 import type {
-  PlayingCard,
-  PlayingCardWithDistance,
-} from "./interfaces/card.interface";
-import type {
-  ColorResolvedMatches,
-  DetectedColorEvidence,
   LookupMatchedCard,
   OrientedSearchCandidate,
   ResolvedCardSearchMatches,
@@ -20,6 +16,7 @@ import type {
   ScanConsensusOutcome,
   ScanOrientation,
   ScanMatchDetails,
+  ScanOcrMode,
 } from "./interfaces/scan-identify.interface";
 import type {
   ScanAttemptDiagnostic,
@@ -38,6 +35,54 @@ export function needsTextSearch(result: CardSearchResult): boolean {
     leader != null &&
     runnerUp != null &&
     runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
+  );
+}
+
+export function scanOcrMode(
+  settings:
+    | { ocrEnabled: boolean; highAccuracyScans?: boolean }
+    | null
+    | undefined,
+  gameSupportsOcr: boolean,
+  readsPrintedLanguageEveryScan = false,
+): ScanOcrMode {
+  if (!settings?.ocrEnabled || !gameSupportsOcr) return "off";
+  return settings.highAccuracyScans || readsPrintedLanguageEveryScan
+    ? "every-scan"
+    : "when-unsure";
+}
+
+export function readsPrintedLanguageEveryScan(
+  collection: { matchAllLanguages?: boolean } | null | undefined,
+  gameKey: string | null | undefined,
+): boolean {
+  return (
+    !!collection?.matchAllLanguages &&
+    !!gameKey &&
+    gameReadsPrintedLanguage(gameKey)
+  );
+}
+
+function imageMatchIsInOtherLanguage(
+  imageResult: CardSearchResult,
+  printedLanguage: string | null | undefined,
+): boolean {
+  const leader = imageResult.data?.[0];
+  if (!printedLanguage || !leader) return false;
+  return (leader.lang ?? leader.card?.lang) !== printedLanguage;
+}
+
+export function prefersTextMatch(
+  imageResult: CardSearchResult,
+  textOcr:
+    | { printingConfirmed?: boolean; scopedToPrintedLanguage?: string | null }
+    | null
+    | undefined,
+): boolean {
+  return (
+    needsTextSearch(imageResult) ||
+    !!textOcr?.printingConfirmed ||
+    imageMatchIsInOtherLanguage(imageResult, textOcr?.scopedToPrintedLanguage)
   );
 }
 
@@ -102,44 +147,6 @@ export async function resolveCardSearchMatches(
   return { card, alternativeMatches, noMatchReason: null, candidates };
 }
 
-function sameColors(a: PlayingCard, b: PlayingCard): boolean {
-  const colorsOf = (card: PlayingCard) =>
-    [...(card.colorIdentity ?? [])].sort().join(",");
-  return colorsOf(a) === colorsOf(b);
-}
-
-export function preferDetectedColor<T extends ResolvedCardSearchMatches>(
-  resolved: T,
-  { gameHasColorBar, detectedColor, printingConfirmed }: DetectedColorEvidence,
-): ColorResolvedMatches<T> {
-  const { card } = resolved;
-  if (!gameHasColorBar || !card)
-    return { ...resolved, colorVariantUncertain: false };
-  const all = [card, ...resolved.alternativeMatches];
-  const colorVariants = all.filter((other) => other.name === card.name);
-  if (!colorVariants.some((other) => !sameColors(other, card)))
-    return { ...resolved, colorVariantUncertain: false };
-  if (printingConfirmed) {
-    return {
-      ...resolved,
-      colorVariantUncertain:
-        detectedColor !== null && !card.colorIdentity?.includes(detectedColor),
-    };
-  }
-  const preferred = detectedColor
-    ? colorVariants.find((other) =>
-        other.colorIdentity?.includes(detectedColor),
-      )
-    : undefined;
-  if (!preferred) return { ...resolved, colorVariantUncertain: true };
-  return {
-    ...resolved,
-    card: preferred,
-    alternativeMatches: all.filter((other) => other !== preferred),
-    colorVariantUncertain: false,
-  };
-}
-
 function toAttemptDiagnostics(
   attempts: ScanAttemptResult[],
 ): ScanAttemptDiagnostic[] {
@@ -170,8 +177,9 @@ export function toScanMatchDetails(
           attempts: toAttemptDiagnostics(attempts),
           candidates: attempt.candidates,
           ocr: attempt.ocr,
-          detectedColor: attempt.detectedColor,
-          foilDetection: attempt.foilDetection ?? null,
+          stampDetection: attempt.stampDetection ?? null,
+          printedFoilMarker: attempt.printedFoilMarker ?? null,
+          printingMarks: attempt.printingMarks ?? null,
         },
       },
       noMatch: null,
@@ -220,10 +228,13 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
     options.checkBothOrientations,
     options.search,
   );
+  const mode =
+    typeof options.ocrMode === "function"
+      ? options.ocrMode(image)
+      : (options.ocrMode ?? (options.ocrEnabled ? "when-unsure" : "off"));
   if (
-    !options.ocrEnabled ||
-    !options.readText ||
-    !needsTextSearch(image.result)
+    mode === "off" ||
+    (mode === "when-unsure" && !needsTextSearch(image.result))
   ) {
     return {
       pick: image,
@@ -236,9 +247,20 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
   const candidates: T[] = [image];
   if (image.alternate) candidates.push(image.alternate);
   const texts = await Promise.all(
-    candidates
-      .filter((candidate) => !!candidate.embedding)
-      .map((candidate) => options.readText!(candidate)),
+    candidates.map(async (candidate) => {
+      if (candidate.textResult !== undefined) {
+        return candidate.textResult
+          ? {
+              ...candidate,
+              result: candidate.textResult,
+              ocr: candidate.textResult.ocr ?? null,
+            }
+          : null;
+      }
+      return candidate.embedding && options.readText
+        ? options.readText(candidate)
+        : null;
+    }),
   );
   let bestIndex = 0;
   texts.forEach((text, index) => {
@@ -258,7 +280,8 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
   const text = texts[bestIndex];
   const ocr =
     text?.ocr ?? texts.find((candidate) => candidate?.ocr)?.ocr ?? null;
-  const usesText = !!text && hasCardMatch(text.result);
+  const usesText =
+    !!text && hasCardMatch(text.result) && prefersTextMatch(image.result, ocr);
   return {
     pick: usesText ? text : image,
     alternate: image.alternate,

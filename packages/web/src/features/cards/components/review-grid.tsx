@@ -9,7 +9,14 @@ import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
 import { REVIEW_GRID_CLASS } from "@/lib/constants/card-grid";
 import type { ReviewGridProps } from "@/lib/interfaces/cards";
 import { toast } from "@/lib/toast";
-import type { PlayingCard, ReviewGridCard } from "@magic-vault/shared";
+import {
+  reviewGridAttributesOf,
+  reviewGridAttributeUpdate,
+  type PlayingCard,
+  type ReviewGridAttributes,
+  type ReviewGridAttributeUpdate,
+  type ReviewGridCard,
+} from "@magic-vault/shared";
 import {
   IconChecks,
   IconLayoutGrid,
@@ -35,7 +42,14 @@ export function ReviewGrid({
   const [correctingCard, setCorrectingCard] = useState<ReviewGridCard | null>(
     null,
   );
+  const [attributeDrafts, setAttributeDrafts] = useState<
+    Record<string, ReviewGridAttributes>
+  >({});
   const visibleCards = cards.filter((card) => !hiddenScanIds.has(card.scanId));
+  const savedAttributesOf = (card: ReviewGridCard) =>
+    reviewGridAttributesOf(card, t("foil"));
+  const attributesOf = (card: ReviewGridCard) =>
+    attributeDrafts[card.scanId] ?? savedAttributesOf(card);
   const remaining = Math.max(
     visibleCards.length,
     total - (cards.length - visibleCards.length),
@@ -57,7 +71,15 @@ export function ReviewGrid({
       cardsToAccept.map((card) => card.scanId),
       true,
     );
-    const failed = await acceptCards(cardsToAccept);
+    const attributeUpdates = new Map<string, ReviewGridAttributeUpdate>();
+    for (const card of cardsToAccept) {
+      const update = reviewGridAttributeUpdate(
+        savedAttributesOf(card),
+        attributeDrafts[card.scanId],
+      );
+      if (update) attributeUpdates.set(card.scanId, update);
+    }
+    const failed = await acceptCards(cardsToAccept, attributeUpdates);
     if (failed.length === 0) return;
     setHidden(
       failed.map((card) => card.scanId),
@@ -88,10 +110,8 @@ export function ReviewGrid({
           <h2 className="truncate text-base font-semibold">
             {t("reviewGrid.title")}
           </h2>
-          <p className="text-xs tabular-nums text-foreground/70">
-            {isLoading
-              ? " "
-              : t("reviewGrid.remaining", { count: remaining })}
+          <p role="status" className="text-xs tabular-nums text-foreground/70">
+            {isLoading ? " " : t("reviewGrid.remaining", { count: remaining })}
           </p>
         </div>
         <ButtonGroup>
@@ -162,6 +182,13 @@ export function ReviewGrid({
               <ReviewGridTile
                 key={card.scanId}
                 card={card}
+                attributes={attributesOf(card)}
+                onAttributesChange={(attributes) =>
+                  setAttributeDrafts((previous) => ({
+                    ...previous,
+                    [card.scanId]: attributes,
+                  }))
+                }
                 onAccept={() => void accept([card])}
                 onCorrect={() => setCorrectingCard(card)}
               />

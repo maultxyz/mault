@@ -79,6 +79,7 @@ export function RuleGroupEditor({
           <Button
             type="button"
             variant={group.combinator === "and" ? "outline-selected" : "outline"}
+            aria-pressed={group.combinator === "and"}
             onClick={() => toggleCombinator("and")}
           >
             {t("and")}
@@ -86,6 +87,7 @@ export function RuleGroupEditor({
           <Button
             type="button"
             variant={group.combinator === "or" ? "outline-selected" : "outline"}
+            aria-pressed={group.combinator === "or"}
             onClick={() => toggleCombinator("or")}
           >
             {t("or")}
@@ -93,7 +95,7 @@ export function RuleGroupEditor({
         </ButtonGroup>
 
         {onRemove && (
-          <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
+          <Button aria-label={t("common:a11y.removeGroup")} type="button" variant="ghost" size="icon" onClick={onRemove}>
             <IconTrash />
           </Button>
         )}

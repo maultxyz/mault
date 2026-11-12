@@ -18,6 +18,7 @@
     "deleteWarning": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft.",
     "deleteOrganization": "Organisation löschen",
     "roleOwner": "Inhaber",
+    "memberRoleLabel": "Rolle von {{name}}",
     "removeMemberTitle": "Mitglied entfernen",
     "removeMemberDescription": "\"{{name}}\" aus dieser Organisation entfernen? Der Zugriff geht sofort verloren.",
     "deleteOrgDescription": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft. Dies kann nicht rückgängig gemacht werden.",

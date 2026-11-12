@@ -1,14 +1,27 @@
 {
+  "a11y": {
+    "cameraPreview": "Aperçu de la caméra du scanner",
+    "showLastSearchImage": "Afficher la dernière image de recherche",
+    "qrCameraPreview": "Vue de la caméra pour scanner le code QR",
+    "binsNeedingEmptying": "Bacs à vider",
+    "corrected": "Corrigée",
+    "sent": "Envoyé",
+    "received": "Reçu",
+    "scanRoutedToBin": "{{name}}, bac {{binNumber}}"
+  },
   "camera": {
     "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
     "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse.",
-    "piUnavailable": "La caméra du trieur est indisponible."
+    "piUnavailable": "La caméra du trieur est indisponible.",
+    "documentScannerUnavailable": "Impossible d'ouvrir le scanner de documents. Vérifiez qu'il est allumé et qu'aucune autre application ne l'utilise."
   },
   "scanEngine": {
     "searchFailed": "Échec de la recherche de la carte",
     "videoStartFailed": "Échec du démarrage de la vidéo",
     "cameraReinitFailed": "Échec de la réinitialisation de la caméra",
-    "phoneCaptureFailed": "Le téléphone n'a pas envoyé de photo à temps."
+    "phoneCaptureFailed": "Le téléphone n'a pas envoyé de photo à temps.",
+    "documentScannerNoPage": "Aucune carte numérisée à identifier. Faites d'abord passer une carte dans le scanner de documents.",
+    "documentScannerPageUnreadable": "Impossible de lire l'image du scanner de documents."
   },
   "sessionLock": {
     "message": "Une session de tri est en cours sur ce trieur. Mettez le scan en pause pour modifier ces réglages.",
@@ -21,7 +34,8 @@
     "noCollection": "Aucune collection",
     "minimize": "Réduire sur le côté",
     "expand": "Afficher l'aperçu du scanner",
-    "hide": "Masquer jusqu'à votre retour dans MAULT"
+    "hide": "Masquer jusqu'à votre retour dans Mault",
+    "showSorter": "Afficher {{name}}"
   },
   "piScan": {
     "preview": "Vue en direct de la trieuse",
@@ -339,6 +353,7 @@
   "scannerMenu": {
     "camera": "Caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
+    "cameraInUseElsewhere": "Utilisée par une autre station",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
     "autoFeed": "Alimentation auto",
@@ -354,18 +369,22 @@
     "clearDevice": "Vider l'appareil",
     "retractCard": "Retirer la carte",
     "resetToNeutral": "Remettre au neutre",
+    "saveScansToFolder": "Enregistrer les scans dans un dossier",
+    "savingScansToFolder": "Scans enregistrés dans {{folder}}",
+    "stopSavingScansToFolder": "Ne plus enregistrer les scans dans un dossier",
     "sorter": "Trieur",
     "connectionStates": {
       "connected": "Connecté",
       "connecting": "Connexion",
       "disconnected": "Non connecté"
-    }
-  },
-  "ocrBetaDialog": {
-    "title": "Correspondance de texte OCR (bêta)",
-    "description": "Quand un scan n'est pas une correspondance sûre, cette option lit le nom de la carte et sa ligne d'extension pour trouver la carte ou choisir la bonne impression. Les correspondances sûres l'ignorent, la vitesse de scan reste donc la même. Elle est encore en bêta et peut mal lire le texte. Désactive-la si elle semble dégrader les correspondances.",
-    "confirm": "Activer l'OCR",
-    "cancel": "Annuler"
+    },
+    "documentScanners": "Scanners de documents",
+    "documentScannerMode": {
+      "feeder": "Chargeur",
+      "flatbed": "À plat"
+    },
+    "setFlatbedCardPosition": "Définir la position de la carte sur la vitre",
+    "setUpFeederCard": "Face et orientation de la carte"
   },
   "phoneCamera": {
     "scanDescription": "Scanne ce code QR avec ton téléphone, ou ouvre le lien, pour qu'il puisse être utilisé comme caméra de ce scanner.",
@@ -412,7 +431,8 @@
     "waitingForPhoneTitle": "En attente de ton téléphone",
     "showQrCode": "Afficher le code QR",
     "sensorBlocked": "Le capteur du module {{module}} détecte une carte, l'autotest n'a donc pas été lancé.",
-    "resolveSensorBlocked": "Résoudre"
+    "resolveSensorBlocked": "Résoudre",
+    "documentScannerReady": "Scanner de documents prêt. Chargez des cartes dans le scanner et lancez la numérisation."
   },
   "sessionErrorsPanel": {
     "heading": "Erreurs"
@@ -421,6 +441,11 @@
     "heading_one": "{{count}} carte non reconnue",
     "heading_other": "{{count}} cartes non reconnues",
     "imageAlt": "Carte non reconnue",
+    "frontSide": "Recto",
+    "backSide": "Verso",
+    "backSideAlt": "Verso numérisé de la carte",
+    "showBackSide": "Afficher le verso",
+    "showFrontSide": "Afficher le recto",
     "noImage": "Aucune image capturée",
     "reasons": {
       "too_far": "Aucune correspondance proche",
@@ -508,6 +533,10 @@
     "collapse": "Masquer les niveaux",
     "cellTitle": "Le bac {{bin}} est plein à {{percent}} %"
   },
+  "autoAssignControl": {
+    "summary": "{{claimed}} bacs sur {{total}} attribués par {{field}}",
+    "stopFirst": "Arrêtez le scanner avant de réinitialiser les bacs détectés automatiquement."
+  },
   "alphabetPassControl": {
     "range": "Tri de {{from}} à {{to}}",
     "stopFirst": "Arrêtez le scanner avant de passer aux lettres suivantes."
@@ -569,6 +598,7 @@
   "connect": "Connecter",
   "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
   "requestingCameraAccess": "Demande d'accès à la caméra…",
+  "cameraConnecting": "Connexion à la caméra…",
   "cardCount_one": "{{count}} carte",
   "cardCount_other": "{{count}} cartes",
   "isScanningTooltip": "{{name}} est en train de scanner",
@@ -604,7 +634,8 @@
         "sorters": "Trieuses",
         "connected": "Connectées",
         "sorting": "En tri",
-        "offline": "Hors ligne"
+        "offline": "Hors ligne",
+        "attention": "À vérifier"
       },
       "searchPlaceholder": "Rechercher des trieuses...",
       "noSearchResultsTitle": "Aucune trieuse correspondante",
@@ -641,7 +672,17 @@
       "deleteConfirm": {
         "title": "Supprimer {{name}} ?",
         "description": "Cela supprime le trieur et tout ce qui est enregistré pour lui : son étalonnage, ses routes de bacs, ses hauteurs de bacs, ses réglages du chargeur et leur historique. Les cartes scannées et les collections sont conservées. Si vous le rebranchez, il apparaîtra comme un nouveau trieur non étalonné."
-      }
+      },
+      "start": "Démarrer",
+      "pauseAll": "Tout mettre en pause",
+      "resumeAll": "Tout reprendre",
+      "resumeSelected": "Reprendre ({{count}})",
+      "sessionCount_one": "{{count}} dans cette session",
+      "sessionCount_other": "{{count}} dans cette session"
+    },
+    "cpuInferenceLimitReached": {
+      "title": "WASM gère une seule trieuse à la fois",
+      "description": "La reconnaissance des cartes sur le processeur (WASM) suffit pour une seule trieuse. Passe le moteur de détection IA sur WebGPU sur la page d'étalonnage Caméra pour utiliser plusieurs trieuses à la fois."
     },
     "hardCapReached": {
       "title": "{{max}} trieuses maximum à la fois",
@@ -650,6 +691,35 @@
     "limitReached": {
       "title": "La limite de trieuses de votre offre est atteinte",
       "description": "Votre offre ne gère qu'un nombre limité de trieuses à la fois. Déconnectez une autre trieuse, ou passez à une offre supérieure dans les paramètres pour en utiliser plus à la fois."
+    },
+    "attention": {
+      "needsAttention": "À vérifier",
+      "count_one": "{{count}} à vérifier",
+      "count_other": "{{count}} à vérifier",
+      "goToNext": "Aller à la prochaine trieuse à vérifier",
+      "reasons": {
+        "jam": "Bourrage au module {{module}}",
+        "hopperEmpty": "Le bac d'alimentation est vide",
+        "feederError": "Erreur du chargeur",
+        "noCardDetected": "Aucune carte n'est arrivée au scanner",
+        "sorterNotResponding": "La trieuse ne répond pas",
+        "routingFailed": "Une carte n'a pas pu être triée",
+        "binLimit": "Le bac {{bins}} est plein",
+        "binLimitUnknown": "Un bac est plein",
+        "binsFull_one": "Le bac {{bins}} est plein",
+        "binsFull_other": "Les bacs {{bins}} sont pleins",
+        "packsComplete": "Tous les paquets sont terminés",
+        "saveFailed": "Un scan n'a pas pu être enregistré",
+        "scanLimit": "Limite quotidienne de scans atteinte",
+        "sorterLimit": "Limite de trieuses atteinte",
+        "collectionLocked": "La collection est verrouillée",
+        "scannerError": "Erreur de caméra"
+      },
+      "fixes": {
+        "resume": "Reprendre",
+        "emptyBin": "Vider le bac",
+        "openSorter": "Ouvrir la trieuse"
+      }
     }
   },
   "watchPage": {
@@ -1030,6 +1100,11 @@
       "pause": "Mettre le scan en pause"
     },
     "form": {
+      "style": "Style de carte",
+      "styles": {
+        "illustrated": "Illustrée",
+        "plain": "Sobre"
+      },
       "title": "Nouvelle carte de contrôle",
       "description": "Choisis ce que la carte modifie. Tout ce qui reste sur Aucun changement ne bouge pas.",
       "cardTitle": "Libellé",
@@ -1057,14 +1132,138 @@
     "tile": {
       "defaultTitle": "Carte de contrôle",
       "qrAlt": "QR code de la carte de contrôle",
-      "remove": "Retirer la carte"
+      "remove": "Retirer la carte",
+      "illustratedAlt": "Carte de contrôle illustrée"
     },
     "page": {
       "back": "Retour au scanner",
       "title": "Cartes de contrôle",
       "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
       "print": "Imprimer",
-      "printTip": "Imprime sur du papier cartonné à l'échelle 100 % avec les marges sur Par défaut. Chaque page contient 9 cartes. Découpe le long des bordures et garde le QR code bien à plat et sans reflets."
+      "printTip": "Imprime sur du papier cartonné au format Letter à l'échelle 100 % (Taille réelle) avec les marges sur Aucune. Chaque page contient 9 cartes. Découpe le long des repères de coupe et garde le QR code bien à plat et sans reflets."
+    },
+    "illustrated": {
+      "typeLines": {
+        "sorcery": "Rituel",
+        "instant": "Éphémère",
+        "enchantment": "Enchantement",
+        "artifact": "Artefact",
+        "creature": "Créature"
+      },
+      "names": {
+        "collection": "Portail vers {{name}}",
+        "preset": "Rite de {{name}}",
+        "foil": "Miroitement {{type}}",
+        "notFoil": "Non foil",
+        "set": "Chercheur de {{name}}",
+        "anySet": "Vagabond de toutes les extensions",
+        "condition": "Expert en {{condition}}",
+        "autoFeedOn": "Nourrir l'essaim",
+        "autoFeedOff": "Bloqueur d'alimentation",
+        "duplicatesOn": "Doublons angéliques",
+        "duplicatesOff": "Bloqueur de doublons",
+        "pause": "Répit du trieur"
+      },
+      "rules": {
+        "collection": "L'instance Mault ciblée trie désormais dans la collection {{name}}.",
+        "preset": "L'instance Mault ciblée suit désormais le préréglage de règles {{name}}.",
+        "foil": "Règle le paramètre foil de l'instance Mault ciblée sur « {{type}} ».",
+        "notFoil": "Règle le paramètre foil de l'instance Mault ciblée sur « Non foil ».",
+        "set": "L'instance Mault ciblée cherche uniquement dans {{name}}.",
+        "anySet": "L'instance Mault ciblée cherche dans toutes les extensions.",
+        "condition": "Règle l'état de l'instance Mault ciblée sur {{condition}}.",
+        "autoFeedOn": "Active ton alimentation auto.",
+        "autoFeedOff": "Désactive l'alimentation auto de l'instance Mault ciblée.",
+        "duplicatesOn": "L'instance Mault ciblée autorise les doublons.",
+        "duplicatesOff": "L'instance Mault ciblée perd la capacité de scanner les doublons.",
+        "pause": "Engage l'instance Mault ciblée. Elle ne se dégage pas tant que tu ne reprends pas le scan."
+      }
+    }
+  },
+  "documentScannerFeed": {
+    "scanFailed": "Le scanner de documents n'a pas pu numériser la carte",
+    "cardDidNotArrive": "La carte numérisée n'est pas arrivée dans le trieur. Dégagez le passage entre le scanner et le module 1, puis remettez la carte dans le scanner.",
+    "moduleOneNotEmpty": "Une carte se trouve déjà dans le module 1. Retirez-la avant de charger depuis le scanner de documents.",
+    "archiveFailed": "Impossible d'enregistrer le scan dans {{folder}}",
+    "moveFlatbedCard": {
+      "title": "Placez la carte dans le trieur",
+      "description": "Retirez la carte numérisée de la vitre et placez-la dans le module 1, puis posez la carte suivante sur la vitre."
+    }
+  },
+  "feederCardSetup": {
+    "title": "Face et orientation de la carte",
+    "description": "Indiquez de quel côté de la feuille se trouve la face de la carte et comment la carte sort du scanner.",
+    "sheetSide": {
+      "label": "Côté numérisé",
+      "options": {
+        "front": "Recto de la feuille",
+        "back": "Verso de la feuille"
+      },
+      "hint": "Si la numérisation de test montre le dos de votre carte, changez de côté."
+    },
+    "feedEdge": {
+      "label": "Entrée de la carte",
+      "options": {
+        "short": "Petit côté en premier",
+        "long": "Grand côté en premier"
+      },
+      "hints": {
+        "short": "La carte sort droite ou à l'envers.",
+        "long": "La carte sort de côté, l'application la redresse donc."
+      }
+    },
+    "cardTop": {
+      "label": "Haut de la carte",
+      "options": {
+        "upright": "Droite",
+        "upside-down": "À l'envers"
+      }
+    },
+    "testInstructions": "Placez une carte dans le chargeur et lancez une numérisation de test. Elle est seulement affichée ici, pas enregistrée.",
+    "testScan": "Numérisation de test",
+    "testAgain": "Numériser à nouveau",
+    "testScanning": "Numérisation...",
+    "testResultHint": "Voici l'aspect des cartes numérisées. La carte doit être droite et montrer sa face.",
+    "testPreviewAlt": "Numérisation de test de la carte",
+    "testFailed": "Impossible d'afficher la numérisation de test.",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "testOutdated": "Numérisez à nouveau pour voir l'autre côté de la feuille.",
+    "noTestScanYet": "Lancez une numérisation de test pour prévisualiser la carte."
+  },
+  "flatbed": {
+    "instruction": {
+      "place-card": "Posez une carte face contre la vitre à l'emplacement marqué, fermez le capot, puis appuyez sur Numériser la carte.",
+      "scanning": "Numérisation de la vitre...",
+      "moveCard": "Déplacez la carte de la vitre vers le module 1 ({{seconds}} s restantes).",
+      "missed-card": "La carte n'est pas arrivée dans le module 1. Placez-la dans le module 1 et appuyez sur Continuer, ou numérisez-la à nouveau.",
+      "identifying": "Identification de la carte...",
+      "done": "Carte triée. Posez la carte suivante sur la vitre.",
+      "doneWithoutSorter": "Placez la carte dans le bac indiqué ci-dessus, puis posez la carte suivante sur la vitre."
+    },
+    "scanCard": "Numériser la carte",
+    "scanCardTooltip": "Numériser la carte posée sur la vitre",
+    "scanning": "Numérisation...",
+    "identifying": "Identification...",
+    "continue": "Continuer",
+    "continueTooltip": "Trier la carte numérisée une fois qu'elle est dans le module 1",
+    "rescan": "Renumériser",
+    "cancel": "Annuler",
+    "scanFailed": "Impossible de numériser la vitre",
+    "calibration": {
+      "title": "Définir la position de la carte",
+      "description": "Indiquez à l'application où vous posez chaque carte sur la vitre du scanner à plat.",
+      "instructions": "Posez une carte face contre la vitre à l'endroit où vous poserez chaque carte, par exemple calée dans le coin indiqué par la flèche. Fermez le capot, puis numérisez la vitre.",
+      "scanGlass": "Numériser la vitre",
+      "scanning": "Numérisation de la vitre...",
+      "scanAgain": "Numériser à nouveau",
+      "dragHint": "Tracez un cadre autour de la carte si le cadre détecté n'est pas juste.",
+      "boxTooSmall": "Le cadre est trop petit pour une carte. Tracez un cadre plus grand autour d'elle.",
+      "save": "Enregistrer la position",
+      "cancel": "Annuler",
+      "previewAlt": "Numérisation de toute la vitre du scanner à plat",
+      "editorLabel": "Vitre du scanner à plat. Faites glisser pour marquer l'emplacement de la carte.",
+      "previewFailed": "Impossible de numériser la vitre. Vérifiez que le scanner est allumé et réessayez."
     }
   }
 }

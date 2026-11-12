@@ -1,5 +1,13 @@
 import type { FieldMeta, PlayingCardWithDistance } from "@magic-vault/shared";
+import type { SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
+import type { CatalogJoinScope } from "./saved-cards";
+
+export interface CardStatsSource {
+  scope: CatalogJoinScope;
+  joins: SQL;
+  where: SQL;
+}
 
 export interface CardsCollection {
   id: number;
@@ -23,6 +31,7 @@ export interface CollectionCardRow {
   bin_number: number | null;
   is_foil: boolean;
   foil_type: string | null;
+  stamp: string | null;
   condition: string;
   language: string | null;
   is_downloaded: boolean;

@@ -1,5 +1,8 @@
+import type { SHARE_LINK_PURPOSES } from "../constants/monitor-links.constant";
 import type { ConditionMultipliers } from "./card-condition.interface";
 import type { PriceSource } from "./price-source.interface";
+
+export type ShareLinkPurpose = (typeof SHARE_LINK_PURPOSES)[number];
 
 export interface MonitorLink {
   token: string;
@@ -12,4 +15,12 @@ export interface MonitorLinkInfo {
   expiresAt: string;
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;
+  showsPrices: boolean;
+  purpose: ShareLinkPurpose;
+}
+
+export interface ParsedShareLinkUrl {
+  kind: "collection" | "storage";
+  guid: string;
+  token: string;
 }

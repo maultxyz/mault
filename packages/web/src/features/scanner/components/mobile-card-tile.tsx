@@ -1,16 +1,17 @@
 import { useLongPress } from "@/hooks/use-long-press";
-import { FoilOverlay } from "@/components/foil-overlay";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { MobileCardTileProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { IconCheck, IconHelpCircle } from "@tabler/icons-react";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 export const MobileCardTile = memo(function MobileCardTile({
   entry,
   onOpen,
   onLongPress,
 }: MobileCardTileProps) {
+  const { t } = useTranslation("scanner");
   const { handlers, consumeLongPress } = useLongPress(onLongPress);
   const { priceOf, format } = usePriceSource();
   const price = priceOf(
@@ -41,14 +42,19 @@ export const MobileCardTile = memo(function MobileCardTile({
       >
         <img
           src={entry.card.image?.normal || entry.card.image?.small || ""}
-          alt={entry.card.name}
+          alt=""
           loading="lazy"
           draggable={false}
           className="h-full w-full object-cover"
         />
-        {entry.isFoil && <FoilOverlay />}
         {flagged && (
           <span
+            role="img"
+            aria-label={
+              entry.corrected
+                ? t("a11y.corrected")
+                : t("mobileMonitor.needsReview")
+            }
             className={cn(
               "absolute top-1 left-1 rounded-sm p-0.5",
               entry.corrected ? "bg-success-strong" : "bg-warning-strong",

@@ -1,0 +1,81 @@
+{
+  "title": "Valider les correspondances",
+  "description": "Aide la communauté à améliorer la reconnaissance des cartes : compare les scans récents avec la carte associée. Chaque scan demande {{required}} vérifications. Les réponses ne modifient jamais une collection.",
+  "counts": "Tu en as vérifié {{yours}} · {{community}} vérifications de la communauté jusqu'ici",
+  "sessionCounts": "Cette session : {{correct}} justes, {{incorrect}} fausses, {{badScan}} mauvais scans",
+  "scanPhoto": "Photo du scan",
+  "scanPhotoAlt": "Photo du scan à comparer avec {{name}}",
+  "matchedCard": "Carte associée",
+  "matchedCardAlt": "Image du catalogue de {{name}}",
+  "unknownCard": "Carte inconnue",
+  "matchedByEmbedding": "Associée par l'image",
+  "matchedByOcr": "Associée par le texte du nom",
+  "lowConfidence": "Confiance faible",
+  "scannedAt": "Scannée le {{date}}",
+  "decisions": {
+    "correct": "Marquée juste",
+    "incorrect": "Marquée fausse",
+    "skipped": "Ignorée",
+    "badScan": "Marquée mauvais scan"
+  },
+  "actions": {
+    "correct": "Juste",
+    "incorrect": "Fausse",
+    "badScan": "Mauvais scan",
+    "skip": "Ignorer",
+    "back": "Retour",
+    "refresh": "Actualiser"
+  },
+  "empty": {
+    "title": "Plus rien à vérifier",
+    "description": "Tu as vérifié chaque scan ouvert, ou ignoré le reste. Actualise pour recharger les scans ignorés."
+  },
+  "toasts": {
+    "saveError": "Impossible d'enregistrer ta réponse. Réessaie ce scan."
+  },
+  "reviewProgress": "{{count}} sur {{required}} vérifications",
+  "views": {
+    "review": "Vérifier",
+    "scans": "Tous les scans"
+  },
+  "statuses": {
+    "inProgress": "À vérifier",
+    "correct": "Juste",
+    "incorrect": "Fausse",
+    "badScan": "Mauvais scan",
+    "disputed": "Contestée"
+  },
+  "tallies": "{{correct}} justes · {{incorrect}} fausses · {{badScan}} mauvais scan",
+  "yourVerdict": "Ta réponse : {{verdict}}",
+  "scans": {
+    "listLabel": "Scans à valider",
+    "empty": {
+      "title": "Aucun scan à valider",
+      "description": "Il n'y a aucun scan avec photo dans cette semaine de validation."
+    }
+  },
+  "summary": {
+    "label": "Progression de la validation",
+    "topValidatorOrgs": "Organisations les plus actives en validation",
+    "anonymousOrg": "Organisation anonyme",
+    "reviewCount_one": "{{count}} vérification",
+    "reviewCount_other": "{{count}} vérifications",
+    "total": "Total"
+  },
+  "guide": {
+    "open": "Comment vérifier une correspondance",
+    "title": "Comment vérifier une correspondance",
+    "intro": "Comparez la photo du scan avec la carte reconnue. Regardez le nom, le symbole d'extension, le numéro de collection et l'illustration.",
+    "done": "Compris",
+    "items": {
+      "correct": "La photo montre la même carte dans la même impression : même nom, même symbole d'extension, même numéro de collection et même illustration. De légères différences de couleur ou d'éclairage ne posent pas de problème.",
+      "incorrect": "La photo montre une autre carte, ou la même carte d'une autre extension ou impression, par exemple avec un autre symbole d'extension, numéro de collection, cadre ou illustration.",
+      "badScan": "Impossible de savoir de quelle carte il s'agit : la photo est floue, coupée, couverte de reflets, montre plusieurs cartes ou aucune carte.",
+      "skip": "Vous n'êtes pas sûr ? Passez ce scan, quelqu'un d'autre le vérifiera."
+    }
+  },
+  "gameFilter": {
+    "label": "JCC",
+    "all": "Tous les JCC"
+  }
+}

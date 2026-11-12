@@ -1,6 +1,7 @@
 import { API_KEY_PREFIX, PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
 import { createMiddleware } from "hono/factory";
 import { hashApiKey, resolveApiKey } from "../lib/api-keys";
+import { recordApiKeyUsage } from "../lib/api-usage";
 import {
   API_ACCESS_UPGRADE_MESSAGE,
   PUBLIC_API_READ_ONLY_KEY,
@@ -16,6 +17,7 @@ export const requireApiKey = createMiddleware<ApiKeyEnv>(async (c, next) => {
   }
   const keyHash = hashApiKey(token);
   const rate = consumeRateLimit(keyHash);
+  recordApiKeyUsage(keyHash, c.req.method, c.req.path, !rate.allowed);
   const resetSeconds = Math.max(
     Math.ceil((rate.resetAt - Date.now()) / 1000),
     0,

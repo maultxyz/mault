@@ -1,5 +1,11 @@
 {
+  "matchValidationProgress": {
+    "label": "Fortschritt der Community-Prüfung",
+    "valueText": "{{done}} von {{total}} Prüfungen erledigt",
+    "percent": "{{percent}} %"
+  },
   "nav": {
+    "validateMatches": "Treffer prüfen",
     "scanner": "Sortieren",
     "collections": "Sammlungen",
     "scan": "Kamera koppeln",
@@ -103,7 +109,8 @@
     "exitButton": "Imitation beenden",
     "hardwareBlocked": "Sortierer und Kameras können nicht verbunden werden, während du einen Benutzer imitierst.",
     "scanningBlockedTitle": "Scannen ist während der Benutzer-Imitation deaktiviert",
-    "scanningBlockedDescription": "Beende die Imitation, um Karten zu scannen, einen Sortierer zu verbinden oder eine Kamera zu verwenden."
+    "scanningBlockedDescription": "Beende die Imitation, um Karten zu scannen, einen Sortierer zu verbinden oder eine Kamera zu verwenden.",
+    "calibrationReadOnly": "Die Kalibrierung ist während der Imitation schreibgeschützt. Beende die Imitation, um sie zu ändern oder einen Sortierer zu verbinden."
   },
   "theme": {
     "toggle": "Design umschalten",
@@ -122,7 +129,8 @@
     "delete": "Löschen",
     "save": "Speichern",
     "create": "Erstellen",
-    "search": "Suchen"
+    "search": "Suchen",
+    "chooseFile": "Datei wählen"
   },
   "unsavedChanges": {
     "message": "Du hast ungespeicherte Änderungen",
@@ -178,7 +186,8 @@
       "selfHost": "Selbst hosten",
       "discordBot": "Discord-Bot",
       "download": "Download",
-      "shop": "Shop"
+      "shop": "Shop",
+      "makerWorld": "MakerWorld"
     },
     "discordAriaLabel": "Discord beitreten",
     "menuAriaLabel": "Menü",
@@ -210,6 +219,7 @@
       "scanner": "Scanner",
       "cardDetail": "Kartendetails",
       "intake": "Ankauf",
+      "matchValidation": "Treffer prüfen",
       "foilLabeling": "Foil-Kennzeichnung"
     },
     "actions": {
@@ -225,6 +235,7 @@
       "goCalibrate": "Zur Sortierer-Einrichtung",
       "goSettings": "Zu den Einstellungen",
       "goAdmin": "Zum Admin-Bereich",
+      "goNextSorterNeedingAttention": "Zum nächsten Sortierer, der Hilfe braucht",
       "scanPauseResume": "Scannen pausieren oder fortsetzen",
       "scanNow": "Jetzt scannen",
       "scanFeed": "Nächste Karte zuführen",
@@ -255,7 +266,13 @@
       "foilLabelFoil": "Beim Kennzeichnen: als Foil markieren",
       "foilLabelNotFoil": "Beim Kennzeichnen: als Nicht-Foil markieren",
       "foilLabelSkip": "Beim Kennzeichnen: diese Karte überspringen",
-      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte"
+      "matchValidationCorrect": "Beim Prüfen von Treffern: Treffer als richtig markieren",
+      "matchValidationIncorrect": "Beim Prüfen von Treffern: Treffer als falsch markieren",
+      "matchValidationBadScan": "Beim Prüfen von Treffern: Foto als schlechten Scan markieren",
+      "matchValidationSkip": "Beim Prüfen von Treffern: diesen Scan überspringen",
+      "matchValidationBack": "Beim Prüfen von Treffern: zum vorherigen Scan zurück",
+      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte",
+      "scanFlatbedCard": "Karte auf dem Flachbett scannen"
     }
   },
   "mobileMenu": {
@@ -278,7 +295,9 @@
     "label": "Seitennavigation",
     "pageNumber": "Seite {{page}}",
     "goToPage": "Gehe zu Seite",
-    "range": "{{from}}-{{to}} von {{total}}"
+    "range": "{{from}}-{{to}} von {{total}}",
+    "pageSize": "Einträge pro Seite",
+    "perPage": "{{count}} pro Seite"
   },
   "guide": {
     "contents": "Inhalt",
@@ -325,12 +344,16 @@
     "customerNameRequired": "Gib den Namen der Kundin oder des Kunden ein.",
     "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
     "orderLinesRequired": "Lass mindestens eine Karte in der Pickliste.",
+    "decklistRequired": "Gib mindestens eine Karte ein, eine pro Zeile.",
     "cardCountRequired": "Gib eine Kartenanzahl ein.",
     "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
     "commandRequired": "Gib einen Befehl ein.",
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
     "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
-    "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
+    "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte.",
+    "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
+    "contactRequired": "Gib an, wie man dich erreicht.",
+    "textTooLong": "Bleib unter {{max}} Zeichen."
   },
   "memberSeatLock": {
     "title": "Diese Organisation hat ihr Mitgliederlimit überschritten",
@@ -352,5 +375,97 @@
       "business": "Business",
       "legacyBusiness": "Business (Legacy)"
     }
+  },
+  "a11y": {
+    "skipToContent": "Zum Hauptinhalt springen",
+    "close": "Schließen",
+    "clear": "Leeren",
+    "openOptions": "Optionen anzeigen",
+    "remove": "Entfernen",
+    "copy": "In die Zwischenablage kopieren",
+    "retry": "Erneut versuchen",
+    "removeCondition": "Bedingung entfernen",
+    "removeGroup": "Gruppe entfernen",
+    "removeMember": "{{name}} entfernen",
+    "cancelInvite": "Einladung für {{email}} zurückziehen",
+    "removeItem": "{{name}} entfernen",
+    "resizePanel": "Bereichsgröße ändern",
+    "notifications": "Benachrichtigungen",
+    "closeNotification": "Benachrichtigung schließen",
+    "notificationsWithCount_one": "Benachrichtigungen, {{count}} ungelesen",
+    "notificationsWithCount_other": "Benachrichtigungen, {{count}} ungelesen",
+    "watching": "Schauen zu",
+    "watchersCount_one": "{{count}} Person schaut zu",
+    "watchersCount_other": "{{count}} Personen schauen zu",
+    "details": "Details",
+    "liveSession": "Scan läuft live",
+    "mainNavigation": "Haupt",
+    "settingsNavigation": "Einstellungen",
+    "selected": "Ausgewählt",
+    "loading": "Wird geladen",
+    "live": "Live",
+    "notLive": "Nicht live",
+    "severity": {
+      "info": "Hinweis:",
+      "warning": "Warnung:",
+      "danger": "Fehler:"
+    },
+    "adminNavigation": "Admin-Navigation"
+  },
+  "shareLink": {
+    "expiryLabel": "Link läuft ab nach",
+    "expiryOption_one": "{{count}} Tag",
+    "expiryOption_other": "{{count}} Tagen",
+    "create": "Link erstellen",
+    "createAnother": "Neuen Link erstellen",
+    "linkLabel": "Link",
+    "copy": "Link kopieren",
+    "copied": "Link kopiert.",
+    "copyFailed": "Der Link konnte nicht kopiert werden. Markiere ihn und kopiere ihn manuell.",
+    "expiresAt": "Läuft ab am {{date}}",
+    "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
+    "revokeAll": "Alle Links widerrufen",
+    "revokeFailed": "Die geteilten Links konnten nicht widerrufen werden.",
+    "close": "Schließen",
+    "qrAlt": "QR-Code für diesen Link. Scanne ihn mit einer Handykamera, um den Link zu öffnen.",
+    "qrHint": "Zum Öffnen scannen",
+    "showPrices": "Preise anzeigen",
+    "showPricesDescription": "Ausschalten, um Kartenpreise und Summen für alle mit diesem Link auszublenden.",
+    "typeLabel": "Link-Typ",
+    "monitorType": "Monitor-Link",
+    "tradeType": "Tausch-Link",
+    "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
+    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
+    "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
+    "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage."
+  },
+  "tradeOffers": {
+    "declined": "Tauschangebot abgelehnt",
+    "respondFailed": "Antwort auf das Tauschangebot fehlgeschlagen.",
+    "reviewTitle": "Tauschangebot von {{name}}",
+    "reviewDescription": "Gesendet über {{source}} am {{date}}",
+    "unknownSource": "einen geteilten Link",
+    "decline": "Ablehnen",
+    "accept": "Annehmen",
+    "contact": "Kontakt",
+    "note": "Notiz",
+    "theyWant_one": "Möchte {{count}} Karte",
+    "theyWant_other": "Möchte {{count}} Karten",
+    "theyOffer_one": "Bietet {{count}} Karte",
+    "theyOffer_other": "Bietet {{count}} Karten",
+    "trayHeading": "Tauschangebote",
+    "trayMessage": "{{name}} möchte {{wanted}} für {{offered}} eigene",
+    "review": "Ansehen",
+    "newOfferToast": "Neues Tauschangebot von {{name}}",
+    "acceptedRemoved_one": "Tausch angenommen. {{count}} Karte aus deinem Bestand entfernt.",
+    "acceptedRemoved_other": "Tausch angenommen. {{count}} Karten aus deinem Bestand entfernt.",
+    "acceptRemovesCards_one": "Beim Annehmen wird die gewünschte Karte ({{count}}) aus deinem Bestand entfernt.",
+    "acceptRemovesCards_other": "Beim Annehmen werden die {{count}} gewünschten Karten aus deinem Bestand entfernt.",
+    "theyGetValue": "Sie bekommen",
+    "youGetValue": "Du bekommst",
+    "youGainValue": "Das Angebot ist {{amount}} mehr wert als das, was angefragt wird.",
+    "youLoseValue": "Das Angebot ist {{amount}} weniger wert als das, was angefragt wird.",
+    "evenValue": "Beide Seiten sind gleich viel wert.",
+    "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher zu niedrig sein."
   }
 }

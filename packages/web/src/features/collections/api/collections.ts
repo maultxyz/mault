@@ -1,3 +1,4 @@
+import type { ScanImageUrls } from "@/lib/interfaces/cards";
 import {
   apiDelete,
   apiGet,
@@ -12,6 +13,7 @@ import {
   type CardScanOrigin,
   type Collection,
   type CreateCollectionFormValues,
+  type EditCollectionFormValues,
   type IdentifyUnmatchedCardRequest,
   type MatchedScanDiagnostics,
   type MoveCardsToCollectionResult,
@@ -19,6 +21,7 @@ import {
   type SetCardTagsRequest,
   type ReviewAcceptRequest,
   type ReviewAcceptResult,
+  type ReviewGridAttributeUpdate,
   SCAN_SAVE_ACCEPTED_STATUSES,
   buildScanSaveRequest,
   throwIfMemberSeatLimit,
@@ -54,9 +57,9 @@ export async function createCollection(
 
 export async function updateCollection(
   guid: string,
-  name: string,
+  values: EditCollectionFormValues,
 ): Promise<Result<Collection[]>> {
-  return apiPut<Result<Collection[]>>(`/api/collections/${guid}`, { name });
+  return apiPut<Result<Collection[]>>(`/api/collections/${guid}`, values);
 }
 
 export async function checkCollectionName(
@@ -85,8 +88,8 @@ export async function deleteCollection(
 export async function loadCardImage(
   guid: string,
   scanId: string,
-): Promise<Result<{ capturedImageUrl?: string }>> {
-  return apiGet<Result<{ capturedImageUrl?: string }>>(
+): Promise<Result<ScanImageUrls>> {
+  return apiGet<Result<ScanImageUrls>>(
     `/api/collections/${guid}/cards/${scanId}/image`,
   );
 }
@@ -182,6 +185,17 @@ export async function updateCollectionCard(
   );
 }
 
+export async function updateCollectionCardAttributes(
+  guid: string,
+  scanId: string,
+  update: ReviewGridAttributeUpdate,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    update,
+  );
+}
+
 export async function setCollectionCardBin(
   guid: string,
   scanId: string,
@@ -258,6 +272,16 @@ export async function setCollectionCardLanguage(
       language,
     },
   );
+}
+
+export async function setCollectionCardStamp(
+  guid: string,
+  scanId: string,
+  stamp: string | null,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
+    stamp,
+  });
 }
 
 export async function fetchCollectionCardCopies(

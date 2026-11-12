@@ -1,0 +1,1 @@
+ALTER TABLE "platform_match_validations" ADD COLUMN IF NOT EXISTS "validator_org_id" text;

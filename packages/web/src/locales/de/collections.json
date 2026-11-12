@@ -1,5 +1,6 @@
 {
   "switcher": {
+    "lockedByOther": "Wird von jemand anderem verwendet",
     "label": "Sammlung",
     "sessionReleased": "Sitzung freigegeben",
     "releaseFailed": "Sitzung konnte nicht freigegeben werden",
@@ -64,11 +65,12 @@
       "heading": "Übersicht"
     },
     "liveView": "Live-Ansicht",
-    "printControlCard": "Steuerkarte drucken"
+    "printControlCard": "Steuerkarte drucken",
+    "viewStats": "Statistiken"
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",
-    "description": "Benenne diese Sammlung um.",
+    "description": "Ändere den Namen und die Scan-Sprache dieser Sammlung.",
     "submit": "Speichern"
   },
   "deleteDialog": {
@@ -94,21 +96,7 @@
     "trigger": "Teilen",
     "title": "Live-Ansicht teilen",
     "description": "Jeder mit diesem Link kann die Scan-Sitzung dieser Sammlung ohne Anmeldung ansehen. Ändern kann er nichts.",
-    "expiryLabel": "Link läuft ab nach",
-    "expiryOption_one": "{{count}} Tag",
-    "expiryOption_other": "{{count}} Tagen",
-    "create": "Link erstellen",
-    "createAnother": "Neuen Link erstellen",
-    "linkLabel": "Link",
-    "copy": "Link kopieren",
-    "copied": "Link kopiert.",
-    "copyFailed": "Der Link konnte nicht kopiert werden. Markiere ihn und kopiere ihn manuell.",
-    "expiresAt": "Läuft ab am {{date}}",
-    "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
-    "revokeAll": "Alle Links widerrufen",
-    "revoked": "Alle geteilten Links für diese Sammlung funktionieren nicht mehr.",
-    "revokeFailed": "Die geteilten Links konnten nicht widerrufen werden.",
-    "close": "Schließen"
+    "revoked": "Alle geteilten Links für diese Sammlung funktionieren nicht mehr."
   },
   "selection": {
     "select": "{{name}} auswählen",

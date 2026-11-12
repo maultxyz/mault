@@ -73,6 +73,7 @@ export function toScannedCard(row: {
   capturedImageDataUrl?: string | null;
   isFoil?: boolean | null;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: string | null;
   language?: string | null;
   isDownloaded?: boolean | null;
@@ -90,6 +91,7 @@ export function toScannedCard(row: {
     capturedImageUrl: row.capturedImageDataUrl ?? undefined,
     isFoil: row.isFoil ?? undefined,
     foilType: row.foilType ?? undefined,
+    stamp: row.stamp ?? undefined,
     condition: toCardCondition(row.condition),
     language: row.language ?? undefined,
     isDownloaded: row.isDownloaded ?? undefined,
@@ -105,6 +107,7 @@ export function toScannedCard(row: {
 export function toUnmatchedCard(row: {
   guid: string | null;
   capturedImageUrl: string | undefined;
+  capturedBackImageUrl?: string;
   scannedAt: Date;
   binNumber: number | null;
   diagnostics?: unknown;
@@ -112,6 +115,7 @@ export function toUnmatchedCard(row: {
   return {
     scanId: row.guid!,
     capturedImageUrl: row.capturedImageUrl,
+    capturedBackImageUrl: row.capturedBackImageUrl,
     scannedAt: row.scannedAt.getTime(),
     binNumber: row.binNumber ?? undefined,
     diagnostics:

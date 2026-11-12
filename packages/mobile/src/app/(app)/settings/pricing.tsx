@@ -18,6 +18,7 @@ export default function PricingSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.pricing.title")}
+      isLoading={draft.isLoading}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}
@@ -26,7 +27,7 @@ export default function PricingSettingsScreen() {
     >
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.pricing.heading")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -54,7 +55,7 @@ export default function PricingSettingsScreen() {
       </Surface>
       <Surface style={{ gap: SPACING.md }}>
         <View>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.conditionPricing.heading")}
           </AppText>
           <AppText size="xs" tone="secondary">

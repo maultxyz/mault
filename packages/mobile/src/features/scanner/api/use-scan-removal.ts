@@ -18,6 +18,7 @@ import {
 import { SCAN_REMOVAL_NOTICE_DURATION_MS } from "@/lib/constants/scanner";
 import type {
   ScanRemovalInputs,
+  ScanRemovalMatchedScan,
   ScanRemovalNotice,
   ScanRemovalNoticeKind,
   ScanRemovalValue,
@@ -85,6 +86,18 @@ export function useScanRemoval({ collectionGuid, binConfigs }: ScanRemovalInputs
     [showNotice],
   );
 
+  const replaceQueueWithMatchedScans = useCallback(
+    async (matchedScans: ScanRemovalMatchedScan[]) => {
+      entriesRef.current = [];
+      setEntries([]);
+      for (const { matchedCard, alternativeMatches } of [...matchedScans].reverse()) {
+        await queueMatchedCardForRemoval(matchedCard, alternativeMatches);
+      }
+      return matchedScans.length - entriesRef.current.length;
+    },
+    [queueMatchedCardForRemoval],
+  );
+
   const selectCopyForEntry = useCallback((entryId: string, scanId: string) => {
     setEntries((currentEntries) =>
       currentEntries.map((entry) => (entry.entryId === entryId ? { ...entry, selectedScanId: scanId } : entry)),
@@ -118,6 +131,7 @@ export function useScanRemoval({ collectionGuid, binConfigs }: ScanRemovalInputs
     setRemovalBinNumber,
     entries,
     queueMatchedCardForRemoval,
+    replaceQueueWithMatchedScans,
     showNoMatchNotice,
     notice,
     selectCopyForEntry,

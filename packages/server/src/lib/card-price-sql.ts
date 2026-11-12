@@ -22,6 +22,7 @@ import type {
   CardPriceKey,
   ScannedCardSqlColumns,
 } from "./interfaces/card-prices";
+import type { CatalogJoinScope } from "./interfaces/saved-cards";
 
 function storedCardPriceSelect(cols: ScannedCardSqlColumns, select: SQL): SQL {
   return sql`(
@@ -79,19 +80,28 @@ function finishPriceSql(details: SQL, cols: ScannedCardSqlColumns, key: CardPric
   return sql`(${details} -> 'finishPrices' -> ${cols.foilType} ->> ${key}::text)::float8`;
 }
 
+function stampPriceSql(details: SQL, cols: ScannedCardSqlColumns, key: CardPriceKey): SQL {
+  return sql`(${details} -> 'stampPrices' -> ${cols.stamp} ->> ${key}::text)::float8`;
+}
+
 function scannedPriceFrom(
   pricing: OrgPricing,
   cols: ScannedCardSqlColumns,
   stored: (key: CardPriceKey) => SQL,
   storedFinish: (key: CardPriceKey) => SQL,
+  storedStamp: (key: CardPriceKey) => SQL,
 ): SQL<number | null> {
   const fields = PRICE_SOURCE_FIELDS[pricing.source];
   const value = (key: CardPriceKey) =>
     sql`COALESCE(${stored(key)}, ${savedCardPriceSql(key, cols)})`;
   const foilValue = sql`COALESCE(${storedFinish(fields.priceFoil)}, ${value(fields.priceFoil)})`;
+  const stampValue =
+    pricing.source === "tcgplayer"
+      ? sql`CASE WHEN ${cols.stamp} IS NOT NULL THEN (CASE WHEN ${cols.isFoil} THEN ${storedStamp(fields.priceFoil)} ELSE ${storedStamp(fields.price)} END) END, `
+      : sql``;
   return sql<
     number | null
-  >`(COALESCE(CASE WHEN ${cols.isFoil} THEN ${foilValue} END, ${value(fields.price)}) * ${conditionFactorSql(cols.condition, pricing.conditionMultipliers)})`;
+  >`(COALESCE(${stampValue}CASE WHEN ${cols.isFoil} THEN ${foilValue} END, ${value(fields.price)}) * ${conditionFactorSql(cols.condition, pricing.conditionMultipliers)})`;
 }
 
 export function scannedCardPriceSql(
@@ -103,6 +113,7 @@ export function scannedCardPriceSql(
     cols,
     (key) => storedCardPriceSql(key, cols),
     (key) => storedCardPriceSelect(cols, finishPriceSql(sql`cp.details`, cols, key)),
+    (key) => storedCardPriceSelect(cols, stampPriceSql(sql`cp.details`, cols, key)),
   );
 }
 
@@ -116,6 +127,7 @@ export function joinedScannedCardPriceSql(
     cols,
     (key) => sql.raw(`${cardPricesAlias}.${CARD_PRICE_COLUMNS[key]}`),
     (key) => finishPriceSql(sql.raw(`${cardPricesAlias}.details`), cols, key),
+    (key) => stampPriceSql(sql.raw(`${cardPricesAlias}.details`), cols, key),
   );
 }
 
@@ -135,7 +147,7 @@ export function collectionCardPricesJoinOn(): SQL {
 
 export function cardPricesJoinSql(
   cardPricesAlias: string,
-  { gameKey, lang }: { gameKey: string | null; lang: string },
+  { gameKey, lang }: CatalogJoinScope,
   { cardId, cardLang }: Pick<ScannedCardSqlColumns, "cardId" | "cardLang">,
 ): SQL {
   const cp = sql.raw(cardPricesAlias);

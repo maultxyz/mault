@@ -2,18 +2,15 @@ import { scanWarn } from "@/lib/scan-log";
 import {
   CORNER_DETECTOR_INPUT_SIZE,
   CORNER_DETECTOR_MODEL,
-  IMAGENET_MEAN,
-  IMAGENET_STD,
   DEFAULT_MIN_SHARPNESS,
   parseCornerDetection,
-  rgbaToChw,
   type CornerDetection,
 } from "@magic-vault/shared";
-import { ort, runOnnxModel } from "./onnx-runtime";
+import { runVisionModel } from "./onnx-runtime";
 
 let cropCanvas: HTMLCanvasElement | null = null;
 
-function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
+function toDetectorInput(canvas: HTMLCanvasElement): ImageData {
   if (!cropCanvas) {
     cropCanvas = document.createElement("canvas");
     cropCanvas.width = CORNER_DETECTOR_INPUT_SIZE;
@@ -25,32 +22,25 @@ function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, CORNER_DETECTOR_INPUT_SIZE, CORNER_DETECTOR_INPUT_SIZE);
 
-  return rgbaToChw(
-    ctx.getImageData(0, 0, CORNER_DETECTOR_INPUT_SIZE, CORNER_DETECTOR_INPUT_SIZE),
-    IMAGENET_MEAN,
-    IMAGENET_STD,
-  );
+  return ctx.getImageData(0, 0, CORNER_DETECTOR_INPUT_SIZE, CORNER_DETECTOR_INPUT_SIZE);
 }
 
 export async function detectCardCorners(
   canvas: HTMLCanvasElement,
   minSharpness: number = DEFAULT_MIN_SHARPNESS,
 ): Promise<CornerDetection> {
-  const chw = toChwTensor(canvas);
-
-  const tensor = new ort.Tensor("float32", chw, [1, 3, CORNER_DETECTOR_INPUT_SIZE, CORNER_DETECTOR_INPUT_SIZE]);
-  const { outputs } = await runOnnxModel(
+  const { outputs } = await runVisionModel(
     "detector",
     CORNER_DETECTOR_MODEL,
-    (session) => ({ [session.inputNames[0]]: tensor }),
-    { graphOptimizationLevel: "disabled" },
+    toDetectorInput(canvas),
+    { alwaysRunOnCpu: true },
   );
 
   const detection = parseCornerDetection(
     {
-      corners: outputs["corners"].data as Float32Array,
-      sharpness: outputs["sharpness"]?.data as Float32Array | undefined,
-      presence: outputs["presence"]?.data as Float32Array | undefined,
+      corners: outputs["corners"],
+      sharpness: outputs["sharpness"],
+      presence: outputs["presence"],
     },
     canvas.width,
     canvas.height,

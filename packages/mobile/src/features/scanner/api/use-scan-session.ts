@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   applyAutoAssignTarget,
@@ -17,6 +18,7 @@ import {
   findScannerControlCommandProblem,
   runScanWorkflow,
   runScanDisposition,
+  parseShareLinkUrl,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
@@ -26,11 +28,12 @@ import {
   isFedEvent,
   isFeedTimeoutReply,
   OCR_REGIONS_BY_GAME_KEY,
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   SERIAL_JAM_ERROR,
   type SerialReply,
   toRuleCard,
   withScanRuleFields,
+  presetMatchGameKeys,
+  presetMatchedGameOptions,
   type AutoAssignTarget,
   type BinConfig,
   type BinContentCard,
@@ -39,28 +42,39 @@ import {
   type ScanPickListUpdate,
   type ScannerControlCommand,
   type ScanRoutingContext,
+  readsPrintedLanguageEveryScan,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import {
   binHeightsQueryOptions,
   feederConfigQueryOptions,
 } from "@/features/calibration/api/calibration-configs";
+import { releaseScanLock } from "@/features/collections/api/collections";
+import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import {
-  collectionsQueryOptions,
-  releaseScanLock,
-  setActiveCollection,
-} from "@/features/collections/api/collections";
-import { binRoutesQueryOptions, binSetsQueryOptions } from "@/features/devices/api/devices";
+  binRoutesQueryOptions,
+  binSetsQueryOptions,
+} from "@/features/devices/api/devices";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
-import { fetchBinContents, fetchBinCounts } from "@/features/scanner/api/bin-counts";
-import { activateBinSet, emptyBins, markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
+import {
+  fetchBinContents,
+  fetchBinCounts,
+} from "@/features/scanner/api/bin-counts";
+import {
+  activateBinSet,
+  emptyBins,
+  markPickListFound,
+  saveBinConfig,
+} from "@/features/rules/api/bin-sets";
 import { sendSortOnlyScan } from "@/features/scanner/api/scan-saves";
+import { gamesQueryOptions } from "@/features/games/api/games";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
 import { identifyCard } from "@/features/scanner/lib/identify";
-import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-code";
+import { readScannerQrText } from "@/features/scanner/lib/scanner-control-code";
 import { warmScanModels } from "@/features/scanner/lib/inference";
 import { reportSerialEvent } from "@/features/sorter/api/serial-events";
 import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
@@ -70,7 +84,6 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BIN_DATA_RETRY_MS,
   CONTROL_CARD_NOTICE_DURATION_MS,
-  LIVE_CORNERS_SUPPORTED,
   SESSION_FEED_IMAGE_LIMIT,
   SESSION_FEED_LIMIT,
 } from "@/lib/constants/scanner";
@@ -94,23 +107,31 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { delay } from "@/lib/delay";
 
-export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue {
+export function useScanSession({
+  capture,
+}: ScanSessionInputs): ScanSessionValue {
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
   const sorter = useSorter();
   const { saveCard, saveUnmatched } = usePendingSaves();
-  const { data: collections } = useQuery(collectionsQueryOptions(orgId));
+  const { collection, collections, setScanTargetGuid } = useScanTarget();
   const { data: binSets } = useQuery(binSetsQueryOptions(orgId));
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
-  const { data: binRoutes } = useQuery(binRoutesQueryOptions(sorter.device?.guid ?? null));
-  const { data: feederConfig } = useQuery(feederConfigQueryOptions(sorter.device?.guid ?? null));
+  const { data: binRoutes } = useQuery(
+    binRoutesQueryOptions(sorter.device?.guid ?? null),
+  );
+  const { data: feederConfig } = useQuery(
+    feederConfigQueryOptions(sorter.device?.guid ?? null),
+  );
   const { data: binHeights, isError: binHeightsFailed } = useQuery(
     binHeightsQueryOptions(sorter.device?.guid ?? null),
   );
 
   const [phase, setPhaseState] = useState<ScannerPhase>("idle");
-  const [pauseReason, setPauseReason] = useState<ScannerPauseReason | null>(null);
+  const [pauseReason, setPauseReason] = useState<ScannerPauseReason | null>(
+    null,
+  );
   const [pauseDetail, setPauseDetail] = useState<string | null>(null);
   const [feed, setFeed] = useState<ScanFeedEntry[]>([]);
   const [sessionCount, setSessionCount] = useState(0);
@@ -118,13 +139,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const [isRunning, setIsRunning] = useState(false);
   const [autoFeed, setAutoFeedState] = useState(true);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
-  const [handScan, setHandScanState] = useState(() => readKv(HAND_SCAN_KEY) === "true");
-  const handScanActive = handScan && LIVE_CORNERS_SUPPORTED && !sorter.isReady;
+  const [handScan, setHandScanState] = useState(
+    () => readKv(HAND_SCAN_KEY) === "true",
+  );
+  const handScanActive = handScan && !sorter.isReady;
 
-  const collection = collections?.find((c) => c.isActive) ?? null;
   const set = useMemo(() => {
     const forGame = (binSets ?? []).filter(
-      (s) => (s.game?.guid ?? undefined) === (collection?.game?.guid ?? undefined),
+      (s) =>
+        (s.game?.guid ?? undefined) === (collection?.game?.guid ?? undefined),
     );
     return forGame.find((s) => s.isActive) ?? forGame[0];
   }, [binSets, collection?.game?.guid]);
@@ -132,14 +155,36 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const binCount = moduleCount
     ? computeBinCount(moduleCount)
     : Math.max(0, ...(set?.bins ?? []).map((bin) => bin.binNumber));
-  const configs = useMemo(() => (binCount ? configsFromSet(set, binCount) : []), [set, binCount]);
-  const removal = useScanRemoval({ collectionGuid: collection?.guid ?? null, binConfigs: configs });
+  const configs = useMemo(
+    () => (binCount ? configsFromSet(set, binCount) : []),
+    [set, binCount],
+  );
+  const removal = useScanRemoval({
+    collectionGuid: collection?.guid ?? null,
+    binConfigs: configs,
+  });
+  const { data: games = [] } = useQuery(gamesQueryOptions);
   const fieldDefinitions = useMemo(
     () =>
-      withScanRuleFields(collection?.game?.fieldDefinitions ?? [], collection?.game?.foilTypes ?? []),
-    [collection?.game?.fieldDefinitions, collection?.game?.foilTypes],
+      withScanRuleFields(
+        collection?.game?.fieldDefinitions ?? [],
+        collection?.game?.foilTypes ?? [],
+        collection?.game?.key,
+        undefined,
+        presetMatchedGameOptions(set, games),
+      ),
+    [
+      collection?.game?.fieldDefinitions,
+      collection?.game?.foilTypes,
+      collection?.game?.key,
+      set,
+      games,
+    ],
   );
-  const playSoundForCard = useSoundRulePlayer(collection?.game?.guid, fieldDefinitions);
+  const playSoundForCard = useSoundRulePlayer(
+    collection?.game?.guid,
+    fieldDefinitions,
+  );
   const needsBinContents = !!set?.isRepackMode || hasMaxCopiesBins(configs);
 
   const phaseRef = useRef<ScannerPhase>("idle");
@@ -176,7 +221,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     allowDuplicates,
     handScanActive,
     removal,
-    feedRetryCount: feederConfig?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
+    feedRetryCount:
+      feederConfig?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
   };
   const latestRef = useRef(latest);
   latestRef.current = latest;
@@ -193,7 +239,10 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       setPauseReason(reason);
       setPauseDetail(detail ?? null);
       setPhase("paused");
-      if (reason !== "user") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+      if (reason !== "user")
+        void Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Warning,
+        ).catch(() => {});
     },
     [setPhase],
   );
@@ -207,20 +256,28 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     [pause],
   );
 
-  const [scanCondition, setScanConditionState] = useState<CardCondition>(DEFAULT_CARD_CONDITION);
+  const [scanCondition, setScanConditionState] = useState<CardCondition>(
+    DEFAULT_CARD_CONDITION,
+  );
   const scanConditionRef = useRef<CardCondition>(DEFAULT_CARD_CONDITION);
   const setScanCondition = useCallback((condition: CardCondition) => {
     scanConditionRef.current = condition;
     setScanConditionState(condition);
   }, []);
-  const [controlCardNotice, setControlCardNotice] = useState<ControlCardNotice | null>(null);
+  const [controlCardNotice, setControlCardNotice] =
+    useState<ControlCardNotice | null>(null);
   useEffect(() => {
     if (!controlCardNotice) return;
-    const dismissTimer = setTimeout(() => setControlCardNotice(null), CONTROL_CARD_NOTICE_DURATION_MS);
+    const dismissTimer = setTimeout(
+      () => setControlCardNotice(null),
+      CONTROL_CARD_NOTICE_DURATION_MS,
+    );
     return () => clearTimeout(dismissTimer);
   }, [controlCardNotice]);
 
-  const [forcedFoilType, setForcedFoilTypeState] = useState<string | null>(null);
+  const [forcedFoilType, setForcedFoilTypeState] = useState<string | null>(
+    null,
+  );
   const [forcedSetCodes, setForcedSetCodesState] = useState<string[]>([]);
   const forcedFoilTypeRef = useRef<string | null>(null);
   const forcedSetCodesRef = useRef<string[]>([]);
@@ -245,7 +302,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       releaseScanLock(previous).catch(() => {});
       const forcedValues = forcedValuesAfterCollectionSwitchRef.current;
       forcedValuesAfterCollectionSwitchRef.current = null;
-      setForcedSetCodes(forcedValues?.forcedSetCode ? [forcedValues.forcedSetCode] : []);
+      setForcedSetCodes(
+        forcedValues?.forcedSetCode ? [forcedValues.forcedSetCode] : [],
+      );
       setForcedFoilType(forcedValues?.forcedFoilType ?? null);
     }
     lockedCollectionGuidRef.current = next;
@@ -261,9 +320,11 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const { deployNotice } = useAppStream();
   const handledDeployNoticeRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!deployNotice || handledDeployNoticeRef.current === deployNotice.guid) return;
+    if (!deployNotice || handledDeployNoticeRef.current === deployNotice.guid)
+      return;
     handledDeployNoticeRef.current = deployNotice.guid;
-    const pauseOnDeploy = latestRef.current.orgSettings?.pauseScanningOnDeploy ?? true;
+    const pauseOnDeploy =
+      latestRef.current.orgSettings?.pauseScanningOnDeploy ?? true;
     if (runningRef.current && pauseOnDeploy) pause("deploy");
   }, [deployNotice, pause]);
 
@@ -289,7 +350,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [setPhase]);
 
   useEffect(() => {
-    if (!sorter.isReady && !handScanActive && runningRef.current) pause("sorter-disconnected");
+    if (!sorter.isReady && !handScanActive && runningRef.current)
+      pause("sorter-disconnected");
   }, [sorter.isReady, handScanActive, pause]);
 
   useEffect(() => {
@@ -304,12 +366,18 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     void fetchBinCounts(collection.guid, windows)
       .then((counts) => {
         if (cancelled) return;
-        binCountsRef.current = new Map(counts.map((c) => [c.binNumber, c.count]));
+        binCountsRef.current = new Map(
+          counts.map((c) => [c.binNumber, c.count]),
+        );
         binCountsLoadedRef.current = true;
       })
       .catch((error: unknown) => {
         console.warn("Loading bin counts failed, retrying", error);
-        if (!cancelled) retryTimer = setTimeout(() => setBinDataReloadAttempt((n) => n + 1), BIN_DATA_RETRY_MS);
+        if (!cancelled)
+          retryTimer = setTimeout(
+            () => setBinDataReloadAttempt((n) => n + 1),
+            BIN_DATA_RETRY_MS,
+          );
       });
     return () => {
       cancelled = true;
@@ -329,16 +397,26 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     const windows = configs
       .filter((bin) => !bin.isCatchAll)
-      .map((bin) => ({ binNumber: bin.binNumber, lastEmptiedAt: bin.lastEmptiedAt ?? null }));
+      .map((bin) => ({
+        binNumber: bin.binNumber,
+        lastEmptiedAt: bin.lastEmptiedAt ?? null,
+      }));
     void fetchBinContents(collection.guid, windows)
       .then((contents) => {
         if (cancelled) return;
-        binContentsRef.current = contents.map((entry) => ({ ...entry, card: toRuleCard(entry.card, entry) }));
+        binContentsRef.current = contents.map((entry) => ({
+          ...entry,
+          card: toRuleCard(entry.card, entry),
+        }));
         binContentsLoadedRef.current = true;
       })
       .catch((error: unknown) => {
         console.warn("Loading bin contents failed, retrying", error);
-        if (!cancelled) retryTimer = setTimeout(() => setBinDataReloadAttempt((n) => n + 1), BIN_DATA_RETRY_MS);
+        if (!cancelled)
+          retryTimer = setTimeout(
+            () => setBinDataReloadAttempt((n) => n + 1),
+            BIN_DATA_RETRY_MS,
+          );
       });
     return () => {
       cancelled = true;
@@ -357,14 +435,27 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     );
   }, []);
 
-  const countInBin = useCallback((binNumber: number) => binCountsRef.current.get(binNumber) ?? 0, []);
+  const countInBin = useCallback(
+    (binNumber: number) => binCountsRef.current.get(binNumber) ?? 0,
+    [],
+  );
 
   const binCapacity = useCallback((binNumber: number): number | null => {
-    const { set: binSet, configs: binConfigs, binHeights: heights, collection: activeCollection } = latestRef.current;
+    const {
+      set: binSet,
+      configs: binConfigs,
+      binHeights: heights,
+      collection: activeCollection,
+    } = latestRef.current;
     const bin = binConfigs.find((c) => c.binNumber === binNumber);
     if (!bin) return null;
     const height = heights?.find((h) => h.binNumber === binNumber)?.height;
-    return scanBinCapacity(height, activeCollection?.game?.cardThickness, binSet, bin);
+    return scanBinCapacity(
+      height,
+      activeCollection?.game?.cardThickness,
+      binSet,
+      bin,
+    );
   }, []);
 
   const isBinFull = useCallback(
@@ -378,7 +469,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const binRoom = useCallback(
     (binNumber: number) => {
       const capacity = binCapacity(binNumber);
-      return capacity == null ? Number.POSITIVE_INFINITY : capacity - countInBin(binNumber);
+      return capacity == null
+        ? Number.POSITIVE_INFINITY
+        : capacity - countInBin(binNumber);
     },
     [binCapacity, countInBin],
   );
@@ -388,7 +481,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const ctx = latestRef.current;
       const updatedConfigs = applyAutoAssignTarget(configs, target);
       locallyUpdatedConfigsRef.current = updatedConfigs;
-      const assigned = updatedConfigs.find((c) => c.binNumber === target.binNumber);
+      const assigned = updatedConfigs.find(
+        (c) => c.binNumber === target.binNumber,
+      );
       void saveBinConfig({
         binNumber: target.binNumber,
         gameGuid: ctx.collection?.game?.guid,
@@ -397,8 +492,14 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         isDisabled: !!assigned?.isDisabled,
         overflowBin: assigned?.overflowBin ?? null,
       })
-        .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(ctx.orgId).queryKey }))
-        .catch((error: unknown) => console.warn("Saving the learned auto-assign rule failed", error));
+        .then(() =>
+          queryClient.invalidateQueries({
+            queryKey: binSetsQueryOptions(ctx.orgId).queryKey,
+          }),
+        )
+        .catch((error: unknown) =>
+          console.warn("Saving the learned auto-assign rule failed", error),
+        );
     },
     [queryClient],
   );
@@ -412,12 +513,23 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         : null;
       if (updatedPickList) {
         locallyUpdatedConfigsRef.current = configs.map((c) =>
-          c.binNumber === update.binNumber ? { ...c, pickList: updatedPickList } : c,
+          c.binNumber === update.binNumber
+            ? { ...c, pickList: updatedPickList }
+            : c,
         );
       }
-      void markPickListFound(update.binGuid, { name: update.name, delta: update.delta })
-        .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(activeOrgId).queryKey }))
-        .catch((error: unknown) => console.warn("Failed to record pick list find", error));
+      void markPickListFound(update.binGuid, {
+        name: update.name,
+        delta: update.delta,
+      })
+        .then(() =>
+          queryClient.invalidateQueries({
+            queryKey: binSetsQueryOptions(activeOrgId).queryKey,
+          }),
+        )
+        .catch((error: unknown) =>
+          console.warn("Failed to record pick list find", error),
+        );
     },
     [queryClient],
   );
@@ -428,7 +540,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       ...current
         .slice(0, SESSION_FEED_LIMIT - 1)
         .map((item, index) =>
-          index >= SESSION_FEED_IMAGE_LIMIT - 1 && item.capturedImageUrl ? { ...item, capturedImageUrl: undefined } : item,
+          index >= SESSION_FEED_IMAGE_LIMIT - 1 && item.capturedImageUrl
+            ? { ...item, capturedImageUrl: undefined }
+            : item,
         ),
     ]);
     setSessionCount((count) => count + 1);
@@ -450,7 +564,12 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     (response: unknown, target: RoutedCardTarget) => {
       const res = response as SerialReply | null;
       if (!res) {
-        reportSorterEvent({ command: "bin", sent: true, response: null, ...target });
+        reportSorterEvent({
+          command: "bin",
+          sent: true,
+          response: null,
+          ...target,
+        });
         pause("route-failed");
         return;
       }
@@ -459,23 +578,39 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         return;
       }
       if (res.noLoadedCard) {
-        reportSorterEvent({ command: "bin", sent: true, response: res, ...target });
+        reportSorterEvent({
+          command: "bin",
+          sent: true,
+          response: res,
+          ...target,
+        });
         pause("card-missing");
         return;
       }
       if (res.empty) {
-        reportSorterEvent({ command: "bin", sent: true, response: res, ...target });
+        reportSorterEvent({
+          command: "bin",
+          sent: true,
+          response: res,
+          ...target,
+        });
         pause("feeder-empty");
         return;
       }
       if (res.error) {
-        reportSorterEvent({ command: "bin", sent: true, response: res, ...target });
+        reportSorterEvent({
+          command: "bin",
+          sent: true,
+          response: res,
+          ...target,
+        });
         const jam = String(res.error).match(ROUTE_TIMEOUT_MODULE_PATTERN);
         pause(jam ? "jam" : "route-failed", jam ? jam[1] : String(res.error));
         return;
       }
       if (res.fedNext) return;
-      if (runningRef.current && latestRef.current.autoFeed) triggerFeedRef.current();
+      if (runningRef.current && latestRef.current.autoFeed)
+        triggerFeedRef.current();
       else if (phaseRef.current === "routing") setPhase("ready");
     },
     [pause, setPhase, reportSorterEvent],
@@ -485,10 +620,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     (binNumber: number, cardName?: string) => {
       const { sorter: s } = latestRef.current;
       if (phaseRef.current !== "paused") setPhase("routing");
-      const feedNext = runningRef.current && latestRef.current.autoFeed && !!s.device?.pipelinedFeed;
+      const feedNext =
+        runningRef.current &&
+        latestRef.current.autoFeed &&
+        !!s.device?.pipelinedFeed;
       void s
         .sendRoute(routeFor(binNumber), { feedNext, requireLoadedCard: true })
-        .then((response) => handleRouteResponse(response, { binNumber, cardName }));
+        .then((response) =>
+          handleRouteResponse(response, { binNumber, cardName }),
+        );
     },
     [handleRouteResponse, routeFor, setPhase],
   );
@@ -496,7 +636,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const handleSaveResult = useCallback(
     (result: CardSaveResult, binNumber: number | undefined) => {
       if (result.success) return;
-      if (result.binLimitReached) pauseForFullBins(binNumber != null ? [binNumber] : []);
+      if (result.binLimitReached)
+        pauseForFullBins(binNumber != null ? [binNumber] : []);
       else if (result.sorterLimitReached) pause("sorter-limit");
       else if (result.scanLimitReached) pause("scan-limit");
       else pause("collection-locked", result.message);
@@ -510,7 +651,11 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const card = outcome.card;
       if (!card || !ctx.collection) return;
       lastCardIdRef.current = card.id;
-      if (!binCountsLoadedRef.current || !binContentsLoadedRef.current || ctx.binHeightsFailed) {
+      if (
+        !binCountsLoadedRef.current ||
+        !binContentsLoadedRef.current ||
+        ctx.binHeightsFailed
+      ) {
         pause("bin-data-unavailable");
         return;
       }
@@ -525,14 +670,27 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         binRoom,
         createRuleId: () => Crypto.randomUUID(),
       };
-      const plan = prepareMatchedScanPlan({
-        scanId: Crypto.randomUUID(), scannedAt: Date.now(), card,
-        capturedImageUrl: outcome.capturedImageUrl ?? undefined,
-        alternativeMatches: outcome.alternativeMatches,
-        sessionFoilType: forcedFoilTypeRef.current, fallbackFoilTypes: ctx.collection.game?.foilTypes ?? [],
-        condition: scanConditionRef.current, lowConfidenceMatch: outcome.matched?.lowConfidenceMatch,
-        diagnostics: outcome.matched?.diagnostics, vectorizedOn: "web", deviceGuid: ctx.sorter.device?.guid,
-      }, routingContext);
+      const plan = prepareMatchedScanPlan(
+        {
+          scanId: Crypto.randomUUID(),
+          scannedAt: Date.now(),
+          card,
+          capturedImageUrl: outcome.capturedImageUrl ?? undefined,
+          gameKey: ctx.collection.game?.key,
+          isNudgeFoilDetectionEnabled: false,
+          isFoilStarDetectionEnabled:
+            ctx.orgSettings?.foilStarDetectionEnabled ?? false,
+          alternativeMatches: outcome.alternativeMatches,
+          sessionFoilType: forcedFoilTypeRef.current,
+          fallbackFoilTypes: ctx.collection.game?.foilTypes ?? [],
+          condition: scanConditionRef.current,
+          lowConfidenceMatch: outcome.matched?.lowConfidenceMatch,
+          diagnostics: outcome.matched?.diagnostics,
+          vectorizedOn: "web",
+          deviceGuid: ctx.sorter.device?.guid,
+        },
+        routingContext,
+      );
       const { record, ruleCard } = plan;
       const collectionGuid = ctx.collection.guid;
       let filledPack = false;
@@ -548,17 +706,31 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         },
         assign: (plan) => {
           if (plan.action !== "route") return;
-          if (plan.autoAssignTarget) applyAutoAssign(configs, plan.autoAssignTarget);
+          if (plan.autoAssignTarget)
+            applyAutoAssign(configs, plan.autoAssignTarget);
           if (record.binNumber != null) {
-            binCountsRef.current.set(record.binNumber, countInBin(record.binNumber) + 1);
-            if (plan.binContent && (ctx.set?.isRepackMode || hasMaxCopiesBins(configs))) {
-              binContentsRef.current = [plan.binContent, ...binContentsRef.current];
+            binCountsRef.current.set(
+              record.binNumber,
+              countInBin(record.binNumber) + 1,
+            );
+            if (
+              plan.binContent &&
+              (ctx.set?.isRepackMode || hasMaxCopiesBins(configs))
+            ) {
+              binContentsRef.current = [
+                plan.binContent,
+                ...binContentsRef.current,
+              ];
             }
           }
-          filledPack = !!scanCompletionPauseReason(plan, { ...routingContext, binContents: binContentsRef.current });
+          filledPack = !!scanCompletionPauseReason(plan, {
+            ...routingContext,
+            binContents: binContentsRef.current,
+          });
         },
         pick: (plan) => {
-          if (plan.pickListUpdate) recordPickListFound(configs, plan.pickListUpdate);
+          if (plan.pickListUpdate)
+            recordPickListFound(configs, plan.pickListUpdate);
         },
         route: () => {
           pushFeed({
@@ -569,21 +741,40 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
             capturedImageUrl: record.capturedImageUrl,
             lowConfidence: record.lowConfidenceMatch,
           });
-          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+            () => {},
+          );
           setTimeout(() => ctx.playSoundForCard(ruleCard), 0);
-          queryClient.setQueryData(billingQueryOptions(ctx.orgId).queryKey, (old) =>
-            old ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 } : old,
+          queryClient.setQueryData(
+            billingQueryOptions(ctx.orgId).queryKey,
+            (old) =>
+              old
+                ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 }
+                : old,
           );
 
           if (filledPack) pause("repack-complete");
-          if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber, card.name);
+          if (record.binNumber != null && ctx.sorter.isReady)
+            sendToBin(record.binNumber, card.name);
           else if (!filledPack) continueAfterCard();
         },
         persist: async () => {
-          const saving = plan.persistence.kind === "cards/sorted"
-            ? sendSortOnlyScan(ctx.orgId, collectionGuid, plan.persistence.record)
-            : ctx.saveCard({ orgId: ctx.orgId, collectionGuid, deviceGuid: ctx.sorter.device?.guid, record: plan.persistence.record });
-          await saving.then((result) => handleSaveResult(result, record.binNumber)).catch(() => pause("save-failed"));
+          const saving =
+            plan.persistence.kind === "cards/sorted"
+              ? sendSortOnlyScan(
+                  ctx.orgId,
+                  collectionGuid,
+                  plan.persistence.record,
+                )
+              : ctx.saveCard({
+                  orgId: ctx.orgId,
+                  collectionGuid,
+                  deviceGuid: ctx.sorter.device?.guid,
+                  record: plan.persistence.record,
+                });
+          await saving
+            .then((result) => handleSaveResult(result, record.binNumber))
+            .catch(() => pause("save-failed"));
         },
         complete: () => {},
       });
@@ -611,45 +802,73 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const scanId = Crypto.randomUUID();
       const scannedAt = Date.now();
       await runScanDisposition({
-        prepare: () => prepareUnmatchedScanPlan({
-          scanId, scannedAt, capturedImageUrl: outcome.capturedImageUrl ?? undefined, vectorizedOn: "web",
-          diagnostics: outcome.noMatch?.diagnostics, embedding: outcome.noMatch?.embedding,
-        }, {
-          binSet: ctx.set,
-          configs: locallyUpdatedConfigsRef.current ?? ctx.configs,
-          fieldDefinitions: ctx.fieldDefinitions,
-          binContents: binContentsRef.current,
-          countCardsInBin: countInBin,
-          isBinFull,
-          binRoom,
-          createRuleId: () => Crypto.randomUUID(),
-        }),
+        prepare: () =>
+          prepareUnmatchedScanPlan(
+            {
+              scanId,
+              scannedAt,
+              capturedImageUrl: outcome.capturedImageUrl ?? undefined,
+              vectorizedOn: "web",
+              diagnostics: outcome.noMatch?.diagnostics,
+              embedding: outcome.noMatch?.embedding,
+            },
+            {
+              binSet: ctx.set,
+              configs: locallyUpdatedConfigsRef.current ?? ctx.configs,
+              fieldDefinitions: ctx.fieldDefinitions,
+              binContents: binContentsRef.current,
+              countCardsInBin: countInBin,
+              isBinFull,
+              binRoom,
+              createRuleId: () => Crypto.randomUUID(),
+            },
+          ),
         hold: async (plan) => {
           pauseForFullBins(plan.bin ? [plan.bin.binNumber] : []);
           return false;
         },
         assign: (plan) => {
           const binNumber = plan.record.binNumber;
-          if (binNumber != null) binCountsRef.current.set(binNumber, countInBin(binNumber) + 1);
+          if (binNumber != null)
+            binCountsRef.current.set(binNumber, countInBin(binNumber) + 1);
         },
         pick: () => {},
         route: (plan) => {
           pushFeed({ ...plan.record, card: null });
-          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
+          void Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Error,
+          ).catch(() => {});
           lastCardIdRef.current = null;
-          if (plan.record.binNumber != null && ctx.sorter.isReady) sendToBin(plan.record.binNumber);
+          if (plan.record.binNumber != null && ctx.sorter.isReady)
+            sendToBin(plan.record.binNumber);
           else continueAfterCard();
         },
         persist: async (plan) => {
           if (plan.persistence.kind === "none") return;
-          await ctx.saveUnmatched({
-            orgId: ctx.orgId, collectionGuid, deviceGuid: ctx.sorter.device?.guid, record: plan.persistence.record,
-          }).then((result) => handleSaveResult(result, plan.record.binNumber)).catch(() => pause("save-failed"));
+          await ctx
+            .saveUnmatched({
+              orgId: ctx.orgId,
+              collectionGuid,
+              deviceGuid: ctx.sorter.device?.guid,
+              record: plan.persistence.record,
+            })
+            .then((result) => handleSaveResult(result, plan.record.binNumber))
+            .catch(() => pause("save-failed"));
         },
         complete: () => {},
       });
     },
-    [binRoom, continueAfterCard, countInBin, handleSaveResult, isBinFull, pause, pauseForFullBins, pushFeed, sendToBin],
+    [
+      binRoom,
+      continueAfterCard,
+      countInBin,
+      handleSaveResult,
+      isBinFull,
+      pause,
+      pauseForFullBins,
+      pushFeed,
+      sendToBin,
+    ],
   );
 
   const routeControlCard = useCallback(() => {
@@ -679,31 +898,43 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       if (command.pauseScanner) pause("control-card");
       if (command.autoFeed !== undefined) {
         setAutoFeedState(command.autoFeed);
-        latestRef.current = { ...latestRef.current, autoFeed: command.autoFeed };
+        latestRef.current = {
+          ...latestRef.current,
+          autoFeed: command.autoFeed,
+        };
       }
-      if (command.allowDuplicates !== undefined) setAllowDuplicates(command.allowDuplicates);
+      if (command.allowDuplicates !== undefined)
+        setAllowDuplicates(command.allowDuplicates);
       if (command.condition) setScanCondition(command.condition);
-      const switchesCollection = !!command.collectionGuid && command.collectionGuid !== ctx.collection?.guid;
+      const switchesCollection =
+        !!command.collectionGuid &&
+        command.collectionGuid !== ctx.collection?.guid;
       if (switchesCollection && ctx.collection) {
         forcedValuesAfterCollectionSwitchRef.current = {
           forcedFoilType: command.forcedFoilType,
           forcedSetCode: command.forcedSetCode,
         };
       } else {
-        if (command.forcedFoilType !== undefined) setForcedFoilType(command.forcedFoilType);
+        if (command.forcedFoilType !== undefined)
+          setForcedFoilType(command.forcedFoilType);
         if (command.forcedSetCode !== undefined) {
-          setForcedSetCodes(command.forcedSetCode ? [command.forcedSetCode] : []);
+          setForcedSetCodes(
+            command.forcedSetCode ? [command.forcedSetCode] : [],
+          );
         }
       }
       try {
-        if (switchesCollection && command.collectionGuid) {
-          const nextCollections = await setActiveCollection(command.collectionGuid);
-          queryClient.setQueryData(collectionsQueryOptions(ctx.orgId).queryKey, nextCollections);
-        }
-        const preset = ctx.binSets?.find((binSet) => binSet.guid === command.presetGuid);
+        if (switchesCollection && command.collectionGuid)
+          setScanTargetGuid(command.collectionGuid);
+        const preset = ctx.binSets?.find(
+          (binSet) => binSet.guid === command.presetGuid,
+        );
         if (preset && !preset.isActive) {
           const nextBinSets = await activateBinSet(preset.guid);
-          queryClient.setQueryData(binSetsQueryOptions(ctx.orgId).queryKey, nextBinSets);
+          queryClient.setQueryData(
+            binSetsQueryOptions(ctx.orgId).queryKey,
+            nextBinSets,
+          );
         }
       } catch {
         forcedValuesAfterCollectionSwitchRef.current = null;
@@ -712,7 +943,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         return;
       }
       setControlCardNotice({ noticeId: Crypto.randomUUID(), command });
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      void Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      ).catch(() => {});
       routeControlCard();
     },
     [
@@ -722,6 +955,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       setForcedFoilType,
       setForcedSetCodes,
       setScanCondition,
+      setScanTargetGuid,
     ],
   );
 
@@ -738,37 +972,62 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       return;
     }
     setPhase("capturing");
-    await delay(device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS);
+    if (ctx.sorter.isReady)
+      await delay(
+        device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+      );
     setPhase("identifying");
     const gameKey = ctx.collection.game?.key ?? "";
     try {
       await runScanWorkflow<{ frame: CapturedFrame | null }, IdentifyOutcome>({
         controlStage: "after-miss",
         capture: async () => ({ frame: null }),
-        readControl: (captured) => captured.frame ? readScannerControlCode(captured.frame) : null,
+        readControl: (captured) =>
+          captured.frame ? readScannerQrText(captured.frame) : null,
+        applyOtherCode: (text) => {
+          const tradeLink = parseShareLinkUrl(text);
+          if (!tradeLink) return false;
+          pause("user");
+          router.push({ pathname: "/trade", params: { ...tradeLink } });
+          return true;
+        },
         applyControl: applyControlCode,
-        identify: (captured) => identifyCard(
-          async () => (captured.frame = await ctx.capture()),
-          {
-            scope: { collectionGuid: ctx.collection!.guid, preferredSetCodes: forcedSetCodesRef.current },
-            matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
-            checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
-            ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
-            colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
-          },
-          device?.scanRegion ?? DEFAULT_SCAN_REGION,
-        ),
+        identify: (captured) =>
+          identifyCard(
+            async () => (captured.frame = await ctx.capture()),
+            {
+              scope: {
+                collectionGuid: ctx.collection!.guid,
+                preferredSetCodes: forcedSetCodesRef.current,
+                matchGameKeys: presetMatchGameKeys(ctx.set),
+              },
+              matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
+              checkBothOrientations:
+                device?.checkBothOrientations ??
+                DEFAULT_CHECK_BOTH_ORIENTATIONS,
+              ocrMode: scanOcrMode(
+                ctx.orgSettings,
+                (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+                readsPrintedLanguageEveryScan(ctx.collection, gameKey),
+              ),
+              gameKey: gameKey || null,
+            },
+            device?.scanRegion ?? DEFAULT_SCAN_REGION,
+          ),
         card: (outcome) => outcome.card,
         isRemoval: () => latestRef.current.removal.isActive,
         remove: async (outcome) => {
-          const catchAllBinNumber = getCatchAllBin(ctx.configs)?.binNumber ?? null;
+          const catchAllBinNumber =
+            getCatchAllBin(ctx.configs)?.binNumber ?? null;
           let removalTargetBin = catchAllBinNumber;
           if (outcome.card) {
-            const wasQueued = await latestRef.current.removal.queueMatchedCardForRemoval(
-              outcome.card,
-              outcome.alternativeMatches,
-            );
-            if (wasQueued) removalTargetBin = latestRef.current.removal.removalBinNumber;
+            const wasQueued =
+              await latestRef.current.removal.queueMatchedCardForRemoval(
+                outcome.card,
+                outcome.alternativeMatches,
+              );
+            if (wasQueued)
+              removalTargetBin = latestRef.current.removal.removalBinNumber;
           } else {
             latestRef.current.removal.showNoMatchNotice();
           }
@@ -778,7 +1037,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
             continueAfterCard();
           }
         },
-        isDuplicate: (card) => !latestRef.current.allowDuplicates && lastCardIdRef.current === card.id,
+        isDuplicate: (card) =>
+          !latestRef.current.allowDuplicates &&
+          lastCardIdRef.current === card.id,
         duplicate: (outcome) => {
           pendingDuplicateRef.current = outcome;
           pause("duplicate");
@@ -786,11 +1047,20 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         matched: (outcome) => handleMatched(outcome),
         unmatched: handleUnmatched,
       });
-      if (!runningRef.current && phaseRef.current !== "paused") setPhase("ready");
+      if (!runningRef.current && phaseRef.current !== "paused")
+        setPhase("ready");
     } catch (err) {
       pause("route-failed", err instanceof Error ? err.message : String(err));
     }
-  }, [applyControlCode, continueAfterCard, handleMatched, handleUnmatched, pause, sendToBin, setPhase]);
+  }, [
+    applyControlCode,
+    continueAfterCard,
+    handleMatched,
+    handleUnmatched,
+    pause,
+    sendToBin,
+    setPhase,
+  ]);
 
   const handleFeedResult = useCallback(
     (reply: SerialReply | null, command: FeedCommand = "auto-feed") => {
@@ -820,13 +1090,19 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
 
   const feedWithConfiguredRetries = useCallback(
     (retryCount: number) =>
-      feedWithRetries(() => latestRef.current.sorter.feed(), (reply) => reply, retryCount),
+      feedWithRetries(
+        () => latestRef.current.sorter.feed(),
+        (reply) => reply,
+        retryCount,
+      ),
     [],
   );
 
   const triggerFeed = useCallback(() => {
     setPhase("feeding");
-    void feedWithConfiguredRetries(latestRef.current.feedRetryCount).then(handleFeedResult);
+    void feedWithConfiguredRetries(latestRef.current.feedRetryCount).then(
+      handleFeedResult,
+    );
   }, [feedWithConfiguredRetries, handleFeedResult, setPhase]);
   triggerFeedRef.current = triggerFeed;
 
@@ -902,9 +1178,12 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     } catch {
       return false;
     }
-    for (const binNumber of fullBinNumbers) binCountsRef.current.set(binNumber, 0);
+    for (const binNumber of fullBinNumbers)
+      binCountsRef.current.set(binNumber, 0);
     setFullBinNumbers([]);
-    await queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(ctx.orgId).queryKey });
+    await queryClient.invalidateQueries({
+      queryKey: binSetsQueryOptions(ctx.orgId).queryKey,
+    });
     start();
     return true;
   }, [fullBinNumbers, queryClient, start]);
@@ -915,25 +1194,36 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [runCapture]);
 
   const feedOnce = useCallback(async () => {
-    if (!latestRef.current.sorter.isReady || !latestRef.current.collection) return;
+    if (!latestRef.current.sorter.isReady || !latestRef.current.collection)
+      return;
     if (runningRef.current) {
-      if (!latestRef.current.autoFeed && phaseRef.current === "ready") triggerFeed();
+      if (!latestRef.current.autoFeed && phaseRef.current === "ready")
+        triggerFeed();
       return;
     }
     setPhase("feeding");
-    const reply = await feedWithConfiguredRetries(latestRef.current.feedRetryCount);
+    const reply = await feedWithConfiguredRetries(
+      latestRef.current.feedRetryCount,
+    );
     if (!reply || reply.empty || reply.error || reply.detected === false) {
       handleFeedResult(reply, "feeder");
       return;
     }
     await runCapture();
-  }, [feedWithConfiguredRetries, handleFeedResult, runCapture, setPhase, triggerFeed]);
+  }, [
+    feedWithConfiguredRetries,
+    handleFeedResult,
+    runCapture,
+    setPhase,
+    triggerFeed,
+  ]);
 
   const setAutoFeed = useCallback(
     (value: boolean) => {
       setAutoFeedState(value);
       latestRef.current = { ...latestRef.current, autoFeed: value };
-      if (value && runningRef.current && phaseRef.current === "ready") triggerFeed();
+      if (value && runningRef.current && phaseRef.current === "ready")
+        triggerFeed();
     },
     [triggerFeed],
   );
@@ -943,7 +1233,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     (corners: LiveCorners | null) => {
       if (!latestRef.current.handScanActive) return;
       const canCapture = runningRef.current && phaseRef.current === "ready";
-      if (handScanTrackerRef.current.update(corners, canCapture)) void runCapture();
+      if (handScanTrackerRef.current.update(corners, canCapture))
+        void runCapture();
     },
     [runCapture],
   );

@@ -1,18 +1,21 @@
 import {
   CARD_DETECTION_RETRY_INTERVAL_MS,
   CARD_DETECTION_RETRY_TIMEOUT_MS,
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEWARP_OUTPUT_SIZE,
-  identifyScanImage,
-  identifyScanWithConsensus,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
-  detectColorBarRgba,
+  detectCardStampRgba,
+  detectPrintedFoilMarkerRgba,
+  PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY,
   dewarpRgba,
   getDefaultCardContour,
-  preferDetectedColor,
+  identifyScanImage,
+  identifyScanWithConsensus,
   resolveCardSearchMatches,
   rotateRgba180,
+  type CardContour,
+  type CardTextSearchResult,
+  printingMarksPayload,
   type CornerDetection,
   type ScanDetectionDiagnostics,
   type ScanRegion,
@@ -31,7 +34,9 @@ import type {
   CapturedFrame,
   IdentifyOptions,
   IdentifyOutcome,
+  MatchScope,
   OrientedPick,
+  ReadOrientationText,
   ScanAttempt,
 } from "@/lib/interfaces/scanner";
 import { encodeJpegDataUrl, writeJpegTempFile } from "./frame";
@@ -45,12 +50,31 @@ async function detectWithRetry(
   const start = Date.now();
   let frame = await capture();
   let detection = await detectCorners(frame, minSharpness);
-  while (!detection.cardPresent && Date.now() - start < CARD_DETECTION_RETRY_TIMEOUT_MS) {
+  while (
+    !detection.cardPresent &&
+    Date.now() - start < CARD_DETECTION_RETRY_TIMEOUT_MS
+  ) {
     await delay(CARD_DETECTION_RETRY_INTERVAL_MS);
     frame = await capture();
     detection = await detectCorners(frame, minSharpness);
   }
   return { frame, detection };
+}
+
+async function searchOrientationText(
+  uprightOcrCrop: CapturedFrame["pixels"],
+  orientation: OrientedPick["orientation"],
+  embedding: number[],
+  scope: MatchScope,
+): Promise<CardTextSearchResult | null> {
+  const crop =
+    orientation === "rotated" ? rotateRgba180(uprightOcrCrop) : uprightOcrCrop;
+  try {
+    const uri = await writeJpegTempFile(crop, OCR_IMAGE_JPEG_QUALITY);
+    return await searchByText(embedding, scope, uri);
+  } catch {
+    return null;
+  }
 }
 
 async function attemptOnce(
@@ -69,62 +93,69 @@ async function attemptOnce(
     fallbackReason: null,
   };
   const contour =
-    corners.contour ?? getDefaultCardContour(frame.pixels.width, frame.pixels.height, scanRegion);
+    corners.contour ??
+    getDefaultCardContour(frame.pixels.width, frame.pixels.height, scanRegion);
   if (!corners.contour) {
     detection.fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
   }
 
   const dewarped = dewarpRgba(frame.pixels, contour, DEWARP_OUTPUT_SIZE);
-  const identified = await identifyScanImage<OrientedPick>({
+  const cardContour = corners.contour;
+  let uprightOcrCrop: CapturedFrame["pixels"] | null = null;
+  const ocrCrop = (contourForCrop: CardContour) =>
+    (uprightOcrCrop ??= dewarpRgba(
+      frame.pixels,
+      contourForCrop,
+      OCR_CROP_WIDTH,
+      OCR_CROP_HEIGHT,
+    ));
+  const readText: ReadOrientationText = (orientation, embedding) => {
+    if (!cardContour) return Promise.resolve(null);
+    return searchOrientationText(
+      ocrCrop(cardContour),
+      orientation,
+      embedding,
+      options.scope,
+    );
+  };
+  const identified = await identifyScanImage({
     checkBothOrientations: options.checkBothOrientations,
-    ocrEnabled: options.ocrEnabled && !!corners.contour,
+    ocrMode: cardContour ? options.ocrMode : "off",
     search: async (orientation) => {
       const pixels =
         orientation === "rotated" ? rotateRgba180(dewarped) : dewarped;
       const embedding = await embedCard(pixels);
-      const result = await searchByVector(embedding, options.scope);
-      return { pixels, orientation, embedding, result, alternate: null };
+      const [result, textResult] = await Promise.all([
+        searchByVector(
+          embedding,
+          options.scope,
+          printingMarksPayload(
+            frame.pixels,
+            cardContour,
+            options.gameKey,
+            orientation,
+          ),
+        ),
+        options.ocrMode === "every-scan" && cardContour
+          ? readText(orientation, embedding)
+          : undefined,
+      ]);
+      return { pixels, orientation, embedding, result, textResult };
     },
     readText: async (candidate) => {
-      if (!corners.contour) return null;
-      const upright = dewarpRgba(
-        frame.pixels,
-        corners.contour,
-        OCR_CROP_WIDTH,
-        OCR_CROP_HEIGHT,
-      );
-      const crop =
-        candidate.orientation === "rotated" ? rotateRgba180(upright) : upright;
-      try {
-        const uri = await writeJpegTempFile(crop, OCR_IMAGE_JPEG_QUALITY);
-        const result = await searchByText(
-          candidate.embedding,
-          options.scope,
-          uri,
-        );
-        return { ...candidate, result, ocr: result.ocr ?? null };
-      } catch {
-        return null;
-      }
+      const result = await readText(candidate.orientation, candidate.embedding);
+      return result ? { ...candidate, result, ocr: result.ocr ?? null } : null;
     },
   });
   const pick = identified.pick;
-
-  const region = options.colorBarRegionKey
-    ? COLOR_BAR_REGIONS_BY_GAME_KEY[options.colorBarRegionKey]
-    : undefined;
-  const detectedColor =
-    region && corners.contour ? detectColorBarRgba(pick.pixels, region) : null;
-  const { matchedBy, ocr } = identified;
-  const { colorVariantUncertain, ...resolved } = preferDetectedColor(
-    await resolveCardSearchMatches(pick.result, (match) =>
-      getCardById(match.cardId, options.scope.collectionGuid, match.lang),
+  const matchedBy = identified.matchedBy;
+  const resolved = await resolveCardSearchMatches(pick.result, (match) =>
+    getCardById(
+      match.cardId,
+      options.scope.collectionGuid,
+      match.lang,
+      match.gameKey,
     ),
-    {
-      gameHasColorBar: !!region,
-      detectedColor,
-      printingConfirmed: matchedBy === "ocr" && !!ocr?.printingConfirmed,
-    },
   );
 
   return {
@@ -137,10 +168,25 @@ async function attemptOnce(
     search: pick.result.diagnostics ?? null,
     topDistance:
       pick.result.data?.[0]?.distance ?? pick.result.nearestDistance ?? null,
-    ocr,
+    ocr: identified.ocr,
     matchedBy,
-    lowConfidenceMatch: identified.lowConfidenceMatch || colorVariantUncertain,
-    detectedColor,
+    lowConfidenceMatch: identified.lowConfidenceMatch,
+    printingMarks: pick.result.printingMarks ?? null,
+    stampDetection:
+      corners.contour && resolved.card?.stamps?.length
+        ? detectCardStampRgba(pick.pixels, resolved.card)
+        : null,
+    printedFoilMarker:
+      cardContour &&
+      options.gameKey &&
+      PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY[options.gameKey]
+        ? detectPrintedFoilMarkerRgba(
+            pick.orientation === "rotated"
+              ? rotateRgba180(ocrCrop(cardContour))
+              : ocrCrop(cardContour),
+            options.gameKey,
+          )
+        : null,
   };
 }
 
@@ -168,14 +214,14 @@ export async function identifyCard(
   options: IdentifyOptions,
   scanRegion: ScanRegion,
 ): Promise<IdentifyOutcome> {
-  const outcome = await identifyScanWithConsensus(
+  const result = await identifyScanWithConsensus(
     () => attemptOnce(capture, options, scanRegion),
     (attempt) => attempt.card,
     options.matchesNeeded,
   );
   return toOutcome(
-    { ...outcome.attempt, card: outcome.card },
-    outcome.attempts,
+    { ...result.attempt, card: result.card },
+    result.attempts,
     options.matchesNeeded,
   );
 }

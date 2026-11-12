@@ -18,12 +18,19 @@ import {
 import { useCallback, useRef } from "react";
 
 export function useFoilNudgeCheck(): CheckFoilByNudge {
-  const { isReady, firmwareVersion, foilNudgeFirmwareLimits, sendRequest, runWhenIdle } =
-    useSerial();
+  const {
+    isReady,
+    firmwareVersion,
+    foilNudgeFirmwareLimits,
+    sendRequest,
+    runWhenIdle,
+  } = useSerial();
   const { configs } = useModuleConfigs();
   const { forceFoilType } = useScannedCards();
   const { activeCollection } = useCollections();
-  const foilDetectionGameKey = useFoilDetectionGameKey(activeCollection?.game?.key);
+  const foilDetectionGameKey = useFoilDetectionGameKey(
+    activeCollection?.game?.key,
+  );
 
   const latest = {
     isReady,
@@ -38,28 +45,41 @@ export function useFoilNudgeCheck(): CheckFoilByNudge {
   const latestRef = useRef(latest);
   latestRef.current = latest;
 
-  return useCallback<CheckFoilByNudge>(async (card, captureAfterNudge, before, isActive) => {
-    const current = latestRef.current;
-    let ranWhileSorterIdle = false;
-    const detection = await current.runWhenIdle(async () => {
-      ranWhileSorterIdle = true;
-      return executeScanFoilNudge({
-        gameKey: current.gameKey,
-        forceFoilType: current.forceFoilType,
-        foilOnlyFoilType: card.foilOnlyFoilType,
-        isReady: current.isReady,
-        firmwareVersion: current.firmwareVersion,
-        firmwareLimits: current.foilNudgeFirmwareLimits,
-        calibration: current.configs.find((config) => config.moduleNumber === FOIL_NUDGE_MODULE_NUMBER)?.calibration,
-        before,
-        sendCommand: current.sendRequest,
-        capture: captureAfterNudge,
-        delay,
-        isActive: () => latestRef.current.isReady && (isActive?.() ?? true),
-        encodeDiagnostics: (image) => encodeImageAsJpeg(image, FOIL_NUDGE_DIAGNOSTIC_IMAGE_WIDTH, FOIL_NUDGE_DIAGNOSTIC_JPEG_QUALITY),
+  return useCallback<CheckFoilByNudge>(
+    async (card, captureAfterNudge, before, isActive) => {
+      const current = latestRef.current;
+      let ranWhileSorterIdle = false;
+      const detection = await current.runWhenIdle(async () => {
+        ranWhileSorterIdle = true;
+        return executeScanFoilNudge({
+          gameKey: current.gameKey,
+          forceFoilType: current.forceFoilType,
+          foilOnlyFoilType: card.foilOnlyFoilType,
+          isReady: current.isReady,
+          firmwareVersion: current.firmwareVersion,
+          firmwareLimits: current.foilNudgeFirmwareLimits,
+          calibration: current.configs.find(
+            (config) => config.moduleNumber === FOIL_NUDGE_MODULE_NUMBER,
+          )?.calibration,
+          before,
+          sendCommand: current.sendRequest,
+          capture: captureAfterNudge,
+          delay,
+          isActive: () => latestRef.current.isReady && (isActive?.() ?? true),
+          encodeDiagnostics: (image) =>
+            encodeImageAsJpeg(
+              image,
+              FOIL_NUDGE_DIAGNOSTIC_IMAGE_WIDTH,
+              FOIL_NUDGE_DIAGNOSTIC_JPEG_QUALITY,
+            ),
+        });
       });
-    });
-    if (!ranWhileSorterIdle) scanLog("[foil-nudge] skipped: the sorter was busy with another command");
-    return detection;
-  }, []);
+      if (!ranWhileSorterIdle)
+        scanLog(
+          "[foil-nudge] skipped: the sorter was busy with another command",
+        );
+      return detection;
+    },
+    [],
+  );
 }

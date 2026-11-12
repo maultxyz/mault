@@ -13,14 +13,21 @@ const mocks = vi.hoisted(() => ({
   loadSavedFocus: vi.fn(),
   isMobile: vi.fn(),
   setStationCamera: vi.fn(),
+  queryClient: { fetchQuery: vi.fn() },
   t: (key: string) => key,
+}));
+vi.mock("@tanstack/react-query", () => ({
+  useQuery: () => ({ data: undefined }),
+  useQueryClient: () => mocks.queryClient,
 }));
 vi.mock("sonner", () => ({ toast: { error: mocks.toastError } }));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: mocks.t }) }));
 vi.mock("@/features/collections/api/use-collections", () => ({
   useCollections: () => ({ activeCollection: null }),
 }));
-vi.mock("./use-phone-camera-capture", () => ({ usePhoneCameraCapture: () => ({}) }));
+vi.mock("./use-phone-camera-capture", () => ({
+  usePhoneCameraCapture: () => ({}),
+}));
 vi.mock("./use-stations", () => ({
   useStation: () => ({ station: { id: "station" }, isLive: true }),
   useStations: () => ({
@@ -41,6 +48,7 @@ vi.mock("../lib/camera-stream", () => ({
   acquireFreeStream: mocks.acquireStream,
   camerasHeldByOtherStations: () => new Set(),
   stopMediaStream: vi.fn(),
+  waitForTrackSetup: async () => {},
 }));
 vi.mock("../lib/pi-camera", () => ({
   readPiCameraHealth: mocks.readHealth,
@@ -67,7 +75,11 @@ describe("camera startup focus", () => {
     mocks.acquireRelay.mockResolvedValue(stream);
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
-      value: { enumerateDevices: async () => [] },
+      value: {
+        enumerateDevices: async () => [],
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      },
     });
   });
   afterEach(cleanup);
@@ -76,8 +88,10 @@ describe("camera startup focus", () => {
     "reads shared manual focus on %s without changing the camera",
     async (source) => {
       mocks.readHealth.mockResolvedValue({
-        status: "ready", focus: { min: 0, max: 100, step: 1 },
-        focusMode: "manual", lensPosition: 37,
+        status: "ready",
+        focus: { min: 0, max: 100, step: 1 },
+        focusMode: "manual",
+        lensPosition: 37,
       });
       // A stale browser preference must not overwrite the shared camera.
       mocks.loadSavedFocus.mockReturnValue(42);
@@ -85,7 +99,9 @@ describe("camera startup focus", () => {
         mocks.mustUsePi.mockReturnValue(true);
         mocks.isMobile.mockReturnValue(true);
       }
-      const { result } = renderHook(() => useCameraContext(), { wrapper: CameraProvider });
+      const { result } = renderHook(() => useCameraContext(), {
+        wrapper: CameraProvider,
+      });
       await waitFor(() => expect(result.current.focusDistance).toBe(37));
       expect(mocks.applyTrackFocus).not.toHaveBeenCalled();
       expect(mocks.applyPiFocus).not.toHaveBeenCalled();
@@ -94,10 +110,14 @@ describe("camera startup focus", () => {
 
   it("does not enable Pi autofocus when this browser has no saved setting", async () => {
     mocks.readHealth.mockResolvedValue({
-      status: "ready", focus: { min: 0, max: 100, step: 1 },
-      focusMode: "manual", lensPosition: 37,
+      status: "ready",
+      focus: { min: 0, max: 100, step: 1 },
+      focusMode: "manual",
+      lensPosition: 37,
     });
-    const { result } = renderHook(() => useCameraContext(), { wrapper: CameraProvider });
+    const { result } = renderHook(() => useCameraContext(), {
+      wrapper: CameraProvider,
+    });
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(mocks.applyTrackFocus).not.toHaveBeenCalled();
     expect(mocks.applyPiFocus).not.toHaveBeenCalled();
@@ -107,11 +127,15 @@ describe("camera startup focus", () => {
   it("keeps the confirmed Pi focus setting when a change fails", async () => {
     mocks.mustUsePi.mockReturnValue(true);
     mocks.readHealth.mockResolvedValue({
-      status: "ready", focus: { min: 0, max: 100, step: 1 },
-      focusMode: "manual", lensPosition: 37,
+      status: "ready",
+      focus: { min: 0, max: 100, step: 1 },
+      focusMode: "manual",
+      lensPosition: 37,
     });
     mocks.applyPiFocus.mockRejectedValueOnce(new Error("driver rejected"));
-    const { result } = renderHook(() => useCameraContext(), { wrapper: CameraProvider });
+    const { result } = renderHook(() => useCameraContext(), {
+      wrapper: CameraProvider,
+    });
     await waitFor(() => expect(result.current.focusDistance).toBe(37));
     act(() => result.current.setFocusDistance(null));
     await waitFor(() => expect(mocks.toastError).toHaveBeenCalled());
@@ -119,7 +143,9 @@ describe("camera startup focus", () => {
   });
 
   it("leaves local driver focus unchanged when no manual value is saved", async () => {
-    const { result } = renderHook(() => useCameraContext(), { wrapper: CameraProvider });
+    const { result } = renderHook(() => useCameraContext(), {
+      wrapper: CameraProvider,
+    });
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(mocks.applyTrackFocus).not.toHaveBeenCalled();
     expect(mocks.applyPiFocus).not.toHaveBeenCalled();
@@ -128,6 +154,8 @@ describe("camera startup focus", () => {
   it("restores saved local manual focus", async () => {
     mocks.loadSavedFocus.mockReturnValue(42);
     renderHook(() => useCameraContext(), { wrapper: CameraProvider });
-    await waitFor(() => expect(mocks.applyTrackFocus).toHaveBeenCalledWith(track, 42));
+    await waitFor(() =>
+      expect(mocks.applyTrackFocus).toHaveBeenCalledWith(track, 42),
+    );
   });
 });

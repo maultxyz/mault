@@ -3,6 +3,8 @@
     "name": "Mault"
   },
   "common": {
+    "loading": "Loading",
+    "selected": "selected",
     "show": "Show",
     "hide": "Hide",
     "back": "Back",
@@ -14,19 +16,20 @@
     "discardTitle": "Discard changes?",
     "discardDescription": "Your changes to this bin haven't been saved.",
     "keepEditing": "Keep editing",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "decreaseBy": "Decrease by {{step}}",
+    "increaseBy": "Increase by {{step}}",
+    "changesSaved": "Changes saved"
   },
   "tabs": {
     "collections": "Collections",
     "scan": "Scan",
     "sorter": "Sorter",
     "stats": "Stats",
-    "account": "Account",
-    "home": "Home",
-    "rules": "Rules",
     "storage": "Storage",
     "upgradeYourPlan": "Upgrade your plan",
-    "upgradeShort": "Upgrade"
+    "upgradeShort": "Upgrade",
+    "more": "More"
   },
   "auth": {
     "tagline": "Scan, sort and track your cards from your phone.",
@@ -48,12 +51,9 @@
   },
   "collections": {
     "title": "Collection",
-    "active": "Active",
-    "makeActive": "Make active",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
     "loadFailed": "Couldn't load your collections",
-    "activateFailed": "Couldn't switch the active collection",
     "cardsLoadFailed": "Couldn't load cards",
     "emptyTitle": "No collections yet",
     "emptyDescription": "Permanently removes all cards from \"{{name}}\", but keeps the collection itself. This cannot be undone.",
@@ -77,10 +77,10 @@
     "createFailed": "Couldn't create the collection",
     "limitReached_one": "Your plan includes {{count}} collection. Upgrade your plan on the web to create more.",
     "limitReached_other": "Your plan includes {{count}} collections. Upgrade your plan on the web to create more.",
-    "rename": "Rename",
-    "renameTitle": "Rename collection",
-    "renameDescription": "Rename this collection.",
-    "renameFailed": "Couldn't rename the collection",
+    "edit": "Edit",
+    "editTitle": "Edit collection",
+    "editDescription": "Change this collection's name and scan language.",
+    "editFailed": "Couldn't save the collection",
     "save": "Save",
     "empty": "Empty collection",
     "emptyConfirm": "Empty",
@@ -92,33 +92,53 @@
     "actions": "Collection actions",
     "cancel": "Cancel",
     "shareLink": "Share live view link",
-    "revokeLinks": "Revoke shared links",
-    "revokeLinksTitle": "Revoke shared links?",
-    "revokeLinksDescription": "Anyone with a link to this collection's live view loses access.",
-    "shareLinkFailed": "Couldn't update the live view link"
+    "scanTarget": "Scanning here",
+    "scanInto": "Scan into this collection",
+    "scan": "Scan"
+  },
+  "shareLink": {
+    "collectionTitle": "Share live view",
+    "collectionDescription": "Anyone with this link or QR code can watch this collection's scanning session without logging in. They can't change anything.",
+    "storageTitle": "Share storage location",
+    "storageDescription": "Anyone with this link or QR code can see the cards in this location without logging in. They can't change anything.",
+    "expiryLabel": "Link expires after",
+    "expiryOption_one": "{{count}} day",
+    "expiryOption_other": "{{count}} days",
+    "create": "Create link",
+    "createAnother": "Create new link",
+    "created": "Link created. The QR code and Share button are below.",
+    "createFailed": "Couldn't create a share link.",
+    "share": "Share link",
+    "qrLabel": "QR code for this link. Scan it with a phone camera to open the link.",
+    "qrHint": "Scan to open",
+    "expiresAt": "Expires {{date}}",
+    "revokeAll": "Revoke all links",
+    "revokeTitle": "Revoke all links?",
+    "collectionRevokeDescription": "Anyone with a link to this collection's live view loses access.",
+    "storageRevokeDescription": "Anyone with a link to this location loses access.",
+    "revoked": "Every shared link has stopped working.",
+    "revokeFailed": "Couldn't revoke the shared links.",
+    "cancel": "Cancel",
+    "showPrices": "Show prices",
+    "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link.",
+    "typeLabel": "Link type",
+    "monitorType": "Monitor",
+    "tradeType": "Trade",
+    "monitorTypeDescription": "A view of the cards, live while you scan. Visitors can't send offers.",
+    "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
+    "tradeOneHourNote": "Trade links last 1 hour.",
+    "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days."
   },
   "cards": {
     "bin": "Bin {{number}}",
     "needsReview": "Needs review",
+    "reviewed": "Reviewed",
+    "cardActions": "Card actions",
     "quantity_one": "{{count}} copy",
     "quantity_other": "{{count}} copies"
   },
   "monitor": {
-    "title": "Live session",
-    "open": "Live view",
-    "recent": "Recent scans",
-    "scanError": "Scan error",
-    "viewers_one": "{{count}} viewer",
-    "viewers_other": "{{count}} viewers",
-    "unmatched_one": "{{count}} unmatched",
-    "unmatched_other": "{{count}} unmatched",
-    "emptyTitle": "Waiting for scans",
-    "emptyDescription": "Cards appear here as soon as any sorter scans them into this collection.",
-    "status": {
-      "connecting": "Connecting",
-      "connected": "Live",
-      "error": "Reconnecting"
-    }
+    "scanError": "Scan error"
   },
   "stats": {
     "title": "Stats",
@@ -157,7 +177,8 @@
       "foils": "Foils",
       "shareHint": "{{percent}}% of cards",
       "needsReview": "Needs review",
-      "correctedHint": "{{count}} reviewed"
+      "correctedHint": "{{count}} reviewed",
+      "heading": "Overview"
     },
     "activity": {
       "title": "Scanning activity",
@@ -449,6 +470,10 @@
     "rollbackOffDescription": "Set \"Roll Back After Feed\" in feeder calibration to retract cards."
   },
   "scan": {
+    "torch": {
+      "label": "Flash",
+      "brightness": "Flash brightness"
+    },
     "start": "Start",
     "resume": "Resume",
     "pause": {
@@ -566,13 +591,12 @@
     "cameraPermissionDescription": "Mault uses the camera to identify cards as they pass through your sorter.",
     "cameraPermissionSettings": "Turn on camera access for Mault in Settings.",
     "noCamera": "No camera available",
-    "noCollectionTitle": "No active collection",
+    "noCollectionTitle": "No collection chosen",
     "noCollectionDescription": "Choose the collection scans should go into.",
     "chooseCollection": "Choose collection",
-    "sorterNotReadyTitle": "Sorter not connected",
-    "sorterNotReadyDescription": "Connect your sorter to feed and route cards. You can still scan cards by hand.",
     "openSorter": "Connect sorter",
     "modelErrorTitle": "Couldn't load the card recognition models",
+    "cameraPreview": "Camera preview",
     "phase": {
       "idle": "Idle",
       "loading-models": "Loading models",
@@ -630,7 +654,6 @@
       },
       "pairDesktop": "Use as a desktop camera",
       "pairDesktopDescription": "Scan the QR code shown on your computer",
-      "collection": "Collection",
       "preset": "Rule preset",
       "chooseCamera": "Choose a camera",
       "foilType": "Foil type",
@@ -640,7 +663,9 @@
       "setCount_one": "{{count}} set",
       "setCount_other": "{{count}} sets",
       "searchSets": "Search sets",
-      "condition": "Condition"
+      "condition": "Condition",
+      "removeMode": "Remove cards",
+      "removeModeDescription": "Queue scanned cards for removal from this collection instead of adding them"
     },
     "emptyBin": {
       "action": "Mark empty",
@@ -670,10 +695,6 @@
         "removed_one": "Removed 1 card",
         "removed_other": "Removed {{count}} cards"
       },
-      "modes": {
-        "add": "Add cards",
-        "remove": "Remove cards"
-      },
       "binChip": "Removed cards go to {{bin}}",
       "binPickerTitle": "Removed cards go to",
       "binOption": "Bin {{number}}",
@@ -698,31 +719,9 @@
     }
   },
   "home": {
-    "greeting": "Hi, {{name}}",
-    "greetingNoName": "Welcome back",
-    "totalValue": "Total value",
-    "collectionCount_one": "{{count}} collection",
-    "collectionCount_other": "{{count}} collections",
-    "scannedToday": "Scanned today",
-    "thisWeek": "This week",
-    "collections": "Collections",
-    "activityTitle": "Scan activity",
-    "activityPoint_one": "{{date}} · {{count}} scan",
-    "activityPoint_other": "{{date}} · {{count}} scans",
-    "today": "Today",
-    "seeAllStats": "See all stats",
-    "mostValuable": "Most valuable",
-    "recentlyScanned": "Recently scanned",
-    "allCollections": "All collections",
     "searchPlaceholder": "Search collections",
     "noSearchResultsTitle": "No collections found",
     "noSearchResultsDescription": "Try a different name.",
-    "actions": {
-      "scan": "Scan",
-      "newCollection": "New",
-      "sorter": "Sorter",
-      "stats": "Stats"
-    },
     "live": {
       "yourSession": "Your session",
       "scanning": "Scanning",
@@ -730,8 +729,6 @@
     }
   },
   "collection": {
-    "tabCards": "Cards",
-    "tabActivity": "Activity",
     "value": "Value",
     "cards": "Cards",
     "cardsCount_one": "{{count}} card",
@@ -740,7 +737,6 @@
     "searchPlaceholder": "Search cards",
     "noCardsYet": "No cards scanned yet",
     "noMatches": "No cards match your search",
-    "review": "Review {{count}}",
     "groupDuplicates": "Group duplicates",
     "filters": {
       "colors": "Colors",
@@ -766,13 +762,37 @@
       "removeTitle_other": "Remove {{count}} copies?"
     },
     "viewOptions": "View options",
-    "display": "Display"
+    "display": "Display",
+    "layout": "Layout",
+    "viewModes": {
+      "list": "List",
+      "grid": "Grid"
+    },
+    "viewStats": "View stats",
+    "reviewBadge_one": "{{count}} to review",
+    "reviewBadge_other": "{{count}} to review",
+    "scanTimeline": "Scan timeline",
+    "scanTimelineOptions": {
+      "off": "Off",
+      "day": "By day",
+      "hour": "By hour"
+    },
+    "scanTimelineSortNote": "The scan timeline always shows the newest scans first.",
+    "scanTimelineBlockCount_one": "{{count}} card",
+    "scanTimelineBlockCount_other": "{{count}} cards",
+    "loadingMoreCards": "Loading more cards"
   },
   "cardDetail": {
+    "noCollectionsToMoveTo": "There's no other collection for this game to move the card to.",
+    "noLocationsToMoveTo": "There's no other storage location to move the card to.",
     "pricePaid": "Price paid ({{currency}})",
     "pricePaidEmpty": "Not set",
     "fallbackTitle": "Card details",
     "capturedScan": "Captured scan",
+    "capturedBackSide": "Captured scan (back)",
+    "capturedBackSideAlt": "Scanned back side of the card",
+    "showBackSide": "Show back side",
+    "showFrontSide": "Show front side",
     "matchedCard": "Matched card",
     "details": "Details",
     "set": "Set",
@@ -800,6 +820,8 @@
     "similarMatchesHint": "Several close matches. Tap the right version.",
     "thisScan": "This scan",
     "foilNone": "Not foil",
+    "stamp": "Stamp",
+    "stampNone": "No stamp",
     "condition": "Condition",
     "language": "Language",
     "allLanguages": "All languages",
@@ -825,7 +847,9 @@
       "scannedBy": "By",
       "sorter": "Sorter",
       "deletedSorter": "{{name}} (deleted)"
-    }
+    },
+    "name": "Name",
+    "actions": "Card actions"
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -937,7 +961,10 @@
       "skipSaving": "Don't save cards",
       "skipSavingDescription": "Cards are identified and sorted as usual, but nothing is added to the collection. Scans still count toward your daily limit.",
       "resort": "Re-sort saved cards",
-      "resortDescription": "Each scan moves a copy that is already in this collection into its new bin instead of adding another copy. The copy keeps its foil and condition and leaves its old storage location. Cards not in the collection yet are added as usual."
+      "resortDescription": "Each scan moves a copy that is already in this collection into its new bin instead of adding another copy. The copy keeps its foil and condition and leaves its old storage location. Cards not in the collection yet are added as usual.",
+      "matchGames": "Also identify cards from",
+      "matchGamesEmpty": "Pick at least one other game. Until you do, only this game's cards are recognized.",
+      "matchGamesHint": "Cards that aren't recognized go to the catch-all. Each extra game makes scans a little slower."
     },
     "modes": {
       "rules": {
@@ -951,6 +978,10 @@
       "auto-assign": {
         "title": "Auto-detect sorting",
         "description": "Each new value of a field claims the next open bin as you scan"
+      },
+      "game-sort": {
+        "title": "Sort by game",
+        "description": "Each game gets its own bin. Cards are sorted but not saved."
       },
       "repack": {
         "title": "Build repacks",
@@ -1117,6 +1148,24 @@
       "reverseSpeedLabel": "Roll Back Speed",
       "off": "Off"
     },
+    "feederTest": {
+      "heading": "Feeder test",
+      "description": "Feed cards straight to the bottom bin without scanning, using the saved feeder settings.",
+      "runUntilStoppedLabel": "Feed until stopped",
+      "cardsToSendLabel": "Cards to send",
+      "start": "Start feeding",
+      "stop": "Stop",
+      "stopping": "Stopping after this card",
+      "progress": "Cards sent: {{count}}",
+      "progressOfTotal": "Cards sent: {{count}} of {{total}}",
+      "results": {
+        "completed": "Feeder test finished. Cards sent: {{count}}",
+        "stopped": "Feeder test stopped. Cards sent: {{count}}",
+        "hopperEmpty": "Hopper is empty. Cards sent: {{count}}",
+        "feedFailed": "Feeder test stopped on an error. Cards sent: {{count}}",
+        "routeFailed": "Feeder test stopped on an error. Cards sent: {{count}}"
+      }
+    },
     "runTest": "Run Test",
     "testing": "Testing…",
     "feed": "Feed",
@@ -1272,6 +1321,9 @@
     "location": "Storage",
     "removeFromLocation": "Remove from location",
     "noCardsTitle": "This location is empty",
+    "searchCardsPlaceholder": "Search cards in this location",
+    "positionOrder": "Position in the box",
+    "noMatchingCards": "No cards match your search or filters",
     "businessOnly": "Storage locations aren't included in your plan.",
     "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
     "lockedWithLocations": "You can still view and search your locations and the cards in them. Changing anything needs a plan that includes storage.",
@@ -1287,7 +1339,74 @@
     "moveToCollectionFailed": "Couldn't move the cards",
     "moveToOtherLocation": "Move to another location",
     "searchLocations": "Search locations",
-    "searchCollections": "Search collections"
+    "searchCollections": "Search collections",
+    "pickList": {
+      "open": "Pick list",
+      "title": "Pick list",
+      "description": "Paste a decklist to see where each card is stored, then tick cards off as you pull them.",
+      "decklistLabel": "Cards to pull",
+      "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+      "decklistHint": "One card per line. Quantities, set codes and section headers are fine.",
+      "findCards": "Find cards",
+      "editList": "Edit list",
+      "clear": "Clear list",
+      "progress": "{{picked}} of {{total}} picked",
+      "emptyTitle": "None of these cards are stored",
+      "emptyDescription": "Only cards in a storage location show up on a pick list.",
+      "loadFailed": "The pick list couldn't be loaded.",
+      "finish": "Remove picked from locations",
+      "finishTitle_one": "Remove {{count}} picked card from its location?",
+      "finishTitle_other": "Remove {{count}} picked cards from their locations?",
+      "finishDescription": "They stay in your collection. The pick list is cleared afterwards.",
+      "finishConfirm": "Remove",
+      "scan": {
+        "button": "Scan to pick",
+        "noMatch": "No card recognized. Try again with the whole card in view.",
+        "notOnList": "{{name}} isn't left on your pick list.",
+        "picked": "Picked {{name}} from {{location}}, position {{position}}",
+        "failed": "Scanning failed. Try again.",
+        "title": "Scan to pick",
+        "hint": "Hold one card in the frame and tap the shutter.",
+        "done": "Done",
+        "remaining": "{{count}} left to pick",
+        "loadingModels": "Preparing the scanner",
+        "alreadyPicked": "Every copy of {{name}} on your pick list is already picked."
+      },
+      "finishFailed": "The picked cards couldn't be removed. Try again.",
+      "notStored": "Not stored",
+      "missingCount_one": "{{count}} copy not stored",
+      "missingCount_other": "{{count}} copies not stored",
+      "moreActions": "More actions",
+      "picked": "Picked"
+    },
+    "verify": {
+      "tabs": {
+        "cards": "Cards",
+        "verify": "Verify"
+      },
+      "description": "Scan the cards in this location to check everything that should be here is.",
+      "progress": "{{verified}} of {{total}} verified",
+      "verified": "Verified",
+      "startOver": "Start over",
+      "emptyTitle": "Nothing to verify",
+      "emptyDescription": "This location has no cards stored in it yet.",
+      "loadFailed": "This location's cards couldn't be loaded.",
+      "truncated": "Only the first {{max}} cards in this location can be verified.",
+      "complete": "Every card in this location is verified.",
+      "notInLocationTitle": "Scanned but not stored here",
+      "notInLocationDescription": "These cards aren't recorded in this location. Put them where they belong, or move them here.",
+      "scan": {
+        "button": "Scan to verify",
+        "stop": "Stop scanning",
+        "verified": "Verified {{name}}, position {{position}}",
+        "alreadyVerified": "Every copy of {{name}} in this location is already verified.",
+        "notInLocation": "{{name}} isn't stored in this location.",
+        "hint": "Hold one card from this location in the frame and tap the shutter.",
+        "title": "Verify cards",
+        "remaining": "{{count}} left to verify"
+      }
+    },
+    "share": "Share location"
   },
   "settings": {
     "title": "Settings",
@@ -1329,6 +1448,10 @@
       "webhooks": {
         "title": "Webhooks",
         "description": "Post scan and storage events to your own server"
+      },
+      "shopCatalogs": {
+        "title": "Shop catalogs",
+        "description": "Let customers browse your stock on a tablet or website"
       }
     },
     "appearance": {
@@ -1351,13 +1474,14 @@
       "heading": "Text recognition (OCR)",
       "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
       "toggleLabel": "Enable OCR text matching",
-      "badge": "Beta"
+      "highAccuracyToggleLabel": "Higher accuracy scans",
+      "highAccuracyDescription": "Read the text on every card, not only uncertain ones, so the set and number can correct a confident but wrong match. Scans take a little longer."
     },
-    "ocrBetaDialog": {
-      "title": "OCR text matching (beta)",
-      "description": "When a scan isn't a confident match, this reads the card's name and set line to find the card or pick the right printing. Confident matches skip it, so scanning speed is unchanged. It's still in beta and can misread text. Turn it back off if it seems to be making matches worse.",
-      "confirm": "Enable OCR",
-      "cancel": "Cancel"
+    "foilDetection": {
+      "heading": "Foil detection",
+      "description": "Mark a scan as foil automatically. Only used for printings that come in both foil and non-foil, and only while the scanner's foil setting is off.",
+      "starToggleLabel": "Read the Magic foil star",
+      "starToggleDescription": "Mark Magic cards as foil when the collector line shows the ★ printed on foils. Works on every device and adds no time."
     },
     "correctionAutoClose": {
       "heading": "Card correction prompt",
@@ -1470,7 +1594,8 @@
           "fleetHealth": "Fleet health",
           "storage": "Storage locations",
           "apiAccess": "API access",
-          "businessTools": "Buy and sell"
+          "businessTools": "Buy and sell",
+          "longShareLinks": "Monitor links up to 30 days"
         },
         "unlimited": "Unlimited",
         "included": "Included",
@@ -1758,6 +1883,67 @@
         "save": "Save",
         "saveFailed": "Couldn't save the sound rule."
       }
+    },
+    "shopCatalogs": {
+      "heading": "Shop catalogs",
+      "description": "Let customers browse your stock on a store tablet or your website. Each catalog shows the cards in the collections and storage locations you pick, through a link that keeps working until you reset it.",
+      "add": "New catalog",
+      "addTitle": "New shop catalog",
+      "editTitle": "Edit shop catalog",
+      "dialogDescription": "Pick what customers can browse. Changes show on the catalog within a minute.",
+      "save": "Save catalog",
+      "nameLabel": "Name",
+      "namePlaceholder": "In-store singles",
+      "showPrices": "Show prices",
+      "showPricesDescription": "Turn off to hide card prices from anyone browsing this catalog.",
+      "collectionsLabel": "Collections",
+      "storageLocationsLabel": "Storage locations",
+      "noSources": "Nothing to pick yet.",
+      "inventoryNote": "Cards in open or cancelled intake lots never show.",
+      "empty": "No shop catalogs yet",
+      "loadFailed": "Couldn't load shop catalogs.",
+      "upgrade": "Shop catalogs are part of the Business plan.",
+      "pricesHidden": "Prices hidden",
+      "noLiveSources": "Its collections and locations were deleted",
+      "showLink": "Link",
+      "edit": "Edit",
+      "delete": "Delete",
+      "created": "Shop catalog created",
+      "saved": "Shop catalog saved",
+      "deleted": "Shop catalog deleted",
+      "deleteConfirmTitle": "Delete this shop catalog?",
+      "deleteConfirmDescription": "Its link stops working right away. Your cards stay where they are.",
+      "linkTitle": "Link to {{name}}",
+      "linkDescription": "Open this link on a store tablet, or put it on your website. Anyone with it can browse the catalog.",
+      "linkNeverExpires": "This link doesn't expire. Reset it to stop the old one from working.",
+      "linksNotConfigured": "Share links aren't set up on this server.",
+      "resetLink": "Reset link",
+      "resetLinkConfirmTitle": "Reset this catalog's link?",
+      "resetLinkConfirmDescription": "The current link and QR code stop working. Update any tablet or website that uses it.",
+      "linkReset": "Link reset. The old link no longer works.",
+      "managersOnly": "Only owners and admins can manage shop catalogs.",
+      "cancel": "Cancel",
+      "close": "Close",
+      "actions": "Catalog actions",
+      "photo": {
+        "heading": "Shop photo",
+        "description": "Shown at the top of every shop catalog. JPEG, PNG or WebP, up to 10 MB.",
+        "upload": "Upload photo",
+        "replace": "Replace",
+        "remove": "Remove",
+        "previewAlt": "Current shop photo",
+        "uploaded": "Shop photo updated",
+        "uploadFailed": "Couldn't upload the shop photo.",
+        "removed": "Shop photo removed",
+        "wrongType": "Upload a JPEG, PNG or WebP photo.",
+        "tooLarge": "That photo is too large. Upload one under 10 MB.",
+        "removeConfirmTitle": "Remove the shop photo?",
+        "removeConfirmDescription": "Your catalogs will show without a photo."
+      },
+      "isPublic": "Public",
+      "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link.",
+      "publicBadge": "Public",
+      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
     }
   },
   "binCorrection": {
@@ -1799,8 +1985,6 @@
     "avg30": "30-day avg",
     "market": "Market",
     "low": "Low",
-    "mid": "Mid",
-    "high": "High",
     "regular": "Regular",
     "foil": "Foil",
     "noPrice": "n/a",
@@ -1820,9 +2004,10 @@
     "pausedDuringSync": "Paused while a database sync is running",
     "ocrRegions": {
       "heading": "OCR regions",
-      "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card.",
+      "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card. Printing marks are compared against each printing's catalog image to tell printings of the same card apart.",
       "fallback": "fallback",
       "multiline": "multiline",
+      "printingMark": "printing mark",
       "coords": "x {{x}}%, y {{y}}%, {{width}} × {{height}}%",
       "anotherCard": "Show another card",
       "sample": "{{name}} · {{set}} #{{number}}"
@@ -1847,10 +2032,22 @@
       "inactive": "Inactive",
       "empty": "No games configured yet"
     },
+    "printingMarks": {
+      "title": "Printing marks",
+      "setSymbol": "Set symbol",
+      "artStamp": "Promo stamp",
+      "listIcon": "The List icon",
+      "pitch": "Pitch dots",
+      "editionMarker": "Edition marker",
+      "setCodeAndRegulationMark": "Set code and regulation mark",
+      "firstEditionStamp": "1st Edition stamp",
+      "foilMarker": "Foil star"
+    },
     "ocrFields": {
       "name": "Name",
       "setLine": "Set line",
-      "number": "Number"
+      "number": "Number",
+      "language": "Language"
     }
   },
   "export": {
@@ -1922,12 +2119,16 @@
     "customerNameRequired": "Enter the customer's name.",
     "orderTextRequired": "Paste an order or choose a file.",
     "orderLinesRequired": "Keep at least one card on the pick.",
+    "decklistRequired": "Enter at least one card, one per line.",
     "cardCountRequired": "Enter a number of cards.",
     "storageLocationRequired": "Choose where the cards went.",
     "commandRequired": "Enter a command.",
     "verificationCodeLength": "Enter the {{length}}-digit code.",
     "verificationCodeNumeric": "The code can only contain numbers.",
-    "controlCardActionRequired": "Pick at least one thing for the card to change."
+    "controlCardActionRequired": "Pick at least one thing for the card to change.",
+    "catalogSourcesRequired": "Pick at least one collection or storage location.",
+    "contactRequired": "Add a way to reach you.",
+    "textTooLong": "Keep this under {{max}} characters."
   },
   "cardTags": {
     "title": "Tags",
@@ -1938,5 +2139,815 @@
       "reviewed": "Reviewed",
       "corrected": "Corrected"
     }
+  },
+  "unmatchedCards": {
+    "title": "Unmatched cards",
+    "count_one": "{{count}} card",
+    "count_other": "{{count}} cards",
+    "hint": "These scans didn't match a card. Tap one to pick the right card, or remove it.",
+    "emptyTitle": "No unmatched cards",
+    "emptyDescription": "Every scan in this collection matched a card.",
+    "loadFailed": "Couldn't load unmatched cards",
+    "identifyScan": "Identify the scan from {{scannedAt}}",
+    "identifyTitle": "Identify card",
+    "searchHint": "Search for the card in this photo. Picking one adds it to the collection.",
+    "notFound": "This scan is no longer unmatched",
+    "identifyFailed": "Couldn't add the card",
+    "remove": "Remove scan",
+    "removeTitle": "Remove this scan?",
+    "removeDescription": "The photo is deleted and the card isn't added to the collection.",
+    "removeFailed": "Couldn't remove the scan",
+    "removeAll": "Remove all",
+    "removeAllTitle_one": "Remove {{count}} unmatched scan?",
+    "removeAllTitle_other": "Remove {{count}} unmatched scans?",
+    "removeAllDescription": "The photos are deleted and none of these cards are added to the collection.",
+    "badge_one": "{{count}} unmatched",
+    "badge_other": "{{count}} unmatched"
+  },
+  "matchValidations": {
+    "title": "Validate matches",
+    "description": "Help the community improve card recognition: check recent scans against the card they were matched to. Each scan needs {{required}} reviews. Answers never change anyone's collection.",
+    "counts": "You've checked {{yours}} · {{community}} checks from the community so far",
+    "sessionCounts": "This session: {{correct}} correct, {{incorrect}} wrong, {{badScan}} bad scans",
+    "scanPhoto": "Scan photo",
+    "scanPhotoAlt": "Scan photo to compare with {{name}}",
+    "matchedCard": "Matched card",
+    "matchedCardAlt": "Catalog image of {{name}}",
+    "unknownCard": "Unknown card",
+    "matchedByEmbedding": "Matched by image",
+    "matchedByOcr": "Matched by name text",
+    "lowConfidence": "Low confidence",
+    "scannedAt": "Scanned {{date}}",
+    "decisions": {
+      "correct": "Marked correct",
+      "incorrect": "Marked wrong",
+      "skipped": "Skipped",
+      "badScan": "Marked bad scan"
+    },
+    "actions": {
+      "correct": "Correct",
+      "incorrect": "Wrong",
+      "badScan": "Bad scan",
+      "skip": "Skip",
+      "back": "Back",
+      "refresh": "Refresh"
+    },
+    "empty": {
+      "title": "Nothing left to check",
+      "description": "You've checked every open scan, or skipped the rest. Refresh to load skipped scans again."
+    },
+    "reviewProgress": "{{count}} of {{required}} reviews",
+    "views": {
+      "review": "Review",
+      "scans": "All scans"
+    },
+    "statuses": {
+      "inProgress": "Needs reviews",
+      "correct": "Correct",
+      "incorrect": "Wrong",
+      "badScan": "Bad scan",
+      "disputed": "Disputed"
+    },
+    "tallies": "{{correct}} correct · {{incorrect}} wrong · {{badScan}} bad scan",
+    "yourVerdict": "Your answer: {{verdict}}",
+    "scans": {
+      "listLabel": "Scans needing validation",
+      "empty": {
+        "title": "No scans to validate",
+        "description": "There are no scans with a photo in this validation week."
+      }
+    },
+    "guide": {
+      "open": "How to check a match",
+      "title": "How to check a match",
+      "intro": "Compare the scan photo with the card it was matched to. Look at the name, the set symbol, the collector number and the artwork.",
+      "done": "Got it",
+      "items": {
+        "correct": "The photo shows the same card in the same printing: same name, set symbol, collector number and art. Small differences in colour or lighting are fine.",
+        "incorrect": "The photo shows a different card, or the same card from another set or printing, such as a different set symbol, collector number, frame or art.",
+        "badScan": "You can't tell which card it is because the photo is blurry, cut off, covered in glare, shows more than one card or shows no card at all.",
+        "skip": "Not sure? Skip it and someone else will check it."
+      }
+    },
+    "gameFilter": {
+      "label": "TCG",
+      "all": "All TCGs"
+    },
+    "saveError": "Couldn't save your answer. Try that scan again.",
+    "progress": {
+      "label": "Community scan validation progress",
+      "valueText": "{{done}} of {{total}} reviews done",
+      "percent": "{{percent}}%"
+    }
+  },
+  "batchScan": {
+    "open": "Scan many cards from one photo",
+    "title": "Photo scan",
+    "hint": "Lay the cards flat on a plain surface without overlapping, then take one photo.",
+    "loadingModels": "Loading recognition models",
+    "takePhoto": "Take photo",
+    "captureFailed": "Couldn't take the photo. Try again.",
+    "photoAlt_one": "Photo with {{count}} card found",
+    "photoAlt_other": "Photo with {{count}} cards found",
+    "finding": "Finding cards ({{done}} of {{total}} areas checked)",
+    "identifyingProgress": "Identifying card {{done}} of {{total}}",
+    "found_one": "{{count}} card found. Untick any you don't want and tap a card to fix it.",
+    "found_other": "{{count}} cards found. Untick any you don't want and tap a card to fix it.",
+    "noneFoundTitle": "No cards found",
+    "noneFoundDescription": "Spread the cards out so they don't touch, use a plain background, and make sure the whole of each card is in the photo.",
+    "identifying": "Identifying",
+    "failed": "Couldn't identify this card",
+    "noMatch": "No match",
+    "includeCard": "Add card {{number}}",
+    "correctHint": "Pick the right card",
+    "corrected": "Picked",
+    "lowConfidence": "Check this",
+    "pickCard": "Pick the card",
+    "retake": "Retake",
+    "addCards_one": "Add {{count}} card",
+    "addCards_other": "Add {{count}} cards",
+    "savedTitle_one": "Added {{count}} card",
+    "savedTitle_other": "Added {{count}} cards",
+    "savePartialTitle_one": "Added {{count}} card",
+    "savePartialTitle_other": "Added {{count}} cards",
+    "savePartialDescription_one": "{{count}} card couldn't be saved. Try adding it again.",
+    "savePartialDescription_other": "{{count}} cards couldn't be saved. Try adding them again.",
+    "modeAdd": "Add",
+    "modeRemove": "Remove",
+    "removeCard": "Remove card {{number}}",
+    "reviewRemoval_one": "Review {{count}} card to remove",
+    "reviewRemoval_other": "Review {{count}} cards to remove",
+    "removalLookupFailedTitle_one": "Couldn't look up {{count}} card",
+    "removalLookupFailedTitle_other": "Couldn't look up {{count}} cards",
+    "removalLookupFailedDescription": "Check your connection and try again."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Platform tools for staff.",
+    "entrySubtitle": "Cards, users, plans and more",
+    "sections": {
+      "cards": {
+        "title": "Cards & games",
+        "subtitle": "Card database, sync and games"
+      },
+      "users": {
+        "title": "Users",
+        "subtitle": "Look up users and impersonation history"
+      },
+      "plans": {
+        "title": "Plans",
+        "subtitle": "Plan limits, features and pricing"
+      },
+      "discord": {
+        "title": "Discord",
+        "subtitle": "Channels and announcements"
+      },
+      "sounds": {
+        "title": "Sounds",
+        "subtitle": "Built-in scanner sound clips"
+      },
+      "deleted": {
+        "title": "Deleted items",
+        "subtitle": "Restore deleted items"
+      }
+    },
+    "deleted": {
+      "description": "Everything deleted in any organization, except scanned cards. Restoring puts an item back exactly as it was.",
+      "searchPlaceholder": "Search by name or organization",
+      "typeLabel": "Item type",
+      "allTypes": "All types",
+      "empty": "Nothing has been deleted",
+      "restore": "Restore",
+      "global": "Global",
+      "lastUpdated": "Last changed {{date}}",
+      "types": {
+        "collection": "Collection",
+        "binSet": "Bin preset",
+        "presetWorkflow": "Multi-stage preset",
+        "bin": "Bin",
+        "device": "Sorter",
+        "binRoute": "Bin route",
+        "binHeight": "Bin height",
+        "moduleConfig": "Module calibration",
+        "storageLocation": "Storage location",
+        "soundClip": "Sound clip",
+        "soundRule": "Sound rule",
+        "notificationRule": "Notification rule",
+        "game": "Game",
+        "announcement": "Announcement",
+        "intakeLot": "Intake lot",
+        "fulfilmentOrder": "Order",
+        "accuracyCheck": "Spot check",
+        "shopCatalog": "Shop catalog"
+      },
+      "restored": "Restored {{name}}",
+      "restoreError": "Couldn't restore that item",
+      "count_one": "{{count}} deleted item",
+      "count_other": "{{count}} deleted items",
+      "restoreItem": "Restore {{name}}",
+      "loadError": "Couldn't load deleted items",
+      "noMatches": "No deleted items match",
+      "loadingMore": "Loading more deleted items"
+    },
+    "users": {
+      "subtitle": "Look up accounts and review impersonation sessions.",
+      "viewAsUserOnWebTitle": "Viewing the app as a user is on the web app",
+      "viewAsUserOnWebDescription": "Search here to look up an account and its organizations. To see the app as that user, open Admin > Users on the web.",
+      "searchPlaceholder": "Search by name, email or organization",
+      "startTyping": "Type a name, email or organization to search.",
+      "searchFailed": "Couldn't search users.",
+      "empty": "No users found",
+      "noOrgs": "No organizations",
+      "adminBadge": "Admin",
+      "moderatorBadge": "Moderator",
+      "tabs": {
+        "search": "Users",
+        "audit": "Audit log"
+      },
+      "audit": {
+        "unknownUser": "Unknown user",
+        "loadFailed": "Couldn't load the audit log.",
+        "empty": "No impersonation sessions yet",
+        "entryLabel": "{{admin}} → {{target}}",
+        "startedAndEnded": "Started {{started}}, ended {{ended}}",
+        "startedOnly": "Started {{started}}",
+        "active": "Active"
+      }
+    },
+    "plans": {
+      "billingDisabled": "Billing is turned off on this server, so every organization gets every feature with no limits. These settings take effect once billing is on.",
+      "saveFailed": "Couldn't save plan settings",
+      "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",
+      "limitsDescription": "How much of each thing an organization on each plan can have. Turn on Unlimited to remove a limit.",
+      "restoreDefaults": "Restore defaults",
+      "unlimited": "Unlimited",
+      "features": {
+        "chaosSort": {
+          "label": "Chaos sort",
+          "description": "Fill bins in order, ignoring rules. Turning it off only stops new presets from switching it on."
+        },
+        "storage": {
+          "label": "Storage locations",
+          "description": "Create locations and record bins into them. Existing locations stay viewable either way."
+        },
+        "apiAccess": {
+          "label": "API access",
+          "description": "Create organization API keys and read cards and storage locations through the public API. Revoking existing keys always works."
+        },
+        "businessTools": {
+          "label": "Buy and sell",
+          "description": "Intake lots with buylist offers, order import and fulfilment, cost and margin reports, and spot checks. Existing records stay viewable either way."
+        },
+        "repacks": {
+          "label": "Repacks",
+          "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already in repack mode keep working."
+        },
+        "customSounds": {
+          "label": "Custom sounds",
+          "description": "Upload custom sound clips for sound rules. Turning it off only stops new uploads. Clips already uploaded keep playing."
+        },
+        "fleetHealth": {
+          "label": "Fleet health",
+          "description": "The sorter health panel on the Sorters page: status, cards since service, alert history and service intervals. Jam and offline alerts are still recorded and sent either way."
+        },
+        "longShareLinks": {
+          "label": "Longer monitor links",
+          "description": "Monitor links can last 1, 7 or 30 days. Without it they last 1 hour. Trade links always last 1 hour."
+        }
+      },
+      "limits": {
+        "dailyScans": {
+          "label": "Daily scans",
+          "description": "Cards scanned per organization per UTC day."
+        },
+        "connectedSorters": {
+          "label": "Connected sorters",
+          "description": "Sorters connected at once. Every plan is also capped at the server's hard maximum."
+        },
+        "soundRules": {
+          "label": "Sound rules",
+          "description": "Sound rules across all games. Only checked when adding a rule."
+        },
+        "notificationRules": {
+          "label": "Notification rules",
+          "description": "Discord notification rules across all games. Only checked when adding a rule."
+        },
+        "organizations": {
+          "label": "Owned organizations",
+          "description": "Organizations a user may own. Checked in the app against the plan of the organization the user has open when creating a new one."
+        },
+        "membersPerOrg": {
+          "label": "Members per organization",
+          "description": "Members per organization, counted owners first, then by join date. Members past the limit are locked out until the plan is upgraded or members are removed."
+        },
+        "collections": {
+          "label": "Collections",
+          "description": "Collections per organization. Only checked when creating a collection."
+        }
+      },
+      "pricingMode": {
+        "heading": "Pricing mode",
+        "saved": "Pricing mode updated.",
+        "saveFailed": "Couldn't update the pricing mode.",
+        "legacy": {
+          "badge": "Old pricing",
+          "description": "Only Free and the original Business plan are on sale, at the legacy Business prices. New Business subscribers get the legacy Business tier.",
+          "switch": "Switch to new pricing",
+          "confirmTitle": "Switch to the new pricing?",
+          "confirmDescription": "Enthusiast and the new Business plan go on sale right away, using the STRIPE_PRICE_ID_ENTHUSIAST and STRIPE_PRICE_ID_BUSINESS prices. Current Business subscribers keep their plan and start seeing it labelled as legacy."
+        },
+        "tiered": {
+          "badge": "New pricing",
+          "description": "Free, Enthusiast and Business are on sale. Existing subscribers to the original Business plan keep it as the legacy tier.",
+          "switch": "Switch back to old pricing",
+          "confirmTitle": "Switch back to the old pricing?",
+          "confirmDescription": "Enthusiast and the new Business plan stop being sold, and Business checkout goes back to the legacy prices. People who already subscribed to a new plan keep it."
+        }
+      },
+      "preview": {
+        "heading": "Preview a plan",
+        "description": "See the app as an organization on another plan would: limits, locked features and the billing screen all follow the plan you pick. Only affects your own requests in this app.",
+        "off": "Off",
+        "selectLabel": "Preview plan",
+        "activeTitle": "Previewing {{plan}}",
+        "activeDescription": "Your own requests in this app follow this plan until you stop the preview or close the app.",
+        "stop": "Stop preview"
+      },
+      "subtitle": "Plan limits, features, pricing and preview.",
+      "loadFailed": "Couldn't load plan settings.",
+      "editorHeading": "Plan settings",
+      "editorDescription": "Pick a plan to edit its features and limits. Changes to every plan are saved together.",
+      "editedPlanLabel": "Plan to edit",
+      "restoreDefaultsHint": "Resets every plan to the built-in defaults. Nothing is saved until you tap Save.",
+      "featuresHeading": "Features: {{plan}}",
+      "limitsHeading": "Limits: {{plan}}",
+      "unlimitedFor": "Unlimited {{limit}}",
+      "discardDescription": "Your changes to the plan settings haven't been saved."
+    },
+    "discord": {
+      "server": "Server",
+      "channel": "Channel",
+      "noServer": "No server",
+      "noChannel": "No channel",
+      "loadingGuild": "Loading server...",
+      "botUnreachable": "The Discord bot isn't reachable, so servers and channels can't be listed right now.",
+      "loadFailed": "Couldn't load the Discord settings.",
+      "retry": "Try again",
+      "saved": "Discord settings saved.",
+      "opensInBrowser": "Opens in your browser",
+      "channels": {
+        "stats": {
+          "heading": "Platform stats",
+          "description": "Where the platform stats are posted, and which numbers each post includes. Leave the channel empty to stop posting stats."
+        },
+        "donations": {
+          "heading": "Donations",
+          "description": "Where each Buy Me a Coffee donation is posted. Leave it empty to stop posting donations."
+        },
+        "pricing": {
+          "heading": "Price updates",
+          "description": "Where a summary is posted whenever the price sync pulls new prices. Leave it empty to stop posting price updates."
+        }
+      },
+      "priceSyncCommand": "Prices are pulled when this command runs. Add it as a scheduled task in Coolify on the server app, every few hours. It only downloads what changed upstream.",
+      "donationsLink": "Open the Buy Me a Coffee page",
+      "stats": {
+        "statsDescription": "Which numbers to include in each post, across every organization.",
+        "keys": {
+          "scannedCards": {
+            "label": "Scanned cards",
+            "description": "Every scan ever saved, matched or not. Deleting cards doesn't lower it."
+          },
+          "scansLast24Hours": {
+            "label": "Scans in the last 24 hours",
+            "description": "Scans saved in the 24 hours before the post."
+          },
+          "devices": {
+            "label": "Calibrated devices",
+            "description": "Calibrated sorters: at least one module saved with servo values other than the defaults. Deleted ones are excluded."
+          },
+          "users": {
+            "label": "Users",
+            "description": "Accounts that have signed up."
+          },
+          "organizations": {
+            "label": "Organizations",
+            "description": "Organizations that exist."
+          },
+          "collections": {
+            "label": "Collections",
+            "description": "Collections across every organization, excluding deleted ones."
+          }
+        },
+        "scheduleDescription": "Posts are sent when this command runs. Add it as a scheduled task in Coolify on the server app, with whatever cron you want.",
+        "postNow": "Post now",
+        "lastPosted": "Last posted {{date}}.",
+        "neverPosted": "Not posted yet.",
+        "saveBeforePosting": "Save your changes before posting.",
+        "posted": "Stats posted to Discord.",
+        "postFailed": "Couldn't post the stats."
+      },
+      "linkedRole": {
+        "heading": "Linked account role",
+        "description": "Members of this server who link their Mault account with /link-account get this role, and lose it when they unlink. The bot needs Manage Roles, and its own role must sit above this one.",
+        "role": "Role",
+        "noRole": "No role"
+      },
+      "announcements": {
+        "heading": "Announcements",
+        "description": "Broadcast a message to everyone using the app. It shows as a banner and stays in each viewer's notification tray until you deactivate it.",
+        "add": "Add announcement",
+        "editTitle": "Edit announcement",
+        "editHint": "Opens the announcement to edit or delete it",
+        "formDescription": "Shown to every signed-in user until deactivated.",
+        "active": "Active",
+        "inactive": "Inactive",
+        "onLandingPage": "On landing page",
+        "empty": "No announcements yet.",
+        "loadFailed": "Couldn't load the announcements.",
+        "notFound": "This announcement no longer exists.",
+        "severity": {
+          "info": "Info",
+          "warning": "Warning",
+          "danger": "Danger"
+        },
+        "schedule": {
+          "starts": "Starts {{date}}",
+          "ends": "Ends {{date}}",
+          "startsAndEnds": "{{start}} to {{end}}"
+        },
+        "severityLabel": "Severity",
+        "messageLabel": "Message",
+        "messagePlaceholder": "We'll be doing scheduled maintenance Friday at 10pm UTC.",
+        "linkLabel": "Link (optional)",
+        "linkPlaceholder": "https://example.com/changelog",
+        "startsAtLabel": "Starts at",
+        "endsAtLabel": "Ends at",
+        "dateTimePlaceholder": "YYYY-MM-DD HH:MM",
+        "scheduleHint": "Times use your phone's time zone, written as YYYY-MM-DD HH:MM. Leave either blank for no start or end bound. The Active switch still overrides both.",
+        "showOnLandingLabel": "Show on landing page",
+        "showOnLandingDescription": "Also shows this banner to signed-out visitors on the public landing and build guide pages.",
+        "fixErrors": "Fix the highlighted fields first.",
+        "createFailed": "Couldn't create the announcement.",
+        "updateFailed": "Couldn't save the announcement.",
+        "delete": "Delete announcement",
+        "deleteTitle": "Delete announcement?",
+        "deleteConfirm": "It will disappear from everyone's notification tray immediately.",
+        "deleteFailed": "Couldn't delete the announcement.",
+        "validation": {
+          "invalidLink": "Enter a valid http(s) URL.",
+          "invalidDateTime": "Enter a date and time as YYYY-MM-DD HH:MM.",
+          "endAfterStart": "The end time must be after the start time."
+        }
+      }
+    },
+    "sounds": {
+      "heading": "System sound clips",
+      "description": "Clips every organization can use in its sound rules. Organizations can play them but can't rename or delete them.",
+      "empty": "No system sound clips yet.",
+      "loadFailed": "Couldn't load the system sound clips.",
+      "retry": "Try again",
+      "uploadHint": "MP3, WAV, OGG, WebM, M4A or AAC, up to 1 MB.",
+      "delete": "Delete",
+      "deleteConfirm": "Every organization loses this clip, and rules that play it stop playing a sound.",
+      "deleted": "Sound clip deleted."
+    },
+    "planPreviewChip": "Previewing {{plan}}",
+    "cards": {
+      "cancel": "Cancel",
+      "typeToConfirm": "Type \"{{text}}\" to confirm",
+      "tabs": {
+        "stats": "Stats",
+        "games": "Games",
+        "sync": "Sync",
+        "database": "Cards",
+        "keys": "Keys"
+      },
+      "stats": {
+        "description": "App-wide scan activity across every organization, and whether each scan was vectorized on the server or in the browser. Someone counts as actively scanning while they've saved a scan in the last {{minutes}} minutes.",
+        "unknownValue": "Not available",
+        "percentValue": "{{percent}}%",
+        "loadFailed": "Couldn't load scan stats",
+        "active": {
+          "heading": "Active scanning",
+          "scanners": "People scanning",
+          "sessions": "Collections being scanned",
+          "orgs": "Organizations",
+          "connectedSorters": "Connected sorters",
+          "recentScans": "Scans, last {{minutes}} min"
+        },
+        "allTime": {
+          "heading": "All time",
+          "totalScanned": "Total scanned",
+          "matched": "Matched",
+          "unidentified": "Unidentified",
+          "matchRate": "Match rate",
+          "averageMatchPercent": "Avg. match confidence",
+          "corrected": "Corrected",
+          "multipleMatches": "Multiple matches"
+        },
+        "vectorize": {
+          "heading": "Scan vectorization source",
+          "server": "Server",
+          "web": "Web",
+          "percentOfTotal": "{{percent}}% of scans"
+        }
+      },
+      "games": {
+        "description": "Configure which trading card games can be scanned into and how their cards are matched against bin rules.",
+        "addGame": "Add game",
+        "loadFailed": "Couldn't load games",
+        "empty": "No games configured yet",
+        "active": "Active",
+        "inactive": "Inactive",
+        "fieldCount_one": "{{count}} field",
+        "fieldCount_other": "{{count}} fields",
+        "createSuccess": "Created {{name}}",
+        "updateSuccess": "Saved {{name}}",
+        "deleteSuccess": "Game deleted",
+        "createFailed": "Failed to create game",
+        "updateFailed": "Failed to update game",
+        "deleteFailed": "Failed to delete game",
+        "deleteTitle": "Delete game",
+        "deleteDescription": "Delete \"{{name}}\"? Collections using this game will keep their scanned cards, but no new cards can be matched against it.",
+        "deleteButton": "Delete"
+      },
+      "gameForm": {
+        "newTitle": "New game",
+        "editTitle": "Edit {{name}}",
+        "notFound": "This game doesn't exist or was deleted.",
+        "backToGames": "Back to games",
+        "discardDescription": "Your changes to this game haven't been saved.",
+        "generalHeading": "General",
+        "generalDescription": "Which card source this game uses and how it's listed.",
+        "physicalHeading": "Cards",
+        "physicalDescription": "Physical card properties, used for foil options and working out when a bin is full.",
+        "keyLabel": "Key",
+        "keyPlaceholder": "Select a game",
+        "nameLabel": "Name",
+        "namePlaceholder": "Pokémon",
+        "apiDocsUrlLabel": "API documentation URL",
+        "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
+        "activeDescription": "Inactive games can't be picked for new collections.",
+        "cardThicknessLabel": "Card thickness (mm)",
+        "cardThicknessPlaceholder": "e.g. 0.3",
+        "cardThicknessDescription": "Used with each bin's calibrated height (set in Sorter setup) to automatically work out when a bin is full.",
+        "validation": {
+          "required": "Required",
+          "keyFormat": "Lowercase letters, numbers, and hyphens only",
+          "keyTaken": "A game with this key already exists",
+          "urlFormat": "Enter a valid URL",
+          "minFields": "Add at least one field",
+          "thicknessPositive": "Enter a number greater than 0"
+        }
+      },
+      "fields": {
+        "heading": "Fields",
+        "description": "Define which fields bin rules, sorting and notifications can use for this game.",
+        "empty": "No fields yet. Add at least one for bin rules to filter on.",
+        "addField": "Add field",
+        "untitled": "Field {{position}}",
+        "removeLabel": "Remove field {{name}}",
+        "keyLabel": "Key",
+        "keyPlaceholder": "rarity",
+        "labelLabel": "Label",
+        "labelPlaceholder": "Rarity",
+        "typeLabel": "Type",
+        "pathLabel": "Data path",
+        "pathPlaceholder": "prices.usd",
+        "optionsLabel": "Options",
+        "optionsPlaceholder": "common, rare"
+      },
+      "fieldTypes": {
+        "string": "String",
+        "numeric": "Numeric",
+        "enum": "Enum",
+        "set": "Set"
+      },
+      "sync": {
+        "heading": "Card Image Vectors",
+        "status": {
+          "idle": "Idle",
+          "running": "Running",
+          "completed": "Completed",
+          "failed": "Failed",
+          "cancelled": "Cancelled"
+        },
+        "statusLabel": "Sync status: {{status}}",
+        "statusAnnouncement": "Card sync {{status}}",
+        "runningFor": "Syncing {{source}}",
+        "loadFailed": "Couldn't load the sync status",
+        "startFailed": "Couldn't start the sync",
+        "cancelFailed": "Couldn't cancel the sync",
+        "browserJobRunning": "This sync is vectorizing cards in a browser on the host computer. Keep that page open.",
+        "cancelling": "Cancelling...",
+        "starting": "Starting...",
+        "startButton": "Start Sync",
+        "gameLabel": "Game",
+        "gamePlaceholder": "Select a game...",
+        "languageLabel": "Language",
+        "languagePlaceholder": "Language...",
+        "forceResyncLabel": "Force full resync",
+        "concurrencyLabel": "Cards at a time",
+        "concurrencyDescription": "Vectorizes this many card images at once. Downloads still start a short time apart.",
+        "progressLabel": "Sync progress",
+        "progressCount": "{{done}} / {{total}}",
+        "savedCount": "{{count}} saved",
+        "vectorizedCount": "{{count}} vectorized",
+        "queuedCount": "{{count}} queued",
+        "skippedCount": "{{count}} skipped",
+        "etaRemaining": "~{{duration}} remaining",
+        "errorsCount_one": "{{count}} error",
+        "errorsCount_other": "{{count}} errors",
+        "printingMarksLabel": "Printing marks progress",
+        "printingMarksCount": "Printing marks: {{done}} / {{total}} cards read",
+        "logHeading": "Log",
+        "logDescription_one": "Newest entry first.",
+        "logDescription_other": "Last {{count}} entries, newest first.",
+        "logEmpty": "No Logs"
+      },
+      "syncCardById": {
+        "heading": "Sync Card by ID",
+        "description": "Fetch and vectorize a single card, adding it if it isn't in the database yet",
+        "cardIdLabel": "Card ID",
+        "cardIdPlaceholder": "Card ID...",
+        "syncButton": "Sync",
+        "syncing": "Syncing...",
+        "failed": "Failed to sync card {{id}}"
+      },
+      "database": {
+        "heading": "Card Database",
+        "cardCount_one": "{{count}} card",
+        "cardCount_other": "{{count}} cards",
+        "searchLabel": "Search cards",
+        "searchPlaceholder": "Search by name...",
+        "loadFailed": "Failed to load cards",
+        "empty": "No cards found",
+        "revectorizeLabel": "Re-vectorize {{name}}",
+        "revectorizeFailed": "Failed to re-vectorize {{name}}",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "pageStatus": "Page {{page}} of {{pageCount}}"
+      },
+      "dump": {
+        "heading": "Dump Card Database",
+        "description": "Permanently delete card image vectors, for one game or all of them",
+        "scopeLabel": "Scope",
+        "scopePlaceholder": "Select scope...",
+        "allGames": "All games",
+        "dumpButton": "Dump",
+        "confirmTitle": "Dump card database",
+        "confirmAll": "This will permanently delete all card image vectors and cannot be undone. Are you sure?",
+        "confirmScoped": "This will permanently delete all \"{{scope}}\" card image vectors and cannot be undone. Are you sure?",
+        "failed": "Failed to dump database",
+        "syncRunning": "You can't dump the database while a sync is running."
+      },
+      "syncApiKeys": {
+        "description": "Keys that let scripts and schedulers start card database syncs without signing in. Each key only does what its permissions allow.",
+        "create": "Create key",
+        "createTitle": "Create sync API key",
+        "createDescription": "Pick what this key may do. You can't change permissions later, so revoke and recreate the key instead.",
+        "nameLabel": "Name",
+        "namePlaceholder": "Nightly sync",
+        "permissionsLabel": "Permissions",
+        "empty": "No sync API keys yet",
+        "loadFailed": "Couldn't load sync API keys.",
+        "createFailed": "Couldn't create the sync API key.",
+        "revoke": "Revoke",
+        "revoked": "Sync API key revoked",
+        "revokeFailed": "Couldn't revoke the sync API key.",
+        "revokeConfirmDescription": "Anything using this key stops working right away. This can't be undone.",
+        "revealTitle": "Copy your sync API key",
+        "revealDescription": "This is the only time the key is shown. Store it somewhere safe.",
+        "revealDone": "Done",
+        "exampleLabel": "Start a sync with it:",
+        "createdBy": "Created by {{name}} on {{date}}",
+        "lastUsed": "Last used {{date}}",
+        "neverUsed": "Never used",
+        "permissions": {
+          "sync_start": {
+            "label": "Start sync",
+            "description": "Start a regular sync of a game. Unchanged cards are skipped."
+          },
+          "sync_force": {
+            "label": "Force resync",
+            "description": "Start a sync that downloads and re-vectorizes every card, even unchanged ones."
+          },
+          "sync_card": {
+            "label": "Sync single cards",
+            "description": "Fetch and vectorize one card by its ID."
+          },
+          "sync_cancel": {
+            "label": "Cancel sync",
+            "description": "Stop the sync that is running."
+          }
+        },
+        "revokeConfirmTitle": "Revoke \"{{name}}\"?",
+        "revokeLabel": "Revoke {{name}}",
+        "share": "Share key"
+      }
+    }
+  },
+  "tradeOffers": {
+    "trayHeading": "Trade offers",
+    "trayMessage": "{{name}} wants {{wanted}} for {{offered}} of theirs",
+    "review": "Review",
+    "foil": "Foil",
+    "accepted": "Trade offer accepted",
+    "declined": "Trade offer declined",
+    "declineTitle": "Decline this trade offer?",
+    "declineDescription": "They'll see that you declined on their link.",
+    "cancel": "Cancel",
+    "decline": "Decline",
+    "accept": "Accept",
+    "title": "Trade offer",
+    "reviewTitle": "Offer from {{name}}",
+    "respondFailed": "Couldn't answer the trade offer.",
+    "answered": "This trade offer was already answered.",
+    "reviewDescription": "Sent from {{source}} on {{date}}",
+    "unknownSource": "a shared link",
+    "contact": "Contact",
+    "theyWant_one": "They want {{count}} card",
+    "theyWant_other": "They want {{count}} cards",
+    "theyOffer_one": "They offer {{count}} card",
+    "theyOffer_other": "They offer {{count}} cards",
+    "acceptTitle": "Accept this trade offer?",
+    "acceptRemovesCards_one": "This removes the {{count}} card they want from your collection.",
+    "acceptRemovesCards_other": "This removes the {{count}} cards they want from your collection.",
+    "theyGetValue": "They get",
+    "youGetValue": "You get",
+    "youGainValue": "Their offer is worth {{amount}} more than what they're asking for.",
+    "youLoseValue": "Their offer is worth {{amount}} less than what they're asking for.",
+    "evenValue": "Both sides are worth the same.",
+    "missingPrices": "Some cards have no price, so the totals may be low.",
+    "noPrice": "No price"
+  },
+  "trade": {
+    "title": "Trade offer",
+    "description": "Pick cards you want from {{source}}, add cards you'll give in return, and send it. The owner accepts or declines.",
+    "sent": "Trade offer sent. The owner will get back to you.",
+    "sendFailed": "Couldn't send the trade offer. Try again.",
+    "invalidLink": "This trade link isn't available",
+    "invalidLinkDescription": "It may have expired or been removed. Ask for a new link.",
+    "notTradeLink": "This is a monitor link",
+    "notTradeLinkDescription": "It shows the cards but doesn't take trade offers. Ask the owner for a trade link.",
+    "detailsTitle": "Your details",
+    "nameLabel": "Your name",
+    "contactLabel": "Email, phone or username",
+    "noteLabel": "Note (optional)",
+    "getTitle_one": "You get ({{count}})",
+    "getTitle_other": "You get ({{count}})",
+    "getDescription": "Cards from {{source}}",
+    "chooseCards": "Choose cards",
+    "addMoreCards": "Add more cards",
+    "giveTitle_one": "You give ({{count}})",
+    "giveTitle_other": "You give ({{count}})",
+    "giveDescription": "Scan your cards or pick them from your collection.",
+    "scanCards": "Scan cards",
+    "fromCollection": "From collection",
+    "editCardHint": "Change quantity, condition or foil",
+    "foil": "Foil",
+    "removeCard": "Remove {{name}}",
+    "summary": "Cards you get: {{get}} · Cards you give: {{give}}",
+    "needGet": "Add a card you want to continue.",
+    "needGive": "Add a card you're giving to continue.",
+    "send": "Send trade offer",
+    "quantityIncrease": "Quantity: {{count}}",
+    "quantityDecrease": "Quantity: {{count}}",
+    "markFoil": "Mark as foil",
+    "markNotFoil": "Mark as not foil",
+    "conditionOption": "Condition: {{condition}}",
+    "conditions": {
+      "NM": "Near Mint",
+      "LP": "Lightly Played",
+      "MP": "Moderately Played",
+      "HP": "Heavily Played",
+      "DMG": "Damaged"
+    },
+    "remove": "Remove from offer",
+    "chooseCardsTitle": "Choose cards",
+    "selectedCount_one": "{{count}} selected",
+    "selectedCount_other": "{{count}} selected",
+    "searchLinkCards": "Search these cards",
+    "noLinkCards": "No cards match",
+    "tapToAdd": "Adds it to your trade offer",
+    "tapToRemove": "Removes it from your trade offer",
+    "loadMore": "Load more",
+    "done": "Done",
+    "chooseCardsHint": "Tap the cards you want.",
+    "fromCollectionTitle": "From your collection",
+    "givingCount_one": "Giving {{count}}",
+    "givingCount_other": "Giving {{count}}",
+    "collectionLabel": "Collection",
+    "pickCollection": "Pick a collection",
+    "searchCollection": "Search your cards",
+    "added": "Added {{name}} to your offer",
+    "noCollections": "You don't have a collection yet",
+    "noCollectionCards": "No cards match",
+    "scanCollectionLabel": "Match cards from",
+    "scanHint": "Hold one of your cards in the frame and tap the shutter to add it.",
+    "scanButton": "Scan card",
+    "scanNoMatch": "Couldn't recognise that card. Try again.",
+    "scanFailed": "Scanning failed. Try again."
   }
 }

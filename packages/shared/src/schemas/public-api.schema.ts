@@ -149,6 +149,12 @@ export const apiScannedCardSchema = z
       .string()
       .nullable()
       .describe("The game's foil type for foils, when recorded."),
+    stamp: z
+      .string()
+      .nullable()
+      .describe(
+        "The printed stamp on this copy, such as 1st Edition, when recorded.",
+      ),
     condition: z
       .enum(CARD_CONDITIONS as [CardCondition, ...CardCondition[]])
       .describe(

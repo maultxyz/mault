@@ -14,3 +14,6 @@ export const SYNC_VECTORIZE_CONCURRENCY_DEFAULT =
 export const SYNC_VECTORIZE_CONCURRENCY_MAX = Math.max(
   ...SYNC_VECTORIZE_CONCURRENCY_OPTIONS,
 );
+
+export const PRICE_SYNC_SCRIPT_COMMAND =
+  "node packages/server/dist/scripts/sync-prices.js";

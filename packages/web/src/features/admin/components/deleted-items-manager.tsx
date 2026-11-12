@@ -85,6 +85,7 @@ export function DeletedItemsManager() {
             pagination.setPage(1);
           }}
           placeholder={t("deletedItems.searchPlaceholder")}
+          aria-label={t("deletedItems.searchPlaceholder")}
           data-hotkey-search
         />
         <Select
@@ -94,7 +95,10 @@ export function DeletedItemsManager() {
             pagination.setPage(1);
           }}
         >
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger
+            className="w-full sm:w-48"
+            aria-label={t("deletedItems.typeLabel")}
+          >
             <SelectValue>{typeLabel(typeFilter)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -117,6 +121,7 @@ export function DeletedItemsManager() {
         />
       ) : (
         <>
+          <ListPagination alignsEnd pagination={pagination} />
           <div className="divide-y rounded-lg border">
             {pagination.pageItems.map((item) => {
               const restoring =
@@ -167,7 +172,7 @@ export function DeletedItemsManager() {
               );
             })}
           </div>
-          <ListPagination pagination={pagination} />
+          <ListPagination alignsEnd pagination={pagination} />
         </>
       )}
     </SettingsSection>

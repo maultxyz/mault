@@ -8,6 +8,7 @@ import type {
   RuleDialogFieldsProps,
   RuleDialogFormBase,
 } from "@/lib/interfaces/rule-dialog";
+import { useId } from "react";
 import { Controller, type Control } from "react-hook-form";
 
 export function RuleDialogFields<T extends RuleDialogFormBase>({
@@ -17,6 +18,7 @@ export function RuleDialogFields<T extends RuleDialogFormBase>({
   labels,
 }: RuleDialogFieldsProps<T>) {
   const baseControl = control as unknown as Control<RuleDialogFormBase>;
+  const conditionsLabelId = useId();
   return (
     <>
       <Controller
@@ -30,8 +32,8 @@ export function RuleDialogFields<T extends RuleDialogFormBase>({
         )}
       />
 
-      <Field data-invalid={!!rulesError}>
-        <Label>{labels.conditions}</Label>
+      <Field data-invalid={!!rulesError} aria-labelledby={conditionsLabelId}>
+        <Label id={conditionsLabelId}>{labels.conditions}</Label>
         <div className="max-h-[50vh] overflow-y-auto">
           <Controller
             control={baseControl}

@@ -1,10 +1,8 @@
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useReviewQueueCards } from "@/features/cards/api/use-review-queue";
-import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
 import type {
-  ReviewQueuePanelProps,
+  ReviewQueueListProps,
   ReviewQueueRowProps,
 } from "@/lib/interfaces/cards";
 import { sidebarItemClassName } from "@/lib/sidebar-item";
@@ -17,7 +15,6 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 
 function ReviewQueueRow({
   entry,
@@ -26,6 +23,7 @@ function ReviewQueueRow({
   isRemoved,
   onOpen,
 }: ReviewQueueRowProps) {
+  const { t } = useTranslation("cards");
   const rowRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -45,11 +43,23 @@ function ReviewQueueRow({
       )}
     >
       {isRemoved ? (
-        <IconTrash className="size-4 shrink-0 text-foreground/70" />
+        <IconTrash
+          role="img"
+          aria-label={t("reviewQueue.statusRemoved")}
+          className="size-4 shrink-0 text-foreground/70"
+        />
       ) : isReviewed ? (
-        <IconCircleCheckFilled className="size-4 shrink-0 text-success" />
+        <IconCircleCheckFilled
+          role="img"
+          aria-label={t("technicalDetails.reviewed")}
+          className="size-4 shrink-0 text-success-foreground"
+        />
       ) : (
-        <IconCircleDashed className="size-4 shrink-0 text-foreground/70" />
+        <IconCircleDashed
+          role="img"
+          aria-label={t("reviewQueue.statusPending")}
+          className="size-4 shrink-0 text-foreground/70"
+        />
       )}
       <div className="aspect-[2.5/3.5] w-7 shrink-0 overflow-hidden rounded-sm bg-muted">
         {entry.card.image?.small && (
@@ -79,22 +89,23 @@ function ReviewQueueRow({
   );
 }
 
-export function ReviewQueuePanel({ session }: ReviewQueuePanelProps) {
+export function ReviewQueueList({
+  cards,
+  totalCards,
+  isPending,
+  isError,
+  currentScanId,
+  reviewedScanIds,
+  removedScanIds,
+  onOpen,
+  onExit,
+}: ReviewQueueListProps) {
   const { t } = useTranslation("cards");
-  const navigate = useNavigate();
-  const { data, isPending, isError } = useReviewQueueCards(session);
-  const cards = data?.cards ?? [];
   const checkedCount = cards.filter(
     (entry) =>
-      session.reviewedScanIds.has(entry.scanId) ||
-      session.removedScanIds.has(entry.scanId),
+      reviewedScanIds.has(entry.scanId) || removedScanIds.has(entry.scanId),
   ).length;
-  const notShownCount = Math.max(0, (data?.totalCards ?? 0) - cards.length);
-
-  const openCard = (scanId: string) =>
-    navigate(`/app/cards/${scanId}?${CARD_REVIEW_SEARCH_PARAM}=1`, {
-      replace: true,
-    });
+  const notShownCount = Math.max(0, totalCards - cards.length);
 
   return (
     <div className="flex size-full flex-col bg-sidebar">
@@ -103,7 +114,7 @@ export function ReviewQueuePanel({ session }: ReviewQueuePanelProps) {
           <h2 className="truncate text-sm font-semibold">
             {t("reviewQueue.title")}
           </h2>
-          <p className="text-xs tabular-nums text-foreground/70">
+          <p role="status" className="text-xs tabular-nums text-foreground/70">
             {isPending
               ? " "
               : t("reviewQueue.progress", {
@@ -115,7 +126,7 @@ export function ReviewQueuePanel({ session }: ReviewQueuePanelProps) {
         <Button
           size="icon"
           variant="ghost"
-          onClick={() => navigate("/app", { replace: true })}
+          onClick={onExit}
           aria-label={t("reviewQueue.exit")}
           title={t("reviewQueue.exit")}
         >
@@ -145,10 +156,10 @@ export function ReviewQueuePanel({ session }: ReviewQueuePanelProps) {
               <ReviewQueueRow
                 key={entry.scanId}
                 entry={entry}
-                isCurrent={entry.scanId === session.currentScanId}
-                isReviewed={session.reviewedScanIds.has(entry.scanId)}
-                isRemoved={session.removedScanIds.has(entry.scanId)}
-                onOpen={() => openCard(entry.scanId)}
+                isCurrent={entry.scanId === currentScanId}
+                isReviewed={reviewedScanIds.has(entry.scanId)}
+                isRemoved={removedScanIds.has(entry.scanId)}
+                onOpen={() => onOpen(entry.scanId)}
               />
             ))}
             {notShownCount > 0 && (

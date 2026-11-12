@@ -1,26 +1,34 @@
 import { resolveScanFoilType } from "./foil-detection";
 import { toRuleCard } from "./scan-rule-fields";
 import { resolveScanBin } from "./scan-routing";
-import type { PlayingCardWithDistance } from "./interfaces/card.interface";
-import type { FoilDetection } from "./interfaces/foil-detection.interface";
+import { detectedStampOf } from "./card-stamps";
+import type { MatchedScanPlanInput } from "./interfaces/scan-plan.interface";
 import type { ScanRoutingContext } from "./interfaces/scan-routing.interface";
 
 export function resolveScanCard(
-  card: PlayingCardWithDistance,
-  sessionFoilType: string | null,
-  foilDetection: FoilDetection | null | undefined,
-  fallbackFoilTypes: string[],
+  input: MatchedScanPlanInput,
   routingContext: ScanRoutingContext,
 ) {
-  const foilType = resolveScanFoilType(
+  const { card } = input;
+  const foilType = resolveScanFoilType({
     card,
-    sessionFoilType,
-    foilDetection,
-    fallbackFoilTypes,
-  );
-  const ruleCard = toRuleCard(card, { isFoil: foilType != null, foilType });
+    sessionFoilType: input.sessionFoilType,
+    foilDetection: input.foilDetection,
+    fallbackFoilTypes: input.fallbackFoilTypes,
+    gameKey: card.gameKey ?? input.gameKey,
+    printedFoilMarker: input.diagnostics?.printedFoilMarker,
+    isNudgeFoilDetectionEnabled: input.isNudgeFoilDetectionEnabled ?? false,
+    isFoilStarDetectionEnabled: input.isFoilStarDetectionEnabled ?? false,
+  });
+  const stamp = detectedStampOf(input.diagnostics?.stampDetection);
+  const ruleCard = toRuleCard(card, {
+    isFoil: foilType != null,
+    foilType,
+    stamp,
+  });
   return {
     foilType,
+    stamp,
     ruleCard,
     decision: resolveScanBin(ruleCard, routingContext),
   };

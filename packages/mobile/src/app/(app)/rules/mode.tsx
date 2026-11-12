@@ -5,18 +5,26 @@ import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
-import { CHAOS_BIN_SIZE_MAX, getCatchAllBin, SCAN_ONLY_DEFAULT_BIN } from "@magic-vault/shared";
+import {
+  CHAOS_BIN_SIZE_MAX,
+  getCatchAllBin,
+  presetMatchGameKeys,
+  SCAN_ONLY_DEFAULT_BIN,
+  SCAN_RULE_GAME_FIELD,
+} from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { Input } from "@/components/ui/input";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
+import { gamesQueryOptions } from "@/features/games/api/games";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { resetAutoAssign } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
@@ -37,8 +45,10 @@ export default function SortingModeScreen() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
-  const { activeSet, bins, fieldDefinitions, gameGuid } = useRulesData();
+  const { activeSet, bins, collection, fieldDefinitions, gameGuid, isPending: isRulesDataPending } = useRulesData();
   const { data: billing } = useQuery(billingQueryOptions(orgId));
+  const { data: games = [] } = useQuery(gamesQueryOptions);
+  const otherGames = games.filter((game) => game.isActive && game.key !== collection?.game?.key);
   const [picker, setPicker] = useState<ModePicker | null>(null);
   const catchAll = getCatchAllBin(bins)?.binNumber;
 
@@ -48,6 +58,7 @@ export default function SortingModeScreen() {
         ? {
             mode: binSetMode(activeSet),
             autoAssignField: activeSet.autoAssignField ?? null,
+            matchGameKeys: presetMatchGameKeys(activeSet),
             scanOnlyMatchedBin: activeSet.scanOnlyBin ?? catchAll ?? SCAN_ONLY_DEFAULT_BIN,
             scanOnlyUnmatchedBin: catchAll ?? SCAN_ONLY_DEFAULT_BIN,
             chaosBinSize: activeSet.chaosBinSize != null ? String(activeSet.chaosBinSize) : "",
@@ -65,6 +76,13 @@ export default function SortingModeScreen() {
   const { isDirty } = form.formState;
   const mode = form.watch("mode");
   const autoAssignField = form.watch("autoAssignField");
+  const matchGameKeys = form.watch("matchGameKeys");
+  const toggleMatchGame = (gameKey: string) =>
+    form.setValue(
+      "matchGameKeys",
+      matchGameKeys.includes(gameKey) ? matchGameKeys.filter((key) => key !== gameKey) : [...matchGameKeys, gameKey],
+      { shouldDirty: true },
+    );
   const savedMode = binSetMode(activeSet);
   const eligibleFields = fieldDefinitions.filter((f) => f.type !== "numeric");
   const chaosLocked = billing?.chaosSort === false && !activeSet?.isChaosMode;
@@ -112,165 +130,215 @@ export default function SortingModeScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
       >
-        {!editable ? <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} /> : null}
-        {save.isError ? <Callout tone="destructive" title={t("rules.mode.saveFailed")} description={upgradeRequiredMessage(save.error)} /> : null}
-        {reset.isError ? <Callout tone="destructive" title={t("rules.mode.resetFailed")} /> : null}
+        {isRulesDataPending ? (
+          <PageSkeleton />
+        ) : (
+          <>
+            {!editable ? <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} /> : null}
+            {save.isError ? <Callout tone="destructive" title={t("rules.mode.saveFailed")} description={upgradeRequiredMessage(save.error)} /> : null}
+            {reset.isError ? <Callout tone="destructive" title={t("rules.mode.resetFailed")} /> : null}
 
-        <Controller
-          control={form.control}
-          name="mode"
-          render={({ field }) => (
-            <ListGroup>
-              {SORTING_MODES.map((option) => {
-                const locked = (option === "chaos" && chaosLocked) || (option === "repack" && repackLocked);
-                return (
-                  <ListRow
-                    key={option}
-                    title={t(`rules.modes.${option}.title`)}
-                    subtitle={locked ? t("rules.mode.featureLocked") : t(`rules.modes.${option}.description`)}
-                    selected={field.value === option}
-                    subtitleNumberOfLines={0}
-                    disabled={!editable || locked}
-                    onPress={() => {
-                      field.onChange(option);
-                      if (option === "auto-assign" && !autoAssignField && eligibleFields[0]) {
-                        form.setValue("autoAssignField", eligibleFields[0].field, { shouldDirty: true });
-                      }
-                    }}
-                  />
-                );
-              })}
-            </ListGroup>
-          )}
-        />
-
-        {mode === "scan-only" ? (
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("rules.modes.scan-only.title")} />
-            <ListGroup>
-              <ListRow
-                title={t("rules.mode.matchedBin")}
-                subtitle={t("rules.mode.matchedBinDescription")}
-                value={t("rules.bin", { number: form.watch("scanOnlyMatchedBin") })}
-                disabled={!editable}
-                onPress={() => setPicker("matched")}
-              />
-              <ListRow
-                title={t("rules.mode.unmatchedBin")}
-                subtitle={t("rules.mode.unmatchedBinDescription")}
-                value={t("rules.bin", { number: form.watch("scanOnlyUnmatchedBin") })}
-                disabled={!editable}
-                onPress={() => setPicker("unmatched")}
-              />
-            </ListGroup>
-          </View>
-        ) : null}
-
-        {mode === "auto-assign" ? (
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("rules.modes.auto-assign.title")} />
-            <ListGroup>
-              <ListRow
-                title={t("rules.mode.autoAssignField")}
-                value={fieldLabel(autoAssignField) ?? t("rules.chooseField")}
-                disabled={!editable || eligibleFields.length === 0}
-                onPress={() => setPicker("field")}
-              />
-              {savedMode === "auto-assign" ? (
-                <ListRow
-                  icon="refresh"
-                  tone="destructive"
-                  title={t("rules.mode.reset")}
-                  subtitle={t("rules.mode.resetHint")}
-                  disabled={!editable || reset.isPending}
-                  onPress={confirmReset}
-                />
-              ) : null}
-            </ListGroup>
-          </View>
-        ) : null}
-
-        {mode === "chaos" ? (
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("rules.modes.chaos.title")} />
             <Controller
               control={form.control}
-              name="chaosBinSize"
+              name="mode"
               render={({ field }) => (
                 <ListGroup>
-                  <ListRow
-                    title={t("rules.mode.chaosBinSize")}
-                    subtitle={t("rules.mode.chaosBinSizeDescription")}
-                    right={
-                      <Input
-                        compact
-                        accessibilityLabel={t("rules.mode.chaosBinSize")}
-                        keyboardType="number-pad"
-                        placeholder={t("rules.mode.chaosBinSizePlaceholder")}
-                        editable={editable}
-                        value={field.value}
-                        onChangeText={(text) => {
-                          const digits = text.replace(/\D/g, "");
-                          field.onChange(digits === "" ? "" : String(Math.min(Math.max(Number(digits), 1), CHAOS_BIN_SIZE_MAX)));
+                  {SORTING_MODES.map((option) => {
+                    const locked = (option === "chaos" && chaosLocked) || (option === "repack" && repackLocked);
+                    const unavailable = option === "game-sort" && otherGames.length === 0;
+                    return (
+                      <ListRow
+                        key={option}
+                        title={t(`rules.modes.${option}.title`)}
+                        subtitle={locked ? t("rules.mode.featureLocked") : t(`rules.modes.${option}.description`)}
+                        selected={field.value === option}
+                        subtitleNumberOfLines={0}
+                        disabled={!editable || locked || unavailable}
+                        onPress={() => {
+                          field.onChange(option);
+                          if (
+                            option === "auto-assign" &&
+                            (!autoAssignField || autoAssignField === SCAN_RULE_GAME_FIELD) &&
+                            eligibleFields[0]
+                          ) {
+                            form.setValue("autoAssignField", eligibleFields[0].field, { shouldDirty: true });
+                          }
+                          if (option === "game-sort") {
+                            form.setValue("skipSaving", true, { shouldDirty: true });
+                            form.setValue("isResortMode", false, { shouldDirty: true });
+                          }
                         }}
                       />
-                    }
-                  />
+                    );
+                  })}
                 </ListGroup>
               )}
             />
-          </View>
-        ) : null}
 
-        {mode === "repack" ? (
-          savedMode === "repack" ? (
-            <ListGroup>
-              <ListRow
-                icon="rules"
-                title={t("rules.repack.title")}
-                subtitle={t("rules.repack.slotCount", { count: activeSet?.repackSlots.length ?? 0 })}
-                onPress={() => router.push("/rules/repack")}
-              />
-            </ListGroup>
-          ) : (
-            <Callout tone="info" title={t("rules.mode.repackSaveFirst")} />
-          )
-        ) : null}
+            {mode === "scan-only" ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("rules.modes.scan-only.title")} />
+                <ListGroup>
+                  <ListRow
+                    title={t("rules.mode.matchedBin")}
+                    subtitle={t("rules.mode.matchedBinDescription")}
+                    value={t("rules.bin", { number: form.watch("scanOnlyMatchedBin") })}
+                    disabled={!editable}
+                    onPress={() => setPicker("matched")}
+                  />
+                  <ListRow
+                    title={t("rules.mode.unmatchedBin")}
+                    subtitle={t("rules.mode.unmatchedBinDescription")}
+                    value={t("rules.bin", { number: form.watch("scanOnlyUnmatchedBin") })}
+                    disabled={!editable}
+                    onPress={() => setPicker("unmatched")}
+                  />
+                </ListGroup>
+              </View>
+            ) : null}
 
-        {mode === "alphabet" ? <AppText size="sm" tone="secondary">{t("rules.mode.alphabetHint")}</AppText> : null}
+            {mode === "auto-assign" ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("rules.modes.auto-assign.title")} />
+                <ListGroup>
+                  <ListRow
+                    title={t("rules.mode.autoAssignField")}
+                    value={fieldLabel(autoAssignField) ?? t("rules.chooseField")}
+                    disabled={!editable || eligibleFields.length === 0}
+                    onPress={() => setPicker("field")}
+                  />
+                  {savedMode === "auto-assign" ? (
+                    <ListRow
+                      icon="refresh"
+                      tone="destructive"
+                      title={t("rules.mode.reset")}
+                      subtitle={t("rules.mode.resetHint")}
+                      disabled={!editable || reset.isPending}
+                      onPress={confirmReset}
+                    />
+                  ) : null}
+                </ListGroup>
+              </View>
+            ) : null}
 
-        <Controller
-          control={form.control}
-          name="skipSaving"
-          render={({ field }) => (
-            <SwitchRow
-              title={t("rules.mode.skipSaving")}
-              description={t("rules.mode.skipSavingDescription")}
-              value={field.value}
-              disabled={!editable}
-              onValueChange={(checked) => {
-                field.onChange(checked);
-                if (checked) form.setValue("isResortMode", false, { shouldDirty: true });
-              }}
+            {mode === "game-sort" ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("rules.mode.matchGames")} />
+                <ListGroup>
+                  {otherGames.map((game) => (
+                    <ListRow
+                      key={game.key}
+                      title={game.name}
+                      selected={matchGameKeys.includes(game.key)}
+                      disabled={!editable}
+                      onPress={() => toggleMatchGame(game.key)}
+                    />
+                  ))}
+                  {savedMode === "game-sort" ? (
+                    <ListRow
+                      icon="refresh"
+                      tone="destructive"
+                      title={t("rules.mode.reset")}
+                      subtitle={t("rules.mode.resetHint")}
+                      disabled={!editable || reset.isPending}
+                      onPress={confirmReset}
+                    />
+                  ) : null}
+                </ListGroup>
+                {matchGameKeys.length === 0 ? (
+                  <Callout tone="warning" title={t("rules.mode.matchGamesEmpty")} />
+                ) : (
+                  <AppText size="sm" tone="secondary">
+                    {t("rules.mode.matchGamesHint")}
+                  </AppText>
+                )}
+              </View>
+            ) : null}
+
+            {mode === "chaos" ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("rules.modes.chaos.title")} />
+                <Controller
+                  control={form.control}
+                  name="chaosBinSize"
+                  render={({ field }) => (
+                    <ListGroup>
+                      <ListRow
+                        title={t("rules.mode.chaosBinSize")}
+                        subtitle={t("rules.mode.chaosBinSizeDescription")}
+                        rightIsInteractive
+                        right={
+                          <Input
+                            compact
+                            accessibilityLabel={t("rules.mode.chaosBinSize")}
+                            keyboardType="number-pad"
+                            placeholder={t("rules.mode.chaosBinSizePlaceholder")}
+                            editable={editable}
+                            value={field.value}
+                            onChangeText={(text) => {
+                              const digits = text.replace(/\D/g, "");
+                              field.onChange(digits === "" ? "" : String(Math.min(Math.max(Number(digits), 1), CHAOS_BIN_SIZE_MAX)));
+                            }}
+                          />
+                        }
+                      />
+                    </ListGroup>
+                  )}
+                />
+              </View>
+            ) : null}
+
+            {mode === "repack" ? (
+              savedMode === "repack" ? (
+                <ListGroup>
+                  <ListRow
+                    icon="rules"
+                    title={t("rules.repack.title")}
+                    subtitle={t("rules.repack.slotCount", { count: activeSet?.repackSlots.length ?? 0 })}
+                    onPress={() => router.push("/rules/repack")}
+                  />
+                </ListGroup>
+              ) : (
+                <Callout tone="info" title={t("rules.mode.repackSaveFirst")} />
+              )
+            ) : null}
+
+            {mode === "alphabet" ? <AppText size="sm" tone="secondary">{t("rules.mode.alphabetHint")}</AppText> : null}
+
+            <Controller
+              control={form.control}
+              name="skipSaving"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("rules.mode.skipSaving")}
+                  description={t("rules.mode.skipSavingDescription")}
+                  value={field.value}
+                  disabled={!editable}
+                  onValueChange={(checked) => {
+                    field.onChange(checked);
+                    if (checked) form.setValue("isResortMode", false, { shouldDirty: true });
+                  }}
+                />
+              )}
             />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="isResortMode"
-          render={({ field }) => (
-            <SwitchRow
-              title={t("rules.mode.resort")}
-              description={t("rules.mode.resortDescription")}
-              value={field.value}
-              disabled={!editable}
-              onValueChange={(checked) => {
-                field.onChange(checked);
-                if (checked) form.setValue("skipSaving", false, { shouldDirty: true });
-              }}
+            <Controller
+              control={form.control}
+              name="isResortMode"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("rules.mode.resort")}
+                  description={t("rules.mode.resortDescription")}
+                  value={field.value}
+                  disabled={!editable}
+                  onValueChange={(checked) => {
+                    field.onChange(checked);
+                    if (checked) form.setValue("skipSaving", false, { shouldDirty: true });
+                  }}
+                />
+              )}
             />
-          )}
-        />
+          </>
+        )}
       </ScrollView>
       <OptionSheet
         visible={picker === "matched" || picker === "unmatched"}

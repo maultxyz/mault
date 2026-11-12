@@ -1,10 +1,10 @@
-import { Badge } from "@/components/ui/badge";
 import { verifyMonitorLink } from "@/features/collections/api/monitor-links";
 import { useSharedSessionMonitor } from "@/features/scanner/api/use-shared-session-monitor";
-import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
+import { WatchCardBrowser } from "@/features/public-cards/components/watch-card-browser";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
-import { WATCH_TOKEN_PARAM } from "@/lib/constants/nav";
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
+  SHARE_LINK_TOKEN_PARAM,
   DEFAULT_ORG_PRICING,
   toConditionMultipliers,
   type OrgPricing,
@@ -21,7 +21,7 @@ export default function WatchPage() {
   const { t } = useTranslation("scanner");
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get(WATCH_TOKEN_PARAM);
+  const token = searchParams.get(SHARE_LINK_TOKEN_PARAM);
   const [link, setLink] = useState<WatchLinkState>({ status: "checking" });
   const [checkCount, setCheckCount] = useState(0);
 
@@ -52,10 +52,6 @@ export default function WatchPage() {
     link.status === "valid" ? collectionGuid : undefined,
     token,
   );
-  const cardsSource = useMemo(
-    () => ({ collectionGuid: collectionGuid ?? "", shareToken: token }),
-    [collectionGuid, token],
-  );
   const linkInfo = link.status === "valid" ? link.info : undefined;
   const pricing = useMemo<OrgPricing>(
     () => ({
@@ -73,43 +69,38 @@ export default function WatchPage() {
 
   if (link.status !== "valid") {
     return (
-      <div className="flex h-dvh flex-col items-center justify-center gap-3 bg-background p-6 text-center">
+      <main
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+        className="flex h-dvh flex-col items-center justify-center gap-3 bg-background p-6 text-center outline-none"
+      >
         {link.status === "checking" ? (
           <IconLoader2 className="size-6 animate-spin text-foreground/70" />
         ) : (
           <>
             <IconLinkOff className="size-8 text-foreground/70" />
-            <p className="text-base font-semibold">
+            <h1 className="text-base font-semibold">
               {t("watchPage.invalidTitle")}
-            </p>
+            </h1>
             <p className="max-w-sm text-sm text-foreground/70">
               {t("watchPage.invalidDescription")}
             </p>
           </>
         )}
-      </div>
+      </main>
     );
   }
 
   return (
     <QueryClientProvider client={publicQueryClient}>
       <PriceSourceProvider value={pricing}>
-      <div className="flex h-dvh flex-col bg-background">
-        <header className="flex items-center gap-2 border-b px-3 py-2">
-          <p className="truncate text-sm font-semibold">
-            {link.info.collectionName}
-          </p>
-          <Badge variant="secondary">{t("watchPage.liveBadge")}</Badge>
-          <p className="ml-auto hidden text-xs text-foreground/70 sm:block">
-            {t("watchPage.readOnly")}
-          </p>
-        </header>
-        <SessionMonitorView
-          session={session}
-          cardsSource={cardsSource}
-          showBinLocation={false}
-        />
-      </div>
+          <WatchCardBrowser
+            token={token ?? ""}
+            collectionGuid={collectionGuid ?? ""}
+            collectionName={link.info.collectionName}
+            purpose={link.info.purpose}
+            session={session}
+          />
       </PriceSourceProvider>
     </QueryClientProvider>
   );

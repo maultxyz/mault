@@ -1,5 +1,6 @@
 import { BrowserWindow, type Session, type WebContents } from "electron";
-import { isAppOrigin } from "./app-url";
+import { getStrings, isAppOrigin } from "./app-url";
+import { UNNAMED_BLUETOOTH_DEVICE_PATTERN } from "./constants/desktop";
 import {
   getDevicePickerDevices,
   isDevicePickerOpen,
@@ -21,7 +22,24 @@ function toSerialDevice(port: Electron.SerialPort): PickerDevice {
 }
 
 function toBluetoothDevice(device: Electron.BluetoothDevice): PickerDevice {
-  return { id: device.deviceId, label: device.deviceName || device.deviceId };
+  const name = device.deviceName.trim();
+  if (!name || UNNAMED_BLUETOOTH_DEVICE_PATTERN.test(name)) {
+    return {
+      id: device.deviceId,
+      label: getStrings().lookingUpName,
+      detail: device.deviceId,
+      isNamePending: true,
+    };
+  }
+  return { id: device.deviceId, label: name };
+}
+
+function mergeBluetoothDevices(known: PickerDevice[], found: PickerDevice[]): PickerDevice[] {
+  const merged = known.map((knownDevice) => {
+    const update = found.find((device) => device.id === knownDevice.id);
+    return update && (!update.isNamePending || knownDevice.isNamePending) ? update : knownDevice;
+  });
+  return [...merged, ...found.filter((device) => !known.some((knownDevice) => knownDevice.id === device.id))];
 }
 
 export function registerSerialPicker(session: Session) {
@@ -62,10 +80,8 @@ export function registerBluetoothPicker(webContents: WebContents) {
     event.preventDefault();
     const found = devices.map(toBluetoothDevice);
     if (isDevicePickerOpen("bluetooth")) {
-      const known = getDevicePickerDevices("bluetooth");
-      const merged = [...known, ...found.filter((d) => !known.some((k) => k.id === d.id))];
       setDevicePickerResolver("bluetooth", callback);
-      updateDevicePicker("bluetooth", merged);
+      updateDevicePicker("bluetooth", mergeBluetoothDevices(getDevicePickerDevices("bluetooth"), found));
       return;
     }
     openDevicePicker(BrowserWindow.fromWebContents(webContents), "bluetooth", found, callback);

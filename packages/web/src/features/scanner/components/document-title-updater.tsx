@@ -6,6 +6,7 @@ import { DOCUMENT_TITLE_CYCLE_MS as CYCLE_MS } from "@/lib/constants/timing";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DOCUMENT_TITLE_BASE } from "@/lib/constants/scanner";
+import { usePageHeading } from "@/lib/page-heading-store";
 
 export function DocumentTitleUpdater() {
   const { t } = useTranslation("scanner");
@@ -13,9 +14,11 @@ export function DocumentTitleUpdater() {
   const { selectedSet } = useBinConfigs();
   const { allStats: stats } = useCollectionCardsSummary();
   const { format } = usePriceSource();
+  const pageHeading = usePageHeading();
 
   const slides = useMemo(() => {
     const result: string[] = [];
+    if (window.maultDesktop) return result;
     if (activeCollection) result.push(activeCollection.name);
     if (selectedSet)
       result.push(t("documentTitle.sorting", { setName: selectedSet.name }));
@@ -48,8 +51,10 @@ export function DocumentTitleUpdater() {
 
   useEffect(() => {
     const slide = slides[index % slides.length];
-    document.title = slide ? `${slide} - ${DOCUMENT_TITLE_BASE}` : DOCUMENT_TITLE_BASE;
-  }, [slides, index]);
+    document.title = [pageHeading, slide, DOCUMENT_TITLE_BASE]
+      .filter(Boolean)
+      .join(" - ");
+  }, [slides, index, pageHeading]);
 
   useEffect(
     () => () => {

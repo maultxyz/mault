@@ -1,4 +1,3 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -28,6 +27,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { raritySwatch } from "@/lib/card-swatches";
 import { rarityLabel } from "@magic-vault/shared";
+import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 
 export function ScannedCardTable({
   rows,
@@ -101,6 +101,10 @@ export function ScannedCardTable({
             <TableRow
               key={row.scanId}
               data-state={row.isSelected ? "selected" : undefined}
+              {...modifierClickSelectHandlers(
+                onToggleSelect &&
+                  ((shiftKey) => onToggleSelect(row, { shiftKey })),
+              )}
               onClick={onOpen ? () => onOpen(row) : undefined}
               className={cn(onOpen && "cursor-pointer")}
             >
@@ -128,7 +132,6 @@ export function ScannedCardTable({
                     loading="lazy"
                     className="h-full w-full object-cover"
                   />
-                  {row.isFoil && <FoilOverlay />}
                 </div>
               </TableCell>
               <TableCell className="max-w-64">
@@ -157,12 +160,19 @@ export function ScannedCardTable({
                     <span
                       className="shrink-0 rounded-full p-0.5 bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300"
                       title={row.foilType ?? t("foil")}
+                      role="img"
+                      aria-label={row.foilType ?? t("foil")}
                     >
                       <IconSparkles className="size-3 text-white" />
                     </span>
                   )}
                   {row.isDownloaded && (
-                    <span className="shrink-0" title={t("downloaded")}>
+                    <span
+                      className="shrink-0"
+                      title={t("downloaded")}
+                      role="img"
+                      aria-label={t("downloaded")}
+                    >
                       <IconDownload className="size-3.5 text-foreground/70" />
                     </span>
                   )}

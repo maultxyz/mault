@@ -56,12 +56,16 @@
     "heading": "Text recognition (OCR)",
     "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
     "toggleLabel": "Enable OCR text matching",
-    "badge": "Beta"
+    "highAccuracyToggleLabel": "Higher accuracy scans",
+    "highAccuracyDescription": "Read the text on every card, not only uncertain ones, so the set and number can correct a confident but wrong match. Scans take a little longer."
   },
   "foilDetection": {
     "heading": "Foil detection",
-    "description": "Mark a Magic scan as foil when the card looks foil. With a connected sorter on current firmware, the pusher nudges the card slightly each way without opening the side paddle, and photos show whether its shine changes, which adds about a second per card. Otherwise the text box is checked for a rainbow sheen. Only used for cards that also come in non-foil, and only while the scanner's foil setting is off.",
-    "toggleLabel": "Detect foils from the scan photo",
+    "description": "Mark a scan as foil automatically. Only used for printings that come in both foil and non-foil, and only while the scanner's foil setting is off.",
+    "starToggleLabel": "Read the Magic foil star",
+    "starToggleDescription": "Mark Magic cards as foil when the collector line shows the ★ printed on foils. Works on every device and adds no time.",
+    "toggleLabel": "Detect foils by nudging the card",
+    "nudgeToggleDescription": "For every game, with a connected sorter on current firmware: the pusher nudges the card slightly each way without opening the side paddle, and photos show whether its shine changes. Adds about a second per card.",
     "badge": "Experimental"
   },
   "draft": {

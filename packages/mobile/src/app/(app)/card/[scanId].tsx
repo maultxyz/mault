@@ -14,6 +14,7 @@ import {
   cardTagsSetOn,
   type CardTag,
   cardFoilTypeOptions,
+  cardStampOptionsFor,
   DEFAULT_CARD_CONDITION,
   isCardLanguage,
   scanLanguage,
@@ -25,6 +26,7 @@ import {
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
@@ -39,7 +41,8 @@ import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
-import type { MatchesOpenState } from "@/lib/interfaces/cards";
+import type { CardDetailSheet, MatchesOpenState } from "@/lib/interfaces/cards";
+import type { IconName } from "@/lib/interfaces/ui";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
@@ -47,6 +50,7 @@ import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { PricePaidField } from "@/features/cards/components/price-paid-field";
 import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import {
+  cachedCollectionCardPosition,
   cardScanOriginQueryOptions,
   setCollectionCardTags,
   collectionCardQueryOptions,
@@ -68,10 +72,11 @@ import {
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
+import { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -91,7 +96,10 @@ export default function CardDetailScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const position = useQuery(collectionCardQueryOptions(guid, scanId, reviewMode && !storageReview));
+  const position = useQuery({
+    ...collectionCardQueryOptions(guid, scanId, reviewMode && !storageReview),
+    placeholderData: reviewMode ? undefined : () => cachedCollectionCardPosition(queryClient, guid, scanId),
+  });
   const storageContext = useQuery(storageLocationCardContextQueryOptions(storageGuid ?? "", scanId, storageReview));
   const image = useQuery(scanImageQueryOptions(guid, scanId));
   const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
@@ -104,7 +112,7 @@ export default function CardDetailScreen() {
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
   const [matchesOpenState, setMatchesOpenState] = useState<MatchesOpenState | null>(null);
-  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | "location" | "collection" | "tags" | null>(null);
+  const [sheet, setSheet] = useState<CardDetailSheet | null>(null);
   const billing = useQuery(billingQueryOptions(activeOrgId));
   const canMoveToLocation = !!billing.data && billing.data.storage !== false;
   const locations = useQuery(storageLocationsQueryOptions(activeOrgId, canMoveToLocation));
@@ -127,7 +135,11 @@ export default function CardDetailScreen() {
   const collection = collections.data?.find((c) => c.guid === guid);
   const gameFoilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
   const card = entry?.card;
-  const capturedUrl = absoluteUrl(image.data);
+  const frontCapturedUrl = absoluteUrl(image.data?.capturedImageUrl);
+  const capturedBackUrl = absoluteUrl(image.data?.capturedBackImageUrl);
+  const [backSideScanId, setBackSideScanId] = useState<string | null>(null);
+  const showsCapturedBackSide = !!capturedBackUrl && backSideScanId === scanId;
+  const capturedUrl = showsCapturedBackSide ? capturedBackUrl : frontCapturedUrl;
   const showCaptured = image.isPending || !!capturedUrl;
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
@@ -149,6 +161,7 @@ export default function CardDetailScreen() {
       entry
         ? {
             foilType: entry.foilType ?? (entry.isFoil ? gameFoilOptions[0] : null),
+            stamp: entry.stamp ?? null,
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
             language: scanLanguage(entry),
             acquisitionCost: acquisitionCost.data?.cost ?? null,
@@ -163,23 +176,26 @@ export default function CardDetailScreen() {
   });
   const { isDirty, errors } = form.formState;
   const draftFoil = form.watch("foilType");
+  const draftStamp = form.watch("stamp");
   const draftCondition = form.watch("condition") as CardCondition;
   const draftLanguage = form.watch("language");
   const languageOptions: string[] =
     !draftLanguage || isCardLanguage(draftLanguage) ? [...CARD_LANGUAGES] : [draftLanguage, ...CARD_LANGUAGES];
   const price = card
-    ? pricing.priceOf(card, { isFoil: draftFoil != null, foilType: draftFoil }, draftCondition)
+    ? pricing.priceOf(card, { isFoil: draftFoil != null, foilType: draftFoil, stamp: draftStamp }, draftCondition)
     : null;
   const foilOptions = cardFoilTypeOptions(gameFoilOptions, card, draftFoil);
+  const stampOptions = cardStampOptionsFor(card, draftStamp);
 
   const saveDraft = useMutation({
     mutationFn: async (values: ScanDraftFormValues) => {
       const { dirtyFields } = form.formState;
-      if (dirtyFields.foilType || dirtyFields.condition || dirtyFields.language) {
+      if (dirtyFields.foilType || dirtyFields.stamp || dirtyFields.condition || dirtyFields.language) {
         await updateCollectionCard(guid, scanId, {
           isFoil: values.foilType != null,
           foilType: values.foilType,
           condition: values.condition as CardCondition,
+          ...(dirtyFields.stamp ? { stamp: values.stamp } : {}),
           ...(dirtyFields.language ? { language: values.language } : {}),
         });
       }
@@ -236,6 +252,13 @@ export default function CardDetailScreen() {
     },
     onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
   });
+
+  const actionMenuOptions = [
+    { value: "collection", label: t("storage.moveToCollection") },
+    ...(canMoveToLocation
+      ? [{ value: "location", label: storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation") }]
+      : []),
+  ];
 
   usePreventRemove(isDirty && !saveDraft.isPending, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("cardDetail.discardDescription"), [
@@ -299,32 +322,28 @@ export default function CardDetailScreen() {
       { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
     ]);
 
-  const scanAttributeRows = (
-    <ListGroup>
-      <ListRow
-        icon="sparkles"
-        title={t("cardDetail.foil")}
-        value={draftFoil ?? t("cardDetail.foilNone")}
-        onPress={() => setSheet("foil")}
-      />
-      <ListRow
-        icon="condition"
-        title={t("cardDetail.condition")}
-        value={t(`cardDetail.conditions.${draftCondition}`)}
-        onPress={() => setSheet("condition")}
-      />
-      <ListRow
-        icon="language"
-        title={t("cardDetail.language")}
-        value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
-        onPress={() => setSheet("language")}
-      />
-    </ListGroup>
+  const attributePill = (icon: IconName, fieldLabel: string, value: string, menuSheet: CardDetailSheet) => (
+    <Pressable
+      key={menuSheet}
+      accessibilityRole="button"
+      accessibilityLabel={`${fieldLabel}: ${value}`}
+      onPress={() => setSheet(menuSheet)}
+    >
+      <Pill icon={icon} label={value} />
+    </Pressable>
   );
+  const scanAttributePills = [
+    attributePill("sparkles", t("cardDetail.foil"), draftFoil ?? t("cardDetail.foilNone"), "foil"),
+    ...(stampOptions.length > 0
+      ? [attributePill("stamp", t("cardDetail.stamp"), draftStamp ?? t("cardDetail.stampNone"), "stamp")]
+      : []),
+    attributePill("condition", t("cardDetail.condition"), t(`cardDetail.conditions.${draftCondition}`), "condition"),
+    attributePill("language", t("cardDetail.language"), LANGUAGE_LABELS[draftLanguage] ?? draftLanguage, "language"),
+  ];
 
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: RADIUS.lg,
+    borderRadius: CARD_ART_RADIUS,
     overflow: "hidden" as const,
     borderWidth: 1,
     borderColor: colors.border,
@@ -347,14 +366,25 @@ export default function CardDetailScreen() {
               ? t("cardDetail.reviewProgress", { index: position.data.index + 1, total: position.data.total })
               : card?.typeLine
         }
-        onBack={editing ? () => setEditing(false) : () => router.back()}
+        titleAccessory={
+          !editing && price != null ? (
+            <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+              {pricing.format(price)}
+            </AppText>
+          ) : null
+        }
+        onBack={editing ? () => setEditing(false) : undefined}
         actions={
           !editing && entry ? (
             <View style={{ flexDirection: "row", gap: SPACING.sm }}>
               {reviewMode ? (
                 <IconButton icon="layout" accessibilityLabel={t("reviewGrid.layoutGrid")} onPress={showReviewGrid} />
               ) : null}
+              {reviewMode ? null : (
+                <IconButton icon="edit" accessibilityLabel={t("cardDetail.correctCard")} onPress={() => setEditing(true)} />
+              )}
               <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+              <IconButton icon="more" accessibilityLabel={t("cardDetail.actions")} onPress={() => setSheet("actions")} />
             </View>
           ) : null
         }
@@ -380,13 +410,25 @@ export default function CardDetailScreen() {
           <>
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
-                {price != null ? (
-                  <AppText size="2xl" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
-                    {pricing.format(price)}
-                  </AppText>
-                ) : null}
-                {draftFoil ? <Pill tone="info" label={draftFoil} /> : null}
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
+                {storage.data ? (
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel={t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
+                    onPress={() => {
+                      router.back();
+                      router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
+                    }}
+                  >
+                    <Pill
+                      icon="storage"
+                      label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
+                    />
+                  </Pressable>
+                ) : entry.binNumber != null ? (
+                  <Pill icon="sorter" label={t("cards.bin", { number: entry.binNumber })} />
+                ) : null}
+                {scanAttributePills}
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={t("cardTags.edit")}
@@ -450,12 +492,33 @@ export default function CardDetailScreen() {
             <View style={{ flexDirection: "row", gap: SPACING.md, alignItems: "flex-start" }}>
               {showCaptured ? (
                 <View style={{ flex: 1, gap: 6 }}>
-                  <AppText size="xs" tone="secondary">
-                    {t("cardDetail.capturedScan")}
-                  </AppText>
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+                    <AppText size="xs" tone="secondary">
+                      {showsCapturedBackSide ? t("cardDetail.capturedBackSide") : t("cardDetail.capturedScan")}
+                    </AppText>
+                    {capturedBackUrl ? (
+                      <IconButton
+                        icon="switchSides"
+                        variant="plain"
+                        size={32}
+                        selected={showsCapturedBackSide}
+                        accessibilityLabel={
+                          showsCapturedBackSide ? t("cardDetail.showFrontSide") : t("cardDetail.showBackSide")
+                        }
+                        onPress={() => setBackSideScanId(showsCapturedBackSide ? null : scanId)}
+                      />
+                    ) : null}
+                  </View>
                   <View style={imageFrame}>
                     {capturedUrl ? (
-                      <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" />
+                      <Image
+                        source={{ uri: capturedUrl }}
+                        style={{ flex: 1 }}
+                        contentFit="fill"
+                        accessibilityLabel={
+                          showsCapturedBackSide ? t("cardDetail.capturedBackSideAlt") : t("cardDetail.capturedScan")
+                        }
+                      />
                     ) : (
                       <Skeleton height="100%" radius={0} />
                     )}
@@ -471,6 +534,7 @@ export default function CardDetailScreen() {
                 <View style={imageFrame}>
                   {card ? (
                     <Image
+                      accessibilityLabel={card.name}
                       source={{ uri: absoluteUrl(card.image?.normal ?? card.image?.small) ?? undefined }}
                       style={{ flex: 1 }}
                       contentFit="cover"
@@ -492,17 +556,28 @@ export default function CardDetailScreen() {
                   disabled={correction.isPending}
                   onSelect={(selected) => void applyCorrection(selected)}
                 />
-                {scanAttributeRows}
               </View>
             ) : null}
 
             {card ? (
+              <CollapsibleSection title={t("cardDetail.details")} initiallyOpen>
+                <CardDetailsList card={card} binNumber={entry?.binNumber} />
+              </CollapsibleSection>
+            ) : position.isPending ? (
               <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.prices")} />
+                <Skeleton height={16} width="60%" />
+                <Skeleton height={16} width="45%" />
+                <Skeleton height={16} width="55%" />
+              </View>
+            ) : null}
+
+            {card ? (
+              <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
                 <CardPriceDetails
                   card={card}
                   isFoil={draftFoil != null}
                   foilType={draftFoil}
+                  stamp={draftStamp}
                   condition={draftCondition}
                 />
                 <CardPurchaseLinks card={card} />
@@ -517,58 +592,11 @@ export default function CardDetailScreen() {
                     }
                   />
                 ) : null}
-              </View>
-            ) : null}
-
-            {card ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.details")} />
-                <CardDetailsList card={card} binNumber={entry?.binNumber} />
-                {entry && !reviewMode ? scanAttributeRows : null}
-                {storage.data ? (
-                  <Pressable
-                    accessibilityRole="link"
-                    onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } })}
-                    style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs, marginTop: SPACING.xs }}
-                  >
-                    <Icon name="storage" size={14} color={colors.primaryText} />
-                    <AppText tone="primary">
-                      {t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
-                    </AppText>
-                  </Pressable>
-                ) : null}
-                {entry && ((canMoveToLocation && moveTargets.length > 0) || targetCollections.length > 0) ? (
-                  <ListGroup>
-                    {canMoveToLocation && moveTargets.length > 0 ? (
-                      <ListRow
-                        icon="transfer"
-                        title={storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation")}
-                        disabled={moveToLocation.isPending}
-                        onPress={() => setSheet("location")}
-                      />
-                    ) : null}
-                    {targetCollections.length > 0 ? (
-                      <ListRow
-                        icon="collections"
-                        title={t("storage.moveToCollection")}
-                        disabled={moveToCollection.isPending}
-                        onPress={() => setSheet("collection")}
-                      />
-                    ) : null}
-                  </ListGroup>
-                ) : null}
-              </View>
-            ) : position.isPending ? (
-              <View style={{ gap: SPACING.sm }}>
-                <Skeleton height={16} width="60%" />
-                <Skeleton height={16} width="45%" />
-                <Skeleton height={16} width="55%" />
-              </View>
+              </CollapsibleSection>
             ) : null}
 
             {hasScanOrigin || entry?.binNumber != null ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.thisScan")} />
+              <CollapsibleSection title={t("cardDetail.thisScan")}>
                 {origin.data && hasScanOrigin ? (
                   <ListGroup>
                     {origin.data.scannedAt ? (
@@ -602,14 +630,14 @@ export default function CardDetailScreen() {
                     <BinLocationDiagram binNumber={entry.binNumber} />
                   </View>
                 ) : null}
-              </View>
+              </CollapsibleSection>
             ) : null}
 
           </>
         )}
       </ScrollView>
 
-      {!editing && entry && !isDirty ? (
+      {!editing && entry && !isDirty && (reviewMode || canConfirm) ? (
         <View
           style={{
             flexDirection: "row",
@@ -622,37 +650,24 @@ export default function CardDetailScreen() {
           }}
         >
           {reviewMode ? (
-            <>
-              <Button
-                style={{ flex: 1 }}
-                icon="check"
-                label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
-                loading={markCorrect.isPending}
-                onPress={() => void acceptInReview()}
-              />
-            </>
+            <Button
+              style={{ flex: 1 }}
+              icon="check"
+              label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
+              loading={markCorrect.isPending}
+              onPress={() => void acceptInReview()}
+            />
           ) : (
-            <>
-              {canConfirm ? (
-                <Button
-                  style={{ flex: 1 }}
-                  variant="secondary"
-                  icon="check"
-                  label={t("cardDetail.markCorrect")}
-                  loading={markCorrect.isPending}
-                  onPress={() => {
-                    setMatchesOpenState({ scanId, isOpen: false });
-                    markCorrect.mutate("confirm");
-                  }}
-                />
-              ) : null}
-              <Button
-                style={{ flex: 1 }}
-                icon="edit"
-                label={t("cardDetail.correctCard")}
-                onPress={() => setEditing(true)}
-              />
-            </>
+            <Button
+              style={{ flex: 1 }}
+              icon="check"
+              label={t("cardDetail.markCorrect")}
+              loading={markCorrect.isPending}
+              onPress={() => {
+                setMatchesOpenState({ scanId, isOpen: false });
+                markCorrect.mutate("confirm");
+              }}
+            />
           )}
         </View>
       ) : null}
@@ -665,6 +680,14 @@ export default function CardDetailScreen() {
       />
 
       <OptionSheet
+        visible={sheet === "actions"}
+        title={t("cardDetail.actions")}
+        options={actionMenuOptions}
+        selected={[]}
+        onSelect={(value) => setSheet(CARD_DETAIL_MENU_SHEETS.find((menuSheet) => menuSheet === value) ?? null)}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
         visible={sheet === "foil"}
         title={t("cardDetail.foil")}
         options={[
@@ -674,6 +697,20 @@ export default function CardDetailScreen() {
         selected={[draftFoil ?? ""]}
         onSelect={(value) => {
           form.setValue("foilType", value === "" ? null : value, { shouldDirty: true });
+          setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "stamp"}
+        title={t("cardDetail.stamp")}
+        options={[
+          { value: "", label: t("cardDetail.stampNone") },
+          ...stampOptions.map((option) => ({ value: option, label: option })),
+        ]}
+        selected={[draftStamp ?? ""]}
+        onSelect={(value) => {
+          form.setValue("stamp", value === "" ? null : value, { shouldDirty: true });
           setSheet(null);
         }}
         onClose={() => setSheet(null)}
@@ -715,6 +752,7 @@ export default function CardDetailScreen() {
       <OptionSheet
         visible={sheet === "collection"}
         title={t("storage.moveToCollection")}
+        emptyMessage={t("cardDetail.noCollectionsToMoveTo")}
         options={targetCollections.map((target) => ({ value: target.guid, label: target.name }))}
         selected={[]}
         searchPlaceholder={t("storage.searchCollections")}
@@ -727,6 +765,7 @@ export default function CardDetailScreen() {
       <OptionSheet
         visible={sheet === "location"}
         title={t("storage.moveToLocation")}
+        emptyMessage={t("cardDetail.noLocationsToMoveTo")}
         options={moveTargets.map((location) => ({ value: location.guid, label: location.name }))}
         selected={[]}
         searchPlaceholder={t("storage.searchLocations")}

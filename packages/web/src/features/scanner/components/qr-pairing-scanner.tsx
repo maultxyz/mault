@@ -20,6 +20,7 @@ export function QrPairingScanner({ onResult }: QrPairingScannerProps) {
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl bg-black">
         <video
           ref={videoRef}
+          aria-label={t("a11y.qrCameraPreview")}
           muted
           playsInline
           autoPlay

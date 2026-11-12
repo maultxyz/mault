@@ -12,6 +12,8 @@ import {
 import { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
 import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
 import { useRole } from "@/hooks/use-role";
+import { useImpersonation } from "@/hooks/use-impersonation";
+import { Callout } from "@/components/callout";
 import { CalibrationTour } from "@/features/calibration/components/calibration-tour";
 import { useIsSessionActive } from "@/features/scanner/api/use-is-session-active";
 import { SessionLockBanner } from "@/features/scanner/components/session-lock";
@@ -28,6 +30,7 @@ import {
   IconDeviceUsbFilled,
   IconDownload,
   IconFileSettings,
+  IconInfoCircle,
   IconLoader2,
   IconRotateClockwise,
   IconUpload,
@@ -58,7 +61,7 @@ export function useCalibrationOutletContext() {
 }
 
 export default function CalibrateLayout() {
-  const { t } = useTranslation("calibration");
+  const { t } = useTranslation(["calibration", "common"]);
   const { t: tScanner } = useTranslation("scanner");
   const location = useLocation();
   const navigate = useNavigate();
@@ -109,6 +112,7 @@ export default function CalibrateLayout() {
   const setupWizard = useSetupWizard();
   const { isAdmin } = useRole();
   const isSessionActive = useIsSessionActive();
+  const { isImpersonating } = useImpersonation();
   const isMobile = useIsMobile();
   const { piHost, piSorter } = usePiHostState();
 
@@ -124,96 +128,109 @@ export default function CalibrateLayout() {
           data-tour="calibration-sections"
         />
 
-        <div className={cn("flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4", isMobile && piHost && MOBILE_NAV_SCROLL_PADDING_CLASS)}>
+        <div
+          className={cn(
+            "flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4",
+            isMobile && piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
+          )}
+        >
           <div
             inert={isSessionActive}
             aria-disabled={isSessionActive}
             className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md"
           >
-            <div
-              className="flex flex-wrap items-center gap-2"
-              data-tour="calibration-connect"
-            >
-              {piSorter ? (
+            {isImpersonating ? (
+              <div />
+            ) : (
+              <div
+                className="flex flex-wrap items-center gap-2"
+                data-tour="calibration-connect"
+              >
+                {piSorter ? (
+                  <Button
+                    variant="outline"
+                    disabled={isConnected}
+                    title={
+                      !isConnected
+                        ? tScanner("serial.piSorterUnavailable")
+                        : undefined
+                    }
+                    onClick={() => void connect()}
+                  >
+                    <IconCpu />
+                    {tScanner("serial.piSorterBuiltIn")}
+                  </Button>
+                ) : isConnected ? (
+                  <Button variant="outline" onClick={disconnect}>
+                    <IconDeviceUsbFilled />
+                    {t("calibratePage.disconnect")}
+                  </Button>
+                ) : (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger render={<Button />}>
+                      <IconDeviceUsb />
+                      {t("calibratePage.connectDevice")}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <ConnectSorterMenuItems
+                        onConnectUsb={connect}
+                        onConnectBluetooth={connectBluetooth}
+                        onConnectCloud={connectCloud}
+                      />
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
                 <Button
                   variant="outline"
-                  disabled={isConnected}
-                  title={!isConnected ? tScanner("serial.piSorterUnavailable") : undefined}
-                  onClick={() => void connect()}
+                  disabled={!isConnected || isTesting || isUnconfigured}
+                  onClick={handleTest}
                 >
-                  <IconCpu />
-                  {tScanner("serial.piSorterBuiltIn")}
+                  {isTesting
+                    ? t("calibratePage.testing")
+                    : t("calibratePage.runTest")}
                 </Button>
-              ) : isConnected ? (
-                <Button variant="outline" onClick={disconnect}>
-                  <IconDeviceUsbFilled />
-                  {t("calibratePage.disconnect")}
+                <Button
+                  variant="outline"
+                  disabled={!isReady || activeBin !== null || isSampleRunning}
+                  onClick={handleFeed}
+                >
+                  {t("binRoutingControls.feed")}
                 </Button>
-              ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger render={<Button />}>
-                    <IconDeviceUsb />
-                    {t("calibratePage.connectDevice")}
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <ConnectSorterMenuItems
-                      onConnectUsb={connect}
-                      onConnectBluetooth={connectBluetooth}
-                      onConnectCloud={connectCloud}
-                    />
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-              <Button
-                variant="outline"
-                disabled={!isConnected || isTesting || isUnconfigured}
-                onClick={handleTest}
-              >
-                {isTesting
-                  ? t("calibratePage.testing")
-                  : t("calibratePage.runTest")}
-              </Button>
-              <Button
-                variant="outline"
-                disabled={!isReady || activeBin !== null || isSampleRunning}
-                onClick={handleFeed}
-              >
-                {t("binRoutingControls.feed")}
-              </Button>
-              <Button
-                variant="outline"
-                disabled={!isReady || activeBin !== null || isSampleRunning}
-                onClick={handleDropCard}
-              >
-                {t("binRoutingControls.dropCard")}
-              </Button>
-              <Button
-                variant="outline"
-                title={retractLockedReason ?? undefined}
-                disabled={
-                  !isReady ||
-                  activeBin !== null ||
-                  isSampleRunning ||
-                  isRetracting ||
-                  retractLockedReason !== null
-                }
-                onClick={() => void handleRetractCard()}
-              >
-                {t("binRoutingControls.retractCard")}
-              </Button>
-              {isUnconfigured ? (
-                <span className="text-sm text-foreground/70">
-                  {t("calibratePage.calibrateBeforeTest")}
-                </span>
-              ) : (
-                isConnected &&
-                !isReady && (
-                  <span className="text-xs text-foreground/70">
-                    {t("calibratePage.testBeforeControls")}
+                <Button
+                  variant="outline"
+                  disabled={!isReady || activeBin !== null || isSampleRunning}
+                  onClick={handleDropCard}
+                >
+                  {t("binRoutingControls.dropCard")}
+                </Button>
+                <Button
+                  variant="outline"
+                  title={retractLockedReason ?? undefined}
+                  disabled={
+                    !isReady ||
+                    activeBin !== null ||
+                    isSampleRunning ||
+                    isRetracting ||
+                    retractLockedReason !== null
+                  }
+                  onClick={() => void handleRetractCard()}
+                >
+                  {t("binRoutingControls.retractCard")}
+                </Button>
+                {isUnconfigured ? (
+                  <span className="text-sm text-foreground/70">
+                    {t("calibratePage.calibrateBeforeTest")}
                   </span>
-                )
-              )}
-            </div>
+                ) : (
+                  isConnected &&
+                  !isReady && (
+                    <span className="text-xs text-foreground/70">
+                      {t("calibratePage.testBeforeControls")}
+                    </span>
+                  )
+                )}
+              </div>
+            )}
             <div className="flex flex-wrap items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger render={<Button variant="outline" />}>
@@ -236,14 +253,16 @@ export default function CalibrateLayout() {
                     <IconDownload />
                     {t("calibratePage.exportConfig")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    disabled={isImporting}
-                    onClick={() => importInputRef.current?.click()}
-                  >
-                    <IconUpload />
-                    {t("calibratePage.importConfig")}
-                  </DropdownMenuItem>
-                  {isAdmin && (
+                  {!isImpersonating && (
+                    <DropdownMenuItem
+                      disabled={isImporting}
+                      onClick={() => importInputRef.current?.click()}
+                    >
+                      <IconUpload />
+                      {t("calibratePage.importConfig")}
+                    </DropdownMenuItem>
+                  )}
+                  {isAdmin && !isImpersonating && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -271,10 +290,15 @@ export default function CalibrateLayout() {
             </div>
           </div>
 
+          {isImpersonating && (
+            <Callout icon={IconInfoCircle}>
+              {t("common:impersonation.calibrationReadOnly")}
+            </Callout>
+          )}
           <SettingsSectionLayoutContext value="flat">
             <div
-              inert={isSessionActive}
-              aria-disabled={isSessionActive}
+              inert={isSessionActive || isImpersonating}
+              aria-disabled={isSessionActive || isImpersonating}
               className="flex flex-1 flex-col gap-6 pb-4"
             >
               <PageIntro
