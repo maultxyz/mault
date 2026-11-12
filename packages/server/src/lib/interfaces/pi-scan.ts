@@ -1,5 +1,11 @@
 import type {
   PickList,
+  ModuleConfig,
+  FeederCalibration,
+  ServoCalibration,
+  FoilNudgeFirmwareLimits,
+  ScanRemovalEntry,
+  SoundRule,
   CardCondition,
   ResolvedCardSearchMatches,
   BinConfig,
@@ -25,10 +31,19 @@ export interface PiScanBinCard {
   binNumber?: number | null;
   scannedAt: number;
   unsaved?: boolean;
+  capacityOnly?: boolean;
   card: object;
 }
 
-export interface PiScanRunContext {
+export interface PiScanSorterConfiguration {
+  channelOffset: number;
+  moduleCalibrations: ModuleConfig[];
+  feederCalibration: FeederCalibration | null;
+}
+
+export interface PiScanRunContext extends PiScanSorterConfiguration {
+  nudgeCalibration: ServoCalibration | null;
+  soundRules: SoundRule[];
   hardwareId: string;
   collectionId: number;
   collectionName: string;
@@ -62,6 +77,16 @@ export interface PiScanRunContext {
 }
 
 export interface PiScanLive {
+  configurationVersion: number;
+  allowDuplicates: boolean;
+  lastCardId: string | null;
+  removalEnabled: boolean;
+  removalBinNumber: number | null;
+  removalEntries: ScanRemovalEntry[];
+  removalBusy: boolean;
+  soundEvents: { id: string; clipGuid: string; at: number }[];
+  nudgeLimits: FoilNudgeFirmwareLimits | null;
+  nudgeCalibration: ServoCalibration | null;
   phase: PiScanSessionPhase;
   orgId: string;
   userId: string;
@@ -169,3 +194,31 @@ export type SendPendingPiScanSave = (
   save: PendingPiScanSave,
   isRetry: boolean,
 ) => Promise<PiScanSaveResult>;
+
+export interface PiScanIdentification {
+  matched: PiScanFrameMatch;
+  attempts: import("@magic-vault/shared").ScanAttemptDiagnostic[];
+  card: import("@magic-vault/shared").PlayingCardWithDistance | null;
+}
+
+export interface PiScanWorkflowPorts {
+  capture(): Promise<Buffer>;
+  readControl(frame: Buffer): Promise<string | null>;
+  applyControl(
+    command: import("@magic-vault/shared").ScannerControlCommand | null,
+  ): Promise<void>;
+  identify(frame: Buffer): Promise<PiScanIdentification>;
+  removal(outcome: PiScanIdentification): Promise<void>;
+  nudge(
+    outcome: PiScanIdentification,
+  ): Promise<import("@magic-vault/shared").FoilDetection | null>;
+  matched(outcome: PiScanIdentification): Promise<void>;
+  unmatched(outcome: PiScanIdentification): Promise<void>;
+  holdDuplicate(): void;
+  checkpoint(): Promise<boolean>;
+}
+
+export type PiScanRemovalQueue = Pick<
+  PiScanLive,
+  "removalBusy" | "removalEntries"
+>;

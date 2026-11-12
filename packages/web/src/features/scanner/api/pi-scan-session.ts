@@ -2,9 +2,10 @@ import { API_BASE } from "@/lib/constants/api";
 import { loadPiHost } from "@/lib/pi-host";
 import { PI_SCAN_SESSION_API } from "@/lib/constants/scanner";
 import { IDLE_PI_SCAN_SESSION } from "@/lib/constants/scanner";
-import { getAuthHeaders } from "@/lib/api/client";
+import { getAuthHeaders, getRequestAuth } from "@/lib/api/client";
 import {
   type PiScanSessionResult,
+  type PiScanRemovalAction,
   type PiScanSessionSettingsBody,
   type PiScanSessionStartBody,
   type PiScanSessionState,
@@ -19,15 +20,21 @@ async function send(
   path: string,
   body?: unknown,
 ): Promise<PiScanSessionResult> {
+  const headers = new Headers(await getAuthHeaders());
+  const requestOrgId = headers.get("X-Org-Id");
   const response = await fetch(`${API_BASE}${path}`, {
     method,
     headers: {
       "Content-Type": "application/json",
-      ...(await getAuthHeaders()),
+      ...Object.fromEntries(headers.entries()),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
-  return (await response.json()) as PiScanSessionResult;
+  const result = (await response.json()) as PiScanSessionResult;
+  const currentAuth = await getRequestAuth();
+  if (currentAuth.orgId !== requestOrgId)
+    return { ...result, success: false, data: undefined };
+  return result;
 }
 
 export function piScanHoldsPort(state: PiScanSessionState): boolean {
@@ -42,7 +49,10 @@ export async function fetchPiScanSession(): Promise<PiScanSessionState> {
 
 export async function refreshPiScanHold(): Promise<boolean> {
   try {
+    const requestAuth = await getRequestAuth();
     const state = await fetchPiScanSession();
+    const currentAuth = await getRequestAuth();
+    if (requestAuth.orgId !== currentAuth.orgId) return isPiScanHoldingPort();
     const held = piScanHoldsPort(state);
     setPiScanHoldingPort(held);
     return held;
@@ -81,4 +91,10 @@ export function resetPiScanSessionStats(): Promise<PiScanSessionResult> {
 
 export function feedPiScanSession(): Promise<PiScanSessionResult> {
   return send("POST", `${PI_SCAN_SESSION_API}/feed`);
+}
+
+export function updatePiScanRemoval(
+  body: PiScanRemovalAction,
+): Promise<PiScanSessionResult> {
+  return send("POST", `${PI_SCAN_SESSION_API}/removal`, body);
 }

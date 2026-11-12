@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CorrectionAutoCloseSetting } from "@/features/scanner/components/correction-auto-close-setting";
 import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
@@ -22,6 +23,7 @@ export default function SettingsScanningPage() {
   const draft = useOrgSettingsDraft();
   const disabled = draft.isLoading || draft.isSaving;
   const isMobile = useIsMobile();
+  const piHost = usePiHost();
   const correctionBinPrompt = useWatch({
     control: draft.control,
     name: "correctionBinPrompt",
@@ -68,7 +70,7 @@ export default function SettingsScanningPage() {
           />
         </label>
       </SettingsSection>
-      {!isMobile && (
+      {(!isMobile || piHost) && (
         <SettingsSection
           heading={t("foilDetection.heading")}
           badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}

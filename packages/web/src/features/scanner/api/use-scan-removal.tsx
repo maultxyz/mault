@@ -1,3 +1,14 @@
+import { usePiHost } from "@/hooks/use-pi-host";
+import {
+  applyPiScanState,
+  getPiScanState,
+  subscribePiScan,
+} from "@/features/scanner/lib/pi-scan-store";
+import {
+  updatePiScanSettings,
+  updatePiScanRemoval,
+  piScanHoldsPort,
+} from "@/features/scanner/api/pi-scan-session";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { fetchCollectionCardCopies } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -22,12 +33,17 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useTranslation } from "react-i18next";
 
 const ScanRemovalContext = createContext<ScanRemovalContextValue | null>(null);
 
-export function ScanRemovalProvider({ children }: { children: React.ReactNode }) {
+export function ScanRemovalProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
   const { activeCollection } = useCollections();
@@ -35,15 +51,37 @@ export function ScanRemovalProvider({ children }: { children: React.ReactNode })
   const { removeCards, sendCardToBin, sendCatchAllBin } = useScannedCards();
   const { isConnected } = useSerial();
   const [, setHandScan] = useHandScan();
-  const [isRemoveModeEnabled, setIsRemoveModeEnabled] = useState(false);
+  const [localRemoveModeEnabled, setIsRemoveModeEnabled] = useState(false);
   const [chosenRemovalBinNumber, setRemovalBinNumber] = useState<number | null>(
     null,
   );
-  const [entries, setEntries] = useState<ScanRemovalEntry[]>([]);
+  const [localEntries, setEntries] = useState<ScanRemovalEntry[]>([]);
   const [pendingLookupCount, setPendingLookupCount] = useState(0);
   const [isRemoving, setIsRemoving] = useState(false);
   const [queueCollectionGuid, setQueueCollectionGuid] = useState(
     activeCollection?.guid,
+  );
+  const piHost = usePiHost();
+  const host = useSyncExternalStore(subscribePiScan, getPiScanState);
+  const hostQueue = piHost && host.collectionGuid === activeCollection?.guid;
+  const hostLive = hostQueue && piScanHoldsPort(host);
+  const entries = useMemo(
+    () => (hostQueue ? (host.removalEntries ?? []) : localEntries),
+    [hostQueue, host.removalEntries, localEntries],
+  );
+  const isRemoveModeEnabled = hostLive
+    ? (host.removalEnabled ?? false)
+    : localRemoveModeEnabled;
+  const sendRemovalAction = useCallback(
+    async (action: Parameters<typeof updatePiScanRemoval>[0]) => {
+      const result = await updatePiScanRemoval(action);
+      if (!result.success)
+        throw new Error(
+          result.message ?? "The removal queue could not be updated.",
+        );
+      if (result.data) applyPiScanState(result.data);
+    },
+    [],
   );
   const nextEntryIdRef = useRef(0);
   const entriesRef = useRef(entries);
@@ -58,15 +96,21 @@ export function ScanRemovalProvider({ children }: { children: React.ReactNode })
   const isRemoveModeActive = isRemoveModeEnabled && !!activeCollectionGuid;
   const removalBinNumber = resolveRemovalBinNumber(
     binConfigs,
-    chosenRemovalBinNumber,
+    hostLive ? (host.removalBinNumber ?? null) : chosenRemovalBinNumber,
   );
 
   const setRemoveModeEnabled = useCallback(
     (enabled: boolean) => {
       setIsRemoveModeEnabled(enabled);
-      if (enabled) setHandScan(true);
+      if (enabled && !piHost) setHandScan(true);
+      if (hostLive)
+        void updatePiScanSettings({ removalEnabled: enabled }).then(
+          (result) => {
+            if (result.data) applyPiScanState(result.data);
+          },
+        );
     },
-    [setHandScan],
+    [setHandScan, piHost, hostLive],
   );
 
   const routeRemovalScan = useCallback(
@@ -105,7 +149,9 @@ export function ScanRemovalProvider({ children }: { children: React.ReactNode })
         })
         .catch(() => {
           routeRemovalScan(matchedCard.name, false);
-          toast.error(t("scanRemoval.lookupFailed", { name: matchedCard.name }));
+          toast.error(
+            t("scanRemoval.lookupFailed", { name: matchedCard.name }),
+          );
         })
         .finally(() => setPendingLookupCount((count) => count - 1));
     },
@@ -117,19 +163,60 @@ export function ScanRemovalProvider({ children }: { children: React.ReactNode })
     toast.info(t("scanRemoval.noMatch"));
   }, [sendCatchAllBin, toast, t]);
 
-  const selectEntryCopy = useCallback((entryId: string, scanId: string) => {
-    setEntries((current) =>
-      current.map((entry) =>
-        entry.entryId === entryId ? { ...entry, selectedScanId: scanId } : entry,
-      ),
-    );
-  }, []);
+  const selectEntryCopy = useCallback(
+    (entryId: string, scanId: string) => {
+      if (hostQueue) {
+        void sendRemovalAction({ action: "select", entryId, scanId }).catch(
+          () => toast.error(t("scanRemoval.removeFailed")),
+        );
+        return;
+      }
+      setEntries((current) =>
+        current.map((entry) =>
+          entry.entryId === entryId
+            ? { ...entry, selectedScanId: scanId }
+            : entry,
+        ),
+      );
+    },
+    [hostQueue, sendRemovalAction, toast, t],
+  );
 
-  const dropEntry = useCallback((entryId: string) => {
-    setEntries((current) => current.filter((entry) => entry.entryId !== entryId));
-  }, []);
+  const dropEntry = useCallback(
+    (entryId: string) => {
+      if (hostQueue) {
+        void sendRemovalAction({ action: "drop", entryId }).catch(() =>
+          toast.error(t("scanRemoval.removeFailed")),
+        );
+        return;
+      }
+      setEntries((current) =>
+        current.filter((entry) => entry.entryId !== entryId),
+      );
+    },
+    [hostQueue, sendRemovalAction, toast, t],
+  );
 
-  const clearEntries = useCallback(() => setEntries([]), []);
+  const clearEntries = useCallback(() => {
+    if (hostQueue)
+      void sendRemovalAction({ action: "clear" }).catch(() =>
+        toast.error(t("scanRemoval.removeFailed")),
+      );
+    else setEntries([]);
+  }, [hostQueue, sendRemovalAction, toast, t]);
+
+  const chooseRemovalBin = useCallback(
+    (binNumber: number) => {
+      setRemovalBinNumber(binNumber);
+      if (hostLive)
+        void updatePiScanSettings({ removalBinNumber: binNumber }).then(
+          (result) => {
+            if (result.data) applyPiScanState(result.data);
+          },
+        );
+    },
+    [hostLive],
+  );
 
   const queuedCount = useMemo(() => scanIdsToRemove(entries).length, [entries]);
 
@@ -137,7 +224,12 @@ export function ScanRemovalProvider({ children }: { children: React.ReactNode })
     const scanIds = scanIdsToRemove(entries);
     if (scanIds.length === 0) return;
     setIsRemoving(true);
-    const removed = await removeCards(scanIds);
+    const removed = hostQueue
+      ? await sendRemovalAction({ action: "remove" }).then(
+          () => true,
+          () => false,
+        )
+      : await removeCards(scanIds);
     setIsRemoving(false);
     if (!removed) {
       toast.error(t("scanRemoval.removeFailed"));
@@ -145,19 +237,20 @@ export function ScanRemovalProvider({ children }: { children: React.ReactNode })
     }
     setEntries([]);
     toast.success(t("scanRemoval.removed", { count: scanIds.length }));
-  }, [entries, removeCards, toast, t]);
+  }, [entries, removeCards, hostQueue, sendRemovalAction, toast, t]);
 
   const value = useMemo(
     () => ({
       isRemoveModeEnabled,
       isRemoveModeActive,
-      isSorterConnected: isConnected,
+      isSorterConnected: hostLive || isConnected,
       setRemoveModeEnabled,
       removalBinNumber,
-      setRemovalBinNumber,
+      setRemovalBinNumber: chooseRemovalBin,
       entries,
       queuedCount,
-      pendingLookupCount,
+      pendingLookupCount:
+        hostQueue && host.removalBusy ? 1 : pendingLookupCount,
       isRemoving,
       queueScannedCard,
       handleRemovalNoMatch,
@@ -172,6 +265,10 @@ export function ScanRemovalProvider({ children }: { children: React.ReactNode })
       isConnected,
       setRemoveModeEnabled,
       removalBinNumber,
+      chooseRemovalBin,
+      hostLive,
+      hostQueue,
+      host.removalBusy,
       entries,
       queuedCount,
       pendingLookupCount,

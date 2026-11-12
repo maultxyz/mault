@@ -66,6 +66,7 @@ export type CheckFoilByNudge = (
   card: PlayingCardWithDistance,
   captureAfterNudge: () => Promise<RgbaImage | null>,
   before: RgbaImage,
+  isActive?: () => boolean,
 ) => Promise<FoilDetection | null>;
 
 export interface CardScannerProps {
@@ -81,6 +82,8 @@ export interface CardScannerProps {
     details?: UnmatchedScanDetails,
   ) => void;
   onControlCode?: (command: ScannerControlCommand | null) => void;
+  isRemoval?: () => boolean;
+  onRemoval?: (matches: PlayingCardWithDistance[]) => void;
   checkFoilByNudge?: CheckFoilByNudge;
   onManualAdd?: () => void;
   onError?: (error: string) => void;

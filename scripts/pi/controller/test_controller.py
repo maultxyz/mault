@@ -131,6 +131,32 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         await self.command(dict(channelStop=1))
         self.assertNotIn(1, self.controller.paddle_opened)
 
+    async def test_bounded_foil_nudges_keep_paddle_closed(self):
+        await self.command(dict(setConfig=dict(module=1, pusherLeft=250,
+                                               pusherNeutral=300, pusherRight=350)))
+        self.hardware.writes.clear()
+        started = self.now
+        for pulse in (280, 320, 300):
+            await self.command(dict(servo="pusher", module=1, value=pulse))
+        self.assertEqual(self.hardware.writes, [(2, 280), (2, 320), (2, 300)])
+        self.assertAlmostEqual(self.now - started, 0.6)
+        status = await self.command(dict(getStatus=True))
+        self.assertEqual(status["pusherNudgeMaxPulse"], 20)
+        self.assertEqual(status["pusherNudgeMaxTravelPercent"], 50)
+
+    async def test_nudge_limits_require_both_pulse_and_directional_travel_bounds(self):
+        for left, right, pulse in ((250, 350, 279), (295, 305, 297),
+                                   (350, 295, 297), (350, 295, 310)):
+            await self.command(dict(setConfig=dict(module=1, pusherLeft=left,
+                                                   pusherNeutral=300, pusherRight=right)))
+            self.hardware.writes.clear()
+            self.controller.paddle_opened.clear()
+            await self.command(dict(servo="pusher", module=1, value=pulse))
+            if (left, right, pulse) == (350, 295, 310):
+                self.assertEqual(self.hardware.writes, [(2, pulse)])
+            else:
+                self.assertEqual(self.hardware.writes[:2], [(1, 310), (2, pulse)])
+
     async def test_routes_through_modules_and_preserves_mirrored_direction(self):
         self.hardware.sensors[0] = True
 

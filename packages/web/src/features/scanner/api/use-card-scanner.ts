@@ -31,7 +31,6 @@ import {
   fitCanvasesToContainer,
   observeContainerResize,
 } from "@/features/scanner/lib/canvas-fit";
-import { scanLog } from "@/lib/scan-log";
 import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   type ColorBarRegion,
@@ -49,7 +48,7 @@ import {
   HAND_SCAN_REMOVAL_TICKS,
   HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
-  parseScannerControlCode,
+  runScanWorkflow,
   type PlayingCardWithDistance,
   type ScanRegion,
   type ScannerStatus,
@@ -92,6 +91,8 @@ export function useCardScanner({
   onSearchResults,
   onNoMatch,
   onControlCode,
+  isRemoval,
+  onRemoval,
   checkFoilByNudge,
   onError,
   rotated = true,
@@ -188,12 +189,17 @@ export function useCardScanner({
   const rafRef = useRef<number>(0);
 
   const statusRef = useRef<ScannerStatus>("initializing");
+  const cameraGenerationRef = useRef(0);
   const lastScannedCardIdRef = useRef<string | null>(null);
   const isCapturingRef = useRef(false);
   const settleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSearchResultsRef = useRef(onSearchResults);
   const onNoMatchRef = useRef(onNoMatch);
   const onControlCodeRef = useRef(onControlCode);
+  const isRemovalRef = useRef(isRemoval);
+  isRemovalRef.current = isRemoval;
+  const onRemovalRef = useRef(onRemoval);
+  onRemovalRef.current = onRemoval;
   const checkFoilByNudgeRef = useRef(checkFoilByNudge);
   checkFoilByNudgeRef.current = checkFoilByNudge;
   const handleErrorRef = useRef<(msg: string) => void>(() => {});
@@ -214,7 +220,9 @@ export function useCardScanner({
     0;
   const ocrEnabledRef = useRef(false);
   ocrEnabledRef.current = !!orgSettings?.ocrEnabled && ocrSupported;
-  const foilDetectionGameKey = useFoilDetectionGameKey(activeCollection?.game?.key);
+  const foilDetectionGameKey = useFoilDetectionGameKey(
+    activeCollection?.game?.key,
+  );
   const foilDetectionGameKeyRef = useRef(foilDetectionGameKey);
   foilDetectionGameKeyRef.current = foilDetectionGameKey;
   const [hasPhonePhoto, setHasPhonePhoto] = useState(false);
@@ -292,6 +300,7 @@ export function useCardScanner({
       fromLiveVideo: boolean,
     ) => {
       const canvas = displayCanvasRef.current;
+      const cameraGeneration = cameraGenerationRef.current;
       if (!canvas) {
         isCapturingRef.current = false;
         updateStatus("scanning");
@@ -299,101 +308,135 @@ export function useCardScanner({
       }
 
       try {
-        const controlCode = readScannerControlCode(canvas);
-        if (controlCode) {
-          lastScannedCardIdRef.current = null;
-          scanLog(`[scanner] control card read: ${controlCode}`);
-          onControlCodeRef.current?.(parseScannerControlCode(controlCode));
-          if (statusRef.current !== "paused") updateStatus("scanning");
-          return;
-        }
-        const {
-          card,
-          alternativeMatches,
-          debugImageUrl,
-          detectedContour,
-          vectorizedOn,
-          dewarpedCardImage,
-          matched,
-          noMatch,
-        } = await searchCardImageWithConsensus(
-          canvas,
-          fromLiveVideo ? drawLatestVideoFrame : () => {},
-          contour,
-          {
-            collectionGuid: activeCollectionGuidRef.current,
-            preferredSetCodes: preferredSetCodesRef.current,
+        await runScanWorkflow({
+          controlStage: "before-identify",
+          capture: async () => canvas,
+          readControl: readScannerControlCode,
+          applyControl: (command) => {
+            lastScannedCardIdRef.current = null;
+            onControlCodeRef.current?.(command);
+            if (statusRef.current !== "paused") updateStatus("scanning");
           },
-          ocrEnabledRef.current,
-          matchesNeededRef.current,
-          checkBothOrientationsRef.current,
-          colorBarRegionRef.current,
-          foilDetectionGameKeyRef.current,
-        );
-        setDebugImageUrl(debugImageUrl);
-        debugImageUrlRef.current = debugImageUrl;
-        vectorizedOnRef.current = vectorizedOn;
+          identify: async () => {
+            const {
+              card,
+              alternativeMatches,
+              debugImageUrl,
+              detectedContour,
+              vectorizedOn,
+              dewarpedCardImage,
+              matched,
+              noMatch,
+            } = await searchCardImageWithConsensus(
+              canvas,
+              fromLiveVideo ? drawLatestVideoFrame : () => {},
+              contour,
+              {
+                collectionGuid: activeCollectionGuidRef.current,
+                preferredSetCodes: preferredSetCodesRef.current,
+              },
+              ocrEnabledRef.current,
+              matchesNeededRef.current,
+              checkBothOrientationsRef.current,
+              colorBarRegionRef.current,
+              isRemovalRef.current?.()
+                ? null
+                : foilDetectionGameKeyRef.current,
+            );
+            setDebugImageUrl(debugImageUrl);
+            debugImageUrlRef.current = debugImageUrl;
+            vectorizedOnRef.current = vectorizedOn;
 
-        outlineAnimator.cancel();
-        const overlayCtx = overlayCanvasRef.current?.getContext("2d");
-        if (overlayCtx && canvas.width && canvas.height) {
-          overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
-          if (detectedContour) {
-            drawDetectionOverlay(overlayCtx, {
-              detected: true,
-              contour: detectedContour,
-              confidence: 1,
-            });
-          }
-        }
+            outlineAnimator.cancel();
+            const overlayCtx = overlayCanvasRef.current?.getContext("2d");
+            if (overlayCtx && canvas.width && canvas.height) {
+              overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
+              if (detectedContour) {
+                drawDetectionOverlay(overlayCtx, {
+                  detected: true,
+                  contour: detectedContour,
+                  confidence: 1,
+                });
+              }
+            }
 
-        const pausedMidSearch = statusRef.current === "paused";
-        if (card) {
-          if (
+            return {
+              card,
+              alternativeMatches,
+              debugImageUrl,
+              vectorizedOn,
+              dewarpedCardImage,
+              matched,
+              noMatch,
+            };
+          },
+          card: (outcome) => outcome.card,
+          isRemoval: () => isRemovalRef.current?.() ?? false,
+          remove: (outcome) => {
+            onRemovalRef.current?.(
+              outcome.card ? [outcome.card, ...outcome.alternativeMatches] : [],
+            );
+            if (statusRef.current !== "paused") updateStatus("scanning");
+          },
+          isDuplicate: (card) =>
             checkDuplicate &&
             !allowDuplicates &&
             !skipDuplicateCheckRef.current &&
-            lastScannedCardIdRef.current === card.id
-          ) {
-            setDuplicateCard(card);
-            if (!pausedMidSearch) updateStatus("duplicate");
-          } else {
-            lastScannedCardIdRef.current = card.id;
-            if (matched?.lowConfidenceMatch) {
-              scanLog(
-                `[scanner] OCR name match used without an embedding match, flagged for review: ${card.name} (${card.id})`,
-              );
-            }
+            lastScannedCardIdRef.current === card.id,
+          duplicate: (outcome) => {
+            setDuplicateCard(outcome.card);
+            if (statusRef.current !== "paused") updateStatus("duplicate");
+          },
+          refineFoil: async (outcome) => {
             const foilDetection =
-              fromLiveVideo && matched && dewarpedCardImage
+              fromLiveVideo &&
+              outcome.card &&
+              outcome.matched &&
+              outcome.dewarpedCardImage
                 ? await checkFoilByNudgeRef.current?.(
-                    card,
-                    () => captureDewarpedCardImage(canvas, drawLatestVideoFrame),
-                    dewarpedCardImage,
+                    outcome.card,
+                    () =>
+                      captureDewarpedCardImage(canvas, drawLatestVideoFrame),
+                    outcome.dewarpedCardImage,
+                    () => cameraGenerationRef.current === cameraGeneration &&
+                      statusRef.current !== "paused" && statusRef.current !== "initializing" &&
+                      statusRef.current !== "error",
                   )
                 : null;
+            return foilDetection && outcome.matched
+              ? {
+                  ...outcome,
+                  matched: {
+                    ...outcome.matched,
+                    diagnostics: {
+                      ...outcome.matched.diagnostics,
+                      foilDetection,
+                    },
+                  },
+                }
+              : outcome;
+          },
+          matched: (outcome) => {
+            if (!outcome.card) return;
+            lastScannedCardIdRef.current = outcome.card.id;
             onSearchResultsRef.current?.(
-              [card, ...alternativeMatches],
-              debugImageUrl,
-              vectorizedOn,
-              matched && foilDetection
-                ? {
-                    ...matched,
-                    diagnostics: { ...matched.diagnostics, foilDetection },
-                  }
-                : (matched ?? undefined),
+              [outcome.card, ...outcome.alternativeMatches],
+              outcome.debugImageUrl,
+              outcome.vectorizedOn,
+              outcome.matched ?? undefined,
             );
-            if (!pausedMidSearch) updateStatus("scanning");
-          }
-        } else {
-          playDingSound();
-          onNoMatchRef.current?.(
-            debugImageUrl,
-            vectorizedOn,
-            noMatch ?? undefined,
-          );
-          if (!pausedMidSearch) updateStatus("no-match");
-        }
+            if (statusRef.current !== "paused") updateStatus("scanning");
+          },
+          unmatched: (outcome) => {
+            playDingSound();
+            onNoMatchRef.current?.(
+              outcome.debugImageUrl,
+              outcome.vectorizedOn,
+              outcome.noMatch ?? undefined,
+            );
+            if (statusRef.current !== "paused") updateStatus("no-match");
+          },
+        });
       } catch (err) {
         handleErrorRef.current(
           err instanceof Error ? err.message : t("scanEngine.searchFailed"),
@@ -402,13 +445,7 @@ export function useCardScanner({
         isCapturingRef.current = false;
       }
     },
-    [
-      updateStatus,
-      allowDuplicates,
-      drawLatestVideoFrame,
-      outlineAnimator,
-      t,
-    ],
+    [updateStatus, allowDuplicates, drawLatestVideoFrame, outlineAnimator, t],
   );
 
   const detectionLoop = useCallback(() => {
@@ -432,6 +469,7 @@ export function useCardScanner({
   useEffect(() => {
     if (!stream) return;
 
+    cameraGenerationRef.current += 1;
     let cancelled = false;
     let stopObservingResize: () => void = () => {};
     const video = videoRef.current;
@@ -481,6 +519,7 @@ export function useCardScanner({
 
     return () => {
       cancelled = true;
+      cameraGenerationRef.current += 1;
       stopObservingResize();
       outlineAnimator.cancel();
       cancelAnimationFrame(rafRef.current);
@@ -770,6 +809,11 @@ export function useCardScanner({
     updateStatus("scanning");
   }, [updateStatus]);
 
+  const handleStopCamera = useCallback(() => {
+    cameraGenerationRef.current += 1;
+    stopCamera();
+  }, [stopCamera]);
+
   const handlePause = useCallback(() => {
     setDuplicateCard(null);
     updateStatus("paused");
@@ -809,7 +853,7 @@ export function useCardScanner({
     handlePause,
     handleResume,
     handleRetryError,
-    handleStopCamera: stopCamera,
+    handleStopCamera,
     isCameraActive:
       cameraSource === "phone"
         ? phonePairingStatus === "connected"

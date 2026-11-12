@@ -2,8 +2,11 @@ import {
   buildScanSaveRequest,
   type BinConfig,
   type PickList,
+  type ScannedCard,
 } from "@magic-vault/shared";
-import type { Hono } from "hono";
+import { Hono } from "hono";
+import { authQuery, type Transaction } from "../../db";
+import { requireAuth, requireOrg } from "../../middleware/auth";
 import { collectionsRouter } from "../../routes/collections";
 import { sortBinsRouter } from "../../routes/bins";
 import type { AppEnv } from "../../middleware/auth";
@@ -17,10 +20,19 @@ import type {
 } from "../interfaces/pi-scan";
 import { recoverPiScanSaves, submitPiScanSave } from "./pending-saves";
 
+export class PiScanActionError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
+
 async function callJson(
   router: Hono<AppEnv>,
   path: string,
-  method: "POST" | "PUT",
+  method: "POST" | "PUT" | "GET",
   actor: ServerScanActor,
   body: unknown,
 ): Promise<{ ok: boolean; body: PiScanRouteJson; status: number }> {
@@ -29,7 +41,7 @@ async function callJson(
     {
       method,
       headers: { "X-Org-Id": actor.orgId, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: method === "GET" ? undefined : JSON.stringify(body),
     },
     { [SERVER_SCAN_ACTOR]: actor },
   );
@@ -111,13 +123,14 @@ export async function recordPickFound(
   actor: ServerScanActor,
   binGuid: string,
   name: string,
+  delta = 1,
 ): Promise<PickList | null> {
   const result = await callJson(
     sortBinsRouter,
     `/bins/${binGuid}/pick-list/found`,
     "POST",
     actor,
-    { name, delta: 1 },
+    { name, delta },
   );
   return result.ok ? (result.body.data?.pickList ?? null) : null;
 }
@@ -148,4 +161,67 @@ export async function saveBinThroughRoute(
     },
   );
   return result.ok;
+}
+
+export async function loadRemovalCopiesThroughRoute(
+  actor: ServerScanActor,
+  collectionGuid: string,
+  cardIds: string[],
+): Promise<ScannedCard[]> {
+  const query = new URLSearchParams({ cardIds: cardIds.join(",") });
+  const response = await collectionsRouter.request(
+    `/${collectionGuid}/cards/copies?${query}`,
+    { headers: { "X-Org-Id": actor.orgId } },
+    { [SERVER_SCAN_ACTOR]: actor },
+  );
+  const result = (await response.json()) as {
+    success: boolean;
+    data?: ScannedCard[];
+    message?: string;
+  };
+  if (!response.ok || !result.success)
+    throw new PiScanActionError(
+      result.message ?? "Removal lookup failed.",
+      response.status,
+    );
+  return result.data ?? [];
+}
+
+export async function removeQueuedCardsThroughRoute(
+  actor: ServerScanActor,
+  collectionGuid: string,
+  scanIds: string[],
+): Promise<boolean> {
+  return (
+    await callJson(
+      collectionsRouter,
+      `/${collectionGuid}/cards/remove-bulk`,
+      "POST",
+      actor,
+      { scanIds },
+    )
+  ).ok;
+}
+
+export async function withScanActorTransaction<T>(
+  actor: ServerScanActor,
+  work: (tx: Transaction) => Promise<T>,
+): Promise<T> {
+  let value: T | undefined;
+  const router = new Hono<AppEnv>().post(
+    "/",
+    requireAuth,
+    requireOrg,
+    async (c) => {
+      value = await authQuery(c.get("jwtClaims"), work);
+      return c.json({ success: true });
+    },
+  );
+  const result = await callJson(router, "/", "POST", actor, {});
+  if (!result.ok)
+    throw new PiScanActionError(
+      result.body.message ?? "The scan action could not be completed.",
+      result.status,
+    );
+  return value as T;
 }

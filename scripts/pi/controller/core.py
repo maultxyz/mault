@@ -7,6 +7,8 @@ from pathlib import Path
 
 
 VERSION = "pi-0.1.0"
+PUSHER_NUDGE_MAX_PULSE = 20
+PUSHER_NUDGE_MAX_TRAVEL_PERCENT = 50
 MODULE_DEFAULTS = dict(bottomClosed=300, bottomOpen=310, paddleClosed=300,
                        paddleOpen=310, pusherLeft=295, pusherNeutral=300,
                        pusherRight=305, pusherHoldDuration=150,
@@ -107,6 +109,15 @@ class Controller:
     async def wait(self, milliseconds):
         await self.sleep(max(0, milliseconds) / 1000)
 
+    def is_pusher_nudge(self, config, pulse):
+        neutral = max(120, min(490, config["pusherNeutral"]))
+        left = max(120, min(490, config["pusherLeft"]))
+        right = max(120, min(490, config["pusherRight"]))
+        side = left if (pulse - neutral) * (left - neutral) > 0 else right
+        offset = abs(pulse - neutral)
+        return (offset <= PUSHER_NUDGE_MAX_PULSE and
+                offset * 100 <= abs(side - neutral) * PUSHER_NUDGE_MAX_TRAVEL_PERCENT)
+
     async def move(self, channel, pulse):
         integer(channel, 0, 15)
         pulse = max(120, min(490, pulse))
@@ -115,7 +126,8 @@ class Controller:
             module = relative // 3 + 1
             part = relative % 3
             config = self.config["modules"][module - 1]
-            if part == 2 and pulse != config["pusherNeutral"]:
+            if (part == 2 and pulse != config["pusherNeutral"] and
+                    not self.is_pusher_nudge(config, pulse)):
                 if module not in self.paddle_opened:
                     await self.move(self.channel(module, "paddle"), config["paddleOpen"])
                 await self.wait(config["paddleOpenDelay"] -
@@ -275,7 +287,9 @@ class Controller:
             return dict(status="ready", version=VERSION, board="raspberry_pi",
                         id=self.device_id, ble="none", resetReason="software",
                         servoDriver="ok" if self.hardware.present_driver() else "missing",
-                        uptimeMs=int((self.clock() - self.started) * 1000))
+                        uptimeMs=int((self.clock() - self.started) * 1000),
+                        pusherNudgeMaxPulse=PUSHER_NUDGE_MAX_PULSE,
+                        pusherNudgeMaxTravelPercent=PUSHER_NUDGE_MAX_TRAVEL_PERCENT)
         if data.get("readIR") is True:
             return dict(status="ok", ir=[self.hardware.present(module) for module in range(1, self.count + 1)],
                         hopper=self.hardware.hopper())

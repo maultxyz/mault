@@ -9,6 +9,8 @@ import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
+import { applyPiScanState } from "@/features/scanner/lib/pi-scan-store";
+import { updatePiScanSettings } from "@/features/scanner/api/pi-scan-session";
 import { usePiScanSession } from "@/features/scanner/api/use-pi-scan-session";
 import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
 import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
@@ -28,7 +30,6 @@ import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bi
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHost } from "@/hooks/use-pi-host";
-import { usesHostHardware } from "@/lib/host";
 import { useRole } from "@/hooks/use-role";
 import {
   PAUSE_WHEN_HIDDEN_STATUSES,
@@ -76,8 +77,8 @@ export function CardScanner({
   const { isAdmin } = useRole();
   const isMobile = useIsMobile();
   const piHost = usePiHost();
-  const piRemote = piHost && usesHostHardware();
-  const previewRotated = !isMobile || (piHost && usesHostHardware());
+  const piRemote = piHost;
+  const previewRotated = !isMobile || piHost;
   const {
     addCard,
     addUnmatchedCard,
@@ -150,7 +151,9 @@ export function CardScanner({
   const visibleLastRoutedBin = isRemoveModeActive ? null : lastRoutedBin;
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
-  const piScan = usePiScanSession();
+  const allowDuplicatesRef = useRef(true);
+  const getAllowDuplicates = useCallback(() => allowDuplicatesRef.current, []);
+  const piScan = usePiScanSession(getAllowDuplicates);
   const { setAutoFeed: setPiAutoFeed, startOrResume: startPiScan } = piScan;
   const changeAutoFeed = useCallback(
     (enabled: boolean) => {
@@ -193,8 +196,8 @@ export function CardScanner({
     cameras,
     selectedCameraId,
     selectCamera,
-    allowDuplicates,
-    setAllowDuplicates,
+    allowDuplicates: browserAllowDuplicates,
+    setAllowDuplicates: setBrowserAllowDuplicates,
     cameraSource,
     phonePairingStatus,
     phonePairingUrl,
@@ -204,11 +207,6 @@ export function CardScanner({
     isAtScanLimit,
   } = useCardScanner({
     onSearchResults: (cards, capturedImageUrl, vectorizedOn, details) => {
-      if (isRemoveModeActive) {
-        if (cards.length > 0) queueScannedCard(cards[0], cards.slice(1));
-        else handleRemovalNoMatch();
-        return;
-      }
       if (cards.length > 0) {
         recordScanOutcome(true);
         addCard(
@@ -221,12 +219,13 @@ export function CardScanner({
       }
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
-      if (isRemoveModeActive) {
-        handleRemovalNoMatch();
-        return;
-      }
       recordScanOutcome(false);
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
+    },
+    isRemoval: () => isRemoveModeActive,
+    onRemoval: (cards) => {
+      if (cards.length > 0) queueScannedCard(cards[0], cards.slice(1));
+      else handleRemovalNoMatch();
     },
     rotated: previewRotated,
     onControlCode: (command) => void applyControlCode(command),
@@ -244,6 +243,20 @@ export function CardScanner({
     : piRemote && piScan.cameraReady
       ? "paused"
       : status;
+  const allowDuplicates = piScanLive
+    ? (piScan.state.allowDuplicates ?? true)
+    : browserAllowDuplicates;
+  allowDuplicatesRef.current = allowDuplicates;
+  const setAllowDuplicates = useCallback(
+    (value: boolean) => {
+      setBrowserAllowDuplicates(value);
+      if (piScanLive)
+        void updatePiScanSettings({ allowDuplicates: value }).then((result) => {
+          if (result.data) applyPiScanState(result.data);
+        });
+    },
+    [piScanLive, setBrowserAllowDuplicates],
+  );
   setAllowDuplicatesRef.current = setAllowDuplicates;
   const isSideControls = controlsPosition === "side";
 

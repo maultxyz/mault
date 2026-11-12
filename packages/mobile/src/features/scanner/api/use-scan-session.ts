@@ -4,15 +4,19 @@ import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   applyAutoAssignTarget,
+  prepareMatchedScanPlan,
+  prepareUnmatchedScanPlan,
+  scanCompletionPauseReason,
   applyPickListFound,
-  computeBinCapacity,
+  scanBinCapacity,
   computeBinCount,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CARD_CONDITION,
   DEFAULT_FEEDER_CALIBRATION,
   feedWithRetries,
   findScannerControlCommandProblem,
-  parseScannerControlCode,
+  runScanWorkflow,
+  runScanDisposition,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
@@ -21,13 +25,10 @@ import {
   hasMaxCopiesBins,
   isFedEvent,
   isFeedTimeoutReply,
-  isScanFillingLastRepackPack,
   OCR_REGIONS_BY_GAME_KEY,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
-  resolveScanBin,
   SERIAL_JAM_ERROR,
   type SerialReply,
-  scanFoilType,
   toRuleCard,
   withScanRuleFields,
   type AutoAssignTarget,
@@ -35,8 +36,7 @@ import {
   type BinContentCard,
   type BinRoute,
   type CardCondition,
-  type PickListMatch,
-  type ScannedCard,
+  type ScanPickListUpdate,
   type ScannerControlCommand,
   type ScanRoutingContext,
 } from "@magic-vault/shared";
@@ -54,6 +54,7 @@ import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { fetchBinContents, fetchBinCounts } from "@/features/scanner/api/bin-counts";
 import { activateBinSet, emptyBins, markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
+import { sendSortOnlyScan } from "@/features/scanner/api/scan-saves";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
@@ -363,9 +364,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     const bin = binConfigs.find((c) => c.binNumber === binNumber);
     if (!bin) return null;
     const height = heights?.find((h) => h.binNumber === binNumber)?.height;
-    const physicalCapacity = computeBinCapacity(height, activeCollection?.game?.cardThickness);
-    const chaosBinSize = binSet?.isChaosMode && !bin.isCatchAll ? (binSet.chaosBinSize ?? null) : null;
-    return chaosBinSize != null ? Math.min(physicalCapacity ?? chaosBinSize, chaosBinSize) : physicalCapacity;
+    return scanBinCapacity(height, activeCollection?.game?.cardThickness, binSet, bin);
   }, []);
 
   const isBinFull = useCallback(
@@ -405,17 +404,18 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   );
 
   const recordPickListFound = useCallback(
-    (configs: BinConfig[], match: PickListMatch) => {
+    (configs: BinConfig[], update: ScanPickListUpdate) => {
       const { orgId: activeOrgId } = latestRef.current;
-      const updatedPickList = match.bin.pickList
-        ? applyPickListFound(match.bin.pickList, match.entry.name, 1)
+      const bin = configs.find((item) => item.guid === update.binGuid);
+      const updatedPickList = bin?.pickList
+        ? applyPickListFound(bin.pickList, update.name, update.delta)
         : null;
       if (updatedPickList) {
         locallyUpdatedConfigsRef.current = configs.map((c) =>
-          c.binNumber === match.bin.binNumber ? { ...c, pickList: updatedPickList } : c,
+          c.binNumber === update.binNumber ? { ...c, pickList: updatedPickList } : c,
         );
       }
-      void markPickListFound(match.bin.guid, { name: match.entry.name, delta: 1 })
+      void markPickListFound(update.binGuid, { name: update.name, delta: update.delta })
         .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(activeOrgId).queryKey }))
         .catch((error: unknown) => console.warn("Failed to record pick list find", error));
     },
@@ -505,22 +505,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   );
 
   const handleMatched = useCallback(
-    (outcome: IdentifyOutcome, force = false) => {
+    async (outcome: IdentifyOutcome) => {
       const ctx = latestRef.current;
       const card = outcome.card;
       if (!card || !ctx.collection) return;
-      if (!force && !ctx.allowDuplicates && lastCardIdRef.current === card.id) {
-        pendingDuplicateRef.current = outcome;
-        pause("duplicate");
-        return;
-      }
       lastCardIdRef.current = card.id;
       if (!binCountsLoadedRef.current || !binContentsLoadedRef.current || ctx.binHeightsFailed) {
         pause("bin-data-unavailable");
         return;
       }
-      const forcedFoil = scanFoilType(card, forcedFoilTypeRef.current);
-      const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil });
       const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;
       const routingContext: ScanRoutingContext = {
         binSet: ctx.set,
@@ -532,68 +525,68 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         binRoom,
         createRuleId: () => Crypto.randomUUID(),
       };
-      const decision = resolveScanBin(ruleCard, routingContext);
-      if (decision.action === "pause") {
-        if (decision.reason === "all-packs-complete") pause("repack-complete");
-        else if (decision.reason === "all-chaos-bins-full") {
-          pauseForFullBins(getChaosBins(configs).map((bin) => bin.binNumber));
-        } else pauseForFullBins(decision.bin ? [decision.bin.binNumber] : []);
-        return;
-      }
-      if (decision.autoAssignTarget) applyAutoAssign(configs, decision.autoAssignTarget);
-      if (decision.pickListMatch) recordPickListFound(configs, decision.pickListMatch);
-      const record: ScannedCard = {
-        scanId: Crypto.randomUUID(),
-        card,
-        scannedAt: Date.now(),
-        binNumber: decision.bin?.binNumber,
+      const plan = prepareMatchedScanPlan({
+        scanId: Crypto.randomUUID(), scannedAt: Date.now(), card,
         capturedImageUrl: outcome.capturedImageUrl ?? undefined,
-        alternativeMatches: outcome.alternativeMatches.length ? outcome.alternativeMatches : undefined,
-        lowConfidenceMatch: outcome.matched?.lowConfidenceMatch || decision.isLowMatch || undefined,
-        vectorizedOn: "web",
-        isFoil: forcedFoil != null || undefined,
-        foilType: forcedFoil ?? undefined,
-        condition: scanConditionRef.current,
-      };
-      if (record.binNumber != null) {
-        binCountsRef.current.set(record.binNumber, countInBin(record.binNumber) + 1);
-        if (ctx.set?.isRepackMode || hasMaxCopiesBins(configs)) {
-          binContentsRef.current = [
-            { scanId: record.scanId, binNumber: record.binNumber, scannedAt: record.scannedAt, card: ruleCard },
-            ...binContentsRef.current,
-          ];
-        }
-      }
-      const filledPack =
-        record.binNumber != null &&
-        isScanFillingLastRepackPack(record.binNumber, { ...routingContext, binContents: binContentsRef.current });
-      pushFeed({
-        scanId: record.scanId,
-        scannedAt: record.scannedAt,
-        card,
-        binNumber: record.binNumber,
-        capturedImageUrl: record.capturedImageUrl,
-        lowConfidence: record.lowConfidenceMatch,
+        alternativeMatches: outcome.alternativeMatches,
+        sessionFoilType: forcedFoilTypeRef.current, fallbackFoilTypes: ctx.collection.game?.foilTypes ?? [],
+        condition: scanConditionRef.current, lowConfidenceMatch: outcome.matched?.lowConfidenceMatch,
+        diagnostics: outcome.matched?.diagnostics, vectorizedOn: "web", deviceGuid: ctx.sorter.device?.guid,
+      }, routingContext);
+      const { record, ruleCard } = plan;
+      const collectionGuid = ctx.collection.guid;
+      let filledPack = false;
+      await runScanDisposition({
+        prepare: () => plan,
+        hold: async (plan) => {
+          if (plan.action !== "pause") return false;
+          if (plan.reason === "all-packs-complete") pause("repack-complete");
+          else if (plan.reason === "all-chaos-bins-full") {
+            pauseForFullBins(getChaosBins(configs).map((bin) => bin.binNumber));
+          } else pauseForFullBins(plan.bin ? [plan.bin.binNumber] : []);
+          return false;
+        },
+        assign: (plan) => {
+          if (plan.action !== "route") return;
+          if (plan.autoAssignTarget) applyAutoAssign(configs, plan.autoAssignTarget);
+          if (record.binNumber != null) {
+            binCountsRef.current.set(record.binNumber, countInBin(record.binNumber) + 1);
+            if (plan.binContent && (ctx.set?.isRepackMode || hasMaxCopiesBins(configs))) {
+              binContentsRef.current = [plan.binContent, ...binContentsRef.current];
+            }
+          }
+          filledPack = !!scanCompletionPauseReason(plan, { ...routingContext, binContents: binContentsRef.current });
+        },
+        pick: (plan) => {
+          if (plan.pickListUpdate) recordPickListFound(configs, plan.pickListUpdate);
+        },
+        route: () => {
+          pushFeed({
+            scanId: record.scanId,
+            scannedAt: record.scannedAt,
+            card,
+            binNumber: record.binNumber,
+            capturedImageUrl: record.capturedImageUrl,
+            lowConfidence: record.lowConfidenceMatch,
+          });
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+          setTimeout(() => ctx.playSoundForCard(ruleCard), 0);
+          queryClient.setQueryData(billingQueryOptions(ctx.orgId).queryKey, (old) =>
+            old ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 } : old,
+          );
+
+          if (filledPack) pause("repack-complete");
+          if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber, card.name);
+          else if (!filledPack) continueAfterCard();
+        },
+        persist: async () => {
+          const saving = plan.persistence.kind === "cards/sorted"
+            ? sendSortOnlyScan(ctx.orgId, collectionGuid, plan.persistence.record)
+            : ctx.saveCard({ orgId: ctx.orgId, collectionGuid, deviceGuid: ctx.sorter.device?.guid, record: plan.persistence.record });
+          await saving.then((result) => handleSaveResult(result, record.binNumber)).catch(() => pause("save-failed"));
+        },
+        complete: () => {},
       });
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-      setTimeout(() => ctx.playSoundForCard(ruleCard), 0);
-      queryClient.setQueryData(billingQueryOptions(ctx.orgId).queryKey, (old) =>
-        old ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 } : old,
-      );
-
-      if (filledPack) pause("repack-complete");
-      if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber, card.name);
-      else if (!filledPack) continueAfterCard();
-
-      void ctx
-        .saveCard({
-          orgId: ctx.orgId,
-          collectionGuid: ctx.collection.guid,
-          deviceGuid: ctx.sorter.device?.guid,
-          record: { ...record, diagnostics: outcome.matched?.diagnostics },
-        })
-        .then((result) => handleSaveResult(result, record.binNumber))
-        .catch(() => pause("save-failed"));
     },
     [
       applyAutoAssign,
@@ -611,49 +604,52 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   );
 
   const handleUnmatched = useCallback(
-    (outcome: IdentifyOutcome) => {
+    async (outcome: IdentifyOutcome) => {
       const ctx = latestRef.current;
       if (!ctx.collection) return;
-      const catchAll = getCatchAllBin(ctx.configs);
-      if (catchAll && isBinFull(catchAll.binNumber)) {
-        pauseForFullBins([catchAll.binNumber]);
-        return;
-      }
-      if (catchAll) binCountsRef.current.set(catchAll.binNumber, countInBin(catchAll.binNumber) + 1);
+      const collectionGuid = ctx.collection.guid;
       const scanId = Crypto.randomUUID();
       const scannedAt = Date.now();
-      pushFeed({
-        scanId,
-        scannedAt,
-        card: null,
-        binNumber: catchAll?.binNumber,
-        capturedImageUrl: outcome.capturedImageUrl ?? undefined,
+      await runScanDisposition({
+        prepare: () => prepareUnmatchedScanPlan({
+          scanId, scannedAt, capturedImageUrl: outcome.capturedImageUrl ?? undefined, vectorizedOn: "web",
+          diagnostics: outcome.noMatch?.diagnostics, embedding: outcome.noMatch?.embedding,
+        }, {
+          binSet: ctx.set,
+          configs: locallyUpdatedConfigsRef.current ?? ctx.configs,
+          fieldDefinitions: ctx.fieldDefinitions,
+          binContents: binContentsRef.current,
+          countCardsInBin: countInBin,
+          isBinFull,
+          binRoom,
+          createRuleId: () => Crypto.randomUUID(),
+        }),
+        hold: async (plan) => {
+          pauseForFullBins(plan.bin ? [plan.bin.binNumber] : []);
+          return false;
+        },
+        assign: (plan) => {
+          const binNumber = plan.record.binNumber;
+          if (binNumber != null) binCountsRef.current.set(binNumber, countInBin(binNumber) + 1);
+        },
+        pick: () => {},
+        route: (plan) => {
+          pushFeed({ ...plan.record, card: null });
+          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
+          lastCardIdRef.current = null;
+          if (plan.record.binNumber != null && ctx.sorter.isReady) sendToBin(plan.record.binNumber);
+          else continueAfterCard();
+        },
+        persist: async (plan) => {
+          if (plan.persistence.kind === "none") return;
+          await ctx.saveUnmatched({
+            orgId: ctx.orgId, collectionGuid, deviceGuid: ctx.sorter.device?.guid, record: plan.persistence.record,
+          }).then((result) => handleSaveResult(result, plan.record.binNumber)).catch(() => pause("save-failed"));
+        },
+        complete: () => {},
       });
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
-
-      lastCardIdRef.current = null;
-      if (catchAll && ctx.sorter.isReady) sendToBin(catchAll.binNumber);
-      else continueAfterCard();
-
-      void ctx
-        .saveUnmatched({
-          orgId: ctx.orgId,
-          collectionGuid: ctx.collection.guid,
-          deviceGuid: ctx.sorter.device?.guid,
-          record: {
-            scanId,
-            scannedAt,
-            capturedImageUrl: outcome.capturedImageUrl ?? undefined,
-            binNumber: catchAll?.binNumber,
-            vectorizedOn: "web",
-            diagnostics: outcome.noMatch?.diagnostics,
-            embedding: outcome.noMatch?.embedding ?? undefined,
-          },
-        })
-        .then((result) => handleSaveResult(result, catchAll?.binNumber))
-        .catch(() => pause("save-failed"));
     },
-    [continueAfterCard, countInBin, handleSaveResult, isBinFull, pause, pauseForFullBins, pushFeed, sendToBin],
+    [binRoom, continueAfterCard, countInBin, handleSaveResult, isBinFull, pause, pauseForFullBins, pushFeed, sendToBin],
   );
 
   const routeControlCard = useCallback(() => {
@@ -746,43 +742,50 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     setPhase("identifying");
     const gameKey = ctx.collection.game?.key ?? "";
     try {
-      const captured: { frame: CapturedFrame | null } = { frame: null };
-      const outcome = await identifyCard(
-        async () => (captured.frame = await ctx.capture()),
-        {
-          scope: { collectionGuid: ctx.collection.guid, preferredSetCodes: forcedSetCodesRef.current },
-          matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
-          checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
-          ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
-          colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
+      await runScanWorkflow<{ frame: CapturedFrame | null }, IdentifyOutcome>({
+        controlStage: "after-miss",
+        capture: async () => ({ frame: null }),
+        readControl: (captured) => captured.frame ? readScannerControlCode(captured.frame) : null,
+        applyControl: applyControlCode,
+        identify: (captured) => identifyCard(
+          async () => (captured.frame = await ctx.capture()),
+          {
+            scope: { collectionGuid: ctx.collection!.guid, preferredSetCodes: forcedSetCodesRef.current },
+            matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
+            checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
+            ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+            colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
+          },
+          device?.scanRegion ?? DEFAULT_SCAN_REGION,
+        ),
+        card: (outcome) => outcome.card,
+        isRemoval: () => latestRef.current.removal.isActive,
+        remove: async (outcome) => {
+          const catchAllBinNumber = getCatchAllBin(ctx.configs)?.binNumber ?? null;
+          let removalTargetBin = catchAllBinNumber;
+          if (outcome.card) {
+            const wasQueued = await latestRef.current.removal.queueMatchedCardForRemoval(
+              outcome.card,
+              outcome.alternativeMatches,
+            );
+            if (wasQueued) removalTargetBin = latestRef.current.removal.removalBinNumber;
+          } else {
+            latestRef.current.removal.showNoMatchNotice();
+          }
+          if (latestRef.current.sorter.isReady && removalTargetBin != null) {
+            sendToBin(removalTargetBin, outcome.card?.name);
+          } else {
+            continueAfterCard();
+          }
         },
-        device?.scanRegion ?? DEFAULT_SCAN_REGION,
-      );
-      const controlCode = !outcome.card && captured.frame ? await readScannerControlCode(captured.frame) : null;
-      if (controlCode) {
-        await applyControlCode(parseScannerControlCode(controlCode));
-        if (!runningRef.current && phaseRef.current !== "paused") setPhase("ready");
-        return;
-      }
-      if (latestRef.current.removal.isActive) {
-        const catchAllBinNumber = getCatchAllBin(ctx.configs)?.binNumber ?? null;
-        let removalTargetBin = catchAllBinNumber;
-        if (outcome.card) {
-          const wasQueued = await latestRef.current.removal.queueMatchedCardForRemoval(
-            outcome.card,
-            outcome.alternativeMatches,
-          );
-          if (wasQueued) removalTargetBin = latestRef.current.removal.removalBinNumber;
-        } else {
-          latestRef.current.removal.showNoMatchNotice();
-        }
-        if (latestRef.current.sorter.isReady && removalTargetBin != null) {
-          sendToBin(removalTargetBin, outcome.card?.name);
-        } else {
-          continueAfterCard();
-        }
-      } else if (outcome.card) handleMatched(outcome);
-      else handleUnmatched(outcome);
+        isDuplicate: (card) => !latestRef.current.allowDuplicates && lastCardIdRef.current === card.id,
+        duplicate: (outcome) => {
+          pendingDuplicateRef.current = outcome;
+          pause("duplicate");
+        },
+        matched: (outcome) => handleMatched(outcome),
+        unmatched: handleUnmatched,
+      });
       if (!runningRef.current && phaseRef.current !== "paused") setPhase("ready");
     } catch (err) {
       pause("route-failed", err instanceof Error ? err.message : String(err));
@@ -874,7 +877,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     const duplicate = pendingDuplicateRef.current;
     if (duplicate) {
       pendingDuplicateRef.current = null;
-      handleMatched(duplicate, true);
+      void handleMatched(duplicate);
       return;
     }
     if (heldArrivalRef.current) {

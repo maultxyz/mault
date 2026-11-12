@@ -11,6 +11,7 @@ import type {
 } from "./interfaces/scan-lock";
 
 const locks = new Map<string, LockEntry>();
+const hostHeldLocks = new Set<string>();
 const orgWriters = new Map<string, Set<SseWriter>>();
 
 function emitToOrg(orgId: string, event: string, data: unknown) {
@@ -37,6 +38,11 @@ async function clearScanThread(orgId: string) {
 function scheduleLockExpiry(guid: string): ReturnType<typeof setTimeout> {
   return setTimeout(() => {
     const entry = locks.get(guid);
+    if (entry && hostHeldLocks.has(guid)) {
+      entry.expiresAt = Date.now() + LOCK_TTL_MS;
+      entry.timer = scheduleLockExpiry(guid);
+      return;
+    }
     if (entry) {
       emitToOrg(entry.orgId, "lock_released", { guid });
       locks.delete(guid);
@@ -73,12 +79,30 @@ export function acquireLock(
 
 export function releaseLock(guid: string, userId: string): boolean {
   const existing = locks.get(guid);
-  if (!existing || existing.userId !== userId) return false;
+  if (!existing || existing.userId !== userId || hostHeldLocks.has(guid))
+    return false;
   clearTimeout(existing.timer);
   emitToOrg(existing.orgId, "lock_released", { guid });
   locks.delete(guid);
   void clearScanThread(existing.orgId);
   return true;
+}
+
+export function acquireHostScanLock(
+  guid: string,
+  userId: string,
+  orgId: string,
+  displayName: string,
+): AcquireLockResult {
+  const result = acquireLock(guid, userId, orgId, displayName);
+  if (result.ok) hostHeldLocks.add(guid);
+  return result;
+}
+
+export function releaseHostScanLock(guid: string, userId: string): boolean {
+  if (locks.get(guid)?.userId !== userId) return false;
+  hostHeldLocks.delete(guid);
+  return releaseLock(guid, userId);
 }
 
 export function getLocksForGuids(guids: string[]): Record<string, ScanLock> {

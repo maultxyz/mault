@@ -421,6 +421,8 @@ export interface ComputedBinFillLevels {
 
 export interface PendingBinCard {
   binNumber: number;
+  scannedAt: number;
+  unsaved: boolean;
   savedAt: number | null;
 }
 

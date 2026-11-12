@@ -24,7 +24,6 @@ import {
   PiSerialTransport,
   SerialTransport,
 } from "@/features/scanner/lib/transports";
-import { usesHostHardware } from "@/lib/host";
 import { isImpersonating } from "@/lib/auth/impersonation";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { usePiHostState } from "@/hooks/use-pi-host";
@@ -898,7 +897,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         await disconnectingRef.current;
       }
       if (session.transport) return;
-      if (piHost && usesHostHardware()) {
+      if (piHost) {
         const result = await PiSerialTransport.open(piSorter);
         if (!result.ok) {
           const description =

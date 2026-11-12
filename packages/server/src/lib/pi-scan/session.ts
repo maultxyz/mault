@@ -1,10 +1,30 @@
+import { updatePiScanRemovalQueue } from "./removal";
+import { runPiScanCardWorkflow } from "./workflow";
+import { readPiScannerControlCode } from "./control-code";
+import { configurePiScanSorter } from "./configure";
+import { checkPiScanFoil } from "./foil";
+import { loadSoundRules } from "../../routes/sounds/shared";
+import { loadCollections } from "../../routes/collections/shared";
 import { PiScanPrefetch } from "./prefetch";
 import { routeLoadedPiCard } from "./route-card";
-import { waitForPiScanResume } from "./recovery";
+import { retainPiScanUnsavedCards, waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   COLOR_BAR_REGIONS_BY_GAME_KEY,
+  runScanDisposition,
+  prepareMatchedScanPlan,
+  prepareUnmatchedScanPlan,
+  scanCompletionPauseReason,
+  selectScanSound,
+  createScanRemovalEntry,
+  scanRemovalCandidateCardIds,
+  resolveRemovalBinNumber,
+  findScannerControlCommandProblem,
+  parseFoilNudgeFirmwareLimits,
+  type ScannerControlCommand,
+  type PiScanRemovalAction,
+  type ScanRoutingDecision,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CARD_CONDITION,
   toCardCondition,
@@ -21,17 +41,15 @@ import {
   dewarpRgba,
   getDefaultCardContour,
   rotateRgba180,
-  computeBinCapacity,
-  areAllScanRepackPacksComplete,
-  resolveScanBin,
+  scanBinCapacity,
+  CHANNEL_OFFSET,
+  DEFAULT_CHANNEL_LAYOUT,
   applyAutoAssignTarget,
   type ScanRoutingContext,
   createDefaultBinRoutes,
-  findLowMatchCatchAll,
   hasMaxCopiesBins,
   isRulesMode,
   reservePickListBins,
-  resolveScanFoilType,
   supportsFoilDetection,
   toRuleCard,
   withScanRuleFields,
@@ -49,9 +67,10 @@ import {
   type PlayingCardWithDistance,
   type ScanAttemptDiagnostic,
   type UnmatchedReason,
-  type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
-import { authQuery } from "../../db";
+import { authQuery, type Transaction } from "../../db";
+import { activateScanCollection, activateScanPreset } from "../scan-targets";
+import { emitToOrg } from "../session-stream";
 import { piUpdateRunning } from "../pi-update";
 import {
   collections,
@@ -74,7 +93,7 @@ import {
   PI_SCAN_POLL_MS,
   PI_SCAN_STATUS_TIMEOUT_MS,
 } from "../constants/pi-scan";
-import { acquireLock, releaseLock } from "../scan-lock";
+import { acquireHostScanLock, releaseHostScanLock } from "../scan-lock";
 import { getUserDisplayName } from "../../middleware/auth";
 import {
   detectScanCorners,
@@ -92,7 +111,10 @@ import {
   findCardMatches,
   findCardMatchesByOcr,
 } from "../../routes/card/shared";
-import { loadBinContents } from "../../routes/collections/cards-query";
+import {
+  loadBinContents,
+  loadBinCounts,
+} from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadSets } from "../../routes/bins/shared";
 import { grabSettledCameraFrame } from "./camera";
@@ -109,6 +131,10 @@ import {
   saveBinThroughRoute,
   saveThroughCollectionRoute,
   recoverSessionScanSaves,
+  loadRemovalCopiesThroughRoute,
+  removeQueuedCardsThroughRoute,
+  withScanActorTransaction,
+  PiScanActionError,
 } from "./existing-routes";
 import { SorterLink } from "./sorter-link";
 
@@ -164,6 +190,14 @@ function publicState(session: PiScanLive | undefined): PiScanSessionState {
         ? new Date(session.pauseStartedAt).toISOString()
         : null,
     autoFeed: session.autoFeed,
+    allowDuplicates: session.allowDuplicates,
+    removalEnabled: session.removalEnabled,
+    removalBinNumber: session.removalBinNumber,
+    removalEntries: session.removalEntries,
+    removalBusy: session.removalBusy,
+    soundEvents: session.soundEvents.filter(
+      (event) => event.at > Date.now() - 10_000,
+    ),
     condition: session.condition,
     foilType: session.foilType,
     preferredSetCodes: [...session.preferredSetCodes],
@@ -228,43 +262,27 @@ async function loadFillCounts(
   jwtClaims: string,
   collectionId: number,
   configs: BinConfig[],
+  transaction?: Transaction,
 ): Promise<Map<number, number>> {
   const windows = configs.map((bin) => ({
     binNumber: bin.binNumber,
     lastEmptiedAt: bin.lastEmptiedAt ?? null,
   }));
   if (windows.length === 0) return new Map();
-  const result = await authQuery(jwtClaims, (tx) =>
-    tx.execute(sql`
-      SELECT b."binNumber" AS bin_number,
-        (
-          SELECT count(*)::int FROM collection_cards c
-          WHERE c.collection_id = ${collectionId}
-            AND c.bin_number = b."binNumber"
-            AND c.bin_emptied_at IS NULL
-        ) + (
-          SELECT count(*)::int FROM unmatched_cards u
-          WHERE u.collection_id = ${collectionId}
-            AND u.bin_number = b."binNumber"
-            AND u.is_deleted = false
-            AND u.bin_emptied_at IS NULL
-        ) AS count
-      FROM jsonb_to_recordset(${JSON.stringify(windows)}::jsonb)
-        AS b("binNumber" int)
-    `),
-  );
-  const counts = new Map<number, number>();
-  for (const row of result.rows as { bin_number: number; count: number }[]) {
-    counts.set(Number(row.bin_number), Number(row.count));
-  }
-  return counts;
+  const load = (tx: Transaction) => loadBinCounts(tx, collectionId, windows);
+  const rows = await (transaction
+    ? load(transaction)
+    : authQuery(jwtClaims, load));
+  return new Map(rows.map((row) => [row.binNumber, row.count]));
 }
 
 async function prepareContext(
   session: PiScanLive,
   hardwareId: string,
+  transaction?: Transaction,
+  collectionGuid = session.collectionGuid,
 ): Promise<PiScanRunContext> {
-  return authQuery(session.jwtClaims, async (tx) => {
+  const load = async (tx: Transaction): Promise<PiScanRunContext> => {
     const [collection] = await tx
       .select({
         id: collections.id,
@@ -283,7 +301,7 @@ async function prepareContext(
       .leftJoin(games, eq(games.id, collections.gameId))
       .where(
         and(
-          eq(collections.guid, session.collectionGuid),
+          eq(collections.guid, collectionGuid),
           eq(collections.orgId, session.orgId),
           eq(collections.isDeleted, false),
         ),
@@ -326,6 +344,7 @@ async function prepareContext(
         id: true,
         guid: true,
         moduleCount: true,
+        channelLayout: true,
         scanCoverage: true,
         scanOffsetX: true,
         scanOffsetY: true,
@@ -396,7 +415,6 @@ async function prepareContext(
     });
     const feeder = await tx.query.feederConfigs.findFirst({
       where: eq(feederConfigs.deviceId, device.id),
-      columns: { feedRetryCount: true },
     });
     const loaded = await loadBinContents(
       tx,
@@ -408,9 +426,36 @@ async function prepareContext(
       scannedAt: row.scannedAt,
       card: toRuleCard(row.card, row),
     }));
+    const moduleRows = await tx.query.moduleConfigs.findMany({
+      where: (table, { eq, and }) =>
+        and(eq(table.deviceId, device.id), eq(table.isDeleted, false)),
+    });
+    const moduleCalibrations = moduleRows
+      .filter(
+        (row) =>
+          row.moduleNumber >= 1 && row.moduleNumber <= device.moduleCount,
+      )
+      .sort((a, b) => a.moduleNumber - b.moduleNumber)
+      .map((row) => ({ moduleNumber: row.moduleNumber, calibration: row }));
+    const nudgeCalibration =
+      moduleCalibrations.find((module) => module.moduleNumber === 1)
+        ?.calibration ?? null;
+    const soundRules = await loadSoundRules(
+      tx,
+      session.orgId,
+      collection.gameId,
+    );
     const sourceBins = active.bins.map((bin) => ({ ...bin }));
 
     return {
+      channelOffset:
+        CHANNEL_OFFSET[
+          device.channelLayout === "legacy" ? "legacy" : DEFAULT_CHANNEL_LAYOUT
+        ],
+      moduleCalibrations,
+      feederCalibration: feeder ?? null,
+      nudgeCalibration,
+      soundRules,
       hardwareId,
       collectionId: collection.id,
       collectionName: collection.name,
@@ -448,7 +493,8 @@ async function prepareContext(
       counts: new Map(),
       contents,
     };
-  });
+  };
+  return transaction ? load(transaction) : authQuery(session.jwtClaims, load);
 }
 
 async function rememberAutoAssign(
@@ -612,7 +658,7 @@ async function matchFrame(
     },
   );
   const foilDetection =
-    context.foilDetectionEnabled && resolved.card
+    context.foilDetectionEnabled && !session.removalEnabled && resolved.card
       ? detectFoilRgba(upright, context.gameKey)
       : null;
 
@@ -652,13 +698,19 @@ function unmatchedReason(
 async function matchUntilConsensus(
   session: PiScanLive,
   context: PiScanRunContext,
+  firstFrame?: Buffer,
 ): Promise<{
   matched: PiScanFrameMatch;
   attempts: ScanAttemptDiagnostic[];
   card: PlayingCardWithDistance | null;
 }> {
+  let initial = firstFrame;
   const outcome = await identifyScanWithConsensus(
-    async () => matchFrame(session, context, await grabSettledCameraFrame()),
+    async () => {
+      const frame = initial ?? (await grabSettledCameraFrame());
+      initial = undefined;
+      return matchFrame(session, context, frame);
+    },
     (attempt) => attempt.resolved.card,
     context.matchesNeeded,
   );
@@ -715,6 +767,7 @@ function savedCard(session: PiScanLive, hasPending = false) {
 async function waitForResume(session: PiScanLive): Promise<boolean> {
   return waitForPiScanResume(session, async (context) => {
     const fresh = await prepareContext(session, context.hardwareId);
+    session.configurationVersion += 1;
     fresh.counts = await loadFillCounts(
       session.jwtClaims,
       fresh.collectionId,
@@ -729,6 +782,470 @@ function holdCard(session: PiScanLive, message: string) {
   session.message = message;
 }
 
+function routingContext(context: PiScanRunContext): ScanRoutingContext {
+  const capacity = (binNumber: number) =>
+    scanBinCapacity(
+      context.heights.get(binNumber),
+      context.cardThickness,
+      context.set,
+      context.configs.find((bin) => bin.binNumber === binNumber) ?? {
+        isCatchAll: false,
+      },
+    );
+  return {
+    binSet: context.set,
+    configs: context.pickConfigs,
+    fieldDefinitions: context.fieldDefinitions,
+    binContents: context.contents.filter((entry) => !entry.capacityOnly),
+    countCardsInBin: (bin) => context.counts.get(bin) ?? 0,
+    isBinFull: (bin) =>
+      capacity(bin) != null && (context.counts.get(bin) ?? 0) >= capacity(bin)!,
+    binRoom: (bin) =>
+      capacity(bin) == null
+        ? Number.POSITIVE_INFINITY
+        : capacity(bin)! - (context.counts.get(bin) ?? 0),
+    createRuleId: randomUUID,
+  };
+}
+
+function routingPauseMessage(decision: ScanRoutingDecision): string {
+  if (decision.action !== "pause") return "";
+  if (decision.reason === "bin-full")
+    return `Bin ${decision.bin!.binNumber} is full. Empty it, then resume.`;
+  if (decision.reason === "all-chaos-bins-full")
+    return "Every bin is full. Empty one, then resume.";
+  return "Every pack is complete. Empty the completed packs, then resume.";
+}
+
+async function processMatched(
+  session: PiScanLive,
+  context: PiScanRunContext,
+  link: SorterLink,
+  identified: Awaited<ReturnType<typeof matchUntilConsensus>>,
+  pipeline: Parameters<typeof routeLoadedPiCard>[2],
+  prefetch: PiScanPrefetch<Buffer>,
+) {
+  const card = identified.card;
+  if (!card) return;
+  const matched = identified.matched;
+  const scanId = randomUUID();
+  const scannedAt = Date.now();
+  const diagnostics: MatchedScanDiagnostics = {
+    matchedBy: matched.matchedBy,
+    vectorizedOn: "server",
+    detection: matched.detection,
+    orientation: matched.orientation,
+    matchesNeeded: context.matchesNeeded,
+    attempts: identified.attempts,
+    candidates: matched.resolved.candidates,
+    ocr: matched.ocr,
+    detectedColor: matched.detectedColor,
+    foilDetection: matched.foilDetection,
+  };
+  session.lastCardId = card.id;
+  await runScanDisposition({
+    prepare: () =>
+      prepareMatchedScanPlan(
+        {
+          scanId,
+          scannedAt,
+          card,
+          capturedImageUrl: jpegDataUrl(matched.image),
+          alternativeMatches: matched.resolved.alternativeMatches,
+          condition: session.condition,
+          sessionFoilType: session.foilType,
+          foilDetection: matched.foilDetection,
+          fallbackFoilTypes: context.foilTypes,
+          lowConfidenceMatch:
+            matched.lowConfidenceFromOcr || matched.colorVariantUncertain,
+          diagnostics,
+          vectorizedOn: "server",
+          deviceGuid: context.deviceGuid,
+        },
+        routingContext(context),
+      ),
+    hold: async (decision) => {
+      holdCard(session, routingPauseMessage(decision));
+      return waitForResume(session);
+    },
+    assign: async (decision) => {
+      if (decision.action === "route" && decision.autoAssignTarget) {
+        await rememberAutoAssign(
+          session,
+          context,
+          decision.autoAssignTarget.binNumber,
+          decision.autoAssignTarget.rules,
+        );
+      }
+    },
+    pick: () => {},
+    route: async (decision) => {
+      if (!decision.bin) throw new Error("No bin matched this card.");
+      showCard(session, card.name, decision.bin.binNumber, true);
+      await routeLoadedPiCard(
+        link,
+        routeForBin(decision.bin.binNumber, context.routes),
+        pipeline,
+      );
+    },
+    persist: async (decision) => {
+      if (decision.action !== "route" || !decision.bin) return;
+      const saved = await saveThroughCollectionRoute(
+        session.orgId,
+        session.collectionGuid,
+        decision.persistence.kind,
+        { ...decision.persistence.record, deviceGuid: context.deviceGuid },
+        saveOptions(session),
+      );
+      if (!saved.success) throw new Error(saved.message);
+      const update = decision.pickListUpdate;
+      if (update) {
+        const pickList = await recordPickFound(
+          { userId: session.userId, orgId: session.orgId },
+          update.binGuid,
+          update.name,
+          update.delta,
+        );
+        if (!pickList) throw new Error("The pick list could not be updated.");
+        const listed = context.pickConfigs.find(
+          (bin) => bin.guid === update.binGuid,
+        );
+        if (listed) listed.pickList = pickList;
+      }
+    },
+    complete: async (decision) => {
+      const binNumber = decision.bin!.binNumber;
+      savedCard(session, prefetch.hasPending);
+      context.counts.set(binNumber, (context.counts.get(binNumber) ?? 0) + 1);
+      if (decision.binContent) context.contents.push(decision.binContent);
+      session.cardsScanned += 1;
+      const clipGuid = selectScanSound(
+        decision.ruleCard,
+        context.soundRules,
+        context.fieldDefinitions,
+      );
+      if (clipGuid)
+        session.soundEvents = [
+          ...session.soundEvents.filter(
+            (event) => event.at > Date.now() - 10_000,
+          ),
+          { id: scanId, clipGuid, at: Date.now() },
+        ].slice(-20);
+      while (scanCompletionPauseReason(decision, routingContext(context))) {
+        holdCard(
+          session,
+          "Every pack is complete. Empty the completed packs, then resume.",
+        );
+        if (!(await waitForResume(session))) break;
+      }
+    },
+    checkpoint: () => waitForResume(session),
+    revision: () => session.configurationVersion,
+  });
+}
+
+async function processUnmatched(
+  session: PiScanLive,
+  context: PiScanRunContext,
+  link: SorterLink,
+  identified: Awaited<ReturnType<typeof matchUntilConsensus>>,
+  pipeline: Parameters<typeof routeLoadedPiCard>[2],
+  prefetch: PiScanPrefetch<Buffer>,
+) {
+  session.lastCardId = null;
+  const matched = identified.matched;
+  const scanId = randomUUID();
+  const scannedAt = Date.now();
+  await runScanDisposition({
+    prepare: () => {
+      const plan = prepareUnmatchedScanPlan(
+        {
+          scanId,
+          scannedAt,
+          capturedImageUrl: jpegDataUrl(matched.image),
+          vectorizedOn: "server",
+          embedding: matched.embedding,
+          diagnostics: {
+            reason: unmatchedReason(matched, identified.attempts),
+            search: matched.result.diagnostics
+              ? withoutEmbedding(matched.result.diagnostics)
+              : null,
+            detection: matched.detection,
+            orientation: matched.orientation,
+            matchesNeeded: context.matchesNeeded,
+            attempts: identified.attempts,
+          },
+        },
+        routingContext(context),
+      );
+      if (!plan.bin)
+        throw new Error(
+          "No card matched, and this preset has no catch-all bin.",
+        );
+      return plan;
+    },
+    hold: async (decision) => {
+      holdCard(session, routingPauseMessage(decision));
+      return waitForResume(session);
+    },
+    assign: () => {},
+    pick: () => {},
+    route: async (decision) => {
+      showCard(session, null, decision.bin!.binNumber, false);
+      await routeLoadedPiCard(
+        link,
+        routeForBin(decision.bin!.binNumber, context.routes),
+        pipeline,
+      );
+    },
+    persist: async (decision) => {
+      if (decision.persistence.kind === "none") return;
+      const saved = await saveThroughCollectionRoute(
+        session.orgId,
+        session.collectionGuid,
+        decision.persistence.kind,
+        { ...decision.persistence.record, deviceGuid: context.deviceGuid },
+        saveOptions(session),
+      );
+      if (!saved.success) throw new Error(saved.message);
+    },
+    complete: (decision) => {
+      const bin = decision.bin!.binNumber;
+      context.counts.set(bin, (context.counts.get(bin) ?? 0) + 1);
+      if (decision.binContent) context.contents.push(decision.binContent);
+      savedCard(session, prefetch.hasPending);
+      session.cardsScanned += 1;
+    },
+    checkpoint: () => waitForResume(session),
+    revision: () => session.configurationVersion,
+  });
+}
+
+async function routeUnsavedCard(
+  session: PiScanLive,
+  context: PiScanRunContext,
+  link: SorterLink,
+  binNumber: () => number | null,
+) {
+  while (!session.stopRequested) {
+    if (!(await waitForResume(session))) return;
+    const bin = binNumber();
+    if (bin == null) throw new Error("This preset has no bin for this card.");
+    if (routingContext(context).isBinFull(bin)) {
+      holdCard(session, `Bin ${bin} is full. Empty it, then resume.`);
+      if (!(await waitForResume(session))) return;
+      continue;
+    }
+    showCard(session, null, bin, false);
+    await routeLoadedPiCard(link, routeForBin(bin, context.routes));
+    context.counts.set(bin, (context.counts.get(bin) ?? 0) + 1);
+    context.contents.push({
+      binNumber: bin,
+      scannedAt: Date.now(),
+      card: {},
+      unsaved: true,
+      capacityOnly: true,
+    });
+    savedCard(session);
+    return;
+  }
+}
+
+async function processRemoval(
+  session: PiScanLive,
+  context: PiScanRunContext,
+  link: SorterLink,
+  card: PlayingCardWithDistance | null,
+  alternatives: PlayingCardWithDistance[],
+) {
+  session.lastCardId = null;
+  while (session.removalBusy && !session.stopRequested)
+    await sleep(PI_SCAN_POLL_MS);
+  if (!(await waitForResume(session))) return;
+  session.removalBusy = true;
+  try {
+    let queued = false;
+    if (card) {
+      try {
+        const copies = await loadRemovalCopiesThroughRoute(
+          { userId: session.userId, orgId: session.orgId },
+          session.collectionGuid,
+          scanRemovalCandidateCardIds(card, alternatives),
+        );
+        if (!(await waitForResume(session))) return;
+        const entry = createScanRemovalEntry({
+          entryId: randomUUID(),
+          matchedCard: card,
+          copies,
+          existingEntries: session.removalEntries,
+        });
+        session.removalEntries = [entry, ...session.removalEntries];
+        queued = entry.selectedScanId != null;
+      } catch (error) {
+        if (
+          error instanceof PiScanActionError &&
+          [401, 402, 403].includes(error.status)
+        )
+          throw error;
+        session.message =
+          error instanceof Error ? error.message : "Removal lookup failed.";
+      }
+    }
+    await routeUnsavedCard(session, context, link, () =>
+      resolveRemovalBinNumber(
+        context.configs,
+        queued ? session.removalBinNumber : null,
+      ),
+    );
+  } finally {
+    session.removalBusy = false;
+  }
+}
+
+async function applyControlCard(
+  session: PiScanLive,
+  context: PiScanRunContext,
+  link: SorterLink,
+  command: ScannerControlCommand | null,
+) {
+  while (session.removalBusy && !session.stopRequested)
+    await sleep(PI_SCAN_POLL_MS);
+  if (!(await waitForResume(session))) return;
+  session.removalBusy = true;
+  try {
+    await applyControlCardWhenIdle(session, context, link, command);
+  } finally {
+    session.removalBusy = false;
+  }
+}
+
+async function applyControlCardWhenIdle(
+  session: PiScanLive,
+  context: PiScanRunContext,
+  link: SorterLink,
+  command: ScannerControlCommand | null,
+) {
+  session.lastCardId = null;
+  const targets = await withScanActorTransaction(
+    { userId: session.userId, orgId: session.orgId },
+    async (tx) => ({
+      collections: (await loadCollections(tx, session.orgId)).data ?? [],
+      presets: (await loadSets(tx, session.orgId)).data ?? [],
+      activeCollectionGuid: session.collectionGuid,
+    }),
+  );
+  const problem = command
+    ? findScannerControlCommandProblem(command, targets)
+    : "unreadable";
+  await routeUnsavedCard(session, context, link, () =>
+    resolveRemovalBinNumber(context.configs, null),
+  );
+  if (session.stopRequested) return;
+  if (!command || problem) {
+    holdCard(session, `Control card rejected: ${problem ?? "unreadable"}.`);
+    return;
+  }
+  const actor = { userId: session.userId, orgId: session.orgId };
+  const oldCollection = session.collectionGuid;
+  const nextCollection = command.collectionGuid ?? oldCollection;
+  const switching = nextCollection !== oldCollection;
+  let acquired = false;
+  try {
+    if (switching) {
+      const recovered = await recoverSessionScanSaves(
+        session.orgId,
+        saveOptions(session),
+      );
+      if (!recovered.success) throw new Error(recovered.message);
+      const lock = acquireHostScanLock(
+        nextCollection,
+        session.userId,
+        session.orgId,
+        await getUserDisplayName(session.userId),
+      );
+      if (!lock.ok)
+        throw new Error("The target collection is locked by another scanner.");
+      acquired = true;
+    }
+    const fresh = await withScanActorTransaction(actor, async (tx) => {
+      if (
+        command.presetGuid &&
+        !(await activateScanPreset(tx, session.orgId, command.presetGuid))
+      )
+        throw new Error("Preset not found.");
+      if (
+        switching &&
+        !(await activateScanCollection(tx, session.orgId, nextCollection))
+      )
+        throw new Error("Collection not found.");
+      const loaded = await prepareContext(
+        session,
+        context.hardwareId,
+        tx,
+        nextCollection,
+      );
+      loaded.counts = await loadFillCounts(
+        session.jwtClaims,
+        loaded.collectionId,
+        loaded.configs,
+        tx,
+      );
+      return loaded;
+    });
+    retainPiScanUnsavedCards(context, fresh);
+    if (switching)
+      for (const entry of fresh.contents)
+        if (entry.unsaved) entry.capacityOnly = true;
+    session.collectionGuid = nextCollection;
+    if (switching)
+      emitToOrg(session.orgId, "collections_changed", { guid: nextCollection });
+    if (switching) {
+      releaseHostScanLock(oldCollection, session.userId);
+      session.removalEntries = [];
+      session.foilType = null;
+      session.preferredSetCodes = [];
+    }
+    Object.assign(context, fresh);
+    if (command.condition) session.condition = command.condition;
+    if (command.forcedFoilType !== undefined)
+      session.foilType = command.forcedFoilType;
+    if (command.forcedSetCode !== undefined)
+      session.preferredSetCodes = command.forcedSetCode
+        ? [command.forcedSetCode]
+        : [];
+    if (command.autoFeed !== undefined) session.autoFeed = command.autoFeed;
+    if (command.allowDuplicates !== undefined)
+      session.allowDuplicates = command.allowDuplicates;
+    if (command.pauseScanner) holdCard(session, "Paused by a control card.");
+  } catch (error) {
+    session.collectionGuid = oldCollection;
+    if (acquired) releaseHostScanLock(nextCollection, session.userId);
+    holdCard(
+      session,
+      error instanceof Error
+        ? error.message
+        : "The control card could not be applied.",
+    );
+  }
+}
+
+export async function updatePiScanRemoval(
+  orgId: string,
+  userId: string,
+  action: PiScanRemovalAction,
+): Promise<PiScanSessionState | null> {
+  const session = sessions.get(orgId);
+  if (!session) return null;
+  const updated = await updatePiScanRemovalQueue(session, action, (scanIds) =>
+    removeQueuedCardsThroughRoute(
+      { userId, orgId },
+      session.collectionGuid,
+      scanIds,
+    ),
+  );
+  return updated ? publicState(session) : null;
+}
+
 async function runLoop(session: PiScanLive, link: SorterLink) {
   const context = session.context;
   if (!context) return;
@@ -738,10 +1255,14 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
   session.startedAt = Date.now();
   const prefetch = new PiScanPrefetch(async () => {
     await sleep(context.settleMs);
-    if (session.stopRequested || session.pauseRequested || link.jamModule != null) {
+    if (
+      session.stopRequested ||
+      session.pauseRequested ||
+      link.jamModule != null
+    ) {
       return null;
     }
-    return matchUntilConsensus(session, context);
+    return grabSettledCameraFrame();
   });
   const pipeline = {
     enabled: () =>
@@ -749,12 +1270,14 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       session.autoFeed &&
       !session.pauseRequested &&
       !session.stopRequested &&
-      !context.set.isRepackMode,
+      !context.set.isRepackMode &&
+      !session.removalEnabled,
     onFed: prefetch.offer,
   };
   try {
     while (!session.stopRequested) {
-      if (session.pauseRequested || session.refreshRequested) prefetch.invalidate();
+      if (session.pauseRequested || session.refreshRequested)
+        prefetch.invalidate();
       if (!(await waitForResume(session))) break;
       while (
         !session.autoFeed &&
@@ -822,236 +1345,41 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         break;
       }
 
-      const identified =
-        prefetched?.identified ?? (await matchUntilConsensus(session, context));
-      const matched = identified.matched;
-      const card = identified.card;
-      const imageUrl = jpegDataUrl(matched.image);
-      const scannedAt = Date.now();
-      const scanId = randomUUID();
-
-      if (!(await waitForResume(session))) break;
-
-      if (!card) {
-        while (!session.stopRequested) {
-          const catchAll = context.configs.find((bin) => bin.isCatchAll);
-          if (!catchAll) {
-            fail(
-              session,
-              "No card matched, and this preset has no catch-all bin.",
-            );
-            break;
-          }
-          showCard(session, null, catchAll.binNumber, false);
-          const capacity = computeBinCapacity(
-            context.heights.get(catchAll.binNumber),
-            context.cardThickness,
-          );
-          if (
-            capacity != null &&
-            (context.counts.get(catchAll.binNumber) ?? 0) >= capacity
-          ) {
-            holdCard(
-              session,
-              `Bin ${catchAll.binNumber} is full. Empty it, then resume.`,
-            );
-            if (!(await waitForResume(session))) break;
-            continue;
-          }
-          const route = routeForBin(catchAll.binNumber, context.routes);
-          await routeLoadedPiCard(link, route, pipeline);
-          const diagnostics: UnmatchedScanDiagnostics = {
-            reason: unmatchedReason(matched, identified.attempts),
-            search: matched.result.diagnostics
-              ? withoutEmbedding(matched.result.diagnostics)
-              : null,
-            detection: matched.detection,
-            orientation: matched.orientation,
-            matchesNeeded: context.matchesNeeded,
-            attempts: identified.attempts,
-          };
-          const saved = await saveThroughCollectionRoute(
-            session.orgId,
-            session.collectionGuid,
-            "unmatched",
-            {
-              scanId,
-              scannedAt,
-              capturedImageUrl: imageUrl,
-              binNumber: catchAll.binNumber,
-              vectorizedOn: "server",
-              diagnostics,
-              embedding: matched.embedding,
-              deviceGuid: context.deviceGuid,
-            },
-            saveOptions(session),
-          );
-          if (!saved.success) {
-            fail(session, saved.message);
-            break;
-          }
-          context.counts.set(
-            catchAll.binNumber,
-            (context.counts.get(catchAll.binNumber) ?? 0) + 1,
-          );
-          savedCard(session, prefetch.hasPending);
-          session.cardsScanned += 1;
-          console.log(`[pi-scan] unmatched -> bin ${catchAll.binNumber}`);
-          break;
-        }
-        continue;
-      }
-
-      const foilType = resolveScanFoilType(
-        card,
-        session.foilType,
-        matched.foilDetection,
-        context.foilTypes,
-      );
-      while (!session.stopRequested) {
-        const ruleCard = toRuleCard(card, {
-          isFoil: foilType != null,
-          foilType,
-        });
-        const countInBin = (bin: BinConfig) =>
-          context.counts.get(bin.binNumber) ?? 0;
-        const isBinFull = (bin: BinConfig) => {
-          const capacity = computeBinCapacity(
-            context.heights.get(bin.binNumber),
-            context.cardThickness,
-          );
-          if (capacity == null) return false;
-          return countInBin(bin) >= capacity;
-        };
-        const binRoom = (bin: BinConfig) => {
-          const capacity = computeBinCapacity(
-            context.heights.get(bin.binNumber),
-            context.cardThickness,
-          );
-          if (capacity == null) return Number.POSITIVE_INFINITY;
-          return capacity - countInBin(bin);
-        };
-        const routingContext = (): ScanRoutingContext => ({
-          binSet: context.set,
-          configs: context.pickConfigs,
-          fieldDefinitions: context.fieldDefinitions,
-          binContents: context.contents,
-          countCardsInBin: (binNumber) => context.counts.get(binNumber) ?? 0,
-          isBinFull: (binNumber) => isBinFull({ binNumber } as BinConfig),
-          binRoom: (binNumber) => binRoom({ binNumber } as BinConfig),
-          createRuleId: randomUUID,
-        });
-        const decision = resolveScanBin(ruleCard, routingContext());
-        if (decision.action === "pause") {
-          const message =
-            decision.reason === "bin-full"
-              ? `Bin ${decision.bin!.binNumber} is full. Empty it, then resume.`
-              : decision.reason === "all-chaos-bins-full"
-                ? "Every bin is full. Empty one, then resume."
-                : "Every pack is complete. Empty the completed packs, then resume.";
-          holdCard(session, message);
-          if (!(await waitForResume(session))) break;
-          continue;
-        }
-        if (decision.autoAssignTarget) {
-          await rememberAutoAssign(
+      await runPiScanCardWorkflow(session, {
+        capture: async () => prefetched?.identified ?? grabSettledCameraFrame(),
+        readControl: readPiScannerControlCode,
+        applyControl: (command) =>
+          applyControlCard(session, context, link, command),
+        identify: (frame) => matchUntilConsensus(session, context, frame),
+        removal: (outcome) =>
+          processRemoval(
             session,
             context,
-            decision.autoAssignTarget.binNumber,
-            decision.autoAssignTarget.rules,
-          );
-        }
-        const chosen = decision.bin;
-        if (!chosen) {
-          fail(session, "No bin matched this card.");
-          break;
-        }
-        showCard(session, card.name, chosen.binNumber, true);
-        if (decision.pickListMatch) {
-          const listed = context.pickConfigs.find(
-            (bin) => bin.guid === chosen.guid,
-          );
-          try {
-            const pickList = await recordPickFound(
-              { userId: session.userId, orgId: session.orgId },
-              chosen.guid,
-              decision.pickListMatch.entry.name,
-            );
-            if (pickList && listed) listed.pickList = pickList;
-          } catch (err) {
-            console.error("[pi-scan] failed to update a pick list:", err);
-          }
-        }
-
-        const route = routeForBin(chosen.binNumber, context.routes);
-        await routeLoadedPiCard(link, route, pipeline);
-
-        const alternatives = matched.resolved.alternativeMatches;
-        const lowMatchBin = findLowMatchCatchAll(ruleCard, context.configs);
-        const diagnostics: MatchedScanDiagnostics = {
-          matchedBy: matched.matchedBy,
-          vectorizedOn: "server",
-          detection: matched.detection,
-          orientation: matched.orientation,
-          matchesNeeded: context.matchesNeeded,
-          attempts: identified.attempts,
-          candidates: matched.resolved.candidates,
-          ocr: matched.ocr,
-          detectedColor: matched.detectedColor,
-          foilDetection: matched.foilDetection,
-        };
-        const saved = await saveThroughCollectionRoute(
-          session.orgId,
-          session.collectionGuid,
-          context.set.skipSaving ? "cards/sorted" : "cards",
-          {
-            hasAlternatives: alternatives.length > 0,
-            scanId,
-            card,
-            scannedAt,
-            binNumber: chosen.binNumber,
-            capturedImageUrl: imageUrl,
-            condition: session.condition,
-            isFoil: foilType != null,
-            foilType: foilType ?? undefined,
-            alternativeMatches: alternatives,
-            lowConfidenceMatch:
-              matched.lowConfidenceFromOcr ||
-              matched.colorVariantUncertain ||
-              lowMatchBin?.binNumber === chosen.binNumber,
-            diagnostics,
-            vectorizedOn: "server",
-            deviceGuid: context.deviceGuid,
-          },
-          saveOptions(session),
-        );
-        if (!saved.success) {
-          fail(session, saved.message);
-          break;
-        }
-        savedCard(session, prefetch.hasPending);
-        context.counts.set(chosen.binNumber, countInBin(chosen) + 1);
-        context.contents.push({
-          binNumber: chosen.binNumber,
-          scannedAt,
-          card: ruleCard,
-          unsaved: context.set.skipSaving,
-        });
-        session.cardsScanned += 1;
-        console.log(`[pi-scan] ${card.name} -> bin ${chosen.binNumber}`);
-        // Finish a repack before feeding another card, as the browser does.
-        while (
-          context.set.isRepackMode &&
-          areAllScanRepackPacksComplete(routingContext())
-        ) {
+            link,
+            outcome.card,
+            outcome.matched.resolved.alternativeMatches,
+          ),
+        holdDuplicate: () =>
           holdCard(
             session,
-            "Every pack is complete. Empty the completed packs, then resume.",
-          );
-          if (!(await waitForResume(session))) break;
-        }
-        break;
-      }
+            "Duplicate card. Resume to accept it, or stop to remove it.",
+          ),
+        nudge: (outcome) =>
+          checkPiScanFoil(
+            session,
+            context,
+            outcome.matched,
+            outcome.card!,
+            context.nudgeCalibration,
+            session.nudgeLimits,
+            session.nudgeCalibration,
+          ),
+        matched: (outcome) =>
+          processMatched(session, context, link, outcome, pipeline, prefetch),
+        unmatched: (outcome) =>
+          processUnmatched(session, context, link, outcome, pipeline, prefetch),
+        checkpoint: () => waitForResume(session),
+      });
     }
   } catch (err) {
     if (
@@ -1083,7 +1411,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       session.portHeld = false;
     }
     if (session.locked) {
-      releaseLock(session.collectionGuid, session.userId);
+      releaseHostScanLock(session.collectionGuid, session.userId);
       session.locked = false;
     }
     if (session.phase === "running" || session.phase === "paused") {
@@ -1106,7 +1434,7 @@ async function arm(session: PiScanLive) {
   const displayName = await getUserDisplayName(session.userId);
   if (await piUpdateRunning())
     throw new PiScanStartError("A system update is running.", "busy");
-  const lock = acquireLock(
+  const lock = acquireHostScanLock(
     session.collectionGuid,
     session.userId,
     session.orgId,
@@ -1147,9 +1475,11 @@ async function arm(session: PiScanLive) {
       { getStatus: true },
       PI_SCAN_STATUS_TIMEOUT_MS,
     );
+    session.nudgeLimits = parseFoilNudgeFirmwareLimits(status);
     const statusError = lineError(status);
     if (statusError) throw new PiScanStartError(statusError, "invalid");
-    const hardwareId = typeof status.id === "string" ? status.id.trim().toUpperCase() : "";
+    const hardwareId =
+      typeof status.id === "string" ? status.id.trim().toUpperCase() : "";
     if (!hardwareId) {
       throw new PiScanStartError("The sorter did not report an id.", "invalid");
     }
@@ -1159,12 +1489,24 @@ async function arm(session: PiScanLive) {
       session.context.collectionId,
       session.context.configs,
     );
+    await configurePiScanSorter(
+      (command, timeout) => link.command(command, timeout),
+      session.context,
+    );
     const neutral = await link.command(
       { neutral: true },
       PI_SCAN_NEUTRAL_TIMEOUT_MS,
     );
     const neutralError = lineError(neutral);
     if (neutralError) throw new PiScanStartError(neutralError, "invalid");
+    if (neutral.status !== "ok")
+      throw new PiScanStartError(
+        "The sorter did not confirm neutral positioning.",
+        "invalid",
+      );
+    session.nudgeCalibration = session.context.nudgeCalibration
+      ? { ...session.context.nudgeCalibration }
+      : null;
   } catch (err) {
     link.close();
     releaseSorterPort("session");
@@ -1189,6 +1531,18 @@ function createSession(
     resolveDone = resolve;
   });
   return {
+    configurationVersion: 0,
+    allowDuplicates: body.allowDuplicates !== false,
+    lastCardId: null,
+    removalEnabled: body.removalEnabled === true,
+    removalBinNumber: Number.isInteger(body.removalBinNumber)
+      ? body.removalBinNumber!
+      : null,
+    removalEntries: [],
+    removalBusy: false,
+    soundEvents: [],
+    nudgeLimits: null,
+    nudgeCalibration: null,
     phase: "running",
     orgId,
     userId,
@@ -1245,12 +1599,21 @@ export async function startPiScanSession(
       message: "A scan is already running.",
     };
   }
+  if (existing?.removalBusy)
+    return {
+      ok: false,
+      status: 409,
+      code: "busy",
+      message: "The removal queue is busy.",
+    };
   if (existing) await existing.done;
 
   const session = createSession(input.orgId, input.userId, input.jwtClaims, {
     ...input.body,
     collectionGuid,
   });
+  if (existing?.collectionGuid === collectionGuid)
+    session.removalEntries = existing.removalEntries;
   sessions.set(input.orgId, session);
   try {
     await arm(session);
@@ -1263,7 +1626,7 @@ export async function startPiScanSession(
     session.phase = "error";
     session.message = message;
     if (session.locked) {
-      releaseLock(session.collectionGuid, session.userId);
+      releaseHostScanLock(session.collectionGuid, session.userId);
       session.locked = false;
     }
     if (!session.handedOff) session.resolveDone();
@@ -1311,11 +1674,26 @@ export function updatePiScanSettings(
   preferredSetCodes: string[] | undefined,
   autoFeed?: boolean,
   condition?: unknown,
+  workflowSettings?: {
+    allowDuplicates?: boolean;
+    removalEnabled?: boolean;
+    removalBinNumber?: number | null;
+  },
 ): PiScanSessionState | null {
   const session = sessions.get(orgId);
   if (!session || (session.phase !== "running" && session.phase !== "paused")) {
     return null;
   }
+  session.configurationVersion += 1;
+  if (typeof workflowSettings?.allowDuplicates === "boolean")
+    session.allowDuplicates = workflowSettings.allowDuplicates;
+  if (typeof workflowSettings?.removalEnabled === "boolean")
+    session.removalEnabled = workflowSettings.removalEnabled;
+  if (
+    workflowSettings?.removalBinNumber === null ||
+    Number.isInteger(workflowSettings?.removalBinNumber)
+  )
+    session.removalBinNumber = workflowSettings!.removalBinNumber!;
   if (condition !== undefined) session.condition = toCardCondition(condition);
   if (foilType !== undefined) session.foilType = foilType;
   if (preferredSetCodes !== undefined) {

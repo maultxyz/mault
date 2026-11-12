@@ -1,3 +1,4 @@
+import type { ScanRemovalEntry } from "./scan-removal.interface";
 import type { CardCondition } from "./card-condition.interface";
 
 export type PiScanSessionPhase =
@@ -16,9 +17,15 @@ export interface PiScanSessionSight {
 }
 
 export interface PiScanSessionState {
+  allowDuplicates?: boolean;
+  removalEnabled?: boolean;
+  removalBinNumber?: number | null;
   condition?: CardCondition;
   foilType?: string | null;
   preferredSetCodes?: string[];
+  removalBusy?: boolean;
+  removalEntries?: ScanRemovalEntry[];
+  soundEvents?: { id: string; clipGuid: string; at: number }[];
   phase: PiScanSessionPhase;
   collectionGuid: string | null;
   message: string | null;
@@ -34,6 +41,9 @@ export interface PiScanSessionState {
 }
 
 export interface PiScanSessionStartBody {
+  allowDuplicates?: boolean;
+  removalEnabled?: boolean;
+  removalBinNumber?: number | null;
   condition?: CardCondition;
   collectionGuid: string;
   foilType?: string | null;
@@ -42,6 +52,9 @@ export interface PiScanSessionStartBody {
 }
 
 export interface PiScanSessionSettingsBody {
+  allowDuplicates?: boolean;
+  removalEnabled?: boolean;
+  removalBinNumber?: number | null;
   condition?: CardCondition;
   foilType?: string | null;
   preferredSetCodes?: string[];
@@ -61,3 +74,9 @@ export interface PiScanSessionResult {
   message?: string;
   code?: PiScanSessionStartCode;
 }
+
+export type PiScanRemovalAction =
+  | { action: "select"; entryId: string; scanId: string }
+  | { action: "drop"; entryId: string }
+  | { action: "clear" }
+  | { action: "remove" };

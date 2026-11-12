@@ -1,3 +1,4 @@
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   feedPiScanSession,
@@ -28,7 +29,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function usePiScanSession() {
+export function usePiScanSession(getAllowDuplicates?: () => boolean) {
   const { t } = useTranslation("scanner");
   const { activeCollection } = useCollections();
   const { autoFeed, forceFoilType, forceSetCodes, scanCondition } =
@@ -36,6 +37,7 @@ export function usePiScanSession() {
   const { disconnect } = useSerial();
   const { piHost, piSorter } = usePiHostState();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
+  const { isRemoveModeEnabled, removalBinNumber } = useScanRemoval();
   const [cameraReady, setCameraReady] = useState(false);
   const [starting, setStarting] = useState(false);
   const collectionGuid = activeCollection?.guid;
@@ -48,7 +50,8 @@ export function usePiScanSession() {
       const health = await readPiCameraHealth();
       if (cancelled) return;
       if (health.status === "ready") setCameraReady(true);
-      else retry = setTimeout(() => void checkCamera(), PI_CAMERA_HEALTH_RETRY_MS);
+      else
+        retry = setTimeout(() => void checkCamera(), PI_CAMERA_HEALTH_RETRY_MS);
     }
     void checkCamera();
     return () => {
@@ -74,6 +77,9 @@ export function usePiScanSession() {
         foilType: forceFoilType,
         preferredSetCodes: forceSetCodes,
         autoFeed,
+        removalEnabled: isRemoveModeEnabled,
+        removalBinNumber,
+        allowDuplicates: getAllowDuplicates?.(),
       });
       if (!result.success && result.code === "busy") {
         await sleep(400);
@@ -83,6 +89,9 @@ export function usePiScanSession() {
           foilType: forceFoilType,
           preferredSetCodes: forceSetCodes,
           autoFeed,
+          removalEnabled: isRemoveModeEnabled,
+          removalBinNumber,
+          allowDuplicates: getAllowDuplicates?.(),
         });
       }
       if (result.data) applyPiScanState(result.data);
@@ -96,6 +105,9 @@ export function usePiScanSession() {
     }
   }, [
     autoFeed,
+    isRemoveModeEnabled,
+    removalBinNumber,
+    getAllowDuplicates,
     collectionGuid,
     disconnect,
     piSorter,
