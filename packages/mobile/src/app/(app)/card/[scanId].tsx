@@ -350,29 +350,18 @@ export default function CardDetailScreen() {
     backgroundColor: colors.muted,
   };
 
+  const cardDetailSubtitle =
+    storageReview && storageContext.data
+      ? t("cardDetail.reviewProgress", { index: storageContext.data.index + 1, total: storageContext.data.total })
+      : reviewMode && position.data
+        ? t("cardDetail.reviewProgress", { index: position.data.index + 1, total: position.data.total })
+        : card?.typeLine;
+
   return (
     <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
-        title={editing ? t("cardDetail.correctCard") : (card?.name ?? t("cardDetail.fallbackTitle"))}
-        subtitle={
-          editing
-            ? card?.name
-            : storageReview && storageContext.data
-              ? t("cardDetail.reviewProgress", {
-                  index: storageContext.data.index + 1,
-                  total: storageContext.data.total,
-                })
-              : reviewMode && position.data
-              ? t("cardDetail.reviewProgress", { index: position.data.index + 1, total: position.data.total })
-              : card?.typeLine
-        }
-        titleAccessory={
-          !editing && price != null ? (
-            <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
-              {pricing.format(price)}
-            </AppText>
-          ) : null
-        }
+        title={editing ? t("cardDetail.correctCard") : undefined}
+        subtitle={editing ? card?.name : undefined}
         onBack={editing ? () => setEditing(false) : undefined}
         actions={
           !editing && entry ? (
@@ -408,6 +397,21 @@ export default function CardDetailScreen() {
           />
         ) : (
           <>
+            <View style={{ gap: SPACING.xs }}>
+              <AppText size="xl" heading weight="semibold" accessibilityRole="header">
+                {card?.name ?? t("cardDetail.fallbackTitle")}
+              </AppText>
+              {cardDetailSubtitle ? (
+                <AppText size="sm" tone="secondary">
+                  {cardDetailSubtitle}
+                </AppText>
+              ) : null}
+              {price != null ? (
+                <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+                  {pricing.format(price)}
+                </AppText>
+              ) : null}
+            </View>
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}

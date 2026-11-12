@@ -120,7 +120,7 @@ export interface ScreenProps {
 }
 
 export interface PageHeaderProps {
-  title: string;
+  title?: string;
   titleAccessory?: ReactNode;
   subtitle?: string | null;
   subtitleAccessory?: ReactNode;
@@ -315,6 +315,11 @@ export interface SwitchRowProps {
 
 export interface SwitchControlProps {
   value: boolean;
+}
+
+export interface PinnedActionsLayoutProps {
+  children: ReactNode;
+  actions: ReactNode;
 }
 
 export interface SaveBarProps {

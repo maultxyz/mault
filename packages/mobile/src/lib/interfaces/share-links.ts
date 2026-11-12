@@ -33,4 +33,5 @@ export interface SubjectShareLinksProps {
   subjectGuid: string;
   onSelect: (linkGuid: string) => void;
   onNew: () => void;
+  showsCreatedInListNotice: boolean;
 }

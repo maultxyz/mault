@@ -12,6 +12,7 @@ import {
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { createMonitorLink } from "@/features/collections/api/collection-cards";
@@ -46,7 +47,14 @@ export function NewShareLinkForm({ kind, subjectGuid, onCreated, onBack }: NewSh
   });
 
   return (
-    <View style={{ gap: SPACING.xl }}>
+    <PinnedActionsLayout
+      actions={
+        <>
+          <Button label={t("shareLink.create")} loading={create.isPending} onPress={() => create.mutate()} />
+          <Button variant="secondary" icon="arrowLeft" label={t("shareLinks.backToLinks")} onPress={onBack} />
+        </>
+      }
+    >
       {create.isError ? <Callout tone="destructive" title={t("shareLink.createFailed")} /> : null}
       <View style={{ gap: SPACING.sm }}>
         <AppText weight="semibold" accessibilityRole="header">
@@ -90,10 +98,6 @@ export function NewShareLinkForm({ kind, subjectGuid, onCreated, onBack }: NewSh
         value={showsPrices}
         onValueChange={setShowsPrices}
       />
-      <View style={{ gap: SPACING.sm }}>
-        <Button label={t("shareLink.create")} loading={create.isPending} onPress={() => create.mutate()} />
-        <Button variant="secondary" icon="arrowLeft" label={t("shareLinks.backToLinks")} onPress={onBack} />
-      </View>
-    </View>
+    </PinnedActionsLayout>
   );
 }

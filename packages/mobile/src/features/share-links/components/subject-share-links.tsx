@@ -1,21 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, ScrollView, View } from "react-native";
+import { AccessibilityInfo, Alert, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { revokeMonitorLinks } from "@/features/collections/api/collection-cards";
 import { invalidateShareLinks, shareLinksQueryOptions } from "@/features/share-links/api/share-links";
 import { useRevokeShareLink } from "@/features/share-links/api/use-revoke-share-link";
 import { ShareLinkList } from "@/features/share-links/components/share-link-list";
 import { revokeStorageShareLinks } from "@/features/storage/api/storage-share-links";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { SHARE_LINK_LIST_MAX_HEIGHT } from "@/lib/constants/share-links";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { SubjectShareLinksProps } from "@/lib/interfaces/share-links";
 
-export function SubjectShareLinks({ kind, subjectGuid, onSelect, onNew }: SubjectShareLinksProps) {
+export function SubjectShareLinks({ kind, subjectGuid, onSelect, onNew, showsCreatedInListNotice }: SubjectShareLinksProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
@@ -40,7 +40,22 @@ export function SubjectShareLinks({ kind, subjectGuid, onSelect, onNew }: Subjec
     );
 
   return (
-    <View style={{ gap: SPACING.xl }}>
+    <PinnedActionsLayout
+      actions={
+        <>
+          <Button icon="plus" label={t("shareLinks.newLink")} onPress={onNew} />
+          {hasLinks ? (
+            <Button
+              variant="destructive"
+              label={t("shareLink.revokeAll")}
+              loading={revokeAll.isPending}
+              onPress={confirmRevokeAll}
+            />
+          ) : null}
+        </>
+      }
+    >
+      {showsCreatedInListNotice ? <Callout tone="success" title={t("shareLinks.createdInList")} /> : null}
       {links.isError ? <Callout tone="destructive" title={t("shareLinks.loadFailed")} /> : null}
       {revokeOne.isError ? <Callout tone="destructive" title={t("shareLinks.revokeFailed")} /> : null}
       {revokeAll.isError ? <Callout tone="destructive" title={t("shareLink.revokeFailed")} /> : null}
@@ -48,17 +63,13 @@ export function SubjectShareLinks({ kind, subjectGuid, onSelect, onNew }: Subjec
       {links.isLoading ? (
         <ListSkeleton rows={2} />
       ) : hasLinks ? (
-        <ScrollView
-          style={{ maxHeight: SHARE_LINK_LIST_MAX_HEIGHT, marginHorizontal: -SCREEN_GUTTER }}
-          contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER }}
-          nestedScrollEnabled
-        >
+        <View style={{ marginHorizontal: -SCREEN_GUTTER, paddingHorizontal: SCREEN_GUTTER }}>
           <ShareLinkList
             links={links.data ?? []}
-              onSelect={(link) => onSelect(link.guid)}
+            onSelect={(link) => onSelect(link.guid)}
             onRevoke={(link) => revokeOne.mutate(link.guid)}
           />
-        </ScrollView>
+        </View>
       ) : links.data ? (
         <EmptyState
           icon="share"
@@ -66,17 +77,6 @@ export function SubjectShareLinks({ kind, subjectGuid, onSelect, onNew }: Subjec
           description={t("shareLinks.subjectEmptyDescription")}
         />
       ) : null}
-      <View style={{ gap: SPACING.sm }}>
-        <Button icon="plus" label={t("shareLinks.newLink")} onPress={onNew} />
-        {hasLinks ? (
-          <Button
-            variant="destructive"
-            label={t("shareLink.revokeAll")}
-            loading={revokeAll.isPending}
-            onPress={confirmRevokeAll}
-          />
-        ) : null}
-      </View>
-    </View>
+    </PinnedActionsLayout>
   );
 }
