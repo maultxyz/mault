@@ -4,11 +4,12 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { Pill } from "@/components/ui/pill";
 import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
@@ -20,7 +21,7 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import { editCollectionFormSchema, type EditCollectionFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
@@ -65,9 +66,21 @@ export default function EditCollectionScreen() {
   });
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader title={t("collections.editTitle")} subtitle={t("collections.editDescription")} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
+      <PinnedActionsLayout
+        actions={
+          <Button
+            size="lg"
+            label={t("collections.save")}
+            loading={save.isPending}
+            disabled={!form.formState.isDirty}
+            onPress={form.handleSubmit((values) => {
+              if (nameAvailable) save.mutate({ ...values, name: values.name.trim() });
+            })}
+          />
+        }
+      >
         {save.isError ? <Callout tone="destructive" title={t("collections.editFailed")} /> : null}
         <Controller
           control={form.control}
@@ -112,16 +125,7 @@ export default function EditCollectionScreen() {
             </View>
           )}
         />
-        <Button
-          size="lg"
-          label={t("collections.save")}
-          loading={save.isPending}
-          disabled={!form.formState.isDirty}
-          onPress={form.handleSubmit((values) => {
-            if (nameAvailable) save.mutate({ ...values, name: values.name.trim() });
-          })}
-        />
-      </ScrollView>
+      </PinnedActionsLayout>
       <OptionSheet
         visible={languageSheetOpen}
         title={t("collections.langLabel")}
@@ -133,6 +137,6 @@ export default function EditCollectionScreen() {
         }}
         onClose={() => setLanguageSheetOpen(false)}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }

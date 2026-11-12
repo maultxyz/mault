@@ -19,6 +19,7 @@ import { orgOverviewQueryOptions } from "@/features/home/api/overview";
 import { HomeCollectionRow } from "@/features/home/components/home-collection-row";
 import { useAppStream } from "@/features/stream/api/use-app-stream";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { usePrefetchCollectionFirstPage } from "@/hooks/use-prefetch-collection-first-page";
 import { usePricing } from "@/hooks/use-pricing";
 import { useSession } from "@/lib/auth/session";
 import { COLLECTION_SEARCH_MIN_COUNT } from "@/lib/constants/collections";
@@ -29,6 +30,7 @@ export default function CollectionsScreen() {
   const { t } = useTranslation();
   const pricing = usePricing();
   const orgId = useActiveOrgId();
+  const prefetchCollectionFirstPage = usePrefetchCollectionFirstPage();
   const { user } = useSession();
   const [search, setSearch] = useState("");
   const { locks } = useAppStream();
@@ -73,9 +75,12 @@ export default function CollectionsScreen() {
           title={t("tabs.collections")}
           subtitle={summary}
           actions={
-            sorted.length > 0 ? (
-              <IconButton icon="plus" variant="primary" accessibilityLabel={t("collections.new")} onPress={openNewCollection} />
-            ) : null
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              <IconButton icon="search" accessibilityLabel={t("search.open")} onPress={() => router.push("/search")} />
+              {sorted.length > 0 ? (
+                <IconButton icon="plus" variant="primary" accessibilityLabel={t("collections.new")} onPress={openNewCollection} />
+              ) : null}
+            </View>
           }
         >
           {sorted.length > COLLECTION_SEARCH_MIN_COUNT ? (
@@ -128,6 +133,7 @@ export default function CollectionsScreen() {
             return (
               <HomeCollectionRow
                 key={collection.guid}
+                onPressIn={() => prefetchCollectionFirstPage(collection.guid)}
                 name={collection.name}
                 isScanTarget={isScanTarget}
                 isLive={!!lock}

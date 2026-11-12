@@ -86,3 +86,12 @@ export interface LeaderboardRow {
   key: string;
   entry: LeaderboardEntry;
 }
+
+export interface StatsTextLineSkeletonProps {
+  width: number | `${number}%`;
+}
+
+export interface StatsSectionSkeletonProps {
+  title: string;
+  children: ReactNode;
+}

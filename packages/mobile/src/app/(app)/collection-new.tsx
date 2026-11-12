@@ -4,12 +4,13 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { Pill } from "@/components/ui/pill";
 import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
@@ -24,7 +25,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { upgradeRequiredMessage } from "@/lib/api/upgrade-required-error";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import { createCollectionFormSchema, type CreateCollectionFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
@@ -86,9 +87,19 @@ export default function NewCollectionScreen() {
 
   const errors = form.formState.errors;
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader title={t("collections.new")} subtitle={t("collections.createDescription")} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
+      <PinnedActionsLayout
+        actions={
+          <Button
+            size="lg"
+            label={t("collections.create")}
+            loading={create.isPending}
+            disabled={collectionLimitReached}
+            onPress={onSubmit}
+          />
+        }
+      >
         {collectionLimitReached ? (
           <Callout tone="info" title={t("collections.limitReached", { count: collectionLimit })} />
         ) : null}
@@ -161,14 +172,7 @@ export default function NewCollectionScreen() {
             </View>
           )}
         />
-        <Button
-          size="lg"
-          label={t("collections.create")}
-          loading={create.isPending}
-          disabled={collectionLimitReached}
-          onPress={onSubmit}
-        />
-      </ScrollView>
+      </PinnedActionsLayout>
       <OptionSheet
         visible={sheet === "game"}
         title={t("collections.gameLabel")}
@@ -194,6 +198,6 @@ export default function NewCollectionScreen() {
         }}
         onClose={() => setSheet(null)}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }

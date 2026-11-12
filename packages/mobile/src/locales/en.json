@@ -678,8 +678,6 @@
         "front": "Front",
         "external": "External"
       },
-      "pairDesktop": "Use as a desktop camera",
-      "pairDesktopDescription": "Scan the QR code shown on your computer",
       "preset": "Rule preset",
       "chooseCamera": "Choose a camera",
       "foilType": "Foil type",
@@ -742,6 +740,47 @@
         "duplicatesOff": "Skip duplicates",
         "pause": "Pause scanning"
       }
+    },
+    "tips": {
+      "title": "Scanning tips",
+      "open": "Scanning tips",
+      "done": "Got it",
+      "holdCard": {
+        "title": "Hold a card in the frame",
+        "description": "Keep the whole card inside the camera view and hold it still. Turn on Auto-detect cards in Scan options to scan without pressing the button."
+      },
+      "qrCode": {
+        "title": "Point at a QR code to open it",
+        "description": "Shared collection, storage and trade links open in the app. A desktop camera pairing code connects this phone as the sorter's camera."
+      },
+      "sorter": {
+        "title": "Connect a sorter for auto-feed",
+        "description": "With a sorter connected over Bluetooth or Wi-Fi, press Start and cards are fed, scanned and sorted into bins automatically."
+      }
+    },
+    "status": {
+      "modes": {
+        "sorter": "Sorter",
+        "handScan": "Hand scan",
+        "scanOnce": "Scan one",
+        "removing": "Removing"
+      },
+      "saved": "Saved {{name}}"
+    },
+    "unmatchedRecovery": {
+      "title": "Couldn't identify that card",
+      "description": "It was saved as unmatched. Try again or find it by name.",
+      "retry": "Retry",
+      "searchByName": "Search by name",
+      "skip": "Skip"
+    },
+    "liveActivity": {
+      "title": "Mault scanner",
+      "scanning": "Scanning",
+      "scannedCount_one": "{{count}} scanned",
+      "scannedCount_other": "{{count}} scanned",
+      "lastCard": "Last: {{name}}",
+      "noCardYet": "No cards yet"
     }
   },
   "home": {
@@ -2092,16 +2131,6 @@
     "learnMore": "Learn more",
     "firmwareMissing": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning."
   },
-  "pairing": {
-    "title": "Scan to link",
-    "subtitle": "Use this phone as a scanner camera",
-    "hint": "On your computer, open the scanner and choose Use Phone as Camera, then point this phone at the QR code.",
-    "invalidTitle": "That isn't a camera link",
-    "invalidDescription": "Scan the QR code from Use Phone as Camera on your computer's scanner page.",
-    "paste": "Paste link instead",
-    "linkLabel": "Pairing link",
-    "connect": "Connect"
-  },
   "phoneCamera": {
     "title": "Use Phone as Camera",
     "ready": "Camera ready",
@@ -2992,6 +3021,68 @@
     "tradeOffersCount_one": "{{count}} trade offer",
     "tradeOffersCount_other": "{{count}} trade offers",
     "alertsCount_one": "{{count}} alert",
-    "alertsCount_other": "{{count}} alerts"
+    "alertsCount_other": "{{count}} alerts",
+    "scanner": {
+      "title": "Scanners",
+      "idle": "No scanners running",
+      "scanning_one": "Scanning now",
+      "scanning_other": "{{count}} scanners running",
+      "scannerLine": "{{name}} · {{collection}}",
+      "unknownCollection": "a collection",
+      "more_one": "+{{count}} more",
+      "more_other": "+{{count}} more",
+      "unknown": "Status unknown",
+      "openToRefresh": "Open Mault to refresh.",
+      "lastScan": "Last: {{card}} at {{time}}",
+      "updated": "Updated {{time}}"
+    }
+  },
+  "sharedLink": {
+    "title": "Shared cards",
+    "collectionSubtitle_one": "Shared collection · {{count}} card",
+    "collectionSubtitle_other": "Shared collection · {{count}} cards",
+    "storageSubtitle_one": "Shared storage location · {{count}} card",
+    "storageSubtitle_other": "Shared storage location · {{count}} cards",
+    "search": "Search these cards",
+    "empty": "No cards found",
+    "loadFailed": "Couldn't load these cards",
+    "loadMore": "Load more",
+    "invalid": "This link doesn't work",
+    "invalidDescription": "It may have expired or been revoked. Ask the owner for a new one."
+  },
+  "listRow": {
+    "moreActions": "More actions"
+  },
+  "search": {
+    "title": "Search",
+    "open": "Search everything",
+    "placeholder": "Search cards, collections, locations and settings",
+    "promptTitle": "Search everything",
+    "promptDescription": "Find a card in any collection, a collection, a storage location or a setting.",
+    "emptyTitle": "Nothing found",
+    "emptyDescription": "Try a different name or spelling.",
+    "loadFailed": "Couldn't search your cards. Pull down to try again.",
+    "foil": "Foil",
+    "locationPosition": "{{location}}, slot {{position}}",
+    "resultsCount_one": "{{count}} result",
+    "resultsCount_other": "{{count}} results",
+    "sections": {
+      "cards": "Cards",
+      "collections": "Collections",
+      "locations": "Storage locations",
+      "settings": "Settings"
+    }
+  },
+  "recovery": {
+    "undo": "Undo",
+    "retry": "Retry",
+    "restored": "Restored",
+    "undoFailed": "Couldn't undo that",
+    "cardsRemoved_one": "Card removed",
+    "cardsRemoved_other": "{{count}} cards removed",
+    "tagAdded": "{{tag}} added",
+    "tagRemoved": "{{tag}} removed",
+    "movedTo": "Moved to {{name}}",
+    "cardsLoadFailed": "Couldn't load these cards"
   }
 }

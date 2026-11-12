@@ -83,6 +83,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
               supportedFamilies: ["systemSmall", "accessoryCircular", "accessoryRectangular", "accessoryInline"],
             },
           },
+          {
+            name: "ScannerActivity",
+            displayName: "Scanners",
+            description: "Which scanners are running, today's scans and the last card scanned.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
+            },
+          },
         ],
       },
     ],

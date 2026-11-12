@@ -18,7 +18,8 @@
   "pnpm": {
     "patchedDependencies": {
       "onnxruntime-react-native@1.24.3": "patches/onnxruntime-react-native@1.24.3.patch",
-      "react-native-gesture-handler@3.3.0": "patches/react-native-gesture-handler@3.3.0.patch"
+      "react-native-gesture-handler@3.3.0": "patches/react-native-gesture-handler@3.3.0.patch",
+      "react-native-vision-camera@5.2.3": "patches/react-native-vision-camera@5.2.3.patch"
     },
     "packageExtensions": {
       "@hookform/resolvers": {

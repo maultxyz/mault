@@ -12,12 +12,10 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PickerCard } from "@/components/ui/picker-card";
 import { Screen } from "@/components/ui/screen";
 import { TabStrip } from "@/components/ui/tab-strip";
-import { Skeleton } from "@/components/ui/skeleton";
-import { StatGroup } from "@/components/ui/stat-group";
-import { StatTileSkeleton } from "@/components/ui/stat-tile-skeleton";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { statsQueryOptions } from "@/features/stats/api/stats";
 import { StatsDashboard } from "@/features/stats/components/stats-dashboard";
+import { StatsDashboardSkeleton } from "@/features/stats/components/stats-dashboard-skeleton";
 import { StatsLeaderboardSheet } from "@/features/stats/components/stats-leaderboard-sheet";
 import { useActiveOrg } from "@/hooks/use-org";
 import { STATS_ALL_COLLECTIONS } from "@/lib/constants/stats";
@@ -77,14 +75,7 @@ export default function StatsScreen() {
       {isError ? (
         <Callout tone="destructive" title={t("stats.error")} />
       ) : isPending || !report ? (
-        <View style={{ gap: SPACING.md }}>
-          <StatGroup heading={t("stats.tiles.heading")}>
-            {[0, 1, 2, 3, 4, 5].map((key) => (
-              <StatTileSkeleton key={key} />
-            ))}
-          </StatGroup>
-          <Skeleton height={180} />
-        </View>
+        <StatsDashboardSkeleton />
       ) : report.totals.cardCount === 0 ? (
         <EmptyState icon="stats" title={t("stats.empty.title")} description={t("stats.empty.description")} />
       ) : (

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, ScrollView, View } from "react-native";
+import { AccessibilityInfo, Alert, View } from "react-native";
 import { formatPrice } from "@magic-vault/shared";
 import type { TradeOfferCardsProps } from "@/lib/interfaces/trade-offers";
 import { AppText } from "@/components/ui/app-text";
@@ -11,12 +11,13 @@ import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { Surface } from "@/components/ui/surface";
 import { pendingTradeOffersQueryOptions, respondToTradeOffer } from "@/features/trade-offers/api/trade-offers";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { TRADE_OFFER_CARD_IMAGE_WIDTH, TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
-import { CARD_THUMBNAIL_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_THUMBNAIL_RADIUS, SPACING } from "@/lib/constants/theme";
 
 function TradeOfferCards({ cards, prices, priceSource }: TradeOfferCardsProps) {
   const { t } = useTranslation();
@@ -100,11 +101,32 @@ export default function TradeOfferScreen() {
     ]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
         title={offer ? t("tradeOffers.reviewTitle", { name: offer.guestName }) : t("tradeOffers.title")}
       />
-      <ScrollView contentContainerStyle={{ padding: SCREEN_GUTTER, gap: SPACING.lg }}>
+      <PinnedActionsLayout
+        actionsDirection="row"
+        actions={
+          offer ? (
+            <>
+              <Button
+                style={{ flex: 1 }}
+                variant="destructive"
+                label={t("tradeOffers.decline")}
+                loading={respond.isPending && respond.variables === false}
+                onPress={confirmDecline}
+              />
+              <Button
+                style={{ flex: 1 }}
+                label={t("tradeOffers.accept")}
+                loading={respond.isPending && respond.variables === true}
+                onPress={confirmAccept}
+              />
+            </>
+          ) : null
+        }
+      >
         {respond.isError ? <Callout tone="destructive" title={t("tradeOffers.respondFailed")} /> : null}
         {offers.isLoading ? (
           <ListSkeleton />
@@ -173,24 +195,9 @@ export default function TradeOfferScreen() {
               </AppText>
               <TradeOfferCards cards={offer.offered} prices={offer.offeredPrices} priceSource={offer.priceSource} />
             </View>
-            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-              <Button
-                style={{ flex: 1 }}
-                variant="destructive"
-                label={t("tradeOffers.decline")}
-                loading={respond.isPending && respond.variables === false}
-                onPress={confirmDecline}
-              />
-              <Button
-                style={{ flex: 1 }}
-                label={t("tradeOffers.accept")}
-                loading={respond.isPending && respond.variables === true}
-                onPress={confirmAccept}
-              />
-            </View>
           </>
         )}
-      </ScrollView>
+      </PinnedActionsLayout>
     </View>
   );
 }

@@ -4,35 +4,30 @@ import * as DocumentPicker from "expo-document-picker";
 import type { AudioPlayer } from "expo-audio";
 import { router } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, Switch, View } from "react-native";
+import { Alert, Switch } from "react-native";
 import {
   SOUND_CLIP_MAX_BYTES,
   SOUND_CLIP_NAME_MAX_LENGTH,
   type SoundClip,
-  soundClipNameFormSchema,
-  type SoundClipNameFormValues,
+  type SoundRule,
   soundRulesDraftFormSchema,
   type SoundRulesDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
-import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { SectionHeader } from "@/components/ui/section-header";
-import { Surface } from "@/components/ui/surface";
-import { TextField } from "@/components/ui/text-field";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import {
   deleteSoundClip,
-  renameSoundClip,
+  deleteSoundRule,
   reorderSoundRules,
   soundClipsQueryOptions,
   soundRuleCountQueryOptions,
@@ -45,8 +40,6 @@ import { orderSoundRules, toSoundRulesDraft } from "@/features/sounds/lib/sound-
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SOUND_CLIP_MIME_TYPES } from "@/lib/constants/sounds";
-import { SPACING } from "@/lib/constants/theme";
-import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function SoundsSettingsScreen() {
   const { t } = useTranslation();
@@ -66,7 +59,7 @@ export default function SoundsSettingsScreen() {
   const [message, setMessage] = useState<{ tone: "success" | "destructive"; text: string } | null>(null);
   const [saveError, setSaveError] = useState(false);
   const [clipActions, setClipActions] = useState<SoundClip | null>(null);
-  const [renaming, setRenaming] = useState<SoundClip | null>(null);
+  const [ruleActions, setRuleActions] = useState<SoundRule | null>(null);
   const [playingGuid, setPlayingGuid] = useState<string | null>(null);
   const previewRef = useRef<{ guid: string; player: AudioPlayer } | null>(null);
 
@@ -79,10 +72,6 @@ export default function SoundsSettingsScreen() {
   const order = useWatch({ control: form.control, name: "order" });
   const enabled = useWatch({ control: form.control, name: "enabled" });
   const orderedRules = useMemo(() => orderSoundRules(rules, order ?? []), [rules, order]);
-  const renameForm = useForm<SoundClipNameFormValues>({
-    resolver: zodResolver(soundClipNameFormSchema),
-    defaultValues: { name: "" },
-  });
 
   useEffect(
     () => () => {
@@ -101,14 +90,13 @@ export default function SoundsSettingsScreen() {
     onError: (err: Error) => fail(err.message || t("settings.sounds.library.uploadFailed")),
     onSettled: refreshClips,
   });
-  const rename = useMutation({
-    mutationFn: ({ guid, name }: { guid: string; name: string }) => renameSoundClip(guid, name),
-    onSuccess: () => {
-      setRenaming(null);
-      setMessage({ tone: "success", text: t("settings.sounds.library.renamed") });
+  const removeRule = useMutation({
+    mutationFn: deleteSoundRule,
+    onSuccess: (latest) => {
+      queryClient.setQueryData(soundRulesQueryOptions(orgId, gameGuid).queryKey, latest);
+      void queryClient.invalidateQueries({ queryKey: ["sound-rules", orgId, "count"] });
     },
-    onError: () => fail(t("settings.sounds.library.renameFailed")),
-    onSettled: refreshClips,
+    onError: () => fail(t("settings.sounds.rules.saveFailed")),
   });
   const removeClip = useMutation({
     mutationFn: deleteSoundClip,
@@ -164,13 +152,33 @@ export default function SoundsSettingsScreen() {
     const clip = clipActions;
     setClipActions(null);
     if (!clip) return;
-    if (action === "rename") {
-      renameForm.reset({ name: clip.name });
-      setRenaming(clip);
+    if (action === "preview") {
+      togglePreview(clip);
+    } else if (action === "rename") {
+      router.push({ pathname: "/settings/sound-clip-name", params: { guid: clip.guid, name: clip.name } });
     } else if (action === "delete") {
       Alert.alert(t("settings.sounds.library.delete", { name: clip.name }), t("settings.sounds.library.deleteConfirm"), [
         { text: t("settings.sounds.ruleDialog.cancel"), style: "cancel" },
         { text: t("cardDetail.remove"), style: "destructive", onPress: () => removeClip.mutate(clip.guid) },
+      ]);
+    }
+  };
+
+  const runRuleAction = (action: string) => {
+    const rule = ruleActions;
+    setRuleActions(null);
+    if (!rule) return;
+    const index = orderedRules.findIndex((candidate) => candidate.guid === rule.guid);
+    if (action === "edit") {
+      router.push({ pathname: "/settings/sound-rule", params: { guid: rule.guid } });
+    } else if (action === "move-up") {
+      move(index, -1);
+    } else if (action === "move-down") {
+      move(index, 1);
+    } else if (action === "delete") {
+      Alert.alert(t("settings.sounds.rules.delete", { name: rule.name }), t("settings.sounds.rules.deleteConfirm"), [
+        { text: t("settings.sounds.ruleDialog.cancel"), style: "cancel" },
+        { text: t("cardDetail.remove"), style: "destructive", onPress: () => removeRule.mutate(rule.guid) },
       ]);
     }
   };
@@ -216,6 +224,8 @@ export default function SoundsSettingsScreen() {
 
   const clipName = (guid: string | null) => clips.data?.find((clip) => clip.guid === guid)?.name;
 
+  const ruleActionsIndex = ruleActions ? orderedRules.findIndex((rule) => rule.guid === ruleActions.guid) : -1;
+
   return (
     <SettingsPage
       title={t("settings.sounds.title")}
@@ -235,39 +245,17 @@ export default function SoundsSettingsScreen() {
       <AppText size="xs" tone="secondary">
         {t("settings.sounds.library.description")}
       </AppText>
-      {renaming ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <Controller
-            control={renameForm.control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("settings.sounds.library.nameLabel")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                error={translateFormErrorMessage(t, fieldState.error?.message)}
-              />
-            )}
-          />
-          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-            <Button style={{ flex: 1 }} variant="ghost" label={t("settings.sounds.library.cancelRename")} onPress={() => setRenaming(null)} />
-            <Button
-              style={{ flex: 1 }}
-              label={t("settings.sounds.library.saveName")}
-              loading={rename.isPending}
-              onPress={renameForm.handleSubmit((draft) => rename.mutate({ guid: renaming.guid, name: draft.name.trim() }))}
-            />
-          </View>
-        </Surface>
-      ) : null}
-      {clips.data && clips.data.length === 0 ? (
-        <EmptyState icon="music" title={t("settings.sounds.library.empty")} />
-      ) : (
-        <ListGroup>
-          {(clips.data ?? []).map((clip) => (
+      {clips.data && clips.data.length === 0 ? <EmptyState icon="music" title={t("settings.sounds.library.empty")} /> : null}
+      <ListGroup>
+        {(clips.data ?? []).map((clip) => {
+          const isPlaying = playingGuid === clip.guid;
+          const previewLabel = isPlaying
+            ? t("settings.sounds.library.stop", { name: clip.name })
+            : t("settings.sounds.library.play", { name: clip.name });
+          return (
             <ListRow
               key={clip.guid}
+              icon={isPlaying ? "stop" : "play"}
               title={clip.name}
               subtitle={[
                 clip.isSystem ? t("settings.sounds.library.builtIn") : null,
@@ -275,35 +263,22 @@ export default function SoundsSettingsScreen() {
               ]
                 .filter(Boolean)
                 .join(" · ")}
-              onPress={clip.isSystem ? undefined : () => setClipActions(clip)}
-              leading={
-                <IconButton
-                  icon={playingGuid === clip.guid ? "stop" : "play"}
-                  size={36}
-                  accessibilityLabel={
-                    playingGuid === clip.guid
-                      ? t("settings.sounds.library.stop", { name: clip.name })
-                      : t("settings.sounds.library.play", { name: clip.name })
-                  }
-                  disabled={!clip.url}
-                  onPress={() => togglePreview(clip)}
-                />
-              }
+              disabled={clip.isSystem && !clip.url}
+              onPress={clip.isSystem ? () => togglePreview(clip) : () => setClipActions(clip)}
+              onLongPress={clip.isSystem ? undefined : () => setClipActions(clip)}
+              longPressLabel={clip.isSystem ? undefined : previewLabel}
             />
-          ))}
-        </ListGroup>
-      )}
-      <Button
-        variant="secondary"
-        icon="upload"
-        label={upload.isPending ? t("settings.sounds.library.uploading") : t("settings.sounds.library.upload")}
-        loading={upload.isPending}
-        disabled={isUploadLocked}
-        onPress={() => void pickClip()}
-      />
-      {isUploadLocked ? (
-        <Callout tone="info" title={t("settings.sounds.library.notInPlan")} />
-      ) : null}
+          );
+        })}
+        <ListRow
+          icon="upload"
+          title={upload.isPending ? t("settings.sounds.library.uploading") : t("settings.sounds.library.upload")}
+          subtitle={isUploadLocked ? t("settings.sounds.library.notInPlan") : undefined}
+          subtitleNumberOfLines={3}
+          disabled={isUploadLocked || upload.isPending}
+          onPress={() => void pickClip()}
+        />
+      </ListGroup>
 
       {gameGuid ? (
         <>
@@ -319,55 +294,37 @@ export default function SoundsSettingsScreen() {
           ) : null}
           {rulesQuery.data && orderedRules.length === 0 ? (
             <EmptyState icon="music" title={t("settings.sounds.rules.empty")} />
-          ) : (
-            <ListGroup>
-              {orderedRules.map((rule, index) => {
-                const clip = clipName(rule.clipGuid);
-                return (
-                  <ListRow
-                    key={rule.guid}
-                    title={rule.name}
-                    subtitle={clip ? t("settings.sounds.rules.plays", { clip }) : t("settings.sounds.rules.noClip")}
-                    onPress={() => router.push({ pathname: "/settings/sound-rule", params: { guid: rule.guid } })}
-                    rightIsInteractive
-                    right={
-                      <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
-                        <IconButton
-                          icon="arrowUp"
-                          size={32}
-                          variant="plain"
-                          accessibilityLabel={`${t("settings.sounds.rules.moveUp")}, ${rule.name}`}
-                          disabled={index === 0}
-                          onPress={() => move(index, -1)}
-                        />
-                        <IconButton
-                          icon="arrowDown"
-                          size={32}
-                          variant="plain"
-                          accessibilityLabel={`${t("settings.sounds.rules.moveDown")}, ${rule.name}`}
-                          disabled={index === orderedRules.length - 1}
-                          onPress={() => move(index, 1)}
-                        />
-                        <Switch
-                          accessibilityLabel={`${t("settings.sounds.rules.enabled")}, ${rule.name}`}
-                          value={enabled?.[rule.guid] ?? rule.isEnabled}
-                          onValueChange={(value) => form.setValue(`enabled.${rule.guid}`, value, { shouldDirty: true })}
-                          trackColor={{ true: colors.primary, false: colors.muted }}
-                        />
-                      </View>
-                    }
-                  />
-                );
-              })}
-            </ListGroup>
-          )}
-          <Button
-            variant="secondary"
-            icon="plus"
-            label={t("settings.sounds.rules.add")}
-            disabled={atRuleLimit || !clips.data?.length}
-            onPress={() => router.push("/settings/sound-rule")}
-          />
+          ) : null}
+          <ListGroup>
+            {orderedRules.map((rule) => {
+              const clip = clipName(rule.clipGuid);
+              return (
+                <ListRow
+                  key={rule.guid}
+                  title={rule.name}
+                  subtitle={clip ? t("settings.sounds.rules.plays", { clip }) : t("settings.sounds.rules.noClip")}
+                  onPress={() => router.push({ pathname: "/settings/sound-rule", params: { guid: rule.guid } })}
+                  onLongPress={() => setRuleActions(rule)}
+                  longPressLabel={t("settings.sounds.rules.edit", { name: rule.name })}
+                  rightIsInteractive
+                  right={
+                    <Switch
+                      accessibilityLabel={`${t("settings.sounds.rules.enabled")}, ${rule.name}`}
+                      value={enabled?.[rule.guid] ?? rule.isEnabled}
+                      onValueChange={(value) => form.setValue(`enabled.${rule.guid}`, value, { shouldDirty: true })}
+                      trackColor={{ true: colors.primary, false: colors.muted }}
+                    />
+                  }
+                />
+              );
+            })}
+            <ListRow
+              icon="plus"
+              title={t("settings.sounds.rules.add")}
+              disabled={atRuleLimit || !clips.data?.length}
+              onPress={() => router.push("/settings/sound-rule")}
+            />
+          </ListGroup>
         </>
       ) : null}
 
@@ -375,12 +332,38 @@ export default function SoundsSettingsScreen() {
         visible={!!clipActions}
         title={clipActions?.name ?? ""}
         options={[
+          ...(clipActions?.url
+            ? [
+                {
+                  value: "preview",
+                  label:
+                    playingGuid === clipActions.guid
+                      ? t("settings.sounds.library.stop", { name: clipActions.name })
+                      : t("settings.sounds.library.play", { name: clipActions.name }),
+                },
+              ]
+            : []),
           { value: "rename", label: t("settings.sounds.library.rename", { name: clipActions?.name ?? "" }) },
           { value: "delete", label: t("settings.sounds.library.delete", { name: clipActions?.name ?? "" }) },
         ]}
         selected={[]}
         onSelect={runClipAction}
         onClose={() => setClipActions(null)}
+      />
+      <OptionSheet
+        visible={!!ruleActions}
+        title={ruleActions?.name ?? ""}
+        options={[
+          { value: "edit", label: t("settings.sounds.rules.edit", { name: ruleActions?.name ?? "" }) },
+          ...(ruleActionsIndex > 0 ? [{ value: "move-up", label: t("settings.sounds.rules.moveUp") }] : []),
+          ...(ruleActionsIndex >= 0 && ruleActionsIndex < orderedRules.length - 1
+            ? [{ value: "move-down", label: t("settings.sounds.rules.moveDown") }]
+            : []),
+          { value: "delete", label: t("settings.sounds.rules.delete", { name: ruleActions?.name ?? "" }) },
+        ]}
+        selected={[]}
+        onSelect={runRuleAction}
+        onClose={() => setRuleActions(null)}
       />
     </SettingsPage>
   );

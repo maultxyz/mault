@@ -37,3 +37,5 @@ export const LOADING_LOGO_LAYERS: LoadingLogoLayer[] = [
   { delayFraction: 220 / 1800, boxHeight: 72, originX: "74%", originY: "58%", keyframes: LOADING_LOGO_FLIP_KEYFRAMES },
 ];
 export const LOADING_LOGO_FOOTER_SIZE = 28;
+export const LOADING_LOGO_PAGE_SIZE = 56;
+export const PAGE_LOADING_MIN_HEIGHT_RATIO = 0.5;

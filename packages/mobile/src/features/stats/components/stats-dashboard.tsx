@@ -20,7 +20,7 @@ import {
   STATS_COLLECTION_METRICS,
   STATS_TOP_CARD_COLUMNS,
 } from "@/lib/constants/stats";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
 import { formatDay } from "@/lib/dates";
 import type {
   StatsActivityMetric,
@@ -128,7 +128,7 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
               style={{
                 width: "100%",
                 aspectRatio: CARD_ASPECT_RATIO,
-                borderRadius: RADIUS.lg,
+                borderRadius: CARD_ART_RADIUS,
                 overflow: "hidden",
                 backgroundColor: colors.muted,
               }}

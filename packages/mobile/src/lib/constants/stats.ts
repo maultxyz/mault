@@ -4,3 +4,7 @@ export const STATS_BAR_LIST_LIMIT = 10;
 export const STATS_ALL_COLLECTIONS = "all";
 export const STATS_CHART_HEIGHT = 112;
 export const STATS_TOP_CARD_COLUMNS = 3;
+export const STATS_SKELETON_TILE_COUNT = 6;
+export const STATS_SKELETON_BAR_ROWS = 5;
+export const STATS_SKELETON_TAB_STRIP_HEIGHT = 40;
+export const STATS_SKELETON_BODY_LINE_HEIGHT = 22;

@@ -50,10 +50,7 @@ export function CardViewOptionsSheet({
       title={t("collection.viewOptions")}
       contentContainerStyle={{ gap: SPACING.xl }}
       footer={
-        <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-          <Button style={{ flex: 1 }} variant="secondary" label={t("collection.filters.reset")} onPress={() => onChange(EMPTY_CARD_FILTERS)} />
-          <Button style={{ flex: 1 }} label={t("common.done")} onPress={onClose} />
-        </View>
+        <Button variant="secondary" label={t("collection.filters.reset")} onPress={() => onChange(EMPTY_CARD_FILTERS)} />
       }
     >
       {onViewModeChange
