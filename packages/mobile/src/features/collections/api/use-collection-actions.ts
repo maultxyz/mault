@@ -4,12 +4,14 @@ import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
 import { collectionsQueryOptions, deleteCollection, emptyCollection } from "@/features/collections/api/collections";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
+import { useActiveShareLinkCount } from "@/features/share-links/api/use-active-share-link-count";
 import { useActiveOrgId } from "@/hooks/use-org";
 import type { CollectionActionsOptions, CollectionActionTarget } from "@/lib/interfaces/collections";
 import type { OptionItem } from "@/lib/interfaces/ui";
 
-export function useCollectionActions({ includesScanInto = false, onDeleted }: CollectionActionsOptions = {}) {
+export function useCollectionActions({ includesScanInto = false, onDeleted, shareLinkCountGuid }: CollectionActionsOptions = {}) {
   const { t } = useTranslation();
+  const activeShareLinkCount = useActiveShareLinkCount(shareLinkCountGuid);
   const queryClient = useQueryClient();
   const collectionsOptions = collectionsQueryOptions(useActiveOrgId());
   const { setScanTargetGuid } = useScanTarget();
@@ -33,7 +35,12 @@ export function useCollectionActions({ includesScanInto = false, onDeleted }: Co
 
   const options: OptionItem[] = [
     ...(includesScanInto ? [{ value: "scanInto", label: t("collections.scanInto") }] : []),
-    { value: "share", label: t("collections.shareLink") },
+    {
+      value: "share",
+      label: activeShareLinkCount > 0
+        ? t("collections.shareLinkWithCount", { count: activeShareLinkCount })
+        : t("collections.shareLink"),
+    },
     { value: "edit", label: t("collections.edit") },
     { value: "empty", label: t("collections.empty") },
     { value: "delete", label: t("collections.delete") },

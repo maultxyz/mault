@@ -67,4 +67,5 @@ export interface StorageLocationActionTarget {
 
 export interface StorageLocationActionsOptions {
   onDeleted?: () => void;
+  shareLinkCountGuid?: string | null;
 }

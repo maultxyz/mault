@@ -92,6 +92,8 @@
     "actions": "Actions de la collection",
     "cancel": "Annuler",
     "shareLink": "Partager le lien de la vue en direct",
+    "shareLinkWithCount_one": "Partager le lien de la vue en direct ({{count}} actif)",
+    "shareLinkWithCount_other": "Partager le lien de la vue en direct ({{count}} actifs)",
     "scanTarget": "Scans ajoutés ici",
     "scanInto": "Scanner dans cette collection",
     "scan": "Scanner"
@@ -105,7 +107,6 @@
     "expiryOption_one": "{{count}} jour",
     "expiryOption_other": "{{count}} jours",
     "create": "Créer le lien",
-    "createAnother": "Créer un nouveau lien",
     "created": "Lien créé. Le code QR et le bouton Partager sont plus bas.",
     "createFailed": "Impossible de créer le lien de partage.",
     "share": "Partager le lien",
@@ -128,6 +129,31 @@
     "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
     "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
     "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours."
+  },
+  "shareLinks": {
+    "detailDescription": "Toute personne disposant de ce lien ou de ce QR code peut l'ouvrir sans se connecter.",
+    "pricesShown": "Prix affichés",
+    "pricesHidden": "Prix masqués",
+    "loadFailed": "Impossible de charger les liens de partage.",
+    "notFound": "Ce lien a expiré ou a été révoqué.",
+    "revoke": "Révoquer le lien",
+    "revokeTitle": "Révoquer ce lien ?",
+    "revokeDescription": "Toute personne utilisant ce lien perd l'accès. Les autres liens restent actifs.",
+    "revoked": "Lien révoqué.",
+    "revokeFailed": "Impossible de révoquer le lien.",
+    "linkTitle": "Lien de partage",
+    "backToLinks": "Retour aux liens",
+    "newLink": "Nouveau lien",
+    "newLinkTitle": "Nouveau lien de partage",
+    "subjectDescription": "Les liens encore valides pour cet élément. Touchez-en un pour afficher son QR code, ou appuyez longuement pour le révoquer.",
+    "subjectEmptyTitle": "Aucun lien actif",
+    "subjectEmptyDescription": "Créez un lien pour partager ceci avec n'importe qui, sans connexion.",
+    "createdInList": "Lien créé. Il figure dans la liste ci-dessous.",
+    "viewAnnouncements": {
+      "links": "Affichage des liens actifs",
+      "new": "Affichage du formulaire de nouveau lien",
+      "link": "Affichage du lien et du QR code"
+    }
   },
   "cards": {
     "bin": "Bac {{number}}",
@@ -1406,7 +1432,9 @@
         "remaining": "Encore {{count}} à vérifier"
       }
     },
-    "share": "Partager l'emplacement"
+    "share": "Partager l'emplacement",
+    "shareWithCount_one": "Partager l'emplacement ({{count}} actif)",
+    "shareWithCount_other": "Partager l'emplacement ({{count}} actifs)"
   },
   "settings": {
     "title": "Paramètres",

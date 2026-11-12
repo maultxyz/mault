@@ -1,4 +1,3 @@
-import type { ShareLinkPurpose } from "@magic-vault/shared";
 import { db } from "../db";
 import { STORAGE_SHARE_LINK_ISSUER } from "./constants/auth";
 import type { StorageShareLinkClaims } from "./interfaces/share-tokens";
@@ -7,32 +6,14 @@ import {
   SHARE_LINK_CLAIMS_CACHE_TTL_MS,
 } from "./constants/api-keys";
 import { shareLinkLifetime } from "./share-link-policy";
-import { signShareToken, verifyShareToken } from "./share-tokens";
+import { isShareLinkActive } from "./share-links";
+import { verifyShareToken } from "./share-tokens";
 import { createTtlCache } from "./ttl-cache";
 
 const verifiedStorageShareLinks = createTtlCache<StorageShareLinkClaims>({
   ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
   maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
 });
-
-export function signStorageShareLink(
-  locationGuid: string,
-  orgId: string,
-  version: number,
-  expiresInMinutes: number,
-  showsPrices: boolean,
-  purpose: ShareLinkPurpose,
-) {
-  return signShareToken({
-    issuer: STORAGE_SHARE_LINK_ISSUER,
-    subjectGuid: locationGuid,
-    orgId,
-    version,
-    expiresInMinutes,
-    showsPrices,
-    purpose,
-  });
-}
 
 export async function verifyStorageShareLink(
   token: string,
@@ -65,6 +46,9 @@ async function loadStorageShareLinkClaims(
     columns: { id: true, name: true, shareLinkVersion: true },
   });
   if (!location || location.shareLinkVersion !== verified.version) return null;
+  if (verified.linkGuid && !(await isShareLinkActive(verified.orgId, verified.linkGuid))) {
+    return null;
+  }
   const lifetime = await shareLinkLifetime(
     verified.orgId,
     verified.purpose,

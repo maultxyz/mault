@@ -36,8 +36,8 @@ export default function CollectionsScreen() {
   const isScreenFocused = useIsFocused();
   const overview = useQuery(orgOverviewQueryOptions(orgId, isScreenFocused));
   const scanTargetGuid = scanTarget?.guid;
-  const collectionActions = useCollectionActions({ includesScanInto: true });
   const [actionsCollection, setActionsCollection] = useState<CollectionActionTarget | null>(null);
+  const collectionActions = useCollectionActions({ includesScanInto: true, shareLinkCountGuid: actionsCollection?.guid });
 
   const sorted = useMemo(
     () =>

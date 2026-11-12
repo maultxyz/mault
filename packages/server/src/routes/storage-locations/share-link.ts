@@ -19,10 +19,8 @@ import {
   STORAGE_UPGRADE_MESSAGE,
 } from "../../lib/storage-access";
 import { forgetSharedStorageReads } from "../../lib/shared-storage-reads-cache";
-import {
-  forgetVerifiedStorageShareLinks,
-  signStorageShareLink,
-} from "../../lib/storage-share-links";
+import { issueShareLink, revokeShareLinksForSubject } from "../../lib/share-links";
+import { forgetVerifiedStorageShareLinks } from "../../lib/storage-share-links";
 import type { ShareLinkRequestBody } from "../../lib/interfaces/share-tokens";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
@@ -65,21 +63,25 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
           and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-        columns: { shareLinkVersion: true },
+        columns: { id: true, shareLinkVersion: true },
       });
       if (!location) {
         return { success: false, message: "Storage location not found." };
       }
       const allowsLongLinks = await allowsLongShareLinks(tx, orgId);
-      const { token, expiresAt } = await signStorageShareLink(
-        guid,
+      const { guid: linkGuid, token, expiresAt } = await issueShareLink(tx, {
         orgId,
-        location.shareLinkVersion,
-        shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
-        showsPrices,
+        kind: "storage",
+        subjectId: location.id,
+        subjectGuid: guid,
+        subjectVersion: location.shareLinkVersion,
         purpose,
-      );
+        showsPrices,
+        expiresInMinutes: shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
+        createdByUserId: c.get("userId"),
+      });
       const data: StorageShareLink = {
+        guid: linkGuid,
         token,
         expiresAt: expiresAt.toISOString(),
       };
@@ -90,8 +92,9 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
   .post("/:guid/share-link/revoke", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    const updated = await authQuery(c.get("jwtClaims"), (tx) =>
-      tx
+    const updated = await authQuery(c.get("jwtClaims"), async (tx) => {
+      await revokeShareLinksForSubject(tx, orgId, guid);
+      return tx
         .update(storageLocations)
         .set({
           shareLinkVersion: sql`${storageLocations.shareLinkVersion} + 1`,
@@ -103,8 +106,8 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
             eq(storageLocations.isDeleted, false),
           ),
         )
-        .returning({ id: storageLocations.id }),
-    );
+        .returning({ id: storageLocations.id });
+    });
     if (updated.length === 0) {
       return c.json({ success: false, message: "Storage location not found." });
     }

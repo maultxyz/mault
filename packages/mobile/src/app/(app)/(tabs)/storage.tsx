@@ -37,8 +37,8 @@ export default function StorageScreen() {
   const results = useQuery(storageSearchQueryOptions(query));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const locked = billing?.storage === false;
-  const locationActions = useStorageLocationActions();
   const [actionsLocation, setActionsLocation] = useState<StorageLocationActionTarget | null>(null);
+  const locationActions = useStorageLocationActions({ shareLinkCountGuid: actionsLocation?.guid });
   const list = useMemo(() => locations.data?.pages.flatMap((page) => page.items) ?? [], [locations.data]);
 
   return (

@@ -114,7 +114,7 @@ export default function CollectionScreen() {
   const stream = useSessionStream(guid);
   const { setScanTargetGuid } = useScanTarget();
   const [actionsOpen, setActionsOpen] = useState(false);
-  const collectionActions = useCollectionActions({ onDeleted: () => router.back() });
+  const collectionActions = useCollectionActions({ onDeleted: () => router.back(), shareLinkCountGuid: guid });
   const { empty, remove } = collectionActions;
   const runAction = (action: string) => {
     setActionsOpen(false);

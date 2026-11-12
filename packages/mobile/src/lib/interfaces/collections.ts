@@ -92,5 +92,6 @@ export interface CollectionActionTarget {
 
 export interface CollectionActionsOptions {
   includesScanInto?: boolean;
+  shareLinkCountGuid?: string | null;
   onDeleted?: () => void;
 }

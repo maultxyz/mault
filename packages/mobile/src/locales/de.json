@@ -92,6 +92,8 @@
     "actions": "Sammlungsaktionen",
     "cancel": "Abbrechen",
     "shareLink": "Link zur Live-Ansicht teilen",
+    "shareLinkWithCount_one": "Link zur Live-Ansicht teilen ({{count}} aktiv)",
+    "shareLinkWithCount_other": "Link zur Live-Ansicht teilen ({{count}} aktiv)",
     "scanTarget": "Hier wird gescannt",
     "scanInto": "In diese Sammlung scannen",
     "scan": "Scannen"
@@ -105,7 +107,6 @@
     "expiryOption_one": "{{count}} Tag",
     "expiryOption_other": "{{count}} Tagen",
     "create": "Link erstellen",
-    "createAnother": "Neuen Link erstellen",
     "created": "Link erstellt. QR-Code und Teilen-Taste findest du unten.",
     "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
     "share": "Link teilen",
@@ -128,6 +129,31 @@
     "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
     "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
     "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage."
+  },
+  "shareLinks": {
+    "detailDescription": "Jeder mit diesem Link oder QR-Code kann ihn ohne Anmeldung öffnen.",
+    "pricesShown": "Preise sichtbar",
+    "pricesHidden": "Preise ausgeblendet",
+    "loadFailed": "Freigabelinks konnten nicht geladen werden.",
+    "notFound": "Dieser Link ist abgelaufen oder wurde widerrufen.",
+    "revoke": "Link widerrufen",
+    "revokeTitle": "Diesen Link widerrufen?",
+    "revokeDescription": "Wer diesen Link nutzt, verliert den Zugriff. Andere Links bleiben aktiv.",
+    "revoked": "Link widerrufen.",
+    "revokeFailed": "Der Link konnte nicht widerrufen werden.",
+    "linkTitle": "Freigabelink",
+    "backToLinks": "Zurück zu den Links",
+    "newLink": "Neuer Link",
+    "newLinkTitle": "Neuer Freigabelink",
+    "subjectDescription": "Links, die für dieses Element noch funktionieren. Tippe auf einen, um seinen QR-Code anzuzeigen, oder drücke lange, um ihn zu widerrufen.",
+    "subjectEmptyTitle": "Keine aktiven Links",
+    "subjectEmptyDescription": "Erstelle einen Link, um dies mit allen zu teilen, ohne Anmeldung.",
+    "createdInList": "Link erstellt. Er steht in der Liste unten.",
+    "viewAnnouncements": {
+      "links": "Aktive Links werden angezeigt",
+      "new": "Formular für einen neuen Link wird angezeigt",
+      "link": "Link und QR-Code werden angezeigt"
+    }
   },
   "cards": {
     "bin": "Fach {{number}}",
@@ -1406,7 +1432,9 @@
         "remaining": "Noch {{count}} zu prüfen"
       }
     },
-    "share": "Lagerort teilen"
+    "share": "Lagerort teilen",
+    "shareWithCount_one": "Lagerort teilen ({{count}} aktiv)",
+    "shareWithCount_other": "Lagerort teilen ({{count}} aktiv)"
   },
   "settings": {
     "title": "Einstellungen",

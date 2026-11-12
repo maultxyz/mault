@@ -187,16 +187,18 @@ export function StorageLocationCards({
 
   return (
     <div ref={topRef} className="flex scroll-mt-20 flex-col gap-4">
-      <StorageCardQueryToolbar
-        cardQuery={cardQuery}
-        allSelected={allSelected}
-        canSelectAll={total > 0}
-        onToggleSelectAll={() => void toggleSelectAll()}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        density={density}
-        onDensityChange={setDensity}
-      />
+      <div className="sticky top-[var(--storage-toolbar-top,0px)] z-50 -mx-4 border-b bg-background/80 px-4 py-2 backdrop-blur-2xl">
+        <StorageCardQueryToolbar
+          cardQuery={cardQuery}
+          allSelected={allSelected}
+          canSelectAll={total > 0}
+          onToggleSelectAll={() => void toggleSelectAll()}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          density={density}
+          onDensityChange={setDensity}
+        />
+      </div>
       {!isLoading && entries.length > 0 && (
         <ListPagination
           alignsEnd

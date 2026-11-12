@@ -1,5 +1,5 @@
 import { ShareLinkDialog } from "@/components/share-link-dialog";
-import { Button } from "@/components/ui/button";
+import { ShareLinkTriggerButton } from "@/components/share-link-trigger-button";
 import {
   buildMonitorLinkUrl,
   createMonitorLink,
@@ -9,7 +9,6 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { ShareMonitorLinkDialogProps } from "@/lib/interfaces/collections";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import { IconShare } from "@tabler/icons-react";
 import type { ShareLinkOptions } from "@/lib/interfaces/share-links";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,6 +29,7 @@ export function ShareMonitorLinkDialog({
       );
       if (!result.success || !result.data) throw new Error(result.message);
       return {
+        guid: result.data.guid,
         url: buildMonitorLinkUrl(collectionGuid, result.data.token),
         expiresAt: result.data.expiresAt,
       };
@@ -44,22 +44,22 @@ export function ShareMonitorLinkDialog({
 
   return (
     <ShareLinkDialog
+      subjectGuid={collectionGuid}
       title={t("shareMonitorLink.title")}
       description={t("shareMonitorLink.description")}
       revokedMessage={t("shareMonitorLink.revoked")}
       createLink={createLink}
       revokeLinks={revokeLinks}
-      trigger={
-        <Button
+      renderTrigger={(activeLinkCount) => (
+        <ShareLinkTriggerButton
           variant="outline"
           size="icon"
           className={cn("shrink-0", isMobile && MOBILE_ICON_BUTTON_CLASS)}
-          title={t("shareMonitorLink.trigger")}
-          aria-label={t("shareMonitorLink.trigger")}
-        >
-          <IconShare className="size-4" />
-        </Button>
-      }
+          label={t("shareMonitorLink.trigger")}
+          activeLinkCount={activeLinkCount}
+          showsTitle
+        />
+      )}
     />
   );
 }

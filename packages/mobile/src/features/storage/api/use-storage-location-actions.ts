@@ -2,12 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Alert } from "react-native";
+import { useActiveShareLinkCount } from "@/features/share-links/api/use-active-share-link-count";
 import { deleteStorageLocation } from "@/features/storage/api/storage";
 import type { StorageLocationActionsOptions, StorageLocationActionTarget } from "@/lib/interfaces/storage";
 import type { OptionItem } from "@/lib/interfaces/ui";
 
-export function useStorageLocationActions({ onDeleted }: StorageLocationActionsOptions = {}) {
+export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: StorageLocationActionsOptions = {}) {
   const { t } = useTranslation();
+  const activeShareLinkCount = useActiveShareLinkCount(shareLinkCountGuid);
   const queryClient = useQueryClient();
   const remove = useMutation({
     mutationFn: (guid: string) => deleteStorageLocation(guid),
@@ -18,7 +20,10 @@ export function useStorageLocationActions({ onDeleted }: StorageLocationActionsO
   });
 
   const options: OptionItem[] = [
-    { value: "share", label: t("storage.share") },
+    {
+      value: "share",
+      label: activeShareLinkCount > 0 ? t("storage.shareWithCount", { count: activeShareLinkCount }) : t("storage.share"),
+    },
     { value: "rename", label: t("storage.rename") },
     { value: "delete", label: t("storage.delete") },
   ];

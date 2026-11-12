@@ -148,7 +148,7 @@ export default function StorageLocationScreen() {
       setNotice({ tone: "destructive", text: t("storage.review.startFailed") });
     }
   };
-  const locationActions = useStorageLocationActions({ onDeleted: () => router.back() });
+  const locationActions = useStorageLocationActions({ onDeleted: () => router.back(), shareLinkCountGuid: guid });
   const { remove } = locationActions;
 
   const hasCards = !!location && location.cardCount > 0;
@@ -215,6 +215,19 @@ export default function StorageLocationScreen() {
       {tab === "verify" && location ? (
         <StorageLocationVerify key={location.guid} location={location} />
       ) : (
+        <>
+        {hasCards ? (
+          <View style={{ paddingBottom: SPACING.md }}>
+            <CardToolbar
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder={t("storage.searchCardsPlaceholder")}
+              searchAccessibilityLabel={t("storage.searchCardsPlaceholder")}
+              activeSortAndFilterCount={activeSortAndFilterCount}
+              onOpenViewOptions={() => setViewOptionsOpen(true)}
+            />
+          </View>
+        ) : null}
         <FlatList
           key={viewMode}
           style={{ marginHorizontal: -SPACING.sm }}
@@ -244,16 +257,6 @@ export default function StorageLocationScreen() {
             <View style={{ gap: SPACING.lg, paddingHorizontal: SPACING.sm, paddingBottom: SPACING.lg }}>
               {remove.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
               {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
-              {hasCards ? (
-                <CardToolbar
-                  search={search}
-                  onSearchChange={setSearch}
-                  searchPlaceholder={t("storage.searchCardsPlaceholder")}
-                  searchAccessibilityLabel={t("storage.searchCardsPlaceholder")}
-                  activeSortAndFilterCount={activeSortAndFilterCount}
-                  onOpenViewOptions={() => setViewOptionsOpen(true)}
-                />
-              ) : null}
             </View>
           }
           ListEmptyComponent={
@@ -309,6 +312,7 @@ export default function StorageLocationScreen() {
             );
           }}
         />
+        </>
       )}
       <ExportSheet
         visible={exportOpen}
