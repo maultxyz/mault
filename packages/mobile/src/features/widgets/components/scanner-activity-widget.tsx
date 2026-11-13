@@ -7,6 +7,7 @@ import {
   foregroundStyle,
   lineLimit,
   minimumScaleFactor,
+  monospacedDigit,
   widgetURL,
 } from "@expo/ui/swift-ui/modifiers";
 import { createWidget, type WidgetEnvironment } from "expo-widgets";
@@ -22,6 +23,8 @@ const scannerActivityLayout = (props: ScannerActivityWidgetProps, environment: W
   const statusSymbol = isScanning ? "dot.radiowaves.left.and.right" : props.activityState === "unknown" ? "questionmark.circle" : "pause.circle";
   const secondary = foregroundStyle({ type: "hierarchical", style: "secondary" });
   const clearBackground = containerBackground("clear", "widget");
+  const progress = props.activeScannerProgress ?? [];
+  const alertColor = environment.colorScheme === "dark" ? "#fbbf24" : "#b45309";
 
   if (family === "accessoryInline") {
     return (
@@ -44,7 +47,9 @@ const scannerActivityLayout = (props: ScannerActivityWidgetProps, environment: W
           </Text>
         ) : null}
         <Text modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(isReady ? 1 : 2)]}>
-          {isReady ? (isScanning ? props.scansToday : props.lastScan || props.updated) : props.message}
+          {isReady
+            ? props.alert || (isScanning ? progress[0] || props.scansToday : props.lastScan || props.updated)
+            : props.message}
         </Text>
       </VStack>
     );
@@ -67,11 +72,28 @@ const scannerActivityLayout = (props: ScannerActivityWidgetProps, environment: W
           {isScanning && props.activeScanners[0] ? (
             <Text modifiers={[font({ textStyle: "footnote" }), lineLimit(1)]}>{props.activeScanners[0]}</Text>
           ) : null}
+          {isScanning && progress[0] ? (
+            <Text modifiers={[font({ textStyle: "caption", weight: "semibold" }), monospacedDigit(), lineLimit(1), minimumScaleFactor(0.7)]}>
+              {progress[0]}
+            </Text>
+          ) : null}
           {isScanning && isMedium && props.activeScanners[1] ? (
-            <Text modifiers={[font({ textStyle: "footnote" }), lineLimit(1)]}>{props.activeScanners[1]}</Text>
+            <Text modifiers={[font({ textStyle: "footnote" }), lineLimit(1)]}>
+              {progress[1] ? `${props.activeScanners[1]} · ${progress[1]}` : props.activeScanners[1]}
+            </Text>
           ) : null}
           {isScanning && isMedium && props.activeScanners[2] ? (
-            <Text modifiers={[font({ textStyle: "footnote" }), lineLimit(1)]}>{props.activeScanners[2]}</Text>
+            <Text modifiers={[font({ textStyle: "footnote" }), lineLimit(1)]}>
+              {progress[2] ? `${props.activeScanners[2]} · ${progress[2]}` : props.activeScanners[2]}
+            </Text>
+          ) : null}
+          {props.alert ? (
+            <HStack spacing={4}>
+              <Image systemName="exclamationmark.triangle.fill" size={11} color={alertColor} modifiers={[accessibilityHidden()]} />
+              <Text modifiers={[font({ textStyle: "caption", weight: "semibold" }), foregroundStyle(alertColor), lineLimit(isMedium ? 1 : 2)]}>
+                {props.alert}
+              </Text>
+            </HStack>
           ) : null}
           {isScanning && (isMedium ? props.moreScannersAfterList : props.moreScannersAfterFirst) ? (
             <Text modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(1)]}>
@@ -82,10 +104,12 @@ const scannerActivityLayout = (props: ScannerActivityWidgetProps, environment: W
             <Text modifiers={[font({ textStyle: "footnote" }), secondary, lineLimit(2)]}>{props.message}</Text>
           ) : null}
           <Text modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(1)]}>{props.scansToday}</Text>
-          {props.lastScan ? (
+          {props.lastScan && (isMedium || !isScanning) ? (
             <Text modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(1)]}>{props.lastScan}</Text>
           ) : null}
-          <Text modifiers={[font({ textStyle: "caption2" }), secondary, lineLimit(1)]}>{props.updated}</Text>
+          {isMedium || !props.alert ? (
+            <Text modifiers={[font({ textStyle: "caption2" }), secondary, lineLimit(1)]}>{props.updated}</Text>
+          ) : null}
         </VStack>
       ) : (
         <Text modifiers={[font({ textStyle: "footnote" }), secondary, lineLimit(3)]}>{props.message}</Text>

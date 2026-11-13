@@ -19,7 +19,6 @@ import { ALERT_BADGE_MAX } from "@/lib/constants/stream";
 import { BADGE_RADIUS, CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import {
   TOP_BAR_BRAND_ICON_SIZE,
-  TOP_BAR_BRAND_SIZE,
   TOP_BAR_HEIGHT,
   MIN_TOUCH_TARGET,
   TOP_BAR_INITIAL_SIZE,
@@ -101,19 +100,7 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
         paddingHorizontal: SPACING.sm + 2,
       }}
     >
-      <View
-        style={{
-          width: TOP_BAR_BRAND_SIZE,
-          height: TOP_BAR_BRAND_SIZE,
-          borderRadius: RADIUS.md,
-          overflow: "hidden",
-          backgroundColor: colors.primary,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <BrandIcon size={TOP_BAR_BRAND_ICON_SIZE} color={colors.primaryForeground} />
-      </View>
+      <BrandIcon size={TOP_BAR_BRAND_ICON_SIZE} color={colors.foreground} />
       {hasSeveralOrganizations ? (
         <View style={{ width: 1, height: 16, marginHorizontal: SPACING.xs, backgroundColor: colors.border }} />
       ) : null}

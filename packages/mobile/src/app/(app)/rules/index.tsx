@@ -51,7 +51,7 @@ export default function RulesScreen() {
           icon="collections"
           title={t("rules.noCollectionTitle")}
           description={t("rules.noCollectionDescription")}
-          action={<Button variant="secondary" label={t("scan.chooseCollection")} onPress={() => router.navigate("/")} />}
+          action={<Button variant="secondary" label={t("scan.chooseCollection")} onPress={() => router.navigate("/collections")} />}
         />
       ) : !collection.game ? (
         <Callout tone="warning" title={t("rules.noGameTitle")} description={t("rules.noGameDescription")} />

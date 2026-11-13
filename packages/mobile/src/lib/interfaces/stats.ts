@@ -7,6 +7,7 @@ import type {
   StatsReport,
 } from "@magic-vault/shared";
 import type { STATS_ACTIVITY_METRICS, STATS_COLLECTION_METRICS } from "@/lib/constants/stats";
+import type { IconName } from "@/lib/interfaces/ui";
 
 export type StatsActivityMetric = (typeof STATS_ACTIVITY_METRICS)[number];
 export type StatsCollectionMetric = (typeof STATS_COLLECTION_METRICS)[number];
@@ -15,6 +16,7 @@ export interface ColumnChartDatum {
   key: string;
   label: string;
   value: number;
+  detail?: string;
 }
 
 export interface ColumnChartProps {
@@ -22,6 +24,31 @@ export interface ColumnChartProps {
   formatValue: (value: number) => string;
   accessibilityLabel: string;
   endLabel?: string;
+  formatColumnValue?: (value: number) => string;
+  columnGap?: number;
+  labelEachColumn?: boolean;
+}
+
+export interface AreaChartProps {
+  data: ColumnChartDatum[];
+  formatValue: (value: number) => string;
+  formatAxisValue: (value: number) => string;
+  accessibilityLabel: string;
+  endLabel?: string;
+}
+
+export interface DonutSegment {
+  key: string;
+  label: string;
+  value: number;
+  color: string;
+}
+
+export interface DonutChartProps {
+  segments: DonutSegment[];
+  centerValue: string;
+  centerLabel: string;
+  formatShare: (value: number, total: number) => string;
 }
 
 export interface BarListItem {
@@ -36,7 +63,20 @@ export interface BarListItem {
 
 export interface BarListProps {
   items: BarListItem[];
+  collapsedCount?: number;
 }
+
+export interface StatsInsight {
+  key: string;
+  icon: IconName;
+  title: string;
+  detail: string;
+}
+
+export interface StatsHighlightsProps {
+  insights: StatsInsight[];
+}
+
 
 export interface StatsSectionProps {
   title: string;

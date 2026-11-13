@@ -1,26 +1,38 @@
+import { cardOfTheDayWidget } from "@/features/widgets/components/card-of-the-day-widget";
 import { collectionValueWidget } from "@/features/widgets/components/collection-value-widget";
 import { notificationsWidget } from "@/features/widgets/components/notifications-widget";
 import { scannerActivityWidget } from "@/features/widgets/components/scanner-activity-widget";
+import { topCardsWidget } from "@/features/widgets/components/top-cards-widget";
+import { totalCardsWidget } from "@/features/widgets/components/total-cards-widget";
+import { WIDGET_COLLECTION_PARAMETER } from "@/lib/constants/widgets";
 import type { HomeWidgetSnapshots } from "@/lib/interfaces/widgets";
 
-let lastCollectionValueSnapshot = "";
-let lastNotificationsSnapshot = "";
-let lastScannerActivityTimeline = "";
+const lastSnapshots = new Map<string, string>();
+
+function changedSince(key: string, value: unknown): boolean {
+  const serialized = JSON.stringify(value);
+  if (lastSnapshots.get(key) === serialized) return false;
+  lastSnapshots.set(key, serialized);
+  return true;
+}
 
 export function updateHomeWidgets(snapshots: HomeWidgetSnapshots): void {
-  const collectionValueSnapshot = JSON.stringify(snapshots.collectionValue);
-  if (collectionValueSnapshot !== lastCollectionValueSnapshot) {
-    lastCollectionValueSnapshot = collectionValueSnapshot;
-    collectionValueWidget.updateSnapshot(snapshots.collectionValue);
+  const { collectionOptions } = snapshots;
+  if (collectionOptions.other.length > 0 && changedSince("collectionOptions", collectionOptions)) {
+    collectionValueWidget.setConfigurationParameterEnum(WIDGET_COLLECTION_PARAMETER, collectionOptions.collectionValue);
+    for (const widget of [totalCardsWidget, topCardsWidget, cardOfTheDayWidget]) {
+      widget.setConfigurationParameterEnum(WIDGET_COLLECTION_PARAMETER, collectionOptions.other);
+    }
   }
-  const notificationsSnapshot = JSON.stringify(snapshots.notifications);
-  if (notificationsSnapshot !== lastNotificationsSnapshot) {
-    lastNotificationsSnapshot = notificationsSnapshot;
-    notificationsWidget.updateSnapshot(snapshots.notifications);
+  const { collectionValue, totalCards, topCards, cardOfTheDay } = snapshots;
+  if (collectionValue && changedSince("collectionValue", collectionValue)) {
+    collectionValueWidget.updateSnapshot(collectionValue);
   }
-  const scannerActivityTimeline = JSON.stringify(snapshots.scannerActivity);
-  if (scannerActivityTimeline !== lastScannerActivityTimeline) {
-    lastScannerActivityTimeline = scannerActivityTimeline;
+  if (totalCards && changedSince("totalCards", totalCards)) totalCardsWidget.updateSnapshot(totalCards);
+  if (topCards && changedSince("topCards", topCards)) topCardsWidget.updateSnapshot(topCards);
+  if (cardOfTheDay && changedSince("cardOfTheDay", cardOfTheDay)) cardOfTheDayWidget.updateSnapshot(cardOfTheDay);
+  if (changedSince("notifications", snapshots.notifications)) notificationsWidget.updateSnapshot(snapshots.notifications);
+  if (changedSince("scannerActivity", snapshots.scannerActivity)) {
     scannerActivityWidget.updateTimeline(snapshots.scannerActivity);
   }
 }

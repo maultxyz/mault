@@ -40,7 +40,7 @@ GRANT USAGE ON SCHEMA public TO authenticated;
 
 DO $$
 DECLARE
-  read_only_tables text[] := ARRAY['cards', 'printing_mark_references', 'card_prices', 'games', 'announcements', 'org_daily_scan_usage', 'org_billing', 'plan_settings', 'device_alerts', 'org_inventory_snapshots'];
+  read_only_tables text[] := ARRAY['cards', 'printing_mark_references', 'card_prices', 'games', 'announcements', 'org_daily_scan_usage', 'org_billing', 'plan_settings', 'device_alerts', 'org_inventory_snapshots', 'collection_value_snapshots'];
   read_write_tables text[] := ARRAY[
     'bin_sets', 'preset_workflows', 'preset_workflow_steps', 'bins', 'bin_routes', 'bin_heights', 'module_configs', 'feeder_configs',
     'collections', 'collection_cards', 'unmatched_cards', 'org_settings',

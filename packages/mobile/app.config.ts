@@ -17,6 +17,34 @@ const optionalEnv = (key: string): string | undefined =>
 
 const easProjectId = env("EAS_PROJECT_ID");
 
+const collectionWidgetConfiguration = {
+  title: "Collection",
+  description: "Show all collections or pick one.",
+  parameters: {
+    collection: {
+      title: "Collection",
+      type: "enum" as const,
+      dynamic: true,
+      values: [{ name: "All collections", value: "all" }],
+      default: "all",
+    },
+  },
+};
+
+const collectionValueWidgetConfiguration = {
+  ...collectionWidgetConfiguration,
+  description: "Show all collections, your best performing one, or pick one.",
+  parameters: {
+    collection: {
+      ...collectionWidgetConfiguration.parameters.collection,
+      values: [
+        { name: "All collections", value: "all" },
+        { name: "Best performing", value: "top" },
+      ],
+    },
+  },
+};
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Mault",
@@ -70,7 +98,43 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           {
             name: "CollectionValue",
             displayName: "Collection value",
-            description: "Your collection's total value and card count.",
+            description: "Value of all collections, your best performing one, or one you pick, and how much it changed since the last day.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
+              configuration: collectionValueWidgetConfiguration,
+            },
+          },
+          {
+            name: "TotalCards",
+            displayName: "Total cards",
+            description: "How many cards are in all collections or one.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
+              configuration: collectionWidgetConfiguration,
+            },
+          },
+          {
+            name: "TopCards",
+            displayName: "Top cards",
+            description: "The most valuable card of each collection, or the top cards of one collection.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium"],
+              configuration: collectionWidgetConfiguration,
+            },
+          },
+          {
+            name: "CardOfTheDay",
+            displayName: "Card of the day",
+            description: "A random card or two from your collections, new every day. Great for deck ideas.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium"],
+              configuration: collectionWidgetConfiguration,
+            },
+          },
+          {
+            name: "CardReview",
+            displayName: "Card review",
+            description: "Accept scans that need review or save them for later.",
             ios: {
               supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
             },
@@ -86,7 +150,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           {
             name: "ScannerActivity",
             displayName: "Scanners",
-            description: "Which scanners are running, today's scans and the last card scanned.",
+            description: "Which scanners are running, their progress and scan rate, and any sorter errors.",
             ios: {
               supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
             },

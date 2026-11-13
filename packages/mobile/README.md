@@ -47,6 +47,8 @@ Release builds: `pnpm build:ios:preview` (ad hoc install on registered devices) 
 
 Without an Apple Developer Program membership, `pnpm build:ios:sim` makes an iOS Simulator build (no signing, no Apple account). Drag the downloaded `.app` onto a simulator on a Mac, or run `eas build:run -p ios --latest`. The simulator has no camera or Bluetooth, so scanning and sorter connections can't be tested there.
 
+Local builds (`pnpm ios`) reuse an existing `ios/` folder, so after a native change in `app.config.ts` (plugins, widgets, permissions) regenerate it with `npx expo prebuild -p ios --clean` first, or new targets such as the widget extension are missing.
+
 ## Testing on Android (no Apple account needed)
 
 Android builds need no paid account and run on Windows.

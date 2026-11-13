@@ -7,10 +7,16 @@ import { AppText } from "@/components/ui/app-text";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
+import { HomeHero } from "@/features/home/components/home-hero";
 import { BarList } from "@/features/stats/components/bar-list";
 import { ColumnChart } from "@/features/stats/components/column-chart";
+import { HomeActivityFigure } from "@/features/home/components/home-activity-figure";
+import { AreaChart } from "@/features/stats/components/area-chart";
+import { DonutChart } from "@/features/stats/components/donut-chart";
+import { StatsHighlights } from "@/features/stats/components/stats-highlights";
 import { StatsSection } from "@/features/stats/components/stats-section";
-import { percent, toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
+import { foldBreakdownEntries, heroSparklineValues, percent, toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
+import { activityAverage, buildStatsInsights } from "@/features/stats/lib/stats-insights";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
@@ -18,13 +24,18 @@ import {
   STATS_ACTIVITY_METRICS,
   STATS_BAR_LIST_LIMIT,
   STATS_COLLECTION_METRICS,
+  STATS_HISTOGRAM_COLUMN_GAP,
+  STATS_LIST_COLLAPSED_COUNT,
+  STATS_SPLIT_MAX_SEGMENTS,
   STATS_TOP_CARD_COLUMNS,
+  STATS_TOP_CARD_RANK_BADGE_SIZE,
 } from "@/lib/constants/stats";
-import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import { formatDay } from "@/lib/dates";
 import type {
   StatsActivityMetric,
   StatsActivitySectionProps,
+  StatsBreakdownEntry,
   StatsCollectionMetric,
   StatsCollectionsSectionProps,
   StatsDashboardProps,
@@ -37,6 +48,8 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
   const pricing = usePricing();
   const [metric, setMetric] = useState<StatsActivityMetric>("count");
   const isWeekly = report.bucket === "week";
+  const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
+  const compact = new Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 });
 
   return (
     <StatsSection
@@ -51,7 +64,12 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
         />
       }
     >
-      <ColumnChart
+      <View style={{ flexDirection: "row", gap: SPACING.xl }}>
+        <HomeActivityFigure value={number.format(report.totals.scansInRange)} label={t("stats.activity.total")} />
+        <HomeActivityFigure value={number.format(activityAverage(report))} label={t(`stats.activity.average.${report.bucket}`)} />
+        <HomeActivityFigure value={pricing.format(report.totals.valueAddedInRange)} label={t("stats.activity.metrics.value")} />
+      </View>
+      <AreaChart
         accessibilityLabel={t(`stats.activity.metrics.${metric}`)}
         data={report.activity.map((bucket) => ({
           key: bucket.start,
@@ -61,6 +79,9 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
           value: metric === "count" ? bucket.count : bucket.value,
         }))}
         formatValue={(value) => (metric === "count" ? value.toLocaleString(i18n.language) : pricing.format(value))}
+        formatAxisValue={(value) =>
+          metric === "count" ? compact.format(value) : pricing.format(value)
+        }
         endLabel={isWeekly ? t("stats.activity.thisWeek") : t("stats.activity.today")}
       />
     </StatsSection>
@@ -96,6 +117,7 @@ function StatsCollectionsSection({ collections, onSelectCollection }: StatsColle
           secondary: t("stats.compare.share", { percent: percent(row[metric], total) }),
           onPress: () => onSelectCollection(row.guid),
         }))}
+        collapsedCount={STATS_LIST_COLLAPSED_COUNT}
       />
     </StatsSection>
   );
@@ -110,11 +132,11 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
   return (
     <StatsSection title={t("stats.topCards.title")}>
       <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: SPACING.md, rowGap: SPACING.lg }}>
-        {cards.map((entry) => (
+        {cards.map((entry, index) => (
           <Pressable
             key={entry.scanId}
             accessibilityRole="button"
-            accessibilityLabel={entry.card.name}
+            accessibilityLabel={`${t("stats.topCards.rank", { rank: index + 1 })}, ${entry.card.name}`}
             onPress={() =>
               router.push({ pathname: "/card/[scanId]", params: { scanId: entry.scanId, guid: entry.collectionGuid } })
             }
@@ -138,6 +160,30 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
                 style={{ width: "100%", height: "100%" }}
                 contentFit="cover"
               />
+              <View
+                style={{
+                  position: "absolute",
+                  top: SPACING.xs,
+                  left: SPACING.xs,
+                  minWidth: STATS_TOP_CARD_RANK_BADGE_SIZE,
+                  height: STATS_TOP_CARD_RANK_BADGE_SIZE,
+                  paddingHorizontal: SPACING.xs,
+                  borderRadius: RADIUS.full,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: index === 0 ? colors.primary : colors.background,
+                  borderWidth: index === 0 ? 0 : 1,
+                  borderColor: colors.border,
+                }}
+              >
+                <AppText
+                  size="xs"
+                  weight="bold"
+                  style={{ color: index === 0 ? colors.primaryForeground : colors.foreground, fontVariant: ["tabular-nums"] }}
+                >
+                  {index + 1}
+                </AppText>
+              </View>
             </View>
             <View>
               <AppText size="sm" weight="semibold" numberOfLines={1}>
@@ -159,12 +205,14 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
 export function StatsDashboard({ report, onSelectCollection }: StatsDashboardProps) {
   const { t, i18n } = useTranslation();
   const pricing = usePricing();
+  const colors = useTheme();
   const { totals } = report;
   const breakdown = report.breakdown && report.breakdown.totalCount > 0 ? toStatsBreakdown(report.breakdown) : null;
   const isOrg = report.scope === "org";
   const number = (value: number) => value.toLocaleString(i18n.language);
+  const insights = buildStatsInsights(report, t, pricing.format, i18n.language);
 
-  const priceItems = report.priceBuckets.map((bucket) => ({
+  const priceColumns = report.priceBuckets.map((bucket) => ({
     key: bucket.key,
     label:
       bucket.max == null
@@ -173,39 +221,61 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
           ? t("stats.prices.under", { max: pricing.format(bucket.max) })
           : t("stats.prices.between", { min: pricing.format(bucket.min), max: pricing.format(bucket.max) }),
     value: bucket.count,
-    display: number(bucket.count),
-    secondary: pricing.format(bucket.value),
+    detail: pricing.format(bucket.value),
   }));
 
+  const renderSplit = (entries: StatsBreakdownEntry[]) => (
+    <DonutChart
+      segments={foldBreakdownEntries(entries, STATS_SPLIT_MAX_SEGMENTS, t("stats.other")).map((entry) => ({
+        key: entry.key,
+        label: entry.label,
+        value: entry.count,
+        color: entry.color ?? colors.mutedForeground,
+      }))}
+      centerValue={number(totals.cardCount)}
+      centerLabel={t("stats.tiles.cards")}
+      formatShare={(value, total) => t("stats.compare.share", { percent: percent(value, total) })}
+    />
+  );
+
   return (
-    <View style={{ gap: SPACING.xxl }}>
+    <View style={{ gap: SPACING.xl }}>
+      <HomeHero
+        label={t("stats.tiles.totalValue")}
+        value={pricing.format(totals.totalValue)}
+        change={null}
+        changeCaption=""
+        sparklineValues={heroSparklineValues(report)}
+        stats={[
+          { label: t("stats.tiles.cards"), value: number(totals.cardCount) },
+          { label: t("stats.tiles.unique"), value: number(totals.uniqueCount) },
+          { label: t("stats.tiles.avgValue"), value: pricing.format(totals.avgValue) },
+        ]}
+      />
+
+      <StatsHighlights insights={insights} />
+
       <StatGroup heading={t("stats.tiles.heading")}>
         <StatTile
-          label={t("stats.tiles.totalValue")}
-          value={pricing.format(totals.totalValue)}
-          hint={isOrg ? t("stats.tiles.collectionCount", { count: totals.collectionCount }) : undefined}
-        />
-        <StatTile
-          label={t("stats.tiles.cards")}
-          value={number(totals.cardCount)}
-          hint={t("stats.tiles.uniqueHint", { count: totals.uniqueCount })}
-        />
-        <StatTile
-          label={t("stats.tiles.avgValue")}
-          value={pricing.format(totals.avgValue)}
-          hint={t("stats.tiles.pricedHint", { count: totals.priceableCount })}
-        />
-        <StatTile
+          icon="scan"
           label={t(`stats.tiles.scanned.${report.range}`)}
           value={number(totals.scansInRange)}
           hint={t("stats.tiles.valueAddedHint", { value: pricing.format(totals.valueAddedInRange) })}
         />
         <StatTile
+          icon="coins"
+          label={t("stats.tiles.priced")}
+          value={number(totals.priceableCount)}
+          hint={t("stats.tiles.shareHint", { percent: percent(totals.priceableCount, totals.cardCount) })}
+        />
+        <StatTile
+          icon="sparkles"
           label={t("stats.tiles.foils")}
           value={number(totals.foilCount)}
           hint={t("stats.tiles.shareHint", { percent: percent(totals.foilCount, totals.cardCount) })}
         />
         <StatTile
+          icon="help"
           label={t("stats.tiles.needsReview")}
           value={number(totals.needsReviewCount)}
           hint={t("stats.tiles.correctedHint", { count: totals.correctedCount })}
@@ -214,13 +284,34 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
 
       <StatsActivitySection report={report} />
 
+      <StatsTopCards cards={report.topCards} />
+
       {isOrg && report.collections.length > 1 ? (
         <StatsCollectionsSection collections={report.collections} onSelectCollection={onSelectCollection} />
       ) : null}
 
       <StatsSection title={t("stats.prices.title")} description={t("stats.prices.description")}>
-        <BarList items={priceItems} />
+        <ColumnChart
+          data={priceColumns}
+          formatValue={(value) => t("stats.cardCount", { count: value })}
+          formatColumnValue={number}
+          accessibilityLabel={t("stats.prices.title")}
+          columnGap={STATS_HISTOGRAM_COLUMN_GAP}
+          labelEachColumn
+        />
       </StatsSection>
+
+      {breakdown && breakdown.rarities.length > 0 ? (
+        <StatsSection title={t("stats.rarities.title")} description={t("stats.rarities.description")}>
+          {renderSplit(breakdown.rarities)}
+        </StatsSection>
+      ) : null}
+
+      {breakdown && breakdown.colors.length > 0 ? (
+        <StatsSection title={t("stats.colors.title")} description={t("stats.colors.description")}>
+          {renderSplit(breakdown.colors)}
+        </StatsSection>
+      ) : null}
 
       {isOrg && report.games.length > 1 ? (
         <StatsSection title={t("stats.games.title")}>
@@ -232,6 +323,7 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
               display: pricing.format(game.totalValue),
               secondary: t("stats.cardCount", { count: game.cardCount }),
             }))}
+            collapsedCount={STATS_LIST_COLLAPSED_COUNT}
           />
         </StatsSection>
       ) : null}
@@ -246,36 +338,7 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
               display: pricing.format(set.value),
               secondary: t("stats.cardCount", { count: set.count }),
             }))}
-          />
-        </StatsSection>
-      ) : null}
-
-      {breakdown && breakdown.rarities.length > 0 ? (
-        <StatsSection title={t("stats.rarities.title")}>
-          <BarList
-            items={breakdown.rarities.map((rarity) => ({
-              key: rarity.key,
-              label: rarity.label,
-              value: rarity.count,
-              display: number(rarity.count),
-              secondary: t("stats.compare.share", { percent: percent(rarity.count, totals.cardCount) }),
-              swatch: rarity.color,
-            }))}
-          />
-        </StatsSection>
-      ) : null}
-
-      {breakdown && breakdown.colors.length > 0 ? (
-        <StatsSection title={t("stats.colors.title")}>
-          <BarList
-            items={breakdown.colors.map((color) => ({
-              key: color.key,
-              label: color.label,
-              value: color.count,
-              display: number(color.count),
-              secondary: t("stats.compare.share", { percent: percent(color.count, totals.cardCount) }),
-              swatch: color.color,
-            }))}
+            collapsedCount={STATS_LIST_COLLAPSED_COUNT}
           />
         </StatsSection>
       ) : null}
@@ -289,11 +352,10 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
               value: foil.count,
               display: number(foil.count),
             }))}
+            collapsedCount={STATS_LIST_COLLAPSED_COUNT}
           />
         </StatsSection>
       ) : null}
-
-      <StatsTopCards cards={report.topCards} />
     </View>
   );
 }
