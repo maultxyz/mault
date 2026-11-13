@@ -16,6 +16,7 @@ import {
   devices,
   fulfilmentOrders,
   games,
+  importTemplates,
   intakeLots,
   moduleConfigs,
   notificationRules,
@@ -733,6 +734,40 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
             and(eq(shopCatalogs.guid, guid), eq(shopCatalogs.isDeleted, true)),
           )
           .returning({ orgId: shopCatalogs.orgId });
+        return row ? restored(row.orgId) : NOT_FOUND;
+      },
+    },
+    importTemplate: {
+      async list() {
+        const rows = await db
+          .select({
+            guid: importTemplates.guid,
+            name: importTemplates.name,
+            orgId: importTemplates.orgId,
+            updatedAt: importTemplates.updatedAt,
+          })
+          .from(importTemplates)
+          .where(eq(importTemplates.isDeleted, true));
+        return rows.map((r) => ({
+          type: "importTemplate",
+          guid: r.guid,
+          name: r.name,
+          detail: null,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const [row] = await tx
+          .update(importTemplates)
+          .set({ isDeleted: false })
+          .where(
+            and(
+              eq(importTemplates.guid, guid),
+              eq(importTemplates.isDeleted, true),
+            ),
+          )
+          .returning({ orgId: importTemplates.orgId });
         return row ? restored(row.orgId) : NOT_FOUND;
       },
     },

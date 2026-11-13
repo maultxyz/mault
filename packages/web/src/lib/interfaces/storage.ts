@@ -306,6 +306,7 @@ export interface StoragePickListFormProps {
   initialDecklist: string;
   onSubmit: (decklist: string) => void;
   onCancel?: () => void;
+  onImportCsv?: () => void;
 }
 
 export interface StoragePickListRowsProps {

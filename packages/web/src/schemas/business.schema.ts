@@ -145,6 +145,7 @@ export const orderEditSchema = z.object({
         collectorNumber: z.string().nullable().optional(),
         condition: z.enum(CARD_CONDITIONS).nullable().optional(),
         isFoil: z.boolean().nullable().optional(),
+        language: z.string().nullable().optional(),
         unitPrice: z.number().nullable().optional(),
         orderRef: z.string().nullable().optional(),
         quantity: orderLineQuantity,

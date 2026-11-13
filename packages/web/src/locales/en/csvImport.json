@@ -1,0 +1,84 @@
+{
+  "contents": {
+    "label": "File contents",
+    "placeholder": "Paste CSV/TSV or pick a file, or paste a decklist"
+  },
+  "fallback": {
+    "decklist_one": "Read as a list: {{count}} card name.",
+    "decklist_other": "Read as a list: {{count}} unique cards.",
+    "unrecognized": "No table detected. Paste CSV text with headers or a decklist."
+  },
+  "composition": {
+    "label": "Rows form orders by",
+    "reference": "Reference column",
+    "masterdetail": "Master rows then item rows",
+    "single": "Single order"
+  },
+  "column": {
+    "assign": "Assign column {{column}}",
+    "ignore": "Ignore",
+    "orderFields": "Order fields",
+    "itemFields": "Item fields",
+    "required": "required"
+  },
+  "fields": {
+    "orderRef": "Order reference",
+    "customerName": "Customer name",
+    "customerContact": "Customer contact",
+    "shippingAddress": "Shipping address",
+    "orderNote": "Order note",
+    "carrier": "Carrier",
+    "trackingNumber": "Tracking number",
+    "labelUrl": "Label URL",
+    "shippedDate": "Shipped date",
+    "lineNote": "Line note",
+    "storageLocation": "Storage location",
+    "name": "Card name",
+    "setCode": "Set code",
+    "setName": "Set name",
+    "collectorNumber": "Collector number",
+    "condition": "Condition",
+    "foil": "Foil",
+    "quantity": "Quantity",
+    "unitPrice": "Unit price",
+    "language": "Language"
+  },
+  "validation": {
+    "missingFields": "Required fields without a column: {{fields}}"
+  },
+  "orders": {
+    "title": "Orders",
+    "empty": "No orders yet. Map the card name column first.",
+    "referencePlaceholder": "Order name",
+    "referenceLabel": "Name of order {{index}}",
+    "lineCount_one": "{{count}} line",
+    "lineCount_other": "{{count}} lines",
+    "quantity_one": "{{count}} card",
+    "quantity_other": "{{count}} cards",
+    "revenue": "Value {{value}}",
+    "skippedRows_one": "{{count}} row skipped",
+    "skippedRows_other": "{{count}} rows skipped",
+    "emptyOrders_one": "{{count}} order without items dropped",
+    "emptyOrders_other": "{{count}} orders without items dropped",
+    "conflicts_one": "{{count}} conflicting value kept first",
+    "conflicts_other": "{{count}} conflicting values kept first",
+    "nameLabel": "Order name"
+  },
+  "picks": {
+    "entries_one": "{{count}} unique card",
+    "entries_other": "{{count}} unique cards",
+    "noEntries": "No cards found yet."
+  },
+  "templates": {
+    "label": "Template",
+    "none": "No template",
+    "save": "Save as template",
+    "namePlaceholder": "Template name",
+    "saved": "Template saved.",
+    "saveFailed": "Could not save the template.",
+    "builtin": {
+      "shopify": "Shopify (built-in)",
+      "tcgplayer": "TCGplayer (built-in)"
+    }
+  }
+}

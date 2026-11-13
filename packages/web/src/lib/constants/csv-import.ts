@@ -1,0 +1,1 @@
+export const CSV_IMPORT_PREVIEW_ROWS = 10;

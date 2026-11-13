@@ -1,0 +1,84 @@
+{
+  "contents": {
+    "label": "Dateiinhalt",
+    "placeholder": "CSV/TSV einfügen oder Datei wählen, oder eine Deckliste einfügen"
+  },
+  "fallback": {
+    "decklist_one": "Als Liste gelesen: {{count}} Kartenname.",
+    "decklist_other": "Als Liste gelesen: {{count}} verschiedene Karten.",
+    "unrecognized": "Keine Tabelle erkannt. Füge CSV-Text mit Kopfzeilen oder eine Deckliste ein."
+  },
+  "composition": {
+    "label": "Zeilen bilden Bestellungen durch",
+    "reference": "Referenzspalte",
+    "masterdetail": "Kopfzeilen dann Positionszeilen",
+    "single": "Eine Bestellung"
+  },
+  "column": {
+    "assign": "Spalte {{column}} zuordnen",
+    "ignore": "Ignorieren",
+    "orderFields": "Bestellfelder",
+    "itemFields": "Positionsfelder",
+    "required": "erforderlich"
+  },
+  "fields": {
+    "orderRef": "Bestellreferenz",
+    "customerName": "Kundenname",
+    "customerContact": "Kundenkontakt",
+    "shippingAddress": "Lieferadresse",
+    "orderNote": "Bestellnotiz",
+    "carrier": "Versanddienst",
+    "trackingNumber": "Sendungsnummer",
+    "labelUrl": "Label-URL",
+    "shippedDate": "Versanddatum",
+    "lineNote": "Positionsnotiz",
+    "storageLocation": "Lagerort",
+    "name": "Kartenname",
+    "setCode": "Set-Code",
+    "setName": "Set-Name",
+    "collectorNumber": "Sammlernummer",
+    "condition": "Zustand",
+    "foil": "Foil",
+    "quantity": "Anzahl",
+    "unitPrice": "Einzelpreis",
+    "language": "Sprache"
+  },
+  "validation": {
+    "missingFields": "Pflichtfelder ohne Spalte: {{fields}}"
+  },
+  "orders": {
+    "title": "Bestellungen",
+    "empty": "Noch keine Bestellungen. Ordne zuerst die Kartenname-Spalte zu.",
+    "referencePlaceholder": "Bestellname",
+    "referenceLabel": "Name von Bestellung {{index}}",
+    "lineCount_one": "{{count}} Position",
+    "lineCount_other": "{{count}} Positionen",
+    "quantity_one": "{{count}} Karte",
+    "quantity_other": "{{count}} Karten",
+    "revenue": "Wert {{value}}",
+    "skippedRows_one": "{{count}} Zeile übersprungen",
+    "skippedRows_other": "{{count}} Zeilen übersprungen",
+    "emptyOrders_one": "{{count}} Bestellung ohne Positionen verworfen",
+    "emptyOrders_other": "{{count}} Bestellungen ohne Positionen verworfen",
+    "conflicts_one": "{{count}} abweichender Wert, erster behalten",
+    "conflicts_other": "{{count}} abweichende Werte, erster behalten",
+    "nameLabel": "Bestellname"
+  },
+  "picks": {
+    "entries_one": "{{count}} verschiedene Karte",
+    "entries_other": "{{count}} verschiedene Karten",
+    "noEntries": "Noch keine Karten gefunden."
+  },
+  "templates": {
+    "label": "Vorlage",
+    "none": "Keine Vorlage",
+    "save": "Als Vorlage speichern",
+    "namePlaceholder": "Vorlagenname",
+    "saved": "Vorlage gespeichert.",
+    "saveFailed": "Vorlage konnte nicht gespeichert werden.",
+    "builtin": {
+      "shopify": "Shopify (integriert)",
+      "tcgplayer": "TCGplayer (integriert)"
+    }
+  }
+}

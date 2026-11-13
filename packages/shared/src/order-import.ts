@@ -23,14 +23,15 @@ import { parseDecklist } from "./pick-list";
 type OrderField = keyof typeof ORDER_IMPORT_HEADER_ALIASES;
 
 export function parseCsvRows(text: string): string[][] {
+  const source = text.startsWith("\uFEFF") ? text.slice(1) : text;
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
   let inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i];
     if (inQuotes) {
-      if (char === '"' && text[i + 1] === '"') {
+      if (char === '"' && source[i + 1] === '"') {
         field += '"';
         i++;
       } else if (char === '"') {
@@ -46,7 +47,7 @@ export function parseCsvRows(text: string): string[][] {
       row.push(field);
       field = "";
     } else if (char === "\n" || char === "\r") {
-      if (char === "\r" && text[i + 1] === "\n") i++;
+      if (char === "\r" && source[i + 1] === "\n") i++;
       row.push(field);
       rows.push(row);
       row = [];
@@ -62,7 +63,7 @@ export function parseCsvRows(text: string): string[][] {
   return rows.filter((r) => r.some((cell) => cell.trim() !== ""));
 }
 
-function cleanText(value: string | undefined): string | null {
+export function cleanText(value: string | undefined): string | null {
   const text = value?.trim().slice(0, ORDER_LINE_TEXT_MAX_LENGTH);
   return text ? text : null;
 }
@@ -80,7 +81,7 @@ export function conditionFromText(
   );
 }
 
-function foilFromText(value: string | null | undefined): boolean | null {
+export function foilFromText(value: string | null | undefined): boolean | null {
   const text = value?.trim();
   if (!text) return null;
   if (/^(true|yes|y|1)$/i.test(text)) return true;
@@ -90,13 +91,13 @@ function foilFromText(value: string | null | undefined): boolean | null {
   return null;
 }
 
-function parsePrice(value: string | undefined): number | null {
+export function parsePrice(value: string | undefined): number | null {
   if (!value) return null;
   const parsed = Number.parseFloat(value.replace(/[^0-9.-]/g, ""));
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 }
 
-function parseQuantity(value: string | undefined): number {
+export function parseQuantity(value: string | undefined): number {
   const parsed = Number.parseInt(value?.replace(/[^0-9]/g, "") ?? "", 10);
   if (!Number.isFinite(parsed) || parsed < 1) return 1;
   return Math.min(parsed, ORDER_LINE_QUANTITY_MAX);
@@ -110,7 +111,7 @@ function findColumn(headers: string[], aliases: readonly string[]): number {
   return -1;
 }
 
-function stripNameSuffix(value: string): string {
+export function stripNameSuffix(value: string): string {
   let name = value.trim();
   for (;;) {
     const next = name.replace(DECKLIST_PRINTING_SUFFIX_PATTERN, "").trim();
@@ -119,7 +120,7 @@ function stripNameSuffix(value: string): string {
   }
 }
 
-function splitShopifyName(value: string): {
+export function splitShopifyName(value: string): {
   name: string;
   condition: CardCondition | null;
   isFoil: boolean | null;
@@ -133,7 +134,7 @@ function splitShopifyName(value: string): {
   };
 }
 
-function detectSource(headers: string[]): OrderSource {
+export function detectSource(headers: string[]): OrderSource {
   if (headers.includes(SHOPIFY_ORDER_HEADERS.name)) return "shopify";
   if (headers.some((h) => TCGPLAYER_DETECT_HEADERS.includes(h))) {
     return "tcgplayer";
@@ -204,7 +205,7 @@ function parseMappedRows(headers: string[], rows: string[][]) {
   return { lines, skipped };
 }
 
-function looksLikeCsv(rows: string[][]): boolean {
+export function looksLikeCsv(rows: string[][]): boolean {
   if (rows.length < 2 || rows[0].length < 2) return false;
   const headers = rows[0].map((h) => h.trim().toLowerCase());
   return findColumn(headers, ORDER_IMPORT_HEADER_ALIASES.name) !== -1 ||
@@ -248,6 +249,7 @@ export function toOrderLineInput(line: OrderLine): OrderLineInput {
     collectorNumber: line.collectorNumber,
     condition: line.condition,
     isFoil: line.isFoil,
+    language: line.language,
     quantity: line.quantity,
     unitPrice: line.unitPrice,
     orderRef: line.orderRef,
@@ -262,6 +264,7 @@ export function orderLineIdentity(line: OrderLineInput): string {
     line.collectorNumber?.toLowerCase() ?? null,
     line.condition ?? null,
     line.isFoil ?? null,
+    line.language ?? null,
   ]);
 }
 

@@ -307,7 +307,8 @@
     "deleteTitle": "Supprimer cette préparation ?",
     "deleteDescription": "La fiche est supprimée. Les cartes déjà sorties du stock le restent.",
     "pickFirst": "Coche d'abord chaque carte sortie",
-    "pickAll": "Tout prélever"
+    "pickAll": "Tout prélever",
+    "importedName": "Commande importée {{index}}"
   },
   "cost": {
     "title": "Fixer le coût d'achat",
