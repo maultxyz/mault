@@ -4,6 +4,7 @@ import { refreshCardPrices } from "../src/lib/card-price-refresh";
 import { adapterEntriesForGameKeys } from "../src/lib/card-search/resolve";
 import { syncCardKingdomPrices } from "../src/lib/cardkingdom-price-sync";
 import { syncCardmarketPrices } from "../src/lib/cardmarket-price-sync";
+import { snapshotTrackedOrgCollectionValues } from "../src/lib/collection-value-snapshots";
 import {
   buildPriceSyncEmbed,
   postDiscordWebhook,
@@ -163,6 +164,12 @@ async function run(): Promise<boolean> {
     });
   } catch (err) {
     console.error("[sync-prices] Card price refresh failed:", err);
+    ok = false;
+  }
+  try {
+    await snapshotTrackedOrgCollectionValues(log);
+  } catch (err) {
+    console.error("[sync-prices] Collection value snapshots failed:", err);
     ok = false;
   }
   if (pulled) {

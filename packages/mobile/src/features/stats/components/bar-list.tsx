@@ -1,12 +1,19 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { BarListItem, BarListProps } from "@/lib/interfaces/stats";
 
-export function BarList({ items }: BarListProps) {
+export function BarList({ items, collapsedCount }: BarListProps) {
+  const { t } = useTranslation();
   const colors = useTheme();
+  const [isExpanded, setIsExpanded] = useState(false);
   if (items.length === 0) return null;
+  const canCollapse = collapsedCount != null && items.length > collapsedCount;
+  const visibleItems = canCollapse && !isExpanded ? items.slice(0, collapsedCount) : items;
   const max = Math.max(...items.map((item) => item.value), 0);
 
   const renderContent = (item: BarListItem) => (
@@ -38,7 +45,7 @@ export function BarList({ items }: BarListProps) {
           ) : null}
         </AppText>
       </View>
-      <View style={{ height: 6, borderRadius: RADIUS.full, backgroundColor: colors.muted, overflow: "hidden" }}>
+      <View style={{ height: 8, borderRadius: RADIUS.full, backgroundColor: colors.muted, overflow: "hidden" }}>
         <View
           style={{
             height: "100%",
@@ -53,7 +60,7 @@ export function BarList({ items }: BarListProps) {
 
   return (
     <View style={{ gap: SPACING.xs }}>
-      {items.map((item) =>
+      {visibleItems.map((item) =>
         item.onPress ? (
           <Pressable
             key={item.key}
@@ -76,6 +83,16 @@ export function BarList({ items }: BarListProps) {
           </View>
         ),
       )}
+      {canCollapse ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={isExpanded ? "collapse" : "expand"}
+          label={isExpanded ? t("stats.showLess") : t("stats.showAll", { count: items.length })}
+          onPress={() => setIsExpanded((value) => !value)}
+          style={{ alignSelf: "flex-start" }}
+        />
+      ) : null}
     </View>
   );
 }

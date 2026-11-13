@@ -23,10 +23,11 @@ import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { LIST_END_THRESHOLD, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import type { LibraryViewProps } from "@/lib/interfaces/library";
 import type { StorageLocationActionTarget } from "@/lib/interfaces/storage";
 import { absoluteUrl } from "@/lib/url";
 
-export default function StorageScreen() {
+export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
   const { t } = useTranslation();
   const pricing = usePricing();
   const colors = useTheme();
@@ -47,7 +48,7 @@ export default function StorageScreen() {
       contentStartsWithList
       header={
         <PageHeader
-          title={t("storage.title")}
+          title={title}
           subtitle={t("storage.subtitle")}
           actions={
             <View style={{ flexDirection: "row", gap: SPACING.sm }}>
@@ -64,6 +65,7 @@ export default function StorageScreen() {
             </View>
           }
         >
+          {viewSwitcher}
           {list.length > 0 ? (
             <SearchInput
               value={search}

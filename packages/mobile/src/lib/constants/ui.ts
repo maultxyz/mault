@@ -16,8 +16,7 @@ export const IOS_ICON_BUTTON_STYLES = {
 } as const;
 export const MIN_TOUCH_TARGET = 44;
 export const TOP_BAR_HEIGHT = 44;
-export const TOP_BAR_BRAND_SIZE = 26;
-export const TOP_BAR_BRAND_ICON_SIZE = 16;
+export const TOP_BAR_BRAND_ICON_SIZE = 34;
 export const TOP_BAR_INITIAL_SIZE = 18;
 export const TOP_BAR_SWITCHER_HEIGHT = 32;
 export const INPUT_HEIGHT = 48;
@@ -25,6 +24,7 @@ export const SEARCH_INPUT_HEIGHT = 44;
 export const LIST_ROW_MIN_HEIGHT = 48;
 export const LIST_ROW_ICON_SIZE = 32;
 export const PAGE_HEADER_ICON_BUTTON_SIZE = 40;
+export const IOS_HEADER_BAR_ICON_BUTTON_SIZE = 36;
 export const SKELETON_PULSE_MS = 900;
 export const DISABLED_OPACITY = 0.5;
 export const PILL_STATUS_LETTER_SPACING = 0.3;

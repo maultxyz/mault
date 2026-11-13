@@ -184,6 +184,7 @@ export interface StatTileProps {
   label: string;
   value: string;
   hint?: string;
+  icon?: IconName;
 }
 
 
@@ -390,6 +391,11 @@ export interface StepperRowProps {
   disabled?: boolean;
   valueLabel: string;
   onChange: (value: number) => void;
+}
+
+export interface DisplayHeadlineProps {
+  title: string;
+  subtitle?: string;
 }
 
 export interface IconBadgeProps {

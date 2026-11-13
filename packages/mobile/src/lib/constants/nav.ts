@@ -1,9 +1,9 @@
 import type { IconName } from "@/lib/interfaces/ui";
 
 export const TAB_ICONS: Record<string, IconName> = {
-  index: "collections",
+  index: "home",
   scan: "scan",
-  storage: "storage",
+  collections: "collections",
   account: "menu",
 };
 
@@ -30,8 +30,8 @@ export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
 ]);
 
 export const ANDROID_TAB_SYMBOLS = {
-  index: "collections_bookmark",
+  index: "home",
   scan: "document_scanner",
-  storage: "inventory_2",
+  collections: "collections_bookmark",
   account: "menu",
 } as const;

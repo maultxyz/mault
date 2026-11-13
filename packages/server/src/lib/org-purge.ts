@@ -28,6 +28,7 @@ import {
   orgActivityLog,
   orgBilling,
   orgInventorySnapshots,
+  collectionValueSnapshots,
   orgSettings,
   unmatchedCards,
   notificationRules,
@@ -122,4 +123,7 @@ export async function purgeOrgServerData(orgId: string): Promise<void> {
   await db
     .delete(orgInventorySnapshots)
     .where(eq(orgInventorySnapshots.orgId, orgId));
+  await db
+    .delete(collectionValueSnapshots)
+    .where(eq(collectionValueSnapshots.orgId, orgId));
 }
