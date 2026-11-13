@@ -10,3 +10,6 @@ export const PI_SCAN_POLL_MS = 200;
 
 export const PI_SCAN_PENDING_DIRECTORY = "pending-scans";
 export const PI_SCAN_COMM_LOG_ENTRIES = 200;
+export const PI_SCAN_PENDING_REJECTED_SUFFIX = ".rejected";
+export const PI_SCAN_RECOVERY_MAX_ATTEMPTS = 3;
+export const PI_SCAN_KEPT_REJECTION_STATUSES = [403];

@@ -57,11 +57,12 @@ test("a failed pick write rolls back insertion and a recovered retry commits bot
   assert.deepEqual(db.scopes, [["bin", "org", false], ["bin", "org", false]]);
 });
 
-test("a missing or RLS-hidden pick bin cannot commit the scan", async () => {
+test("a missing or RLS-hidden pick bin still commits the scan without pick progress", async (t) => {
+  t.mock.method(console, "warn", () => {});
   const db = database();
   db.visible(false);
-  await assert.rejects(db.transaction(), /bin was not found/);
-  assert.deepEqual(db.state(), { saved: false, found: 0 });
+  await db.transaction();
+  assert.deepEqual(db.state(), { saved: true, found: 0 });
 });
 
 test("new scan metadata accepts only a positive single pick increment", () => {

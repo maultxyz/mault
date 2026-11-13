@@ -42,7 +42,8 @@ export async function checkPiScanFoil(
       const source = context.flipCamera ? rotateRgba180(read) : read;
       const corners = await detectScanCorners(source);
       const contour = corners.contour ?? getDefaultCardContour(source.width, source.height, context.region);
-      return dewarpRgba(source, contour, DEWARP_OUTPUT_SIZE);
+      const dewarped = dewarpRgba(source, contour, DEWARP_OUTPUT_SIZE);
+      return matched.orientation === "rotated" ? rotateRgba180(dewarped) : dewarped;
     },
     delay: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     encodeDiagnostics: async (image) => {

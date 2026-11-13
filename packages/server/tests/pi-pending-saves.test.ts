@@ -16,6 +16,7 @@ import {
   submitPiScanSave,
 } from "../src/lib/pi-scan/pending-saves";
 import type { PendingPiScanSave } from "../src/lib/interfaces/pi-scan";
+import { PI_SCAN_RECOVERY_MAX_ATTEMPTS } from "../src/lib/constants/pi-scan";
 
 const save = (
   orgId = "org",
@@ -205,4 +206,60 @@ test("stopping after routing still attempts the new save and clears its journal 
   assert.equal(result.success, true);
   assert.equal(attempts, 1);
   assert.deepEqual(await readdir(directory), []);
+});
+
+test("an accepted rejection settles the save and a permanent one is set aside so recovery continues", async (t) => {
+  const directory = await setup(t);
+  t.mock.method(console, "warn", () => {});
+  for (const [scanId, status] of [["limit", 402], ["missing", 404]] as const) {
+    const result = await submitPiScanSave(
+      save("org", "user", scanId),
+      async () => ({ success: false, status, message: "rejected" }),
+      () => false,
+    );
+    assert.equal(result.status, status);
+  }
+  const names = await readdir(directory);
+  assert.equal(names.length, 1);
+  assert.ok(names[0].endsWith(".json.rejected"));
+  await submitPiScanSave(
+    save("org", "user", "later"),
+    async () => ({ success: false, status: 503, message: "offline" }),
+    () => true,
+  );
+  let recovered = 0;
+  const result = await recoverPiScanSaves(
+    "org",
+    "user",
+    async () => {
+      recovered++;
+      return { success: true, message: "saved" };
+    },
+    () => false,
+  );
+  assert.equal(result.success, true);
+  assert.equal(recovered, 1);
+});
+
+test("recovery gives up after a bounded number of attempts and keeps the save", async (t) => {
+  const directory = await setup(t);
+  t.mock.method(console, "warn", () => {});
+  await submitPiScanSave(
+    save(),
+    async () => ({ success: false, status: 503, message: "offline" }),
+    () => true,
+  );
+  let calls = 0;
+  const result = await recoverPiScanSaves(
+    "org",
+    "user",
+    async () => {
+      calls++;
+      return { success: false, status: 503, message: "offline" };
+    },
+    () => false,
+  );
+  assert.equal(result.success, false);
+  assert.equal(calls, PI_SCAN_RECOVERY_MAX_ATTEMPTS);
+  assert.equal((await readdir(directory)).length, 1);
 });

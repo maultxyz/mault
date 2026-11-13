@@ -52,8 +52,6 @@ export function focusRangeForTrack(
 }
 
 export function browserMustUsePiCamera(): boolean {
-  // Every Pi-hosted session uses the helper, including localhost Chromium.
-  // A helper outage must not fall back to browser ownership of the USB camera.
   return isPiHost();
 }
 
@@ -305,7 +303,6 @@ export async function applyTrackFocus(
   await applyFocus(track, value);
 }
 
-// The Pi preview is a canvas track; the helper must apply manual focus.
 export async function lockTrackFocus(
   track: MediaStreamTrack | undefined,
   fallback: number,

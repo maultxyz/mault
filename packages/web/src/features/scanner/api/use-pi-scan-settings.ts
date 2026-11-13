@@ -31,7 +31,6 @@ export function usePiScanSettings(options: PiScanSettingsOptions) {
     [collectionGuid, piHost],
   );
 
-  // Only explicit edits write settings. Mounting, polling, or reconnecting never does.
   const update = useCallback(
     (patch: PiScanSessionSettingsBody) => {
       if (!belongsToCollection(getPiScanState())) return;

@@ -413,7 +413,6 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           setSelectedCameraId(PI_CAMERA_DEVICE_ID);
           stationsRef.current.setStationCamera(stationId, PI_CAMERA_DEVICE_ID);
           const range = health.focus;
-          // Pi focus belongs to the shared camera, not this browser's storage.
           setFocusRange(range);
           setFocusDistanceState(
             health.focusMode === "manual" ? health.lensPosition ?? null : null,

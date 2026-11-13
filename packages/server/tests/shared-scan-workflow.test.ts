@@ -169,7 +169,7 @@ test("disposition prepares again after a hold and persists a routed card after s
   ]);
 });
 
-test("a configuration change during assignment replans before routing and saving", async () => {
+test("a configuration change before assignment replans, and one after assignment keeps the committed plan", async () => {
   let revision = 0;
   const assigned: number[] = [];
   const routed: number[] = [];
@@ -193,7 +193,31 @@ test("a configuration change during assignment replans before routing and saving
     complete: () => {},
   });
   assert.equal(result, "complete");
-  assert.deepEqual(assigned, [1, 2]);
-  assert.deepEqual(routed, [2]);
-  assert.deepEqual(persisted, [2]);
+  assert.deepEqual(assigned, [1]);
+  assert.deepEqual(routed, [1]);
+  assert.deepEqual(persisted, [1]);
+});
+
+test("a configuration change after preparing but before assignment replans without side effects", async () => {
+  let revision = 0;
+  let checkpoints = 0;
+  const assigned: number[] = [];
+  const result = await runScanDisposition({
+    revision: () => revision,
+    prepare: () => ({ action: "route" as const, binNumber: revision + 1 }),
+    hold: async () => false,
+    assign: (plan) => {
+      assigned.push(plan.binNumber);
+    },
+    checkpoint: async () => {
+      if (++checkpoints === 2) revision++;
+      return true;
+    },
+    pick: () => {},
+    route: () => {},
+    persist: () => {},
+    complete: () => {},
+  });
+  assert.equal(result, "complete");
+  assert.deepEqual(assigned, [2]);
 });

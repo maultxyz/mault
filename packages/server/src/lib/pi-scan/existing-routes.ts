@@ -208,16 +208,18 @@ export async function withScanActorTransaction<T>(
   work: (tx: Transaction) => Promise<T>,
 ): Promise<T> {
   let value: T | undefined;
-  const router = new Hono<AppEnv>().post(
-    "/",
-    requireAuth,
-    requireOrg,
-    async (c) => {
+  let workError: unknown;
+  const router = new Hono<AppEnv>()
+    .post("/", requireAuth, requireOrg, async (c) => {
       value = await authQuery(c.get("jwtClaims"), work);
       return c.json({ success: true });
-    },
-  );
+    })
+    .onError((error, c) => {
+      workError = error;
+      return c.json({ success: false, message: error.message }, 500);
+    });
   const result = await callJson(router, "/", "POST", actor, {});
+  if (workError) throw workError;
   if (!result.ok)
     throw new PiScanActionError(
       result.body.message ?? "The scan action could not be completed.",

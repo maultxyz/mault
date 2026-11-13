@@ -763,7 +763,7 @@ export function useScanSession({
             sendToBin(record.binNumber, card.name);
           else if (!filledPack) continueAfterCard();
         },
-        persist: async () => {
+        persist: () => {
           const saving =
             plan.persistence.kind === "cards/sorted"
               ? sendSortOnlyScan(
@@ -777,7 +777,7 @@ export function useScanSession({
                   deviceGuid: ctx.sorter.device?.guid,
                   record: plan.persistence.record,
                 });
-          await saving
+          void saving
             .then((result) => handleSaveResult(result, record.binNumber))
             .catch(() => pause("save-failed"))
             .finally(() => {
@@ -854,9 +854,9 @@ export function useScanSession({
             sendToBin(plan.record.binNumber);
           else continueAfterCard();
         },
-        persist: async (plan) => {
+        persist: (plan) => {
           if (plan.persistence.kind === "none") return;
-          await ctx
+          void ctx
             .saveUnmatched({
               orgId: ctx.orgId,
               collectionGuid,

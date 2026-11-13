@@ -72,10 +72,8 @@ export async function runScanDisposition<
     if (!Object.is(revision, adapter.revision?.())) continue;
     await adapter.assign(plan);
     if (adapter.checkpoint && !(await adapter.checkpoint())) return "stopped";
-    if (!Object.is(revision, adapter.revision?.())) continue;
     await adapter.pick(plan);
     if (adapter.checkpoint && !(await adapter.checkpoint())) return "stopped";
-    if (!Object.is(revision, adapter.revision?.())) continue;
     await adapter.route(plan);
     await adapter.persist(plan);
     await adapter.complete(plan);

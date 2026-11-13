@@ -13,10 +13,14 @@ import { join } from "node:path";
 import {
   isRetryableScanSaveStatus,
   pendingScanSaveRetryDelayMs,
+  SCAN_SAVE_ACCEPTED_STATUSES,
 } from "@magic-vault/shared";
 import {
+  PI_SCAN_KEPT_REJECTION_STATUSES,
   PI_SCAN_PENDING_DIRECTORY,
+  PI_SCAN_PENDING_REJECTED_SUFFIX,
   PI_SCAN_POLL_MS,
+  PI_SCAN_RECOVERY_MAX_ATTEMPTS,
 } from "../constants/pi-scan";
 import type {
   PendingPiScanSave,
@@ -65,31 +69,67 @@ async function putPending(save: PendingPiScanSave) {
   }
 }
 
+interface FinishedPendingSave {
+  result: PiScanSaveResult;
+  stillPending: boolean;
+}
+
+async function settleRejectedSave(
+  save: PendingPiScanSave,
+  status: number,
+): Promise<boolean> {
+  if (PI_SCAN_KEPT_REJECTION_STATUSES.includes(status)) return true;
+  if (SCAN_SAVE_ACCEPTED_STATUSES.includes(status)) {
+    await unlink(savePath(save));
+    return false;
+  }
+  await rename(
+    savePath(save),
+    `${savePath(save)}${PI_SCAN_PENDING_REJECTED_SUFFIX}`,
+  );
+  console.warn(
+    `[pi-scan] save ${save.body.scanId} rejected with ${status}, set aside`,
+  );
+  return false;
+}
+
+function mayAttemptSave(
+  attempt: number,
+  recovered: boolean,
+  stopping: () => boolean,
+): boolean {
+  if (recovered)
+    return attempt < PI_SCAN_RECOVERY_MAX_ATTEMPTS && !stopping();
+  return attempt === 0 || !stopping();
+}
+
 async function finishPending(
   save: PendingPiScanSave,
   send: SendPendingPiScanSave,
   stopping: () => boolean,
   recovered: boolean,
-): Promise<PiScanSaveResult> {
-  for (
-    let attempt = 0;
-    (!recovered && attempt === 0) || !stopping();
-    attempt++
-  ) {
+): Promise<FinishedPendingSave> {
+  for (let attempt = 0; mayAttemptSave(attempt, recovered, stopping); attempt++) {
     try {
       const result = await send(save, recovered || attempt > 0);
       if (result.success) {
         await unlink(savePath(save));
-        return result;
+        return { result, stillPending: false };
       }
-      if (result.status == null || !isRetryableScanSaveStatus(result.status))
-        return result;
+      if (result.status == null)
+        return { result, stillPending: true };
+      if (!isRetryableScanSaveStatus(result.status))
+        return {
+          result,
+          stillPending: await settleRejectedSave(save, result.status),
+        };
       console.warn(
         `[pi-scan] save ${save.body.scanId} pending: ${result.message}`,
       );
     } catch (error) {
       console.warn(`[pi-scan] save ${save.body.scanId} pending:`, error);
     }
+    if (!mayAttemptSave(attempt + 1, recovered, stopping)) break;
     const delay = pendingScanSaveRetryDelayMs(attempt);
     for (
       let elapsed = 0;
@@ -99,7 +139,15 @@ async function finishPending(
       await piScanSaveRuntime.wait(Math.min(PI_SCAN_POLL_MS, delay - elapsed));
     }
   }
-  return { success: false, message: "The card could not be saved." };
+  return {
+    result: {
+      success: false,
+      message: recovered
+        ? "Saved scans are still waiting to upload. Try again shortly."
+        : "The card could not be saved.",
+    },
+    stillPending: true,
+  };
 }
 
 export async function submitPiScanSave(
@@ -108,7 +156,7 @@ export async function submitPiScanSave(
   stopping: () => boolean,
 ): Promise<PiScanSaveResult> {
   await putPending(save);
-  return finishPending(save, send, stopping, false);
+  return (await finishPending(save, send, stopping, false)).result;
 }
 
 export async function recoverPiScanSaves(
@@ -136,8 +184,13 @@ export async function recoverPiScanSaves(
     if (save.orgId === orgId && save.userId === userId) saves.push(save);
   }
   for (const save of saves.sort((a, b) => a.queuedAt - b.queuedAt)) {
-    const result = await finishPending(save, send, stopping, true);
-    if (!result.success) return result;
+    const { result, stillPending } = await finishPending(
+      save,
+      send,
+      stopping,
+      true,
+    );
+    if (stillPending) return result;
   }
   return { success: true, message: "" };
 }

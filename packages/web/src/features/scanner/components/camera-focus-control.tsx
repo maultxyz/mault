@@ -31,7 +31,6 @@ export function CameraFocusControl({ className }: CameraFocusControlProps) {
     try {
       setFocusDistance(await lockTrackFocus(track, midpoint));
     } catch {
-      // Keep auto selected rather than saving an arbitrary manual position.
     }
   };
 

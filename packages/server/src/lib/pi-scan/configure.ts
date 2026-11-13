@@ -4,6 +4,7 @@ import {
   FOIL_NUDGE_SERVO_TIMEOUT_MS,
   type ServoCalibration,
 } from "@magic-vault/shared";
+import { PI_SCAN_NEUTRAL_TIMEOUT_MS } from "../constants/pi-scan";
 import type { PiScanSorterConfiguration } from "../interfaces/pi-scan";
 
 function moduleCalibrationPayload(
@@ -45,7 +46,7 @@ export async function configurePiScanSorter(
   configuration: PiScanSorterConfiguration,
 ): Promise<void> {
   const checked = async (payload: object) => {
-    const reply = await command(payload, FOIL_NUDGE_SERVO_TIMEOUT_MS);
+    const reply = await command(payload, PI_SCAN_NEUTRAL_TIMEOUT_MS);
     if (reply.status !== "ok" || reply.error)
       throw new Error(
         "The sorter did not confirm the saved calibration settings.",

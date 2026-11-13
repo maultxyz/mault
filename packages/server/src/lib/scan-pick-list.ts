@@ -55,7 +55,10 @@ export async function applyScanPickListUpdate(
   const result = await updateBinPickList(tx, orgId, update.binGuid, (current) =>
     applyPickListFound(current, update.name, update.delta),
   );
-  if (!result?.pickList) throw new Error("The pick-list bin was not found.");
+  if (!result?.pickList)
+    console.warn(
+      `[scan-pick-list] bin ${update.binGuid} has no pick list, scan saved without pick progress`,
+    );
 }
 
 export async function insertScanWithPickList(
