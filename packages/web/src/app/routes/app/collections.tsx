@@ -241,10 +241,13 @@ export default function CollectionsPage() {
           <div className={COLLECTIONS_GRID_CLASS}>
             {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
               <div key={i} className="overflow-hidden rounded-card border border-border bg-card">
-                <Skeleton className="h-40 rounded-none" />
-                <div className="space-y-1.5 p-3">
-                  <Skeleton className="h-3 w-32" />
-                  <Skeleton className="h-2.5 w-20" />
+                <Skeleton className="h-32 rounded-none" />
+                <div className="flex flex-col gap-1.5 border-t px-3 py-2">
+                  <Skeleton className="h-3.5 w-32" />
+                  <div className="flex justify-between">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-3.5 w-14" />
+                  </div>
                 </div>
               </div>
             ))}

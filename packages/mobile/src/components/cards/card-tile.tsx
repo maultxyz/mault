@@ -1,7 +1,7 @@
-import { Image } from "expo-image";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
@@ -13,6 +13,7 @@ export const CardTile = memo(function CardTile({
   name,
   caption,
   imageUrl,
+  placeholderUrl,
   quantity,
   flagged = false,
   corrected = false,
@@ -61,7 +62,7 @@ export const CardTile = memo(function CardTile({
         }}
       >
         {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={{ flex: 1 }} contentFit="cover" transition={120} />
+          <CardArt imageUrl={imageUrl} placeholderUrl={placeholderUrl} style={{ flex: 1 }} contentFit="cover" />
         ) : null}
         {flagged ? (
           <View
@@ -99,7 +100,7 @@ export const CardTile = memo(function CardTile({
         <AppText size="xs" weight="medium" numberOfLines={1}>
           {name}
         </AppText>
-        <AppText size="xs" tone="secondary" numberOfLines={1} style={{ fontVariant: ["tabular-nums"] }}>
+        <AppText size="xs" tone="secondary" numberOfLines={1}>
           {caption}
         </AppText>
       </View>

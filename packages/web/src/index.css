@@ -478,7 +478,7 @@ code {
     @apply border-border outline-ring;
   }
   body {
-    @apply font-sans bg-background text-foreground;
+    @apply font-sans bg-background text-foreground tabular-nums;
   }
   html {
     @apply font-sans;

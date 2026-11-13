@@ -194,6 +194,7 @@ export interface CardRowProps {
   name: string;
   subtitle: string;
   imageUrl: string | null;
+  placeholderUrl?: string | null;
   quantity?: number;
   price?: string | null;
   binNumber?: number;
@@ -212,6 +213,7 @@ export interface CardTileProps {
   name: string;
   caption: string;
   imageUrl: string | null;
+  placeholderUrl?: string | null;
   isFoil?: boolean;
   quantity?: number;
   flagged?: boolean;

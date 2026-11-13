@@ -70,7 +70,7 @@ function MobileCardDetailBody({
   onClose,
 }: MobileCardDetailBodyProps) {
   const { t } = useTranslation("cards");
-  const { removeCard } = useScannedCards();
+  const { removeCardsWithUndo } = useScannedCards();
   const collectionCardActions = useCollectionCardActions(collectionGuid);
   const queryClient = useQueryClient();
   const query = reviewMode
@@ -140,7 +140,7 @@ function MobileCardDetailBody({
       onRemove={
         canEditCards
           ? () => {
-              removeCard(entry.scanId);
+              removeCardsWithUndo([entry.scanId]);
               if (reviewMode) reviewSession.forget(entry.scanId);
               if (reviewMode && nextScanId) onNavigate(nextScanId);
               else onClose();

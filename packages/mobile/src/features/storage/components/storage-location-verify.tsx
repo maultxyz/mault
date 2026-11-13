@@ -89,7 +89,7 @@ export function StorageLocationVerify({ location }: StorageLocationVerifyProps) 
             />
           </View>
           <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
-            <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+            <AppText size="xs" tone="secondary">
               {t("storage.verify.progress", { verified: verify.verifiedCount, total })}
             </AppText>
             <View

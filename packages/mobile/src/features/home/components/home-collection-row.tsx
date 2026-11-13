@@ -59,7 +59,7 @@ export function HomeCollectionRow({
           </AppText>
         </View>
         {value ? (
-          <AppText weight="semibold" numberOfLines={1} style={{ fontVariant: ["tabular-nums"] }}>
+          <AppText weight="semibold" numberOfLines={1}>
             {value}
           </AppText>
         ) : null}

@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { DisplayHeadline } from "@/components/display-headline";
 import { StatGroup } from "@/components/stat-group";
 import { SettingsSection } from "@/components/settings-section";
@@ -396,12 +397,10 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
             className="flex min-w-0 flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
           >
             <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-border">
-              <img
-                src={entry.card.image?.normal || entry.card.image?.small || ""}
+              <CardImage
+                src={entry.card.image?.normal || entry.card.image?.small}
+                placeholderSrc={entry.card.image?.small}
                 alt={entry.card.name}
-                loading="lazy"
-                draggable={false}
-                className="h-full w-full object-cover"
               />
             </div>
             <div className="min-w-0">

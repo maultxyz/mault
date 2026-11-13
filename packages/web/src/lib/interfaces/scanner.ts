@@ -234,6 +234,7 @@ export interface ScannedCardsContextValue {
   showJamToast: (options: JamToastOptions) => void;
   removeCard: (scanId: string) => void;
   removeCards: (scanIds: string[]) => Promise<boolean>;
+  removeCardsWithUndo: (scanIds: string[]) => void;
   moveCardsToCollection: (
     input: MoveCardsToCollectionInput,
   ) => Promise<number | null>;

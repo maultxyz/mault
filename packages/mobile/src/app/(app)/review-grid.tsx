@@ -74,18 +74,18 @@ export default function ReviewGridScreen() {
     const scanIds = cardsToAccept.map((card) => card.scanId);
     setAcceptFailedCount(0);
     updateSet(setAcceptingScanIds, scanIds, true);
+    updateSet(setHiddenScanIds, scanIds, true);
     const attributeUpdates = new Map<string, ReviewGridAttributeUpdate>();
     for (const card of cardsToAccept) {
       const update = reviewGridAttributeUpdate(savedAttributesOf(card), attributeDrafts[card.scanId]);
       if (update) attributeUpdates.set(card.scanId, update);
     }
     const failed = await acceptReviewCards(queryClient, cardsToAccept, attributeUpdates);
-    const failedScanIds = new Set(failed.map((card) => card.scanId));
     updateSet(setAcceptingScanIds, scanIds, false);
     updateSet(
       setHiddenScanIds,
-      scanIds.filter((scanId) => !failedScanIds.has(scanId)),
-      true,
+      failed.map((card) => card.scanId),
+      false,
     );
     setAcceptFailedCount(failed.length);
   };

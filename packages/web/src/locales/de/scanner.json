@@ -233,6 +233,14 @@
     "pickListComplete": {
       "title": "Pickliste vollständig",
       "description": "Jede Karte der Liste liegt in Fach {{bin}}."
+    },
+    "removed": {
+      "title_one": "{{count}} Karte entfernt",
+      "title_other": "{{count}} Karten entfernt",
+      "undo": "Rückgängig"
+    },
+    "editFailed": {
+      "title": "Die Änderung konnte nicht gespeichert werden und wurde zurückgesetzt."
     }
   },
   "cardScanner": {

@@ -233,6 +233,14 @@
     "pickListComplete": {
       "title": "Pick list complete",
       "description": "Every card on the list is in bin {{bin}}."
+    },
+    "removed": {
+      "title_one": "Removed {{count}} card",
+      "title_other": "Removed {{count}} cards",
+      "undo": "Undo"
+    },
+    "editFailed": {
+      "title": "Couldn't save that change. It's been put back."
     }
   },
   "cardScanner": {

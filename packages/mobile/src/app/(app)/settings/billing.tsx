@@ -94,12 +94,12 @@ export default function BillingSettingsScreen() {
                       <AppText weight="medium" style={{ flex: 1, minWidth: 0 }}>
                         {rowName}
                       </AppText>
-                      <AppText tone={unavailable ? "secondary" : undefined} style={{ fontVariant: ["tabular-nums"] }}>
+                      <AppText tone={unavailable ? "secondary" : undefined}>
                         {offeringText(row)}
                       </AppText>
                     </View>
                     {row.used != null ? (
-                      <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                      <AppText size="xs" tone="secondary">
                         {usageLine}
                       </AppText>
                     ) : null}

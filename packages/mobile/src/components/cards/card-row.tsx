@@ -1,6 +1,6 @@
-import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { Pill } from "@/components/ui/pill";
@@ -13,6 +13,7 @@ export function CardRow({
   name,
   subtitle,
   imageUrl,
+  placeholderUrl,
   quantity,
   price,
   binNumber,
@@ -68,11 +69,11 @@ export function CardRow({
         </View>
       ) : null}
       {imageUrl ? (
-        <Image
-          source={{ uri: imageUrl }}
+        <CardArt
+          imageUrl={imageUrl}
+          placeholderUrl={placeholderUrl}
           style={{ width: CARD_THUMB_WIDTH, height: CARD_THUMB_HEIGHT, borderRadius: CARD_THUMBNAIL_RADIUS }}
           contentFit="cover"
-          transition={0}
         />
       ) : (
         <View
@@ -98,7 +99,7 @@ export function CardRow({
       </View>
       <View style={{ alignItems: "flex-end", gap: 2 }}>
         {price ? (
-          <AppText weight="medium" style={{ fontVariant: ["tabular-nums"] }}>
+          <AppText weight="medium">
             {price}
           </AppText>
         ) : null}

@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { NEW_CARD_ANIMATION_WINDOW_MS } from "@/lib/constants/card-grid";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -151,11 +152,11 @@ export const ScannedCardItem = memo(function ScannedCardItem({
               </Badge>
             )}
           </div>
-          <img
-            loading="lazy"
-            src={card.image?.normal || ""}
+          <CardImage
+            src={card.image?.normal || card.image?.small}
+            placeholderSrc={card.image?.small}
             alt={card.name}
-            className="w-full h-full object-cover"
+            className="bg-transparent"
           />
         </div>
       </button>

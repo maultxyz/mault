@@ -175,14 +175,14 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                   {headline.label}
                 </AppText>
                 {secondary != null ? (
-                  <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                  <AppText size="xs" tone="secondary">
                     {t(showFoil ? "priceTable.nonFoilPrice" : "priceTable.foilPrice", {
                       price: headline.format(secondary),
                     })}
                   </AppText>
                 ) : null}
                 {mainAtScan != null && changeSinceScan ? (
-                  <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                  <AppText size="xs" tone="secondary">
                     {t("priceTable.priceAtScan", { price: headline.format(mainAtScan) })}{" "}
                     <AppText
                       size="xs"
@@ -194,7 +194,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                   </AppText>
                 ) : null}
               </View>
-              <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+              <AppText size="lg" heading weight="bold">
                 {main != null ? headline.format(main) : t("priceTable.noPrice")}
               </AppText>
             </View>
@@ -246,7 +246,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                       key={finishColumns[valueIndex].label}
                       size="sm"
                       weight={metricIndex === table.highlightColumn ? "semibold" : "regular"}
-                      style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right", fontVariant: ["tabular-nums"] }}
+                      style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right" }}
                     >
                       {value != null ? table.format(value) : t("priceTable.noPrice")}
                     </AppText>

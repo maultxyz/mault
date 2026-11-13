@@ -3214,6 +3214,10 @@
     "tagAdded": "{{tag}} ajouté",
     "tagRemoved": "{{tag}} retiré",
     "movedTo": "Déplacé vers {{name}}",
-    "cardsLoadFailed": "Impossible de charger ces cartes"
+    "cardsLoadFailed": "Impossible de charger ces cartes",
+    "foilChanged": "Foil défini sur {{value}}",
+    "conditionChanged": "État défini sur {{value}}",
+    "pickListCleared": "Liste de collecte vidée",
+    "verifyProgressCleared": "Progression de la vérification effacée"
   }
 }

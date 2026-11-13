@@ -89,7 +89,7 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
           weight="bold"
           numberOfLines={1}
           adjustsFontSizeToFit
-          style={{ color: heroTextColor, fontVariant: ["tabular-nums"] }}
+          style={{ color: heroTextColor, fontVariant: ["proportional-nums"] }}
         >
           {value}
         </AppText>
@@ -107,7 +107,7 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
             }}
           >
             {changeIcon ? <Icon name={changeIcon} size={14} color={heroTextColor} /> : null}
-            <AppText size="xs" weight="semibold" style={{ color: heroTextColor, fontVariant: ["tabular-nums"] }}>
+            <AppText size="xs" weight="semibold" style={{ color: heroTextColor }}>
               {changeText}
             </AppText>
             <AppText size="xs" style={{ color: HOME_HERO_SECONDARY_TEXT_COLOR }}>
@@ -136,7 +136,7 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
               weight="bold"
               numberOfLines={1}
               adjustsFontSizeToFit
-              style={{ color: heroTextColor, fontVariant: ["tabular-nums"] }}
+              style={{ color: heroTextColor }}
             >
               {stat.value}
             </AppText>

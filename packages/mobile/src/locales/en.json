@@ -3214,6 +3214,10 @@
     "tagAdded": "{{tag}} added",
     "tagRemoved": "{{tag}} removed",
     "movedTo": "Moved to {{name}}",
-    "cardsLoadFailed": "Couldn't load these cards"
+    "cardsLoadFailed": "Couldn't load these cards",
+    "foilChanged": "Foil set to {{value}}",
+    "conditionChanged": "Condition set to {{value}}",
+    "pickListCleared": "Pick list cleared",
+    "verifyProgressCleared": "Verification progress cleared"
   }
 }

@@ -3,10 +3,10 @@ import type { DisplayHeadlineProps } from "@/lib/interfaces/ui";
 
 export function DisplayHeadline({ title, subtitle }: DisplayHeadlineProps) {
   return (
-    <AppText size="3xl" heading weight="bold" accessibilityRole="header" style={{ letterSpacing: -0.5 }}>
+    <AppText size="3xl" heading weight="bold" accessibilityRole="header" style={{ letterSpacing: -0.5, fontVariant: ["proportional-nums"] }}>
       {title}
       {subtitle ? (
-        <AppText size="3xl" heading weight="bold" tone="secondary" style={{ letterSpacing: -0.5 }}>
+        <AppText size="3xl" heading weight="bold" tone="secondary" style={{ letterSpacing: -0.5, fontVariant: ["proportional-nums"] }}>
           {`\n${subtitle}`}
         </AppText>
       ) : null}

@@ -43,7 +43,7 @@ export function ValueHero({ label, value, stats, sparklineValues, change }: Valu
       <div className="relative flex flex-col gap-6 md:gap-2">
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium">{label}</p>
-          <p className="text-4xl font-bold tracking-tight md:text-2xl">{value}</p>
+          <p className="text-4xl font-bold tracking-tight proportional-nums md:text-2xl">{value}</p>
           {change && (
             <p className="mt-1 flex w-fit items-center gap-1 rounded-full bg-primary-foreground/18 px-2.5 py-1 text-xs font-semibold tabular-nums">
               {change.change.direction === "up" ? (

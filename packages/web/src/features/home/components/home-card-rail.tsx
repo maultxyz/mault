@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
 import { HOME_CARD_RAIL_TILE_CLASS } from "@/lib/constants/home";
@@ -39,12 +40,10 @@ export function HomeCardRail({
               className="flex flex-col gap-1.5 rounded-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.97] motion-reduce:active:scale-100"
             >
               <span className="relative block aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted">
-                <img
-                  src={card.card.image?.normal || card.card.image?.small || ""}
+                <CardImage
+                  src={card.card.image?.normal || card.card.image?.small}
+                  placeholderSrc={card.card.image?.small}
                   alt={card.card.name}
-                  loading="lazy"
-                  draggable={false}
-                  className="h-full w-full object-cover"
                 />
               </span>
               <span className="min-w-0">

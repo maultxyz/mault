@@ -21,6 +21,7 @@ import {
   scanDraftFormSchema,
   type ScanDraftFormValues,
 } from "@magic-vault/shared";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Button } from "@/components/ui/button";
@@ -40,13 +41,20 @@ import { Surface } from "@/components/ui/surface";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { useDeferredCardRemoval } from "@/features/cards/api/use-deferred-card-removal";
-import { restoreCardCaches, setCardTagsInCaches, snapshotCardCaches } from "@/features/cards/lib/card-list-cache";
+import {
+  patchCardsInCaches,
+  restoreCardCaches,
+  reviewedCardPatch,
+  setCardTagsInCaches,
+  snapshotCardCaches,
+} from "@/features/cards/lib/card-list-cache";
 import { useToast } from "@/components/ui/toast-provider";
 import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardDetailSkeleton, PricePaidFieldSkeleton } from "@/features/cards/components/card-detail-skeleton";
-import type { CardDetailSheet, CardTagToggle, MatchesOpenState } from "@/lib/interfaces/cards";
+import type { CardDetailSheet, CardTagToggle, MatchesOpenState, ScanDraftSave } from "@/lib/interfaces/cards";
+import type { CardCachePatchContext } from "@/lib/interfaces/undo";
 import type { IconName } from "@/lib/interfaces/ui";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
@@ -84,6 +92,7 @@ import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { CARD_ART_RADIUS, RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { PAGE_HEADER_ICON_BUTTON_SIZE, TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
 import { saveReviewLayout } from "@/lib/review-layout";
+import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
@@ -194,8 +203,7 @@ export default function CardDetailScreen() {
   const stampOptions = cardStampOptionsFor(card, draftStamp);
 
   const saveDraft = useMutation({
-    mutationFn: async (values: ScanDraftFormValues) => {
-      const { dirtyFields } = form.formState;
+    mutationFn: async ({ values, dirtyFields }: ScanDraftSave) => {
       if (dirtyFields.foilType || dirtyFields.stamp || dirtyFields.condition || dirtyFields.language) {
         await updateCollectionCard(guid, scanId, {
           isFoil: values.foilType != null,
@@ -209,29 +217,56 @@ export default function CardDetailScreen() {
         await setCardAcquisitionCost(scanId, values.acquisitionCost);
       }
     },
-    onSuccess: (_, values) => form.reset(values),
+    onMutate: async ({ values, dirtyFields }: ScanDraftSave): Promise<CardCachePatchContext> => {
+      const snapshot = await patchCardsInCaches(queryClient, guid, [scanId], {
+        ...(dirtyFields.foilType ? { isFoil: values.foilType != null, foilType: values.foilType } : {}),
+        ...(dirtyFields.stamp ? { stamp: values.stamp } : {}),
+        ...(dirtyFields.condition ? { condition: values.condition as CardCondition } : {}),
+        ...(dirtyFields.language && values.language ? { language: values.language } : {}),
+      });
+      return { snapshot };
+    },
+    onSuccess: (_, { values }) => form.reset(values),
+    onError: (_error, _save, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+    },
     onSettled: () => {
       invalidateCollectionCards(queryClient, guid);
       void queryClient.invalidateQueries({ queryKey: cardAcquisitionCostQueryOptions(activeOrgId, scanId).queryKey });
     },
   });
 
+  const submitDraft = form.handleSubmit((values) =>
+    saveDraft.mutate({ values, dirtyFields: { ...form.formState.dirtyFields } }),
+  );
+
   const markCorrect = useMutation({
     mutationFn: (kind: "confirm" | "review") =>
       updateCollectionCard(guid, scanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onMutate: async (kind): Promise<CardCachePatchContext> => ({
+      snapshot: await patchCardsInCaches(queryClient, guid, [scanId], reviewedCardPatch(kind)),
+    }),
+    onError: (_error, _kind, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+    },
     onSettled: () => invalidateCollectionCards(queryClient, guid),
   });
 
   const acceptInBackground = useMutation({
     mutationFn: ({ kind, acceptedScanId }: { kind: "confirm" | "review"; acceptedScanId: string }) =>
       updateCollectionCard(guid, acceptedScanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onMutate: async ({ kind, acceptedScanId }): Promise<CardCachePatchContext> => ({
+      snapshot: await patchCardsInCaches(queryClient, guid, [acceptedScanId], reviewedCardPatch(kind)),
+    }),
     onSettled: () => invalidateCollectionCards(queryClient, guid),
-    onError: (_error, variables) =>
+    onError: (_error, variables, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
       showToast({
         message: t("cardDetail.saveFailed"),
         tone: "destructive",
         action: { label: t("recovery.retry"), onPress: () => acceptInBackground.mutate(variables) },
-      }),
+      });
+    },
   });
 
   const toggleTag = useMutation({
@@ -457,7 +492,7 @@ export default function CardDetailScreen() {
                 variant="secondary"
                 label={t("recovery.retry")}
                 loading={saveDraft.isPending}
-                onPress={form.handleSubmit((values) => saveDraft.mutate(values))}
+                onPress={submitDraft}
               />
             }
           />
@@ -498,7 +533,7 @@ export default function CardDetailScreen() {
                 </AppText>
               ) : null}
               {price != null ? (
-                <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+                <AppText size="lg" heading weight="bold">
                   {pricing.format(price)}
                 </AppText>
               ) : null}
@@ -625,12 +660,11 @@ export default function CardDetailScreen() {
                 ) : null}
                 <View style={imageFrame}>
                   {card ? (
-                    <Image
+                    <CardArt
+                      {...cardArtSources(card.image)}
                       accessibilityLabel={card.name}
-                      source={{ uri: absoluteUrl(card.image?.normal ?? card.image?.small) ?? undefined }}
                       style={{ flex: 1 }}
                       contentFit="cover"
-                      transition={120}
                     />
                   ) : null}
                 </View>
@@ -762,7 +796,7 @@ export default function CardDetailScreen() {
         <SaveBar
           visible={isDirty}
           saving={saveDraft.isPending}
-          onSave={form.handleSubmit((values) => saveDraft.mutate(values))}
+          onSave={submitDraft}
           onDiscard={() => form.reset()}
         />
       )}

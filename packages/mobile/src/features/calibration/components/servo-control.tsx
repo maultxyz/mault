@@ -75,7 +75,7 @@ export function ServoControl({
           {servo.positions.map((position) => {
             const key = getCalibrationKey(servo.name, position);
             return key ? (
-              <AppText key={position} weight="bold" style={{ flex: 1, textAlign: "center", fontVariant: ["tabular-nums"] }}>
+              <AppText key={position} weight="bold" style={{ flex: 1, textAlign: "center" }}>
                 {showRaw ? String(calibration[key]) : `${pulseToPercent(calibration[key])}%`}
               </AppText>
             ) : null;
@@ -134,7 +134,7 @@ export function ServoControl({
               ? t("calibration.editingPosition", { position: positionLabel(activePosition) })
               : t("calibration.noPositionSelected")}
           </AppText>
-          <AppText weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+          <AppText weight="bold">
             {`${pulseToPercent(sliderValue)}%`}
           </AppText>
         </View>

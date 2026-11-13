@@ -1,24 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert } from "react-native";
-import { CARD_CONDITIONS, type CardCondition } from "@magic-vault/shared";
+import { AccessibilityInfo } from "react-native";
+import { CARD_CONDITIONS, DEFAULT_CARD_CONDITION, type CardCondition } from "@magic-vault/shared";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { Sheet } from "@/components/ui/sheet";
+import { useToast } from "@/components/ui/toast-provider";
 import { useDeferredCardRemoval } from "@/features/cards/api/use-deferred-card-removal";
+import { cardUpdatePatch, patchCardsInCaches, restoreCardCaches } from "@/features/cards/lib/card-list-cache";
 import { invalidateCollectionCards, updateCollectionCard } from "@/features/collections/api/collection-cards";
 import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
 import { billingQueryOptions } from "@/features/org/api/billing";
-import { moveCardsToStorageLocation, storageLocationsQueryOptions } from "@/features/storage/api/storage";
+import {
+  moveCardsToStorageLocation,
+  removeCardsFromStorageLocations,
+  storageLocationsQueryOptions,
+} from "@/features/storage/api/storage";
 import { useActiveOrgId } from "@/hooks/use-org";
-import type { CardActionsSheetProps } from "@/lib/interfaces/collections";
-import type { CardUpdateBody } from "@/lib/interfaces/cards";
+import { TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
+import type { CardActionsLocationMove, CardActionsSheetProps, CardActionsUpdate } from "@/lib/interfaces/collections";
+import type { CardCachePatchContext } from "@/lib/interfaces/undo";
 
 export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }: CardActionsSheetProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [picker, setPicker] = useState<"foil" | "condition" | "location" | "collection" | null>(null);
   const activeOrgId = useActiveOrgId();
   const billing = useQuery(billingQueryOptions(activeOrgId));
@@ -29,11 +37,42 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
   const flagged = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
 
   const update = useMutation({
-    mutationFn: (body: CardUpdateBody) =>
-      Promise.all(scanIds.map((scanId) => updateCollectionCard(collectionGuid, scanId, body))),
+    mutationFn: ({ scanIds: updatedScanIds, body }: CardActionsUpdate) =>
+      Promise.all(updatedScanIds.map((scanId) => updateCollectionCard(collectionGuid, scanId, body))),
+    onMutate: async ({ scanIds: updatedScanIds, body }: CardActionsUpdate): Promise<CardCachePatchContext> => ({
+      snapshot: await patchCardsInCaches(queryClient, collectionGuid, updatedScanIds, cardUpdatePatch(body)),
+    }),
+    onSuccess: (_result, change) => {
+      if (change.isUndo) {
+        AccessibilityInfo.announceForAccessibility(t("recovery.restored"));
+        return;
+      }
+      const { undoBody, changeMessage } = change;
+      if (!undoBody || !changeMessage) return;
+      showToast({
+        message: changeMessage,
+        durationMs: TOAST_UNDO_DURATION_MS,
+        action: {
+          label: t("recovery.undo"),
+          onPress: () => update.mutate({ scanIds: change.scanIds, body: undoBody, isUndo: true }),
+        },
+      });
+    },
+    onError: (_error, change, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+      showToast({
+        message: change.isUndo ? t("recovery.undoFailed") : t("cardDetail.saveFailed"),
+        tone: "destructive",
+        action: change.isUndo ? undefined : { label: t("recovery.retry"), onPress: () => update.mutate(change) },
+      });
+    },
     onSettled: () => invalidateCollectionCards(queryClient, collectionGuid),
-    onSuccess: onClose,
   });
+
+  const runUpdate = (change: CardActionsUpdate) => {
+    onClose();
+    update.mutate(change);
+  };
   const removeCardsWithUndo = useDeferredCardRemoval();
 
   const { targetCollections, moveToCollection } = useMoveCardsToCollection({
@@ -41,14 +80,39 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
     onMoved: onClose,
   });
 
+  const refreshAfterLocationChange = () => {
+    void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
+    invalidateCollectionCards(queryClient, collectionGuid);
+  };
+
+  const restoreLocation = useMutation({
+    mutationFn: ({ scanIds: movedScanIds, previousLocationGuid }: CardActionsLocationMove) =>
+      previousLocationGuid
+        ? moveCardsToStorageLocation(previousLocationGuid, movedScanIds)
+        : removeCardsFromStorageLocations(movedScanIds).then(() => undefined),
+    onSuccess: () => AccessibilityInfo.announceForAccessibility(t("recovery.restored")),
+    onError: () => showToast({ message: t("recovery.undoFailed"), tone: "destructive" }),
+    onSettled: refreshAfterLocationChange,
+  });
+
   const moveToLocation = useMutation({
-    mutationFn: (locationGuid: string) => moveCardsToStorageLocation(locationGuid, scanIds),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
-      invalidateCollectionCards(queryClient, collectionGuid);
-      onClose();
+    mutationFn: ({ scanIds: movedScanIds, locationGuid }: CardActionsLocationMove) =>
+      moveCardsToStorageLocation(locationGuid, movedScanIds),
+    onSuccess: (_result, move) => {
+      const locationName = moveTargets.find((location) => location.guid === move.locationGuid)?.name ?? "";
+      showToast({
+        message: t("recovery.movedTo", { name: locationName }),
+        durationMs: TOAST_UNDO_DURATION_MS,
+        action: move.canUndo ? { label: t("recovery.undo"), onPress: () => restoreLocation.mutate(move) } : undefined,
+      });
     },
-    onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
+    onError: (_error, move) =>
+      showToast({
+        message: t("storage.actionFailed"),
+        tone: "destructive",
+        action: { label: t("recovery.retry"), onPress: () => moveToLocation.mutate(move) },
+      }),
+    onSettled: refreshAfterLocationChange,
   });
 
   const removeWithUndo = () => {
@@ -70,7 +134,7 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
               icon="check"
               title={t("cardDetail.markCorrect")}
               disabled={update.isPending}
-              onPress={() => update.mutate({ confirmed: true })}
+              onPress={() => runUpdate({ scanIds, body: { confirmed: true } })}
             />
           ) : null}
           <ListRow icon="sparkles" title={t("cardDetail.foil")} onPress={() => setPicker("foil")} />
@@ -101,7 +165,13 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
         selected={[entry?.foilType ?? (entry?.isFoil ? foilOptions[0] : "")]}
         onSelect={(value) => {
           setPicker(null);
-          update.mutate({ isFoil: value !== "", foilType: value === "" ? null : value });
+          const previousFoilType = entry?.foilType ?? (entry?.isFoil ? foilOptions[0] : null);
+          runUpdate({
+            scanIds,
+            body: { isFoil: value !== "", foilType: value === "" ? null : value },
+            undoBody: { isFoil: previousFoilType != null, foilType: previousFoilType },
+            changeMessage: t("recovery.foilChanged", { value: value === "" ? t("cardDetail.foilNone") : value }),
+          });
         }}
         onClose={() => setPicker(null)}
       />
@@ -112,7 +182,13 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
         selected={[entry?.condition ?? "NM"]}
         onSelect={(value) => {
           setPicker(null);
-          update.mutate({ condition: value as CardCondition });
+          const condition = value as CardCondition;
+          runUpdate({
+            scanIds,
+            body: { condition },
+            undoBody: { condition: entry?.condition ?? DEFAULT_CARD_CONDITION },
+            changeMessage: t("recovery.conditionChanged", { value: t(`cardDetail.conditions.${condition}`) }),
+          });
         }}
         onClose={() => setPicker(null)}
       />
@@ -124,7 +200,13 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
         searchPlaceholder={t("storage.searchLocations")}
         onSelect={(locationGuid) => {
           setPicker(null);
-          moveToLocation.mutate(locationGuid);
+          onClose();
+          moveToLocation.mutate({
+            scanIds,
+            locationGuid,
+            previousLocationGuid: entry?.storageLocation?.guid ?? null,
+            canUndo: scanIds.length === 1,
+          });
         }}
         onClose={() => setPicker(null)}
       />

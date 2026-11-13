@@ -59,10 +59,22 @@ export default function EditCollectionScreen() {
   });
   const save = useMutation({
     mutationFn: (values: EditCollectionFormValues) => updateCollection(guid, values),
+    onMutate: async (values) => {
+      await queryClient.cancelQueries({ queryKey: options.queryKey });
+      const previous = queryClient.getQueryData(options.queryKey);
+      queryClient.setQueryData(options.queryKey, (current) =>
+        current?.map((item) => (item.guid === guid ? { ...item, ...values } : item)),
+      );
+      return { previous };
+    },
     onSuccess: (next) => {
       queryClient.setQueryData(options.queryKey, next);
       router.back();
     },
+    onError: (_error, _values, context) => {
+      if (context) queryClient.setQueryData(options.queryKey, context.previous);
+    },
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: options.queryKey }),
   });
 
   return (

@@ -125,7 +125,7 @@ export function CardsSyncPanel() {
           {syncState && progress && progress.total > 0 ? (
             <View style={{ gap: SPACING.xs + 2 }}>
               <CardsProgressBar accessibilityLabel={t("admin.cards.sync.progressLabel")} done={progress.done} total={progress.total} />
-              <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+              <AppText size="xs" tone="secondary">
                 {[
                   t("admin.cards.sync.progressCount", { done: progress.done, total: progress.total }),
                   progress.isBrowserJob
@@ -160,7 +160,7 @@ export function CardsSyncPanel() {
                 done={syncState.printingMarksDone ?? 0}
                 total={syncState.printingMarksTotal}
               />
-              <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+              <AppText size="xs" tone="secondary">
                 {t("admin.cards.sync.printingMarksCount", { done: syncState.printingMarksDone ?? 0, total: syncState.printingMarksTotal })}
               </AppText>
               {syncState.printingMarksFailed ? (

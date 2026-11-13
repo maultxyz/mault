@@ -1,19 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { WatcherStack } from "@/components/ui/watcher-stack";
 import { CollectionPreviewStack } from "@/features/collections/components/collection-preview-stack";
 import { ReleaseSessionButton } from "@/features/collections/components/release-session-button";
@@ -31,6 +26,7 @@ import { controlCardsPath } from "@/lib/constants/control-cards";
 import type { CollectionTileProps } from "@/lib/interfaces/collections";
 import { cn } from "@/lib/utils";
 import {
+  IconDots,
   IconEdit,
   IconEraser,
   IconHeartRateMonitor,
@@ -39,7 +35,11 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
+import { useOrg } from "@/features/companies/api/use-organization";
+import { usePriceSource } from "@/hooks/use-price-source";
 import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 
 export function CollectionTile({
@@ -62,6 +62,11 @@ export function CollectionTile({
   const viewPath = isActive ? "/app" : collectionViewPath(collection.guid);
   const hasLiveInfo = (scannerLock && !isOwnSession) || watchers.length > 0;
   const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
+  const navigate = useNavigate();
+  const { activeOrg } = useOrg();
+  const { format } = usePriceSource();
+  const { data: overview } = useQuery(orgOverviewQueryOptions(activeOrg?.id));
+  const value = overview?.collectionValues[collection.guid];
 
   return (
     <article
@@ -80,39 +85,36 @@ export function CollectionTile({
       </Link>
       <div className="pointer-events-none absolute inset-x-2 top-2 flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span
-            role="presentation"
-            className="pointer-events-auto flex size-6 items-center justify-center rounded-md bg-background/80 shadow-sm backdrop-blur-sm"
-            onMouseDown={onSelectMouseDown}
-            onClick={(e) => {
-              e.preventDefault();
-              onToggleSelect(consumeShift() || e.shiftKey);
-            }}
-          >
-            <Checkbox
-              checked={isSelected}
-              aria-label={t("selection.select", { name: collection.name })}
-              onClick={(e) => e.stopPropagation()}
-              onCheckedChange={() => onToggleSelect(consumeShift())}
-            />
-          </span>
-          {isActive && (
-            <Badge variant="success" className="shadow-sm">
-              <span className="size-1.5 rounded-full bg-success" />
-              {t("page.activeBadge")}
-            </Badge>
+          {scannerLock ? (
+            <ScanningPill isOwn={isOwnSession} />
+          ) : (
+            isActive && (
+              <Badge variant="success" className="shadow-sm">
+                <span className="size-1.5 rounded-full bg-success" />
+                {t("page.activeBadge")}
+              </Badge>
+            )
           )}
-          {scannerLock && <ScanningPill isOwn={isOwnSession} />}
         </div>
-        <Badge
-          variant="outline"
-          className="max-w-1/2 truncate bg-background/80 backdrop-blur-sm"
+        <span
+          role="presentation"
+          className="pointer-events-auto flex size-6 items-center justify-center rounded-md bg-card/85 shadow-sm backdrop-blur-sm"
+          onMouseDown={onSelectMouseDown}
+          onClick={(e) => {
+            e.preventDefault();
+            onToggleSelect(consumeShift() || e.shiftKey);
+          }}
         >
-          {collection.game ? collection.game.name : t("page.noGame")}
-        </Badge>
+          <Checkbox
+            checked={isSelected}
+            aria-label={t("selection.select", { name: collection.name })}
+            onClick={(e) => e.stopPropagation()}
+            onCheckedChange={() => onToggleSelect(consumeShift())}
+          />
+        </span>
       </div>
       {hasLiveInfo && (
-        <div className="absolute top-28 left-2 flex items-center gap-1.5 rounded-full bg-background/80 p-1 shadow-sm backdrop-blur-sm">
+        <div className="absolute top-20 left-2 flex items-center gap-1.5 rounded-full bg-card/85 p-1 shadow-sm backdrop-blur-sm">
           {scannerLock && !isOwnSession && (
             <InitialsAvatar
               name={scannerLock.displayName}
@@ -127,107 +129,51 @@ export function CollectionTile({
         </div>
       )}
 
-      <div className="flex items-center gap-3 border-t p-3">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col gap-0.5 border-t px-3 py-2">
+        <div className="flex items-center gap-2">
           <Link
             to={viewPath}
-            className="block truncate rounded-sm text-sm font-semibold hover:underline"
+            className="min-w-0 flex-1 truncate rounded-sm text-sm font-semibold hover:underline"
           >
             {collection.name}
           </Link>
-          <p className="truncate text-xs tabular-nums text-foreground/70">
-            {t("page.cardCount", { count: collection.cardCount })} ·{" "}
-            {new Date(collection.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-
-        {isOwnSession && <ReleaseSessionButton guid={collection.guid} />}
-        <ButtonGroup className="shrink-0">
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label={t("page.liveView")}
-                  render={
-                    <Link to={monitorCollectionPath(collection.guid)}>
-                      <IconHeartRateMonitor />
-                    </Link>
-                  }
-                />
-              }
-            ></TooltipTrigger>
-            <TooltipContent>{t("page.liveView")}</TooltipContent>
-          </Tooltip>
-          {!isActive && (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label={t("page.setActiveCollection")}
-                    disabled={isActivating}
-                    onClick={onActivate}
-                  >
-                    <IconPlayerPlay />
-                  </Button>
-                }
-              ></TooltipTrigger>
-              <TooltipContent>{t("page.setActiveCollection")}</TooltipContent>
-            </Tooltip>
-          )}
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label={t("page.printControlCard")}
-                  render={
-                    <Link
-                      to={controlCardsPath({ collectionGuid: collection.guid })}
-                    >
-                      <IconQrcode />
-                    </Link>
-                  }
-                />
-              }
-            ></TooltipTrigger>
-            <TooltipContent>{t("page.printControlCard")}</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label={t("page.edit")}
-                  disabled={isMutating}
-                  data-tour="edit-collection"
-                  onClick={onEdit}
-                >
-                  <IconEdit />
-                </Button>
-              }
-            ></TooltipTrigger>
-            <TooltipContent>{t("page.edit")}</TooltipContent>
-          </Tooltip>
+          {isOwnSession && <ReleaseSessionButton guid={collection.guid} />}
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
                 <Button
-                  variant="outline-destructive"
-                  size="icon"
-                  aria-label={t("deleteCollection")}
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t("page.actions", { name: collection.name })}
                   disabled={isMutating}
+                  data-tour="edit-collection"
                 >
-                  <IconTrash />
+                  <IconDots />
                 </Button>
               }
             />
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate(monitorCollectionPath(collection.guid))}>
+                <IconHeartRateMonitor />
+                {t("page.liveView")}
+              </DropdownMenuItem>
+              {!isActive && (
+                <DropdownMenuItem disabled={isActivating} onClick={onActivate}>
+                  <IconPlayerPlay />
+                  {t("page.setActiveCollection")}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={() => navigate(controlCardsPath({ collectionGuid: collection.guid }))}
+              >
+                <IconQrcode />
+                {t("page.printControlCard")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onEdit}>
+                <IconEdit />
+                {t("page.edit")}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onEmpty}>
                 <IconEraser />
                 {t("emptyCollection")}
@@ -238,7 +184,18 @@ export function CollectionTile({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </ButtonGroup>
+        </div>
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="min-w-0 truncate text-xs text-foreground/70 tabular-nums">
+            {t("page.cardCount", { count: collection.cardCount })} ·{" "}
+            {collection.game ? collection.game.name : t("page.noGame")}
+          </p>
+          {value != null && (
+            <p className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
+              {format(value)}
+            </p>
+          )}
+        </div>
       </div>
     </article>
   );

@@ -1,9 +1,9 @@
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { foldChartSegments, statsActivityAverage, statsHeroSparklineValues, statsSharePercent } from "@magic-vault/shared";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { StatGroup } from "@/components/ui/stat-group";
@@ -42,7 +42,7 @@ import type {
   StatsDashboardProps,
   StatsTopCardsProps,
 } from "@/lib/interfaces/stats";
-import { absoluteUrl } from "@/lib/url";
+import { cardArtSources } from "@/lib/card-art";
 
 function StatsActivitySection({ report }: StatsActivitySectionProps) {
   const { t, i18n } = useTranslation();
@@ -156,8 +156,8 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
                 backgroundColor: colors.muted,
               }}
             >
-              <Image
-                source={absoluteUrl(entry.card.image?.normal ?? entry.card.image?.small)}
+              <CardArt
+                {...cardArtSources(entry.card.image)}
                 style={{ width: "100%", height: "100%" }}
                 contentFit="cover"
               />
@@ -178,7 +178,7 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
                 <AppText
                   size="xs"
                   weight="bold"
-                  style={{ color: index === 0 ? colors.primaryForeground : colors.foreground, fontVariant: ["tabular-nums"] }}
+                  style={{ color: index === 0 ? colors.primaryForeground : colors.foreground }}
                 >
                   {index + 1}
                 </AppText>

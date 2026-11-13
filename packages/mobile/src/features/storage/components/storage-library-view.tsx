@@ -150,7 +150,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
               title={location.name}
               subtitle={t("collection.cardsCount", { count: location.cardCount })}
               right={
-                <AppText weight="semibold" numberOfLines={1} style={{ fontVariant: ["tabular-nums"] }}>
+                <AppText weight="semibold" numberOfLines={1}>
                   {pricing.format(location.totalValue)}
                 </AppText>
               }

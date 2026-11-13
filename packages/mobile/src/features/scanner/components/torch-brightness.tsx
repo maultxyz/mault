@@ -41,7 +41,7 @@ export function TorchBrightness({ torch }: TorchControlProps) {
         weight="semibold"
         importantForAccessibility="no"
         accessibilityElementsHidden
-        style={{ color: colors.onCamera, minWidth: 40, textAlign: "right", fontVariant: ["tabular-nums"] }}
+        style={{ color: colors.onCamera, minWidth: 40, textAlign: "right" }}
       >
         {percentLabel}
       </AppText>

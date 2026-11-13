@@ -66,7 +66,8 @@
     },
     "liveView": "Live view",
     "printControlCard": "Print control card",
-    "viewStats": "Stats"
+    "viewStats": "Stats",
+    "actions": "Actions for {{name}}"
   },
   "editDialog": {
     "title": "Edit collection",

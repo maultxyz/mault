@@ -79,7 +79,7 @@ import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
 import type { CollectionScanTimeline, ScanTimelineListRow } from "@/lib/interfaces/collections";
 import { readReviewLayout } from "@/lib/review-layout";
 import { writeKv } from "@/lib/storage/kv";
-import { absoluteUrl } from "@/lib/url";
+import { cardArtSources } from "@/lib/card-art";
 
 export default function CollectionScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
@@ -240,7 +240,7 @@ export default function CollectionScreen() {
               ? pricing.format(price)
               : `${item.card.set.toUpperCase()} #${item.card.collectorNumber}`
           }
-          imageUrl={absoluteUrl(item.card.image?.normal ?? item.card.image?.small)}
+          {...cardArtSources(item.card.image)}
           quantity={item.quantity}
           flagged={flagged}
           corrected={!!item.corrected || !!item.reviewed}

@@ -63,7 +63,7 @@ export function CardsDatabasePanel() {
           title={t("admin.cards.database.heading")}
           action={
             data ? (
-              <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+              <AppText size="xs" tone="secondary">
                 {t("admin.cards.database.cardCount", { count: data.total })}
               </AppText>
             ) : undefined
@@ -117,7 +117,7 @@ export function CardsDatabasePanel() {
               disabled={page <= 1 || catalog.isFetching}
               onPress={() => goToPage(page - 1)}
             />
-            <AppText size="xs" tone="secondary" accessibilityLiveRegion="polite" style={{ flex: 1, textAlign: "center", fontVariant: ["tabular-nums"] }}>
+            <AppText size="xs" tone="secondary" accessibilityLiveRegion="polite" style={{ flex: 1, textAlign: "center" }}>
               {t("admin.cards.database.pageStatus", { page, pageCount })}
             </AppText>
             <Button

@@ -60,6 +60,7 @@ import { STORAGE_LOCATION_TABS } from "@/lib/constants/storage";
 import type { StorageLocationTab } from "@/lib/interfaces/storage";
 import { SPACING } from "@/lib/constants/theme";
 import { readReviewLayout } from "@/lib/review-layout";
+import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 
 export default function StorageLocationScreen() {
@@ -304,7 +305,7 @@ export default function StorageLocationScreen() {
                   <CardTile
                     name={entry.card.name}
                     caption={[t("storage.position", { position: entry.position }), ...(value != null ? [pricing.format(value)] : [])].join(" · ")}
-                    imageUrl={absoluteUrl(entry.card.image?.normal ?? entry.card.image?.small)}
+                    {...cardArtSources(entry.card.image)}
                     isFoil={entry.isFoil}
                     flagged={(entry.lowConfidenceMatch || entry.hasAlternatives) && !entry.reviewed}
                     corrected={entry.corrected || entry.reviewed}

@@ -233,6 +233,14 @@
     "pickListComplete": {
       "title": "Liste de tri terminée",
       "description": "Chaque carte de la liste est dans le bac {{bin}}."
+    },
+    "removed": {
+      "title_one": "{{count}} carte retirée",
+      "title_other": "{{count}} cartes retirées",
+      "undo": "Annuler"
+    },
+    "editFailed": {
+      "title": "Impossible d'enregistrer cette modification. Elle a été annulée."
     }
   },
   "cardScanner": {

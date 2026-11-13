@@ -3214,6 +3214,10 @@
     "tagAdded": "{{tag}} hinzugefügt",
     "tagRemoved": "{{tag}} entfernt",
     "movedTo": "Verschoben nach {{name}}",
-    "cardsLoadFailed": "Die Karten konnten nicht geladen werden"
+    "cardsLoadFailed": "Die Karten konnten nicht geladen werden",
+    "foilChanged": "Foil auf {{value}} gesetzt",
+    "conditionChanged": "Zustand auf {{value}} gesetzt",
+    "pickListCleared": "Pickliste geleert",
+    "verifyProgressCleared": "Prüffortschritt zurückgesetzt"
   }
 }

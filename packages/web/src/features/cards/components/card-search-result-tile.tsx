@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -22,11 +23,10 @@ export function CardSearchResultTile({
     <>
       <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg">
         {card.image?.small ? (
-          <img
+          <CardImage
             src={card.image.normal || card.image.small}
+            placeholderSrc={card.image.small}
             alt={card.name}
-            loading="lazy"
-            className="h-full w-full object-cover"
           />
         ) : (
           <div className="h-full w-full bg-background" />

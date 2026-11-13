@@ -5,6 +5,7 @@ import type {
   GroupedScannedCard,
   ScanTimelineGrouping,
 } from "@magic-vault/shared";
+import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { StatsBreakdown } from "@/lib/interfaces/stats";
 
 export interface ScanImageResponse {
@@ -102,4 +103,19 @@ export interface CollectionActionsOptions {
   includesScanInto?: boolean;
   shareLinkCountGuid?: string | null;
   onDeleted?: () => void;
+}
+
+export interface CardActionsUpdate {
+  scanIds: string[];
+  body: CardUpdateBody;
+  undoBody?: CardUpdateBody;
+  changeMessage?: string;
+  isUndo?: boolean;
+}
+
+export interface CardActionsLocationMove {
+  scanIds: string[];
+  locationGuid: string;
+  previousLocationGuid: string | null;
+  canUndo: boolean;
 }

@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, View } from "react-native";
+import { CardArt } from "@/components/cards/card-art";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
@@ -122,7 +122,7 @@ export default function GlobalSearchScreen() {
                             }}
                           >
                             {imageUrl ? (
-                              <Image source={{ uri: imageUrl }} accessible={false} style={{ flex: 1 }} contentFit="cover" />
+                              <CardArt imageUrl={imageUrl} accessible={false} style={{ flex: 1 }} contentFit="cover" />
                             ) : null}
                           </View>
                         }

@@ -76,7 +76,7 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
                   backgroundColor: entry.isOwnOrg ? colors.primarySelected : "transparent",
                 }}
               >
-                <AppText weight="bold" style={{ width: 40, fontVariant: ["tabular-nums"] }}>
+                <AppText weight="bold" style={{ width: 40 }}>
                   {t("stats.leaderboard.rank", { rank: entry.rank })}
                 </AppText>
                 <View style={{ flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
@@ -90,7 +90,7 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
                     />
                   ) : null}
                 </View>
-                <AppText style={{ fontVariant: ["tabular-nums"] }}>
+                <AppText>
                   {entry.scanCount.toLocaleString(i18n.language)}
                 </AppText>
               </View>

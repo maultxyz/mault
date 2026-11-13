@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { PublicCardBadges } from "@/features/public-cards/components/public-card-badges";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -43,11 +44,10 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
           </span>
         )}
         <PublicCardBadges entry={entry} className="absolute right-1 bottom-1 left-1 z-20" />
-        <img
-          loading="lazy"
-          src={entry.card.image?.normal || ""}
+        <CardImage
+          src={entry.card.image?.normal || entry.card.image?.small}
+          placeholderSrc={entry.card.image?.small}
           alt=""
-          className="h-full w-full object-cover"
         />
       </span>
       <span className="flex min-w-0 flex-col gap-0.5 px-1 pt-1 pb-1">

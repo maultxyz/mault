@@ -47,7 +47,7 @@ export function AreaChart({ data, formatValue, formatAxisValue, accessibilityLab
 
   return (
     <View style={{ gap: SPACING.sm }}>
-      <AppText size="sm" style={{ fontVariant: ["tabular-nums"] }}>
+      <AppText size="sm">
         <AppText size="sm" tone="secondary">
           {`${current.label}: `}
         </AppText>
@@ -99,7 +99,7 @@ export function AreaChart({ data, formatValue, formatAxisValue, accessibilityLab
             key={fraction}
             size="2xs"
             tone="secondary"
-            style={{ position: "absolute", left: 0, top: yOf(yMax * fraction) + 2, fontVariant: ["tabular-nums"] }}
+            style={{ position: "absolute", left: 0, top: yOf(yMax * fraction) + 2 }}
           >
             {formatAxisValue(yMax * fraction)}
           </AppText>
@@ -119,7 +119,7 @@ export function AreaChart({ data, formatValue, formatAxisValue, accessibilityLab
               backgroundColor: colors.primary,
             }}
           >
-            <AppText size="2xs" weight="semibold" numberOfLines={1} style={{ color: colors.primaryForeground, fontVariant: ["tabular-nums"] }}>
+            <AppText size="2xs" weight="semibold" numberOfLines={1} style={{ color: colors.primaryForeground }}>
               {formatAxisValue(current.value)}
             </AppText>
           </View>
