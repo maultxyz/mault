@@ -9,6 +9,7 @@ const exportFormatSchema = z
 export const storageLocationCsvExportRequestSchema = z.object({
   format: exportFormatSchema,
   combineDuplicates: z.boolean(),
+  scanIds: z.array(z.string()).max(BULK_SCAN_IDS_MAX).optional(),
 });
 
 export const collectionCsvExportRequestSchema = storageLocationCsvExportRequestSchema.extend({

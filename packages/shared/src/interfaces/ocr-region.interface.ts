@@ -1,4 +1,4 @@
-export type OcrField = "name" | "setLine" | "number";
+export type OcrField = "name" | "setLine" | "number" | "language";
 
 export interface OcrRegion {
   field: OcrField;
@@ -9,6 +9,7 @@ export interface OcrRegion {
   multiline?: boolean;
   fallback?: boolean;
   ignoredLineTexts?: string[];
+  anchorLinePattern?: string;
 }
 
 export type OcrReadout = Record<OcrField, string>;
@@ -33,15 +34,10 @@ export interface OcrDiagnostics {
   printingConfirmed?: boolean;
   usedFallback?: boolean;
   regions?: OcrReadRegion[];
+  printedPromo?: boolean | null;
+  scopedToPrintedLanguage?: string | null;
 }
 
-export interface ColorBarBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-export interface ColorBarRegion extends ColorBarBox {
-  whiteReference: ColorBarBox;
+export interface OcrOverlayRegion extends OcrRegion {
+  anchored?: boolean;
 }

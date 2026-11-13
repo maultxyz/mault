@@ -148,5 +148,5 @@ export function binModeSummaries(
 }
 
 export function modeLocksBinRules(mode: BinSetMode): boolean {
-  return mode === "alphabet" || mode === "chaos" || mode === "repack" || mode === "auto-assign";
+  return mode === "alphabet" || mode === "chaos" || mode === "repack" || mode === "auto-assign" || mode === "game-sort";
 }

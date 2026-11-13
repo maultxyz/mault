@@ -3,7 +3,7 @@ import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { ORDERS_PATH } from "@/lib/constants/business";
-import { SHOP_URL } from "@/lib/constants/links";
+import { PRINT_FILES_URL, SHOP_URL } from "@/lib/constants/links";
 import { STORAGE_PATH } from "@/lib/constants/storage";
 import type { PlanGatedPath } from "@/lib/interfaces/nav";
 
@@ -18,8 +18,6 @@ export const SIDEBAR_SELECTED_ITEM_CLASS =
 export const SIDEBAR_EXPANDED_ITEM_CLASS =
   "w-full justify-start gap-2 px-2 border-0";
 
-export const WATCH_ROUTE_PREFIX = "/watch";
-export const WATCH_TOKEN_PARAM = "t";
 
 export const MOBILE_NAV_TAB_CLASS =
   "flex h-14 flex-col items-center justify-center gap-0.5 text-2xs leading-tight font-medium transition-colors active:bg-sidebar-accent";
@@ -54,6 +52,7 @@ export const MOBILE_SEARCH_INPUT_CLASS =
   "h-11 rounded-lg pl-10 text-base";
 export const MOBILE_ICON_BUTTON_CLASS =
   "size-10 shrink-0 rounded-lg border-border bg-background text-foreground hover:bg-background active:bg-muted dark:bg-input/30 dark:hover:bg-input/30 aria-expanded:bg-muted [&_svg:not([class*='size-'])]:size-5";
+export const MOBILE_COUNT_BUTTON_CLASS = "h-10 w-auto px-2.5";
 export const MOBILE_CIRCLE_BUTTON_CLASS =
   "size-10 rounded-lg border-border bg-background text-foreground hover:bg-background active:bg-muted dark:bg-input/30 dark:hover:bg-input/30 [&_svg:not([class*='size-'])]:size-5";
 export const MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS =
@@ -80,6 +79,7 @@ export const MOBILE_SORTER_PATH = "/app/sorter";
 export const MOBILE_ACCOUNT_PATH = "/app/me";
 export const MOBILE_ACCOUNT_TAB_PATHS = [
   MOBILE_ACCOUNT_PATH,
+  "/app/admin",
   "/app/account",
   "/app/health",
   SETTINGS_PATHS.root,
@@ -97,6 +97,7 @@ export const PUBLIC_NAV_PAGES = [
   { key: "discordBot", to: "/discord-bot" },
   { key: "download", to: DOWNLOAD_PATH },
   { key: "shop", to: SHOP_URL, external: true },
+  { key: "makerWorld", to: PRINT_FILES_URL, external: true },
 ] as const;
 
 export const PLAN_GATED_PATHS: readonly PlanGatedPath[] = [

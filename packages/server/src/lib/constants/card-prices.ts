@@ -19,10 +19,19 @@ export const CARD_PRICE_DETAIL_KEYS = [
   "cardKingdomPrice",
   "cardKingdomPriceFoil",
   "finishPrices",
+  "stampPrices",
   "priceByCondition",
   "priceFoilByCondition",
   "foilOnlyFoilType",
 ] as const;
+
+export const SHARE_LINK_HIDDEN_PRICE_KEYS: ReadonlySet<string> = new Set([
+  ...Object.keys(CARD_PRICE_COLUMNS),
+  ...CARD_PRICE_DETAIL_KEYS.filter((key) => key !== "foilOnlyFoilType"),
+  "pricesAtScan",
+  "acquisitionCost",
+  "acquisitionCurrency",
+]);
 
 export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;
 export const CARD_PRICE_REFRESH_PROGRESS_LOG_EVERY_BATCHES = 20;
@@ -39,6 +48,7 @@ export const COLLECTION_CARD_SQL_COLUMNS: ScannedCardSqlColumns = {
   cardLang: collectionCards.cardLang,
   isFoil: collectionCards.isFoil,
   foilType: collectionCards.foilType,
+  stamp: collectionCards.stamp,
   condition: collectionCards.condition,
   cardId: collectionCards.cardId,
   collectionId: collectionCards.collectionId,
@@ -56,6 +66,7 @@ export const CC_ALIAS_SQL_COLUMNS: ScannedCardSqlColumns = {
   cardLang: sql`cc.card_lang`,
   isFoil: sql`cc.is_foil`,
   foilType: sql`cc.foil_type`,
+  stamp: sql`cc.stamp`,
   condition: sql`cc.condition`,
   cardId: sql`cc.card_id`,
   collectionId: sql`cc.collection_id`,

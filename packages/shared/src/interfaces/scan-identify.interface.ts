@@ -1,3 +1,6 @@
+import type { StampDetection } from "./card-stamps.interface";
+import type { PrintedFoilMarkerDetection } from "./printed-foil-marker.interface";
+import type { PrintingMarkMatch } from "./printing-regions.interface";
 import type {
   CardSearchDiagnostics,
   CardSearchResult,
@@ -24,16 +27,6 @@ export interface ResolvedCardSearchMatches {
   candidates: MatchCandidateDiagnostic[];
 }
 
-export interface DetectedColorEvidence {
-  gameHasColorBar: boolean;
-  detectedColor: string | null;
-  printingConfirmed: boolean;
-}
-
-export type ColorResolvedMatches<T extends ResolvedCardSearchMatches> = T & {
-  colorVariantUncertain: boolean;
-};
-
 export interface ScanAttemptResult extends ResolvedCardSearchMatches {
   detection: ScanDetectionDiagnostics;
   search: CardSearchDiagnostics | null;
@@ -43,7 +36,9 @@ export interface ScanAttemptResult extends ResolvedCardSearchMatches {
   ocr: OcrDiagnostics | null;
   lowConfidenceMatch: boolean;
   matchedBy: ScanMatchSource;
-  detectedColor: string | null;
+  stampDetection?: StampDetection | null;
+  printedFoilMarker?: PrintedFoilMarkerDetection | null;
+  printingMarks?: PrintingMarkMatch | null;
 }
 
 export interface ScanMatchDetails {
@@ -58,3 +53,5 @@ export interface OrientedSearchCandidate {
 export type LookupMatchedCard = (
   match: SearchCardMatch,
 ) => Promise<PlayingCard | null | undefined>;
+
+export type ScanOcrMode = "off" | "when-unsure" | "every-scan";

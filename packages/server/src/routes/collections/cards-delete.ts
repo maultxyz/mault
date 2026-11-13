@@ -25,6 +25,7 @@ export const deleteCollectionCardRoute = new Hono<AppEnv>().delete(
         )
         .returning({
           imageKey: collectionCards.capturedImageKey,
+          backImageKey: collectionCards.capturedBackImageKey,
           name: sql<string>`${collectionCards.card} ->> 'name'`,
         });
       if (deleted.length > 0) {
@@ -39,7 +40,7 @@ export const deleteCollectionCardRoute = new Hono<AppEnv>().delete(
       return {
         success: true,
         data: null,
-        imageKeys: deleted.map((row) => row.imageKey),
+        imageKeys: deleted.flatMap((row) => [row.imageKey, row.backImageKey]),
       };
     });
     if (result.success) {

@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 import { CardRow } from "@/components/cards/card-row";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,10 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { SearchInput } from "@/components/ui/search-input";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { cardSearchQueryOptions } from "@/features/cards/api/card-search";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePricing } from "@/hooks/use-pricing";
-import { useTheme } from "@/hooks/use-theme";
 import { CARD_SEARCH_MIN_LENGTH } from "@/lib/constants/cards";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
@@ -34,7 +34,6 @@ export function CardCorrectionSearch({
   onSelect,
 }: CardCorrectionSearchProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const pricing = usePricing();
   const [query, setQuery] = useState(initialQuery);
   const [language, setLanguage] = useState<string>(CARD_SEARCH_ALL_LANGUAGES);
@@ -69,7 +68,7 @@ export function CardCorrectionSearch({
           {t("cardDetail.startTyping")}
         </AppText>
       ) : search.isPending ? (
-        <ActivityIndicator color={colors.primaryText} style={{ paddingVertical: SPACING.xl }} />
+        <ListSkeleton rows={4} />
       ) : results.length === 0 ? (
         <AppText tone="secondary" style={{ textAlign: "center", paddingVertical: SPACING.xl }}>
           {t("cardDetail.noCardsFound")}

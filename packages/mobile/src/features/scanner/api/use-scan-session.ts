@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   applyAutoAssignTarget,
@@ -12,7 +13,9 @@ import {
   DEFAULT_FEEDER_CALIBRATION,
   feedWithRetries,
   findScannerControlCommandProblem,
+  isScannerControlCode,
   parseScannerControlCode,
+  parseShareLinkUrl,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
@@ -23,13 +26,16 @@ import {
   isFeedTimeoutReply,
   isScanFillingLastRepackPack,
   OCR_REGIONS_BY_GAME_KEY,
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   resolveScanBin,
   SERIAL_JAM_ERROR,
   type SerialReply,
-  scanFoilType,
+  resolveScanFoilType,
+  detectedStampOf,
   toRuleCard,
   withScanRuleFields,
+  isCardFromOtherGame,
+  presetMatchGameKeys,
+  presetMatchedGameOptions,
   type AutoAssignTarget,
   type BinConfig,
   type BinContentCard,
@@ -39,27 +45,28 @@ import {
   type ScannedCard,
   type ScannerControlCommand,
   type ScanRoutingContext,
+  readsPrintedLanguageEveryScan,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import {
   binHeightsQueryOptions,
   feederConfigQueryOptions,
 } from "@/features/calibration/api/calibration-configs";
-import {
-  collectionsQueryOptions,
-  releaseScanLock,
-  setActiveCollection,
-} from "@/features/collections/api/collections";
+import { releaseScanLock } from "@/features/collections/api/collections";
+import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { binRoutesQueryOptions, binSetsQueryOptions } from "@/features/devices/api/devices";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { fetchBinContents, fetchBinCounts } from "@/features/scanner/api/bin-counts";
 import { activateBinSet, emptyBins, markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
+import { gamesQueryOptions } from "@/features/games/api/games";
+import { recordSortOnlyScan } from "@/features/scanner/api/scan-saves";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
 import { identifyCard } from "@/features/scanner/lib/identify";
-import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-code";
+import { readScannerQrText } from "@/features/scanner/lib/scanner-control-code";
 import { warmScanModels } from "@/features/scanner/lib/inference";
 import { reportSerialEvent } from "@/features/sorter/api/serial-events";
 import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
@@ -69,7 +76,6 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BIN_DATA_RETRY_MS,
   CONTROL_CARD_NOTICE_DURATION_MS,
-  LIVE_CORNERS_SUPPORTED,
   SESSION_FEED_IMAGE_LIMIT,
   SESSION_FEED_LIMIT,
 } from "@/lib/constants/scanner";
@@ -98,7 +104,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const orgId = useActiveOrgId();
   const sorter = useSorter();
   const { saveCard, saveUnmatched } = usePendingSaves();
-  const { data: collections } = useQuery(collectionsQueryOptions(orgId));
+  const { collection, collections, setScanTargetGuid } = useScanTarget();
   const { data: binSets } = useQuery(binSetsQueryOptions(orgId));
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
@@ -118,9 +124,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const [autoFeed, setAutoFeedState] = useState(true);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
   const [handScan, setHandScanState] = useState(() => readKv(HAND_SCAN_KEY) === "true");
-  const handScanActive = handScan && LIVE_CORNERS_SUPPORTED && !sorter.isReady;
+  const handScanActive = handScan && !sorter.isReady;
 
-  const collection = collections?.find((c) => c.isActive) ?? null;
   const set = useMemo(() => {
     const forGame = (binSets ?? []).filter(
       (s) => (s.game?.guid ?? undefined) === (collection?.game?.guid ?? undefined),
@@ -133,10 +138,17 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     : Math.max(0, ...(set?.bins ?? []).map((bin) => bin.binNumber));
   const configs = useMemo(() => (binCount ? configsFromSet(set, binCount) : []), [set, binCount]);
   const removal = useScanRemoval({ collectionGuid: collection?.guid ?? null, binConfigs: configs });
+  const { data: games = [] } = useQuery(gamesQueryOptions);
   const fieldDefinitions = useMemo(
     () =>
-      withScanRuleFields(collection?.game?.fieldDefinitions ?? [], collection?.game?.foilTypes ?? []),
-    [collection?.game?.fieldDefinitions, collection?.game?.foilTypes],
+      withScanRuleFields(
+        collection?.game?.fieldDefinitions ?? [],
+        collection?.game?.foilTypes ?? [],
+        collection?.game?.key,
+        undefined,
+        presetMatchedGameOptions(set, games),
+      ),
+    [collection?.game?.fieldDefinitions, collection?.game?.foilTypes, collection?.game?.key, set, games],
   );
   const playSoundForCard = useSoundRulePlayer(collection?.game?.guid, fieldDefinitions);
   const needsBinContents = !!set?.isRepackMode || hasMaxCopiesBins(configs);
@@ -519,8 +531,18 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         pause("bin-data-unavailable");
         return;
       }
-      const forcedFoil = scanFoilType(card, forcedFoilTypeRef.current);
-      const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil });
+      const forcedFoil = resolveScanFoilType({
+        card,
+        sessionFoilType: forcedFoilTypeRef.current,
+        foilDetection: null,
+        fallbackFoilTypes: ctx.collection.game?.foilTypes ?? [],
+        gameKey: ctx.collection.game?.key,
+        printedFoilMarker: outcome.matched?.diagnostics.printedFoilMarker,
+        isNudgeFoilDetectionEnabled: false,
+        isFoilStarDetectionEnabled: ctx.orgSettings?.foilStarDetectionEnabled ?? false,
+      });
+      const stamp = detectedStampOf(outcome.matched?.diagnostics.stampDetection);
+      const ruleCard = toRuleCard(card, { isFoil: forcedFoil != null, foilType: forcedFoil, stamp });
       const configs = locallyUpdatedConfigsRef.current ?? ctx.configs;
       const routingContext: ScanRoutingContext = {
         binSet: ctx.set,
@@ -553,6 +575,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         vectorizedOn: "web",
         isFoil: forcedFoil != null || undefined,
         foilType: forcedFoil ?? undefined,
+        stamp: stamp ?? undefined,
         condition: scanConditionRef.current,
       };
       if (record.binNumber != null) {
@@ -585,13 +608,29 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber, card.name);
       else if (!filledPack) continueAfterCard();
 
-      void ctx
-        .saveCard({
-          orgId: ctx.orgId,
-          collectionGuid: ctx.collection.guid,
-          deviceGuid: ctx.sorter.device?.guid,
-          record: { ...record, diagnostics: outcome.matched?.diagnostics },
-        })
+      const sortsWithoutSaving =
+        !!ctx.set?.skipSaving || isCardFromOtherGame(card, ctx.collection.game?.key);
+      void (
+        sortsWithoutSaving
+          ? recordSortOnlyScan(
+              ctx.collection.guid,
+              {
+                scanId: record.scanId,
+                card,
+                scannedAt: record.scannedAt,
+                hasAlternatives: !!record.alternativeMatches?.length,
+                vectorizedOn: record.vectorizedOn,
+                deviceGuid: ctx.sorter.device?.guid,
+              },
+              ctx.orgId,
+            )
+          : ctx.saveCard({
+              orgId: ctx.orgId,
+              collectionGuid: ctx.collection.guid,
+              deviceGuid: ctx.sorter.device?.guid,
+              record: { ...record, diagnostics: outcome.matched?.diagnostics },
+            })
+      )
         .then((result) => handleSaveResult(result, record.binNumber))
         .catch(() => pause("save-failed"));
     },
@@ -700,10 +739,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         }
       }
       try {
-        if (switchesCollection && command.collectionGuid) {
-          const nextCollections = await setActiveCollection(command.collectionGuid);
-          queryClient.setQueryData(collectionsQueryOptions(ctx.orgId).queryKey, nextCollections);
-        }
+        if (switchesCollection && command.collectionGuid) setScanTargetGuid(command.collectionGuid);
         const preset = ctx.binSets?.find((binSet) => binSet.guid === command.presetGuid);
         if (preset && !preset.isActive) {
           const nextBinSets = await activateBinSet(preset.guid);
@@ -726,6 +762,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       setForcedFoilType,
       setForcedSetCodes,
       setScanCondition,
+      setScanTargetGuid,
     ],
   );
 
@@ -742,7 +779,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       return;
     }
     setPhase("capturing");
-    await delay(device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS);
+    if (ctx.sorter.isReady) await delay(device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS);
     setPhase("identifying");
     const gameKey = ctx.collection.game?.key ?? "";
     try {
@@ -750,15 +787,30 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const outcome = await identifyCard(
         async () => (captured.frame = await ctx.capture()),
         {
-          scope: { collectionGuid: ctx.collection.guid, preferredSetCodes: forcedSetCodesRef.current },
+          scope: {
+            collectionGuid: ctx.collection.guid,
+            preferredSetCodes: forcedSetCodesRef.current,
+            matchGameKeys: presetMatchGameKeys(ctx.set),
+          },
           matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
-          ocrEnabled: !!ctx.orgSettings?.ocrEnabled && (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
-          colorBarRegionKey: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey] ? gameKey : null,
+          ocrMode: scanOcrMode(
+            ctx.orgSettings,
+            (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+            readsPrintedLanguageEveryScan(ctx.collection, gameKey),
+          ),
+          gameKey: gameKey || null,
         },
         device?.scanRegion ?? DEFAULT_SCAN_REGION,
       );
-      const controlCode = !outcome.card && captured.frame ? await readScannerControlCode(captured.frame) : null;
+      const qrText = !outcome.card && captured.frame ? await readScannerQrText(captured.frame) : null;
+      const shareLink = qrText ? parseShareLinkUrl(qrText) : null;
+      if (shareLink) {
+        pause("user");
+        router.push({ pathname: "/shared-link", params: { ...shareLink } });
+        return;
+      }
+      const controlCode = qrText && isScannerControlCode(qrText) ? qrText : null;
       if (controlCode) {
         await applyControlCode(parseScannerControlCode(controlCode));
         if (!runningRef.current && phaseRef.current !== "paused") setPhase("ready");

@@ -7,7 +7,7 @@ import { trimTrailingSlashes } from "@/lib/pathname";
 import { loadPiHost } from "@/lib/pi-host";
 import { prerenderEnvSignature } from "@/lib/prerender-env";
 import { registerServiceWorker } from "@/lib/pwa";
-import "@/lib/rollbar";
+import "@/lib/error-reporting";
 import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";

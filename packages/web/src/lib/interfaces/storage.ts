@@ -2,7 +2,11 @@ import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { EmptyBinLocationFormValues } from "@/schemas/storage.schema";
 import type { UseFormReturn } from "react-hook-form";
 import type { ScanStats } from "@/lib/interfaces/scanner";
-import type { CardGridDensity, CardViewMode } from "@/lib/interfaces/cards";
+import type {
+  CardGridDensity,
+  CardViewMode,
+  SelectToggleOptions,
+} from "@/lib/interfaces/cards";
 import type {
   CardFilters,
   PickListEntry,
@@ -15,6 +19,7 @@ import type {
   EmptyAllBinsOptions,
   EmptyBinOptions,
   StorageLocation,
+  StorageLocationCardReference,
   StorageLocationCard,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
@@ -158,16 +163,34 @@ export interface StorageLocationCardQueryState {
 
 export interface StorageCardQueryToolbarProps {
   cardQuery: StorageLocationCardQueryState;
+  allSelected: boolean;
+  canSelectAll: boolean;
+  onToggleSelectAll: () => void;
   viewMode: CardViewMode;
   onViewModeChange: (mode: CardViewMode) => void;
   density: CardGridDensity;
   onDensityChange: (density: CardGridDensity) => void;
 }
 
-export interface StorageCardGridProps {
+export interface StoredCardSelectionProps {
+  isSelected?: (entry: StorageLocationSearchResult) => boolean;
+  onToggleSelect?: (
+    entry: StorageLocationSearchResult,
+    options: SelectToggleOptions,
+  ) => void;
+  onTogglePageSelect?: () => void;
+}
+
+export interface StorageCardGridProps extends StoredCardSelectionProps {
   entries: StorageLocationSearchResult[];
   density: CardGridDensity;
   onOpenCard: (entry: StorageLocationSearchResult) => void;
+}
+
+export interface StorageCardSelectionBarProps {
+  location: StorageLocation;
+  selectedReferences: StorageLocationCardReference[];
+  onClear: () => void;
 }
 
 export interface StorageLocationCardsProps {
@@ -182,7 +205,7 @@ export interface CardStorageLocationSectionProps {
   canEdit?: boolean;
 }
 
-export interface StorageCardListProps {
+export interface StorageCardListProps extends StoredCardSelectionProps {
   entries: StorageLocationSearchResult[];
   onOpenLocation?: (guid: string) => void;
   onOpenCard: (entry: StorageLocationSearchResult) => void;

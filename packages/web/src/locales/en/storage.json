@@ -70,9 +70,7 @@
     "heading": "Storage",
     "value": "{{name}} · #{{position}}",
     "remove": "Remove from box",
-    "move": "Move",
-    "store": "Move to location",
-    "notStored": "Not in a storage location"
+    "move": "Move"
   },
   "toasts": {
     "failed": "Couldn't update storage locations",
@@ -93,6 +91,10 @@
     "choiceDescription": "Remove it from the location only if you moved it, for example into a deck. Remove it from {{collection}} too if it's gone for good, for example because you sold it. Its position in the box is left empty either way.",
     "removeFromLocation": "Remove from location",
     "removeFromLocationAndCollection": "Remove from location and collection"
+  },
+  "bulkRemoveDialog": {
+    "title_one": "Remove {{count}} card from {{location}}?",
+    "title_other": "Remove {{count}} cards from {{location}}?"
   },
   "search": {
     "placeholder": "Search cards in every location",
@@ -214,5 +216,17 @@
       "notInLocation": "{{name}} isn't stored in this location.",
       "hint": "Hold one card from this location in front of the camera and press Scan card."
     }
+  },
+  "shareLink": {
+    "trigger": "Share location",
+    "title": "Share storage location",
+    "description": "Anyone with this link or QR code can see the cards in this location without logging in. They can't change anything.",
+    "revoked": "Every shared link for this location has stopped working."
+  },
+  "sharedPage": {
+    "readOnly": "Read-only view",
+    "invalidTitle": "This link doesn't work anymore",
+    "invalidDescription": "It may have expired or been revoked. Ask the person who shared it for a new link.",
+    "empty": "This location has no cards yet."
   }
 }

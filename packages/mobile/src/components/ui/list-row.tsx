@@ -1,9 +1,12 @@
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { IconBadge } from "@/components/ui/icon-badge";
+import { SwipeRowActions } from "@/components/ui/swipe-row-actions";
+import { longPressProps } from "@/lib/long-press";
 import { useTheme } from "@/hooks/use-theme";
-import { SPACING } from "@/lib/constants/theme";
+import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, LIST_ROW_ICON_SIZE, LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { ListRowProps } from "@/lib/interfaces/ui";
 
@@ -17,25 +20,31 @@ export function ListRow({
   right,
   rightIsInteractive = false,
   onPress,
+  onLongPress,
+  longPressLabel,
   disabled = false,
   selected,
   subtitleNumberOfLines = 2,
+  swipeDestructiveAction,
 }: ListRowProps) {
+  const { t } = useTranslation();
   const colors = useTheme();
   const destructive = tone === "destructive";
-  return (
+  const longPressHandlers = longPressProps(onLongPress, longPressLabel);
+  const row = (
     <Pressable
       accessible={!rightIsInteractive}
       accessibilityRole={onPress ? "button" : undefined}
       accessibilityState={{ disabled, selected: selected ?? undefined }}
-      disabled={!onPress || disabled}
+      disabled={(!onPress && !onLongPress) || disabled}
       onPress={onPress}
+      {...longPressHandlers}
       style={({ pressed }) => ({
         flexDirection: "row",
         alignItems: "center",
         gap: SPACING.md,
         minHeight: LIST_ROW_MIN_HEIGHT,
-        paddingHorizontal: SPACING.md,
+        paddingHorizontal: SCREEN_GUTTER,
         paddingVertical: SPACING.sm,
         backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : "transparent",
         opacity: disabled ? DISABLED_OPACITY : 1,
@@ -63,5 +72,14 @@ export function ListRow({
         <Icon name="chevron" size={16} color={colors.foregroundSecondary} />
       ) : null}
     </Pressable>
+  );
+  if (disabled) return row;
+  return (
+    <SwipeRowActions
+      moreAction={onLongPress ? { label: longPressLabel ?? t("listRow.moreActions"), onPress: onLongPress } : undefined}
+      destructiveAction={swipeDestructiveAction}
+    >
+      {row}
+    </SwipeRowActions>
   );
 }

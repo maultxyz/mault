@@ -3,7 +3,7 @@ import { loadMarketingPage, MARKETING_PAGE_MODULES } from "@/app/marketing-pages
 import { routes } from "@/app/router";
 import { renderMarketingPage } from "@/prerender";
 import { act, StrictMode } from "react";
-import { hydrateRoot } from "react-dom/client";
+import { hydrateRoot, type Root } from "react-dom/client";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -55,24 +55,32 @@ describe("prerendered marketing pages", () => {
       await loadMarketingPage(path);
       const router = createMemoryRouter(routes, { initialEntries: [path] });
       const hydrationErrors: unknown[] = [];
+      let root: Root | undefined;
 
-      await act(async () => {
-        hydrateRoot(
-          container,
-          <StrictMode>
-            <AppShell>
-              <RouterProvider router={router} />
-            </AppShell>
-          </StrictMode>,
-          { onRecoverableError: (error) => hydrationErrors.push(error) },
+      try {
+        await act(async () => {
+          root = hydrateRoot(
+            container,
+            <StrictMode>
+              <AppShell>
+                <RouterProvider router={router} />
+              </AppShell>
+            </StrictMode>,
+            { onRecoverableError: (error) => hydrationErrors.push(error) },
+          );
+        });
+        await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+
+        expect(hydrationErrors).toEqual([]);
+        expect(headingText(prerenderedHtml)).toBeTruthy();
+        expect(headingText(container.innerHTML)).toBe(
+          headingText(prerenderedHtml),
         );
-      });
-      await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
-
-      expect(hydrationErrors).toEqual([]);
-      expect(headingText(prerenderedHtml)).toBeTruthy();
-      expect(headingText(container.innerHTML)).toBe(headingText(prerenderedHtml));
-      container.remove();
+      } finally {
+        await act(async () => root?.unmount());
+        router.dispose();
+        container.remove();
+      }
     }, 30_000);
   }
 });

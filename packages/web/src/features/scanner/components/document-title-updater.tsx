@@ -18,6 +18,7 @@ export function DocumentTitleUpdater() {
 
   const slides = useMemo(() => {
     const result: string[] = [];
+    if (window.maultDesktop) return result;
     if (activeCollection) result.push(activeCollection.name);
     if (selectedSet)
       result.push(t("documentTitle.sorting", { setName: selectedSet.name }));

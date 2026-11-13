@@ -1,4 +1,5 @@
 import { MobileSearchInput } from "@/components/mobile-search-input";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CardViewOptionsDrawer } from "@/features/cards/components/card-view-options-drawer";
 import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
@@ -6,17 +7,21 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
 import type { StorageCardQueryToolbarProps } from "@/lib/interfaces/storage";
 import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
-import { IconSearch } from "@tabler/icons-react";
+import { IconCheckbox, IconSearch } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function StorageCardQueryToolbar({
   cardQuery,
+  allSelected,
+  canSelectAll,
+  onToggleSelectAll,
   viewMode,
   onViewModeChange,
   density,
   onDensityChange,
 }: StorageCardQueryToolbarProps) {
   const { t } = useTranslation("storage");
+  const { t: tCards } = useTranslation("cards");
   const isMobile = useIsMobile();
   const {
     searchQuery,
@@ -65,6 +70,22 @@ export function StorageCardQueryToolbar({
           }}
         />
       )}
+      <Button
+        variant={allSelected ? "selected" : "outline"}
+        size="icon"
+        disabled={!canSelectAll}
+        aria-pressed={allSelected}
+        aria-label={tCards(
+          allSelected ? "cardToolbar.deselectAll" : "cardToolbar.selectAll",
+        )}
+        title={tCards(
+          allSelected ? "cardToolbar.deselectAll" : "cardToolbar.selectAll",
+        )}
+        className={iconButtonClassName}
+        onClick={onToggleSelectAll}
+      >
+        <IconCheckbox />
+      </Button>
       <CardViewOptionsDrawer
         sortKey={sortKey}
         onSortChange={setSortKey}

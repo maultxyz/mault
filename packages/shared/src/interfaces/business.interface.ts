@@ -79,6 +79,7 @@ export interface IntakeLotCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  stamp: string | null;
   condition: CardCondition;
   scannedAt: string;
   marketPrice: number | null;
@@ -111,6 +112,7 @@ export interface IntakeReviewCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  stamp: string | null;
   condition: CardCondition;
   language: string | null;
   lowConfidenceMatch: boolean;

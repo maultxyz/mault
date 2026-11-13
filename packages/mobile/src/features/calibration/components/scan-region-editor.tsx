@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from "react";
 import { PanResponder, StyleSheet, View } from "react-native";
 import { Camera, type CameraRef, useCameraDevice, usePhotoOutput } from "react-native-vision-camera";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
+import { useLiveFrameSource } from "@/features/scanner/api/use-live-frame-source";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
 import { useAppState } from "@/hooks/use-app-state";
@@ -19,7 +20,8 @@ export function ScanRegionEditor({ region, onChange }: ScanRegionEditorProps) {
   const photoOutput = usePhotoOutput({ targetResolution: CAPTURE_TARGET_RESOLUTION, qualityPrioritization: "speed" });
   const cameraRef = useRef<CameraRef>(null);
   const active = focused && appState === "active" && !!device;
-  const corners = useLiveCorners(cameraRef, active, false);
+  const { liveFrameOutput, grabLiveFrame } = useLiveFrameSource(cameraRef);
+  const corners = useLiveCorners(grabLiveFrame, active, false);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const latest = useRef({ region, onChange, size });
   latest.current = { region, onChange, size };
@@ -59,13 +61,13 @@ export function ScanRegionEditor({ region, onChange }: ScanRegionEditorProps) {
         backgroundColor: colors.camera,
       }}
     >
-      {device ? (
+      {device && focused ? (
         <Camera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
           device={device}
           isActive={active}
-          outputs={[photoOutput]}
+          outputs={liveFrameOutput ? [photoOutput, liveFrameOutput] : [photoOutput]}
           resizeMode="cover"
         />
       ) : null}

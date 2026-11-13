@@ -24,18 +24,3 @@ export const CARD_PRESENCE_THRESHOLD = 0.5;
 export const MIN_USABLE_QUAD_AREA = 0.01;
 export const MIN_CORNER_DISTANCE_SQ = 0.0004;
 export const DEFAULT_MIN_SHARPNESS = 0.02;
-
-export const COLOR_BAR_MIN_SATURATION = 0.35;
-export const COLOR_BAR_MIN_BRIGHTNESS = 64;
-export const COLOR_BAR_MIN_ROW_SHARE = 0.5;
-export const COLOR_BAR_MAX_RUNNER_UP_RATIO = 0.5;
-export const COLOR_BAR_WHITE_REFERENCE_PERCENTILE = 0.75;
-export const COLOR_BAR_MIN_WHITE_BRIGHTNESS = 96;
-export const COLOR_BAR_HUE_RANGES: Record<string, [number, number][]> = {
-  Red: [
-    [0, 20],
-    [330, 360],
-  ],
-  Yellow: [[35, 70]],
-  Blue: [[180, 260]],
-};

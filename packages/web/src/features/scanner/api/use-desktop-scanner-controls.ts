@@ -5,7 +5,10 @@ import type {
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { publishScannerControls } from "@/features/scanner/lib/desktop-scanner-controls";
-import { SESSION_TIMER_RUNNING_STATUSES } from "@/lib/constants/scanner";
+import {
+  FLATBED_IDLE_STEPS,
+  SESSION_TIMER_RUNNING_STATUSES,
+} from "@/lib/constants/scanner";
 import type { DesktopScannerControlsOptions } from "@/lib/interfaces/scanner";
 
 export function useDesktopScannerControls({
@@ -19,14 +22,17 @@ export function useDesktopScannerControls({
   onResume,
   onToggleAutoFeed,
   onClearDevice,
+  flatbedScan,
 }: DesktopScannerControlsOptions) {
   const { t } = useTranslation("scanner");
   const ownerRef = useRef(Symbol("scanner"));
-  const handlersRef = useRef({ onPause, onResume, onToggleAutoFeed, onClearDevice });
-  handlersRef.current = { onPause, onResume, onToggleAutoFeed, onClearDevice };
+  const onScanCard = flatbedScan?.scanCard;
+  const handlersRef = useRef({ onPause, onResume, onToggleAutoFeed, onClearDevice, onScanCard });
+  handlersRef.current = { onPause, onResume, onToggleAutoFeed, onClearDevice, onScanCard };
   const runRef = useRef((command: DesktopScannerCommand) => {
     const handlers = handlersRef.current;
-    if (command === "pause") handlers.onPause();
+    if (command === "scan-card") handlers.onScanCard?.();
+    else if (command === "pause") handlers.onPause();
     else if (command === "resume") handlers.onResume();
     else if (command === "toggle-auto-feed") handlers.onToggleAutoFeed();
     else handlers.onClearDevice();
@@ -34,9 +40,30 @@ export function useDesktopScannerControls({
 
   const isPaused = status === "paused";
   const isRunning = SESSION_TIMER_RUNNING_STATUSES.includes(status);
+  const flatbedStep = flatbedScan?.step ?? null;
 
   const buttons = useMemo((): DesktopScannerButton[] | null => {
-    if (!enabled || (!isPaused && !isRunning)) return null;
+    if (!enabled) return null;
+    if (flatbedStep) {
+      const flatbedButtons: DesktopScannerButton[] = [
+        {
+          command: "scan-card",
+          icon: "play",
+          tooltip: t("flatbed.scanCard"),
+          disabled: !FLATBED_IDLE_STEPS.includes(flatbedStep),
+        },
+      ];
+      if (isConnected) {
+        flatbedButtons.push({
+          command: "clear-device",
+          icon: "clear-device",
+          tooltip: t("scannerControls.clearDeviceTooltip"),
+          disabled: !isReady || isClearingDevice,
+        });
+      }
+      return flatbedButtons;
+    }
+    if (!isPaused && !isRunning) return null;
     const list: DesktopScannerButton[] = [
       isPaused
         ? { command: "resume", icon: "play", tooltip: t("scannerControls.resume") }
@@ -60,7 +87,17 @@ export function useDesktopScannerControls({
       );
     }
     return list;
-  }, [enabled, isPaused, isRunning, isConnected, isReady, autoFeed, isClearingDevice, t]);
+  }, [
+    enabled,
+    flatbedStep,
+    isPaused,
+    isRunning,
+    isConnected,
+    isReady,
+    autoFeed,
+    isClearingDevice,
+    t,
+  ]);
 
   useEffect(() => {
     publishScannerControls(ownerRef.current, buttons, runRef.current);

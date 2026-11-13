@@ -1,3 +1,4 @@
+import { GAME_FIELD_TYPES } from "@magic-vault/shared";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
@@ -19,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FIELD_TYPES } from "@/lib/constants/field-operators";
 import type { PickedField } from "@/lib/interfaces/games";
 import type { GameFormValues } from "@/schemas/games.schema";
 import {
@@ -55,7 +55,7 @@ export function GameFieldDefinitionsEditor() {
   const rows = useWatch({ control, name: "fieldDefinitions" });
   const [showSample, setShowSample] = useState(false);
 
-  const fieldTypeOptions = FIELD_TYPES.map((value) => ({
+  const fieldTypeOptions = GAME_FIELD_TYPES.map((value) => ({
     value,
     label: t(`fieldTypes.${value}`),
   }));

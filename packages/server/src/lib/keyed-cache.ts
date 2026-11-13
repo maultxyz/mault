@@ -33,5 +33,8 @@ export function createKeyedCache<T>(
       inFlight.set(key, request);
       return request;
     },
+    clear() {
+      entries.clear();
+    },
   };
 }

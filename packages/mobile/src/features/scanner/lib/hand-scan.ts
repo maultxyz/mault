@@ -2,10 +2,10 @@ import {
   HAND_SCAN_MAX_CORNER_SHIFT_RATIO,
   HAND_SCAN_REARM_SHIFT_RATIO,
   HAND_SCAN_REMOVAL_TICKS,
-  HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
   type CardContour,
 } from "@magic-vault/shared";
+import { MOBILE_HAND_SCAN_STABLE_TICKS } from "@/lib/constants/scanner";
 import type { HandScanTracker, LiveCorners } from "@/lib/interfaces/scanner";
 
 export function createHandScanTracker(): HandScanTracker {
@@ -42,7 +42,7 @@ export function createHandScanTracker(): HandScanTracker {
       const isStill =
         previous !== null && maxCornerShift(previous, corners.contour) <= frameSize * HAND_SCAN_MAX_CORNER_SHIFT_RATIO;
       stableTicks = isStill ? stableTicks + 1 : 0;
-      if (stableTicks < HAND_SCAN_STABLE_TICKS) return false;
+      if (stableTicks < MOBILE_HAND_SCAN_STABLE_TICKS) return false;
       stableTicks = 0;
       armed = false;
       captured = corners.contour;

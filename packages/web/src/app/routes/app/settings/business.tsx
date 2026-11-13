@@ -8,6 +8,7 @@ import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useBusinessSettingsDraft } from "@/features/business/api/use-business-settings-draft";
 import { BusinessPermissionsSettings } from "@/features/business/components/business-permissions-settings";
 import { BuylistSettings } from "@/features/business/components/buylist-settings";
+import { ShopCatalogsSection } from "@/features/business/components/shop-catalogs-section";
 import { useTranslation } from "react-i18next";
 
 export default function SettingsBusinessPage() {
@@ -35,6 +36,7 @@ export default function SettingsBusinessPage() {
           disabled={disabled}
         />
       </SettingsSection>
+      <ShopCatalogsSection />
       <SaveBar
         show={draft.isDirty}
         isSaving={draft.isSaving}

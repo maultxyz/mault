@@ -1,5 +1,4 @@
 import { buttonVariants } from "@/components/ui/button";
-import { MarketingRule } from "@/components/marketing-rule";
 import { cn } from "@/lib/utils";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -10,30 +9,27 @@ export function LandingCta() {
 
   return (
     <section className="mx-auto max-w-6xl px-4 pb-16 md:pb-24">
-      <div className="flex flex-col gap-8 rounded-lg bg-primary p-6 text-primary-foreground md:p-10">
-        <MarketingRule
-          lead="Mault"
-          label={t("cta.eyebrow")}
-          className="border-primary-foreground/25 text-primary-foreground/80 [&_span]:text-primary-foreground"
-        />
-        <div className="grid gap-6 md:grid-cols-12 md:items-end md:gap-10">
-          <div className="flex flex-col gap-3 md:col-span-8">
-            <h2 className="font-heading text-4xl leading-[1.05] font-semibold tracking-tight text-balance md:text-5xl">
-              {t("cta.heading")}
-            </h2>
-            <p className="max-w-md text-sm/relaxed text-primary-foreground/80 md:text-base/relaxed">
-              {t("cta.subtitle")}
-            </p>
-          </div>
-          <div className="md:col-span-4 md:flex md:justify-end">
-            <Link
-              to="/auth/sign-up"
-              className={cn(buttonVariants({ variant: "secondary", size: "lg" }))}
-            >
-              {t("getStartedFree")}
-              <IconArrowRight size={16} />
-            </Link>
-          </div>
+      <div className="rounded-lg bg-primary text-primary-foreground px-6 py-14 text-center md:px-10 md:py-20">
+        <div className="mx-auto flex max-w-2xl flex-col items-center gap-5">
+          <p className="font-heading text-2xs font-medium tracking-widest text-primary-foreground/90 uppercase">
+            {t("cta.eyebrow")}
+          </p>
+          <h2 className="text-4xl leading-[1.05] font-heading font-semibold tracking-tight text-balance md:text-6xl">
+            {t("cta.heading")}
+          </h2>
+          <p className="max-w-md text-base/relaxed md:text-lg/relaxed">
+            {t("cta.subtitle")}
+          </p>
+          <Link
+            to="/auth/sign-up"
+            className={cn(
+              buttonVariants({ variant: "secondary", size: "lg" }),
+              "mt-2",
+            )}
+          >
+            {t("getStartedFree")}
+            <IconArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>

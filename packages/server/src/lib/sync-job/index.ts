@@ -187,7 +187,7 @@ export function startSync(
     rejectPendingWork("Sync worker stopped.");
     if (reachedTerminalStatus) return;
     const msg = `Sync worker exited unexpectedly (code ${code ?? "unknown"}).`;
-    patchState({ status: "failed" });
+    patchState({ status: "failed", fatalError: msg });
     addLog(`Fatal error: ${msg}`);
     emitEvent("error", { message: msg });
     notifyFailure(msg);
@@ -203,6 +203,10 @@ export function startSync(
     initialState,
   };
   child.send(startMessage);
+}
+
+export function isSyncWorkerRunning(): boolean {
+  return currentWorker !== null;
 }
 
 export function cancelSync(): void {

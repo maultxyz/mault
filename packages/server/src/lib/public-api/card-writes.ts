@@ -78,12 +78,18 @@ export async function deletePublicApiCard(
     USING collections col
     WHERE col.id = cc.collection_id AND col.is_deleted = false
       AND cc.guid = ${scanId}::uuid AND cc.org_id = ${orgId}
-    RETURNING cc.captured_image_key AS image_key, col.guid::text AS collection_guid
+    RETURNING cc.captured_image_key AS image_key,
+      cc.captured_back_image_key AS back_image_key,
+      col.guid::text AS collection_guid
   `);
   const row = result.rows[0] as
-    | { image_key: string | null; collection_guid: string }
+    | { image_key: string | null; back_image_key: string | null; collection_guid: string }
     | undefined;
   return row
-    ? { imageKey: row.image_key, collectionGuid: row.collection_guid }
+    ? {
+        imageKey: row.image_key,
+        backImageKey: row.back_image_key,
+        collectionGuid: row.collection_guid,
+      }
     : null;
 }

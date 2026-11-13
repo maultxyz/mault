@@ -95,6 +95,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
     apiDocsUrl,
     isPending,
     fieldDefinitions,
+    ruleFieldDefinitions,
     setBinFormDirty,
     effectiveMode,
     isModeDirty,
@@ -103,7 +104,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
 
   const autoAssignField = effectiveMode.autoAssignField;
   const autoAssignFieldLabel =
-    fieldDefinitions.find((f) => f.field === autoAssignField)?.label ??
+    ruleFieldDefinitions.find((f) => f.field === autoAssignField)?.label ??
     autoAssignField;
 
   const form = useForm<BinConfigFormValues>({

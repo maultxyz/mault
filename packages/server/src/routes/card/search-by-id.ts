@@ -1,5 +1,7 @@
 import { Hono } from "hono";
+import { matchScopeForGame } from "../../lib/card-search/match-games";
 import {
+  ADAPTERS_BY_GAME_KEY,
   resolveCardSearchForGame,
   resolveGameKeyAndLang,
 } from "../../lib/card-search/resolve";
@@ -11,10 +13,18 @@ export const searchCardByIdRoute = new Hono<AppEnv>().get(
   requireAuth,
   requireOrg,
   async (c) => {
-    const scope = await resolveGameKeyAndLang(
+    const collectionScope = await resolveGameKeyAndLang(
       c.get("jwtClaims"),
       c.req.query("collectionGuid"),
     );
+    const requestedGameKey = c.req.query("gameKey");
+    const scope =
+      collectionScope &&
+      requestedGameKey &&
+      requestedGameKey !== collectionScope.gameKey &&
+      requestedGameKey in ADAPTERS_BY_GAME_KEY
+        ? matchScopeForGame(requestedGameKey)
+        : collectionScope;
     const requestedLang = c.req.query("lang");
     const lang =
       scope?.matchAllLanguages && requestedLang ? requestedLang : scope?.lang;
@@ -27,9 +37,10 @@ export const searchCardByIdRoute = new Hono<AppEnv>().get(
       );
     }
     const result = await searchCardById(resolved, c.req.param("id"));
-    if (!result.success || !result.data || lang === scope.lang) {
+    const gameKey = scope === collectionScope ? undefined : scope.gameKey;
+    if (!result.success || !result.data || (lang === scope.lang && !gameKey)) {
       return c.json(result);
     }
-    return c.json({ ...result, data: { ...result.data, lang } });
+    return c.json({ ...result, data: { ...result.data, lang, gameKey } });
   },
 );

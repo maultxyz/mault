@@ -2,15 +2,16 @@ import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Surface } from "@/components/ui/surface";
+import { ListGroup } from "@/components/ui/list-group";
+import { ListRow } from "@/components/ui/list-row";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { useOrgSettingsDraft } from "@/features/settings/api/use-org-settings-draft";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useTheme } from "@/hooks/use-theme";
 import { THEME_COLORS } from "@/lib/constants/settings";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
 
 export default function GeneralSettingsScreen() {
   const { t } = useTranslation();
@@ -20,28 +21,21 @@ export default function GeneralSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.general.title")}
+      isLoading={draft.isLoading}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}
       onSave={draft.save}
       onDiscard={draft.discard}
     >
-      <Surface style={{ gap: SPACING.md }}>
-        <View>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.appearance.heading")}
-          </AppText>
-          <AppText size="xs" tone="secondary">
-            {t("settings.appearance.description")}
-          </AppText>
-        </View>
-        <AppText weight="medium">{t("settings.appearance.primaryColor")}</AppText>
+      <SettingsSection title={t("settings.appearance.heading")} description={t("settings.appearance.description")}>
         <Controller
           control={draft.control}
           name="primaryColor"
           render={({ field }) => (
             <View style={{ gap: SPACING.sm }}>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
+              <AppText weight="medium">{t("settings.appearance.primaryColor")}</AppText>
+              <View accessibilityRole="radiogroup" style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.md }}>
                 {THEME_COLORS.map((color) => {
                   const selected = field.value === color.name;
                   return (
@@ -49,13 +43,14 @@ export default function GeneralSettingsScreen() {
                       key={color.name}
                       accessibilityRole="radio"
                       accessibilityLabel={color.name}
-                      accessibilityState={{ selected }}
+                      accessibilityState={{ selected, disabled }}
+                      disabled={disabled}
                       hitSlop={4}
                       onPress={() => field.onChange(color.name)}
                       style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: RADIUS.md,
+                        width: 44,
+                        height: 44,
+                        borderRadius: CONTROL_RADIUS,
                         backgroundColor: color.value,
                         alignItems: "center",
                         justifyContent: "center",
@@ -63,34 +58,26 @@ export default function GeneralSettingsScreen() {
                         borderColor: colors.foreground,
                       }}
                     >
-                      {selected ? <Icon name="check" size={16} color={color.fg} /> : null}
+                      {selected ? <Icon name="check" size={18} color={color.fg} /> : null}
                     </Pressable>
                   );
                 })}
               </View>
               {field.value ? (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  icon="refresh"
-                  label={t("settings.appearance.resetColor")}
-                  onPress={() => field.onChange(null)}
-                  style={{ alignSelf: "flex-start" }}
-                />
+                <ListGroup>
+                  <ListRow
+                    icon="refresh"
+                    title={t("settings.appearance.resetColor")}
+                    disabled={disabled}
+                    onPress={() => field.onChange(null)}
+                  />
+                </ListGroup>
               ) : null}
             </View>
           )}
         />
-      </Surface>
-      <Surface style={{ gap: SPACING.md }}>
-        <View>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.leaderboard.heading")}
-          </AppText>
-          <AppText size="xs" tone="secondary">
-            {t("settings.leaderboard.description")}
-          </AppText>
-        </View>
+      </SettingsSection>
+      <SettingsSection title={t("settings.leaderboard.heading")} description={t("settings.leaderboard.description")}>
         <Controller
           control={draft.control}
           name="leaderboardOptIn"
@@ -98,7 +85,7 @@ export default function GeneralSettingsScreen() {
             <SwitchRow title={t("settings.leaderboard.toggleLabel")} value={field.value} disabled={disabled} onValueChange={field.onChange} />
           )}
         />
-      </Surface>
+      </SettingsSection>
     </SettingsPage>
   );
 }

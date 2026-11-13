@@ -3,8 +3,6 @@ import {
   POKEMON_FINISH_BASE_LABELS,
   POKEMON_FINISH_PATTERN_LABELS,
   POKEMON_FINISH_SUBTYPES,
-  POKEMON_NON_FOIL_PRICE_SUBTYPES,
-  POKEMON_REVERSE_HOLO_PRICE_SUBTYPE,
   POKEMON_SEPARATE_FINISH_PRODUCT_SUBTYPES,
   POKEMON_STANDARD_VARIANT_SIZE,
 } from "../../constants/pokemon";
@@ -95,36 +93,21 @@ export function pokemonFinishProducts(card: PlayingCard): TcgplayerFinishProduct
   );
 }
 
-function tcgplayerPriceSubTypes(pricing: PokemonPricing | undefined): string[] {
-  const tcgplayer = pricing?.tcgplayer;
-  if (!tcgplayer) return [];
-  return Object.entries(tcgplayer).flatMap(([subType, value]) =>
-    typeof value === "object" && value ? [subType] : [],
-  );
-}
-
-function hasNonFoilPrinting(raw: PokemonCardDetail): boolean {
-  const priceSubTypes = tcgplayerPriceSubTypes(raw.pricing);
-  if (priceSubTypes.length > 0) {
-    return priceSubTypes.some((subType) => POKEMON_NON_FOIL_PRICE_SUBTYPES.includes(subType));
-  }
-  const variants = raw.variants_detailed ?? [];
-  return variants.length === 0 || variants.some((variant) => variant.type === "normal");
+export function pokemonListsNonFoilPrinting(raw: PokemonCardDetail): boolean {
+  return (raw.variants_detailed ?? []).some((variant) => variant.type === "normal");
 }
 
 export function pokemonFoilOnlyFoilType(
   raw: PokemonCardDetail,
   foilTypes: string[],
 ): string | undefined {
-  if (hasNonFoilPrinting(raw)) return undefined;
+  const variants = raw.variants_detailed ?? [];
+  if (variants.length === 0 || pokemonListsNonFoilPrinting(raw)) return undefined;
   const holoLabel = POKEMON_FINISH_BASE_LABELS.holo;
   const listedFoilType =
     foilTypes.find((foilType) => finishFamily(foilType) === holoLabel) ?? foilTypes[0];
   if (listedFoilType) return listedFoilType;
-  const isReverseHoloOnly = tcgplayerPriceSubTypes(raw.pricing).every(
-    (subType) => subType === POKEMON_REVERSE_HOLO_PRICE_SUBTYPE,
-  );
-  return isReverseHoloOnly && raw.pricing?.tcgplayer
+  return variants.every((variant) => variant.type === "reverse")
     ? POKEMON_FINISH_BASE_LABELS.reverse
     : holoLabel;
 }

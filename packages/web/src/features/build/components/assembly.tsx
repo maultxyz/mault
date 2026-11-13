@@ -31,7 +31,7 @@ export function BuildAssembly() {
   return (
     <section
       id={BUILD_ASSEMBLY_ANCHOR}
-      className="mx-auto max-w-7xl scroll-mt-14 px-4 py-10"
+      className="mx-auto max-w-6xl scroll-mt-14 px-4 py-12 md:py-16"
     >
       <GuideSectionHeader
         id={BUILD_ASSEMBLY_ANCHOR}

@@ -601,9 +601,10 @@ export const intakeRoute = new Hono<AppEnv>()
           .returning({
             guid: collectionCards.guid,
             imageKey: collectionCards.capturedImageKey,
+            backImageKey: collectionCards.capturedBackImageKey,
           });
         removedCount = deleted.length;
-        imageKeys = deleted.map((d) => d.imageKey);
+        imageKeys = deleted.flatMap((d) => [d.imageKey, d.backImageKey]);
         removed = {
           collectionGuid: row.collectionGuid!,
           scanIds: deleted.map((d) => d.guid!),

@@ -1,5 +1,4 @@
 import type {
-  ColorBarRegion,
   OcrRegion,
 } from "../interfaces/ocr-region.interface";
 
@@ -15,6 +14,49 @@ const POKEMON_CARD_TYPE_HEADER_TEXTS = [
   "Basic Energy",
   "Special Energy",
 ];
+
+export const PRINTED_LANGUAGE_CODES_BY_GAME_KEY: Record<
+  string,
+  Record<string, string>
+> = {
+  mtg: {
+    EN: "en",
+    SP: "es",
+    FR: "fr",
+    DE: "de",
+    IT: "it",
+    PT: "pt",
+    JP: "ja",
+    KR: "ko",
+    RU: "ru",
+    CS: "zhs",
+    CT: "zht",
+    PH: "ph",
+  },
+  pokemon: {
+    EN: "en",
+    FR: "fr",
+    DE: "de",
+    IT: "it",
+    ES: "es",
+    PT: "pt",
+    NL: "nl",
+  },
+  lorcana: {
+    EN: "en",
+    DE: "de",
+    FR: "fr",
+    IT: "it",
+    JA: "ja",
+  },
+};
+
+function printedLanguageLinePattern(gameKey: string): string {
+  const codes = Object.keys(PRINTED_LANGUAGE_CODES_BY_GAME_KEY[gameKey] ?? {});
+  return String.raw`\b(?:${codes.join("|")})\b`;
+}
+
+const POKEMON_COLLECTOR_NUMBER_LINE_PATTERN = String.raw`\d\s*/\s*\d|[A-Z]{2,}\s*\d{2,}`;
 
 export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
   mtg: [
@@ -39,6 +81,14 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.934,
       width: 0.112,
       height: 0.018,
+    },
+    {
+      field: "language",
+      x: 0.063,
+      y: 0.952,
+      width: 0.2,
+      height: 0.018,
+      anchorLinePattern: printedLanguageLinePattern("mtg"),
     },
   ],
   pokemon: [
@@ -65,6 +115,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.949,
       width: 0.188,
       height: 0.017,
+      anchorLinePattern: POKEMON_COLLECTOR_NUMBER_LINE_PATTERN,
     },
     {
       field: "number",
@@ -73,6 +124,15 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       width: 0.174,
       height: 0.033,
       fallback: true,
+      anchorLinePattern: POKEMON_COLLECTOR_NUMBER_LINE_PATTERN,
+    },
+    {
+      field: "language",
+      x: 0.049,
+      y: 0.947,
+      width: 0.25,
+      height: 0.02,
+      anchorLinePattern: printedLanguageLinePattern("pokemon"),
     },
   ],
   pokemonjp: [
@@ -141,6 +201,14 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       width: 0.095,
       height: 0.018,
     },
+    {
+      field: "language",
+      x: 0.034,
+      y: 0.964,
+      width: 0.25,
+      height: 0.018,
+      anchorLinePattern: printedLanguageLinePattern("lorcana"),
+    },
   ],
   onepiece: [
     {
@@ -194,7 +262,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       field: "setLine",
       x: 0.052,
       y: 0.961,
-      width: 0.214,
+      width: 0.3,
       height: 0.015,
     },
     {
@@ -262,15 +330,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
   ],
 };
 
-export const COLOR_BAR_REGIONS_BY_GAME_KEY: Record<string, ColorBarRegion> = {
-  fab: {
-    x: 0.25,
-    y: 0.025,
-    width: 0.5,
-    height: 0.045,
-    whiteReference: { x: 0.3, y: 0.088, width: 0.4, height: 0.014 },
-  },
-};
-
 export const DISTANCE_THRESHOLD = 0.4;
 export const CLOSE_MATCH_DELTA = 0.05;
+
+export const OCR_FIXED_REGION_PADDING_OF_CARD_WIDTH = 0.05;

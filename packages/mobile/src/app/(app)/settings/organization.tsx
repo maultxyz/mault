@@ -6,21 +6,17 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { PageHeader } from "@/components/ui/page-header";
-import { Screen } from "@/components/ui/screen";
-import { SelectField } from "@/components/ui/select-field";
-import { Surface } from "@/components/ui/surface";
+import { SectionHeader } from "@/components/ui/section-header";
 import { TextField } from "@/components/ui/text-field";
 import { billingQueryOptions } from "@/features/org/api/billing";
+import { SettingsPage } from "@/features/settings/components/settings-page";
 import {
   cancelInvitation,
   deleteOrganization,
-  inviteMember,
   organizationQueryOptions,
   removeMember,
   renameOrganization,
@@ -30,12 +26,7 @@ import { useActiveOrg } from "@/hooks/use-org";
 import { refreshOrganizations, useSession } from "@/lib/auth/session";
 import { SPACING } from "@/lib/constants/theme";
 import type { OrgMember, OrgRole } from "@/lib/interfaces/settings";
-import {
-  organizationInviteFormSchema,
-  type OrganizationInviteFormValues,
-  organizationNameFormSchema,
-  type OrganizationNameFormValues,
-} from "@magic-vault/shared";
+import { organizationNameFormSchema, type OrganizationNameFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function OrganizationSettingsScreen() {
@@ -49,23 +40,17 @@ export default function OrganizationSettingsScreen() {
   const details = useQuery(organizationQueryOptions(orgId, org?.name ?? ""));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const [roleSheet, setRoleSheet] = useState<OrgMember | null>(null);
-  const [inviteRoleOpen, setInviteRoleOpen] = useState(false);
   const [error, setError] = useState(false);
   const subscriptionBlocksDelete = !!billing && billing.plan !== "free" && !billing.cancelAtPeriodEnd;
   const memberLimit = billing?.maxMembersPerOrg ?? null;
   const memberLimitReached = memberLimit != null && (billing?.memberCount ?? 0) >= memberLimit;
+  const canRename = canManage && !!details.data?.canRename;
 
   const renameForm = useForm<OrganizationNameFormValues>({
     resolver: zodResolver(organizationNameFormSchema),
     values: { name: details.data?.name ?? org?.name ?? "" },
     resetOptions: { keepDirtyValues: true },
   });
-  const inviteForm = useForm<OrganizationInviteFormValues>({
-    resolver: zodResolver(organizationInviteFormSchema),
-    defaultValues: { email: "", role: "member" },
-  });
-  const inviteRole = inviteForm.watch("role");
-
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ["organization", orgId] });
     await queryClient.invalidateQueries({ queryKey: billingQueryOptions(orgId).queryKey });
@@ -85,6 +70,24 @@ export default function OrganizationSettingsScreen() {
       { text: t("settings.org.remove"), style: "destructive", onPress: () => void run(() => removeMember(orgId ?? "", member.id)) },
     ]);
 
+  const confirmCancelInvite = (invitation: { id: string; email: string }) =>
+    Alert.alert(t("settings.org.cancelInvite"), invitation.email, [
+      { text: t("settings.org.cancel"), style: "cancel" },
+      {
+        text: t("settings.org.cancelInvite"),
+        style: "destructive",
+        onPress: () => void run(() => cancelInvitation(invitation.id)),
+      },
+    ]);
+
+  const saveName = renameForm.handleSubmit((values) =>
+    run(async () => {
+      await renameOrganization(orgId ?? "", values.name.trim());
+      renameForm.reset({ name: values.name.trim() });
+      await refreshOrganizations();
+    }),
+  );
+
   const confirmDelete = () =>
     Alert.alert(t("settings.org.deleteOrganization"), t("settings.org.deleteOrgDescription", { name: org?.name ?? "" }), [
       { text: t("settings.org.cancel"), style: "cancel" },
@@ -101,51 +104,39 @@ export default function OrganizationSettingsScreen() {
       },
     ]);
 
+  const invitations = details.data?.invitations ?? [];
   return (
-    <Screen
+    <SettingsPage
+      title={t("settings.sections.organization.title")}
+      isLoading={details.isLoading}
       refreshing={details.isRefetching}
       onRefresh={() => void details.refetch()}
-      header={<PageHeader title={t("settings.sections.organization.title")} subtitle={org?.name} onBack={() => router.back()} />}
+      isDirty={canRename && renameForm.formState.isDirty}
+      isSaving={mutate.isPending}
+      onSave={() => void saveName()}
+      onDiscard={() => renameForm.reset()}
     >
       {error || details.isError ? <Callout tone="destructive" title={t("settings.org.failed")} /> : null}
 
-      {canManage && details.data?.canRename ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.org.renameHeading", { name: org?.name ?? "" })}
-          </AppText>
-          <Controller
-            control={renameForm.control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("settings.org.nameLabel")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                error={translateFormErrorMessage(t, fieldState.error?.message)}
-              />
-            )}
-          />
-          <Button
-            label={t("settings.org.rename")}
-            disabled={!renameForm.formState.isDirty}
-            loading={mutate.isPending}
-            onPress={renameForm.handleSubmit((values) =>
-              run(async () => {
-                await renameOrganization(orgId ?? "", values.name.trim());
-                renameForm.reset({ name: values.name.trim() });
-                await refreshOrganizations();
-              }),
-            )}
-          />
-        </Surface>
+      {canRename ? (
+        <Controller
+          control={renameForm.control}
+          name="name"
+          render={({ field, fieldState }) => (
+            <TextField
+              label={t("settings.org.nameLabel")}
+              value={field.value}
+              onBlur={field.onBlur}
+              onChangeText={field.onChange}
+              returnKeyType="done"
+              error={translateFormErrorMessage(t, fieldState.error?.message)}
+            />
+          )}
+        />
       ) : null}
 
-      <Surface style={{ gap: SPACING.sm }}>
-        <AppText heading weight="semibold" accessibilityRole="header">
-          {t("settings.org.membersHeading")}
-        </AppText>
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("settings.org.membersHeading")} />
         {details.data && !details.data.canManageMembers ? (
           <AppText size="xs" tone="secondary">
             {t("settings.org.membersUnavailable")}
@@ -163,108 +154,62 @@ export default function OrganizationSettingsScreen() {
                   subtitle={isSelf ? `${member.email} · ${t("settings.org.you")}` : member.email}
                   value={t(`settings.org.roles.${member.role}`)}
                   onPress={editable ? () => setRoleSheet(member) : undefined}
+                  onLongPress={editable ? () => setRoleSheet(member) : undefined}
+                  longPressLabel={editable ? t("settings.org.changeRole") : undefined}
                 />
               );
             })}
+            {canManage ? (
+              <ListRow
+                icon="plus"
+                title={t("settings.org.inviteMemberHeading")}
+                subtitle={memberLimitReached ? t("settings.org.memberLimitReached", { count: memberLimit }) : undefined}
+                disabled={memberLimitReached}
+                onPress={() => router.push("/settings/invite-member")}
+              />
+            ) : null}
           </ListGroup>
         )}
-      </Surface>
+      </View>
 
-      {canManage ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.org.inviteMemberHeading")}
-          </AppText>
-          {memberLimitReached ? (
-            <Callout tone="info" title={t("settings.org.memberLimitReached", { count: memberLimit })} />
-          ) : null}
-          <Controller
-            control={inviteForm.control}
-            name="email"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("settings.org.emailLabel")}
-                placeholder={t("settings.org.emailPlaceholder")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                autoComplete="email"
-                textContentType="emailAddress"
-                error={translateFormErrorMessage(t, fieldState.error?.message)}
+      {canManage && invitations.length > 0 ? (
+        <View style={{ gap: SPACING.sm }}>
+          <SectionHeader title={t("settings.org.pendingInvites")} />
+          <ListGroup>
+            {invitations.map((invitation) => (
+              <ListRow
+                key={invitation.id}
+                icon="send"
+                title={invitation.email}
+                subtitle={t(`settings.org.roles.${invitation.role}`)}
+                onPress={() => confirmCancelInvite(invitation)}
+                onLongPress={() => confirmCancelInvite(invitation)}
+                longPressLabel={t("settings.org.cancelInvite")}
               />
-            )}
-          />
-          <SelectField
-            label={t("settings.org.role")}
-            value={t(`settings.org.roles.${inviteRole}`)}
-            placeholder={t("settings.org.role")}
-            onPress={() => setInviteRoleOpen(true)}
-          />
-          <Button
-            icon="plus"
-            label={t("settings.org.invite")}
-            loading={mutate.isPending}
-            disabled={memberLimitReached}
-            onPress={inviteForm.handleSubmit((values) =>
-              run(async () => {
-                await inviteMember(orgId ?? "", values.email.trim(), values.role);
-                inviteForm.reset({ email: "", role: values.role });
-              }),
-            )}
-          />
-          <View style={{ gap: SPACING.xs }}>
-            <AppText size="xs" tone="secondary">
-              {t("settings.org.pendingInvites")}
-            </AppText>
-            {(details.data?.invitations ?? []).length === 0 ? (
-              <AppText size="xs" tone="secondary">
-                {t("settings.org.noInvites")}
-              </AppText>
-            ) : (
-              <ListGroup>
-                {(details.data?.invitations ?? []).map((invitation) => (
-                  <ListRow
-                    key={invitation.id}
-                    title={invitation.email}
-                    subtitle={t(`settings.org.roles.${invitation.role}`)}
-                    rightIsInteractive
-                    right={
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        label={t("settings.org.cancelInvite")}
-                        accessibilityLabel={`${t("settings.org.cancelInvite")}, ${invitation.email}`}
-                        onPress={() => void run(() => cancelInvitation(invitation.id))}
-                      />
-                    }
-                  />
-                ))}
-              </ListGroup>
-            )}
-          </View>
-        </Surface>
+            ))}
+          </ListGroup>
+        </View>
       ) : null}
 
       {role === "owner" ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("settings.org.dangerZoneHeading")}
-          </AppText>
-          <AppText size="xs" tone="secondary">
-            {subscriptionBlocksDelete
-              ? t("settings.org.cancelSubscriptionFirst")
-              : t("settings.org.deleteWarning", { name: org?.name ?? "" })}
-          </AppText>
-          <Button
-            variant="destructive"
-            icon="trash"
-            label={t("settings.org.deleteOrganization")}
-            disabled={subscriptionBlocksDelete}
-            onPress={confirmDelete}
-          />
-        </Surface>
+        <View style={{ gap: SPACING.sm }}>
+          <SectionHeader title={t("settings.org.dangerZoneHeading")} />
+          <ListGroup>
+            <ListRow
+              icon="trash"
+              tone="destructive"
+              title={t("settings.org.deleteOrganization")}
+              subtitle={
+                subscriptionBlocksDelete
+                  ? t("settings.org.cancelSubscriptionFirst")
+                  : t("settings.org.deleteWarning", { name: org?.name ?? "" })
+              }
+              subtitleNumberOfLines={3}
+              disabled={subscriptionBlocksDelete}
+              onPress={confirmDelete}
+            />
+          </ListGroup>
+        </View>
       ) : null}
 
       <OptionSheet
@@ -285,20 +230,6 @@ export default function OrganizationSettingsScreen() {
         }}
         onClose={() => setRoleSheet(null)}
       />
-      <OptionSheet
-        visible={inviteRoleOpen}
-        title={t("settings.org.role")}
-        options={[
-          { value: "member", label: t("settings.org.roles.member") },
-          { value: "admin", label: t("settings.org.roles.admin") },
-        ]}
-        selected={[inviteRole]}
-        onSelect={(value) => {
-          setInviteRoleOpen(false);
-          inviteForm.setValue("role", value as OrganizationInviteFormValues["role"]);
-        }}
-        onClose={() => setInviteRoleOpen(false)}
-      />
-    </Screen>
+    </SettingsPage>
   );
 }

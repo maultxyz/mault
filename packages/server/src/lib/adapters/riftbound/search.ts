@@ -1,4 +1,6 @@
 import type { PlayingCard } from "@magic-vault/shared";
+import { sql } from "drizzle-orm";
+import { readRiftboundPromoMarker } from "../../card-search/printed-markers";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { RIFTBOUND_DEFAULT_URL } from "../../constants/urls";
 import type { RiftboundCard } from "../../interfaces/riftbound";
@@ -53,6 +55,8 @@ export function normalizeRiftboundCard(raw: RiftboundCard): PlayingCard {
 export const riftboundAdapter: CardSearchAdapter = {
   defaultUrl: RIFTBOUND_DEFAULT_URL,
   normalizeStored: (raw) => normalizeRiftboundCard(raw as RiftboundCard),
+  promoPrintingSql: sql`coalesce(data->'set'->>'label', '') ILIKE '%promotional%'`,
+  readPrintedPromoMarker: readRiftboundPromoMarker,
   tcgplayer: {
     categoryId: 89,
     subTypes: () => ({ price: ["Normal", "Foil"], priceFoil: ["Foil"] }),

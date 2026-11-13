@@ -1,0 +1,2 @@
+export const SHOP_PHOTO_PREVIEW_WIDTH = 96;
+export const SHOP_PHOTO_PREVIEW_HEIGHT = 64;

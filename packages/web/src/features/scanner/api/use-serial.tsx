@@ -68,6 +68,7 @@ import {
   SERIAL_IDENTIFY_ATTEMPTS,
   SERIAL_IDENTIFY_TIMEOUT_MS,
   SERIAL_PUSH_BLOCKED_ERROR,
+  isBootBanner,
   isServoDriverMissing,
   type SerialMessageListener,
   type SerialRequestResult,
@@ -701,6 +702,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       } | null> => {
         const deadline = Date.now() + SERIAL_IDENTIFY_TIMEOUT_MS;
         let status: Record<string, unknown> | null = null;
+        let bootBannerTakenAsStatus: Record<string, unknown> | null = null;
         for (
           let attempt = 0;
           attempt < SERIAL_IDENTIFY_ATTEMPTS && !status;
@@ -715,9 +717,15 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (!sent) break;
           try {
             const parsed = JSON.parse(line);
-            if (typeof parsed?.version === "string") status = parsed;
+            if (typeof parsed?.version !== "string") continue;
+            if (isBootBanner(parsed) && !bootBannerTakenAsStatus) {
+              bootBannerTakenAsStatus = parsed;
+              continue;
+            }
+            status = parsed;
           } catch {}
         }
+        status ??= bootBannerTakenAsStatus;
         if (session.transport !== newTransport) return null;
         if (typeof status?.bleMtu === "number") {
           newTransport.setMtu?.(status.bleMtu);

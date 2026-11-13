@@ -40,6 +40,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 
 export function CollectionTile({
   collection,
@@ -64,6 +65,7 @@ export function CollectionTile({
 
   return (
     <article
+      {...modifierClickSelectHandlers(onToggleSelect)}
       className={cn(
         COLLECTION_TILE_CLASS,
         isSelected

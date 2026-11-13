@@ -70,9 +70,7 @@
     "heading": "Rangement",
     "value": "{{name}} · #{{position}}",
     "remove": "Retirer de la boîte",
-    "move": "Déplacer",
-    "store": "Déplacer vers un emplacement",
-    "notStored": "Dans aucun emplacement de rangement"
+    "move": "Déplacer"
   },
   "toasts": {
     "failed": "Impossible de mettre à jour les emplacements",
@@ -93,6 +91,10 @@
     "choiceDescription": "Retirez-la seulement de l'emplacement si vous l'avez déplacée, par exemple dans un deck. Retirez-la aussi de {{collection}} si elle est partie pour de bon, par exemple parce que vous l'avez vendue. Sa place dans la boîte reste vide dans les deux cas.",
     "removeFromLocation": "Retirer de l'emplacement",
     "removeFromLocationAndCollection": "Retirer de l'emplacement et de la collection"
+  },
+  "bulkRemoveDialog": {
+    "title_one": "Retirer {{count}} carte de {{location}} ?",
+    "title_other": "Retirer {{count}} cartes de {{location}} ?"
   },
   "search": {
     "placeholder": "Rechercher des cartes dans tous les emplacements",
@@ -214,5 +216,17 @@
       "notInLocation": "{{name}} n'est pas rangée dans cet emplacement.",
       "hint": "Tenez une carte de cet emplacement devant la caméra et appuyez sur Scanner la carte."
     }
+  },
+  "shareLink": {
+    "trigger": "Partager l'emplacement",
+    "title": "Partager l'emplacement de stockage",
+    "description": "Toute personne disposant de ce lien ou de ce code QR peut voir les cartes de cet emplacement sans se connecter. Elle ne peut rien modifier.",
+    "revoked": "Tous les liens partagés de cet emplacement ne fonctionnent plus."
+  },
+  "sharedPage": {
+    "readOnly": "Lecture seule",
+    "invalidTitle": "Ce lien ne fonctionne plus",
+    "invalidDescription": "Il a peut-être expiré ou été révoqué. Demande un nouveau lien à la personne qui l'a partagé.",
+    "empty": "Cet emplacement ne contient encore aucune carte."
   }
 }

@@ -59,6 +59,10 @@ export function setResortMode(guid: string, isResortMode: boolean): Promise<BinS
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/resort-mode`, { isResortMode }));
 }
 
+export function setMatchGames(guid: string, gameKeys: string[]): Promise<BinSet[]> {
+  return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/match-games`, { gameKeys }));
+}
+
 export function setSkipSaving(guid: string, skipSaving: boolean): Promise<BinSet[]> {
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/skip-saving`, { skipSaving }));
 }

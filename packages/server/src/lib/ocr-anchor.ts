@@ -74,6 +74,13 @@ export function isIgnoredLine(region: OcrRegion, text: string): boolean {
   );
 }
 
+export function acceptsLineText(region: OcrRegion, text: string): boolean {
+  if (isIgnoredLine(region, text)) return false;
+  return (
+    !region.anchorLinePattern || new RegExp(region.anchorLinePattern).test(text)
+  );
+}
+
 export function anchorRegion(
   region: OcrRegion,
   lines: OcrPageLine[],
@@ -84,7 +91,7 @@ export function anchorRegion(
     (expected.y1 - expected.y0) * OCR_ANCHOR_MIN_LINE_HEIGHT_RATIO;
   const candidates = lines.filter(
     (line) =>
-      !isIgnoredLine(region, lineText(line)) &&
+      acceptsLineText(region, lineText(line)) &&
       line.box.y1 - line.box.y0 >= minHeight &&
       overlaps(line.box.x0, line.box.x1, expected.x0, expected.x1) &&
       overlaps(line.box.y0, line.box.y1, window.y0, window.y1),

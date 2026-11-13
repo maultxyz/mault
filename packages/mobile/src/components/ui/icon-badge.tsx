@@ -19,7 +19,7 @@ export function IconBadge({ name, tone = "neutral", size = ICON_BADGE_SIZE }: Ic
       style={{
         width: size,
         height: size,
-        borderRadius: RADIUS.md,
+        borderRadius: RADIUS.full,
         backgroundColor: palette.bg,
         alignItems: "center",
         justifyContent: "center",

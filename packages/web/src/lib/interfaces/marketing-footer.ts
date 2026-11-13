@@ -10,7 +10,6 @@ export interface MarketingFooterLink {
 export interface MarketingFooterProps {
   links: MarketingFooterLink[];
   end: ReactNode;
-  wide?: boolean;
 }
 
 export interface GuideFooterProps {

@@ -4,6 +4,7 @@ import { addCollectionRoute } from "./add";
 import { addCollectionCardRoute } from "./cards-add";
 import { addManualCollectionCardRoute } from "./cards-manual-add";
 import { sortOnlyScanRoute } from "./cards-sort-only";
+import { searchOwnedCardsRoute } from "./cards-search";
 import { collectionCardBinsRoute } from "./cards-bins";
 import { clearCollectionCardsRoute } from "./cards-clear";
 import { deleteCollectionCardRoute } from "./cards-delete";
@@ -25,6 +26,7 @@ import { collectionCardPositionRoute } from "./cards-position";
 import { removeBulkCollectionCardsRoute } from "./cards-remove-bulk";
 import { moveCollectionCardsToCollectionRoute } from "./cards-move-to-collection";
 import { collectionCardsCountRoute } from "./cards-count";
+import { collectionCardsScanTimelineRoute } from "./cards-scan-timeline";
 import { collectionCardsSummaryRoute } from "./cards-summary";
 import { checkCollectionNameRoute } from "./check-name";
 import { debugErrorRoute } from "./debug-error";
@@ -43,6 +45,7 @@ import { identifyUnmatchedCardRoute } from "./unmatched-identify";
 import { listUnmatchedCardsRoute } from "./unmatched-list";
 
 const router = new Hono<AppEnv>()
+  .route("/", searchOwnedCardsRoute)
   .route("/", listCollectionsRoute)
   .route("/", locksRoute)
   .route("/", checkCollectionNameRoute)
@@ -53,6 +56,7 @@ const router = new Hono<AppEnv>()
   .route("/", listCollectionCardsRoute)
   .route("/", collectionCardsSummaryRoute)
   .route("/", collectionCardsCountRoute)
+  .route("/", collectionCardsScanTimelineRoute)
   .route("/", collectionCardIdsRoute)
   .route("/", collectionCardCopiesRoute)
   .route("/", exportCollectionCardsRoute)

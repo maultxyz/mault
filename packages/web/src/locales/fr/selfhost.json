@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Guide d'auto-hébergement | MAULT",
+    "title": "Guide d'auto-hébergement | Mault",
     "description": "Fais tourner Mault sur ton propre serveur avec Docker Compose : Postgres, l'API, l'application web et la documentation de l'API, étape par étape."
   },
   "hero": {

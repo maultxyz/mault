@@ -1,3 +1,4 @@
+import { DONATE_URL, PLATFORM_STATS_SCRIPT_COMMAND, PRICE_SYNC_SCRIPT_COMMAND } from "@magic-vault/shared";
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { Callout } from "@/components/callout";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -12,11 +13,6 @@ import { AdminScriptCommand } from "@/features/admin/components/admin-script-com
 import { PlatformDiscordChannelFields } from "@/features/admin/components/platform-discord-channel-fields";
 import { PlatformDiscordLinkedRoleFields } from "@/features/admin/components/platform-discord-linked-role-fields";
 import { PlatformStatsFields } from "@/features/admin/components/platform-stats-fields";
-import {
-  PLATFORM_STATS_SCRIPT_COMMAND,
-  PRICE_SYNC_SCRIPT_COMMAND,
-} from "@/lib/constants/admin";
-import { DONATE_URL } from "@/lib/constants/links";
 import type { PlatformDiscordChannelKey } from "@magic-vault/shared";
 import { IconExternalLink, IconLoader2, IconSend } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";

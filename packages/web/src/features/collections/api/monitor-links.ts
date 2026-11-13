@@ -1,19 +1,27 @@
+import {
+  DEFAULT_SHARE_LINK_PURPOSE,
+  DEFAULT_SHARE_LINK_SHOWS_PRICES,
+  SHARE_LINK_TOKEN_PARAM,
+  WATCH_PATH_PREFIX,
+} from "@magic-vault/shared";
 import { apiPost } from "@/lib/api/client";
-import { WATCH_ROUTE_PREFIX, WATCH_TOKEN_PARAM } from "@/lib/constants/nav";
 import type {
   MonitorLink,
   MonitorLinkInfo,
   Result,
+  ShareLinkPurpose,
 } from "@magic-vault/shared";
 import { API_BASE } from "@/lib/constants/api";
 
 export function createMonitorLink(
   collectionGuid: string,
   expiresInDays: number,
+  showPrices = DEFAULT_SHARE_LINK_SHOWS_PRICES,
+  purpose: ShareLinkPurpose = DEFAULT_SHARE_LINK_PURPOSE,
 ): Promise<Result<MonitorLink>> {
   return apiPost<Result<MonitorLink>>(
     `/api/collections/${collectionGuid}/monitor-link`,
-    { expiresInDays },
+    { expiresInDays, showPrices, purpose },
   );
 }
 
@@ -37,6 +45,6 @@ export function buildMonitorLinkUrl(
   collectionGuid: string,
   token: string,
 ): string {
-  const params = new URLSearchParams({ [WATCH_TOKEN_PARAM]: token });
-  return `${window.location.origin}${WATCH_ROUTE_PREFIX}/${collectionGuid}?${params}`;
+  const params = new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: token });
+  return `${window.location.origin}${WATCH_PATH_PREFIX}/${collectionGuid}?${params}`;
 }

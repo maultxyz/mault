@@ -7,5 +7,6 @@ export interface DialogProps {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   drawerOnMobile?: boolean;
+  dismissible?: boolean;
   children?: ReactNode;
 }

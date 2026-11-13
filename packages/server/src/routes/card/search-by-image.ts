@@ -1,4 +1,10 @@
 import { Hono } from "hono";
+import {
+  findBestMatchAcrossGames,
+  matchScopesForGames,
+  parseMatchGameKeys,
+  tagWithGame,
+} from "../../lib/card-search/match-games";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
 import { vectorizeCardImage } from "../../lib/vectorize";
@@ -43,7 +49,11 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         400,
       );
     }
-    const { gameKey, lang } = resolved;
+    const scopes = matchScopesForGames(
+      resolved,
+      parseMatchGameKeys(body["matchGameKeys"]),
+    );
+    const preferredSetCodes = parsePreferredSetCodes(body);
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -59,11 +69,16 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
     }
 
     try {
-      const result = await findCardMatches({
-        ...resolved,
-        embeddings,
-        preferredSetCodes: parsePreferredSetCodes(body),
-      });
+      const { result, scope } = await findBestMatchAcrossGames(
+        scopes,
+        (matchScope) =>
+          findCardMatches({
+            ...matchScope,
+            embeddings,
+            preferredSetCodes,
+            skipsUnloadedIndex: matchScope.gameKey !== resolved.gameKey,
+          }),
+      );
       const withEmbedding = result.diagnostics
         ? {
             ...result,
@@ -73,7 +88,14 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
             },
           }
         : result;
-      return c.json(await attachMatchedCards(withEmbedding, gameKey, lang));
+      const attached = await attachMatchedCards(
+        withEmbedding,
+        scope.gameKey,
+        scope.lang,
+      );
+      return c.json(
+        scopes.length > 1 ? tagWithGame(attached, scope.gameKey) : attached,
+      );
     } catch (err) {
       const orgId = c.req.header("X-Org-Id");
       if (orgId) {

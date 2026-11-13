@@ -373,7 +373,10 @@
       "accuracyCompleted": "Spot check finished",
       "deviceServiced": "Sorter serviced",
       "businessSettings": "Business settings changed",
-      "intakeTransferred": "Intake moved"
+      "intakeTransferred": "Intake moved",
+      "catalogCreated": "Shop catalog created",
+      "catalogUpdated": "Shop catalog changed",
+      "catalogDeleted": "Shop catalog deleted"
     },
     "messages": {
       "cardCorrected": "Corrected {{from}} to {{to}}",
@@ -398,7 +401,10 @@
       "accuracyCompleted": "Finished a spot check on {{summary}}: {{incorrect}} wrong out of {{checked}}",
       "deviceServiced": "Serviced {{summary}}",
       "businessSettings": "Changed the business settings",
-      "intakeTransferred": "Moved {{cards}} cards bought from {{summary}}"
+      "intakeTransferred": "Moved {{cards}} cards bought from {{summary}}",
+      "catalogCreated": "Created the shop catalog {{summary}}",
+      "catalogUpdated": "Changed the shop catalog {{summary}}",
+      "catalogDeleted": "Deleted the shop catalog {{summary}}"
     }
   },
   "accuracy": {
@@ -496,5 +502,71 @@
     "move": "Move cards",
     "moved_one": "Moved {{count}} card",
     "moved_other": "Moved {{count}} cards"
+  },
+  "shopCatalogs": {
+    "heading": "Shop catalogs",
+    "description": "Let customers browse your stock on a store tablet or your website. Each catalog shows the cards in the collections and storage locations you pick, through a link that keeps working until you reset it.",
+    "add": "New catalog",
+    "addTitle": "New shop catalog",
+    "editTitle": "Edit shop catalog",
+    "dialogDescription": "Pick what customers can browse. Changes show on the catalog within a minute.",
+    "save": "Save catalog",
+    "nameLabel": "Name",
+    "namePlaceholder": "In-store singles",
+    "showPrices": "Show prices",
+    "showPricesDescription": "Turn off to hide card prices from anyone browsing this catalog.",
+    "collectionsLabel": "Collections",
+    "storageLocationsLabel": "Storage locations",
+    "noSources": "Nothing to pick yet.",
+    "inventoryNote": "Cards in open or cancelled intake lots never show.",
+    "empty": "No shop catalogs yet",
+    "loadFailed": "Couldn't load shop catalogs.",
+    "upgrade": "Shop catalogs are part of the Business plan.",
+    "pricesHidden": "Prices hidden",
+    "noLiveSources": "Its collections and locations were deleted",
+    "showLink": "Link",
+    "actionsFor": "Actions for {{name}}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "created": "Shop catalog created",
+    "saved": "Shop catalog saved",
+    "saveFailed": "Couldn't save the shop catalog.",
+    "deleted": "Shop catalog deleted",
+    "deleteFailed": "Couldn't delete the shop catalog.",
+    "deleteConfirmTitle": "Delete this shop catalog?",
+    "deleteConfirmDescription": "Its link stops working right away. Your cards stay where they are.",
+    "linkTitle": "Link to {{name}}",
+    "linkDescription": "Open this link on a store tablet, or put it on your website. Anyone with it can browse the catalog.",
+    "linkNeverExpires": "This link doesn't expire. Reset it to stop the old one from working.",
+    "linksNotConfigured": "Share links aren't set up on this server.",
+    "openLink": "Open catalog",
+    "resetLink": "Reset link",
+    "resetLinkConfirmTitle": "Reset this catalog's link?",
+    "resetLinkConfirmDescription": "The current link and QR code stop working. Update any tablet or website that uses it.",
+    "linkReset": "Link reset. The old link no longer works.",
+    "resetLinkFailed": "Couldn't reset the link.",
+    "public": {
+      "loading": "Loading catalog",
+      "invalidTitle": "This catalog isn't available",
+      "invalidDescription": "The link may have been reset or removed. Ask the shop for a new one."
+    },
+    "photo": {
+      "heading": "Shop photo",
+      "description": "Shown at the top of every shop catalog. JPEG, PNG or WebP, up to 10 MB.",
+      "upload": "Upload photo",
+      "replace": "Replace",
+      "remove": "Remove shop photo",
+      "previewAlt": "Current shop photo",
+      "uploaded": "Shop photo updated",
+      "uploadFailed": "Couldn't upload the shop photo.",
+      "removed": "Shop photo removed",
+      "removeFailed": "Couldn't remove the shop photo.",
+      "wrongType": "Upload a JPEG, PNG or WebP photo.",
+      "tooLarge": "That photo is too large. Upload one under 10 MB."
+    },
+    "isPublic": "Public",
+    "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link. Turn off to require the private link.",
+    "publicBadge": "Public",
+    "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
   }
 }

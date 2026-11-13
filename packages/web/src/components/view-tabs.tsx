@@ -1,5 +1,3 @@
-import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useTabListKeyboard } from "@/hooks/use-tab-list-keyboard";
 import type { ViewTabsProps } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
@@ -12,29 +10,17 @@ export function ViewTabs<T extends string>({
   fill = false,
   className,
 }: ViewTabsProps<T>) {
-  const isMobile = useIsMobile();
   const { onKeyDown, tabIndexFor } = useTabListKeyboard(
     items.map((item) => item.key),
     value,
     onChange,
   );
 
-  if (isMobile) {
-    return (
-      <MobileSegmentedControl
-        items={items}
-        value={value}
-        onChange={onChange}
-        label={label}
-      />
-    );
-  }
-
   return (
     <div
       role="tablist"
       aria-label={label}
-      className={cn("flex items-end gap-4 border-b", className)}
+      className={cn("flex items-end gap-4 border-b max-md:gap-6", className)}
     >
       {items.map((item, index) => {
         const active = item.key === value;
@@ -48,7 +34,7 @@ export function ViewTabs<T extends string>({
             onKeyDown={onKeyDown}
             onClick={() => onChange(item.key)}
             className={cn(
-              "-mb-px flex h-7 min-w-0 items-center justify-center gap-1.5 border-b-2 px-0.5 text-control font-medium whitespace-nowrap transition-colors rounded-t-sm outline-none focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
+              "-mb-px flex h-7 max-md:h-11 min-w-0 items-center justify-center gap-1.5 border-b-2 px-0.5 text-control font-medium whitespace-nowrap transition-colors rounded-t-sm outline-none focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
               fill && "flex-1",
               active
                 ? "border-primary text-foreground"

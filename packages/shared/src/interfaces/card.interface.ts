@@ -11,8 +11,6 @@ export interface PlayingCardImage {
 
 export interface PlayingCardPriceRange {
   low: number | null;
-  mid: number | null;
-  high: number | null;
   market: number | null;
   printings?: number;
 }
@@ -58,9 +56,17 @@ export type CardFinishPrices = Partial<
   >
 >;
 
+export type CardStampPrices = Partial<
+  Pick<
+    PlayingCard,
+    "price" | "priceFoil" | "priceByCondition" | "priceFoilByCondition"
+  >
+>;
+
 export interface CardFinish {
   isFoil?: boolean | null;
   foilType?: string | null;
+  stamp?: string | null;
 }
 
 export interface PlayingCard {
@@ -95,13 +101,17 @@ export interface PlayingCard {
   pricesAtScan?: CardPricesAtScan;
   foilTypes?: string[];
   foilOnlyFoilType?: string;
+  hasNoFoilPrinting?: boolean;
   finishPrices?: Record<string, CardFinishPrices>;
+  stamps?: string[];
+  stampPrices?: Record<string, CardStampPrices>;
   purchaseLinks?: CardPurchaseLinks;
   sourceUrl?: string;
   tcgplayerId?: string;
   isFallbackData?: boolean;
   cmc?: number;
   lang?: string;
+  gameKey?: string;
   raw?: unknown;
 }
 

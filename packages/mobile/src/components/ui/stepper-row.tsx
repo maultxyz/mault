@@ -3,7 +3,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "react-i18next";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
 import type { StepperRowProps } from "@/lib/interfaces/ui";
 
 export function StepperRow({ value, min, max, bigStep, smallStep, disabled = false, valueLabel, onChange }: StepperRowProps) {
@@ -24,7 +24,7 @@ export function StepperRow({ value, min, max, bigStep, smallStep, disabled = fal
           height: 32,
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: RADIUS.md,
+          borderRadius: CONTROL_RADIUS,
           borderWidth: 1,
           borderColor: colors.border,
         }}

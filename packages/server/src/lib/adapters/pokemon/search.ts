@@ -1,3 +1,5 @@
+import { pokemonStampProducts, pokemonStamps } from "./stamps";
+import { pokemonPrintingMarkGroups } from "../../printing-marks/groups";
 import { type PlayingCard, proxiedImageUrl } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { fetchCardApi } from "../../card-search/fetch";
@@ -7,6 +9,7 @@ import {
   pokemonFinishProducts,
   pokemonFoilOnlyFoilType,
   pokemonTcgplayerProductId,
+  pokemonListsNonFoilPrinting,
 } from "./finishes";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { POKEMON_FOIL_TYPES_BY_TCGPLAYER_VARIANT } from "../../constants/pokemon";
@@ -61,6 +64,7 @@ function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
       .filter(Boolean)
       .join("\n\n") || undefined;
   const foilTypes = pokemonFinishes(raw).map((finish) => finish.foilType);
+  const stamps = pokemonStamps(raw);
   const typeLine =
     [raw.category, raw.stage ?? raw.trainerType ?? raw.energyType]
       .filter(Boolean)
@@ -87,6 +91,7 @@ function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
     tcgplayerId: resolveTcgplayerId(raw.pricing),
     foilTypes: foilTypes.length > 0 ? foilTypes : undefined,
     foilOnlyFoilType: pokemonFoilOnlyFoilType(raw, foilTypes),
+    stamps: stamps.length > 0 ? stamps : undefined,
     cmc: raw.retreat,
     raw,
   };
@@ -110,6 +115,10 @@ export const pokemonAdapter: CardSearchAdapter = {
   urlForLang,
   normalizeStored: (raw) => normalizePokemonCard(raw as PokemonCardDetail),
   excludedFromMatchingSql: sql`(data->>'image') LIKE '%/tcgp/%'`,
+  printedSetTotalSql: sql`CASE WHEN data->'set'->'cardCount'->>'official' ~ '^[0-9]+$' THEN (data->'set'->'cardCount'->>'official')::int END`,
+  printingMarkGroups: pokemonPrintingMarkGroups,
+  sourceListsNonFoilPrinting: (card) =>
+    pokemonListsNonFoilPrinting(card.raw as PokemonCardDetail),
   tcgplayer: {
     categoryId: 3,
     foilTypeOfVariant: (variant) =>
@@ -117,6 +126,7 @@ export const pokemonAdapter: CardSearchAdapter = {
     productIdFromRaw: (card) =>
       resolveTcgplayerId((card.raw as PokemonCardDetail).pricing),
     finishProducts: pokemonFinishProducts,
+    stampProducts: (card) => pokemonStampProducts(card.raw as PokemonCardDetail),
     subTypes: () => ({
       price: [
         "Normal",

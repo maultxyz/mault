@@ -17,15 +17,18 @@ import {
   SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
 } from "@/lib/constants/scanner";
 import type {
+  QueuedScanImage,
   ScanImageImport,
   ScanImageImportItem,
 } from "@/lib/interfaces/scanner";
 import { scanLog } from "@/lib/scan-log";
 import { generateScanId } from "@/lib/utils";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   OCR_REGIONS_BY_GAME_KEY,
-  scanFoilType,
+  resolveScanFoilType,
+  detectedStampOf,
+  readsPrintedLanguageEveryScan,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -44,12 +47,16 @@ export function useScanImageImport(
   );
   const [items, setItems] = useState<ScanImageImportItem[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [hasHaltedOnFailure, setHasHaltedOnFailure] = useState(false);
+  const hasHaltedOnFailureRef = useRef(false);
   const isRunningRef = useRef(false);
   const stopRequestedRef = useRef(false);
+  const queueRef = useRef<QueuedScanImage[]>([]);
 
-  const targetGame = collections.find(
+  const targetCollection = collections.find(
     (collection) => collection.guid === collectionGuid,
-  )?.game;
+  );
+  const targetGame = targetCollection?.game;
   const gameKey = targetGame?.key ?? "";
   const isOcrSupported = (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0;
   const latest = {
@@ -57,8 +64,14 @@ export function useScanImageImport(
     saveCard,
     saveUnmatched,
     orgId: activeOrg?.id ?? null,
-    ocrEnabled: !!orgSettings?.ocrEnabled && isOcrSupported,
-    colorBarRegion: COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey],
+    ocrMode: scanOcrMode(
+      orgSettings,
+      isOcrSupported,
+      readsPrintedLanguageEveryScan(targetCollection, gameKey),
+    ),
+    gameKey: gameKey || undefined,
+    gameFoilTypes: targetGame?.foilTypes ?? [],
+    isFoilStarDetectionEnabled: orgSettings?.foilStarDetectionEnabled ?? false,
   };
   const latestRef = useRef(latest);
   latestRef.current = latest;
@@ -66,6 +79,7 @@ export function useScanImageImport(
   useEffect(
     () => () => {
       stopRequestedRef.current = true;
+      queueRef.current = [];
     },
     [collectionGuid],
   );
@@ -86,8 +100,16 @@ export function useScanImageImport(
       item: ScanImageImportItem,
       file: File,
     ): Promise<boolean> => {
-      const { t, saveCard, saveUnmatched, orgId, ocrEnabled, colorBarRegion } =
-        latestRef.current;
+      const {
+        t,
+        saveCard,
+        saveUnmatched,
+        orgId,
+        ocrMode,
+        gameKey: targetGameKey,
+        gameFoilTypes,
+        isFoilStarDetectionEnabled,
+      } = latestRef.current;
       updateItem(item.id, { status: "identifying" });
       let sourceCanvas: HTMLCanvasElement | null = null;
       try {
@@ -107,10 +129,10 @@ export function useScanImageImport(
           () => {},
           source.imageContour,
           { collectionGuid: targetCollectionGuid },
-          ocrEnabled,
+          ocrMode,
           SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
           SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
-          colorBarRegion,
+          targetGameKey,
         );
         const scanTarget = {
           orgId,
@@ -123,7 +145,16 @@ export function useScanImageImport(
           scanLog(
             `[scan-import] ${file.name} matched ${outcome.card.name} (${outcome.card.id})`,
           );
-          const foilType = scanFoilType(outcome.card, null);
+          const foilType = resolveScanFoilType({
+            card: outcome.card,
+            sessionFoilType: null,
+            foilDetection: null,
+            fallbackFoilTypes: gameFoilTypes,
+            gameKey: targetGameKey,
+            printedFoilMarker: outcome.matched?.diagnostics.printedFoilMarker,
+            isNudgeFoilDetectionEnabled: false,
+            isFoilStarDetectionEnabled,
+          });
           const result = await saveCard({
             ...scanTarget,
             record: {
@@ -131,6 +162,9 @@ export function useScanImageImport(
               card: outcome.card,
               isFoil: foilType != null || undefined,
               foilType: foilType ?? undefined,
+              stamp:
+                detectedStampOf(outcome.matched?.diagnostics.stampDetection) ??
+                undefined,
               scannedAt,
               capturedImageUrl: outcome.debugImageUrl,
               alternativeMatches: outcome.alternativeMatches.length
@@ -191,52 +225,96 @@ export function useScanImageImport(
     [updateItem],
   );
 
-  const importFiles = useCallback(
-    (files: File[]) => {
-      if (!collectionGuid || isRunningRef.current) return;
-      const queue = sortFilesByName(
-        files.filter((file) => file.type.startsWith("image/")),
-      ).map((file): { file: File; item: ScanImageImportItem } => ({
-        file,
-        item: { id: generateScanId(), fileName: file.name, status: "queued" },
-      }));
-      setItems(queue.map(({ item }) => item));
-      if (queue.length === 0) return;
-
-      isRunningRef.current = true;
-      stopRequestedRef.current = false;
-      setIsRunning(true);
-      void (async () => {
-        try {
-          for (const { file, item } of queue) {
-            if (stopRequestedRef.current) break;
-            const canContinue = await identifyAndSaveImage(
-              collectionGuid,
-              item,
-              file,
-            );
-            if (!canContinue) break;
-          }
-        } finally {
-          isRunningRef.current = false;
-          setIsRunning(false);
-          void invalidateCollectionCards(queryClient, collectionGuid);
-          void invalidateUnmatchedCards(queryClient, collectionGuid);
-          const { orgId } = latestRef.current;
-          if (orgId) {
-            void queryClient.invalidateQueries({
-              queryKey: billingQueryOptions(orgId).queryKey,
-            });
+  const runQueue = useCallback(() => {
+    if (!collectionGuid || isRunningRef.current) return;
+    isRunningRef.current = true;
+    stopRequestedRef.current = false;
+    setIsRunning(true);
+    void (async () => {
+      try {
+        while (!stopRequestedRef.current) {
+          const next = queueRef.current.shift();
+          if (!next) break;
+          const canContinue = await identifyAndSaveImage(
+            collectionGuid,
+            next.item,
+            next.file,
+          );
+          if (!canContinue) {
+            hasHaltedOnFailureRef.current = true;
+            setHasHaltedOnFailure(true);
+            queueRef.current = [];
+            break;
           }
         }
-      })();
+      } finally {
+        if (stopRequestedRef.current) queueRef.current = [];
+        isRunningRef.current = false;
+        setIsRunning(false);
+        void invalidateCollectionCards(queryClient, collectionGuid);
+        void invalidateUnmatchedCards(queryClient, collectionGuid);
+        const { orgId } = latestRef.current;
+        if (orgId) {
+          void queryClient.invalidateQueries({
+            queryKey: billingQueryOptions(orgId).queryKey,
+          });
+        }
+      }
+    })();
+  }, [collectionGuid, identifyAndSaveImage, queryClient]);
+
+  const enqueueFiles = useCallback(
+    (files: File[]) => {
+      if (!collectionGuid || hasHaltedOnFailureRef.current) return;
+      const queued = files
+        .filter((file) => file.type.startsWith("image/"))
+        .map(
+          (file): QueuedScanImage => ({
+            file,
+            item: {
+              id: generateScanId(),
+              fileName: file.name,
+              status: "queued",
+            },
+          }),
+        );
+      if (queued.length === 0) return;
+      queueRef.current.push(...queued);
+      setItems((previous) => [...previous, ...queued.map(({ item }) => item)]);
+      runQueue();
     },
-    [collectionGuid, identifyAndSaveImage, queryClient],
+    [collectionGuid, runQueue],
+  );
+
+  const clear = useCallback(() => {
+    if (isRunningRef.current) return;
+    queueRef.current = [];
+    setItems([]);
+    hasHaltedOnFailureRef.current = false;
+    setHasHaltedOnFailure(false);
+  }, []);
+
+  const importFiles = useCallback(
+    (files: File[]) => {
+      if (isRunningRef.current) return;
+      clear();
+      enqueueFiles(sortFilesByName(files));
+    },
+    [clear, enqueueFiles],
   );
 
   const stop = useCallback(() => {
     stopRequestedRef.current = true;
+    queueRef.current = [];
   }, []);
 
-  return { items, isRunning, importFiles, stop };
+  return {
+    items,
+    isRunning,
+    hasHaltedOnFailure,
+    importFiles,
+    enqueueFiles,
+    clear,
+    stop,
+  };
 }

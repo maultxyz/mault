@@ -1,10 +1,14 @@
+import type { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import type {
   CardCondition,
+  CardTag,
   CollectionCardPosition,
   ExportAdapter,
+  OcrOverlayRegion,
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
+  ReviewGridAttributes,
   ReviewGridCard,
   ScannedCard,
 } from "@magic-vault/shared";
@@ -18,9 +22,18 @@ export interface ReviewGridData {
 
 export interface ReviewGridTileProps {
   card: ReviewGridCard;
+  attributes: ReviewGridAttributes;
   accepting: boolean;
   onAccept: () => void;
   onCorrect: () => void;
+  onPickAttribute: (field: ReviewGridAttributeField) => void;
+}
+
+export type ReviewGridAttributeField = keyof ReviewGridAttributes;
+
+export interface ReviewGridAttributePicker {
+  card: ReviewGridCard;
+  field: ReviewGridAttributeField;
 }
 
 export interface CardUpdateBody {
@@ -30,6 +43,7 @@ export interface CardUpdateBody {
   reviewed?: boolean;
   isFoil?: boolean;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: CardCondition;
   language?: string;
 }
@@ -46,6 +60,10 @@ export interface CardCorrection {
   correct: (entry: ScannedCard, card: PlayingCard) => Promise<void>;
   isPending: boolean;
 }
+
+export type CardDetailMenuSheet = (typeof CARD_DETAIL_MENU_SHEETS)[number];
+
+export type CardDetailSheet = CardDetailMenuSheet | "actions" | "tags";
 
 export interface MatchesOpenState {
   scanId: string;
@@ -71,6 +89,7 @@ export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil: boolean;
   foilType?: string | null;
+  stamp?: string | null;
   condition?: CardCondition | null;
 }
 
@@ -134,4 +153,25 @@ export interface CardDetailPrefetchStep {
   collectionGuid: string;
   position: CollectionCardPosition;
   nextScanId: string | null;
+}
+
+export interface OcrRegionCropsProps {
+  imageUrl: string;
+  regions: OcrOverlayRegion[];
+}
+
+export interface CardDetailSkeletonProps {
+  showsCapturedScan: boolean;
+}
+
+export interface SkeletonTextLineProps {
+  fontSize: number;
+  lineHeight: number;
+  width: number | `${number}%`;
+}
+
+export interface CardTagToggle {
+  tag: CardTag;
+  enabled: boolean;
+  isUndo?: boolean;
 }

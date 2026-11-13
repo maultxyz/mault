@@ -1,5 +1,7 @@
 import type { SettingsSectionLink, ThemeColorOption } from "@/lib/interfaces/settings";
 
+export const CONDITION_MULTIPLIER_INPUT_WIDTH = 96;
+
 export const THEME_COLORS: ThemeColorOption[] = [
   { name: "Red", value: "#ef4444", fg: "#ffffff" },
   { name: "Orange", value: "#f97316", fg: "#ffffff" },
@@ -30,4 +32,5 @@ export const SETTINGS_SECTION_LINKS: SettingsSectionLink[] = [
   { path: "/settings/notifications", key: "notifications", icon: "bell" },
   { path: "/settings/integrations", key: "integrations", icon: "connection" },
   { path: "/settings/webhooks", key: "webhooks", icon: "external" },
+  { path: "/settings/shop-catalogs", key: "shopCatalogs", icon: "store" },
 ];

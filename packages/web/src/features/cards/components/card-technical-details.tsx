@@ -87,11 +87,39 @@ export function CardTechnicalDetails({
                 {diagnostics.vectorizedOn}
               </Row>
               <Row label={t("technicalDetails.orientation")}>
-                {t(`technicalDetails.orientationValue.${diagnostics.orientation}`)}
+                {t(
+                  `technicalDetails.orientationValue.${diagnostics.orientation}`,
+                )}
               </Row>
-              {diagnostics.detectedColor !== undefined && (
-                <Row label={t("technicalDetails.detectedColor")}>
-                  {diagnostics.detectedColor ?? t("technicalDetails.noColor")}
+              {diagnostics.printingMarks && (
+                <Row label={t("technicalDetails.printingMarks")}>
+                  {diagnostics.printingMarks.skipped
+                    ? t(
+                        `technicalDetails.printingMarksSkipped.${diagnostics.printingMarks.skipped}`,
+                      )
+                    : t(
+                        diagnostics.printingMarks.cardId
+                          ? "technicalDetails.printingMarksChanged"
+                          : "technicalDetails.printingMarksKept",
+                        {
+                          evidence:
+                            diagnostics.printingMarks.evidence.toFixed(2),
+                        },
+                      )}
+                </Row>
+              )}
+              {diagnostics.printedFoilMarker && (
+                <Row label={t("technicalDetails.printedFoilMarker")}>
+                  {t(
+                    `technicalDetails.printedFoilMarkerValue.${diagnostics.printedFoilMarker.marker ?? "none"}`,
+                  )}
+                </Row>
+              )}
+              {diagnostics.stampDetection && (
+                <Row label={t("technicalDetails.stampDetection")}>
+                  {diagnostics.stampDetection.isStampDetected
+                    ? diagnostics.stampDetection.stamp
+                    : t("technicalDetails.noStampDetected")}
                 </Row>
               )}
               {typeof diagnostics.foilDetection?.foilScore === "number" && (

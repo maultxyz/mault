@@ -4,6 +4,7 @@ import {
   markCollectionCardReviewed,
   setCollectionCardCondition,
   setCollectionCardLanguage,
+  setCollectionCardStamp,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -85,6 +86,13 @@ export function useCollectionCardActions(
           (guid) =>
             setCollectionCardFoilType(guid, scanId, foilType != null, foilType),
           "update foil status",
+        ),
+      setCardStamp: (scanId, stamp) =>
+        apply(
+          scanId,
+          (item) => ({ ...item, stamp: stamp ?? undefined }),
+          (guid) => setCollectionCardStamp(guid, scanId, stamp),
+          "update card stamp",
         ),
       setCardCondition: (scanId, condition) =>
         apply(

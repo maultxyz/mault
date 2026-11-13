@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -12,17 +12,17 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { LoadingLogo } from "@/components/ui/loading-logo";
+import { LOADING_LOGO_INLINE_SIZE } from "@/lib/constants/loading";
 import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useWifiSorters } from "@/features/sorter/api/use-wifi-sorters";
 import { CommLog } from "@/features/sorter/components/comm-log";
-import { useTheme } from "@/hooks/use-theme";
 import { BUSY_PHASES, PHASE_TONES } from "@/lib/constants/sorter";
 import { SPACING } from "@/lib/constants/theme";
 
 export default function SorterScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const sorter = useSorter();
   const retract = useRetractCard();
   const [showLog, setShowLog] = useState(false);
@@ -36,20 +36,21 @@ export default function SorterScreen() {
         <PageHeader
           title={sorter.device?.name ?? t("tabs.sorter")}
           onBack={() => router.back()}
-          subtitle={
-            sorter.firmwareVersion
-              ? t("sorter.firmware", { version: sorter.firmwareVersion, board: sorter.board ?? "?" })
-              : null
-          }
-          actions={
-            <>
-              {busy ? <ActivityIndicator size="small" color={colors.primaryText} /> : null}
-              <Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />
-            </>
-          }
         />
       }
     >
+      <View
+        accessibilityLiveRegion="polite"
+        style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: SPACING.sm }}
+      >
+        <Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />
+        {busy ? <LoadingLogo size={LOADING_LOGO_INLINE_SIZE} accessibilityLabel={t("common.loading")} /> : null}
+        {sorter.firmwareVersion ? (
+          <AppText size="xs" tone="secondary">
+            {t("sorter.firmware", { version: sorter.firmwareVersion, board: sorter.board ?? "?" })}
+          </AppText>
+        ) : null}
+      </View>
       {!connected && !sorter.error ? <AppText tone="secondary">{t("sorter.connectHint")}</AppText> : null}
 
       {sorter.error ? (
@@ -113,6 +114,7 @@ export default function SorterScreen() {
               subtitle={t("calibration.entrySubtitle")}
               onPress={() => router.push("/calibrate")}
             />
+            <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
             <ListRow
               icon="refresh"
               title={t("sorter.neutral")}
@@ -132,13 +134,8 @@ export default function SorterScreen() {
               disabled={!sorter.isReady || retract.isRetracting || retract.retractLockedReason !== null}
               onPress={() => void retract.retractCard()}
             />
-            <ListRow
-              icon="close"
-              tone="destructive"
-              title={t("sorter.disconnect")}
-              onPress={() => void sorter.disconnect()}
-            />
           </ListGroup>
+          <Button variant="destructive" label={t("sorter.disconnect")} onPress={() => void sorter.disconnect()} />
         </>
       ) : (
         <>

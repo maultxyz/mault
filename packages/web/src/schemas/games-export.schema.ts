@@ -1,4 +1,4 @@
-import { GAME_KEY_PATTERN } from "@/lib/constants/games";
+import { GAME_KEY_PATTERN } from "@magic-vault/shared";
 import { z } from "zod";
 
 const exportedFieldSchema = z.object({

@@ -4,7 +4,10 @@ import { getSampleCard } from "@/features/cards/api/card-search";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
 import { gameCoverageQueryOptions } from "@/features/games/api/games";
 import type { OcrRegionTileProps } from "@/lib/interfaces/health";
-import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
+import {
+  OCR_REGIONS_BY_GAME_KEY,
+  printingMarkRegionsFor,
+} from "@magic-vault/shared";
 import { IconArrowsShuffle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -27,6 +30,7 @@ function OcrRegionTile({ gameKey, name, lang, regions }: OcrRegionTileProps) {
   });
   const card = sample.data;
   const imageUrl = card?.image?.normal ?? card?.image?.small;
+  const printingMarks = printingMarkRegionsFor(gameKey, card);
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
@@ -57,7 +61,11 @@ function OcrRegionTile({ gameKey, name, lang, regions }: OcrRegionTileProps) {
             className="absolute inset-0 h-full w-full rounded-lg object-fill"
           />
         )}
-        <OcrRegionOverlay regions={regions} showLabels />
+        <OcrRegionOverlay
+          regions={regions}
+          printingMarks={printingMarks}
+          showLabels
+        />
       </div>
       {card && (
         <p className="truncate text-2xs text-foreground/70">
@@ -82,6 +90,22 @@ function OcrRegionTile({ gameKey, name, lang, regions }: OcrRegionTileProps) {
                 y: percent(region.y),
                 width: percent(region.width),
                 height: percent(region.height),
+              })}
+            </span>
+          </li>
+        ))}
+        {printingMarks.map((mark) => (
+          <li key={mark.key} className="flex flex-col">
+            <span className="font-medium text-foreground">
+              {tCards(`cardDetailPanel.printingMarks.${mark.key}`)}
+              {` · ${t("ocrRegions.printingMark")}`}
+            </span>
+            <span className="tabular-nums">
+              {t("ocrRegions.coords", {
+                x: percent(mark.x),
+                y: percent(mark.y),
+                width: percent(mark.width),
+                height: percent(mark.height),
               })}
             </span>
           </li>

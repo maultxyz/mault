@@ -4,8 +4,10 @@ import { refreshCardPrices } from "../src/lib/card-price-refresh";
 import { adapterEntriesForGameKeys } from "../src/lib/card-search/resolve";
 import { syncCardKingdomPrices } from "../src/lib/cardkingdom-price-sync";
 import { syncCardmarketPrices } from "../src/lib/cardmarket-price-sync";
+import { snapshotTrackedOrgCollectionValues } from "../src/lib/collection-value-snapshots";
 import {
   buildPriceSyncEmbed,
+  postDiscordWebhook,
   sendPlatformDiscordNotification,
 } from "../src/lib/discord";
 import type { PriceSyncSummary } from "../src/lib/interfaces/discord";
@@ -14,6 +16,8 @@ import { syncGameFoilTypesFromTcgplayer } from "../src/lib/tcgplayer-foil-types"
 import { syncTcgplayerSkus } from "../src/lib/tcgplayer-sku-sync";
 
 const log = (msg: string) => console.log(`[sync-prices] ${msg}`);
+const warnPartialFailure = (msg: string) =>
+  console.log(`::warning::[sync-prices] ${msg}`);
 const force = process.argv.includes("--force");
 const refreshOnly = process.argv.includes("--refresh-only");
 const gameKeys = process.argv
@@ -27,6 +31,21 @@ const syncCardKingdom = adapterEntriesForGameKeys(gameKeys).some(
 );
 
 async function notifyDiscord(summary: PriceSyncSummary): Promise<void> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (webhookUrl) {
+    try {
+      await postDiscordWebhook(webhookUrl, {
+        allowed_mentions: { parse: [] },
+        embeds: [buildPriceSyncEmbed(summary)],
+      });
+      log("Posted price update to Discord.");
+    } catch (err) {
+      console.log(
+        `::warning::Discord price update failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+    return;
+  }
   try {
     const outcome = await sendPlatformDiscordNotification(
       "pricing",
@@ -58,7 +77,9 @@ async function run(): Promise<boolean> {
   try {
     log("TCGplayer: starting.");
     const tcgplayer = await syncTcgplayerPrices({ force, gameKeys, log });
-    ok &&= tcgplayer.failedGroups === 0;
+    if (tcgplayer.failedSets > 0) {
+      warnPartialFailure(`TCGplayer: ${tcgplayer.failedSets} sets failed.`);
+    }
     pulled ||= tcgplayer.prices > 0 || tcgplayer.products > 0;
     sources.TCGplayer =
       tcgplayer.prices > 0 || tcgplayer.products > 0
@@ -66,9 +87,9 @@ async function run(): Promise<boolean> {
             status: "updated",
             prices: tcgplayer.prices,
             products: tcgplayer.products,
-            failures: tcgplayer.failedGroups,
+            failures: tcgplayer.failedSets,
           }
-        : tcgplayer.failedGroups > 0
+        : tcgplayer.failedSets > 0
           ? { status: "failed" }
           : { status: "unchanged" };
   } catch (err) {
@@ -79,7 +100,9 @@ async function run(): Promise<boolean> {
   try {
     log("TCGplayer SKUs: starting.");
     const skus = await syncTcgplayerSkus({ force, gameKeys, log });
-    ok &&= skus.failedSets === 0;
+    if (skus.failedSets > 0) {
+      warnPartialFailure(`TCGplayer SKUs: ${skus.failedSets} sets failed.`);
+    }
     pulled ||= skus.sets > 0;
     log(
       skus.skipped
@@ -94,7 +117,9 @@ async function run(): Promise<boolean> {
   try {
     log("Cardmarket: starting.");
     const cardmarket = await syncCardmarketPrices({ force, gameKeys, log });
-    ok &&= cardmarket.failedGames === 0;
+    if (cardmarket.failedGames > 0) {
+      warnPartialFailure(`Cardmarket: ${cardmarket.failedGames} games failed.`);
+    }
     pulled ||= cardmarket.prices > 0 || cardmarket.products > 0;
     sources.Cardmarket =
       cardmarket.prices > 0 || cardmarket.products > 0
@@ -139,6 +164,12 @@ async function run(): Promise<boolean> {
     });
   } catch (err) {
     console.error("[sync-prices] Card price refresh failed:", err);
+    ok = false;
+  }
+  try {
+    await snapshotTrackedOrgCollectionValues(log);
+  } catch (err) {
+    console.error("[sync-prices] Collection value snapshots failed:", err);
     ok = false;
   }
   if (pulled) {

@@ -1,6 +1,6 @@
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { Button } from "@/components/ui/button";
-import { rollbar } from "@/lib/rollbar";
+import { reportClientError } from "@/lib/error-reporting";
 import { IconBug, IconRefresh } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,7 @@ export default function ErrorPage() {
 
   useEffect(() => {
     if (!isRouteErrorResponse(error)) {
-      rollbar.error(error instanceof Error ? error : String(error));
+      reportClientError(error);
     }
   }, [error]);
 

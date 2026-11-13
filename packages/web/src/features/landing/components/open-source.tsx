@@ -1,4 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
+import { MarketingSectionHeader } from "@/components/marketing-section-header";
+import { MARKETING_CARD_CLASS } from "@/lib/constants/landing";
 import { DISCORD_URL, MODEL_URL, REPO_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import {
@@ -9,30 +11,25 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { MarketingRule } from "@/components/marketing-rule";
-import { MarketingSectionHeader } from "@/components/marketing-section-header";
-import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function LandingOpenSource({ step }: MarketingStepProps) {
+export function LandingOpenSource() {
   const { t } = useTranslation("landing");
 
   return (
-    <section id="open-source" className="border-t">
+    <section id="open-source" className="scroll-mt-14">
       <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         <MarketingSectionHeader
-          step={step}
           eyebrow={t("openSource.eyebrow")}
           heading={t("openSource.heading")}
           subtitle={t("openSource.subtitle")}
         />
 
-        <div className="mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border md:grid-cols-3">
-          <div className="flex flex-col gap-4 bg-card p-6">
-            <MarketingRule
-              lead={`${step}.01`}
-              label={t("openSource.sourceCode.title")}
-              aside={<IconBrandGithub className="size-4" />}
-            />
+        <div className="mt-12 grid gap-4 md:grid-cols-3">
+          <div className={cn(MARKETING_CARD_CLASS, "gap-4")}>
+            <IconBrandGithub aria-hidden className="size-5 text-primary" />
+            <h3 className="font-heading text-base font-semibold">
+              {t("openSource.sourceCode.title")}
+            </h3>
             <p className="text-sm/relaxed text-foreground/70">
               {t("openSource.sourceCode.description")}
             </p>
@@ -47,16 +44,15 @@ export function LandingOpenSource({ step }: MarketingStepProps) {
             </a>
           </div>
 
-          <div className="flex flex-col gap-4 bg-card p-6">
-            <MarketingRule
-              lead={`${step}.02`}
-              label={t("openSource.printableSorter.title")}
-              aside={<IconCube className="size-4" />}
-            />
+          <div className={cn(MARKETING_CARD_CLASS, "gap-4")}>
+            <IconCube aria-hidden className="size-5 text-primary" />
+            <h3 className="font-heading text-base font-semibold">
+              {t("openSource.printableSorter.title")}
+            </h3>
             <p className="text-sm/relaxed text-foreground/70">
               {t("openSource.printableSorter.description")}
             </p>
-            <div className="mt-auto flex flex-wrap gap-2">
+            <div className="mt-auto flex flex-wrap gap-1.5">
               <a
                 href={MODEL_URL}
                 target="_blank"
@@ -75,12 +71,11 @@ export function LandingOpenSource({ step }: MarketingStepProps) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 bg-card p-6">
-            <MarketingRule
-              lead={`${step}.03`}
-              label={t("openSource.community.title")}
-              aside={<IconBrandDiscord className="size-4" />}
-            />
+          <div className={cn(MARKETING_CARD_CLASS, "gap-4")}>
+            <IconBrandDiscord aria-hidden className="size-5 text-primary" />
+            <h3 className="font-heading text-base font-semibold">
+              {t("openSource.community.title")}
+            </h3>
             <p className="text-sm/relaxed text-foreground/70">
               {t("openSource.community.description")}
             </p>

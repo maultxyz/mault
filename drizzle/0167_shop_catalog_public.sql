@@ -1,0 +1,1 @@
+ALTER TABLE "shop_catalogs" ADD COLUMN "is_public" boolean DEFAULT false NOT NULL;

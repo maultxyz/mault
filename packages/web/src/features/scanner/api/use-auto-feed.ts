@@ -12,7 +12,7 @@ import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
-import type { AutoFeedSerial } from "@/lib/interfaces/scanner";
+import type { AutoFeedSerial, FeedSource } from "@/lib/interfaces/scanner";
 import type {
   StationAttention,
   StationAttentionDetails,
@@ -34,6 +34,7 @@ export function useAutoFeed({
   const [autoFeed, setAutoFeedState] = useState(true);
   const autoFeedRef = useRef(true);
   const cardArrivedHookRef = useRef<(() => void) | null>(null);
+  const feedSourceRef = useRef<FeedSource | null>(null);
   const pauseHookRef = useRef<(() => void) | null>(null);
   const resumeHookRef = useRef<(() => void) | null>(null);
 
@@ -87,6 +88,23 @@ export function useAutoFeed({
       if (cardArrivedHookRef.current === fn) cardArrivedHookRef.current = null;
     };
   }, []);
+
+  const registerFeedSource = useCallback((feedSource: FeedSource) => {
+    feedSourceRef.current = feedSource;
+    return () => {
+      if (feedSourceRef.current === feedSource) feedSourceRef.current = null;
+    };
+  }, []);
+
+  const hasCustomFeedSource = useCallback(() => !!feedSourceRef.current, []);
+
+  const feedOneCard = useCallback(
+    () =>
+      feedSourceRef.current
+        ? feedSourceRef.current()
+        : serialRef.current.sendRequest({ feeder: true }, 10000),
+    [serialRef],
+  );
 
   const registerPauseHook = useCallback((fn: () => void) => {
     pauseHookRef.current = fn;
@@ -154,7 +172,7 @@ export function useAutoFeed({
 
   const sendAutoFeed = useCallback(async (retryCount: number) => {
     const { sent, line: response } = await feedWithRetries(
-      () => serialRef.current.sendRequest({ feeder: true }, 10000),
+      feedOneCard,
       (result) => (result.sent ? parseSerialReply(result.line) : null),
       retryCount,
     );
@@ -204,7 +222,7 @@ export function useAutoFeed({
   }, [
     toast,
     t,
-    serialRef,
+    feedOneCard,
     activeCollectionRef,
     deviceGuidRef,
     pauseForAttention,
@@ -237,6 +255,9 @@ export function useAutoFeed({
     attention,
     triggerAutoFeed,
     registerCardArrivedHook,
+    registerFeedSource,
+    hasCustomFeedSource,
+    feedOneCard,
     registerPauseHook,
     resume,
     registerResumeHook,

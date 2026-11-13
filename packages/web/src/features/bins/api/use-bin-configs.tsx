@@ -28,6 +28,8 @@ import {
   SCAN_ONLY_DEFAULT_BIN,
   type Result,
   type ScanOnlyConfig,
+  presetMatchGameKeys,
+  presetMatchedGameOptions,
   withScanRuleFields,
 } from "@magic-vault/shared";
 
@@ -48,6 +50,7 @@ import {
   setRepackConfig as setRepackConfigAction,
   setScanOnly as setScanOnlyAction,
   setSkipSaving as setSkipSavingAction,
+  setMatchGames as setMatchGamesAction,
   setResortMode as setResortModeAction,
 } from "@/features/bins/api/sort-bins";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
@@ -66,6 +69,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { presetWorkflowsQueryKey } from "@/features/bins/api/preset-workflows";
+import { gamesQueryOptions } from "@/features/games/api/games";
 import { emptyRuleGroup } from "@/lib/rule-groups";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
@@ -149,20 +153,6 @@ export function BinConfigsProvider({
     [targetCollection?.game?.fieldDefinitions],
   );
   const foilTypes = targetCollection?.game?.foilTypes;
-  const ruleFieldDefinitions = useMemo(
-    () =>
-      withScanRuleFields(fieldDefinitions, foilTypes ?? [], gameKey, {
-        foil: t("scanRuleFields.foil"),
-        foilType: t("scanRuleFields.foilType"),
-        matchPercent: t("scanRuleFields.matchPercent"),
-        marketValueUsd: t("scanRuleFields.marketValueUsd"),
-        marketValueEur: t("scanRuleFields.marketValueEur"),
-        collectorNumber: t("scanRuleFields.collectorNumber"),
-        foilOption: t("scanRuleFields.foilOption"),
-        nonFoilOption: t("scanRuleFields.nonFoilOption"),
-      }),
-    [fieldDefinitions, foilTypes, gameKey, t],
-  );
   const apiDocsUrl = targetCollection?.game?.apiDocsUrl ?? null;
   const hasGame = !!targetCollection?.game;
   const hasCollection = !!targetCollection;
@@ -179,6 +169,34 @@ export function BinConfigsProvider({
       sets.find((s) => s.isActive) ||
       sets[0],
     [sets, editingPresetGuid],
+  );
+
+  const { data: allGames = [] } = useQuery(gamesQueryOptions);
+  const matchedGameOptions = useMemo(
+    () => presetMatchedGameOptions(selectedSet, allGames),
+    [selectedSet, allGames],
+  );
+  const ruleFieldDefinitions = useMemo(
+    () =>
+      withScanRuleFields(
+        fieldDefinitions,
+        foilTypes ?? [],
+        gameKey,
+        {
+          foil: t("scanRuleFields.foil"),
+          foilType: t("scanRuleFields.foilType"),
+          matchPercent: t("scanRuleFields.matchPercent"),
+          marketValueUsd: t("scanRuleFields.marketValueUsd"),
+          marketValueEur: t("scanRuleFields.marketValueEur"),
+          collectorNumber: t("scanRuleFields.collectorNumber"),
+          foilOption: t("scanRuleFields.foilOption"),
+          nonFoilOption: t("scanRuleFields.nonFoilOption"),
+          game: t("scanRuleFields.game"),
+          stamp: t("scanRuleFields.stamp"),
+        },
+        matchedGameOptions,
+      ),
+    [fieldDefinitions, foilTypes, gameKey, matchedGameOptions, t],
   );
 
   const configs = useMemo(
@@ -218,6 +236,7 @@ export function BinConfigsProvider({
     chaosBinSize: selectedSet?.chaosBinSize ?? null,
     skipSaving: selectedSet?.skipSaving ?? false,
     isResortMode: selectedSet?.isResortMode ?? false,
+    matchGameKeys: presetMatchGameKeys(selectedSet),
   };
   const effectiveMode = modeDraft ?? modeBaseline;
   const isModeDirty =
@@ -231,7 +250,8 @@ export function BinConfigsProvider({
       modeDraft.isChaosMode !== modeBaseline.isChaosMode ||
       modeDraft.chaosBinSize !== modeBaseline.chaosBinSize ||
       modeDraft.skipSaving !== modeBaseline.skipSaving ||
-      modeDraft.isResortMode !== modeBaseline.isResortMode);
+      modeDraft.isResortMode !== modeBaseline.isResortMode ||
+      modeDraft.matchGameKeys.join() !== modeBaseline.matchGameKeys.join());
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
@@ -511,6 +531,14 @@ export function BinConfigsProvider({
     }),
   });
 
+  const setMatchGamesMutation = useMutation({
+    mutationFn: ({ guid, gameKeys }: { guid: string; gameKeys: string[] }) =>
+      setMatchGamesAction(guid, gameKeys),
+    ...presetsMutationHandlers("useBinConfigs.toasts.matchGamesFailed", {
+      showServerMessage: true,
+    }),
+  });
+
   const setResortModeMutation = useMutation({
     mutationFn: ({
       guid,
@@ -545,6 +573,7 @@ export function BinConfigsProvider({
     setAlphabetConfigMutation.isPending ||
     setChaosModeMutation.isPending ||
     setSkipSavingMutation.isPending ||
+    setMatchGamesMutation.isPending ||
     setResortModeMutation.isPending;
 
   const save = useCallback(
@@ -702,6 +731,14 @@ export function BinConfigsProvider({
     if (!modeDraft || !selectedSet) return;
     setIsSavingMode(true);
     try {
+      if (
+        modeDraft.matchGameKeys.join() !== modeBaseline.matchGameKeys.join()
+      ) {
+        await setMatchGamesMutation.mutateAsync({
+          guid: selectedSet.guid,
+          gameKeys: modeDraft.matchGameKeys,
+        });
+      }
       if (modeDraft.autoAssignField !== modeBaseline.autoAssignField) {
         await setAutoAssignFieldFn(modeDraft.autoAssignField);
       }

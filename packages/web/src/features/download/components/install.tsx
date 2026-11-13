@@ -1,22 +1,20 @@
 import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { DESKTOP_DOWNLOADS } from "@/lib/constants/download";
-import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 import { useTranslation } from "react-i18next";
 
-export function DownloadInstall({ step }: MarketingStepProps) {
+export function DownloadInstall() {
   const { t } = useTranslation("download");
 
   return (
-    <section id="install" className="border-t">
-      <div className="mx-auto max-w-4xl px-4 py-16">
+    <section id="install" className="scroll-mt-14">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         <MarketingSectionHeader
-          step={step}
           eyebrow={t("install.eyebrow")}
           heading={t("install.title")}
           subtitle={t("install.description")}
         />
 
-        <div className="mt-10 flex flex-col divide-y rounded-lg border bg-card">
+        <div className="mx-auto mt-12 flex max-w-3xl flex-col divide-y rounded-lg bg-card ring-1 ring-border">
           {DESKTOP_DOWNLOADS.map((download) => (
             <div key={download.platform} className="flex gap-4 p-5">
               <download.icon className="mt-0.5 size-4 shrink-0 text-primary" />

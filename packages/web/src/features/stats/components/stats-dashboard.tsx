@@ -1,4 +1,3 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import { StatGroup } from "@/components/stat-group";
 import { SettingsSection } from "@/components/settings-section";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
@@ -387,7 +386,6 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
                 draggable={false}
                 className="h-full w-full object-cover"
               />
-              {entry.isFoil && <FoilOverlay />}
             </div>
             <div className="min-w-0">
               <p className="truncate text-xs font-medium text-foreground">

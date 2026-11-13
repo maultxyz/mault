@@ -1,4 +1,10 @@
-import type { DesktopWindowOffset, DesktopWindowState } from "@magic-vault/shared";
+import {
+  DESKTOP_TITLE_BAR_THEMES,
+  type DesktopTitleBarTheme,
+  type DesktopWindowOffset,
+  type DesktopWindowState,
+} from "@magic-vault/shared";
+import { appIconPath } from "./app-icon";
 import {
   BrowserWindow,
   ipcMain,
@@ -17,6 +23,9 @@ import {
   PIP_WINDOW_MARGIN,
   PIP_WINDOW_MIN_SIZE,
   PIP_WINDOW_SIZE,
+  TITLE_BAR_HEIGHT_PX,
+  TITLE_BAR_OVERLAY_COLOR,
+  TITLE_BAR_SYMBOL_COLORS,
   WINDOW_STATE_CHANNELS,
 } from "./constants/desktop";
 
@@ -104,6 +113,17 @@ export function registerWindowStateIpc() {
     const window = BrowserWindow.fromWebContents(event.sender);
     return window ? stateOf(window) : { background: false };
   });
+  ipcMain.on(WINDOW_STATE_CHANNELS.titleBarTheme, (event, theme: unknown) => {
+    if (!isAppOrigin(event.senderFrame?.origin)) return;
+    if (!DESKTOP_TITLE_BAR_THEMES.includes(theme as DesktopTitleBarTheme)) return;
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (!window) return;
+    window.setTitleBarOverlay({
+      color: TITLE_BAR_OVERLAY_COLOR,
+      symbolColor: TITLE_BAR_SYMBOL_COLORS[theme as DesktopTitleBarTheme],
+      height: TITLE_BAR_HEIGHT_PX,
+    });
+  });
   ipcMain.on(WINDOW_STATE_CHANNELS.showMain, (event) => {
     if (!isAppOrigin(event.senderFrame?.origin)) return;
     const window = BrowserWindow.fromWebContents(event.sender);
@@ -129,7 +149,8 @@ export function pipWindowOptions(opener: BrowserWindow | null): BrowserWindowCon
     y: y + height - PIP_WINDOW_SIZE.height - PIP_WINDOW_MARGIN,
     minWidth: PIP_WINDOW_MIN_SIZE.width,
     minHeight: PIP_WINDOW_MIN_SIZE.height,
-    title: "MAULT",
+    title: "Mault",
+    icon: appIconPath(),
     frame: false,
     alwaysOnTop: true,
     skipTaskbar: true,

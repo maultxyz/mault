@@ -4,7 +4,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
-import { SPACING } from "@/lib/constants/theme";
+import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardDetailsListProps, DetailRowProps } from "@/lib/interfaces/ui";
 
 function DetailRow({ label, value }: DetailRowProps) {
@@ -24,6 +24,7 @@ export function CardDetailsList({ card, binNumber }: CardDetailsListProps) {
   const rarity = card.rarity ? card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1) : null;
   return (
     <View style={{ gap: 6 }}>
+      <DetailRow label={t("cardDetail.name")} value={card.name} />
       <DetailRow
         label={t("cardDetail.set")}
         value={`${card.setName} (${card.set.toUpperCase()}) #${card.collectorNumber}`}
@@ -38,6 +39,11 @@ export function CardDetailsList({ card, binNumber }: CardDetailsListProps) {
         <DetailRow label={t("cardDetail.dataSource")} value={t("cardDetail.fallbackData")} />
       ) : null}
       {binNumber != null ? <DetailRow label={t("cardDetail.bin")} value={String(binNumber)} /> : null}
+      {card.text ? (
+        <View style={{ marginTop: SPACING.xs, padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
+          <AppText style={{ lineHeight: 20 }}>{card.text}</AppText>
+        </View>
+      ) : null}
       {card.sourceUrl ? (
         <Pressable
           accessibilityRole="link"

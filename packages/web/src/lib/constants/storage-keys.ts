@@ -4,6 +4,10 @@ export const BUILD_CHECKLIST_STORAGE_KEY = "magic-vault:build-checklist";
 export const IGNORE_IR_SENSORS_STORAGE_KEY =
   "magic-vault:scanner-ignore-ir-sensors";
 export const HAND_SCAN_STORAGE_KEY = "magic-vault:scanner-hand-scan";
+export const FLATBED_PLACEMENT_STORAGE_KEY_PREFIX =
+  "magic-vault:flatbed-placement:";
+export const FEEDER_CARD_SETUP_STORAGE_KEY_PREFIX =
+  "magic-vault:feeder-card-setup:";
 export const ONNX_EXECUTION_PROVIDER_STORAGE_KEY =
   "magic-vault:scanner-onnx-execution-provider";
 export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =
@@ -27,6 +31,8 @@ export const PENDING_INVITE_STORAGE_KEY = "pendingInviteToken";
 export const LOCAL_AUTH_TOKEN_STORAGE_KEY = "localAuthToken";
 export const LANGUAGE_STORAGE_KEY = "language";
 export const DISMISSED_ALERTS_STORAGE_KEY = "magic-vault:dismissed-alerts";
+export const PAGE_SIZE_STORAGE_KEY = "magic-vault:page-size";
+export const MATCH_VALIDATION_GUIDE_SEEN_STORAGE_KEY = "magic-vault:match-validation-guide-seen";
 
 export const CARD_VIEW_MODE_STORAGE_KEY = "magic-vault:card-view-mode";
 export const STORAGE_CARD_VIEW_MODE_STORAGE_KEY =
@@ -34,6 +40,7 @@ export const STORAGE_CARD_VIEW_MODE_STORAGE_KEY =
 export const CARD_REVIEW_LAYOUT_STORAGE_KEY = "magic-vault:card-review-layout";
 export const CARD_GROUP_DUPLICATES_STORAGE_KEY =
   "magic-vault:card-group-duplicates";
+export const CARD_SCAN_TIMELINE_STORAGE_KEY = "magic-vault:card-scan-timeline";
 
 export const DEVICE_PREFS_STORAGE_KEY_PREFIX = "magic-vault:device-prefs:";
 

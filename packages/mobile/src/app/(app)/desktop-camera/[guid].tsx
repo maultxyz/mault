@@ -6,13 +6,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Camera, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
+import { Camera, type CameraRef, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
 import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
+import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
+import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { usePhoneCameraResponder } from "@/features/scanner/api/use-phone-camera-responder";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
@@ -24,6 +27,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { CAPTURE_FLASH_MS, PHONE_CAMERA_JPEG_QUALITY } from "@/lib/constants/phone-camera";
 import { CAMERA_ASPECT_RATIO, CAPTURE_TARGET_RESOLUTION } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 
 export default function DesktopCameraScreen() {
   useKeepAwake();
@@ -32,18 +36,21 @@ export default function DesktopCameraScreen() {
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
+  const cameraMounted = useCameraMountReady(focused);
   const appState = useAppState();
   const sorter = useSorter();
   const permission = useCameraPermission();
   const camera = useCameraChoice();
+  const cameraRef = useRef<CameraRef>(null);
   const device = camera.device;
+  const torch = useCameraTorch(device, cameraRef);
   const { data: collections } = useQuery(collectionsQueryOptions(useActiveOrgId()));
   const collection = collections?.find((c) => c.guid === guid);
   const photoOutput = usePhotoOutput({ targetResolution: CAPTURE_TARGET_RESOLUTION, qualityPrioritization: "speed" });
   const [flash, setFlash] = useState(false);
   const [frameAspect, setFrameAspect] = useState(CAMERA_ASPECT_RATIO);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const active = focused && appState === "active" && permission.hasPermission && !!device;
+  const active = cameraMounted && appState === "active" && permission.hasPermission && !!device;
 
   const capture = useCallback(async () => {
     const frame = await captureFrame(photoOutput);
@@ -99,14 +106,18 @@ export default function DesktopCameraScreen() {
         </View>
       ) : device ? (
         <>
-          <Camera
-            style={StyleSheet.absoluteFill}
-            device={device}
-            isActive={active}
-            outputs={[photoOutput]}
-            resizeMode="cover"
-            enableNativeTapToFocusGesture
-          />
+          {cameraMounted ? (
+            <Camera
+              ref={cameraRef}
+              style={StyleSheet.absoluteFill}
+              device={device}
+              isActive={active}
+              outputs={[photoOutput]}
+              resizeMode="cover"
+              enableNativeTapToFocusGesture
+              onStarted={torch.onCameraStarted}
+            />
+          ) : null}
           <ScanRegionOverlay
             region={responder.scanRegion ?? sorter.device?.scanRegion ?? DEFAULT_SCAN_REGION}
             frameAspect={frameAspect}
@@ -134,7 +145,9 @@ export default function DesktopCameraScreen() {
             />
           </View>
           <CameraChip dotColor={responder.connected ? colors.success : colors.warning} label={status} />
+          <TorchToggle torch={torch} />
         </View>
+        <TorchBrightness torch={torch} />
       </View>
 
       <View

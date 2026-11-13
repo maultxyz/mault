@@ -1,12 +1,12 @@
 {
   "meta": {
     "privacy": {
-      "title": "Privacy Policy | MAULT",
-      "description": "How Mault LLC collects, uses and protects your information when you use the hosted MAULT card sorting service."
+      "title": "Privacy Policy | Mault",
+      "description": "How Mault LLC collects, uses and protects your information when you use the hosted Mault card sorting service."
     },
     "terms": {
-      "title": "Terms of Service | MAULT",
-      "description": "The terms that apply when you use the hosted MAULT card sorting service, operated by Mault LLC."
+      "title": "Terms of Service | Mault",
+      "description": "The terms that apply when you use the hosted Mault card sorting service, operated by Mault LLC."
     }
   },
   "effectiveDateLabel": "Last updated {{date}}",

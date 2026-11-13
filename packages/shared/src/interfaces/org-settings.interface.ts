@@ -8,7 +8,9 @@ export interface OrgSettings {
   discordScanUseThreads: boolean;
   sessionWrappedEnabled: boolean;
   ocrEnabled: boolean;
+  highAccuracyScans: boolean;
   foilDetectionEnabled: boolean;
+  foilStarDetectionEnabled: boolean;
   correctionBinPrompt: boolean;
   pauseScanningOnDeploy: boolean;
   leaderboardOptIn: boolean;

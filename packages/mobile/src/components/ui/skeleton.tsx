@@ -28,7 +28,7 @@ export function Skeleton({ width = "100%", height, radius = RADIUS.md, style }: 
     <Animated.View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      style={[{ width, height, borderRadius: radius, backgroundColor: colors.muted, opacity }, style]}
+      style={[{ width, height, borderRadius: radius, backgroundColor: colors.tonal, opacity }, style]}
     />
   );
 }

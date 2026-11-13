@@ -6,7 +6,8 @@ export type HotkeyGroup =
   | "scanner"
   | "cardDetail"
   | "intake"
-  | "foilLabeling";
+  | "foilLabeling"
+  | "matchValidation";
 
 export type HotkeyId =
   | "showShortcuts"
@@ -26,6 +27,7 @@ export type HotkeyId =
   | "scanPauseResume"
   | "scanNow"
   | "scanFeed"
+  | "scanFlatbedCard"
   | "scanToggleAutoFeed"
   | "scanCycleFoil"
   | "scanPickSet"
@@ -52,7 +54,12 @@ export type HotkeyId =
   | "foilLabelFoil"
   | "foilLabelNotFoil"
   | "foilLabelSkip"
-  | "foilLabelBack";
+  | "foilLabelBack"
+  | "matchValidationCorrect"
+  | "matchValidationIncorrect"
+  | "matchValidationBadScan"
+  | "matchValidationSkip"
+  | "matchValidationBack";
 
 export interface HotkeyCombo {
   key: string;

@@ -27,7 +27,7 @@ function skuMatchFor(entry: GroupedEntry, ctx: ExportContext): TcgplayerSkuMatch
 }
 
 function tcgplayerIdForEntry(entry: GroupedEntry, ctx: ExportContext): string {
-  return skuMatchFor(entry, ctx)?.skuId ?? tcgplayerId(entry.card);
+  return skuMatchFor(entry, ctx)?.skuId ?? "";
 }
 
 export function productLine(ctx: ExportContext): string {

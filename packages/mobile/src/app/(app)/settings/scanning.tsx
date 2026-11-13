@@ -3,14 +3,12 @@ import { Controller, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { CORRECTION_AUTO_CLOSE_SECONDS_OPTIONS, DEFAULT_CORRECTION_AUTO_CLOSE_SECONDS } from "@magic-vault/shared";
-import { AppText } from "@/components/ui/app-text";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { Pill } from "@/components/ui/pill";
 import { SelectField } from "@/components/ui/select-field";
-import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { useOrgSettingsDraft } from "@/features/settings/api/use-org-settings-draft";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { SPACING } from "@/lib/constants/theme";
 
 export default function ScanningSettingsScreen() {
@@ -18,33 +16,20 @@ export default function ScanningSettingsScreen() {
   const draft = useOrgSettingsDraft();
   const disabled = draft.isLoading || draft.isSaving;
   const correctionBinPrompt = useWatch({ control: draft.control, name: "correctionBinPrompt" });
+  const ocrEnabled = useWatch({ control: draft.control, name: "ocrEnabled" });
   const [secondsOpen, setSecondsOpen] = useState(false);
-
-  const section = (heading: string, description: string, badge?: string) => (
-    <View>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-        <AppText heading weight="semibold" accessibilityRole="header">
-          {heading}
-        </AppText>
-        {badge ? <Pill label={badge} /> : null}
-      </View>
-      <AppText size="xs" tone="secondary">
-        {description}
-      </AppText>
-    </View>
-  );
 
   return (
     <SettingsPage
       title={t("settings.sections.scanning.title")}
+      isLoading={draft.isLoading}
       isDirty={draft.isDirty}
       isSaving={draft.isSaving}
       saveError={draft.saveError}
       onSave={draft.save}
       onDiscard={draft.discard}
     >
-      <Surface style={{ gap: SPACING.md }}>
-        {section(t("settings.sessionWrapped.heading"), t("settings.sessionWrapped.description"))}
+      <SettingsSection title={t("settings.sessionWrapped.heading")} description={t("settings.sessionWrapped.description")}>
         <Controller
           control={draft.control}
           name="sessionWrappedEnabled"
@@ -52,9 +37,8 @@ export default function ScanningSettingsScreen() {
             <SwitchRow title={t("settings.sessionWrapped.toggleLabel")} value={field.value} disabled={disabled} onValueChange={field.onChange} />
           )}
         />
-      </Surface>
-      <Surface style={{ gap: SPACING.md }}>
-        {section(t("settings.ocr.heading"), t("settings.ocr.description"))}
+      </SettingsSection>
+      <SettingsSection title={t("settings.ocr.heading")} description={t("settings.ocr.description")}>
         <Controller
           control={draft.control}
           name="ocrEnabled"
@@ -67,9 +51,36 @@ export default function ScanningSettingsScreen() {
             />
           )}
         />
-      </Surface>
-      <Surface style={{ gap: SPACING.md }}>
-        {section(t("settings.correctionAutoClose.heading"), t("settings.correctionAutoClose.description"))}
+        <Controller
+          control={draft.control}
+          name="highAccuracyScans"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("settings.ocr.highAccuracyToggleLabel")}
+              description={t("settings.ocr.highAccuracyDescription")}
+              value={field.value}
+              disabled={disabled || !ocrEnabled}
+              onValueChange={field.onChange}
+            />
+          )}
+        />
+      </SettingsSection>
+      <SettingsSection title={t("settings.foilDetection.heading")} description={t("settings.foilDetection.description")}>
+        <Controller
+          control={draft.control}
+          name="foilStarDetectionEnabled"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("settings.foilDetection.starToggleLabel")}
+              description={t("settings.foilDetection.starToggleDescription")}
+              value={field.value}
+              disabled={disabled}
+              onValueChange={field.onChange}
+            />
+          )}
+        />
+      </SettingsSection>
+      <SettingsSection title={t("settings.correctionAutoClose.heading")} description={t("settings.correctionAutoClose.description")}>
         <Controller
           control={draft.control}
           name="correctionBinPrompt"
@@ -122,9 +133,8 @@ export default function ScanningSettingsScreen() {
             )}
           />
         ) : null}
-      </Surface>
-      <Surface style={{ gap: SPACING.md }}>
-        {section(t("settings.deployPause.heading"), t("settings.deployPause.description"))}
+      </SettingsSection>
+      <SettingsSection title={t("settings.deployPause.heading")} description={t("settings.deployPause.description")}>
         <Controller
           control={draft.control}
           name="pauseScanningOnDeploy"
@@ -132,7 +142,7 @@ export default function ScanningSettingsScreen() {
             <SwitchRow title={t("settings.deployPause.toggleLabel")} value={field.value} disabled={disabled} onValueChange={field.onChange} />
           )}
         />
-      </Surface>
+      </SettingsSection>
     </SettingsPage>
   );
 }

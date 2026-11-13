@@ -1,5 +1,4 @@
 import { HeroSortingLine } from "@/features/landing/components/hero-sorting-line";
-import { MarketingRule } from "@/components/marketing-rule";
 import { LandingStats } from "@/features/landing/components/stats";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,14 +10,9 @@ export function LandingHero() {
   const { t } = useTranslation("landing");
 
   return (
-    <section className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 pt-14 pb-16 md:gap-14 md:pt-20 md:pb-20">
-      <div className="flex flex-col items-start gap-8">
-        <MarketingRule
-          lead="Mault"
-          label={t("hero.eyebrow")}
-          aside={<span className="hidden sm:inline">{t("hero.tagline")}</span>}
-        />
-        <h1 className="max-w-4xl font-heading text-5xl font-semibold leading-[0.95] tracking-tight text-balance md:text-6xl">
+    <section className="relative mx-auto flex max-w-6xl flex-col items-center gap-14 px-4 pt-16 pb-16 md:gap-20 md:pt-24 md:pb-24">
+      <div className="flex flex-col items-center gap-7 text-center">
+        <h1 className="max-w-4xl text-5xl leading-[1.02] font-heading font-semibold tracking-tight text-balance animate-in fade-in slide-in-from-bottom-3 duration-700 motion-reduce:animate-none md:text-6xl">
           <Trans
             t={t}
             i18nKey="hero.title"
@@ -28,7 +22,10 @@ export function LandingHero() {
             }}
           />
         </h1>
-        <div className="flex flex-wrap items-center gap-3">
+        <p className="max-w-2xl text-base/relaxed text-balance text-foreground/70 md:text-lg/relaxed">
+          {t("hero.subtitle")}
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
           <Link
             to="/auth/sign-up"
             className={cn(buttonVariants({ variant: "default", size: "lg" }))}
@@ -43,11 +40,21 @@ export function LandingHero() {
             {t("hero.seeFeatures")}
           </a>
         </div>
+        <p className="font-heading text-2xs tracking-widest text-foreground/70 uppercase">
+          {t("hero.eyebrow")}
+          <span className="hidden sm:inline"> · {t("hero.tagline")}</span>
+        </p>
       </div>
 
-      <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
-        <HeroSortingLine />
-        <LandingStats />
+      <div className="relative w-full animate-in fade-in slide-in-from-bottom-6 duration-1000 [animation-delay:150ms] [animation-fill-mode:both] motion-reduce:animate-none">
+        <div
+          aria-hidden
+          className="public-glow absolute -inset-x-8 -top-16 bottom-1/3 -z-10 blur-2xl"
+        />
+        <div className="landing-frame overflow-hidden rounded-lg bg-card">
+          <HeroSortingLine />
+          <LandingStats />
+        </div>
       </div>
     </section>
   );

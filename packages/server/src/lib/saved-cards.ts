@@ -1,4 +1,4 @@
-import type { PlayingCard } from "@magic-vault/shared";
+import { CARD_SEARCH_ALL_LANGUAGES, type PlayingCard } from "@magic-vault/shared";
 import {
   catalogCardKey,
   findCatalogCardKeys,
@@ -59,6 +59,15 @@ export function withCatalogCard<T extends PlayingCard>(
   return (includeRaw ? { ...merged, raw: current.raw } : merged) as T;
 }
 
+export function withCollectionLanguage<T extends PlayingCard>(
+  card: T,
+  collectionLanguage: string | null | undefined,
+): T {
+  if (card.lang || !collectionLanguage) return card;
+  if (collectionLanguage === CARD_SEARCH_ALL_LANGUAGES) return card;
+  return { ...card, lang: collectionLanguage };
+}
+
 export async function hydrateSavedCards<T extends PlayingCard>(
   items: SavedCardItem<T>[],
   options: SavedCardHydrateOptions,
@@ -85,7 +94,10 @@ export async function hydrateSavedScans<T extends SavedScanFields>(
   const catalog = await loadCatalogCards(keys);
   const hydrate = <C extends PlayingCard>(card: C): C => {
     const key = lookupKey(scope, card);
-    return withCatalogCard(card, key ? catalog.get(key) : undefined, options);
+    return withCollectionLanguage(
+      withCatalogCard(card, key ? catalog.get(key) : undefined, options),
+      scope.lang,
+    );
   };
   return scans.map((scan) => ({
     ...scan,

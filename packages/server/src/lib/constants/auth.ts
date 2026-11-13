@@ -1,5 +1,7 @@
 export const IMPERSONATION_ISSUER = "magic-vault-impersonation";
 export const MONITOR_LINK_ISSUER = "magic-vault-monitor-link";
+export const STORAGE_SHARE_LINK_ISSUER = "magic-vault-storage-share-link";
+export const SHOP_CATALOG_ISSUER = "magic-vault-shop-catalog";
 export const IMPERSONATION_TTL_SECONDS = 60 * 60;
 export const MONITOR_LINK_GUEST_NAME = "Guest";
 export const DISPLAY_NAME_CACHE_TTL_MS = 5 * 60 * 1000;

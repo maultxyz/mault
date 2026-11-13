@@ -58,6 +58,7 @@ export interface PokemonFinish {
 }
 
 export interface PokemonCardDetail extends PokemonCardBrief {
+  regulationMark?: string;
   category?: string;
   illustrator?: string;
   rarity?: string;

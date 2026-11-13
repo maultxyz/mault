@@ -6,37 +6,40 @@ import {
   DESKTOP_DOWNLOADS,
   DESKTOP_RELEASE_URL,
 } from "@/lib/constants/download";
-import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
+import { MARKETING_CARD_CLASS } from "@/lib/constants/landing";
 import { cn } from "@/lib/utils";
 import { IconDownload, IconExternalLink } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
-export function DownloadPlatforms({ step }: MarketingStepProps) {
+export function DownloadPlatforms() {
   const { t } = useTranslation("download");
   const detected = useClientValue(detectDesktopPlatform, null);
 
   return (
-    <section id="platforms" className="border-t">
-      <div className="mx-auto max-w-4xl px-4 py-16">
+    <section id="platforms" className="scroll-mt-14">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         <MarketingSectionHeader
-          step={step}
           eyebrow={t("platforms.eyebrow")}
           heading={t("platforms.title")}
           subtitle={t("platforms.description")}
         />
 
-        <div className="mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border sm:grid-cols-2">
+        <div className="mt-12 grid gap-4 sm:grid-cols-2">
           {DESKTOP_DOWNLOADS.map((download) => {
             const isDetected = download.platform === detected;
             return (
               <div
                 key={download.platform}
-                className="flex flex-col gap-4 bg-card p-5"
+                className={cn(
+                  MARKETING_CARD_CLASS,
+                  "gap-4",
+                  isDetected && "ring-2 ring-primary",
+                )}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <download.icon className="size-5 text-primary" />
+                  <download.icon aria-hidden className="size-5 text-primary" />
                   {isDetected && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-sm font-medium text-primary">
+                    <span className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
                       {t("platforms.yourSystem")}
                     </span>
                   )}

@@ -1,28 +1,20 @@
-import { MarketingRule } from "@/components/marketing-rule";
 import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { useTranslation } from "react-i18next";
 import { DISCORD_BOT_COMMANDS } from "@/lib/constants/discord-bot";
-import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function DiscordBotCommands({ step }: MarketingStepProps) {
+export function DiscordBotCommands() {
   const { t } = useTranslation("discordBot");
 
   return (
-    <section id="commands" className="border-t">
-      <div className="mx-auto max-w-4xl px-4 py-16">
+    <section id="commands" className="scroll-mt-14">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         <MarketingSectionHeader
-          step={step}
           eyebrow={t("commands.eyebrow")}
           heading={t("commands.title")}
           subtitle={t("commands.description")}
         />
 
-        <div className="mt-10 overflow-hidden rounded-lg border bg-card">
-          <MarketingRule
-            lead={String(DISCORD_BOT_COMMANDS.length).padStart(2, "0")}
-            label={t("commands.eyebrow")}
-            className="px-5 pt-3"
-          />
+        <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-lg bg-card ring-1 ring-border">
           <div className="divide-y">
             {DISCORD_BOT_COMMANDS.map((key) => (
               <div

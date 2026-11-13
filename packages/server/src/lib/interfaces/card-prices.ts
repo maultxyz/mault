@@ -31,6 +31,7 @@ export interface ScannedCardSqlColumns {
   cardLang: SQL | AnyColumn;
   isFoil: SQL | AnyColumn;
   foilType: SQL | AnyColumn;
+  stamp: SQL | AnyColumn;
   condition: SQL | AnyColumn;
   cardId: SQL | AnyColumn;
   collectionId: SQL | AnyColumn;

@@ -1,10 +1,13 @@
 export type ScanImageKind = "cards" | "unmatched";
 
+export type ScanImageSide = "front" | "back";
+
 export interface ScanImageTarget {
   orgId: string;
   collectionGuid: string;
   scanId: string;
   kind: ScanImageKind;
+  side?: ScanImageSide;
 }
 
 export interface StoredScanImage {
@@ -15,4 +18,9 @@ export interface StoredScanImage {
 export interface StoredScanImageRow {
   capturedImageKey: string | null;
   capturedImageDataUrl: string | null;
+}
+
+export interface StoredBackScanImageRow {
+  capturedBackImageKey: string | null;
+  capturedBackImageDataUrl: string | null;
 }

@@ -7,6 +7,8 @@ export interface ThemeColors {
   background: string;
   shell: string;
   shellAccent: string;
+  tonal: string;
+  tonalPressed: string;
   foreground: string;
   foregroundSecondary: string;
   card: string;

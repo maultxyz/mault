@@ -12,6 +12,7 @@ export interface CardToResort {
   id: number;
   isFoil: boolean;
   foilType: string | null;
+  stamp: string | null;
   condition: string;
   hasCapturedImage: boolean;
 }
@@ -25,4 +26,5 @@ export interface MoveResortedCardInput {
   scannedByUserId: string;
   scannedByDeviceId: number | null;
   capturedImage: StoredScanImage | null;
+  capturedBackImage: StoredScanImage | null;
 }

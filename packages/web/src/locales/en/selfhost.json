@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Self-hosting guide | MAULT",
+    "title": "Self-hosting guide | Mault",
     "description": "Run Mault on your own server with Docker Compose: Postgres, the API, the web app and the API docs, step by step."
   },
   "hero": {

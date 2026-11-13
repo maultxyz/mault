@@ -1,3 +1,4 @@
+import type { CardCondition } from "./card-condition.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
 
 export type ReviewAcceptKind = "confirm" | "review";
@@ -9,6 +10,26 @@ export interface ReviewGridCard {
   lowConfidenceMatch: boolean;
   hasAlternatives: boolean;
   corrected: boolean;
+  isFoil: boolean;
+  foilType: string | null;
+  stamp: string | null;
+  condition: CardCondition;
+  language: string | null;
+}
+
+export interface ReviewGridAttributes {
+  foilType: string | null;
+  stamp: string | null;
+  condition: CardCondition;
+  language: string;
+}
+
+export interface ReviewGridAttributeUpdate {
+  isFoil: boolean;
+  foilType: string | null;
+  condition: CardCondition;
+  stamp?: string | null;
+  language?: string;
 }
 
 export interface ReviewAcceptResult {

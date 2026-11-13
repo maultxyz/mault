@@ -1,12 +1,13 @@
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { SectionHeader } from "@/components/ui/section-header";
+import { Surface } from "@/components/ui/surface";
 import { SPACING } from "@/lib/constants/theme";
 import type { StatsSectionProps } from "@/lib/interfaces/stats";
 
 export function StatsSection({ title, description, action, children }: StatsSectionProps) {
   return (
-    <View style={{ gap: SPACING.md }}>
+    <View style={{ gap: SPACING.sm }}>
       <View style={{ gap: 2 }}>
         <SectionHeader title={title} />
         {description ? (
@@ -15,8 +16,10 @@ export function StatsSection({ title, description, action, children }: StatsSect
           </AppText>
         ) : null}
       </View>
-      {action}
-      {children}
+      <Surface style={{ gap: SPACING.md }}>
+        {action}
+        {children}
+      </Surface>
     </View>
   );
 }

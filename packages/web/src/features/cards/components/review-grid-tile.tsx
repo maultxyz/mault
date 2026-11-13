@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
+import { ReviewGridAttributeFields } from "@/features/cards/components/review-grid-attribute-fields";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import type { ReviewGridTileProps } from "@/lib/interfaces/cards";
 import { IconCheck, IconPencil, IconPhotoOff } from "@tabler/icons-react";
@@ -9,6 +10,8 @@ import { useTranslation } from "react-i18next";
 
 export function ReviewGridTile({
   card,
+  attributes,
+  onAttributesChange,
   onAccept,
   onCorrect,
 }: ReviewGridTileProps) {
@@ -71,6 +74,11 @@ export function ReviewGridTile({
           wasCorrected={card.corrected}
         />
       </div>
+      <ReviewGridAttributeFields
+        card={card}
+        attributes={attributes}
+        onChange={onAttributesChange}
+      />
       <div className="flex gap-1.5">
         <Button className="flex-1" onClick={onAccept}>
           <IconCheck />

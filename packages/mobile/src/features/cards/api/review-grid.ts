@@ -7,10 +7,11 @@ import {
   type Result,
   type ReviewAcceptRequest,
   type ReviewAcceptResult,
+  type ReviewGridAttributeUpdate,
   type ReviewGridCard,
   type StorageLocationCardPage,
 } from "@magic-vault/shared";
-import { invalidateCollectionCards } from "@/features/collections/api/collection-cards";
+import { invalidateCollectionCards, updateCollectionCard } from "@/features/collections/api/collection-cards";
 import { apiGet, apiPost, unwrap } from "@/lib/api/client";
 import type { ReviewGridData } from "@/lib/interfaces/cards";
 
@@ -44,9 +45,24 @@ function acceptCollectionCardReviews(guid: string, request: ReviewAcceptRequest)
   return unwrap(apiPost<Result<ReviewAcceptResult>>(`/api/collections/${guid}/cards/accept-review`, request));
 }
 
-export async function acceptReviewCards(queryClient: QueryClient, cards: ReviewGridCard[]): Promise<ReviewGridCard[]> {
+export async function acceptReviewCards(
+  queryClient: QueryClient,
+  cards: ReviewGridCard[],
+  attributeUpdates: ReadonlyMap<string, ReviewGridAttributeUpdate> = new Map(),
+): Promise<ReviewGridCard[]> {
+  const updateFailedScanIds = new Set<string>();
+  await Promise.all(
+    cards.map(async (card) => {
+      const update = attributeUpdates.get(card.scanId);
+      if (!update) return;
+      await updateCollectionCard(card.collectionGuid, card.scanId, update).catch(() => {
+        updateFailedScanIds.add(card.scanId);
+      });
+    }),
+  );
+  const updatedCards = cards.filter((card) => !updateFailedScanIds.has(card.scanId));
   const results = await Promise.all(
-    groupReviewAcceptRequests(cards).map(({ collectionGuid, ...request }) =>
+    groupReviewAcceptRequests(updatedCards).map(({ collectionGuid, ...request }) =>
       acceptCollectionCardReviews(collectionGuid, request).catch(() => null),
     ),
   );

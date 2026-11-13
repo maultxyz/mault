@@ -10,6 +10,8 @@ export function CardDetailsList({ card }: CardDetailsListProps) {
   return (
     <>
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1.5 text-sm">
+        <dt className="text-foreground/70">{t("cardDetailPanel.name")}</dt>
+        <dd>{card.name}</dd>
         <dt className="text-foreground/70">{t("cardDetailPanel.set")}</dt>
         <dd>
           {`${card.setName} (${card.set.toUpperCase()}) #${card.collectorNumber}`}

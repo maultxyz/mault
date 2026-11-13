@@ -129,6 +129,15 @@ export const rejectWhileImpersonating = createMiddleware<AppEnv>(
   },
 );
 
+export function findOrgMembership(
+  userId: string,
+  orgId: string,
+): Promise<{ role: OrgRole } | null> {
+  return orgMembershipCache.get(`${userId}:${orgId}`, () =>
+    authProvider.resolveOrgMembership(userId, orgId),
+  );
+}
+
 export async function getUserDisplayName(userId: string): Promise<string> {
   return cachedDisplayName(userId, (id) => authProvider.getUserDisplayName(id));
 }

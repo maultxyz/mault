@@ -11,10 +11,11 @@ import type {
   ScanCardsSource,
 } from "@/lib/interfaces/storage";
 import {
-  COLOR_BAR_REGIONS_BY_GAME_KEY,
   findCardForScan,
   OCR_REGIONS_BY_GAME_KEY,
   scanCheckCollectionGuid,
+  readsPrintedLanguageEveryScan,
+  scanOcrMode,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
@@ -50,9 +51,10 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
       canvas.height = video.videoHeight;
       canvas.getContext("2d")?.drawImage(video, 0, 0);
     };
-    const gameKey =
-      collections.find((collection) => collection.guid === scanCollectionGuid)
-        ?.game?.key ?? "";
+    const scanCollection = collections.find(
+      (collection) => collection.guid === scanCollectionGuid,
+    );
+    const gameKey = scanCollection?.game?.key ?? "";
     drawFrame();
     setIsScanning(true);
     try {
@@ -63,11 +65,14 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
         drawFrame,
         null,
         { collectionGuid: scanCollectionGuid },
-        !!orgSettings?.ocrEnabled &&
+        scanOcrMode(
+          orgSettings,
           (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,
+          readsPrintedLanguageEveryScan(scanCollection, gameKey),
+        ),
         SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
         SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
-        COLOR_BAR_REGIONS_BY_GAME_KEY[gameKey],
+        gameKey || undefined,
       );
       if (!outcome.card) {
         showResult({ kind: "no-match" });

@@ -31,7 +31,8 @@
       "fleetHealth": "Fleet health",
       "storage": "Storage locations",
       "apiAccess": "API access",
-      "businessTools": "Buy and sell"
+      "businessTools": "Buy and sell",
+      "longShareLinks": "Monitor links up to 30 days"
     },
     "unlimited": "Unlimited",
     "included": "Included",

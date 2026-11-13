@@ -5,7 +5,7 @@ import type {
   changeEmailFormSchema,
   changePasswordFormSchema,
   createCollectionFormSchema,
-  renameCollectionFormSchema,
+  editCollectionFormSchema,
   organizationNameFormSchema,
   organizationInviteFormSchema,
   orgApiKeyFormSchema,
@@ -16,6 +16,7 @@ import type {
   discordSettingsDraftFormSchema,
   notificationRuleFormSchema,
   webhookFormSchema,
+  shopCatalogFormSchema,
   orgSettingsDraftFormSchema,
   soundRulesDraftFormSchema,
   soundRuleFormSchema,
@@ -26,7 +27,7 @@ export type UpdateNameFormValues = z.infer<typeof updateNameFormSchema>;
 export type ChangeEmailFormValues = z.infer<typeof changeEmailFormSchema>;
 export type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>;
 export type CreateCollectionFormValues = z.infer<typeof createCollectionFormSchema>;
-export type RenameCollectionFormValues = z.infer<typeof renameCollectionFormSchema>;
+export type EditCollectionFormValues = z.infer<typeof editCollectionFormSchema>;
 export type OrganizationNameFormValues = z.infer<typeof organizationNameFormSchema>;
 export type OrganizationInviteFormValues = z.infer<typeof organizationInviteFormSchema>;
 export type OrgApiKeyFormValues = z.infer<typeof orgApiKeyFormSchema>;
@@ -36,6 +37,7 @@ export type ScanDraftFormValues = z.infer<typeof scanDraftFormSchema>;
 export type DiscordSettingsDraftFormValues = z.infer<typeof discordSettingsDraftFormSchema>;
 export type NotificationRuleFormValues = z.infer<typeof notificationRuleFormSchema>;
 export type WebhookFormValues = z.infer<typeof webhookFormSchema>;
+export type ShopCatalogFormValues = z.infer<typeof shopCatalogFormSchema>;
 export type OrgSettingsDraftFormValues = z.infer<typeof orgSettingsDraftFormSchema>;
 export type SoundRulesDraftFormValues = z.infer<typeof soundRulesDraftFormSchema>;
 export type SoundRuleFormValues = z.infer<typeof soundRuleFormSchema>;

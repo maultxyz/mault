@@ -31,6 +31,7 @@ export interface CollectionCardRow {
   bin_number: number | null;
   is_foil: boolean;
   foil_type: string | null;
+  stamp: string | null;
   condition: string;
   language: string | null;
   is_downloaded: boolean;

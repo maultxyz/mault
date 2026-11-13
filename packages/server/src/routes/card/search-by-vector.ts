@@ -1,5 +1,14 @@
-import type { CardSearchEmbeddings } from "@magic-vault/shared";
+import {
+  decodePrintingMarkGrids,
+  type CardSearchEmbeddings,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
+import {
+  findBestMatchAcrossGames,
+  matchScopesForGames,
+  parseMatchGameKeys,
+  tagWithGame,
+} from "../../lib/card-search/match-games";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -38,15 +47,42 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
         400,
       );
     }
-    const { gameKey, lang } = resolved;
+    const scopes = matchScopesForGames(
+      resolved,
+      parseMatchGameKeys(body["matchGameKeys"]),
+    );
+    const preferredSetCodes = parsePreferredSetCodes(body);
+    const printingMarksGameKey =
+      typeof body["printingMarksGameKey"] === "string"
+        ? body["printingMarksGameKey"]
+        : null;
 
     try {
-      const result = await findCardMatches({
-        ...resolved,
-        embeddings,
-        preferredSetCodes: parsePreferredSetCodes(body),
-      });
-      return c.json(await attachMatchedCards(result, gameKey, lang));
+      const { result, scope } = await findBestMatchAcrossGames(
+        scopes,
+        (matchScope) =>
+          findCardMatches({
+            ...matchScope,
+            embeddings,
+            preferredSetCodes,
+            skipsUnloadedIndex: matchScope.gameKey !== resolved.gameKey,
+            printingMarkGrids:
+              matchScope.gameKey === printingMarksGameKey
+                ? decodePrintingMarkGrids(
+                    body["printingMarks"],
+                    matchScope.gameKey,
+                  )
+                : null,
+          }),
+      );
+      const attached = await attachMatchedCards(
+        result,
+        scope.gameKey,
+        scope.lang,
+      );
+      return c.json(
+        scopes.length > 1 ? tagWithGame(attached, scope.gameKey) : attached,
+      );
     } catch (err) {
       const orgId = c.req.header("X-Org-Id");
       if (orgId) {

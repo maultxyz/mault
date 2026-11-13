@@ -1,138 +1,130 @@
-import { max, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../db";
-import { tcgplayerPrices, tcgplayerProducts } from "../db/schema";
-import { fetchCardApi } from "./card-search/fetch";
+import {
+  tcgplayerPrices,
+  tcgplayerPriceSets,
+  tcgplayerProducts,
+} from "../db/schema";
 import { adapterEntriesForGameKeys } from "./card-search/resolve";
-import { CARD_API_HEADERS } from "./constants/card-search";
 import {
   TCGPLAYER_PRICE_UPSERT_BATCH_SIZE,
-  TCGPLAYER_PROGRESS_LOG_EVERY_GROUPS,
   TCGPLAYER_PRODUCT_UPSERT_BATCH_SIZE,
 } from "./constants/sync";
-import {
-  PRICE_SYNC_SLOW_STEP_MS,
-  TCGCSV_MIN_PULL_INTERVAL_MS,
-  TCGCSV_REQUEST_DELAY_MS,
-  TCGPLAYER_PRODUCTS_MAX_AGE_MS,
-} from "./constants/timing";
-import { TCGCSV_URL } from "./constants/urls";
+import { TCGTRACKING_PROGRESS_LOG_EVERY_SETS } from "./constants/tcgtracking";
 import type {
-  PriceSyncResult,
-  TcgcsvGroup,
-  TcgcsvPrice,
-  TcgcsvProduct,
-  TcgcsvResponse,
-} from "./interfaces/tcgcsv";
+  TcgplayerPriceSyncResult,
+  TcgtrackingCatalogEntry,
+  TcgtrackingSet,
+  TcgtrackingSetPricing,
+} from "./interfaces/tcgtracking";
+import {
+  fetchTcgtrackingSetEntries,
+  fetchTcgtrackingSetPricing,
+  fetchTcgtrackingSets,
+} from "./tcgtracking/catalog";
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export function tcgplayerCategoryIds(gameKeys: string[] | undefined): number[] {
+  return [
+    ...new Set(
+      adapterEntriesForGameKeys(gameKeys).flatMap(([, adapter]) =>
+        adapter.tcgplayer ? [adapter.tcgplayer.categoryId] : [],
+      ),
+    ),
+  ];
 }
 
-async function tcgcsvGet(path: string): Promise<Response> {
-  const res = await fetchCardApi(`${TCGCSV_URL}${path}`, {
-    headers: CARD_API_HEADERS,
+async function saveSet(
+  categoryId: number,
+  set: TcgtrackingSet,
+  products: TcgtrackingCatalogEntry[] | null,
+  pricing: TcgtrackingSetPricing | null,
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    for (
+      let i = 0;
+      products && i < products.length;
+      i += TCGPLAYER_PRODUCT_UPSERT_BATCH_SIZE
+    ) {
+      await tx
+        .insert(tcgplayerProducts)
+        .values(
+          products
+            .slice(i, i + TCGPLAYER_PRODUCT_UPSERT_BATCH_SIZE)
+            .map(({ product }) => ({
+              productId: product.id,
+              categoryId,
+              groupId: set.id,
+              groupName: set.name,
+              name: product.name,
+              number: product.number,
+              rarity: product.rarity,
+            })),
+        )
+        .onConflictDoUpdate({
+          target: tcgplayerProducts.productId,
+          set: {
+            categoryId: sql`excluded.category_id`,
+            groupId: sql`excluded.group_id`,
+            groupName: sql`excluded.group_name`,
+            name: sql`excluded.name`,
+            number: sql`excluded.number`,
+            rarity: sql`excluded.rarity`,
+            updatedAt: sql`now()`,
+          },
+        });
+    }
+    for (
+      let i = 0;
+      pricing && i < pricing.productIds.length;
+      i += TCGPLAYER_PRICE_UPSERT_BATCH_SIZE
+    ) {
+      await tx
+        .delete(tcgplayerPrices)
+        .where(
+          and(
+            eq(tcgplayerPrices.categoryId, categoryId),
+            inArray(
+              tcgplayerPrices.productId,
+              pricing.productIds.slice(i, i + TCGPLAYER_PRICE_UPSERT_BATCH_SIZE),
+            ),
+          ),
+        );
+    }
+    for (
+      let i = 0;
+      pricing && i < pricing.prices.length;
+      i += TCGPLAYER_PRICE_UPSERT_BATCH_SIZE
+    ) {
+      await tx
+        .insert(tcgplayerPrices)
+        .values(
+          pricing.prices
+            .slice(i, i + TCGPLAYER_PRICE_UPSERT_BATCH_SIZE)
+            .map((price) => ({ ...price, categoryId })),
+        )
+        .onConflictDoUpdate({
+          target: [tcgplayerPrices.productId, tcgplayerPrices.subType],
+          set: {
+            categoryId: sql`excluded.category_id`,
+            lowPrice: sql`excluded.low_price`,
+            marketPrice: sql`excluded.market_price`,
+            updatedAt: sql`now()`,
+          },
+        });
+    }
+    const marker = {
+      productsModified: set.products_modified ?? null,
+      pricingModified: set.pricing_modified ?? null,
+      syncedAt: new Date(),
+    };
+    await tx
+      .insert(tcgplayerPriceSets)
+      .values({ categoryId, setId: set.id, ...marker })
+      .onConflictDoUpdate({
+        target: [tcgplayerPriceSets.categoryId, tcgplayerPriceSets.setId],
+        set: marker,
+      });
   });
-  await sleep(TCGCSV_REQUEST_DELAY_MS);
-  if (!res.ok) throw new Error(`GET ${path} failed: HTTP ${res.status}`);
-  return res;
-}
-
-async function tcgcsvResults<T>(path: string): Promise<T[]> {
-  const json = (await (await tcgcsvGet(path)).json()) as TcgcsvResponse<T>;
-  if (!json.success) {
-    throw new Error(`GET ${path} failed: ${json.errors.join("; ")}`);
-  }
-  return json.results;
-}
-
-async function upsertPrices(
-  categoryId: number,
-  prices: TcgcsvPrice[],
-): Promise<void> {
-  for (let i = 0; i < prices.length; i += TCGPLAYER_PRICE_UPSERT_BATCH_SIZE) {
-    const batch = prices.slice(i, i + TCGPLAYER_PRICE_UPSERT_BATCH_SIZE);
-    await db
-      .insert(tcgplayerPrices)
-      .values(
-        batch.map((p) => ({
-          productId: p.productId,
-          subType: p.subTypeName,
-          categoryId,
-          lowPrice: p.lowPrice,
-          midPrice: p.midPrice,
-          highPrice: p.highPrice,
-          marketPrice: p.marketPrice,
-          directLowPrice: p.directLowPrice,
-        })),
-      )
-      .onConflictDoUpdate({
-        target: [tcgplayerPrices.productId, tcgplayerPrices.subType],
-        set: {
-          categoryId: sql`excluded.category_id`,
-          lowPrice: sql`excluded.low_price`,
-          midPrice: sql`excluded.mid_price`,
-          highPrice: sql`excluded.high_price`,
-          marketPrice: sql`excluded.market_price`,
-          directLowPrice: sql`excluded.direct_low_price`,
-          updatedAt: sql`now()`,
-        },
-      });
-  }
-}
-
-function extendedValue(product: TcgcsvProduct, name: string): string | null {
-  return product.extendedData.find((e) => e.name === name)?.value ?? null;
-}
-
-async function upsertProducts(
-  categoryId: number,
-  group: TcgcsvGroup,
-  products: TcgcsvProduct[],
-): Promise<void> {
-  for (
-    let i = 0;
-    i < products.length;
-    i += TCGPLAYER_PRODUCT_UPSERT_BATCH_SIZE
-  ) {
-    const batch = products.slice(i, i + TCGPLAYER_PRODUCT_UPSERT_BATCH_SIZE);
-    await db
-      .insert(tcgplayerProducts)
-      .values(
-        batch.map((p) => ({
-          productId: p.productId,
-          categoryId,
-          groupId: p.groupId,
-          groupName: group.name,
-          name: p.name,
-          number: extendedValue(p, "Number"),
-          rarity: extendedValue(p, "Rarity"),
-        })),
-      )
-      .onConflictDoUpdate({
-        target: tcgplayerProducts.productId,
-        set: {
-          categoryId: sql`excluded.category_id`,
-          groupId: sql`excluded.group_id`,
-          groupName: sql`excluded.group_name`,
-          name: sql`excluded.name`,
-          number: sql`excluded.number`,
-          rarity: sql`excluded.rarity`,
-          updatedAt: sql`now()`,
-        },
-      });
-  }
-}
-
-async function lastSyncedByCategory(
-  table: typeof tcgplayerPrices | typeof tcgplayerProducts,
-): Promise<Map<number, Date>> {
-  const rows = await db
-    .select({ categoryId: table.categoryId, lastSynced: max(table.updatedAt) })
-    .from(table)
-    .groupBy(table.categoryId);
-  return new Map(
-    rows.flatMap((r) => (r.lastSynced ? [[r.categoryId, r.lastSynced]] : [])),
-  );
 }
 
 export async function syncTcgplayerPrices({
@@ -143,125 +135,64 @@ export async function syncTcgplayerPrices({
   force?: boolean;
   gameKeys?: string[];
   log: (msg: string) => void;
-}): Promise<PriceSyncResult> {
-  const pricesSyncedAt = await lastSyncedByCategory(tcgplayerPrices);
-  const productsSyncedAt = await lastSyncedByCategory(tcgplayerProducts);
-  const productsCutoff = new Date(Date.now() - TCGPLAYER_PRODUCTS_MAX_AGE_MS);
-  const recentCutoff = new Date(Date.now() - TCGCSV_MIN_PULL_INTERVAL_MS);
-
-  const categoryIds = [
-    ...new Set(
-      adapterEntriesForGameKeys(gameKeys).flatMap(([, adapter]) =>
-        adapter.tcgplayer ? [adapter.tcgplayer.categoryId] : [],
-      ),
-    ),
-  ];
-
-  const pulledRecently = categoryIds.every((categoryId) => {
-    const pricedAt = pricesSyncedAt.get(categoryId);
-    const productsAt = productsSyncedAt.get(categoryId);
-    return (
-      !!pricedAt &&
-      pricedAt > recentCutoff &&
-      !!productsAt &&
-      productsAt > productsCutoff
-    );
-  });
-  if (!force && pulledRecently) {
-    log("tcgcsv pulled within the last day for every category; skipping.");
-    return { skipped: true, prices: 0, products: 0, failedGroups: 0 };
-  }
-
-  const lastUpdated = new Date(
-    (await (await tcgcsvGet("/last-updated.txt")).text()).trim(),
-  );
-
-  const plans = categoryIds.flatMap((categoryId) => {
-    const pricedAt = pricesSyncedAt.get(categoryId);
-    const productsAt = productsSyncedAt.get(categoryId);
-    const prices = force || !pricedAt || pricedAt < lastUpdated;
-    const products = force || !productsAt || productsAt < productsCutoff;
-    return prices || products ? [{ categoryId, prices, products }] : [];
-  });
-
-  if (plans.length === 0) {
-    log(
-      `tcgcsv build ${lastUpdated.toISOString()} already pulled for every category; nothing to do.`,
-    );
-    return { skipped: true, prices: 0, products: 0, failedGroups: 0 };
-  }
-
-  log(
-    `Pulling tcgcsv build ${lastUpdated.toISOString()}: ${plans
-      .map(
-        (p) =>
-          `${p.categoryId} (${[p.prices && "prices", p.products && "products"].filter(Boolean).join(" + ")})`,
-      )
-      .join(", ")}...`,
-  );
-
+}): Promise<TcgplayerPriceSyncResult> {
   let totalPrices = 0;
   let totalProducts = 0;
-  let failedGroups = 0;
-  for (const plan of plans) {
-    const categoryStartedAt = Date.now();
-    log(`Category ${plan.categoryId}: fetching groups...`);
-    const groups = await tcgcsvResults<TcgcsvGroup>(
-      `/tcgplayer/${plan.categoryId}/groups`,
+  let failedSets = 0;
+  for (const categoryId of tcgplayerCategoryIds(gameKeys)) {
+    const sets = await fetchTcgtrackingSets(categoryId);
+    const markers = new Map(
+      (
+        await db
+          .select()
+          .from(tcgplayerPriceSets)
+          .where(eq(tcgplayerPriceSets.categoryId, categoryId))
+      ).map((marker) => [marker.setId, marker]),
     );
-    log(`Category ${plan.categoryId}: ${groups.length} groups.`);
-
-    let categoryPrices = 0;
-    let categoryProducts = 0;
-    for (const [index, group] of groups.entries()) {
-      const groupPath = `/tcgplayer/${plan.categoryId}/${group.groupId}`;
-      const groupStartedAt = Date.now();
+    const plans = sets.flatMap((set) => {
+      const marker = markers.get(set.id);
+      const syncProducts =
+        force ||
+        !marker ||
+        marker.productsModified !== (set.products_modified ?? null);
+      const syncPrices =
+        force ||
+        !marker ||
+        marker.pricingModified !== (set.pricing_modified ?? null);
+      return syncProducts || syncPrices
+        ? [{ set, syncProducts, syncPrices }]
+        : [];
+    });
+    log(
+      `Category ${categoryId}: ${plans.length} of ${sets.length} sets have new prices or products.`,
+    );
+    for (const [index, { set, syncProducts, syncPrices }] of plans.entries()) {
       try {
-        if (plan.products) {
-          const products = await tcgcsvResults<TcgcsvProduct>(
-            `${groupPath}/products`,
-          );
-          await upsertProducts(plan.categoryId, group, products);
-          categoryProducts += products.length;
-        }
-        if (plan.prices) {
-          const prices = await tcgcsvResults<TcgcsvPrice>(
-            `${groupPath}/prices`,
-          );
-          await upsertPrices(plan.categoryId, prices);
-          categoryPrices += prices.length;
-        }
+        const products = syncProducts
+          ? await fetchTcgtrackingSetEntries(categoryId, set)
+          : null;
+        const pricing = syncPrices
+          ? await fetchTcgtrackingSetPricing(categoryId, set.id)
+          : null;
+        await saveSet(categoryId, set, products, pricing);
+        totalProducts += products?.length ?? 0;
+        totalPrices += pricing?.prices.length ?? 0;
       } catch (err) {
-        failedGroups++;
-        log(`Category ${plan.categoryId}, group ${group.name}: ${String(err)}`);
+        failedSets++;
+        log(`Category ${categoryId}, set ${set.name} (${set.id}): ${String(err)}`);
       }
-      const groupMs = Date.now() - groupStartedAt;
-      if (groupMs > PRICE_SYNC_SLOW_STEP_MS) {
-        log(
-          `Category ${plan.categoryId}, group ${group.name} (${group.groupId}) took ${(groupMs / 1000).toFixed(1)}s.`,
-        );
-      }
-      if ((index + 1) % TCGPLAYER_PROGRESS_LOG_EVERY_GROUPS === 0) {
-        log(
-          `Category ${plan.categoryId}: ${index + 1}/${groups.length} groups, ${categoryPrices} prices so far (${((Date.now() - categoryStartedAt) / 1000).toFixed(0)}s).`,
-        );
+      if ((index + 1) % TCGTRACKING_PROGRESS_LOG_EVERY_SETS === 0) {
+        log(`Category ${categoryId}: ${index + 1}/${plans.length} sets.`);
       }
     }
-
-    totalPrices += categoryPrices;
-    totalProducts += categoryProducts;
-    log(
-      `Category ${plan.categoryId}: ${categoryPrices} prices, ${categoryProducts} products across ${groups.length} groups.`,
-    );
   }
-
   log(
-    `Done. ${totalPrices} prices and ${totalProducts} products synced, ${failedGroups} groups failed.`,
+    `Done. ${totalPrices} prices and ${totalProducts} products synced, ${failedSets} sets failed.`,
   );
   return {
-    skipped: false,
+    skipped: totalPrices === 0 && totalProducts === 0 && failedSets === 0,
     prices: totalPrices,
     products: totalProducts,
-    failedGroups,
+    failedSets,
   };
 }

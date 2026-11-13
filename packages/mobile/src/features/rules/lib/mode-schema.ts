@@ -5,8 +5,9 @@ const ruleGroup = z.custom<BinRuleGroup>((value) => !!value && typeof value === 
 
 export const modeSchema = z
   .object({
-    mode: z.enum(["rules", "scan-only", "auto-assign", "repack", "alphabet", "chaos"]),
+    mode: z.enum(["rules", "scan-only", "auto-assign", "game-sort", "repack", "alphabet", "chaos"]),
     autoAssignField: z.string().nullable(),
+    matchGameKeys: z.array(z.string()),
     scanOnlyMatchedBin: z.number().int(),
     scanOnlyUnmatchedBin: z.number().int(),
     chaosBinSize: z.string().regex(/^\d*$/),

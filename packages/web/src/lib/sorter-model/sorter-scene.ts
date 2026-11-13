@@ -504,8 +504,14 @@ export class SorterScene {
         level <= SORTER_MODEL_CAD_MODULE_COUNT - column;
         level++
       ) {
-        const copy = place("baseBlock", column, level * BASE_LEVEL_STEP);
         const block = blocks[column]?.[level + extra];
+        const isTallPiece = block?.part === "baseSupportTall";
+        if (isTallPiece && block.levelInPiece > 0) continue;
+        const copy = place(
+          isTallPiece ? "baseBlockTall" : "baseBlock",
+          column,
+          level * BASE_LEVEL_STEP,
+        );
         if (copy && block && this.isPrint) {
           applyMaterial(copy, this.printMaterial(block.part, block.alt));
         }

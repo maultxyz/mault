@@ -59,3 +59,13 @@ export type StorageLocationTab = "cards" | "verify";
 export interface StorageLocationVerifyProps {
   location: StorageLocation;
 }
+
+export interface StorageLocationActionTarget {
+  guid: string;
+  name: string;
+}
+
+export interface StorageLocationActionsOptions {
+  onDeleted?: () => void;
+  shareLinkCountGuid?: string | null;
+}

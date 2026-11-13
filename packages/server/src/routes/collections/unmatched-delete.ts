@@ -17,9 +17,12 @@ export const deleteUnmatchedCardRoute = new Hono<AppEnv>().delete(
       eq(unmatchedCards.guid, scanId),
       eq(unmatchedCards.orgId, orgId),
     );
-    const imageKey = await authQuery(c.get("jwtClaims"), async (tx) => {
+    const imageKeys = await authQuery(c.get("jwtClaims"), async (tx) => {
       const [existing] = await tx
-        .select({ imageKey: unmatchedCards.capturedImageKey })
+        .select({
+          imageKey: unmatchedCards.capturedImageKey,
+          backImageKey: unmatchedCards.capturedBackImageKey,
+        })
         .from(unmatchedCards)
         .where(match);
       await tx
@@ -28,11 +31,13 @@ export const deleteUnmatchedCardRoute = new Hono<AppEnv>().delete(
           isDeleted: true,
           capturedImageKey: null,
           capturedImageDataUrl: null,
+          capturedBackImageKey: null,
+          capturedBackImageDataUrl: null,
         })
         .where(match);
-      return existing?.imageKey ?? null;
+      return existing ? [existing.imageKey, existing.backImageKey] : [];
     });
-    deleteScanImages([imageKey]);
+    deleteScanImages(imageKeys);
     emitToSession(guid, "unmatched_removed", { scanId });
     return c.json({ success: true, data: null });
   },

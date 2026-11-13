@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { SurfaceProps } from "@/lib/interfaces/ui";
 
 export function Surface({ children, style, padded = true }: SurfaceProps) {
@@ -10,10 +10,9 @@ export function Surface({ children, style, padded = true }: SurfaceProps) {
       style={[
         {
           backgroundColor: colors.card,
-          borderRadius: RADIUS.lg,
-          borderWidth: 1,
-          borderColor: colors.border,
-          padding: padded ? SPACING.lg : 0,
+          borderRadius: SURFACE_RADIUS,
+          borderCurve: "continuous",
+          padding: padded ? SPACING.lg + 2 : 0,
           overflow: "hidden",
         },
         style,

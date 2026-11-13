@@ -94,6 +94,15 @@ export async function apiGet<T>(path: string): Promise<T> {
   return res.json();
 }
 
+export async function apiGetBlob(path: string): Promise<Blob> {
+  const wasImpersonating = !!getImpersonationState();
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { ...(await getAuthHeaders()) },
+  });
+  await checkResponse(res, wasImpersonating);
+  return res.blob();
+}
+
 export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   const wasImpersonating = !!getImpersonationState();
   const res = await fetch(`${API_BASE}${path}`, {

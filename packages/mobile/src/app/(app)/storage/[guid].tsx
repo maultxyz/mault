@@ -2,7 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, View } from "react-native";
 import {
   allExportAdapters,
   DEFAULT_CARD_SORT,
@@ -20,12 +20,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { SearchInput } from "@/components/ui/search-input";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { Screen } from "@/components/ui/screen";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
-  deleteStorageLocation,
   downloadStorageLocationCsv,
   fetchFirstUnreviewedStorageCard,
   markStorageLocationCardsDownloaded,
@@ -34,6 +33,7 @@ import {
   storageLocationExportSummaryQueryOptions,
   storageLocationQueryOptions,
 } from "@/features/storage/api/storage";
+import { useStorageLocationActions } from "@/features/storage/api/use-storage-location-actions";
 import { ExportSheet } from "@/features/cards/components/export-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
@@ -58,7 +58,7 @@ import type { CardViewMode } from "@/lib/interfaces/collections";
 import { readKv, writeKv } from "@/lib/storage/kv";
 import { STORAGE_LOCATION_TABS } from "@/lib/constants/storage";
 import type { StorageLocationTab } from "@/lib/interfaces/storage";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
 import { readReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
@@ -80,7 +80,7 @@ export default function StorageLocationScreen() {
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
   const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<CardViewMode>(() =>
-    readKv(STORAGE_CARD_VIEW_MODE_KEY) === "grid" ? "grid" : "list",
+    readKv(STORAGE_CARD_VIEW_MODE_KEY) === "list" ? "list" : "grid",
   );
   const [listWidth, setListWidth] = useState(0);
   const isGrid = viewMode === "grid";
@@ -99,7 +99,7 @@ export default function StorageLocationScreen() {
     () => (summary.data && summary.data.stats.totalCount > 0 ? toStatsBreakdown(summary.data.stats) : null),
     [summary.data],
   );
-  const sortOptions = cardSortOptions(summary.data?.sortableFields ?? [], t("storage.positionOrder"), t);
+  const sortOptions = cardSortOptions(summary.data?.sortableFields ?? [], t("storage.positionOrder"), sort, t);
   const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
   const isQueryActive = !!debouncedSearch || activeSortAndFilterCount > 0 || filters.needsAttention;
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.cards) ?? [], [cards.data]);
@@ -149,24 +149,28 @@ export default function StorageLocationScreen() {
       setNotice({ tone: "destructive", text: t("storage.review.startFailed") });
     }
   };
-  const remove = useMutation({
-    mutationFn: () => deleteStorageLocation(guid),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
-      router.back();
-    },
-  });
+  const locationActions = useStorageLocationActions({ onDeleted: () => router.back(), shareLinkCountGuid: guid });
+  const { remove } = locationActions;
+
+  const hasCards = !!location && location.cardCount > 0;
+  const menuOptions = [
+    ...(hasCards && !isStorageLocked ? [{ value: "review", label: t("storage.review.start") }] : []),
+    ...(hasCards ? [{ value: "export", label: t("export.button") }] : []),
+    ...(isStorageLocked ? [] : locationActions.options),
+  ];
 
   const runAction = (action: string) => {
     setMenuOpen(false);
-    if (action === "rename") {
-      router.push({ pathname: "/storage-name", params: { guid, name: location?.name ?? "" } });
+    if (action === "review") {
+      void startReview();
       return;
     }
-    Alert.alert(t("storage.deleteTitle", { name: location?.name ?? "" }), t("storage.deleteDescription"), [
-      { text: t("storage.cancel"), style: "cancel" },
-      { text: t("storage.delete"), style: "destructive", onPress: () => remove.mutate() },
-    ]);
+    if (action === "export") {
+      runExport.reset();
+      setExportOpen(true);
+      return;
+    }
+    locationActions.runAction({ guid, name: location?.name ?? "" }, action);
   };
 
   return (
@@ -180,7 +184,7 @@ export default function StorageLocationScreen() {
           }
           onBack={() => router.back()}
           actions={
-            isStorageLocked ? null : (
+            menuOptions.length === 0 ? null : (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t("storage.actions")}
@@ -189,7 +193,7 @@ export default function StorageLocationScreen() {
               style={({ pressed }) => ({
                 width: 32,
                 height: 32,
-                borderRadius: RADIUS.md,
+                borderRadius: CONTROL_RADIUS,
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: pressed ? colors.muted : "transparent",
@@ -199,18 +203,32 @@ export default function StorageLocationScreen() {
             </Pressable>
             )
           }
-        >
-          <TabStrip<StorageLocationTab>
-            value={tab}
-            onChange={setTab}
-            items={STORAGE_LOCATION_TABS.map((value) => ({ value, label: t(`storage.verify.tabs.${value}`) }))}
-          />
-        </PageHeader>
+          tabs={
+            <TabStrip<StorageLocationTab>
+              value={tab}
+              onChange={setTab}
+              items={STORAGE_LOCATION_TABS.map((value) => ({ value, label: t(`storage.verify.tabs.${value}`) }))}
+            />
+          }
+        />
       }
     >
       {tab === "verify" && location ? (
         <StorageLocationVerify key={location.guid} location={location} />
       ) : (
+        <>
+        {hasCards ? (
+          <View style={{ paddingBottom: SPACING.md }}>
+            <CardToolbar
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder={t("storage.searchCardsPlaceholder")}
+              searchAccessibilityLabel={t("storage.searchCardsPlaceholder")}
+              activeSortAndFilterCount={activeSortAndFilterCount}
+              onOpenViewOptions={() => setViewOptionsOpen(true)}
+            />
+          </View>
+        ) : null}
         <FlatList
           key={viewMode}
           style={{ marginHorizontal: -SPACING.sm }}
@@ -238,41 +256,37 @@ export default function StorageLocationScreen() {
           }
           ListHeaderComponent={
             <View style={{ gap: SPACING.lg, paddingHorizontal: SPACING.sm, paddingBottom: SPACING.lg }}>
-              {remove.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
+              {remove.isError ? (
+                <Callout
+                  tone="destructive"
+                  title={t("storage.actionFailed")}
+                  action={
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      label={t("recovery.retry")}
+                      loading={remove.isPending}
+                      onPress={() => remove.variables && remove.mutate(remove.variables)}
+                    />
+                  }
+                />
+              ) : null}
+              {cards.isError ? (
+                <Callout
+                  tone="destructive"
+                  title={t("recovery.cardsLoadFailed")}
+                  action={
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      label={t("recovery.retry")}
+                      loading={cards.isRefetching}
+                      onPress={() => void cards.refetch()}
+                    />
+                  }
+                />
+              ) : null}
               {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
-              {location && location.cardCount > 0 ? (
-                <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-                  {isStorageLocked ? null : (
-                    <Button style={{ flex: 1 }} icon="check" label={t("storage.review.start")} onPress={() => void startReview()} />
-                  )}
-                  <Button
-                    style={{ flex: 1 }}
-                    variant="secondary"
-                    icon="upload"
-                    label={t("export.button")}
-                    onPress={() => {
-                      runExport.reset();
-                      setExportOpen(true);
-                    }}
-                  />
-                </View>
-              ) : null}
-              {location && location.cardCount > 0 ? (
-                <View style={{ gap: SPACING.md }}>
-                  <SearchInput
-                    value={search}
-                    onChangeText={setSearch}
-                    placeholder={t("storage.searchCardsPlaceholder")}
-                    accessibilityLabel={t("storage.searchCardsPlaceholder")}
-                  />
-                  <CardToolbar
-                    activeSortAndFilterCount={activeSortAndFilterCount}
-                    needsReview={filters.needsAttention}
-                    onOpenViewOptions={() => setViewOptionsOpen(true)}
-                    onToggleNeedsReview={() => setFilters((value) => ({ ...value, needsAttention: !value.needsAttention }))}
-                  />
-                </View>
-              ) : null}
             </View>
           }
           ListEmptyComponent={
@@ -289,7 +303,7 @@ export default function StorageLocationScreen() {
             )
           }
           ListFooterComponent={
-            cards.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
+            cards.isFetchingNextPage ? <ListLoadingFooter /> : undefined
           }
           renderItem={({ item: entry }) => {
             const value = pricing.priceOf(
@@ -328,6 +342,7 @@ export default function StorageLocationScreen() {
             );
           }}
         />
+        </>
       )}
       <ExportSheet
         visible={exportOpen}
@@ -346,7 +361,6 @@ export default function StorageLocationScreen() {
         viewMode={viewMode}
         onViewModeChange={changeViewMode}
         sortOptions={sortOptions}
-        selectedSort={sort ?? DEFAULT_CARD_SORT}
         onSortChange={(value) => setSort(value === DEFAULT_CARD_SORT ? null : value)}
         filters={filters}
         breakdown={breakdown}
@@ -356,10 +370,7 @@ export default function StorageLocationScreen() {
       <OptionSheet
         visible={menuOpen}
         title={location?.name ?? t("storage.actions")}
-        options={[
-          { value: "rename", label: t("storage.rename") },
-          { value: "delete", label: t("storage.delete") },
-        ]}
+        options={menuOptions}
         selected={[]}
         onSelect={runAction}
         onClose={() => setMenuOpen(false)}

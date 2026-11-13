@@ -43,6 +43,50 @@ test("purchase links use product pages when the product is known", () => {
   );
 });
 
+const pokemonAdapter = {
+  cardmarket: {
+    gameId: 6,
+    siteGamePath: "Pokemon",
+    productIdFromRaw: (c: PlayingCard) =>
+      (c.raw as { idProduct?: number }).idProduct,
+  },
+} as unknown as CardSearchAdapter;
+
+test("the Cardmarket link opens the product, on the card's language site", () => {
+  const links = purchaseLinksFor(pokemonAdapter, {
+    ...card,
+    name: "Cuencia",
+    lang: "fr",
+    raw: { idProduct: 725309 },
+  });
+  assert.equal(
+    links.cardmarket,
+    "https://www.cardmarket.com/fr/Pokemon/Products?idProduct=725309",
+  );
+});
+
+test("the Cardmarket link searches on the card's language site without a product id", () => {
+  const links = purchaseLinksFor(pokemonAdapter, {
+    ...card,
+    name: "Cuencia",
+    lang: "fr",
+    raw: {},
+  });
+  assert.equal(
+    links.cardmarket,
+    "https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=Cuencia",
+  );
+});
+
+test("a language without a Cardmarket site uses the English one", () => {
+  const links = purchaseLinksFor(pokemonAdapter, {
+    ...card,
+    lang: "ja",
+    raw: { idProduct: 1 },
+  });
+  assert.equal(links.cardmarket, "https://www.cardmarket.com/en/Pokemon/Products?idProduct=1");
+});
+
 test("purchase links fall back to a name search without raw data", () => {
   const links = purchaseLinksFor(mtgAdapter, card);
   assert.equal(links.tcgplayer, "https://www.tcgplayer.com/search/all/product?q=Black%20Lotus");

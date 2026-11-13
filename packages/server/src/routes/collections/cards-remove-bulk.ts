@@ -29,15 +29,18 @@ export const removeBulkCollectionCardsRoute = new Hono<AppEnv>().post(
             eq(collectionCards.orgId, orgId),
           ),
         )
-        .returning({ imageKey: collectionCards.capturedImageKey });
-      const imageKeys = deleted.map((row) => row.imageKey);
-      if (imageKeys.length > 0) {
+        .returning({
+          imageKey: collectionCards.capturedImageKey,
+          backImageKey: collectionCards.capturedBackImageKey,
+        });
+      const imageKeys = deleted.flatMap((row) => [row.imageKey, row.backImageKey]);
+      if (deleted.length > 0) {
         await logActivity(tx, {
           orgId,
           userId: c.get("userId"),
           action: "cards.deleted",
           summary: null,
-          details: { count: imageKeys.length, collectionGuid: guid },
+          details: { count: deleted.length, collectionGuid: guid },
         });
       }
       return { success: true, data: null, imageKeys };

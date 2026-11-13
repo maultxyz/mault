@@ -2,3 +2,5 @@ node_modules
 dist
 release*
 native
+scanner-helper/bin
+scanner-helper/obj

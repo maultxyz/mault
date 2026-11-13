@@ -21,7 +21,7 @@ import {
   countOwnedOrganizations,
   organizationLimitForPlan,
 } from "../../lib/organization-limit";
-import { toPlanKey } from "../../lib/plan-config";
+import { planHasFeature, toPlanKey } from "../../lib/plan-config";
 import { currentPreviewPlan } from "../../lib/plan-preview";
 import { isLegacyPricingActive } from "../../lib/pricing-mode";
 import { repacksAllowedForPlan } from "../../lib/repack-access";
@@ -119,6 +119,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
           storageLocationCount,
           apiAccess: apiAccessAllowedForPlan(plan),
           businessTools: businessToolsAllowedForPlan(plan),
+          longShareLinks: planHasFeature(plan, "longShareLinks"),
         },
       };
     });

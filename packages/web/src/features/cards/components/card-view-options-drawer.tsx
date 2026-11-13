@@ -35,11 +35,14 @@ export function CardViewOptionsDrawer({
   onDensityChange,
   groupDuplicates,
   onGroupDuplicatesChange,
+  scanTimeline,
+  onScanTimelineChange,
   triggerClassName,
 }: CardViewOptionsDrawerProps) {
   const { t } = useTranslation("cards");
   const isMobile = useIsMobile();
-  const isSorted = !!sortKey && sortKey !== "scan-desc";
+  const isSorted =
+    (scanTimeline ?? "off") === "off" && !!sortKey && sortKey !== "scan-desc";
   const hasDisplayOptions = !!onViewModeChange || !!onGroupDuplicatesChange;
   const label = t("cardToolbar.viewOptions");
 
@@ -75,6 +78,8 @@ export function CardViewOptionsDrawer({
                 onDensityChange={onDensityChange}
                 groupDuplicates={groupDuplicates}
                 onGroupDuplicatesChange={onGroupDuplicatesChange}
+                scanTimeline={scanTimeline}
+                onScanTimelineChange={onScanTimelineChange}
               />
             </section>
           )}
@@ -82,12 +87,18 @@ export function CardViewOptionsDrawer({
             <h3 className="font-heading text-sm font-semibold">
               {t("cardToolbar.sortHeading")}
             </h3>
-            <CardSortOptions
-              sortKey={sortKey}
-              onSortChange={onSortChange}
-              sortableFields={sortableFields}
-              defaultSortLabel={defaultSortLabel}
-            />
+            {scanTimeline && scanTimeline !== "off" ? (
+              <p className="text-xs text-foreground/70">
+                {t("cardToolbar.scanTimelineSortNote")}
+              </p>
+            ) : (
+              <CardSortOptions
+                sortKey={sortKey}
+                onSortChange={onSortChange}
+                sortableFields={sortableFields}
+                defaultSortLabel={defaultSortLabel}
+              />
+            )}
           </section>
           <section className="flex flex-col gap-2">
             <h3 className="font-heading text-sm font-semibold">

@@ -10,6 +10,7 @@ import {
   pokemonFinishes,
   pokemonFinishProducts,
   pokemonFoilOnlyFoilType,
+  pokemonListsNonFoilPrinting,
   pokemonTcgplayerProductId,
 } from "../src/lib/adapters/pokemon/finishes";
 import type { PokemonCardDetail } from "../src/lib/interfaces/pokemon";
@@ -91,19 +92,34 @@ test("the session finish narrows to the card's only pattern in that family", () 
   assert.equal(scanFoilType(twoPatterns, "Reverse Holo (Master Ball)"), "Reverse Holo (Master Ball)");
 });
 
-test("a card TCGplayer only sells as foil scans as foil even with no session finish", () => {
+test("a card TCGdex lists only in foil scans as foil even with no session finish", () => {
   const holoPromo: PokemonCardDetail = {
     id: "smp-SM199",
     localId: "SM199",
     name: "Psyduck",
     pricing: { tcgplayer: { holofoil: { productId: 188321 } } },
-    variants_detailed: [{ type: "normal", size: "standard" }],
+    variants_detailed: [{ type: "holo", size: "standard" }],
   };
   const foilOnlyFoilType = pokemonFoilOnlyFoilType(holoPromo, []);
   assert.equal(foilOnlyFoilType, "Holo");
   const card = { foilOnlyFoilType } as PlayingCard;
   assert.equal(scanFoilType(card, null), "Holo");
   assert.equal(scanFoilType(card, "Reverse Holo"), "Reverse Holo");
+});
+
+test("a listed normal variant wins over prices that only cover a foil finish", () => {
+  const commonMissingNormalPrice: PokemonCardDetail = {
+    id: "me02.5-039",
+    localId: "039",
+    name: "Psyduck",
+    pricing: { tcgplayer: { "reverse-holofoil": { productId: 675851 } } },
+    variants_detailed: [
+      { type: "normal", size: "standard" },
+      { type: "reverse", size: "standard" },
+    ],
+  };
+  assert.equal(pokemonFoilOnlyFoilType(commonMissingNormalPrice, ["Reverse Holo"]), undefined);
+  assert.equal(pokemonListsNonFoilPrinting(commonMissingNormalPrice), true);
 });
 
 test("cards with a non-foil printing keep the session finish", () => {
@@ -124,7 +140,7 @@ test("cards with a non-foil printing keep the session finish", () => {
   assert.equal(scanFoilType({} as PlayingCard, null), null);
 });
 
-test("without prices the variants decide, preferring a listed holo finish", () => {
+test("only the variants decide, preferring a listed holo finish", () => {
   const cosmosHolo: PokemonCardDetail = {
     id: "x-1",
     localId: "1",
@@ -135,12 +151,19 @@ test("without prices the variants decide, preferring a listed holo finish", () =
     id: "x-2",
     localId: "2",
     name: "Psyduck",
-    pricing: { tcgplayer: { "reverse-holofoil": { productId: 2 } } },
+    variants_detailed: [{ type: "reverse", size: "standard" }],
+  };
+  const pricedReverseOnly: PokemonCardDetail = {
+    id: "x-4",
+    localId: "4",
+    name: "Psyduck",
+    pricing: { tcgplayer: { "reverse-holofoil": { productId: 4 } } },
   };
   assert.equal(
     pokemonFoilOnlyFoilType(cosmosHolo, ["Reverse Holo", "Holo (Cosmos)"]),
     "Holo (Cosmos)",
   );
   assert.equal(pokemonFoilOnlyFoilType(reverseOnly, []), "Reverse Holo");
+  assert.equal(pokemonFoilOnlyFoilType(pricedReverseOnly, []), undefined);
   assert.equal(pokemonFoilOnlyFoilType({ id: "x-3", localId: "3", name: "Psyduck" }, []), undefined);
 });

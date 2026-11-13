@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Trading Card Sorter Discord Bot | MAULT",
-    "description": "Add the MAULT bot to your Discord server to post every sorted card, get alerts when something goes wrong, and check collection stats with /stats."
+    "title": "Trading Card Sorter Discord Bot | Mault",
+    "description": "Add the Mault bot to your Discord server to post every sorted card, get alerts when something goes wrong, and check collection stats with /stats."
   },
   "hero": {
     "eyebrow": "Discord Integration",

@@ -2,12 +2,11 @@ import { isCardCondition } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { tcgplayerSkus, tcgplayerSkuSets } from "../db/schema";
-import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import {
   TCGPLAYER_SKU_CONDITION_COLUMNS,
   TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS,
-  TCGPLAYER_SKU_PROGRESS_LOG_EVERY_SETS,
   TCGPLAYER_SKU_UPSERT_BATCH_SIZE,
+  TCGTRACKING_PROGRESS_LOG_EVERY_SETS,
 } from "./constants/tcgtracking";
 import type {
   TcgplayerSkuSyncResult,
@@ -18,16 +17,7 @@ import {
   fetchTcgtrackingSets,
   fetchTcgtrackingSetSkus,
 } from "./tcgtracking/catalog";
-
-function tcgplayerCategoryIds(gameKeys: string[] | undefined): number[] {
-  return [
-    ...new Set(
-      adapterEntriesForGameKeys(gameKeys).flatMap(([, adapter]) =>
-        adapter.tcgplayer ? [adapter.tcgplayer.categoryId] : [],
-      ),
-    ),
-  ];
-}
+import { tcgplayerCategoryIds } from "./tcgplayer-price-sync";
 
 function toSkuRows(
   categoryId: number,
@@ -142,7 +132,7 @@ export async function syncTcgplayerSkus({
         failedSets++;
         log(`Category ${categoryId}, set ${set.name} (${set.id}): ${String(err)}`);
       }
-      if ((index + 1) % TCGPLAYER_SKU_PROGRESS_LOG_EVERY_SETS === 0) {
+      if ((index + 1) % TCGTRACKING_PROGRESS_LOG_EVERY_SETS === 0) {
         log(`Category ${categoryId}: ${index + 1}/${changedSets.length} sets.`);
       }
     }

@@ -1,7 +1,11 @@
 import { setImmediate as yieldToEventLoop } from "node:timers/promises";
+import type { PrintingMarkGroups } from "@magic-vault/shared";
+import { PRINTING_MARK_VERSION } from "./constants/printing-marks";
+import { invalidatePrintingMarkReferences } from "./printing-marks/references";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db";
-import { collections, games } from "../db/schema";
+import { binSets, collections, games } from "../db/schema";
+import { matchScopeForGame } from "./card-search/match-games";
 import { resolveCardSearchForGame } from "./card-search/resolve";
 import {
   cardMatchSegmentBytes,
@@ -64,18 +68,25 @@ async function loadSegmentSignature(
     back_face_count: number;
     last_updated: string;
     last_id: number;
+    printing_mark_count: number;
   }>(sql`
     SELECT count(*)::int AS row_count,
       count(back_embedding)::int AS back_face_count,
+      count(*) FILTER (WHERE printing_mark_version = ${PRINTING_MARK_VERSION})::int AS printing_mark_count,
       coalesce(max(updated_at)::text, '') AS last_updated,
       coalesce(max(id), 0) AS last_id
     FROM cards
     WHERE game_key = ${gameKey} AND lang = ${lang}
   `);
-  const { row_count, back_face_count, last_updated, last_id } =
-    result.rows[0];
+  const {
+    row_count,
+    back_face_count,
+    last_updated,
+    last_id,
+    printing_mark_count,
+  } = result.rows[0];
   return {
-    value: `${row_count}|${back_face_count}|${last_updated}|${last_id}`,
+    value: `${row_count}|${back_face_count}|${last_updated}|${last_id}|${printing_mark_count}`,
     rowCount: row_count,
     backFaceCount: back_face_count,
   };
@@ -89,6 +100,8 @@ async function loadSegment(
   const signature = await loadSegmentSignature(gameKey, lang);
   const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
   const rarePrintingSql = adapter?.rarePrintingSql ?? sql`false`;
+  const promoPrintingSql = adapter?.promoPrintingSql ?? sql`false`;
+  const printedSetTotalSql = adapter?.printedSetTotalSql ?? sql`NULL`;
   const exclusionFilter = adapter?.excludedFromMatchingSql
     ? sql`AND NOT coalesce(${adapter.excludedFromMatchingSql}, false)`
     : sql``;
@@ -103,12 +116,20 @@ async function loadSegment(
       card_id: string;
       name: string;
       set_code: string;
+      collector_number: string | null;
       rare_printing: boolean;
+      promo_printing: boolean;
+      printed_set_total: number | null;
+      printing_mark_groups: PrintingMarkGroups | null;
       embedding: string;
       back_embedding: string | null;
     }>(sql`
-      SELECT card_id, name, set_code,
+      SELECT card_id, name, set_code, collector_number,
         coalesce(${rarePrintingSql}, false) AS rare_printing,
+        coalesce(${promoPrintingSql}, false) AS promo_printing,
+        (${printedSetTotalSql})::int AS printed_set_total,
+        CASE WHEN printing_mark_version = ${PRINTING_MARK_VERSION}
+          THEN printing_mark_groups END AS printing_mark_groups,
         encode(vector_send(embedding), 'base64') AS embedding,
         encode(vector_send(back_embedding), 'base64') AS back_embedding
       FROM cards
@@ -122,7 +143,11 @@ async function loadSegment(
         cardId: row.card_id,
         name: row.name,
         setCode: row.set_code,
+        collectorNumber: row.collector_number,
         rarePrinting: row.rare_printing === true,
+        promoPrinting: row.promo_printing === true,
+        printedSetTotal: row.printed_set_total,
+        printingMarkGroups: row.printing_mark_groups,
         embedding: decodeVector(row.embedding)!,
         backEmbedding: decodeVector(row.back_embedding),
       });
@@ -136,7 +161,7 @@ async function loadSegment(
 
   const segment = builder.finish();
   console.log(
-    `[card-match-index] loaded ${gameKey}/${lang}: ${segment.cardIds.length} cards, ${Math.round(cardMatchSegmentBytes(segment) / 1024 / 1024)} MB in ${Date.now() - startedAt}ms`,
+    `[card-match-index] loaded ${gameKey}/${lang}: ${segment.rowCount} cards, ${Math.round(cardMatchSegmentBytes(segment) / 1024 / 1024)} MB in ${Date.now() - startedAt}ms`,
   );
   return { segment, signature: signature.value };
 }
@@ -223,11 +248,7 @@ function revalidateSegmentInBackground(entry: CardMatchSegmentEntry) {
     .catch(logReloadFailure(entry));
 }
 
-async function cardMatchSegment(
-  gameKey: string,
-  lang: string,
-  isWarmup: boolean,
-): Promise<CardMatchSegment> {
+function segmentEntry(gameKey: string, lang: string): CardMatchSegmentEntry {
   const key = `${gameKey}:${lang}`;
   let entry = segmentEntries.get(key);
   if (!entry) {
@@ -237,12 +258,22 @@ async function cardMatchSegment(
       segment: null,
       signature: null,
       loading: null,
+      queuedForBackgroundLoad: false,
       reloadRequested: false,
       checkedAt: 0,
       lastUsedAt: 0,
     };
     segmentEntries.set(key, entry);
   }
+  return entry;
+}
+
+async function cardMatchSegment(
+  gameKey: string,
+  lang: string,
+  isWarmup: boolean,
+): Promise<CardMatchSegment> {
+  const entry = segmentEntry(gameKey, lang);
   if (!isWarmup) entry.lastUsedAt = Date.now();
   if (entry.segment) {
     revalidateSegmentInBackground(entry);
@@ -259,6 +290,13 @@ async function langsOfGame(gameKey: string): Promise<string[]> {
     );
     return result.rows.map((row) => row.lang);
   });
+}
+
+export async function gameHasCardsInLanguage(
+  gameKey: string,
+  lang: string,
+): Promise<boolean> {
+  return (await langsOfGame(gameKey)).includes(lang);
 }
 
 async function segmentsForScope(
@@ -279,7 +317,41 @@ export function cardMatchSegments(
   return segmentsForScope(scope, false);
 }
 
+let backgroundLoads: Promise<void> = Promise.resolve();
+
+function loadInBackground(entry: CardMatchSegmentEntry): void {
+  if (entry.segment || entry.loading || entry.queuedForBackgroundLoad) return;
+  entry.queuedForBackgroundLoad = true;
+  backgroundLoads = backgroundLoads
+    .then(() => (entry.segment ? undefined : reloadSegment(entry)))
+    .catch(logReloadFailure(entry))
+    .finally(() => {
+      entry.queuedForBackgroundLoad = false;
+    });
+}
+
+export function loadedCardMatchSegments({
+  gameKey,
+  lang,
+}: CollectionMatchScope): CardMatchSegment[] {
+  const entry = segmentEntry(gameKey, lang);
+  entry.lastUsedAt = Date.now();
+  if (entry.segment) {
+    revalidateSegmentInBackground(entry);
+    return [entry.segment];
+  }
+  loadInBackground(entry);
+  return [];
+}
+
+export function warmCardMatchSegments(scopes: CollectionMatchScope[]): void {
+  for (const { gameKey, lang } of scopes) {
+    loadInBackground(segmentEntry(gameKey, lang));
+  }
+}
+
 export function invalidateCardMatchIndex(gameKey?: string): void {
+  invalidatePrintingMarkReferences(gameKey);
   for (const entry of segmentEntries.values()) {
     if (gameKey === undefined || entry.gameKey === gameKey) {
       reloadSegment(entry).catch(logReloadFailure(entry));
@@ -300,6 +372,13 @@ async function warmCardMatchIndex(): Promise<void> {
   for (const scope of scopes) {
     await segmentsForScope(scope, true);
   }
+  const presetMatchGames = await db
+    .selectDistinct({ gameKey: sql<string>`unnest(${binSets.matchGameKeys})` })
+    .from(binSets)
+    .where(and(eq(binSets.isActive, true), eq(binSets.isDeleted, false)));
+  warmCardMatchSegments(
+    presetMatchGames.map(({ gameKey }) => matchScopeForGame(gameKey)),
+  );
 }
 
 export function startCardMatchIndexWarmup(): void {

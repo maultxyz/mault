@@ -1,5 +1,11 @@
 {
+  "matchValidationProgress": {
+    "label": "Community scan validation progress",
+    "valueText": "{{done}} of {{total}} reviews done",
+    "percent": "{{percent}}%"
+  },
   "nav": {
+    "validateMatches": "Validate matches",
     "scanner": "Sort",
     "collections": "Collections",
     "scan": "Link camera",
@@ -180,7 +186,8 @@
       "selfHost": "Self-host",
       "discordBot": "Discord Bot",
       "download": "Download",
-      "shop": "Shop"
+      "shop": "Shop",
+      "makerWorld": "MakerWorld"
     },
     "discordAriaLabel": "Join the Discord",
     "menuAriaLabel": "Menu",
@@ -212,6 +219,7 @@
       "scanner": "Scanner",
       "cardDetail": "Card details",
       "intake": "Intake",
+      "matchValidation": "Validating matches",
       "foilLabeling": "Foil labelling"
     },
     "actions": {
@@ -258,7 +266,13 @@
       "foilLabelFoil": "While labelling foils: mark as foil",
       "foilLabelNotFoil": "While labelling foils: mark as not foil",
       "foilLabelSkip": "While labelling foils: skip this card",
-      "foilLabelBack": "While labelling foils: go back to the previous card"
+      "matchValidationCorrect": "While validating matches: mark the match correct",
+      "matchValidationIncorrect": "While validating matches: mark the match wrong",
+      "matchValidationBadScan": "While validating matches: mark the photo as a bad scan",
+      "matchValidationSkip": "While validating matches: skip this scan",
+      "matchValidationBack": "While validating matches: go back to the previous scan",
+      "foilLabelBack": "While labelling foils: go back to the previous card",
+      "scanFlatbedCard": "Scan the card on the flatbed"
     }
   },
   "mobileMenu": {
@@ -281,7 +295,9 @@
     "label": "Pagination",
     "pageNumber": "Page {{page}}",
     "goToPage": "Go to page",
-    "range": "{{from}}-{{to}} of {{total}}"
+    "range": "{{from}}-{{to}} of {{total}}",
+    "pageSize": "Items per page",
+    "perPage": "{{count}} per page"
   },
   "guide": {
     "contents": "Contents",
@@ -334,7 +350,10 @@
     "commandRequired": "Enter a command.",
     "verificationCodeLength": "Enter the {{length}}-digit code.",
     "verificationCodeNumeric": "The code can only contain numbers.",
-    "controlCardActionRequired": "Pick at least one thing for the card to change."
+    "controlCardActionRequired": "Pick at least one thing for the card to change.",
+    "catalogSourcesRequired": "Pick at least one collection or storage location.",
+    "contactRequired": "Add a way to reach you.",
+    "textTooLong": "Keep this under {{max}} characters."
   },
   "memberSeatLock": {
     "title": "This organization is over its member limit",
@@ -390,6 +409,64 @@
       "info": "Info:",
       "warning": "Warning:",
       "danger": "Error:"
-    }
+    },
+    "adminNavigation": "Admin navigation"
+  },
+  "shareLink": {
+    "triggerWithCount_one": "{{label}} ({{count}} active link)",
+    "triggerWithCount_other": "{{label}} ({{count}} active links)",
+    "expiryLabel": "Link expires after",
+    "expiryOption_one": "{{count}} day",
+    "expiryOption_other": "{{count}} days",
+    "create": "Create link",
+    "linkLabel": "Link",
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "copyFailed": "Couldn't copy the link. Select it and copy it manually.",
+    "expiresAt": "Expires {{date}}",
+    "createFailed": "Couldn't create a share link.",
+    "revokeAll": "Revoke all links",
+    "revokeFailed": "Couldn't revoke the shared links.",
+    "close": "Close",
+    "qrAlt": "QR code for this link. Scan it with a phone camera to open the link.",
+    "qrHint": "Scan to open",
+    "showPrices": "Show prices",
+    "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link.",
+    "typeLabel": "Link type",
+    "monitorType": "Monitor link",
+    "tradeType": "Trade link",
+    "monitorTypeDescription": "A view of the cards, live while you scan. Visitors can't send offers.",
+    "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
+    "tradeOneHourNote": "Trade links last 1 hour.",
+    "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days."
+  },
+  "tradeOffers": {
+    "declined": "Trade offer declined",
+    "respondFailed": "Couldn't answer the trade offer.",
+    "reviewTitle": "Trade offer from {{name}}",
+    "reviewDescription": "Sent from {{source}} on {{date}}",
+    "unknownSource": "a shared link",
+    "decline": "Decline",
+    "accept": "Accept",
+    "contact": "Contact",
+    "note": "Note",
+    "theyWant_one": "They want {{count}} card",
+    "theyWant_other": "They want {{count}} cards",
+    "theyOffer_one": "They offer {{count}} card",
+    "theyOffer_other": "They offer {{count}} cards",
+    "trayHeading": "Trade offers",
+    "trayMessage": "{{name}} wants {{wanted}} for {{offered}} of theirs",
+    "review": "Review",
+    "newOfferToast": "New trade offer from {{name}}",
+    "acceptedRemoved_one": "Trade accepted. Removed {{count}} card from your inventory.",
+    "acceptedRemoved_other": "Trade accepted. Removed {{count}} cards from your inventory.",
+    "acceptRemovesCards_one": "Accepting removes the {{count}} card they want from your inventory.",
+    "acceptRemovesCards_other": "Accepting removes the {{count}} cards they want from your inventory.",
+    "theyGetValue": "They get",
+    "youGetValue": "You get",
+    "youGainValue": "Their offer is worth {{amount}} more than what they're asking for.",
+    "youLoseValue": "Their offer is worth {{amount}} less than what they're asking for.",
+    "evenValue": "Both sides are worth the same.",
+    "missingPrices": "Some cards have no price, so the totals may be low."
   }
 }

@@ -653,14 +653,20 @@ count the user picked.
 {"route": {"module": 2, "direction": "left"}}
 ```
 - `direction`: `"left" | "right" | "bottom"`
-- Runs the feeder first, then routes the card: opens each preceding
-  module's bottom in turn to advance the card (confirming arrival via
-  that module's IR sensor, 3s timeout each step - if a step times out,
-  flaps that module's paddle once, the same recovery `jam` handling uses,
-  then gives the card one more 3s window before reporting failure), then
-  either opens the target module's paddle and drives its pusher in the
-  requested direction (`"left"`/`"right"`), or opens just the target
-  module's own bottom to drop the card there (`"bottom"`).
+- Runs the feeder first, then routes the card: opens every preceding
+  module's bottom together (`SERVO_STAGGER_MS` apart) so the card falls
+  straight through to the target module, whose bottom stays closed, and
+  waits up to 3s for the target's IR sensor to see it. If it doesn't,
+  the firmware finds the last preceding module whose sensor still sees
+  the card, flaps that module's paddle (the same recovery `jam` handling
+  uses) and waits another 3s, at most once per preceding module, before
+  reporting `timeout: no card detected at module N` (N is the module
+  below the one the card is caught in). Then it either opens the target
+  module's paddle and drives its pusher in the requested direction
+  (`"left"`/`"right"`), or opens just the target module's own bottom to
+  drop the card there (`"bottom"`). Before firmware 2.14.0 the card
+  stopped at each module on the way and the next bottom only opened once
+  that module's sensor saw it.
 - For a `"left"`/`"right"` push, the target module's paddle opens first
   and gets `paddleOpenDelay` ms (per-module, via `setConfig`, firmware
   2.6.0+; a fixed 300 ms before) to lower before the pusher fires. Then

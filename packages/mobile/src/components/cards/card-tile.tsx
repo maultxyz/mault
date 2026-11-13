@@ -6,7 +6,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, CARD_THUMBNAIL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardTileProps } from "@/lib/interfaces/ui";
 
 export const CardTile = memo(function CardTile({
@@ -19,6 +19,7 @@ export const CardTile = memo(function CardTile({
   selected = false,
   disabled = false,
   onPress,
+  onPressIn,
   onLongPress,
 }: CardTileProps) {
   const { t } = useTranslation();
@@ -43,6 +44,7 @@ export const CardTile = memo(function CardTile({
       }}
       disabled={disabled || !onPress}
       onPress={onPress}
+      onPressIn={onPressIn}
       onLongPress={onLongPress}
       style={({ pressed }) => ({ flex: 1, minWidth: 0, gap: 6, transform: [{ scale: pressed ? 0.97 : 1 }] })}
     >
@@ -50,7 +52,7 @@ export const CardTile = memo(function CardTile({
         style={{
           width: "100%",
           aspectRatio: CARD_ASPECT_RATIO,
-          borderRadius: RADIUS.lg,
+          borderRadius: CARD_ART_RADIUS,
           overflow: "hidden",
           backgroundColor: colors.muted,
           borderWidth: selected || awaitingReview ? 2 : 1,
@@ -82,7 +84,7 @@ export const CardTile = memo(function CardTile({
               top: SPACING.xs,
               right: SPACING.xs,
               paddingHorizontal: SPACING.xs,
-              borderRadius: RADIUS.sm,
+              borderRadius: CARD_THUMBNAIL_RADIUS,
               backgroundColor: colors.background,
               opacity: 0.92,
             }}

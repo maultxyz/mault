@@ -17,6 +17,15 @@ export const SPOT_CHECK_NOT_FOUND_MESSAGE = "Spot check not found.";
 export const SORTER_NOT_FOUND_MESSAGE = "Sorter not found.";
 export const INTAKE_LOT_NOT_FOUND_MESSAGE = "Intake lot not found.";
 export const PICK_NOT_FOUND_MESSAGE = "Pick not found.";
+export const SHOP_CATALOG_NOT_FOUND_MESSAGE = "Shop catalog not found.";
+export const SHOP_CATALOG_CARD_NOT_FOUND_MESSAGE = "This card is no longer in the catalog.";
+export const SHOP_PHOTO_MISSING_MESSAGE = "Choose a photo to upload.";
+export const SHOP_PHOTO_TYPE_MESSAGE = "Upload a JPEG, PNG or WebP photo.";
+export const SHOP_PHOTO_TOO_LARGE_MESSAGE = "That photo is too large. Upload one under 10 MB.";
+export const SHOP_PHOTO_UNREADABLE_MESSAGE = "That file isn't a photo we can read.";
+export const SHOP_CATALOG_INVALID_MESSAGE = "Invalid shop catalog.";
+export const SHOP_CATALOG_SOURCES_INVALID_MESSAGE =
+  "A collection or storage location in this catalog no longer exists.";
 
 export const BUSINESS_UPGRADE_REQUIRED_RESULT: BusinessResult = {
   success: false,

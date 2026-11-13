@@ -1,7 +1,8 @@
-import { BrowserWindow, ipcMain } from "electron";
+import { BrowserWindow, ipcMain, nativeTheme } from "electron";
 import path from "path";
+import { appIconPath } from "./app-icon";
 import { getStrings } from "./app-url";
-import { PICKER_CHANNELS, PICKER_WINDOW_SIZE } from "./constants/desktop";
+import { PICKER_CHANNELS, PICKER_WINDOW_SIZE, WINDOW_BACKGROUND } from "./constants/desktop";
 import type {
   ActivePicker,
   PickerDevice,
@@ -63,6 +64,10 @@ export function openDevicePicker(
     fullscreenable: false,
     autoHideMenuBar: true,
     show: false,
+    icon: appIconPath(),
+    backgroundColor: nativeTheme.shouldUseDarkColors
+      ? WINDOW_BACKGROUND.dark
+      : WINDOW_BACKGROUND.light,
     webPreferences: {
       preload: path.join(__dirname, "picker-preload.js"),
       contextIsolation: true,

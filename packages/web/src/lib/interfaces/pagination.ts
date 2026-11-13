@@ -20,6 +20,9 @@ export interface PaginationControls {
 export interface ListPaginationProps {
   pagination: PaginationControls;
   compact?: boolean;
+  alignsEnd?: boolean;
+  pageSize?: number;
+  onPageSizeChange?: (pageSize: number) => void;
   className?: string;
 }
 

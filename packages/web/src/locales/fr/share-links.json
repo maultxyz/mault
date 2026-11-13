@@ -1,0 +1,18 @@
+{
+  "activeLinks": "Liens actifs",
+  "dialogEmpty": "Aucun lien actif pour le moment. Créez-en un pour partager.",
+  "loadFailed": "Impossible de charger vos liens de partage.",
+  "pricesHidden": "Prix masqués",
+  "created": "Créé le {{date}}",
+  "expires": "Expire le {{date}}",
+  "showQr": "Afficher le QR code du lien créé le {{date}}",
+  "revoke": "Révoquer",
+  "revoked": "Lien révoqué.",
+  "revokeFailed": "Impossible de révoquer le lien.",
+  "newLink": "Nouveau lien",
+  "linkHeading": "Lien",
+  "back": "Retour",
+  "backToLinks": "Retour aux liens",
+  "pricesShown": "Prix affichés",
+  "revokeLabel": "Révoquer le lien créé le {{date}}"
+}

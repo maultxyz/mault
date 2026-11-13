@@ -51,7 +51,10 @@ export async function imageToRgba(image: Image): Promise<RgbaImage> {
   return rawToRgba(await image.toRawPixelDataAsync(false));
 }
 
-export async function captureFrame(output: CameraPhotoOutput): Promise<CapturedFrame> {
+export async function captureFrame(
+  output: CameraPhotoOutput,
+  workingLongSide: number = WORKING_LONG_SIDE,
+): Promise<CapturedFrame> {
   const photo = await output.capturePhoto({ flashMode: "off", enableShutterSound: false }, {});
   let full: Image;
   try {
@@ -60,7 +63,7 @@ export async function captureFrame(output: CameraPhotoOutput): Promise<CapturedF
     photo.dispose();
   }
   const longSide = Math.max(full.width, full.height);
-  const scale = longSide > WORKING_LONG_SIDE ? WORKING_LONG_SIDE / longSide : 1;
+  const scale = longSide > workingLongSide ? workingLongSide / longSide : 1;
   const image = await full.resizeAsync(Math.round(full.width * scale), Math.round(full.height * scale));
   return { image, pixels: await imageToRgba(image), scale };
 }
@@ -101,12 +104,15 @@ export async function encodeJpegDataUrl(pixels: RgbaImage, quality: number): Pro
 }
 
 export async function writeJpegTempFile(pixels: RgbaImage, quality: number): Promise<string> {
-  const image = await rgbaToImage(pixels);
-  const path = await image.saveToTemporaryFileAsync("jpg", quality);
-  return path.startsWith("file://") ? path : `file://${path}`;
+  return imageToJpegTempFile(await rgbaToImage(pixels), quality);
 }
 
 export async function imageToJpegDataUrl(image: Image, quality: number): Promise<string> {
   const encoded = await image.toEncodedImageDataAsync("jpg", quality);
   return `data:image/jpeg;base64,${bytesToBase64(new Uint8Array(encoded.buffer))}`;
+}
+
+export async function imageToJpegTempFile(image: Image, quality: number): Promise<string> {
+  const path = await image.saveToTemporaryFileAsync("jpg", quality);
+  return path.startsWith("file://") ? path : `file://${path}`;
 }

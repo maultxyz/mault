@@ -150,8 +150,10 @@ export function usePrefetchDetailCards(
             ? fetchPrefetchQueryData(queryClient, scanImage, true)
             : queryClient.fetchQuery(scanImage)
         )
-          .then((url) => {
-            if (!cancelled) preloadImage(url, reviewMode);
+          .then((images) => {
+            if (cancelled) return;
+            preloadImage(images?.capturedImageUrl, reviewMode);
+            preloadImage(images?.capturedBackImageUrl, reviewMode);
           })
           .catch(() => undefined);
       },

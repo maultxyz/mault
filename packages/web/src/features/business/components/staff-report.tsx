@@ -201,6 +201,17 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
         />
       ) : (
         <>
+          <ListPagination
+            alignsEnd
+            pagination={{
+              page: activity.page,
+              pageCount,
+              from: (activity.page - 1) * activity.pageSize + 1,
+              to: (activity.page - 1) * activity.pageSize + activity.entries.length,
+              total: activity.total,
+              setPage,
+            }}
+          />
           <div className="overflow-hidden rounded-lg border">
             <Table>
               <TableHeader>
@@ -231,6 +242,7 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
             </Table>
           </div>
           <ListPagination
+            alignsEnd
             pagination={{
               page: activity.page,
               pageCount,

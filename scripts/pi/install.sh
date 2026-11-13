@@ -206,18 +206,18 @@ for action in Start Stop; do
   script="$ROOT/scripts/pi/$(echo "$action" | tr '[:upper:]' '[:lower:]').sh"
   if [[ "$action" == "Start" ]]; then
     icon="/usr/share/pixmaps/chromium.png"
-    comment="Start MAULT and open it"
+    comment="Start Mault and open it"
   else
     icon="/usr/share/icons/AdwaitaLegacy/48x48/legacy/process-stop.png"
-    comment="Stop MAULT"
+    comment="Stop Mault"
   fi
   cat > "$DESKTOP/${action} MAULT.desktop" << EOF
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=${action} MAULT
+Name=${action} Mault
 Comment=${comment}
-Exec=lxterminal -t "${action} MAULT" -e bash -lc '${script}; echo; echo "Press Enter to close."; read'
+Exec=lxterminal -t "${action} Mault" -e bash -lc '${script}; echo; echo "Press Enter to close."; read'
 Icon=${icon}
 Terminal=false
 Categories=Utility;

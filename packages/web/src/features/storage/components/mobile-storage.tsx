@@ -21,6 +21,8 @@ import { useStorageLocations } from "@/features/storage/api/use-storage-location
 import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
+import { ShareLinkTriggerButton } from "@/components/share-link-trigger-button";
+import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
 import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
@@ -209,6 +211,17 @@ export function MobileStorage() {
           actions={
             !isLocked && (
               <>
+                <ShareStorageLinkDialog
+                  locationGuid={selected.guid}
+                  renderTrigger={(activeLinkCount) => (
+                    <ShareLinkTriggerButton
+                      variant="ghost"
+                      className={MOBILE_CIRCLE_BUTTON_CLASS}
+                      label={t("shareLink.trigger")}
+                      activeLinkCount={activeLinkCount}
+                    />
+                  )}
+                />
                 <Button
                   variant="ghost"
                   className={MOBILE_CIRCLE_BUTTON_CLASS}

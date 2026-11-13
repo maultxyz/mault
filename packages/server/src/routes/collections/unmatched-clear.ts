@@ -31,6 +31,8 @@ export const clearUnmatchedCardsRoute = new Hono<AppEnv>().delete(
           isDeleted: true,
           capturedImageKey: null,
           capturedImageDataUrl: null,
+          capturedBackImageKey: null,
+          capturedBackImageDataUrl: null,
         })
         .where(eq(unmatchedCards.collectionId, collection.id));
 

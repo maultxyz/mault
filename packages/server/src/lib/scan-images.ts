@@ -3,6 +3,7 @@ import type {
   ScanImageKind,
   ScanImageTarget,
   StoredScanImage,
+  StoredBackScanImageRow,
   StoredScanImageRow,
 } from "./interfaces/scan-images";
 import {
@@ -33,8 +34,10 @@ function scanImageKey({
   collectionGuid,
   scanId,
   kind,
+  side = "front",
 }: ScanImageTarget): string {
-  return `${collectionScanImagePrefix(orgId, collectionGuid, kind)}${scanId}.jpg`;
+  const suffix = side === "back" ? "-back" : "";
+  return `${collectionScanImagePrefix(orgId, collectionGuid, kind)}${scanId}${suffix}.jpg`;
 }
 
 export async function storeScanImage(
@@ -63,6 +66,15 @@ export async function resolveScanImageUrl(
     return presignObjectUrl(row.capturedImageKey);
   }
   return row.capturedImageDataUrl ?? undefined;
+}
+
+export async function resolveBackScanImageUrl(
+  row: StoredBackScanImageRow,
+): Promise<string | undefined> {
+  return resolveScanImageUrl({
+    capturedImageKey: row.capturedBackImageKey,
+    capturedImageDataUrl: row.capturedBackImageDataUrl,
+  });
 }
 
 export async function loadScanImage(

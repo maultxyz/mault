@@ -4,12 +4,14 @@ import { useTranslation } from "react-i18next";
 
 export function AutoAssignSnapshot() {
   const { t } = useTranslation("bins");
-  const { configs, fieldDefinitions, selectedSet } = useBinConfigs();
+  const { configs, ruleFieldDefinitions, selectedSet } = useBinConfigs();
   const autoAssignField = selectedSet?.autoAssignField ?? null;
 
   if (!autoAssignField) return null;
 
-  const fieldMeta = fieldDefinitions.find((f) => f.field === autoAssignField);
+  const fieldMeta = ruleFieldDefinitions.find(
+    (f) => f.field === autoAssignField,
+  );
 
   const rows = configs
     .filter((c) => !c.isCatchAll)

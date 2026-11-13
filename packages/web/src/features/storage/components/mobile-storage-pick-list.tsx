@@ -48,7 +48,6 @@ export function MobileStoragePickList({
             />
             <CardThumbnail
               image={row.entry.card.image}
-              isFoil={row.entry.isFoil}
               className="w-10 rounded-sm"
             />
             <span className="min-w-0 flex-1">

@@ -2,7 +2,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CameraChipProps } from "@/lib/interfaces/ui";
 
 export function CameraChip({ label, dotColor, icon, onPress }: CameraChipProps) {
@@ -20,7 +20,7 @@ export function CameraChip({ label, dotColor, icon, onPress }: CameraChipProps) 
         maxWidth: "100%",
         paddingHorizontal: SPACING.md,
         paddingVertical: 6,
-        borderRadius: RADIUS.md,
+        borderRadius: CONTROL_RADIUS,
         backgroundColor: colors.cameraScrim,
         opacity: pressed ? 0.8 : 1,
       })}

@@ -129,6 +129,9 @@ export const ACTIVITY_ACTIONS = [
   "accuracy.completed",
   "device.serviced",
   "business.settings",
+  "catalog.created",
+  "catalog.updated",
+  "catalog.deleted",
 ] as const;
 
 export const ACTIVITY_PAGE_SIZE = 50;
@@ -176,6 +179,9 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
   "accuracy.completed": "accuracyCompleted",
   "device.serviced": "deviceServiced",
   "business.settings": "businessSettings",
+  "catalog.created": "catalogCreated",
+  "catalog.updated": "catalogUpdated",
+  "catalog.deleted": "catalogDeleted",
 };
 export const PAGED_LIST_DEFAULT_SIZE = 20;
 export const PAGED_LIST_MAX_SIZE = 100;

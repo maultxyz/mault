@@ -64,11 +64,7 @@ function PageLinks({
   );
 }
 
-export function PublicNav({
-  containerClassName = "max-w-6xl",
-}: {
-  containerClassName?: string;
-}) {
+export function PublicNav() {
   const { t } = useTranslation("common");
   const { data, isPending } = useAuthSession();
   const isSignedIn = !isPending && !!data?.user;
@@ -78,12 +74,7 @@ export function PublicNav({
   return (
     <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
       <SkipLink />
-      <div
-        className={cn(
-          "mx-auto flex h-14 items-center justify-between px-4",
-          containerClassName,
-        )}
-      >
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <BrandMark className="color-primary" />
           <PageLinks

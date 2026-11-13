@@ -23,6 +23,7 @@ export const PLAN_FEATURE_KEYS = [
   "storage",
   "apiAccess",
   "businessTools",
+  "longShareLinks",
 ] as const;
 
 export const PLAN_LIMIT_KEYS = [

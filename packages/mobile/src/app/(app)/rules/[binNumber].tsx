@@ -11,6 +11,7 @@ import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -32,7 +33,7 @@ export default function BinEditorScreen() {
   const colors = useTheme();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const { gameGuid, activeSet, bins, fieldDefinitions, freeformOptions } = useRulesData();
+  const { gameGuid, activeSet, bins, fieldDefinitions, freeformOptions, isPending: isRulesDataPending } = useRulesData();
   const bin = bins.find((b) => b.binNumber === binNumber);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
@@ -143,141 +144,147 @@ export default function BinEditorScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
       >
-        {activeSet && !activeSet.isActive ? (
-          <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />
-        ) : null}
-        {pickList ? <Callout tone="info" title={t("rules.pickListNotice")} /> : null}
-        {save.isError || transfer.isError ? <Callout tone="destructive" title={t("rules.saveFailed")} /> : null}
-
-        {isScanOnly ? <Callout tone="info" title={t("rules.scanOnlyLocked")} /> : null}
-
-        <View style={{ gap: SPACING.sm }}>
-          {catchAllError ? <Callout tone="warning" title={t("rules.needCatchAll")} /> : null}
-          <ListGroup>
-            <Controller
-              control={form.control}
-              name="isCatchAll"
-              render={({ field }) => (
-                <ListRow
-                  title={t("rules.catchAllLabel")}
-                  subtitle={t("rules.catchAllDescription")}
-                  disabled={readOnly}
-                  rightIsInteractive
-                  right={
-                    <Switch
-                      accessibilityLabel={t("rules.catchAllLabel")}
-                      value={field.value}
-                      disabled={readOnly}
-                      trackColor={{ false: colors.muted, true: colors.primary }}
-                      thumbColor={colors.background}
-                      ios_backgroundColor={colors.muted}
-                      onValueChange={(next) => {
-                        if (!next && !otherCatchAll) {
-                          setCatchAllError(true);
-                          return;
-                        }
-                        setCatchAllError(false);
-                        field.onChange(next);
-                      }}
-                    />
-                  }
-                />
-              )}
-            />
-          </ListGroup>
-        </View>
-
-        {!isScanOnly ? (
-          <View style={{ gap: SPACING.md }}>
-            <View style={{ gap: 2 }}>
-              <SectionHeader
-                title={isCatchAll ? t("rules.overrideLabel") : t("rules.rulesLabel")}
-                action={
-                  canTransferRules ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      label={t("rules.transfer.button")}
-                      disabled={isDirty || transfer.isPending}
-                      onPress={() => setTransferOpen(true)}
-                    />
-                  ) : null
-                }
-              />
-              <AppText size="sm" tone="secondary">
-                {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
-              </AppText>
-            </View>
-            {sources.length > 0 ? (
-              <Callout
-                tone="info"
-                title={t("rules.overflowTargetNotice", { count: sources.length, bins: sources.join(", ") })}
-              />
+        {isRulesDataPending ? (
+          <PageSkeleton />
+        ) : (
+          <>
+            {activeSet && !activeSet.isActive ? (
+              <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />
             ) : null}
-            {mode === "auto-assign" ? <Callout tone="info" title={t("rules.autoAssignLocked")} /> : null}
-            {modeLocksRules && mode !== "auto-assign" ? (
-              <Callout tone="info" title={t("rules.modeLocked", { mode: t(`rules.modes.${mode}.title`) })} />
-            ) : (
-              <Controller
-                control={form.control}
-                name="rules"
-                render={({ field }) =>
-                  field.value ? (
-                    <RuleGroupEditor
-                      group={field.value}
-                      onChange={field.onChange}
-                      fieldDefinitions={fieldDefinitions}
-                      freeformOptions={freeformOptions}
-                      disabled={rulesLocked}
-                    />
-                  ) : (
-                    <View />
-                  )
-                }
-              />
-            )}
-          </View>
-        ) : null}
+            {pickList ? <Callout tone="info" title={t("rules.pickListNotice")} /> : null}
+            {save.isError || transfer.isError ? <Callout tone="destructive" title={t("rules.saveFailed")} /> : null}
 
-        {!isCatchAll ? (
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("rules.settingsTitle")} />
-            <ListGroup>
-              <Controller
-                control={form.control}
-                name="isDisabled"
-                render={({ field }) => (
-                  <ListRow
-                    title={t("rules.disabledLabel")}
-                    subtitle={t("rules.disabledDescription")}
-                    disabled={readOnly}
-                    rightIsInteractive
-                    right={
-                      <Switch
-                        accessibilityLabel={t("rules.disabledLabel")}
-                        value={field.value}
-                        disabled={readOnly}
-                        trackColor={{ false: colors.muted, true: colors.primary }}
-                        thumbColor={colors.background}
-                        ios_backgroundColor={colors.muted}
-                        onValueChange={field.onChange}
-                      />
+            {isScanOnly ? <Callout tone="info" title={t("rules.scanOnlyLocked")} /> : null}
+
+            <View style={{ gap: SPACING.sm }}>
+              {catchAllError ? <Callout tone="warning" title={t("rules.needCatchAll")} /> : null}
+              <ListGroup>
+                <Controller
+                  control={form.control}
+                  name="isCatchAll"
+                  render={({ field }) => (
+                    <ListRow
+                      title={t("rules.catchAllLabel")}
+                      subtitle={t("rules.catchAllDescription")}
+                      disabled={readOnly}
+                      rightIsInteractive
+                      right={
+                        <Switch
+                          accessibilityLabel={t("rules.catchAllLabel")}
+                          value={field.value}
+                          disabled={readOnly}
+                          trackColor={{ false: colors.muted, true: colors.primary }}
+                          thumbColor={colors.background}
+                          ios_backgroundColor={colors.muted}
+                          onValueChange={(next) => {
+                            if (!next && !otherCatchAll) {
+                              setCatchAllError(true);
+                              return;
+                            }
+                            setCatchAllError(false);
+                            field.onChange(next);
+                          }}
+                        />
+                      }
+                    />
+                  )}
+                />
+              </ListGroup>
+            </View>
+
+            {!isScanOnly ? (
+              <View style={{ gap: SPACING.md }}>
+                <View style={{ gap: 2 }}>
+                  <SectionHeader
+                    title={isCatchAll ? t("rules.overrideLabel") : t("rules.rulesLabel")}
+                    action={
+                      canTransferRules ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          label={t("rules.transfer.button")}
+                          disabled={isDirty || transfer.isPending}
+                          onPress={() => setTransferOpen(true)}
+                        />
+                      ) : null
+                    }
+                  />
+                  <AppText size="sm" tone="secondary">
+                    {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
+                  </AppText>
+                </View>
+                {sources.length > 0 ? (
+                  <Callout
+                    tone="info"
+                    title={t("rules.overflowTargetNotice", { count: sources.length, bins: sources.join(", ") })}
+                  />
+                ) : null}
+                {mode === "auto-assign" ? <Callout tone="info" title={t("rules.autoAssignLocked")} /> : null}
+                {modeLocksRules && mode !== "auto-assign" ? (
+                  <Callout tone="info" title={t("rules.modeLocked", { mode: t(`rules.modes.${mode}.title`) })} />
+                ) : (
+                  <Controller
+                    control={form.control}
+                    name="rules"
+                    render={({ field }) =>
+                      field.value ? (
+                        <RuleGroupEditor
+                          group={field.value}
+                          onChange={field.onChange}
+                          fieldDefinitions={fieldDefinitions}
+                          freeformOptions={freeformOptions}
+                          disabled={rulesLocked}
+                        />
+                      ) : (
+                        <View />
+                      )
                     }
                   />
                 )}
-              />
-              {!modeLocksRules && !isScanOnly ? (
-                <ListRow
-                  title={t("rules.overflowLabel")}
-                  subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
-                  value={overflowBin != null ? t("rules.bin", { number: overflowBin }) : t("rules.overflowNone")}
-                  disabled={readOnly || (targets.length === 0 && overflowBin == null)}
-                  onPress={() => setOverflowOpen(true)}
-                />
-              ) : null}
-            </ListGroup>
-          </View>
-        ) : null}
+              </View>
+            ) : null}
+
+            {!isCatchAll ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("rules.settingsTitle")} />
+                <ListGroup>
+                  <Controller
+                    control={form.control}
+                    name="isDisabled"
+                    render={({ field }) => (
+                      <ListRow
+                        title={t("rules.disabledLabel")}
+                        subtitle={t("rules.disabledDescription")}
+                        disabled={readOnly}
+                        rightIsInteractive
+                        right={
+                          <Switch
+                            accessibilityLabel={t("rules.disabledLabel")}
+                            value={field.value}
+                            disabled={readOnly}
+                            trackColor={{ false: colors.muted, true: colors.primary }}
+                            thumbColor={colors.background}
+                            ios_backgroundColor={colors.muted}
+                            onValueChange={field.onChange}
+                          />
+                        }
+                      />
+                    )}
+                  />
+                  {!modeLocksRules && !isScanOnly ? (
+                    <ListRow
+                      title={t("rules.overflowLabel")}
+                      subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
+                      value={overflowBin != null ? t("rules.bin", { number: overflowBin }) : t("rules.overflowNone")}
+                      disabled={readOnly || (targets.length === 0 && overflowBin == null)}
+                      onPress={() => setOverflowOpen(true)}
+                    />
+                  ) : null}
+                </ListGroup>
+              </View>
+            ) : null}
+          </>
+        )}
       </ScrollView>
       <OptionSheet
         visible={overflowOpen}

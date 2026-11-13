@@ -23,6 +23,22 @@ function skuTargetFor(
   const card: PlayingCard = entry.card;
   const condition = entry.condition;
   const languageCode = skuLanguageCode(entry.language);
+  if (entry.stamp) {
+    const stamped = pricing
+      .stampProducts?.(card)
+      .find(
+        (product) =>
+          product.stamp === entry.stamp && product.isFoil === entry.isFoil,
+      );
+    if (stamped) {
+      return {
+        productId: stamped.productId,
+        variants: stamped.subTypes,
+        condition,
+        languageCode,
+      };
+    }
+  }
   if (entry.isFoil && entry.foilType) {
     const finish = pricing
       .finishProducts?.(card)

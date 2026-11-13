@@ -13,6 +13,10 @@ import {
 } from "../constants/form-validation.constant";
 import { NOTIFICATION_RULE_NAME_MAX_LENGTH } from "../constants/integrations.constant";
 import { PRICE_SOURCES } from "../constants/price-source.constant";
+import {
+  SHOP_CATALOG_NAME_MAX_LENGTH,
+  SHOP_CATALOG_SOURCES_MAX,
+} from "../constants/shop-catalogs.constant";
 import { SET_NAME_MAX_LENGTH } from "../constants/sort-bins.constant";
 import { storagePickListEntries } from "../storage-pick-list";
 import { STORAGE_LOCATION_NAME_MAX_LENGTH } from "../constants/sorters.constant";
@@ -90,8 +94,8 @@ export const createCollectionFormSchema = z.object({
   matchAllLanguages: z.boolean(),
 });
 
-export const renameCollectionFormSchema = z.object({
-  name: nameSchema(SET_NAME_MAX_LENGTH),
+export const editCollectionFormSchema = createCollectionFormSchema.omit({
+  gameGuid: true,
 });
 
 export const organizationNameFormSchema = z.object({
@@ -115,12 +119,30 @@ export const syncApiKeyFormSchema = z.object({
     .min(1, formValidationMessage("permissionsRequired")),
 });
 
+export const shopCatalogFormSchema = z
+  .object({
+    name: nameSchema(SHOP_CATALOG_NAME_MAX_LENGTH),
+    showsPrices: z.boolean(),
+    isPublic: z.boolean(),
+    collectionGuids: z.array(z.string()).max(SHOP_CATALOG_SOURCES_MAX),
+    storageLocationGuids: z.array(z.string()).max(SHOP_CATALOG_SOURCES_MAX),
+  })
+  .refine(
+    (values) =>
+      values.collectionGuids.length + values.storageLocationGuids.length > 0,
+    {
+      message: formValidationMessage("catalogSourcesRequired"),
+      path: ["collectionGuids"],
+    },
+  );
+
 export const storageLocationNameFormSchema = z.object({
   name: nameSchema(STORAGE_LOCATION_NAME_MAX_LENGTH),
 });
 
 export const scanDraftFormSchema = z.object({
   foilType: z.string().nullable(),
+  stamp: z.string().nullable(),
   condition: z.enum(CARD_CONDITIONS as [CardCondition, ...CardCondition[]]),
   language: z.string().min(1),
   acquisitionCost: z
@@ -193,7 +215,9 @@ export const orgSettingsDraftFormSchema = z.object({
   ),
   sessionWrappedEnabled: z.boolean(),
   ocrEnabled: z.boolean(),
+  highAccuracyScans: z.boolean(),
   foilDetectionEnabled: z.boolean(),
+  foilStarDetectionEnabled: z.boolean(),
   correctionBinPrompt: z.boolean(),
   pauseScanningOnDeploy: z.boolean(),
   leaderboardOptIn: z.boolean(),
@@ -253,3 +277,4 @@ export const feederTestFormSchema = z.object({
     .min(FEEDER_TEST_MIN_CARD_COUNT, formValidationMessage("atLeast", { min: FEEDER_TEST_MIN_CARD_COUNT }))
     .max(FEEDER_TEST_MAX_CARD_COUNT, formValidationMessage("atMost", { max: FEEDER_TEST_MAX_CARD_COUNT })),
 });
+

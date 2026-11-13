@@ -97,6 +97,18 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
   U: "Unlimited Edition ",
 };
 
+export const FAB_FALLBACK_TCGPLAYER_SUBTYPES = {
+  price: ["Normal", "1st Edition Normal", "Unlimited Edition Normal"],
+  priceFoil: [
+    "Rainbow Foil",
+    "Cold Foil",
+    "1st Edition Rainbow Foil",
+    "1st Edition Cold Foil",
+    "Unlimited Edition Rainbow Foil",
+    "Unlimited Edition Cold Foil",
+  ],
+};
+
 export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
   1: "Common",
   2: "Uncommon",
@@ -126,10 +138,22 @@ export const CARD_MATCH_INDEX_PAGE_SIZE = 20_000;
 export const CARD_MATCH_INDEX_REVALIDATE_MS = 60_000;
 export const CARD_MATCH_GAME_LANGS_CACHE_MAX_ENTRIES = 100;
 export const CARD_MATCH_INDEX_ROWS_PER_EVENT_LOOP_TURN = 2_000;
-export const CARD_MATCH_INDEX_ESTIMATED_ROW_TEXT_BYTES = 200;
+export const CARD_MATCH_INDEX_ESTIMATED_STRING_OVERHEAD_BYTES = 32;
+export const CARD_MATCH_INDEX_UUID_BYTES = 16;
+export const CARD_MATCH_INDEX_CANONICAL_UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+export const CARD_MATCH_INDEX_INT8_EMBEDDING_MAX = 127;
 export const CARD_MATCH_INDEX_DEFAULT_MAX_MB = 1024;
 export const CARD_MATCH_INDEX_PI_DEFAULT_MAX_MB = 384;
 export const CARD_MATCH_INDEX_EVICTION_MIN_IDLE_MS = 10 * 60_000;
 export const CARD_VECTOR_INDEX_M = 32;
 export const CARD_VECTOR_INDEX_EF_CONSTRUCTION = 200;
 export const RANDOM_SAMPLE_CANDIDATE_MULTIPLIER = 5;
+
+export const MATCH_GAME_DEFAULT_LANG = "en";
+
+export const MATCH_GAME_LANG_BY_GAME_KEY: Record<string, string> = {
+  pokemonjp: "ja",
+};
+
+export const MATCH_GAME_KEYS_MAX = 12;

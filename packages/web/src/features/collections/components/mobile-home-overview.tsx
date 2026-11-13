@@ -1,4 +1,3 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import { StatGroup } from "@/components/stat-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
@@ -102,7 +101,6 @@ function HomeCardStrip({ title, cards }: HomeCardStripProps) {
                 draggable={false}
                 className="h-full w-full object-cover"
               />
-              {entry.isFoil && <FoilOverlay />}
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">

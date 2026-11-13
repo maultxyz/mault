@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" ADD COLUMN "match_game_keys" text[] DEFAULT '{}'::text[] NOT NULL;

@@ -1,17 +1,14 @@
+import { gameReadsPrintedLanguage } from "./card-language";
 import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
 import type { CardSearchResult } from "./interfaces/api.interface";
+import type { PlayingCardWithDistance } from "./interfaces/card.interface";
 import type {
-  PlayingCard,
-  PlayingCardWithDistance,
-} from "./interfaces/card.interface";
-import type {
-  ColorResolvedMatches,
-  DetectedColorEvidence,
   LookupMatchedCard,
   OrientedSearchCandidate,
   ResolvedCardSearchMatches,
   ScanAttemptResult,
   ScanMatchDetails,
+  ScanOcrMode,
 } from "./interfaces/scan-identify.interface";
 import type {
   ScanAttemptDiagnostic,
@@ -30,6 +27,47 @@ export function needsTextSearch(result: CardSearchResult): boolean {
     leader != null &&
     runnerUp != null &&
     runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
+  );
+}
+
+export function scanOcrMode(
+  settings: { ocrEnabled: boolean; highAccuracyScans?: boolean } | null | undefined,
+  gameSupportsOcr: boolean,
+  readsPrintedLanguageEveryScan = false,
+): ScanOcrMode {
+  if (!settings?.ocrEnabled || !gameSupportsOcr) return "off";
+  return settings.highAccuracyScans || readsPrintedLanguageEveryScan
+    ? "every-scan"
+    : "when-unsure";
+}
+
+export function readsPrintedLanguageEveryScan(
+  collection: { matchAllLanguages?: boolean } | null | undefined,
+  gameKey: string | null | undefined,
+): boolean {
+  return !!collection?.matchAllLanguages && !!gameKey && gameReadsPrintedLanguage(gameKey);
+}
+
+function imageMatchIsInOtherLanguage(
+  imageResult: CardSearchResult,
+  printedLanguage: string | null | undefined,
+): boolean {
+  const leader = imageResult.data?.[0];
+  if (!printedLanguage || !leader) return false;
+  return (leader.lang ?? leader.card?.lang) !== printedLanguage;
+}
+
+export function prefersTextMatch(
+  imageResult: CardSearchResult,
+  textOcr:
+    | { printingConfirmed?: boolean; scopedToPrintedLanguage?: string | null }
+    | null
+    | undefined,
+): boolean {
+  return (
+    needsTextSearch(imageResult) ||
+    !!textOcr?.printingConfirmed ||
+    imageMatchIsInOtherLanguage(imageResult, textOcr?.scopedToPrintedLanguage)
   );
 }
 
@@ -96,42 +134,6 @@ export async function resolveCardSearchMatches(
   return { card, alternativeMatches, noMatchReason: null, candidates };
 }
 
-function sameColors(a: PlayingCard, b: PlayingCard): boolean {
-  const colorsOf = (card: PlayingCard) =>
-    [...(card.colorIdentity ?? [])].sort().join(",");
-  return colorsOf(a) === colorsOf(b);
-}
-
-export function preferDetectedColor<T extends ResolvedCardSearchMatches>(
-  resolved: T,
-  { gameHasColorBar, detectedColor, printingConfirmed }: DetectedColorEvidence,
-): ColorResolvedMatches<T> {
-  const { card } = resolved;
-  if (!gameHasColorBar || !card)
-    return { ...resolved, colorVariantUncertain: false };
-  const all = [card, ...resolved.alternativeMatches];
-  const colorVariants = all.filter((other) => other.name === card.name);
-  if (!colorVariants.some((other) => !sameColors(other, card)))
-    return { ...resolved, colorVariantUncertain: false };
-  if (printingConfirmed) {
-    return {
-      ...resolved,
-      colorVariantUncertain:
-        detectedColor !== null && !card.colorIdentity?.includes(detectedColor),
-    };
-  }
-  const preferred = detectedColor
-    ? colorVariants.find((other) => other.colorIdentity?.includes(detectedColor))
-    : undefined;
-  if (!preferred) return { ...resolved, colorVariantUncertain: true };
-  return {
-    ...resolved,
-    card: preferred,
-    alternativeMatches: all.filter((other) => other !== preferred),
-    colorVariantUncertain: false,
-  };
-}
-
 function toAttemptDiagnostics(
   attempts: ScanAttemptResult[],
 ): ScanAttemptDiagnostic[] {
@@ -162,7 +164,9 @@ export function toScanMatchDetails(
           attempts: toAttemptDiagnostics(attempts),
           candidates: attempt.candidates,
           ocr: attempt.ocr,
-          detectedColor: attempt.detectedColor,
+          stampDetection: attempt.stampDetection ?? null,
+          printedFoilMarker: attempt.printedFoilMarker ?? null,
+          printingMarks: attempt.printingMarks ?? null,
         },
       },
       noMatch: null,

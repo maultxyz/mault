@@ -1,19 +1,36 @@
 import type {
+  DesktopChannel,
+  DesktopChannelSettings,
   DesktopLocale,
   DesktopStrings,
 } from "../interfaces/desktop";
 
-export const PRODUCTION_APP_URL = "https://mault.xyz";
+export const DESKTOP_CHANNEL_SETTINGS: Record<DesktopChannel, DesktopChannelSettings> = {
+  production: {
+    appUrl: "https://mault.xyz",
+    iconBaseName: "app-icon",
+  },
+  development: {
+    appUrl: "https://dev.mault.xyz",
+    iconBaseName: "app-icon-development",
+  },
+};
 export const DEVELOPMENT_APP_URL = "http://localhost:5173";
 export const APP_URL_ENV = "MAULT_URL";
+export const ROOT_ENV_FILE_RELATIVE_PATH = "../../.env";
 export const START_PATH = "/app";
 
 export const MAIN_WINDOW_SIZE = { width: 1440, height: 900 };
 export const MAIN_WINDOW_MIN_SIZE = { width: 960, height: 640 };
 export const PICKER_WINDOW_SIZE = { width: 420, height: 380 };
 export const WINDOW_BACKGROUND = { light: "#ffffff", dark: "#1e1f21" };
+export const TITLE_BAR_HEIGHT_PX = 36;
+export const TITLE_BAR_OVERLAY_COLOR = "#00000000";
+export const TITLE_BAR_SYMBOL_COLORS = { light: "#3f3f46", dark: "#e4e4e7" };
+
 
 export const GRANTED_SERIAL_PORTS_FILE = "granted-serial-ports.json";
+export const UNNAMED_BLUETOOTH_DEVICE_PATTERN = /^Unknown or Unsupported Device/i;
 
 export const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
@@ -30,6 +47,60 @@ export const SCANNER_CHANNELS = {
   command: "scanner:command",
 } as const;
 
+export const DOCUMENT_SCAN_CHANNELS = {
+  listScanners: "document-scan:list-scanners",
+  getFolder: "document-scan:get-folder",
+  chooseFolder: "document-scan:choose-folder",
+  start: "document-scan:start",
+  stop: "document-scan:stop",
+  event: "document-scan:event",
+  openSession: "document-scan:open-session",
+  feedCard: "document-scan:feed-card",
+  closeSession: "document-scan:close-session",
+  getArchiveFolder: "document-scan:get-archive-folder",
+  chooseArchiveFolder: "document-scan:choose-archive-folder",
+  clearArchiveFolder: "document-scan:clear-archive-folder",
+  archive: "document-scan:archive",
+} as const;
+
+export const SCANNER_HELPER_SESSION_READY_TIMEOUT_MS = 30_000;
+export const SCANNER_HELPER_FEED_TIMEOUT_MS = 60_000;
+export const FAKE_SCANNER_DIRECTORY_ENV = "MAULT_FAKE_SCANNER_DIR";
+export const FAKE_SCANNER_ERROR_EVERY_ENV = "MAULT_FAKE_SCANNER_ERROR_EVERY";
+export const FAKE_SCANNER_ERROR_REASON_ENV = "MAULT_FAKE_SCANNER_ERROR_REASON";
+export const FAKE_SCANNER_ID = "mault-fake-document-scanner";
+export const FAKE_SCANNER_NAME = "Fake fi-8170 (development)";
+export const FAKE_SCANNER_FEED_DELAY_MS = 900;
+
+export const SCANNER_HELPER_DIRECTORY = "scanner-helper";
+export const SCANNER_HELPER_EXECUTABLE = "MaultScannerHelper.exe";
+export const SCANNER_HELPER_LIST_TIMEOUT_MS = 30_000;
+export const SCANNER_HELPER_STOP_TIMEOUT_MS = 10_000;
+export const DOCUMENT_SCAN_TEMP_PREFIX = "mault-document-scan-";
+export const DOCUMENT_SCAN_FOLDER_FILE = "document-scan-folder.json";
+export const DOCUMENT_SCAN_ARCHIVE_FOLDER_FILE = "document-scan-archive-folder.json";
+export const DOCUMENT_SCAN_ARCHIVE_MAX_IMAGES = 2;
+export const DOCUMENT_SCAN_ARCHIVE_MAX_NAME_LENGTH = 120;
+export const DOCUMENT_SCAN_ARCHIVE_UNNAMED_FOLDER = "collection";
+export const DOCUMENT_SCAN_ARCHIVE_INVALID_NAME_CHARACTERS = /[<>:"/\\|?*\u0000-\u001f]/g;
+export const DOCUMENT_SCAN_ARCHIVE_RESERVED_NAMES = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i;
+export const DOCUMENT_SCAN_ARCHIVE_EXTENSIONS: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+};
+export const DOCUMENT_SCAN_FOLDER_SETTLE_POLL_MS = 500;
+export const DOCUMENT_SCAN_FOLDER_SETTLE_TIMEOUT_MS = 30_000;
+export const DOCUMENT_SCAN_MAX_IMAGE_BYTES = 50 * 1024 * 1024;
+export const DOCUMENT_SCAN_MAX_FLATBED_HEIGHT_MM = 500;
+export const DOCUMENT_SCAN_MAX_SCANNER_FIELD_LENGTH = 1000;
+export const DOCUMENT_SCAN_IMAGE_MIME_TYPES: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+};
+
 export const NOTIFICATION_CHANNEL = "desktop:notify";
 
 export const WINDOW_STATE_CHANNELS = {
@@ -37,6 +108,7 @@ export const WINDOW_STATE_CHANNELS = {
   state: "window:state",
   showMain: "window:show-main",
   movePip: "window:move-pip",
+  titleBarTheme: "window:title-bar-theme",
 } as const;
 
 export const OCCLUSION_PROBE_HIDDEN = "hidden";
@@ -61,7 +133,6 @@ export const WIN32 = {
 export const PIP_WINDOW_SIZE = { width: 220, height: 400 };
 export const PIP_WINDOW_MIN_SIZE = { width: 160, height: 240 };
 export const PIP_WINDOW_MARGIN = 24;
-export const APP_USER_MODEL_ID = "xyz.mault.desktop";
 export const MAX_NOTIFICATION_TITLE_LENGTH = 200;
 export const MAX_NOTIFICATION_BODY_LENGTH = 1000;
 export const NOTIFICATION_DEDUPE_MS = 10_000;
@@ -92,30 +163,33 @@ export const DESKTOP_STRINGS: Record<DesktopLocale, DesktopStrings> = {
     serialTitle: "Select a sorter port",
     bluetoothTitle: "Select a sorter",
     searching: "Searching for devices...",
+    lookingUpName: "Looking up name...",
     connect: "Connect",
     cancel: "Cancel",
-    offlineTitle: "Can't reach MAULT",
+    offlineTitle: "Can't reach Mault",
     offlineBody: "Check your internet connection and try again.",
     retry: "Retry",
   },
   de: {
-    serialTitle: "Sorter-Anschluss auswÃ¤hlen",
-    bluetoothTitle: "Sorter auswÃ¤hlen",
-    searching: "Suche nach GerÃ¤ten...",
+    serialTitle: "Sorter-Anschluss auswählen",
+    bluetoothTitle: "Sorter auswählen",
+    searching: "Suche nach Geräten...",
+    lookingUpName: "Name wird abgerufen...",
     connect: "Verbinden",
     cancel: "Abbrechen",
-    offlineTitle: "MAULT ist nicht erreichbar",
-    offlineBody: "PrÃ¼fe deine Internetverbindung und versuche es erneut.",
+    offlineTitle: "Mault ist nicht erreichbar",
+    offlineBody: "Prüfe deine Internetverbindung und versuche es erneut.",
     retry: "Erneut versuchen",
   },
   fr: {
     serialTitle: "Choisir le port du trieur",
     bluetoothTitle: "Choisir un trieur",
     searching: "Recherche d'appareils...",
+    lookingUpName: "Recherche du nom...",
     connect: "Connecter",
     cancel: "Annuler",
-    offlineTitle: "Impossible de joindre MAULT",
-    offlineBody: "VÃ©rifiez votre connexion Internet et rÃ©essayez.",
-    retry: "RÃ©essayer",
+    offlineTitle: "Impossible de joindre Mault",
+    offlineBody: "Vérifiez votre connexion Internet et réessayez.",
+    retry: "Réessayer",
   },
 };

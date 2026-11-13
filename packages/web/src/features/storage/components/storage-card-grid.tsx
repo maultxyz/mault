@@ -6,6 +6,8 @@ export function StorageCardGrid({
   entries,
   density,
   onOpenCard,
+  isSelected,
+  onToggleSelect,
 }: StorageCardGridProps) {
   return (
     <div className="@container">
@@ -15,6 +17,12 @@ export function StorageCardGrid({
             key={entry.scanId}
             card={entry.card}
             onOpen={() => onOpenCard(entry)}
+            isSelected={isSelected?.(entry)}
+            onToggleSelect={
+              onToggleSelect
+                ? (options) => onToggleSelect(entry, options)
+                : undefined
+            }
             hasAlternatives={entry.hasAlternatives}
             lowConfidenceMatch={entry.lowConfidenceMatch}
             wasCorrected={entry.corrected}

@@ -6,6 +6,7 @@ import type {
   SyncVectorizeOn,
 } from "@magic-vault/shared";
 import type { SyncSource, SyncSourceCard } from "./card-search";
+import type { CatalogPrintingMarks } from "./printing-marks";
 
 export interface StartMessage {
   type: "start";
@@ -150,4 +151,9 @@ export interface SyncCardBody {
   gameKey?: string;
   cardId?: string;
   lang?: string;
+}
+
+export interface VectorizedFrontFace {
+  embedding: number[];
+  marks: CatalogPrintingMarks | null;
 }

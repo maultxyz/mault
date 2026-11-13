@@ -1,5 +1,11 @@
 {
+  "matchValidationProgress": {
+    "label": "Progression de la validation communautaire",
+    "valueText": "{{done}} sur {{total}} vérifications faites",
+    "percent": "{{percent}} %"
+  },
   "nav": {
+    "validateMatches": "Valider les correspondances",
     "scanner": "Trier",
     "collections": "Collections",
     "scan": "Lier la caméra",
@@ -180,7 +186,8 @@
       "selfHost": "Auto-hébergement",
       "discordBot": "Bot Discord",
       "download": "Télécharger",
-      "shop": "Boutique"
+      "shop": "Boutique",
+      "makerWorld": "MakerWorld"
     },
     "discordAriaLabel": "Rejoindre le Discord",
     "menuAriaLabel": "Menu",
@@ -212,6 +219,7 @@
       "scanner": "Scanner",
       "cardDetail": "Détails de la carte",
       "intake": "Rachat",
+      "matchValidation": "Validation des correspondances",
       "foilLabeling": "Étiquetage des foils"
     },
     "actions": {
@@ -258,7 +266,13 @@
       "foilLabelFoil": "Pendant l'étiquetage : marquer comme foil",
       "foilLabelNotFoil": "Pendant l'étiquetage : marquer comme non foil",
       "foilLabelSkip": "Pendant l'étiquetage : passer cette carte",
-      "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente"
+      "matchValidationCorrect": "Pendant la validation : marquer la correspondance juste",
+      "matchValidationIncorrect": "Pendant la validation : marquer la correspondance fausse",
+      "matchValidationBadScan": "Pendant la validation : marquer la photo comme mauvais scan",
+      "matchValidationSkip": "Pendant la validation : ignorer ce scan",
+      "matchValidationBack": "Pendant la validation : revenir au scan précédent",
+      "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente",
+      "scanFlatbedCard": "Numériser la carte sur le scanner à plat"
     }
   },
   "mobileMenu": {
@@ -281,7 +295,9 @@
     "label": "Pagination",
     "pageNumber": "Page {{page}}",
     "goToPage": "Aller à la page",
-    "range": "{{from}}-{{to}} sur {{total}}"
+    "range": "{{from}}-{{to}} sur {{total}}",
+    "pageSize": "Éléments par page",
+    "perPage": "{{count}} par page"
   },
   "guide": {
     "contents": "Sommaire",
@@ -334,7 +350,10 @@
     "commandRequired": "Saisis une commande.",
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
-    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
+    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie.",
+    "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
+    "contactRequired": "Indique comment te joindre.",
+    "textTooLong": "Reste sous {{max}} caractères."
   },
   "memberSeatLock": {
     "title": "Cette organisation dépasse sa limite de membres",
@@ -390,6 +409,64 @@
       "info": "Info :",
       "warning": "Avertissement :",
       "danger": "Erreur :"
-    }
+    },
+    "adminNavigation": "Navigation de l'administration"
+  },
+  "shareLink": {
+    "triggerWithCount_one": "{{label}} ({{count}} lien actif)",
+    "triggerWithCount_other": "{{label}} ({{count}} liens actifs)",
+    "expiryLabel": "Le lien expire après",
+    "expiryOption_one": "{{count}} jour",
+    "expiryOption_other": "{{count}} jours",
+    "create": "Créer le lien",
+    "linkLabel": "Lien",
+    "copy": "Copier le lien",
+    "copied": "Lien copié.",
+    "copyFailed": "Impossible de copier le lien. Sélectionne-le et copie-le manuellement.",
+    "expiresAt": "Expire le {{date}}",
+    "createFailed": "Impossible de créer le lien de partage.",
+    "revokeAll": "Révoquer tous les liens",
+    "revokeFailed": "Impossible de révoquer les liens partagés.",
+    "close": "Fermer",
+    "qrAlt": "Code QR de ce lien. Scanne-le avec l'appareil photo d'un téléphone pour ouvrir le lien.",
+    "qrHint": "Scanner pour ouvrir",
+    "showPrices": "Afficher les prix",
+    "showPricesDescription": "Désactive pour masquer les prix des cartes et les totaux à toute personne utilisant ce lien.",
+    "typeLabel": "Type de lien",
+    "monitorType": "Lien de suivi",
+    "tradeType": "Lien d'échange",
+    "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
+    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
+    "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
+    "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours."
+  },
+  "tradeOffers": {
+    "declined": "Offre d'échange refusée",
+    "respondFailed": "Impossible de répondre à l'offre.",
+    "reviewTitle": "Offre d'échange de {{name}}",
+    "reviewDescription": "Envoyée depuis {{source}} le {{date}}",
+    "unknownSource": "un lien partagé",
+    "decline": "Refuser",
+    "accept": "Accepter",
+    "contact": "Contact",
+    "note": "Note",
+    "theyWant_one": "Demande {{count}} carte",
+    "theyWant_other": "Demande {{count}} cartes",
+    "theyOffer_one": "Propose {{count}} carte",
+    "theyOffer_other": "Propose {{count}} cartes",
+    "trayHeading": "Offres d'échange",
+    "trayMessage": "{{name}} veut {{wanted}} contre {{offered}} des siennes",
+    "review": "Voir",
+    "newOfferToast": "Nouvelle offre d'échange de {{name}}",
+    "acceptedRemoved_one": "Échange accepté. {{count}} carte retirée de votre stock.",
+    "acceptedRemoved_other": "Échange accepté. {{count}} cartes retirées de votre stock.",
+    "acceptRemovesCards_one": "Accepter retire la carte demandée ({{count}}) de votre stock.",
+    "acceptRemovesCards_other": "Accepter retire les {{count}} cartes demandées de votre stock.",
+    "theyGetValue": "Ils reçoivent",
+    "youGetValue": "Vous recevez",
+    "youGainValue": "Leur offre vaut {{amount}} de plus que ce qu'ils demandent.",
+    "youLoseValue": "Leur offre vaut {{amount}} de moins que ce qu'ils demandent.",
+    "evenValue": "Les deux côtés ont la même valeur.",
+    "missingPrices": "Certaines cartes n'ont pas de prix, les totaux peuvent donc être bas."
   }
 }

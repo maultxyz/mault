@@ -1,9 +1,11 @@
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { IconBadge } from "@/components/ui/icon-badge";
+import { LoadingLogo } from "@/components/ui/loading-logo";
+import { LOADING_LOGO_INLINE_SIZE } from "@/lib/constants/loading";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import { DISABLED_OPACITY } from "@/lib/constants/ui";
 import type { PickerCardProps } from "@/lib/interfaces/ui";
 
@@ -20,10 +22,9 @@ export function PickerCard({ icon, label, value, placeholder, onPress, disabled 
         flexDirection: "row",
         alignItems: "center",
         gap: SPACING.md,
-        padding: SPACING.md,
-        borderRadius: RADIUS.md,
-        borderWidth: 1,
-        borderColor: colors.border,
+        padding: SPACING.md + 2,
+        borderRadius: SURFACE_RADIUS,
+        borderCurve: "continuous",
         backgroundColor: pressed ? colors.muted : colors.card,
         opacity: disabled ? DISABLED_OPACITY : 1,
       })}
@@ -37,7 +38,7 @@ export function PickerCard({ icon, label, value, placeholder, onPress, disabled 
           {value ?? placeholder}
         </AppText>
       </View>
-      {loading ? <ActivityIndicator size="small" color={colors.foregroundSecondary} /> : <Icon name="expand" size={18} color={colors.foreground} />}
+      {loading ? <LoadingLogo size={LOADING_LOGO_INLINE_SIZE} /> : <Icon name="expand" size={18} color={colors.foreground} />}
     </Pressable>
   );
 }

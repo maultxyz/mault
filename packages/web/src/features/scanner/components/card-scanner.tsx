@@ -8,12 +8,20 @@ import {
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
+import { feedCardFromDocumentScanner } from "@/features/scanner/lib/document-scanner-feed";
+import { useFlatbedScan } from "@/features/scanner/api/use-flatbed-scan";
+import { useStandaloneDocumentFeeder } from "@/features/scanner/api/use-standalone-document-feeder";
+import { FlatbedPlacementDialog } from "@/features/scanner/components/flatbed-placement-dialog";
+import { FeederCardSetupDialog } from "@/features/scanner/components/feeder-card-setup-dialog";
+import { documentScanErrorMessage } from "@/features/scanner/lib/document-scan-errors";
 import { usePiScanSession } from "@/features/scanner/api/use-pi-scan-session";
 import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
 import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
 import { useFoilNudgeCheck } from "@/features/scanner/api/use-foil-nudge-check";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useDocumentScanArchive } from "@/features/scanner/api/use-document-scan-archive";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
@@ -23,6 +31,7 @@ import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-ca
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
 import { ScannerStatusBar } from "@/features/scanner/components/scanner-status-bar";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
+import { CameraConnectingOverlay } from "@/features/scanner/components/camera-connecting-overlay";
 import { PiCameraPreview } from "@/features/scanner/components/pi-camera-preview";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
@@ -85,6 +94,8 @@ export function CardScanner({
     autoFeed,
     setAutoFeed,
     registerCardArrivedHook,
+    registerFeedSource,
+    feedOneCard,
     registerPauseHook,
     registerResumeHook,
     pause,
@@ -127,7 +138,21 @@ export function CardScanner({
     disconnect,
     sendTest,
     sendRequest,
+    readIR,
   } = useSerial();
+  const {
+    documentScannerOptions,
+    documentScannerMode,
+    isSimulatedDocumentScanner,
+    feedDocumentScannerCard,
+    scanFlatbedCard,
+    takeDocumentScannerPages,
+    flatbedPlacement,
+  } = useCameraContext();
+  const { t: tCards } = useTranslation("cards");
+  const [flatbedPlacementOpen, setFlatbedPlacementOpen] = useState(false);
+  const [feederCardSetupOpen, setFeederCardSetupOpen] = useState(false);
+  const flatbedPlacementPromptedRef = useRef<string | null>(null);
   const { feederConfig } = useFeederConfig();
   const device = useDevice();
   const {
@@ -181,6 +206,7 @@ export function CardScanner({
     ),
   );
   const checkFoilByNudge = useFoilNudgeCheck();
+  const archiveDocumentScan = useDocumentScanArchive();
   const {
     status,
     errorMessage,
@@ -205,10 +231,16 @@ export function CardScanner({
     phonePairingUrl,
     startPhonePairing,
     stopPhonePairing,
-    hasPhonePhoto,
+    hasStillPhoto,
     isAtScanLimit,
   } = useCardScanner({
-    onSearchResults: (cards, capturedImageUrl, vectorizedOn, details) => {
+    onSearchResults: (
+      cards,
+      capturedImageUrl,
+      vectorizedOn,
+      details,
+      capturedBackImageUrl,
+    ) => {
       if (isRemoveModeActive) {
         if (cards.length > 0) queueScannedCard(cards[0], cards.slice(1));
         else handleRemovalNoMatch();
@@ -216,22 +248,38 @@ export function CardScanner({
       }
       if (cards.length > 0) {
         recordScanOutcome(true);
-        addCard(
+        const placement = addCard(
           cards[0],
           capturedImageUrl,
           cards.slice(1),
           vectorizedOn,
           details,
+          capturedBackImageUrl,
         );
+        archiveDocumentScan(placement, {
+          cardName: cards[0].name,
+          frontImageUrl: capturedImageUrl,
+          backImageUrl: capturedBackImageUrl,
+        });
       }
     },
-    onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
+    onNoMatch: (capturedImageUrl, vectorizedOn, details, capturedBackImageUrl) => {
       if (isRemoveModeActive) {
         handleRemovalNoMatch();
         return;
       }
       recordScanOutcome(false);
-      addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
+      const placement = addUnmatchedCard(
+        capturedImageUrl,
+        vectorizedOn,
+        details,
+        capturedBackImageUrl,
+      );
+      archiveDocumentScan(placement, {
+        cardName: null,
+        frontImageUrl: capturedImageUrl,
+        backImageUrl: capturedBackImageUrl,
+      });
     },
     rotated: previewRotated,
     onControlCode: (command) => void applyControlCode(command),
@@ -381,7 +429,7 @@ export function CardScanner({
     try {
       if (!(await prepareDevice())) return;
       const { sent, line: response } = await feedWithRetries(
-        () => sendRequest({ feeder: true }, 10000),
+        feedOneCard,
         (result) => (result.sent ? parseSerialReply(result.line) : null),
         ignoreIrSensors ? 0 : feederConfig.feedRetryCount,
       );
@@ -476,7 +524,7 @@ export function CardScanner({
     ignoreIrSensors,
     feederConfig.feedRetryCount,
     prepareDevice,
-    sendRequest,
+    feedOneCard,
     handleCardArrived,
     pauseForAttention,
     t,
@@ -537,6 +585,106 @@ export function CardScanner({
     return registerCardArrivedHook(handleCardArrived);
   }, [registerCardArrivedHook, handleCardArrived]);
 
+  const isFlatbedMode =
+    cameraSource === "document-scanner" &&
+    documentScannerMode === "flatbed" &&
+    isCameraActive;
+
+  const flatbedScan = useFlatbedScan({
+    isEnabled: isFlatbedMode,
+    hasSorter: isConnected,
+    ignoreIrSensors,
+    scannerStatus: status,
+    readIR,
+    scanFlatbedCard,
+    discardDocumentScannerPage: () => {
+      takeDocumentScannerPages();
+    },
+    onCardReady: handleCardArrived,
+    onScanFailed: (reason) =>
+      toast.error(t("flatbed.scanFailed"), {
+        description: documentScanErrorMessage(tCards, reason),
+      }),
+    onModuleOneNotEmpty: () =>
+      toast.error(t("documentScannerFeed.moduleOneNotEmpty")),
+  });
+
+  const isFeederMode =
+    cameraSource === "document-scanner" &&
+    documentScannerMode === "feeder" &&
+    isCameraActive;
+  const isStandaloneFeederMode = isFeederMode && !isConnected;
+
+  const standaloneFeeder = useStandaloneDocumentFeeder({
+    isEnabled: isStandaloneFeederMode,
+    isAutoFeedEnabled: autoFeed,
+    scannerStatus: status,
+    feedDocumentScannerCard,
+    discardDocumentScannerPage: () => {
+      takeDocumentScannerPages();
+    },
+    onCardReady: handleCardArrived,
+    onHopperEmpty: () => {
+      pause();
+      toast.info(t("feederEmpty.title"), {
+        id: "document-scanner-hopper-empty",
+        description: t("feederEmpty.description"),
+      });
+    },
+    onFeedFailed: (reason) => {
+      pause();
+      toast.error(t("documentScannerFeed.scanFailed"), {
+        description: documentScanErrorMessage(tCards, reason),
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (isFlatbedMode && autoFeed) setAutoFeed(false);
+  }, [isFlatbedMode, autoFeed, setAutoFeed]);
+
+  useEffect(() => {
+    if (!isFlatbedMode || flatbedPlacement || !selectedCameraId) return;
+    if (flatbedPlacementPromptedRef.current === selectedCameraId) return;
+    flatbedPlacementPromptedRef.current = selectedCameraId;
+    setFlatbedPlacementOpen(true);
+  }, [isFlatbedMode, flatbedPlacement, selectedCameraId]);
+
+  useEffect(() => {
+    if (cameraSource !== "document-scanner" || documentScannerMode !== "feeder") return;
+    return registerFeedSource(() =>
+      feedCardFromDocumentScanner({
+        feedDocumentScannerCard,
+        readIR,
+        ignoreIrSensors,
+        describeScannerError: (reason) =>
+          documentScanErrorMessage(tCards, reason),
+        deliverCardWithSorterFeeder: isSimulatedDocumentScanner
+          ? () => sendRequest({ feeder: true }, 10000)
+          : undefined,
+        onFlatbedPageScanned: () =>
+          toast.info(t("documentScannerFeed.moveFlatbedCard.title"), {
+            id: "document-scanner-move-flatbed-card",
+            description: t("documentScannerFeed.moveFlatbedCard.description"),
+          }),
+        cardDidNotArriveMessage: t("documentScannerFeed.cardDidNotArrive"),
+        moduleOneNotEmptyMessage: t("documentScannerFeed.moduleOneNotEmpty"),
+      }),
+    );
+  }, [
+    cameraSource,
+    documentScannerMode,
+    registerFeedSource,
+    feedDocumentScannerCard,
+    isSimulatedDocumentScanner,
+    sendRequest,
+    readIR,
+    ignoreIrSensors,
+    toast,
+    t,
+    tCards,
+  ]);
+
   useEffect(() => {
     return registerPauseHook(handlePause);
   }, [registerPauseHook, handlePause]);
@@ -574,6 +722,7 @@ export function CardScanner({
     onResume: () => void handleResumeScanning(),
     onToggleAutoFeed: () => setAutoFeed(!autoFeed),
     onClearDevice: () => void handleClearDevice(),
+    flatbedScan: isFlatbedMode ? flatbedScan : undefined,
   });
 
   useEffect(() => {
@@ -612,12 +761,18 @@ export function CardScanner({
 
   const scannerControls = (
     <ScannerControls
+      flatbedScan={isFlatbedMode ? flatbedScan : undefined}
+      onCalibrateFlatbed={() => setFlatbedPlacementOpen(true)}
+      onSetUpFeederCard={
+        isFeederMode ? () => setFeederCardSetupOpen(true) : undefined
+      }
       orientation={isSideControls ? "vertical" : "horizontal"}
       status={displayStatus}
       isConnected={isConnected}
       isReady={isReady}
       isFeeding={
         isFeeding ||
+        standaloneFeeder.isFeeding ||
         piScan.starting ||
         (piScan.state.phase === "running" && !piWaitingForFeed)
       }
@@ -641,8 +796,12 @@ export function CardScanner({
               }
               void piScan.startOrResume();
             }
-          : handleFeed
+          : isStandaloneFeederMode
+            ? standaloneFeeder.feedOneCard
+            : handleFeed
       }
+      standaloneFeeder={isStandaloneFeederMode}
+      canFeedStandalone={standaloneFeeder.canFeedOneCard}
       onClearDevice={handleClearDevice}
       sessionFeed={piScan.cameraReady}
       sessionLive={piScanLive}
@@ -702,6 +861,14 @@ export function CardScanner({
         }}
         onConfirm={handleEmptyNextFullBin}
       />
+      <FlatbedPlacementDialog
+        open={flatbedPlacementOpen}
+        onOpenChange={setFlatbedPlacementOpen}
+      />
+      <FeederCardSetupDialog
+        open={feederCardSetupOpen}
+        onOpenChange={setFeederCardSetupOpen}
+      />
       <StaleDeviceDialog
         open={staleDialogOpen}
         onOpenChange={(open) => {
@@ -729,6 +896,7 @@ export function CardScanner({
           aria-hidden
           className="absolute z-20 pointer-events-none"
         />
+        <CameraConnectingOverlay />
         {renderChrome({
           status,
           errorMessage,
@@ -780,19 +948,38 @@ export function CardScanner({
     onResolveSensorBlocked: reopenSensorBlockedToast,
     firmwareVersion,
     hasCatchAll,
-    autoFeed,
+    autoFeed: autoFeed || isStandaloneFeederMode,
     cameraSource,
     phonePairingStatus,
-    hasPhonePhoto,
+    hasStillPhoto,
     dailyLimitReached: isAtScanLimit,
     onRetryError: handleRetryError,
-    onConnectCamera: handleRetryError,
+    cameraMenu: {
+      isCameraActive,
+      cameras,
+      documentScannerOptions,
+      isFlatbedSelected: isFlatbedMode,
+      selectedCameraId,
+      phonePairingStatus,
+      scanningBlocked,
+      onCameraConnect: handleRetryError,
+      onCameraDisconnect: handleStopCamera,
+      onCameraSelect: selectCamera,
+      onCalibrateFlatbed: () => setFlatbedPlacementOpen(true),
+      isFeederSelected: isFeederMode,
+      onSetUpFeederCard: () => setFeederCardSetupOpen(true),
+      onOpenPhonePairing: handleOpenPhonePairing,
+    },
     onOpenPhonePairing: handleOpenPhonePairing,
     onConnectScanner: connect,
     onConnectScannerBluetooth: connectBluetooth,
     onConnectScannerCloud: connectCloud,
     bluetoothSupported,
-    handScanActive,
+    handScanActive:
+      handScanActive ||
+      (isFlatbedMode && !isConnected) ||
+      isStandaloneFeederMode,
+    flatbedScan: isFlatbedMode ? flatbedScan : undefined,
     lastRoutedBin: visibleLastRoutedBin,
     onEnableHandScan: () => setHandScan(true),
     sessionLive: piScanLive || piScan.starting,
@@ -851,6 +1038,7 @@ export function CardScanner({
               previewRotated && cameraSource === "local" && "rotate-90",
             )}
           />
+          <CameraConnectingOverlay />
           {isAdmin && debugImageUrl && (
             <Tooltip>
               <TooltipTrigger
@@ -880,6 +1068,11 @@ export function CardScanner({
             autoFeed={autoFeed}
             allowDuplicates={allowDuplicates}
             cameras={cameras}
+            documentScannerOptions={documentScannerOptions}
+            isFlatbedSelected={isFlatbedMode}
+            onCalibrateFlatbed={() => setFlatbedPlacementOpen(true)}
+            isFeederSelected={isFeederMode}
+            onSetUpFeederCard={() => setFeederCardSetupOpen(true)}
             selectedCameraId={selectedCameraId}
             phonePairingStatus={phonePairingStatus}
             scanningBlocked={scanningBlocked}

@@ -12,7 +12,7 @@ import { ConditionSheet } from "@/features/rules/components/condition-sheet";
 import { createCondition, createGroup } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
 import { MAX_RULE_GROUP_DEPTH } from "@/lib/constants/rules";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import { MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { ConditionEditTarget, RuleGroupEditorProps } from "@/lib/interfaces/rules";
 
@@ -65,7 +65,7 @@ export function RuleGroupEditor({
             gap: SPACING.xs,
             height: 32,
             paddingHorizontal: SPACING.md,
-            borderRadius: RADIUS.md,
+            borderRadius: CONTROL_RADIUS,
             borderWidth: 1,
             borderColor: colors.border,
             backgroundColor: pressed ? colors.muted : colors.background,

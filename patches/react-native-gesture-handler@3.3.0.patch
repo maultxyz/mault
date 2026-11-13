@@ -1,0 +1,11 @@
+diff --git a/android/src/main/jni/CMakeLists.txt b/android/src/main/jni/CMakeLists.txt
+index 3fc10f25a6a96f80a6e60c1ce56299505bb6ba58..f266d6a5d5da4c32828d3b56713a960605cbfb08 100644
+--- a/android/src/main/jni/CMakeLists.txt
++++ b/android/src/main/jni/CMakeLists.txt
+@@ -1,5 +1,5 @@
+-project(GestureHandler)
+ cmake_minimum_required(VERSION 3.9.0)
++project(GestureHandler)
+ 
+ set(CMAKE_VERBOSE_MAKEFILE ON)
+ set(CMAKE_CXX_STANDARD 20)

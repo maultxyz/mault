@@ -6,7 +6,7 @@ set -eu
 
 out=/usr/share/nginx/html/env.js
 json=""
-for name in VITE_API_URL VITE_AUTH_PROVIDER VITE_NEON_AUTH_URL VITE_NEON_DATA_API_URL VITE_APP_ENV VITE_ROLLBAR_ACCESS_TOKEN VITE_SHOW_SCAN_LOGS VITE_API_DOCS_URL; do
+for name in VITE_API_URL VITE_AUTH_PROVIDER VITE_NEON_AUTH_URL VITE_NEON_DATA_API_URL VITE_APP_ENV VITE_POSTHOG_PROJECT_API_KEY VITE_POSTHOG_HOST VITE_SHOW_SCAN_LOGS VITE_API_DOCS_URL; do
   value=$(printenv "$name" || true)
   value=$(printf '%s' "$value" | tr -d '\r\n')
   if [ -n "$value" ]; then

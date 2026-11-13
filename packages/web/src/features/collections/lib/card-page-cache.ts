@@ -11,7 +11,7 @@ import {
   CARDS_LIST_REFRESH_THROTTLE_MS,
   CARDS_SUMMARY_REFRESH_THROTTLE_MS,
 } from "@/lib/constants/timing";
-import type { QueryClient } from "@tanstack/react-query";
+import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 
 function createCollectionRefreshThrottle(throttleMs: number) {
   const pendingRefreshes = new Map<string, ReturnType<typeof setTimeout>>();
@@ -48,6 +48,19 @@ export function patchCardPages(
   queryClient.setQueriesData<CollectionCardsPage>(
     { queryKey: [...collectionCardsKeys.all(guid), "page"] },
     (old) => (old ? { ...old, items: patch(old.items) } : old),
+  );
+  queryClient.setQueriesData<InfiniteData<CollectionCardsPage>>(
+    { queryKey: [...collectionCardsKeys.all(guid), "scan-timeline-cards"] },
+    (old) =>
+      old
+        ? {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              items: patch(page.items),
+            })),
+          }
+        : old,
   );
 }
 
@@ -86,6 +99,16 @@ export function findInCardPages(
   })) {
     const item = page?.items.find((i) => i.scanIds.includes(scanId));
     if (item) return item;
+  }
+  for (const [, timeline] of queryClient.getQueriesData<
+    InfiniteData<CollectionCardsPage>
+  >({
+    queryKey: [...collectionCardsKeys.all(guid), "scan-timeline-cards"],
+  })) {
+    for (const page of timeline?.pages ?? []) {
+      const item = page.items.find((i) => i.scanIds.includes(scanId));
+      if (item) return item;
+    }
   }
   return undefined;
 }

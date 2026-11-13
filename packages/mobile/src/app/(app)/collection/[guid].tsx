@@ -1,13 +1,16 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, Share, View } from "react-native";
+import { FlatList, RefreshControl, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native";
 import {
   computeBinCount,
   DEFAULT_MODULE_COUNT,
-  DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  deviceTimeZone,
   EMPTY_CARD_FILTERS,
+  formatScanTimelineBucketLabel,
+  groupCardsByScanTime,
   type CardFilters,
   type GroupedScannedCard,
 } from "@magic-vault/shared";
@@ -19,213 +22,334 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { SearchInput } from "@/components/ui/search-input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TabStrip } from "@/components/ui/tab-strip";
+import { PillButton } from "@/components/ui/pill-button";
+import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
   collectionCardsQueryOptions,
   collectionCardsSummaryQueryOptions,
-  createMonitorLink,
   reviewQueueQueryOptions,
-  revokeMonitorLinks,
+  scanTimelineBucketsQueryOptions,
 } from "@/features/collections/api/collection-cards";
+import { toScanTimelineListRows } from "@/features/collections/lib/scan-timeline-rows";
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
-import {
-  collectionsQueryOptions,
-  deleteCollection,
-  emptyCollection,
-  setActiveCollection,
-} from "@/features/collections/api/collections";
-import { CollectionActivity } from "@/features/collections/components/collection-activity";
+import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
+import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { useCollectionActions } from "@/features/collections/api/use-collection-actions";
+import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { useSessionStream } from "@/features/monitor/api/use-session-stream";
 import { useSorter } from "@/features/sorter/api/use-sorter";
-import { cardSortOptions, countActiveCardFilters } from "@/features/collections/lib/card-query";
+import {
+  buildCollectionCardsQuery,
+  cardSortOptions,
+  countActiveCardFilters,
+  readStoredCollectionScanTimeline,
+} from "@/features/collections/lib/card-query";
 import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
+import {
+  readCollectionViewMemory,
+  useRecordLastOpenedCollection,
+  writeCollectionViewMemory,
+} from "@/hooks/use-collection-view-memory";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { usePrefetchCollectionCard } from "@/hooks/use-prefetch-collection-card";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import {
-  CARD_ASPECT_RATIO,
   CARD_GRID_COLUMNS,
   CARD_GRID_GAP_X,
   CARD_GRID_GAP_Y,
   CARD_GRID_GUTTER,
+  COLLECTION_SCAN_TIMELINE_KEY,
   LIST_END_THRESHOLD,
+  SCAN_TIMELINE_HEADER_BLUR_INTENSITY,
+  SCAN_TIMELINE_HEADER_BLUR_TINT,
+  SCAN_TIMELINE_LIST_HEADER_OFFSET,
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/collections";
-import { WEB_URL } from "@/lib/constants/config";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
-import type { CollectionTab } from "@/lib/interfaces/collections";
+import {
+  COLLECTION_SCROLL_EVENT_THROTTLE_MS,
+  COLLECTION_SCROLL_RESTORE_MAX_PAGES,
+} from "@/lib/constants/navigation-memory";
+import { BADGE_RADIUS, FLOATING_BUTTON_SHADOW, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
+import type { CollectionScanTimeline, ScanTimelineListRow } from "@/lib/interfaces/collections";
 import { readReviewLayout } from "@/lib/review-layout";
+import { writeKv } from "@/lib/storage/kv";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CollectionScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
-  const queryClient = useQueryClient();
   const width = usePanelWidth();
-  const [tab, setTab] = useState<CollectionTab>("cards");
   const [search, setSearch] = useState("");
   const debounced = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
-  const collectionsOptions = collectionsQueryOptions(useActiveOrgId());
+  const orgId = useActiveOrgId();
+  const collectionsOptions = collectionsQueryOptions(orgId);
   const { data: collections } = useQuery(collectionsOptions);
   const collection = collections?.find((c) => c.guid === guid);
-  const [grouped, setGrouped] = useState(true);
-  const [sort, setSort] = useState<string | null>(null);
+  const [viewMemory] = useState(() => readCollectionViewMemory(orgId, guid));
+  useRecordLastOpenedCollection(orgId, guid);
+  const [grouped, setGrouped] = useState(viewMemory?.grouped ?? true);
+  const [sort, setSort] = useState<string | null>(viewMemory?.sort ?? null);
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
   const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
+  const [scanTimeline, setScanTimeline] = useState<CollectionScanTimeline>(readStoredCollectionScanTimeline);
+  const changeScanTimeline = (next: CollectionScanTimeline) => {
+    setScanTimeline(next);
+    writeKv(COLLECTION_SCAN_TIMELINE_KEY, next);
+  };
+  const scanTimelineGrouping = scanTimeline === "off" ? null : scanTimeline;
+  const scanTimelineTimeZone = useMemo(() => deviceTimeZone(), []);
   const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(null);
+  const prefetchCollectionCard = usePrefetchCollectionCard();
+  const listRef = useRef<FlatList<GroupedScannedCard> | FlatList<ScanTimelineListRow> | null>(null);
+  const [initialScrollRestoreOffset] = useState(() =>
+    viewMemory && viewMemory.scrollOffset > 0 && viewMemory.scanTimeline === scanTimeline ? viewMemory.scrollOffset : null,
+  );
+  const scrollOffsetRef = useRef(initialScrollRestoreOffset ?? 0);
+  const pendingScrollRestoreRef = useRef<number | null>(initialScrollRestoreOffset);
+  const pagesFetchedForRestoreRef = useRef(0);
   const sorter = useSorter();
   const cardsQuery = useMemo(
-    () => ({ search: debounced, sort, filters, grouped }),
-    [debounced, sort, filters, grouped],
+    () => buildCollectionCardsQuery({ search: debounced, sort, filters, grouped, scanTimeline }),
+    [debounced, sort, filters, grouped, scanTimeline],
   );
   const cards = useInfiniteQuery(collectionCardsQueryOptions(guid, cardsQuery));
   const summary = useQuery(collectionCardsSummaryQueryOptions(guid));
+  const scanTimelineBuckets = useQuery({
+    ...scanTimelineBucketsQueryOptions(guid, cardsQuery, scanTimelineGrouping ?? "day", scanTimelineTimeZone),
+    enabled: !!scanTimelineGrouping,
+  });
   const reviewQueue = useQuery(reviewQueueQueryOptions(guid));
   const stream = useSessionStream(guid);
-  const makeActive = useMutation({
-    mutationFn: setActiveCollection,
-    onSuccess: (next) => queryClient.setQueryData(collectionsOptions.queryKey, next),
-  });
+  const { setScanTargetGuid } = useScanTarget();
   const [actionsOpen, setActionsOpen] = useState(false);
-  const empty = useMutation({
-    mutationFn: () => emptyCollection(guid),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
-      void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
-      void queryClient.invalidateQueries({ queryKey: collectionsOptions.queryKey });
-    },
-  });
-  const remove = useMutation({
-    mutationFn: () => deleteCollection(guid),
-    onSuccess: (next) => {
-      queryClient.setQueryData(collectionsOptions.queryKey, next);
-      void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
-      void queryClient.invalidateQueries({ queryKey: ["billing"] });
-      router.back();
-    },
-  });
+  const collectionActions = useCollectionActions({ onDeleted: () => router.back(), shareLinkCountGuid: guid });
+  const { empty, remove } = collectionActions;
   const runAction = (action: string) => {
     setActionsOpen(false);
-    const name = collection?.name ?? "";
-    if (action === "rename") {
-      router.push({ pathname: "/collection-rename", params: { guid } });
-    } else if (action === "empty") {
-      Alert.alert(t("collections.empty"), t("collections.emptyDescription", { name }), [
-        { text: t("collections.cancel"), style: "cancel" },
-        { text: t("collections.emptyConfirm"), style: "destructive", onPress: () => empty.mutate() },
-      ]);
-    } else if (action === "share") {
-      shareLink.mutate();
-    } else if (action === "revoke") {
-      Alert.alert(t("collections.revokeLinksTitle"), t("collections.revokeLinksDescription"), [
-        { text: t("collections.cancel"), style: "cancel" },
-        { text: t("collections.revokeLinks"), style: "destructive", onPress: () => revokeLinks.mutate() },
-      ]);
-    } else if (action === "delete") {
-      Alert.alert(t("collections.delete"), t("collections.deleteDescription", { name }), [
-        { text: t("collections.cancel"), style: "cancel" },
-        { text: t("collections.deleteConfirm"), style: "destructive", onPress: () => remove.mutate() },
-      ]);
-    }
+    collectionActions.runAction({ guid, name: collection?.name ?? "" }, action);
   };
 
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.items) ?? [], [cards.data]);
+  const isUnfilteredView = !debounced && countActiveCardFilters(filters) === 0;
+  const persistViewMemory = () => {
+    writeCollectionViewMemory(orgId, guid, {
+      grouped,
+      sort,
+      scanTimeline,
+      scrollOffset: isUnfilteredView ? scrollOffsetRef.current : 0,
+    });
+  };
+  const persistViewMemoryRef = useRef(persistViewMemory);
+  persistViewMemoryRef.current = persistViewMemory;
+  useEffect(() => {
+    persistViewMemoryRef.current();
+  }, [grouped, sort, scanTimeline]);
+  useEffect(() => () => persistViewMemoryRef.current(), []);
+  const trackScrollOffset = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollOffsetRef.current = event.nativeEvent.contentOffset.y;
+  };
+  const restoreScrollPosition = (_contentWidth: number, contentHeight: number) => {
+    const targetOffset = pendingScrollRestoreRef.current;
+    if (targetOffset == null || cards.isPending) return;
+    const canLoadMore =
+      cards.hasNextPage && pagesFetchedForRestoreRef.current < COLLECTION_SCROLL_RESTORE_MAX_PAGES;
+    if (contentHeight <= targetOffset && canLoadMore) {
+      if (!cards.isFetchingNextPage) {
+        pagesFetchedForRestoreRef.current += 1;
+        void cards.fetchNextPage();
+      }
+      return;
+    }
+    pendingScrollRestoreRef.current = null;
+    listRef.current?.scrollToOffset({ offset: targetOffset, animated: false });
+  };
   const totalCards = cards.data?.pages[0]?.totalCards ?? collection?.cardCount ?? 0;
+  const scanTimelineRows = useMemo(
+    () =>
+      scanTimelineGrouping
+        ? toScanTimelineListRows(
+            groupCardsByScanTime(items, scanTimelineGrouping, scanTimelineBuckets.data?.buckets),
+            CARD_GRID_COLUMNS,
+          )
+        : [],
+    [items, scanTimelineGrouping, scanTimelineBuckets.data],
+  );
+  const scanTimelineStickyHeaderIndices = useMemo(
+    () =>
+      scanTimelineRows.flatMap((row, index) =>
+        row.kind === "header" ? [index + SCAN_TIMELINE_LIST_HEADER_OFFSET] : [],
+      ),
+    [scanTimelineRows],
+  );
   const stats = summary.data?.all;
   const breakdown = useMemo(() => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats) : null), [stats]);
   const binCount = computeBinCount(sorter.device?.moduleCount ?? DEFAULT_MODULE_COUNT);
   const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
-  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), t);
-  const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
+  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), sort, t);
+  const activeSortAndFilterCount =
+    countActiveCardFilters(filters) + (sort && !scanTimelineGrouping ? 1 : 0) + (scanTimelineGrouping ? 1 : 0);
 
-  const shareLink = useMutation({
-    mutationFn: () => createMonitorLink(guid, DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
-    onSuccess: (link) => {
-      const url = `${WEB_URL}/watch/${guid}?t=${encodeURIComponent(link.token)}`;
-      void Share.share({ message: url, url });
-    },
-  });
-  const revokeLinks = useMutation({ mutationFn: () => revokeMonitorLinks(guid) });
   const hasPricing = !!stats && stats.priceableCount > 0;
   const tileWidth = (width - CARD_GRID_GUTTER * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
-  const alertCount = stream.unmatchedCount + stream.errors.length;
-  const statusColor =
-    stream.status === "connected" ? colors.successStrong : stream.status === "error" ? colors.destructive : colors.warningStrong;
+  const headerSummary = [
+    collection?.game?.name,
+    t("collection.cardsCount", { count: totalCards }),
+    hasPricing && stats ? pricing.format(stats.totalValue) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const scanIntoCollection = () => {
+    setScanTargetGuid(guid);
+    router.navigate("/scan");
+  };
+
+  const reviewFirstScanId = reviewQueue.data?.firstScanId;
+  const openReview = () =>
+    readReviewLayout() === "grid"
+      ? router.push({ pathname: "/review-grid", params: { guid } })
+      : router.push({
+          pathname: "/card/[scanId]",
+          params: { scanId: reviewFirstScanId ?? "", guid, review: "1" },
+        });
+
+  const openUnmatched = () => router.push({ pathname: "/unmatched/[guid]", params: { guid } });
 
   const openCard = (scanId: string) => router.push({ pathname: "/card/[scanId]", params: { scanId, guid } });
+
+  const renderCardTile = (item: GroupedScannedCard) => {
+    const price = pricing.priceOf(
+      item.card,
+      { isFoil: item.isFoil, foilType: item.foilType },
+      item.condition,
+    );
+    const flagged = !!item.lowConfidenceMatch || !!item.alternativeMatches?.length;
+    return (
+      <View key={item.scanId} style={{ width: tileWidth }}>
+        <CardTile
+          name={item.card.name}
+          caption={
+            price != null
+              ? pricing.format(price)
+              : `${item.card.set.toUpperCase()} #${item.card.collectorNumber}`
+          }
+          imageUrl={absoluteUrl(item.card.image?.normal ?? item.card.image?.small)}
+          quantity={item.quantity}
+          flagged={flagged}
+          corrected={!!item.corrected || !!item.reviewed}
+          onPress={() => openCard(item.scanId)}
+          onPressIn={() => prefetchCollectionCard(guid, item.scanId)}
+          onLongPress={() => setActionsEntry(item)}
+        />
+      </View>
+    );
+  };
+
+  const sharedListProps = {
+    keyboardShouldPersistTaps: "handled" as const,
+    contentContainerStyle: {
+      paddingHorizontal: CARD_GRID_GUTTER,
+      paddingBottom: SPACING.xxl + BUTTON_HEIGHTS.md + SPACING.lg,
+      gap: CARD_GRID_GAP_Y,
+    },
+    onEndReachedThreshold: LIST_END_THRESHOLD,
+    onScroll: trackScrollOffset,
+    onMomentumScrollEnd: () => persistViewMemory(),
+    onScrollEndDrag: () => persistViewMemory(),
+    scrollEventThrottle: COLLECTION_SCROLL_EVENT_THROTTLE_MS,
+    onContentSizeChange: restoreScrollPosition,
+    onEndReached: () => {
+      if (cards.hasNextPage && !cards.isFetchingNextPage) void cards.fetchNextPage();
+    },
+    refreshControl: (
+      <RefreshControl
+        refreshing={cards.isRefetching && !cards.isFetchingNextPage}
+        onRefresh={() => {
+          void cards.refetch();
+          void summary.refetch();
+          if (scanTimelineGrouping) void scanTimelineBuckets.refetch();
+        }}
+        tintColor={colors.primaryText}
+        colors={[colors.primary]}
+        progressBackgroundColor={colors.card}
+      />
+    ),
+    ListHeaderComponent: (
+      <View style={{ gap: SPACING.md, paddingTop: SPACING.lg }}>
+        {stream.errors.map((message, index) => (
+          <Callout key={`${index}-${message}`} tone="destructive" title={t("monitor.scanError")} description={message} />
+        ))}
+        {cards.isError ? <Callout tone="destructive" title={t("collections.cardsLoadFailed")} /> : null}
+      </View>
+    ),
+    ListEmptyComponent: cards.isPending ? (
+      <CollectionGridSkeleton tileWidth={tileWidth} />
+    ) : (
+      <EmptyState
+        icon={debounced ? "search" : "collections"}
+        title={debounced ? t("collection.noMatches") : t("collection.noCardsYet")}
+      />
+    ),
+    ListFooterComponent: cards.isFetchingNextPage ? (
+      <ListLoadingFooter accessibilityLabel={t("collection.loadingMoreCards")} />
+    ) : undefined,
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
         title={collection?.name ?? t("collections.title")}
-        subtitle={[t(`monitor.status.${stream.status}`), collection?.game?.name].filter(Boolean).join(" · ")}
-        subtitleAccessory={
-          <View style={{ width: 8, height: 8, borderRadius: RADIUS.full, backgroundColor: statusColor }} />
-        }
+        subtitle={headerSummary}
         onBack={() => router.back()}
         actions={
           collection ? (
-            <IconButton icon="more" accessibilityLabel={t("collections.actions")} onPress={() => setActionsOpen(true)} />
+            <>
+              <IconButton
+                icon="stats"
+                accessibilityLabel={t("collection.viewStats")}
+                onPress={() => router.push({ pathname: "/stats", params: { collection: guid } })}
+              />
+              <IconButton icon="more" accessibilityLabel={t("collections.actions")} onPress={() => setActionsOpen(true)} />
+            </>
           ) : null
         }
       >
-        <View style={{ gap: 2 }}>
-          <AppText size="sm" tone="secondary" weight="medium">
-            {hasPricing ? t("collection.value") : t("collection.cards")}
-          </AppText>
-          <AppText size="4xl" heading weight="bold" numberOfLines={1} adjustsFontSizeToFit style={{ fontVariant: ["tabular-nums"] }}>
-            {hasPricing && stats ? pricing.format(stats.totalValue) : String(totalCards)}
-          </AppText>
-          <AppText size="sm" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
-            {[
-              hasPricing ? t("collection.cardsCount", { count: totalCards }) : null,
-              stats ? t("collection.unique", { count: stats.uniqueCount }) : null,
-            ]
-              .filter(Boolean)
-              .join(" · ") || " "}
-          </AppText>
-        </View>
-        {collection && !collection.isActive ? (
-          <Button
-            icon="scan"
-            label={t("collections.makeActive")}
-            loading={makeActive.isPending}
-            onPress={() => makeActive.mutate(guid)}
-          />
+        {reviewFirstScanId || stream.unmatchedCount > 0 ? (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
+            {reviewFirstScanId ? (
+              <PillButton
+                tone="info"
+                icon="check"
+                label={t("collection.reviewBadge", { count: reviewQueue.data?.total ?? 0 })}
+                onPress={openReview}
+              />
+            ) : null}
+            {stream.unmatchedCount > 0 ? (
+              <PillButton
+                tone="warning"
+                icon="help"
+                label={t("unmatchedCards.badge", { count: stream.unmatchedCount })}
+                onPress={openUnmatched}
+              />
+            ) : null}
+          </View>
         ) : null}
-        {reviewQueue.data?.firstScanId ? (
-          <Button
-            variant="secondary"
-            icon="check"
-            label={t("collection.review", { count: reviewQueue.data.total })}
-            onPress={() =>
-              readReviewLayout() === "grid"
-                ? router.push({ pathname: "/review-grid", params: { guid } })
-                : router.push({
-                    pathname: "/card/[scanId]",
-                    params: { scanId: reviewQueue.data?.firstScanId ?? "", guid, review: "1" },
-                  })
-            }
-          />
-        ) : null}
+        <CardToolbar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={t("collection.searchPlaceholder")}
+          searchAccessibilityLabel={t("collections.search")}
+          activeSortAndFilterCount={activeSortAndFilterCount}
+          onOpenViewOptions={() => setViewOptionsOpen(true)}
+        />
       </PageHeader>
-
-      <TabStrip<CollectionTab>
-        value={tab}
-        onChange={setTab}
-        items={[
-          { value: "cards", label: t("collection.tabCards") },
-          { value: "activity", label: t("collection.tabActivity"), badge: alertCount },
-        ]}
-      />
 
       {empty.isError || remove.isError ? (
         <View style={{ paddingHorizontal: CARD_GRID_GUTTER, paddingTop: SPACING.md }}>
@@ -235,121 +359,95 @@ export default function CollectionScreen() {
       <OptionSheet
         visible={actionsOpen}
         title={collection?.name ?? t("collections.actions")}
-        options={[
-          { value: "share", label: t("collections.shareLink") },
-          { value: "revoke", label: t("collections.revokeLinks") },
-          { value: "rename", label: t("collections.rename") },
-          { value: "empty", label: t("collections.empty") },
-          { value: "delete", label: t("collections.delete") },
-        ]}
+        options={collectionActions.options}
         selected={[]}
         onSelect={runAction}
         onClose={() => setActionsOpen(false)}
       />
 
-      {makeActive.isError ? (
-        <View style={{ paddingHorizontal: CARD_GRID_GUTTER, paddingTop: SPACING.md }}>
-          <Callout tone="destructive" title={t("collections.activateFailed")} />
-        </View>
-      ) : null}
-
-      {tab === "activity" ? (
-        <CollectionActivity state={stream} onOpen={openCard} />
+      {scanTimelineGrouping ? (
+        <FlatList<ScanTimelineListRow>
+          key="scan-timeline"
+          ref={(list) => {
+            listRef.current = list;
+          }}
+          data={scanTimelineRows}
+          keyExtractor={(row) => row.key}
+          {...sharedListProps}
+          stickyHeaderIndices={scanTimelineStickyHeaderIndices}
+          renderItem={({ item: row }) =>
+            row.kind === "header" ? (
+              <BlurView
+                tint={SCAN_TIMELINE_HEADER_BLUR_TINT}
+                intensity={SCAN_TIMELINE_HEADER_BLUR_INTENSITY}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: SPACING.md,
+                  paddingVertical: SPACING.sm,
+                }}
+              >
+                <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: SPACING.sm,
+                    flexShrink: 1,
+                    paddingHorizontal: SPACING.md,
+                    paddingVertical: SPACING.xs,
+                    borderRadius: BADGE_RADIUS,
+                    backgroundColor: colors.tonal,
+                  }}
+                >
+                  <AppText size="xs" weight="semibold" accessibilityRole="header" numberOfLines={1} style={{ flexShrink: 1 }}>
+                    {formatScanTimelineBucketLabel(row.bucketKey, scanTimelineGrouping, i18n.language)}
+                  </AppText>
+                  <AppText size="xs" tone="secondary">
+                    {t("collection.scanTimelineBlockCount", { count: row.cardCount })}
+                  </AppText>
+                </View>
+                <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
+              </BlurView>
+            ) : (
+              <View style={{ flexDirection: "row", gap: CARD_GRID_GAP_X }}>
+                {row.cards.map(renderCardTile)}
+              </View>
+            )
+          }
+        />
       ) : (
-        <FlatList
+        <FlatList<GroupedScannedCard>
+          key="cards"
+          ref={(list) => {
+            listRef.current = list;
+          }}
           data={items}
           keyExtractor={(item) => item.scanId}
           numColumns={CARD_GRID_COLUMNS}
-          keyboardShouldPersistTaps="handled"
           columnWrapperStyle={{ gap: CARD_GRID_GAP_X }}
-          contentContainerStyle={{ paddingHorizontal: CARD_GRID_GUTTER, paddingBottom: SPACING.xxl, gap: CARD_GRID_GAP_Y }}
-          onEndReachedThreshold={LIST_END_THRESHOLD}
-          onEndReached={() => {
-            if (cards.hasNextPage && !cards.isFetchingNextPage) void cards.fetchNextPage();
-          }}
-          refreshControl={
-            <RefreshControl
-              refreshing={cards.isRefetching && !cards.isFetchingNextPage}
-              onRefresh={() => {
-                void cards.refetch();
-                void summary.refetch();
-              }}
-              tintColor={colors.primaryText}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.card}
-            />
-          }
-          ListHeaderComponent={
-            <View style={{ gap: SPACING.md, paddingTop: SPACING.lg }}>
-              <SearchInput
-                value={search}
-                onChangeText={setSearch}
-                placeholder={t("collection.searchPlaceholder")}
-                accessibilityLabel={t("collections.search")}
-              />
-              <CardToolbar
-                activeSortAndFilterCount={activeSortAndFilterCount}
-                needsReview={filters.needsAttention}
-                onOpenViewOptions={() => setViewOptionsOpen(true)}
-                onToggleNeedsReview={() => setFilters((value) => ({ ...value, needsAttention: !value.needsAttention }))}
-              />
-              {cards.isError ? <Callout tone="destructive" title={t("collections.cardsLoadFailed")} /> : null}
-              {shareLink.isError || revokeLinks.isError ? (
-                <Callout tone="destructive" title={t("collections.shareLinkFailed")} />
-              ) : null}
-            </View>
-          }
-          ListEmptyComponent={
-            cards.isPending ? (
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <Skeleton key={i} width={tileWidth} height={tileWidth / CARD_ASPECT_RATIO} radius={RADIUS.lg} />
-                ))}
-              </View>
-            ) : (
-              <EmptyState
-                icon={debounced ? "search" : "collections"}
-                title={debounced ? t("collection.noMatches") : t("collection.noCardsYet")}
-              />
-            )
-          }
-          ListFooterComponent={
-            cards.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
-          }
-          renderItem={({ item }) => {
-            const price = pricing.priceOf(
-              item.card,
-              { isFoil: item.isFoil, foilType: item.foilType },
-              item.condition,
-            );
-            const flagged = !!item.lowConfidenceMatch || !!item.alternativeMatches?.length;
-            return (
-              <View style={{ width: tileWidth }}>
-                <CardTile
-                  name={item.card.name}
-                  caption={
-                    price != null
-                      ? pricing.format(price)
-                      : `${item.card.set.toUpperCase()} #${item.card.collectorNumber}`
-                  }
-                  imageUrl={absoluteUrl(item.card.image?.normal ?? item.card.image?.small)}
-                  quantity={item.quantity}
-                  flagged={flagged}
-                  corrected={!!item.corrected || !!item.reviewed}
-                  onPress={() => openCard(item.scanId)}
-                  onLongPress={() => setActionsEntry(item)}
-                />
-              </View>
-            );
-          }}
+          {...sharedListProps}
+          renderItem={({ item }) => renderCardTile(item)}
         />
       )}
+      {collection ? (
+        <View pointerEvents="box-none" style={{ position: "absolute", right: SCREEN_GUTTER, bottom: SCREEN_GUTTER }}>
+          <Button
+            icon="scan"
+            label={t("collections.scan")}
+            accessibilityLabel={t("collections.scanInto")}
+            onPress={scanIntoCollection}
+            style={{ ...FLOATING_BUTTON_SHADOW, shadowColor: colors.popoverShadow }}
+          />
+        </View>
+      ) : null}
       <CardViewOptionsSheet
         visible={viewOptionsOpen}
         grouped={grouped}
         onGroupedChange={setGrouped}
+        scanTimeline={scanTimeline}
+        onScanTimelineChange={changeScanTimeline}
         sortOptions={sortOptions}
-        selectedSort={sort ?? "scan-desc"}
         onSortChange={(value) => setSort(value === "scan-desc" ? null : value)}
         filters={filters}
         breakdown={breakdown}

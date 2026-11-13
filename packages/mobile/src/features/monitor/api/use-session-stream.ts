@@ -45,6 +45,7 @@ export function useSessionStream(collectionGuid: string): MonitorState {
               collection: Collection;
               recentCards?: ScannedCard[];
               unmatchedCards?: UnmatchedCard[];
+              unmatchedCount?: number;
               viewers?: unknown[];
             }>(data);
             if (!init) return prev;
@@ -53,7 +54,7 @@ export function useSessionStream(collectionGuid: string): MonitorState {
               status: "connected",
               collectionName: init.collection.name,
               recentCards: init.recentCards ?? [],
-              unmatchedCount: init.unmatchedCards?.length ?? 0,
+              unmatchedCount: init.unmatchedCount ?? init.unmatchedCards?.length ?? 0,
               viewerCount: init.viewers?.length ?? prev.viewerCount,
             };
           }

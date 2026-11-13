@@ -165,3 +165,6 @@ export const DEMO_INTAKE_ROWS: DemoIntakeRow[] = [
   { cardIndex: 3, market: 0.14, offer: 0, declined: true },
 ];
 
+
+export const MARKETING_CARD_CLASS =
+  "flex flex-col rounded-lg bg-card p-6 ring-1 ring-border transition-shadow hover:shadow-card-hover motion-reduce:transition-none";

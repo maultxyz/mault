@@ -1,0 +1,9 @@
+export const MULTI_CARD_WINDOW_SCALES = [0.7, 0.5, 0.35] as const;
+export const MULTI_CARD_WINDOW_STRIDE_RATIO = 0.5;
+export const MULTI_CARD_EDGE_MARGIN_RATIO = 0.02;
+export const MULTI_CARD_MIN_AREA_RATIO = 0.08;
+export const MULTI_CARD_ASPECT_MIN = 0.55;
+export const MULTI_CARD_ASPECT_MAX = 0.85;
+export const MULTI_CARD_MERGE_IOU = 0.3;
+export const MULTI_CARD_MAX_CARDS = 30;
+export const MULTI_CARD_REFINE_PADDING_RATIO = 0.15;

@@ -1,6 +1,9 @@
+import { DONATE_URL } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { optOutOfSupportPrompt } from "@/features/billing/lib/support-prompt";
-import { DONATE_URL, REPO_URL } from "@/lib/constants/links";
+import {
+  REPO_URL,
+} from "@/lib/constants/links";
 import type { SupportPromptToastProps } from "@/lib/interfaces/billing";
 import {
   IconBrandGithub,

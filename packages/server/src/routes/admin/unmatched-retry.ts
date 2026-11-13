@@ -64,7 +64,6 @@ function ocrRegionsFor(row: AdminScanRow) {
 }
 
 async function readScanText(
-  jwtClaims: string,
   row: AdminScanRow,
   trace?: OcrRegionTrace[],
 ): Promise<CardTextMatchResult | null> {
@@ -79,7 +78,6 @@ async function readScanText(
     .toBuffer();
   return attachMatchedCards(
     await findCardMatchesByOcr(
-      jwtClaims,
       image,
       regions,
       {
@@ -118,7 +116,6 @@ function needsTextSearch(result: CardMatchSearchResult): boolean {
 }
 
 async function retryScan(
-  jwtClaims: string,
   row: AdminScanRow,
   withOcr: boolean,
 ): Promise<AdminUnmatchedRetryResult> {
@@ -149,7 +146,7 @@ async function retryScan(
 
   const text =
     withOcr && needsTextSearch(result)
-      ? await readScanText(jwtClaims, row)
+      ? await readScanText(row)
       : null;
   const textLeader = text?.data?.[0];
   if (text && textLeader) {
@@ -287,7 +284,6 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
       .leftJoin(games, eq(games.id, collections.gameId))
       .where(and(liveScans, inArray(unmatchedCards.guid, scanIds)));
 
-    const jwtClaims = c.get("jwtClaims");
     const data: AdminUnmatchedRetryResult[] = [];
     for (let i = 0; i < rows.length; i += ADMIN_UNMATCHED_RETRY_CONCURRENCY) {
       const batch = rows.slice(i, i + ADMIN_UNMATCHED_RETRY_CONCURRENCY);
@@ -297,7 +293,6 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
             row.scanId
               ? [
                   retryScan(
-                    jwtClaims,
                     { ...row, scanId: row.scanId },
                     withOcr,
                   ),
@@ -347,7 +342,7 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
         }
 
         const trace: OcrRegionTrace[] = [];
-        const result = await readScanText(c.get("jwtClaims"), row, trace);
+        const result = await readScanText(row, trace);
         if (!result) {
           return c.json(
             { success: false, message: "This scan has no saved photo." },

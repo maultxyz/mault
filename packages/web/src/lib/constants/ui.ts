@@ -23,3 +23,6 @@ export const GRADIENT_BURST_CLASS =
 
 export const MENU_SCROLL_LIST_CLASS =
   "h-auto [&>[data-slot=scroll-area-viewport]]:max-h-64";
+
+export const DESKTOP_TITLE_BAR_CLASS =
+  "[-webkit-app-region:drag] pr-[calc(100vw_-_env(titlebar-area-x,0px)_-_env(titlebar-area-width,100vw)_+_0.75rem)] [&_a]:[-webkit-app-region:no-drag] [&_button]:[-webkit-app-region:no-drag] [&_input]:[-webkit-app-region:no-drag] [&_[role=combobox]]:[-webkit-app-region:no-drag]";

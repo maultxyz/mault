@@ -1,3 +1,4 @@
+import { apiUsageRoute } from "./api-usage";
 import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { activeScanningRoute } from "./active-scanning";
@@ -12,7 +13,7 @@ import { discordLinkedRoleRoute } from "./discord-linked-role";
 import { foilLabelsRoute } from "./foil-labels";
 import { plansRoute } from "./plans";
 import { platformStatsRoute } from "./platform-stats";
-import { rollbarTestRoute } from "./rollbar-test";
+import { errorReportingTestRoute } from "./error-reporting-test";
 import { scanMetricsRoute } from "./scan-metrics";
 import { scanVectorizeStatsRoute } from "./scan-vectorize-stats";
 import { syncApiKeysRoute } from "./sync-api-keys";
@@ -36,7 +37,7 @@ const router = new Hono<AppEnv>()
   .route("/", cardsRevectorizeRoute)
   .route("/", cardsGamesRoute)
   .route("/", cardsDumpRoute)
-  .route("/", rollbarTestRoute)
+  .route("/", errorReportingTestRoute)
   .route("/", scanMetricsRoute)
   .route("/", scanVectorizeStatsRoute)
   .route("/", activeScanningRoute)
@@ -47,6 +48,7 @@ const router = new Hono<AppEnv>()
   .route("/", deletedItemsRoute)
   .route("/", systemSoundClipsRoute)
   .route("/", unmatchedRetryRoute)
-  .route("/", foilLabelsRoute);
+  .route("/", foilLabelsRoute)
+  .route("/", apiUsageRoute);
 
 export { router as adminRouter };

@@ -1,5 +1,4 @@
-import { Platform } from "react-native";
-import type { ScanMode, ScannerPauseReason, ScannerPhase, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
+import type { ScannerPauseReason, ScannerPhase, ScannerTip, ScanRemovalNoticeKind } from "@/lib/interfaces/scanner";
 import type { CardScanNoticeKind } from "@/lib/interfaces/storage";
 
 export const BIN_DATA_RETRY_MS = 5000;
@@ -48,7 +47,10 @@ export const SCAN_REGION_VIRTUAL_HEIGHT = 1000;
 export const SVG_MASK_SHOW = "#ffffff";
 export const SVG_MASK_HIDE = "#000000";
 export const LIVE_DETECTION_INTERVAL_MS = 300;
-export const LIVE_CORNERS_SUPPORTED = Platform.OS === "android";
+export const LIVE_OUTLINE_SMOOTHING_MS = 160;
+export const MOBILE_HAND_SCAN_STABLE_TICKS = 2;
+export const LIVE_OUTLINE_DEADBAND_RATIO = 0.012;
+export const LIVE_OUTLINE_MISSES_BEFORE_HIDE = 2;
 export const LIVE_DETECTION_PAUSED_PHASES: ScannerPhase[] = ["loading-models", "capturing", "identifying", "error"];
 
 export const NOT_FOIL_OPTION = "none";
@@ -56,7 +58,7 @@ export const ANY_SET_OPTION = "any";
 export const CARD_SET_PICKER_LIMIT = 100;
 
 export const SCAN_REMOVAL_NOTICE_DURATION_MS = 3000;
-export const SCAN_MODES: readonly ScanMode[] = ["add", "remove"];
+export const QUIET_SCANNER_PHASES: readonly ScannerPhase[] = ["idle", "ready"];
 
 export const SCAN_REMOVAL_NOTICE_TONES = {
   "no-match": "info",
@@ -71,3 +73,25 @@ export const CARD_SCAN_NOTICE_TONES = {
   "no-match": "info",
   failed: "destructive",
 } as const satisfies Record<CardScanNoticeKind, string>;
+export const BATCH_CAPTURE_TARGET_RESOLUTION = { width: 3024, height: 4032 } as const;
+export const BATCH_WORKING_LONG_SIDE = 2560;
+export const BATCH_PHOTO_JPEG_QUALITY = 70;
+export const BATCH_SCAN_LABEL_RADIUS = 10;
+export const BATCH_SCAN_THUMBNAIL_WIDTH = 44;
+export const TORCH_DEFAULT_STRENGTH_PERCENT = 100;
+export const TORCH_MIN_STRENGTH_PERCENT = 10;
+export const TORCH_STRENGTH_STEP_PERCENT = 10;
+export const LIVE_FRAME_TARGET_RESOLUTION = { width: 480, height: 640 } as const;
+export const LIVE_FRAME_TIMEOUT_MS = 1500;
+export const BATCH_SCAN_CORRECTION_SHEET_MAX_HEIGHT_RATIO = 0.9;
+export const CAMERA_MOUNT_SETTLE_MS = 400;
+
+export const SCAN_SAVED_STATUS_MS = 3000;
+
+export const ANNOUNCED_SCANNER_PHASES: ScannerPhase[] = ["idle", "ready", "paused", "error"];
+
+export const SCANNER_TIPS: ScannerTip[] = [
+  { key: "holdCard", icon: "camera" },
+  { key: "qrCode", icon: "qrCode" },
+  { key: "sorter", icon: "sorter" },
+];

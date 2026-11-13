@@ -47,11 +47,11 @@ export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
 }
 
 export function exportEntryKey(
-  entry: Pick<GroupedEntry, "isFoil" | "foilType" | "condition" | "language"> & {
+  entry: Pick<GroupedEntry, "isFoil" | "foilType" | "stamp" | "condition" | "language"> & {
     card: Pick<PlayingCardWithDistance, "id">;
   },
 ): string {
-  return `${entry.card.id}:${entry.isFoil}:${entry.foilType ?? ""}:${entry.condition}:${entry.language}`;
+  return `${entry.card.id}:${entry.isFoil}:${entry.foilType ?? ""}:${entry.stamp ?? ""}:${entry.condition}:${entry.language}`;
 }
 
 export function groupExportCards(
@@ -65,6 +65,7 @@ export function groupExportCards(
       quantity: 1,
       isFoil: !!entry.isFoil,
       foilType: entry.foilType,
+      stamp: entry.stamp,
       condition: toCardCondition(entry.condition),
       language: scanLanguage(entry),
     }));
@@ -75,8 +76,15 @@ export function groupExportCards(
     const language = scanLanguage(entry);
     const key =
       groupBy === "card-foil"
-        ? exportEntryKey({ card: entry.card, isFoil, foilType: entry.foilType, condition, language })
-        : `${entry.card.id}:${condition}:${language}`;
+        ? exportEntryKey({
+            card: entry.card,
+            isFoil,
+            foilType: entry.foilType,
+            stamp: entry.stamp,
+            condition,
+            language,
+          })
+        : `${entry.card.id}:${entry.stamp ?? ""}:${condition}:${language}`;
     const existing = grouped.get(key);
     if (existing) existing.quantity++;
     else
@@ -85,6 +93,7 @@ export function groupExportCards(
         quantity: 1,
         isFoil,
         foilType: entry.foilType,
+        stamp: entry.stamp,
         condition,
         language,
       });

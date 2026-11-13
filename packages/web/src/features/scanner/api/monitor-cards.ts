@@ -44,14 +44,15 @@ export function monitorCardsPageQueryOptions(
   source: MonitorCardsSource,
   query: CollectionCardsQuery,
   page: number,
+  pageSize: number,
 ) {
   return queryOptions({
-    queryKey: [...monitorCardsKey(source), "page", query, page],
+    queryKey: [...monitorCardsKey(source), "page", query, page, pageSize],
     queryFn: () =>
       loadMonitorCards<CollectionCardsPage>(
         source,
         "/cards",
-        cardsQueryParams(query, { page: String(page) }),
+        cardsQueryParams(query, { page: String(page), limit: String(pageSize) }),
       ),
     enabled: !!source.collectionGuid,
     placeholderData: keepPreviousData,

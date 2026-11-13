@@ -142,6 +142,7 @@ export function IntakeCardDetail({
         isDownloaded={scanned.isDownloaded}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
+        stamp={stored.stamp ?? undefined}
         condition={stored.condition}
         language={stored.language ?? undefined}
         binNumber={scanned.binNumber}

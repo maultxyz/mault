@@ -1,10 +1,11 @@
 import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { IconPhotoCog } from "@tabler/icons-react";
+import { MARKETING_CARD_CLASS } from "@/lib/constants/landing";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { DISCORD_BOT_FEATURE_ICONS } from "@/lib/constants/discord-bot";
-import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function DiscordBotFeatures({ step }: MarketingStepProps) {
+export function DiscordBotFeatures() {
   const { t } = useTranslation("discordBot");
   const features = t("features.items", { returnObjects: true }) as {
     title: string;
@@ -12,21 +13,20 @@ export function DiscordBotFeatures({ step }: MarketingStepProps) {
   }[];
 
   return (
-    <section id="features" className="border-t">
-      <div className="mx-auto max-w-4xl px-4 py-16">
+    <section id="features" className="scroll-mt-14">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         <MarketingSectionHeader
-          step={step}
           eyebrow={t("features.eyebrow")}
           heading={t("features.title")}
           subtitle={t("features.description")}
         />
 
-        <div className="mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border sm:grid-cols-2">
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature, i) => {
             const Icon = DISCORD_BOT_FEATURE_ICONS[i] ?? IconPhotoCog;
             return (
-              <div key={feature.title} className="flex flex-col gap-3 bg-card p-5">
-                <Icon className="size-4 text-primary" />
+              <div key={feature.title} className={cn(MARKETING_CARD_CLASS, "gap-3")}>
+                <Icon aria-hidden className="size-5 text-primary" />
                 <div>
                   <p className="font-heading text-sm font-semibold">
                     {feature.title}

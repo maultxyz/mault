@@ -29,7 +29,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.13.0"
+#define FIRMWARE_VERSION "2.13.1"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -1235,12 +1235,12 @@ void printRoutedResponse(int module, const char* direction, bool feedNext, Print
 }
 
 // "bottom" targets targetModule's own trapdoor, not a shared catch-all - a
-// bin can attach "bottom" to any module. Like "left"/"right" below, it walks
-// the card through each preceding module one at a time (confirming arrival
-// via that module's IR sensor) before dropping it through the target
-// module's own bottom, rather than opening every module's trapdoor at once,
-// which would drop the card through the first (nearest) open module instead
-// of the one actually targeted.
+// bin can attach "bottom" to any module. Every module before the target
+// opens its bottom at once (SERVO_STAGGER_MS apart, so the servos don't all
+// draw current together) and the card falls straight through to the target,
+// whose bottom stays closed so the card stops there. Stopping and starting
+// at each module on the way caught cards on the edges and slowed every route.
+// Only then does "bottom" open the target's own trapdoor.
 void routeCard(int targetModule, const char* direction, bool feedNext, Print& reply) {
   ensureServoDriver();
   if (!feedNextCard(reply)) return;
@@ -1249,29 +1249,27 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
   bool pushLeft = strcmp(direction, "left") == 0;
   bool nextFed = false;
 
-  for (int m = 1; m < targetModule; m++) {
-    setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
-    if (!waitForCard(m + 1)) {
-      // Card didn't clear module m in time - try the same paddle-flap
-      // recovery used for a stuck card before giving up on this route.
-      wiggleModulePaddle(m);
-      if (!waitForCard(m + 1)) {
-        reply.print(F("{\"error\":\"timeout: no card detected at module "));
-        reply.print(m + 1);
-        reply.println(F("\"}"));
-        setAllNeutral();
-        return;
-      }
+  if (targetModule > 1) {
+    for (int m = 1; m < targetModule; m++) {
+      if (m > 1) waitMs(SERVO_STAGGER_MS);
+      setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
     }
-    if (m == 1 && feedNext && waitForClear(1)) {
-      waitMs(DELAY_CARD_ENTER);
+    int stuckModule = dropCardThroughToModule(targetModule);
+    if (stuckModule != 0) {
+      reply.print(F("{\"error\":\"timeout: no card detected at module "));
+      reply.print(stuckModule + 1);
+      reply.println(F("\"}"));
+      setAllNeutral();
+      return;
+    }
+    if (feedNext && waitForClear(1)) {
       setModuleNeutral(1, 0);
       waitMs(200);
       feedAndReportEvent(reply);
       nextFed = true;
     }
+    waitMs(DELAY_CARD_ENTER);
   }
-  if (targetModule > 1) waitMs(DELAY_CARD_ENTER);
 
   if (dropBottom) {
     setServoPosition(getChannel(targetModule, 0), moduleConfig[targetModule - 1].bottomOpen);
@@ -1284,6 +1282,32 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
 
   if (feedNext && !nextFed) feedAndReportEvent(reply);
   printRoutedResponse(targetModule, direction, feedNext, reply);
+}
+
+// Waits for a card falling through the open modules before targetModule to
+// land there. If it doesn't, finds the module it's caught in, flaps that
+// module's paddle (the same recovery jam handling uses) and waits again, up
+// to once per module on the way. Returns 0 once the card arrives, else the
+// module it's still caught in (or the one just above the target when no
+// sensor on the way sees it).
+int dropCardThroughToModule(int targetModule) {
+  if (waitForCard(targetModule)) return 0;
+  for (int attempt = 1; attempt < targetModule; attempt++) {
+    int stuckModule = findCardBeforeModule(targetModule);
+    if (stuckModule == 0) return targetModule - 1;
+    wiggleModulePaddle(stuckModule);
+    if (waitForCard(targetModule)) return 0;
+  }
+  int stuckModule = findCardBeforeModule(targetModule);
+  return stuckModule != 0 ? stuckModule : targetModule - 1;
+}
+
+// The last module before targetModule whose sensor sees a card, or 0.
+int findCardBeforeModule(int targetModule) {
+  for (int m = targetModule - 1; m >= 1; m--) {
+    if (digitalRead(irPin(m)) == LOW) return m;
+  }
+  return 0;
 }
 
 // The left/right push at the end of a route, also run standalone by

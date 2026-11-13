@@ -1,31 +1,43 @@
-import type { CardSortOptionsProps } from "@/lib/interfaces/cards";
+import type {
+  CardSortOptionProps,
+  CardSortOptionsProps,
+} from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
-import type { FieldMeta } from "@magic-vault/shared";
-import { IconCheck } from "@tabler/icons-react";
+import {
+  cardSortDirectionForField,
+  DEFAULT_CARD_SORT,
+  nextCardSortKeyForField,
+  type CardSortDirection,
+  type FieldMeta,
+} from "@magic-vault/shared";
+import { IconArrowDown, IconArrowUp, IconCheck } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
-import { Fragment, useEffect, useRef, type Ref } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-function sortLabels(
+function sortDirectionLabel(
   type: FieldMeta["type"],
+  direction: CardSortDirection,
   t: TFunction<"cards">,
-): [asc: string, desc: string] {
-  return type === "string"
-    ? [t("cardToolbar.sortAscString"), t("cardToolbar.sortDescString")]
-    : [t("cardToolbar.sortAscDefault"), t("cardToolbar.sortDescDefault")];
+): string {
+  if (type === "string") {
+    return direction === "asc"
+      ? t("cardToolbar.sortAscString")
+      : t("cardToolbar.sortDescString");
+  }
+  return direction === "asc"
+    ? t("cardToolbar.sortAscDefault")
+    : t("cardToolbar.sortDescDefault");
 }
 
 function SortOption({
   label,
+  directionLabel,
+  direction,
   active,
   onSelect,
   ref,
-}: {
-  label: string;
-  active: boolean;
-  onSelect: () => void;
-  ref?: Ref<HTMLButtonElement>;
-}) {
+}: CardSortOptionProps) {
   return (
     <button
       ref={ref}
@@ -37,8 +49,22 @@ function SortOption({
         active ? "bg-primary/15 font-medium" : "hover:bg-muted",
       )}
     >
-      <span>{label}</span>
-      {active && <IconCheck className="size-3.5 shrink-0" />}
+      <span>
+        {label}
+        {directionLabel && <span className="sr-only">, {directionLabel}</span>}
+      </span>
+      {direction ? (
+        <span className="flex shrink-0 items-center gap-1" aria-hidden="true">
+          {directionLabel}
+          {direction === "asc" ? (
+            <IconArrowUp className="size-3.5" />
+          ) : (
+            <IconArrowDown className="size-3.5" />
+          )}
+        </span>
+      ) : (
+        active && <IconCheck className="size-3.5 shrink-0" />
+      )}
     </button>
   );
 }
@@ -52,7 +78,7 @@ export function CardSortOptions({
   const { t } = useTranslation("cards");
   const optionListRef = useRef<HTMLDivElement>(null);
   const activeOptionRef = useRef<HTMLButtonElement>(null);
-  const isScanOrderActive = !sortKey || sortKey === "scan-desc";
+  const isScanOrderActive = !sortKey || sortKey === DEFAULT_CARD_SORT;
 
   useEffect(() => {
     const optionList = optionListRef.current;
@@ -72,29 +98,24 @@ export function CardSortOptions({
         ref={isScanOrderActive ? activeOptionRef : undefined}
         label={defaultSortLabel ?? t("cardToolbar.scanOrder")}
         active={isScanOrderActive}
-        onSelect={() => onSortChange("scan-desc")}
+        onSelect={() => onSortChange(DEFAULT_CARD_SORT)}
       />
       {sortableFields.map((field) => {
-        const [asc, desc] = sortLabels(field.type, t);
+        const direction = cardSortDirectionForField(sortKey, field.field);
         return (
-          <Fragment key={field.field}>
-            <SortOption
-              ref={
-                sortKey === `${field.field}-asc` ? activeOptionRef : undefined
-              }
-              label={`${field.label} (${asc})`}
-              active={sortKey === `${field.field}-asc`}
-              onSelect={() => onSortChange(`${field.field}-asc`)}
-            />
-            <SortOption
-              ref={
-                sortKey === `${field.field}-desc` ? activeOptionRef : undefined
-              }
-              label={`${field.label} (${desc})`}
-              active={sortKey === `${field.field}-desc`}
-              onSelect={() => onSortChange(`${field.field}-desc`)}
-            />
-          </Fragment>
+          <SortOption
+            key={field.field}
+            ref={direction ? activeOptionRef : undefined}
+            label={field.label}
+            directionLabel={
+              direction ? sortDirectionLabel(field.type, direction, t) : undefined
+            }
+            direction={direction}
+            active={direction !== null}
+            onSelect={() =>
+              onSortChange(nextCardSortKeyForField(sortKey, field.field))
+            }
+          />
         );
       })}
     </div>

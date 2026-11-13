@@ -1,4 +1,3 @@
-import { FoilOverlay } from "@/components/foil-overlay";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -38,7 +37,6 @@ export function ScanRemovalRow({
             className="absolute inset-0 size-full object-cover"
           />
         )}
-        {selectedCopy?.isFoil && <FoilOverlay />}
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="min-w-0">

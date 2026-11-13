@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Construis ta propre trieuse de cartes à collectionner | MAULT",
-    "description": "Guide étape par étape pour construire la trieuse de cartes MAULT : liste des composants, schémas de câblage, pièces imprimées en 3D, firmware et montage."
+    "title": "Construis ta propre trieuse de cartes à collectionner | Mault",
+    "description": "Guide étape par étape pour construire la trieuse de cartes Mault : liste des composants, schémas de câblage, pièces imprimées en 3D, firmware et montage."
   },
   "hero": {
     "eyebrow": "Guide de montage du matériel",
@@ -192,8 +192,8 @@
             "part": "Écrou M3",
             "notes": "Associé aux vis M3×6 des panneaux de base"
           },
-          "m3Washer": {
-            "part": "Rondelle M3",
+          "m10Washer": {
+            "part": "Rondelle M10",
             "notes": "Utilisée avec les vis M3×8 qui fixent le rouleau de la trémie"
           },
           "m3x8Screw": {
@@ -260,6 +260,10 @@
           "servoExtensionCables": {
             "part": "Rallonges de servo",
             "notes": "Nécessaires uniquement au-delà de 3 modules de tri, quand les câbles d'origine des servos n'atteignent pas la carte pilote des servos"
+          },
+          "feederBearings": {
+            "part": "Roulements à billes",
+            "notes": "Pour la version de la base du chargeur avec roulements, afin que le rouleau tourne plus librement"
           }
         }
       }
@@ -493,7 +497,7 @@
             "note": "Comme pour le rouleau du chargeur, ils lui donnent de l'adhérence sur la carte."
           },
           "mountHopperRoller": {
-            "text": "Installe le rouleau de la trémie sur la trémie avec 2 vis M3×8 et 2 rondelles M3.",
+            "text": "Installe le rouleau de la trémie sur la trémie avec 2 vis M3×8 et 2 rondelles M10.",
             "note": "Le rouleau doit être rigide une fois monté, il ne doit pas tourner librement."
           },
           "calibrateHopperRoller": {

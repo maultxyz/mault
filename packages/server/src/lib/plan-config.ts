@@ -41,6 +41,7 @@ export function defaultPlanConfig(): PlanConfig {
         storage: false,
         apiAccess: false,
         businessTools: false,
+        longShareLinks: false,
       },
       limits: {
         dailyScans: FREE_PLAN_DAILY_SCAN_LIMIT,
@@ -61,6 +62,7 @@ export function defaultPlanConfig(): PlanConfig {
         storage: true,
         apiAccess: false,
         businessTools: false,
+        longShareLinks: true,
       },
       limits: {
         dailyScans: ENTHUSIAST_PLAN_DAILY_SCAN_LIMIT,
@@ -81,6 +83,7 @@ export function defaultPlanConfig(): PlanConfig {
         storage: true,
         apiAccess: true,
         businessTools: true,
+        longShareLinks: true,
       },
       limits: {
         dailyScans: null,
@@ -101,6 +104,7 @@ export function defaultPlanConfig(): PlanConfig {
         storage: true,
         apiAccess: true,
         businessTools: true,
+        longShareLinks: true,
       },
       limits: {
         dailyScans: null,

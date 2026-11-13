@@ -62,8 +62,10 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       scannedAt,
       binNumber,
       capturedImageUrl,
+      capturedBackImageUrl,
       isFoil,
       foilType,
+      stamp,
       condition: requestedCondition,
       alternativeMatches,
       lowConfidenceMatch,
@@ -117,6 +119,10 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
     const storedImage = await storeScanImage(
       { orgId, collectionGuid: guid, scanId, kind: "cards" },
       capturedImageUrl,
+    );
+    const storedBackImage = await storeScanImage(
+      { orgId, collectionGuid: guid, scanId, kind: "cards", side: "back" },
+      capturedBackImageUrl,
     );
     try {
       const { result, collectionName, gameName, gameId } = await authQuery<{
@@ -248,6 +254,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             scannedByUserId: userId,
             scannedByDeviceId,
             capturedImage: cardToResort.hasCapturedImage ? null : storedImage,
+            capturedBackImage: cardToResort.hasCapturedImage ? null : storedBackImage,
           });
           if (cardToResort.hasCapturedImage) keepOnlyExistingImage = true;
           await tx
@@ -265,6 +272,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
                 capturedImageUrl,
                 isFoil: cardToResort.isFoil,
                 foilType: cardToResort.foilType ?? undefined,
+                stamp: cardToResort.stamp ?? undefined,
                 condition: toCardCondition(cardToResort.condition),
                 alternativeMatches,
                 lowConfidenceMatch,
@@ -298,8 +306,11 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             ),
             capturedImageDataUrl: storedImage.dataUrl,
             capturedImageKey: storedImage.key,
+            capturedBackImageDataUrl: storedBackImage.dataUrl,
+            capturedBackImageKey: storedBackImage.key,
             isFoil: isFoil ?? false,
             foilType: foilType ?? null,
+            stamp: stamp ?? null,
             condition,
             alternativeMatches: saved.alternativeMatches,
             lowConfidenceMatch: lowConfidenceMatch ?? false,
@@ -328,6 +339,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               capturedImageUrl,
               isFoil,
               foilType,
+              stamp,
               condition,
               alternativeMatches,
               lowConfidenceMatch,
@@ -339,7 +351,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         };
       });
       if (!result.success || keepOnlyExistingImage) {
-        deleteScanImages([storedImage.key]);
+        deleteScanImages([storedImage.key, storedBackImage.key]);
       }
       if (result.success) {
         void recordMatchedScan(
@@ -380,7 +392,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       }
       return c.json(result);
     } catch (err) {
-      deleteScanImages([storedImage.key]);
+      deleteScanImages([storedImage.key, storedBackImage.key]);
       emitToSession(guid, "scan_error", {
         message: "Failed to save card to collection.",
         timestamp: Date.now(),

@@ -24,6 +24,7 @@ import type {
   SessionMonitorState,
 } from "@/lib/interfaces/scanner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -64,12 +65,17 @@ export function useMonitorCards(
   );
 
   const [page, setPage] = useState(0);
+  const preferredPageSize = usePageSize();
+  const changePageSize = useCallback((nextPageSize: number) => {
+    setPageSize(nextPageSize);
+    setPage(0);
+  }, []);
   useEffect(() => {
     setPage(0);
   }, [cardsQuery, cardsSource.collectionGuid]);
 
   const { data: pageData, isPending: pagePending } = useQuery(
-    monitorCardsPageQueryOptions(cardsSource, cardsQuery, page),
+    monitorCardsPageQueryOptions(cardsSource, cardsQuery, page, preferredPageSize),
   );
   const { data: summary } = useQuery(
     monitorCardsSummaryQueryOptions(cardsSource, ALL_CARDS_QUERY),
@@ -158,6 +164,9 @@ export function useMonitorCards(
     entries: pageData?.items ?? [],
     isLoading: pagePending,
     page: clampedPage,
+    pageSize: pageData?.pageSize ?? 0,
+    preferredPageSize,
+    setPageSize: changePageSize,
     pageCount,
     setPage,
     stats,

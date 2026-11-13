@@ -1,12 +1,12 @@
-import { MarketingRule } from "@/components/marketing-rule";
 import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { DISCORD_BOT_INSTALL_URL } from "@/lib/constants/links";
 import { IconKey } from "@tabler/icons-react";
+import { MARKETING_CARD_CLASS } from "@/lib/constants/landing";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { DISCORD_BOT_SETUP_STEP_ICONS } from "@/lib/constants/discord-bot";
-import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function DiscordBotSetup({ step: section }: MarketingStepProps) {
+export function DiscordBotSetup() {
   const { t } = useTranslation("discordBot");
   const steps = t("setup.steps", { returnObjects: true }) as {
     title: string;
@@ -14,24 +14,25 @@ export function DiscordBotSetup({ step: section }: MarketingStepProps) {
   }[];
 
   return (
-    <section id="setup" className="border-t">
-      <div className="mx-auto max-w-4xl px-4 py-16">
+    <section id="setup" className="scroll-mt-14">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         <MarketingSectionHeader
-          step={section}
           eyebrow={t("setup.eyebrow")}
           heading={t("setup.title")}
           subtitle={t("setup.description")}
         />
 
-        <ol className="mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border md:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => {
             const Icon = DISCORD_BOT_SETUP_STEP_ICONS[i] ?? IconKey;
             return (
-              <li key={step.title} className="flex flex-col gap-4 bg-card p-5">
-                <MarketingRule
-                  lead={`${section}.${String(i + 1).padStart(2, "0")}`}
-                  aside={<Icon className="size-4" />}
-                />
+              <li key={step.title} className={cn(MARKETING_CARD_CLASS, "gap-4")}>
+                <div className="flex items-center justify-between gap-2">
+                  <Icon aria-hidden className="size-5 text-primary" />
+                  <span className="font-heading text-2xs font-medium tracking-widest text-foreground/70 tabular-nums">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
                 <div className="flex flex-col items-start gap-1">
                   <p className="font-heading text-sm font-semibold">
                     {step.title}

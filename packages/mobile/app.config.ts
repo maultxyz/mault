@@ -12,7 +12,38 @@ if (existsSync(rootEnvPath)) {
 const env = (key: string, fallback = ""): string =>
   process.env[key] ?? fallback;
 
+const optionalEnv = (key: string): string | undefined =>
+  process.env[key] || undefined;
+
 const easProjectId = env("EAS_PROJECT_ID");
+
+const collectionWidgetConfiguration = {
+  title: "Collection",
+  description: "Show all collections or pick one.",
+  parameters: {
+    collection: {
+      title: "Collection",
+      type: "enum" as const,
+      dynamic: true,
+      values: [{ name: "All collections", value: "all" }],
+      default: "all",
+    },
+  },
+};
+
+const collectionValueWidgetConfiguration = {
+  ...collectionWidgetConfiguration,
+  description: "Show all collections, your best performing one, or pick one.",
+  parameters: {
+    collection: {
+      ...collectionWidgetConfiguration.parameters.collection,
+      values: [
+        { name: "All collections", value: "all" },
+        { name: "Best performing", value: "top" },
+      ],
+    },
+  },
+};
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -24,7 +55,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: "automatic",
   icon: "./assets/icon.png",
   ios: {
-    bundleIdentifier: env("MOBILE_IOS_BUNDLE_ID", "xyz.mault.app"),
+    bundleIdentifier: optionalEnv("MOBILE_IOS_BUNDLE_ID"),
     supportsTablet: true,
     infoPlist: {
       NSCameraUsageDescription:
@@ -35,7 +66,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
-    package: env("MOBILE_ANDROID_PACKAGE", "xyz.mault.app"),
+    package: optionalEnv("MOBILE_ANDROID_PACKAGE"),
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#1447e6",
@@ -60,6 +91,73 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     ["expo-build-properties", { ios: { deploymentTarget: "16.4" } }],
+    [
+      "expo-widgets",
+      {
+        widgets: [
+          {
+            name: "CollectionValue",
+            displayName: "Collection value",
+            description: "Value of all collections, your best performing one, or one you pick, and how much it changed since the last day.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
+              configuration: collectionValueWidgetConfiguration,
+            },
+          },
+          {
+            name: "TotalCards",
+            displayName: "Total cards",
+            description: "How many cards are in all collections or one.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
+              configuration: collectionWidgetConfiguration,
+            },
+          },
+          {
+            name: "TopCards",
+            displayName: "Top cards",
+            description: "The most valuable card of each collection, or the top cards of one collection.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium"],
+              configuration: collectionWidgetConfiguration,
+            },
+          },
+          {
+            name: "CardOfTheDay",
+            displayName: "Card of the day",
+            description: "A random card or two from your collections, new every day. Great for deck ideas.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium"],
+              configuration: collectionWidgetConfiguration,
+            },
+          },
+          {
+            name: "CardReview",
+            displayName: "Card review",
+            description: "Accept scans that need review or save them for later.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
+            },
+          },
+          {
+            name: "Notifications",
+            displayName: "Notifications",
+            description: "Pending trade offers and alerts.",
+            ios: {
+              supportedFamilies: ["systemSmall", "accessoryCircular", "accessoryRectangular", "accessoryInline"],
+            },
+          },
+          {
+            name: "ScannerActivity",
+            displayName: "Scanners",
+            description: "Which scanners are running, their progress and scan rate, and any sorter errors.",
+            ios: {
+              supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
+            },
+          },
+        ],
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,

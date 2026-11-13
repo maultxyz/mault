@@ -6,6 +6,7 @@ import {
   type OrgOverview,
   type OrgOverviewCard,
   type OrgOverviewDay,
+  type OrgPricing,
   type PlayingCard,
 } from "@magic-vault/shared";
 import {
@@ -16,7 +17,6 @@ import {
   gte,
   isNotNull,
   sql,
-  type SQL,
 } from "drizzle-orm";
 import type { Transaction } from "../db";
 import { cardPrices, collectionCards, collections, games } from "../db/schema";
@@ -26,6 +26,7 @@ import {
 } from "./card-price-sql";
 import { ONE_DAY_MS } from "./constants/timing";
 import { loadOrgPricing } from "./price-source";
+import type { OrgOverviewCardsQuery } from "./interfaces/org-overview";
 import { hydrateSavedCards } from "./saved-cards";
 
 function utcDayKey(date: Date): string {
@@ -41,6 +42,54 @@ function fillDays(rows: { day: string; count: number }[]): OrgOverviewDay[] {
     );
     return { date, count: counts.get(date) ?? 0 };
   });
+}
+
+export async function loadOrgOverviewCards(
+  tx: Transaction,
+  orgId: string,
+  pricing: OrgPricing,
+  { where, orderBy, limit }: OrgOverviewCardsQuery,
+): Promise<OrgOverviewCard[]> {
+  const cardPrice = collectionCardPriceSql(pricing);
+  const rows = await tx
+    .select({
+      scanId: collectionCards.guid,
+      collectionGuid: collections.guid,
+      collectionName: collections.name,
+      card: sql<PlayingCard>`${collectionCards.card} - 'raw'`,
+      isFoil: collectionCards.isFoil,
+      scannedAt: collectionCards.scannedAt,
+      price: cardPrice,
+      collectionLang: collections.lang,
+      gameKey: games.key,
+    })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(cardPrices, collectionCardPricesJoinOn())
+    .where(
+      and(
+        eq(collectionCards.orgId, orgId),
+        eq(collections.orgId, orgId),
+        eq(collections.isDeleted, false),
+        where,
+      ),
+    )
+    .orderBy(orderBy)
+    .limit(limit);
+  const cards = await hydrateSavedCards(
+    rows.map((row) => ({ gameKey: row.gameKey, lang: row.collectionLang, card: row.card })),
+    { includeRaw: false },
+  );
+  return rows.map((row, i) => ({
+    scanId: row.scanId!,
+    collectionGuid: row.collectionGuid!,
+    collectionName: row.collectionName,
+    card: cards[i],
+    isFoil: row.isFoil,
+    price: row.price == null ? null : Number(row.price),
+    scannedAt: row.scannedAt.toISOString(),
+  }));
 }
 
 export async function loadOrgOverview(
@@ -93,61 +142,15 @@ export async function loadOrgOverview(
     )
     .groupBy(dayKey);
 
-  const loadCards = async (
-    orderBy: SQL | ReturnType<typeof desc>,
-    limit: number,
-    onlyPriced: boolean,
-  ): Promise<OrgOverviewCard[]> => {
-    const rows = await tx
-      .select({
-        scanId: collectionCards.guid,
-        collectionGuid: collections.guid,
-        collectionName: collections.name,
-        card: sql<PlayingCard>`${collectionCards.card} - 'raw'`,
-        isFoil: collectionCards.isFoil,
-        scannedAt: collectionCards.scannedAt,
-        price: cardPrice,
-        collectionLang: collections.lang,
-        gameKey: games.key,
-      })
-      .from(collectionCards)
-      .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
-      .leftJoin(games, eq(games.id, collections.gameId))
-      .leftJoin(cardPrices, collectionCardPricesJoinOn())
-      .where(
-        and(
-          eq(collectionCards.orgId, orgId),
-          liveCollections,
-          onlyPriced ? isNotNull(cardPrice) : undefined,
-        ),
-      )
-      .orderBy(orderBy)
-      .limit(limit);
-    const cards = await hydrateSavedCards(
-      rows.map((row) => ({ gameKey: row.gameKey, lang: row.collectionLang, card: row.card })),
-      { includeRaw: false },
-    );
-    return rows.map((row, i) => ({
-      scanId: row.scanId!,
-      collectionGuid: row.collectionGuid!,
-      collectionName: row.collectionName,
-      card: cards[i],
-      isFoil: row.isFoil,
-      price: row.price == null ? null : Number(row.price),
-      scannedAt: row.scannedAt.toISOString(),
-    }));
-  };
-
-  const topCards = await loadCards(
-    desc(cardPrice),
-    ORG_OVERVIEW_TOP_CARDS_LIMIT,
-    true,
-  );
-  const recentCards = await loadCards(
-    desc(collectionCards.createdAt),
-    ORG_OVERVIEW_RECENT_CARDS_LIMIT,
-    false,
-  );
+  const topCards = await loadOrgOverviewCards(tx, orgId, pricing, {
+    where: isNotNull(cardPrice),
+    orderBy: desc(cardPrice),
+    limit: ORG_OVERVIEW_TOP_CARDS_LIMIT,
+  });
+  const recentCards = await loadOrgOverviewCards(tx, orgId, pricing, {
+    orderBy: desc(collectionCards.createdAt),
+    limit: ORG_OVERVIEW_RECENT_CARDS_LIMIT,
+  });
 
   const scansByDay = fillDays(dayRows);
   return {

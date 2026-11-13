@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -47,7 +48,7 @@ export default function RepackEditorScreen() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
-  const { activeSet, bins, fieldDefinitions, freeformOptions } = useRulesData();
+  const { activeSet, bins, fieldDefinitions, freeformOptions, isPending: isRulesDataPending } = useRulesData();
   const [uniqueByOpen, setUniqueByOpen] = useState(false);
   const editable = !!activeSet?.isActive && !!activeSet.isRepackMode;
   const siftBin = getRepackSiftBin(bins);
@@ -112,122 +113,128 @@ export default function RepackEditorScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
       >
-        <AppText size="sm" tone="secondary">
-          {t("rules.modes.repack.description")}
-        </AppText>
-        {save.isError ? <Callout tone="destructive" title={t("rules.repack.saveFailed")} /> : null}
+        {isRulesDataPending ? (
+          <PageSkeleton />
+        ) : (
+          <>
+            <AppText size="sm" tone="secondary">
+              {t("rules.modes.repack.description")}
+            </AppText>
+            {save.isError ? <Callout tone="destructive" title={t("rules.repack.saveFailed")} /> : null}
 
-        <View style={{ gap: SPACING.sm }}>
-          <ListGroup>
-            <ListRow
-              title={t("rules.repack.uniqueByLabel")}
-              subtitle={t("rules.repack.uniqueByDescription")}
-              value={uniqueByOptions.find((o) => o.value === uniqueBy)?.label}
-              disabled={!editable}
-              onPress={() => setUniqueByOpen(true)}
-            />
-          </ListGroup>
-        </View>
-
-        <Controller
-          control={form.control}
-          name="repackMultiplePacks"
-          render={({ field }) => (
-            <SwitchRow
-              title={t("rules.repack.multiplePacksLabel")}
-              description={t("rules.repack.multiplePacksDescription")}
-              value={field.value}
-              disabled={!editable}
-              onValueChange={field.onChange}
-            />
-          )}
-        />
-
-        <Controller
-          control={form.control}
-          name="repackSiftRules"
-          render={({ field }) => (
             <View style={{ gap: SPACING.sm }}>
-              <SwitchRow
-                title={t("rules.repack.siftLabel")}
-                description={t("rules.repack.siftDescription")}
-                value={field.value != null}
-                disabled={!editable}
-                onValueChange={(on) => field.onChange(on ? emptyRules() : null)}
-              />
-              {field.value != null ? (
+              <ListGroup>
+                <ListRow
+                  title={t("rules.repack.uniqueByLabel")}
+                  subtitle={t("rules.repack.uniqueByDescription")}
+                  value={uniqueByOptions.find((o) => o.value === uniqueBy)?.label}
+                  disabled={!editable}
+                  onPress={() => setUniqueByOpen(true)}
+                />
+              </ListGroup>
+            </View>
+
+            <Controller
+              control={form.control}
+              name="repackMultiplePacks"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("rules.repack.multiplePacksLabel")}
+                  description={t("rules.repack.multiplePacksDescription")}
+                  value={field.value}
+                  disabled={!editable}
+                  onValueChange={field.onChange}
+                />
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="repackSiftRules"
+              render={({ field }) => (
                 <View style={{ gap: SPACING.sm }}>
-                  <AppText size="xs" tone="secondary">
-                    {siftBin ? t("rules.repack.siftHint", { bin: siftBin.binNumber }) : t("rules.repack.siftNoBin")}
-                  </AppText>
-                  <RuleGroupEditor
-                    group={field.value}
-                    onChange={field.onChange}
-                    fieldDefinitions={fieldDefinitions}
-                    freeformOptions={freeformOptions}
+                  <SwitchRow
+                    title={t("rules.repack.siftLabel")}
+                    description={t("rules.repack.siftDescription")}
+                    value={field.value != null}
                     disabled={!editable}
+                    onValueChange={(on) => field.onChange(on ? emptyRules() : null)}
+                  />
+                  {field.value != null ? (
+                    <View style={{ gap: SPACING.sm }}>
+                      <AppText size="xs" tone="secondary">
+                        {siftBin ? t("rules.repack.siftHint", { bin: siftBin.binNumber }) : t("rules.repack.siftNoBin")}
+                      </AppText>
+                      <RuleGroupEditor
+                        group={field.value}
+                        onChange={field.onChange}
+                        fieldDefinitions={fieldDefinitions}
+                        freeformOptions={freeformOptions}
+                        disabled={!editable}
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="repackSlots"
+              render={({ field }) => (
+                <View style={{ gap: SPACING.md }}>
+                  <SectionHeader title={t("rules.repack.slotsLabel")} />
+                  {field.value.map((slot, index) => (
+                    <Surface key={slot.id} style={{ gap: SPACING.md }}>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
+                        <AppText weight="medium" style={{ flex: 1 }}>
+                          {t("rules.repack.slotCountLabel")}
+                        </AppText>
+                        <Input
+                          compact
+                          accessibilityLabel={t("rules.repack.slotCountLabel")}
+                          keyboardType="number-pad"
+                          editable={editable}
+                          value={String(slot.targetCount)}
+                          onChangeText={(text) => {
+                            const next = [...field.value];
+                            next[index] = { ...slot, targetCount: Math.max(1, Number(text.replace(/\D/g, "")) || 1) };
+                            field.onChange(next);
+                          }}
+                        />
+                        <IconButton
+                          icon="trash"
+                          size={36}
+                          accessibilityLabel={t("rules.repack.removeSlot")}
+                          disabled={!editable}
+                          onPress={() => field.onChange(field.value.filter((_, i) => i !== index))}
+                        />
+                      </View>
+                      <RuleGroupEditor
+                        group={slot.rule}
+                        onChange={(rule) => {
+                          const next = [...field.value];
+                          next[index] = { ...slot, rule };
+                          field.onChange(next);
+                        }}
+                        fieldDefinitions={fieldDefinitions}
+                        freeformOptions={freeformOptions}
+                        disabled={!editable}
+                      />
+                    </Surface>
+                  ))}
+                  <Button
+                    variant="secondary"
+                    icon="plus"
+                    label={t("rules.repack.addSlot")}
+                    disabled={!editable}
+                    onPress={() => field.onChange([...field.value, createSlot()])}
                   />
                 </View>
-              ) : null}
-            </View>
-          )}
-        />
-
-        <Controller
-          control={form.control}
-          name="repackSlots"
-          render={({ field }) => (
-            <View style={{ gap: SPACING.md }}>
-              <SectionHeader title={t("rules.repack.slotsLabel")} />
-              {field.value.map((slot, index) => (
-                <Surface key={slot.id} style={{ gap: SPACING.md }}>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-                    <AppText weight="medium" style={{ flex: 1 }}>
-                      {t("rules.repack.slotCountLabel")}
-                    </AppText>
-                    <Input
-                      compact
-                      accessibilityLabel={t("rules.repack.slotCountLabel")}
-                      keyboardType="number-pad"
-                      editable={editable}
-                      value={String(slot.targetCount)}
-                      onChangeText={(text) => {
-                        const next = [...field.value];
-                        next[index] = { ...slot, targetCount: Math.max(1, Number(text.replace(/\D/g, "")) || 1) };
-                        field.onChange(next);
-                      }}
-                    />
-                    <IconButton
-                      icon="trash"
-                      size={36}
-                      accessibilityLabel={t("rules.repack.removeSlot")}
-                      disabled={!editable}
-                      onPress={() => field.onChange(field.value.filter((_, i) => i !== index))}
-                    />
-                  </View>
-                  <RuleGroupEditor
-                    group={slot.rule}
-                    onChange={(rule) => {
-                      const next = [...field.value];
-                      next[index] = { ...slot, rule };
-                      field.onChange(next);
-                    }}
-                    fieldDefinitions={fieldDefinitions}
-                    freeformOptions={freeformOptions}
-                    disabled={!editable}
-                  />
-                </Surface>
-              ))}
-              <Button
-                variant="secondary"
-                icon="plus"
-                label={t("rules.repack.addSlot")}
-                disabled={!editable}
-                onPress={() => field.onChange([...field.value, createSlot()])}
-              />
-            </View>
-          )}
-        />
+              )}
+            />
+          </>
+        )}
       </ScrollView>
       <OptionSheet
         visible={uniqueByOpen}

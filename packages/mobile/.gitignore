@@ -7,3 +7,5 @@ expo-env.d.ts
 *.ipa
 *.apk
 .env*.local
+eas.json
+google-service-account.json

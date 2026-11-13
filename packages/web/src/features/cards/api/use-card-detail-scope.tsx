@@ -24,6 +24,7 @@ export function useCardDetailActions(): CardDetailActions {
     confirmCard,
     markCardReviewed,
     setCardFoilType,
+    setCardStamp,
     setCardCondition,
     setCardLanguage,
     setCardsTags,
@@ -34,6 +35,7 @@ export function useCardDetailActions(): CardDetailActions {
       confirmCard,
       markCardReviewed,
       setCardFoilType,
+      setCardStamp,
       setCardCondition,
       setCardLanguage,
       setCardTags: (scanId, tags, enabled) =>

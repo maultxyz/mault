@@ -58,6 +58,10 @@ export const NONFOIL_FINISH_LABEL = "Normal";
 
 export const FOIL_FINISH_LABEL = "Foil";
 
+export const DETECTED_FOIL_TYPE_BY_GAME_KEY: Record<string, string> = {
+  mtg: "Traditional",
+};
+
 export const TCGPLAYER_PRODUCT_LINES: Record<string, string> = {
   mtg: "Magic",
   pokemon: "Pokemon",

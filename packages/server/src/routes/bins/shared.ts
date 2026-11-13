@@ -163,6 +163,7 @@ function toBinSet(row: {
   chaosBinSize: number | null;
   skipSaving: boolean;
   isResortMode: boolean;
+  matchGameKeys: string[];
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -212,6 +213,7 @@ function toBinSet(row: {
     chaosBinSize: row.chaosBinSize,
     skipSaving: row.skipSaving,
     isResortMode: row.isResortMode,
+    matchGameKeys: row.matchGameKeys,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -267,6 +269,7 @@ const binSetQuery = {
     chaosBinSize: true,
     skipSaving: true,
     isResortMode: true,
+    matchGameKeys: true,
     createdAt: true,
     updatedAt: true,
   },

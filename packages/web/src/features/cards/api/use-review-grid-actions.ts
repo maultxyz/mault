@@ -2,12 +2,14 @@ import { businessKeys } from "@/features/business/api/business";
 import {
   acceptCollectionCardReviews,
   updateCollectionCard,
+  updateCollectionCardAttributes,
 } from "@/features/collections/api/collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import { storageLocationKeys } from "@/features/storage/api/storage-locations";
 import {
   groupReviewAcceptRequests,
   type PlayingCard,
+  type ReviewGridAttributeUpdate,
   type ReviewGridCard,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,9 +34,31 @@ export function useReviewGridActions() {
   );
 
   const acceptCards = useCallback(
-    async (cards: ReviewGridCard[]): Promise<ReviewGridCard[]> => {
+    async (
+      cards: ReviewGridCard[],
+      attributeUpdates: ReadonlyMap<
+        string,
+        ReviewGridAttributeUpdate
+      > = new Map(),
+    ): Promise<ReviewGridCard[]> => {
+      const updateFailedScanIds = new Set<string>();
+      await Promise.all(
+        cards.map(async (card) => {
+          const update = attributeUpdates.get(card.scanId);
+          if (!update) return;
+          const result = await updateCollectionCardAttributes(
+            card.collectionGuid,
+            card.scanId,
+            update,
+          ).catch(() => null);
+          if (!result?.success) updateFailedScanIds.add(card.scanId);
+        }),
+      );
+      const updatedCards = cards.filter(
+        (card) => !updateFailedScanIds.has(card.scanId),
+      );
       const results = await Promise.all(
-        groupReviewAcceptRequests(cards).map(
+        groupReviewAcceptRequests(updatedCards).map(
           ({ collectionGuid, ...request }) =>
             acceptCollectionCardReviews(collectionGuid, request).catch(
               () => null,

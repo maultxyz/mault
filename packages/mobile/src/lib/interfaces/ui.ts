@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import type { StyleProp, TextProps, ViewStyle } from "react-native";
-import type { CommLogEntry, OrgOverviewCard, OrgOverviewDay, PlayingCard, ScanRegion } from "@magic-vault/shared";
+import type { CommLogEntry, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners, MonitorState } from "@/lib/interfaces/scanner";
+import type { SwipeRowAction } from "@/lib/interfaces/search";
 import type { FontSize, StatusTone } from "@/lib/interfaces/theme";
 
 export type IconName = keyof typeof ICONS;
@@ -30,6 +31,7 @@ export interface ButtonProps {
   onPress?: () => void;
   variant?: ButtonVariant;
   icon?: IconName;
+  iconOnly?: boolean;
   loading?: boolean;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
@@ -100,9 +102,12 @@ export interface ListRowProps {
   right?: ReactNode;
   rightIsInteractive?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
+  longPressLabel?: string;
   disabled?: boolean;
   selected?: boolean;
   subtitleNumberOfLines?: number;
+  swipeDestructiveAction?: SwipeRowAction;
 }
 
 export interface ScreenProps {
@@ -113,19 +118,44 @@ export interface ScreenProps {
   onRefresh?: () => void;
   edges?: ("top" | "bottom")[];
   header?: ReactNode;
+  contentStartsWithList?: boolean;
 }
 
 export interface PageHeaderProps {
-  title: string;
+  title?: string;
+  titleAccessory?: ReactNode;
   subtitle?: string | null;
   subtitleAccessory?: ReactNode;
   onBack?: () => void;
   actions?: ReactNode;
+  tabs?: ReactNode;
   children?: ReactNode;
+}
+
+export interface HeaderActionsStore {
+  getActions: () => ReactNode;
+  setActions: (actions: ReactNode) => void;
+  subscribe: (listener: () => void) => () => void;
+}
+
+export interface HeaderActionsSlotProps {
+  store: HeaderActionsStore;
+}
+
+export interface NativeStackHeaderProps {
+  title: string;
+  actions: ReactNode;
 }
 
 export interface ListGroupProps {
   children: ReactNode;
+}
+
+export interface PillButtonProps {
+  label: string;
+  tone?: PillProps["tone"];
+  icon?: IconName;
+  onPress: () => void;
 }
 
 export interface PillProps {
@@ -145,10 +175,16 @@ export interface SectionHeaderProps {
   action?: ReactNode;
 }
 
+export interface StatGroupProps {
+  heading?: string;
+  children: ReactNode;
+}
+
 export interface StatTileProps {
   label: string;
   value: string;
   hint?: string;
+  icon?: IconName;
 }
 
 
@@ -162,6 +198,7 @@ export interface CardRowProps {
   lowConfidence?: boolean;
   checked?: boolean;
   onPress?: () => void;
+  onPressIn?: () => void;
 }
 
 export interface CommLogProps {
@@ -180,22 +217,8 @@ export interface CardTileProps {
   selected?: boolean;
   disabled?: boolean;
   onPress?: () => void;
+  onPressIn?: () => void;
   onLongPress?: () => void;
-}
-
-export interface HomeStatTileProps {
-  label: string;
-  value: string;
-}
-
-export interface ActivityChartProps {
-  days: OrgOverviewDay[];
-}
-
-export interface CardStripProps {
-  title: string;
-  cards: OrgOverviewCard[];
-  onOpen: (card: OrgOverviewCard) => void;
 }
 
 export interface TabStripItem<T extends string> {
@@ -208,15 +231,20 @@ export interface TabStripProps<T extends string> {
   items: TabStripItem<T>[];
   value: T;
   onChange: (value: T) => void;
+  inline?: boolean;
 }
 
 export interface HomeCollectionRowProps {
   name: string;
   subtitle: string;
   value?: string | null;
-  isActive: boolean;
+  isScanTarget: boolean;
   isLive?: boolean;
   onPress: () => void;
+  onPressIn?: () => void;
+  onLongPress?: () => void;
+  longPressLabel?: string;
+  swipeDestructiveAction?: SwipeRowAction;
 }
 
 export interface CardDetailsListProps {
@@ -229,15 +257,6 @@ export interface DetailRowProps {
   value: string;
 }
 
-export interface HomeHeroProps {
-  value: string | null;
-  summary: string | null;
-}
-
-export interface CollectionActivityProps {
-  state: MonitorState;
-  onOpen: (scanId: string) => void;
-}
 
 export interface BinBadgeProps {
   binNumber: number;
@@ -281,6 +300,7 @@ export interface OptionSheetProps {
   onClose: () => void;
   searchPlaceholder?: string;
   maxVisibleOptions?: number;
+  emptyMessage?: string;
 }
 
 export interface SelectFieldProps {
@@ -298,6 +318,21 @@ export interface SwitchRowProps {
   value: boolean;
   onValueChange: (value: boolean) => void;
   disabled?: boolean;
+}
+
+export interface SwitchControlProps {
+  value: boolean;
+}
+
+export interface BottomActionBarProps {
+  children: ReactNode;
+  direction?: "row" | "column";
+}
+
+export interface PinnedActionsLayoutProps {
+  children: ReactNode;
+  actions?: ReactNode;
+  actionsDirection?: "row" | "column";
 }
 
 export interface SaveBarProps {
@@ -358,6 +393,11 @@ export interface StepperRowProps {
   onChange: (value: number) => void;
 }
 
+export interface DisplayHeadlineProps {
+  title: string;
+  subtitle?: string;
+}
+
 export interface IconBadgeProps {
   name: IconName;
   tone?: "neutral" | "primary" | "destructive" | "success" | "warning";
@@ -371,24 +411,21 @@ export interface IconButtonProps {
   variant?: "neutral" | "primary" | "plain" | "camera";
   size?: number;
   disabled?: boolean;
-}
-
-export interface QuickActionProps {
-  icon: IconName;
-  label: string;
-  onPress: () => void;
-  disabled?: boolean;
+  selected?: boolean;
 }
 
 export interface TopBarSwitcherProps {
   initial: string;
   label: string;
-  badge?: string;
   accessibilityLabel: string;
   onPress: () => void;
 }
 
-export type AppTopBarSheet = "alerts" | "organizations" | "collections";
+export type AppTopBarSheet = "alerts" | "organizations";
+
+export interface AppTopBarProps {
+  opensNotificationsFromWidgetLink?: boolean;
+}
 
 export interface PickerCardProps {
   icon: IconName;
@@ -398,4 +435,73 @@ export interface PickerCardProps {
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
+}
+
+export interface CollapsibleSectionProps {
+  title: string;
+  children: ReactNode;
+  initiallyOpen?: boolean;
+}
+
+export interface ListSkeletonProps {
+  rows?: number;
+  withIcon?: boolean;
+}
+
+export interface PageSkeletonProps {
+  sections?: number;
+}
+
+export interface QrCodeProps {
+  value: string;
+  size: number;
+  accessibilityLabel: string;
+}
+
+export interface SheetContentProps {
+  title: string;
+  description?: string | null;
+  headerLeading?: ReactNode;
+  headerAction?: ReactNode;
+  footer?: ReactNode;
+  scrollable?: boolean;
+  maxHeightRatio?: number;
+  contentContainerStyle?: StyleProp<ViewStyle>;
+  children: ReactNode;
+}
+
+export interface SheetProps extends SheetContentProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+export interface ListLoadingFooterProps {
+  accessibilityLabel?: string;
+}
+
+export interface BrandIconProps {
+  size: number;
+  color: string;
+}
+
+export interface ToastAction {
+  label: string;
+  onPress: () => void;
+}
+
+export interface ToastOptions {
+  message: string;
+  tone?: "default" | "success" | "destructive";
+  action?: ToastAction;
+  durationMs?: number;
+  onExpire?: () => void;
+}
+
+export interface ToastContextValue {
+  showToast: (options: ToastOptions) => void;
+  dismissToast: () => void;
+}
+
+export interface ToastProviderProps {
+  children: ReactNode;
 }

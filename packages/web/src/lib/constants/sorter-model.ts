@@ -21,6 +21,7 @@ export const SORTER_BASE_TEMPLATE_COLUMNS: Record<SorterBaseNode, number> = {
   groundEnd: 3,
   sleeves: 3,
   baseBlock: 3,
+  baseBlockTall: 3,
 };
 
 export const SORTER_MODEL_SLOPE: Vec3 = [0.866025, 0, -0.5];
@@ -38,7 +39,7 @@ export const SORTER_SOLVER_STEP_DEGREES = 2;
 export const SERVO_DEGREES_PER_SECOND = 360;
 export const SERVO_TEST_STEP_MS = 700;
 
-export const SORTER_PUSHER_NEUTRAL_DEGREES = 15.5;
+export const SORTER_PUSHER_NEUTRAL_DEGREES = 2.25;
 
 export const SORTER_MECHANISMS: Record<ServoName, SorterMechanism> = {
   paddle: {
@@ -94,20 +95,20 @@ export const SORTER_MECHANISMS: Record<ServoName, SorterMechanism> = {
     startDegrees: SORTER_PUSHER_NEUTRAL_DEGREES,
     linkages: [
       {
-        driverPin: [22.6, 169.0],
-        rockerPin: [14.0, 194.0],
+        driverPin: [24.95, 166.16],
+        rockerPin: [5.7, 184.31],
         pivot: [10.5, 188.6],
         coupler: "leftPusherLink",
         rocker: "leftPusher",
-        startRockerDegrees: 177,
+        startRockerDegrees: 12.3,
       },
       {
-        driverPin: [42.9, 163.3],
-        rockerPin: [55.4, 186.7],
+        driverPin: [46.02, 165.26],
+        rockerPin: [65.23, 183.41],
         pivot: [61.5, 188.6],
         coupler: "rightPusherLink",
         rocker: "rightPusher",
-        startRockerDegrees: 107,
+        startRockerDegrees: -1.4,
       },
     ],
   },

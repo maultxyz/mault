@@ -12,6 +12,8 @@ import type {
   FieldMeta,
   PickList,
   PickListInput,
+  PlayingCard,
+  PlayingCardWithDistance,
   SortTestGroupCheck,
   PresetWorkflow,
   PresetWorkflowStep,
@@ -47,6 +49,7 @@ export interface BinModeDraft {
   chaosBinSize: number | null;
   skipSaving: boolean;
   isResortMode: boolean;
+  matchGameKeys: string[];
 }
 
 export interface ChaosConfig {
@@ -132,6 +135,20 @@ export interface BinRuleTransferDialogProps {
 
 export interface SortTestButtonProps {
   disabled: boolean;
+}
+
+export interface SortTestResultProps {
+  card: PlayingCard | PlayingCardWithDistance;
+  isFoil: boolean;
+  foilType?: string | null;
+  scannedBinNumber?: number;
+}
+
+export interface CardSortTestButtonProps {
+  card: PlayingCardWithDistance;
+  isFoil: boolean;
+  foilType?: string | null;
+  scannedBinNumber?: number;
 }
 
 export interface SortTestGroupCheckListProps {
