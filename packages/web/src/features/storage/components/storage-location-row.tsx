@@ -18,7 +18,7 @@ export function StorageLocationRow({
       className="h-auto w-full flex-col items-start justify-start gap-0.5 p-2 text-start"
       onClick={onSelect}
     >
-      <p className="w-full truncate font-heading text-sm font-medium">
+      <p className="w-full truncate text-sm font-medium">
         {location.name}
       </p>
       <div className="flex w-full items-center justify-between gap-2 text-xs tabular-nums text-foreground/70">

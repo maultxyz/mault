@@ -13,7 +13,7 @@ export function UnmatchedCardImage({
   return (
     <div
       className={cn(
-        "aspect-[2.5/3.5] w-full overflow-hidden rounded-md border bg-muted",
+        "aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted",
         className,
       )}
     >

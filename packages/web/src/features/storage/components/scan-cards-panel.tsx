@@ -91,7 +91,7 @@ export function ScanCardsPanel({ source, mode }: ScanCardsPanelProps) {
   };
 
   return (
-    <section className="flex flex-col gap-3 rounded-lg bg-background p-3 ring-1 ring-border animate-in fade-in motion-reduce:animate-none">
+    <section className="flex flex-col gap-3 md:gap-2 rounded-card bg-card p-3 animate-in fade-in motion-reduce:animate-none">
       {cameraFailed ? (
         <Callout variant="error">{t("pickList.scan.cameraFailed")}</Callout>
       ) : (

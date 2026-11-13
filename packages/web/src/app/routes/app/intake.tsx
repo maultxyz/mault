@@ -144,7 +144,7 @@ export default function IntakePage() {
               MOBILE_NAV_SCROLL_PADDING_CLASS,
             )}
           >
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 md:gap-2">
               {access?.isLocked && <BusinessUpgradeCallout />}
               <IntakeLotDetail
                 key={selectedGuid}

@@ -121,7 +121,7 @@ export function SessionsList() {
   ).length;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-foreground/70">
           {t("sessions.description")}
@@ -150,7 +150,7 @@ export function SessionsList() {
       )}
 
       {!isLoading && sessions && sessions.length > 0 && (
-        <div className="flex flex-col divide-y divide-border rounded-lg border">
+        <div className="flex flex-col divide-y divide-border">
           {sessions.map((session) => {
             const isCurrent = session.token === currentToken;
             const { label, isMobile } = describeUserAgent(session.userAgent);

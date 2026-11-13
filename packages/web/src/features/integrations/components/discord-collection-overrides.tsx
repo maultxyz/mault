@@ -47,7 +47,7 @@ export function DiscordCollectionOverrides({
       {overrides.length === 0 ? (
         <EmptyState size="compact" icon={IconFolders} title={t("overrides.empty")} />
       ) : (
-        <ul className="flex flex-col divide-y rounded-lg border">
+        <ul className="flex flex-col divide-y divide-border">
           <li className="hidden gap-2 px-3 py-2 text-sm font-medium text-foreground/70 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
             <span>{t("overrides.collection")}</span>
             <span>{t("channelSettings.scan")}</span>

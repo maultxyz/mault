@@ -85,14 +85,14 @@ export function SortTestResult({
     );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <p role="status" className="sr-only">
         {t("sortTest.resultAnnouncement", {
           name: card.name,
           bin: testedBinLabel,
         })}
       </p>
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 md:gap-2 sm:flex-row">
         <CardThumbnail
           image={card.image}
           className="w-36 self-center rounded-lg sm:self-start"
@@ -106,7 +106,7 @@ export function SortTestResult({
                 .join(" · ")}
             </span>
           </div>
-          <div className="flex flex-col gap-1.5 rounded-lg p-3 ring-1 ring-border">
+          <div className="flex flex-col gap-1.5 rounded-xl bg-muted p-3">
             <div className="flex items-center gap-2">
               <IconArrowRight className="size-4 shrink-0" />
               <span className="text-sm font-semibold">{testedBinLabel}</span>
@@ -133,7 +133,7 @@ export function SortTestResult({
           <h3 className="font-heading text-sm font-semibold">
             {t("sortTest.rulesChecked")}
           </h3>
-          <div className="flex flex-col divide-y divide-border rounded-lg ring-1 ring-border">
+          <div className="flex flex-col divide-y divide-border overflow-hidden rounded-xl bg-muted">
             {explanation.binChecks.map((binCheck) => {
               const isExpanded = expandedBinNumbers.includes(
                 binCheck.binNumber,

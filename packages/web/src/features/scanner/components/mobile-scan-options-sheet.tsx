@@ -54,7 +54,7 @@ export function MobileScanOptionsSheet({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[85dvh]">
-        <div className="flex min-h-0 flex-col gap-6 overflow-y-auto px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="flex min-h-0 flex-col gap-6 md:gap-2 overflow-y-auto px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <DrawerTitle className="font-heading text-base font-semibold text-foreground">
             {t("mobileScan.options")}
           </DrawerTitle>

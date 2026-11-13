@@ -367,7 +367,7 @@ export function PresetActionDialogs({
       >
         <form
           id="create-set-form"
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-3 md:gap-2"
           onSubmit={createForm.handleSubmit(handleCreate)}
         >
           <Controller

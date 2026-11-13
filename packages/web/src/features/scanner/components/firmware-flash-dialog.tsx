@@ -151,7 +151,7 @@ export function FirmwareFlashDialog({
       }
     >
       {state === "idle" && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <Field>
             <FieldLabel htmlFor={versionSelectId}>
               {t("serial.flash.version.label")}
@@ -184,7 +184,7 @@ export function FirmwareFlashDialog({
       )}
 
       {state === "flashing" && isFlashing && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <div className="flex items-center gap-2 text-xs text-foreground/70">
             <IconLoader2 className="size-3.5 shrink-0 animate-spin" />
             <span>{t("serial.update.flashing")}</span>
@@ -205,7 +205,7 @@ export function FirmwareFlashDialog({
           {flashLog.length > 0 && (
             <ScrollArea
               viewportRef={flashLogRef}
-              className="h-40 rounded-lg border bg-muted/30 p-2"
+              className="h-40 rounded-xl bg-muted p-2"
             >
               <div className="flex flex-col gap-0.5 font-mono text-xs text-foreground/70">
                 {flashLog.map((line, i) => (

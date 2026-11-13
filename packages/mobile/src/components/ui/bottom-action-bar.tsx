@@ -15,8 +15,6 @@ export function BottomActionBar({ children, direction = "column" }: BottomAction
         paddingHorizontal: SCREEN_GUTTER,
         paddingTop: SPACING.md,
         paddingBottom: SPACING.md + insets.bottom,
-        borderTopWidth: 1,
-        borderTopColor: colors.border,
         backgroundColor: colors.background,
       }}
     >

@@ -205,10 +205,7 @@ export function ScannedCardTable({
                     render={
                       <Badge
                         variant={matchPercent >= 80 ? "default" : "destructive"}
-                        className={cn(
-                          "tabular-nums",
-                          matchPercent < 80 && "bg-destructive text-white",
-                        )}
+                        className="tabular-nums"
                       >
                         {matchPercent.toFixed(2)}%
                       </Badge>

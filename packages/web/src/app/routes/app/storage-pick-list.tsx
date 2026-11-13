@@ -106,7 +106,7 @@ function StoragePickListView() {
       onCancel={hasList ? () => setIsEditing(false) : undefined}
     />
   ) : showScanPanel ? (
-    <div className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start">
+    <div className="flex flex-col gap-4 md:gap-2 md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start">
       <div className="sticky top-0 z-10 md:top-24">
         <ScanCardsPanel
           mode="pick"
@@ -152,7 +152,7 @@ function StoragePickListView() {
           isMobile
             ? MOBILE_PAGE_BODY_CLASS
             : cn(
-                "mx-auto flex w-full flex-col gap-4 p-4 md:p-6",
+                "mx-auto flex w-full flex-col gap-4 p-4 md:px-3 md:py-2",
                 showScanPanel ? "max-w-6xl" : "max-w-4xl",
               )
         }

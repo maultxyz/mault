@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { sampleCardQueryOptions } from "@/features/health/api/health";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
 import type { OcrRegionTileProps } from "@/lib/interfaces/health";
 import { absoluteUrl } from "@/lib/url";
 
@@ -48,11 +48,9 @@ export function OcrRegionTile({ gameKey, name, lang, regions, width }: OcrRegion
         style={{
           width: "100%",
           aspectRatio: CARD_ASPECT_RATIO,
-          borderRadius: RADIUS.lg,
+          borderRadius: CARD_ART_RADIUS,
           overflow: "hidden",
           backgroundColor: colors.muted,
-          borderWidth: 1,
-          borderColor: colors.border,
         }}
       >
         {sample.isLoading ? <Skeleton height="100%" /> : null}

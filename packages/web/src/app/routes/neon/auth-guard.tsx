@@ -1,3 +1,4 @@
+import { HOME_PATH } from "@/lib/constants/nav";
 import { AppLoadingScreen } from "@/components/app-loading-screen";
 import { neon } from "@/lib/auth/client";
 import { NEON_SOCIAL_PROVIDERS } from "@/lib/constants/auth";
@@ -15,7 +16,7 @@ export default function AuthGuard() {
       defaultTheme="system"
       authClient={neon.auth}
       baseURL={window.location.origin}
-      redirectTo="/app"
+      redirectTo={HOME_PATH}
       account={{
         basePath: "/app/account",
       }}

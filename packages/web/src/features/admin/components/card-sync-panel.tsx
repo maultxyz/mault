@@ -78,7 +78,7 @@ export function CardSyncPanel() {
         </p>
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 md:gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-2 shrink-0">
             {!isRunning && (
@@ -189,7 +189,7 @@ export function CardSyncPanel() {
         )}
 
         {!isRunning && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 md:gap-2">
             <label className="flex items-center gap-2 text-sm">
               <Switch
                 size="sm"
@@ -343,8 +343,8 @@ export function CardSyncPanel() {
         )}
       </div>
 
-      <div className="rounded-lg border overflow-hidden">
-        <div className="px-3 py-2 border-b bg-muted/30">
+      <div className="overflow-hidden rounded-xl bg-muted">
+        <div className="border-b px-3 py-2">
           <p className="text-xs font-medium text-foreground/70">
             {t("log.heading")}
           </p>

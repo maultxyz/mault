@@ -63,7 +63,7 @@ export function PresetStageControl() {
   );
 
   return (
-    <div className="flex flex-none flex-col gap-2 rounded-lg border p-2">
+    <div className="flex flex-none flex-col gap-2 rounded-card bg-card p-3">
       <div className="flex min-w-0 items-start justify-between gap-2">
         <div className="flex min-w-0 flex-col">
           <span className="truncate text-sm font-medium">{label}</span>

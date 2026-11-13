@@ -21,6 +21,7 @@ import { API_BASE } from "@/lib/constants/config";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
 import { translateFormErrorMessage } from "@/lib/form-validation";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 
 export function CardsSyncApiKeysPanel() {
   const { t, i18n } = useTranslation();
@@ -72,112 +73,100 @@ export function CardsSyncApiKeysPanel() {
       {revoke.isError ? <Callout tone="destructive" title={t("admin.cards.syncApiKeys.revokeFailed")} description={revoke.error.message} /> : null}
 
       {rawKey ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <View>
-            <AppText heading weight="semibold" accessibilityRole="header">
-              {t("admin.cards.syncApiKeys.revealTitle")}
-            </AppText>
+        <SettingsSection title={t("admin.cards.syncApiKeys.revealTitle")} description={t("admin.cards.syncApiKeys.revealDescription")}>
+          <Surface style={{ gap: SPACING.md }}>
+            <View style={{ padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
+              <AppText mono selectable>
+                {rawKey}
+              </AppText>
+            </View>
             <AppText size="xs" tone="secondary">
-              {t("admin.cards.syncApiKeys.revealDescription")}
+              {t("admin.cards.syncApiKeys.exampleLabel")}
             </AppText>
-          </View>
-          <View style={{ padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
-            <AppText mono selectable>
-              {rawKey}
-            </AppText>
-          </View>
-          <AppText size="xs" tone="secondary">
-            {t("admin.cards.syncApiKeys.exampleLabel")}
-          </AppText>
-          <View style={{ padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
-            <AppText size="2xs" mono selectable>
-              {exampleCommand}
-            </AppText>
-          </View>
-          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-            <Button
-              style={{ flex: 1 }}
-              variant="secondary"
-              icon="share"
-              label={t("admin.cards.syncApiKeys.share")}
-              onPress={() => void Share.share({ message: rawKey })}
-            />
-            <Button style={{ flex: 1 }} label={t("admin.cards.syncApiKeys.revealDone")} onPress={() => setRawKey(null)} />
-          </View>
-        </Surface>
+            <View style={{ padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
+              <AppText size="2xs" mono selectable>
+                {exampleCommand}
+              </AppText>
+            </View>
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              <Button
+                style={{ flex: 1 }}
+                variant="secondary"
+                icon="share"
+                label={t("admin.cards.syncApiKeys.share")}
+                onPress={() => void Share.share({ message: rawKey })}
+              />
+              <Button style={{ flex: 1 }} label={t("admin.cards.syncApiKeys.revealDone")} onPress={() => setRawKey(null)} />
+            </View>
+          </Surface>
+        </SettingsSection>
       ) : null}
 
       {creating ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <View>
-            <AppText heading weight="semibold" accessibilityRole="header">
-              {t("admin.cards.syncApiKeys.createTitle")}
-            </AppText>
-            <AppText size="xs" tone="secondary">
-              {t("admin.cards.syncApiKeys.createDescription")}
-            </AppText>
-          </View>
-          <Controller
-            control={form.control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("admin.cards.syncApiKeys.nameLabel")}
-                placeholder={t("admin.cards.syncApiKeys.namePlaceholder")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                error={translateFormErrorMessage(t, fieldState.error?.message)}
-              />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="permissions"
-            render={({ field, fieldState }) => (
-              <View style={{ gap: SPACING.sm }}>
-                <AppText size="xs" weight="medium" accessibilityRole="header">
-                  {t("admin.cards.syncApiKeys.permissionsLabel")}
-                </AppText>
-                {SYNC_API_KEY_PERMISSIONS.map((permission) => (
-                  <SwitchRow
-                    key={permission}
-                    title={t(`admin.cards.syncApiKeys.permissions.${permission}.label`)}
-                    description={t(`admin.cards.syncApiKeys.permissions.${permission}.description`)}
-                    value={field.value.includes(permission)}
-                    onValueChange={(checked) =>
-                      field.onChange(
-                        SYNC_API_KEY_PERMISSIONS.filter((candidate) => (candidate === permission ? checked : field.value.includes(candidate))),
-                      )
-                    }
-                  />
-                ))}
-                {fieldState.error ? (
-                  <AppText size="xs" tone="destructive" accessibilityRole="alert">
-                    {translateFormErrorMessage(t, fieldState.error.message)}
+        <SettingsSection title={t("admin.cards.syncApiKeys.createTitle")} description={t("admin.cards.syncApiKeys.createDescription")}>
+          <Surface style={{ gap: SPACING.md }}>
+            <Controller
+              control={form.control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <TextField
+                  label={t("admin.cards.syncApiKeys.nameLabel")}
+                  placeholder={t("admin.cards.syncApiKeys.namePlaceholder")}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                  error={translateFormErrorMessage(t, fieldState.error?.message)}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="permissions"
+              render={({ field, fieldState }) => (
+                <View style={{ gap: SPACING.sm }}>
+                  <AppText size="xs" weight="medium" accessibilityRole="header">
+                    {t("admin.cards.syncApiKeys.permissionsLabel")}
                   </AppText>
-                ) : null}
-              </View>
-            )}
-          />
-          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-            <Button
-              style={{ flex: 1 }}
-              variant="ghost"
-              label={t("admin.cards.cancel")}
-              onPress={() => {
-                form.reset();
-                setCreating(false);
-              }}
+                  {SYNC_API_KEY_PERMISSIONS.map((permission) => (
+                    <SwitchRow
+                      key={permission}
+                      title={t(`admin.cards.syncApiKeys.permissions.${permission}.label`)}
+                      description={t(`admin.cards.syncApiKeys.permissions.${permission}.description`)}
+                      value={field.value.includes(permission)}
+                      onValueChange={(checked) =>
+                        field.onChange(
+                          SYNC_API_KEY_PERMISSIONS.filter((candidate) => (candidate === permission ? checked : field.value.includes(candidate))),
+                        )
+                      }
+                    />
+                  ))}
+                  {fieldState.error ? (
+                    <AppText size="xs" tone="destructive" accessibilityRole="alert">
+                      {translateFormErrorMessage(t, fieldState.error.message)}
+                    </AppText>
+                  ) : null}
+                </View>
+              )}
             />
-            <Button
-              style={{ flex: 1 }}
-              label={t("admin.cards.syncApiKeys.create")}
-              loading={create.isPending}
-              onPress={form.handleSubmit((values) => create.mutate(values))}
-            />
-          </View>
-        </Surface>
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              <Button
+                style={{ flex: 1 }}
+                variant="ghost"
+                label={t("admin.cards.cancel")}
+                onPress={() => {
+                  form.reset();
+                  setCreating(false);
+                }}
+              />
+              <Button
+                style={{ flex: 1 }}
+                label={t("admin.cards.syncApiKeys.create")}
+                loading={create.isPending}
+                onPress={form.handleSubmit((values) => create.mutate(values))}
+              />
+            </View>
+          </Surface>
+        </SettingsSection>
       ) : (
         <Button icon="plus" label={t("admin.cards.syncApiKeys.create")} onPress={() => setCreating(true)} />
       )}

@@ -6,13 +6,13 @@ export function UnmatchedCardTile({ entry, onOpen }: UnmatchedCardTileProps) {
   const { t } = useTranslation("scanner");
   const nearest = entry.diagnostics?.search?.candidates[0];
   return (
-    <div className="relative rounded-lg border bg-muted p-1">
+    <div className="relative rounded-card bg-card p-1.5">
       <button
         type="button"
         className="flex w-full cursor-pointer flex-col gap-1 text-left"
         onClick={onOpen}
       >
-        <UnmatchedCardImage entry={entry} className="border-0" />
+        <UnmatchedCardImage entry={entry} />
         <div className="flex min-w-0 items-center justify-between gap-2 px-1">
           <p className="truncate text-xs font-semibold uppercase">
             {entry.diagnostics

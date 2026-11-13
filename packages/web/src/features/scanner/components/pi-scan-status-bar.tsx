@@ -97,7 +97,7 @@ export function PiScanStatusBar() {
   };
 
   return (
-    <div className="flex items-center gap-2 border-b bg-background px-3 py-1.5 text-xs">
+    <div className="flex items-center gap-2 border-b bg-card px-3 py-1.5 text-xs">
       {!onScanner && (
         <PiCameraPreview
           alt={t("piScan.preview")}

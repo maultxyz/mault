@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
+import { foldChartSegments, statsActivityAverage, statsHeroSparklineValues, statsSharePercent } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { StatGroup } from "@/components/ui/stat-group";
@@ -15,8 +16,8 @@ import { AreaChart } from "@/features/stats/components/area-chart";
 import { DonutChart } from "@/features/stats/components/donut-chart";
 import { StatsHighlights } from "@/features/stats/components/stats-highlights";
 import { StatsSection } from "@/features/stats/components/stats-section";
-import { foldBreakdownEntries, heroSparklineValues, percent, toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
-import { activityAverage, buildStatsInsights } from "@/features/stats/lib/stats-insights";
+import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
+import { buildStatsInsights } from "@/features/stats/lib/stats-insights";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
@@ -66,7 +67,7 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
     >
       <View style={{ flexDirection: "row", gap: SPACING.xl }}>
         <HomeActivityFigure value={number.format(report.totals.scansInRange)} label={t("stats.activity.total")} />
-        <HomeActivityFigure value={number.format(activityAverage(report))} label={t(`stats.activity.average.${report.bucket}`)} />
+        <HomeActivityFigure value={number.format(statsActivityAverage(report))} label={t(`stats.activity.average.${report.bucket}`)} />
         <HomeActivityFigure value={pricing.format(report.totals.valueAddedInRange)} label={t("stats.activity.metrics.value")} />
       </View>
       <AreaChart
@@ -114,7 +115,7 @@ function StatsCollectionsSection({ collections, onSelectCollection }: StatsColle
           label: row.name,
           value: row[metric],
           display: metric === "totalValue" ? pricing.format(row.totalValue) : row[metric].toLocaleString(i18n.language),
-          secondary: t("stats.compare.share", { percent: percent(row[metric], total) }),
+          secondary: t("stats.compare.share", { percent: statsSharePercent(row[metric], total) }),
           onPress: () => onSelectCollection(row.guid),
         }))}
         collapsedCount={STATS_LIST_COLLAPSED_COUNT}
@@ -171,9 +172,7 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
                   borderRadius: RADIUS.full,
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: index === 0 ? colors.primary : colors.background,
-                  borderWidth: index === 0 ? 0 : 1,
-                  borderColor: colors.border,
+                  backgroundColor: index === 0 ? colors.primary : colors.tonal,
                 }}
               >
                 <AppText
@@ -226,26 +225,30 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
 
   const renderSplit = (entries: StatsBreakdownEntry[]) => (
     <DonutChart
-      segments={foldBreakdownEntries(entries, STATS_SPLIT_MAX_SEGMENTS, t("stats.other")).map((entry) => ({
-        key: entry.key,
-        label: entry.label,
-        value: entry.count,
-        color: entry.color ?? colors.mutedForeground,
-      }))}
+      segments={foldChartSegments(
+        entries.map((entry) => ({
+          key: entry.key,
+          label: entry.label,
+          value: entry.count,
+          color: entry.color ?? colors.mutedForeground,
+        })),
+        STATS_SPLIT_MAX_SEGMENTS,
+        { key: "other", label: t("stats.other"), color: colors.mutedForeground },
+      )}
       centerValue={number(totals.cardCount)}
       centerLabel={t("stats.tiles.cards")}
-      formatShare={(value, total) => t("stats.compare.share", { percent: percent(value, total) })}
+      formatShare={(value, total) => t("stats.compare.share", { percent: statsSharePercent(value, total) })}
     />
   );
 
   return (
-    <View style={{ gap: SPACING.xl }}>
+    <View style={{ gap: SPACING.lg + SPACING.xs }}>
       <HomeHero
         label={t("stats.tiles.totalValue")}
         value={pricing.format(totals.totalValue)}
         change={null}
         changeCaption=""
-        sparklineValues={heroSparklineValues(report)}
+        sparklineValues={statsHeroSparklineValues(report)}
         stats={[
           { label: t("stats.tiles.cards"), value: number(totals.cardCount) },
           { label: t("stats.tiles.unique"), value: number(totals.uniqueCount) },
@@ -266,13 +269,13 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
           icon="coins"
           label={t("stats.tiles.priced")}
           value={number(totals.priceableCount)}
-          hint={t("stats.tiles.shareHint", { percent: percent(totals.priceableCount, totals.cardCount) })}
+          hint={t("stats.tiles.shareHint", { percent: statsSharePercent(totals.priceableCount, totals.cardCount) })}
         />
         <StatTile
           icon="sparkles"
           label={t("stats.tiles.foils")}
           value={number(totals.foilCount)}
-          hint={t("stats.tiles.shareHint", { percent: percent(totals.foilCount, totals.cardCount) })}
+          hint={t("stats.tiles.shareHint", { percent: statsSharePercent(totals.foilCount, totals.cardCount) })}
         />
         <StatTile
           icon="help"

@@ -559,15 +559,9 @@
     "sessionReleased": "Sitzung freigegeben",
     "releaseFailed": "Sitzung konnte nicht freigegeben werden",
     "leaveSession": "Sitzung verlassen",
-    "searchPlaceholder": "Sitzungen durchsuchen...",
-    "noSearchResultsTitle": "Keine passenden Sitzungen",
-    "noSearchResultsDescription": "Versuche einen anderen Suchbegriff",
     "title": "Live-Ansicht",
     "subtitle": "Sieh einem Sortierer von jedem Gerät aus live beim Scannen zu.",
-    "noSessionsFound": "Keine Sitzungen gefunden",
-    "noSessionsHint": "Aktive Sitzungen werden hier angezeigt",
-    "liveNow": "Gerade live",
-    "allCollections": "Alle Sammlungen"
+    "liveNow": "Gerade live"
   },
   "repackCompleteDialog": {
     "description": "Alle Packs sind fertig, deshalb ist das Scannen pausiert. Nimm das Pack aus Fach {{bin}} und wähle, wohin es kommt. Jede Karte wird dort in der Reihenfolge erfasst, in der sie gescannt wurde."
@@ -812,43 +806,6 @@
     "cameraErrorTitle": "Kamera konnte nicht geöffnet werden",
     "cameraErrorDescription": "Erlaube dieser Website in den Browser-Einstellungen den Kamerazugriff und versuche es erneut.",
     "retry": "Erneut versuchen"
-  },
-  "home": {
-    "greeting": "Hallo, {{name}}",
-    "greetingNoName": "Willkommen zurück",
-    "totalValue": "Sammlungswert",
-    "collectionCount_one": "{{count}} Sammlung",
-    "collectionCount_other": "{{count}} Sammlungen",
-    "scannedToday": "Heute gescannt",
-    "thisWeek": "Diese Woche",
-    "collections": "Sammlungen",
-    "activityTitle": "Scans, letzte 14 Tage",
-    "activityLabel": "Gescannte Karten pro Tag in den letzten 14 Tagen",
-    "activityPoint_one": "{{date}}: {{count}} Karte",
-    "activityPoint_other": "{{date}}: {{count}} Karten",
-    "today": "Heute",
-    "mostValuable": "Wertvollste",
-    "recentlyScanned": "Zuletzt gescannt",
-    "seeAllStats": "Alle Statistiken",
-    "actions": {
-      "newCollection": "Neu",
-      "stats": "Statistik",
-      "buySell": "Handel"
-    },
-    "activeCollection": "Aktiv",
-    "scanHero": {
-      "title": "Scannen starten",
-      "sortInto": "In {{collection}} sortieren",
-      "noCollection": "Wähle eine Sammlung zum Sortieren"
-    },
-    "actionHints": {
-      "newCollection": "Sammlung anlegen",
-      "buySell": "Ankauf und Picks",
-      "buySellOpen_one": "{{count}} offener Ankauf",
-      "buySellOpen_other": "{{count}} offene Ankäufe",
-      "stats": "Diagramme und Verlauf"
-    },
-    "statsHeading": "Übersicht"
   },
   "resetToNeutral": {
     "done": "Sortierer in Grundstellung",

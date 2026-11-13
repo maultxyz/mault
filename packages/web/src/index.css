@@ -3,7 +3,6 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/figtree";
 @import "@fontsource-variable/geist-mono";
-@import "@fontsource-variable/jetbrains-mono";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -49,7 +48,7 @@ code {
 }
 
 :root {
-  --background: #ffffff;
+  --background: #f4f5f7;
   --foreground: #292d34;
   --card: #ffffff;
   --card-foreground: #292d34;
@@ -62,11 +61,11 @@ code {
   --tooltip: #2a2e34;
   --tooltip-foreground: #ffffff;
   --shadow-color: rgb(16 24 40 / 0.14);
-  --secondary: #f0f1f3;
+  --secondary: #e9ebee;
   --secondary-foreground: #292d34;
-  --muted: #f7f8f9;
-  --muted-foreground: #656f7d;
-  --accent: #f0f1f3;
+  --muted: #eef0f2;
+  --muted-foreground: #5c6573;
+  --accent: #e9ebee;
   --accent-foreground: #292d34;
   --destructive: oklch(0.55 0.235 27.325);
   --destructive-foreground: oklch(100% 0.00011 271.152);
@@ -78,12 +77,12 @@ code {
   --chart-3: oklch(0.442 0.017 285.786);
   --chart-4: oklch(0.37 0.013 285.805);
   --chart-5: oklch(0.274 0.006 286.033);
-  --radius: 0.5rem;
-  --sidebar: #f7f8f9;
+  --radius: 0.375rem;
+  --sidebar: #eceef1;
   --sidebar-foreground: #292d34;
   --sidebar-primary: #155dfc;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ecedf0;
+  --sidebar-accent: #e2e4e8;
   --sidebar-selected: color-mix(in oklch, var(--primary) 12%, var(--sidebar));
   --sidebar-accent-foreground: #292d34;
   --sidebar-border: var(--border);
@@ -130,9 +129,9 @@ code {
 }
 
 .dark {
-  --background: #1e1f21;
+  --background: #111214;
   --foreground: #e3e4e8;
-  --card: #25272a;
+  --card: #1c1d20;
   --card-foreground: #e3e4e8;
   --popover: #2a2c30;
   --popover-foreground: #e3e4e8;
@@ -145,12 +144,12 @@ code {
   --shadow-color: rgb(0 0 0 / 0.5);
   --secondary: #2e3034;
   --secondary-foreground: #e3e4e8;
-  --muted: #2a2c30;
+  --muted: #26282c;
   --muted-foreground: #9ea3ad;
   --accent: #303236;
   --accent-foreground: #e3e4e8;
   --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: #1e1f21;
+  --destructive-foreground: #111214;
   --border: rgb(255 255 255 / 10%);
   --input: var(--border);
   --ring: #155dfc;
@@ -159,7 +158,7 @@ code {
   --chart-3: oklch(0.442 0.017 285.786);
   --chart-4: oklch(0.37 0.013 285.805);
   --chart-5: oklch(0.274 0.006 286.033);
-  --sidebar: #18191b;
+  --sidebar: #0b0c0d;
   --sidebar-foreground: #e3e4e8;
   --sidebar-primary: #2b7fff;
   --sidebar-primary-foreground: #ffffff;
@@ -203,12 +202,28 @@ code {
 @theme {
   --text-2xs: 0.625rem;
   --text-2xs--line-height: 0.875rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.375rem;
+  --text-lg: 1rem;
+  --text-lg--line-height: 1.5rem;
   --text-control: 0.75rem;
   --text-control--line-height: 1rem;
 }
 
+:root {
+  --card-radius: 0.5rem;
+}
+
 @media (width < 48rem) {
   :root {
+    --card-radius: 1.25rem;
+    --radius: 0.5rem;
+    --text-base: 1rem;
+    --text-base--line-height: 1.5rem;
+    --text-lg: 1.125rem;
+    --text-lg--line-height: 1.75rem;
     --text-2xs: 0.75rem;
     --text-2xs--line-height: 1rem;
     --text-xs: 0.875rem;
@@ -292,8 +307,9 @@ code {
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --radius-card: var(--card-radius);
   --font-sans: "Figtree Variable", sans-serif;
-  --font-heading: "JetBrains Mono Variable", monospace;
+  --font-heading: "Figtree Variable", sans-serif;
 }
 
 .loading-logo path {

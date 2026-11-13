@@ -21,13 +21,13 @@ export function ReviewGridTile({
   const matchedImageUrl = card.card.image?.normal || card.card.image?.small;
 
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-lg border bg-card p-2 animate-in fade-in-0 motion-reduce:animate-none">
+    <div className="flex min-w-0 flex-col gap-2 rounded-card bg-card p-2 animate-in fade-in-0 motion-reduce:animate-none">
       <div className="grid grid-cols-2 gap-2">
         <figure className="flex min-w-0 flex-col gap-1">
           <figcaption className="text-2xs text-foreground/70">
             {t("cardDetailPanel.capturedScan")}
           </figcaption>
-          <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-md border bg-muted">
+          <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-lg bg-muted">
             {capturedImageUrl ? (
               <CapturedImageThumb
                 src={capturedImageUrl}
@@ -47,7 +47,7 @@ export function ReviewGridTile({
           <figcaption className="text-2xs text-foreground/70">
             {t("cardDetailPanel.matchedCard")}
           </figcaption>
-          <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-md border bg-muted">
+          <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-lg bg-muted">
             {matchedImageUrl && (
               <img
                 src={matchedImageUrl}

@@ -49,9 +49,9 @@ export function ImpersonationAuditDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {auditQuery.isLoading ? (
-            <div className="flex flex-col gap-3 p-3">
+            <div className="flex flex-col divide-y">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex flex-col gap-2 p-3 border rounded-lg">
+                <div key={i} className="flex flex-col gap-2 p-3">
                   <Skeleton className="h-3 w-32" />
                   <Skeleton className="h-3 w-full" />
                 </div>

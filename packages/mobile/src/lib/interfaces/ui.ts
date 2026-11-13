@@ -155,6 +155,8 @@ export interface PillButtonProps {
   label: string;
   tone?: PillProps["tone"];
   icon?: IconName;
+  accessibilityLabel?: string;
+  accessibilityRole?: "button" | "link";
   onPress: () => void;
 }
 
@@ -401,6 +403,18 @@ export interface DisplayHeadlineProps {
 export interface IconBadgeProps {
   name: IconName;
   tone?: "neutral" | "primary" | "destructive" | "success" | "warning";
+  size?: number;
+}
+
+export interface ListGroupItemProps {
+  index: number;
+  count: number;
+  children: ReactNode;
+}
+
+export interface InitialBadgeProps {
+  initials: string;
+  tone?: "neutral" | "primary" | "solid";
   size?: number;
 }
 

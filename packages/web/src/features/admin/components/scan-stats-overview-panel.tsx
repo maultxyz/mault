@@ -97,7 +97,7 @@ export function ScanStatsOverviewPanel() {
       heading={t("metricsStats.heading")}
       description={t("metricsStats.description", { minutes })}
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 md:gap-2">
         <StatGroup
           heading={t("activeScanning.heading")}
           tiles={activeTiles}

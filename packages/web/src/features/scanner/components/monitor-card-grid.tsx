@@ -66,7 +66,7 @@ export function MonitorCardGrid({
       )}
       {entries.length === 0 ? null : viewMode === "list" ? (
         <div className="p-4">
-          <div className="rounded-lg border">
+          <div className="overflow-hidden rounded-card bg-card">
             <ScannedCardTable
               rows={entries.map((entry) => ({
                 scanId: entry.scanId,

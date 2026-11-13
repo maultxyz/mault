@@ -12,6 +12,7 @@ export interface NavSubItemDef {
 
 export interface NavItemDef {
   to: string;
+  activePaths?: string[];
   icon: ReactNode;
   label: string;
   end?: boolean;
@@ -66,12 +67,6 @@ export interface MobilePageHeaderProps {
   collapsed?: boolean;
 }
 
-export interface MobileQuickActionProps extends ComponentProps<"button"> {
-  icon: ReactNode;
-  label: string;
-  hint?: ReactNode;
-  to?: string;
-}
 
 export interface MobileIconBadgeProps {
   children: ReactNode;

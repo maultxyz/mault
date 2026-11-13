@@ -39,8 +39,8 @@ const statusPill = cva(
         "strip-touching-panel-edges": "min-h-8 border-x-0 border-t-0",
       },
       variant: {
-        default: "bg-background border-border",
-        loading: "bg-background border-border",
+        default: "bg-card border-border",
+        loading: "bg-card border-border",
         warning: "bg-warning-strong border-warning-strong text-white",
         error: "bg-destructive-strong border-destructive-strong text-white",
       },

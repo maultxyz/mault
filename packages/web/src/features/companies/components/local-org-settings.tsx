@@ -42,7 +42,7 @@ export function LocalOrgSettings() {
 
   return (
     <SettingsSection heading={tSettings("organizations.heading")}>
-      <div className="flex flex-col gap-3 bg-destructive rounded-lg p-4 text-destructive-foreground">
+      <div className="flex flex-col gap-3 md:gap-2 bg-destructive rounded-lg p-4 text-destructive-foreground">
         <h3 className="text-sm font-semibold font-heading">
           {t("orgSettings.dangerZoneHeading")}
         </h3>

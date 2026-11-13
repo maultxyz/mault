@@ -52,7 +52,7 @@ export function AuditDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
-            <div className="flex flex-col gap-3 p-3">
+            <div className="flex flex-col gap-3 md:gap-2 p-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-2 p-3 border rounded-lg">
                   <Skeleton className="h-3 w-32" />

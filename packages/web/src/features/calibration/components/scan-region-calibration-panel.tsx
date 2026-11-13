@@ -382,7 +382,7 @@ export function ScanRegionCalibrationPanel({
             <p className="text-sm text-destructive">{phoneCaptureError}</p>
           )}
 
-          <div className="relative overflow-hidden bg-background w-full rounded-lg border aspect-[2.5/3.5]">
+          <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted">
             <video ref={videoRef} className="hidden" playsInline muted />
             <div ref={frameRef} className="absolute">
               <canvas

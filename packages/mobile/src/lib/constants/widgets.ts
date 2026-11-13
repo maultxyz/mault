@@ -39,7 +39,6 @@ export const TOTAL_CARDS_WIDGET_MIN_DIGITS = 5;
 
 export const WIDGET_ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-export const WIDGET_VALUE_CHANGE_EPSILON = 0.005;
 
 export const WIDGET_SUMMARY_QUERY_KEY = "widget-summary";
 

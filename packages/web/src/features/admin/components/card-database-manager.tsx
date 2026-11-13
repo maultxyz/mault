@@ -81,7 +81,7 @@ export function CardDatabaseManager() {
         />
       }
     >
-      <div className="flex h-80 flex-col overflow-hidden rounded-lg border">
+      <div className="flex h-80 flex-col overflow-hidden">
         {cardsQuery.data && (
           <ListPagination
             alignsEnd
@@ -98,7 +98,7 @@ export function CardDatabaseManager() {
             }}
           />
         )}
-        <div className="divide-y min-h-0 overflow-y-auto">
+        <div className="min-h-0 divide-y divide-border overflow-y-auto">
           {cardsQuery.isLoading && (
             <p className="text-sm text-foreground/70 text-center py-6">
               {t("loading")}

@@ -20,7 +20,7 @@ export function StorageCheckList({
   const rowsProps = { rows, showLocation, checkLabel, onCheckedChange };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <div className="flex items-center gap-3">
         <span
           id={progressLabelId}

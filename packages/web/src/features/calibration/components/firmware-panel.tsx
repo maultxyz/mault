@@ -78,8 +78,8 @@ export function FirmwarePanel() {
       action={action}
     >
       <div className="grid grid-cols-2 gap-2">
-        <div className="flex flex-col gap-1 rounded-md border bg-muted px-3 py-2">
-          <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+        <div className="flex flex-col gap-1 rounded-xl bg-muted px-3 py-2">
+          <span className="text-xs text-foreground/70">
             {t("firmware.installed")}
           </span>
           <span className="flex items-center gap-2 text-sm font-medium">
@@ -89,8 +89,8 @@ export function FirmwarePanel() {
             )}
           </span>
         </div>
-        <div className="flex flex-col gap-1 rounded-md border bg-muted px-3 py-2">
-          <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+        <div className="flex flex-col gap-1 rounded-xl bg-muted px-3 py-2">
+          <span className="text-xs text-foreground/70">
             {t("firmware.latest")}
           </span>
           <span className="text-sm font-medium">

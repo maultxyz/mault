@@ -168,7 +168,6 @@
   },
   "stats": {
     "title": "Statistiken",
-    "subtitle": "Diagramme und Zahlen zu deinen Sammlungen",
     "error": "Statistiken konnten nicht geladen werden. Versuch es gleich noch einmal.",
     "empty": {
       "title": "Noch keine Karten",
@@ -1241,7 +1240,7 @@
     "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren."
   },
   "calibration": {
-    "title": "Kalibrierung",
+    "title": "Sortierer einrichten",
     "subtitle": "Servos und Einzug einstellen",
     "entryTitle": "Kalibrierung",
     "entrySubtitle": "Servopositionen, Timings und der Einzug",
@@ -1598,11 +1597,11 @@
         "description": "Schlüssel für die öffentliche API"
       },
       "notifications": {
-        "title": "Benachrichtigungen",
+        "title": "Discord",
         "description": "Discord-Kanäle, Warnungen und Benachrichtigungsregeln"
       },
       "sounds": {
-        "title": "Sounds",
+        "title": "Scan-Sounds",
         "description": "Spiele einen Clip ab, wenn eine sortierte Karte zu einer Regel passt"
       },
       "webhooks": {

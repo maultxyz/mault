@@ -26,8 +26,8 @@ export function DiscordChannelSettings({
       heading={t("channelSettings.heading")}
       description={t("channelSettings.description")}
     >
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="flex flex-col gap-3">
+      <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
+        <div className="flex flex-col gap-3 md:gap-2">
           <div className="flex flex-col gap-1.5">
             <Label>{t("channelSettings.scan")}</Label>
             <Controller
@@ -62,7 +62,7 @@ export function DiscordChannelSettings({
             />
           </div>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <div className="flex flex-col gap-1.5">
             <Label>{t("channelSettings.error")}</Label>
             <Controller

@@ -154,7 +154,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
   return (
     <View style={{ gap: SPACING.md }}>
       <View>
-        {headlineRows.map(({ source: key, headline }, index) => {
+        {headlineRows.map(({ source: key, headline }) => {
           const showFoil = isFoil && headline.foilPrice != null;
           const main = showFoil ? headline.foilPrice : headline.price;
           const secondary = showFoil ? headline.price : headline.foilPrice;
@@ -167,9 +167,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                 flexDirection: "row",
                 alignItems: "center",
                 gap: SPACING.md,
-                paddingVertical: SPACING.sm + 2,
-                borderTopWidth: index > 0 ? 1 : 0,
-                borderTopColor: colors.border,
+                paddingVertical: SPACING.sm,
               }}
             >
               <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
@@ -237,9 +235,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                     flexDirection: "row",
                     alignItems: "center",
                     gap: SPACING.sm,
-                    paddingVertical: SPACING.xs + 2,
-                    borderTopWidth: 1,
-                    borderTopColor: colors.border,
+                    paddingVertical: SPACING.xs,
                   }}
                 >
                   <AppText size="sm" tone="secondary" style={{ flex: 1, minWidth: 0 }}>

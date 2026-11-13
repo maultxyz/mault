@@ -1,6 +1,5 @@
 import { View } from "react-native";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO, CARD_GRID_GAP_X, CARD_GRID_GAP_Y } from "@/lib/constants/collections";
 import {
   COLLECTION_GRID_SKELETON_CAPTION_LINE_HEIGHT,
@@ -10,7 +9,6 @@ import { CARD_ART_RADIUS, FONT_SIZE } from "@/lib/constants/theme";
 import type { CollectionGridSkeletonProps } from "@/lib/interfaces/navigation-memory";
 
 export function CollectionGridSkeleton({ tileWidth }: CollectionGridSkeletonProps) {
-  const colors = useTheme();
   return (
     <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
       {Array.from({ length: COLLECTION_GRID_SKELETON_TILE_COUNT }).map((_, index) => (
@@ -20,8 +18,6 @@ export function CollectionGridSkeleton({ tileWidth }: CollectionGridSkeletonProp
               width: "100%",
               aspectRatio: CARD_ASPECT_RATIO,
               borderRadius: CARD_ART_RADIUS,
-              borderWidth: 1,
-              borderColor: colors.border,
               overflow: "hidden",
             }}
           >

@@ -691,7 +691,7 @@ export function CardDetailPanel({
         value={SIMILAR_MATCHES_ACCORDION_VALUE}
         className="border-b-0"
       >
-        <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
+        <AccordionTrigger className="py-1 text-xs font-medium text-foreground/70">
           <span className="flex items-center gap-1.5">
             {t("cardDetailPanel.similarMatches")}
             <Badge variant="outline">{candidates.length}</Badge>
@@ -764,7 +764,7 @@ export function CardDetailPanel({
   );
 
   const scanAttributeControls = (
-    <div className="flex flex-wrap gap-6 items-start max-md:grid max-md:grid-cols-2 max-md:gap-3">
+    <div className="flex flex-wrap gap-6 items-start max-md:grid max-md:grid-cols-2 max-md:gap-2">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={foilSelectId}>
           {t("foil")}
@@ -975,7 +975,7 @@ export function CardDetailPanel({
             </Button>
           </div>
         )}
-        <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6 max-md:p-4 max-md:gap-5">
+        <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6 md:gap-2 max-md:p-4 max-md:gap-5">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
@@ -1076,10 +1076,10 @@ export function CardDetailPanel({
                         : REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS),
                   )}
                 >
-                  <div className="flex min-w-0 flex-col gap-6">
+                  <div className="flex min-w-0 flex-col gap-6 md:gap-2">
                     <div
                       className={cn(
-                        "grid gap-4",
+                        "grid gap-4 md:gap-2",
                         showCapturedImageSlot
                           ? "grid-cols-2 max-w-xl"
                           : "max-w-2xs",
@@ -1089,7 +1089,7 @@ export function CardDetailPanel({
                     </div>
                     {similarMatches}
                   </div>
-                  <div className="flex min-w-0 flex-col gap-6">
+                  <div className="flex min-w-0 flex-col gap-6 md:gap-2">
                     {correctionSection}
                     {scanId && scanAttributeControls}
                   </div>
@@ -1111,9 +1111,9 @@ export function CardDetailPanel({
                 )}
 
                 {selectedCard && (
-                  <div className="flex flex-col gap-6 min-w-0">
+                  <div className="flex flex-col gap-6 md:gap-2 min-w-0">
                     <DetailSection title={t("cardDetailPanel.details")}>
-                      <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-4 md:gap-2">
                         <CardDetailsList card={selectedCard} />
                         {selectedCard.text && (
                           <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
@@ -1126,7 +1126,7 @@ export function CardDetailPanel({
                     {!reviewMode && scanId && scanAttributeControls}
 
                     <DetailSection title={t("cardDetailPanel.prices")}>
-                      <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-4 md:gap-2">
                         <CardPriceDetails
                           card={selectedCard}
                           isFoil={draftIsFoil}
@@ -1207,14 +1207,14 @@ export function CardDetailPanel({
 
                     {(hasScanOrigin || binNumber != null || canTestSort) && (
                       <DetailSection title={t("cardDetailPanel.thisScan")}>
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 md:gap-2">
                           {scanOrigin && hasScanOrigin && (
                             <CardScanOriginList origin={scanOrigin} />
                           )}
                           {binNumber != null && (
                             <div className="flex flex-col gap-1.5">
                               <Label>{t("cardDetailPanel.binLocation")}</Label>
-                              <div className="w-48 rounded-lg border">
+                              <div className="w-48 rounded-lg bg-muted">
                                 <BinLocationDiagram
                                   binNumber={binNumber}
                                   inverted={false}
@@ -1245,7 +1245,7 @@ export function CardDetailPanel({
                     value={MORE_DETAIL_OPTIONS_ACCORDION_VALUE}
                     className="border-b-0"
                   >
-                    <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
+                    <AccordionTrigger className="py-1 text-xs font-medium text-foreground/70">
                       {t("cardDetailPanel.moreOptions")}
                     </AccordionTrigger>
                     <AccordionContent className="flex flex-col items-start gap-3 pb-0 text-xs text-foreground/70">

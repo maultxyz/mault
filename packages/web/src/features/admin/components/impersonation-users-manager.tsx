@@ -114,7 +114,7 @@ export function ImpersonationUsersManager() {
         </>
       }
     >
-      <div className="divide-y max-h-80 overflow-y-auto rounded-lg border">
+      <div className="max-h-80 divide-y divide-border overflow-y-auto">
         {!isQueryReady && (
           <p className="text-sm text-foreground/70 text-center py-6">
             {t("impersonationUsersManager.startTyping")}

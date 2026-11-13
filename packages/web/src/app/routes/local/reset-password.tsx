@@ -81,7 +81,7 @@ export default function AuthResetPasswordPage() {
             <form
               id="reset-password-form"
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-3 md:gap-2"
             >
               <Field data-invalid={!!form.formState.errors.password}>
                 <FieldLabel htmlFor="password">

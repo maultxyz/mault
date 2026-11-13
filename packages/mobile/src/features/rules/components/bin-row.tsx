@@ -41,14 +41,14 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
         gap: SPACING.md,
         paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.md,
-        backgroundColor: pressed ? colors.muted : "transparent",
+        backgroundColor: pressed ? colors.tonal : "transparent",
       })}
     >
       <View
         style={{
           width: ICON_BADGE_SIZE,
           height: ICON_BADGE_SIZE,
-          borderRadius: RADIUS.md,
+          borderRadius: RADIUS.full,
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: bin.isCatchAll ? colors.primaryMuted : colors.muted,
@@ -93,8 +93,7 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
                   paddingHorizontal: SPACING.sm + 2,
                   paddingVertical: 3,
                   borderRadius: CONTROL_RADIUS,
-                  borderWidth: 1,
-                  borderColor: colors.border,
+                  backgroundColor: colors.tonal,
                 }}
               >
                 <AppText size="xs" weight="medium" numberOfLines={1}>

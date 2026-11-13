@@ -67,7 +67,7 @@ export function SoundClipLibrary() {
           title={t("library.empty")}
         />
       ) : (
-        <ul className="flex flex-col divide-y rounded-lg border empty:hidden">
+        <ul className="flex flex-col divide-y divide-border empty:hidden">
           {clips.map((clip) => (
             <SoundClipRow
               key={clip.guid}

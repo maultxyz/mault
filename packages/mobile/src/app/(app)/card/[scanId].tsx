@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, Pressable, ScrollView, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
@@ -35,7 +34,9 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { SaveBar } from "@/components/ui/save-bar";
+import { PillButton } from "@/components/ui/pill-button";
 import { SectionHeader } from "@/components/ui/section-header";
+import { Surface } from "@/components/ui/surface";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { useDeferredCardRemoval } from "@/features/cards/api/use-deferred-card-removal";
@@ -98,7 +99,6 @@ export default function CardDetailScreen() {
   const { t, i18n } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
-  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -379,14 +379,13 @@ export default function CardDetailScreen() {
   };
 
   const attributePill = (icon: IconName, fieldLabel: string, value: string, menuSheet: CardDetailSheet) => (
-    <Pressable
+    <PillButton
       key={menuSheet}
-      accessibilityRole="button"
+      icon={icon}
+      label={value}
       accessibilityLabel={`${fieldLabel}: ${value}`}
       onPress={() => setSheet(menuSheet)}
-    >
-      <Pill icon={icon} label={value} />
-    </Pressable>
+    />
   );
   const scanAttributePills = [
     attributePill("sparkles", t("cardDetail.foil"), draftFoil ?? t("cardDetail.foilNone"), "foil"),
@@ -401,8 +400,6 @@ export default function CardDetailScreen() {
     aspectRatio: CARD_ASPECT_RATIO,
     borderRadius: CARD_ART_RADIUS,
     overflow: "hidden" as const,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.muted,
   };
 
@@ -441,7 +438,7 @@ export default function CardDetailScreen() {
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.xl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg + SPACING.xs }}
       >
         {position.isError ? (
           <Callout
@@ -510,19 +507,16 @@ export default function CardDetailScreen() {
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
                 {storage.data ? (
-                  <Pressable
+                  <PillButton
+                    icon="storage"
+                    label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
                     accessibilityRole="link"
                     accessibilityLabel={t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
                     onPress={() => {
                       router.back();
                       router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
                     }}
-                  >
-                    <Pill
-                      icon="storage"
-                      label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
-                    />
-                  </Pressable>
+                  />
                 ) : entry.binNumber != null ? (
                   <Pill icon="sorter" label={t("cards.bin", { number: entry.binNumber })} />
                 ) : null}
@@ -659,33 +653,37 @@ export default function CardDetailScreen() {
 
             {card ? (
               <CollapsibleSection title={t("cardDetail.details")} initiallyOpen>
-                <CardDetailsList card={card} binNumber={entry?.binNumber} />
+                <Surface>
+                  <CardDetailsList card={card} binNumber={entry?.binNumber} />
+                </Surface>
               </CollapsibleSection>
             ) : null}
 
             {card ? (
               <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
-                <CardPriceDetails
-                  card={card}
-                  isFoil={draftFoil != null}
-                  foilType={draftFoil}
-                  stamp={draftStamp}
-                  condition={draftCondition}
-                />
-                <CardPurchaseLinks card={card} />
-                {entry && acquisitionCost.data ? (
-                  <PricePaidField
-                    label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
-                    placeholder={t("cardDetail.pricePaidEmpty")}
-                    value={form.watch("acquisitionCost")}
-                    onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
-                    error={
-                      errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
-                    }
+                <Surface style={{ gap: SPACING.md }}>
+                  <CardPriceDetails
+                    card={card}
+                    isFoil={draftFoil != null}
+                    foilType={draftFoil}
+                    stamp={draftStamp}
+                    condition={draftCondition}
                   />
-                ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
-                  <PricePaidFieldSkeleton />
-                ) : null}
+                  <CardPurchaseLinks card={card} />
+                  {entry && acquisitionCost.data ? (
+                    <PricePaidField
+                      label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
+                      placeholder={t("cardDetail.pricePaidEmpty")}
+                      value={form.watch("acquisitionCost")}
+                      onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
+                      error={
+                        errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
+                      }
+                    />
+                  ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
+                    <PricePaidFieldSkeleton />
+                  ) : null}
+                </Surface>
               </CollapsibleSection>
             ) : null}
 
@@ -717,12 +715,12 @@ export default function CardDetailScreen() {
                   </ListGroup>
                 ) : null}
                 {entry?.binNumber != null ? (
-                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
+                  <Surface style={{ gap: SPACING.sm }}>
                     <AppText size="sm" weight="medium" tone="secondary">
                       {t("cardDetail.binLocation")}
                     </AppText>
                     <BinLocationDiagram binNumber={entry.binNumber} />
-                  </View>
+                  </Surface>
                 ) : null}
               </CollapsibleSection>
             ) : null}
@@ -732,17 +730,7 @@ export default function CardDetailScreen() {
       </ScrollView>
 
       {!editing && entry && !isDirty && (reviewMode || canConfirm) ? (
-        <View
-          style={{
-            flexDirection: "row",
-            gap: SPACING.sm,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            paddingHorizontal: SCREEN_GUTTER,
-            paddingTop: SPACING.md,
-            paddingBottom: SPACING.md + insets.bottom,
-          }}
-        >
+        <BottomActionBar direction="row">
           {reviewMode ? (
             <Button
               style={{ flex: 1 }}
@@ -763,7 +751,7 @@ export default function CardDetailScreen() {
               }}
             />
           )}
-        </View>
+        </BottomActionBar>
       ) : null}
 
       {editing ? (

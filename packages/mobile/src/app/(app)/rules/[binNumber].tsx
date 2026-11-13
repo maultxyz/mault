@@ -142,7 +142,7 @@ export default function BinEditorScreen() {
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.lg + SPACING.xs }}
       >
         {isRulesDataPending ? (
           <PageSkeleton />

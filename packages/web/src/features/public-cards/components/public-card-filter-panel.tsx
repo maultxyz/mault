@@ -66,7 +66,7 @@ export function PublicCardFilterPanel({
   ];
 
   return (
-    <div className="flex min-w-0 shrink-0 flex-col gap-5">
+    <div className="flex min-w-0 shrink-0 flex-col gap-5 md:gap-3">
       <div className="flex items-center gap-2">
         <h2 className="min-w-0 truncate text-sm font-semibold">{t("publicBrowse.filtersHeading")}</h2>
         {activeCount > 0 && (

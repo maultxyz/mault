@@ -52,7 +52,7 @@ export function CardLookup() {
   const isQueryReady = debouncedQuery.trim().length >= QUERY_MIN_LENGTH;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <div className="flex flex-wrap gap-2">
         <Select
           value={game?.key ?? null}
@@ -121,7 +121,7 @@ export function CardLookup() {
       </div>
 
       {isQueryReady && (
-        <div className="rounded-lg border bg-muted/40 p-2">
+        <div className="rounded-xl bg-muted p-2">
           {loading && <CardSearchResultSkeletonGrid />}
           {!loading && results.length === 0 && (
             <p className="py-8 text-center text-sm text-foreground/70">

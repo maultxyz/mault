@@ -23,6 +23,7 @@ import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
 import { DISCORD_URL, REPO_URL, SHOP_URL } from "@/lib/constants/links";
 import {
+  HOME_PATH,
   NAV_SUBITEMS_LIMIT,
   SIDEBAR_EXPANDED_ITEM_CLASS,
   SIDEBAR_IDLE_ITEM_CLASS,
@@ -34,27 +35,29 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { ORDERS_PATH } from "@/lib/constants/business";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
   IconAlbum,
   IconArrowsSplit2,
-  IconBox,
   IconChartBar,
   IconBrandDiscord,
   IconBrandGithub,
   IconCameraSpark,
   IconCash,
   IconDatabaseCog,
+  IconHome,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
+  IconSettings,
   IconShoppingCart,
   IconStarFilled,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PlanLockTag } from "@/components/plan-lock-tag";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
@@ -62,6 +65,7 @@ import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 function CollapsedNavItem({
   icon,
   label,
+  activePaths,
   to,
   end,
   badge,
@@ -70,6 +74,8 @@ function CollapsedNavItem({
   lockTag,
   external,
 }: NavItemDef) {
+  const { pathname } = useLocation();
+  const isAlsoActive = !!activePaths?.some((path) => pathname.startsWith(path));
   const { t } = useTranslation("common");
   const descriptionId = useId();
   const accessibleLabel = [label, lockTag, badge && t("a11y.liveSession")]
@@ -106,7 +112,7 @@ function CollapsedNavItem({
               to={to}
               end={end}
               className={({ isActive }) =>
-                sidebarItemClassName({ isActive, size: "icon-lg" })
+                sidebarItemClassName({ isActive: isActive || isAlsoActive, size: "icon-lg" })
               }
             />
           )
@@ -141,12 +147,15 @@ function CollapsedNavItem({
 }
 
 function CollapsedNavItemWithSubItems({
+  activePaths,
   to,
   end,
   icon,
   label,
   subItems,
 }: NavItemDef & { subItems: NavSubItemDef[] }) {
+  const { pathname } = useLocation();
+  const isAlsoActive = !!activePaths?.some((path) => pathname.startsWith(path));
   const { t } = useTranslation("collections");
   const { t: tCommon } = useTranslation("common");
   const navigate = useNavigate();
@@ -163,7 +172,7 @@ function CollapsedNavItemWithSubItems({
             to={to}
             end={end}
             className={({ isActive }) =>
-              sidebarItemClassName({ isActive, size: "icon-lg" })
+              sidebarItemClassName({ isActive: isActive || isAlsoActive, size: "icon-lg" })
             }
           />
         }
@@ -208,6 +217,7 @@ function CollapsedNavItemWithSubItems({
 }
 
 function ExpandedNavItem({
+  activePaths,
   to,
   icon,
   label,
@@ -218,6 +228,8 @@ function ExpandedNavItem({
   lockTag,
   external,
 }: NavItemDef) {
+  const { pathname } = useLocation();
+  const isAlsoActive = !!activePaths?.some((path) => pathname.startsWith(path));
   const { t } = useTranslation("common");
   const descriptionId = useId();
   const inner = (
@@ -286,7 +298,7 @@ function ExpandedNavItem({
       to={to}
       end={end}
       className={({ isActive }) =>
-        cn(sidebarItemClassName({ isActive }), SIDEBAR_EXPANDED_ITEM_CLASS)
+        cn(sidebarItemClassName({ isActive: isActive || isAlsoActive }), SIDEBAR_EXPANDED_ITEM_CLASS)
       }
     >
       {inner}
@@ -386,6 +398,11 @@ export function AppNav() {
 
   const navItems: NavItemDef[] = [
     {
+      to: HOME_PATH,
+      icon: <IconHome size={16} />,
+      label: t("nav.home"),
+    },
+    {
       to: "/app",
       icon: <IconCameraSpark size={16} />,
       label: t("nav.scanner"),
@@ -393,8 +410,9 @@ export function AppNav() {
     },
     {
       to: COLLECTIONS_PATH,
+      activePaths: [STORAGE_PATH],
       icon: <IconAlbum size={16} />,
-      label: t("nav.collections"),
+      label: t("nav.library"),
       badge: hasLiveSessions,
       subItems: monitorCollections.map((c) => ({
         key: c.guid,
@@ -418,12 +436,6 @@ export function AppNav() {
       label: t("nav.stats"),
     },
     {
-      to: STORAGE_PATH,
-      icon: <IconBox size={16} />,
-      label: t("nav.storage"),
-      ...planGated(STORAGE_PATH),
-    },
-    {
       to: ORDERS_PATH,
       icon: <IconCash size={16} />,
       label: t("nav.intake"),
@@ -435,6 +447,11 @@ export function AppNav() {
       to: "/app/calibrate",
       icon: <IconAdjustments size={16} />,
       label: t("nav.calibrate"),
+    },
+    {
+      to: SETTINGS_PATHS.root,
+      icon: <IconSettings size={16} />,
+      label: t("nav.settings"),
     },
     ...(isStaff
       ? [

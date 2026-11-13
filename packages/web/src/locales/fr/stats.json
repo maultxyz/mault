@@ -36,7 +36,9 @@
     "shareHint": "{{percent}} % des cartes",
     "needsReview": "À vérifier",
     "correctedHint": "{{count}} vérifiées",
-    "heading": "Aperçu"
+    "heading": "Aperçu",
+    "unique": "Uniques",
+    "priced": "Cartes avec prix"
   },
   "activity": {
     "title": "Activité de scan",
@@ -89,10 +91,12 @@
     "title": "Extensions les plus précieuses"
   },
   "rarities": {
-    "title": "Rareté"
+    "title": "Rareté",
+    "description": "Part de vos cartes par rareté"
   },
   "colors": {
-    "title": "Couleurs"
+    "title": "Couleurs",
+    "description": "Part de vos cartes par couleur"
   },
   "foils": {
     "title": "Types de foil"
@@ -130,5 +134,41 @@
   },
   "value": {
     "description": "Valeur marché quotidienne de tout ce que vous possédez, sans les cartes des rachats en cours."
-  }
+  },
+  "headline": {
+    "title": "Votre collection",
+    "subtitle": "en chiffres"
+  },
+  "highlights": {
+    "title": "En bref"
+  },
+  "insights": {
+    "topCard": {
+      "title": "Votre meilleure carte est {{name}}",
+      "detail": "Vaut {{price}}, dans {{collection}}"
+    },
+    "highValue": {
+      "title_one": "{{count}} carte représente {{percent}} % de votre valeur",
+      "title_other": "{{count}} cartes représentent {{percent}} % de votre valeur",
+      "detail": "Cartes valant {{min}} ou plus"
+    },
+    "topCollection": {
+      "title": "{{name}} est votre collection la plus précieuse",
+      "detail": "{{percent}} % de votre valeur totale"
+    },
+    "busiest": {
+      "title": {
+        "day": "Votre jour le plus actif était le {{date}}",
+        "week": "Votre semaine la plus active a commencé le {{date}}"
+      },
+      "detail_one": "{{count}} carte scannée",
+      "detail_other": "{{count}} cartes scannées"
+    },
+    "review": {
+      "title_one": "{{count}} scan à vérifier",
+      "title_other": "{{count}} scans à vérifier",
+      "detail": "Vérifiez-les pour que vos chiffres restent justes."
+    }
+  },
+  "other": "Autres"
 }

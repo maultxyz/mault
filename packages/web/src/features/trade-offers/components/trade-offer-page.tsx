@@ -95,7 +95,7 @@ export function TradeOfferPage({
 
   return (
     <form id={formId} onSubmit={submit} className="flex min-h-full flex-col">
-      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 p-6 max-md:p-4">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 md:gap-2 p-6 max-md:p-4">
         <Button type="button" variant="ghost" className="self-start" onClick={onBack}>
           <IconArrowLeft />
           {t("publicBrowse.backToCards")}
@@ -115,7 +115,7 @@ export function TradeOfferPage({
           title={t("tradeOffers.detailsTitle")}
           description={t("tradeOffers.detailsDescription")}
         >
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:gap-2 md:grid-cols-2">
             <Field data-invalid={!!errors.guestName}>
               <FieldLabel htmlFor={nameId}>{t("tradeOffers.nameLabel")}</FieldLabel>
               <Input id={nameId} autoComplete="name" {...form.register("guestName")} />
@@ -146,7 +146,7 @@ export function TradeOfferPage({
             description={t("tradeOffers.getDescription", { source: sourceName })}
           >
             {wanted.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-6 text-center">
+              <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl bg-muted p-6 text-center">
                 <IconCards className="size-5 text-foreground/70" aria-hidden />
                 <p className="text-xs text-foreground/70">{t("tradeOffers.getEmpty")}</p>
                 <Button type="button" variant="outline" onClick={onBack}>
@@ -155,7 +155,7 @@ export function TradeOfferPage({
               </div>
             ) : (
               <>
-                <ul className="flex flex-col divide-y rounded-lg border">
+                <ul className="flex flex-col divide-y divide-border">
                   {wanted.map((entry) => (
                     <li key={entry.scanId} className="flex items-center gap-2.5 p-2">
                       <img
@@ -214,11 +214,11 @@ export function TradeOfferPage({
               }
             />
             {offered.length === 0 ? (
-              <p className="rounded-lg border border-dashed p-4 text-center text-xs text-foreground/70">
+              <p className="rounded-xl bg-muted p-4 text-center text-xs text-foreground/70">
                 {t("tradeOffers.giveEmpty")}
               </p>
             ) : (
-              <ul className="flex flex-col divide-y rounded-lg border">
+              <ul className="flex flex-col divide-y divide-border">
                 {offered.map((draft, index) => (
                   <TradeOfferOfferedRow
                     key={`${draft.option.gameKey}-${draft.option.cardId}-${index}`}

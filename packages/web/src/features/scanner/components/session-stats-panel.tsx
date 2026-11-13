@@ -11,7 +11,7 @@ export function SessionStatsPanel({
   const { format } = usePriceSource();
   return (
     <>
-      <div className="rounded-lg border bg-input/20 dark:bg-input/30">
+      <div className="overflow-hidden rounded-card bg-card">
         <div className="grid grid-cols-2 divide-x divide-y divide-border">
           <div className="col-span-2 divide-y divide-border">
             <StatCell
@@ -32,8 +32,8 @@ export function SessionStatsPanel({
           )}
         </div>
         {stats?.mostValuable && (
-          <div className="p-2 border-t border-input">
-            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-0.5">
+          <div className="border-t border-border p-3">
+            <p className="mb-0.5 text-xs text-foreground/70">
               {t("mostValuable")}
             </p>
             <p className="text-xs font-semibold truncate">
@@ -47,8 +47,8 @@ export function SessionStatsPanel({
       </div>
 
       {stats && stats.rarities.length > 0 && (
-        <div className="rounded-lg border bg-input/20 dark:bg-input/30 p-2">
-          <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
+        <div className="rounded-card bg-card p-3">
+          <p className="mb-1.5 text-xs text-foreground/70">
             {t("byRarity")}
           </p>
           <div className="flex flex-col gap-1">

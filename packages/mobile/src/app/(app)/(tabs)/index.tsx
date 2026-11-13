@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { greetingPeriodFor, valueChangeOf } from "@magic-vault/shared";
 import { router, useIsFocused } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -19,17 +20,15 @@ import { HomeCardRail } from "@/features/home/components/home-card-rail";
 import { HomeHero } from "@/features/home/components/home-hero";
 import { HomeHighlightRow } from "@/features/home/components/home-highlight-row";
 import { HomeQuickActions } from "@/features/home/components/home-quick-actions";
-import { greetingKeyFor } from "@/features/home/lib/greeting";
 import { ColumnChart } from "@/features/stats/components/column-chart";
 import { useAppStream } from "@/features/stream/api/use-app-stream";
 import { widgetSummaryQueryOptions } from "@/features/widgets/api/widget-summary";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useSession } from "@/lib/auth/session";
-import { HOME_CARD_OF_THE_DAY_TILE_WIDTH } from "@/lib/constants/home";
-import { SPACING } from "@/lib/constants/theme";
+import { HOME_CARD_OF_THE_DAY_TILE_WIDTH, HOME_SKELETON_HEIGHTS, HOME_SKELETON_QUICK_ACTION_COUNT } from "@/lib/constants/home";
+import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import { WIDGET_ONE_DAY_MS } from "@/lib/constants/widgets";
-import { valueChangeOf } from "@/lib/value-change";
 
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
@@ -45,7 +44,7 @@ export default function HomeScreen() {
   const locale = i18n.language;
   const numberFormat = new Intl.NumberFormat(locale);
   const firstName = user?.name?.trim().split(/\s+/)[0];
-  const greeting = t(greetingKeyFor(new Date()));
+  const greeting = t(`home.greeting.${greetingPeriodFor(new Date())}`);
   const title = firstName ? t("home.greetingWithName", { greeting, name: firstName }) : greeting;
   const overviewData = overview.data;
   const summaryData = summary.data;
@@ -94,10 +93,22 @@ export default function HomeScreen() {
       {overview.isError ? <Callout tone="destructive" title={t("home.loadFailed")} /> : null}
 
       {overview.isPending ? (
-        <View style={{ gap: SPACING.lg }}>
-          <Skeleton height={232} />
-          <Skeleton height={96} />
-          <Skeleton height={180} />
+        <View style={{ gap: SPACING.lg + SPACING.xs }}>
+          <Skeleton height={HOME_SKELETON_HEIGHTS.hero} radius={SURFACE_RADIUS} />
+          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+            {Array.from({ length: HOME_SKELETON_QUICK_ACTION_COUNT }).map((_, index) => (
+              <View key={index} style={{ flex: 1 }}>
+                <Skeleton height={HOME_SKELETON_HEIGHTS.quickAction} radius={SURFACE_RADIUS} />
+              </View>
+            ))}
+          </View>
+          <View style={{ gap: SPACING.sm }}>
+            <Skeleton width="40%" height={20} />
+            <Surface style={{ gap: SPACING.md }}>
+              <Skeleton width="30%" height={28} />
+              <Skeleton height={HOME_SKELETON_HEIGHTS.activityChart} />
+            </Surface>
+          </View>
         </View>
       ) : overviewData ? (
         <>
@@ -129,12 +140,14 @@ export default function HomeScreen() {
           />
 
           {hasNoCollections ? (
-            <EmptyState
-              icon="sparkles"
-              title={t("home.welcome.title")}
-              description={t("home.welcome.description")}
-              action={<Button icon="plus" label={t("collections.new")} onPress={() => router.push("/collection-new")} />}
-            />
+            <Surface>
+              <EmptyState
+                icon="sparkles"
+                title={t("home.welcome.title")}
+                description={t("home.welcome.description")}
+                action={<Button icon="plus" label={t("collections.new")} onPress={() => router.push("/collection-new")} />}
+              />
+            </Surface>
           ) : null}
 
           {liveScanners.length > 0 || reviewCount > 0 ? (
@@ -190,26 +203,28 @@ export default function HomeScreen() {
           ) : null}
 
           {overviewData.cardCount > 0 ? (
-            <Surface style={{ gap: SPACING.md }}>
+            <View style={{ gap: SPACING.sm }}>
               <SectionHeader title={t("home.activity.title")} />
-              <View style={{ flexDirection: "row", gap: SPACING.xl }}>
-                <HomeActivityFigure value={numberFormat.format(overviewData.scansToday)} label={t("home.activity.today")} />
-                <HomeActivityFigure value={numberFormat.format(overviewData.scansThisWeek)} label={t("home.activity.thisWeek")} />
-              </View>
-              <ColumnChart
-                data={overviewData.scansByDay.map((day) => ({
-                  key: day.date,
-                  label: new Date(`${day.date}T00:00:00Z`).toLocaleDateString(locale, {
-                    month: "short",
-                    day: "numeric",
-                    timeZone: "UTC",
-                  }),
-                  value: day.count,
-                }))}
-                formatValue={(value) => t("home.activity.scans", { count: value })}
-                accessibilityLabel={t("home.activity.chartLabel")}
-              />
-            </Surface>
+              <Surface style={{ gap: SPACING.md }}>
+                <View style={{ flexDirection: "row", gap: SPACING.xl }}>
+                  <HomeActivityFigure value={numberFormat.format(overviewData.scansToday)} label={t("home.activity.today")} />
+                  <HomeActivityFigure value={numberFormat.format(overviewData.scansThisWeek)} label={t("home.activity.thisWeek")} />
+                </View>
+                <ColumnChart
+                  data={overviewData.scansByDay.map((day) => ({
+                    key: day.date,
+                    label: new Date(`${day.date}T00:00:00Z`).toLocaleDateString(locale, {
+                      month: "short",
+                      day: "numeric",
+                      timeZone: "UTC",
+                    }),
+                    value: day.count,
+                  }))}
+                  formatValue={(value) => t("home.activity.scans", { count: value })}
+                  accessibilityLabel={t("home.activity.chartLabel")}
+                />
+              </Surface>
+            </View>
           ) : null}
 
           <HomeCardRail

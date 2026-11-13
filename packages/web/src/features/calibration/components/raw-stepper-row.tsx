@@ -32,7 +32,7 @@ export function RawStepperRow({
       >
         -{smallStep}
       </Button>
-      <div className="flex flex-1 items-center justify-center border-y bg-background px-2 text-control font-semibold tabular-nums">
+      <div className="flex flex-1 items-center justify-center border-y bg-card px-2 text-control font-semibold tabular-nums">
         {valueLabel}
       </div>
       <Button

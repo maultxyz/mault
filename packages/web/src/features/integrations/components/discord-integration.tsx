@@ -42,9 +42,9 @@ export function DiscordIntegration() {
         : null;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:gap-2">
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#5865F2] text-white">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#5865F2] text-white">
           <IconBrandDiscord size={24} />
         </span>
         <div className="min-w-0 flex-1">

@@ -46,7 +46,7 @@ export default function BinsPage() {
         <AutoAssignPanel />
         <BinList />
       </section>
-      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 flex flex-col gap-4">
+      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 flex flex-col gap-4 md:gap-2">
         <div className="flex items-start justify-between gap-4">
           <SortingRulesIntro />
           <div className="flex shrink-0 items-center gap-2">

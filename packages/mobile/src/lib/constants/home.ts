@@ -11,5 +11,5 @@ export const HOME_HERO_SPARKLINE = {
 } as const;
 export const HOME_CARD_RAIL_TILE_WIDTH = 112;
 export const HOME_CARD_OF_THE_DAY_TILE_WIDTH = 148;
-export const HOME_MORNING_END_HOUR = 12;
-export const HOME_AFTERNOON_END_HOUR = 18;
+export const HOME_SKELETON_HEIGHTS = { hero: 232, quickAction: 100, activityChart: 120 } as const;
+export const HOME_SKELETON_QUICK_ACTION_COUNT = 3;

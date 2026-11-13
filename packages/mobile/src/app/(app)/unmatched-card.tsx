@@ -101,8 +101,6 @@ export default function UnmatchedCardScreen() {
                 aspectRatio: CARD_ASPECT_RATIO,
                 borderRadius: CARD_ART_RADIUS,
                 overflow: "hidden",
-                borderWidth: 1,
-                borderColor: colors.border,
                 backgroundColor: colors.muted,
               }}
             >

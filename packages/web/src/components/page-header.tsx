@@ -24,7 +24,7 @@ export function PageHeader({
         !tabs && "pb-2.5",
       )}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-2.5 px-4 pt-2.5 md:px-5">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 pt-2.5 md:px-5 md:pt-2">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div className="flex min-w-0 items-center gap-2">
             {backTo && (

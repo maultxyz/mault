@@ -67,7 +67,7 @@ export function AlphabetPanel() {
       : t("alphabetPanel.lastPassHint");
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1">
           <h2 className="text-sm font-semibold font-heading">
@@ -98,9 +98,9 @@ export function AlphabetPanel() {
         {configs.map((config) => (
           <div
             key={config.binNumber}
-            className="rounded-lg border p-2.5 flex items-center justify-between gap-2"
+            className="flex items-center justify-between gap-2 rounded-card bg-card p-3"
           >
-            <span className="text-sm font-medium font-heading">
+            <span className="text-sm font-medium">
               {t("binLabel", { number: config.binNumber })}
             </span>
             {config.binNumber === catchAll?.binNumber ? (

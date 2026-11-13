@@ -12,7 +12,10 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { ListGroupItem } from "@/components/ui/list-group-item";
+import { Surface } from "@/components/ui/surface";
+import { AppText } from "@/components/ui/app-text";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { storageLocationsPageQueryOptions, storageSearchQueryOptions } from "@/features/storage/api/storage";
@@ -82,7 +85,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         style={{ marginHorizontal: -SCREEN_GUTTER }}
         data={query ? [] : list}
         keyExtractor={(location) => location.guid}
-        contentContainerStyle={{ paddingBottom: SPACING.xxl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl }}
         keyboardShouldPersistTaps="handled"
         onEndReachedThreshold={LIST_END_THRESHOLD}
         onEndReached={() => {
@@ -99,7 +102,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         }
         ListHeaderComponent={
           locked || locations.isError || locationActions.remove.isError || query ? (
-            <View style={{ gap: SPACING.lg, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.lg }}>
+            <View style={{ gap: SPACING.lg, paddingBottom: SPACING.lg }}>
               {locked ? (
                 <Callout
                   tone="info"
@@ -114,7 +117,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                 results.data && results.data.length === 0 ? (
                   <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
                 ) : (
-                  <View style={{ marginHorizontal: -SPACING.sm }}>
+                  <Surface style={{ padding: SPACING.sm }}>
                     {(results.data ?? []).map((entry) => (
                       <CardRow
                         key={entry.scanId}
@@ -124,7 +127,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                         onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: entry.locationGuid } })}
                       />
                     ))}
-                  </View>
+                  </Surface>
                 )
               ) : null}
             </View>
@@ -132,28 +135,30 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         }
         ListEmptyComponent={
           query ? undefined : locations.isPending ? (
-            <View style={{ gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER }}>
-              <Skeleton height={52} />
-              <Skeleton height={52} />
-            </View>
+            <ListSkeleton rows={3} />
           ) : (
-            <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER }}>
-              <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
-            </View>
+            <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
           )
         }
         ListFooterComponent={
           locations.isFetchingNextPage ? <ListLoadingFooter /> : undefined
         }
-        renderItem={({ item: location }) => (
-          <ListRow
-            icon="storage"
-            title={location.name}
-            subtitle={t("storage.summary", { count: location.cardCount, value: pricing.format(location.totalValue) })}
-            onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: location.guid } })}
-            onLongPress={locked ? undefined : () => setActionsLocation({ guid: location.guid, name: location.name })}
-            longPressLabel={t("storage.actions")}
-          />
+        renderItem={({ item: location, index }) => (
+          <ListGroupItem index={index} count={list.length}>
+            <ListRow
+              icon="storage"
+              title={location.name}
+              subtitle={t("collection.cardsCount", { count: location.cardCount })}
+              right={
+                <AppText weight="semibold" numberOfLines={1} style={{ fontVariant: ["tabular-nums"] }}>
+                  {pricing.format(location.totalValue)}
+                </AppText>
+              }
+              onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: location.guid } })}
+              onLongPress={locked ? undefined : () => setActionsLocation({ guid: location.guid, name: location.name })}
+              longPressLabel={t("storage.actions")}
+            />
+          </ListGroupItem>
         )}
       />
       <OptionSheet

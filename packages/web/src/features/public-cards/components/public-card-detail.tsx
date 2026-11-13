@@ -61,7 +61,7 @@ export function PublicCardDetailView({
     return (
       <div className="flex min-h-full flex-col">
         {topBar}
-        <div className="flex flex-col gap-6 p-6 max-md:p-4">
+        <div className="flex flex-col gap-6 md:gap-3 p-6 max-md:p-4">
           {isError ? (
             <EmptyState icon={IconCards} title={t("publicBrowse.cardNotFound")} />
           ) : (
@@ -135,7 +135,7 @@ export function PublicCardDetailView({
             onClick={() => setViewerOpen(true)}
             aria-label={tCards("cardDetailPanel.enlargeImage")}
             title={tCards("cardDetailPanel.enlargeImage")}
-            className="relative aspect-[2.5/3.5] w-56 cursor-zoom-in overflow-hidden rounded-lg border transition-colors hover:border-primary/60 motion-reduce:transition-none max-md:w-full"
+            className="relative aspect-[2.5/3.5] w-56 cursor-zoom-in overflow-hidden rounded-lg bg-muted transition-shadow hover:ring-2 hover:ring-primary/60 motion-reduce:transition-none max-md:w-full"
           >
             <CapturedImageThumb
               src={shownScanUrl}
@@ -154,7 +154,7 @@ export function PublicCardDetailView({
             {t("publicBrowse.referenceImage")}
           </figcaption>
         )}
-        <div className="relative aspect-[2.5/3.5] w-56 overflow-hidden rounded-lg border shadow-sm max-md:w-full">
+        <div className="relative aspect-[2.5/3.5] w-56 overflow-hidden rounded-lg bg-muted max-md:w-full">
           <img
             src={card.image?.normal || ""}
             alt={card.name}
@@ -176,7 +176,7 @@ export function PublicCardDetailView({
         />
       )}
       {topBar}
-      <div className="@container flex flex-col gap-6 p-6 max-md:gap-5 max-md:p-4">
+      <div className="@container flex flex-col gap-6 md:gap-3 p-6 max-md:gap-5 max-md:p-4">
         <div className="min-w-0">
           <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
             <h2
@@ -233,7 +233,7 @@ export function PublicCardDetailView({
             {cardImages}
           </div>
 
-          <div className="flex min-w-0 flex-col gap-6">
+          <div className="flex min-w-0 flex-col gap-6 md:gap-3">
             <DetailSection title={tCards("cardDetailPanel.details")}>
               <div className="flex flex-col gap-4">
                 <CardDetailsList card={card} />

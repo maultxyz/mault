@@ -168,7 +168,6 @@
   },
   "stats": {
     "title": "Statistiques",
-    "subtitle": "Graphiques et chiffres de vos collections",
     "error": "Impossible de charger les statistiques. Réessayez dans un instant.",
     "empty": {
       "title": "Aucune carte pour l'instant",
@@ -1241,7 +1240,7 @@
     "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis dans Mode de tri. Désactive-le pour configurer les bacs."
   },
   "calibration": {
-    "title": "Calibrage",
+    "title": "Réglage du trieur",
     "subtitle": "Régler les servos et le chargeur",
     "entryTitle": "Calibrage",
     "entrySubtitle": "Positions des servos, temporisations et chargeur",
@@ -1598,11 +1597,11 @@
         "description": "Clés de l'API publique"
       },
       "notifications": {
-        "title": "Notifications",
+        "title": "Discord",
         "description": "Salons Discord, alertes et règles de notification"
       },
       "sounds": {
-        "title": "Sons",
+        "title": "Sons de scan",
         "description": "Joue un extrait quand une carte triée correspond à une règle"
       },
       "webhooks": {

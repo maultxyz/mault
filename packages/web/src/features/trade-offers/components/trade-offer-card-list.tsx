@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 export function TradeOfferCardList({ cards, prices, priceSource }: TradeOfferCardListProps) {
   const { t } = useTranslation("cards");
   return (
-    <ul className="flex flex-col divide-y rounded-lg border">
+    <ul className="flex flex-col divide-y divide-border">
       {cards.map((card, index) => (
         <li
           key={"scanId" in card ? card.scanId : `${card.gameKey}-${card.cardId}-${index}`}

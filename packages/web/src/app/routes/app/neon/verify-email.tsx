@@ -102,7 +102,7 @@ export default function VerifyEmailPage() {
         <CardContent>
           <form
             onSubmit={form.handleSubmit(handleVerify)}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-4 md:gap-2"
           >
             <Controller
               name="otp"

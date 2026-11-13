@@ -58,7 +58,7 @@ export function WebhookDialog({
     >
       <form
         id="webhook-form"
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 md:gap-2"
         onSubmit={form.handleSubmit((values) =>
           onSubmit({
             url: values.url,
@@ -97,7 +97,7 @@ export function WebhookDialog({
             control={form.control}
             name="events"
             render={({ field }) => (
-              <div className="divide-y rounded-lg border">
+              <div className="divide-y divide-border overflow-hidden rounded-xl bg-muted">
                 {WEBHOOK_EVENTS.map((event) => {
                   const id = `webhook-event-${event}`;
                   return (

@@ -137,7 +137,7 @@ export function ScanImageImportDialog({
             <button
               type="button"
               className={cn(
-                "flex min-h-40 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground motion-reduce:transition-none",
+                "flex min-h-40 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground motion-reduce:transition-none",
                 isDraggingOver && "border-primary/50 bg-primary/5 text-foreground",
               )}
               onClick={() => fileInputRef.current?.click()}
@@ -181,7 +181,7 @@ export function ScanImageImportDialog({
                 ].join(", ")}
               </p>
             </div>
-            <ul className="max-h-[50dvh] min-h-0 divide-y overflow-y-auto rounded-lg border">
+            <ul className="max-h-[50dvh] min-h-0 divide-y divide-border overflow-y-auto rounded-xl bg-muted">
               {items.map((item) => (
                 <ScanImageImportRow
                   key={item.id}

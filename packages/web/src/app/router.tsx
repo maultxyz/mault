@@ -3,6 +3,8 @@ import {
   SHOP_CATALOG_PATH_PREFIX,
 } from "@magic-vault/shared";
 import {
+  HOME_PATH,
+  LIBRARY_PATH,
   MOBILE_ACCOUNT_PATH,
   MOBILE_SCAN_PAIR_PATH,
   MOBILE_SCAN_PATH,
@@ -103,6 +105,9 @@ const loadAppLayout = withNamespaces(
 const loadScannerPage = () => import("@/app/routes/app/index");
 const loadMonitorSessionsPage = () =>
   import("@/app/routes/app/monitor-sessions");
+const loadHomePage = () => import("@/app/routes/app/home");
+const HomePage = lazy(loadHomePage);
+const LibraryPage = lazy(() => import("@/app/routes/app/library"));
 const AppLayout = lazy(loadAppLayout);
 const ScannerPage = lazy(loadScannerPage);
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
@@ -212,9 +217,8 @@ function AppChunkPreloader() {
   useEffect(() => {
     const ignoreFailure = () => {};
     loadAppLayout().catch(ignoreFailure);
-    (isMobile && !piHost ? loadMonitorSessionsPage() : loadScannerPage()).catch(
-      ignoreFailure,
-    );
+    loadHomePage().catch(ignoreFailure);
+    if (!isMobile || piHost) loadScannerPage().catch(ignoreFailure);
   }, [isMobile, piHost]);
   return null;
 }
@@ -250,7 +254,7 @@ function DesktopOnlyGuard() {
   if (!isMobile) return <Outlet />;
   if (piPage && !settled) return null;
   if (piPage && piHost) return <Outlet />;
-  return <Navigate to="/app/monitor" replace />;
+  return <Navigate to={HOME_PATH} replace />;
 }
 
 function LegacyIntakeRedirect() {
@@ -540,6 +544,14 @@ export const routes: RouteObject[] = [
                     ],
                   },
                 ],
+              },
+              {
+                path: HOME_PATH,
+                element: <HomePage />,
+              },
+              {
+                path: LIBRARY_PATH,
+                element: <LibraryPage />,
               },
               {
                 path: "/app/monitor",

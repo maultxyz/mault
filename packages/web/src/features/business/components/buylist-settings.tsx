@@ -25,10 +25,10 @@ export function BuylistSettings({ control, disabled }: BuylistSettingsProps) {
   const buylist = toBuylistConfig(useWatch({ control, name: "buylist" }));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex flex-col gap-2">
         <p className="text-sm font-medium">{t("settings.buylist.tiers")}</p>
-        <div className="divide-y rounded-lg border">
+        <div className="divide-y divide-border">
           {fields.map((tier, index) => (
             <div key={tier.id} className="flex items-start gap-3 px-3 py-2">
               <Controller
@@ -112,7 +112,7 @@ export function BuylistSettings({ control, disabled }: BuylistSettingsProps) {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
         <Controller
           control={control}
           name="buylist.minCardValue"
@@ -209,7 +209,7 @@ export function BuylistSettings({ control, disabled }: BuylistSettingsProps) {
             const cash = buylistOfferFor(price, buylist);
             const declined = isBelowBuylistMinimum(price, buylist);
             return (
-              <div key={price} className="rounded-md border p-2">
+              <div key={price} className="rounded-xl bg-muted p-2">
                 <p className="text-xs text-foreground/70">
                   {t("settings.buylist.previewMarket", {
                     price: format(price),

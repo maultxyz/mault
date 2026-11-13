@@ -98,7 +98,7 @@ export function IntakeAcceptDialog({
         </DialogHeader>
         <form
           id="intake-accept-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller
@@ -151,11 +151,11 @@ export function IntakeAcceptDialog({
               )}
             />
           )}
-          <div className="rounded-lg border p-3">
+          <div className="rounded-xl bg-muted p-3">
             <p className="text-xs text-foreground/70">
               {t(`intake.payoutTotal.${payoutMethod}`)}
             </p>
-            <p className="font-heading text-2xl font-semibold tabular-nums">
+            <p className="text-2xl font-bold tabular-nums">
               {format(payout)}
             </p>
             <p className="text-xs text-foreground/70">

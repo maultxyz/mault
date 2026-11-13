@@ -879,7 +879,7 @@ export function CardGrid() {
   };
 
   const renderCardList = (entries: GroupedScannedCard[]) => (
-    <div className="rounded-lg border">
+    <div className="overflow-hidden rounded-card bg-card">
       <ScannedCardTable
         rows={entries.map(toCardTableRow)}
         showQuantity={groupDuplicates && !scanTimelineGrouping}

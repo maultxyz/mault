@@ -122,7 +122,7 @@ export function GameFieldDefinitionsEditor() {
       {listError && <Callout variant="error">{listError}</Callout>}
 
       {showSample && gameKey && (
-        <div className="flex max-h-96 flex-col overflow-hidden rounded-lg border p-3">
+        <div className="flex max-h-96 flex-col overflow-hidden rounded-xl bg-muted p-3">
           <SampleCardBrowser gameKey={gameKey} onPick={handlePick} />
         </div>
       )}
@@ -134,7 +134,7 @@ export function GameFieldDefinitionsEditor() {
           title={t("fieldDefinitionsEditor.empty")}
         />
       ) : (
-        <div className="rounded-lg border">
+        <div>
           <Table className="min-w-3xl text-xs">
             <TableHeader>
               <TableRow>

@@ -25,7 +25,7 @@ export function SupportPromptToast({
   const close = () => toast.dismiss(toastId);
 
   return (
-    <div className="flex w-[356px] max-w-full flex-col gap-3 rounded-lg border bg-popover p-4 text-popover-foreground shadow-lg">
+    <div className="flex w-[356px] max-w-full flex-col gap-3 rounded-xl bg-popover p-4 text-popover-foreground shadow-popover ring-1 ring-border">
       <div className="flex items-start gap-2.5">
         <IconHeart className="mt-0.5 size-4 shrink-0 text-destructive" />
         <div className="flex flex-col gap-1">

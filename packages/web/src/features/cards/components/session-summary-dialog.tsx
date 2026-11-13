@@ -562,8 +562,8 @@ export function SessionSummaryDialog({
   const summaryCellCols = summaryCells.length % 3 === 0 ? 3 : 2;
 
   const statsRecap = (
-    <div className="flex flex-col gap-3">
-      <div className="rounded-lg border bg-input/20 dark:bg-input/30 divide-y divide-border">
+    <div className="flex flex-col gap-3 md:gap-2">
+      <div className="divide-y divide-border overflow-hidden rounded-xl bg-muted">
         <div
           className={cn(
             "grid",
@@ -585,7 +585,7 @@ export function SessionSummaryDialog({
         </div>
         {stats?.mostValuable && (
           <div className="px-2.5 py-2 flex items-center justify-between gap-2">
-            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide shrink-0">
+            <p className="shrink-0 text-xs text-foreground/70">
               {t("sessionSummaryDialog.mostValuable")}
             </p>
             <div className="flex items-center gap-2 min-w-0">
@@ -608,8 +608,8 @@ export function SessionSummaryDialog({
           }
         >
           {stats.rarities.length > 0 && (
-            <div className="rounded-lg border bg-input/20 dark:bg-input/30 p-2.5">
-              <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
+            <div className="rounded-xl bg-muted p-2.5">
+              <p className="mb-1.5 text-xs text-foreground/70">
                 {t("sessionSummaryDialog.byRarity")}
               </p>
               <div className="flex flex-col gap-1">
@@ -631,8 +631,8 @@ export function SessionSummaryDialog({
               </div>
             </div>
           )}
-          <div className="rounded-lg border bg-input/20 dark:bg-input/30 p-2.5">
-            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
+          <div className="rounded-xl bg-muted p-2.5">
+            <p className="mb-1.5 text-xs text-foreground/70">
               {t("sessionSummaryDialog.topSets")}
             </p>
             <div className="flex flex-col gap-1">

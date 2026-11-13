@@ -14,10 +14,11 @@ import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
+import { Surface } from "@/components/ui/surface";
 import { createWebhook, updateWebhook, webhooksQueryOptions } from "@/features/integrations/api/webhooks";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function WebhookEditScreen() {
@@ -70,11 +71,11 @@ export default function WebhookEditScreen() {
           <AppText size="sm" tone="secondary">
             {t("settings.webhooks.secretDescription")}
           </AppText>
-          <View style={{ padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
+          <Surface>
             <AppText mono selectable>
               {secret}
             </AppText>
-          </View>
+          </Surface>
         </PinnedActionsLayout>
       </View>
     );

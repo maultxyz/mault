@@ -19,9 +19,7 @@ export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps
         height: 36,
         paddingHorizontal: SPACING.md + 2,
         borderRadius: CONTROL_RADIUS,
-        borderWidth: 1,
-        borderColor: selected ? colors.primarySelected : colors.border,
-        backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : colors.background,
+        backgroundColor: selected ? colors.primarySelected : pressed ? colors.tonalPressed : colors.tonal,
       })}
     >
       {swatch ? (

@@ -63,7 +63,7 @@ export default function AccountPage() {
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 md:gap-2 p-4 md:px-3 md:py-2">
           {!isMobile && (
             <div>
               <h1 className="font-heading text-lg font-semibold">

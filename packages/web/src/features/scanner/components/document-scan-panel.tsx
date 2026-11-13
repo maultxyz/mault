@@ -35,7 +35,7 @@ export function DocumentScanPanel({
   } = documentScan;
 
   return (
-    <section className="flex flex-col gap-3 rounded-lg p-3 ring-1 ring-border">
+    <section className="flex flex-col gap-3 md:gap-2 rounded-xl bg-muted p-3">
       <p className="text-sm font-medium">
         {t("importScans.documentScan.title")}
       </p>

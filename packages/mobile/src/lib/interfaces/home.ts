@@ -1,6 +1,6 @@
 import type { OrgOverviewCard } from "@magic-vault/shared";
 import type { IconName } from "@/lib/interfaces/ui";
-import type { ValueChange } from "@/lib/interfaces/value-change";
+import type { ValueChange } from "@magic-vault/shared";
 
 export interface HomeHeroStat {
   label: string;
@@ -48,14 +48,4 @@ export interface HomeHighlightRowProps {
 export interface HomeActivityFigureProps {
   value: string;
   label: string;
-}
-
-export interface SparklinePaths {
-  line: string;
-  area: string;
-}
-
-export interface ChartPoint {
-  x: number;
-  y: number;
 }

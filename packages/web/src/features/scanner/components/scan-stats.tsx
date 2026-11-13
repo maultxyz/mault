@@ -87,7 +87,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
     return (
       <div
         data-tour="scan-stats"
-        className="rounded-lg bg-input/20 dark:bg-input/30 border border-input text-xs font-semibold text-foreground/70 p-2"
+        className="rounded-card bg-card p-3 text-xs font-semibold text-foreground/70"
       >
         {t("scanStats.emptyState")}
       </div>
@@ -195,7 +195,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 className={cn(
                   i % 2 === 0 && "border-r",
                   i < statCards.length - 2 && "border-b",
-                  "border-input",
+                  "border-border",
                 )}
               >
                 {card.trend && (
@@ -217,8 +217,8 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
             ))}
           </div>
           {stats.mostValuable && (
-            <div className="p-2 border-t border-input">
-              <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide">
+            <div className="border-t border-border p-3">
+              <p className="text-xs text-foreground/70">
                 {t("mostValuable")}
               </p>
               <div className="flex flex-row justify-between items-center">
@@ -375,9 +375,9 @@ function StatCard({
 }) {
   const { t } = useTranslation("scanner");
   return (
-    <div className={`p-2 ${className ?? ""}`}>
+    <div className={`p-3 ${className ?? ""}`}>
       <div className="flex items-center gap-1.5">
-        <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide">
+        <p className="text-xs text-foreground/70">
           {label}
         </p>
         {indicator !== undefined && (

@@ -28,9 +28,9 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
           .filter(Boolean)
           .join(", "),
       })}
-      className="flex cursor-pointer flex-col rounded-lg border bg-muted p-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="flex cursor-pointer flex-col rounded-card bg-card p-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className="relative block aspect-[2.5/3.5] overflow-hidden rounded-md">
+      <span className="relative block aspect-[2.5/3.5] overflow-hidden rounded-lg">
         {entry.isFoil && (
           <span
             className={cn(

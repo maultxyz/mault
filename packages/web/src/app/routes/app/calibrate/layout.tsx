@@ -128,7 +128,7 @@ export default function CalibrateLayout() {
 
         <div
           className={cn(
-            "flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4",
+            "flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4 md:gap-2",
             isMobile && piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
           )}
         >
@@ -279,11 +279,11 @@ export default function CalibrateLayout() {
               {t("common:impersonation.calibrationReadOnly")}
             </Callout>
           )}
-          <SettingsSectionLayoutContext value="flat">
+          <SettingsSectionLayoutContext value="card">
             <div
               inert={isSessionActive || isImpersonating}
               aria-disabled={isSessionActive || isImpersonating}
-              className="flex flex-1 flex-col gap-6 pb-4"
+              className="flex flex-1 flex-col gap-6 md:gap-2 pb-4"
             >
               <PageIntro
                 title={t(`sections.${section}`)}

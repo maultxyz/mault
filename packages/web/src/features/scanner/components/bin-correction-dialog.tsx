@@ -17,8 +17,8 @@ import { useTranslation } from "react-i18next";
 function BinTile({ label, bin }: BinCorrectionTileProps) {
   const { t } = useTranslation("scanner");
   return (
-    <div className="flex flex-1 flex-col items-center gap-1 rounded-md border bg-muted p-3">
-      <span className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+    <div className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-muted p-3">
+      <span className="text-xs font-medium text-foreground/70">
         {label}
       </span>
       <span className="font-heading text-lg font-semibold">

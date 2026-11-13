@@ -15,3 +15,5 @@ export const STATS_PRICE_BUCKETS = [
   { key: "20to100", min: 20, max: 100 },
   { key: "over100", min: 100, max: null },
 ] as const;
+export const STATS_HIGH_VALUE_MIN_PRICE = 20;
+export const STATS_SPARKLINE_MIN_POINTS = 2;

@@ -877,7 +877,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
 
   if (effectiveMode.scanOnly) {
     return (
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 md:gap-2">
         <div className="flex items-center gap-4">
           {showTitle && (
             <h2 className="text-sm font-semibold font-heading">
@@ -896,7 +896,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
   }
 
   const rulesSection = !isClaimedOverflow && (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-3 md:gap-2">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
           <h3 className="font-heading text-sm font-semibold">
@@ -992,7 +992,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
         </div>
         {catchAllNotice}
         <ScrollArea>
-          <div className="flex flex-col gap-6 pb-2">
+          <div className="flex flex-col gap-6 md:gap-2 pb-2">
             {isDisabled && (
               <Callout>{t("binConfigPanel.disabledNotice")}</Callout>
             )}

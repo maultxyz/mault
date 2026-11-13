@@ -12,8 +12,6 @@ export function TabStrip<T extends string>({ items, value, onChange, inline = fa
       style={{
         flexDirection: "row",
         paddingHorizontal: inline ? 0 : SCREEN_GUTTER - SPACING.sm,
-        borderBottomWidth: inline ? 0 : 1,
-        borderBottomColor: colors.border,
       }}
     >
       {items.map((item) => {

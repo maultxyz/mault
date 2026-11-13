@@ -2,7 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, Pressable, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import {
   allExportAdapters,
   DEFAULT_CARD_SORT,
@@ -17,7 +17,7 @@ import { CardTile } from "@/components/cards/card-tile";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { TabStrip } from "@/components/ui/tab-strip";
@@ -58,7 +58,7 @@ import type { CardViewMode } from "@/lib/interfaces/collections";
 import { readKv, writeKv } from "@/lib/storage/kv";
 import { STORAGE_LOCATION_TABS } from "@/lib/constants/storage";
 import type { StorageLocationTab } from "@/lib/interfaces/storage";
-import { CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import { readReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
@@ -185,22 +185,7 @@ export default function StorageLocationScreen() {
           onBack={() => router.back()}
           actions={
             menuOptions.length === 0 ? null : (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t("storage.actions")}
-              hitSlop={SPACING.sm}
-              onPress={() => setMenuOpen(true)}
-              style={({ pressed }) => ({
-                width: 32,
-                height: 32,
-                borderRadius: CONTROL_RADIUS,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: pressed ? colors.muted : "transparent",
-              })}
-            >
-              <Icon name="more" size={18} color={colors.foreground} />
-            </Pressable>
+            <IconButton icon="more" accessibilityLabel={t("storage.actions")} onPress={() => setMenuOpen(true)} />
             )
           }
           tabs={

@@ -103,7 +103,7 @@ function PriceHeadline({
 
   return (
     <div className="flex min-w-36 flex-col gap-0.5 rounded-md bg-muted px-3 py-2">
-      <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+      <span className="text-xs font-medium text-foreground/70">
         {label}
       </span>
       <span className="font-heading text-sm font-semibold tabular-nums">

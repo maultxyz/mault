@@ -8,7 +8,7 @@ export const MOBILE_SHEET_BACKDROP_CLASS =
   "pointer-events-auto fixed inset-0 z-50 bg-black/40 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0 md:hidden";
 
 export const MOBILE_SHEET_ITEM_CLASS =
-  "max-md:min-h-12 max-md:gap-3 max-md:rounded-md max-md:px-3 max-md:text-base max-md:[&_svg:not([class*='size-'])]:size-5";
+  "max-md:min-h-12 max-md:gap-2 max-md:rounded-md max-md:px-3 max-md:text-base max-md:[&_svg:not([class*='size-'])]:size-5";
 
 export const MOBILE_COMBOBOX_TRIGGER_CLASS =
   "flex h-10 w-auto min-w-0 items-center gap-2 rounded-md border border-input bg-input/20 px-3 text-left text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30";

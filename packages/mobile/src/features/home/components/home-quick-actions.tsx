@@ -1,8 +1,10 @@
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
+import { IconBadge } from "@/components/ui/icon-badge";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
+import { ICON_BADGE_SIZE } from "@/lib/constants/ui";
 import type { HomeQuickActionsProps } from "@/lib/interfaces/home";
 
 export function HomeQuickActions({ actions }: HomeQuickActionsProps) {
@@ -28,18 +30,22 @@ export function HomeQuickActions({ actions }: HomeQuickActionsProps) {
             transform: [{ scale: pressed ? 0.97 : 1 }],
           })}
         >
-          <View
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: RADIUS.full,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: action.isPrimary ? colors.onBrandSurface : colors.primaryMuted,
-            }}
-          >
-            <Icon name={action.icon} size={20} color={action.isPrimary ? colors.primaryForeground : colors.primaryText} />
-          </View>
+          {action.isPrimary ? (
+            <View
+              style={{
+                width: ICON_BADGE_SIZE,
+                height: ICON_BADGE_SIZE,
+                borderRadius: RADIUS.full,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: colors.onBrandSurface,
+              }}
+            >
+              <Icon name={action.icon} size={Math.round(ICON_BADGE_SIZE * 0.48)} color={colors.primaryForeground} />
+            </View>
+          ) : (
+            <IconBadge name={action.icon} tone="primary" />
+          )}
           <AppText
             size="xs"
             weight="semibold"

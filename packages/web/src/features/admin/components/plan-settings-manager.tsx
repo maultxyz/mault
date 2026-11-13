@@ -40,7 +40,7 @@ export function PlanSettingsManager() {
     <div
       className={cn(
         PLAN_GRID_CLASS,
-        "px-3 py-2 text-xs font-medium uppercase tracking-wide text-foreground/70",
+        "px-3 py-2 text-xs font-medium text-foreground/70",
       )}
     >
       <span />
@@ -70,7 +70,7 @@ export function PlanSettingsManager() {
           </Button>
         }
       >
-        <div className="divide-y rounded-lg border">
+        <div className="divide-y divide-border">
           {planHeader}
           {PLAN_FEATURE_KEYS.map((feature) => (
             <div
@@ -108,7 +108,7 @@ export function PlanSettingsManager() {
         heading={t("plans.limitsHeading")}
         description={t("plans.limitsDescription")}
       >
-        <div className="divide-y rounded-lg border">
+        <div className="divide-y divide-border">
           {planHeader}
           {PLAN_LIMIT_KEYS.map((limit) => (
             <div

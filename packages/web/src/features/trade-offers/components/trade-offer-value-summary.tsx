@@ -13,7 +13,7 @@ export function TradeOfferValueSummary({ offer }: TradeOfferValueSummaryProps) {
     offer.offeredPrices.some((price) => price == null);
 
   return (
-    <div className="flex flex-col gap-1 rounded-lg p-3 ring-1 ring-border">
+    <div className="flex flex-col gap-1 rounded-xl bg-muted p-3">
       <div className="grid grid-cols-2 gap-3 text-control">
         <div className="flex flex-col">
           <span className="text-xs text-foreground/70">{t("tradeOffers.theyGetValue")}</span>

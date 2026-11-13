@@ -41,7 +41,7 @@
   },
   "orgSwitcher": {
     "organizations": "Organizations",
-    "manageOrganizations": "Organization Settings",
+    "manageOrganizations": "Organization settings",
     "newOrganizationTitle": "New Organization",
     "newOrganizationDescription": "Create a new organization to scope your bins, collections, and calibration.",
     "cancel": "Cancel",

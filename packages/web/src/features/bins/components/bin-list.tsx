@@ -93,7 +93,7 @@ export function BinList({ onOpenBin }: BinListProps) {
   return (
     <div className="flex flex-col gap-2 overflow-y-auto" data-tour="bin-list">
       <SortTestButton disabled={isModeDirty} />
-      <div className="grid grid-cols-2 overflow-hidden rounded-lg border">
+      <div className="grid grid-cols-2 overflow-hidden rounded-card bg-card">
         {slots.map(({ key, config, cellClassName }) =>
           config ? (
             <div key={key} className={cn("flex min-w-0", cellClassName)}>

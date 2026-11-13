@@ -55,7 +55,7 @@ export function AccuracyReportView({
     stats && stats.cardCount ? formatPercent(value / stats.cardCount) : "-";
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Select
           value={selectedGuid ?? ""}
@@ -136,7 +136,7 @@ export function AccuracyReportView({
               description={t("accuracy.noChecksDescription")}
             />
           ) : (
-            <div className="overflow-hidden rounded-lg border">
+            <div className="overflow-hidden rounded-card bg-card">
               <Table>
                 <TableHeader>
                   <TableRow>

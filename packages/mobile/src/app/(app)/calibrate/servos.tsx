@@ -47,7 +47,7 @@ export default function CalibrateScreen() {
         onBack={() => router.back()}
         subtitleAccessory={<Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />}
       />
-      <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg + SPACING.xs }}>
         {!sorter.isConnected ? (
           <Callout
             tone="warning"

@@ -55,8 +55,8 @@ export const CardTile = memo(function CardTile({
           borderRadius: CARD_ART_RADIUS,
           overflow: "hidden",
           backgroundColor: colors.muted,
-          borderWidth: selected || awaitingReview ? 2 : 1,
-          borderColor: selected ? colors.primary : awaitingReview ? colors.warning : colors.border,
+          borderWidth: selected || awaitingReview ? 2 : 0,
+          borderColor: selected ? colors.primary : colors.warning,
           opacity: disabled ? 0.5 : 1,
         }}
       >

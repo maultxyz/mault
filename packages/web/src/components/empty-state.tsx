@@ -22,7 +22,7 @@ export function EmptyState({
       {Icon && (
         <div
           className={cn(
-            "relative flex items-center justify-center rounded-full bg-muted text-foreground/70",
+            "relative flex items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary",
             compact ? "size-10" : "size-14",
           )}
         >

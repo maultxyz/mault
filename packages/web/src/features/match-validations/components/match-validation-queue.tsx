@@ -87,7 +87,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
     : fixedOcrRegions;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-foreground/70">
         {counts && (
           <span>
@@ -136,13 +136,13 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
         />
       ) : (
         <>
-          <div className="flex flex-col gap-4 md:flex-row md:items-start">
+          <div className="flex flex-col gap-4 md:gap-2 md:flex-row md:items-start">
             <div className="grid w-full grid-cols-2 gap-3 md:max-w-xl">
               <figure className="flex min-w-0 flex-col gap-1.5">
                 <figcaption className="text-xs text-foreground/70">
                   {t("scanPhoto")}
                 </figcaption>
-                <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-lg ring-1 ring-border">
+                <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-lg bg-muted">
                   {current.capturedImageUrl && (
                     <img
                       key={current.scanId}
@@ -165,7 +165,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
                 <figcaption className="text-xs text-foreground/70">
                   {t("matchedCard")}
                 </figcaption>
-                <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-lg ring-1 ring-border">
+                <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-lg bg-muted">
                   {current.catalogImageUrl && (
                     <img
                       key={current.scanId}
@@ -185,7 +185,7 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
                 )}
               </figure>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 md:gap-2">
               <dl aria-live="polite" className="flex flex-col gap-1 text-xs">
                 <dt className="text-sm font-medium">{cardName}</dt>
                 <dd className="text-foreground/70">

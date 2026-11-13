@@ -1,6 +1,7 @@
-import type { WidgetValueTrend } from "@magic-vault/shared";
-import { WIDGET_VALUE_CHANGE_EPSILON } from "@/lib/constants/widgets";
-import type { ValueChange } from "@/lib/interfaces/value-change";
+import type { ValueChange } from "./interfaces/value-change.interface";
+import type { WidgetValueTrend } from "./interfaces/widget-summary.interface";
+
+export const VALUE_CHANGE_EPSILON = 0.005;
 
 export function valueChangeOf(
   trend: Pick<WidgetValueTrend, "totalValue" | "previousValue">,
@@ -10,7 +11,7 @@ export function valueChangeOf(
   if (trend.previousValue === null) return null;
   const difference = trend.totalValue - trend.previousValue;
   const direction =
-    difference > WIDGET_VALUE_CHANGE_EPSILON ? "up" : difference < -WIDGET_VALUE_CHANGE_EPSILON ? "down" : "flat";
+    difference > VALUE_CHANGE_EPSILON ? "up" : difference < -VALUE_CHANGE_EPSILON ? "down" : "flat";
   const sign = direction === "up" ? "+" : direction === "down" ? "-" : "";
   const change = `${sign}${formatPrice(Math.abs(difference))}`;
   const percent =

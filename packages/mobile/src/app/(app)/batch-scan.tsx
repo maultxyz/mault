@@ -7,12 +7,14 @@ import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Camera, type CameraRef, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
 import { AppText } from "@/components/ui/app-text";
+import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Surface } from "@/components/ui/surface";
 import { useBatchScan } from "@/features/scanner/api/use-batch-scan";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
@@ -139,7 +141,7 @@ export default function BatchScanScreen() {
           subtitle={batch.collection?.name}
           onBack={() => router.back()}
         />
-        <ScrollView contentContainerStyle={{ paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg }}>
+        <ScrollView contentContainerStyle={{ paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg + SPACING.xs }}>
           <View style={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.sm }}>
             {modeControl}
             <BatchScanPhoto photo={batch.photo} cards={batch.cards} />
@@ -154,7 +156,7 @@ export default function BatchScanScreen() {
               <Callout tone="warning" title={t("batchScan.noneFoundTitle")} description={t("batchScan.noneFoundDescription")} />
             </View>
           ) : (
-            <View>
+            <Surface padded={false} style={{ marginHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.xs }}>
               {batch.cards.map((card, index) => (
                 <View key={card.key}>
                   <BatchScanRow
@@ -166,20 +168,10 @@ export default function BatchScanScreen() {
                   />
                 </View>
               ))}
-            </View>
+            </Surface>
           )}
         </ScrollView>
-        <View
-          style={{
-            flexDirection: "row",
-            gap: SPACING.sm,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            paddingHorizontal: SCREEN_GUTTER,
-            paddingTop: SPACING.md,
-            paddingBottom: SPACING.md + insets.bottom,
-          }}
-        >
+        <BottomActionBar direction="row">
           <Button
             style={{ flex: 1 }}
             variant="secondary"
@@ -208,7 +200,7 @@ export default function BatchScanScreen() {
               onPress={() => void saveCards()}
             />
           )}
-        </View>
+        </BottomActionBar>
         {batch.collection ? (
           <BatchScanCorrectionSheet
             card={correcting}

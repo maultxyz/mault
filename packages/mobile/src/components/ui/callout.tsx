@@ -9,12 +9,12 @@ import type { CalloutProps } from "@/lib/interfaces/ui";
 export function Callout({ tone = "info", title, description, action }: CalloutProps) {
   const colors = useTheme();
   const palette = {
-    info: { bg: colors.infoMuted, border: colors.infoBorder, fg: colors.infoForeground, icon: "info" },
-    success: { bg: colors.successMuted, border: colors.successBorder, fg: colors.successForeground, icon: "success" },
-    warning: { bg: colors.warningMuted, border: colors.warningBorder, fg: colors.warningForeground, icon: "warning" },
-    destructive: { bg: colors.destructiveMuted, border: colors.destructiveBorder, fg: colors.destructive, icon: "error" },
+    info: { bg: colors.infoMuted, fg: colors.infoForeground, icon: "info" },
+    success: { bg: colors.successMuted, fg: colors.successForeground, icon: "success" },
+    warning: { bg: colors.warningMuted, fg: colors.warningForeground, icon: "warning" },
+    destructive: { bg: colors.destructiveMuted, fg: colors.destructive, icon: "error" },
   } as const;
-  const { bg, border, fg, icon } = palette[tone];
+  const { bg, fg, icon } = palette[tone];
   const announcesChanges = tone === "destructive";
   const announcement = [title, description].filter(Boolean).join(". ");
   useEffect(() => {
@@ -32,9 +32,8 @@ export function Callout({ tone = "info", title, description, action }: CalloutPr
         paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.sm,
         borderRadius: RADIUS.lg,
-        borderWidth: 1,
+        borderCurve: "continuous",
         backgroundColor: bg,
-        borderColor: border,
       }}
     >
       <View style={{ marginTop: 1 }}>

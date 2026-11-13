@@ -12,26 +12,27 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { InitialBadge } from "@/components/ui/initial-badge";
+import { Surface } from "@/components/ui/surface";
 import { useRole } from "@/hooks/use-role";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useLanguagePreference } from "@/hooks/use-language-preference";
 import { useSwitchOrg } from "@/hooks/use-org";
-import { useTheme } from "@/hooks/use-theme";
 import { useThemePreference } from "@/hooks/use-theme-preference";
 import { signOut, useSession } from "@/lib/auth/session";
 import { API_BASE, AUTH_PROVIDER } from "@/lib/constants/config";
 import { APP_LANGUAGES, LANGUAGE_NAMES } from "@/lib/constants/i18n";
-import { ICON_BADGE_SIZE, THEME_PREFERENCES } from "@/lib/constants/ui";
+import { PROFILE_INITIAL_BADGE_SIZE } from "@/lib/constants/account";
+import { THEME_PREFERENCES } from "@/lib/constants/ui";
 import type { LanguagePreference } from "@/lib/interfaces/i18n";
 import type { ThemePreference } from "@/lib/interfaces/theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import { getInitials } from "@/lib/initials";
 
 export default function AccountScreen() {
   const { t } = useTranslation();
   const { isStaff } = useRole();
-  const colors = useTheme();
   const queryClient = useQueryClient();
   const { user, organizations, activeOrgId } = useSession();
   const { pendingCount } = usePendingSaves();
@@ -43,32 +44,21 @@ export default function AccountScreen() {
 
   return (
     <Screen header={<PageHeader title={t("tabs.more")} />}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
-        <View
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: RADIUS.full,
-            backgroundColor: colors.primary,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <AppText size="lg" weight="bold" style={{ color: colors.primaryForeground }}>
-            {getInitials(user?.name ?? user?.email)}
-          </AppText>
-        </View>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <AppText size="lg" heading weight="bold" numberOfLines={1} accessibilityRole="header">
-            {user?.name || user?.email}
-          </AppText>
-          {user?.name && user.email ? (
-            <AppText size="sm" tone="secondary" numberOfLines={1}>
-              {user.email}
+      <Surface>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
+          <InitialBadge initials={getInitials(user?.name ?? user?.email)} tone="solid" size={PROFILE_INITIAL_BADGE_SIZE} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <AppText size="lg" heading weight="bold" numberOfLines={1} accessibilityRole="header">
+              {user?.name || user?.email}
             </AppText>
-          ) : null}
+            {user?.name && user.email ? (
+              <AppText size="sm" tone="secondary" numberOfLines={1}>
+                {user.email}
+              </AppText>
+            ) : null}
+          </View>
         </View>
-      </View>
+      </Surface>
       {pendingCount > 0 ? (
         <Callout
           tone="info"
@@ -81,7 +71,7 @@ export default function AccountScreen() {
         {organizations.length === 0 ? (
           <Callout tone="warning" title={t("account.noOrganizations")} />
         ) : (
-          <ListGroup>
+        <ListGroup>
             {organizations.map((org) => {
               const active = org.id === activeOrgId;
               return (
@@ -91,62 +81,51 @@ export default function AccountScreen() {
                   subtitle={t(`account.roles.${org.role}`, { defaultValue: org.role })}
                   selected={active}
                   onPress={() => switchOrg(org.id)}
-                  leading={
-                    <View
-                      style={{
-                        width: ICON_BADGE_SIZE,
-                        height: ICON_BADGE_SIZE,
-                        borderRadius: RADIUS.md,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: active ? colors.primary : colors.muted,
-                      }}
-                    >
-                      <AppText
-                        size="sm"
-                        weight="bold"
-                        style={{ color: active ? colors.primaryForeground : colors.foreground }}
-                      >
-                        {org.name[0]?.toUpperCase()}
-                      </AppText>
-                    </View>
-                  }
+                  leading={<InitialBadge initials={org.name[0]?.toUpperCase() ?? ""} tone={active ? "solid" : "neutral"} />}
                 />
               );
             })}
           </ListGroup>
         )}
       </View>
-      <ListGroup>
-        <ListRow icon="sorter" title={t("tabs.sorter")} onPress={() => router.push("/sorter")} />
-        <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
-        <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
-      </ListGroup>
-      <ListGroup>
-        <ListRow
-          icon="adjust"
-          title={t("settings.title")}
-          subtitle={t("settings.entrySubtitle")}
-          onPress={() => router.push("/settings")}
-        />
-        <ListRow
-          icon="account"
-          title={t("account.settingsRow")}
-          subtitle={AUTH_PROVIDER === "local" ? t("account.settingsRowSubtitleLocal") : t("account.settingsRowSubtitle")}
-          onPress={() => router.push("/profile")}
-        />
-        <ListRow icon="health" title={t("health.title")} subtitle={t("health.subtitle")} onPress={() => router.push("/health")} />
-        {isStaff ? (
-          <ListRow icon="admin" title={t("admin.title")} subtitle={t("admin.entrySubtitle")} onPress={() => router.push("/admin")} />
-        ) : null}
-      </ListGroup>
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("tabs.sorter")} />
+        <ListGroup>
+          <ListRow icon="sorter" title={t("tabs.sorter")} onPress={() => router.push("/sorter")} />
+          <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
+          <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
+        </ListGroup>
+      </View>
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("account.profile.title")} />
+        <ListGroup>
+          <ListRow
+            icon="adjust"
+            title={t("settings.title")}
+            subtitle={t("settings.entrySubtitle")}
+            onPress={() => router.push("/settings")}
+          />
+          <ListRow
+            icon="account"
+            title={t("account.settingsRow")}
+            subtitle={AUTH_PROVIDER === "local" ? t("account.settingsRowSubtitleLocal") : t("account.settingsRowSubtitle")}
+            onPress={() => router.push("/profile")}
+          />
+          <ListRow icon="health" title={t("health.title")} subtitle={t("health.subtitle")} onPress={() => router.push("/health")} />
+          {isStaff ? (
+            <ListRow icon="admin" title={t("admin.title")} subtitle={t("admin.entrySubtitle")} onPress={() => router.push("/admin")} />
+          ) : null}
+        </ListGroup>
+      </View>
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("account.appearance")} />
-        <SegmentedControl<ThemePreference>
-          value={themePreference}
-          onChange={setThemePreference}
-          options={THEME_PREFERENCES.map((value) => ({ value, label: t(`account.themes.${value}`) }))}
-        />
+        <Surface>
+          <SegmentedControl<ThemePreference>
+            value={themePreference}
+            onChange={setThemePreference}
+            options={THEME_PREFERENCES.map((value) => ({ value, label: t(`account.themes.${value}`) }))}
+          />
+        </Surface>
         <ListGroup>
           <ListRow
             icon="language"

@@ -1001,14 +1001,13 @@ export function CardScanner({
       <div className={showStatusStrip ? "flex flex-col" : "contents"}>
         <div
           className={cn(
-            "relative isolate overflow-hidden bg-background rounded-lg border",
-            viewerTouchesPanelEdges && "rounded-none border-x-0 border-t-0",
+            "relative isolate overflow-hidden rounded-card bg-card",
+            viewerTouchesPanelEdges && "rounded-none border-b",
             isSideControls
               ? "h-full aspect-[2.5/3.5] shrink-0"
               : "w-full h-full max-w-full",
             !compact && !isSideControls && "md:aspect-[2.5/3.5]",
-            isRemoveModeActive &&
-              "border-destructive ring-2 ring-destructive/40",
+            isRemoveModeActive && "ring-2 ring-destructive ring-inset",
           )}
         >
           <video ref={videoRef} className="hidden" playsInline muted />
@@ -1048,7 +1047,7 @@ export function CardScanner({
               </TooltipTrigger>
               <TooltipContent
                 side="right"
-                className="bg-background text-foreground border border-border p-0 shadow-lg max-w-none"
+                className="max-w-none overflow-hidden rounded-xl bg-popover p-0 text-popover-foreground shadow-popover ring-1 ring-border"
               >
                 <img
                   src={debugImageUrl}

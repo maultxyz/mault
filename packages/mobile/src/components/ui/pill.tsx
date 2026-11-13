@@ -9,7 +9,7 @@ import type { PillProps } from "@/lib/interfaces/ui";
 export function Pill({ label, tone = "neutral", icon }: PillProps) {
   const colors = useTheme();
   const palette = {
-    neutral: { bg: colors.inputBackground, border: colors.border, fg: colors.foreground },
+    neutral: { bg: colors.tonal, border: "transparent", fg: colors.foreground },
     info: { bg: colors.infoMuted, border: "transparent", fg: colors.infoForeground },
     success: { bg: colors.successMuted, border: "transparent", fg: colors.successForeground },
     warning: { bg: colors.warningMuted, border: "transparent", fg: colors.warningForeground },

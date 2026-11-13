@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { useCollectionActions } from "@/features/collections/api/use-collection-actions";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { orgOverviewQueryOptions } from "@/features/home/api/overview";
@@ -65,7 +65,6 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
 
   return (
     <Screen
-      contentStartsWithList={!collectionsQuery.isError && !collectionsQuery.isPending && filtered.length > 0}
       refreshing={collectionsQuery.isRefetching || overview.isRefetching}
       onRefresh={() => {
         void collectionsQuery.refetch();
@@ -105,11 +104,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
       ) : null}
 
       {collectionsQuery.isPending ? (
-        <View style={{ gap: SPACING.sm }}>
-          <Skeleton height={56} />
-          <Skeleton height={56} />
-          <Skeleton height={56} />
-        </View>
+        <ListSkeleton rows={3} />
       ) : sorted.length === 0 ? (
         <EmptyState
           icon="collections"

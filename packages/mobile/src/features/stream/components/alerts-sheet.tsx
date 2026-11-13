@@ -2,10 +2,11 @@ import Constants from "expo-constants";
 import { useTranslation } from "react-i18next";
 import { Linking, Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { AlertsSheetProps } from "@/lib/interfaces/stream";
 
 export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, onClose }: AlertsSheetProps) {
@@ -35,10 +36,9 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
               style={{
                 flexDirection: "row",
                 gap: SPACING.sm,
-                padding: SPACING.md,
-                borderRadius: RADIUS.md,
-                borderWidth: 1,
-                borderColor: colors.border,
+                padding: SPACING.lg,
+                borderRadius: SURFACE_RADIUS,
+                borderCurve: "continuous",
                 backgroundColor: colors.card,
               }}
             >
@@ -60,9 +60,7 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
         </View>
       ) : null}
       {alerts.length === 0 && tradeOffers.length === 0 ? (
-        <AppText size="sm" tone="secondary" style={{ textAlign: "center", paddingVertical: SPACING.xl }}>
-          {t("alerts.empty")}
-        </AppText>
+        <EmptyState icon="bell" title={t("alerts.empty")} />
       ) : (
         alerts.map((alert) => (
           <Pressable
@@ -73,10 +71,9 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
             style={{
               flexDirection: "row",
               gap: SPACING.sm,
-              padding: SPACING.md,
-              borderRadius: RADIUS.md,
-              borderWidth: 1,
-              borderColor: colors.border,
+              padding: SPACING.lg,
+              borderRadius: SURFACE_RADIUS,
+              borderCurve: "continuous",
               backgroundColor: colors.card,
             }}
           >

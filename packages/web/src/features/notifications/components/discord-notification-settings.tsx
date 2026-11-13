@@ -17,7 +17,7 @@ export function DiscordNotificationSettings() {
   const canTest = isLinked && !isTesting && !isLoading;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <label className="flex items-center justify-between gap-3">
         <span className="flex flex-col gap-0.5">
           <span className="text-sm">

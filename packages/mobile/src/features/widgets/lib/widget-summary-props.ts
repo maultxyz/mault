@@ -1,5 +1,6 @@
 import {
   WIDGET_SUMMARY_TOP_CARDS_PER_COLLECTION,
+  valueChangeOf,
   type OrgOverviewCard,
   type WidgetCollectionSummary,
   type WidgetValuePoint,
@@ -26,7 +27,6 @@ import type {
   WidgetSummaryPropsOptions,
 } from "@/lib/interfaces/widgets";
 import { absoluteUrl } from "@/lib/url";
-import { valueChangeOf } from "@/lib/value-change";
 
 function collectionUrl(collectionGuid: string): string {
   return `mault:///collection/${collectionGuid}`;

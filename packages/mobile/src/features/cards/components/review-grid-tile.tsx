@@ -13,7 +13,7 @@ import { scanImageQueryOptions } from "@/features/collections/api/collection-car
 import { useTheme } from "@/hooks/use-theme";
 import { SCAN_ATTRIBUTE_FIELD_WIDTH } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
 import type { ReviewGridTileProps } from "@/lib/interfaces/cards";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { absoluteUrl } from "@/lib/url";
@@ -29,10 +29,8 @@ export function ReviewGridTile({ card, attributes, accepting, onAccept, onCorrec
   const attributeFieldStyle = { width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 } as const;
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: RADIUS.md,
+    borderRadius: CARD_ART_RADIUS,
     overflow: "hidden" as const,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.muted,
   };
 

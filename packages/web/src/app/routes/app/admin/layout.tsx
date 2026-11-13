@@ -39,8 +39,8 @@ export default function AdminLayout() {
             MOBILE_NAV_SCROLL_PADDING_CLASS,
           )}
         >
-          <div className="flex w-full flex-col gap-5 p-4">
-            <SettingsSectionLayoutContext value="flat">
+          <div className="flex w-full flex-col gap-5 md:gap-2 p-4">
+            <SettingsSectionLayoutContext value="card">
               <Outlet />
             </SettingsSectionLayoutContext>
           </div>
@@ -65,8 +65,8 @@ export default function AdminLayout() {
       />
 
       <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto">
-        <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-6">
-          <SettingsSectionLayoutContext value="flat">
+        <div className="flex flex-col p-4 md:px-3 md:py-2 max-w-4xl mx-auto w-full gap-6 md:gap-2">
+          <SettingsSectionLayoutContext value="card">
             <Outlet />
           </SettingsSectionLayoutContext>
         </div>

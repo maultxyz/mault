@@ -94,7 +94,7 @@ export function BinRuleTransferDialog({
     >
       <form
         id="bin-rule-transfer-form"
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-3 md:gap-2"
         onSubmit={form.handleSubmit(submit)}
       >
         <Controller

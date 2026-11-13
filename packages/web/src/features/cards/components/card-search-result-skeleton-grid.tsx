@@ -9,8 +9,8 @@ export function CardSearchResultSkeletonGrid({
   return (
     <div className={cn("grid grid-cols-3 gap-2", className)}>
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="rounded-lg border bg-muted p-1">
-          <Skeleton className="aspect-[2.5/3.5] w-full rounded-md" />
+        <div key={index} className="rounded-xl bg-muted p-1.5">
+          <Skeleton className="aspect-[2.5/3.5] w-full rounded-lg" />
           <div className="flex flex-col gap-1.5 px-1 pt-1.5 pb-1">
             <Skeleton className="h-3 w-3/4 rounded-sm" />
             <div className="flex items-center gap-1.5">

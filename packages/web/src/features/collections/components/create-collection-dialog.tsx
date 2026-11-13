@@ -167,7 +167,7 @@ export function CreateCollectionDialog({
       <form
         id="create-collection-form"
         onSubmit={form.handleSubmit(handleCreate)}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 md:gap-2"
       >
         {atCollectionLimit && (
           <PlanNotice

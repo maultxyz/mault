@@ -240,7 +240,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           )}
         </div>
 
-        <div className="flex flex-col gap-3 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
+        <div className="flex flex-col gap-3 md:gap-2 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
           <div role="status" aria-live="polite">
             {notice}
           </div>

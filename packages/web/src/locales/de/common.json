@@ -9,7 +9,7 @@
     "scanner": "Sortieren",
     "collections": "Sammlungen",
     "scan": "Kamera koppeln",
-    "storage": "Lagerorte",
+    "storage": "Lager",
     "calibrate": "Sortierer einrichten",
     "settings": "Einstellungen",
     "organization": "Org",
@@ -33,7 +33,9 @@
     "sortingRules": "Sortierregeln",
     "intake": "An- & Verkauf",
     "upgradeYourPlan": "Tarif upgraden",
-    "upgradeShort": "Upgrade"
+    "upgradeShort": "Upgrade",
+    "home": "Start",
+    "library": "Bibliothek"
   },
   "alerts": {
     "dismiss": "Verwerfen",
@@ -285,9 +287,8 @@
   "mobileTabs": {
     "home": "Start",
     "scan": "Scannen",
-    "rules": "Regeln",
-    "storage": "Lager",
-    "account": "Konto"
+    "library": "Bibliothek",
+    "more": "Mehr"
   },
   "pagination": {
     "previous": "Zurück",

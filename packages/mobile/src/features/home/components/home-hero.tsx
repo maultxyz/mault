@@ -10,8 +10,8 @@ import {
   HOME_HERO_SPARKLINE,
   HOME_HERO_SECONDARY_TEXT_COLOR,
 } from "@/lib/constants/home";
-import { sparklinePaths } from "@/features/home/lib/sparkline";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { sparklinePaths } from "@magic-vault/shared";
+import { RADIUS, SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { HomeHeroProps } from "@/lib/interfaces/home";
 
 export function HomeHero({ label, value, change, changeCaption, stats, sparklineValues }: HomeHeroProps) {
@@ -44,7 +44,7 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
         const { width, height } = event.nativeEvent.layout;
         if (width !== size.width || height !== size.height) setSize({ width, height });
       }}
-      style={{ borderRadius: RADIUS.xl, overflow: "hidden", padding: SPACING.xl, gap: SPACING.lg, backgroundColor: colors.primary }}
+      style={{ borderRadius: SURFACE_RADIUS, borderCurve: "continuous", overflow: "hidden", padding: SPACING.xl, gap: SPACING.lg, backgroundColor: colors.primary }}
     >
       <Svg
         pointerEvents="none"

@@ -163,7 +163,7 @@ export default function ReviewGridScreen() {
         keyExtractor={(card) => card.scanId}
         numColumns={columns}
         columnWrapperStyle={columns > 1 ? { gap: SPACING.md } : undefined}
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.md }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg + SPACING.xs }}
         refreshControl={
           <RefreshControl
             refreshing={review.isRefetching}
