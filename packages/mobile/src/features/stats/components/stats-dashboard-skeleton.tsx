@@ -3,9 +3,12 @@ import { View } from "react-native";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatGroup } from "@/components/ui/stat-group";
+import { Surface } from "@/components/ui/surface";
 import { StatTileSkeleton } from "@/components/ui/stat-tile-skeleton";
 import {
-  STATS_CHART_HEIGHT,
+  STATS_AREA_CHART,
+  STATS_SKELETON_HERO_HEIGHT,
+  STATS_SKELETON_HIGHLIGHTS_HEIGHT,
   STATS_SKELETON_BAR_ROWS,
   STATS_SKELETON_BODY_LINE_HEIGHT,
   STATS_SKELETON_TAB_STRIP_HEIGHT,
@@ -13,7 +16,6 @@ import {
 } from "@/lib/constants/stats";
 import { FONT_SIZE, RADIUS, SPACING } from "@/lib/constants/theme";
 import type { StatsSectionSkeletonProps, StatsTextLineSkeletonProps } from "@/lib/interfaces/stats";
-
 
 function TextLineSkeleton({ width }: StatsTextLineSkeletonProps) {
   return (
@@ -25,12 +27,12 @@ function TextLineSkeleton({ width }: StatsTextLineSkeletonProps) {
 
 function SectionSkeleton({ title, children }: StatsSectionSkeletonProps) {
   return (
-    <View style={{ gap: SPACING.md }}>
+    <View style={{ gap: SPACING.sm }}>
       <View style={{ gap: 2 }}>
         <SectionHeader title={title} />
         <TextLineSkeleton width="70%" />
       </View>
-      {children}
+      <Surface style={{ gap: SPACING.md }}>{children}</Surface>
     </View>
   );
 }
@@ -38,7 +40,9 @@ function SectionSkeleton({ title, children }: StatsSectionSkeletonProps) {
 export function StatsDashboardSkeleton() {
   const { t } = useTranslation();
   return (
-    <View style={{ gap: SPACING.xxl }}>
+    <View style={{ gap: SPACING.xl }}>
+      <Skeleton height={STATS_SKELETON_HERO_HEIGHT} radius={RADIUS.xl} />
+      <Skeleton height={STATS_SKELETON_HIGHLIGHTS_HEIGHT} radius={RADIUS.lg} />
       <StatGroup heading={t("stats.tiles.heading")}>
         {Array.from({ length: STATS_SKELETON_TILE_COUNT }).map((_, index) => (
           <StatTileSkeleton key={index} />
@@ -48,7 +52,7 @@ export function StatsDashboardSkeleton() {
         <Skeleton width="60%" height={STATS_SKELETON_TAB_STRIP_HEIGHT} radius={RADIUS.full} />
         <View style={{ gap: SPACING.sm }}>
           <TextLineSkeleton width="45%" />
-          <Skeleton height={STATS_CHART_HEIGHT} />
+          <Skeleton height={STATS_AREA_CHART.height} />
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
             <TextLineSkeleton width={64} />
             <TextLineSkeleton width={48} />

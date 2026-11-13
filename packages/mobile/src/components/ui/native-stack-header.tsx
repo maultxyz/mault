@@ -2,10 +2,12 @@ import { Stack } from "expo-router";
 import { useLayoutEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useTheme } from "@/hooks/use-theme";
 import { createHeaderActionsStore } from "@/lib/header-actions-store";
+import { HeaderBarItemContext } from "@/lib/header-bar-item-context";
 import type { HeaderActionsSlotProps, NativeStackHeaderProps } from "@/lib/interfaces/ui";
 
 function HeaderActionsSlot({ store }: HeaderActionsSlotProps) {
-  return useSyncExternalStore(store.subscribe, store.getActions);
+  const actions = useSyncExternalStore(store.subscribe, store.getActions);
+  return <HeaderBarItemContext.Provider value>{actions}</HeaderBarItemContext.Provider>;
 }
 
 export function NativeStackHeader({ title, actions }: NativeStackHeaderProps) {

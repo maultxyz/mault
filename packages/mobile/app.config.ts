@@ -31,6 +31,20 @@ const collectionWidgetConfiguration = {
   },
 };
 
+const collectionValueWidgetConfiguration = {
+  ...collectionWidgetConfiguration,
+  description: "Show all collections, your best performing one, or pick one.",
+  parameters: {
+    collection: {
+      ...collectionWidgetConfiguration.parameters.collection,
+      values: [
+        { name: "All collections", value: "all" },
+        { name: "Best performing", value: "top" },
+      ],
+    },
+  },
+};
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Mault",
@@ -84,10 +98,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           {
             name: "CollectionValue",
             displayName: "Collection value",
-            description: "Value of all collections or one, and how much it changed since the last day.",
+            description: "Value of all collections, your best performing one, or one you pick, and how much it changed since the last day.",
             ios: {
               supportedFamilies: ["systemSmall", "systemMedium", "accessoryRectangular", "accessoryInline"],
-              configuration: collectionWidgetConfiguration,
+              configuration: collectionValueWidgetConfiguration,
             },
           },
           {

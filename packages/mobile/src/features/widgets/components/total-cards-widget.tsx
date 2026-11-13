@@ -3,6 +3,7 @@ import {
   accessibilityElement,
   accessibilityHidden,
   accessibilityLabel,
+  aspectRatio,
   containerBackground,
   font,
   foregroundStyle,
@@ -10,6 +11,7 @@ import {
   lineLimit,
   minimumScaleFactor,
   monospacedDigit,
+  resizable,
   widgetURL,
 } from "@expo/ui/swift-ui/modifiers";
 import { createWidget, type WidgetEnvironment } from "expo-widgets";
@@ -53,20 +55,23 @@ const totalCardsLayout = (props: TotalCardsWidgetProps, environment: WidgetEnvir
 
   const isMedium = family === "systemMedium" || family === "systemLarge" || family === "systemExtraLarge";
   const digits = isReady ? scope.digits.split("") : [];
-  const digitHeight = isMedium ? 82 : 52;
   const digitFontSize = isMedium ? 64 : 40;
+  const logoUri = environment.colorScheme === "dark" ? props.logo?.dark : props.logo?.light;
+  const fill = frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "topLeading" });
 
   return (
     <VStack
       alignment="leading"
-      spacing={6}
-      modifiers={[containerBackground(PlatformColor("systemBackground"), "widget"), widgetURL(url)]}
+      spacing={8}
+      modifiers={[containerBackground(PlatformColor("systemBackground"), "widget"), widgetURL(url), fill]}
     >
       <HStack spacing={8} modifiers={[accessibilityElement("combine")]}>
-        <ZStack modifiers={[frame({ width: 28, height: 28 }), accessibilityHidden()]}>
-          <RoundedRectangle cornerRadius={7} modifiers={[foregroundStyle("#1447e6")]} />
-          <Image systemName="rectangle.stack.fill" size={14} color="#ffffff" />
-        </ZStack>
+        {logoUri ? (
+          <Image
+            uiImage={logoUri}
+            modifiers={[resizable(), aspectRatio({ ratio: 1.61, contentMode: "fit" }), frame({ height: 16 }), accessibilityHidden()]}
+          />
+        ) : null}
         <VStack alignment="leading" spacing={0}>
           <Text modifiers={[font({ textStyle: "subheadline", weight: "semibold" }), lineLimit(1)]}>
             {isReady ? scope.title : props.title}
@@ -77,14 +82,13 @@ const totalCardsLayout = (props: TotalCardsWidgetProps, environment: WidgetEnvir
         </VStack>
         <Spacer />
       </HStack>
-      <Spacer />
       {isReady ? (
         <HStack
           spacing={isMedium ? 6 : 3}
-          modifiers={[accessibilityElement("ignore"), accessibilityLabel(scope.accessibilityText)]}
+          modifiers={[fill, accessibilityElement("ignore"), accessibilityLabel(scope.accessibilityText)]}
         >
           {digits.map((digit, index) => (
-            <ZStack key={`digit-${index}`} modifiers={[frame({ maxWidth: 10_000, minHeight: digitHeight, maxHeight: digitHeight })]}>
+            <ZStack key={`digit-${index}`} modifiers={[frame({ maxWidth: 10_000, maxHeight: 10_000 })]}>
               <RoundedRectangle cornerRadius={isMedium ? 12 : 8} modifiers={[foregroundStyle("#1c1c1e")]} />
               <Text
                 modifiers={[
@@ -102,7 +106,10 @@ const totalCardsLayout = (props: TotalCardsWidgetProps, environment: WidgetEnvir
           ))}
         </HStack>
       ) : (
-        <Text modifiers={[font({ textStyle: "footnote" }), secondary, lineLimit(3)]}>{props.message}</Text>
+        <VStack alignment="leading" spacing={0} modifiers={[fill]}>
+          <Spacer />
+          <Text modifiers={[font({ textStyle: "footnote" }), secondary, lineLimit(3)]}>{props.message}</Text>
+        </VStack>
       )}
       {isReady && isMedium && props.caption ? (
         <Text modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(1), accessibilityHidden()]}>{props.caption}</Text>

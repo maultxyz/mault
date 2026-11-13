@@ -5,6 +5,7 @@ import type {
   ScannerActivityWidgetProps,
   TotalCardsWidgetProps,
   WidgetCardListProps,
+  WidgetLogo,
 } from "@/lib/interfaces/widgets";
 
 export const COLLECTION_VALUE_WIDGET_NAME = "CollectionValue";
@@ -27,8 +28,12 @@ export const COLLECTION_WIDGET_NAMES = [
 export const WIDGET_COLLECTION_PARAMETER = "collection";
 
 export const WIDGET_ALL_COLLECTIONS_SCOPE = "all";
+export const WIDGET_TOP_COLLECTION_SCOPE = "top";
+export const WIDGET_CHART_BASELINE = 0.25;
 
 export const WIDGET_CARD_IMAGES_DIRECTORY = "card-images";
+export const WIDGET_LOGO_DIRECTORY = "brand";
+export const EMPTY_WIDGET_LOGO: WidgetLogo = { light: "", dark: "" };
 
 export const TOTAL_CARDS_WIDGET_MIN_DIGITS = 5;
 
@@ -62,6 +67,7 @@ export const REVIEW_WIDGET_URL = "mault:///";
 
 export const EMPTY_COLLECTION_VALUE_WIDGET_PROPS: CollectionValueWidgetProps = {
   status: "empty",
+  logo: EMPTY_WIDGET_LOGO,
   url: COLLECTION_VALUE_WIDGET_URL,
   title: "Mault",
   message: "",
@@ -73,6 +79,7 @@ export const EMPTY_COLLECTION_VALUE_WIDGET_PROPS: CollectionValueWidgetProps = {
 
 export const EMPTY_TOTAL_CARDS_WIDGET_PROPS: TotalCardsWidgetProps = {
   status: "empty",
+  logo: EMPTY_WIDGET_LOGO,
   url: COLLECTION_VALUE_WIDGET_URL,
   title: "Mault",
   message: "",
@@ -83,8 +90,8 @@ export const EMPTY_TOTAL_CARDS_WIDGET_PROPS: TotalCardsWidgetProps = {
 
 export const EMPTY_CARD_LIST_WIDGET_PROPS: WidgetCardListProps = {
   status: "empty",
+  logo: EMPTY_WIDGET_LOGO,
   url: COLLECTION_VALUE_WIDGET_URL,
-  symbol: "star.fill",
   title: "Mault",
   message: "",
   emptyMessage: "",
@@ -93,6 +100,7 @@ export const EMPTY_CARD_LIST_WIDGET_PROPS: WidgetCardListProps = {
 
 export const EMPTY_CARD_REVIEW_WIDGET_PROPS: CardReviewWidgetProps = {
   status: "empty",
+  logo: EMPTY_WIDGET_LOGO,
   url: REVIEW_WIDGET_URL,
   title: "Mault",
   message: "",

@@ -27,9 +27,9 @@
     "sorter": "Sorter",
     "stats": "Stats",
     "storage": "Storage",
-    "upgradeYourPlan": "Upgrade your plan",
-    "upgradeShort": "Upgrade",
-    "more": "More"
+    "more": "More",
+    "home": "Home",
+    "library": "Library"
   },
   "auth": {
     "tagline": "Scan, sort and track your cards from your phone.",
@@ -204,7 +204,9 @@
       "shareHint": "{{percent}}% of cards",
       "needsReview": "Needs review",
       "correctedHint": "{{count}} reviewed",
-      "heading": "Overview"
+      "heading": "Overview",
+      "unique": "Unique",
+      "priced": "Priced cards"
     },
     "activity": {
       "title": "Scanning activity",
@@ -218,7 +220,12 @@
       },
       "weekOf": "Week of {{date}}",
       "thisWeek": "This week",
-      "today": "Today"
+      "today": "Today",
+      "total": "Scanned",
+      "average": {
+        "day": "Per day",
+        "week": "Per week"
+      }
     },
     "compare": {
       "title": "Compare collections",
@@ -255,16 +262,19 @@
       "title": "Top sets by value"
     },
     "rarities": {
-      "title": "Rarity"
+      "title": "Rarity",
+      "description": "Share of your cards by rarity"
     },
     "colors": {
-      "title": "Colors"
+      "title": "Colors",
+      "description": "Share of your cards by color"
     },
     "foils": {
       "title": "Foil types"
     },
     "topCards": {
-      "title": "Most valuable cards"
+      "title": "Most valuable cards",
+      "rank": "Rank {{rank}}"
     },
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
@@ -287,6 +297,44 @@
         "description": "Other organizations can't see you. Your row shows where you would rank. Join from Settings to appear in the list.",
         "action": "Join leaderboard"
       }
+    },
+    "highlights": {
+      "title": "Highlights"
+    },
+    "insights": {
+      "topCard": {
+        "title": "Your top card is {{name}}",
+        "detail": "Worth {{price}}, in {{collection}}"
+      },
+      "highValue": {
+        "title_one": "{{count}} card holds {{percent}}% of your value",
+        "title_other": "{{count}} cards hold {{percent}}% of your value",
+        "detail": "Cards worth {{min}} or more"
+      },
+      "topCollection": {
+        "title": "{{name}} is your most valuable collection",
+        "detail": "{{percent}}% of your total value"
+      },
+      "busiest": {
+        "title": {
+          "day": "Your busiest day was {{date}}",
+          "week": "Your busiest week started {{date}}"
+        },
+        "detail_one": "{{count}} card scanned",
+        "detail_other": "{{count}} cards scanned"
+      },
+      "review": {
+        "title_one": "{{count}} scan needs review",
+        "title_other": "{{count}} scans need review",
+        "detail": "Check them so your numbers stay accurate."
+      }
+    },
+    "showAll": "Show all ({{count}})",
+    "showLess": "Show less",
+    "other": "Other",
+    "headline": {
+      "title": "Your collection",
+      "subtitle": "by the numbers"
     }
   },
   "account": {
@@ -790,8 +838,53 @@
     "live": {
       "yourSession": "Your session",
       "scanning": "Scanning",
-      "scanningBy": "{{name}} is scanning"
-    }
+      "scanningBy": "{{name}} is scanning",
+      "title": "{{name}} · {{collection}}",
+      "open": "Opens the collection"
+    },
+    "subtitle": "Here's how your collection is doing",
+    "loadFailed": "Couldn't load your overview. Pull down to try again.",
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "greetingWithName": "{{greeting}}, {{name}}",
+    "hero": {
+      "value": "Collection value",
+      "cards": "Cards",
+      "collections": "Collections",
+      "scanned": "Scanned all time",
+      "sinceYesterday": "since yesterday",
+      "sinceDate": "since {{date}}"
+    },
+    "actions": {
+      "scan": "Scan cards",
+      "newCollection": "New collection",
+      "stats": "Stats"
+    },
+    "welcome": {
+      "title": "Welcome to Mault",
+      "description": "Create a collection, then start scanning to see its value, your top cards and more right here."
+    },
+    "review": {
+      "title_one": "{{count}} scan needs review",
+      "title_other": "{{count}} scans need review",
+      "description": "Check the matches so your collection stays accurate.",
+      "open": "Opens the review screen"
+    },
+    "cardOfTheDay": "Cards of the day",
+    "activity": {
+      "title": "Scan activity",
+      "today": "Today",
+      "thisWeek": "This week",
+      "scans_one": "{{count}} scan",
+      "scans_other": "{{count}} scans",
+      "chartLabel": "Scans per day for the last 14 days"
+    },
+    "topCards": "Top cards",
+    "recentScans": "Recently scanned",
+    "seeAllStats": "All stats"
   },
   "collection": {
     "value": "Value",
@@ -3050,7 +3143,8 @@
         "up": "up {{change}}, {{percent}}",
         "down": "down {{change}}, {{percent}}",
         "flat": "no change"
-      }
+      },
+      "bestPerforming": "Best performing"
     },
     "totalCards": {
       "title": "Total cards",

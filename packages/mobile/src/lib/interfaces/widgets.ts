@@ -1,10 +1,14 @@
-import type { ImageProps } from "@expo/ui/swift-ui";
 import type { QueryClient } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
 import type { OrgOverview, WidgetScanActivity, WidgetSummary } from "@magic-vault/shared";
 import type { ScanLockInfo } from "@/lib/interfaces/stream";
 
 export type HomeWidgetStatus = "empty" | "signed-out" | "ready";
+
+export interface WidgetLogo {
+  light: string;
+  dark: string;
+}
 
 export interface CollectionWidgetConfiguration {
   collection?: string | null;
@@ -14,6 +18,8 @@ export type WidgetValueChangeDirection = "up" | "down" | "flat" | "none";
 
 export interface CollectionValueWidgetScope {
   title: string;
+  badge: string;
+  chartValues: number[];
   url: string;
   totalValue: string;
   previousValue: string;
@@ -27,6 +33,7 @@ export interface CollectionValueWidgetScope {
 
 export interface CollectionValueWidgetProps {
   status: HomeWidgetStatus;
+  logo: WidgetLogo;
   url: string;
   title: string;
   message: string;
@@ -45,6 +52,7 @@ export interface TotalCardsWidgetScope {
 
 export interface TotalCardsWidgetProps {
   status: HomeWidgetStatus;
+  logo: WidgetLogo;
   url: string;
   title: string;
   message: string;
@@ -73,7 +81,7 @@ export interface WidgetCardListScope {
 export interface WidgetCardListProps {
   status: HomeWidgetStatus;
   url: string;
-  symbol: NonNullable<ImageProps["systemName"]>;
+  logo: WidgetLogo;
   title: string;
   message: string;
   emptyMessage: string;
@@ -82,6 +90,7 @@ export interface WidgetCardListProps {
 
 export interface CardReviewWidgetProps {
   status: HomeWidgetStatus;
+  logo: WidgetLogo;
   url: string;
   title: string;
   message: string;
@@ -149,6 +158,11 @@ export interface WidgetCollectionOption {
   value: string;
 }
 
+export interface WidgetCollectionOptions {
+  collectionValue: WidgetCollectionOption[];
+  other: WidgetCollectionOption[];
+}
+
 export interface HomeWidgetSnapshots {
   collectionValue?: CollectionValueWidgetProps;
   totalCards?: TotalCardsWidgetProps;
@@ -156,7 +170,7 @@ export interface HomeWidgetSnapshots {
   cardOfTheDay?: WidgetCardListProps;
   notifications: NotificationsWidgetProps;
   scannerActivity: ScannerActivityTimelineEntry[];
-  collectionOptions: WidgetCollectionOption[];
+  collectionOptions: WidgetCollectionOptions;
 }
 
 export interface WidgetSummaryPropsOptions {
@@ -165,6 +179,7 @@ export interface WidgetSummaryPropsOptions {
   formatPrice: (value: number) => string;
   summary: WidgetSummary;
   cardImageUris: Map<string, string>;
+  logo: WidgetLogo;
   pendingAcceptedScanIds: ReadonlySet<string>;
   now: number;
 }

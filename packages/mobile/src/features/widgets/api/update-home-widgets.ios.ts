@@ -17,10 +17,11 @@ function changedSince(key: string, value: unknown): boolean {
 }
 
 export function updateHomeWidgets(snapshots: HomeWidgetSnapshots): void {
-  const collectionWidgets = [collectionValueWidget, totalCardsWidget, topCardsWidget, cardOfTheDayWidget];
-  if (snapshots.collectionOptions.length > 0 && changedSince("collectionOptions", snapshots.collectionOptions)) {
-    for (const widget of collectionWidgets) {
-      widget.setConfigurationParameterEnum(WIDGET_COLLECTION_PARAMETER, snapshots.collectionOptions);
+  const { collectionOptions } = snapshots;
+  if (collectionOptions.other.length > 0 && changedSince("collectionOptions", collectionOptions)) {
+    collectionValueWidget.setConfigurationParameterEnum(WIDGET_COLLECTION_PARAMETER, collectionOptions.collectionValue);
+    for (const widget of [totalCardsWidget, topCardsWidget, cardOfTheDayWidget]) {
+      widget.setConfigurationParameterEnum(WIDGET_COLLECTION_PARAMETER, collectionOptions.other);
     }
   }
   const { collectionValue, totalCards, topCards, cardOfTheDay } = snapshots;

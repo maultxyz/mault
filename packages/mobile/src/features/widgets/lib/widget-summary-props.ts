@@ -2,6 +2,7 @@ import {
   WIDGET_SUMMARY_TOP_CARDS_PER_COLLECTION,
   type OrgOverviewCard,
   type WidgetCollectionSummary,
+  type WidgetValuePoint,
   type WidgetValueTrend,
 } from "@magic-vault/shared";
 import {
@@ -9,8 +10,9 @@ import {
   REVIEW_WIDGET_URL,
   TOTAL_CARDS_WIDGET_MIN_DIGITS,
   WIDGET_ALL_COLLECTIONS_SCOPE,
+  WIDGET_CHART_BASELINE,
   WIDGET_ONE_DAY_MS,
-  WIDGET_VALUE_CHANGE_EPSILON,
+  WIDGET_TOP_COLLECTION_SCOPE,
 } from "@/lib/constants/widgets";
 import type {
   CardReviewWidgetProps,
@@ -20,11 +22,11 @@ import type {
   WidgetCard,
   WidgetCardListProps,
   WidgetCardListScope,
-  WidgetCollectionOption,
+  WidgetCollectionOptions,
   WidgetSummaryPropsOptions,
-  WidgetValueChangeDirection,
 } from "@/lib/interfaces/widgets";
 import { absoluteUrl } from "@/lib/url";
+import { valueChangeOf } from "@/lib/value-change";
 
 function collectionUrl(collectionGuid: string): string {
   return `mault:///collection/${collectionGuid}`;
@@ -104,18 +106,32 @@ function previousLine(
   return t("widgets.value.previousOn", { value: formattedValue, date });
 }
 
+function chartValuesOf(history: WidgetValuePoint[]): number[] {
+  if (history.length < 2) return [];
+  const values = history.map((point) => point.totalValue);
+  const min = Math.min(...values);
+  const range = Math.max(...values) - min;
+  return values.map((value) =>
+    range > 0 ? WIDGET_CHART_BASELINE + ((value - min) / range) * (1 - WIDGET_CHART_BASELINE) : 1,
+  );
+}
+
 function valueScope(
   title: string,
   url: string,
   trend: WidgetValueTrend,
+  history: WidgetValuePoint[],
   options: WidgetSummaryPropsOptions,
 ): CollectionValueWidgetScope {
   const { t, locale, formatPrice } = options;
   const numberFormat = new Intl.NumberFormat(locale);
   const totalValue = formatPrice(trend.totalValue);
+  const chartValues = chartValuesOf(history);
   if (trend.previousValue === null) {
     return {
       title,
+      badge: "",
+      chartValues,
       url,
       totalValue,
       previousValue: "",
@@ -127,22 +143,16 @@ function valueScope(
       accessibilityText: [title, totalValue].join(", "),
     };
   }
-  const difference = trend.totalValue - trend.previousValue;
-  const changeDirection: WidgetValueChangeDirection =
-    difference > WIDGET_VALUE_CHANGE_EPSILON ? "up" : difference < -WIDGET_VALUE_CHANGE_EPSILON ? "down" : "flat";
-  const sign = changeDirection === "up" ? "+" : changeDirection === "down" ? "-" : "";
-  const change = `${sign}${formatPrice(Math.abs(difference))}`;
-  const changePercent =
-    trend.previousValue > 0
-      ? new Intl.NumberFormat(locale, {
-          style: "percent",
-          maximumFractionDigits: 1,
-          signDisplay: "exceptZero",
-        }).format(difference / trend.previousValue)
-      : change;
+  const { direction: changeDirection, change, percent: changePercent } = valueChangeOf(trend, formatPrice, locale) ?? {
+    direction: "flat" as const,
+    change: "",
+    percent: "",
+  };
   const previousValue = previousLine(trend.previousDay, formatPrice(trend.previousValue), options);
   return {
     title,
+    badge: "",
+    chartValues,
     url,
     totalValue,
     previousValue,
@@ -165,19 +175,38 @@ function valueScope(
 
 export function buildCollectionValueWidgetProps(options: WidgetSummaryPropsOptions): CollectionValueWidgetProps {
   const { t, locale, now, summary } = options;
+  const bestCollection = [...summary.collections].sort((first, second) => second.totalValue - first.totalValue)[0];
   return {
     status: "ready",
+    logo: options.logo,
     url: COLLECTION_VALUE_WIDGET_URL,
     title: t("widgets.collectionValueTitle"),
     message: "",
     updated: t("widgets.asOf", { time: clockTime(now, locale) }),
     cardsLabel: t("widgets.value.cards"),
     changeLabel: t("widgets.value.change"),
-    scopes: scopeEntries(
-      options,
-      () => valueScope(t("widgets.allCollections"), COLLECTION_VALUE_WIDGET_URL, summary.all, options),
-      (collection) => valueScope(collection.name, collectionUrl(collection.guid), collection, options),
-    ),
+    scopes: {
+      ...scopeEntries(
+        options,
+        () => valueScope(t("widgets.allCollections"), COLLECTION_VALUE_WIDGET_URL, summary.all, summary.all.valueHistory, options),
+        (collection) =>
+          valueScope(collection.name, collectionUrl(collection.guid), collection, collection.valueHistory ?? [], options),
+      ),
+      ...(bestCollection
+        ? {
+            [WIDGET_TOP_COLLECTION_SCOPE]: {
+              ...valueScope(
+                bestCollection.name,
+                collectionUrl(bestCollection.guid),
+                bestCollection,
+                bestCollection.valueHistory ?? [],
+                options,
+              ),
+              badge: t("widgets.value.bestPerforming"),
+            },
+          }
+        : {}),
+    },
   };
 }
 
@@ -191,6 +220,7 @@ export function buildTotalCardsWidgetProps(options: WidgetSummaryPropsOptions): 
   });
   return {
     status: "ready",
+    logo: options.logo,
     url: COLLECTION_VALUE_WIDGET_URL,
     title: t("widgets.totalCards.title"),
     message: "",
@@ -218,7 +248,7 @@ export function buildTopCardsWidgetProps(options: WidgetSummaryPropsOptions): Wi
   return {
     status: "ready",
     url: COLLECTION_VALUE_WIDGET_URL,
-    symbol: "trophy.fill",
+    logo: options.logo,
     title: t("widgets.topCards.title"),
     message: "",
     emptyMessage: t("widgets.topCards.empty"),
@@ -239,7 +269,7 @@ export function buildCardOfTheDayWidgetProps(options: WidgetSummaryPropsOptions)
   return {
     status: "ready",
     url: COLLECTION_VALUE_WIDGET_URL,
-    symbol: "sparkles",
+    logo: options.logo,
     title: t("widgets.cardOfTheDay.title"),
     message: "",
     emptyMessage: t("widgets.cardOfTheDay.empty"),
@@ -267,6 +297,7 @@ export function buildCardReviewWidgetProps(options: WidgetSummaryPropsOptions): 
   const firstCard = cards[0];
   return {
     status: "ready",
+    logo: options.logo,
     url: firstCard ? `mault:///review-grid?guid=${firstCard.collectionGuid}` : REVIEW_WIDGET_URL,
     title: t("widgets.review.title"),
     message: "",
@@ -283,9 +314,15 @@ export function buildCardReviewWidgetProps(options: WidgetSummaryPropsOptions): 
   };
 }
 
-export function buildWidgetCollectionOptions(options: WidgetSummaryPropsOptions): WidgetCollectionOption[] {
-  return [
-    { name: options.t("widgets.allCollections"), value: WIDGET_ALL_COLLECTIONS_SCOPE },
-    ...options.summary.collections.map((collection) => ({ name: collection.name, value: collection.guid })),
-  ];
+export function buildWidgetCollectionOptions(options: WidgetSummaryPropsOptions): WidgetCollectionOptions {
+  const allCollections = { name: options.t("widgets.allCollections"), value: WIDGET_ALL_COLLECTIONS_SCOPE };
+  const collections = options.summary.collections.map((collection) => ({ name: collection.name, value: collection.guid }));
+  return {
+    collectionValue: [
+      allCollections,
+      ...(collections.length > 0 ? [{ name: options.t("widgets.value.bestPerforming"), value: WIDGET_TOP_COLLECTION_SCOPE }] : []),
+      ...collections,
+    ],
+    other: [allCollections, ...collections],
+  };
 }

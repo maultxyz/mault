@@ -12,6 +12,7 @@ import { updateHomeWidgets } from "@/features/widgets/api/update-home-widgets";
 import { widgetSummaryQueryOptions } from "@/features/widgets/api/widget-summary";
 import { buildScannerActivityTimeline } from "@/features/widgets/lib/scanner-activity-timeline";
 import { cacheWidgetCardImages } from "@/features/widgets/lib/widget-card-images";
+import { cacheWidgetLogo } from "@/features/widgets/lib/widget-logo";
 import {
   buildCardOfTheDayWidgetProps,
   buildCardReviewWidgetProps,
@@ -31,6 +32,7 @@ import {
   EMPTY_NOTIFICATIONS_WIDGET_PROPS,
   EMPTY_SCANNER_ACTIVITY_WIDGET_PROPS,
   EMPTY_TOTAL_CARDS_WIDGET_PROPS,
+  EMPTY_WIDGET_LOGO,
   NOTIFICATIONS_WIDGET_URL,
   SCANNER_ACTIVITY_WIDGET_REFRESH_MS,
 } from "@/lib/constants/widgets";
@@ -54,6 +56,19 @@ export function useHomeWidgetSync(): void {
   const [scannerRefreshTick, setScannerRefreshTick] = useState(0);
   const [cardReviewSyncTick, setCardReviewSyncTick] = useState(0);
   const [cardImageUris, setCardImageUris] = useState<Map<string, string>>(() => new Map());
+  const [logo, setLogo] = useState(EMPTY_WIDGET_LOGO);
+
+  useEffect(() => {
+    let cancelled = false;
+    void cacheWidgetLogo()
+      .then((cachedLogo) => {
+        if (!cancelled) setLogo(cachedLogo);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isAnyScannerRunning) return;
@@ -93,6 +108,7 @@ export function useHomeWidgetSync(): void {
         buildProps: () => ({
           ...EMPTY_CARD_REVIEW_WIDGET_PROPS,
           status: "signed-out",
+          logo,
           title: t("widgets.review.title"),
           message: t("widgets.signedOut"),
         }),
@@ -110,11 +126,12 @@ export function useHomeWidgetSync(): void {
           formatPrice: pricing.format,
           summary: widgetSummary,
           cardImageUris,
+          logo,
           pendingAcceptedScanIds,
           now: Date.now(),
         }),
     });
-  }, [status, widgetSummary, widgetSummaryUpdatedAt, cardImageUris, pricing, queryClient, t, i18n.language, cardReviewSyncTick]);
+  }, [status, widgetSummary, widgetSummaryUpdatedAt, cardImageUris, logo, pricing, queryClient, t, i18n.language, cardReviewSyncTick]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -127,21 +144,22 @@ export function useHomeWidgetSync(): void {
         collectionValue: {
           ...EMPTY_COLLECTION_VALUE_WIDGET_PROPS,
           status: "signed-out",
+          logo,
           title: t("widgets.collectionValueTitle"),
           message,
         },
-        totalCards: { ...EMPTY_TOTAL_CARDS_WIDGET_PROPS, status: "signed-out", title: t("widgets.totalCards.title"), message },
+        totalCards: { ...EMPTY_TOTAL_CARDS_WIDGET_PROPS, status: "signed-out", logo, title: t("widgets.totalCards.title"), message },
         topCards: {
           ...EMPTY_CARD_LIST_WIDGET_PROPS,
           status: "signed-out",
-          symbol: "trophy.fill",
+          logo,
           title: t("widgets.topCards.title"),
           message,
         },
         cardOfTheDay: {
           ...EMPTY_CARD_LIST_WIDGET_PROPS,
           status: "signed-out",
-          symbol: "sparkles",
+          logo,
           title: t("widgets.cardOfTheDay.title"),
           message,
         },
@@ -152,7 +170,7 @@ export function useHomeWidgetSync(): void {
             props: { ...EMPTY_SCANNER_ACTIVITY_WIDGET_PROPS, status: "signed-out", title: scannerActivityTitle, message },
           },
         ],
-        collectionOptions: [],
+        collectionOptions: { collectionValue: [], other: [] },
       });
       return;
     }
@@ -179,6 +197,7 @@ export function useHomeWidgetSync(): void {
           formatPrice: pricing.format,
           summary: widgetSummary,
           cardImageUris,
+          logo,
           pendingAcceptedScanIds: new Set(),
           now,
         }
@@ -210,7 +229,7 @@ export function useHomeWidgetSync(): void {
         latestDeviceAlert: widgetSummary?.latestDeviceAlert ?? null,
         now,
       }),
-      collectionOptions: summaryPropsOptions ? buildWidgetCollectionOptions(summaryPropsOptions) : [],
+      collectionOptions: summaryPropsOptions ? buildWidgetCollectionOptions(summaryPropsOptions) : { collectionValue: [], other: [] },
     });
   }, [
     status,
@@ -221,6 +240,7 @@ export function useHomeWidgetSync(): void {
     collections,
     widgetSummary,
     cardImageUris,
+    logo,
     pricing,
     t,
     i18n.language,

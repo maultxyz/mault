@@ -1,8 +1,9 @@
-import { HStack, Image, RoundedRectangle, Spacer, Text, VStack, ZStack } from "@expo/ui/swift-ui";
+import { Chart, HStack, Image, Spacer, Text, VStack, ZStack } from "@expo/ui/swift-ui";
 import {
   accessibilityElement,
   accessibilityHidden,
   accessibilityLabel,
+  aspectRatio,
   background,
   containerBackground,
   font,
@@ -11,8 +12,10 @@ import {
   lineLimit,
   minimumScaleFactor,
   monospacedDigit,
+  opacity,
   padding,
   privacySensitive,
+  resizable,
   shapes,
   widgetURL,
 } from "@expo/ui/swift-ui/modifiers";
@@ -42,6 +45,10 @@ const collectionValueLayout = (
     scope?.changeDirection === "up" ? "arrow.up.right" : scope?.changeDirection === "down" ? "arrow.down.right" : "equal";
   const hasChange = isReady && scope.changeDirection !== "none";
   const url = isReady ? scope.url : props.url;
+  const logoUri = environment.colorScheme === "dark" ? props.logo?.dark : props.logo?.light;
+  const fill = frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "topLeading" });
+  const accent = isDark ? "#60a5fa" : "#1447e6";
+  const chartPoints = isReady ? (scope.chartValues ?? []).map((y, x) => ({ x, y })) : [];
 
   if (family === "accessoryInline") {
     return (
@@ -56,13 +63,18 @@ const collectionValueLayout = (
       <VStack
         alignment="leading"
         spacing={0}
-        modifiers={[containerBackground("clear", "widget"), widgetURL(url), accessibilityElement("combine")]}
+        modifiers={[
+          containerBackground("clear", "widget"),
+          widgetURL(url),
+          frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "leading" }),
+          accessibilityElement("combine"),
+        ]}
       >
-        <Text modifiers={[font({ textStyle: "headline" }), lineLimit(1)]}>{isReady ? scope.title : props.title}</Text>
+        <Text modifiers={[font({ textStyle: "headline" }), lineLimit(1), minimumScaleFactor(0.8)]}>{isReady ? scope.title : props.title}</Text>
         {isReady ? (
           <Text
             modifiers={[
-              font({ textStyle: "title3", weight: "semibold" }),
+              font({ textStyle: "body", weight: "bold" }),
               monospacedDigit(),
               minimumScaleFactor(0.6),
               lineLimit(1),
@@ -88,12 +100,14 @@ const collectionValueLayout = (
 
   if (!isReady) {
     return (
-      <VStack alignment="leading" spacing={6} modifiers={[widgetBackground, widgetURL(url), accessibilityElement("combine")]}>
-        <HStack spacing={6}>
-          <ZStack modifiers={[frame({ width: 26, height: 26 }), accessibilityHidden()]}>
-            <RoundedRectangle cornerRadius={7} modifiers={[foregroundStyle("#1447e6")]} />
-            <Image systemName="rectangle.stack.fill" size={13} color="#ffffff" />
-          </ZStack>
+      <VStack alignment="leading" spacing={8} modifiers={[widgetBackground, widgetURL(url), fill, accessibilityElement("combine")]}>
+        <HStack spacing={8}>
+          {logoUri ? (
+            <Image
+              uiImage={logoUri}
+              modifiers={[resizable(), aspectRatio({ ratio: 1.61, contentMode: "fit" }), frame({ height: 16 }), accessibilityHidden()]}
+            />
+          ) : null}
           <Text modifiers={[font({ textStyle: "subheadline", weight: "semibold" }), lineLimit(1)]}>{props.title}</Text>
           <Spacer />
         </HStack>
@@ -103,13 +117,38 @@ const collectionValueLayout = (
     );
   }
 
+  const graph = (height: number, trailingBleed: number) =>
+    chartPoints.length >= 2 ? (
+      <ZStack
+        modifiers={[
+          frame({ maxWidth: 10_000, minHeight: height, maxHeight: height }),
+          padding({ leading: -16, trailing: -trailingBleed, bottom: -16 }),
+          accessibilityHidden(),
+        ]}
+      >
+        <Chart type="area" data={chartPoints} showGrid={false} areaStyle={{ color: accent }} modifiers={[opacity(0.12)]} />
+        <Chart
+          type="line"
+          data={chartPoints}
+          showGrid={false}
+          lineStyle={{ color: accent, width: 2, pointSize: 0 }}
+          modifiers={[opacity(0.5)]}
+        />
+      </ZStack>
+    ) : null;
+
   const valueTile = (
     <VStack alignment="leading" spacing={2} modifiers={[accessibilityElement("ignore"), accessibilityLabel(scope.accessibilityText)]}>
-      <ZStack modifiers={[frame({ width: 26, height: 26 }), accessibilityHidden()]}>
-        <RoundedRectangle cornerRadius={7} modifiers={[foregroundStyle("#1447e6")]} />
-        <Image systemName="rectangle.stack.fill" size={13} color="#ffffff" />
-      </ZStack>
+      {logoUri ? (
+          <Image
+            uiImage={logoUri}
+            modifiers={[resizable(), aspectRatio({ ratio: 1.61, contentMode: "fit" }), frame({ height: 16 }), accessibilityHidden()]}
+          />
+        ) : null}
       <Spacer />
+      {scope.badge ? (
+        <Text modifiers={[font({ textStyle: "caption2", weight: "semibold" }), foregroundStyle(accent), lineLimit(1)]}>{scope.badge}</Text>
+      ) : null}
       <Text modifiers={[font({ textStyle: "subheadline", weight: "semibold" }), lineLimit(1), minimumScaleFactor(0.8)]}>
         {scope.title}
       </Text>
@@ -136,7 +175,9 @@ const collectionValueLayout = (
 
   if (!isMedium) {
     return (
-      <VStack alignment="leading" spacing={0} modifiers={[widgetBackground, widgetURL(url)]}>
+      <ZStack alignment="bottom" modifiers={[widgetBackground, widgetURL(url), fill]}>
+        {graph(56, 16)}
+        <VStack alignment="leading" spacing={0} modifiers={[fill]}>
         <HStack>
           {valueTile}
           <Spacer />
@@ -149,15 +190,19 @@ const collectionValueLayout = (
             </Text>
           </HStack>
         ) : null}
-      </VStack>
+        </VStack>
+      </ZStack>
     );
   }
 
   return (
-    <HStack spacing={10} modifiers={[widgetBackground, widgetURL(url)]}>
-      <VStack alignment="leading" spacing={0} modifiers={[frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "leading" })]}>
-        {valueTile}
-      </VStack>
+    <HStack spacing={12} modifiers={[widgetBackground, widgetURL(url), fill]}>
+      <ZStack alignment="bottom" modifiers={[frame({ maxWidth: 10_000, maxHeight: 10_000 })]}>
+        {graph(64, 0)}
+        <VStack alignment="leading" spacing={0} modifiers={[frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "leading" })]}>
+          {valueTile}
+        </VStack>
+      </ZStack>
       <VStack spacing={8} modifiers={[frame({ width: 130 })]}>
         <VStack
           alignment="leading"

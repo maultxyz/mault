@@ -2,14 +2,12 @@ import { useRoutePath } from "expo-router";
 import { Platform, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { NativeStackHeader } from "@/components/ui/native-stack-header";
-import { useTheme } from "@/hooks/use-theme";
 import { SHEET_ROUTE_PATTERN } from "@/lib/constants/nav";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { IOS_SHEET_TOP_PADDING } from "@/lib/constants/ui";
 import type { PageHeaderProps } from "@/lib/interfaces/ui";
 
 export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory, onBack, actions, tabs, children }: PageHeaderProps) {
-  const colors = useTheme();
   const actionRow = actions ? <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>{actions}</View> : null;
 
   const isPresentedAsSheet = SHEET_ROUTE_PATTERN.test(useRoutePath().split("?")[0]);
@@ -24,8 +22,6 @@ export function PageHeader({ title, titleAccessory, subtitle, subtitleAccessory,
         paddingHorizontal: SCREEN_GUTTER,
         paddingTop: isPresentedAsSheet && Platform.OS === "ios" ? IOS_SHEET_TOP_PADDING : SPACING.sm + 2,
         paddingBottom: tabs ? 0 : SPACING.sm + 2,
-        borderBottomWidth: tabs ? 0 : 1,
-        borderBottomColor: colors.border,
       }}
     >
       {nativeHeader}

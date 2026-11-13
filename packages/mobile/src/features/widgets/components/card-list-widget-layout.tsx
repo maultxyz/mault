@@ -18,7 +18,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import type { WidgetEnvironment } from "expo-widgets";
 import { PlatformColor } from "react-native";
-import type { CollectionWidgetConfiguration, WidgetCardListProps } from "@/lib/interfaces/widgets";
+import type { CollectionWidgetConfiguration, WidgetCard, WidgetCardListProps } from "@/lib/interfaces/widgets";
 
 export const cardListLayout = (props: WidgetCardListProps, environment: WidgetEnvironment<CollectionWidgetConfiguration>) => {
   "widget";
@@ -31,36 +31,77 @@ export const cardListLayout = (props: WidgetCardListProps, environment: WidgetEn
   const secondary = foregroundStyle({ type: "hierarchical", style: "secondary" });
   const firstCard = cards[0];
   const url = firstCard && !isMedium ? firstCard.url : isReady ? scope.url : props.url;
+  const logoUri = environment.colorScheme === "dark" ? props.logo?.dark : props.logo?.light;
+  const fill = frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "topLeading" });
 
-  const cardArt = (imageUri: string, height: number) =>
+  const cardArt = (imageUri: string) =>
     imageUri ? (
       <Image
         uiImage={imageUri}
         modifiers={[
           resizable(),
           aspectRatio({ ratio: 0.716, contentMode: "fit" }),
-          frame({ height }),
           clipShape("roundedRectangle", 5),
+          frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "leading" }),
           accessibilityHidden(),
         ]}
       />
     ) : (
-      <ZStack modifiers={[frame({ width: height * 0.716, height }), accessibilityHidden()]}>
+      <ZStack modifiers={[aspectRatio({ ratio: 0.716, contentMode: "fit" }), accessibilityHidden()]}>
         <RoundedRectangle cornerRadius={5} modifiers={[foregroundStyle(PlatformColor("tertiarySystemFill"))]} />
         <Image systemName="photo" size={16} color={PlatformColor("secondaryLabel")} />
       </ZStack>
     );
 
+  const cardColumn = (card: WidgetCard) => (
+    <VStack
+      key={card.scanId}
+      alignment="leading"
+      spacing={3}
+      modifiers={[fill, accessibilityElement("ignore"), accessibilityLabel(card.accessibilityText)]}
+    >
+      {cardArt(card.imageUri)}
+      <Text modifiers={[font({ textStyle: "caption", weight: "semibold" }), lineLimit(1), minimumScaleFactor(0.8)]}>{card.name}</Text>
+      {card.price ? (
+        <Text modifiers={[font({ textStyle: "caption2", weight: "semibold" }), secondary, monospacedDigit(), lineLimit(1), minimumScaleFactor(0.7), privacySensitive()]}>
+          {card.price}
+        </Text>
+      ) : null}
+    </VStack>
+  );
+
+  const cardRow = (card: WidgetCard) => (
+    <HStack
+      key={card.scanId}
+      spacing={8}
+      alignment="top"
+      modifiers={[fill, accessibilityElement("ignore"), accessibilityLabel(card.accessibilityText)]}
+    >
+      {cardArt(card.imageUri)}
+      <VStack alignment="leading" spacing={2} modifiers={[frame({ maxWidth: 10_000, alignment: "leading" })]}>
+        <Text modifiers={[font({ textStyle: "footnote", weight: "semibold" }), lineLimit(2), minimumScaleFactor(0.8)]}>{card.name}</Text>
+        {card.detail ? <Text modifiers={[font({ textStyle: "caption2" }), secondary, lineLimit(2)]}>{card.detail}</Text> : null}
+        {card.price ? (
+          <Text modifiers={[font({ textStyle: "subheadline", weight: "bold" }), monospacedDigit(), lineLimit(1), minimumScaleFactor(0.6), privacySensitive()]}>
+            {card.price}
+          </Text>
+        ) : null}
+      </VStack>
+    </HStack>
+  );
+
   const header = (
     <HStack spacing={6} modifiers={[accessibilityElement("combine")]}>
-      <ZStack modifiers={[frame({ width: 22, height: 22 }), accessibilityHidden()]}>
-        <RoundedRectangle cornerRadius={6} modifiers={[foregroundStyle("#1447e6")]} />
-        <Image systemName={props.symbol} size={11} color="#ffffff" />
-      </ZStack>
-      <VStack alignment="leading" spacing={0}>
-        <Text modifiers={[font({ textStyle: "caption", weight: "semibold" }), lineLimit(1)]}>{props.title}</Text>
-        {isReady ? <Text modifiers={[font({ textStyle: "caption2" }), secondary, lineLimit(1)]}>{scope.title}</Text> : null}
-      </VStack>
+      {logoUri ? (
+        <Image
+          uiImage={logoUri}
+          modifiers={[resizable(), aspectRatio({ ratio: 1.61, contentMode: "fit" }), frame({ height: 12 }), accessibilityHidden()]}
+        />
+      ) : null}
+      <Text modifiers={[font({ textStyle: "caption", weight: "semibold" }), lineLimit(1)]}>{props.title}</Text>
+      {isReady && isMedium ? (
+        <Text modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(1)]}>{scope.title}</Text>
+      ) : null}
       <Spacer />
     </HStack>
   );
@@ -69,7 +110,7 @@ export const cardListLayout = (props: WidgetCardListProps, environment: WidgetEn
 
   if (!isReady || !firstCard) {
     return (
-      <VStack alignment="leading" spacing={6} modifiers={[widgetBackground, widgetURL(url)]}>
+      <VStack alignment="leading" spacing={8} modifiers={[widgetBackground, widgetURL(url), fill]}>
         {header}
         <Spacer />
         <Text modifiers={[font({ textStyle: "footnote" }), secondary, lineLimit(3)]}>
@@ -81,68 +122,18 @@ export const cardListLayout = (props: WidgetCardListProps, environment: WidgetEn
 
   if (!isMedium) {
     return (
-      <VStack alignment="leading" spacing={6} modifiers={[widgetBackground, widgetURL(url)]}>
+      <VStack alignment="leading" spacing={8} modifiers={[widgetBackground, widgetURL(url), fill]}>
         {header}
-        <HStack spacing={8} modifiers={[accessibilityElement("ignore"), accessibilityLabel(firstCard.accessibilityText)]}>
-          {cardArt(firstCard.imageUri, 96)}
-          <VStack alignment="leading" spacing={2}>
-            <Text modifiers={[font({ textStyle: "footnote", weight: "semibold" }), lineLimit(3), minimumScaleFactor(0.8)]}>
-              {firstCard.name}
-            </Text>
-            <Text modifiers={[font({ textStyle: "caption2" }), secondary, lineLimit(2)]}>{firstCard.detail}</Text>
-            <Spacer />
-            {firstCard.price ? (
-              <Text modifiers={[font({ textStyle: "subheadline", weight: "bold" }), monospacedDigit(), lineLimit(1), minimumScaleFactor(0.6), privacySensitive()]}>
-                {firstCard.price}
-              </Text>
-            ) : null}
-          </VStack>
-          <Spacer />
-        </HStack>
+        {cardColumn(firstCard)}
       </VStack>
     );
   }
 
   return (
-    <VStack alignment="leading" spacing={6} modifiers={[widgetBackground, widgetURL(url)]}>
+    <VStack alignment="leading" spacing={8} modifiers={[widgetBackground, widgetURL(url), fill]}>
       {header}
-      <HStack spacing={10} alignment="top">
-        {cards.map((card) => (
-          <HStack
-            key={card.scanId}
-            spacing={6}
-            alignment="top"
-            modifiers={[frame({ maxWidth: 10_000, alignment: "leading" }), accessibilityElement("ignore"), accessibilityLabel(card.accessibilityText)]}
-          >
-            {cardArt(card.imageUri, 100)}
-            {cards.length < 3 ? (
-              <VStack alignment="leading" spacing={2}>
-                <Text modifiers={[font({ textStyle: "footnote", weight: "semibold" }), lineLimit(3), minimumScaleFactor(0.8)]}>
-                  {card.name}
-                </Text>
-                <Text modifiers={[font({ textStyle: "caption2" }), secondary, lineLimit(2)]}>{card.detail}</Text>
-                <Spacer />
-                {card.price ? (
-                  <Text modifiers={[font({ textStyle: "subheadline", weight: "bold" }), monospacedDigit(), lineLimit(1), minimumScaleFactor(0.6), privacySensitive()]}>
-                    {card.price}
-                  </Text>
-                ) : null}
-              </VStack>
-            ) : (
-              <VStack alignment="leading" spacing={2}>
-                <Text modifiers={[font({ textStyle: "caption2", weight: "semibold" }), lineLimit(3), minimumScaleFactor(0.8)]}>
-                  {card.name}
-                </Text>
-                <Spacer />
-                {card.price ? (
-                  <Text modifiers={[font({ textStyle: "caption", weight: "bold" }), monospacedDigit(), lineLimit(1), minimumScaleFactor(0.5), privacySensitive()]}>
-                    {card.price}
-                  </Text>
-                ) : null}
-              </VStack>
-            )}
-          </HStack>
-        ))}
+      <HStack spacing={12} alignment="top" modifiers={[fill]}>
+        {cards.length < 3 ? cards.map(cardRow) : cards.map(cardColumn)}
       </HStack>
     </VStack>
   );

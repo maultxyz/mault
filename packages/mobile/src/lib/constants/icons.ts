@@ -82,6 +82,10 @@ import IconTestPipe from "@tabler/icons-react-native/IconTestPipe";
 import IconTransfer from "@tabler/icons-react-native/IconTransfer";
 import IconTrash from "@tabler/icons-react-native/IconTrash";
 import IconTrophy from "@tabler/icons-react-native/IconTrophy";
+import IconCoins from "@tabler/icons-react-native/IconCoins";
+import IconCrown from "@tabler/icons-react-native/IconCrown";
+import IconFlame from "@tabler/icons-react-native/IconFlame";
+import IconPalette from "@tabler/icons-react-native/IconPalette";
 import IconUserCircle from "@tabler/icons-react-native/IconUserCircle";
 import IconX from "@tabler/icons-react-native/IconX";
 
@@ -158,6 +162,10 @@ export const ICONS = {
   transfer: IconTransfer,
   trash: IconTrash,
   trophy: IconTrophy,
+  coins: IconCoins,
+  crown: IconCrown,
+  flame: IconFlame,
+  palette: IconPalette,
   viewers: IconEye,
   warning: IconAlertTriangle,
   admin: IconDatabaseCog,

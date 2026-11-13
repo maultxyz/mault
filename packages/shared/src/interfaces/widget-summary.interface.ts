@@ -14,6 +14,7 @@ export interface WidgetCollectionSummary extends WidgetValueTrend {
   name: string;
   topCards: OrgOverviewCard[];
   cardsOfTheDay: OrgOverviewCard[];
+  valueHistory: WidgetValuePoint[];
 }
 
 export interface WidgetReviewSummary {
@@ -35,10 +36,16 @@ export interface WidgetDeviceAlert {
   createdAt: string;
 }
 
+export interface WidgetValuePoint {
+  day: string;
+  totalValue: number;
+}
+
 export interface WidgetSummary {
-  all: WidgetValueTrend & { cardsOfTheDay: OrgOverviewCard[] };
+  all: WidgetValueTrend & { cardsOfTheDay: OrgOverviewCard[]; valueHistory: WidgetValuePoint[] };
   collections: WidgetCollectionSummary[];
   review: WidgetReviewSummary;
   scanActivity: WidgetScanActivity[];
   latestDeviceAlert: WidgetDeviceAlert | null;
+  scansAllTime: number;
 }

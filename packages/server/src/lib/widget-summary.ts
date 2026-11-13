@@ -21,12 +21,18 @@ import {
   collections,
   deviceAlerts,
   games,
+  orgDailyScanUsage,
 } from "../db/schema";
 import {
   collectionCardPriceSql,
   collectionCardPricesJoinOn,
 } from "./card-price-sql";
-import { loadCollectionValues, loadPreviousCollectionValues } from "./collection-value-snapshots";
+import {
+  loadCollectionValues,
+  loadCollectionValueHistories,
+  loadOrgValueHistory,
+  loadPreviousCollectionValues,
+} from "./collection-value-snapshots";
 import { ONE_MINUTE_MS } from "./constants/timing";
 import type {
   CollectionValueRow,
@@ -202,6 +208,14 @@ async function loadLatestDeviceAlert(tx: Transaction, orgId: string): Promise<Wi
     : null;
 }
 
+async function loadScansAllTime(tx: Transaction, orgId: string): Promise<number> {
+  const [row] = await tx
+    .select({ total: sql<number | null>`sum(${orgDailyScanUsage.scanCount})` })
+    .from(orgDailyScanUsage)
+    .where(eq(orgDailyScanUsage.orgId, orgId));
+  return Number(row?.total ?? 0);
+}
+
 export async function loadWidgetSummary(
   tx: Transaction,
   orgId: string,
@@ -223,12 +237,19 @@ export async function loadWidgetSummary(
     orderBy: dailyShuffleOrderSql(day),
     limit: WIDGET_SUMMARY_CARDS_OF_THE_DAY,
   });
+  const valueHistories = await loadCollectionValueHistories(
+    tx,
+    orgId,
+    currency,
+    listedCollections.map((collection) => collection.guid),
+  );
   const collectionsSummary: WidgetCollectionSummary[] = listedCollections.map((collection) => ({
     guid: collection.guid,
     name: collection.name,
     ...valueTrend(collection, previous, previous?.byCollectionGuid.get(collection.guid)),
     topCards: topCards.filter((card) => card.collectionGuid === collection.guid),
     cardsOfTheDay: cardsOfTheDay.filter((card) => card.collectionGuid === collection.guid),
+    valueHistory: [...(valueHistories.get(collection.guid) ?? []), { day, totalValue: collection.totalValue }],
   }));
   const summary: WidgetSummary = {
     all: {
@@ -238,11 +259,16 @@ export async function loadWidgetSummary(
         previous ? sumValues(previous.byCollectionGuid.values()) : undefined,
       ),
       cardsOfTheDay: orgCardsOfTheDay,
+      valueHistory: [
+        ...(await loadOrgValueHistory(tx, orgId, currency)),
+        { day: day, totalValue: sumValues(collectionValues).totalValue },
+      ],
     },
     collections: collectionsSummary,
     review: await loadReview(tx, orgId, pricing),
     scanActivity: await loadScanActivity(tx, orgId),
     latestDeviceAlert: await loadLatestDeviceAlert(tx, orgId),
+    scansAllTime: await loadScansAllTime(tx, orgId),
   };
   return { summary, currency, collectionValues };
 }

@@ -11,7 +11,8 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useTheme } from "@/hooks/use-theme";
 import { IOS_SYMBOLS } from "@/lib/constants/ios-symbols";
-import { IOS_ICON_BUTTON_STYLES, PAGE_HEADER_ICON_BUTTON_SIZE } from "@/lib/constants/ui";
+import { IOS_HEADER_BAR_ICON_BUTTON_SIZE, IOS_ICON_BUTTON_STYLES, PAGE_HEADER_ICON_BUTTON_SIZE } from "@/lib/constants/ui";
+import { useIsInHeaderBar } from "@/lib/header-bar-item-context";
 import type { IconButtonProps } from "@/lib/interfaces/ui";
 
 export function IconButton({
@@ -19,11 +20,14 @@ export function IconButton({
   accessibilityLabel,
   onPress,
   variant = "neutral",
-  size = PAGE_HEADER_ICON_BUTTON_SIZE,
+  size: requestedSize = PAGE_HEADER_ICON_BUTTON_SIZE,
   disabled = false,
   selected,
 }: IconButtonProps) {
   const colors = useTheme();
+  const isInHeaderBar = useIsInHeaderBar();
+  const size = isInHeaderBar ? IOS_HEADER_BAR_ICON_BUTTON_SIZE : requestedSize;
+  const style = isInHeaderBar && variant === "neutral" ? "borderless" : IOS_ICON_BUTTON_STYLES[variant];
   const appearance = {
     neutral: { tintColor: colors.primaryText, foregroundColor: colors.foreground },
     primary: { tintColor: colors.primary, foregroundColor: colors.primaryForeground },
@@ -36,7 +40,7 @@ export function IconButton({
       <SwiftUIButton
         onPress={disabled ? undefined : onPress}
         modifiers={[
-          buttonStyle(IOS_ICON_BUTTON_STYLES[variant]),
+          buttonStyle(style),
           buttonBorderShape("circle"),
           tint(appearance.tintColor),
           disabledModifier(disabled),
@@ -46,7 +50,7 @@ export function IconButton({
       >
         <Image
           systemName={IOS_SYMBOLS[icon]}
-          size={Math.round(size * 0.45)}
+          size={Math.round(size * (isInHeaderBar ? 0.5 : 0.45))}
           modifiers={[
             frame({ maxWidth: Number.POSITIVE_INFINITY, maxHeight: Number.POSITIVE_INFINITY }),
             foregroundStyle(disabled ? colors.foregroundSecondary : appearance.foregroundColor),

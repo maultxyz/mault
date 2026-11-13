@@ -1,4 +1,4 @@
-import { Button, HStack, Image, RoundedRectangle, Spacer, Text, VStack, ZStack } from "@expo/ui/swift-ui";
+import { Button, HStack, Image, Spacer, Text, VStack } from "@expo/ui/swift-ui";
 import {
   accessibilityElement,
   accessibilityHidden,
@@ -37,6 +37,8 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
   const secondary = foregroundStyle({ type: "hierarchical", style: "secondary" });
   const url = currentCard ? currentCard.url : props.url;
   const isMedium = family === "systemMedium" || family === "systemLarge" || family === "systemExtraLarge";
+  const logoUri = environment.colorScheme === "dark" ? props.logo?.dark : props.logo?.light;
+  const fill = frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "topLeading" });
 
   const acceptCurrentCard = () => ({
     queue: queue.slice(1),
@@ -57,18 +59,24 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
       <VStack
         alignment="leading"
         spacing={0}
-        modifiers={[containerBackground("clear", "widget"), widgetURL(url), accessibilityElement("combine")]}
+        modifiers={[
+          containerBackground("clear", "widget"),
+          widgetURL(url),
+          frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "leading" }),
+          accessibilityElement("combine"),
+        ]}
       >
         <HStack spacing={4}>
-          <Image systemName="checkmark.seal" modifiers={[accessibilityHidden()]} />
-          <Text modifiers={[font({ textStyle: "headline" }), lineLimit(1)]}>{props.title}</Text>
+          <Image systemName="checkmark.seal" modifiers={[font({ textStyle: "headline" }), accessibilityHidden()]} />
+          <Text modifiers={[font({ textStyle: "headline" }), lineLimit(1), minimumScaleFactor(0.8)]}>{props.title}</Text>
         </HStack>
         {isReady ? (
-          <Text modifiers={[font({ textStyle: "title3", weight: "semibold" }), monospacedDigit(), lineLimit(1)]}>
-            {`${remaining} ${props.countCaption}`}
-          </Text>
+          <HStack spacing={4} alignment="firstTextBaseline">
+            <Text modifiers={[font({ textStyle: "body", weight: "bold" }), monospacedDigit(), lineLimit(1)]}>{String(remaining)}</Text>
+            <Text modifiers={[font({ textStyle: "body" }), lineLimit(1), minimumScaleFactor(0.7)]}>{props.countCaption}</Text>
+          </HStack>
         ) : null}
-        <Text modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(isReady ? 1 : 2)]}>
+        <Text modifiers={[font({ textStyle: "caption" }), secondary, lineLimit(isReady ? 1 : 2), minimumScaleFactor(0.8)]}>
           {isReady ? (currentCard ? currentCard.name : props.doneTitle) : props.message}
         </Text>
       </VStack>
@@ -78,10 +86,12 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
   const widgetBackground = containerBackground(PlatformColor("systemBackground"), "widget");
   const header = (
     <HStack spacing={6} modifiers={[accessibilityElement("combine")]}>
-      <ZStack modifiers={[frame({ width: 22, height: 22 }), accessibilityHidden()]}>
-        <RoundedRectangle cornerRadius={6} modifiers={[foregroundStyle("#1447e6")]} />
-        <Image systemName="checkmark.seal.fill" size={11} color="#ffffff" />
-      </ZStack>
+      {logoUri ? (
+        <Image
+          uiImage={logoUri}
+          modifiers={[resizable(), aspectRatio({ ratio: 1.61, contentMode: "fit" }), frame({ height: 12 }), accessibilityHidden()]}
+        />
+      ) : null}
       <Text modifiers={[font({ textStyle: "caption", weight: "semibold" }), lineLimit(1)]}>{props.title}</Text>
       <Spacer />
       {isReady ? (
@@ -95,7 +105,7 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
   if (!isReady || !currentCard) {
     const isDone = isReady && remaining === 0;
     return (
-      <VStack alignment="leading" spacing={6} modifiers={[widgetBackground, widgetURL(url)]}>
+      <VStack alignment="leading" spacing={6} modifiers={[widgetBackground, widgetURL(url), fill]}>
         {header}
         <Spacer />
         <HStack spacing={6} modifiers={[accessibilityElement("combine")]}>
@@ -133,8 +143,8 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
       modifiers={[
         resizable(),
         aspectRatio({ ratio: 0.716, contentMode: "fit" }),
-        frame({ height: isMedium ? 110 : 64 }),
         clipShape("roundedRectangle", 5),
+        isMedium ? frame({ maxHeight: 10_000, alignment: "top" }) : frame({ height: 56 }),
         accessibilityHidden(),
       ]}
     />
@@ -142,7 +152,7 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
 
   if (!isMedium) {
     return (
-      <VStack alignment="leading" spacing={4} modifiers={[widgetBackground, widgetURL(url)]}>
+      <VStack alignment="leading" spacing={4} modifiers={[widgetBackground, widgetURL(url), fill]}>
         {header}
         <HStack spacing={6} modifiers={[accessibilityElement("ignore"), accessibilityLabel(currentCard.accessibilityText)]}>
           {cardArt}
@@ -174,9 +184,9 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
   }
 
   return (
-    <VStack alignment="leading" spacing={6} modifiers={[widgetBackground, widgetURL(url)]}>
+    <VStack alignment="leading" spacing={6} modifiers={[widgetBackground, widgetURL(url), fill]}>
       {header}
-      <HStack spacing={10} alignment="top">
+      <HStack spacing={12} alignment="top" modifiers={[fill]}>
         {cardArt}
         <VStack alignment="leading" spacing={2}>
           <VStack alignment="leading" spacing={2} modifiers={[accessibilityElement("ignore"), accessibilityLabel(currentCard.accessibilityText)]}>

@@ -27,9 +27,9 @@
     "sorter": "Sortierer",
     "stats": "Statistiken",
     "storage": "Lager",
-    "upgradeYourPlan": "Tarif upgraden",
-    "upgradeShort": "Upgrade",
-    "more": "Mehr"
+    "more": "Mehr",
+    "home": "Start",
+    "library": "Bibliothek"
   },
   "auth": {
     "tagline": "Scanne, sortiere und verwalte deine Karten vom Handy aus.",
@@ -204,7 +204,9 @@
       "shareHint": "{{percent}} % der Karten",
       "needsReview": "Zu prüfen",
       "correctedHint": "{{count}} geprüft",
-      "heading": "Übersicht"
+      "heading": "Übersicht",
+      "unique": "Einzigartig",
+      "priced": "Karten mit Preis"
     },
     "activity": {
       "title": "Scan-Aktivität",
@@ -218,7 +220,12 @@
       },
       "weekOf": "Woche vom {{date}}",
       "thisWeek": "Diese Woche",
-      "today": "Heute"
+      "today": "Heute",
+      "total": "Gescannt",
+      "average": {
+        "day": "Pro Tag",
+        "week": "Pro Woche"
+      }
     },
     "compare": {
       "title": "Sammlungen vergleichen",
@@ -255,16 +262,19 @@
       "title": "Wertvollste Sets"
     },
     "rarities": {
-      "title": "Seltenheit"
+      "title": "Seltenheit",
+      "description": "Anteil deiner Karten nach Seltenheit"
     },
     "colors": {
-      "title": "Farben"
+      "title": "Farben",
+      "description": "Anteil deiner Karten nach Farbe"
     },
     "foils": {
       "title": "Foil-Typen"
     },
     "topCards": {
-      "title": "Wertvollste Karten"
+      "title": "Wertvollste Karten",
+      "rank": "Platz {{rank}}"
     },
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
@@ -287,6 +297,44 @@
         "description": "Andere Organisationen sehen dich nicht. Deine Zeile zeigt, auf welchem Rang du wärst. Tritt in den Einstellungen bei, um in der Liste zu erscheinen.",
         "action": "Bestenliste beitreten"
       }
+    },
+    "highlights": {
+      "title": "Auf einen Blick"
+    },
+    "insights": {
+      "topCard": {
+        "title": "Deine wertvollste Karte ist {{name}}",
+        "detail": "{{price}} wert, in {{collection}}"
+      },
+      "highValue": {
+        "title_one": "{{count}} Karte macht {{percent}} % deines Werts aus",
+        "title_other": "{{count}} Karten machen {{percent}} % deines Werts aus",
+        "detail": "Karten ab {{min}}"
+      },
+      "topCollection": {
+        "title": "{{name}} ist deine wertvollste Sammlung",
+        "detail": "{{percent}} % deines Gesamtwerts"
+      },
+      "busiest": {
+        "title": {
+          "day": "Dein aktivster Tag war der {{date}}",
+          "week": "Deine aktivste Woche begann am {{date}}"
+        },
+        "detail_one": "{{count}} Karte gescannt",
+        "detail_other": "{{count}} Karten gescannt"
+      },
+      "review": {
+        "title_one": "{{count}} Scan muss geprüft werden",
+        "title_other": "{{count}} Scans müssen geprüft werden",
+        "detail": "Prüfe sie, damit deine Zahlen stimmen."
+      }
+    },
+    "showAll": "Alle anzeigen ({{count}})",
+    "showLess": "Weniger anzeigen",
+    "other": "Sonstige",
+    "headline": {
+      "title": "Deine Sammlung",
+      "subtitle": "in Zahlen"
     }
   },
   "account": {
@@ -790,8 +838,53 @@
     "live": {
       "yourSession": "Deine Sitzung",
       "scanning": "Wird gescannt",
-      "scanningBy": "{{name}} scannt"
-    }
+      "scanningBy": "{{name}} scannt",
+      "title": "{{name}} · {{collection}}",
+      "open": "Öffnet die Sammlung"
+    },
+    "subtitle": "So steht es um deine Sammlung",
+    "loadFailed": "Deine Übersicht konnte nicht geladen werden. Zum Aktualisieren nach unten ziehen.",
+    "greeting": {
+      "morning": "Guten Morgen",
+      "afternoon": "Guten Tag",
+      "evening": "Guten Abend"
+    },
+    "greetingWithName": "{{greeting}}, {{name}}",
+    "hero": {
+      "value": "Sammlungswert",
+      "cards": "Karten",
+      "collections": "Sammlungen",
+      "scanned": "Insgesamt gescannt",
+      "sinceYesterday": "seit gestern",
+      "sinceDate": "seit {{date}}"
+    },
+    "actions": {
+      "scan": "Karten scannen",
+      "newCollection": "Neue Sammlung",
+      "stats": "Statistiken"
+    },
+    "welcome": {
+      "title": "Willkommen bei Mault",
+      "description": "Lege eine Sammlung an und scanne los, um hier ihren Wert, deine Top-Karten und mehr zu sehen."
+    },
+    "review": {
+      "title_one": "{{count}} Scan muss geprüft werden",
+      "title_other": "{{count}} Scans müssen geprüft werden",
+      "description": "Prüfe die Treffer, damit deine Sammlung stimmt.",
+      "open": "Öffnet die Prüfung"
+    },
+    "cardOfTheDay": "Karten des Tages",
+    "activity": {
+      "title": "Scan-Aktivität",
+      "today": "Heute",
+      "thisWeek": "Diese Woche",
+      "scans_one": "{{count}} Scan",
+      "scans_other": "{{count}} Scans",
+      "chartLabel": "Scans pro Tag in den letzten 14 Tagen"
+    },
+    "topCards": "Top-Karten",
+    "recentScans": "Zuletzt gescannt",
+    "seeAllStats": "Alle Statistiken"
   },
   "collection": {
     "value": "Wert",
@@ -3050,7 +3143,8 @@
         "up": "gestiegen um {{change}}, {{percent}}",
         "down": "gesunken um {{change}}, {{percent}}",
         "flat": "keine Änderung"
-      }
+      },
+      "bestPerforming": "Top-Sammlung"
     },
     "totalCards": {
       "title": "Karten gesamt",

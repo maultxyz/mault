@@ -1,9 +1,11 @@
 import {
   PRICE_SOURCE_FIELDS,
+  WIDGET_SUMMARY_VALUE_HISTORY_DAYS,
   WIDGET_VALUE_SNAPSHOT_RETENTION_DAYS,
   type OrgPricing,
+  type WidgetValuePoint,
 } from "@magic-vault/shared";
-import { and, count, eq, lt, sql } from "drizzle-orm";
+import { and, count, eq, inArray, lt, sql } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import {
   cardPrices,
@@ -157,6 +159,65 @@ export async function loadPreviousCollectionValues(
       ]),
     ),
   };
+}
+
+export async function loadOrgValueHistory(
+  tx: Transaction,
+  orgId: string,
+  currency: string,
+): Promise<WidgetValuePoint[]> {
+  const since = utcDay(Date.now() - WIDGET_SUMMARY_VALUE_HISTORY_DAYS * ONE_DAY_MS);
+  const rows = await tx
+    .select({
+      day: collectionValueSnapshots.day,
+      totalValue: sql<number>`sum(${collectionValueSnapshots.marketValue})::float8`,
+    })
+    .from(collectionValueSnapshots)
+    .where(
+      and(
+        eq(collectionValueSnapshots.orgId, orgId),
+        eq(collectionValueSnapshots.currency, currency),
+        sql`${collectionValueSnapshots.day} >= ${since}`,
+        lt(collectionValueSnapshots.day, utcDay()),
+      ),
+    )
+    .groupBy(collectionValueSnapshots.day)
+    .orderBy(collectionValueSnapshots.day);
+  return rows.map((row) => ({ day: row.day, totalValue: Number(row.totalValue) }));
+}
+
+export async function loadCollectionValueHistories(
+  tx: Transaction,
+  orgId: string,
+  currency: string,
+  collectionGuids: string[],
+): Promise<Map<string, WidgetValuePoint[]>> {
+  const historiesByCollectionGuid = new Map<string, WidgetValuePoint[]>();
+  if (collectionGuids.length === 0) return historiesByCollectionGuid;
+  const since = utcDay(Date.now() - WIDGET_SUMMARY_VALUE_HISTORY_DAYS * ONE_DAY_MS);
+  const rows = await tx
+    .select({
+      collectionGuid: collectionValueSnapshots.collectionGuid,
+      day: collectionValueSnapshots.day,
+      totalValue: collectionValueSnapshots.marketValue,
+    })
+    .from(collectionValueSnapshots)
+    .where(
+      and(
+        eq(collectionValueSnapshots.orgId, orgId),
+        eq(collectionValueSnapshots.currency, currency),
+        inArray(collectionValueSnapshots.collectionGuid, collectionGuids),
+        sql`${collectionValueSnapshots.day} >= ${since}`,
+        lt(collectionValueSnapshots.day, utcDay()),
+      ),
+    )
+    .orderBy(collectionValueSnapshots.day);
+  for (const row of rows) {
+    const history = historiesByCollectionGuid.get(row.collectionGuid) ?? [];
+    history.push({ day: row.day, totalValue: Number(row.totalValue) });
+    historiesByCollectionGuid.set(row.collectionGuid, history);
+  }
+  return historiesByCollectionGuid;
 }
 
 export async function snapshotTrackedOrgCollectionValues(
