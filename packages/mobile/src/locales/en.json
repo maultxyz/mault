@@ -1246,7 +1246,10 @@
       "edit": "Edit",
       "save": "Save",
       "saveFailed": "Couldn't save the description."
-    }
+    },
+    "maxCardsLabel": "Max cards",
+    "maxCardsPlaceholder": "No limit",
+    "maxCardsDescription": "Sorting pauses when this bin holds this many cards, even if it has room. Leave empty to use the bin's physical size."
   },
   "calibration": {
     "title": "Sorter setup",

@@ -91,6 +91,11 @@ export function BinCard({
                     {t("binCard.maxCopies", { count: config.maxCopies })}
                   </Badge>
                 )}
+              {!isDisabled && config.maxCards != null && (
+                <Badge variant="outline">
+                  {t("binCard.maxCards", { count: config.maxCards })}
+                </Badge>
+              )}
               {!isDisabled && repackPriority != null && (
                 <Badge variant="outline">
                   {t("binCard.priority", { priority: repackPriority })}

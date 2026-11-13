@@ -385,6 +385,7 @@ export const bins = pgTable(
       .references(() => binSets.id),
     maxCopies: integer("max_copies"),
     maxCopiesBy: text("max_copies_by"),
+    maxCards: integer("max_cards"),
     overflowBin: integer("overflow_bin"),
     isDisabled: boolean("is_disabled").notNull().default(false),
     pickList: jsonb("pick_list"),

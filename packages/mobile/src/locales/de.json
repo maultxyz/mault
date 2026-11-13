@@ -1246,7 +1246,10 @@
       "edit": "Bearbeiten",
       "save": "Speichern",
       "saveFailed": "Die Beschreibung konnte nicht gespeichert werden."
-    }
+    },
+    "maxCardsLabel": "Max. Karten",
+    "maxCardsPlaceholder": "Kein Limit",
+    "maxCardsDescription": "Das Sortieren pausiert, wenn dieses Fach so viele Karten enthält, auch wenn noch Platz ist. Leer lassen, um die physische Größe des Fachs zu nutzen."
   },
   "calibration": {
     "title": "Sortierer einrichten",

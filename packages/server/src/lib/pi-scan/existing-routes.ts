@@ -154,6 +154,7 @@ export async function saveBinThroughRoute(
       lowMatchPercent: bin.lowMatchPercent,
       maxCopies: bin.maxCopies,
       maxCopiesBy: bin.maxCopiesBy,
+      maxCards: bin.maxCards,
       overflowBin: bin.overflowBin,
       isDisabled: bin.isDisabled,
       pickList: bin.pickList,

@@ -139,6 +139,12 @@ export const binConfigSchema = z.object({
     .max(CONDITION_NUMERIC_MAX)
     .nullable(),
   maxCopiesBy: z.string(),
+  maxCards: z
+    .number()
+    .int(formValidationMessage("wholeNumber"))
+    .min(1, formValidationMessage("atLeast", { min: 1 }))
+    .max(CONDITION_NUMERIC_MAX, formValidationMessage("atMost", { max: CONDITION_NUMERIC_MAX }))
+    .nullable(),
   overflowBin: z.number().int().positive().nullable(),
   lowMatchPercent: z
     .number()

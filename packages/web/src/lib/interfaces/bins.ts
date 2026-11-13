@@ -32,6 +32,7 @@ export interface BinConfigSaveInput {
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  maxCards?: number | null;
   overflowBin?: number | null;
   isDisabled?: boolean;
   pickList?: PickListInput | null;

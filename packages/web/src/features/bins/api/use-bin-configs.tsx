@@ -266,6 +266,7 @@ export function BinConfigsProvider({
         lowMatchPercent,
         maxCopies,
         maxCopiesBy,
+        maxCards,
         overflowBin,
         isDisabled,
         pickList,
@@ -301,6 +302,12 @@ export function BinConfigsProvider({
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
             maxCopiesBy:
               isCatchAll || maxCopies == null ? null : (maxCopiesBy ?? null),
+            maxCards:
+              maxCards === undefined
+                ? idx >= 0
+                  ? (set.bins[idx].maxCards ?? null)
+                  : null
+                : maxCards,
             overflowBin:
               overflowBin === undefined
                 ? idx >= 0

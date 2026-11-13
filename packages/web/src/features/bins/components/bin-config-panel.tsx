@@ -118,6 +118,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
       rules: emptyRuleGroup(),
       maxCopies: null,
       maxCopiesBy: REPACK_UNIQUE_BY_PRINTING,
+      maxCards: null,
       overflowBin: null,
       lowMatchPercent: null,
       pickList: null,
@@ -135,6 +136,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
       maxCopies: config.maxCopies ?? null,
       maxCopiesBy: config.maxCopiesBy ?? REPACK_UNIQUE_BY_PRINTING,
+      maxCards: config.maxCards ?? null,
       overflowBin: config.overflowBin ?? null,
       lowMatchPercent: config.isCatchAll
         ? (config.lowMatchPercent ?? null)
@@ -194,6 +196,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
           lowMatchPercent: values.isCatchAll ? values.lowMatchPercent : null,
           maxCopies: values.isCatchAll ? null : (config.maxCopies ?? null),
           maxCopiesBy: values.isCatchAll ? null : (config.maxCopiesBy ?? null),
+          maxCards: values.maxCards,
           isDisabled: !values.isCatchAll && values.isDisabled,
           repackPriority: values.isCatchAll ? null : values.repackPriority,
         });
@@ -209,6 +212,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
           lowMatchPercent: null,
           maxCopies: null,
           maxCopiesBy: null,
+          maxCards: values.maxCards,
           overflowBin: null,
           isDisabled: values.isDisabled,
           pickList: {
@@ -235,6 +239,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
           values.isCatchAll || autoAssignField || values.maxCopies == null
             ? null
             : values.maxCopiesBy,
+        maxCards: values.maxCards,
         isDisabled: !values.isCatchAll && values.isDisabled,
         pickList: null,
       });
@@ -268,6 +273,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
         rules: emptyRuleGroup(),
         maxCopies: null,
         maxCopiesBy: REPACK_UNIQUE_BY_PRINTING,
+        maxCards: form.getValues("maxCards"),
         overflowBin: null,
         lowMatchPercent: null,
         pickList: null,
@@ -738,6 +744,38 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
     </BinSettingRow>
   );
 
+  const maxCardsRow = !isDisabled && (
+    <BinSettingRow
+      key="max-cards"
+      id="bin-max-cards"
+      label={t("binConfigPanel.maxCardsLabel")}
+      description={t("binConfigPanel.maxCardsDescription")}
+      control={
+        <Controller
+          name="maxCards"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Input
+              id="bin-max-cards"
+              type="number"
+              min={1}
+              inputMode="numeric"
+              className="w-24"
+              placeholder={t("binConfigPanel.maxCardsPlaceholder")}
+              aria-invalid={fieldState.invalid}
+              value={field.value == null || Number.isNaN(field.value) ? "" : field.value}
+              onChange={(e) =>
+                field.onChange(e.target.value === "" ? null : Number(e.target.value))
+              }
+            />
+          )}
+        />
+      }
+    >
+      <FieldError errors={[form.formState.errors.maxCards]} />
+    </BinSettingRow>
+  );
+
   const lowMatchRow = (
     <Controller
       key="low-match"
@@ -966,10 +1004,10 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
 
   const settingsRows = (
     isPickList
-      ? [disableRow]
+      ? [disableRow, maxCardsRow]
       : isCatchAll
-        ? [lowMatchRow]
-        : [disableRow, overflowRow, overrideRow, isOverride && priorityRow]
+        ? [lowMatchRow, maxCardsRow]
+        : [disableRow, maxCardsRow, overflowRow, overrideRow, isOverride && priorityRow]
   ).filter(Boolean);
   const advancedRows = (
     isPickList ? [] : isCatchAll ? [priorityRow] : [copiesRow]

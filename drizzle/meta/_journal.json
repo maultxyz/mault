@@ -1212,6 +1212,13 @@
       "when": 1794599601359,
       "tag": "0172_bin_set_description",
       "breakpoints": true
+    },
+    {
+      "idx": 173,
+      "version": "7",
+      "when": 1794613922604,
+      "tag": "0173_bin_max_cards",
+      "breakpoints": true
     }
   ]
 }

@@ -15,6 +15,7 @@ import {
   snapshotBinSet,
   toIsDisabled,
   toLowMatchPercent,
+  toMaxCards,
   toMaxCopies,
   toMaxCopiesBy,
   toOverflowBin,
@@ -43,6 +44,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       lowMatchPercent,
       maxCopies,
       maxCopiesBy,
+      maxCards,
       overflowBin,
       isDisabled,
       pickList,
@@ -55,6 +57,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       lowMatchPercent?: number | null;
       maxCopies?: number | null;
       maxCopiesBy?: string | null;
+      maxCards?: number | null;
       overflowBin?: number | null;
       isDisabled?: boolean;
       pickList?: PickListInput | null;
@@ -75,6 +78,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               overflowBin: true,
               pickList: true,
               repackPriority: true,
+              maxCards: true,
             },
           },
         },
@@ -137,6 +141,8 @@ export const editBinRoute = new Hono<AppEnv>().put(
                 : repackPriority,
               isCatchAll,
             ),
+            maxCards:
+              maxCards === undefined ? existing.maxCards : toMaxCards(maxCards),
             updatedAt: new Date(),
           })
           .where(eq(bins.id, existing.id));
@@ -147,6 +153,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
           overflowBin: isPickList ? null : toOverflowBin(overflowBin, binNumber),
           isDisabled: toIsDisabled(isDisabled, isCatchAll),
           repackPriority: toRepackPriority(repackPriority, isCatchAll),
+          maxCards: toMaxCards(maxCards),
           binSet: activeBinSet.id,
           orgId,
         });
@@ -168,6 +175,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
           lowMatchPercent: true,
           maxCopies: true,
           maxCopiesBy: true,
+          maxCards: true,
           overflowBin: true,
           isDisabled: true,
           pickList: true,
@@ -190,6 +198,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             lowMatchPercent: b.lowMatchPercent,
             maxCopies: b.maxCopies,
             maxCopiesBy: b.maxCopiesBy,
+            maxCards: b.maxCards,
             overflowBin: b.overflowBin,
             isDisabled: b.isDisabled,
             pickList: b.isCatchAll ? null : toPickList(b.pickList),

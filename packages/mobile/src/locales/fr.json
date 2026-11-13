@@ -1246,7 +1246,10 @@
       "edit": "Modifier",
       "save": "Enregistrer",
       "saveFailed": "Impossible d'enregistrer la description."
-    }
+    },
+    "maxCardsLabel": "Cartes max.",
+    "maxCardsPlaceholder": "Aucune limite",
+    "maxCardsDescription": "Le tri se met en pause quand ce bac contient autant de cartes, même s'il reste de la place. Laissez vide pour utiliser la taille physique du bac."
   },
   "calibration": {
     "title": "Réglage du trieur",

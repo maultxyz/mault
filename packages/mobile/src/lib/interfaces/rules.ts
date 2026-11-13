@@ -23,6 +23,7 @@ export interface BinSaveInput {
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  maxCards?: number | null;
   pickList?: null;
 }
 

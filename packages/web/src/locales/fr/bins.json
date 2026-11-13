@@ -31,7 +31,8 @@
     "pickList": "Liste de tri",
     "pickListProgress": "Cartes de la liste, {{found}} sur {{total}} trouvées",
     "pickListAll_one": "Chaque exemplaire de la liste, {{count}} trouvé",
-    "pickListAll_other": "Chaque exemplaire de la liste, {{count}} trouvés"
+    "pickListAll_other": "Chaque exemplaire de la liste, {{count}} trouvés",
+    "maxCards": "Contient {{count}}"
   },
   "binConfigPanel": {
     "overflowLabel": "Une fois plein, déborder dans",
@@ -87,7 +88,10 @@
     "sortSourcePickListDescription": "Uniquement les cartes de la liste ci-dessous, comme une liste de deck. Vérifiée avant les règles de tous les autres bacs.",
     "settingsTitle": "Réglages du bac",
     "advancedTitle": "Avancé",
-    "rulesSectionDescription": "Les cartes qui correspondent vont dans ce bac."
+    "rulesSectionDescription": "Les cartes qui correspondent vont dans ce bac.",
+    "maxCardsLabel": "Cartes max.",
+    "maxCardsDescription": "Le tri se met en pause quand ce bac contient autant de cartes, même s'il reste de la place. Laissez vide pour utiliser la taille physique du bac.",
+    "maxCardsPlaceholder": "Aucune limite"
   },
   "binList": {
     "needCatchAll": "Un bac doit être défini comme fourre-tout."
