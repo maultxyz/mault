@@ -147,6 +147,7 @@ export interface PresetWorkflowsAndPresets {
 export interface BinSet {
   guid: string;
   name: string;
+  description: string;
   isActive: boolean;
   bins: BinConfig[];
   game: Game | null;

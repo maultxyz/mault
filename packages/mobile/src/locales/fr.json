@@ -1237,7 +1237,16 @@
     },
     "modeLocked": "Les règles ne s'appliquent pas en mode {{mode}}. Change le mode de tri pour les modifier.",
     "autoAssignLocked": "La détection automatique définit ces règles pour toi. Change le mode de tri pour les modifier.",
-    "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis dans Mode de tri. Désactive-le pour configurer les bacs."
+    "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis dans Mode de tri. Désactive-le pour configurer les bacs.",
+    "description": {
+      "title": "Notes du préréglage",
+      "label": "Description",
+      "placeholder": "Notes sur ce préréglage, ce qu'il trie, quand l'utiliser...",
+      "add": "Ajouter une description",
+      "edit": "Modifier",
+      "save": "Enregistrer",
+      "saveFailed": "Impossible d'enregistrer la description."
+    }
   },
   "calibration": {
     "title": "Réglage du trieur",

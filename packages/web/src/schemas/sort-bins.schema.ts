@@ -4,6 +4,7 @@ import {
   formValidationMessage,
   LOW_MATCH_PERCENT_MAX,
   OVERRIDE_PRIORITY_MAX,
+  presetDescriptionFormSchema,
   SET_NAME_MAX_LENGTH,
   type BinRuleGroup,
 } from "@magic-vault/shared";
@@ -26,6 +27,10 @@ export const createSetSchema = z.object({
 });
 
 export type CreateSetFormValues = z.infer<typeof createSetSchema>;
+
+export const editSetSchema = createSetSchema.merge(presetDescriptionFormSchema);
+
+export type EditSetFormValues = z.infer<typeof editSetSchema>;
 
 export const createPresetSchema = createSetSchema
   .extend({

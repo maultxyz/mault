@@ -1205,6 +1205,13 @@
       "when": 1794525412900,
       "tag": "0171_collection_value_snapshots",
       "breakpoints": true
+    },
+    {
+      "idx": 172,
+      "version": "7",
+      "when": 1794599601359,
+      "tag": "0172_bin_set_description",
+      "breakpoints": true
     }
   ]
 }

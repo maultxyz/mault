@@ -10,6 +10,7 @@ import { MobileBins } from "@/features/bins/components/mobile-bins";
 import { BinRulesMenu } from "@/features/bins/components/bin-rules-menu";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
+import { PresetDescriptionNote } from "@/features/bins/components/preset-description-note";
 import { PresetStagesPanel } from "@/features/bins/components/preset-stages-panel";
 import { RepackPanel } from "@/features/bins/components/repack-panel";
 import { RepackTour } from "@/features/bins/components/repack-tour";
@@ -54,6 +55,7 @@ export default function BinsPage() {
             <BinsHelpTour />
           </div>
         </div>
+        <PresetDescriptionNote />
         <PresetStagesPanel />
         <RepackPanel />
         <AlphabetPanel />

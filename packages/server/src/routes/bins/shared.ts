@@ -164,6 +164,7 @@ function toBinSet(row: {
   skipSaving: boolean;
   isResortMode: boolean;
   matchGameKeys: string[];
+  description: string;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -214,6 +215,7 @@ function toBinSet(row: {
     skipSaving: row.skipSaving,
     isResortMode: row.isResortMode,
     matchGameKeys: row.matchGameKeys,
+    description: row.description,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -270,6 +272,7 @@ const binSetQuery = {
     skipSaving: true,
     isResortMode: true,
     matchGameKeys: true,
+    description: true,
     createdAt: true,
     updatedAt: true,
   },

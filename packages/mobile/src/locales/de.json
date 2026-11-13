@@ -1237,7 +1237,16 @@
     },
     "modeLocked": "Regeln gelten im Modus {{mode}} nicht. Ändere den Sortiermodus, um sie zu bearbeiten.",
     "autoAssignLocked": "Die automatische Erkennung legt diese Regeln für dich fest. Ändere den Sortiermodus, um sie zu bearbeiten.",
-    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren."
+    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren.",
+    "description": {
+      "title": "Preset-Notizen",
+      "label": "Beschreibung",
+      "placeholder": "Notizen zu diesem Preset, was es sortiert, wann man es nutzt...",
+      "add": "Beschreibung hinzufügen",
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "saveFailed": "Die Beschreibung konnte nicht gespeichert werden."
+    }
   },
   "calibration": {
     "title": "Sortierer einrichten",

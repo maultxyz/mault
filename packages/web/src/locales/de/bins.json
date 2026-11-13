@@ -124,8 +124,8 @@
     "deleteSetDescription": "Löscht \"{{name}}\". Wende dich an den Support, wenn du sie zurück brauchst.",
     "revertSuccess": "Vorlage auf den vorherigen Stand zurückgesetzt",
     "revertFailed": "Zurücksetzen fehlgeschlagen",
-    "renameSetTitle": "Vorlage umbenennen",
-    "renameSetDescription": "Gib einen neuen Namen für diese Vorlage ein.",
+    "renameSetTitle": "Vorlage bearbeiten",
+    "renameSetDescription": "Ändere den Namen und füge Notizen hinzu, was diese Vorlage macht.",
     "cancel": "Abbrechen",
     "rename": "Umbenennen",
     "setNameLabel": "Name der Vorlage",
@@ -145,7 +145,10 @@
       "alphabet": "Alphabetisch",
       "chaos": "Chaos-Sortierung",
       "game-sort": "Nach Spiel"
-    }
+    },
+    "save": "Speichern",
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Notizen zu dieser Vorlage, was sie sortiert, wann man sie nutzt..."
   },
   "useBinConfigs": {
     "toasts": {

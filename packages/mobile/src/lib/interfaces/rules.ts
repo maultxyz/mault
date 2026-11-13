@@ -127,3 +127,11 @@ export interface BinRowProps {
   summary?: string;
   onPress: () => void;
 }
+
+export type PresetDescriptionRouteParams = {
+  guid: string;
+};
+
+export interface PresetDescriptionSaveContext {
+  previous: BinSet[] | undefined;
+}

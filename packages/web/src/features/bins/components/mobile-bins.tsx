@@ -7,6 +7,7 @@ import { BinConfigPanel } from "@/features/bins/components/bin-config-panel";
 import { BinList } from "@/features/bins/components/bin-list";
 import { BinRulesMenu } from "@/features/bins/components/bin-rules-menu";
 import { MobilePresetSelector } from "@/features/bins/components/mobile-preset-selector";
+import { PresetDescriptionNote } from "@/features/bins/components/preset-description-note";
 import { RepackPanel } from "@/features/bins/components/repack-panel";
 import {
   MOBILE_BINS_BIN_PARAM,
@@ -138,6 +139,7 @@ export function MobileBins() {
       {screenBody(
         <>
           <MobilePresetSelector />
+          <PresetDescriptionNote />
           {selectedSet && (
             <div className={MOBILE_LIST_CLASS}>
               <MobileListRow

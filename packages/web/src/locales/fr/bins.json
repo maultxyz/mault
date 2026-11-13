@@ -124,8 +124,8 @@
     "deleteSetDescription": "Supprime « {{name}} ». Contacte le support si tu as besoin de le récupérer.",
     "revertSuccess": "Préréglage rétabli à son état précédent",
     "revertFailed": "Échec du rétablissement",
-    "renameSetTitle": "Renommer le préréglage",
-    "renameSetDescription": "Saisis un nouveau nom pour ce préréglage.",
+    "renameSetTitle": "Modifier le préréglage",
+    "renameSetDescription": "Changez le nom et ajoutez des notes sur ce que fait ce préréglage.",
     "cancel": "Annuler",
     "rename": "Renommer",
     "setNameLabel": "Nom du préréglage",
@@ -145,7 +145,10 @@
       "alphabet": "Tri alphabétique",
       "chaos": "Tri chaos",
       "game-sort": "Par jeu"
-    }
+    },
+    "save": "Enregistrer",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Notes sur ce préréglage, ce qu'il trie, quand l'utiliser..."
   },
   "useBinConfigs": {
     "toasts": {

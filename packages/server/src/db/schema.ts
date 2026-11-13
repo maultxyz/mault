@@ -233,6 +233,7 @@ export const binSets = pgTable(
     id: serial().primaryKey(),
     guid: uuid("guid").defaultRandom(),
     name: text("name").notNull(),
+    description: text("description").notNull().default(""),
     isActive: boolean("is_active").notNull().default(false),
     gameId: integer("game_id").references(() => games.id),
     autoAssignField: text("auto_assign_field"),

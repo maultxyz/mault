@@ -124,8 +124,8 @@
     "deleteSetDescription": "Deletes \"{{name}}\". Contact support if you need it back.",
     "revertSuccess": "Reverted the preset to its previous state",
     "revertFailed": "Failed to revert",
-    "renameSetTitle": "Rename preset",
-    "renameSetDescription": "Enter a new name for this preset.",
+    "renameSetTitle": "Edit preset",
+    "renameSetDescription": "Change the name and add notes about what this preset does.",
     "cancel": "Cancel",
     "rename": "Rename",
     "setNameLabel": "Preset name",
@@ -145,7 +145,10 @@
       "alphabet": "Alphabetical",
       "chaos": "Chaos sort",
       "game-sort": "By game"
-    }
+    },
+    "save": "Save",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Notes about this preset, what it sorts, when to use it..."
   },
   "useBinConfigs": {
     "toasts": {

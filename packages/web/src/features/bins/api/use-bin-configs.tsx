@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type {
+  RenameSetInput,
   AlphabetConfig,
   BinConfigSaveInput,
   BinConfigsContextValue,
@@ -397,8 +398,8 @@ export function BinConfigsProvider({
   });
 
   const renameSetMutation = useMutation({
-    mutationFn: ({ guid, name }: { guid: string; name: string }) =>
-      renameSetAction(guid, name),
+    mutationFn: ({ guid, name, description }: RenameSetInput) =>
+      renameSetAction(guid, name, description),
     ...presetsMutationHandlers("useBinConfigs.toasts.renameSetFailed"),
   });
 
@@ -637,8 +638,8 @@ export function BinConfigsProvider({
   );
 
   const renameSetFn = useCallback(
-    async (guid: string, name: string) => {
-      await renameSetMutation.mutateAsync({ guid, name });
+    async (guid: string, name: string, description: string) => {
+      await renameSetMutation.mutateAsync({ guid, name, description });
     },
     [renameSetMutation],
   );
