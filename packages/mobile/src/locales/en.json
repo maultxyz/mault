@@ -3189,7 +3189,7 @@
     "open": "Search everything",
     "placeholder": "Search cards, collections, locations and settings",
     "promptTitle": "Search everything",
-    "promptDescription": "Find a card in any collection, a collection, a storage location or a setting.",
+    "promptDescription": "Find any card, in your collections or not, plus collections, storage locations and settings.",
     "emptyTitle": "Nothing found",
     "emptyDescription": "Try a different name or spelling.",
     "loadFailed": "Couldn't search your cards. Pull down to try again.",
@@ -3198,11 +3198,13 @@
     "resultsCount_one": "{{count}} result",
     "resultsCount_other": "{{count}} results",
     "sections": {
-      "cards": "Cards",
+      "cards": "Your cards",
       "collections": "Collections",
       "locations": "Storage locations",
-      "settings": "Settings"
-    }
+      "settings": "Settings",
+      "catalog": "All cards"
+    },
+    "catalogLoadFailed": "Couldn't search the card catalog. Pull down to try again."
   },
   "recovery": {
     "undo": "Undo",
@@ -3219,5 +3221,27 @@
     "conditionChanged": "Condition set to {{value}}",
     "pickListCleared": "Pick list cleared",
     "verifyProgressCleared": "Verification progress cleared"
+  },
+  "catalogCard": {
+    "title": "Card",
+    "loadFailed": "Couldn't load this card.",
+    "prices": "Prices",
+    "price": "Price",
+    "foilPrice": "Foil price",
+    "noPrice": "No price yet",
+    "details": "Details",
+    "set": "Set",
+    "number": "Number",
+    "rarity": "Rarity",
+    "type": "Type",
+    "artist": "Artist",
+    "game": "Game",
+    "add": "Add to collection",
+    "addTo": "Add to {{collection}}",
+    "chooseCollection": "Add to which collection?",
+    "added": "Added {{name}} to {{collection}}",
+    "view": "View",
+    "addFailed": "Couldn't add the card.",
+    "noCollection": "Create a {{game}} collection to add this card."
   }
 }

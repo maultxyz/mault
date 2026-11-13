@@ -197,3 +197,8 @@ export interface ScanDraftSave {
   values: ScanDraftFormValues;
   dirtyFields: Partial<Record<keyof ScanDraftFormValues, boolean>>;
 }
+
+export interface AddCatalogCardInput {
+  collectionGuid: string;
+  card: PlayingCard;
+}

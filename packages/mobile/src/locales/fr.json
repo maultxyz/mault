@@ -3189,7 +3189,7 @@
     "open": "Tout rechercher",
     "placeholder": "Rechercher des cartes, collections, emplacements et réglages",
     "promptTitle": "Tout rechercher",
-    "promptDescription": "Trouvez une carte dans n'importe quelle collection, une collection, un emplacement de stockage ou un réglage.",
+    "promptDescription": "Trouvez n'importe quelle carte, dans vos collections ou non, ainsi que des collections, des emplacements de stockage et des réglages.",
     "emptyTitle": "Aucun résultat",
     "emptyDescription": "Essayez un autre nom ou une autre orthographe.",
     "loadFailed": "Impossible de rechercher vos cartes. Tirez vers le bas pour réessayer.",
@@ -3198,11 +3198,13 @@
     "resultsCount_one": "{{count}} résultat",
     "resultsCount_other": "{{count}} résultats",
     "sections": {
-      "cards": "Cartes",
+      "cards": "Vos cartes",
       "collections": "Collections",
       "locations": "Emplacements de stockage",
-      "settings": "Réglages"
-    }
+      "settings": "Réglages",
+      "catalog": "Toutes les cartes"
+    },
+    "catalogLoadFailed": "Impossible de rechercher dans le catalogue de cartes. Tirez vers le bas pour réessayer."
   },
   "recovery": {
     "undo": "Annuler",
@@ -3219,5 +3221,27 @@
     "conditionChanged": "État défini sur {{value}}",
     "pickListCleared": "Liste de collecte vidée",
     "verifyProgressCleared": "Progression de la vérification effacée"
+  },
+  "catalogCard": {
+    "title": "Carte",
+    "loadFailed": "Impossible de charger cette carte.",
+    "prices": "Prix",
+    "price": "Prix",
+    "foilPrice": "Prix foil",
+    "noPrice": "Pas encore de prix",
+    "details": "Détails",
+    "set": "Extension",
+    "number": "Numéro",
+    "rarity": "Rareté",
+    "type": "Type",
+    "artist": "Artiste",
+    "game": "Jeu",
+    "add": "Ajouter à la collection",
+    "addTo": "Ajouter à {{collection}}",
+    "chooseCollection": "Ajouter à quelle collection ?",
+    "added": "{{name}} ajoutée à {{collection}}",
+    "view": "Voir",
+    "addFailed": "Impossible d'ajouter la carte.",
+    "noCollection": "Créez une collection {{game}} pour ajouter cette carte."
   }
 }

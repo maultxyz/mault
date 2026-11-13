@@ -3189,7 +3189,7 @@
     "open": "Alles durchsuchen",
     "placeholder": "Karten, Sammlungen, Lagerorte und Einstellungen suchen",
     "promptTitle": "Alles durchsuchen",
-    "promptDescription": "Finde eine Karte in jeder Sammlung, eine Sammlung, einen Lagerort oder eine Einstellung.",
+    "promptDescription": "Finde jede Karte, ob in deinen Sammlungen oder nicht, sowie Sammlungen, Lagerorte und Einstellungen.",
     "emptyTitle": "Nichts gefunden",
     "emptyDescription": "Versuche einen anderen Namen oder eine andere Schreibweise.",
     "loadFailed": "Deine Karten konnten nicht durchsucht werden. Zum erneuten Versuchen nach unten ziehen.",
@@ -3198,11 +3198,13 @@
     "resultsCount_one": "{{count}} Ergebnis",
     "resultsCount_other": "{{count}} Ergebnisse",
     "sections": {
-      "cards": "Karten",
+      "cards": "Deine Karten",
       "collections": "Sammlungen",
       "locations": "Lagerorte",
-      "settings": "Einstellungen"
-    }
+      "settings": "Einstellungen",
+      "catalog": "Alle Karten"
+    },
+    "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen."
   },
   "recovery": {
     "undo": "Rückgängig",
@@ -3219,5 +3221,27 @@
     "conditionChanged": "Zustand auf {{value}} gesetzt",
     "pickListCleared": "Pickliste geleert",
     "verifyProgressCleared": "Prüffortschritt zurückgesetzt"
+  },
+  "catalogCard": {
+    "title": "Karte",
+    "loadFailed": "Diese Karte konnte nicht geladen werden.",
+    "prices": "Preise",
+    "price": "Preis",
+    "foilPrice": "Foil-Preis",
+    "noPrice": "Noch kein Preis",
+    "details": "Details",
+    "set": "Set",
+    "number": "Nummer",
+    "rarity": "Seltenheit",
+    "type": "Typ",
+    "artist": "Künstler",
+    "game": "Spiel",
+    "add": "Zur Sammlung hinzufügen",
+    "addTo": "Zu {{collection}} hinzufügen",
+    "chooseCollection": "Zu welcher Sammlung hinzufügen?",
+    "added": "{{name}} zu {{collection}} hinzugefügt",
+    "view": "Ansehen",
+    "addFailed": "Die Karte konnte nicht hinzugefügt werden.",
+    "noCollection": "Erstelle eine {{game}}-Sammlung, um diese Karte hinzuzufügen."
   }
 }

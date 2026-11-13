@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Collection, StorageLocation } from "@magic-vault/shared";
+import type { Collection, PlayingCard, StorageLocation } from "@magic-vault/shared";
 import type { SettingsSectionLink } from "@/lib/interfaces/settings";
 
 export interface SwipeRowAction {
@@ -18,3 +18,20 @@ export interface GlobalSearchLocalResults {
   locations: StorageLocation[];
   settingsSections: SettingsSectionLink[];
 }
+
+export interface CatalogGame {
+  gameKey: string;
+  gameName: string;
+  lang: string;
+  collectionGuid: string;
+}
+
+export interface CatalogCardResult {
+  game: CatalogGame;
+  card: PlayingCard;
+}
+
+export type CatalogCardRouteParams = {
+  id: string;
+  gameKey: string;
+};
