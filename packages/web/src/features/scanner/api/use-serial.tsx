@@ -24,12 +24,12 @@ import {
   PiSerialTransport,
   SerialTransport,
 } from "@/features/scanner/lib/transports";
-import { isRemoteBrowser } from "@/lib/host";
 import { isImpersonating } from "@/lib/auth/impersonation";
 import { useImpersonation } from "@/hooks/use-impersonation";
-import { usePiHost } from "@/hooks/use-pi-host";
+import { usePiHostState } from "@/hooks/use-pi-host";
 import {
   SENSOR_BLOCKED_TOAST_ID,
+  PI_SORTER_RECONNECT_INTERVAL_MS,
 } from "@/lib/constants/scanner";
 import {
   SERIAL_RECOVERY_SKIP_TEST_MS,
@@ -42,6 +42,7 @@ import type {
   RawCommandResult,
   SerialBoardType,
   SerialContextValue,
+  SerialConnectOptions,
   SerialRecoveryMark,
   TestResult,
   ByteTransport,
@@ -129,7 +130,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const disconnectingRef = useRef<Promise<void> | null>(null);
   const preTestHooksRef = useRef(new Set<PreTestHook>());
 
-  const piHost = usePiHost();
+  const { piHost, piSorter } = usePiHostState();
   const { activeOrg } = useOrg();
   const device = useDevice();
   const deviceRef = useRef(device);
@@ -754,7 +755,27 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         if (typeof status?.version === "string") {
           setFirmwareVersion(status.version);
         }
-        if (status?.board === "esp32" || status?.board === "uno_r4") {
+        if (
+          newTransport.kind === "pi-sorter" &&
+          (status?.board !== "raspberry_pi" ||
+            typeof status?.id !== "string" ||
+            !status.id)
+        ) {
+          disconnect();
+          return null;
+        }
+        if (newTransport.kind === "pi-sorter" && isServoDriverMissing(status)) {
+          toast.error(t("serial.servoDriverMissing.title"), {
+            description: t("serial.servoDriverMissing.description"),
+          });
+          disconnect();
+          return null;
+        }
+        if (
+          status?.board === "esp32" ||
+          status?.board === "uno_r4" ||
+          status?.board === "raspberry_pi"
+        ) {
           setBoard(status.board);
         }
         setHasWifi(typeof status?.wifi === "string");
@@ -807,7 +828,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         ) {
           resetWatchArmedRef.current = true;
         }
-        if (!result || options?.skipAutoTest) return;
+        if (!result) return;
+        if (newTransport.kind === "pi-sorter") {
+          setIsReady(true);
+          return;
+        }
+        if (options?.skipAutoTest) return;
         const boundDevice = result.device;
         if (boundDevice && !boundDevice.setupCompletedAt) return;
         if (
@@ -872,15 +898,15 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   }, [impersonationActive, session, disconnect]);
 
   const connect = useCallback(
-    async (options?: { skipAutoTest?: boolean }) => {
+    async (options?: SerialConnectOptions) => {
       if (refuseWhileImpersonating(true)) return;
-      if (piHost && (await refusePiScanPort())) return;
+      if (piHost && !piSorter && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
       if (session.transport) return;
-      if (piHost && isRemoteBrowser()) {
-        const result = await PiSerialTransport.open();
+      if (piHost) {
+        const result = await PiSerialTransport.open(piSorter);
         if (!result.ok) {
           const description =
             result.reason === "missing"
@@ -888,12 +914,18 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
               : result.reason === "busy"
                 ? t("serial.piBusy")
                 : t("serial.connectionFailed.description");
-          toast.error(t("serial.connectionFailed.title"), { description });
-          void reportSerialEvent({
-            command: "connect",
-            sent: false,
-            response: null,
-          });
+          if (!options?.background) {
+            toast.error(t("serial.connectionFailed.title"), {
+              description: piSorter
+                ? t("serial.piSorterUnavailable")
+                : description,
+            });
+            void reportSerialEvent({
+              command: "connect",
+              sent: false,
+              response: null,
+            });
+          }
           return;
         }
         await openTransport(result.transport, options);
@@ -926,8 +958,37 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       t,
       session,
       piHost,
+      piSorter,
     ],
   );
+
+  const builtinConnectRef = useRef(connect);
+  builtinConnectRef.current = connect;
+  const builtinOpeningRef = useRef(false);
+  const isPrimaryStation = stationsCtx.stations[0]?.id === station.id;
+
+  useEffect(() => {
+    if (!piSorter || !activeOrg?.id || !isPrimaryStation || impersonationActive)
+      return;
+    const attach = async () => {
+      if (session.transport || builtinOpeningRef.current)
+        return;
+      builtinOpeningRef.current = true;
+      try {
+        await builtinConnectRef.current({ skipAutoTest: true, background: true });
+      } catch (error) {
+        console.error("[Pi sorter] Could not attach the built-in controller", error);
+      } finally {
+        builtinOpeningRef.current = false;
+      }
+    };
+    void attach();
+    const timer = window.setInterval(
+      () => void attach(),
+      PI_SORTER_RECONNECT_INTERVAL_MS,
+    );
+    return () => window.clearInterval(timer);
+  }, [piSorter, activeOrg?.id, isPrimaryStation, impersonationActive, session]);
 
   const connectPort = useCallback(
     async (port: SerialPort) => {
@@ -1188,7 +1249,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       if (typeof fields.version === "string")
         setFirmwareVersion(fields.version);
-      if (fields.board === "esp32" || fields.board === "uno_r4") {
+      if (
+        fields.board === "esp32" || fields.board === "uno_r4" ||
+        fields.board === "raspberry_pi"
+      ) {
         setBoard(fields.board);
       }
       if (fields.status === "ready") {
@@ -1301,7 +1365,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       async (): Promise<FirmwareCheckResult> => {
         const status = await session.sendParsed({ getStatus: true });
         if (!status) return { status: "noResponse" };
-        if (status.board === "esp32" || status.board === "uno_r4") {
+        if (
+          status.board === "esp32" || status.board === "uno_r4" ||
+          status.board === "raspberry_pi"
+        ) {
           setBoard(status.board);
         }
         if (typeof status.wifi === "string") setHasWifi(true);

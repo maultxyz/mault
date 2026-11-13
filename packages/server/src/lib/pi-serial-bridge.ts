@@ -1,5 +1,6 @@
 import type { RawData, WebSocket } from "ws";
 import type { PiSerialControlMessage } from "@magic-vault/shared";
+import { isPiSorter } from "./pi-host";
 import {
   claimSorterPort,
   releaseSorterPort,
@@ -25,9 +26,15 @@ async function runSession(socket: WebSocket) {
   try {
     port = await claimSorterPort("bridge");
   } catch (error) {
-    const reason = error instanceof SorterPortError ? error.reason : "open-failed";
+    const reason =
+      error instanceof SorterPortError ? error.reason : "open-failed";
     sendControl(socket, { type: "error", reason });
     socket.close();
+    return;
+  }
+
+  if (socket.readyState !== socket.OPEN) {
+    releaseSorterPort("bridge", port);
     return;
   }
 
@@ -38,7 +45,7 @@ async function runSession(socket: WebSocket) {
   const release = () => {
     if (released) return;
     released = true;
-    releaseSorterPort("bridge");
+    releaseSorterPort("bridge", port);
     if (socket.readyState === socket.OPEN) socket.close();
   };
 
@@ -67,6 +74,13 @@ async function runSession(socket: WebSocket) {
 }
 
 export function openPiSerialSocket(socket: WebSocket) {
+  if (isPiSorter()) {
+    void runSession(socket).catch(() => {
+      sendControl(socket, { type: "error", reason: "open-failed" });
+      socket.close();
+    });
+    return;
+  }
   if (activeSocket) {
     sendControl(socket, { type: "error", reason: "busy" });
     socket.close();

@@ -14,7 +14,7 @@ export function useAppVersionCheck() {
     async function check() {
       try {
         const serverVersion = await fetchServerVersion();
-        notePiHost(serverVersion.piHost === true);
+        notePiHost(serverVersion.piHost === true, serverVersion.piSorter === true);
         const firmwareChanged =
           (serverVersion.latestFirmwareVersion ?? null) !==
           getLatestFirmwareVersion();

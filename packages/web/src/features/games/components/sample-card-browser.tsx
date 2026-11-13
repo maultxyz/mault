@@ -110,19 +110,24 @@ export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {
 
     setLoading(true);
     setError(null);
-    const result = await getSampleCard(gameKey.trim(), query.trim());
-    setLoading(false);
+    try {
+      const result = await getSampleCard(gameKey.trim(), query.trim());
 
-    if (!result.success || !result.data) {
-      setError(result.message || t("fieldMapping.loadError"));
-      return;
-    }
-    if (!isPlainObject(result.data.raw)) {
+      if (!result.success || !result.data) {
+        setError(result.message || t("fieldMapping.loadError"));
+        return;
+      }
+      if (!isPlainObject(result.data.raw)) {
+        setError(t("fieldMapping.loadError"));
+        return;
+      }
+      setSampleName(result.data.name);
+      setRaw(result.data.raw);
+    } catch {
       setError(t("fieldMapping.loadError"));
-      return;
+    } finally {
+      setLoading(false);
     }
-    setSampleName(result.data.name);
-    setRaw(result.data.raw);
   }
 
   return (
@@ -157,7 +162,11 @@ export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {
         </Button>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
 
       {raw && (
         <>

@@ -166,4 +166,3 @@ export type SharedStorageCard = Pick<
   StorageLocationCard,
   "scanId" | "position" | "card" | "isFoil" | "foilType" | "stamp" | "condition" | "language"
 >;
-
