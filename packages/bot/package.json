@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/bot",
-  "version": "1.0.203",
+  "version": "1.0.206",
   "private": true,
   "scripts": {
     "dev": "tsx watch --env-file ../../.env src/index.ts",

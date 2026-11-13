@@ -53,3 +53,4 @@ firmware/**/build/**
 
 __pycache__/
 *.py[cod]
+/.pi-controller/

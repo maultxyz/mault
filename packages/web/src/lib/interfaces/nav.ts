@@ -96,11 +96,19 @@ export interface MobileListRowProps {
   disabled?: boolean;
 }
 
+export interface PiHostState {
+  piHost: boolean;
+  piSorter: boolean;
+  settled: boolean;
+}
+
 export interface AppVersionResponse {
   success: boolean;
   data: {
     version: string;
     piHost?: boolean;
+    piSorter?: boolean;
+    piController?: boolean;
     latestFirmwareVersion?: string | null;
   };
 }

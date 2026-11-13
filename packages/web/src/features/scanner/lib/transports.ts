@@ -354,17 +354,18 @@ function copyBytes(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
   return copy;
 }
 
-function piSerialUrl(token: string, orgId: string): string {
+function piSerialUrl(token: string, orgId: string, builtin: boolean): string {
   const params = new URLSearchParams({ token, orgId });
+  const endpoint = builtin ? "pi-sorter" : "pi-serial";
   if (API_BASE.startsWith("http://") || API_BASE.startsWith("https://")) {
     const url = new URL(API_BASE);
     url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-    url.pathname = `${url.pathname.replace(/\/$/, "")}/pi-serial`;
+    url.pathname = `${url.pathname.replace(/\/$/, "")}/${endpoint}`;
     url.search = params.toString();
     return url.toString();
   }
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${protocol}//${window.location.host}${API_BASE}/api/pi-serial?${params}`;
+  return `${protocol}//${window.location.host}${API_BASE}/api/${endpoint}?${params}`;
 }
 
 function parseControl(text: string): PiSerialControlMessage | null {
@@ -379,7 +380,7 @@ function parseControl(text: string): PiSerialControlMessage | null {
 }
 
 export class PiSerialTransport implements ByteTransport {
-  readonly kind: SerialTransportType = "pi";
+  readonly kind: SerialTransportType;
   private dataCb: ((chunk: Uint8Array) => void) | null = null;
   private disconnectCb: (() => void) | null = null;
   private errorCb: ((error: unknown) => void) | null = null;
@@ -390,7 +391,8 @@ export class PiSerialTransport implements ByteTransport {
     [];
   private readonly ws: WebSocket;
 
-  private constructor(ws: WebSocket) {
+  private constructor(ws: WebSocket, builtin: boolean) {
+    this.kind = builtin ? "pi-sorter" : "pi";
     this.ws = ws;
     ws.binaryType = "arraybuffer";
     ws.onmessage = (event) => {
@@ -409,10 +411,10 @@ export class PiSerialTransport implements ByteTransport {
       else this.pending.push(bytes);
     };
     ws.onclose = () => this.disconnectCb?.();
-    ws.onerror = () => this.errorCb?.(new Error("pi serial socket error"));
+    ws.onerror = () => this.errorCb?.(new Error("Pi hardware socket error"));
   }
 
-  static async open(): Promise<
+  static async open(builtin = false): Promise<
     | { ok: true; transport: PiSerialTransport }
     | { ok: false; reason: PiSerialErrorReason }
   > {
@@ -421,12 +423,12 @@ export class PiSerialTransport implements ByteTransport {
 
     let ws: WebSocket;
     try {
-      ws = new WebSocket(piSerialUrl(token, orgId));
+      ws = new WebSocket(piSerialUrl(token, orgId, builtin));
     } catch {
       return { ok: false, reason: "open-failed" };
     }
 
-    const transport = new PiSerialTransport(ws);
+    const transport = new PiSerialTransport(ws, builtin);
     const result = await transport.waitUntilReady();
     if (!result.ok) {
       transport.disconnectCb = null;

@@ -10,8 +10,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { delay } from "@/lib/delay";
+import { usePiHostState } from "@/hooks/use-pi-host";
 
 export function useSerialAutoConnect() {
+  const { piSorter } = usePiHostState();
   const { activeOrg } = useOrg();
   const { data: devices = [] } = useQuery(devicesQueryOptions(activeOrg?.id));
   const {
@@ -36,7 +38,7 @@ export function useSerialAutoConnect() {
     .join(",");
 
   useEffect(() => {
-    if (!autoConnectGuids) return;
+    if (piSorter || !autoConnectGuids) return;
     const autoGuids = new Set(autoConnectGuids.split(","));
     const controller = new AbortController();
     const pendingBluetooth = new Set<string>();
@@ -115,5 +117,5 @@ export function useSerialAutoConnect() {
     }
 
     return () => controller.abort();
-  }, [autoConnectGuids]);
+  }, [autoConnectGuids, piSorter]);
 }

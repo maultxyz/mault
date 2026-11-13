@@ -12,7 +12,7 @@
   "camera": {
     "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
     "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse.",
-    "piUnavailable": "La webcam du Raspberry Pi n'est pas disponible.",
+    "piUnavailable": "La caméra du trieur est indisponible.",
     "documentScannerUnavailable": "Impossible d'ouvrir le scanner de documents. Vérifiez qu'il est allumé et qu'aucune autre application ne l'utilise."
   },
   "scanEngine": {
@@ -61,6 +61,8 @@
       "description": "Impossible de se connecter. Vérifie qu'aucune autre application n'utilise l'appareil."
     },
     "piMissing": "Aucun trieur n'est branché sur le Raspberry Pi.",
+    "piSorterBuiltIn": "Trieuse Raspberry Pi intégrée",
+    "piSorterUnavailable": "En attente du contrôleur de la trieuse Pi intégrée. Vérifiez que son service fonctionne.",
     "piBusy": "Le port USB du Pi est déjà utilisé. Déconnecte-le dans l'autre navigateur, ou arrête le scan sur le Pi, puis réessaie.",
     "piScanBusy": "Un scan tourne sur le Pi, donc ce navigateur ne peut pas prendre le trieur. Arrête d'abord le scan.",
     "bluetoothPermissionBlocked": "L'autorisation Bluetooth est bloquée pour ce navigateur. Vérifie les paramètres du site dans ton navigateur (ou chrome://settings/content/bluetoothDevices) pour autoriser le Bluetooth, puis réessaie.",
@@ -922,7 +924,8 @@
       "serial": "USB",
       "bluetooth": "Bluetooth",
       "cloud": "Wi-Fi",
-      "pi": "Ce Pi"
+      "pi": "Ce Pi",
+      "pi-sorter": "Trieuse Pi intégrée"
     },
     "connectHint": "Allumez votre trieuse, puis connectez-vous.",
     "connectBluetooth": "Connecter en Bluetooth",

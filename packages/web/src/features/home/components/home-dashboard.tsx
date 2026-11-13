@@ -3,6 +3,7 @@ import { DisplayHeadline } from "@/components/display-headline";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
+import { PiSorterCalibrationLink } from "@/features/calibration/components/pi-sorter-calibration-link";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { widgetSummaryQueryOptions } from "@/features/home/api/widget-summary";
@@ -22,7 +23,7 @@ import { HOME_CARD_OF_THE_DAY_TILE_CLASS } from "@/lib/constants/home";
 import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { ONE_DAY_MS } from "@/lib/constants/timing";
-import { isRemoteBrowser } from "@/lib/host";
+import { usesHostHardware } from "@/lib/host";
 import { greetingPeriodFor, valueChangeOf } from "@magic-vault/shared";
 import { IconAlertTriangle, IconBroadcast, IconChartBar, IconHelpCircle, IconPlus, IconScan, IconSparkles } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -38,7 +39,7 @@ export function HomeDashboard() {
   const { activeOrg } = useOrg();
   const { format } = usePriceSource();
   const isMobile = useIsMobile();
-  const piRemote = usePiHost() && isRemoteBrowser();
+  const usesPiHardware = usePiHost() && usesHostHardware();
   const { data: session } = useAuthSession();
   const { locks } = useCollectionLocks();
   const overview = useQuery(orgOverviewQueryOptions(activeOrg?.id));
@@ -51,7 +52,7 @@ export function HomeDashboard() {
   const title = firstName ? t("greetingWithName", { greeting, name: firstName }) : greeting;
   const overviewData = overview.data;
   const summaryData = summary.data;
-  const scanPath = isMobile && !piRemote ? MOBILE_SCAN_PATH : "/app";
+  const scanPath = isMobile && !usesPiHardware ? MOBILE_SCAN_PATH : "/app";
   const collectionPath = (guid: string) => (isMobile ? monitorCollectionPath(guid) : collectionViewPath(guid));
 
   const change = summaryData ? valueChangeOf(summaryData.all, format, locale) : null;
@@ -137,6 +138,8 @@ export function HomeDashboard() {
               )}
             </div>
           </div>
+
+          {isMobile && <PiSorterCalibrationLink />}
 
           {overviewData.collectionCount === 0 && (
             <div className="rounded-card bg-card">

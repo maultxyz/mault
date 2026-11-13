@@ -1,3 +1,9 @@
+import { isPiController } from "./pi-host";
+
+export function usesHostHardware(): boolean {
+  return isPiController() || isRemoteBrowser();
+}
+
 export function isRemoteBrowser(): boolean {
   if (typeof window === "undefined") return false;
   const host = window.location.hostname;

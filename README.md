@@ -133,9 +133,9 @@ INSERT INTO platform_user_roles (user_id, role) VALUES ('<own_auth_users.id>', '
 ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
 
-### Raspberry Pi
+### Raspberry Pi and Orange Pi Zero 4
 
-A Raspberry Pi can host the local-auth app and run the sorter. Postgres is the Pi's own server on port 5432, not Docker. The scanner camera is a USB webcam plugged into the Pi. Use Raspberry Pi OS with the desktop. The examples use `~/mault`, but you can install in another directory; the service paths are configured automatically.
+A Raspberry Pi or Orange Pi Zero 4 can host the local-auth app and run the sorter headlessly. Install from an SSH session as a normal user with sudo access; a desktop and Chromium are optional. Postgres runs locally on port 5432. The scanner camera is a USB webcam plugged into the board, owned by `mault-camera.service`. Phone and computer browsers use the authenticated camera relay; they do not need browser permission to access that webcam. The examples use `~/mault`, but service paths are configured for your checkout directory.
 
 ```bash
 git clone https://github.com/maultxyz/mault.git ~/mault
@@ -143,13 +143,20 @@ cd ~/mault
 scripts/pi/install.sh
 ```
 
-`install.sh` installs Node, pnpm, Postgres with pgvector, ffmpeg, and the webcam tools, then writes `.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, and a `mault` database on `127.0.0.1:5432`. Run it as the desktop user. It asks for your password when it needs root. If `git` is not installed yet, run `sudo apt install -y git` before the clone. If `.env` already exists and has no `PI_HOST` line, the script appends `PI_HOST=1`. It then creates the `mault` role and database, builds the server and the web app, runs migrations, and enables three user services. Linger is turned on so those services start at boot. It adds the desktop user to the `dialout` group so the API can open the sorter. When this login does not have that group yet, it restarts the user services so the new membership applies.
+`install.sh` installs Node, pnpm, Postgres with pgvector, ffmpeg, and the webcam tools, then writes `.env` with `AUTH_PROVIDER=local` and a `mault` database on `127.0.0.1:5432`. Run it as your normal service user, not root. It asks for your password when it needs root. If `git` is not installed yet, run `sudo apt install -y git` before the clone. The installer always sets `PI_HOST=1`. On the first install without a saved hardware choice, it asks whether this Pi directly controls the sorter (`PI_SORTER=1`) or an Arduino/ESP32 is connected over USB (`PI_SORTER=0`, the default). Reruns preserve that choice and calibration. For a noninteractive install, supply `PI_SORTER=1` or `PI_SORTER=0` in the environment. It then creates the `mault` role and database, builds the app, runs migrations, and enables user services. Linger starts them at boot. Both modes grant `video` access to the camera service user. USB mode also needs `dialout`; direct mode grants `gpio` and `i2c` access and installs the selected board's GPIO/I2C dependencies. Raspberry Pi direct mode enables I2C through `raspi-config`. The user services restart if group membership needs refreshing. If I2C requires a reboot, reboot and rerun the installer.
+
+For a new direct-mode install, select Raspberry Pi or Orange Pi Zero 4 when prompted. The installer saves `PI_SORTER_BOARD=raspberry-pi` or `PI_SORTER_BOARD=orange-pi-zero4`; existing direct installs default to Raspberry Pi. For an unattended Orange Pi hardware selection, run `PI_SORTER=1 PI_SORTER_BOARD=orange-pi-zero4 scripts/pi/install.sh`. Installation is headless by default and skips desktop shortcuts even when display variables are present. Use `scripts/pi/install.sh --desktop` from a graphical session to create the optional shortcuts. The `--headless` flag remains accepted.
+
+Orange Pi Zero 4 direct mode requires a supported Zero 4 system image and the libgpiod v2 Python API (`python3-libgpiod`); the installer checks that API. Enable the image's `i2c0` boot overlay separately and reboot so the header TWI0 adapter is available. GPIO and I2C devices are discovered by their hardware paths.
+
+In direct mode the Pi itself is the sorter. The API sends commands to the local controller process, which operates the PCA9685 and sensors through GPIO/I2C. There is no USB discovery or `/pi-serial` connection. The web app automatically attaches its built-in sorter controls through authenticated `/pi-sorter` access, without a device picker or automatic mechanical test. Multiple browsers share the server's controller connection; commands and replies are coordinated centrally. A scan reserves hardware-changing commands, and competing motion or configuration commands return busy. Viewing the app from another device does not take control away. Calibration is stored in `.pi-controller/calibration.json` under the checkout; the installer writes absolute `PI_CONTROLLER_CONFIG` and `PI_CONTROLLER_SOCKET` paths into `.env`. The Python controller uses the existing serial command protocol and updates with the app; it does not require firmware flashing. Native mobile connections remain BLE or Wi-Fi relay connections.
 
 | Service        | Role                                                                                                       |
 | -------------- | ---------------------------------------------------------------------------------------------------------- |
 | `mault-api`    | API on `127.0.0.1:3001`, accessible through the web app's `/api` proxy                                     |
 | `mault-web`    | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
 | `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam                           |
+| `mault-controller` | Direct mode only: local Python GPIO/I2C controller, started and stopped with the API |
 
 Remote browsers use port 8080. The Linux API service binds only to localhost; HTTP and WebSocket requests reach it through the web app's proxy. Other deployments keep the existing API bind address unless `API_HOST` is configured.
 
@@ -173,12 +180,12 @@ tail -n 100 "${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log"
 ```
 
 ```bash
-scripts/pi/start.sh            # start the services and open Chromium on the Pi desktop
+scripts/pi/start.sh --headless # start services without opening a local browser
 scripts/pi/start.sh --kiosk
 scripts/pi/stop.sh
 ```
 
-Open `http://<the-pi>:8080` from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. `start.sh` also opens Chromium on the Pi at `http://127.0.0.1:8080`. The camera helper owns the webcam, and the API owns the sorter during a scan. Camera preview and focus control require signing in to an organization.
+Open `http://<the-pi>:8080` from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. `start.sh --headless` starts only the services. Without that flag, `start.sh` can also open Chromium when run in a graphical session. No Chromium camera-permission setup is required. The camera helper owns the webcam, and the API owns the sorter during a scan. Camera preview and focus control require signing in to an organization.
 
 The API reports a Pi host when `PI_HOST=1`, and also when `/proc/device-tree/model` contains `Raspberry Pi` and `PI_HOST` is unset. `PI_HOST=0` turns the remote-browser behavior off. `WEBCAM_DEVICE` selects a specific `/dev/video*` node when the helper should not pick one itself.
 

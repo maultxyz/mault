@@ -115,6 +115,10 @@ main() {
   pi_ensure_toolchain "$ROOT"
   pi_ensure_user_bus
   services=(mault-web.service mault-api.service mault-camera.service)
+  controller_mode="$(node "$ROOT/scripts/pi/controller-ready.mjs" "$ROOT" --mode)"
+  if [[ "$controller_mode" == builtin ]]; then
+    services+=(mault-controller.service)
+  fi
   update_incomplete() {
     echo "[update] Update failed. Services may be stopped; resolve the error and rerun this script." >&2
   }
@@ -133,12 +137,31 @@ main() {
       systemctl --user reset-failed "$unit"
     fi
   done
+  if [[ "$controller_mode" == builtin ]]; then
+    systemctl --user start --no-block mault-controller.service
+    controller_ready=0
+    for _ in $(seq 1 60); do
+      if systemctl --user is-active --quiet mault-controller.service &&
+        node "$ROOT/scripts/pi/controller-ready.mjs" "$ROOT" >/dev/null 2>&1; then
+        controller_ready=1
+        break
+      fi
+      sleep 2
+    done
+    if [[ "$controller_ready" != 1 ]]; then
+      echo "[update] Controller did not become ready. Check controller service status and hardware." >&2
+      systemctl --user --no-pager --full status "${services[@]}" || true
+      exit 1
+    fi
+  fi
   systemctl --user start --no-block mault-camera.service mault-api.service mault-web.service
 
   for _ in $(seq 1 60); do
     if systemctl --user is-active --quiet mault-api.service &&
       systemctl --user is-active --quiet mault-web.service &&
       systemctl --user is-active --quiet mault-camera.service &&
+      { [[ "$controller_mode" != builtin ]] ||
+        systemctl --user is-active --quiet mault-controller.service; } &&
       curl -fs --max-time 5 http://127.0.0.1:3001/public/version >/dev/null &&
       curl -fs --max-time 5 http://127.0.0.1:8080/ >/dev/null; then
       trap - ERR

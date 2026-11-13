@@ -1,3 +1,4 @@
+import { resetPiScanScope } from "@/features/scanner/lib/pi-scan-store";
 import { recordSessionInits } from "@/lib/session-init-registry";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
@@ -34,7 +35,6 @@ import {
   APP_STREAM_SETUP_RETRY_MS,
 } from "@/lib/constants/timing";
 
-
 const AppStreamContext = createContext<AppStreamContextValue>({
   eventSource: null,
   locks: {},
@@ -53,6 +53,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
   const currentUserId = session?.user?.id;
   const { activeOrg } = useOrg();
   const orgId = activeOrg?.id ?? null;
+  useEffect(() => resetPiScanScope(orgId), [orgId]);
 
   const [eventSource, setEventSource] = useState<EventSource | null>(null);
   const [streamSetupAttempt, setStreamSetupAttempt] = useState(0);
@@ -62,9 +63,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
     Record<string, SessionViewer[]>
   >({});
   const [syncState, setSyncState] = useState<SyncState>(DEFAULT_SYNC_STATE);
-  const [deployNotice, setDeployNotice] = useState<DeployNotice | null>(
-    null,
-  );
+  const [deployNotice, setDeployNotice] = useState<DeployNotice | null>(null);
 
   const refCounts = useRef(new Map<string, number>());
   const [guidsKey, setGuidsKey] = useState("");
@@ -195,9 +194,10 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           const next = JSON.parse((e as MessageEvent).data) as SyncState;
           setSyncState({
             ...next,
-            logs: next.vectorizeOn === "browser"
-              ? next.logs.filter((line) => !isBrowserSaveLog(line))
-              : next.logs,
+            logs:
+              next.vectorizeOn === "browser"
+                ? next.logs.filter((line) => !isBrowserSaveLog(line))
+                : next.logs,
           });
         });
         es.addEventListener("progress", (e) => {
@@ -326,4 +326,8 @@ export function useCollectionStream(
   }, [guid, watchCollection]);
 
   return guid ? eventSource : null;
+}
+
+export function useAppStreamSource() {
+  return useContext(AppStreamContext).eventSource;
 }

@@ -13,7 +13,7 @@ pi_print_urls() {
 
 pi_require_user() {
   if [[ "$(id -u)" -eq 0 ]]; then
-    echo "Run this as the desktop user. It will ask for your password when it needs root." >&2
+    echo "Run this as your normal service user, not root. It will ask for your password when it needs root." >&2
     exit 1
   fi
 }

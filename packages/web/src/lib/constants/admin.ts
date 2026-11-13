@@ -135,4 +135,3 @@ export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormVa
 
 export const BROWSER_EMBED_TIMEOUT_MS = 60_000;
 export const BROWSER_EMBED_WORKER_MAX = 2;
-

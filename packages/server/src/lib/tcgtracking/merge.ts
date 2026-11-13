@@ -1,3 +1,4 @@
+import type { PlayingCard } from "@magic-vault/shared";
 import { and, eq, like } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
@@ -68,7 +69,10 @@ function toPrimaryCard(
     (card.collectorNumber ? collectorNumberKey(card.collectorNumber) : null);
   return {
     id: sync.id,
-    card,
+    card: { set: card.set, setName: card.setName },
+    productId:
+      Number(card.tcgplayerId ?? context.adapter.tcgplayer?.productIdFromRaw?.(card)) || null,
+    isBasePrinting: context.config.isBasePrinting?.(card) ?? false,
     numberKey: number,
     nameKey: cardNameKey(card.name),
     baseNameKey: baseCardNameKey(card.name),
@@ -88,7 +92,9 @@ function productsBySetIdOf(
 ): Map<number, TcgtrackingProduct[]> {
   const productsBySetId = new Map<number, TcgtrackingProduct[]>();
   for (const { product, set } of catalog) {
-    productsBySetId.set(set.id, [...(productsBySetId.get(set.id) ?? []), product]);
+    const products = productsBySetId.get(set.id) ?? [];
+    products.push(product);
+    productsBySetId.set(set.id, products);
   }
   return productsBySetId;
 }
@@ -198,11 +204,10 @@ function existingProductId(
   context: MergeContext,
   primary: TcgtrackingPrimaryCard,
 ): number | null {
-  const id = Number(
-    primary.card.tcgplayerId ??
-      context.adapter.tcgplayer?.productIdFromRaw?.(primary.card),
-  );
-  return Number.isInteger(id) && context.productsById.has(id) ? id : null;
+  const id = primary.productId;
+  return id !== null && Number.isInteger(id) && context.productsById.has(id)
+    ? id
+    : null;
 }
 
 function pickByKey(
@@ -210,12 +215,14 @@ function pickByKey(
   candidates: TcgtrackingCatalogEntry[],
   primariesWithKey: number,
   config: TcgtrackingGameConfig,
+  normalizedCard: () => PlayingCard | null,
 ): TcgtrackingProduct | null {
-  const isBase = config.isBasePrinting?.(primary.card) ?? false;
+  const isBase = primary.isBasePrinting;
   if (primariesWithKey > 1 && !isBase) {
-    const parallels = config.productMatchesParallelPrinting
+    const card = config.productMatchesParallelPrinting ? normalizedCard() : null;
+    const parallels = card
       ? candidates.filter((entry) =>
-          config.productMatchesParallelPrinting?.(primary.card, entry.product),
+          config.productMatchesParallelPrinting?.(card, entry.product),
         )
       : [];
     return parallels.length === 1 ? parallels[0].product : null;
@@ -371,7 +378,11 @@ export async function mergeTcgtrackingCatalog(
   const productsByKey = new Map<string, TcgtrackingCatalogEntry[]>();
   for (const entry of catalog) {
     const key = productKey(config, entry, alignedSets, context.productNumberKeys);
-    if (key) productsByKey.set(key, [...(productsByKey.get(key) ?? []), entry]);
+    if (key) {
+      const products = productsByKey.get(key) ?? [];
+      products.push(entry);
+      productsByKey.set(key, products);
+    }
   }
   const primarySetNameByCode = new Map(
     knownPrimaries.map((primary) => [primary.card.set, primary.card.setName]),
@@ -405,16 +416,17 @@ export async function mergeTcgtrackingCatalog(
     const key = primaryKey(config, primary);
     if (!key) continue;
     primaryCountByKey.set(key, (primaryCountByKey.get(key) ?? 0) + 1);
-    if (!primaryIdByKey.has(key) || config.isBasePrinting?.(primary.card)) {
+    if (!primaryIdByKey.has(key) || primary.isBasePrinting) {
       primaryIdByKey.set(key, primary.id);
     }
   }
 
   const cardIdByProductId = new Map<number, string>();
   const linkedPrimaryCountByKey = new Map<string, number>();
-  const merged = primaryCards.map((card, index) => {
+  for (let index = 0; index < primaryCards.length; index++) {
+    const card = primaryCards[index];
     const primary = primaries[index];
-    if (!primary || config.numbering === "name-only") return card;
+    if (!primary || config.numbering === "name-only") continue;
     const key = primaryKey(config, primary);
     const product =
       context.productsByPrimaryCardId.get(primary.id)?.product ??
@@ -426,15 +438,17 @@ export async function mergeTcgtrackingCatalog(
             productsByKey.get(key) ?? [],
             primaryCountByKey.get(key) ?? 0,
             config,
+            () =>
+              context.adapter.normalizeStored(JSON.parse(card.data), card.id, lang),
           )
         : null);
-    if (!product || cardIdByProductId.has(product.id)) return card;
+    if (!product || cardIdByProductId.has(product.id)) continue;
     cardIdByProductId.set(product.id, primary.id);
     if (key) {
       linkedPrimaryCountByKey.set(key, (linkedPrimaryCountByKey.get(key) ?? 0) + 1);
     }
-    return stampProductId(card, product.id, context);
-  });
+    primaryCards[index] = stampProductId(card, product.id, context);
+  }
 
   const isMissingFromPrimary = (entry: TcgtrackingCatalogEntry): boolean => {
     if (
@@ -507,7 +521,9 @@ export async function mergeTcgtrackingCatalog(
   addLog(
     `TCGTracking: ${cardIdByProductId.size} cards linked to TCGplayer products, ${fallbacks.length} fallback cards added, ${superseded.length} fallback cards superseded${config.numbering === "per-set" ? `, ${alignedSets.size} sets aligned` : ""}.`,
   );
-  return [...merged, ...fallbacks, ...superseded];
+  for (const card of fallbacks) primaryCards.push(card);
+  for (const card of superseded) primaryCards.push(card);
+  return primaryCards;
 }
 
 export async function fetchOneWithTcgtracking(

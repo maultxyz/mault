@@ -1,11 +1,11 @@
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
+import { stopMediaStream } from "@/features/scanner/lib/camera-stream";
 import {
-  acquireStream,
-  stopMediaStream,
-} from "@/features/scanner/lib/camera-stream";
-import { useScanCards } from "@/features/storage/api/use-scan-cards";
+  acquireStorageScanStream,
+  useScanCards,
+} from "@/features/storage/api/use-scan-cards";
 import { SCAN_CARDS_RESULT_VARIANTS } from "@/lib/constants/storage";
 import type {
   ScanCardsPanelProps,
@@ -24,9 +24,10 @@ export function ScanCardsPanel({ source, mode }: ScanCardsPanelProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     let cancelled = false;
     let acquired: MediaStream | null = null;
-    acquireStream(undefined, true)
+    acquireStorageScanStream(controller.signal)
       .then((next) => {
         if (cancelled) {
           stopMediaStream(next);
@@ -39,6 +40,7 @@ export function ScanCardsPanel({ source, mode }: ScanCardsPanelProps) {
         if (!cancelled) setCameraFailed(true);
       });
     return () => {
+      controller.abort();
       cancelled = true;
       stopMediaStream(acquired);
       releaseCanvases([canvasRef.current]);
@@ -127,7 +129,9 @@ export function ScanCardsPanel({ source, mode }: ScanCardsPanelProps) {
           </Callout>
         ) : (
           <p className="text-xs text-foreground/70">
-            {mode === "verify" ? t("verify.scan.hint") : t("pickList.scan.hint")}
+            {mode === "verify"
+              ? t("verify.scan.hint")
+              : t("pickList.scan.hint")}
           </p>
         )}
       </div>

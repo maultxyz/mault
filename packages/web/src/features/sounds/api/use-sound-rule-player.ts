@@ -8,7 +8,7 @@ import {
   playSoundExclusively,
 } from "@/features/sounds/lib/sound-playback";
 import {
-  evaluateRuleGroup,
+  selectScanSound,
   type FieldMeta,
   type PlayingCard,
 } from "@magic-vault/shared";
@@ -51,12 +51,8 @@ export function useSoundRulePlayer(
     if (isSoundPlaying()) return;
     const { rules: currentRules, fieldDefinitions: fields } =
       latestRef.current;
-    const rule = currentRules.find(
-      (r) => r.isEnabled && r.clipGuid && evaluateRuleGroup(card, r.rules, fields),
-    );
-    const audio = rule?.clipGuid
-      ? audioByClipRef.current.get(rule.clipGuid)
-      : undefined;
+    const clipGuid = selectScanSound(card, currentRules, fields);
+    const audio = clipGuid ? audioByClipRef.current.get(clipGuid) : undefined;
     if (audio) playSoundExclusively(audio);
   }, []);
 }
