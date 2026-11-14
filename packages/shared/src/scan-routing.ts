@@ -160,7 +160,9 @@ export function resolveScanBin(
   if (
     routesToCatchAllNormally &&
     binSet?.isChaosMode &&
-    areAllChaosBinsFull(configs, (config) => context.isBinFull(config.binNumber))
+    areAllChaosBinsFull(configs, (config) =>
+      context.isBinFull(config.binNumber),
+    )
   ) {
     return { action: "pause", reason: "all-chaos-bins-full", bin };
   }
@@ -176,5 +178,22 @@ export function resolveScanBin(
     isLowMatch: !!bin && lowMatchBin?.binNumber === bin.binNumber,
     pickListMatch,
     autoAssignTarget,
+  };
+}
+
+export function resolveUnmatchedScanBin(
+  context: ScanRoutingContext,
+): ScanRoutingDecision {
+  const bin = context.configs.find(
+    (candidate) => candidate.isCatchAll && !candidate.isDisabled,
+  );
+  if (bin && context.isBinFull(bin.binNumber))
+    return { action: "pause", reason: "bin-full", bin };
+  return {
+    action: "route",
+    bin,
+    isLowMatch: false,
+    pickListMatch: null,
+    autoAssignTarget: null,
   };
 }

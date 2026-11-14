@@ -52,3 +52,8 @@ export type SerialReply = Record<string, unknown>;
 export type SerialMessageListener = (message: unknown) => void;
 
 export type SerialBootBannerHandler = (message: unknown) => boolean;
+
+export type SorterRouteRequest = (
+  command: object,
+  timeoutMs: number,
+) => Promise<SerialReply | null>;

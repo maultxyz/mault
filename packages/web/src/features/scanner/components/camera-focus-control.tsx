@@ -2,6 +2,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { currentFocusDistance } from "@/features/scanner/lib/camera-focus";
+import { browserMustUsePiCamera, isPiRelayTrack, lockTrackFocus } from "@/features/scanner/lib/pi-camera";
 import type { CameraFocusControlProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { useId } from "react";
@@ -17,13 +18,20 @@ export function CameraFocusControl({ className }: CameraFocusControlProps) {
   const isAuto = focusDistance === null;
   const midpoint = (focusRange.min + focusRange.max) / 2;
 
-  const handleAutoChange = (auto: boolean) => {
+  const handleAutoChange = async (auto: boolean) => {
     if (auto) {
       setFocusDistance(null);
       return;
     }
     const track = stream?.getVideoTracks()[0];
-    setFocusDistance((track && currentFocusDistance(track)) ?? midpoint);
+    if (!browserMustUsePiCamera() && !(track && isPiRelayTrack(track))) {
+      setFocusDistance((track && currentFocusDistance(track)) ?? midpoint);
+      return;
+    }
+    try {
+      setFocusDistance(await lockTrackFocus(track, midpoint));
+    } catch {
+    }
   };
 
   return (

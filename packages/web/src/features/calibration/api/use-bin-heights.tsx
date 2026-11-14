@@ -1,4 +1,3 @@
-import { isPiHost } from "@/lib/pi-host";
 import {
   binHeightsQueryOptions,
   saveBinHeight,
@@ -7,11 +6,21 @@ import { useDevice } from "@/features/calibration/api/use-device";
 import type { BinHeightsContextValue } from "@/lib/interfaces/calibration";
 import type { BinHeight } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 const BinHeightsContext = createContext<BinHeightsContextValue | null>(null);
 
-export function BinHeightsProvider({ children }: { children: React.ReactNode }) {
+export function BinHeightsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const queryClient = useQueryClient();
   const device = useDevice();
   const [isSaving, setIsSaving] = useState(false);
@@ -38,7 +47,6 @@ export function BinHeightsProvider({ children }: { children: React.ReactNode }) 
 
   const commit = useCallback(async () => {
     if (!device) {
-      if (isPiHost()) throw new Error("Sorter settings have not loaded.");
       return;
     }
     setIsSaving(true);

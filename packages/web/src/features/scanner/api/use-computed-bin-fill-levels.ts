@@ -6,14 +6,11 @@ import type {
   BinFillLevel,
   ComputedBinFillLevels,
 } from "@/lib/interfaces/scanner";
-import { computeBinCapacity } from "@magic-vault/shared";
+import { scanBinCapacity } from "@magic-vault/shared";
 import { useMemo } from "react";
 
 export function useComputedBinFillLevels(): ComputedBinFillLevels {
   const { configs, selectedSet } = useBinConfigs();
-  const chaosBinSize = selectedSet?.isChaosMode
-    ? (selectedSet.chaosBinSize ?? null)
-    : null;
   const { savedHeights } = useBinHeights();
   const binWindows = useMemo(
     () =>
@@ -35,11 +32,7 @@ export function useComputedBinFillLevels(): ComputedBinFillLevels {
           const height = savedHeights.find(
             (h) => h.binNumber === bin.binNumber,
           )?.height;
-          const physicalCapacity = computeBinCapacity(height, cardThickness);
-          const capacity =
-            chaosBinSize != null && !bin.isCatchAll
-              ? Math.min(physicalCapacity ?? chaosBinSize, chaosBinSize)
-              : physicalCapacity;
+          const capacity = scanBinCapacity(height, cardThickness, selectedSet, bin);
           const count = matchedCounts.get(bin.binNumber) ?? 0;
           const percent = capacity
             ? Math.min(100, Math.round((count / capacity) * 100))
@@ -52,7 +45,7 @@ export function useComputedBinFillLevels(): ComputedBinFillLevels {
       savedHeights,
       matchedCounts,
       cardThickness,
-      chaosBinSize,
+      selectedSet,
     ],
   );
   return { levels, countsUpdatedAt };

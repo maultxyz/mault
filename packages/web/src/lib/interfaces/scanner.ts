@@ -76,6 +76,8 @@ export interface CameraRange {
 }
 
 export interface PiCameraReady {
+  focusMode?: "auto" | "manual";
+  lensPosition?: number;
   status: "ready";
   label: string;
   width: number;
@@ -129,7 +131,9 @@ export interface CameraContextValue {
   saveFlatbedPlacement: (placement: FlatbedPlacement) => void;
   feederCardSetup: FeederCardSetup;
   saveFeederCardSetup: (setup: FeederCardSetup) => void;
-  testFeederCardSetup: (setup: FeederCardSetup) => Promise<FeederCardSetupTestScan>;
+  testFeederCardSetup: (
+    setup: FeederCardSetup,
+  ) => Promise<FeederCardSetupTestScan>;
   takeDocumentScannerPages: () => DocumentScannerPages | null;
 }
 
@@ -250,9 +254,19 @@ export interface ScannedCardsContextValue {
   clearCards: () => void;
 }
 
-export type SerialBoardType = "esp32" | "uno_r4";
+export type SerialBoardType = "esp32" | "uno_r4" | "raspberry_pi";
 
-export type SerialTransportType = "serial" | "bluetooth" | "cloud" | "pi";
+export type SerialTransportType =
+  | "serial"
+  | "bluetooth"
+  | "cloud"
+  | "pi"
+  | "pi-sorter";
+
+export interface SerialConnectOptions {
+  skipAutoTest?: boolean;
+  background?: boolean;
+}
 
 export type FlashFailureReason =
   | "wrong-chip"
@@ -396,6 +410,7 @@ export interface ScannerControlButtonProps {
 }
 
 export interface CameraMenuItemsProps {
+  hostControlled?: boolean;
   isCameraActive: boolean;
   cameras: MediaDeviceInfo[];
   documentScannerOptions: DocumentScannerOption[];
@@ -498,6 +513,8 @@ export interface ComputedBinFillLevels {
 
 export interface PendingBinCard {
   binNumber: number;
+  scannedAt: number;
+  unsaved: boolean;
   savedAt: number | null;
 }
 
@@ -1105,10 +1122,12 @@ export interface PhoneCameraPairingDialogProps {
   onDisconnect: () => void;
 }
 
-export type ScannerConnectionState = "connected" | "connecting" | "disconnected";
+export type ScannerConnectionState =
+  | "connected"
+  | "connecting"
+  | "disconnected";
 
-export interface ConnectionStatusPillProps
-  extends ComponentProps<"button"> {
+export interface ConnectionStatusPillProps extends ComponentProps<"button"> {
   label: string;
   stateLabel: string;
   state: ScannerConnectionState;
@@ -1130,7 +1149,7 @@ export interface ScannerStatusBarProps {
   selectedCameraId: string | null;
   phonePairingStatus: PhoneCameraCaptureStatus;
   scanningBlocked: boolean;
-  onCameraConnect: () => void;
+  onCameraConnect?: () => void;
   onCameraDisconnect: () => void;
   onCameraSelect: (deviceId: string) => void;
   onOpenPhonePairing: () => void;
@@ -1171,7 +1190,6 @@ export interface DebugCardSet {
     alternates: PlayingCardWithDistance[];
   };
 }
-
 
 export interface ScanSaveOptions {
   deviceGuid?: string;
@@ -1579,6 +1597,16 @@ export interface MoveCardsToCollectionInput {
   scanIds: string[];
 }
 
+export interface PiScanSettingsOptions {
+  collectionGuid: string | undefined;
+  condition?: CardCondition;
+  setCondition?: (value: CardCondition) => void;
+  foilType: string | null;
+  preferredSetCodes: string[];
+  setFoilType: (value: string | null) => void;
+  setPreferredSetCodes: (value: string[]) => void;
+}
+
 export type QuarterTurns = 0 | 1 | 2 | 3;
 
 export interface ScanPlacement {
@@ -1591,7 +1619,9 @@ export interface DocumentScanArchiveBridge {
   getDocumentScanArchiveFolder: () => Promise<string | null>;
   chooseDocumentScanArchiveFolder: () => Promise<string | null>;
   clearDocumentScanArchiveFolder: () => Promise<void>;
-  archiveDocumentScan: (request: DesktopDocumentScanArchiveRequest) => Promise<void>;
+  archiveDocumentScan: (
+    request: DesktopDocumentScanArchiveRequest,
+  ) => Promise<void>;
 }
 
 export interface DocumentScanArchiveImages {

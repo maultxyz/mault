@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { CorrectionAutoCloseSetting } from "@/features/scanner/components/correction-auto-close-setting";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { IconQrcode } from "@tabler/icons-react";
@@ -20,6 +21,7 @@ export default function SettingsScanningPage() {
   const { t } = useTranslation("settings");
   const draft = useOrgSettingsDraft();
   const isMobile = useIsMobile();
+  const piHost = usePiHost();
   const disabled = draft.isLoading || draft.isSaving;
   const ocrEnabled = useWatch({ control: draft.control, name: "ocrEnabled" });
   const correctionBinPrompt = useWatch({
@@ -121,7 +123,7 @@ export default function SettingsScanningPage() {
               )}
             />
           </label>
-          {!isMobile && (
+          {(!isMobile || piHost) && (
             <label className="flex items-center justify-between gap-3">
               <span className="flex flex-col gap-0.5">
                 <span className="text-sm">

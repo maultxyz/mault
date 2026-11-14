@@ -25,19 +25,15 @@ import type {
   OrientedSearchPick,
   ScanAttemptOutcome,
   ScanOutcome,
-  TextSearchOutcome,
 } from "@/lib/interfaces/scanner";
 import { scanLog } from "@/lib/scan-log";
 import {
-  CONSENSUS_RETRY_BUDGET,
-  hasCardMatch,
-  isStrongerTextMatch,
-  needsTextSearch,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
-  pickBetterOrientation,
-  pickConsensus,
-  prefersTextMatch,
+  searchScanOrientations,
+  identifyScanImage,
+  identifyScanWithConsensus,
+  hasCardMatch,
   resolveCardSearchMatches,
   toScanMatchDetails,
   type CardContour,
@@ -84,33 +80,15 @@ async function searchBothOrientations(
     orientation: OrientedCandidate["orientation"],
   ) => Promise<OrientedSearch>,
 ): Promise<OrientedSearchPick> {
-  if (!checkBothOrientations)
+  return searchScanOrientations(checkBothOrientations, async (orientation) => {
+    const oriented =
+      orientation === "rotated" ? rotateCanvas180(canvas) : canvas;
     return {
-      ...(await search(canvas, "upright")),
-      canvas,
-      orientation: "upright",
-      alternate: null,
+      ...(await search(oriented, orientation)),
+      canvas: oriented,
+      orientation,
     };
-
-  const rotatedCanvas = rotateCanvas180(canvas);
-  const [upright, rotated] = await Promise.all([
-    search(canvas, "upright").then(
-      (found): OrientedCandidate => ({
-        ...found,
-        canvas,
-        orientation: "upright",
-      }),
-    ),
-    search(rotatedCanvas, "rotated").then(
-      (found): OrientedCandidate => ({
-        ...found,
-        canvas: rotatedCanvas,
-        orientation: "rotated",
-      }),
-    ),
-  ]);
-
-  return pickBetterOrientation(upright, rotated);
+  });
 }
 
 async function searchOrientationText(
@@ -137,46 +115,6 @@ async function searchOrientationText(
     console.error("[scanner] text search failed:", err);
     return null;
   }
-}
-
-async function withTextSearch(
-  best: OrientedSearchPick,
-  readText: (
-    orientation: OrientedCandidate["orientation"],
-    embedding: number[],
-  ) => Promise<CardTextSearchResult | null>,
-): Promise<OrientedSearchPick> {
-  const withText = async <T extends OrientedCandidate>(option: T) =>
-    option.embedding
-      ? {
-          ...option,
-          textResult: await readText(option.orientation, option.embedding),
-        }
-      : option;
-  const [upright, alternate] = await Promise.all([
-    withText(best),
-    best.alternate ? withText(best.alternate) : null,
-  ]);
-  return { ...upright, alternate };
-}
-
-function pickTextSearch(best: OrientedSearchPick): TextSearchOutcome | null {
-  const options = [best, best.alternate].filter(
-    (option): option is OrientedCandidate => option?.textResult !== undefined,
-  );
-  if (options.length === 0) return null;
-  const results = options.map((option) => option.textResult ?? null);
-  let bestIndex = 0;
-  results.forEach((result, index) => {
-    if (isStrongerTextMatch(result, results[bestIndex])) bestIndex = index;
-  });
-  const result = results[bestIndex];
-  const ocr = result?.ocr ?? results.find((r) => r?.ocr)?.ocr ?? null;
-  if (!result || !hasCardMatch(result)) return { pick: null, ocr };
-  return {
-    pick: { ...options[bestIndex], result, alternate: null },
-    ocr,
-  };
 }
 
 function readCanvasPixels(canvas: HTMLCanvasElement): ImageData | null {
@@ -342,10 +280,15 @@ async function runCardImageSearch(
         gameKey,
       );
       const readsTextWithImage = ocrMode === "every-scan" && !!cardContour;
-      const imageBest = await searchBothOrientations(
-        dewarpedCanvas,
+      const identified = await identifyScanImage({
         checkBothOrientations,
-        async (oriented, orientation) => {
+        ocrMode,
+        search: async (orientation) => {
+          const oriented =
+            orientation === "rotated"
+              ? rotateCanvas180(dewarpedCanvas)
+              : dewarpedCanvas;
+          created.push(oriented);
           const embedding = await embedCanvas(oriented);
           const [result, textResult] = await Promise.all([
             searchByVector(
@@ -358,36 +301,28 @@ async function runCardImageSearch(
             ),
             readsTextWithImage ? readText(orientation, embedding) : undefined,
           ]);
-          return { result, embedding, textResult };
+          return {
+            canvas: oriented,
+            orientation,
+            result,
+            embedding,
+            textResult,
+          };
         },
-      );
-      created.push(imageBest.canvas);
-      if (imageBest.alternate) created.push(imageBest.alternate.canvas);
-      const best =
-        ocrMode === "when-unsure" &&
-        cardContour &&
-        needsTextSearch(imageBest.result)
-          ? await withTextSearch(imageBest, readText)
-          : imageBest;
-
+        readText: async (candidate) => {
+          const result = await readText(
+            candidate.orientation,
+            candidate.embedding,
+          );
+          return result
+            ? { ...candidate, result, ocr: result.ocr ?? null }
+            : null;
+        },
+      });
       scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
-      const text = pickTextSearch(best);
-      const textPick =
-        text?.pick && prefersTextMatch(best.result, text.ocr)
-          ? text.pick
-          : null;
-      if (text) {
-        scanLog(
-          textPick
-            ? `[scanner] OCR match used (${needsTextSearch(best.result) ? "embedding unsure" : "printing confirmed"})`
-            : text.pick
-              ? "[scanner] OCR match ignored (confident embedding match, printing not confirmed)"
-              : "[scanner] OCR found no match",
-        );
-      }
-      const pick = textPick ?? best;
+      const pick = { ...identified.pick, alternate: identified.alternate };
       const printedFoilMarker = detectPrintedFoilMarker(
         ocrCrop,
         pick.orientation,
@@ -399,9 +334,9 @@ async function runCardImageSearch(
         dewarpedCardImage: readCanvasPixels(dewarpedCanvas),
         vectorizedOn: "web",
         detection,
-        ocr: text?.ocr ?? null,
-        lowConfidenceMatch: !!textPick && !hasCardMatch(best.result),
-        matchedBy: textPick ? "ocr" : "embedding",
+        ocr: identified.ocr,
+        lowConfidenceMatch: identified.lowConfidenceMatch,
+        matchedBy: identified.matchedBy,
       });
     }
     fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
@@ -474,33 +409,23 @@ export async function searchCardImageWithConsensus(
   checkBothOrientations: boolean,
   gameKey: string | undefined,
 ): Promise<ScanOutcome> {
-  const attempts: ScanAttemptOutcome[] = [];
-  const attempt = async () => {
-    const outcome = await searchCardImage(
-      canvas,
-      refreshFrame,
-      contour,
-      scope,
-      ocrMode,
-      checkBothOrientations,
-      gameKey,
-    );
-    attempts.push(outcome);
-    return outcome;
-  };
-
-  if (matchesNeeded <= 1)
-    return toScanOutcome(await attempt(), attempts, matchesNeeded);
-
-  const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
-
-  let lastResult: ScanAttemptOutcome | null = null;
-
-  for (let i = 0; i < maxAttempts; i++) {
-    lastResult = await attempt();
-    const agreed = pickConsensus(attempts, matchesNeeded);
-    if (agreed) return toScanOutcome(agreed, attempts, matchesNeeded);
-  }
-
-  return toScanOutcome({ ...lastResult!, card: null }, attempts, matchesNeeded);
+  const result = await identifyScanWithConsensus(
+    () =>
+      searchCardImage(
+        canvas,
+        refreshFrame,
+        contour,
+        scope,
+        ocrMode,
+        checkBothOrientations,
+        gameKey,
+      ),
+    (attempt) => attempt.card,
+    matchesNeeded,
+  );
+  return toScanOutcome(
+    { ...result.attempt, card: result.card },
+    result.attempts,
+    matchesNeeded,
+  );
 }

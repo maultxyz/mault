@@ -69,6 +69,7 @@ export type CheckFoilByNudge = (
   card: PlayingCardWithDistance,
   captureAfterNudge: () => Promise<RgbaImage | null>,
   before: RgbaImage,
+  isActive?: () => boolean,
 ) => Promise<FoilDetection | null>;
 
 export interface CardScannerProps {
@@ -86,6 +87,8 @@ export interface CardScannerProps {
     capturedBackImageUrl?: string,
   ) => void;
   onControlCode?: (command: ScannerControlCommand | null) => void;
+  isRemoval?: () => boolean;
+  onRemoval?: (matches: PlayingCardWithDistance[]) => void;
   checkFoilByNudge?: CheckFoilByNudge;
   onManualAdd?: () => void;
   onError?: (error: string) => void;
@@ -198,7 +201,14 @@ export interface UnmatchedCardsPage {
   total: number;
 }
 
+export interface ScanSavePickListUpdate {
+  binGuid: string;
+  name: string;
+  delta: 1;
+}
+
 export interface ScanSaveRequestFields {
+  pickListUpdate?: ScanSavePickListUpdate;
   deviceGuid?: string;
   isRetry?: boolean;
 }

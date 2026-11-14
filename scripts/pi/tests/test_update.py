@@ -2,8 +2,10 @@ import os
 import json
 from pathlib import Path
 import shutil
+import socket
 import subprocess
 import tempfile
+import threading
 import unittest
 
 
@@ -24,8 +26,9 @@ class UpdateTests(unittest.TestCase):
         scripts.mkdir(parents=True)
         shutil.copyfile(UPDATER, scripts / "update.sh")
         shutil.copyfile(UPDATER.parent / "install-services.mjs", scripts / "install-services.mjs")
+        shutil.copyfile(UPDATER.parent / "controller-ready.mjs", scripts / "controller-ready.mjs")
         (scripts / "session.sh").write_text("pi_require_user() { :; }\npi_ensure_user_bus() { :; }\n")
-        for name in ["api", "web", "camera"]:
+        for name in ["api", "web", "camera", "controller"]:
             shutil.copyfile(UPDATER.parent / f"mault-{name}.service", scripts / f"mault-{name}.service")
         (self.source / ".gitignore").write_text(".env\n")
         (self.source / "package.json").write_text('{"version":"1.0.0","packageManager":"pnpm@9.1.3"}\n')
@@ -53,11 +56,13 @@ class UpdateTests(unittest.TestCase):
                 '    touch "$UPDATE_TEST_LOG.retry"; exit 7\n'
                 '  fi\n'
                 'fi\n'
+                'if [[ "${0##*/}" == systemctl && "$*" == *is-active*mault-controller.service* && "${UPDATE_TEST_CONTROLLER_INACTIVE:-}" == 1 ]]; then exit 3; fi\n'
                 'if [[ "${0##*/}" == systemctl && "${UPDATE_TEST_UNLOADED:-}" == 1 ]]; then\n'
                 '  if [[ "$*" == *is-failed* ]]; then exit 3; fi\n'
                 '  if [[ "$*" == *reset-failed* ]]; then echo "Unit not loaded" >&2; exit 1; fi\n'
                 'fi\n'
                 'if [[ "${0##*/}" == node && "$1" == */install-services.mjs ]]; then exec "$UPDATE_TEST_NODE" "$@"; fi\n'
+                'if [[ "${0##*/}" == node && "$1" == */controller-ready.mjs ]]; then exec "$UPDATE_TEST_NODE" "$@"; fi\n'
                 'if [[ "${0##*/}" == pnpm && "${FAIL_BUILD:-}" == 1 && "$*" == *build* ]]; then exit 1; fi\n'
                 'if [[ "${0##*/}" == node && "$*" == *process.versions.node* ]]; then echo "${UPDATE_TEST_NODE_MAJOR:-26}"; exit 0; fi\n'
                 'if [[ "${0##*/}" == pnpm && "$1" == --version ]]; then echo 9.1.3; exit 0; fi\n'
@@ -102,6 +107,86 @@ class UpdateTests(unittest.TestCase):
         self.assertNotIn("%h/mault", api + web + camera)
         for unit in ["mault-web.service", "mault-api.service", "mault-camera.service"]:
             self.assertIn(f"systemctl --user reset-failed {unit}", calls)
+
+    def controller_socket(self, reply):
+        path = self.root / "controller.sock"
+        server = socket.socket(socket.AF_UNIX)
+        server.bind(str(path))
+        server.listen()
+        server.settimeout(0.1)
+        stopped = threading.Event()
+        commands = []
+
+        def respond():
+            while not stopped.is_set():
+                try:
+                    connection, _ = server.accept()
+                except socket.timeout:
+                    continue
+                with connection:
+                    connection.settimeout(2)
+                    data = b""
+                    while not data.endswith(b"\n"):
+                        chunk = connection.recv(4096)
+                        if not chunk:
+                            break
+                        data += chunk
+                    commands.append(json.loads(data))
+                    connection.sendall((json.dumps(reply) + "\n").encode())
+
+        thread = threading.Thread(target=respond)
+        thread.start()
+
+        def close():
+            stopped.set()
+            thread.join(timeout=3)
+            server.close()
+
+        self.addCleanup(close)
+        (self.repo / ".env").write_text(f'PI_HOST=1\nPI_SORTER=1\nPI_CONTROLLER_SOCKET="{path}"\n')
+        return commands
+
+    def test_gpio_update_checks_status_without_motion(self):
+        commands = self.controller_socket(dict(seq=1, status="ready", version="1.0", servoDriver="ok"))
+        result = self.update()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(commands, [dict(getStatus=True, seq=1)])
+        calls = self.log.read_text()
+        self.assertIn("is-active --quiet mault-controller.service", calls)
+        probe = f'node {self.repo}/scripts/pi/controller-ready.mjs {self.repo}\n'
+        api_start = "systemctl --user start --no-block mault-camera.service mault-api.service mault-web.service"
+        self.assertLess(calls.index("systemctl --user start --no-block mault-controller.service"), calls.index(probe))
+        self.assertLess(calls.index(probe), calls.index(api_start))
+        self.assertEqual(calls.count(probe), 1)
+
+    def test_gpio_update_rejects_missing_servo_driver(self):
+        commands = self.controller_socket(dict(seq=1, status="ready", version="1.0", servoDriver="missing"))
+        result = self.update()
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Controller did not become ready", result.stdout)
+        self.assertNotIn("start --no-block mault-camera.service", self.log.read_text())
+        self.assertEqual(len(commands), 60)
+        self.assertTrue(all(command == dict(getStatus=True, seq=1) for command in commands))
+
+    def test_gpio_update_requires_active_service_before_socket_probe(self):
+        commands = self.controller_socket(dict(seq=1, status="ready", version="1.0", servoDriver="ok"))
+        self.env["UPDATE_TEST_CONTROLLER_INACTIVE"] = "1"
+        result = self.update()
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(commands, [])
+        self.assertNotIn("start --no-block mault-camera.service", self.log.read_text())
+
+    def test_gpio_update_rejects_missing_socket(self):
+        (self.repo / ".env").write_text(f'PI_SORTER=1\nPI_CONTROLLER_SOCKET="{self.root / "missing.sock"}"\n')
+        result = self.update()
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Controller did not become ready", result.stdout)
+
+    def test_usb_update_does_not_require_controller(self):
+        self.env["UPDATE_TEST_CONTROLLER_INACTIVE"] = "1"
+        result = self.update()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertNotIn("is-active --quiet mault-controller.service", self.log.read_text())
 
     def test_dependency_permission_failure_leaves_services_running(self):
         self.env["UPDATE_TEST_NODE_MAJOR"] = "22"

@@ -82,6 +82,7 @@ export interface BinContentCard {
   card: PlayingCardWithDistance;
   isFoil?: boolean;
   foilType?: string;
+  stamp?: string;
 }
 
 export interface IdentifyUnmatchedCardRequest {

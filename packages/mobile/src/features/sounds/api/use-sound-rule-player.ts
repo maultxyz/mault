@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { AudioPlayer } from "expo-audio";
 import { useCallback, useEffect, useRef } from "react";
-import { evaluateRuleGroup, type FieldMeta, type PlayingCard } from "@magic-vault/shared";
+import { selectScanSound, type FieldMeta, type PlayingCard } from "@magic-vault/shared";
 import { soundClipsQueryOptions, soundRulesQueryOptions } from "@/features/sounds/api/sounds";
 import { createClipPlayer, isSoundPlaying, playSoundExclusively } from "@/features/sounds/lib/sound-playback";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -44,8 +44,8 @@ export function useSoundRulePlayer(gameGuid: string | undefined, fieldDefinition
   return useCallback((card: PlayingCard) => {
     if (isSoundPlaying()) return;
     const { rules: currentRules, fieldDefinitions: fields } = latestRef.current;
-    const rule = currentRules.find((r) => r.isEnabled && r.clipGuid && evaluateRuleGroup(card, r.rules, fields));
-    const entry = rule?.clipGuid ? playersRef.current.get(rule.clipGuid) : undefined;
+    const clipGuid = selectScanSound(card, currentRules, fields);
+    const entry = clipGuid ? playersRef.current.get(clipGuid) : undefined;
     if (entry) playSoundExclusively(entry.player);
   }, []);
 }

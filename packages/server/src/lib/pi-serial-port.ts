@@ -1,7 +1,10 @@
 import { SerialPort } from "serialport";
 import type { PiSerialErrorReason } from "@magic-vault/shared";
 import { PI_SERIAL_BAUD_RATE } from "./constants/pi-serial";
-import type { SorterPortOwner } from "./interfaces/pi-serial";
+import type { SorterPort, SorterPortOwner } from "./interfaces/pi-serial";
+import { PiControllerPort } from "./pi-controller-port";
+import { PiControllerHub } from "./pi-controller-hub";
+import { isPiSorter, piControllerSocket } from "./pi-host";
 
 export class SorterPortError extends Error {
   constructor(readonly reason: PiSerialErrorReason) {
@@ -10,9 +13,13 @@ export class SorterPortError extends Error {
 }
 
 let owner: SorterPortOwner | null = null;
-let openPort: SerialPort | null = null;
+let openPort: SorterPort | null = null;
+const controllerHub = new PiControllerHub(() =>
+  PiControllerPort.open(piControllerSocket()),
+);
 
 export function sorterPortOwner(): SorterPortOwner | null {
+  if (isPiSorter()) return controllerHub.owner();
   return owner;
 }
 
@@ -39,7 +46,16 @@ function openSorterPort(path: string, hupcl: boolean): Promise<SerialPort> {
 export async function claimSorterPort(
   next: SorterPortOwner,
   options?: { hupcl?: boolean },
-): Promise<SerialPort> {
+): Promise<SorterPort> {
+  if (isPiSorter()) {
+    try {
+      return await controllerHub.open(next);
+    } catch (error) {
+      if (error instanceof Error && error.message === "busy")
+        throw new SorterPortError("busy");
+      throw new SorterPortError("open-failed");
+    }
+  }
   if (owner) throw new SorterPortError("busy");
   owner = next;
   try {
@@ -65,7 +81,14 @@ export async function claimSorterPort(
   }
 }
 
-export function releaseSorterPort(current: SorterPortOwner) {
+export function releaseSorterPort(
+  current: SorterPortOwner,
+  connection?: SorterPort,
+) {
+  if (isPiSorter()) {
+    controllerHub.release(current, connection);
+    return;
+  }
   if (owner !== current) return;
   const port = openPort;
   owner = null;

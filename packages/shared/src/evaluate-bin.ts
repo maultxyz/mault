@@ -421,6 +421,19 @@ export function computeBinCapacity(
   return Math.floor(binHeight / thickness);
 }
 
+export function scanBinCapacity(
+  height: number | null | undefined,
+  cardThickness: number | null | undefined,
+  set: Pick<BinSet, "isChaosMode" | "chaosBinSize"> | null | undefined,
+  bin: Pick<BinConfig, "isCatchAll">,
+): number | null {
+  const physicalCapacity = computeBinCapacity(height, cardThickness);
+  const chaosBinSize = set?.isChaosMode && !bin.isCatchAll ? set.chaosBinSize : null;
+  return chaosBinSize != null
+    ? Math.min(physicalCapacity ?? chaosBinSize, chaosBinSize)
+    : physicalCapacity;
+}
+
 export function getCardsInBin(
   cards: { binNumber?: number | null; scannedAt: number; card: SourceCard }[],
   bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,

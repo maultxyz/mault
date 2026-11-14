@@ -23,6 +23,7 @@ import {
   type ReviewAcceptResult,
   type ReviewGridAttributeUpdate,
   SCAN_SAVE_ACCEPTED_STATUSES,
+  buildScanSaveRequest,
   throwIfMemberSeatLimit,
   type ScannedCard,
   type SortOnlyScanRequest,
@@ -72,11 +73,15 @@ export async function checkCollectionName(
   );
 }
 
-export async function activateCollection(guid: string): Promise<Result<Collection[]>> {
+export async function activateCollection(
+  guid: string,
+): Promise<Result<Collection[]>> {
   return apiPut<Result<Collection[]>>(`/api/collections/${guid}/active`);
 }
 
-export async function deleteCollection(guid: string): Promise<Result<Collection[]>> {
+export async function deleteCollection(
+  guid: string,
+): Promise<Result<Collection[]>> {
   return apiDelete<Result<Collection[]>>(`/api/collections/${guid}`);
 }
 
@@ -140,7 +145,7 @@ export async function addCollectionCard(
   const res = await fetch(`${API_BASE}/api/collections/${guid}/cards`, {
     method: "POST",
     headers: await scanSaveHeaders(orgId),
-    body: JSON.stringify({ ...record, deviceGuid, isRetry }),
+    body: JSON.stringify(buildScanSaveRequest(record, { deviceGuid, isRetry })),
   });
   await handleForbidden(res);
   await throwIfMemberSeatLimit(res);
@@ -171,10 +176,13 @@ export async function updateCollectionCard(
   card: ScannedCard["card"],
   binNumber?: number,
 ): Promise<Result<ScannedCard>> {
-  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
-    card,
-    binNumber,
-  });
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    {
+      card,
+      binNumber,
+    },
+  );
 }
 
 export async function updateCollectionCardAttributes(
@@ -193,27 +201,36 @@ export async function setCollectionCardBin(
   scanId: string,
   binNumber: number,
 ): Promise<Result<ScannedCard>> {
-  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
-    binNumber,
-  });
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    {
+      binNumber,
+    },
+  );
 }
 
 export async function confirmCollectionCard(
   guid: string,
   scanId: string,
 ): Promise<Result<ScannedCard>> {
-  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
-    confirmed: true,
-  });
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    {
+      confirmed: true,
+    },
+  );
 }
 
 export async function markCollectionCardReviewed(
   guid: string,
   scanId: string,
 ): Promise<Result<ScannedCard>> {
-  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
-    reviewed: true,
-  });
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    {
+      reviewed: true,
+    },
+  );
 }
 
 export async function setCollectionCardFoilType(
@@ -222,10 +239,13 @@ export async function setCollectionCardFoilType(
   isFoil: boolean,
   foilType: string | null,
 ): Promise<Result<ScannedCard>> {
-  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
-    isFoil,
-    foilType,
-  });
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    {
+      isFoil,
+      foilType,
+    },
+  );
 }
 
 export async function setCollectionCardCondition(
@@ -233,9 +253,12 @@ export async function setCollectionCardCondition(
   scanId: string,
   condition: CardCondition,
 ): Promise<Result<ScannedCard>> {
-  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
-    condition,
-  });
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    {
+      condition,
+    },
+  );
 }
 
 export async function setCollectionCardLanguage(
@@ -243,9 +266,12 @@ export async function setCollectionCardLanguage(
   scanId: string,
   language: string,
 ): Promise<Result<ScannedCard>> {
-  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
-    language,
-  });
+  return apiPut<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/${scanId}`,
+    {
+      language,
+    },
+  );
 }
 
 export async function setCollectionCardStamp(
@@ -303,7 +329,9 @@ export async function removeCollectionCards(
   guid: string,
   scanIds: string[],
 ): Promise<Result<null>> {
-  return apiPost<Result<null>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds });
+  return apiPost<Result<null>>(`/api/collections/${guid}/cards/remove-bulk`, {
+    scanIds,
+  });
 }
 
 export async function moveCollectionCardsToCollection(
@@ -321,7 +349,10 @@ export async function markCollectionCardsDownloaded(
   guid: string,
   scanIds: string[],
 ): Promise<Result<null>> {
-  return apiPost<Result<null>>(`/api/collections/${guid}/cards/mark-downloaded`, { scanIds });
+  return apiPost<Result<null>>(
+    `/api/collections/${guid}/cards/mark-downloaded`,
+    { scanIds },
+  );
 }
 
 export async function setCollectionCardsCondition(
@@ -346,7 +377,9 @@ export async function setCollectionCardsFoilType(
   });
 }
 
-export async function clearCollectionCards(guid: string): Promise<Result<null>> {
+export async function clearCollectionCards(
+  guid: string,
+): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/cards`);
 }
 
@@ -376,7 +409,7 @@ export async function addUnmatchedCard(
   const res = await fetch(`${API_BASE}/api/collections/${guid}/unmatched`, {
     method: "POST",
     headers: await scanSaveHeaders(orgId),
-    body: JSON.stringify({ ...record, deviceGuid, isRetry }),
+    body: JSON.stringify(buildScanSaveRequest(record, { deviceGuid, isRetry })),
   });
   await handleForbidden(res);
   await throwIfMemberSeatLimit(res);
@@ -388,7 +421,9 @@ export async function removeUnmatchedCard(
   guid: string,
   scanId: string,
 ): Promise<Result<null>> {
-  return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched/${scanId}`);
+  return apiDelete<Result<null>>(
+    `/api/collections/${guid}/unmatched/${scanId}`,
+  );
 }
 
 export function removeUnmatchedScan(

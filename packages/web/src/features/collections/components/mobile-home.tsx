@@ -6,6 +6,7 @@ import { MobileSearchInput } from "@/components/mobile-search-input";
 import { MobileSection } from "@/components/mobile-section";
 import { getInitials } from "@/components/ui/initials-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PiSorterCalibrationLink } from "@/features/calibration/components/pi-sorter-calibration-link";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { openIntakeLotsQueryOptions } from "@/features/business/api/business";
@@ -42,7 +43,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { usePiHost } from "@/hooks/use-pi-host";
-import { isRemoteBrowser } from "@/lib/host";
+import { usesHostHardware } from "@/lib/host";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -70,7 +71,8 @@ export function MobileHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
   const heroCollapsed = useScrollCollapse(scrollRoot);
-  const scanPath = usePiHost() && isRemoteBrowser() ? "/app" : MOBILE_SCAN_PATH;
+  const scanPath =
+    usePiHost() && usesHostHardware() ? "/app" : MOBILE_SCAN_PATH;
   const firstName = session?.user?.name?.trim().split(/\s+/)[0];
   const query = searchQuery.trim().toLowerCase();
 
@@ -168,6 +170,8 @@ export function MobileHome() {
               />
             </div>
           </div>
+
+          <PiSorterCalibrationLink />
 
           {!query && <MobileHomeOverview orgId={activeOrg?.id} />}
 

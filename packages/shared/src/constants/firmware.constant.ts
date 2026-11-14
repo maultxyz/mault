@@ -5,6 +5,11 @@ export function isFirmwareVersionOutdated(
   latestVersion: string | null | undefined,
 ): boolean {
   if (!version || !latestVersion) return false;
+  if (version.startsWith("pi-")) {
+    return latestVersion.startsWith("pi-")
+      ? isFirmwareVersionOutdated(version.slice(3), latestVersion.slice(3))
+      : false;
+  }
   const current = version.split(".").map((n) => parseInt(n, 10) || 0);
   const latest = latestVersion.split(".").map((n) => parseInt(n, 10) || 0);
   for (let i = 0; i < Math.max(current.length, latest.length); i++) {
@@ -44,6 +49,9 @@ export function isFirmwareFeatureSupported(
   version: string | null | undefined,
   feature: FirmwareFeature,
 ): boolean {
+  if (version === "pi-0.1.0") {
+    return feature !== "wifiRemote" && feature !== "retractCard";
+  }
   return (
     !!version &&
     !isFirmwareVersionOutdated(version, FIRMWARE_FEATURE_MIN_VERSIONS[feature])

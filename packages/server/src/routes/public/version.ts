@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import pkg from "../../../package.json";
 import { getLatestFirmwareVersion } from "../../lib/firmware-releases";
-import { isPiHost } from "../../lib/pi-host";
+import { isPiHost, isPiSorter } from "../../lib/pi-host";
 import type { AppEnv } from "../../middleware/auth";
 
 export const versionRoute = new Hono<AppEnv>().get("/version", (c) => {
@@ -11,6 +11,8 @@ export const versionRoute = new Hono<AppEnv>().get("/version", (c) => {
       version: pkg.version,
       piHost: isPiHost(),
       latestFirmwareVersion: getLatestFirmwareVersion(),
+      piSorter: isPiSorter(),
+      piController: isPiSorter(),
     },
   });
 });

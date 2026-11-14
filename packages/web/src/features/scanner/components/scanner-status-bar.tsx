@@ -127,40 +127,50 @@ export function ScannerStatusBar({
 
   return (
     <div className="pointer-events-none absolute inset-x-2 top-2 z-40 flex flex-wrap gap-1.5 *:pointer-events-auto">
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <ConnectionStatusPill
-              label={t("scannerMenu.camera")}
-              stateLabel={t(`scannerMenu.connectionStates.${cameraState}`)}
-              state={cameraState}
-              icon={<IconCameraSpark />}
-              data-tour="camera-status"
-            />
-          }
-        />
-        <DropdownMenuContent
-          align="start"
-          className="w-auto min-w-56 whitespace-nowrap"
-        >
-          <CameraMenuItems
-            isCameraActive={isCameraActive}
-            cameras={cameras}
-            documentScannerOptions={documentScannerOptions}
-            isFlatbedSelected={isFlatbedSelected}
-            selectedCameraId={selectedCameraId}
-            phonePairingStatus={phonePairingStatus}
-            scanningBlocked={scanningBlocked}
-            onCameraConnect={onCameraConnect}
-            onCameraDisconnect={onCameraDisconnect}
-            onCameraSelect={onCameraSelect}
-            onCalibrateFlatbed={onCalibrateFlatbed}
-            isFeederSelected={isFeederSelected}
-            onSetUpFeederCard={onSetUpFeederCard}
-            onOpenPhonePairing={onOpenPhonePairing}
+      {onCameraConnect ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <ConnectionStatusPill
+                label={t("scannerMenu.camera")}
+                stateLabel={t(`scannerMenu.connectionStates.${cameraState}`)}
+                state={cameraState}
+                icon={<IconCameraSpark />}
+                data-tour="camera-status"
+              />
+            }
           />
-        </DropdownMenuContent>
-      </DropdownMenu>
+          <DropdownMenuContent
+            align="start"
+            className="w-auto min-w-56 whitespace-nowrap"
+          >
+            <CameraMenuItems
+              isCameraActive={isCameraActive}
+              cameras={cameras}
+              documentScannerOptions={documentScannerOptions}
+              isFlatbedSelected={isFlatbedSelected}
+              selectedCameraId={selectedCameraId}
+              phonePairingStatus={phonePairingStatus}
+              scanningBlocked={scanningBlocked}
+              onCameraConnect={onCameraConnect}
+              onCameraDisconnect={onCameraDisconnect}
+              onCameraSelect={onCameraSelect}
+              onCalibrateFlatbed={onCalibrateFlatbed}
+              isFeederSelected={isFeederSelected}
+              onSetUpFeederCard={onSetUpFeederCard}
+              onOpenPhonePairing={onOpenPhonePairing}
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <ConnectionStatusPill
+          label={t("scannerMenu.camera")}
+          stateLabel={t(`scannerMenu.connectionStates.${cameraState}`)}
+          state={cameraState}
+          icon={<IconCameraSpark />}
+          data-tour="camera-status"
+        />
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger
           render={

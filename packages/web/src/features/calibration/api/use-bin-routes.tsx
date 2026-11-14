@@ -1,4 +1,3 @@
-import { isPiHost } from "@/lib/pi-host";
 import {
   binRoutesQueryOptions,
   saveBinRoute,
@@ -8,7 +7,13 @@ import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import type { BinRoutesContextValue } from "@/lib/interfaces/calibration";
 import { createDefaultBinRoutes, type BinRoute } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 const BinRoutesContext = createContext<BinRoutesContextValue | null>(null);
 
@@ -51,7 +56,6 @@ export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
 
   const commit = useCallback(async () => {
     if (!device) {
-      if (isPiHost()) throw new Error("Sorter settings have not loaded.");
       return;
     }
     setIsSaving(true);

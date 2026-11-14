@@ -1,41 +1,12 @@
 import {
   applyPickListFound,
-  toPickList,
-  type PickList,
   type PickListFoundInput,
-  type PickListFoundResult,
 } from "@magic-vault/shared";
-import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { authQuery, type Transaction } from "../../db";
-import { bins } from "../../db/schema";
+import { authQuery } from "../../db";
+import { updateBinPickList } from "../../lib/scan-pick-list";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resetPickList } from "./shared";
-
-async function updateBinPickList(
-  tx: Transaction,
-  orgId: string,
-  binGuid: string,
-  update: (current: PickList) => PickList | null,
-): Promise<PickListFoundResult | null> {
-  const [target] = await tx
-    .select({ id: bins.id, pickList: bins.pickList })
-    .from(bins)
-    .where(
-      and(
-        eq(bins.guid, binGuid),
-        eq(bins.orgId, orgId),
-        eq(bins.isDeleted, false),
-      ),
-    )
-    .for("update");
-  if (!target) return null;
-  const current = toPickList(target.pickList);
-  const next = current ? update(current) : null;
-  if (!next) return { changed: false, pickList: current };
-  await tx.update(bins).set({ pickList: next }).where(eq(bins.id, target.id));
-  return { changed: true, pickList: next };
-}
 
 export const pickListFoundRoute = new Hono<AppEnv>()
   .post(

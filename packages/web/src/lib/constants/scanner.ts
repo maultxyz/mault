@@ -217,6 +217,7 @@ export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
 
 export const PI_CAMERA_PREVIEW_INTERVAL_MS = 250;
+export const PI_CAMERA_HEALTH_RETRY_MS = 2000;
 
 export const PI_SCAN_SESSION_API = `/api${PI_SCAN_SESSION_PATH}`;
 export const COMM_LOG_MARKER_LABELS: Partial<
@@ -346,6 +347,8 @@ export const FLATBED_OVERRIDDEN_STATUSES: ScannerStatus[] = [
 ];
 
 export const SCAN_STATS_SUMMARY_SEPARATOR = " · ";
+
+export const PI_SORTER_RECONNECT_INTERVAL_MS = 5000;
 
 export const FOIL_NUDGE_DIAGNOSTIC_IMAGE_WIDTH = 224;
 export const FOIL_NUDGE_DIAGNOSTIC_JPEG_QUALITY = 0.8;

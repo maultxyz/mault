@@ -19,22 +19,29 @@ export async function waitForPiScanResume(
     session.refreshRequested = false;
     const context = session.context;
     const fresh = await reload(context);
-    const unsaved = context.contents.filter((entry) => {
-      if (!entry.unsaved) return false;
-      const bin = fresh.configs.find(
-        (item) => item.binNumber === entry.binNumber,
-      );
-      return bin && entry.scannedAt > (bin.lastEmptiedAt ?? 0);
-    });
-    fresh.contents.push(...unsaved);
-    for (const entry of unsaved) {
-      const binNumber = entry.binNumber!;
-      fresh.counts.set(binNumber, (fresh.counts.get(binNumber) ?? 0) + 1);
-    }
+    retainPiScanUnsavedCards(context, fresh);
     Object.assign(context, fresh);
     session.message = null;
   }
   // A second pause or stop may arrive while the reload is in flight.
   if (session.pauseRequested) return waitForPiScanResume(session, reload);
   return !session.stopRequested;
+}
+
+export function retainPiScanUnsavedCards(
+  context: PiScanRunContext,
+  fresh: PiScanRunContext,
+) {
+  const unsaved = context.contents.filter((entry) => {
+    if (!entry.unsaved) return false;
+    const bin = fresh.configs.find(
+      (item) => item.binNumber === entry.binNumber,
+    );
+    return bin && entry.scannedAt > (bin.lastEmptiedAt ?? 0);
+  });
+  fresh.contents.push(...unsaved);
+  for (const entry of unsaved) {
+    const binNumber = entry.binNumber!;
+    fresh.counts.set(binNumber, (fresh.counts.get(binNumber) ?? 0) + 1);
+  }
 }

@@ -9,6 +9,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  pi-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up Node for service rendering tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      - name: Test Pi controller without hardware
+        run: python3 -m unittest scripts.pi.controller.test_controller
+
+      - name: Test Pi installation, updater and camera without hardware
+        run: python3 -m unittest discover -s scripts/pi/tests -p 'test_*.py'
+
   build:
     runs-on: ubuntu-latest
     steps:

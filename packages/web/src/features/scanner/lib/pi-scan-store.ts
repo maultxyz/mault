@@ -9,7 +9,8 @@ import type { PiScanSessionState } from "@magic-vault/shared";
 import { loadPiHost } from "@/lib/pi-host";
 import { piScanAnnouncementKey } from "@/features/scanner/lib/pi-scan-status";
 
-
+let scopeOrgId: string | null | undefined;
+let scopeGeneration = 0;
 let state: PiScanSessionState = IDLE_PI_SCAN_SESSION;
 let holdOverride = false;
 let announced: string | null = null;
@@ -33,6 +34,14 @@ function sameSight(
 
 function sameState(left: PiScanSessionState, right: PiScanSessionState) {
   return (
+    JSON.stringify(left.removalEntries) ===
+      JSON.stringify(right.removalEntries) &&
+    JSON.stringify(left.soundEvents) === JSON.stringify(right.soundEvents) &&
+    JSON.stringify(left.pendingSave) === JSON.stringify(right.pendingSave) &&
+    left.allowDuplicates === right.allowDuplicates &&
+    left.removalEnabled === right.removalEnabled &&
+    left.removalBusy === right.removalBusy &&
+    left.removalBinNumber === right.removalBinNumber &&
     left.phase === right.phase &&
     left.collectionGuid === right.collectionGuid &&
     left.message === right.message &&
@@ -40,6 +49,10 @@ function sameState(left: PiScanSessionState, right: PiScanSessionState) {
     left.stopping === right.stopping &&
     left.activity === right.activity &&
     left.autoFeed === right.autoFeed &&
+    left.foilType === right.foilType &&
+    left.condition === right.condition &&
+    JSON.stringify(left.preferredSetCodes) ===
+      JSON.stringify(right.preferredSetCodes) &&
     left.startedAt === right.startedAt &&
     left.pausedMs === right.pausedMs &&
     left.pausedAt === right.pausedAt &&
@@ -50,6 +63,20 @@ function sameState(left: PiScanSessionState, right: PiScanSessionState) {
 
 function emit() {
   for (const listener of listeners) listener();
+}
+
+export function resetPiScanScope(orgId: string | null) {
+  if (scopeOrgId === orgId) return;
+  scopeOrgId = orgId;
+  scopeGeneration++;
+  if (timer) clearInterval(timer);
+  timer = null;
+  holdOverride = false;
+  announced = null;
+  state = IDLE_PI_SCAN_SESSION;
+  publishHold();
+  emit();
+  if (orgId) void ensurePolling();
 }
 
 export function getPiScanState(): PiScanSessionState {
@@ -75,21 +102,33 @@ export function notePiScanMessage(message: string | null) {
 export function takePiScanAnnouncement(
   current: PiScanSessionState,
 ): "error" | "info" | null {
-  if (!current.message || piScanAnnouncementKey(current) === announced) return null;
+  if (!current.message || piScanAnnouncementKey(current) === announced)
+    return null;
   if (current.phase !== "error" && current.phase !== "stopped") return null;
   announced = piScanAnnouncementKey(current);
   return current.phase === "error" ? "error" : "info";
 }
 
 async function pull() {
+  const generation = scopeGeneration;
   try {
-    applyPiScanState(await fetchPiScanSession());
-  } catch {
-  }
+    const next = await fetchPiScanSession();
+    if (generation !== scopeGeneration) return;
+    applyPiScanState(next);
+  } catch {}
 }
 
 async function ensurePolling() {
-  if (!(await loadPiHost()) || timer || listeners.size === 0) return;
+  if (timer || listeners.size === 0 || scopeOrgId === null) return;
+  const generation = scopeGeneration;
+  if (
+    !(await loadPiHost()) ||
+    generation !== scopeGeneration ||
+    scopeOrgId === null ||
+    timer ||
+    listeners.size === 0
+  )
+    return;
   void pull();
   timer = setInterval(() => void pull(), 1000);
 }

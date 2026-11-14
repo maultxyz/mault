@@ -9,7 +9,7 @@ import { MobileSorterWifiSection } from "@/features/scanner/components/mobile-so
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHostState } from "@/hooks/use-pi-host";
 import { CALIBRATE_PATH } from "@/lib/constants/calibration";
-import { isRemoteBrowser } from "@/lib/host";
+import { usesHostHardware } from "@/lib/host";
 import {
   MOBILE_CARD_CLASS,
   MOBILE_LIST_CLASS,
@@ -39,8 +39,8 @@ export default function SorterPage() {
   const { t } = useTranslation("scanner");
   const isMobile = useIsMobile();
   const serial = useSerial();
-  const { piHost, settled } = usePiHostState();
-  const piConnect = settled && piHost && isRemoteBrowser();
+  const { piHost, piSorter, settled } = usePiHostState();
+  const piConnect = settled && piHost && usesHostHardware();
   const [busy, setBusy] = useState<"connect" | "test" | "disconnect" | null>(
     null,
   );
@@ -134,7 +134,7 @@ export default function SorterPage() {
                     ]
                       .filter(Boolean)
                       .join(" · ")
-                  : t("mobileSorter.connectHint")}
+                  : t(piSorter ? "serial.piSorterUnavailable" : "mobileSorter.connectHint")}
               </p>
             </div>
           </div>
@@ -159,7 +159,7 @@ export default function SorterPage() {
 
           {!serial.isConnected ? (
             <div className="flex flex-col gap-2">
-              {piConnect && (
+              {piConnect && !piSorter && (
                 <Button
                   className={MOBILE_PILL_BUTTON_CLASS}
                   disabled={busy !== null}
@@ -175,7 +175,7 @@ export default function SorterPage() {
                   {t("mobileSorter.connectPi")}
                 </Button>
               )}
-              {bluetoothSupported && (
+              {bluetoothSupported && !piSorter && (
                 <Button
                   className={MOBILE_PILL_BUTTON_CLASS}
                   variant={piConnect ? "secondary" : "default"}
@@ -236,13 +236,13 @@ export default function SorterPage() {
                   disabled={busy !== null}
                   onClick={() => void run("test", () => serial.runTest())}
                 />
-                <MobileListRow
+                {!piSorter && <MobileListRow
                   icon={<IconPlugConnectedX />}
                   label={t("mobileSorter.disconnect")}
                   destructive
                   disabled={busy !== null}
                   onClick={() => void run("disconnect", () => serial.disconnect())}
-                />
+                />}
               </div>
             </MobileSection>
           )}

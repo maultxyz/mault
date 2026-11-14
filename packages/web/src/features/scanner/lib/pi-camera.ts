@@ -8,9 +8,8 @@ import {
   PI_CAMERA_WIDTH,
 } from "@/lib/constants/scanner";
 import type { CameraRange, PiCameraHealth } from "@/lib/interfaces/scanner";
-import { isRemoteBrowser } from "@/lib/host";
 import { isPiHost, loadPiHost } from "@/lib/pi-host";
-import { applyFocus, manualFocusRange } from "./camera-focus";
+import { applyFocus, currentFocusDistance, manualFocusRange } from "./camera-focus";
 
 const piRelayTracks = new WeakSet<MediaStreamTrack>();
 const piRelayCanvases = new WeakMap<MediaStream, HTMLCanvasElement>();
@@ -53,7 +52,7 @@ export function focusRangeForTrack(
 }
 
 export function browserMustUsePiCamera(): boolean {
-  return isPiHost() && isRemoteBrowser();
+  return isPiHost();
 }
 
 export async function readPiCameraHealth(): Promise<PiCameraHealth> {
@@ -67,6 +66,8 @@ export async function readPiCameraHealth(): Promise<PiCameraHealth> {
       return { status: response.status === 404 ? "absent" : "down" };
     }
     const body = (await response.json()) as {
+      focusMode?: "auto" | "manual";
+      lensPosition?: number;
       label?: string;
       width?: number;
       height?: number;
@@ -84,6 +85,8 @@ export async function readPiCameraHealth(): Promise<PiCameraHealth> {
         : null;
     return {
       status: "ready",
+      focusMode: body.focusMode,
+      lensPosition: typeof body.lensPosition === "number" ? body.lensPosition : undefined,
       label: body.label || PI_CAMERA_LABEL,
       width: body.width || PI_CAMERA_WIDTH,
       height: body.height || PI_CAMERA_HEIGHT,
@@ -298,4 +301,24 @@ export async function applyTrackFocus(
     return;
   }
   await applyFocus(track, value);
+}
+
+export async function lockTrackFocus(
+  track: MediaStreamTrack | undefined,
+  fallback: number,
+): Promise<number> {
+  if (!browserMustUsePiCamera() && !(track && isPiRelayTrack(track))) {
+    return (track && currentFocusDistance(track)) ?? fallback;
+  }
+  const response = await fetch(`${API_BASE}${PI_CAMERA_BASE}/focus`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
+    body: JSON.stringify({ mode: "lock" }),
+  });
+  if (!response.ok) throw new Error("Could not lock camera focus");
+  const body = await response.json() as { lensPosition?: number };
+  if (typeof body.lensPosition !== "number" || !Number.isFinite(body.lensPosition)) {
+    throw new Error("Camera did not return a focus position");
+  }
+  return body.lensPosition;
 }

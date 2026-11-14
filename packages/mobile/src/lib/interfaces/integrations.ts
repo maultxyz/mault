@@ -16,6 +16,7 @@ export interface DiscordChannelsDraft {
 
 export type DiscordChannelPicker =
   | { kind: "scan" | "error"; collectionGuid: string | null }
-  | { kind: "scan-role" | "error-role" }
+  | { kind: "scan-role" }
+  | { kind: "error-role" }
   | { kind: "add-collection" }
   | { kind: "add-channel"; collectionGuid: string };

@@ -1,4 +1,3 @@
-import { isPiHost } from "@/lib/pi-host";
 import {
   apiDelete,
   apiGet,
@@ -17,9 +16,6 @@ export const devicesQueryOptions = (orgId: string | undefined) =>
     queryKey: ["devices", orgId] as const,
     queryFn: async () => {
       const result = await getDevices();
-      if (isPiHost() && (!result.success || !result.data)) {
-        throw new Error(result.message || "Could not load sorter settings.");
-      }
       return result.data ?? [];
     },
     staleTime: Infinity,

@@ -25,6 +25,7 @@ function connection() {
 test("Pi sorter ignores boot, feed events and unrelated replies while matching seq", async () => {
   const { port, link } = connection();
   const pending = link.command({ getStatus: true }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
   const seq = port.writes[0].seq;
   port.reply({ status: "ready" });
   port.reply({ event: "fed" });
@@ -40,6 +41,7 @@ test("Pi sorter records downstream jams without consuming the command reply", as
     { route: { module: 2, direction: "left" } },
     1000,
   );
+  await new Promise((resolve) => setImmediate(resolve));
   port.reply({ error: "jam", module: 2 });
   port.reply({ seq: port.writes[0].seq, status: "routed" });
   assert.equal((await pending).status, "routed");
@@ -50,6 +52,7 @@ test("Pi sorter records downstream jams without consuming the command reply", as
 test("Pi sorter supports a single unnumbered reply on older firmware", async () => {
   const { port, link } = connection();
   const pending = link.command({ getStatus: true }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
   port.reply({ id: "old-sorter" });
   assert.equal((await pending).id, "old-sorter");
   link.close();
@@ -58,10 +61,12 @@ test("Pi sorter supports a single unnumbered reply on older firmware", async () 
 test("Pi sorter drops a timed-out seq instead of applying it to the next command", async () => {
   const { port, link } = connection();
   const status = link.command({ getStatus: true }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
   port.reply({ seq: port.writes[0].seq, id: "sorter" });
   await status;
   await assert.rejects(link.command({ neutral: true }, 5), /in time/);
   const pending = link.command({ feeder: true }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
   port.reply({ seq: port.writes[1].seq, status: "neutral" });
   port.reply({ seq: port.writes[2].seq, detected: true });
   assert.equal((await pending).detected, true);
@@ -71,7 +76,34 @@ test("Pi sorter drops a timed-out seq instead of applying it to the next command
 test("Pi sorter rejects pending work immediately on disconnect", async () => {
   const { port, link } = connection();
   const pending = link.command({ feeder: true }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
   port.emit("close");
   await assert.rejects(pending, /disconnected/);
   await assert.rejects(link.command({ feeder: true }, 1000), /closed/);
+});
+
+test("Pi retains a feed event without completing the pending route", async () => {
+  const { port, link } = connection();
+  const feeds: Record<string, unknown>[] = [];
+  const unsubscribe = link.onFed((reply) => feeds.push(reply));
+  const pending = link.command({ route: { module: 2, direction: "left", feedNext: true } }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
+  const feed = { event: "fed", detected: true, empty: false };
+  port.reply(feed);
+  assert.deepEqual(feeds, [feed]);
+  port.reply({ seq: port.writes[0].seq, status: "routed", fedNext: true });
+  assert.equal((await pending).fedNext, true);
+  unsubscribe();
+  port.reply(feed);
+  assert.equal(feeds.length, 1);
+  link.close();
+});
+
+test("a reply and reboot banner in one chunk immediately close the restarted sorter", async () => {
+  const { port, link } = connection();
+  const pending = link.command({ getStatus: true }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
+  port.emit("data", Buffer.from(`${JSON.stringify({ seq: port.writes[0].seq, id: "sorter" })}\n${JSON.stringify({ status: "ready" })}\n`));
+  await assert.rejects(pending, /restarted/);
+  await assert.rejects(link.command({ readIR: true }, 1000), /closed/);
 });

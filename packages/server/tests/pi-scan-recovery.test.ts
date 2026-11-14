@@ -86,3 +86,22 @@ test("a stop during context refresh prevents another hardware command", async ()
   });
   assert.equal(continued, false);
 });
+
+test("resume retains capacity occupied by unsaved control/removal cards until the bin is emptied", async () => {
+  const session = state();
+  session.pauseRequested = false;
+  session.refreshRequested = true;
+  session.context!.contents = [
+    { binNumber: 1, scannedAt: 30, card: {}, unsaved: true, capacityOnly: true },
+    { binNumber: 1, scannedAt: 10, card: {}, unsaved: true, capacityOnly: true },
+  ];
+  await waitForPiScanResume(session, async () => {
+    const fresh = context();
+    fresh.configs[0].lastEmptiedAt = 20;
+    fresh.counts.set(1, 2);
+    return fresh;
+  });
+  assert.equal(session.context!.counts.get(1), 3);
+  assert.deepEqual(session.context!.contents.map((entry) => entry.scannedAt), [30]);
+  assert.equal(session.context!.contents[0].capacityOnly, true);
+});
