@@ -186,10 +186,11 @@ export default function HomeScreen() {
             action={{ label: t("home.seeAllStats"), onPress: () => router.push("/stats") }}
           />
 
-          {summaryData && summaryData.all.cardsOfTheDay.length > 0 ? (
+          {summary.isPending || (summaryData && summaryData.all.cardsOfTheDay.length > 0) ? (
             <HomeCardRail
               title={t("home.cardOfTheDay")}
-              cards={summaryData.all.cardsOfTheDay}
+              cards={summaryData?.all.cardsOfTheDay ?? []}
+              isLoading={summary.isPending}
               tileWidth={HOME_CARD_OF_THE_DAY_TILE_WIDTH}
               captionOf={(card) => [card.price != null ? pricing.format(card.price) : null, card.collectionName].filter(Boolean).join(" · ")}
             />

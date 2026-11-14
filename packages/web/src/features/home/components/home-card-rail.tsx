@@ -1,7 +1,8 @@
 import { CardImage } from "@/components/card-image";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
-import { HOME_CARD_RAIL_TILE_CLASS } from "@/lib/constants/home";
+import { HOME_CARD_RAIL_LOADING_TILE_COUNT, HOME_CARD_RAIL_TILE_CLASS } from "@/lib/constants/home";
 import type { HomeCardRailProps } from "@/lib/interfaces/home";
 import { Link } from "react-router-dom";
 
@@ -11,9 +12,11 @@ export function HomeCardRail({
   captionOf,
   tileClassName = HOME_CARD_RAIL_TILE_CLASS,
   action,
+  isLoading = false,
+  loadingTileCount = HOME_CARD_RAIL_LOADING_TILE_COUNT,
 }: HomeCardRailProps) {
   const isMobile = useIsMobile();
-  if (cards.length === 0) return null;
+  if (!isLoading && cards.length === 0) return null;
 
   return (
     <section className="flex flex-col gap-2">
@@ -28,8 +31,21 @@ export function HomeCardRail({
           </Link>
         )}
       </div>
-      <ul className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 md:-mx-1 md:px-1">
-        {cards.map((card) => (
+      <ul
+        aria-busy={isLoading}
+        className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 md:-mx-1 md:px-1"
+      >
+        {isLoading &&
+          Array.from({ length: loadingTileCount }).map((_, index) => (
+            <li key={index} className={tileClassName} aria-hidden="true">
+              <span className="flex flex-col gap-1.5">
+                <Skeleton className="aspect-[2.5/3.5] w-full rounded-lg" />
+                <Skeleton className="h-3.5 w-4/5" />
+                <Skeleton className="h-3 w-1/2" />
+              </span>
+            </li>
+          ))}
+        {!isLoading && cards.map((card) => (
           <li key={card.scanId} className={tileClassName}>
             <Link
               to={

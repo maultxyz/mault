@@ -25,6 +25,8 @@ export interface HomeCardRailProps {
   captionOf: (card: OrgOverviewCard) => string;
   tileWidth?: number;
   action?: { label: string; onPress: () => void };
+  isLoading?: boolean;
+  loadingTileCount?: number;
 }
 
 export interface HomeHighlightRowProps {

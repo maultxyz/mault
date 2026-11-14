@@ -160,10 +160,11 @@ export function HomeDashboard() {
             </div>
           )}
 
-          {summaryData && (
+          {(summary.isPending || summaryData) && (
             <HomeCardRail
               title={t("cardOfTheDay")}
-              cards={summaryData.all.cardsOfTheDay}
+              cards={summaryData?.all.cardsOfTheDay ?? []}
+              isLoading={summary.isPending}
               tileClassName={HOME_CARD_OF_THE_DAY_TILE_CLASS}
               captionOf={(card) => [card.price != null ? format(card.price) : null, card.collectionName].filter(Boolean).join(" · ")}
             />

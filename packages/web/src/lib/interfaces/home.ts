@@ -28,6 +28,8 @@ export interface HomeCardRailProps {
   captionOf: (card: OrgOverviewCard) => string;
   tileClassName?: string;
   action?: { label: string; to: string };
+  isLoading?: boolean;
+  loadingTileCount?: number;
 }
 
 export interface HomeValueChange {
