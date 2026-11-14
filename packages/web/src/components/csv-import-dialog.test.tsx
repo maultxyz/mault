@@ -21,6 +21,10 @@ vi.mock("@/lib/toast", () => ({
   toast: { success: () => {}, error: () => {} },
 }));
 
+vi.mock("@/features/companies/api/use-organization", () => ({
+  useOrg: () => ({}),
+}));
+
 Object.defineProperty(window, "matchMedia", {
   configurable: true,
   value: (query: string) => ({
