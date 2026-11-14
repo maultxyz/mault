@@ -330,11 +330,7 @@
     },
     "showAll": "Alle anzeigen ({{count}})",
     "showLess": "Weniger anzeigen",
-    "other": "Sonstige",
-    "headline": {
-      "title": "Deine Sammlung",
-      "subtitle": "in Zahlen"
-    }
+    "other": "Sonstige"
   },
   "account": {
     "organizations": "Organisationen",
@@ -718,6 +714,8 @@
       "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
       "handScan": "Karten automatisch erkennen",
       "handScanDescription": "Ohne Sortierer scannen. Tippe auf Start und halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
+      "handScanBins": "In Fächer sortieren",
+      "handScanBinsDescription": "Zeigt mit deinem Preset, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
       "camera": "Kamera",
       "cameraFallback": "Kamera {{number}}",
       "cameraPosition": {
@@ -841,26 +839,15 @@
       "title": "{{name}} · {{collection}}",
       "open": "Öffnet die Sammlung"
     },
-    "subtitle": "So steht es um deine Sammlung",
     "loadFailed": "Deine Übersicht konnte nicht geladen werden. Zum Aktualisieren nach unten ziehen.",
-    "greeting": {
-      "morning": "Guten Morgen",
-      "afternoon": "Guten Tag",
-      "evening": "Guten Abend"
-    },
-    "greetingWithName": "{{greeting}}, {{name}}",
     "hero": {
       "value": "Sammlungswert",
       "cards": "Karten",
       "collections": "Sammlungen",
       "scanned": "Insgesamt gescannt",
       "sinceYesterday": "seit gestern",
-      "sinceDate": "seit {{date}}"
-    },
-    "actions": {
-      "scan": "Karten scannen",
-      "newCollection": "Neue Sammlung",
-      "stats": "Statistiken"
+      "sinceDate": "seit {{date}}",
+      "openStats": "Öffnet deine Statistiken"
     },
     "welcome": {
       "title": "Willkommen bei Mault",
@@ -876,10 +863,11 @@
     "activity": {
       "title": "Scan-Aktivität",
       "today": "Heute",
-      "thisWeek": "Diese Woche",
       "scans_one": "{{count}} Scan",
       "scans_other": "{{count}} Scans",
-      "chartLabel": "Scans pro Tag in den letzten 14 Tagen"
+      "chartLabel": "Scans pro Tag in den letzten 14 Tagen",
+      "lastDays_one": "Letzte {{count}} Tag",
+      "lastDays_other": "Letzte {{count}} Tage"
     },
     "topCards": "Top-Karten",
     "recentScans": "Zuletzt gescannt",
@@ -3255,5 +3243,12 @@
     "view": "Ansehen",
     "addFailed": "Die Karte konnte nicht hinzugefügt werden.",
     "noCollection": "Erstelle eine {{game}}-Sammlung, um diese Karte hinzuzufügen."
+  },
+  "library": {
+    "valueModes": {
+      "value": "Wert",
+      "change": "Änderung"
+    },
+    "noChange": "Noch kein Verlauf"
   }
 }

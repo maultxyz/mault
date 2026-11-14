@@ -14,19 +14,10 @@ export interface HomeHeroProps {
   changeCaption: string;
   stats: HomeHeroStat[];
   sparklineValues: number[];
+  onPress?: () => void;
+  accessibilityHint?: string;
 }
 
-export interface HomeQuickAction {
-  key: string;
-  icon: IconName;
-  label: string;
-  onPress: () => void;
-  isPrimary?: boolean;
-}
-
-export interface HomeQuickActionsProps {
-  actions: HomeQuickAction[];
-}
 
 export interface HomeCardRailProps {
   title: string;
@@ -48,4 +39,11 @@ export interface HomeHighlightRowProps {
 export interface HomeActivityFigureProps {
   value: string;
   label: string;
+}
+
+export interface HomeTopCardsListProps {
+  title: string;
+  cards: OrgOverviewCard[];
+  priceOf: (card: OrgOverviewCard) => string | undefined;
+  action?: { label: string; onPress: () => void };
 }

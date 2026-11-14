@@ -19,6 +19,8 @@ export function ScanOptionsSheet({
   onAllowDuplicatesChange,
   handScan,
   onHandScanChange,
+  handScanBins,
+  onHandScanBinsChange,
   removeMode,
   onRemoveModeChange,
   presetName,
@@ -66,6 +68,14 @@ export function ScanOptionsSheet({
             onValueChange={onHandScanChange}
           />
         ) : null}
+        {!sorter.isConnected ? (
+          <SwitchRow
+            title={t("scan.options.handScanBins")}
+            description={t("scan.options.handScanBinsDescription")}
+            value={handScanBins}
+            onValueChange={onHandScanBinsChange}
+          />
+        ) : null}
         <SwitchRow
           title={t("scan.options.removeMode")}
           description={t("scan.options.removeModeDescription")}
@@ -103,6 +113,7 @@ export function ScanOptionsSheet({
             icon="sorter"
             title={t("scan.controls.sorter")}
             subtitle={t("scan.controls.sorterDescription")}
+            subtitleNumberOfLines={0}
             onPress={() => {
               onClose();
               router.push("/sorter");

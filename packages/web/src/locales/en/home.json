@@ -56,6 +56,12 @@
     "storage": "Storage",
     "searchPlaceholder": "Search collections",
     "noSearchResultsTitle": "No collections found",
-    "noSearchResultsDescription": "Try a different name."
+    "noSearchResultsDescription": "Try a different name.",
+    "valueModeLabel": "Collection values",
+    "valueModes": {
+      "value": "Value",
+      "change": "Change"
+    },
+    "noChange": "No history yet"
   }
 }

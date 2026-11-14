@@ -1,6 +1,6 @@
 import { BottomSheet, Group, Host, Rectangle, RNHostView } from "@expo/ui/swift-ui";
 import { foregroundStyle, preferredColorScheme, presentationDragIndicator } from "@expo/ui/swift-ui/modifiers";
-import { useColorScheme } from "react-native";
+import { Platform, useColorScheme, useWindowDimensions } from "react-native";
 import { SheetContent } from "@/components/ui/sheet-content";
 import { useTheme } from "@/hooks/use-theme";
 import { IOS_SHEET_TOP_PADDING } from "@/lib/constants/ui";
@@ -10,6 +10,7 @@ import { useQueuedSheetPresentation } from "@/lib/sheet-presentation";
 export function Sheet({ visible, onClose, ...contentProps }: SheetProps) {
   const colorScheme = useColorScheme();
   const colors = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
   const { isPresented, onSheetDismissed } = useQueuedSheetPresentation(visible);
   return (
     <Host style={{ position: "absolute", width: 0, height: 0 }}>
@@ -29,7 +30,11 @@ export function Sheet({ visible, onClose, ...contentProps }: SheetProps) {
           ]}
         >
           <RNHostView matchContents={{ vertical: true }}>
-            <SheetContent {...contentProps} topPadding={IOS_SHEET_TOP_PADDING} />
+            <SheetContent
+              {...contentProps}
+              topPadding={IOS_SHEET_TOP_PADDING}
+              contentWidth={Platform.OS === "ios" && Platform.isPad ? undefined : windowWidth}
+            />
           </RNHostView>
         </Group>
       </BottomSheet>

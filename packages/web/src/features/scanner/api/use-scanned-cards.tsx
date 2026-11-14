@@ -126,6 +126,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useCollectionLocks } from "@/lib/app-stream";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
+import { useHandScanBins } from "@/features/scanner/lib/hand-scan";
 
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
   null,
@@ -301,6 +302,8 @@ export function ScannedCardsProvider({
   const selectedSetRef = useRef(selectedSet);
   const binContentsRef = useRef<BinContentCard[]>([]);
   const [ignoreIrSensors] = useIgnoreIrSensors();
+  const [handScanBins] = useHandScanBins();
+  const handScanBinsRef = useRef(handScanBins);
   const serialRef = useRef({
     sendRoute,
     sendRequest,
@@ -443,10 +446,17 @@ export function ScannedCardsProvider({
     };
   }, [sendRoute, sendRequest, isConnected, isReady, ignoreIrSensors]);
 
+  useEffect(() => {
+    handScanBinsRef.current = handScanBins;
+  }, [handScanBins]);
+
   const scanRoutingContext = useCallback(
     (): ScanRoutingContext => ({
       binSet: selectedSetRef.current,
-      configs: rawBinConfigsRef.current,
+      configs:
+        serialRef.current.isConnected || handScanBinsRef.current
+          ? rawBinConfigsRef.current
+          : [],
       fieldDefinitions: fieldDefinitionsRef.current,
       binContents: binContentsRef.current,
       countCardsInBin: countCardsLocally,

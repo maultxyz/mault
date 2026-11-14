@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { STATS_DEFAULT_RANGE, STATS_RANGES, type StatsRange } from "@magic-vault/shared";
 import { Callout } from "@/components/ui/callout";
-import { DisplayHeadline } from "@/components/ui/display-headline";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -55,8 +54,6 @@ export default function StatsScreen() {
         />
       }
     >
-      <DisplayHeadline title={t("stats.headline.title")} subtitle={t("stats.headline.subtitle")} />
-
       <View style={{ gap: SPACING.sm }}>
         <PickerCard
           icon="collections"

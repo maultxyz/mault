@@ -56,6 +56,12 @@
     "storage": "Rangement",
     "searchPlaceholder": "Rechercher des collections",
     "noSearchResultsTitle": "Aucune collection trouvée",
-    "noSearchResultsDescription": "Essaie un autre nom."
+    "noSearchResultsDescription": "Essaie un autre nom.",
+    "valueModeLabel": "Valeurs des collections",
+    "valueModes": {
+      "value": "Valeur",
+      "change": "Variation"
+    },
+    "noChange": "Pas encore d'historique"
   }
 }

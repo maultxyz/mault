@@ -70,7 +70,10 @@ import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
-import { useHandScan } from "@/features/scanner/lib/hand-scan";
+import {
+  useHandScan,
+  useHandScanBins,
+} from "@/features/scanner/lib/hand-scan";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function CardScanner({
@@ -175,6 +178,7 @@ export function CardScanner({
   } = useResetToNeutral();
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [handScan, setHandScan] = useHandScan();
+  const [handScanBins, setHandScanBins] = useHandScanBins();
   const handScanActive = handScan && !isConnected;
   const { isRemoveModeActive, queueScannedCard, handleRemovalNoMatch } =
     useScanRemoval();
@@ -969,6 +973,8 @@ export function CardScanner({
           handScanActive,
           lastRoutedBin: visibleLastRoutedBin,
           onHandScanChange: setHandScan,
+          handScanBins,
+          onHandScanBinsChange: setHandScanBins,
         })}
         {dialogs}
       </div>
@@ -1150,6 +1156,8 @@ export function CardScanner({
             onAllowDuplicatesChange={setAllowDuplicates}
             handScan={handScan}
             onHandScanChange={setHandScan}
+            handScanBins={handScanBins}
+            onHandScanBinsChange={setHandScanBins}
           />
         </div>
         {showStatusStrip && (

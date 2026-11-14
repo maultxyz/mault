@@ -9,6 +9,10 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useCollectionLocks } from "@/lib/app-stream";
+import { useCollectionChanges } from "@/features/library/api/use-collection-changes";
+import { CollectionChangeTrend } from "@/features/library/components/collection-change-trend";
+import { LibraryValueModeTabs } from "@/features/library/components/library-value-mode-tabs";
+import type { LibraryValueMode } from "@/lib/interfaces/library";
 import { MOBILE_HOME_SEARCH_MIN_COLLECTIONS, monitorCollectionPath } from "@/lib/constants/collections";
 import { MOBILE_LIST_CLASS, MOBILE_LIST_ROW_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
@@ -29,6 +33,8 @@ export function LibraryCollectionList() {
   const { locks, currentUserId } = useCollectionLocks();
   const { format } = usePriceSource();
   const [searchQuery, setSearchQuery] = useState("");
+  const [valueMode, setValueMode] = useState<LibraryValueMode>("value");
+  const changeOf = useCollectionChanges(valueMode === "change");
   const query = searchQuery.trim().toLowerCase();
 
   const sorted = [...(collections ?? [])].sort((a, b) => {
@@ -69,6 +75,7 @@ export function LibraryCollectionList() {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       )}
+      <LibraryValueModeTabs value={valueMode} onChange={setValueMode} />
       {filtered.length === 0 ? (
         <div className="rounded-card bg-card">
           <EmptyState
@@ -84,6 +91,7 @@ export function LibraryCollectionList() {
             const isOwn = lock?.userId === currentUserId;
             const isActive = collection.guid === activeCollection?.guid;
             const value = overview?.collectionValues[collection.guid];
+            const change = changeOf(collection.guid);
             return (
               <Link
                 key={collection.guid}
@@ -108,7 +116,17 @@ export function LibraryCollectionList() {
                       .join(" · ")}
                   </span>
                 </span>
-                {value != null && <span className="shrink-0 font-semibold tabular-nums">{format(value)}</span>}
+                {valueMode === "change" ? (
+                  <CollectionChangeTrend
+                    values={change.values}
+                    baseline={change.baseline}
+                    change={change.change}
+                    noChangeLabel={t("library.noChange")}
+                    label={change.label}
+                  />
+                ) : (
+                  value != null && <span className="shrink-0 font-semibold tabular-nums">{format(value)}</span>
+                )}
               </Link>
             );
           })}

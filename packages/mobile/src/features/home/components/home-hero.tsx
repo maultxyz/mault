@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from "react-native-svg";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
@@ -14,7 +14,7 @@ import { sparklinePaths } from "@magic-vault/shared";
 import { RADIUS, SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { HomeHeroProps } from "@/lib/interfaces/home";
 
-export function HomeHero({ label, value, change, changeCaption, stats, sparklineValues }: HomeHeroProps) {
+export function HomeHero({ label, value, change, changeCaption, stats, sparklineValues, onPress, accessibilityHint }: HomeHeroProps) {
   const gradientId = useId();
   const sparklineFillId = useId();
   const colors = useTheme();
@@ -37,14 +37,26 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
     .join(", ");
 
   return (
-    <View
+    <Pressable
       accessible
+      accessibilityRole={onPress ? "button" : undefined}
       accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
+      disabled={!onPress}
+      onPress={onPress}
       onLayout={(event) => {
         const { width, height } = event.nativeEvent.layout;
         if (width !== size.width || height !== size.height) setSize({ width, height });
       }}
-      style={{ borderRadius: SURFACE_RADIUS, borderCurve: "continuous", overflow: "hidden", padding: SPACING.xl, gap: SPACING.lg, backgroundColor: colors.primary }}
+      style={({ pressed }) => ({
+        borderRadius: SURFACE_RADIUS,
+        borderCurve: "continuous",
+        overflow: "hidden",
+        padding: SPACING.lg,
+        gap: SPACING.md,
+        backgroundColor: colors.primary,
+        transform: [{ scale: pressed ? 0.99 : 1 }],
+      })}
     >
       <Svg
         pointerEvents="none"
@@ -84,7 +96,7 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
           {label}
         </AppText>
         <AppText
-          size="display"
+          size="3xl"
           heading
           weight="bold"
           numberOfLines={1}
@@ -146,6 +158,6 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
           </View>
         ))}
       </View>
-    </View>
+    </Pressable>
   );
 }

@@ -26,6 +26,7 @@ import {
   IconCpu,
   IconDeviceDesktop,
   IconFocus2,
+  IconLayoutGrid,
   IconListDetails,
   IconPlayerTrackNext,
   IconQrcode,
@@ -70,6 +71,20 @@ export function MobileScanOptionsSheet({
                     checked={chrome.handScan}
                     onCheckedChange={chrome.onHandScanChange}
                     aria-label={t("mobileScan.handScan")}
+                  />
+                }
+              />
+            )}
+            {!chrome.isConnected && (
+              <MobileListRow
+                icon={<IconLayoutGrid />}
+                label={t("mobileScan.handScanBins")}
+                description={t("mobileScan.handScanBinsDescription")}
+                trailing={
+                  <Switch
+                    checked={chrome.handScanBins}
+                    onCheckedChange={chrome.onHandScanBinsChange}
+                    aria-label={t("mobileScan.handScanBins")}
                   />
                 }
               />

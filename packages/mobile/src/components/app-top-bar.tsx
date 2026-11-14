@@ -5,69 +5,25 @@ import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
-import { OptionSheet } from "@/components/ui/option-sheet";
 import { BrandIcon } from "@/components/ui/brand-icon";
 import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
 import { pendingTradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
 import { ValidateMatchesTopBarButton } from "@/features/match-validations/components/validate-matches-top-bar-button";
 import { PlanPreviewTopBarChip } from "@/features/admin/components/plan-preview-top-bar-chip";
-import { useActiveOrg, useSwitchOrg } from "@/hooks/use-org";
+import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { useSession } from "@/lib/auth/session";
 import { ALERT_BADGE_MAX } from "@/lib/constants/stream";
-import { BADGE_RADIUS, CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
+import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import {
   TOP_BAR_BRAND_ICON_SIZE,
   TOP_BAR_HEIGHT,
   MIN_TOUCH_TARGET,
-  TOP_BAR_INITIAL_SIZE,
   TOP_BAR_SWITCHER_HEIGHT,
 } from "@/lib/constants/ui";
 import { OPEN_NOTIFICATIONS_LINK_PARAM } from "@/lib/constants/widgets";
-import type { AppTopBarProps, AppTopBarSheet, TopBarSwitcherProps } from "@/lib/interfaces/ui";
-
-function TopBarSwitcher({ initial, label, accessibilityLabel, onPress }: TopBarSwitcherProps) {
-  const colors = useTheme();
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      hitSlop={{ top: (MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2, bottom: (MIN_TOUCH_TARGET - TOP_BAR_SWITCHER_HEIGHT) / 2 }}
-      onPress={onPress}
-      style={({ pressed }) => ({
-        flexDirection: "row",
-        alignItems: "center",
-        gap: SPACING.xs + 2,
-        flexShrink: 1,
-        minWidth: 0,
-        height: TOP_BAR_SWITCHER_HEIGHT,
-        paddingHorizontal: SPACING.xs,
-        borderRadius: CONTROL_RADIUS,
-        backgroundColor: pressed ? colors.shellAccent : "transparent",
-      })}
-    >
-      <View
-        style={{
-          width: TOP_BAR_INITIAL_SIZE,
-          height: TOP_BAR_INITIAL_SIZE,
-          borderRadius: BADGE_RADIUS,
-          backgroundColor: colors.foreground,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <AppText size="2xs" weight="bold" style={{ color: colors.background, lineHeight: 14 }}>
-          {initial}
-        </AppText>
-      </View>
-      <AppText weight="semibold" numberOfLines={1} style={{ flexShrink: 1 }}>
-        {label}
-      </AppText>
-      <Icon name="selector" size={14} color={colors.foregroundSecondary} />
-    </Pressable>
-  );
-}
+import type { AppTopBarProps, AppTopBarSheet } from "@/lib/interfaces/ui";
 
 export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBarProps) {
   const { t } = useTranslation();
@@ -75,7 +31,6 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
   const { organizations } = useSession();
   const org = useActiveOrg();
   const orgId = org?.id ?? null;
-  const switchOrg = useSwitchOrg();
   const hasSeveralOrganizations = organizations.length > 1;
   const alerts = useAppAlerts();
   const { data: tradeOffers = [] } = useQuery(pendingTradeOffersQueryOptions(orgId));
@@ -105,13 +60,10 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
         <View style={{ width: 1, height: 16, marginHorizontal: SPACING.xs, backgroundColor: colors.border }} />
       ) : null}
       <View style={{ flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
-        {hasSeveralOrganizations ? (
-          <TopBarSwitcher
-            initial={(org?.name ?? "?").charAt(0).toUpperCase()}
-            label={org?.name ?? t("account.organizations")}
-            accessibilityLabel={t("account.organizations")}
-            onPress={() => setOpenSheet("organizations")}
-          />
+        {hasSeveralOrganizations && org ? (
+          <AppText weight="semibold" numberOfLines={1} style={{ flexShrink: 1 }}>
+            {org.name}
+          </AppText>
         ) : null}
       </View>
       <PlanPreviewTopBarChip />
@@ -162,17 +114,6 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
         onOpenTradeOffer={(guid) => {
           closeSheet();
           router.push({ pathname: "/trade-offer/[guid]", params: { guid } });
-        }}
-        onClose={closeSheet}
-      />
-      <OptionSheet
-        visible={openSheet === "organizations"}
-        title={t("account.organizations")}
-        options={organizations.map((organization) => ({ value: organization.id, label: organization.name }))}
-        selected={orgId ? [orgId] : []}
-        onSelect={(nextOrgId) => {
-          closeSheet();
-          switchOrg(nextOrgId);
         }}
         onClose={closeSheet}
       />

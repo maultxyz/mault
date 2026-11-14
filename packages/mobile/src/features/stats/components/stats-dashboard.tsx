@@ -66,9 +66,20 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
       }
     >
       <View style={{ flexDirection: "row", gap: SPACING.xl }}>
-        <HomeActivityFigure value={number.format(report.totals.scansInRange)} label={t("stats.activity.total")} />
-        <HomeActivityFigure value={number.format(statsActivityAverage(report))} label={t(`stats.activity.average.${report.bucket}`)} />
-        <HomeActivityFigure value={pricing.format(report.totals.valueAddedInRange)} label={t("stats.activity.metrics.value")} />
+        {metric === "count" ? (
+          <>
+            <HomeActivityFigure value={number.format(report.totals.scansInRange)} label={t("stats.activity.total")} />
+            <HomeActivityFigure value={number.format(statsActivityAverage(report))} label={t(`stats.activity.average.${report.bucket}`)} />
+          </>
+        ) : (
+          <>
+            <HomeActivityFigure value={pricing.format(report.totals.valueAddedInRange)} label={t("stats.activity.metrics.value")} />
+            <HomeActivityFigure
+              value={pricing.format(report.activity.length > 0 ? report.totals.valueAddedInRange / report.activity.length : 0)}
+              label={t(`stats.activity.average.${report.bucket}`)}
+            />
+          </>
+        )}
       </View>
       <AreaChart
         accessibilityLabel={t(`stats.activity.metrics.${metric}`)}

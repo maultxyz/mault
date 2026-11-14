@@ -56,6 +56,12 @@
     "storage": "Lager",
     "searchPlaceholder": "Sammlungen durchsuchen",
     "noSearchResultsTitle": "Keine Sammlungen gefunden",
-    "noSearchResultsDescription": "Versuche einen anderen Namen."
+    "noSearchResultsDescription": "Versuche einen anderen Namen.",
+    "valueModeLabel": "Sammlungswerte",
+    "valueModes": {
+      "value": "Wert",
+      "change": "Änderung"
+    },
+    "noChange": "Noch kein Verlauf"
   }
 }

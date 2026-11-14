@@ -2,7 +2,7 @@ import { ScrollView, useWindowDimensions, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { SHEET_HEADER_SIDE_MIN_WIDTH, SHEET_MAX_HEIGHT_RATIO } from "@/lib/constants/ui";
-import type { SheetContentProps } from "@/lib/interfaces/ui";
+import type { SheetContentLayoutProps, SheetContentProps } from "@/lib/interfaces/ui";
 
 export function SheetContent({
   title,
@@ -15,11 +15,12 @@ export function SheetContent({
   contentContainerStyle,
   children,
   topPadding,
-}: SheetContentProps & { topPadding: number }) {
+  contentWidth,
+}: SheetContentProps & SheetContentLayoutProps) {
   const { height: windowHeight } = useWindowDimensions();
   const sideMinWidth = headerLeading || headerAction ? SHEET_HEADER_SIDE_MIN_WIDTH : 0;
   return (
-    <View style={{ width: "100%", maxHeight: windowHeight * maxHeightRatio, paddingTop: topPadding, paddingBottom: SPACING.md }}>
+    <View style={{ width: contentWidth ?? "100%", maxHeight: windowHeight * maxHeightRatio, paddingTop: topPadding, paddingBottom: SPACING.md }}>
       <View
         style={{
           flexDirection: "row",

@@ -301,9 +301,20 @@ export default function BatchScanScreen() {
         ) : !batch.collection ? (
           <CameraNotice tone="warning" title={t("scan.noCollectionTitle")} description={t("scan.noCollectionDescription")} />
         ) : (
-          <AppText size="sm" style={{ color: colors.onCamera, textAlign: "center" }}>
-            {modelsReady ? t("batchScan.hint") : t("batchScan.loadingModels")}
-          </AppText>
+          <View style={{ alignItems: "center", gap: SPACING.xs }}>
+            <AppText
+              accessibilityRole="header"
+              size="lg"
+              heading
+              weight="semibold"
+              style={{ color: colors.onCamera, textAlign: "center" }}
+            >
+              {t("batchScan.title")}
+            </AppText>
+            <AppText size="sm" style={{ color: colors.onCamera, textAlign: "center" }}>
+              {modelsReady ? t("batchScan.hint") : t("batchScan.loadingModels")}
+            </AppText>
+          </View>
         )}
         {modeControl}
         <ShutterButton

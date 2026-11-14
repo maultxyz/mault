@@ -1,3 +1,4 @@
+import type { CollectionChangeSummary, LibraryValueMode } from "@/lib/interfaces/library";
 import type {
   CreateCollectionFormValues,
   EditCollectionFormValues,
@@ -103,6 +104,8 @@ export interface CollectionTileProps {
   onEdit: () => void;
   onEmpty: () => void;
   onDelete: () => void;
+  valueMode: LibraryValueMode;
+  change: CollectionChangeSummary | null;
 }
 
 export interface ScanningPillProps {

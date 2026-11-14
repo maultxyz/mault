@@ -17,7 +17,6 @@ export const IOS_ICON_BUTTON_STYLES = {
 export const MIN_TOUCH_TARGET = 44;
 export const TOP_BAR_HEIGHT = 44;
 export const TOP_BAR_BRAND_ICON_SIZE = 34;
-export const TOP_BAR_INITIAL_SIZE = 18;
 export const TOP_BAR_SWITCHER_HEIGHT = 32;
 export const INPUT_HEIGHT = 48;
 export const SEARCH_INPUT_HEIGHT = 44;

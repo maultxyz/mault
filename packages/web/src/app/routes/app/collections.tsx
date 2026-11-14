@@ -2,6 +2,9 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
+import { LibraryValueModeTabs } from "@/features/library/components/library-value-mode-tabs";
+import { useCollectionChanges } from "@/features/library/api/use-collection-changes";
+import type { LibraryValueMode } from "@/lib/interfaces/library";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -60,6 +63,8 @@ export default function CollectionsPage() {
   const viewersByGuid = useSessionViewersByGuid();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [valueMode, setValueMode] = useState<LibraryValueMode>("value");
+  const changeOf = useCollectionChanges(valueMode === "change");
   const filteredCollections = collections.filter((collection) =>
     collection.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
@@ -207,7 +212,8 @@ export default function CollectionsPage() {
         }
       >
         {!isLoading && collections.length > 0 && (
-          <div className="relative">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-48 flex-1">
               <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
               <Input
                 type="search"
@@ -218,6 +224,8 @@ export default function CollectionsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8"
               />
+            </div>
+            <LibraryValueModeTabs value={valueMode} onChange={setValueMode} />
           </div>
         )}
       </PageHeader>
@@ -298,6 +306,8 @@ export default function CollectionsPage() {
                   isActivating={isActivating}
                   isMutating={isMutating}
                   onActivate={() => activateCollection(collection.guid)}
+                  valueMode={valueMode}
+                  change={valueMode === "change" ? changeOf(collection.guid) : null}
                   onEdit={() => setEditTarget(collection)}
                   onEmpty={() =>
                     setEmptyChoice({ targets: [target], bulk: false })

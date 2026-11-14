@@ -805,6 +805,8 @@ export interface ScannerChromeContext {
   handScanActive: boolean;
   lastRoutedBin: LastRoutedBin | null;
   onHandScanChange: (value: boolean) => void;
+  handScanBins: boolean;
+  onHandScanBinsChange: (value: boolean) => void;
 }
 
 export type MobileScanEntryMode = "add" | "remove";
@@ -1176,6 +1178,8 @@ export interface ScannerStatusBarProps {
   onUpgrade: () => void;
   handScan: boolean;
   onHandScanChange: (enabled: boolean) => void;
+  handScanBins: boolean;
+  onHandScanBinsChange: (enabled: boolean) => void;
 }
 
 export interface SessionStatsPanelProps {

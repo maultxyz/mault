@@ -330,11 +330,7 @@
     },
     "showAll": "Show all ({{count}})",
     "showLess": "Show less",
-    "other": "Other",
-    "headline": {
-      "title": "Your collection",
-      "subtitle": "by the numbers"
-    }
+    "other": "Other"
   },
   "account": {
     "organizations": "Organizations",
@@ -718,6 +714,8 @@
       "allowDuplicatesDescription": "Save the same printing more than once",
       "handScan": "Auto-detect cards",
       "handScanDescription": "Scan without a sorter. Press Start, then hold a card still in view and it scans on its own.",
+      "handScanBins": "Sort into bins",
+      "handScanBinsDescription": "Show which bin each card goes in, using your rule preset. Leave off to just save cards to the collection.",
       "camera": "Camera",
       "cameraFallback": "Camera {{number}}",
       "cameraPosition": {
@@ -841,26 +839,15 @@
       "title": "{{name}} · {{collection}}",
       "open": "Opens the collection"
     },
-    "subtitle": "Here's how your collection is doing",
     "loadFailed": "Couldn't load your overview. Pull down to try again.",
-    "greeting": {
-      "morning": "Good morning",
-      "afternoon": "Good afternoon",
-      "evening": "Good evening"
-    },
-    "greetingWithName": "{{greeting}}, {{name}}",
     "hero": {
       "value": "Collection value",
       "cards": "Cards",
       "collections": "Collections",
       "scanned": "Scanned all time",
       "sinceYesterday": "since yesterday",
-      "sinceDate": "since {{date}}"
-    },
-    "actions": {
-      "scan": "Scan cards",
-      "newCollection": "New collection",
-      "stats": "Stats"
+      "sinceDate": "since {{date}}",
+      "openStats": "Opens your stats"
     },
     "welcome": {
       "title": "Welcome to Mault",
@@ -876,10 +863,11 @@
     "activity": {
       "title": "Scan activity",
       "today": "Today",
-      "thisWeek": "This week",
       "scans_one": "{{count}} scan",
       "scans_other": "{{count}} scans",
-      "chartLabel": "Scans per day for the last 14 days"
+      "chartLabel": "Scans per day for the last 14 days",
+      "lastDays_one": "Last {{count}} day",
+      "lastDays_other": "Last {{count}} days"
     },
     "topCards": "Top cards",
     "recentScans": "Recently scanned",
@@ -3255,5 +3243,12 @@
     "view": "View",
     "addFailed": "Couldn't add the card.",
     "noCollection": "Create a {{game}} collection to add this card."
+  },
+  "library": {
+    "valueModes": {
+      "value": "Value",
+      "change": "Change"
+    },
+    "noChange": "No history yet"
   }
 }

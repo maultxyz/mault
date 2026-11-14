@@ -13,6 +13,7 @@ import { WatcherStack } from "@/components/ui/watcher-stack";
 import { CollectionPreviewStack } from "@/features/collections/components/collection-preview-stack";
 import { ReleaseSessionButton } from "@/features/collections/components/release-session-button";
 import { ScanningPill } from "@/features/collections/components/scanning-pill";
+import { CollectionChangeTrend } from "@/features/library/components/collection-change-trend";
 import { useShiftClick } from "@/hooks/use-shift-click";
 import {
   collectionViewPath,
@@ -56,9 +57,12 @@ export function CollectionTile({
   onEdit,
   onEmpty,
   onDelete,
+  valueMode,
+  change,
 }: CollectionTileProps) {
   const { t } = useTranslation("collections");
   const { t: tScanner } = useTranslation("scanner");
+  const { t: tHome } = useTranslation("home");
   const viewPath = isActive ? "/app" : collectionViewPath(collection.guid);
   const hasLiveInfo = (scannerLock && !isOwnSession) || watchers.length > 0;
   const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
@@ -185,15 +189,25 @@ export function CollectionTile({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="flex items-baseline justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <p className="min-w-0 truncate text-xs text-foreground/70 tabular-nums">
             {t("page.cardCount", { count: collection.cardCount })} ·{" "}
             {collection.game ? collection.game.name : t("page.noGame")}
           </p>
-          {value != null && (
-            <p className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
-              {format(value)}
-            </p>
+          {valueMode === "change" && change ? (
+            <CollectionChangeTrend
+              values={change.values}
+              baseline={change.baseline}
+              change={change.change}
+              noChangeLabel={tHome("library.noChange")}
+              label={change.label}
+            />
+          ) : (
+            value != null && (
+              <p className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
+                {format(value)}
+              </p>
+            )
           )}
         </div>
       </div>

@@ -13,6 +13,8 @@ export function HomeCollectionRow({
   name,
   subtitle,
   value,
+  trailing,
+  trailingAccessibilityLabel,
   isScanTarget,
   isLive = false,
   onPress,
@@ -31,7 +33,7 @@ export function HomeCollectionRow({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={name}
+        accessibilityLabel={[name, subtitle, trailing ? trailingAccessibilityLabel : value].filter(Boolean).join(", ")}
         onPress={onPress}
         onPressIn={onPressIn}
         {...longPressHandlers}
@@ -58,11 +60,11 @@ export function HomeCollectionRow({
             {subtitle}
           </AppText>
         </View>
-        {value ? (
+        {trailing ?? (value ? (
           <AppText weight="semibold" numberOfLines={1}>
             {value}
           </AppText>
-        ) : null}
+        ) : null)}
       </Pressable>
     </SwipeRowActions>
   );
