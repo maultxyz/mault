@@ -18,6 +18,22 @@ export const pendingTradeOffersQueryOptions = (orgId: string | undefined) =>
     enabled: !!orgId,
   });
 
+export const tradeOffersQueryOptions = (orgId: string | undefined) =>
+  queryOptions({
+    queryKey: [TRADE_OFFERS_QUERY_KEY, orgId, "all"] as const,
+    queryFn: async () => {
+      const result = await apiGet<Result<TradeOffer[]>>("/api/trade-offers");
+      if (!result.success) throw new Error(result.message);
+      return result.data ?? [];
+    },
+    enabled: !!orgId,
+  });
+
+export function useTradeOffers() {
+  const { activeOrg } = useOrg();
+  return useQuery(tradeOffersQueryOptions(activeOrg?.id));
+}
+
 export function usePendingTradeOffers() {
   const { activeOrg } = useOrg();
   const { data } = useQuery(pendingTradeOffersQueryOptions(activeOrg?.id));

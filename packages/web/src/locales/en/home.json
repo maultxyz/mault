@@ -50,6 +50,7 @@
     "title": "Library",
     "collections": "Collections",
     "storage": "Storage",
+    "trades": "Trades",
     "searchPlaceholder": "Search collections",
     "noSearchResultsTitle": "No collections found",
     "noSearchResultsDescription": "Try a different name.",

@@ -3,10 +3,14 @@ import type {
   PriceSource,
   PublicCard,
   TradeOffer,
+  TradeOfferCardGroup,
   TradeOfferCardOption,
+  TradeOfferReviewCard,
+  TradeOfferWantedPlacement,
   TradeOfferOfferedCard,
   TradeOfferWantedCard,
 } from "@magic-vault/shared";
+import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 
 export interface TradeOfferLink {
@@ -81,4 +85,36 @@ export interface GuestTradeOfferListProps {
 export interface TradeOfferReviewDialogProps {
   offer: TradeOffer | null;
   onOpenChange: (open: boolean) => void;
+}
+
+export interface TradeOfferLibraryRowProps {
+  offer: TradeOffer;
+  onOpen: (guid: string) => void;
+}
+
+export interface TradeOfferLibrarySectionProps {
+  title: string;
+  offers: TradeOffer[];
+  onOpen: (guid: string) => void;
+}
+
+export type TradeOfferReviewTFunction = TFunction<"common">;
+
+export interface TradeOfferPlacementLine {
+  text: string;
+  isMissing: boolean;
+}
+
+export interface TradeOfferReviewSideProps {
+  title: string;
+  cards: TradeOfferReviewCard[];
+  prices: (number | null)[];
+  placements?: (TradeOfferWantedPlacement | null)[];
+  priceSource: PriceSource;
+}
+
+export interface TradeOfferReviewRowProps {
+  row: TradeOfferCardGroup;
+  priceSource: PriceSource;
+  showsPlacement: boolean;
 }

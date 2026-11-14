@@ -27,6 +27,7 @@
     "sorter": "Trieuse",
     "stats": "Statistiques",
     "storage": "Rangement",
+    "trades": "Échanges",
     "more": "Plus",
     "home": "Accueil",
     "library": "Bibliothèque"
@@ -2267,7 +2268,10 @@
     "title": "Notifications",
     "empty": "Tout est à jour.",
     "learnMore": "En savoir plus",
-    "firmwareMissing": "Le firmware de ton trieur ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan."
+    "firmwareMissing": "Le firmware de ton trieur ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan.",
+    "refresh": "Actualiser les notifications",
+    "refreshed": "Notifications actualisées",
+    "refreshFailed": "Impossible d'actualiser les notifications"
   },
   "phoneCamera": {
     "title": "Utiliser le téléphone comme caméra",
@@ -3078,7 +3082,56 @@
     "youLoseValue": "Leur offre vaut {{amount}} de moins que ce qu'ils demandent.",
     "evenValue": "Les deux côtés ont la même valeur.",
     "missingPrices": "Certaines cartes n'ont pas de prix, les totaux peuvent donc être bas.",
-    "noPrice": "Sans prix"
+    "noPrice": "Sans prix",
+    "library": {
+      "subtitle": "Offres d'échange reçues via vos liens d'échange",
+      "pending": "En attente",
+      "answered": "Répondues",
+      "unnamedGuest": "Invité",
+      "rowDetails": "{{source}} · demande {{wanted}} · propose {{offered}}",
+      "loadFailed": "Impossible de charger les offres d'échange",
+      "emptyTitle": "Aucune offre d'échange",
+      "emptyDescription": "Les offres arrivent quand quelqu'un ouvre l'un de vos liens d'échange et choisit des cartes. Créez un lien d'échange depuis le menu de partage d'une collection ou d'un emplacement de rangement.",
+      "status": {
+        "pending": "En attente",
+        "accepted": "Acceptée",
+        "declined": "Refusée"
+      }
+    },
+    "cardList": {
+      "cardCount_one": "{{count}} carte",
+      "cardCount_other": "{{count}} cartes",
+      "uniqueCount_one": "{{count}} unique",
+      "uniqueCount_other": "{{count}} uniques",
+      "sortLabel": "Trier par",
+      "sort": {
+        "value": "Valeur",
+        "name": "Nom",
+        "set": "Édition"
+      },
+      "groupByLocation": "Grouper par emplacement",
+      "groupByLocationHint": "Les cartes en stockage sont listées dans l'ordre de la boîte, pour les sortir en un seul passage.",
+      "filterLabel": "Filtrer les cartes",
+      "filterPlaceholder": "Nom ou édition",
+      "filterResults_one": "{{count}} carte correspond",
+      "filterResults_other": "{{count}} cartes correspondent",
+      "noFilterResults": "Aucune carte ne correspond à votre filtre.",
+      "showAll": "Tout afficher ({{count}})",
+      "showLess": "Afficher moins",
+      "unitPrice": "{{price}} l'unité",
+      "foil": "Foil",
+      "noPrice": "Pas de prix",
+      "placementStorage": "{{location}} · n° {{positions}}",
+      "placementStorageNoPosition": "{{location}}",
+      "placementBin_one": "{{collection}}, bac {{bins}}",
+      "placementBin_other": "{{collection}}, bacs {{bins}}",
+      "placementCollection": "Dans {{collection}}, pas en stockage",
+      "placementMissing_one": "{{count}} exemplaire n'est plus dans votre collection",
+      "placementMissing_other": "{{count}} exemplaires ne sont plus dans votre collection",
+      "sectionBin": "{{collection}}, bac {{bin}}",
+      "sectionCollection": "{{collection}}, pas en stockage",
+      "sectionMissing": "Plus dans votre collection"
+    }
   },
   "trade": {
     "title": "Offre d'échange",

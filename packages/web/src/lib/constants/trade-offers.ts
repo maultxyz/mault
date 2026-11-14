@@ -18,3 +18,5 @@ export const DEFAULT_TRADE_OFFER_LANGUAGE = "en";
 export const TRADE_OFFER_SEARCH_MIN_LENGTH = 2;
 export const PUBLIC_GAMES_QUERY_KEY = "public-games";
 export const GUEST_TRADE_OFFERS_ACCORDION_VALUE = "sent-offers";
+export const TRADES_PATH = "/app/trades";
+export const TRADE_OFFERS_SKELETON_ROWS = 4;

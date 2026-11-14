@@ -1,4 +1,7 @@
-import type { TRADE_OFFER_STATUSES } from "../constants/trade-offers.constant";
+import type {
+  TRADE_OFFER_CARD_SORTS,
+  TRADE_OFFER_STATUSES,
+} from "../constants/trade-offers.constant";
 import type { CardCondition } from "./card-condition.interface";
 import type { PriceSource } from "./price-source.interface";
 
@@ -58,8 +61,17 @@ export interface PublicTradeOffer {
   respondedAt: string | null;
 }
 
+export interface TradeOfferWantedPlacement {
+  collectionName: string;
+  storageLocationGuid: string | null;
+  storageLocationName: string | null;
+  storagePosition: number | null;
+  binNumber: number | null;
+}
+
 export interface TradeOffer extends PublicTradeOffer {
   wantedPrices: (number | null)[];
+  wantedPlacements?: (TradeOfferWantedPlacement | null)[];
   offeredPrices: (number | null)[];
   wantedValue: number;
   offeredValue: number;
@@ -73,4 +85,40 @@ export interface TradeOffer extends PublicTradeOffer {
 
 export interface TradeOffersChangedEvent {
   createdOffer: { guestName: string; wantedCount: number; offeredCount: number } | null;
+}
+
+export type TradeOfferCardSort = (typeof TRADE_OFFER_CARD_SORTS)[number];
+
+export type TradeOfferReviewCard = TradeOfferWantedCard | TradeOfferOfferedCard;
+
+export interface TradeOfferCardGroup {
+  key: string;
+  card: TradeOfferReviewCard;
+  quantity: number;
+  unitPrice: number | null;
+  totalPrice: number | null;
+  scanIds: string[];
+  placements: (TradeOfferWantedPlacement | null)[];
+}
+
+export type TradeOfferPlacementSummary =
+  | { kind: "storage"; locationName: string; positions: number[] }
+  | { kind: "bin"; collectionName: string; binNumbers: number[] }
+  | { kind: "collection"; collectionName: string }
+  | { kind: "missing"; count: number };
+
+export type TradeOfferLocationSectionKind = "storage" | "bin" | "collection" | "missing";
+
+export interface TradeOfferLocationSection {
+  key: string;
+  kind: TradeOfferLocationSectionKind;
+  name: string;
+  binNumber: number | null;
+  rows: TradeOfferCardGroup[];
+}
+
+export interface TradeOfferSideTotals {
+  totalCards: number;
+  uniqueCards: number;
+  totalValue: number;
 }

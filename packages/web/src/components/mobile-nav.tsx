@@ -11,6 +11,7 @@ import {
 } from "@/lib/constants/nav";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { TRADES_PATH } from "@/lib/constants/trade-offers";
 import type {
   MobileNavTabIconProps,
   MobileNavTabProps,
@@ -121,6 +122,7 @@ export function MobileNav() {
         active={
           pathname.startsWith(LIBRARY_PATH) ||
           pathname.startsWith(STORAGE_PATH) ||
+          pathname.startsWith(TRADES_PATH) ||
           pathname.startsWith("/app/monitor/")
         }
       />

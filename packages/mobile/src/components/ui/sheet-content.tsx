@@ -13,6 +13,7 @@ export function SheetContent({
   scrollable = true,
   maxHeightRatio = SHEET_MAX_HEIGHT_RATIO,
   contentContainerStyle,
+  refreshControl,
   children,
   topPadding,
   contentWidth,
@@ -47,6 +48,7 @@ export function SheetContent({
         <ScrollView
           style={{ flexShrink: 1 }}
           keyboardShouldPersistTaps="handled"
+          refreshControl={refreshControl}
           contentContainerStyle={[{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.md }, contentContainerStyle]}
         >
           {children}

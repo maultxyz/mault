@@ -10,3 +10,7 @@ export const TRADE_OFFER_OFFERED_CARDS_MAX = 50;
 export const TRADE_OFFER_CARD_QUANTITY_MAX = 99;
 export const TRADE_OFFER_PENDING_PER_GUEST_MAX = 5;
 export const TRADE_OFFER_SEARCH_QUERY_MAX_LENGTH = 100;
+export const TRADE_OFFER_CARD_SORTS = ["value", "name", "set"] as const;
+export const DEFAULT_TRADE_OFFER_CARD_SORT = "value";
+export const TRADE_OFFER_COLLAPSED_ROW_COUNT = 8;
+export const TRADE_OFFER_FILTER_ROW_THRESHOLD = 8;

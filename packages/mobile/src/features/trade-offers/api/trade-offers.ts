@@ -12,6 +12,14 @@ export const pendingTradeOffersQueryOptions = (orgId: string | null) =>
     staleTime: QUERY_STALE_MS,
   });
 
+export const tradeOffersQueryOptions = (orgId: string | null) =>
+  queryOptions({
+    queryKey: [TRADE_OFFERS_QUERY_KEY, orgId, "all"] as const,
+    queryFn: () => unwrap(apiGet<Result<TradeOffer[]>>("/api/trade-offers")),
+    enabled: !!orgId,
+    staleTime: QUERY_STALE_MS,
+  });
+
 export function respondToTradeOffer(guid: string, accepts: boolean): Promise<unknown> {
   return unwrap(apiPost<Result<unknown>>(`/api/trade-offers/${guid}/${accepts ? "accept" : "decline"}`));
 }

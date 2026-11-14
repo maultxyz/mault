@@ -36,6 +36,7 @@ import type {
   NavSubItemProps,
 } from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { TRADES_PATH } from "@/lib/constants/trade-offers";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { ORDERS_PATH } from "@/lib/constants/business";
@@ -410,7 +411,7 @@ export function AppNav() {
     },
     {
       to: COLLECTIONS_PATH,
-      activePaths: [STORAGE_PATH],
+      activePaths: [STORAGE_PATH, TRADES_PATH],
       icon: <IconAlbum size={16} />,
       label: t("nav.library"),
       badge: hasLiveSessions,

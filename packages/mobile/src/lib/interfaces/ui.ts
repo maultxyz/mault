@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import type { AccessibilityValue, StyleProp, TextProps, ViewStyle } from "react-native";
+import type { ReactElement, ReactNode } from "react";
+import type { AccessibilityValue, RefreshControlProps, StyleProp, TextProps, ViewStyle } from "react-native";
 import type { CommLogEntry, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners } from "@/lib/interfaces/scanner";
@@ -481,6 +481,7 @@ export interface SheetContentProps {
   scrollable?: boolean;
   maxHeightRatio?: number;
   contentContainerStyle?: StyleProp<ViewStyle>;
+  refreshControl?: ReactElement<RefreshControlProps>;
   children: ReactNode;
 }
 

@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { usePendingTradeOffers } from "@/features/trade-offers/api/trade-offers";
 import { TradeOfferReviewDialog } from "@/features/trade-offers/components/trade-offer-review-dialog";
-import { IconArrowsExchange } from "@tabler/icons-react";
+import { IconArrowsExchange, IconRefresh } from "@tabler/icons-react";
+import { useAlertTrayRefresh } from "@/hooks/alerts/use-alert-tray-refresh";
 import { useAppAlertsContext } from "@/hooks/alerts/use-app-alerts";
 import type {
   AlertTrayItemProps,
@@ -61,6 +62,13 @@ export function AlertTrayTrigger({
   const tradeOffers = usePendingTradeOffers();
   const [reviewedOfferGuid, setReviewedOfferGuid] = useState<string | null>(null);
   const reviewedOffer = tradeOffers.find((offer) => offer.guid === reviewedOfferGuid) ?? null;
+  const { refresh, isRefreshing } = useAlertTrayRefresh();
+  const [refreshStatus, setRefreshStatus] = useState("");
+  const refreshTray = async () => {
+    setRefreshStatus("");
+    const succeeded = await refresh();
+    setRefreshStatus(succeeded ? t("alerts.tray.refreshed") : t("alerts.tray.refreshFailed"));
+  };
 
   return (
     <>
@@ -72,8 +80,26 @@ export function AlertTrayTrigger({
     >
       <div className="flex items-center justify-between px-1">
         <span className="text-sm font-medium">{t("alerts.tray.title")}</span>
-        <span className="text-foreground/70">v{__APP_VERSION__}</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-foreground/70">v{__APP_VERSION__}</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t("alerts.tray.refresh")}
+            title={t("alerts.tray.refresh")}
+            disabled={isRefreshing}
+            onClick={() => void refreshTray()}
+          >
+            <IconRefresh
+              aria-hidden
+              className={cn(isRefreshing && "animate-spin motion-reduce:animate-none")}
+            />
+          </Button>
+        </div>
       </div>
+      <span role="status" className="sr-only">
+        {refreshStatus}
+      </span>
       {tradeOffers.length > 0 && (
         <section aria-labelledby={tradeOffersHeadingId} className="flex flex-col gap-0.5">
           <h3

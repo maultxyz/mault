@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import type { TradeOfferCardListProps } from "@/lib/interfaces/trade-offers";
 import { formatPrice } from "@magic-vault/shared";
@@ -12,10 +13,10 @@ export function TradeOfferCardList({ cards, prices, priceSource }: TradeOfferCar
           key={"scanId" in card ? card.scanId : `${card.gameKey}-${card.cardId}-${index}`}
           className="flex items-center gap-2 p-2"
         >
-          <img
-            src={card.imageUrl ?? ""}
+          <CardImage
+            src={card.imageUrl ?? undefined}
             alt=""
-            className="aspect-[2.5/3.5] w-8 shrink-0 rounded-sm bg-muted object-cover"
+            className="aspect-[2.5/3.5] w-8 shrink-0 rounded-sm"
           />
           <div className="flex min-w-0 flex-1 flex-col">
             <span className="truncate text-control font-medium">{card.name}</span>

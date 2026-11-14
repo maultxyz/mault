@@ -9,14 +9,15 @@ import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { Pill } from "@/components/ui/pill";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Surface } from "@/components/ui/surface";
-import { pendingTradeOffersQueryOptions, respondToTradeOffer } from "@/features/trade-offers/api/trade-offers";
+import { respondToTradeOffer, tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { TradeOfferCards } from "@/features/trade-offers/components/trade-offer-cards";
-import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
+import { TRADE_OFFER_STATUS_TONES, TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
 import { SPACING } from "@/lib/constants/theme";
 
 export default function TradeOfferScreen() {
@@ -25,8 +26,9 @@ export default function TradeOfferScreen() {
   const colors = useTheme();
   const orgId = useActiveOrgId();
   const queryClient = useQueryClient();
-  const offers = useQuery(pendingTradeOffersQueryOptions(orgId));
+  const offers = useQuery(tradeOffersQueryOptions(orgId));
   const offer = offers.data?.find((candidate) => candidate.guid === guid) ?? null;
+  const isPending = offer?.status === "pending";
   const valueDifference = offer ? Math.round((offer.offeredValue - offer.wantedValue) * 100) / 100 : 0;
   const respond = useMutation({
     mutationFn: (accepts: boolean) => respondToTradeOffer(guid, accepts),
@@ -64,7 +66,7 @@ export default function TradeOfferScreen() {
       <PinnedActionsLayout
         actionsDirection="row"
         actions={
-          offer ? (
+          isPending ? (
             <>
               <Button
                 style={{ flex: 1 }}
@@ -98,6 +100,9 @@ export default function TradeOfferScreen() {
           <EmptyState icon="check" title={t("tradeOffers.answered")} />
         ) : (
           <>
+            {!isPending ? (
+              <Pill label={t(`tradeOffers.library.status.${offer.status}`)} tone={TRADE_OFFER_STATUS_TONES[offer.status]} />
+            ) : null}
             <AppText size="sm" tone="secondary">
               {t("tradeOffers.reviewDescription", {
                 source: offer.sourceName ?? t("tradeOffers.unknownSource"),

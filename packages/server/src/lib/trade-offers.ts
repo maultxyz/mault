@@ -11,6 +11,7 @@ import {
   type TradeOfferRequest,
   type TradeOfferStatus,
   type TradeOfferWantedCard,
+  type TradeOfferWantedPlacement,
 } from "@magic-vault/shared";
 import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
@@ -228,6 +229,57 @@ async function loadCurrentWantedCards(
   return new Map(stored.map((entry) => [entry.scanId, entry]));
 }
 
+async function loadWantedPlacements(
+  tx: Transaction,
+  orgId: string,
+  scanIds: string[],
+): Promise<Map<string, TradeOfferWantedPlacement>> {
+  if (scanIds.length === 0) return new Map();
+  const rows = await tx
+    .select({
+      scanId: collectionCards.guid,
+      collectionName: collections.name,
+      storageLocationGuid: storageLocations.guid,
+      storageLocationName: storageLocations.name,
+      storagePosition: collectionCards.locationPosition,
+      binNumber: collectionCards.binNumber,
+      binEmptiedAt: collectionCards.binEmptiedAt,
+    })
+    .from(collectionCards)
+    .innerJoin(
+      collections,
+      and(eq(collections.id, collectionCards.collectionId), eq(collections.isDeleted, false)),
+    )
+    .leftJoin(
+      storageLocations,
+      and(eq(storageLocations.id, collectionCards.locationId), eq(storageLocations.isDeleted, false)),
+    )
+    .where(
+      and(
+        sql`${collectionCards.guid} = ANY(${uuidArraySql([...new Set(scanIds)])})`,
+        eq(collectionCards.orgId, orgId),
+      ),
+    );
+  return new Map(
+    rows.flatMap((row) =>
+      row.scanId
+        ? [
+            [
+              row.scanId,
+              {
+                collectionName: row.collectionName,
+                storageLocationGuid: row.storageLocationGuid ?? null,
+                storageLocationName: row.storageLocationName ?? null,
+                storagePosition: row.storageLocationName != null ? row.storagePosition : null,
+                binNumber: row.storageLocationName == null && row.binEmptiedAt == null ? row.binNumber : null,
+              },
+            ] as const,
+          ]
+        : [],
+    ),
+  );
+}
+
 async function loadCurrentOfferedCards(
   offered: TradeOfferOfferedCard[],
 ): Promise<Map<string, PlayingCard>> {
@@ -275,11 +327,9 @@ export async function listOwnerTradeOffers(
     .orderBy(desc(tradeOffers.createdAt));
   const offers = rows.map((row) => ({ ...row, public: toPublicTradeOffer(row.offer) }));
   const pricing = await loadOrgPricing(tx, orgId);
-  const wantedCards = await loadCurrentWantedCards(
-    tx,
-    orgId,
-    offers.flatMap((entry) => entry.public.wanted.map((card) => card.scanId)),
-  );
+  const wantedScanIds = offers.flatMap((entry) => entry.public.wanted.map((card) => card.scanId));
+  const wantedCards = await loadCurrentWantedCards(tx, orgId, wantedScanIds);
+  const wantedPlacements = await loadWantedPlacements(tx, orgId, wantedScanIds);
   const offeredCards = await loadCurrentOfferedCards(
     offers.flatMap((entry) => entry.public.offered),
   );
@@ -306,6 +356,7 @@ export async function listOwnerTradeOffers(
     return {
       ...publicOffer,
       wantedPrices,
+      wantedPlacements: publicOffer.wanted.map((card) => wantedPlacements.get(card.scanId) ?? null),
       offeredPrices,
       wantedValue: sumPrices(wantedPrices),
       offeredValue: sumPrices(offeredPrices),

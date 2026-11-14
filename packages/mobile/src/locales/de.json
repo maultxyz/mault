@@ -27,6 +27,7 @@
     "sorter": "Sortierer",
     "stats": "Statistiken",
     "storage": "Lager",
+    "trades": "Tausch",
     "more": "Mehr",
     "home": "Start",
     "library": "Bibliothek"
@@ -2267,7 +2268,10 @@
     "title": "Benachrichtigungen",
     "empty": "Du bist auf dem neuesten Stand.",
     "learnMore": "Mehr erfahren",
-    "firmwareMissing": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren."
+    "firmwareMissing": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
+    "refresh": "Benachrichtigungen aktualisieren",
+    "refreshed": "Benachrichtigungen aktualisiert",
+    "refreshFailed": "Benachrichtigungen konnten nicht aktualisiert werden"
   },
   "phoneCamera": {
     "title": "Telefon als Kamera verwenden",
@@ -3078,7 +3082,56 @@
     "youLoseValue": "Das Angebot ist {{amount}} weniger wert als das, was angefragt wird.",
     "evenValue": "Beide Seiten sind gleich viel wert.",
     "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher zu niedrig sein.",
-    "noPrice": "Kein Preis"
+    "noPrice": "Kein Preis",
+    "library": {
+      "subtitle": "Tauschangebote über deine Tauschlinks",
+      "pending": "Offen",
+      "answered": "Beantwortet",
+      "unnamedGuest": "Gast",
+      "rowDetails": "{{source}} · {{wanted}} gewünscht · {{offered}} angeboten",
+      "loadFailed": "Tauschangebote konnten nicht geladen werden",
+      "emptyTitle": "Noch keine Tauschangebote",
+      "emptyDescription": "Angebote kommen an, wenn jemand einen deiner Tauschlinks öffnet und Karten auswählt. Erstelle einen Tauschlink über das Teilen-Menü einer Sammlung oder eines Lagerorts.",
+      "status": {
+        "pending": "Offen",
+        "accepted": "Angenommen",
+        "declined": "Abgelehnt"
+      }
+    },
+    "cardList": {
+      "cardCount_one": "{{count}} Karte",
+      "cardCount_other": "{{count}} Karten",
+      "uniqueCount_one": "{{count}} verschiedene",
+      "uniqueCount_other": "{{count}} verschiedene",
+      "sortLabel": "Sortieren nach",
+      "sort": {
+        "value": "Wert",
+        "name": "Name",
+        "set": "Set"
+      },
+      "groupByLocation": "Nach Lagerort gruppieren",
+      "groupByLocationHint": "Karten im Lager stehen in der Reihenfolge der Box, damit du sie in einem Durchgang heraussuchen kannst.",
+      "filterLabel": "Karten filtern",
+      "filterPlaceholder": "Name oder Set",
+      "filterResults_one": "{{count}} Karte passt",
+      "filterResults_other": "{{count}} Karten passen",
+      "noFilterResults": "Keine Karte passt zu deinem Filter.",
+      "showAll": "Alle {{count}} anzeigen",
+      "showLess": "Weniger anzeigen",
+      "unitPrice": "je {{price}}",
+      "foil": "Foil",
+      "noPrice": "Kein Preis",
+      "placementStorage": "{{location}} · #{{positions}}",
+      "placementStorageNoPosition": "{{location}}",
+      "placementBin_one": "{{collection}}, Fach {{bins}}",
+      "placementBin_other": "{{collection}}, Fächer {{bins}}",
+      "placementCollection": "In {{collection}}, nicht eingelagert",
+      "placementMissing_one": "{{count}} Exemplar ist nicht mehr in deiner Sammlung",
+      "placementMissing_other": "{{count}} Exemplare sind nicht mehr in deiner Sammlung",
+      "sectionBin": "{{collection}}, Fach {{bin}}",
+      "sectionCollection": "{{collection}}, nicht eingelagert",
+      "sectionMissing": "Nicht mehr in deiner Sammlung"
+    }
   },
   "trade": {
     "title": "Tauschangebot",

@@ -42,7 +42,10 @@
     "tray": {
       "trigger": "Notifications",
       "title": "Notifications",
-      "empty": "You're all caught up."
+      "empty": "You're all caught up.",
+      "refresh": "Refresh notifications",
+      "refreshed": "Notifications refreshed",
+      "refreshFailed": "Couldn't refresh notifications"
     }
   },
   "breadcrumb": {
@@ -472,6 +475,55 @@
     "youGainValue": "Their offer is worth {{amount}} more than what they're asking for.",
     "youLoseValue": "Their offer is worth {{amount}} less than what they're asking for.",
     "evenValue": "Both sides are worth the same.",
-    "missingPrices": "Some cards have no price, so the totals may be low."
+    "missingPrices": "Some cards have no price, so the totals may be low.",
+    "library": {
+      "subtitle": "Trade offers sent through your trade links",
+      "pending": "Pending",
+      "answered": "Answered",
+      "unnamedGuest": "Guest",
+      "rowDetails": "{{source}} · {{wanted}} wanted · {{offered}} offered",
+      "loadFailed": "Couldn't load trade offers.",
+      "emptyTitle": "No trade offers yet",
+      "emptyDescription": "Offers arrive when someone opens one of your trade links and picks cards. Create a trade link from the share menu of a collection or storage location.",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      }
+    },
+    "cardList": {
+      "cardCount_one": "{{count}} card",
+      "cardCount_other": "{{count}} cards",
+      "uniqueCount_one": "{{count}} unique",
+      "uniqueCount_other": "{{count}} unique",
+      "sortLabel": "Sort by",
+      "sort": {
+        "value": "Value",
+        "name": "Name",
+        "set": "Set"
+      },
+      "groupByLocation": "Group by location",
+      "groupByLocationHint": "Cards in storage are listed in box order, so you can pull them in one pass.",
+      "filterLabel": "Filter cards",
+      "filterPlaceholder": "Name or set",
+      "filterResults_one": "{{count}} card matches",
+      "filterResults_other": "{{count}} cards match",
+      "noFilterResults": "No cards match your filter.",
+      "showAll": "Show all {{count}}",
+      "showLess": "Show less",
+      "unitPrice": "{{price}} each",
+      "foil": "Foil",
+      "noPrice": "No price",
+      "placementStorage": "{{location}} · #{{positions}}",
+      "placementStorageNoPosition": "{{location}}",
+      "placementBin_one": "{{collection}}, bin {{bins}}",
+      "placementBin_other": "{{collection}}, bins {{bins}}",
+      "placementCollection": "In {{collection}}, not in storage",
+      "placementMissing_one": "{{count}} copy is no longer in your collection",
+      "placementMissing_other": "{{count}} copies are no longer in your collection",
+      "sectionBin": "{{collection}}, bin {{bin}}",
+      "sectionCollection": "{{collection}}, not in storage",
+      "sectionMissing": "No longer in your collection"
+    }
   }
 }

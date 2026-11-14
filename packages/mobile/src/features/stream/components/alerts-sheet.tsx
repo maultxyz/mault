@@ -1,10 +1,12 @@
 import Constants from "expo-constants";
 import { useTranslation } from "react-i18next";
-import { Linking, Pressable, View } from "react-native";
+import { AccessibilityInfo, Linking, Pressable, RefreshControl, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
+import { useAlertsRefresh } from "@/features/stream/api/use-alerts-refresh";
 import { useTheme } from "@/hooks/use-theme";
 import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { AlertsSheetProps } from "@/lib/interfaces/stream";
@@ -13,6 +15,11 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
   const { t } = useTranslation();
   const colors = useTheme();
   const toneColor = { info: colors.infoForeground, warning: colors.warningForeground, danger: colors.destructiveForeground };
+  const { refresh, isRefreshing } = useAlertsRefresh();
+  const refreshAlerts = async () => {
+    const succeeded = await refresh();
+    AccessibilityInfo.announceForAccessibility(succeeded ? t("alerts.refreshed") : t("alerts.refreshFailed"));
+  };
 
   return (
     <Sheet
@@ -21,6 +28,24 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
       title={t("alerts.title")}
       description={`v${Constants.expoConfig?.version ?? ""}`}
       contentContainerStyle={{ gap: SPACING.sm }}
+      headerAction={
+        <IconButton
+          icon="refresh"
+          variant="plain"
+          accessibilityLabel={t("alerts.refresh")}
+          disabled={isRefreshing}
+          onPress={() => void refreshAlerts()}
+        />
+      }
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={() => void refreshAlerts()}
+          tintColor={colors.primaryText}
+          colors={[colors.primary]}
+          progressBackgroundColor={colors.card}
+        />
+      }
     >
       {tradeOffers.length > 0 ? (
         <View style={{ gap: SPACING.sm }}>

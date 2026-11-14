@@ -28,3 +28,8 @@ export interface AlertTrayTriggerProps {
   side?: "top" | "bottom" | "left" | "right" | "inline-start" | "inline-end";
   align?: "start" | "center" | "end";
 }
+
+export interface AlertTrayRefresh {
+  refresh: () => Promise<boolean>;
+  isRefreshing: boolean;
+}

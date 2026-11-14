@@ -1,6 +1,6 @@
 import type { ValueChange } from "@magic-vault/shared";
 
-export type LibraryView = "collections" | "storage";
+export type LibraryView = "collections" | "storage" | "trades";
 
 export interface LibraryViewTabsProps {
   value: LibraryView;
