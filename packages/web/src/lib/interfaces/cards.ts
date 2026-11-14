@@ -90,6 +90,42 @@ export interface CardPurchaseLinksProps {
   card: PlayingCard;
 }
 
+export type CardDetailTitleTag = "h1" | "h2" | "p";
+
+export interface CardDetailTitleProps {
+  name: string;
+  price?: number | null;
+  typeLine?: string | null;
+  titleTag?: CardDetailTitleTag;
+  badges?: ReactNode;
+  trailing?: ReactNode;
+}
+
+export interface CardDetailArtProps {
+  card: PlayingCard | undefined;
+  widthClass: string;
+  caption?: string;
+  children?: ReactNode;
+  footer?: ReactNode;
+}
+
+export interface CardRulesSectionProps {
+  card: PlayingCard;
+}
+
+export interface CardPricesSectionProps {
+  card: PlayingCard;
+  isFoil?: boolean;
+  foilType?: string | null;
+  stamp?: string | null;
+  condition?: CardCondition | null;
+  children?: ReactNode;
+}
+
+export interface CardDetailBodySkeletonProps {
+  imageCount: number;
+}
+
 export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil?: boolean;

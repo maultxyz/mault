@@ -27,6 +27,7 @@ import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { CATALOG_CARD_ROUTE_PATH, SEARCH_PATH } from "@/lib/constants/search";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
 import { lazy, Suspense, useEffect } from "react";
@@ -108,6 +109,8 @@ const loadMonitorSessionsPage = () =>
 const loadHomePage = () => import("@/app/routes/app/home");
 const HomePage = lazy(loadHomePage);
 const LibraryPage = lazy(() => import("@/app/routes/app/library"));
+const SearchPage = lazy(() => import("@/app/routes/app/search"));
+const CatalogCardPage = lazy(() => import("@/app/routes/app/catalog-card"));
 const AppLayout = lazy(loadAppLayout);
 const ScannerPage = lazy(loadScannerPage);
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
@@ -552,6 +555,14 @@ export const routes: RouteObject[] = [
               {
                 path: LIBRARY_PATH,
                 element: <LibraryPage />,
+              },
+              {
+                path: SEARCH_PATH,
+                element: <SearchPage />,
+              },
+              {
+                path: CATALOG_CARD_ROUTE_PATH,
+                element: <CatalogCardPage />,
               },
               {
                 path: "/app/monitor",

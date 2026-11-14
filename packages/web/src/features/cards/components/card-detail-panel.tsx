@@ -1,4 +1,3 @@
-import { CardImage } from "@/components/card-image";
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import {
   useCardDetailActions,
@@ -8,8 +7,6 @@ import { HotkeyHint } from "@/components/hotkey-hint";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { HOTKEY_PRIORITY_OVERRIDE } from "@/lib/constants/hotkeys";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { CardPriceDetails } from "@/features/cards/components/card-price-details";
-import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";
@@ -47,7 +44,12 @@ import { CardStorageLocationSection } from "@/features/storage/components/card-s
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import { useCardDetailMoveActions } from "@/features/cards/api/use-card-detail-move-actions";
 import { CardScanOriginList } from "@/features/cards/components/card-scan-origin-list";
-import { CardDetailsList } from "@/features/cards/components/card-details-list";
+import { CardDetailArt } from "@/features/cards/components/card-detail-art";
+import {
+  CardPricesSection,
+  CardRulesSection,
+} from "@/features/cards/components/card-detail-sections";
+import { CardDetailTitle } from "@/features/cards/components/card-detail-title";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
@@ -63,6 +65,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
+  CARD_DETAIL_ACTION_BAR_CLASS,
+  CARD_DETAIL_ACTION_ROW_CLASS,
+  CARD_DETAIL_BODY_COLUMNS_CLASS,
+  CARD_DETAIL_IMAGE_WIDTH_CLASS,
+  CARD_DETAIL_IMAGES_CLASS,
+  CARD_DETAIL_SCROLL_CLASS,
+  CARD_DETAIL_SECTIONS_CLASS,
+  CARD_DETAIL_TOP_BAR_CLASS,
   MORE_DETAIL_OPTIONS_ACCORDION_VALUE,
   REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS,
   REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS,
@@ -548,7 +558,7 @@ export function CardDetailPanel({
     <Skeleton className="h-full w-full rounded-none" />
   );
 
-  const imageWidthClass = reviewMode ? "w-full" : "w-56 max-md:w-full";
+  const imageWidthClass = reviewMode ? "w-full" : CARD_DETAIL_IMAGE_WIDTH_CLASS;
 
   const cardImages = (
     <>
@@ -617,40 +627,31 @@ export function CardDetailPanel({
           )}
         </figure>
       )}
-      <figure className="flex min-w-0 flex-col gap-1.5">
-        {showCapturedImageSlot && (
-          <figcaption className="text-xs text-foreground/70">
-            {t("cardDetailPanel.matchedCard")}
-          </figcaption>
-        )}
-        <div
-          className={cn(
-            "relative aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm",
-            imageWidthClass,
-          )}
-        >
-          <CardImage
-            src={selectedCard?.image?.normal || selectedCard?.image?.small}
-            placeholderSrc={selectedCard?.image?.small}
-            alt={selectedCard?.name ?? ""}
-            loading="eager"
-          />
-          {ocrRegionsVisible && selectedCard?.image?.normal && (
-            <OcrRegionOverlay
+      <CardDetailArt
+        card={selectedCard}
+        widthClass={imageWidthClass}
+        caption={
+          showCapturedImageSlot ? t("cardDetailPanel.matchedCard") : undefined
+        }
+        footer={
+          ocrRegionsVisible &&
+          selectedCard?.image?.normal && (
+            <OcrRegionCrops
               regions={fixedOcrRegions}
               printingMarks={printingMarks}
+              src={selectedCard.image.normal}
+              className={cn(imageWidthClass, "mt-1.5")}
             />
-          )}
-        </div>
+          )
+        }
+      >
         {ocrRegionsVisible && selectedCard?.image?.normal && (
-          <OcrRegionCrops
+          <OcrRegionOverlay
             regions={fixedOcrRegions}
             printingMarks={printingMarks}
-            src={selectedCard.image.normal}
-            className={cn(imageWidthClass, "mt-1.5")}
           />
         )}
-      </figure>
+      </CardDetailArt>
     </>
   );
 
@@ -932,7 +933,7 @@ export function CardDetailPanel({
       )}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {!inCardDrawer && (
-          <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2">
+          <div className={CARD_DETAIL_TOP_BAR_CLASS}>
             <ButtonGroup className="shrink-0">
               <Button
                 size="icon"
@@ -977,18 +978,13 @@ export function CardDetailPanel({
             </Button>
           </div>
         )}
-        <div className="@container flex-1 min-h-0 overflow-y-auto p-4 md:px-3 md:py-2 flex flex-col gap-5 md:gap-2">
-          <div className="flex items-start gap-2">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
-                <h2 className="font-heading font-semibold text-base truncate max-md:whitespace-normal max-md:line-clamp-2">
-                  {cardName}
-                </h2>
-                {headerPrice != null && (
-                  <span className="shrink-0 text-base font-semibold tabular-nums">
-                    {format(headerPrice)}
-                  </span>
-                )}
+        <div className={CARD_DETAIL_SCROLL_CLASS}>
+          <CardDetailTitle
+            name={cardName}
+            price={headerPrice}
+            typeLine={typeLine}
+            badges={
+              <>
                 {!(reviewMode && !isMobile) &&
                   total != null &&
                   currentIndex != null && (
@@ -1047,25 +1043,24 @@ export function CardDetailPanel({
                     })}
                   </Badge>
                 )}
-              </div>
-              {typeLine && (
-                <p className="text-sm text-foreground/70 truncate">
-                  {typeLine}
-                </p>
-              )}
-            </div>
-            {inCardDrawer && currentCard && !editing && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="-mt-1 -mr-2 shrink-0"
-                aria-label={t("cardDetailPanel.actions")}
-                onClick={() => setActionsOpen(true)}
-              >
-                <IconDots />
-              </Button>
-            )}
-          </div>
+              </>
+            }
+            trailing={
+              inCardDrawer &&
+              currentCard &&
+              !editing && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="-mt-1 -mr-2 shrink-0"
+                  aria-label={t("cardDetailPanel.actions")}
+                  onClick={() => setActionsOpen(true)}
+                >
+                  <IconDots />
+                </Button>
+              )
+            }
+          />
           {currentCard && !editing ? (
             <>
               {reviewMode ? (
@@ -1103,40 +1098,26 @@ export function CardDetailPanel({
               <div
                 className={cn(
                   "grid gap-6",
-                  !reviewMode && "@3xl:grid-cols-[auto_minmax(0,1fr)]",
+                  !reviewMode && CARD_DETAIL_BODY_COLUMNS_CLASS,
                 )}
               >
                 {!reviewMode && (
-                  <div className="flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row max-md:grid max-md:grid-cols-2">
-                    {cardImages}
-                  </div>
+                  <div className={CARD_DETAIL_IMAGES_CLASS}>{cardImages}</div>
                 )}
 
                 {selectedCard && (
-                  <div className="flex flex-col gap-6 md:gap-2 min-w-0">
-                    <DetailSection title={t("cardDetailPanel.details")}>
-                      <div className="flex flex-col gap-4 md:gap-2">
-                        <CardDetailsList card={selectedCard} />
-                        {selectedCard.text && (
-                          <p className="rounded-lg bg-foreground/6 p-3 text-sm whitespace-pre-line leading-relaxed">
-                            {selectedCard.text}
-                          </p>
-                        )}
-                      </div>
-                    </DetailSection>
+                  <div className={CARD_DETAIL_SECTIONS_CLASS}>
+                    <CardRulesSection card={selectedCard} />
 
                     {!reviewMode && scanId && scanAttributeControls}
 
-                    <DetailSection title={t("cardDetailPanel.prices")}>
-                      <div className="flex flex-col gap-4 md:gap-2">
-                        <CardPriceDetails
-                          card={selectedCard}
-                          isFoil={draftIsFoil}
-                          foilType={currentFoilType}
-                          stamp={currentStamp}
-                          condition={currentCondition}
-                        />
-                        <CardPurchaseLinks card={selectedCard} />
+                    <CardPricesSection
+                      card={selectedCard}
+                      isFoil={draftIsFoil}
+                      foilType={currentFoilType}
+                      stamp={currentStamp}
+                      condition={currentCondition}
+                    >
                         {scanId && acquisitionCost && (
                           <Field
                             className="w-40"
@@ -1167,8 +1148,7 @@ export function CardDetailPanel({
                             )}
                           </Field>
                         )}
-                      </div>
-                    </DetailSection>
+                    </CardPricesSection>
 
                     {!inCardDrawer &&
                       !editing &&
@@ -1313,8 +1293,8 @@ export function CardDetailPanel({
             </div>
           </div>
         ) : currentCard && !editing ? (
-          <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
-            <div className="flex flex-wrap gap-2 items-center w-full max-md:gap-1.5 max-md:[&>*]:flex-1">
+          <div className={CARD_DETAIL_ACTION_BAR_CLASS}>
+            <div className={CARD_DETAIL_ACTION_ROW_CLASS}>
               {reviewMode && (
                 <Button onClick={acceptInReview}>
                   <IconCheck className="size-4" />

@@ -1,0 +1,45 @@
+{
+  "title": "Recherche",
+  "placeholder": "Rechercher des cartes, collections, emplacements et réglages",
+  "promptTitle": "Tout rechercher",
+  "promptDescription": "Trouvez n'importe quelle carte, dans vos collections ou non, ainsi que des collections, des emplacements de stockage et des réglages.",
+  "emptyTitle": "Aucun résultat",
+  "emptyDescription": "Essayez un autre nom ou une autre orthographe.",
+  "loadFailed": "Impossible de rechercher vos cartes.",
+  "catalogLoadFailed": "Impossible de rechercher dans le catalogue de cartes.",
+  "locationsLoadFailed": "Impossible de charger vos emplacements de stockage.",
+  "foil": "Foil",
+  "locationPosition": "{{location}}, emplacement {{position}}",
+  "resultsCount_one": "{{count}} résultat",
+  "resultsCount_other": "{{count}} résultats",
+  "cardsCount_one": "{{count}} carte",
+  "cardsCount_other": "{{count}} cartes",
+  "sections": {
+    "cards": "Vos cartes",
+    "collections": "Collections",
+    "locations": "Emplacements de stockage",
+    "settings": "Réglages",
+    "catalog": "Toutes les cartes"
+  },
+  "catalogCard": {
+    "title": "Carte",
+    "loadFailed": "Impossible de charger cette carte.",
+    "add": "Ajouter à la collection",
+    "addTo": "Ajouter à {{collection}}",
+    "chooseCollection": "Ajouter à quelle collection ?",
+    "added": "{{name}} ajoutée à {{collection}}",
+    "view": "Voir",
+    "addFailed": "Impossible d'ajouter la carte.",
+    "noCollection": "Créez une collection {{game}} pour ajouter cette carte."
+  },
+  "printings": {
+    "title": "Impressions",
+    "titleWithCount_one": "Impressions ({{count}})",
+    "titleWithCount_other": "Impressions ({{count}})",
+    "count_one": "{{count}} impression",
+    "count_other": "{{count}} impressions",
+    "selected": "Impression {{printing}} affichée",
+    "loadFailed": "Impossible de charger les autres impressions.",
+    "showMore": "Afficher plus d'impressions"
+  }
+}

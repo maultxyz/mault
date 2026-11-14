@@ -27,6 +27,7 @@ import { usesHostHardware } from "@/lib/host";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
+import { SEARCH_PATH } from "@/lib/constants/search";
 
 function TabIcon({ icon, dot, active }: MobileNavTabIconProps) {
   return (
@@ -99,7 +100,7 @@ export function MobileNav() {
         to={MOBILE_HOME_PATH}
         icon={<IconHome size={22} />}
         label={t("mobileTabs.home")}
-        active={pathname.startsWith(MOBILE_HOME_PATH)}
+        active={pathname.startsWith(MOBILE_HOME_PATH) || pathname.startsWith(SEARCH_PATH)}
         badge={hasLiveSessions}
       />
       <MobileNavTab

@@ -1,45 +1,50 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { CardArt } from "@/components/cards/card-art";
-import { AppText } from "@/components/ui/app-text";
-import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
-import { ListGroup } from "@/components/ui/list-group";
-import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
-import { Screen } from "@/components/ui/screen";
-import { SectionHeader } from "@/components/ui/section-header";
-import { Surface } from "@/components/ui/surface";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { useToast } from "@/components/ui/toast-provider";
 import { useAddCatalogCard } from "@/features/cards/api/add-catalog-card";
+import { CardDetailArt } from "@/features/cards/components/card-detail-art";
+import { CardDetailInfoSections } from "@/features/cards/components/card-detail-info-sections";
+import { CardDetailSkeleton } from "@/features/cards/components/card-detail-skeleton";
+import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-title-block";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
-import { catalogCardQueryOptions } from "@/features/search/api/catalog-card-search";
-import { catalogGamesOf } from "@/features/search/lib/catalog-games";
+import { catalogCardQueryOptions, rememberCatalogCard } from "@/features/search/api/catalog-card-search";
+import { CardPrintingsGrid } from "@/features/search/components/card-printings-grid";
 import { usePricing } from "@/hooks/use-pricing";
-import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { CATALOG_CARD_ART_WIDTH } from "@/lib/constants/search";
-import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
-import { cardArtSources } from "@/lib/card-art";
-import type { CatalogCardDetail, CatalogCardRouteParams } from "@/lib/interfaces/search";
+import { useTheme } from "@/hooks/use-theme";
+import { SPACING } from "@/lib/constants/theme";
+import type { CatalogCardRouteParams } from "@/lib/interfaces/search";
+import { catalogGamesOf, type PlayingCard } from "@magic-vault/shared";
 
 export default function CatalogCardScreen() {
   const { t } = useTranslation();
+  const colors = useTheme();
   const { id, gameKey } = useLocalSearchParams<CatalogCardRouteParams>();
   const { collections, collection: scanTargetCollection, collectionsQuery } = useScanTarget();
   const pricing = usePricing();
   const { showToast } = useToast();
   const addCard = useAddCatalogCard();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const [selectedCardId, setSelectedCardId] = useState(id);
   const game = catalogGamesOf(collections, scanTargetCollection?.guid).find((entry) => entry.gameKey === gameKey) ?? null;
-  const { data: card, isPending, isError } = useQuery(catalogCardQueryOptions(game, id));
+  const cardQuery = useQuery({ ...catalogCardQueryOptions(game, selectedCardId), placeholderData: keepPreviousData });
+  const card = cardQuery.data;
   const targets = collections.filter((collection) => collection.game?.key === gameKey);
   const defaultTarget = targets.find((collection) => collection.guid === scanTargetCollection?.guid) ?? targets[0] ?? null;
+  const hasFailed = cardQuery.isError || (!cardQuery.isPending && !card) || (!game && !collectionsQuery.isPending);
+
+  const selectPrinting = (printing: PlayingCard) => {
+    rememberCatalogCard(queryClient, gameKey, printing);
+    setSelectedCardId(printing.id);
+  };
 
   const add = (collectionGuid: string) => {
     if (!card) return;
@@ -67,106 +72,68 @@ export default function CatalogCardScreen() {
     );
   };
 
-  const price = card ? pricing.priceOf(card, false) : null;
-  const foilPrice = card ? pricing.priceOf(card, true) : null;
-  const details = card
-    ? [
-        { key: "set", title: t("catalogCard.set"), value: card.setName || card.set.toUpperCase(), wraps: true },
-        { key: "number", title: t("catalogCard.number"), value: card.collectorNumber ? `#${card.collectorNumber}` : null },
-        { key: "rarity", title: t("catalogCard.rarity"), value: card.rarity || null },
-        { key: "type", title: t("catalogCard.type"), value: card.typeLine || null, wraps: true },
-        { key: "artist", title: t("catalogCard.artist"), value: card.artist || null, wraps: true },
-        { key: "game", title: t("catalogCard.game"), value: game?.gameName ?? null },
-      ].filter((detail): detail is CatalogCardDetail => !!detail.value)
-    : [];
+  const bottomActions =
+    card && targets.length > 0 ? (
+      <Button
+        style={{ flex: 1 }}
+        icon="plus"
+        label={
+          targets.length === 1 && defaultTarget
+            ? t("catalogCard.addTo", { collection: defaultTarget.name })
+            : t("catalogCard.add")
+        }
+        loading={addCard.isPending}
+        disabled={cardQuery.isPlaceholderData}
+        onPress={() => {
+          if (targets.length === 1 && defaultTarget) add(defaultTarget.guid);
+          else setPickerOpen(true);
+        }}
+      />
+    ) : null;
 
   return (
-    <View style={{ flex: 1 }}>
-      <Screen header={<PageHeader title={card?.name ?? t("catalogCard.title")} onBack={() => router.back()} />}>
-        {isError || (!isPending && !card) || (!game && !collectionsQuery.isPending) ? (
-          <Callout tone="destructive" title={t("catalogCard.loadFailed")} />
-        ) : isPending || !card ? (
-          <PageSkeleton />
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
+      <PageHeader title={t("catalogCard.title")} onBack={() => router.back()} />
+      <PinnedActionsLayout actions={bottomActions} actionsDirection="row">
+        {hasFailed ? (
+          <Callout
+            tone="destructive"
+            title={t("catalogCard.loadFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                loading={cardQuery.isFetching}
+                onPress={() => void cardQuery.refetch()}
+              />
+            }
+          />
+        ) : !card ? (
+          <CardDetailSkeleton showsCapturedScan={false} showsAttributePills={false} />
         ) : (
           <>
-            <View style={{ alignItems: "center" }}>
-              <View
-                style={{
-                  width: CATALOG_CARD_ART_WIDTH,
-                  aspectRatio: CARD_ASPECT_RATIO,
-                  borderRadius: CARD_ART_RADIUS,
-                  overflow: "hidden",
-                }}
-              >
-                <CardArt
-                  {...cardArtSources(card.image)}
-                  accessibilityLabel={card.name}
-                  style={{ flex: 1 }}
-                  contentFit="cover"
-                />
-              </View>
-            </View>
-
-            <View style={{ gap: SPACING.sm }}>
-              <SectionHeader title={t("catalogCard.prices")} />
-              <ListGroup>
-                <ListRow
-                  title={t("catalogCard.price")}
-                  value={price != null ? pricing.format(price) : t("catalogCard.noPrice")}
-                />
-                {foilPrice != null && foilPrice !== price ? (
-                  <ListRow title={t("catalogCard.foilPrice")} value={pricing.format(foilPrice)} />
-                ) : null}
-              </ListGroup>
-            </View>
-
-            {details.length > 0 ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("catalogCard.details")} />
-                <ListGroup>
-                  {details.map((detail) => (
-                    detail.wraps ? (
-                      <ListRow key={detail.key} title={detail.title} subtitle={detail.value} subtitleNumberOfLines={0} />
-                    ) : (
-                      <ListRow key={detail.key} title={detail.title} value={detail.value} />
-                    )
-                  ))}
-                </ListGroup>
-              </View>
-            ) : null}
-
-            {card.text ? (
-              <Surface>
-                <AppText size="sm" tone="secondary">
-                  {card.text}
-                </AppText>
-              </Surface>
-            ) : null}
-
-            {targets.length === 0 ? (
+            {targets.length === 0 && !collectionsQuery.isPending ? (
               <Callout tone="info" title={t("catalogCard.noCollection", { game: game?.gameName ?? "" })} />
             ) : null}
+            <CardDetailTitleBlock
+              name={card.name}
+              subtitle={card.typeLine}
+              price={pricing.priceOf(card, { isFoil: false, foilType: null, stamp: null })}
+            />
+            <View style={{ flexDirection: "row", gap: SPACING.md, alignItems: "flex-start" }}>
+              <CardDetailArt card={card} />
+            </View>
+            <CardDetailInfoSections card={card} isFoil={false} foilType={null} stamp={null} />
+            <CardPrintingsGrid
+              game={game}
+              openedCardId={id}
+              selectedCardId={selectedCardId}
+              onSelect={selectPrinting}
+            />
           </>
         )}
-      </Screen>
-
-      {card && targets.length > 0 ? (
-        <BottomActionBar>
-          <Button
-            icon="plus"
-            label={
-              targets.length === 1 && defaultTarget
-                ? t("catalogCard.addTo", { collection: defaultTarget.name })
-                : t("catalogCard.add")
-            }
-            loading={addCard.isPending}
-            onPress={() => {
-              if (targets.length === 1 && defaultTarget) add(defaultTarget.guid);
-              else setPickerOpen(true);
-            }}
-          />
-        </BottomActionBar>
-      ) : null}
+      </PinnedActionsLayout>
 
       <OptionSheet
         visible={pickerOpen}

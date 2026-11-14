@@ -21,7 +21,6 @@ import {
   scanDraftFormSchema,
   type ScanDraftFormValues,
 } from "@magic-vault/shared";
-import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -62,10 +61,10 @@ import type {
 } from "@/lib/interfaces/cards";
 import type { CardCachePatchContext } from "@/lib/interfaces/undo";
 import type { IconName } from "@/lib/interfaces/ui";
-import { CardPriceDetails } from "@/features/cards/components/card-price-details";
-import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
-import { CardDetailsList } from "@/features/cards/components/card-details-list";
+import { CardDetailArt, CardImageFrame } from "@/features/cards/components/card-detail-art";
+import { CardDetailInfoSections } from "@/features/cards/components/card-detail-info-sections";
+import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-title-block";
 import { PricePaidField } from "@/features/cards/components/price-paid-field";
 import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import {
@@ -96,13 +95,11 @@ import {
   CARD_DETAIL_MENU_SHEETS,
   CARD_REVIEW_ACCEPT_MUTATION_KEY,
 } from "@/lib/constants/cards";
-import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { CARD_ART_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { PAGE_HEADER_ICON_BUTTON_SIZE, TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
 import { saveReviewLayout } from "@/lib/review-layout";
-import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
@@ -463,13 +460,6 @@ export default function CardDetailScreen() {
     />
   ) : null;
 
-  const imageFrame = {
-    aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: CARD_ART_RADIUS,
-    overflow: "hidden" as const,
-    backgroundColor: colors.muted,
-  };
-
   const cardDetailSubtitle =
     storageReview && storageContext.data
       ? t("cardDetail.reviewProgress", { index: storageContext.data.index + 1, total: storageContext.data.total })
@@ -611,21 +601,11 @@ export default function CardDetailScreen() {
           <CardDetailSkeleton showsCapturedScan={showCaptured} />
         ) : (
           <>
-            <View style={{ gap: SPACING.xs }}>
-              <AppText size="xl" heading weight="semibold" accessibilityRole="header">
-                {card?.name ?? t("cardDetail.fallbackTitle")}
-              </AppText>
-              {cardDetailSubtitle ? (
-                <AppText size="sm" tone="secondary">
-                  {cardDetailSubtitle}
-                </AppText>
-              ) : null}
-              {price != null ? (
-                <AppText size="lg" heading weight="bold">
-                  {pricing.format(price)}
-                </AppText>
-              ) : null}
-            </View>
+            <CardDetailTitleBlock
+              name={card?.name ?? t("cardDetail.fallbackTitle")}
+              subtitle={cardDetailSubtitle}
+              price={price}
+            />
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
@@ -730,7 +710,7 @@ export default function CardDetailScreen() {
                       />
                     ) : null}
                   </View>
-                  <View style={imageFrame}>
+                  <CardImageFrame>
                     {capturedUrl ? (
                       <Image
                         source={{ uri: capturedUrl }}
@@ -743,26 +723,10 @@ export default function CardDetailScreen() {
                     ) : (
                       <Skeleton height="100%" radius={0} />
                     )}
-                  </View>
+                  </CardImageFrame>
                 </View>
               ) : null}
-              <View style={{ flex: 1, gap: 6 }}>
-                {showCaptured ? (
-                  <AppText size="xs" tone="secondary">
-                    {t("cardDetail.matchedCard")}
-                  </AppText>
-                ) : null}
-                <View style={imageFrame}>
-                  {card ? (
-                    <CardArt
-                      {...cardArtSources(card.image)}
-                      accessibilityLabel={card.name}
-                      style={{ flex: 1 }}
-                      contentFit="cover"
-                    />
-                  ) : null}
-                </View>
-              </View>
+              <CardDetailArt card={card} caption={showCaptured ? t("cardDetail.matchedCard") : undefined} />
             </View>
 
             {reviewMode && entry ? (
@@ -780,25 +744,15 @@ export default function CardDetailScreen() {
             ) : null}
 
             {card ? (
-              <CollapsibleSection title={t("cardDetail.details")} initiallyOpen>
-                <Surface>
-                  <CardDetailsList card={card} binNumber={entry?.binNumber} />
-                </Surface>
-              </CollapsibleSection>
-            ) : null}
-
-            {card ? (
-              <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
-                <Surface style={{ gap: SPACING.md }}>
-                  <CardPriceDetails
-                    card={card}
-                    isFoil={draftFoil != null}
-                    foilType={draftFoil}
-                    stamp={draftStamp}
-                    condition={draftCondition}
-                  />
-                  <CardPurchaseLinks card={card} />
-                  {entry && acquisitionCost.data ? (
+              <CardDetailInfoSections
+                card={card}
+                binNumber={entry?.binNumber}
+                isFoil={draftFoil != null}
+                foilType={draftFoil}
+                stamp={draftStamp}
+                condition={draftCondition}
+                priceExtras={
+                  entry && acquisitionCost.data ? (
                     <PricePaidField
                       label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
                       placeholder={t("cardDetail.pricePaidEmpty")}
@@ -810,9 +764,9 @@ export default function CardDetailScreen() {
                     />
                   ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
                     <PricePaidFieldSkeleton />
-                  ) : null}
-                </Surface>
-              </CollapsibleSection>
+                  ) : null
+                }
+              />
             ) : null}
 
             {hasScanOrigin || entry?.binNumber != null || (entry && origin.isLoading) ? (

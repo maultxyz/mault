@@ -161,3 +161,7 @@ export const MATCH_GAME_LANG_BY_GAME_KEY: Record<string, string> = {
 };
 
 export const MATCH_GAME_KEYS_MAX = 12;
+
+export const CATALOG_RELEASE_DATE_PATTERN = "^[0-9]{4}-[0-9]{2}-[0-9]{2}";
+
+export const CATALOG_LEADING_COLLECTOR_NUMBER_PATTERN = "^[0-9]{1,9}";

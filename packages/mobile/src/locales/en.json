@@ -3257,7 +3257,17 @@
       "settings": "Settings",
       "catalog": "All cards"
     },
-    "catalogLoadFailed": "Couldn't search the card catalog. Pull down to try again."
+    "catalogLoadFailed": "Couldn't search the card catalog. Pull down to try again.",
+    "printings": {
+      "title": "Printings",
+      "titleWithCount_one": "Printings ({{count}})",
+      "titleWithCount_other": "Printings ({{count}})",
+      "count_one": "{{count}} printing",
+      "count_other": "{{count}} printings",
+      "selected": "Showing the {{printing}} printing",
+      "loadFailed": "Couldn't load the other printings.",
+      "showMore": "Show more printings"
+    }
   },
   "recovery": {
     "undo": "Undo",
@@ -3278,17 +3288,6 @@
   "catalogCard": {
     "title": "Card",
     "loadFailed": "Couldn't load this card.",
-    "prices": "Prices",
-    "price": "Price",
-    "foilPrice": "Foil price",
-    "noPrice": "No price yet",
-    "details": "Details",
-    "set": "Set",
-    "number": "Number",
-    "rarity": "Rarity",
-    "type": "Type",
-    "artist": "Artist",
-    "game": "Game",
     "add": "Add to collection",
     "addTo": "Add to {{collection}}",
     "chooseCollection": "Add to which collection?",

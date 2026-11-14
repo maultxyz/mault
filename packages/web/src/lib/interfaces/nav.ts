@@ -64,6 +64,7 @@ export interface MobileNavTabIconProps {
 
 export interface MobilePageHeaderProps {
   title: ReactNode;
+  titleVisuallyHidden?: boolean;
   subtitle?: string;
   subtitleLeading?: ReactNode;
   backTo?: string;

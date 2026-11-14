@@ -3257,7 +3257,17 @@
       "settings": "Réglages",
       "catalog": "Toutes les cartes"
     },
-    "catalogLoadFailed": "Impossible de rechercher dans le catalogue de cartes. Tirez vers le bas pour réessayer."
+    "catalogLoadFailed": "Impossible de rechercher dans le catalogue de cartes. Tirez vers le bas pour réessayer.",
+    "printings": {
+      "title": "Impressions",
+      "titleWithCount_one": "Impressions ({{count}})",
+      "titleWithCount_other": "Impressions ({{count}})",
+      "count_one": "{{count}} impression",
+      "count_other": "{{count}} impressions",
+      "selected": "Impression {{printing}} affichée",
+      "loadFailed": "Impossible de charger les autres impressions.",
+      "showMore": "Afficher plus d'impressions"
+    }
   },
   "recovery": {
     "undo": "Annuler",
@@ -3278,17 +3288,6 @@
   "catalogCard": {
     "title": "Carte",
     "loadFailed": "Impossible de charger cette carte.",
-    "prices": "Prix",
-    "price": "Prix",
-    "foilPrice": "Prix foil",
-    "noPrice": "Pas encore de prix",
-    "details": "Détails",
-    "set": "Extension",
-    "number": "Numéro",
-    "rarity": "Rareté",
-    "type": "Type",
-    "artist": "Artiste",
-    "game": "Jeu",
     "add": "Ajouter à la collection",
     "addTo": "Ajouter à {{collection}}",
     "chooseCollection": "Ajouter à quelle collection ?",

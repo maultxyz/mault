@@ -1,0 +1,45 @@
+{
+  "title": "Search",
+  "placeholder": "Search cards, collections, locations and settings",
+  "promptTitle": "Search everything",
+  "promptDescription": "Find any card, in your collections or not, plus collections, storage locations and settings.",
+  "emptyTitle": "Nothing found",
+  "emptyDescription": "Try a different name or spelling.",
+  "loadFailed": "Couldn't search your cards.",
+  "catalogLoadFailed": "Couldn't search the card catalog.",
+  "locationsLoadFailed": "Couldn't load your storage locations.",
+  "foil": "Foil",
+  "locationPosition": "{{location}}, slot {{position}}",
+  "resultsCount_one": "{{count}} result",
+  "resultsCount_other": "{{count}} results",
+  "cardsCount_one": "{{count}} card",
+  "cardsCount_other": "{{count}} cards",
+  "sections": {
+    "cards": "Your cards",
+    "collections": "Collections",
+    "locations": "Storage locations",
+    "settings": "Settings",
+    "catalog": "All cards"
+  },
+  "catalogCard": {
+    "title": "Card",
+    "loadFailed": "Couldn't load this card.",
+    "add": "Add to collection",
+    "addTo": "Add to {{collection}}",
+    "chooseCollection": "Add to which collection?",
+    "added": "Added {{name}} to {{collection}}",
+    "view": "View",
+    "addFailed": "Couldn't add the card.",
+    "noCollection": "Create a {{game}} collection to add this card."
+  },
+  "printings": {
+    "title": "Printings",
+    "titleWithCount_one": "Printings ({{count}})",
+    "titleWithCount_other": "Printings ({{count}})",
+    "count_one": "{{count}} printing",
+    "count_other": "{{count}} printings",
+    "selected": "Showing the {{printing}} printing",
+    "loadFailed": "Couldn't load the other printings.",
+    "showMore": "Show more printings"
+  }
+}

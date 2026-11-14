@@ -78,6 +78,21 @@ export const CardTile = memo(function CardTile({
             <Icon name={corrected ? "check" : "help"} size={12} color={colors.onStatusStrong} />
           </View>
         ) : null}
+        {selected ? (
+          <View
+            accessible={false}
+            style={{
+              position: "absolute",
+              bottom: SPACING.xs,
+              right: SPACING.xs,
+              padding: 2,
+              borderRadius: RADIUS.full,
+              backgroundColor: colors.primary,
+            }}
+          >
+            <Icon name="check" size={12} color={colors.primaryForeground} />
+          </View>
+        ) : null}
         {quantity && quantity > 1 ? (
           <View
             style={{

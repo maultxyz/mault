@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ImageProps } from "expo-image";
 import type { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import type {
@@ -163,6 +164,32 @@ export interface OcrRegionCropsProps {
 
 export interface CardDetailSkeletonProps {
   showsCapturedScan: boolean;
+  showsAttributePills?: boolean;
+}
+
+export interface CardDetailTitleBlockProps {
+  name: string;
+  subtitle?: string | null;
+  price?: number | null;
+}
+
+export interface CardImageFrameProps {
+  children?: ReactNode;
+}
+
+export interface CardDetailArtProps {
+  card: PlayingCard | undefined;
+  caption?: string;
+}
+
+export interface CardDetailInfoSectionsProps {
+  card: PlayingCard;
+  binNumber?: number;
+  isFoil: boolean;
+  foilType?: string | null;
+  stamp?: string | null;
+  condition?: CardCondition | null;
+  priceExtras?: ReactNode;
 }
 
 export interface SkeletonTextLineProps {

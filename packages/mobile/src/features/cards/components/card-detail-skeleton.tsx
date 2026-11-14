@@ -30,7 +30,7 @@ export function PricePaidFieldSkeleton() {
   );
 }
 
-export function CardDetailSkeleton({ showsCapturedScan }: CardDetailSkeletonProps) {
+export function CardDetailSkeleton({ showsCapturedScan, showsAttributePills = true }: CardDetailSkeletonProps) {
   const { t } = useTranslation();
   const imageFrame = (
     <View style={{ flex: 1, gap: 6 }}>
@@ -53,11 +53,13 @@ export function CardDetailSkeleton({ showsCapturedScan }: CardDetailSkeletonProp
         <SkeletonTextLine fontSize={FONT_SIZE.sm} lineHeight={Math.round(FONT_SIZE.sm * 1.45)} width="50%" />
         <SkeletonTextLine fontSize={FONT_SIZE.lg} lineHeight={Math.round(FONT_SIZE.lg * 1.2)} width="30%" />
       </View>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
-        {CARD_DETAIL_SKELETON_PILL_WIDTHS.map((width, index) => (
-          <Skeleton key={index} width={width} height={PILL_MIN_HEIGHT + 2} radius={BADGE_RADIUS} />
-        ))}
-      </View>
+      {showsAttributePills ? (
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
+          {CARD_DETAIL_SKELETON_PILL_WIDTHS.map((width, index) => (
+            <Skeleton key={index} width={width} height={PILL_MIN_HEIGHT + 2} radius={BADGE_RADIUS} />
+          ))}
+        </View>
+      ) : null}
       <View style={{ flexDirection: "row", gap: SPACING.md, alignItems: "flex-start" }}>
         {showsCapturedScan ? imageFrame : null}
         {imageFrame}

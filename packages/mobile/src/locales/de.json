@@ -3257,7 +3257,17 @@
       "settings": "Einstellungen",
       "catalog": "Alle Karten"
     },
-    "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen."
+    "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen.",
+    "printings": {
+      "title": "Drucke",
+      "titleWithCount_one": "Drucke ({{count}})",
+      "titleWithCount_other": "Drucke ({{count}})",
+      "count_one": "{{count}} Druck",
+      "count_other": "{{count}} Drucke",
+      "selected": "Druck {{printing}} wird angezeigt",
+      "loadFailed": "Die anderen Drucke konnten nicht geladen werden.",
+      "showMore": "Weitere Drucke anzeigen"
+    }
   },
   "recovery": {
     "undo": "Rückgängig",
@@ -3278,17 +3288,6 @@
   "catalogCard": {
     "title": "Karte",
     "loadFailed": "Diese Karte konnte nicht geladen werden.",
-    "prices": "Preise",
-    "price": "Preis",
-    "foilPrice": "Foil-Preis",
-    "noPrice": "Noch kein Preis",
-    "details": "Details",
-    "set": "Set",
-    "number": "Nummer",
-    "rarity": "Seltenheit",
-    "type": "Typ",
-    "artist": "Künstler",
-    "game": "Spiel",
     "add": "Zur Sammlung hinzufügen",
     "addTo": "Zu {{collection}} hinzufügen",
     "chooseCollection": "Zu welcher Sammlung hinzufügen?",

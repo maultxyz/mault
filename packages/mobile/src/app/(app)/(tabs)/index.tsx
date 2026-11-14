@@ -77,7 +77,6 @@ export default function HomeScreen() {
       onRefresh={refresh}
       header={
         <PageHeader
-          title={t("tabs.home")}
           actions={<IconButton icon="search" accessibilityLabel={t("search.open")} onPress={() => router.push("/search")} />}
         />
       }

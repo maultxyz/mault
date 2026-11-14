@@ -66,6 +66,7 @@ import { PlanLockTag } from "@/components/plan-lock-tag";
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
+import { SEARCH_PATH } from "@/lib/constants/search";
 
 function CollapsedNavItem({
   icon,
@@ -397,6 +398,7 @@ export function AppNav() {
   const navItems: NavItemDef[] = [
     {
       to: HOME_PATH,
+      activePaths: [SEARCH_PATH],
       icon: <IconHome size={16} />,
       label: t("nav.home"),
     },

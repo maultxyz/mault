@@ -17,18 +17,17 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { catalogCardSearchQueryOptions, rememberCatalogCard } from "@/features/search/api/catalog-card-search";
 import { ownedCardSearchQueryOptions } from "@/features/search/api/owned-card-search";
-import { catalogGamesOf } from "@/features/search/lib/catalog-games";
 import { searchLocally } from "@/features/search/lib/global-search";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePricing } from "@/hooks/use-pricing";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
-import { GLOBAL_SEARCH_MIN_QUERY_LENGTH } from "@/lib/constants/search";
 import { SETTINGS_SECTION_LINKS } from "@/lib/constants/settings";
 import { SPACING } from "@/lib/constants/theme";
 import type { CatalogCardResult } from "@/lib/interfaces/search";
 import { absoluteUrl } from "@/lib/url";
+import { catalogGamesOf, GLOBAL_SEARCH_MIN_QUERY_LENGTH } from "@magic-vault/shared";
 
 export default function GlobalSearchScreen() {
   const { t } = useTranslation();
@@ -59,7 +58,7 @@ export default function GlobalSearchScreen() {
   const cardResults = searchesCards ? (cards.data ?? []) : [];
   const catalogResults: CatalogCardResult[] = searchesCards
     ? catalogQueries.flatMap((catalogQuery, index) =>
-        (catalogQuery.data ?? []).map((card) => ({ game: catalogGames[index], card })),
+        (catalogQuery.data ?? []).map(({ card, printingCount }) => ({ game: catalogGames[index], card, printingCount })),
       )
     : [];
   const isSearchingCatalog = searchesCards && catalogQueries.some((catalogQuery) => catalogQuery.isLoading);
@@ -154,7 +153,7 @@ export default function GlobalSearchScreen() {
                 <ListSkeleton rows={3} />
               ) : (
                 <ListGroup>
-                  {catalogResults.map(({ game, card }) => {
+                  {catalogResults.map(({ game, card, printingCount }) => {
                     const artSources = cardArtSources(card.image);
                     const price = pricing.priceOf(card);
                     return (
@@ -166,6 +165,7 @@ export default function GlobalSearchScreen() {
                           card.collectorNumber ? `#${card.collectorNumber}` : null,
                           showsGameName ? game.gameName : null,
                           price != null ? pricing.format(price) : null,
+                          printingCount > 1 ? t("search.printings.count", { count: printingCount }) : null,
                         ]
                           .filter(Boolean)
                           .join(" · ")}
